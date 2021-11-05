@@ -1,0 +1,7 @@
+{
+  "files.exclude": {
+    "node_modules": true
+  },
+  "typescript.preferences.importModuleSpecifier": "project-relative",
+  "typescript.preferences.importModuleSpecifierEnding": "index"
+}
