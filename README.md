@@ -1,3 +1,64 @@
+## Features To Implement
+
+- [ ] Reactive Outputs
+  - [x] TextNode (🔑)
+  - [ ] CommentNode (🚀)
+  - [ ] ElementNode (🔑)
+  - [ ] AttributeNode (🔑)
+  - [ ] FragmentNode (🔑)
+- [ ] Testing
+  - [x] Staticness (🔑)
+  - [x] Constness (🔑)
+  - [ ] Stability (🔑)
+  - [ ] Revalidation efficiency (🥇)
+- [ ] Reactive Inputs
+  - [x] Cell (🔑)
+  - [x] Static (🔑)
+  - [ ] Record (🔑)
+  - [ ] Choice (🔑)
+  - [ ] Function (🔑)
+    - [ ] with arbitrary interior access, _required for user-facing functions_ (🔑)
+    - [ ] without arbitrary interior access, _required to propagate staticness_ (🔑)
+- [ ] Reactive Effects
+  - [ ] MVP: A single timing (🔑)
+  - [ ] Design for Event Handlers that mutate cells (🔑)
+  - [ ] Timing Buckets (🚀)
+- [ ] A single top-down revalidation entry-point (🔑)
+- [ ] Rehydration
+  - [ ] Without Repair (🥈)
+  - [ ] Repair (🥈)
+  - [ ] Streaming Render (🥇)
+- [ ] Adapters
+  - [ ] React-like (🚀)
+  - [ ] Glimmer-like (🚀)
+  - [ ] Redux-like (🥈)
+  - [ ] Mobx-like (🥈)
+  - [ ] Vue-like (🥇)
+  - [ ] Svelte-like (🥇)
+- [ ] Guides
+  - [ ] Porting the Ember component guide (🚀)
+  - [ ] A new tutorial (🚀)
+  - [ ] Idiomatic usage (🥈)
+  - [ ] Rosetta Stone
+    - [ ] For React users (🚀)
+    - [ ] For Glimmer users (🚀)
+    - [ ] For Vue users (🥈)
+    - [ ] For Svelte users (🥈)
+
+> 💡 A component is a function that takes a reactive value and returns a reactive
+> output (including a fragment node).
+
+> 💡 Timing bucket considerations: microtask queue, observer timing, paint, task queue
+
+|     |                           |
+| --- | ------------------------- |
+| 🔑  | Unlocks Parallel Progress |
+| 🚀  | Required for Launch       |
+| 🥈  | Preferred for Launch      |
+| 🥇  | Stretch Goal              |
+
+## Quick Example
+
 ```ts
 let timeline = new Timeline();
 
@@ -217,3 +278,26 @@ impl Deref
 ```
 
 ## Rehydration
+
+### Glimmer 3
+
+Starbeam's primary goal is to turn the lessons we learned building Glimmer into a general-purpose reactive view layer for the web.
+
+We also see Starbeam as the next-generation rendering engine for Glimmer (and therefore Ember).
+
+For feature parity with Glimmer, we need:
+
+- [ ] all of the goals in [features to implement]
+- [ ] a mapping from Handlebars source code to Starbeam semantics
+- [ ] an API compatibility layer
+
+The API compatibility layer should be relatively simple, since almost the entire surface area of Glimmer is exposed via Handlebars syntax.
+
+For Ember compatibility, we will need:
+
+- [ ] support for the stable APIs exposed in [RFC 496] and friends
+- [ ] a feature flag in Ember (similar to Glimmer 2's strategy)
+- [ ] enough time for the ecosystem to identify and fix bugs
+
+[features to implement]: #features-to-implement
+[rfc 496]: https://emberjs.github.io/rfcs/0496-handlebars-strict-mode.html
