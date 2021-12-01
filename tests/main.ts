@@ -1,1 +1,1 @@
-import "./timeline.spec";
+import "./text.spec";

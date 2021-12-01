@@ -19,6 +19,7 @@ export interface DomTypes {
 
 export interface DomImplementation<T extends DomTypes> {
   createTextNode(value: string): T["text"];
+  updateTextNode(node: T["text"], value: string): void;
   insertChild(
     child: T["node"],
     parent: T["element"],
@@ -76,6 +77,10 @@ export class SimpleDomImplementation
 
   createTextNode(value: string): SimpleText {
     return this.#document.createTextNode(value);
+  }
+
+  updateTextNode(node: SimpleText, value: string): void {
+    node.nodeValue = value;
   }
 
   insertChild(

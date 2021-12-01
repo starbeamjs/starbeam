@@ -1,4 +1,5 @@
 import { DomImplementation, DomTypes } from "../dom/implementation";
+import { Timeline } from "../index";
 import { Reactive } from "../reactive/interface";
 
 export interface BuildMetadata {
@@ -14,10 +15,12 @@ export interface Output<T extends DomTypes, N extends T[keyof T]> {
 }
 
 export interface RenderMetadata {
-  readonly isStatic: boolean;
+  isConstant: boolean;
 }
 
 export interface Rendered<T extends DomTypes, N extends T[keyof T]> {
   readonly metadata: RenderMetadata;
   readonly node: N;
+
+  poll(dom: DomImplementation<T>): void;
 }

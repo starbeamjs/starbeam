@@ -66,4 +66,8 @@ export class Timeline<T extends DomTypes = DomTypes> {
   render<N extends T[keyof T]>(output: Output<T, N>): Rendered<T, N> {
     return output.render(this.#document);
   }
+
+  poll<N extends T[keyof T]>(rendered: Rendered<T, N>) {
+    rendered.poll(this.#document);
+  }
 }

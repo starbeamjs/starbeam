@@ -1,12 +1,6 @@
 import { DomImplementation, DomTypes } from "../dom/implementation";
 import { Reactive } from "../reactive/interface";
-import {
-  BuildMetadata,
-  Output,
-  OutputBuilder,
-  Rendered,
-  RenderMetadata,
-} from "./output";
+import { BuildMetadata, Output, Rendered, RenderMetadata } from "./output";
 
 export class ReactiveTextNode<T extends DomTypes>
   implements Output<T, T["text"]>
@@ -42,12 +36,16 @@ export class RenderedTextNode<T extends DomTypes>
 
   get metadata(): RenderMetadata {
     return {
-      isStatic: this.#reactive.metadata.isStatic,
+      isConstant: this.#reactive.metadata.isStatic,
     };
   }
 
   get node(): T["text"] {
     return this.#node;
+  }
+
+  poll(dom: DomImplementation<T>): void {
+    dom.updateTextNode(this.#node, this.#reactive.current);
   }
 }
 
