@@ -1,5 +1,5 @@
-import { BUMP, NOW, Timeline, Timestamp } from "../index";
-import { CONSUME, ReactivityTimeline } from "../timeline/timeline";
+import { BUMP, CONSUME, NOW, ReactivityTimeline } from "../timeline/timeline";
+import { Timestamp } from "../timeline/timestamp";
 import { Reactive } from "./core";
 
 export class Cell<T> implements Reactive<T> {

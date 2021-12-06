@@ -1,4 +1,5 @@
 import { DomImplementation, DomTypes } from "../dom/implementation";
+import { ChildNodeCursor } from "../index";
 import { Reactive } from "../reactive/core";
 import {
   AnyOutput,
@@ -35,15 +36,20 @@ export class ReactiveElementNode<T extends DomTypes>
     this.#children = children;
   }
 
-  render(dom: DomImplementation<T>): RenderedElementNode<T> {
+  render(
+    dom: DomImplementation<T>,
+    cursor: ChildNodeCursor<T>
+  ): RenderedElementNode<T> {
     let element = dom.createElement(this.#tagName.current);
+    let childNodeCursor = dom.createAppendingCursor(element, null);
 
     let children = this.#children.map((output) => {
-      let rendered = output.render(dom);
+      let rendered = output.render(dom, childNodeCursor);
       dom.insertChild(rendered.node, element, null);
       return rendered;
     });
 
+    cursor.insert(element);
     return RenderedElementNode.create(element, this.#tagName, children);
   }
 }
@@ -59,6 +65,10 @@ export class RenderedElementNode<T extends DomTypes>
     let metadata = {
       isConstant:
         Reactive.isStatic(tagName) && children.every(Rendered.isConstant),
+      isStable: {
+        firstNode: true,
+        lastNode: true,
+      },
     };
 
     return new RenderedElementNode(node, tagName, children, metadata);

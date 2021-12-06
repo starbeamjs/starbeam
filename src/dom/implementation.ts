@@ -1,4 +1,4 @@
-import { Cursor } from "./cursor";
+import { ChildNodeCursor } from "./cursor";
 
 import {
   SimpleDocument,
@@ -20,19 +20,32 @@ export interface DomTypes {
 export type DomType<T extends DomTypes> = T[keyof T];
 
 export interface DomImplementation<T extends DomTypes> {
+  /*
+   * This really should take a ParentNode, which is Element | Fragment | Document
+   * (?), but for now, it's just an element.
+   */
+  createAppendingCursor(
+    parentNode: T["element"],
+    nextSibling: T["node"]
+  ): ChildNodeCursor<T>;
   createTextNode(value: string): T["text"];
-  updateTextNode(node: T["text"], value: string): void;
   insertChild(
     child: T["node"],
     parent: T["element"],
     nextSibling: T["node"]
-  ): Cursor<T>;
+  ): void;
   createElement(tagName: string): T["element"];
   initializeAttribute(
     parent: T["element"],
     name: [string, string | null],
     value: string
   ): void;
+
+  createUpdatingCursor(
+    parentNode: T["element"],
+    nextSibling: T["node"]
+  ): ChildNodeCursor<T>;
+  updateTextNode(node: T["text"], value: string): void;
   updateAttribute(
     parent: T["element"],
     name: [string, string | null],
@@ -78,6 +91,19 @@ export class SimpleDomImplementation
     this.#profile = profile;
   }
 
+  createUpdatingCursor(
+    parentNode: SimpleElement,
+    nextSibling: SimpleNode
+  ): ChildNodeCursor<SimpleDomTypes> {
+    return ChildNodeCursor.inserting(parentNode, nextSibling, this);
+  }
+
+  createAppendingCursor(
+    parentNode: SimpleElement
+  ): ChildNodeCursor<SimpleDomTypes> {
+    return ChildNodeCursor.appending(parentNode, this);
+  }
+
   createTextNode(value: string): SimpleText {
     return this.#document.createTextNode(value);
   }
@@ -90,9 +116,8 @@ export class SimpleDomImplementation
     child: SimpleNode,
     parent: SimpleElement,
     nextSibling: SimpleNode | null
-  ): Cursor<SimpleDomTypes> {
+  ): void {
     parent.insertBefore(child, nextSibling);
-    return new Cursor(parent, nextSibling, this);
   }
 
   /* This API currently doesn't support SVG. In order to support SVG, we need a

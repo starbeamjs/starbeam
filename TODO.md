@@ -9,10 +9,13 @@
     - [ ] With interior access
     - [ ] Without interior access
 - [ ] Reactive Outputs
+  - [ ] DOMTreeBuilder vs. DOMTreeUpdater
   - [ ] Element
   - [ ] Attribute
   - [ ] Fragment
 - [ ] Effects
+- [ ] Structural Improvements
+  - [ ] render returns a generator (or maybe async)
 
 # Timeline
 

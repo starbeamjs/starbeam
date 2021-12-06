@@ -1,7 +1,4 @@
 import { Expects, test } from "./support";
-import * as support from "./support";
-
-support.setupJest();
 
 test("dynamic text", ({ timeline, test }) => {
   let cell = timeline.reactive("hello");

@@ -5,7 +5,7 @@ import {
   SimpleDomImplementation,
   SimpleDomTypes,
 } from "../dom/implementation";
-import { DOM } from "../dom/index";
+import { ChildNodeCursor, DOM } from "../dom/index";
 import { Output, Rendered } from "../output/output";
 import { Cell } from "../reactive/cell";
 import { Reactive } from "../reactive/core";
@@ -48,12 +48,12 @@ export class Timeline<T extends DomTypes = DomTypes>
   }
 
   #now = new Timestamp(1);
-  readonly #document: DomImplementation<T>;
+  readonly #domImplementation: DomImplementation<T>;
 
   readonly dom: DOM<T> = new DOM();
 
   constructor(document: DomImplementation<T>) {
-    this.#document = document;
+    this.#domImplementation = document;
   }
 
   [NOW](): Timestamp {
@@ -79,11 +79,24 @@ export class Timeline<T extends DomTypes = DomTypes>
     return new ReactiveRecord(dict);
   }
 
-  render<N extends T[keyof T]>(output: Output<T, N>): Rendered<T, N> {
-    return output.render(this.#document);
+  renderIntoElement<N extends T[keyof T]>(
+    output: Output<T, N>,
+    parentNode: T["element"]
+  ): Rendered<T, N> {
+    return output.render(
+      this.#domImplementation,
+      ChildNodeCursor.appending(parentNode, this.#domImplementation)
+    );
+  }
+
+  render<N extends T[keyof T]>(
+    output: Output<T, N>,
+    cursor: ChildNodeCursor<T>
+  ): Rendered<T, N> {
+    return output.render(this.#domImplementation, cursor);
   }
 
   poll<N extends T[keyof T]>(rendered: Rendered<T, N>) {
-    rendered.poll(this.#document);
+    rendered.poll(this.#domImplementation);
   }
 }

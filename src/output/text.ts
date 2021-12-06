@@ -37,6 +37,10 @@ export class RenderedTextNode<T extends DomTypes>
   get metadata(): RenderMetadata {
     return {
       isConstant: this.#reactive.metadata.isStatic,
+      isStable: {
+        firstNode: true,
+        lastNode: true
+      }
     };
   }
 

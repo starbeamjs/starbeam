@@ -1,4 +1,5 @@
 import { DomImplementation, DomType, DomTypes } from "../dom/implementation";
+import { ChildNodeCursor } from "../index";
 import { Reactive } from "../reactive/core";
 
 export interface BuildMetadata {
@@ -10,7 +11,7 @@ export type OutputBuilder<In, Out> = (input: Reactive<In>) => Out;
 export interface Output<T extends DomTypes, N extends T[keyof T]> {
   readonly metadata: BuildMetadata;
 
-  render(dom: DomImplementation<T>): Rendered<T, N>;
+  render(dom: DomImplementation<T>, cursor: ChildNodeCursor<T>): Rendered<T, N>;
 }
 
 export type StaticOutput<T extends DomTypes, N extends DomType<T>> = Output<
@@ -50,6 +51,10 @@ export type AnyOutput<T extends DomTypes> = Output<T, DomType<T>>;
 
 export interface RenderMetadata {
   isConstant: boolean;
+  isStable: {
+    firstNode: boolean;
+    lastNode: boolean;
+  };
 }
 
 export interface Rendered<T extends DomTypes, N extends T[keyof T]> {

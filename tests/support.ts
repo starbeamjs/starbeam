@@ -2,7 +2,7 @@ import * as starbeam from "../src/index";
 export { starbeam };
 import type * as dom from "@simple-dom/interface";
 import { upstream } from "./jest-ext";
-import { DomImplementation, DomType } from "../src/index";
+import { createDocument } from "simple-dom";
 export { dom };
 
 export enum Expects {
@@ -21,7 +21,7 @@ export function test(
   def: (args: TestArgs) => void | Promise<void>
 ): void {
   upstream.test(name, () => {
-    let support = new TestSupport();
+    let support = TestSupport.create();
     return def({
       test: support,
       timeline: support.timeline,
@@ -31,8 +31,20 @@ export function test(
 }
 
 class TestSupport {
-  readonly timeline = starbeam.Timeline.simpleDOM();
-  readonly dom = this.timeline.dom;
+  static create(document = createDocument()): TestSupport {
+    return new TestSupport(document);
+  }
+
+  readonly timeline: starbeam.Timeline<starbeam.SimpleDomTypes>;
+  readonly dom: starbeam.DOM<starbeam.SimpleDomTypes>;
+
+  #document: dom.SimpleDocument;
+
+  private constructor(document: dom.SimpleDocument) {
+    this.#document = document;
+    this.timeline = starbeam.Timeline.simpleDOM(document);
+    this.dom = this.timeline.dom;
+  }
 
   buildText(
     reactive: starbeam.Reactive<string>,
@@ -59,7 +71,8 @@ class TestSupport {
     text: starbeam.Output<starbeam.SimpleDomTypes, N>,
     expectation: Expects
   ): starbeam.Rendered<starbeam.SimpleDomTypes, N> {
-    let rendered = this.timeline.render(text);
+    let element = this.#document.createElement("div");
+    let rendered = this.timeline.renderIntoElement(text, element);
 
     expect(
       normalize(rendered.metadata.isConstant),
@@ -77,16 +90,4 @@ export type Test = (args: {
 
 function normalize(isStatic: boolean): Expects {
   return isStatic ? Expects.static : Expects.dynamic;
-}
-
-export let TEST: TestSupport = new TestSupport();
-export let TIMELINE: starbeam.Timeline<starbeam.SimpleDomTypes>;
-
-export function initialize(): void {
-  TEST = new TestSupport();
-  TIMELINE = TEST.timeline;
-}
-
-export function setupJest() {
-  afterEach(initialize);
 }

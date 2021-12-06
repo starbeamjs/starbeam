@@ -1,12 +1,27 @@
 import { AttrNamespace } from "@simple-dom/interface";
 import { DomImplementation, DomTypes } from "./implementation";
 
-export class Cursor<T extends DomTypes> {
+export class ChildNodeCursor<T extends DomTypes> {
+  static appending<T extends DomTypes>(
+    parent: T["element"],
+    implementation: DomImplementation<T>
+  ): ChildNodeCursor<T> {
+    return new ChildNodeCursor(parent, null, implementation);
+  }
+
+  static inserting<T extends DomTypes>(
+    parent: T["element"],
+    nextSibling: T["node"],
+    implementation: DomImplementation<T>
+  ): ChildNodeCursor<T> {
+    return new ChildNodeCursor(parent, nextSibling, implementation);
+  }
+
   readonly #parent: T["element"];
   readonly #nextSibling: T["node"] | null;
   readonly #implementation: DomImplementation<T>;
 
-  constructor(
+  private constructor(
     parent: T["element"],
     nextSibling: T["node"] | null,
     implementation: DomImplementation<T>
@@ -16,12 +31,10 @@ export class Cursor<T extends DomTypes> {
     this.#implementation = implementation;
   }
 
-  append(node: T["node"]): Cursor<T> {
-    return this.#implementation.insertChild(
-      node,
-      this.#parent,
-      this.#nextSibling
-    );
+  insert(node: T["node"]): ChildNodeCursor<T> {
+    this.#implementation.insertChild(node, this.#parent, this.#nextSibling);
+
+    return this;
   }
 }
 
