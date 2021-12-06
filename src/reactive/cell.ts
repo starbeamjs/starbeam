@@ -1,13 +1,13 @@
 import { BUMP, NOW, Timeline, Timestamp } from "../index";
-import { CONSUME } from "../timeline/timeline";
-import { Reactive } from "./interface";
+import { CONSUME, ReactivityTimeline } from "../timeline/timeline";
+import { Reactive } from "./core";
 
 export class Cell<T> implements Reactive<T> {
   #value: T;
   #lastUpdate: Timestamp;
-  #timeline: Timeline;
+  #timeline: ReactivityTimeline;
 
-  constructor(value: T, timeline: Timeline) {
+  constructor(value: T, timeline: ReactivityTimeline) {
     this.#value = value;
     this.#timeline = timeline;
     this.#lastUpdate = timeline[NOW]();

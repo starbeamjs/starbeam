@@ -8,16 +8,28 @@ import {
 import { DOM } from "../dom/index";
 import { Output, Rendered } from "../output/output";
 import { Cell } from "../reactive/cell";
-import { Reactive } from "../reactive/interface";
+import { Reactive } from "../reactive/core";
 import { SimpleDocument } from "@simple-dom/interface";
 import { Static } from "../reactive/static";
 import { createDocument } from "simple-dom";
+import { InnerDict, ReactiveRecord } from "../reactive/record";
 
 export const NOW = Symbol("NOW");
 export const BUMP = Symbol("BUMP");
 export const CONSUME = Symbol("CONSUME");
 
-export class Timeline<T extends DomTypes = DomTypes> {
+export interface ReactivityTimeline {
+  // Returns the current timestamp
+  [NOW](): Timestamp;
+  // Increment the current timestamp and return the incremented timestamp.
+  [BUMP](): Timestamp;
+  // TODO
+  [CONSUME](_reactive: Reactive<unknown>): void;
+}
+
+export class Timeline<T extends DomTypes = DomTypes>
+  implements ReactivityTimeline
+{
   /**
    * Create a new timeline in order to manage outputs using SimpleDOM. It's safe
    * to use SimpleDOM with the real DOM as long as you don't need runtime
@@ -61,6 +73,10 @@ export class Timeline<T extends DomTypes = DomTypes> {
 
   static<T>(value: T): Static<T> {
     return new Static(value);
+  }
+
+  record<T extends InnerDict>(dict: T): ReactiveRecord<T> {
+    return new ReactiveRecord(dict);
   }
 
   render<N extends T[keyof T]>(output: Output<T, N>): Rendered<T, N> {

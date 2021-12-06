@@ -1,7 +1,18 @@
-- [ ] talk through starbeam repo
-- [ ] walk through glimmer-validator
-- [ ] structural improvement
-  - [ ] what you can work on while I'm on vacation
+- [x] talk through starbeam repo
+- [x] walk through glimmer-validator
+- [x] structural improvement
+  - [x] what you can work on while I'm on vacation
+- [ ] Reactive Primitives
+  - [ ] Record
+  - [ ] Choice
+  - [ ] Function
+    - [ ] With interior access
+    - [ ] Without interior access
+- [ ] Reactive Outputs
+  - [ ] Element
+  - [ ] Attribute
+  - [ ] Fragment
+- [ ] Effects
 
 # Timeline
 

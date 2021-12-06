@@ -17,6 +17,8 @@ export interface DomTypes {
   element: unknown;
 }
 
+export type DomType<T extends DomTypes> = T[keyof T];
+
 export interface DomImplementation<T extends DomTypes> {
   createTextNode(value: string): T["text"];
   updateTextNode(node: T["text"], value: string): void;
@@ -25,6 +27,7 @@ export interface DomImplementation<T extends DomTypes> {
     parent: T["element"],
     nextSibling: T["node"]
   ): Cursor<T>;
+  createElement(tagName: string): T["element"];
   initializeAttribute(
     parent: T["element"],
     name: [string, string | null],
@@ -90,6 +93,19 @@ export class SimpleDomImplementation
   ): Cursor<SimpleDomTypes> {
     parent.insertBefore(child, nextSibling);
     return new Cursor(parent, nextSibling, this);
+  }
+
+  /* This API currently doesn't support SVG. In order to support SVG, we need a
+   * DOM Tree Builder (a la DOMChangeList) that keeps the current parent node as
+   * state, and uses the [HTML5 parsing algorithm] to determine what namespace
+   * the element should be in (as well as making any adjustments to the element
+   * name that are necessary for `createElement`).
+   *
+   * [html5 parsing algorithm]:
+   * https://html.spec.whatwg.org/multipage/parsing.html#insert-an-html-element
+   */
+  createElement(tagName: string): SimpleElement {
+    return this.#document.createElement(tagName);
   }
 
   initializeAttribute(

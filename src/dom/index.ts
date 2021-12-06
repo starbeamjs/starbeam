@@ -1,5 +1,6 @@
+import { ReactiveElementBuilder } from "../output/element";
 import { ReactiveTextNode } from "../output/text";
-import { Reactive } from "../reactive/interface";
+import { Reactive } from "../reactive/core";
 import { DomTypes } from "./implementation";
 
 export const APPEND = Symbol("APPEND");
@@ -9,8 +10,8 @@ export class DOM<T extends DomTypes> {
     return new ReactiveTextNode(data);
   }
 
-  element(tagName: Reactive<string>): ReactiveElement<T> {
-    return new ReactiveElement(data);
+  element(tagName: Reactive<string>): ReactiveElementBuilder<T> {
+    return new ReactiveElementBuilder(tagName);
   }
 }
 

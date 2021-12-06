@@ -1,5 +1,5 @@
 import { DomImplementation, DomTypes } from "../dom/implementation";
-import { Reactive } from "../reactive/interface";
+import { Reactive } from "../reactive/core";
 import { BuildMetadata, Output, Rendered, RenderMetadata } from "./output";
 
 export class ReactiveTextNode<T extends DomTypes>
