@@ -104,6 +104,19 @@ export class RenderedElementNode<T extends DomTypes>
   }
 }
 
+// https://html.spec.whatwg.org/multipage/parsing.html#insert-a-foreign-element
+enum Prefix {
+  Xlink,
+  Xml,
+  XmlNs,
+}
+
+interface ReactiveAttribute {
+  name: string;
+  prefix?: Prefix;
+  value: Reactive<string | null>;
+}
+
 export class ReactiveElementBuilder<T extends DomTypes> {
   static build<T extends DomTypes>(
     tagName: Reactive<string>,
@@ -116,6 +129,7 @@ export class ReactiveElementBuilder<T extends DomTypes> {
 
   readonly #tagName: Reactive<string>;
   readonly #children: AnyOutput<T>[] = [];
+  readonly #attributes: ReactiveAttribute[] = [];
 
   constructor(tagName: Reactive<string>) {
     this.#tagName = tagName;
@@ -123,6 +137,11 @@ export class ReactiveElementBuilder<T extends DomTypes> {
 
   append(output: AnyOutput<T>): this {
     this.#children.push(output);
+    return this;
+  }
+
+  attribute(attribute: ReactiveAttribute): this {
+    this.#attributes.push(attribute);
     return this;
   }
 

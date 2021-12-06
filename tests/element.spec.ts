@@ -48,3 +48,37 @@ test("a simple element containing a text node (static) ", ({
 
   expect(result.node.nodeValue).toBe("Chi");
 });
+
+test("a simple element containing a text node (dynamic) ", ({
+  timeline,
+  dom,
+  test,
+}) => {
+  let name = timeline.reactive("Chirag");
+  let title = timeline.reactive("Chirag's name");
+
+  let element = test.buildElement(
+    timeline.static("div"),
+    (b) => {
+      b.attribute({ name: "title", value: title });
+      b.append(dom.text(name));
+    },
+    Expects.dynamic
+  );
+
+  let result = test.render(element, Expects.dynamic);
+  expect(result.node.tagName).toBe("DIV");
+  expect(result.node.firstChild).toMatchObject({
+    nodeType: 3,
+    nodeValue: "Chirag",
+  });
+
+  name.update("Chi");
+  timeline.poll(result);
+
+  expect(result.node.tagName).toBe("DIV");
+  expect(result.node.firstChild).toMatchObject({
+    nodeType: 3,
+    nodeValue: "Chi",
+  });
+});
