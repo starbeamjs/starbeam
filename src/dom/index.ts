@@ -1,4 +1,5 @@
 import { ReactiveTextNode } from "../output/text";
+import { ReactiveElementNode } from "../output/element";
 import { Reactive } from "../reactive/interface";
 import { DomTypes } from "./implementation";
 
@@ -9,8 +10,8 @@ export class DOM<T extends DomTypes> {
     return new ReactiveTextNode(data);
   }
 
-  element(tagName: Reactive<string>): ReactiveElement<T> {
-    return new ReactiveElement(data);
+  element(_tagName: Reactive<string>): ReactiveElementNode<T> {
+    return new ReactiveElementNode();
   }
 }
 

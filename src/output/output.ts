@@ -1,5 +1,4 @@
 import { DomImplementation, DomTypes } from "../dom/implementation";
-import { Timeline } from "../index";
 import { Reactive } from "../reactive/interface";
 
 export interface BuildMetadata {
