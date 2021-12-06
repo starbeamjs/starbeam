@@ -10,7 +10,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "serve": "vite preview",
-    "test": "jest"
+    "test": "jest",
+    "typecheck": "tsc"
   },
   "devDependencies": {
     "@alex_neo/jest-expect-message": "^1.0.5",

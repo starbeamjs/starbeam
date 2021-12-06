@@ -10,8 +10,8 @@ export class DOM<T extends DomTypes> {
     return new ReactiveTextNode(data);
   }
 
-  element(tagName: Reactive<string>): ReactiveElementBuilder<T> {
-    return new ReactiveElementBuilder(tagName);
+  element(_tagName: Reactive<string>): ReactiveElementBuilder<T> {
+    return new ReactiveElementBuilder(_tagName);
   }
 }
 

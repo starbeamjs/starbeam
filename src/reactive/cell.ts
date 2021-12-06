@@ -4,6 +4,7 @@ import { Reactive } from "./core";
 
 export class Cell<T> implements Reactive<T> {
   #value: T;
+  // @ts-ignore: Unused variable
   #lastUpdate: Timestamp;
   #timeline: ReactivityTimeline;
 
