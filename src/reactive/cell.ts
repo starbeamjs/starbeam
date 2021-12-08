@@ -1,6 +1,7 @@
 import { BUMP, CONSUME, NOW, ReactivityTimeline } from "../timeline/timeline";
 import { Timestamp } from "../timeline/timestamp";
 import { Reactive } from "./core";
+import { REACTIVE_BRAND } from "./internal";
 
 export class Cell<T> implements Reactive<T> {
   #value: T;
@@ -9,6 +10,7 @@ export class Cell<T> implements Reactive<T> {
   #timeline: ReactivityTimeline;
 
   constructor(value: T, timeline: ReactivityTimeline) {
+    REACTIVE_BRAND.brand(this);
     this.#value = value;
     this.#timeline = timeline;
     this.#lastUpdate = timeline[NOW]();

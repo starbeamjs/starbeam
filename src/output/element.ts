@@ -106,16 +106,30 @@ export class RenderedElementNode<T extends DomTypes>
 
 // https://html.spec.whatwg.org/multipage/parsing.html#insert-a-foreign-element
 enum Prefix {
-  Xlink,
-  Xml,
-  XmlNs,
+  xlink = "xlink",
+  xml = "xml",
+  xmlns = "xmlns",
 }
 
-interface ReactiveAttribute {
+export function intoPrefix(prefix: "xlink" | "xml" | "xmlns"): Prefix;
+export function intoPrefix(prefix: string): Prefix | null;
+export function intoPrefix(prefix: string): Prefix | null {
+  if (prefix === "xlink" || prefix === "xml" || prefix === "xmlns") {
+    return Prefix[prefix];
+  } else {
+    return null;
+  }
+}
+
+export interface ReactiveAttribute {
   name: string;
   prefix?: Prefix;
   value: Reactive<string | null>;
 }
+
+export type ReactiveElementBuilderCallback<T extends DomTypes> = (
+  builder: ReactiveElementBuilder<T>
+) => void;
 
 export class ReactiveElementBuilder<T extends DomTypes> {
   static build<T extends DomTypes>(

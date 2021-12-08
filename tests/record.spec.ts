@@ -1,4 +1,4 @@
-import { Expects, test } from "./support";
+import { test, Expects } from "./support";
 
 test("a record is a reactive value", ({ timeline, test }) => {
   let first = timeline.reactive("Tom");

@@ -1,4 +1,4 @@
-import { Expects, test } from "./support";
+import { test, Expects } from "./support";
 
 test("a simple element containing a text node (dynamic) ", ({
   timeline,
@@ -58,10 +58,10 @@ test("a simple element containing a text node (dynamic) ", ({
   let title = timeline.reactive("Chirag's name");
 
   let element = test.buildElement(
-    timeline.static("div"),
-    (b) => {
-      b.attribute({ name: "title", value: title });
-      b.append(dom.text(name));
+    "div",
+    {
+      attributes: { title },
+      children: [dom.text(name)],
     },
     Expects.dynamic
   );

@@ -15,5 +15,5 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true
   },
-  "include": ["./src", "./tests", "vite.config.ts"]
+  "include": ["./src", "./tests/**/*.spec.ts", "vite.config.ts"]
 }

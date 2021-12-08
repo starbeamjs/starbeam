@@ -1,14 +1,14 @@
-import * as starbeam from "../src/index";
+import * as starbeam from "../../src/index";
 export { starbeam };
 import type * as dom from "@simple-dom/interface";
-import { upstream } from "./jest-ext";
+import { upstream } from "../jest-ext";
 import { createDocument } from "simple-dom";
+import { ElementArgs, TestChild, TestElementArgs } from "./element";
+import { Expects } from "./expect/expect";
 export { dom };
 
-export enum Expects {
-  dynamic = "dynamic",
-  static = "static",
-}
+export { Expects, expect } from "./expect/expect";
+export { toBe } from "./expect/patterns";
 
 export interface TestArgs {
   readonly timeline: starbeam.Timeline<starbeam.SimpleDomTypes>;
@@ -30,17 +30,21 @@ export function test(
   });
 }
 
+export type TestTimeline = starbeam.Timeline<starbeam.SimpleDomTypes>;
+export type TestDOM = starbeam.DOM<starbeam.SimpleDomTypes>;
+export type TestDocument = dom.SimpleDocument;
+
 class TestSupport {
   static create(document = createDocument()): TestSupport {
     return new TestSupport(document);
   }
 
-  readonly timeline: starbeam.Timeline<starbeam.SimpleDomTypes>;
-  readonly dom: starbeam.DOM<starbeam.SimpleDomTypes>;
+  readonly timeline: TestTimeline;
+  readonly dom: TestDOM;
 
-  #document: dom.SimpleDocument;
+  #document: TestDocument;
 
-  private constructor(document: dom.SimpleDocument) {
+  private constructor(document: TestDocument) {
     this.#document = document;
     this.timeline = starbeam.Timeline.simpleDOM(document);
     this.dom = this.timeline.dom;
@@ -56,13 +60,13 @@ class TestSupport {
   }
 
   buildElement(
-    tagName: starbeam.Reactive<string>,
-    callback: (
-      builder: starbeam.ReactiveElementBuilder<starbeam.SimpleDomTypes>
-    ) => void,
-    expectation: Expects
+    ...args: TestElementArgs
   ): starbeam.ReactiveElementNode<starbeam.SimpleDomTypes> {
-    let element = starbeam.ReactiveElementBuilder.build(tagName, callback);
+    let { tagName, build, expectation } = ElementArgs.normalize(
+      this.timeline,
+      args
+    );
+    let element = starbeam.ReactiveElementBuilder.build(tagName, build);
     expect(normalize(element.metadata.isStatic)).toBe(expectation);
     return element;
   }
@@ -80,6 +84,14 @@ class TestSupport {
     ).toBe(expectation);
 
     return rendered;
+  }
+
+  #intoChild(child: TestChild): starbeam.AnyOutput<starbeam.DomTypes> {
+    if (typeof child === "string") {
+      return this.dom.text(this.timeline.static(child));
+    } else {
+      return child;
+    }
   }
 }
 
