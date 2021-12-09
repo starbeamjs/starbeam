@@ -39,8 +39,8 @@ export type AnyOutput = starbeam.AnyOutput<starbeam.SimpleDomTypes>;
 export type TestChild = AnyOutput | string;
 
 export interface TestElementOptions {
-  attributes: Record<string, TestAttribute>;
-  children: readonly TestChild[];
+  attributes?: Record<string, TestAttribute>;
+  children?: readonly TestChild[];
 }
 
 export class ElementArgs {
@@ -71,10 +71,11 @@ export class ElementArgs {
     attributes,
     children,
   }: TestElementOptions): BuilderCallback {
-    let normalizedChildren = children.map((c) => this.#normalizeChild(c));
-    let normalizedAttributes = Object.entries(attributes).map((a) =>
-      this.#normalizeAttribute(a)
-    );
+    let normalizedChildren =
+      children?.map((c) => this.#normalizeChild(c)) ?? [];
+    let normalizedAttributes = attributes
+      ? Object.entries(attributes).map((a) => this.#normalizeAttribute(a))
+      : [];
 
     return (b) => {
       for (let attribute of normalizedAttributes) {
@@ -89,7 +90,7 @@ export class ElementArgs {
 
   #normalizeChild(child: TestChild): AnyOutput {
     if (typeof child === "string") {
-      return this.timeline.dom.element(this.timeline.static(child)).finalize();
+      return this.timeline.dom.text(this.timeline.static(child));
     } else {
       return child;
     }

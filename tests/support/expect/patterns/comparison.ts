@@ -1,6 +1,5 @@
 import {
   Pattern,
-  PatternFor,
   PatternImpl,
   PatternMatch,
   PatternMismatch,

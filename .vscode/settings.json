@@ -4,5 +4,7 @@
   },
   "typescript.preferences.importModuleSpecifier": "project-relative",
   "typescript.preferences.importModuleSpecifierEnding": "index",
-  "jest.jestCommandLine": "node ./node_modules/jest/bin/jest.js"
+  "jest.jestCommandLine": "node ./node_modules/jest/bin/jest.js",
+  "npm.packageManager": "pnpm",
+  "eslint.packageManager": "pnpm"
 }

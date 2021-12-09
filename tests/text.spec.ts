@@ -1,12 +1,10 @@
 import { test, Expects, expect, toBe } from "./support";
-import { isTextNode } from "./support/expect/patterns/dom/node";
 
 test("dynamic text", ({ timeline, test }) => {
   let cell = timeline.reactive("hello");
   let text = test.buildText(cell, Expects.dynamic);
 
   let result = test.render(text, Expects.dynamic);
-  expect(result.node, isTextNode());
   expect(result.node.nodeValue, toBe("hello"));
 
   cell.update("goodbye");

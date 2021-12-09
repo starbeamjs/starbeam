@@ -1,7 +1,5 @@
-import { test, Expects, dom } from "./support";
-import { expectNode, NodePattern, TextNode } from "./support/nodes/patterns";
-import zip from "lodash.zip";
-import { abstraction } from "./support/expect/abstraction";
+import { Expects, test } from "./support";
+import { ElementNode, expectElement, TextNode } from "./support/nodes/patterns";
 
 test("a simple element containing a text node (dynamic) ", ({
   timeline,
@@ -63,7 +61,7 @@ test("a simple element containing a text node (static) ", ({
   });
 });
 
-test("a simple element containing a text node (dynamic) ", ({
+test("a simple element with an attribute (dynamic) ", ({
   timeline,
   dom,
   test,
@@ -97,45 +95,76 @@ test("a simple element containing a text node (dynamic) ", ({
   expectElement(result.node, "div", { children: [TextNode(SHORT_NAME)] });
 });
 
-function expectElement(
-  node: dom.SimpleElement,
-  tagName: string,
-  options?: {
-    attributes?: Record<string, string>;
-    children?: readonly NodePattern[];
-  }
-) {
-  abstraction(() =>
-    expect(
-      `<${node.tagName.toLowerCase()}>`,
-      `element should be a <${tagName}>`
-    ).toBe(`<${tagName.toLowerCase()}>`)
+test("(smoke test) a dynamic element with a few children and a few attributes", ({
+  timeline,
+  dom,
+  test,
+}) => {
+  const FIRST_NAME = "Chirag";
+  const LAST_NAME = "Patel";
+  const SHORT_NAME = "Chi";
+  const TITLE = "Chirag's name";
+  const CLASS = "person";
+  const STYLE = "color: red";
+
+  let firstName = timeline.reactive(FIRST_NAME);
+  let lastName = timeline.reactive(LAST_NAME);
+  let title = timeline.reactive(TITLE);
+  let style = timeline.reactive(STYLE);
+
+  let element = test.buildElement(
+    "div",
+    {
+      attributes: { title, class: CLASS, style },
+      children: [
+        dom.text(firstName),
+        " ",
+        dom.text(lastName),
+        " ",
+        test.buildElement(
+          "span",
+          { children: ["(", "name", ")"] },
+          Expects.static
+        ),
+        " -- ",
+        "Over and Out",
+      ],
+    },
+    Expects.dynamic
   );
 
-  if (options?.attributes) {
-    for (let [name, value] of Object.entries(options.attributes)) {
-      abstraction(() =>
-        expect(
-          node.getAttribute(name),
-          `attribute ${name} should be ${value}`
-        ).toBe(value)
-      );
-    }
+  let result = test.render(element, Expects.dynamic);
 
-    abstraction(() => {
-      if (options?.children) {
-        expect(
-          node.childNodes,
-          "options.children should be the same length as the element's childNodes"
-        ).toHaveLength(options.children.length);
+  expectElement(result.node, "div", {
+    attributes: { title: TITLE, class: "person", style: STYLE },
+    children: [
+      TextNode(FIRST_NAME),
+      TextNode(" "),
+      TextNode(LAST_NAME),
+      TextNode(" "),
+      ElementNode("span", {
+        children: [TextNode("("), TextNode("name"), TextNode(")")],
+      }),
+      TextNode(" -- "),
+      TextNode("Over and Out"),
+    ],
+  });
 
-        for (let [childNode, pattern] of zip(
-          node.childNodes,
-          options.children
-        )) {
-          abstraction(() => expectNode(childNode!, pattern!));
-        }
-      }
-    });
-  }
-}
+  firstName.update(SHORT_NAME);
+  timeline.poll(result);
+
+  expectElement(result.node, "div", {
+    attributes: { title: TITLE, class: "person", style: STYLE },
+    children: [
+      TextNode(SHORT_NAME),
+      TextNode(" "),
+      TextNode(LAST_NAME),
+      TextNode(" "),
+      ElementNode("span", {
+        children: [TextNode("("), TextNode("name"), TextNode(")")],
+      }),
+      TextNode(" -- "),
+      TextNode("Over and Out"),
+    ],
+  });
+});

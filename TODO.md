@@ -18,7 +18,7 @@
   - [ ] Autotrack
   - [ ] Don't update static things
   - [ ] Don't poll things if they're valid
-  - [ ] MATHML
+  - [ ] MathML
 - [ ] HTML Parser Features
   - [ ] SVG
 - [ ] Structural Improvements
