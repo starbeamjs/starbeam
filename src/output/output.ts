@@ -1,6 +1,8 @@
 import { DomImplementation, DomType, DomTypes } from "../dom/implementation";
 import { ChildNodeCursor } from "../index";
 import { Reactive } from "../reactive/core";
+import { OUTPUT_BRAND } from "../reactive/internal";
+import { isObject } from "../utils";
 
 export interface BuildMetadata {
   readonly isStatic: boolean;
@@ -32,6 +34,10 @@ export type DynamicOutput<T extends DomTypes, N extends DomType<T>> = Output<
 };
 
 export const Output = {
+  is<T extends DomTypes>(value: unknown): value is AnyOutput<T> {
+    return isObject(value) && OUTPUT_BRAND.is(value);
+  },
+
   isStatic<T extends DomTypes, N extends DomType<T>>(
     this: void,
     output: Output<T, N>

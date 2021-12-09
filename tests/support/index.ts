@@ -3,12 +3,12 @@ export { starbeam };
 import type * as dom from "@simple-dom/interface";
 import { upstream } from "../jest-ext";
 import { createDocument } from "simple-dom";
-import { ElementArgs, TestChild, TestElementArgs } from "./element";
+import { ElementArgs, TestElementArgs } from "./element";
 import { Expects } from "./expect/expect";
 export { dom };
 
 export { Expects, expect } from "./expect/expect";
-export { toBe } from "./expect/patterns";
+export { toBe } from "./expect/patterns/comparison";
 
 export interface TestArgs {
   readonly timeline: starbeam.Timeline<starbeam.SimpleDomTypes>;
@@ -18,11 +18,12 @@ export interface TestArgs {
 
 export function test(
   name: string,
-  def: (args: TestArgs) => void | Promise<void>
+  test: (args: TestArgs) => void | Promise<void>
 ): void {
   upstream.test(name, () => {
     let support = TestSupport.create();
-    return def({
+
+    return test({
       test: support,
       timeline: support.timeline,
       dom: support.dom,
@@ -84,14 +85,6 @@ class TestSupport {
     ).toBe(expectation);
 
     return rendered;
-  }
-
-  #intoChild(child: TestChild): starbeam.AnyOutput<starbeam.DomTypes> {
-    if (typeof child === "string") {
-      return this.dom.text(this.timeline.static(child));
-    } else {
-      return child;
-    }
   }
 }
 

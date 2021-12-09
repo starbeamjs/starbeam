@@ -3,18 +3,19 @@ import { TestTimeline } from "./index";
 import { Expects } from "./expect/expect";
 
 interface ShorthandAttribute {
-  prefix?: "xml" | "xmlns" | "xlink";
-  value: starbeam.IntoReactive<string | null>;
+  prefix?: starbeam.Prefix;
+  value: string | null;
 }
 
 type TestAttribute =
-  | starbeam.ReactiveAttribute
+  // { href: { prefix: Prefix.xlink, value: Reactive.static("<url>") } }
+  | starbeam.BuildAttribute
+  // { title: { value: "Chirag" } }
+  // { href: { prefix: "xlink", value: "<url>" } } or
+  // { href: { prefix: "xlink", value: Reactive.static("<url>") }
   | ShorthandAttribute
+  // { title: "Chirag" } or { title: Reactive.static("Chirag") }
   | starbeam.IntoReactive<string | null>;
-
-function isObject(value: unknown): value is object {
-  return typeof value === "object" && value !== null;
-}
 
 export function isIntoReactive(
   value: TestAttribute
@@ -29,26 +30,9 @@ export function isIntoReactive(
 }
 
 export function isReactiveAttribute(
-  attribute: starbeam.ReactiveAttribute | ShorthandAttribute
-): attribute is starbeam.ReactiveAttribute {
-  let { value, prefix } = attribute;
-
-  if (typeof prefix === "string") {
-    return false;
-  }
-
-  return starbeam.Reactive.isReactive(value);
-}
-
-export function intoReactiveAttribute(
-  name: string,
-  { prefix: intoPrefix, value: intoValue }: ShorthandAttribute
-): starbeam.ReactiveAttribute {
-  let prefix =
-    intoPrefix === undefined ? undefined : starbeam.intoPrefix(intoPrefix);
-  let value = starbeam.Reactive.from(intoValue);
-
-  return { name, prefix, value };
+  attribute: starbeam.BuildAttribute | ShorthandAttribute
+): attribute is starbeam.BuildAttribute {
+  return starbeam.Reactive.isReactive(attribute.value);
 }
 
 export type AnyOutput = starbeam.AnyOutput<starbeam.SimpleDomTypes>;
@@ -104,20 +88,30 @@ export class ElementArgs {
   }
 
   #normalizeChild(child: TestChild): AnyOutput {
-    throw Error("unimplemented");
+    if (typeof child === "string") {
+      return this.timeline.dom.element(this.timeline.static(child)).finalize();
+    } else {
+      return child;
+    }
   }
 
   #normalizeAttribute([name, attribute]: [
     name: string,
     attribute: TestAttribute
-  ]): starbeam.ReactiveAttribute {
+  ]): starbeam.BuildAttribute {
     if (isIntoReactive(attribute)) {
       let value = starbeam.Reactive.from(attribute);
       return { name, value };
     } else if (isReactiveAttribute(attribute)) {
       return attribute;
     } else {
-      return intoReactiveAttribute(name, attribute);
+      let { prefix, value } = attribute;
+
+      return {
+        name,
+        prefix,
+        value: starbeam.Reactive.from(value),
+      };
     }
   }
 }

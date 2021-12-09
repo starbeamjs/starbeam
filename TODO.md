@@ -3,19 +3,35 @@
 - [x] structural improvement
   - [x] what you can work on while I'm on vacation
 - [ ] Reactive Primitives
-  - [ ] Record
+  - [x] Record
   - [ ] Choice
   - [ ] Function
     - [ ] With interior access
     - [ ] Without interior access
 - [ ] Reactive Outputs
   - [ ] DOMTreeBuilder vs. DOMTreeUpdater
-  - [ ] Element
-  - [ ] Attribute
+  - [x] Element
+  - [x] Attribute
   - [ ] Fragment
 - [ ] Effects
+- [ ] Cross-cutting features
+  - [ ] Autotrack
+  - [ ] Don't update static things
+  - [ ] Don't poll things if they're valid
+  - [ ] MATHML
+- [ ] HTML Parser Features
+  - [ ] SVG
 - [ ] Structural Improvements
+  - [ ] TypeScript eslint
+  - [ ] Static + Dynamic in one test
   - [ ] render returns a generator (or maybe async)
+- [ ] Investigate
+  - [ ] Does setAttribute (without NS) on a non-HTML element produce the correct namespace
+
+# Ecosytem
+
+- [ ] Validate that namespaces are supported in basically all JSX implementations
+- [ ] Try to add `@attr` to JSX
 
 # Timeline
 

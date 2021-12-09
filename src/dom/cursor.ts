@@ -1,5 +1,5 @@
 import { AttrNamespace } from "@simple-dom/interface";
-import { DomImplementation, DomTypes } from "./implementation";
+import { AttributeName, DomImplementation, DomTypes } from "./implementation";
 
 export class ChildNodeCursor<T extends DomTypes> {
   static appending<T extends DomTypes>(
@@ -69,32 +69,19 @@ export class AttrCursor<T extends DomTypes> {
     this.#implementation = implementation;
   }
 
-  initialize({ name, namespace }: Attribute, value: string): void {
-    this.#implementation.initializeAttribute(
-      this.#parent,
-      [name, namespace],
-      value
-    );
+  initialize(name: AttributeName, value: string | null): T["attribute"] {
+    return this.#implementation.initializeAttribute(this.#parent, name, value);
   }
 
   update(
-    { name, namespace }: Attribute,
+    attribute: T["attribute"],
     value: string,
     lastValue?: string | null
   ): void {
-    this.#implementation.updateAttribute(
-      this.#parent,
-      [name, namespace],
-      value,
-      lastValue
-    );
+    this.#implementation.updateAttribute(attribute, value, lastValue);
   }
 
-  remove({ name, namespace }: Attribute, lastValue?: string | null): void {
-    this.#implementation.removeAttribute(
-      this.#parent,
-      [name, namespace],
-      lastValue
-    );
+  remove(attribute: T["attribute"], lastValue?: string | null): void {
+    this.#implementation.removeAttribute(attribute, lastValue);
   }
 }

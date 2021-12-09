@@ -1,4 +1,4 @@
-export class ReactiveBrand {
+export class Brand {
   readonly #reactive = new WeakMap<object, true>();
 
   brand(object: object): void {
@@ -10,4 +10,5 @@ export class ReactiveBrand {
   }
 }
 
-export const REACTIVE_BRAND = new ReactiveBrand();
+export const REACTIVE_BRAND = new Brand();
+export const OUTPUT_BRAND = new Brand();

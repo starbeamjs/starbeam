@@ -1,4 +1,5 @@
 import { DomImplementation, DomTypes } from "../dom/implementation";
+import { ChildNodeCursor } from "../index";
 import { Reactive } from "../reactive/core";
 import { BuildMetadata, Output, Rendered, RenderMetadata } from "./output";
 
@@ -17,8 +18,12 @@ export class ReactiveTextNode<T extends DomTypes>
     };
   }
 
-  render(dom: DomImplementation<T>): RenderedTextNode<T> {
+  render(
+    dom: DomImplementation<T>,
+    cursor: ChildNodeCursor<T>
+  ): RenderedTextNode<T> {
     let text = dom.createTextNode(this.#reactive.current);
+    cursor.insert(text);
     return new RenderedTextNode(this.#reactive, text);
   }
 }
@@ -39,8 +44,8 @@ export class RenderedTextNode<T extends DomTypes>
       isConstant: this.#reactive.metadata.isStatic,
       isStable: {
         firstNode: true,
-        lastNode: true
-      }
+        lastNode: true,
+      },
     };
   }
 

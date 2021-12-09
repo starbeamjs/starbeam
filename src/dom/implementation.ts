@@ -1,20 +1,21 @@
-import { ChildNodeCursor } from "./cursor";
-
 import {
+  AttrNamespace,
   SimpleDocument,
-  SimpleNode,
   SimpleElement,
+  SimpleNode,
   SimpleText,
 } from "@simple-dom/interface";
-import * as simple from "@simple-dom/interface";
-import { AttrNamespace } from "./fundamentals";
+import { Prefix } from "../output/element";
 import { Profile } from "../timeline/index";
+import { exhaustive } from "../utils";
+import { AttrCursor, ChildNodeCursor } from "./cursor";
 
 export interface DomTypes {
   document: unknown;
   node: unknown;
   text: unknown;
   element: unknown;
+  attribute: unknown;
 }
 
 export type DomType<T extends DomTypes> = T[keyof T];
@@ -28,6 +29,7 @@ export interface DomImplementation<T extends DomTypes> {
     parentNode: T["element"],
     nextSibling: T["node"]
   ): ChildNodeCursor<T>;
+  createAttributeCursor(parentNode: T["element"]): AttrCursor<T>;
   createTextNode(value: string): T["text"];
   insertChild(
     child: T["node"],
@@ -37,9 +39,9 @@ export interface DomImplementation<T extends DomTypes> {
   createElement(tagName: string): T["element"];
   initializeAttribute(
     parent: T["element"],
-    name: [string, string | null],
-    value: string
-  ): void;
+    name: AttributeName,
+    value: string | null
+  ): T["attribute"];
 
   createUpdatingCursor(
     parentNode: T["element"],
@@ -47,8 +49,7 @@ export interface DomImplementation<T extends DomTypes> {
   ): ChildNodeCursor<T>;
   updateTextNode(node: T["text"], value: string): void;
   updateAttribute(
-    parent: T["element"],
-    name: [string, string | null],
+    attribute: T["attribute"],
     value: string,
     // In development mode, this extra parameter allows us to assert if
     // something unexpected happened. Passing `null` here means that the
@@ -56,8 +57,7 @@ export interface DomImplementation<T extends DomTypes> {
     lastValue?: string | null
   ): void;
   removeAttribute(
-    parent: T["element"],
-    name: [string, string | null],
+    attribute: T["attribute"],
     // In development mode, this extra parameter allows us to assert if
     // something unexpected happened. Passing `null` here means that the
     // attribute previously didn't exist (i.e. had a "null value").
@@ -65,11 +65,22 @@ export interface DomImplementation<T extends DomTypes> {
   ): void;
 }
 
+export interface AttributeName {
+  name: string;
+  prefix?: Prefix;
+}
+
+export interface RenderedAttribute {
+  parent: SimpleElement;
+  name: AttributeName;
+}
+
 export interface SimpleDomTypes {
   document: SimpleDocument;
   node: SimpleNode;
   text: SimpleText;
   element: SimpleElement;
+  attribute: RenderedAttribute;
 }
 
 export class SimpleDomImplementation
@@ -89,6 +100,10 @@ export class SimpleDomImplementation
   constructor(document: SimpleDocument, profile: Profile) {
     this.#document = document;
     this.#profile = profile;
+  }
+
+  createAttributeCursor(parentNode: SimpleElement): AttrCursor<SimpleDomTypes> {
+    return new AttrCursor(parentNode, this);
   }
 
   createUpdatingCursor(
@@ -135,9 +150,9 @@ export class SimpleDomImplementation
 
   initializeAttribute(
     parent: SimpleElement,
-    name: [string, string | null],
-    value: string
-  ): void {
+    name: AttributeName,
+    value: string | null
+  ): RenderedAttribute {
     if (this.#profile === Profile.Debug) {
       let currentValue = getAttribute(parent, name);
       console.assert(
@@ -149,25 +164,27 @@ export class SimpleDomImplementation
       );
     }
 
-    setAttribute(parent, name, value);
+    if (value !== null) {
+      setAttribute(parent, name, value);
+    }
+
+    return { parent, name };
   }
 
   updateAttribute(
-    parent: SimpleElement,
-    name: [string, AttrNamespace | null],
+    attribute: RenderedAttribute,
     value: string,
     lastValue?: string
   ): void {
     if (this.#profile === Profile.Debug) {
-      assertAttributeValue(parent, name, lastValue);
+      assertAttributeValue(attribute.parent, attribute.name, lastValue);
     }
 
-    setAttribute(parent, name, value);
+    setAttribute(attribute.parent, attribute.name, value);
   }
 
   removeAttribute(
-    parent: SimpleElement,
-    name: [string, AttrNamespace | null],
+    { parent, name }: RenderedAttribute,
     lastValue?: string
   ): void {
     if (this.#profile === Profile.Debug) {
@@ -187,41 +204,41 @@ export class SimpleDomImplementation
 
 function getAttribute(
   element: SimpleElement,
-  [name, ns]: [string, string | null]
+  { name, prefix }: AttributeName
 ): string | null {
-  if (ns !== null) {
-    return element.getAttribute(name);
+  if (prefix) {
+    return element.getAttributeNS(namespace(prefix), name);
   } else {
-    return element.getAttributeNS(ns, name);
+    return element.getAttribute(name);
   }
 }
 
 function setAttribute(
   element: SimpleElement,
-  [name, ns]: [string, string | null],
+  { name, prefix }: AttributeName,
   value: string
 ) {
-  if (ns === null) {
-    element.setAttribute(name, value);
+  if (prefix) {
+    element.setAttributeNS(namespace(prefix), name, value);
   } else {
-    element.setAttributeNS(ns as simple.AttrNamespace, name, value);
+    element.setAttribute(name, value);
   }
 }
 
 function removeAttribute(
   element: SimpleElement,
-  [name, ns]: [string, string | null]
+  { name, prefix }: AttributeName
 ) {
-  if (ns === null) {
-    element.removeAttribute(name);
+  if (prefix) {
+    element.removeAttributeNS(namespace(prefix), name);
   } else {
-    element.removeAttributeNS(ns as simple.AttrNamespace, name);
+    element.removeAttribute(name);
   }
 }
 
 function assertAttributeValue(
   parent: SimpleElement,
-  name: [string, string | null],
+  name: AttributeName,
   lastValue?: string | null
 ) {
   if (lastValue === undefined) {
@@ -240,17 +257,21 @@ function assertAttributeValue(
   );
 }
 
-function formatAttr([name, ns]: [string, string | null]): string {
-  switch (ns) {
-    case "http://www.w3.org/1999/xlink":
-      return `xlink:${name}`;
-    case "http://www.w3.org/XML/1998/namespace":
-      return `xml:${name}`;
-    case "http://www.w3.org/2000/xmlns/":
-      return `xmlns:${name}`;
-    case null:
-      return name;
+function formatAttr({ name, prefix }: AttributeName): string {
+  return prefix ? `${prefix}:${name}` : name;
+}
+
+function namespace(prefix?: Prefix): AttrNamespace {
+  switch (prefix) {
+    case "xlink":
+      return "http://www.w3.org/1999/xlink" as AttrNamespace;
+    case "xml":
+      return "http://www.w3.org/XML/1998/namespace" as AttrNamespace;
+    case "xmlns":
+      return "http://www.w3.org/2000/xmlns/" as AttrNamespace;
+    case undefined:
+      return "http://www.w3.org/1999/xhtml" as AttrNamespace;
     default:
-      throw Error(`Invalid attribute namespace ${ns}`);
+      exhaustive(prefix, "Prefix");
   }
 }

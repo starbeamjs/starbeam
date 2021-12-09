@@ -1,6 +1,7 @@
 import { DomImplementation, DomTypes } from "../dom/implementation";
 import { ChildNodeCursor } from "../index";
 import { Reactive } from "../reactive/core";
+import { ReactiveAttributeNode, RenderedAttributeNode } from "./attribute";
 import {
   AnyOutput,
   AnyRendered,
@@ -15,24 +16,35 @@ export class ReactiveElementNode<T extends DomTypes>
 {
   static create<T extends DomTypes>(
     tagName: Reactive<string>,
+    buildAttributes: readonly BuildAttribute[],
     children: readonly AnyOutput<T>[]
   ): ReactiveElementNode<T> {
+    let attributes = buildAttributes.map((a) =>
+      ReactiveAttributeNode.create<T>(a)
+    );
+
     let metadata = {
-      isStatic: Reactive.isStatic(tagName) && children.every(Output.isStatic),
+      isStatic:
+        Reactive.isStatic(tagName) &&
+        children.every(Output.isStatic) &&
+        attributes.every((a) => a.metadata.isStatic),
     };
 
-    return new ReactiveElementNode(tagName, children, metadata);
+    return new ReactiveElementNode(tagName, attributes, children, metadata);
   }
 
   readonly #tagName: Reactive<string>;
+  readonly #attributes: readonly ReactiveAttributeNode<T>[];
   readonly #children: readonly AnyOutput<T>[];
 
   private constructor(
     tagName: Reactive<string>,
+    attributes: readonly ReactiveAttributeNode<T>[],
     children: readonly AnyOutput<T>[],
     readonly metadata: BuildMetadata
   ) {
     this.#tagName = tagName;
+    this.#attributes = attributes;
     this.#children = children;
   }
 
@@ -42,15 +54,23 @@ export class ReactiveElementNode<T extends DomTypes>
   ): RenderedElementNode<T> {
     let element = dom.createElement(this.#tagName.current);
     let childNodeCursor = dom.createAppendingCursor(element, null);
+    let attributeCursor = dom.createAttributeCursor(element);
 
-    let children = this.#children.map((output) => {
-      let rendered = output.render(dom, childNodeCursor);
-      dom.insertChild(rendered.node, element, null);
-      return rendered;
-    });
+    let attributes = this.#attributes.map((attr) =>
+      attr.render(dom, attributeCursor)
+    );
+
+    let children = this.#children.map((output) =>
+      output.render(dom, childNodeCursor)
+    );
 
     cursor.insert(element);
-    return RenderedElementNode.create(element, this.#tagName, children);
+    return RenderedElementNode.create(
+      element,
+      this.#tagName,
+      attributes,
+      children
+    );
   }
 }
 
@@ -60,6 +80,7 @@ export class RenderedElementNode<T extends DomTypes>
   static create<T extends DomTypes>(
     node: T["element"],
     tagName: Reactive<string>,
+    attributes: readonly RenderedAttributeNode<T>[],
     children: readonly AnyRendered<T>[]
   ): RenderedElementNode<T> {
     let metadata = {
@@ -71,21 +92,30 @@ export class RenderedElementNode<T extends DomTypes>
       },
     };
 
-    return new RenderedElementNode(node, tagName, children, metadata);
+    return new RenderedElementNode(
+      node,
+      tagName,
+      attributes,
+      children,
+      metadata
+    );
   }
 
   readonly #node: T["element"];
   readonly #tagName: Reactive<string>;
+  readonly #attributes: readonly RenderedAttributeNode<T>[];
   readonly #children: readonly AnyRendered<T>[];
 
   private constructor(
     node: T["element"],
     tagName: Reactive<string>,
+    attributes: readonly RenderedAttributeNode<T>[],
     children: readonly AnyRendered<T>[],
     readonly metadata: RenderMetadata
   ) {
     this.#node = node;
     this.#tagName = tagName;
+    this.#attributes = attributes;
     this.#children = children;
   }
 
@@ -98,6 +128,10 @@ export class RenderedElementNode<T extends DomTypes>
       throw new Error("Dynamic tag name");
     }
 
+    for (let attr of this.#attributes) {
+      attr.poll(dom);
+    }
+
     for (let child of this.#children) {
       child.poll(dom);
     }
@@ -105,23 +139,10 @@ export class RenderedElementNode<T extends DomTypes>
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#insert-a-foreign-element
-enum Prefix {
-  xlink = "xlink",
-  xml = "xml",
-  xmlns = "xmlns",
-}
+export type Prefix = "xlink" | "xml" | "xmlns";
 
-export function intoPrefix(prefix: "xlink" | "xml" | "xmlns"): Prefix;
-export function intoPrefix(prefix: string): Prefix | null;
-export function intoPrefix(prefix: string): Prefix | null {
-  if (prefix === "xlink" || prefix === "xml" || prefix === "xmlns") {
-    return Prefix[prefix];
-  } else {
-    return null;
-  }
-}
-
-export interface ReactiveAttribute {
+// TODO: extract AttributeName
+export interface BuildAttribute {
   name: string;
   prefix?: Prefix;
   value: Reactive<string | null>;
@@ -143,7 +164,7 @@ export class ReactiveElementBuilder<T extends DomTypes> {
 
   readonly #tagName: Reactive<string>;
   readonly #children: AnyOutput<T>[] = [];
-  readonly #attributes: ReactiveAttribute[] = [];
+  readonly #attributes: BuildAttribute[] = [];
 
   constructor(tagName: Reactive<string>) {
     this.#tagName = tagName;
@@ -154,13 +175,17 @@ export class ReactiveElementBuilder<T extends DomTypes> {
     return this;
   }
 
-  attribute(attribute: ReactiveAttribute): this {
+  attribute(attribute: BuildAttribute): this {
     this.#attributes.push(attribute);
     return this;
   }
 
   finalize(): ReactiveElementNode<T> {
-    return ReactiveElementNode.create(this.#tagName, this.#children);
+    return ReactiveElementNode.create(
+      this.#tagName,
+      this.#attributes,
+      this.#children
+    );
   }
 }
 

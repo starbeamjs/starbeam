@@ -1,4 +1,10 @@
-import { Failure, JestReporter, Reporter, Success } from "./report";
+import {
+  Failure,
+  JestReporter,
+  PatternDetails,
+  Reporter,
+  Success,
+} from "./report";
 
 export enum Expects {
   dynamic = "dynamic",
@@ -13,11 +19,87 @@ export enum Expects {
 //   assert(actual: Allowed): MatchResult;
 // }
 
-export interface Pattern<In, Out extends In> {
-  check(actual: In): actual is Out;
-  success(actual: Out): Success;
-  failure(actual: In): Failure;
+export type PatternResult<F = unknown, S = void> =
+  | PatternMatch<S>
+  | PatternMismatch<F>;
+
+export interface PatternMatch<T> {
+  type: "match";
+  value: T;
 }
+
+export function PatternMatch<S>(value: S): PatternMatch<S>;
+export function PatternMatch(): PatternMatch<undefined>;
+export function PatternMatch(value?: unknown): PatternMatch<unknown> {
+  return { type: "match", value };
+}
+
+export interface PatternMismatch<T> {
+  type: "mismatch";
+  value: T;
+}
+
+export function PatternMismatch<F>(value: F): PatternMismatch<F>;
+export function PatternMismatch(): PatternMismatch<undefined>;
+export function PatternMismatch(value?: unknown): PatternMismatch<unknown> {
+  return { type: "mismatch", value };
+}
+
+export interface Pattern<In, Out extends In, F = unknown, S = void> {
+  readonly details: PatternDetails;
+  check(actual: In): PatternResult<F, S>;
+  success(actual: Out, success: S): Success;
+  failure(actual: Out, failure: F): Failure;
+}
+
+export type PatternFor<P extends Pattern<unknown, unknown, unknown, unknown>> =
+  P extends Pattern<infer In, infer Out, infer F, infer S>
+    ? PatternImpl<In, Out, F, S>
+    : never;
+
+export class PatternImpl<In, Out extends In, F = unknown, S = void> {
+  static of<In, Out extends In, F, S>(
+    pattern: Pattern<In, Out, F, S>
+  ): PatternImpl<In, Out, F, S> {
+    return new PatternImpl(pattern);
+  }
+
+  #pattern: Pattern<In, Out, F, S>;
+
+  private constructor(pattern: Pattern<In, Out, F, S>) {
+    this.#pattern = pattern;
+  }
+
+  get details(): PatternDetails {
+    return this.#pattern.details;
+  }
+
+  check(actual: In): PatternResult<F, S> {
+    return this.#pattern.check(actual);
+  }
+
+  success(actual: Out, success: S): Success {
+    return this.#pattern.success(actual, success);
+  }
+
+  failure(actual: Out, failure: F): Failure {
+    return this.#pattern.failure(actual, failure);
+  }
+
+  typecheck(_actual: In, state: PatternResult<S, F>): _actual is Out {
+    return state.type === "match";
+  }
+
+  // abstract success(checked: S): Success;
+  // abstract failure(actual: Out, checked: F): Failure;
+}
+
+// export interface Pattern<In, Out extends In> {
+//   check(actual: In): unknown;
+//   typecheck(actual: In, checked: ReturnType<this["check"]>): actual is Out;
+//   success(actual: Out): Success;
+//   failure(actual: In): Failure;
+// }
 
 export class Expectations {
   #reporter: Reporter;
@@ -30,14 +112,17 @@ export class Expectations {
     actual: In,
     pattern: In extends infer T
       ? Out extends T
-        ? Pattern<T, Out>
+        ? PatternImpl<T, Out, any, any>
         : never
       : never
   ): asserts actual is Out {
-    if (pattern.check(actual)) {
-      this.#reporter.success(pattern.success(actual));
+    let p: PatternImpl<In, Out, any, any> = pattern;
+    let checked = p.check(actual);
+
+    if (checked.type === "match") {
+      this.#reporter.success(pattern.success(actual, checked.value));
     } else {
-      this.#reporter.failure(pattern.failure(actual));
+      this.#reporter.failure(pattern.failure(actual, checked.value));
     }
   }
 }

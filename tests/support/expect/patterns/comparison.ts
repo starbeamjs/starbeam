@@ -1,12 +1,19 @@
-import { Pattern } from "./expect";
-import { Failure, Success, NotEqual, PatternDetails } from "./report";
+import {
+  Pattern,
+  PatternFor,
+  PatternImpl,
+  PatternMatch,
+  PatternMismatch,
+  PatternResult,
+} from "../expect";
+import { Failure, NotEqual, PatternDetails, Success } from "../report";
 
 export interface ToBeDescription {
   actual: string;
   expected: string;
 }
 
-export class ToBe<T> implements Pattern<unknown, T> {
+export class ToBe<T> implements Pattern<unknown, T, undefined> {
   constructor(readonly value: T, readonly description?: ToBeDescription) {}
 
   readonly details: PatternDetails = {
@@ -14,10 +21,15 @@ export class ToBe<T> implements Pattern<unknown, T> {
     description: "Object.is equality",
   };
 
-  check(actual: unknown): actual is T {
-    return Object.is(this.value, actual);
+  check(actual: unknown): PatternResult<undefined> {
+    if (Object.is(this.value, actual)) {
+      return PatternMatch();
+    } else {
+      return PatternMismatch();
+    }
   }
-  success(actual: T): Success {
+
+  success(): Success {
     if (this.description) {
       let { actual, expected } = this.description;
       return Success({
@@ -28,6 +40,7 @@ export class ToBe<T> implements Pattern<unknown, T> {
       return Success({ pattern: this.details, message: "were equal" });
     }
   }
+
   failure(actual: unknown): Failure {
     if (this.description) {
       throw Error("todo: descriptions in toBe");
@@ -37,6 +50,9 @@ export class ToBe<T> implements Pattern<unknown, T> {
   }
 }
 
-export function toBe<T>(value: T, description?: ToBeDescription): ToBe<T> {
-  return new ToBe(value, description);
+export function toBe<T>(
+  value: T,
+  description?: ToBeDescription
+): PatternImpl<unknown, T> {
+  return PatternImpl.of<unknown, T, any, any>(new ToBe(value, description));
 }

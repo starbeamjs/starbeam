@@ -1,3 +1,4 @@
+import { isObject } from "../utils";
 import { REACTIVE_BRAND } from "./internal";
 import { Static } from "./static";
 
@@ -34,11 +35,7 @@ export const Reactive = {
   },
 
   isReactive<T>(reactive: unknown | Reactive<T>): reactive is Reactive<T> {
-    return (
-      typeof reactive === "object" &&
-      reactive !== null &&
-      REACTIVE_BRAND.is(reactive)
-    );
+    return isObject(reactive) && REACTIVE_BRAND.is(reactive);
   },
 
   isStatic<T>(reactive: Reactive<T>): reactive is StaticReactive<T> {

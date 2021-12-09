@@ -1,6 +1,12 @@
-import { exhaustive } from "../utils";
-import { MatchResult, PatternDetails, ValueDescription } from "./report";
 import { diff } from "jest-diff";
+import * as starbeam from "../../../src/index";
+import {
+  ChildFailure,
+  Failure,
+  MatchResult,
+  PatternDetails,
+  ValueDescription,
+} from "./report";
 
 export default {
   expect,
@@ -19,37 +25,45 @@ expect.extend({
     this: jest.MatcherContext,
     result: MatchResult
   ): jest.CustomMatcherResult {
-    let options = {
-      isNot: this.isNot,
-      promise: this.promise,
-    };
+    return processResult(this, result);
+  },
+});
 
-    if (result.success) {
-      let message = () => hint(this.utils, result.pattern);
+function processResult(
+  ctx: jest.MatcherContext,
+  result: MatchResult | ChildFailure<Failure>
+): jest.CustomMatcherResult {
+  if (result.success) {
+    let message = () => hint(ctx.utils, result.pattern);
 
-      return { message, pass: true };
-    } else {
+    return { message, pass: true };
+  } else {
+    if ("pattern" in result) {
       switch (result.kind) {
-        case "equality": {
-          let { actual, expected } = result;
+        case "equality":
+        case "mismatch": {
+          return notEqual(ctx, result);
+        }
 
-          let message = () => {
-            return (
-              hint(this.utils, result.pattern) +
-              "\n\n" +
-              formatDiff(actual, expected, this.utils)
-            );
+        case "multiple": {
+          let { message, failures, pattern } = result;
+
+          let output = () => {
+            let out = [message, hint(ctx.utils, pattern)];
+
+            for (let failure of failures) {
+              let { message } = processResult(ctx, failure);
+              out.push(message());
+            }
+
+            return out.join("\n\n");
           };
 
-          return { message, pass: false };
+          return { message: output, pass: false };
         }
 
         case "invalid": {
           throw Error("todo: invalid");
-        }
-
-        case "mismatch": {
-          throw Error("todo: mismatch");
         }
 
         case "wrong-type": {
@@ -57,12 +71,83 @@ expect.extend({
         }
 
         default: {
-          exhaustive(result, "Failure");
+          starbeam.exhaustive(result, "Failure");
+        }
+      }
+    } else {
+      switch (result.kind) {
+        case "equality":
+        case "mismatch": {
+          if ("pattern" in result) {
+            return notEqualChild(ctx, result);
+          }
+        }
+
+        case "multiple": {
+          throw Error("todo: multiple child of multiple");
+        }
+
+        case "invalid": {
+          throw Error("todo: invalid child of multiple");
+        }
+
+        case "wrong-type": {
+          throw Error("todo: wrong-type child of multiple");
+        }
+
+        default: {
+          starbeam.exhaustive(result, "Failure");
         }
       }
     }
-  },
-});
+  }
+}
+
+function notEqual(
+  ctx: jest.MatcherContext,
+  {
+    actual,
+    expected,
+    pattern,
+  }: {
+    actual: ValueDescription;
+    expected: ValueDescription;
+    pattern: PatternDetails;
+  }
+): jest.CustomMatcherResult {
+  let message = () => {
+    return (
+      hint(ctx.utils, pattern) +
+      "\n\n" +
+      formatDiff(actual, expected, ctx.utils)
+    );
+  };
+
+  return { message, pass: false };
+}
+
+function notEqualChild(
+  ctx: jest.MatcherContext,
+  {
+    actual,
+    expected,
+    description,
+  }: {
+    actual: ValueDescription;
+    expected: ValueDescription;
+    description: string;
+  }
+): jest.CustomMatcherResult {
+  let message = () => {
+    return (
+      ctx.utils.EXPECTED_COLOR(description) +
+      "\n\n" +
+      formatDiff(actual, expected, ctx.utils)
+    );
+  };
+
+  return { message, pass: false };
+}
 
 function hint(
   utils: jest.MatcherUtils["utils"],

@@ -1,5 +1,5 @@
+import { abstraction } from "./abstraction";
 import upstream from "./upstream";
-import { exhaustive } from "../utils";
 
 export interface TypeDescription {
   kind: "type";
@@ -16,12 +16,17 @@ export function TypeDescription(value: string): TypeDescription {
 export interface ValueDescription {
   kind: "value";
   is: unknown;
+  comment?: string;
 }
 
-export function ValueDescription(value: unknown): ValueDescription {
+export function ValueDescription(
+  value: unknown,
+  comment?: string
+): ValueDescription {
   return {
     kind: "value",
     is: value,
+    comment,
   };
 }
 
@@ -82,26 +87,42 @@ export function NotEqual({
 export interface Mismatch extends TestOutcome {
   success: false;
   kind: "mismatch";
-  expected: string;
+  description?: string;
+  expected: ValueDescription;
   actual: ValueDescription;
 }
 
+type FailureArgs<F extends TestOutcome> = Omit<
+  F,
+  "success" | "kind" | "pattern"
+>;
+type TopLevelArgs<F extends TestOutcome> = FailureArgs<F> & {
+  pattern: PatternDetails;
+  description?: undefined;
+};
+type ChildArgs<F extends TestOutcome> = FailureArgs<F> & {
+  pattern?: undefined;
+  description: string;
+};
+
+export function Mismatch(args: TopLevelArgs<Mismatch>): Mismatch;
+export function Mismatch(args: ChildArgs<Mismatch>): ChildFailure<Mismatch>;
 export function Mismatch({
   actual,
   expected,
+  description,
   pattern,
-}: {
-  actual: string;
-  expected: string;
-  pattern: PatternDetails;
-}): Mismatch {
+}: TopLevelArgs<Mismatch> | ChildArgs<Mismatch>):
+  | Mismatch
+  | ChildFailure<Mismatch> {
   return {
     success: false,
     pattern,
     kind: "mismatch",
+    description,
     expected,
-    actual: ValueDescription(actual),
-  };
+    actual,
+  } as Mismatch | ChildFailure<Mismatch>;
 }
 
 export interface Invalid extends TestOutcome {
@@ -150,7 +171,36 @@ export function WrongType({
   };
 }
 
-export type Failure = NotEqual | Invalid | Mismatch | WrongType;
+export interface Multiple extends TestOutcome {
+  kind: "multiple";
+  success: false;
+  message: string;
+  failures: readonly ChildFailure<Failure>[];
+}
+
+export type ChildFailure<T> = Omit<T, "pattern"> & {
+  description: string;
+};
+
+export function Multiple({
+  message,
+  pattern,
+  failures,
+}: {
+  message: string;
+  pattern: PatternDetails;
+  failures: readonly ChildFailure<Failure>[];
+}): Multiple {
+  return {
+    success: false,
+    pattern,
+    kind: "multiple",
+    message,
+    failures,
+  };
+}
+
+export type Failure = NotEqual | Invalid | Mismatch | WrongType | Multiple;
 export type MatchResult = Success | Failure;
 
 export interface Reporter {
@@ -179,10 +229,10 @@ export function report(
 
 export class JestReporter implements Reporter {
   success(success: Success): void {
-    upstream.expect(true, success.message).toBe(true);
+    abstraction(() => upstream.expect(true, success.message).toBe(true), 5);
   }
   failure(failure: Failure): never {
-    upstream.expect(failure).custom();
+    abstraction(() => upstream.expect(failure).custom(), 5);
     failed();
   }
 }

@@ -8,9 +8,11 @@ specifiers:
   '@simple-dom/interface': ^1.4.0
   '@types/jest': ^27.0.2
   '@types/jest-expect-message': ^1.0.3
+  '@types/lodash.zip': ^4.2.6
   babel-jest: ^27.2.5
   jest: ^27.2.5
   jest-diff: ^27.4.2
+  lodash.zip: ^4.2.0
   simple-dom: ^1.4.0
   typescript: ^4.4.4
   vite: ^2.6.4
@@ -26,9 +28,11 @@ devDependencies:
   '@simple-dom/interface': 1.4.0
   '@types/jest': 27.0.2
   '@types/jest-expect-message': 1.0.3
+  '@types/lodash.zip': 4.2.6
   babel-jest: 27.2.5_@babel+core@7.15.8
   jest: 27.2.5
   jest-diff: 27.4.2
+  lodash.zip: 4.2.0
   typescript: 4.4.4
   vite: 2.6.7
 
@@ -1522,6 +1526,16 @@ packages:
     dependencies:
       jest-diff: 27.4.2
       pretty-format: 27.2.5
+    dev: true
+
+  /@types/lodash.zip/4.2.6:
+    resolution: {integrity: sha512-mKAcnkyFaihVR1oK83ZBQqSSQ1hpAY+uD5QaDkf//xtvr4NlNwqJEDg/oQoqLJg5YdSEwVWlQq0Aq4oLvD3zuw==}
+    dependencies:
+      '@types/lodash': 4.14.177
+    dev: true
+
+  /@types/lodash/4.14.177:
+    resolution: {integrity: sha512-0fDwydE2clKe9MNfvXHBHF9WEahRuj+msTuQqOmAApNORFvhMYZKNGGJdCzuhheVjMps/ti0Ak/iJPACMaevvw==}
     dev: true
 
   /@types/node/16.11.0:
@@ -3104,6 +3118,10 @@ packages:
 
   /lodash.debounce/4.0.8:
     resolution: {integrity: sha1-gteb/zCmfEAF/9XiUVMArZyk168=}
+    dev: true
+
+  /lodash.zip/4.2.0:
+    resolution: {integrity: sha1-7GZi5IlkCO1KtsVCo5kLcswIACA=}
     dev: true
 
   /lodash/4.17.21:
