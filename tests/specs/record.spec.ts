@@ -1,8 +1,8 @@
-import { test, Expects } from "./support";
+import { test, Expects } from "../support";
 
 test("a record is a reactive value", ({ timeline, test }) => {
-  let first = timeline.reactive("Tom");
-  let last = timeline.reactive("Dale");
+  let first = timeline.cell("Tom");
+  let last = timeline.cell("Dale");
   let id = timeline.static(1);
 
   let record = timeline.record({ first, last, id });

@@ -11,6 +11,12 @@ export interface Reactive<T> {
   readonly metadata: ReactiveMetadata;
 }
 
+export type ReactiveValue<R extends Reactive<unknown>> = R extends Reactive<
+  infer R
+>
+  ? R
+  : never;
+
 export type IntoReactive<T> = Reactive<T> | T;
 
 export type StaticReactive<T> = Reactive<T> & {

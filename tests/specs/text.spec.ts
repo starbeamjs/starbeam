@@ -1,7 +1,7 @@
-import { test, Expects, expect, toBe } from "./support";
+import { test, Expects, expect, toBe } from "../support";
 
 test("dynamic text", ({ timeline, test }) => {
-  let cell = timeline.reactive("hello");
+  let cell = timeline.cell("hello");
   let text = test.buildText(cell, Expects.dynamic);
 
   let result = test.render(text, Expects.dynamic);

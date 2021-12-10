@@ -1,12 +1,16 @@
-import { Expects, test } from "./support";
-import { ElementNode, expectElement, TextNode } from "./support/nodes/patterns";
+import { Expects, test } from "../support";
+import {
+  ElementNode,
+  expectElement,
+  TextNode,
+} from "../support/nodes/patterns";
 
 test("a simple element containing a text node (dynamic) ", ({
   timeline,
   dom,
   test,
 }) => {
-  let name = timeline.reactive("Chirag");
+  let name = timeline.cell("Chirag");
 
   let element = test.buildElement(
     timeline.static("div"),
@@ -70,8 +74,8 @@ test("a simple element with an attribute (dynamic) ", ({
   const SHORT_NAME = "Chi";
   const TITLE = "Chirag's name";
 
-  let name = timeline.reactive(NAME);
-  let title = timeline.reactive(TITLE);
+  let name = timeline.cell(NAME);
+  let title = timeline.cell(TITLE);
 
   let element = test.buildElement(
     "div",
@@ -107,10 +111,10 @@ test("(smoke test) a dynamic element with a few children and a few attributes", 
   const CLASS = "person";
   const STYLE = "color: red";
 
-  let firstName = timeline.reactive(FIRST_NAME);
-  let lastName = timeline.reactive(LAST_NAME);
-  let title = timeline.reactive(TITLE);
-  let style = timeline.reactive(STYLE);
+  let firstName = timeline.cell(FIRST_NAME);
+  let lastName = timeline.cell(LAST_NAME);
+  let title = timeline.cell(TITLE);
+  let style = timeline.cell(STYLE);
 
   let element = test.buildElement(
     "div",

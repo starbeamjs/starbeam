@@ -1,1 +1,1 @@
-import "./text.spec";
+import "./specs/text.spec";

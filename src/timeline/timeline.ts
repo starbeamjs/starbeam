@@ -13,6 +13,8 @@ import { SimpleDocument } from "@simple-dom/interface";
 import { Static } from "../reactive/static";
 import { createDocument } from "simple-dom";
 import { InnerDict, ReactiveRecord } from "../reactive/record";
+import { AnyChoice } from "../reactive/choice";
+import { Matcher, ReactiveMatch } from "../reactive/match";
 
 export const NOW = Symbol("NOW");
 export const BUMP = Symbol("BUMP");
@@ -67,12 +69,23 @@ export class Timeline<T extends DomTypes = DomTypes>
 
   [CONSUME](_reactive: Reactive<unknown>) {}
 
-  reactive<T>(value: T): Cell<T> {
+  cell<T>(value: T): Cell<T> {
     return new Cell(value, this);
   }
 
   static<T>(value: T): Static<T> {
     return new Static(value);
+  }
+
+  match<C extends AnyChoice>(
+    reactive: Reactive<C>,
+    matcher: C extends infer ActualC
+      ? ActualC extends AnyChoice
+        ? Matcher<ActualC>
+        : never
+      : never
+  ): ReactiveMatch<C, typeof matcher> {
+    return ReactiveMatch.match(reactive, matcher);
   }
 
   record<T extends InnerDict>(dict: T): ReactiveRecord<T> {

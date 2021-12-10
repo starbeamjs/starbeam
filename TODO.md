@@ -4,29 +4,30 @@
   - [x] what you can work on while I'm on vacation
 - [ ] Reactive Primitives
   - [x] Record
-  - [ ] Choice
-  - [ ] Function
+  - [ ] Choice (1)
+  - [ ] List (1)
+  - [ ] Function (1)
     - [ ] With interior access
     - [ ] Without interior access
 - [ ] Reactive Outputs
-  - [ ] DOMTreeBuilder vs. DOMTreeUpdater
+  - [ ] DOMTreeBuilder vs. DOMTreeUpdater (1)
   - [x] Element
   - [x] Attribute
-  - [ ] Fragment
-- [ ] Effects
+  - [ ] Fragment (1)
+- [ ] Effects (4)
 - [ ] Cross-cutting features
-  - [ ] Autotrack
-  - [ ] Don't update static things
-  - [ ] Don't poll things if they're valid
-  - [ ] MathML
+  - [ ] Autotrack (3)
+  - [ ] Don't update static things (3)
+  - [ ] Don't poll things if they're valid (2)
 - [ ] HTML Parser Features
-  - [ ] SVG
+  - [ ] SVG (2)
+  - [ ] MathML (4)
 - [ ] Structural Improvements
   - [ ] TypeScript eslint
-  - [ ] Static + Dynamic in one test
+  - [ ] Static + Dynamic in one test (2)
   - [ ] render returns a generator (or maybe async)
 - [ ] Investigate
-  - [ ] Does setAttribute (without NS) on a non-HTML element produce the correct namespace
+  - [ ] Does setAttribute (without NS) on a non-HTML element produce the correct namespace (1)
 
 # Ecosytem
 
