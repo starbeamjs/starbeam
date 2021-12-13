@@ -1,6 +1,6 @@
 import { diff } from "jest-diff";
 import * as starbeam from "../../../src/index";
-import {
+import type {
   ChildFailure,
   Failure,
   MatchResult,

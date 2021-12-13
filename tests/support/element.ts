@@ -1,6 +1,6 @@
 import * as starbeam from "../../src/index";
-import { TestTimeline } from "./index";
-import { Expects } from "./expect/expect";
+import type { TestTimeline } from "./index";
+import type { Expects } from "./expect/expect";
 
 interface ShorthandAttribute {
   prefix?: starbeam.Prefix;

@@ -11,7 +11,7 @@ export { Expects, expect } from "./expect/expect";
 export { toBe } from "./expect/patterns/comparison";
 
 export interface TestArgs {
-  readonly timeline: starbeam.Timeline<starbeam.SimpleDomTypes>;
+  readonly timeline: starbeam.Universe<starbeam.SimpleDomTypes>;
   readonly test: TestSupport;
   readonly dom: starbeam.DOM<starbeam.SimpleDomTypes>;
 }
@@ -31,7 +31,7 @@ export function test(
   });
 }
 
-export type TestTimeline = starbeam.Timeline<starbeam.SimpleDomTypes>;
+export type TestTimeline = starbeam.Universe<starbeam.SimpleDomTypes>;
 export type TestDOM = starbeam.DOM<starbeam.SimpleDomTypes>;
 export type TestDocument = dom.SimpleDocument;
 
@@ -47,7 +47,7 @@ class TestSupport {
 
   private constructor(document: TestDocument) {
     this.#document = document;
-    this.timeline = starbeam.Timeline.simpleDOM(document);
+    this.timeline = starbeam.Universe.simpleDOM(document);
     this.dom = this.timeline.dom;
   }
 
@@ -90,7 +90,7 @@ class TestSupport {
 
 export type Test = (args: {
   test: TestSupport;
-  timeline: starbeam.Timeline;
+  timeline: starbeam.Universe;
 }) => void | Promise<void>;
 
 function normalize(isStatic: boolean): Expects {

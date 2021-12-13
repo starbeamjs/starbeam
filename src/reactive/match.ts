@@ -1,4 +1,4 @@
-import { AnyChoice } from "./choice";
+import type { AnyChoice } from "./choice";
 import { Reactive, ReactiveMetadata, ReactiveValue } from "./core";
 
 export type Matcher<C extends AnyChoice> = {

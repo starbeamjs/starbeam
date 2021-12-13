@@ -1,4 +1,4 @@
-import { SimpleElement, SimpleNode } from "@simple-dom/interface";
+import type { SimpleElement, SimpleNode } from "@simple-dom/interface";
 import zip from "lodash.zip";
 import { dom, starbeam } from "../../support";
 import { abstraction } from "../expect/abstraction";

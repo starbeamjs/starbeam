@@ -1,6 +1,6 @@
 import { test, expect, toBe } from "../support";
 
-test("createMemo", ({ timeline, test }) => {
+test("timeline.memo", ({ timeline }) => {
   let name = timeline.cell("Tom");
   let counter = 0;
 
@@ -19,4 +19,27 @@ test("createMemo", ({ timeline, test }) => {
 
   expect(memo.current, toBe("Thomas"));
   expect(counter, toBe(2));
+});
+
+test("nested timeline.memo", ({ timeline }) => {
+  let firstName = timeline.cell("Tom");
+  let lastName = timeline.cell("Dale");
+
+  let firstNameMemo = timeline.memo(() => {
+    return firstName.current;
+  });
+
+  let lastNameMemo = timeline.memo(() => {
+    return lastName.current;
+  });
+
+  let fullNameMemo = timeline.memo(() => {
+    return `${firstNameMemo.current} ${lastNameMemo.current}`;
+  });
+
+  expect(fullNameMemo.current, toBe("Tom Dale"));
+
+  firstName.update("Thomas");
+
+  expect(fullNameMemo.current, toBe("Thomas Dale"));
 });

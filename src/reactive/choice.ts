@@ -1,4 +1,4 @@
-import { Reactive } from "./core";
+import type { Reactive } from "./core";
 
 export type Choice<T> = {
   discriminant: string;

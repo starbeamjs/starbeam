@@ -13,6 +13,13 @@
     "test": "jest",
     "typecheck": "tsc"
   },
+  "madge": {
+    "detectiveOptions": {
+      "es6": {
+        "skipTypeImports": true
+      }
+    }
+  },
   "devDependencies": {
     "@alex_neo/jest-expect-message": "^1.0.5",
     "@babel/core": "^7.15.8",

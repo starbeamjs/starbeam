@@ -1,5 +1,5 @@
-import { DomImplementation, DomTypes } from "../dom/implementation";
-import { ChildNodeCursor } from "../index";
+import type { DomImplementation, DomTypes } from "../dom/implementation";
+import type { ChildNodeCursor } from "../index";
 import { Reactive } from "../reactive/core";
 import { ReactiveAttributeNode, RenderedAttributeNode } from "./attribute";
 import {

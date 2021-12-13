@@ -1,4 +1,4 @@
-import { SimpleElement, SimpleNode } from "@simple-dom/interface";
+import type { SimpleElement, SimpleNode } from "@simple-dom/interface";
 import { nodeName, NodeTypePattern } from "./node";
 import {
   Pattern,

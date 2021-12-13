@@ -1,9 +1,9 @@
 // import { AttrCursor, DomType } from "../index";
-import { AttrCursor } from "../dom/cursor";
-import { DomImplementation, DomTypes } from "../dom/implementation";
+import type { AttrCursor } from "../dom/cursor";
+import type { DomImplementation, DomTypes } from "../dom/implementation";
 import { Reactive } from "../reactive/core";
-import { BuildAttribute } from "./element";
-import { BuildMetadata } from "./output";
+import type { BuildAttribute } from "./element";
+import type { BuildMetadata } from "./output";
 
 export class ReactiveAttributeNode<T extends DomTypes> {
   static create<T extends DomTypes>(

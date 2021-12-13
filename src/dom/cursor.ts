@@ -1,5 +1,9 @@
-import { AttrNamespace } from "@simple-dom/interface";
-import { AttributeName, DomImplementation, DomTypes } from "./implementation";
+import type { AttrNamespace } from "@simple-dom/interface";
+import type {
+  AttributeName,
+  DomImplementation,
+  DomTypes,
+} from "./implementation";
 
 export class ChildNodeCursor<T extends DomTypes> {
   static appending<T extends DomTypes>(

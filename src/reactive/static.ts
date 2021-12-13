@@ -1,4 +1,4 @@
-import { Reactive, ReactiveMetadata } from "./core";
+import type { Reactive, ReactiveMetadata } from "./core";
 import { REACTIVE_BRAND } from "./internal";
 
 export class Static<T> implements Reactive<T> {

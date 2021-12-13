@@ -1,6 +1,10 @@
-import { DomImplementation, DomType, DomTypes } from "../dom/implementation";
-import { ChildNodeCursor } from "../index";
-import { Reactive } from "../reactive/core";
+import type {
+  DomImplementation,
+  DomType,
+  DomTypes,
+} from "../dom/implementation";
+import type { ChildNodeCursor } from "../index";
+import type { Reactive } from "../reactive/core";
 import { OUTPUT_BRAND } from "../reactive/internal";
 import { isObject } from "../utils";
 

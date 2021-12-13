@@ -1,32 +1,31 @@
-import { BUMP, CONSUME, NOW, ReactivityTimeline } from "../timeline/timeline";
-import { Timestamp } from "../timeline/timestamp";
-import { Reactive } from "./core";
+import { IS_UPDATED_SINCE } from "../brands";
+import type { Timeline } from "../universe/timeline";
+import type { Timestamp } from "../universe/timestamp";
+import type { Reactive } from "./core";
 import { REACTIVE_BRAND } from "./internal";
-
-export const IS_UPDATED_SINCE = Symbol("IS_UPDATED_SINCE");
 
 export class Cell<T> implements Reactive<T> {
   #value: T;
   // @ts-ignore: Unused variable
   #lastUpdate: Timestamp;
-  #timeline: ReactivityTimeline;
+  #timeline: Timeline;
 
-  constructor(value: T, timeline: ReactivityTimeline) {
+  constructor(value: T, timeline: Timeline) {
     REACTIVE_BRAND.brand(this);
     this.#value = value;
     this.#timeline = timeline;
-    this.#lastUpdate = timeline[NOW]();
+    this.#lastUpdate = timeline.now;
   }
 
   readonly metadata = { isStatic: false };
 
   update(value: T) {
     this.#value = value;
-    this.#lastUpdate = this.#timeline[BUMP]();
+    this.#lastUpdate = this.#timeline.bump();
   }
 
   get current(): T {
-    this.#timeline[CONSUME](this);
+    this.#timeline.didConsume(this);
     return this.#value;
   }
 

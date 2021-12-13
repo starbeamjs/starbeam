@@ -1,6 +1,6 @@
-import { FinalizedFrame } from "../../timeline/frames";
-import { Timeline, WITH_FRAME } from "../../timeline/timeline";
-import { Reactive } from "../core";
+import type { FinalizedFrame } from "../../universe/frames";
+import type { Timeline } from "../../universe/timeline";
+import type { Reactive } from "../core";
 
 export class Memo<T> implements Reactive<T> {
   static create<T>(callback: () => T, timeline: Timeline): Memo<T> {
@@ -29,7 +29,8 @@ export class Memo<T> implements Reactive<T> {
       }
     }
 
-    let { frame, initial } = this.#timeline[WITH_FRAME](this.#callback);
+    let { frame, initial } = this.#timeline.withFrame(this.#callback);
+    this.#timeline.didConsume(frame);
     this.#frame = frame;
     return initial;
   }

@@ -1,12 +1,12 @@
-import {
+import type {
   AttrNamespace,
   SimpleDocument,
   SimpleElement,
   SimpleNode,
   SimpleText,
 } from "@simple-dom/interface";
-import { Prefix } from "../output/element";
-import { Profile } from "../timeline/index";
+import type { Prefix } from "../output/element";
+import { Profile } from "../universe";
 import { exhaustive } from "../utils";
 import { AttrCursor, ChildNodeCursor } from "./cursor";
 
