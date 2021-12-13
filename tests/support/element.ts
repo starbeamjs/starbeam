@@ -1,5 +1,5 @@
 import * as starbeam from "../../src/index";
-import type { TestTimeline } from "./index";
+import type { TestUniverse } from "./index";
 import type { Expects } from "./expect/expect";
 
 interface ShorthandAttribute {
@@ -45,13 +45,13 @@ export interface TestElementOptions {
 
 export class ElementArgs {
   static normalize(
-    timeline: TestTimeline,
+    timeline: TestUniverse,
     options: TestElementArgs
   ): NormalizedTestElementArgs {
     return new ElementArgs(timeline).#normalizeElementArgs(options);
   }
 
-  constructor(readonly timeline: TestTimeline) {}
+  constructor(readonly timeline: TestUniverse) {}
 
   #normalizeElementArgs(args: TestElementArgs): NormalizedTestElementArgs {
     if (isNormalized(args)) {

@@ -6,7 +6,7 @@ import {
 } from "../support/nodes/patterns";
 
 test("a simple element containing a text node (dynamic) ", ({
-  timeline,
+  universe: timeline,
   dom,
   test,
 }) => {
@@ -38,7 +38,7 @@ test("a simple element containing a text node (dynamic) ", ({
 });
 
 test("a simple element containing a text node (static) ", ({
-  timeline,
+  universe: timeline,
   dom,
   test,
 }) => {
@@ -66,7 +66,7 @@ test("a simple element containing a text node (static) ", ({
 });
 
 test("a simple element with an attribute (dynamic) ", ({
-  timeline,
+  universe: timeline,
   dom,
   test,
 }) => {
@@ -100,7 +100,7 @@ test("a simple element with an attribute (dynamic) ", ({
 });
 
 test("(smoke test) a dynamic element with a few children and a few attributes", ({
-  timeline,
+  universe: timeline,
   dom,
   test,
 }) => {

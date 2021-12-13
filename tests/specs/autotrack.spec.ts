@@ -1,10 +1,10 @@
-import { test, expect, toBe } from "../support";
+import { test, expect, toBe, Expects, TestUniverse } from "../support";
 
-test("timeline.memo", ({ timeline }) => {
-  let name = timeline.cell("Tom");
+test("timeline.memo", ({ universe }) => {
+  let name = universe.cell("Tom");
   let counter = 0;
 
-  let memo = timeline.memo(() => {
+  let memo = universe.memo(() => {
     counter++;
     return name.current;
   });
@@ -21,25 +21,48 @@ test("timeline.memo", ({ timeline }) => {
   expect(counter, toBe(2));
 });
 
-test("nested timeline.memo", ({ timeline }) => {
-  let firstName = timeline.cell("Tom");
-  let lastName = timeline.cell("Dale");
+test("nested timeline.memo", ({ universe }) => {
+  let { firstName, fullName } = testName(universe, "Tom", "Dale");
 
-  let firstNameMemo = timeline.memo(() => {
-    return firstName.current;
-  });
-
-  let lastNameMemo = timeline.memo(() => {
-    return lastName.current;
-  });
-
-  let fullNameMemo = timeline.memo(() => {
-    return `${firstNameMemo.current} ${lastNameMemo.current}`;
-  });
-
-  expect(fullNameMemo.current, toBe("Tom Dale"));
+  expect(fullName.current, toBe("Tom Dale"));
 
   firstName.update("Thomas");
 
-  expect(fullNameMemo.current, toBe("Thomas Dale"));
+  expect(fullName.current, toBe("Thomas Dale"));
 });
+
+test("timeline.memo => text", ({ universe, test }) => {
+  let { firstName, fullName } = testName(universe, "Tom", "Dale");
+
+  let text = test.buildText(fullName, Expects.dynamic);
+  let result = test.render(text, Expects.dynamic);
+
+  expect(result.node.nodeValue, toBe("Tom Dale"));
+
+  test.update(result, firstName, "Thomas");
+
+  expect(result.node.nodeValue, toBe("Thomas Dale"));
+});
+
+function testName(universe: TestUniverse, first: string, last: string) {
+  let firstName = universe.cell(first);
+  let lastName = universe.cell(last);
+
+  let firstNameMemo = universe.memo(() => {
+    return firstName.current;
+  });
+
+  let lastNameMemo = universe.memo(() => {
+    return lastName.current;
+  });
+
+  let fullNameMemo = universe.memo(() => {
+    return `${firstNameMemo.current} ${lastNameMemo.current}`;
+  });
+
+  return {
+    firstName,
+    lastName,
+    fullName: fullNameMemo,
+  };
+}

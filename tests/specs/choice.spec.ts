@@ -10,7 +10,7 @@ const OptionalString = starbeam.Choices((c) =>
   c.add("Some", StringType).add("None")
 );
 
-test("choice (unit, static)", ({ timeline }) => {
+test("choice (unit, static)", ({ universe: timeline }) => {
   let truth = timeline.static(BooleanChoice("true"));
   let value = timeline.match(truth, {
     true: () => "YES",
@@ -20,7 +20,7 @@ test("choice (unit, static)", ({ timeline }) => {
   expect(value.current, toBe("YES"));
 });
 
-test("choice (unit, dynamic)", ({ timeline }) => {
+test("choice (unit, dynamic)", ({ universe: timeline }) => {
   let bool = timeline.cell(BooleanChoice("true"));
   let value = timeline.match(bool, {
     true: () => "YES",
@@ -34,7 +34,7 @@ test("choice (unit, dynamic)", ({ timeline }) => {
   expect(value.current, toBe("NO"));
 });
 
-test("choice (tuple, static)", ({ timeline }) => {
+test("choice (tuple, static)", ({ universe: timeline }) => {
   let name = timeline.static(OptionalString("Some", timeline.static("Tom")));
   let value = timeline.match(name, {
     Some: (name) => name.toUpperCase(),
@@ -44,7 +44,7 @@ test("choice (tuple, static)", ({ timeline }) => {
   expect(value.current, toBe("TOM"));
 });
 
-test("choice (unit, dynamic top-level)", ({ timeline }) => {
+test("choice (unit, dynamic top-level)", ({ universe: timeline }) => {
   let name = timeline.cell(OptionalString("Some", timeline.static("Tom")));
 
   let value = timeline.match(name, {
@@ -59,7 +59,7 @@ test("choice (unit, dynamic top-level)", ({ timeline }) => {
   expect(value.current, toBe("anonymous"));
 });
 
-test("choice (unit, dynamic)", ({ timeline }) => {
+test("choice (unit, dynamic)", ({ universe: timeline }) => {
   let name = timeline.cell("Tom");
   let optionalName = timeline.cell(OptionalString("Some", name));
 

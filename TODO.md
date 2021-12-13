@@ -1,6 +1,6 @@
 # Now
 
-- [ ] Separate universe from timeline
+- [x] Separate universe from timeline
 
 # Later
 
@@ -12,9 +12,9 @@
   - [x] Record
   - [x] Choice (1)
   - [ ] List (3)
-  - [ ] Function (2)
-    - [ ] With interior access (2)
-    - [ ] Without interior access (2)
+  - [x] Function (2)
+    - [x] Without parameters, with interior access (2)
+    - [ ] With parameters, without interior access (2)
   - [ ] Async (4)
 - [ ] Reactive Outputs
   - [ ] DOMTreeBuilder vs. DOMTreeUpdater (1)
@@ -23,7 +23,7 @@
   - [ ] Fragment (1)
 - [ ] Effects (4)
 - [ ] Cross-cutting features
-  - [ ] Autotrack (2)
+  - [x] Autotrack (2)
   - [ ] Don't update static things (3)
   - [ ] Don't poll things if they're valid (2)
 - [ ] HTML Parser Features
@@ -36,6 +36,7 @@
   - [ ] Exception safety
     - [ ] what happens if callback throw an exception?
     - [ ] important for: (a) not having white screens, (b) error boundary
+  - [ ] const (reactive values that can no longer change)
 - [ ] Investigate
   - [ ] Does setAttribute (without NS) on a non-HTML element produce the correct namespace (1)
 

@@ -11,7 +11,7 @@ export { Expects, expect } from "./expect/expect";
 export { toBe } from "./expect/patterns/comparison";
 
 export interface TestArgs {
-  readonly timeline: starbeam.Universe<starbeam.SimpleDomTypes>;
+  readonly universe: starbeam.Universe<starbeam.SimpleDomTypes>;
   readonly test: TestSupport;
   readonly dom: starbeam.DOM<starbeam.SimpleDomTypes>;
 }
@@ -25,13 +25,13 @@ export function test(
 
     return test({
       test: support,
-      timeline: support.timeline,
+      universe: support.universe,
       dom: support.dom,
     }) as Promise<unknown>;
   });
 }
 
-export type TestTimeline = starbeam.Universe<starbeam.SimpleDomTypes>;
+export type TestUniverse = starbeam.Universe<starbeam.SimpleDomTypes>;
 export type TestDOM = starbeam.DOM<starbeam.SimpleDomTypes>;
 export type TestDocument = dom.SimpleDocument;
 
@@ -40,22 +40,22 @@ class TestSupport {
     return new TestSupport(document);
   }
 
-  readonly timeline: TestTimeline;
+  readonly universe: TestUniverse;
   readonly dom: TestDOM;
 
   #document: TestDocument;
 
   private constructor(document: TestDocument) {
     this.#document = document;
-    this.timeline = starbeam.Universe.simpleDOM(document);
-    this.dom = this.timeline.dom;
+    this.universe = starbeam.Universe.simpleDOM(document);
+    this.dom = this.universe.dom;
   }
 
   buildText(
     reactive: starbeam.Reactive<string>,
     expectation: Expects
   ): starbeam.ReactiveTextNode<starbeam.SimpleDomTypes> {
-    let text = this.timeline.dom.text(reactive);
+    let text = this.universe.dom.text(reactive);
     expect(normalize(text.metadata.isStatic)).toBe(expectation);
     return text;
   }
@@ -64,7 +64,7 @@ class TestSupport {
     ...args: TestElementArgs
   ): starbeam.ReactiveElementNode<starbeam.SimpleDomTypes> {
     let { tagName, build, expectation } = ElementArgs.normalize(
-      this.timeline,
+      this.universe,
       args
     );
     let element = starbeam.ReactiveElementBuilder.build(tagName, build);
@@ -77,7 +77,7 @@ class TestSupport {
     expectation: Expects
   ): starbeam.Rendered<starbeam.SimpleDomTypes, N> {
     let element = this.#document.createElement("div");
-    let rendered = this.timeline.renderIntoElement(text, element);
+    let rendered = this.universe.renderIntoElement(text, element);
 
     expect(
       normalize(rendered.metadata.isConstant),
@@ -86,11 +86,23 @@ class TestSupport {
 
     return rendered;
   }
+
+  update<T>(
+    rendered: starbeam.Rendered<
+      starbeam.SimpleDomTypes,
+      starbeam.DomType<starbeam.SimpleDomTypes>
+    >,
+    cell: starbeam.Cell<T>,
+    value: T
+  ): void {
+    cell.update(value);
+    this.universe.poll(rendered);
+  }
 }
 
 export type Test = (args: {
   test: TestSupport;
-  timeline: starbeam.Universe;
+  universe: starbeam.Universe;
 }) => void | Promise<void>;
 
 function normalize(isStatic: boolean): Expects {

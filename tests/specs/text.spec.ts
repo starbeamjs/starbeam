@@ -1,6 +1,6 @@
 import { test, Expects, expect, toBe } from "../support";
 
-test("dynamic text", ({ timeline, test }) => {
+test("dynamic text", ({ universe: timeline, test }) => {
   let cell = timeline.cell("hello");
   let text = test.buildText(cell, Expects.dynamic);
 
@@ -13,7 +13,7 @@ test("dynamic text", ({ timeline, test }) => {
   expect(result.node.nodeValue, toBe("goodbye"));
 });
 
-test("static text", ({ timeline, test }) => {
+test("static text", ({ universe: timeline, test }) => {
   let hello = timeline.static("hello");
   let text = test.buildText(hello, Expects.static);
 
