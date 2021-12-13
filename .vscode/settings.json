@@ -6,5 +6,9 @@
   "typescript.preferences.importModuleSpecifierEnding": "index",
   "jest.jestCommandLine": "node ./node_modules/jest/bin/jest.js",
   "npm.packageManager": "pnpm",
-  "eslint.packageManager": "pnpm"
+  "eslint.packageManager": "pnpm",
+  "jest.autoRun": {
+    "watch": true
+  }
+  // "jest.autoRun": "off"
 }

@@ -3,6 +3,8 @@ import { Timestamp } from "../timeline/timestamp";
 import { Reactive } from "./core";
 import { REACTIVE_BRAND } from "./internal";
 
+export const IS_UPDATED_SINCE = Symbol("IS_UPDATED_SINCE");
+
 export class Cell<T> implements Reactive<T> {
   #value: T;
   // @ts-ignore: Unused variable
@@ -27,4 +29,10 @@ export class Cell<T> implements Reactive<T> {
     this.#timeline[CONSUME](this);
     return this.#value;
   }
+
+  [IS_UPDATED_SINCE](timestamp: Timestamp): boolean {
+    return this.#lastUpdate.gt(timestamp);
+  }
 }
+
+export type AnyCell = Cell<unknown>;

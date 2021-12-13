@@ -7,7 +7,7 @@ import {
 } from "../dom/implementation";
 import { ChildNodeCursor, DOM } from "../dom/index";
 import { Output, Rendered } from "../output/output";
-import { Cell } from "../reactive/cell";
+import { AnyCell, Cell } from "../reactive/cell";
 import { Reactive } from "../reactive/core";
 import { SimpleDocument } from "@simple-dom/interface";
 import { Static } from "../reactive/static";
@@ -15,18 +15,24 @@ import { createDocument } from "simple-dom";
 import { InnerDict, ReactiveRecord } from "../reactive/record";
 import { AnyChoice } from "../reactive/choice";
 import { Matcher, ReactiveMatch } from "../reactive/match";
+import { Memo } from "../reactive/functions/memo";
+import { ActiveFrame, FinalizedFrame } from "./frames";
+import { assert } from "../utils";
 
 export const NOW = Symbol("NOW");
 export const BUMP = Symbol("BUMP");
 export const CONSUME = Symbol("CONSUME");
+export const WITH_FRAME = Symbol("WITH_FRAME");
 
 export interface ReactivityTimeline {
   // Returns the current timestamp
   [NOW](): Timestamp;
   // Increment the current timestamp and return the incremented timestamp.
   [BUMP](): Timestamp;
-  // TODO
-  [CONSUME](_reactive: Reactive<unknown>): void;
+  // Indicate that a particular cell was used inside of the current computation.
+  [CONSUME](cell: AnyCell): void;
+  // Run a computation in the context of a frame, and return a finalized frame.
+  [WITH_FRAME]<T>(callback: () => T): { frame: FinalizedFrame<T>; initial: T };
 }
 
 export class Timeline<T extends DomTypes = DomTypes>
@@ -50,6 +56,7 @@ export class Timeline<T extends DomTypes = DomTypes>
   }
 
   #now = new Timestamp(1);
+  #frame: ActiveFrame | null = null;
   readonly #domImplementation: DomImplementation<T>;
 
   readonly dom: DOM<T> = new DOM();
@@ -67,10 +74,30 @@ export class Timeline<T extends DomTypes = DomTypes>
     return this.#now;
   }
 
-  [CONSUME](_reactive: Reactive<unknown>) {}
+  [CONSUME](cell: AnyCell) {
+    if (this.#frame) {
+      this.#frame.add(cell);
+    }
+  }
+
+  [WITH_FRAME]<T>(callback: () => T): { frame: FinalizedFrame<T>; initial: T } {
+    this.#frame = new ActiveFrame();
+    let result = callback();
+    let frame = this.#frame.finalize(result, this.#now);
+    this.#frame = null;
+    return frame;
+  }
 
   cell<T>(value: T): Cell<T> {
     return new Cell(value, this);
+  }
+
+  /*
+   * Create a memoized value that re-executes whenever any cells used in its
+   * computation invalidate.
+   */
+  memo<T>(callback: () => T): Memo<T> {
+    return Memo.create(callback, this);
   }
 
   static<T>(value: T): Static<T> {

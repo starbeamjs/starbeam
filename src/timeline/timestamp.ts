@@ -5,6 +5,10 @@ export class Timestamp {
     this.#timestamp = timestamp;
   }
 
+  gt(other: Timestamp) {
+    return this.#timestamp > other.#timestamp;
+  }
+
   next(): Timestamp {
     return new Timestamp(this.#timestamp + 1);
   }
