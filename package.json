@@ -11,7 +11,8 @@
     "build": "tsc && vite build",
     "serve": "vite preview",
     "test": "jest",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "guides": "mdbook build -d docs ./guides"
   },
   "madge": {
     "detectiveOptions": {
