@@ -12,7 +12,7 @@
     "serve": "vite preview",
     "test": "jest",
     "typecheck": "tsc",
-    "guides": "mdbook build -d docs ./guides"
+    "guides": "mdbook build -d ../docs guides"
   },
   "madge": {
     "detectiveOptions": {
