@@ -1,3 +1,9 @@
+## Building the Guides
+
+```bash
+$ pnpm run guides
+```
+
 ## Features To Implement
 
 - [ ] Reactive Outputs
