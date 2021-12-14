@@ -60,6 +60,15 @@ class TestSupport {
     return text;
   }
 
+  buildComment(
+    reactive: starbeam.Reactive<string>,
+    expectation: Expects
+  ): starbeam.ReactiveCommentNode<starbeam.SimpleDomTypes> {
+    let comment = this.universe.dom.comment(reactive);
+    expect(normalize(comment.metadata.isStatic)).toBe(expectation);
+    return comment;
+  }
+
   buildElement(
     ...args: TestElementArgs
   ): starbeam.ReactiveElementNode<starbeam.SimpleDomTypes> {

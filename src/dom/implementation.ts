@@ -1,5 +1,6 @@
 import type {
   AttrNamespace,
+  SimpleComment,
   SimpleDocument,
   SimpleElement,
   SimpleNode,
@@ -14,6 +15,7 @@ export interface DomTypes {
   document: unknown;
   node: unknown;
   text: unknown;
+  comment: unknown;
   element: unknown;
   attribute: unknown;
 }
@@ -31,6 +33,7 @@ export interface DomImplementation<T extends DomTypes> {
   ): ChildNodeCursor<T>;
   createAttributeCursor(parentNode: T["element"]): AttrCursor<T>;
   createTextNode(value: string): T["text"];
+  createCommentNode(value: string): T["comment"];
   insertChild(
     child: T["node"],
     parent: T["element"],
@@ -48,6 +51,7 @@ export interface DomImplementation<T extends DomTypes> {
     nextSibling: T["node"]
   ): ChildNodeCursor<T>;
   updateTextNode(node: T["text"], value: string): void;
+  updateCommentNode(node: T["comment"], value: string): void;
   updateAttribute(
     attribute: T["attribute"],
     value: string,
@@ -79,6 +83,7 @@ export interface SimpleDomTypes {
   document: SimpleDocument;
   node: SimpleNode;
   text: SimpleText;
+  comment: SimpleComment;
   element: SimpleElement;
   attribute: RenderedAttribute;
 }
@@ -123,7 +128,15 @@ export class SimpleDomImplementation
     return this.#document.createTextNode(value);
   }
 
+  createCommentNode(value: string): SimpleComment {
+    return this.#document.createComment(value);
+  }
+
   updateTextNode(node: SimpleText, value: string): void {
+    node.nodeValue = value;
+  }
+
+  updateCommentNode(node: SimpleComment, value: string): void {
     node.nodeValue = value;
   }
 
