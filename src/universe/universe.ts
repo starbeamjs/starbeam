@@ -2,11 +2,10 @@ import type { SimpleDocument } from "@simple-dom/interface";
 import { createDocument } from "simple-dom";
 import {
   DomImplementation,
-  DomTypes,
   SimpleDomImplementation,
   SimpleDomTypes,
 } from "../dom/implementation";
-import { ChildNodeCursor, DOM } from "../dom/index";
+import { ChildNodeCursor, DOM } from "../dom";
 import type { Output, Rendered } from "../output/output";
 import { Cell } from "../reactive/cell";
 import type { AnyChoice } from "../reactive/choice";
@@ -17,6 +16,7 @@ import { InnerDict, ReactiveRecord } from "../reactive/record";
 import { Static } from "../reactive/static";
 import { Profile } from "./profile";
 import { Timeline } from "./timeline";
+import type { DomTypes } from "../dom/types";
 
 export const TIMELINE = Symbol("TIMELINE");
 

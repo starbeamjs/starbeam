@@ -1,6 +1,7 @@
 // import { AttrCursor, DomType } from "../index";
 import type { AttrCursor } from "../dom/cursor";
-import type { DomImplementation, DomTypes } from "../dom/implementation";
+import type { DomImplementation } from "../dom/implementation";
+import type { DomTypes } from "../dom/types";
 import { Reactive } from "../reactive/core";
 import type { BuildAttribute } from "./element";
 import type { BuildMetadata } from "./output";
@@ -29,7 +30,7 @@ export class ReactiveAttributeNode<T extends DomTypes> {
   ): RenderedAttributeNode<T> {
     let value = this.#attribute.value.current;
 
-    let attribute = cursor.initialize({ name: this.#attribute.name }, value);
+    let attribute = cursor.initialize(this.#attribute.name, value);
     return new RenderedAttributeNode(attribute, this.#attribute.value);
   }
 }

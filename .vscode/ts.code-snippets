@@ -17,7 +17,7 @@
   // }
   "todo": {
     "scope": "typescript",
-    "prefix": "!!!",
+    "prefix": "???",
     "body": ["throw Error('todo: $1')"],
     "description": "Throw an error to indicate not yet implemented"
   }

@@ -3,7 +3,7 @@ import type { TestUniverse } from "./index";
 import type { Expects } from "./expect/expect";
 
 interface ShorthandAttribute {
-  prefix?: starbeam.Prefix;
+  name: starbeam.AnyAttributeName;
   value: string | null;
 }
 
@@ -106,11 +106,10 @@ export class ElementArgs {
     } else if (isReactiveAttribute(attribute)) {
       return attribute;
     } else {
-      let { prefix, value } = attribute;
+      let { name, value } = attribute;
 
       return {
         name,
-        prefix,
         value: starbeam.Reactive.from(value),
       };
     }

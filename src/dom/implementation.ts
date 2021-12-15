@@ -2,25 +2,20 @@ import type {
   AttrNamespace,
   SimpleComment,
   SimpleDocument,
+  SimpleDocumentFragment,
   SimpleElement,
   SimpleNode,
   SimpleText,
 } from "@simple-dom/interface";
-import type { Prefix } from "../output/element";
 import { Profile } from "../universe";
 import { exhaustive } from "../utils";
 import { AttrCursor, ChildNodeCursor } from "./cursor";
-
-export interface DomTypes {
-  document: unknown;
-  node: unknown;
-  text: unknown;
-  comment: unknown;
-  element: unknown;
-  attribute: unknown;
-}
-
-export type DomType<T extends DomTypes> = T[keyof T];
+import {
+  AnyAttributeName,
+  ForeignPrefix,
+  parseAttribute,
+} from "./tree-construction";
+import type { DomTypes } from "./types";
 
 export interface DomImplementation<T extends DomTypes> {
   /*
@@ -42,7 +37,7 @@ export interface DomImplementation<T extends DomTypes> {
   createElement(tagName: string): T["element"];
   initializeAttribute(
     parent: T["element"],
-    name: AttributeName,
+    name: AnyAttributeName,
     value: string | null
   ): T["attribute"];
 
@@ -69,18 +64,14 @@ export interface DomImplementation<T extends DomTypes> {
   ): void;
 }
 
-export interface AttributeName {
-  name: string;
-  prefix?: Prefix;
-}
-
 export interface RenderedAttribute {
   parent: SimpleElement;
-  name: AttributeName;
+  name: AnyAttributeName;
 }
 
 export interface SimpleDomTypes {
   document: SimpleDocument;
+  fragment: SimpleDocumentFragment;
   node: SimpleNode;
   text: SimpleText;
   comment: SimpleComment;
@@ -163,7 +154,7 @@ export class SimpleDomImplementation
 
   initializeAttribute(
     parent: SimpleElement,
-    name: AttributeName,
+    name: AnyAttributeName,
     value: string | null
   ): RenderedAttribute {
     if (this.#profile === Profile.Debug) {
@@ -172,7 +163,7 @@ export class SimpleDomImplementation
         currentValue === null,
         `Unexpectedly initializing an attribute that was already initialized.\n%o\nattribute name: %o\n       current value: %s\n`,
         parent,
-        formatAttr(name),
+        name,
         currentValue
       );
     }
@@ -206,7 +197,7 @@ export class SimpleDomImplementation
         currentValue !== null,
         `Unexpectedly removing an attribute that wasn't present.\n%o\nattribute name: %o\n      expected value: %s\n`,
         parent,
-        formatAttr(name),
+        name,
         lastValue
       );
     }
@@ -217,8 +208,10 @@ export class SimpleDomImplementation
 
 function getAttribute(
   element: SimpleElement,
-  { name, prefix }: AttributeName
+  attr: AnyAttributeName
 ): string | null {
+  let { prefix, name } = parseAttribute(attr);
+
   if (prefix) {
     return element.getAttributeNS(namespace(prefix), name);
   } else {
@@ -228,9 +221,11 @@ function getAttribute(
 
 function setAttribute(
   element: SimpleElement,
-  { name, prefix }: AttributeName,
+  attr: AnyAttributeName,
   value: string
 ) {
+  let { prefix, name } = parseAttribute(attr);
+
   if (prefix) {
     element.setAttributeNS(namespace(prefix), name, value);
   } else {
@@ -238,10 +233,9 @@ function setAttribute(
   }
 }
 
-function removeAttribute(
-  element: SimpleElement,
-  { name, prefix }: AttributeName
-) {
+function removeAttribute(element: SimpleElement, attr: AnyAttributeName) {
+  let { prefix, name } = parseAttribute(attr);
+
   if (prefix) {
     element.removeAttributeNS(namespace(prefix), name);
   } else {
@@ -251,7 +245,7 @@ function removeAttribute(
 
 function assertAttributeValue(
   parent: SimpleElement,
-  name: AttributeName,
+  name: AnyAttributeName,
   lastValue?: string | null
 ) {
   if (lastValue === undefined) {
@@ -264,17 +258,13 @@ function assertAttributeValue(
     currentValue === lastValue,
     "Unexpected change to atttribute value.\n%o\nattribute name: %o\n       expected value: %s\n       current value: %s\n",
     parent,
-    formatAttr(name),
+    name,
     lastValue,
     currentValue
   );
 }
 
-function formatAttr({ name, prefix }: AttributeName): string {
-  return prefix ? `${prefix}:${name}` : name;
-}
-
-function namespace(prefix?: Prefix): AttrNamespace {
+function namespace(prefix?: ForeignPrefix): AttrNamespace {
   switch (prefix) {
     case "xlink":
       return "http://www.w3.org/1999/xlink" as AttrNamespace;

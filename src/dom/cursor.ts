@@ -1,9 +1,7 @@
 import type { AttrNamespace } from "@simple-dom/interface";
-import type {
-  AttributeName,
-  DomImplementation,
-  DomTypes,
-} from "./implementation";
+import type { DomImplementation } from "./implementation";
+import type { AnyAttributeName } from "./tree-construction";
+import type { DomTypes } from "./types";
 
 export class ChildNodeCursor<T extends DomTypes> {
   static appending<T extends DomTypes>(
@@ -73,7 +71,7 @@ export class AttrCursor<T extends DomTypes> {
     this.#implementation = implementation;
   }
 
-  initialize(name: AttributeName, value: string | null): T["attribute"] {
+  initialize(name: AnyAttributeName, value: string | null): T["attribute"] {
     return this.#implementation.initializeAttribute(this.#parent, name, value);
   }
 

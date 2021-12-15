@@ -1,4 +1,5 @@
-import type { DomImplementation, DomTypes } from "../dom/implementation";
+import type { DomImplementation } from "../dom/implementation";
+import type { DomTypes } from "../dom/types";
 import type { ChildNodeCursor } from "../index";
 import type { Reactive } from "../reactive/core";
 import type { BuildMetadata, Output, Rendered, RenderMetadata } from "./output";

@@ -1,4 +1,6 @@
-import type { DomImplementation, DomTypes } from "../dom/implementation";
+import type { DomImplementation } from "../dom/implementation";
+import type { AnyAttributeName } from "../dom/tree-construction";
+import type { DomTypes } from "../dom/types";
 import type { ChildNodeCursor } from "../index";
 import { Reactive } from "../reactive/core";
 import { ReactiveAttributeNode, RenderedAttributeNode } from "./attribute";
@@ -138,13 +140,9 @@ export class RenderedElementNode<T extends DomTypes>
   }
 }
 
-// https://html.spec.whatwg.org/multipage/parsing.html#insert-a-foreign-element
-export type Prefix = "xlink" | "xml" | "xmlns";
-
 // TODO: extract AttributeName
 export interface BuildAttribute {
-  name: string;
-  prefix?: Prefix;
+  name: AnyAttributeName;
   value: Reactive<string | null>;
 }
 

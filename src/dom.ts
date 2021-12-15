@@ -1,11 +1,11 @@
-import { ReactiveElementBuilder } from "../output/element";
+import { ReactiveElementBuilder } from "./output/element";
 import {
   ReactiveTextNode,
   ReactiveDataNode,
   ReactiveCommentNode,
-} from "../output/text";
-import type { Reactive } from "../reactive/core";
-import type { DomTypes } from "./implementation";
+} from "./output/text";
+import type { Reactive } from "./reactive/core";
+import type { DomTypes } from "./dom/types";
 
 export const APPEND = Symbol("APPEND");
 
@@ -23,5 +23,7 @@ export class DOM<T extends DomTypes> {
   }
 }
 
-export * from "./cursor";
-export * from "./implementation";
+export * from "./dom/cursor";
+export * from "./dom/implementation";
+export type { AnyAttributeName } from "./dom/tree-construction";
+export type { DomType, DomTypes } from "./dom/types";

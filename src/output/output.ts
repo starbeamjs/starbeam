@@ -1,8 +1,5 @@
-import type {
-  DomImplementation,
-  DomType,
-  DomTypes,
-} from "../dom/implementation";
+import type { DomImplementation } from "../dom/implementation";
+import type { DomType, DomTypes } from "../dom/types";
 import type { ChildNodeCursor } from "../index";
 import type { Reactive } from "../reactive/core";
 import { OUTPUT_BRAND } from "../reactive/internal";

@@ -6,8 +6,8 @@
   "jest.jestCommandLine": "node ./node_modules/jest/bin/jest.js",
   "npm.packageManager": "pnpm",
   "eslint.packageManager": "pnpm",
-  "jest.autoRun": {
-    "watch": "test-file"
-  }
-  // "jest.autoRun": "off"
+  // "jest.autoRun": {
+  //   "watch": "test-file"
+  // }
+  "jest.autoRun": "off"
 }
