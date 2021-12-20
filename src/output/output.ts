@@ -11,50 +11,44 @@ export interface BuildMetadata {
 
 export type OutputBuilder<In, Out> = (input: Reactive<In>) => Out;
 
-export interface Output<T extends DomTypes, N extends T[keyof T]> {
+export interface Output<T extends DomTypes> {
   readonly metadata: BuildMetadata;
+  readonly NODE: T[keyof T];
 
-  render(dom: DomImplementation<T>, cursor: ChildNodeCursor<T>): Rendered<T, N>;
+  render(dom: DomImplementation<T>, cursor: ChildNodeCursor<T>): Rendered<T>;
 }
 
-export type StaticOutput<T extends DomTypes, N extends DomType<T>> = Output<
-  T,
-  N
-> & {
+export type StaticOutput<T extends DomTypes> = Output<T> & {
   metadata: {
     isStatic: true;
   };
 };
-export type DynamicOutput<T extends DomTypes, N extends DomType<T>> = Output<
-  T,
-  N
-> & {
+
+export type DynamicOutput<T extends DomTypes> = Output<T> & {
   metadata: {
     isStatic: false;
   };
 };
 
 export const Output = {
-  is<T extends DomTypes>(value: unknown): value is AnyOutput<T> {
+  is<T extends DomTypes>(value: unknown): value is Output<T> {
     return isObject(value) && OUTPUT_BRAND.is(value);
   },
 
-  isStatic<T extends DomTypes, N extends DomType<T>>(
+  isStatic<T extends DomTypes>(
     this: void,
-    output: Output<T, N>
-  ): output is StaticOutput<T, N> {
+    output: Output<T>
+  ): output is StaticOutput<T> {
     return output.metadata.isStatic;
   },
 
-  isDynamic<T extends DomTypes, N extends DomType<T>>(
+  isDynamic<T extends DomTypes>(
     this: void,
-    output: Output<T, N>
-  ): output is DynamicOutput<T, N> {
+    output: Output<T>
+  ): output is DynamicOutput<T> {
     return !Output.isStatic(output);
   },
 } as const;
-
-export type AnyOutput<T extends DomTypes> = Output<T, DomType<T>>;
 
 export interface RenderMetadata {
   isConstant: boolean;
@@ -64,44 +58,39 @@ export interface RenderMetadata {
   };
 }
 
-export interface Rendered<T extends DomTypes, N extends T[keyof T]> {
+export interface Rendered<T extends DomTypes> {
   readonly metadata: RenderMetadata;
-  readonly node: N;
+  readonly NODE: T[keyof T];
 
   poll(dom: DomImplementation<T>): void;
+  move(dom: DomImplementation<T>, cursor: ChildNodeCursor<T>): void;
 }
 
-export type AnyRendered<T extends DomTypes> = Rendered<T, DomType<T>>;
+export type AnyRendered<T extends DomTypes> = Rendered<T>;
 
-export type ConstantRendered<
-  T extends DomTypes,
-  N extends DomType<T>
-> = Rendered<T, N> & {
+export type ConstantRendered<T extends DomTypes> = Rendered<T> & {
   metadata: {
     isStatic: true;
   };
 };
-export type DynamicRendered<
-  T extends DomTypes,
-  N extends DomType<T>
-> = Rendered<T, N> & {
+export type DynamicRendered<T extends DomTypes> = Rendered<T> & {
   metadata: {
     isStatic: false;
   };
 };
 
 export const Rendered = {
-  isConstant<T extends DomTypes, N extends DomType<T>>(
+  isConstant<T extends DomTypes>(
     this: void,
-    rendered: Rendered<T, N>
-  ): rendered is ConstantRendered<T, N> {
+    rendered: Rendered<T>
+  ): rendered is ConstantRendered<T> {
     return rendered.metadata.isConstant;
   },
 
-  isDynamic<T extends DomTypes, N extends DomType<T>>(
+  isDynamic<T extends DomTypes>(
     this: void,
-    rendered: Rendered<T, N>
-  ): rendered is DynamicRendered<T, N> {
+    rendered: Rendered<T>
+  ): rendered is DynamicRendered<T> {
     return !Rendered.isConstant(rendered);
   },
 } as const;

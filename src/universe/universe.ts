@@ -5,10 +5,10 @@ import {
   SimpleDomImplementation,
   SimpleDomTypes,
 } from "../dom/implementation";
-import { ChildNodeCursor, DOM } from "../dom";
+import { ChildNodeCursor, ReactiveDOM } from "../dom";
 import type { Output, Rendered } from "../output/output";
 import { Cell } from "../reactive/cell";
-import type { AnyChoice } from "../reactive/choice";
+import type { AnyReactiveChoice } from "../reactive/choice";
 import type { Reactive } from "../reactive/core";
 import { Memo } from "../reactive/functions/memo";
 import { Matcher, ReactiveMatch } from "../reactive/match";
@@ -41,7 +41,7 @@ export class Universe<T extends DomTypes = DomTypes> {
   readonly #domImplementation: DomImplementation<T>;
   readonly #timeline = Timeline.create();
 
-  readonly dom: DOM<T> = new DOM();
+  readonly dom: ReactiveDOM<T> = new ReactiveDOM();
 
   constructor(document: DomImplementation<T>) {
     this.#domImplementation = document;
@@ -63,10 +63,10 @@ export class Universe<T extends DomTypes = DomTypes> {
     return new Static(value);
   }
 
-  match<C extends AnyChoice>(
+  match<C extends AnyReactiveChoice>(
     reactive: Reactive<C>,
     matcher: C extends infer ActualC
-      ? ActualC extends AnyChoice
+      ? ActualC extends AnyReactiveChoice
         ? Matcher<ActualC>
         : never
       : never
@@ -78,24 +78,18 @@ export class Universe<T extends DomTypes = DomTypes> {
     return new ReactiveRecord(dict);
   }
 
-  renderIntoElement<N extends T[keyof T]>(
-    output: Output<T, N>,
-    parentNode: T["element"]
-  ): Rendered<T, N> {
+  renderIntoElement(output: Output<T>, parentNode: T["element"]): Rendered<T> {
     return output.render(
       this.#domImplementation,
       ChildNodeCursor.appending(parentNode, this.#domImplementation)
     );
   }
 
-  render<N extends T[keyof T]>(
-    output: Output<T, N>,
-    cursor: ChildNodeCursor<T>
-  ): Rendered<T, N> {
+  render(output: Output<T>, cursor: ChildNodeCursor<T>): Rendered<T> {
     return output.render(this.#domImplementation, cursor);
   }
 
-  poll<N extends T[keyof T]>(rendered: Rendered<T, N>) {
+  poll(rendered: Rendered<T>) {
     rendered.poll(this.#domImplementation);
   }
 }

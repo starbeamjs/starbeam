@@ -1,4 +1,5 @@
 import {
+  AnyPattern,
   Pattern,
   PatternImpl,
   PatternMatch,
@@ -52,6 +53,6 @@ export class ToBe<T> implements Pattern<unknown, T, undefined> {
 export function toBe<T>(
   value: T,
   description?: ToBeDescription
-): PatternImpl<unknown, T> {
-  return PatternImpl.of<unknown, T, any, any>(new ToBe(value, description));
+): AnyPattern<T> {
+  return PatternImpl.of<T, T, any, any>(new ToBe(value, description));
 }

@@ -27,6 +27,8 @@
     "@babel/preset-env": "^7.15.8",
     "@babel/preset-typescript": "^7.15.0",
     "@simple-dom/interface": "^1.4.0",
+    "@simple-dom/parser": "^1.4.0",
+    "@simple-dom/serializer": "^1.4.0",
     "@types/jest": "^27.0.2",
     "@types/jest-expect-message": "^1.0.3",
     "@types/lodash.zip": "^4.2.6",
@@ -34,10 +36,13 @@
     "jest": "^27.2.5",
     "jest-diff": "^27.4.2",
     "lodash.zip": "^4.2.0",
+    "simple-html-tokenizer": "^0.5.11",
     "typescript": "^4.4.4",
     "vite": "^2.6.4"
   },
   "dependencies": {
+    "crud-object-diff": "^2.3.6",
+    "deep-object-diff": "^1.1.0",
     "simple-dom": "^1.4.0"
   },
   "jest": {

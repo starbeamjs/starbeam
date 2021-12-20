@@ -1,11 +1,21 @@
-import type { Reactive } from "./core";
+import { Reactive } from "./core";
 
-export type Choice<T> = {
+export type ReactiveChoice<T> = {
   discriminant: string;
   value?: Reactive<T>;
 };
 
-export type AnyChoice = Choice<unknown>;
+export const ReactiveChoice = {
+  isStatic(choice: AnyReactiveChoice): boolean {
+    return choice.value === undefined || Reactive.isStatic(choice.value);
+  },
+
+  isDynamic(choice: AnyReactiveChoice): boolean {
+    return !ReactiveChoice.isStatic(choice);
+  },
+};
+
+export type AnyReactiveChoice = ReactiveChoice<unknown>;
 
 export type Type<T> = (value: unknown) => value is T;
 export type Variant<T> = [discriminant: string, value?: Type<T>];
@@ -16,20 +26,23 @@ export type TypeFor<T extends Type<unknown> | undefined> = T extends undefined
   ? V
   : never;
 
-type ValueFor<C extends AnyChoice, K extends C["discriminant"]> = C extends {
+type ValueFor<
+  C extends AnyReactiveChoice,
+  K extends C["discriminant"]
+> = C extends {
   discriminant: K;
   value: infer V;
 }
   ? V
   : never;
 
-interface ReactiveChoiceConstructor<C extends AnyChoice> {
+interface ReactiveChoiceConstructor<C extends AnyReactiveChoice> {
   <K extends C["discriminant"]>(discriminant: K): C;
   <K extends C["discriminant"]>(discriminant: K, value: ValueFor<C, K>): C;
 }
 
-export class ReactiveChoices<C extends AnyChoice> {
-  static define<C extends AnyChoice>(
+export class ReactiveChoices<C extends AnyReactiveChoice> {
+  static define<C extends AnyReactiveChoice>(
     def: (choices: ReactiveChoices<never>) => ReactiveChoices<C>
   ): ReactiveChoiceConstructor<C> {
     return def(new ReactiveChoices()).done();
@@ -45,7 +58,7 @@ export class ReactiveChoices<C extends AnyChoice> {
   add(
     _discriminant: string,
     _value?: Type<unknown>
-  ): ReactiveChoices<AnyChoice> {
+  ): ReactiveChoices<AnyReactiveChoice> {
     return this;
   }
 

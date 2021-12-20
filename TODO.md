@@ -15,6 +15,9 @@
   - [x] Function (2)
     - [x] Without parameters, with interior access (2)
     - [ ] With parameters, without interior access (2)
+  - [ ] Component
+    - [ ] Normal: with interior access (2)
+    - [ ] Restricted: only dereference the parameter (2)
   - [ ] Async (4)
 - [ ] Reactive Outputs
   - [ ] DOMTreeBuilder vs. DOMTreeUpdater (1)
@@ -26,7 +29,7 @@
   - [x] Autotrack (2)
   - [ ] Don't update static things (3)
   - [ ] Don't poll things if they're valid (2)
-- [ ] HTML Parser Features
+- [ ] HTML Parser Features (in progress)
   - [ ] SVG (3)
   - [ ] MathML (4)
 - [ ] Structural Improvements

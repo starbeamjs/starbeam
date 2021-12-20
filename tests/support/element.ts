@@ -20,7 +20,7 @@ type TestAttribute =
 export function isIntoReactive(
   value: TestAttribute
 ): value is starbeam.IntoReactive<string | null> {
-  if (starbeam.Reactive.isReactive(value)) {
+  if (starbeam.Reactive.is(value)) {
     return true;
   } else if (value === null || typeof value === "string") {
     return true;
@@ -32,10 +32,10 @@ export function isIntoReactive(
 export function isReactiveAttribute(
   attribute: starbeam.BuildAttribute | ShorthandAttribute
 ): attribute is starbeam.BuildAttribute {
-  return starbeam.Reactive.isReactive(attribute.value);
+  return starbeam.Reactive.is(attribute.value);
 }
 
-export type AnyOutput = starbeam.AnyOutput<starbeam.SimpleDomTypes>;
+export type AnyOutput = starbeam.Output<starbeam.SimpleDomTypes>;
 export type TestChild = AnyOutput | string;
 
 export interface TestElementOptions {

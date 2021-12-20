@@ -5,7 +5,6 @@ import type { ChildNodeCursor } from "../index";
 import { Reactive } from "../reactive/core";
 import { ReactiveAttributeNode, RenderedAttributeNode } from "./attribute";
 import {
-  AnyOutput,
   AnyRendered,
   BuildMetadata,
   Output,
@@ -13,13 +12,11 @@ import {
   RenderMetadata,
 } from "./output";
 
-export class ReactiveElementNode<T extends DomTypes>
-  implements Output<T, T["text"]>
-{
+export class ReactiveElementNode<T extends DomTypes> implements Output<T> {
   static create<T extends DomTypes>(
     tagName: Reactive<string>,
     buildAttributes: readonly BuildAttribute[],
-    children: readonly AnyOutput<T>[]
+    children: readonly Output<T>[]
   ): ReactiveElementNode<T> {
     let attributes = buildAttributes.map((a) =>
       ReactiveAttributeNode.create<T>(a)
@@ -35,14 +32,16 @@ export class ReactiveElementNode<T extends DomTypes>
     return new ReactiveElementNode(tagName, attributes, children, metadata);
   }
 
+  readonly NODE!: T["element"];
+
   readonly #tagName: Reactive<string>;
   readonly #attributes: readonly ReactiveAttributeNode<T>[];
-  readonly #children: readonly AnyOutput<T>[];
+  readonly #children: readonly Output<T>[];
 
   private constructor(
     tagName: Reactive<string>,
     attributes: readonly ReactiveAttributeNode<T>[],
-    children: readonly AnyOutput<T>[],
+    children: readonly Output<T>[],
     readonly metadata: BuildMetadata
   ) {
     this.#tagName = tagName;
@@ -76,9 +75,7 @@ export class ReactiveElementNode<T extends DomTypes>
   }
 }
 
-export class RenderedElementNode<T extends DomTypes>
-  implements Rendered<T, T["element"]>
-{
+export class RenderedElementNode<T extends DomTypes> implements Rendered<T> {
   static create<T extends DomTypes>(
     node: T["element"],
     tagName: Reactive<string>,
@@ -103,6 +100,8 @@ export class RenderedElementNode<T extends DomTypes>
     );
   }
 
+  readonly NODE!: T["element"];
+
   readonly #node: T["element"];
   readonly #tagName: Reactive<string>;
   readonly #attributes: readonly RenderedAttributeNode<T>[];
@@ -119,6 +118,10 @@ export class RenderedElementNode<T extends DomTypes>
     this.#tagName = tagName;
     this.#attributes = attributes;
     this.#children = children;
+  }
+
+  move(dom: DomImplementation<T>, cursor: ChildNodeCursor<T>): void {
+    throw new Error("Method not implemented.");
   }
 
   get node(): T["element"] {
@@ -161,14 +164,14 @@ export class ReactiveElementBuilder<T extends DomTypes> {
   }
 
   readonly #tagName: Reactive<string>;
-  readonly #children: AnyOutput<T>[] = [];
+  readonly #children: Output<T>[] = [];
   readonly #attributes: BuildAttribute[] = [];
 
   constructor(tagName: Reactive<string>) {
     this.#tagName = tagName;
   }
 
-  append(output: AnyOutput<T>): this {
+  append(output: Output<T>): this {
     this.#children.push(output);
     return this;
   }

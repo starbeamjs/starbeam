@@ -49,7 +49,7 @@ export interface Pattern<In, Out extends In, F = unknown, S = void> {
   readonly details: PatternDetails;
   check(actual: In): PatternResult<F, S>;
   success(actual: Out, success: S): Success;
-  failure(actual: Out, failure: F): Failure;
+  failure(actual: In, failure: F): Failure;
 }
 
 export type PatternFor<P extends Pattern<unknown, unknown, unknown, unknown>> =
@@ -82,7 +82,7 @@ export class PatternImpl<In, Out extends In, F = unknown, S = void> {
     return this.#pattern.success(actual, success);
   }
 
-  failure(actual: Out, failure: F): Failure {
+  failure(actual: In, failure: F): Failure {
     return this.#pattern.failure(actual, failure);
   }
 
@@ -93,6 +93,8 @@ export class PatternImpl<In, Out extends In, F = unknown, S = void> {
   // abstract success(checked: S): Success;
   // abstract failure(actual: Out, checked: F): Failure;
 }
+
+export type AnyPattern<In, Out extends In = In> = Pattern<In, Out>;
 
 // export interface Pattern<In, Out extends In> {
 //   check(actual: In): unknown;
@@ -110,17 +112,14 @@ export class Expectations {
 
   expect<In, Out extends In>(
     actual: In,
-    pattern: In extends infer T
-      ? Out extends T
-        ? PatternImpl<T, Out, any, any>
-        : never
-      : never
+    pattern: AnyPattern<In, Out>
   ): asserts actual is Out {
-    let p: PatternImpl<In, Out, any, any> = pattern;
-    let checked = p.check(actual);
+    let checked = pattern.check(actual);
 
     if (checked.type === "match") {
-      this.#reporter.success(pattern.success(actual, checked.value));
+      this.#reporter.success(
+        pattern.success(checked.value as unknown as Out, checked.value)
+      );
     } else {
       this.#reporter.failure(pattern.failure(actual, checked.value));
     }

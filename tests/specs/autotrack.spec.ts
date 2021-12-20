@@ -1,4 +1,11 @@
-import { test, expect, toBe, Expects, TestUniverse } from "../support";
+import {
+  test,
+  expect,
+  toBe,
+  Expects,
+  TestUniverse,
+  innerHTML,
+} from "../support";
 
 test("timeline.memo", ({ universe }) => {
   let name = universe.cell("Tom");
@@ -35,13 +42,13 @@ test("timeline.memo => text", ({ universe, test }) => {
   let { firstName, fullName } = testName(universe, "Tom", "Dale");
 
   let text = test.buildText(fullName, Expects.dynamic);
-  let result = test.render(text, Expects.dynamic);
+  let { result, into } = test.render(text, Expects.dynamic);
 
-  expect(result.node.nodeValue, toBe("Tom Dale"));
+  expect(innerHTML(into), toBe("Tom Dale"));
 
   test.update(result, firstName, "Thomas");
 
-  expect(result.node.nodeValue, toBe("Thomas Dale"));
+  expect(innerHTML(into), toBe("Thomas Dale"));
 });
 
 function testName(universe: TestUniverse, first: string, last: string) {

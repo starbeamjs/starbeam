@@ -4,25 +4,25 @@ import type { ChildNodeCursor } from "../index";
 import type { Reactive } from "../reactive/core";
 import type { BuildMetadata, Output, Rendered, RenderMetadata } from "./output";
 
-export class ReactiveDataNode<T extends DomTypes, N extends "text" | "comment">
-  implements Output<T, T[N]>
-{
+export class ReactiveDataNode<T extends DomTypes> implements Output<T> {
   static text<T extends DomTypes>(
     reactive: Reactive<string>
-  ): ReactiveDataNode<T, "text"> {
+  ): ReactiveDataNode<T> {
     return new ReactiveTextNode(reactive);
   }
 
   static comment<T extends DomTypes>(
     reactive: Reactive<string>
-  ): ReactiveDataNode<T, "comment"> {
+  ): ReactiveDataNode<T> {
     return new ReactiveCommentNode(reactive);
   }
 
-  readonly #reactive: Reactive<string>;
-  readonly #node: DataNode<N>;
+  declare readonly NODE: T["text" | "comment"];
 
-  constructor(reactive: Reactive<string>, node: DataNode<N>) {
+  readonly #reactive: Reactive<string>;
+  readonly #node: DataNode;
+
+  constructor(reactive: Reactive<string>, node: DataNode) {
     this.#reactive = reactive;
     this.#node = node;
   }
@@ -36,35 +36,35 @@ export class ReactiveDataNode<T extends DomTypes, N extends "text" | "comment">
   render(
     dom: DomImplementation<T>,
     cursor: ChildNodeCursor<T>
-  ): RenderedDataNode<T, N> {
+  ): RenderedDataNode<T> {
     let data = this.#node.create(dom, this.#reactive.current);
     cursor.insert(data);
     return new RenderedDataNode(this.#reactive, data, this.#node.update);
   }
 }
 
-export class ReactiveTextNode<T extends DomTypes> extends ReactiveDataNode<
-  T,
-  "text"
-> {
-  static readonly #node: DataNode<"text"> = {
+export class ReactiveTextNode<T extends DomTypes> extends ReactiveDataNode<T> {
+  static readonly #node: DataNode = {
     create: (dom, data) => dom.createTextNode(data),
     update: (dom, node, data) => dom.updateTextNode(node, data),
   };
+
+  declare readonly NODE: T["text"];
 
   constructor(reactive: Reactive<string>) {
     super(reactive, ReactiveTextNode.#node);
   }
 }
 
-export class ReactiveCommentNode<T extends DomTypes> extends ReactiveDataNode<
-  T,
-  "comment"
-> {
-  static readonly #node: DataNode<"comment"> = {
+export class ReactiveCommentNode<
+  T extends DomTypes
+> extends ReactiveDataNode<T> {
+  static readonly #node: DataNode = {
     create: (dom, data) => dom.createTextNode(data),
     update: (dom, node, data) => dom.updateTextNode(node, data),
   };
+
+  declare readonly NODE: T["comment"];
 
   constructor(reactive: Reactive<string>) {
     super(reactive, ReactiveCommentNode.#node);
@@ -81,19 +81,23 @@ type UpdateNode<N extends "text" | "comment"> = <T extends DomTypes>(
   data: string
 ) => T[N];
 
-interface DataNode<N extends "text" | "comment"> {
-  create: CreateNode<N>;
-  update: UpdateNode<N>;
+interface DataNode {
+  create: CreateNode<"text" | "comment">;
+  update: UpdateNode<"text" | "comment">;
 }
 
-export class RenderedDataNode<T extends DomTypes, N extends "text" | "comment">
-  implements Rendered<T, T[N]>
-{
+export class RenderedDataNode<T extends DomTypes> implements Rendered<T> {
   readonly #reactive: Reactive<string>;
-  readonly #node: T[N];
-  readonly #update: UpdateNode<N>;
+  readonly #node: T["text" | "comment"];
+  readonly #update: UpdateNode<"text" | "comment">;
 
-  constructor(reactive: Reactive<string>, node: T[N], update: UpdateNode<N>) {
+  readonly NODE!: T["text" | "comment"];
+
+  constructor(
+    reactive: Reactive<string>,
+    node: T["text" | "comment"],
+    update: UpdateNode<"text" | "comment">
+  ) {
     this.#reactive = reactive;
     this.#node = node;
     this.#update = update;
@@ -109,11 +113,15 @@ export class RenderedDataNode<T extends DomTypes, N extends "text" | "comment">
     };
   }
 
-  get node(): T[N] {
+  get node(): T["text" | "comment"] {
     return this.#node;
   }
 
   poll(dom: DomImplementation<T>): void {
     this.#update(dom, this.#node, this.#reactive.current);
+  }
+
+  move(dom: DomImplementation<T>, cursor: ChildNodeCursor<T>): void {
+    throw new Error("Method not implemented.");
   }
 }

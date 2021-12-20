@@ -1,6 +1,6 @@
 import type { SimpleElement, SimpleNode } from "@simple-dom/interface";
 import zip from "lodash.zip";
-import { dom, starbeam } from "../../support";
+import { simple, starbeam } from "../../support";
 import { abstraction } from "../expect/abstraction";
 
 export interface ElementNodeOptions {
@@ -47,7 +47,10 @@ export type NodePattern =
   | CommentNodePattern
   | ElementNodePattern;
 
-export function expectNode(actual: dom.SimpleNode, pattern: NodePattern): void {
+export function expectNode(
+  actual: simple.SimpleNode,
+  pattern: NodePattern
+): void {
   switch (pattern.type) {
     case "text": {
       expect(actual).toMatchObject({
@@ -83,7 +86,7 @@ function expectNodeIsElement(node: SimpleNode): asserts node is SimpleElement {
 }
 
 export function expectElement(
-  node: dom.SimpleElement,
+  node: simple.SimpleElement,
   tagName: string,
   options?: {
     attributes?: Record<string, string>;

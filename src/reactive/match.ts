@@ -1,16 +1,16 @@
-import type { AnyChoice } from "./choice";
+import type { AnyReactiveChoice } from "./choice";
 import { Reactive, ReactiveMetadata, ReactiveValue } from "./core";
 
-export type Matcher<C extends AnyChoice> = {
+export type Matcher<C extends AnyReactiveChoice> = {
   [P in C["discriminant"]]: C["value"] extends undefined
     ? () => unknown
     : (value: C["value"] extends Reactive<infer T> ? T : never) => unknown;
 };
 
-export class ReactiveMatch<C extends AnyChoice, M extends Matcher<C>>
+export class ReactiveMatch<C extends AnyReactiveChoice, M extends Matcher<C>>
   implements Reactive<ReturnType<M[C["discriminant"]]>>
 {
-  static match<C extends AnyChoice, M extends Matcher<C>>(
+  static match<C extends AnyReactiveChoice, M extends Matcher<C>>(
     reactive: Reactive<C>,
     matcher: M
   ): ReactiveMatch<C, M> {

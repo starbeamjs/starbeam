@@ -1,52 +1,39 @@
-import { Expects, test } from "../support";
-import {
-  ElementNode,
-  expectElement,
-  TextNode,
-} from "../support/nodes/patterns";
+import { Expects, innerHTML, test } from "../support";
 
 test("a simple element containing a text node (dynamic) ", ({
-  universe: timeline,
+  universe,
   dom,
   test,
 }) => {
-  let name = timeline.cell("Chirag");
+  let name = universe.cell("Chirag");
 
   let element = test.buildElement(
-    timeline.static("div"),
+    universe.static("div"),
     (b) => {
       b.append(dom.text(name));
     },
     Expects.dynamic
   );
 
-  let result = test.render(element, Expects.dynamic);
-  expect(result.node.tagName).toBe("DIV");
-  expect(result.node.firstChild).toMatchObject({
-    nodeType: 3,
-    nodeValue: "Chirag",
-  });
+  let { result, into } = test.render(element, Expects.dynamic);
+  expect(innerHTML(into)).toBe("<div>Chirag</div>");
 
   name.update("Chi");
-  timeline.poll(result);
+  universe.poll(result);
 
-  expect(result.node.tagName).toBe("DIV");
-  expect(result.node.firstChild).toMatchObject({
-    nodeType: 3,
-    nodeValue: "Chi",
-  });
+  expect(innerHTML(into)).toBe("<div>Chi</div>");
 });
 
 test("a simple element containing a text node (static) ", ({
-  universe: timeline,
+  universe,
   dom,
   test,
 }) => {
   const NAME = "Chirag";
   const TITLE = "Chirag's name";
 
-  let name = timeline.static(NAME);
-  let title = timeline.static(TITLE);
+  let name = universe.static(NAME);
+  let title = universe.static(TITLE);
 
   let element = test.buildElement(
     "div",
@@ -57,16 +44,13 @@ test("a simple element containing a text node (static) ", ({
     Expects.static
   );
 
-  let result = test.render(element, Expects.static);
+  let { into } = test.render(element, Expects.static);
 
-  expectElement(result.node, "div", {
-    attributes: { title: TITLE },
-    children: [TextNode(NAME)],
-  });
+  expect(innerHTML(into)).toBe(`<div title="${TITLE}">${NAME}</div>`);
 });
 
 test("a simple element with an attribute (dynamic) ", ({
-  universe: timeline,
+  universe,
   dom,
   test,
 }) => {
@@ -74,8 +58,8 @@ test("a simple element with an attribute (dynamic) ", ({
   const SHORT_NAME = "Chi";
   const TITLE = "Chirag's name";
 
-  let name = timeline.cell(NAME);
-  let title = timeline.cell(TITLE);
+  let name = universe.cell(NAME);
+  let title = universe.cell(TITLE);
 
   let element = test.buildElement(
     "div",
@@ -86,21 +70,18 @@ test("a simple element with an attribute (dynamic) ", ({
     Expects.dynamic
   );
 
-  let result = test.render(element, Expects.dynamic);
+  let { into, result } = test.render(element, Expects.dynamic);
 
-  expectElement(result.node, "div", {
-    attributes: { title: TITLE },
-    children: [TextNode(NAME)],
-  });
+  expect(innerHTML(into)).toBe(`<div title="${TITLE}">${NAME}</div>`);
 
   name.update(SHORT_NAME);
-  timeline.poll(result);
+  universe.poll(result);
 
-  expectElement(result.node, "div", { children: [TextNode(SHORT_NAME)] });
+  expect(innerHTML(into)).toBe(`<div title="${TITLE}">${SHORT_NAME}</div>`);
 });
 
 test("(smoke test) a dynamic element with a few children and a few attributes", ({
-  universe: timeline,
+  universe,
   dom,
   test,
 }) => {
@@ -111,10 +92,10 @@ test("(smoke test) a dynamic element with a few children and a few attributes", 
   const CLASS = "person";
   const STYLE = "color: red";
 
-  let firstName = timeline.cell(FIRST_NAME);
-  let lastName = timeline.cell(LAST_NAME);
-  let title = timeline.cell(TITLE);
-  let style = timeline.cell(STYLE);
+  let firstName = universe.cell(FIRST_NAME);
+  let lastName = universe.cell(LAST_NAME);
+  let title = universe.cell(TITLE);
+  let style = universe.cell(STYLE);
 
   let element = test.buildElement(
     "div",
@@ -137,38 +118,16 @@ test("(smoke test) a dynamic element with a few children and a few attributes", 
     Expects.dynamic
   );
 
-  let result = test.render(element, Expects.dynamic);
+  let { result, into } = test.render(element, Expects.dynamic);
 
-  expectElement(result.node, "div", {
-    attributes: { title: TITLE, class: "person", style: STYLE },
-    children: [
-      TextNode(FIRST_NAME),
-      TextNode(" "),
-      TextNode(LAST_NAME),
-      TextNode(" "),
-      ElementNode("span", {
-        children: [TextNode("("), TextNode("name"), TextNode(")")],
-      }),
-      TextNode(" -- "),
-      TextNode("Over and Out"),
-    ],
-  });
+  expect(innerHTML(into)).toBe(
+    `<div title="${TITLE}" class="person" style="${STYLE}">${FIRST_NAME} ${LAST_NAME} <span>(name)</span> -- Over and Out</div>`
+  );
 
   firstName.update(SHORT_NAME);
-  timeline.poll(result);
+  universe.poll(result);
 
-  expectElement(result.node, "div", {
-    attributes: { title: TITLE, class: "person", style: STYLE },
-    children: [
-      TextNode(SHORT_NAME),
-      TextNode(" "),
-      TextNode(LAST_NAME),
-      TextNode(" "),
-      ElementNode("span", {
-        children: [TextNode("("), TextNode("name"), TextNode(")")],
-      }),
-      TextNode(" -- "),
-      TextNode("Over and Out"),
-    ],
-  });
+  expect(innerHTML(into)).toBe(
+    `<div title="${TITLE}" class="person" style="${STYLE}">${SHORT_NAME} ${LAST_NAME} <span>(name)</span> -- Over and Out</div>`
+  );
 });

@@ -33,14 +33,14 @@ export type DynamicReactive<T> = Reactive<T> & {
 
 export const Reactive = {
   from<T>(reactive: IntoReactive<T>): Reactive<T> {
-    if (Reactive.isReactive(reactive)) {
+    if (Reactive.is(reactive)) {
       return reactive;
     } else {
       return new Static(reactive);
     }
   },
 
-  isReactive<T>(reactive: unknown | Reactive<T>): reactive is Reactive<T> {
+  is<T>(reactive: unknown | Reactive<T>): reactive is Reactive<T> {
     return isObject(reactive) && REACTIVE_BRAND.is(reactive);
   },
 
@@ -52,3 +52,5 @@ export const Reactive = {
     return !Reactive.isStatic(reactive);
   },
 } as const;
+
+export type AnyReactive = Reactive<unknown>;
