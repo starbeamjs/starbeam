@@ -6,9 +6,12 @@ export interface ReactiveMetadata {
   readonly isStatic: boolean;
 }
 
-export interface Reactive<T> {
-  readonly current: T;
+export interface WithReactiveMetadata {
   readonly metadata: ReactiveMetadata;
+}
+
+export interface Reactive<T> extends WithReactiveMetadata {
+  readonly current: T;
 }
 
 export type ReactiveValue<R extends Reactive<unknown>> = R extends Reactive<

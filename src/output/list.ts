@@ -126,7 +126,7 @@ export class RenderedStaticList<T extends DomTypes> implements Rendered<T> {
     }
   }
 
-  move(dom: DomImplementation<T>, cursor: ChildNodeCursor<T>): void {
+  move(_dom: DomImplementation<T>, _cursor: ChildNodeCursor<T>): void {
     throw new Error("Method not implemented.");
   }
 }
@@ -141,7 +141,9 @@ export class DynamicListNode<T extends DomTypes, P extends ReactiveParameter>
     return new DynamicListNode(iterable, component);
   }
 
+  // @ts-expect-error
   readonly #iterable: Reactive<Iterable<P>>;
+  // @ts-expect-error
   readonly #component: Component<P, T>;
   readonly metadata: BuildMetadata = {
     isStatic: false,
@@ -154,7 +156,7 @@ export class DynamicListNode<T extends DomTypes, P extends ReactiveParameter>
     this.#component = component;
   }
 
-  render(dom: DomImplementation<T>, cursor: ChildNodeCursor<T>): Rendered<T> {
+  render(_dom: DomImplementation<T>, _cursor: ChildNodeCursor<T>): Rendered<T> {
     throw new Error("Method not implemented.");
   }
 }

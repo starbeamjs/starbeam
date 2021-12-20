@@ -120,7 +120,7 @@ export class RenderedElementNode<T extends DomTypes> implements Rendered<T> {
     this.#children = children;
   }
 
-  move(dom: DomImplementation<T>, cursor: ChildNodeCursor<T>): void {
+  move(_dom: DomImplementation<T>, _cursor: ChildNodeCursor<T>): void {
     throw new Error("Method not implemented.");
   }
 

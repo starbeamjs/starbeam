@@ -1,30 +1,17 @@
-import * as starbeam from "../../src/index";
-export { starbeam };
-
 import type * as Browser from "@domtree/browser";
-export { Browser as browser };
-
 import type * as Minimal from "@domtree/minimal";
-export { Minimal };
-
-import { dom } from "../../src/index";
-export { dom };
-export { DOM } from "../../src/index";
-
-import * as simple from "simple-dom";
-export { simple };
-
 import type * as Simple from "@domtree/simple";
-export { Simple };
-
-export { Expects, expect } from "./expect/expect";
-export { toBe } from "./expect/patterns/comparison";
-
-import { upstream } from "../jest-ext";
+import * as simple from "simple-dom";
 import { createDocument, HTMLSerializer, voidMap } from "simple-dom";
+import * as starbeam from "../../src/index";
+import { dom } from "../../src/index";
+import { upstream } from "../jest-ext";
 import { ElementArgs, TestElementArgs } from "./element";
 import { Expects } from "./expect/expect";
-import type { SimpleDocumentFragment } from "@simple-dom/interface";
+export { DOM } from "../../src/index";
+export { expect, Expects } from "./expect/expect";
+export { toBe } from "./expect/patterns/comparison";
+export { starbeam, Browser as browser, Minimal, dom, simple, Simple };
 
 export interface TestArgs {
   readonly universe: starbeam.Universe<starbeam.SimpleDomTypes>;

@@ -29,6 +29,8 @@
   - [x] Autotrack (2)
   - [ ] Don't update static things (3)
   - [ ] Don't poll things if they're valid (2)
+  - [ ] Splattributes (4)
+  - [ ] ARIA (5)
 - [ ] HTML Parser Features (in progress)
   - [ ] SVG (3)
   - [ ] MathML (4)

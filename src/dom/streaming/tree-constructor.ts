@@ -80,7 +80,6 @@ export class TreeConstructor {
   }
 
   readonly #html: string[] = [];
-  readonly #tokens = new Set<Token>();
   #id = 0;
 
   private constructor() {}
@@ -103,16 +102,13 @@ export class TreeConstructor {
   }
 
   construct(parse: HTMLParser): {
-    node: dom.CompatibleDocumentFragment;
-    tokens: Set<Token>;
+    fragment: dom.CompatibleDocumentFragment;
   } {
-    return { node: parse(this.#html.join("")), tokens: this.#tokens };
+    return { fragment: parse(this.#html.join("")) };
   }
 
   #nextToken() {
-    let token = Token.of(String(this.#id++));
-    this.#tokens.add(token);
-    return token;
+    return Token.of(String(this.#id++));
   }
 }
 

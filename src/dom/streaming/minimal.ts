@@ -26,15 +26,12 @@ declare module "@domtree/minimal" {
     export type DOCUMENT_FRAGMENT_NODE = 11;
   }
 
-  interface ReadonlyNode {
-    // The core interface needed for traversing the DOM
-    readonly parentNode: ParentNode | null;
-    readonly firstChild: Node | null;
-    readonly lastChild: Node | null;
-    readonly nextSibling: Node | null;
-  }
+  interface ReadonlyNode {}
 
-  interface ReadonlyParent extends ReadonlyNode {}
+  interface ReadonlyParent extends ReadonlyNode {
+    readonly firstChild: ChildNode | null;
+    readonly lastChild: ChildNode | null;
+  }
 
   interface MutableParent extends ReadonlyParent {
     /**
@@ -46,7 +43,11 @@ declare module "@domtree/minimal" {
     insertBefore(newChild: Node, refChild: Node | null): void;
   }
 
-  interface ReadonlyChild extends ReadonlyNode {}
+  interface ReadonlyChild extends ReadonlyNode {
+    // The core interface needed for traversing the DOM
+    readonly parentNode: ParentNode | null;
+    readonly nextSibling: ChildNode | null;
+  }
 
   interface MutableChild extends ReadonlyChild {
     /**
@@ -92,7 +93,7 @@ declare module "@domtree/minimal" {
     readonly nodeType: Node.ELEMENT_NODE;
     readonly namespaceURI: ElementNamespace;
 
-    hasAttribute(qualifiedName: string): Attr;
+    hasAttribute(qualifiedName: string): boolean;
     getAttributeNode(qualifiedName: string): Attr | null;
   }
 

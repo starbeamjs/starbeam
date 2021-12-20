@@ -1,6 +1,8 @@
 import type * as browser from "@domtree/browser";
-import type * as simple from "@domtree/simple";
 import type * as minimal from "@domtree/minimal";
+import type { Mutable } from "@domtree/minimal";
+import type * as simple from "@domtree/simple";
+import { exhaustive } from "../..";
 import {
   HTML_NAMESPACE,
   MATHML_NAMESPACE,
@@ -9,8 +11,6 @@ import {
   XMLNS_NAMESPACE,
   XML_NAMESPACE,
 } from "../tree-construction/foreign";
-import { ELEMENT, exhaustive } from "../..";
-import type { Mutable } from "@domtree/minimal";
 
 export type CompatibleDocument =
   | browser.Document
@@ -152,7 +152,20 @@ export class AbstractDOM {
     element: CompatibleElement,
     qualifiedName: string
   ): minimal.Attr | null {
-    return (element as minimal.Element).getAttributeNode(qualifiedName);
+    if ("getAttributeNode" in element) {
+      return (element as minimal.Element).getAttributeNode(qualifiedName);
+    } else {
+      let attrs = (element as simple.Element).attributes;
+
+      for (let i = 0; i < attrs.length; i++) {
+        let attr = attrs[i];
+        if (attr.name === qualifiedName) {
+          return attr as unknown as minimal.Attr;
+        }
+      }
+
+      return null;
+    }
   }
 
   /**
@@ -167,15 +180,21 @@ export class AbstractDOM {
     qualifiedName: string,
     value: string
   ): void {
-    let ns = isForeignElement(element as minimal.Element)
-      ? getAttrNS(qualifiedName)
-      : null;
+    let ns = getAttrNS(element as minimal.Element, qualifiedName);
 
     (element as Mutable<minimal.Element>).setAttributeNS(
       ns,
       qualifiedName,
       value
     );
+  }
+
+  hasAttr(element: CompatibleElement, qualifiedName: string): boolean {
+    if ("hasAttribute" in element) {
+      return element.hasAttribute(qualifiedName);
+    } else {
+      return !!element.getAttribute(qualifiedName);
+    }
   }
 
   insert(
@@ -207,7 +226,14 @@ export class AbstractDOM {
     let parent = child.parentNode as minimal.ParentNode | null;
     let next = child.nextSibling as minimal.Node | null;
 
-    (child as Mutable<minimal.ChildNode>).remove();
+    if ("remove" in child) {
+      (child as Mutable<minimal.ChildNode>).remove();
+    } else {
+      let parent = child.parentNode as simple.ParentNode;
+      if (parent) {
+        parent.removeChild(child as simple.Node);
+      }
+    }
 
     if (parent) {
       return { parent, next };
@@ -250,6 +276,11 @@ export class AbstractDOM {
         ) as unknown as Iterable<minimal.Element>),
       ];
     } else {
+      return findAll(
+        parent as minimal.Element,
+        tag || null,
+        attributes?.any || null
+      );
     }
   }
 }
@@ -302,7 +333,10 @@ function match(
     return false;
   }
 
-  if (attributes && attributes.every((a) => !element.hasAttribute(a))) {
+  if (
+    attributes &&
+    attributes.every((a) => !COMPATIBLE_DOM.hasAttr(element, a))
+  ) {
     return false;
   }
 
@@ -328,9 +362,8 @@ function buildSelector(
   }
 }
 
-function isForeignElement(element: minimal.Element): boolean {
-  let ns = element.namespaceURI;
-  return ns === SVG_NAMESPACE || ns === MATHML_NAMESPACE;
+function isHtmlElement(element: minimal.Element): boolean {
+  return element.namespaceURI === HTML_NAMESPACE;
 }
 
 function getElementNS(
@@ -374,7 +407,14 @@ function getElementNS(
   }
 }
 
-function getAttrNS(name: string): minimal.AttributeNamespace | null {
+function getAttrNS(
+  element: minimal.Element,
+  name: string
+): minimal.AttributeNamespace | null {
+  if (isHtmlElement(element as minimal.Element)) {
+    return null;
+  }
+
   switch (name) {
     case "xlink:actuate":
     case "xlink:arcrole":

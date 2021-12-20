@@ -3,7 +3,7 @@ import type {
   SimpleNode,
   SimpleText,
 } from "@simple-dom/interface";
-import { browser, dom, DOM, expect, simple, test, toBe } from "../support";
+import { browser, DOM, expect, simple, test, toBe } from "../support";
 
 // This file validates that SimplestDOM is compatible with both @simple-dom and
 // the TS DOM.
