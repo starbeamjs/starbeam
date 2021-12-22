@@ -5,8 +5,13 @@ import {
   SimpleDomImplementation,
   SimpleDomTypes,
 } from "../dom/implementation";
-import { ChildNodeCursor, ReactiveDOM } from "../dom";
-import type { Output, Rendered } from "../output/output";
+import { UpdatingContentCursor, ReactiveDOM } from "../dom";
+import type {
+  AnyRendered,
+  AbstractProgramNode,
+  Rendered,
+  ProgramNode,
+} from "../output/program-node";
 import { Cell } from "../reactive/cell";
 import type { AnyReactiveChoice } from "../reactive/choice";
 import type { Reactive } from "../reactive/core";
@@ -16,7 +21,12 @@ import { InnerDict, ReactiveRecord } from "../reactive/record";
 import { Static } from "../reactive/static";
 import { Profile } from "./profile";
 import { Timeline } from "./timeline";
-import type { DomTypes } from "../dom/types";
+import type { AnyNode, DomTypes } from "../dom/types";
+import type { minimal } from "../../tests/support/starbeam";
+import type {
+  CompatibleDocument,
+  CompatibleElement,
+} from "../dom/streaming/compatible-dom";
 
 export const TIMELINE = Symbol("TIMELINE");
 
@@ -26,25 +36,22 @@ export class Universe<T extends DomTypes = DomTypes> {
    * to use SimpleDOM with the real DOM as long as you don't need runtime
    * features like event handlers and dynamic properties.
    */
-  static simpleDOM(
-    ...[implementation = createDocument(), profile = Profile.Debug]:
-      | [SimpleDocument?, Profile?]
-      | [SimpleDomImplementation]
+  static document(
+    document: CompatibleDocument,
+    profile = Profile.Debug
   ): Universe<SimpleDomTypes> {
-    if (implementation instanceof SimpleDomImplementation) {
-      return new Universe(implementation);
-    } else {
-      return new Universe(new SimpleDomImplementation(implementation, profile));
-    }
+    return new Universe(document as minimal.Document, profile);
   }
 
-  readonly #domImplementation: DomImplementation<T>;
+  readonly #document: minimal.Document;
+  readonly #profile: Profile;
   readonly #timeline = Timeline.create();
 
   readonly dom: ReactiveDOM<T> = new ReactiveDOM();
 
-  constructor(document: DomImplementation<T>) {
-    this.#domImplementation = document;
+  constructor(document: minimal.Document, profile: Profile) {
+    this.#document = document;
+    this.#profile = profile;
   }
 
   cell<T>(value: T): Cell<T> {
@@ -78,18 +85,23 @@ export class Universe<T extends DomTypes = DomTypes> {
     return new ReactiveRecord(dict);
   }
 
-  renderIntoElement(output: Output<T>, parentNode: T["element"]): Rendered<T> {
-    return output.render(
-      this.#domImplementation,
-      ChildNodeCursor.appending(parentNode, this.#domImplementation)
+  renderIntoElement<N extends minimal.ChildNode>(
+    node: ProgramNode<N>,
+    parentNode: CompatibleElement
+  ): Rendered {
+    return node.render(
+      UpdatingContentCursor.appending(parentNode, this.#domImplementation)
     );
   }
 
-  render(output: Output<T>, cursor: ChildNodeCursor<T>): Rendered<T> {
+  render<N extends AnyNode<T>>(
+    output: AbstractProgramNode<T, N>,
+    cursor: UpdatingContentCursor<T>
+  ): Rendered<T, N> {
     return output.render(this.#domImplementation, cursor);
   }
 
-  poll(rendered: Rendered<T>) {
+  poll(rendered: AnyRendered<T>) {
     rendered.poll(this.#domImplementation);
   }
 }

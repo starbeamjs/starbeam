@@ -6,7 +6,11 @@ export class Token {
     return new Token(tokenId);
   }
 
+  // @ts-expect-error intentionally unused field for nominal typing
+  readonly #token: string;
+
   private constructor(token: string) {
+    this.#token = token;
     INTERNAL_TOKEN.set(this, token);
   }
 }

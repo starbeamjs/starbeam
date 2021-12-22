@@ -9,5 +9,5 @@ export interface DomTypes {
 }
 
 export type ParentNode<T extends DomTypes> = T["document"] | T["fragment"];
-
-export type DomType<T extends DomTypes> = T[keyof T];
+export type DataNode<T extends DomTypes> = T["text"] | T["comment"];
+export type AnyNode<T extends DomTypes> = T[keyof T];

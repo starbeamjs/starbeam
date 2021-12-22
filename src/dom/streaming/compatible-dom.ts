@@ -2,7 +2,10 @@ import type * as browser from "@domtree/browser";
 import type * as minimal from "@domtree/minimal";
 import type { Mutable } from "@domtree/minimal";
 import type * as simple from "@domtree/simple";
-import { exhaustive } from "../..";
+import * as global from "./global-dom";
+import { is, mutable } from "../../strippable/minimal";
+import { verify, exhaustive, assert } from "../../strippable/assert";
+
 import {
   HTML_NAMESPACE,
   MATHML_NAMESPACE,
@@ -50,7 +53,13 @@ export type CompatibleTemplateElement =
   | simple.TemplateElement
   | minimal.TemplateElement;
 
-export type CompatibleNode = CompatibleCharacterData;
+export type CompatibleAttr = browser.Attr | simple.Attr | minimal.Attr;
+
+export type CompatibleNode =
+  | CompatibleCharacterData
+  | CompatibleParentNode
+  | CompatibleChildNode
+  | CompatibleAttr;
 
 export type Hydrated =
   | {
@@ -67,13 +76,47 @@ export type Hydrated =
       attr: minimal.Attr;
     };
 
-export interface Cursor {
+export interface ContentCursor {
   parent: minimal.ParentNode;
   next: minimal.Node | null;
 }
 
+export type ContentRange =
+  | {
+      type: "range";
+      nodes: [first: minimal.ChildNode, last: minimal.ChildNode];
+    }
+  | {
+      type: "node";
+      node: minimal.ChildNode;
+    };
+
+export type IntoContentRange =
+  | [minimal.ChildNode]
+  | [start: minimal.ChildNode, end: minimal.ChildNode];
+
+export function ContentRange(...[first, last]: IntoContentRange): ContentRange {
+  if (last === undefined || first === last) {
+    return {
+      type: "node",
+      node: first,
+    };
+  } else {
+    assert(
+      first.parentNode === last.parentNode,
+      `The first and last node in a ContentRange must have the same parent`
+    );
+
+    return {
+      type: "range",
+      nodes: [first, last],
+    };
+  }
+}
+
 export class AbstractDOM {
   getNodeType(node: CompatibleNode): number {
+    verify(node, is.Node);
     return node.nodeType;
   }
 
@@ -141,6 +184,24 @@ export class AbstractDOM {
     return (document as minimal.Document).createElementNS(ns, qualifiedName);
   }
 
+  updateAttr(attr: CompatibleAttr, value: string | null): void {
+    verify(attr, is.Attr);
+    if (value === null) {
+      COMPATIBLE_DOM.removeAttr(attr);
+    } else {
+      mutable(attr).value = value;
+    }
+  }
+
+  removeAttr(attr: CompatibleAttr): void {
+    verify(attr, is.Attr);
+    let element = attr.ownerElement;
+
+    if (element) {
+      mutable(element).removeAttribute(COMPATIBLE_DOM.attrQualifiedName(attr));
+    }
+  }
+
   /**
    * This API assumes that a qualifiedName like `xlink:href` was created with
    * the correct namespace.
@@ -182,7 +243,7 @@ export class AbstractDOM {
   ): void {
     let ns = getAttrNS(element as minimal.Element, qualifiedName);
 
-    (element as Mutable<minimal.Element>).setAttributeNS(
+    mutable(element as minimal.Element).setAttributeNS(
       ns,
       qualifiedName,
       value
@@ -197,9 +258,17 @@ export class AbstractDOM {
     }
   }
 
+  attrQualifiedName(attr: CompatibleAttr): string {
+    if (attr.prefix) {
+      return `${attr.prefix}:${attr.localName}`;
+    } else {
+      return attr.localName;
+    }
+  }
+
   insert(
     node: CompatibleChildNode | CompatibleDocumentFragment,
-    { parent, next }: Cursor
+    { parent, next }: ContentCursor
   ): void {
     (parent as Mutable<minimal.ParentNode>).insertBefore(
       node as minimal.ChildNode | minimal.DocumentFragment,
@@ -222,7 +291,7 @@ export class AbstractDOM {
     COMPATIBLE_DOM.insert(withNode, cursor);
   }
 
-  remove(child: CompatibleChildNode): Cursor | null {
+  remove(child: CompatibleChildNode): ContentCursor | null {
     let parent = child.parentNode as minimal.ParentNode | null;
     let next = child.nextSibling as minimal.Node | null;
 
@@ -285,7 +354,66 @@ export class AbstractDOM {
   }
 }
 
+/**
+ * The methods of this class are conveniences, and operate on minimal DOM.
+ */
+export class MinimalUtilities {
+  removeRange(nodes: ContentRange): ContentCursor {
+    let staticRange = MINIMAL_DOM.#createStaticRange(nodes);
+    let cursor = MINIMAL_DOM.#cursorAfterStaticRange(staticRange);
+
+    MINIMAL_DOM.#createLiveRange(staticRange).deleteContents();
+
+    return cursor;
+  }
+
+  cursorAfterRange(nodes: ContentRange): ContentCursor {
+    let staticRange = MINIMAL_DOM.#createStaticRange(nodes);
+    return MINIMAL_DOM.#cursorAfterStaticRange(staticRange);
+  }
+
+  #cursorAfterStaticRange(staticRange: minimal.StaticRange): ContentCursor {
+    let end = staticRange.endContainer;
+    let parent = end.parentNode as minimal.ParentNode | null;
+
+    verify(
+      parent,
+      is.Present,
+      () => `expected parent of ${end} to be present, but it was null`
+    );
+
+    let next = end.nextSibling as minimal.ChildNode | null;
+    return { parent, next };
+  }
+
+  #createLiveRange(staticRange: minimal.StaticRange): minimal.LiveRange {
+    let liveRange = new global.Range() as minimal.LiveRange;
+    liveRange.setStart(
+      staticRange.startContainer as minimal.ChildNode,
+      staticRange.startOffset
+    );
+    liveRange.setEnd(
+      staticRange.endContainer as minimal.ChildNode,
+      staticRange.endOffset
+    );
+    return liveRange;
+  }
+
+  #createStaticRange(range: ContentRange): minimal.StaticRange {
+    let start = range.type === "node" ? range.node : range.nodes[0];
+    let end = range.type === "node" ? range.node : range.nodes[1];
+
+    return new global.StaticRange({
+      startContainer: start as browser.ChildNode,
+      endContainer: end as browser.ChildNode,
+      startOffset: 0,
+      endOffset: 0,
+    }) as minimal.StaticRange;
+  }
+}
+
 export const COMPATIBLE_DOM = new AbstractDOM();
+export const MINIMAL_DOM = new MinimalUtilities();
 
 function qualifiedName(element: minimal.Element) {
   if (element.namespaceURI === HTML_NAMESPACE) {

@@ -1,14 +1,13 @@
-import { expect, starbeam, test, toBe } from "../support";
+import { expect, test, toBe } from "../support";
+import { Cases } from "../support/starbeam";
 
 function StringType(value: unknown): value is string {
   return typeof value === "string";
 }
 
-const BooleanChoice = starbeam.Choices((c) => c.add("true").add("false"));
+const BooleanChoice = Cases((c) => c.add("true").add("false"));
 
-const OptionalString = starbeam.Choices((c) =>
-  c.add("Some", StringType).add("None")
-);
+const OptionalString = Cases((c) => c.add("Some", StringType).add("None"));
 
 test("choice (unit, static)", ({ universe: timeline }) => {
   let truth = timeline.static(BooleanChoice("true"));

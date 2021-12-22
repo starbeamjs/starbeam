@@ -1,6 +1,6 @@
 import type { SimpleElement, SimpleNode } from "@simple-dom/interface";
 import zip from "lodash.zip";
-import { Simple, starbeam } from "../../support";
+import { Simple, exhaustive } from "../../support/starbeam";
 import { abstraction } from "../expect/abstraction";
 
 export interface ElementNodeOptions {
@@ -73,7 +73,7 @@ export function expectNode(actual: Simple.Node, pattern: NodePattern): void {
     }
 
     default: {
-      starbeam.exhaustive(pattern, "NodePattern");
+      exhaustive(pattern, "NodePattern");
     }
   }
 }

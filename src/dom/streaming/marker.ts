@@ -1,3 +1,4 @@
+import type { ContentBuffer, ElementHeadBuffer } from "../cursor/append";
 import { Token, tokenId } from "./token";
 
 // This might be necessary for some obscure cases where <template> is disallowed
@@ -14,38 +15,54 @@ export const SINGLE_ELEMENT = {
 
 export type ElementContext = "html" | "mathml" | "svg";
 
-export class TemplateMarker {
-  readonly #namespace: ElementContext;
+export interface BodyTransform {
+  <B extends ContentBuffer>(buffer: B): B;
+}
 
-  constructor(namespace: ElementContext) {
-    this.#namespace = namespace;
-  }
+export function Transform(
+  callback: <B extends ContentBuffer>(buffer: B) => B
+): BodyTransform {
+  return callback;
+}
 
-  start = (output: string[], token: Token): void => {
-    output.push(`<template data-starbeam-marker:contents="${tokenId(token)}">`);
+export interface ContentMarker {
+  <Parent extends ContentBuffer>(
+    output: Parent,
+    token: Token,
+    body: BodyTransform
+  ): Parent;
+}
 
-    switch (this.#namespace) {
-      case "html":
-        break;
-      case "svg":
-        output.push("<svg>");
-      case "mathml":
-        output.push("<math>");
-    }
+export function TemplateMarker(namespace: ElementContext): ContentMarker {
+  return (output, token, body) => {
+    return output.element("template", (t) => {
+      let template = t
+        .attr("data-starbeam-marker:contents", tokenId(token))
+        .body();
+
+      switch (namespace) {
+        case "html": {
+          return body(template);
+        }
+
+        case "svg":
+          return template.element("svg", (t) => body(t.body()));
+
+        case "mathml":
+          return template.element("math", (t) => body(t.body()));
+      }
+    });
   };
+}
 
-  end = (output: string[], _token: Token): void => {
-    switch (this.#namespace) {
-      case "html":
-        break;
-      case "svg":
-        output.push("</svg>");
-      case "mathml":
-        output.push("</math>");
-    }
-
-    output.push("</template>");
-  };
+export function AttributeMarker(
+  buffer: ElementHeadBuffer,
+  token: Token,
+  qualifiedName: string
+): ElementHeadBuffer {
+  return buffer
+    .attr("data-starbeam-marker:attrs", "", "idempotent")
+    .attr(`data-starbeam-marker:attr:${qualifiedName}`, tokenId(token));
 }
 
 /**
@@ -66,6 +83,6 @@ export const ATTRIBUTE_MARKER = {
   },
 } as const;
 
-export const TEMPLATE_MARKER = new TemplateMarker("html");
-export const SVG_TEMPLATE_MARKER = new TemplateMarker("svg");
-export const MATHML_TEMPLATE_MARKER = new TemplateMarker("mathml");
+export const TEMPLATE_MARKER = TemplateMarker("html");
+export const SVG_TEMPLATE_MARKER = TemplateMarker("svg");
+export const MATHML_TEMPLATE_MARKER = TemplateMarker("mathml");

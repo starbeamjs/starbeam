@@ -10,6 +10,7 @@ declare module "@domtree/browser" {
   export type Element = globalThis.Element;
   export type TemplateElement = globalThis.HTMLTemplateElement;
   export type Attr = globalThis.Attr;
+  export type StaticRange = globalThis.StaticRange;
 }
 
 declare module "@domtree/simple" {

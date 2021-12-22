@@ -1,16 +1,14 @@
 // import { AttrCursor, DomType } from "../index";
-import type { AttrCursor } from "../dom/cursor";
+import type * as minimal from "@domtree/minimal";
+import type { ElementHeadBuffer } from "..";
 import type { DomImplementation } from "../dom/implementation";
-import type { DomTypes } from "../dom/types";
 import { Reactive } from "../reactive/core";
 import type { BuildAttribute } from "./element";
-import type { BuildMetadata } from "./output";
+import type { BuildMetadata } from "./program-node";
 
-export class ReactiveAttributeNode<T extends DomTypes> {
-  static create<T extends DomTypes>(
-    attribute: BuildAttribute
-  ): ReactiveAttributeNode<T> {
-    return new ReactiveAttributeNode(attribute, {
+export class AttributeProgramNode {
+  static create(attribute: BuildAttribute): AttributeProgramNode {
+    return new AttributeProgramNode(attribute, {
       isStatic: Reactive.isStatic(attribute.value),
     });
   }
@@ -24,27 +22,24 @@ export class ReactiveAttributeNode<T extends DomTypes> {
     this.#attribute = attribute;
   }
 
-  render(
-    _dom: DomImplementation<T>,
-    cursor: AttrCursor<T>
-  ): RenderedAttributeNode<T> {
+  render(buffer: ElementHeadBuffer): RenderedAttributeNode {
     let value = this.#attribute.value.current;
 
-    let attribute = cursor.initialize(this.#attribute.name, value);
+    let attribute = buffer.attr(this.#attribute.name, value);
     return new RenderedAttributeNode(attribute, this.#attribute.value);
   }
 }
 
-export class RenderedAttributeNode<T extends DomTypes> {
-  #attribute: T["attribute"];
+export class RenderedAttributeNode {
+  #attribute: minimal.Attr;
   #value: Reactive<string | null>;
 
-  constructor(attribute: T["attribute"], value: Reactive<string | null>) {
+  constructor(attribute: minimal.Attr, value: Reactive<string | null>) {
     this.#attribute = attribute;
     this.#value = value;
   }
 
-  poll(dom: DomImplementation<T>): void {
+  poll(): void {
     let value = this.#value.current;
 
     if (value === null) {

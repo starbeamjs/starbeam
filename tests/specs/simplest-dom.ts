@@ -3,7 +3,8 @@ import type {
   SimpleNode,
   SimpleText,
 } from "@simple-dom/interface";
-import { browser, DOM, expect, simple, test, toBe } from "../support";
+import { expect, test, toBe } from "../support/define";
+import { Browser, DOM, simple } from "../support/starbeam";
 
 // This file validates that SimplestDOM is compatible with both @simple-dom and
 // the TS DOM.
@@ -41,8 +42,8 @@ test("SimpleComment and browser Comment are compatible with starbeam DOM", () =>
  * To test that theory, we both validate that the return values of the `DOM`
  * utility behave as expected, *and* that the runtime values are correct.
  */
-function cast(node: SimpleText): browser.Text;
-function cast(node: SimpleComment): browser.Comment;
+function cast(node: SimpleText): Browser.Text;
+function cast(node: SimpleComment): Browser.Comment;
 function cast(node: SimpleNode): Node {
   return node as any;
 }

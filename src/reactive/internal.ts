@@ -11,4 +11,4 @@ export class Brand {
 }
 
 export const REACTIVE_BRAND = new Brand();
-export const OUTPUT_BRAND = new Brand();
+export const PROGRAM_NODE_BRAND = new Brand();

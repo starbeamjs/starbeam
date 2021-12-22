@@ -1,47 +1,48 @@
+import type { UpdatingContentCursor } from "../dom/cursor/updating";
 import type { DomImplementation } from "../dom/implementation";
 import type { AnyAttributeName } from "../dom/tree-construction";
 import type { DomTypes } from "../dom/types";
-import type { ChildNodeCursor } from "../index";
 import { Reactive } from "../reactive/core";
-import { ReactiveAttributeNode, RenderedAttributeNode } from "./attribute";
+import { AttributeProgramNode, RenderedAttributeNode } from "./attribute";
 import {
-  AnyRendered,
+  AbstractProgramNode,
   BuildMetadata,
-  Output,
+  ProgramNode,
   Rendered,
   RenderMetadata,
-} from "./output";
+} from "./program-node";
+import type * as minimal from "@domtree/minimal";
 
-export class ReactiveElementNode<T extends DomTypes> implements Output<T> {
+export class ElementProgramNode
+  implements AbstractProgramNode<minimal.Element>
+{
   static create<T extends DomTypes>(
     tagName: Reactive<string>,
     buildAttributes: readonly BuildAttribute[],
-    children: readonly Output<T>[]
-  ): ReactiveElementNode<T> {
+    children: readonly ProgramNode[]
+  ): ElementProgramNode {
     let attributes = buildAttributes.map((a) =>
-      ReactiveAttributeNode.create<T>(a)
+      AttributeProgramNode.create<T>(a)
     );
 
     let metadata = {
       isStatic:
         Reactive.isStatic(tagName) &&
-        children.every(Output.isStatic) &&
+        children.every(ProgramNode.isStatic) &&
         attributes.every((a) => a.metadata.isStatic),
     };
 
-    return new ReactiveElementNode(tagName, attributes, children, metadata);
+    return new ElementProgramNode(tagName, attributes, children, metadata);
   }
 
-  readonly NODE!: T["element"];
-
   readonly #tagName: Reactive<string>;
-  readonly #attributes: readonly ReactiveAttributeNode<T>[];
-  readonly #children: readonly Output<T>[];
+  readonly #attributes: readonly AttributeProgramNode<T>[];
+  readonly #children: readonly ProgramNode[];
 
   private constructor(
     tagName: Reactive<string>,
-    attributes: readonly ReactiveAttributeNode<T>[],
-    children: readonly Output<T>[],
+    attributes: readonly AttributeProgramNode<T>[],
+    children: readonly ProgramNode[],
     readonly metadata: BuildMetadata
   ) {
     this.#tagName = tagName;
@@ -51,7 +52,7 @@ export class ReactiveElementNode<T extends DomTypes> implements Output<T> {
 
   render(
     dom: DomImplementation<T>,
-    cursor: ChildNodeCursor<T>
+    cursor: UpdatingContentCursor<T>
   ): RenderedElementNode<T> {
     let element = dom.createElement(this.#tagName.current);
     let childNodeCursor = dom.createAppendingCursor(element, null);
@@ -75,7 +76,9 @@ export class ReactiveElementNode<T extends DomTypes> implements Output<T> {
   }
 }
 
-export class RenderedElementNode<T extends DomTypes> implements Rendered<T> {
+export class RenderedElementNode<T extends DomTypes>
+  implements Rendered<T, T["element"]>
+{
   static create<T extends DomTypes>(
     node: T["element"],
     tagName: Reactive<string>,
@@ -120,7 +123,9 @@ export class RenderedElementNode<T extends DomTypes> implements Rendered<T> {
     this.#children = children;
   }
 
-  move(_dom: DomImplementation<T>, _cursor: ChildNodeCursor<T>): void {
+  get cursor(): UpdatingContentCursor<T> {}
+
+  move(_dom: DomImplementation<T>, _cursor: UpdatingContentCursor<T>): void {
     throw new Error("Method not implemented.");
   }
 
@@ -150,28 +155,28 @@ export interface BuildAttribute {
 }
 
 export type ReactiveElementBuilderCallback<T extends DomTypes> = (
-  builder: ReactiveElementBuilder<T>
+  builder: ElementProgramNodeBuilder<T>
 ) => void;
 
-export class ReactiveElementBuilder<T extends DomTypes> {
+export class ElementProgramNodeBuilder<T extends DomTypes> {
   static build<T extends DomTypes>(
     tagName: Reactive<string>,
-    build: (builder: ReactiveElementBuilder<T>) => void
-  ): ReactiveElementNode<T> {
-    let builder = new ReactiveElementBuilder<T>(tagName);
+    build: (builder: ElementProgramNodeBuilder<T>) => void
+  ): ElementProgramNode<T> {
+    let builder = new ElementProgramNodeBuilder<T>(tagName);
     build(builder);
     return builder.finalize();
   }
 
   readonly #tagName: Reactive<string>;
-  readonly #children: Output<T>[] = [];
+  readonly #children: AnyOutput<T>[] = [];
   readonly #attributes: BuildAttribute[] = [];
 
   constructor(tagName: Reactive<string>) {
     this.#tagName = tagName;
   }
 
-  append(output: Output<T>): this {
+  append(output: AnyOutput<T>): this {
     this.#children.push(output);
     return this;
   }
@@ -181,8 +186,8 @@ export class ReactiveElementBuilder<T extends DomTypes> {
     return this;
   }
 
-  finalize(): ReactiveElementNode<T> {
-    return ReactiveElementNode.create(
+  finalize(): ElementProgramNode<T> {
+    return ElementProgramNode.create(
       this.#tagName,
       this.#attributes,
       this.#children
@@ -190,6 +195,6 @@ export class ReactiveElementBuilder<T extends DomTypes> {
   }
 }
 
-export function ELEMENT<T extends DomTypes>(): ReactiveElementNode<T> {
+export function ELEMENT<T extends DomTypes>(): ElementProgramNode<T> {
   throw Error("unimplemented");
 }

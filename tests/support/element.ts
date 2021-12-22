@@ -35,7 +35,7 @@ export function isReactiveAttribute(
   return starbeam.Reactive.is(attribute.value);
 }
 
-export type AnyOutput = starbeam.Output<starbeam.SimpleDomTypes>;
+export type AnyOutput = starbeam.AnyOutput<starbeam.SimpleDomTypes>;
 export type TestChild = AnyOutput | string;
 
 export interface TestElementOptions {

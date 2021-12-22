@@ -1,23 +1,34 @@
 // import type { AnyNode } from "./simplest-dom";
 import type * as minimal from "@domtree/minimal";
+import { HtmlBuffer } from "../cursor/append";
 import type * as dom from "./compatible-dom";
 import { COMPATIBLE_DOM, Hydrated } from "./compatible-dom";
-import { TEMPLATE_MARKER } from "./marker";
+import {
+  Transform,
+  ContentMarker,
+  TEMPLATE_MARKER,
+  BodyTransform,
+} from "./marker";
 import { Token, tokenId } from "./token";
 
-export type TreeOperationOptions = {
+export type ContentOperationOptions = {
   readonly token: true;
 };
 
-export const TOKEN: TreeOperationOptions = { token: true };
+export const ContentOperationOptions = {
+  requestedToken(options: ContentOperationOptions | undefined): boolean {
+    return options === undefined ? false : options.token;
+  },
+} as const;
 
-export interface TreeOperation {
-  push(buffer: string[]): void;
-  markBefore(output: string[], token: Token): void;
-  markAfter(output: string[], token: Token): void;
+export const TOKEN: ContentOperationOptions = { token: true };
+
+export interface ContentOperation {
+  readonly append: BodyTransform;
+  readonly marker: ContentMarker;
 }
 
-export class TextOperation implements TreeOperation {
+export class TextOperation implements ContentOperation {
   static of(data: string): TextOperation {
     return new TextOperation(data);
   }
@@ -28,36 +39,29 @@ export class TextOperation implements TreeOperation {
     this.#text = text;
   }
 
-  readonly markBefore = TEMPLATE_MARKER.start;
-  readonly markAfter = TEMPLATE_MARKER.end;
+  readonly marker = TEMPLATE_MARKER;
 
-  push(buffer: string[]): void {
-    buffer.push(this.#text);
-  }
+  readonly append = Transform((buffer) => buffer.text(this.#text));
 }
 
-export class CommentOperation implements TreeOperation {
+export class CommentOperation implements ContentOperation {
   static of(data: string): CommentOperation {
     return new CommentOperation(data);
   }
 
   readonly marker = TEMPLATE_MARKER;
 
-  #text: string;
+  #data: string;
 
   constructor(text: string) {
-    this.#text = text;
+    this.#data = text;
   }
 
-  readonly markBefore = TEMPLATE_MARKER.start;
-  readonly markAfter = TEMPLATE_MARKER.end;
-
-  push(buffer: string[]): void {
-    buffer.push(`<!--${this.#text}-->`);
-  }
+  readonly append = Transform((buffer) => buffer.comment(this.#data));
 }
 
-export type AnyTreeOperation = TextOperation | CommentOperation;
+export type AnyDataOperation = TextOperation | CommentOperation;
+export type AnyContentOperation = AnyDataOperation;
 
 interface HTMLParser {
   (string: string): dom.CompatibleDocumentFragment;
@@ -79,32 +83,30 @@ export class TreeConstructor {
     return CommentOperation.of(data);
   }
 
-  readonly #html: string[] = [];
+  readonly #buffer = HtmlBuffer.create();
   #id = 0;
 
   private constructor() {}
 
-  add(operation: AnyTreeOperation, options: TreeOperationOptions): Token;
-  add(operation: AnyTreeOperation): void;
+  add(operation: ContentOperation, options: ContentOperationOptions): Token;
+  add(operation: ContentOperation): void;
   add(
-    operation: AnyTreeOperation,
-    options?: TreeOperationOptions
+    operation: ContentOperation,
+    options?: ContentOperationOptions
   ): void | Token {
     if (options === TOKEN) {
       let token = this.#nextToken();
-      operation.markBefore(this.#html, token);
-      operation.push(this.#html);
-      operation.markAfter(this.#html, token);
+      operation.marker(this.#buffer, token, operation.append);
       return token;
     } else {
-      operation.push(this.#html);
+      operation.append(this.#buffer);
     }
   }
 
   construct(parse: HTMLParser): {
     fragment: dom.CompatibleDocumentFragment;
   } {
-    return { fragment: parse(this.#html.join("")) };
+    return { fragment: parse(this.#buffer.serialize()) };
   }
 
   #nextToken() {

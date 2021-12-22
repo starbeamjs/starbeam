@@ -47,6 +47,7 @@ declare module "@domtree/minimal" {
     // The core interface needed for traversing the DOM
     readonly parentNode: ParentNode | null;
     readonly nextSibling: ChildNode | null;
+    readonly previousSibling: ChildNode | null;
   }
 
   interface MutableChild extends ReadonlyChild {
@@ -95,6 +96,7 @@ declare module "@domtree/minimal" {
 
     hasAttribute(qualifiedName: string): boolean;
     getAttributeNode(qualifiedName: string): Attr | null;
+    removeAttribute(qualifiedName: string): void;
   }
 
   interface MutableElement extends Element, MutableParent, MutableChild {
@@ -108,6 +110,7 @@ declare module "@domtree/minimal" {
   export interface Attr extends ReadonlyNode {
     readonly nodeType: Node.ATTRIBUTE_NODE;
 
+    readonly ownerElement: Element | null;
     readonly namespaceURI: AttributeNamespace | null;
     readonly prefix: string | null;
     readonly localName: string;
@@ -146,6 +149,33 @@ declare module "@domtree/minimal" {
   export interface TemplateElement extends Element {
     readonly tagName: "TEMPLATE";
     readonly content: DocumentFragment;
+  }
+
+  export interface StaticRangeOptions {
+    readonly startContainer: ChildNode;
+    readonly startOffset: number;
+    readonly endContainer: ChildNode;
+    readonly endOffset: number;
+  }
+
+  export class AbstractRange {
+    readonly startContainer: ChildNode;
+    readonly startOffset: number;
+    readonly endContainer: ChildNode;
+    readonly endOffset: number;
+    readonly collapsed: boolean;
+  }
+
+  export class LiveRange extends AbstractRange {
+    constructor();
+
+    setStart(node: ChildNode, offset: number): void;
+    setEnd(node: ChildNode, offset: number): void;
+    deleteContents(): void;
+  }
+
+  export class StaticRange extends AbstractRange {
+    constructor(options: StaticRangeOptions);
   }
 
   export type Node =

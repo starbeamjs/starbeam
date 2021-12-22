@@ -41,24 +41,24 @@ interface ReactiveChoiceConstructor<C extends AnyReactiveChoice> {
   <K extends C["discriminant"]>(discriminant: K, value: ValueFor<C, K>): C;
 }
 
-export class ReactiveChoices<C extends AnyReactiveChoice> {
+export class ReactiveCases<C extends AnyReactiveChoice> {
   static define<C extends AnyReactiveChoice>(
-    def: (choices: ReactiveChoices<never>) => ReactiveChoices<C>
+    def: (choices: ReactiveCases<never>) => ReactiveCases<C>
   ): ReactiveChoiceConstructor<C> {
-    return def(new ReactiveChoices()).done();
+    return def(new ReactiveCases()).done();
   }
 
   add<K extends string>(
     discriminant: K
-  ): ReactiveChoices<C | { discriminant: K }>;
+  ): ReactiveCases<C | { discriminant: K }>;
   add<K extends string, T>(
     discriminant: K,
     value: Type<T>
-  ): ReactiveChoices<C | { discriminant: K; value: Reactive<T> }>;
+  ): ReactiveCases<C | { discriminant: K; value: Reactive<T> }>;
   add(
     _discriminant: string,
     _value?: Type<unknown>
-  ): ReactiveChoices<AnyReactiveChoice> {
+  ): ReactiveCases<AnyReactiveChoice> {
     return this;
   }
 
