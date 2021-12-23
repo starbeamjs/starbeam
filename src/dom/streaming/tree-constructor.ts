@@ -1,6 +1,6 @@
 // import type { AnyNode } from "./simplest-dom";
 import type * as minimal from "@domtree/minimal";
-import { HtmlBuffer } from "../cursor/append";
+import { AttrType, ElementHeadBuffer, HtmlBuffer } from "../cursor/append";
 import type * as dom from "./compatible-dom";
 import { COMPATIBLE_DOM, Hydrated } from "./compatible-dom";
 import {
@@ -8,6 +8,7 @@ import {
   ContentMarker,
   TEMPLATE_MARKER,
   BodyTransform,
+  AttributeMarker,
 } from "./marker";
 import { Token, tokenId } from "./token";
 
@@ -60,6 +61,10 @@ export class CommentOperation implements ContentOperation {
   readonly append = Transform((buffer) => buffer.comment(this.#data));
 }
 
+export class ElementOperation implements ContentOperation {
+  static create(tag: string, build: BuildElement);
+}
+
 export type AnyDataOperation = TextOperation | CommentOperation;
 export type AnyContentOperation = AnyDataOperation;
 
@@ -67,12 +72,33 @@ interface HTMLParser {
   (string: string): dom.CompatibleDocumentFragment;
 }
 
+class Tokens {
+  static create(): Tokens {
+    return new Tokens(0);
+  }
+
+  #id: number;
+
+  private constructor(id: number) {
+    this.#id = id;
+  }
+
+  nextToken(): Token {
+    return Token.of(String(this.#id++));
+  }
+}
+
+export interface BuildElement {
+  head: (buffer: HeadConstructor) => void;
+  body: (buffer: TreeConstructor) => void;
+}
+
 /**
  * `TreeConstructor` builds up a valid string of HTML, which it then gives to the browsers'
  */
 export class TreeConstructor {
   static html(): TreeConstructor {
-    return new TreeConstructor();
+    return new TreeConstructor(HtmlBuffer.create(), Tokens.create());
   }
 
   static text(data: string): TextOperation {
@@ -83,10 +109,15 @@ export class TreeConstructor {
     return CommentOperation.of(data);
   }
 
-  readonly #buffer = HtmlBuffer.create();
-  #id = 0;
+  static element(tag: string) {}
 
-  private constructor() {}
+  readonly #buffer: HtmlBuffer;
+  readonly #tokens: Tokens;
+
+  private constructor(buffer: HtmlBuffer, tokens: Tokens) {
+    this.#buffer = buffer;
+    this.#tokens = tokens;
+  }
 
   add(operation: ContentOperation, options: ContentOperationOptions): Token;
   add(operation: ContentOperation): void;
@@ -95,7 +126,7 @@ export class TreeConstructor {
     options?: ContentOperationOptions
   ): void | Token {
     if (options === TOKEN) {
-      let token = this.#nextToken();
+      let token = this.#tokens.nextToken();
       operation.marker(this.#buffer, token, operation.append);
       return token;
     } else {
@@ -108,9 +139,43 @@ export class TreeConstructor {
   } {
     return { fragment: parse(this.#buffer.serialize()) };
   }
+}
 
-  #nextToken() {
-    return Token.of(String(this.#id++));
+export interface ConstructAttr {
+  /**
+   * Qualified Name
+   */
+  name: string;
+  value: string | null;
+  type?: AttrType;
+}
+
+export class HeadConstructor {
+  static of(buffer: ElementHeadBuffer, tokens: Tokens): HeadConstructor {
+    return new HeadConstructor(buffer, tokens);
+  }
+
+  readonly #buffer: ElementHeadBuffer;
+  readonly #tokens: Tokens;
+
+  private constructor(buffer: ElementHeadBuffer, tokens: Tokens) {
+    this.#buffer = buffer;
+    this.#tokens = tokens;
+  }
+
+  attr(construct: ConstructAttr): void;
+  attr(construct: ConstructAttr, token: ContentOperationOptions): Token;
+  attr(
+    construct: ConstructAttr,
+    token?: ContentOperationOptions
+  ): Token | void {
+    this.#buffer.attr(construct.name, construct.value, construct.type);
+
+    if (ContentOperationOptions.requestedToken(token)) {
+      let token = this.#tokens.nextToken();
+      AttributeMarker(this.#buffer, token, construct.name);
+      return token;
+    }
   }
 }
 
