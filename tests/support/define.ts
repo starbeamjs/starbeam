@@ -1,26 +1,34 @@
-import { createDocument, HTMLSerializer, voidMap } from "simple-dom";
+import { JSDOM } from "jsdom";
 import { upstream } from "../jest-ext";
 import { ElementArgs, TestElementArgs } from "./element";
 import { Expects } from "./expect/expect";
 import {
   Cell,
-  dom,
+  CommentProgramNode,
+  ElementProgramNode,
+  HTML_NAMESPACE,
   HydratedTokens,
+  minimal,
   Reactive,
   ReactiveDOM,
-  ReactiveElementBuilder,
-  SimpleDomTypes,
+  ElementProgramNodeBuilder,
+  TextProgramNode,
   Token,
   TreeHydrator,
   Universe,
-  minimal,
+  RenderedProgramNode,
+  ContentProgramNode,
+  CompatibleElement,
+  is,
+  verify,
+  RenderedContent,
+  CompatibleDocumentFragment,
 } from "./starbeam";
-import { JSDOM } from "jsdom";
 
 export interface TestArgs {
-  readonly universe: TestUniverse;
+  readonly universe: Universe;
   readonly test: TestSupport;
-  readonly dom: ReactiveDOM<SimpleDomTypes>;
+  readonly dom: ReactiveDOM;
 }
 
 export function test(
@@ -38,22 +46,42 @@ export function test(
   });
 }
 
-export type TestUniverse = Universe<SimpleDomTypes>;
-export type TestDOM = ReactiveDOM<SimpleDomTypes>;
+export function todo(
+  name: string,
+  test: (args: TestArgs) => void | Promise<void>
+): void {
+  upstream.test(name, async () => {
+    let support = TestSupport.create();
+
+    try {
+      await test({
+        test: support,
+        universe: support.universe,
+        dom: support.dom,
+      });
+    } catch (e) {
+      return;
+    }
+
+    throw Error(`Expected pending test '${name}' to fail, but it passed`);
+  });
+
+  upstream.test.todo("name");
+}
 
 export class TestSupport {
-  static create(document = new JSDOM()): TestSupport {
-    return new TestSupport(document);
+  static create(document = new JSDOM().window.document): TestSupport {
+    return new TestSupport(document as unknown as minimal.Document);
   }
 
-  readonly universe: TestUniverse;
-  readonly dom: TestDOM;
+  readonly universe: Universe;
+  readonly dom: ReactiveDOM;
 
   #document: minimal.Document;
 
   private constructor(document: minimal.Document) {
     this.#document = document;
-    this.universe = Universe.simpleDOM(document);
+    this.universe = Universe.document(document);
     this.dom = this.universe.dom;
   }
 
@@ -77,27 +105,29 @@ export class TestSupport {
       this.universe,
       args
     );
-    let element = ReactiveElementBuilder.build(tagName, build);
+    let element = ElementProgramNodeBuilder.build(tagName, build);
     expect(normalize(element.metadata.isStatic)).toBe(expectation);
     return element;
   }
 
   hydrate(
-    fragment: dom.CompatibleDocumentFragment,
+    fragment: CompatibleDocumentFragment,
     tokens: Set<Token>
   ): HydratedTokens {
     return TreeHydrator.hydrate(this.#document, fragment, tokens);
   }
 
-  render<O extends TestOutput<N>, N extends Simple.Node>(
-    output: O,
+  render<R extends RenderedContent>(
+    node: ContentProgramNode<R>,
     expectation: Expects
   ): {
-    result: TestRendered<N>;
-    into: Simple.Element;
+    result: R;
+    into: CompatibleElement;
   } {
-    let element = this.#document.createElement("div");
-    let result = this.universe.renderIntoElement(output, element);
+    let element = this.#document.createElementNS(HTML_NAMESPACE, "div");
+    let result = this.universe.renderIntoElement(node, element);
+
+    verify(result, is.Present);
 
     expect(
       normalize(result.metadata.isConstant),
@@ -107,7 +137,7 @@ export class TestSupport {
     return { result, into: element };
   }
 
-  update<T>(rendered: AnyTestRendered, cell: Cell<T>, value: T): void {
+  update<T>(rendered: RenderedProgramNode, cell: Cell<T>, value: T): void {
     cell.update(value);
     this.universe.poll(rendered);
   }
@@ -120,16 +150,6 @@ export type Test = (args: {
 
 function normalize(isStatic: boolean): Expects {
   return isStatic ? Expects.static : Expects.dynamic;
-}
-
-export function innerHTML(element: Simple.Element): string {
-  let serializer = new HTMLSerializer(voidMap);
-  return serializer.serializeChildren(element);
-}
-
-export function outerHTML(element: Simple.Element): string {
-  let serializer = new HTMLSerializer(voidMap);
-  return serializer.serialize(element);
 }
 
 export { expect } from "./expect/expect";

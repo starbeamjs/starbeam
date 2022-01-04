@@ -1,4 +1,4 @@
-import { Expects, innerHTML, test } from "../support";
+import { Expects, test } from "../support";
 
 test("a simple element containing a text node (dynamic) ", ({
   universe,
@@ -16,12 +16,12 @@ test("a simple element containing a text node (dynamic) ", ({
   );
 
   let { result, into } = test.render(element, Expects.dynamic);
-  expect(innerHTML(into)).toBe("<div>Chirag</div>");
+  expect(into.innerHTML).toBe("<div>Chirag</div>");
 
   name.update("Chi");
   universe.poll(result);
 
-  expect(innerHTML(into)).toBe("<div>Chi</div>");
+  expect(into.innerHTML).toBe("<div>Chi</div>");
 });
 
 test("a simple element containing a text node (static) ", ({
@@ -46,7 +46,7 @@ test("a simple element containing a text node (static) ", ({
 
   let { into } = test.render(element, Expects.static);
 
-  expect(innerHTML(into)).toBe(`<div title="${TITLE}">${NAME}</div>`);
+  expect(into.innerHTML).toBe(`<div title="${TITLE}">${NAME}</div>`);
 });
 
 test("a simple element with an attribute (dynamic) ", ({
@@ -72,12 +72,12 @@ test("a simple element with an attribute (dynamic) ", ({
 
   let { into, result } = test.render(element, Expects.dynamic);
 
-  expect(innerHTML(into)).toBe(`<div title="${TITLE}">${NAME}</div>`);
+  expect(into.innerHTML).toBe(`<div title="${TITLE}">${NAME}</div>`);
 
   name.update(SHORT_NAME);
   universe.poll(result);
 
-  expect(innerHTML(into)).toBe(`<div title="${TITLE}">${SHORT_NAME}</div>`);
+  expect(into.innerHTML).toBe(`<div title="${TITLE}">${SHORT_NAME}</div>`);
 });
 
 test("(smoke test) a dynamic element with a few children and a few attributes", ({
@@ -120,14 +120,14 @@ test("(smoke test) a dynamic element with a few children and a few attributes", 
 
   let { result, into } = test.render(element, Expects.dynamic);
 
-  expect(innerHTML(into)).toBe(
+  expect(into.innerHTML).toBe(
     `<div title="${TITLE}" class="person" style="${STYLE}">${FIRST_NAME} ${LAST_NAME} <span>(name)</span> -- Over and Out</div>`
   );
 
   firstName.update(SHORT_NAME);
   universe.poll(result);
 
-  expect(innerHTML(into)).toBe(
+  expect(into.innerHTML).toBe(
     `<div title="${TITLE}" class="person" style="${STYLE}">${SHORT_NAME} ${LAST_NAME} <span>(name)</span> -- Over and Out</div>`
   );
 });

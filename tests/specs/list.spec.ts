@@ -1,9 +1,9 @@
-import type { SimpleElement } from "@simple-dom/interface";
-import { expect, Expects, innerHTML, test, toBe } from "../support";
-import { Component, Reactive, SimpleDomTypes } from "../support/starbeam";
-import type { TestDOM } from "../support/define";
+import type { RenderedElementNode } from "../../src/index";
+import { expect, Expects, toBe } from "../support";
+import { todo } from "../support/define";
+import { Component, Reactive, ReactiveDOM } from "../support/starbeam";
 
-test("a simple, static list", ({ universe, test }) => {
+todo("a simple, static list", ({ universe, test }) => {
   const dom = universe.dom;
   const Name = NameComponent(dom);
 
@@ -17,20 +17,20 @@ test("a simple, static list", ({ universe, test }) => {
 
   let { result, into } = test.render(dom.list(names, Name), Expects.dynamic);
 
-  expect(innerHTML(into), toBe("<p>Tom</p><p>Yehuda</p><p>Chirag</p>"));
+  expect(into.innerHTML, toBe("<p>Tom</p><p>Yehuda</p><p>Chirag</p>"));
 
   universe.poll(result);
 
-  expect(innerHTML(into), toBe("<p>Tom</p><p>Yehuda</p><p>Chirag</p>"));
+  expect(into.innerHTML, toBe("<p>Tom</p><p>Yehuda</p><p>Chirag</p>"));
 
   state.yehuda.update("@wycats");
 
   universe.poll(result);
 
-  expect(innerHTML(into), toBe("<p>Tom</p><p>@wycats</p><p>Chirag</p>"));
+  expect(into.innerHTML, toBe("<p>Tom</p><p>@wycats</p><p>Chirag</p>"));
 });
 
-test("a simple, dynamic list", ({ universe, test }) => {
+todo("a simple, dynamic list", ({ universe, test }) => {
   const dom = universe.dom;
   const Name = NameComponent(dom);
 
@@ -44,26 +44,26 @@ test("a simple, dynamic list", ({ universe, test }) => {
 
   let { result, into } = test.render(dom.list(names, Name), Expects.dynamic);
 
-  expect(innerHTML(into), toBe("<p>Tom</p><p>Yehuda</p><p>Chirag</p>"));
+  expect(into.innerHTML, toBe("<p>Tom</p><p>Yehuda</p><p>Chirag</p>"));
 
   universe.poll(result);
 
-  expect(innerHTML(into), toBe("<p>Tom</p><p>Yehuda</p><p>Chirag</p>"));
+  expect(into.innerHTML, toBe("<p>Tom</p><p>Yehuda</p><p>Chirag</p>"));
 
   names.update([state.chirag, state.yehuda, state.tom]);
 
   universe.poll(result);
-  expect(innerHTML(into), toBe("<p>Chirag</p><p>Yehuda</p><p>Tom</p>"));
+  expect(into.innerHTML, toBe("<p>Chirag</p><p>Yehuda</p><p>Tom</p>"));
 
   state.yehuda.update("@wycats");
 
   universe.poll(result);
-  expect(innerHTML(into), toBe("<p>Chirag</p><p>@wycats</p><p>Tom</p>"));
+  expect(into.innerHTML, toBe("<p>Chirag</p><p>@wycats</p><p>Tom</p>"));
 });
 
 function NameComponent(
-  dom: TestDOM
-): Component<Reactive<string>, SimpleDomTypes, SimpleElement> {
+  dom: ReactiveDOM
+): Component<Reactive<string>, RenderedElementNode> {
   return function Name(name: Reactive<string>) {
     return dom.element(Reactive.from("p")).append(dom.text(name)).finalize();
   };

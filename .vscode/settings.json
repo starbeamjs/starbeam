@@ -9,5 +9,7 @@
   // "jest.autoRun": {
   //   "watch": "test-file"
   // }
-  "jest.autoRun": "off"
+  "jest.autoRun": "off",
+  "javascript.preferences.importModuleSpecifierEnding": "index",
+  "typescript.preferences.importModuleSpecifierEnding": "index"
 }

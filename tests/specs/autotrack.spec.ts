@@ -1,11 +1,5 @@
-import {
-  test,
-  expect,
-  toBe,
-  Expects,
-  TestUniverse,
-  innerHTML,
-} from "../support";
+import { test, expect, toBe, Expects } from "../support";
+import type { Universe } from "../support/starbeam";
 
 test("timeline.memo", ({ universe }) => {
   let name = universe.cell("Tom");
@@ -44,14 +38,14 @@ test("timeline.memo => text", ({ universe, test }) => {
   let text = test.buildText(fullName, Expects.dynamic);
   let { result, into } = test.render(text, Expects.dynamic);
 
-  expect(innerHTML(into), toBe("Tom Dale"));
+  expect(into.innerHTML, toBe("Tom Dale"));
 
   test.update(result, firstName, "Thomas");
 
-  expect(innerHTML(into), toBe("Thomas Dale"));
+  expect(into.innerHTML, toBe("Thomas Dale"));
 });
 
-function testName(universe: TestUniverse, first: string, last: string) {
+function testName(universe: Universe, first: string, last: string) {
   let firstName = universe.cell(first);
   let lastName = universe.cell(last);
 

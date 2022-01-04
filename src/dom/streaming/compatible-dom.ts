@@ -1,7 +1,6 @@
 import type * as browser from "@domtree/browser";
 import type * as minimal from "@domtree/minimal";
 import type { Mutable } from "@domtree/minimal";
-import type * as simple from "@domtree/simple";
 import * as global from "./global-dom";
 import { is, mutable } from "../../strippable/minimal";
 import { verify, exhaustive, assert } from "../../strippable/assert";
@@ -13,47 +12,32 @@ import {
   XLINK_NAMESPACE,
   XMLNS_NAMESPACE,
   XML_NAMESPACE,
-} from "../tree-construction/foreign";
+} from "./namespaces";
+import { as } from "../../strippable/verify-context";
 
-export type CompatibleDocument =
-  | browser.Document
-  | simple.Document
-  | minimal.Document;
+export type CompatibleDocument = browser.Document | minimal.Document;
 
 export type CompatibleCharacterData =
   | browser.Text
-  | simple.Text
   | minimal.Text
   | browser.Comment
-  | simple.Comment
   | minimal.Comment;
 
 export type CompatibleDocumentFragment =
   | browser.DocumentFragment
-  | simple.DocumentFragment
   | minimal.DocumentFragment;
 
-export type CompatibleParentNode =
-  | browser.ParentNode
-  | simple.ParentNode
-  | minimal.ParentNode;
+export type CompatibleParentNode = browser.ParentNode | minimal.ParentNode;
 
-export type CompatibleChildNode =
-  | browser.ChildNode
-  | simple.ChildNode
-  | minimal.ChildNode;
+export type CompatibleChildNode = browser.ChildNode | minimal.ChildNode;
 
-export type CompatibleElement =
-  | browser.Element
-  | simple.Element
-  | minimal.Element;
+export type CompatibleElement = browser.Element | minimal.Element;
 
 export type CompatibleTemplateElement =
   | browser.TemplateElement
-  | simple.TemplateElement
   | minimal.TemplateElement;
 
-export type CompatibleAttr = browser.Attr | simple.Attr | minimal.Attr;
+export type CompatibleAttr = browser.Attr | minimal.Attr;
 
 export type CompatibleNode =
   | CompatibleCharacterData
@@ -61,24 +45,19 @@ export type CompatibleNode =
   | CompatibleChildNode
   | CompatibleAttr;
 
-export type Hydrated =
-  | {
-      type: "range";
-      range: [start: minimal.Node, end: minimal.Node];
-    }
-  | {
-      type: "node";
-      node: minimal.Node;
-    }
-  | {
-      type: "attr";
-      element: minimal.Element;
-      attr: minimal.Attr;
-    };
-
 export interface ContentCursor {
   parent: minimal.ParentNode;
   next: minimal.Node | null;
+}
+
+export function ContentCursor(
+  parent: minimal.ParentNode,
+  next: minimal.Node | null
+): ContentCursor {
+  return {
+    parent,
+    next,
+  };
 }
 
 export type ContentRange =
@@ -195,11 +174,8 @@ export class AbstractDOM {
 
   removeAttr(attr: CompatibleAttr): void {
     verify(attr, is.Attr);
-    let element = attr.ownerElement;
 
-    if (element) {
-      mutable(element).removeAttribute(COMPATIBLE_DOM.attrQualifiedName(attr));
-    }
+    MINIMAL_DOM.removeAttr(attr);
   }
 
   /**
@@ -213,20 +189,8 @@ export class AbstractDOM {
     element: CompatibleElement,
     qualifiedName: string
   ): minimal.Attr | null {
-    if ("getAttributeNode" in element) {
-      return (element as minimal.Element).getAttributeNode(qualifiedName);
-    } else {
-      let attrs = (element as simple.Element).attributes;
-
-      for (let i = 0; i < attrs.length; i++) {
-        let attr = attrs[i];
-        if (attr.name === qualifiedName) {
-          return attr as unknown as minimal.Attr;
-        }
-      }
-
-      return null;
-    }
+    verify(element, is.Element);
+    return MINIMAL_DOM.getAttr(element, qualifiedName);
   }
 
   /**
@@ -241,29 +205,19 @@ export class AbstractDOM {
     qualifiedName: string,
     value: string
   ): void {
-    let ns = getAttrNS(element as minimal.Element, qualifiedName);
+    verify(element, is.Element);
 
-    mutable(element as minimal.Element).setAttributeNS(
-      ns,
-      qualifiedName,
-      value
-    );
+    MINIMAL_DOM.setAttr(element, qualifiedName, value);
   }
 
   hasAttr(element: CompatibleElement, qualifiedName: string): boolean {
-    if ("hasAttribute" in element) {
-      return element.hasAttribute(qualifiedName);
-    } else {
-      return !!element.getAttribute(qualifiedName);
-    }
+    verify(element, is.Element);
+
+    return MINIMAL_DOM.hasAttr(element, qualifiedName);
   }
 
-  attrQualifiedName(attr: CompatibleAttr): string {
-    if (attr.prefix) {
-      return `${attr.prefix}:${attr.localName}`;
-    } else {
-      return attr.localName;
-    }
+  children(parent: CompatibleParentNode): readonly minimal.ChildNode[] {
+    return MINIMAL_DOM.children(parent as minimal.ParentNode);
   }
 
   insert(
@@ -291,18 +245,28 @@ export class AbstractDOM {
     COMPATIBLE_DOM.insert(withNode, cursor);
   }
 
+  appending(parent: CompatibleParentNode): ContentCursor {
+    return {
+      parent: parent as minimal.ParentNode,
+      next: null,
+    };
+  }
+
+  cursor(
+    parent: CompatibleParentNode,
+    next: CompatibleChildNode | null
+  ): ContentCursor {
+    return {
+      parent: parent as minimal.ParentNode,
+      next: next as minimal.ChildNode,
+    };
+  }
+
   remove(child: CompatibleChildNode): ContentCursor | null {
     let parent = child.parentNode as minimal.ParentNode | null;
     let next = child.nextSibling as minimal.Node | null;
 
-    if ("remove" in child) {
-      (child as Mutable<minimal.ChildNode>).remove();
-    } else {
-      let parent = child.parentNode as simple.ParentNode;
-      if (parent) {
-        parent.removeChild(child as simple.Node);
-      }
-    }
+    (child as Mutable<minimal.ChildNode>).remove();
 
     if (parent) {
       return { parent, next };
@@ -314,20 +278,7 @@ export class AbstractDOM {
   getTemplateContents(
     element: CompatibleTemplateElement
   ): minimal.DocumentFragment {
-    if ("content" in element) {
-      return element.content as minimal.DocumentFragment;
-    } else {
-      let frag = element.ownerDocument.createDocumentFragment();
-      let current = element.firstChild;
-
-      while (current) {
-        let next = current.nextSibling;
-        frag.appendChild(current);
-        current = next;
-      }
-
-      return frag as minimal.DocumentFragment;
-    }
+    return element.content as minimal.DocumentFragment;
   }
 
   findAll(
@@ -358,6 +309,76 @@ export class AbstractDOM {
  * The methods of this class are conveniences, and operate on minimal DOM.
  */
 export class MinimalUtilities {
+  element(
+    document: minimal.Document,
+    parent: minimal.Element,
+    tag: "template"
+  ): minimal.TemplateElement;
+  element(
+    document: minimal.Document,
+    parent: minimal.Element,
+    tag: string
+  ): minimal.Element;
+  element(
+    document: minimal.Document,
+    // @ts-expect-error TODO: Proper namespace handling
+    parent: minimal.Element,
+    tag: string
+  ): minimal.Element {
+    return document.createElementNS(HTML_NAMESPACE, tag);
+  }
+
+  updateAttr(attr: minimal.Attr, value: string | null): void {
+    if (value === null) {
+      MINIMAL_DOM.removeAttr(attr);
+    } else {
+      mutable(attr).value = value;
+    }
+  }
+
+  removeAttr(attr: minimal.Attr): void {
+    let element = attr.ownerElement;
+
+    if (element) {
+      mutable(element).removeAttribute(MINIMAL_DOM.#attrQualifiedName(attr));
+    }
+  }
+
+  /**
+   * This API assumes that a qualifiedName like `xlink:href` was created with
+   * the correct namespace.
+   *
+   * @param element
+   * @param qualifiedName
+   */
+  getAttr(
+    element: minimal.Element,
+    qualifiedName: string
+  ): minimal.Attr | null {
+    return element.getAttributeNode(qualifiedName);
+  }
+
+  /**
+   * This API lightly normalizes [foreign attributes] according to the spec.
+   * This allows setAttr and getAttr to both take a `qualifiedName`.
+   *
+   * [foreign attributes]:
+   * https://html.spec.whatwg.org/multipage/parsing.html#adjust-foreign-attributes
+   */
+  setAttr(
+    element: minimal.Element,
+    qualifiedName: string,
+    value: string
+  ): void {
+    let ns = getAttrNS(element, qualifiedName);
+
+    mutable(element).setAttributeNS(ns, qualifiedName, value);
+  }
+
+  hasAttr(element: minimal.Element, qualifiedName: string): boolean {
+    return element.hasAttribute(qualifiedName);
+  }
+
   removeRange(nodes: ContentRange): ContentCursor {
     let staticRange = MINIMAL_DOM.#createStaticRange(nodes);
     let cursor = MINIMAL_DOM.#cursorAfterStaticRange(staticRange);
@@ -372,15 +393,38 @@ export class MinimalUtilities {
     return MINIMAL_DOM.#cursorAfterStaticRange(staticRange);
   }
 
+  eachChild(
+    node: minimal.ParentNode,
+    each: (node: minimal.ChildNode) => void
+  ): void {
+    let current = node.firstChild;
+
+    while (current) {
+      let next = current.nextSibling;
+      each(current);
+      current = next;
+    }
+  }
+
+  children(parent: minimal.ParentNode): readonly minimal.ChildNode[] {
+    let children: minimal.ChildNode[] = [];
+    MINIMAL_DOM.eachChild(parent, (node) => children.push(node));
+    return children;
+  }
+
+  #attrQualifiedName(attr: CompatibleAttr): string {
+    if (attr.prefix) {
+      return `${attr.prefix}:${attr.localName}`;
+    } else {
+      return attr.localName;
+    }
+  }
+
   #cursorAfterStaticRange(staticRange: minimal.StaticRange): ContentCursor {
     let end = staticRange.endContainer;
     let parent = end.parentNode as minimal.ParentNode | null;
 
-    verify(
-      parent,
-      is.Present,
-      () => `expected parent of ${end} to be present, but it was null`
-    );
+    verify(parent, is.Present, as(`parent of ${end}`));
 
     let next = end.nextSibling as minimal.ChildNode | null;
     return { parent, next };

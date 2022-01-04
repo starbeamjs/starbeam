@@ -1,4 +1,4 @@
-import { test, Expects, innerHTML } from "../support";
+import { test, Expects } from "../support";
 
 test("a record is a reactive value", ({ universe: timeline, test }) => {
   let first = timeline.cell("Tom");
@@ -10,10 +10,10 @@ test("a record is a reactive value", ({ universe: timeline, test }) => {
   let text = test.buildText(record.get("first"), Expects.dynamic);
 
   let { result, into } = test.render(text, Expects.dynamic);
-  expect(innerHTML(into)).toBe("Tom");
+  expect(into.innerHTML).toBe("Tom");
 
   first.update("Thomas");
   timeline.poll(result);
 
-  expect(innerHTML(into)).toBe("Thomas");
+  expect(into.innerHTML).toBe("Thomas");
 });

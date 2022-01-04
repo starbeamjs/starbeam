@@ -1,6 +1,3 @@
-import type { Tokenizer } from "@simple-dom/parser";
-import { tokenize } from "simple-html-tokenizer";
-import { dom, simple } from "../support/starbeam";
 import { expect, test, toBe } from "../support/define";
 
 test("tree constructor", () => {
@@ -19,13 +16,3 @@ test("tree constructor", () => {
   // expect(text.type, toBe("node"));
   // expect((text as { node: Minimal.Text }).node.data, toBe("goodbye world"));
 });
-
-function parse(string: string): dom.CompatibleDocumentFragment {
-  let parser = new simple.HTMLParser(
-    tokenize as Tokenizer,
-    simple.createDocument(),
-    simple.voidMap
-  );
-
-  return parser.parse(string);
-}

@@ -1,21 +1,15 @@
 import type * as minimal from "@domtree/minimal";
-import { UpdatingContentCursor } from "../dom/cursor/updating";
-import {
-  CommentOperation,
-  ContentOperation,
-  TextOperation,
-  TOKEN,
-  TreeConstructor,
-} from "../dom/streaming/tree-constructor";
+import type { DehydratedToken } from "../dom/streaming/token";
+import { TOKEN, TreeConstructor } from "../dom/streaming/tree-constructor";
 import type { Reactive } from "../reactive/core";
 import { verified } from "../strippable/assert";
 import { is, mutable } from "../strippable/minimal";
-import {
-  AbstractProgramNode,
+import { Dehydrated } from "./hydrator/hydrate-node";
+import type {
+  AbstractContentProgramNode,
   BuildMetadata,
-  Dehydrated,
-  Rendered,
-  RenderMetadata,
+  RenderedContent,
+  RenderedContentMetadata,
 } from "./program-node";
 
 type DataNode = minimal.Text | minimal.Comment;
@@ -24,14 +18,18 @@ export type TextProgramNode = DataProgramNode<minimal.Text>;
 export type CommentProgramNode = DataProgramNode<minimal.Comment>;
 
 export class DataProgramNode<N extends DataNode>
-  implements AbstractProgramNode<N>
+  implements AbstractContentProgramNode<RenderedDataNode<N>>
 {
   static text(reactive: Reactive<string>): TextProgramNode {
-    return new DataProgramNode(reactive, TextOperation.of);
+    return new DataProgramNode(reactive, (buffer, data) =>
+      buffer.text(data, TOKEN)
+    );
   }
 
   static comment(reactive: Reactive<string>): CommentProgramNode {
-    return new DataProgramNode(reactive, CommentOperation.of);
+    return new DataProgramNode(reactive, (buffer, data) =>
+      buffer.comment(data, TOKEN)
+    );
   }
 
   readonly #reactive: Reactive<string>;
@@ -48,12 +46,11 @@ export class DataProgramNode<N extends DataNode>
     };
   }
 
-  render(tree: TreeConstructor): Dehydrated<N> {
-    let token = tree.add(this.#create(this.#reactive.current), TOKEN);
-    return Dehydrated.create<N>(
-      token,
-      (node) =>
-        new RenderedDataNode(
+  render(tree: TreeConstructor): Dehydrated<RenderedDataNode<N>> {
+    return Dehydrated.node(
+      this.#create(tree, this.#reactive.current),
+      (node: N) =>
+        RenderedDataNode.create(
           this.#reactive,
           verified(node.parentNode, is.Element),
           node
@@ -63,11 +60,21 @@ export class DataProgramNode<N extends DataNode>
 }
 
 interface CreateDataNode {
-  (data: string): ContentOperation;
+  (tree: TreeConstructor, data: string): DehydratedToken;
 }
 
-export class RenderedDataNode<N extends DataNode> implements Rendered {
+export class RenderedDataNode<N extends DataNode> implements RenderedContent {
+  static create<N extends DataNode>(
+    reactive: Reactive<string>,
+    parent: minimal.Element,
+    node: N
+  ): RenderedDataNode<N> {
+    return new RenderedDataNode(reactive, parent, node);
+  }
+
   readonly #reactive: Reactive<string>;
+  // @ts-expect-error TODO: Cursors (we may or may not need this when move is
+  // added. If it's not needed, remove this parameter)
   readonly #parent: minimal.Element;
   readonly #node: N;
 
@@ -77,20 +84,7 @@ export class RenderedDataNode<N extends DataNode> implements Rendered {
     this.#node = node;
   }
 
-  get cursor(): {
-    readonly after: UpdatingContentCursor;
-    readonly before: UpdatingContentCursor;
-  } {
-    return {
-      after: UpdatingContentCursor.create(this.#parent, this.#node.nextSibling),
-      before: UpdatingContentCursor.create(
-        this.#parent,
-        this.#node.previousSibling
-      ),
-    };
-  }
-
-  get metadata(): RenderMetadata {
+  get metadata(): RenderedContentMetadata {
     return {
       isConstant: this.#reactive.metadata.isStatic,
       isStable: {

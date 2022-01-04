@@ -1,6 +1,12 @@
-import type { SimpleElement, SimpleNode } from "@simple-dom/interface";
 import zip from "lodash.zip";
-import { Simple, exhaustive } from "../../support/starbeam";
+import {
+  CompatibleElement,
+  CompatibleNode,
+  exhaustive,
+  verify,
+  is,
+  DOM,
+} from "../../support/starbeam";
 import { abstraction } from "../expect/abstraction";
 
 export interface ElementNodeOptions {
@@ -47,7 +53,7 @@ export type NodePattern =
   | CommentNodePattern
   | ElementNodePattern;
 
-export function expectNode(actual: Simple.Node, pattern: NodePattern): void {
+export function expectNode(actual: CompatibleNode, pattern: NodePattern): void {
   switch (pattern.type) {
     case "text": {
       expect(actual).toMatchObject({
@@ -65,7 +71,7 @@ export function expectNode(actual: Simple.Node, pattern: NodePattern): void {
     }
 
     case "element": {
-      expectNodeIsElement(actual);
+      verify(actual, is.Element);
 
       expectElement(actual, pattern.tagName, pattern.options);
 
@@ -78,12 +84,8 @@ export function expectNode(actual: Simple.Node, pattern: NodePattern): void {
   }
 }
 
-function expectNodeIsElement(node: SimpleNode): asserts node is SimpleElement {
-  expect(node.nodeType).toBe(1);
-}
-
 export function expectElement(
-  node: Simple.Element,
+  node: CompatibleElement,
   tagName: string,
   options?: {
     attributes?: Record<string, string>;
@@ -101,7 +103,7 @@ export function expectElement(
     for (let [name, value] of Object.entries(options.attributes)) {
       abstraction(() =>
         expect(
-          node.getAttribute(name),
+          DOM.getAttr(node, name),
           `attribute ${name} should be ${value}`
         ).toBe(value)
       );
@@ -110,12 +112,14 @@ export function expectElement(
 
   abstraction(() => {
     if (options?.children) {
+      let children = DOM.children(node);
+
       expect(
-        node.childNodes,
+        children,
         "options.children should be the same length as the element's childNodes"
       ).toHaveLength(options.children.length);
 
-      for (let [childNode, pattern] of zip(node.childNodes, options.children)) {
+      for (let [childNode, pattern] of zip(children, options.children)) {
         abstraction(() => expectNode(childNode!, pattern!));
       }
     }

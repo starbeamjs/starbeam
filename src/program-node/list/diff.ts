@@ -1,44 +1,45 @@
 import { getPatch } from "fast-array-diff";
-import { UPDATING_METADATA } from "..";
-import type { DomImplementation } from "../../dom/implementation";
-import type { DomTypes } from "../../dom/types";
 import type { ReactiveMetadata } from "../../reactive/core";
-import { exhaustive } from "../../utils";
+import { exhaustive } from "../../strippable/assert";
 import type { DynamicLoop, KeyedComponentInvocation } from "../list";
-import type { AnyRendered, RenderMetadata } from "../program-node";
+import {
+  RenderedContent,
+  RenderedContentMetadata,
+  UPDATING_METADATA,
+} from "../program-node";
 
 const MAP = Symbol("MAP");
 
-export class InitialListArtifacts<T extends DomTypes> {
-  static empty<T extends DomTypes>(): InitialListArtifacts<T> {
+export class InitialListArtifacts {
+  static empty(): InitialListArtifacts {
     return new InitialListArtifacts();
   }
 
-  static initialize<T extends DomTypes>(
+  static initialize(
     key: unknown,
-    rendered: AnyRendered<T>
-  ): InitialListArtifacts<T> {
-    let artifacts = new InitialListArtifacts<T>();
+    rendered: RenderedContent
+  ): InitialListArtifacts {
+    let artifacts = new InitialListArtifacts();
     artifacts.add(key, rendered);
     return artifacts;
   }
 
-  readonly [MAP] = new Map<unknown, AnyRendered<T>>();
+  readonly [MAP] = new Map<unknown, RenderedContent>();
 
-  add(key: unknown, rendered: AnyRendered<T>): void {
+  add(key: unknown, rendered: RenderedContent): void {
     this[MAP].set(key, rendered);
   }
 
-  finalize(input: ReactiveMetadata): ListArtifacts<T> {
+  finalize(input: ReactiveMetadata): ListArtifacts {
     return ListArtifacts.create(input, this[MAP]);
   }
 }
 
-export class ListArtifacts<T extends DomTypes> {
-  static create<T extends DomTypes>(
+export class ListArtifacts {
+  static create(
     input: ReactiveMetadata,
-    map: ReadonlyMap<unknown, AnyRendered<T>>
-  ): ListArtifacts<T> {
+    map: ReadonlyMap<unknown, RenderedContent>
+  ): ListArtifacts {
     let list = [...map.values()];
 
     if (input.isStatic) {
@@ -48,14 +49,16 @@ export class ListArtifacts<T extends DomTypes> {
     }
   }
 
-  readonly metadata: RenderMetadata;
-  [MAP]: ReadonlyMap<unknown, AnyRendered<T>>;
-  #list: readonly AnyRendered<T>[];
+  readonly metadata: RenderedContentMetadata;
+  [MAP]: ReadonlyMap<unknown, RenderedContent>;
+
+  // @ts-expect-error TODO
+  #list: readonly RenderedContent[];
 
   private constructor(
-    map: ReadonlyMap<unknown, AnyRendered<T>>,
-    list: readonly AnyRendered<T>[],
-    metadata: RenderMetadata
+    map: ReadonlyMap<unknown, RenderedContent>,
+    list: readonly RenderedContent[],
+    metadata: RenderedContentMetadata
   ) {
     this[MAP] = map;
     this.#list = list;
@@ -63,14 +66,16 @@ export class ListArtifacts<T extends DomTypes> {
   }
 
   #append(
-    { before: next, key }: AppendOperation<T>,
-    components: Map<unknown, KeyedComponentInvocation<T>>
+    // @ts-expect-error TODO
+    { before: next, key }: AppendOperation,
+    components: Map<unknown, KeyedComponentInvocation>
   ) {
+    // @ts-expect-error TODO
     let component = components.get(key)!;
-    component.render();
+    // component.render();
   }
 
-  poll(dom: DomImplementation<T>, loop: DynamicLoop<T>): void {
+  poll(loop: DynamicLoop): void {
     let current = [...loop.current];
     let components = new Map(current.map((c) => [c.key, c]));
 
@@ -81,7 +86,7 @@ export class ListArtifacts<T extends DomTypes> {
         case "add": {
           let component = components.get(operation.key)!;
           let before = this[MAP].get(operation.before);
-          component.render(dom);
+          component.render();
           this.#append(operation, components);
         }
         case "move":
@@ -90,11 +95,11 @@ export class ListArtifacts<T extends DomTypes> {
     }
 
     for (let node of this[MAP].values()) {
-      node.poll(dom);
+      node.poll();
     }
   }
 
-  #diff(newKeys: readonly unknown[]): readonly PatchOperation<T>[] {
+  #diff(newKeys: readonly unknown[]): readonly PatchOperation[] {
     let thisKeys = this[MAP].keys();
     let oldValues = [...this[MAP].values()];
 
@@ -106,7 +111,7 @@ export class ListArtifacts<T extends DomTypes> {
         .flatMap((entry) => entry.items)
     );
 
-    let operations: PatchOperation<T>[] = [];
+    let operations: PatchOperation[] = [];
 
     for (let entry of patch) {
       switch (entry.type) {
@@ -146,8 +151,8 @@ export class ListArtifacts<T extends DomTypes> {
  */
 
 function staticRenderMetadata(
-  list: readonly AnyRendered<DomTypes>[]
-): RenderMetadata {
+  list: readonly RenderedContent[]
+): RenderedContentMetadata {
   if (list.length === 0) {
     return {
       isConstant: true,
@@ -170,16 +175,16 @@ function staticRenderMetadata(
   };
 }
 
-interface AppendOperation<T extends DomTypes> {
+interface AppendOperation {
   readonly type: "add";
   readonly key: unknown;
-  readonly before: AnyRendered<T> | null;
+  readonly before: RenderedContent | null;
 }
 
-function AppendOperation<T extends DomTypes>(
+function AppendOperation(
   key: unknown,
-  { before }: { before: AnyRendered<T> | null }
-): AppendOperation<T> {
+  { before }: { before: RenderedContent | null }
+): AppendOperation {
   return {
     type: "add",
     key,
@@ -199,16 +204,16 @@ function RemoveOperation(key: unknown): RemoveOperation {
   };
 }
 
-interface MoveOperation<T extends DomTypes> {
+interface MoveOperation {
   readonly type: "move";
   readonly key: unknown;
-  readonly before: AnyRendered<T> | null;
+  readonly before: RenderedContent | null;
 }
 
-function MoveOperation<T extends DomTypes>(
+function MoveOperation(
   key: unknown,
-  { before }: { before: AnyRendered<T> | null }
-): MoveOperation<T> {
+  { before }: { before: RenderedContent | null }
+): MoveOperation {
   return {
     type: "move",
     key,
@@ -216,7 +221,4 @@ function MoveOperation<T extends DomTypes>(
   };
 }
 
-type PatchOperation<T extends DomTypes> =
-  | AppendOperation<T>
-  | RemoveOperation
-  | MoveOperation<T>;
+type PatchOperation = AppendOperation | RemoveOperation | MoveOperation;

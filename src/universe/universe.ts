@@ -1,17 +1,17 @@
-import type { SimpleDocument } from "@simple-dom/interface";
-import { createDocument } from "simple-dom";
+import { minimal, TreeConstructor } from "../../tests/support/starbeam";
+import { ReactiveDOM } from "../dom";
 import {
-  DomImplementation,
-  SimpleDomImplementation,
-  SimpleDomTypes,
-} from "../dom/implementation";
-import { UpdatingContentCursor, ReactiveDOM } from "../dom";
+  CompatibleDocument,
+  CompatibleElement,
+  COMPATIBLE_DOM,
+  MINIMAL_DOM,
+} from "../dom/streaming/compatible-dom";
+import type { Dehydrated } from "../program-node/hydrator/hydrate-node";
 import type {
-  AnyRendered,
-  AbstractProgramNode,
-  Rendered,
-  ProgramNode,
-} from "../output/program-node";
+  ContentProgramNode,
+  RenderedContent,
+  RenderedProgramNode,
+} from "../program-node/program-node";
 import { Cell } from "../reactive/cell";
 import type { AnyReactiveChoice } from "../reactive/choice";
 import type { Reactive } from "../reactive/core";
@@ -21,16 +21,10 @@ import { InnerDict, ReactiveRecord } from "../reactive/record";
 import { Static } from "../reactive/static";
 import { Profile } from "./profile";
 import { Timeline } from "./timeline";
-import type { AnyNode, DomTypes } from "../dom/types";
-import type { minimal } from "../../tests/support/starbeam";
-import type {
-  CompatibleDocument,
-  CompatibleElement,
-} from "../dom/streaming/compatible-dom";
 
 export const TIMELINE = Symbol("TIMELINE");
 
-export class Universe<T extends DomTypes = DomTypes> {
+export class Universe {
   /**
    * Create a new timeline in order to manage outputs using SimpleDOM. It's safe
    * to use SimpleDOM with the real DOM as long as you don't need runtime
@@ -39,15 +33,16 @@ export class Universe<T extends DomTypes = DomTypes> {
   static document(
     document: CompatibleDocument,
     profile = Profile.Debug
-  ): Universe<SimpleDomTypes> {
+  ): Universe {
     return new Universe(document as minimal.Document, profile);
   }
 
   readonly #document: minimal.Document;
+  // @ts-expect-error TODO: Logging
   readonly #profile: Profile;
   readonly #timeline = Timeline.create();
 
-  readonly dom: ReactiveDOM<T> = new ReactiveDOM();
+  readonly dom: ReactiveDOM = new ReactiveDOM();
 
   constructor(document: minimal.Document, profile: Profile) {
     this.#document = document;
@@ -85,23 +80,42 @@ export class Universe<T extends DomTypes = DomTypes> {
     return new ReactiveRecord(dict);
   }
 
-  renderIntoElement<N extends minimal.ChildNode>(
-    node: ProgramNode<N>,
-    parentNode: CompatibleElement
-  ): Rendered {
-    return node.render(
-      UpdatingContentCursor.appending(parentNode, this.#domImplementation)
+  renderIntoElement<R extends RenderedContent>(
+    node: ContentProgramNode<R>,
+    parent: CompatibleElement
+  ): R | null {
+    let buffer = TreeConstructor.html();
+    let dehydrated = this.render(node, buffer);
+
+    if (dehydrated) {
+      let placeholder = this.#appending(parent);
+
+      buffer.replace(placeholder);
+
+      return dehydrated.hydrate(parent as minimal.Element);
+    }
+
+    return null;
+  }
+
+  render<R extends RenderedContent>(
+    node: ContentProgramNode<R>,
+    buffer: TreeConstructor
+  ): Dehydrated<R> | null {
+    return node.render(buffer);
+  }
+
+  poll(rendered: RenderedProgramNode) {
+    rendered.poll();
+  }
+
+  #appending(parent: CompatibleElement): minimal.TemplateElement {
+    let placeholder = MINIMAL_DOM.element(
+      this.#document,
+      parent as minimal.Element,
+      "template"
     );
-  }
-
-  render<N extends AnyNode<T>>(
-    output: AbstractProgramNode<T, N>,
-    cursor: UpdatingContentCursor<T>
-  ): Rendered<T, N> {
-    return output.render(this.#domImplementation, cursor);
-  }
-
-  poll(rendered: AnyRendered<T>) {
-    rendered.poll(this.#domImplementation);
+    COMPATIBLE_DOM.insert(placeholder, COMPATIBLE_DOM.appending(parent));
+    return placeholder;
   }
 }

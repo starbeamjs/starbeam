@@ -1,9 +1,8 @@
 import * as starbeam from "../../src/index";
-import type { TestUniverse } from "./index";
 import type { Expects } from "./expect/expect";
 
 interface ShorthandAttribute {
-  name: starbeam.AnyAttributeName;
+  name: starbeam.AttributeName;
   value: string | null;
 }
 
@@ -35,8 +34,7 @@ export function isReactiveAttribute(
   return starbeam.Reactive.is(attribute.value);
 }
 
-export type AnyOutput = starbeam.AnyOutput<starbeam.SimpleDomTypes>;
-export type TestChild = AnyOutput | string;
+export type TestChild = starbeam.ContentProgramNode | string;
 
 export interface TestElementOptions {
   attributes?: Record<string, TestAttribute>;
@@ -45,13 +43,13 @@ export interface TestElementOptions {
 
 export class ElementArgs {
   static normalize(
-    timeline: TestUniverse,
+    universe: starbeam.Universe,
     options: TestElementArgs
   ): NormalizedTestElementArgs {
-    return new ElementArgs(timeline).#normalizeElementArgs(options);
+    return new ElementArgs(universe).#normalizeElementArgs(options);
   }
 
-  constructor(readonly timeline: TestUniverse) {}
+  constructor(readonly universe: starbeam.Universe) {}
 
   #normalizeElementArgs(args: TestElementArgs): NormalizedTestElementArgs {
     if (isNormalized(args)) {
@@ -88,9 +86,9 @@ export class ElementArgs {
     };
   }
 
-  #normalizeChild(child: TestChild): AnyOutput {
+  #normalizeChild(child: TestChild): starbeam.ContentProgramNode {
     if (typeof child === "string") {
-      return this.timeline.dom.text(this.timeline.static(child));
+      return this.universe.dom.text(this.universe.static(child));
     } else {
       return child;
     }
@@ -116,8 +114,7 @@ export class ElementArgs {
   }
 }
 
-export type BuilderCallback =
-  starbeam.ReactiveElementBuilderCallback<starbeam.SimpleDomTypes>;
+export type BuilderCallback = starbeam.ReactiveElementBuilderCallback;
 export type TagName = starbeam.Reactive<string>;
 
 type BuilderElementArgs = [

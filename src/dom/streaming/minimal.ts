@@ -31,6 +31,8 @@ declare module "@domtree/minimal" {
   interface ReadonlyParent extends ReadonlyNode {
     readonly firstChild: ChildNode | null;
     readonly lastChild: ChildNode | null;
+
+    querySelectorAll(selectors: string): Iterable<ChildNode>;
   }
 
   interface MutableParent extends ReadonlyParent {
@@ -97,6 +99,9 @@ declare module "@domtree/minimal" {
     hasAttribute(qualifiedName: string): boolean;
     getAttributeNode(qualifiedName: string): Attr | null;
     removeAttribute(qualifiedName: string): void;
+
+    get innerHTML(): string;
+    get outerHTML(): string;
   }
 
   interface MutableElement extends Element, MutableParent, MutableChild {
@@ -105,6 +110,9 @@ declare module "@domtree/minimal" {
       qualifiedName: string,
       value: string
     ): void;
+
+    set innerHTML(html: string);
+    set outerHTML(html: string);
   }
 
   export interface Attr extends ReadonlyNode {

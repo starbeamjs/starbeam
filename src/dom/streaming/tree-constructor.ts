@@ -1,16 +1,28 @@
 // import type { AnyNode } from "./simplest-dom";
 import type * as minimal from "@domtree/minimal";
-import { AttrType, ElementHeadBuffer, HtmlBuffer } from "../cursor/append";
-import type * as dom from "./compatible-dom";
-import { COMPATIBLE_DOM, Hydrated } from "./compatible-dom";
+import type { Hydrated } from "../../program-node/hydrator/hydrated";
+import { mutable } from "../../strippable/minimal";
 import {
-  Transform,
-  ContentMarker,
-  TEMPLATE_MARKER,
+  ContentBuffer,
+  ElementBody,
+  ElementBodyBuffer,
+  HtmlBuffer,
+} from "../cursor/append";
+import {
+  AttributeValue,
+  AttrType,
+  ElementHeadBuffer,
+} from "../cursor/attribute";
+import type * as dom from "./compatible-dom";
+import { COMPATIBLE_DOM } from "./compatible-dom";
+import {
+  ATTRIBUTE_MARKER,
   BodyTransform,
-  AttributeMarker,
+  CHARACTER_DATA_MARKER,
+  ContentMarker,
+  ELEMENT_MARKER,
 } from "./marker";
-import { Token, tokenId } from "./token";
+import { DehydratedToken, markedToken, Token, tokenId } from "./token";
 
 export type ContentOperationOptions = {
   readonly token: true;
@@ -27,49 +39,6 @@ export const TOKEN: ContentOperationOptions = { token: true };
 export interface ContentOperation {
   readonly append: BodyTransform;
   readonly marker: ContentMarker;
-}
-
-export class TextOperation implements ContentOperation {
-  static of(data: string): TextOperation {
-    return new TextOperation(data);
-  }
-
-  #text: string;
-
-  private constructor(text: string) {
-    this.#text = text;
-  }
-
-  readonly marker = TEMPLATE_MARKER;
-
-  readonly append = Transform((buffer) => buffer.text(this.#text));
-}
-
-export class CommentOperation implements ContentOperation {
-  static of(data: string): CommentOperation {
-    return new CommentOperation(data);
-  }
-
-  readonly marker = TEMPLATE_MARKER;
-
-  #data: string;
-
-  constructor(text: string) {
-    this.#data = text;
-  }
-
-  readonly append = Transform((buffer) => buffer.comment(this.#data));
-}
-
-export class ElementOperation implements ContentOperation {
-  static create(tag: string, build: BuildElement);
-}
-
-export type AnyDataOperation = TextOperation | CommentOperation;
-export type AnyContentOperation = AnyDataOperation;
-
-interface HTMLParser {
-  (string: string): dom.CompatibleDocumentFragment;
 }
 
 class Tokens {
@@ -93,51 +62,169 @@ export interface BuildElement {
   body: (buffer: TreeConstructor) => void;
 }
 
+export class ElementHeadConstructor {
+  static create(
+    tokens: Tokens,
+    buffer: ElementHeadBuffer
+  ): ElementHeadConstructor {
+    return new ElementHeadConstructor(tokens, buffer);
+  }
+
+  readonly #tokens: Tokens;
+  readonly #buffer: ElementHeadBuffer;
+
+  constructor(tokens: Tokens, buffer: ElementHeadBuffer) {
+    this.#tokens = tokens;
+    this.#buffer = buffer;
+  }
+
+  mark(): Token {
+    let token = this.#tokens.nextToken();
+    ELEMENT_MARKER.mark(this.#buffer, token);
+    return token;
+  }
+
+  attr(
+    qualifiedName: string,
+    attrValue: string | null | AttributeValue,
+    options: ContentOperationOptions
+  ): DehydratedToken;
+  attr(qualifiedName: string, attrValue: string | null | AttributeValue): void;
+  attr(
+    qualifiedName: string,
+    attrValue: string | null | AttributeValue,
+    options?: ContentOperationOptions
+  ): DehydratedToken | void {
+    this.#buffer.attr(qualifiedName, attrValue);
+
+    if (ContentOperationOptions.requestedToken(options)) {
+      let token = this.#tokens.nextToken();
+      ATTRIBUTE_MARKER.mark(this.#buffer, token, qualifiedName);
+      return markedToken(token, ATTRIBUTE_MARKER);
+    }
+  }
+
+  body(): ElementBodyConstructor;
+  body(construct: (body: ElementBodyConstructor) => void): void;
+  body(
+    construct?: (body: ElementBodyConstructor) => void
+  ): ElementBodyConstructor | void {
+    let body = ContentConstructor.create(this.#tokens, this.#buffer.body());
+
+    return construct ? construct(body) : body;
+  }
+
+  empty(type: ElementBody = "normal"): void {
+    return this.#buffer.empty(type);
+  }
+}
+
+export const ElementBodyConstructor = {
+  flush(content: ElementBodyConstructor): void {
+    return ElementBodyBuffer.flush(ContentConstructor.finalize(content));
+  },
+} as const;
+
+export class ContentConstructor<B extends ContentBuffer = ContentBuffer> {
+  static create<B extends ContentBuffer>(
+    tokens: Tokens,
+    buffer: B
+  ): ContentConstructor<B> {
+    return new ContentConstructor(tokens, buffer);
+  }
+
+  static finalize<B extends ContentBuffer>(content: ContentConstructor<B>): B {
+    return content.#buffer;
+  }
+
+  readonly #tokens: Tokens;
+  readonly #buffer: B;
+
+  constructor(tokens: Tokens, buffer: B) {
+    this.#tokens = tokens;
+    this.#buffer = buffer;
+  }
+
+  text(data: string, options: ContentOperationOptions): DehydratedToken;
+  text(data: string): void;
+  text(
+    data: string,
+    options?: ContentOperationOptions
+  ): void | DehydratedToken {
+    return this.#append((b) => b.text(data), options);
+  }
+
+  comment(data: string, options: ContentOperationOptions): DehydratedToken;
+  comment(data: string): void;
+  comment(
+    data: string,
+    options?: ContentOperationOptions
+  ): void | DehydratedToken {
+    return this.#append((b) => b.comment(data), options);
+  }
+
+  element(tag: string, head: (head: ElementHeadConstructor) => void): void;
+  element<T, U>(
+    tag: string,
+    head: (head: ElementHeadConstructor) => T,
+    token: (token: DehydratedToken, result: T) => U
+  ): U;
+  element<T, U>(
+    tag: string,
+    construct: (head: ElementHeadConstructor) => T,
+    withToken?: (token: DehydratedToken, result: T) => U
+  ): U | void {
+    let returnValue: U | undefined = undefined;
+
+    this.#buffer.element(tag, (buffer) => {
+      let head = ElementHeadConstructor.create(this.#tokens, buffer);
+
+      if (withToken) {
+        let token = head.mark();
+        let result = construct(head);
+        let dehydratedToken = markedToken(token, ELEMENT_MARKER);
+        returnValue = withToken(dehydratedToken, result);
+      } else {
+        construct(head);
+      }
+    });
+
+    return returnValue;
+  }
+
+  #append(
+    operation: <B extends ContentBuffer>(buffer: B) => B,
+    options: ContentOperationOptions | undefined
+  ): void | DehydratedToken {
+    if (ContentOperationOptions.requestedToken(options)) {
+      let token = this.#tokens.nextToken();
+      CHARACTER_DATA_MARKER.mark(this.#buffer, token, operation);
+      return markedToken(token, CHARACTER_DATA_MARKER);
+    } else {
+      operation(this.#buffer);
+    }
+  }
+}
+
+export type ElementBodyConstructor = ContentConstructor<ElementBodyBuffer>;
+
 /**
  * `TreeConstructor` builds up a valid string of HTML, which it then gives to the browsers'
  */
-export class TreeConstructor {
+export class TreeConstructor extends ContentConstructor<HtmlBuffer> {
   static html(): TreeConstructor {
     return new TreeConstructor(HtmlBuffer.create(), Tokens.create());
   }
 
-  static text(data: string): TextOperation {
-    return TextOperation.of(data);
-  }
-
-  static comment(data: string): CommentOperation {
-    return CommentOperation.of(data);
-  }
-
-  static element(tag: string) {}
-
   readonly #buffer: HtmlBuffer;
-  readonly #tokens: Tokens;
 
   private constructor(buffer: HtmlBuffer, tokens: Tokens) {
+    super(tokens, buffer);
     this.#buffer = buffer;
-    this.#tokens = tokens;
   }
 
-  add(operation: ContentOperation, options: ContentOperationOptions): Token;
-  add(operation: ContentOperation): void;
-  add(
-    operation: ContentOperation,
-    options?: ContentOperationOptions
-  ): void | Token {
-    if (options === TOKEN) {
-      let token = this.#tokens.nextToken();
-      operation.marker(this.#buffer, token, operation.append);
-      return token;
-    } else {
-      operation.append(this.#buffer);
-    }
-  }
-
-  construct(parse: HTMLParser): {
-    fragment: dom.CompatibleDocumentFragment;
-  } {
-    return { fragment: parse(this.#buffer.serialize()) };
+  replace(placeholder: minimal.TemplateElement): void {
+    mutable(placeholder).outerHTML = this.#buffer.serialize();
   }
 }
 
@@ -164,17 +251,20 @@ export class HeadConstructor {
   }
 
   attr(construct: ConstructAttr): void;
-  attr(construct: ConstructAttr, token: ContentOperationOptions): Token;
+  attr(
+    construct: ConstructAttr,
+    token: ContentOperationOptions
+  ): DehydratedToken;
   attr(
     construct: ConstructAttr,
     token?: ContentOperationOptions
-  ): Token | void {
-    this.#buffer.attr(construct.name, construct.value, construct.type);
+  ): DehydratedToken | void {
+    this.#buffer.attr(construct.name, construct.value);
 
     if (ContentOperationOptions.requestedToken(token)) {
       let token = this.#tokens.nextToken();
-      AttributeMarker(this.#buffer, token, construct.name);
-      return token;
+      ATTRIBUTE_MARKER.mark(this.#buffer, token, construct.name);
+      return markedToken(token, ATTRIBUTE_MARKER);
     }
   }
 }
@@ -228,7 +318,7 @@ export class TreeHydrator {
   #hydrate(): HydratedTokens {
     let nodes = COMPATIBLE_DOM.findAll(this.#fragment, {
       attributes: {
-        any: ["data-starbeam-marker:attrs", "data-starbeam-marker:contents"],
+        any: ["data-starbeam-marker:attrs", "data-starbeam-marker"],
       },
     });
 
