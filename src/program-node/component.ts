@@ -1,5 +1,6 @@
 import type { TreeConstructor } from "../dom/streaming/tree-constructor";
 import { ReactiveParameter } from "../reactive/parameter";
+import type { UnsafeAny } from "../strippable/wrapper";
 import type {
   BuildMetadata,
   ContentProgramNode,
@@ -12,11 +13,8 @@ export type Component<
   R extends RenderedContent = RenderedContent
 > = (arg: P) => ContentProgramNode<R>;
 
-export type ComponentNodeType<C extends (arg: any) => ProgramNode> = C extends (
-  arg: any
-) => ProgramNode<infer N>
-  ? N
-  : never;
+export type ComponentNodeType<C extends (arg: UnsafeAny) => ProgramNode> =
+  C extends (arg: UnsafeAny) => ProgramNode<infer N> ? N : never;
 
 export class ComponentInvocation implements ProgramNode<RenderedContent> {
   static invoke<P extends ReactiveParameter>(

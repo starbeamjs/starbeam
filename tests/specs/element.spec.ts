@@ -44,7 +44,7 @@ test("a simple element containing a text node (static) ", ({
     Expects.static
   );
 
-  let { into, result } = test.render(element, Expects.static);
+  let { into } = test.render(element, Expects.static);
 
   expect(into.innerHTML).toBe(`<div title="${TITLE}">${NAME}</div>`);
 });

@@ -215,8 +215,6 @@ export class AttributesBuffer implements Serialize {
 
   readonly #attrs = new Map<string, HtmlAttribute>();
 
-  private constructor() {}
-
   initialize(attr: HtmlAttribute) {
     this.#attrs.set(Wrapper.getInner(attr.name), attr);
   }

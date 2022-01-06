@@ -249,7 +249,6 @@ export class MinimalUtilities {
   ): minimal.ParentNode;
   element(
     document: minimal.Document,
-    // @ts-expect-error TODO: Proper namespace handling
     parent: minimal.ParentNode,
     tag: string
   ): minimal.ParentNode {

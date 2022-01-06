@@ -66,7 +66,7 @@ export class Wrapper<T, Meta, S extends symbol> {
   }
 
   #debugMeta: Meta;
-  // @ts-expect-error intentionally unused
+  // Unused field for nominal typing
   #symbol: S;
   #inner: T;
 
@@ -77,7 +77,10 @@ export class Wrapper<T, Meta, S extends symbol> {
   }
 }
 
-export type AnyWrapper<T, Meta = any> = Wrapper<T, Meta, any>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type UnsafeAny = any;
+
+export type AnyWrapper<T, Meta = unknown> = Wrapper<T, Meta, UnsafeAny>;
 
 export interface OpaqueMetadata {
   description: string;

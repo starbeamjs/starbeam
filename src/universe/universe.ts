@@ -2,10 +2,7 @@ import type { anydom, minimal } from "@domtree/flavors";
 import { ReactiveDOM } from "../dom";
 import { COMPATIBLE_DOM, MINIMAL_DOM } from "../dom/streaming/compatible-dom";
 import { TreeConstructor } from "../dom/streaming/tree-constructor";
-import type {
-  ContentProgramNode,
-  RenderedProgramNode,
-} from "../program-node/interfaces/program-node";
+import type { ContentProgramNode } from "../program-node/interfaces/program-node";
 import type { RenderedContent } from "../program-node/interfaces/rendered-content";
 import { Cell } from "../reactive/cell";
 import type { AnyReactiveChoice } from "../reactive/choice";
@@ -34,7 +31,6 @@ export class Universe {
   }
 
   readonly #document: minimal.Document;
-  // @ts-expect-error TODO: Logging
   readonly #profile: Profile;
   readonly #timeline = Timeline.create();
 

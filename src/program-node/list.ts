@@ -239,7 +239,6 @@ export class DynamicListProgramNode
 
   readonly metadata: BuildMetadata = STATIC_BUILD_METADATA;
 
-  // @ts-expect-error TODO
   readonly #loop: DynamicLoop;
 
   constructor(loop: DynamicLoop) {

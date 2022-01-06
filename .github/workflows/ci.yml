@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
 jobs:
   test:
@@ -20,3 +20,11 @@ jobs:
       - name: "Setup node and install dependencies"
         uses: ./.github/actions/setup-node-and-install
       - run: pnpm typecheck
+  lint:
+    name: "Lint"
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: actions/checkout@v2
+      - name: "Setup node and install dependencies"
+        uses: ./.github/actions/setup-node-and-install
+      - run: pnpm lint

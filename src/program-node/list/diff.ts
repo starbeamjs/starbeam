@@ -1,7 +1,8 @@
 import type { minimal } from "@domtree/flavors";
 import { getPatch } from "fast-array-diff";
 import type { ReactiveMetadata } from "../../reactive/core";
-import { exhaustive } from "../../strippable/assert";
+import { exhaustive, verified } from "../../strippable/assert";
+import { is } from "../../strippable/minimal";
 import {
   RenderedContent,
   RenderedContentMetadata,
@@ -67,12 +68,12 @@ export class ListArtifacts {
   }
 
   #append(
-    // @ts-expect-error TODO
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     { before: next, key }: AppendOperation,
     components: Map<unknown, KeyedComponentInvocation>
   ) {
-    // @ts-expect-error TODO
-    let component = components.get(key)!;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    let component = verified(components.get(key), is.Present);
     // component.render();
   }
 
@@ -85,15 +86,19 @@ export class ListArtifacts {
     for (let operation of diff) {
       switch (operation.type) {
         case "add": {
-          let component = components.get(operation.key)!;
-          // @ts-expect-error TODO: synthesize cursor
+          let component = verified(components.get(operation.key), is.Present);
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           let before = this[MAP].get(operation.before);
-          // @ts-expect-error TODO: synthesize cursor
+          // @ts-expect-error TODO
           component.render();
           this.#append(operation, components);
+          break;
         }
         case "move":
         case "remove":
+          break;
+        default:
+          exhaustive(operation, "PatchOperation");
       }
     }
 
