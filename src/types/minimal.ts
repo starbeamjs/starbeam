@@ -1,4 +1,6 @@
 declare module "@domtree/minimal" {
+  import * as dom from "@domtree/interface";
+
   export type HtmlNamespace = "http://www.w3.org/1999/xhtml";
   export type MathmlNamespace = "http://www.w3.org/1998/Math/MathML";
   export type SvgNamespace = "http://www.w3.org/2000/svg";
@@ -64,9 +66,6 @@ declare module "@domtree/minimal" {
     replaceWith(node: Node): void;
   }
 
-  export type ParentNode = Element | Document | DocumentFragment;
-  export type ChildNode = DocumentType | Element | CharacterData;
-
   export interface Document extends ReadonlyParent {
     readonly nodeType: Node.DOCUMENT_NODE;
 
@@ -129,14 +128,14 @@ declare module "@domtree/minimal" {
     value: string;
   }
 
-  export interface CharacterData extends ReadonlyChild {
+  interface ReadonlyCharacterData extends ReadonlyChild {
     readonly nodeType: Node.TEXT_NODE | Node.COMMENT_NODE;
 
     readonly data: string;
     remove(): void;
   }
 
-  interface MutableCharacterData extends CharacterData, MutableChild {
+  interface MutableCharacterData extends ReadonlyCharacterData, MutableChild {
     data: string;
   }
 
@@ -146,13 +145,17 @@ declare module "@domtree/minimal" {
 
   interface MutableDocumentFragment extends DocumentFragment, MutableParent {}
 
-  export interface Text extends CharacterData {
+  export interface Text extends ReadonlyCharacterData {
     readonly nodeType: Node.TEXT_NODE;
   }
 
-  export interface Comment extends CharacterData {
+  export type MutableText = Text & MutableCharacterData;
+
+  export interface Comment extends ReadonlyCharacterData {
     readonly nodeType: Node.COMMENT_NODE;
   }
+
+  export type MutableComment = Comment & MutableCharacterData;
 
   export interface TemplateElement extends Element {
     readonly tagName: "TEMPLATE";
@@ -186,19 +189,11 @@ declare module "@domtree/minimal" {
     constructor(options: StaticRangeOptions);
   }
 
-  export type Node =
-    | Document
-    | DocumentFragment
-    | CharacterData
-    | DocumentType
-    | Element
-    | Attr;
-
   type NodeType<N extends Node> = N extends Document
     ? "Document"
     : N extends DocumentFragment
     ? "DocumentFragment"
-    : N extends CharacterData
+    : N extends ReadonlyCharacterData
     ? "CharacterData"
     : N extends DocumentType
     ? "Doctype"
@@ -208,11 +203,11 @@ declare module "@domtree/minimal" {
     ? "Attribute"
     : never;
 
-  type Mutable<N extends Node> = N extends Document
+  export type Mutable<N extends Node> = N extends Document
     ? MutableDocument
     : N extends DocumentFragment
     ? MutableDocumentFragment
-    : N extends CharacterData
+    : N extends ReadonlyCharacterData
     ? MutableCharacterData
     : N extends DocumentType
     ? MutableDocumentType
@@ -231,5 +226,33 @@ declare module "@domtree/minimal" {
     Attribute: MutableAttr;
   }
 
-  // export type Mutable<N extends Node> = MutableNodes[NodeType<N>];
+  export type DomTree = dom.Impl<{
+    Node: Node;
+    Document: Document;
+    DocumentType: DocumentType;
+    DocumentFragment: DocumentFragment;
+    Text: Text;
+    Comment: Comment;
+    Element: Element;
+    TemplateElement: TemplateElement;
+    Attr: Attr;
+    StaticRange: StaticRange;
+  }>;
+
+  export type MutableDomTree = dom.Impl<{
+    Document: MutableDocument;
+    DocumentType: MutableDocumentType;
+    DocumentFragment: MutableDocumentFragment;
+    Text: MutableText;
+    Comment: MutableComment;
+    Element: MutableElement;
+    TemplateElement: TemplateElement;
+    Attr: MutableAttr;
+    StaticRange: StaticRange;
+  }>;
+
+  export type ParentNode = dom.ParentNode<DomTree>;
+  export type ChildNode = dom.ChildNode<DomTree>;
+  export type CharacterData = dom.CharacterData<DomTree>;
+  export type Node = dom.Node<DomTree>;
 }

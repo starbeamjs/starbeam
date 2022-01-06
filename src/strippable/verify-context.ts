@@ -4,9 +4,7 @@ import {
   isVerifyContext,
   MutableVerifyContext,
   PartialVerifyContext,
-  verify,
 } from "./assert";
-import { isPresent } from "./minimal";
 
 export class DescribedContext {
   static of(context: VerifyContext): DescribedContext {

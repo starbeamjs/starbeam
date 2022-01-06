@@ -18,7 +18,7 @@ import {
   ElementOptions,
   ElementBodyBuffer,
   ElementBody,
-} from "./append";
+} from "./body";
 
 export abstract class HtmlAttribute implements Serialize {
   static is(this: typeof HtmlAttribute, value: unknown): value is HtmlAttribute;
@@ -89,6 +89,8 @@ export class ConcatAttribute extends HtmlAttribute {
       }
 
       buffer.append(`${Wrapper.getInner(this.name)}="`);
+
+      // TODO: Should we escape the separator
       for (let [part, position] of positioned(this.#value)) {
         buffer.append(escapeAttrValue(part));
         if (Position.hasNext(position)) {
@@ -219,6 +221,11 @@ export class AttributesBuffer implements Serialize {
     this.#attrs.set(Wrapper.getInner(attr.name), attr);
   }
 
+  merge(name: QualifiedName, value: string | null): void {
+    let attr = present(this.#attrs.get(Wrapper.getInner(name)));
+    attr.merge(value);
+  }
+
   idempotent(attr: HtmlAttribute): this {
     let current = this.#attrs.get(Wrapper.getInner(attr.name));
 
@@ -229,11 +236,6 @@ export class AttributesBuffer implements Serialize {
     }
 
     return this;
-  }
-
-  merge(name: QualifiedName, value: string | null): void {
-    let attr = present(this.#attrs.get(Wrapper.getInner(name)));
-    attr.merge(value);
   }
 
   serializeInto(buffer: Buffer, options?: SerializeOptions): void {
@@ -258,6 +260,7 @@ export type AttrType =
   | "idempotent"
   // the supplied attribute values are concatenated together with the separator
   | [type: "concat", separator: string];
+
 function attrFor(
   name: QualifiedName,
   value: string | null,
@@ -284,11 +287,13 @@ function attrFor(
     }
   }
 }
+
 function nullableList<T>(iterable: Iterable<T>): readonly T[] | null {
   let list = [...iterable];
 
   return list.length === 0 ? null : list;
 }
+
 function serializeAttr(
   buffer: Buffer,
   options: SerializeOptions | null,
@@ -341,15 +346,11 @@ export class ElementHeadBuffer {
     return this;
   }
 
-  #normalizeAttrValue(attr: string | null | AttributeValue): {
-    value: string | null;
-    type: AttrType;
-  } {
-    if (attr === null || typeof attr === "string") {
-      return { value: attr, type: "default" };
-    } else {
-      return { type: "default", ...attr };
-    }
+  attr(qualifiedName: string, attrValue: string | null | AttributeValue): this {
+    let { value, type } = this.#normalizeAttrValue(attrValue);
+    let attribute = attrFor(QualifiedName(qualifiedName), value, type);
+    this.#attributes.initialize(attribute);
+    return this;
   }
 
   idempotentAttr(qualifiedName: string, attrValue: string | null) {
@@ -362,13 +363,6 @@ export class ElementHeadBuffer {
     return this;
   }
 
-  attr(qualifiedName: string, attrValue: string | null | AttributeValue): this {
-    let { value, type } = this.#normalizeAttrValue(attrValue);
-    let attribute = attrFor(QualifiedName(qualifiedName), value, type);
-    this.#attributes.initialize(attribute);
-    return this;
-  }
-
   concatAttr(qualifiedName: string, value: string, separator: string): this {
     let attribute = attrFor(QualifiedName(qualifiedName), value, [
       "concat",
@@ -378,9 +372,23 @@ export class ElementHeadBuffer {
     return this;
   }
 
+  /**
+   * This is for splattributes
+   */
   mergeAttr(qualifiedName: string, value: string | null): this {
     this.#attributes.merge(QualifiedName(qualifiedName), value);
     return this;
+  }
+
+  #normalizeAttrValue(attr: string | null | AttributeValue): {
+    value: string | null;
+    type: AttrType;
+  } {
+    if (attr === null || typeof attr === "string") {
+      return { value: attr, type: "default" };
+    } else {
+      return { type: "default", ...attr };
+    }
   }
 
   #flush(options: ElementOptions) {

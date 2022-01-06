@@ -1,7 +1,7 @@
+import type * as dom from "@domtree/any";
 import type * as minimal from "@domtree/minimal";
 import type { Mutable } from "@domtree/minimal";
-import type { CompatibleNode } from "../dom/streaming/compatible-dom";
-import { Verifier, PartialVerifier, DebugInformation } from "./assert";
+import { DebugInformation, PartialVerifier, Verifier } from "./assert";
 import { expected, VerifyContext } from "./verify-context";
 
 /**
@@ -51,7 +51,7 @@ export type DOCUMENT_NODE = 9;
 export type DOCUMENT_TYPE_NODE = 10;
 export type DOCUMENT_FRAGMENT_NODE = 11;
 
-type MaybeNode = CompatibleNode | minimal.Node | null;
+type MaybeNode = dom.Node | minimal.Node | null;
 
 isNode.message = (value: MaybeNode) =>
   value === null
@@ -60,10 +60,7 @@ isNode.message = (value: MaybeNode) =>
 
 function nodeMessage(
   expected: string
-): (
-  context: VerifyContext,
-  actual: CompatibleNode | minimal.Node | null
-) => DebugInformation {
+): (context: VerifyContext, actual: dom.Node | null) => DebugInformation {
   return (context, actual) => {
     if (isNode(actual)) {
       return `Expected ${
@@ -92,9 +89,24 @@ function isNode(node: MaybeNode): node is minimal.Node {
   return node !== null;
 }
 
+function isParentNode(node: MaybeNode): node is minimal.ParentNode {
+  if (!isNode(node)) {
+    return false;
+  }
+
+  return isElement(node) || isDocument(node) || isDocumentFragment(node);
+}
+
+Verifier.implement(isParentNode, expected("node").toBe("a ParentNode"));
+
 const isElement = isSpecificNode<minimal.Element>(1, "an element");
 const isText = isSpecificNode<minimal.Text>(3, "a text node");
 const isComment = isSpecificNode<minimal.Comment>(8, "a comment node");
+const isDocument = isSpecificNode<minimal.Document>(9, "a document");
+const isDocumentFragment = isSpecificNode<minimal.DocumentFragment>(
+  11,
+  "a document fragment"
+);
 
 function isCharacterData(
   node: MaybeNode
@@ -107,12 +119,12 @@ isCharacterData.message = nodeMessage("a text or comment node");
 
 const isAttr = isSpecificNode<minimal.Attr>(2, "an attribute node");
 
-function isTemplate(node: MaybeNode): node is minimal.TemplateElement {
+function isTemplateElement(node: MaybeNode): node is minimal.TemplateElement {
   return isElement(node) && hasTagName("template")(node);
 }
 
-isTemplate.default = { expected: "node" } as const;
-isTemplate.message = nodeMessage("a template node");
+isTemplateElement.default = { expected: "node" } as const;
+isTemplateElement.message = nodeMessage("a template node");
 
 export function isPresent<T>(value: T | null | undefined): value is T {
   return value !== null && value !== undefined;
@@ -148,12 +160,13 @@ export function isNullable<In, Out extends In>(
 
 export const is = {
   Node: isNode,
+  ParentNode: isParentNode,
   Element: isElement,
   Text: isText,
   Comment: isComment,
   CharacterData: isCharacterData,
   Attr: isAttr,
-  Template: isTemplate,
+  TemplateElement: isTemplateElement,
 
   Present: isPresent,
 

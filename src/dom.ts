@@ -1,11 +1,7 @@
 import type { Component } from "./program-node/component";
 import { ElementProgramNodeBuilder } from "./program-node/element";
 import { Loop, ListProgramNode } from "./program-node/list";
-import {
-  CommentProgramNode,
-  DataProgramNode,
-  TextProgramNode,
-} from "./program-node/data";
+import { CommentProgramNode, TextProgramNode } from "./program-node/data";
 import type { Reactive } from "./reactive/core";
 import type { ReactiveParameter } from "./reactive/parameter";
 
@@ -13,11 +9,11 @@ export const APPEND = Symbol("APPEND");
 
 export class ReactiveDOM {
   text(data: Reactive<string>): TextProgramNode {
-    return DataProgramNode.text(data);
+    return TextProgramNode.of(data);
   }
 
   comment(data: Reactive<string>): CommentProgramNode {
-    return DataProgramNode.comment(data);
+    return CommentProgramNode.of(data);
   }
 
   element(tagName: Reactive<string>): ElementProgramNodeBuilder {
@@ -33,4 +29,5 @@ export class ReactiveDOM {
   }
 }
 
-export * from "./dom/cursor/append";
+export * from "./dom/buffer/body";
+export * from "./dom/buffer/attribute";

@@ -1,12 +1,6 @@
+import type { anydom } from "@domtree/flavors";
 import zip from "lodash.zip";
-import {
-  CompatibleElement,
-  CompatibleNode,
-  exhaustive,
-  verify,
-  is,
-  DOM,
-} from "../../support/starbeam";
+import { exhaustive, verify, is, DOM } from "../../support/starbeam";
 import { abstraction } from "../expect/abstraction";
 
 export interface ElementNodeOptions {
@@ -53,7 +47,7 @@ export type NodePattern =
   | CommentNodePattern
   | ElementNodePattern;
 
-export function expectNode(actual: CompatibleNode, pattern: NodePattern): void {
+export function expectNode(actual: anydom.Node, pattern: NodePattern): void {
   switch (pattern.type) {
     case "text": {
       expect(actual).toMatchObject({
@@ -85,7 +79,7 @@ export function expectNode(actual: CompatibleNode, pattern: NodePattern): void {
 }
 
 export function expectElement(
-  node: CompatibleElement,
+  node: anydom.Element,
   tagName: string,
   options?: {
     attributes?: Record<string, string>;

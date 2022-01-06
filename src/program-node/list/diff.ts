@@ -1,12 +1,13 @@
+import type { minimal } from "@domtree/flavors";
 import { getPatch } from "fast-array-diff";
 import type { ReactiveMetadata } from "../../reactive/core";
 import { exhaustive } from "../../strippable/assert";
-import type { DynamicLoop, KeyedComponentInvocation } from "../list";
 import {
   RenderedContent,
   RenderedContentMetadata,
   UPDATING_METADATA,
-} from "../program-node";
+} from "../interfaces/rendered-content";
+import type { DynamicLoop, KeyedComponentInvocation } from "../list";
 
 const MAP = Symbol("MAP");
 
@@ -53,7 +54,7 @@ export class ListArtifacts {
   [MAP]: ReadonlyMap<unknown, RenderedContent>;
 
   // @ts-expect-error TODO
-  #list: readonly RenderedContent[];
+  #list: readonly HydratedContent[];
 
   private constructor(
     map: ReadonlyMap<unknown, RenderedContent>,
@@ -75,7 +76,7 @@ export class ListArtifacts {
     // component.render();
   }
 
-  poll(loop: DynamicLoop): void {
+  poll(loop: DynamicLoop, inside: minimal.Element): void {
     let current = [...loop.current];
     let components = new Map(current.map((c) => [c.key, c]));
 
@@ -85,7 +86,9 @@ export class ListArtifacts {
       switch (operation.type) {
         case "add": {
           let component = components.get(operation.key)!;
+          // @ts-expect-error TODO: synthesize cursor
           let before = this[MAP].get(operation.before);
+          // @ts-expect-error TODO: synthesize cursor
           component.render();
           this.#append(operation, components);
         }
@@ -95,7 +98,7 @@ export class ListArtifacts {
     }
 
     for (let node of this[MAP].values()) {
-      node.poll();
+      node.poll(inside);
     }
   }
 

@@ -1,8 +1,36 @@
+import type { minimal } from "@domtree/flavors";
 import { verified } from "../../index";
 import { is } from "../../strippable/minimal";
-import type { Marker } from "./marker";
+import type { Hydration, Marker } from "./marker";
 
 const TOKEN_IDS = new WeakMap<object, string>();
+
+export class Tokens {
+  static create(): Tokens {
+    return new Tokens(0);
+  }
+
+  #id: number;
+
+  private constructor(id: number) {
+    this.#id = id;
+  }
+
+  nextToken(): Token {
+    return Token.of(String(this.#id++));
+  }
+
+  mark<B, Out>(
+    buffer: B,
+    marker: Marker<B, Out>,
+    body?: (buffer: B) => B
+  ): Dehydrated<Out> {
+    let token = this.nextToken();
+    marker.mark(buffer, token, body);
+
+    return Dehydrated.create(token, marker.hydrator);
+  }
+}
 
 export class Token {
   // @internal
@@ -19,39 +47,59 @@ export class Token {
   }
 }
 
-export interface TokenState {
-  readonly token: Token;
-  readonly marker: Marker;
-}
-
-const TOKEN_MARKERS = new WeakMap<DehydratedToken, TokenState>();
-
-export class DehydratedToken {
-  // @internal
-  static create(state: TokenState): DehydratedToken {
-    return new DehydratedToken(state);
+export class Dehydrated<Hydrated = unknown> {
+  /**
+   * @internal
+   */
+  static create<Hydrated>(
+    token: Token,
+    hydrator: Hydration<Hydrated>
+  ): Dehydrated<Hydrated> {
+    return new Dehydrated(token, hydrator);
   }
 
-  // @ts-expect-error intentionally unused field for nominal typing
-  readonly #token: Token;
+  /**
+   * @internal
+   */
+  static hydrate<Hydrated>(
+    hydrator: Dehydrated<Hydrated>,
+    container: minimal.ParentNode
+  ): Hydrated {
+    return hydrator.#hydrator.hydrate(container, hydrator.#token);
+  }
 
-  private constructor(state: TokenState) {
-    this.#token = state.token;
-    TOKEN_MARKERS.set(this, state);
+  readonly #token: Token;
+  readonly #hydrator: Hydration<Hydrated>;
+
+  private constructor(token: Token, hydrator: Hydration<Hydrated>) {
+    this.#token = token;
+    this.#hydrator = hydrator;
+  }
+}
+
+export class LazyDOM<Hydrated> {
+  static create<Hydrated>(dehydrated: Dehydrated<Hydrated>) {
+    return new LazyDOM(dehydrated, null);
+  }
+
+  readonly #dehydrated: Dehydrated<Hydrated>;
+  #node: Hydrated | null;
+
+  private constructor(dehyrated: Dehydrated<Hydrated>, node: Hydrated | null) {
+    this.#dehydrated = dehyrated;
+    this.#node = node;
+  }
+
+  get(inside: minimal.ParentNode): Hydrated {
+    if (this.#node === null) {
+      this.#node = Dehydrated.hydrate(this.#dehydrated, inside);
+    }
+
+    return this.#node;
   }
 }
 
 // @internal
 export function tokenId(token: Token): string {
   return verified(TOKEN_IDS.get(token), is.Present);
-}
-
-// @internal
-export function markedToken(token: Token, marker: Marker): DehydratedToken {
-  return DehydratedToken.create({ token, marker });
-}
-
-// @internal
-export function tokenState(token: DehydratedToken): TokenState {
-  return verified(TOKEN_MARKERS.get(token), is.Present);
 }

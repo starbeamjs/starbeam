@@ -1,10 +1,11 @@
+import type * as dom from "@domtree/any";
 import type * as browser from "@domtree/browser";
 import type * as minimal from "@domtree/minimal";
 import type { Mutable } from "@domtree/minimal";
-import * as global from "./global-dom";
+import { assert, exhaustive, verified, verify } from "../../strippable/assert";
 import { is, mutable } from "../../strippable/minimal";
-import { verify, exhaustive, assert } from "../../strippable/assert";
-
+import { as } from "../../strippable/verify-context";
+import * as global from "../../types/global-dom";
 import {
   HTML_NAMESPACE,
   MATHML_NAMESPACE,
@@ -13,37 +14,6 @@ import {
   XMLNS_NAMESPACE,
   XML_NAMESPACE,
 } from "./namespaces";
-import { as } from "../../strippable/verify-context";
-
-export type CompatibleDocument = browser.Document | minimal.Document;
-
-export type CompatibleCharacterData =
-  | browser.Text
-  | minimal.Text
-  | browser.Comment
-  | minimal.Comment;
-
-export type CompatibleDocumentFragment =
-  | browser.DocumentFragment
-  | minimal.DocumentFragment;
-
-export type CompatibleParentNode = browser.ParentNode | minimal.ParentNode;
-
-export type CompatibleChildNode = browser.ChildNode | minimal.ChildNode;
-
-export type CompatibleElement = browser.Element | minimal.Element;
-
-export type CompatibleTemplateElement =
-  | browser.TemplateElement
-  | minimal.TemplateElement;
-
-export type CompatibleAttr = browser.Attr | minimal.Attr;
-
-export type CompatibleNode =
-  | CompatibleCharacterData
-  | CompatibleParentNode
-  | CompatibleChildNode
-  | CompatibleAttr;
 
 export interface ContentCursor {
   parent: minimal.ParentNode;
@@ -94,25 +64,25 @@ export function ContentRange(...[first, last]: IntoContentRange): ContentRange {
 }
 
 export class AbstractDOM {
-  getNodeType(node: CompatibleNode): number {
+  getNodeType(node: dom.Node): number {
     verify(node, is.Node);
     return node.nodeType;
   }
 
-  createText(document: CompatibleDocument, data: string): minimal.Text {
+  createText(document: dom.Document, data: string): minimal.Text {
     return (document as minimal.Document).createTextNode(data);
   }
 
-  createComment(document: CompatibleDocument, data: string): minimal.Comment {
+  createComment(document: dom.Document, data: string): minimal.Comment {
     return (document as minimal.Document).createComment(data);
   }
 
-  getData(data: CompatibleCharacterData): string {
-    return (data as minimal.CharacterData).data;
+  getData(data: dom.CharacterData): string {
+    return (data as minimal.ReadonlyCharacterData).data;
   }
 
-  setData(data: CompatibleCharacterData, value: string): void {
-    (data as minimal.Mutable<minimal.CharacterData>).data = value;
+  setData(data: dom.CharacterData, value: string): void {
+    (data as minimal.Mutable<minimal.ReadonlyCharacterData>).data = value;
   }
 
   /**
@@ -145,13 +115,13 @@ export class AbstractDOM {
    * @returns
    */
   createElement(
-    document: CompatibleDocument,
+    document: dom.Document,
     qualifiedName: string,
     {
       parent,
       encoding,
     }: {
-      parent: CompatibleElement;
+      parent: dom.Element;
       encoding?: string;
     }
   ): minimal.Element {
@@ -163,7 +133,7 @@ export class AbstractDOM {
     return (document as minimal.Document).createElementNS(ns, qualifiedName);
   }
 
-  updateAttr(attr: CompatibleAttr, value: string | null): void {
+  updateAttr(attr: dom.Attr, value: string | null): void {
     verify(attr, is.Attr);
     if (value === null) {
       COMPATIBLE_DOM.removeAttr(attr);
@@ -172,10 +142,8 @@ export class AbstractDOM {
     }
   }
 
-  removeAttr(attr: CompatibleAttr): void {
-    verify(attr, is.Attr);
-
-    MINIMAL_DOM.removeAttr(attr);
+  removeAttr(attr: dom.Attr): void {
+    MINIMAL_DOM.removeAttr(verified(attr, is.Attr));
   }
 
   /**
@@ -185,10 +153,7 @@ export class AbstractDOM {
    * @param element
    * @param qualifiedName
    */
-  getAttr(
-    element: CompatibleElement,
-    qualifiedName: string
-  ): minimal.Attr | null {
+  getAttr(element: dom.Element, qualifiedName: string): minimal.Attr | null {
     verify(element, is.Element);
     return MINIMAL_DOM.getAttr(element, qualifiedName);
   }
@@ -200,39 +165,35 @@ export class AbstractDOM {
    * [foreign attributes]:
    * https://html.spec.whatwg.org/multipage/parsing.html#adjust-foreign-attributes
    */
-  setAttr(
-    element: CompatibleElement,
-    qualifiedName: string,
-    value: string
-  ): void {
+  setAttr(element: dom.Element, qualifiedName: string, value: string): void {
     verify(element, is.Element);
 
-    MINIMAL_DOM.setAttr(element, qualifiedName, value);
+    MINIMAL_DOM.setAttr(mutable(element), qualifiedName, value);
   }
 
-  hasAttr(element: CompatibleElement, qualifiedName: string): boolean {
+  hasAttr(element: dom.Element, qualifiedName: string): boolean {
     verify(element, is.Element);
 
     return MINIMAL_DOM.hasAttr(element, qualifiedName);
   }
 
-  children(parent: CompatibleParentNode): readonly minimal.ChildNode[] {
+  children(parent: dom.ParentNode): readonly minimal.ChildNode[] {
     return MINIMAL_DOM.children(parent as minimal.ParentNode);
   }
 
   insert(
-    node: CompatibleChildNode | CompatibleDocumentFragment,
+    node: dom.ChildNode | dom.DocumentFragment,
     { parent, next }: ContentCursor
   ): void {
-    (parent as Mutable<minimal.ParentNode>).insertBefore(
-      node as minimal.ChildNode | minimal.DocumentFragment,
-      next
-    );
+    MINIMAL_DOM.insert(node as minimal.ChildNode | minimal.DocumentFragment, {
+      parent,
+      next,
+    });
   }
 
   replace(
-    node: CompatibleChildNode,
-    withNode: CompatibleChildNode | CompatibleDocumentFragment
+    node: dom.ChildNode,
+    withNode: dom.ChildNode | dom.DocumentFragment
   ): void {
     let cursor = COMPATIBLE_DOM.remove(node);
 
@@ -245,63 +206,26 @@ export class AbstractDOM {
     COMPATIBLE_DOM.insert(withNode, cursor);
   }
 
-  appending(parent: CompatibleParentNode): ContentCursor {
+  appending(parent: dom.ParentNode): ContentCursor {
     return {
       parent: parent as minimal.ParentNode,
       next: null,
     };
   }
 
-  cursor(
-    parent: CompatibleParentNode,
-    next: CompatibleChildNode | null
-  ): ContentCursor {
+  cursor(parent: dom.ParentNode, next: dom.ChildNode | null): ContentCursor {
     return {
       parent: parent as minimal.ParentNode,
       next: next as minimal.ChildNode,
     };
   }
 
-  remove(child: CompatibleChildNode): ContentCursor | null {
-    let parent = child.parentNode as minimal.ParentNode | null;
-    let next = child.nextSibling as minimal.Node | null;
-
-    (child as Mutable<minimal.ChildNode>).remove();
-
-    if (parent) {
-      return { parent, next };
-    } else {
-      return null;
-    }
+  remove(child: dom.ChildNode): ContentCursor | null {
+    return MINIMAL_DOM.remove(child as minimal.ChildNode);
   }
 
-  getTemplateContents(
-    element: CompatibleTemplateElement
-  ): minimal.DocumentFragment {
+  getTemplateContents(element: dom.TemplateElement): minimal.DocumentFragment {
     return element.content as minimal.DocumentFragment;
-  }
-
-  findAll(
-    parent: CompatibleParentNode,
-    {
-      tag,
-      attributes,
-    }: { tag?: string; attributes?: { any: readonly string[] } }
-  ) {
-    if ("querySelectorAll" in parent) {
-      let selector = buildSelector(tag || null, attributes?.any || null);
-      return [
-        ...(parent.querySelectorAll(
-          selector
-        ) as unknown as Iterable<minimal.Element>),
-      ];
-    } else {
-      return findAll(
-        parent as minimal.Element,
-        tag || null,
-        attributes?.any || null
-      );
-    }
   }
 }
 
@@ -309,6 +233,10 @@ export class AbstractDOM {
  * The methods of this class are conveniences, and operate on minimal DOM.
  */
 export class MinimalUtilities {
+  get document(): minimal.Document {
+    return document as unknown as minimal.Document;
+  }
+
   element(
     document: minimal.Document,
     parent: minimal.Element,
@@ -328,7 +256,7 @@ export class MinimalUtilities {
     return document.createElementNS(HTML_NAMESPACE, tag);
   }
 
-  updateAttr(attr: minimal.Attr, value: string | null): void {
+  updateAttr(attr: Mutable<minimal.Attr>, value: string | null): void {
     if (value === null) {
       MINIMAL_DOM.removeAttr(attr);
     } else {
@@ -336,7 +264,7 @@ export class MinimalUtilities {
     }
   }
 
-  removeAttr(attr: minimal.Attr): void {
+  removeAttr(attr: Mutable<minimal.Attr>): void {
     let element = attr.ownerElement;
 
     if (element) {
@@ -366,7 +294,7 @@ export class MinimalUtilities {
    * https://html.spec.whatwg.org/multipage/parsing.html#adjust-foreign-attributes
    */
   setAttr(
-    element: minimal.Element,
+    element: Mutable<minimal.Element>,
     qualifiedName: string,
     value: string
   ): void {
@@ -377,6 +305,31 @@ export class MinimalUtilities {
 
   hasAttr(element: minimal.Element, qualifiedName: string): boolean {
     return element.hasAttribute(qualifiedName);
+  }
+
+  replace<T>(
+    child: minimal.ChildNode,
+    atCursor: (cursor: ContentCursor) => T
+  ): T {
+    let parent = verified(child.parentNode, is.ParentNode);
+    let next = child.nextSibling as minimal.Node | null;
+
+    (child as Mutable<minimal.ChildNode>).remove();
+
+    return atCursor({ parent, next });
+  }
+
+  remove(child: minimal.ChildNode): ContentCursor | null {
+    let parent = child.parentNode as minimal.ParentNode | null;
+    let next = child.nextSibling as minimal.Node | null;
+
+    (child as Mutable<minimal.ChildNode>).remove();
+
+    if (parent) {
+      return { parent, next };
+    } else {
+      return null;
+    }
   }
 
   removeRange(nodes: ContentRange): ContentCursor {
@@ -412,7 +365,17 @@ export class MinimalUtilities {
     return children;
   }
 
-  #attrQualifiedName(attr: CompatibleAttr): string {
+  insert(
+    node: minimal.ChildNode | minimal.DocumentFragment,
+    { parent, next }: ContentCursor
+  ): void {
+    (parent as Mutable<minimal.ParentNode>).insertBefore(
+      node as minimal.ChildNode | minimal.DocumentFragment,
+      next
+    );
+  }
+
+  #attrQualifiedName(attr: dom.Attr): string {
     if (attr.prefix) {
       return `${attr.prefix}:${attr.localName}`;
     } else {
@@ -458,81 +421,6 @@ export class MinimalUtilities {
 
 export const COMPATIBLE_DOM = new AbstractDOM();
 export const MINIMAL_DOM = new MinimalUtilities();
-
-function qualifiedName(element: minimal.Element) {
-  if (element.namespaceURI === HTML_NAMESPACE) {
-    return element.tagName.toLowerCase();
-  } else {
-    return element.tagName;
-  }
-}
-
-function findAll(
-  parent: minimal.ParentNode,
-  tag: string | null,
-  attributes: readonly string[] | null,
-  nodes: minimal.Element[] = []
-): readonly minimal.Element[] {
-  if (parent.nodeType === 1) {
-    if (match(parent, tag, attributes)) {
-      nodes.push(parent);
-    }
-  }
-
-  let current = parent.firstChild;
-
-  while (current) {
-    if (isParentNode(current)) {
-      findAll(current, tag, attributes, nodes);
-    }
-
-    current = current.nextSibling;
-  }
-
-  return nodes;
-}
-
-function isParentNode(node: minimal.Node): node is minimal.ParentNode {
-  return node.nodeType === 1 || node.nodeType === 9 || node.nodeType === 10;
-}
-
-function match(
-  element: minimal.Element,
-  tag: string | null,
-  attributes: readonly string[] | null
-): boolean {
-  if (tag && qualifiedName(element) !== tag) {
-    return false;
-  }
-
-  if (
-    attributes &&
-    attributes.every((a) => !COMPATIBLE_DOM.hasAttr(element, a))
-  ) {
-    return false;
-  }
-
-  return true;
-}
-
-function buildSelector(
-  tag: string | null,
-  attributes: readonly string[] | null
-): string {
-  if (tag === null) {
-    if (attributes === null) {
-      return "*";
-    } else {
-      return attributes.map((attr) => `[${attr}]`).join(",");
-    }
-  } else {
-    if (attributes === null) {
-      return tag;
-    } else {
-      return attributes.map((attr) => `${tag}[${attr}]`).join(",");
-    }
-  }
-}
 
 function isHtmlElement(element: minimal.Element): boolean {
   return element.namespaceURI === HTML_NAMESPACE;

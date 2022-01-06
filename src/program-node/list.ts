@@ -1,17 +1,20 @@
-import type { HtmlBuffer } from "../dom/cursor/append";
+import type { minimal } from "@domtree/flavors";
+import type { HtmlBuffer } from "../dom/buffer/body";
 import type { TreeConstructor } from "../dom/streaming/tree-constructor";
 import { Reactive } from "../reactive/core";
 import { ReactiveParameter } from "../reactive/parameter";
 import { Component, ComponentInvocation } from "./component";
-import type { InitialListArtifacts, ListArtifacts } from "./list/diff";
 import {
   AbstractContentProgramNode,
   BuildMetadata,
   DYNAMIC_BUILD_METADATA,
+  STATIC_BUILD_METADATA,
+} from "./interfaces/program-node";
+import type {
   RenderedContent,
   RenderedContentMetadata,
-  STATIC_BUILD_METADATA,
-} from "./program-node";
+} from "./interfaces/rendered-content";
+import type { InitialListArtifacts, ListArtifacts } from "./list/diff";
 
 export type ListProgramNode = StaticListProgramNode | DynamicListProgramNode;
 
@@ -75,7 +78,7 @@ export class KeyedComponentInvocation {
   }
 
   render(_cursor: HtmlBuffer): {
-    rendered: Dehydrated;
+    rendered: RenderedContent;
     key: unknown;
   } {
     throw Error("todo: KeyedComponentInvocation");
@@ -154,7 +157,9 @@ export const Loop = {
  * The input for a `StaticListOutput` is a static iterable. It is static if all
  * of the elements of the iterable are also static.
  */
-export class StaticListProgramNode implements AbstractContentProgramNode {
+export class StaticListProgramNode
+  implements AbstractContentProgramNode<RenderedStaticList>
+{
   static of(loop: StaticLoop) {
     return new StaticListProgramNode([...loop], loop.metadata);
   }
@@ -170,7 +175,7 @@ export class StaticListProgramNode implements AbstractContentProgramNode {
     this.metadata = metadata;
   }
 
-  render(_buffer: TreeConstructor): Dehydrated {
+  render(_buffer: TreeConstructor): RenderedStaticList {
     if (this.#components.length === 0) {
       throw Error("todo: empty static list");
     }
@@ -218,19 +223,15 @@ export class RenderedStaticList implements RenderedContent {
     this.metadata = metadata;
   }
 
-  get cursor(): RenderedCursor {
-    throw Error("todo: RenderedStaticList#cursor");
-  }
-
-  poll(): void {
+  poll(inside: minimal.Element): void {
     for (let artifact of this.#artifacts) {
-      artifact.poll();
+      artifact.poll(inside);
     }
   }
 }
 
 export class DynamicListProgramNode
-  implements AbstractContentProgramNode<Hydrated>
+  implements AbstractContentProgramNode<RenderedDynamicList>
 {
   static of(loop: DynamicLoop) {
     return new DynamicListProgramNode(loop);
@@ -245,7 +246,7 @@ export class DynamicListProgramNode
     this.#loop = loop;
   }
 
-  render(_buffer: TreeConstructor): Dehydrated {
+  render(_buffer: TreeConstructor): RenderedDynamicList {
     throw Error("todo: DynamicProgramListNode#render");
 
     // let components = this.#loop.current;
@@ -303,11 +304,7 @@ export class RenderedDynamicList implements RenderedContent {
     this.#artifacts = artifacts;
   }
 
-  get cursor(): RenderedCursor {
-    throw Error("todo: RenderedDynamicList#cursor");
-  }
-
-  poll(): void {
-    this.#artifacts.poll(this.#loop);
+  poll(inside: minimal.Element): void {
+    this.#artifacts.poll(this.#loop, inside);
   }
 }

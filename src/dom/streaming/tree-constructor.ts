@@ -1,28 +1,23 @@
 // import type { AnyNode } from "./simplest-dom";
 import type * as minimal from "@domtree/minimal";
-import type { Hydrated } from "../../program-node/hydrator/hydrated";
 import { mutable } from "../../strippable/minimal";
+import type {
+  AttributeValue,
+  AttrType,
+  ElementHeadBuffer,
+} from "../buffer/attribute";
 import {
   ContentBuffer,
   ElementBody,
   ElementBodyBuffer,
   HtmlBuffer,
-} from "../cursor/append";
-import {
-  AttributeValue,
-  AttrType,
-  ElementHeadBuffer,
-} from "../cursor/attribute";
-import type * as dom from "./compatible-dom";
-import { COMPATIBLE_DOM } from "./compatible-dom";
+} from "../buffer/body";
 import {
   ATTRIBUTE_MARKER,
-  BodyTransform,
   CHARACTER_DATA_MARKER,
-  ContentMarker,
   ELEMENT_MARKER,
 } from "./marker";
-import { DehydratedToken, markedToken, Token, tokenId } from "./token";
+import { Dehydrated, Tokens } from "./token";
 
 export type ContentOperationOptions = {
   readonly token: true;
@@ -35,27 +30,6 @@ export const ContentOperationOptions = {
 } as const;
 
 export const TOKEN: ContentOperationOptions = { token: true };
-
-export interface ContentOperation {
-  readonly append: BodyTransform;
-  readonly marker: ContentMarker;
-}
-
-class Tokens {
-  static create(): Tokens {
-    return new Tokens(0);
-  }
-
-  #id: number;
-
-  private constructor(id: number) {
-    this.#id = id;
-  }
-
-  nextToken(): Token {
-    return Token.of(String(this.#id++));
-  }
-}
 
 export interface BuildElement {
   head: (buffer: HeadConstructor) => void;
@@ -78,29 +52,24 @@ export class ElementHeadConstructor {
     this.#buffer = buffer;
   }
 
-  mark(): Token {
-    let token = this.#tokens.nextToken();
-    ELEMENT_MARKER.mark(this.#buffer, token);
-    return token;
-  }
-
   attr(
     qualifiedName: string,
     attrValue: string | null | AttributeValue,
     options: ContentOperationOptions
-  ): DehydratedToken;
+  ): Dehydrated<minimal.Attr>;
   attr(qualifiedName: string, attrValue: string | null | AttributeValue): void;
   attr(
     qualifiedName: string,
     attrValue: string | null | AttributeValue,
     options?: ContentOperationOptions
-  ): DehydratedToken | void {
+  ): Dehydrated | void {
     this.#buffer.attr(qualifiedName, attrValue);
 
     if (ContentOperationOptions.requestedToken(options)) {
-      let token = this.#tokens.nextToken();
-      ATTRIBUTE_MARKER.mark(this.#buffer, token, qualifiedName);
-      return markedToken(token, ATTRIBUTE_MARKER);
+      return this.#tokens.mark(
+        this.#buffer,
+        ATTRIBUTE_MARKER.forName(qualifiedName)
+      );
     }
   }
 
@@ -145,34 +114,40 @@ export class ContentConstructor<B extends ContentBuffer = ContentBuffer> {
     this.#buffer = buffer;
   }
 
-  text(data: string, options: ContentOperationOptions): DehydratedToken;
+  text(
+    data: string,
+    options: ContentOperationOptions
+  ): Dehydrated<minimal.Text>;
   text(data: string): void;
   text(
     data: string,
     options?: ContentOperationOptions
-  ): void | DehydratedToken {
-    return this.#append((b) => b.text(data), options);
+  ): void | Dehydrated<minimal.Text> {
+    return this.#data((b) => b.text(data), options);
   }
 
-  comment(data: string, options: ContentOperationOptions): DehydratedToken;
+  comment(
+    data: string,
+    options: ContentOperationOptions
+  ): Dehydrated<minimal.Comment>;
   comment(data: string): void;
   comment(
     data: string,
     options?: ContentOperationOptions
-  ): void | DehydratedToken {
-    return this.#append((b) => b.comment(data), options);
+  ): void | Dehydrated<minimal.Comment> {
+    return this.#data((b) => b.comment(data), options);
   }
 
   element(tag: string, head: (head: ElementHeadConstructor) => void): void;
   element<T, U>(
     tag: string,
     head: (head: ElementHeadConstructor) => T,
-    token: (token: DehydratedToken, result: T) => U
+    token: (token: Dehydrated<minimal.Element>, result: T) => U
   ): U;
   element<T, U>(
     tag: string,
     construct: (head: ElementHeadConstructor) => T,
-    withToken?: (token: DehydratedToken, result: T) => U
+    withToken?: (token: Dehydrated<minimal.Element>, result: T) => U
   ): U | void {
     let returnValue: U | undefined = undefined;
 
@@ -180,10 +155,10 @@ export class ContentConstructor<B extends ContentBuffer = ContentBuffer> {
       let head = ElementHeadConstructor.create(this.#tokens, buffer);
 
       if (withToken) {
-        let token = head.mark();
-        let result = construct(head);
-        let dehydratedToken = markedToken(token, ELEMENT_MARKER);
-        returnValue = withToken(dehydratedToken, result);
+        let token = this.#tokens.mark(buffer, ELEMENT_MARKER);
+
+        let body = construct(head);
+        returnValue = withToken(token, body);
       } else {
         construct(head);
       }
@@ -192,14 +167,16 @@ export class ContentConstructor<B extends ContentBuffer = ContentBuffer> {
     return returnValue;
   }
 
-  #append(
+  #data<N extends minimal.CharacterData>(
     operation: <B extends ContentBuffer>(buffer: B) => B,
     options: ContentOperationOptions | undefined
-  ): void | DehydratedToken {
+  ): void | Dehydrated<N> {
     if (ContentOperationOptions.requestedToken(options)) {
-      let token = this.#tokens.nextToken();
-      CHARACTER_DATA_MARKER.mark(this.#buffer, token, operation);
-      return markedToken(token, CHARACTER_DATA_MARKER);
+      return this.#tokens.mark(
+        this.#buffer,
+        CHARACTER_DATA_MARKER,
+        operation
+      ) as Dehydrated<N>;
     } else {
       operation(this.#buffer);
     }
@@ -251,20 +228,18 @@ export class HeadConstructor {
   }
 
   attr(construct: ConstructAttr): void;
-  attr(
-    construct: ConstructAttr,
-    token: ContentOperationOptions
-  ): DehydratedToken;
+  attr(construct: ConstructAttr, token: ContentOperationOptions): Dehydrated;
   attr(
     construct: ConstructAttr,
     token?: ContentOperationOptions
-  ): DehydratedToken | void {
+  ): Dehydrated | void {
     this.#buffer.attr(construct.name, construct.value);
 
     if (ContentOperationOptions.requestedToken(token)) {
-      let token = this.#tokens.nextToken();
-      ATTRIBUTE_MARKER.mark(this.#buffer, token, construct.name);
-      return markedToken(token, ATTRIBUTE_MARKER);
+      return this.#tokens.mark(
+        this.#buffer,
+        ATTRIBUTE_MARKER.forName(construct.name)
+      );
     }
   }
 }
@@ -279,119 +254,3 @@ export type Range =
       type: "node";
       node: minimal.Node;
     };
-
-export type HydratedTokens = ReadonlyMap<Token, Hydrated>;
-
-export class TreeHydrator {
-  static hydrate(
-    document: dom.CompatibleDocument,
-    fragment: dom.CompatibleDocumentFragment,
-    tokens: Set<Token>
-  ): HydratedTokens {
-    let tokenMap = new Map<string, Token>();
-
-    for (let token of tokens) {
-      tokenMap.set(tokenId(token), token);
-    }
-
-    return new TreeHydrator(
-      document as minimal.Document,
-      fragment as minimal.DocumentFragment,
-      tokenMap
-    ).#hydrate();
-  }
-
-  readonly #document: minimal.Document;
-  readonly #fragment: minimal.DocumentFragment;
-  readonly #tokens: Map<string, Token>;
-
-  constructor(
-    document: minimal.Document,
-    fragment: minimal.DocumentFragment,
-    tokens: Map<string, Token>
-  ) {
-    this.#document = document;
-    this.#fragment = fragment;
-    this.#tokens = tokens;
-  }
-
-  #hydrate(): HydratedTokens {
-    let nodes = COMPATIBLE_DOM.findAll(this.#fragment, {
-      attributes: {
-        any: ["data-starbeam-marker:attrs", "data-starbeam-marker"],
-      },
-    });
-
-    let hydrated = new Map<Token, Hydrated>();
-    let tokens = this.#tokens;
-
-    if (nodes) {
-      for (let element of nodes) {
-        let attrMarker = COMPATIBLE_DOM.getAttr(
-          element,
-          "data-starbeam-marker:attrs"
-        );
-
-        let contentMarker = COMPATIBLE_DOM.getAttr(
-          element,
-          "data-starbeam-marker:contents"
-        );
-
-        if (contentMarker) {
-          let tokenId = contentMarker.value;
-
-          if (tokens.has(tokenId)) {
-            if (!isTemplateElement(element)) {
-              throw Error(
-                "Unexpected: an element with data-starbeam-marker:contents was unexpectedly not a template. This is a bug."
-              );
-            }
-
-            let contents = COMPATIBLE_DOM.getTemplateContents(element);
-            let body = hydrateTemplate(this.#document, element, contents);
-
-            hydrated.set(Token.of(tokenId), body);
-          }
-        }
-
-        if (attrMarker) {
-          throw Error("todo: TreeHydrator attributes");
-        }
-      }
-    }
-
-    return hydrated;
-  }
-}
-
-function isTemplateElement(
-  element: minimal.Element
-): element is minimal.TemplateElement {
-  return element.tagName === "TEMPLATE";
-}
-
-function hydrateTemplate(
-  document: minimal.Document,
-  template: minimal.TemplateElement,
-  fragment: minimal.DocumentFragment
-): Hydrated {
-  let { firstChild, lastChild } = fragment;
-
-  if (firstChild === null) {
-    let comment = document.createComment(`<!-- empty -->`);
-    COMPATIBLE_DOM.replace(template, comment);
-
-    return { type: "node", node: comment as minimal.Comment };
-  }
-
-  COMPATIBLE_DOM.replace(template, fragment);
-
-  if (firstChild === lastChild) {
-    return { type: "node", node: firstChild as minimal.Node };
-  } else {
-    return {
-      type: "range",
-      range: [firstChild as minimal.Node, lastChild as minimal.Node],
-    };
-  }
-}

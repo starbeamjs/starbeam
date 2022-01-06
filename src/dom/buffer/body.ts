@@ -12,6 +12,22 @@ export interface Serialize {
   serializeInto(buffer: Buffer, options?: SerializeOptions): void;
 }
 
+// interface Stream {
+//   push(part: string): void;
+// }
+
+// class DomParser implements Stream {
+//   #html: string;
+
+//   write(part: string): void {
+//     this.#html += part;
+//   }
+
+//   finalize(into: minimal.ParentNode): void {
+//     throw Error('todo: DomParser#finalize')
+//   }
+// }
+
 export class Buffer implements Serialize {
   static empty(): Buffer {
     return new Buffer([]);
@@ -52,7 +68,12 @@ export class Buffer implements Serialize {
   }
 }
 
+export interface TrustedHTML {
+  todo: "TrustedHTML";
+}
+
 export interface ContentBuffer {
+  html(html: TrustedHTML): this;
   text(data: string): this;
   comment(data: string): this;
   element(
@@ -104,6 +125,11 @@ export class ElementBodyBuffer implements ContentBuffer {
     return this;
   }
 
+  html(html: TrustedHTML): this {
+    this.#content.html(html);
+    return this;
+  }
+
   text(data: string): this {
     this.#content.text(data);
     return this;
@@ -144,6 +170,10 @@ export class HtmlBuffer implements ContentBuffer {
     this.#buffer = buffer;
   }
 
+  html(_data: TrustedHTML): this {
+    throw Error("todo: Insert HTML");
+  }
+
   text(data: string): this {
     this.#buffer.append(escapeTextValue(data));
     return this;
@@ -176,10 +206,6 @@ export class HtmlBuffer implements ContentBuffer {
 }
 
 export function escapeAttrValue(value: string): string {
-  if (typeof value.replace !== "function") {
-    debugger;
-  }
-  // console.log(value);
   return value.replace(/"/g, `&quot;`);
 }
 

@@ -1,6 +1,6 @@
 import type * as minimal from "@domtree/minimal";
-import type { ElementBody } from "../dom/cursor/append";
-import type { DehydratedToken } from "../dom/streaming/token";
+import type { ElementBody } from "../dom/buffer/body";
+import { Dehydrated, LazyDOM } from "../dom/streaming/token";
 import {
   ElementBodyConstructor,
   ElementHeadConstructor,
@@ -9,18 +9,15 @@ import {
 import { Reactive } from "../reactive/core";
 import { AttributeProgramNode, RenderedAttribute } from "./attribute";
 import {
-  Dehydrated,
-  DehydratedAttribute,
-  DehydratedContent,
-} from "./hydrator/hydrate-node";
-import {
   AbstractContentProgramNode,
   BuildMetadata,
   ContentProgramNode,
   ProgramNode,
+} from "./interfaces/program-node";
+import {
   RenderedContent,
   RenderedContentMetadata,
-} from "./program-node";
+} from "./interfaces/rendered-content";
 
 export class ElementProgramNode
   implements AbstractContentProgramNode<RenderedElementNode>
@@ -57,7 +54,7 @@ export class ElementProgramNode
     this.#children = children;
   }
 
-  render(buffer: TreeConstructor): Dehydrated<RenderedElementNode> {
+  render(buffer: TreeConstructor): RenderedElementNode {
     return buffer.element(
       this.#tagName.current,
       (head) =>
@@ -79,14 +76,14 @@ class DehydratedElementBuilder {
 
   readonly #tag: Reactive<string>;
   readonly #head: ElementHeadConstructor;
-  readonly #attributes: DehydratedAttribute[];
-  readonly #content: DehydratedContent[];
+  readonly #attributes: RenderedAttribute[];
+  readonly #content: RenderedContent[];
 
   private constructor(
     tag: Reactive<string>,
     head: ElementHeadConstructor,
-    attributes: DehydratedAttribute[],
-    content: DehydratedContent[]
+    attributes: RenderedAttribute[],
+    content: RenderedContent[]
   ) {
     this.#tag = tag;
     this.#head = head;
@@ -127,24 +124,19 @@ class DehydratedElementBuilder {
     return this;
   }
 
-  finalize(token: DehydratedToken): Dehydrated<RenderedElementNode> {
-    return Dehydrated.node(token, (element: minimal.Element) => {
-      let attributes = this.#attributes.map((a) => a.hydrate(element));
-      let content = this.#content.map((a) => a.hydrate(element));
-
-      return RenderedElementNode.create(
-        element,
-        this.#tag,
-        attributes,
-        content
-      );
-    });
+  finalize(token: Dehydrated<minimal.Element>): RenderedElementNode {
+    return RenderedElementNode.create(
+      LazyDOM.create(token),
+      this.#tag,
+      this.#attributes,
+      this.#content
+    );
   }
 }
 
 export class RenderedElementNode implements RenderedContent {
   static create(
-    node: minimal.Element,
+    node: LazyDOM<minimal.Element>,
     tagName: Reactive<string>,
     attributes: readonly RenderedAttribute[],
     children: readonly RenderedContent[]
@@ -168,36 +160,37 @@ export class RenderedElementNode implements RenderedContent {
     );
   }
 
-  // @ts-expect-error TODO: Dynamic tagName
-  readonly #node: minimal.Element;
+  readonly #element: LazyDOM<minimal.Element>;
   readonly #tagName: Reactive<string>;
   readonly #attributes: readonly RenderedAttribute[];
   readonly #children: readonly RenderedContent[];
 
   private constructor(
-    node: minimal.Element,
+    node: LazyDOM<minimal.Element>,
     tagName: Reactive<string>,
     attributes: readonly RenderedAttribute[],
     children: readonly RenderedContent[],
     readonly metadata: RenderedContentMetadata
   ) {
-    this.#node = node;
+    this.#element = node;
     this.#tagName = tagName;
     this.#attributes = attributes;
     this.#children = children;
   }
 
-  poll(): void {
+  poll(inside: minimal.Element): void {
     if (Reactive.isDynamic(this.#tagName)) {
       throw new Error("Dynamic tag name");
     }
 
+    let element = this.#element.get(inside);
+
     for (let attr of this.#attributes) {
-      attr.poll();
+      attr.poll(element);
     }
 
     for (let child of this.#children) {
-      child.poll();
+      child.poll(element);
     }
   }
 }

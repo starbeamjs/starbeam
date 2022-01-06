@@ -1,3 +1,4 @@
+import type { anydom } from "@domtree/flavors";
 import { JSDOM } from "jsdom";
 import { upstream } from "../jest-ext";
 import { ElementArgs, TestElementArgs } from "./element";
@@ -5,24 +6,19 @@ import { Expects } from "./expect/expect";
 import {
   Cell,
   CommentProgramNode,
+  ContentProgramNode,
   ElementProgramNode,
+  ElementProgramNodeBuilder,
   HTML_NAMESPACE,
-  HydratedTokens,
+  is,
   minimal,
   Reactive,
   ReactiveDOM,
-  ElementProgramNodeBuilder,
-  TextProgramNode,
-  Token,
-  TreeHydrator,
-  Universe,
-  RenderedProgramNode,
-  ContentProgramNode,
-  CompatibleElement,
-  is,
-  verify,
   RenderedContent,
-  CompatibleDocumentFragment,
+  RenderedProgramNode,
+  TextProgramNode,
+  Universe,
+  verify,
 } from "./starbeam";
 
 export interface TestArgs {
@@ -66,7 +62,7 @@ export function todo(
     throw Error(`Expected pending test '${name}' to fail, but it passed`);
   });
 
-  upstream.test.todo("name");
+  upstream.test.todo(name);
 }
 
 export class TestSupport {
@@ -110,19 +106,12 @@ export class TestSupport {
     return element;
   }
 
-  hydrate(
-    fragment: CompatibleDocumentFragment,
-    tokens: Set<Token>
-  ): HydratedTokens {
-    return TreeHydrator.hydrate(this.#document, fragment, tokens);
-  }
-
   render<R extends RenderedContent>(
     node: ContentProgramNode<R>,
     expectation: Expects
   ): {
     result: R;
-    into: CompatibleElement;
+    into: anydom.Element;
   } {
     let element = this.#document.createElementNS(HTML_NAMESPACE, "div");
     let result = this.universe.renderIntoElement(node, element);

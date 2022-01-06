@@ -1,4 +1,4 @@
-export { TextProgramNode, CommentProgramNode, RenderedDataNode } from "./data";
-export * from "./program-node";
+export { TextProgramNode, CommentProgramNode } from "./data";
+export * from "./interfaces/program-node";
 export * from "./element";
 export { ListProgramNode as ListOutput } from "./list";

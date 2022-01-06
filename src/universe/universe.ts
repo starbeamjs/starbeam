@@ -1,17 +1,12 @@
-import { minimal, TreeConstructor } from "../../tests/support/starbeam";
+import type { anydom, minimal } from "@domtree/flavors";
 import { ReactiveDOM } from "../dom";
-import {
-  CompatibleDocument,
-  CompatibleElement,
-  COMPATIBLE_DOM,
-  MINIMAL_DOM,
-} from "../dom/streaming/compatible-dom";
-import type { Dehydrated } from "../program-node/hydrator/hydrate-node";
+import { COMPATIBLE_DOM, MINIMAL_DOM } from "../dom/streaming/compatible-dom";
+import { TreeConstructor } from "../dom/streaming/tree-constructor";
 import type {
   ContentProgramNode,
-  RenderedContent,
   RenderedProgramNode,
-} from "../program-node/program-node";
+} from "../program-node/interfaces/program-node";
+import type { RenderedContent } from "../program-node/interfaces/rendered-content";
 import { Cell } from "../reactive/cell";
 import type { AnyReactiveChoice } from "../reactive/choice";
 import type { Reactive } from "../reactive/core";
@@ -31,7 +26,7 @@ export class Universe {
    * features like event handlers and dynamic properties.
    */
   static document(
-    document: CompatibleDocument,
+    document: anydom.Document,
     profile = Profile.Debug
   ): Universe {
     return new Universe(document as minimal.Document, profile);
@@ -82,17 +77,17 @@ export class Universe {
 
   renderIntoElement<R extends RenderedContent>(
     node: ContentProgramNode<R>,
-    parent: CompatibleElement
+    parent: anydom.Element
   ): R | null {
     let buffer = TreeConstructor.html();
-    let dehydrated = this.render(node, buffer);
+    let rendered = this.render(node, buffer);
 
-    if (dehydrated) {
+    if (rendered) {
       let placeholder = this.#appending(parent);
 
       buffer.replace(placeholder);
 
-      return dehydrated.hydrate(parent as minimal.Element);
+      return rendered;
     }
 
     return null;
@@ -101,15 +96,15 @@ export class Universe {
   render<R extends RenderedContent>(
     node: ContentProgramNode<R>,
     buffer: TreeConstructor
-  ): Dehydrated<R> | null {
+  ): R | null {
     return node.render(buffer);
   }
 
-  poll(rendered: RenderedProgramNode) {
-    rendered.poll();
+  poll(rendered: RenderedProgramNode, inside: minimal.Element) {
+    rendered.poll(inside);
   }
 
-  #appending(parent: CompatibleElement): minimal.TemplateElement {
+  #appending(parent: anydom.Element): minimal.TemplateElement {
     let placeholder = MINIMAL_DOM.element(
       this.#document,
       parent as minimal.Element,
