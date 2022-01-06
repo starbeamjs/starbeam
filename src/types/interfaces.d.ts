@@ -75,7 +75,7 @@ declare module "@domtree/any" {
     | browser.DocumentFragment
     | minimal.DocumentFragment;
 
-  export type Element = browser.Element | minimal.Element;
+  export type Element = browser.Element | minimal.ParentNode;
 
   export type TemplateElement =
     | browser.TemplateElement

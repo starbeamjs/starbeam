@@ -142,12 +142,12 @@ export class ContentConstructor<B extends ContentBuffer = ContentBuffer> {
   element<T, U>(
     tag: string,
     head: (head: ElementHeadConstructor) => T,
-    token: (token: Dehydrated<minimal.Element>, result: T) => U
+    token: (token: Dehydrated<minimal.ParentNode>, result: T) => U
   ): U;
   element<T, U>(
     tag: string,
     construct: (head: ElementHeadConstructor) => T,
-    withToken?: (token: Dehydrated<minimal.Element>, result: T) => U
+    withToken?: (token: Dehydrated<minimal.ParentNode>, result: T) => U
   ): U | void {
     let returnValue: U | undefined = undefined;
 

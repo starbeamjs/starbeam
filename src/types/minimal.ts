@@ -35,6 +35,7 @@ declare module "@domtree/minimal" {
     readonly lastChild: ChildNode | null;
 
     querySelectorAll(selectors: string): Iterable<ChildNode>;
+    matches(selectors: string): boolean;
   }
 
   interface MutableParent extends ReadonlyParent {
@@ -73,7 +74,7 @@ declare module "@domtree/minimal" {
       ns: ElementNamespace,
       qualifiedName: string,
       options?: { is: string }
-    ): Element;
+    ): ParentNode;
 
     createTextNode(data: string): Text;
     createComment(data: string): Comment;
@@ -90,7 +91,7 @@ declare module "@domtree/minimal" {
 
   interface MutableDocumentType extends DocumentType, MutableChild {}
 
-  export interface Element extends ReadonlyParent, ReadonlyChild {
+  export interface ParentNode extends ReadonlyParent, ReadonlyChild {
     readonly tagName: string;
     readonly nodeType: Node.ELEMENT_NODE;
     readonly namespaceURI: ElementNamespace;
@@ -103,7 +104,7 @@ declare module "@domtree/minimal" {
     get outerHTML(): string;
   }
 
-  interface MutableElement extends Element, MutableParent, MutableChild {
+  interface MutableElement extends ParentNode, MutableParent, MutableChild {
     setAttributeNS(
       namespace: AttributeNamespace | null,
       qualifiedName: string,
@@ -117,7 +118,7 @@ declare module "@domtree/minimal" {
   export interface Attr extends ReadonlyNode {
     readonly nodeType: Node.ATTRIBUTE_NODE;
 
-    readonly ownerElement: Element | null;
+    readonly ownerElement: ParentNode | null;
     readonly namespaceURI: AttributeNamespace | null;
     readonly prefix: string | null;
     readonly localName: string;
@@ -157,7 +158,7 @@ declare module "@domtree/minimal" {
 
   export type MutableComment = Comment & MutableCharacterData;
 
-  export interface TemplateElement extends Element {
+  export interface TemplateElement extends ParentNode {
     readonly tagName: "TEMPLATE";
     readonly content: DocumentFragment;
   }
@@ -197,7 +198,7 @@ declare module "@domtree/minimal" {
     ? "CharacterData"
     : N extends DocumentType
     ? "Doctype"
-    : N extends Element
+    : N extends ParentNode
     ? "Element"
     : N extends Attr
     ? "Attribute"
@@ -211,7 +212,7 @@ declare module "@domtree/minimal" {
     ? MutableCharacterData
     : N extends DocumentType
     ? MutableDocumentType
-    : N extends Element
+    : N extends ParentNode
     ? MutableElement
     : N extends Attr
     ? MutableAttr
@@ -233,7 +234,7 @@ declare module "@domtree/minimal" {
     DocumentFragment: DocumentFragment;
     Text: Text;
     Comment: Comment;
-    Element: Element;
+    Element: ParentNode;
     TemplateElement: TemplateElement;
     Attr: Attr;
     StaticRange: StaticRange;
@@ -251,7 +252,7 @@ declare module "@domtree/minimal" {
     StaticRange: StaticRange;
   }>;
 
-  export type ParentNode = dom.ParentNode<DomTree>;
+  // export type ParentNode = dom.ParentNode<DomTree>;
   export type ChildNode = dom.ChildNode<DomTree>;
   export type CharacterData = dom.CharacterData<DomTree>;
   export type Node = dom.Node<DomTree>;

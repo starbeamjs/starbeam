@@ -124,9 +124,9 @@ export class AbstractDOM {
       parent: dom.Element;
       encoding?: string;
     }
-  ): minimal.Element {
+  ): minimal.ParentNode {
     let ns = getElementNS(
-      parent as minimal.Element,
+      parent as minimal.ParentNode,
       qualifiedName,
       encoding || null
     );
@@ -239,20 +239,20 @@ export class MinimalUtilities {
 
   element(
     document: minimal.Document,
-    parent: minimal.Element,
+    parent: minimal.ParentNode,
     tag: "template"
   ): minimal.TemplateElement;
   element(
     document: minimal.Document,
-    parent: minimal.Element,
+    parent: minimal.ParentNode,
     tag: string
-  ): minimal.Element;
+  ): minimal.ParentNode;
   element(
     document: minimal.Document,
     // @ts-expect-error TODO: Proper namespace handling
-    parent: minimal.Element,
+    parent: minimal.ParentNode,
     tag: string
-  ): minimal.Element {
+  ): minimal.ParentNode {
     return document.createElementNS(HTML_NAMESPACE, tag);
   }
 
@@ -280,7 +280,7 @@ export class MinimalUtilities {
    * @param qualifiedName
    */
   getAttr(
-    element: minimal.Element,
+    element: minimal.ParentNode,
     qualifiedName: string
   ): minimal.Attr | null {
     return element.getAttributeNode(qualifiedName);
@@ -294,7 +294,7 @@ export class MinimalUtilities {
    * https://html.spec.whatwg.org/multipage/parsing.html#adjust-foreign-attributes
    */
   setAttr(
-    element: Mutable<minimal.Element>,
+    element: Mutable<minimal.ParentNode>,
     qualifiedName: string,
     value: string
   ): void {
@@ -303,7 +303,7 @@ export class MinimalUtilities {
     mutable(element).setAttributeNS(ns, qualifiedName, value);
   }
 
-  hasAttr(element: minimal.Element, qualifiedName: string): boolean {
+  hasAttr(element: minimal.ParentNode, qualifiedName: string): boolean {
     return element.hasAttribute(qualifiedName);
   }
 
@@ -422,12 +422,12 @@ export class MinimalUtilities {
 export const COMPATIBLE_DOM = new AbstractDOM();
 export const MINIMAL_DOM = new MinimalUtilities();
 
-function isHtmlElement(element: minimal.Element): boolean {
+function isHtmlElement(element: minimal.ParentNode): boolean {
   return element.namespaceURI === HTML_NAMESPACE;
 }
 
 function getElementNS(
-  parent: minimal.Element,
+  parent: minimal.ParentNode,
   qualifiedName: string,
   encoding: string | null
 ): minimal.ElementNamespace {
@@ -468,10 +468,10 @@ function getElementNS(
 }
 
 function getAttrNS(
-  element: minimal.Element,
+  element: minimal.ParentNode,
   name: string
 ): minimal.AttributeNamespace | null {
-  if (isHtmlElement(element as minimal.Element)) {
+  if (isHtmlElement(element as minimal.ParentNode)) {
     return null;
   }
 

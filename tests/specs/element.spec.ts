@@ -19,7 +19,7 @@ test("a simple element containing a text node (dynamic) ", ({
   expect(into.innerHTML).toBe("<div>Chirag</div>");
 
   name.update("Chi");
-  universe.poll(result);
+  result.poll();
 
   expect(into.innerHTML).toBe("<div>Chi</div>");
 });
@@ -44,7 +44,7 @@ test("a simple element containing a text node (static) ", ({
     Expects.static
   );
 
-  let { into } = test.render(element, Expects.static);
+  let { into, result } = test.render(element, Expects.static);
 
   expect(into.innerHTML).toBe(`<div title="${TITLE}">${NAME}</div>`);
 });
@@ -75,7 +75,7 @@ test("a simple element with an attribute (dynamic) ", ({
   expect(into.innerHTML).toBe(`<div title="${TITLE}">${NAME}</div>`);
 
   name.update(SHORT_NAME);
-  universe.poll(result);
+  result.poll();
 
   expect(into.innerHTML).toBe(`<div title="${TITLE}">${SHORT_NAME}</div>`);
 });
@@ -125,7 +125,7 @@ test("(smoke test) a dynamic element with a few children and a few attributes", 
   );
 
   firstName.update(SHORT_NAME);
-  universe.poll(result);
+  result.poll();
 
   expect(into.innerHTML).toBe(
     `<div title="${TITLE}" class="person" style="${STYLE}">${SHORT_NAME} ${LAST_NAME} <span>(name)</span> -- Over and Out</div>`

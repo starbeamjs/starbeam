@@ -19,13 +19,13 @@ todo("a simple, static list", ({ universe, test }) => {
 
   expect(into.innerHTML, toBe("<p>Tom</p><p>Yehuda</p><p>Chirag</p>"));
 
-  universe.poll(result);
+  result.poll();
 
   expect(into.innerHTML, toBe("<p>Tom</p><p>Yehuda</p><p>Chirag</p>"));
 
   state.yehuda.update("@wycats");
 
-  universe.poll(result);
+  result.poll();
 
   expect(into.innerHTML, toBe("<p>Tom</p><p>@wycats</p><p>Chirag</p>"));
 });
@@ -46,18 +46,18 @@ todo("a simple, dynamic list", ({ universe, test }) => {
 
   expect(into.innerHTML, toBe("<p>Tom</p><p>Yehuda</p><p>Chirag</p>"));
 
-  universe.poll(result);
+  result.poll();
 
   expect(into.innerHTML, toBe("<p>Tom</p><p>Yehuda</p><p>Chirag</p>"));
 
   names.update([state.chirag, state.yehuda, state.tom]);
 
-  universe.poll(result);
+  result.poll();
   expect(into.innerHTML, toBe("<p>Chirag</p><p>Yehuda</p><p>Tom</p>"));
 
   state.yehuda.update("@wycats");
 
-  universe.poll(result);
+  result.poll();
   expect(into.innerHTML, toBe("<p>Chirag</p><p>@wycats</p><p>Tom</p>"));
 });
 

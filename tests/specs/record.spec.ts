@@ -13,7 +13,7 @@ test("a record is a reactive value", ({ universe: timeline, test }) => {
   expect(into.innerHTML).toBe("Tom");
 
   first.update("Thomas");
-  timeline.poll(result);
+  result.poll();
 
   expect(into.innerHTML).toBe("Thomas");
 });

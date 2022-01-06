@@ -65,7 +65,7 @@ export class RenderedAttribute {
     return this.#metadata;
   }
 
-  poll(inside: minimal.Element): void {
+  poll(inside: minimal.ParentNode): void {
     COMPATIBLE_DOM.updateAttr(this.#attribute.get(inside), this.#value.current);
   }
 }

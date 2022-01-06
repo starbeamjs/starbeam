@@ -94,7 +94,7 @@ class RenderedCharacterData implements RenderedContent {
     this.#node = node;
   }
 
-  poll(inside: minimal.Element): void {
+  poll(inside: minimal.ParentNode): void {
     mutable(this.#node.get(inside)).data = this.#reactive.current;
   }
 }

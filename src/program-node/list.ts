@@ -223,7 +223,7 @@ export class RenderedStaticList implements RenderedContent {
     this.metadata = metadata;
   }
 
-  poll(inside: minimal.Element): void {
+  poll(inside: minimal.ParentNode): void {
     for (let artifact of this.#artifacts) {
       artifact.poll(inside);
     }
@@ -304,7 +304,7 @@ export class RenderedDynamicList implements RenderedContent {
     this.#artifacts = artifacts;
   }
 
-  poll(inside: minimal.Element): void {
+  poll(inside: minimal.ParentNode): void {
     this.#artifacts.poll(this.#loop, inside);
   }
 }

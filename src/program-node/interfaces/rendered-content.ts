@@ -4,7 +4,7 @@ import type { RenderedProgramNodeMetadata } from "./program-node";
 export interface RenderedContent {
   readonly metadata: RenderedContentMetadata;
 
-  poll(inside: minimal.Element): void;
+  poll(inside: minimal.ParentNode): void;
 }
 
 export interface RenderedContentMetadata extends RenderedProgramNodeMetadata {

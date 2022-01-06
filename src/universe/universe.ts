@@ -15,6 +15,7 @@ import { Matcher, ReactiveMatch } from "../reactive/match";
 import { InnerDict, ReactiveRecord } from "../reactive/record";
 import { Static } from "../reactive/static";
 import { Profile } from "./profile";
+import { RenderedRoot } from "./root";
 import { Timeline } from "./timeline";
 
 export const TIMELINE = Symbol("TIMELINE");
@@ -75,39 +76,29 @@ export class Universe {
     return new ReactiveRecord(dict);
   }
 
-  renderIntoElement<R extends RenderedContent>(
+  render<R extends RenderedContent>(
     node: ContentProgramNode<R>,
-    parent: anydom.Element
-  ): R | null {
+    { append }: { append: anydom.ParentNode }
+  ): RenderedRoot | null {
     let buffer = TreeConstructor.html();
-    let rendered = this.render(node, buffer);
+    let content = node.render(buffer);
 
-    if (rendered) {
-      let placeholder = this.#appending(parent);
+    if (content) {
+      buffer.replace(this.#appending(append));
 
-      buffer.replace(placeholder);
-
-      return rendered;
+      return RenderedRoot.create({
+        content,
+        into: append as minimal.ParentNode,
+      });
     }
 
     return null;
   }
 
-  render<R extends RenderedContent>(
-    node: ContentProgramNode<R>,
-    buffer: TreeConstructor
-  ): R | null {
-    return node.render(buffer);
-  }
-
-  poll(rendered: RenderedProgramNode, inside: minimal.Element) {
-    rendered.poll(inside);
-  }
-
-  #appending(parent: anydom.Element): minimal.TemplateElement {
+  #appending(parent: anydom.ParentNode): minimal.TemplateElement {
     let placeholder = MINIMAL_DOM.element(
       this.#document,
-      parent as minimal.Element,
+      parent as minimal.ParentNode,
       "template"
     );
     COMPATIBLE_DOM.insert(placeholder, COMPATIBLE_DOM.appending(parent));

@@ -64,41 +64,34 @@ export class AttributeMarker implements AbstractHydration<minimal.Attr> {
   forName(qualifiedName: string): Marker<ElementHeadBuffer> {
     return Marker({
       mark: (buffer, token) =>
-        buffer
-          .attr(`data-starbeam-marker:attr:${tokenId(token)}`, qualifiedName)
-          // TODO: use idempotentAttr
-          .attr(`data-starbeam-marker:attrs`, {
-            value: "",
-            type: "idempotent",
-          }),
+        buffer.attr(
+          `data-starbeam-marker:attr:${tokenId(token)}`,
+          qualifiedName
+        ),
       hydrator: this,
     });
   }
 
   hydrate(container: minimal.ParentNode, token: Token): minimal.Attr {
-    let attrName = String.raw`data-starbeam-marker\:attr\:${tokenId(token)}`;
-    let element = findElement(
-      container,
-      attrSelector(`data-starbeam-marker:attr:${tokenId(token)}`)
-    );
+    let attrName = String.raw`data-starbeam-marker:attr:${tokenId(token)}`;
+    let element = findElement(container, attrSelector(attrName));
 
     let attr = verified(element.getAttributeNode(attrName), is.Present);
     element.removeAttribute(attrName);
-    element.removeAttribute(`data-starbeam-marker:attrs`);
     return attr;
   }
 }
 
 export const ATTRIBUTE_MARKER = new AttributeMarker();
 
-export class ElementMarker implements AbstractHydration<minimal.Element> {
-  readonly marker: Marker<ElementHeadBuffer, minimal.Element> = Marker({
+export class ElementMarker implements AbstractHydration<minimal.ParentNode> {
+  readonly marker: Marker<ElementHeadBuffer, minimal.ParentNode> = Marker({
     mark: (buffer, token) =>
-      buffer.attr("data-starbeam-marker", tokenId(token)),
+      buffer.attr("data-starbeam-marker:element", tokenId(token)),
     hydrator: this,
   });
 
-  hydrate(container: minimal.ParentNode, token: Token): minimal.Element {
+  hydrate(container: minimal.ParentNode, token: Token): minimal.ParentNode {
     let element = findElement(
       container,
       attrSelector(`data-starbeam-marker:element`, tokenId(token))
@@ -222,8 +215,8 @@ export function attrSelector(attr: string, value?: string): string {
 export function findElement(
   container: minimal.ParentNode,
   selector: string
-): minimal.Element {
-  let elements = [...container.querySelectorAll(selector)];
+): minimal.ParentNode {
+  let elements = [...findElements(container, selector)];
 
   verify(elements, has.length(1), as(`${selector} in ${container}`));
   verify(elements[0], is.Element, as(`the first child of ${container}`));
@@ -234,8 +227,14 @@ export function findElement(
 export function findElements(
   container: minimal.ParentNode,
   selector: string
-): IterableIterator<minimal.Element> {
-  return container.querySelectorAll(
-    selector
-  ) as IterableIterator<minimal.Element>;
+): IterableIterator<minimal.ChildNode> {
+  function* iterate(): IterableIterator<minimal.ChildNode> {
+    if (container.matches(selector)) {
+      yield container;
+    }
+
+    yield* container.querySelectorAll(selector);
+  }
+
+  return iterate();
 }

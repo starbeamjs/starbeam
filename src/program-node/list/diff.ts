@@ -76,7 +76,7 @@ export class ListArtifacts {
     // component.render();
   }
 
-  poll(loop: DynamicLoop, inside: minimal.Element): void {
+  poll(loop: DynamicLoop, inside: minimal.ParentNode): void {
     let current = [...loop.current];
     let components = new Map(current.map((c) => [c.key, c]));
 

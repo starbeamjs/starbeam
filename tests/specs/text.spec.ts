@@ -8,7 +8,7 @@ test("dynamic text", ({ universe: timeline, test }) => {
   expect(into.innerHTML, toBe("hello"));
 
   cell.update("goodbye");
-  timeline.poll(result);
+  result.poll();
 
   expect(into.innerHTML, toBe("goodbye"));
 });

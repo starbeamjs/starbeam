@@ -124,7 +124,7 @@ class DehydratedElementBuilder {
     return this;
   }
 
-  finalize(token: Dehydrated<minimal.Element>): RenderedElementNode {
+  finalize(token: Dehydrated<minimal.ParentNode>): RenderedElementNode {
     return RenderedElementNode.create(
       LazyDOM.create(token),
       this.#tag,
@@ -136,7 +136,7 @@ class DehydratedElementBuilder {
 
 export class RenderedElementNode implements RenderedContent {
   static create(
-    node: LazyDOM<minimal.Element>,
+    node: LazyDOM<minimal.ParentNode>,
     tagName: Reactive<string>,
     attributes: readonly RenderedAttribute[],
     children: readonly RenderedContent[]
@@ -160,13 +160,13 @@ export class RenderedElementNode implements RenderedContent {
     );
   }
 
-  readonly #element: LazyDOM<minimal.Element>;
+  readonly #element: LazyDOM<minimal.ParentNode>;
   readonly #tagName: Reactive<string>;
   readonly #attributes: readonly RenderedAttribute[];
   readonly #children: readonly RenderedContent[];
 
   private constructor(
-    node: LazyDOM<minimal.Element>,
+    node: LazyDOM<minimal.ParentNode>,
     tagName: Reactive<string>,
     attributes: readonly RenderedAttribute[],
     children: readonly RenderedContent[],
@@ -178,7 +178,7 @@ export class RenderedElementNode implements RenderedContent {
     this.#children = children;
   }
 
-  poll(inside: minimal.Element): void {
+  poll(inside: minimal.ParentNode): void {
     if (Reactive.isDynamic(this.#tagName)) {
       throw new Error("Dynamic tag name");
     }

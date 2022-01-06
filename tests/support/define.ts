@@ -1,5 +1,6 @@
 import type { anydom } from "@domtree/flavors";
 import { JSDOM } from "jsdom";
+import type { RenderedRoot } from "../../src/universe/root";
 import { upstream } from "../jest-ext";
 import { ElementArgs, TestElementArgs } from "./element";
 import { Expects } from "./expect/expect";
@@ -106,15 +107,15 @@ export class TestSupport {
     return element;
   }
 
-  render<R extends RenderedContent>(
-    node: ContentProgramNode<R>,
+  render(
+    node: ContentProgramNode,
     expectation: Expects
   ): {
-    result: R;
+    result: RenderedRoot;
     into: anydom.Element;
   } {
     let element = this.#document.createElementNS(HTML_NAMESPACE, "div");
-    let result = this.universe.renderIntoElement(node, element);
+    let result = this.universe.render(node, { append: element });
 
     verify(result, is.Present);
 
@@ -123,12 +124,17 @@ export class TestSupport {
       `Render should produce ${expectation} output.`
     ).toBe(expectation);
 
+    // Exchange markers for DOM representations to allow us to compare the DOM
+    // without markers to our expectations.
+    result.eager();
+
     return { result, into: element };
   }
 
-  update<T>(rendered: RenderedProgramNode, cell: Cell<T>, value: T): void {
+  update<T>(rendered: RenderedRoot, cell: Cell<T>, value: T): void {
     cell.update(value);
-    this.universe.poll(rendered);
+
+    rendered.poll();
   }
 }
 

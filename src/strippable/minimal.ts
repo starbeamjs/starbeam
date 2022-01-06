@@ -99,7 +99,7 @@ function isParentNode(node: MaybeNode): node is minimal.ParentNode {
 
 Verifier.implement(isParentNode, expected("node").toBe("a ParentNode"));
 
-const isElement = isSpecificNode<minimal.Element>(1, "an element");
+const isElement = isSpecificNode<minimal.ParentNode>(1, "an element");
 const isText = isSpecificNode<minimal.Text>(3, "a text node");
 const isComment = isSpecificNode<minimal.Comment>(8, "a comment node");
 const isDocument = isSpecificNode<minimal.Document>(9, "a document");
@@ -177,17 +177,17 @@ export const is = {
 function hasTagName<T extends string>(
   tagName: T
 ): Verifier<
-  minimal.Element,
-  minimal.Element & { readonly tagName: Uppercase<T> }
+  minimal.ParentNode,
+  minimal.ParentNode & { readonly tagName: Uppercase<T> }
 > {
   function hasTagName(
-    element: minimal.Element
-  ): element is minimal.Element & { readonly tagName: Uppercase<T> } {
+    element: minimal.ParentNode
+  ): element is minimal.ParentNode & { readonly tagName: Uppercase<T> } {
     return element.tagName === tagName.toUpperCase();
   }
 
   hasTagName.default = { expected: "element" };
-  hasTagName.message = (context: VerifyContext, element: minimal.Element) =>
+  hasTagName.message = (context: VerifyContext, element: minimal.ParentNode) =>
     `Expected ${
       context.expected
     } to be <${tagName}>, but was <${element.tagName.toLowerCase()}>`;
