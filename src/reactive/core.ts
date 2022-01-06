@@ -15,9 +15,9 @@ export interface Reactive<T> extends WithReactiveMetadata {
 }
 
 export type ReactiveValue<R extends Reactive<unknown>> = R extends Reactive<
-  infer R
+  infer Value
 >
-  ? R
+  ? Value
   : never;
 
 export type IntoReactive<T> = Reactive<T> | T;

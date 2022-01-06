@@ -4,7 +4,7 @@
   "module": "esm",
   "workspaces": [
     ".",
-    "tests"
+    "@types/@domtree/*"
   ],
   "scripts": {
     "dev": "vite",
@@ -36,8 +36,15 @@
     "@types/lodash.zip": "^4.2.6",
     "@typescript-eslint/eslint-plugin": "^5.8.0",
     "@typescript-eslint/parser": "^5.8.0",
+    "@domtree/browser": "workspace:*",
+    "@domtree/any": "workspace:*",
+    "@domtree/flavors": "workspace:*",
+    "@domtree/interface": "workspace:*",
+    "@domtree/minimal": "workspace:*",
     "babel-jest": "^27.2.5",
     "eslint": "^8.5.0",
+    "eslint-import-resolver-typescript": "^2.5.0",
+    "eslint-plugin-import": "^2.25.4",
     "jest": "^27.2.5",
     "jest-diff": "^27.4.2",
     "jsdom": "^19.0.0",

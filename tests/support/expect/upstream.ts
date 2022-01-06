@@ -13,7 +13,9 @@ export default {
 } as const;
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace jest {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     interface Matchers<R> {
       custom(): CustomMatcherResult;
     }
@@ -81,6 +83,7 @@ function processResult(
           if ("pattern" in result) {
             return notEqualChild(ctx, result);
           }
+          throw Error("todo: mismatch without pattern");
         }
 
         case "multiple": {

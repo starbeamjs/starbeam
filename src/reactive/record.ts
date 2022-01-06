@@ -3,7 +3,7 @@ import { isObject } from "..";
 import { Reactive } from "./core";
 
 export type InnerDict = {
-  readonly [P in keyof any]: Reactive<unknown>;
+  readonly [P in PropertyKey]: Reactive<unknown>;
 };
 
 /**

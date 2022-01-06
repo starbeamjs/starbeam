@@ -1,3 +1,4 @@
+import type { UnsafeAny } from "../index";
 import { Reactive } from "./core";
 
 export type ReactiveChoice<T> = {
@@ -70,8 +71,8 @@ export class ReactiveCases<C extends AnyReactiveChoice> {
     ): C;
     function create(
       discriminant: string,
-      value?: any
-    ): { discriminant: string; value?: any } {
+      value?: UnsafeAny
+    ): { discriminant: string; value?: UnsafeAny } {
       return {
         discriminant,
         value,

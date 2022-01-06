@@ -7,6 +7,7 @@ import {
   FinalizedContext,
   VerifyContext,
 } from "./verify-context";
+import type { UnsafeAny } from "./wrapper";
 
 export type DebugInformation = FinalizedContext | string;
 
@@ -36,12 +37,15 @@ export const DebugInformation = {
  * @strip.noop
  */
 export function assert(
-  condition: any,
+  condition: UnsafeAny,
   info: DebugInformation = "assertion error"
 ): asserts condition {
   if (condition === false) {
+    // eslint-disable-next-line no-debugger
     debugger;
-    throw Error(`Unexpected: ${DebugInformation.message(info)}`);
+    let message = `Unexpected: ${DebugInformation.message(info)}`;
+    console.assert(condition, message);
+    throw Error(message);
   }
 }
 
@@ -81,7 +85,7 @@ export const Verifier = {
     );
   },
 
-  context<In>(verifier: Verifier<In, any>): CreatedContext<In> {
+  context<In>(verifier: Verifier<In, In>): CreatedContext<In> {
     return verified(
       VERIFIER.get(verifier as Verifier<unknown, unknown>),
       isPresent
@@ -182,7 +186,7 @@ export function verify<In, Out extends In>(
     );
 
     abstraction(() => {
-      debugger;
+      console.assert(false, DebugInformation.message(message));
       throw Error(DebugInformation.message(message));
     });
   }
@@ -200,7 +204,7 @@ export function verified<Out extends In, In = unknown>(
     return value;
   } else {
     return abstraction(() => {
-      debugger;
+      console.assert(false, DebugInformation.message(error(value)));
       throw Error(DebugInformation.message(error(value)));
     });
   }

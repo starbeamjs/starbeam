@@ -1,4 +1,5 @@
 import { assert } from "./assert";
+import type { UnsafeAny } from "./wrapper";
 
 const FRAMES_TO_REMOVE = 3;
 const FRAME_START = "    at ";
@@ -9,8 +10,8 @@ export function abstraction<T>(
 ): T {
   try {
     return callback();
-  } catch (e: any) {
-    let error: Error = e;
+  } catch (e) {
+    let error: Error = e as UnsafeAny;
     assert(error.stack);
 
     let lines = error.stack.split("\n");

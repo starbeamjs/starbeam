@@ -47,10 +47,6 @@ export class FinalizedFrame<T> {
 
   validate(): { status: "valid"; value: T } | { status: "invalid" } {
     for (let cell of this.#children) {
-      if (typeof cell[IS_UPDATED_SINCE] !== "function") {
-        debugger;
-      }
-
       if (cell[IS_UPDATED_SINCE](this.#finalizedAt)) {
         return { status: "invalid" };
       }

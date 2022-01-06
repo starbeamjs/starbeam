@@ -16,6 +16,6 @@
     "noImplicitReturns": true,
     "importsNotUsedAsValues": "error"
   },
-  "include": ["./src", "./tests", "vite.config.ts"],
+  "include": ["./src", "./tests", "./@types", "vite.config.ts"],
   "exclude": ["archive"]
 }

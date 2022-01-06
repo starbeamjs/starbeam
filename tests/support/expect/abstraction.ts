@@ -9,8 +9,8 @@ export function abstraction(
 ): void {
   try {
     callback();
-  } catch (e: any) {
-    let error: Error = e;
+  } catch (e) {
+    let error: Error = e as Error;
     starbeam.assert(error.stack);
 
     let lines = error.stack.split("\n");

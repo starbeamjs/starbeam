@@ -1,3 +1,4 @@
+import type { UnsafeAny } from "../../../../src/index";
 import {
   AnyPattern,
   Pattern,
@@ -54,5 +55,7 @@ export function toBe<T>(
   value: T,
   description?: ToBeDescription
 ): AnyPattern<T> {
-  return PatternImpl.of<T, T, any, any>(new ToBe(value, description));
+  return PatternImpl.of<T, T, UnsafeAny, UnsafeAny>(
+    new ToBe(value, description)
+  );
 }

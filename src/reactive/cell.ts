@@ -6,7 +6,6 @@ import { REACTIVE_BRAND } from "./internal";
 
 export class Cell<T> implements Reactive<T> {
   #value: T;
-  // @ts-ignore: Unused variable
   #lastUpdate: Timestamp;
   #timeline: Timeline;
 

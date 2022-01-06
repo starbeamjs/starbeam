@@ -1,8 +1,7 @@
 import type * as dom from "@domtree/any";
 import type * as minimal from "@domtree/minimal";
-import type { Mutable } from "@domtree/minimal";
 import { DebugInformation, PartialVerifier, Verifier } from "./assert";
-import { expected, VerifyContext } from "./verify-context";
+import { CreatedContext, expected, VerifyContext } from "./verify-context";
 
 /**
  * @strip.value node
@@ -10,8 +9,8 @@ import { expected, VerifyContext } from "./verify-context";
  * @param node
  * @returns
  */
-export function mutable<N extends minimal.Node>(node: N): Mutable<N> {
-  return node as unknown as Mutable<N>;
+export function mutable<N extends minimal.Node>(node: N): minimal.Mutable<N> {
+  return node as unknown as minimal.Mutable<N>;
 }
 
 type Tuple<T, N extends number> = N extends N
@@ -126,7 +125,7 @@ function isTemplateElement(node: MaybeNode): node is minimal.TemplateElement {
 isTemplateElement.default = { expected: "node" } as const;
 isTemplateElement.message = nodeMessage("a template node");
 
-export function isPresent<T>(value: T | null | undefined): value is T {
+export function isPresent<T>(value: T | void | null | undefined): value is T {
   return value !== null && value !== undefined;
 }
 
@@ -154,7 +153,10 @@ export function isNullable<In, Out extends In>(
   // called when the type is outside of the space of allowed types, the original
   // `butGot` should work. However, the type error suggests that there may be a
   // mistake in how the generics are structured.
-  Verifier.implement<In | null, Out | null>(verify, context as any);
+  Verifier.implement<In | null, Out | null>(
+    verify,
+    context as CreatedContext<In | null>
+  );
   return verify;
 }
 

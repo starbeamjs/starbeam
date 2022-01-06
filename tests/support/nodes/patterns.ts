@@ -1,6 +1,6 @@
 import type { anydom } from "@domtree/flavors";
 import zip from "lodash.zip";
-import { exhaustive, verify, is, DOM } from "../../support/starbeam";
+import { exhaustive, verify, is, DOM, verified } from "../../support/starbeam";
 import { abstraction } from "../expect/abstraction";
 
 export interface ElementNodeOptions {
@@ -114,7 +114,12 @@ export function expectElement(
       ).toHaveLength(options.children.length);
 
       for (let [childNode, pattern] of zip(children, options.children)) {
-        abstraction(() => expectNode(childNode!, pattern!));
+        abstraction(() =>
+          expectNode(
+            verified(childNode, is.Present),
+            verified(pattern, is.Present)
+          )
+        );
       }
     }
   });

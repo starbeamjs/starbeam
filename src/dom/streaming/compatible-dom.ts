@@ -1,6 +1,8 @@
 import type * as dom from "@domtree/any";
 import type * as browser from "@domtree/browser";
+// eslint-disable-next-line import/no-duplicates
 import type * as minimal from "@domtree/minimal";
+// eslint-disable-next-line import/no-duplicates
 import type { Mutable } from "@domtree/minimal";
 import { assert, exhaustive, verified, verify } from "../../strippable/assert";
 import { is, mutable } from "../../strippable/minimal";

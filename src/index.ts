@@ -4,14 +4,8 @@ export const Cases = ReactiveCases.define;
 export * from "./reactive/index";
 export * from "./universe";
 export * from "./program-node/index";
-export * from "./program-node/data";
-export * from "./program-node/attribute";
-export * from "./program-node/interfaces/program-node";
-export * from "./program-node/interfaces/rendered-content";
-export type { Component } from "./program-node/component";
 export * from "./dom";
 export { HTML_NAMESPACE } from "./dom/streaming/namespaces";
-export { COMPATIBLE_DOM as DOM } from "./dom/streaming/compatible-dom";
 
 export * from "./utils";
 export * from "./strippable/assert";

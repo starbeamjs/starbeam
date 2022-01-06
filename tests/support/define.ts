@@ -15,8 +15,6 @@ import {
   minimal,
   Reactive,
   ReactiveDOM,
-  RenderedContent,
-  RenderedProgramNode,
   TextProgramNode,
   Universe,
   verify,
