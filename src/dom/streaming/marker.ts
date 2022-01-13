@@ -1,10 +1,11 @@
 import type { minimal } from "@domtree/flavors";
-import { assert, verified, verify } from "../../strippable/assert";
+import { verified, verify } from "../../strippable/assert";
+import { assert } from "../../strippable/core";
 import { has, is } from "../../strippable/minimal";
 import { as } from "../../strippable/verify-context";
-import type { ElementHeadBuffer } from "../buffer/attribute";
-import type { ContentBuffer } from "../buffer/body";
-import { ContentRange, MINIMAL_DOM } from "./compatible-dom";
+import { isElement } from "../../utils/dom";
+import type { ContentBuffer, ElementHeadBuffer } from "../buffer/body";
+import { ContentRange, ContentRangeNode, MINIMAL_DOM } from "./compatible-dom";
 import { Token, tokenId } from "./token";
 
 // This might be necessary for some obscure cases where <template> is disallowed
@@ -84,14 +85,14 @@ export class AttributeMarker implements AbstractHydration<minimal.Attr> {
 
 export const ATTRIBUTE_MARKER = new AttributeMarker();
 
-export class ElementMarker implements AbstractHydration<minimal.ParentNode> {
-  readonly marker: Marker<ElementHeadBuffer, minimal.ParentNode> = Marker({
+export class ElementMarker implements AbstractHydration<minimal.Element> {
+  readonly marker: Marker<ElementHeadBuffer, minimal.Element> = Marker({
     mark: (buffer, token) =>
       buffer.attr("data-starbeam-marker:element", tokenId(token)),
     hydrator: this,
   });
 
-  hydrate(container: minimal.ParentNode, token: Token): minimal.ParentNode {
+  hydrate(container: minimal.ParentNode, token: Token): minimal.Element {
     let element = findElement(
       container,
       attrSelector(`data-starbeam-marker:element`, tokenId(token))
@@ -136,7 +137,7 @@ export class CharacterDataMarker extends RangeMarker<minimal.ReadonlyCharacterDa
   ): minimal.ReadonlyCharacterData {
     let range = Markers.find(container, token).hydrateRange();
 
-    assert(range.type === "node");
+    assert(ContentRangeNode.is(range));
     verify(range.node, is.CharacterData);
 
     return range.node;
@@ -150,6 +151,8 @@ export class ContentRangeMarker extends RangeMarker<ContentRange> {
     return Markers.find(container, token).hydrateRange();
   }
 }
+
+export const CONTENT_RANGE_MARKER = new ContentRangeMarker().marker;
 
 class Markers {
   static find(container: minimal.ParentNode, token: Token): Markers {
@@ -188,7 +191,7 @@ class Markers {
       return MINIMAL_DOM.replace(this.#end, (cursor) => {
         let comment = MINIMAL_DOM.document.createComment("");
         MINIMAL_DOM.insert(comment, cursor);
-        return ContentRange(comment);
+        return ContentRange.empty(comment);
       });
     } else {
       verify(first, is.Present);
@@ -196,7 +199,7 @@ class Markers {
 
       MINIMAL_DOM.remove(this.#start);
       MINIMAL_DOM.remove(this.#end);
-      return ContentRange(first, last);
+      return ContentRange.from(first, last);
     }
   }
 }
@@ -215,7 +218,7 @@ export function attrSelector(attr: string, value?: string): string {
 export function findElement(
   container: minimal.ParentNode,
   selector: string
-): minimal.ParentNode {
+): minimal.Element {
   let elements = [...findElements(container, selector)];
 
   verify(elements, has.length(1), as(`${selector} in ${container}`));
@@ -229,7 +232,7 @@ export function findElements(
   selector: string
 ): IterableIterator<minimal.ChildNode> {
   function* iterate(): IterableIterator<minimal.ChildNode> {
-    if (container.matches(selector)) {
+    if (isElement(container) && container.matches(selector)) {
       yield container;
     }
 

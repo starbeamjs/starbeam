@@ -1,5 +1,5 @@
+import { Cases } from "starbeam";
 import { expect, test, toBe } from "../support";
-import { Cases } from "../support/starbeam";
 
 function StringType(value: unknown): value is string {
   return typeof value === "string";
@@ -33,9 +33,9 @@ test("choice (unit, dynamic)", ({ universe: timeline }) => {
   expect(value.current, toBe("NO"));
 });
 
-test("choice (tuple, static)", ({ universe: timeline }) => {
-  let name = timeline.static(OptionalString("Some", timeline.static("Tom")));
-  let value = timeline.match(name, {
+test("choice (tuple, static)", ({ universe }) => {
+  let name = universe.static(OptionalString("Some", universe.static("Tom")));
+  let value = universe.match(name, {
     Some: (name) => name.toUpperCase(),
     None: () => "anonymous",
   });

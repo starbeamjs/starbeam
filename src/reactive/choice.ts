@@ -1,4 +1,4 @@
-import type { UnsafeAny } from "../index";
+import type { UnsafeAny } from "../strippable/wrapper";
 import { Reactive } from "./core";
 
 export type ReactiveChoice<T> = {

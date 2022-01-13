@@ -1,4 +1,4 @@
-import * as starbeam from "../../../src/index";
+import { assert } from "starbeam";
 
 const FRAMES_TO_REMOVE = 3;
 const FRAME_START = "    at ";
@@ -11,7 +11,7 @@ export function abstraction(
     callback();
   } catch (e) {
     let error: Error = e as Error;
-    starbeam.assert(error.stack);
+    assert(error.stack);
 
     let lines = error.stack.split("\n");
 

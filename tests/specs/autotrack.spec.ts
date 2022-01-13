@@ -1,5 +1,5 @@
 import { test, expect, toBe, Expects } from "../support";
-import type { Universe } from "../support/starbeam";
+import type { Universe } from "starbeam";
 
 test("timeline.memo", ({ universe }) => {
   let name = universe.cell("Tom");

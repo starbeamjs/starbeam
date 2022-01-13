@@ -1,20 +1,20 @@
-import { HtmlBuilder } from "../support/starbeam";
+import { HtmlBuffer } from "starbeam";
 import { test, expect, toBe } from "../support/define";
 
-test("ContentBuilder text", () => {
-  let content = HtmlBuilder.create().text("hello");
+test("ContentBuffer text", () => {
+  let content = HtmlBuffer.create().text("hello");
 
   expect(content.serialize(), toBe("hello"));
 });
 
 test("ContentBuilder comment", () => {
-  let content = HtmlBuilder.create().comment("hello");
+  let content = HtmlBuffer.create().comment("hello");
 
   expect(content.serialize(), toBe("<!--hello-->"));
 });
 
 test("ContentBuilder simple element", () => {
-  let content = HtmlBuilder.create().element("div", (div) =>
+  let content = HtmlBuffer.create().element("div", (div) =>
     div.attr("class", "name").body().text("Chirag")
   );
 

@@ -11,6 +11,7 @@ import type {
   BuildMetadata,
   RenderedProgramNodeMetadata,
 } from "./interfaces/program-node";
+import type { ConstantRenderedAttribute } from "./interfaces/rendered-content";
 
 export class AttributeProgramNode {
   static create(attribute: BuildAttribute): AttributeProgramNode {
@@ -32,7 +33,7 @@ export class AttributeProgramNode {
     let value = this.#attribute.value;
     // let value = this.#attribute.value.current;
     let attr = buffer.attr(this.#attribute.name, value.current, TOKEN);
-    return RenderedAttribute.create(LazyDOM.create(attr), value);
+    return RenderedAttribute.create(LazyDOM.of(attr), value);
   }
 }
 
@@ -44,6 +45,13 @@ export class RenderedAttribute {
     return new RenderedAttribute(attribute, value, {
       isConstant: Reactive.isStatic(value),
     });
+  }
+
+  static isConstant(
+    this: void,
+    rendered: RenderedAttribute
+  ): rendered is ConstantRenderedAttribute {
+    return rendered.metadata.isConstant;
   }
 
   readonly #attribute: LazyDOM<minimal.Attr>;

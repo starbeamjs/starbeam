@@ -1,53 +1,12 @@
+import { isPresent } from "../utils/presence";
 import { abstraction } from "./abstraction";
-import { isPresent } from "./minimal";
+import { DebugInformation } from "./core";
 import {
   as,
   CreatedContext,
   DescribedContext,
-  FinalizedContext,
   VerifyContext,
 } from "./verify-context";
-import type { UnsafeAny } from "./wrapper";
-
-export type DebugInformation = FinalizedContext | string;
-
-function message(
-  info: DebugInformation | undefined,
-  defaultValue: DebugInformation
-): string;
-function message(info: DebugInformation): string;
-function message(
-  info: DebugInformation | undefined,
-  defaultValue?: DebugInformation
-): string {
-  if (info === undefined) {
-    return message(defaultValue as DebugInformation);
-  } else if (typeof info === "string") {
-    return info;
-  } else {
-    return info.message;
-  }
-}
-
-export const DebugInformation = {
-  message,
-} as const;
-
-/**
- * @strip.noop
- */
-export function assert(
-  condition: UnsafeAny,
-  info: DebugInformation = "assertion error"
-): asserts condition {
-  if (condition === false) {
-    // eslint-disable-next-line no-debugger
-    debugger;
-    let message = `Unexpected: ${DebugInformation.message(info)}`;
-    console.assert(condition, message);
-    throw Error(message);
-  }
-}
 
 /**
  * @strip.value value
@@ -164,12 +123,6 @@ export interface MutableVerifyContext {
   };
 }
 
-export function isVerifyContext(
-  context: PartialVerifyContext
-): context is VerifyContext {
-  return typeof context.expected === "string";
-}
-
 /**
  * @strip.noop
  */
@@ -198,16 +151,10 @@ export function verify<In, Out extends In>(
 export function verified<Out extends In, In = unknown>(
   value: In,
   predicate: (value: In) => value is Out,
-  error: (value: In) => DebugInformation = () => "assertion failed"
+  context?: IntoBuildContext
 ): Out {
-  if (predicate(value)) {
-    return value;
-  } else {
-    return abstraction(() => {
-      console.assert(false, DebugInformation.message(error(value)));
-      throw Error(DebugInformation.message(error(value)));
-    });
-  }
+  verify(value, predicate, context);
+  return value;
 }
 
 export function exhaustive(_value: never, type?: string): never {

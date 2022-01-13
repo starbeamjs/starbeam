@@ -1,5 +1,5 @@
 import { diff } from "jest-diff";
-import * as starbeam from "../../../src/index";
+import { exhaustive } from "starbeam";
 import type {
   ChildFailure,
   Failure,
@@ -35,7 +35,7 @@ function processResult(
   ctx: jest.MatcherContext,
   result: MatchResult | ChildFailure<Failure>
 ): jest.CustomMatcherResult {
-  if (result.success) {
+  if (result.kind === "success") {
     let message = () => hint(ctx.utils, result.pattern);
 
     return { message, pass: true };
@@ -73,7 +73,7 @@ function processResult(
         }
 
         default: {
-          starbeam.exhaustive(result, "Failure");
+          exhaustive(result, "Failure");
         }
       }
     } else {
@@ -99,7 +99,7 @@ function processResult(
         }
 
         default: {
-          starbeam.exhaustive(result, "Failure");
+          exhaustive(result, "Failure");
         }
       }
     }

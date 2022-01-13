@@ -1,5 +1,6 @@
 import type * as minimal from "@domtree/minimal";
 import type { ElementBody } from "../dom/buffer/body";
+import { RangeSnapshot, RANGE_SNAPSHOT } from "../dom/streaming/cursor";
 import { Dehydrated, LazyDOM } from "../dom/streaming/token";
 import {
   ElementBodyConstructor,
@@ -28,14 +29,16 @@ export class ElementProgramNode
     content: readonly ContentProgramNode[]
   ): ElementProgramNode {
     let attributes = buildAttributes.map(AttributeProgramNode.create);
+    let staticTagName = Reactive.isStatic(tagName);
 
     let metadata = {
       isStatic:
-        Reactive.isStatic(tagName) &&
+        staticTagName &&
         content.every(ProgramNode.isStatic) &&
         attributes.every((a) => a.metadata.isStatic),
     };
 
+    // A static element may still need to be moved
     return new ElementProgramNode(tagName, attributes, content, metadata);
   }
 
@@ -64,6 +67,11 @@ export class ElementProgramNode
       (token, builder) => builder.finalize(token)
     );
   }
+}
+
+export interface FinalizedElement {
+  readonly attributes: readonly RenderedAttribute[];
+  readonly content: readonly RenderedContent[];
 }
 
 class DehydratedElementBuilder {
@@ -124,19 +132,30 @@ class DehydratedElementBuilder {
     return this;
   }
 
-  finalize(token: Dehydrated<minimal.ParentNode>): RenderedElementNode {
-    return RenderedElementNode.create(
-      LazyDOM.create(token),
-      this.#tag,
-      this.#attributes,
-      this.#content
-    );
+  finalize(token: Dehydrated<minimal.Element>): RenderedElementNode;
+  finalize(): FinalizedElement;
+  finalize(
+    token?: Dehydrated<minimal.Element>
+  ): RenderedElementNode | FinalizedElement {
+    if (token) {
+      return RenderedElementNode.create(
+        LazyDOM.of(token),
+        this.#tag,
+        this.#attributes,
+        this.#content
+      );
+    } else {
+      return {
+        attributes: this.#attributes,
+        content: this.#content,
+      };
+    }
   }
 }
 
-export class RenderedElementNode implements RenderedContent {
+export class RenderedElementNode extends RenderedContent {
   static create(
-    node: LazyDOM<minimal.ParentNode>,
+    node: LazyDOM<minimal.Element>,
     tagName: Reactive<string>,
     attributes: readonly RenderedAttribute[],
     children: readonly RenderedContent[]
@@ -160,22 +179,27 @@ export class RenderedElementNode implements RenderedContent {
     );
   }
 
-  readonly #element: LazyDOM<minimal.ParentNode>;
+  readonly #element: LazyDOM<minimal.Element>;
   readonly #tagName: Reactive<string>;
   readonly #attributes: readonly RenderedAttribute[];
   readonly #children: readonly RenderedContent[];
 
   private constructor(
-    node: LazyDOM<minimal.ParentNode>,
+    node: LazyDOM<minimal.Element>,
     tagName: Reactive<string>,
     attributes: readonly RenderedAttribute[],
     children: readonly RenderedContent[],
     readonly metadata: RenderedContentMetadata
   ) {
+    super();
     this.#element = node;
     this.#tagName = tagName;
     this.#attributes = attributes;
     this.#children = children;
+  }
+
+  [RANGE_SNAPSHOT](inside: minimal.ParentNode): RangeSnapshot {
+    return RangeSnapshot.create(this.#element.get(inside));
   }
 
   poll(inside: minimal.ParentNode): void {

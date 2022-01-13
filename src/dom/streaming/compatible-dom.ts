@@ -4,10 +4,12 @@ import type * as browser from "@domtree/browser";
 import type * as minimal from "@domtree/minimal";
 // eslint-disable-next-line import/no-duplicates
 import type { Mutable } from "@domtree/minimal";
-import { assert, exhaustive, verified, verify } from "../../strippable/assert";
-import { is, mutable } from "../../strippable/minimal";
+import { exhaustive, verified, verify } from "../../strippable/assert";
+import { is, minimize, mutable } from "../../strippable/minimal";
 import { as } from "../../strippable/verify-context";
 import * as global from "../../types/global-dom";
+import { tap } from "../../utils";
+import { ContentCursor, RangeSnapshot } from "./cursor";
 import {
   HTML_NAMESPACE,
   MATHML_NAMESPACE,
@@ -17,51 +19,148 @@ import {
   XML_NAMESPACE,
 } from "./namespaces";
 
-export interface ContentCursor {
-  parent: minimal.ParentNode;
-  next: minimal.Node | null;
-}
+type RangeNodes = readonly [first: minimal.ChildNode, last?: minimal.ChildNode];
 
-export function ContentCursor(
-  parent: minimal.ParentNode,
-  next: minimal.Node | null
-): ContentCursor {
-  return {
-    parent,
-    next,
-  };
-}
-
-export type ContentRange =
-  | {
-      type: "range";
-      nodes: [first: minimal.ChildNode, last: minimal.ChildNode];
+export abstract class ContentRange {
+  static from(...[first, last]: RangeNodes): ContentRange {
+    if (last && first !== last) {
+      return ContentRangeNodes.create(first, last);
+    } else {
+      return ContentRangeNode.of(first);
     }
-  | {
-      type: "node";
-      node: minimal.ChildNode;
-    };
+  }
 
-export type IntoContentRange =
-  | [minimal.ChildNode]
-  | [start: minimal.ChildNode, end: minimal.ChildNode];
+  static empty(comment: minimal.Comment): ContentRange {
+    return EmptyContentRange.of(comment);
+  }
 
-export function ContentRange(...[first, last]: IntoContentRange): ContentRange {
-  if (last === undefined || first === last) {
-    return {
-      type: "node",
-      node: first,
-    };
-  } else {
-    assert(
-      first.parentNode === last.parentNode,
-      `The first and last node in a ContentRange must have the same parent`
+  abstract toContentRange(): RangeNodes;
+
+  get mutate(): MutateContentRange {
+    return MutateContentRange.create(this.start, this.end);
+  }
+
+  snapshot(): RangeSnapshot {
+    let [start, end] = this.toContentRange();
+
+    return RangeSnapshot.create(start, end);
+  }
+
+  toStaticRange(): minimal.StaticRange {
+    let [start, end] = this.toContentRange();
+
+    return new global.StaticRange({
+      startContainer: start as browser.ChildNode,
+      endContainer: (end ?? start) as browser.ChildNode,
+      startOffset: 0,
+      endOffset: 0,
+    }) as minimal.StaticRange;
+  }
+
+  get start(): minimal.ChildNode {
+    return this.toContentRange()[0];
+  }
+
+  get end(): minimal.ChildNode {
+    let [start, end] = this.toContentRange();
+
+    return end ?? start;
+  }
+
+  get before(): ContentCursor {
+    let end = this.end;
+    return ContentCursor.create(
+      verified(end.parentNode, is.Present),
+      end.nextSibling
     );
+  }
 
-    return {
-      type: "range",
-      nodes: [first, last],
-    };
+  get after(): ContentCursor {
+    let start = this.start;
+    return ContentCursor.create(verified(start.parentNode, is.Present), start);
+  }
+}
+
+export class MutateContentRange {
+  static create(
+    start: minimal.ChildNode,
+    end: minimal.ChildNode
+  ): MutateContentRange {
+    return new MutateContentRange(start, end);
+  }
+
+  readonly #start: minimal.ChildNode;
+  readonly #end: minimal.ChildNode;
+
+  private constructor(start: minimal.ChildNode, end: minimal.ChildNode) {
+    this.#start = start;
+    this.#end = end;
+  }
+
+  toLiveRange(): minimal.LiveRange {
+    return tap(minimize(new global.Range()), (range) => {
+      range.setStart(this.#start, 0);
+      range.setEnd(this.#end, 0);
+    });
+  }
+
+  remove(): ContentCursor {
+    return tap(
+      ContentCursor.create(
+        verified(this.#start.parentNode, is.Present),
+        this.#start.nextSibling
+      ),
+      () => this.toLiveRange().deleteContents()
+    );
+  }
+}
+
+export class ContentRangeNodes extends ContentRange {
+  static create(
+    first: minimal.ChildNode,
+    last: minimal.ChildNode
+  ): ContentRange {
+    return new ContentRangeNodes([first, last]);
+  }
+
+  readonly type = "nodes";
+  readonly #nodes: RangeNodes;
+
+  private constructor(nodes: RangeNodes) {
+    super();
+    this.#nodes = nodes;
+  }
+
+  toContentRange(): RangeNodes {
+    return this.#nodes;
+  }
+}
+
+export class ContentRangeNode extends ContentRange {
+  static is(range: ContentRange): range is ContentRangeNode {
+    return range instanceof ContentRangeNode;
+  }
+
+  static of(node: minimal.ChildNode): ContentRangeNode {
+    return new ContentRangeNode(node);
+  }
+
+  protected constructor(readonly node: minimal.ChildNode) {
+    super();
+  }
+
+  toContentRange(): RangeNodes {
+    return [this.node];
+  }
+}
+
+export class EmptyContentRange extends ContentRangeNode {
+  static of(comment: minimal.Comment): EmptyContentRange {
+    return new EmptyContentRange(comment);
+  }
+
+  static is(range: ContentRange): range is EmptyContentRange {
+    return range instanceof EmptyContentRange;
   }
 }
 
@@ -128,7 +227,7 @@ export class AbstractDOM {
     }
   ): minimal.ParentNode {
     let ns = getElementNS(
-      parent as minimal.ParentNode,
+      parent as minimal.Element,
       qualifiedName,
       encoding || null
     );
@@ -187,10 +286,10 @@ export class AbstractDOM {
     node: dom.ChildNode | dom.DocumentFragment,
     { parent, next }: ContentCursor
   ): void {
-    MINIMAL_DOM.insert(node as minimal.ChildNode | minimal.DocumentFragment, {
-      parent,
-      next,
-    });
+    MINIMAL_DOM.insert(
+      node as minimal.ChildNode | minimal.DocumentFragment,
+      ContentCursor.create(parent, next)
+    );
   }
 
   replace(
@@ -209,17 +308,7 @@ export class AbstractDOM {
   }
 
   appending(parent: dom.ParentNode): ContentCursor {
-    return {
-      parent: parent as minimal.ParentNode,
-      next: null,
-    };
-  }
-
-  cursor(parent: dom.ParentNode, next: dom.ChildNode | null): ContentCursor {
-    return {
-      parent: parent as minimal.ParentNode,
-      next: next as minimal.ChildNode,
-    };
+    return ContentCursor.create(parent as minimal.ParentNode, null);
   }
 
   remove(child: dom.ChildNode): ContentCursor | null {
@@ -281,7 +370,7 @@ export class MinimalUtilities {
    * @param qualifiedName
    */
   getAttr(
-    element: minimal.ParentNode,
+    element: minimal.Element,
     qualifiedName: string
   ): minimal.Attr | null {
     return element.getAttributeNode(qualifiedName);
@@ -295,7 +384,7 @@ export class MinimalUtilities {
    * https://html.spec.whatwg.org/multipage/parsing.html#adjust-foreign-attributes
    */
   setAttr(
-    element: Mutable<minimal.ParentNode>,
+    element: Mutable<minimal.Element>,
     qualifiedName: string,
     value: string
   ): void {
@@ -304,7 +393,7 @@ export class MinimalUtilities {
     mutable(element).setAttributeNS(ns, qualifiedName, value);
   }
 
-  hasAttr(element: minimal.ParentNode, qualifiedName: string): boolean {
+  hasAttr(element: minimal.Element, qualifiedName: string): boolean {
     return element.hasAttribute(qualifiedName);
   }
 
@@ -313,38 +402,24 @@ export class MinimalUtilities {
     atCursor: (cursor: ContentCursor) => T
   ): T {
     let parent = verified(child.parentNode, is.ParentNode);
-    let next = child.nextSibling as minimal.Node | null;
+    let next = child.nextSibling as minimal.ChildNode | null;
 
     (child as Mutable<minimal.ChildNode>).remove();
 
-    return atCursor({ parent, next });
+    return atCursor(ContentCursor.create(parent, next));
   }
 
   remove(child: minimal.ChildNode): ContentCursor | null {
     let parent = child.parentNode as minimal.ParentNode | null;
-    let next = child.nextSibling as minimal.Node | null;
+    let next = child.nextSibling as minimal.ChildNode | null;
 
     (child as Mutable<minimal.ChildNode>).remove();
 
     if (parent) {
-      return { parent, next };
+      return ContentCursor.create(parent, next);
     } else {
       return null;
     }
-  }
-
-  removeRange(nodes: ContentRange): ContentCursor {
-    let staticRange = MINIMAL_DOM.#createStaticRange(nodes);
-    let cursor = MINIMAL_DOM.#cursorAfterStaticRange(staticRange);
-
-    MINIMAL_DOM.#createLiveRange(staticRange).deleteContents();
-
-    return cursor;
-  }
-
-  cursorAfterRange(nodes: ContentRange): ContentCursor {
-    let staticRange = MINIMAL_DOM.#createStaticRange(nodes);
-    return MINIMAL_DOM.#cursorAfterStaticRange(staticRange);
   }
 
   eachChild(
@@ -366,6 +441,13 @@ export class MinimalUtilities {
     return children;
   }
 
+  move(
+    node: minimal.ChildNode | minimal.DocumentFragment,
+    to: ContentCursor
+  ): void {
+    this.insert(node, to);
+  }
+
   insert(
     node: minimal.ChildNode | minimal.DocumentFragment,
     { parent, next }: ContentCursor
@@ -384,51 +466,26 @@ export class MinimalUtilities {
     }
   }
 
-  #cursorAfterStaticRange(staticRange: minimal.StaticRange): ContentCursor {
-    let end = staticRange.endContainer;
+  #cursorAfterRange(range: ContentRange): ContentCursor {
+    let end = range.end;
     let parent = end.parentNode as minimal.ParentNode | null;
 
     verify(parent, is.Present, as(`parent of ${end}`));
 
     let next = end.nextSibling as minimal.ChildNode | null;
-    return { parent, next };
-  }
-
-  #createLiveRange(staticRange: minimal.StaticRange): minimal.LiveRange {
-    let liveRange = new global.Range() as minimal.LiveRange;
-    liveRange.setStart(
-      staticRange.startContainer as minimal.ChildNode,
-      staticRange.startOffset
-    );
-    liveRange.setEnd(
-      staticRange.endContainer as minimal.ChildNode,
-      staticRange.endOffset
-    );
-    return liveRange;
-  }
-
-  #createStaticRange(range: ContentRange): minimal.StaticRange {
-    let start = range.type === "node" ? range.node : range.nodes[0];
-    let end = range.type === "node" ? range.node : range.nodes[1];
-
-    return new global.StaticRange({
-      startContainer: start as browser.ChildNode,
-      endContainer: end as browser.ChildNode,
-      startOffset: 0,
-      endOffset: 0,
-    }) as minimal.StaticRange;
+    return ContentCursor.create(parent, next);
   }
 }
 
 export const COMPATIBLE_DOM = new AbstractDOM();
 export const MINIMAL_DOM = new MinimalUtilities();
 
-function isHtmlElement(element: minimal.ParentNode): boolean {
+function isHtmlElement(element: minimal.Element): boolean {
   return element.namespaceURI === HTML_NAMESPACE;
 }
 
 function getElementNS(
-  parent: minimal.ParentNode,
+  parent: minimal.Element,
   qualifiedName: string,
   encoding: string | null
 ): minimal.ElementNamespace {
@@ -469,10 +526,10 @@ function getElementNS(
 }
 
 function getAttrNS(
-  element: minimal.ParentNode,
+  element: minimal.Element,
   name: string
 ): minimal.AttributeNamespace | null {
-  if (isHtmlElement(element as minimal.ParentNode)) {
+  if (isHtmlElement(element as minimal.Element)) {
     return null;
   }
 

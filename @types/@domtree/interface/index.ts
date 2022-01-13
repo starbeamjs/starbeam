@@ -8,6 +8,7 @@ export interface DomTree {
   TemplateElement: unknown;
   Attr: unknown;
   StaticRange: unknown;
+  LiveRange: unknown;
 }
 
 export type Impl<T extends DomTree> = T;

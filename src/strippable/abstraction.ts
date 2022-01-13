@@ -1,4 +1,3 @@
-import { assert } from "./assert";
 import type { UnsafeAny } from "./wrapper";
 
 const FRAMES_TO_REMOVE = 3;
@@ -12,7 +11,10 @@ export function abstraction<T>(
     return callback();
   } catch (e) {
     let error: Error = e as UnsafeAny;
-    assert(error.stack);
+
+    if (error.stack === undefined) {
+      throw Error(`Unexpected: missing error.stack`);
+    }
 
     let lines = error.stack.split("\n");
 

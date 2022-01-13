@@ -1,20 +1,20 @@
 // import type { AnyNode } from "./simplest-dom";
 import type * as minimal from "@domtree/minimal";
 import { mutable } from "../../strippable/minimal";
-import type {
-  AttributeValue,
-  AttrType,
-  ElementHeadBuffer,
-} from "../buffer/attribute";
+import type { AttributeValue, AttrType } from "../buffer/attribute";
+import type { ElementHeadBuffer } from "../buffer/body";
 import {
   ContentBuffer,
   ElementBody,
   ElementBodyBuffer,
   HtmlBuffer,
 } from "../buffer/body";
+import type { ContentCursor } from "./cursor";
+import type { ContentRange } from "./compatible-dom";
 import {
   ATTRIBUTE_MARKER,
   CHARACTER_DATA_MARKER,
+  CONTENT_RANGE_MARKER,
   ELEMENT_MARKER,
 } from "./marker";
 import { Dehydrated, Tokens } from "./token";
@@ -114,6 +114,15 @@ export class ContentConstructor<B extends ContentBuffer = ContentBuffer> {
     this.#buffer = buffer;
   }
 
+  fragment(
+    contents: (buffer: ContentConstructor<B>) => void
+  ): Dehydrated<ContentRange> {
+    return this.#tokens.mark(this.#buffer, CONTENT_RANGE_MARKER, (buffer) => {
+      contents(ContentConstructor.create(this.#tokens, buffer));
+      return buffer;
+    }) as Dehydrated<ContentRange>;
+  }
+
   text(
     data: string,
     options: ContentOperationOptions
@@ -138,18 +147,18 @@ export class ContentConstructor<B extends ContentBuffer = ContentBuffer> {
     return this.#data((b) => b.comment(data), options);
   }
 
-  element(tag: string, head: (head: ElementHeadConstructor) => void): void;
+  element<T>(tag: string, construct: (head: ElementHeadConstructor) => T): T;
   element<T, U>(
     tag: string,
-    head: (head: ElementHeadConstructor) => T,
-    token: (token: Dehydrated<minimal.ParentNode>, result: T) => U
+    construct: (head: ElementHeadConstructor) => T,
+    token: (token: Dehydrated<minimal.Element>, result: T) => U
   ): U;
   element<T, U>(
     tag: string,
     construct: (head: ElementHeadConstructor) => T,
-    withToken?: (token: Dehydrated<minimal.ParentNode>, result: T) => U
-  ): U | void {
-    let returnValue: U | undefined = undefined;
+    withToken?: (token: Dehydrated<minimal.Element>, result: T) => U
+  ): T | U {
+    let returnValue: T | U | undefined = undefined;
 
     this.#buffer.element(tag, (buffer) => {
       let head = ElementHeadConstructor.create(this.#tokens, buffer);
@@ -158,13 +167,13 @@ export class ContentConstructor<B extends ContentBuffer = ContentBuffer> {
         let token = this.#tokens.mark(buffer, ELEMENT_MARKER);
 
         let body = construct(head);
-        returnValue = withToken(token, body);
+        returnValue = withToken(token, body) as U;
       } else {
-        construct(head);
+        returnValue = construct(head) as T;
       }
     });
 
-    return returnValue;
+    return returnValue as unknown as T | U;
   }
 
   #data<N extends minimal.CharacterData>(
@@ -198,6 +207,10 @@ export class TreeConstructor extends ContentConstructor<HtmlBuffer> {
   private constructor(buffer: HtmlBuffer, tokens: Tokens) {
     super(tokens, buffer);
     this.#buffer = buffer;
+  }
+
+  insertAt(cursor: ContentCursor): void {
+    cursor.insertHTML(this.#buffer.serialize());
   }
 
   replace(placeholder: minimal.TemplateElement): void {

@@ -41,6 +41,7 @@ export interface TestOutcome {
 }
 
 export interface Success extends TestOutcome {
+  kind: "success";
   success: true;
   message: string;
 }
@@ -53,6 +54,7 @@ export function Success({
   message: string;
 }): Success {
   return {
+    kind: "success",
     success: true,
     pattern,
     message,
@@ -220,7 +222,7 @@ export function report(
   reporter: Reporter,
   result: MatchResult
 ): void | never {
-  if (result.success) {
+  if (result.kind === "success") {
     reporter.success(result);
   } else {
     reporter.failure(result);

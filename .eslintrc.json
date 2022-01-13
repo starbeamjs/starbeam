@@ -18,8 +18,27 @@
   "rules": {
     "prefer-const": "off",
     "no-unused-vars": "off",
-    "@typescript-eslint/no-unused-vars": [
+    "no-empty": "warn",
+    "import/no-cycle": "warn",
+    "import/no-self-import": "error",
+    "import/no-restricted-paths": [
       "error",
+      {
+        "zones": [
+          {
+            "target": "./tests",
+            "from": "./src"
+          },
+          {
+            "target": "./src/!(index.ts)/**",
+            "from": "./src/**/index.ts",
+            "message": "Don't import from index.ts"
+          }
+        ]
+      }
+    ],
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
       {
         "argsIgnorePattern": "^_"
       }

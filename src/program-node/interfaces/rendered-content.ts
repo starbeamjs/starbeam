@@ -1,25 +1,51 @@
 import type { minimal } from "@domtree/flavors";
+import {
+  ContentCursor,
+  RangeSnapshot,
+  RANGE_SNAPSHOT,
+} from "../../dom/streaming/cursor";
+import type { RenderedAttribute } from "../attribute";
 import type { RenderedProgramNodeMetadata } from "./program-node";
 
-export interface RenderedContent {
-  readonly metadata: RenderedContentMetadata;
+export abstract class RenderedContent {
+  static isConstant(
+    this: void,
+    rendered: RenderedContent
+  ): rendered is ConstantRenderedContent {
+    return rendered.metadata.isConstant;
+  }
 
-  poll(inside: minimal.ParentNode): void;
+  static isUpdating(
+    this: void,
+    rendered: RenderedContent
+  ): rendered is UpdatingRenderedContent {
+    return !RenderedContent.isConstant(rendered);
+  }
+
+  abstract readonly metadata: RenderedContentMetadata;
+
+  /**
+   * This should be computed fresh for each call. Consumers should never hang on
+   * to the returned object as its contents can (and do) change frequently.
+   */
+  abstract [RANGE_SNAPSHOT](parent: minimal.ParentNode): RangeSnapshot;
+  abstract poll(inside: minimal.ParentNode): void;
+
+  remove(inside: minimal.ParentNode): ContentCursor {
+    let range = this[RANGE_SNAPSHOT](inside);
+    return range.remove();
+  }
+
+  move(to: ContentCursor): void {
+    let range = this[RANGE_SNAPSHOT](to.parent);
+    range.move(to);
+  }
 }
 
-export interface RenderedContentMetadata extends RenderedProgramNodeMetadata {
-  readonly isStable: {
-    readonly firstNode: boolean;
-    readonly lastNode: boolean;
-  };
-}
+export type RenderedContentMetadata = RenderedProgramNodeMetadata;
 
 export const UPDATING_METADATA = {
   isConstant: false,
-  isStable: {
-    firstNode: false,
-    lastNode: false,
-  },
 } as const;
 
 export interface HasConstantMetadata {
@@ -64,20 +90,7 @@ export interface HasUpdatingMetadata {
 }
 
 export type ConstantRenderedContent = RenderedContent & HasConstantMetadata;
+export type ConstantRenderedAttribute = RenderedAttribute & HasConstantMetadata;
+
 export type UpdatingRenderedContent = RenderedContent & HasUpdatingMetadata;
-
-export const RenderedContent = {
-  isConstant(
-    this: void,
-    rendered: RenderedContent
-  ): rendered is ConstantRenderedContent {
-    return rendered.metadata.isConstant;
-  },
-
-  isUpdating(
-    this: void,
-    rendered: RenderedContent
-  ): rendered is UpdatingRenderedContent {
-    return !RenderedContent.isConstant(rendered);
-  },
-} as const;
+export type UpdatingRenderedAttribute = RenderedAttribute & HasUpdatingMetadata;

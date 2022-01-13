@@ -1,6 +1,7 @@
 import type * as minimal from "@domtree/minimal";
 import type { ContentBuffer } from "../dom/buffer/body";
-import { Dehydrated, LazyDOM } from "../dom/streaming/token";
+import { RangeSnapshot, RANGE_SNAPSHOT } from "../dom/streaming/cursor";
+import type { Dehydrated, LazyDOM } from "../dom/streaming/token";
 import { ContentConstructor, TOKEN } from "../dom/streaming/tree-constructor";
 import { Reactive } from "../reactive/core";
 import { mutable } from "../strippable/minimal";
@@ -8,7 +9,7 @@ import type {
   AbstractContentProgramNode,
   BuildMetadata,
 } from "./interfaces/program-node";
-import type {
+import {
   RenderedContent,
   RenderedContentMetadata,
 } from "./interfaces/rendered-content";
@@ -33,11 +34,9 @@ export abstract class CharacterDataProgramNode
     this.#reactive = reactive;
   }
 
-  render(
-    buffer: ContentConstructor<ContentBuffer>
-  ): RenderedCharacterData | null {
+  render(buffer: ContentConstructor<ContentBuffer>): RenderedCharacterData {
     let token = this.append(buffer, this.#reactive.current);
-    return RenderedCharacterData.create(this.#reactive, LazyDOM.create(token));
+    return RenderedCharacterData.create(this.#reactive, token.dom);
   }
 
   abstract append(
@@ -53,8 +52,9 @@ export class TextProgramNode extends CharacterDataProgramNode {
     });
   }
 
-  readonly append = (buffer: ContentConstructor, data: string) =>
-    buffer.text(data, TOKEN);
+  append(buffer: ContentConstructor, data: string): Dehydrated<minimal.Text> {
+    return buffer.text(data, TOKEN);
+  }
 }
 
 export class CommentProgramNode extends CharacterDataProgramNode {
@@ -64,21 +64,21 @@ export class CommentProgramNode extends CharacterDataProgramNode {
     });
   }
 
-  readonly append = (buffer: ContentConstructor, data: string) =>
-    buffer.comment(data, TOKEN);
+  append(
+    buffer: ContentConstructor,
+    data: string
+  ): Dehydrated<minimal.Comment> {
+    return buffer.comment(data, TOKEN);
+  }
 }
 
-class RenderedCharacterData implements RenderedContent {
+class RenderedCharacterData extends RenderedContent {
   static create(
     reactive: Reactive<string>,
     node: LazyDOM<minimal.CharacterData>
   ) {
     return new RenderedCharacterData(reactive, node, {
       isConstant: Reactive.isStatic(reactive),
-      isStable: {
-        firstNode: true,
-        lastNode: true,
-      },
     });
   }
 
@@ -90,11 +90,16 @@ class RenderedCharacterData implements RenderedContent {
     node: LazyDOM<minimal.CharacterData>,
     readonly metadata: RenderedContentMetadata
   ) {
+    super();
     this.#reactive = reactive;
     this.#node = node;
   }
 
   poll(inside: minimal.ParentNode): void {
     mutable(this.#node.get(inside)).data = this.#reactive.current;
+  }
+
+  [RANGE_SNAPSHOT](inside: minimal.ParentNode): RangeSnapshot {
+    return RangeSnapshot.create(this.#node.get(inside));
   }
 }

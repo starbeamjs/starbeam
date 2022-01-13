@@ -1,6 +1,9 @@
 import type * as dom from "@domtree/any";
+import type { anydom } from "@domtree/flavors";
 import type * as minimal from "@domtree/minimal";
-import { DebugInformation, PartialVerifier, Verifier } from "./assert";
+import { isPresent } from "../utils/presence";
+import { PartialVerifier, Verifier } from "./assert";
+import type { DebugInformation } from "./core";
 import { CreatedContext, expected, VerifyContext } from "./verify-context";
 
 /**
@@ -21,6 +24,17 @@ type Tuple<T, N extends number> = N extends N
 type _TupleOf<T, N extends number, R extends unknown[]> = R["length"] extends N
   ? R
   : _TupleOf<T, N, [T, ...R]>;
+
+type ReadonlyTuple<T, N extends number> = N extends N
+  ? number extends N
+    ? readonly T[]
+    : _ReadonlyTupleOf<T, N, readonly []>
+  : never;
+type _ReadonlyTupleOf<
+  T,
+  N extends number,
+  R extends readonly unknown[]
+> = R["length"] extends N ? R : _ReadonlyTupleOf<T, N, readonly [T, ...R]>;
 
 const NODE_NAMES = {
   1: ["an", "Element"],
@@ -98,7 +112,7 @@ function isParentNode(node: MaybeNode): node is minimal.ParentNode {
 
 Verifier.implement(isParentNode, expected("node").toBe("a ParentNode"));
 
-const isElement = isSpecificNode<minimal.ParentNode>(1, "an element");
+const isElement = isSpecificNode<minimal.Element>(1, "an element");
 const isText = isSpecificNode<minimal.Text>(3, "a text node");
 const isComment = isSpecificNode<minimal.Comment>(8, "a comment node");
 const isDocument = isSpecificNode<minimal.Document>(9, "a document");
@@ -124,10 +138,6 @@ function isTemplateElement(node: MaybeNode): node is minimal.TemplateElement {
 
 isTemplateElement.default = { expected: "node" } as const;
 isTemplateElement.message = nodeMessage("a template node");
-
-export function isPresent<T>(value: T | void | null | undefined): value is T {
-  return value !== null && value !== undefined;
-}
 
 Verifier.implement(isPresent, expected("value").toBe("present"));
 
@@ -179,17 +189,17 @@ export const is = {
 function hasTagName<T extends string>(
   tagName: T
 ): Verifier<
-  minimal.ParentNode,
-  minimal.ParentNode & { readonly tagName: Uppercase<T> }
+  minimal.Element,
+  minimal.Element & { readonly tagName: Uppercase<T> }
 > {
   function hasTagName(
-    element: minimal.ParentNode
-  ): element is minimal.ParentNode & { readonly tagName: Uppercase<T> } {
+    element: minimal.Element
+  ): element is minimal.Element & { readonly tagName: Uppercase<T> } {
     return element.tagName === tagName.toUpperCase();
   }
 
   hasTagName.default = { expected: "element" };
-  hasTagName.message = (context: VerifyContext, element: minimal.ParentNode) =>
+  hasTagName.message = (context: VerifyContext, element: minimal.Element) =>
     `Expected ${
       context.expected
     } to be <${tagName}>, but was <${element.tagName.toLowerCase()}>`;
@@ -198,7 +208,9 @@ function hasTagName<T extends string>(
 }
 
 function hasLength<L extends number>(length: L) {
-  function has<T>(value: T[]): value is Tuple<T, L> {
+  function has<T>(value: T[]): value is Tuple<T, L>;
+  function has<T>(value: readonly T[]): value is ReadonlyTuple<T, L>;
+  function has<T>(value: T[] | readonly T[]): value is Tuple<T, L> {
     return value.length === length;
   }
 
@@ -209,6 +221,15 @@ function hasLength<L extends number>(length: L) {
 
   return has;
 }
+
+function hasItems<T>(value: readonly T[]): value is [T, ...(readonly T[])] {
+  return value.length > 0;
+}
+
+Verifier.implement<unknown[], [unknown, ...(readonly unknown[])]>(
+  hasItems,
+  expected("value").toHave(`at least one item`)
+);
 
 interface Typeof {
   string: string;
@@ -242,5 +263,15 @@ function hasTypeof<T extends keyof Typeof>(
 export const has = {
   tagName: hasTagName,
   length: hasLength,
+  items: hasItems,
   typeof: hasTypeof,
 };
+
+/**
+ * @strip {value} node
+ */
+export function minimize<
+  N extends anydom.Node | anydom.LiveRange | anydom.StaticRange
+>(node: N): dom.Minimal<N> {
+  return node as dom.Minimal<N>;
+}

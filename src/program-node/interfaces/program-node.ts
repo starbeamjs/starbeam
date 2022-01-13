@@ -28,7 +28,7 @@ export interface AbstractContentProgramNode<R extends RenderedContent> {
    * This function returns `null` if the rendered HTML is constant, and
    * therefore does not need to be updated.
    */
-  render(buffer: ContentConstructor): R | null;
+  render(buffer: ContentConstructor): R;
 }
 
 export type ProgramNode<N extends RenderedProgramNode = RenderedProgramNode> =

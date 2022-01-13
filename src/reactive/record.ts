@@ -1,6 +1,5 @@
-import type { ReactiveMetadata } from ".";
-import { isObject } from "..";
-import { Reactive } from "./core";
+import { isObject } from "../utils";
+import { Reactive, ReactiveMetadata } from "./core";
 
 export type InnerDict = {
   readonly [P in PropertyKey]: Reactive<unknown>;

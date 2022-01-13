@@ -1,7 +1,6 @@
-import { ReactiveRecord } from ".";
 import { AnyReactiveChoice, ReactiveChoice } from "./choice";
 import { AnyReactive, Reactive } from "./core";
-import type { AnyReactiveRecord } from "./record";
+import { AnyReactiveRecord, ReactiveRecord } from "./record";
 
 export type ReactiveParameter =
   | AnyReactive

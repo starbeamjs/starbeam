@@ -1,4 +1,10 @@
 {
-  "name": "@shimmer/tests",
-  "private": true
+  "name": "@starbeam/tests",
+  "private": true,
+  "dependencies": {
+    "starbeam": "workspace:*",
+    "@types/lodash.zip": "^4.2.6",
+    "lodash.zip": "^4.2.0",
+    "typescript": "^4.5.4"
+  }
 }

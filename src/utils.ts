@@ -1,3 +1,7 @@
+import { verified } from "./strippable/assert";
+import { has } from "./strippable/minimal";
+import { as } from "./strippable/verify-context";
+
 export function isObject(value: unknown): value is object {
   return typeof value === "object" && value !== null;
 }
@@ -64,4 +68,78 @@ export function* positioned<T>(
   }
 
   return PRESENT;
+}
+
+export class NonemptyList<T> {
+  static of<T>(list: [T, ...(readonly T[])]): NonemptyList<T> {
+    return new NonemptyList(list);
+  }
+
+  static verify<T>(list: readonly T[]): NonemptyList<T> {
+    return NonemptyList.of(verified(list, has.items, as(`non-empty list`)));
+  }
+
+  readonly #list: [T, ...(readonly T[])];
+
+  private constructor(list: [T, ...(readonly T[])]) {
+    this.#list = list;
+  }
+
+  [Symbol.iterator](): IterableIterator<T> {
+    return this.#list[Symbol.iterator]();
+  }
+
+  asArray(): readonly T[] {
+    return this.#list;
+  }
+
+  pushing(...content: readonly T[]): NonemptyList<T> {
+    return new NonemptyList([...this.#list, ...content]);
+  }
+
+  takeBack(): [readonly T[], T] {
+    let item = this.#list.pop() as T;
+    return [this.#list, item];
+  }
+
+  takeFront(): [T, readonly T[]] {
+    let item = this.#list.shift() as T;
+    return [item, this.#list];
+  }
+
+  *reversed(): IterableIterator<T> {
+    for (let i = this.#list.length - 1; i >= 0; i--) {
+      yield this.#list[i];
+    }
+  }
+
+  get first(): T {
+    return this.#list[0];
+  }
+
+  get last(): T {
+    return this.#list[this.#list.length - 1];
+  }
+}
+
+export function tap<T>(value: T, updates: (value: T) => void): T {
+  updates(value);
+  return value;
+}
+
+export class Pipe<T> {
+  static of<T>(value: T): Pipe<T> {
+    return new Pipe(value);
+  }
+
+  private constructor(readonly value: T) {}
+
+  to<U>(pipe: (input: T) => U): Pipe<U> {
+    let piped = pipe(this.value);
+    return Pipe.of(piped);
+  }
+}
+
+export function pipe<T>(value: T): Pipe<T> {
+  return Pipe.of(value);
 }

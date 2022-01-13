@@ -5,4 +5,4 @@ export * from "./element";
 export * from "./attribute";
 export type { Component } from "./component";
 
-export { ListProgramNode as ListOutput } from "./list";
+export { ListProgramNode as ListOutput } from "./list/loop";

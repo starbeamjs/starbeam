@@ -1,6 +1,6 @@
 import type { Component } from "./program-node/component";
 import { ElementProgramNodeBuilder } from "./program-node/element";
-import { Loop, ListProgramNode } from "./program-node/list";
+import { Loop, ListProgramNode } from "./program-node/list/loop";
 import { CommentProgramNode, TextProgramNode } from "./program-node/data";
 import type { Reactive } from "./reactive/core";
 import type { ReactiveParameter } from "./reactive/parameter";

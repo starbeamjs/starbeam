@@ -1,122 +1,89 @@
 import type { minimal } from "@domtree/flavors";
 import { getPatch } from "fast-array-diff";
+import { ContentCursor, RANGE_SNAPSHOT } from "../../dom/streaming/cursor";
+import { TreeConstructor } from "../../dom/streaming/tree-constructor";
 import type { ReactiveMetadata } from "../../reactive/core";
 import { exhaustive, verified } from "../../strippable/assert";
 import { is } from "../../strippable/minimal";
+import { NonemptyList } from "../../utils";
+import { OrderedIndex } from "../../utils/index-map";
+import { isPresent } from "../../utils/presence";
 import {
-  RenderedContent,
   RenderedContentMetadata,
   UPDATING_METADATA,
 } from "../interfaces/rendered-content";
-import type { DynamicLoop, KeyedComponentInvocation } from "../list";
-
-const MAP = Symbol("MAP");
-
-export class InitialListArtifacts {
-  static empty(): InitialListArtifacts {
-    return new InitialListArtifacts();
-  }
-
-  static initialize(
-    key: unknown,
-    rendered: RenderedContent
-  ): InitialListArtifacts {
-    let artifacts = new InitialListArtifacts();
-    artifacts.add(key, rendered);
-    return artifacts;
-  }
-
-  readonly [MAP] = new Map<unknown, RenderedContent>();
-
-  add(key: unknown, rendered: RenderedContent): void {
-    this[MAP].set(key, rendered);
-  }
-
-  finalize(input: ReactiveMetadata): ListArtifacts {
-    return ListArtifacts.create(input, this[MAP]);
-  }
-}
+import type { CurrentLoop, KeyedProgramNode } from "./loop";
+import { KeyedContent, RenderSnapshot } from "./snapshot";
 
 export class ListArtifacts {
+  /**
+   * @param map A map of `{ key => RenderedContent } in insertion order.
+   */
   static create(
     input: ReactiveMetadata,
-    map: ReadonlyMap<unknown, RenderedContent>
+    snapshot: RenderSnapshot
   ): ListArtifacts {
-    let list = [...map.values()];
+    let metadata = input.isStatic ? snapshot.metadata : UPDATING_METADATA;
 
-    if (input.isStatic) {
-      return new ListArtifacts(map, list, staticRenderMetadata(list));
-    } else {
-      return new ListArtifacts(map, list, UPDATING_METADATA);
-    }
+    return new ListArtifacts(snapshot, metadata);
   }
 
+  #last: RenderSnapshot;
   readonly metadata: RenderedContentMetadata;
-  [MAP]: ReadonlyMap<unknown, RenderedContent>;
 
-  // @ts-expect-error TODO
-  #list: readonly HydratedContent[];
-
-  private constructor(
-    map: ReadonlyMap<unknown, RenderedContent>,
-    list: readonly RenderedContent[],
-    metadata: RenderedContentMetadata
-  ) {
-    this[MAP] = map;
-    this.#list = list;
+  private constructor(last: RenderSnapshot, metadata: RenderedContentMetadata) {
+    this.#last = last;
     this.metadata = metadata;
   }
 
-  #append(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    { before: next, key }: AppendOperation,
-    components: Map<unknown, KeyedComponentInvocation>
-  ) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    let component = verified(components.get(key), is.Present);
-    // component.render();
-  }
+  poll(loop: CurrentLoop, inside: minimal.ParentNode): void {
+    // let current = [...loop.current];
+    // let newKeys: readonly unknown[] = current.map((c) => c.key);
+    // let components = new Map(current.map((c) => [c.key, c]));
 
-  poll(loop: DynamicLoop, inside: minimal.ParentNode): void {
-    let current = [...loop.current];
-    let components = new Map(current.map((c) => [c.key, c]));
-
-    let diff = this.#diff(current.map((c) => c.key));
+    let newKeys = loop.keys;
+    let diff = this.#diff(newKeys, loop);
+    let newContent: KeyedContent[] = [];
 
     for (let operation of diff) {
-      switch (operation.type) {
-        case "add": {
-          let component = verified(components.get(operation.key), is.Present);
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          let before = this[MAP].get(operation.before);
-          // @ts-expect-error TODO
-          component.render();
-          this.#append(operation, components);
-          break;
-        }
-        case "move":
-        case "remove":
-          break;
-        default:
-          exhaustive(operation, "PatchOperation");
+      let { added } = operation.apply(inside);
+
+      if (added) {
+        newContent.push(added);
       }
     }
 
-    for (let node of this[MAP].values()) {
-      node.poll(inside);
+    let updates = OrderedIndex.create(newContent, (keyed) => keyed.key);
+
+    // Get any existing rendered content that is still present in the new keys.
+    // This content was neither added nor removed, so it needs to be polled to
+    // apply any recursive updates.
+    let pollable = this.#last.getPresent(newKeys);
+
+    for (let keyed of pollable) {
+      keyed.content.poll(inside);
+    }
+
+    let mergedIndex = this.#last.contents.mergedMap(updates);
+    let newList = newKeys.map((key) => mergedIndex.get(key)).filter(isPresent);
+
+    if (newList.length === 0) {
+      throw Error("todo: Empty list");
+    } else {
+      this.#last = RenderSnapshot.of(NonemptyList.verify(newList));
     }
   }
 
-  #diff(newKeys: readonly unknown[]): readonly PatchOperation[] {
-    let thisKeys = this[MAP].keys();
-    let oldValues = [...this[MAP].values()];
+  #diff(
+    newKeys: readonly unknown[],
+    loop: CurrentLoop
+  ): readonly PatchOperation[] {
+    let oldKeys = this.#last.keys;
 
-    let patch = getPatch([...thisKeys], [...newKeys]);
+    let patch = getPatch([...oldKeys], [...newKeys]);
 
     let removes = new Set(
-      patch
-        .filter((entry) => entry.type === "remove")
-        .flatMap((entry) => entry.items)
+      patch.flatMap((entry) => (entry.type === "remove" ? entry.items : []))
     );
 
     let operations: PatchOperation[] = [];
@@ -126,13 +93,30 @@ export class ListArtifacts {
         case "add":
           {
             for (let [i, key] of entry.items.entries()) {
-              let next = oldValues[entry.oldPos + i + 1] || null;
+              // Get the rendered content that this item should be rendered
+              // *before*.
+              let nextKey = oldKeys[entry.oldPos + i + 1] || null;
+              let next = nextKey ? this.#existing(nextKey) : null;
+
+              // Get the rendered content that this item should be rendered
+              // *before*.
+              let prevKey = oldKeys[entry.oldPos + i] || null;
+              let prev = prevKey ? this.#existing(prevKey) : null;
+
+              let insertion = this.#insertion(next, prev);
 
               if (removes.has(key)) {
                 removes.delete(key);
-                operations.push(MoveOperation(key, { before: next }));
+                let current = verified(this.#last.get(key), is.Present);
+
+                operations.push(MoveOperation.create(current, insertion));
               } else {
-                operations.push(AppendOperation(key, { before: next }));
+                operations.push(
+                  InsertOperation.create(
+                    verified(loop.get(key), is.Present),
+                    insertion
+                  )
+                );
               }
             }
           }
@@ -147,86 +131,197 @@ export class ListArtifacts {
     }
 
     for (let remove of removes) {
-      operations.push(RemoveOperation(remove));
+      operations.push(PatchOperation.remove(this.#existing(remove)));
     }
 
     return operations;
   }
-}
 
-/**
- * Assuming that the list's iterable is constant, what do we know about the rendered list?
- */
-
-function staticRenderMetadata(
-  list: readonly RenderedContent[]
-): RenderedContentMetadata {
-  if (list.length === 0) {
-    return {
-      isConstant: true,
-      isStable: {
-        firstNode: true,
-        lastNode: true,
-      },
-    };
+  #existing(key: unknown): KeyedContent {
+    return verified(this.#last.get(key), is.Present);
   }
 
-  let first = list[0];
-  let last = list[list.length - 1];
-
-  return {
-    isConstant: list.every((item) => item.metadata.isConstant),
-    isStable: {
-      firstNode: first.metadata.isStable.firstNode,
-      lastNode: last.metadata.isStable.lastNode,
-    },
-  };
+  #insertion(next: KeyedContent | null, prev: KeyedContent | null): InsertAt {
+    if (next === null) {
+      if (prev === null) {
+        return REPLACE;
+      } else {
+        return InsertAt.after(prev);
+      }
+    } else {
+      return InsertAt.before(next);
+    }
+  }
 }
 
-interface AppendOperation {
-  readonly type: "add";
-  readonly key: unknown;
-  readonly before: RenderedContent | null;
+interface Changes {
+  readonly added?: KeyedContent;
+  readonly removed?: KeyedContent;
 }
 
-function AppendOperation(
-  key: unknown,
-  { before }: { before: RenderedContent | null }
-): AppendOperation {
-  return {
-    type: "add",
-    key,
-    before,
-  };
+export abstract class PatchOperation {
+  static insert(keyed: KeyedProgramNode, to: InsertAt): PatchOperation {
+    return InsertOperation.create(keyed, to);
+  }
+
+  static move(keyed: KeyedContent, to: InsertAt): PatchOperation {
+    return MoveOperation.create(keyed, to);
+  }
+
+  static remove(keyed: KeyedContent): RemoveOperation {
+    return RemoveOperation.of(keyed);
+  }
+
+  abstract apply(inside: minimal.ParentNode): Changes;
 }
 
-interface RemoveOperation {
-  readonly type: "remove";
-  readonly key: unknown;
+class RemoveOperation extends PatchOperation {
+  static of(keyed: KeyedContent): RemoveOperation {
+    return new RemoveOperation(keyed);
+  }
+
+  private constructor(readonly keyed: KeyedContent) {
+    super();
+  }
+
+  apply(inside: minimal.ParentNode): Changes {
+    let { keyed } = this;
+
+    keyed.content.remove(inside);
+    return { removed: keyed };
+  }
 }
 
-function RemoveOperation(key: unknown): RemoveOperation {
-  return {
-    type: "remove",
-    key,
-  };
+class InsertOperation extends PatchOperation {
+  static create(content: KeyedProgramNode, to: InsertAt): InsertOperation {
+    return new InsertOperation(content, to);
+  }
+
+  readonly #keyed: KeyedProgramNode;
+  readonly #to: InsertAt;
+
+  private constructor(keyed: KeyedProgramNode, to: InsertAt) {
+    super();
+    this.#keyed = keyed;
+    this.#to = to;
+  }
+
+  apply(inside: minimal.ParentNode): Changes {
+    let buffer = TreeConstructor.html();
+    let content = this.#keyed.render(buffer);
+    this.#to.insert((cursor) => buffer.insertAt(cursor), inside);
+
+    return { added: KeyedContent.create(this.#keyed.key, content) };
+  }
+
+  insert(keyed: KeyedProgramNode, at: ContentCursor): Changes {
+    let buffer = TreeConstructor.html();
+    let content = keyed.render(buffer);
+    buffer.insertAt(at);
+
+    return { added: KeyedContent.create(keyed.key, content) };
+  }
 }
 
-interface MoveOperation {
-  readonly type: "move";
-  readonly key: unknown;
-  readonly before: RenderedContent | null;
+class MoveOperation extends PatchOperation {
+  static create(keyed: KeyedContent, to: InsertAt): MoveOperation {
+    return new MoveOperation(keyed, to);
+  }
+
+  readonly #keyed: KeyedContent;
+  readonly #to: InsertAt;
+
+  private constructor(keyed: KeyedContent, to: InsertAt) {
+    super();
+    this.#keyed = keyed;
+    this.#to = to;
+  }
+
+  apply(inside: minimal.ParentNode): Changes {
+    this.#to.insert((cursor) => this.#keyed.content.move(cursor), inside);
+    return {};
+  }
 }
 
-function MoveOperation(
-  key: unknown,
-  { before }: { before: RenderedContent | null }
-): MoveOperation {
-  return {
-    type: "move",
-    key,
-    before,
-  };
+export abstract class InsertAt {
+  static before(keyed: KeyedContent): InsertAt {
+    return new InsertBefore(keyed);
+  }
+
+  static after(keyed: KeyedContent): InsertAt {
+    return new InsertAfter(keyed);
+  }
+
+  static get replace(): InsertAt {
+    return REPLACE;
+  }
+
+  abstract insert<T>(
+    at: (cursor: ContentCursor) => T,
+    inside: minimal.ParentNode
+  ): T;
 }
 
-type PatchOperation = AppendOperation | RemoveOperation | MoveOperation;
+class InsertBefore extends InsertAt {
+  #keyed: KeyedContent;
+
+  constructor(content: KeyedContent) {
+    super();
+    this.#keyed = content;
+  }
+
+  insert<T>(at: (cursor: ContentCursor) => T, inside: minimal.ParentNode): T {
+    return at(this.#keyed.content[RANGE_SNAPSHOT](inside).before);
+  }
+}
+
+class InsertAfter extends InsertAt {
+  #keyed: KeyedContent;
+
+  constructor(content: KeyedContent) {
+    super();
+    this.#keyed = content;
+  }
+
+  insert<T>(at: (cursor: ContentCursor) => T, inside: minimal.ParentNode): T {
+    return at(this.#keyed.content[RANGE_SNAPSHOT](inside).after);
+  }
+}
+
+class Replace extends InsertAt {
+  insert<T>(_at: (cursor: ContentCursor) => T, _inside: minimal.ParentNode): T {
+    throw Error("todo: Replace#insert");
+  }
+}
+
+const REPLACE = new Replace();
+
+// type InsertAt =
+//   | {
+//       type: "before";
+//       content: RenderedContent;
+//     }
+//   | {
+//       type: "after";
+//       content: RenderedContent;
+//     }
+//   | {
+//       // Replaces the "empty"
+//       type: "replace";
+//     };
+
+// function InsertBefore(keyed: KeyedContent): InsertAt {
+//   return {
+//     type: "before",
+//     content: keyed.content,
+//   };
+// }
+
+// function InsertAfter(keyed: KeyedContent): InsertAt {
+//   return {
+//     type: "after",
+//     content: keyed.content,
+//   };
+// }
+
+// const REPLACE: InsertAt = { type: "replace" } as const;

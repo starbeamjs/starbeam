@@ -1,5 +1,8 @@
 import type { minimal } from "@domtree/flavors";
-import type { RenderedContent, RenderedContentMetadata } from "../index";
+import type {
+  RenderedContent,
+  RenderedContentMetadata,
+} from "../program-node/interfaces/rendered-content";
 
 export class RenderedRoot {
   static create({

@@ -1,9 +1,5 @@
-import type { anydom } from "@domtree/flavors";
+import type { anydom, minimal } from "@domtree/flavors";
 import { JSDOM } from "jsdom";
-import type { RenderedRoot } from "../../src/universe/root";
-import { upstream } from "../jest-ext";
-import { ElementArgs, TestElementArgs } from "./element";
-import { Expects } from "./expect/expect";
 import {
   Cell,
   CommentProgramNode,
@@ -12,13 +8,16 @@ import {
   ElementProgramNodeBuilder,
   HTML_NAMESPACE,
   is,
-  minimal,
   Reactive,
   ReactiveDOM,
+  RenderedRoot,
   TextProgramNode,
   Universe,
   verify,
-} from "./starbeam";
+} from "starbeam";
+import { upstream } from "../jest-ext";
+import { ElementArgs, TestElementArgs } from "./element";
+import { Expects } from "./expect/expect";
 
 export interface TestArgs {
   readonly universe: Universe;

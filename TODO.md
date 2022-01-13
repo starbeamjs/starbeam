@@ -24,7 +24,10 @@
   - [x] Element
   - [x] Attribute
   - [ ] Fragment (1)
-- [ ] Effects (4)
+- [ ] Effects
+  - [ ] destroyable (4)
+  - [ ] effects (5)
+  - [ ] effect timing (6)
 - [ ] Cross-cutting features
   - [x] Autotrack (2)
   - [ ] Don't update static things (3)

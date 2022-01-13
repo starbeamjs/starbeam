@@ -1,4 +1,4 @@
-import type { UnsafeAny } from "../../../../src/index";
+import { UnsafeAny } from "starbeam";
 import {
   AnyPattern,
   Pattern,

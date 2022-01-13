@@ -32,7 +32,6 @@ interface ReadonlyParent extends ReadonlyNode {
   readonly lastChild: ChildNode | null;
 
   querySelectorAll(selectors: string): Iterable<ChildNode>;
-  matches(selectors: string): boolean;
 }
 
 interface MutableParent extends ReadonlyParent {
@@ -71,7 +70,7 @@ export interface Document extends ReadonlyParent {
     ns: ElementNamespace,
     qualifiedName: string,
     options?: { is: string }
-  ): ParentNode;
+  ): Element;
 
   createTextNode(data: string): Text;
   createComment(data: string): Comment;
@@ -88,7 +87,9 @@ export interface DocumentType extends ReadonlyChild {
 
 interface MutableDocumentType extends DocumentType, MutableChild {}
 
-export interface ParentNode extends ReadonlyParent, ReadonlyChild {
+export interface Element extends ReadonlyParent, ReadonlyChild {
+  matches(selectors: string): boolean;
+
   readonly tagName: string;
   readonly nodeType: Node.ELEMENT_NODE;
   readonly namespaceURI: ElementNamespace;
@@ -101,7 +102,7 @@ export interface ParentNode extends ReadonlyParent, ReadonlyChild {
   get outerHTML(): string;
 }
 
-interface MutableElement extends ParentNode, MutableParent, MutableChild {
+interface MutableElement extends Element, MutableParent, MutableChild {
   setAttributeNS(
     namespace: AttributeNamespace | null,
     qualifiedName: string,
@@ -115,7 +116,7 @@ interface MutableElement extends ParentNode, MutableParent, MutableChild {
 export interface Attr extends ReadonlyNode {
   readonly nodeType: Node.ATTRIBUTE_NODE;
 
-  readonly ownerElement: ParentNode | null;
+  readonly ownerElement: Element | null;
   readonly namespaceURI: AttributeNamespace | null;
   readonly prefix: string | null;
   readonly localName: string;
@@ -155,7 +156,7 @@ export interface Comment extends ReadonlyCharacterData {
 
 export type MutableComment = Comment & MutableCharacterData;
 
-export interface TemplateElement extends ParentNode {
+export interface TemplateElement extends Element {
   readonly tagName: "TEMPLATE";
   readonly content: DocumentFragment;
 }
@@ -178,8 +179,21 @@ declare class AbstractRange {
 export declare class LiveRange extends AbstractRange {
   constructor();
 
-  setStart(node: ChildNode, offset: number): void;
-  setEnd(node: ChildNode, offset: number): void;
+  setStart(node: ChildNode | Element, offset: number): void;
+  setStartBefore(node: ChildNode): void;
+  setStartAfter(node: ChildNode): void;
+
+  setEnd(node: ChildNode | Element, offset: number): void;
+  setEndBefore(node: ChildNode): void;
+  setEndAfter(node: ChildNode): void;
+
+  selectNode(node: ChildNode): void;
+  selectNodeContents(node: ParentNode): void;
+  collapse(toStart?: boolean): void;
+
+  createContextualFragment(html: string): DocumentFragment;
+
+  extractContents(): DocumentFragment;
   deleteContents(): void;
 }
 
@@ -195,7 +209,7 @@ export type Mutable<N extends Node> = N extends Document
   ? MutableCharacterData
   : N extends DocumentType
   ? MutableDocumentType
-  : N extends ParentNode
+  : N extends Element
   ? MutableElement
   : N extends Attr
   ? MutableAttr
@@ -208,10 +222,11 @@ export type DomTree = dom.Impl<{
   DocumentFragment: DocumentFragment;
   Text: Text;
   Comment: Comment;
-  Element: ParentNode;
+  Element: Element;
   TemplateElement: TemplateElement;
   Attr: Attr;
   StaticRange: StaticRange;
+  LiveRange: LiveRange;
 }>;
 
 export type MutableDomTree = dom.Impl<{
@@ -224,9 +239,10 @@ export type MutableDomTree = dom.Impl<{
   TemplateElement: TemplateElement;
   Attr: MutableAttr;
   StaticRange: StaticRange;
+  LiveRange: LiveRange;
 }>;
 
-// export type ParentNode = dom.ParentNode<DomTree>;
+export type ParentNode = dom.ParentNode<DomTree>;
 export type ChildNode = dom.ChildNode<DomTree>;
 export type CharacterData = dom.CharacterData<DomTree>;
 export type Node = dom.Node<DomTree>;

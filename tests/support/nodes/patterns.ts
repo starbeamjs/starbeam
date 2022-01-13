@@ -1,6 +1,7 @@
 import type { anydom } from "@domtree/flavors";
 import zip from "lodash.zip";
-import { exhaustive, verify, is, DOM, verified } from "../../support/starbeam";
+import { DOM, exhaustive, is, verified, verify } from "starbeam";
+// import { exhaustive, verify, is, DOM, verified } from "../../support/starbeam";
 import { abstraction } from "../expect/abstraction";
 
 export interface ElementNodeOptions {

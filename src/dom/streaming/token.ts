@@ -1,6 +1,8 @@
 import type { minimal } from "@domtree/flavors";
-import { verified } from "../../index";
+import { verified } from "../../strippable/assert";
 import { is } from "../../strippable/minimal";
+import { MINIMAL_DOM } from "./compatible-dom";
+import type { ContentCursor } from "./cursor";
 import type { Hydration, Marker } from "./marker";
 
 const TOKEN_IDS = new WeakMap<object, string>();
@@ -74,10 +76,14 @@ export class Dehydrated<Hydrated = unknown> {
     this.#token = token;
     this.#hydrator = hydrator;
   }
+
+  get dom(): LazyDOM<Hydrated> {
+    return LazyDOM.of(this);
+  }
 }
 
 export class LazyDOM<Hydrated> {
-  static create<Hydrated>(dehydrated: Dehydrated<Hydrated>) {
+  static of<Hydrated>(dehydrated: Dehydrated<Hydrated>) {
     return new LazyDOM(dehydrated, null);
   }
 
@@ -95,6 +101,10 @@ export class LazyDOM<Hydrated> {
     }
 
     return this.#node;
+  }
+
+  insert(this: LazyDOM<minimal.ChildNode>, at: ContentCursor): void {
+    MINIMAL_DOM.insert(this.get(at.parent), at);
   }
 }
 

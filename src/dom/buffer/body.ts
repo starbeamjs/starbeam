@@ -1,4 +1,15 @@
-import { ElementHeadBuffer } from "./attribute";
+import { exhaustive } from "../../strippable/assert";
+import { QualifiedName } from "../../strippable/wrapper";
+import {
+  attrFor,
+  Attributes,
+  AttributesBuffer,
+  AttributeValue,
+  AttrType,
+} from "./attribute";
+// eslint-disable-next-line import/no-cycle
+
+import { escapeCommentValue, escapeTextValue } from "./escape";
 
 export interface SerializeOptions {
   prefix: string;
@@ -11,22 +22,6 @@ export interface Serialize {
    */
   serializeInto(buffer: Buffer, options?: SerializeOptions): void;
 }
-
-// interface Stream {
-//   push(part: string): void;
-// }
-
-// class DomParser implements Stream {
-//   #html: string;
-
-//   write(part: string): void {
-//     this.#html += part;
-//   }
-
-//   finalize(into: minimal.ParentNode): void {
-//     throw Error('todo: DomParser#finalize')
-//   }
-// }
 
 export class Buffer implements Serialize {
   static empty(): Buffer {
@@ -205,15 +200,106 @@ export class HtmlBuffer implements ContentBuffer {
   }
 }
 
-export function escapeAttrValue(value: string): string {
-  return value.replace(/"/g, `&quot;`);
-}
+export class ElementHeadBuffer {
+  static tagged(tag: string, buffer: Buffer): ElementHeadBuffer {
+    return new ElementHeadBuffer({ tag, buffer });
+  }
 
-function escapeTextValue(value: string): string {
-  return value.replace(/</g, `&lt;`);
-}
+  readonly #state: ElementState;
+  readonly #attributes = AttributesBuffer.empty();
 
-function escapeCommentValue(value: string): string {
-  // These characters cause the tokenizer to leave the (collection of) comment states.
-  return value.replace(/-/g, "&dash;").replace(/>/g, "&gt;");
+  private constructor(state: ElementState) {
+    this.#state = state;
+  }
+
+  get #tag(): string {
+    return this.#state.tag;
+  }
+
+  get #buffer(): Buffer {
+    return this.#state.buffer;
+  }
+
+  attrs(map: Attributes): this {
+    for (let [qualifiedName, attrValue] of map) {
+      this.attr(qualifiedName, this.#normalizeAttrValue(attrValue));
+    }
+
+    return this;
+  }
+
+  attr(qualifiedName: string, attrValue: string | null | AttributeValue): this {
+    let { value, type } = this.#normalizeAttrValue(attrValue);
+    let attribute = attrFor(QualifiedName(qualifiedName), value, type);
+    this.#attributes.initialize(attribute);
+    return this;
+  }
+
+  idempotentAttr(qualifiedName: string, attrValue: string | null) {
+    let attribute = attrFor(
+      QualifiedName(qualifiedName),
+      attrValue,
+      "idempotent"
+    );
+    this.#attributes.idempotent(attribute);
+    return this;
+  }
+
+  concatAttr(qualifiedName: string, value: string, separator: string): this {
+    let attribute = attrFor(QualifiedName(qualifiedName), value, [
+      "concat",
+      separator,
+    ]);
+    this.#attributes.idempotent(attribute);
+    return this;
+  }
+
+  /**
+   * This is for splattributes
+   */
+  mergeAttr(qualifiedName: string, value: string | null): this {
+    this.#attributes.merge(QualifiedName(qualifiedName), value);
+    return this;
+  }
+
+  #normalizeAttrValue(attr: string | null | AttributeValue): {
+    value: string | null;
+    type: AttrType;
+  } {
+    if (attr === null || typeof attr === "string") {
+      return { value: attr, type: "default" };
+    } else {
+      return { type: "default", ...attr };
+    }
+  }
+
+  #flush(options: ElementOptions) {
+    this.#buffer.append(`<${this.#tag}`);
+    this.#attributes.serializeInto(this.#buffer);
+
+    switch (options.body) {
+      case "normal":
+      case "void":
+        this.#buffer.append(`>`);
+        break;
+      case "self-closing":
+        this.#buffer.append(` />`);
+        break;
+      default:
+        exhaustive(options.body);
+    }
+  }
+
+  body(): ElementBodyBuffer {
+    this.#flush({ body: "normal" });
+    return ElementBodyBuffer.create(this.#state);
+  }
+
+  empty(type: ElementBody = "normal"): void {
+    this.#flush({ body: type });
+
+    if (type === "normal") {
+      this.#buffer.append(`</${this.#tag}>`);
+    }
+  }
 }

@@ -1,9 +1,13 @@
-import type { RenderedElementNode } from "../../src/index";
 import { expect, Expects, toBe } from "../support";
-import { todo } from "../support/define";
-import { Component, Reactive, ReactiveDOM } from "../support/starbeam";
+import { test } from "../support/define";
+import {
+  Component,
+  Reactive,
+  ReactiveDOM,
+  RenderedElementNode,
+} from "starbeam";
 
-todo("a simple, static list", ({ universe, test }) => {
+test("a simple, static list", ({ universe, test }) => {
   const dom = universe.dom;
   const Name = NameComponent(dom);
 
@@ -30,7 +34,7 @@ todo("a simple, static list", ({ universe, test }) => {
   expect(into.innerHTML, toBe("<p>Tom</p><p>@wycats</p><p>Chirag</p>"));
 });
 
-todo("a simple, dynamic list", ({ universe, test }) => {
+test("a simple, dynamic list", ({ universe, test }) => {
   const dom = universe.dom;
   const Name = NameComponent(dom);
 

@@ -1,10 +1,9 @@
-import {
-  assert,
+import type {
   CompleteContext,
-  isVerifyContext,
   MutableVerifyContext,
   PartialVerifyContext,
 } from "./assert";
+import { assert, isVerifyContext } from "./core";
 
 export class DescribedContext {
   static of(context: VerifyContext): DescribedContext {

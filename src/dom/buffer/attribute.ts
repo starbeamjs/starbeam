@@ -1,24 +1,11 @@
-import {
-  assert,
-  exhaustive,
-  present,
-  verified,
-  verify,
-} from "../../strippable/assert";
+import { exhaustive, present, verified, verify } from "../../strippable/assert";
+import { assert } from "../../strippable/core";
 import { has, is } from "../../strippable/minimal";
 import { expected } from "../../strippable/verify-context";
 import { QualifiedName, Wrapper } from "../../strippable/wrapper";
 import { isObject, Position, positioned } from "../../utils";
-import {
-  Buffer,
-  SerializeOptions,
-  escapeAttrValue,
-  Serialize,
-  ElementState,
-  ElementOptions,
-  ElementBodyBuffer,
-  ElementBody,
-} from "./body";
+import type { Buffer, SerializeOptions, Serialize } from "./body";
+import { escapeAttrValue } from "./escape";
 
 export abstract class HtmlAttribute implements Serialize {
   static is(this: typeof HtmlAttribute, value: unknown): value is HtmlAttribute;
@@ -259,7 +246,7 @@ export type AttrType =
   // the supplied attribute values are concatenated together with the separator
   | [type: "concat", separator: string];
 
-function attrFor(
+export function attrFor(
   name: QualifiedName,
   value: string | null,
   type: AttrType
@@ -314,108 +301,4 @@ export type Attributes = ReadonlyMap<string, string | null | AttributeValue>;
 export interface AttributeValue {
   readonly value: string | null;
   readonly type?: AttrType;
-}
-
-export class ElementHeadBuffer {
-  static tagged(tag: string, buffer: Buffer): ElementHeadBuffer {
-    return new ElementHeadBuffer({ tag, buffer });
-  }
-
-  readonly #state: ElementState;
-  readonly #attributes = AttributesBuffer.empty();
-
-  private constructor(state: ElementState) {
-    this.#state = state;
-  }
-
-  get #tag(): string {
-    return this.#state.tag;
-  }
-
-  get #buffer(): Buffer {
-    return this.#state.buffer;
-  }
-
-  attrs(map: Attributes): this {
-    for (let [qualifiedName, attrValue] of map) {
-      this.attr(qualifiedName, this.#normalizeAttrValue(attrValue));
-    }
-
-    return this;
-  }
-
-  attr(qualifiedName: string, attrValue: string | null | AttributeValue): this {
-    let { value, type } = this.#normalizeAttrValue(attrValue);
-    let attribute = attrFor(QualifiedName(qualifiedName), value, type);
-    this.#attributes.initialize(attribute);
-    return this;
-  }
-
-  idempotentAttr(qualifiedName: string, attrValue: string | null) {
-    let attribute = attrFor(
-      QualifiedName(qualifiedName),
-      attrValue,
-      "idempotent"
-    );
-    this.#attributes.idempotent(attribute);
-    return this;
-  }
-
-  concatAttr(qualifiedName: string, value: string, separator: string): this {
-    let attribute = attrFor(QualifiedName(qualifiedName), value, [
-      "concat",
-      separator,
-    ]);
-    this.#attributes.idempotent(attribute);
-    return this;
-  }
-
-  /**
-   * This is for splattributes
-   */
-  mergeAttr(qualifiedName: string, value: string | null): this {
-    this.#attributes.merge(QualifiedName(qualifiedName), value);
-    return this;
-  }
-
-  #normalizeAttrValue(attr: string | null | AttributeValue): {
-    value: string | null;
-    type: AttrType;
-  } {
-    if (attr === null || typeof attr === "string") {
-      return { value: attr, type: "default" };
-    } else {
-      return { type: "default", ...attr };
-    }
-  }
-
-  #flush(options: ElementOptions) {
-    this.#buffer.append(`<${this.#tag}`);
-    this.#attributes.serializeInto(this.#buffer);
-
-    switch (options.body) {
-      case "normal":
-      case "void":
-        this.#buffer.append(`>`);
-        break;
-      case "self-closing":
-        this.#buffer.append(` />`);
-        break;
-      default:
-        exhaustive(options.body);
-    }
-  }
-
-  body(): ElementBodyBuffer {
-    this.#flush({ body: "normal" });
-    return ElementBodyBuffer.create(this.#state);
-  }
-
-  empty(type: ElementBody = "normal"): void {
-    this.#flush({ body: type });
-
-    if (type === "normal") {
-      this.#buffer.append(`</${this.#tag}>`);
-    }
-  }
 }
