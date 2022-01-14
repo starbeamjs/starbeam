@@ -6,9 +6,8 @@ import type * as minimal from "@domtree/minimal";
 import type { Mutable } from "@domtree/minimal";
 import { exhaustive, verified, verify } from "../../strippable/assert";
 import { is, minimize, mutable } from "../../strippable/minimal";
-import { as } from "../../strippable/verify-context";
-import * as global from "../../types/global-dom";
 import { tap } from "../../utils";
+import type { DomEnvironment } from "../environment";
 import { ContentCursor, RangeSnapshot } from "./cursor";
 import {
   HTML_NAMESPACE,
@@ -26,7 +25,7 @@ export abstract class ContentRange {
     if (last && first !== last) {
       return ContentRangeNodes.create(first, last);
     } else {
-      return ContentRangeNode.of(first);
+      return ContentRangeNode.create(first);
     }
   }
 
@@ -36,14 +35,22 @@ export abstract class ContentRange {
 
   abstract toContentRange(): RangeNodes;
 
-  get mutate(): MutateContentRange {
-    return MutateContentRange.create(this.start, this.end);
+  mutate(environment: DomEnvironment): MutateContentRange {
+    return MutateContentRange.create(
+      MinimalDocumentUtilities.of(environment),
+      this.start,
+      this.end
+    );
   }
 
-  snapshot(): RangeSnapshot {
+  snapshot(environment: DomEnvironment): RangeSnapshot {
     let [start, end] = this.toContentRange();
 
-    return RangeSnapshot.create(start, end);
+    return RangeSnapshot.create(
+      MinimalDocumentUtilities.of(environment),
+      start,
+      end
+    );
   }
 
   toStaticRange(): minimal.StaticRange {
@@ -83,25 +90,29 @@ export abstract class ContentRange {
 
 export class MutateContentRange {
   static create(
+    minimal: MinimalDocumentUtilities,
     start: minimal.ChildNode,
     end: minimal.ChildNode
   ): MutateContentRange {
-    return new MutateContentRange(start, end);
+    return new MutateContentRange(minimal, start, end);
   }
 
+  readonly #minimal: MinimalDocumentUtilities;
   readonly #start: minimal.ChildNode;
   readonly #end: minimal.ChildNode;
 
-  private constructor(start: minimal.ChildNode, end: minimal.ChildNode) {
+  private constructor(
+    minimal: MinimalDocumentUtilities,
+    start: minimal.ChildNode,
+    end: minimal.ChildNode
+  ) {
+    this.#minimal = minimal;
     this.#start = start;
     this.#end = end;
   }
 
   toLiveRange(): minimal.LiveRange {
-    return tap(minimize(new global.Range()), (range) => {
-      range.setStart(this.#start, 0);
-      range.setEnd(this.#end, 0);
-    });
+    return this.#minimal.rangeAround(this.#start, this.#end);
   }
 
   remove(): ContentCursor {
@@ -141,7 +152,7 @@ export class ContentRangeNode extends ContentRange {
     return range instanceof ContentRangeNode;
   }
 
-  static of(node: minimal.ChildNode): ContentRangeNode {
+  static create(node: minimal.ChildNode): ContentRangeNode {
     return new ContentRangeNode(node);
   }
 
@@ -165,6 +176,16 @@ export class EmptyContentRange extends ContentRangeNode {
 }
 
 export class AbstractDOM {
+  // static of(document: DomDocument): AbstractDOM {
+  //   return new AbstractDOM(MinimalUtilities.of(document));
+  // }
+
+  // readonly #minimal: MinimalUtilities;
+
+  // private constructor(minimal: MinimalUtilities) {
+  //   this.#minimal = minimal;
+  // }
+
   getNodeType(node: dom.Node): number {
     verify(node, is.Node);
     return node.nodeType;
@@ -237,14 +258,14 @@ export class AbstractDOM {
   updateAttr(attr: dom.Attr, value: string | null): void {
     verify(attr, is.Attr);
     if (value === null) {
-      COMPATIBLE_DOM.removeAttr(attr);
+      this.removeAttr(attr);
     } else {
       mutable(attr).value = value;
     }
   }
 
   removeAttr(attr: dom.Attr): void {
-    MINIMAL_DOM.removeAttr(verified(attr, is.Attr));
+    MINIMAL.removeAttr(verified(attr, is.Attr));
   }
 
   /**
@@ -256,7 +277,7 @@ export class AbstractDOM {
    */
   getAttr(element: dom.Element, qualifiedName: string): minimal.Attr | null {
     verify(element, is.Element);
-    return MINIMAL_DOM.getAttr(element, qualifiedName);
+    return MINIMAL.getAttr(element, qualifiedName);
   }
 
   /**
@@ -269,24 +290,24 @@ export class AbstractDOM {
   setAttr(element: dom.Element, qualifiedName: string, value: string): void {
     verify(element, is.Element);
 
-    MINIMAL_DOM.setAttr(mutable(element), qualifiedName, value);
+    MINIMAL.setAttr(mutable(element), qualifiedName, value);
   }
 
   hasAttr(element: dom.Element, qualifiedName: string): boolean {
     verify(element, is.Element);
 
-    return MINIMAL_DOM.hasAttr(element, qualifiedName);
+    return MINIMAL.hasAttr(element, qualifiedName);
   }
 
   children(parent: dom.ParentNode): readonly minimal.ChildNode[] {
-    return MINIMAL_DOM.children(parent as minimal.ParentNode);
+    return MINIMAL.children(parent as minimal.ParentNode);
   }
 
   insert(
     node: dom.ChildNode | dom.DocumentFragment,
     { parent, next }: ContentCursor
   ): void {
-    MINIMAL_DOM.insert(
+    MINIMAL.insert(
       node as minimal.ChildNode | minimal.DocumentFragment,
       ContentCursor.create(parent, next)
     );
@@ -296,7 +317,7 @@ export class AbstractDOM {
     node: dom.ChildNode,
     withNode: dom.ChildNode | dom.DocumentFragment
   ): void {
-    let cursor = COMPATIBLE_DOM.remove(node);
+    let cursor = this.remove(node);
 
     if (!cursor) {
       throw new Error(
@@ -304,7 +325,7 @@ export class AbstractDOM {
       );
     }
 
-    COMPATIBLE_DOM.insert(withNode, cursor);
+    this.insert(withNode, cursor);
   }
 
   appending(parent: dom.ParentNode): ContentCursor {
@@ -312,7 +333,7 @@ export class AbstractDOM {
   }
 
   remove(child: dom.ChildNode): ContentCursor | null {
-    return MINIMAL_DOM.remove(child as minimal.ChildNode);
+    return MINIMAL.remove(child as minimal.ChildNode);
   }
 
   getTemplateContents(element: dom.TemplateElement): minimal.DocumentFragment {
@@ -320,14 +341,24 @@ export class AbstractDOM {
   }
 }
 
+export const DOM = new AbstractDOM();
+
+export class AbstractDocumentUtilities {
+  static of(utils: MinimalDocumentUtilities): AbstractDocumentUtilities {
+    return new AbstractDocumentUtilities(utils);
+  }
+
+  readonly #utils: MinimalDocumentUtilities;
+
+  private constructor(utils: MinimalDocumentUtilities) {
+    this.#utils = utils;
+  }
+}
+
 /**
  * The methods of this class are conveniences, and operate on minimal DOM.
  */
 export class MinimalUtilities {
-  get document(): minimal.Document {
-    return document as unknown as minimal.Document;
-  }
-
   element(
     document: minimal.Document,
     parent: minimal.ParentNode,
@@ -348,7 +379,7 @@ export class MinimalUtilities {
 
   updateAttr(attr: Mutable<minimal.Attr>, value: string | null): void {
     if (value === null) {
-      MINIMAL_DOM.removeAttr(attr);
+      this.removeAttr(attr);
     } else {
       mutable(attr).value = value;
     }
@@ -358,7 +389,7 @@ export class MinimalUtilities {
     let element = attr.ownerElement;
 
     if (element) {
-      mutable(element).removeAttribute(MINIMAL_DOM.#attrQualifiedName(attr));
+      mutable(element).removeAttribute(this.#attrQualifiedName(attr));
     }
   }
 
@@ -437,7 +468,7 @@ export class MinimalUtilities {
 
   children(parent: minimal.ParentNode): readonly minimal.ChildNode[] {
     let children: minimal.ChildNode[] = [];
-    MINIMAL_DOM.eachChild(parent, (node) => children.push(node));
+    this.eachChild(parent, (node) => children.push(node));
     return children;
   }
 
@@ -465,20 +496,47 @@ export class MinimalUtilities {
       return attr.localName;
     }
   }
-
-  #cursorAfterRange(range: ContentRange): ContentCursor {
-    let end = range.end;
-    let parent = end.parentNode as minimal.ParentNode | null;
-
-    verify(parent, is.Present, as(`parent of ${end}`));
-
-    let next = end.nextSibling as minimal.ChildNode | null;
-    return ContentCursor.create(parent, next);
-  }
 }
 
-export const COMPATIBLE_DOM = new AbstractDOM();
-export const MINIMAL_DOM = new MinimalUtilities();
+export const MINIMAL = new MinimalUtilities();
+
+export class MinimalDocumentUtilities {
+  static of(environment: DomEnvironment): MinimalDocumentUtilities {
+    return new MinimalDocumentUtilities(environment);
+  }
+
+  private constructor(readonly environment: DomEnvironment) {}
+
+  get document(): minimal.Document {
+    return this.environment.document;
+  }
+
+  cursorAsRange(cursor: ContentCursor): minimal.LiveRange {
+    let { parent, next } = cursor;
+    if (next === null) {
+      return this.rangeAppendingTo(parent);
+    } else {
+      return this.rangeAround(next);
+    }
+  }
+
+  rangeAround(
+    first: minimal.ChildNode,
+    last: minimal.ChildNode = first
+  ): minimal.LiveRange {
+    return tap(minimize(this.environment.liveRange()), (range) => {
+      range.setStartBefore(first);
+      range.setEndAfter(last);
+    });
+  }
+
+  rangeAppendingTo(parent: minimal.ParentNode): minimal.LiveRange {
+    return tap(minimize(this.environment.liveRange()), (range) => {
+      range.selectNodeContents(parent);
+      range.collapse();
+    });
+  }
+}
 
 function isHtmlElement(element: minimal.Element): boolean {
   return element.namespaceURI === HTML_NAMESPACE;
@@ -552,5 +610,3 @@ function getAttrNS(
       return null;
   }
 }
-
-export const DOM = new AbstractDOM();

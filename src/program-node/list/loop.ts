@@ -307,7 +307,7 @@ export class DynamicListProgramNode
         let rendered = content.render(buffer);
 
         isConstant &&= rendered.metadata.isConstant;
-        contents.push(KeyedContent.create(content.key, content.render(buffer)));
+        contents.push(KeyedContent.create(content.key, rendered));
       }
     });
 
@@ -350,10 +350,14 @@ export class RenderedDynamicList extends RenderedContent {
   }
 
   [RANGE_SNAPSHOT](parent: minimal.ParentNode): RangeSnapshot {
-    return this.#fragment.get(parent).snapshot();
+    return this.#fragment.get(parent).snapshot(this.#fragment.environment);
   }
 
   poll(inside: minimal.ParentNode): void {
-    this.#artifacts.poll(this.#loop.current, inside);
+    this.#artifacts.poll(
+      this.#loop.current,
+      inside,
+      this.#fragment.get(inside).snapshot(this.#fragment.environment)
+    );
   }
 }

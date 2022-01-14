@@ -1,5 +1,6 @@
 import type * as minimal from "@domtree/minimal";
 import type { ContentBuffer } from "../dom/buffer/body";
+import { MinimalDocumentUtilities } from "../dom/streaming/compatible-dom";
 import { RangeSnapshot, RANGE_SNAPSHOT } from "../dom/streaming/cursor";
 import type { Dehydrated, LazyDOM } from "../dom/streaming/token";
 import { ContentConstructor, TOKEN } from "../dom/streaming/tree-constructor";
@@ -100,6 +101,9 @@ class RenderedCharacterData extends RenderedContent {
   }
 
   [RANGE_SNAPSHOT](inside: minimal.ParentNode): RangeSnapshot {
-    return RangeSnapshot.create(this.#node.get(inside));
+    return RangeSnapshot.create(
+      MinimalDocumentUtilities.of(this.#node.environment),
+      this.#node.get(inside)
+    );
   }
 }

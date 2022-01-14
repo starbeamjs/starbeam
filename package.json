@@ -13,7 +13,8 @@
     "serve": "vite preview",
     "test": "jest",
     "lint": "eslint .",
-    "typecheck": "tsc",
+    "typecheck": "tsc -b",
+    "typecheck:serve": "tsc -b -w --pretty false",
     "guides": "mdbook build -d ../docs guides"
   },
   "madge": {

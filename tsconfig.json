@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "composite": true,
     "target": "ESNext",
     "useDefineForClassFields": true,
     "allowSyntheticDefaultImports": true,
@@ -8,5 +9,10 @@
     "lib": ["ESNext", "DOM"],
     "outDir": "/tmp/starbeam-dist"
   },
-  "references": [{ "path": "./src" }, { "path": "./tests" }]
+  "include": [],
+  "references": [
+    { "path": "./src" },
+    { "path": "./tests" },
+    { "path": "./@types" }
+  ]
 }

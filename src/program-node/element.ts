@@ -1,7 +1,8 @@
 import type * as minimal from "@domtree/minimal";
 import type { ElementBody } from "../dom/buffer/body";
+import { MinimalDocumentUtilities } from "../dom/streaming/compatible-dom";
 import { RangeSnapshot, RANGE_SNAPSHOT } from "../dom/streaming/cursor";
-import { Dehydrated, LazyDOM } from "../dom/streaming/token";
+import type { Dehydrated, LazyDOM } from "../dom/streaming/token";
 import {
   ElementBodyConstructor,
   ElementHeadConstructor,
@@ -139,7 +140,7 @@ class DehydratedElementBuilder {
   ): RenderedElementNode | FinalizedElement {
     if (token) {
       return RenderedElementNode.create(
-        LazyDOM.of(token),
+        token.dom,
         this.#tag,
         this.#attributes,
         this.#content
@@ -199,7 +200,10 @@ export class RenderedElementNode extends RenderedContent {
   }
 
   [RANGE_SNAPSHOT](inside: minimal.ParentNode): RangeSnapshot {
-    return RangeSnapshot.create(this.#element.get(inside));
+    return RangeSnapshot.create(
+      MinimalDocumentUtilities.of(this.#element.environment),
+      this.#element.get(inside)
+    );
   }
 
   poll(inside: minimal.ParentNode): void {

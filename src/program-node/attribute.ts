@@ -1,5 +1,5 @@
 import type * as minimal from "@domtree/minimal";
-import { COMPATIBLE_DOM } from "../dom/streaming/compatible-dom";
+import { DOM } from "../dom/streaming/compatible-dom";
 import { LazyDOM } from "../dom/streaming/token";
 import {
   ElementHeadConstructor,
@@ -33,7 +33,10 @@ export class AttributeProgramNode {
     let value = this.#attribute.value;
     // let value = this.#attribute.value.current;
     let attr = buffer.attr(this.#attribute.name, value.current, TOKEN);
-    return RenderedAttribute.create(LazyDOM.of(attr), value);
+    return RenderedAttribute.create(
+      LazyDOM.of(buffer.environment, attr),
+      value
+    );
   }
 }
 
@@ -74,6 +77,6 @@ export class RenderedAttribute {
   }
 
   poll(inside: minimal.ParentNode): void {
-    COMPATIBLE_DOM.updateAttr(this.#attribute.get(inside), this.#value.current);
+    DOM.updateAttr(this.#attribute.get(inside), this.#value.current);
   }
 }

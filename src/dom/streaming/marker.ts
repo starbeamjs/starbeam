@@ -5,7 +5,8 @@ import { has, is } from "../../strippable/minimal";
 import { as } from "../../strippable/verify-context";
 import { isElement } from "../../utils/dom";
 import type { ContentBuffer, ElementHeadBuffer } from "../buffer/body";
-import { ContentRange, ContentRangeNode, MINIMAL_DOM } from "./compatible-dom";
+import type { DomEnvironment } from "../environment";
+import { ContentRange, ContentRangeNode, MINIMAL } from "./compatible-dom";
 import { Token, tokenId } from "./token";
 
 // This might be necessary for some obscure cases where <template> is disallowed
@@ -43,7 +44,11 @@ export function Element(
 }
 
 interface AbstractHydration<Out> {
-  hydrate(container: minimal.ParentNode, token: Token): Out;
+  hydrate(
+    environment: DomEnvironment,
+    container: minimal.ParentNode,
+    token: Token
+  ): Out;
 }
 
 export type Hydration<Out = unknown> = AbstractHydration<Out>;
@@ -73,7 +78,11 @@ export class AttributeMarker implements AbstractHydration<minimal.Attr> {
     });
   }
 
-  hydrate(container: minimal.ParentNode, token: Token): minimal.Attr {
+  hydrate(
+    environment: DomEnvironment,
+    container: minimal.ParentNode,
+    token: Token
+  ): minimal.Attr {
     let attrName = String.raw`data-starbeam-marker:attr:${tokenId(token)}`;
     let element = findElement(container, attrSelector(attrName));
 
@@ -92,7 +101,11 @@ export class ElementMarker implements AbstractHydration<minimal.Element> {
     hydrator: this,
   });
 
-  hydrate(container: minimal.ParentNode, token: Token): minimal.Element {
+  hydrate(
+    environment: DomEnvironment,
+    container: minimal.ParentNode,
+    token: Token
+  ): minimal.Element {
     let element = findElement(
       container,
       attrSelector(`data-starbeam-marker:element`, tokenId(token))
@@ -127,15 +140,20 @@ abstract class RangeMarker<Out> implements AbstractHydration<Out> {
     hydrator: this,
   });
 
-  abstract hydrate(container: minimal.ParentNode, token: Token): Out;
+  abstract hydrate(
+    environment: DomEnvironment,
+    container: minimal.ParentNode,
+    token: Token
+  ): Out;
 }
 
 export class CharacterDataMarker extends RangeMarker<minimal.ReadonlyCharacterData> {
   hydrate(
+    environment: DomEnvironment,
     container: minimal.ParentNode,
     token: Token
   ): minimal.ReadonlyCharacterData {
-    let range = Markers.find(container, token).hydrateRange();
+    let range = Markers.find(container, token).hydrateRange(environment);
 
     assert(ContentRangeNode.is(range));
     verify(range.node, is.CharacterData);
@@ -147,8 +165,12 @@ export class CharacterDataMarker extends RangeMarker<minimal.ReadonlyCharacterDa
 export const CHARACTER_DATA_MARKER = new CharacterDataMarker().marker;
 
 export class ContentRangeMarker extends RangeMarker<ContentRange> {
-  hydrate(container: minimal.ParentNode, token: Token): ContentRange {
-    return Markers.find(container, token).hydrateRange();
+  hydrate(
+    environment: DomEnvironment,
+    container: minimal.ParentNode,
+    token: Token
+  ): ContentRange {
+    return Markers.find(container, token).hydrateRange(environment);
   }
 }
 
@@ -182,23 +204,23 @@ class Markers {
     this.#end = end;
   }
 
-  hydrateRange(): ContentRange {
+  hydrateRange(environment: DomEnvironment): ContentRange {
     let first = this.#start.nextSibling;
     let last = this.#end.previousSibling;
 
     if (first === this.#end) {
-      MINIMAL_DOM.remove(this.#start);
-      return MINIMAL_DOM.replace(this.#end, (cursor) => {
-        let comment = MINIMAL_DOM.document.createComment("");
-        MINIMAL_DOM.insert(comment, cursor);
+      MINIMAL.remove(this.#start);
+      return MINIMAL.replace(this.#end, (cursor) => {
+        let comment = environment.document.createComment("");
+        MINIMAL.insert(comment, cursor);
         return ContentRange.empty(comment);
       });
     } else {
       verify(first, is.Present);
       verify(last, is.Present);
 
-      MINIMAL_DOM.remove(this.#start);
-      MINIMAL_DOM.remove(this.#end);
+      MINIMAL.remove(this.#start);
+      MINIMAL.remove(this.#end);
       return ContentRange.from(first, last);
     }
   }

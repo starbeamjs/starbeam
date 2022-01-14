@@ -1,9 +1,16 @@
+import type { browser } from "@domtree/flavors";
 import type * as dom from "@domtree/interface";
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   interface NodeList {
     [Symbol.iterator](): IterableIterator<globalThis.Node>;
+  }
+
+  interface Window {
+    StaticRange: {
+      new (options: browser.StaticRangeOptions): browser.StaticRange;
+    };
   }
 }
 
@@ -18,6 +25,13 @@ export type TemplateElement = globalThis.HTMLTemplateElement;
 export type Attr = globalThis.Attr;
 export type StaticRange = globalThis.StaticRange;
 export type LiveRange = globalThis.Range;
+
+export interface StaticRangeOptions {
+  endContainer: Node;
+  endOffset: number;
+  startContainer: Node;
+  startOffset: number;
+}
 
 export type DomTree = dom.Impl<{
   Node: Node;

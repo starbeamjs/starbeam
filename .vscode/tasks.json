@@ -5,15 +5,28 @@
   "tasks": [
     {
       "type": "typescript",
+      "label": "typecheck",
       "tsconfig": "tsconfig.json",
       "option": "watch",
+      "isBackground": true,
       "problemMatcher": ["$tsc-watch"],
       "group": {
         "kind": "build",
         "isDefault": true
-      },
-      "label": "tsc: watch - tsconfig.json"
+      }
     },
+    // {
+    //   "type": "npm",
+    //   "script": "typecheck:serve",
+    //   "isBackground": true,
+    //   "label": "typecheck",
+    //   "options": {},
+    //   "problemMatcher": "$tsc-watch",
+    //   "group": {
+    //     "kind": "build",
+    //     "isDefault": true
+    //   }
+    // },
     {
       "type": "npm",
       "script": "lint",

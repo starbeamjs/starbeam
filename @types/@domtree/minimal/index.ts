@@ -72,6 +72,7 @@ export interface Document extends ReadonlyParent {
     options?: { is: string }
   ): Element;
 
+  createRange(): LiveRange;
   createTextNode(data: string): Text;
   createComment(data: string): Comment;
   createDocumentFragment(): DocumentFragment;

@@ -2,9 +2,10 @@ import type { minimal } from "@domtree/flavors";
 import type { RenderedContent } from "../../program-node/interfaces/rendered-content";
 import { verified } from "../../strippable/assert";
 import { assert } from "../../strippable/core";
-import { is, minimize, mutable } from "../../strippable/minimal";
+import { is, mutable } from "../../strippable/minimal";
 import { as } from "../../strippable/verify-context";
-import { tap } from "../../utils";
+import type { DomEnvironment } from "../environment";
+import type { MinimalDocumentUtilities } from "./compatible-dom";
 
 export class ContentCursor {
   static create(
@@ -21,10 +22,35 @@ export class ContentCursor {
     return ContentCursor.create(verified(parent, is.Present), next);
   }
 
-  private constructor(
+  protected constructor(
     readonly parent: minimal.ParentNode,
     readonly next: minimal.ChildNode | null
   ) {}
+
+  mutate(utils: MinimalDocumentUtilities): MutateContentCursor {
+    return MutateContentCursor.mutate(utils, this.parent, this.next);
+  }
+}
+
+export class MutateContentCursor extends ContentCursor {
+  static mutate(
+    utils: MinimalDocumentUtilities,
+    parent: minimal.ParentNode,
+    next: minimal.ChildNode | null
+  ): MutateContentCursor {
+    return new MutateContentCursor(utils, parent, next);
+  }
+
+  readonly #utils: MinimalDocumentUtilities;
+
+  private constructor(
+    utils: MinimalDocumentUtilities,
+    parent: minimal.ParentNode,
+    next: minimal.ChildNode | null
+  ) {
+    super(parent, next);
+    this.#utils = utils;
+  }
 
   insertHTML(html: string): void {
     let range = this.#asRange();
@@ -37,17 +63,11 @@ export class ContentCursor {
   }
 
   #asRange(): minimal.LiveRange {
-    let range = new global.Range() as unknown as minimal.LiveRange;
-
     let { parent, next } = this;
     if (next === null) {
-      range.selectNodeContents(parent);
-      range.collapse();
-      return range;
+      return this.#utils.rangeAppendingTo(parent);
     } else {
-      range.setStartBefore(next);
-      range.setEndBefore(next);
-      return range;
+      return this.#utils.rangeAround(next);
     }
   }
 }
@@ -60,9 +80,14 @@ export const RANGE_SNAPSHOT = Symbol("RANGE_SNAPSHOT");
  */
 export class RangeSnapshot {
   static create(
+    utils: MinimalDocumentUtilities,
     first: minimal.ChildNode,
     last: minimal.ChildNode = first
   ): RangeSnapshot {
+    if (first.parentNode == null) {
+      debugger;
+    }
+
     let parent = verified(first.parentNode, is.Present);
 
     assert(
@@ -70,7 +95,7 @@ export class RangeSnapshot {
       `The parentNode of the two nodes in a range must be the same`
     );
 
-    return new RangeSnapshot(parent, first, last);
+    return new RangeSnapshot(utils, parent, first, last);
   }
 
   static forContent(
@@ -88,11 +113,20 @@ export class RangeSnapshot {
     }
   }
 
+  readonly #utils: MinimalDocumentUtilities;
+
   private constructor(
+    utils: MinimalDocumentUtilities,
     readonly parent: minimal.ParentNode,
     readonly first: minimal.ChildNode,
     readonly last: minimal.ChildNode
-  ) {}
+  ) {
+    this.#utils = utils;
+  }
+
+  get environment(): DomEnvironment {
+    return this.#utils.environment;
+  }
 
   get before(): ContentCursor {
     return ContentCursor.create(this.parent, this.first);
@@ -110,7 +144,7 @@ export class RangeSnapshot {
 
     // TODO: Verify that `this` precedes `other`
 
-    return new RangeSnapshot(this.parent, this.first, other.last);
+    return new RangeSnapshot(this.#utils, this.parent, this.first, other.last);
   }
 
   remove(): ContentCursor {
@@ -133,7 +167,7 @@ export class RangeSnapshot {
         as(`nextSibling when iterating forwards through a RangeSnapshot`)
       );
 
-      to.insert(current);
+      to.mutate(this.#utils).insert(current);
 
       current = next;
     }
@@ -141,9 +175,6 @@ export class RangeSnapshot {
   }
 
   #toLiveRange(): minimal.LiveRange {
-    return tap(minimize(new global.Range()), (range) => {
-      range.setStartBefore(this.first);
-      range.setEndAfter(this.last);
-    });
+    return this.#utils.rangeAround(this.first, this.last);
   }
 }

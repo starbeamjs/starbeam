@@ -1,9 +1,10 @@
-import type { anydom, minimal } from "@domtree/flavors";
+import type { anydom } from "@domtree/flavors";
 import { JSDOM } from "jsdom";
 import {
   Cell,
   CommentProgramNode,
   ContentProgramNode,
+  DomEnvironment,
   ElementProgramNode,
   ElementProgramNodeBuilder,
   HTML_NAMESPACE,
@@ -64,18 +65,18 @@ export function todo(
 }
 
 export class TestSupport {
-  static create(document = new JSDOM().window.document): TestSupport {
-    return new TestSupport(document as unknown as minimal.Document);
+  static create(jsdom = new JSDOM()): TestSupport {
+    return new TestSupport(DomEnvironment.jsdom(jsdom));
   }
 
   readonly universe: Universe;
   readonly dom: ReactiveDOM;
 
-  #document: minimal.Document;
+  readonly #environment: DomEnvironment;
 
-  private constructor(document: minimal.Document) {
-    this.#document = document;
-    this.universe = Universe.document(document);
+  private constructor(environment: DomEnvironment) {
+    this.#environment = environment;
+    this.universe = Universe.environment(environment);
     this.dom = this.universe.dom;
   }
 
@@ -111,7 +112,10 @@ export class TestSupport {
     result: RenderedRoot;
     into: anydom.Element;
   } {
-    let element = this.#document.createElementNS(HTML_NAMESPACE, "div");
+    let element = this.#environment.document.createElementNS(
+      HTML_NAMESPACE,
+      "div"
+    );
     let result = this.universe.render(node, { append: element });
 
     verify(result, is.Present);

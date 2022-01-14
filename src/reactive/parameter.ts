@@ -1,3 +1,4 @@
+import type { Key } from "../program-node/list/loop";
 import { AnyReactiveChoice, ReactiveChoice } from "./choice";
 import { AnyReactive, Reactive } from "./core";
 import { AnyReactiveRecord, ReactiveRecord } from "./record";
@@ -15,6 +16,14 @@ export const ReactiveParameter = {
       return parameter.metadata.isStatic;
     } else {
       return ReactiveChoice.isStatic(parameter);
+    }
+  },
+
+  defaultKey<P extends ReactiveParameter>(parameter: P): unknown {
+    if (Reactive.is(parameter)) {
+      return parameter.current;
+    } else {
+      throw Error("todo: defaultKey for non-cell");
     }
   },
 };

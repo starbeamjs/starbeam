@@ -1,5 +1,5 @@
 import { isPresent } from "../utils/presence";
-import { abstraction } from "./abstraction";
+import { abstraction, FRAMES_TO_REMOVE } from "./abstraction";
 import { DebugInformation } from "./core";
 import {
   as,
@@ -123,13 +123,15 @@ export interface MutableVerifyContext {
   };
 }
 
-/**
- * @strip.noop
- */
-export function verify<In, Out extends In>(
+function verifyValue<In, Out extends In>(
   value: In,
-  verifier: Verifier<In, Out>,
-  context?: IntoBuildContext
+  {
+    verifier,
+    context,
+  }: {
+    verifier: Verifier<In, Out>;
+    context?: IntoBuildContext;
+  }
 ): asserts value is Out {
   if (!verifier(value)) {
     let message = Verifier.assertion(
@@ -138,11 +140,22 @@ export function verify<In, Out extends In>(
       value
     );
 
-    abstraction(() => {
-      console.assert(false, DebugInformation.message(message));
-      throw Error(DebugInformation.message(message));
-    });
+    console.assert(false, DebugInformation.message(message));
+    throw Error(DebugInformation.message(message));
   }
+}
+
+/**
+ * @strip.noop
+ */
+export function verify<In, Out extends In>(
+  value: In,
+  verifier: Verifier<In, Out>,
+  context?: IntoBuildContext
+): asserts value is Out {
+  return abstraction(() => {
+    verifyValue(value, { verifier, context });
+  });
 }
 
 /**
@@ -150,11 +163,13 @@ export function verify<In, Out extends In>(
  */
 export function verified<Out extends In, In = unknown>(
   value: In,
-  predicate: (value: In) => value is Out,
+  verifier: (value: In) => value is Out,
   context?: IntoBuildContext
 ): Out {
-  verify(value, predicate, context);
-  return value;
+  return abstraction(() => {
+    verifyValue(value, { verifier, context });
+    return value;
+  });
 }
 
 export function exhaustive(_value: never, type?: string): never {

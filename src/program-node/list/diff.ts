@@ -1,6 +1,11 @@
 import type { minimal } from "@domtree/flavors";
 import { getPatch } from "fast-array-diff";
-import { ContentCursor, RANGE_SNAPSHOT } from "../../dom/streaming/cursor";
+import type { DomEnvironment } from "../../dom/environment";
+import {
+  ContentCursor,
+  RangeSnapshot,
+  RANGE_SNAPSHOT,
+} from "../../dom/streaming/cursor";
 import { TreeConstructor } from "../../dom/streaming/tree-constructor";
 import type { ReactiveMetadata } from "../../reactive/core";
 import { exhaustive, verified } from "../../strippable/assert";
@@ -36,17 +41,17 @@ export class ListArtifacts {
     this.metadata = metadata;
   }
 
-  poll(loop: CurrentLoop, inside: minimal.ParentNode): void {
-    // let current = [...loop.current];
-    // let newKeys: readonly unknown[] = current.map((c) => c.key);
-    // let components = new Map(current.map((c) => [c.key, c]));
-
+  poll(
+    loop: CurrentLoop,
+    inside: minimal.ParentNode,
+    range: RangeSnapshot
+  ): void {
     let newKeys = loop.keys;
-    let diff = this.#diff(newKeys, loop);
+    let diff = this.#diff(newKeys, loop, range);
     let newContent: KeyedContent[] = [];
 
     for (let operation of diff) {
-      let { added } = operation.apply(inside);
+      let { added } = operation.apply(range.environment, inside);
 
       if (added) {
         newContent.push(added);
@@ -76,7 +81,8 @@ export class ListArtifacts {
 
   #diff(
     newKeys: readonly unknown[],
-    loop: CurrentLoop
+    loop: CurrentLoop,
+    range: RangeSnapshot
   ): readonly PatchOperation[] {
     let oldKeys = this.#last.keys;
 
@@ -103,7 +109,7 @@ export class ListArtifacts {
               let prevKey = oldKeys[entry.oldPos + i] || null;
               let prev = prevKey ? this.#existing(prevKey) : null;
 
-              let insertion = this.#insertion(next, prev);
+              let insertion = this.#insertion(next, prev, range);
 
               if (removes.has(key)) {
                 removes.delete(key);
@@ -141,10 +147,14 @@ export class ListArtifacts {
     return verified(this.#last.get(key), is.Present);
   }
 
-  #insertion(next: KeyedContent | null, prev: KeyedContent | null): InsertAt {
+  #insertion(
+    next: KeyedContent | null,
+    prev: KeyedContent | null,
+    range: RangeSnapshot
+  ): InsertAt {
     if (next === null) {
       if (prev === null) {
-        return REPLACE;
+        return InsertAt.replace(range);
       } else {
         return InsertAt.after(prev);
       }
@@ -172,7 +182,10 @@ export abstract class PatchOperation {
     return RemoveOperation.of(keyed);
   }
 
-  abstract apply(inside: minimal.ParentNode): Changes;
+  abstract apply(
+    environment: DomEnvironment,
+    inside: minimal.ParentNode
+  ): Changes;
 }
 
 class RemoveOperation extends PatchOperation {
@@ -184,7 +197,7 @@ class RemoveOperation extends PatchOperation {
     super();
   }
 
-  apply(inside: minimal.ParentNode): Changes {
+  apply(environment: DomEnvironment, inside: minimal.ParentNode): Changes {
     let { keyed } = this;
 
     keyed.content.remove(inside);
@@ -206,20 +219,12 @@ class InsertOperation extends PatchOperation {
     this.#to = to;
   }
 
-  apply(inside: minimal.ParentNode): Changes {
-    let buffer = TreeConstructor.html();
+  apply(environment: DomEnvironment, inside: minimal.ParentNode): Changes {
+    let buffer = TreeConstructor.html(environment);
     let content = this.#keyed.render(buffer);
     this.#to.insert((cursor) => buffer.insertAt(cursor), inside);
 
     return { added: KeyedContent.create(this.#keyed.key, content) };
-  }
-
-  insert(keyed: KeyedProgramNode, at: ContentCursor): Changes {
-    let buffer = TreeConstructor.html();
-    let content = keyed.render(buffer);
-    buffer.insertAt(at);
-
-    return { added: KeyedContent.create(keyed.key, content) };
   }
 }
 
@@ -237,7 +242,7 @@ class MoveOperation extends PatchOperation {
     this.#to = to;
   }
 
-  apply(inside: minimal.ParentNode): Changes {
+  apply(environment: DomEnvironment, inside: minimal.ParentNode): Changes {
     this.#to.insert((cursor) => this.#keyed.content.move(cursor), inside);
     return {};
   }
@@ -252,8 +257,8 @@ export abstract class InsertAt {
     return new InsertAfter(keyed);
   }
 
-  static get replace(): InsertAt {
-    return REPLACE;
+  static replace(snapshot: RangeSnapshot): InsertAt {
+    return new Replace(snapshot);
   }
 
   abstract insert<T>(
@@ -289,12 +294,17 @@ class InsertAfter extends InsertAt {
 }
 
 class Replace extends InsertAt {
-  insert<T>(_at: (cursor: ContentCursor) => T, _inside: minimal.ParentNode): T {
-    throw Error("todo: Replace#insert");
+  #range: RangeSnapshot;
+
+  constructor(range: RangeSnapshot) {
+    super();
+    this.#range = range;
+  }
+
+  insert<T>(at: (cursor: ContentCursor) => T, _inside: minimal.ParentNode): T {
+    return at(this.#range.remove());
   }
 }
-
-const REPLACE = new Replace();
 
 // type InsertAt =
 //   | {

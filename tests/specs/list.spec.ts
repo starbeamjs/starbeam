@@ -19,7 +19,10 @@ test("a simple, static list", ({ universe, test }) => {
 
   let names = Reactive.from(Object.values(state));
 
-  let { result, into } = test.render(dom.list(names, Name), Expects.dynamic);
+  let { result, into } = test.render(
+    dom.list(names, Name, (arg) => arg.current),
+    Expects.dynamic
+  );
 
   expect(into.innerHTML, toBe("<p>Tom</p><p>Yehuda</p><p>Chirag</p>"));
 
@@ -46,7 +49,10 @@ test("a simple, dynamic list", ({ universe, test }) => {
 
   let names = universe.cell(Object.values(state));
 
-  let { result, into } = test.render(dom.list(names, Name), Expects.dynamic);
+  let { result, into } = test.render(
+    dom.list(names, Name, (name) => name.current),
+    Expects.dynamic
+  );
 
   expect(into.innerHTML, toBe("<p>Tom</p><p>Yehuda</p><p>Chirag</p>"));
 

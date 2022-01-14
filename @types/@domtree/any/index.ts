@@ -14,6 +14,9 @@ export type Element = browser.Element | minimal.Element;
 export type TemplateElement = browser.TemplateElement | minimal.TemplateElement;
 
 export type StaticRange = browser.StaticRange | minimal.StaticRange;
+export type StaticRangeOptions =
+  | browser.StaticRangeOptions
+  | minimal.StaticRangeOptions;
 export type LiveRange = browser.LiveRange | minimal.LiveRange;
 
 export type Attr = browser.Attr | minimal.Attr;

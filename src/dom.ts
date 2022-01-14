@@ -23,7 +23,7 @@ export class ReactiveDOM {
   list<P extends ReactiveParameter>(
     iterable: Reactive<Iterable<P>>,
     component: Component<P>,
-    key: (arg: P) => unknown = (arg) => arg
+    key: (arg: P) => unknown
   ): ListProgramNode {
     return Loop.from(iterable, component, key).list();
   }
@@ -31,3 +31,4 @@ export class ReactiveDOM {
 
 export * from "./dom/buffer/body";
 export * from "./dom/buffer/attribute";
+export * from "./dom/environment";

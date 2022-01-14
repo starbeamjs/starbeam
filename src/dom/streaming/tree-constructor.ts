@@ -10,7 +10,7 @@ import {
   HtmlBuffer,
 } from "../buffer/body";
 import type { ContentCursor } from "./cursor";
-import type { ContentRange } from "./compatible-dom";
+import { ContentRange, MinimalDocumentUtilities } from "./compatible-dom";
 import {
   ATTRIBUTE_MARKER,
   CHARACTER_DATA_MARKER,
@@ -18,6 +18,7 @@ import {
   ELEMENT_MARKER,
 } from "./marker";
 import { Dehydrated, Tokens } from "./token";
+import type { DomEnvironment } from "../environment";
 
 export type ContentOperationOptions = {
   readonly token: true;
@@ -50,6 +51,10 @@ export class ElementHeadConstructor {
   constructor(tokens: Tokens, buffer: ElementHeadBuffer) {
     this.#tokens = tokens;
     this.#buffer = buffer;
+  }
+
+  get environment(): DomEnvironment {
+    return this.#tokens.environment;
   }
 
   attr(
@@ -198,19 +203,23 @@ export type ElementBodyConstructor = ContentConstructor<ElementBodyBuffer>;
  * `TreeConstructor` builds up a valid string of HTML, which it then gives to the browsers'
  */
 export class TreeConstructor extends ContentConstructor<HtmlBuffer> {
-  static html(): TreeConstructor {
-    return new TreeConstructor(HtmlBuffer.create(), Tokens.create());
+  static html(environment: DomEnvironment): TreeConstructor {
+    return new TreeConstructor(HtmlBuffer.create(), Tokens.create(environment));
   }
 
   readonly #buffer: HtmlBuffer;
+  readonly #environment: DomEnvironment;
 
   private constructor(buffer: HtmlBuffer, tokens: Tokens) {
     super(tokens, buffer);
     this.#buffer = buffer;
+    this.#environment = tokens.environment;
   }
 
   insertAt(cursor: ContentCursor): void {
-    cursor.insertHTML(this.#buffer.serialize());
+    cursor
+      .mutate(MinimalDocumentUtilities.of(this.#environment))
+      .insertHTML(this.#buffer.serialize());
   }
 
   replace(placeholder: minimal.TemplateElement): void {

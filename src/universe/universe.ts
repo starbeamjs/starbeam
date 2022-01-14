@@ -1,6 +1,7 @@
 import type { anydom, minimal } from "@domtree/flavors";
 import { ReactiveDOM } from "../dom";
-import { COMPATIBLE_DOM, MINIMAL_DOM } from "../dom/streaming/compatible-dom";
+import type { DomEnvironment } from "../dom/environment";
+import { DOM, MINIMAL } from "../dom/streaming/compatible-dom";
 import { TreeConstructor } from "../dom/streaming/tree-constructor";
 import type { ContentProgramNode } from "../program-node/interfaces/program-node";
 import type { RenderedContent } from "../program-node/interfaces/rendered-content";
@@ -23,21 +24,21 @@ export class Universe {
    * to use SimpleDOM with the real DOM as long as you don't need runtime
    * features like event handlers and dynamic properties.
    */
-  static document(
-    document: anydom.Document,
+  static environment(
+    environment: DomEnvironment,
     profile = Profile.Debug
   ): Universe {
-    return new Universe(document as minimal.Document, profile);
+    return new Universe(environment, profile);
   }
 
-  readonly #document: minimal.Document;
+  readonly #environment: DomEnvironment;
   readonly #profile: Profile;
   readonly #timeline = Timeline.create();
 
   readonly dom: ReactiveDOM = new ReactiveDOM();
 
-  constructor(document: minimal.Document, profile: Profile) {
-    this.#document = document;
+  constructor(document: DomEnvironment, profile: Profile) {
+    this.#environment = document;
     this.#profile = profile;
   }
 
@@ -76,7 +77,7 @@ export class Universe {
     node: ContentProgramNode<R>,
     { append }: { append: anydom.ParentNode }
   ): RenderedRoot | null {
-    let buffer = TreeConstructor.html();
+    let buffer = TreeConstructor.html(this.#environment);
     let content = node.render(buffer);
 
     if (content) {
@@ -92,12 +93,13 @@ export class Universe {
   }
 
   #appending(parent: anydom.ParentNode): minimal.TemplateElement {
-    let placeholder = MINIMAL_DOM.element(
-      this.#document,
+    let placeholder = MINIMAL.element(
+      this.#environment.document,
       parent as minimal.ParentNode,
       "template"
     );
-    COMPATIBLE_DOM.insert(placeholder, COMPATIBLE_DOM.appending(parent));
+
+    DOM.insert(placeholder, DOM.appending(parent));
     return placeholder;
   }
 }
