@@ -136,6 +136,7 @@ export class TestSupport {
     cell.update(value);
 
     rendered.poll();
+    rendered.eager();
   }
 }
 

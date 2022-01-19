@@ -1,4 +1,4 @@
-import { abstraction } from "./abstraction";
+import { Abstraction } from "starbeam";
 import upstream from "./upstream";
 
 export interface TypeDescription {
@@ -231,10 +231,10 @@ export function report(
 
 export class JestReporter implements Reporter {
   success(success: Success): void {
-    abstraction(() => upstream.expect(true, success.message).toBe(true), 5);
+    Abstraction.wrap(() => upstream.expect(true, success.message).toBe(true));
   }
   failure(failure: Failure): never {
-    abstraction(() => upstream.expect(failure).custom(), 5);
+    Abstraction.wrap(() => upstream.expect(failure).custom());
     failed();
   }
 }

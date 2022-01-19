@@ -354,10 +354,12 @@ export class RenderedDynamicList extends RenderedContent {
   }
 
   poll(inside: minimal.ParentNode): void {
+    this.#fragment.get(inside);
+
     this.#artifacts.poll(
       this.#loop.current,
       inside,
-      this.#fragment.get(inside).snapshot(this.#fragment.environment)
+      this.#artifacts.range(inside)
     );
   }
 }

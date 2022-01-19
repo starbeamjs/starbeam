@@ -9,6 +9,7 @@ export { HTML_NAMESPACE } from "./dom/streaming/namespaces";
 
 export * from "./utils";
 
+export * from "./strippable/abstraction";
 export * from "./strippable/assert";
 export * from "./strippable/minimal";
 export * from "./strippable/wrapper";

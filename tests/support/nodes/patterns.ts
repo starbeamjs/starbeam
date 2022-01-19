@@ -1,8 +1,7 @@
 import type { anydom } from "@domtree/flavors";
 import zip from "lodash.zip";
-import { DOM, exhaustive, is, verified, verify } from "starbeam";
+import { Abstraction, DOM, exhaustive, is, verified, verify } from "starbeam";
 // import { exhaustive, verify, is, DOM, verified } from "../../support/starbeam";
-import { abstraction } from "../expect/abstraction";
 
 export interface ElementNodeOptions {
   attributes?: Record<string, string>;
@@ -87,7 +86,7 @@ export function expectElement(
     children?: readonly NodePattern[];
   }
 ) {
-  abstraction(() =>
+  Abstraction.wrap(() =>
     expect(
       `<${node.tagName.toLowerCase()}>`,
       `element should be a <${tagName}>`
@@ -96,7 +95,7 @@ export function expectElement(
 
   if (options?.attributes) {
     for (let [name, value] of Object.entries(options.attributes)) {
-      abstraction(() =>
+      Abstraction.wrap(() =>
         expect(
           DOM.getAttr(node, name),
           `attribute ${name} should be ${value}`
@@ -105,7 +104,7 @@ export function expectElement(
     }
   }
 
-  abstraction(() => {
+  Abstraction.wrap(() => {
     if (options?.children) {
       let children = DOM.children(node);
 
@@ -115,7 +114,7 @@ export function expectElement(
       ).toHaveLength(options.children.length);
 
       for (let [childNode, pattern] of zip(children, options.children)) {
-        abstraction(() =>
+        Abstraction.wrap(() =>
           expectNode(
             verified(childNode, is.Present),
             verified(pattern, is.Present)

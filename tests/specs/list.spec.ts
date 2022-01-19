@@ -60,14 +60,14 @@ test("a simple, dynamic list", ({ universe, test }) => {
 
   expect(into.innerHTML, toBe("<p>Tom</p><p>Yehuda</p><p>Chirag</p>"));
 
-  names.update([state.chirag, state.yehuda, state.tom]);
+  // [tom, yehuda, chirag] => [chirag, yehuda, tom]
 
-  result.poll();
+  test.update(result, names, [state.chirag, state.yehuda, state.tom]);
+
   expect(into.innerHTML, toBe("<p>Chirag</p><p>Yehuda</p><p>Tom</p>"));
 
-  state.yehuda.update("@wycats");
+  test.update(result, state.yehuda, "@wycats");
 
-  result.poll();
   expect(into.innerHTML, toBe("<p>Chirag</p><p>@wycats</p><p>Tom</p>"));
 });
 

@@ -1,3 +1,4 @@
+import { Abstraction } from "starbeam";
 import {
   Failure,
   JestReporter,
@@ -121,10 +122,14 @@ export class Expectations {
         pattern.success(checked.value as unknown as Out, checked.value)
       );
     } else {
-      this.#reporter.failure(pattern.failure(actual, checked.value));
+      Abstraction.wrap(() => {
+        this.#reporter.failure(pattern.failure(actual, checked.value));
+      });
     }
   }
 }
 
 export const expect: Expectations["expect"] = (actual, pattern) =>
-  new Expectations(new JestReporter()).expect(actual, pattern);
+  Abstraction.wrap(() =>
+    new Expectations(new JestReporter()).expect(actual, pattern)
+  );

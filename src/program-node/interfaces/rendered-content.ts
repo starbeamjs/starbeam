@@ -31,6 +31,10 @@ export abstract class RenderedContent {
   abstract [RANGE_SNAPSHOT](parent: minimal.ParentNode): RangeSnapshot;
   abstract poll(inside: minimal.ParentNode): void;
 
+  eager(inside: minimal.ParentNode): void {
+    this.poll(inside);
+  }
+
   remove(inside: minimal.ParentNode): ContentCursor {
     let range = this[RANGE_SNAPSHOT](inside);
     return range.remove();

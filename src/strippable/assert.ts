@@ -1,6 +1,5 @@
 import { isPresent } from "../utils/presence";
-import { abstraction, FRAMES_TO_REMOVE } from "./abstraction";
-import { DebugInformation } from "./core";
+import { abstractify, assertCondition, DebugInformation } from "./core";
 import {
   as,
   CreatedContext,
@@ -123,7 +122,7 @@ export interface MutableVerifyContext {
   };
 }
 
-function verifyValue<In, Out extends In>(
+const verifyValue: <In, Out extends In>(
   value: In,
   {
     verifier,
@@ -132,18 +131,15 @@ function verifyValue<In, Out extends In>(
     verifier: Verifier<In, Out>;
     context?: IntoBuildContext;
   }
-): asserts value is Out {
-  if (!verifier(value)) {
-    let message = Verifier.assertion(
+) => asserts value is Out = abstractify((value, { verifier, context }) => {
+  assertCondition(verifier(value), () =>
+    Verifier.assertion(
       verifier,
       IntoBuildContext.create(context).finalize(value).context,
       value
-    );
-
-    console.assert(false, DebugInformation.message(message));
-    throw Error(DebugInformation.message(message));
-  }
-}
+    )
+  );
+});
 
 /**
  * @strip.noop
@@ -153,9 +149,7 @@ export function verify<In, Out extends In>(
   verifier: Verifier<In, Out>,
   context?: IntoBuildContext
 ): asserts value is Out {
-  return abstraction(() => {
-    verifyValue(value, { verifier, context });
-  });
+  return verifyValue(value, { verifier, context });
 }
 
 /**
@@ -166,18 +160,14 @@ export function verified<Out extends In, In = unknown>(
   verifier: (value: In) => value is Out,
   context?: IntoBuildContext
 ): Out {
-  return abstraction(() => {
-    verifyValue(value, { verifier, context });
-    return value;
-  });
+  verifyValue(value, { verifier, context });
+  return value;
 }
 
 export function exhaustive(_value: never, type?: string): never {
-  return abstraction(() => {
-    if (type) {
-      throw Error(`unexpected types left in ${type}`);
-    } else {
-      throw Error(`unexpected types left`);
-    }
-  });
+  if (type) {
+    throw Error(`unexpected types left in ${type}`);
+  } else {
+    throw Error(`unexpected types left`);
+  }
 }

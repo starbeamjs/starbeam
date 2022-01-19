@@ -1,5 +1,5 @@
 import type { minimal } from "@domtree/flavors";
-import { getPatch } from "fast-array-diff";
+import { getPatch, Patch } from "fast-array-diff";
 import type { DomEnvironment } from "../../dom/environment";
 import {
   ContentCursor,
@@ -41,6 +41,10 @@ export class ListArtifacts {
     this.metadata = metadata;
   }
 
+  range(inside: minimal.ParentNode): RangeSnapshot {
+    return this.#last.range(inside);
+  }
+
   poll(
     loop: CurrentLoop,
     inside: minimal.ParentNode,
@@ -51,7 +55,13 @@ export class ListArtifacts {
     let newContent: KeyedContent[] = [];
 
     for (let operation of diff) {
+      // console.log(`applying ${operation.describe()}`);
+
       let { added } = operation.apply(range.environment, inside);
+
+      // console.log(
+      //   `got:\n\n${"outerHTML" in inside ? inside.outerHTML : inside}`
+      // );
 
       if (added) {
         newContent.push(added);
@@ -86,7 +96,9 @@ export class ListArtifacts {
   ): readonly PatchOperation[] {
     let oldKeys = this.#last.keys;
 
-    let patch = getPatch([...oldKeys], [...newKeys]);
+    let patch = getPatch([...oldKeys], [...newKeys]) as Patch<string>;
+    // console.log({ from: oldKeys, to: newKeys });
+    // describePatch(patch);
 
     let removes = new Set(
       patch.flatMap((entry) => (entry.type === "remove" ? entry.items : []))
@@ -99,17 +111,34 @@ export class ListArtifacts {
         case "add":
           {
             for (let [i, key] of entry.items.entries()) {
-              // Get the rendered content that this item should be rendered
-              // *before*.
-              let nextKey = oldKeys[entry.oldPos + i + 1] || null;
-              let next = nextKey ? this.#existing(nextKey) : null;
+              let insertion: InsertAt;
+              if (entry.oldPos === 0 && i === 0) {
+                if (oldKeys.length === 0) {
+                  insertion = this.#insertOnly(range);
+                } else {
+                  insertion = this.#insertBefore(this.#existing(oldKeys[0]));
+                }
+              } else {
+                if (entry.oldPos >= oldKeys.length) {
+                  insertion = this.#insertAtEnd(range.parent);
+                } else {
+                  insertion = this.#insertBefore(
+                    this.#existing(oldKeys[entry.oldPos])
+                  );
+                }
+              }
 
-              // Get the rendered content that this item should be rendered
-              // *before*.
-              let prevKey = oldKeys[entry.oldPos + i] || null;
-              let prev = prevKey ? this.#existing(prevKey) : null;
+              // // Get the rendered content that this item should be rendered
+              // // *before*.
+              // let nextKey = oldKeys[entry.oldPos + i + 1] || null;
+              // let next = nextKey ? this.#existing(nextKey) : null;
 
-              let insertion = this.#insertion(next, prev, range);
+              // // Get the rendered content that this item should be rendered
+              // // *before*.
+              // let prevKey = oldKeys[entry.oldPos + i] || null;
+              // let prev = prevKey ? this.#existing(prevKey) : null;
+
+              // let insertion = this.#insertion(next, prev, range);
 
               if (removes.has(key)) {
                 removes.delete(key);
@@ -140,6 +169,7 @@ export class ListArtifacts {
       operations.push(PatchOperation.remove(this.#existing(remove)));
     }
 
+    // console.log(operations.map((o) => o.describe()).join(""));
     return operations;
   }
 
@@ -147,22 +177,57 @@ export class ListArtifacts {
     return verified(this.#last.get(key), is.Present);
   }
 
-  #insertion(
-    next: KeyedContent | null,
-    prev: KeyedContent | null,
-    range: RangeSnapshot
-  ): InsertAt {
-    if (next === null) {
-      if (prev === null) {
-        return InsertAt.replace(range);
-      } else {
-        return InsertAt.after(prev);
-      }
-    } else {
-      return InsertAt.before(next);
-    }
+  #insertAfter(prev: KeyedContent): InsertAt {
+    return InsertAt.after(prev);
+  }
+
+  #insertBefore(next: KeyedContent): InsertAt {
+    return InsertAt.before(next);
+  }
+
+  #insertOnly(range: RangeSnapshot): InsertAt {
+    return InsertAt.replace(range);
+  }
+
+  #insertAtEnd(parent: minimal.ParentNode): InsertAt {
+    return InsertAt.appendTo(parent);
   }
 }
+
+// function describePatch(patch: Patch<string>): void {
+//   console.log({ patch: patch.map((item) => describeAnyPatchItem(item)) });
+// }
+
+// function describeAnyPatchItem(patch: PatchItem<string>): string {
+//   let options = {
+//     old: patch.oldPos,
+//     new: patch.newPos,
+//     items: patch.items,
+//   } as const;
+
+//   switch (patch.type) {
+//     case "add":
+//       return describePatchItem("add", options);
+//     case "remove":
+//       return describePatchItem("remove", options);
+
+//     default:
+//       exhaustive(patch.type, "PatchItem");
+//   }
+// }
+
+// function describePatchItem(
+//   op: "add" | "remove",
+//   options: { old: number; new: number; items: string[] }
+// ): string {
+//   return `${op}(old=${options.old}, new=${options.new}) ${describeItems(
+//     options.items
+//   )}`;
+// }
+
+// function describeItems(items: string[]): string {
+//   return `[ ` + items.map((i) => JSON.stringify(i)).join(", ") + ` ]`;
+// }
 
 interface Changes {
   readonly added?: KeyedContent;
@@ -186,6 +251,8 @@ export abstract class PatchOperation {
     environment: DomEnvironment,
     inside: minimal.ParentNode
   ): Changes;
+
+  abstract describe(): string;
 }
 
 class RemoveOperation extends PatchOperation {
@@ -202,6 +269,10 @@ class RemoveOperation extends PatchOperation {
 
     keyed.content.remove(inside);
     return { removed: keyed };
+  }
+
+  describe() {
+    return `<remove ${this.keyed.key}>`;
   }
 }
 
@@ -226,6 +297,10 @@ class InsertOperation extends PatchOperation {
 
     return { added: KeyedContent.create(this.#keyed.key, content) };
   }
+
+  describe(): string {
+    return `<insert ${this.#keyed.key} ${this.#to.describe()}>`;
+  }
 }
 
 class MoveOperation extends PatchOperation {
@@ -246,6 +321,10 @@ class MoveOperation extends PatchOperation {
     this.#to.insert((cursor) => this.#keyed.content.move(cursor), inside);
     return {};
   }
+
+  describe(): string {
+    return `<move ${this.#keyed.key} ${this.#to.describe()}>`;
+  }
 }
 
 export abstract class InsertAt {
@@ -257,18 +336,24 @@ export abstract class InsertAt {
     return new InsertAfter(keyed);
   }
 
-  static replace(snapshot: RangeSnapshot): InsertAt {
-    return new Replace(snapshot);
+  static replace(range: RangeSnapshot): InsertAt {
+    return new Replace(range);
+  }
+
+  static appendTo(parent: minimal.ParentNode): InsertAt {
+    return new InsertAtEnd(parent);
   }
 
   abstract insert<T>(
     at: (cursor: ContentCursor) => T,
     inside: minimal.ParentNode
   ): T;
+
+  abstract describe(): string;
 }
 
 class InsertBefore extends InsertAt {
-  #keyed: KeyedContent;
+  readonly #keyed: KeyedContent;
 
   constructor(content: KeyedContent) {
     super();
@@ -277,6 +362,27 @@ class InsertBefore extends InsertAt {
 
   insert<T>(at: (cursor: ContentCursor) => T, inside: minimal.ParentNode): T {
     return at(this.#keyed.content[RANGE_SNAPSHOT](inside).before);
+  }
+
+  describe(): string {
+    return `before:${this.#keyed.key}`;
+  }
+}
+
+class InsertAtEnd extends InsertAt {
+  readonly #parent: minimal.ParentNode;
+
+  constructor(parent: minimal.ParentNode) {
+    super();
+    this.#parent = parent;
+  }
+
+  insert<T>(at: (cursor: ContentCursor) => T): T {
+    return at(ContentCursor.create(this.#parent, null));
+  }
+
+  describe(): string {
+    return `at:end`;
   }
 }
 
@@ -291,6 +397,10 @@ class InsertAfter extends InsertAt {
   insert<T>(at: (cursor: ContentCursor) => T, inside: minimal.ParentNode): T {
     return at(this.#keyed.content[RANGE_SNAPSHOT](inside).after);
   }
+
+  describe(): string {
+    return `after:${this.#keyed.key}`;
+  }
 }
 
 class Replace extends InsertAt {
@@ -303,6 +413,10 @@ class Replace extends InsertAt {
 
   insert<T>(at: (cursor: ContentCursor) => T, _inside: minimal.ParentNode): T {
     return at(this.#range.remove());
+  }
+
+  describe(): string {
+    return `replace`;
   }
 }
 

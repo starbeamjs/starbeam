@@ -84,10 +84,6 @@ export class RangeSnapshot {
     first: minimal.ChildNode,
     last: minimal.ChildNode = first
   ): RangeSnapshot {
-    if (first.parentNode == null) {
-      debugger;
-    }
-
     let parent = verified(first.parentNode, is.Present);
 
     assert(
@@ -160,7 +156,8 @@ export class RangeSnapshot {
     let { first, last } = this;
     let current = first;
 
-    while (current !== last) {
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
       let next = verified(
         current.nextSibling,
         is.Present,
@@ -169,9 +166,12 @@ export class RangeSnapshot {
 
       to.mutate(this.#utils).insert(current);
 
-      current = next;
+      if (current === last) {
+        break;
+      } else {
+        current = next;
+      }
     }
-    while (current !== this.last);
   }
 
   #toLiveRange(): minimal.LiveRange {
