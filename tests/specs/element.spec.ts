@@ -15,13 +15,9 @@ test("a simple element containing a text node (dynamic) ", ({
     Expects.dynamic
   );
 
-  let { result, into } = test.render(element, Expects.dynamic);
-  expect(into.innerHTML).toBe("<div>Chirag</div>");
+  let result = test.render(element, Expects.dynamic.html("<div>Chirag</div>"));
 
-  name.update("Chi");
-  result.poll();
-
-  expect(into.innerHTML).toBe("<div>Chi</div>");
+  result.update([name, "Chi"], Expects.html("<div>Chi</div>"));
 });
 
 test("a simple element containing a text node (static) ", ({
@@ -44,9 +40,10 @@ test("a simple element containing a text node (static) ", ({
     Expects.static
   );
 
-  let { into } = test.render(element, Expects.static);
-
-  expect(into.innerHTML).toBe(`<div title="${TITLE}">${NAME}</div>`);
+  test.render(
+    element,
+    Expects.static.html(`<div title="${TITLE}">${NAME}</div>`)
+  );
 });
 
 test("a simple element with an attribute (dynamic) ", ({
@@ -70,14 +67,15 @@ test("a simple element with an attribute (dynamic) ", ({
     Expects.dynamic
   );
 
-  let { into, result } = test.render(element, Expects.dynamic);
+  let result = test.render(
+    element,
+    Expects.dynamic.html(`<div title="${TITLE}">${NAME}</div>`)
+  );
 
-  expect(into.innerHTML).toBe(`<div title="${TITLE}">${NAME}</div>`);
-
-  name.update(SHORT_NAME);
-  result.poll();
-
-  expect(into.innerHTML).toBe(`<div title="${TITLE}">${SHORT_NAME}</div>`);
+  result.update(
+    [name, SHORT_NAME],
+    Expects.html(`<div title="${TITLE}">${SHORT_NAME}</div>`)
+  );
 });
 
 test("(smoke test) a dynamic element with a few children and a few attributes", ({
@@ -118,16 +116,17 @@ test("(smoke test) a dynamic element with a few children and a few attributes", 
     Expects.dynamic
   );
 
-  let { result, into } = test.render(element, Expects.dynamic);
-
-  expect(into.innerHTML).toBe(
-    `<div title="${TITLE}" class="person" style="${STYLE}">${FIRST_NAME} ${LAST_NAME} <span>(name)</span> -- Over and Out</div>`
+  let result = test.render(
+    element,
+    Expects.dynamic.html(
+      `<div title="${TITLE}" class="person" style="${STYLE}">${FIRST_NAME} ${LAST_NAME} <span>(name)</span> -- Over and Out</div>`
+    )
   );
 
-  firstName.update(SHORT_NAME);
-  result.poll();
-
-  expect(into.innerHTML).toBe(
-    `<div title="${TITLE}" class="person" style="${STYLE}">${SHORT_NAME} ${LAST_NAME} <span>(name)</span> -- Over and Out</div>`
+  result.update(
+    [firstName, SHORT_NAME],
+    Expects.html(
+      `<div title="${TITLE}" class="person" style="${STYLE}">${SHORT_NAME} ${LAST_NAME} <span>(name)</span> -- Over and Out</div>`
+    )
   );
 });

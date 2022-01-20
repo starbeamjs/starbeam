@@ -109,6 +109,13 @@ export class CreatedContext<In = unknown> {
     );
   }
 
+  when(situation: string): CreatedContext<In> {
+    return CreatedContext.create(
+      VerifyContext.merge(this.#context, { when: situation }),
+      this.#butGot
+    );
+  }
+
   butGot<In>(actual: (value: In) => string): CreatedContext<In> {
     assert(
       this.#butGot === undefined,
@@ -162,13 +169,19 @@ export class FinalizedContext {
   }
 
   get #expected(): string {
-    let { expected, relationship } = this.context;
+    let { expected, relationship, when } = this.#context;
+
+    let expectation = `Expected ${expected}`;
+
+    if (when) {
+      expectation = `When ${when}, ${expectation}`;
+    }
 
     if (relationship) {
-      return `Expected ${expected} ${relationship.kind} ${relationship.description}`;
-    } else {
-      return `Expected ${expected}`;
+      expectation = `${expectation} ${relationship.kind} ${relationship.description}`;
     }
+
+    return expectation;
   }
 
   get context(): CompleteContext {
@@ -230,6 +243,7 @@ export interface Relationship {
 }
 
 export interface VerifyContext extends PartialVerifyContext {
+  readonly when?: string;
   readonly expected: string;
   readonly relationship?: Relationship;
 }
@@ -258,6 +272,10 @@ export const VerifyContext = {
 
     if (right.expected) {
       merged.expected = right.expected;
+    }
+
+    if (right.when) {
+      merged.when = right.when;
     }
 
     return merged;

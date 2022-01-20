@@ -1,4 +1,4 @@
-import type { anydom } from "@domtree/flavors";
+import type { minimal } from "@domtree/flavors";
 import { JSDOM } from "jsdom";
 import {
   Cell,
@@ -18,7 +18,8 @@ import {
 } from "starbeam";
 import { upstream } from "../jest-ext";
 import { ElementArgs, TestElementArgs } from "./element";
-import { Expects } from "./expect/expect";
+import { Dynamism, expect, Expects } from "./expect/expect";
+import { toBe } from "./expect/patterns/comparison";
 
 export interface TestArgs {
   readonly universe: Universe;
@@ -64,6 +65,41 @@ export function todo(
   upstream.test.todo(name);
 }
 
+export class TestRoot {
+  static create(root: RenderedRoot, container: minimal.Element): TestRoot {
+    return new TestRoot(root, container);
+  }
+
+  readonly #root: RenderedRoot;
+  readonly #container: minimal.Element;
+
+  private constructor(root: RenderedRoot, container: minimal.Element) {
+    this.#root = root;
+    this.#container = container;
+  }
+
+  poll(): void {
+    this.#root.poll();
+  }
+
+  update<T>(
+    [cell, value]: [cell: Cell<T>, value: T],
+    expectation: Expects
+  ): this {
+    cell.update(value);
+
+    this.#root.poll();
+    this.#root.initialize();
+
+    expectation.assertDynamism(
+      this.#root.metadata.isConstant ? Dynamism.static : Dynamism.dynamic
+    );
+
+    expectation.assertContents(this.#container.innerHTML);
+    return this;
+  }
+}
+
 export class TestSupport {
   static create(jsdom = new JSDOM()): TestSupport {
     return new TestSupport(DomEnvironment.jsdom(jsdom));
@@ -80,18 +116,21 @@ export class TestSupport {
     this.dom = this.universe.dom;
   }
 
-  buildText(reactive: Reactive<string>, expectation: Expects): TextProgramNode {
+  buildText(
+    reactive: Reactive<string>,
+    expectation: Dynamism
+  ): TextProgramNode {
     let text = this.universe.dom.text(reactive);
-    expect(normalize(text.metadata.isStatic)).toBe(expectation);
+    expect(normalize(text.metadata.isStatic), toBe(expectation));
     return text;
   }
 
   buildComment(
     reactive: Reactive<string>,
-    expectation: Expects
+    expectation: Dynamism
   ): CommentProgramNode {
     let comment = this.universe.dom.comment(reactive);
-    expect(normalize(comment.metadata.isStatic)).toBe(expectation);
+    expect(normalize(comment.metadata.isStatic), toBe(expectation));
     return comment;
   }
 
@@ -101,17 +140,13 @@ export class TestSupport {
       args
     );
     let element = ElementProgramNodeBuilder.build(tagName, build);
-    expect(normalize(element.metadata.isStatic)).toBe(expectation);
+    expect(normalize(element.metadata.isStatic), toBe(expectation.dynamism));
+
     return element;
   }
 
-  render(
-    node: ContentProgramNode,
-    expectation: Expects
-  ): {
-    result: RenderedRoot;
-    into: anydom.Element;
-  } {
+  render(node: ContentProgramNode, expectation: Expects): TestRoot {
+    // return Abstraction.wrap(() => {
     let element = this.#environment.document.createElementNS(
       HTML_NAMESPACE,
       "div"
@@ -122,22 +157,34 @@ export class TestSupport {
 
     expect(
       normalize(result.metadata.isConstant),
-      `Render should produce ${expectation} output.`
-    ).toBe(expectation);
+      toBe(expectation.dynamism, {
+        actual: result.metadata.isConstant ? "constant" : "dynamic",
+        expected:
+          expectation.dynamism === Dynamism.static ? "constant" : "dynamic",
+      })
+    );
 
     // Exchange markers for DOM representations to allow us to compare the DOM
     // without markers to our expectations.
-    result.eager();
+    result.initialize();
 
-    return { result, into: element };
+    expectation.assertContents(element.innerHTML);
+
+    // ensure that a noop poll doesn't change the HTML output
+    result.poll();
+
+    expectation.assertContents(element.innerHTML);
+
+    return TestRoot.create(result, element);
+    // }, 0);
   }
 
-  update<T>(rendered: RenderedRoot, cell: Cell<T>, value: T): void {
-    cell.update(value);
+  // update<T>(rendered: RenderedRoot, cell: Cell<T>, value: T): void {
+  //   cell.update(value);
 
-    rendered.poll();
-    rendered.eager();
-  }
+  //   rendered.poll();
+  //   rendered.initialize();
+  // }
 }
 
 export type Test = (args: {
@@ -145,8 +192,8 @@ export type Test = (args: {
   universe: Universe;
 }) => void | Promise<void>;
 
-function normalize(isStatic: boolean): Expects {
-  return isStatic ? Expects.static : Expects.dynamic;
+function normalize(isStatic: boolean): Dynamism {
+  return isStatic ? Dynamism.static : Dynamism.dynamic;
 }
 
 export { expect } from "./expect/expect";

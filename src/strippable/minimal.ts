@@ -3,7 +3,6 @@ import type { anydom } from "@domtree/flavors";
 import type * as minimal from "@domtree/minimal";
 import { isPresent } from "../utils/presence";
 import { PartialVerifier, Verifier } from "./assert";
-import type { DebugInformation } from "./core";
 import { CreatedContext, expected, VerifyContext } from "./verify-context";
 
 /**
@@ -71,18 +70,12 @@ isNode.message = (value: MaybeNode) =>
     ? `Expected value to be a node, got null`
     : `Expected value to be a node`;
 
-function nodeMessage(
-  expected: string
-): (context: VerifyContext, actual: dom.Node | null) => DebugInformation {
-  return (context, actual) => {
-    if (isNode(actual)) {
-      return `Expected ${
-        context.expected
-      } to be ${expected}, but it was ${describe(actual)}`;
-    } else {
-      return `Expected ${context.expected} to be ${expected}, but it was not a node`;
-    }
-  };
+function nodeMessage(actual: dom.Node | null): string {
+  if (isNode(actual)) {
+    return describe(actual);
+  } else {
+    return `null`;
+  }
 }
 
 function isSpecificNode<T extends minimal.Node>(
@@ -93,7 +86,10 @@ function isSpecificNode<T extends minimal.Node>(
     return isNode(node) && node.nodeType === nodeType;
   }) as PartialVerifier<MaybeNode, T>;
 
-  Verifier.implement(isSpecificNode, expected("node").toBe(description));
+  Verifier.implement(
+    isSpecificNode,
+    expected("node").toBe(description).butGot(nodeMessage)
+  );
 
   return isSpecificNode as Verifier<MaybeNode, T>;
 }
@@ -127,8 +123,10 @@ function isCharacterData(
   return isText(node) || isComment(node);
 }
 
-isCharacterData.default = { expected: "node" };
-isCharacterData.message = nodeMessage("a text or comment node");
+Verifier.implement(
+  isCharacterData,
+  expected("node").toBe("a text or comment node").butGot(nodeMessage)
+);
 
 const isAttr = isSpecificNode<minimal.Attr>(2, "an attribute node");
 
@@ -136,8 +134,10 @@ function isTemplateElement(node: MaybeNode): node is minimal.TemplateElement {
   return isElement(node) && hasTagName("template")(node);
 }
 
-isTemplateElement.default = { expected: "node" } as const;
-isTemplateElement.message = nodeMessage("a template node");
+Verifier.implement(
+  isTemplateElement,
+  expected("node").toBe("a template node").butGot(nodeMessage)
+);
 
 Verifier.implement(isPresent, expected("value").toBe("present"));
 

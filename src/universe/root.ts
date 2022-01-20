@@ -31,8 +31,8 @@ export class RenderedRoot {
    * Eagerly exchange all tokens for their DOM representations. This is
    * primarily useful if you want to look at the DOM without markers.
    */
-  eager(): void {
-    this.#content.poll(this.#parent);
+  initialize(): void {
+    this.#content.initialize(this.#parent);
   }
 
   poll(): void {

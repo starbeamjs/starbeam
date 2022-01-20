@@ -5,7 +5,6 @@ import { assert } from "../../strippable/core";
 import { is, mutable } from "../../strippable/minimal";
 import { as } from "../../strippable/verify-context";
 import type { DomEnvironment } from "../environment";
-import type { MinimalDocumentUtilities } from "./compatible-dom";
 
 export class ContentCursor {
   static create(
@@ -27,29 +26,26 @@ export class ContentCursor {
     readonly next: minimal.ChildNode | null
   ) {}
 
-  mutate(utils: MinimalDocumentUtilities): MutateContentCursor {
+  mutate(utils: DomEnvironment): MutateContentCursor {
     return MutateContentCursor.mutate(utils, this.parent, this.next);
   }
 }
 
 export class MutateContentCursor extends ContentCursor {
   static mutate(
-    utils: MinimalDocumentUtilities,
+    environment: DomEnvironment,
     parent: minimal.ParentNode,
     next: minimal.ChildNode | null
   ): MutateContentCursor {
-    return new MutateContentCursor(utils, parent, next);
+    return new MutateContentCursor(environment, parent, next);
   }
 
-  readonly #utils: MinimalDocumentUtilities;
-
   private constructor(
-    utils: MinimalDocumentUtilities,
+    readonly environment: DomEnvironment,
     parent: minimal.ParentNode,
     next: minimal.ChildNode | null
   ) {
     super(parent, next);
-    this.#utils = utils;
   }
 
   insertHTML(html: string): void {
@@ -65,9 +61,9 @@ export class MutateContentCursor extends ContentCursor {
   #asRange(): minimal.LiveRange {
     let { parent, next } = this;
     if (next === null) {
-      return this.#utils.rangeAppendingTo(parent);
+      return this.environment.utils.rangeAppendingTo(parent);
     } else {
-      return this.#utils.rangeAround(next);
+      return this.environment.utils.rangeAround(next);
     }
   }
 }
@@ -80,7 +76,7 @@ export const RANGE_SNAPSHOT = Symbol("RANGE_SNAPSHOT");
  */
 export class RangeSnapshot {
   static create(
-    utils: MinimalDocumentUtilities,
+    environment: DomEnvironment,
     first: minimal.ChildNode,
     last: minimal.ChildNode = first
   ): RangeSnapshot {
@@ -91,7 +87,7 @@ export class RangeSnapshot {
       `The parentNode of the two nodes in a range must be the same`
     );
 
-    return new RangeSnapshot(utils, parent, first, last);
+    return new RangeSnapshot(environment, parent, first, last);
   }
 
   static forContent(
@@ -109,20 +105,12 @@ export class RangeSnapshot {
     }
   }
 
-  readonly #utils: MinimalDocumentUtilities;
-
   private constructor(
-    utils: MinimalDocumentUtilities,
+    readonly environment: DomEnvironment,
     readonly parent: minimal.ParentNode,
     readonly first: minimal.ChildNode,
     readonly last: minimal.ChildNode
-  ) {
-    this.#utils = utils;
-  }
-
-  get environment(): DomEnvironment {
-    return this.#utils.environment;
-  }
+  ) {}
 
   get before(): ContentCursor {
     return ContentCursor.create(this.parent, this.first);
@@ -140,7 +128,12 @@ export class RangeSnapshot {
 
     // TODO: Verify that `this` precedes `other`
 
-    return new RangeSnapshot(this.#utils, this.parent, this.first, other.last);
+    return new RangeSnapshot(
+      this.environment,
+      this.parent,
+      this.first,
+      other.last
+    );
   }
 
   remove(): ContentCursor {
@@ -164,7 +157,7 @@ export class RangeSnapshot {
         as(`nextSibling when iterating forwards through a RangeSnapshot`)
       );
 
-      to.mutate(this.#utils).insert(current);
+      to.mutate(this.environment).insert(current);
 
       if (current === last) {
         break;
@@ -175,6 +168,6 @@ export class RangeSnapshot {
   }
 
   #toLiveRange(): minimal.LiveRange {
-    return this.#utils.rangeAround(this.first, this.last);
+    return this.environment.utils.rangeAround(this.first, this.last);
   }
 }

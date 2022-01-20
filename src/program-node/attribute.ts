@@ -76,6 +76,10 @@ export class RenderedAttribute {
     return this.#metadata;
   }
 
+  initialize(inside: minimal.ParentNode): void {
+    this.#attribute.get(inside);
+  }
+
   poll(inside: minimal.ParentNode): void {
     DOM.updateAttr(this.#attribute.get(inside), this.#value.current);
   }

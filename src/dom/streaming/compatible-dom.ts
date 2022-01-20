@@ -20,6 +20,18 @@ import {
 
 type RangeNodes = readonly [first: minimal.ChildNode, last?: minimal.ChildNode];
 
+export const RangeNodes = {
+  asSingle(nodes: RangeNodes): minimal.ChildNode | null {
+    let [first, last] = nodes;
+
+    if (last === undefined || first === last) {
+      return first;
+    } else {
+      return null;
+    }
+  },
+};
+
 export abstract class ContentRange {
   static from(...[first, last]: RangeNodes): ContentRange {
     if (last && first !== last) {
@@ -46,11 +58,17 @@ export abstract class ContentRange {
   snapshot(environment: DomEnvironment): RangeSnapshot {
     let [start, end] = this.toContentRange();
 
-    return RangeSnapshot.create(
-      MinimalDocumentUtilities.of(environment),
-      start,
-      end
-    );
+    return RangeSnapshot.create(environment, start, end);
+  }
+
+  asNode(): minimal.ChildNode | null {
+    let [start, end] = this.toContentRange();
+
+    if (end === undefined || start === end) {
+      return start;
+    } else {
+      return null;
+    }
   }
 
   toStaticRange(): minimal.StaticRange {
@@ -509,6 +527,10 @@ export class MinimalDocumentUtilities {
 
   get document(): minimal.Document {
     return this.environment.document;
+  }
+
+  createPlaceholder(): minimal.ChildNode {
+    return this.document.createComment("");
   }
 
   cursorAsRange(cursor: ContentCursor): minimal.LiveRange {

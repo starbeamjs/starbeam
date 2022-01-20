@@ -15,6 +15,7 @@ export const assertCondition: (
   // eslint-disable-next-line no-debugger
   debugger;
   let message = `Unexpected: ${DebugInformation.message(info())}`;
+  console.assert(condition, message);
   Abstraction.throw(message);
 });
 

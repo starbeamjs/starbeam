@@ -1,5 +1,7 @@
 import type { UnsafeAny } from "./wrapper";
 
+Error.stackTraceLimit = Infinity;
+
 export const FRAMES_TO_REMOVE = 3;
 const FRAME_START = "    at ";
 
@@ -7,7 +9,7 @@ export let CURRENT_FRAMES_TO_REMOVE: number | null = FRAMES_TO_REMOVE;
 
 export class Abstraction {
   static default(): Abstraction {
-    return new Abstraction(null, FRAMES_TO_REMOVE);
+    return new Abstraction(null);
   }
 
   static start(): number | null {
@@ -20,7 +22,17 @@ export class Abstraction {
     return ABSTRACTION.#end(start, error);
   }
 
-  static #stack(frames: number, message: string): Error {
+  static #stack(): string {
+    let abstraction = new Abstraction(1);
+
+    try {
+      throw Error(`capturing stack`);
+    } catch (e) {
+      return parse(abstraction.#error(null, e as Error)).stack;
+    }
+  }
+
+  static #buildError(frames: number, message: string): Error {
     let start = ABSTRACTION.#start(frames);
 
     try {
@@ -31,13 +43,23 @@ export class Abstraction {
   }
 
   static throw(message: string): never {
-    throw Abstraction.#stack(2, message);
+    throw Abstraction.#buildError(2, message);
   }
 
-  static wrap<T>(callback: () => T): T {
-    // One frame for .wrap() and one frame for the call to the callback passed
-    // to .wrap().
-    let start = ABSTRACTION.#start(3);
+  static throws(callback: () => void): void {
+    let stack = Abstraction.#stack();
+
+    try {
+      callback();
+    } catch (e) {
+      let header = parse(e as Error).header;
+      (e as Error).stack = `${header}\n${stack}`;
+      throw e;
+    }
+  }
+
+  static wrap<T>(callback: () => T, frames = 3): T {
+    let start = ABSTRACTION.#start(frames);
 
     try {
       let result = callback();
@@ -49,18 +71,16 @@ export class Abstraction {
   }
 
   #currentFrames: number | null;
-  readonly #toRemove: number;
 
-  private constructor(currentFrames: number | null, toRemove: number) {
+  private constructor(currentFrames: number | null) {
     this.#currentFrames = currentFrames;
-    this.#toRemove = toRemove;
   }
 
   #start(frames: number): number | null {
     let prev = this.#currentFrames;
 
     if (this.#currentFrames === null) {
-      this.#currentFrames = this.#toRemove;
+      this.#currentFrames = frames;
     } else {
       this.#currentFrames += frames;
     }
@@ -104,6 +124,9 @@ export class Abstraction {
   #filter(currentFrames: number, error: Error): Error {
     let filteredError: Error = error as UnsafeAny;
 
+    console.log(`[FILTERING] ${currentFrames} frames`);
+    console.log(`[ORIGINAL] ${error.stack}`);
+
     if (error.stack === undefined) {
       throw Error(`Unexpected: missing error.stack`);
     }
@@ -123,8 +146,34 @@ export class Abstraction {
     }
 
     filteredError.stack = filtered.join("\n");
+
+    console.log(`[FILTERED] ${filteredError.stack}`);
+
     return filteredError;
   }
 }
 
 const ABSTRACTION = Abstraction.default();
+
+function parse(error: Error): { header: string; stack: string } {
+  let lines = (error.stack as string).split("\n");
+  let headerDone = false;
+
+  let header = [];
+  let stack = [];
+
+  for (let line of lines) {
+    if (headerDone) {
+      stack.push(line);
+    } else {
+      if (line.startsWith(FRAME_START)) {
+        headerDone = true;
+        stack.push(line);
+      } else {
+        header.push(line);
+      }
+    }
+  }
+
+  return { header: header.join("\n"), stack: stack.join("\n") };
+}

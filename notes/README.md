@@ -6,17 +6,8 @@ $ pnpm run guides
 
 ## Features To Implement
 
-- [ ] Reactive Outputs
-  - [x] TextNode (🔑)
-  - [ ] CommentNode (🚀)
-  - [ ] ElementNode (🔑)
-  - [ ] AttributeNode (🔑)
-  - [ ] FragmentNode (🔑)
-- [ ] Testing
-  - [x] Staticness (🔑)
-  - [x] Constness (🔑)
-  - [ ] Stability (🔑)
-  - [ ] Revalidation efficiency (🥇)
+### Starbeam
+
 - [ ] Reactive Inputs
   - [x] Cell (🔑)
   - [x] Static (🔑)
@@ -26,14 +17,33 @@ $ pnpm run guides
     - [ ] with arbitrary interior access, _required for user-facing functions_ (🔑)
     - [ ] without arbitrary interior access, _required to propagate staticness_ (🔑)
 - [ ] Reactive Effects
+  - [ ] Disposal
   - [ ] MVP: A single timing (🔑)
   - [ ] Design for Event Handlers that mutate cells (🔑)
   - [ ] Timing Buckets (🚀)
-- [ ] A single top-down revalidation entry-point (🔑)
+- [ ] Autotrack (🔑)
+- [ ] Adapters
+  - [ ] React (🔑)
+  - [ ] Solid.js (🚀)
+  - [ ] Ember (🚀)
+  - [ ] Vue, Svelte, or Angular (🥈)
+
+### Starcatcher Library
+
+- [ ] Reactive Outputs
+  - [x] TextNode (🔑)
+  - [x] CommentNode (🚀)
+  - [x] ElementNode (🔑)
+  - [x] AttributeNode (🔑)
+  - [ ] FragmentNode (🔑)
+  - [ ] ListNode (🔑)
+  - [ ] MatchNode (🔑)
+  - [ ] KeyedComponentNode
 - [ ] Rehydration
   - [ ] Without Repair (🥈)
   - [ ] Repair (🥈)
   - [ ] Streaming Render (🥇)
+- [ ] A single top-down revalidation entry-point (🔑)
 - [ ] Adapters
   - [ ] React-like (🚀)
   - [ ] Glimmer-like (🚀)
@@ -41,6 +51,16 @@ $ pnpm run guides
   - [ ] Mobx-like (🥈)
   - [ ] Vue-like (🥇)
   - [ ] Svelte-like (🥇)
+
+### Starcatcher Framework
+
+- [ ] Testing
+
+  - [x] Staticness (🔑)
+  - [x] Constness (🔑)
+  - [ ] Stability (🔑)
+  - [ ] Revalidation efficiency (🥇)
+
 - [ ] Guides
   - [ ] Porting the Ember component guide (🚀)
   - [ ] A new tutorial (🚀)
@@ -200,7 +220,7 @@ let output = OutputMatch(bool, {
 {{/if}}
 
 <MyThing>
-  <:header />
+  <:header></:header>
 </MyThing>
 
 {{#match ec}}

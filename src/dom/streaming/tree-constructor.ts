@@ -9,16 +9,16 @@ import {
   ElementBodyBuffer,
   HtmlBuffer,
 } from "../buffer/body";
+import type { DomEnvironment } from "../environment";
+import type { ContentRange } from "./compatible-dom";
 import type { ContentCursor } from "./cursor";
-import { ContentRange, MinimalDocumentUtilities } from "./compatible-dom";
 import {
   ATTRIBUTE_MARKER,
   CHARACTER_DATA_MARKER,
   CONTENT_RANGE_MARKER,
   ELEMENT_MARKER,
 } from "./marker";
-import { Dehydrated, Tokens } from "./token";
-import type { DomEnvironment } from "../environment";
+import type { Dehydrated, Tokens } from "./token";
 
 export type ContentOperationOptions = {
   readonly token: true;
@@ -204,22 +204,26 @@ export type ElementBodyConstructor = ContentConstructor<ElementBodyBuffer>;
  */
 export class TreeConstructor extends ContentConstructor<HtmlBuffer> {
   static html(environment: DomEnvironment): TreeConstructor {
-    return new TreeConstructor(HtmlBuffer.create(), Tokens.create(environment));
+    return new TreeConstructor(
+      HtmlBuffer.create(),
+      environment.tokens,
+      environment
+    );
   }
 
   readonly #buffer: HtmlBuffer;
-  readonly #environment: DomEnvironment;
 
-  private constructor(buffer: HtmlBuffer, tokens: Tokens) {
+  private constructor(
+    buffer: HtmlBuffer,
+    tokens: Tokens,
+    readonly environment: DomEnvironment
+  ) {
     super(tokens, buffer);
     this.#buffer = buffer;
-    this.#environment = tokens.environment;
   }
 
   insertAt(cursor: ContentCursor): void {
-    cursor
-      .mutate(MinimalDocumentUtilities.of(this.#environment))
-      .insertHTML(this.#buffer.serialize());
+    cursor.mutate(this.environment).insertHTML(this.#buffer.serialize());
   }
 
   replace(placeholder: minimal.TemplateElement): void {

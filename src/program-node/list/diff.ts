@@ -41,18 +41,37 @@ export class ListArtifacts {
     this.metadata = metadata;
   }
 
-  range(inside: minimal.ParentNode): RangeSnapshot {
-    return this.#last.range(inside);
+  isEmpty(): boolean {
+    return this.#last.isEmpty();
+  }
+
+  get boundaries(): [first: KeyedContent, last: KeyedContent] | null {
+    return this.#last.boundaries;
+  }
+
+  initialize(inside: minimal.ParentNode): void {
+    this.#last.initialize(inside);
   }
 
   poll(
     loop: CurrentLoop,
     inside: minimal.ParentNode,
     range: RangeSnapshot
-  ): void {
+  ): minimal.ChildNode | null | undefined {
+    if (this.isEmpty() && loop.isEmpty()) {
+      return;
+    }
+
     let newKeys = loop.keys;
     let diff = this.#diff(newKeys, loop, range);
     let newContent: KeyedContent[] = [];
+
+    let placeholder: minimal.ChildNode | null = null;
+
+    if (newKeys.length === 0) {
+      placeholder = range.environment.utils.createPlaceholder();
+      range.after.mutate(range.environment).insert(placeholder);
+    }
 
     for (let operation of diff) {
       // console.log(`applying ${operation.describe()}`);
@@ -83,10 +102,12 @@ export class ListArtifacts {
     let newList = newKeys.map((key) => mergedIndex.get(key)).filter(isPresent);
 
     if (newList.length === 0) {
-      throw Error("todo: Empty list");
+      this.#last = RenderSnapshot.of(null);
     } else {
       this.#last = RenderSnapshot.of(NonemptyList.verify(newList));
     }
+
+    return placeholder;
   }
 
   #diff(
@@ -116,29 +137,19 @@ export class ListArtifacts {
                 if (oldKeys.length === 0) {
                   insertion = this.#insertOnly(range);
                 } else {
-                  insertion = this.#insertBefore(this.#existing(oldKeys[0]));
+                  insertion = this.#insertBeforeContent(
+                    this.#existing(oldKeys[0])
+                  );
                 }
               } else {
                 if (entry.oldPos >= oldKeys.length) {
-                  insertion = this.#insertAtEnd(range.parent);
+                  insertion = this.#insertAtCursor(range.after);
                 } else {
-                  insertion = this.#insertBefore(
+                  insertion = this.#insertBeforeContent(
                     this.#existing(oldKeys[entry.oldPos])
                   );
                 }
               }
-
-              // // Get the rendered content that this item should be rendered
-              // // *before*.
-              // let nextKey = oldKeys[entry.oldPos + i + 1] || null;
-              // let next = nextKey ? this.#existing(nextKey) : null;
-
-              // // Get the rendered content that this item should be rendered
-              // // *before*.
-              // let prevKey = oldKeys[entry.oldPos + i] || null;
-              // let prev = prevKey ? this.#existing(prevKey) : null;
-
-              // let insertion = this.#insertion(next, prev, range);
 
               if (removes.has(key)) {
                 removes.delete(key);
@@ -177,20 +188,16 @@ export class ListArtifacts {
     return verified(this.#last.get(key), is.Present);
   }
 
-  #insertAfter(prev: KeyedContent): InsertAt {
-    return InsertAt.after(prev);
-  }
-
-  #insertBefore(next: KeyedContent): InsertAt {
-    return InsertAt.before(next);
+  #insertBeforeContent(next: KeyedContent): InsertAt {
+    return InsertAt.beforeContent(next);
   }
 
   #insertOnly(range: RangeSnapshot): InsertAt {
     return InsertAt.replace(range);
   }
 
-  #insertAtEnd(parent: minimal.ParentNode): InsertAt {
-    return InsertAt.appendTo(parent);
+  #insertAtCursor(cursor: ContentCursor): InsertAt {
+    return InsertAt.insertAtCursor(cursor);
   }
 }
 
@@ -328,7 +335,7 @@ class MoveOperation extends PatchOperation {
 }
 
 export abstract class InsertAt {
-  static before(keyed: KeyedContent): InsertAt {
+  static beforeContent(keyed: KeyedContent): InsertAt {
     return new InsertBefore(keyed);
   }
 
@@ -340,8 +347,8 @@ export abstract class InsertAt {
     return new Replace(range);
   }
 
-  static appendTo(parent: minimal.ParentNode): InsertAt {
-    return new InsertAtEnd(parent);
+  static insertAtCursor(cursor: ContentCursor): InsertAt {
+    return new InsertACursor(cursor);
   }
 
   abstract insert<T>(
@@ -369,16 +376,16 @@ class InsertBefore extends InsertAt {
   }
 }
 
-class InsertAtEnd extends InsertAt {
-  readonly #parent: minimal.ParentNode;
+class InsertACursor extends InsertAt {
+  readonly #cursor: ContentCursor;
 
-  constructor(parent: minimal.ParentNode) {
+  constructor(cursor: ContentCursor) {
     super();
-    this.#parent = parent;
+    this.#cursor = cursor;
   }
 
   insert<T>(at: (cursor: ContentCursor) => T): T {
-    return at(ContentCursor.create(this.#parent, null));
+    return at(this.#cursor);
   }
 
   describe(): string {

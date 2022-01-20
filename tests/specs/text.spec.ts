@@ -1,22 +1,18 @@
-import { test, Expects, expect, toBe } from "../support";
+import { Expects, test } from "../support";
+import { Dynamism } from "../support/expect/expect";
 
 test("dynamic text", ({ universe: timeline, test }) => {
   let cell = timeline.cell("hello");
-  let text = test.buildText(cell, Expects.dynamic);
+  let text = test.buildText(cell, Dynamism.dynamic);
 
-  let { result, into } = test.render(text, Expects.dynamic);
-  expect(into.innerHTML, toBe("hello"));
-
-  cell.update("goodbye");
-  result.poll();
-
-  expect(into.innerHTML, toBe("goodbye"));
+  test
+    .render(text, Expects.dynamic.html("hello"))
+    .update([cell, "goodbye"], Expects.html("goodbye"));
 });
 
 test("static text", ({ universe: timeline, test }) => {
   let hello = timeline.static("hello");
-  let text = test.buildText(hello, Expects.static);
+  let text = test.buildText(hello, Dynamism.static);
 
-  let { into } = test.render(text, Expects.static);
-  expect(into.innerHTML, toBe("hello"));
+  test.render(text, Expects.static.html("hello"));
 });

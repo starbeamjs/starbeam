@@ -1,9 +1,4 @@
 import type { minimal } from "@domtree/flavors";
-import {
-  ContentCursor,
-  RangeSnapshot,
-  RANGE_SNAPSHOT,
-} from "../../dom/streaming/cursor";
 import { NonemptyList } from "../../utils";
 import { OrderedIndex } from "../../utils/index-map";
 import { isPresent } from "../../utils/presence";
@@ -14,11 +9,23 @@ import {
 import type { ContentsIndex } from "./loop";
 
 export class RenderSnapshot {
-  static verified(list: readonly KeyedContent[]): RenderSnapshot {
+  static from(list: readonly KeyedContent[]): RenderSnapshot {
+    if (list.length === 0) {
+      return RenderSnapshot.of(null);
+    }
+
     return RenderSnapshot.of(NonemptyList.verify(list));
   }
 
-  static of(list: NonemptyList<KeyedContent>): RenderSnapshot {
+  static of(list: NonemptyList<KeyedContent> | null): RenderSnapshot {
+    if (list === null) {
+      return new RenderSnapshot(
+        null,
+        { isConstant: true },
+        OrderedIndex.empty((keyed) => keyed.key)
+      );
+    }
+
     return new RenderSnapshot(
       list,
       {
@@ -30,34 +37,36 @@ export class RenderSnapshot {
     );
   }
 
-  readonly #list: NonemptyList<KeyedContent>;
+  readonly #list: NonemptyList<KeyedContent> | null;
 
   private constructor(
-    list: NonemptyList<KeyedContent>,
+    list: NonemptyList<KeyedContent> | null,
     readonly metadata: RenderedContentMetadata,
     readonly contents: ContentsIndex
   ) {
     this.#list = list;
   }
 
-  range(inside: minimal.ParentNode): RangeSnapshot {
-    let { first, last } = this.#list;
-    let rangeA = first.content[RANGE_SNAPSHOT](inside);
-    let rangeB = last.content[RANGE_SNAPSHOT](inside);
-
-    return rangeA.join(rangeB);
+  isEmpty(): boolean {
+    return this.#list === null;
   }
 
   adding(...content: readonly KeyedContent[]): RenderSnapshot {
     if (content.length === 0) {
       return this;
+    } else if (this.#list === null) {
+      return RenderSnapshot.from(content);
     } else {
       return RenderSnapshot.of(this.#list.pushing(...content));
     }
   }
 
-  remove(inside: minimal.ParentNode): ContentCursor {
-    return this.range(inside).remove();
+  get boundaries(): [first: KeyedContent, last: KeyedContent] | null {
+    if (this.#list) {
+      return [this.#list.first, this.#list.last];
+    } else {
+      return null;
+    }
   }
 
   getPresent(keys: readonly unknown[]): readonly KeyedContent[] {
@@ -73,9 +82,19 @@ export class RenderSnapshot {
     return this.contents.get(key);
   }
 
+  initialize(inside: minimal.ParentNode): void {
+    if (this.#list) {
+      for (let item of this.#list) {
+        item.content.initialize(inside);
+      }
+    }
+  }
+
   poll(inside: minimal.ParentNode): void {
-    for (let item of this.#list) {
-      item.content.poll(inside);
+    if (this.#list) {
+      for (let item of this.#list) {
+        item.content.poll(inside);
+      }
     }
   }
 }

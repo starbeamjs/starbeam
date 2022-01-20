@@ -1,19 +1,18 @@
 import { test, Expects } from "../support";
+import { Dynamism } from "../support/expect/expect";
 
-test("a record is a reactive value", ({ universe: timeline, test }) => {
-  let first = timeline.cell("Tom");
-  let last = timeline.cell("Dale");
-  let id = timeline.static(1);
+test("a record is a reactive value", ({ universe, test }) => {
+  let first = universe.cell("Tom");
+  let last = universe.cell("Dale");
+  let id = universe.static(1);
 
-  let record = timeline.record({ first, last, id });
+  let record = universe.record({ first, last, id });
 
-  let text = test.buildText(record.get("first"), Expects.dynamic);
+  let text = test.buildText(record.get("first"), Dynamism.dynamic);
 
-  let { result, into } = test.render(text, Expects.dynamic);
-  expect(into.innerHTML).toBe("Tom");
+  test
+    .render(text, Expects.dynamic.html("Tom"))
+    .update([first, "Thomas"], Expects.html("Thomas"));
 
-  first.update("Thomas");
-  result.poll();
-
-  expect(into.innerHTML).toBe("Thomas");
+  // result.update(first, "Thomas", Expects.html("Thomas"));
 });

@@ -1,4 +1,5 @@
 import { Abstraction } from "starbeam";
+import { toBe } from "./patterns";
 import {
   Failure,
   JestReporter,
@@ -7,9 +8,59 @@ import {
   Success,
 } from "./report";
 
-export enum Expects {
+export enum Dynamism {
   dynamic = "dynamic",
   static = "static",
+}
+
+export class Expects {
+  static get dynamic(): Expects {
+    return new Expects(Dynamism.dynamic, null);
+  }
+
+  static get static(): Expects {
+    return new Expects(Dynamism.static, null);
+  }
+
+  static html(content: string): Expects {
+    return new Expects(null, content);
+  }
+
+  readonly #dynamism: Dynamism | null;
+  readonly #html: string | null;
+
+  private constructor(dynamism: Dynamism, html: string | null) {
+    this.#dynamism = dynamism;
+    this.#html = html;
+  }
+
+  html(contents: string): Expects {
+    return new Expects(this.#dynamism, contents);
+  }
+
+  get dynamism(): Dynamism {
+    return this.#dynamism;
+  }
+
+  get contents(): string | null {
+    return this.#html;
+  }
+
+  assertDynamism(actual: Dynamism): void {
+    if (this.#dynamism !== null) {
+      expect(actual, toBe(this.#dynamism));
+    }
+  }
+
+  assertContents(actual: string): void {
+    if (this.#html === null) {
+      return;
+    }
+
+    Abstraction.wrap(() => {
+      expect(actual, toBe(this.#html));
+    });
+  }
 }
 
 // export interface PatternMatch<T, Allowed> {
@@ -122,7 +173,7 @@ export class Expectations {
         pattern.success(checked.value as unknown as Out, checked.value)
       );
     } else {
-      Abstraction.wrap(() => {
+      Abstraction.throws(() => {
         this.#reporter.failure(pattern.failure(actual, checked.value));
       });
     }

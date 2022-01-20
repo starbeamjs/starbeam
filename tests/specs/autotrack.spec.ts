@@ -1,5 +1,6 @@
 import { test, expect, toBe, Expects } from "../support";
 import type { Universe } from "starbeam";
+import { Dynamism } from "../support/expect/expect";
 
 test("timeline.memo", ({ universe }) => {
   let name = universe.cell("Tom");
@@ -35,14 +36,10 @@ test("nested timeline.memo", ({ universe }) => {
 test("timeline.memo => text", ({ universe, test }) => {
   let { firstName, fullName } = testName(universe, "Tom", "Dale");
 
-  let text = test.buildText(fullName, Expects.dynamic);
-  let { result, into } = test.render(text, Expects.dynamic);
+  let text = test.buildText(fullName, Dynamism.dynamic);
+  let result = test.render(text, Expects.dynamic.html("Tom Dale"));
 
-  expect(into.innerHTML, toBe("Tom Dale"));
-
-  test.update(result, firstName, "Thomas");
-
-  expect(into.innerHTML, toBe("Thomas Dale"));
+  result.update([firstName, "Thomas"], Expects.html("Thomas Dale"));
 });
 
 function testName(universe: Universe, first: string, last: string) {

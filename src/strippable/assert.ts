@@ -107,6 +107,7 @@ export interface CompleteContext extends VerifyContext {
 }
 
 export interface PartialVerifyContext {
+  when?: string;
   expected?: string;
   relationship?: {
     kind: "to be" | "to have";
@@ -120,6 +121,7 @@ export interface MutableVerifyContext {
     kind: "to be" | "to have";
     description: string;
   };
+  when?: string;
 }
 
 const verifyValue: <In, Out extends In>(

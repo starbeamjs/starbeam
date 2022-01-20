@@ -1,23 +1,28 @@
 import type { minimal } from "@domtree/flavors";
+import type { DomEnvironment } from "../../dom";
 import type { ContentRange } from "../../dom/streaming/compatible-dom";
 import { RangeSnapshot, RANGE_SNAPSHOT } from "../../dom/streaming/cursor";
 import type { LazyDOM } from "../../dom/streaming/token";
-import type {
+import {
   ContentConstructor,
+  TOKEN,
   TreeConstructor,
 } from "../../dom/streaming/tree-constructor";
 import { Reactive } from "../../reactive/core";
 import { ReactiveParameter } from "../../reactive/parameter";
+import { verified } from "../../strippable/assert";
+import { is } from "../../strippable/minimal";
+import { as } from "../../strippable/verify-context";
 import { NonemptyList } from "../../utils";
 import { OrderedIndex } from "../../utils/index-map";
 import type { Component } from "../component";
+import { RenderedCharacterData } from "../data";
 import {
   AbstractContentProgramNode,
   BuildMetadata,
   ContentProgramNode,
   DYNAMIC_BUILD_METADATA,
   ProgramNode,
-  STATIC_BUILD_METADATA,
 } from "../interfaces/program-node";
 import {
   RenderedContent,
@@ -139,6 +144,10 @@ export class CurrentLoop implements Iterable<KeyedProgramNode> {
     }
   }
 
+  isEmpty(): boolean {
+    return this.#index.list.length === 0;
+  }
+
   get keys(): readonly unknown[] {
     return this.#index.keys;
   }
@@ -216,7 +225,7 @@ export const Loop = {
  * of the elements of the iterable are also static.
  */
 export class StaticListProgramNode
-  implements AbstractContentProgramNode<RenderedStaticList>
+  implements AbstractContentProgramNode<RenderedContent>
 {
   static of(loop: StaticLoop) {
     return new StaticListProgramNode([...loop], loop.metadata);
@@ -233,7 +242,7 @@ export class StaticListProgramNode
     this.metadata = metadata;
   }
 
-  render(buffer: TreeConstructor): RenderedStaticList {
+  render(buffer: TreeConstructor): RenderedContent {
     let content: KeyedContent[] = [];
     let isConstant = true;
 
@@ -245,7 +254,10 @@ export class StaticListProgramNode
     }
 
     if (content.length === 0) {
-      throw Error("todo: Empty list");
+      return RenderedCharacterData.create(
+        Reactive.from(""),
+        buffer.comment("", TOKEN).dom
+      );
     } else {
       return RenderedStaticList.create(
         RenderSnapshot.of(NonemptyList.verify(content)),
@@ -275,7 +287,17 @@ export class RenderedStaticList extends RenderedContent {
   }
 
   [RANGE_SNAPSHOT](parent: minimal.ParentNode): RangeSnapshot {
-    return this.#artifacts.range(parent);
+    let [start, end] = verified(
+      this.#artifacts.boundaries,
+      is.Present,
+      as(`artifact boundaries`).when(`the list is a RenderedStaticList`)
+    );
+
+    return RangeSnapshot.forContent(parent, start.content, end.content);
+  }
+
+  initialize(inside: minimal.ParentNode): void {
+    this.#artifacts.initialize(inside);
   }
 
   poll(inside: minimal.ParentNode): void {
@@ -287,39 +309,77 @@ export class DynamicListProgramNode
   implements AbstractContentProgramNode<RenderedDynamicList>
 {
   static of(loop: DynamicLoop) {
-    return new DynamicListProgramNode(loop);
+    return new DynamicListProgramNode(loop, { isStatic: false });
   }
-
-  readonly metadata: BuildMetadata = STATIC_BUILD_METADATA;
 
   readonly #loop: DynamicLoop;
 
-  constructor(loop: DynamicLoop) {
+  constructor(loop: DynamicLoop, readonly metadata: BuildMetadata) {
     this.#loop = loop;
   }
 
   render(buffer: TreeConstructor): RenderedDynamicList {
     let contents: KeyedContent[] = [];
-    let isConstant = true;
 
     let fragment = buffer.fragment((buffer) => {
       for (let content of this.#loop.current) {
         let rendered = content.render(buffer);
 
-        isConstant &&= rendered.metadata.isConstant;
         contents.push(KeyedContent.create(content.key, rendered));
       }
     });
 
     return RenderedDynamicList.create(
       this.#loop,
-      ListArtifacts.create(
-        { isStatic: false },
-        RenderSnapshot.verified(contents)
-      ),
+      ListArtifacts.create({ isStatic: false }, RenderSnapshot.from(contents)),
       fragment.dom,
-      { isConstant }
+      { isConstant: false }
     );
+  }
+}
+
+class Fragment {
+  static of(lazy: LazyDOM<ContentRange>): Fragment {
+    return new Fragment(lazy, undefined);
+  }
+
+  readonly #lazy: LazyDOM<ContentRange>;
+  #placeholder: minimal.ChildNode | null | undefined;
+
+  constructor(
+    lazy: LazyDOM<ContentRange>,
+    placeholder: minimal.ChildNode | null | undefined
+  ) {
+    this.#lazy = lazy;
+    this.#placeholder = placeholder;
+  }
+
+  get environment(): DomEnvironment {
+    return this.#lazy.environment;
+  }
+
+  initialize(inside: minimal.ParentNode): void {
+    this.#lazy.get(inside);
+  }
+
+  get(inside: minimal.ParentNode): minimal.ChildNode {
+    if (this.#placeholder === undefined) {
+      this.#placeholder = verified(
+        this.#lazy.get(inside).asNode(),
+        is.Comment,
+        as(`the ContentRange for a rendered list`).when(`the list was empty`)
+      );
+    }
+
+    return verified(
+      this.#placeholder,
+      is.Present,
+      as(`The ContentRange for a rendered list`).when(`the list was empty`)
+    );
+  }
+
+  set(placeholder: minimal.ChildNode | null): void {
+    this.#placeholder = placeholder;
   }
 }
 
@@ -330,17 +390,22 @@ export class RenderedDynamicList extends RenderedContent {
     fragment: LazyDOM<ContentRange>,
     metadata: RenderedContentMetadata
   ): RenderedDynamicList {
-    return new RenderedDynamicList(loop, artifacts, fragment, metadata);
+    return new RenderedDynamicList(
+      loop,
+      artifacts,
+      Fragment.of(fragment),
+      metadata
+    );
   }
 
   readonly #loop: DynamicLoop;
   readonly #artifacts: ListArtifacts;
-  readonly #fragment: LazyDOM<ContentRange>;
+  readonly #fragment: Fragment;
 
   private constructor(
     loop: DynamicLoop,
     artifacts: ListArtifacts,
-    fragment: LazyDOM<ContentRange>,
+    fragment: Fragment,
     readonly metadata: RenderedContentMetadata
   ) {
     super();
@@ -350,16 +415,33 @@ export class RenderedDynamicList extends RenderedContent {
   }
 
   [RANGE_SNAPSHOT](parent: minimal.ParentNode): RangeSnapshot {
-    return this.#fragment.get(parent).snapshot(this.#fragment.environment);
+    let boundaries = this.#artifacts.boundaries;
+
+    if (boundaries) {
+      let [start, end] = boundaries;
+      return RangeSnapshot.forContent(parent, start.content, end.content);
+    } else {
+      let placeholder = this.#fragment.get(parent);
+      return RangeSnapshot.create(this.#fragment.environment, placeholder);
+    }
+  }
+
+  initialize(inside: minimal.ParentNode): void {
+    this.#fragment.initialize(inside);
+    this.#artifacts.initialize(inside);
   }
 
   poll(inside: minimal.ParentNode): void {
-    this.#fragment.get(inside);
-
-    this.#artifacts.poll(
+    let placeholder = this.#artifacts.poll(
       this.#loop.current,
       inside,
-      this.#artifacts.range(inside)
+      this[RANGE_SNAPSHOT](inside)
     );
+
+    if (placeholder === undefined) {
+      return;
+    } else {
+      this.#fragment.set(placeholder);
+    }
   }
 }

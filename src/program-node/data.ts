@@ -1,6 +1,5 @@
 import type * as minimal from "@domtree/minimal";
 import type { ContentBuffer } from "../dom/buffer/body";
-import { MinimalDocumentUtilities } from "../dom/streaming/compatible-dom";
 import { RangeSnapshot, RANGE_SNAPSHOT } from "../dom/streaming/cursor";
 import type { Dehydrated, LazyDOM } from "../dom/streaming/token";
 import { ContentConstructor, TOKEN } from "../dom/streaming/tree-constructor";
@@ -73,7 +72,7 @@ export class CommentProgramNode extends CharacterDataProgramNode {
   }
 }
 
-class RenderedCharacterData extends RenderedContent {
+export class RenderedCharacterData extends RenderedContent {
   static create(
     reactive: Reactive<string>,
     node: LazyDOM<minimal.CharacterData>
@@ -96,14 +95,15 @@ class RenderedCharacterData extends RenderedContent {
     this.#node = node;
   }
 
+  initialize(inside: minimal.ParentNode): void {
+    this.#node.get(inside);
+  }
+
   poll(inside: minimal.ParentNode): void {
     mutable(this.#node.get(inside)).data = this.#reactive.current;
   }
 
   [RANGE_SNAPSHOT](inside: minimal.ParentNode): RangeSnapshot {
-    return RangeSnapshot.create(
-      MinimalDocumentUtilities.of(this.#node.environment),
-      this.#node.get(inside)
-    );
+    return RangeSnapshot.create(this.#node.environment, this.#node.get(inside));
   }
 }
