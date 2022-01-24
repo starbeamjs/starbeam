@@ -9,7 +9,8 @@ import {
   TreeConstructor,
 } from "../../dom/streaming/tree-constructor";
 import { Reactive } from "../../reactive/core";
-import { ReactiveParameter } from "../../reactive/parameter";
+import { ReactiveMetadata } from "../../reactive/metadata";
+import type { ReactiveParameter } from "../../reactive/parameter";
 import { verified } from "../../strippable/assert";
 import { is } from "../../strippable/minimal";
 import { as } from "../../strippable/verify-context";
@@ -19,15 +20,9 @@ import type { Component } from "../component";
 import { RenderedCharacterData } from "../data";
 import {
   AbstractContentProgramNode,
-  BuildMetadata,
   ContentProgramNode,
-  DYNAMIC_BUILD_METADATA,
-  ProgramNode,
 } from "../interfaces/program-node";
-import {
-  RenderedContent,
-  type RenderedContentMetadata,
-} from "../interfaces/rendered-content";
+import { RenderedContent } from "../interfaces/rendered-content";
 import { ListArtifacts } from "./diff";
 import { KeyedContent, RenderSnapshot } from "./snapshot";
 
@@ -39,15 +34,10 @@ export class StaticLoop {
     component: Component<P>,
     key: Key<P>
   ): StaticLoop {
-    let list = [...iterable];
-    let isStatic = list.every(ReactiveParameter.isStatic);
     return new StaticLoop(
       [...iterable],
       key as Key<ReactiveParameter>,
-      component as Component,
-      {
-        isStatic,
-      }
+      component as Component
     );
   }
 
@@ -58,12 +48,15 @@ export class StaticLoop {
   private constructor(
     list: readonly ReactiveParameter[],
     key: Key<ReactiveParameter>,
-    component: Component,
-    readonly metadata: BuildMetadata
+    component: Component
   ) {
     this.#list = list;
     this.#key = key;
     this.#component = component;
+  }
+
+  get metadata(): ReactiveMetadata {
+    return ReactiveMetadata.all(...this.#list);
   }
 
   *[Symbol.iterator](): IterableIterator<KeyedProgramNode> {
@@ -80,18 +73,14 @@ export class StaticLoop {
 export type Key<P extends ReactiveParameter> = (input: P) => unknown;
 export type AnyKey = Key<ReactiveParameter>;
 
-export class KeyedProgramNode
-  implements AbstractContentProgramNode<RenderedContent>
-{
+export class KeyedProgramNode extends AbstractContentProgramNode<RenderedContent> {
   static component<P extends ReactiveParameter>(
     component: Component<P>,
     arg: P,
     key: unknown
   ): KeyedProgramNode {
     let node = component(arg);
-    return new KeyedProgramNode(node, key, {
-      isStatic: ProgramNode.isStatic(node),
-    });
+    return new KeyedProgramNode(node, key);
   }
 
   static render(
@@ -104,12 +93,13 @@ export class KeyedProgramNode
 
   readonly #node: ContentProgramNode;
 
-  private constructor(
-    node: ContentProgramNode,
-    readonly key: unknown,
-    readonly metadata: BuildMetadata
-  ) {
+  private constructor(node: ContentProgramNode, readonly key: unknown) {
+    super();
     this.#node = node;
+  }
+
+  get metadata(): ReactiveMetadata {
+    return this.#node.metadata;
   }
 
   render(buffer: ContentConstructor): RenderedContent {
@@ -172,7 +162,6 @@ export class DynamicLoop {
     return new DynamicLoop(iterable, component as Component, key as AnyKey);
   }
 
-  readonly metadata: BuildMetadata = DYNAMIC_BUILD_METADATA;
   readonly #iterable: Reactive<Iterable<ReactiveParameter>>;
   readonly #component: Component;
   readonly #key: AnyKey;
@@ -189,6 +178,11 @@ export class DynamicLoop {
 
   get(parameter: ReactiveParameter): KeyedProgramNode {
     return KeyedProgramNode.component(this.#component, parameter, this.#key);
+  }
+
+  get metadata(): ReactiveMetadata {
+    // TODO: Track this over time
+    return ReactiveMetadata.Dynamic;
   }
 
   get current(): CurrentLoop {
@@ -212,7 +206,7 @@ export const Loop = {
     component: Component<P>,
     key: (input: P) => unknown
   ): Loop => {
-    if (Reactive.isStatic(iterable)) {
+    if (iterable.isConstant()) {
       return StaticLoop.create(iterable.current, component, key);
     } else {
       return DynamicLoop.create(iterable, component, key);
@@ -224,22 +218,22 @@ export const Loop = {
  * The input for a `StaticListProgramNode` is a static iterable. It is static if all
  * of the elements of the iterable are also static.
  */
-export class StaticListProgramNode
-  implements AbstractContentProgramNode<RenderedContent>
-{
+export class StaticListProgramNode extends AbstractContentProgramNode<RenderedContent> {
   static of(loop: StaticLoop) {
-    return new StaticListProgramNode([...loop], loop.metadata);
+    return new StaticListProgramNode([...loop], loop);
   }
 
   readonly #components: readonly KeyedProgramNode[];
-  readonly metadata: BuildMetadata;
+  readonly #loop: StaticLoop;
 
-  constructor(
-    components: readonly KeyedProgramNode[],
-    metadata: BuildMetadata
-  ) {
+  constructor(components: readonly KeyedProgramNode[], loop: StaticLoop) {
+    super();
     this.#components = components;
-    this.metadata = metadata;
+    this.#loop = loop;
+  }
+
+  get metadata(): ReactiveMetadata {
+    return this.#loop.metadata;
   }
 
   render(buffer: TreeConstructor): RenderedContent {
@@ -249,7 +243,7 @@ export class StaticListProgramNode
     for (let component of this.#components) {
       let rendered = component.render(buffer);
 
-      isConstant &&= rendered.metadata.isConstant;
+      isConstant &&= RenderedContent.isConstant(rendered);
       content.push(KeyedContent.create(component.key, rendered));
     }
 
@@ -261,7 +255,7 @@ export class StaticListProgramNode
     } else {
       return RenderedStaticList.create(
         RenderSnapshot.of(NonemptyList.verify(content)),
-        { isConstant }
+        isConstant ? ReactiveMetadata.Constant : ReactiveMetadata.Dynamic
       );
     }
   }
@@ -272,15 +266,15 @@ export type ContentsIndex = OrderedIndex<unknown, KeyedContent>;
 export class RenderedStaticList extends RenderedContent {
   static create(
     artifacts: RenderSnapshot,
-    metadata: RenderedContentMetadata
+    metadata: ReactiveMetadata
   ): RenderedStaticList {
     return new RenderedStaticList(artifacts, metadata);
   }
 
-  readonly metadata: RenderedContentMetadata;
+  readonly metadata: ReactiveMetadata;
   readonly #artifacts: RenderSnapshot;
 
-  constructor(artifacts: RenderSnapshot, metadata: RenderedContentMetadata) {
+  constructor(artifacts: RenderSnapshot, metadata: ReactiveMetadata) {
     super();
     this.#artifacts = artifacts;
     this.metadata = metadata;
@@ -305,17 +299,20 @@ export class RenderedStaticList extends RenderedContent {
   }
 }
 
-export class DynamicListProgramNode
-  implements AbstractContentProgramNode<RenderedDynamicList>
-{
+export class DynamicListProgramNode extends AbstractContentProgramNode<RenderedDynamicList> {
   static of(loop: DynamicLoop) {
-    return new DynamicListProgramNode(loop, { isStatic: false });
+    return new DynamicListProgramNode(loop);
   }
 
   readonly #loop: DynamicLoop;
 
-  constructor(loop: DynamicLoop, readonly metadata: BuildMetadata) {
+  constructor(loop: DynamicLoop) {
+    super();
     this.#loop = loop;
+  }
+
+  get metadata(): ReactiveMetadata {
+    return this.#loop.metadata;
   }
 
   render(buffer: TreeConstructor): RenderedDynamicList {
@@ -331,9 +328,12 @@ export class DynamicListProgramNode
 
     return RenderedDynamicList.create(
       this.#loop,
-      ListArtifacts.create({ isStatic: false }, RenderSnapshot.from(contents)),
+      ListArtifacts.create(
+        ReactiveMetadata.Dynamic,
+        RenderSnapshot.from(contents)
+      ),
       fragment.dom,
-      { isConstant: false }
+      ReactiveMetadata.Dynamic
     );
   }
 }
@@ -388,7 +388,7 @@ export class RenderedDynamicList extends RenderedContent {
     loop: DynamicLoop,
     artifacts: ListArtifacts,
     fragment: LazyDOM<ContentRange>,
-    metadata: RenderedContentMetadata
+    metadata: ReactiveMetadata
   ): RenderedDynamicList {
     return new RenderedDynamicList(
       loop,
@@ -406,7 +406,7 @@ export class RenderedDynamicList extends RenderedContent {
     loop: DynamicLoop,
     artifacts: ListArtifacts,
     fragment: Fragment,
-    readonly metadata: RenderedContentMetadata
+    readonly metadata: ReactiveMetadata
   ) {
     super();
     this.#loop = loop;

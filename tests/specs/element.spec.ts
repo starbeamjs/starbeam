@@ -37,12 +37,12 @@ test("a simple element containing a text node (static) ", ({
       attributes: { title },
       children: [dom.text(name)],
     },
-    Expects.static
+    Expects.constant
   );
 
   test.render(
     element,
-    Expects.static.html(`<div title="${TITLE}">${NAME}</div>`)
+    Expects.constant.html(`<div title="${TITLE}">${NAME}</div>`)
   );
 });
 
@@ -107,7 +107,7 @@ test("(smoke test) a dynamic element with a few children and a few attributes", 
         test.buildElement(
           "span",
           { children: ["(", "name", ")"] },
-          Expects.static
+          Expects.constant
         ),
         " -- ",
         "Over and Out",

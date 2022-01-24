@@ -11,6 +11,7 @@ import {
   is,
   Reactive,
   ReactiveDOM,
+  ReactiveMetadata,
   RenderedRoot,
   TextProgramNode,
   Universe,
@@ -18,7 +19,7 @@ import {
 } from "starbeam";
 import { upstream } from "../jest-ext";
 import { ElementArgs, TestElementArgs } from "./element";
-import { Dynamism, expect, Expects } from "./expect/expect";
+import { expect, Expects } from "./expect/expect";
 import { toBe } from "./expect/patterns/comparison";
 
 export interface TestArgs {
@@ -85,15 +86,23 @@ export class TestRoot {
   update<T>(
     [cell, value]: [cell: Cell<T>, value: T],
     expectation: Expects
+  ): this;
+  update(updater: () => void, expectation: Expects): this;
+  update<T>(
+    updater: [cell: Cell<T>, value: T] | (() => void),
+    expectation: Expects
   ): this {
-    cell.update(value);
+    if (typeof updater === "function") {
+      updater();
+    } else {
+      let [cell, value] = updater;
+      cell.update(value);
+    }
 
     this.#root.poll();
     this.#root.initialize();
 
-    expectation.assertDynamism(
-      this.#root.metadata.isConstant ? Dynamism.static : Dynamism.dynamic
-    );
+    expectation.assertDynamism(this.#root.metadata);
 
     expectation.assertContents(this.#container.innerHTML);
     return this;
@@ -118,19 +127,19 @@ export class TestSupport {
 
   buildText(
     reactive: Reactive<string>,
-    expectation: Dynamism
+    expectation: ReactiveMetadata
   ): TextProgramNode {
     let text = this.universe.dom.text(reactive);
-    expect(normalize(text.metadata.isStatic), toBe(expectation));
+    expect(text.metadata, toBe(expectation));
     return text;
   }
 
   buildComment(
     reactive: Reactive<string>,
-    expectation: Dynamism
+    expectation: ReactiveMetadata
   ): CommentProgramNode {
     let comment = this.universe.dom.comment(reactive);
-    expect(normalize(comment.metadata.isStatic), toBe(expectation));
+    expect(comment.metadata, toBe(expectation));
     return comment;
   }
 
@@ -140,13 +149,12 @@ export class TestSupport {
       args
     );
     let element = ElementProgramNodeBuilder.build(tagName, build);
-    expect(normalize(element.metadata.isStatic), toBe(expectation.dynamism));
+    expect(element.metadata, toBe(expectation.dynamism));
 
     return element;
   }
 
   render(node: ContentProgramNode, expectation: Expects): TestRoot {
-    // return Abstraction.wrap(() => {
     let element = this.#environment.document.createElementNS(
       HTML_NAMESPACE,
       "div"
@@ -156,11 +164,10 @@ export class TestSupport {
     verify(result, is.Present);
 
     expect(
-      normalize(result.metadata.isConstant),
+      result.metadata,
       toBe(expectation.dynamism, {
-        actual: result.metadata.isConstant ? "constant" : "dynamic",
-        expected:
-          expectation.dynamism === Dynamism.static ? "constant" : "dynamic",
+        actual: result.metadata.describe(),
+        expected: expectation.dynamism.describe(),
       })
     );
 
@@ -176,7 +183,6 @@ export class TestSupport {
     expectation.assertContents(element.innerHTML);
 
     return TestRoot.create(result, element);
-    // }, 0);
   }
 
   // update<T>(rendered: RenderedRoot, cell: Cell<T>, value: T): void {
@@ -191,10 +197,6 @@ export type Test = (args: {
   test: TestSupport;
   universe: Universe;
 }) => void | Promise<void>;
-
-function normalize(isStatic: boolean): Dynamism {
-  return isStatic ? Dynamism.static : Dynamism.dynamic;
-}
 
 export { expect } from "./expect/expect";
 export { toBe } from "./expect/patterns";

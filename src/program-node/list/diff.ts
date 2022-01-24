@@ -7,16 +7,12 @@ import {
   RANGE_SNAPSHOT,
 } from "../../dom/streaming/cursor";
 import { TreeConstructor } from "../../dom/streaming/tree-constructor";
-import type { ReactiveMetadata } from "../../reactive/core";
+import type { ReactiveMetadata } from "../../reactive/metadata";
 import { exhaustive, verified } from "../../strippable/assert";
 import { is } from "../../strippable/minimal";
 import { NonemptyList } from "../../utils";
 import { OrderedIndex } from "../../utils/index-map";
 import { isPresent } from "../../utils/presence";
-import {
-  RenderedContentMetadata,
-  UPDATING_METADATA,
-} from "../interfaces/rendered-content";
 import type { CurrentLoop, KeyedProgramNode } from "./loop";
 import { KeyedContent, RenderSnapshot } from "./snapshot";
 
@@ -28,15 +24,13 @@ export class ListArtifacts {
     input: ReactiveMetadata,
     snapshot: RenderSnapshot
   ): ListArtifacts {
-    let metadata = input.isStatic ? snapshot.metadata : UPDATING_METADATA;
-
-    return new ListArtifacts(snapshot, metadata);
+    return new ListArtifacts(snapshot, input);
   }
 
   #last: RenderSnapshot;
-  readonly metadata: RenderedContentMetadata;
+  readonly metadata: ReactiveMetadata;
 
-  private constructor(last: RenderSnapshot, metadata: RenderedContentMetadata) {
+  private constructor(last: RenderSnapshot, metadata: ReactiveMetadata) {
     this.#last = last;
     this.metadata = metadata;
   }

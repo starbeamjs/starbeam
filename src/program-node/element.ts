@@ -7,39 +7,25 @@ import {
   ElementHeadConstructor,
   TreeConstructor,
 } from "../dom/streaming/tree-constructor";
-import { Reactive } from "../reactive/core";
+import type { Reactive } from "../reactive/core";
+import { ReactiveMetadata } from "../reactive/metadata";
 import { AttributeProgramNode, RenderedAttribute } from "./attribute";
 import {
   AbstractContentProgramNode,
-  BuildMetadata,
   ContentProgramNode,
-  ProgramNode,
 } from "./interfaces/program-node";
-import {
-  RenderedContent,
-  RenderedContentMetadata,
-} from "./interfaces/rendered-content";
+import { RenderedContent } from "./interfaces/rendered-content";
 
-export class ElementProgramNode
-  implements AbstractContentProgramNode<RenderedElementNode>
-{
+export class ElementProgramNode extends AbstractContentProgramNode<RenderedElementNode> {
   static create(
     tagName: Reactive<string>,
     buildAttributes: readonly BuildAttribute[],
     content: readonly ContentProgramNode[]
   ): ElementProgramNode {
     let attributes = buildAttributes.map(AttributeProgramNode.create);
-    let staticTagName = Reactive.isStatic(tagName);
-
-    let metadata = {
-      isStatic:
-        staticTagName &&
-        content.every(ProgramNode.isStatic) &&
-        attributes.every((a) => a.metadata.isStatic),
-    };
 
     // A static element may still need to be moved
-    return new ElementProgramNode(tagName, attributes, content, metadata);
+    return new ElementProgramNode(tagName, attributes, content);
   }
 
   readonly #tagName: Reactive<string>;
@@ -49,12 +35,20 @@ export class ElementProgramNode
   private constructor(
     tagName: Reactive<string>,
     attributes: readonly AttributeProgramNode[],
-    children: readonly ContentProgramNode[],
-    readonly metadata: BuildMetadata
+    children: readonly ContentProgramNode[]
   ) {
+    super();
     this.#tagName = tagName;
     this.#attributes = attributes;
     this.#children = children;
+  }
+
+  get metadata(): ReactiveMetadata {
+    return ReactiveMetadata.all(
+      this.#tagName,
+      ...this.#children,
+      ...this.#attributes
+    );
   }
 
   render(buffer: TreeConstructor): RenderedElementNode {
@@ -160,23 +154,7 @@ export class RenderedElementNode extends RenderedContent {
     attributes: readonly RenderedAttribute[],
     children: readonly RenderedContent[]
   ): RenderedElementNode {
-    let metadata = {
-      isConstant:
-        Reactive.isStatic(tagName) &&
-        children.every(RenderedContent.isConstant),
-      isStable: {
-        firstNode: true,
-        lastNode: true,
-      },
-    };
-
-    return new RenderedElementNode(
-      node,
-      tagName,
-      attributes,
-      children,
-      metadata
-    );
+    return new RenderedElementNode(node, tagName, attributes, children);
   }
 
   readonly #element: LazyDOM<minimal.Element>;
@@ -188,14 +166,21 @@ export class RenderedElementNode extends RenderedContent {
     node: LazyDOM<minimal.Element>,
     tagName: Reactive<string>,
     attributes: readonly RenderedAttribute[],
-    children: readonly RenderedContent[],
-    readonly metadata: RenderedContentMetadata
+    children: readonly RenderedContent[]
   ) {
     super();
     this.#element = node;
     this.#tagName = tagName;
     this.#attributes = attributes;
     this.#children = children;
+  }
+
+  get metadata(): ReactiveMetadata {
+    return ReactiveMetadata.all(
+      this.#tagName,
+      ...this.#attributes,
+      ...this.#children
+    );
   }
 
   [RANGE_SNAPSHOT](inside: minimal.ParentNode): RangeSnapshot {
@@ -218,7 +203,7 @@ export class RenderedElementNode extends RenderedContent {
   }
 
   poll(inside: minimal.ParentNode): void {
-    if (Reactive.isDynamic(this.#tagName)) {
+    if (this.#tagName.isDynamic()) {
       throw new Error("Dynamic tag name");
     }
 

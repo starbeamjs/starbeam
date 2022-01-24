@@ -1,4 +1,5 @@
 import type { anydom, minimal } from "@domtree/flavors";
+import { CELLS, scopedCached, scopedReactive } from "../decorator/reactive";
 import { ReactiveDOM } from "../dom";
 import type { DomEnvironment } from "../dom/environment";
 import { DOM, MINIMAL } from "../dom/streaming/compatible-dom";
@@ -12,6 +13,9 @@ import { Memo } from "../reactive/functions/memo";
 import { Matcher, ReactiveMatch } from "../reactive/match";
 import { InnerDict, ReactiveRecord } from "../reactive/record";
 import { Static } from "../reactive/static";
+import { verified } from "../strippable/assert";
+import { is } from "../strippable/minimal";
+import { expected } from "../strippable/verify-context";
 import { Profile } from "./profile";
 import { RenderedRoot } from "./root";
 import { Timeline } from "./timeline";
@@ -36,14 +40,38 @@ export class Universe {
   readonly #timeline = Timeline.create();
 
   readonly dom: ReactiveDOM = new ReactiveDOM();
+  readonly reactive = scopedReactive(this.#timeline);
+  readonly cached = scopedCached(this.#timeline);
 
   constructor(document: DomEnvironment, profile: Profile) {
     this.#environment = document;
     this.#profile = profile;
   }
 
+  get<T extends object, K extends keyof T>(object: T, key: K): Reactive<T[K]> {
+    let cell = CELLS.get(object, key);
+
+    if (cell) {
+      return cell as Reactive<T[K]>;
+    }
+
+    let descriptor = verified(
+      getReactiveDescriptor(object, key),
+      is.Present,
+      expected(`the key passed to universe.get`)
+        .toBe(`a property of the object`)
+        .butGot(() => String(key))
+    );
+
+    if (descriptor.value) {
+      return this.static(descriptor.value);
+    } else {
+      return this.memo(() => object[key]);
+    }
+  }
+
   cell<T>(value: T): Cell<T> {
-    return new Cell(value, this.#timeline);
+    return Cell.create(value, this.#timeline);
   }
 
   /*
@@ -102,4 +130,26 @@ export class Universe {
     DOM.insert(placeholder, DOM.appending(parent));
     return placeholder;
   }
+}
+
+/**
+ * The descriptor may be on the object itself, or it may be on the prototype (as a getter).
+ */
+function getReactiveDescriptor(
+  object: object,
+  key: PropertyKey
+): PropertyDescriptor | null {
+  let target = object;
+
+  while (target) {
+    let descriptor = Object.getOwnPropertyDescriptor(target, key);
+
+    if (descriptor) {
+      return descriptor;
+    }
+
+    target = Object.getPrototypeOf(target);
+  }
+
+  return null;
 }

@@ -1,30 +1,64 @@
 import { IS_UPDATED_SINCE } from "../brands";
 import type { Timeline } from "../universe/timeline";
 import type { Timestamp } from "../universe/timestamp";
-import type { Reactive } from "./core";
+import { Reactive } from "./core";
+import { ReactiveMetadata } from "./metadata";
 import { REACTIVE_BRAND } from "./internal";
+import { verify } from "../strippable/assert";
+import { is } from "../strippable/minimal";
+import { expected } from "../strippable/verify-context";
 
-export class Cell<T> implements Reactive<T> {
+export class Cell<T> extends Reactive<T> {
+  static create<T>(value: T, timeline: Timeline): Cell<T> {
+    return new Cell(value, timeline, timeline.now, false);
+  }
+
   #value: T;
   #lastUpdate: Timestamp;
   #timeline: Timeline;
+  #frozen: boolean;
 
-  constructor(value: T, timeline: Timeline) {
+  private constructor(
+    value: T,
+    timeline: Timeline,
+    lastUpdate: Timestamp,
+    frozen: boolean
+  ) {
+    super();
     REACTIVE_BRAND.brand(this);
     this.#value = value;
     this.#timeline = timeline;
-    this.#lastUpdate = timeline.now;
+    this.#lastUpdate = lastUpdate;
+    this.#frozen = frozen;
   }
 
-  readonly metadata = { isStatic: false };
+  get metadata(): ReactiveMetadata {
+    return this.#frozen ? ReactiveMetadata.Constant : ReactiveMetadata.Dynamic;
+  }
+
+  freeze(): void {
+    this.#frozen = true;
+  }
 
   update(value: T) {
+    verify(
+      this.#frozen,
+      is.value(false),
+      expected(`a cell`)
+        .toBe(`non-frozen`)
+        .when(`updating a cell`)
+        .butGot(() => `a frozen cell`)
+    );
+
     this.#value = value;
     this.#lastUpdate = this.#timeline.bump();
   }
 
   get current(): T {
-    this.#timeline.didConsume(this);
+    if (!this.#frozen) {
+      this.#timeline.didConsume(this);
+    }
+
     return this.#value;
   }
 

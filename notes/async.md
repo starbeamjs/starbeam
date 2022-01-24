@@ -16,11 +16,18 @@ class Async<T> extends Cases {
   Data = choice.Data<T>
 }
 
+class Async<T> extends Cases(
+  ["Loading"],
+  ["Error", types.unknown],
+  ["Data", types.Variable]
+) {}
+
 const Async = Cases(
   ["Loading"],
   ["Error", types.unknown],
   ["Data", types.Variable]
 );
+type Async = typeof Async;
 
 class RemoteData<T> {
   @reactive state: Async<T>;

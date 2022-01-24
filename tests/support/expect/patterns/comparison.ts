@@ -44,7 +44,11 @@ export class ToBe<T> implements Pattern<unknown, T, undefined> {
 
   failure(actual: unknown): Failure {
     if (this.description) {
-      throw Error("todo: descriptions in toBe");
+      return NotEqual({
+        actual: this.description.actual,
+        expected: this.description.expected,
+        pattern: this.details,
+      });
     } else {
       return NotEqual({ actual, expected: this.value, pattern: this.details });
     }

@@ -1,8 +1,6 @@
 import type { minimal } from "@domtree/flavors";
-import type {
-  RenderedContent,
-  RenderedContentMetadata,
-} from "../program-node/interfaces/rendered-content";
+import type { RenderedContent } from "../program-node/interfaces/rendered-content";
+import type { ReactiveMetadata } from "../reactive/metadata";
 
 export class RenderedRoot {
   static create({
@@ -12,19 +10,19 @@ export class RenderedRoot {
     content: RenderedContent;
     into: minimal.ParentNode;
   }) {
-    return new RenderedRoot(content, into, content.metadata);
+    return new RenderedRoot(content, into);
   }
 
   readonly #content: RenderedContent;
   readonly #parent: minimal.ParentNode;
 
-  private constructor(
-    content: RenderedContent,
-    parent: minimal.ParentNode,
-    readonly metadata: RenderedContentMetadata
-  ) {
+  private constructor(content: RenderedContent, parent: minimal.ParentNode) {
     this.#content = content;
     this.#parent = parent;
+  }
+
+  get metadata(): ReactiveMetadata {
+    return this.#content.metadata;
   }
 
   /**
@@ -36,6 +34,8 @@ export class RenderedRoot {
   }
 
   poll(): void {
+    let content = this.#content;
+    debugger;
     this.#content.poll(this.#parent);
   }
 }

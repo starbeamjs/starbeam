@@ -16,3 +16,5 @@ export * from "./strippable/wrapper";
 export * from "./strippable/core";
 
 export * from "./dom/streaming";
+
+export * from "./decorator/reactive";

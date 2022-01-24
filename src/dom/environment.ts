@@ -13,7 +13,6 @@ export abstract class DomEnvironment {
     return new BrowserEnvironment(window, minimize(window.document));
   }
 
-  abstract readonly document: minimal.Document;
   abstract liveRange(): minimal.LiveRange;
   abstract staticRange(
     options: minimal.StaticRangeOptions
@@ -21,6 +20,10 @@ export abstract class DomEnvironment {
 
   readonly utils: MinimalDocumentUtilities = MinimalDocumentUtilities.of(this);
   readonly tokens: Tokens = Tokens.create(this);
+}
+
+export interface DomEnvironment {
+  readonly document: minimal.Document;
 }
 
 class JsDomEnvironment extends DomEnvironment {

@@ -1,20 +1,28 @@
 import type { UnsafeAny } from "../strippable/wrapper";
-import { Reactive } from "./core";
+import type { Reactive } from "./core";
+import { HasMetadata, ReactiveMetadata } from "./metadata";
 
-export type ReactiveChoice<T> = {
-  discriminant: string;
-  value?: Reactive<T>;
-};
+export class ReactiveChoice<T, K extends string = string> extends HasMetadata {
+  static create<T, K extends string>(
+    disciminant: K,
+    value?: Reactive<T>
+  ): ReactiveChoice<T> {
+    return new ReactiveChoice(disciminant, value);
+  }
 
-export const ReactiveChoice = {
-  isStatic(choice: AnyReactiveChoice): boolean {
-    return choice.value === undefined || Reactive.isStatic(choice.value);
-  },
+  private constructor(
+    readonly discriminant: K,
+    readonly value: Reactive<T> | undefined
+  ) {
+    super();
+  }
 
-  isDynamic(choice: AnyReactiveChoice): boolean {
-    return !ReactiveChoice.isStatic(choice);
-  },
-};
+  get metadata(): ReactiveMetadata {
+    return this.value === undefined
+      ? ReactiveMetadata.Constant
+      : this.value.metadata;
+  }
+}
 
 export type AnyReactiveChoice = ReactiveChoice<unknown>;
 
@@ -51,11 +59,11 @@ export class ReactiveCases<C extends AnyReactiveChoice> {
 
   add<K extends string>(
     discriminant: K
-  ): ReactiveCases<C | { discriminant: K }>;
+  ): ReactiveCases<C | ReactiveChoice<void, K>>;
   add<K extends string, T>(
     discriminant: K,
     value: Type<T>
-  ): ReactiveCases<C | { discriminant: K; value: Reactive<T> }>;
+  ): ReactiveCases<C | ReactiveChoice<T, K>>;
   add(
     _discriminant: string,
     _value?: Type<unknown>

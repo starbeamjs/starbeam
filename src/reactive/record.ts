@@ -1,5 +1,6 @@
 import { isObject } from "../utils";
-import { Reactive, ReactiveMetadata } from "./core";
+import type { Reactive } from "./core";
+import { HasMetadata, ReactiveMetadata } from "./metadata";
 
 export type InnerDict = {
   readonly [P in PropertyKey]: Reactive<unknown>;
@@ -13,19 +14,20 @@ export type InnerDict = {
  * If you want to update the values of a `ReactiveRecord`, the reactive value
  * must be a `Cell`, and you must update the `Cell` directly.
  */
-export class ReactiveRecord<D extends InnerDict> {
+export class ReactiveRecord<D extends InnerDict> extends HasMetadata {
   static is(value: unknown): value is AnyReactiveRecord {
     return isObject(value) && value instanceof ReactiveRecord;
   }
 
   readonly #dict: D;
-  readonly metadata: ReactiveMetadata;
 
   constructor(dict: D) {
+    super();
     this.#dict = dict;
-    this.metadata = {
-      isStatic: Object.values(this.#dict).every(Reactive.isStatic),
-    };
+  }
+
+  get metadata(): ReactiveMetadata {
+    return ReactiveMetadata.all(...Object.values(this.#dict));
   }
 
   get<K extends keyof D>(key: K): D[K] {

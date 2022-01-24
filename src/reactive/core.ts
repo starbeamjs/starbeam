@@ -1,16 +1,24 @@
 import { isObject } from "../utils";
 import { REACTIVE_BRAND } from "./internal";
+import { HasMetadata } from "./metadata";
 import { Static } from "./static";
 
-export interface ReactiveMetadata {
-  readonly isStatic: boolean;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export abstract class Reactive<T> extends HasMetadata {
+  static from<T>(reactive: IntoReactive<T>): Reactive<T> {
+    if (Reactive.is(reactive)) {
+      return reactive;
+    } else {
+      return new Static(reactive);
+    }
+  }
+
+  static is<T>(reactive: unknown | Reactive<T>): reactive is Reactive<T> {
+    return isObject(reactive) && REACTIVE_BRAND.is(reactive);
+  }
 }
 
-export interface WithReactiveMetadata {
-  readonly metadata: ReactiveMetadata;
-}
-
-export interface Reactive<T> extends WithReactiveMetadata {
+export interface Reactive<T> {
   readonly current: T;
 }
 
@@ -33,27 +41,5 @@ export type DynamicReactive<T> = Reactive<T> & {
     isStatic: false;
   };
 };
-
-export const Reactive = {
-  from<T>(reactive: IntoReactive<T>): Reactive<T> {
-    if (Reactive.is(reactive)) {
-      return reactive;
-    } else {
-      return new Static(reactive);
-    }
-  },
-
-  is<T>(reactive: unknown | Reactive<T>): reactive is Reactive<T> {
-    return isObject(reactive) && REACTIVE_BRAND.is(reactive);
-  },
-
-  isStatic<T>(reactive: Reactive<T>): reactive is StaticReactive<T> {
-    return reactive.metadata.isStatic;
-  },
-
-  isDynamic<T>(reactive: Reactive<T>): reactive is DynamicReactive<T> {
-    return !Reactive.isStatic(reactive);
-  },
-} as const;
 
 export type AnyReactive = Reactive<unknown>;

@@ -1,5 +1,6 @@
 import type { AnyReactiveChoice } from "./choice";
-import { Reactive, ReactiveMetadata, ReactiveValue } from "./core";
+import type { Reactive, ReactiveValue } from "./core";
+import { HasMetadata, ReactiveMetadata } from "./metadata";
 
 export type Matcher<C extends AnyReactiveChoice> = {
   [P in C["discriminant"]]: C["value"] extends undefined
@@ -8,6 +9,7 @@ export type Matcher<C extends AnyReactiveChoice> = {
 };
 
 export class ReactiveMatch<C extends AnyReactiveChoice, M extends Matcher<C>>
+  extends HasMetadata
   implements Reactive<ReturnType<M[C["discriminant"]]>>
 {
   static match<C extends AnyReactiveChoice, M extends Matcher<C>>(
@@ -21,6 +23,7 @@ export class ReactiveMatch<C extends AnyReactiveChoice, M extends Matcher<C>>
   #matcher: M;
 
   private constructor(reactive: Reactive<C>, matcher: M) {
+    super();
     this.#reactive = reactive;
     this.#matcher = matcher;
   }
@@ -36,13 +39,16 @@ export class ReactiveMatch<C extends AnyReactiveChoice, M extends Matcher<C>>
   }
 
   get metadata(): ReactiveMetadata {
-    if (Reactive.isStatic(this.#reactive)) {
+    if (this.#reactive.isConstant()) {
       let { value } = this.#reactive.current;
-      return {
-        isStatic: value === undefined ? true : Reactive.isStatic(value),
-      };
-    }
 
-    return { isStatic: false };
+      if (value === undefined) {
+        return ReactiveMetadata.Constant;
+      } else {
+        return value.metadata;
+      }
+    } else {
+      return ReactiveMetadata.Dynamic;
+    }
   }
 }

@@ -4,15 +4,20 @@ import {
   RangeSnapshot,
   RANGE_SNAPSHOT,
 } from "../../dom/streaming/cursor";
+import {
+  ConstantMetadata,
+  DynamicMetadata,
+  HasMetadata,
+  ReactiveMetadata,
+} from "../../reactive/metadata";
 import type { RenderedAttribute } from "../attribute";
-import type { RenderedProgramNodeMetadata } from "./program-node";
 
-export abstract class RenderedContent {
+export abstract class RenderedContent extends HasMetadata {
   static isConstant(
     this: void,
     rendered: RenderedContent
   ): rendered is ConstantRenderedContent {
-    return rendered.metadata.isConstant;
+    return rendered.metadata === ReactiveMetadata.Constant;
   }
 
   static isUpdating(
@@ -21,8 +26,6 @@ export abstract class RenderedContent {
   ): rendered is UpdatingRenderedContent {
     return !RenderedContent.isConstant(rendered);
   }
-
-  abstract readonly metadata: RenderedContentMetadata;
 
   /**
    * This should be computed fresh for each call. Consumers should never hang on
@@ -43,51 +46,16 @@ export abstract class RenderedContent {
   }
 }
 
-export type RenderedContentMetadata = RenderedProgramNodeMetadata;
-
-export const UPDATING_METADATA = {
-  isConstant: false,
-} as const;
+export interface RenderedContent {
+  readonly metadata: ReactiveMetadata;
+}
 
 export interface HasConstantMetadata {
-  metadata: {
-    isConstant: true;
-  };
+  metadata: ConstantMetadata;
 }
-
-export interface HasStableMetadata {
-  metadata: {
-    isStable: {
-      firstNode: true;
-      lastNode: true;
-    };
-  };
-}
-
-export interface HasUnstableMetadata {
-  metadata: {
-    isStable: UnstableMetadata;
-  };
-}
-
-export type UnstableMetadata =
-  | {
-      firstNode: false;
-      lastNode: true;
-    }
-  | {
-      firstNode: true;
-      lastNode: false;
-    }
-  | {
-      firstNode: false;
-      lastNode: false;
-    };
 
 export interface HasUpdatingMetadata {
-  metadata: {
-    isConstant: false;
-  };
+  metadata: DynamicMetadata;
 }
 
 export type ConstantRenderedContent = RenderedContent & HasConstantMetadata;

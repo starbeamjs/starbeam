@@ -1,5 +1,6 @@
 import { IS_UPDATED_SINCE } from "../brands";
 import type { AnyCell } from "../reactive/cell";
+import { HasMetadata, ReactiveMetadata } from "../reactive/metadata";
 import type { Timestamp } from "./timestamp";
 
 export class ActiveFrame {
@@ -20,7 +21,7 @@ export class ActiveFrame {
   }
 }
 
-export class FinalizedFrame<T> {
+export class FinalizedFrame<T> extends HasMetadata {
   readonly #children: Set<AnyCell | AnyFinalizedFrame>;
   readonly #finalizedAt: Timestamp;
   readonly #value: T;
@@ -30,9 +31,14 @@ export class FinalizedFrame<T> {
     finalizedAt: Timestamp,
     value: T
   ) {
+    super();
     this.#children = children;
     this.#finalizedAt = finalizedAt;
     this.#value = value;
+  }
+
+  get metadata(): ReactiveMetadata {
+    return ReactiveMetadata.all(...this.#children);
   }
 
   [IS_UPDATED_SINCE](timestamp: Timestamp): boolean {
@@ -46,10 +52,8 @@ export class FinalizedFrame<T> {
   }
 
   validate(): { status: "valid"; value: T } | { status: "invalid" } {
-    for (let cell of this.#children) {
-      if (cell[IS_UPDATED_SINCE](this.#finalizedAt)) {
-        return { status: "invalid" };
-      }
+    if (this[IS_UPDATED_SINCE](this.#finalizedAt)) {
+      return { status: "invalid" };
     }
 
     return { status: "valid", value: this.#value };

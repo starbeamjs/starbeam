@@ -10,7 +10,7 @@
       "disableOptimisticBPs": true,
       "program": "${workspaceFolder}/node_modules/jest/bin/jest.js",
       "cwd": "${workspaceFolder}",
-      "args": ["--runInBand", "--watchAll=false"],
+      "args": ["--runInBand", "--watchAll=false", "--no-cache"],
       "skipFiles": [
         // "<node_internals>/**",
         "src/strippable/**"

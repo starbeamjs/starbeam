@@ -6,6 +6,10 @@ importers:
     specifiers:
       '@alex_neo/jest-expect-message': ^1.0.5
       '@babel/core': ^7.16.7
+      '@babel/plugin-proposal-class-properties': ^7.16.7
+      '@babel/plugin-proposal-decorators': ^7.16.7
+      '@babel/plugin-proposal-private-methods': ^7.16.11
+      '@babel/plugin-syntax-class-properties': ^7.12.13
       '@babel/preset-env': ^7.16.8
       '@babel/preset-typescript': ^7.16.7
       '@domtree/any': workspace:*
@@ -33,6 +37,7 @@ importers:
       lodash.zip: ^4.2.0
       simple-dom: ^1.4.0
       simple-html-tokenizer: ^0.5.11
+      ts-jest: ^27.1.3
       typescript: ^4.5.4
       vite: ^2.7.12
     dependencies:
@@ -40,6 +45,10 @@ importers:
     devDependencies:
       '@alex_neo/jest-expect-message': 1.0.5
       '@babel/core': 7.16.7
+      '@babel/plugin-proposal-class-properties': 7.16.7_@babel+core@7.16.7
+      '@babel/plugin-proposal-decorators': 7.16.7_@babel+core@7.16.7
+      '@babel/plugin-proposal-private-methods': 7.16.11_@babel+core@7.16.7
+      '@babel/plugin-syntax-class-properties': 7.12.13_@babel+core@7.16.7
       '@babel/preset-env': 7.16.8_@babel+core@7.16.7
       '@babel/preset-typescript': 7.16.7_@babel+core@7.16.7
       '@domtree/any': link:@types/@domtree/any
@@ -66,6 +75,7 @@ importers:
       lodash.zip: 4.2.0
       simple-dom: 1.4.0
       simple-html-tokenizer: 0.5.11
+      ts-jest: 27.1.3_c82cf09a8c20c9f058da33995250bf96
       typescript: 4.5.4
       vite: 2.7.12
 
@@ -172,6 +182,24 @@ packages:
       '@babel/helper-validator-option': 7.16.7
       browserslist: 4.19.1
       semver: 6.3.0
+    dev: true
+
+  /@babel/helper-create-class-features-plugin/7.16.10_@babel+core@7.16.7:
+    resolution: {integrity: sha512-wDeej0pu3WN/ffTxMNCPW5UCiOav8IcLRxSIyp/9+IF2xJUM9h/OYjg0IJLHaL6F8oU8kqMz9nc1vryXhMsgXg==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0
+    dependencies:
+      '@babel/core': 7.16.7
+      '@babel/helper-annotate-as-pure': 7.16.7
+      '@babel/helper-environment-visitor': 7.16.7
+      '@babel/helper-function-name': 7.16.7
+      '@babel/helper-member-expression-to-functions': 7.16.7
+      '@babel/helper-optimise-call-expression': 7.16.7
+      '@babel/helper-replace-supers': 7.16.7
+      '@babel/helper-split-export-declaration': 7.16.7
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /@babel/helper-create-class-features-plugin/7.16.7_@babel+core@7.16.7:
@@ -456,6 +484,20 @@ packages:
       - supports-color
     dev: true
 
+  /@babel/plugin-proposal-decorators/7.16.7_@babel+core@7.16.7:
+    resolution: {integrity: sha512-DoEpnuXK14XV9btI1k8tzNGCutMclpj4yru8aXKoHlVmbO1s+2A+g2+h4JhcjrxkFJqzbymnLG6j/niOf3iFXQ==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+    dependencies:
+      '@babel/core': 7.16.7
+      '@babel/helper-create-class-features-plugin': 7.16.7_@babel+core@7.16.7
+      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/plugin-syntax-decorators': 7.16.7_@babel+core@7.16.7
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
   /@babel/plugin-proposal-dynamic-import/7.16.7_@babel+core@7.16.7:
     resolution: {integrity: sha512-I8SW9Ho3/8DRSdmDdH3gORdyUuYnk1m4cMxUAdu5oy4n3OfN8flDEH+d60iG7dUfi0KkYwSvoalHzzdRzpWHTg==}
     engines: {node: '>=6.9.0'}
@@ -559,14 +601,14 @@ packages:
       '@babel/plugin-syntax-optional-chaining': 7.8.3_@babel+core@7.16.7
     dev: true
 
-  /@babel/plugin-proposal-private-methods/7.16.7_@babel+core@7.16.7:
-    resolution: {integrity: sha512-7twV3pzhrRxSwHeIvFE6coPgvo+exNDOiGUMg39o2LiLo1Y+4aKpfkcLGcg1UHonzorCt7SNXnoMyCnnIOA8Sw==}
+  /@babel/plugin-proposal-private-methods/7.16.11_@babel+core@7.16.7:
+    resolution: {integrity: sha512-F/2uAkPlXDr8+BHpZvo19w3hLFKge+k75XUprE6jaqKxjGkSYcK+4c+bup5PdW/7W/Rpjwql7FTVEDW+fRAQsw==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.16.7
-      '@babel/helper-create-class-features-plugin': 7.16.7_@babel+core@7.16.7
+      '@babel/helper-create-class-features-plugin': 7.16.10_@babel+core@7.16.7
       '@babel/helper-plugin-utils': 7.16.7
     transitivePeerDependencies:
       - supports-color
@@ -627,6 +669,16 @@ packages:
 
   /@babel/plugin-syntax-class-static-block/7.14.5_@babel+core@7.16.7:
     resolution: {integrity: sha512-b+YyPmr6ldyNnM6sqYeMWE+bgJcJpO6yS4QD7ymxgH34GBPNDM/THBh8iunyvKIZztiwLH4CJZ0RxTk9emgpjw==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+    dependencies:
+      '@babel/core': 7.16.7
+      '@babel/helper-plugin-utils': 7.16.7
+    dev: true
+
+  /@babel/plugin-syntax-decorators/7.16.7_@babel+core@7.16.7:
+    resolution: {integrity: sha512-vQ+PxL+srA7g6Rx6I1e15m55gftknl2X8GCUW1JTlkTaXZLJOS0UcaY0eK9jYT7IYf4awn6qwyghVHLDz1WyMw==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
@@ -1154,7 +1206,7 @@ packages:
       '@babel/plugin-proposal-object-rest-spread': 7.16.7_@babel+core@7.16.7
       '@babel/plugin-proposal-optional-catch-binding': 7.16.7_@babel+core@7.16.7
       '@babel/plugin-proposal-optional-chaining': 7.16.7_@babel+core@7.16.7
-      '@babel/plugin-proposal-private-methods': 7.16.7_@babel+core@7.16.7
+      '@babel/plugin-proposal-private-methods': 7.16.11_@babel+core@7.16.7
       '@babel/plugin-proposal-private-property-in-object': 7.16.7_@babel+core@7.16.7
       '@babel/plugin-proposal-unicode-property-regex': 7.16.7_@babel+core@7.16.7
       '@babel/plugin-syntax-async-generators': 7.8.4_@babel+core@7.16.7
@@ -2123,6 +2175,13 @@ packages:
       escalade: 3.1.1
       node-releases: 2.0.1
       picocolors: 1.0.0
+    dev: true
+
+  /bs-logger/0.2.6:
+    resolution: {integrity: sha512-pd8DCoxmbgc7hyPKOvxtqNcjYoOsABPQdcCUjGp3d42VR2CX1ORhk2A87oqqu5R1kk+76nsxZupkmyd+MVtCog==}
+    engines: {node: '>= 6'}
+    dependencies:
+      fast-json-stable-stringify: 2.1.0
     dev: true
 
   /bser/2.1.1:
@@ -4031,6 +4090,10 @@ packages:
     resolution: {integrity: sha1-gteb/zCmfEAF/9XiUVMArZyk168=}
     dev: true
 
+  /lodash.memoize/4.1.2:
+    resolution: {integrity: sha1-vMbEmkKihA7Zl/Mj6tpezRguC/4=}
+    dev: true
+
   /lodash.merge/4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
     dev: true
@@ -4054,6 +4117,10 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       semver: 6.3.0
+    dev: true
+
+  /make-error/1.3.6:
+    resolution: {integrity: sha512-s8UhlNe7vPKomQhC1qFelMokr/Sc3AgNbso3n74mVPA5LTZwkB9NlXf4XPamLxJE8h0gh73rM94xvwRT2CVInw==}
     dev: true
 
   /makeerror/1.0.12:
@@ -4761,6 +4828,42 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       punycode: 2.1.1
+    dev: true
+
+  /ts-jest/27.1.3_c82cf09a8c20c9f058da33995250bf96:
+    resolution: {integrity: sha512-6Nlura7s6uM9BVUAoqLH7JHyMXjz8gluryjpPXxr3IxZdAXnU6FhjvVLHFtfd1vsE1p8zD1OJfskkc0jhTSnkA==}
+    engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
+    hasBin: true
+    peerDependencies:
+      '@babel/core': '>=7.0.0-beta.0 <8'
+      '@types/jest': ^27.0.0
+      babel-jest: '>=27.0.0 <28'
+      esbuild: ~0.14.0
+      jest: ^27.0.0
+      typescript: '>=3.8 <5.0'
+    peerDependenciesMeta:
+      '@babel/core':
+        optional: true
+      '@types/jest':
+        optional: true
+      babel-jest:
+        optional: true
+      esbuild:
+        optional: true
+    dependencies:
+      '@babel/core': 7.16.7
+      '@types/jest': 27.4.0
+      babel-jest: 27.4.6_@babel+core@7.16.7
+      bs-logger: 0.2.6
+      fast-json-stable-stringify: 2.1.0
+      jest: 27.4.7
+      jest-util: 27.4.2
+      json5: 2.2.0
+      lodash.memoize: 4.1.2
+      make-error: 1.3.6
+      semver: 7.3.5
+      typescript: 4.5.4
+      yargs-parser: 20.2.9
     dev: true
 
   /tsconfig-paths/3.12.0:

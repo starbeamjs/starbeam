@@ -33,10 +33,12 @@ export abstract class HtmlAttribute implements Serialize {
     return ClobberAttribute.create(name, initial);
   }
 
-  abstract readonly name: QualifiedName;
-
   abstract merge(newValue: this | string | null): void;
   abstract serializeInto(buffer: Buffer, options?: SerializeOptions): void;
+}
+
+export interface HtmlAttribute {
+  readonly name: QualifiedName;
 }
 
 export class ConcatAttribute extends HtmlAttribute {

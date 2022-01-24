@@ -27,6 +27,10 @@
   "devDependencies": {
     "@alex_neo/jest-expect-message": "^1.0.5",
     "@babel/core": "^7.16.7",
+    "@babel/plugin-proposal-class-properties": "^7.16.7",
+    "@babel/plugin-proposal-decorators": "^7.16.7",
+    "@babel/plugin-proposal-private-methods": "^7.16.11",
+    "@babel/plugin-syntax-class-properties": "^7.12.13",
     "@babel/preset-env": "^7.16.8",
     "@babel/preset-typescript": "^7.16.7",
     "@domtree/any": "workspace:*",
@@ -53,15 +57,11 @@
     "lodash.zip": "^4.2.0",
     "simple-dom": "^1.4.0",
     "simple-html-tokenizer": "^0.5.11",
+    "ts-jest": "^27.1.3",
     "typescript": "^4.5.4",
     "vite": "^2.7.12"
   },
   "dependencies": {
     "fast-array-diff": "^1.0.1"
-  },
-  "jest": {
-    "setupFilesAfterEnv": [
-      "@alex_neo/jest-expect-message"
-    ]
   }
 }

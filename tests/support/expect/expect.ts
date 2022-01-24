@@ -1,4 +1,4 @@
-import { Abstraction } from "starbeam";
+import { Abstraction, ReactiveMetadata } from "starbeam";
 import { toBe } from "./patterns";
 import {
   Failure,
@@ -8,28 +8,28 @@ import {
   Success,
 } from "./report";
 
-export enum Dynamism {
-  dynamic = "dynamic",
-  static = "static",
-}
+export const Dynamism = {
+  constant: ReactiveMetadata.Constant,
+  dynamic: ReactiveMetadata.Dynamic,
+} as const;
 
 export class Expects {
   static get dynamic(): Expects {
-    return new Expects(Dynamism.dynamic, null);
+    return new Expects(ReactiveMetadata.Dynamic, null);
   }
 
-  static get static(): Expects {
-    return new Expects(Dynamism.static, null);
+  static get constant(): Expects {
+    return new Expects(ReactiveMetadata.Constant, null);
   }
 
   static html(content: string): Expects {
     return new Expects(null, content);
   }
 
-  readonly #dynamism: Dynamism | null;
+  readonly #dynamism: ReactiveMetadata | null;
   readonly #html: string | null;
 
-  private constructor(dynamism: Dynamism, html: string | null) {
+  private constructor(dynamism: ReactiveMetadata, html: string | null) {
     this.#dynamism = dynamism;
     this.#html = html;
   }
@@ -38,7 +38,7 @@ export class Expects {
     return new Expects(this.#dynamism, contents);
   }
 
-  get dynamism(): Dynamism {
+  get dynamism(): ReactiveMetadata {
     return this.#dynamism;
   }
 
@@ -46,9 +46,15 @@ export class Expects {
     return this.#html;
   }
 
-  assertDynamism(actual: Dynamism): void {
+  assertDynamism(actual: ReactiveMetadata): void {
     if (this.#dynamism !== null) {
-      expect(actual, toBe(this.#dynamism));
+      expect(
+        actual,
+        toBe(this.#dynamism, {
+          actual: actual.describe(),
+          expected: this.#dynamism.describe(),
+        })
+      );
     }
   }
 
@@ -62,14 +68,6 @@ export class Expects {
     });
   }
 }
-
-// export interface PatternMatch<T, Allowed> {
-//   type: {
-//     check(actual: unknown): actual is Allowed;
-//     mismatch(actual: unknown): WrongType;
-//   };
-//   assert(actual: Allowed): MatchResult;
-// }
 
 export type PatternResult<F = unknown, S = void> =
   | PatternMatch<S>

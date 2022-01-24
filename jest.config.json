@@ -1,0 +1,13 @@
+{
+  "preset": "ts-jest",
+  "globals": {
+    "ts-jest": {
+      "isolatedModules": true
+    }
+  },
+  "transform": {
+    "^.+\\.(ts|tsx)?$": "babel-jest",
+    "^.+\\.(js|jsx)$": "babel-jest"
+  },
+  "setupFilesAfterEnv": ["@alex_neo/jest-expect-message"]
+}

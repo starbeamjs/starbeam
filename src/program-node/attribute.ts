@@ -5,28 +5,25 @@ import {
   ElementHeadConstructor,
   TOKEN,
 } from "../dom/streaming/tree-constructor";
-import { Reactive } from "../reactive/core";
+import type { Reactive } from "../reactive/core";
+import type { ReactiveMetadata } from "../reactive/metadata";
 import type { BuildAttribute } from "./element";
-import type {
-  BuildMetadata,
-  RenderedProgramNodeMetadata,
-} from "./interfaces/program-node";
-import type { ConstantRenderedAttribute } from "./interfaces/rendered-content";
+import { ProgramNode } from "./interfaces/program-node";
 
-export class AttributeProgramNode {
+export class AttributeProgramNode extends ProgramNode {
   static create(attribute: BuildAttribute): AttributeProgramNode {
-    return new AttributeProgramNode(attribute, {
-      isStatic: Reactive.isStatic(attribute.value),
-    });
+    return new AttributeProgramNode(attribute);
   }
 
   #attribute: BuildAttribute;
 
-  private constructor(
-    attribute: BuildAttribute,
-    readonly metadata: BuildMetadata
-  ) {
+  private constructor(attribute: BuildAttribute) {
+    super();
     this.#attribute = attribute;
+  }
+
+  get metadata(): ReactiveMetadata {
+    return this.#attribute.value.metadata;
   }
 
   render(buffer: ElementHeadConstructor): RenderedAttribute | null {
@@ -40,40 +37,28 @@ export class AttributeProgramNode {
   }
 }
 
-export class RenderedAttribute {
+export class RenderedAttribute extends ProgramNode {
   static create(
     attribute: LazyDOM<minimal.Attr>,
     value: Reactive<string | null>
   ) {
-    return new RenderedAttribute(attribute, value, {
-      isConstant: Reactive.isStatic(value),
-    });
-  }
-
-  static isConstant(
-    this: void,
-    rendered: RenderedAttribute
-  ): rendered is ConstantRenderedAttribute {
-    return rendered.metadata.isConstant;
+    return new RenderedAttribute(attribute, value);
   }
 
   readonly #attribute: LazyDOM<minimal.Attr>;
   readonly #value: Reactive<string | null>;
 
-  #metadata: RenderedProgramNodeMetadata;
-
   private constructor(
     attribute: LazyDOM<minimal.Attr>,
-    value: Reactive<string | null>,
-    metadata: RenderedProgramNodeMetadata
+    value: Reactive<string | null>
   ) {
+    super();
     this.#attribute = attribute;
     this.#value = value;
-    this.#metadata = metadata;
   }
 
-  get metadata(): RenderedProgramNodeMetadata {
-    return this.#metadata;
+  get metadata(): ReactiveMetadata {
+    return this.#value.metadata;
   }
 
   initialize(inside: minimal.ParentNode): void {

@@ -170,6 +170,30 @@ export function isNullable<In, Out extends In>(
   return verify;
 }
 
+export type Primitive =
+  | string
+  | number
+  | boolean
+  | symbol
+  | bigint
+  | null
+  | undefined;
+
+export function isValue<T extends Primitive>(value: T): Verifier<Primitive, T> {
+  function verify(input: Primitive): input is T {
+    return input === value;
+  }
+
+  Verifier.implement<Primitive, T>(
+    verify,
+    expected(`value`)
+      .toBe(String(value))
+      .butGot((actual) => String(actual))
+  );
+
+  return verify;
+}
+
 export const is = {
   Node: isNode,
   ParentNode: isParentNode,
@@ -183,6 +207,7 @@ export const is = {
   Present: isPresent,
 
   nullable: isNullable,
+  value: isValue,
 } as const;
 
 // TODO: Deal with SVG and MathML tag names

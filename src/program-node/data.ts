@@ -3,20 +3,13 @@ import type { ContentBuffer } from "../dom/buffer/body";
 import { RangeSnapshot, RANGE_SNAPSHOT } from "../dom/streaming/cursor";
 import type { Dehydrated, LazyDOM } from "../dom/streaming/token";
 import { ContentConstructor, TOKEN } from "../dom/streaming/tree-constructor";
-import { Reactive } from "../reactive/core";
+import type { Reactive } from "../reactive/core";
+import type { ReactiveMetadata } from "../reactive/metadata";
 import { mutable } from "../strippable/minimal";
-import type {
-  AbstractContentProgramNode,
-  BuildMetadata,
-} from "./interfaces/program-node";
-import {
-  RenderedContent,
-  RenderedContentMetadata,
-} from "./interfaces/rendered-content";
+import { AbstractContentProgramNode } from "./interfaces/program-node";
+import { RenderedContent } from "./interfaces/rendered-content";
 
-export abstract class CharacterDataProgramNode
-  implements AbstractContentProgramNode<RenderedCharacterData>
-{
+export abstract class CharacterDataProgramNode extends AbstractContentProgramNode<RenderedCharacterData> {
   static text(reactive: Reactive<string>): TextProgramNode {
     return TextProgramNode.of(reactive);
   }
@@ -27,11 +20,13 @@ export abstract class CharacterDataProgramNode
 
   readonly #reactive: Reactive<string>;
 
-  protected constructor(
-    reactive: Reactive<string>,
-    readonly metadata: BuildMetadata
-  ) {
+  protected constructor(reactive: Reactive<string>) {
+    super();
     this.#reactive = reactive;
+  }
+
+  get metadata(): ReactiveMetadata {
+    return this.#reactive.metadata;
   }
 
   render(buffer: ContentConstructor<ContentBuffer>): RenderedCharacterData {
@@ -47,9 +42,7 @@ export abstract class CharacterDataProgramNode
 
 export class TextProgramNode extends CharacterDataProgramNode {
   static of(reactive: Reactive<string>): TextProgramNode {
-    return new TextProgramNode(reactive, {
-      isStatic: Reactive.isStatic(reactive),
-    });
+    return new TextProgramNode(reactive);
   }
 
   append(buffer: ContentConstructor, data: string): Dehydrated<minimal.Text> {
@@ -59,9 +52,7 @@ export class TextProgramNode extends CharacterDataProgramNode {
 
 export class CommentProgramNode extends CharacterDataProgramNode {
   static of(reactive: Reactive<string>): CommentProgramNode {
-    return new CommentProgramNode(reactive, {
-      isStatic: Reactive.isStatic(reactive),
-    });
+    return new CommentProgramNode(reactive);
   }
 
   append(
@@ -77,9 +68,7 @@ export class RenderedCharacterData extends RenderedContent {
     reactive: Reactive<string>,
     node: LazyDOM<minimal.CharacterData>
   ) {
-    return new RenderedCharacterData(reactive, node, {
-      isConstant: Reactive.isStatic(reactive),
-    });
+    return new RenderedCharacterData(reactive, node);
   }
 
   #reactive: Reactive<string>;
@@ -87,12 +76,15 @@ export class RenderedCharacterData extends RenderedContent {
 
   protected constructor(
     reactive: Reactive<string>,
-    node: LazyDOM<minimal.CharacterData>,
-    readonly metadata: RenderedContentMetadata
+    node: LazyDOM<minimal.CharacterData>
   ) {
     super();
     this.#reactive = reactive;
     this.#node = node;
+  }
+
+  get metadata(): ReactiveMetadata {
+    return this.#reactive.metadata;
   }
 
   initialize(inside: minimal.ParentNode): void {

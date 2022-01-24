@@ -1,11 +1,9 @@
 import type { minimal } from "@domtree/flavors";
+import { ReactiveMetadata } from "../../reactive/metadata";
 import { NonemptyList } from "../../utils";
 import { OrderedIndex } from "../../utils/index-map";
 import { isPresent } from "../../utils/presence";
-import {
-  RenderedContent,
-  type RenderedContentMetadata,
-} from "../interfaces/rendered-content";
+import { RenderedContent } from "../interfaces/rendered-content";
 import type { ContentsIndex } from "./loop";
 
 export class RenderSnapshot {
@@ -21,18 +19,18 @@ export class RenderSnapshot {
     if (list === null) {
       return new RenderSnapshot(
         null,
-        { isConstant: true },
+        ReactiveMetadata.Constant,
         OrderedIndex.empty((keyed) => keyed.key)
       );
     }
 
+    let isConstant = [...list].every((item) =>
+      RenderedContent.isConstant(item.content)
+    );
+
     return new RenderSnapshot(
       list,
-      {
-        isConstant: [...list].every((item) =>
-          RenderedContent.isConstant(item.content)
-        ),
-      },
+      isConstant ? ReactiveMetadata.Constant : ReactiveMetadata.Dynamic,
       OrderedIndex.create(list.asArray(), (keyed) => keyed.key)
     );
   }
@@ -41,7 +39,7 @@ export class RenderSnapshot {
 
   private constructor(
     list: NonemptyList<KeyedContent> | null,
-    readonly metadata: RenderedContentMetadata,
+    readonly metadata: ReactiveMetadata,
     readonly contents: ContentsIndex
   ) {
     this.#list = list;

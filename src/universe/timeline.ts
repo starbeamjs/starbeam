@@ -1,4 +1,5 @@
 import type { AnyCell } from "../reactive/cell";
+import { assert } from "../strippable/core";
 import { ActiveFrame, AnyFinalizedFrame, FinalizedFrame } from "./frames";
 import { Timestamp } from "./timestamp";
 
@@ -31,10 +32,19 @@ export class Timeline {
   // Run a computation in the context of a frame, and return a finalized frame.
   withFrame<T>(callback: () => T): { frame: FinalizedFrame<T>; initial: T } {
     let currentFrame = this.#frame;
+    let now = this.#now;
 
     try {
       this.#frame = new ActiveFrame();
+      // TODO: Disallow `set` while running a memo (and formalize the two kinds
+      // of frames: memo and event handler)
       let result = callback();
+
+      assert(
+        this.#now === now,
+        `The current timestamp should not change while a memo is running (TODO: make this exception happen at the point where you mutated the cell)`
+      );
+
       return this.#frame.finalize(result, this.#now);
     } finally {
       this.#frame = currentFrame;

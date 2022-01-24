@@ -12,7 +12,7 @@ test("dynamic text", ({ universe: timeline, test }) => {
 
 test("static text", ({ universe: timeline, test }) => {
   let hello = timeline.static("hello");
-  let text = test.buildText(hello, Dynamism.static);
+  let text = test.buildText(hello, Dynamism.constant);
 
-  test.render(text, Expects.static.html("hello"));
+  test.render(text, Expects.constant.html("hello"));
 });

@@ -2,7 +2,7 @@ import { test, expect, toBe, Expects } from "../support";
 import type { Universe } from "starbeam";
 import { Dynamism } from "../support/expect/expect";
 
-test("timeline.memo", ({ universe }) => {
+test("universe.memo", ({ universe }) => {
   let name = universe.cell("Tom");
   let counter = 0;
 
@@ -23,7 +23,7 @@ test("timeline.memo", ({ universe }) => {
   expect(counter, toBe(2));
 });
 
-test("nested timeline.memo", ({ universe }) => {
+test("nested universe.memo", ({ universe }) => {
   let { firstName, fullName } = testName(universe, "Tom", "Dale");
 
   expect(fullName.current, toBe("Tom Dale"));
@@ -33,13 +33,31 @@ test("nested timeline.memo", ({ universe }) => {
   expect(fullName.current, toBe("Thomas Dale"));
 });
 
-test("timeline.memo => text", ({ universe, test }) => {
+test("universe.memo => text", ({ universe, test }) => {
   let { firstName, fullName } = testName(universe, "Tom", "Dale");
 
   let text = test.buildText(fullName, Dynamism.dynamic);
   let result = test.render(text, Expects.dynamic.html("Tom Dale"));
 
   result.update([firstName, "Thomas"], Expects.html("Thomas Dale"));
+});
+
+test("universe.memo becomes constant if the underlying cell is frozen", ({
+  universe,
+  test,
+}) => {
+  let { firstName, lastName, fullName } = testName(universe, "Tom", "Dale");
+
+  test
+    .render(
+      test.buildText(fullName, Dynamism.dynamic),
+      Expects.dynamic.html("Tom Dale")
+    )
+    .update([firstName, "Thomas"], Expects.dynamic.html("Thomas Dale"))
+    .update(() => {
+      firstName.freeze();
+      lastName.freeze();
+    }, Expects.constant.html("Thomas Dale"));
 });
 
 function testName(universe: Universe, first: string, last: string) {

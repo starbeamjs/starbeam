@@ -124,8 +124,8 @@ export class Abstraction {
   #filter(currentFrames: number, error: Error): Error {
     let filteredError: Error = error as UnsafeAny;
 
-    console.log(`[FILTERING] ${currentFrames} frames`);
-    console.log(`[ORIGINAL] ${error.stack}`);
+    // console.log(`[FILTERING] ${currentFrames} frames`);
+    // console.log(`[ORIGINAL] ${error.stack}`);
 
     if (error.stack === undefined) {
       throw Error(`Unexpected: missing error.stack`);
@@ -147,7 +147,7 @@ export class Abstraction {
 
     filteredError.stack = filtered.join("\n");
 
-    console.log(`[FILTERED] ${filteredError.stack}`);
+    // console.log(`[FILTERED] ${filteredError.stack}`);
 
     return filteredError;
   }
