@@ -12,7 +12,7 @@ export class RenderSnapshot {
       return RenderSnapshot.of(null);
     }
 
-    return RenderSnapshot.of(NonemptyList.verify(list));
+    return RenderSnapshot.of(NonemptyList.verified(list));
   }
 
   static of(list: NonemptyList<KeyedContent> | null): RenderSnapshot {

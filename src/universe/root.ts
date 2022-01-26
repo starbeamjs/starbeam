@@ -34,8 +34,6 @@ export class RenderedRoot {
   }
 
   poll(): void {
-    let content = this.#content;
-    debugger;
     this.#content.poll(this.#parent);
   }
 }

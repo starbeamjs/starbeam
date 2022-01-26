@@ -75,7 +75,7 @@ export class NonemptyList<T> {
     return new NonemptyList(list);
   }
 
-  static verify<T>(list: readonly T[]): NonemptyList<T> {
+  static verified<T>(list: readonly T[]): NonemptyList<T> {
     return NonemptyList.of(verified(list, has.items, as(`non-empty list`)));
   }
 

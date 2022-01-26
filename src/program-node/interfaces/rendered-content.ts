@@ -35,6 +35,8 @@ export abstract class RenderedContent extends HasMetadata {
   abstract poll(inside: minimal.ParentNode): void;
   abstract initialize(inside: minimal.ParentNode): void;
 
+  abstract get metadata(): ReactiveMetadata;
+
   remove(inside: minimal.ParentNode): ContentCursor {
     let range = this[RANGE_SNAPSHOT](inside);
     return range.remove();
@@ -44,10 +46,6 @@ export abstract class RenderedContent extends HasMetadata {
     let range = this[RANGE_SNAPSHOT](to.parent);
     range.move(to);
   }
-}
-
-export interface RenderedContent {
-  readonly metadata: ReactiveMetadata;
 }
 
 export interface HasConstantMetadata {

@@ -78,7 +78,7 @@ export class ElementArgs {
     children,
   }: TestElementOptions): BuilderCallback {
     let normalizedChildren =
-      children?.map((c) => this.#normalizeChild(c)) ?? [];
+      children?.map((c) => normalizeChild(this.universe, c)) ?? [];
     let normalizedAttributes = attributes
       ? Object.entries(attributes).map((a) => this.#normalizeAttribute(a))
       : [];
@@ -92,14 +92,6 @@ export class ElementArgs {
         b.append(child);
       }
     };
-  }
-
-  #normalizeChild(child: TestChild): ContentProgramNode {
-    if (typeof child === "string") {
-      return this.universe.dom.text(this.universe.static(child));
-    } else {
-      return child;
-    }
   }
 
   #normalizeAttribute([name, attribute]: [
@@ -119,6 +111,18 @@ export class ElementArgs {
         value: Reactive.from(value),
       };
     }
+  }
+}
+
+export function normalizeChild(
+  this: void,
+  universe: Universe,
+  child: TestChild
+): ContentProgramNode {
+  if (typeof child === "string") {
+    return universe.dom.text(universe.static(child));
+  } else {
+    return child;
   }
 }
 

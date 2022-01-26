@@ -41,6 +41,8 @@
     "@simple-dom/interface": "^1.4.0",
     "@simple-dom/parser": "^1.4.0",
     "@simple-dom/serializer": "^1.4.0",
+    "@swc/core": "^1.2.133",
+    "@swc/jest": "^0.2.17",
     "@types/jest": "^27.4.0",
     "@types/jest-expect-message": "^1.0.3",
     "@types/jsdom": "^16.2.14",

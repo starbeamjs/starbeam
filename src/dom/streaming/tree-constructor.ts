@@ -1,6 +1,7 @@
 // import type { AnyNode } from "./simplest-dom";
 import type * as minimal from "@domtree/minimal";
-import { mutable } from "../../strippable/minimal";
+import { verified } from "../../strippable/assert";
+import { is, mutable } from "../../strippable/minimal";
 import type { AttributeValue, AttrType } from "../buffer/attribute";
 import type { ElementHeadBuffer } from "../buffer/body";
 import {
@@ -119,13 +120,22 @@ export class ContentConstructor<B extends ContentBuffer = ContentBuffer> {
     this.#buffer = buffer;
   }
 
-  fragment(
-    contents: (buffer: ContentConstructor<B>) => void
-  ): Dehydrated<ContentRange> {
-    return this.#tokens.mark(this.#buffer, CONTENT_RANGE_MARKER, (buffer) => {
-      contents(ContentConstructor.create(this.#tokens, buffer));
-      return buffer;
-    }) as Dehydrated<ContentRange>;
+  fragment<T>(contents: (buffer: ContentConstructor<B>) => T): {
+    range: Dehydrated<ContentRange>;
+    result: T;
+  } {
+    let result: T | undefined;
+
+    let range = this.#tokens.mark(
+      this.#buffer,
+      CONTENT_RANGE_MARKER,
+      (buffer) => {
+        result = contents(ContentConstructor.create(this.#tokens, buffer)) as T;
+        return buffer;
+      }
+    ) as Dehydrated<ContentRange>;
+
+    return { result: verified(result, is.Present), range };
   }
 
   text(

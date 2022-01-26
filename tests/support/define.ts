@@ -7,6 +7,7 @@ import {
   DomEnvironment,
   ElementProgramNode,
   ElementProgramNodeBuilder,
+  FragmentProgramNode,
   HTML_NAMESPACE,
   is,
   Reactive,
@@ -18,7 +19,12 @@ import {
   verify,
 } from "starbeam";
 import { upstream } from "../jest-ext";
-import { ElementArgs, TestElementArgs } from "./element";
+import {
+  ElementArgs,
+  normalizeChild,
+  TestChild,
+  TestElementArgs,
+} from "./element";
 import { expect, Expects } from "./expect/expect";
 import { toBe } from "./expect/patterns/comparison";
 
@@ -152,6 +158,21 @@ export class TestSupport {
     expect(element.metadata, toBe(expectation.dynamism));
 
     return element;
+  }
+
+  buildFragment(
+    children: readonly TestChild[],
+    expectation: Expects
+  ): FragmentProgramNode {
+    let fragment = this.dom.fragment((b) => {
+      for (let child of children) {
+        b.append(normalizeChild(this.universe, child));
+      }
+    });
+
+    expect(fragment.metadata, toBe(expectation.dynamism));
+
+    return fragment;
   }
 
   render(node: ContentProgramNode, expectation: Expects): TestRoot {

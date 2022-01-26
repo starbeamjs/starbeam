@@ -6,8 +6,19 @@
     }
   },
   "transform": {
-    "^.+\\.(ts|tsx)?$": "babel-jest",
-    "^.+\\.(js|jsx)$": "babel-jest"
+    "^.+\\.(t|j)sx?$": [
+      "@swc/jest",
+      {
+        "sourceMaps": "inline",
+        "jsc": {
+          "parser": {
+            "syntax": "typescript",
+            "decorators": true
+          },
+          "target": "es2022"
+        }
+      }
+    ]
   },
   "setupFilesAfterEnv": ["@alex_neo/jest-expect-message"]
 }

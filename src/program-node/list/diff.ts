@@ -98,7 +98,7 @@ export class ListArtifacts {
     if (newList.length === 0) {
       this.#last = RenderSnapshot.of(null);
     } else {
-      this.#last = RenderSnapshot.of(NonemptyList.verify(newList));
+      this.#last = RenderSnapshot.of(NonemptyList.verified(newList));
     }
 
     return placeholder;

@@ -9,7 +9,9 @@ import {
 } from "../dom/streaming/tree-constructor";
 import type { Reactive } from "../reactive/core";
 import { ReactiveMetadata } from "../reactive/metadata";
+import { NonemptyList } from "../utils";
 import { AttributeProgramNode, RenderedAttribute } from "./attribute";
+import { FragmentProgramNode, RenderedFragmentNode } from "./fragment";
 import {
   AbstractContentProgramNode,
   ContentProgramNode,
@@ -25,17 +27,21 @@ export class ElementProgramNode extends AbstractContentProgramNode<RenderedEleme
     let attributes = buildAttributes.map(AttributeProgramNode.create);
 
     // A static element may still need to be moved
-    return new ElementProgramNode(tagName, attributes, content);
+    return new ElementProgramNode(
+      tagName,
+      attributes,
+      FragmentProgramNode.of(NonemptyList.verified(content))
+    );
   }
 
   readonly #tagName: Reactive<string>;
   readonly #attributes: readonly AttributeProgramNode[];
-  readonly #children: readonly ContentProgramNode[];
+  readonly #children: FragmentProgramNode;
 
   private constructor(
     tagName: Reactive<string>,
     attributes: readonly AttributeProgramNode[],
-    children: readonly ContentProgramNode[]
+    children: FragmentProgramNode
   ) {
     super();
     this.#tagName = tagName;
@@ -46,7 +52,7 @@ export class ElementProgramNode extends AbstractContentProgramNode<RenderedEleme
   get metadata(): ReactiveMetadata {
     return ReactiveMetadata.all(
       this.#tagName,
-      ...this.#children,
+      this.#children,
       ...this.#attributes
     );
   }
@@ -65,7 +71,7 @@ export class ElementProgramNode extends AbstractContentProgramNode<RenderedEleme
 
 export interface FinalizedElement {
   readonly attributes: readonly RenderedAttribute[];
-  readonly content: readonly RenderedContent[];
+  readonly content: RenderedFragmentNode | null;
 }
 
 class DehydratedElementBuilder {
@@ -73,19 +79,19 @@ class DehydratedElementBuilder {
     tag: Reactive<string>,
     head: ElementHeadConstructor
   ): DehydratedElementBuilder {
-    return new DehydratedElementBuilder(tag, head, [], []);
+    return new DehydratedElementBuilder(tag, head, [], null);
   }
 
   readonly #tag: Reactive<string>;
   readonly #head: ElementHeadConstructor;
   readonly #attributes: RenderedAttribute[];
-  readonly #content: RenderedContent[];
+  #content: RenderedFragmentNode | null;
 
   private constructor(
     tag: Reactive<string>,
     head: ElementHeadConstructor,
     attributes: RenderedAttribute[],
-    content: RenderedContent[]
+    content: RenderedFragmentNode | null
   ) {
     this.#tag = tag;
     this.#head = head;
@@ -110,16 +116,10 @@ class DehydratedElementBuilder {
     return this;
   }
 
-  body(children: readonly ContentProgramNode[]): this {
+  body(children: FragmentProgramNode): this {
     let body = this.#head.body();
 
-    for (let content of children) {
-      let child = content.render(body);
-
-      if (child) {
-        this.#content.push(child);
-      }
-    }
+    this.#content = children.render(body);
 
     ElementBodyConstructor.flush(body);
 
@@ -152,21 +152,21 @@ export class RenderedElementNode extends RenderedContent {
     node: LazyDOM<minimal.Element>,
     tagName: Reactive<string>,
     attributes: readonly RenderedAttribute[],
-    children: readonly RenderedContent[]
+    children: RenderedFragmentNode | null
   ): RenderedElementNode {
     return new RenderedElementNode(node, tagName, attributes, children);
   }
 
   readonly #element: LazyDOM<minimal.Element>;
   readonly #tagName: Reactive<string>;
-  readonly #attributes: readonly RenderedAttribute[];
-  readonly #children: readonly RenderedContent[];
+  #attributes: readonly RenderedAttribute[];
+  #children: RenderedFragmentNode | null;
 
   private constructor(
     node: LazyDOM<minimal.Element>,
     tagName: Reactive<string>,
     attributes: readonly RenderedAttribute[],
-    children: readonly RenderedContent[]
+    children: RenderedFragmentNode | null
   ) {
     super();
     this.#element = node;
@@ -178,8 +178,8 @@ export class RenderedElementNode extends RenderedContent {
   get metadata(): ReactiveMetadata {
     return ReactiveMetadata.all(
       this.#tagName,
-      ...this.#attributes,
-      ...this.#children
+      ...(this.#children ? [this.#children] : []),
+      ...this.#attributes
     );
   }
 
@@ -197,8 +197,8 @@ export class RenderedElementNode extends RenderedContent {
       attr.initialize(inside);
     }
 
-    for (let child of this.#children) {
-      child.initialize(inside);
+    if (this.#children) {
+      this.#children.initialize(inside);
     }
   }
 
@@ -209,12 +209,18 @@ export class RenderedElementNode extends RenderedContent {
 
     let element = this.#element.get(inside);
 
+    this.#attributes = this.#attributes.filter((attr) => attr.isDynamic());
+
     for (let attr of this.#attributes) {
       attr.poll(element);
     }
 
-    for (let child of this.#children) {
-      child.poll(element);
+    if (this.#children !== null && this.#children.isConstant()) {
+      this.#children = null;
+    }
+
+    if (this.#children) {
+      this.#children.poll(element);
     }
   }
 }

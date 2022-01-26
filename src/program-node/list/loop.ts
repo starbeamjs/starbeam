@@ -243,7 +243,7 @@ export class StaticListProgramNode extends AbstractContentProgramNode<RenderedCo
     for (let component of this.#components) {
       let rendered = component.render(buffer);
 
-      isConstant &&= RenderedContent.isConstant(rendered);
+      isConstant = isConstant && RenderedContent.isConstant(rendered);
       content.push(KeyedContent.create(component.key, rendered));
     }
 
@@ -254,7 +254,7 @@ export class StaticListProgramNode extends AbstractContentProgramNode<RenderedCo
       );
     } else {
       return RenderedStaticList.create(
-        RenderSnapshot.of(NonemptyList.verify(content)),
+        RenderSnapshot.of(NonemptyList.verified(content)),
         isConstant ? ReactiveMetadata.Constant : ReactiveMetadata.Dynamic
       );
     }
@@ -316,14 +316,12 @@ export class DynamicListProgramNode extends AbstractContentProgramNode<RenderedD
   }
 
   render(buffer: TreeConstructor): RenderedDynamicList {
-    let contents: KeyedContent[] = [];
+    let { range, result: contents } = buffer.fragment((buffer) => {
+      return [...this.#loop.current].map((keyed) => {
+        let rendered = keyed.render(buffer);
 
-    let fragment = buffer.fragment((buffer) => {
-      for (let content of this.#loop.current) {
-        let rendered = content.render(buffer);
-
-        contents.push(KeyedContent.create(content.key, rendered));
-      }
+        return KeyedContent.create(keyed.key, rendered);
+      });
     });
 
     return RenderedDynamicList.create(
@@ -332,7 +330,7 @@ export class DynamicListProgramNode extends AbstractContentProgramNode<RenderedD
         ReactiveMetadata.Dynamic,
         RenderSnapshot.from(contents)
       ),
-      fragment.dom,
+      range.dom,
       ReactiveMetadata.Dynamic
     );
   }

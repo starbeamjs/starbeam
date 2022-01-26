@@ -4,6 +4,10 @@ import { Loop, ListProgramNode } from "./program-node/list/loop";
 import { CommentProgramNode, TextProgramNode } from "./program-node/data";
 import type { Reactive } from "./reactive/core";
 import type { ReactiveParameter } from "./reactive/parameter";
+import {
+  FragmentProgramNode,
+  FragmentProgramNodeBuilder,
+} from "./program-node/fragment";
 
 export const APPEND = Symbol("APPEND");
 
@@ -18,6 +22,12 @@ export class ReactiveDOM {
 
   element(tagName: Reactive<string>): ElementProgramNodeBuilder {
     return new ElementProgramNodeBuilder(tagName);
+  }
+
+  fragment(
+    build: (builder: FragmentProgramNodeBuilder) => void
+  ): FragmentProgramNode {
+    return FragmentProgramNodeBuilder.build(build);
   }
 
   list<P extends ReactiveParameter>(
