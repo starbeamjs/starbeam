@@ -1,28 +1,31 @@
-import type { minimal } from "@domtree/flavors";
-import type { RenderedContent } from "../program-node/interfaces/rendered-content";
+import type { RenderedProgramNode } from "../program-node/interfaces/program-node";
 import type { ReactiveMetadata } from "../reactive/metadata";
+import { LOGGER } from "../strippable/trace";
 
-export class RenderedRoot {
-  static create({
-    content,
-    into,
+export class RenderedRoot<Container> {
+  static create<Container>({
+    rendered,
+    container,
   }: {
-    content: RenderedContent;
-    into: minimal.ParentNode;
+    rendered: RenderedProgramNode<Container>;
+    container: Container;
   }) {
-    return new RenderedRoot(content, into);
+    return new RenderedRoot(rendered, container);
   }
 
-  readonly #content: RenderedContent;
-  readonly #parent: minimal.ParentNode;
+  readonly #rendered: RenderedProgramNode<Container>;
+  readonly #container: Container;
 
-  private constructor(content: RenderedContent, parent: minimal.ParentNode) {
-    this.#content = content;
-    this.#parent = parent;
+  private constructor(
+    rendered: RenderedProgramNode<Container>,
+    container: Container
+  ) {
+    this.#rendered = rendered;
+    this.#container = container;
   }
 
   get metadata(): ReactiveMetadata {
-    return this.#content.metadata;
+    return this.#rendered.metadata;
   }
 
   /**
@@ -30,10 +33,14 @@ export class RenderedRoot {
    * primarily useful if you want to look at the DOM without markers.
    */
   initialize(): void {
-    this.#content.initialize(this.#parent);
+    LOGGER.trace.group(`\ninitializing rendered root`, () =>
+      this.#rendered.initialize(this.#container)
+    );
   }
 
   poll(): void {
-    this.#content.poll(this.#parent);
+    LOGGER.trace.group(`\npolling rendered root`, () =>
+      this.#rendered.poll(this.#container)
+    );
   }
 }

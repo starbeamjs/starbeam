@@ -1,7 +1,7 @@
 {
   "name": "starbeam",
   "version": "0.0.0",
-  "module": "esm",
+  "type": "module",
   "main": "src/index.ts",
   "workspaces": [
     ".",
@@ -15,7 +15,10 @@
     "lint": "eslint .",
     "typecheck": "tsc -b",
     "typecheck:serve": "tsc -b -w --pretty false",
-    "guides": "mdbook build -d ../docs guides"
+    "guides": "mdbook build -d ../docs guides",
+    "jest:env:watch": "tsc -p ./jest -w",
+    "jest:env:build": "tsc -p ./jest",
+    "jest:cache:clear": "jest --clearCache"
   },
   "madge": {
     "detectiveOptions": {
@@ -38,10 +41,12 @@
     "@domtree/flavors": "workspace:*",
     "@domtree/interface": "workspace:*",
     "@domtree/minimal": "workspace:*",
+    "@jest/fake-timers": "^27.4.6",
+    "@jest/globals": "^27.4.6",
     "@simple-dom/interface": "^1.4.0",
     "@simple-dom/parser": "^1.4.0",
     "@simple-dom/serializer": "^1.4.0",
-    "@swc/core": "^1.2.133",
+    "@swc/core": "^1.2.136",
     "@swc/jest": "^0.2.17",
     "@types/jest": "^27.4.0",
     "@types/jest-expect-message": "^1.0.3",
@@ -50,11 +55,16 @@
     "@typescript-eslint/eslint-plugin": "^5.9.1",
     "@typescript-eslint/parser": "^5.9.1",
     "babel-jest": "^27.4.6",
+    "chalk": "^4.0.0",
     "eslint": "^8.6.0",
     "eslint-import-resolver-typescript": "^2.5.0",
     "eslint-plugin-import": "^2.25.4",
+    "expect": "^27.4.6",
     "jest": "^27.4.7",
     "jest-diff": "^27.4.6",
+    "jest-environment-node": "^27.4.6",
+    "jest-mock": "^27.4.6",
+    "jest-util": "^27.4.2",
     "jsdom": "^19.0.0",
     "lodash.zip": "^4.2.0",
     "simple-dom": "^1.4.0",
@@ -64,6 +74,7 @@
     "vite": "^2.7.12"
   },
   "dependencies": {
-    "fast-array-diff": "^1.0.1"
+    "fast-array-diff": "^1.0.1",
+    "treeify": "^1.1.0"
   }
 }

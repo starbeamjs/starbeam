@@ -3,24 +3,24 @@ import type { ContentBuffer } from "../dom/buffer/body";
 import { RangeSnapshot, RANGE_SNAPSHOT } from "../dom/streaming/cursor";
 import type { Dehydrated, LazyDOM } from "../dom/streaming/token";
 import { ContentConstructor, TOKEN } from "../dom/streaming/tree-constructor";
-import type { Reactive } from "../reactive/core";
+import type { AbstractReactive } from "../reactive/core";
 import type { ReactiveMetadata } from "../reactive/metadata";
 import { mutable } from "../strippable/minimal";
-import { AbstractContentProgramNode } from "./interfaces/program-node";
+import { ContentProgramNode } from "./interfaces/program-node";
 import { RenderedContent } from "./interfaces/rendered-content";
 
-export abstract class CharacterDataProgramNode extends AbstractContentProgramNode<RenderedCharacterData> {
-  static text(reactive: Reactive<string>): TextProgramNode {
+export abstract class CharacterDataProgramNode extends ContentProgramNode {
+  static text(reactive: AbstractReactive<string>): TextProgramNode {
     return TextProgramNode.of(reactive);
   }
 
-  static comment(reactive: Reactive<string>): CommentProgramNode {
+  static comment(reactive: AbstractReactive<string>): CommentProgramNode {
     return CommentProgramNode.of(reactive);
   }
 
-  readonly #reactive: Reactive<string>;
+  readonly #reactive: AbstractReactive<string>;
 
-  protected constructor(reactive: Reactive<string>) {
+  protected constructor(reactive: AbstractReactive<string>) {
     super();
     this.#reactive = reactive;
   }
@@ -41,7 +41,7 @@ export abstract class CharacterDataProgramNode extends AbstractContentProgramNod
 }
 
 export class TextProgramNode extends CharacterDataProgramNode {
-  static of(reactive: Reactive<string>): TextProgramNode {
+  static of(reactive: AbstractReactive<string>): TextProgramNode {
     return new TextProgramNode(reactive);
   }
 
@@ -51,7 +51,7 @@ export class TextProgramNode extends CharacterDataProgramNode {
 }
 
 export class CommentProgramNode extends CharacterDataProgramNode {
-  static of(reactive: Reactive<string>): CommentProgramNode {
+  static of(reactive: AbstractReactive<string>): CommentProgramNode {
     return new CommentProgramNode(reactive);
   }
 
@@ -65,17 +65,17 @@ export class CommentProgramNode extends CharacterDataProgramNode {
 
 export class RenderedCharacterData extends RenderedContent {
   static create(
-    reactive: Reactive<string>,
+    reactive: AbstractReactive<string>,
     node: LazyDOM<minimal.CharacterData>
   ) {
     return new RenderedCharacterData(reactive, node);
   }
 
-  #reactive: Reactive<string>;
+  #reactive: AbstractReactive<string>;
   #node: LazyDOM<minimal.CharacterData>;
 
   protected constructor(
-    reactive: Reactive<string>,
+    reactive: AbstractReactive<string>,
     node: LazyDOM<minimal.CharacterData>
   ) {
     super();

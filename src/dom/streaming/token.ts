@@ -87,12 +87,12 @@ export class Dehydrated<Hydrated = unknown> {
   }
 
   get dom(): LazyDOM<Hydrated> {
-    return LazyDOM.of(this.#environment, this);
+    return LazyDOM.create(this.#environment, this);
   }
 }
 
 export class LazyDOM<Hydrated> {
-  static of<Hydrated>(
+  static create<Hydrated>(
     environment: DomEnvironment,
     dehydrated: Dehydrated<Hydrated>
   ) {

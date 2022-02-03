@@ -1,11 +1,20 @@
-import type { FinalizedFrame } from "../../universe/frames";
+import { Group, LOGGER } from "../../strippable/trace";
+import type {
+  ActiveFrame,
+  AnyFinalizedFrame,
+  FinalizedFrame,
+} from "../../universe/frames";
 import type { Timeline } from "../../universe/timeline";
-import type { Reactive } from "../core";
+import type { AbstractReactive } from "../core";
 import { HasMetadata, ReactiveMetadata } from "../metadata";
 
-export class Memo<T> extends HasMetadata implements Reactive<T> {
-  static create<T>(callback: () => T, timeline: Timeline): Memo<T> {
-    return new Memo(callback, timeline);
+export class Memo<T> extends HasMetadata implements AbstractReactive<T> {
+  static create<T>(
+    callback: () => T,
+    timeline: Timeline,
+    description: string
+  ): Memo<T> {
+    return new Memo(callback, timeline, description);
   }
 
   readonly #callback: () => T;
@@ -18,10 +27,21 @@ export class Memo<T> extends HasMetadata implements Reactive<T> {
    */
   #metadata: ReactiveMetadata = ReactiveMetadata.Dynamic;
 
-  private constructor(callback: () => T, timeline: Timeline) {
+  #description: string;
+
+  private constructor(
+    callback: () => T,
+    timeline: Timeline,
+    description: string
+  ) {
     super();
     this.#callback = callback;
     this.#timeline = timeline;
+    this.#description = description;
+  }
+
+  get description(): string {
+    return this.#description;
   }
 
   get metadata(): ReactiveMetadata {
@@ -33,18 +53,51 @@ export class Memo<T> extends HasMetadata implements Reactive<T> {
   }
 
   get current(): T {
+    let group: Group;
+
     if (this.#frame) {
+      let validationGroup = LOGGER.trace
+        .group(
+          `validating ${this.#description} (parent = ${
+            this.#frame.description
+          })`
+        )
+        .expanded();
+
       let validation = this.#frame.validate();
 
       if (validation.status === "valid") {
+        LOGGER.trace.log(`=> valid frame for ${this.#description}`);
+        validationGroup.end();
+
+        this.#timeline.didConsume(this.#frame);
         return validation.value;
+      } else {
+        validationGroup.end();
+        group = LOGGER.trace
+          .group(`recomputing memo: ${this.#description}`)
+          .expanded();
       }
+    } else {
+      group = LOGGER.trace
+        .group(`initializing memo: ${this.#description}`)
+        .expanded();
     }
 
-    let { frame, initial } = this.#timeline.withFrame(this.#callback);
-    this.#metadata = frame.metadata;
-    this.#timeline.didConsume(frame);
-    this.#frame = frame;
-    return initial;
+    let newFrame: AnyFinalizedFrame;
+
+    try {
+      let { frame, initial } = this.#timeline.withFrame(
+        this.#callback,
+        `memo: ${this.#description}`
+      );
+      this.#metadata = frame.metadata;
+
+      this.#frame = newFrame = frame;
+      return initial;
+    } finally {
+      group.end();
+      this.#timeline.didConsume(newFrame!);
+    }
   }
 }

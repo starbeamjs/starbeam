@@ -1,27 +1,36 @@
 import { IS_UPDATED_SINCE } from "../brands";
 import type { Timeline } from "../universe/timeline";
 import type { Timestamp } from "../universe/timestamp";
-import { Reactive } from "./core";
+import { AbstractReactive } from "./core";
 import { ReactiveMetadata } from "./metadata";
 import { REACTIVE_BRAND } from "./internal";
 import { verify } from "../strippable/assert";
 import { is } from "../strippable/minimal";
 import { expected } from "../strippable/verify-context";
+import { describeValue } from "../describe";
 
-export class Cell<T> extends Reactive<T> {
-  static create<T>(value: T, timeline: Timeline): Cell<T> {
-    return new Cell(value, timeline, timeline.now, false);
+export class Cell<T> extends AbstractReactive<T> {
+  static create<T>(value: T, timeline: Timeline, description: string): Cell<T> {
+    return new Cell(
+      value,
+      timeline,
+      timeline.now,
+      `cell: ${description}`,
+      false
+    );
   }
 
   #value: T;
   #lastUpdate: Timestamp;
-  #timeline: Timeline;
+  readonly #timeline: Timeline;
+  readonly #description: string;
   #frozen: boolean;
 
   private constructor(
     value: T,
     timeline: Timeline,
     lastUpdate: Timestamp,
+    description: string,
     frozen: boolean
   ) {
     super();
@@ -29,7 +38,14 @@ export class Cell<T> extends Reactive<T> {
     this.#value = value;
     this.#timeline = timeline;
     this.#lastUpdate = lastUpdate;
+    this.#description = description;
     this.#frozen = frozen;
+  }
+
+  get description(): string {
+    return `${this.#description} (current value = ${describeValue(
+      this.#value
+    )})`;
   }
 
   get metadata(): ReactiveMetadata {

@@ -2,6 +2,7 @@
   "compilerOptions": {
     "composite": true,
     "target": "ESNext",
+    "strict": true,
     "useDefineForClassFields": true,
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,

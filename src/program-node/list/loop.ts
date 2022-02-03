@@ -8,7 +8,7 @@ import {
   TOKEN,
   TreeConstructor,
 } from "../../dom/streaming/tree-constructor";
-import { Reactive } from "../../reactive/core";
+import { AbstractReactive } from "../../reactive/core";
 import { ReactiveMetadata } from "../../reactive/metadata";
 import type { ReactiveParameter } from "../../reactive/parameter";
 import { verified } from "../../strippable/assert";
@@ -18,10 +18,7 @@ import { NonemptyList } from "../../utils";
 import { OrderedIndex } from "../../utils/index-map";
 import type { Component } from "../component";
 import { RenderedCharacterData } from "../data";
-import {
-  AbstractContentProgramNode,
-  ContentProgramNode,
-} from "../interfaces/program-node";
+import { ContentProgramNode } from "../interfaces/program-node";
 import { RenderedContent } from "../interfaces/rendered-content";
 import { ListArtifacts } from "./diff";
 import { KeyedContent, RenderSnapshot } from "./snapshot";
@@ -73,7 +70,7 @@ export class StaticLoop {
 export type Key<P extends ReactiveParameter> = (input: P) => unknown;
 export type AnyKey = Key<ReactiveParameter>;
 
-export class KeyedProgramNode extends AbstractContentProgramNode<RenderedContent> {
+export class KeyedProgramNode extends ContentProgramNode {
   static component<P extends ReactiveParameter>(
     component: Component<P>,
     arg: P,
@@ -155,19 +152,19 @@ export class CurrentLoop implements Iterable<KeyedProgramNode> {
 
 export class DynamicLoop {
   static create<P extends ReactiveParameter>(
-    iterable: Reactive<Iterable<P>>,
+    iterable: AbstractReactive<Iterable<P>>,
     component: Component<P>,
     key: Key<P>
   ): DynamicLoop {
     return new DynamicLoop(iterable, component as Component, key as AnyKey);
   }
 
-  readonly #iterable: Reactive<Iterable<ReactiveParameter>>;
+  readonly #iterable: AbstractReactive<Iterable<ReactiveParameter>>;
   readonly #component: Component;
   readonly #key: AnyKey;
 
   constructor(
-    iterable: Reactive<Iterable<ReactiveParameter>>,
+    iterable: AbstractReactive<Iterable<ReactiveParameter>>,
     component: Component,
     key: AnyKey
   ) {
@@ -202,7 +199,7 @@ export type Loop = StaticLoop | DynamicLoop;
 
 export const Loop = {
   from: <P extends ReactiveParameter>(
-    iterable: Reactive<Iterable<P>>,
+    iterable: AbstractReactive<Iterable<P>>,
     component: Component<P>,
     key: (input: P) => unknown
   ): Loop => {
@@ -218,7 +215,7 @@ export const Loop = {
  * The input for a `StaticListProgramNode` is a static iterable. It is static if all
  * of the elements of the iterable are also static.
  */
-export class StaticListProgramNode extends AbstractContentProgramNode<RenderedContent> {
+export class StaticListProgramNode extends ContentProgramNode {
   static of(loop: StaticLoop) {
     return new StaticListProgramNode([...loop], loop);
   }
@@ -249,7 +246,7 @@ export class StaticListProgramNode extends AbstractContentProgramNode<RenderedCo
 
     if (content.length === 0) {
       return RenderedCharacterData.create(
-        Reactive.from(""),
+        AbstractReactive.from(""),
         buffer.comment("", TOKEN).dom
       );
     } else {
@@ -299,7 +296,7 @@ export class RenderedStaticList extends RenderedContent {
   }
 }
 
-export class DynamicListProgramNode extends AbstractContentProgramNode<RenderedDynamicList> {
+export class DynamicListProgramNode extends ContentProgramNode {
   static of(loop: DynamicLoop) {
     return new DynamicListProgramNode(loop);
   }

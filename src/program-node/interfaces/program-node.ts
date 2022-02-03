@@ -1,20 +1,22 @@
+import type { minimal } from "@domtree/flavors";
 import type { ContentConstructor } from "../../dom/streaming/tree-constructor";
-import type { Reactive } from "../../reactive/core";
-import { PROGRAM_NODE_BRAND } from "../../reactive/internal";
+import type { AbstractReactive } from "../../reactive/core";
 import { HasMetadata, ReactiveMetadata } from "../../reactive/metadata";
-import { isObject } from "../../utils";
-import type { RenderedAttribute } from "../attribute";
 import type { RenderedContent } from "./rendered-content";
 
-export type OutputBuilder<In, Out> = (input: Reactive<In>) => Out;
+export type OutputBuilder<In, Out> = (input: AbstractReactive<In>) => Out;
 
-export type RenderedProgramNode = RenderedContent | RenderedAttribute;
+export abstract class RenderedProgramNode<Container> extends HasMetadata {
+  abstract initialize(inside: Container): void;
+  abstract poll(inside: Container): void;
+}
 
-export abstract class ProgramNode extends HasMetadata {
-  static is(value: unknown): value is ProgramNode {
-    return isObject(value) && PROGRAM_NODE_BRAND.is(value);
-  }
+// export type RenderedProgramNode = RenderedContent | RenderedAttribute;
 
+export abstract class AbstractProgramNode<
+  Cursor,
+  Container
+> extends HasMetadata {
   isConstant(): boolean {
     return this.metadata.isConstant();
   }
@@ -24,7 +26,13 @@ export abstract class ProgramNode extends HasMetadata {
   }
 
   abstract get metadata(): ReactiveMetadata;
+  abstract render(cursor: Cursor): RenderedProgramNode<Container>;
 }
+
+export type ProgramNode<
+  Cursor = unknown,
+  Container = unknown
+> = AbstractProgramNode<Cursor, Container>;
 
 export class Rendered<R extends RenderedContent> extends HasMetadata {
   static of<R extends RenderedContent>(content: R): Rendered<R> {
@@ -34,32 +42,19 @@ export class Rendered<R extends RenderedContent> extends HasMetadata {
   private constructor(readonly content: R) {
     super();
   }
+
+  get metadata(): ReactiveMetadata {
+    return this.content.metadata;
+  }
 }
 
-export abstract class AbstractContentProgramNode<
-  R extends RenderedContent
-> extends ProgramNode {
+export abstract class ContentProgramNode extends AbstractProgramNode<
+  ContentConstructor,
+  minimal.ParentNode
+> {
   /**
    * This function returns `null` if the rendered HTML is constant, and
    * therefore does not need to be updated.
    */
-  abstract render(buffer: ContentConstructor): R;
+  abstract render(buffer: ContentConstructor): RenderedContent;
 }
-
-export type ContentProgramNode<R extends RenderedContent = RenderedContent> =
-  AbstractContentProgramNode<R>;
-
-export interface HasStaticMetadata {
-  metadata: {
-    isStatic: true;
-  };
-}
-
-export interface HasDynamicMetadata {
-  metadata: {
-    isStatic: false;
-  };
-}
-
-export type StaticProgramNode = ProgramNode & HasStaticMetadata;
-export type DynamicProgramNode = ProgramNode & HasStaticMetadata;

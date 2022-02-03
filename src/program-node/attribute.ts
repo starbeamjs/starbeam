@@ -5,12 +5,18 @@ import {
   ElementHeadConstructor,
   TOKEN,
 } from "../dom/streaming/tree-constructor";
-import type { Reactive } from "../reactive/core";
+import type { AbstractReactive } from "../reactive/core";
 import type { ReactiveMetadata } from "../reactive/metadata";
 import type { BuildAttribute } from "./element";
-import { ProgramNode } from "./interfaces/program-node";
+import {
+  AbstractProgramNode,
+  RenderedProgramNode,
+} from "./interfaces/program-node";
 
-export class AttributeProgramNode extends ProgramNode {
+export class AttributeProgramNode extends AbstractProgramNode<
+  ElementHeadConstructor,
+  minimal.ParentNode
+> {
   static create(attribute: BuildAttribute): AttributeProgramNode {
     return new AttributeProgramNode(attribute);
   }
@@ -26,31 +32,31 @@ export class AttributeProgramNode extends ProgramNode {
     return this.#attribute.value.metadata;
   }
 
-  render(buffer: ElementHeadConstructor): RenderedAttribute | null {
+  render(buffer: ElementHeadConstructor): RenderedAttribute {
     let value = this.#attribute.value;
     // let value = this.#attribute.value.current;
     let attr = buffer.attr(this.#attribute.name, value.current, TOKEN);
     return RenderedAttribute.create(
-      LazyDOM.of(buffer.environment, attr),
+      LazyDOM.create(buffer.environment, attr),
       value
     );
   }
 }
 
-export class RenderedAttribute extends ProgramNode {
+export class RenderedAttribute extends RenderedProgramNode<minimal.ParentNode> {
   static create(
     attribute: LazyDOM<minimal.Attr>,
-    value: Reactive<string | null>
+    value: AbstractReactive<string | null>
   ) {
     return new RenderedAttribute(attribute, value);
   }
 
   readonly #attribute: LazyDOM<minimal.Attr>;
-  readonly #value: Reactive<string | null>;
+  readonly #value: AbstractReactive<string | null>;
 
   private constructor(
     attribute: LazyDOM<minimal.Attr>,
-    value: Reactive<string | null>
+    value: AbstractReactive<string | null>
   ) {
     super();
     this.#attribute = attribute;

@@ -6,6 +6,7 @@ import {
   PatternDetails,
   Reporter,
   Success,
+  ValueDescription,
 } from "./report";
 
 export const Dynamism = {
@@ -29,7 +30,7 @@ export class Expects {
   readonly #dynamism: ReactiveMetadata | null;
   readonly #html: string | null;
 
-  private constructor(dynamism: ReactiveMetadata, html: string | null) {
+  private constructor(dynamism: ReactiveMetadata | null, html: string | null) {
     this.#dynamism = dynamism;
     this.#html = html;
   }
@@ -38,7 +39,7 @@ export class Expects {
     return new Expects(this.#dynamism, contents);
   }
 
-  get dynamism(): ReactiveMetadata {
+  get dynamism(): ReactiveMetadata | null {
     return this.#dynamism;
   }
 
@@ -49,11 +50,8 @@ export class Expects {
   assertDynamism(actual: ReactiveMetadata): void {
     if (this.#dynamism !== null) {
       expect(
-        actual,
-        toBe(this.#dynamism, {
-          actual: actual.describe(),
-          expected: this.#dynamism.describe(),
-        })
+        value(actual).as("dynamism"),
+        toBe(this.#dynamism, (value) => value.describe())
       );
     }
   }
@@ -97,34 +95,52 @@ export function PatternMismatch(value?: unknown): PatternMismatch<unknown> {
 
 export interface Pattern<In, Out extends In, F = unknown, S = void> {
   readonly details: PatternDetails;
-  check(actual: In): PatternResult<F, S>;
+  check(actual: Described<In>): PatternResult<F, S>;
   success(actual: Out, success: S): Success;
-  failure(actual: In, failure: F): Failure;
+  failure(actual: Described<In>, failure: F): Failure;
 }
+
+export interface PatternDSL<In, Out extends In, F = unknown, S = void>
+  extends Pattern<In, Out, F, S> {
+  when(scenario: string): PatternDSL<In, Out, F, S>;
+}
+
+export type AnyPatternDSL<In, Out extends In = In> = PatternDSL<In, Out>;
 
 export type PatternFor<P extends Pattern<unknown, unknown, unknown, unknown>> =
   P extends Pattern<infer In, infer Out, infer F, infer S>
     ? PatternImpl<In, Out, F, S>
     : never;
 
-export class PatternImpl<In, Out extends In, F = unknown, S = void> {
+export class PatternImpl<In, Out extends In, F = unknown, S = void>
+  implements PatternDSL<In, Out, F, S>
+{
   static of<In, Out extends In, F, S>(
     pattern: Pattern<In, Out, F, S>
   ): PatternImpl<In, Out, F, S> {
-    return new PatternImpl(pattern);
+    return new PatternImpl(pattern, undefined);
   }
 
   #pattern: Pattern<In, Out, F, S>;
+  #scenario: string | undefined;
 
-  private constructor(pattern: Pattern<In, Out, F, S>) {
+  private constructor(
+    pattern: Pattern<In, Out, F, S>,
+    scenario: string | undefined
+  ) {
     this.#pattern = pattern;
+    this.#scenario = scenario;
   }
 
   get details(): PatternDetails {
-    return this.#pattern.details;
+    return { ...this.#pattern.details, scenario: this.#scenario };
   }
 
-  check(actual: In): PatternResult<F, S> {
+  when(scenario: string): PatternImpl<In, Out, F, S> {
+    return new PatternImpl(this.#pattern, scenario);
+  }
+
+  check(actual: Described<In>): PatternResult<F, S> {
     return this.#pattern.check(actual);
   }
 
@@ -132,8 +148,15 @@ export class PatternImpl<In, Out extends In, F = unknown, S = void> {
     return this.#pattern.success(actual, success);
   }
 
-  failure(actual: In, failure: F): Failure {
-    return this.#pattern.failure(actual, failure);
+  failure(actual: Described<In>, failure: F): Failure {
+    let outcome = this.#pattern.failure(actual, failure);
+    return {
+      ...outcome,
+      pattern: {
+        ...outcome.pattern,
+        scenario: outcome.pattern.scenario ?? this.#scenario,
+      },
+    };
   }
 
   typecheck(_actual: In, state: PatternResult<S, F>): _actual is Out {
@@ -161,9 +184,9 @@ export class Expectations {
   }
 
   expect<In, Out extends In>(
-    actual: In,
+    actual: Described<In>,
     pattern: AnyPattern<In, Out>
-  ): asserts actual is Out {
+  ): void {
     let checked = pattern.check(actual);
 
     if (checked.type === "match") {
@@ -171,14 +194,112 @@ export class Expectations {
         pattern.success(checked.value as unknown as Out, checked.value)
       );
     } else {
-      Abstraction.throws(() => {
-        this.#reporter.failure(pattern.failure(actual, checked.value));
-      });
+      this.#reporter.failure(pattern.failure(actual, checked.value));
     }
   }
 }
 
-export const expect: Expectations["expect"] = (actual, pattern) =>
-  Abstraction.wrap(() =>
-    new Expectations(new JestReporter()).expect(actual, pattern)
-  );
+export class Described<T> {
+  static create<T>(value: T, description?: string): Described<T> {
+    return new Described(value, description);
+  }
+
+  static is<T>(value: unknown): value is Described<T> {
+    return (
+      typeof value === "object" && value !== null && value instanceof Described
+    );
+  }
+
+  static from<T>(value: T | Described<T>): Described<T> {
+    if (Described.is(value)) {
+      return value;
+    } else {
+      return new Described(value);
+    }
+  }
+
+  private constructor(readonly value: T, readonly description?: string) {}
+
+  as(description: string): Described<T> {
+    return new Described(this.value, description);
+  }
+
+  toValueDescription(): ValueDescription {
+    return ValueDescription(this.value, this.description);
+  }
+}
+
+export type IntoDescribed<T> = T | Described<T>;
+
+export const value = Described.create;
+
+class Scenario {
+  static of(when: string): Scenario {
+    return new Scenario(when);
+  }
+
+  readonly #when: string;
+
+  private constructor(when: string) {
+    this.#when = when;
+  }
+
+  get when(): string {
+    return this.#when;
+  }
+}
+
+export function when(scenario: string): Scenario {
+  return Scenario.of(scenario);
+}
+
+type ExpectArgsWithScenario<In, Out extends In> = [
+  scenario: Scenario,
+  actual: IntoDescribed<In>,
+  pattern: AnyPatternDSL<In, Out>
+];
+
+type ExpectArgs<In, Out extends In> =
+  | [actual: IntoDescribed<In>, pattern: AnyPatternDSL<In, Out>]
+  | ExpectArgsWithScenario<In, Out>;
+
+function hasScenario(
+  args: ExpectArgs<unknown, unknown>
+): args is ExpectArgsWithScenario<unknown, unknown> {
+  return args[0] instanceof Scenario;
+}
+
+function expectPattern<In, Out extends In>(
+  actual: IntoDescribed<In>,
+  pattern: AnyPatternDSL<In, Out>
+): asserts actual is Out;
+function expectPattern<In, Out extends In>(
+  scenario: Scenario,
+  actual: IntoDescribed<In>,
+  pattern: AnyPatternDSL<In, Out>
+): asserts actual is Out;
+function expectPattern<In, Out extends In>(...args: ExpectArgs<In, Out>): void {
+  if (hasScenario(args)) {
+    let [scenario, actual, pattern] = args;
+    Abstraction.not(
+      () =>
+        new Expectations(new JestReporter()).expect(
+          Described.from(actual),
+          pattern.when(scenario.when)
+        ),
+      3
+    );
+  } else {
+    let [actual, pattern] = args;
+    Abstraction.not(
+      () =>
+        new Expectations(new JestReporter()).expect(
+          Described.from(actual),
+          pattern
+        ),
+      3
+    );
+  }
+}
+
+export const expect: typeof expectPattern = expectPattern;

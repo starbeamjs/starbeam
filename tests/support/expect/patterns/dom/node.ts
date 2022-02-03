@@ -7,6 +7,7 @@ import type {
   SimpleText,
 } from "@simple-dom/interface";
 import {
+  Described,
   Pattern,
   PatternFor,
   PatternImpl,
@@ -85,7 +86,9 @@ function NodeTypePattern<T extends SimpleNode>(
   return {
     details,
 
-    check(actual: SimpleNode): PatternResult<NodeTypeMismatch> {
+    check({
+      value: actual,
+    }: Described<SimpleNode>): PatternResult<NodeTypeMismatch> {
       if (actual.nodeType !== nodeType) {
         return NodeTypeMismatch(actual.nodeType, nodeType);
       } else {
@@ -100,9 +103,9 @@ function NodeTypePattern<T extends SimpleNode>(
       });
     },
 
-    failure(actual: T, failure: NodeTypeMismatch): Failure {
+    failure(actual: Described<T>, failure: NodeTypeMismatch): Failure {
       return Mismatch({
-        actual: ValueDescription(nodeName(actual.nodeType)),
+        actual: ValueDescription(nodeName(actual.value.nodeType)),
         expected: ValueDescription(nodeName(failure.expected)),
         pattern: details,
       });

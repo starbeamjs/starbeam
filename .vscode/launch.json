@@ -10,11 +10,20 @@
       "disableOptimisticBPs": true,
       "program": "${workspaceFolder}/node_modules/jest/bin/jest.js",
       "cwd": "${workspaceFolder}",
-      "args": ["--runInBand", "--watchAll=false", "--no-cache"],
+      "args": ["--runInBand", "--watchAll=false"],
+      "env": {
+        "STARBEAM_LOG": "trace",
+        "NODE_OPTIONS": "--experimental-vm-modules"
+      },
       "skipFiles": [
         // "<node_internals>/**",
-        "src/strippable/**"
+        // "src/strippable/**"
       ]
-    }
+    },
+    // {
+    //   "type": "node",
+    //   "name": "Clear Jest Cache",
+    //   ""
+    // }
   ]
 }

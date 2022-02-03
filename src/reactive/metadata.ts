@@ -6,10 +6,8 @@ export abstract class HasMetadata {
   isDynamic(): boolean {
     return this.metadata.isDynamic();
   }
-}
 
-export interface HasMetadata {
-  readonly metadata: ReactiveMetadata;
+  abstract get metadata(): ReactiveMetadata;
 }
 
 export abstract class ReactiveMetadata {

@@ -22,8 +22,13 @@ export class Abstraction {
     return ABSTRACTION.#end(start, error);
   }
 
-  static #stack(): string {
-    let abstraction = new Abstraction(1);
+  static callerFrame(frames = 3): string {
+    let stack = Abstraction.#stack(frames);
+    return stack.split("\n")[0];
+  }
+
+  static #stack(frames = 1): string {
+    let abstraction = new Abstraction(frames);
 
     try {
       throw Error(`capturing stack`);
@@ -46,8 +51,16 @@ export class Abstraction {
     throw Abstraction.#buildError(2, message);
   }
 
-  static throws(callback: () => void): void {
-    let stack = Abstraction.#stack();
+  // static eraseFrame(callback: () => void): void {
+
+  // }
+
+  static not(callback: () => void, _frames?: number): void {
+    callback();
+  }
+
+  static throws(callback: () => void, frames = 1): void {
+    let stack = Abstraction.#stack(frames);
 
     try {
       callback();
@@ -58,7 +71,7 @@ export class Abstraction {
     }
   }
 
-  static wrap<T>(callback: () => T, frames = 3): T {
+  static wrap<T>(callback: () => T, frames = 2): T {
     let start = ABSTRACTION.#start(frames);
 
     try {
@@ -80,7 +93,7 @@ export class Abstraction {
     let prev = this.#currentFrames;
 
     if (this.#currentFrames === null) {
-      this.#currentFrames = frames;
+      this.#currentFrames = frames + 1;
     } else {
       this.#currentFrames += frames;
     }

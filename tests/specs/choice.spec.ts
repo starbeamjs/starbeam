@@ -5,9 +5,11 @@ function StringType(value: unknown): value is string {
   return typeof value === "string";
 }
 
-const BooleanChoice = Cases((c) => c.add("true").add("false"));
+const BooleanChoice = Cases("Boolean", (c) => c.add("true").add("false"));
 
-const OptionalString = Cases((c) => c.add("Some", StringType).add("None"));
+const OptionalString = Cases("Optional", (c) =>
+  c.add("Some", StringType).add("None")
+);
 
 test("choice (unit, static)", ({ universe: timeline }) => {
   let truth = timeline.static(BooleanChoice("true"));

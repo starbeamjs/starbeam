@@ -2,7 +2,9 @@
   "files.exclude": {
     "node_modules": true,
     "tests/node_modules": true,
-    "docs": true
+    "docs": true,
+    "jest/environment.{d.ts,js,js.map}": true,
+    "**/*.tsbuildinfo": true
   },
   "typescript.preferences.importModuleSpecifier": "project-relative",
   "jest.jestCommandLine": "node ./node_modules/jest/bin/jest.js",

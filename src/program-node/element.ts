@@ -7,20 +7,17 @@ import {
   ElementHeadConstructor,
   TreeConstructor,
 } from "../dom/streaming/tree-constructor";
-import type { Reactive } from "../reactive/core";
+import type { AbstractReactive } from "../reactive/core";
 import { ReactiveMetadata } from "../reactive/metadata";
 import { NonemptyList } from "../utils";
 import { AttributeProgramNode, RenderedAttribute } from "./attribute";
 import { FragmentProgramNode, RenderedFragmentNode } from "./fragment";
-import {
-  AbstractContentProgramNode,
-  ContentProgramNode,
-} from "./interfaces/program-node";
+import { ContentProgramNode } from "./interfaces/program-node";
 import { RenderedContent } from "./interfaces/rendered-content";
 
-export class ElementProgramNode extends AbstractContentProgramNode<RenderedElementNode> {
+export class ElementProgramNode extends ContentProgramNode {
   static create(
-    tagName: Reactive<string>,
+    tagName: AbstractReactive<string>,
     buildAttributes: readonly BuildAttribute[],
     content: readonly ContentProgramNode[]
   ): ElementProgramNode {
@@ -34,12 +31,12 @@ export class ElementProgramNode extends AbstractContentProgramNode<RenderedEleme
     );
   }
 
-  readonly #tagName: Reactive<string>;
+  readonly #tagName: AbstractReactive<string>;
   readonly #attributes: readonly AttributeProgramNode[];
   readonly #children: FragmentProgramNode;
 
   private constructor(
-    tagName: Reactive<string>,
+    tagName: AbstractReactive<string>,
     attributes: readonly AttributeProgramNode[],
     children: FragmentProgramNode
   ) {
@@ -76,19 +73,19 @@ export interface FinalizedElement {
 
 class DehydratedElementBuilder {
   static create(
-    tag: Reactive<string>,
+    tag: AbstractReactive<string>,
     head: ElementHeadConstructor
   ): DehydratedElementBuilder {
     return new DehydratedElementBuilder(tag, head, [], null);
   }
 
-  readonly #tag: Reactive<string>;
+  readonly #tag: AbstractReactive<string>;
   readonly #head: ElementHeadConstructor;
   readonly #attributes: RenderedAttribute[];
   #content: RenderedFragmentNode | null;
 
   private constructor(
-    tag: Reactive<string>,
+    tag: AbstractReactive<string>,
     head: ElementHeadConstructor,
     attributes: RenderedAttribute[],
     content: RenderedFragmentNode | null
@@ -150,7 +147,7 @@ class DehydratedElementBuilder {
 export class RenderedElementNode extends RenderedContent {
   static create(
     node: LazyDOM<minimal.Element>,
-    tagName: Reactive<string>,
+    tagName: AbstractReactive<string>,
     attributes: readonly RenderedAttribute[],
     children: RenderedFragmentNode | null
   ): RenderedElementNode {
@@ -158,13 +155,13 @@ export class RenderedElementNode extends RenderedContent {
   }
 
   readonly #element: LazyDOM<minimal.Element>;
-  readonly #tagName: Reactive<string>;
+  readonly #tagName: AbstractReactive<string>;
   #attributes: readonly RenderedAttribute[];
   #children: RenderedFragmentNode | null;
 
   private constructor(
     node: LazyDOM<minimal.Element>,
-    tagName: Reactive<string>,
+    tagName: AbstractReactive<string>,
     attributes: readonly RenderedAttribute[],
     children: RenderedFragmentNode | null
   ) {
@@ -237,7 +234,7 @@ export type AttributeName<
 
 export interface BuildAttribute {
   name: AttributeName;
-  value: Reactive<string | null>;
+  value: AbstractReactive<string | null>;
 }
 
 export type ReactiveElementBuilderCallback = (
@@ -246,7 +243,7 @@ export type ReactiveElementBuilderCallback = (
 
 export class ElementProgramNodeBuilder {
   static build(
-    tagName: Reactive<string>,
+    tagName: AbstractReactive<string>,
     build: (builder: ElementProgramNodeBuilder) => void
   ): ElementProgramNode {
     let builder = new ElementProgramNodeBuilder(tagName);
@@ -254,11 +251,11 @@ export class ElementProgramNodeBuilder {
     return builder.finalize();
   }
 
-  readonly #tagName: Reactive<string>;
+  readonly #tagName: AbstractReactive<string>;
   readonly #children: ContentProgramNode[] = [];
   readonly #attributes: BuildAttribute[] = [];
 
-  constructor(tagName: Reactive<string>) {
+  constructor(tagName: AbstractReactive<string>) {
     this.#tagName = tagName;
   }
 

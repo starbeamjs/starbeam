@@ -5,13 +5,10 @@ import { ReactiveMetadata } from "../reactive/metadata";
 import { verify } from "../strippable/assert";
 import { has } from "../strippable/minimal";
 import { NonemptyList } from "../utils";
-import {
-  AbstractContentProgramNode,
-  ContentProgramNode,
-} from "./interfaces/program-node";
+import { ContentProgramNode } from "./interfaces/program-node";
 import { RenderedContent } from "./interfaces/rendered-content";
 
-export class FragmentProgramNode extends AbstractContentProgramNode<RenderedFragmentNode> {
+export class FragmentProgramNode extends ContentProgramNode {
   static of(children: NonemptyList<ContentProgramNode>): FragmentProgramNode {
     return new FragmentProgramNode(children);
   }

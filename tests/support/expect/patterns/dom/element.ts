@@ -1,6 +1,8 @@
 import type { SimpleElement, SimpleNode } from "@simple-dom/interface";
 import { nodeName, NodeTypePattern } from "./node";
 import {
+  Described,
+  IntoDescribed,
   Pattern,
   PatternMatch,
   PatternMismatch,
@@ -136,10 +138,11 @@ class WrongDetailsBuilder {
   }
 
   verifyChildren(
-    actual: SimpleElement,
+    actual: IntoDescribed<SimpleElement>,
     expected: readonly NodePattern[]
   ): void {
-    let zipped = zip(actual.childNodes, expected);
+    let described = Described.from(actual);
+    let zipped = zip(described.value.childNodes, expected);
 
     for (let [actual, pattern] of zipped) {
       if (pattern === undefined && actual !== undefined) {
@@ -153,7 +156,9 @@ class WrongDetailsBuilder {
       }
 
       if (pattern !== undefined && actual !== undefined) {
-        let result = pattern.check(actual) as PatternResult<WrongNode>;
+        let result = pattern.check(
+          Described.from(actual)
+        ) as PatternResult<WrongNode>;
         this.#children.push(result);
       }
 
@@ -208,16 +213,26 @@ export class SimpleElementPattern
 {
   readonly details: PatternDetails;
 
-  constructor(readonly options: SimpleElementPatternOptions) {
+  constructor(
+    readonly options: SimpleElementPatternOptions,
+    scenario: string | undefined
+  ) {
     this.details = {
       name: "isElement",
       description: options.tagName
         ? `is a <${options.tagName}>`
         : `is an element`,
+      scenario,
     };
   }
 
-  check(node: SimpleNode): PatternResult<SimpleElementMismatch> {
+  when(scenario: string): SimpleElementPattern {
+    return new SimpleElementPattern(this.options, scenario);
+  }
+
+  check({
+    value: node,
+  }: Described<SimpleNode>): PatternResult<SimpleElementMismatch> {
     if (node.nodeType !== 1) {
       return WrongNodeType(node.nodeType);
     }
@@ -256,7 +271,10 @@ export class SimpleElementPattern
     });
   }
 
-  failure(_actual: SimpleElement, failure: SimpleElementMismatch): Failure {
+  failure(
+    _actual: Described<SimpleElement>,
+    failure: SimpleElementMismatch
+  ): Failure {
     if (failure.type === "wrong-node-type") {
       return Mismatch({
         actual: ValueDescription(nodeName(failure.actual)),

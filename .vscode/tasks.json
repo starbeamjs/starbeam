@@ -15,22 +15,9 @@
         "isDefault": true
       }
     },
-    // {
-    //   "type": "npm",
-    //   "script": "typecheck:serve",
-    //   "isBackground": true,
-    //   "label": "typecheck",
-    //   "options": {},
-    //   "problemMatcher": "$tsc-watch",
-    //   "group": {
-    //     "kind": "build",
-    //     "isDefault": true
-    //   }
-    // },
     {
       "type": "npm",
-      "script": "lint",
-      "problemMatcher": ["$eslint-stylish"],
+      "script": "jest:cache:clear",
       "label": "eslint",
       "presentation": {
         "echo": true,
@@ -39,7 +26,9 @@
         "panel": "shared",
         "showReuseMessage": true,
         "clear": false
-      }
+      },
+      "group": "build",
+      "detail": "Clear the Jest Cache (😭😭😭)"
     }
   ]
 }

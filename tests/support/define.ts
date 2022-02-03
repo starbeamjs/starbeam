@@ -10,15 +10,16 @@ import {
   FragmentProgramNode,
   HTML_NAMESPACE,
   is,
-  Reactive,
+  AbstractReactive,
   ReactiveDOM,
   ReactiveMetadata,
   RenderedRoot,
   TextProgramNode,
   Universe,
   verify,
+  Abstraction,
 } from "starbeam";
-import { upstream } from "../jest-ext";
+import * as jest from "@jest/globals";
 import {
   ElementArgs,
   normalizeChild,
@@ -34,11 +35,13 @@ export interface TestArgs {
   readonly dom: ReactiveDOM;
 }
 
+const CONSOLE = Symbol.for("starbeam.console");
+
 export function test(
   name: string,
   test: (args: TestArgs) => void | Promise<void>
 ): void {
-  upstream.test(name, () => {
+  jest.test(name, () => {
     let support = TestSupport.create();
 
     return test({
@@ -53,7 +56,7 @@ export function todo(
   name: string,
   test: (args: TestArgs) => void | Promise<void>
 ): void {
-  upstream.test(name, async () => {
+  jest.test(name, async () => {
     let support = TestSupport.create();
 
     try {
@@ -69,18 +72,24 @@ export function todo(
     throw Error(`Expected pending test '${name}' to fail, but it passed`);
   });
 
-  upstream.test.todo(name);
+  jest.test.todo(name);
 }
 
 export class TestRoot {
-  static create(root: RenderedRoot, container: minimal.Element): TestRoot {
+  static create(
+    root: RenderedRoot<minimal.ParentNode>,
+    container: minimal.Element
+  ): TestRoot {
     return new TestRoot(root, container);
   }
 
-  readonly #root: RenderedRoot;
+  readonly #root: RenderedRoot<minimal.ParentNode>;
   readonly #container: minimal.Element;
 
-  private constructor(root: RenderedRoot, container: minimal.Element) {
+  private constructor(
+    root: RenderedRoot<minimal.ParentNode>,
+    container: minimal.Element
+  ) {
     this.#root = root;
     this.#container = container;
   }
@@ -108,9 +117,12 @@ export class TestRoot {
     this.#root.poll();
     this.#root.initialize();
 
-    expectation.assertDynamism(this.#root.metadata);
+    Abstraction.wrap(() => {
+      expectation.assertDynamism(this.#root.metadata);
 
-    expectation.assertContents(this.#container.innerHTML);
+      expectation.assertContents(this.#container.innerHTML);
+    }, 3);
+
     return this;
   }
 }
@@ -132,7 +144,7 @@ export class TestSupport {
   }
 
   buildText(
-    reactive: Reactive<string>,
+    reactive: AbstractReactive<string>,
     expectation: ReactiveMetadata
   ): TextProgramNode {
     let text = this.universe.dom.text(reactive);
@@ -141,7 +153,7 @@ export class TestSupport {
   }
 
   buildComment(
-    reactive: Reactive<string>,
+    reactive: AbstractReactive<string>,
     expectation: ReactiveMetadata
   ): CommentProgramNode {
     let comment = this.universe.dom.comment(reactive);
@@ -184,6 +196,12 @@ export class TestSupport {
 
     verify(result, is.Present);
 
+    if (expectation.dynamism === null) {
+      throw Error(
+        `The expectation passed to render() must include dynamism (either .constant or .dynamic)`
+      );
+    }
+
     expect(
       result.metadata,
       toBe(expectation.dynamism, {
@@ -196,12 +214,16 @@ export class TestSupport {
     // without markers to our expectations.
     result.initialize();
 
-    expectation.assertContents(element.innerHTML);
+    Abstraction.wrap(() => {
+      expectation.assertContents(element.innerHTML);
+    }, 3);
 
     // ensure that a noop poll doesn't change the HTML output
     result.poll();
 
-    expectation.assertContents(element.innerHTML);
+    Abstraction.wrap(() => {
+      expectation.assertContents(element.innerHTML);
+    }, 3);
 
     return TestRoot.create(result, element);
   }

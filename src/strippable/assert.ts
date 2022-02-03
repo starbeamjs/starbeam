@@ -144,7 +144,7 @@ const verifyValue: <In, Out extends In>(
 });
 
 /**
- * @strip.noop
+ * @strip.statement
  */
 export function verify<In, Out extends In>(
   value: In,

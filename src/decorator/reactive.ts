@@ -54,7 +54,11 @@ export const CELLS = new Cells();
 
 export function scopedReactive(timeline: Timeline): PropertyDecorator {
   return ((_target: object, key: symbol | string): PropertyDescriptor => {
-    let cell = Cell.create<unknown>(undefined, timeline);
+    let cell = Cell.create<unknown>(
+      undefined,
+      timeline,
+      `@reactive ${String(key)}`
+    );
 
     return {
       enumerable: true,
@@ -98,7 +102,11 @@ export function scopedCached(timeline: Timeline): PropertyDecorator {
         let memo = CACHED.get(this);
 
         if (!memo) {
-          memo = Memo.create(() => get.call(this), timeline);
+          memo = Memo.create(
+            () => get.call(this),
+            timeline,
+            `computing ${String(key)}`
+          );
           CACHED.set(this, memo);
         }
 

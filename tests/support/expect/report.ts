@@ -1,5 +1,5 @@
-import { Abstraction } from "starbeam";
-import upstream from "./upstream";
+import * as jest from "@jest/globals";
+import { starbeam } from "./upstream";
 
 export interface TypeDescription {
   kind: "type";
@@ -31,8 +31,9 @@ export function ValueDescription(
 }
 
 export interface PatternDetails {
-  name: string;
-  description: string;
+  readonly name: string;
+  readonly description: string;
+  readonly scenario?: string;
 }
 
 export interface TestOutcome {
@@ -73,16 +74,16 @@ export function NotEqual({
   expected,
   pattern,
 }: {
-  actual: unknown;
-  expected: unknown;
+  actual: ValueDescription;
+  expected: ValueDescription;
   pattern: PatternDetails;
 }): NotEqual {
   return {
     success: false,
     pattern,
     kind: "equality",
-    expected: ValueDescription(expected),
-    actual: ValueDescription(actual),
+    expected,
+    actual,
   };
 }
 
@@ -231,10 +232,10 @@ export function report(
 
 export class JestReporter implements Reporter {
   success(success: Success): void {
-    Abstraction.wrap(() => upstream.expect(true, success.message).toBe(true));
+    jest.expect(true).toBe(true);
   }
   failure(failure: Failure): never {
-    Abstraction.wrap(() => upstream.expect(failure).custom());
+    starbeam(jest.expect.getState(), failure);
     failed();
   }
 }

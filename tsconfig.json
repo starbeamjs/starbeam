@@ -6,8 +6,7 @@
     "allowSyntheticDefaultImports": true,
     "module": "ESNext",
     "moduleResolution": "Node",
-    "lib": ["ESNext", "DOM"],
-    "outDir": "/tmp/starbeam-dist"
+    "lib": ["ESNext", "DOM"]
   },
   "include": [],
   "references": [

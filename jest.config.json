@@ -1,15 +1,17 @@
 {
   "preset": "ts-jest",
-  "globals": {
-    "ts-jest": {
-      "isolatedModules": true
-    }
-  },
+  "extensionsToTreatAsEsm": [".ts", ".tsx"],
+  "testEnvironment": "./jest/environment.js",
+  "injectGlobals": false,
   "transform": {
     "^.+\\.(t|j)sx?$": [
       "@swc/jest",
       {
-        "sourceMaps": "inline",
+        "module": {
+          "type": "es6",
+          "noInterop": true
+        },
+
         "jsc": {
           "parser": {
             "syntax": "typescript",
@@ -19,6 +21,5 @@
         }
       }
     ]
-  },
-  "setupFilesAfterEnv": ["@alex_neo/jest-expect-message"]
+  }
 }

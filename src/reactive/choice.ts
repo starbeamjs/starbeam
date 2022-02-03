@@ -1,20 +1,30 @@
 import type { UnsafeAny } from "../strippable/wrapper";
-import type { Reactive } from "./core";
+import type { AbstractReactive } from "./core";
 import { HasMetadata, ReactiveMetadata } from "./metadata";
 
 export class ReactiveChoice<T, K extends string = string> extends HasMetadata {
   static create<T, K extends string>(
+    description: string,
     disciminant: K,
-    value?: Reactive<T>
+    value?: AbstractReactive<T>
   ): ReactiveChoice<T> {
-    return new ReactiveChoice(disciminant, value);
+    return new ReactiveChoice(disciminant, value, description);
   }
 
+  // Make ReactiveChoice a nominal class
+  readonly #discriminant: K;
+
   private constructor(
-    readonly discriminant: K,
-    readonly value: Reactive<T> | undefined
+    discriminant: K,
+    readonly value: AbstractReactive<T> | undefined,
+    readonly description: string
   ) {
     super();
+    this.#discriminant = discriminant;
+  }
+
+  get discriminant(): K {
+    return this.#discriminant;
   }
 
   get metadata(): ReactiveMetadata {
@@ -28,6 +38,14 @@ export type AnyReactiveChoice = ReactiveChoice<unknown>;
 
 export type Type<T> = (value: unknown) => value is T;
 export type Variant<T> = [discriminant: string, value?: Type<T>];
+
+const number = (value: unknown): value is number => {
+  return typeof value === "number";
+};
+
+function MakeType<T>(): Type<T> {
+  return (value: unknown): value is T => true;
+}
 
 export type TypeFor<T extends Type<unknown> | undefined> = T extends undefined
   ? undefined
@@ -52,9 +70,10 @@ interface ReactiveChoiceConstructor<C extends AnyReactiveChoice> {
 
 export class ReactiveCases<C extends AnyReactiveChoice> {
   static define<C extends AnyReactiveChoice>(
+    description: string,
     def: (choices: ReactiveCases<never>) => ReactiveCases<C>
   ): ReactiveChoiceConstructor<C> {
-    return def(new ReactiveCases()).done();
+    return def(new ReactiveCases()).done(description);
   }
 
   add<K extends string>(
@@ -71,20 +90,14 @@ export class ReactiveCases<C extends AnyReactiveChoice> {
     return this;
   }
 
-  done(): ReactiveChoiceConstructor<C> {
+  done(description: string): ReactiveChoiceConstructor<C> {
     function create<K extends C["discriminant"]>(discriminant: K): C;
     function create<K extends C["discriminant"]>(
       discriminant: K,
       value: ValueFor<C, K>
     ): C;
-    function create(
-      discriminant: string,
-      value?: UnsafeAny
-    ): { discriminant: string; value?: UnsafeAny } {
-      return {
-        discriminant,
-        value,
-      };
+    function create(discriminant: string, value?: UnsafeAny): C {
+      return ReactiveChoice.create(description, discriminant, value) as C;
     }
 
     return create;

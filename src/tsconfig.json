@@ -12,9 +12,14 @@
     "sourceMap": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noImplicitReturns": true,
-    "importsNotUsedAsValues": "error"
-  }
+    "importsNotUsedAsValues": "error",
+    "paths": {
+      "treeify": ["../@types/treeify"]
+    }
+  },
+  "references": [{ "path": "../@types" }]
 }

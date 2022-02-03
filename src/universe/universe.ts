@@ -4,18 +4,29 @@ import { ReactiveDOM } from "../dom";
 import type { DomEnvironment } from "../dom/environment";
 import { DOM, MINIMAL } from "../dom/streaming/compatible-dom";
 import { TreeConstructor } from "../dom/streaming/tree-constructor";
-import type { ContentProgramNode } from "../program-node/interfaces/program-node";
-import type { RenderedContent } from "../program-node/interfaces/rendered-content";
+import { HookBlueprint, HookConstructor } from "../hooks/simple";
+import { HookCursor, HookProgramNode, HookValue } from "../program-node/hook";
+import type {
+  ContentProgramNode,
+  ProgramNode,
+} from "../program-node/interfaces/program-node";
 import { Cell } from "../reactive/cell";
 import type { AnyReactiveChoice } from "../reactive/choice";
-import type { Reactive } from "../reactive/core";
+import type { AbstractReactive, Reactive } from "../reactive/core";
 import { Memo } from "../reactive/functions/memo";
 import { Matcher, ReactiveMatch } from "../reactive/match";
 import { InnerDict, ReactiveRecord } from "../reactive/record";
 import { Static } from "../reactive/static";
+import { Abstraction } from "../strippable/abstraction";
 import { verified } from "../strippable/assert";
-import { is } from "../strippable/minimal";
+import { is, minimize } from "../strippable/minimal";
 import { expected } from "../strippable/verify-context";
+import {
+  Finalizer,
+  IntoFinalizer,
+  Lifetime,
+  UniverseLifetime,
+} from "./lifetime/lifetime";
 import { Profile } from "./profile";
 import { RenderedRoot } from "./root";
 import { Timeline } from "./timeline";
@@ -32,27 +43,80 @@ export class Universe {
     environment: DomEnvironment,
     profile = Profile.Debug
   ): Universe {
-    return new Universe(environment, profile);
+    return new Universe(
+      environment,
+      Timeline.create(),
+      Lifetime.scoped(),
+      profile
+    );
+  }
+
+  /** @internal */
+  finalize(object: object): void {
+    Lifetime.finalize(this.#lifetime, this, object);
+  }
+
+  /** @internal */
+  withAssertFrame(callback: () => void, description: string): void {
+    this.#timeline.withAssertFrame(callback, description);
   }
 
   readonly #environment: DomEnvironment;
   readonly #profile: Profile;
-  readonly #timeline = Timeline.create();
+  readonly #timeline: Timeline;
+  readonly #lifetime: Lifetime;
 
   readonly dom: ReactiveDOM = new ReactiveDOM();
-  readonly reactive = scopedReactive(this.#timeline);
-  readonly cached = scopedCached(this.#timeline);
+  readonly on = {
+    destroy: (object: object, finalizer: IntoFinalizer) =>
+      this.#lifetime.register(object, Finalizer.from(finalizer)),
+  } as const;
 
-  constructor(document: DomEnvironment, profile: Profile) {
-    this.#environment = document;
-    this.#profile = profile;
+  get lifetime(): UniverseLifetime {
+    return this.#lifetime;
   }
 
-  get<T extends object, K extends keyof T>(object: T, key: K): Reactive<T[K]> {
+  readonly reactive: PropertyDecorator;
+  readonly cached: PropertyDecorator;
+
+  private constructor(
+    document: DomEnvironment,
+    timeline: Timeline,
+    disposal: Lifetime,
+    profile: Profile
+  ) {
+    this.#environment = document;
+    this.#timeline = timeline;
+    this.#lifetime = disposal;
+    this.#profile = profile;
+
+    this.reactive = scopedReactive(timeline);
+    this.cached = scopedCached(timeline);
+  }
+
+  hook<T>(callback: HookConstructor<T>, description: string): HookBlueprint<T> {
+    return HookBlueprint.create(this, callback, description);
+  }
+
+  use<T>(
+    hook: HookBlueprint<T>,
+    { into }: { into: HookValue<T> }
+  ): RenderedRoot<HookValue> {
+    let node = HookProgramNode.create(this, hook);
+    return this.build(node, {
+      cursor: HookCursor.create(),
+      hydrate: () => into,
+    });
+  }
+
+  get<T extends object, K extends keyof T>(
+    object: T,
+    key: K
+  ): AbstractReactive<T[K]> {
     let cell = CELLS.get(object, key);
 
     if (cell) {
-      return cell as Reactive<T[K]>;
+      return cell as AbstractReactive<T[K]>;
     }
 
     let descriptor = verified(
@@ -66,20 +130,23 @@ export class Universe {
     if (descriptor.value) {
       return this.static(descriptor.value);
     } else {
-      return this.memo(() => object[key]);
+      return this.memo(() => object[key], `getting ${String(key)}`);
     }
   }
 
-  cell<T>(value: T): Cell<T> {
-    return Cell.create(value, this.#timeline);
+  cell<T>(value: T, description = "anonymous"): Cell<T> {
+    return Cell.create(value, this.#timeline, description);
   }
 
   /*
    * Create a memoized value that re-executes whenever any cells used in its
    * computation invalidate.
    */
-  memo<T>(callback: () => T): Memo<T> {
-    return Memo.create(callback, this.#timeline);
+  memo<T>(
+    callback: () => T,
+    description = `memo ${Abstraction.callerFrame().trimStart()}`
+  ): Memo<T> {
+    return Memo.create(callback, this.#timeline, description);
   }
 
   static<T>(value: T): Static<T> {
@@ -92,32 +159,49 @@ export class Universe {
       ? ActualC extends AnyReactiveChoice
         ? Matcher<ActualC>
         : never
-      : never
+      : never,
+    description = `match ${reactive.description}`
   ): ReactiveMatch<C, typeof matcher> {
-    return ReactiveMatch.match(reactive, matcher);
+    return ReactiveMatch.match(reactive, matcher, description);
   }
 
   record<T extends InnerDict>(dict: T): ReactiveRecord<T> {
     return new ReactiveRecord(dict);
   }
 
-  render<R extends RenderedContent>(
-    node: ContentProgramNode<R>,
+  build<Cursor, Container>(
+    node: ProgramNode<Cursor, Container>,
+    {
+      cursor,
+      hydrate,
+    }: { cursor: Cursor; hydrate: (cursor: Cursor) => Container }
+  ): RenderedRoot<Container> {
+    let rendered = node.render(cursor);
+
+    let container = hydrate(cursor);
+
+    let root = RenderedRoot.create({
+      rendered,
+      container,
+    });
+
+    this.#lifetime.root(root);
+    this.lifetime.link(root, rendered);
+
+    return root;
+  }
+
+  render(
+    node: ContentProgramNode,
     { append }: { append: anydom.ParentNode }
-  ): RenderedRoot | null {
-    let buffer = TreeConstructor.html(this.#environment);
-    let content = node.render(buffer);
-
-    if (content) {
-      buffer.replace(this.#appending(append));
-
-      return RenderedRoot.create({
-        content,
-        into: append as minimal.ParentNode,
-      });
-    }
-
-    return null;
+  ): RenderedRoot<minimal.ParentNode> {
+    return this.build(node, {
+      cursor: TreeConstructor.html(this.#environment),
+      hydrate: (buffer: TreeConstructor) => {
+        buffer.replace(this.#appending(append));
+        return minimize(append);
+      },
+    });
   }
 
   #appending(parent: anydom.ParentNode): minimal.TemplateElement {

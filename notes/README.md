@@ -11,8 +11,8 @@ $ pnpm run guides
 - [ ] Reactive Inputs
   - [x] Cell (🔑)
   - [x] Static (🔑)
-  - [ ] Record (🔑)
-  - [ ] Choice (🔑)
+  - [x] Record (🔑)
+  - [x] Choice (🔑)
   - [ ] Function (🔑)
     - [ ] with arbitrary interior access, _required for user-facing functions_ (🔑)
     - [ ] without arbitrary interior access, _required to propagate staticness_ (🔑)
@@ -21,7 +21,7 @@ $ pnpm run guides
   - [ ] MVP: A single timing (🔑)
   - [ ] Design for Event Handlers that mutate cells (🔑)
   - [ ] Timing Buckets (🚀)
-- [ ] Autotrack (🔑)
+- [x] Autotrack (🔑)
 - [ ] Adapters
   - [ ] React (🔑)
   - [ ] Solid.js (🚀)

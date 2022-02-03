@@ -1,6 +1,12 @@
 import type { AnyCell } from "../reactive/cell";
 import { assert } from "../strippable/core";
-import { ActiveFrame, AnyFinalizedFrame, FinalizedFrame } from "./frames";
+import { LOGGER } from "../strippable/trace";
+import {
+  ActiveFrame,
+  AnyFinalizedFrame,
+  AssertFrame,
+  FinalizedFrame,
+} from "./frames";
 import { Timestamp } from "./timestamp";
 
 export class Timeline {
@@ -10,6 +16,7 @@ export class Timeline {
 
   #now = Timestamp.initial();
   #frame: ActiveFrame | null = null;
+  #assertFrame: AssertFrame | null = null;
 
   // Returns the current timestamp
   get now(): Timestamp {
@@ -18,6 +25,8 @@ export class Timeline {
 
   // Increment the current timestamp and return the incremented timestamp.
   bump(): Timestamp {
+    this.#assertFrame?.assert();
+
     this.#now = this.#now.next();
     return this.#now;
   }
@@ -25,25 +34,32 @@ export class Timeline {
   // Indicate that a particular cell was used inside of the current computation.
   didConsume(cell: AnyCell | AnyFinalizedFrame) {
     if (this.#frame) {
+      LOGGER.trace.log(`adding ${cell.description}`);
       this.#frame.add(cell);
     }
   }
 
-  // Run a computation in the context of a frame, and return a finalized frame.
-  withFrame<T>(callback: () => T): { frame: FinalizedFrame<T>; initial: T } {
-    let currentFrame = this.#frame;
-    let now = this.#now;
+  withAssertFrame(callback: () => void, description: string): void {
+    let currentFrame = this.#assertFrame;
 
     try {
-      this.#frame = new ActiveFrame();
-      // TODO: Disallow `set` while running a memo (and formalize the two kinds
-      // of frames: memo and event handler)
-      let result = callback();
+      this.#assertFrame = AssertFrame.describing(description);
+      callback();
+    } finally {
+      this.#assertFrame = currentFrame;
+    }
+  }
 
-      assert(
-        this.#now === now,
-        `The current timestamp should not change while a memo is running (TODO: make this exception happen at the point where you mutated the cell)`
-      );
+  // Run a computation in the context of a frame, and return a finalized frame.
+  withFrame<T>(
+    callback: () => T,
+    description: string
+  ): { frame: FinalizedFrame<T>; initial: T } {
+    let currentFrame = this.#frame;
+
+    try {
+      this.#frame = ActiveFrame.create(description);
+      let result = callback();
 
       return this.#frame.finalize(result, this.#now);
     } finally {

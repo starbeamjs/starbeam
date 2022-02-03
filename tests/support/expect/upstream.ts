@@ -1,3 +1,5 @@
+import * as globals from "@jest/globals";
+import { MatcherState } from "expect";
 import { diff } from "jest-diff";
 import { exhaustive } from "starbeam";
 import type {
@@ -8,31 +10,48 @@ import type {
   ValueDescription,
 } from "./report";
 
-export default {
-  expect,
-} as const;
-
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace jest {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     interface Matchers<R> {
-      custom(): CustomMatcherResult;
+      starbeam(): CustomMatcherResult;
     }
   }
 }
 
-expect.extend({
-  custom(
-    this: jest.MatcherContext,
-    result: MatchResult
-  ): jest.CustomMatcherResult {
-    return processResult(this, result);
-  },
+class JestAssertionError extends Error {
+  readonly matcherResult: jest.CustomMatcherResult;
+
+  constructor(result: jest.CustomMatcherResult, callsite: Function) {
+    super(result.message());
+    this.matcherResult = result;
+
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, callsite);
+    }
+  }
+}
+
+export function starbeam(
+  state: MatcherState,
+  result: MatchResult
+): jest.CustomMatcherResult {
+  let processed = processResult(state, result);
+
+  if (!processed.pass) {
+    throw new JestAssertionError(processed, starbeam);
+  }
+
+  return processed;
+}
+
+globals.expect.extend({
+  starbeam,
 });
 
 function processResult(
-  ctx: jest.MatcherContext,
+  ctx: MatcherState,
   result: MatchResult | ChildFailure<Failure>
 ): jest.CustomMatcherResult {
   if (result.kind === "success") {
@@ -107,7 +126,7 @@ function processResult(
 }
 
 function notEqual(
-  ctx: jest.MatcherContext,
+  ctx: MatcherState,
   {
     actual,
     expected,
@@ -120,7 +139,7 @@ function notEqual(
 ): jest.CustomMatcherResult {
   let message = () => {
     return (
-      hint(ctx.utils, pattern) +
+      hint(ctx.utils, pattern, { actual, expected }) +
       "\n\n" +
       formatDiff(actual, expected, ctx.utils)
     );
@@ -130,7 +149,7 @@ function notEqual(
 }
 
 function notEqualChild(
-  ctx: jest.MatcherContext,
+  ctx: MatcherState,
   {
     actual,
     expected,
@@ -152,18 +171,47 @@ function notEqualChild(
   return { message, pass: false };
 }
 
-function hint(
-  utils: jest.MatcherUtils["utils"],
+function scenario(
+  utils: MatcherState["utils"],
   pattern: PatternDetails
 ): string {
+  if (pattern.scenario) {
+    return (
+      utils.INVERTED_COLOR(`Scenario`) +
+      ` ` +
+      utils.DIM_COLOR(pattern.scenario) +
+      `\n\n`
+    );
+  } else {
+    return ``;
+  }
+}
+
+function hint(
+  utils: MatcherState["utils"],
+  pattern: PatternDetails,
+  values?: {
+    actual: ValueDescription;
+    expected: ValueDescription;
+  }
+): string {
+  let actual = values
+    ? format(values.actual, utils.RECEIVED_COLOR("actual"), utils.DIM_COLOR)
+    : utils.RECEIVED_COLOR("actual");
+
+  let expected = values
+    ? format(values.expected, utils.EXPECTED_COLOR("expected"), utils.DIM_COLOR)
+    : utils.EXPECTED_COLOR("expected");
+
   return (
-    utils.DIM_COLOR("expect(") +
-    utils.RECEIVED_COLOR("actual") +
-    utils.DIM_COLOR(", ") +
-    pattern.name +
-    utils.DIM_COLOR("(") +
-    utils.EXPECTED_COLOR("expected") +
-    utils.DIM_COLOR(`)) // ${pattern.description}`)
+    scenario(utils, pattern) +
+    (utils.DIM_COLOR("expect(") +
+      actual +
+      utils.DIM_COLOR(", ") +
+      pattern.name +
+      utils.DIM_COLOR("(") +
+      expected +
+      utils.DIM_COLOR(`)) // ${pattern.description}`))
   );
 }
 
@@ -171,7 +219,7 @@ function hint(
 function formatDiff(
   actual: ValueDescription,
   expected: ValueDescription,
-  utils: jest.MatcherUtils["utils"]
+  utils: MatcherState["utils"]
 ): string {
   let diffs = diff(expected.is, actual.is);
 
@@ -179,7 +227,24 @@ function formatDiff(
     return `Difference:\n\n${diffs}`;
   } else {
     let expectedString = utils.printExpected(expected.is);
+    let expectedTitle = expected.comment
+      ? `Expected (${expected.comment})`
+      : `Expected`;
     let actualString = utils.printReceived(actual.is);
-    return `Expected: ${expectedString}\n\n  Actual: ${actualString}`;
+
+    return `${expectedTitle}: ${expectedString}\n\n  Actual: ${actualString}`;
+  }
+}
+
+function format(
+  description: ValueDescription,
+  purpose: string,
+  formatComment: (value: string) => string
+): string {
+  if (description.comment) {
+    let comment = formatComment(`/* ${description.comment} */`);
+    return `${purpose} ${comment}`;
+  } else {
+    return purpose;
   }
 }

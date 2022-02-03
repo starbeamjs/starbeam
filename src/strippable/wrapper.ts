@@ -80,6 +80,11 @@ export class Wrapper<T, Meta, S extends symbol> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type UnsafeAny = any;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type AnyKey = keyof any;
+
+export type AnyRecord = Record<AnyKey, unknown>;
+
 export type AnyWrapper<T, Meta = unknown> = Wrapper<T, Meta, UnsafeAny>;
 
 export interface OpaqueMetadata {
