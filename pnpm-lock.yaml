@@ -28,6 +28,7 @@ importers:
       '@types/jest-expect-message': ^1.0.3
       '@types/jsdom': ^16.2.14
       '@types/lodash.zip': ^4.2.6
+      '@types/shelljs': ^0.8.11
       '@typescript-eslint/eslint-plugin': ^5.9.1
       '@typescript-eslint/parser': ^5.9.1
       babel-jest: ^27.4.6
@@ -35,15 +36,18 @@ importers:
       eslint: ^8.6.0
       eslint-import-resolver-typescript: ^2.5.0
       eslint-plugin-import: ^2.25.4
+      execjs: ^1.0.7
       expect: ^27.4.6
       fast-array-diff: ^1.0.1
       jest: ^27.4.7
       jest-diff: ^27.4.6
       jest-environment-node: ^27.4.6
+      jest-matcher-utils: ^27.4.6
       jest-mock: ^27.4.6
       jest-util: ^27.4.2
       jsdom: ^19.0.0
       lodash.zip: ^4.2.0
+      shelljs: ^0.8.5
       simple-dom: ^1.4.0
       simple-html-tokenizer: ^0.5.11
       treeify: ^1.1.0
@@ -52,6 +56,7 @@ importers:
       vite: ^2.7.12
     dependencies:
       fast-array-diff: 1.0.1
+      treeify: 1.1.0
     devDependencies:
       '@alex_neo/jest-expect-message': 1.0.5
       '@babel/core': 7.16.7
@@ -77,6 +82,7 @@ importers:
       '@types/jest-expect-message': 1.0.3
       '@types/jsdom': 16.2.14
       '@types/lodash.zip': 4.2.6
+      '@types/shelljs': 0.8.11
       '@typescript-eslint/eslint-plugin': 5.9.1_b7b2e42b32ee097737cd3e626b10847b
       '@typescript-eslint/parser': 5.9.1_eslint@8.6.0+typescript@4.5.4
       babel-jest: 27.4.6_@babel+core@7.16.7
@@ -84,17 +90,19 @@ importers:
       eslint: 8.6.0
       eslint-import-resolver-typescript: 2.5.0_b5a36b8c1535387c8dd00eff7ec6b551
       eslint-plugin-import: 2.25.4_eslint@8.6.0
+      execjs: 1.0.7
       expect: 27.4.6
       jest: 27.4.7
       jest-diff: 27.4.6
       jest-environment-node: 27.4.6
+      jest-matcher-utils: 27.4.6
       jest-mock: 27.4.6
       jest-util: 27.4.2
       jsdom: 19.0.0
       lodash.zip: 4.2.0
+      shelljs: 0.8.5
       simple-dom: 1.4.0
       simple-html-tokenizer: 0.5.11
-      treeify: 1.1.0
       ts-jest: 27.1.3_c82cf09a8c20c9f058da33995250bf96
       typescript: 4.5.4
       vite: 2.7.12
@@ -1849,6 +1857,13 @@ packages:
       '@babel/types': 7.16.8
     dev: true
 
+  /@types/glob/7.2.0:
+    resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
+    dependencies:
+      '@types/minimatch': 3.0.5
+      '@types/node': 17.0.8
+    dev: true
+
   /@types/graceful-fs/4.1.5:
     resolution: {integrity: sha512-anKkLmZZ+xm4p8JWBf4hElkM4XR+EZeA2M9BAkkTldmcyDY4mbdIJnRghDJH3Ov5ooY7/UAoENtmdMSkaAd7Cw==}
     dependencies:
@@ -1908,6 +1923,10 @@ packages:
   /@types/lodash/4.14.178:
     resolution: {integrity: sha512-0d5Wd09ItQWH1qFbEyQ7oTQ3GZrMfth5JkbN3EvTKLXcHLRDSXeLnlvlOn0wvxVIwK5o2M8JzP/OWz7T3NRsbw==}
 
+  /@types/minimatch/3.0.5:
+    resolution: {integrity: sha512-Klz949h02Gz2uZCMGwDUSDS1YBlTdDDgbWHi+81l29tQALUtvz4rAYi5uoVhE5Lagoq6DeqAUlbrHvW/mXDgdQ==}
+    dev: true
+
   /@types/node/17.0.8:
     resolution: {integrity: sha512-YofkM6fGv4gDJq78g4j0mMuGMkZVxZDgtU0JRdx6FgiJDG+0fY0GKVolOV8WqVmEhLCXkQRjwDdKyPxJp/uucg==}
     dev: true
@@ -1918,6 +1937,13 @@ packages:
 
   /@types/prettier/2.4.3:
     resolution: {integrity: sha512-QzSuZMBuG5u8HqYz01qtMdg/Jfctlnvj1z/lYnIDXs/golxw0fxtRAHd9KrzjR7Yxz1qVeI00o0kiO3PmVdJ9w==}
+    dev: true
+
+  /@types/shelljs/0.8.11:
+    resolution: {integrity: sha512-x9yaMvEh5BEaZKeVQC4vp3l+QoFj3BXcd4aYfuKSzIIyihjdVARAadYy3SMNIz0WCCdS2vB9JL/U6GQk5PaxQw==}
+    dependencies:
+      '@types/glob': 7.2.0
+      '@types/node': 17.0.8
     dev: true
 
   /@types/stack-utils/2.0.1:
@@ -2459,6 +2485,11 @@ packages:
 
   /color-name/1.1.4:
     resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
+    dev: true
+
+  /colors/1.4.0:
+    resolution: {integrity: sha512-a+UqTh4kgZg/SlGvfbzDHpgRu7AAQOmmqRHJnxhRZICKFUT91brVhNNt58CMWU9PsBbv3PDCZUHbVxuDiH2mtA==}
+    engines: {node: '>=0.1.90'}
     dev: true
 
   /combined-stream/1.0.8:
@@ -3074,6 +3105,12 @@ packages:
       strip-final-newline: 2.0.0
     dev: true
 
+  /execjs/1.0.7:
+    resolution: {integrity: sha1-d8n964bByLJ5cJKCrJERv76TaH0=}
+    dependencies:
+      colors: 1.4.0
+    dev: true
+
   /exit/0.1.2:
     resolution: {integrity: sha1-BjJjj42HfMghB9MKD/8aF8uhzQw=}
     engines: {node: '>= 0.8.0'}
@@ -3448,6 +3485,11 @@ packages:
       get-intrinsic: 1.1.1
       has: 1.0.3
       side-channel: 1.0.4
+    dev: true
+
+  /interpret/1.4.0:
+    resolution: {integrity: sha512-agE4QfB2Lkp9uICn7BAqoscw4SZP9kTE2hxiFI3jBPmXJfdqiahTbUuKGsMoN2GtqL9AxhYioAcVvgsb1HvRbA==}
+    engines: {node: '>= 0.10'}
     dev: true
 
   /is-bigint/1.0.4:
@@ -4614,6 +4656,13 @@ packages:
     resolution: {integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==}
     dev: true
 
+  /rechoir/0.6.2:
+    resolution: {integrity: sha1-hSBLVNuoLVdC4oyWdW70OvUOM4Q=}
+    engines: {node: '>= 0.10'}
+    dependencies:
+      resolve: 1.21.0
+    dev: true
+
   /regenerate-unicode-properties/9.0.0:
     resolution: {integrity: sha512-3E12UeNSPfjrgwjkR81m5J7Aw/T55Tu7nUyZVQYCKEOs+2dkxEY+DpPtZzO4YruuiPb7NkYLVcyJC4+zCbk5pA==}
     engines: {node: '>=4'}
@@ -4768,6 +4817,16 @@ packages:
   /shebang-regex/3.0.0:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
     engines: {node: '>=8'}
+    dev: true
+
+  /shelljs/0.8.5:
+    resolution: {integrity: sha512-TiwcRcrkhHvbrZbnRcFYMLl30Dfov3HKqzp5tO5b4pt6G/SezKcYhmDg15zXVBswHmctSAQKznqNW2LO5tTDow==}
+    engines: {node: '>=4'}
+    hasBin: true
+    dependencies:
+      glob: 7.2.0
+      interpret: 1.4.0
+      rechoir: 0.6.2
     dev: true
 
   /side-channel/1.0.4:
@@ -5006,7 +5065,7 @@ packages:
   /treeify/1.1.0:
     resolution: {integrity: sha512-1m4RA7xVAJrSGrrXGs0L3YTwyvBs2S8PbRHaLZAkFw7JR8oIFwYtysxlBZhYIa7xSyiYJKZ3iGrrk55cGA3i9A==}
     engines: {node: '>=0.6'}
-    dev: true
+    dev: false
 
   /ts-jest/27.1.3_c82cf09a8c20c9f058da33995250bf96:
     resolution: {integrity: sha512-6Nlura7s6uM9BVUAoqLH7JHyMXjz8gluryjpPXxr3IxZdAXnU6FhjvVLHFtfd1vsE1p8zD1OJfskkc0jhTSnkA==}

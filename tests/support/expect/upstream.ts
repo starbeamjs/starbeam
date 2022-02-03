@@ -1,6 +1,5 @@
-import * as globals from "@jest/globals";
-import { MatcherState } from "expect";
 import { diff } from "jest-diff";
+import * as utils from "jest-matcher-utils";
 import { exhaustive } from "starbeam";
 import type {
   ChildFailure,
@@ -33,11 +32,8 @@ class JestAssertionError extends Error {
   }
 }
 
-export function starbeam(
-  state: MatcherState,
-  result: MatchResult
-): jest.CustomMatcherResult {
-  let processed = processResult(state, result);
+export function starbeam(result: MatchResult): jest.CustomMatcherResult {
+  let processed = processResult(result);
 
   if (!processed.pass) {
     throw new JestAssertionError(processed, starbeam);
@@ -46,16 +42,11 @@ export function starbeam(
   return processed;
 }
 
-globals.expect.extend({
-  starbeam,
-});
-
 function processResult(
-  ctx: MatcherState,
   result: MatchResult | ChildFailure<Failure>
 ): jest.CustomMatcherResult {
   if (result.kind === "success") {
-    let message = () => hint(ctx.utils, result.pattern);
+    let message = () => hint(result.pattern);
 
     return { message, pass: true };
   } else {
@@ -63,17 +54,17 @@ function processResult(
       switch (result.kind) {
         case "equality":
         case "mismatch": {
-          return notEqual(ctx, result);
+          return notEqual(result);
         }
 
         case "multiple": {
           let { message, failures, pattern } = result;
 
           let output = () => {
-            let out = [message, hint(ctx.utils, pattern)];
+            let out = [message, hint(pattern)];
 
             for (let failure of failures) {
-              let { message } = processResult(ctx, failure);
+              let { message } = processResult(failure);
               out.push(message());
             }
 
@@ -100,7 +91,7 @@ function processResult(
         case "equality":
         case "mismatch": {
           if ("pattern" in result) {
-            return notEqualChild(ctx, result);
+            return notEqualChild(result);
           }
           throw Error("todo: mismatch without pattern");
         }
@@ -125,56 +116,45 @@ function processResult(
   }
 }
 
-function notEqual(
-  ctx: MatcherState,
-  {
-    actual,
-    expected,
-    pattern,
-  }: {
-    actual: ValueDescription;
-    expected: ValueDescription;
-    pattern: PatternDetails;
-  }
-): jest.CustomMatcherResult {
+function notEqual({
+  actual,
+  expected,
+  pattern,
+}: {
+  actual: ValueDescription;
+  expected: ValueDescription;
+  pattern: PatternDetails;
+}): jest.CustomMatcherResult {
   let message = () => {
     return (
-      hint(ctx.utils, pattern, { actual, expected }) +
+      hint(pattern, { actual, expected }) +
       "\n\n" +
-      formatDiff(actual, expected, ctx.utils)
+      formatDiff(actual, expected)
     );
   };
 
   return { message, pass: false };
 }
 
-function notEqualChild(
-  ctx: MatcherState,
-  {
-    actual,
-    expected,
-    description,
-  }: {
-    actual: ValueDescription;
-    expected: ValueDescription;
-    description: string;
-  }
-): jest.CustomMatcherResult {
+function notEqualChild({
+  actual,
+  expected,
+  description,
+}: {
+  actual: ValueDescription;
+  expected: ValueDescription;
+  description: string;
+}): jest.CustomMatcherResult {
   let message = () => {
     return (
-      ctx.utils.EXPECTED_COLOR(description) +
-      "\n\n" +
-      formatDiff(actual, expected, ctx.utils)
+      utils.EXPECTED_COLOR(description) + "\n\n" + formatDiff(actual, expected)
     );
   };
 
   return { message, pass: false };
 }
 
-function scenario(
-  utils: MatcherState["utils"],
-  pattern: PatternDetails
-): string {
+function scenario(pattern: PatternDetails): string {
   if (pattern.scenario) {
     return (
       utils.INVERTED_COLOR(`Scenario`) +
@@ -188,7 +168,6 @@ function scenario(
 }
 
 function hint(
-  utils: MatcherState["utils"],
   pattern: PatternDetails,
   values?: {
     actual: ValueDescription;
@@ -204,7 +183,7 @@ function hint(
     : utils.EXPECTED_COLOR("expected");
 
   return (
-    scenario(utils, pattern) +
+    scenario(pattern) +
     (utils.DIM_COLOR("expect(") +
       actual +
       utils.DIM_COLOR(", ") +
@@ -218,8 +197,7 @@ function hint(
 // See: https://jestjs.io/docs/expect#thisutils
 function formatDiff(
   actual: ValueDescription,
-  expected: ValueDescription,
-  utils: MatcherState["utils"]
+  expected: ValueDescription
 ): string {
   let diffs = diff(expected.is, actual.is);
 

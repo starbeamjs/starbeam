@@ -35,13 +35,11 @@ export interface TestArgs {
   readonly dom: ReactiveDOM;
 }
 
-const CONSOLE = Symbol.for("starbeam.console");
-
 export function test(
   name: string,
   test: (args: TestArgs) => void | Promise<void>
 ): void {
-  jest.test(name, () => {
+  jest.test.concurrent(name, () => {
     let support = TestSupport.create();
 
     return test({
@@ -56,7 +54,7 @@ export function todo(
   name: string,
   test: (args: TestArgs) => void | Promise<void>
 ): void {
-  jest.test(name, async () => {
+  jest.test.concurrent(name, async () => {
     let support = TestSupport.create();
 
     try {

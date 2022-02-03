@@ -1,4 +1,3 @@
-import * as jest from "@jest/globals";
 import { starbeam } from "./upstream";
 
 export interface TypeDescription {
@@ -231,11 +230,11 @@ export function report(
 }
 
 export class JestReporter implements Reporter {
-  success(success: Success): void {
-    jest.expect(true).toBe(true);
+  success(_success: Success): void {
+    // noop
   }
   failure(failure: Failure): never {
-    starbeam(jest.expect.getState(), failure);
+    starbeam(failure);
     failed();
   }
 }

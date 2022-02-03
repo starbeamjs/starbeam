@@ -14,6 +14,8 @@
   //   "watch": "test-file"
   // }
   "jest.autoRun": "off",
+  "jest.nodeEnv": { "NODE_OPTIONS": "--experimental-vm-modules --no-warnings" },
+
   "javascript.preferences.importModuleSpecifierEnding": "index",
   "typescript.preferences.importModuleSpecifierEnding": "index"
 }
