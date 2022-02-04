@@ -1,6 +1,6 @@
-import { test, expect, toBe, Expects } from "../support";
+import { test, expect, toBe, Expects } from "../support/index.js";
 import type { Universe } from "starbeam";
-import { Dynamism } from "../support/expect/expect";
+import { Dynamism } from "../support/expect/expect.js";
 
 test("universe.memo", ({ universe }) => {
   let name = universe.cell("Tom");

@@ -1,10 +1,10 @@
 import type { minimal } from "@domtree/flavors";
-import type { RenderedContent } from "../../program-node/interfaces/rendered-content";
-import { verified } from "../../strippable/assert";
-import { assert } from "../../strippable/core";
-import { is, mutable } from "../../strippable/minimal";
-import { as } from "../../strippable/verify-context";
-import type { DomEnvironment } from "../environment";
+import type { RenderedContent } from "../../program-node/interfaces/rendered-content.js";
+import { verified } from "../../strippable/assert.js";
+import { assert } from "../../strippable/core.js";
+import { is, mutable } from "../../strippable/minimal.js";
+import { as } from "../../strippable/verify-context.js";
+import type { DomEnvironment } from "../environment.js";
 
 export class ContentCursor {
   static create(

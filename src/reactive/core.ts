@@ -1,7 +1,7 @@
-import { isObject } from "../utils";
-import { REACTIVE_BRAND } from "./internal";
-import { HasMetadata } from "./metadata";
-import { Static } from "./static";
+import { isObject } from "../utils.js";
+import { REACTIVE_BRAND } from "./internal.js";
+import { HasMetadata } from "./metadata.js";
+import { Static } from "./static.js";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export abstract class AbstractReactive<T> extends HasMetadata {

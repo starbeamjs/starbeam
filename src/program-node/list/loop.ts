@@ -1,27 +1,27 @@
 import type { minimal } from "@domtree/flavors";
-import type { DomEnvironment } from "../../dom";
-import type { ContentRange } from "../../dom/streaming/compatible-dom";
-import { RangeSnapshot, RANGE_SNAPSHOT } from "../../dom/streaming/cursor";
-import type { LazyDOM } from "../../dom/streaming/token";
+import type { DomEnvironment } from "../../dom.js";
+import type { ContentRange } from "../../dom/streaming/compatible-dom.js";
+import { RangeSnapshot, RANGE_SNAPSHOT } from "../../dom/streaming/cursor.js";
+import type { LazyDOM } from "../../dom/streaming/token.js";
 import {
   ContentConstructor,
   TOKEN,
   TreeConstructor,
-} from "../../dom/streaming/tree-constructor";
-import { AbstractReactive } from "../../reactive/core";
-import { ReactiveMetadata } from "../../reactive/metadata";
-import type { ReactiveParameter } from "../../reactive/parameter";
-import { verified } from "../../strippable/assert";
-import { is } from "../../strippable/minimal";
-import { as } from "../../strippable/verify-context";
-import { NonemptyList } from "../../utils";
-import { OrderedIndex } from "../../utils/index-map";
-import type { Component } from "../component";
-import { RenderedCharacterData } from "../data";
-import { ContentProgramNode } from "../interfaces/program-node";
-import { RenderedContent } from "../interfaces/rendered-content";
-import { ListArtifacts } from "./diff";
-import { KeyedContent, RenderSnapshot } from "./snapshot";
+} from "../../dom/streaming/tree-constructor.js";
+import { AbstractReactive } from "../../reactive/core.js";
+import { ReactiveMetadata } from "../../reactive/metadata.js";
+import type { ReactiveParameter } from "../../reactive/parameter.js";
+import { verified } from "../../strippable/assert.js";
+import { is } from "../../strippable/minimal.js";
+import { as } from "../../strippable/verify-context.js";
+import { NonemptyList } from "../../utils.js";
+import { OrderedIndex } from "../../utils/index-map.js";
+import type { Component } from "../component.js";
+import { RenderedCharacterData } from "../data.js";
+import { ContentProgramNode } from "../interfaces/program-node.js";
+import { RenderedContent } from "../interfaces/rendered-content.js";
+import { ListArtifacts } from "./diff.js";
+import { KeyedContent, RenderSnapshot } from "./snapshot.js";
 
 export type ListProgramNode = StaticListProgramNode | DynamicListProgramNode;
 

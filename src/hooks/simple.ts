@@ -1,12 +1,12 @@
-import { AbstractReactive, Reactive } from "../reactive/core";
-import type { ReactiveMetadata } from "../reactive/metadata";
-import { verified } from "../strippable/assert";
-import { is } from "../strippable/minimal";
-import { LOGGER } from "../strippable/trace";
-import { expected } from "../strippable/verify-context";
-import type { IntoFinalizer } from "../universe";
-import type { Universe } from "../universe/universe";
-import type { Hook } from "./hook";
+import { AbstractReactive, Reactive } from "../reactive/core.js";
+import type { ReactiveMetadata } from "../reactive/metadata.js";
+import { verified } from "../strippable/assert.js";
+import { is } from "../strippable/minimal.js";
+import { LOGGER } from "../strippable/trace.js";
+import { expected } from "../strippable/verify-context.js";
+import type { IntoFinalizer } from "../universe.js";
+import type { Universe } from "../universe/universe.js";
+import type { Hook } from "./hook.js";
 
 export type HookConstructor<T> = (hook: SimpleHook<T>) => Reactive<T>;
 

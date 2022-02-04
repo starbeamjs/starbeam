@@ -3,14 +3,14 @@ import {
   ContentCursor,
   RangeSnapshot,
   RANGE_SNAPSHOT,
-} from "../../dom/streaming/cursor";
+} from "../../dom/streaming/cursor.js";
 import {
   ConstantMetadata,
   DynamicMetadata,
   HasMetadata,
   ReactiveMetadata,
-} from "../../reactive/metadata";
-import type { RenderedAttribute } from "../attribute";
+} from "../../reactive/metadata.js";
+import type { RenderedAttribute } from "../attribute.js";
 
 export abstract class RenderedContent extends HasMetadata {
   static isConstant(

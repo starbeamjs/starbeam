@@ -25,9 +25,9 @@ import {
   normalizeChild,
   TestChild,
   TestElementArgs,
-} from "./element";
-import { expect, Expects } from "./expect/expect";
-import { toBe } from "./expect/patterns/comparison";
+} from "./element.js";
+import { expect, Expects } from "./expect/expect.js";
+import { toBe } from "./expect/patterns/comparison.js";
 
 export interface TestArgs {
   readonly universe: Universe;
@@ -239,5 +239,5 @@ export type Test = (args: {
   universe: Universe;
 }) => void | Promise<void>;
 
-export { expect } from "./expect/expect";
-export { toBe } from "./expect/patterns";
+export { expect } from "./expect/expect.js";
+export { toBe } from "./expect/patterns.js";

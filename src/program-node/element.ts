@@ -1,19 +1,19 @@
 import type * as minimal from "@domtree/minimal";
-import type { ElementBody } from "../dom/buffer/body";
-import { RangeSnapshot, RANGE_SNAPSHOT } from "../dom/streaming/cursor";
-import type { Dehydrated, LazyDOM } from "../dom/streaming/token";
+import type { ElementBody } from "../dom/buffer/body.js";
+import { RangeSnapshot, RANGE_SNAPSHOT } from "../dom/streaming/cursor.js";
+import type { Dehydrated, LazyDOM } from "../dom/streaming/token.js";
 import {
   ElementBodyConstructor,
   ElementHeadConstructor,
   TreeConstructor,
-} from "../dom/streaming/tree-constructor";
-import type { AbstractReactive } from "../reactive/core";
-import { ReactiveMetadata } from "../reactive/metadata";
-import { NonemptyList } from "../utils";
-import { AttributeProgramNode, RenderedAttribute } from "./attribute";
-import { FragmentProgramNode, RenderedFragmentNode } from "./fragment";
-import { ContentProgramNode } from "./interfaces/program-node";
-import { RenderedContent } from "./interfaces/rendered-content";
+} from "../dom/streaming/tree-constructor.js";
+import type { AbstractReactive } from "../reactive/core.js";
+import { ReactiveMetadata } from "../reactive/metadata.js";
+import { NonemptyList } from "../utils.js";
+import { AttributeProgramNode, RenderedAttribute } from "./attribute.js";
+import { FragmentProgramNode, RenderedFragmentNode } from "./fragment.js";
+import { ContentProgramNode } from "./interfaces/program-node.js";
+import { RenderedContent } from "./interfaces/rendered-content.js";
 
 export class ElementProgramNode extends ContentProgramNode {
   static create(

@@ -1,6 +1,6 @@
-import { isObject } from "../utils";
-import type { AbstractReactive } from "./core";
-import { HasMetadata, ReactiveMetadata } from "./metadata";
+import { isObject } from "../utils.js";
+import type { AbstractReactive } from "./core.js";
+import { HasMetadata, ReactiveMetadata } from "./metadata.js";
 
 export type InnerDict = {
   readonly [P in PropertyKey]: AbstractReactive<unknown>;

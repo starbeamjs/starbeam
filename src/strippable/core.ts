@@ -1,7 +1,7 @@
-import { Abstraction } from "./abstraction";
-import type { PartialVerifyContext } from "./assert";
-import type { FinalizedContext, VerifyContext } from "./verify-context";
-import type { UnsafeAny } from "./wrapper";
+import { Abstraction } from "./abstraction.js";
+import type { PartialVerifyContext } from "./assert.js";
+import type { FinalizedContext, VerifyContext } from "./verify-context.js";
+import type { UnsafeAny } from "./wrapper.js";
 
 /** @internal */
 export const assertCondition: (

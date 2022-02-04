@@ -1,1 +1,1 @@
-export { toBe } from "./patterns/comparison";
+export { toBe } from "./patterns/comparison.js";

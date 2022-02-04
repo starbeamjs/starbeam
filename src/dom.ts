@@ -1,13 +1,13 @@
-import type { Component } from "./program-node/component";
-import { ElementProgramNodeBuilder } from "./program-node/element";
-import { Loop, type ListProgramNode } from "./program-node/list/loop";
-import { CommentProgramNode, TextProgramNode } from "./program-node/data";
-import type { AbstractReactive } from "./reactive/core";
-import type { ReactiveParameter } from "./reactive/parameter";
+import type { Component } from "./program-node/component.js";
+import { ElementProgramNodeBuilder } from "./program-node/element.js";
+import { Loop, type ListProgramNode } from "./program-node/list/loop.js";
+import { CommentProgramNode, TextProgramNode } from "./program-node/data.js";
+import type { AbstractReactive } from "./reactive/core.js";
+import type { ReactiveParameter } from "./reactive/parameter.js";
 import {
   FragmentProgramNode,
   FragmentProgramNodeBuilder,
-} from "./program-node/fragment";
+} from "./program-node/fragment.js";
 
 export const APPEND = Symbol("APPEND");
 
@@ -39,6 +39,6 @@ export class ReactiveDOM {
   }
 }
 
-export * from "./dom/buffer/body";
-export * from "./dom/buffer/attribute";
-export * from "./dom/environment";
+export * from "./dom/buffer/body.js";
+export * from "./dom/buffer/attribute.js";
+export * from "./dom/environment.js";

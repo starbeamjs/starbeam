@@ -1,15 +1,14 @@
-import { exhaustive } from "../../strippable/assert";
-import { QualifiedName } from "../../strippable/wrapper";
+import { exhaustive } from "../../strippable/assert.js";
+import { QualifiedName } from "../../strippable/wrapper.js";
 import {
   attrFor,
   Attributes,
   AttributesBuffer,
   AttributeValue,
   AttrType,
-} from "./attribute";
+} from "./attribute.js";
 // eslint-disable-next-line import/no-cycle
-
-import { escapeCommentValue, escapeTextValue } from "./escape";
+import { escapeCommentValue, escapeTextValue } from "./escape.js";
 
 export interface SerializeOptions {
   prefix: string;

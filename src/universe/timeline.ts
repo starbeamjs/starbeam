@@ -1,13 +1,13 @@
-import type { AnyCell } from "../reactive/cell";
-import { assert } from "../strippable/core";
-import { LOGGER } from "../strippable/trace";
+import type { AnyCell } from "../reactive/cell.js";
+import { assert } from "../strippable/core.js";
+import { LOGGER } from "../strippable/trace.js";
 import {
   ActiveFrame,
   AnyFinalizedFrame,
   AssertFrame,
   FinalizedFrame,
-} from "./frames";
-import { Timestamp } from "./timestamp";
+} from "./frames.js";
+import { Timestamp } from "./timestamp.js";
 
 export class Timeline {
   static create(): Timeline {

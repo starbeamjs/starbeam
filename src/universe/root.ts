@@ -1,6 +1,6 @@
-import type { RenderedProgramNode } from "../program-node/interfaces/program-node";
-import type { ReactiveMetadata } from "../reactive/metadata";
-import { LOGGER } from "../strippable/trace";
+import type { RenderedProgramNode } from "../program-node/interfaces/program-node.js";
+import type { ReactiveMetadata } from "../reactive/metadata.js";
+import { LOGGER } from "../strippable/trace.js";
 
 export class RenderedRoot<Container> {
   static create<Container>({

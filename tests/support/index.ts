@@ -1,3 +1,3 @@
-export { expect, Expects } from "./expect/expect";
-export { toBe } from "./expect/patterns/comparison";
-export { test } from "./define";
+export { expect, Expects } from "./expect/expect.js";
+export { toBe } from "./expect/patterns/comparison.js";
+export { test } from "./define.js";

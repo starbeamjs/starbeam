@@ -1,26 +1,26 @@
-import { ReactiveCases } from "./reactive/choice";
+import { ReactiveCases } from "./reactive/choice.js";
 export const Cases = ReactiveCases.define;
 
-export * from "./reactive/index";
-export * from "./hooks/hook";
-export * from "./hooks/simple";
-export * from "./universe";
-export * from "./program-node/index";
-export * from "./dom";
-export { HTML_NAMESPACE } from "./dom/streaming/namespaces";
+export * from "./reactive/index.js";
+export * from "./hooks/hook.js";
+export * from "./hooks/simple.js";
+export * from "./universe.js";
+export * from "./program-node/index.js";
+export * from "./dom.js";
+export { HTML_NAMESPACE } from "./dom/streaming/namespaces.js";
 
-export * from "./utils";
+export * from "./utils.js";
 
-export * from "./strippable/abstraction";
-export * from "./strippable/assert";
-export * from "./strippable/minimal";
-export * from "./strippable/wrapper";
-export * from "./strippable/core";
-export * from "./strippable/trace";
+export * from "./strippable/abstraction.js";
+export * from "./strippable/assert.js";
+export * from "./strippable/minimal.js";
+export * from "./strippable/wrapper.js";
+export * from "./strippable/core.js";
+export * from "./strippable/trace.js";
 
-export * from "./debug/inspect";
-export * from "./debug/tree";
+export * from "./debug/inspect.js";
+export * from "./debug/tree.js";
 
-export * from "./dom/streaming";
+export * from "./dom/streaming.js";
 
-export * from "./decorator/reactive";
+export * from "./decorator/reactive.js";

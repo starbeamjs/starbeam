@@ -1,20 +1,20 @@
 import type { minimal } from "@domtree/flavors";
 import { getPatch, Patch } from "fast-array-diff";
-import type { DomEnvironment } from "../../dom/environment";
+import type { DomEnvironment } from "../../dom/environment.js";
 import {
   ContentCursor,
   RangeSnapshot,
   RANGE_SNAPSHOT,
-} from "../../dom/streaming/cursor";
-import { TreeConstructor } from "../../dom/streaming/tree-constructor";
-import type { ReactiveMetadata } from "../../reactive/metadata";
-import { exhaustive, verified } from "../../strippable/assert";
-import { is } from "../../strippable/minimal";
-import { NonemptyList } from "../../utils";
-import { OrderedIndex } from "../../utils/index-map";
-import { isPresent } from "../../utils/presence";
-import type { CurrentLoop, KeyedProgramNode } from "./loop";
-import { KeyedContent, RenderSnapshot } from "./snapshot";
+} from "../../dom/streaming/cursor.js";
+import { TreeConstructor } from "../../dom/streaming/tree-constructor.js";
+import type { ReactiveMetadata } from "../../reactive/metadata.js";
+import { exhaustive, verified } from "../../strippable/assert.js";
+import { is } from "../../strippable/minimal.js";
+import { NonemptyList } from "../../utils.js";
+import { OrderedIndex } from "../../utils/index-map.js";
+import { isPresent } from "../../utils/presence.js";
+import type { CurrentLoop, KeyedProgramNode } from "./loop.js";
+import { KeyedContent, RenderSnapshot } from "./snapshot.js";
 
 export class ListArtifacts {
   /**

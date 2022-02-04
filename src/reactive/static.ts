@@ -1,7 +1,7 @@
-import type { AbstractReactive } from "./core";
-import { HasMetadata, ReactiveMetadata } from "./metadata";
-import { REACTIVE_BRAND } from "./internal";
-import { describeValue } from "../describe";
+import type { AbstractReactive } from "./core.js";
+import { HasMetadata, ReactiveMetadata } from "./metadata.js";
+import { REACTIVE_BRAND } from "./internal.js";
+import { describeValue } from "../describe.js";
 
 export class Static<T> extends HasMetadata implements AbstractReactive<T> {
   constructor(

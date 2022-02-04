@@ -1,12 +1,12 @@
-import { Group, LOGGER } from "../../strippable/trace";
+import { Group, LOGGER } from "../../strippable/trace.js";
 import type {
   ActiveFrame,
   AnyFinalizedFrame,
   FinalizedFrame,
-} from "../../universe/frames";
-import type { Timeline } from "../../universe/timeline";
-import type { AbstractReactive } from "../core";
-import { HasMetadata, ReactiveMetadata } from "../metadata";
+} from "../../universe/frames.js";
+import type { Timeline } from "../../universe/timeline.js";
+import type { AbstractReactive } from "../core.js";
+import { HasMetadata, ReactiveMetadata } from "../metadata.js";
 
 export class Memo<T> extends HasMetadata implements AbstractReactive<T> {
   static create<T>(

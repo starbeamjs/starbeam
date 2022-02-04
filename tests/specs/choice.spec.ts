@@ -1,5 +1,5 @@
 import { Cases } from "starbeam";
-import { expect, test, toBe } from "../support";
+import { expect, test, toBe } from "../support/index.js";
 
 function StringType(value: unknown): value is string {
   return typeof value === "string";

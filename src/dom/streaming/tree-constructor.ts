@@ -1,25 +1,25 @@
-// import type { AnyNode } from "./simplest-dom";
+// import type { AnyNode } from "./simplest-dom.js";
 import type * as minimal from "@domtree/minimal";
-import { verified } from "../../strippable/assert";
-import { is, mutable } from "../../strippable/minimal";
-import type { AttributeValue, AttrType } from "../buffer/attribute";
-import type { ElementHeadBuffer } from "../buffer/body";
+import { verified } from "../../strippable/assert.js";
+import { is, mutable } from "../../strippable/minimal.js";
+import type { AttributeValue, AttrType } from "../buffer/attribute.js";
+import type { ElementHeadBuffer } from "../buffer/body.js";
 import {
   ContentBuffer,
   ElementBody,
   ElementBodyBuffer,
   HtmlBuffer,
-} from "../buffer/body";
-import type { DomEnvironment } from "../environment";
-import type { ContentRange } from "./compatible-dom";
-import type { ContentCursor } from "./cursor";
+} from "../buffer/body.js";
+import type { DomEnvironment } from "../environment.js";
+import type { ContentRange } from "./compatible-dom.js";
+import type { ContentCursor } from "./cursor.js";
 import {
   ATTRIBUTE_MARKER,
   CHARACTER_DATA_MARKER,
   CONTENT_RANGE_MARKER,
   ELEMENT_MARKER,
-} from "./marker";
-import type { Dehydrated, Tokens } from "./token";
+} from "./marker.js";
+import type { Dehydrated, Tokens } from "./token.js";
 
 export type ContentOperationOptions = {
   readonly token: true;
@@ -130,7 +130,9 @@ export class ContentConstructor<B extends ContentBuffer = ContentBuffer> {
       this.#buffer,
       CONTENT_RANGE_MARKER,
       (buffer) => {
-        result = contents(ContentConstructor.create(this.#tokens, buffer)) as T;
+        result = contents(
+          ContentConstructor.create(this.#tokens, buffer as B)
+        ) as T;
         return buffer;
       }
     ) as Dehydrated<ContentRange>;

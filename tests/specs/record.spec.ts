@@ -1,5 +1,5 @@
-import { test, Expects } from "../support";
-import { Dynamism } from "../support/expect/expect";
+import { test, Expects } from "../support/index.js";
+import { Dynamism } from "../support/expect/expect.js";
 
 test("a record is a reactive value", ({ universe, test }) => {
   let first = universe.cell("Tom");

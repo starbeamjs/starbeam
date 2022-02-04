@@ -1,10 +1,10 @@
 import type { minimal } from "@domtree/flavors";
-import { verified } from "../../strippable/assert";
-import { is } from "../../strippable/minimal";
-import type { DomEnvironment } from "../environment";
-import { MINIMAL } from "./compatible-dom";
-import type { ContentCursor } from "./cursor";
-import type { Hydration, Marker } from "./marker";
+import { verified } from "../../strippable/assert.js";
+import { is } from "../../strippable/minimal.js";
+import type { DomEnvironment } from "../environment.js";
+import { MINIMAL } from "./compatible-dom.js";
+import type { ContentCursor } from "./cursor.js";
+import type { Hydration, Marker } from "./marker.js";
 
 const TOKEN_IDS = new WeakMap<object, string>();
 

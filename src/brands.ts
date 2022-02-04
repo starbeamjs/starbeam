@@ -1,4 +1,4 @@
-import type { Timestamp } from "./universe/timestamp";
+import type { Timestamp } from "./universe/timestamp.js";
 
 export const IS_UPDATED_SINCE = Symbol("IS_UPDATED_SINCE");
 

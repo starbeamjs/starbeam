@@ -1,13 +1,13 @@
-import { IS_UPDATED_SINCE } from "../brands";
-import type { Timeline } from "../universe/timeline";
-import type { Timestamp } from "../universe/timestamp";
-import { AbstractReactive } from "./core";
-import { ReactiveMetadata } from "./metadata";
-import { REACTIVE_BRAND } from "./internal";
-import { verify } from "../strippable/assert";
-import { is } from "../strippable/minimal";
-import { expected } from "../strippable/verify-context";
-import { describeValue } from "../describe";
+import { IS_UPDATED_SINCE } from "../brands.js";
+import type { Timeline } from "../universe/timeline.js";
+import type { Timestamp } from "../universe/timestamp.js";
+import { AbstractReactive } from "./core.js";
+import { ReactiveMetadata } from "./metadata.js";
+import { REACTIVE_BRAND } from "./internal.js";
+import { verify } from "../strippable/assert.js";
+import { is } from "../strippable/minimal.js";
+import { expected } from "../strippable/verify-context.js";
+import { describeValue } from "../describe.js";
 
 export class Cell<T> extends AbstractReactive<T> {
   static create<T>(value: T, timeline: Timeline, description: string): Cell<T> {

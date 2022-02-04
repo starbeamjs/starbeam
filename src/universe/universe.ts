@@ -1,35 +1,39 @@
 import type { anydom, minimal } from "@domtree/flavors";
-import { CELLS, scopedCached, scopedReactive } from "../decorator/reactive";
-import { ReactiveDOM } from "../dom";
-import type { DomEnvironment } from "../dom/environment";
-import { DOM, MINIMAL } from "../dom/streaming/compatible-dom";
-import { TreeConstructor } from "../dom/streaming/tree-constructor";
-import { HookBlueprint, HookConstructor } from "../hooks/simple";
-import { HookCursor, HookProgramNode, HookValue } from "../program-node/hook";
+import { CELLS, scopedCached, scopedReactive } from "../decorator/reactive.js";
+import { ReactiveDOM } from "../dom.js";
+import type { DomEnvironment } from "../dom/environment.js";
+import { DOM, MINIMAL } from "../dom/streaming/compatible-dom.js";
+import { TreeConstructor } from "../dom/streaming/tree-constructor.js";
+import { HookBlueprint, HookConstructor } from "../hooks/simple.js";
+import {
+  HookCursor,
+  HookProgramNode,
+  HookValue,
+} from "../program-node/hook.js";
 import type {
   ContentProgramNode,
   ProgramNode,
-} from "../program-node/interfaces/program-node";
-import { Cell } from "../reactive/cell";
-import type { AnyReactiveChoice } from "../reactive/choice";
-import type { AbstractReactive, Reactive } from "../reactive/core";
-import { Memo } from "../reactive/functions/memo";
-import { Matcher, ReactiveMatch } from "../reactive/match";
-import { InnerDict, ReactiveRecord } from "../reactive/record";
-import { Static } from "../reactive/static";
-import { Abstraction } from "../strippable/abstraction";
-import { verified } from "../strippable/assert";
-import { is, minimize } from "../strippable/minimal";
-import { expected } from "../strippable/verify-context";
+} from "../program-node/interfaces/program-node.js";
+import { Cell } from "../reactive/cell.js";
+import type { AnyReactiveChoice } from "../reactive/choice.js";
+import type { AbstractReactive, Reactive } from "../reactive/core.js";
+import { Memo } from "../reactive/functions/memo.js";
+import { Matcher, ReactiveMatch } from "../reactive/match.js";
+import { InnerDict, ReactiveRecord } from "../reactive/record.js";
+import { Static } from "../reactive/static.js";
+import { Abstraction } from "../strippable/abstraction.js";
+import { verified } from "../strippable/assert.js";
+import { is, minimize } from "../strippable/minimal.js";
+import { expected } from "../strippable/verify-context.js";
 import {
   Finalizer,
   IntoFinalizer,
   Lifetime,
   UniverseLifetime,
-} from "./lifetime/lifetime";
-import { Profile } from "./profile";
-import { RenderedRoot } from "./root";
-import { Timeline } from "./timeline";
+} from "./lifetime/lifetime.js";
+import { Profile } from "./profile.js";
+import { RenderedRoot } from "./root.js";
+import { Timeline } from "./timeline.js";
 
 export const TIMELINE = Symbol("TIMELINE");
 

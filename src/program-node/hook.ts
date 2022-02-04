@@ -1,15 +1,15 @@
-import type { Hook } from "../hooks/hook";
-import { HookBlueprint, SimpleHook } from "../hooks/simple";
-import type { Reactive } from "../reactive/core";
-import type { ReactiveMetadata } from "../reactive/metadata";
-import { assert } from "../strippable/core";
-import { LOGGER } from "../strippable/trace";
-import type { AnyKey } from "../strippable/wrapper";
-import type { Universe } from "../universe";
+import type { Hook } from "../hooks/hook.js";
+import { HookBlueprint, SimpleHook } from "../hooks/simple.js";
+import type { Reactive } from "../reactive/core.js";
+import type { ReactiveMetadata } from "../reactive/metadata.js";
+import { assert } from "../strippable/core.js";
+import { LOGGER } from "../strippable/trace.js";
+import type { AnyKey } from "../strippable/wrapper.js";
+import type { Universe } from "../universe.js";
 import {
   AbstractProgramNode,
   RenderedProgramNode,
-} from "./interfaces/program-node";
+} from "./interfaces/program-node.js";
 
 const UNINITIALIZED = Symbol("UNINITIALIZED");
 

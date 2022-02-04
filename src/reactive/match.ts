@@ -1,6 +1,6 @@
-import type { AnyReactiveChoice } from "./choice";
-import type { AbstractReactive, ReactiveValue } from "./core";
-import { HasMetadata, ReactiveMetadata } from "./metadata";
+import type { AnyReactiveChoice } from "./choice.js";
+import type { AbstractReactive, ReactiveValue } from "./core.js";
+import { HasMetadata, ReactiveMetadata } from "./metadata.js";
 
 export type Matcher<C extends AnyReactiveChoice> = {
   [P in C["discriminant"]]: C["value"] extends undefined

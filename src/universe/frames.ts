@@ -1,8 +1,8 @@
-import { IS_UPDATED_SINCE } from "../brands";
-import type { AnyCell } from "../reactive/cell";
-import { HasMetadata, ReactiveMetadata } from "../reactive/metadata";
-import { LOGGER } from "../strippable/trace";
-import type { Timestamp } from "./timestamp";
+import { IS_UPDATED_SINCE } from "../brands.js";
+import type { AnyCell } from "../reactive/cell.js";
+import { HasMetadata, ReactiveMetadata } from "../reactive/metadata.js";
+import { LOGGER } from "../strippable/trace.js";
+import type { Timestamp } from "./timestamp.js";
 
 export class AssertFrame {
   static describing(description: string): AssertFrame {

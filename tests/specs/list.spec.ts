@@ -1,6 +1,6 @@
 import { AbstractReactive, Component, ReactiveDOM } from "starbeam";
-import { Expects } from "../support";
-import { test } from "../support/define";
+import { Expects } from "../support/index.js";
+import { test } from "../support/define.js";
 
 test("a simple, static list", ({ universe, test }) => {
   const dom = universe.dom;

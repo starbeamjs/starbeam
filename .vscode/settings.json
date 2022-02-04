@@ -17,5 +17,6 @@
   "jest.nodeEnv": { "NODE_OPTIONS": "--experimental-vm-modules --no-warnings" },
 
   "javascript.preferences.importModuleSpecifierEnding": "index",
-  "typescript.preferences.importModuleSpecifierEnding": "index"
+  "typescript.preferences.importModuleSpecifierEnding": "index",
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

@@ -7,14 +7,14 @@ import {
   PatternMatch,
   PatternMismatch,
   PatternResult,
-} from "../expect";
+} from "../expect.js";
 import {
   Failure,
   NotEqual,
   PatternDetails,
   Success,
   ValueDescription,
-} from "../report";
+} from "../report.js";
 
 export interface ToBeSerializer<T> {
   readonly expected: string | ((value: T) => string);

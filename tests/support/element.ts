@@ -1,4 +1,4 @@
-import type { Expects } from "./expect/expect";
+import type { Expects } from "./expect/expect.js";
 import {
   AttributeName,
   BuildAttribute,

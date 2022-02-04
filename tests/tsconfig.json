@@ -6,8 +6,8 @@
     "useDefineForClassFields": true,
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
-    "module": "ESNext",
-    "moduleResolution": "Node",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "lib": ["ESNext", "DOM"],
     "outDir": "/tmp/starbeam-dist/tests",
     "paths": { "starbeam": ["../src/index.ts"] }

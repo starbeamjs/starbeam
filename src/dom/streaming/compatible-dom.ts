@@ -4,11 +4,11 @@ import type * as browser from "@domtree/browser";
 import type * as minimal from "@domtree/minimal";
 // eslint-disable-next-line import/no-duplicates
 import type { Mutable } from "@domtree/minimal";
-import { exhaustive, verified, verify } from "../../strippable/assert";
-import { is, minimize, mutable } from "../../strippable/minimal";
-import { tap } from "../../utils";
-import type { DomEnvironment } from "../environment";
-import { ContentCursor, RangeSnapshot } from "./cursor";
+import { exhaustive, verified, verify } from "../../strippable/assert.js";
+import { is, minimize, mutable } from "../../strippable/minimal.js";
+import { tap } from "../../utils.js";
+import type { DomEnvironment } from "../environment.js";
+import { ContentCursor, RangeSnapshot } from "./cursor.js";
 import {
   HTML_NAMESPACE,
   MATHML_NAMESPACE,
@@ -16,7 +16,7 @@ import {
   XLINK_NAMESPACE,
   XMLNS_NAMESPACE,
   XML_NAMESPACE,
-} from "./namespaces";
+} from "./namespaces.js";
 
 type RangeNodes = readonly [first: minimal.ChildNode, last?: minimal.ChildNode];
 

@@ -1,13 +1,16 @@
 import type * as minimal from "@domtree/minimal";
-import type { ContentBuffer } from "../dom/buffer/body";
-import { RangeSnapshot, RANGE_SNAPSHOT } from "../dom/streaming/cursor";
-import type { Dehydrated, LazyDOM } from "../dom/streaming/token";
-import { ContentConstructor, TOKEN } from "../dom/streaming/tree-constructor";
-import type { AbstractReactive } from "../reactive/core";
-import type { ReactiveMetadata } from "../reactive/metadata";
-import { mutable } from "../strippable/minimal";
-import { ContentProgramNode } from "./interfaces/program-node";
-import { RenderedContent } from "./interfaces/rendered-content";
+import type { ContentBuffer } from "../dom/buffer/body.js";
+import { RangeSnapshot, RANGE_SNAPSHOT } from "../dom/streaming/cursor.js";
+import type { Dehydrated, LazyDOM } from "../dom/streaming/token.js";
+import {
+  ContentConstructor,
+  TOKEN,
+} from "../dom/streaming/tree-constructor.js";
+import type { AbstractReactive } from "../reactive/core.js";
+import type { ReactiveMetadata } from "../reactive/metadata.js";
+import { mutable } from "../strippable/minimal.js";
+import { ContentProgramNode } from "./interfaces/program-node.js";
+import { RenderedContent } from "./interfaces/rendered-content.js";
 
 export abstract class CharacterDataProgramNode extends ContentProgramNode {
   static text(reactive: AbstractReactive<string>): TextProgramNode {

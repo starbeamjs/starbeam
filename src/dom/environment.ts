@@ -1,8 +1,8 @@
 import type { browser, minimal } from "@domtree/flavors";
 import type { JSDOM } from "jsdom";
-import { minimize } from "../strippable/minimal";
-import { MinimalDocumentUtilities } from "./streaming/compatible-dom";
-import { Tokens } from "./streaming/token";
+import { minimize } from "../strippable/minimal.js";
+import { MinimalDocumentUtilities } from "./streaming/compatible-dom.js";
+import { Tokens } from "./streaming/token.js";
 
 export abstract class DomEnvironment {
   static jsdom(jsdom: JSDOM): DomEnvironment {

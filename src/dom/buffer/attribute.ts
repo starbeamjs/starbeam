@@ -1,11 +1,16 @@
-import { exhaustive, present, verified, verify } from "../../strippable/assert";
-import { assert } from "../../strippable/core";
-import { has, is } from "../../strippable/minimal";
-import { expected } from "../../strippable/verify-context";
-import { QualifiedName, Wrapper } from "../../strippable/wrapper";
-import { isObject, Position, positioned } from "../../utils";
-import type { Buffer, SerializeOptions, Serialize } from "./body";
-import { escapeAttrValue } from "./escape";
+import {
+  exhaustive,
+  present,
+  verified,
+  verify,
+} from "../../strippable/assert.js";
+import { assert } from "../../strippable/core.js";
+import { has, is } from "../../strippable/minimal.js";
+import { expected } from "../../strippable/verify-context.js";
+import { QualifiedName, Wrapper } from "../../strippable/wrapper.js";
+import { isObject, Position, positioned } from "../../utils.js";
+import type { Buffer, Serialize, SerializeOptions } from "./body.js";
+import { escapeAttrValue } from "./escape.js";
 
 export abstract class HtmlAttribute implements Serialize {
   static is(this: typeof HtmlAttribute, value: unknown): value is HtmlAttribute;

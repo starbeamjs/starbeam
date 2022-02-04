@@ -1,9 +1,9 @@
-import { Cell } from "../reactive/cell";
-import { Memo } from "../reactive/functions/memo";
-import { verify } from "../strippable/assert";
-import { is } from "../strippable/minimal";
-import { expected } from "../strippable/verify-context";
-import type { Timeline } from "../universe/timeline";
+import { Cell } from "../reactive/cell.js";
+import { Memo } from "../reactive/functions/memo.js";
+import { verify } from "../strippable/assert.js";
+import { is } from "../strippable/minimal.js";
+import { expected } from "../strippable/verify-context.js";
+import type { Timeline } from "../universe/timeline.js";
 
 class ObjectCells {
   static initialize(key: PropertyKey, cell: Cell<unknown>): ObjectCells {

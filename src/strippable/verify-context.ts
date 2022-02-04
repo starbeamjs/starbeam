@@ -2,8 +2,8 @@ import type {
   CompleteContext,
   MutableVerifyContext,
   PartialVerifyContext,
-} from "./assert";
-import { assert, isVerifyContext } from "./core";
+} from "./assert.js";
+import { assert, isVerifyContext } from "./core.js";
 
 export class DescribedContext {
   static of(context: VerifyContext): DescribedContext {

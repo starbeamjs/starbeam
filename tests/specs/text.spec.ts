@@ -1,5 +1,5 @@
-import { Expects, test } from "../support";
-import { Dynamism } from "../support/expect/expect";
+import { Expects, test } from "../support/index.js";
+import { Dynamism } from "../support/expect/expect.js";
 
 test("dynamic text", ({ universe: timeline, test }) => {
   let cell = timeline.cell("hello");

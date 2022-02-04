@@ -1,10 +1,10 @@
 import type { minimal } from "@domtree/flavors";
-import { ReactiveMetadata } from "../../reactive/metadata";
-import { NonemptyList } from "../../utils";
-import { OrderedIndex } from "../../utils/index-map";
-import { isPresent } from "../../utils/presence";
-import { RenderedContent } from "../interfaces/rendered-content";
-import type { ContentsIndex } from "./loop";
+import { ReactiveMetadata } from "../../reactive/metadata.js";
+import { NonemptyList } from "../../utils.js";
+import { OrderedIndex } from "../../utils/index-map.js";
+import { isPresent } from "../../utils/presence.js";
+import { RenderedContent } from "../interfaces/rendered-content.js";
+import type { ContentsIndex } from "./loop.js";
 
 export class RenderSnapshot {
   static from(list: readonly KeyedContent[]): RenderSnapshot {

@@ -1,4 +1,4 @@
-import type { UnsafeAny } from "./wrapper";
+import type { UnsafeAny } from "./wrapper.js";
 
 Error.stackTraceLimit = Infinity;
 

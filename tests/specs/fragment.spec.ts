@@ -1,5 +1,5 @@
-import { Expects, test } from "../support";
-import { Dynamism } from "../support/expect/expect";
+import { Expects, test } from "../support/index.js";
+import { Dynamism } from "../support/expect/expect.js";
 
 test("a fragment containing a text node (dynamic) ", ({ universe, test }) => {
   let name = universe.cell("Chirag");

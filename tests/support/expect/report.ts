@@ -1,4 +1,4 @@
-import { starbeam } from "./upstream";
+import { starbeam } from "./upstream.js";
 
 export interface TypeDescription {
   kind: "type";

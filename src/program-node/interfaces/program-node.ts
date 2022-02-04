@@ -1,8 +1,8 @@
 import type { minimal } from "@domtree/flavors";
-import type { ContentConstructor } from "../../dom/streaming/tree-constructor";
-import type { AbstractReactive } from "../../reactive/core";
-import { HasMetadata, ReactiveMetadata } from "../../reactive/metadata";
-import type { RenderedContent } from "./rendered-content";
+import type { ContentConstructor } from "../../dom/streaming/tree-constructor.js";
+import type { AbstractReactive } from "../../reactive/core.js";
+import { HasMetadata, ReactiveMetadata } from "../../reactive/metadata.js";
+import type { RenderedContent } from "./rendered-content.js";
 
 export type OutputBuilder<In, Out> = (input: AbstractReactive<In>) => Out;
 

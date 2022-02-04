@@ -1,6 +1,6 @@
-import type { UnsafeAny } from "../strippable/wrapper";
-import type { AbstractReactive } from "./core";
-import { HasMetadata, ReactiveMetadata } from "./metadata";
+import type { UnsafeAny } from "../strippable/wrapper.js";
+import type { AbstractReactive } from "./core.js";
+import { HasMetadata, ReactiveMetadata } from "./metadata.js";
 
 export class ReactiveChoice<T, K extends string = string> extends HasMetadata {
   static create<T, K extends string>(

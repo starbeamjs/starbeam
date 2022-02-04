@@ -1,13 +1,13 @@
 import type { minimal } from "@domtree/flavors";
-import { verified, verify } from "../../strippable/assert";
-import { assert } from "../../strippable/core";
-import { has, is } from "../../strippable/minimal";
-import { as } from "../../strippable/verify-context";
-import { isElement } from "../../utils/dom";
-import type { ContentBuffer, ElementHeadBuffer } from "../buffer/body";
-import type { DomEnvironment } from "../environment";
-import { ContentRange, ContentRangeNode, MINIMAL } from "./compatible-dom";
-import { Token, tokenId } from "./token";
+import { verified, verify } from "../../strippable/assert.js";
+import { assert } from "../../strippable/core.js";
+import { has, is } from "../../strippable/minimal.js";
+import { as } from "../../strippable/verify-context.js";
+import { isElement } from "../../utils/dom.js";
+import type { ContentBuffer, ElementHeadBuffer } from "../buffer/body.js";
+import type { DomEnvironment } from "../environment.js";
+import { ContentRange, ContentRangeNode, MINIMAL } from "./compatible-dom.js";
+import { Token, tokenId } from "./token.js";
 
 // This might be necessary for some obscure cases where <template> is disallowed
 // by comments are allowed. That said, there are some cases where comments are

@@ -1,4 +1,4 @@
-import { Expects, test } from "../support";
+import { Expects, test } from "../support/index.js";
 
 test("a simple element containing a text node (dynamic) ", ({
   universe,

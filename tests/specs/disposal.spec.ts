@@ -1,5 +1,5 @@
 import { Finalizer } from "starbeam";
-import { expect, test, toBe } from "../support";
+import { expect, test, toBe } from "../support/index.js";
 
 test("universe.on.destroy", ({ universe }) => {
   let tom = { name: "Tom" };

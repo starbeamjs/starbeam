@@ -1,5 +1,5 @@
 import { Abstraction, ReactiveMetadata } from "starbeam";
-import { toBe } from "./patterns";
+import { toBe } from "./patterns.js";
 import {
   Failure,
   JestReporter,
@@ -7,7 +7,7 @@ import {
   Reporter,
   Success,
   ValueDescription,
-} from "./report";
+} from "./report.js";
 
 export const Dynamism = {
   constant: ReactiveMetadata.Constant,

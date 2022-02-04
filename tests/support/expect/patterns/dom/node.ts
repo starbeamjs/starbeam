@@ -14,8 +14,8 @@ import {
   PatternMatch,
   PatternMismatch,
   PatternResult,
-} from "../../expect";
-import { Failure, Mismatch, Success, ValueDescription } from "../../report";
+} from "../../expect.js";
+import { Failure, Mismatch, Success, ValueDescription } from "../../report.js";
 
 const NODE_NAMES = {
   1: "Element",

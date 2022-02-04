@@ -1,4 +1,4 @@
-import type { Reactive } from "../reactive/core";
+import type { Reactive } from "../reactive/core.js";
 
 // export abstract class AbstractHook<T> extends AbstractReactive<T> {
 //   readonly #universe: Universe;

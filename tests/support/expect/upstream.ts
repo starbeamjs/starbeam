@@ -7,7 +7,7 @@ import type {
   MatchResult,
   PatternDetails,
   ValueDescription,
-} from "./report";
+} from "./report.js";
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

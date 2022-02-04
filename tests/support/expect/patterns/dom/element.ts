@@ -1,5 +1,5 @@
 import type { SimpleElement, SimpleNode } from "@simple-dom/interface";
-import { nodeName, NodeTypePattern } from "./node";
+import { nodeName, NodeTypePattern } from "./node.js";
 import {
   Described,
   IntoDescribed,
@@ -7,7 +7,7 @@ import {
   PatternMatch,
   PatternMismatch,
   PatternResult,
-} from "../../expect";
+} from "../../expect.js";
 import {
   PatternDetails,
   Success,
@@ -16,7 +16,7 @@ import {
   Multiple,
   ValueDescription,
   ChildFailure,
-} from "../../report";
+} from "../../report.js";
 import zip from "lodash.zip";
 
 export interface SimpleElementPatternOptions {

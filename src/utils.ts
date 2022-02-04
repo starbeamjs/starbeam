@@ -1,6 +1,6 @@
-import { verified } from "./strippable/assert";
-import { has } from "./strippable/minimal";
-import { as } from "./strippable/verify-context";
+import { verified } from "./strippable/assert.js";
+import { has } from "./strippable/minimal.js";
+import { as } from "./strippable/verify-context.js";
 
 export function isObject(value: unknown): value is object {
   return typeof value === "object" && value !== null;

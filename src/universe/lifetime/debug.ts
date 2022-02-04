@@ -1,5 +1,5 @@
-import { tree, TreeContent, TreeRecord } from "../../debug/tree";
-import { isObject } from "../../utils";
+import { tree, TreeContent, TreeRecord } from "../../debug/tree.js";
+import { isObject } from "../../utils.js";
 
 type ScalarKeys<T> = {
   [P in keyof T]: T[P] extends Function ? never : P;

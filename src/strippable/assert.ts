@@ -1,11 +1,11 @@
-import { isPresent } from "../utils/presence";
-import { abstractify, assertCondition, DebugInformation } from "./core";
+import { isPresent } from "../utils/presence.js";
+import { abstractify, assertCondition, DebugInformation } from "./core.js";
 import {
   as,
   CreatedContext,
   DescribedContext,
   VerifyContext,
-} from "./verify-context";
+} from "./verify-context.js";
 
 /**
  * @strip.value value

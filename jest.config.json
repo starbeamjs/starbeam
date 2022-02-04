@@ -1,8 +1,14 @@
 {
-  "preset": "ts-jest",
+  "preset": "ts-jest/presets/default-esm",
   "extensionsToTreatAsEsm": [".ts", ".tsx"],
   "testEnvironment": "./jest/environment.js",
+  "resolver": "jest-ts-webcompat-resolver",
   "injectGlobals": false,
+  "globals": {
+    "ts-jest": {
+      "useESM": true
+    }
+  },
   "transform": {
     "^.+\\.(t|j)sx?$": [
       "@swc/jest",

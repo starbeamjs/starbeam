@@ -1,10 +1,10 @@
 import type { minimal } from "@domtree/flavors";
-import type { DomEnvironment } from "../dom";
-import type { ContentRange } from "../dom/streaming/compatible-dom";
-import type { LazyDOM } from "../dom/streaming/token";
-import { verified } from "../strippable/assert";
-import { is } from "../strippable/minimal";
-import { as } from "../strippable/verify-context";
+import type { DomEnvironment } from "../dom.js";
+import type { ContentRange } from "../dom/streaming/compatible-dom.js";
+import type { LazyDOM } from "../dom/streaming/token.js";
+import { verified } from "../strippable/assert.js";
+import { is } from "../strippable/minimal.js";
+import { as } from "../strippable/verify-context.js";
 
 export class LazyFragment {
   static of(lazy: LazyDOM<ContentRange>): LazyFragment {

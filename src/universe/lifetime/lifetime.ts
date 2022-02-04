@@ -1,5 +1,5 @@
-import type { Universe } from "../universe";
-import { DebugObjectLifetime, DebugFinalizer } from "./debug";
+import type { Universe } from "../universe.js";
+import { DebugObjectLifetime, DebugFinalizer } from "./debug.js";
 
 export interface UniverseLifetime {
   link(parent: object, child: object): void;

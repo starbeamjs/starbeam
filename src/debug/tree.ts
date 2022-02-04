@@ -1,5 +1,5 @@
 import treeify, { TreeObject } from "treeify";
-import { isObject } from "../utils";
+import { isObject } from "../utils.js";
 
 const { asTree } = treeify;
 
