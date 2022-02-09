@@ -1,9 +1,11 @@
 {
+  "extends": "./tsconfig.shared.json",
   "compilerOptions": {
     "composite": true,
     "target": "ESNext",
     "useDefineForClassFields": true,
-    "allowSyntheticDefaultImports": true,
+    "allowSyntheticDefaultImports": false,
+    "esModuleInterop": false,
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "lib": ["ESNext", "DOM"]

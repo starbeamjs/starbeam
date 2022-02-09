@@ -7,10 +7,11 @@ import {
   ElementHeadConstructor,
   TreeConstructor,
 } from "../dom/streaming/tree-constructor.js";
-import type { AbstractReactive } from "../reactive/core.js";
+import { AbstractReactive, Reactive } from "../reactive/core.js";
 import { ReactiveMetadata } from "../reactive/metadata.js";
 import { NonemptyList } from "../utils.js";
 import { AttributeProgramNode, RenderedAttribute } from "./attribute.js";
+import { TextProgramNode } from "./data.js";
 import { FragmentProgramNode, RenderedFragmentNode } from "./fragment.js";
 import { ContentProgramNode } from "./interfaces/program-node.js";
 import { RenderedContent } from "./interfaces/rendered-content.js";
@@ -259,8 +260,12 @@ export class ElementProgramNodeBuilder {
     this.#tagName = tagName;
   }
 
-  append(output: ContentProgramNode): this {
-    this.#children.push(output);
+  append(output: string | ContentProgramNode): this {
+    if (typeof output === "string") {
+      this.#children.push(TextProgramNode.of(Reactive.from(output)));
+    } else {
+      this.#children.push(output);
+    }
     return this;
   }
 

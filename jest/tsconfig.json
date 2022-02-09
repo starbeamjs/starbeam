@@ -19,5 +19,5 @@
     "noImplicitReturns": true,
     "importsNotUsedAsValues": "error"
   },
-  "include": ["environment.ts", "run.ts"]
+  "include": ["environment.ts", "run.ts", "resolver.ts"]
 }

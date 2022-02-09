@@ -1,25 +1,14 @@
 {
+  "extends": "../tsconfig.shared.json",
   "compilerOptions": {
     "composite": true,
-    "checkJs": true,
-    "target": "ESNext",
-    "useDefineForClassFields": true,
-    "module": "NodeNext",
     "lib": ["ESNext", "DOM"],
     "outDir": "/tmp/starbeam-dist/src",
-    "moduleResolution": "NodeNext",
-    "strict": true,
-    "sourceMap": true,
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noImplicitReturns": true,
-    "importsNotUsedAsValues": "error",
     "paths": {
       "treeify": ["../@types/treeify"]
-    }
+    },
+    "declarationDir": "../types",
+    "declaration": true
   },
   "references": [{ "path": "../@types" }]
 }

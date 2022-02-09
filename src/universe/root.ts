@@ -32,10 +32,12 @@ export class RenderedRoot<Container> {
    * Eagerly exchange all tokens for their DOM representations. This is
    * primarily useful if you want to look at the DOM without markers.
    */
-  initialize(): void {
+  initialize(): this {
     LOGGER.trace.group(`\ninitializing rendered root`, () =>
       this.#rendered.initialize(this.#container)
     );
+
+    return this;
   }
 
   poll(): void {

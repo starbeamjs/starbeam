@@ -1,4 +1,4 @@
-import { Universe } from "starbeam";
+import type { Universe } from "starbeam";
 import { expect, test, toBe } from "../support/define.js";
 import { Dynamism, Expects } from "../support/expect/expect.js";
 

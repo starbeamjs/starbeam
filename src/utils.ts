@@ -2,6 +2,8 @@ import { verified } from "./strippable/assert.js";
 import { has } from "./strippable/minimal.js";
 import { as } from "./strippable/verify-context.js";
 
+export const INSPECT = Symbol.for("nodejs.util.inspect.custom");
+
 export function isObject(value: unknown): value is object {
   return typeof value === "object" && value !== null;
 }

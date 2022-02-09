@@ -24,6 +24,7 @@ export abstract class AbstractReactive<T> extends HasMetadata {
 }
 
 export type Reactive<T = unknown> = AbstractReactive<T>;
+export const Reactive = AbstractReactive;
 
 export type ReactiveValue<R extends AbstractReactive<unknown>> =
   R extends AbstractReactive<infer Value> ? Value : never;

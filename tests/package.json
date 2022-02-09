@@ -1,10 +1,13 @@
 {
   "name": "@starbeam/tests",
+  "type": "module",
   "private": true,
   "dependencies": {
     "starbeam": "workspace:*",
+    "typescript": "next"
+  },
+  "devDependencies": {
     "@types/lodash.zip": "^4.2.6",
-    "lodash.zip": "^4.2.0",
-    "typescript": "^4.5.4"
+    "lodash.zip": "^4.2.0"
   }
 }

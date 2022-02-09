@@ -1,4 +1,5 @@
 {
+  "extends": "../tsconfig.shared.json",
   "compilerOptions": {
     "composite": true,
     "outDir": "/tmp/starbeam-dist/@types"

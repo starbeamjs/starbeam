@@ -28,4 +28,6 @@ declare function asLines(
   lineCallback: (line: string) => void
 ): string;
 
-export default { asTree, asLines };
+declare const DEFAULT: { asTree: typeof asTree; asLines: typeof asLines };
+
+export default DEFAULT;

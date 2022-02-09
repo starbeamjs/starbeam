@@ -1,7 +1,8 @@
 import type { anydom, minimal } from "@domtree/flavors";
+import type { JSDOM } from "jsdom";
 import { CELLS, scopedCached, scopedReactive } from "../decorator/reactive.js";
 import { ReactiveDOM } from "../dom.js";
-import type { DomEnvironment } from "../dom/environment.js";
+import { DomEnvironment } from "../dom/environment.js";
 import { DOM, MINIMAL } from "../dom/streaming/compatible-dom.js";
 import { TreeConstructor } from "../dom/streaming/tree-constructor.js";
 import { HookBlueprint, HookConstructor } from "../hooks/simple.js";
@@ -25,6 +26,7 @@ import { Abstraction } from "../strippable/abstraction.js";
 import { verified } from "../strippable/assert.js";
 import { is, minimize } from "../strippable/minimal.js";
 import { expected } from "../strippable/verify-context.js";
+import { INSPECT } from "../utils.js";
 import {
   Finalizer,
   IntoFinalizer,
@@ -35,9 +37,16 @@ import { Profile } from "./profile.js";
 import { RenderedRoot } from "./root.js";
 import { Timeline } from "./timeline.js";
 
-export const TIMELINE = Symbol("TIMELINE");
+export const TIMELINE_SYMBOL = Symbol("TIMELINE");
 
 export class Universe {
+  static jsdom(jsdom: JSDOM): Universe {
+    return Universe.environment(
+      DomEnvironment.jsdom(jsdom),
+      `#<Universe jsdom>`
+    );
+  }
+
   /**
    * Create a new timeline in order to manage outputs using SimpleDOM. It's safe
    * to use SimpleDOM with the real DOM as long as you don't need runtime
@@ -45,14 +54,20 @@ export class Universe {
    */
   static environment(
     environment: DomEnvironment,
+    description = `#<Universe>`,
     profile = Profile.Debug
   ): Universe {
     return new Universe(
       environment,
       Timeline.create(),
       Lifetime.scoped(),
-      profile
+      profile,
+      description
     );
+  }
+
+  [INSPECT](): string {
+    return this.#description;
   }
 
   /** @internal */
@@ -69,6 +84,7 @@ export class Universe {
   readonly #profile: Profile;
   readonly #timeline: Timeline;
   readonly #lifetime: Lifetime;
+  readonly #description: string;
 
   readonly dom: ReactiveDOM = new ReactiveDOM();
   readonly on = {
@@ -87,12 +103,14 @@ export class Universe {
     document: DomEnvironment,
     timeline: Timeline,
     disposal: Lifetime,
-    profile: Profile
+    profile: Profile,
+    description: string
   ) {
     this.#environment = document;
     this.#timeline = timeline;
     this.#lifetime = disposal;
     this.#profile = profile;
+    this.#description = description;
 
     this.reactive = scopedReactive(timeline);
     this.cached = scopedCached(timeline);

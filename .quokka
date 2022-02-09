@@ -1,0 +1,14 @@
+{
+  "stdEsm": false,
+  "nativeEsm": true,
+  "node": "/home/wycats/.volta/bin/node",
+  "autoLog": false,
+  "env": {
+    "params": {
+      "runner": "--experimental-vm-modules --no-warnings"
+    }
+  },
+  "plugins": [
+    "jsdom-quokka-plugin"
+  ]
+}

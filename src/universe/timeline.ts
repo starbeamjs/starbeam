@@ -67,3 +67,5 @@ export class Timeline {
     }
   }
 }
+
+export const TIMELINE = Timeline.create();

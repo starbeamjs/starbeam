@@ -2,11 +2,8 @@
   "name": "starbeam",
   "version": "0.0.0",
   "type": "module",
+  "types": "src/index.ts",
   "main": "src/index.ts",
-  "workspaces": [
-    ".",
-    "@types/@domtree/*"
-  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -53,10 +50,12 @@
     "@types/jsdom": "^16.2.14",
     "@types/lodash.zip": "^4.2.6",
     "@types/shelljs": "^0.8.11",
+    "@types/treeify": "workspace:*",
     "@typescript-eslint/eslint-plugin": "^5.9.1",
     "@typescript-eslint/parser": "^5.9.1",
     "babel-jest": "^27.4.6",
     "chalk": "^4.0.0",
+    "dotenv-quokka-plugin": "^1.0.0",
     "eslint": "^8.6.0",
     "eslint-import-resolver-typescript": "^2.5.0",
     "eslint-plugin-import": "^2.25.4",
@@ -71,12 +70,13 @@
     "jest-ts-webcompat-resolver": "^1.0.0",
     "jest-util": "^27.4.2",
     "jsdom": "^19.0.0",
+    "jsdom-quokka-plugin": "^1.0.16",
     "lodash.zip": "^4.2.0",
     "shelljs": "^0.8.5",
     "simple-dom": "^1.4.0",
     "simple-html-tokenizer": "^0.5.11",
     "ts-jest": "^27.1.3",
-    "typescript": "next",
+    "typescript": "^4.6.0-dev.20220208",
     "vite": "^2.7.12"
   },
   "dependencies": {

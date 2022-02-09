@@ -1,4 +1,4 @@
-import { UnsafeAny } from "starbeam";
+import type { UnsafeAny } from "starbeam";
 import {
   AnyPatternDSL,
   Described,
@@ -94,10 +94,10 @@ export class ToBe<T> implements Pattern<unknown, T, undefined> {
     if (serializer) {
       let { actual, expected } = serializeBoth(
         {
-          actual: describedActual.value,
+          actual: describedActual.value as T,
           expected: this.expected,
         },
-        this.serializer
+        this.serializer as ToBeSerializer<T>
       );
 
       return {

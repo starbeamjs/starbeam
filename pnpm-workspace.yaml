@@ -2,3 +2,4 @@ packages:
   - "."
   - tests
   - "@types/@domtree/*"
+  - "@types/treeify"

@@ -1,16 +1,11 @@
 {
+  "extends": "../tsconfig.shared.json",
   "compilerOptions": {
-    "composite": true,
-    "target": "ESNext",
-    "strict": true,
-    "useDefineForClassFields": true,
-    "allowSyntheticDefaultImports": true,
-    "experimentalDecorators": true,
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
     "lib": ["ESNext", "DOM"],
     "outDir": "/tmp/starbeam-dist/tests",
-    "paths": { "starbeam": ["../src/index.ts"] }
+    "paths": {
+      "lodash.zip": ["./node_modules/@types/lodash.zip/index.d.ts"]
+    }
   },
   "references": [{ "path": "../src" }]
 }
