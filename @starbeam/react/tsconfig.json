@@ -1,0 +1,7 @@
+{
+  "extends": "../tsconfig.starbeam.json",
+  "compilerOptions": {
+    "lib": ["ESNext", "DOM"],
+    "outDir": "/tmp/starbeam-dist/react"
+  }
+}

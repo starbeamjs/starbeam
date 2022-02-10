@@ -1,0 +1,17 @@
+{
+  "name": "@starbeam/react",
+  "type": "module",
+  "main": "index.ts",
+  "version": "0.5.0",
+  "dependencies": {
+    "starbeam": "workspace:*",
+    "use-sync-external-store": "rc",
+    "@types/use-sync-external-store": "ts4.6"
+  },
+  "devDependencies": {
+    "react": "rc"
+  },
+  "peerDependencies": {
+    "react": "rc"
+  }
+}

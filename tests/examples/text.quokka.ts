@@ -17,3 +17,8 @@ username.update("@wycats");
 result.poll();
 
 document.contents; //?
+
+username.update("Yehuda Katz");
+result.poll();
+
+document.contents; //?

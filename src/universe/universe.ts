@@ -90,6 +90,10 @@ export class Universe {
   readonly on = {
     destroy: (object: object, finalizer: IntoFinalizer) =>
       this.#lifetime.register(object, Finalizer.from(finalizer)),
+
+    advance: (callback: () => void): (() => void) => {
+      throw Error("todo: universe.on.advance");
+    },
   } as const;
 
   get lifetime(): UniverseLifetime {
@@ -116,18 +120,34 @@ export class Universe {
     this.cached = scopedCached(timeline);
   }
 
-  hook<T>(callback: HookConstructor<T>, description: string): HookBlueprint<T> {
+  hook<C extends HookConstructor<unknown>>(
+    callback: C,
+    description: string
+  ): C extends HookConstructor<infer T> ? HookBlueprint<T> : never {
     return HookBlueprint.create(this, callback, description);
   }
 
   use<T>(
     hook: HookBlueprint<T>,
     { into }: { into: HookValue<T> }
-  ): RenderedRoot<HookValue> {
+  ): RenderedRoot<HookValue<T>> {
     let node = HookProgramNode.create(this, hook);
     return this.build(node, {
       cursor: HookCursor.create(),
       hydrate: () => into,
+    });
+  }
+
+  render(
+    node: ContentProgramNode,
+    { append }: { append: anydom.ParentNode }
+  ): RenderedRoot<minimal.ParentNode> {
+    return this.build(node, {
+      cursor: TreeConstructor.html(this.#environment),
+      hydrate: (buffer: TreeConstructor) => {
+        buffer.replace(this.#appending(append));
+        return minimize(append);
+      },
     });
   }
 
@@ -211,19 +231,6 @@ export class Universe {
     this.lifetime.link(root, rendered);
 
     return root;
-  }
-
-  render(
-    node: ContentProgramNode,
-    { append }: { append: anydom.ParentNode }
-  ): RenderedRoot<minimal.ParentNode> {
-    return this.build(node, {
-      cursor: TreeConstructor.html(this.#environment),
-      hydrate: (buffer: TreeConstructor) => {
-        buffer.replace(this.#appending(append));
-        return minimize(append);
-      },
-    });
   }
 
   #appending(parent: anydom.ParentNode): minimal.TemplateElement {

@@ -1,6 +1,10 @@
 # Now
 
-- [x] Separate universe from timeline
+- [ ] Make timeline a singleton
+- [ ] Make other parts of universe a singleton?
+- [ ] implement on.advance
+- [ ] do another demo
+- [ ] get it working in a React app
 
 # Later
 

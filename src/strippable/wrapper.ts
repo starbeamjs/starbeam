@@ -98,6 +98,9 @@ export interface OpaqueMetadata {
  */
 export type OpaqueAlias<T, S extends symbol> = Wrapper<T, OpaqueMetadata, S>;
 
+export type OpaqueValue<O extends OpaqueAlias<unknown, symbol>> =
+  O extends OpaqueAlias<infer T, symbol> ? T : never;
+
 const QUALIFIED_NAME = Symbol("QUALIFIED_NAME");
 
 export type QualifiedName = OpaqueAlias<string, typeof QUALIFIED_NAME>;

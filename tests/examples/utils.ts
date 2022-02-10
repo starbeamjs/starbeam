@@ -9,6 +9,7 @@ export class JsDocument {
   readonly universe: Universe;
 
   constructor(readonly jsdom: JSDOM) {
+    console.log(jsdom);
     this.universe = Universe.jsdom(jsdom);
   }
 

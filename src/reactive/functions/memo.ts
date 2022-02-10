@@ -1,6 +1,5 @@
 import { Group, LOGGER } from "../../strippable/trace.js";
 import type {
-  ActiveFrame,
   AnyFinalizedFrame,
   FinalizedFrame,
 } from "../../universe/frames.js";

@@ -5,7 +5,14 @@ import {
   setValue,
 } from "./tracked-shim.js";
 
+const INTERNAL = Symbol("INTERNAL");
+type INTERNAL = typeof INTERNAL;
+
 export class TrackedMap<K = unknown, V = unknown> implements Map<K, V> {
+  static reactive<M extends Map<unknown, unknown>>(map: M): M {
+    return new TrackedMap(INTERNAL, new Map(map)) as unknown as M;
+  }
+
   readonly #collection = createStorage(null, () => false);
   readonly #storages: Map<K, TrackedStorage<null>> = new Map();
   readonly #vals: Map<K, V>;
@@ -31,18 +38,28 @@ export class TrackedMap<K = unknown, V = unknown> implements Map<K, V> {
   }
 
   constructor();
+  constructor(internal: INTERNAL, map: Map<K, V>);
   constructor(entries: readonly (readonly [K, V])[] | null);
   constructor(iterable: Iterable<readonly [K, V]>);
   constructor(
-    existing?:
-      | readonly (readonly [K, V])[]
-      | Iterable<readonly [K, V]>
-      | null
-      | undefined
+    ...args:
+      | [INTERNAL, Map<K, V>]
+      | [
+          | readonly (readonly [K, V])[]
+          | Iterable<readonly [K, V]>
+          | null
+          | undefined
+        ]
   ) {
-    // TypeScript doesn't correctly resolve the overloads for calling the `Map`
-    // constructor for the no-value constructor. This resolves that.
-    this.#vals = existing ? new Map(existing) : new Map();
+    if (args.length === 2 && args[0] === INTERNAL) {
+      let [, map] = args;
+      this.#vals = map;
+    } else {
+      let [existing] = args;
+      // TypeScript doesn't correctly resolve the overloads for calling the `Map`
+      // constructor for the no-value constructor. This resolves that.
+      this.#vals = existing ? new Map(existing) : new Map();
+    }
   }
 
   // **** KEY GETTERS ****

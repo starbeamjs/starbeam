@@ -1,6 +1,6 @@
 {
   "root": true,
-  "ignorePatterns": ["jest/**/*.js"],
+  "ignorePatterns": ["jest/**/*.js", "notes/examples/**/*"],
   "parser": "@typescript-eslint/parser",
   "plugins": ["@typescript-eslint"],
   "settings": {

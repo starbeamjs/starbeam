@@ -1,0 +1,14 @@
+{
+  "name": "@starbeam/examples",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@domtree/flavors": "workspace:*"
+  },
+  "dependencies": {
+    "starbeam": "workspace:*",
+    "@starbeam/react": "workspace:*",
+    "react": "rc",
+    "@types/react": "^17.0.39"
+  }
+}

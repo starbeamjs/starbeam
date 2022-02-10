@@ -303,3 +303,11 @@ function expectPattern<In, Out extends In>(...args: ExpectArgs<In, Out>): void {
 }
 
 export const expect: typeof expectPattern = expectPattern;
+
+/**
+ * If you want to test that types check (or don't check, using ts-expect-error),
+ * but don't want to actually run the code, wrap the block in this function.
+ */
+export function types(_callback: () => void): void {
+  // do nothing
+}
