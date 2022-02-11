@@ -31,6 +31,10 @@
             "from": "./src"
           },
           {
+            "target": "./src/api/public.ts",
+            "from": "./src"
+          },
+          {
             "target": "./src/!(index.ts)/**",
             "from": "./src/**/index.ts",
             "message": "Don't import from index.ts"

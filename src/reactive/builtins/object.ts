@@ -4,7 +4,7 @@ import {
   getValue,
   setValue,
 } from "./tracked-shim.js";
-import type { Entries, EntriesToObject, Entry } from "./type-magic";
+import type { Entries, EntriesToObject, Entry } from "./type-magic.js";
 
 export default class TrackedObject {
   static fromEntries<E extends Entries>(entries: E): EntriesToObject<E>;

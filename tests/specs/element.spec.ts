@@ -1,17 +1,12 @@
+import { cell, Reactive } from "starbeam";
 import { Expects, test } from "../support/index.js";
 
-test("a simple element containing a text node (dynamic) ", ({
-  universe,
-  dom,
-  test,
-}) => {
-  let name = universe.cell("Chirag");
+test("a simple element containing a text node (dynamic) ", ({ dom, test }) => {
+  let name = cell("Chirag");
 
   let element = test.buildElement(
-    universe.static("div"),
-    (b) => {
-      b.append(dom.text(name));
-    },
+    "div",
+    { children: [dom.text(name)] },
     Expects.dynamic
   );
 
@@ -20,16 +15,12 @@ test("a simple element containing a text node (dynamic) ", ({
   result.update([name, "Chi"], Expects.html("<div>Chi</div>"));
 });
 
-test("a simple element containing a text node (static) ", ({
-  universe,
-  dom,
-  test,
-}) => {
+test("a simple element containing a text node (static) ", ({ dom, test }) => {
   const NAME = "Chirag";
   const TITLE = "Chirag's name";
 
-  let name = universe.static(NAME);
-  let title = universe.static(TITLE);
+  let name = Reactive.from(NAME);
+  let title = Reactive.from(TITLE);
 
   let element = test.buildElement(
     "div",
@@ -46,17 +37,13 @@ test("a simple element containing a text node (static) ", ({
   );
 });
 
-test("a simple element with an attribute (dynamic) ", ({
-  universe,
-  dom,
-  test,
-}) => {
+test("a simple element with an attribute (dynamic) ", ({ dom, test }) => {
   const NAME = "Chirag";
   const SHORT_NAME = "Chi";
   const TITLE = "Chirag's name";
 
-  let name = universe.cell(NAME);
-  let title = universe.cell(TITLE);
+  let name = cell(NAME);
+  let title = cell(TITLE);
 
   let element = test.buildElement(
     "div",
@@ -79,7 +66,6 @@ test("a simple element with an attribute (dynamic) ", ({
 });
 
 test("(smoke test) a dynamic element with a few children and a few attributes", ({
-  universe,
   dom,
   test,
 }) => {
@@ -90,10 +76,10 @@ test("(smoke test) a dynamic element with a few children and a few attributes", 
   const CLASS = "person";
   const STYLE = "color: red";
 
-  let firstName = universe.cell(FIRST_NAME);
-  let lastName = universe.cell(LAST_NAME);
-  let title = universe.cell(TITLE);
-  let style = universe.cell(STYLE);
+  let firstName = cell(FIRST_NAME);
+  let lastName = cell(LAST_NAME);
+  let title = cell(TITLE);
+  let style = cell(STYLE);
 
   let element = test.buildElement(
     "div",

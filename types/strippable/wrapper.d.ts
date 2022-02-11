@@ -61,6 +61,7 @@ export interface OpaqueMetadata {
  * type (like localName vs. qualifiedName).
  */
 export declare type OpaqueAlias<T, S extends symbol> = Wrapper<T, OpaqueMetadata, S>;
+export declare type OpaqueValue<O extends OpaqueAlias<unknown, symbol>> = O extends OpaqueAlias<infer T, symbol> ? T : never;
 declare const QUALIFIED_NAME: unique symbol;
 export declare type QualifiedName = OpaqueAlias<string, typeof QUALIFIED_NAME>;
 /**

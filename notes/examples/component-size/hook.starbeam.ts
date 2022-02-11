@@ -1,6 +1,6 @@
 import type { browser } from "@domtree/flavors";
 import { JSDOM } from "jsdom";
-import { HookBlueprint, Universe } from "starbeam";
+import { hook, HookBlueprint, Universe } from "starbeam";
 
 interface Size {
   width: number;
@@ -19,7 +19,7 @@ const universe = Universe.jsdom(new JSDOM());
 export function ComponentSize(
   element: browser.HTMLElement
 ): HookBlueprint<Size> {
-  return universe.hook((hook) => {
+  return hook((hook) => {
     let size = universe.cell(getSize(element));
 
     let resizeObserver = new ResizeObserver(() => {

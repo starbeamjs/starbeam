@@ -1,13 +1,13 @@
-import { Universe } from "starbeam";
+import { cell, Root } from "starbeam";
 import { JsDocument } from "./utils.js";
 
 let document = JsDocument.create();
 
-const universe = Universe.jsdom(document.jsdom);
+const universe = Root.jsdom(document.jsdom);
 const html = universe.dom;
 
-const person = universe.cell("@littlecalculist");
-const place = universe.cell("San Francisco");
+const person = cell("@littlecalculist");
+const place = cell("San Francisco");
 
 const element = html.element("div", (div) =>
   div

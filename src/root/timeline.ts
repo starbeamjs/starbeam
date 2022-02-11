@@ -1,5 +1,4 @@
 import type { AnyCell } from "../reactive/cell.js";
-import { assert } from "../strippable/core.js";
 import { LOGGER } from "../strippable/trace.js";
 import {
   ActiveFrame,

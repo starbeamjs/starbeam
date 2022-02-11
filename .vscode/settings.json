@@ -7,6 +7,7 @@
     "**/*.tsbuildinfo": true
   },
   "typescript.preferences.importModuleSpecifier": "project-relative",
+
   "jest.jestCommandLine": "node ./node_modules/jest/bin/jest.js",
   "npm.packageManager": "pnpm",
   "eslint.packageManager": "pnpm",
@@ -16,8 +17,8 @@
   "jest.autoRun": "off",
   "jest.nodeEnv": { "NODE_OPTIONS": "--experimental-vm-modules --no-warnings" },
 
-  "javascript.preferences.importModuleSpecifierEnding": "index",
-  "typescript.preferences.importModuleSpecifierEnding": "index",
+  "javascript.preferences.importModuleSpecifierEnding": "js",
+  "typescript.preferences.importModuleSpecifierEnding": "js",
   "typescript.tsdk": "node_modules/typescript/lib",
   "editor.bracketPairColorization.enabled": true,
   "editor.guides.bracketPairs": "active",

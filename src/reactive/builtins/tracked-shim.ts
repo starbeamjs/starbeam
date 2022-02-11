@@ -1,5 +1,4 @@
-import { TIMELINE } from "../../universe/timeline";
-import { Cell } from "../cell";
+import { Cell } from "../cell.js";
 
 export type TrackedStorage<T> = Cell<T>;
 
@@ -8,7 +7,7 @@ export function createStorage<T>(
   callback: () => void,
   description = "storage"
 ): Cell<T> {
-  return Cell.create(value, TIMELINE, description);
+  return Cell.create(value, description);
 }
 
 export declare function getValue<T>(storage: Cell<T>): T;

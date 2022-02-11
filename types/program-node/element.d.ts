@@ -2,7 +2,7 @@ import type * as minimal from "@domtree/minimal";
 import { RangeSnapshot, RANGE_SNAPSHOT } from "../dom/streaming/cursor.js";
 import type { LazyDOM } from "../dom/streaming/token.js";
 import { TreeConstructor } from "../dom/streaming/tree-constructor.js";
-import type { AbstractReactive } from "../reactive/core.js";
+import { AbstractReactive } from "../reactive/core.js";
 import { ReactiveMetadata } from "../reactive/metadata.js";
 import { RenderedAttribute } from "./attribute.js";
 import { RenderedFragmentNode } from "./fragment.js";
@@ -39,7 +39,7 @@ export declare class ElementProgramNodeBuilder {
     #private;
     static build(tagName: AbstractReactive<string>, build: (builder: ElementProgramNodeBuilder) => void): ElementProgramNode;
     constructor(tagName: AbstractReactive<string>);
-    append(output: ContentProgramNode): this;
+    append(output: string | ContentProgramNode): this;
     attribute(attribute: BuildAttribute): this;
     finalize(): ElementProgramNode;
 }

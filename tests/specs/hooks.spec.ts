@@ -1,4 +1,14 @@
-import { HookBlueprint, HookValue, LOGGER, Reactive, tree } from "starbeam";
+import {
+  cell,
+  hook,
+  HookBlueprint,
+  HookValue,
+  lifetime,
+  LOGGER,
+  memo,
+  Reactive,
+  tree,
+} from "starbeam";
 import { expect, test, toBe } from "../support/index.js";
 import { value, when } from "../support/expect/expect.js";
 
@@ -39,30 +49,30 @@ class Subscription {
 }
 
 test("universe.hook.values", ({ universe }) => {
-  let user = universe.cell("@tomdale", "user");
-  let channel = universe.cell("chat.today", "channel name");
-  let tick = universe.cell(0, "tick");
+  let user = cell("@tomdale", "user");
+  let channel = cell("chat.today", "channel name");
+  let tick = cell(0, "tick");
 
   function Channel(
     channel: Reactive<string>,
     user: Reactive<string>
   ): HookBlueprint<string> {
-    return universe.hook((hook) => {
+    return hook((hook) => {
       let subscription = new Subscription(channel.current);
 
       hook.onDestroy(() => subscription.destroy());
 
-      return universe.memo(
+      return memo(
         () => `${subscription.name} for ${user.current}`,
         `channel description`
       );
     }, "Channel");
   }
 
-  let RootHook = universe.hook((hook) => {
+  let RootHook = hook((hook) => {
     let description = hook.use(Channel(channel, user));
 
-    return universe.memo(
+    return memo(
       () => `[timestamp = ${tick.current}] ${description.current}`,
       `annotated channel description`
     );
@@ -130,12 +140,12 @@ test("universe.hook.values", ({ universe }) => {
     tree((b) =>
       b.list(
         "roots",
-        universe.lifetime.debug.map((o) => o.tree())
+        lifetime.debug(root).map((o) => o.tree())
       )
     ).stringify()
   );
 
-  universe.finalize(root);
+  lifetime.finalize(root);
   expect(
     when(`after root finalization`),
     value(subscription2.destroyed).as("second subscription destroy count"),

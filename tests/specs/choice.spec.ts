@@ -1,81 +1,88 @@
-import { Cases } from "starbeam";
-import { expect, test, toBe } from "../support/index.js";
+import { todo } from "../support/define.js";
 
-function StringType(value: unknown): value is string {
-  return typeof value === "string";
-}
+export {};
 
-const BooleanChoice = Cases("Boolean", (c) => c.add("true").add("false"));
+todo("choice.spec.ts");
 
-const OptionalString = Cases("Optional", (c) =>
-  c.add("Some", StringType).add("None")
-);
+// import { Cases } from "starbeam";
+// import { todo } from "../support/define";
+// import { expect, test, toBe } from "../support/index.js";
 
-test("choice (unit, static)", ({ universe: timeline }) => {
-  let truth = timeline.static(BooleanChoice("true"));
-  let value = timeline.match(truth, {
-    true: () => "YES",
-    false: () => "NO",
-  });
+// function StringType(value: unknown): value is string {
+//   return typeof value === "string";
+// }
 
-  expect(value.current, toBe("YES"));
-});
+// const BooleanChoice = Cases("Boolean", (c) => c.add("true").add("false"));
 
-test("choice (unit, dynamic)", ({ universe: timeline }) => {
-  let bool = timeline.cell(BooleanChoice("true"));
-  let value = timeline.match(bool, {
-    true: () => "YES",
-    false: () => "NO",
-  });
+// const OptionalString = Cases("Optional", (c) =>
+//   c.add("Some", StringType).add("None")
+// );
 
-  expect(value.current, toBe("YES"));
+// todo("choice (unit, static)", ({ universe: timeline }) => {
+//   let truth = timeline.static(BooleanChoice("true"));
+//   let value = timeline.match(truth, {
+//     true: () => "YES",
+//     false: () => "NO",
+//   });
 
-  bool.update(BooleanChoice("false"));
+//   expect(value.current, toBe("YES"));
+// });
 
-  expect(value.current, toBe("NO"));
-});
+// todo("choice (unit, dynamic)", ({ universe: timeline }) => {
+//   let bool = timeline.cell(BooleanChoice("true"));
+//   let value = timeline.match(bool, {
+//     true: () => "YES",
+//     false: () => "NO",
+//   });
 
-test("choice (tuple, static)", ({ universe }) => {
-  let name = universe.static(OptionalString("Some", universe.static("Tom")));
-  let value = universe.match(name, {
-    Some: (name) => name.toUpperCase(),
-    None: () => "anonymous",
-  });
+//   expect(value.current, toBe("YES"));
 
-  expect(value.current, toBe("TOM"));
-});
+//   bool.update(BooleanChoice("false"));
 
-test("choice (unit, dynamic top-level)", ({ universe: timeline }) => {
-  let name = timeline.cell(OptionalString("Some", timeline.static("Tom")));
+//   expect(value.current, toBe("NO"));
+// });
 
-  let value = timeline.match(name, {
-    Some: (name) => name.toUpperCase(),
-    None: () => "anonymous",
-  });
+// todo("choice (tuple, static)", ({ universe }) => {
+//   let name = universe.static(OptionalString("Some", universe.static("Tom")));
+//   let value = universe.match(name, {
+//     Some: (name) => name.toUpperCase(),
+//     None: () => "anonymous",
+//   });
 
-  expect(value.current, toBe("TOM"));
+//   expect(value.current, toBe("TOM"));
+// });
 
-  name.update(OptionalString("None"));
+// todo("choice (unit, dynamic top-level)", ({ universe: timeline }) => {
+//   let name = timeline.cell(OptionalString("Some", timeline.static("Tom")));
 
-  expect(value.current, toBe("anonymous"));
-});
+//   let value = timeline.match(name, {
+//     Some: (name) => name.toUpperCase(),
+//     None: () => "anonymous",
+//   });
 
-test("choice (unit, dynamic)", ({ universe: timeline }) => {
-  let name = timeline.cell("Tom");
-  let optionalName = timeline.cell(OptionalString("Some", name));
+//   expect(value.current, toBe("TOM"));
 
-  let value = timeline.match(optionalName, {
-    Some: (name) => name.toUpperCase(),
-    None: () => "anonymous",
-  });
+//   name.update(OptionalString("None"));
 
-  expect(value.current, toBe("TOM"));
+//   expect(value.current, toBe("anonymous"));
+// });
 
-  name.update("Thomas");
+// todo("choice (unit, dynamic)", ({ universe: timeline }) => {
+//   let name = timeline.cell("Tom");
+//   let optionalName = timeline.cell(OptionalString("Some", name));
 
-  expect(value.current, toBe("THOMAS"));
+//   let value = timeline.match(optionalName, {
+//     Some: (name) => name.toUpperCase(),
+//     None: () => "anonymous",
+//   });
 
-  optionalName.update(OptionalString("None"));
+//   expect(value.current, toBe("TOM"));
 
-  expect(value.current, toBe("anonymous"));
-});
+//   name.update("Thomas");
+
+//   expect(value.current, toBe("THOMAS"));
+
+//   optionalName.update(OptionalString("None"));
+
+//   expect(value.current, toBe("anonymous"));
+// });

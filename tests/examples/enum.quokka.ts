@@ -13,7 +13,7 @@ function getName(value: Option<User>): string {
   });
 }
 
-getName(Option.None); //?
+getName(Option.None()); //?
 getName(Option.Some({ name: "@tomdale" })); //?
 getName(Option.Some({ name: "@wycats" })); //?
 
@@ -27,6 +27,6 @@ function getStatus(value: Async<User, Error>): string {
   });
 }
 
-getStatus(Async.Loading);
+getStatus(Async.Loading());
 getStatus(Async.Loaded({ name: "@tomdale" }));
 getStatus(Async.Error(Error("oh noes!!!")));

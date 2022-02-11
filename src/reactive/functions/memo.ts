@@ -1,23 +1,15 @@
 import { Group, LOGGER } from "../../strippable/trace.js";
-import type {
-  AnyFinalizedFrame,
-  FinalizedFrame,
-} from "../../universe/frames.js";
-import type { Timeline } from "../../universe/timeline.js";
+import type { AnyFinalizedFrame, FinalizedFrame } from "../../root/frames.js";
+import { TIMELINE, Timeline } from "../../root/timeline.js";
 import type { AbstractReactive } from "../core.js";
 import { HasMetadata, ReactiveMetadata } from "../metadata.js";
 
 export class Memo<T> extends HasMetadata implements AbstractReactive<T> {
-  static create<T>(
-    callback: () => T,
-    timeline: Timeline,
-    description: string
-  ): Memo<T> {
-    return new Memo(callback, timeline, description);
+  static create<T>(callback: () => T, description: string): Memo<T> {
+    return new Memo(callback, description);
   }
 
   readonly #callback: () => T;
-  readonly #timeline: Timeline;
   #frame: FinalizedFrame<T> | null = null;
 
   /**
@@ -28,14 +20,9 @@ export class Memo<T> extends HasMetadata implements AbstractReactive<T> {
 
   #description: string;
 
-  private constructor(
-    callback: () => T,
-    timeline: Timeline,
-    description: string
-  ) {
+  private constructor(callback: () => T, description: string) {
     super();
     this.#callback = callback;
-    this.#timeline = timeline;
     this.#description = description;
   }
 
@@ -69,7 +56,7 @@ export class Memo<T> extends HasMetadata implements AbstractReactive<T> {
         LOGGER.trace.log(`=> valid frame for ${this.#description}`);
         validationGroup.end();
 
-        this.#timeline.didConsume(this.#frame);
+        TIMELINE.didConsume(this.#frame);
         return validation.value;
       } else {
         validationGroup.end();
@@ -86,7 +73,7 @@ export class Memo<T> extends HasMetadata implements AbstractReactive<T> {
     let newFrame: AnyFinalizedFrame;
 
     try {
-      let { frame, initial } = this.#timeline.withFrame(
+      let { frame, initial } = TIMELINE.withFrame(
         this.#callback,
         `memo: ${this.#description}`
       );
@@ -96,7 +83,7 @@ export class Memo<T> extends HasMetadata implements AbstractReactive<T> {
       return initial;
     } finally {
       group.end();
-      this.#timeline.didConsume(newFrame!);
+      TIMELINE.didConsume(newFrame!);
     }
   }
 }

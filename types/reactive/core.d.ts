@@ -6,6 +6,7 @@ export declare abstract class AbstractReactive<T> extends HasMetadata {
     abstract get description(): string;
 }
 export declare type Reactive<T = unknown> = AbstractReactive<T>;
+export declare const Reactive: typeof AbstractReactive;
 export declare type ReactiveValue<R extends AbstractReactive<unknown>> = R extends AbstractReactive<infer Value> ? Value : never;
 export declare type IntoReactive<T> = AbstractReactive<T> | T;
 export declare type StaticReactive<T> = AbstractReactive<T> & {

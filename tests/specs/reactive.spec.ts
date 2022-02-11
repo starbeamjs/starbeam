@@ -1,10 +1,8 @@
-import type { Universe } from "starbeam";
+import { cached, memo, reactive, Root } from "starbeam";
 import { expect, test, toBe } from "../support/define.js";
 import { Dynamism, Expects } from "../support/expect/expect.js";
 
-test("universe.memo", ({ universe }) => {
-  const { reactive } = universe;
-
+test("universe.memo", () => {
   class Person {
     @reactive name: string;
     @reactive country: string;
@@ -26,20 +24,20 @@ test("universe.memo", ({ universe }) => {
   let person = new Person("Tom", "USA");
   let counter = 0;
 
-  let memo = universe.memo(() => {
+  let formatted = memo(() => {
     counter++;
     return person.formatted(false);
   });
 
-  expect(memo.current, toBe("Tom"));
+  expect(formatted.current, toBe("Tom"));
   expect(counter, toBe(1));
 
-  expect(memo.current, toBe("Tom"));
+  expect(formatted.current, toBe("Tom"));
   expect(counter, toBe(1));
 
   person.name = "Thomas";
 
-  expect(memo.current, toBe("Thomas"));
+  expect(formatted.current, toBe("Thomas"));
   expect(counter, toBe(2));
 });
 
@@ -57,7 +55,7 @@ test("universe.memo => text", ({ universe, test }) => {
   let person = testName(universe, "Tom", "Dale");
 
   let text = test.buildText(
-    universe.memo(() => person.fullName),
+    memo(() => person.fullName),
     Dynamism.dynamic
   );
 
@@ -66,9 +64,7 @@ test("universe.memo => text", ({ universe, test }) => {
     .update(() => (person.firstName = "Thomas"), Expects.html("Thomas Dale"));
 });
 
-function testName(universe: Universe, first: string, last: string) {
-  let { reactive, cached } = universe;
-
+function testName(universe: Root, first: string, last: string) {
   class Person {
     @reactive firstName: string;
     @reactive lastName: string;

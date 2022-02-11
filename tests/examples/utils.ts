@@ -1,16 +1,16 @@
 import { JSDOM } from "jsdom";
-import { Universe } from "starbeam";
+import { Root } from "starbeam";
 
 export class JsDocument {
   static create(): JsDocument {
     return new JsDocument(new JSDOM());
   }
 
-  readonly universe: Universe;
+  readonly universe: Root;
 
   constructor(readonly jsdom: JSDOM) {
     console.log(jsdom);
-    this.universe = Universe.jsdom(jsdom);
+    this.universe = Root.jsdom(jsdom);
   }
 
   get document() {

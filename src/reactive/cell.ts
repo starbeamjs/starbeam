@@ -1,6 +1,6 @@
 import { IS_UPDATED_SINCE } from "../brands.js";
-import type { Timeline } from "../universe/timeline.js";
-import type { Timestamp } from "../universe/timestamp.js";
+import { TIMELINE, Timeline } from "../root/timeline.js";
+import type { Timestamp } from "../root/timestamp.js";
 import { AbstractReactive } from "./core.js";
 import { ReactiveMetadata } from "./metadata.js";
 import { REACTIVE_BRAND } from "./internal.js";
@@ -10,25 +10,17 @@ import { expected } from "../strippable/verify-context.js";
 import { describeValue } from "../describe.js";
 
 export class Cell<T> extends AbstractReactive<T> {
-  static create<T>(value: T, timeline: Timeline, description: string): Cell<T> {
-    return new Cell(
-      value,
-      timeline,
-      timeline.now,
-      `cell: ${description}`,
-      false
-    );
+  static create<T>(value: T, description: string): Cell<T> {
+    return new Cell(value, TIMELINE.now, `cell: ${description}`, false);
   }
 
   #value: T;
   #lastUpdate: Timestamp;
-  readonly #timeline: Timeline;
   readonly #description: string;
   #frozen: boolean;
 
   private constructor(
     value: T,
-    timeline: Timeline,
     lastUpdate: Timestamp,
     description: string,
     frozen: boolean
@@ -36,7 +28,6 @@ export class Cell<T> extends AbstractReactive<T> {
     super();
     REACTIVE_BRAND.brand(this);
     this.#value = value;
-    this.#timeline = timeline;
     this.#lastUpdate = lastUpdate;
     this.#description = description;
     this.#frozen = frozen;
@@ -67,12 +58,12 @@ export class Cell<T> extends AbstractReactive<T> {
     );
 
     this.#value = value;
-    this.#lastUpdate = this.#timeline.bump();
+    this.#lastUpdate = TIMELINE.bump();
   }
 
   get current(): T {
     if (!this.#frozen) {
-      this.#timeline.didConsume(this);
+      TIMELINE.didConsume(this);
     }
 
     return this.#value;

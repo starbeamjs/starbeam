@@ -15,7 +15,7 @@ import {
   ReactiveMetadata,
   RenderedRoot,
   TextProgramNode,
-  Universe,
+  Root,
   verify,
   Abstraction,
 } from "starbeam";
@@ -30,7 +30,7 @@ import { expect, Expects } from "./expect/expect.js";
 import { toBe } from "./expect/patterns/comparison.js";
 
 export interface TestArgs {
-  readonly universe: Universe;
+  readonly universe: Root;
   readonly test: TestSupport;
   readonly dom: ReactiveDOM;
 }
@@ -52,23 +52,25 @@ export function test(
 
 export function todo(
   name: string,
-  test: (args: TestArgs) => void | Promise<void>
+  test?: (args: TestArgs) => void | Promise<void>
 ): void {
-  jest.test.concurrent(name, async () => {
-    let support = TestSupport.create();
+  if (test) {
+    jest.test.concurrent(name, async () => {
+      let support = TestSupport.create();
 
-    try {
-      await test({
-        test: support,
-        universe: support.universe,
-        dom: support.dom,
-      });
-    } catch (e) {
-      return;
-    }
+      try {
+        await test({
+          test: support,
+          universe: support.universe,
+          dom: support.dom,
+        });
+      } catch (e) {
+        return;
+      }
 
-    throw Error(`Expected pending test '${name}' to fail, but it passed`);
-  });
+      throw Error(`Expected pending test '${name}' to fail, but it passed`);
+    });
+  }
 
   jest.test.todo(name);
 }
@@ -130,14 +132,14 @@ export class TestSupport {
     return new TestSupport(DomEnvironment.jsdom(jsdom));
   }
 
-  readonly universe: Universe;
+  readonly universe: Root;
   readonly dom: ReactiveDOM;
 
   readonly #environment: DomEnvironment;
 
   private constructor(environment: DomEnvironment) {
     this.#environment = environment;
-    this.universe = Universe.environment(environment);
+    this.universe = Root.environment(environment);
     this.dom = this.universe.dom;
   }
 
@@ -236,7 +238,7 @@ export class TestSupport {
 
 export type Test = (args: {
   test: TestSupport;
-  universe: Universe;
+  universe: Root;
 }) => void | Promise<void>;
 
 export { expect } from "./expect/expect.js";

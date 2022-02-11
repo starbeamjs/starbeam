@@ -26,6 +26,7 @@ export type Attr = globalThis.Attr;
 export type StaticRange = globalThis.StaticRange;
 export type LiveRange = globalThis.Range;
 export type HTMLElement = globalThis.HTMLElement;
+export type Window = typeof globalThis.window;
 
 export interface StaticRangeOptions {
   endContainer: Node;

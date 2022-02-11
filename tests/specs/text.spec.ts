@@ -1,17 +1,18 @@
 import { Expects, test } from "../support/index.js";
 import { Dynamism } from "../support/expect/expect.js";
+import { cell, Reactive } from "starbeam";
 
-test("dynamic text", ({ universe: timeline, test }) => {
-  let cell = timeline.cell("hello");
-  let text = test.buildText(cell, Dynamism.dynamic);
+test("dynamic text", ({ test }) => {
+  let hello = cell("hello");
+  let text = test.buildText(hello, Dynamism.dynamic);
 
   test
     .render(text, Expects.dynamic.html("hello"))
-    .update([cell, "goodbye"], Expects.html("goodbye"));
+    .update([hello, "goodbye"], Expects.html("goodbye"));
 });
 
-test("static text", ({ universe: timeline, test }) => {
-  let hello = timeline.static("hello");
+test("static text", ({ test }) => {
+  let hello = Reactive.from("hello");
   let text = test.buildText(hello, Dynamism.constant);
 
   test.render(text, Expects.constant.html("hello"));

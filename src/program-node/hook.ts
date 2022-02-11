@@ -2,10 +2,11 @@ import type { Hook } from "../hooks/hook.js";
 import { HookBlueprint, SimpleHook } from "../hooks/simple.js";
 import type { Reactive } from "../reactive/core.js";
 import type { ReactiveMetadata } from "../reactive/metadata.js";
+import { LIFETIME } from "../root/lifetime/lifetime.js";
 import { assert } from "../strippable/core.js";
 import { LOGGER } from "../strippable/trace.js";
 import type { AnyKey } from "../strippable/wrapper.js";
-import type { Universe } from "../universe.js";
+import type { Root } from "../universe.js";
 import {
   AbstractProgramNode,
   RenderedProgramNode,
@@ -55,17 +56,14 @@ export class HookProgramNode<T> extends AbstractProgramNode<
   HookCursor,
   HookValue
 > {
-  static create<T>(
-    universe: Universe,
-    hook: HookBlueprint<T>
-  ): HookProgramNode<T> {
+  static create<T>(universe: Root, hook: HookBlueprint<T>): HookProgramNode<T> {
     return new HookProgramNode(universe, SimpleHook.construct(hook));
   }
 
-  readonly #universe: Universe;
+  readonly #universe: Root;
   readonly #hook: Reactive<Hook>;
 
-  private constructor(universe: Universe, hook: Reactive<Hook<T>>) {
+  private constructor(universe: Root, hook: Reactive<Hook<T>>) {
     super();
     this.#universe = universe;
     this.#hook = hook;
@@ -81,17 +79,14 @@ export class HookProgramNode<T> extends AbstractProgramNode<
 }
 
 export class RenderedHook<T> extends RenderedProgramNode<HookValue> {
-  static create<T>(
-    universe: Universe,
-    hook: Reactive<Hook<T>>
-  ): RenderedHook<T> {
+  static create<T>(universe: Root, hook: Reactive<Hook<T>>): RenderedHook<T> {
     return new RenderedHook(universe, hook);
   }
 
   readonly #hook: Reactive<Hook<T>>;
-  readonly #universe: Universe;
+  readonly #universe: Root;
 
-  private constructor(universe: Universe, hook: Reactive<Hook<T>>) {
+  private constructor(universe: Root, hook: Reactive<Hook<T>>) {
     super();
     this.#universe = universe;
     this.#hook = hook;
@@ -110,7 +105,7 @@ export class RenderedHook<T> extends RenderedProgramNode<HookValue> {
       let hook = this.#hook.current;
       LOGGER.trace.log(`=> polled`, hook.description);
 
-      this.#universe.lifetime.link(this, hook);
+      LIFETIME.link(this, hook);
 
       LOGGER.trace.group(
         `hook.current (getting value of instance of ${hook.description})`,

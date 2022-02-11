@@ -1,8 +1,5 @@
 import { verified } from "../strippable/assert.js";
 import { is } from "../strippable/minimal.js";
-import type { OpaqueAlias } from "../strippable/wrapper";
-
-declare const DISCRIMINANT: unique symbol;
 
 /**
  * The Discriminant is the low-level, internal representation of the instance of
@@ -150,10 +147,12 @@ type HasGeneric<K extends Discriminant, G extends string> = true extends {
 type CaseInstance<G extends Generics, A extends AsEnum, I> = Case<G, A> &
   ThisType<Case<G, A> & I>;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Class = abstract new (...args: any) => any;
 
 type AnyEnumClass<P extends string, U> = abstract new (
   discriminant: P,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value?: any
 ) => U;
 
@@ -162,6 +161,7 @@ export type StaticMethod<P extends string> = <
   U
 >(
   this: This
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ) => U extends Case<any, any> ? U : InstanceType<This>;
 
 export type EnumStatic<
@@ -203,24 +203,18 @@ export function Enum<K extends string[]>(
   }
 
   for (let discriminant of keys) {
-    let { variant, generics } = verified(
+    let { variant } = verified(
       discriminant.match(/^(?<variant>[^(]*)(?<generics>\([^)]*\))?$/),
       is.Present
     ).groups as { variant: string; generics?: string };
 
-    if (generics) {
-      Object.defineProperty(Enum, variant, {
-        enumerable: false,
-        configurable: true,
-        value: (value: unknown) => new Enum(variant, value),
-      });
-    } else {
-      Object.defineProperty(Enum, variant, {
-        enumerable: true,
-        configurable: true,
-        value: new Enum(variant),
-      });
-    }
+    Object.defineProperty(Enum, variant, {
+      enumerable: false,
+      configurable: true,
+      value(value: unknown) {
+        return new this(variant, value);
+      },
+    });
   }
 
   return Enum as EnumClassFor<Discriminant<K[number]>>;

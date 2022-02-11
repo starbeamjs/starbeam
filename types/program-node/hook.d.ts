@@ -3,7 +3,7 @@ import { HookBlueprint } from "../hooks/simple.js";
 import type { Reactive } from "../reactive/core.js";
 import type { ReactiveMetadata } from "../reactive/metadata.js";
 import type { AnyKey } from "../strippable/wrapper.js";
-import type { Universe } from "../universe.js";
+import type { Root } from "../universe.js";
 import { AbstractProgramNode, RenderedProgramNode } from "./interfaces/program-node.js";
 declare const UNINITIALIZED: unique symbol;
 /**
@@ -24,14 +24,14 @@ export declare class HookCursor {
 }
 export declare class HookProgramNode<T> extends AbstractProgramNode<HookCursor, HookValue> {
     #private;
-    static create<T>(universe: Universe, hook: HookBlueprint<T>): HookProgramNode<T>;
+    static create<T>(universe: Root, hook: HookBlueprint<T>): HookProgramNode<T>;
     private constructor();
     get metadata(): ReactiveMetadata;
     render(): RenderedProgramNode<HookValue<T>>;
 }
 export declare class RenderedHook<T> extends RenderedProgramNode<HookValue> {
     #private;
-    static create<T>(universe: Universe, hook: Reactive<Hook<T>>): RenderedHook<T>;
+    static create<T>(universe: Root, hook: Reactive<Hook<T>>): RenderedHook<T>;
     private constructor();
     get metadata(): ReactiveMetadata;
     initialize(_inside: object): void;

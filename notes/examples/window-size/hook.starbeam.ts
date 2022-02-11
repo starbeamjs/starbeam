@@ -1,7 +1,5 @@
 import { JSDOM } from "jsdom";
-import { Universe } from "starbeam";
-
-const universe = Universe.jsdom(new JSDOM());
+import { cell, hook } from "starbeam";
 
 interface WindowSize {
   innerHeight: number;
@@ -19,8 +17,8 @@ function getSize(): WindowSize {
   };
 }
 
-export default universe.hook((hook) => {
-  const size = universe.cell(getSize());
+export default hook((hook) => {
+  const size = cell(getSize());
 
   let teardown = initialize((signal) =>
     window.addEventListener("resize", () => size.update(getSize()), {

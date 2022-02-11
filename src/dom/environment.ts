@@ -1,16 +1,17 @@
 import type { browser, minimal } from "@domtree/flavors";
 import type { JSDOM } from "jsdom";
 import { minimize } from "../strippable/minimal.js";
+import type { FIXME } from "../utils.js";
 import { MinimalDocumentUtilities } from "./streaming/compatible-dom.js";
 import { Tokens } from "./streaming/token.js";
 
 export abstract class DomEnvironment {
   static jsdom(jsdom: JSDOM): DomEnvironment {
-    return new JsDomEnvironment(jsdom, minimize(jsdom.window.document));
+    return WindowEnvironment.of(jsdom.window as FIXME<"Add a JSDOM flavor">);
   }
 
-  static browser(window: globalThis.Window): DomEnvironment {
-    return new BrowserEnvironment(window, minimize(window.document));
+  static window(window: browser.Window): DomEnvironment {
+    return WindowEnvironment.of(window);
   }
 
   abstract liveRange(): minimal.LiveRange;
@@ -26,33 +27,36 @@ export interface DomEnvironment {
   readonly document: minimal.Document;
 }
 
-class JsDomEnvironment extends DomEnvironment {
-  readonly #jsdom: JSDOM;
+// class JsDomEnvironment extends DomEnvironment {
+//   readonly #jsdom: JSDOM;
 
-  constructor(jsdom: JSDOM, readonly document: minimal.Document) {
-    super();
-    this.#jsdom = jsdom;
+//   constructor(jsdom: JSDOM, readonly document: minimal.Document) {
+//     super();
+//     this.#jsdom = jsdom;
+//   }
+
+//   liveRange(): minimal.LiveRange {
+//     return new this.#jsdom.window.Range() as unknown as minimal.LiveRange;
+//   }
+
+//   staticRange(options: minimal.StaticRangeOptions): minimal.StaticRange {
+//     return new this.#jsdom.window.StaticRange(
+//       options as browser.StaticRangeOptions
+//     ) as minimal.StaticRange;
+//   }
+// }
+
+class WindowEnvironment extends DomEnvironment {
+  static of(window: browser.Window): WindowEnvironment {
+    return new WindowEnvironment(window, minimize(window.document));
   }
 
-  liveRange(): minimal.LiveRange {
-    return new this.#jsdom.window.Range() as unknown as minimal.LiveRange;
-  }
+  readonly #window: browser.Window;
 
-  staticRange(options: minimal.StaticRangeOptions): minimal.StaticRange {
-    return new this.#jsdom.window.StaticRange(
-      options as browser.StaticRangeOptions
-    ) as minimal.StaticRange;
-  }
-}
-
-class BrowserEnvironment extends DomEnvironment {
-  static of(window: globalThis.Window): BrowserEnvironment {
-    return new BrowserEnvironment(window, minimize(window.document));
-  }
-
-  readonly #window: globalThis.Window;
-
-  constructor(window: globalThis.Window, readonly document: minimal.Document) {
+  private constructor(
+    window: browser.Window,
+    readonly document: minimal.Document
+  ) {
     super();
     this.#window = window;
   }

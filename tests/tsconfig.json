@@ -3,6 +3,7 @@
   "compilerOptions": {
     "lib": ["ESNext", "DOM"],
     "outDir": "/tmp/starbeam-dist/tests",
+    "moduleResolution": "NodeNext",
     "paths": {
       "lodash.zip": ["./node_modules/@types/lodash.zip/index.d.ts"]
     }

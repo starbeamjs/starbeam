@@ -1,7 +1,7 @@
-import type { Reactive } from "../core";
-import TrackedArray from "./array";
-import { TrackedMap } from "./map";
-import type { ObjectType } from "./type-magic";
+import type { Reactive } from "../core.js";
+import TrackedArray from "./array.js";
+import { TrackedMap } from "./map.js";
+import type { ObjectType } from "./type-magic.js";
 
 export function reactive<M extends Map<unknown, unknown>>(map: M): M;
 export function reactive<T>(

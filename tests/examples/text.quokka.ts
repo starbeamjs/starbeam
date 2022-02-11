@@ -1,11 +1,11 @@
-import { Universe } from "starbeam";
+import { cell, Root } from "starbeam";
 import { JsDocument } from "./utils.js";
 
 let document = JsDocument.create();
 
-const universe = Universe.jsdom(document.jsdom);
+const universe = Root.jsdom(document.jsdom);
 
-const username = universe.cell("@tomdale");
+const username = cell("@tomdale");
 
 const text = universe.dom.text(username);
 

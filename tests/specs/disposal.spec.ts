@@ -1,15 +1,15 @@
-import { Finalizer } from "starbeam";
+import { lifetime, Finalizer } from "starbeam";
 import { expect, test, toBe } from "../support/index.js";
 
-test("universe.on.destroy", ({ universe }) => {
+test("universe.on.destroy", () => {
   let tom = { name: "Tom" };
   let yehuda = { name: "Yehuda" };
 
   let destroyed = 0;
   let destroyedToken = 0;
 
-  universe.on.destroy(tom, () => destroyed++);
-  universe.on.destroy(
+  lifetime.on.destroy(tom, () => destroyed++);
+  lifetime.on.destroy(
     yehuda,
     Finalizer.create(
       (token: number) => {
@@ -19,9 +19,9 @@ test("universe.on.destroy", ({ universe }) => {
       5
     )
   );
-  universe.lifetime.link(tom, yehuda);
 
-  universe.finalize(tom);
+  lifetime.link(tom, yehuda);
+  lifetime.finalize(tom);
 
   expect(destroyed, toBe(1));
   expect(destroyedToken, toBe(5));

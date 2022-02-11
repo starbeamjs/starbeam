@@ -1,8 +1,9 @@
 import { Expects, test } from "../support/index.js";
 import { Dynamism } from "../support/expect/expect.js";
+import { cell, Reactive } from "starbeam";
 
-test("a fragment containing a text node (dynamic) ", ({ universe, test }) => {
-  let name = universe.cell("Chirag");
+test("a fragment containing a text node (dynamic) ", ({ test }) => {
+  let name = cell("Chirag");
 
   let fragment = test.buildFragment(
     [test.buildText(name, Dynamism.dynamic)],
@@ -14,10 +15,10 @@ test("a fragment containing a text node (dynamic) ", ({ universe, test }) => {
     .update([name, "Chi"], Expects.dynamic.html("Chi"));
 });
 
-test("a fragment containing a text node (static) ", ({ universe, test }) => {
+test("a fragment containing a text node (static) ", ({ test }) => {
   const NAME = "Chirag";
 
-  let name = universe.static(NAME);
+  let name = Reactive.from(NAME);
 
   let element = test.buildFragment(
     [test.buildText(name, Dynamism.constant)],
@@ -27,11 +28,8 @@ test("a fragment containing a text node (static) ", ({ universe, test }) => {
   test.render(element, Expects.constant.html("Chirag"));
 });
 
-test("a fragment containing a text node (dynamic => static) ", ({
-  universe,
-  test,
-}) => {
-  let name = universe.cell("Chirag");
+test("a fragment containing a text node (dynamic => static) ", ({ test }) => {
+  let name = cell("Chirag");
 
   let fragment = test.buildFragment(
     [test.buildText(name, Dynamism.dynamic)],
@@ -44,17 +42,13 @@ test("a fragment containing a text node (dynamic => static) ", ({
     .update(() => name.freeze(), Expects.constant.html("Chi"));
 });
 
-test("(smoke test) a fragment with a few children", ({
-  universe,
-  dom,
-  test,
-}) => {
+test("(smoke test) a fragment with a few children", ({ dom, test }) => {
   const FIRST_NAME = "Chirag";
   const LAST_NAME = "Patel";
   const SHORT_NAME = "Chi";
 
-  let firstName = universe.cell(FIRST_NAME);
-  let lastName = universe.cell(LAST_NAME);
+  let firstName = cell(FIRST_NAME);
+  let lastName = cell(LAST_NAME);
 
   let fragment = test.buildFragment(
     [

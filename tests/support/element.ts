@@ -6,7 +6,8 @@ import {
   IntoReactive,
   AbstractReactive,
   ReactiveElementBuilderCallback,
-  Universe,
+  Root,
+  Reactive,
 } from "starbeam";
 
 interface ShorthandAttribute {
@@ -51,13 +52,13 @@ export interface TestElementOptions {
 
 export class ElementArgs {
   static normalize(
-    universe: Universe,
+    universe: Root,
     options: TestElementArgs
   ): NormalizedTestElementArgs {
     return new ElementArgs(universe).#normalizeElementArgs(options);
   }
 
-  constructor(readonly universe: Universe) {}
+  constructor(readonly universe: Root) {}
 
   #normalizeElementArgs(args: TestElementArgs): NormalizedTestElementArgs {
     if (isNormalized(args)) {
@@ -116,11 +117,11 @@ export class ElementArgs {
 
 export function normalizeChild(
   this: void,
-  universe: Universe,
+  universe: Root,
   child: TestChild
 ): ContentProgramNode {
   if (typeof child === "string") {
-    return universe.dom.text(universe.static(child));
+    return universe.dom.text(Reactive.from(child));
   } else {
     return child;
   }

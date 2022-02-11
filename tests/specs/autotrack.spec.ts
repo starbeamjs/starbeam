@@ -1,25 +1,25 @@
-import { test, expect, toBe, Expects } from "../support/index.js";
-import type { Universe } from "starbeam";
+import { cell, memo, Root } from "starbeam";
 import { Dynamism } from "../support/expect/expect.js";
+import { expect, Expects, test, toBe } from "../support/index.js";
 
-test("universe.memo", ({ universe }) => {
-  let name = universe.cell("Tom");
+test("universe.memo", () => {
+  let name = cell("Tom");
   let counter = 0;
 
-  let memo = universe.memo(() => {
+  let nameMemo = memo(() => {
     counter++;
     return name.current;
   });
 
-  expect(memo.current, toBe("Tom"));
+  expect(nameMemo.current, toBe("Tom"));
   expect(counter, toBe(1));
 
-  expect(memo.current, toBe("Tom"));
+  expect(nameMemo.current, toBe("Tom"));
   expect(counter, toBe(1));
 
   name.update("Thomas");
 
-  expect(memo.current, toBe("Thomas"));
+  expect(nameMemo.current, toBe("Thomas"));
   expect(counter, toBe(2));
 });
 
@@ -60,19 +60,19 @@ test("universe.memo becomes constant if the underlying cell is frozen", ({
     }, Expects.constant.html("Thomas Dale"));
 });
 
-function testName(universe: Universe, first: string, last: string) {
-  let firstName = universe.cell(first);
-  let lastName = universe.cell(last);
+function testName(universe: Root, first: string, last: string) {
+  let firstName = cell(first);
+  let lastName = cell(last);
 
-  let firstNameMemo = universe.memo(() => {
+  let firstNameMemo = memo(() => {
     return firstName.current;
   });
 
-  let lastNameMemo = universe.memo(() => {
+  let lastNameMemo = memo(() => {
     return lastName.current;
   });
 
-  let fullNameMemo = universe.memo(() => {
+  let fullNameMemo = memo(() => {
     return `${firstNameMemo.current} ${lastNameMemo.current}`;
   });
 

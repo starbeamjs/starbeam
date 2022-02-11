@@ -1,4 +1,4 @@
-import { AbstractReactive, Component, ReactiveDOM } from "starbeam";
+import { AbstractReactive, cell, Component, ReactiveDOM } from "starbeam";
 import { Expects } from "../support/index.js";
 import { test } from "../support/define.js";
 
@@ -7,9 +7,9 @@ test("a simple, static list", ({ universe, test }) => {
   const Name = NameComponent(dom);
 
   let state = {
-    tom: universe.cell("Tom"),
-    yehuda: universe.cell("Yehuda"),
-    chirag: universe.cell("Chirag"),
+    tom: cell("Tom"),
+    yehuda: cell("Yehuda"),
+    chirag: cell("Chirag"),
   };
 
   let names = AbstractReactive.from(Object.values(state));
@@ -30,12 +30,12 @@ test("a simple, dynamic list", ({ universe, test }) => {
   const Name = NameComponent(dom);
 
   let state = {
-    tom: universe.cell("Tom"),
-    yehuda: universe.cell("Yehuda"),
-    chirag: universe.cell("Chirag"),
+    tom: cell("Tom"),
+    yehuda: cell("Yehuda"),
+    chirag: cell("Chirag"),
   };
 
-  let names = universe.cell(Object.values(state));
+  let names = cell(Object.values(state));
 
   let result = test.render(
     dom.list(names, Name, (name) => name.current),
@@ -60,12 +60,12 @@ test("a list that can be empty", ({ universe, test }) => {
   const Name = NameComponent(dom);
 
   let state = {
-    tom: universe.cell("Tom"),
-    yehuda: universe.cell("Yehuda"),
-    chirag: universe.cell("Chirag"),
+    tom: cell("Tom"),
+    yehuda: cell("Yehuda"),
+    chirag: cell("Chirag"),
   };
 
-  let names = universe.cell([]);
+  let names = cell([]);
 
   test
     .render(
@@ -98,12 +98,12 @@ test("a list that has sibling DOM nodes", ({ universe, test }) => {
   const Name = NameComponent(dom);
 
   let state = {
-    tom: universe.cell("Tom"),
-    yehuda: universe.cell("Yehuda"),
-    chirag: universe.cell("Chirag"),
+    tom: cell("Tom"),
+    yehuda: cell("Yehuda"),
+    chirag: cell("Chirag"),
   };
 
-  let names = universe.cell([]);
+  let names = cell([]);
 
   test
     .render(
