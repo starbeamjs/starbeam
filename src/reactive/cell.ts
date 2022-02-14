@@ -47,7 +47,9 @@ export class Cell<T> extends AbstractReactive<T> {
     this.#frozen = true;
   }
 
-  update(value: T) {
+  update(callback: (old: T) => T): void;
+  update(value: T): void;
+  update(value: T | ((old: T) => T)) {
     verify(
       this.#frozen,
       is.value(false),

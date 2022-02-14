@@ -123,9 +123,7 @@ export declare class Case<G extends Generics, A extends AsEnum> {
 type EnumConstructor<K extends Discriminant> = {
   new (key: K): Case<K, { of: K }>;
   new <T>(key: K, value?: T): Case<
-    K extends `${infer D}(${string})`
-      ? [Discriminant<D>, T extends undefined ? never : T]
-      : K,
+    K extends `${infer D}(${string})` ? [Discriminant<D>, T] : K,
     { of: K }
   >;
   new <T, U>(key: K, value?: T | U): Case<

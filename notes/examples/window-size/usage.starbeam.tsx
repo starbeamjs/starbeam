@@ -1,8 +1,8 @@
-import { useHook } from "@starbeam/react";
+import { use } from "@starbeam/react";
 import WindowSize from "./hook.starbeam.js";
 
 function MyComponent() {
-  let windowSize = useHook(WindowSize);
+  let windowSize = use(WindowSize);
   // {
   //   innerWidth: window.innerWidth,
   //   innerHeight: window.innerHeight,

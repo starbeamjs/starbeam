@@ -118,7 +118,7 @@ export function useModifier<T, E extends browser.Element>(
   );
 }
 
-export function useHook<T>(hook: HookBlueprint<T>): T {
+export function use<T>(hook: HookBlueprint<T>): T {
   const value: HookValue<T> = HookValue.create();
   const starbeam = useContext(STARBEAM);
 

@@ -54,7 +54,7 @@ declare type EnumConstructor<K extends Discriminant> = {
     new (key: K): Case<K, {
         of: K;
     }>;
-    new <T>(key: K, value?: T): Case<K extends `${infer D}(${string})` ? [Discriminant<D>, T extends undefined ? never : T] : K, {
+    new <T>(key: K, value?: T): Case<K extends `${infer D}(${string})` ? [Discriminant<D>, T] : K, {
         of: K;
     }>;
     new <T, U>(key: K, value?: T | U): Case<K extends `${infer D}(T)` ? [Discriminant<D>, T, never] : K extends `${infer D}(U)` ? [Discriminant<D>, never, U] : K, {

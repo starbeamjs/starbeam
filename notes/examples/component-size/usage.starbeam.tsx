@@ -1,5 +1,5 @@
 import { ComponentSize } from "./hook.starbeam.js";
-import { ref, useModifier } from "@starbeam/react";
+import { ref, useModifier, Starbeam } from "@starbeam/react";
 
 // const useComponentSize = hookify(ComponentSize);
 
@@ -16,9 +16,11 @@ function MyComponent() {
   });
 
   return (
-    <div style={{ width: "100%", height: "100%" }}>
-      <img ref={el} src={imgURL} />
-    </div>
+    <Starbeam>
+      <div style={{ width: "100%", height: "100%" }}>
+        <img ref={el} src={imgURL} />
+      </div>
+    </Starbeam>
   );
 }
 
