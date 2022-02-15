@@ -6,6 +6,7 @@
 // and it will blow up in JS in exactly the same way, so it is safe to assume
 // that properties within the getter have the correct type in TS.
 
+import type { InferReturn } from "../../strippable/wrapper.js";
 import {
   TrackedStorage,
   createStorage,
@@ -48,7 +49,7 @@ function convertToInt(prop: number | string | symbol): number | null {
   return num % 1 === 0 ? num : null;
 }
 
-class TrackedArray<T = unknown> {
+export class TrackedArray<T = unknown> {
   /**
    * Creates an array from an iterable object.
    * @param iterable An iterable object to convert to an array.
@@ -135,7 +136,7 @@ class TrackedArray<T = unknown> {
       getPrototypeOf() {
         return TrackedArray.prototype;
       },
-    }) as TrackedArray<T>;
+    }) as InferReturn;
   }
 
   readonly #collection = createStorage(null, () => false);
@@ -161,18 +162,6 @@ class TrackedArray<T = unknown> {
     }
   }
 }
-
-// This rule is correctly in the general case, but it doesn't understand
-// declaration merging, which is how we're using the interface here. This
-// declaration says that `TrackedArray` acts just like `Array<T>`, but also has
-// the properties declared via the `class` declaration above -- but without the
-// cost of a subclass, which is much slower that the proxied array behavior.
-// That is: a `TrackedArray` *is* an `Array`, just with a proxy in front of
-// accessors and setters, rather than a subclass of an `Array` which would be
-// de-optimized by the browsers.
-//
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface TrackedArray<T = unknown> extends Array<T> {}
 
 export default TrackedArray;
 

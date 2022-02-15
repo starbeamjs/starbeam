@@ -1,8 +1,8 @@
-import { HookBlueprint, HookConstructor } from "../../hooks/simple.js";
-import { Cell } from "../../reactive/cell.js";
+import { HookBlueprint, HookConstructor, ResourceHookConstructor } from "../../hooks/simple.js";
+import type { Reactive } from "../../reactive/core.js";
 import { Memo } from "../../reactive/functions/memo.js";
-export declare function hook<C extends HookConstructor<unknown>>(callback: C, description: string): C extends HookConstructor<infer T> ? HookBlueprint<T> : never;
-export declare function cell<T>(value: T, description?: string): Cell<T>;
+export declare function hook<C extends ResourceHookConstructor<unknown>>(callback: C, description: string): C extends HookConstructor<infer T> ? HookBlueprint<T> : never;
+export declare function hook<C extends () => Reactive<unknown>>(callback: C, description: string): C extends () => Reactive<infer T> ? HookBlueprint<T> : never;
 export declare function memo<T>(callback: () => T, description?: string): Memo<T>;
 export declare const lifetime: {
     on: {

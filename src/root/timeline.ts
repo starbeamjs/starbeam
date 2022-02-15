@@ -1,4 +1,4 @@
-import type { AnyCell } from "../reactive/cell.js";
+import type { Cell } from "../reactive/cell.js";
 import { LOGGER } from "../strippable/trace.js";
 import {
   ActiveFrame,
@@ -17,6 +17,18 @@ export class Timeline {
   #frame: ActiveFrame | null = null;
   #assertFrame: AssertFrame | null = null;
 
+  readonly #onAdvance: Set<() => void> = new Set();
+
+  on = {
+    advance: (callback: () => void): (() => void) => {
+      this.#onAdvance.add(callback);
+
+      return () => {
+        this.#onAdvance.delete(callback);
+      };
+    },
+  } as const;
+
   // Returns the current timestamp
   get now(): Timestamp {
     return this.#now;
@@ -27,11 +39,19 @@ export class Timeline {
     this.#assertFrame?.assert();
 
     this.#now = this.#now.next();
+
+    Promise.resolve().then(() => {
+      LOGGER.trace.log(`running callbacks for revision ${this.#now}`);
+      for (let callback of this.#onAdvance) {
+        callback();
+      }
+    });
+
     return this.#now;
   }
 
   // Indicate that a particular cell was used inside of the current computation.
-  didConsume(cell: AnyCell | AnyFinalizedFrame) {
+  didConsume(cell: Cell | AnyFinalizedFrame) {
     if (this.#frame) {
       LOGGER.trace.log(`adding ${cell.description}`);
       this.#frame.add(cell);

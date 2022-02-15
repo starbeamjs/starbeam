@@ -2,16 +2,19 @@ import { AbstractReactive, Reactive } from "../reactive/core.js";
 import type { ReactiveMetadata } from "../reactive/metadata.js";
 import { IntoFinalizer } from "../root/lifetime/lifetime.js";
 import type { Hook } from "./hook.js";
-export declare type HookConstructor<T> = (hook: SimpleHook<T>) => Reactive<T>;
+export declare type ResourceHookConstructor<T> = (hook: SimpleHook<T>) => Reactive<T>;
+export declare type DataHookConstructor<T> = () => Reactive<T>;
+export declare type HookConstructor<T> = ResourceHookConstructor<T> | DataHookConstructor<T>;
 /**
  * This class wraps the HookConstructor callback to give it extra debug
  * information. It is returned by universe.hook.
  */
 export declare class HookBlueprint<T> {
-    readonly construct: HookConstructor<T>;
+    readonly construct: ResourceHookConstructor<T>;
     readonly description: string;
-    static create<T>(construct: HookConstructor<T>, description: string): HookBlueprint<T>;
+    static create<T>(construct: ResourceHookConstructor<T>, description: string): HookBlueprint<T>;
     private constructor();
+    asData(): Reactive<T>;
 }
 export declare class SimpleHook<T> extends AbstractReactive<T> implements Hook<T> {
     #private;

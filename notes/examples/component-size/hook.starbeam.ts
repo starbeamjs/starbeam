@@ -1,5 +1,4 @@
 import type { browser } from "@domtree/flavors";
-import { JSDOM } from "jsdom";
 import { cell, hook, HookBlueprint } from "starbeam";
 
 interface Size {

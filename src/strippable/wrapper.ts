@@ -94,7 +94,8 @@ export type UnsafeAny = any;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AnyKey = keyof any;
 
-export type AnyRecord = Record<AnyKey, unknown>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type AnyRecord = { [P in keyof any]: any };
 
 export type AnyWrapper<T, Meta = unknown> = Wrapper<T, Meta, UnsafeAny>;
 

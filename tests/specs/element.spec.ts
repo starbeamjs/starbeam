@@ -1,8 +1,8 @@
-import { cell, Reactive } from "starbeam";
+import { Cell, Reactive } from "starbeam";
 import { Expects, test } from "../support/index.js";
 
 test("a simple element containing a text node (dynamic) ", ({ dom, test }) => {
-  let name = cell("Chirag");
+  let name = Cell("Chirag");
 
   let element = test.buildElement(
     "div",
@@ -42,8 +42,8 @@ test("a simple element with an attribute (dynamic) ", ({ dom, test }) => {
   const SHORT_NAME = "Chi";
   const TITLE = "Chirag's name";
 
-  let name = cell(NAME);
-  let title = cell(TITLE);
+  let name = Cell(NAME);
+  let title = Cell(TITLE);
 
   let element = test.buildElement(
     "div",
@@ -76,10 +76,10 @@ test("(smoke test) a dynamic element with a few children and a few attributes", 
   const CLASS = "person";
   const STYLE = "color: red";
 
-  let firstName = cell(FIRST_NAME);
-  let lastName = cell(LAST_NAME);
-  let title = cell(TITLE);
-  let style = cell(STYLE);
+  let firstName = Cell(FIRST_NAME);
+  let lastName = Cell(LAST_NAME);
+  let title = Cell(TITLE);
+  let style = Cell(STYLE);
 
   let element = test.buildElement(
     "div",

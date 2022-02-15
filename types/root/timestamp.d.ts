@@ -4,4 +4,5 @@ export declare class Timestamp {
     constructor(timestamp: number);
     gt(other: Timestamp): boolean;
     next(): Timestamp;
+    toString(): string;
 }

@@ -18,6 +18,7 @@ import { minimize } from "../strippable/minimal.js";
 import { INSPECT } from "../utils.js";
 import { LIFETIME } from "./lifetime/lifetime.js";
 import { RenderedRoot } from "./root.js";
+import { TIMELINE } from "./timeline.js";
 
 export const TIMELINE_SYMBOL = Symbol("TIMELINE");
 
@@ -48,9 +49,8 @@ export class Root {
 
   readonly dom: ReactiveDOM = new ReactiveDOM();
   readonly on = {
-    advance: (_callback: () => void): (() => void) => {
-      throw Error("todo: universe.on.advance");
-    },
+    advance: (callback: () => void): (() => void) =>
+      TIMELINE.on.advance(callback),
   } as const;
 
   private constructor(

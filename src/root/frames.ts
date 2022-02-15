@@ -1,5 +1,5 @@
 import { IS_UPDATED_SINCE } from "../brands.js";
-import type { AnyCell } from "../reactive/cell.js";
+import type { Cell } from "../reactive/cell.js";
 import { HasMetadata, ReactiveMetadata } from "../reactive/metadata.js";
 import { LOGGER } from "../strippable/trace.js";
 import type { Timestamp } from "./timestamp.js";
@@ -27,16 +27,16 @@ export class ActiveFrame {
     return new ActiveFrame(new Set(), description);
   }
 
-  readonly #cells: Set<AnyCell | AnyFinalizedFrame>;
+  readonly #cells: Set<Cell | AnyFinalizedFrame>;
 
   private constructor(
-    cells: Set<AnyCell | AnyFinalizedFrame>,
+    cells: Set<Cell | AnyFinalizedFrame>,
     readonly description: string
   ) {
     this.#cells = cells;
   }
 
-  add(cell: AnyCell | AnyFinalizedFrame): void {
+  add(cell: Cell | AnyFinalizedFrame): void {
     this.#cells.add(cell);
   }
 
@@ -52,12 +52,12 @@ export class ActiveFrame {
 }
 
 export class FinalizedFrame<T> extends HasMetadata {
-  readonly #children: Set<AnyCell | AnyFinalizedFrame>;
+  readonly #children: Set<Cell | AnyFinalizedFrame>;
   readonly #finalizedAt: Timestamp;
   readonly #value: T;
 
   constructor(
-    children: Set<AnyCell | AnyFinalizedFrame>,
+    children: Set<Cell | AnyFinalizedFrame>,
     finalizedAt: Timestamp,
     value: T,
     readonly description?: string

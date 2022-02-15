@@ -1,14 +1,31 @@
-import { Cell } from "../reactive/cell.js";
+import { builtin } from "../reactive/builtins/reactive.js";
+import { ReactiveCell } from "../reactive/cell.js";
 import { Memo } from "../reactive/functions/memo.js";
 import { verify } from "../strippable/assert.js";
 import { is } from "../strippable/minimal.js";
 import { expected } from "../strippable/verify-context.js";
+import type { InferReturn } from "../strippable/wrapper.js";
 
-export const reactive: PropertyDecorator = (
-  _target: object,
-  key: symbol | string
-): PropertyDescriptor => {
-  let cell = Cell.create<unknown>(undefined, `@reactive ${String(key)}`);
+type BuiltinFunction = typeof builtin;
+
+interface ReactiveDecorator {
+  (target: object, key: symbol | string): void;
+}
+
+interface ReactiveFunction extends BuiltinFunction, ReactiveDecorator {}
+
+export const reactive: ReactiveFunction = (
+  target: unknown,
+  key?: symbol | string
+): InferReturn => {
+  if (key === undefined) {
+    return builtin(target as Parameters<BuiltinFunction>[0]);
+  }
+
+  let cell = ReactiveCell.create<unknown>(
+    undefined,
+    `@reactive ${String(key)}`
+  );
 
   return {
     enumerable: true,
@@ -16,7 +33,7 @@ export const reactive: PropertyDecorator = (
     get: function () {
       return cell.current;
     },
-    set: function (value) {
+    set: function (value: unknown) {
       cell.update(value);
     },
   };

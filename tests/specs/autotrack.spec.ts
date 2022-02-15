@@ -1,9 +1,9 @@
-import { cell, memo, Root } from "starbeam";
+import { Cell, memo, Root } from "starbeam";
 import { Dynamism } from "../support/expect/expect.js";
 import { expect, Expects, test, toBe } from "../support/index.js";
 
 test("universe.memo", () => {
-  let name = cell("Tom");
+  let name = Cell("Tom");
   let counter = 0;
 
   let nameMemo = memo(() => {
@@ -61,8 +61,8 @@ test("universe.memo becomes constant if the underlying cell is frozen", ({
 });
 
 function testName(universe: Root, first: string, last: string) {
-  let firstName = cell(first);
-  let lastName = cell(last);
+  let firstName = Cell(first);
+  let lastName = Cell(last);
 
   let firstNameMemo = memo(() => {
     return firstName.current;

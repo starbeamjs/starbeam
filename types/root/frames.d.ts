@@ -1,5 +1,5 @@
 import { IS_UPDATED_SINCE } from "../brands.js";
-import type { AnyCell } from "../reactive/cell.js";
+import type { Cell } from "../reactive/cell.js";
 import { HasMetadata, ReactiveMetadata } from "../reactive/metadata.js";
 import type { Timestamp } from "./timestamp.js";
 export declare class AssertFrame {
@@ -13,7 +13,7 @@ export declare class ActiveFrame {
     readonly description: string;
     static create(description: string): ActiveFrame;
     private constructor();
-    add(cell: AnyCell | AnyFinalizedFrame): void;
+    add(cell: Cell | AnyFinalizedFrame): void;
     finalize<T>(value: T, now: Timestamp): {
         frame: FinalizedFrame<T>;
         initial: T;
@@ -22,7 +22,7 @@ export declare class ActiveFrame {
 export declare class FinalizedFrame<T> extends HasMetadata {
     #private;
     readonly description?: string | undefined;
-    constructor(children: Set<AnyCell | AnyFinalizedFrame>, finalizedAt: Timestamp, value: T, description?: string | undefined);
+    constructor(children: Set<Cell | AnyFinalizedFrame>, finalizedAt: Timestamp, value: T, description?: string | undefined);
     get metadata(): ReactiveMetadata;
     [IS_UPDATED_SINCE](timestamp: Timestamp): boolean;
     validate(): {

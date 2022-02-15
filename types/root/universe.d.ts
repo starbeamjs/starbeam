@@ -20,7 +20,7 @@ export declare class Root {
     [INSPECT](): string;
     readonly dom: ReactiveDOM;
     readonly on: {
-        readonly advance: (_callback: () => void) => (() => void);
+        readonly advance: (callback: () => void) => (() => void);
     };
     private constructor();
     use<T>(hook: HookBlueprint<T>, { into }: {

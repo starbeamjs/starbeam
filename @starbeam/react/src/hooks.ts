@@ -10,8 +10,10 @@ import {
   RenderedRoot,
   verified,
 } from "starbeam";
-import { useSyncExternalStore } from "use-sync-external-store";
+import { useSyncExternalStore } from "use-sync-external-store/shim";
 import { STARBEAM } from "./component.js";
+
+console.log("from starbeam");
 
 const REFS = new WeakMap<Ref<browser.Element>, browser.Element>();
 
@@ -74,11 +76,11 @@ export function useModifier<T, E extends browser.Element>(
   ref: Ref<E>,
   hook: (element: E) => HookBlueprint<T>
 ): Layout<T> {
-  const starbeam = useContext(STARBEAM);
-
   let layout: Layout<T> = Layout.Rendering();
   let value: HookValue<T> = HookValue.create();
   let root: RenderedRoot<HookValue<T>>;
+
+  const starbeam = useContext(STARBEAM);
 
   useLayoutEffect(() => {
     const element = verified(
@@ -118,13 +120,112 @@ export function useModifier<T, E extends browser.Element>(
   );
 }
 
+// let i = 0;
+
+// export function useAtom<T>(value: T, description = "(anonymous atom)") {
+//   const starbeam = useContext(STARBEAM);
+
+//   const update = (value: T) => {
+//     const { cell } = reactive;
+
+//     if (cell === null) {
+//       console.warn(`Attempting to update a cell that wasn't initialized`);
+//     } else {
+//       cell.update(value);
+//     }
+//   };
+
+//   const reactive: { cell: Cell<T> | null } = {
+//     cell: null,
+//   };
+
+//   let last: { current: T; update: (value: T) => void } = {
+//     current: value,
+//     update,
+//   };
+
+//   return useSyncExternalStore(
+//     useCallback((notifyReact) => {
+//       i++;
+//       console.log(`running uSES callback (#${i}: ${description})`);
+
+//       if (reactive.cell === null) {
+//         console.log(`initialized with ${value}`);
+//         reactive.cell = cell(value);
+//         Object.freeze(reactive);
+//       } else {
+//         console.log(`already initialized (value = ${value})`);
+//       }
+
+//       let teardown = starbeam.on.advance(() => {
+//         console.log(`#${i}: on advance callback is running`);
+
+//         const { cell } = reactive;
+
+//         if (cell === null) {
+//           console.log(`Cell wasn't yet initialized. Nothing to do`);
+//           return;
+//         }
+
+//         let current = cell.current;
+
+//         console.log(`#${i}: values`, {
+//           last,
+//           current,
+//           same: last.current === current,
+//         });
+
+//         if (last.current !== current) {
+//           console.log(`Notifying React`);
+//           last = {
+//             current,
+//             update,
+//           };
+//           notifyReact();
+//         }
+//       });
+
+//       return teardown;
+//     }, []),
+//     () => {
+//       console.trace(`${i}: Retrieving snapshot (${last.current})`);
+//       return last;
+//     }
+//   );
+// }
+
 export function use<T>(hook: HookBlueprint<T>): T {
-  const value: HookValue<T> = HookValue.create();
+  // const value: HookValue<T> = HookValue.create();
+  // const starbeam = useContext(STARBEAM);
+  // const root = starbeam.use(hook, { into: value });
+
+  const value = hook.asData();
+
+  let last = value.current;
   const starbeam = useContext(STARBEAM);
 
-  const root = starbeam.use(hook, { into: value });
+  console.log(`use ${hook.description} is running`);
 
-  return externalStore(value, root);
+  return useSyncExternalStore(
+    (notifyReact) => {
+      let teardown = starbeam.on.advance(() => {
+        let current = value.current;
+        console.log(`on advance callback is running`, {
+          last,
+          current,
+          same: last === current,
+        });
+
+        if (last !== current) {
+          last = current;
+          notifyReact();
+        }
+      });
+
+      return teardown;
+    },
+    () => last
+  );
 }
 
 function externalStore<T>(value: HookValue<T>, root: RenderedRoot<unknown>): T {

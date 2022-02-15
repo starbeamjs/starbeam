@@ -1,23 +1,85 @@
-import type { Reactive } from "../core.js";
-import TrackedArray from "./array.js";
-import { TrackedMap } from "./map.js";
-import type { ObjectType } from "./type-magic.js";
+import type { AnyKey, AnyRecord } from "../../strippable/wrapper.js";
+import { Cell } from "../cell.js";
+import { TrackedArray } from "./array.js";
+import { TrackedMap, TrackedWeakMap } from "./map.js";
+import TrackedObject from "./object.js";
+import { TrackedSet, TrackedWeakSet } from "./set.js";
 
-export function reactive<M extends Map<unknown, unknown>>(map: M): M;
-export function reactive<T>(
-  array: readonly T[]
-): `it doesn't make sense to turn a readonly array into a reactive array`;
-export function reactive<T>(array: T[]): T[];
-export function reactive<O extends ObjectType>(object: O): O;
-export function reactive<T>(
-  callback: () => T,
-  description?: string
-): Reactive<T>;
-export function reactive(value: object): unknown {
+export type Builtin =
+  | Map<unknown, unknown>
+  | Set<unknown>
+  | WeakMap<object, unknown>
+  | WeakSet<object>;
+
+type Primitive = string | number | boolean | symbol | bigint | null | undefined;
+
+const PRIMITIVE = [
+  "  - a string",
+  "  - a number",
+  "  - a boolean",
+  "  - a symbol",
+  "  - a bigint",
+  "  - null",
+  "  - undefined",
+];
+
+const OPTIONS = [
+  "- an array literal",
+  "- an object literal",
+  "- Map",
+  "- Set",
+  "- WeakMap",
+  "- WeakSet",
+  "- a primitive (to create a cell)",
+  ...PRIMITIVE,
+].join("\n");
+
+export function builtin<K, V>(value: typeof Map): Map<K, V>;
+
+export function builtin<T extends Primitive>(value: T): Cell<T>;
+export function builtin<T extends Record<string, unknown>>(object: T): T;
+export function builtin<T>(value: T[]): T[];
+export function builtin<R extends AnyRecord>(value: R): R;
+export function builtin(value: unknown): unknown {
   if (Array.isArray(value)) {
+    // freeze the array to prevent mutating it directly and expecting to see updates
+    Object.freeze(value);
     return TrackedArray.from(value);
-  } else if (value instanceof Map) {
-    return TrackedMap.reactive(value);
+  } else if (value === Map) {
+    return new TrackedMap();
+  } else if (value === Set) {
+    return new TrackedSet();
+  } else if (value === WeakMap) {
+    return new TrackedWeakMap();
+  } else if (value === WeakSet) {
+    return new TrackedWeakSet();
+  } else if (isSimpleObject(value)) {
+    // freeze the object to prevent mutating it directly and expecting to see updates
+    Object.freeze(value);
+    return TrackedObject.fromEntries(Object.entries(value));
+  } else if (isPrimitive(value)) {
+    return Cell(value);
+  } else if (typeof value === "function") {
+    throw Error("todo: todo: reactive(() => ...)");
+  } else {
+    throw new Error(`You must call reactive() with:\n\n${OPTIONS}`);
   }
-  throw Error("todo: generic reactive");
+}
+
+function isPrimitive(value: unknown): value is Primitive {
+  if (value === null) {
+    return true;
+  }
+
+  return typeof value !== "object" && typeof value !== "function";
+}
+
+function isSimpleObject(value: unknown): value is object {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  let proto: null | object = Object.getPrototypeOf(value);
+
+  return proto === null || proto === Object.prototype;
 }

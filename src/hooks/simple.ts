@@ -8,7 +8,12 @@ import { LOGGER } from "../strippable/trace.js";
 import { expected } from "../strippable/verify-context.js";
 import type { Hook } from "./hook.js";
 
-export type HookConstructor<T> = (hook: SimpleHook<T>) => Reactive<T>;
+export type ResourceHookConstructor<T> = (hook: SimpleHook<T>) => Reactive<T>;
+export type DataHookConstructor<T> = () => Reactive<T>;
+
+export type HookConstructor<T> =
+  | ResourceHookConstructor<T>
+  | DataHookConstructor<T>;
 
 /**
  * This class wraps the HookConstructor callback to give it extra debug
@@ -16,16 +21,28 @@ export type HookConstructor<T> = (hook: SimpleHook<T>) => Reactive<T>;
  */
 export class HookBlueprint<T> {
   static create<T>(
-    construct: HookConstructor<T>,
+    construct: ResourceHookConstructor<T>,
     description: string
   ): HookBlueprint<T> {
     return new HookBlueprint(construct, description);
   }
 
   private constructor(
-    readonly construct: HookConstructor<T>,
+    readonly construct: ResourceHookConstructor<T>,
     readonly description: string
   ) {}
+
+  asData(): Reactive<T> {
+    let hook = SimpleHook.construct(this);
+
+    // however, we need to *avoid* adding the dependencies of the hook's
+    // returned reactive to the parent hook constructor *or* this hook
+    // constructor.
+    return Memo.create(
+      () => hook.current.current,
+      `memo for: ${this.description} instance`
+    );
+  }
 }
 
 export class SimpleHook<T> extends AbstractReactive<T> implements Hook<T> {
@@ -35,7 +52,7 @@ export class SimpleHook<T> extends AbstractReactive<T> implements Hook<T> {
     reactive: Reactive<T> | null,
     description: string
   ): SimpleHook<T> {
-    return new SimpleHook(reactive, description);
+    return new SimpleHook(reactive, false, description);
   }
 
   static construct<T>(blueprint: HookBlueprint<T>): Reactive<Hook<T>> {
@@ -51,7 +68,7 @@ export class SimpleHook<T> extends AbstractReactive<T> implements Hook<T> {
 
       // First, construct a new hook that doesn't yet have its reactive value
       // filled in, but is ready to be used to invoke a blueprint.
-      last = new SimpleHook(null, blueprint.description);
+      last = SimpleHook.create(null, blueprint.description);
 
       // Then, construct the blueprint by invoking its callback. This will
       // collect its top-level dependencies into the memo and produce the
@@ -67,8 +84,13 @@ export class SimpleHook<T> extends AbstractReactive<T> implements Hook<T> {
   readonly #description: string;
   readonly #id: number;
   #reactive: Reactive<T> | null;
+  #isResource: boolean;
 
-  private constructor(reactive: Reactive<T> | null, description: string) {
+  private constructor(
+    reactive: Reactive<T> | null,
+    isResource: boolean,
+    description: string
+  ) {
     super();
 
     LIFETIME.on.destroy(this, () =>
@@ -77,6 +99,7 @@ export class SimpleHook<T> extends AbstractReactive<T> implements Hook<T> {
 
     this.#reactive = reactive;
     this.#description = description;
+    this.#isResource = isResource;
     this.#id = ++SimpleHook.#ids;
   }
 
@@ -89,6 +112,8 @@ export class SimpleHook<T> extends AbstractReactive<T> implements Hook<T> {
   }
 
   onDestroy(finalizer: IntoFinalizer): void {
+    this.#isResource = true;
+
     LIFETIME.on.destroy(this, finalizer);
   }
 

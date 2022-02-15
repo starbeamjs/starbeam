@@ -9,9 +9,9 @@ import { is } from "../strippable/minimal.js";
 import { expected } from "../strippable/verify-context.js";
 import { describeValue } from "../describe.js";
 
-export class Cell<T> extends AbstractReactive<T> {
-  static create<T>(value: T, description: string): Cell<T> {
-    return new Cell(value, TIMELINE.now, `cell: ${description}`, false);
+export class ReactiveCell<T> extends AbstractReactive<T> {
+  static create<T>(value: T, description: string): ReactiveCell<T> {
+    return new ReactiveCell(value, TIMELINE.now, description, false);
   }
 
   #value: T;
@@ -47,9 +47,7 @@ export class Cell<T> extends AbstractReactive<T> {
     this.#frozen = true;
   }
 
-  update(callback: (old: T) => T): void;
-  update(value: T): void;
-  update(value: T | ((old: T) => T)) {
+  update(value: T): void {
     verify(
       this.#frozen,
       is.value(false),
@@ -76,4 +74,8 @@ export class Cell<T> extends AbstractReactive<T> {
   }
 }
 
-export type AnyCell = Cell<unknown>;
+export type Cell<T = unknown> = ReactiveCell<T>;
+
+export function Cell<T>(value: T, description = "(anonymous cell)"): Cell<T> {
+  return ReactiveCell.create(value, description);
+}

@@ -1,5 +1,10 @@
 import type { browser } from "@domtree/flavors";
-import { Context, createContext, PropsWithChildren } from "react";
+import {
+  Context,
+  createContext,
+  createElement,
+  PropsWithChildren,
+} from "react";
 import { DomEnvironment, Root } from "starbeam";
 import { useSSR } from "use-ssr";
 
@@ -13,7 +18,7 @@ export function Starbeam({
   let root = Root.environment(environment);
 
   // TODO: Error boundary
-  return STARBEAM.Provider({ value: root, children });
+  return createElement(STARBEAM.Provider, { value: root }, children);
 }
 
 function inferEnvironment(document?: browser.Document): DomEnvironment {

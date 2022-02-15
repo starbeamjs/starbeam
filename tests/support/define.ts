@@ -1,7 +1,7 @@
 import type { minimal } from "@domtree/flavors";
 import { JSDOM } from "jsdom";
 import {
-  Cell,
+  ReactiveCell,
   CommentProgramNode,
   ContentProgramNode,
   DomEnvironment,
@@ -99,12 +99,12 @@ export class TestRoot {
   }
 
   update<T>(
-    [cell, value]: [cell: Cell<T>, value: T],
+    [cell, value]: [cell: ReactiveCell<T>, value: T],
     expectation: Expects
   ): this;
   update(updater: () => void, expectation: Expects): this;
   update<T>(
-    updater: [cell: Cell<T>, value: T] | (() => void),
+    updater: [cell: ReactiveCell<T>, value: T] | (() => void),
     expectation: Expects
   ): this {
     if (typeof updater === "function") {

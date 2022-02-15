@@ -2,9 +2,9 @@ import { IS_UPDATED_SINCE } from "../brands.js";
 import type { Timestamp } from "../root/timestamp.js";
 import { AbstractReactive } from "./core.js";
 import { ReactiveMetadata } from "./metadata.js";
-export declare class Cell<T> extends AbstractReactive<T> {
+export declare class ReactiveCell<T> extends AbstractReactive<T> {
     #private;
-    static create<T>(value: T, description: string): Cell<T>;
+    static create<T>(value: T, description: string): ReactiveCell<T>;
     private constructor();
     get description(): string;
     get metadata(): ReactiveMetadata;
@@ -13,4 +13,5 @@ export declare class Cell<T> extends AbstractReactive<T> {
     get current(): T;
     [IS_UPDATED_SINCE](timestamp: Timestamp): boolean;
 }
-export declare type AnyCell = Cell<unknown>;
+export declare type Cell<T = unknown> = ReactiveCell<T>;
+export declare function Cell<T>(value: T, description?: string): Cell<T>;

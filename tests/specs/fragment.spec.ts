@@ -1,9 +1,9 @@
 import { Expects, test } from "../support/index.js";
 import { Dynamism } from "../support/expect/expect.js";
-import { cell, Reactive } from "starbeam";
+import { Cell, Reactive } from "starbeam";
 
 test("a fragment containing a text node (dynamic) ", ({ test }) => {
-  let name = cell("Chirag");
+  let name = Cell("Chirag");
 
   let fragment = test.buildFragment(
     [test.buildText(name, Dynamism.dynamic)],
@@ -29,7 +29,7 @@ test("a fragment containing a text node (static) ", ({ test }) => {
 });
 
 test("a fragment containing a text node (dynamic => static) ", ({ test }) => {
-  let name = cell("Chirag");
+  let name = Cell("Chirag");
 
   let fragment = test.buildFragment(
     [test.buildText(name, Dynamism.dynamic)],
@@ -47,8 +47,8 @@ test("(smoke test) a fragment with a few children", ({ dom, test }) => {
   const LAST_NAME = "Patel";
   const SHORT_NAME = "Chi";
 
-  let firstName = cell(FIRST_NAME);
-  let lastName = cell(LAST_NAME);
+  let firstName = Cell(FIRST_NAME);
+  let lastName = Cell(LAST_NAME);
 
   let fragment = test.buildFragment(
     [

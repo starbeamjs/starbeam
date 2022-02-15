@@ -24,6 +24,27 @@ function MyComponent() {
   );
 }
 
+/**
+ * {{#let ComponentSize as |size|}}
+ *   <img {{size.measure}} src="https://via.placeholder.com/{{size.width}}x{{size.height}}">
+ * {{/let}}
+ *
+ * <img {{size.measure}} src="https://via.placeholder.com/{{size.width}}x{{size.height}}">
+ *
+ * <img #size={{ComponentSize}} src="https://via.placeholder.com/{{size.width}}x{{size.height}}">
+ *
+ * <video #video src={{url}}></video><button {{on "click" (fn this.play #video)}}>Play</button>
+ *
+ * {{#let (ref) as |video|}}
+ * <video {{video}} src={{url}}></video><button {{on "click" (fn this.play video)}}>Play</button>
+ * {{/let}}
+ */
+
+/**
+ * <div ...>
+ *   <img use:ComponentSize
+ */
+
 function MyComponentSuspense() {
   let el = ref(HTMLImageElement);
   let { width, height } = useModifier(el, ComponentSize).rendered;

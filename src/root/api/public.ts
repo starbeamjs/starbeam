@@ -1,22 +1,31 @@
-import { HookBlueprint, HookConstructor } from "../../hooks/simple.js";
-import { Cell } from "../../reactive/cell.js";
+import {
+  HookBlueprint,
+  HookConstructor,
+  ResourceHookConstructor,
+} from "../../hooks/simple.js";
+import { ReactiveCell } from "../../reactive/cell.js";
+import type { Reactive } from "../../reactive/core.js";
 import { Memo } from "../../reactive/functions/memo.js";
 import { Abstraction } from "../../strippable/abstraction.js";
 import type { FIXME } from "../../utils.js";
 import { LIFETIME } from "../lifetime/lifetime.js";
 
-export function hook<C extends HookConstructor<unknown>>(
+export function hook<C extends ResourceHookConstructor<unknown>>(
   callback: C,
   description: string
-): C extends HookConstructor<infer T> ? HookBlueprint<T> : never {
+): C extends HookConstructor<infer T> ? HookBlueprint<T> : never;
+export function hook<C extends () => Reactive<unknown>>(
+  callback: C,
+  description: string
+): C extends () => Reactive<infer T> ? HookBlueprint<T> : never;
+export function hook<C extends ResourceHookConstructor<unknown>>(
+  callback: C,
+  description: string
+): C extends ResourceHookConstructor<infer T> ? HookBlueprint<T> : never {
   return HookBlueprint.create(
     callback,
     description
   ) as FIXME<"Decide if we want a narrower type">;
-}
-
-export function cell<T>(value: T, description = "anonymous"): Cell<T> {
-  return Cell.create(value, description);
 }
 
 // function match<C extends AnyReactiveChoice>(

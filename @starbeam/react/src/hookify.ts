@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
+  ReactiveCell,
   Cell,
-  cell,
   enumerate,
   HookBlueprint,
   InferReturn,
@@ -41,13 +41,13 @@ export function hookify<
   hook: StarbeamHook<Args, Ret>,
   description = hook.name || `(anonymous hook)`
 ): (...args: IdiomaticHookArgs<Args>) => HookReturn<Ret> {
-  let stableArgs: readonly Cell<unknown>[];
+  let stableArgs: readonly ReactiveCell<unknown>[];
 
   return ((...args: IdiomaticHookArgs<readonly unknown[]>): HookReturn<Ret> => {
     if (stableArgs === undefined) {
       stableArgs = args.map(
-        (arg: unknown, i: number): Cell<unknown> =>
-          cell(arg, `${description} (param ${i + 1})`)
+        (arg: unknown, i: number): ReactiveCell<unknown> =>
+          Cell(arg, `${description} (param ${i + 1})`)
       );
     }
 

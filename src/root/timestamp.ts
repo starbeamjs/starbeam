@@ -16,4 +16,8 @@ export class Timestamp {
   next(): Timestamp {
     return new Timestamp(this.#timestamp + 1);
   }
+
+  toString() {
+    return `#<Timestamp ${this.#timestamp}>`;
+  }
 }

@@ -12,3 +12,14 @@ export function Tick(
     return Reactive.from(undefined as void);
   }, "stopwatch");
 }
+
+// export function Tick(
+//   callback,
+//   duration
+// ) {
+//   return hook((hook) => {
+//     let timer = setInterval(() => callback.current(), duration.current);
+
+//     hook.onDestroy(() => clearInterval(timer));
+//   }, "stopwatch");
+// }

@@ -1,7 +1,10 @@
-import type { Reactive } from "../core.js";
-import type { ObjectType } from "./type-magic.js";
-export declare function reactive<M extends Map<unknown, unknown>>(map: M): M;
-export declare function reactive<T>(array: readonly T[]): `it doesn't make sense to turn a readonly array into a reactive array`;
-export declare function reactive<T>(array: T[]): T[];
-export declare function reactive<O extends ObjectType>(object: O): O;
-export declare function reactive<T>(callback: () => T, description?: string): Reactive<T>;
+import type { AnyRecord } from "../../strippable/wrapper.js";
+import { Cell } from "../cell.js";
+export declare type Builtin = Map<unknown, unknown> | Set<unknown> | WeakMap<object, unknown> | WeakSet<object>;
+declare type Primitive = string | number | boolean | symbol | bigint | null | undefined;
+export declare function builtin<K, V>(value: typeof Map): Map<K, V>;
+export declare function builtin<T extends Primitive>(value: T): Cell<T>;
+export declare function builtin<T extends Record<string, unknown>>(object: T): T;
+export declare function builtin<T>(value: T[]): T[];
+export declare function builtin<R extends AnyRecord>(value: R): R;
+export {};

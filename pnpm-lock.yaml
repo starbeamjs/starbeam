@@ -53,11 +53,13 @@ importers:
       jsdom-quokka-plugin: ^1.0.16
       lodash.zip: ^4.2.0
       shelljs: ^0.8.5
+      starbeam: ^0.0.0
       treeify: ^1.1.0
       ts-jest: ^27.1.3
       typescript: ^4.6.0-dev.20220210
     dependencies:
       fast-array-diff: 1.0.1
+      starbeam: 'link:'
       treeify: 1.1.0
     devDependencies:
       '@alex_neo/jest-expect-message': 1.0.5
@@ -167,7 +169,7 @@ importers:
       typescript: next
     dependencies:
       starbeam: link:..
-      typescript: 4.6.0-dev.20220210
+      typescript: 4.6.0-dev.20220211
     devDependencies:
       '@types/lodash.zip': 4.2.6
       lodash.zip: 4.2.0
@@ -5064,6 +5066,13 @@ packages:
     resolution: {integrity: sha512-YWhjn/bTswih1vihuM7B5PHmTvgBgg9WGww22HQZjGnm1HIqaeTDw9Rm0tCigNp17bvmwB/pstojj8WZDUEUPQ==}
     engines: {node: '>=4.2.0'}
     hasBin: true
+    dev: true
+
+  /typescript/4.6.0-dev.20220211:
+    resolution: {integrity: sha512-wMVJ7QGajX2OXpGrX8cphiTsyab79JS88F00azUMgO65ooUFgyFFQaXn2zOO8h8RluD6kHWzCM3WTa0Tc0Ui+g==}
+    engines: {node: '>=4.2.0'}
+    hasBin: true
+    dev: false
 
   /unbox-primitive/1.0.1:
     resolution: {integrity: sha512-tZU/3NqK3dA5gpE1KtyiJUrEB0lxnGkMFHptJ7q6ewdZ8s12QrODwNbhIJStmJkd1QDXa1NRA8aF2A1zk/Ypyw==}

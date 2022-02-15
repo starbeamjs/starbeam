@@ -1,4 +1,4 @@
-import { cell, Root } from "starbeam";
+import { Cell, Root } from "starbeam";
 import { JsDocument } from "./utils.js";
 
 let document = JsDocument.create();
@@ -6,8 +6,8 @@ let document = JsDocument.create();
 const universe = Root.jsdom(document.jsdom);
 const html = universe.dom;
 
-const person = cell("@littlecalculist");
-const place = cell("San Francisco");
+const person = Cell("@littlecalculist");
+const place = Cell("San Francisco");
 
 const element = html.element("div", (div) =>
   div

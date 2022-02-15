@@ -1,4 +1,4 @@
-declare class TrackedArray<T = unknown> {
+export declare class TrackedArray<T = unknown> {
     #private;
     /**
      * Creates an array from an iterable object.
@@ -14,7 +14,5 @@ declare class TrackedArray<T = unknown> {
     static from<T, U>(iterable: Iterable<T> | ArrayLike<T>, mapfn: (v: T, k: number) => U, thisArg?: unknown): TrackedArray<U>;
     static of<T>(...arr: T[]): TrackedArray<T>;
     constructor(arr?: T[]);
-}
-interface TrackedArray<T = unknown> extends Array<T> {
 }
 export default TrackedArray;

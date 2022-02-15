@@ -78,6 +78,7 @@
   },
   "dependencies": {
     "fast-array-diff": "^1.0.1",
+    "starbeam": "^0.0.0",
     "treeify": "^1.1.0"
   }
 }

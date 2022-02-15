@@ -1,5 +1,5 @@
 import {
-  cell,
+  Cell,
   hook,
   HookBlueprint,
   HookValue,
@@ -49,9 +49,9 @@ class Subscription {
 }
 
 test("universe.hook.values", ({ universe }) => {
-  let user = cell("@tomdale", "user");
-  let channel = cell("chat.today", "channel name");
-  let tick = cell(0, "tick");
+  let user = Cell("@tomdale", "user");
+  let channel = Cell("chat.today", "channel name");
+  let tick = Cell(0, "tick");
 
   function Channel(
     channel: Reactive<string>,
