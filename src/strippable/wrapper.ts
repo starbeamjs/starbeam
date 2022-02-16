@@ -88,6 +88,18 @@ export class Wrapper<T, Meta, S extends symbol> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type InferReturn = any;
 
+/**
+ * Use this type to force TypeScript to accept an argument as compatible with
+ * the function's signature. return type as compatible with the signature of a
+ * function it is used inside of.
+ *
+ * In general, this is necessary when the signature uses generics and mapped
+ * types, but the function body uses `unknown` (because the generics are not
+ * reified as a runtime concept in TypeScript).
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type InferArgument = any;
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type UnsafeAny = any;
 
@@ -96,6 +108,9 @@ export type AnyKey = keyof any;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AnyRecord = { [P in keyof any]: any };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type AnyDict = { [P in keyof any as Extract<P, string>]: any };
 
 export type AnyWrapper<T, Meta = unknown> = Wrapper<T, Meta, UnsafeAny>;
 

@@ -1,5 +1,5 @@
 import {
-  TrackedStorage,
+  type TrackedStorage,
   createStorage,
   getValue,
   setValue,

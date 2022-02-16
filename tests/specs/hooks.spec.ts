@@ -5,7 +5,7 @@ import {
   HookValue,
   lifetime,
   LOGGER,
-  memo,
+  Memo,
   Reactive,
   tree,
 } from "starbeam";
@@ -62,7 +62,7 @@ test("universe.hook.values", ({ universe }) => {
 
       hook.onDestroy(() => subscription.destroy());
 
-      return memo(
+      return Memo(
         () => `${subscription.name} for ${user.current}`,
         `channel description`
       );
@@ -72,7 +72,7 @@ test("universe.hook.values", ({ universe }) => {
   let RootHook = hook((hook) => {
     let description = hook.use(Channel(channel, user));
 
-    return memo(
+    return Memo(
       () => `[timestamp = ${tick.current}] ${description.current}`,
       `annotated channel description`
     );

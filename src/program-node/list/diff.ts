@@ -1,5 +1,5 @@
 import type { minimal } from "@domtree/flavors";
-import { getPatch, Patch } from "fast-array-diff";
+import { getPatch, type Patch } from "fast-array-diff";
 import type { DomEnvironment } from "../../dom/environment.js";
 import {
   ContentCursor,

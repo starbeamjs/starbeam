@@ -1,5 +1,5 @@
 import type { Cell } from "../reactive/cell.js";
-import { AnyFinalizedFrame, FinalizedFrame } from "./frames.js";
+import { type AnyFinalizedFrame, type FinalizedFrame } from "../reactive/frames.js";
 import { Timestamp } from "./timestamp.js";
 export declare class Timeline {
     #private;

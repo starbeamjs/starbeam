@@ -1,4 +1,4 @@
-import type { AnyKey, AnyRecord } from "../../strippable/wrapper.js";
+import type { AnyRecord } from "../../strippable/wrapper.js";
 import { Cell } from "../cell.js";
 import { TrackedArray } from "./array.js";
 import { TrackedMap, TrackedWeakMap } from "./map.js";
@@ -35,7 +35,11 @@ const OPTIONS = [
 ].join("\n");
 
 export function builtin<K, V>(value: typeof Map): Map<K, V>;
-
+export function builtin<V>(value: typeof Set): Set<V>;
+export function builtin<K extends object, V>(
+  value: typeof WeakMap
+): WeakMap<K, V>;
+export function builtin<V extends object>(value: typeof WeakSet): WeakSet<V>;
 export function builtin<T extends Primitive>(value: T): Cell<T>;
 export function builtin<T extends Record<string, unknown>>(object: T): T;
 export function builtin<T>(value: T[]): T[];
@@ -62,6 +66,7 @@ export function builtin(value: unknown): unknown {
   } else if (typeof value === "function") {
     throw Error("todo: todo: reactive(() => ...)");
   } else {
+    console.trace(`you passed`, value);
     throw new Error(`You must call reactive() with:\n\n${OPTIONS}`);
   }
 }

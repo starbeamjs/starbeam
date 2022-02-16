@@ -1,8 +1,7 @@
-import { IS_UPDATED_SINCE } from "../brands.js";
-import type { Cell } from "../reactive/cell.js";
-import { HasMetadata, ReactiveMetadata } from "../reactive/metadata.js";
+import type { Cell } from "./cell.js";
+import { HasMetadata, ReactiveMetadata } from "./metadata.js";
 import { LOGGER } from "../strippable/trace.js";
-import type { Timestamp } from "./timestamp.js";
+import type { Timestamp } from "../root/timestamp.js";
 
 export class AssertFrame {
   static describing(description: string): AssertFrame {
@@ -72,11 +71,11 @@ export class FinalizedFrame<T> extends HasMetadata {
     return ReactiveMetadata.all(...this.#children);
   }
 
-  [IS_UPDATED_SINCE](timestamp: Timestamp): boolean {
+  IS_UPDATED_SINCE(timestamp: Timestamp): boolean {
     let isUpdated = false;
 
     for (let child of this.#children) {
-      if (child[IS_UPDATED_SINCE](timestamp)) {
+      if (child.IS_UPDATED_SINCE(timestamp)) {
         LOGGER.trace.log(
           `[invalidated] by ${child.description || "anonymous"}`
         );
@@ -88,7 +87,7 @@ export class FinalizedFrame<T> extends HasMetadata {
   }
 
   validate(): { status: "valid"; value: T } | { status: "invalid" } {
-    if (this[IS_UPDATED_SINCE](this.#finalizedAt)) {
+    if (this.IS_UPDATED_SINCE(this.#finalizedAt)) {
       return { status: "invalid" };
     }
 

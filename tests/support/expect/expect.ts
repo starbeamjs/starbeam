@@ -1,10 +1,10 @@
 import { Abstraction, ReactiveMetadata } from "starbeam";
 import { toBe } from "./patterns.js";
 import {
-  Failure,
+  type Failure,
   JestReporter,
-  PatternDetails,
-  Reporter,
+  type PatternDetails,
+  type Reporter,
   Success,
   ValueDescription,
 } from "./report.js";

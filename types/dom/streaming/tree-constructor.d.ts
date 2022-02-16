@@ -1,7 +1,7 @@
 import type * as minimal from "@domtree/minimal";
 import type { AttributeValue, AttrType } from "../buffer/attribute.js";
 import type { ElementHeadBuffer } from "../buffer/body.js";
-import { ContentBuffer, ElementBody, ElementBodyBuffer, HtmlBuffer } from "../buffer/body.js";
+import { type ContentBuffer, type ElementBody, ElementBodyBuffer, HtmlBuffer } from "../buffer/body.js";
 import type { DomEnvironment } from "../environment.js";
 import type { ContentRange } from "./compatible-dom.js";
 import type { ContentCursor } from "./cursor.js";

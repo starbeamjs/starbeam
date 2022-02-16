@@ -4,7 +4,19 @@ interface User {
   name: string;
 }
 
-class Option<T> extends Enum("Some(T)", "None")<T> {}
+class Option<T> extends Enum("Some(T)", "None")<T> {
+  map<U>(callback: (value: T) => U): Option<U> {
+    return this.match({
+      Some: (value) => Option.Some(callback(value)),
+      None: () => Option.None(),
+    });
+  }
+}
+
+const x: Option<string> = Option.Some("@littledan");
+const y = x.map((name) => (name === "@littledan" ? "Daniel" : name));
+
+y; //?
 
 function getName(value: Option<User>): string {
   return value.match({

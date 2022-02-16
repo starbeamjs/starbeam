@@ -1,11 +1,11 @@
 import type { Expects } from "./expect/expect.js";
 import {
-  AttributeName,
-  BuildAttribute,
+  type AttributeName,
+  type BuildAttribute,
   ContentProgramNode,
-  IntoReactive,
+  type IntoReactive,
   AbstractReactive,
-  ReactiveElementBuilderCallback,
+  type ReactiveElementBuilderCallback,
   Root,
   Reactive,
 } from "starbeam";

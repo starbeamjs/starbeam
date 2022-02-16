@@ -4,8 +4,8 @@ import {
   Cell,
   enumerate,
   HookBlueprint,
-  InferReturn,
-  IntoReactive,
+  type InferReturn,
+  type IntoReactive,
   Reactive,
 } from "starbeam";
 import { use } from "./hooks.js";

@@ -17,7 +17,6 @@ export declare class MutateContentCursor extends ContentCursor {
     insertHTML(html: string): void;
     insert(node: minimal.ChildNode | minimal.DocumentFragment): void;
 }
-export declare const RANGE_SNAPSHOT: unique symbol;
 /**
  * A snapshot of the range for rendered content. This must be used immediately
  * and cannot be saved off.
@@ -37,3 +36,4 @@ export declare class RangeSnapshot {
     remove(): ContentCursor;
     move(to: ContentCursor): void;
 }
+export declare const RANGE_SNAPSHOT = "RANGE_SNAPSHOT";

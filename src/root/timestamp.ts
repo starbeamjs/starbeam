@@ -1,3 +1,7 @@
+export interface IsUpdatedSince {
+  IS_UPDATED_SINCE(timestamp: Timestamp): boolean;
+}
+
 export class Timestamp {
   static initial(): Timestamp {
     return new Timestamp(1);

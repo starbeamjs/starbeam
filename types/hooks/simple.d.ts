@@ -1,6 +1,6 @@
 import { AbstractReactive, Reactive } from "../reactive/core.js";
 import type { ReactiveMetadata } from "../reactive/metadata.js";
-import { IntoFinalizer } from "../root/lifetime/lifetime.js";
+import { type IntoFinalizer } from "../root/lifetime/lifetime.js";
 import type { Hook } from "./hook.js";
 export declare type ResourceHookConstructor<T> = (hook: SimpleHook<T>) => Reactive<T>;
 export declare type DataHookConstructor<T> = () => Reactive<T>;

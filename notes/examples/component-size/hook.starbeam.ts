@@ -1,5 +1,5 @@
 import type { browser } from "@domtree/flavors";
-import { cell, hook, HookBlueprint } from "starbeam";
+import { Cell, hook, HookBlueprint } from "starbeam";
 
 interface Size {
   width: number;
@@ -17,7 +17,7 @@ export function ComponentSize(
   element: browser.HTMLElement
 ): HookBlueprint<Size> {
   return hook((hook) => {
-    let size = cell(getSize(element));
+    let size = Cell(getSize(element));
 
     let resizeObserver = new ResizeObserver(() => {
       size.update(getSize(element));

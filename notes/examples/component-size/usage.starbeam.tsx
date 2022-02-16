@@ -1,13 +1,9 @@
 import { ComponentSize } from "./hook.starbeam.js";
 import { ref, useModifier, Starbeam } from "@starbeam/react";
 
-// const useComponentSize = hookify(ComponentSize);
-
 function MyComponent() {
   let el = ref(HTMLImageElement);
   let size = useModifier(el, ComponentSize);
-
-  // size == { width: 100, height: 200 }
 
   let imgURL = size.match({
     Rendering: () => `https://via.placeholder.com/0x0`,

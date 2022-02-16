@@ -1,4 +1,4 @@
-import { Attributes, AttributeValue } from "./attribute.js";
+import { type Attributes, type AttributeValue } from "./attribute.js";
 export interface SerializeOptions {
     prefix: string;
 }

@@ -1,9 +1,9 @@
 import type { browser } from "@domtree/flavors";
 import {
-  Context,
+  type Context,
   createContext,
   createElement,
-  PropsWithChildren,
+  type PropsWithChildren,
 } from "react";
 import { DomEnvironment, Root } from "starbeam";
 import { useSSR } from "use-ssr";

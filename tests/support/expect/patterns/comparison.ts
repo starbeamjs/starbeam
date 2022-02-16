@@ -1,17 +1,17 @@
 import type { UnsafeAny } from "starbeam";
 import {
-  AnyPatternDSL,
+  type AnyPatternDSL,
   Described,
-  Pattern,
+  type Pattern,
   PatternImpl,
   PatternMatch,
   PatternMismatch,
-  PatternResult,
+  type PatternResult,
 } from "../expect.js";
 import {
-  Failure,
+  type Failure,
   NotEqual,
-  PatternDetails,
+  type PatternDetails,
   Success,
   ValueDescription,
 } from "../report.js";

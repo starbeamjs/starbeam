@@ -8,14 +8,19 @@ import type {
 } from "@simple-dom/interface";
 import {
   Described,
-  Pattern,
-  PatternFor,
+  type Pattern,
+  type PatternFor,
   PatternImpl,
   PatternMatch,
   PatternMismatch,
-  PatternResult,
+  type PatternResult,
 } from "../../expect.js";
-import { Failure, Mismatch, Success, ValueDescription } from "../../report.js";
+import {
+  type Failure,
+  Mismatch,
+  Success,
+  ValueDescription,
+} from "../../report.js";
 
 const NODE_NAMES = {
   1: "Element",

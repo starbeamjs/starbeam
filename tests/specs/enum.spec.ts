@@ -1,4 +1,4 @@
-import { Enum } from "starbeam";
+import { Enum, type Discriminant } from "starbeam";
 import { types } from "../support/expect/expect.js";
 import { expect, test, toBe } from "../support/index.js";
 
@@ -44,6 +44,13 @@ test("a more elaborate generic enum", () => {
   expect(stringify(Option.Some(1)), toBe("1"));
   expect(stringify(Option.None()), toBe("None"));
 
+  types(() => {
+    // @ts-expect-error stringify expects an Option<number>, but we passed Option<string>
+    stringify(Option.Some("hello"));
+
+    stringify(Option.None());
+  });
+
   function stringify(option: Option<number>): string {
     return option.match({
       Some: (value) => String(value),
@@ -54,6 +61,8 @@ test("a more elaborate generic enum", () => {
 
 test("Async<T>", () => {
   class Async<T, U> extends Enum("Loading", "Loaded(T)", "Error(U)")<T, U> {}
+
+  const Q = Async.Loading();
 
   match(Async.Loading());
   match(Async.Loaded({ username: "@tomdale" }));

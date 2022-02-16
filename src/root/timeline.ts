@@ -2,10 +2,10 @@ import type { Cell } from "../reactive/cell.js";
 import { LOGGER } from "../strippable/trace.js";
 import {
   ActiveFrame,
-  AnyFinalizedFrame,
+  type AnyFinalizedFrame,
   AssertFrame,
-  FinalizedFrame,
-} from "./frames.js";
+  type FinalizedFrame,
+} from "../reactive/frames.js";
 import { Timestamp } from "./timestamp.js";
 
 export class Timeline {

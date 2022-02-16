@@ -3,12 +3,13 @@
   "compilerOptions": {
     "composite": true,
     "lib": ["ESNext", "DOM"],
-    "outDir": "/tmp/starbeam-dist/src",
+    "outDir": "../dist",
     "paths": {
       "treeify": ["../@types/treeify"]
     },
     "declarationDir": "../types",
     "declaration": true
   },
+  "include": ["**/*.ts"],
   "references": [{ "path": "../@types" }]
 }

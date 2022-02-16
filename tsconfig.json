@@ -7,7 +7,8 @@
     "allowSyntheticDefaultImports": false,
     "esModuleInterop": false,
     "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "Node",
+    "preserveValueImports": false,
     "lib": ["ESNext", "DOM"]
   },
   "include": [],

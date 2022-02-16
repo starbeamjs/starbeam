@@ -8,7 +8,7 @@
 
 import type { InferReturn } from "../../strippable/wrapper.js";
 import {
-  TrackedStorage,
+  type TrackedStorage,
   createStorage,
   getValue,
   setValue,

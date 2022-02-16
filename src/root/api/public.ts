@@ -1,11 +1,10 @@
 import {
   HookBlueprint,
-  HookConstructor,
-  ResourceHookConstructor,
+  type HookConstructor,
+  type ResourceHookConstructor,
 } from "../../hooks/simple.js";
-import { ReactiveCell } from "../../reactive/cell.js";
 import type { Reactive } from "../../reactive/core.js";
-import { Memo } from "../../reactive/functions/memo.js";
+import { ReactiveMemo } from "../../reactive/functions/memo.js";
 import { Abstraction } from "../../strippable/abstraction.js";
 import type { FIXME } from "../../utils.js";
 import { LIFETIME } from "../lifetime/lifetime.js";
@@ -44,11 +43,11 @@ export function hook<C extends ResourceHookConstructor<unknown>>(
  * Create a memoized value that re-executes whenever any cells used in its
  * computation invalidate.
  */
-export function memo<T>(
+export function Memo<T>(
   callback: () => T,
   description = `memo ${Abstraction.callerFrame().trimStart()}`
-): Memo<T> {
-  return Memo.create(callback, description);
+): ReactiveMemo<T> {
+  return ReactiveMemo.create(callback, description);
 }
 
 export const lifetime = {

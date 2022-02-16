@@ -2,81 +2,43 @@
  * The Discriminant is the low-level, internal representation of the instance of
  * an enum, and contains the generic (i.e. `Some(T)`).
  */
-export declare type Discriminant<S extends string = string> = S;
-/**
- * The Variant is the part of the Discriminant that is used in matchers (i.e.
- * the variant of `Some(T)` is `Some`).
- */
-declare type Variant<K> = K extends `${infer D}(${string})` ? D : K;
-declare type Generics = [discriminant: Discriminant, t: unknown] | [discriminant: Discriminant, t: unknown, u: unknown] | Discriminant;
-declare type AsEnum = {
-    of: Discriminant;
+export declare type Discriminant = string;
+export declare type Variant<D extends Discriminant> = D extends `${infer V}(${string})` ? V : D;
+export declare type Matcher<D extends Discriminant, T, U, Out> = D extends `${string}(T)` ? <V extends Out>(value: T) => V : D extends `${string}(U)` ? <V extends Out>(value: U) => V : <V extends Out>() => V;
+export declare type Matchers<D extends Discriminant, Out, T = never, U = never> = {
+    [P in D]: Matcher<P, T, U, Out>;
 };
-declare type GetMatcherT<G extends Generics, R> = G extends [
-    discriminant: string,
-    t: infer T,
-    u: unknown
-] ? (value: T) => R : G extends [string, infer T] ? (value: T) => R : (value?: unknown) => R;
-declare type GetMatcherU<G extends Generics, R> = G extends [string, unknown, infer U] ? (value: U) => R : (value?: unknown) => R;
-export declare type MatcherValue<G extends Generics, K extends string, R> = HasGeneric<K, "U"> extends true ? GetMatcherU<G, R> : [K] extends [`${string}(${string})`] ? GetMatcherT<G, R> : [K] extends [string] ? () => R : never;
-export declare type MatcherFunction<G extends Generics, K extends string, R> = MatcherValue<G, K, R>;
-declare type GetT<G extends Generics> = G extends [
-    discriminant: Discriminant,
-    t: infer T,
-    u: unknown
-] ? T : G extends [discriminant: string, t: infer T] ? T : never;
-declare type GetU<G extends Generics> = G extends [
-    discriminant: Discriminant,
-    t: unknown,
-    u: infer U
-] ? U : never;
-declare type Matcher<G extends Generics, A extends AsEnum, R> = {
-    [P in A["of"] as Variant<P>]: HasGeneric<P, "T"> extends true ? (value: GetT<G>) => R : P extends `${string}(U)` ? (value: GetU<G>) => R : () => R;
-};
-declare type DiscriminantFor<V, All> = Extract<All, `${V & string}(${string})`>;
-export declare type GenericValue<V, T, U> = V extends `${string}(T)` ? T : V extends `${string}(U)` ? U : undefined;
-export declare type CaseValue<G extends Generics, All> = G extends [
-    infer V,
-    infer T,
-    infer U
-] ? DiscriminantFor<V & string, All> extends infer D ? GenericValue<D, T, U> : never : G extends [infer V, infer T] ? DiscriminantFor<V & string, All> extends infer D ? GenericValue<D, T, never> : never : undefined;
-export declare type Destructure<G extends Generics, All> = G extends [
-    infer V,
-    infer T,
-    infer U
-] ? DiscriminantFor<V & string, All> extends infer D ? [V, GenericValue<D, T, U>] : never : G extends [infer V, infer T] ? DiscriminantFor<V & string, All> extends infer D ? [V, GenericValue<D, T, never>] : never : [G];
-export declare class Case<G extends Generics, A extends AsEnum> {
-    readonly variant: G extends unknown[] ? G[0] : G;
-    readonly value: Destructure<G, A["of"]>;
-    match<U>(matcher: Matcher<G, A, U>): U;
+interface EnumInstance0<D extends Discriminant> {
+    match<Out>(matcher: {
+        [P in D]: () => Out;
+    }): Out;
 }
-declare type EnumConstructor<K extends Discriminant> = {
-    new (key: K): Case<K, {
-        of: K;
-    }>;
-    new <T>(key: K, value?: T): Case<K extends `${infer D}(${string})` ? [Discriminant<D>, T] : K, {
-        of: K;
-    }>;
-    new <T, U>(key: K, value?: T | U): Case<K extends `${infer D}(T)` ? [Discriminant<D>, T, never] : K extends `${infer D}(U)` ? [Discriminant<D>, never, U] : K, {
-        of: K;
-    }>;
+interface EnumInstance1<D extends Discriminant, T> {
+    match<Out>(matcher: {
+        [P in D as Variant<P>]: true extends HasGeneric<P, "T"> ? (value: T) => Out : () => Out;
+    }): Out;
+}
+interface EnumInstance2<D extends Discriminant, T, U> {
+    match<Out>(matcher: {
+        [P in D as Variant<P>]: true extends HasGeneric<P, "T"> ? (value: T) => Out : true extends HasGeneric<P, "U"> ? (value: U) => Out : () => Out;
+    }): Out;
+}
+declare type EnumClass0<K extends string> = (abstract new (discriminant: K) => EnumInstance0<K>) & {
+    [P in K]: <This extends abstract new (discriminant: P) => Instance, Instance>(this: This) => Instance;
 };
-declare type HasGeneric<K extends Discriminant, G extends string> = true extends {
-    [P in K]: K extends `${string}(${G})` ? true : false;
-}[K] ? true : false;
-declare type CaseInstance<G extends Generics, A extends AsEnum, I> = Case<G, A> & ThisType<Case<G, A> & I>;
-declare type Class = abstract new (...args: any) => any;
-declare type AnyEnumClass<P extends string, U> = abstract new (discriminant: P, value?: any) => U;
-export declare type StaticMethod<P extends string> = <This extends AnyEnumClass<P, U>, // abstract new (discriminant: P, value?: any) => U,
-U>(this: This) => U extends Case<any, any> ? U : InstanceType<This>;
-export declare type EnumStatic<K extends Discriminant, P extends K, I extends Case<Generics, AsEnum>> = HasGeneric<K, "U"> extends true ? P extends `${infer D}(U)` ? <U>(value: U) => CaseInstance<[Discriminant<D>, never, U], {
-    of: K;
-}, I> : P extends `${infer D}(T)` ? <T>(value: T) => CaseInstance<[Discriminant<D>, T, never], {
-    of: K;
-}, I> : StaticMethod<P> : HasGeneric<K, "T"> extends true ? HasGeneric<P, "T"> extends true ? <This extends abstract new (discriminant: P, value: T) => U, U, T>(this: This, value: T) => U : StaticMethod<P> : HasGeneric<K, string> extends true ? never & `An Enum's generics must be either T or U, but you specified ${K}` : <This extends Class>(this: This) => InstanceType<This>;
-declare type EnumClass<K extends Discriminant, C extends EnumConstructor<K>> = C & {
-    [P in K as Variant<P>]: EnumStatic<K, P, InstanceType<C>>;
+declare type EnumClass1<K extends string> = {
+    new <T>(...args: K extends `${string}(T)` ? [K, T] : [K]): EnumInstance1<K, T>;
+} & {
+    [P in K as Variant<P>]: P extends `${string}(T)` ? <This extends abstract new (discriminant: P, value: T) => Instance, Instance, T>(this: This, value: T) => Instance : <This extends abstract new (discriminant: P) => Instance, Instance>(this: This) => Instance;
 };
-declare type EnumClassFor<K extends Discriminant> = EnumClass<K, EnumConstructor<K>>;
-export declare function Enum<K extends string[]>(...keys: K): EnumClassFor<Discriminant<K[number]>>;
+declare type EnumClass2<K extends string> = {
+    new <T, U>(...args: K extends `${string}(T)` ? [K, T, never] : K extends `${string}(U)` ? [K, never, U] : [K]): EnumInstance2<K, T, U>;
+} & {
+    [P in K as Variant<P>]: P extends `${string}(T)` ? <This extends abstract new (discriminant: P, t: T, u: never) => Instance, Instance, T>(this: This, value: T) => Instance : P extends `${string}(U)` ? <This extends abstract new (discriminant: P, t: never, value: U) => Instance, Instance, U>(this: This, value: U) => Instance : <This extends abstract new (discriminant: P) => Instance, Instance>(this: This) => Instance;
+};
+declare type HasGeneric<K extends string, G extends string> = {
+    [P in K]: P extends `${string}(${G})` ? true : false;
+}[K];
+declare type EnumClass<K extends string> = true extends HasGeneric<K, "U"> ? EnumClass2<K> : true extends HasGeneric<K, "T"> ? EnumClass1<K> : EnumClass0<K>;
+export declare function Enum<K extends string[]>(...keys: K): EnumClass<K[number]>;
 export {};

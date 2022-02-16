@@ -7,14 +7,16 @@
     "allowSyntheticDefaultImports": false,
     "esModuleInterop": false,
     "experimentalDecorators": true,
-    "module": "NodeNext",
+    "module": "esnext",
     "moduleResolution": "NodeNext",
     "lib": ["ESNext", "DOM"],
     "sourceMap": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noImplicitReturns": true,
-    "importsNotUsedAsValues": "error"
+    "importsNotUsedAsValues": "error",
+    "isolatedModules": true,
+    "preserveValueImports": true
   },
   "ts-node": {
     "transpileOnly": true

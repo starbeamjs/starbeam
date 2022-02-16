@@ -23,8 +23,8 @@ import * as jest from "@jest/globals";
 import {
   ElementArgs,
   normalizeChild,
-  TestChild,
-  TestElementArgs,
+  type TestChild,
+  type TestElementArgs,
 } from "./element.js";
 import { expect, Expects } from "./expect/expect.js";
 import { toBe } from "./expect/patterns/comparison.js";

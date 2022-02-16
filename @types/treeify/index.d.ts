@@ -20,7 +20,6 @@ declare function asLines(
   showValues: boolean,
   lineCallback: (line: string) => void
 ): string;
-
 declare function asLines(
   treeObj: TreeObject,
   showValues: boolean,
@@ -29,5 +28,4 @@ declare function asLines(
 ): string;
 
 declare const DEFAULT: { asTree: typeof asTree; asLines: typeof asLines };
-
 export default DEFAULT;

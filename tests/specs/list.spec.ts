@@ -1,4 +1,4 @@
-import { AbstractReactive, Cell, Component, ReactiveDOM } from "starbeam";
+import { AbstractReactive, Cell, type Component, ReactiveDOM } from "starbeam";
 import { Expects } from "../support/index.js";
 import { test } from "../support/define.js";
 

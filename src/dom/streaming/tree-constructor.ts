@@ -5,8 +5,8 @@ import { is, mutable } from "../../strippable/minimal.js";
 import type { AttributeValue, AttrType } from "../buffer/attribute.js";
 import type { ElementHeadBuffer } from "../buffer/body.js";
 import {
-  ContentBuffer,
-  ElementBody,
+  type ContentBuffer,
+  type ElementBody,
   ElementBodyBuffer,
   HtmlBuffer,
 } from "../buffer/body.js";

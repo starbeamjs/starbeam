@@ -1,7 +1,7 @@
 import { AbstractReactive, Reactive } from "../reactive/core.js";
-import { Memo } from "../reactive/functions/memo.js";
+import { ReactiveMemo } from "../reactive/functions/memo.js";
 import type { ReactiveMetadata } from "../reactive/metadata.js";
-import { IntoFinalizer, LIFETIME } from "../root/lifetime/lifetime.js";
+import { type IntoFinalizer, LIFETIME } from "../root/lifetime/lifetime.js";
 import { verified } from "../strippable/assert.js";
 import { is } from "../strippable/minimal.js";
 import { LOGGER } from "../strippable/trace.js";
@@ -38,7 +38,7 @@ export class HookBlueprint<T> {
     // however, we need to *avoid* adding the dependencies of the hook's
     // returned reactive to the parent hook constructor *or* this hook
     // constructor.
-    return Memo.create(
+    return ReactiveMemo.create(
       () => hook.current.current,
       `memo for: ${this.description} instance`
     );
@@ -61,7 +61,7 @@ export class SimpleHook<T> extends AbstractReactive<T> implements Hook<T> {
     // Return a memo that will always return a hook. If the memo invalidates, it
     // will automatically finalize the last hook and construct a new hook by
     // invoking the blueprint again.
-    return Memo.create(() => {
+    return ReactiveMemo.create(() => {
       if (last) {
         LIFETIME.finalize(last);
       }
@@ -123,7 +123,7 @@ export class SimpleHook<T> extends AbstractReactive<T> implements Hook<T> {
     // however, we need to *avoid* adding the dependencies of the hook's
     // returned reactive to the parent hook constructor *or* this hook
     // constructor.
-    return Memo.create(
+    return ReactiveMemo.create(
       () => hook.current.current,
       `memo for: ${blueprint.description} instance`
     );

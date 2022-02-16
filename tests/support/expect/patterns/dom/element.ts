@@ -1,21 +1,21 @@
 import type { SimpleElement, SimpleNode } from "@simple-dom/interface";
-import { nodeName, NodeTypePattern } from "./node.js";
+import { nodeName, type NodeTypePattern } from "./node.js";
 import {
   Described,
-  IntoDescribed,
-  Pattern,
+  type IntoDescribed,
+  type Pattern,
   PatternMatch,
   PatternMismatch,
-  PatternResult,
+  type PatternResult,
 } from "../../expect.js";
 import {
-  PatternDetails,
+  type PatternDetails,
   Success,
-  Failure,
+  type Failure,
   Mismatch,
   Multiple,
   ValueDescription,
-  ChildFailure,
+  type ChildFailure,
 } from "../../report.js";
 import zip from "lodash.zip";
 

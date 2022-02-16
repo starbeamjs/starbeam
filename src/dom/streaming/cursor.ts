@@ -68,8 +68,6 @@ export class MutateContentCursor extends ContentCursor {
   }
 }
 
-export const RANGE_SNAPSHOT = Symbol("RANGE_SNAPSHOT");
-
 /**
  * A snapshot of the range for rendered content. This must be used immediately
  * and cannot be saved off.
@@ -171,3 +169,5 @@ export class RangeSnapshot {
     return this.environment.utils.rangeAround(this.first, this.last);
   }
 }
+
+export const RANGE_SNAPSHOT = "RANGE_SNAPSHOT";

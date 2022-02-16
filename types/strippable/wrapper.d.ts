@@ -57,10 +57,23 @@ export declare class Wrapper<T, Meta, S extends symbol> {
  * reified as a runtime concept in TypeScript).
  */
 export declare type InferReturn = any;
+/**
+ * Use this type to force TypeScript to accept an argument as compatible with
+ * the function's signature. return type as compatible with the signature of a
+ * function it is used inside of.
+ *
+ * In general, this is necessary when the signature uses generics and mapped
+ * types, but the function body uses `unknown` (because the generics are not
+ * reified as a runtime concept in TypeScript).
+ */
+export declare type InferArgument = any;
 export declare type UnsafeAny = any;
 export declare type AnyKey = keyof any;
 export declare type AnyRecord = {
     [P in keyof any]: any;
+};
+export declare type AnyDict = {
+    [P in keyof any as Extract<P, string>]: any;
 };
 export declare type AnyWrapper<T, Meta = unknown> = Wrapper<T, Meta, UnsafeAny>;
 export interface OpaqueMetadata {

@@ -1,6 +1,6 @@
 import { builtin } from "../reactive/builtins/reactive.js";
 import { ReactiveCell } from "../reactive/cell.js";
-import { Memo } from "../reactive/functions/memo.js";
+import { ReactiveMemo } from "../reactive/functions/memo.js";
 import { verify } from "../strippable/assert.js";
 import { is } from "../strippable/minimal.js";
 import { expected } from "../strippable/verify-context.js";
@@ -66,7 +66,10 @@ export const cached = <T>(
       let memo = CACHED.get(this);
 
       if (!memo) {
-        memo = Memo.create(() => get.call(this), `computing ${String(key)}`);
+        memo = ReactiveMemo.create(
+          () => get.call(this),
+          `computing ${String(key)}`
+        );
         CACHED.set(this, memo);
       }
 

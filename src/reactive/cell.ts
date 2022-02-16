@@ -1,13 +1,12 @@
-import { IS_UPDATED_SINCE } from "../brands.js";
-import { TIMELINE, Timeline } from "../root/timeline.js";
+import { describeValue } from "../describe.js";
+import { TIMELINE } from "../root/timeline.js";
 import type { Timestamp } from "../root/timestamp.js";
-import { AbstractReactive } from "./core.js";
-import { ReactiveMetadata } from "./metadata.js";
-import { REACTIVE_BRAND } from "./internal.js";
 import { verify } from "../strippable/assert.js";
 import { is } from "../strippable/minimal.js";
 import { expected } from "../strippable/verify-context.js";
-import { describeValue } from "../describe.js";
+import { AbstractReactive } from "./core.js";
+import { REACTIVE_BRAND } from "./internal.js";
+import { ReactiveMetadata } from "./metadata.js";
 
 export class ReactiveCell<T> extends AbstractReactive<T> {
   static create<T>(value: T, description: string): ReactiveCell<T> {
@@ -69,7 +68,7 @@ export class ReactiveCell<T> extends AbstractReactive<T> {
     return this.#value;
   }
 
-  [IS_UPDATED_SINCE](timestamp: Timestamp): boolean {
+  IS_UPDATED_SINCE(timestamp: Timestamp): boolean {
     return this.#lastUpdate.gt(timestamp);
   }
 }

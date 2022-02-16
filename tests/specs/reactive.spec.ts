@@ -1,4 +1,4 @@
-import { cached, memo, reactive, Root } from "starbeam";
+import { cached, Memo, reactive, Root } from "starbeam";
 import { expect, test, toBe } from "../support/define.js";
 import { Dynamism, Expects } from "../support/expect/expect.js";
 
@@ -24,7 +24,7 @@ test("universe.memo", () => {
   let person = new Person("Tom", "USA");
   let counter = 0;
 
-  let formatted = memo(() => {
+  let formatted = Memo(() => {
     counter++;
     return person.formatted(false);
   });
@@ -55,7 +55,7 @@ test("universe.memo => text", ({ universe, test }) => {
   let person = testName(universe, "Tom", "Dale");
 
   let text = test.buildText(
-    memo(() => person.fullName),
+    Memo(() => person.fullName),
     Dynamism.dynamic
   );
 

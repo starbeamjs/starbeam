@@ -1,4 +1,4 @@
-import { Cell, memo, Root } from "starbeam";
+import { Cell, Memo, Root } from "starbeam";
 import { Dynamism } from "../support/expect/expect.js";
 import { expect, Expects, test, toBe } from "../support/index.js";
 
@@ -6,7 +6,7 @@ test("universe.memo", () => {
   let name = Cell("Tom");
   let counter = 0;
 
-  let nameMemo = memo(() => {
+  let nameMemo = Memo(() => {
     counter++;
     return name.current;
   });
@@ -64,15 +64,15 @@ function testName(universe: Root, first: string, last: string) {
   let firstName = Cell(first);
   let lastName = Cell(last);
 
-  let firstNameMemo = memo(() => {
+  let firstNameMemo = Memo(() => {
     return firstName.current;
   });
 
-  let lastNameMemo = memo(() => {
+  let lastNameMemo = Memo(() => {
     return lastName.current;
   });
 
-  let fullNameMemo = memo(() => {
+  let fullNameMemo = Memo(() => {
     return `${firstNameMemo.current} ${lastNameMemo.current}`;
   });
 
