@@ -1,98 +1,103 @@
-import type { Cell } from "./cell.js";
-import { HasMetadata, ReactiveMetadata } from "./metadata.js";
+import { LIFETIME } from "../core/lifetime/lifetime.js";
+import { TIMELINE } from "../core/timeline/timeline.js";
 import { LOGGER } from "../strippable/trace.js";
-import type { Timestamp } from "../root/timestamp.js";
+import type { Cell } from "./cell.js";
 
-export class AssertFrame {
-  static describing(description: string): AssertFrame {
-    return new AssertFrame(description);
-  }
+type Teardown = () => void;
 
-  readonly #description: string;
-
-  private constructor(description: string) {
-    this.#description = description;
-  }
-
-  assert(): void {
-    throw Error(
-      `The current timestamp should not change while ${this.#description}`
-    );
-  }
-}
-
-export class ActiveFrame {
-  static create(description: string): ActiveFrame {
-    return new ActiveFrame(new Set(), description);
-  }
-
-  readonly #cells: Set<Cell | AnyFinalizedFrame>;
-
-  private constructor(
-    cells: Set<Cell | AnyFinalizedFrame>,
-    readonly description: string
-  ) {
-    this.#cells = cells;
-  }
-
-  add(cell: Cell | AnyFinalizedFrame): void {
-    this.#cells.add(cell);
-  }
-
-  finalize<T>(
-    value: T,
-    now: Timestamp
-  ): { frame: FinalizedFrame<T>; initial: T } {
+export class FrameSubscriber<T> {
+  static create<T>(
+    produce: () => T,
+    description: string
+  ): {
+    subscribe(callback: () => void): FrameSubscriber<T>;
+  } {
     return {
-      frame: new FinalizedFrame(this.#cells, now, value, this.description),
-      initial: value,
+      subscribe: (notify) =>
+        new FrameSubscriber(produce, notify, new Map(), description),
     };
   }
-}
 
-export class FinalizedFrame<T> extends HasMetadata {
-  readonly #children: Set<Cell | AnyFinalizedFrame>;
-  readonly #finalizedAt: Timestamp;
-  readonly #value: T;
+  readonly #produce: () => T;
+  readonly #notify: () => void;
+  readonly #cells: Map<Cell<unknown>, Teardown>;
+  readonly #description: string;
 
-  constructor(
-    children: Set<Cell | AnyFinalizedFrame>,
-    finalizedAt: Timestamp,
-    value: T,
-    readonly description?: string
+  private constructor(
+    produce: () => T,
+    notify: () => void,
+    cells: Map<Cell<unknown>, Teardown>,
+    description: string
   ) {
-    super();
-    this.#children = children;
-    this.#finalizedAt = finalizedAt;
-    this.#value = value;
+    this.#produce = produce;
+    this.#notify = notify;
+    this.#cells = cells;
+    this.#description = description;
+
+    LIFETIME.on.finalize(this, () => {
+      for (let [, teardown] of this.#cells) {
+        teardown();
+      }
+    });
   }
 
-  get metadata(): ReactiveMetadata {
-    return ReactiveMetadata.all(...this.#children);
+  link(parent: object): this {
+    LIFETIME.link(parent, this);
+    return this;
   }
 
-  IS_UPDATED_SINCE(timestamp: Timestamp): boolean {
-    let isUpdated = false;
+  poll(): T {
+    let { frame, initial } = TIMELINE.withFrame(
+      this.#produce,
+      this.#description
+    );
 
-    for (let child of this.#children) {
-      if (child.IS_UPDATED_SINCE(timestamp)) {
-        LOGGER.trace.log(
-          `[invalidated] by ${child.description || "anonymous"}`
+    console.log({ frame, initial });
+
+    TIMELINE.didConsume(frame);
+
+    // console.log(frame, frame.cells);
+    this.#sync(new Set(frame.cells));
+
+    return initial;
+  }
+
+  #sync(newCells: Set<Cell<unknown>>): void {
+    for (let [cell, teardown] of this.#cells) {
+      if (!newCells.has(cell)) {
+        console.log(
+          `tearing down (${this.#description}) cell`,
+          cell,
+          this.#notify
         );
-        isUpdated = true;
+        teardown();
+        this.#cells.delete(cell);
       }
     }
 
-    return isUpdated;
-  }
+    for (let cell of newCells) {
+      if (!this.#cells.has(cell)) {
+        LOGGER.trace.log(
+          `setting up (${this.#description}) cell`,
+          cell,
+          this.#notify
+        );
 
-  validate(): { status: "valid"; value: T } | { status: "invalid" } {
-    if (this.IS_UPDATED_SINCE(this.#finalizedAt)) {
-      return { status: "invalid" };
+        let teardown = TIMELINE.on.update(cell, this.#notify);
+        this.#cells.set(cell, teardown);
+      }
     }
-
-    return { status: "valid", value: this.#value };
   }
 }
 
-export type AnyFinalizedFrame = FinalizedFrame<unknown>;
+export const Frame = FrameSubscriber.create;
+
+// export function Frame<T>(
+//   callback: () => T,
+//   previous: FrameSnapshot,
+//   description: string
+// ): { snapshot: FrameSnapshot; value: T } {
+//   let { frame, initial } = TIMELINE.withFrame(callback, description);
+
+//   return { snapshot: FrameSnapshot.of(frame), value: initial };
+// }

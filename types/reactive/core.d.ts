@@ -2,6 +2,7 @@ import { HasMetadata } from "./metadata.js";
 export declare abstract class AbstractReactive<T> extends HasMetadata {
     static from<T>(reactive: IntoReactive<T>): AbstractReactive<T>;
     static is<T>(reactive: unknown | AbstractReactive<T>): reactive is AbstractReactive<T>;
+    readonly id: number;
     abstract get current(): T;
     abstract get description(): string;
 }

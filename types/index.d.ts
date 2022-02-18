@@ -1,11 +1,10 @@
 import { ReactiveCases } from "./reactive/choice.js";
 export declare const Cases: typeof ReactiveCases.define;
 export * from "./root/api/public.js";
-export { Finalizer } from "./root/lifetime/lifetime.js";
-export * from "./reactive/index.js";
-export type { Hook } from "./hooks/hook.js";
+export { Finalizer } from "./core/lifetime/lifetime.js";
+export { Enum, Frame, Cell, Reactive, type IntoReactive, ReactiveMetadata, } from "./reactive/index.js";
+export { Root, RenderedRoot } from "./universe.js";
 export * from "./hooks/simple.js";
-export * from "./universe.js";
 export * from "./program-node/index.js";
 export * from "./dom.js";
 export { HTML_NAMESPACE } from "./dom/streaming/namespaces.js";

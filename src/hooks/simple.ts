@@ -1,12 +1,12 @@
-import { AbstractReactive, Reactive } from "../reactive/core.js";
-import { ReactiveMemo } from "../reactive/functions/memo.js";
-import type { ReactiveMetadata } from "../reactive/metadata.js";
-import { type IntoFinalizer, LIFETIME } from "../root/lifetime/lifetime.js";
+import { ExtendsReactive } from "../reactive/base.js";
+import { ReactiveMemo } from "../reactive/memo.js";
+import type { ReactiveMetadata } from "../core/metadata.js";
+import { type IntoFinalizer, LIFETIME } from "../core/lifetime/lifetime.js";
 import { verified } from "../strippable/assert.js";
 import { is } from "../strippable/minimal.js";
 import { LOGGER } from "../strippable/trace.js";
 import { expected } from "../strippable/verify-context.js";
-import type { Hook } from "./hook.js";
+import type { Reactive } from "../fundamental/types.js";
 
 export type ResourceHookConstructor<T> = (hook: SimpleHook<T>) => Reactive<T>;
 export type DataHookConstructor<T> = () => Reactive<T>;
@@ -45,7 +45,7 @@ export class HookBlueprint<T> {
   }
 }
 
-export class SimpleHook<T> extends AbstractReactive<T> implements Hook<T> {
+export class SimpleHook<T> extends ExtendsReactive<T> {
   static #ids = 0;
 
   static create<T>(
@@ -55,7 +55,7 @@ export class SimpleHook<T> extends AbstractReactive<T> implements Hook<T> {
     return new SimpleHook(reactive, false, description);
   }
 
-  static construct<T>(blueprint: HookBlueprint<T>): Reactive<Hook<T>> {
+  static construct<T>(blueprint: HookBlueprint<T>): Reactive<Reactive<T>> {
     let last: SimpleHook<T> | null = null;
 
     // Return a memo that will always return a hook. If the memo invalidates, it
@@ -93,7 +93,7 @@ export class SimpleHook<T> extends AbstractReactive<T> implements Hook<T> {
   ) {
     super();
 
-    LIFETIME.on.destroy(this, () =>
+    LIFETIME.on.finalize(this, () =>
       LOGGER.trace.log(`destroying instance of ${description}`)
     );
 
@@ -114,7 +114,7 @@ export class SimpleHook<T> extends AbstractReactive<T> implements Hook<T> {
   onDestroy(finalizer: IntoFinalizer): void {
     this.#isResource = true;
 
-    LIFETIME.on.destroy(this, finalizer);
+    LIFETIME.on.finalize(this, finalizer);
   }
 
   use<T>(blueprint: HookBlueprint<T>): Reactive<T> {

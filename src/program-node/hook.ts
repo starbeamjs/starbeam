@@ -1,8 +1,7 @@
-import type { Hook } from "../hooks/hook.js";
 import { HookBlueprint, SimpleHook } from "../hooks/simple.js";
-import type { Reactive } from "../reactive/core.js";
-import type { ReactiveMetadata } from "../reactive/metadata.js";
-import { LIFETIME } from "../root/lifetime/lifetime.js";
+import type { ReactiveMetadata } from "../core/metadata.js";
+import type { Hook } from "../root/api/public.js";
+import { LIFETIME } from "../core/lifetime/lifetime.js";
 import { assert } from "../strippable/core.js";
 import { LOGGER } from "../strippable/trace.js";
 import type { AnyKey } from "../strippable/wrapper.js";
@@ -11,6 +10,7 @@ import {
   AbstractProgramNode,
   RenderedProgramNode,
 } from "./interfaces/program-node.js";
+import type { Reactive } from "../fundamental/types.js";
 
 const UNINITIALIZED = Symbol("UNINITIALIZED");
 

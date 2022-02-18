@@ -1,13 +1,10 @@
-import { Group, LOGGER } from "../../strippable/trace.js";
-import type { AnyFinalizedFrame, FinalizedFrame } from "../frames.js";
-import { TIMELINE, Timeline } from "../../root/timeline.js";
-import type { AbstractReactive } from "../core.js";
-import { HasMetadata, ReactiveMetadata } from "../metadata.js";
+import { TIMELINE } from "../core/timeline/timeline.js";
+import { Group, LOGGER } from "../strippable/trace.js";
+import { ExtendsReactive } from "./base.js";
+import { ReactiveMetadata } from "../core/metadata.js";
+import type { FinalizedFrame } from "../core/timeline/frames.js";
 
-export class ReactiveMemo<T>
-  extends HasMetadata
-  implements AbstractReactive<T>
-{
+export class ReactiveMemo<T> extends ExtendsReactive<T> {
   static create<T>(callback: () => T, description: string): ReactiveMemo<T> {
     return new ReactiveMemo(callback, description);
   }
@@ -73,7 +70,7 @@ export class ReactiveMemo<T>
         .expanded();
     }
 
-    let newFrame: AnyFinalizedFrame;
+    let newFrame: FinalizedFrame;
 
     try {
       let { frame, initial } = TIMELINE.withFrame(

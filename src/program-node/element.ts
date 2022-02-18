@@ -7,18 +7,18 @@ import {
   ElementHeadConstructor,
   TreeConstructor,
 } from "../dom/streaming/tree-constructor.js";
-import { AbstractReactive, Reactive } from "../reactive/core.js";
-import { ReactiveMetadata } from "../reactive/metadata.js";
+import { ReactiveMetadata } from "../core/metadata.js";
 import { NonemptyList } from "../utils.js";
 import { AttributeProgramNode, RenderedAttribute } from "./attribute.js";
 import { TextProgramNode } from "./data.js";
 import { FragmentProgramNode, RenderedFragmentNode } from "./fragment.js";
 import { ContentProgramNode } from "./interfaces/program-node.js";
 import { RenderedContent } from "./interfaces/rendered-content.js";
+import { Reactive } from "../reactive/reactive.js";
 
 export class ElementProgramNode extends ContentProgramNode {
   static create(
-    tagName: AbstractReactive<string>,
+    tagName: Reactive<string>,
     buildAttributes: readonly BuildAttribute[],
     content: readonly ContentProgramNode[]
   ): ElementProgramNode {
@@ -32,12 +32,12 @@ export class ElementProgramNode extends ContentProgramNode {
     );
   }
 
-  readonly #tagName: AbstractReactive<string>;
+  readonly #tagName: Reactive<string>;
   readonly #attributes: readonly AttributeProgramNode[];
   readonly #children: FragmentProgramNode;
 
   private constructor(
-    tagName: AbstractReactive<string>,
+    tagName: Reactive<string>,
     attributes: readonly AttributeProgramNode[],
     children: FragmentProgramNode
   ) {
@@ -74,19 +74,19 @@ export interface FinalizedElement {
 
 class DehydratedElementBuilder {
   static create(
-    tag: AbstractReactive<string>,
+    tag: Reactive<string>,
     head: ElementHeadConstructor
   ): DehydratedElementBuilder {
     return new DehydratedElementBuilder(tag, head, [], null);
   }
 
-  readonly #tag: AbstractReactive<string>;
+  readonly #tag: Reactive<string>;
   readonly #head: ElementHeadConstructor;
   readonly #attributes: RenderedAttribute[];
   #content: RenderedFragmentNode | null;
 
   private constructor(
-    tag: AbstractReactive<string>,
+    tag: Reactive<string>,
     head: ElementHeadConstructor,
     attributes: RenderedAttribute[],
     content: RenderedFragmentNode | null
@@ -148,7 +148,7 @@ class DehydratedElementBuilder {
 export class RenderedElementNode extends RenderedContent {
   static create(
     node: LazyDOM<minimal.Element>,
-    tagName: AbstractReactive<string>,
+    tagName: Reactive<string>,
     attributes: readonly RenderedAttribute[],
     children: RenderedFragmentNode | null
   ): RenderedElementNode {
@@ -156,13 +156,13 @@ export class RenderedElementNode extends RenderedContent {
   }
 
   readonly #element: LazyDOM<minimal.Element>;
-  readonly #tagName: AbstractReactive<string>;
+  readonly #tagName: Reactive<string>;
   #attributes: readonly RenderedAttribute[];
   #children: RenderedFragmentNode | null;
 
   private constructor(
     node: LazyDOM<minimal.Element>,
-    tagName: AbstractReactive<string>,
+    tagName: Reactive<string>,
     attributes: readonly RenderedAttribute[],
     children: RenderedFragmentNode | null
   ) {
@@ -235,7 +235,7 @@ export type AttributeName<
 
 export interface BuildAttribute {
   name: AttributeName;
-  value: AbstractReactive<string | null>;
+  value: Reactive<string | null>;
 }
 
 export type ReactiveElementBuilderCallback = (
@@ -244,7 +244,7 @@ export type ReactiveElementBuilderCallback = (
 
 export class ElementProgramNodeBuilder {
   static build(
-    tagName: AbstractReactive<string>,
+    tagName: Reactive<string>,
     build: (builder: ElementProgramNodeBuilder) => void
   ): ElementProgramNode {
     let builder = new ElementProgramNodeBuilder(tagName);
@@ -252,11 +252,11 @@ export class ElementProgramNodeBuilder {
     return builder.finalize();
   }
 
-  readonly #tagName: AbstractReactive<string>;
+  readonly #tagName: Reactive<string>;
   readonly #children: ContentProgramNode[] = [];
   readonly #attributes: BuildAttribute[] = [];
 
-  constructor(tagName: AbstractReactive<string>) {
+  constructor(tagName: Reactive<string>) {
     this.#tagName = tagName;
   }
 

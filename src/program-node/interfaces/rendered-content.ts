@@ -9,7 +9,7 @@ import {
   DynamicMetadata,
   HasMetadata,
   ReactiveMetadata,
-} from "../../reactive/metadata.js";
+} from "../../core/metadata.js";
 import type { RenderedAttribute } from "../attribute.js";
 
 export abstract class RenderedContent extends HasMetadata {

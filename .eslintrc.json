@@ -27,12 +27,17 @@
       {
         "zones": [
           {
-            "target": "./tests",
-            "from": "./src"
+            "from": "./src/reactive/**",
+            "target": "./src/core",
+            "message": "don't import anything other than strippable or debug from core"
           },
           {
-            "target": "./src/api/public.ts",
-            "from": "./src"
+            "from": "./src",
+            "target": "./tests"
+          },
+          {
+            "from": "./src",
+            "target": "./src/api/public.ts"
           },
           {
             "target": "./src/!(index.ts)/**",

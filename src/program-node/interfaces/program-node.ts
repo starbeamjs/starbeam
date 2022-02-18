@@ -1,10 +1,10 @@
 import type { minimal } from "@domtree/flavors";
 import type { ContentConstructor } from "../../dom/streaming/tree-constructor.js";
-import type { AbstractReactive } from "../../reactive/core.js";
-import { HasMetadata, ReactiveMetadata } from "../../reactive/metadata.js";
+import type { ExtendsReactive } from "../../reactive/base.js";
+import { HasMetadata, ReactiveMetadata } from "../../core/metadata.js";
 import type { RenderedContent } from "./rendered-content.js";
 
-export type OutputBuilder<In, Out> = (input: AbstractReactive<In>) => Out;
+export type OutputBuilder<In, Out> = (input: ExtendsReactive<In>) => Out;
 
 export abstract class RenderedProgramNode<Container> extends HasMetadata {
   abstract initialize(inside: Container): void;

@@ -8,8 +8,8 @@ test("universe.on.destroy", () => {
   let destroyed = 0;
   let destroyedToken = 0;
 
-  lifetime.on.destroy(tom, () => destroyed++);
-  lifetime.on.destroy(
+  lifetime.on.finalize(tom, () => destroyed++);
+  lifetime.on.finalize(
     yehuda,
     Finalizer.create(
       (token: number) => {

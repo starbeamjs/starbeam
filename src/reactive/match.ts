@@ -1,32 +1,31 @@
 import type { AnyReactiveChoice } from "./choice.js";
-import type { AbstractReactive, ReactiveValue } from "./core.js";
-import { HasMetadata, ReactiveMetadata } from "./metadata.js";
+import { ExtendsReactive, type ReactiveValue } from "./base.js";
+import { ReactiveMetadata } from "../core/metadata.js";
+import type { Reactive } from "../fundamental/types.js";
 
 export type Matcher<C extends AnyReactiveChoice> = {
   [P in C["discriminant"]]: C["value"] extends undefined
     ? () => unknown
-    : (
-        value: C["value"] extends AbstractReactive<infer T> ? T : never
-      ) => unknown;
+    : (value: C["value"] extends Reactive<infer T> ? T : never) => unknown;
 };
 
-export class ReactiveMatch<C extends AnyReactiveChoice, M extends Matcher<C>>
-  extends HasMetadata
-  implements AbstractReactive<ReturnType<M[C["discriminant"]]>>
-{
+export class ReactiveMatch<
+  C extends AnyReactiveChoice,
+  M extends Matcher<C>
+> extends ExtendsReactive<ReturnType<M[C["discriminant"]]>> {
   static match<C extends AnyReactiveChoice, M extends Matcher<C>>(
-    reactive: AbstractReactive<C>,
+    reactive: ExtendsReactive<C>,
     matcher: M,
     description: string
   ): ReactiveMatch<C, M> {
     return new ReactiveMatch(reactive, matcher, description);
   }
 
-  readonly #reactive: AbstractReactive<C>;
+  readonly #reactive: ExtendsReactive<C>;
   readonly #matcher: M;
 
   private constructor(
-    reactive: AbstractReactive<C>,
+    reactive: ExtendsReactive<C>,
     matcher: M,
     readonly description: string
   ) {

@@ -8,17 +8,17 @@ export declare type Matcher<D extends Discriminant, T, U, Out> = D extends `${st
 export declare type Matchers<D extends Discriminant, Out, T = never, U = never> = {
     [P in D]: Matcher<P, T, U, Out>;
 };
-interface EnumInstance0<D extends Discriminant> {
+export interface EnumInstance0<D extends Discriminant> {
     match<Out>(matcher: {
         [P in D]: () => Out;
     }): Out;
 }
-interface EnumInstance1<D extends Discriminant, T> {
+export interface EnumInstance1<D extends Discriminant, T> {
     match<Out>(matcher: {
         [P in D as Variant<P>]: true extends HasGeneric<P, "T"> ? (value: T) => Out : () => Out;
     }): Out;
 }
-interface EnumInstance2<D extends Discriminant, T, U> {
+export interface EnumInstance2<D extends Discriminant, T, U> {
     match<Out>(matcher: {
         [P in D as Variant<P>]: true extends HasGeneric<P, "T"> ? (value: T) => Out : true extends HasGeneric<P, "U"> ? (value: U) => Out : () => Out;
     }): Out;

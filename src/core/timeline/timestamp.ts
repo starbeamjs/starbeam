@@ -1,5 +1,7 @@
+import type { IS_UPDATED_SINCE } from "../../fundamental/constants.js";
+
 export interface IsUpdatedSince {
-  IS_UPDATED_SINCE(timestamp: Timestamp): boolean;
+  [IS_UPDATED_SINCE](timestamp: Timestamp): boolean;
 }
 
 export class Timestamp {

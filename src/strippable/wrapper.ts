@@ -107,7 +107,7 @@ export type UnsafeAny = any;
 export type AnyKey = keyof any;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type AnyRecord = { [P in keyof any]: any };
+export type AnyRecord<V = any> = { [P in keyof any]: V };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AnyDict = { [P in keyof any as Extract<P, string>]: any };

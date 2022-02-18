@@ -8,8 +8,7 @@ import {
   TOKEN,
   TreeConstructor,
 } from "../../dom/streaming/tree-constructor.js";
-import { AbstractReactive } from "../../reactive/core.js";
-import { ReactiveMetadata } from "../../reactive/metadata.js";
+import { ReactiveMetadata } from "../../core/metadata.js";
 import type { ReactiveParameter } from "../../reactive/parameter.js";
 import { verified } from "../../strippable/assert.js";
 import { is } from "../../strippable/minimal.js";
@@ -22,6 +21,7 @@ import { ContentProgramNode } from "../interfaces/program-node.js";
 import { RenderedContent } from "../interfaces/rendered-content.js";
 import { ListArtifacts } from "./diff.js";
 import { KeyedContent, RenderSnapshot } from "./snapshot.js";
+import { Reactive } from "../../reactive/reactive.js";
 
 export type ListProgramNode = StaticListProgramNode | DynamicListProgramNode;
 
@@ -152,19 +152,19 @@ export class CurrentLoop implements Iterable<KeyedProgramNode> {
 
 export class DynamicLoop {
   static create<P extends ReactiveParameter>(
-    iterable: AbstractReactive<Iterable<P>>,
+    iterable: Reactive<Iterable<P>>,
     component: Component<P>,
     key: Key<P>
   ): DynamicLoop {
     return new DynamicLoop(iterable, component as Component, key as AnyKey);
   }
 
-  readonly #iterable: AbstractReactive<Iterable<ReactiveParameter>>;
+  readonly #iterable: Reactive<Iterable<ReactiveParameter>>;
   readonly #component: Component;
   readonly #key: AnyKey;
 
   constructor(
-    iterable: AbstractReactive<Iterable<ReactiveParameter>>,
+    iterable: Reactive<Iterable<ReactiveParameter>>,
     component: Component,
     key: AnyKey
   ) {
@@ -199,7 +199,7 @@ export type Loop = StaticLoop | DynamicLoop;
 
 export const Loop = {
   from: <P extends ReactiveParameter>(
-    iterable: AbstractReactive<Iterable<P>>,
+    iterable: Reactive<Iterable<P>>,
     component: Component<P>,
     key: (input: P) => unknown
   ): Loop => {
@@ -246,7 +246,7 @@ export class StaticListProgramNode extends ContentProgramNode {
 
     if (content.length === 0) {
       return RenderedCharacterData.create(
-        AbstractReactive.from(""),
+        Reactive.from(""),
         buffer.comment("", TOKEN).dom
       );
     } else {

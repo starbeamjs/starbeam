@@ -1,12 +1,12 @@
 import type * as minimal from "@domtree/minimal";
+import type { ReactiveMetadata } from "../core/metadata.js";
 import { DOM } from "../dom/streaming/compatible-dom.js";
 import { LazyDOM } from "../dom/streaming/token.js";
 import {
   ElementHeadConstructor,
   TOKEN,
 } from "../dom/streaming/tree-constructor.js";
-import type { AbstractReactive } from "../reactive/core.js";
-import type { ReactiveMetadata } from "../reactive/metadata.js";
+import type { Reactive } from "../fundamental/types.js";
 import type { BuildAttribute } from "./element.js";
 import {
   AbstractProgramNode,
@@ -46,17 +46,17 @@ export class AttributeProgramNode extends AbstractProgramNode<
 export class RenderedAttribute extends RenderedProgramNode<minimal.ParentNode> {
   static create(
     attribute: LazyDOM<minimal.Attr>,
-    value: AbstractReactive<string | null>
+    value: Reactive<string | null>
   ) {
     return new RenderedAttribute(attribute, value);
   }
 
   readonly #attribute: LazyDOM<minimal.Attr>;
-  readonly #value: AbstractReactive<string | null>;
+  readonly #value: Reactive<string | null>;
 
   private constructor(
     attribute: LazyDOM<minimal.Attr>,
-    value: AbstractReactive<string | null>
+    value: Reactive<string | null>
   ) {
     super();
     this.#attribute = attribute;

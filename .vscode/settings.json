@@ -4,7 +4,8 @@
     "**/node_modules": true,
     "docs": true,
     "jest/environment.{d.ts,js,js.map}": true,
-    "**/*.tsbuildinfo": true
+    "**/*.tsbuildinfo": true,
+    "**/dist": true
   },
   "search.exclude": {
     "**/node_modules": true,

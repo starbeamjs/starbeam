@@ -206,8 +206,10 @@ export type Mutable<N extends Node> = N extends Document
   ? MutableDocument
   : N extends DocumentFragment
   ? MutableDocumentFragment
-  : N extends ReadonlyCharacterData
-  ? MutableCharacterData
+  : N extends Comment
+  ? MutableComment
+  : N extends Text
+  ? MutableText
   : N extends DocumentType
   ? MutableDocumentType
   : N extends Element

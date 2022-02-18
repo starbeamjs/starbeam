@@ -1,7 +1,7 @@
 import type { minimal } from "@domtree/flavors";
 import type { DomEnvironment } from "../../dom/environment.js";
 import { ContentCursor, RangeSnapshot } from "../../dom/streaming/cursor.js";
-import type { ReactiveMetadata } from "../../reactive/metadata.js";
+import type { ReactiveMetadata } from "../../core/metadata.js";
 import type { CurrentLoop, KeyedProgramNode } from "./loop.js";
 import { KeyedContent, RenderSnapshot } from "./snapshot.js";
 export declare class ListArtifacts {

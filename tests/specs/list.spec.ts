@@ -1,4 +1,4 @@
-import { AbstractReactive, Cell, type Component, ReactiveDOM } from "starbeam";
+import { Reactive, Cell, type Component, ReactiveDOM } from "starbeam";
 import { Expects } from "../support/index.js";
 import { test } from "../support/define.js";
 
@@ -12,7 +12,7 @@ test("a simple, static list", ({ universe, test }) => {
     chirag: Cell("Chirag"),
   };
 
-  let names = AbstractReactive.from(Object.values(state));
+  let names = Reactive.from(Object.values(state));
 
   let result = test.render(
     dom.list(names, Name, (arg) => arg.current),
@@ -108,9 +108,9 @@ test("a list that has sibling DOM nodes", ({ universe, test }) => {
   test
     .render(
       dom
-        .element(AbstractReactive.from("section"))
+        .element(Reactive.from("section"))
         .append(dom.list(names, Name, (name) => name.current))
-        .append(dom.text(AbstractReactive.from("!")))
+        .append(dom.text(Reactive.from("!")))
         .finalize(),
       Expects.dynamic.html("<section><!---->!</section>")
     )
@@ -138,11 +138,8 @@ test("a list that has sibling DOM nodes", ({ universe, test }) => {
     .update([names, []], Expects.html("<section><!---->!</section>"));
 });
 
-function NameComponent(dom: ReactiveDOM): Component<AbstractReactive<string>> {
-  return function Name(name: AbstractReactive<string>) {
-    return dom
-      .element(AbstractReactive.from("p"))
-      .append(dom.text(name))
-      .finalize();
+function NameComponent(dom: ReactiveDOM): Component<Reactive<string>> {
+  return function Name(name: Reactive<string>) {
+    return dom.element(Reactive.from("p")).append(dom.text(name)).finalize();
   };
 }

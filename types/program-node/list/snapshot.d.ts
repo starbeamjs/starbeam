@@ -1,5 +1,5 @@
 import type { minimal } from "@domtree/flavors";
-import { ReactiveMetadata } from "../../reactive/metadata.js";
+import { ReactiveMetadata } from "../../core/metadata.js";
 import { NonemptyList } from "../../utils.js";
 import { RenderedContent } from "../interfaces/rendered-content.js";
 import type { ContentsIndex } from "./loop.js";

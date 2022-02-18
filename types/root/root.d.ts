@@ -1,5 +1,5 @@
 import type { RenderedProgramNode } from "../program-node/interfaces/program-node.js";
-import type { ReactiveMetadata } from "../reactive/metadata.js";
+import type { ReactiveMetadata } from "../core/metadata.js";
 export declare class RenderedRoot<Container> {
     #private;
     static create<Container>({ rendered, container, }: {

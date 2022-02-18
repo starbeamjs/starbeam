@@ -1,6 +1,6 @@
 import { builtin } from "../reactive/builtins/reactive.js";
 import { ReactiveCell } from "../reactive/cell.js";
-import { ReactiveMemo } from "../reactive/functions/memo.js";
+import { ReactiveMemo } from "../reactive/memo.js";
 import { verify } from "../strippable/assert.js";
 import { is } from "../strippable/minimal.js";
 import { expected } from "../strippable/verify-context.js";

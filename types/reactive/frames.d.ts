@@ -1,34 +1,10 @@
-import type { Cell } from "./cell.js";
-import { HasMetadata, ReactiveMetadata } from "./metadata.js";
-import type { Timestamp } from "../root/timestamp.js";
-export declare class AssertFrame {
+export declare class FrameSubscriber<T> {
     #private;
-    static describing(description: string): AssertFrame;
-    private constructor();
-    assert(): void;
-}
-export declare class ActiveFrame {
-    #private;
-    readonly description: string;
-    static create(description: string): ActiveFrame;
-    private constructor();
-    add(cell: Cell | AnyFinalizedFrame): void;
-    finalize<T>(value: T, now: Timestamp): {
-        frame: FinalizedFrame<T>;
-        initial: T;
+    static create<T>(produce: () => T, description: string): {
+        subscribe(callback: () => void): FrameSubscriber<T>;
     };
+    private constructor();
+    link(parent: object): this;
+    poll(): T;
 }
-export declare class FinalizedFrame<T> extends HasMetadata {
-    #private;
-    readonly description?: string | undefined;
-    constructor(children: Set<Cell | AnyFinalizedFrame>, finalizedAt: Timestamp, value: T, description?: string | undefined);
-    get metadata(): ReactiveMetadata;
-    IS_UPDATED_SINCE(timestamp: Timestamp): boolean;
-    validate(): {
-        status: "valid";
-        value: T;
-    } | {
-        status: "invalid";
-    };
-}
-export declare type AnyFinalizedFrame = FinalizedFrame<unknown>;
+export declare const Frame: typeof FrameSubscriber.create;

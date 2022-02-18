@@ -1,5 +1,5 @@
 import { useCallback, useContext } from "react";
-import { Cell, ReactiveCell } from "starbeam";
+import { Cell } from "starbeam";
 import { useSyncExternalStore } from "use-sync-external-store/shim";
 import { STARBEAM } from "./component.js";
 
@@ -11,7 +11,7 @@ import { STARBEAM } from "./component.js";
  * equality-based world.
  */
 class UnstableCell<T> {
-  static create<T>(value: T, cell: ReactiveCell<T>): UnstableCell<T> {
+  static create<T>(value: T, cell: Cell<T>): UnstableCell<T> {
     return new UnstableCell(value, cell);
   }
 
@@ -24,9 +24,9 @@ class UnstableCell<T> {
   }
 
   readonly #value: T;
-  readonly #cell: ReactiveCell<T>;
+  readonly #cell: Cell<T>;
 
-  private constructor(value: T, cell: ReactiveCell<T>) {
+  private constructor(value: T, cell: Cell<T>) {
     this.#value = value;
     this.#cell = cell;
   }

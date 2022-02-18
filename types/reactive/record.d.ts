@@ -1,7 +1,7 @@
-import type { AbstractReactive } from "./core.js";
-import { HasMetadata, ReactiveMetadata } from "./metadata.js";
+import type { ExtendsReactive } from "./base.js";
+import { HasMetadata, ReactiveMetadata } from "../core/metadata.js";
 export declare type InnerDict = {
-    readonly [P in PropertyKey]: AbstractReactive<unknown>;
+    readonly [P in PropertyKey]: ExtendsReactive<unknown>;
 };
 /**
  * `ReactiveRecord` wraps a JavaScript object whose values are other Reactive`

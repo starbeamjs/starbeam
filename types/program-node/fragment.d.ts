@@ -1,7 +1,7 @@
 import type { ParentNode } from "@domtree/minimal";
 import { RangeSnapshot, RANGE_SNAPSHOT } from "../dom/streaming/cursor.js";
 import type { ContentConstructor } from "../dom/streaming/tree-constructor.js";
-import { ReactiveMetadata } from "../reactive/metadata.js";
+import { ReactiveMetadata } from "../core/metadata.js";
 import { NonemptyList } from "../utils.js";
 import { ContentProgramNode } from "./interfaces/program-node.js";
 import { RenderedContent } from "./interfaces/rendered-content.js";

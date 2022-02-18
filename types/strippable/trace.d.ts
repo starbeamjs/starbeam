@@ -1,4 +1,4 @@
-/// <reference types="node" />
+/// <reference types="node" resolution-mode="require"/>
 interface TraceConsole {
     Console: console.ConsoleConstructor;
     /**

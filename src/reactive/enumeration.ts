@@ -33,14 +33,14 @@ type VARIANT = typeof VARIANT;
 const VALUE = Symbol("VALUE");
 type VALUE = typeof VALUE;
 
-interface EnumInstance0<D extends Discriminant> {
+export interface EnumInstance0<D extends Discriminant> {
   // readonly [VARIANT]: Variant<I & string>;
   // readonly [VALUE]: void;
 
   match<Out>(matcher: { [P in D]: () => Out }): Out;
 }
 
-interface EnumInstance1<D extends Discriminant, T> {
+export interface EnumInstance1<D extends Discriminant, T> {
   // readonly [VARIANT]: Variant<I & string>;
   // readonly [VALUE]: void;
 
@@ -51,7 +51,7 @@ interface EnumInstance1<D extends Discriminant, T> {
   }): Out;
 }
 
-interface EnumInstance2<D extends Discriminant, T, U> {
+export interface EnumInstance2<D extends Discriminant, T, U> {
   // readonly [VARIANT]: Variant<I & string>;
   // readonly [VALUE]: void;
 

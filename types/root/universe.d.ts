@@ -7,7 +7,6 @@ import { HookValue } from "../program-node/hook.js";
 import type { ContentProgramNode, ProgramNode } from "../program-node/interfaces/program-node.js";
 import { INSPECT } from "../utils.js";
 import { RenderedRoot } from "./root.js";
-export declare const TIMELINE_SYMBOL: unique symbol;
 export declare class Root {
     #private;
     static jsdom(jsdom: JSDOM): Root;

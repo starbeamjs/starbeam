@@ -1,14 +1,16 @@
 import { describeValue } from "../describe.js";
-import { TIMELINE } from "../root/timeline.js";
-import type { Timestamp } from "../root/timestamp.js";
+import type { Timestamp } from "../core/timeline/timestamp.js";
 import { verify } from "../strippable/assert.js";
 import { is } from "../strippable/minimal.js";
 import { expected } from "../strippable/verify-context.js";
-import { AbstractReactive } from "./core.js";
+import { ExtendsReactive } from "./base.js";
 import { REACTIVE_BRAND } from "./internal.js";
-import { ReactiveMetadata } from "./metadata.js";
+import { ReactiveMetadata } from "../core/metadata.js";
+import { TIMELINE } from "../core/timeline/timeline.js";
+import type * as types from "../fundamental/types.js";
+import { IS_UPDATED_SINCE } from "../fundamental/constants.js";
 
-export class ReactiveCell<T> extends AbstractReactive<T> {
+export class ReactiveCell<T> extends ExtendsReactive<T> implements types.Cell {
   static create<T>(value: T, description: string): ReactiveCell<T> {
     return new ReactiveCell(value, TIMELINE.now, description, false);
   }
@@ -57,7 +59,7 @@ export class ReactiveCell<T> extends AbstractReactive<T> {
     );
 
     this.#value = value;
-    this.#lastUpdate = TIMELINE.bump();
+    this.#lastUpdate = TIMELINE.bump(this);
   }
 
   get current(): T {
@@ -68,12 +70,12 @@ export class ReactiveCell<T> extends AbstractReactive<T> {
     return this.#value;
   }
 
-  IS_UPDATED_SINCE(timestamp: Timestamp): boolean {
+  [IS_UPDATED_SINCE](timestamp: Timestamp): boolean {
     return this.#lastUpdate.gt(timestamp);
   }
 }
 
-export type Cell<T = unknown> = ReactiveCell<T>;
+export type Cell<T = unknown> = types.Cell<T>;
 
 export function Cell<T>(value: T, description = "(anonymous cell)"): Cell<T> {
   return ReactiveCell.create(value, description);

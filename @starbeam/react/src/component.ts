@@ -4,6 +4,7 @@ import {
   createContext,
   createElement,
   type PropsWithChildren,
+  useMemo,
 } from "react";
 import { DomEnvironment, Root } from "starbeam";
 import { useSSR } from "use-ssr";
@@ -14,8 +15,10 @@ export function Starbeam({
   document,
   children,
 }: PropsWithChildren<{ document?: browser.Document }>) {
-  let environment = inferEnvironment(document);
-  let root = Root.environment(environment);
+  let root = useMemo(() => {
+    let environment = inferEnvironment(document);
+    return Root.environment(environment);
+  }, []);
 
   // TODO: Error boundary
   return createElement(STARBEAM.Provider, { value: root }, children);

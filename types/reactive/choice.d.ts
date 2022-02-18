@@ -1,10 +1,10 @@
-import type { AbstractReactive } from "./core.js";
-import { HasMetadata, ReactiveMetadata } from "./metadata.js";
+import type { ExtendsReactive } from "./base.js";
+import { HasMetadata, ReactiveMetadata } from "../core/metadata.js";
 export declare class ReactiveChoice<T, K extends string = string> extends HasMetadata {
     #private;
-    readonly value: AbstractReactive<T> | undefined;
+    readonly value: ExtendsReactive<T> | undefined;
     readonly description: string;
-    static create<T, K extends string>(description: string, disciminant: K, value?: AbstractReactive<T>): ReactiveChoice<T>;
+    static create<T, K extends string>(description: string, disciminant: K, value?: ExtendsReactive<T>): ReactiveChoice<T>;
     private constructor();
     get discriminant(): K;
     get metadata(): ReactiveMetadata;

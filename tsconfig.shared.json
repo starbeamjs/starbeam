@@ -7,7 +7,7 @@
     "allowSyntheticDefaultImports": false,
     "esModuleInterop": false,
     "experimentalDecorators": true,
-    "module": "esnext",
+    "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "lib": ["ESNext", "DOM"],
     "sourceMap": true,

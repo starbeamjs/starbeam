@@ -222,7 +222,7 @@ export class AbstractDOM {
   }
 
   setData(data: dom.CharacterData, value: string): void {
-    (data as minimal.Mutable<minimal.ReadonlyCharacterData>).data = value;
+    (data as minimal.Mutable<minimal.Text | minimal.Comment>).data = value;
   }
 
   /**

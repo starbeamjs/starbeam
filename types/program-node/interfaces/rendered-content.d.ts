@@ -1,6 +1,6 @@
 import type { minimal } from "@domtree/flavors";
 import { ContentCursor, RangeSnapshot, RANGE_SNAPSHOT } from "../../dom/streaming/cursor.js";
-import { ConstantMetadata, DynamicMetadata, HasMetadata, ReactiveMetadata } from "../../reactive/metadata.js";
+import { ConstantMetadata, DynamicMetadata, HasMetadata, ReactiveMetadata } from "../../core/metadata.js";
 import type { RenderedAttribute } from "../attribute.js";
 export declare abstract class RenderedContent extends HasMetadata {
     static isConstant(this: void, rendered: RenderedContent): rendered is ConstantRenderedContent;

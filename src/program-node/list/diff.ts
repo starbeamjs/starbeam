@@ -7,7 +7,7 @@ import {
   RANGE_SNAPSHOT,
 } from "../../dom/streaming/cursor.js";
 import { TreeConstructor } from "../../dom/streaming/tree-constructor.js";
-import type { ReactiveMetadata } from "../../reactive/metadata.js";
+import type { ReactiveMetadata } from "../../core/metadata.js";
 import { exhaustive, verified } from "../../strippable/assert.js";
 import { is } from "../../strippable/minimal.js";
 import { NonemptyList } from "../../utils.js";

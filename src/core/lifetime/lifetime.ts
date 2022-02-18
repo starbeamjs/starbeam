@@ -1,4 +1,4 @@
-import { TIMELINE } from "../timeline.js";
+import { TIMELINE } from "../timeline/timeline.js";
 import { DebugObjectLifetime, DebugFinalizer } from "./debug.js";
 
 export class Lifetime {
@@ -13,7 +13,7 @@ export class Lifetime {
   }
 
   readonly on = {
-    destroy: (object: object, finalizer: IntoFinalizer): void =>
+    finalize: (object: object, finalizer: IntoFinalizer): void =>
       this.#lifetime(object).add(Finalizer.from(finalizer)),
   } as const;
 

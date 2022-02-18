@@ -4,10 +4,9 @@ import {
   type BuildAttribute,
   ContentProgramNode,
   type IntoReactive,
-  AbstractReactive,
+  Reactive,
   type ReactiveElementBuilderCallback,
   Root,
-  Reactive,
 } from "starbeam";
 
 interface ShorthandAttribute {
@@ -28,7 +27,7 @@ type TestAttribute =
 export function isIntoReactive(
   value: TestAttribute
 ): value is IntoReactive<string | null> {
-  if (AbstractReactive.is(value)) {
+  if (Reactive.is(value)) {
     return true;
   } else if (value === null || typeof value === "string") {
     return true;
@@ -40,7 +39,7 @@ export function isIntoReactive(
 export function isReactiveAttribute(
   attribute: BuildAttribute | ShorthandAttribute
 ): attribute is BuildAttribute {
-  return AbstractReactive.is(attribute.value);
+  return Reactive.is(attribute.value);
 }
 
 export type TestChild = ContentProgramNode | string;
@@ -67,7 +66,7 @@ export class ElementArgs {
     } else {
       let [intoTagName, intoOptions, expectation] = args;
 
-      let tagName = AbstractReactive.from(intoTagName);
+      let tagName = Reactive.from(intoTagName);
       let build = this.#normalizeOptions(intoOptions);
 
       return { tagName, build, expectation };
@@ -100,7 +99,7 @@ export class ElementArgs {
     attribute: TestAttribute
   ]): BuildAttribute {
     if (isIntoReactive(attribute)) {
-      let value = AbstractReactive.from(attribute);
+      let value = Reactive.from(attribute);
       return { name: name as AttributeName, value };
     } else if (isReactiveAttribute(attribute)) {
       return attribute;
@@ -109,7 +108,7 @@ export class ElementArgs {
 
       return {
         name,
-        value: AbstractReactive.from(value),
+        value: Reactive.from(value),
       };
     }
   }
@@ -128,7 +127,7 @@ export function normalizeChild(
 }
 
 export type BuilderCallback = ReactiveElementBuilderCallback;
-export type TagName = AbstractReactive<string>;
+export type TagName = Reactive<string>;
 
 type BuilderElementArgs = [
   tagName: TagName,
@@ -149,7 +148,7 @@ function isNormalized(args: TestElementArgs): args is BuilderElementArgs {
 }
 
 export type NormalizedTestElementArgs = {
-  tagName: AbstractReactive<string>;
+  tagName: Reactive<string>;
   build: BuilderCallback;
   expectation: Expects;
 };

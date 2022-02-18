@@ -1,6 +1,6 @@
 import {
   Cell,
-  hook,
+  Hook,
   HookBlueprint,
   HookValue,
   lifetime,
@@ -57,7 +57,7 @@ test("universe.hook.values", ({ universe }) => {
     channel: Reactive<string>,
     user: Reactive<string>
   ): HookBlueprint<string> {
-    return hook((hook) => {
+    return Hook((hook) => {
       let subscription = new Subscription(channel.current);
 
       hook.onDestroy(() => subscription.destroy());
@@ -69,7 +69,7 @@ test("universe.hook.values", ({ universe }) => {
     }, "Channel");
   }
 
-  let RootHook = hook((hook) => {
+  let RootHook = Hook((hook) => {
     let description = hook.use(Channel(channel, user));
 
     return Memo(

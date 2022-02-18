@@ -3,21 +3,23 @@ import {
   type HookConstructor,
   type ResourceHookConstructor,
 } from "../../hooks/simple.js";
-import type { Reactive } from "../../reactive/core.js";
-import { ReactiveMemo } from "../../reactive/functions/memo.js";
+import { ReactiveMemo } from "../../reactive/memo.js";
 import { Abstraction } from "../../strippable/abstraction.js";
 import type { FIXME } from "../../utils.js";
-import { LIFETIME } from "../lifetime/lifetime.js";
+import { LIFETIME } from "../../core/lifetime/lifetime.js";
+import type { Reactive } from "../../fundamental/types.js";
 
-export function hook<C extends ResourceHookConstructor<unknown>>(
+export type Hook<T = unknown> = Reactive<T>;
+
+export function Hook<C extends ResourceHookConstructor<unknown>>(
   callback: C,
   description: string
 ): C extends HookConstructor<infer T> ? HookBlueprint<T> : never;
-export function hook<C extends () => Reactive<unknown>>(
+export function Hook<C extends () => Reactive<unknown>>(
   callback: C,
   description: string
 ): C extends () => Reactive<infer T> ? HookBlueprint<T> : never;
-export function hook<C extends ResourceHookConstructor<unknown>>(
+export function Hook<C extends ResourceHookConstructor<unknown>>(
   callback: C,
   description: string
 ): C extends ResourceHookConstructor<infer T> ? HookBlueprint<T> : never {
@@ -46,7 +48,7 @@ export function hook<C extends ResourceHookConstructor<unknown>>(
 export function Memo<T>(
   callback: () => T,
   description = `memo ${Abstraction.callerFrame().trimStart()}`
-): ReactiveMemo<T> {
+): Reactive<T> {
   return ReactiveMemo.create(callback, description);
 }
 

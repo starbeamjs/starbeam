@@ -1,7 +1,6 @@
 import type { minimal } from "@domtree/flavors";
 import { JSDOM } from "jsdom";
 import {
-  ReactiveCell,
   CommentProgramNode,
   ContentProgramNode,
   DomEnvironment,
@@ -10,7 +9,7 @@ import {
   FragmentProgramNode,
   HTML_NAMESPACE,
   is,
-  AbstractReactive,
+  Reactive,
   ReactiveDOM,
   ReactiveMetadata,
   RenderedRoot,
@@ -18,6 +17,7 @@ import {
   Root,
   verify,
   Abstraction,
+  Cell,
 } from "starbeam";
 import * as jest from "@jest/globals";
 import {
@@ -99,12 +99,12 @@ export class TestRoot {
   }
 
   update<T>(
-    [cell, value]: [cell: ReactiveCell<T>, value: T],
+    [cell, value]: [cell: Cell<T>, value: T],
     expectation: Expects
   ): this;
   update(updater: () => void, expectation: Expects): this;
   update<T>(
-    updater: [cell: ReactiveCell<T>, value: T] | (() => void),
+    updater: [cell: Cell<T>, value: T] | (() => void),
     expectation: Expects
   ): this {
     if (typeof updater === "function") {
@@ -144,7 +144,7 @@ export class TestSupport {
   }
 
   buildText(
-    reactive: AbstractReactive<string>,
+    reactive: Reactive<string>,
     expectation: ReactiveMetadata
   ): TextProgramNode {
     let text = this.universe.dom.text(reactive);
@@ -153,7 +153,7 @@ export class TestSupport {
   }
 
   buildComment(
-    reactive: AbstractReactive<string>,
+    reactive: Reactive<string>,
     expectation: ReactiveMetadata
   ): CommentProgramNode {
     let comment = this.universe.dom.comment(reactive);

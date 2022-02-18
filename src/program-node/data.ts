@@ -6,24 +6,24 @@ import {
   ContentConstructor,
   TOKEN,
 } from "../dom/streaming/tree-constructor.js";
-import type { AbstractReactive } from "../reactive/core.js";
-import type { ReactiveMetadata } from "../reactive/metadata.js";
+import type { ReactiveMetadata } from "../core/metadata.js";
 import { mutable } from "../strippable/minimal.js";
 import { ContentProgramNode } from "./interfaces/program-node.js";
 import { RenderedContent } from "./interfaces/rendered-content.js";
+import type { Reactive } from "../fundamental/types.js";
 
 export abstract class CharacterDataProgramNode extends ContentProgramNode {
-  static text(reactive: AbstractReactive<string>): TextProgramNode {
+  static text(reactive: Reactive<string>): TextProgramNode {
     return TextProgramNode.of(reactive);
   }
 
-  static comment(reactive: AbstractReactive<string>): CommentProgramNode {
+  static comment(reactive: Reactive<string>): CommentProgramNode {
     return CommentProgramNode.of(reactive);
   }
 
-  readonly #reactive: AbstractReactive<string>;
+  readonly #reactive: Reactive<string>;
 
-  protected constructor(reactive: AbstractReactive<string>) {
+  protected constructor(reactive: Reactive<string>) {
     super();
     this.#reactive = reactive;
   }
@@ -44,7 +44,7 @@ export abstract class CharacterDataProgramNode extends ContentProgramNode {
 }
 
 export class TextProgramNode extends CharacterDataProgramNode {
-  static of(reactive: AbstractReactive<string>): TextProgramNode {
+  static of(reactive: Reactive<string>): TextProgramNode {
     return new TextProgramNode(reactive);
   }
 
@@ -54,7 +54,7 @@ export class TextProgramNode extends CharacterDataProgramNode {
 }
 
 export class CommentProgramNode extends CharacterDataProgramNode {
-  static of(reactive: AbstractReactive<string>): CommentProgramNode {
+  static of(reactive: Reactive<string>): CommentProgramNode {
     return new CommentProgramNode(reactive);
   }
 
@@ -68,17 +68,17 @@ export class CommentProgramNode extends CharacterDataProgramNode {
 
 export class RenderedCharacterData extends RenderedContent {
   static create(
-    reactive: AbstractReactive<string>,
+    reactive: Reactive<string>,
     node: LazyDOM<minimal.CharacterData>
   ) {
     return new RenderedCharacterData(reactive, node);
   }
 
-  #reactive: AbstractReactive<string>;
+  #reactive: Reactive<string>;
   #node: LazyDOM<minimal.CharacterData>;
 
   protected constructor(
-    reactive: AbstractReactive<string>,
+    reactive: Reactive<string>,
     node: LazyDOM<minimal.CharacterData>
   ) {
     super();

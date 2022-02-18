@@ -16,11 +16,9 @@ import type {
 } from "../program-node/interfaces/program-node.js";
 import { minimize } from "../strippable/minimal.js";
 import { INSPECT } from "../utils.js";
-import { LIFETIME } from "./lifetime/lifetime.js";
+import { LIFETIME } from "../core/lifetime/lifetime.js";
 import { RenderedRoot } from "./root.js";
-import { TIMELINE } from "./timeline.js";
-
-export const TIMELINE_SYMBOL = Symbol("TIMELINE");
+import { TIMELINE } from "../core/timeline/timeline.js";
 
 export class Root {
   static jsdom(jsdom: JSDOM): Root {

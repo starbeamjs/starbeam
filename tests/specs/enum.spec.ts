@@ -1,4 +1,4 @@
-import { Enum, type Discriminant } from "starbeam";
+import { Enum } from "starbeam";
 import { types } from "../support/expect/expect.js";
 import { expect, test, toBe } from "../support/index.js";
 
@@ -61,8 +61,6 @@ test("a more elaborate generic enum", () => {
 
 test("Async<T>", () => {
   class Async<T, U> extends Enum("Loading", "Loaded(T)", "Error(U)")<T, U> {}
-
-  const Q = Async.Loading();
 
   match(Async.Loading());
   match(Async.Loaded({ username: "@tomdale" }));

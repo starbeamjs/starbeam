@@ -69,8 +69,8 @@ export declare type InferReturn = any;
 export declare type InferArgument = any;
 export declare type UnsafeAny = any;
 export declare type AnyKey = keyof any;
-export declare type AnyRecord = {
-    [P in keyof any]: any;
+export declare type AnyRecord<V = any> = {
+    [P in keyof any]: V;
 };
 export declare type AnyDict = {
     [P in keyof any as Extract<P, string>]: any;
