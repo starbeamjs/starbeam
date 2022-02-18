@@ -12,6 +12,7 @@ export interface Timestamp {
 export interface Cell<T = unknown> extends Reactive<T>, IsUpdatedSince {
   readonly current: T;
   update(value: T): void;
+  freeze(): void;
 }
 
 export interface HasMetadata {

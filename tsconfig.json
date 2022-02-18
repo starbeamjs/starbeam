@@ -1,21 +1,24 @@
 {
-  "extends": "./tsconfig.shared.json",
   "compilerOptions": {
     "composite": true,
+    "allowJs": false,
     "target": "ESNext",
+    "strict": true,
     "useDefineForClassFields": true,
     "allowSyntheticDefaultImports": false,
     "esModuleInterop": false,
+    "experimentalDecorators": true,
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "preserveValueImports": false,
-    "lib": ["ESNext", "DOM"]
+    "lib": ["ESNext", "DOM"],
+    "sourceMap": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": true,
+    "importsNotUsedAsValues": "error",
+    "isolatedModules": true,
+    "preserveValueImports": true
   },
-  "include": [],
-  "references": [
-    { "path": "./src" },
-    { "path": "./tests" },
-    { "path": "./@starbeam/react" },
-    { "path": "./@types" }
-  ]
+  "include": ["src", "tests", "@types", "@starbeam/react"],
+  "exclude": ["**/dist/**"]
 }

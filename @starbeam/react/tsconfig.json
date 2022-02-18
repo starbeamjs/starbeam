@@ -1,7 +1,0 @@
-{
-  "extends": "../tsconfig.starbeam.json",
-  "compilerOptions": {
-    "lib": ["ESNext", "DOM"],
-    "outDir": "./dist"
-  }
-}

@@ -5,7 +5,8 @@
     "docs": true,
     "jest/environment.{d.ts,js,js.map}": true,
     "**/*.tsbuildinfo": true,
-    "**/dist": true
+    "**/dist": true,
+    "{@starbeam/*,@types/*,src,tests,jest}/{**/*,index}.{js,d.ts,js.map}": true
   },
   "search.exclude": {
     "**/node_modules": true,

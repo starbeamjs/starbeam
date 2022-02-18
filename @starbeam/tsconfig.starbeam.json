@@ -1,7 +1,0 @@
-{
-  "extends": "../tsconfig.shared.json",
-  "compilerOptions": {
-    "lib": ["ESNext", "DOM"]
-  },
-  "references": [{ "path": "../src" }]
-}

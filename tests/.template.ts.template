@@ -1,3 +1,0 @@
-import { Expects, test } from "../support";
-
-test("<description>", ({ universe, test }) => {});

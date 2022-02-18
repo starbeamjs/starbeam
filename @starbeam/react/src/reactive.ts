@@ -1,133 +1,16 @@
 import { useEffect, useMemo, useState, type ReactElement } from "react";
 import {
-  Reactive,
   Abstraction,
   Cell,
-  Enum,
   Frame,
   HookBlueprint,
   lifetime,
   Memo,
+  Reactive,
   SimpleHook,
   type AnyRecord,
   type InferReturn,
 } from "starbeam";
-
-class LazyState<T, Ctx> extends Enum("Initialized(T)", "Uninitialized(U)")<
-  T,
-  (context: Ctx) => T
-> {}
-
-class LazyValue<T, Ctx> {
-  static create<T, Ctx>(initializer: (ctx: Ctx) => T): LazyValue<T, Ctx> {
-    return new LazyValue(LazyState.Uninitialized(initializer));
-  }
-
-  #state: LazyState<T, Ctx>;
-
-  private constructor(state: LazyState<T, Ctx>) {
-    this.#state = state;
-  }
-
-  forContext(ctx: Ctx): T {
-    return this.#state.match({
-      Initialized: (value) => value,
-      Uninitialized: (initializer) => {
-        let value = initializer(ctx);
-        this.#state = LazyState.Initialized(value);
-        return value;
-      },
-    });
-  }
-}
-
-class LastValue<T> extends Enum("Initialized(T)", "Uninitialized(U)")<
-  T,
-  string
-> {
-  assert(): T {
-    return this.match({
-      Initialized: (value) => value,
-      Uninitialized: (description) => {
-        throw Error(
-          `BUG: Attempting to access an uninitialized value (${description})`
-        );
-      },
-    });
-  }
-
-  get initialized(): T | null {
-    return this.match({
-      Initialized: (value) => value,
-      Uninitialized: () => null,
-    });
-  }
-
-  get isUninitialized(): boolean {
-    return !this.isInitialized;
-  }
-
-  get isInitialized(): boolean {
-    return this.match({
-      Initialized: () => true,
-      Uninitialized: () => false,
-    });
-  }
-}
-
-/**
- * The purpose of this class is to present the `Cell` interface in an object
- * that changes its referential equality whenever the internal value changes.
- *
- * It's a bridge between Starbeam's timestamp-based world and React's
- * equality-based world.
- */
-class UnstableMemo<T> {
-  // static create<T>(reactive: Reactive<T>): UnstableReactive<T> {
-  //   return new UnstableReactive(reactive, UNINITIALIZED);
-  // }
-
-  static uninitialized<T>(callback: () => T): UnstableMemo<T> {
-    return new UnstableMemo<T>(Memo(callback), LastValue.Uninitialized("T"));
-  }
-
-  static next<T>(current: UnstableMemo<T>): UnstableMemo<T> {
-    let reactive = current.#reactive;
-
-    let prev = current.#value.initialized;
-
-    if (prev === null) {
-      return current;
-    }
-
-    let next = reactive.current;
-
-    if (prev === next) {
-      return current;
-    }
-
-    return new UnstableMemo(current.#reactive, LastValue.Initialized(next));
-  }
-
-  #reactive: Reactive<T>;
-  #value: LastValue<T>;
-
-  private constructor(reactive: Reactive<T>, value: LastValue<T>) {
-    this.#reactive = reactive;
-    this.#value = value;
-  }
-
-  get current(): T {
-    return this.#value.match({
-      Uninitialized: () => {
-        let value = this.#reactive.current;
-        this.#value = LastValue.Initialized(value);
-        return value;
-      },
-      Initialized: (value) => value,
-    });
-  }
-}
 
 class ReactiveComponent {
   static component(): ReactiveComponent {
