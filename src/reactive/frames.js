@@ -28,16 +28,14 @@ export class FrameSubscriber {
     }
     poll() {
         let { frame, initial } = TIMELINE.withFrame(this.#produce, this.#description);
-        console.log({ frame, initial });
         TIMELINE.didConsume(frame);
-        // console.log(frame, frame.cells);
         this.#sync(new Set(frame.cells));
         return initial;
     }
     #sync(newCells) {
         for (let [cell, teardown] of this.#cells) {
             if (!newCells.has(cell)) {
-                console.log(`tearing down (${this.#description}) cell`, cell, this.#notify);
+                LOGGER.trace.log(`tearing down (${this.#description}) cell`, cell, this.#notify);
                 teardown();
                 this.#cells.delete(cell);
             }
@@ -52,12 +50,4 @@ export class FrameSubscriber {
     }
 }
 export const Frame = FrameSubscriber.create;
-// export function Frame<T>(
-//   callback: () => T,
-//   previous: FrameSnapshot,
-//   description: string
-// ): { snapshot: FrameSnapshot; value: T } {
-//   let { frame, initial } = TIMELINE.withFrame(callback, description);
-//   return { snapshot: FrameSnapshot.of(frame), value: initial };
-// }
 //# sourceMappingURL=frames.js.map

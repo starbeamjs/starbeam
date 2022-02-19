@@ -28,9 +28,6 @@ class MicrotaskJob {
     add(work) {
         this.#work.add(work);
     }
-    next() {
-        return MicrotaskJob.create();
-    }
     async schedule() {
         await Promise.resolve();
         for (let item of this.#work) {
@@ -40,7 +37,7 @@ class MicrotaskJob {
 }
 class Queue {
     static create(createJob) {
-        return new Queue(createJob, null, null);
+        return new Queue(createJob, null, false);
     }
     #createJob;
     #job;
@@ -68,14 +65,22 @@ class Queue {
     add(work) {
         let job = this.#getJob();
         job.add(work);
-        if (this.#running) {
-            return;
+        if (!this.#running) {
+            this.#run();
         }
-        this.#running = this.#run(job);
     }
-    async #run(job) {
-        this.#job = job.next();
-        await job.schedule();
+    async #run() {
+        this.#running = true;
+        try {
+            while (this.#job) {
+                let job = this.#job;
+                this.#job = null;
+                await job.schedule();
+            }
+        }
+        finally {
+            this.#running = false;
+        }
     }
 }
 export class Coordinator {

@@ -3,6 +3,8 @@ import { Group, LOGGER } from "../strippable/trace.js";
 import { ExtendsReactive } from "./base.js";
 import { ReactiveMetadata } from "../core/metadata.js";
 import type { FinalizedFrame } from "../core/timeline/frames.js";
+import { UNINITIALIZED } from "../fundamental/constants.js";
+import type { Cell } from "../fundamental/types.js";
 
 export class ReactiveMemo<T> extends ExtendsReactive<T> {
   static create<T>(callback: () => T, description: string): ReactiveMemo<T> {
@@ -35,6 +37,14 @@ export class ReactiveMemo<T> extends ExtendsReactive<T> {
       return this.#frame.metadata;
     } else {
       return ReactiveMetadata.Dynamic;
+    }
+  }
+
+  get cells(): UNINITIALIZED | readonly Cell[] {
+    if (this.#frame) {
+      return this.#frame.cells;
+    } else {
+      return UNINITIALIZED;
     }
   }
 

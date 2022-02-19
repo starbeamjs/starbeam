@@ -37,7 +37,6 @@ export class ContentBuilder {
     }
     static serialize(builder) {
         let buffer = Buffer.empty();
-        console.log(builder.#atoms);
         ContentBuilder.finalize(builder).append(buffer);
         return Buffer.serialize(buffer);
     }
@@ -106,7 +105,6 @@ export class ContentBuilder {
             }
         }
         throw Error("todo: Not implemented: defaultDebug");
-        return this;
     }
     add(content) {
         this.#atoms.push(...content.atoms);

@@ -3,6 +3,8 @@ export const Cases = ReactiveCases.define;
 
 export * from "./root/api/public.js";
 
+export { UNINITIALIZED } from "./fundamental/constants.js";
+
 export { Finalizer } from "./core/lifetime/lifetime.js";
 
 export {
@@ -15,6 +17,12 @@ export {
   type Discriminant,
 } from "./reactive/index.js";
 export { Root, RenderedRoot } from "./universe.js";
+
+export {
+  type PollResult,
+  type ExternalSubscription,
+  subscribe,
+} from "./glue/sync.js";
 
 export * from "./hooks/simple.js";
 export * from "./program-node/index.js";

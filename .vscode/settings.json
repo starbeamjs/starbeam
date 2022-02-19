@@ -14,6 +14,10 @@
     "**/*.code-search": true,
     "types": true
   },
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": true,
+    "source.fixAll": true
+  },
   "typescript.preferences.importModuleSpecifier": "project-relative",
 
   "jest.jestCommandLine": "node ./node_modules/jest/bin/jest.js",

@@ -1,9 +1,11 @@
 import { ReactiveCases } from "./reactive/choice.js";
 export const Cases = ReactiveCases.define;
 export * from "./root/api/public.js";
+export { UNINITIALIZED } from "./fundamental/constants.js";
 export { Finalizer } from "./core/lifetime/lifetime.js";
 export { Enum, Frame, Cell, Reactive, ReactiveMetadata, } from "./reactive/index.js";
 export { Root, RenderedRoot } from "./universe.js";
+export { subscribe, } from "./glue/sync.js";
 export * from "./hooks/simple.js";
 export * from "./program-node/index.js";
 export * from "./dom.js";

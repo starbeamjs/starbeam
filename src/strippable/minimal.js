@@ -99,19 +99,26 @@ export function isValue(value) {
         .butGot((actual) => String(actual)));
     return verify;
 }
-export const is = {
-    Node: isNode,
-    ParentNode: isParentNode,
-    Element: isElement,
-    Text: isText,
-    Comment: isComment,
-    CharacterData: isCharacterData,
-    Attr: isAttr,
-    TemplateElement: isTemplateElement,
-    Present: isPresent,
-    nullable: isNullable,
-    value: isValue,
-};
+export function is(predicate) {
+    function verify(input) {
+        return predicate(input);
+    }
+    if (predicate.name) {
+        Verifier.implement(verify, expected(`value`).toBe(predicate.name));
+    }
+    return verify;
+}
+is.Node = isNode;
+is.ParentNode = isParentNode;
+is.Element = isElement;
+is.Text = isText;
+is.Comment = isComment;
+is.CharacterData = isCharacterData;
+is.Attr = isAttr;
+is.TemplateElement = isTemplateElement;
+is.Present = isPresent;
+is.nullable = isNullable;
+is.value = isValue;
 // TODO: Deal with SVG and MathML tag names
 function hasTagName(tagName) {
     function hasTagName(element) {

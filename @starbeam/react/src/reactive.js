@@ -1,11 +1,33 @@
-import { useEffect, useMemo, useState } from "react";
-import { Abstraction, Cell, Frame, HookBlueprint, lifetime, Memo, Reactive, SimpleHook, } from "starbeam";
-class ReactiveComponent {
-    static component() {
-        return new ReactiveComponent();
+import { useEffect, useLayoutEffect, useRef, useState, } from "react";
+import { Abstraction, Cell, HookBlueprint, lifetime, Memo, Reactive, SimpleHook, subscribe, UNINITIALIZED, } from "starbeam";
+import { useInstance } from "./instance.js";
+export class ReactiveComponent {
+    static create(notify) {
+        return new ReactiveComponent(notify);
     }
-    constructor() {
-        /** noop */
+    #updatedNotify = 0;
+    #notify;
+    constructor(notify) {
+        this.#notify = notify;
+    }
+    get notify() {
+        return () => {
+            this.#notify();
+        };
+    }
+    updateNotify(notify) {
+        this.#notify = notify;
+    }
+    useComponentManager(manager, props) {
+        let instance = useInstance(this, () => {
+            return manager.create(this, props);
+        }).update({
+            finalize: true,
+            update: (instance) => {
+                manager.update(instance, props);
+            },
+        });
+        return instance;
     }
     on = {
         finalize: (finalizer) => lifetime.on.finalize(this, finalizer),
@@ -22,56 +44,58 @@ class ReactiveComponent {
         return Memo(() => hook.current.current, `memo for: ${normalized.description} instance`);
     }
 }
-export function useReactive(definition, description = `useReactive ${Abstraction.callerFrame().trimStart()}`) {
-    const component = useLifetime();
-    const notify = useNotify();
-    const frame = useMemo(() => Frame(definition(component), description)
-        .subscribe(notify)
-        .link(component), []);
-    useEffect(() => {
-        return () => lifetime.finalize(component);
-    }, []);
-    return frame.poll();
-}
 export function starbeam(definition, description = `component ${Abstraction.callerFrame().trimStart()}`) {
-    const stableProps = StableProps.empty();
-    // const component = ReactiveComponent.component();
     return (props) => {
-        const [, setNotify] = useState({});
-        const component = useLifetime();
-        const reactiveProps = stableProps.update(props);
-        const frame = useMemo(() => Frame(definition(reactiveProps, component), description)
-            .subscribe(() => setNotify({}))
-            .link(component), []);
-        useEffect(() => {
-            return () => lifetime.finalize(component);
-        }, []);
-        console.log(frame);
-        return frame.poll();
+        const component = useStableComponent();
+        const stableProps = component.useComponentManager(STABLE_COMPONENT, props);
+        let subscription = useInstance(component, () => subscribe(Memo(definition(stableProps.reactive, component)), component.notify, description)).instance;
+        // idempotent
+        lifetime.link(component, subscription);
+        return subscription.poll().value;
     };
 }
-function useLifetime() {
-    const component = useMemo(() => ReactiveComponent.component(), []);
-    useEffect(() => lifetime.finalize(component));
-    return component;
-}
-function useNotify() {
-    const [, setNotify] = useState({});
-    return useMemo(() => () => setNotify({}), []);
-}
-class StableProps {
-    static empty() {
-        return new StableProps(new Map());
+class StableComponent {
+    create(component, props) {
+        return StableProps.from(props);
     }
-    #props;
-    constructor(props) {
-        this.#props = props;
+    update(instance, props) {
+        instance.update(props);
+    }
+}
+const STABLE_COMPONENT = new StableComponent();
+function useStableComponent() {
+    const ref = useRef(UNINITIALIZED);
+    const isFirstTime = ref.current === UNINITIALIZED;
+    const [, setNotify] = useState({});
+    if (ref.current === UNINITIALIZED) {
+        ref.current = ReactiveComponent.create(() => setNotify({}));
+    }
+    let instance = ref.current;
+    useEffect(() => {
+        if (isFirstTime) {
+            return () => lifetime.finalize(instance);
+        }
+        return;
+    }, []);
+    useLayoutEffect(() => {
+        instance.updateNotify(() => setNotify({}));
+    });
+    return ref.current;
+}
+export class StableProps {
+    static from(props) {
+        let reactive = Object.fromEntries(Object.entries(props).map(([key, value]) => [key, Cell(value)]));
+        return new StableProps(reactive);
+    }
+    #reactive;
+    constructor(reactive) {
+        this.#reactive = reactive;
     }
     #sync(newReactProps) {
         let status = "clean";
-        const stableProps = this.#props;
+        const stableProps = this.#reactive;
         for (let [key, newValue] of Object.entries(newReactProps)) {
-            let cell = stableProps.get(key);
+            let cell = stableProps[key];
             if (cell) {
                 if (cell.current !== newValue) {
                     cell.update(newValue);
@@ -79,12 +103,12 @@ class StableProps {
                 }
             }
             else {
-                stableProps.set(key, Cell(newValue));
+                stableProps[key] = Cell(newValue);
             }
         }
-        for (let key of stableProps.keys()) {
+        for (let key of Object.keys(stableProps)) {
             if (!(key in newReactProps)) {
-                stableProps.delete(key);
+                delete stableProps[key];
                 status = "dirty";
             }
         }
@@ -92,7 +116,9 @@ class StableProps {
     }
     update(newReactProps) {
         this.#sync(newReactProps);
-        return Object.fromEntries(this.#props.entries());
+    }
+    get reactive() {
+        return this.#reactive;
     }
 }
 //# sourceMappingURL=reactive.js.map

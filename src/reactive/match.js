@@ -18,6 +18,9 @@ export class ReactiveMatch extends ExtendsReactive {
         let matcher = this.#matcher[discriminant];
         return matcher(value?.current);
     }
+    get cells() {
+        return this.#reactive.cells;
+    }
     get metadata() {
         if (this.#reactive.isConstant()) {
             let { value } = this.#reactive.current;

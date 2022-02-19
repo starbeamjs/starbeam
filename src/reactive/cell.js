@@ -20,7 +20,7 @@ export class ReactiveCell extends ExtendsReactive {
         REACTIVE_BRAND.brand(this);
         this.#value = value;
         this.#lastUpdate = lastUpdate;
-        this.#description = description;
+        this.#description = `(${this.id}) ${description}`;
         this.#frozen = frozen;
     }
     get description() {
@@ -28,6 +28,9 @@ export class ReactiveCell extends ExtendsReactive {
     }
     get metadata() {
         return this.#frozen ? ReactiveMetadata.Constant : ReactiveMetadata.Dynamic;
+    }
+    get cells() {
+        return [this];
     }
     freeze() {
         this.#frozen = true;
@@ -53,4 +56,7 @@ export class ReactiveCell extends ExtendsReactive {
 export function Cell(value, description = "(anonymous cell)") {
     return ReactiveCell.create(value, description);
 }
+Cell.is = (value) => {
+    return value instanceof ReactiveCell;
+};
 //# sourceMappingURL=cell.js.map

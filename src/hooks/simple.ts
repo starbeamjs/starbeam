@@ -6,7 +6,8 @@ import { verified } from "../strippable/assert.js";
 import { is } from "../strippable/minimal.js";
 import { LOGGER } from "../strippable/trace.js";
 import { expected } from "../strippable/verify-context.js";
-import type { Reactive } from "../fundamental/types.js";
+import type { Cell, Reactive } from "../fundamental/types.js";
+import { UNINITIALIZED } from "../fundamental/constants.js";
 
 export type ResourceHookConstructor<T> = (hook: SimpleHook<T>) => Reactive<T>;
 export type DataHookConstructor<T> = () => Reactive<T>;
@@ -101,6 +102,14 @@ export class SimpleHook<T> extends ExtendsReactive<T> {
     this.#description = description;
     this.#isResource = isResource;
     this.#id = ++SimpleHook.#ids;
+  }
+
+  get cells(): UNINITIALIZED | readonly Cell[] {
+    if (this.#reactive) {
+      return this.#reactive.cells;
+    } else {
+      return UNINITIALIZED;
+    }
   }
 
   get metadata(): ReactiveMetadata {

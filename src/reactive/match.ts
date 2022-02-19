@@ -1,7 +1,8 @@
 import type { AnyReactiveChoice } from "./choice.js";
 import { ExtendsReactive, type ReactiveValue } from "./base.js";
 import { ReactiveMetadata } from "../core/metadata.js";
-import type { Reactive } from "../fundamental/types.js";
+import type { Cell, Reactive } from "../fundamental/types.js";
+import type { UNINITIALIZED } from "../fundamental/constants.js";
 
 export type Matcher<C extends AnyReactiveChoice> = {
   [P in C["discriminant"]]: C["value"] extends undefined
@@ -21,7 +22,7 @@ export class ReactiveMatch<
     return new ReactiveMatch(reactive, matcher, description);
   }
 
-  readonly #reactive: ExtendsReactive<C>;
+  readonly #reactive: Reactive<C>;
   readonly #matcher: M;
 
   private constructor(
@@ -42,6 +43,10 @@ export class ReactiveMatch<
     return matcher(
       value?.current as ReactiveValue<NonNullable<C["value"]>>
     ) as ReturnType<M[keyof M]>;
+  }
+
+  get cells(): UNINITIALIZED | readonly Cell[] {
+    return this.#reactive.cells;
   }
 
   get metadata(): ReactiveMetadata {

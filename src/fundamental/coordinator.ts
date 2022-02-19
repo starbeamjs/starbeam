@@ -19,7 +19,6 @@ export class Work {
 
 interface Job {
   add(work: Callback): void;
-  next(): Job;
   schedule(): Promise<void>;
 }
 
@@ -38,10 +37,6 @@ class MicrotaskJob implements Job {
     this.#work.add(work);
   }
 
-  next(): Job {
-    return MicrotaskJob.create();
-  }
-
   async schedule(): Promise<void> {
     await Promise.resolve();
 
@@ -53,17 +48,17 @@ class MicrotaskJob implements Job {
 
 class Queue {
   static create(createJob: () => Job): Queue {
-    return new Queue(createJob, null, null);
+    return new Queue(createJob, null, false);
   }
 
   #createJob: () => Job;
   #job: Job | null;
-  #running: Promise<void> | null;
+  #running: boolean;
 
   private constructor(
     createJob: () => Job,
     scheduled: Job | null,
-    running: Promise<void> | null
+    running: boolean
   ) {
     this.#createJob = createJob;
     this.#job = scheduled;
@@ -93,16 +88,23 @@ class Queue {
 
     job.add(work);
 
-    if (this.#running) {
-      return;
+    if (!this.#running) {
+      this.#run();
     }
-
-    this.#running = this.#run(job);
   }
 
-  async #run(job: Job) {
-    this.#job = job.next();
-    await job.schedule();
+  async #run() {
+    this.#running = true;
+
+    try {
+      while (this.#job) {
+        let job = this.#job;
+        this.#job = null;
+        await job.schedule();
+      }
+    } finally {
+      this.#running = false;
+    }
   }
 }
 

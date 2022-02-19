@@ -1,13 +1,13 @@
-import { Timestamp } from "./timestamp.js";
-import { ActiveFrame, AssertFrame, type FinalizedFrame } from "./frames.js";
-import type { Cell } from "../../fundamental/types.js";
-import { LOGGER } from "../../strippable/trace.js";
 import {
   Coordinator,
   COORDINATOR,
   Priority,
   Work,
 } from "../../fundamental/coordinator.js";
+import type { Cell } from "../../fundamental/types.js";
+import { LOGGER } from "../../strippable/trace.js";
+import { ActiveFrame, AssertFrame, type FinalizedFrame } from "./frames.js";
+import { Timestamp } from "./timestamp.js";
 
 export class Timeline {
   static create(): Timeline {
@@ -41,11 +41,10 @@ export class Timeline {
       };
     },
 
-    update: (cell: Cell<unknown>, callback: () => void): (() => void) => {
-      console.log(
-        `adding listener for cell\ncell:`,
+    update: (cell: Cell, callback: () => void): (() => void) => {
+      LOGGER.trace.log(
+        `adding listener for cell\ncell: %o\ncallback:%o`,
         cell,
-        `\nlistener:`,
         callback
       );
 
@@ -53,6 +52,11 @@ export class Timeline {
       callbacks.add(callback);
 
       return () => {
+        LOGGER.trace.withStack.log(
+          `tearing down listener for cell\ncell: %o\ncallback: %o`,
+          cell,
+          callback
+        );
         callbacks.delete(callback);
       };
     },
@@ -101,7 +105,7 @@ export class Timeline {
     for (let cell of cells) {
       let updaters = this.#updatersFor(cell);
 
-      console.log(
+      LOGGER.trace.log(
         `notifying listeners for cell\ncell: %o\nlisteners:%o`,
         cell,
         updaters

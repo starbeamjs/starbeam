@@ -1,24 +1,61 @@
-import { useEffect, useMemo, useState, type ReactElement } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactElement,
+} from "react";
 import {
   Abstraction,
   Cell,
-  Frame,
   HookBlueprint,
   lifetime,
   Memo,
   Reactive,
   SimpleHook,
+  subscribe,
+  UNINITIALIZED,
   type AnyRecord,
   type InferReturn,
 } from "starbeam";
+import { useInstance } from "./instance.js";
 
-class ReactiveComponent {
-  static component(): ReactiveComponent {
-    return new ReactiveComponent();
+export class ReactiveComponent {
+  static create(notify: () => void): ReactiveComponent {
+    return new ReactiveComponent(notify);
   }
 
-  private constructor() {
-    /** noop */
+  #updatedNotify = 0;
+  #notify: () => void;
+
+  private constructor(notify: () => void) {
+    this.#notify = notify;
+  }
+
+  get notify() {
+    return () => {
+      this.#notify();
+    };
+  }
+
+  updateNotify(notify: () => void): void {
+    this.#notify = notify;
+  }
+
+  useComponentManager<Props, C extends ComponentManager<unknown, object>>(
+    manager: C,
+    props: Props
+  ): C extends ComponentManager<Props, infer Instance> ? Instance : never {
+    let instance = useInstance(this, () => {
+      return manager.create(this, props);
+    }).update({
+      finalize: true,
+      update: (instance) => {
+        manager.update(instance, props);
+      },
+    });
+
+    return instance as InferReturn;
   }
 
   readonly on = {
@@ -52,30 +89,12 @@ class ReactiveComponent {
   }
 }
 
-export function useReactive<T>(
-  definition: (parent: ReactiveComponent) => () => T,
-  description = `useReactive ${Abstraction.callerFrame().trimStart()}`
-): T {
-  const component = useLifetime();
-  const notify = useNotify();
-
-  const frame = useMemo(
-    () =>
-      Frame(definition(component), description)
-        .subscribe(notify)
-        .link(component),
-    []
-  );
-
-  useEffect(() => {
-    return () => lifetime.finalize(component);
-  }, []);
-
-  return frame.poll();
-}
-
 type ReactiveProps<Props extends AnyRecord> = {
   [K in keyof Props]: Reactive<Props[K]>;
+};
+
+type InternalReactiveProps<Props extends AnyRecord> = {
+  [K in keyof Props]: Cell<Props[K]>;
 };
 
 export function starbeam<Props extends AnyRecord>(
@@ -85,64 +104,99 @@ export function starbeam<Props extends AnyRecord>(
   ) => () => ReactElement,
   description = `component ${Abstraction.callerFrame().trimStart()}`
 ): (props: Props) => ReactElement {
-  const stableProps = StableProps.empty();
-  // const component = ReactiveComponent.component();
-
   return (props: Props) => {
-    const [, setNotify] = useState({});
+    const component = useStableComponent();
 
-    const component = useLifetime();
+    const stableProps = component.useComponentManager(
+      STABLE_COMPONENT,
+      props
+    ) as StableProps<Props>;
 
-    const reactiveProps = stableProps.update(props) as ReactiveProps<Props>;
+    let subscription = useInstance(component, () =>
+      subscribe(
+        Memo(definition(stableProps.reactive, component)),
+        component.notify,
+        description
+      )
+    ).instance;
 
-    const frame = useMemo(
-      () =>
-        Frame(definition(reactiveProps, component), description)
-          .subscribe(() => setNotify({}))
-          .link(component),
-      []
-    );
+    // idempotent
+    lifetime.link(component, subscription);
 
-    useEffect(() => {
-      return () => lifetime.finalize(component);
-    }, []);
-
-    console.log(frame);
-    return frame.poll();
+    return subscription.poll().value;
   };
 }
 
-function useLifetime(): ReactiveComponent {
-  const component = useMemo(() => ReactiveComponent.component(), []);
-  useEffect(() => lifetime.finalize(component));
-  return component;
+interface ComponentManager<Props, Instance extends object> {
+  create(component: ReactiveComponent, props: Props): Instance;
+  update(instance: Instance, props: Props): void;
 }
 
-function useNotify() {
-  const [, setNotify] = useState({});
-  return useMemo(() => () => setNotify({}), []);
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type StablePropsMap = Map<keyof any, Cell>;
-
-class StableProps<Props> {
-  static empty<Props>(): StableProps<Props> {
-    return new StableProps(new Map());
+class StableComponent<Props>
+  implements ComponentManager<Props, StableProps<Props>>
+{
+  create<P extends Props>(
+    component: ReactiveComponent,
+    props: P
+  ): StableProps<P> {
+    return StableProps.from(props);
   }
 
-  readonly #props: StablePropsMap;
+  update<P extends Props>(instance: StableProps<P>, props: P): void {
+    instance.update(props);
+  }
+}
 
-  constructor(props: StablePropsMap) {
-    this.#props = props;
+const STABLE_COMPONENT = new StableComponent();
+
+function useStableComponent(): ReactiveComponent {
+  const ref = useRef<UNINITIALIZED | ReactiveComponent>(UNINITIALIZED);
+  const isFirstTime = ref.current === UNINITIALIZED;
+
+  const [, setNotify] = useState({});
+
+  if (ref.current === UNINITIALIZED) {
+    ref.current = ReactiveComponent.create(() => setNotify({}));
+  }
+
+  let instance: ReactiveComponent = ref.current;
+
+  useEffect(() => {
+    if (isFirstTime) {
+      return () => lifetime.finalize(instance);
+    }
+
+    return;
+  }, []);
+
+  useLayoutEffect(() => {
+    instance.updateNotify(() => setNotify({}));
+  });
+
+  return ref.current;
+}
+
+export class StableProps<Props> {
+  static from<Props>(props: Props): StableProps<Props> {
+    let reactive = Object.fromEntries(
+      Object.entries(props).map(([key, value]) => [key, Cell(value)])
+    ) as InternalReactiveProps<Props>;
+
+    return new StableProps(reactive);
+  }
+
+  readonly #reactive: InternalReactiveProps<Props>;
+
+  constructor(reactive: InternalReactiveProps<Props>) {
+    this.#reactive = reactive;
   }
 
   #sync(newReactProps: AnyRecord) {
     let status: "dirty" | "clean" = "clean";
-    const stableProps = this.#props;
+    const stableProps = this.#reactive;
 
     for (let [key, newValue] of Object.entries(newReactProps)) {
-      let cell = stableProps.get(key);
+      let cell = stableProps[key as keyof Props];
 
       if (cell) {
         if (cell.current !== newValue) {
@@ -150,13 +204,13 @@ class StableProps<Props> {
           status = "dirty";
         }
       } else {
-        stableProps.set(key, Cell(newValue));
+        stableProps[key as keyof Props] = Cell(newValue);
       }
     }
 
-    for (let key of stableProps.keys()) {
+    for (let key of Object.keys(stableProps)) {
       if (!(key in newReactProps)) {
-        stableProps.delete(key);
+        delete stableProps[key as keyof Props];
         status = "dirty";
       }
     }
@@ -164,9 +218,11 @@ class StableProps<Props> {
     return status;
   }
 
-  update(newReactProps: AnyRecord): ReactiveProps<Props> {
+  update(newReactProps: AnyRecord): void {
     this.#sync(newReactProps);
+  }
 
-    return Object.fromEntries(this.#props.entries()) as InferReturn;
+  get reactive(): ReactiveProps<Props> {
+    return this.#reactive;
   }
 }

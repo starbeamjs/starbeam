@@ -16,6 +16,6 @@ export const Reactive = {
   },
 };
 
-import type * as types from "../fundamental/types.js";
+import type { Reactive as ReactiveType } from "../fundamental/types.js";
 
-export type Reactive<T = unknown> = types.Reactive<T>;
+export type Reactive<T = unknown> = ReactiveType<T>;

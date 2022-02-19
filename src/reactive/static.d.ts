@@ -4,4 +4,5 @@ export declare class Static<T> extends ExtendsReactive<T> {
     readonly description: string;
     constructor(current: T, description?: string);
     readonly metadata: import("../core/metadata.js").ConstantMetadata;
+    readonly cells: never[];
 }

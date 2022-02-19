@@ -1,6 +1,16 @@
 import { assert } from "./core.js";
 
-globalThis.console;
+export enum LogLevel {
+  Trace = 0b0000001,
+  Debug = 0b0000010,
+  Info = 0b0000100,
+  Warn = 0b0001000,
+  Error = 0b0010000,
+  Bug = 0b0100000,
+  Silent = 0b1000000,
+}
+
+const DEFAULT_LEVEL = LogLevel.Warn;
 
 interface TraceConsole {
   Console: console.ConsoleConstructor;
@@ -345,7 +355,14 @@ export class Group {
   }
 }
 
-interface TraceMethods {
+interface TraceModifiers {
+  readonly withStack: TraceMethods;
+}
+
+interface TraceMethods extends TraceModifiers {
+  log(format: string, ...args: unknown[]): void;
+  log(...args: unknown[]): void;
+
   log(format: string, ...args: unknown[]): void;
   log(...args: unknown[]): void;
 
@@ -353,7 +370,7 @@ interface TraceMethods {
   group<T>(description: string, callback: () => T): T;
 }
 
-interface TraceProperties {
+interface TraceLevels {
   readonly trace: TraceMethods;
   readonly warn: TraceMethods;
 }
@@ -399,16 +416,6 @@ export interface InspectOptions {
   sorted?: boolean | ((a: string, b: string) => number) | undefined;
 }
 
-export enum LogLevel {
-  Trace = 0b0000001,
-  Debug = 0b0000010,
-  Info = 0b0000100,
-  Warn = 0b0001000,
-  Error = 0b0010000,
-  Bug = 0b0100000,
-  Silent = 0b1000000,
-}
-
 function logLevelFrom(
   level: string | undefined,
   { default: defaultLevel }: { default: LogLevel }
@@ -444,27 +451,28 @@ function logLevelFrom(
 }
 
 export class Logger {
-  static default(): TraceMethods & TraceProperties {
+  static default(): TraceMethods & TraceLevels {
     let console = () => globalThis.console;
 
     let level = logLevelFrom(globalThis.process?.env?.["STARBEAM_LOG"], {
-      default: LogLevel.Warn,
+      default: DEFAULT_LEVEL,
     });
 
-    return new Logger(console, level, LogLevel.Info) as TraceMethods &
-      TraceProperties;
+    return new Logger(console, level, LogLevel.Info, false) as TraceMethods &
+      TraceLevels;
   }
 
   static create(
     console: TraceConsole,
-    level: LogLevel = LogLevel.Warn,
+    level: LogLevel = DEFAULT_LEVEL,
     as: LogLevel = LogLevel.Info
   ): Logger {
-    return new Logger(() => console, level, as);
+    return new Logger(() => console, level, as, false);
   }
 
   readonly #level: LogLevel;
   readonly #as: LogLevel;
+  readonly #withStack: boolean;
   readonly #console: () => TraceConsole;
 
   // readonly trace: Logger;
@@ -474,10 +482,16 @@ export class Logger {
   // readonly error: Logger;
   // readonly bug: Logger;
 
-  constructor(console: () => TraceConsole, level: LogLevel, as: LogLevel) {
+  constructor(
+    console: () => TraceConsole,
+    level: LogLevel,
+    as: LogLevel,
+    withStack: boolean
+  ) {
     this.#console = console;
     this.#level = level;
     this.#as = as;
+    this.#withStack = withStack;
 
     // this.trace = new Logger(this.#console, this.#level, LogLevel.Trace);
     // this.debug = new Logger(this.#console, this.#level, LogLevel.Debug);
@@ -488,11 +502,25 @@ export class Logger {
   }
 
   get trace(): Logger {
-    return new Logger(this.#console, this.#level, LogLevel.Trace);
+    return new Logger(
+      this.#console,
+      this.#level,
+      LogLevel.Trace,
+      this.#withStack
+    );
   }
 
   get warn(): Logger {
-    return new Logger(this.#console, this.#level, LogLevel.Warn);
+    return new Logger(
+      this.#console,
+      this.#level,
+      LogLevel.Warn,
+      this.#withStack
+    );
+  }
+
+  get withStack(): Logger {
+    return new Logger(this.#console, this.#level, this.#as, true);
   }
 
   get #shouldLog(): boolean {
@@ -501,7 +529,11 @@ export class Logger {
 
   log(...args: unknown[]): void {
     if (this.#shouldLog) {
-      this.#console().log(...args);
+      if (this.#withStack) {
+        this.#console().trace(...args);
+      } else {
+        this.#console().log(...args);
+      }
     }
   }
 
@@ -516,6 +548,10 @@ export class Logger {
 
     if (callback) {
       this.#console().group(description);
+
+      if (this.#withStack) {
+        console.trace("logged at");
+      }
 
       try {
         return callback();

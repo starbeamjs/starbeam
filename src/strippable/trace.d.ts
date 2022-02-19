@@ -1,4 +1,13 @@
 /// <reference types="node" resolution-mode="require"/>
+export declare enum LogLevel {
+    Trace = 1,
+    Debug = 2,
+    Info = 4,
+    Warn = 8,
+    Error = 16,
+    Bug = 32,
+    Silent = 64
+}
 interface TraceConsole {
     Console: console.ConsoleConstructor;
     /**
@@ -274,13 +283,18 @@ export declare class Group {
     expanded(): Group;
     end(): void;
 }
-interface TraceMethods {
+interface TraceModifiers {
+    readonly withStack: TraceMethods;
+}
+interface TraceMethods extends TraceModifiers {
+    log(format: string, ...args: unknown[]): void;
+    log(...args: unknown[]): void;
     log(format: string, ...args: unknown[]): void;
     log(...args: unknown[]): void;
     group(description: string): Group;
     group<T>(description: string, callback: () => T): T;
 }
-interface TraceProperties {
+interface TraceLevels {
     readonly trace: TraceMethods;
     readonly warn: TraceMethods;
 }
@@ -324,27 +338,19 @@ export interface InspectOptions {
     compact?: boolean | number | undefined;
     sorted?: boolean | ((a: string, b: string) => number) | undefined;
 }
-export declare enum LogLevel {
-    Trace = 1,
-    Debug = 2,
-    Info = 4,
-    Warn = 8,
-    Error = 16,
-    Bug = 32,
-    Silent = 64
-}
 export declare class Logger {
     #private;
-    static default(): TraceMethods & TraceProperties;
+    static default(): TraceMethods & TraceLevels;
     static create(console: TraceConsole, level?: LogLevel, as?: LogLevel): Logger;
-    constructor(console: () => TraceConsole, level: LogLevel, as: LogLevel);
+    constructor(console: () => TraceConsole, level: LogLevel, as: LogLevel, withStack: boolean);
     get trace(): Logger;
     get warn(): Logger;
+    get withStack(): Logger;
     log(...args: unknown[]): void;
     group(description: string, callback?: () => unknown): unknown;
 }
 /**
  * @strip.statement
  */
-export declare const LOGGER: TraceMethods & TraceProperties;
+export declare const LOGGER: TraceMethods & TraceLevels;
 export {};

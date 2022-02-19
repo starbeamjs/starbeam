@@ -1,13 +1,13 @@
-import { Timestamp } from "./timestamp.js";
-import { type FinalizedFrame } from "./frames.js";
 import type { Cell } from "../../fundamental/types.js";
+import { type FinalizedFrame } from "./frames.js";
+import { Timestamp } from "./timestamp.js";
 export declare class Timeline {
     #private;
     static create(): Timeline;
     private constructor();
     on: {
         readonly advance: (callback: () => void) => (() => void);
-        readonly update: (cell: Cell<unknown>, callback: () => void) => (() => void);
+        readonly update: (cell: Cell, callback: () => void) => (() => void);
     };
     get now(): Timestamp;
     bump(cell: Cell): Timestamp;

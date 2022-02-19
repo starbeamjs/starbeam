@@ -7,10 +7,10 @@ import { ExtendsReactive } from "./base.js";
 import { REACTIVE_BRAND } from "./internal.js";
 import { ReactiveMetadata } from "../core/metadata.js";
 import { TIMELINE } from "../core/timeline/timeline.js";
-import type * as types from "../fundamental/types.js";
+import type { Cell as CellType } from "../fundamental/types.js";
 import { IS_UPDATED_SINCE } from "../fundamental/constants.js";
 
-export class ReactiveCell<T> extends ExtendsReactive<T> implements types.Cell {
+export class ReactiveCell<T> extends ExtendsReactive<T> implements CellType {
   static create<T>(value: T, description: string): ReactiveCell<T> {
     return new ReactiveCell(value, TIMELINE.now, description, false);
   }
@@ -30,7 +30,7 @@ export class ReactiveCell<T> extends ExtendsReactive<T> implements types.Cell {
     REACTIVE_BRAND.brand(this);
     this.#value = value;
     this.#lastUpdate = lastUpdate;
-    this.#description = description;
+    this.#description = `(${this.id}) ${description}`;
     this.#frozen = frozen;
   }
 
@@ -42,6 +42,10 @@ export class ReactiveCell<T> extends ExtendsReactive<T> implements types.Cell {
 
   get metadata(): ReactiveMetadata {
     return this.#frozen ? ReactiveMetadata.Constant : ReactiveMetadata.Dynamic;
+  }
+
+  get cells(): [Cell] {
+    return [this];
   }
 
   freeze(): void {
@@ -75,8 +79,12 @@ export class ReactiveCell<T> extends ExtendsReactive<T> implements types.Cell {
   }
 }
 
-export type Cell<T = unknown> = types.Cell<T>;
+export type Cell<T = unknown> = CellType<T>;
 
 export function Cell<T>(value: T, description = "(anonymous cell)"): Cell<T> {
   return ReactiveCell.create(value, description);
 }
+
+Cell.is = <T>(value: unknown | Cell<T>): value is Cell<T> => {
+  return value instanceof ReactiveCell;
+};

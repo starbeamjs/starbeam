@@ -2,7 +2,7 @@ import type * as dom from "@domtree/any";
 import type { anydom } from "@domtree/flavors";
 import type * as minimal from "@domtree/minimal";
 import { isPresent } from "../utils/presence.js";
-import { type PartialVerifier, Verifier } from "./assert.js";
+import { Verifier, type PartialVerifier } from "./assert.js";
 import { CreatedContext, expected, VerifyContext } from "./verify-context.js";
 
 /**
@@ -194,21 +194,33 @@ export function isValue<T extends Primitive>(value: T): Verifier<Primitive, T> {
   return verify;
 }
 
-export const is = {
-  Node: isNode,
-  ParentNode: isParentNode,
-  Element: isElement,
-  Text: isText,
-  Comment: isComment,
-  CharacterData: isCharacterData,
-  Attr: isAttr,
-  TemplateElement: isTemplateElement,
+export function is<T extends I, I = unknown>(
+  predicate: (value: I) => value is T
+): Verifier<I, T> {
+  function verify(input: I): input is T {
+    return predicate(input);
+  }
 
-  Present: isPresent,
+  if (predicate.name) {
+    Verifier.implement<I, T>(verify, expected(`value`).toBe(predicate.name));
+  }
 
-  nullable: isNullable,
-  value: isValue,
-} as const;
+  return verify;
+}
+
+is.Node = isNode;
+is.ParentNode = isParentNode;
+is.Element = isElement;
+is.Text = isText;
+is.Comment = isComment;
+is.CharacterData = isCharacterData;
+is.Attr = isAttr;
+is.TemplateElement = isTemplateElement;
+
+is.Present = isPresent;
+
+is.nullable = isNullable;
+is.value = isValue;
 
 // TODO: Deal with SVG and MathML tag names
 function hasTagName<T extends string>(

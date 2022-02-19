@@ -1,8 +1,8 @@
 {
   "name": "@starbeam/react",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "index.js",
+  "types": "index.ts",
   "version": "0.5.0",
   "dependencies": {
     "starbeam": "workspace:*",

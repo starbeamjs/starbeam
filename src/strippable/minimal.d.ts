@@ -34,19 +34,20 @@ declare function isTemplateElement(node: MaybeNode): node is minimal.TemplateEle
 export declare function isNullable<In, Out extends In>(verifier: Verifier<In, Out>): Verifier<In | null, Out | null>;
 export declare type Primitive = string | number | boolean | symbol | bigint | null | undefined;
 export declare function isValue<T extends Primitive>(value: T): Verifier<Primitive, T>;
-export declare const is: {
-    readonly Node: typeof isNode;
-    readonly ParentNode: typeof isParentNode;
-    readonly Element: Verifier<MaybeNode, minimal.Element>;
-    readonly Text: Verifier<MaybeNode, minimal.Text>;
-    readonly Comment: Verifier<MaybeNode, minimal.Comment>;
-    readonly CharacterData: typeof isCharacterData;
-    readonly Attr: Verifier<MaybeNode, minimal.Attr>;
-    readonly TemplateElement: typeof isTemplateElement;
-    readonly Present: typeof isPresent;
-    readonly nullable: typeof isNullable;
-    readonly value: typeof isValue;
-};
+export declare function is<T extends I, I = unknown>(predicate: (value: I) => value is T): Verifier<I, T>;
+export declare namespace is {
+    var Node: typeof isNode;
+    var ParentNode: typeof isParentNode;
+    var Element: Verifier<MaybeNode, minimal.Element>;
+    var Text: Verifier<MaybeNode, minimal.Text>;
+    var Comment: Verifier<MaybeNode, minimal.Comment>;
+    var CharacterData: typeof isCharacterData;
+    var Attr: Verifier<MaybeNode, minimal.Attr>;
+    var TemplateElement: typeof isTemplateElement;
+    var Present: typeof isPresent;
+    var nullable: typeof isNullable;
+    var value: typeof isValue;
+}
 declare function hasTagName<T extends string>(tagName: T): Verifier<minimal.Element, minimal.Element & {
     readonly tagName: Uppercase<T>;
 }>;

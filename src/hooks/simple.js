@@ -5,6 +5,7 @@ import { verified } from "../strippable/assert.js";
 import { is } from "../strippable/minimal.js";
 import { LOGGER } from "../strippable/trace.js";
 import { expected } from "../strippable/verify-context.js";
+import { UNINITIALIZED } from "../fundamental/constants.js";
 /**
  * This class wraps the HookConstructor callback to give it extra debug
  * information. It is returned by universe.hook.
@@ -64,6 +65,14 @@ export class SimpleHook extends ExtendsReactive {
         this.#description = description;
         this.#isResource = isResource;
         this.#id = ++SimpleHook.#ids;
+    }
+    get cells() {
+        if (this.#reactive) {
+            return this.#reactive.cells;
+        }
+        else {
+            return UNINITIALIZED;
+        }
     }
     get metadata() {
         return this.#presentReactive.metadata;

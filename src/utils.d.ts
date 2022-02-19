@@ -1,6 +1,6 @@
 export declare type FIXME<_S extends string = string> = any;
 export declare const INSPECT: unique symbol;
-export declare function isObject(value: unknown): value is object;
+export declare function isObject<T>(value: T): value is T & object;
 export declare function enumerate<T>(iterable: Iterable<T>): Iterable<[number, T]>;
 export declare type PresentPosition = "first" | "last" | "middle" | "only";
 export declare type EmptyPosition = "empty";

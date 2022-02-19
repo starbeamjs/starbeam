@@ -3,5 +3,5 @@ export declare const Reactive: {
     from<T>(reactive: IntoReactive<T>): Reactive<T>;
     is<T_1>(reactive: unknown): reactive is Reactive<T_1>;
 };
-import type * as types from "../fundamental/types.js";
-export declare type Reactive<T = unknown> = types.Reactive<T>;
+import type { Reactive as ReactiveType } from "../fundamental/types.js";
+export declare type Reactive<T = unknown> = ReactiveType<T>;

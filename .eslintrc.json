@@ -33,6 +33,11 @@
           },
           {
             "from": "./src",
+            "target": "@starbeam/react",
+            "message": "import from starbeam through the 'starbeam' module, not through a relative path"
+          },
+          {
+            "from": "./src",
             "target": "./tests"
           },
           {

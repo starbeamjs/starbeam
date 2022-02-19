@@ -52,11 +52,8 @@ export class FrameSubscriber<T> {
       this.#description
     );
 
-    console.log({ frame, initial });
-
     TIMELINE.didConsume(frame);
 
-    // console.log(frame, frame.cells);
     this.#sync(new Set(frame.cells));
 
     return initial;
@@ -65,7 +62,7 @@ export class FrameSubscriber<T> {
   #sync(newCells: Set<Cell<unknown>>): void {
     for (let [cell, teardown] of this.#cells) {
       if (!newCells.has(cell)) {
-        console.log(
+        LOGGER.trace.log(
           `tearing down (${this.#description}) cell`,
           cell,
           this.#notify
@@ -91,13 +88,3 @@ export class FrameSubscriber<T> {
 }
 
 export const Frame = FrameSubscriber.create;
-
-// export function Frame<T>(
-//   callback: () => T,
-//   previous: FrameSnapshot,
-//   description: string
-// ): { snapshot: FrameSnapshot; value: T } {
-//   let { frame, initial } = TIMELINE.withFrame(callback, description);
-
-//   return { snapshot: FrameSnapshot.of(frame), value: initial };
-// }

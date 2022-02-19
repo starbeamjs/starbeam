@@ -1,5 +1,8 @@
 import { HasMetadata, ReactiveMetadata } from "../metadata.js";
-import type * as types from "../../fundamental/types.js";
+import type {
+  Cell as CellType,
+  ReactiveMetadata as ReactiveMetadataType,
+} from "../../fundamental/types.js";
 import { LOGGER } from "../../strippable/trace.js";
 import type { IsUpdatedSince, Timestamp } from "./timestamp.js";
 import { IS_UPDATED_SINCE } from "../../fundamental/constants.js";
@@ -27,16 +30,16 @@ export class ActiveFrame {
     return new ActiveFrame(new Set(), description);
   }
 
-  readonly #cells: Set<types.Cell | FinalizedFrame>;
+  readonly #cells: Set<CellType | FinalizedFrame>;
 
   private constructor(
-    cells: Set<types.Cell | FinalizedFrame>,
+    cells: Set<CellType | FinalizedFrame>,
     readonly description: string
   ) {
     this.#cells = cells;
   }
 
-  add(cell: types.Cell | FinalizedFrame): void {
+  add(cell: CellType | FinalizedFrame): void {
     this.#cells.add(cell);
   }
 
@@ -55,12 +58,12 @@ export class FinalizedFrame<T = unknown>
   extends HasMetadata
   implements IsUpdatedSince
 {
-  readonly #children: Set<types.Cell | FinalizedFrame>;
+  readonly #children: Set<CellType | FinalizedFrame>;
   readonly #finalizedAt: Timestamp;
   readonly #value: T;
 
   constructor(
-    children: Set<types.Cell | FinalizedFrame>,
+    children: Set<CellType | FinalizedFrame>,
     finalizedAt: Timestamp,
     value: T,
     readonly description?: string
@@ -71,11 +74,11 @@ export class FinalizedFrame<T = unknown>
     this.#value = value;
   }
 
-  get metadata(): types.ReactiveMetadata {
+  get metadata(): ReactiveMetadataType {
     return ReactiveMetadata.all(...this.#children);
   }
 
-  get cells(): readonly types.Cell<unknown>[] {
+  get cells(): readonly CellType<unknown>[] {
     return [...this.#children].flatMap((child) =>
       child instanceof FinalizedFrame ? child.cells : child
     );

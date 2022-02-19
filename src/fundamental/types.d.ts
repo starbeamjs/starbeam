@@ -1,4 +1,4 @@
-import type { IS_UPDATED_SINCE } from "./constants.js";
+import type { IS_UPDATED_SINCE, UNINITIALIZED } from "./constants.js";
 export interface IsUpdatedSince {
     [IS_UPDATED_SINCE](timestamp: Timestamp): boolean;
 }
@@ -32,4 +32,5 @@ export interface DynamicMetadata extends ReactiveMetadata {
 export interface Reactive<T = unknown> extends HasMetadata {
     readonly current: T;
     readonly description: string;
+    readonly cells: UNINITIALIZED | readonly Cell[];
 }

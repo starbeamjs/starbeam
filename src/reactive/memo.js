@@ -2,6 +2,7 @@ import { TIMELINE } from "../core/timeline/timeline.js";
 import { Group, LOGGER } from "../strippable/trace.js";
 import { ExtendsReactive } from "./base.js";
 import { ReactiveMetadata } from "../core/metadata.js";
+import { UNINITIALIZED } from "../fundamental/constants.js";
 export class ReactiveMemo extends ExtendsReactive {
     static create(callback, description) {
         return new ReactiveMemo(callback, description);
@@ -28,6 +29,14 @@ export class ReactiveMemo extends ExtendsReactive {
         }
         else {
             return ReactiveMetadata.Dynamic;
+        }
+    }
+    get cells() {
+        if (this.#frame) {
+            return this.#frame.cells;
+        }
+        else {
+            return UNINITIALIZED;
         }
     }
     get current() {
