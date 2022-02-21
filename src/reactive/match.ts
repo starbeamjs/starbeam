@@ -1,8 +1,9 @@
-import type { AnyReactiveChoice } from "./choice.js";
-import { ExtendsReactive, type ReactiveValue } from "./base.js";
 import { ReactiveMetadata } from "../core/metadata.js";
-import type { Cell, Reactive } from "../fundamental/types.js";
 import type { UNINITIALIZED } from "../fundamental/constants.js";
+import type { Cell, Reactive } from "../fundamental/types.js";
+import { Abstraction } from "../index.js";
+import { ExtendsReactive, type ReactiveValue } from "./base.js";
+import type { AnyReactiveChoice } from "./choice.js";
 
 export type Matcher<C extends AnyReactiveChoice> = {
   [P in C["discriminant"]]: C["value"] extends undefined
@@ -17,7 +18,7 @@ export class ReactiveMatch<
   static match<C extends AnyReactiveChoice, M extends Matcher<C>>(
     reactive: ExtendsReactive<C>,
     matcher: M,
-    description: string
+    description = Abstraction.callerFrame()
   ): ReactiveMatch<C, M> {
     return new ReactiveMatch(reactive, matcher, description);
   }
@@ -30,7 +31,10 @@ export class ReactiveMatch<
     matcher: M,
     readonly description: string
   ) {
-    super();
+    super({
+      name: "Match",
+      description,
+    });
     this.#reactive = reactive;
     this.#matcher = matcher;
   }

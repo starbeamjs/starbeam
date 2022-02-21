@@ -1,3 +1,5 @@
+import { LIFETIME } from "../../core/lifetime/lifetime.js";
+import type { Reactive } from "../../fundamental/types.js";
 import {
   HookBlueprint,
   type HookConstructor,
@@ -6,8 +8,6 @@ import {
 import { ReactiveMemo } from "../../reactive/memo.js";
 import { Abstraction } from "../../strippable/abstraction.js";
 import type { FIXME } from "../../utils.js";
-import { LIFETIME } from "../../core/lifetime/lifetime.js";
-import type { Reactive } from "../../fundamental/types.js";
 
 export type Hook<T = unknown> = Reactive<T>;
 
@@ -47,7 +47,7 @@ export function Hook<C extends ResourceHookConstructor<unknown>>(
  */
 export function Memo<T>(
   callback: () => T,
-  description = `memo ${Abstraction.callerFrame().trimStart()}`
+  description = `memo ${Abstraction.callerFrame()}`
 ): Reactive<T> {
   return ReactiveMemo.create(callback, description);
 }

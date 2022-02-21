@@ -1,7 +1,7 @@
+import { LIFETIME } from "../../core/lifetime/lifetime.js";
 import { HookBlueprint, } from "../../hooks/simple.js";
 import { ReactiveMemo } from "../../reactive/memo.js";
 import { Abstraction } from "../../strippable/abstraction.js";
-import { LIFETIME } from "../../core/lifetime/lifetime.js";
 export function Hook(callback, description) {
     return HookBlueprint.create(callback, description);
 }
@@ -20,7 +20,7 @@ export function Hook(callback, description) {
  * Create a memoized value that re-executes whenever any cells used in its
  * computation invalidate.
  */
-export function Memo(callback, description = `memo ${Abstraction.callerFrame().trimStart()}`) {
+export function Memo(callback, description = `memo ${Abstraction.callerFrame()}`) {
     return ReactiveMemo.create(callback, description);
 }
 export const lifetime = {

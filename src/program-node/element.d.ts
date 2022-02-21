@@ -43,3 +43,4 @@ export declare class ElementProgramNodeBuilder {
     attribute(attribute: BuildAttribute): this;
     finalize(): ElementProgramNode;
 }
+//# sourceMappingURL=element.d.ts.map

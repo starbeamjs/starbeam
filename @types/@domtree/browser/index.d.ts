@@ -45,3 +45,4 @@ export declare type DomTree = dom.Impl<{
 export declare type ParentNode = dom.ParentNode<DomTree>;
 export declare type ChildNode = dom.ChildNode<DomTree>;
 export declare type CharacterData = dom.CharacterData<DomTree>;
+//# sourceMappingURL=index.d.ts.map

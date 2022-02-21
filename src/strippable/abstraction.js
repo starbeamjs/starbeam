@@ -14,7 +14,7 @@ export class Abstraction {
     }
     static callerFrame(frames = 3) {
         let stack = Abstraction.#stack(frames);
-        return stack.split("\n")[0];
+        return stack.split("\n")[0].trimStart();
     }
     static #stack(frames = 1) {
         let abstraction = new Abstraction(frames);

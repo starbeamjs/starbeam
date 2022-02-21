@@ -76,3 +76,4 @@ export declare const has: {
  */
 export declare function minimize<N extends anydom.Node | anydom.LiveRange | anydom.StaticRange>(node: N): dom.Minimal<N>;
 export {};
+//# sourceMappingURL=minimal.d.ts.map

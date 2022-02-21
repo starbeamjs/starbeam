@@ -1,4 +1,5 @@
 import type { Reactive } from "../../fundamental/types.js";
+import { Abstraction } from "../../index.js";
 import type { AnyRecord } from "../../strippable/wrapper.js";
 import type { FIXME } from "../../utils.js";
 import { Cell } from "../cell.js";
@@ -117,7 +118,7 @@ export function builtin(value: unknown): unknown {
   } else if (value === WeakSet) {
     return new TrackedWeakSet();
   } else if (typeof value === "function") {
-    return ReactiveMemo.create(value as FIXME, `(anonymous)`);
+    return ReactiveMemo.create(value as FIXME, Abstraction.callerFrame());
   } else if (isSimpleObject(value)) {
     // freeze the object to prevent mutating it directly and expecting to see updates
     Object.freeze(value);

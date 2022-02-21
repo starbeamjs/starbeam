@@ -29,3 +29,4 @@ export {};
 /**
  * Object.fromEntries
  */
+//# sourceMappingURL=type-magic.d.ts.map

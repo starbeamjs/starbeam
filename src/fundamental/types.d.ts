@@ -34,3 +34,4 @@ export interface Reactive<T = unknown> extends HasMetadata {
     readonly description: string;
     readonly cells: UNINITIALIZED | readonly Cell[];
 }
+//# sourceMappingURL=types.d.ts.map

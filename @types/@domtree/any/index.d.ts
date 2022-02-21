@@ -29,3 +29,4 @@ export declare type ParentNode = minimal.ParentNode | browser.ParentNode;
 export declare type ChildNode = minimal.ChildNode | browser.ChildNode;
 export declare type Node = minimal.Node | browser.Node;
 export declare type Minimal<N extends Node | LiveRange | StaticRange> = N extends minimal.Node | minimal.LiveRange | minimal.StaticRange ? N : N extends LiveRange ? minimal.LiveRange : N extends StaticRange ? minimal.StaticRange : N extends Document ? minimal.Document : N extends DocumentType ? minimal.DocumentType : N extends DocumentFragment ? minimal.DocumentFragment : N extends Text ? minimal.Text : N extends Comment ? minimal.Comment : N extends Element ? minimal.Element : N extends TemplateElement ? minimal.TemplateElement : N extends Attr ? minimal.Attr : N extends StaticRange ? minimal.StaticRange : N extends LiveRange ? minimal.LiveRange : never;
+//# sourceMappingURL=index.d.ts.map

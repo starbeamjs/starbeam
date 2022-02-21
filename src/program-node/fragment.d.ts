@@ -27,3 +27,4 @@ export declare class FragmentProgramNodeBuilder {
     append(output: ContentProgramNode): this;
     finalize(): FragmentProgramNode;
 }
+//# sourceMappingURL=fragment.d.ts.map

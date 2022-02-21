@@ -69,6 +69,10 @@ export declare type InferReturn = any;
 export declare type InferArgument = any;
 export declare type UnsafeAny = any;
 export declare type AnyKey = keyof any;
+export declare type SymbolKey = any;
+export declare type AnyIndex = any;
+export declare type AnyIndexValue = any;
+export declare type Metaprogramming = any;
 export declare type AnyRecord<V = any> = {
     [P in keyof any]: V;
 };
@@ -99,3 +103,4 @@ export declare type LocalName = OpaqueAlias<string, typeof LOCAL_NAME>;
  */
 export declare function LocalName(name: string): LocalName;
 export {};
+//# sourceMappingURL=wrapper.d.ts.map

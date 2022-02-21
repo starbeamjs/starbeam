@@ -17,3 +17,4 @@ export declare class ReactiveDOM {
 export * from "./dom/buffer/body.js";
 export * from "./dom/buffer/attribute.js";
 export * from "./dom/environment.js";
+//# sourceMappingURL=dom.d.ts.map

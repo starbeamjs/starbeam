@@ -19,3 +19,4 @@ export declare class Timeline {
     };
 }
 export declare const TIMELINE: Timeline;
+//# sourceMappingURL=timeline.d.ts.map

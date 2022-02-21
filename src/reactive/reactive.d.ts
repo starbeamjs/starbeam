@@ -5,3 +5,4 @@ export declare const Reactive: {
 };
 import type { Reactive as ReactiveType } from "../fundamental/types.js";
 export declare type Reactive<T = unknown> = ReactiveType<T>;
+//# sourceMappingURL=reactive.d.ts.map

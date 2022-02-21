@@ -42,3 +42,4 @@ declare type HasGeneric<K extends string, G extends string> = {
 declare type EnumClass<K extends string> = true extends HasGeneric<K, "U"> ? EnumClass2<K> : true extends HasGeneric<K, "T"> ? EnumClass1<K> : EnumClass0<K>;
 export declare function Enum<K extends string[]>(...keys: K): EnumClass<K[number]>;
 export {};
+//# sourceMappingURL=enumeration.d.ts.map

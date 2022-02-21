@@ -19,3 +19,4 @@ export declare class Coordinator {
 }
 export declare const COORDINATOR: Coordinator;
 export {};
+//# sourceMappingURL=coordinator.d.ts.map

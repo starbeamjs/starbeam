@@ -33,3 +33,5 @@ export declare class Pipe<T> {
     to<U>(pipe: (input: T) => U): Pipe<U>;
 }
 export declare function pipe<T>(value: T): Pipe<T>;
+export declare function getDescription(fn: (...args: any[]) => unknown): string;
+//# sourceMappingURL=utils.d.ts.map

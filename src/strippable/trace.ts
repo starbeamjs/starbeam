@@ -1,3 +1,4 @@
+import { CONFIG } from "../fundamental/config.js";
 import { assert } from "./core.js";
 
 export enum LogLevel {
@@ -9,8 +10,6 @@ export enum LogLevel {
   Bug = 0b0100000,
   Silent = 0b1000000,
 }
-
-const DEFAULT_LEVEL = LogLevel.Warn;
 
 interface TraceConsole {
   Console: console.ConsoleConstructor;
@@ -418,10 +417,10 @@ export interface InspectOptions {
 
 function logLevelFrom(
   level: string | undefined,
-  { default: defaultLevel }: { default: LogLevel }
-): LogLevel {
+  from: string
+): LogLevel | undefined {
   if (level === undefined) {
-    return defaultLevel;
+    return undefined;
   } else {
     switch (level.toLowerCase()) {
       case "trace":
@@ -440,26 +439,28 @@ function logLevelFrom(
         return LogLevel.Silent;
       default:
         console.warn(
-          `unexpected value for STARBEAM_LOG (${JSON.stringify(
+          `unexpected value for ${from} (${JSON.stringify(
             level
           )}). Expected one of: trace, debug, info, warn, error, bug, silent.`
         );
 
-        return LogLevel.Warn;
+        return undefined;
     }
   }
 }
+
+const DEFAULT_LEVEL = LogLevel.Warn;
 
 export class Logger {
   static default(): TraceMethods & TraceLevels {
     let console = () => globalThis.console;
 
-    let level = logLevelFrom(globalThis.process?.env?.["STARBEAM_LOG"], {
-      default: DEFAULT_LEVEL,
-    });
-
-    return new Logger(console, level, LogLevel.Info, false) as TraceMethods &
-      TraceLevels;
+    return new Logger(
+      console,
+      undefined,
+      LogLevel.Info,
+      false
+    ) as TraceMethods & TraceLevels;
   }
 
   static create(
@@ -470,7 +471,7 @@ export class Logger {
     return new Logger(() => console, level, as, false);
   }
 
-  readonly #level: LogLevel;
+  readonly #specifiedLevel: LogLevel | undefined;
   readonly #as: LogLevel;
   readonly #withStack: boolean;
   readonly #console: () => TraceConsole;
@@ -484,12 +485,12 @@ export class Logger {
 
   constructor(
     console: () => TraceConsole,
-    level: LogLevel,
+    specifiedLevel: LogLevel | undefined,
     as: LogLevel,
     withStack: boolean
   ) {
     this.#console = console;
-    this.#level = level;
+    this.#specifiedLevel = specifiedLevel;
     this.#as = as;
     this.#withStack = withStack;
 
@@ -501,10 +502,18 @@ export class Logger {
     // this.bug = new Logger(this.#console, this.#level, LogLevel.Bug);
   }
 
+  get #level(): LogLevel {
+    if (this.#specifiedLevel) {
+      return this.#specifiedLevel;
+    } else {
+      return currentLevel();
+    }
+  }
+
   get trace(): Logger {
     return new Logger(
       this.#console,
-      this.#level,
+      this.#specifiedLevel,
       LogLevel.Trace,
       this.#withStack
     );
@@ -513,14 +522,14 @@ export class Logger {
   get warn(): Logger {
     return new Logger(
       this.#console,
-      this.#level,
+      this.#specifiedLevel,
       LogLevel.Warn,
       this.#withStack
     );
   }
 
   get withStack(): Logger {
-    return new Logger(this.#console, this.#level, this.#as, true);
+    return new Logger(this.#console, this.#specifiedLevel, this.#as, true);
   }
 
   get #shouldLog(): boolean {
@@ -562,6 +571,13 @@ export class Logger {
       return Group.start(this.#console(), description, this.#shouldLog);
     }
   }
+}
+
+function currentLevel() {
+  return (
+    logLevelFrom(CONFIG.get("LogLevel"), CONFIG.describe("LogLevel")) ??
+    DEFAULT_LEVEL
+  );
 }
 
 /**

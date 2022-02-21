@@ -37,3 +37,4 @@ export declare class RangeSnapshot {
     move(to: ContentCursor): void;
 }
 export declare const RANGE_SNAPSHOT = "RANGE_SNAPSHOT";
+//# sourceMappingURL=cursor.d.ts.map

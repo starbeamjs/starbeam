@@ -19,3 +19,4 @@ export declare class ReactiveRecord<D extends InnerDict> extends HasMetadata {
     get<K extends keyof D>(key: K): D[K];
 }
 export declare type AnyReactiveRecord = ReactiveRecord<InnerDict>;
+//# sourceMappingURL=record.d.ts.map

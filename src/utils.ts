@@ -1,3 +1,4 @@
+import { Abstraction } from "./index.js";
 import { verified } from "./strippable/assert.js";
 import { has } from "./strippable/minimal.js";
 import { as } from "./strippable/verify-context.js";
@@ -147,4 +148,12 @@ export class Pipe<T> {
 
 export function pipe<T>(value: T): Pipe<T> {
   return Pipe.of(value);
+}
+
+export function getDescription(fn: (...args: any[]) => unknown): string {
+  if (fn.name) {
+    return fn.name;
+  } else {
+    return Abstraction.callerFrame(4);
+  }
 }

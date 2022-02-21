@@ -1,10 +1,10 @@
-import { TIMELINE } from "../core/timeline/timeline.js";
-import { Group, LOGGER } from "../strippable/trace.js";
-import { ExtendsReactive } from "./base.js";
 import { ReactiveMetadata } from "../core/metadata.js";
 import type { FinalizedFrame } from "../core/timeline/frames.js";
+import { TIMELINE } from "../core/timeline/timeline.js";
 import { UNINITIALIZED } from "../fundamental/constants.js";
 import type { Cell } from "../fundamental/types.js";
+import { Group, LOGGER } from "../strippable/trace.js";
+import { ExtendsReactive } from "./base.js";
 
 export class ReactiveMemo<T> extends ExtendsReactive<T> {
   static create<T>(callback: () => T, description: string): ReactiveMemo<T> {
@@ -23,7 +23,11 @@ export class ReactiveMemo<T> extends ExtendsReactive<T> {
   #description: string;
 
   private constructor(callback: () => T, description: string) {
-    super();
+    super({
+      name: "Memo",
+      description,
+    });
+
     this.#callback = callback;
     this.#description = description;
   }
@@ -95,5 +99,9 @@ export class ReactiveMemo<T> extends ExtendsReactive<T> {
       group.end();
       TIMELINE.didConsume(newFrame!);
     }
+  }
+
+  toString() {
+    return `Reactive (${this.#description})`;
   }
 }

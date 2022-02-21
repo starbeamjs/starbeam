@@ -85,3 +85,4 @@ export declare const expect: typeof expectPattern;
  */
 export declare function types(_callback: () => void): void;
 export {};
+//# sourceMappingURL=expect.d.ts.map

@@ -1,11 +1,10 @@
-import { useEffect, useLayoutEffect, useRef, useState, } from "react";
-import { Abstraction, Cell, HookBlueprint, lifetime, Memo, Reactive, SimpleHook, subscribe, UNINITIALIZED, } from "starbeam";
+import { useCallback, useDebugValue, useState } from "react";
+import { Abstraction, Cell, HookBlueprint, lifetime, Memo, Reactive, SimpleHook, subscribe, } from "starbeam";
 import { useInstance } from "./instance.js";
 export class ReactiveComponent {
     static create(notify) {
         return new ReactiveComponent(notify);
     }
-    #updatedNotify = 0;
     #notify;
     constructor(notify) {
         this.#notify = notify;
@@ -19,14 +18,10 @@ export class ReactiveComponent {
         this.#notify = notify;
     }
     useComponentManager(manager, props) {
-        let instance = useInstance(this, () => {
+        let instance = useInstance(() => {
             return manager.create(this, props);
-        }).update({
-            finalize: true,
-            update: (instance) => {
-                manager.update(instance, props);
-            },
-        });
+        }).update((instance) => manager.update(instance, props));
+        lifetime.link(this, instance);
         return instance;
     }
     on = {
@@ -44,11 +39,13 @@ export class ReactiveComponent {
         return Memo(() => hook.current.current, `memo for: ${normalized.description} instance`);
     }
 }
-export function starbeam(definition, description = `component ${Abstraction.callerFrame().trimStart()}`) {
+export function Component(definition, description = `component ${Abstraction.callerFrame().trimStart()}`) {
     return (props) => {
+        useDebugValue(description);
         const component = useStableComponent();
+        console.log({ in: "parent", component, notify: component.notify });
         const stableProps = component.useComponentManager(STABLE_COMPONENT, props);
-        let subscription = useInstance(component, () => subscribe(Memo(definition(stableProps.reactive, component)), component.notify, description)).instance;
+        let subscription = useInstance(() => subscribe(Memo(definition(stableProps.reactive, component)), component.notify, description)).instance;
         // idempotent
         lifetime.link(component, subscription);
         return subscription.poll().value;
@@ -64,23 +61,11 @@ class StableComponent {
 }
 const STABLE_COMPONENT = new StableComponent();
 function useStableComponent() {
-    const ref = useRef(UNINITIALIZED);
-    const isFirstTime = ref.current === UNINITIALIZED;
+    const component = useInstance(() => ReactiveComponent.create(() => null)).instance;
     const [, setNotify] = useState({});
-    if (ref.current === UNINITIALIZED) {
-        ref.current = ReactiveComponent.create(() => setNotify({}));
-    }
-    let instance = ref.current;
-    useEffect(() => {
-        if (isFirstTime) {
-            return () => lifetime.finalize(instance);
-        }
-        return;
-    }, []);
-    useLayoutEffect(() => {
-        instance.updateNotify(() => setNotify({}));
-    });
-    return ref.current;
+    const notify = useCallback(() => setNotify({}), [setNotify]);
+    component.updateNotify(notify);
+    return component;
 }
 export class StableProps {
     static from(props) {

@@ -1,7 +1,7 @@
 import { useContext, useLayoutEffect } from "react";
 import { assert, Enum, HookBlueprint, HookValue, is, lifetime, RenderedRoot, verified, } from "starbeam";
 import { useSyncExternalStore } from "use-sync-external-store/shim";
-import { STARBEAM } from "./component.js";
+import { STARBEAM } from "./provider.js";
 console.log("from starbeam");
 const REFS = new WeakMap();
 const REF = Symbol("REF");

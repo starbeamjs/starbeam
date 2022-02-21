@@ -14,3 +14,4 @@ export declare const Hydrated: {
     readonly node: (node: minimal.Node) => Hydrated;
     readonly attr: (attr: minimal.Attr) => Hydrated;
 };
+//# sourceMappingURL=hydrated.d.ts.map

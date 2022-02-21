@@ -6,3 +6,4 @@ export declare class Static<T> extends ExtendsReactive<T> {
     readonly metadata: import("../core/metadata.js").ConstantMetadata;
     readonly cells: never[];
 }
+//# sourceMappingURL=static.d.ts.map

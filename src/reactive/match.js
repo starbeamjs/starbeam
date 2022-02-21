@@ -1,14 +1,18 @@
-import { ExtendsReactive } from "./base.js";
 import { ReactiveMetadata } from "../core/metadata.js";
+import { Abstraction } from "../index.js";
+import { ExtendsReactive } from "./base.js";
 export class ReactiveMatch extends ExtendsReactive {
     description;
-    static match(reactive, matcher, description) {
+    static match(reactive, matcher, description = Abstraction.callerFrame()) {
         return new ReactiveMatch(reactive, matcher, description);
     }
     #reactive;
     #matcher;
     constructor(reactive, matcher, description) {
-        super();
+        super({
+            name: "Match",
+            description,
+        });
         this.description = description;
         this.#reactive = reactive;
         this.#matcher = matcher;

@@ -33,3 +33,4 @@ export declare class Root {
         hydrate: (cursor: Cursor) => Container;
     }): RenderedRoot<Container>;
 }
+//# sourceMappingURL=universe.d.ts.map

@@ -38,3 +38,4 @@ export declare type NormalizedTestElementArgs = {
     expectation: Expects;
 };
 export {};
+//# sourceMappingURL=element.d.ts.map

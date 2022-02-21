@@ -33,3 +33,4 @@ export declare class RenderedCharacterData extends RenderedContent {
     poll(inside: minimal.ParentNode): void;
     [RANGE_SNAPSHOT](inside: minimal.ParentNode): RangeSnapshot;
 }
+//# sourceMappingURL=data.d.ts.map

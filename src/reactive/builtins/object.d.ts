@@ -5,3 +5,4 @@ export default class TrackedObject {
     static fromEntries(entries: readonly Entry[]): object;
     constructor(obj?: object);
 }
+//# sourceMappingURL=object.d.ts.map

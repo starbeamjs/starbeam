@@ -5,3 +5,4 @@ export declare class Brand {
 }
 export declare const REACTIVE_BRAND: Brand;
 export declare const PROGRAM_NODE_BRAND: Brand;
+//# sourceMappingURL=internal.d.ts.map

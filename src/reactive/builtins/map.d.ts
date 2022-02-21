@@ -32,3 +32,4 @@ export declare class TrackedWeakMap<K extends object = object, V = unknown> impl
     get [Symbol.toStringTag](): string;
 }
 export {};
+//# sourceMappingURL=map.d.ts.map

@@ -36,3 +36,4 @@ export declare type Test = (args: {
 }) => void | Promise<void>;
 export { expect } from "./expect/expect.js";
 export { toBe } from "./expect/patterns.js";
+//# sourceMappingURL=define.d.ts.map

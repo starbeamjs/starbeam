@@ -7,3 +7,4 @@ export * from "./attribute.js";
 export * from "./hook.js";
 export type { Component } from "./component.js";
 export type { ListProgramNode as ListOutput } from "./list/loop.js";
+//# sourceMappingURL=index.d.ts.map

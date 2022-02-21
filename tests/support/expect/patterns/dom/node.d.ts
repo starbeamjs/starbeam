@@ -40,3 +40,4 @@ export declare function isDoctype(): PatternFor<NodeTypePattern<SimpleDocumentTy
 export declare function isTextNode(): PatternFor<NodeTypePattern<SimpleText>>;
 export declare function isCommentNode(): PatternFor<NodeTypePattern<SimpleComment>>;
 export {};
+//# sourceMappingURL=node.d.ts.map

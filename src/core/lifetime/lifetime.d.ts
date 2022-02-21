@@ -35,3 +35,4 @@ export declare type OnDestroy = [
     token: unknown
 ];
 export declare type IntoFinalizer = Finalizer | (() => void) | OnDestroy;
+//# sourceMappingURL=lifetime.d.ts.map

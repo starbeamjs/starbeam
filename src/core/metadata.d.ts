@@ -19,3 +19,4 @@ export declare class ConstantMetadata extends ReactiveMetadata implements types.
 export declare class DynamicMetadata extends ReactiveMetadata implements types.DynamicMetadata {
     readonly kind = "dynamic";
 }
+//# sourceMappingURL=metadata.d.ts.map

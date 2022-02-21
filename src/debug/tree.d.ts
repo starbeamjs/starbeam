@@ -93,3 +93,4 @@ export declare class TreeContent extends TreeValue {
     appendTo(object: TreeifyObject, label: string): void;
 }
 export {};
+//# sourceMappingURL=tree.d.ts.map

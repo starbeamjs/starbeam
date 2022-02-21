@@ -15,3 +15,4 @@ export declare class ToBe<T> implements Pattern<unknown, T, undefined> {
     failure(actualValue: Described<unknown>): Failure;
 }
 export declare function toBe<T>(value: T, serializer?: ToBeSerializer<T> | ((value: T) => string)): AnyPatternDSL<T>;
+//# sourceMappingURL=comparison.d.ts.map

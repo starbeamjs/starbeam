@@ -55,3 +55,4 @@ export interface AttributeValue {
     readonly value: string | null;
     readonly type?: AttrType;
 }
+//# sourceMappingURL=attribute.d.ts.map

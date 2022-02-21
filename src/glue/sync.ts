@@ -51,7 +51,7 @@ export function subscribe<T>(
   ready: () => void,
   description = `subscriber (to ${
     reactive.description
-  }) <- ${Abstraction.callerFrame().trimStart()}`
+  }) <- ${Abstraction.callerFrame()}`
 ): ExternalSubscription<T> {
   if (reactive.isConstant()) {
     return initialize(ConstantSubscription.create(reactive.current));

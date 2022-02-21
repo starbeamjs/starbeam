@@ -1,11 +1,11 @@
+import { LIFETIME } from "../core/lifetime/lifetime.js";
+import { UNINITIALIZED } from "../fundamental/constants.js";
 import { ExtendsReactive } from "../reactive/base.js";
 import { ReactiveMemo } from "../reactive/memo.js";
-import { LIFETIME } from "../core/lifetime/lifetime.js";
 import { verified } from "../strippable/assert.js";
 import { is } from "../strippable/minimal.js";
 import { LOGGER } from "../strippable/trace.js";
 import { expected } from "../strippable/verify-context.js";
-import { UNINITIALIZED } from "../fundamental/constants.js";
 /**
  * This class wraps the HookConstructor callback to give it extra debug
  * information. It is returned by universe.hook.
@@ -59,7 +59,10 @@ export class SimpleHook extends ExtendsReactive {
     #reactive;
     #isResource;
     constructor(reactive, isResource, description) {
-        super();
+        super({
+            name: "Hook",
+            description,
+        });
         LIFETIME.on.finalize(this, () => LOGGER.trace.log(`destroying instance of ${description}`));
         this.#reactive = reactive;
         this.#description = description;

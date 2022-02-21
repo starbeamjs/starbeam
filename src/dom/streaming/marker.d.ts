@@ -53,3 +53,4 @@ export declare function attrSelector(attr: string, value?: string): string;
 export declare function findElement(container: minimal.ParentNode, selector: string): minimal.Element;
 export declare function findElements(container: minimal.ParentNode, selector: string): IterableIterator<minimal.ChildNode>;
 export {};
+//# sourceMappingURL=marker.d.ts.map

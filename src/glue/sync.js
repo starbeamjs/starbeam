@@ -33,7 +33,7 @@ function initialize(subscription) {
  *   longer interested in receiving notifications. Once this method is called,
  *   no further notifications will occur.
  */
-export function subscribe(reactive, ready, description = `subscriber (to ${reactive.description}) <- ${Abstraction.callerFrame().trimStart()}`) {
+export function subscribe(reactive, ready, description = `subscriber (to ${reactive.description}) <- ${Abstraction.callerFrame()}`) {
     if (reactive.isConstant()) {
         return initialize(ConstantSubscription.create(reactive.current));
     }

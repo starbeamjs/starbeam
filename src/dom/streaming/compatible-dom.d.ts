@@ -161,3 +161,4 @@ export declare class MinimalDocumentUtilities {
     rangeAppendingTo(parent: minimal.ParentNode): minimal.LiveRange;
 }
 export {};
+//# sourceMappingURL=compatible-dom.d.ts.map

@@ -180,3 +180,4 @@ export declare type ChildNode = dom.ChildNode<DomTree>;
 export declare type CharacterData = dom.CharacterData<DomTree>;
 export declare type Node = dom.Node<DomTree>;
 export {};
+//# sourceMappingURL=index.d.ts.map

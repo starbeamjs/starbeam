@@ -15,3 +15,4 @@ export declare class RenderedRoot<Container> {
     initialize(): this;
     poll(): void;
 }
+//# sourceMappingURL=root.d.ts.map

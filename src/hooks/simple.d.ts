@@ -1,8 +1,8 @@
-import { ExtendsReactive } from "../reactive/base.js";
-import type { ReactiveMetadata } from "../core/metadata.js";
 import { type IntoFinalizer } from "../core/lifetime/lifetime.js";
-import type { Cell, Reactive } from "../fundamental/types.js";
+import type { ReactiveMetadata } from "../core/metadata.js";
 import { UNINITIALIZED } from "../fundamental/constants.js";
+import type { Cell, Reactive } from "../fundamental/types.js";
+import { ExtendsReactive } from "../reactive/base.js";
 export declare type ResourceHookConstructor<T> = (hook: SimpleHook<T>) => Reactive<T>;
 export declare type DataHookConstructor<T> = () => Reactive<T>;
 export declare type HookConstructor<T> = ResourceHookConstructor<T> | DataHookConstructor<T>;
@@ -30,3 +30,4 @@ export declare class SimpleHook<T> extends ExtendsReactive<T> {
     get current(): T;
     poll(): void;
 }
+//# sourceMappingURL=simple.d.ts.map

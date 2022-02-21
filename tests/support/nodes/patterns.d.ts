@@ -24,3 +24,4 @@ export declare function expectElement(node: anydom.Element, tagName: string, opt
     attributes?: Record<string, string>;
     children?: readonly NodePattern[];
 }): void;
+//# sourceMappingURL=patterns.d.ts.map

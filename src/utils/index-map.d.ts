@@ -12,3 +12,4 @@ export declare class OrderedIndex<K, V> {
     get(key: K): V | null;
     mergedMap(other: OrderedIndex<K, V>): Map<K, V>;
 }
+//# sourceMappingURL=index-map.d.ts.map

@@ -10,3 +10,4 @@ export declare class Timestamp {
     next(): Timestamp;
     toString(): string;
 }
+//# sourceMappingURL=timestamp.d.ts.map

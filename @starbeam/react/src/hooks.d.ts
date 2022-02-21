@@ -18,3 +18,4 @@ declare class Layout<T> extends Layout_base<T> {
 export declare function useModifier<T, E extends browser.Element>(ref: Ref<E>, hook: (element: E) => HookBlueprint<T>): Layout<T>;
 export declare function use<T>(hook: HookBlueprint<T>): T;
 export {};
+//# sourceMappingURL=hooks.d.ts.map

@@ -33,3 +33,4 @@ export declare class FinalizedFrame<T = unknown> extends HasMetadata implements 
         status: "invalid";
     };
 }
+//# sourceMappingURL=frames.d.ts.map

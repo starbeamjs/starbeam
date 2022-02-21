@@ -342,7 +342,7 @@ export declare class Logger {
     #private;
     static default(): TraceMethods & TraceLevels;
     static create(console: TraceConsole, level?: LogLevel, as?: LogLevel): Logger;
-    constructor(console: () => TraceConsole, level: LogLevel, as: LogLevel, withStack: boolean);
+    constructor(console: () => TraceConsole, specifiedLevel: LogLevel | undefined, as: LogLevel, withStack: boolean);
     get trace(): Logger;
     get warn(): Logger;
     get withStack(): Logger;
@@ -354,3 +354,4 @@ export declare class Logger {
  */
 export declare const LOGGER: TraceMethods & TraceLevels;
 export {};
+//# sourceMappingURL=trace.d.ts.map

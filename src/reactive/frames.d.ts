@@ -8,3 +8,4 @@ export declare class FrameSubscriber<T> {
     poll(): T;
 }
 export declare const Frame: typeof FrameSubscriber.create;
+//# sourceMappingURL=frames.d.ts.map

@@ -1,7 +1,7 @@
 import { useCallback, useContext } from "react";
 import { Cell } from "starbeam";
 import { useSyncExternalStore } from "use-sync-external-store/shim";
-import { STARBEAM } from "./component.js";
+import { STARBEAM } from "./provider.js";
 
 /**
  * The purpose of this class is to present the `Cell` interface in an object

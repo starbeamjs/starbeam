@@ -1,14 +1,15 @@
-import { describeValue } from "../describe.js";
+import { ReactiveMetadata } from "../core/metadata.js";
+import { TIMELINE } from "../core/timeline/timeline.js";
 import type { Timestamp } from "../core/timeline/timestamp.js";
+import { describeValue } from "../describe.js";
+import { IS_UPDATED_SINCE } from "../fundamental/constants.js";
+import type { Cell as CellType } from "../fundamental/types.js";
+import { Abstraction } from "../index.js";
 import { verify } from "../strippable/assert.js";
 import { is } from "../strippable/minimal.js";
 import { expected } from "../strippable/verify-context.js";
 import { ExtendsReactive } from "./base.js";
 import { REACTIVE_BRAND } from "./internal.js";
-import { ReactiveMetadata } from "../core/metadata.js";
-import { TIMELINE } from "../core/timeline/timeline.js";
-import type { Cell as CellType } from "../fundamental/types.js";
-import { IS_UPDATED_SINCE } from "../fundamental/constants.js";
 
 export class ReactiveCell<T> extends ExtendsReactive<T> implements CellType {
   static create<T>(value: T, description: string): ReactiveCell<T> {
@@ -26,11 +27,14 @@ export class ReactiveCell<T> extends ExtendsReactive<T> implements CellType {
     description: string,
     frozen: boolean
   ) {
-    super();
+    super({
+      name: "Cell",
+      description,
+    });
     REACTIVE_BRAND.brand(this);
     this.#value = value;
     this.#lastUpdate = lastUpdate;
-    this.#description = `(${this.id}) ${description}`;
+    this.#description = description;
     this.#frozen = frozen;
   }
 
@@ -74,6 +78,10 @@ export class ReactiveCell<T> extends ExtendsReactive<T> implements CellType {
     return this.#value;
   }
 
+  toString() {
+    return `Reactive (${this.#description})`;
+  }
+
   [IS_UPDATED_SINCE](timestamp: Timestamp): boolean {
     return this.#lastUpdate.gt(timestamp);
   }
@@ -81,7 +89,10 @@ export class ReactiveCell<T> extends ExtendsReactive<T> implements CellType {
 
 export type Cell<T = unknown> = CellType<T>;
 
-export function Cell<T>(value: T, description = "(anonymous cell)"): Cell<T> {
+export function Cell<T>(
+  value: T,
+  description = Abstraction.callerFrame()
+): Cell<T> {
   return ReactiveCell.create(value, description);
 }
 

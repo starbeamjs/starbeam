@@ -17,3 +17,4 @@ declare class UnstableCell<T> {
 declare type Atom<T> = UnstableCell<T>;
 export declare function useAtom<T>(value: T): Atom<T>;
 export {};
+//# sourceMappingURL=atom.d.ts.map

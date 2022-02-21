@@ -8,3 +8,4 @@ declare global {
     }
 }
 export declare function starbeam(result: MatchResult): jest.CustomMatcherResult;
+//# sourceMappingURL=upstream.d.ts.map

@@ -39,3 +39,4 @@ export interface ExternalSubscription<T = unknown> {
  *   no further notifications will occur.
  */
 export declare function subscribe<T>(reactive: Reactive<T>, ready: () => void, description?: string): ExternalSubscription<T>;
+//# sourceMappingURL=sync.d.ts.map

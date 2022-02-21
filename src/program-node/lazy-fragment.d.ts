@@ -11,3 +11,4 @@ export declare class LazyFragment {
     get(inside: minimal.ParentNode): minimal.ChildNode;
     set(placeholder: minimal.ChildNode | null): void;
 }
+//# sourceMappingURL=lazy-fragment.d.ts.map

@@ -13,3 +13,4 @@ export declare function builtin<T extends Record<string, unknown>>(object: T): T
 export declare function builtin<T>(value: T[]): T[];
 export declare function builtin<R extends AnyRecord>(value: R): R;
 export {};
+//# sourceMappingURL=reactive.d.ts.map

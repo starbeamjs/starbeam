@@ -6,3 +6,4 @@ import type { ContentProgramNode } from "./interfaces/program-node.js";
  * returns a ContentProgramNode.
  */
 export declare type Component<P extends ReactiveParameter = ReactiveParameter> = (arg: P) => ContentProgramNode;
+//# sourceMappingURL=component.d.ts.map

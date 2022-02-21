@@ -44,3 +44,4 @@ export declare abstract class InsertAt {
     abstract describe(): string;
 }
 export {};
+//# sourceMappingURL=diff.d.ts.map

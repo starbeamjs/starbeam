@@ -1,8 +1,8 @@
+import { ReactiveMetadata } from "../core/metadata.js";
 import { TIMELINE } from "../core/timeline/timeline.js";
+import { UNINITIALIZED } from "../fundamental/constants.js";
 import { Group, LOGGER } from "../strippable/trace.js";
 import { ExtendsReactive } from "./base.js";
-import { ReactiveMetadata } from "../core/metadata.js";
-import { UNINITIALIZED } from "../fundamental/constants.js";
 export class ReactiveMemo extends ExtendsReactive {
     static create(callback, description) {
         return new ReactiveMemo(callback, description);
@@ -16,7 +16,10 @@ export class ReactiveMemo extends ExtendsReactive {
     #metadata = ReactiveMetadata.Dynamic;
     #description;
     constructor(callback, description) {
-        super();
+        super({
+            name: "Memo",
+            description,
+        });
         this.#callback = callback;
         this.#description = description;
     }
@@ -75,6 +78,9 @@ export class ReactiveMemo extends ExtendsReactive {
             group.end();
             TIMELINE.didConsume(newFrame);
         }
+    }
+    toString() {
+        return `Reactive (${this.#description})`;
     }
 }
 //# sourceMappingURL=memo.js.map

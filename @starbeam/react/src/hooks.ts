@@ -11,7 +11,7 @@ import {
   verified,
 } from "starbeam";
 import { useSyncExternalStore } from "use-sync-external-store/shim";
-import { STARBEAM } from "./component.js";
+import { STARBEAM } from "./provider.js";
 
 console.log("from starbeam");
 

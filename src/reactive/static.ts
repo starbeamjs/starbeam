@@ -8,7 +8,10 @@ export class Static<T> extends ExtendsReactive<T> {
     readonly current: T,
     readonly description = `a static ${describeValue(current)}`
   ) {
-    super();
+    super({
+      name: "Static",
+      description,
+    });
     REACTIVE_BRAND.brand(this);
   }
 

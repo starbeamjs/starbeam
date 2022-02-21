@@ -20,3 +20,4 @@ export declare class RenderedAttribute extends RenderedProgramNode<minimal.Paren
     initialize(inside: minimal.ParentNode): void;
     poll(inside: minimal.ParentNode): void;
 }
+//# sourceMappingURL=attribute.d.ts.map

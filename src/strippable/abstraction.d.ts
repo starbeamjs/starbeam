@@ -13,3 +13,4 @@ export declare class Abstraction {
     static wrap<T>(callback: () => T, frames?: number): T;
     private constructor();
 }
+//# sourceMappingURL=abstraction.d.ts.map

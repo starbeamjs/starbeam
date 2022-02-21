@@ -25,3 +25,4 @@ export declare class KeyedContent {
     static create(key: unknown, content: RenderedContent): KeyedContent;
     private constructor();
 }
+//# sourceMappingURL=snapshot.d.ts.map

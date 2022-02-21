@@ -51,3 +51,4 @@ export declare function verify<In, Out extends In>(value: In, verifier: Verifier
 export declare function verified<Out extends In, In = unknown>(value: In, verifier: (value: In) => value is Out, context?: IntoBuildContext): Out;
 export declare function exhaustive(_value: never, type?: string): never;
 export {};
+//# sourceMappingURL=assert.d.ts.map

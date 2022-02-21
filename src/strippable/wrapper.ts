@@ -107,6 +107,18 @@ export type UnsafeAny = any;
 export type AnyKey = keyof any;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type SymbolKey = any;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type AnyIndex = any;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type AnyIndexValue = any;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type Metaprogramming = any;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AnyRecord<V = any> = { [P in keyof any]: V };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

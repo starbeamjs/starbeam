@@ -54,3 +54,4 @@ export interface Debug {
 }
 export declare function debug(value: unknown): string;
 export {};
+//# sourceMappingURL=inspect.d.ts.map

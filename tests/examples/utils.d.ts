@@ -10,3 +10,4 @@ export declare class JsDocument {
     get contents(): string;
     log(): void;
 }
+//# sourceMappingURL=utils.d.ts.map

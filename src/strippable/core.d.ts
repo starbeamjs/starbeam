@@ -17,3 +17,4 @@ declare function message(info: DebugInformation): string;
 export declare const narrow: <T, U extends T>(value: T, predicate: (input: T) => asserts input is U) => U;
 export declare function abstractify<F extends (...args: any[]) => any>(f: F): F;
 export {};
+//# sourceMappingURL=core.d.ts.map

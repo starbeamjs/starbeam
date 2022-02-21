@@ -2,6 +2,7 @@
   "compilerOptions": {
     "composite": true,
     "allowJs": false,
+    "declarationMap": true,
     "target": "ESNext",
     "strict": true,
     "useDefineForClassFields": true,
@@ -19,6 +20,6 @@
     "isolatedModules": true,
     "preserveValueImports": true
   },
-  "include": ["src", "tests", "@types", "@starbeam/react"],
-  "exclude": ["**/dist/**"]
+  "include": ["src/**/*.ts", "tests", "@types", "@starbeam/react"],
+  "exclude": ["**/dist/**", "{src,tests,@types,@starbeam}/**/*.d.ts"]
 }

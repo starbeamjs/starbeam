@@ -26,3 +26,4 @@ export declare type ConstantRenderedContent = RenderedContent & HasConstantMetad
 export declare type ConstantRenderedAttribute = RenderedAttribute & HasConstantMetadata;
 export declare type UpdatingRenderedContent = RenderedContent & HasUpdatingMetadata;
 export declare type UpdatingRenderedAttribute = RenderedAttribute & HasUpdatingMetadata;
+//# sourceMappingURL=rendered-content.d.ts.map

@@ -38,3 +38,4 @@ export declare class RenderedHook<T> extends RenderedProgramNode<HookValue> {
     poll(inside: HookValue): void;
 }
 export {};
+//# sourceMappingURL=hook.d.ts.map

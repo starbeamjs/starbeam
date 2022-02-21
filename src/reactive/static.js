@@ -6,7 +6,10 @@ export class Static extends ExtendsReactive {
     current;
     description;
     constructor(current, description = `a static ${describeValue(current)}`) {
-        super();
+        super({
+            name: "Static",
+            description,
+        });
         this.current = current;
         this.description = description;
         REACTIVE_BRAND.brand(this);

@@ -75,3 +75,4 @@ export declare class ElementHeadBuffer {
     body(): ElementBodyBuffer;
     empty(type?: ElementBody): void;
 }
+//# sourceMappingURL=body.d.ts.map

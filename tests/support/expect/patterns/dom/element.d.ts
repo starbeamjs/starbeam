@@ -42,3 +42,4 @@ export declare class SimpleElementPattern implements Pattern<SimpleNode, SimpleE
 }
 declare type NodePattern = SimpleElementPattern | NodeTypePattern<SimpleNode>;
 export {};
+//# sourceMappingURL=element.d.ts.map

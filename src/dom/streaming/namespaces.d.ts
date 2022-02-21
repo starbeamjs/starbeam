@@ -13,3 +13,4 @@ export declare type XML_NAMESPACE = XmlNamespace;
 export declare const XMLNS_NAMESPACE: XmlnsNamespace;
 export declare type XMLNS_NAMESPACE = XmlnsNamespace;
 export declare type AttributeNamespace = XlinkNamespace | XML_NAMESPACE | XMLNS_NAMESPACE;
+//# sourceMappingURL=namespaces.d.ts.map

@@ -1,3 +1,4 @@
+import { Abstraction } from "./index.js";
 import { verified } from "./strippable/assert.js";
 import { has } from "./strippable/minimal.js";
 import { as } from "./strippable/verify-context.js";
@@ -113,5 +114,13 @@ export class Pipe {
 }
 export function pipe(value) {
     return Pipe.of(value);
+}
+export function getDescription(fn) {
+    if (fn.name) {
+        return fn.name;
+    }
+    else {
+        return Abstraction.callerFrame(4);
+    }
 }
 //# sourceMappingURL=utils.js.map

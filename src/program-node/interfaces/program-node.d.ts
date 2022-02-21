@@ -28,3 +28,4 @@ export declare abstract class ContentProgramNode extends AbstractProgramNode<Con
      */
     abstract render(buffer: ContentConstructor): RenderedContent;
 }
+//# sourceMappingURL=program-node.d.ts.map

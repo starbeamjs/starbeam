@@ -1,3 +1,4 @@
+import { Abstraction } from "../../index.js";
 import { Cell } from "../cell.js";
 import { ReactiveMemo } from "../memo.js";
 import { TrackedArray } from "./array.js";
@@ -42,7 +43,7 @@ export function builtin(value) {
         return new TrackedWeakSet();
     }
     else if (typeof value === "function") {
-        return ReactiveMemo.create(value, `(anonymous)`);
+        return ReactiveMemo.create(value, Abstraction.callerFrame());
     }
     else if (isSimpleObject(value)) {
         // freeze the object to prevent mutating it directly and expecting to see updates

@@ -38,3 +38,4 @@ export declare class LazyDOM<Hydrated> {
     insert(this: LazyDOM<minimal.ChildNode>, at: ContentCursor): void;
 }
 export declare function tokenId(token: Token): string;
+//# sourceMappingURL=token.d.ts.map

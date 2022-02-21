@@ -28,3 +28,4 @@ export declare class ReactiveCases<C extends AnyReactiveChoice> {
     done(description: string): ReactiveChoiceConstructor<C>;
 }
 export {};
+//# sourceMappingURL=choice.d.ts.map

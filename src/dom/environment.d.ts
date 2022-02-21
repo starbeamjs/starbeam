@@ -13,3 +13,4 @@ export declare abstract class DomEnvironment {
 export interface DomEnvironment {
     readonly document: minimal.Document;
 }
+//# sourceMappingURL=environment.d.ts.map

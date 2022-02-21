@@ -23,3 +23,4 @@ export declare class DebugObjectLifetime {
     tree(): TreeRecord;
 }
 export {};
+//# sourceMappingURL=debug.d.ts.map

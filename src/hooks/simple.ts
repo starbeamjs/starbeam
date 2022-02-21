@@ -1,13 +1,13 @@
+import { LIFETIME, type IntoFinalizer } from "../core/lifetime/lifetime.js";
+import type { ReactiveMetadata } from "../core/metadata.js";
+import { UNINITIALIZED } from "../fundamental/constants.js";
+import type { Cell, Reactive } from "../fundamental/types.js";
 import { ExtendsReactive } from "../reactive/base.js";
 import { ReactiveMemo } from "../reactive/memo.js";
-import type { ReactiveMetadata } from "../core/metadata.js";
-import { type IntoFinalizer, LIFETIME } from "../core/lifetime/lifetime.js";
 import { verified } from "../strippable/assert.js";
 import { is } from "../strippable/minimal.js";
 import { LOGGER } from "../strippable/trace.js";
 import { expected } from "../strippable/verify-context.js";
-import type { Cell, Reactive } from "../fundamental/types.js";
-import { UNINITIALIZED } from "../fundamental/constants.js";
 
 export type ResourceHookConstructor<T> = (hook: SimpleHook<T>) => Reactive<T>;
 export type DataHookConstructor<T> = () => Reactive<T>;
@@ -92,7 +92,10 @@ export class SimpleHook<T> extends ExtendsReactive<T> {
     isResource: boolean,
     description: string
   ) {
-    super();
+    super({
+      name: "Hook",
+      description,
+    });
 
     LIFETIME.on.finalize(this, () =>
       LOGGER.trace.log(`destroying instance of ${description}`)
