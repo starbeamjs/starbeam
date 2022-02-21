@@ -5,7 +5,7 @@
   "types": "index.ts",
   "version": "0.5.0",
   "dependencies": {
-    "starbeam": "workspace:*",
+    "@starbeam/core": "workspace:*",
     "use-ssr": "^1.0.24",
     "use-sync-external-store": "rc",
     "@types/use-sync-external-store": "ts4.6"

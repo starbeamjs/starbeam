@@ -1,4 +1,3 @@
-import { useDebugValue } from "react";
 import {
   Abstraction,
   lifetime,
@@ -6,7 +5,8 @@ import {
   Memo,
   subscribe,
   type AnyRecord,
-} from "starbeam";
+} from "@starbeam/core";
+import { useDebugValue } from "react";
 import {
   ReactiveComponent,
   StableProps,

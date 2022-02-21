@@ -1,4 +1,3 @@
-import { useCallback, useDebugValue, useState, type ReactElement } from "react";
 import {
   assert,
   Cell,
@@ -18,7 +17,8 @@ import {
   type AnyKey,
   type AnyRecord,
   type InferReturn,
-} from "starbeam";
+} from "@starbeam/core";
+import { useCallback, useDebugValue, useState, type ReactElement } from "react";
 import { useInstance } from "./instance.js";
 
 export class ReactiveComponent {

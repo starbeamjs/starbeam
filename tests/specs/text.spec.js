@@ -1,6 +1,6 @@
-import { Expects, test } from "../support/index.js";
+import { Cell, Reactive } from "@starbeam/core";
 import { Dynamism } from "../support/expect/expect.js";
-import { Cell, Reactive } from "starbeam";
+import { Expects, test } from "../support/index.js";
 test("dynamic text", ({ test }) => {
     let hello = Cell("hello");
     let text = test.buildText(hello, Dynamism.dynamic);

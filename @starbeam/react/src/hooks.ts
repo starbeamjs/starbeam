@@ -1,5 +1,4 @@
 import type { browser } from "@domtree/flavors";
-import { useContext, useLayoutEffect } from "react";
 import {
   assert,
   Enum,
@@ -9,7 +8,8 @@ import {
   lifetime,
   RenderedRoot,
   verified,
-} from "starbeam";
+} from "@starbeam/core";
+import { useContext, useLayoutEffect } from "react";
 import { useSyncExternalStore } from "use-sync-external-store/shim";
 import { STARBEAM } from "./provider.js";
 

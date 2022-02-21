@@ -1,4 +1,4 @@
-import { HookBlueprint, Reactive } from "starbeam";
+import { HookBlueprint, Reactive } from "@starbeam/core";
 export declare type StarbeamHook<Args extends readonly any[] = readonly any[], Ret extends HookBlueprint<any> = HookBlueprint<any>> = (...args: Args) => Ret;
 declare type IdiomaticHookArgs<Args extends readonly any[]> = {
     [P in keyof Args]: Args[P] extends Reactive<infer T> ? T : Args[P];

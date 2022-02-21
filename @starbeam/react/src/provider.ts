@@ -1,4 +1,5 @@
 import type { browser } from "@domtree/flavors";
+import { DomEnvironment, Root, UNINITIALIZED } from "@starbeam/core";
 import {
   createContext,
   createElement,
@@ -6,7 +7,6 @@ import {
   type Context,
   type PropsWithChildren,
 } from "react";
-import { DomEnvironment, Root, UNINITIALIZED } from "starbeam";
 import { useSSR } from "use-ssr";
 
 export const STARBEAM = createContext(null) as unknown as Context<Root>;

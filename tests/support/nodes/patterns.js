@@ -1,5 +1,5 @@
+import { Abstraction, DOM, exhaustive, is, verified, verify, } from "@starbeam/core";
 import zip from "lodash.zip";
-import { Abstraction, DOM, exhaustive, is, verified, verify } from "starbeam";
 export function ElementNode(tagName, options) {
     return {
         type: "element",

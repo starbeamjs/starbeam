@@ -1,6 +1,6 @@
+import { exhaustive } from "@starbeam/core";
 import { diff } from "jest-diff";
 import * as utils from "jest-matcher-utils";
-import { exhaustive } from "starbeam";
 class JestAssertionError extends Error {
     matcherResult;
     constructor(result, callsite) {

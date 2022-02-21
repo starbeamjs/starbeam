@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Cell, enumerate, HookBlueprint, Reactive, } from "starbeam";
+import { Cell, enumerate, HookBlueprint, Reactive, } from "@starbeam/core";
 import { use } from "./hooks.js";
 export function hookify(hook, description = hook.name || `(anonymous hook)`) {
     let stableArgs;

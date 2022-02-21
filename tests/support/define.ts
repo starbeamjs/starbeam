@@ -1,6 +1,8 @@
 import type { minimal } from "@domtree/flavors";
-import { JSDOM } from "jsdom";
+import * as jest from "@jest/globals";
 import {
+  Abstraction,
+  Cell,
   CommentProgramNode,
   ContentProgramNode,
   DomEnvironment,
@@ -13,13 +15,11 @@ import {
   ReactiveDOM,
   ReactiveMetadata,
   RenderedRoot,
-  TextProgramNode,
   Root,
+  TextProgramNode,
   verify,
-  Abstraction,
-  Cell,
-} from "starbeam";
-import * as jest from "@jest/globals";
+} from "@starbeam/core";
+import { JSDOM } from "jsdom";
 import {
   ElementArgs,
   normalizeChild,

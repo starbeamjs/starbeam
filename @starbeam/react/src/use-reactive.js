@@ -1,5 +1,5 @@
+import { Abstraction, lifetime, LOGGER, Memo, subscribe, } from "@starbeam/core";
 import { useDebugValue } from "react";
-import { Abstraction, lifetime, LOGGER, Memo, subscribe, } from "starbeam";
 import { ReactiveComponent, StableProps, STABLE_COMPONENT, useStableComponent, } from "./component.js";
 import { useInstance } from "./instance.js";
 export function useReactive(definition, props, description = Abstraction.callerFrame()) {

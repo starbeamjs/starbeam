@@ -1,4 +1,4 @@
-import { Cell, Reactive } from "starbeam";
+import { Cell, Reactive } from "@starbeam/core";
 import { Expects, test } from "../support/index.js";
 test("a simple element containing a text node (dynamic) ", ({ dom, test }) => {
     let name = Cell("Chirag");

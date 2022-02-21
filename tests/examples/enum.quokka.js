@@ -1,4 +1,4 @@
-import { Enum } from "starbeam";
+import { Enum } from "@starbeam/core";
 class Option extends Enum("Some(T)", "None") {
     map(callback) {
         return this.match({

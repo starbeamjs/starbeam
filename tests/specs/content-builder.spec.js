@@ -1,5 +1,5 @@
-import { HtmlBuffer } from "starbeam";
-import { test, expect, toBe } from "../support/define.js";
+import { HtmlBuffer } from "@starbeam/core";
+import { expect, test, toBe } from "../support/define.js";
 test("ContentBuffer text", () => {
     let content = HtmlBuffer.create().text("hello");
     expect(content.serialize(), toBe("hello"));

@@ -1,5 +1,5 @@
 import type { browser } from "@domtree/flavors";
-import { HookBlueprint } from "starbeam";
+import { HookBlueprint } from "@starbeam/core";
 declare const REF: unique symbol;
 declare type REF = typeof REF;
 interface Ref<E extends browser.Element> {
@@ -7,7 +7,7 @@ interface Ref<E extends browser.Element> {
     readonly [REF]: true;
 }
 export declare function ref<E extends browser.Element>(kind: abstract new (...args: any[]) => E): Ref<E>;
-declare const Layout_base: (new <T_1>(...args: ["Rendering"] | ["Rendered(T)", T_1]) => import("../../../src/reactive/enumeration.js").EnumInstance1<"Rendering" | "Rendered(T)", T_1>) & {
+declare const Layout_base: (new <T_1>(...args: ["Rendering"] | ["Rendered(T)", T_1]) => import("@starbeam/core/reactive").EnumInstance1<"Rendering" | "Rendered(T)", T_1>) & {
     Rendering: <This extends abstract new (discriminant: "Rendering") => Instance, Instance>(this: This) => Instance;
     Rendered: <This_1 extends abstract new (discriminant: "Rendered(T)", value: T_2) => Instance_1, Instance_1, T_2>(this: This_1, value: T_2) => Instance_1;
 };

@@ -1,19 +1,19 @@
-import type { UnsafeAny } from "starbeam";
+import type { UnsafeAny } from "@starbeam/core";
 import {
-  type AnyPatternDSL,
   Described,
-  type Pattern,
   PatternImpl,
   PatternMatch,
   PatternMismatch,
+  type AnyPatternDSL,
+  type Pattern,
   type PatternResult,
 } from "../expect.js";
 import {
-  type Failure,
   NotEqual,
-  type PatternDetails,
   Success,
   ValueDescription,
+  type Failure,
+  type PatternDetails,
 } from "../report.js";
 
 export interface ToBeSerializer<T> {

@@ -1,5 +1,5 @@
+import { assert, Cell, exhaustive, expected, getDescription, HookBlueprint, is, lifetime, LOGGER, Memo, Reactive, SimpleHook, subscribe, verify, } from "@starbeam/core";
 import { useCallback, useDebugValue, useState } from "react";
-import { assert, Cell, exhaustive, expected, getDescription, HookBlueprint, is, lifetime, LOGGER, Memo, Reactive, SimpleHook, subscribe, verify, } from "starbeam";
 import { useInstance } from "./instance.js";
 export class ReactiveComponent {
     static create(notify) {

@@ -1,5 +1,5 @@
+import { Cell } from "@starbeam/core";
 import { useCallback, useContext } from "react";
-import { Cell } from "starbeam";
 import { useSyncExternalStore } from "use-sync-external-store/shim";
 import { STARBEAM } from "./provider.js";
 /**

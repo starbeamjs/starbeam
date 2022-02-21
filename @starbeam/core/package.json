@@ -1,0 +1,31 @@
+{
+  "name": "@starbeam/core",
+  "version": "0.0.0",
+  "type": "module",
+  "types": "index.ts",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "serve": "vite preview",
+    "test": "node ./jest/run.js",
+    "lint": "eslint .",
+    "typecheck": "tsc -b",
+    "typecheck:serve": "tsc -b -w --pretty false",
+    "guides": "mdbook build -d ../docs guides",
+    "jest:env:watch": "tsc -p ./jest -w",
+    "jest:env:build": "tsc -p ./jest",
+    "jest:cache:clear": "jest --clearCache"
+  },
+  "madge": {
+    "detectiveOptions": {
+      "es6": {
+        "skipTypeImports": true
+      }
+    }
+  },
+  "dependencies": {
+    "fast-array-diff": "^1.0.1",
+    "treeify": "^1.1.0"
+  }
+}

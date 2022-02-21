@@ -1,5 +1,5 @@
+import { Root } from "@starbeam/core";
 import { JSDOM } from "jsdom";
-import { Root } from "starbeam";
 export declare class JsDocument {
     readonly jsdom: JSDOM;
     static create(): JsDocument;

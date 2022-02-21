@@ -1,4 +1,4 @@
-import { Cell, Root } from "starbeam";
+import { Cell, Root } from "@starbeam/core";
 import { JsDocument } from "./utils.js";
 let document = JsDocument.create();
 const universe = Root.jsdom(document.jsdom);

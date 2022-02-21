@@ -3,10 +3,10 @@ import {
   Cell,
   enumerate,
   HookBlueprint,
+  Reactive,
   type InferReturn,
   type IntoReactive,
-  Reactive,
-} from "starbeam";
+} from "@starbeam/core";
 import { use } from "./hooks.js";
 
 export type StarbeamHook<

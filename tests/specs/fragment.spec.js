@@ -1,6 +1,6 @@
-import { Expects, test } from "../support/index.js";
+import { Cell, Reactive } from "@starbeam/core";
 import { Dynamism } from "../support/expect/expect.js";
-import { Cell, Reactive } from "starbeam";
+import { Expects, test } from "../support/index.js";
 test("a fragment containing a text node (dynamic) ", ({ test }) => {
     let name = Cell("Chirag");
     let fragment = test.buildFragment([test.buildText(name, Dynamism.dynamic)], Expects.dynamic);

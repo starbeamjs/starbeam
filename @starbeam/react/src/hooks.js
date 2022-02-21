@@ -1,5 +1,5 @@
+import { assert, Enum, HookBlueprint, HookValue, is, lifetime, RenderedRoot, verified, } from "@starbeam/core";
 import { useContext, useLayoutEffect } from "react";
-import { assert, Enum, HookBlueprint, HookValue, is, lifetime, RenderedRoot, verified, } from "starbeam";
 import { useSyncExternalStore } from "use-sync-external-store/shim";
 import { STARBEAM } from "./provider.js";
 console.log("from starbeam");

@@ -1,4 +1,4 @@
-import { lifetime, Finalizer } from "starbeam";
+import { Finalizer, lifetime } from "@starbeam/core";
 import { expect, test, toBe } from "../support/index.js";
 
 test("universe.on.destroy", () => {

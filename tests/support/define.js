@@ -1,6 +1,6 @@
-import { JSDOM } from "jsdom";
-import { CommentProgramNode, ContentProgramNode, DomEnvironment, ElementProgramNode, ElementProgramNodeBuilder, FragmentProgramNode, HTML_NAMESPACE, is, Reactive, ReactiveDOM, ReactiveMetadata, RenderedRoot, TextProgramNode, Root, verify, Abstraction, Cell, } from "starbeam";
 import * as jest from "@jest/globals";
+import { Abstraction, Cell, CommentProgramNode, ContentProgramNode, DomEnvironment, ElementProgramNode, ElementProgramNodeBuilder, FragmentProgramNode, HTML_NAMESPACE, is, Reactive, ReactiveDOM, ReactiveMetadata, RenderedRoot, Root, TextProgramNode, verify, } from "@starbeam/core";
+import { JSDOM } from "jsdom";
 import { ElementArgs, normalizeChild, } from "./element.js";
 import { expect, Expects } from "./expect/expect.js";
 import { toBe } from "./expect/patterns/comparison.js";

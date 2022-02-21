@@ -1,5 +1,5 @@
+import { UNINITIALIZED } from "@starbeam/core";
 import { useRef } from "react";
-import { UNINITIALIZED } from "starbeam";
 
 type UpdateCallback<T> = (instance: T) => void;
 

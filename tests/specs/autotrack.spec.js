@@ -1,4 +1,4 @@
-import { Cell, Memo, Root } from "starbeam";
+import { Cell, Memo, Root } from "@starbeam/core";
 import { Dynamism } from "../support/expect/expect.js";
 import { expect, Expects, test, toBe } from "../support/index.js";
 test("universe.memo", () => {

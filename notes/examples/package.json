@@ -6,7 +6,7 @@
     "@domtree/flavors": "workspace:*"
   },
   "dependencies": {
-    "starbeam": "workspace:*",
+    "@starbeam/core": "workspace:*",
     "@starbeam/react": "workspace:*",
     "react": "rc",
     "@types/react": "^17.0.39"

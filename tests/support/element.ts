@@ -1,13 +1,13 @@
-import type { Expects } from "./expect/expect.js";
 import {
+  ContentProgramNode,
+  Reactive,
+  Root,
   type AttributeName,
   type BuildAttribute,
-  ContentProgramNode,
   type IntoReactive,
-  Reactive,
   type ReactiveElementBuilderCallback,
-  Root,
-} from "starbeam";
+} from "@starbeam/core";
+import type { Expects } from "./expect/expect.js";
 
 interface ShorthandAttribute {
   name: AttributeName;

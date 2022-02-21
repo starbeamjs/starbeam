@@ -1,5 +1,5 @@
+import { Cell, HookBlueprint, Reactive, type AnyRecord } from "@starbeam/core";
 import { type ReactElement } from "react";
-import { Cell, HookBlueprint, Reactive, type AnyRecord } from "starbeam";
 export declare class ReactiveComponent {
     #private;
     static create(notify: () => void): ReactiveComponent;

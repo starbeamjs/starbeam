@@ -1,5 +1,5 @@
-import { type AnyPatternDSL, Described, type Pattern, type PatternResult } from "../expect.js";
-import { type Failure, type PatternDetails, Success } from "../report.js";
+import { Described, type AnyPatternDSL, type Pattern, type PatternResult } from "../expect.js";
+import { Success, type Failure, type PatternDetails } from "../report.js";
 export interface ToBeSerializer<T> {
     readonly expected: string | ((value: T) => string);
     readonly actual: string | ((value: T) => string);

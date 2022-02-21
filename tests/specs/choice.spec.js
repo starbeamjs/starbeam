@@ -1,6 +1,6 @@
 import { todo } from "../support/define.js";
 todo("choice.spec.ts");
-// import { Cases } from "starbeam";
+// import { Cases } from "@starbeam/core";
 // import { todo } from "../support/define";
 // import { expect, test, toBe } from "../support/index.js";
 // function StringType(value: unknown): value is string {

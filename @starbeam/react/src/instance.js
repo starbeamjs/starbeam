@@ -1,5 +1,5 @@
+import { UNINITIALIZED } from "@starbeam/core";
 import { useRef } from "react";
-import { UNINITIALIZED } from "starbeam";
 class InstanceState {
     static forInstance(instance) {
         return new InstanceState(instance);

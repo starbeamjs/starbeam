@@ -1,6 +1,6 @@
-import { Reactive, Cell, type Component, ReactiveDOM } from "starbeam";
-import { Expects } from "../support/index.js";
+import { Cell, Reactive, ReactiveDOM, type Component } from "@starbeam/core";
 import { test } from "../support/define.js";
+import { Expects } from "../support/index.js";
 
 test("a simple, static list", ({ universe, test }) => {
   const dom = universe.dom;

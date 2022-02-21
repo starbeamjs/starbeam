@@ -1,6 +1,6 @@
-import { Cell, Hook, HookBlueprint, HookValue, lifetime, LOGGER, Memo, Reactive, tree, } from "starbeam";
-import { expect, test, toBe } from "../support/index.js";
+import { Cell, Hook, HookBlueprint, HookValue, lifetime, LOGGER, Memo, Reactive, tree, } from "@starbeam/core";
 import { value, when } from "../support/expect/expect.js";
+import { expect, test, toBe } from "../support/index.js";
 class Subscription {
     name;
     static #all = [];

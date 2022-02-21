@@ -1,4 +1,4 @@
-import { Cell } from "starbeam";
+import { Cell } from "@starbeam/core";
 /**
  * The purpose of this class is to present the `Cell` interface in an object
  * that changes its referential equality whenever the internal value changes.

@@ -8,9 +8,9 @@ import {
   Memo,
   Reactive,
   tree,
-} from "starbeam";
-import { expect, test, toBe } from "../support/index.js";
+} from "@starbeam/core";
 import { value, when } from "../support/expect/expect.js";
+import { expect, test, toBe } from "../support/index.js";
 
 class Subscription {
   static #all: Subscription[] = [];

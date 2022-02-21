@@ -1,5 +1,4 @@
-import { JSDOM } from "jsdom";
-import { cell, hook } from "starbeam";
+import { Cell, Hook } from "@starbeam/core";
 
 interface WindowSize {
   innerHeight: number;
@@ -17,8 +16,8 @@ function getSize(): WindowSize {
   };
 }
 
-export default hook((hook) => {
-  const size = cell(getSize());
+export default Hook((hook) => {
+  const size = Cell(getSize());
 
   let teardown = initialize((signal) =>
     window.addEventListener("resize", () => size.update(getSize()), {

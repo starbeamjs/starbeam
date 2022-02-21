@@ -40,7 +40,6 @@ importers:
       eslint-plugin-import: ^2.25.4
       execjs: ^1.0.7
       expect: ^27.4.6
-      fast-array-diff: ^1.0.1
       jest: ^27.4.7
       jest-diff: ^27.4.6
       jest-environment-node: ^27.4.6
@@ -53,14 +52,8 @@ importers:
       jsdom-quokka-plugin: ^1.0.16
       lodash.zip: ^4.2.0
       shelljs: ^0.8.5
-      starbeam: ^0.0.0
-      treeify: ^1.1.0
       ts-jest: ^27.1.3
       typescript: next
-    dependencies:
-      fast-array-diff: 1.0.1
-      starbeam: 'link:'
-      treeify: 1.1.0
     devDependencies:
       '@alex_neo/jest-expect-message': 1.0.5
       '@babel/core': 7.16.7
@@ -113,21 +106,29 @@ importers:
       ts-jest: 27.1.3_3bce42dd9e09a83a3bdcc7faf6afc660
       typescript: 4.7.0-dev.20220221
 
+  '@starbeam/core':
+    specifiers:
+      fast-array-diff: ^1.0.1
+      treeify: ^1.1.0
+    dependencies:
+      fast-array-diff: 1.0.1
+      treeify: 1.1.0
+
   '@starbeam/react':
     specifiers:
+      '@starbeam/core': workspace:*
       '@types/use-sync-external-store': ts4.6
       react: next
-      starbeam: workspace:*
       typescript: ''
       use-ssr: ^1.0.24
       use-sync-external-store: rc
     dependencies:
+      '@starbeam/core': link:../core
       '@types/use-sync-external-store': 0.0.3
-      starbeam: link:../..
-      use-ssr: 1.0.24_317dc15c929520a98c4fbfc1efaacf73
-      use-sync-external-store: 1.0.0-rc.0_317dc15c929520a98c4fbfc1efaacf73
+      use-ssr: 1.0.24_2413e1a96293dbf938dec5c2ba260643
+      use-sync-external-store: 1.0.0-rc.0_2413e1a96293dbf938dec5c2ba260643
     devDependencies:
-      react: 18.0.0-rc.0-next-419ccc2b1-20220217
+      react: 18.0.0-rc.0-next-4de99b3ca-20220221
       typescript: 4.5.5
 
   '@types/@domtree/any':
@@ -151,26 +152,26 @@ importers:
   notes/examples:
     specifiers:
       '@domtree/flavors': workspace:*
+      '@starbeam/core': workspace:*
       '@starbeam/react': workspace:*
       '@types/react': ^17.0.39
       react: rc
-      starbeam: workspace:*
     dependencies:
+      '@starbeam/core': link:../../@starbeam/core
       '@starbeam/react': link:../../@starbeam/react
       '@types/react': 17.0.39
       react: 18.0.0-rc.0
-      starbeam: link:../..
     devDependencies:
       '@domtree/flavors': link:../../@types/@domtree/flavors
 
   tests:
     specifiers:
+      '@starbeam/core': workspace:*
       '@types/lodash.zip': ^4.2.6
       lodash.zip: ^4.2.0
-      starbeam: workspace:*
       typescript: next
     dependencies:
-      starbeam: link:..
+      '@starbeam/core': link:../@starbeam/core
       typescript: 4.7.0-dev.20220221
     devDependencies:
       '@types/lodash.zip': 4.2.6
@@ -4587,8 +4588,8 @@ packages:
       object-assign: 4.1.1
     dev: false
 
-  /react/18.0.0-rc.0-next-419ccc2b1-20220217:
-    resolution: {integrity: sha512-rpdLlkiDBEfAqmtYvu2o2NG7Fv11KpNE69kfSWp7bcnnoeLzi08RxTpAFXsYc9B8ZJyOp5RAyOHLz+TH427XKg==}
+  /react/18.0.0-rc.0-next-4de99b3ca-20220221:
+    resolution: {integrity: sha512-HWf5F6t8GJHdVLQHVV6Vn2dBMLIYbi+U1wRaIoDl+cdVunHN0zQ6RmHwc4n0FBw+0xsxwAWp5qfLKdQVyhMQKg==}
     engines: {node: '>=0.10.0'}
     dependencies:
       loose-envify: 1.4.0
@@ -5127,21 +5128,21 @@ packages:
       punycode: 2.1.1
     dev: true
 
-  /use-ssr/1.0.24_317dc15c929520a98c4fbfc1efaacf73:
+  /use-ssr/1.0.24_2413e1a96293dbf938dec5c2ba260643:
     resolution: {integrity: sha512-0MFps7ezL57/3o0yl4CvrHLlp9z20n1rQZV/lSRz7if+TUoM6POU1XdOvEjIgjgKeIhTEye1U0khrIYWCTWw4g==}
     peerDependencies:
       react: ^16.13.1 || ^17.0.0
       react-dom: ^16.13.1 || ^17.0.0
     dependencies:
-      react: 18.0.0-rc.0-next-419ccc2b1-20220217
+      react: 18.0.0-rc.0-next-4de99b3ca-20220221
     dev: false
 
-  /use-sync-external-store/1.0.0-rc.0_317dc15c929520a98c4fbfc1efaacf73:
+  /use-sync-external-store/1.0.0-rc.0_2413e1a96293dbf938dec5c2ba260643:
     resolution: {integrity: sha512-0U9Xlc2QDFzSGMB0DvcJQL0+DIdxDPJC7mnZlYFbl7wrSrPMcs89X5TVkNB6Dzg618m8lZop+U+J6ow3vq9RAQ==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0-rc
     dependencies:
-      react: 18.0.0-rc.0-next-419ccc2b1-20220217
+      react: 18.0.0-rc.0-next-4de99b3ca-20220221
     dev: false
 
   /v8-compile-cache/2.3.0:

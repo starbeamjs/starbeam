@@ -1,4 +1,4 @@
-import { Abstraction, ReactiveMetadata } from "starbeam";
+import { Abstraction, ReactiveMetadata } from "@starbeam/core";
 import { toBe } from "./patterns.js";
 import { JestReporter, Success, ValueDescription, } from "./report.js";
 export const Dynamism = {

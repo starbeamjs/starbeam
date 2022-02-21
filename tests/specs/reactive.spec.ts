@@ -1,4 +1,4 @@
-import { cached, Memo, reactive, Root } from "starbeam";
+import { cached, Memo, reactive, Root } from "@starbeam/core";
 import { expect, test, toBe } from "../support/define.js";
 import { Dynamism, Expects } from "../support/expect/expect.js";
 

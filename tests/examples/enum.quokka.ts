@@ -1,4 +1,4 @@
-import { Enum } from "starbeam";
+import { Enum } from "@starbeam/core";
 
 interface User {
   name: string;
