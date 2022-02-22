@@ -1,4 +1,5 @@
-import { Cell, Reactive, ReactiveDOM, type Component } from "@starbeam/core";
+import { Cell, Reactive } from "@starbeam/core";
+import type { Component, ReactiveDOM } from "@starbeam/dom";
 import { test } from "../support/define.js";
 import { Expects } from "../support/index.js";
 

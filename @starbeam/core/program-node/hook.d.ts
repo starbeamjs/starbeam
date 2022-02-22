@@ -1,10 +1,10 @@
-import { HookBlueprint } from "../hooks/simple.js";
 import type { ReactiveMetadata } from "../core/metadata.js";
+import type { Reactive } from "../fundamental/types.js";
+import { HookBlueprint } from "../hooks/simple.js";
 import type { Hook } from "../root/api/public.js";
 import type { AnyKey } from "../strippable/wrapper.js";
 import type { Root } from "../universe.js";
-import { AbstractProgramNode, RenderedProgramNode } from "./interfaces/program-node.js";
-import type { Reactive } from "../fundamental/types.js";
+import { AbstractProgramNode, RenderedProgramNode } from "./program-node.js";
 declare const UNINITIALIZED: unique symbol;
 /**
  * This value is a sink for hooks. Importantly, if you finalize this value, its

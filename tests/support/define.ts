@@ -3,22 +3,24 @@ import * as jest from "@jest/globals";
 import {
   Abstraction,
   Cell,
-  CommentProgramNode,
-  ContentProgramNode,
-  DomEnvironment,
-  ElementProgramNode,
-  ElementProgramNodeBuilder,
-  FragmentProgramNode,
-  HTML_NAMESPACE,
   is,
   Reactive,
-  ReactiveDOM,
   ReactiveMetadata,
   RenderedRoot,
   Root,
-  TextProgramNode,
   verify,
 } from "@starbeam/core";
+import {
+  DomEnvironment,
+  ElementProgramNodeBuilder,
+  HTML_NAMESPACE,
+  ReactiveDOM,
+  type CommentProgramNode,
+  type ContentProgramNode,
+  type ElementProgramNode,
+  type FragmentProgramNode,
+  type TextProgramNode,
+} from "@starbeam/dom";
 import { JSDOM } from "jsdom";
 import {
   ElementArgs,

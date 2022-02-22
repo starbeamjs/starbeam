@@ -1,5 +1,6 @@
 import type { browser } from "@domtree/flavors";
-import { DomEnvironment, Root, UNINITIALIZED } from "@starbeam/core";
+import { Root, UNINITIALIZED } from "@starbeam/core";
+import { DomEnvironment } from "@starbeam/dom";
 import {
   createContext,
   createElement,

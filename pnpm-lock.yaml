@@ -114,9 +114,21 @@ importers:
       fast-array-diff: 1.0.1
       treeify: 1.1.0
 
+  '@starbeam/dom':
+    specifiers:
+      '@starbeam/core': workspace:*
+      fast-array-diff: ^1.0.1
+      typescript: ''
+    dependencies:
+      '@starbeam/core': link:../core
+      fast-array-diff: 1.0.1
+    devDependencies:
+      typescript: 4.5.5
+
   '@starbeam/react':
     specifiers:
       '@starbeam/core': workspace:*
+      '@starbeam/dom': workspace:*
       '@types/use-sync-external-store': ts4.6
       react: next
       typescript: ''
@@ -124,6 +136,7 @@ importers:
       use-sync-external-store: rc
     dependencies:
       '@starbeam/core': link:../core
+      '@starbeam/dom': link:../dom
       '@types/use-sync-external-store': 0.0.3
       use-ssr: 1.0.24_2413e1a96293dbf938dec5c2ba260643
       use-sync-external-store: 1.0.0-rc.0_2413e1a96293dbf938dec5c2ba260643
@@ -166,15 +179,21 @@ importers:
 
   tests:
     specifiers:
+      '@jest/globals': ^27.4.6
       '@starbeam/core': workspace:*
+      '@starbeam/dom': workspace:*
       '@types/lodash.zip': ^4.2.6
+      jsdom: ^19.0.0
       lodash.zip: ^4.2.0
       typescript: next
     dependencies:
       '@starbeam/core': link:../@starbeam/core
+      '@starbeam/dom': link:../@starbeam/dom
       typescript: 4.7.0-dev.20220221
     devDependencies:
+      '@jest/globals': 27.4.6
       '@types/lodash.zip': 4.2.6
+      jsdom: 19.0.0
       lodash.zip: 4.2.0
 
 packages:

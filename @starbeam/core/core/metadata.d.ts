@@ -1,22 +1,22 @@
-import type * as types from "../fundamental/types.js";
-export declare abstract class HasMetadata implements types.HasMetadata {
+import type { ConstantMetadata as ConstantMetadataType, DynamicMetadata as DynamicMetadataType, HasMetadata as HasMetadataType, ReactiveMetadata as ReactiveMetadataType } from "../fundamental/types.js";
+export declare abstract class HasMetadata implements HasMetadataType {
     isConstant(): boolean;
     isDynamic(): boolean;
     abstract get metadata(): ReactiveMetadata;
 }
-export declare abstract class ReactiveMetadata implements types.ReactiveMetadata {
+export declare abstract class ReactiveMetadata implements ReactiveMetadataType {
     static get Constant(): ConstantMetadata;
     static get Dynamic(): DynamicMetadata;
-    static all(...reactive: types.HasMetadata[]): types.ReactiveMetadata;
+    static all(...reactive: HasMetadataType[]): ReactiveMetadataType;
     abstract kind: "constant" | "dynamic";
-    isConstant(this: types.ReactiveMetadata): this is ConstantMetadata;
-    isDynamic(this: types.ReactiveMetadata): this is DynamicMetadata;
+    isConstant(this: ReactiveMetadataType): this is ConstantMetadata;
+    isDynamic(this: ReactiveMetadataType): this is DynamicMetadata;
     describe(): string;
 }
-export declare class ConstantMetadata extends ReactiveMetadata implements types.ConstantMetadata {
+export declare class ConstantMetadata extends ReactiveMetadata implements ConstantMetadataType {
     readonly kind = "constant";
 }
-export declare class DynamicMetadata extends ReactiveMetadata implements types.DynamicMetadata {
+export declare class DynamicMetadata extends ReactiveMetadata implements DynamicMetadataType {
     readonly kind = "dynamic";
 }
 //# sourceMappingURL=metadata.d.ts.map

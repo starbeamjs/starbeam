@@ -1,6 +1,11 @@
-import type * as types from "../fundamental/types.js";
+import type {
+  ConstantMetadata as ConstantMetadataType,
+  DynamicMetadata as DynamicMetadataType,
+  HasMetadata as HasMetadataType,
+  ReactiveMetadata as ReactiveMetadataType,
+} from "../fundamental/types.js";
 
-export abstract class HasMetadata implements types.HasMetadata {
+export abstract class HasMetadata implements HasMetadataType {
   isConstant(): boolean {
     return this.metadata.isConstant();
   }
@@ -12,7 +17,7 @@ export abstract class HasMetadata implements types.HasMetadata {
   abstract get metadata(): ReactiveMetadata;
 }
 
-export abstract class ReactiveMetadata implements types.ReactiveMetadata {
+export abstract class ReactiveMetadata implements ReactiveMetadataType {
   static get Constant(): ConstantMetadata {
     return CONSTANT;
   }
@@ -21,17 +26,17 @@ export abstract class ReactiveMetadata implements types.ReactiveMetadata {
     return DYNAMIC;
   }
 
-  static all(...reactive: types.HasMetadata[]): types.ReactiveMetadata {
+  static all(...reactive: HasMetadataType[]): ReactiveMetadataType {
     return reactive.every((r) => r.metadata.isConstant()) ? CONSTANT : DYNAMIC;
   }
 
   abstract kind: "constant" | "dynamic";
 
-  isConstant(this: types.ReactiveMetadata): this is ConstantMetadata {
+  isConstant(this: ReactiveMetadataType): this is ConstantMetadata {
     return this === CONSTANT;
   }
 
-  isDynamic(this: types.ReactiveMetadata): this is DynamicMetadata {
+  isDynamic(this: ReactiveMetadataType): this is DynamicMetadata {
     return this === DYNAMIC;
   }
 
@@ -42,7 +47,7 @@ export abstract class ReactiveMetadata implements types.ReactiveMetadata {
 
 export class ConstantMetadata
   extends ReactiveMetadata
-  implements types.ConstantMetadata
+  implements ConstantMetadataType
 {
   readonly kind = "constant";
 }
@@ -51,7 +56,7 @@ const CONSTANT = new ConstantMetadata();
 
 export class DynamicMetadata
   extends ReactiveMetadata
-  implements types.DynamicMetadata
+  implements DynamicMetadataType
 {
   readonly kind = "dynamic";
 }

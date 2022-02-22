@@ -4,10 +4,13 @@
   "private": true,
   "dependencies": {
     "@starbeam/core": "workspace:*",
+    "@starbeam/dom": "workspace:*",
     "typescript": "next"
   },
   "devDependencies": {
+    "@jest/globals": "^27.4.6",
     "@types/lodash.zip": "^4.2.6",
+    "jsdom": "^19.0.0",
     "lodash.zip": "^4.2.0"
   }
 }

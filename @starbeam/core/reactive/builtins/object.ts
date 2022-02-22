@@ -1,8 +1,8 @@
 import {
-  type TrackedStorage,
   createStorage,
   getValue,
   setValue,
+  type TrackedStorage,
 } from "./tracked-shim.js";
 import type { Entries, EntriesToObject, Entry } from "./type-magic.js";
 

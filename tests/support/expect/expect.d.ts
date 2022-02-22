@@ -1,8 +1,8 @@
 import { ReactiveMetadata } from "@starbeam/core";
 import { Success, ValueDescription, type Failure, type PatternDetails, type Reporter } from "./report.js";
 export declare const Dynamism: {
-    readonly constant: import("@starbeam/core/reactive").ConstantMetadata;
-    readonly dynamic: import("@starbeam/core/reactive").DynamicMetadata;
+    readonly constant: import("@starbeam/core").ConstantMetadata;
+    readonly dynamic: import("@starbeam/core").DynamicMetadata;
 };
 export declare class Expects {
     #private;

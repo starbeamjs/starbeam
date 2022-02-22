@@ -7,33 +7,6 @@ import {
   type StarbeamInsertion,
   type StarbeamParse,
 } from "./config.js";
-import type { StarbeamConfig } from "./def.js";
-import type { TuplifyUnion } from "./type-magic.js";
-
-export type SerializedArray<F extends string, T extends string> = `${F},${T}`;
-
-export type SerializedObject<
-  K extends string,
-  V extends string,
-  Rest extends string
-> = `[${K}]=${V},${Rest}`;
-
-export type EnvKey<Env, Key extends keyof Env = keyof Env> = {
-  [P in Key]: Env[P] extends EnvVarLeaf ? SnakeCase<P & string> : never;
-};
-
-export type EnvKeys<Env, Key extends keyof Env = keyof Env> = TuplifyUnion<
-  EnvKey<Env, Key>
->;
-
-function keys(keys: EnvKey<StarbeamConfig>): EnvKey<StarbeamConfig> {
-  return keys;
-}
-
-const KEYS = keys({
-  LogLevel: "LOG_LEVEL",
-  TraceFocus: "TRACE_FOCUS",
-});
 
 export class EnvVarConfig
   implements ConfigEnvironmentDelegate<NodeJS.ProcessEnv>
@@ -105,18 +78,6 @@ function pascalCase<S extends string>(string: S): PascalCase<S> {
   ) as InferReturn;
 }
 
-type SnakeCase<T extends string, P extends string = ""> = string extends T
-  ? string
-  : "" extends P
-  ? T extends `${infer F}${infer Rest}`
-    ? SnakeCase<Rest, F>
-    : T
-  : T extends `${infer C0}${infer R}`
-  ? Uppercase<C0> extends C0
-    ? SnakeCase<R, `${P}_${C0}`>
-    : SnakeCase<R, `${P}${Uppercase<C0>}`>
-  : P;
-
 type PascalCase<T extends string, SoFar extends string = ""> =
   // CamelCase<string> => string
   string extends T
@@ -134,5 +95,3 @@ type PascalCase<T extends string, SoFar extends string = ""> =
     ? PascalCase<Rest, `${SoFar}${Lowercase<F>}`>
     : // If we have no characters left, we've accumulated everything into SoFar
       SoFar;
-
-type EnvVarLeaf = string | number | boolean;

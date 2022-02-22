@@ -29,36 +29,18 @@
     "no-empty": "warn",
     "import/no-cycle": "warn",
     "import/no-self-import": "error",
-    "import/no-restricted-paths": [
+    "import/no-extraneous-dependencies": [
       "error",
       {
-        "zones": [
-          {
-            "from": "./src/reactive/**",
-            "target": "./src/core",
-            "message": "don't import anything other than strippable or debug from core"
-          },
-          {
-            "from": "./src",
-            "target": "@starbeam/react",
-            "message": "import from starbeam through the 'starbeam' module, not through a relative path"
-          },
-          {
-            "from": "./src",
-            "target": "./tests"
-          },
-          {
-            "from": "./src",
-            "target": "./src/api/public.ts"
-          },
-          {
-            "target": "./src/!(index.ts)/**",
-            "from": "./src/**/index.ts",
-            "message": "Don't import from index.ts"
-          }
+        "packageDir": [
+          "./@starbeam/core",
+          "./@starbeam/dom",
+          "./@starbeam/react",
+          "./tests"
         ]
       }
     ],
+
     "@typescript-eslint/no-unused-vars": [
       "warn",
       {

@@ -1,8 +1,8 @@
-import { HookBlueprint, SimpleHook } from "../hooks/simple.js";
 import { LIFETIME } from "../core/lifetime/lifetime.js";
+import { HookBlueprint, SimpleHook } from "../hooks/simple.js";
 import { assert } from "../strippable/core.js";
 import { LOGGER } from "../strippable/trace.js";
-import { AbstractProgramNode, RenderedProgramNode, } from "./interfaces/program-node.js";
+import { AbstractProgramNode, RenderedProgramNode } from "./program-node.js";
 const UNINITIALIZED = Symbol("UNINITIALIZED");
 /**
  * This value is a sink for hooks. Importantly, if you finalize this value, its

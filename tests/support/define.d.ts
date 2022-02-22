@@ -1,5 +1,6 @@
 import type { minimal } from "@domtree/flavors";
-import { Cell, CommentProgramNode, ContentProgramNode, ElementProgramNode, FragmentProgramNode, Reactive, ReactiveDOM, ReactiveMetadata, RenderedRoot, Root, TextProgramNode } from "@starbeam/core";
+import { Cell, Reactive, ReactiveMetadata, RenderedRoot, Root } from "@starbeam/core";
+import { ReactiveDOM, type CommentProgramNode, type ContentProgramNode, type ElementProgramNode, type FragmentProgramNode, type TextProgramNode } from "@starbeam/dom";
 import { JSDOM } from "jsdom";
 import { type TestChild, type TestElementArgs } from "./element.js";
 import { Expects } from "./expect/expect.js";

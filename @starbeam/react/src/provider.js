@@ -1,4 +1,5 @@
-import { DomEnvironment, Root, UNINITIALIZED } from "@starbeam/core";
+import { Root, UNINITIALIZED } from "@starbeam/core";
+import { DomEnvironment } from "@starbeam/dom";
 import { createContext, createElement, useRef, } from "react";
 import { useSSR } from "use-ssr";
 export const STARBEAM = createContext(null);

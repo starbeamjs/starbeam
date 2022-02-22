@@ -1,4 +1,4 @@
-import { Cell, Reactive, ReactiveDOM } from "@starbeam/core";
+import { Cell, Reactive } from "@starbeam/core";
 import { test } from "../support/define.js";
 import { Expects } from "../support/index.js";
 test("a simple, static list", ({ universe, test }) => {

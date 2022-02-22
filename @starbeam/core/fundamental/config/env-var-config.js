@@ -1,13 +1,6 @@
 import { exhaustive } from "../../strippable/assert.js";
 import { assert } from "../../strippable/core.js";
 import { ConfigEnvironment, } from "./config.js";
-function keys(keys) {
-    return keys;
-}
-const KEYS = keys({
-    LogLevel: "LOG_LEVEL",
-    TraceFocus: "TRACE_FOCUS",
-});
 export class EnvVarConfig {
     static create() {
         return new EnvVarConfig();

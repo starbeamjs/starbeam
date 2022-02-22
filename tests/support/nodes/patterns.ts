@@ -1,12 +1,6 @@
 import type { anydom } from "@domtree/flavors";
-import {
-  Abstraction,
-  DOM,
-  exhaustive,
-  is,
-  verified,
-  verify,
-} from "@starbeam/core";
+import { Abstraction, exhaustive, is, verified, verify } from "@starbeam/core";
+import { DOM } from "@starbeam/dom";
 import zip from "lodash.zip";
 // import { exhaustive, verify, is, DOM, verified } from "../../support/starbeam.js";
 

@@ -1,4 +1,4 @@
-import { HtmlBuffer } from "@starbeam/core";
+import { HtmlBuffer } from "@starbeam/dom";
 import { expect, test, toBe } from "../support/define.js";
 
 test("ContentBuffer text", () => {
