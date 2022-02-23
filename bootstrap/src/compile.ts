@@ -1016,6 +1016,9 @@ class PrepareTranspilation {
       for (let added of files.added) {
         log.silent.inspect.labeled("  [++]", added);
       }
+    } else {
+      for (let removed of directories.removed) {
+      }
     }
   }
 }
