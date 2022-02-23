@@ -19,8 +19,9 @@
     "noImplicitReturns": true,
     "importsNotUsedAsValues": "error",
     "isolatedModules": true,
-    "preserveValueImports": true
+    "preserveValueImports": true,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true
   },
-  "include": ["tests", "@types", "@starbeam/*/**/*.ts", "examples"],
-  "exclude": ["**/dist/**", "{src,tests,@types,@starbeam}/**/*.d.ts"]
+  "include": ["@starbeam/*/index.ts", "tests/specs/**/*.spec.ts"]
 }
