@@ -1,4 +1,4 @@
-import { diff, DiffData } from "fast-array-diff";
+import { diff } from "fast-array-diff";
 import searchGlob from "fast-glob";
 import * as fs from "fs/promises";
 import * as path from "path";
@@ -132,16 +132,16 @@ class Package {
     return path.resolve(this.#workspace.root);
   }
 
-  async compile() {
+  async compile({ dryRun }: { dryRun: boolean } = { dryRun: false }) {
     // let root = this.root;
     // let dist = path.join(this.root, "dist");
 
     let transpilation = await this.#packageTranspilation();
-    let diff = transpilation.diff(
-      logged(await this.#getDistFiles(), "this.#getDistFiles")
-    );
+    let prepare = transpilation.prepare(await this.#getDistFiles());
 
-    log(diff);
+    prepare.run({ dryRun });
+
+    // console.log({ files, directories });
 
     // for (let task of files) {
     //   // console.log(task);
@@ -185,7 +185,10 @@ class Package {
   }
 
   async #packageTranspilation(): Promise<Transpilation> {
-    let files = await AbsolutePaths.glob(`!(node_modules)**/*.ts`, this.root);
+    let files = await AbsolutePaths.glob(
+      `!(node_modules|dist)**/*.ts`,
+      this.root
+    );
 
     let dts = files.filter((file) => file.hasExactExtension("d.ts"));
 
@@ -195,9 +198,12 @@ class Package {
 
     let ts = files
       .filter((file) => file.hasExactExtension("ts"))
-      .filter((file) => file.eq(this.root));
+      .filter((file) => !file.eq(this.root));
+
+    log.silent.inspect.labeled(`[TS-FILES]`, ts);
 
     return Transpilation.create(
+      this.name,
       ts.mapArray((file) => this.#fileTranspilation(file))
     );
 
@@ -225,32 +231,46 @@ class Package {
 
   #fileTranspilation(inputPath: AbsolutePath): TranspileTask {
     let relativePath = inputPath.relativeFromAncestor(this.root);
+
+    log.silent.inspect.labeled(`[TRANSPILE]`, {
+      input: inputPath,
+      root: this.root,
+      relative: relativePath,
+    });
+
     let output = this.#dist.file(relativePath).changeExtension("js");
 
-    // console.log({ relativePath, output });
+    log.silent.inspect.labeled(`[OUTPUT]`, output);
 
     return TranspileTask.create(inputPath, output);
   }
 }
 
 class Transpilation {
-  static create(tasks: readonly TranspileTask[]) {
-    return new Transpilation(tasks);
+  static create(name: string, tasks: readonly TranspileTask[]) {
+    return new Transpilation(name, tasks);
   }
 
+  readonly #name: string;
   readonly #tasks: readonly TranspileTask[];
 
-  private constructor(tasks: readonly TranspileTask[]) {
+  private constructor(name: string, tasks: readonly TranspileTask[]) {
+    this.#name = name;
     this.#tasks = tasks;
   }
 
-  diff(existing: AbsolutePaths) {
-    return existing.diffByKind(this.outputPaths);
+  prepare(existing: AbsolutePaths): PrepareTranspilation {
+    return PrepareTranspilation.create(
+      this.#name,
+      existing.diffByKind(this.outputPaths)
+    );
   }
 
   get outputPaths(): AbsolutePaths {
     let files = AbsolutePaths.from(this.#tasks.map((task) => task.output));
+    log.silent.inspect.labeled("[OUT-FILES]", files);
     let directories = files.directory;
+    log.silent.inspect.labeled("[OUT-DIRS]", files.directory);
 
     return files.merge(directories);
   }
@@ -287,6 +307,16 @@ abstract class Mappable<Single, Multiple> {
       "mutate"
     );
   }
+}
+
+interface PathDiff {
+  readonly added: AbsolutePaths;
+  readonly removed: AbsolutePaths;
+}
+
+interface PathDiffByKind {
+  readonly files: PathDiff;
+  readonly directories: PathDiff;
 }
 
 class AbsolutePaths
@@ -416,9 +446,14 @@ class AbsolutePaths
       (a, b) => AbsolutePath.getFilename(a) === AbsolutePath.getFilename(b)
     );
 
+    let added = AbsolutePaths.from(diffs.added);
+    let removed = AbsolutePaths.from(diffs.removed).filter(
+      (path) => !added.has(path)
+    );
+
     return {
-      added: AbsolutePaths.from(diffs.added),
-      removed: AbsolutePaths.from(diffs.removed),
+      added,
+      removed,
     };
   }
 
@@ -426,9 +461,22 @@ class AbsolutePaths
    * This method diffs files and directories, but excludes any removed files
    * that are descendents of a removed directory.
    */
-  diffByKind(other: AbsolutePaths) {
+  diffByKind(other: AbsolutePaths): PathDiffByKind {
     let directories = this.directories.diff(other.directories);
+
+    log
+      .newline()
+      .heading("Directories")
+      .newline()
+      .inspect.labeled("[LHS]", this.directories)
+      .newline()
+      .inspect.labeled("[RHS]", other.directories)
+      .newline()
+      .inspect.labeled("[DIFF]", directories);
+
     let collapsedDirectories = directories.removed.collapsedDirectories();
+
+    log.silent.newline().inspect.labeled("[CLPS]", collapsedDirectories);
 
     let files = this.regularFiles.diff(other.regularFiles);
 
@@ -451,6 +499,7 @@ class AbsolutePaths
     let collapsed = AbsolutePaths.empty();
 
     for (let { path, rest } of this.#drain()) {
+      console.log({ path, rest });
       if (path.isRegularFile || !rest.contains(path)) {
         collapsed.add(path);
       }
@@ -585,13 +634,13 @@ class AbsolutePaths
 
   get #sorted(): Map<string, AbsolutePath> {
     let entries = [...this.#paths.entries()].sort(
-      ([a], [b]) => a.length - b.length
+      ([a], [b]) => b.length - a.length
     );
     return new Map(entries);
   }
 
   /**
-   * Iterate the paths in this set. Smaller paths come first.
+   * Iterate the paths in this set. Larger paths come first.
    */
   *#drain(): IterableIterator<{ path: AbsolutePath; rest: AbsolutePaths }> {
     let rest = this.#sorted.entries();
@@ -804,10 +853,16 @@ class AbsolutePath {
   changeExtension(extension: string): unknown {
     let {
       parent,
-      basename: { file, ext },
+      basename: { file },
     } = getParts(this.#filename);
 
-    return AbsolutePath.file(path.resolve());
+    let renamed = `${file}.${extension}`;
+
+    if (parent) {
+      return AbsolutePath.file(path.resolve(parent, renamed));
+    } else {
+      return AbsolutePath.file(renamed);
+    }
   }
 
   /**
@@ -869,6 +924,11 @@ class AbsolutePath {
       );
     }
 
+    log.silent.inspect.labeled(`[FILE]`, {
+      resolved: path.resolve(this.#filename, ...relativePath),
+      path: AbsolutePath.file(path.resolve(this.#filename, ...relativePath)),
+    });
+
     return AbsolutePath.file(path.resolve(this.#filename, ...relativePath));
   }
 
@@ -917,15 +977,47 @@ class AbsolutePath {
 }
 
 class PrepareTranspilation {
-  readonly #files: DiffData<string>;
-  readonly #directories: DiffData<string>;
-
-  constructor(files: DiffData<string>, directories: DiffData<string>) {
-    this.#files = files;
-    this.#directories = directories;
+  static create(name: string, diff: PathDiffByKind): PrepareTranspilation {
+    return new PrepareTranspilation(name, diff);
   }
 
-  async prepare() {}
+  readonly #name: string;
+  readonly #diff: PathDiffByKind;
+
+  private constructor(name: string, diff: PathDiffByKind) {
+    this.#name = name;
+    this.#diff = diff;
+  }
+
+  async run({ dryRun }: { dryRun: boolean } = { dryRun: false }) {
+    let { directories, files } = this.#diff;
+
+    if (dryRun) {
+      log
+        .newline()
+        .log("[DRY-RUN]", this.#name)
+        .newline()
+        .heading("[DRY-RUN]", "Directories");
+
+      for (let removed of directories.removed) {
+        log.silent.inspect.labeled("  [--]", removed);
+      }
+
+      for (let added of directories.added) {
+        log.silent.inspect.labeled("  [++]", added);
+      }
+
+      log.silent.newline().heading("[DRY-RUN]", "Files");
+
+      for (let removed of files.removed) {
+        log.silent.inspect.labeled("  [--]", removed);
+      }
+
+      for (let added of files.added) {
+        log.silent.inspect.labeled("  [++]", added);
+      }
+    }
+  }
 }
 
 class TranspileTask {
@@ -1090,21 +1182,136 @@ function exhaustive(value: never, description: string): never {
   throw Error(`Expected ${description} to be exhaustively checked`);
 }
 
-function log(...args: [value: unknown] | [label: string, value: unknown]) {
+const LABEL = Symbol("LABEL");
+type LABEL = typeof LABEL;
+
+interface Label {
+  readonly [LABEL]: readonly string[];
+}
+
+function Label(...label: string[]): Label {
+  return { [LABEL]: label };
+}
+
+function isLabel(value: unknown): value is Label {
+  return typeof value === "object" && value !== null && LABEL in value;
+}
+
+interface Log {
+  (value: unknown): Log;
+  (label: string, value: unknown): Log;
+  (label: unknown): Log;
+
+  readonly log: Log;
+  readonly silent: Log;
+
+  newline(): Log;
+  heading(...label: string[]): Log;
+
+  readonly inspect: {
+    (value: unknown, options?: util.InspectOptions): Log;
+    labeled(
+      label: string | Label,
+      value: unknown,
+      options?: util.InspectOptions
+    ): Log;
+  };
+}
+
+const SILENT: Log = (() => {
+  const log = (...args: unknown[]): Log => SILENT;
+  log.log = log;
+  log.silent = log;
+
+  log.newline = () => log;
+  log.heading = (...label: string[]) => log;
+
+  const inspect = (value: unknown, options?: util.InspectOptions) => log;
+  inspect.labeled = (...args: unknown[]): Log => log;
+  log.inspect = inspect;
+
+  return log;
+})();
+
+function log(value: unknown): Log;
+function log(label: string, value: unknown): Log;
+function log(label: unknown): Log;
+function log(
+  ...args: [value: unknown] | [label: string, value: unknown] | [Label]
+): Log {
   if (args.length === 2) {
     let [label, value] = args;
     console.log(label, util.inspect(value, { depth: null, colors: true }));
   } else {
     let [value] = args;
-    console.log(util.inspect(value, { depth: null, colors: true }));
+
+    if (isLabel(value)) {
+      console.log(...value[LABEL]);
+    } else {
+      console.log(util.inspect(value, { depth: null, colors: true }));
+    }
+  }
+
+  return log;
+}
+
+log.silent = log;
+log.log = log;
+
+log.newline = (): typeof log => {
+  console.log("\n");
+  return log;
+};
+
+log.heading = (...label: string[]): typeof log => {
+  console.log(...label);
+  return log;
+};
+
+const logLabeled = (
+  label: string | Label,
+  value: unknown,
+  options?: util.InspectOptions
+): typeof log => {
+  logLabeledValue(label, value, options);
+  return log;
+};
+
+const logInspect = (
+  value: unknown,
+  options?: util.InspectOptions
+): typeof log => {
+  console.log(inspect(value, options));
+  return log;
+};
+
+logInspect.labeled = logLabeled;
+
+log.inspect = logInspect;
+
+function logLabeledValue(
+  label: string | Label,
+  value: unknown,
+  options: util.InspectOptions = {}
+): void {
+  if (isLabel(label)) {
+    console.log(...label[LABEL], inspect(value, options));
+  } else {
+    console.log(label, inspect(value, options));
   }
 }
 
-function logged<T>(value: T, description: string): T {
-  console.log(
-    description,
-    "=",
-    util.inspect(value, { depth: null, colors: true })
-  );
+function inspect(value: unknown, options: util.InspectOptions = {}): string {
+  return util.inspect(value, { ...options, depth: null, colors: true });
+}
+
+function logged<T>(value: T, description: string, shouldLog = true): T {
+  if (shouldLog) {
+    console.log(
+      description,
+      "=",
+      util.inspect(value, { depth: null, colors: true })
+    );
+  }
   return value;
 }

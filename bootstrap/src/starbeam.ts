@@ -18,5 +18,6 @@ const WORKSPACE = await Workspace.create(root, "@starbeam");
 console.log({ root, packages: WORKSPACE.packages });
 
 for (let pkg of WORKSPACE.packages) {
-  await pkg.compile();
+  await pkg.compile({ dryRun: true });
+  process.exit(1);
 }
