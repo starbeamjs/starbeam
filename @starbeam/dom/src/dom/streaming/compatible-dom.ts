@@ -4,15 +4,8 @@ import type * as browser from "@domtree/browser";
 import type * as minimal from "@domtree/minimal";
 // eslint-disable-next-line import/no-duplicates
 import type { Mutable } from "@domtree/minimal";
-import {
-  exhaustive,
-  is,
-  minimize,
-  mutable,
-  tap,
-  verified,
-  verify,
-} from "@starbeam/core";
+import { is, minimize, mutable, tap } from "@starbeam/core";
+import { exhaustive, verified, verify } from "@starbeam/verify";
 import type { DomEnvironment } from "../environment.js";
 import { ContentCursor, RangeSnapshot } from "./cursor.js";
 import {

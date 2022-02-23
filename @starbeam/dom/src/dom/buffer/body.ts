@@ -1,4 +1,5 @@
-import { exhaustive, QualifiedName } from "@starbeam/core";
+import { QualifiedName } from "@starbeam/debug";
+import { exhaustive } from "@starbeam/verify";
 import {
   attrFor,
   AttributesBuffer,

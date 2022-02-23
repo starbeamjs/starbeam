@@ -1,5 +1,6 @@
 import type { minimal } from "@domtree/flavors";
-import { as, assert, has, is, verified, verify } from "@starbeam/core";
+import { has, is } from "@starbeam/core";
+import { as, assert, verified, verify } from "@starbeam/verify";
 import type { ContentBuffer, ElementHeadBuffer } from "../buffer/body.js";
 import type { DomEnvironment } from "../environment.js";
 import { ContentRange, ContentRangeNode, MINIMAL } from "./compatible-dom.js";

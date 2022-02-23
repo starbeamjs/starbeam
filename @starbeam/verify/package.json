@@ -5,6 +5,8 @@
   "types": "index.ts",
   "version": "0.5.0",
   "dependencies": {
-    "@starbeam/verify": "workspace:*"
+    "@starbeam/verify": "workspace:*",
+    "@starbeam/fundamental": "workspace:*",
+    "@starbeam/debug": "workspace:*"
   }
 }

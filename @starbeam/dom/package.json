@@ -6,8 +6,9 @@
   "version": "0.5.0",
   "dependencies": {
     "@starbeam/core": "workspace:*",
+    "@starbeam/debug": "workspace:*",
+    "@starbeam/verify": "workspace:*",
     "fast-array-diff": "^1.0.1"
-
   },
   "devDependencies": {
     "typescript": ""

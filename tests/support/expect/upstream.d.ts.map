@@ -1,1 +1,0 @@
-{"version":3,"file":"upstream.d.ts","sourceRoot":"","sources":["upstream.ts"],"names":[],"mappings":";AAGA,OAAO,KAAK,EAGV,WAAW,EAGZ,MAAM,aAAa,CAAC;AAErB,OAAO,CAAC,MAAM,CAAC;IAEb,UAAU,IAAI,CAAC;QAEb,UAAU,QAAQ,CAAC,CAAC;YAClB,QAAQ,IAAI,mBAAmB,CAAC;SACjC;KACF;CACF;AAeD,wBAAgB,QAAQ,CAAC,MAAM,EAAE,WAAW,GAAG,IAAI,CAAC,mBAAmB,CAQtE"}

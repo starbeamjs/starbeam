@@ -1,4 +1,4 @@
-import type { UnsafeAny } from "@starbeam/core";
+import type { UnsafeAny } from "@starbeam/fundamental";
 import {
   Described,
   PatternImpl,

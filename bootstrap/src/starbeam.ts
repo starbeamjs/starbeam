@@ -11,13 +11,11 @@ if (root === undefined) {
   process.exit(1);
 }
 
-type StarbeamPackage<P extends string> = `@starbeam/${P}`;
-
 const WORKSPACE = await Workspace.create(root, "@starbeam");
 
-console.log({ root, packages: WORKSPACE.packages });
+// console.log({ root, packages: WORKSPACE.packages });
 
 for (let pkg of WORKSPACE.packages) {
-  await pkg.compile({ dryRun: true });
-  process.exit(1);
+  await pkg.compile({ dryRun: false });
+  break;
 }

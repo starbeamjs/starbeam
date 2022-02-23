@@ -1,14 +1,13 @@
 import type { browser } from "@domtree/flavors";
 import {
-  assert,
   Enum,
   HookBlueprint,
   HookValue,
   is,
   lifetime,
   RenderedRoot,
-  verified,
 } from "@starbeam/core";
+import { assert, verified } from "@starbeam/verify";
 import { useContext, useLayoutEffect } from "react";
 import { useSyncExternalStore } from "use-sync-external-store/shim";
 import { STARBEAM } from "./provider.js";

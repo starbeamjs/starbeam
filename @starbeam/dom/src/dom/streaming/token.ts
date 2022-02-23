@@ -1,5 +1,6 @@
 import type { minimal } from "@domtree/flavors";
-import { is, verified } from "@starbeam/core";
+import { is } from "@starbeam/core";
+import { verified } from "@starbeam/verify";
 import type { DomEnvironment } from "../environment.js";
 import { MINIMAL } from "./compatible-dom.js";
 import type { ContentCursor } from "./cursor.js";

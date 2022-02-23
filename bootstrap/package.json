@@ -9,7 +9,8 @@
     "mkdirp": "^1.0.4",
     "promise-readable": "^6.0.0",
     "shell-escape-tag": "^2.0.2",
-    "shelljs": "^0.8.5"
+    "shelljs": "^0.8.5",
+    "jest-environment-node": "^27.5.1"
   },
   "devDependencies": {
     "@types/shell-escape-tag": "workspace:*"

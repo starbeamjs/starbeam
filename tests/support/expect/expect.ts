@@ -1,4 +1,5 @@
-import { Abstraction, ReactiveMetadata } from "@starbeam/core";
+import { ReactiveMetadata } from "@starbeam/core";
+import { Abstraction } from "@starbeam/debug";
 import { toBe } from "./patterns.js";
 import {
   JestReporter,

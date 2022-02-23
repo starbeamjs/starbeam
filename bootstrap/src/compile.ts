@@ -1,4 +1,5 @@
-import { diff } from "fast-array-diff";
+import swc from "@swc/core";
+import { createHash } from "crypto";
 import searchGlob from "fast-glob";
 import * as fs from "fs/promises";
 import * as path from "path";
@@ -133,62 +134,27 @@ class Package {
   }
 
   async compile({ dryRun }: { dryRun: boolean } = { dryRun: false }) {
-    // let root = this.root;
-    // let dist = path.join(this.root, "dist");
-
     let transpilation = await this.#packageTranspilation();
     let prepare = transpilation.prepare(await this.#getDistFiles());
 
     prepare.run({ dryRun });
 
-    // console.log({ files, directories });
-
-    // for (let task of files) {
-    //   // console.log(task);
-    // }
-
-    // let files = await glob(`${root}/!(node_modules)**/*.ts`);
-
-    // // console.log({ files });
-
-    // for (let file of files) {
-    //   if (file.endsWith(".d.ts")) {
-    //     console.warn(
-    //       `Unexpected .d.ts file found during compilation (${file})`
-    //     );
-    //     continue;
-    //   }
-
-    //   let relative = path.relative(root, file);
-    //   let output = await swc.transformFile(file, {
-    //     sourceMaps: "inline",
-    //     inlineSourcesContent: true,
-    //     jsc: {
-    //       parser: {
-    //         syntax: "typescript",
-    //         decorators: true,
-    //       },
-    //       target: "es2022",
-    //     },
-    //   });
-
-    //   let target = changeExtension(`${dist}/${relative}`, "js");
-
-    //   shell.mkdir("-p", path.dirname(target));
-
-    //   fs.writeFile(target, output.code);
-    // }
+    transpilation.transpile({ dryRun });
   }
 
   get #dist(): AbsolutePath {
     return this.root.directory("dist");
   }
 
-  async #packageTranspilation(): Promise<Transpilation> {
-    let files = await AbsolutePaths.glob(
-      `!(node_modules|dist)**/*.ts`,
+  get #files(): Promise<AbsolutePaths> {
+    return AbsolutePaths.glob(
+      [`!(node_modules|dist)**/*.ts`, `index.ts`],
       this.root
     );
+  }
+
+  async #packageTranspilation(): Promise<Transpilation> {
+    let files = await this.#files;
 
     let dts = files.filter((file) => file.hasExactExtension("d.ts"));
 
@@ -196,33 +162,15 @@ class Package {
       console.warn(`Unexpected .d.ts file found during compilation (${file})`);
     }
 
-    let ts = files
-      .filter((file) => file.hasExactExtension("ts"))
-      .filter((file) => !file.eq(this.root));
+    let ts = files.filter((file) => file.hasExactExtension("ts"));
 
     log.silent.inspect.labeled(`[TS-FILES]`, ts);
 
     return Transpilation.create(
       this.name,
+      this.#dist,
       ts.mapArray((file) => this.#fileTranspilation(file))
     );
-
-    // let files = await glob(`${this.root}/!(node_modules)**/*.ts`);
-
-    // for (let file of files) {
-    //   if (file.endsWith(".d.ts")) {
-    //     console.warn(
-    //       `Unexpected .d.ts file found during compilation (${file})`
-    //     );
-    //   }
-    // }
-
-    // let tasks = files
-    //   .filter((file) => !file.startsWith(this.#dist))
-    //   .filter((file) => !file.endsWith(".d.ts"))
-    //   .map((file) => this.#fileTranspilation(file));
-
-    // return Transpilation.create(tasks);
   }
 
   async #getDistFiles(): Promise<AbsolutePaths> {
@@ -232,44 +180,81 @@ class Package {
   #fileTranspilation(inputPath: AbsolutePath): TranspileTask {
     let relativePath = inputPath.relativeFromAncestor(this.root);
 
+    let output = this.#dist.file(relativePath).changeExtension("js");
+    let digest = output.changeExtension("digest");
+
     log.silent.inspect.labeled(`[TRANSPILE]`, {
       input: inputPath,
       root: this.root,
       relative: relativePath,
+      output,
+      digest,
     });
 
-    let output = this.#dist.file(relativePath).changeExtension("js");
-
-    log.silent.inspect.labeled(`[OUTPUT]`, output);
-
-    return TranspileTask.create(inputPath, output);
+    return TranspileTask.create(inputPath, output, digest);
   }
 }
 
 class Transpilation {
-  static create(name: string, tasks: readonly TranspileTask[]) {
-    return new Transpilation(name, tasks);
+  static create(
+    name: string,
+    dist: AbsolutePath,
+    tasks: readonly TranspileTask[]
+  ) {
+    return new Transpilation(name, dist, tasks);
   }
 
   readonly #name: string;
+  readonly #dist: AbsolutePath;
   readonly #tasks: readonly TranspileTask[];
 
-  private constructor(name: string, tasks: readonly TranspileTask[]) {
+  private constructor(
+    name: string,
+    dist: AbsolutePath,
+    tasks: readonly TranspileTask[]
+  ) {
     this.#name = name;
+    this.#dist = dist;
     this.#tasks = tasks;
   }
 
   prepare(existing: AbsolutePaths): PrepareTranspilation {
+    // console.log({ existing, outputPaths: this.outputPaths });
+
+    let digests = existing.filter((file) => file.hasExactExtension("digest"));
+    let nonDigests = existing.filter(
+      (file) => !file.hasExactExtension("digest")
+    );
+
     return PrepareTranspilation.create(
       this.#name,
-      existing.diffByKind(this.outputPaths)
+      nonDigests.diffByKind(this.outputPaths),
+      digests.diff(this.digests)
     );
   }
 
+  async transpile({ dryRun }: { dryRun: boolean } = { dryRun: false }) {
+    for (let task of this.#tasks) {
+      log.silent.heading(`[TRANSPILING]`, this.#name);
+
+      if (!dryRun) {
+        task.transpile();
+      }
+    }
+  }
+
+  get outputFiles(): AbsolutePaths {
+    return AbsolutePaths.from(this.#tasks.map((task) => task.output));
+  }
+
+  get digests(): AbsolutePaths {
+    return this.outputFiles.map((file) => file.changeExtension("digest"));
+  }
+
   get outputPaths(): AbsolutePaths {
-    let files = AbsolutePaths.from(this.#tasks.map((task) => task.output));
+    let files = this.outputFiles;
     log.silent.inspect.labeled("[OUT-FILES]", files);
-    let directories = files.directory;
+    let directories = files.directory.without(this.#dist);
     log.silent.inspect.labeled("[OUT-DIRS]", files.directory);
 
     return files.merge(directories);
@@ -327,6 +312,18 @@ class AbsolutePaths
     return new AbsolutePaths(new Map());
   }
 
+  static from(
+    paths: AbsolutePath | AbsolutePaths | AbsolutePath[]
+  ): AbsolutePaths {
+    if (paths instanceof AbsolutePaths) {
+      return paths;
+    } else {
+      let newPaths = AbsolutePaths.empty();
+      newPaths.add(paths);
+      return newPaths;
+    }
+  }
+
   static async all(
     inside: AbsolutePath,
     options: { kind: FileKind | "all" } = { kind: "regular" }
@@ -335,24 +332,27 @@ class AbsolutePaths
   }
 
   static async glob(
-    glob: string,
+    glob: string | string[],
     inside: AbsolutePath,
     { kind }: { kind: FileKind | "all" } = {
       kind: "regular",
     }
   ) {
-    let fullGlob = path.resolve(AbsolutePath.getFilename(inside), glob);
+    let globs = typeof glob === "string" ? [glob] : glob;
+    let fullGlob = globs.map((glob) =>
+      path.resolve(AbsolutePath.getFilename(inside), glob)
+    );
     return AbsolutePaths.#glob(fullGlob, kind);
   }
 
   static async #glob(
-    glob: string,
+    globs: string[],
     kind: FileKind | "all"
   ): Promise<AbsolutePaths> {
     switch (kind) {
       case "directory": {
         return AbsolutePaths.marked(
-          await searchGlob(glob, {
+          await searchGlob(globs, {
             markDirectories: true,
             onlyDirectories: true,
           })
@@ -361,7 +361,7 @@ class AbsolutePaths
 
       case "regular": {
         return AbsolutePaths.marked(
-          await searchGlob(glob, {
+          await searchGlob(globs, {
             onlyFiles: true,
           })
         );
@@ -369,7 +369,7 @@ class AbsolutePaths
 
       case "all": {
         return AbsolutePaths.marked(
-          await searchGlob(glob, {
+          await searchGlob(globs, {
             onlyFiles: false,
             onlyDirectories: false,
             markDirectories: true,
@@ -381,16 +381,6 @@ class AbsolutePaths
         exhaustive(kind, "kind");
       }
     }
-  }
-
-  static from(paths: readonly IntoAbsolutePath[]): AbsolutePaths {
-    let set = AbsolutePaths.empty();
-
-    for (let path of paths) {
-      set.add(AbsolutePath.from(path));
-    }
-
-    return set;
   }
 
   static marked(paths: Iterable<string>): AbsolutePaths {
@@ -432,6 +422,15 @@ class AbsolutePaths
     return this.map((path) => (path.isDirectory ? path : path.parent));
   }
 
+  without(paths: AbsolutePath | AbsolutePaths | AbsolutePath[]) {
+    let remove = AbsolutePaths.from(paths);
+    let filtered = new Map(
+      [...this.#paths].filter(([, path]) => !remove.has(path))
+    );
+
+    return new AbsolutePaths(filtered);
+  }
+
   /**
    * Returns true if any of the files in this set are directories that contain this path
    */
@@ -440,16 +439,7 @@ class AbsolutePaths
   }
 
   diff(other: AbsolutePaths): { added: AbsolutePaths; removed: AbsolutePaths } {
-    let diffs = diff(
-      [...this],
-      [...other],
-      (a, b) => AbsolutePath.getFilename(a) === AbsolutePath.getFilename(b)
-    );
-
-    let added = AbsolutePaths.from(diffs.added);
-    let removed = AbsolutePaths.from(diffs.removed).filter(
-      (path) => !added.has(path)
-    );
+    let { added, removed } = diffFiles(this, other);
 
     return {
       added,
@@ -462,9 +452,11 @@ class AbsolutePaths
    * that are descendents of a removed directory.
    */
   diffByKind(other: AbsolutePaths): PathDiffByKind {
+    // console.log({ current: this.directories, next: other.directories });
+
     let directories = this.directories.diff(other.directories);
 
-    log
+    log.silent
       .newline()
       .heading("Directories")
       .newline()
@@ -499,7 +491,7 @@ class AbsolutePaths
     let collapsed = AbsolutePaths.empty();
 
     for (let { path, rest } of this.#drain()) {
-      console.log({ path, rest });
+      // console.log({ path, rest });
       if (path.isRegularFile || !rest.contains(path)) {
         collapsed.add(path);
       }
@@ -668,6 +660,25 @@ class AbsolutePaths
   }
 }
 
+function diffFiles(prev: AbsolutePaths, next: AbsolutePaths) {
+  let added = AbsolutePaths.empty();
+  let removed = AbsolutePaths.empty();
+
+  for (let path of next) {
+    if (!prev.has(path)) {
+      added.add(path);
+    }
+  }
+
+  for (let path of prev) {
+    if (!next.has(path)) {
+      removed.add(path);
+    }
+  }
+
+  return { added, removed };
+}
+
 function isArray<T extends unknown[] | readonly unknown[]>(
   value: unknown | T
 ): value is T {
@@ -753,7 +764,7 @@ class AbsolutePath {
     if (isRoot(path)) {
       return AbsolutePath.#checked(path, "root", ".marked");
     } else if (path.endsWith("/")) {
-      return AbsolutePath.#checked(path, "directory", ".marked");
+      return AbsolutePath.#checked(path.slice(0, -1), "directory", ".marked");
     } else {
       return AbsolutePath.#checked(path, "regular", ".marked");
     }
@@ -820,6 +831,25 @@ class AbsolutePath {
 
   get extension(): string | null {
     return this.basename.ext;
+  }
+
+  async read(): Promise<string | null> {
+    if (this.#kind !== "regular") {
+      throw Error(
+        `You can only read from a regular file (file=${this.#filename})`
+      );
+    }
+
+    try {
+      return await fs.readFile(this.#filename, { encoding: "utf-8" });
+    } catch (e) {
+      return null;
+    }
+  }
+
+  async digest(): Promise<string | null> {
+    let contents = await this.read();
+    return contents === null ? null : digest(contents);
   }
 
   /**
@@ -977,16 +1007,22 @@ class AbsolutePath {
 }
 
 class PrepareTranspilation {
-  static create(name: string, diff: PathDiffByKind): PrepareTranspilation {
-    return new PrepareTranspilation(name, diff);
+  static create(
+    name: string,
+    diff: PathDiffByKind,
+    digests: PathDiff
+  ): PrepareTranspilation {
+    return new PrepareTranspilation(name, diff, digests);
   }
 
   readonly #name: string;
   readonly #diff: PathDiffByKind;
+  readonly #digests: PathDiff;
 
-  private constructor(name: string, diff: PathDiffByKind) {
+  private constructor(name: string, diff: PathDiffByKind, digests: PathDiff) {
     this.#name = name;
     this.#diff = diff;
+    this.#digests = digests;
   }
 
   async run({ dryRun }: { dryRun: boolean } = { dryRun: false }) {
@@ -1000,17 +1036,17 @@ class PrepareTranspilation {
         .heading("[DRY-RUN]", "Directories");
 
       for (let removed of directories.removed) {
-        log.silent.inspect.labeled("  [--]", removed);
+        log.inspect.labeled("  [--]", removed);
       }
 
       for (let added of directories.added) {
         log.silent.inspect.labeled("  [++]", added);
       }
 
-      log.silent.newline().heading("[DRY-RUN]", "Files");
+      log.newline().heading("[DRY-RUN]", "Files");
 
       for (let removed of files.removed) {
-        log.silent.inspect.labeled("  [--]", removed);
+        log.inspect.labeled("  [--]", removed);
       }
 
       for (let added of files.added) {
@@ -1018,20 +1054,100 @@ class PrepareTranspilation {
       }
     } else {
       for (let removed of directories.removed) {
+        log.inspect.labeled("[--]", removed);
+        shell.rm("-r", AbsolutePath.getFilename(removed));
+      }
+
+      for (let directory of directories.added) {
+        log.inspect.labeled("[++]", directory);
+        shell.mkdir("-p", AbsolutePath.getFilename(directory));
+      }
+
+      for (let removed of files.removed) {
+        log.inspect.labeled("  [--]", removed);
+        shell.rm(AbsolutePath.getFilename(removed));
+      }
+
+      for (let removed of this.#digests.removed) {
+        log.inspect.labeled("  [--]", removed);
+        shell.rm(AbsolutePath.getFilename(removed));
       }
     }
   }
 }
 
 class TranspileTask {
-  static create(input: AbsolutePath, output: AbsolutePath): TranspileTask {
-    return new TranspileTask(input, output);
+  static create(
+    input: AbsolutePath,
+    output: AbsolutePath,
+    digest: AbsolutePath
+  ): TranspileTask {
+    return new TranspileTask(input, output, digest);
   }
+
+  readonly #digest: AbsolutePath;
 
   private constructor(
     readonly input: AbsolutePath,
-    readonly output: AbsolutePath
-  ) {}
+    readonly output: AbsolutePath,
+    digest: AbsolutePath
+  ) {
+    this.#digest = digest;
+  }
+
+  async #digests(): Promise<{ prev: string | null; next: string }> {
+    let prev = await this.#digest.read();
+    let input = await this.input.read();
+
+    if (input === null) {
+      throw Error(`Unable to read ${AbsolutePath.getFilename(this.input)}`);
+    }
+
+    let next = digest(input);
+
+    return { prev, next };
+    // let next
+  }
+
+  async transpile() {
+    log.silent.inspect.labeled("[TRANSPILE-TASK]", {
+      input: this.input,
+      output: this.output,
+      digest: this.#digest,
+    });
+
+    let digests = await this.#digests();
+
+    if (digests.prev === digests.next) {
+      log.silent.inspect.labeled("[FRESH]", this.input);
+      return;
+    } else {
+      log.inspect.labeled("[STALE]", this.input);
+    }
+
+    let output = swc.transformFileSync(AbsolutePath.getFilename(this.input), {
+      sourceMaps: "inline",
+      inlineSourcesContent: true,
+      jsc: {
+        parser: {
+          syntax: "typescript",
+          decorators: true,
+        },
+        target: "es2022",
+      },
+      outputPath: AbsolutePath.getFilename(this.output),
+    });
+
+    log.silent.inspect.labeled("[WRITING]", {
+      file: this.output,
+      code: output.code,
+    });
+
+    await fs.writeFile(AbsolutePath.getFilename(this.#digest), digests.next, {
+      encoding: "utf-8",
+    });
+    await fs.writeFile(AbsolutePath.getFilename(this.output), output.code);
+  }
 }
 
 async function workspacePackages(root: string, filter: string) {
@@ -1092,7 +1208,7 @@ function exec(command: string): Promise<string | undefined> {
 
     child.on("error", (err) => reject(err));
     child.on("exit", async (code) => {
-      log("exec status", { code, stdout: await stdout });
+      log.silent("exec status", { code, stdout: await stdout });
 
       if (code === 0) {
         fulfill(await stdout);
@@ -1258,7 +1374,7 @@ function log(
   return log;
 }
 
-log.silent = log;
+log.silent = SILENT;
 log.log = log;
 
 log.newline = (): typeof log => {
@@ -1317,4 +1433,10 @@ function logged<T>(value: T, description: string, shouldLog = true): T {
     );
   }
   return value;
+}
+
+function digest(source: string): string {
+  let hash = createHash("sha256");
+  hash.update(source);
+  return hash.digest("hex");
 }

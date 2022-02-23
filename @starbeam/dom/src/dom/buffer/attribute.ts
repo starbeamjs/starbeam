@@ -1,18 +1,13 @@
+import { has, is, isObject, Position, positioned } from "@starbeam/core";
+import { QualifiedName, Wrapper } from "@starbeam/debug";
 import {
   assert,
   exhaustive,
   expected,
-  has,
-  is,
-  isObject,
-  Position,
-  positioned,
   present,
-  QualifiedName,
   verified,
   verify,
-  Wrapper,
-} from "@starbeam/core";
+} from "@starbeam/verify";
 import type { Buffer, Serialize, SerializeOptions } from "./body.js";
 import { escapeAttrValue } from "./escape.js";
 

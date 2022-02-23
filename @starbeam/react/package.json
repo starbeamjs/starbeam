@@ -7,6 +7,9 @@
   "dependencies": {
     "@starbeam/core": "workspace:*",
     "@starbeam/dom": "workspace:*",
+    "@starbeam/verify": "workspace:*",
+    "@starbeam/debug": "workspace:*",
+    "@starbeam/fundamental": "workspace:*",
     "use-ssr": "^1.0.24",
     "use-sync-external-store": "rc",
     "@types/use-sync-external-store": "ts4.6"

@@ -1,5 +1,7 @@
+import { abstractify, Abstraction } from "@starbeam/debug";
+import type { UnsafeAny } from "@starbeam/fundamental";
 import type { PartialVerifyContext } from "./assert.js";
-import type { VerifyContext } from "./verify-context.js";
+import type { FinalizedContext, VerifyContext } from "./verify-context.js";
 
 /** @internal */
 export const assertCondition: (

@@ -1,13 +1,12 @@
 import type { minimal } from "@domtree/flavors";
 import {
-  as,
   is,
   NonemptyList,
   OrderedIndex,
   Reactive,
   ReactiveMetadata,
-  verified,
 } from "@starbeam/core";
+import { as, verified } from "@starbeam/verify";
 import type { DomEnvironment } from "../../dom.js";
 import type { ContentRange } from "../../dom/streaming/compatible-dom.js";
 import { RangeSnapshot, RANGE_SNAPSHOT } from "../../dom/streaming/cursor.js";

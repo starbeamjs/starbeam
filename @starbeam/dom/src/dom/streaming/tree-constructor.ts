@@ -1,6 +1,7 @@
 // import type { AnyNode } from "./simplest-dom.js";
 import type * as minimal from "@domtree/minimal";
-import { is, mutable, verified } from "@starbeam/core";
+import { is, mutable } from "@starbeam/core";
+import { verified } from "@starbeam/verify";
 import type { AttributeValue, AttrType } from "../buffer/attribute.js";
 import type { ElementHeadBuffer } from "../buffer/body.js";
 import {

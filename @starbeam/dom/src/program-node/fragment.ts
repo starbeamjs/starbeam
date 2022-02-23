@@ -1,5 +1,6 @@
 import type { ParentNode } from "@domtree/minimal";
-import { has, NonemptyList, ReactiveMetadata, verify } from "@starbeam/core";
+import { has, NonemptyList, ReactiveMetadata } from "@starbeam/core";
+import { verify } from "@starbeam/verify";
 import { RangeSnapshot, RANGE_SNAPSHOT } from "../dom/streaming/cursor.js";
 import type { ContentConstructor } from "../dom/streaming/tree-constructor.js";
 import { ContentProgramNode } from "./content.js";

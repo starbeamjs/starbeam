@@ -1,5 +1,6 @@
 import type { minimal } from "@domtree/flavors";
-import { as, is, verified } from "@starbeam/core";
+import { is } from "@starbeam/core";
+import { as, verified } from "@starbeam/verify";
 import type { DomEnvironment } from "../dom.js";
 import type { ContentRange } from "../dom/streaming/compatible-dom.js";
 import type { LazyDOM } from "../dom/streaming/token.js";

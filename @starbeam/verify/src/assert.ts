@@ -1,15 +1,5 @@
-// import {
-//   abstractify,
-//   assertCondition,
-//   DebugInformation,
-// } from "../../core/strippable/core.js";
-// import {
-//   as,
-//   CreatedContext,
-//   DescribedContext,
-//   VerifyContext,
-// } from "../../core/strippable/verify-context.js";
-import { DebugInformation } from "./core.js";
+import { abstractify } from "@starbeam/debug";
+import { assertCondition, DebugInformation } from "./core.js";
 import { isPresent } from "./presence.js";
 import {
   as,

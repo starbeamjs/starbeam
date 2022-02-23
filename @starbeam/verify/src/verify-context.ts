@@ -2,7 +2,7 @@ import type {
   CompleteContext,
   MutableVerifyContext,
   PartialVerifyContext,
-} from "@starbeam/verify";
+} from "./assert.js";
 import { assert, isVerifyContext } from "./core.js";
 
 export class DescribedContext {

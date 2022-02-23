@@ -1,12 +1,11 @@
 import type { minimal } from "@domtree/flavors";
 import {
-  exhaustive,
   is,
   NonemptyList,
   OrderedIndex,
-  verified,
   type ReactiveMetadata,
 } from "@starbeam/core";
+import { exhaustive, verified } from "@starbeam/verify";
 import { getPatch, type Patch } from "fast-array-diff";
 import type { DomEnvironment } from "../../dom/environment.js";
 import {

@@ -1,11 +1,6 @@
-import {
-  Abstraction,
-  lifetime,
-  LOGGER,
-  Memo,
-  subscribe,
-  type AnyRecord,
-} from "@starbeam/core";
+import { lifetime, LOGGER, Memo, subscribe } from "@starbeam/core";
+import { Abstraction } from "@starbeam/debug";
+import type { AnyRecord } from "@starbeam/fundamental";
 import { useDebugValue } from "react";
 import {
   ReactiveComponent,

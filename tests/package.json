@@ -5,6 +5,9 @@
   "dependencies": {
     "@starbeam/core": "workspace:*",
     "@starbeam/dom": "workspace:*",
+    "@starbeam/verify": "workspace:*",
+    "@starbeam/debug": "workspace:*",
+    "@starbeam/fundamental": "workspace:*",
     "typescript": "next"
   },
   "devDependencies": {

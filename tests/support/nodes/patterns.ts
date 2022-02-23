@@ -1,8 +1,9 @@
 import type { anydom } from "@domtree/flavors";
-import { Abstraction, exhaustive, is, verified, verify } from "@starbeam/core";
+import { is } from "@starbeam/core";
+import { Abstraction } from "@starbeam/debug";
 import { DOM } from "@starbeam/dom";
+import { exhaustive, verified, verify } from "@starbeam/verify";
 import zip from "lodash.zip";
-// import { exhaustive, verify, is, DOM, verified } from "../../support/starbeam.js";
 
 export interface ElementNodeOptions {
   attributes?: Record<string, string>;

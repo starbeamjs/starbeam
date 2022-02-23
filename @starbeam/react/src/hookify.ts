@@ -4,9 +4,9 @@ import {
   enumerate,
   HookBlueprint,
   Reactive,
-  type InferReturn,
   type IntoReactive,
 } from "@starbeam/core";
+import type { InferReturn } from "@starbeam/fundamental";
 import { use } from "./hooks.js";
 
 export type StarbeamHook<

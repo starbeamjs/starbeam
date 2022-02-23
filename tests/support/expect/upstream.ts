@@ -1,4 +1,4 @@
-import { exhaustive } from "@starbeam/core";
+import { exhaustive } from "@starbeam/verify";
 import { diff } from "jest-diff";
 import * as utils from "jest-matcher-utils";
 import type {

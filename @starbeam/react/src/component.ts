@@ -1,8 +1,5 @@
 import {
-  assert,
   Cell,
-  exhaustive,
-  expected,
   getDescription,
   HookBlueprint,
   is,
@@ -12,12 +9,14 @@ import {
   Reactive,
   SimpleHook,
   subscribe,
-  verify,
-  type AnyIndex,
-  type AnyKey,
-  type AnyRecord,
-  type InferReturn,
 } from "@starbeam/core";
+import type {
+  AnyIndex,
+  AnyKey,
+  AnyRecord,
+  InferReturn,
+} from "@starbeam/fundamental";
+import { assert, exhaustive, expected, verify } from "@starbeam/verify";
 import { useCallback, useDebugValue, useState, type ReactElement } from "react";
 import { useInstance } from "./instance.js";
 

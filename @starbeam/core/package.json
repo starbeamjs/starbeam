@@ -8,7 +8,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "serve": "vite preview",
-    "test": "node ./jest/run.js",
+    "test": "node ./bootstrap/dist/run.js",
     "lint": "eslint .",
     "typecheck": "tsc -b",
     "typecheck:serve": "tsc -b -w --pretty false",

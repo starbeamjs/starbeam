@@ -2,7 +2,7 @@
  * Everything in this file is, in principle, strippable.
  */
 
-import type { AnyWrapper } from "@starbeam/trace-internals";
+import type { UnsafeAny } from "@starbeam/fundamental";
 
 /**
  * The strippable usage pattern is:
@@ -53,7 +53,7 @@ export class Wrapper<T, Meta, S extends symbol> {
   /**
    * @strip.value newtype
    */
-  static getInner<T>(newtype: AnyWrapper<T>): T {
+  static getInner<T>(newtype: Wrapper<T, UnsafeAny, UnsafeAny>): T {
     return newtype.#inner;
   }
 
@@ -61,7 +61,7 @@ export class Wrapper<T, Meta, S extends symbol> {
    * @strip.noop
    */
   static inDebug<T, Meta>(
-    newtype: AnyWrapper<T, Meta>,
+    newtype: Wrapper<T, Meta, UnsafeAny>,
     callback: (value: T, meta: Meta) => void
   ): void {
     callback(newtype.#inner, newtype.#debugMeta);
