@@ -1,10 +1,10 @@
+import { verified } from "../../verify/src/assert.js";
 import { LIFETIME, type IntoFinalizer } from "../core/lifetime/lifetime.js";
 import type { ReactiveMetadata } from "../core/metadata.js";
 import { UNINITIALIZED } from "../fundamental/constants.js";
 import type { Cell, Reactive } from "../fundamental/types.js";
 import { ExtendsReactive } from "../reactive/base.js";
 import { ReactiveMemo } from "../reactive/memo.js";
-import { verified } from "../strippable/assert.js";
 import { is } from "../strippable/minimal.js";
 import { LOGGER } from "../strippable/trace.js";
 import { expected } from "../strippable/verify-context.js";

@@ -1,6 +1,6 @@
-import { verified } from "../strippable/assert.js";
+import { verified } from "../../verify/src/assert.js";
 import { is } from "../strippable/minimal.js";
-import type { InferReturn } from "../strippable/wrapper.js";
+import type { InferReturn } from "../../trace-internals/src/wrapper.js";
 
 /**
  * The Discriminant is the low-level, internal representation of the instance of
@@ -26,12 +26,6 @@ export type Matcher<
 export type Matchers<D extends Discriminant, Out, T = never, U = never> = {
   [P in D]: Matcher<P, T, U, Out>;
 };
-
-const VARIANT = Symbol("VARIANT");
-type VARIANT = typeof VARIANT;
-
-const VALUE = Symbol("VALUE");
-type VALUE = typeof VALUE;
 
 export interface EnumInstance0<D extends Discriminant> {
   // readonly [VARIANT]: Variant<I & string>;

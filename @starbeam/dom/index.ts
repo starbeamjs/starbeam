@@ -20,3 +20,4 @@ export {
   FragmentProgramNodeBuilder,
   type FragmentProgramNode,
 } from "./src/program-node/fragment.js";
+export { Root } from "./src/root.js";

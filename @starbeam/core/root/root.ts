@@ -1,48 +1,62 @@
-import type { ReactiveMetadata } from "../core/metadata.js";
-import type { RenderedProgramNode } from "../program-node/program-node.js";
-import { LOGGER } from "../strippable/trace.js";
+import { LIFETIME } from "../core/lifetime/lifetime.js";
+import { TIMELINE } from "../core/timeline/timeline.js";
+import type { HookBlueprint } from "../hooks/simple.js";
+import {
+  HookCursor,
+  HookProgramNode,
+  type HookValue,
+} from "../program-node/hook.js";
+import type { ProgramNode } from "../program-node/program-node.js";
+import { INSPECT } from "../utils.js";
+import { RenderedRoot } from "./rendered-root.js";
 
-export class RenderedRoot<Container> {
-  static create<Container>({
-    rendered,
-    container,
-  }: {
-    rendered: RenderedProgramNode<Container>;
-    container: Container;
-  }) {
-    return new RenderedRoot(rendered, container);
+export class Root {
+  [INSPECT](): string {
+    return this.#description;
   }
 
-  readonly #rendered: RenderedProgramNode<Container>;
-  readonly #container: Container;
+  readonly #children: object[];
+  readonly #description: string;
 
-  private constructor(
-    rendered: RenderedProgramNode<Container>,
-    container: Container
-  ) {
-    this.#rendered = rendered;
-    this.#container = container;
+  readonly on = {
+    advance: (callback: () => void): (() => void) =>
+      TIMELINE.on.advance(callback),
+  } as const;
+
+  protected constructor(children: object[], description: string) {
+    this.#children = children;
+    this.#description = description;
   }
 
-  get metadata(): ReactiveMetadata {
-    return this.#rendered.metadata;
+  use<T>(
+    hook: HookBlueprint<T>,
+    { into }: { into: HookValue<T> }
+  ): RenderedRoot<HookValue<T>> {
+    let node = HookProgramNode.create(this, hook);
+    return this.build(node, {
+      cursor: HookCursor.create(),
+      hydrate: () => into,
+    });
   }
 
-  /**
-   * Eagerly exchange all tokens for their DOM representations. This is
-   * primarily useful if you want to look at the DOM without markers.
-   */
-  initialize(): this {
-    LOGGER.trace.group(`\ninitializing rendered root`, () =>
-      this.#rendered.initialize(this.#container)
-    );
+  build<Cursor, Container>(
+    node: ProgramNode<Cursor, Container>,
+    {
+      cursor,
+      hydrate,
+    }: { cursor: Cursor; hydrate: (cursor: Cursor) => Container }
+  ): RenderedRoot<Container> {
+    let rendered = node.render(cursor);
 
-    return this;
-  }
+    let container = hydrate(cursor);
 
-  poll(): void {
-    LOGGER.trace.group(`\npolling rendered root`, () =>
-      this.#rendered.poll(this.#container)
-    );
+    let root = RenderedRoot.create({
+      rendered,
+      container,
+    });
+
+    LIFETIME.link(root, rendered);
+
+    return root;
   }
 }

@@ -1,9 +1,10 @@
-import { Reactive, Root, type IntoReactive } from "@starbeam/core";
+import { Reactive, type IntoReactive } from "@starbeam/core";
 import type {
   AttributeName,
   BuildAttribute,
   ContentProgramNode,
   ReactiveElementBuilderCallback,
+  Root,
 } from "@starbeam/dom";
 import type { Expects } from "./expect/expect.js";
 

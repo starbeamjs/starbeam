@@ -1,6 +1,6 @@
 import type { Reactive } from "../../fundamental/types.js";
 import { Abstraction } from "../../index.js";
-import type { AnyRecord } from "../../strippable/wrapper.js";
+import type { AnyRecord } from "../../../trace-internals/src/wrapper.js";
 import type { FIXME } from "../../utils.js";
 import { Cell } from "../cell.js";
 import { ReactiveMemo } from "../memo.js";

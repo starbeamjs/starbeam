@@ -227,25 +227,3 @@ export function use<T>(hook: HookBlueprint<T>): T {
     () => last
   );
 }
-
-function externalStore<T>(value: HookValue<T>, root: RenderedRoot<unknown>): T {
-  let last = value.current;
-  const starbeam = useContext(STARBEAM);
-
-  return useSyncExternalStore(
-    (notifyReact) => {
-      let teardown = starbeam.on.advance(() => {
-        root.poll();
-        let current = value.current;
-
-        if (last !== current) {
-          last = current;
-          notifyReact();
-        }
-      });
-
-      return teardown;
-    },
-    () => last
-  );
-}

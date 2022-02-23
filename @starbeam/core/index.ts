@@ -1,6 +1,7 @@
 import { ReactiveCases } from "./reactive/choice.js";
 export const Cases = ReactiveCases.define;
 
+export * from "../verify/src/assert.js";
 export { Finalizer, LIFETIME } from "./core/lifetime/lifetime.js";
 export {
   ConstantMetadata,
@@ -31,14 +32,14 @@ export {
   type IntoReactive,
 } from "./reactive/index.js";
 export * from "./root/api/public.js";
-export { Abstraction } from "./strippable/abstraction.js";
-export * from "./strippable/assert.js";
+export { Root } from "./root/root.js";
+export { Abstraction } from "../debug/src/abstraction.js";
 export * from "./strippable/core.js";
 export * from "./strippable/minimal.js";
 export * from "./strippable/trace.js";
 export * from "./strippable/verify-context.js";
-export * from "./strippable/wrapper.js";
-export { RenderedRoot, Root } from "./universe.js";
+export * from "../trace-internals/src/wrapper.js";
+export { RenderedRoot } from "./universe.js";
 export * from "./utils.js";
 export * from "./utils/index-map.js";
 // export * from "./fundamental/types.js";

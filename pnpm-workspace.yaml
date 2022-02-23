@@ -1,7 +1,8 @@
 packages:
-  - "."
   - tests
+  - bootstrap
   - notes/examples
+  - examples
   - "@starbeam/*"
   - "@types/@domtree/*"
-  - "@types/treeify"
+  - "@types/*"

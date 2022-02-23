@@ -7,7 +7,6 @@ import {
   Reactive,
   ReactiveMetadata,
   RenderedRoot,
-  Root,
   verify,
 } from "@starbeam/core";
 import {
@@ -15,6 +14,7 @@ import {
   ElementProgramNodeBuilder,
   HTML_NAMESPACE,
   ReactiveDOM,
+  Root,
   type CommentProgramNode,
   type ContentProgramNode,
   type ElementProgramNode,

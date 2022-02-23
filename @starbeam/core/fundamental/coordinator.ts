@@ -1,4 +1,4 @@
-import { exhaustive } from "../strippable/assert.js";
+import { exhaustive } from "../../verify/src/assert.js";
 
 export enum Priority {
   BeforeLayout = "BeforeLayout",

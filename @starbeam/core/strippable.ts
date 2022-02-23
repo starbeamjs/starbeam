@@ -1,2 +1,2 @@
-export * from "./strippable/assert.js";
+export * from "../verify/src/assert.js";
 export * from "./strippable/minimal.js";

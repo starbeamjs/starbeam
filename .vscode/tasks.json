@@ -18,7 +18,7 @@
     {
       "type": "npm",
       "script": "jest:cache:clear",
-      "label": "eslint",
+      "label": "Clear Jest Cache",
       "presentation": {
         "echo": true,
         "reveal": "never",
@@ -29,6 +29,14 @@
       },
       "group": "build",
       "detail": "Clear the Jest Cache (😭😭😭)"
+    },
+    {
+      "type": "npm",
+      "script": "lint",
+      "problemMatcher": ["$eslint-stylish"],
+      "label": "npm: lint",
+      "detail": "eslint .",
+      "group": "build"
     }
   ]
 }

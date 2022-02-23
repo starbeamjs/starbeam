@@ -1,8 +1,8 @@
 import type * as dom from "@domtree/any";
 import type { anydom } from "@domtree/flavors";
 import type * as minimal from "@domtree/minimal";
-import { isPresent } from "../utils/presence.js";
-import { Verifier, type PartialVerifier } from "./assert.js";
+import { Verifier, type PartialVerifier } from "../../verify/src/assert.js";
+import { isPresent } from "../../verify/src/presence.js";
 import { CreatedContext, expected, VerifyContext } from "./verify-context.js";
 
 /**

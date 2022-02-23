@@ -1,7 +1,12 @@
 {
   "name": "@domtree/flavors",
   "version": "0.9.0",
-  "private": true,  
+  "private": true,
   "type": "module",
-  "types": "index.ts"
+  "types": "index.ts",
+  "dependencies": {
+    "@domtree/any": "workspace:*",
+    "@domtree/browser": "workspace:*",
+    "@domtree/minimal": "workspace:*"
+  }
 }

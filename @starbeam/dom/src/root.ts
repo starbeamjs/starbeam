@@ -1,15 +1,9 @@
 import type { anydom, minimal } from "@domtree/flavors";
 import {
-  HookBlueprint,
-  HookCursor,
-  HookProgramNode,
-  HookValue,
-  INSPECT,
-  LIFETIME,
   minimize,
   RenderedRoot,
+  Root as CoreRoot,
   TIMELINE,
-  type ProgramNode,
 } from "@starbeam/core";
 import type { JSDOM } from "jsdom";
 import { ReactiveDOM } from "./dom.js";
@@ -18,7 +12,7 @@ import { DOM, MINIMAL } from "./dom/streaming/compatible-dom.js";
 import { TreeConstructor } from "./dom/streaming/tree-constructor.js";
 import type { ContentProgramNode } from "./program-node/content.js";
 
-export class Root {
+export class Root extends CoreRoot {
   static jsdom(jsdom: JSDOM): Root {
     return Root.environment(DomEnvironment.jsdom(jsdom), `#<Universe jsdom>`);
   }
@@ -35,13 +29,7 @@ export class Root {
     return new Root(environment, [], description);
   }
 
-  [INSPECT](): string {
-    return this.#description;
-  }
-
   readonly #environment: DomEnvironment;
-  readonly #children: object[];
-  readonly #description: string;
 
   readonly dom: ReactiveDOM = new ReactiveDOM();
   readonly on = {
@@ -54,20 +42,8 @@ export class Root {
     children: object[],
     description: string
   ) {
+    super(children, description);
     this.#environment = document;
-    this.#children = children;
-    this.#description = description;
-  }
-
-  use<T>(
-    hook: HookBlueprint<T>,
-    { into }: { into: HookValue<T> }
-  ): RenderedRoot<HookValue<T>> {
-    let node = HookProgramNode.create(this, hook);
-    return this.build(node, {
-      cursor: HookCursor.create(),
-      hydrate: () => into,
-    });
   }
 
   render(
@@ -81,27 +57,6 @@ export class Root {
         return minimize(append);
       },
     });
-  }
-
-  build<Cursor, Container>(
-    node: ProgramNode<Cursor, Container>,
-    {
-      cursor,
-      hydrate,
-    }: { cursor: Cursor; hydrate: (cursor: Cursor) => Container }
-  ): RenderedRoot<Container> {
-    let rendered = node.render(cursor);
-
-    let container = hydrate(cursor);
-
-    let root = RenderedRoot.create({
-      rendered,
-      container,
-    });
-
-    LIFETIME.link(root, rendered);
-
-    return root;
   }
 
   #appending(parent: anydom.ParentNode): minimal.TemplateElement {

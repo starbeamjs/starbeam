@@ -1,9 +1,9 @@
+import { verified } from "../verify/src/assert.js";
 import { Abstraction } from "./index.js";
-import { verified } from "./strippable/assert.js";
 import { has } from "./strippable/minimal.js";
 import { as } from "./strippable/verify-context.js";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-unused-vars,@typescript-eslint/no-explicit-any
 export type FIXME<_S extends string = string> = any;
 
 export const INSPECT = Symbol.for("nodejs.util.inspect.custom");

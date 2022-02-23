@@ -10,6 +10,8 @@
   "devDependencies": {
     "@jest/globals": "^27.4.6",
     "@types/lodash.zip": "^4.2.6",
+    "jest-diff": "^27.5.1",
+    "jest-matcher-utils": "^27.5.1",
     "jsdom": "^19.0.0",
     "lodash.zip": "^4.2.0"
   }

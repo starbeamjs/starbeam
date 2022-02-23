@@ -5,9 +5,10 @@
     "declarationMap": true,
     "target": "ESNext",
     "strict": true,
+    "noEmit": true,
     "useDefineForClassFields": true,
     "allowSyntheticDefaultImports": false,
-    "esModuleInterop": false,
+    "esModuleInterop": true,
     "experimentalDecorators": true,
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
@@ -20,6 +21,6 @@
     "isolatedModules": true,
     "preserveValueImports": true
   },
-  "include": ["tests", "@types", "@starbeam"],
+  "include": ["tests", "@types", "@starbeam/*/**/*.ts", "examples"],
   "exclude": ["**/dist/**", "{src,tests,@types,@starbeam}/**/*.d.ts"]
 }

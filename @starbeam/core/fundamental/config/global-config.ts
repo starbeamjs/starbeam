@@ -1,5 +1,5 @@
 import { assert } from "../../strippable/core.js";
-import type { InferArgument } from "../../strippable/wrapper.js";
+import type { InferArgument } from "../../../trace-internals/src/wrapper.js";
 import {
   ConfigEnvironment,
   type ConfigEnvironmentDelegate,

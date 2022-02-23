@@ -3,10 +3,10 @@ import type { ReactiveMetadata } from "../core/metadata.js";
 import type { Reactive } from "../fundamental/types.js";
 import { HookBlueprint, SimpleHook } from "../hooks/simple.js";
 import type { Hook } from "../root/api/public.js";
+import type { Root } from "../root/root.js";
 import { assert } from "../strippable/core.js";
 import { LOGGER } from "../strippable/trace.js";
-import type { AnyKey } from "../strippable/wrapper.js";
-import type { Root } from "../universe.js";
+import type { AnyKey } from "../../trace-internals/src/wrapper.js";
 import { AbstractProgramNode, RenderedProgramNode } from "./program-node.js";
 
 const UNINITIALIZED = Symbol("UNINITIALIZED");

@@ -1,0 +1,17 @@
+{
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@pnpm/find-workspace-dir": "^3.0.1",
+    "@swc/core": "^1.2.143",
+    "fast-array-diff": "^1.0.1",
+    "fast-glob": "^3.2.11",
+    "mkdirp": "^1.0.4",
+    "promise-readable": "^6.0.0",
+    "shell-escape-tag": "^2.0.2",
+    "shelljs": "^0.8.5"
+  },
+  "devDependencies": {
+    "@types/shell-escape-tag": "workspace:*"
+  }
+}

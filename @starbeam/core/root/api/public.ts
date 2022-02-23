@@ -6,7 +6,7 @@ import {
   type ResourceHookConstructor,
 } from "../../hooks/simple.js";
 import { ReactiveMemo } from "../../reactive/memo.js";
-import { Abstraction } from "../../strippable/abstraction.js";
+import { Abstraction } from "../../../debug/src/abstraction.js";
 import type { FIXME } from "../../utils.js";
 
 export type Hook<T = unknown> = Reactive<T>;

@@ -1,0 +1,10 @@
+{
+  "name": "@starbeam/trace-internals",
+  "type": "module",
+  "main": "index.js",
+  "types": "index.ts",
+  "version": "0.5.0",
+  "dependencies": {
+    "@starbeam/fundamental": "workspace:*"
+  }
+}

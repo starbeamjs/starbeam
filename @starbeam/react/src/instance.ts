@@ -1,8 +1,6 @@
 import { UNINITIALIZED } from "@starbeam/core";
 import { useRef } from "react";
 
-type UpdateCallback<T> = (instance: T) => void;
-
 class InstanceState<T> {
   static forInstance<T>(instance: T): InstanceState<T> {
     return new InstanceState(instance);

@@ -1,6 +1,6 @@
 import * as jest from "@jest/globals";
-import { Abstraction, Cell, is, Reactive, ReactiveMetadata, RenderedRoot, Root, verify, } from "@starbeam/core";
-import { DomEnvironment, ElementProgramNodeBuilder, HTML_NAMESPACE, ReactiveDOM, } from "@starbeam/dom";
+import { Abstraction, Cell, is, Reactive, ReactiveMetadata, RenderedRoot, verify, } from "@starbeam/core";
+import { DomEnvironment, ElementProgramNodeBuilder, HTML_NAMESPACE, ReactiveDOM, Root, } from "@starbeam/dom";
 import { JSDOM } from "jsdom";
 import { ElementArgs, normalizeChild, } from "./element.js";
 import { expect, Expects } from "./expect/expect.js";

@@ -1,6 +1,6 @@
-import type { UnsafeAny } from "../strippable/wrapper.js";
-import type { ExtendsReactive } from "./base.js";
 import { HasMetadata, ReactiveMetadata } from "../core/metadata.js";
+import type { UnsafeAny } from "../../trace-internals/src/wrapper.js";
+import type { ExtendsReactive } from "./base.js";
 
 export class ReactiveChoice<T, K extends string = string> extends HasMetadata {
   static create<T, K extends string>(
@@ -38,14 +38,6 @@ export type AnyReactiveChoice = ReactiveChoice<unknown>;
 
 export type Type<T> = (value: unknown) => value is T;
 export type Variant<T> = [discriminant: string, value?: Type<T>];
-
-const number = (value: unknown): value is number => {
-  return typeof value === "number";
-};
-
-function MakeType<T>(): Type<T> {
-  return (value: unknown): value is T => true;
-}
 
 export type TypeFor<T extends Type<unknown> | undefined> = T extends undefined
   ? undefined

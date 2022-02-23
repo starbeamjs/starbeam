@@ -4,28 +4,30 @@
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 // TypeScript Version: 2.1
 
-export interface TreeObject {
-  [k: string]: TreeValue;
+declare module "treeify" {
+  export interface TreeObject {
+    [k: string]: TreeValue;
+  }
+  export type TreeValue = string | TreeObject;
+
+  function asTree(
+    treeObj: TreeObject,
+    showValues: boolean,
+    hideFunctions: boolean
+  ): string;
+
+  function asLines(
+    treeObj: TreeObject,
+    showValues: boolean,
+    lineCallback: (line: string) => void
+  ): string;
+  function asLines(
+    treeObj: TreeObject,
+    showValues: boolean,
+    hideFunctions: boolean,
+    lineCallback: (line: string) => void
+  ): string;
+
+  const DEFAULT: { asTree: typeof asTree; asLines: typeof asLines };
+  export default DEFAULT;
 }
-export type TreeValue = string | TreeObject;
-
-declare function asTree(
-  treeObj: TreeObject,
-  showValues: boolean,
-  hideFunctions: boolean
-): string;
-
-declare function asLines(
-  treeObj: TreeObject,
-  showValues: boolean,
-  lineCallback: (line: string) => void
-): string;
-declare function asLines(
-  treeObj: TreeObject,
-  showValues: boolean,
-  hideFunctions: boolean,
-  lineCallback: (line: string) => void
-): string;
-
-declare const DEFAULT: { asTree: typeof asTree; asLines: typeof asLines };
-export default DEFAULT;

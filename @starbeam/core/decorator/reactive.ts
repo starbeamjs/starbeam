@@ -1,10 +1,10 @@
+import { verify } from "@starbeam/verify";
+import type { InferReturn } from "../../trace-internals/src/wrapper.js";
 import { builtin } from "../reactive/builtins/reactive.js";
 import { ReactiveCell } from "../reactive/cell.js";
 import { ReactiveMemo } from "../reactive/memo.js";
-import { verify } from "../strippable/assert.js";
 import { is } from "../strippable/minimal.js";
 import { expected } from "../strippable/verify-context.js";
-import type { InferReturn } from "../strippable/wrapper.js";
 
 type BuiltinFunction = typeof builtin;
 

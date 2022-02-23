@@ -1,3 +1,4 @@
+import { verify } from "../../verify/src/assert.js";
 import { ReactiveMetadata } from "../core/metadata.js";
 import { TIMELINE } from "../core/timeline/timeline.js";
 import type { Timestamp } from "../core/timeline/timestamp.js";
@@ -5,7 +6,6 @@ import { describeValue } from "../describe.js";
 import { IS_UPDATED_SINCE } from "../fundamental/constants.js";
 import type { Cell as CellType } from "../fundamental/types.js";
 import { Abstraction } from "../index.js";
-import { verify } from "../strippable/assert.js";
 import { is } from "../strippable/minimal.js";
 import { expected } from "../strippable/verify-context.js";
 import { ExtendsReactive } from "./base.js";

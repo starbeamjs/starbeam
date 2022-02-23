@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "checkJs": false,
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "ES2022",
+    "allowSyntheticDefaultImports": true,
+    "lib": ["ESNext", "DOM"],
+    "noEmit": false,
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true,
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": false,
+    "isolatedModules": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": true,
+    "importsNotUsedAsValues": "error",
+    "baseUrl": "."
+  },
+  "include": ["./src/**/*.ts"]
+}

@@ -6,7 +6,7 @@
 // and it will blow up in JS in exactly the same way, so it is safe to assume
 // that properties within the getter have the correct type in TS.
 
-import type { InferReturn } from "../../strippable/wrapper.js";
+import type { InferReturn } from "../../../trace-internals/src/wrapper.js";
 import {
   type TrackedStorage,
   createStorage,

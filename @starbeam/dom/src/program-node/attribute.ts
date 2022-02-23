@@ -1,9 +1,10 @@
 import type * as minimal from "@domtree/minimal";
-import type { Reactive, ReactiveMetadata } from "@starbeam/core";
 import {
   AbstractProgramNode,
   RenderedProgramNode,
-} from "../../../core/program-node/program-node.js";
+  type Reactive,
+  type ReactiveMetadata,
+} from "@starbeam/core";
 import { DOM } from "../dom/streaming/compatible-dom.js";
 import { LazyDOM } from "../dom/streaming/token.js";
 import {

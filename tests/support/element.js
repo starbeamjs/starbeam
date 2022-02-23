@@ -1,4 +1,4 @@
-import { Reactive, Root } from "@starbeam/core";
+import { Reactive } from "@starbeam/core";
 export function isIntoReactive(value) {
     if (Reactive.is(value)) {
         return true;

@@ -1,6 +1,6 @@
-import { exhaustive } from "../../strippable/assert.js";
+import { exhaustive } from "../../../verify/src/assert.js";
 import { assert } from "../../strippable/core.js";
-import type { InferReturn } from "../../strippable/wrapper.js";
+import type { InferReturn } from "../../../trace-internals/src/wrapper.js";
 import {
   ConfigEnvironment,
   type ConfigEnvironmentDelegate,
