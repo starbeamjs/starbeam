@@ -8,6 +8,9 @@
     "@starbeam/verify": "workspace:*",
     "@starbeam/debug": "workspace:*",
     "@starbeam/fundamental": "workspace:*",
+    "@starbeam/utils": "workspace:*",
+    "@starbeam/reactive": "workspace:*",
+    "@starbeam/timeline": "workspace:*",
     "typescript": "next"
   },
   "devDependencies": {

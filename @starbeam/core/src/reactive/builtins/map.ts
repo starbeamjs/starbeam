@@ -1,9 +1,6 @@
-import {
-  type TrackedStorage,
-  createStorage,
-  getValue,
-  setValue,
-} from "./tracked-shim.js";
+import type { Marker } from "@starbeam/reactive";
+import { COORDINATOR } from "@starbeam/schedule";
+import { consume, createMarker, mark } from "./tracked-shim.js";
 
 const INTERNAL = Symbol("INTERNAL");
 type INTERNAL = typeof INTERNAL;
@@ -13,27 +10,37 @@ export class TrackedMap<K = unknown, V = unknown> implements Map<K, V> {
     return new TrackedMap(INTERNAL, new Map(map)) as unknown as M;
   }
 
-  readonly #collection = createStorage(null, () => false);
-  readonly #storages: Map<K, TrackedStorage<null>> = new Map();
+  readonly #marker: Marker = createMarker();
+  readonly #markersByKey: Map<K, Marker> = new Map();
   readonly #vals: Map<K, V>;
 
-  #readStorageFor(key: K): void {
-    const storages = this.#storages;
-    let storage = storages.get(key);
+  #initializeMarkerFor(key: K): Marker {
+    const markers = this.#markersByKey;
+    let marker = markers.get(key);
 
-    if (storage === undefined) {
-      storage = createStorage(null, () => false);
-      storages.set(key, storage);
+    if (marker === undefined) {
+      marker = createMarker();
+      markers.set(key, marker);
     }
 
-    getValue(storage);
+    return marker;
+  }
+
+  #getMarkerFor(key: K): Marker | undefined {
+    return this.#markersByKey.get(key);
+  }
+
+  #readMarkerFor(key: K): void {
+    const marker = this.#initializeMarkerFor(key);
+
+    consume(marker);
   }
 
   #dirtyStorageFor(key: K): void {
-    const storage = this.#storages.get(key);
+    const marker = this.#getMarkerFor(key);
 
-    if (storage) {
-      setValue(storage, null);
+    if (marker) {
+      mark(marker);
     }
   }
 
@@ -65,50 +72,50 @@ export class TrackedMap<K = unknown, V = unknown> implements Map<K, V> {
   // **** KEY GETTERS ****
   get(key: K): V | undefined {
     // entangle the storage for the key
-    this.#readStorageFor(key);
+    this.#readMarkerFor(key);
 
     return this.#vals.get(key);
   }
 
   has(key: K): boolean {
-    this.#readStorageFor(key);
+    this.#readMarkerFor(key);
 
     return this.#vals.has(key);
   }
 
   // **** ALL GETTERS ****
   entries(): IterableIterator<[K, V]> {
-    getValue(this.#collection);
+    mark(this.#marker);
 
     return this.#vals.entries();
   }
 
   keys(): IterableIterator<K> {
-    getValue(this.#collection);
+    mark(this.#marker);
 
     return this.#vals.keys();
   }
 
   values(): IterableIterator<V> {
-    getValue(this.#collection);
+    mark(this.#marker);
 
     return this.#vals.values();
   }
 
   forEach(fn: (value: V, key: K, map: Map<K, V>) => void): void {
-    getValue(this.#collection);
+    mark(this.#marker);
 
     this.#vals.forEach(fn);
   }
 
   get size(): number {
-    getValue(this.#collection);
+    mark(this.#marker);
 
     return this.#vals.size;
   }
 
   [Symbol.iterator](): IterableIterator<[K, V]> {
-    getValue(this.#collection);
+    mark(this.#marker);
 
     return this.#vals[Symbol.iterator]();
   }
@@ -119,25 +126,37 @@ export class TrackedMap<K = unknown, V = unknown> implements Map<K, V> {
 
   // **** KEY SETTERS ****
   set(key: K, value: V): this {
+    let tx = COORDINATOR.begin(`Map.set(${key})`);
+
     this.#dirtyStorageFor(key);
-    setValue(this.#collection, null);
+    mark(this.#marker);
 
     this.#vals.set(key, value);
+
+    tx.commit();
 
     return this;
   }
 
   delete(key: K): boolean {
+    let tx = COORDINATOR.begin(`Map.delete(${key})`);
+
     this.#dirtyStorageFor(key);
-    setValue(this.#collection, null);
+    mark(this.#marker);
+
+    tx.commit();
 
     return this.#vals.delete(key);
   }
 
   // **** ALL SETTERS ****
   clear(): void {
-    this.#storages.forEach((s) => setValue(s, null));
-    setValue(this.#collection, null);
+    let tx = COORDINATOR.begin(`Map.clear()`);
+
+    this.#markersByKey.forEach(mark);
+    mark(this.#marker);
+
+    tx.commit();
 
     this.#vals.clear();
   }
@@ -149,26 +168,32 @@ Object.setPrototypeOf(TrackedMap.prototype, Map.prototype);
 export class TrackedWeakMap<K extends object = object, V = unknown>
   implements WeakMap<K, V>
 {
-  readonly #storages: WeakMap<K, TrackedStorage<null>> = new WeakMap();
+  readonly #markersByKey: WeakMap<K, Marker> = new WeakMap();
   readonly #vals: WeakMap<K, V>;
 
-  #readStorageFor(key: K): void {
-    const storages = this.#storages;
-    let storage = storages.get(key);
+  #initializeStorageFor(key: K): Marker {
+    const markers = this.#markersByKey;
+    let marker = markers.get(key);
 
-    if (storage === undefined) {
-      storage = createStorage(null, () => false);
-      storages.set(key, storage);
+    if (marker === undefined) {
+      marker = createMarker(`TrackedWeakMap entry`);
+      markers.set(key, marker);
     }
 
-    getValue(storage);
+    return marker;
+  }
+
+  #readStorageFor(key: K): void {
+    const marker = this.#initializeStorageFor(key);
+
+    consume(marker);
   }
 
   #dirtyStorageFor(key: K): void {
-    const storage = this.#storages.get(key);
+    const marker = this.#markersByKey.get(key);
 
-    if (storage) {
-      setValue(storage, null);
+    if (marker) {
+      mark(marker);
     }
   }
 

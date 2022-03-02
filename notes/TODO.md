@@ -1,5 +1,11 @@
 # Now
 
+- [ ] Establish the debugging protocol
+  - [ ] Make sure that Composite successfully collapses its constituent parts
+- [ ] Make aliases for reactive internals for higher-level abstractions (using either Composite or a single-reactive version of Composite)
+
+# Done
+
 - [ ] Make timeline a singleton
 - [ ] Make other parts of universe a singleton?
 - [ ] implement on.advance

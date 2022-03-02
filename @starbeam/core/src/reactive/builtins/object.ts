@@ -1,9 +1,6 @@
-import {
-  createStorage,
-  getValue,
-  setValue,
-  type TrackedStorage,
-} from "./tracked-shim.js";
+import type { Marker } from "@starbeam/reactive";
+import { COORDINATOR } from "@starbeam/schedule";
+import { consume, createMarker, mark } from "./tracked-shim.js";
 import type { Entries, EntriesToObject, Entry } from "./type-magic.js";
 
 export default class TrackedObject {
@@ -24,7 +21,7 @@ export default class TrackedObject {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias
-    let self = this;
+    const self = this;
 
     return new Proxy(clone, {
       get(target, prop, _receiver) {
@@ -40,7 +37,7 @@ export default class TrackedObject {
       },
 
       ownKeys(target) {
-        getValue(self.#collection);
+        consume(self.#marker);
 
         return Reflect.ownKeys(target);
       },
@@ -48,8 +45,14 @@ export default class TrackedObject {
       set(target, prop, value, _receiver) {
         target[prop] = value;
 
+        const tx = COORDINATOR.begin(
+          `setting ${String(prop)} on a reactive object`
+        );
+
         self.#dirtyStorageFor(prop);
-        setValue(self.#collection, null);
+        mark(self.#marker);
+
+        tx.commit();
 
         return true;
       },
@@ -60,26 +63,35 @@ export default class TrackedObject {
     });
   }
 
-  readonly #storages: Map<PropertyKey, TrackedStorage<unknown>> = new Map();
-  readonly #collection = createStorage(null, () => false);
+  readonly #markersByKey: Map<PropertyKey, Marker> = new Map();
+  readonly #marker: Marker = createMarker();
 
-  #readStorageFor(key: PropertyKey): void {
-    let storage = this.#storages.get(key);
+  #initializeStorageFor(key: PropertyKey): Marker {
+    const markers = this.#markersByKey;
+    let marker = markers.get(key);
 
-    if (storage === undefined) {
-      storage = createStorage(null, () => false);
-      this.#storages.set(key, storage);
+    if (marker === undefined) {
+      marker = createMarker(
+        `TrackedObject${typeof key === "symbol" ? `[${key.description}]` : key}`
+      );
+      this.#markersByKey.set(key, marker);
     }
 
-    getValue(storage);
+    return marker;
+  }
+
+  #readStorageFor(key: PropertyKey): void {
+    const marker = this.#initializeStorageFor(key);
+
+    consume(marker);
   }
 
   // @private
   #dirtyStorageFor(key: PropertyKey): void {
-    const storage = this.#storages.get(key);
+    const marker = this.#markersByKey.get(key);
 
-    if (storage) {
-      setValue(storage, null);
+    if (marker) {
+      mark(marker);
     }
   }
 }

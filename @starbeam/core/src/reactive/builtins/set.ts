@@ -1,32 +1,29 @@
-import {
-  type TrackedStorage,
-  createStorage,
-  getValue,
-  setValue,
-} from "./tracked-shim.js";
+import type { Marker } from "@starbeam/reactive";
+import { COORDINATOR } from "@starbeam/schedule";
+import { consume, createMarker, mark } from "./tracked-shim.js";
 
 export class TrackedSet<T = unknown> implements Set<T> {
-  readonly #collection = createStorage(null, () => false);
-  readonly #storages: Map<T, TrackedStorage<null>> = new Map();
+  readonly #marker: Marker = createMarker("entire set");
+  readonly #markersByValue: Map<T, Marker> = new Map();
   readonly #vals: Set<T>;
 
-  #storageFor(key: T): TrackedStorage<null> {
-    const storages = this.#storages;
-    let storage = storages.get(key);
+  #markerFor(key: T): Marker {
+    const markers = this.#markersByValue;
+    let marker = markers.get(key);
 
-    if (storage === undefined) {
-      storage = createStorage(null, () => false);
-      storages.set(key, storage);
+    if (marker === undefined) {
+      marker = createMarker();
+      markers.set(key, marker);
     }
 
-    return storage;
+    return marker;
   }
 
-  #dirtyStorageFor(key: T): void {
-    const storage = this.#storages.get(key);
+  #dirtyMarkerFor(key: T): void {
+    const marker = this.#markersByValue.get(key);
 
-    if (storage) {
-      setValue(storage, null);
+    if (marker) {
+      mark(marker);
     }
   }
 
@@ -39,44 +36,45 @@ export class TrackedSet<T = unknown> implements Set<T> {
 
   // **** KEY GETTERS ****
   has(value: T): boolean {
-    getValue(this.#storageFor(value));
+    // consume()
+    consume(this.#markerFor(value));
 
     return this.#vals.has(value);
   }
 
   // **** ALL GETTERS ****
   entries(): IterableIterator<[T, T]> {
-    getValue(this.#collection);
+    consume(this.#marker);
 
     return this.#vals.entries();
   }
 
   keys(): IterableIterator<T> {
-    getValue(this.#collection);
+    consume(this.#marker);
 
     return this.#vals.keys();
   }
 
   values(): IterableIterator<T> {
-    getValue(this.#collection);
+    consume(this.#marker);
 
     return this.#vals.values();
   }
 
   forEach(fn: (value1: T, value2: T, set: Set<T>) => void): void {
-    getValue(this.#collection);
+    consume(this.#marker);
 
     this.#vals.forEach(fn);
   }
 
   get size(): number {
-    getValue(this.#collection);
+    consume(this.#marker);
 
     return this.#vals.size;
   }
 
   [Symbol.iterator](): IterableIterator<T> {
-    getValue(this.#collection);
+    consume(this.#marker);
 
     return this.#vals[Symbol.iterator]();
   }
@@ -87,27 +85,34 @@ export class TrackedSet<T = unknown> implements Set<T> {
 
   // **** KEY SETTERS ****
   add(value: T): this {
-    this.#dirtyStorageFor(value);
-    setValue(this.#collection, null);
+    const tx = COORDINATOR.begin("Set#add");
+    this.#dirtyMarkerFor(value);
+    mark(this.#marker);
 
     this.#vals.add(value);
+    tx.commit();
 
     return this;
   }
 
   delete(value: T): boolean {
-    this.#dirtyStorageFor(value);
-    setValue(this.#collection, null);
+    const tx = COORDINATOR.begin("Set#delete");
+    this.#dirtyMarkerFor(value);
+    mark(this.#marker);
 
-    return this.#vals.delete(value);
+    const deleted = this.#vals.delete(value);
+    tx.commit();
+    return deleted;
   }
 
   // **** ALL SETTERS ****
   clear(): void {
-    this.#storages.forEach((s) => setValue(s, null));
-    setValue(this.#collection, null);
+    const tx = COORDINATOR.begin("Set#clear");
+    this.#markersByValue.forEach((s) => mark(s));
+    mark(this.#marker);
 
     this.#vals.clear();
+    tx.commit();
   }
 }
 
@@ -115,56 +120,61 @@ export class TrackedSet<T = unknown> implements Set<T> {
 Object.setPrototypeOf(TrackedSet.prototype, Set.prototype);
 
 export class TrackedWeakSet<T extends object = object> implements WeakSet<T> {
-  readonly #storages: WeakMap<T, TrackedStorage<null>> = new WeakMap();
-  readonly #vals: WeakSet<T>;
+  readonly #markersByValue: WeakMap<T, Marker> = new WeakMap();
+  readonly #marker: WeakSet<T>;
 
-  #storageFor(key: T): TrackedStorage<null> {
-    const storages = this.#storages;
-    let storage = storages.get(key);
+  #markerFor(key: T): Marker {
+    const markers = this.#markersByValue;
+    let marker = markers.get(key);
 
-    if (storage === undefined) {
-      storage = createStorage(null, () => false);
-      storages.set(key, storage);
+    if (marker === undefined) {
+      marker = createMarker(`WeakSet member`);
+      markers.set(key, marker);
     }
 
-    return storage;
+    return marker;
   }
 
   #dirtyStorageFor(key: T): void {
-    const storage = this.#storages.get(key);
+    const marker = this.#markersByValue.get(key);
 
-    if (storage) {
-      setValue(storage, null);
+    if (marker) {
+      mark(marker);
     }
   }
 
   constructor(values?: readonly T[] | null) {
-    this.#vals = new WeakSet(values);
+    this.#marker = new WeakSet(values);
   }
 
   has(value: T): boolean {
-    getValue(this.#storageFor(value));
+    consume(this.#markerFor(value));
 
-    return this.#vals.has(value);
+    return this.#marker.has(value);
   }
 
   add(value: T): this {
+    const tx = COORDINATOR.begin("WeakSet#add");
     // Add to vals first to get better error message
-    this.#vals.add(value);
+    this.#marker.add(value);
 
     this.#dirtyStorageFor(value);
+    tx.commit();
 
     return this;
   }
 
   delete(value: T): boolean {
+    const tx = COORDINATOR.begin("WeakSet#delete");
     this.#dirtyStorageFor(value);
 
-    return this.#vals.delete(value);
+    const deleted = this.#marker.delete(value);
+    tx.commit();
+    return deleted;
   }
 
   get [Symbol.toStringTag](): string {
-    return this.#vals[Symbol.toStringTag];
+    return this.#marker[Symbol.toStringTag];
   }
 }
 

@@ -1,4 +1,5 @@
-import { cached, Memo, reactive, Root } from "@starbeam/core";
+import { cached, reactive, Root } from "@starbeam/core";
+import { Memo } from "@starbeam/reactive";
 import { expect, test, toBe } from "../support/define.js";
 import { Dynamism, Expects } from "../support/expect/expect.js";
 
@@ -56,7 +57,7 @@ test("universe.memo => text", ({ universe, test }) => {
 
   let text = test.buildText(
     Memo(() => person.fullName),
-    Dynamism.dynamic
+    Dynamism.Dynamic()
   );
 
   test

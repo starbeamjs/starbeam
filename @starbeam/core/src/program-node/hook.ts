@@ -1,15 +1,16 @@
+import { assert } from "@starbeam/debug";
 import type { AnyKey } from "@starbeam/fundamental";
-import { assert } from "@starbeam/verify";
-import { LIFETIME } from "../core/lifetime/lifetime.js";
-import type { ReactiveMetadata } from "../core/metadata.js";
-import type { Reactive } from "../fundamental/types.js";
+import { Reactive, type ReactiveValue } from "@starbeam/reactive";
+import { REACTIVE, ReactiveInternals, UNINITIALIZED } from "@starbeam/timeline";
+import { LOGGER } from "@starbeam/trace-internals";
+import { LIFETIME } from "../core/lifetime.js";
 import { HookBlueprint, SimpleHook } from "../hooks/simple.js";
-import type { Hook } from "../root/api/public.js";
+import type { Hook } from "../public.js";
 import type { Root } from "../root/root.js";
-import { LOGGER } from "../strippable/trace.js";
-import { AbstractProgramNode, RenderedProgramNode } from "./program-node.js";
-
-const UNINITIALIZED = Symbol("UNINITIALIZED");
+import {
+  AbstractProgramNode,
+  type RenderedProgramNode,
+} from "./program-node.js";
 
 /**
  * This value is a sink for hooks. Importantly, if you finalize this value, its
@@ -58,16 +59,16 @@ export class HookProgramNode<T> extends AbstractProgramNode<
   }
 
   readonly #universe: Root;
-  readonly #hook: Reactive<Hook>;
+  readonly #hook: ReactiveValue<Hook>;
 
-  private constructor(universe: Root, hook: Reactive<Hook<T>>) {
+  private constructor(universe: Root, hook: ReactiveValue<Hook<T>>) {
     super();
     this.#universe = universe;
     this.#hook = hook;
   }
 
-  get metadata(): ReactiveMetadata {
-    return this.#hook.metadata;
+  get [REACTIVE](): ReactiveInternals {
+    return this.#hook[REACTIVE];
   }
 
   render(): RenderedProgramNode<HookValue<T>> {
@@ -75,22 +76,24 @@ export class HookProgramNode<T> extends AbstractProgramNode<
   }
 }
 
-export class RenderedHook<T> extends RenderedProgramNode<HookValue> {
-  static create<T>(universe: Root, hook: Reactive<Hook<T>>): RenderedHook<T> {
+export class RenderedHook<T> implements RenderedProgramNode<HookValue> {
+  static create<T>(
+    universe: Root,
+    hook: ReactiveValue<Hook<T>>
+  ): RenderedHook<T> {
     return new RenderedHook(universe, hook);
   }
 
-  readonly #hook: Reactive<Hook<T>>;
-  readonly #universe: Root;
+  readonly #hook: ReactiveValue<Hook<T>>;
+  readonly #root: Root;
 
-  private constructor(universe: Root, hook: Reactive<Hook<T>>) {
-    super();
-    this.#universe = universe;
+  private constructor(universe: Root, hook: ReactiveValue<Hook<T>>) {
+    this.#root = universe;
     this.#hook = hook;
   }
 
-  get metadata(): ReactiveMetadata {
-    return this.#hook.metadata;
+  get [REACTIVE](): ReactiveInternals {
+    return this.#hook[REACTIVE];
   }
 
   initialize(_inside: object): void {
@@ -99,13 +102,15 @@ export class RenderedHook<T> extends RenderedProgramNode<HookValue> {
 
   poll(inside: HookValue): void {
     LOGGER.trace.group("\npolling RenderedHook", () => {
-      let hook = this.#hook.current;
-      LOGGER.trace.log(`=> polled`, hook.description);
+      const hook = this.#hook.current;
+      const description = Reactive.description(hook);
+
+      LOGGER.trace.log(`=> polled`, hook[REACTIVE].description);
 
       LIFETIME.link(this, hook);
 
       LOGGER.trace.group(
-        `hook.current (getting value of instance of ${hook.description})`,
+        `hook.current (getting value of instance of ${description})`,
         () => {
           HookValue.update(inside, hook.current);
         }

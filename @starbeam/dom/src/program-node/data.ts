@@ -1,5 +1,7 @@
 import type * as minimal from "@domtree/minimal";
-import { mutable, type Reactive, type ReactiveMetadata } from "@starbeam/core";
+import { mutable } from "@starbeam/core";
+import type { ReactiveValue } from "@starbeam/reactive";
+import { REACTIVE, ReactiveInternals } from "@starbeam/timeline";
 import type { ContentBuffer } from "../dom/buffer/body.js";
 import { RangeSnapshot, RANGE_SNAPSHOT } from "../dom/streaming/cursor.js";
 import type { Dehydrated, LazyDOM } from "../dom/streaming/token.js";
@@ -7,27 +9,26 @@ import {
   ContentConstructor,
   TOKEN,
 } from "../dom/streaming/tree-constructor.js";
-import { ContentProgramNode } from "./content.js";
+import type { ContentProgramNode } from "./content.js";
 import { RenderedContent } from "./interfaces/rendered-content.js";
 
-export abstract class CharacterDataProgramNode extends ContentProgramNode {
-  static text(reactive: Reactive<string>): TextProgramNode {
+export abstract class CharacterDataProgramNode implements ContentProgramNode {
+  static text(reactive: ReactiveValue<string>): TextProgramNode {
     return TextProgramNode.of(reactive);
   }
 
-  static comment(reactive: Reactive<string>): CommentProgramNode {
+  static comment(reactive: ReactiveValue<string>): CommentProgramNode {
     return CommentProgramNode.of(reactive);
   }
 
-  readonly #reactive: Reactive<string>;
+  readonly #reactive: ReactiveValue<string>;
 
-  protected constructor(reactive: Reactive<string>) {
-    super();
+  protected constructor(reactive: ReactiveValue<string>) {
     this.#reactive = reactive;
   }
 
-  get metadata(): ReactiveMetadata {
-    return this.#reactive.metadata;
+  get [REACTIVE](): ReactiveInternals {
+    return ReactiveInternals.get(this.#reactive);
   }
 
   render(buffer: ContentConstructor<ContentBuffer>): RenderedCharacterData {
@@ -42,7 +43,7 @@ export abstract class CharacterDataProgramNode extends ContentProgramNode {
 }
 
 export class TextProgramNode extends CharacterDataProgramNode {
-  static of(reactive: Reactive<string>): TextProgramNode {
+  static of(reactive: ReactiveValue<string>): TextProgramNode {
     return new TextProgramNode(reactive);
   }
 
@@ -52,7 +53,7 @@ export class TextProgramNode extends CharacterDataProgramNode {
 }
 
 export class CommentProgramNode extends CharacterDataProgramNode {
-  static of(reactive: Reactive<string>): CommentProgramNode {
+  static of(reactive: ReactiveValue<string>): CommentProgramNode {
     return new CommentProgramNode(reactive);
   }
 
@@ -66,17 +67,17 @@ export class CommentProgramNode extends CharacterDataProgramNode {
 
 export class RenderedCharacterData extends RenderedContent {
   static create(
-    reactive: Reactive<string>,
+    reactive: ReactiveValue<string>,
     node: LazyDOM<minimal.CharacterData>
   ) {
     return new RenderedCharacterData(reactive, node);
   }
 
-  #reactive: Reactive<string>;
+  #reactive: ReactiveValue<string>;
   #node: LazyDOM<minimal.CharacterData>;
 
   protected constructor(
-    reactive: Reactive<string>,
+    reactive: ReactiveValue<string>,
     node: LazyDOM<minimal.CharacterData>
   ) {
     super();
@@ -84,8 +85,8 @@ export class RenderedCharacterData extends RenderedContent {
     this.#node = node;
   }
 
-  get metadata(): ReactiveMetadata {
-    return this.#reactive.metadata;
+  get [REACTIVE](): ReactiveInternals {
+    return ReactiveInternals.get(this.#reactive);
   }
 
   initialize(inside: minimal.ParentNode): void {

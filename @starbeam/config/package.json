@@ -1,0 +1,7 @@
+{
+  "name": "@starbeam/config",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "index.ts",
+  "version": "0.5.0"
+}

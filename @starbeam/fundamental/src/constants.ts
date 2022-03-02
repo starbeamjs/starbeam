@@ -1,0 +1,2 @@
+export const UNINITIALIZED = Symbol("UNINITIALIZED");
+export type UNINITIALIZED = typeof UNINITIALIZED;

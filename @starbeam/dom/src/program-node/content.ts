@@ -1,23 +1,22 @@
 import type { minimal } from "@domtree/flavors";
+import { AbstractProgramNode } from "@starbeam/core";
 import {
-  AbstractProgramNode,
-  HasMetadata,
-  ReactiveMetadata,
-} from "@starbeam/core";
+  REACTIVE,
+  ReactiveInternals,
+  type ReactiveProtocol,
+} from "@starbeam/timeline";
 import type { ContentConstructor } from "../dom/streaming/tree-constructor.js";
 import type { RenderedContent } from "./interfaces/rendered-content.js";
 
-export class Rendered<R extends RenderedContent> extends HasMetadata {
+export class Rendered<R extends RenderedContent> implements ReactiveProtocol {
   static of<R extends RenderedContent>(content: R): Rendered<R> {
     return new Rendered(content);
   }
 
-  private constructor(readonly content: R) {
-    super();
-  }
+  private constructor(readonly content: R) {}
 
-  get metadata(): ReactiveMetadata {
-    return this.content.metadata;
+  get [REACTIVE](): ReactiveInternals {
+    return ReactiveInternals.get(this.content);
   }
 }
 

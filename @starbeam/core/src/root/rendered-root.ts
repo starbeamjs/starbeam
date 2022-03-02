@@ -1,8 +1,9 @@
-import type { ReactiveMetadata } from "../core/metadata.js";
-import type { RenderedProgramNode } from "../program-node/program-node.js";
-import { LOGGER } from "../strippable/trace.js";
 
-export class RenderedRoot<Container> {
+import { REACTIVE, ReactiveInternals, type ReactiveProtocol } from "@starbeam/timeline";
+import { LOGGER } from "@starbeam/trace-internals";
+import type { RenderedProgramNode } from "../program-node/program-node.js";
+
+export class RenderedRoot<Container> implements ReactiveProtocol {
   static create<Container>({
     rendered,
     container,
@@ -24,9 +25,9 @@ export class RenderedRoot<Container> {
     this.#container = container;
   }
 
-  get metadata(): ReactiveMetadata {
-    return this.#rendered.metadata;
-  }
+ get [REACTIVE](): ReactiveInternals {
+    return ReactiveInternals.get(this.#rendered)
+ }
 
   /**
    * Eagerly exchange all tokens for their DOM representations. This is

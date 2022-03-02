@@ -1,10 +1,7 @@
 import type { minimal } from "@domtree/flavors";
-import {
-  is,
-  NonemptyList,
-  OrderedIndex,
-  ReactiveMetadata,
-} from "@starbeam/core";
+import { is, NonemptyList, OrderedIndex } from "@starbeam/core";
+import { Reactive } from "@starbeam/reactive";
+import type { MutableInternals } from "@starbeam/timeline";
 import { RenderedContent } from "../interfaces/rendered-content.js";
 import type { ContentsIndex } from "./loop.js";
 
@@ -21,7 +18,6 @@ export class RenderSnapshot {
     if (list === null) {
       return new RenderSnapshot(
         null,
-        ReactiveMetadata.Constant,
         OrderedIndex.empty((keyed) => keyed.key)
       );
     }
@@ -32,7 +28,6 @@ export class RenderSnapshot {
 
     return new RenderSnapshot(
       list,
-      isConstant ? ReactiveMetadata.Constant : ReactiveMetadata.Dynamic,
       OrderedIndex.create(list.asArray(), (keyed) => keyed.key)
     );
   }
@@ -41,10 +36,19 @@ export class RenderSnapshot {
 
   private constructor(
     list: NonemptyList<KeyedContent> | null,
-    readonly metadata: ReactiveMetadata,
     readonly contents: ContentsIndex
   ) {
     this.#list = list;
+  }
+
+  get dependencies(): readonly MutableInternals[] {
+    if (this.#list === null) {
+      return [];
+    } else {
+      return this.#list
+        .asArray()
+        .flatMap((item) => Reactive.getDependencies(item.content).dependencies);
+    }
   }
 
   isEmpty(): boolean {

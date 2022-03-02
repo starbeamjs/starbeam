@@ -1,25 +1,34 @@
 import type { ParentNode } from "@domtree/minimal";
-import { has, NonemptyList, ReactiveMetadata } from "@starbeam/core";
+import { has, NonemptyList } from "@starbeam/core";
+import { Composite } from "@starbeam/reactive";
+import { REACTIVE, ReactiveInternals } from "@starbeam/timeline";
 import { verify } from "@starbeam/verify";
 import { RangeSnapshot, RANGE_SNAPSHOT } from "../dom/streaming/cursor.js";
 import type { ContentConstructor } from "../dom/streaming/tree-constructor.js";
-import { ContentProgramNode } from "./content.js";
+import type { ContentProgramNode } from "./content.js";
 import { RenderedContent } from "./interfaces/rendered-content.js";
 
-export class FragmentProgramNode extends ContentProgramNode {
+export class FragmentProgramNode implements ContentProgramNode {
   static of(children: NonemptyList<ContentProgramNode>): FragmentProgramNode {
-    return new FragmentProgramNode(children);
+    return new FragmentProgramNode(
+      children,
+      Composite("Fragment").set(children.asArray().map(ReactiveInternals.get))
+    );
   }
 
   readonly #children: NonemptyList<ContentProgramNode>;
+  readonly #composite: Composite;
 
-  constructor(children: NonemptyList<ContentProgramNode>) {
-    super();
+  constructor(
+    children: NonemptyList<ContentProgramNode>,
+    composite: Composite
+  ) {
     this.#children = children;
+    this.#composite = composite;
   }
 
-  get metadata(): ReactiveMetadata {
-    return ReactiveMetadata.all(...this.#children);
+  get [REACTIVE](): ReactiveInternals {
+    return ReactiveInternals.get(this.#composite);
   }
 
   render(buffer: ContentConstructor): RenderedFragmentNode {
@@ -27,24 +36,32 @@ export class FragmentProgramNode extends ContentProgramNode {
       .asArray()
       .map((child) => child.render(buffer));
 
-    return RenderedFragmentNode.create(children);
+    return RenderedFragmentNode.create(children, this.#composite);
   }
 }
 
 export class RenderedFragmentNode extends RenderedContent {
-  static create(children: readonly RenderedContent[]): RenderedFragmentNode {
-    return new RenderedFragmentNode(children);
+  static create(
+    children: readonly RenderedContent[],
+    composite: Composite
+  ): RenderedFragmentNode {
+    return new RenderedFragmentNode(children, composite);
   }
 
   #content: readonly RenderedContent[];
+  #composite: Composite;
 
-  private constructor(content: readonly RenderedContent[]) {
+  private constructor(
+    content: readonly RenderedContent[],
+    composite: Composite
+  ) {
     super();
     this.#content = content;
+    this.#composite = composite;
   }
 
-  get metadata(): ReactiveMetadata {
-    return ReactiveMetadata.all(...this.#content);
+  get [REACTIVE](): ReactiveInternals {
+    return ReactiveInternals.get(this.#composite);
   }
 
   [RANGE_SNAPSHOT](inside: ParentNode): RangeSnapshot {

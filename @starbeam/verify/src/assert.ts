@@ -1,5 +1,6 @@
-import { abstractify } from "@starbeam/debug";
-import { assertCondition, DebugInformation } from "./core.js";
+import { abstractify, Abstraction } from "@starbeam/debug";
+import type { UnsafeAny } from "../../debug/node_modules/@starbeam/fundamental/index.js";
+import { DebugInformation } from "./core.js";
 import { isPresent } from "./presence.js";
 import {
   as,
@@ -142,6 +143,22 @@ const verifyValue: <In, Out extends In>(
       value
     )
   );
+});
+
+/** @internal */
+export const assertCondition: (
+  condition: UnsafeAny,
+  info: () => DebugInformation
+) => asserts condition = abstractify((condition, info) => {
+  if (condition === true) {
+    return;
+  }
+
+  // eslint-disable-next-line no-debugger
+  debugger;
+  let message = `Unexpected: ${info()}`;
+  console.assert(condition, message);
+  Abstraction.throw(message);
 });
 
 /**

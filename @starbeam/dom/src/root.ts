@@ -42,7 +42,7 @@ export class Root extends CoreRoot {
     children: object[],
     description: string
   ) {
-    super(children, description);
+    super(description);
     this.#environment = document;
   }
 
@@ -60,7 +60,7 @@ export class Root extends CoreRoot {
   }
 
   #appending(parent: anydom.ParentNode): minimal.TemplateElement {
-    let placeholder = MINIMAL.element(
+    const placeholder = MINIMAL.element(
       this.#environment.document,
       parent as minimal.ParentNode,
       "template"

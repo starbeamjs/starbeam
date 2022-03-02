@@ -10,31 +10,35 @@ import {
   SimpleHook,
   subscribe,
 } from "@starbeam/core";
+import { assert } from "@starbeam/debug";
 import type {
   AnyIndex,
   AnyKey,
   AnyRecord,
   InferReturn,
 } from "@starbeam/fundamental";
-import { assert, exhaustive, expected, verify } from "@starbeam/verify";
+import { exhaustive, expected, verify } from "@starbeam/verify";
 import { useCallback, useDebugValue, useState, type ReactElement } from "react";
 import { useInstance } from "./instance.js";
 
 export class ReactiveComponent {
   static create(notify: () => void): ReactiveComponent {
-    return new ReactiveComponent(notify);
+    return new ReactiveComponent(notify, (component) => component.#notify());
   }
 
   #notify: () => void;
+  #notifyWrapper: () => void;
 
-  private constructor(notify: () => void) {
+  private constructor(
+    notify: () => void,
+    notifyWrapper: (component: ReactiveComponent) => void
+  ) {
     this.#notify = notify;
+    this.#notifyWrapper = notifyWrapper.bind(undefined, this);
   }
 
   get notify() {
-    return () => {
-      this.#notify();
-    };
+    return this.#notifyWrapper;
   }
 
   updateNotify(notify: () => void): void {
@@ -284,7 +288,7 @@ function updateProp(
     const existingValue = existing.current;
 
     if (existingValue !== newValue) {
-      existing.update(newValue);
+      existing.current = newValue;
     }
   } else {
     props[key as AnyIndex] = Cell(newValue);

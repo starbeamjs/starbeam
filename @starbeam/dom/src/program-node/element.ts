@@ -1,5 +1,12 @@
 import type * as minimal from "@domtree/minimal";
-import { NonemptyList, Reactive, ReactiveMetadata } from "@starbeam/core";
+import { NonemptyList } from "@starbeam/core";
+import {
+  Composite,
+  Reactive,
+  Static,
+  type ReactiveValue,
+} from "@starbeam/reactive";
+import { REACTIVE, ReactiveInternals } from "@starbeam/timeline";
 import type { ElementBody } from "../dom/buffer/body.js";
 import { RangeSnapshot, RANGE_SNAPSHOT } from "../dom/streaming/cursor.js";
 import type { Dehydrated, LazyDOM } from "../dom/streaming/token.js";
@@ -16,48 +23,53 @@ import { RenderedContent } from "./interfaces/rendered-content.js";
 
 export class ElementProgramNode extends ContentProgramNode {
   static create(
-    tagName: Reactive<string>,
+    tagName: ReactiveValue<string>,
     buildAttributes: readonly BuildAttribute[],
     content: readonly ContentProgramNode[]
   ): ElementProgramNode {
     let attributes = buildAttributes.map(AttributeProgramNode.create);
 
+    const composite = Composite(`ElementProgramNode`).set([
+      ...attributes.map(ReactiveInternals.get),
+      ...content.map(ReactiveInternals.get),
+    ]);
+
     // A static element may still need to be moved
     return new ElementProgramNode(
       tagName,
       attributes,
-      FragmentProgramNode.of(NonemptyList.verified(content))
+      FragmentProgramNode.of(NonemptyList.verified(content)),
+      composite
     );
   }
 
-  readonly #tagName: Reactive<string>;
+  readonly #tagName: ReactiveValue<string>;
   readonly #attributes: readonly AttributeProgramNode[];
   readonly #children: FragmentProgramNode;
+  readonly #composite: Composite;
 
   private constructor(
-    tagName: Reactive<string>,
+    tagName: ReactiveValue<string>,
     attributes: readonly AttributeProgramNode[],
-    children: FragmentProgramNode
+    children: FragmentProgramNode,
+    composite: Composite
   ) {
     super();
     this.#tagName = tagName;
     this.#attributes = attributes;
     this.#children = children;
+    this.#composite = composite;
   }
 
-  get metadata(): ReactiveMetadata {
-    return ReactiveMetadata.all(
-      this.#tagName,
-      this.#children,
-      ...this.#attributes
-    );
+  get [REACTIVE](): ReactiveInternals {
+    return ReactiveInternals.get(this.#composite);
   }
 
   render(buffer: TreeConstructor): RenderedElementNode {
     return buffer.element(
       this.#tagName.current,
       (head) =>
-        DehydratedElementBuilder.create(this.#tagName, head)
+        DehydratedElementBuilder.create(this.#tagName, head, this.#composite)
           .attrs(this.#attributes)
           .body(this.#children),
       (token, builder) => builder.finalize(token)
@@ -72,25 +84,29 @@ export interface FinalizedElement {
 
 class DehydratedElementBuilder {
   static create(
-    tag: Reactive<string>,
-    head: ElementHeadConstructor
+    tag: ReactiveValue<string>,
+    head: ElementHeadConstructor,
+    composite: Composite
   ): DehydratedElementBuilder {
-    return new DehydratedElementBuilder(tag, head, [], null);
+    return new DehydratedElementBuilder(tag, head, composite, [], null);
   }
 
-  readonly #tag: Reactive<string>;
+  readonly #tag: ReactiveValue<string>;
   readonly #head: ElementHeadConstructor;
+  readonly #composite: Composite;
   readonly #attributes: RenderedAttribute[];
   #content: RenderedFragmentNode | null;
 
   private constructor(
-    tag: Reactive<string>,
+    tag: ReactiveValue<string>,
     head: ElementHeadConstructor,
+    composite: Composite,
     attributes: RenderedAttribute[],
     content: RenderedFragmentNode | null
   ) {
     this.#tag = tag;
     this.#head = head;
+    this.#composite = composite;
     this.#attributes = attributes;
     this.#content = content;
   }
@@ -131,6 +147,7 @@ class DehydratedElementBuilder {
       return RenderedElementNode.create(
         token.dom,
         this.#tag,
+        this.#composite,
         this.#attributes,
         this.#content
       );
@@ -146,37 +163,43 @@ class DehydratedElementBuilder {
 export class RenderedElementNode extends RenderedContent {
   static create(
     node: LazyDOM<minimal.Element>,
-    tagName: Reactive<string>,
+    tagName: ReactiveValue<string>,
+    composite: Composite,
     attributes: readonly RenderedAttribute[],
     children: RenderedFragmentNode | null
   ): RenderedElementNode {
-    return new RenderedElementNode(node, tagName, attributes, children);
+    return new RenderedElementNode(
+      node,
+      tagName,
+      composite,
+      attributes,
+      children
+    );
   }
 
   readonly #element: LazyDOM<minimal.Element>;
-  readonly #tagName: Reactive<string>;
+  readonly #tagName: ReactiveValue<string>;
+  readonly #composite: Composite;
   #attributes: readonly RenderedAttribute[];
   #children: RenderedFragmentNode | null;
 
   private constructor(
     node: LazyDOM<minimal.Element>,
-    tagName: Reactive<string>,
+    tagName: ReactiveValue<string>,
+    composite: Composite,
     attributes: readonly RenderedAttribute[],
     children: RenderedFragmentNode | null
   ) {
     super();
     this.#element = node;
     this.#tagName = tagName;
+    this.#composite = composite;
     this.#attributes = attributes;
     this.#children = children;
   }
 
-  get metadata(): ReactiveMetadata {
-    return ReactiveMetadata.all(
-      this.#tagName,
-      ...(this.#children ? [this.#children] : []),
-      ...this.#attributes
-    );
+  get [REACTIVE](): ReactiveInternals {
+    return ReactiveInternals.get(this.#composite);
   }
 
   [RANGE_SNAPSHOT](inside: minimal.ParentNode): RangeSnapshot {
@@ -189,7 +212,7 @@ export class RenderedElementNode extends RenderedContent {
   initialize(inside: minimal.ParentNode): void {
     this.#element.get(inside);
 
-    for (let attr of this.#attributes) {
+    for (const attr of this.#attributes) {
       attr.initialize(inside);
     }
 
@@ -199,19 +222,21 @@ export class RenderedElementNode extends RenderedContent {
   }
 
   poll(inside: minimal.ParentNode): void {
-    if (this.#tagName.isDynamic()) {
-      throw new Error("Dynamic tag name");
+    if (Reactive.isDynamic(this.#tagName)) {
+      throw new Error("Not yet supported: Dynamic tag name");
     }
 
-    let element = this.#element.get(inside);
+    const element = this.#element.get(inside);
 
-    this.#attributes = this.#attributes.filter((attr) => attr.isDynamic());
+    this.#attributes = this.#attributes.filter((attr) =>
+      Reactive.isDynamic(attr)
+    );
 
-    for (let attr of this.#attributes) {
+    for (const attr of this.#attributes) {
       attr.poll(element);
     }
 
-    if (this.#children !== null && this.#children.isConstant()) {
+    if (this.#children !== null && Reactive.isConstant(this.#children)) {
       this.#children = null;
     }
 
@@ -233,7 +258,7 @@ export type AttributeName<
 
 export interface BuildAttribute {
   name: AttributeName;
-  value: Reactive<string | null>;
+  value: ReactiveValue<string | null>;
 }
 
 export type ReactiveElementBuilderCallback = (
@@ -242,7 +267,7 @@ export type ReactiveElementBuilderCallback = (
 
 export class ElementProgramNodeBuilder {
   static build(
-    tagName: Reactive<string>,
+    tagName: ReactiveValue<string>,
     build: (builder: ElementProgramNodeBuilder) => void
   ): ElementProgramNode {
     let builder = new ElementProgramNodeBuilder(tagName);
@@ -250,17 +275,17 @@ export class ElementProgramNodeBuilder {
     return builder.finalize();
   }
 
-  readonly #tagName: Reactive<string>;
+  readonly #tagName: ReactiveValue<string>;
   readonly #children: ContentProgramNode[] = [];
   readonly #attributes: BuildAttribute[] = [];
 
-  constructor(tagName: Reactive<string>) {
+  constructor(tagName: ReactiveValue<string>) {
     this.#tagName = tagName;
   }
 
   append(output: string | ContentProgramNode): this {
     if (typeof output === "string") {
-      this.#children.push(TextProgramNode.of(Reactive.from(output)));
+      this.#children.push(TextProgramNode.of(Static(output)));
     } else {
       this.#children.push(output);
     }

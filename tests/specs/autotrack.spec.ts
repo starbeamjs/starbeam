@@ -1,4 +1,5 @@
-import { Cell, Memo, Root } from "@starbeam/core";
+import type { Root } from "@starbeam/core";
+import { Cell, Memo } from "@starbeam/reactive";
 import { Dynamism } from "../support/expect/expect.js";
 import { expect, Expects, test, toBe } from "../support/index.js";
 
@@ -17,7 +18,7 @@ test("universe.memo", () => {
   expect(nameMemo.current, toBe("Tom"));
   expect(counter, toBe(1));
 
-  name.update("Thomas");
+  name.current = "Thomas";
 
   expect(nameMemo.current, toBe("Thomas"));
   expect(counter, toBe(2));
@@ -28,7 +29,7 @@ test("nested universe.memo", ({ universe }) => {
 
   expect(fullName.current, toBe("Tom Dale"));
 
-  firstName.update("Thomas");
+  firstName.current = "Thomas";
 
   expect(fullName.current, toBe("Thomas Dale"));
 });
@@ -36,7 +37,7 @@ test("nested universe.memo", ({ universe }) => {
 test("universe.memo => text", ({ universe, test }) => {
   let { firstName, fullName } = testName(universe, "Tom", "Dale");
 
-  let text = test.buildText(fullName, Dynamism.dynamic);
+  let text = test.buildText(fullName, Dynamism.Dynamic());
   let result = test.render(text, Expects.dynamic.html("Tom Dale"));
 
   result.update([firstName, "Thomas"], Expects.html("Thomas Dale"));
@@ -50,7 +51,7 @@ test("universe.memo becomes constant if the underlying cell is frozen", ({
 
   test
     .render(
-      test.buildText(fullName, Dynamism.dynamic),
+      test.buildText(fullName, Dynamism.Dynamic()),
       Expects.dynamic.html("Tom Dale")
     )
     .update([firstName, "Thomas"], Expects.dynamic.html("Thomas Dale"))

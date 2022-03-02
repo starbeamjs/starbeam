@@ -1,10 +1,10 @@
 import type { minimal } from "@domtree/flavors";
+import { is, NonemptyList, OrderedIndex } from "@starbeam/core";
 import {
-  is,
-  NonemptyList,
-  OrderedIndex,
-  type ReactiveMetadata,
-} from "@starbeam/core";
+  REACTIVE,
+  type ReactiveInternals,
+  type ReactiveProtocol,
+} from "@starbeam/timeline";
 import { exhaustive, verified } from "@starbeam/verify";
 import { getPatch, type Patch } from "fast-array-diff";
 import type { DomEnvironment } from "../../dom/environment.js";
@@ -22,22 +22,26 @@ export class ListArtifacts {
    * @param map A map of `{ key => RenderedContent } in insertion order.
    */
   static create(
-    input: ReactiveMetadata,
+    input: ReactiveProtocol,
     snapshot: RenderSnapshot
   ): ListArtifacts {
     return new ListArtifacts(snapshot, input);
   }
 
   #last: RenderSnapshot;
-  readonly metadata: ReactiveMetadata;
+  readonly reactive: ReactiveProtocol;
 
-  private constructor(last: RenderSnapshot, metadata: ReactiveMetadata) {
+  private constructor(last: RenderSnapshot, reactive: ReactiveProtocol) {
     this.#last = last;
-    this.metadata = metadata;
+    this.reactive = reactive;
   }
 
   isEmpty(): boolean {
     return this.#last.isEmpty();
+  }
+
+  get internals(): ReactiveInternals {
+    return this.reactive[REACTIVE];
   }
 
   get boundaries(): [first: KeyedContent, last: KeyedContent] | null {

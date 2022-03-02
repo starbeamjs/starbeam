@@ -1,10 +1,11 @@
 {
   "files.exclude": {
-    "node_modules": true,
-    "**/node_modules": true,
+    // "node_modules": true,
+    // "**/node_modules": true,
     "docs": true,
     "**/*.tsbuildinfo": true,
-    "**/dist": true
+    "types": true
+    // "**/dist": true
   },
   "search.exclude": {
     "**/node_modules": true,
@@ -18,28 +19,47 @@
   },
   "typescript.preferences.importModuleSpecifier": "project-relative",
 
-  "jest.jestCommandLine": "node ./node_modules/jest/bin/jest.js",
   "npm.packageManager": "pnpm",
   "eslint.packageManager": "pnpm",
   // "jest.autoRun": {
   //   "watch": "test-file"
   // }
-  "jest.autoRun": "off",
-  "jest.nodeEnv": { "NODE_OPTIONS": "--experimental-vm-modules --no-warnings" },
 
   "javascript.preferences.importModuleSpecifierEnding": "js",
   "typescript.preferences.importModuleSpecifierEnding": "js",
   "typescript.tsdk": "node_modules/typescript/lib",
-  "editor.bracketPairColorization.enabled": true,
-  "editor.guides.bracketPairs": "active",
+  // "editor.bracketPairColorization.enabled": true,
+  // "editor.guides.bracketPairs": "active",
   "typescript.inlayHints.propertyDeclarationTypes.enabled": true,
   "typescript.inlayHints.variableTypes.enabled": true,
   "editor.fontFamily": "\"FiraCode NF Retina\"",
   "typescript.inlayHints.functionLikeReturnTypes.enabled": true,
   "typescript.inlayHints.parameterNames.enabled": "literals",
   "typescript.inlayHints.parameterTypes.enabled": true,
-  "editor.inlayHints.fontSize": 11,
   "quokka.codeAutoPlayDelay": 500,
   "quokka.automaticRestart": true,
-  "quokka.automaticStartRegex": "./examples/src/*.ts"
+  "quokka.automaticStartRegex": "quokka\\.ts$",
+  "quokka.compactMessageOutput": false,
+  "quokka.darkTheme.log.decorationAttachmentRenderOptions": {
+    "border": "2px dashed",
+    "borderColor": "hsla(50, 20%, 20%, 0.5) transparent",
+    "fontWeight": "500",
+    "textDecoration": "none",
+    "color": "#9996",
+    "backgroundColor": "#2222229",
+    "margin": "1rem"
+  },
+  "quokka.suppressGlyphMarginNotifications": false,
+  "wycats.languageFeatures.semanticTokens": true,
+  "wycats.dev.logLevel": "DEBUG",
+  "wycats.dev.vlsPort": 8900,
+  "wycats.trace.server": "messages",
+  "[wycats-typescript].trace.server": "verbose",
+  "jest.debugMode": true,
+  "jest.autoRun": "off",
+  "jest.testExplorer": {
+    "enabled": true
+  },
+  "jest.jestCommandLine": "node ./bootstrap/dist/run-jest.js",
+  "jest.nodeEnv": { "NODE_OPTIONS": "--experimental-vm-modules --no-warnings" }
 }

@@ -2,8 +2,16 @@
   "name": "@starbeam/core",
   "version": "0.0.0",
   "type": "module",
-  "types": "index.ts",
-  "main": "dist/index.js",
+  "main": "index.ts",
+  "exports": {
+    ".": {
+      "types": "./index.js",
+      "import": {
+        "node": "./index.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -22,7 +30,13 @@
     "treeify": "^1.1.0",
     "@starbeam/fundamental": "workspace:*",
     "@starbeam/verify": "workspace:*",
-    "@starbeam/debug": "workspace:*"
+    "@starbeam/debug": "workspace:*",
+    "@starbeam/trace-internals": "workspace:*",
+    "@starbeam/schedule": "workspace:*",
+    "@starbeam/lifetime": "workspace:*",
+    "@starbeam/timeline": "workspace:*",
+    "@starbeam/reactive": "workspace:*",
+    "@starbeam/utils": "workspace:*"
   },
   "devDependencies": {
     "@types/treeify": "workspace:*"

@@ -6,8 +6,8 @@ export {
   verify,
   type PartialVerifier,
 } from "./src/assert.js";
-export { assert } from "./src/core.js";
 export { isPresent } from "./src/presence.js";
+export { isValue } from "./src/verifiers.js";
 export {
   as,
   CreatedContext,

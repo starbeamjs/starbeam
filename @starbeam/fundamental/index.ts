@@ -1,3 +1,5 @@
+export { assert, assertCondition } from "./src/assert.js";
+export { UNINITIALIZED } from "./src/constants.js";
 export type {
   AnyDict,
   AnyIndex,
@@ -6,5 +8,7 @@ export type {
   AnyRecord,
   InferArgument,
   InferReturn,
+  Metaprogramming,
   UnsafeAny,
 } from "./src/infer.js";
+export { isObject } from "./src/type.js";

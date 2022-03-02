@@ -1,31 +1,26 @@
 import type { minimal } from "@domtree/flavors";
-import {
-  ConstantMetadata,
-  DynamicMetadata,
-  HasMetadata,
-  ReactiveMetadata,
-} from "@starbeam/core";
+import { Reactive } from "@starbeam/reactive";
+import type {
+  REACTIVE,
+  ReactiveInternals,
+  ReactiveProtocol,
+} from "@starbeam/timeline";
 import {
   ContentCursor,
   RangeSnapshot,
   RANGE_SNAPSHOT,
 } from "../../dom/streaming/cursor.js";
-import type { RenderedAttribute } from "../attribute.js";
 
-export abstract class RenderedContent extends HasMetadata {
-  static isConstant(
-    this: void,
-    rendered: RenderedContent
-  ): rendered is ConstantRenderedContent {
-    return rendered.metadata === ReactiveMetadata.Constant;
+export abstract class RenderedContent implements ReactiveProtocol {
+  static isConstant(this: void, rendered: RenderedContent): boolean {
+    return Reactive.getDependencies(rendered).matches("Constant");
   }
 
-  static isUpdating(
-    this: void,
-    rendered: RenderedContent
-  ): rendered is UpdatingRenderedContent {
+  static isUpdating(this: void, rendered: RenderedContent): boolean {
     return !RenderedContent.isConstant(rendered);
   }
+
+  abstract [REACTIVE]: ReactiveInternals;
 
   /**
    * This should be computed fresh for each call. Consumers should never hang on
@@ -34,8 +29,6 @@ export abstract class RenderedContent extends HasMetadata {
   abstract [RANGE_SNAPSHOT](parent: minimal.ParentNode): RangeSnapshot;
   abstract poll(inside: minimal.ParentNode): void;
   abstract initialize(inside: minimal.ParentNode): void;
-
-  abstract get metadata(): ReactiveMetadata;
 
   remove(inside: minimal.ParentNode): ContentCursor {
     let range = this[RANGE_SNAPSHOT](inside);
@@ -47,17 +40,3 @@ export abstract class RenderedContent extends HasMetadata {
     range.move(to);
   }
 }
-
-export interface HasConstantMetadata {
-  metadata: ConstantMetadata;
-}
-
-export interface HasUpdatingMetadata {
-  metadata: DynamicMetadata;
-}
-
-export type ConstantRenderedContent = RenderedContent & HasConstantMetadata;
-export type ConstantRenderedAttribute = RenderedAttribute & HasConstantMetadata;
-
-export type UpdatingRenderedContent = RenderedContent & HasUpdatingMetadata;
-export type UpdatingRenderedAttribute = RenderedAttribute & HasUpdatingMetadata;

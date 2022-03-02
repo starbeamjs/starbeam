@@ -1,8 +1,10 @@
 packages:
   - tests
+  - guides
   - bootstrap
   - notes/examples
   - examples
   - "@starbeam/*"
   - "@types/@domtree/*"
   - "@types/*"
+  - guides/reactivity

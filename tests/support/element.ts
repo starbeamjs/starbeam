@@ -1,4 +1,3 @@
-import { Reactive, type IntoReactive } from "@starbeam/core";
 import type {
   AttributeName,
   BuildAttribute,

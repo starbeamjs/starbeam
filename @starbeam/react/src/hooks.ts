@@ -7,7 +7,8 @@ import {
   lifetime,
   RenderedRoot,
 } from "@starbeam/core";
-import { assert, verified } from "@starbeam/verify";
+import { assert } from "@starbeam/debug";
+import { verified } from "@starbeam/verify";
 import { useContext, useLayoutEffect } from "react";
 import { useSyncExternalStore } from "use-sync-external-store/shim";
 import { STARBEAM } from "./provider.js";

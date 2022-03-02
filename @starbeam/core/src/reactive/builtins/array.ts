@@ -7,12 +7,9 @@
 // that properties within the getter have the correct type in TS.
 
 import type { InferReturn } from "@starbeam/fundamental";
-import {
-  createStorage,
-  getValue,
-  setValue,
-  type TrackedStorage,
-} from "./tracked-shim.js";
+import type { Marker } from "@starbeam/reactive";
+import { COORDINATOR } from "@starbeam/schedule";
+import { consume, createMarker, mark } from "./tracked-shim.js";
 
 const ARRAY_GETTER_METHODS = new Set<string | symbol | number>([
   Symbol.iterator,
@@ -83,29 +80,29 @@ export class TrackedArray<T = unknown> {
   }
 
   constructor(arr: T[] = []) {
-    let clone = arr.slice();
+    const clone = arr.slice();
     // eslint-disable-next-line @typescript-eslint/no-this-alias
-    let self = this;
+    const self = this as TrackedArray<T>;
 
-    let boundFns = new Map();
+    const boundFns = new Map();
 
     return new Proxy(clone, {
       get(target, prop /*, _receiver */) {
-        let index = convertToInt(prop);
+        const index = convertToInt(prop);
 
         if (index !== null) {
           self.#readStorageFor(index);
-          getValue(self.#collection);
+          mark(self.#marker);
 
           return target[index];
         } else if (prop === "length") {
-          getValue(self.#collection);
+          mark(self.#marker);
         } else if (ARRAY_GETTER_METHODS.has(prop)) {
           let fn = boundFns.get(prop);
 
           if (fn === undefined) {
             fn = (...args: unknown[]) => {
-              getValue(self.#collection);
+              mark(self.#marker);
               return (target as any)[prop](...args);
             };
 
@@ -121,13 +118,15 @@ export class TrackedArray<T = unknown> {
       set(target, prop, value /*, _receiver */) {
         (target as any)[prop] = value;
 
-        let index = convertToInt(prop);
+        const index = convertToInt(prop);
 
-        if (index !== null) {
-          self.#dirtyStorageFor(index);
-          setValue(self.#collection, null);
+        if (index === null) {
+          mark(self.#marker);
         } else if (prop === "length") {
-          setValue(self.#collection, null);
+          const tx = COORDINATOR.begin("TrackedArray[i] = value");
+          self.#dirtyStorageFor(index);
+          mark(self.#marker);
+          tx.commit();
         }
 
         return true;
@@ -139,26 +138,36 @@ export class TrackedArray<T = unknown> {
     }) as InferReturn;
   }
 
-  readonly #collection = createStorage(null, () => false);
-  readonly #storages = new Map<number, TrackedStorage<null>>();
+  readonly #marker = createMarker();
+  readonly #markersByIndex = new Map<number, Marker>();
 
-  #readStorageFor(index: number) {
-    const storages = this.#storages;
-    let storage = storages.get(index);
+  #initializeStorageFor(index: number): Marker {
+    const markers = this.#markersByIndex;
+    let marker = markers.get(index);
 
-    if (storage === undefined) {
-      storage = createStorage(null, () => false);
-      storages.set(index, storage);
+    if (marker === undefined) {
+      marker = createMarker();
+      markers.set(index, marker);
     }
 
-    getValue(storage);
+    return marker;
+  }
+
+  #getStorageFor(index: number): Marker | undefined {
+    return this.#markersByIndex.get(index);
+  }
+
+  #readStorageFor(index: number) {
+    const marker = this.#initializeStorageFor(index);
+
+    consume(marker);
   }
 
   #dirtyStorageFor(index: number): void {
-    const storage = this.#storages.get(index);
+    const storage = this.#getStorageFor(index);
 
     if (storage) {
-      setValue(storage, null);
+      mark(storage);
     }
   }
 }

@@ -13,7 +13,8 @@
     "lint": "eslint .",
     "typecheck": "tsc -b",
     "typecheck:serve": "tsc -b -w --pretty false",
-    "guides": "mdbook build -d ../docs guides",
+    "guides:reactivity:build": "mdbook build -d ../../docs/reactivity ./guides/reactivity",
+    "guides:reactivity": "mdbook serve -p 9005 -d ../../docs/reactivity ./guides/reactivity",
     "jest:env:watch": "tsc -p ./jest -w",
     "jest:env:build": "tsc -p ./jest",
     "jest:cache:clear": "jest --clearCache"
@@ -40,8 +41,9 @@
     "@simple-dom/interface": "^1.4.0",
     "@simple-dom/parser": "^1.4.0",
     "@simple-dom/serializer": "^1.4.0",
+    "@swc-node/jest": "^1.4.3",
     "@swc/core": "^1.2.136",
-    "@swc/jest": "^0.2.17",
+    "@swc/jest": "^0.2.20",
     "@types/eslint": "^8.4.1",
     "@types/jest": "^27.4.0",
     "@types/jest-expect-message": "^1.0.3",
@@ -77,7 +79,7 @@
     "swc": "^1.0.11",
     "ts-jest": "^27.1.3",
     "ts-node": "TypeStrong/ts-node",
-    "typescript": "next"
+    "typescript": "^4.7.0-dev.20220302"
   },
   "dependencies": {
     "promise-readable": "^6.0.0",

@@ -1,5 +1,7 @@
 {
+  "collectCoverage": false,
   "preset": "ts-jest/presets/default-esm",
+  "cacheDirectory": "./.jest.cache",
   "extensionsToTreatAsEsm": [".ts", ".tsx"],
   "testEnvironment": "./bootstrap/dist/environment.js",
   "resolver": "jest-ts-webcompat-resolver",
@@ -11,19 +13,22 @@
   },
   "transform": {
     "^.+\\.(t|j)sx?$": [
-      "@swc/jest",
+      "@swc-node/jest",
       {
-        "module": {
-          "type": "es6",
-          "noInterop": true
-        },
-
-        "jsc": {
-          "parser": {
-            "syntax": "typescript",
-            "decorators": true
+        "swc": {
+          "sourceMaps": "inline",
+          "module": {
+            "type": "es6",
+            "noInterop": true
           },
-          "target": "es2022"
+
+          "jsc": {
+            "parser": {
+              "syntax": "typescript",
+              "decorators": true
+            },
+            "target": "es2022"
+          }
         }
       }
     ]

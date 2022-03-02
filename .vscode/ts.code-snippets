@@ -20,5 +20,67 @@
     "prefix": "???",
     "body": ["throw Error('todo: $1')"],
     "description": "Throw an error to indicate not yet implemented"
+  },
+  "class generic": {
+    "scope": "typescript",
+    "prefix": "class<T>",
+    "body": [
+      "export class ${1:name}<T> ",
+      "${2|implements,extends|} ${3:super}",
+      "{",
+      "  static create<T>(${4:value}: T): ${1}<T> {",
+      "    return new ${1}();",
+      "  }",
+      "}"
+    ]
+  },
+  "class": {
+    "scope": "typescript",
+    "prefix": "class:",
+    "body": [
+      "export class ${1:name} ",
+      "${2|implements,extends|} ${3:super}",
+      "{",
+      "  static create(): ${1} {",
+      "    return new ${1}();",
+      "  }",
+      "}"
+    ]
+  },
+  "static create": {
+    "scope": "typescript",
+    "prefix": "static create",
+    "body": [
+      "static create$2($4): $1 ${2:<$3>} {",
+      "  return new $1(${4/\\s*([^,:]+)([:][ ]*([^,:]+))?\\s*[,]?\\s*/$1,/g})",
+      "}"
+    ]
+  },
+  "constructor": {
+    "scope": "typescript",
+    "prefix": "private constructor",
+    "body": [
+      "${1/\\s*([^,:]+)([:][ ]*([^,:]+))?\\s*[,]?\\s*/readonly #$1: $3;/g}",
+      "",
+      "private constructor($1) {",
+      "${1/\\s*([^,:]+)([:][ ]*([^,:]+))?\\s*[,]?\\s*/this.#$1 = $1;/g}",
+      "}",
+      ""
+    ]
+  },
+  "get": {
+    "scope": "typescript",
+    "prefix": "get:",
+    "body": ["get $1(): $2 {", "$3", "}"]
+  },
+  "private get": {
+    "scope": "typescript",
+    "prefix": "#get",
+    "body": ["get #$1(): $2 {", "$3", "}"]
+  },
+  "brand": {
+    "scope": "typescript",
+    "prefix": "brand:",
+    "body": ["readonly [$1] = $1;"]
   }
 }

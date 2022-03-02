@@ -1,11 +1,10 @@
 import type { InferReturn } from "@starbeam/fundamental";
+import { Cell, Memo } from "@starbeam/reactive";
 import { expected, verify } from "@starbeam/verify";
 import {
   builtin,
   type BuiltinDescription,
-} from "../reactive/builtins/reactive.js";
-import { ReactiveCell } from "../reactive/cell.js";
-import { ReactiveMemo } from "../reactive/memo.js";
+} from "../reactive/builtins/builtin.js";
 import { is } from "../strippable/minimal.js";
 
 type BuiltinFunction = typeof builtin;
@@ -28,10 +27,7 @@ export const reactive: ReactiveFunction = (
     );
   }
 
-  const cell = ReactiveCell.create<unknown>(
-    undefined,
-    `@reactive ${String(key)}`
-  );
+  const cell = Cell<unknown>(undefined, `@reactive ${String(key)}`);
 
   return {
     enumerable: true,
@@ -72,10 +68,7 @@ export const cached = <T>(
       let memo = CACHED.get(this);
 
       if (!memo) {
-        memo = ReactiveMemo.create(
-          () => get.call(this),
-          `computing ${String(key)}`
-        );
+        memo = Memo(() => get.call(this), `computing ${String(key)}`);
         CACHED.set(this, memo);
       }
 

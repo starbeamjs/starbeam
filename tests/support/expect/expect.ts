@@ -1,6 +1,14 @@
-import { ReactiveMetadata } from "@starbeam/core";
 import { Abstraction } from "@starbeam/debug";
+import { isObject } from "@starbeam/fundamental";
+import { Reactive } from "@starbeam/reactive";
+import type { ReactiveProtocol } from "@starbeam/timeline";
+import { Enum } from "@starbeam/utils";
 import { toBe } from "./patterns.js";
+import {
+  TO_BE,
+  type CustomToBe,
+  type ToBeProtocol,
+} from "./patterns/comparison.js";
 import {
   JestReporter,
   Success,
@@ -10,28 +18,49 @@ import {
   type Reporter,
 } from "./report.js";
 
-export const Dynamism = {
-  constant: ReactiveMetadata.Constant,
-  dynamic: ReactiveMetadata.Dynamic,
-} as const;
+export class Dynamism
+  extends Enum("Constant", "Dynamic")
+  implements CustomToBe<Dynamism>
+{
+  static from(reactive: ReactiveProtocol): Dynamism {
+    return Reactive.isConstant(reactive)
+      ? Dynamism.Constant()
+      : Dynamism.Dynamic();
+  }
+
+  readonly [TO_BE]: ToBeProtocol<Dynamism> = {
+    tag: "Dynamism",
+    typecheck: (value): value is Dynamism =>
+      isObject(value) && value instanceof Dynamism,
+    serialize: (value) => value.describe(),
+    compare: (a, b) => a.describe() === b.describe(),
+  };
+
+  describe(): string {
+    return this.match({
+      Constant: () => "constant",
+      Dynamic: () => "dynamic",
+    });
+  }
+}
 
 export class Expects {
   static get dynamic(): Expects {
-    return new Expects(ReactiveMetadata.Dynamic, null);
+    return new Expects(Dynamism.Dynamic(), null);
   }
 
   static get constant(): Expects {
-    return new Expects(ReactiveMetadata.Constant, null);
+    return new Expects(Dynamism.Constant(), null);
   }
 
   static html(content: string): Expects {
     return new Expects(null, content);
   }
 
-  readonly #dynamism: ReactiveMetadata | null;
+  readonly #dynamism: Dynamism | null;
   readonly #html: string | null;
 
-  private constructor(dynamism: ReactiveMetadata | null, html: string | null) {
+  private constructor(dynamism: Dynamism | null, html: string | null) {
     this.#dynamism = dynamism;
     this.#html = html;
   }
@@ -40,7 +69,7 @@ export class Expects {
     return new Expects(this.#dynamism, contents);
   }
 
-  get dynamism(): ReactiveMetadata | null {
+  get dynamism(): Dynamism | null {
     return this.#dynamism;
   }
 
@@ -48,10 +77,10 @@ export class Expects {
     return this.#html;
   }
 
-  assertDynamism(actual: ReactiveMetadata): void {
+  assertDynamism(actual: ReactiveProtocol): void {
     if (this.#dynamism !== null) {
       expect(
-        value(actual).as("dynamism"),
+        value(Dynamism.from(actual)).as("dynamism"),
         toBe(this.#dynamism, (value) => value.describe())
       );
     }

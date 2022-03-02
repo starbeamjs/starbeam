@@ -1,15 +1,14 @@
+import { LIFETIME, type IntoFinalizer } from "@starbeam/lifetime";
+import { impl, Memo, type ReactiveValue } from "@starbeam/reactive";
+import { REACTIVE, ReactiveInternals } from "@starbeam/timeline";
+import { LOGGER } from "@starbeam/trace-internals";
 import { expected, verified } from "@starbeam/verify";
-import { LIFETIME, type IntoFinalizer } from "../core/lifetime/lifetime.js";
-import type { ReactiveMetadata } from "../core/metadata.js";
-import { UNINITIALIZED } from "../fundamental/constants.js";
-import type { Cell, Reactive } from "../fundamental/types.js";
-import { ExtendsReactive } from "../reactive/base.js";
-import { ReactiveMemo } from "../reactive/memo.js";
 import { is } from "../strippable/minimal.js";
-import { LOGGER } from "../strippable/trace.js";
 
-export type ResourceHookConstructor<T> = (hook: SimpleHook<T>) => Reactive<T>;
-export type DataHookConstructor<T> = () => Reactive<T>;
+export type ResourceHookConstructor<T> = (
+  hook: SimpleHook<T>
+) => ReactiveValue<T>;
+export type DataHookConstructor<T> = () => ReactiveValue<T>;
 
 export type HookConstructor<T> =
   | ResourceHookConstructor<T>
@@ -32,36 +31,38 @@ export class HookBlueprint<T> {
     readonly description: string
   ) {}
 
-  asData(): Reactive<T> {
+  asData(): ReactiveValue<T> {
     let hook = SimpleHook.construct(this);
 
     // however, we need to *avoid* adding the dependencies of the hook's
     // returned reactive to the parent hook constructor *or* this hook
     // constructor.
-    return ReactiveMemo.create(
+    return Memo(
       () => hook.current.current,
       `memo for: ${this.description} instance`
     );
   }
 }
 
-export class SimpleHook<T> extends ExtendsReactive<T> {
+export class SimpleHook<T> implements ReactiveValue<T> {
   static #ids = 0;
 
   static create<T>(
-    reactive: Reactive<T> | null,
+    reactive: ReactiveValue<T> | null,
     description: string
   ): SimpleHook<T> {
     return new SimpleHook(reactive, false, description);
   }
 
-  static construct<T>(blueprint: HookBlueprint<T>): Reactive<Reactive<T>> {
+  static construct<T>(
+    blueprint: HookBlueprint<T>
+  ): ReactiveValue<ReactiveValue<T>> {
     let last: SimpleHook<T> | null = null;
 
     // Return a memo that will always return a hook. If the memo invalidates, it
     // will automatically finalize the last hook and construct a new hook by
     // invoking the blueprint again.
-    return ReactiveMemo.create(() => {
+    return Memo(() => {
       if (last) {
         LIFETIME.finalize(last);
       }
@@ -83,19 +84,14 @@ export class SimpleHook<T> extends ExtendsReactive<T> {
 
   readonly #description: string;
   readonly #id: number;
-  #reactive: Reactive<T> | null;
+  #reactive: ReactiveValue<T> | null;
   #isResource: boolean;
 
   private constructor(
-    reactive: Reactive<T> | null,
+    reactive: ReactiveValue<T> | null,
     isResource: boolean,
     description: string
   ) {
-    super({
-      name: "Hook",
-      description,
-    });
-
     LIFETIME.on.finalize(this, () =>
       LOGGER.trace.log(`destroying instance of ${description}`)
     );
@@ -106,16 +102,12 @@ export class SimpleHook<T> extends ExtendsReactive<T> {
     this.#id = ++SimpleHook.#ids;
   }
 
-  get cells(): UNINITIALIZED | readonly Cell[] {
+  get [REACTIVE](): ReactiveInternals {
     if (this.#reactive) {
-      return this.#reactive.cells;
+      return this.#reactive[REACTIVE];
     } else {
-      return UNINITIALIZED;
+      return impl.UninitializedDerived.create(this.#description);
     }
-  }
-
-  get metadata(): ReactiveMetadata {
-    return this.#presentReactive.metadata;
   }
 
   get description(): string {
@@ -128,13 +120,13 @@ export class SimpleHook<T> extends ExtendsReactive<T> {
     LIFETIME.on.finalize(this, finalizer);
   }
 
-  use<T>(blueprint: HookBlueprint<T>): Reactive<T> {
+  use<T>(blueprint: HookBlueprint<T>): ReactiveValue<T> {
     let hook = SimpleHook.construct(blueprint);
 
     // however, we need to *avoid* adding the dependencies of the hook's
     // returned reactive to the parent hook constructor *or* this hook
     // constructor.
-    return ReactiveMemo.create(
+    return Memo(
       () => hook.current.current,
       `memo for: ${blueprint.description} instance`
     );

@@ -1,6 +1,7 @@
 import type { minimal } from "@domtree/flavors";
 import { is, mutable } from "@starbeam/core";
-import { as, assert, verified } from "@starbeam/verify";
+import { assert } from "@starbeam/debug";
+import { as, verified } from "@starbeam/verify";
 import type { RenderedContent } from "../../program-node/interfaces/rendered-content.js";
 import type { DomEnvironment } from "../environment.js";
 

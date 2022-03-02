@@ -7,8 +7,8 @@ import {
   LOGGER,
   Memo,
   Reactive,
-  tree,
 } from "@starbeam/core";
+import { tree } from "@starbeam/debug";
 import { value, when } from "../support/expect/expect.js";
 import { expect, test, toBe } from "../support/index.js";
 
@@ -95,7 +95,7 @@ test("universe.hook.values", ({ universe }) => {
   let subscription = Subscription.last();
   expect(subscription.destroyed, toBe(0));
 
-  user.update("@todale");
+  user.current = "@todale";
   root.poll();
 
   expect(
@@ -104,13 +104,13 @@ test("universe.hook.values", ({ universe }) => {
   );
   expect(subscription.destroyed, toBe(0));
 
-  tick.update(1);
+  tick.current = 1;
   root.poll();
 
   expect(output.current, toBe("[timestamp = 1] chat.today for @todale"));
   expect(subscription.destroyed, toBe(0));
 
-  channel.update("chat.yesterday");
+  channel.current = "chat.yesterday";
   root.poll();
 
   expect(output.current, toBe("[timestamp = 1] chat.yesterday for @todale"));
@@ -123,7 +123,7 @@ test("universe.hook.values", ({ universe }) => {
   let subscription2 = Subscription.last();
   expect(subscription2.destroyed, toBe(0));
 
-  channel.update("chat.tomorrow");
+  channel.current = "chat.tomorrow";
   root.poll();
 
   expect(output.current, toBe("[timestamp = 1] chat.tomorrow for @todale"));

@@ -1,5 +1,5 @@
-import { Cell } from "@starbeam/core";
 import { Root } from "@starbeam/dom";
+import { Cell } from "@starbeam/reactive";
 import { JsDocument } from "./utils.js";
 
 let document = JsDocument.create();
@@ -14,12 +14,12 @@ let result = universe.render(text, { append: document.body }).initialize(); //?
 
 document.contents; //?
 
-username.update("@wycats");
+username.current = "@wycats";
 result.poll();
 
 document.contents; //?
 
-username.update("Yehuda Katz");
+username.current = "Yehuda Katz";
 result.poll();
 
 document.contents; //?

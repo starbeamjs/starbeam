@@ -1,12 +1,6 @@
 import type { minimal } from "@domtree/flavors";
 import * as jest from "@jest/globals";
-import {
-  Cell,
-  is,
-  Reactive,
-  ReactiveMetadata,
-  RenderedRoot,
-} from "@starbeam/core";
+import { is, RenderedRoot } from "@starbeam/core";
 import { Abstraction } from "@starbeam/debug";
 import {
   DomEnvironment,
@@ -20,6 +14,7 @@ import {
   type FragmentProgramNode,
   type TextProgramNode,
 } from "@starbeam/dom";
+import type { Cell, ReactiveValue } from "@starbeam/reactive";
 import { verify } from "@starbeam/verify";
 import { JSDOM } from "jsdom";
 import {
@@ -28,7 +23,7 @@ import {
   type TestChild,
   type TestElementArgs,
 } from "./element.js";
-import { expect, Expects } from "./expect/expect.js";
+import { Dynamism, expect, Expects } from "./expect/expect.js";
 import { toBe } from "./expect/patterns/comparison.js";
 
 export interface TestArgs {
@@ -112,15 +107,15 @@ export class TestRoot {
     if (typeof updater === "function") {
       updater();
     } else {
-      let [cell, value] = updater;
-      cell.update(value);
+      const [cell, value] = updater;
+      cell.current = value;
     }
 
     this.#root.poll();
     this.#root.initialize();
 
-    Abstraction.wrap(() => {
-      expectation.assertDynamism(this.#root.metadata);
+    Abstraction.throws(() => {
+      expectation.assertDynamism(this.#root);
 
       expectation.assertContents(this.#container.innerHTML);
     }, 3);
@@ -146,20 +141,22 @@ export class TestSupport {
   }
 
   buildText(
-    reactive: Reactive<string>,
-    expectation: ReactiveMetadata
+    reactive: ReactiveValue<string>,
+    expectation: Dynamism
   ): TextProgramNode {
     let text = this.universe.dom.text(reactive);
-    expect(text.metadata, toBe(expectation));
+    Abstraction.throws(() => {
+      expect(Dynamism.from(text), toBe(expectation));
+    }, 3);
     return text;
   }
 
   buildComment(
-    reactive: Reactive<string>,
-    expectation: ReactiveMetadata
+    reactive: ReactiveValue<string>,
+    expectation: Dynamism
   ): CommentProgramNode {
     let comment = this.universe.dom.comment(reactive);
-    expect(comment.metadata, toBe(expectation));
+    expect(Dynamism.from(comment), toBe(expectation));
     return comment;
   }
 
@@ -169,7 +166,7 @@ export class TestSupport {
       args
     );
     let element = ElementProgramNodeBuilder.build(tagName, build);
-    expect(element.metadata, toBe(expectation.dynamism));
+    expect(Dynamism.from(element), toBe(expectation.dynamism));
 
     return element;
   }
@@ -184,7 +181,7 @@ export class TestSupport {
       }
     });
 
-    expect(fragment.metadata, toBe(expectation.dynamism));
+    expect(Dynamism.from(fragment), toBe(expectation.dynamism));
 
     return fragment;
   }
@@ -205,11 +202,8 @@ export class TestSupport {
     }
 
     expect(
-      result.metadata,
-      toBe(expectation.dynamism, {
-        actual: result.metadata.describe(),
-        expected: expectation.dynamism.describe(),
-      })
+      Dynamism.from(result),
+      toBe(expectation.dynamism, (value) => value.describe())
     );
 
     // Exchange markers for DOM representations to allow us to compare the DOM

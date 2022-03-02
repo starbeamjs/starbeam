@@ -1,7 +1,7 @@
-import { has, is, isObject, Position, positioned } from "@starbeam/core";
-import { QualifiedName, Wrapper } from "@starbeam/debug";
+import { has, is, Position, positioned } from "@starbeam/core";
+import { assert, QualifiedName, Wrapper } from "@starbeam/debug";
+import { isObject } from "@starbeam/fundamental";
 import {
-  assert,
   exhaustive,
   expected,
   present,

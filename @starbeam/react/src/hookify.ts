@@ -1,11 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  Cell,
-  enumerate,
-  HookBlueprint,
-  Reactive,
-  type IntoReactive,
-} from "@starbeam/core";
+import { enumerate, HookBlueprint } from "@starbeam/core";
 import type { InferReturn } from "@starbeam/fundamental";
 import { use } from "./hooks.js";
 
@@ -55,7 +49,7 @@ export function hookify<
         continue;
       }
 
-      stableArgs[i].update(arg as unknown);
+      stableArgs[i].current = arg as unknown;
     }
 
     return use(hook(...(stableArgs as Args)));

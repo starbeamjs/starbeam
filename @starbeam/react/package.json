@@ -1,8 +1,16 @@
 {
   "name": "@starbeam/react",
   "type": "module",
-  "main": "index.js",
-  "types": "index.ts",
+  "main": "index.ts",
+  "exports": {
+    ".": {
+      "types": "./index.js",
+      "import": {
+        "node": "./index.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
   "version": "0.5.0",
   "dependencies": {
     "@starbeam/core": "workspace:*",
@@ -10,6 +18,7 @@
     "@starbeam/verify": "workspace:*",
     "@starbeam/debug": "workspace:*",
     "@starbeam/fundamental": "workspace:*",
+    "@starbeam/reactive": "workspace:*",
     "use-ssr": "^1.0.24",
     "use-sync-external-store": "rc",
     "@types/use-sync-external-store": "ts4.6"

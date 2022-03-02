@@ -22,12 +22,12 @@ const result = universe.render(element, { append: document.body }).initialize();
 
 document.contents; //?
 
-person.update("Dave Herman");
+person.current = "Dave Herman";
 result.poll();
 
 document.contents; //?
 
-place.update("California");
+place.current = "California";
 result.poll();
 
 document.contents; //?

@@ -1,4 +1,4 @@
-import { Cell } from "@starbeam/core";
+import { Cell } from "@starbeam/reactive";
 import { useCallback, useContext } from "react";
 import { useSyncExternalStore } from "use-sync-external-store/shim";
 import { STARBEAM } from "./provider.js";
@@ -36,7 +36,7 @@ class UnstableCell<T> {
   }
 
   update(value: T): void {
-    this.#cell.update(value);
+    this.#cell.current = value;
   }
 }
 

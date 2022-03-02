@@ -1,28 +1,23 @@
-import { HasMetadata, ReactiveMetadata } from "../core/metadata.js";
-import type { ExtendsReactive } from "../reactive/base.js";
+import type { ReactiveValue } from "@starbeam/reactive";
+import {
+  REACTIVE,
+  type ReactiveInternals,
+  type ReactiveProtocol
+} from "@starbeam/timeline";
 
-export type OutputBuilder<In, Out> = (input: ExtendsReactive<In>) => Out;
+export type OutputBuilder<In, Out> = (input: ReactiveValue<In>) => Out;
 
-export abstract class RenderedProgramNode<Container> extends HasMetadata {
-  abstract initialize(inside: Container): void;
-  abstract poll(inside: Container): void;
+export interface RenderedProgramNode<Container> extends ReactiveProtocol{
+  initialize(inside: Container): void;
+  poll(inside: Container): void;
 }
 
 // export type RenderedProgramNode = RenderedContent | RenderedAttribute;
 
-export abstract class AbstractProgramNode<
-  Cursor,
-  Container
-> extends HasMetadata {
-  isConstant(): boolean {
-    return this.metadata.isConstant();
-  }
-
-  isDynamic(): boolean {
-    return this.metadata.isDynamic();
-  }
-
-  abstract get metadata(): ReactiveMetadata;
+export abstract class AbstractProgramNode<Cursor, Container>
+  implements ReactiveProtocol
+{
+  abstract [REACTIVE]: ReactiveInternals;
   abstract render(cursor: Cursor): RenderedProgramNode<Container>;
 }
 

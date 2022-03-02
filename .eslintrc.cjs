@@ -11,10 +11,8 @@ let packages = String(
 )
   .split("\n")
   .filter((file) => file !== "" && file !== root)
+  .filter((file) => file.startsWith("@starbeam"))
   .map((p) => path.relative(root, p));
-// .map((p) => `${p}`);
-
-console.log(packages);
 
 module.exports = /** @type {import("eslint").Linter.Config} */ ({
   root: true,
@@ -31,7 +29,20 @@ module.exports = /** @type {import("eslint").Linter.Config} */ ({
       },
     },
   },
-  overrides: packages.map((p) => pkg(p)),
+  overrides: [
+    ...packages.map((p) => pkg(p)),
+    {
+      files: "./guides/**/*.ts",
+      extends: [
+        // "plugin:import/recommended",
+        // "plugin:import/typescript",
+        // "plugin:@typescript-eslint/recommended",
+      ],
+      rules: {
+        "no-inner-declarations": "off",
+      },
+    },
+  ],
 });
 
 /**

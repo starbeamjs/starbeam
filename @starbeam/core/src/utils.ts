@@ -7,10 +7,6 @@ export type FIXME<_S extends string = string> = any;
 
 export const INSPECT = Symbol.for("nodejs.util.inspect.custom");
 
-export function isObject<T>(value: T): value is T & object {
-  return typeof value === "object" && value !== null;
-}
-
 export function* enumerate<T>(iterable: Iterable<T>): Iterable<[number, T]> {
   let i = 0;
 

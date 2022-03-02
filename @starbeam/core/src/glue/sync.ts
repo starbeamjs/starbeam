@@ -1,24 +1,44 @@
-import { Abstraction } from "@starbeam/debug";
-import { assert } from "@starbeam/verify";
-import { LIFETIME } from "../core/lifetime/lifetime.js";
-import { TIMELINE } from "../core/timeline/timeline.js";
-import { UNINITIALIZED } from "../fundamental/constants.js";
-import type { Reactive } from "../fundamental/types.js";
-import { Cell, ReactiveCell } from "../reactive/cell.js";
-import { LOGGER } from "../strippable/trace.js";
+import { Abstraction, assert, DisplayStruct } from "@starbeam/debug";
+import { UNINITIALIZED } from "@starbeam/fundamental";
+import { LIFETIME } from "@starbeam/lifetime";
+import { Reactive, type ReactiveValue } from "@starbeam/reactive";
+import { REACTIVE, TIMELINE, type MutableInternals } from "@starbeam/timeline";
+import { LOGGER } from "@starbeam/trace-internals";
+import { Enum } from "@starbeam/utils";
+import { INSPECT } from "../utils.js";
 
-export type PollResult<T> =
-  | { status: "initial"; value: T }
-  | { status: "unchanged"; value: T }
-  | { status: "changed"; value: T };
+class PollResult<T> extends Enum(
+  "InitialValue(T)",
+  "UnchangedValue(T)",
+  "ChangedValue(U)"
+)<T, { value: T; last: T }> {
+  get value(): T {
+    return this.match({
+      InitialValue: (value) => value,
+      UnchangedValue: (value) => value,
+      ChangedValue: ({ value }) => value,
+    });
+  }
 
-export interface ExternalSubscription<T = unknown> {
+  [INSPECT]() {
+    const name = this.match({
+      InitialValue: () => "Initial",
+      ChangedValue: () => "Changed",
+      UnchangedValue: () => "Unchanged",
+    });
+
+    return DisplayStruct(name, { value: this.value });
+  }
+}
+
+export interface ReactiveSubscription<T = unknown> {
   poll: () => PollResult<T>;
   unsubscribe: () => void;
 }
 
-function initialize<S extends ExternalSubscription>(subscription: S): S {
+function initialize<S extends ReactiveSubscription>(subscription: S): S {
   LIFETIME.on.finalize(subscription, () => subscription.unsubscribe());
+  subscription.poll();
   return subscription;
 }
 
@@ -48,24 +68,24 @@ function initialize<S extends ExternalSubscription>(subscription: S): S {
  *   no further notifications will occur.
  */
 export function subscribe<T>(
-  reactive: Reactive<T>,
-  ready: () => void,
+  reactive: ReactiveValue<T>,
+  ready: (subscription: ReactiveSubscription<T>) => void,
   description = `subscriber (to ${
-    reactive.description
+    reactive[REACTIVE]
   }) <- ${Abstraction.callerFrame()}`
-): ExternalSubscription<T> {
-  if (reactive.isConstant()) {
+): ReactiveSubscription<T> {
+  const dependencies = Reactive.getDependencies(reactive);
+
+  if (Array.isArray(dependencies) && dependencies.length === 0) {
     return initialize(ConstantSubscription.create(reactive.current));
-  } else if (reactive instanceof ReactiveCell) {
-    return initialize(CellSubscription.create(reactive, ready, description));
   } else {
     return initialize(
-      ReactiveSubscription.create(reactive, ready, description)
+      AnyReactiveSubscription.create(reactive, ready, description)
     );
   }
 }
 
-class ConstantSubscription<T> implements ExternalSubscription<T> {
+class ConstantSubscription<T> implements ReactiveSubscription<T> {
   static create<T>(value: T): ConstantSubscription<T> {
     return new ConstantSubscription(value);
   }
@@ -76,7 +96,7 @@ class ConstantSubscription<T> implements ExternalSubscription<T> {
     this.#value = value;
   }
 
-  poll = (): PollResult<T> => ({ status: "unchanged", value: this.#value });
+  poll = (): PollResult<T> => PollResult.UnchangedValue(this.#value);
   unsubscribe = () => {
     /* noop */
   };
@@ -86,115 +106,141 @@ class ConstantSubscription<T> implements ExternalSubscription<T> {
  * This is a special-case of subscription to a single cell that doesn't require
  * much bookkeeping.
  */
-class CellSubscription<T> implements ExternalSubscription<T> {
+// class CellSubscription<T> implements ReactiveSubscription<T> {
+//   static create<T>(
+//     leaf: ReactiveLeafValue<T>,
+//     ready: (subscription: ReactiveSubscription<T>) => void,
+//     description: string
+//   ): CellSubscription<T> {
+//     const teardown = TIMELINE.on.update(leaf, () => ready(subscription));
+//     const subscription = new CellSubscription(
+//       leaf,
+//       UNINITIALIZED,
+//       teardown,
+//       description
+//     );
+//     return subscription;
+//   }
+
+//   #last: T | UNINITIALIZED;
+//   readonly #reactive: ReactiveLeafValue<T>;
+//   readonly #description: string;
+
+//   private constructor(
+//     reactive: ReactiveLeafValue<T>,
+//     last: T | UNINITIALIZED,
+//     readonly unsubscribe: () => void,
+//     description: string
+//   ) {
+//     this.#reactive = reactive;
+//     this.#last = last;
+//     this.#description = description;
+//   }
+
+//   [INSPECT]() {
+//     return DisplayStruct(`Subscription (${this.#description})`, {
+//       last: this.#last,
+//     });
+//   }
+
+//   poll = (): PollResult<T> => {
+//     console.log("polling", this.#reactive.current);
+//     const value = this.#reactive.current;
+
+//     const last = this.#last;
+
+//     if (last === UNINITIALIZED) {
+//       this.#last = value;
+//       return InitialValue.create(value);
+//     } else if (last === value) {
+//       return UnchangedValue.create(value);
+//     } else {
+//       this.#last = value;
+//       return ChangedValue.create(value, last);
+//     }
+//   };
+// }
+
+class AnyReactiveSubscription<T> implements ReactiveSubscription<T> {
   static create<T>(
-    cell: Cell<T>,
-    ready: () => void,
+    reactive: ReactiveValue<T>,
+    ready: (subscription: ReactiveSubscription<T>) => void,
     description: string
-  ): CellSubscription<T> {
-    let teardown = TIMELINE.on.update(cell, ready);
-    return new CellSubscription(cell, UNINITIALIZED, teardown, description);
-  }
+  ): AnyReactiveSubscription<T> {
+    const teardown = new Map();
 
-  #last: T | UNINITIALIZED;
-  readonly #reactive: Reactive<T>;
-  readonly #description: string;
+    const dependencies = Reactive.getDependencies(reactive);
 
-  private constructor(
-    reactive: Cell<T>,
-    last: T | UNINITIALIZED,
-    readonly unsubscribe: () => void,
-    description: string
-  ) {
-    this.#reactive = reactive;
-    this.#last = last;
-    this.#description = description;
-  }
-
-  poll = (): PollResult<T> => {
-    let value = this.#reactive.current;
-
-    if (this.#last === UNINITIALIZED) {
-      this.#last = value;
-      return { status: "initial", value };
-    } else if (this.#last === value) {
-      return { status: "unchanged", value };
-    } else {
-      return { status: "changed", value };
-    }
-  };
-}
-
-class ReactiveSubscription<T> implements ExternalSubscription<T> {
-  static create<T>(
-    reactive: Reactive<T>,
-    ready: () => void,
-    description: string
-  ): ReactiveSubscription<T> {
-    let cells = new Map();
-
-    if (reactive.cells !== UNINITIALIZED) {
-      for (let cell of reactive.cells) {
-        cells.set(cell, TIMELINE.on.update(cell, ready));
-      }
-    }
-
-    return new ReactiveSubscription(
+    const subscription = new AnyReactiveSubscription(
       UNINITIALIZED,
       reactive,
-      cells,
-      ready,
+      teardown,
+      (): void => ready(subscription),
       description
     );
+
+    return subscription;
   }
 
   #last: T | UNINITIALIZED;
-  readonly #reactive: Reactive<T>;
-  readonly #cells: Map<Cell, () => void>;
+  readonly #reactive: ReactiveValue<T>;
+  readonly #storages: Map<MutableInternals, () => void>;
   readonly #notify: () => void;
   readonly #description: string;
 
   private constructor(
     last: T | UNINITIALIZED,
-    reactive: Reactive<T>,
-    cells: Map<Cell, () => void>,
+    reactive: ReactiveValue<T>,
+    storages: Map<MutableInternals, () => void>,
     notify: () => void,
     description: string
   ) {
     this.#last = last;
     this.#reactive = reactive;
-    this.#cells = cells;
+    this.#storages = storages;
     this.#notify = notify;
     this.#description = description;
   }
 
+  [INSPECT]() {
+    return DisplayStruct(`Subscription (${this.#description})`, {
+      last: this.#last,
+      reactive: this.#reactive,
+      cells: [...this.#storages.keys()],
+    });
+  }
+
   poll = (): PollResult<T> => {
-    let newValue = this.#reactive.current;
-    let newCells = this.#reactive.cells;
+    const last = this.#last;
+    const newValue = this.#reactive.current;
+    const newDeps = Reactive.getDependencies(this.#reactive);
 
     assert(
-      newCells !== UNINITIALIZED,
+      !newDeps.matches("Uninitialized"),
       `A reactive's cells should not be uninitialized once its value was consumed`
     );
 
-    this.#sync(new Set(newCells));
+    this.#sync(new Set(newDeps.dependencies));
 
-    if (this.#last === newValue) {
-      return { status: "unchanged", value: newValue };
+    if (last === UNINITIALIZED) {
+      this.#last = newValue;
+      return PollResult.InitialValue(newValue);
+    } else if (last === newValue) {
+      return PollResult.UnchangedValue(newValue);
     } else {
       this.#last = newValue;
-      return { status: "changed", value: newValue };
+      return PollResult.ChangedValue({ value: newValue, last });
     }
   };
 
   unsubscribe = () => {
-    for (let teardown of this.#cells.values()) {
+    for (let teardown of this.#storages.values()) {
       teardown();
     }
   };
 
-  #sync(newCells: Set<Cell>): void {
-    for (let [cell, teardown] of this.#cells) {
+  #sync(newCells: Set<MutableInternals>): void {
+    for (let [cell, teardown] of this.#storages) {
       if (!newCells.has(cell)) {
         LOGGER.trace.log(
           `tearing down (${this.#description}) cell`,
@@ -202,12 +248,12 @@ class ReactiveSubscription<T> implements ExternalSubscription<T> {
           this.#notify
         );
         teardown();
-        this.#cells.delete(cell);
+        this.#storages.delete(cell);
       }
     }
 
     for (let cell of newCells) {
-      if (!this.#cells.has(cell)) {
+      if (!this.#storages.has(cell)) {
         LOGGER.trace.log(
           `setting up (${this.#description}) cell`,
           cell,
@@ -215,7 +261,7 @@ class ReactiveSubscription<T> implements ExternalSubscription<T> {
         );
 
         let teardown = TIMELINE.on.update(cell, this.#notify);
-        this.#cells.set(cell, teardown);
+        this.#storages.set(cell, teardown);
       }
     }
   }

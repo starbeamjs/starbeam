@@ -1,0 +1,26 @@
+{
+  "name": "@starbeam/timeline",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "index.ts",
+  "exports": {
+    ".": {
+      "types": "./index.js",
+      "import": {
+        "node": "./index.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "dependencies": {
+    "@starbeam/verify": "workspace:*",
+    "@starbeam/debug": "workspace:*",
+    "@starbeam/trace-internals": "workspace:*",
+    "@starbeam/schedule": "workspace:*",
+    "@starbeam/now": "workspace:*",
+    "@starbeam/config": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/treeify": "workspace:*"
+  }
+}

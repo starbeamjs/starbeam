@@ -1,10 +1,7 @@
 import type * as minimal from "@domtree/minimal";
-import {
-  AbstractProgramNode,
-  RenderedProgramNode,
-  type Reactive,
-  type ReactiveMetadata,
-} from "@starbeam/core";
+import { AbstractProgramNode, type RenderedProgramNode } from "@starbeam/core";
+import type { ReactiveValue } from "@starbeam/reactive";
+import { REACTIVE, ReactiveInternals } from "@starbeam/timeline";
 import { DOM } from "../dom/streaming/compatible-dom.js";
 import { LazyDOM } from "../dom/streaming/token.js";
 import {
@@ -28,8 +25,8 @@ export class AttributeProgramNode extends AbstractProgramNode<
     this.#attribute = attribute;
   }
 
-  get metadata(): ReactiveMetadata {
-    return this.#attribute.value.metadata;
+  get [REACTIVE](): ReactiveInternals {
+    return ReactiveInternals.get(this.#attribute.value);
   }
 
   render(buffer: ElementHeadConstructor): RenderedAttribute {
@@ -43,28 +40,29 @@ export class AttributeProgramNode extends AbstractProgramNode<
   }
 }
 
-export class RenderedAttribute extends RenderedProgramNode<minimal.ParentNode> {
+export class RenderedAttribute
+  implements RenderedProgramNode<minimal.ParentNode>
+{
   static create(
     attribute: LazyDOM<minimal.Attr>,
-    value: Reactive<string | null>
+    value: ReactiveValue<string | null>
   ) {
     return new RenderedAttribute(attribute, value);
   }
 
   readonly #attribute: LazyDOM<minimal.Attr>;
-  readonly #value: Reactive<string | null>;
+  readonly #value: ReactiveValue<string | null>;
 
   private constructor(
     attribute: LazyDOM<minimal.Attr>,
-    value: Reactive<string | null>
+    value: ReactiveValue<string | null>
   ) {
-    super();
     this.#attribute = attribute;
     this.#value = value;
   }
 
-  get metadata(): ReactiveMetadata {
-    return this.#value.metadata;
+  get [REACTIVE](): ReactiveInternals {
+    return ReactiveInternals.get(this.#value);
   }
 
   initialize(inside: minimal.ParentNode): void {

@@ -1,4 +1,4 @@
-import { Reactive } from "@starbeam/core";
+import { Reactive, type ReactiveValue } from "@starbeam/reactive";
 import type { Component } from "./program-node/component.js";
 import { CommentProgramNode, TextProgramNode } from "./program-node/data.js";
 import {
@@ -14,21 +14,21 @@ import { Loop, type ListProgramNode } from "./program-node/list/loop.js";
 export const APPEND = Symbol("APPEND");
 
 export class ReactiveDOM {
-  text(data: Reactive<string>): TextProgramNode {
+  text(data: ReactiveValue<string>): TextProgramNode {
     return TextProgramNode.of(data);
   }
 
-  comment(data: Reactive<string>): CommentProgramNode {
+  comment(data: ReactiveValue<string>): CommentProgramNode {
     return CommentProgramNode.of(data);
   }
 
-  element(tagName: Reactive<string> | string): ElementProgramNodeBuilder;
+  element(tagName: ReactiveValue<string> | string): ElementProgramNodeBuilder;
   element(
-    tagName: Reactive<string> | string,
+    tagName: ReactiveValue<string> | string,
     callback: (builder: ElementProgramNodeBuilder) => void
   ): ElementProgramNode;
   element(
-    tagName: Reactive<string> | string,
+    tagName: ReactiveValue<string> | string,
     callback?: (builder: ElementProgramNodeBuilder) => void
   ): ElementProgramNode | ElementProgramNodeBuilder {
     let builder = new ElementProgramNodeBuilder(Reactive.from(tagName));
@@ -48,7 +48,7 @@ export class ReactiveDOM {
   }
 
   list<P>(
-    iterable: Reactive<Iterable<P>>,
+    iterable: ReactiveValue<Iterable<P>>,
     component: Component<P>,
     key: (arg: P) => unknown
   ): ListProgramNode {

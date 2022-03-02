@@ -1,9 +1,10 @@
+import { assert } from "@starbeam/debug";
 import type {
   CompleteContext,
   MutableVerifyContext,
   PartialVerifyContext,
 } from "./assert.js";
-import { assert, isVerifyContext } from "./core.js";
+import { isVerifyContext } from "./core.js";
 
 export class DescribedContext {
   static of(context: VerifyContext): DescribedContext {
@@ -136,20 +137,9 @@ export class CreatedContext<In = unknown> {
 }
 
 export class FinalizedContext {
-  // static normalize<In>(
-  //   transform: NormalizeContext<In>
-  // ): CreatedBuildContextFor<In> {
-  //   return (value: In) =>
-  //     new BuildContext(transform as NormalizeContext<unknown>, value);
-  // }
-
   static of(context: CompleteContext): FinalizedContext {
     return new FinalizedContext(context);
   }
-
-  // readonly #value: unknown;
-  // readonly #actual: (unknown) => string;
-  // readonly #for: NormalizeContext<unknown>;
 
   #context: CompleteContext;
 

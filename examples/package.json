@@ -6,6 +6,7 @@
   },
   "dependencies": {
     "@starbeam/core": "workspace:*",
+    "@starbeam/reactive": "workspace:*",
     "@starbeam/dom": "workspace:*",
     "jsdom": "^19.0.0",
     "fast-array-diff": "^1.0.1"

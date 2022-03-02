@@ -1,11 +1,16 @@
 import type { minimal } from "@domtree/flavors";
+import { is, NonemptyList, OrderedIndex } from "@starbeam/core";
 import {
-  is,
-  NonemptyList,
-  OrderedIndex,
+  Composite,
   Reactive,
-  ReactiveMetadata,
-} from "@starbeam/core";
+  Static,
+  type ReactiveValue,
+} from "@starbeam/reactive";
+import {
+  REACTIVE,
+  type ReactiveInternals,
+  type ReactiveProtocol,
+} from "@starbeam/timeline";
 import { as, verified } from "@starbeam/verify";
 import type { DomEnvironment } from "../../dom.js";
 import type { ContentRange } from "../../dom/streaming/compatible-dom.js";
@@ -52,11 +57,6 @@ export class StaticLoop {
     this.#component = component;
   }
 
-  get metadata(): ReactiveMetadata {
-    // @ts-expect-error FIXME
-    return ReactiveMetadata.all(...this.#list);
-  }
-
   *[Symbol.iterator](): IterableIterator<KeyedProgramNode> {
     for (let item of this.#list) {
       yield KeyedProgramNode.component(this.#component, item, this.#key);
@@ -96,8 +96,8 @@ export class KeyedProgramNode extends ContentProgramNode {
     this.#node = node;
   }
 
-  get metadata(): ReactiveMetadata {
-    return this.#node.metadata;
+  get [REACTIVE](): ReactiveInternals {
+    return this.#node[REACTIVE];
   }
 
   render(buffer: ContentConstructor): RenderedContent {
@@ -150,19 +150,19 @@ export class CurrentLoop implements Iterable<KeyedProgramNode> {
 
 export class DynamicLoop {
   static create<P>(
-    iterable: Reactive<Iterable<P>>,
+    iterable: ReactiveValue<Iterable<P>>,
     component: Component<P>,
     key: Key<P>
   ): DynamicLoop {
     return new DynamicLoop(iterable, component as Component, key as AnyKey);
   }
 
-  readonly #iterable: Reactive<Iterable<unknown>>;
+  readonly #iterable: ReactiveValue<Iterable<unknown>>;
   readonly #component: Component;
   readonly #key: AnyKey;
 
   constructor(
-    iterable: Reactive<Iterable<unknown>>,
+    iterable: ReactiveValue<Iterable<unknown>>,
     component: Component,
     key: AnyKey
   ) {
@@ -171,13 +171,16 @@ export class DynamicLoop {
     this.#key = key;
   }
 
-  get(parameter: unknown): KeyedProgramNode {
-    return KeyedProgramNode.component(this.#component, parameter, this.#key);
+  get reactive(): ReactiveProtocol {
+    return this.#iterable;
   }
 
-  get metadata(): ReactiveMetadata {
-    // TODO: Track this over time
-    return ReactiveMetadata.Dynamic;
+  get internals(): ReactiveInternals {
+    return this.#iterable[REACTIVE];
+  }
+
+  get(parameter: unknown): KeyedProgramNode {
+    return KeyedProgramNode.component(this.#component, parameter, this.#key);
   }
 
   get current(): CurrentLoop {
@@ -197,11 +200,11 @@ export type Loop = StaticLoop | DynamicLoop;
 
 export const Loop = {
   from: <P>(
-    iterable: Reactive<Iterable<P>>,
+    iterable: ReactiveValue<Iterable<P>>,
     component: Component<P>,
     key: (input: P) => unknown
   ): Loop => {
-    if (iterable.isConstant()) {
+    if (Reactive.isConstant(iterable)) {
       return StaticLoop.create(iterable.current, component, key);
     } else {
       return DynamicLoop.create(iterable, component, key);
@@ -215,28 +218,34 @@ export const Loop = {
  */
 export class StaticListProgramNode extends ContentProgramNode {
   static of(loop: StaticLoop) {
-    return new StaticListProgramNode([...loop], loop);
+    return new StaticListProgramNode([...loop], loop, Composite("loop"));
   }
 
   readonly #components: readonly KeyedProgramNode[];
   readonly #loop: StaticLoop;
+  readonly #composite: Composite;
 
-  constructor(components: readonly KeyedProgramNode[], loop: StaticLoop) {
+  constructor(
+    components: readonly KeyedProgramNode[],
+    loop: StaticLoop,
+    composite: Composite
+  ) {
     super();
     this.#components = components;
     this.#loop = loop;
+    this.#composite = composite;
   }
 
-  get metadata(): ReactiveMetadata {
-    return this.#loop.metadata;
+  get [REACTIVE](): ReactiveInternals {
+    return this.#composite[REACTIVE];
   }
 
   render(buffer: TreeConstructor): RenderedContent {
-    let content: KeyedContent[] = [];
+    const content: KeyedContent[] = [];
     let isConstant = true;
 
-    for (let component of this.#components) {
-      let rendered = component.render(buffer);
+    for (const component of this.#components) {
+      const rendered = component.render(buffer);
 
       isConstant = isConstant && RenderedContent.isConstant(rendered);
       content.push(KeyedContent.create(component.key, rendered));
@@ -244,13 +253,14 @@ export class StaticListProgramNode extends ContentProgramNode {
 
     if (content.length === 0) {
       return RenderedCharacterData.create(
-        Reactive.from(""),
+        Static(""),
         buffer.comment("", TOKEN).dom
       );
     } else {
+      this.#composite.set(content.map((c) => c.content[REACTIVE]));
       return RenderedStaticList.create(
         RenderSnapshot.of(NonemptyList.verified(content)),
-        isConstant ? ReactiveMetadata.Constant : ReactiveMetadata.Dynamic
+        this.#composite
       );
     }
   }
@@ -261,18 +271,22 @@ export type ContentsIndex = OrderedIndex<unknown, KeyedContent>;
 export class RenderedStaticList extends RenderedContent {
   static create(
     artifacts: RenderSnapshot,
-    metadata: ReactiveMetadata
+    composite: Composite
   ): RenderedStaticList {
-    return new RenderedStaticList(artifacts, metadata);
+    return new RenderedStaticList(artifacts, composite);
   }
 
-  readonly metadata: ReactiveMetadata;
   readonly #artifacts: RenderSnapshot;
+  readonly #composite: Composite;
 
-  constructor(artifacts: RenderSnapshot, metadata: ReactiveMetadata) {
+  constructor(artifacts: RenderSnapshot, composite: Composite) {
     super();
     this.#artifacts = artifacts;
-    this.metadata = metadata;
+    this.#composite = composite;
+  }
+
+  get [REACTIVE](): ReactiveInternals {
+    return this.#composite[REACTIVE];
   }
 
   [RANGE_SNAPSHOT](parent: minimal.ParentNode): RangeSnapshot {
@@ -306,8 +320,8 @@ export class DynamicListProgramNode extends ContentProgramNode {
     this.#loop = loop;
   }
 
-  get metadata(): ReactiveMetadata {
-    return this.#loop.metadata;
+  get [REACTIVE](): ReactiveInternals {
+    return this.#loop.internals;
   }
 
   render(buffer: TreeConstructor): RenderedDynamicList {
@@ -321,12 +335,8 @@ export class DynamicListProgramNode extends ContentProgramNode {
 
     return RenderedDynamicList.create(
       this.#loop,
-      ListArtifacts.create(
-        ReactiveMetadata.Dynamic,
-        RenderSnapshot.from(contents)
-      ),
-      range.dom,
-      ReactiveMetadata.Dynamic
+      ListArtifacts.create(this.#loop.reactive, RenderSnapshot.from(contents)),
+      range.dom
     );
   }
 }
@@ -380,15 +390,9 @@ export class RenderedDynamicList extends RenderedContent {
   static create(
     loop: DynamicLoop,
     artifacts: ListArtifacts,
-    fragment: LazyDOM<ContentRange>,
-    metadata: ReactiveMetadata
+    fragment: LazyDOM<ContentRange>
   ): RenderedDynamicList {
-    return new RenderedDynamicList(
-      loop,
-      artifacts,
-      Fragment.of(fragment),
-      metadata
-    );
+    return new RenderedDynamicList(loop, artifacts, Fragment.of(fragment));
   }
 
   readonly #loop: DynamicLoop;
@@ -398,13 +402,16 @@ export class RenderedDynamicList extends RenderedContent {
   private constructor(
     loop: DynamicLoop,
     artifacts: ListArtifacts,
-    fragment: Fragment,
-    readonly metadata: ReactiveMetadata
+    fragment: Fragment
   ) {
     super();
     this.#loop = loop;
     this.#artifacts = artifacts;
     this.#fragment = fragment;
+  }
+
+  get [REACTIVE](): ReactiveInternals {
+    return this.#artifacts.reactive[REACTIVE];
   }
 
   [RANGE_SNAPSHOT](parent: minimal.ParentNode): RangeSnapshot {
