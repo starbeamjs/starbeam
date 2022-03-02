@@ -1,6 +1,9 @@
 import type { InferReturn } from "@starbeam/fundamental";
 import { expected, verify } from "@starbeam/verify";
-import { builtin } from "../reactive/builtins/reactive.js";
+import {
+  builtin,
+  type BuiltinDescription,
+} from "../reactive/builtins/reactive.js";
 import { ReactiveCell } from "../reactive/cell.js";
 import { ReactiveMemo } from "../reactive/memo.js";
 import { is } from "../strippable/minimal.js";
@@ -11,17 +14,21 @@ interface ReactiveDecorator {
   (target: object, key: symbol | string): void;
 }
 
-interface ReactiveFunction extends BuiltinFunction, ReactiveDecorator {}
+interface ReactiveFunction extends ReactiveDecorator, BuiltinFunction {}
 
 export const reactive: ReactiveFunction = (
   target: unknown,
-  key?: symbol | string
+  key?: symbol | string | BuiltinDescription,
+  descriptor?: object
 ): InferReturn => {
-  if (key === undefined) {
-    return builtin(target as Parameters<BuiltinFunction>[0]);
+  if (descriptor === undefined) {
+    return builtin(
+      target as Parameters<BuiltinFunction>[0],
+      key as Parameters<BuiltinFunction>[1]
+    );
   }
 
-  let cell = ReactiveCell.create<unknown>(
+  const cell = ReactiveCell.create<unknown>(
     undefined,
     `@reactive ${String(key)}`
   );
@@ -33,7 +40,7 @@ export const reactive: ReactiveFunction = (
       return cell.current;
     },
     set: function (value: unknown) {
-      cell.update(value);
+      cell.current = value;
     },
   };
 };
@@ -58,8 +65,8 @@ export const cached = <T>(
   const CACHED = new WeakMap();
 
   return {
-    enumerable,
-    configurable,
+    enumerable: true,
+    configurable: true,
 
     get: function () {
       let memo = CACHED.get(this);
