@@ -1,5 +1,5 @@
 import { LIFETIME } from "@starbeam/lifetime";
-import type { ReactiveValue } from "@starbeam/reactive";
+import type { Reactive } from "@starbeam/reactive";
 import {
   HookBlueprint,
   type HookConstructor,
@@ -7,16 +7,16 @@ import {
 } from "./hooks/simple.js";
 import type { FIXME } from "./utils.js";
 
-export type Hook<T = unknown> = ReactiveValue<T>;
+export type Hook<T = unknown> = Reactive<T>;
 
 export function Hook<C extends ResourceHookConstructor<unknown>>(
   callback: C,
   description: string
 ): C extends HookConstructor<infer T> ? HookBlueprint<T> : never;
-export function Hook<C extends () => ReactiveValue<unknown>>(
+export function Hook<C extends () => Reactive<unknown>>(
   callback: C,
   description: string
-): C extends () => ReactiveValue<infer T> ? HookBlueprint<T> : never;
+): C extends () => Reactive<infer T> ? HookBlueprint<T> : never;
 export function Hook<C extends ResourceHookConstructor<unknown>>(
   callback: C,
   description: string

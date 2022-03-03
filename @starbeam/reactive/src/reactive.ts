@@ -6,6 +6,7 @@ import {
   type ReactiveProtocol,
 } from "@starbeam/timeline";
 import { Enum } from "@starbeam/utils";
+import { exhaustive } from "@starbeam/verify";
 import { Static } from "./core/static.js";
 
 export interface ReactiveValue<T> extends ReactiveProtocol {
@@ -22,7 +23,7 @@ export class ReactiveDependencies extends Enum(
     return this.match({
       Constant: () => [],
       Derived: (dependencies) => dependencies,
-      Stable: (dependency) => [dependency],
+      Stable: (dependency) => (dependency.isFrozen() ? [] : [dependency]),
       Uninitialized: () => [],
     });
   }
@@ -71,6 +72,8 @@ export class ReactiveDependencies extends Enum(
 // export type ReactiveDependencies = Constant | Stable | Derived | Uninitialized;
 
 export type Reactive<T> = ReactiveValue<T>;
+
+export type IntoReactive<T> = Reactive<T> | T;
 
 export const Reactive = new (class {
   description(value: ReactiveProtocol): string {
@@ -128,6 +131,18 @@ export const Reactive = new (class {
           return ReactiveDependencies.Derived(dependencies);
         }
       }
+      case "composite": {
+        const dependencies = ReactiveInternals.currentDependencies(internals);
+
+        if (dependencies.length === 0) {
+          return ReactiveDependencies.Constant();
+        } else {
+          return ReactiveDependencies.Derived(dependencies);
+        }
+      }
+
+      default:
+        exhaustive(internals, "internals.type");
     }
   }
 
@@ -140,7 +155,7 @@ export const Reactive = new (class {
   }
 
   from<T>(
-    value: T | ReactiveValue<T>,
+    value: IntoReactive<T>,
     description = Abstraction.callerFrame()
   ): ReactiveValue<T> {
     if (Reactive.is(value)) {

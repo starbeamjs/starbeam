@@ -128,11 +128,14 @@ importers:
       shelljs: 0.8.5
       swc: 1.0.11
       ts-jest: 27.1.3_0eaba4f2b449436dc1022aae36b27399
-      ts-node: github.com/TypeStrong/ts-node/30f03e1439685c732e6323cb4dc2e6321fb18a7b_ab672d373febb315b34ecc75cb73f261
+      ts-node: github.com/TypeStrong/ts-node/20cbbf58565b028bfb123fade6114c7f67824d7d_ab672d373febb315b34ecc75cb73f261
       typescript: 4.7.0-dev.20220302
 
   '@starbeam/config':
-    specifiers: {}
+    specifiers:
+      '@starbeam/utils': workspace:*
+    dependencies:
+      '@starbeam/utils': link:../utils
 
   '@starbeam/core':
     specifiers:
@@ -237,15 +240,16 @@ importers:
       '@starbeam/reactive': link:../reactive
       '@starbeam/verify': link:../verify
       '@types/use-sync-external-store': 0.0.3
-      use-ssr: 1.0.24_48b96e611fa198e34e237cac382d8b7d
-      use-sync-external-store: 1.0.0-rc.1_48b96e611fa198e34e237cac382d8b7d
+      use-ssr: 1.0.24_6fab51020e0e684b073532e9778e7c47
+      use-sync-external-store: 1.0.0-rc.1_6fab51020e0e684b073532e9778e7c47
     devDependencies:
-      react: 18.0.0-rc.1-next-17806594c-20220301
+      react: 18.0.0-rc.1-next-f0dd459e0-20220301
       typescript: 4.5.5
 
   '@starbeam/reactive':
     specifiers:
       '@starbeam/debug': workspace:*
+      '@starbeam/fundamental': workspace:*
       '@starbeam/schedule': workspace:*
       '@starbeam/timeline': workspace:*
       '@starbeam/trace-internals': workspace:*
@@ -253,6 +257,7 @@ importers:
       '@starbeam/verify': workspace:*
     dependencies:
       '@starbeam/debug': link:../debug
+      '@starbeam/fundamental': link:../fundamental
       '@starbeam/schedule': link:../schedule
       '@starbeam/timeline': link:../timeline
       '@starbeam/trace-internals': link:../trace-internals
@@ -278,6 +283,7 @@ importers:
       '@starbeam/now': workspace:*
       '@starbeam/schedule': workspace:*
       '@starbeam/trace-internals': workspace:*
+      '@starbeam/utils': workspace:*
       '@starbeam/verify': workspace:*
       '@types/treeify': workspace:*
     dependencies:
@@ -286,6 +292,7 @@ importers:
       '@starbeam/now': link:../now
       '@starbeam/schedule': link:../schedule
       '@starbeam/trace-internals': link:../trace-internals
+      '@starbeam/utils': link:../utils
       '@starbeam/verify': link:../verify
     devDependencies:
       '@types/treeify': link:../../@types/treeify
@@ -404,7 +411,7 @@ importers:
       symbol-observable: 4.0.0
       zen-observable-ts: 0.8.21
     devDependencies:
-      typescript: 4.7.0-dev.20220301
+      typescript: 4.7.0-dev.20220302
 
   notes/examples:
     specifiers:
@@ -424,12 +431,14 @@ importers:
   tests:
     specifiers:
       '@jest/globals': ^27.4.6
+      '@starbeam/config': workspace:*
       '@starbeam/core': workspace:*
       '@starbeam/debug': workspace:*
       '@starbeam/dom': workspace:*
       '@starbeam/fundamental': workspace:*
       '@starbeam/reactive': workspace:*
       '@starbeam/timeline': workspace:*
+      '@starbeam/trace-internals': workspace:*
       '@starbeam/utils': workspace:*
       '@starbeam/verify': workspace:*
       '@types/lodash.zip': ^4.2.6
@@ -439,15 +448,17 @@ importers:
       lodash.zip: ^4.2.0
       typescript: next
     dependencies:
+      '@starbeam/config': link:../@starbeam/config
       '@starbeam/core': link:../@starbeam/core
       '@starbeam/debug': link:../@starbeam/debug
       '@starbeam/dom': link:../@starbeam/dom
       '@starbeam/fundamental': link:../@starbeam/fundamental
       '@starbeam/reactive': link:../@starbeam/reactive
       '@starbeam/timeline': link:../@starbeam/timeline
+      '@starbeam/trace-internals': link:../@starbeam/trace-internals
       '@starbeam/utils': link:../@starbeam/utils
       '@starbeam/verify': link:../@starbeam/verify
-      typescript: 4.7.0-dev.20220301
+      typescript: 4.7.0-dev.20220302
     devDependencies:
       '@jest/globals': 27.4.6
       '@types/lodash.zip': 4.2.6
@@ -4797,7 +4808,7 @@ packages:
       pretty-format: 27.5.1
       slash: 3.0.0
       strip-json-comments: 3.1.1
-      ts-node: github.com/TypeStrong/ts-node/30f03e1439685c732e6323cb4dc2e6321fb18a7b_ab672d373febb315b34ecc75cb73f261
+      ts-node: github.com/TypeStrong/ts-node/20cbbf58565b028bfb123fade6114c7f67824d7d_ab672d373febb315b34ecc75cb73f261
     transitivePeerDependencies:
       - bufferutil
       - canvas
@@ -5912,8 +5923,8 @@ packages:
       loose-envify: 1.4.0
     dev: false
 
-  /react/18.0.0-rc.1-next-17806594c-20220301:
-    resolution: {integrity: sha512-kewCQXidTzisUXjdSeZubATyy5YnKRsJzkdSHErkeSd08Nj/byzepzY+PnAG//kZjDi76va3w36in8//wkLWdQ==}
+  /react/18.0.0-rc.1-next-f0dd459e0-20220301:
+    resolution: {integrity: sha512-3QzXQcq+yg4M/9lDJzoYyXZNVjwyK47oFGCpK5KsOILPi4KKa/lSKtQWbeqWldRMgAWgii9OGZNvyNadDgzGMg==}
     engines: {node: '>=0.10.0'}
     dependencies:
       loose-envify: 1.4.0
@@ -6510,16 +6521,10 @@ packages:
     hasBin: true
     dev: true
 
-  /typescript/4.7.0-dev.20220301:
-    resolution: {integrity: sha512-5li8nRSiJvEFMjl/wsBpvVBExdqWfEWwWuqBV1nXOPHjvgje1AktJXy1pswgNyX6hdozs9oWMOGWQ9L0JNNKJg==}
-    engines: {node: '>=4.2.0'}
-    hasBin: true
-
   /typescript/4.7.0-dev.20220302:
     resolution: {integrity: sha512-v08QY17yLZ7ReaDeB/CXvUF/+Fu6xMFUdYMy3TcYIHP/yqTGTnQvdtlYAOQozZ1RTMOMv2L5TgZCWavkJaMUpg==}
     engines: {node: '>=4.2.0'}
     hasBin: true
-    dev: true
 
   /unbox-primitive/1.0.1:
     resolution: {integrity: sha512-tZU/3NqK3dA5gpE1KtyiJUrEB0lxnGkMFHptJ7q6ewdZ8s12QrODwNbhIJStmJkd1QDXa1NRA8aF2A1zk/Ypyw==}
@@ -6570,21 +6575,21 @@ packages:
       punycode: 2.1.1
     dev: true
 
-  /use-ssr/1.0.24_48b96e611fa198e34e237cac382d8b7d:
+  /use-ssr/1.0.24_6fab51020e0e684b073532e9778e7c47:
     resolution: {integrity: sha512-0MFps7ezL57/3o0yl4CvrHLlp9z20n1rQZV/lSRz7if+TUoM6POU1XdOvEjIgjgKeIhTEye1U0khrIYWCTWw4g==}
     peerDependencies:
       react: ^16.13.1 || ^17.0.0
       react-dom: ^16.13.1 || ^17.0.0
     dependencies:
-      react: 18.0.0-rc.1-next-17806594c-20220301
+      react: 18.0.0-rc.1-next-f0dd459e0-20220301
     dev: false
 
-  /use-sync-external-store/1.0.0-rc.1_48b96e611fa198e34e237cac382d8b7d:
+  /use-sync-external-store/1.0.0-rc.1_6fab51020e0e684b073532e9778e7c47:
     resolution: {integrity: sha512-APDF7xybh2qU96TsT8HTlD2b2+7qG458hY38ovm+IlTjK6TfckNsh3xdZfOBDMi7O3vJexioQ/K5ayJGC3q5Lw==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0-rc
     dependencies:
-      react: 18.0.0-rc.1-next-17806594c-20220301
+      react: 18.0.0-rc.1-next-f0dd459e0-20220301
     dev: false
 
   /util-deprecate/1.0.2:
@@ -6841,9 +6846,9 @@ packages:
     resolution: {integrity: sha512-PQ2PC7R9rslx84ndNBZB/Dkv8V8fZEpk83RLgXtYd0fwUgEjseMn1Dgajh2x6S8QbZAFa9p2qVCEuYZNgve0dQ==}
     dev: false
 
-  github.com/TypeStrong/ts-node/30f03e1439685c732e6323cb4dc2e6321fb18a7b_ab672d373febb315b34ecc75cb73f261:
-    resolution: {tarball: https://codeload.github.com/TypeStrong/ts-node/tar.gz/30f03e1439685c732e6323cb4dc2e6321fb18a7b}
-    id: github.com/TypeStrong/ts-node/30f03e1439685c732e6323cb4dc2e6321fb18a7b
+  github.com/TypeStrong/ts-node/20cbbf58565b028bfb123fade6114c7f67824d7d_ab672d373febb315b34ecc75cb73f261:
+    resolution: {tarball: https://codeload.github.com/TypeStrong/ts-node/tar.gz/20cbbf58565b028bfb123fade6114c7f67824d7d}
+    id: github.com/TypeStrong/ts-node/20cbbf58565b028bfb123fade6114c7f67824d7d
     name: ts-node
     version: 10.6.0
     hasBin: true

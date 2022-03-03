@@ -1,14 +1,9 @@
-import {
-  Cell,
-  Hook,
-  HookBlueprint,
-  HookValue,
-  lifetime,
-  LOGGER,
-  Memo,
-  Reactive,
-} from "@starbeam/core";
+import { config, Priority } from "@starbeam/config";
+import { Hook, HookBlueprint, HookValue, lifetime } from "@starbeam/core";
 import { tree } from "@starbeam/debug";
+import { Cell, Memo, Reactive } from "@starbeam/reactive";
+import { REACTIVE } from "@starbeam/timeline";
+import { LOGGER } from "@starbeam/trace-internals";
 import { value, when } from "../support/expect/expect.js";
 import { expect, test, toBe } from "../support/index.js";
 
@@ -49,16 +44,18 @@ class Subscription {
 }
 
 test("universe.hook.values", ({ universe }) => {
-  let user = Cell("@tomdale", "user");
-  let channel = Cell("chat.today", "channel name");
-  let tick = Cell(0, "tick");
+  config().set("DefaultPriority", Priority.Inline);
+
+  const user = Cell("@tomdale", "user");
+  const channel = Cell("chat.today", "channel name");
+  const tick = Cell(0, "tick");
 
   function Channel(
     channel: Reactive<string>,
     user: Reactive<string>
   ): HookBlueprint<string> {
     return Hook((hook) => {
-      let subscription = new Subscription(channel.current);
+      const subscription = new Subscription(channel.current);
 
       hook.onDestroy(() => subscription.destroy());
 
@@ -69,25 +66,31 @@ test("universe.hook.values", ({ universe }) => {
     }, "Channel");
   }
 
-  let RootHook = Hook((hook) => {
-    let description = hook.use(Channel(channel, user));
+  const RootHook = Hook((hook) => {
+    const description = hook.use(Channel(channel, user));
 
-    return Memo(
-      () => `[timestamp = ${tick.current}] ${description.current}`,
-      `annotated channel description`
-    );
+    return Memo(() => {
+      debugger;
+      description.current;
+
+      return `[timestamp = ${tick.current}] ${description.current}`;
+    }, `annotated channel description`);
   }, "RootHook");
 
-  let output = HookValue.create<string>();
+  const output = HookValue.create<string>();
 
   LOGGER.trace.log("\n> building hook");
-  let root = universe.use(RootHook, { into: output });
+  const root = universe.use(RootHook, { into: output });
+
+  const rootReactive = root[REACTIVE];
 
   LOGGER.trace.log("\n> initializing");
   root.initialize();
 
   LOGGER.trace.log("\n> polling");
   root.poll();
+
+  Reactive.getDependencies(root);
 
   LOGGER.trace.log("\n> reading output.current");
   expect(output.current, toBe("[timestamp = 0] chat.today for @tomdale"));

@@ -89,6 +89,7 @@ export class FinalizedFrame<T = unknown> implements IsUpdatedSince {
     return this.#children;
   }
 
+  // TODO: Merge with ReactiveInternals.currentDependencies
   get dependencies(): readonly MutableInternals[] {
     return [...this.#children].flatMap((child) =>
       FrameChild.isFrame(child) ? child.#leaves : child
@@ -96,9 +97,15 @@ export class FinalizedFrame<T = unknown> implements IsUpdatedSince {
   }
 
   get #leaves(): readonly MutableInternals[] {
-    return [...this.#children].flatMap((child) =>
-      child instanceof FinalizedFrame ? child.#leaves : [child]
-    );
+    return [...this.#children].flatMap((child) => {
+      if (child instanceof FinalizedFrame) {
+        return child.#leaves;
+      } else if (child.isFrozen()) {
+        return [];
+      } else {
+        return [child];
+      }
+    });
   }
 
   isUpdatedSince(timestamp: Timestamp): boolean {

@@ -1,11 +1,6 @@
 import type { minimal } from "@domtree/flavors";
 import { is, NonemptyList, OrderedIndex } from "@starbeam/core";
-import {
-  Composite,
-  Reactive,
-  Static,
-  type ReactiveValue,
-} from "@starbeam/reactive";
+import { Composite, Reactive, Static } from "@starbeam/reactive";
 import {
   REACTIVE,
   type ReactiveInternals,
@@ -150,19 +145,19 @@ export class CurrentLoop implements Iterable<KeyedProgramNode> {
 
 export class DynamicLoop {
   static create<P>(
-    iterable: ReactiveValue<Iterable<P>>,
+    iterable: Reactive<Iterable<P>>,
     component: Component<P>,
     key: Key<P>
   ): DynamicLoop {
     return new DynamicLoop(iterable, component as Component, key as AnyKey);
   }
 
-  readonly #iterable: ReactiveValue<Iterable<unknown>>;
+  readonly #iterable: Reactive<Iterable<unknown>>;
   readonly #component: Component;
   readonly #key: AnyKey;
 
   constructor(
-    iterable: ReactiveValue<Iterable<unknown>>,
+    iterable: Reactive<Iterable<unknown>>,
     component: Component,
     key: AnyKey
   ) {
@@ -200,7 +195,7 @@ export type Loop = StaticLoop | DynamicLoop;
 
 export const Loop = {
   from: <P>(
-    iterable: ReactiveValue<Iterable<P>>,
+    iterable: Reactive<Iterable<P>>,
     component: Component<P>,
     key: (input: P) => unknown
   ): Loop => {

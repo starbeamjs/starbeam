@@ -10,6 +10,7 @@ export {
   type FrameValidation,
 } from "./src/frames.js";
 export {
+  CompositeChild,
   ReactiveInternals,
   type CompositeInternals,
   type DerivedInternals,

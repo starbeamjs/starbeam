@@ -1,4 +1,5 @@
-import type { AnyIndex, InferReturn } from "./types.js";
+import { mapObject } from "@starbeam/utils";
+import type { InferReturn } from "./types.js";
 
 export type LogLevelName =
   | "trace"
@@ -123,13 +124,8 @@ export class ConfigEnvironment {
   config(): StarbeamEnv {
     let state = this.#delegate.getConfig();
 
-    return Object.fromEntries(
-      Object.entries(KEYS).map(
-        ([key, hint]: [AnyIndex, "string" | "number" | "boolean"]) => [
-          key,
-          this.#delegate.parse(state, { key, hint }),
-        ]
-      )
+    return mapObject(KEYS, (hint, key) =>
+      this.#delegate.parse(state, { key, hint })
     ) as InferReturn;
   }
 

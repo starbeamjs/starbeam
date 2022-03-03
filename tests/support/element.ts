@@ -5,6 +5,7 @@ import type {
   ReactiveElementBuilderCallback,
   Root,
 } from "@starbeam/dom";
+import { Reactive, type IntoReactive } from "@starbeam/reactive";
 import type { Expects } from "./expect/expect.js";
 
 interface ShorthandAttribute {

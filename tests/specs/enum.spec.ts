@@ -1,4 +1,4 @@
-import { Enum } from "@starbeam/core";
+import { Enum } from "@starbeam/utils";
 import { types } from "../support/expect/expect.js";
 import { expect, test, toBe } from "../support/index.js";
 

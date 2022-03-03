@@ -8,29 +8,19 @@
       "request": "launch",
       "trace": true,
       "console": "integratedTerminal",
+      "outputCapture": "std",
+      "smartStep": true,
+      "runtimeArgs": [],
       "internalConsoleOptions": "neverOpen",
       "disableOptimisticBPs": true,
       "sourceMaps": true,
-      "sourceMapPathOverrides": {
-        "starbeam://*": "${workspaceFolder}/*"
-      },
-      "sourceMapRenames": true,
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/@starbeam/*/index.ts",
-        "${workspaceFolder}/@starbeam/*/src/**/*.ts",
-        "${workspaceFolder}/tests/{specs,support}/**/*.ts"
-      ],
-      // "program": "${workspaceFolder}/bootstrap/dist/run-jest.js",
-      "cwd": "${workspaceFolder}",
+
       "args": [
         "--runInBand",
         "--watchAll=false",
         "--colors",
-        "--testNamePattern",
-        "--no-cache",
-        "${jest.testNamePattern}",
-        "--runTestsByPath",
-        "${jest.testFile}"
+        "--runTestsByPath=\"${jest.testFile}\"",
+        "--testNamePattern=\"${jest.testNamePattern}\""
       ],
       "env": {
         "STARBEAM_LOG": "trace",

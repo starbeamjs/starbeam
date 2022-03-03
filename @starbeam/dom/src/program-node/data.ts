@@ -1,6 +1,6 @@
 import type * as minimal from "@domtree/minimal";
 import { mutable } from "@starbeam/core";
-import type { ReactiveValue } from "@starbeam/reactive";
+import type { Reactive } from "@starbeam/reactive";
 import { REACTIVE, ReactiveInternals } from "@starbeam/timeline";
 import type { ContentBuffer } from "../dom/buffer/body.js";
 import { RangeSnapshot, RANGE_SNAPSHOT } from "../dom/streaming/cursor.js";
@@ -13,17 +13,17 @@ import type { ContentProgramNode } from "./content.js";
 import { RenderedContent } from "./interfaces/rendered-content.js";
 
 export abstract class CharacterDataProgramNode implements ContentProgramNode {
-  static text(reactive: ReactiveValue<string>): TextProgramNode {
+  static text(reactive: Reactive<string>): TextProgramNode {
     return TextProgramNode.of(reactive);
   }
 
-  static comment(reactive: ReactiveValue<string>): CommentProgramNode {
+  static comment(reactive: Reactive<string>): CommentProgramNode {
     return CommentProgramNode.of(reactive);
   }
 
-  readonly #reactive: ReactiveValue<string>;
+  readonly #reactive: Reactive<string>;
 
-  protected constructor(reactive: ReactiveValue<string>) {
+  protected constructor(reactive: Reactive<string>) {
     this.#reactive = reactive;
   }
 
@@ -43,7 +43,7 @@ export abstract class CharacterDataProgramNode implements ContentProgramNode {
 }
 
 export class TextProgramNode extends CharacterDataProgramNode {
-  static of(reactive: ReactiveValue<string>): TextProgramNode {
+  static of(reactive: Reactive<string>): TextProgramNode {
     return new TextProgramNode(reactive);
   }
 
@@ -53,7 +53,7 @@ export class TextProgramNode extends CharacterDataProgramNode {
 }
 
 export class CommentProgramNode extends CharacterDataProgramNode {
-  static of(reactive: ReactiveValue<string>): CommentProgramNode {
+  static of(reactive: Reactive<string>): CommentProgramNode {
     return new CommentProgramNode(reactive);
   }
 
@@ -67,17 +67,17 @@ export class CommentProgramNode extends CharacterDataProgramNode {
 
 export class RenderedCharacterData extends RenderedContent {
   static create(
-    reactive: ReactiveValue<string>,
+    reactive: Reactive<string>,
     node: LazyDOM<minimal.CharacterData>
   ) {
     return new RenderedCharacterData(reactive, node);
   }
 
-  #reactive: ReactiveValue<string>;
+  #reactive: Reactive<string>;
   #node: LazyDOM<minimal.CharacterData>;
 
   protected constructor(
-    reactive: ReactiveValue<string>,
+    reactive: Reactive<string>,
     node: LazyDOM<minimal.CharacterData>
   ) {
     super();

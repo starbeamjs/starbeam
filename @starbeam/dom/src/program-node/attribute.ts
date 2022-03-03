@@ -1,6 +1,6 @@
 import type * as minimal from "@domtree/minimal";
 import { AbstractProgramNode, type RenderedProgramNode } from "@starbeam/core";
-import type { ReactiveValue } from "@starbeam/reactive";
+import type { Reactive } from "@starbeam/reactive";
 import { REACTIVE, ReactiveInternals } from "@starbeam/timeline";
 import { DOM } from "../dom/streaming/compatible-dom.js";
 import { LazyDOM } from "../dom/streaming/token.js";
@@ -45,17 +45,17 @@ export class RenderedAttribute
 {
   static create(
     attribute: LazyDOM<minimal.Attr>,
-    value: ReactiveValue<string | null>
+    value: Reactive<string | null>
   ) {
     return new RenderedAttribute(attribute, value);
   }
 
   readonly #attribute: LazyDOM<minimal.Attr>;
-  readonly #value: ReactiveValue<string | null>;
+  readonly #value: Reactive<string | null>;
 
   private constructor(
     attribute: LazyDOM<minimal.Attr>,
-    value: ReactiveValue<string | null>
+    value: Reactive<string | null>
   ) {
     this.#attribute = attribute;
     this.#value = value;

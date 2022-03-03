@@ -1,6 +1,6 @@
 import { assert } from "@starbeam/debug";
 import type { AnyKey } from "@starbeam/fundamental";
-import { Reactive, type ReactiveValue } from "@starbeam/reactive";
+import { Reactive } from "@starbeam/reactive";
 import { REACTIVE, ReactiveInternals, UNINITIALIZED } from "@starbeam/timeline";
 import { LOGGER } from "@starbeam/trace-internals";
 import { LIFETIME } from "../core/lifetime.js";
@@ -59,9 +59,9 @@ export class HookProgramNode<T> extends AbstractProgramNode<
   }
 
   readonly #universe: Root;
-  readonly #hook: ReactiveValue<Hook>;
+  readonly #hook: Reactive<Hook>;
 
-  private constructor(universe: Root, hook: ReactiveValue<Hook<T>>) {
+  private constructor(universe: Root, hook: Reactive<Hook<T>>) {
     super();
     this.#universe = universe;
     this.#hook = hook;
@@ -77,17 +77,14 @@ export class HookProgramNode<T> extends AbstractProgramNode<
 }
 
 export class RenderedHook<T> implements RenderedProgramNode<HookValue> {
-  static create<T>(
-    universe: Root,
-    hook: ReactiveValue<Hook<T>>
-  ): RenderedHook<T> {
+  static create<T>(universe: Root, hook: Reactive<Hook<T>>): RenderedHook<T> {
     return new RenderedHook(universe, hook);
   }
 
-  readonly #hook: ReactiveValue<Hook<T>>;
+  readonly #hook: Reactive<Hook<T>>;
   readonly #root: Root;
 
-  private constructor(universe: Root, hook: ReactiveValue<Hook<T>>) {
+  private constructor(universe: Root, hook: Reactive<Hook<T>>) {
     this.#root = universe;
     this.#hook = hook;
   }

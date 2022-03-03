@@ -4,10 +4,10 @@ import { Dynamism } from "../support/expect/expect.js";
 import { expect, Expects, test, toBe } from "../support/index.js";
 
 test("universe.memo", () => {
-  let name = Cell("Tom");
+  const name = Cell("Tom");
   let counter = 0;
 
-  let nameMemo = Memo(() => {
+  const nameMemo = Memo(() => {
     counter++;
     return name.current;
   });
@@ -24,29 +24,34 @@ test("universe.memo", () => {
   expect(counter, toBe(2));
 });
 
-test("nested universe.memo", ({ universe }) => {
-  let { firstName, fullName } = testName(universe, "Tom", "Dale");
+test("nested.universe.memo", ({ universe }) => {
+  const { firstName, fullName, counters } = testName(universe, "Tom", "Dale");
 
   expect(fullName.current, toBe("Tom Dale"));
 
-  firstName.current = "Thomas";
+  expect(counters.firstName.count, toBe(1));
+  expect(counters.lastName.count, toBe(1));
+  expect(counters.fullName.count, toBe(1));
 
+  firstName.current = "Thomas";
   expect(fullName.current, toBe("Thomas Dale"));
+
+  expect(counters.firstName.count, toBe(2));
+  expect(counters.lastName.count, toBe(1));
+  expect(counters.fullName.count, toBe(2));
 });
 
 test("universe.memo => text", ({ universe, test }) => {
-  let { firstName, fullName } = testName(universe, "Tom", "Dale");
+  const { firstName, fullName } = testName(universe, "Tom", "Dale");
 
-  let text = test.buildText(fullName, Dynamism.Dynamic());
-  let result = test.render(text, Expects.dynamic.html("Tom Dale"));
+  const text = test.buildText(fullName, Dynamism.Dynamic());
+  const result = test.render(text, Expects.dynamic.html("Tom Dale"));
 
   result.update([firstName, "Thomas"], Expects.html("Thomas Dale"));
 });
 
-test("universe.memo becomes constant if the underlying cell is frozen", ({
-  universe,
-  test,
-}) => {
+// becomes constant if the underlying cell is frozen
+test("universe.memo.frozen-cell", ({ universe, test }) => {
   let { firstName, lastName, fullName } = testName(universe, "Tom", "Dale");
 
   test
@@ -61,19 +66,47 @@ test("universe.memo becomes constant if the underlying cell is frozen", ({
     }, Expects.constant.html("Thomas Dale"));
 });
 
-function testName(universe: Root, first: string, last: string) {
-  let firstName = Cell(first);
-  let lastName = Cell(last);
+function testName(
+  universe: Root,
+  first: string,
+  last: string
+): {
+  readonly firstName: Cell<string>;
+  readonly lastName: Cell<string>;
+  readonly fullName: Memo<string>;
+  readonly counters: {
+    readonly firstName: { readonly count: number };
+    readonly lastName: { readonly count: number };
+    readonly fullName: { readonly count: number };
+  };
+} {
+  const firstName = Cell(first);
+  const lastName = Cell(last);
 
-  let firstNameMemo = Memo(() => {
+  const firstNameCounter = {
+    count: 0,
+  };
+
+  const lastNameCounter = {
+    count: 0,
+  };
+
+  const fullNameCounter = {
+    count: 0,
+  };
+
+  const firstNameMemo = Memo(() => {
+    firstNameCounter.count++;
     return firstName.current;
   });
 
-  let lastNameMemo = Memo(() => {
+  const lastNameMemo = Memo(() => {
+    lastNameCounter.count++;
     return lastName.current;
   });
 
-  let fullNameMemo = Memo(() => {
+  const fullNameMemo = Memo(() => {
+    fullNameCounter.count++;
     return `${firstNameMemo.current} ${lastNameMemo.current}`;
   });
 
@@ -81,5 +114,10 @@ function testName(universe: Root, first: string, last: string) {
     firstName,
     lastName,
     fullName: fullNameMemo,
+    counters: {
+      firstName: firstNameCounter,
+      lastName: lastNameCounter,
+      fullName: fullNameCounter,
+    },
   };
 }

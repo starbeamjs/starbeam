@@ -1,12 +1,12 @@
 import { Abstraction } from "@starbeam/debug";
-import { Memo, type ReactiveValue } from "@starbeam/reactive";
+import { Memo, type Reactive } from "@starbeam/reactive";
 import type { Enumeration, MatcherFor } from "@starbeam/utils";
 
 export function match<E extends Enumeration, U>(
-  enumeration: ReactiveValue<E>,
+  enumeration: Reactive<E>,
   matcher: MatcherFor<E, U>,
   description = Abstraction.callerFrame()
-): ReactiveValue<U> {
+): Reactive<U> {
   return Memo(() => {
     return enumeration.current.match(matcher);
   }, description);

@@ -1,11 +1,6 @@
 import type * as minimal from "@domtree/minimal";
 import { NonemptyList } from "@starbeam/core";
-import {
-  Composite,
-  Reactive,
-  Static,
-  type ReactiveValue,
-} from "@starbeam/reactive";
+import { Composite, Reactive, Static } from "@starbeam/reactive";
 import { REACTIVE, ReactiveInternals } from "@starbeam/timeline";
 import type { ElementBody } from "../dom/buffer/body.js";
 import { RangeSnapshot, RANGE_SNAPSHOT } from "../dom/streaming/cursor.js";
@@ -23,16 +18,16 @@ import { RenderedContent } from "./interfaces/rendered-content.js";
 
 export class ElementProgramNode extends ContentProgramNode {
   static create(
-    tagName: ReactiveValue<string>,
+    tagName: Reactive<string>,
     buildAttributes: readonly BuildAttribute[],
     content: readonly ContentProgramNode[]
   ): ElementProgramNode {
     let attributes = buildAttributes.map(AttributeProgramNode.create);
 
-    const composite = Composite(`ElementProgramNode`).set([
-      ...attributes.map(ReactiveInternals.get),
-      ...content.map(ReactiveInternals.get),
-    ]);
+    const composite = Composite.from(
+      [...attributes, ...content],
+      `ElementProgramNode`
+    );
 
     // A static element may still need to be moved
     return new ElementProgramNode(
@@ -43,13 +38,13 @@ export class ElementProgramNode extends ContentProgramNode {
     );
   }
 
-  readonly #tagName: ReactiveValue<string>;
+  readonly #tagName: Reactive<string>;
   readonly #attributes: readonly AttributeProgramNode[];
   readonly #children: FragmentProgramNode;
   readonly #composite: Composite;
 
   private constructor(
-    tagName: ReactiveValue<string>,
+    tagName: Reactive<string>,
     attributes: readonly AttributeProgramNode[],
     children: FragmentProgramNode,
     composite: Composite
@@ -84,21 +79,21 @@ export interface FinalizedElement {
 
 class DehydratedElementBuilder {
   static create(
-    tag: ReactiveValue<string>,
+    tag: Reactive<string>,
     head: ElementHeadConstructor,
     composite: Composite
   ): DehydratedElementBuilder {
     return new DehydratedElementBuilder(tag, head, composite, [], null);
   }
 
-  readonly #tag: ReactiveValue<string>;
+  readonly #tag: Reactive<string>;
   readonly #head: ElementHeadConstructor;
   readonly #composite: Composite;
   readonly #attributes: RenderedAttribute[];
   #content: RenderedFragmentNode | null;
 
   private constructor(
-    tag: ReactiveValue<string>,
+    tag: Reactive<string>,
     head: ElementHeadConstructor,
     composite: Composite,
     attributes: RenderedAttribute[],
@@ -163,7 +158,7 @@ class DehydratedElementBuilder {
 export class RenderedElementNode extends RenderedContent {
   static create(
     node: LazyDOM<minimal.Element>,
-    tagName: ReactiveValue<string>,
+    tagName: Reactive<string>,
     composite: Composite,
     attributes: readonly RenderedAttribute[],
     children: RenderedFragmentNode | null
@@ -178,14 +173,14 @@ export class RenderedElementNode extends RenderedContent {
   }
 
   readonly #element: LazyDOM<minimal.Element>;
-  readonly #tagName: ReactiveValue<string>;
+  readonly #tagName: Reactive<string>;
   readonly #composite: Composite;
   #attributes: readonly RenderedAttribute[];
   #children: RenderedFragmentNode | null;
 
   private constructor(
     node: LazyDOM<minimal.Element>,
-    tagName: ReactiveValue<string>,
+    tagName: Reactive<string>,
     composite: Composite,
     attributes: readonly RenderedAttribute[],
     children: RenderedFragmentNode | null
@@ -258,7 +253,7 @@ export type AttributeName<
 
 export interface BuildAttribute {
   name: AttributeName;
-  value: ReactiveValue<string | null>;
+  value: Reactive<string | null>;
 }
 
 export type ReactiveElementBuilderCallback = (
@@ -267,7 +262,7 @@ export type ReactiveElementBuilderCallback = (
 
 export class ElementProgramNodeBuilder {
   static build(
-    tagName: ReactiveValue<string>,
+    tagName: Reactive<string>,
     build: (builder: ElementProgramNodeBuilder) => void
   ): ElementProgramNode {
     let builder = new ElementProgramNodeBuilder(tagName);
@@ -275,11 +270,11 @@ export class ElementProgramNodeBuilder {
     return builder.finalize();
   }
 
-  readonly #tagName: ReactiveValue<string>;
+  readonly #tagName: Reactive<string>;
   readonly #children: ContentProgramNode[] = [];
   readonly #attributes: BuildAttribute[] = [];
 
-  constructor(tagName: ReactiveValue<string>) {
+  constructor(tagName: Reactive<string>) {
     this.#tagName = tagName;
   }
 

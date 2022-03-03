@@ -22,8 +22,7 @@
     "isolatedModules": true,
     "preserveValueImports": true,
     "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-    "preserveSymlinks": true
+    "skipDefaultLibCheck": true
   },
   "include": [
     "@starbeam/*/index.ts",

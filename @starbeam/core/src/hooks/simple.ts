@@ -1,14 +1,12 @@
 import { LIFETIME, type IntoFinalizer } from "@starbeam/lifetime";
-import { impl, Memo, type ReactiveValue } from "@starbeam/reactive";
+import { impl, Memo, type Reactive } from "@starbeam/reactive";
 import { REACTIVE, ReactiveInternals } from "@starbeam/timeline";
 import { LOGGER } from "@starbeam/trace-internals";
 import { expected, verified } from "@starbeam/verify";
 import { is } from "../strippable/minimal.js";
 
-export type ResourceHookConstructor<T> = (
-  hook: SimpleHook<T>
-) => ReactiveValue<T>;
-export type DataHookConstructor<T> = () => ReactiveValue<T>;
+export type ResourceHookConstructor<T> = (hook: SimpleHook<T>) => Reactive<T>;
+export type DataHookConstructor<T> = () => Reactive<T>;
 
 export type HookConstructor<T> =
   | ResourceHookConstructor<T>
@@ -31,8 +29,8 @@ export class HookBlueprint<T> {
     readonly description: string
   ) {}
 
-  asData(): ReactiveValue<T> {
-    let hook = SimpleHook.construct(this);
+  asData(): Reactive<T> {
+    const hook = SimpleHook.construct(this);
 
     // however, we need to *avoid* adding the dependencies of the hook's
     // returned reactive to the parent hook constructor *or* this hook
@@ -44,19 +42,17 @@ export class HookBlueprint<T> {
   }
 }
 
-export class SimpleHook<T> implements ReactiveValue<T> {
+export class SimpleHook<T> implements Reactive<T> {
   static #ids = 0;
 
   static create<T>(
-    reactive: ReactiveValue<T> | null,
+    reactive: Reactive<T> | null,
     description: string
   ): SimpleHook<T> {
     return new SimpleHook(reactive, false, description);
   }
 
-  static construct<T>(
-    blueprint: HookBlueprint<T>
-  ): ReactiveValue<ReactiveValue<T>> {
+  static construct<T>(blueprint: HookBlueprint<T>): Reactive<Reactive<T>> {
     let last: SimpleHook<T> | null = null;
 
     // Return a memo that will always return a hook. If the memo invalidates, it
@@ -84,11 +80,11 @@ export class SimpleHook<T> implements ReactiveValue<T> {
 
   readonly #description: string;
   readonly #id: number;
-  #reactive: ReactiveValue<T> | null;
+  #reactive: Reactive<T> | null;
   #isResource: boolean;
 
   private constructor(
-    reactive: ReactiveValue<T> | null,
+    reactive: Reactive<T> | null,
     isResource: boolean,
     description: string
   ) {
@@ -120,7 +116,7 @@ export class SimpleHook<T> implements ReactiveValue<T> {
     LIFETIME.on.finalize(this, finalizer);
   }
 
-  use<T>(blueprint: HookBlueprint<T>): ReactiveValue<T> {
+  use<T>(blueprint: HookBlueprint<T>): Reactive<T> {
     let hook = SimpleHook.construct(blueprint);
 
     // however, we need to *avoid* adding the dependencies of the hook's

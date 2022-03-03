@@ -14,7 +14,7 @@ import {
   type FragmentProgramNode,
   type TextProgramNode,
 } from "@starbeam/dom";
-import type { Cell, ReactiveValue } from "@starbeam/reactive";
+import type { Cell, Reactive } from "@starbeam/reactive";
 import { verify } from "@starbeam/verify";
 import { JSDOM } from "jsdom";
 import {
@@ -36,7 +36,7 @@ export function test(
   name: string,
   test: (args: TestArgs) => void | Promise<void>
 ): void {
-  jest.test.concurrent(name, () => {
+  jest.test(name, () => {
     let support = TestSupport.create();
 
     return test({
@@ -141,7 +141,7 @@ export class TestSupport {
   }
 
   buildText(
-    reactive: ReactiveValue<string>,
+    reactive: Reactive<string>,
     expectation: Dynamism
   ): TextProgramNode {
     let text = this.universe.dom.text(reactive);
@@ -152,7 +152,7 @@ export class TestSupport {
   }
 
   buildComment(
-    reactive: ReactiveValue<string>,
+    reactive: Reactive<string>,
     expectation: Dynamism
   ): CommentProgramNode {
     let comment = this.universe.dom.comment(reactive);

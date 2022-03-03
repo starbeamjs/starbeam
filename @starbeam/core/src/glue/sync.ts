@@ -1,7 +1,7 @@
 import { Abstraction, assert, DisplayStruct } from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/fundamental";
 import { LIFETIME } from "@starbeam/lifetime";
-import { Reactive, type ReactiveValue } from "@starbeam/reactive";
+import { Reactive } from "@starbeam/reactive";
 import { REACTIVE, TIMELINE, type MutableInternals } from "@starbeam/timeline";
 import { LOGGER } from "@starbeam/trace-internals";
 import { Enum } from "@starbeam/utils";
@@ -68,7 +68,7 @@ function initialize<S extends ReactiveSubscription>(subscription: S): S {
  *   no further notifications will occur.
  */
 export function subscribe<T>(
-  reactive: ReactiveValue<T>,
+  reactive: Reactive<T>,
   ready: (subscription: ReactiveSubscription<T>) => void,
   description = `subscriber (to ${
     reactive[REACTIVE]
@@ -163,7 +163,7 @@ class ConstantSubscription<T> implements ReactiveSubscription<T> {
 
 class AnyReactiveSubscription<T> implements ReactiveSubscription<T> {
   static create<T>(
-    reactive: ReactiveValue<T>,
+    reactive: Reactive<T>,
     ready: (subscription: ReactiveSubscription<T>) => void,
     description: string
   ): AnyReactiveSubscription<T> {
@@ -183,14 +183,14 @@ class AnyReactiveSubscription<T> implements ReactiveSubscription<T> {
   }
 
   #last: T | UNINITIALIZED;
-  readonly #reactive: ReactiveValue<T>;
+  readonly #reactive: Reactive<T>;
   readonly #storages: Map<MutableInternals, () => void>;
   readonly #notify: () => void;
   readonly #description: string;
 
   private constructor(
     last: T | UNINITIALIZED,
-    reactive: ReactiveValue<T>,
+    reactive: Reactive<T>,
     storages: Map<MutableInternals, () => void>,
     notify: () => void,
     description: string
@@ -220,7 +220,7 @@ class AnyReactiveSubscription<T> implements ReactiveSubscription<T> {
       `A reactive's cells should not be uninitialized once its value was consumed`
     );
 
-    this.#sync(new Set(newDeps.dependencies));
+    this.#synchronize(new Set(newDeps.dependencies));
 
     if (last === UNINITIALIZED) {
       this.#last = newValue;
@@ -239,8 +239,8 @@ class AnyReactiveSubscription<T> implements ReactiveSubscription<T> {
     }
   };
 
-  #sync(newCells: Set<MutableInternals>): void {
-    for (let [cell, teardown] of this.#storages) {
+  #synchronize(newCells: Set<MutableInternals>): void {
+    for (const [cell, teardown] of this.#storages) {
       if (!newCells.has(cell)) {
         LOGGER.trace.log(
           `tearing down (${this.#description}) cell`,
@@ -252,7 +252,7 @@ class AnyReactiveSubscription<T> implements ReactiveSubscription<T> {
       }
     }
 
-    for (let cell of newCells) {
+    for (const cell of newCells) {
       if (!this.#storages.has(cell)) {
         LOGGER.trace.log(
           `setting up (${this.#description}) cell`,

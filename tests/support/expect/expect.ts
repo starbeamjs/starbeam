@@ -321,7 +321,7 @@ function expectPattern<In, Out extends In>(...args: ExpectArgs<In, Out>): void {
     );
   } else {
     let [actual, pattern] = args;
-    Abstraction.not(
+    Abstraction.throws(
       () =>
         new Expectations(new JestReporter()).expect(
           Described.from(actual),

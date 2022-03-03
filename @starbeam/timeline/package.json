@@ -7,7 +7,7 @@
     ".": {
       "types": "./index.js",
       "import": {
-        "node": "./index.ts",
+        "node": "./index.js",
         "default": "./dist/index.js"
       }
     }
@@ -18,7 +18,8 @@
     "@starbeam/trace-internals": "workspace:*",
     "@starbeam/schedule": "workspace:*",
     "@starbeam/now": "workspace:*",
-    "@starbeam/config": "workspace:*"
+    "@starbeam/config": "workspace:*",
+    "@starbeam/utils": "workspace:*"
   },
   "devDependencies": {
     "@types/treeify": "workspace:*"

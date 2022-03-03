@@ -1,13 +1,13 @@
-import type { ReactiveValue } from "@starbeam/reactive";
+import type { Reactive } from "@starbeam/reactive";
 import {
   REACTIVE,
   type ReactiveInternals,
-  type ReactiveProtocol
+  type ReactiveProtocol,
 } from "@starbeam/timeline";
 
-export type OutputBuilder<In, Out> = (input: ReactiveValue<In>) => Out;
+export type OutputBuilder<In, Out> = (input: Reactive<In>) => Out;
 
-export interface RenderedProgramNode<Container> extends ReactiveProtocol{
+export interface RenderedProgramNode<Container> extends ReactiveProtocol {
   initialize(inside: Container): void;
   poll(inside: Container): void;
 }

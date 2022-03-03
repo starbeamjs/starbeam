@@ -85,37 +85,37 @@ export class TrackedMap<K = unknown, V = unknown> implements Map<K, V> {
 
   // **** ALL GETTERS ****
   entries(): IterableIterator<[K, V]> {
-    mark(this.#marker);
+    consume(this.#marker);
 
     return this.#vals.entries();
   }
 
   keys(): IterableIterator<K> {
-    mark(this.#marker);
+    consume(this.#marker);
 
     return this.#vals.keys();
   }
 
   values(): IterableIterator<V> {
-    mark(this.#marker);
+    consume(this.#marker);
 
     return this.#vals.values();
   }
 
   forEach(fn: (value: V, key: K, map: Map<K, V>) => void): void {
-    mark(this.#marker);
+    consume(this.#marker);
 
     this.#vals.forEach(fn);
   }
 
   get size(): number {
-    mark(this.#marker);
+    consume(this.#marker);
 
     return this.#vals.size;
   }
 
   [Symbol.iterator](): IterableIterator<[K, V]> {
-    mark(this.#marker);
+    consume(this.#marker);
 
     return this.#vals[Symbol.iterator]();
   }
@@ -126,7 +126,7 @@ export class TrackedMap<K = unknown, V = unknown> implements Map<K, V> {
 
   // **** KEY SETTERS ****
   set(key: K, value: V): this {
-    let tx = COORDINATOR.begin(`Map.set(${key})`);
+    const tx = COORDINATOR.begin(`Map.set(${key})`);
 
     this.#dirtyStorageFor(key);
     mark(this.#marker);

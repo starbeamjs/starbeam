@@ -18,6 +18,7 @@
     "@starbeam/schedule": "workspace:*",
     "@starbeam/debug": "workspace:*",
     "@starbeam/trace-internals": "workspace:*",
-    "@starbeam/utils": "workspace:*"
+    "@starbeam/utils": "workspace:*",
+    "@starbeam/fundamental": "workspace:*"
   }
 }

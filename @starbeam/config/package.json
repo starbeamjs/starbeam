@@ -1,7 +1,18 @@
 {
   "name": "@starbeam/config",
+  "version": "0.5.0",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "index.ts",
-  "version": "0.5.0"
+  "main": "index.ts",
+  "exports": {
+    ".": {
+      "types": "./index.js",
+      "import": {
+        "node": "./index.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "dependencies": {
+    "@starbeam/utils": "workspace:*"
+  }
 }

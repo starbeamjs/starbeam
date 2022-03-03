@@ -1,5 +1,8 @@
-
-import { REACTIVE, ReactiveInternals, type ReactiveProtocol } from "@starbeam/timeline";
+import {
+  REACTIVE,
+  ReactiveInternals,
+  type ReactiveProtocol,
+} from "@starbeam/timeline";
 import { LOGGER } from "@starbeam/trace-internals";
 import type { RenderedProgramNode } from "../program-node/program-node.js";
 
@@ -25,9 +28,16 @@ export class RenderedRoot<Container> implements ReactiveProtocol {
     this.#container = container;
   }
 
- get [REACTIVE](): ReactiveInternals {
-    return ReactiveInternals.get(this.#rendered)
- }
+  get debug() {
+    return {
+      rendered: this.#rendered,
+      container: this.#container,
+    };
+  }
+
+  get [REACTIVE](): ReactiveInternals {
+    return ReactiveInternals.get(this.#rendered);
+  }
 
   /**
    * Eagerly exchange all tokens for their DOM representations. This is

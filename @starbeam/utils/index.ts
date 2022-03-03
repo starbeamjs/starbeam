@@ -12,3 +12,4 @@ export {
   type Matchers,
   type Variant,
 } from "./src/enumeration.js";
+export { mapObject } from "./src/object.js";

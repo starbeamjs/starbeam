@@ -1,6 +1,6 @@
 import { Abstraction } from "@starbeam/debug";
 import type { AnyRecord } from "@starbeam/fundamental";
-import { Cell, Memo, type ReactiveValue } from "@starbeam/reactive";
+import { Cell, Memo, type Reactive } from "@starbeam/reactive";
 import type { FIXME } from "../../utils.js";
 import { TrackedArray } from "./array.js";
 import { TrackedMap, TrackedWeakMap } from "./map.js";
@@ -56,7 +56,7 @@ type BuiltinConstructor =  // the Map constructor is coerced into an instance of
 
 type CoercibleIntoReactive =
   // A Reactive can, of course, be coerced into a Reactive
-  | ReactiveValue<unknown>
+  | Reactive<unknown>
   // A zero-arity function is coerced into a memo
   | (() => unknown)
   | unknown[]
@@ -76,18 +76,17 @@ type CoerceBuiltin<B extends BuiltinConstructor> = B extends typeof Map
   ? ConstructBuiltin<typeof WeakSet>
   : never;
 
-type CoerceReactive<R extends CoercibleIntoReactive> =
-  R extends ReactiveValue<any>
-    ? R
-    : R extends (infer T)[]
-    ? T[]
-    : R extends () => infer T
-    ? ReactiveValue<T>
-    : R extends BuiltinConstructor
-    ? CoerceBuiltin<R>
-    : R extends CoercibleIntoReactiveObject
-    ? CoerceReactiveObject<R>
-    : never;
+type CoerceReactive<R extends CoercibleIntoReactive> = R extends Reactive<any>
+  ? R
+  : R extends (infer T)[]
+  ? T[]
+  : R extends () => infer T
+  ? Reactive<T>
+  : R extends BuiltinConstructor
+  ? CoerceBuiltin<R>
+  : R extends CoercibleIntoReactiveObject
+  ? CoerceReactiveObject<R>
+  : never;
 
 export interface BuiltinDescription {
   readonly as: string;
@@ -113,7 +112,7 @@ export function builtin<V extends object>(
 export function builtin<M extends () => any>(
   callback: M,
   description?: BuiltinDescription
-): M extends () => infer T ? ReactiveValue<T> : never;
+): M extends () => infer T ? Reactive<T> : never;
 export function builtin<T extends Primitive>(
   value: T,
   description?: BuiltinDescription

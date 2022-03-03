@@ -1,13 +1,13 @@
-import { CONFIG, Priority } from "@starbeam/config";
+import { config, Priority } from "@starbeam/config";
 import { Coordinator, COORDINATOR, Work } from "@starbeam/schedule";
 import { LOGGER } from "@starbeam/trace-internals";
-import type { MutableInternals } from "./internals.js";
 import {
   ActiveFrame,
   AssertFrame,
   FrameChild,
   type FinalizedFrame,
 } from "./frames.js";
+import type { MutableInternals } from "./internals.js";
 import { Timestamp } from "./timestamp.js";
 
 export class Timeline {
@@ -98,7 +98,7 @@ export class Timeline {
     for (let notification of notifications) {
       this.#coordinator.enqueue(
         Work.create(
-          CONFIG.get("DefaultPriority") ?? Priority.BeforeLayout,
+          config().get("DefaultPriority") ?? Priority.BeforeLayout,
           notification
         )
       );
@@ -145,15 +145,19 @@ export class Timeline {
     callback: () => T,
     description: string
   ): { readonly frame: FinalizedFrame<T>; readonly value: T } {
-    let currentFrame = this.#frame;
+    const currentFrame = this.#frame;
 
     try {
       this.#frame = ActiveFrame.create(description);
-      let result = callback();
+      const result = callback();
 
-      return this.#frame.finalize(result, this.#now);
-    } finally {
+      const newFrame = this.#frame.finalize(result, this.#now);
       this.#frame = currentFrame;
+      this.didConsume(newFrame.frame);
+      return newFrame;
+    } catch (e) {
+      this.#frame = currentFrame;
+      throw e;
     }
   }
 }

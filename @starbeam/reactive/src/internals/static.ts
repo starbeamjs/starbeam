@@ -1,8 +1,7 @@
-import {
-  LEAF,
+import type {
+  ReactiveInternals,
+  StaticInternals,
   Timestamp,
-  type ReactiveInternals,
-  type StaticInternals,
 } from "@starbeam/timeline";
 
 export class StaticInternalsImpl implements ReactiveInternals {
@@ -20,10 +19,6 @@ export class StaticInternalsImpl implements ReactiveInternals {
   /** impl ReactiveInternals */
   get description(): string {
     return this.#description;
-  }
-
-  dependencies(): LEAF {
-    return LEAF;
   }
 
   isUpdatedSince(timestamp: Timestamp): boolean {

@@ -12,7 +12,7 @@ export class FragmentProgramNode implements ContentProgramNode {
   static of(children: NonemptyList<ContentProgramNode>): FragmentProgramNode {
     return new FragmentProgramNode(
       children,
-      Composite("Fragment").set(children.asArray().map(ReactiveInternals.get))
+      Composite.from(children, "Fragment")
     );
   }
 

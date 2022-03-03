@@ -11,20 +11,20 @@ import { MutableInternalsImpl } from "../internals/mutable.js";
 import type { ReactiveValue } from "../reactive.js";
 
 export class ReactiveCell<T> implements ReactiveValue<T> {
-  static create<T>(value: T, bookkeeping: MutableInternals): ReactiveCell<T> {
-    return new ReactiveCell(value, bookkeeping);
+  static create<T>(value: T, internals: MutableInternals): ReactiveCell<T> {
+    return new ReactiveCell(value, internals);
   }
 
   #value: T;
-  readonly #bookkeeping: MutableInternals;
+  readonly #internals: MutableInternals;
 
   private constructor(value: T, reactive: MutableInternals) {
     this.#value = value;
-    this.#bookkeeping = reactive;
+    this.#internals = reactive;
   }
 
   [INSPECT]() {
-    const { description, debug } = this.#bookkeeping;
+    const { description, debug } = this.#internals;
 
     return DisplayStruct(`Cell (${description})`, {
       value: this.#value,
@@ -33,23 +33,29 @@ export class ReactiveCell<T> implements ReactiveValue<T> {
   }
 
   freeze(): void {
-    this.#bookkeeping.freeze();
+    this.#internals.freeze();
   }
 
-  set current(value: T) {}
+  set current(value: T) {
+    this.#set(value);
+  }
+
+  set(value: T) {
+    this.#set(value);
+  }
 
   #set(value: T): void {
     this.#verifyMutable();
 
-    const tx = COORDINATOR.begin(`updating ${this.#bookkeeping.description}`);
+    const tx = COORDINATOR.begin(`updating ${this.#internals.description}`);
     this.#value = value;
-    this.#bookkeeping.update();
+    this.#internals.update();
     tx.commit();
   }
 
   #verifyMutable() {
     verify(
-      this.#bookkeeping.isFrozen(),
+      this.#internals.isFrozen(),
       isValue(false),
       expected(`a cell`)
         .toBe(`non-frozen`)
@@ -60,12 +66,12 @@ export class ReactiveCell<T> implements ReactiveValue<T> {
 
   /** impl Reactive<T> */
   get current(): T {
-    this.#bookkeeping.consume();
+    this.#internals.consume();
     return this.#value;
   }
 
   get [REACTIVE](): ReactiveInternals {
-    return this.#bookkeeping;
+    return this.#internals;
   }
 }
 

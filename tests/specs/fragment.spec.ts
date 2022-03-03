@@ -1,4 +1,4 @@
-import { Cell, Reactive } from "@starbeam/core";
+import { Cell, Reactive } from "@starbeam/reactive";
 import { Dynamism } from "../support/expect/expect.js";
 import { Expects, test } from "../support/index.js";
 
@@ -6,7 +6,7 @@ test("a fragment containing a text node (dynamic) ", ({ test }) => {
   let name = Cell("Chirag");
 
   let fragment = test.buildFragment(
-    [test.buildText(name, Dynamism.dynamic)],
+    [test.buildText(name, Dynamism.Dynamic())],
     Expects.dynamic
   );
 
@@ -21,7 +21,7 @@ test("a fragment containing a text node (static) ", ({ test }) => {
   let name = Reactive.from(NAME);
 
   let element = test.buildFragment(
-    [test.buildText(name, Dynamism.constant)],
+    [test.buildText(name, Dynamism.Constant())],
     Expects.constant
   );
 
@@ -32,14 +32,16 @@ test("a fragment containing a text node (dynamic => static) ", ({ test }) => {
   let name = Cell("Chirag");
 
   let fragment = test.buildFragment(
-    [test.buildText(name, Dynamism.dynamic)],
+    [test.buildText(name, Dynamism.Dynamic())],
     Expects.dynamic
   );
 
   test
     .render(fragment, Expects.dynamic.html("Chirag"))
     .update([name, "Chi"], Expects.dynamic.html("Chi"))
-    .update(() => name.freeze(), Expects.constant.html("Chi"));
+    .update(() => {
+      name.freeze();
+    }, Expects.constant.html("Chi"));
 });
 
 test("(smoke test) a fragment with a few children", ({ dom, test }) => {

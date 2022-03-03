@@ -1,5 +1,5 @@
 import {
-  ReactiveInternals,
+  CompositeChild,
   UNINITIALIZED_REACTIVE,
   type CompositeInternals,
   type InitializedCompositeInternals,
@@ -43,9 +43,7 @@ export class UninitializedCompositeInternalsImpl
     return false;
   }
 
-  initialize<T>(
-    children: readonly ReactiveInternals[]
-  ): InitializedCompositeInternals {
+  initialize<T>(children: CompositeChild): InitializedCompositeInternals {
     return InitializedCompositeInternalsImpl.create(
       children,
       this.#description
@@ -57,7 +55,7 @@ export class InitializedCompositeInternalsImpl
   implements InitializedCompositeInternals
 {
   static create<T>(
-    dependencies: readonly ReactiveInternals[],
+    dependencies: CompositeChild,
     description: string
   ): InitializedCompositeInternalsImpl {
     return new InitializedCompositeInternalsImpl(dependencies, description);
@@ -66,27 +64,26 @@ export class InitializedCompositeInternalsImpl
   readonly type = "composite";
   readonly state = "initialized";
 
-  #children: readonly ReactiveInternals[];
+  #children: CompositeChild;
   readonly #description: string;
 
-  private constructor(
-    children: readonly ReactiveInternals[],
-    description: string
-  ) {
+  private constructor(children: CompositeChild, description: string) {
     this.#children = children;
     this.#description = description;
+  }
+
+  children(): CompositeChild {
+    return this.#children;
   }
 
   /** impl InitializedCompositeInternals */
 
   dependencies(): readonly MutableInternals[] {
-    return this.#children.flatMap((child) =>
-      ReactiveInternals.currentDependencies(child, { assert: "initialized" })
-    );
+    return this.#children.dependencies;
   }
 
-  update(dependencies: readonly MutableInternals[]): void {
-    this.#children = dependencies;
+  update(children: CompositeChild): void {
+    this.#children = children;
   }
 
   /** impl ReactiveInternals */
@@ -97,8 +94,6 @@ export class InitializedCompositeInternalsImpl
   }
 
   isUpdatedSince(timestamp: Timestamp): boolean {
-    return this.#children.every((dependency) =>
-      dependency.isUpdatedSince(timestamp)
-    );
+    return this.#children.isUpdatedSince(timestamp);
   }
 }

@@ -1,9 +1,4 @@
-import {
-  LEAF,
-  TIMELINE,
-  Timestamp,
-  type MutableInternals,
-} from "@starbeam/timeline";
+import { TIMELINE, Timestamp, type MutableInternals } from "@starbeam/timeline";
 import { expected, isValue, verify } from "@starbeam/verify";
 
 export class MutableInternalsImpl implements MutableInternals {
@@ -65,9 +60,5 @@ export class MutableInternalsImpl implements MutableInternals {
 
   isUpdatedSince(timestamp: Timestamp): boolean {
     return this.#lastUpdate.gt(timestamp);
-  }
-
-  dependencies(): LEAF {
-    return LEAF;
   }
 }

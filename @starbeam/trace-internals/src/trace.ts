@@ -1,4 +1,4 @@
-import { CONFIG } from "@starbeam/config";
+import { config } from "@starbeam/config";
 import { assert } from "./assert.js";
 
 export enum LogLevel {
@@ -575,7 +575,7 @@ export class Logger {
 
 function currentLevel() {
   return (
-    logLevelFrom(CONFIG.get("LogLevel"), CONFIG.describe("LogLevel")) ??
+    logLevelFrom(config().get("LogLevel"), config().describe("LogLevel")) ??
     DEFAULT_LEVEL
   );
 }

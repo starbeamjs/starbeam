@@ -30,9 +30,9 @@ export class ReactiveMemo<T> implements ReactiveValue<T> {
   readonly #callback: () => T;
   #internal: DerivedInternals<T>;
 
-  private constructor(callback: () => T, bookkeeping: DerivedInternals<T>) {
+  private constructor(callback: () => T, internals: DerivedInternals<T>) {
     this.#callback = callback;
-    this.#internal = bookkeeping;
+    this.#internal = internals;
   }
 
   get [REACTIVE](): ReactiveInternals {
@@ -41,21 +41,22 @@ export class ReactiveMemo<T> implements ReactiveValue<T> {
 
   get current(): T {
     if (this.#internal.state === "initialized") {
-      const bookkeeping = this.#internal;
-      const valid = bookkeeping.validate();
+      const internals = this.#internal;
+      const valid = internals.validate();
 
       if (valid.status === "valid") {
+        TIMELINE.didConsume(internals.frame);
         return valid.value;
       }
 
       const { frame, value } = this.poll(
-        bookkeeping.frame,
-        bookkeeping.description
+        internals.frame,
+        internals.description
       );
 
       this.#internal = InitializedDerivedInternalsImpl.create(
         frame,
-        bookkeeping.description
+        internals.description
       );
       return value;
     } else {
