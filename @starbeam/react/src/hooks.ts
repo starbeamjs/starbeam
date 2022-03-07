@@ -1,6 +1,5 @@
 import type { browser } from "@domtree/flavors";
 import {
-  Enum,
   HookBlueprint,
   HookValue,
   is,
@@ -8,6 +7,7 @@ import {
   RenderedRoot,
 } from "@starbeam/core";
 import { assert } from "@starbeam/debug";
+import { Enum } from "@starbeam/utils";
 import { verified } from "@starbeam/verify";
 import { useContext, useLayoutEffect } from "react";
 import { useSyncExternalStore } from "use-sync-external-store/shim";

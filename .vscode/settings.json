@@ -4,8 +4,8 @@
     "**/node_modules": true,
     "docs": true,
     "**/*.tsbuildinfo": true,
-    "types": true,
-    "**/dist": true
+    "types": true
+    // "**/dist": true
   },
   "search.exclude": {
     "**/node_modules": true,
@@ -30,15 +30,9 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   // "editor.bracketPairColorization.enabled": true,
   // "editor.guides.bracketPairs": "active",
-  "typescript.inlayHints.propertyDeclarationTypes.enabled": true,
-  "typescript.inlayHints.variableTypes.enabled": true,
-  "editor.fontFamily": "\"FiraCode NF Retina\"",
-  "typescript.inlayHints.functionLikeReturnTypes.enabled": true,
-  "typescript.inlayHints.parameterNames.enabled": "literals",
-  "typescript.inlayHints.parameterTypes.enabled": true,
-  "quokka.codeAutoPlayDelay": 500,
+  "quokka.codeAutoPlayDelay": 1000,
   "quokka.automaticRestart": true,
-  "quokka.automaticStartRegex": "quokka\\.ts$",
+  "quokka.automaticStartRegex": "quokka\\.[tj]s$",
   "quokka.compactMessageOutput": false,
   "quokka.darkTheme.log.decorationAttachmentRenderOptions": {
     "border": "2px dashed",
@@ -61,5 +55,9 @@
     "enabled": true
   },
   "jest.jestCommandLine": "node ./bootstrap/dist/run-jest.js",
-  "jest.nodeEnv": { "NODE_OPTIONS": "--experimental-vm-modules --no-warnings" }
+  "jest.nodeEnv": {
+    "NODE_OPTIONS": "--experimental-vm-modules --no-warnings"
+  },
+  "typescript.preferences.includePackageJsonAutoImports": "auto",
+  "typescript.updateImportsOnFileMove.enabled": "always"
 }

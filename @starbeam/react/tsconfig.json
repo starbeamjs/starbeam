@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.package-settings.json",
+  "compilerOptions": { "rootDir": ".", "baseUrl": ".", "paths": {} },
+  "exclude": [
+    "node_modules",
+    "../*/node_modules",
+    "../../node_modules",
+    "../*/**"
+  ],
+  "files": ["index.ts"],
+  "typeAcquisition": { "exclude": ["./node_modules"] }
+}

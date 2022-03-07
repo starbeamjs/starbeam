@@ -1,5 +1,5 @@
 import { abstractify, Abstraction } from "@starbeam/debug";
-import type { UnsafeAny } from "../../debug/node_modules/@starbeam/fundamental/index.js";
+import type { UnsafeAny } from "@starbeam/fundamental";
 import { DebugInformation } from "./core.js";
 import { isPresent } from "./presence.js";
 import {

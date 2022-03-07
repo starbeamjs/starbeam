@@ -1,14 +1,17 @@
 import { Abstraction, DisplayStruct } from "@starbeam/debug";
+import { isObject } from "@starbeam/fundamental";
 import { COORDINATOR } from "@starbeam/schedule";
 import {
   INSPECT,
   REACTIVE,
   type MutableInternals,
-  type ReactiveInternals,
+  type ReactiveInternals
 } from "@starbeam/timeline";
-import { expected, isValue, verify } from "@starbeam/verify";
+import { expected, isEqual, verify } from "@starbeam/verify";
 import { MutableInternalsImpl } from "../internals/mutable.js";
-import type { ReactiveValue } from "../reactive.js";
+import type { Reactive, ReactiveValue } from "../reactive.js";
+
+console.log("ReactiveCell");
 
 export class ReactiveCell<T> implements ReactiveValue<T> {
   static create<T>(value: T, internals: MutableInternals): ReactiveCell<T> {
@@ -36,12 +39,22 @@ export class ReactiveCell<T> implements ReactiveValue<T> {
     this.#internals.freeze();
   }
 
+  /** impl Reactive<T> */
+  get current(): T {
+    this.#internals.consume();
+    return this.#value;
+  }
+
   set current(value: T) {
     this.#set(value);
   }
 
   set(value: T) {
     this.#set(value);
+  }
+
+  update(updater: (prev: T) => T): void {
+    this.#set(updater(this.#value));
   }
 
   #set(value: T): void {
@@ -56,18 +69,12 @@ export class ReactiveCell<T> implements ReactiveValue<T> {
   #verifyMutable() {
     verify(
       this.#internals.isFrozen(),
-      isValue(false),
+      isEqual(false),
       expected(`a cell`)
         .toBe(`non-frozen`)
         .when(`updating a cell`)
         .butGot(() => `a frozen cell`)
     );
-  }
-
-  /** impl Reactive<T> */
-  get current(): T {
-    this.#internals.consume();
-    return this.#value;
   }
 
   get [REACTIVE](): ReactiveInternals {
@@ -82,4 +89,7 @@ export function Cell<T>(
   return ReactiveCell.create(value, MutableInternalsImpl.create(description));
 }
 
-export type Cell<T> = ReactiveCell<T>;
+Cell.is = <T>(value: unknown | Reactive<T>): value is Cell<T> =>
+  isObject(value) && value instanceof ReactiveCell;
+
+export type Cell<T = unknown> = ReactiveCell<T>;

@@ -1,4 +1,5 @@
-import type { UnsafeAny } from "@starbeam/fundamental";
+import type { InferArgument, UnsafeAny } from "@starbeam/fundamental";
+import type { InferReturn } from "@starbeam/utils";
 import {
   Described,
   PatternImpl,
@@ -263,7 +264,7 @@ class DefaultValue<T> {
 
 class CustomValue<T extends CustomToBe> {
   static create<T extends CustomToBe>(value: T): CustomValue<T> {
-    return new CustomValue(value, value[TO_BE]);
+    return new CustomValue(value, value[TO_BE] as InferArgument) as InferReturn;
   }
 
   readonly #value: T;

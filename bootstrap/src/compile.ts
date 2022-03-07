@@ -367,7 +367,7 @@ class TranspileTask {
 
     const code = `${output.code}\n\n${sourceMapComment}`;
 
-    log.inspect.labeled("[WRITING]", {
+    log.silent.inspect.labeled("[WRITING]", {
       file: this.output,
       code: code,
     });

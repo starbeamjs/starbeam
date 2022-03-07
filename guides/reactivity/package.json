@@ -4,6 +4,8 @@
   "dependencies": {
     "@starbeam/core": "workspace:*",
     "@starbeam/verify": "workspace:*",
+    "@starbeam/reactive": "workspace:*",
+    "@starbeam/config": "workspace:*",
     "symbol-observable": "^4.0.0",
     "zen-observable-ts": "^0.8.15"
   },

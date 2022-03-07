@@ -1,11 +1,12 @@
+import { assert } from "@starbeam/debug";
 import { Enum } from "@starbeam/utils";
 import { exhaustive } from "@starbeam/verify";
-import { assert } from "console";
 import { UNINITIALIZED_REACTIVE } from "./constants.js";
 import type { FinalizedFrame, FrameChild, FrameValidation } from "./frames.js";
 import { REACTIVE, type ReactiveProtocol } from "./reactive.js";
 import type { Timestamp } from "./timestamp.js";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type InferReturn = any;
 
 export interface IsUpdatedSince {
@@ -178,6 +179,8 @@ export const ReactiveInternals = new (class {
             }
 
             return UNINITIALIZED_REACTIVE;
+          default:
+            exhaustive(classified, "classified.state");
         }
       }
       case "composite": {

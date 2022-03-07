@@ -107,7 +107,7 @@ function RectangleComponent(node: browser.Text, observer: FakeResizeObserver) {
     const subscription = subscribe(description, (description) => {
       const next = description.poll();
 
-      if (next.status !== "unchanged") {
+      if (next.matches("UnchangedValue")) {
         node.data = next.value;
       }
     });

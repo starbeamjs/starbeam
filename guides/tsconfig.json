@@ -1,0 +1,12 @@
+{
+  "extends": "../tsconfig.package-settings.json",
+  "compilerOptions": {},
+  "exclude": [
+    "node_modules",
+    "../*/node_modules",
+    "../../node_modules",
+    "../*/**"
+  ],
+  "files": ["./reactivity/src/introduction/examples/reactive.quokka.ts"],
+  "typeAcquisition": { "exclude": ["./node_modules"] }
+}

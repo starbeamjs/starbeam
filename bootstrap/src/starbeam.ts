@@ -16,8 +16,8 @@ const WORKSPACE = await Workspace.create({
   root: AbsolutePath.directory(root),
   namespace: "@starbeam",
   // TODO: Hash the bootstrap source
-  // hash: "3184dcba-b5b7-4cd1-93ea-bc85c411ed9d",
-  hash: String(Math.random()),
+  hash: "7ce9ed81-b07a-4000-916d-c0fc40e0a6a6",
+  // hash: String(Math.random()),
 });
 
 for (let pkg of WORKSPACE.packages) {

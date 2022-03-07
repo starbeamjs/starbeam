@@ -1,4 +1,5 @@
-import { Cell, lifetime, reactive, subscribe } from "@starbeam/core";
+import { lifetime, reactive, subscribe } from "@starbeam/core";
+import { Cell } from "@starbeam/reactive";
 
 const REPOS = {
   react: "https://github.com/facebook/react",

@@ -19,6 +19,8 @@
     "@starbeam/debug": "workspace:*",
     "@starbeam/fundamental": "workspace:*",
     "@starbeam/reactive": "workspace:*",
+    "@starbeam/trace-internals": "workspace:*",
+    "@starbeam/utils": "workspace:*",
     "use-ssr": "^1.0.24",
     "use-sync-external-store": "rc",
     "@types/use-sync-external-store": "ts4.6"

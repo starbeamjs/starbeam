@@ -6,7 +6,7 @@ import {
   type ReactiveInternals,
   type ReactiveProtocol,
 } from "@starbeam/timeline";
-import { expected, isValue, verify } from "@starbeam/verify";
+import { expected, isEqual, verify } from "@starbeam/verify";
 import { MutableInternalsImpl } from "../internals/mutable.js";
 
 export class ReactiveMarker implements ReactiveProtocol {
@@ -39,7 +39,7 @@ export class ReactiveMarker implements ReactiveProtocol {
   #verifyMutable() {
     verify(
       this.#bookkeeping.isFrozen(),
-      isValue(false),
+      isEqual(false),
       expected(`a cell`)
         .toBe(`non-frozen`)
         .when(`updating a cell`)

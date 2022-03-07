@@ -37,6 +37,13 @@
       "label": "npm: lint",
       "detail": "eslint .",
       "group": "build"
+    },
+    {
+      "type": "npm",
+      "script": "install",
+      "problemMatcher": [],
+      "label": "npm: install",
+      "detail": "install dependencies from package"
     }
   ]
 }

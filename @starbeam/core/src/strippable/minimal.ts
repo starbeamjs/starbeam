@@ -4,8 +4,8 @@ import type * as minimal from "@domtree/minimal";
 import {
   CreatedContext,
   expected,
+  isEqual,
   isPresent,
-  isValue,
   Verifier,
   VerifyContext,
   type PartialVerifier,
@@ -202,7 +202,7 @@ is.TemplateElement = isTemplateElement;
 is.Present = isPresent;
 
 is.nullable = isNullable;
-is.value = isValue;
+is.value = isEqual;
 
 // TODO: Deal with SVG and MathML tag names
 function hasTagName<T extends string>(

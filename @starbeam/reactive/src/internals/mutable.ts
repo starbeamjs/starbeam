@@ -1,5 +1,5 @@
 import { TIMELINE, Timestamp, type MutableInternals } from "@starbeam/timeline";
-import { expected, isValue, verify } from "@starbeam/verify";
+import { expected, isEqual, verify } from "@starbeam/verify";
 
 export class MutableInternalsImpl implements MutableInternals {
   static create(description: string): MutableInternalsImpl {
@@ -39,7 +39,7 @@ export class MutableInternalsImpl implements MutableInternals {
   update(): void {
     verify(
       this.#frozen,
-      isValue(false),
+      isEqual(false),
       expected(`a cell`)
         .toBe(`non-frozen`)
         .when(`updating a cell`)

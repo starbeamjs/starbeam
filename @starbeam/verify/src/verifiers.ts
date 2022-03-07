@@ -10,9 +10,9 @@ export type Primitive =
   | null
   | undefined;
 
-export function isValue<T extends Primitive>(value: T): Verifier<Primitive, T> {
+export function isEqual<T extends Primitive>(value: T): Verifier<Primitive, T> {
   function verify(input: Primitive): input is T {
-    return input === value;
+    return Object.is(input, value);
   }
 
   Verifier.implement<Primitive, T>(

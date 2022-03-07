@@ -1,16 +1,13 @@
+import { config, Priority } from "@starbeam/config";
 import {
-  Cell,
-  CONFIG,
   lifetime,
-  Memo,
-  Priority,
-  Reactive,
   reactive,
   subscribe,
   type ReactiveSubscription,
 } from "@starbeam/core";
+import { Cell, Memo, type Reactive } from "@starbeam/reactive";
 
-CONFIG.set("DefaultPriority", Priority.Inline);
+config().set("DefaultPriority", Priority.Inline);
 
 class Counter {
   static create({

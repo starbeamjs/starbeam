@@ -7,14 +7,6 @@ export type FIXME<_S extends string = string> = any;
 
 export const INSPECT = Symbol.for("nodejs.util.inspect.custom");
 
-export function* enumerate<T>(iterable: Iterable<T>): Iterable<[number, T]> {
-  let i = 0;
-
-  for (let item of iterable) {
-    yield [i++, item];
-  }
-}
-
 export type PresentPosition = "first" | "last" | "middle" | "only";
 export type EmptyPosition = "empty";
 

@@ -1,12 +1,8 @@
 import {
-  Cell,
   getDescription,
   HookBlueprint,
   is,
   lifetime,
-  LOGGER,
-  Memo,
-  Reactive,
   SimpleHook,
   subscribe,
 } from "@starbeam/core";
@@ -17,6 +13,8 @@ import type {
   AnyRecord,
   InferReturn,
 } from "@starbeam/fundamental";
+import { Cell, Memo, Reactive } from "@starbeam/reactive";
+import { LOGGER } from "@starbeam/trace-internals";
 import { exhaustive, expected, verify } from "@starbeam/verify";
 import { useCallback, useDebugValue, useState, type ReactElement } from "react";
 import { useInstance } from "./instance.js";

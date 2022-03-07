@@ -10,9 +10,9 @@ let packages = String(
   shell.exec("pnpm m ls --depth -1 --porcelain", { silent: true })
 )
   .split("\n")
+  .map((p) => path.relative(root, p))
   .filter((file) => file !== "" && file !== root)
-  .filter((file) => file.startsWith("@starbeam"))
-  .map((p) => path.relative(root, p));
+  .filter((file) => file.startsWith("@starbeam"));
 
 module.exports = /** @type {import("eslint").Linter.Config} */ ({
   root: true,
@@ -62,11 +62,13 @@ function pkg(dir) {
       "plugin:import/recommended",
       "plugin:import/typescript",
       "plugin:@typescript-eslint/recommended",
+      "plugin:@typescript-eslint/recommended-requiring-type-checking",
     ],
     rules: {
       "prefer-const": "off",
       "no-unused-vars": "off",
       "no-empty": "warn",
+      "no-fallthrough": "off",
       "import/no-cycle": "warn",
       "import/no-self-import": "error",
       "import/no-restricted-paths": [
@@ -101,7 +103,7 @@ function pkg(dir) {
     },
   };
 
-  console.log(require("util").inspect(pkg, { depth: null, colors: true }));
+  // console.log(require("util").inspect(pkg, { depth: null, colors: true }));
   return pkg;
 }
 

@@ -43,6 +43,8 @@ function initialize<S extends ReactiveSubscription>(subscription: S): S {
 }
 
 /**
+ * [markdown]
+ *
  * This API allows external consumers of Starbeam Reactive values to subscribe
  * (and unsubscribe) to a signal that a change in the underlying value is ready.
  *
@@ -85,6 +87,7 @@ export function subscribe<T>(
   }
 }
 
+// hello world
 class ConstantSubscription<T> implements ReactiveSubscription<T> {
   static create<T>(value: T): ConstantSubscription<T> {
     return new ConstantSubscription(value);
@@ -101,65 +104,6 @@ class ConstantSubscription<T> implements ReactiveSubscription<T> {
     /* noop */
   };
 }
-
-/**
- * This is a special-case of subscription to a single cell that doesn't require
- * much bookkeeping.
- */
-// class CellSubscription<T> implements ReactiveSubscription<T> {
-//   static create<T>(
-//     leaf: ReactiveLeafValue<T>,
-//     ready: (subscription: ReactiveSubscription<T>) => void,
-//     description: string
-//   ): CellSubscription<T> {
-//     const teardown = TIMELINE.on.update(leaf, () => ready(subscription));
-//     const subscription = new CellSubscription(
-//       leaf,
-//       UNINITIALIZED,
-//       teardown,
-//       description
-//     );
-//     return subscription;
-//   }
-
-//   #last: T | UNINITIALIZED;
-//   readonly #reactive: ReactiveLeafValue<T>;
-//   readonly #description: string;
-
-//   private constructor(
-//     reactive: ReactiveLeafValue<T>,
-//     last: T | UNINITIALIZED,
-//     readonly unsubscribe: () => void,
-//     description: string
-//   ) {
-//     this.#reactive = reactive;
-//     this.#last = last;
-//     this.#description = description;
-//   }
-
-//   [INSPECT]() {
-//     return DisplayStruct(`Subscription (${this.#description})`, {
-//       last: this.#last,
-//     });
-//   }
-
-//   poll = (): PollResult<T> => {
-//     console.log("polling", this.#reactive.current);
-//     const value = this.#reactive.current;
-
-//     const last = this.#last;
-
-//     if (last === UNINITIALIZED) {
-//       this.#last = value;
-//       return InitialValue.create(value);
-//     } else if (last === value) {
-//       return UnchangedValue.create(value);
-//     } else {
-//       this.#last = value;
-//       return ChangedValue.create(value, last);
-//     }
-//   };
-// }
 
 class AnyReactiveSubscription<T> implements ReactiveSubscription<T> {
   static create<T>(

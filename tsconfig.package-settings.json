@@ -1,5 +1,4 @@
 {
-  "extends": "./tsconfig.package-settings.json",
   "compilerOptions": {
     "allowJs": false,
     "declaration": true,
@@ -11,7 +10,7 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
-    "module": "NodeNext",
+    "module": "nodenext",
     "moduleResolution": "nodenext",
     "lib": ["ESNext", "DOM"],
     "sourceMap": true,
@@ -24,18 +23,5 @@
     "preserveValueImports": true,
     "skipLibCheck": true,
     "skipDefaultLibCheck": true
-  },
-  "include": [
-    "@starbeam/*/index.ts",
-    "@starbeam/*/src/**/*.ts",
-    "tests/specs/**/*.spec.ts",
-    "guides/**/*.quokka.ts"
-  ],
-  "exclude": ["node_modules", "**/node_modules/**"],
-  "ts-node": {
-    "swc": true,
-    "experimentalResolverFeatures": true,
-    "preferTsExts": true,
-    "emit": true
   }
 }

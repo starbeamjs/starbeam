@@ -7,7 +7,7 @@
     ".": {
       "types": "./index.js",
       "import": {
-        "node": "./index.js",
+        "node": "./index.ts",
         "default": "./dist/index.js"
       }
     }
