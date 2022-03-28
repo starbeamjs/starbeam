@@ -1,6 +1,7 @@
 import type * as dom from "@domtree/any";
 import type { anydom } from "@domtree/flavors";
 import type * as minimal from "@domtree/minimal";
+import type { VerifierFunction } from "@starbeam/fundamental";
 import {
   CreatedContext,
   expected,
@@ -87,7 +88,7 @@ function nodeMessage(actual: dom.Node | null): string {
 function isSpecificNode<T extends minimal.Node>(
   nodeType: number,
   description: string
-): Verifier<MaybeNode, T> {
+): VerifierFunction<MaybeNode, T> {
   const isSpecificNode = ((node: MaybeNode): node is T => {
     return isNode(node) && node.nodeType === nodeType;
   }) as PartialVerifier<MaybeNode, T>;
@@ -97,7 +98,7 @@ function isSpecificNode<T extends minimal.Node>(
     expected("node").toBe(description).butGot(nodeMessage)
   );
 
-  return isSpecificNode as Verifier<MaybeNode, T>;
+  return isSpecificNode as VerifierFunction<MaybeNode, T>;
 }
 
 function isNode(node: MaybeNode): node is minimal.Node {
@@ -148,8 +149,8 @@ Verifier.implement(
 Verifier.implement(isPresent, expected("value").toBe("present"));
 
 export function isNullable<In, Out extends In>(
-  verifier: Verifier<In, Out>
-): Verifier<In | null, Out | null> {
+  verifier: VerifierFunction<In, Out>
+): VerifierFunction<In | null, Out | null> {
   function verify(input: In | null): input is Out | null {
     if (input === null) {
       return true;
@@ -178,7 +179,7 @@ export function isNullable<In, Out extends In>(
 
 export function is<T extends I, I = unknown>(
   predicate: (value: I) => value is T
-): Verifier<I, T> {
+): VerifierFunction<I, T> {
   function verify(input: I): input is T {
     return predicate(input);
   }
@@ -207,7 +208,7 @@ is.value = isEqual;
 // TODO: Deal with SVG and MathML tag names
 function hasTagName<T extends string>(
   tagName: T
-): Verifier<
+): VerifierFunction<
   minimal.Element,
   minimal.Element & { readonly tagName: Uppercase<T> }
 > {
@@ -259,10 +260,9 @@ interface Typeof {
   function: Function;
 }
 
-// TODO: Deal with SVG and MathML tag names
 function hasTypeof<T extends keyof Typeof>(
   type: T
-): Verifier<unknown, Typeof[T]> {
+): VerifierFunction<unknown, Typeof[T]> {
   function hasTypeof<T extends keyof Typeof>(
     value: unknown
   ): value is Typeof[T] {

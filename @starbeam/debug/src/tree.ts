@@ -1,6 +1,6 @@
 import { isObject } from "@starbeam/fundamental";
 import type { TreeObject } from "treeify";
-import treeify from "treeify";
+import * as treeify from "treeify";
 
 const { asTree } = treeify;
 

@@ -1,5 +1,21 @@
-import { config } from "@starbeam/config";
+import { exhaustive } from "@starbeam/verify";
+import { Abstraction } from "./abstraction.js";
 import { assert } from "./assert.js";
+import { CurrentConsole } from "./console.js";
+import {
+  delimited,
+  group,
+  IntoStyled,
+  Line,
+  SP,
+  Styled,
+  StyledFragment,
+  StyledLine,
+  type LogArgs,
+} from "./fragment.js";
+import { enumerate } from "./itertools.js";
+import { capture } from "./match.js";
+import { SHEET } from "./sheet.js";
 
 export enum LogLevel {
   Trace = 0b0000001,
@@ -11,7 +27,39 @@ export enum LogLevel {
   Silent = 0b1000000,
 }
 
-interface TraceConsole {
+const LEVEL_NAMES = {
+  [LogLevel.Trace]: "trace",
+  [LogLevel.Debug]: "debug",
+  [LogLevel.Info]: "info",
+  [LogLevel.Warn]: "warn",
+  [LogLevel.Error]: "error",
+  [LogLevel.Bug]: "bug",
+  [LogLevel.Silent]: "silent",
+} as const;
+
+function describeLevel(level: LogLevel): string {
+  return LEVEL_NAMES[level];
+}
+
+const TRACE_LEVELS = [
+  LogLevel.Trace,
+  LogLevel.Debug,
+  LogLevel.Info,
+  LogLevel.Warn,
+  LogLevel.Error,
+  LogLevel.Bug,
+];
+
+interface TraceLevels {
+  readonly trace: TraceMethods;
+  readonly debug: TraceMethods;
+  readonly info: TraceMethods;
+  readonly warn: TraceMethods;
+  readonly error: TraceMethods;
+  readonly bug: TraceMethods;
+}
+
+export interface TraceConsole {
   Console: console.ConsoleConstructor;
   /**
    * `console.assert()` writes a message if `value` is [falsy](https://developer.mozilla.org/en-US/docs/Glossary/Falsy) or omitted. It only
@@ -280,29 +328,42 @@ interface TraceConsole {
   timeStamp(label?: string): void;
 }
 
+interface Formatter {
+  readonly line: FormatterFunction;
+  readonly heading: FormatterFunction;
+}
+
+function Formatter(formatter: FormatterFunction): Formatter {
+  return {
+    line: formatter,
+    heading: formatter,
+  };
+}
+
+type FormatterFunction = (options: {
+  line: StyledLine;
+  scope: Scope;
+  level: LogLevel;
+  console: CurrentConsole;
+}) => StyledLine;
+
+interface GroupOptions {
+  readonly emitter: Emitter;
+  readonly scope: Scope;
+  readonly formatter: Formatter;
+  readonly args: LogArgs;
+}
+
 export class Group {
-  static start(
-    console: TraceConsole,
-    label: string,
-    shouldLog: boolean
-  ): Group {
-    return new Group(console, label, shouldLog, false);
+  static start(options: GroupOptions): Group {
+    return new Group(options, false);
   }
 
-  readonly #console: TraceConsole;
-  readonly #label: string;
-  readonly #shouldLog: boolean;
+  readonly #options: GroupOptions;
   #started: boolean;
 
-  private constructor(
-    console: TraceConsole,
-    label: string,
-    shouldLog: boolean,
-    started: boolean
-  ) {
-    this.#console = console;
-    this.#label = label;
-    this.#shouldLog = shouldLog;
+  private constructor(options: GroupOptions, started: boolean) {
+    this.#options = options;
     this.#started = started;
   }
 
@@ -311,33 +372,26 @@ export class Group {
   collapsed(callback?: () => unknown): unknown {
     this.#started = true;
 
-    if (!this.#shouldLog) {
-      if (callback) {
-        return callback();
-      } else {
-        return this;
-      }
-    }
-
-    this.#console.groupCollapsed(this.#label);
+    this.#emitter.group("collapsed", ...this.#options.args);
 
     if (callback) {
       try {
         return callback();
       } finally {
-        this.#console.groupEnd();
+        this.#emitter.groupEnd();
       }
     } else {
       return this;
     }
   }
 
+  get #emitter(): Emitter {
+    return this.#options.emitter;
+  }
+
   expanded(): Group {
     this.#started = true;
-
-    if (this.#shouldLog) {
-      this.#console.group(this.#label);
-    }
+    this.#emitter.group("expanded", this.#options.args);
 
     return this;
   }
@@ -348,9 +402,7 @@ export class Group {
       `You must call group.expanded() or group.collapsed() before group.end()`
     );
 
-    if (this.#shouldLog) {
-      this.#console.groupEnd();
-    }
+    this.#emitter.groupEnd();
   }
 }
 
@@ -359,19 +411,21 @@ interface TraceModifiers {
 }
 
 interface TraceMethods extends TraceModifiers {
-  log(format: string, ...args: unknown[]): void;
-  log(...args: unknown[]): void;
+  log(...args: LogArgs): void;
 
-  log(format: string, ...args: unknown[]): void;
-  log(...args: unknown[]): void;
+  group(args: string | LogArgs): Group;
+  group<T>(args: string | LogArgs, callback: () => T): T;
 
-  group(description: string): Group;
-  group<T>(description: string, callback: () => T): T;
-}
+  /**
+   * This method mutates the original logger, so you can't use it to create
+   * separate loggers with separate matchers.
+   *
+   * This is probably good to fix using a persistent data structure instead of a
+   * map.
+   */
+  level(matcher: string, level: LogLevel): this;
 
-interface TraceLevels {
-  readonly trace: TraceMethods;
-  readonly warn: TraceMethods;
+  scoped(scope: string): Logger;
 }
 
 export interface InspectOptions {
@@ -451,30 +505,526 @@ function logLevelFrom(
 
 const DEFAULT_LEVEL = LogLevel.Warn;
 
-export class Logger {
-  static default(): TraceMethods & TraceLevels {
-    let console = () => globalThis.console;
+type Split<
+  S extends string,
+  Sep extends string,
+  SoFar extends string[] = []
+> = S extends `${infer Head}${Sep}${infer Rest}`
+  ? Split<Rest, Sep, [...SoFar, Head]>
+  : [...SoFar, S];
 
-    return new Logger(
+function split<S extends string, Sep extends string>(
+  string: S,
+  sep: Sep
+): Split<S, Sep> {
+  return string.split(sep) as Split<S, Sep>;
+}
+
+type ParseScope<S extends string> = Split<S, "/">;
+
+type MatcherPart =
+  /** matches any segment */
+  | "*"
+  /** matches any number of segments, must be the final segment */
+  | "**"
+  | string;
+
+class ScopeMatcher<Parts extends readonly string[]> {
+  static parse<S extends string>(scope: S): ScopeMatcher<Split<S, "/">> {
+    return new ScopeMatcher(split(scope, "/"));
+  }
+
+  readonly #parts: Parts;
+
+  constructor(parts: Parts) {
+    this.#parts = parts;
+  }
+
+  matches(scope: string | Scope) {
+    const scopeObject =
+      typeof scope === "string" ? NestedScope.parse(scope) : scope;
+    const segments = scopeObject.segments;
+
+    for (let [i, part] of enumerate(this.#parts)) {
+      const scopeSegment = segments[i];
+
+      if (scopeSegment === null) {
+        if (part === "**") {
+          continue;
+        } else {
+          return false;
+        }
+      }
+
+      if (part === "*") {
+        continue;
+      }
+
+      if (part !== scopeSegment) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+}
+
+abstract class AbstractScope {
+  abstract get segments(): readonly string[];
+
+  get path() {
+    return this.segments.join("/");
+  }
+}
+
+interface Location {
+  readonly line: string;
+  readonly column: string;
+}
+
+interface LocationOptions {
+  readonly package: string;
+  readonly file: string;
+  readonly tag?: string;
+  readonly location?: Location;
+}
+
+export class LocationScope extends AbstractScope {
+  static create(options: LocationOptions): LocationScope {
+    return new LocationScope(options);
+  }
+
+  readonly #options: LocationOptions;
+
+  constructor(options: LocationOptions) {
+    super();
+    this.#options = options;
+  }
+
+  get segments(): readonly string[] {
+    const options = this.#options;
+
+    const segments = [options.package, options.file];
+    if (options.tag) {
+      segments.push(options.tag);
+    }
+
+    if (options.location) {
+      segments.push(options.location.line, options.location.column);
+    }
+
+    return segments;
+  }
+
+  get package(): string {
+    return this.#options.package;
+  }
+
+  get file(): string {
+    return this.#options.file;
+  }
+
+  get tag(): string | undefined {
+    return this.#options.tag;
+  }
+
+  get location(): Location | undefined {
+    return this.#options.location;
+  }
+
+  toString() {
+    return `${this.#options.package}::${this.#options.file}${
+      this.#options.tag ? `@${this.#options.tag}` : ""
+    }${
+      this.#options.location
+        ? `:${this.#options.location.line}:${this.#options.location.column}`
+        : ""
+    }`;
+  }
+}
+
+class NestedScope<
+  Parts extends readonly string[] = readonly string[]
+> extends AbstractScope {
+  static parse<S extends string>(scope: S): NestedScope<Split<S, "/">> {
+    return new NestedScope(split(scope, "/"));
+  }
+
+  readonly #parts: Parts;
+
+  constructor(parts: Parts) {
+    super();
+    this.#parts = parts;
+  }
+
+  get segments(): readonly string[] {
+    return this.#parts;
+  }
+
+  at(index: number): string | null {
+    return this.#parts[index] ?? null;
+  }
+
+  matches(pattern: string) {
+    const matcher = ScopeMatcher.parse(pattern);
+    return matcher.matches(this);
+  }
+
+  toString(): string {
+    return this.#parts.join("/");
+  }
+}
+
+export type Scope = LocationScope | NestedScope;
+
+const INERT = "color: #999";
+const LABEL = "color: #797";
+const VALUE = "color: #5b5";
+
+function styledLog(
+  ...parts: [fragment: string, style: string][]
+): readonly string[] {
+  const styles: string[] = [];
+  let label = "";
+
+  for (let [fragment, style] of parts) {
+    styles.push(style);
+    label += `%c${fragment}`;
+  }
+
+  return [label, ...styles];
+}
+
+enum Order {
+  /** the first side is smaller than the second side */
+  Less = -1,
+  /** The two sides are equal */
+  Equal = 0,
+  /** the first side is larger than the second side */
+  Greater = 1,
+}
+
+function max<T, U>(
+  list: readonly T[],
+  compare: (a: T, b: T) => Order,
+  options: {
+    map: (value: T) => U;
+    ifEmpty: () => U;
+  }
+): U;
+function max<T, U>(
+  list: readonly T[],
+  compare: (a: T, b: T) => Order,
+  options: {
+    ifEmpty: () => U;
+  }
+): T | U;
+function max<T, U>(
+  list: readonly T[],
+  compare: (a: T, b: T) => Order,
+  options: {
+    map?: (value: T) => U;
+    ifEmpty: () => U;
+  }
+): T | U {
+  const sorted = [...list].sort(compare);
+
+  if (sorted.length === 0) {
+    return options.ifEmpty();
+  } else {
+    return options.map
+      ? options.map(sorted[sorted.length - 1])
+      : sorted[sorted.length - 1];
+  }
+}
+
+class Specificity {
+  constructor(
+    readonly pattern: string,
+    /** The size of the constant portions */
+    readonly constant: number,
+    /** An array of the captures */
+    readonly captures: readonly string[]
+  ) {}
+
+  get dynamic(): number {
+    return this.captures.reduce((sum, string) => sum + string.length, 0);
+  }
+
+  compare(other: Specificity): Order {
+    if (this.constant < other.constant) {
+      return Order.Less;
+    } else if (this.constant > other.constant) {
+      return Order.Greater;
+    } else {
+      return Order.Equal;
+    }
+  }
+}
+
+function cmp(left: number, right: number): Order {
+  if (left < right) {
+    return Order.Less;
+  } else if (left > right) {
+    return Order.Greater;
+  } else {
+    return Order.Equal;
+  }
+}
+
+class Matcher {
+  static from(pattern: string) {
+    return new Matcher(pattern);
+  }
+
+  readonly #pattern: string;
+
+  constructor(pattern: string) {
+    this.#pattern = pattern;
+  }
+
+  matches(path: string): Specificity | null {
+    const captures = capture({ pattern: this.#pattern, path });
+
+    if (captures === null) {
+      return null;
+    }
+
+    const dynamic = captures;
+    const dynamicSize = dynamic.reduce((sum, string) => sum + string.length, 0);
+    return new Specificity(this.#pattern, path.length - dynamicSize, captures);
+  }
+}
+
+class Matchers {
+  static create(): Matchers {
+    return new Matchers(new Map());
+  }
+
+  readonly #matchers: Map<string, { matcher: Matcher; level: LogLevel }>;
+
+  private constructor(
+    matchers: Map<string, { matcher: Matcher; level: LogLevel }>
+  ) {
+    this.#matchers = matchers;
+  }
+
+  add(pattern: string, level: LogLevel) {
+    this.#matchers.set(pattern, { matcher: Matcher.from(pattern), level });
+
+    console.groupCollapsed(
+      ...styledLog(
+        ["Adding log matcher: ", INERT],
+        ["pattern", LABEL],
+        ["=", INERT],
+        [pattern, VALUE],
+        [", ", INERT],
+        ["level", LABEL],
+        ["=", INERT],
+        [describeLevel(level), VALUE]
+      )
+    );
+    console.trace();
+    console.groupEnd();
+  }
+
+  levelFor(scope: Scope | string): LogLevel {
+    const scopeObject =
+      typeof scope === "string" ? NestedScope.parse(scope) : scope;
+
+    const matches: { match: Specificity; level: LogLevel }[] = [];
+
+    for (const { matcher, level } of this.#matchers.values()) {
+      const match = matcher.matches(scopeObject.path);
+
+      if (match) {
+        matches.push({ match, level });
+      }
+    }
+
+    const selected = max(matches, (a, b) => a.match.compare(b.match), {
+      map: (max) => max.level,
+      ifEmpty: () => LogLevel.Silent,
+    });
+
+    if (false) {
+      console.groupCollapsed(
+        ...styledLog(["matches for ", INERT], [scopeObject.path, VALUE])
+      );
+
+      for (const { match, level } of matches) {
+        console.log(
+          ...styledLog(["pattern", LABEL], ["=", INERT], [match.pattern, VALUE])
+        );
+        console.log(
+          ...styledLog(
+            ["specificity", LABEL],
+            ["=", INERT],
+            [String(match.constant), VALUE],
+            [":", INERT],
+            [String(match.dynamic), VALUE]
+          )
+        );
+        console.log(
+          ...styledLog(
+            ["level", LABEL],
+            ["=", INERT],
+            [describeLevel(level), VALUE]
+          )
+        );
+      }
+
+      console.log(
+        ...styledLog(
+          ["selected", INERT],
+          [" ", ""],
+          [describeLevel(selected), VALUE]
+        )
+      );
+
+      console.groupEnd();
+    }
+
+    return selected;
+  }
+}
+
+interface LoggerOptions {
+  readonly asLevel: LogLevel;
+  readonly withStack: boolean;
+  readonly console: CurrentConsole;
+  readonly matchers: Matchers;
+  // the scope to use for all logs
+  readonly asScope: Scope | undefined;
+  // The default scope to use when a scope cannot be determined. In general, a
+  // scope will be inferred via Abstraction.callerScope, but if it doesn't work,
+  // use the defaultScope instead.
+  readonly defaultScope: Scope;
+
+  readonly formatter: Formatter;
+}
+
+const DEFAULT_GENERIC_FORMATTER: FormatterFunction = ({
+  line,
+  scope,
+  level,
+}) => {
+  function format(): { line: StyledLine; scope: Styled } {
+    if (scope instanceof LocationScope) {
+      let scopeParts: IntoStyled[] = [SHEET.green(scope.package)];
+
+      if (scope.tag) {
+        scopeParts.push(SP, SHEET.inert("@"), SP, SHEET.red(scope.tag));
+      }
+
+      scopeParts = [
+        delimited(
+          SHEET.inert("["),
+          group(...scopeParts),
+          SHEET.inert("]")
+        ).attribute("heading", true),
+      ];
+
+      if (scope.location) {
+        scopeParts.push(
+          SP,
+          group(
+            group(SHEET.dim(":"), SHEET.inert(scope.location.line)),
+            group(SHEET.dim(":"), SHEET.inert(scope.location.column))
+          ),
+          SP
+        );
+      }
+
+      let styledScope = group(...scopeParts);
+
+      if (false) {
+        styledScope = group(
+          scope,
+          SP,
+          delimited(
+            SHEET.inert("["),
+            SHEET.green(scope.segments.join("/")),
+            SHEET.inert("]")
+          )
+        );
+      }
+
+      return {
+        line: line.join(SP),
+        scope: styledScope,
+      };
+    } else {
+      const scopeString = scope.segments.join("/");
+      return {
+        line,
+        scope: delimited(
+          SHEET.inert("["),
+          SHEET.green(scopeString),
+          SHEET.inert("]")
+        ).attribute("heading", true),
+      };
+    }
+  }
+
+  const formatted = format();
+  const described = `${describeLevel(level).toUpperCase()}`.padEnd(6, " ");
+  const describedLevel = IntoStyled(
+    SHEET.dim(`${described}>`).attribute("emphasis", "Bold")
+  ).attribute("heading", true);
+
+  if (formatted.line.isMultiline()) {
+    return formatted.line.prepend(
+      describedLevel,
+      SP,
+      SP,
+      SP,
+      formatted.scope,
+      "\n"
+    );
+  } else {
+    return formatted.line
+      .prepend(describedLevel, SP)
+      .append(SP, SP, SP, formatted.scope);
+  }
+};
+
+const DEFAULT_FORMATTER: Formatter = {
+  heading: DEFAULT_GENERIC_FORMATTER,
+  line: ({ scope, line, level, console }) => {
+    const formatted = DEFAULT_GENERIC_FORMATTER({
+      scope,
+      line,
+      level,
       console,
-      undefined,
-      LogLevel.Info,
-      false
-    ) as TraceMethods & TraceLevels;
+    });
+    const spacer = StyledFragment.create(
+      " ",
+      "width: 16px; overflow: hidden"
+    ).attribute("collapsed", true);
+    return formatted.prepend(spacer);
+  },
+};
+
+export class Logger implements TraceMethods, TraceModifiers {
+  static scoped(rootScope: string): TraceMethods & TraceLevels {
+    return new Logger({
+      console: CurrentConsole.global(),
+      asLevel: LogLevel.Info,
+      withStack: false,
+      matchers: Matchers.create(),
+      asScope: undefined,
+      defaultScope: NestedScope.parse(rootScope),
+      formatter: DEFAULT_FORMATTER,
+    }) as TraceMethods & TraceLevels;
   }
 
-  static create(
-    console: TraceConsole,
-    level: LogLevel = DEFAULT_LEVEL,
-    as: LogLevel = LogLevel.Info
-  ): Logger {
-    return new Logger(() => console, level, as, false);
-  }
+  readonly #options: LoggerOptions;
 
-  readonly #specifiedLevel: LogLevel | undefined;
-  readonly #as: LogLevel;
-  readonly #withStack: boolean;
-  readonly #console: () => TraceConsole;
+  // readonly #specifiedLevel: LogLevel | undefined;
+  // readonly #as: LogLevel;
+  // readonly #withStack: boolean;
+  // readonly #console: () => TraceConsole;
 
   // readonly trace: Logger;
   // readonly debug: Logger;
@@ -483,16 +1033,8 @@ export class Logger {
   // readonly error: Logger;
   // readonly bug: Logger;
 
-  constructor(
-    console: () => TraceConsole,
-    specifiedLevel: LogLevel | undefined,
-    as: LogLevel,
-    withStack: boolean
-  ) {
-    this.#console = console;
-    this.#specifiedLevel = specifiedLevel;
-    this.#as = as;
-    this.#withStack = withStack;
+  constructor(options: LoggerOptions) {
+    this.#options = options;
 
     // this.trace = new Logger(this.#console, this.#level, LogLevel.Trace);
     // this.debug = new Logger(this.#console, this.#level, LogLevel.Debug);
@@ -502,85 +1044,376 @@ export class Logger {
     // this.bug = new Logger(this.#console, this.#level, LogLevel.Bug);
   }
 
-  get #level(): LogLevel {
-    if (this.#specifiedLevel) {
-      return this.#specifiedLevel;
-    } else {
-      return currentLevel();
-    }
+  #levelFor(scope: Scope) {
+    return this.#options.matchers.levelFor(scope);
+  }
+
+  get #formatter(): Formatter {
+    return this.#options.formatter;
   }
 
   get trace(): Logger {
-    return new Logger(
-      this.#console,
-      this.#specifiedLevel,
-      LogLevel.Trace,
-      this.#withStack
-    );
+    return this.#withLevel(LogLevel.Trace);
+  }
+
+  get debug(): Logger {
+    return this.#withLevel(LogLevel.Debug);
+  }
+
+  get info(): Logger {
+    return this.#withLevel(LogLevel.Info);
   }
 
   get warn(): Logger {
-    return new Logger(
-      this.#console,
-      this.#specifiedLevel,
-      LogLevel.Warn,
-      this.#withStack
-    );
+    return this.#withLevel(LogLevel.Warn);
+  }
+
+  get error(): Logger {
+    return this.#withLevel(LogLevel.Error);
+  }
+
+  get bug(): Logger {
+    return this.#withLevel(LogLevel.Bug);
+  }
+
+  #withLevel(level: LogLevel): Logger {
+    return new Logger({
+      ...this.#options,
+      asLevel: level,
+    });
   }
 
   get withStack(): Logger {
-    return new Logger(this.#console, this.#specifiedLevel, this.#as, true);
+    return new Logger({
+      ...this.#options,
+      withStack: true,
+    });
   }
 
-  get #shouldLog(): boolean {
-    return this.#as >= this.#level;
+  level(matcher: string, level: LogLevel): this {
+    this.#options.matchers.add(matcher, level);
+    return this;
   }
 
-  log(...args: unknown[]): void {
-    if (this.#shouldLog) {
-      if (this.#withStack) {
-        this.#console().trace(...args);
+  scoped(scope: string): Logger {
+    return new Logger({
+      ...this.#options,
+      asScope: NestedScope.parse(scope),
+    });
+  }
+
+  #shouldLog(scope: Scope): boolean {
+    return this.#options.asLevel >= this.#levelFor(scope);
+  }
+
+  #inferScope(): Scope {
+    if (this.#options.asScope) {
+      return this.#options.asScope;
+    }
+
+    return (
+      Abstraction.callerScope({ extraFrames: 2 }) ?? this.#options.defaultScope
+    );
+  }
+
+  log(...args: LogArgs): void {
+    const scope = this.#inferScope();
+    const emitter = this.#emitter(scope);
+
+    if (this.#shouldLog(scope)) {
+      if (this.#options.withStack) {
+        emitter.emit("trace", args);
       } else {
-        this.#console().log(...args);
+        emitter.emit("log", args);
       }
     }
   }
 
-  group(description: string, callback?: () => unknown): unknown {
-    if (!this.#shouldLog) {
-      if (callback) {
-        return callback();
-      } else {
-        return Group.start(this.#console(), description, this.#shouldLog);
-      }
-    }
+  group<T>(args: string | LogArgs, callback: () => T): T;
+  group<T>(args: string | LogArgs): T;
+  group(args: string | LogArgs, callback?: () => unknown): unknown {
+    const scope = this.#inferScope();
+    const shouldLog = this.#shouldLog(scope);
+    const argList = typeof args === "string" ? [args] : args;
+    const emitter = this.#emitter(scope);
 
     if (callback) {
-      this.#console().group(description);
+      emitter.group("expanded", ...argList);
 
-      if (this.#withStack) {
-        console.trace("logged at");
+      if (this.#options.withStack) {
+        emitter.emit("trace", ["logged at"]);
       }
 
       try {
         return callback();
       } finally {
-        this.#console().groupEnd();
+        emitter.groupEnd();
       }
     } else {
-      return Group.start(this.#console(), description, this.#shouldLog);
+      return this.#startGroup({ args: argList, scope, shouldLog });
     }
+  }
+
+  #emitter(scope: Scope): Emitter {
+    return Emitter.create(
+      scope,
+      this.#shouldLog(scope),
+      this.#options.asLevel,
+      this.#formatter,
+      this.#options.console
+    );
+  }
+
+  #startGroup({
+    args,
+    scope,
+    shouldLog,
+  }: {
+    args: LogArgs;
+    scope: Scope;
+    shouldLog: boolean;
+  }): Group {
+    return Group.start({
+      emitter: this.#emitter(scope),
+      scope,
+      formatter: this.#formatter,
+      args,
+    });
   }
 }
 
-function currentLevel() {
-  return (
-    logLevelFrom(config().get("LogLevel"), config().describe("LogLevel")) ??
-    DEFAULT_LEVEL
-  );
+type SingleEmit = [
+  command: SingleCommand | [command: SingleCommand, format: keyof Formatter],
+  args: LogArgs
+];
+
+type Emit =
+  | [
+      command:
+        | ConsoleCommand
+        | [console: ConsoleCommand, format: keyof Formatter],
+      args: LogArgs
+    ]
+  | [command: "groupEnd", args: []];
+
+function emitCommand(emit: SingleEmit): ConsoleCommand {
+  const command = emit[0];
+
+  if (Array.isArray(command)) {
+    return command[0];
+  } else {
+    return command;
+  }
+}
+
+interface GroupTracker {
+  readonly command: "group" | "groupCollapsed";
+  readonly header: LogArgs;
+  readonly body: Emit[];
+}
+
+class Emitter {
+  static create(
+    scope: Scope,
+    shouldLog: boolean,
+    asLevel: LogLevel,
+    formatter: Formatter,
+    console: CurrentConsole
+  ): Emitter {
+    return new Emitter(scope, shouldLog, asLevel, formatter, console, []);
+  }
+
+  readonly #scope: Scope;
+  readonly #shouldLog: boolean;
+  readonly #asLevel: LogLevel;
+  readonly #formatter: Formatter;
+  readonly #console: CurrentConsole;
+  readonly #buffered: GroupTracker[];
+
+  constructor(
+    scope: Scope,
+    shouldLog: boolean,
+    asLevel: LogLevel,
+    formatter: Formatter,
+    console: CurrentConsole,
+    buffered: GroupTracker[]
+  ) {
+    this.#scope = scope;
+    this.#shouldLog = shouldLog;
+    this.#asLevel = asLevel;
+    this.#formatter = formatter;
+    this.#console = console;
+    this.#buffered = buffered;
+  }
+
+  emit(...emit: [(scope: Scope) => SingleEmit] | SingleEmit): void {
+    if (this.#shouldLog === false) {
+      return;
+    }
+
+    if (typeof emit[0] === "function") {
+      const normalized = emit[0](this.#scope);
+      this.#handleSingle(normalized);
+    } else {
+      this.#handleSingle([
+        emit[0],
+        typeof emit[1] === "string" ? [emit[1]] : emit[1],
+      ] as SingleEmit);
+    }
+  }
+
+  group(style: "expanded" | "collapsed", ...args: LogArgs): void {
+    if (this.#shouldLog) {
+      const command: GroupCommand =
+        style === "expanded" ? "group" : "groupCollapsed";
+      this.#buffered.push({ header: args, command, body: [] });
+    }
+  }
+
+  groupEnd(): void {
+    if (this.#shouldLog) {
+      const group = this.#buffered.pop();
+
+      if (group === undefined) {
+        throw Error(`BUG: unbalanced group/groupCollapsed and groupEnd`);
+      }
+
+      const parent = this.#buffered.pop();
+      const collect = parent ? parent.body : [];
+
+      const body = group.body;
+
+      if (body.length === 0) {
+        collect.push(["log", group.header]);
+      } else {
+        collect.push([group.command, group.header]);
+        collect.push(...body);
+        collect.push(["groupEnd", []]);
+      }
+
+      if (parent) {
+        this.#buffered.push(parent);
+      } else {
+        for (let item of collect) {
+          this.#emitNow(item);
+        }
+      }
+    }
+  }
+
+  #handleSingle(emit: SingleEmit) {
+    const buffer = this.#buffered.pop();
+
+    if (buffer) {
+      buffer.body.push(emit);
+      this.#buffered.push(buffer);
+    } else {
+      this.#emitNow(emit);
+    }
+  }
+
+  #emitNow(
+    emit: Emit
+    // command:
+    //   | ConsoleCommand
+    //   | "groupEnd"
+    //   | [console: ConsoleCommand, format: keyof Formatter],
+    // args: LogArgs
+  ) {
+    if (this.#buffered.length > 0) {
+      this.#buffered[this.#buffered.length - 1].body.push(emit);
+      return;
+    }
+
+    const [command, args] = emit;
+
+    let consoleCommand: ConsoleCommand;
+    let lineStyle: LineStyle;
+
+    if (Array.isArray(command)) {
+      [consoleCommand, lineStyle] = command;
+    } else if (command === "groupEnd") {
+      this.#console.current.groupEnd();
+      return;
+    } else {
+      consoleCommand = command;
+      lineStyle = defaultLineStyle(command);
+    }
+
+    if (lineStyle === "line") {
+      const line = this.#format(this.#scope, args, "heading");
+
+      if (line.isMultiline()) {
+        const oneline = line.oneline().attribute("heading", true);
+        this.#console.current.group(
+          ...oneline.toLogArgs(this.#console.style("group"))
+        );
+        this.#console.current[consoleCommand](
+          ...line.toLogArgs(this.#console.style(consoleCommand))
+        );
+        this.#console.current.groupEnd();
+        return;
+      }
+    }
+
+    const line = this.#format(this.#scope, args, lineStyle);
+    this.#console.current[consoleCommand](
+      ...line.toLogArgs(this.#console.style(consoleCommand))
+    );
+  }
+
+  #format(scope: Scope, args: string | LogArgs, style: LineStyle): StyledLine {
+    const argList = typeof args === "string" ? [args] : args;
+    const line = Line(argList);
+
+    const formattedLine = this.#formatter[style]({
+      line,
+      scope,
+      level: this.#asLevel,
+      console: this.#console,
+    });
+    return formattedLine;
+  }
+}
+
+interface Emitter {
+  (callback: (scope: Scope) => Emit): void;
+}
+
+type LineStyle = keyof Formatter;
+export type SingleCommand = "log" | "warn" | "debug" | "trace";
+export type GroupCommand = "group" | "groupCollapsed";
+export type ConsoleCommand = SingleCommand | GroupCommand;
+
+function defaultLineStyle(style: ConsoleCommand): LineStyle {
+  switch (style) {
+    case "debug":
+    case "log":
+    case "warn":
+      return "line";
+    case "group":
+    case "groupCollapsed":
+    case "trace":
+      return "heading";
+    default:
+      exhaustive(style, "style");
+  }
 }
 
 /**
  * @strip.statement
  */
-export const LOGGER = Logger.default();
+export const LOGGER = Logger.scoped("@starbeam").level(
+  "@starbeam/**",
+  LogLevel.Info
+);
+
+function getConsoleMethod(
+  consoleCommand: ConsoleCommand,
+  lineStyle: keyof Formatter,
+  line?: StyledLine
+) {
+  if (line?.isMultiline()) {
+  }
+  throw new Error("Function not implemented.");
+}

@@ -68,6 +68,13 @@ export class CreatedContext<In = unknown> {
     this.#butGot = butGot;
   }
 
+  get expected(): { label: string; relationship?: Relationship } {
+    return {
+      label: this.#context.expected,
+      relationship: this.#context.relationship,
+    };
+  }
+
   update(partial: CreatedContext | undefined): CreatedContext<In> {
     if (partial === undefined) {
       return this;
@@ -196,6 +203,23 @@ export class ExpectedContext {
     });
   }
 
+  to(relationship: Relationship): CreatedContext;
+  to(kind: "be" | "have", description: string): CreatedContext;
+  to(
+    ...args: [kind: "be" | "have", description: string] | [Relationship]
+  ): CreatedContext {
+    const relationship = (
+      typeof args[0] === "string"
+        ? { kind: args[0], description: args[1] }
+        : args[0]
+    ) as Relationship;
+
+    return DescribedContext.of({
+      expected: this.#expected,
+      relationship: relationship,
+    }).assert();
+  }
+
   toBe(description: string): CreatedContext {
     return DescribedContext.of({
       expected: this.#expected,
@@ -228,7 +252,7 @@ export function as(input: string): CreatedContext {
 }
 
 export interface Relationship {
-  readonly kind: "to be" | "to have";
+  readonly kind: "to be" | "to have" | "to";
   readonly description: string;
 }
 

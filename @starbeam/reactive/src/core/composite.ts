@@ -1,11 +1,11 @@
-import { Abstraction } from "@starbeam/debug";
 import {
   CompositeChild,
   REACTIVE,
   ReactiveInternals,
   type CompositeInternals,
-  type ReactiveProtocol,
+  type ReactiveProtocol
 } from "@starbeam/timeline";
+import { Abstraction } from "@starbeam/trace-internals";
 import { UninitializedCompositeInternalsImpl } from "../internals/composite.js";
 
 export class CompositeReactive implements ReactiveProtocol {

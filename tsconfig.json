@@ -12,7 +12,7 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "module": "NodeNext",
-    "moduleResolution": "nodenext",
+    "moduleResolution": "node",
     "lib": ["ESNext", "DOM"],
     "sourceMap": true,
     "sourceRoot": ".",
@@ -26,10 +26,12 @@
     "skipDefaultLibCheck": true
   },
   "include": [
+    "tests/framework/setup.ts",
     "@starbeam/*/index.ts",
+    "@starbeam/*/*/examples/**/*.ts",
     "@starbeam/*/src/**/*.ts",
-    "tests/specs/**/*.spec.ts",
-    "guides/**/*.quokka.ts"
+    "@starbeam/*/tests/**/*.spec.ts",
+    "tests/specs/**/*.spec.ts"
   ],
   "exclude": ["node_modules", "**/node_modules/**"],
   "ts-node": {

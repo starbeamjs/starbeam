@@ -1,10 +1,10 @@
-import { Abstraction } from "@starbeam/debug";
 import {
   REACTIVE,
   ReactiveInternals,
   type MutableInternals,
   type ReactiveProtocol,
 } from "@starbeam/timeline";
+import { Abstraction } from "@starbeam/trace-internals";
 import { Enum } from "@starbeam/utils";
 import { exhaustive } from "@starbeam/verify";
 import { Static } from "./core/static.js";

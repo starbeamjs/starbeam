@@ -1,7 +1,7 @@
-import { Abstraction } from "@starbeam/debug";
 import { isObject } from "@starbeam/fundamental";
 import { Reactive } from "@starbeam/reactive";
 import type { ReactiveProtocol } from "@starbeam/timeline";
+import { Abstraction } from "@starbeam/trace-internals";
 import { Enum } from "@starbeam/utils";
 import { toBe } from "./patterns.js";
 import {

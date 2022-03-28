@@ -82,13 +82,17 @@ export interface UninitializedDerivedInternals extends ReactiveInternals {
   readonly type: "derived";
   readonly state: "uninitialized";
 
+  readonly initialized: MutableInternals;
+
   initialize<T>(frame: FinalizedFrame<T>): InitializedDerivedInternals<T>;
+  dependencies(): readonly MutableInternals[];
 }
 
 export interface InitializedDerivedInternals<T> extends ReactiveInternals {
   readonly type: "derived";
   readonly state: "initialized";
 
+  readonly initialized: MutableInternals;
   readonly frame: FinalizedFrame<T>;
 
   children(): ReadonlySet<FrameChild>;

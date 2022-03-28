@@ -1,5 +1,5 @@
 import type { UnsafeAny } from "@starbeam/fundamental";
-import { abstractify, Abstraction } from "./abstraction.js";
+import { abstractify, Abstraction } from "@starbeam/trace-internals";
 
 /** @internal */
 export const assertCondition: (

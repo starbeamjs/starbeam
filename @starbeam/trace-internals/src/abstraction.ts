@@ -1,4 +1,5 @@
 import type { UnsafeAny } from "@starbeam/fundamental";
+import { LocationScope } from "./trace.js";
 
 Error.stackTraceLimit = Infinity;
 
@@ -22,9 +23,41 @@ export class Abstraction {
     return ABSTRACTION.#end(start, error);
   }
 
-  static callerFrame(frames = 3): string {
-    let stack = Abstraction.#stack(frames);
+  static callerFrame(
+    { extraFrames = 0 }: { extraFrames: number } = { extraFrames: 0 }
+  ): string {
+    let stack = Abstraction.#stack(3 + extraFrames);
     return stack.split("\n")[0].trimStart();
+  }
+
+  static callerScope({ extraFrames = 0 }: { extraFrames?: number } = {}):
+    | LocationScope
+    | undefined {
+    const frame = parseFrame(Abstraction.callerFrame({ extraFrames }));
+    // const parts = frame.match(
+    //   /^at .*@starbeam[/\\](?<pkg>[^/\\]*)[/\\]dist[/\\]src[/\\](?<file>[^\.]*)[^:]*[:]((?<line>[\d]+)[:](?<column>[\d]+))?$/
+    // );
+
+    // const groups = parts?.groups;
+    // console.log({ parts, groups });
+
+    // if (groups === undefined) {
+    //   console.warn(
+    //     `Expected caller frame to be in the format of a stack frame, but it was \`${frame}\``
+    //   );
+
+    //   return undefined;
+    // }
+
+    const scope: string[] = [];
+
+    if (frame) {
+      const { file, pkg, loc, tag } = frame;
+
+      return LocationScope.create({ file, package: pkg, location: loc, tag });
+    } else {
+      return undefined;
+    }
   }
 
   static #stack(frames = 1): string {
@@ -204,4 +237,45 @@ export function abstractify<F extends (...args: any[]) => any>(f: F): F {
       Abstraction.end(start, e as Error);
     }
   }) as F;
+}
+
+interface FrameParts {
+  readonly tag?: string;
+  readonly pkg: string;
+  readonly file: string;
+  readonly loc?: {
+    readonly line: string;
+    readonly column: string;
+  };
+}
+
+function parseFrame(frame: string): FrameParts | undefined {
+  let parts = frame.match(
+    /^at (?:(?<tag>.*) )?[(]?.*(?<starbeam>@starbeam)[/\\](?<pkg>[^/\\]*)[/\\]dist[/\\]src[/\\](?<file>[^\.]*)[^:]*(?:[:](?<line>[^:)]*)[:](?<column>[^:)]*))[)]?$/
+  );
+
+  if (parts === null) {
+    parts = frame.match(
+      /^at (?:(?<tag>.*) )?[(].*(?<file>[^\./\\]*)[^:]*(?:[:](?<line>[^:)]*)[:](?<column>[^:)]*))[)]$/
+    );
+  }
+
+  const groups = parts?.groups;
+
+  if (groups === undefined) {
+    console.warn(
+      `Expected caller frame to be in the format of a stack frame, but it was \`${frame}\``
+    );
+    return;
+  } else {
+    return {
+      tag: groups.tag,
+      pkg: groups.starbeam ? `@starbeam/${groups.pkg}` : "(app)",
+      file: groups.file,
+      loc:
+        groups.line && groups.column
+          ? { line: groups.line, column: groups.column }
+          : undefined,
+    };
+  }
 }

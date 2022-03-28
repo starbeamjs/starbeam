@@ -10,7 +10,7 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
-    "module": "nodenext",
+    "module": "NodeNext",
     "moduleResolution": "nodenext",
     "lib": ["ESNext", "DOM"],
     "sourceMap": true,

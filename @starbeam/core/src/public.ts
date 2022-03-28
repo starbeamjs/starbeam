@@ -1,5 +1,6 @@
 import { LIFETIME } from "@starbeam/lifetime";
 import type { Reactive } from "@starbeam/reactive";
+import { TIMELINE } from "@starbeam/timeline";
 import {
   HookBlueprint,
   type HookConstructor,
@@ -13,6 +14,10 @@ export function Hook<C extends ResourceHookConstructor<unknown>>(
   callback: C,
   description: string
 ): C extends HookConstructor<infer T> ? HookBlueprint<T> : never;
+export function Hook<T, C extends ResourceHookConstructor<T>>(
+  callback: C,
+  description: string
+): HookBlueprint<T>;
 export function Hook<C extends () => Reactive<unknown>>(
   callback: C,
   description: string
@@ -36,4 +41,8 @@ export const lifetime = {
   debug(...roots: object[]) {
     return LIFETIME.debug(...roots);
   },
-};
+} as const;
+
+export const timeline = {
+  on: TIMELINE.on,
+} as const;

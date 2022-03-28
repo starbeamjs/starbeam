@@ -1,4 +1,5 @@
 import { DebugFinalizer, DebugObjectLifetime } from "@starbeam/debug";
+import { isObject } from "@starbeam/fundamental";
 import { TIMELINE } from "@starbeam/timeline";
 
 export class Lifetime {
@@ -17,20 +18,26 @@ export class Lifetime {
       this.#lifetime(object).add(Finalizer.from(finalizer)),
   } as const;
 
-  readonly finalize = (object: object): void => {
-    const lifetime = this.#lifetimes.get(object);
+  readonly finalize = (value: unknown): void => {
+    if (isObject(value)) {
+      const lifetime = this.#lifetimes.get(value);
 
-    if (lifetime) {
-      // TODO: Make this strippable
-      TIMELINE.withAssertFrame(
-        () => lifetime.finalize(),
-        `while destroying an object`
-      );
+      if (lifetime) {
+        // TODO: Make this strippable
+        TIMELINE.withAssertFrame(
+          () => lifetime.finalize(),
+          `while destroying an object`
+        );
+      }
     }
   };
 
-  readonly link = (parent: object, child: object): void => {
-    this.#lifetime(parent).link(this.#lifetime(child));
+  readonly link = <T>(parent: object, child: T): T => {
+    if (isObject(child)) {
+      this.#lifetime(parent).link(this.#lifetime(child));
+    }
+
+    return child;
   };
 
   debug(...roots: object[]): readonly DebugObjectLifetime[] {

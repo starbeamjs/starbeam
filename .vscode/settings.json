@@ -4,8 +4,8 @@
     "**/node_modules": true,
     "docs": true,
     "**/*.tsbuildinfo": true,
-    "types": true
-    // "**/dist": true
+    "types": true,
+    "**/dist": true
   },
   "search.exclude": {
     "**/node_modules": true,
@@ -13,23 +13,21 @@
     "**/*.code-search": true,
     "**/dist": true
   },
-  "editor.codeActionsOnSave": {
-    "source.organizeImports": true,
-    "source.fixAll": false
-  },
+
+  "html.customData": ["./node_modules/documentary/web-components.json"],
+
   "typescript.preferences.importModuleSpecifier": "project-relative",
+  "editor.semanticHighlighting.enabled": true,
 
   "npm.packageManager": "pnpm",
   "eslint.packageManager": "pnpm",
   // "jest.autoRun": {
   //   "watch": "test-file"
   // }
-
+  "jest.enableCodeLens": true,
   "javascript.preferences.importModuleSpecifierEnding": "js",
   "typescript.preferences.importModuleSpecifierEnding": "js",
   "typescript.tsdk": "node_modules/typescript/lib",
-  // "editor.bracketPairColorization.enabled": true,
-  // "editor.guides.bracketPairs": "active",
   "quokka.codeAutoPlayDelay": 1000,
   "quokka.automaticRestart": true,
   "quokka.automaticStartRegex": "quokka\\.[tj]s$",
@@ -49,7 +47,6 @@
   "wycats.dev.vlsPort": 8900,
   "wycats.trace.server": "messages",
   "[wycats-typescript].trace.server": "verbose",
-  "jest.debugMode": true,
   "jest.autoRun": "off",
   "jest.testExplorer": {
     "enabled": true

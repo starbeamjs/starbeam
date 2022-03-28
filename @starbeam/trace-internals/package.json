@@ -13,8 +13,13 @@
   },
   "version": "0.5.0",
   "dependencies": {
+    "@starbeam/config": "workspace:*",
     "@starbeam/fundamental": "workspace:*",
     "@starbeam/verify": "workspace:*",
-    "@starbeam/config": "workspace:*"
+    "@starbeam/utils": "workspace:*",
+    "picomatch-browser": "^2.2.6"
+  },
+  "devDependencies": {
+    "@types/picomatch": "^2.3.0"
   }
 }

@@ -11,8 +11,8 @@
       }
     }
   },
-  "version": "0.5.0",
   "dependencies": {
-    "@starbeam/verify": "workspace:*"
-  }
+    "@starbeam/fundamental": "workspace:*"
+  },
+  "version": "0.5.0"
 }

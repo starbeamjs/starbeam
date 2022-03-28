@@ -1,17 +1,16 @@
-import { Abstraction, DisplayStruct } from "@starbeam/debug";
+import { DisplayStruct } from "@starbeam/debug";
 import { isObject } from "@starbeam/fundamental";
 import { COORDINATOR } from "@starbeam/schedule";
 import {
   INSPECT,
   REACTIVE,
   type MutableInternals,
-  type ReactiveInternals
+  type ReactiveInternals,
 } from "@starbeam/timeline";
+import { Abstraction } from "@starbeam/trace-internals";
 import { expected, isEqual, verify } from "@starbeam/verify";
 import { MutableInternalsImpl } from "../internals/mutable.js";
 import type { Reactive, ReactiveValue } from "../reactive.js";
-
-console.log("ReactiveCell");
 
 export class ReactiveCell<T> implements ReactiveValue<T> {
   static create<T>(value: T, internals: MutableInternals): ReactiveCell<T> {
@@ -33,6 +32,10 @@ export class ReactiveCell<T> implements ReactiveValue<T> {
       value: this.#value,
       updated: debug.lastUpdated,
     });
+  }
+
+  toString() {
+    return `Cell (${this.#value})`;
   }
 
   freeze(): void {

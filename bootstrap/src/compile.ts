@@ -311,8 +311,14 @@ class TranspileTask {
     const digests = await this.#digests(workspace.hash);
 
     if (digests.prev === digests.next) {
-      log.silent.inspect.labeled("[FRESH]", this.input);
-      return;
+      const exists = await this.output.exists();
+
+      if (exists) {
+        log.silent.inspect.labeled("[FRESH]", this.input);
+        return;
+      } else {
+        log.inspect.labeled("[MISSING]", this.input);
+      }
     } else {
       log.inspect.labeled("[STALE]", this.input);
     }

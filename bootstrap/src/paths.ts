@@ -1,6 +1,8 @@
 import { createHash } from "crypto";
 import searchGlob from "fast-glob";
+import type { Stats } from "fs";
 import * as fs from "fs/promises";
+import { lstat } from "fs/promises";
 import * as path from "path";
 import shell from "shelljs";
 import type * as util from "util";
@@ -591,6 +593,31 @@ export class AbsolutePath {
     return this.basename.ext;
   }
 
+  async exists(): Promise<boolean> {
+    try {
+      const stats = await lstat(this.#filename);
+      if (this.isDirectory) {
+        assertStats({
+          when: "checking existence",
+          of: this.#filename,
+          expected: StatsType.Directory,
+          actual: stats,
+        });
+        return true;
+      } else {
+        assertStats({
+          when: "checking existence",
+          of: this.#filename,
+          expected: StatsType.RegularFile,
+          actual: stats,
+        });
+        return true;
+      }
+    } catch (e) {
+      return false;
+    }
+  }
+
   async read(): Promise<string | null> {
     if (this.#kind !== "regular") {
       throw Error(
@@ -896,4 +923,69 @@ export function digest(source: string, extra: string): string {
   let hash = createHash("sha256");
   hash.update(`${source}${extra}`);
   return hash.digest("hex");
+}
+
+enum StatsType {
+  Directory = "a directory",
+  RegularFile = "a regular file",
+  Symlink = "a symlink",
+  BlockDevice = "a block device",
+  CharacterDevice = "a character device",
+  Socket = "a socket",
+  FIFO = "a FIFO",
+  Unknown = "an unknown kind of file",
+}
+
+function assertStats({
+  when,
+  of: filename,
+  expected,
+  actual,
+}: {
+  when: string;
+  of: string;
+  expected: StatsType;
+  actual: Stats;
+}) {
+  const actualType = statsType(actual);
+
+  if (actualType === expected) {
+    return;
+  }
+
+  throw Error(
+    `When ${when}, expected ${filename} to be ${expected}, but it was ${actual}`
+  );
+}
+
+function statsType(stats: Stats): StatsType {
+  if (stats.isBlockDevice()) {
+    return StatsType.BlockDevice;
+  }
+
+  if (stats.isCharacterDevice()) {
+    return StatsType.CharacterDevice;
+  }
+
+  if (stats.isDirectory()) {
+    return StatsType.Directory;
+  }
+
+  if (stats.isFIFO()) {
+    return StatsType.FIFO;
+  }
+
+  if (stats.isFile()) {
+    return StatsType.RegularFile;
+  }
+
+  if (stats.isSocket()) {
+    return StatsType.Socket;
+  }
+
+  if (stats.isSymbolicLink()) {
+    return StatsType.Symlink;
+  }
+
+  return StatsType.Unknown;
 }

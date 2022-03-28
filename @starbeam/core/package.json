@@ -23,22 +23,31 @@
     "guides": "mdbook build -d ../docs guides",
     "jest:env:watch": "tsc -p ./jest -w",
     "jest:env:build": "tsc -p ./jest",
-    "jest:cache:clear": "jest --clearCache"
+    "jest:cache:clear": "jest --clearCache",
+    "doc": "node ../../scripts/doc.js",
+    "doc:readme": "node ../../scripts/docs/doc.js README",
+    "doc:hooks": "node ../../scripts/docs/doc.js HOOKS",
+    "doc:all": "node ./scripts/docs/docs.js"
   },
   "dependencies": {
-    "fast-array-diff": "^1.0.1",
-    "treeify": "^1.1.0",
-    "@starbeam/fundamental": "workspace:*",
-    "@starbeam/verify": "workspace:*",
     "@starbeam/debug": "workspace:*",
-    "@starbeam/trace-internals": "workspace:*",
-    "@starbeam/schedule": "workspace:*",
+    "@starbeam/fundamental": "workspace:*",
     "@starbeam/lifetime": "workspace:*",
-    "@starbeam/timeline": "workspace:*",
     "@starbeam/reactive": "workspace:*",
-    "@starbeam/utils": "workspace:*"
+    "@starbeam/schedule": "workspace:*",
+    "@starbeam/timeline": "workspace:*",
+    "@starbeam/trace-internals": "workspace:*",
+    "@starbeam/utils": "workspace:*",
+    "@starbeam/verify": "workspace:*",
+    "fast-array-diff": "^1.0.1",
+    "treeify": "^1.1.0"
   },
   "devDependencies": {
-    "@types/treeify": "workspace:*"
+    "@cucumber/gherkin": "^22.0.0",
+    "@cucumber/message-streams": "^3.0.0",
+    "@cucumber/messages": "^17.1.1",
+    "@synion/md-docs": "^1.0.15",
+    "@types/treeify": "workspace:*",
+    "documentary": "^1.38.7"
   }
 }

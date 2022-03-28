@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@starbeam/core": "workspace:*",
+    "@starbeam/reactive": "workspace:*"
+  }
+}

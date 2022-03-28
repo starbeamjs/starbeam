@@ -1,8 +1,11 @@
 import findWorkspaceDir from "@pnpm/find-workspace-dir";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
+import { log } from "./log.js";
 import { AbsolutePath } from "./paths.js";
 import { Workspace } from "./workspace.js";
+
+log.heading("- Compiling packages...");
 
 const dir = dirname(fileURLToPath(import.meta.url));
 const root = await findWorkspaceDir.default(dir);
@@ -24,6 +27,8 @@ for (let pkg of WORKSPACE.packages) {
   // log.heading(`- Compiling ${pkg.name}`);
   await pkg.compile({ dryRun: false });
 }
+
+log.heading("- Done");
 
 function relative(path: AbsolutePath): string {
   return path.relativeFromAncestor(WORKSPACE.root);

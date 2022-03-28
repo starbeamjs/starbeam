@@ -9,5 +9,5 @@ export type UNINITIALIZED_REACTIVE = typeof UNINITIALIZED_REACTIVE;
 export const IS_UPDATED_SINCE = Symbol("IS_UPDATED_SINCE");
 export type IS_UPDATED_SINCE = typeof IS_UPDATED_SINCE;
 
-export const UNINITIALIZED = Symbol("UNINITIALIZED");
+export const UNINITIALIZED = Symbol.for("@starbeam/uninitialized");
 export type UNINITIALIZED = typeof UNINITIALIZED;

@@ -1,6 +1,12 @@
-export * from "./src/atom.js";
-export * from "./src/component.js";
+import "./src/debug.js";
+
+export * from "./src/element.js";
 export * from "./src/hookify.js";
-export * from "./src/hooks.js";
+export * from "./src/modifier.js";
 export * from "./src/provider.js";
-export * from "./src/use-reactive.js";
+export { useReactiveElement } from "./src/use-reactive-element.js";
+export {
+  useReactive as useReactiveObject,
+  useReactiveVariable,
+  type ReactiveState,
+} from "./src/use-reactive.js";

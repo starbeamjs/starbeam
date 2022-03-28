@@ -1,4 +1,4 @@
-import { Abstraction } from "@starbeam/debug";
+import { Abstraction } from "@starbeam/trace-internals";
 import { as, verified } from "@starbeam/verify";
 import { has } from "./strippable/minimal.js";
 
@@ -141,6 +141,6 @@ export function getDescription(fn: (...args: any[]) => unknown): string {
   if (fn.name) {
     return fn.name;
   } else {
-    return Abstraction.callerFrame(4);
+    return Abstraction.callerFrame({ extraFrames: 4 });
   }
 }

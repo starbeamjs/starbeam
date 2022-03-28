@@ -1,14 +1,9 @@
 import type { browser } from "@domtree/flavors";
 import { UNINITIALIZED } from "@starbeam/core";
 import { DomEnvironment, Root } from "@starbeam/dom";
-import {
-  createContext,
-  createElement,
-  useRef,
-  type Context,
-  type PropsWithChildren,
-} from "react";
-import { useSSR } from "use-ssr";
+import type { Context, PropsWithChildren } from "react";
+import * as useSSR from "use-ssr";
+import { createContext, createElement, useRef } from "./upstream.js";
 
 export const STARBEAM = createContext(null) as unknown as Context<Root>;
 
@@ -28,7 +23,7 @@ export function Starbeam({
 }
 
 function inferEnvironment(document?: browser.Document): DomEnvironment {
-  const ssr = useSSR();
+  const ssr = useSSR.useSSR();
 
   if (document) {
     return DomEnvironment.window(document.defaultView as browser.Window);

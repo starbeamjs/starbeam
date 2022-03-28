@@ -1,4 +1,4 @@
-import { abstractify } from "@starbeam/debug";
+import { abstractify } from "@starbeam/trace-internals";
 
 export const narrow: <T, U extends T>(
   value: T,

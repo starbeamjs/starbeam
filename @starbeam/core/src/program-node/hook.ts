@@ -4,8 +4,7 @@ import { Reactive } from "@starbeam/reactive";
 import { REACTIVE, ReactiveInternals, UNINITIALIZED } from "@starbeam/timeline";
 import { LOGGER } from "@starbeam/trace-internals";
 import { LIFETIME } from "../core/lifetime.js";
-import { HookBlueprint, SimpleHook } from "../hooks/simple.js";
-import type { Hook } from "../public.js";
+import { HookBlueprint, HookInstance, SimpleHook } from "../hooks/simple.js";
 import type { Root } from "../root/root.js";
 import {
   AbstractProgramNode,
@@ -55,13 +54,13 @@ export class HookProgramNode<T> extends AbstractProgramNode<
   HookValue
 > {
   static create<T>(universe: Root, hook: HookBlueprint<T>): HookProgramNode<T> {
-    return new HookProgramNode(universe, SimpleHook.construct(hook));
+    return new HookProgramNode(universe, SimpleHook.construct(hook, universe));
   }
 
   readonly #universe: Root;
-  readonly #hook: Reactive<Hook>;
+  readonly #hook: HookInstance<unknown>;
 
-  private constructor(universe: Root, hook: Reactive<Hook<T>>) {
+  private constructor(universe: Root, hook: HookInstance<T>) {
     super();
     this.#universe = universe;
     this.#hook = hook;
@@ -72,20 +71,18 @@ export class HookProgramNode<T> extends AbstractProgramNode<
   }
 
   render(): RenderedProgramNode<HookValue<T>> {
-    return RenderedHook.create(this.#universe, this.#hook);
+    return RenderedHook.create(this.#hook);
   }
 }
 
 export class RenderedHook<T> implements RenderedProgramNode<HookValue> {
-  static create<T>(universe: Root, hook: Reactive<Hook<T>>): RenderedHook<T> {
-    return new RenderedHook(universe, hook);
+  static create<T>(hook: HookInstance<T>): RenderedHook<T> {
+    return new RenderedHook(hook);
   }
 
-  readonly #hook: Reactive<Hook<T>>;
-  readonly #root: Root;
+  readonly #hook: HookInstance<T>;
 
-  private constructor(universe: Root, hook: Reactive<Hook<T>>) {
-    this.#root = universe;
+  private constructor(hook: HookInstance<T>) {
     this.#hook = hook;
   }
 
@@ -99,7 +96,7 @@ export class RenderedHook<T> implements RenderedProgramNode<HookValue> {
 
   poll(inside: HookValue): void {
     LOGGER.trace.group("\npolling RenderedHook", () => {
-      const hook = this.#hook.current;
+      const hook = this.#hook;
       const description = Reactive.description(hook);
 
       LOGGER.trace.log(`=> polled`, hook[REACTIVE].description);

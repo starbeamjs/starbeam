@@ -4,8 +4,9 @@
   "cacheDirectory": "./.jest.cache",
   "extensionsToTreatAsEsm": [".ts", ".tsx"],
   "testEnvironment": "./bootstrap/dist/environment.js",
+
   "resolver": "jest-ts-webcompat-resolver",
-  "injectGlobals": false,
+  "injectGlobals": true,
   "globals": {
     "ts-jest": {
       "useESM": true

@@ -5,6 +5,7 @@ packages:
   - notes/examples
   - examples
   - "@starbeam/*"
+  - "@starbeam/*/*/examples"
   - "@types/@domtree/*"
   - "@types/*"
   - guides/reactivity

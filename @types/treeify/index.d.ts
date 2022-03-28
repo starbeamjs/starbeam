@@ -8,5 +8,5 @@ declare module "treeify" {
   ): string;
 
   const DEFAULT: { asTree: typeof asTree };
-  export default DEFAULT;
+  export = DEFAULT;
 }

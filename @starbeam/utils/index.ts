@@ -7,6 +7,7 @@ export {
   type EnumClass1,
   type EnumClass2,
   type Enumeration,
+  type EnumInstanceN,
   type Matcher,
   type MatcherFor,
   type Matchers,

@@ -7,7 +7,7 @@ export {
   type PartialVerifier,
 } from "./src/assert.js";
 export { isPresent } from "./src/presence.js";
-export { isEqual } from "./src/verifiers.js";
+export { isEqual, isOneOf, matches, matchesAny } from "./src/verifiers.js";
 export {
   as,
   CreatedContext,

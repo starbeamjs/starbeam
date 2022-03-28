@@ -43,6 +43,10 @@ export default class TrackedObject {
       },
 
       set(target, prop, value, _receiver) {
+        if (value === target[prop]) {
+          return true;
+        }
+
         target[prop] = value;
 
         const tx = COORDINATOR.begin(

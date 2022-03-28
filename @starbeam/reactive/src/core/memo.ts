@@ -1,12 +1,12 @@
-import { Abstraction } from "@starbeam/debug";
 import {
   FinalizedFrame,
   REACTIVE,
   TIMELINE,
   type DerivedInternals,
   type ReactiveInternals,
+  type UninitializedDerivedInternals,
 } from "@starbeam/timeline";
-import { LOGGER } from "@starbeam/trace-internals";
+import { Abstraction, LOGGER } from "@starbeam/trace-internals";
 import { exhaustive } from "@starbeam/verify";
 import {
   InitializedDerivedInternalsImpl,
@@ -35,6 +35,16 @@ export class ReactiveMemo<T> implements ReactiveValue<T> {
     this.#internal = internals;
   }
 
+  toString() {
+    if (this.#internal.state === "initialized") {
+      const valid = this.#internal.validate();
+      const desc = valid.status === "valid" ? `fresh ${valid.value}` : `stale`;
+      return `Memo(${desc})`;
+    } else {
+      return `Memo({uninitialized})`;
+    }
+  }
+
   get [REACTIVE](): ReactiveInternals {
     return this.#internal;
   }
@@ -46,6 +56,7 @@ export class ReactiveMemo<T> implements ReactiveValue<T> {
 
       if (valid.status === "valid") {
         TIMELINE.didConsume(internals.frame);
+        TIMELINE.didConsume(internals.initialized);
         return valid.value;
       }
 
@@ -56,28 +67,37 @@ export class ReactiveMemo<T> implements ReactiveValue<T> {
 
       this.#internal = InitializedDerivedInternalsImpl.create(
         frame,
+        internals.initialized,
         internals.description
       );
       return value;
     } else {
-      const bookkeeping = this.#internal;
-      const { frame, value } = this.initialize(bookkeeping.description);
+      const internals = this.#internal;
+      const { frame, value } = this.#initialize(internals);
 
       this.#internal = InitializedDerivedInternalsImpl.create(
         frame,
-        bookkeeping.description
+        internals.initialized,
+        internals.description
       );
       return value;
     }
   }
 
-  initialize(description: string): PolledMemo<T> {
+  #initialize({
+    initialized,
+    description,
+  }: UninitializedDerivedInternals): PolledMemo<T> {
+    initialized.update();
+
     return LOGGER.trace.group(`initializing memo: ${description}`, () =>
       TIMELINE.withFrame(this.#callback, description)
     );
   }
 
   poll(frame: FinalizedFrame<T>, description: string): PolledMemo<T> {
+    this.#internal.initialized.consume();
+
     const validation = LOGGER.trace.group(`validating ${description}`, () => {
       const validation = frame.validate();
 

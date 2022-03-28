@@ -11,7 +11,7 @@ import { INSPECT } from "../utils.js";
 import { RenderedRoot } from "./rendered-root.js";
 
 export class Root {
-  static use<T>(hook: HookBlueprint<T>) {
+  static use<T>(hook: HookBlueprint<T>): RenderedHook<T> {
     const root = new Root(hook.description);
     const node = HookProgramNode.create(root, hook);
     const value = HookValue.create();
@@ -21,7 +21,7 @@ export class Root {
       hydrate: () => value,
     });
 
-    return new RenderedHook(value, rendered);
+    return new RenderedHook(value, rendered) as RenderedHook<T>;
   }
 
   [INSPECT](): string {
@@ -72,7 +72,7 @@ export class Root {
   }
 }
 
-class RenderedHook<T> {
+export class RenderedHook<T> {
   readonly #value: HookValue<T>;
   readonly #root: RenderedRoot<HookValue<T>>;
 

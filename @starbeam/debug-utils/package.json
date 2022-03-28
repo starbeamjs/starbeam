@@ -1,0 +1,15 @@
+{
+  "name": "@starbeam/debug-utils",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "index.ts",
+  "exports": {
+    ".": {
+      "types": "./index.js",
+      "import": {
+        "node": "./index.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  }
+}

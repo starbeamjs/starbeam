@@ -11,4 +11,11 @@ export type {
   Metaprogramming,
   UnsafeAny,
 } from "./src/infer.js";
-export { isObject } from "./src/type.js";
+export {
+  describeTypeofFor,
+  isNull,
+  isObject,
+  isTypeofType,
+  type TypeOf,
+  type Verifier as VerifierFunction,
+} from "./src/type.js";

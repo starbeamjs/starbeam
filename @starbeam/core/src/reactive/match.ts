@@ -1,5 +1,5 @@
-import { Abstraction } from "@starbeam/debug";
 import { Memo, type Reactive } from "@starbeam/reactive";
+import { Abstraction } from "@starbeam/trace-internals";
 import type { Enumeration, MatcherFor } from "@starbeam/utils";
 
 export function match<E extends Enumeration, U>(

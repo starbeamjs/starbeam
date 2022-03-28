@@ -1,0 +1,3 @@
+%TOC%
+
+<LiveReload />

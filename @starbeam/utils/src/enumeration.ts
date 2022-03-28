@@ -1,4 +1,4 @@
-import { isPresent, verified } from "@starbeam/verify";
+import { assert } from "@starbeam/fundamental";
 import type { InferReturn } from "./any.js";
 
 /**
@@ -26,18 +26,25 @@ export type Matchers<D extends Discriminant, Out, T = never, U = never> = {
   [P in D]: Matcher<P, T, U, Out>;
 };
 
-export interface EnumInstance0<D extends Discriminant> {
-  match<Out>(matcher: MatcherFor0<D, Out>): Out;
+export interface EnumInstanceN<D extends Discriminant> {
+  readonly variant: Variant<D>;
+
+  matches(rule: "any", variants: readonly Variant<D>[]): boolean;
   matches(variant: Variant<D>): boolean;
+}
+
+export interface EnumInstance0<D extends Discriminant>
+  extends EnumInstanceN<D> {
+  match<Out>(matcher: MatcherFor0<D, Out>): Out;
 }
 
 type MatcherFor0<D extends Discriminant, Out> = {
   [P in D]: () => Out;
 };
 
-export interface EnumInstance1<D extends Discriminant, T> {
+export interface EnumInstance1<D extends Discriminant, T>
+  extends EnumInstanceN<D> {
   match<Out>(matcher: MatcherFor1<D, T, Out>): Out;
-  matches(variant: Variant<D>): boolean;
 }
 
 type MatcherFor1<D extends Discriminant, T, Out> = {
@@ -46,9 +53,9 @@ type MatcherFor1<D extends Discriminant, T, Out> = {
     : () => Out;
 };
 
-export interface EnumInstance2<D extends Discriminant, T, U> {
+export interface EnumInstance2<D extends Discriminant, T, U>
+  extends EnumInstanceN<D> {
   match<Out>(matcher: MatcherFor2<D, T, U, Out>): Out;
-  matches(variant: Variant<D>): boolean;
 }
 
 type MatcherFor2<D extends Discriminant, T, U, Out> = {
@@ -138,7 +145,7 @@ export type EnumClass2<K extends string> = {
       ) => Instance;
 };
 
-type HasGeneric<K extends string, G extends string> = {
+export type HasGeneric<K extends string, G extends string> = {
   [P in K]: P extends `${string}(${G})` ? true : false;
 }[K];
 
@@ -158,20 +165,39 @@ export function Enum<K extends string[]>(...keys: K): EnumClass<K[number]> {
       this.#value = value;
     }
 
+    get variant(): string {
+      return this.#variant;
+    }
+
     match<U>(matcher: Record<string, (value?: unknown) => U>): U {
       return matcher[this.#variant](this.#value);
     }
 
-    matches(variant: string): boolean {
-      return variant === this.#variant;
+    matches(variant: string): boolean;
+    matches(rule: "any", variants: [string, ...string[]]): boolean;
+    matches(
+      ...args:
+        | [rule: "any", variants: [string, ...string[]]]
+        | [variant: string]
+    ): boolean {
+      const [rule, variants] = args;
+
+      if (rule === "any" && Array.isArray(variants)) {
+        return variants.some((v) => this.matches(v));
+      } else {
+        return rule === this.#variant;
+      }
     }
   }
 
   for (let discriminant of keys) {
-    let { variant } = verified(
-      discriminant.match(/^(?<variant>[^(]*)(?<generics>\([^)]*\))?$/),
-      isPresent
-    ).groups as { variant: string; generics?: string };
+    const match = discriminant.match(
+      /^(?<variant>[^(]*)(?<generics>\([^)]*\))?$/
+    );
+
+    assert(match !== null);
+
+    let { variant } = match.groups as { variant: string; generics?: string };
 
     Object.defineProperty(Enum, variant, {
       enumerable: false,

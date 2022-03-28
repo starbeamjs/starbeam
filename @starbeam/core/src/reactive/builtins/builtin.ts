@@ -1,6 +1,6 @@
-import { Abstraction } from "@starbeam/debug";
 import type { AnyRecord } from "@starbeam/fundamental";
 import { Cell, Memo, type Reactive } from "@starbeam/reactive";
+import { Abstraction } from "@starbeam/trace-internals";
 import type { FIXME } from "../../utils.js";
 import { TrackedArray } from "./array.js";
 import { TrackedMap, TrackedWeakMap } from "./map.js";

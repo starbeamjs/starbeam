@@ -1,14 +1,14 @@
-import {
-  UNINITIALIZED_REACTIVE,
-  type DerivedInternals,
-  type FinalizedFrame,
-  type FrameChild,
-  type FrameValidation,
-  type InitializedDerivedInternals,
-  type MutableInternals,
-  type Timestamp,
-  type UninitializedDerivedInternals,
+import type {
+  DerivedInternals,
+  FinalizedFrame,
+  FrameChild,
+  FrameValidation,
+  InitializedDerivedInternals,
+  MutableInternals,
+  Timestamp,
+  UninitializedDerivedInternals,
 } from "@starbeam/timeline";
+import { MutableInternalsImpl } from "./mutable.js";
 
 type InferReturn = any;
 
@@ -18,16 +18,21 @@ export class UninitializedDerivedInternalsImpl
   static create<T>(
     description: string
   ): UninitializedDerivedInternalsImpl & DerivedInternals<T> {
-    return new UninitializedDerivedInternalsImpl(description) as InferReturn;
+    return new UninitializedDerivedInternalsImpl(
+      description,
+      MutableInternalsImpl.create(description)
+    ) as InferReturn;
   }
 
   readonly type = "derived";
   readonly state = "uninitialized";
 
   readonly #description: string;
+  readonly #initialized: MutableInternals;
 
-  private constructor(description: string) {
+  private constructor(description: string, initialized: MutableInternals) {
     this.#description = description;
+    this.#initialized = initialized;
   }
 
   /** impl UninitializedDerivedInternals */
@@ -37,16 +42,25 @@ export class UninitializedDerivedInternalsImpl
     return this.#description;
   }
 
-  dependencies(): UNINITIALIZED_REACTIVE {
-    return UNINITIALIZED_REACTIVE;
+  get initialized(): MutableInternals {
+    return this.#initialized;
+  }
+
+  dependencies(): readonly MutableInternals[] {
+    return [this.#initialized];
   }
 
   isUpdatedSince(timestamp: Timestamp): boolean {
-    return false;
+    return this.#initialized.isUpdatedSince(timestamp);
   }
 
   initialize<T>(frame: FinalizedFrame<T>): InitializedDerivedInternals<T> {
-    return InitializedDerivedInternalsImpl.create(frame, this.#description);
+    this.#initialized.freeze();
+    return InitializedDerivedInternalsImpl.create(
+      frame,
+      this.#initialized,
+      this.#description
+    );
   }
 }
 
@@ -55,29 +69,40 @@ export class InitializedDerivedInternalsImpl<T>
 {
   static create<T>(
     frame: FinalizedFrame<T>,
+    initialized: MutableInternals,
     description: string
   ): InitializedDerivedInternalsImpl<T> {
-    return new InitializedDerivedInternalsImpl(frame, description);
+    return new InitializedDerivedInternalsImpl(frame, initialized, description);
   }
 
   readonly type = "derived";
   readonly state = "initialized";
 
   #frame: FinalizedFrame<T>;
+  readonly #initialized: MutableInternals;
   readonly #description: string;
 
-  private constructor(frame: FinalizedFrame<T>, description: string) {
+  private constructor(
+    frame: FinalizedFrame<T>,
+    initialized: MutableInternals,
+    description: string
+  ) {
     this.#frame = frame;
+    this.#initialized = initialized;
     this.#description = description;
   }
 
   /** impl InitializedDerivedInternals */
+  get initialized(): MutableInternals {
+    return this.#initialized;
+  }
+
   get frame(): FinalizedFrame<T> {
     return this.#frame;
   }
 
   children(): ReadonlySet<FrameChild> {
-    return this.#frame.children;
+    return new Set([...this.#frame.children, this.#initialized]);
   }
 
   validate(): FrameValidation<T> {
@@ -96,7 +121,7 @@ export class InitializedDerivedInternalsImpl<T>
   }
 
   dependencies(): readonly MutableInternals[] {
-    return this.#frame.dependencies;
+    return [...this.#frame.dependencies, this.#initialized];
   }
 
   isUpdatedSince(timestamp: Timestamp): boolean {

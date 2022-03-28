@@ -1,7 +1,6 @@
 import type { minimal } from "@domtree/flavors";
 import * as jest from "@jest/globals";
 import { is, RenderedRoot } from "@starbeam/core";
-import { Abstraction } from "@starbeam/debug";
 import {
   DomEnvironment,
   ElementProgramNodeBuilder,
@@ -15,6 +14,7 @@ import {
   type TextProgramNode,
 } from "@starbeam/dom";
 import type { Cell, Reactive } from "@starbeam/reactive";
+import { Abstraction } from "@starbeam/trace-internals";
 import { verify } from "@starbeam/verify";
 import { JSDOM } from "jsdom";
 import {

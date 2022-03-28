@@ -1,5 +1,5 @@
-import { abstractify, Abstraction } from "@starbeam/debug";
-import type { UnsafeAny } from "@starbeam/fundamental";
+import type { UnsafeAny, VerifierFunction } from "@starbeam/fundamental";
+import { abstractify, Abstraction } from "@starbeam/trace-internals";
 import { DebugInformation } from "./core.js";
 import { isPresent } from "./presence.js";
 import {
@@ -25,40 +25,48 @@ export function present<T>(
   }
 }
 
-export interface Verifier<In, Out extends In> {
-  (value: In): value is Out;
-}
+export type VerifierUnion<V extends VerifierFunction<any, any>> =
+  V extends VerifierFunction<infer In, infer Out>
+    ? VerifierFunction<In, Out>
+    : never;
 
 const VERIFIER = new WeakMap<
-  Verifier<unknown, unknown>,
+  VerifierFunction<unknown, unknown>,
   CreatedContext<unknown>
 >();
 
 export const Verifier = {
   implement<In, Out extends In>(
-    verifier: Verifier<In, Out>,
+    verifier: VerifierFunction<In, Out>,
     message: CreatedContext<In>
   ): void {
     VERIFIER.set(
-      verifier as Verifier<unknown, unknown>,
+      verifier as VerifierFunction<unknown, unknown>,
       message as CreatedContext<unknown>
     );
   },
 
-  context<In>(verifier: Verifier<In, In>): CreatedContext<In> {
+  is: <In, Out extends In>(
+    verifier: unknown
+  ): verifier is VerifierFunction<In, Out> => {
+    return typeof verifier === "function" && VERIFIER.has(verifier as any);
+  },
+
+  context<In>(verifier: VerifierFunction<In, In>): CreatedContext<In> {
     return verified(
-      VERIFIER.get(verifier as Verifier<unknown, unknown>),
+      VERIFIER.get(verifier as VerifierFunction<unknown, unknown>),
       isPresent
     );
   },
 
   assertion<In>(
-    verifier: Verifier<In, In>,
+    verifier: VerifierFunction<In, In>,
     updates: IntoBuildContext | undefined,
     value: In
   ): DebugInformation {
     let created =
-      VERIFIER.get(verifier as Verifier<unknown, unknown>) ?? as("value");
+      VERIFIER.get(verifier as VerifierFunction<unknown, unknown>) ??
+      as("value");
 
     return created.update(IntoBuildContext.create(updates)).finalize(value)
       .message;
@@ -112,7 +120,7 @@ export interface PartialVerifyContext {
   when?: string;
   expected?: string;
   relationship?: {
-    kind: "to be" | "to have";
+    kind: "to be" | "to have" | "to";
     description: string;
   };
 }
@@ -120,7 +128,7 @@ export interface PartialVerifyContext {
 export interface MutableVerifyContext {
   expected: string;
   relationship?: {
-    kind: "to be" | "to have";
+    kind: "to be" | "to have" | "to";
     description: string;
   };
   when?: string;
@@ -132,7 +140,7 @@ const verifyValue: <In, Out extends In>(
     verifier,
     context,
   }: {
-    verifier: Verifier<In, Out>;
+    verifier: VerifierFunction<In, Out>;
     context?: IntoBuildContext;
   }
 ) => asserts value is Out = abstractify((value, { verifier, context }) => {
@@ -166,7 +174,7 @@ export const assertCondition: (
  */
 export function verify<In, Out extends In>(
   value: In,
-  verifier: Verifier<In, Out>,
+  verifier: VerifierFunction<In, Out>,
   context?: IntoBuildContext
 ): asserts value is Out {
   return verifyValue(value, { verifier, context });

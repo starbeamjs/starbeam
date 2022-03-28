@@ -1,4 +1,3 @@
-import { Abstraction } from "@starbeam/debug";
 import { COORDINATOR } from "@starbeam/schedule";
 import {
   REACTIVE,
@@ -6,6 +5,7 @@ import {
   type ReactiveInternals,
   type ReactiveProtocol,
 } from "@starbeam/timeline";
+import { Abstraction } from "@starbeam/trace-internals";
 import { expected, isEqual, verify } from "@starbeam/verify";
 import { MutableInternalsImpl } from "../internals/mutable.js";
 

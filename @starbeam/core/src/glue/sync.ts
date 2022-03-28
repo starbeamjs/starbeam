@@ -1,13 +1,15 @@
-import { Abstraction, assert, DisplayStruct } from "@starbeam/debug";
+import { assert, DisplayStruct } from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/fundamental";
 import { LIFETIME } from "@starbeam/lifetime";
 import { Reactive } from "@starbeam/reactive";
 import { REACTIVE, TIMELINE, type MutableInternals } from "@starbeam/timeline";
-import { LOGGER } from "@starbeam/trace-internals";
+import { Abstraction, LOGGER } from "@starbeam/trace-internals";
 import { Enum } from "@starbeam/utils";
 import { INSPECT } from "../utils.js";
 
-class PollResult<T> extends Enum(
+const logger = LOGGER.scoped("@starbeam/core/glue/sync");
+
+export class PollResult<T> extends Enum(
   "InitialValue(T)",
   "UnchangedValue(T)",
   "ChangedValue(U)"
@@ -113,8 +115,6 @@ class AnyReactiveSubscription<T> implements ReactiveSubscription<T> {
   ): AnyReactiveSubscription<T> {
     const teardown = new Map();
 
-    const dependencies = Reactive.getDependencies(reactive);
-
     const subscription = new AnyReactiveSubscription(
       UNINITIALIZED,
       reactive,
@@ -186,7 +186,7 @@ class AnyReactiveSubscription<T> implements ReactiveSubscription<T> {
   #synchronize(newCells: Set<MutableInternals>): void {
     for (const [cell, teardown] of this.#storages) {
       if (!newCells.has(cell)) {
-        LOGGER.trace.log(
+        logger.trace.log(
           `tearing down (${this.#description}) cell`,
           cell,
           this.#notify

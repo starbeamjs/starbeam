@@ -3,6 +3,7 @@ import type { LegacyFakeTimers, ModernFakeTimers } from "@jest/fake-timers";
 import type { Circus, Config, Global as JestGlobal } from "@jest/types";
 import ImportedNodeEnvironment from "jest-environment-node";
 import type { ModuleMocker } from "jest-mock";
+import { TextEncoder } from "util";
 import type { Context } from "vm";
 
 declare interface Timer {
@@ -74,6 +75,13 @@ class CustomEnvironment
 
   async setup() {
     await super.setup();
+
+    Object.defineProperty(this.global, "TextEncoder", {
+      enumerable: true,
+      configurable: false,
+      value: TextEncoder,
+    });
+
     // await someSetupTasks(this.testPath);
     // this.global.someGlobalObject = createGlobalObject();
 
