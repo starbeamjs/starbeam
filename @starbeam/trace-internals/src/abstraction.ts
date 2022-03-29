@@ -1,3 +1,4 @@
+import { Stack } from "@starbeam/debug-utils";
 import type { UnsafeAny } from "@starbeam/fundamental";
 import { LocationScope } from "./trace.js";
 
@@ -30,34 +31,8 @@ export class Abstraction {
     return stack.split("\n")[0].trimStart();
   }
 
-  static callerScope({ extraFrames = 0 }: { extraFrames?: number } = {}):
-    | LocationScope
-    | undefined {
-    const frame = parseFrame(Abstraction.callerFrame({ extraFrames }));
-    // const parts = frame.match(
-    //   /^at .*@starbeam[/\\](?<pkg>[^/\\]*)[/\\]dist[/\\]src[/\\](?<file>[^\.]*)[^:]*[:]((?<line>[\d]+)[:](?<column>[\d]+))?$/
-    // );
-
-    // const groups = parts?.groups;
-    // console.log({ parts, groups });
-
-    // if (groups === undefined) {
-    //   console.warn(
-    //     `Expected caller frame to be in the format of a stack frame, but it was \`${frame}\``
-    //   );
-
-    //   return undefined;
-    // }
-
-    const scope: string[] = [];
-
-    if (frame) {
-      const { file, pkg, loc, tag } = frame;
-
-      return LocationScope.create({ file, package: pkg, location: loc, tag });
-    } else {
-      return undefined;
-    }
+  static callerScope(internal = 0): LocationScope | undefined {
+    return LocationScope.create(Stack.callerFrame(internal + 1));
   }
 
   static #stack(frames = 1): string {

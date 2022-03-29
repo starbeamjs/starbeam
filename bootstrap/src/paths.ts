@@ -1,15 +1,33 @@
 import { createHash } from "crypto";
 import searchGlob from "fast-glob";
-import type { Stats } from "fs";
-import * as fs from "fs/promises";
-import { lstat } from "fs/promises";
 import * as path from "path";
+import { pathExists } from "path-exists";
+import { readFile } from "read-file-safe";
 import shell from "shelljs";
 import type * as util from "util";
 import { log } from "./log.js";
 import { exhaustive } from "./shared.js";
 
 export const INSPECT = Symbol.for("nodejs.util.inspect.custom");
+
+if (
+  typeof process !== "undefined" &&
+  process &&
+  typeof process.on === "function"
+) {
+  process.on("unhandledRejection", (reason, promise) => {
+    console.log(
+      `An unexpected unhandled rejection occurred in promise `,
+      promise
+    );
+    console.log(reason);
+  });
+
+  process.on("uncaughtException", (error, origin) => {
+    console.log(`An unexpected uncaught exception occurred`);
+    console.log(error.stack);
+  });
+}
 
 abstract class Mappable<Single, Multiple> {
   abstract map(mapper: (path: Single) => Single | null): Multiple;
@@ -287,7 +305,7 @@ export class AbsolutePaths
     }
   }
 
-  remove(paths: AbsolutePaths | AbsolutePath) {
+  remove(paths: AbsolutePaths | AbsolutePath): void {
     let thisPaths = this.#paths;
 
     if (paths instanceof AbsolutePath) {
@@ -593,42 +611,31 @@ export class AbsolutePath {
     return this.basename.ext;
   }
 
-  async exists(): Promise<boolean> {
-    try {
-      const stats = await lstat(this.#filename);
-      if (this.isDirectory) {
-        assertStats({
-          when: "checking existence",
-          of: this.#filename,
-          expected: StatsType.Directory,
-          actual: stats,
-        });
-        return true;
-      } else {
-        assertStats({
-          when: "checking existence",
-          of: this.#filename,
-          expected: StatsType.RegularFile,
-          actual: stats,
-        });
-        return true;
-      }
-    } catch (e) {
-      return false;
-    }
+  exists(): Promise<boolean> {
+    return this.#exists().catch(() => false);
   }
 
-  async read(): Promise<string | null> {
-    if (this.#kind !== "regular") {
-      throw Error(
-        `You can only read from a regular file (file=${this.#filename})`
-      );
-    }
+  async #exists(): Promise<boolean> {
+    return pathExists(this.#filename);
+  }
+
+  read(): Promise<string | null> {
+    return this.#read().catch(() => null);
+  }
+
+  async #read(): Promise<string | null> {
+    // console.trace("reading", this.#filename);
 
     try {
-      return await fs.readFile(this.#filename, { encoding: "utf-8" });
-    } catch (e) {
-      return null;
+      if (this.#kind !== "regular") {
+        throw Error(
+          `You can only read from a regular file (file=${this.#filename})`
+        );
+      }
+
+      return (await readFile(this.#filename, { buffer: false })) ?? null;
+    } finally {
+      // console.trace("done reading", this.#filename);
     }
   }
 
@@ -703,17 +710,21 @@ export class AbsolutePath {
   }
 
   async glob(search: Search): Promise<AbsolutePaths>;
-  async glob(glob: string, search?: Search): Promise<AbsolutePaths>;
+  async glob(glob: string | string[], search?: Search): Promise<AbsolutePaths>;
   async glob(): Promise<AbsolutePaths>;
   async glob(
-    ...args: [search: Search] | [glob: string, search?: Search] | []
+    ...args: [search: Search] | [glob: string | string[], search?: Search] | []
   ): Promise<AbsolutePaths> {
-    let glob: string | undefined = undefined;
+    let glob: string[] | undefined = undefined;
     let search: Search | undefined = undefined;
 
     if (args.length !== 0) {
       if (typeof args[0] === "string") {
-        [glob, search] = args;
+        glob = [args[0]];
+        search = args[1];
+      } else if (Array.isArray(args[0])) {
+        glob = args[0];
+        search = args[1];
       } else {
         [search] = args;
       }
@@ -923,69 +934,4 @@ export function digest(source: string, extra: string): string {
   let hash = createHash("sha256");
   hash.update(`${source}${extra}`);
   return hash.digest("hex");
-}
-
-enum StatsType {
-  Directory = "a directory",
-  RegularFile = "a regular file",
-  Symlink = "a symlink",
-  BlockDevice = "a block device",
-  CharacterDevice = "a character device",
-  Socket = "a socket",
-  FIFO = "a FIFO",
-  Unknown = "an unknown kind of file",
-}
-
-function assertStats({
-  when,
-  of: filename,
-  expected,
-  actual,
-}: {
-  when: string;
-  of: string;
-  expected: StatsType;
-  actual: Stats;
-}) {
-  const actualType = statsType(actual);
-
-  if (actualType === expected) {
-    return;
-  }
-
-  throw Error(
-    `When ${when}, expected ${filename} to be ${expected}, but it was ${actual}`
-  );
-}
-
-function statsType(stats: Stats): StatsType {
-  if (stats.isBlockDevice()) {
-    return StatsType.BlockDevice;
-  }
-
-  if (stats.isCharacterDevice()) {
-    return StatsType.CharacterDevice;
-  }
-
-  if (stats.isDirectory()) {
-    return StatsType.Directory;
-  }
-
-  if (stats.isFIFO()) {
-    return StatsType.FIFO;
-  }
-
-  if (stats.isFile()) {
-    return StatsType.RegularFile;
-  }
-
-  if (stats.isSocket()) {
-    return StatsType.Socket;
-  }
-
-  if (stats.isSymbolicLink()) {
-    return StatsType.Symlink;
-  }
-
-  return StatsType.Unknown;
 }

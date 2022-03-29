@@ -12,15 +12,19 @@ export interface Verifier<In, Out extends In> {
   (value: In): value is Out;
 }
 
-export type TypeOf =
-  | "string"
-  | "number"
-  | "bigint"
-  | "boolean"
-  | "symbol"
-  | "undefined"
-  | "object"
-  | "function";
+interface TypeOfTypes {
+  string: string;
+  number: number;
+  bigint: bigint;
+  boolean: boolean;
+  symbol: symbol;
+  undefined: undefined;
+  object: object;
+  function: (...args: unknown[]) => unknown;
+}
+
+export type TypeOf = keyof TypeOfTypes;
+export type TypeForTypeOf<T extends TypeOf> = TypeOfTypes[T];
 
 export function describeTypeofFor(
   value: unknown,
@@ -53,7 +57,6 @@ export function describeTypeofFor(
         default:
           exhaustive(typeOf, `typeof anything or 'null'`);
       }
-      break;
     case 1:
       switch (typeOf) {
         case "bigint":
@@ -80,11 +83,17 @@ export function describeTypeofFor(
   }
 }
 
-export function isTypeofType<T>(
-  typeOf: string,
-  impl?: (verifier: Verifier<unknown, T>) => void
-): Verifier<unknown, T> {
-  const verifier = (value: unknown): value is T => {
+/**
+ * Returns a predicate function that verifies that a value has the expected
+ * typeof result.
+ *
+ * >NOTE: For the purpose of this primitive, typeof null === 'object'
+ */
+export function isTypeof<Type extends TypeOf>(
+  typeOf: Type,
+  impl?: (verifier: Verifier<unknown, TypeOfTypes[Type]>) => void
+): Verifier<unknown, TypeOfTypes[Type]> {
+  const verifier = (value: unknown): value is TypeOfTypes[Type] => {
     return typeof value === typeOf;
   };
 

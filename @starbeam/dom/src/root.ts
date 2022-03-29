@@ -1,10 +1,6 @@
 import type { anydom, minimal } from "@domtree/flavors";
-import {
-  minimize,
-  RenderedRoot,
-  Root as CoreRoot,
-  TIMELINE,
-} from "@starbeam/core";
+import { minimize, TIMELINE } from "@starbeam/core";
+import { Root as CoreRoot, type RenderedRoot } from "@starbeam/output";
 import type { JSDOM } from "jsdom";
 import { ReactiveDOM } from "./dom.js";
 import { DomEnvironment } from "./dom/environment.js";

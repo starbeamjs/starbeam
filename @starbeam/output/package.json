@@ -1,0 +1,26 @@
+{
+  "name": "@starbeam/output",
+  "description": "Hook up Starbeam reactive values to an output data structure that efficiently revalidates when the inputs change. This is primarily used in @starbeam/dom, but could be used to wire up any output data structure shaped like a tree",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "index.ts",
+  "exports": {
+    ".": {
+      "types": "./index.js",
+      "import": {
+        "node": "./index.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "dependencies": {
+    "@starbeam/timeline": "workspace:*",
+    "@starbeam/reactive": "workspace:*",
+    "@starbeam/core": "workspace:*",
+    "@starbeam/debug": "workspace:*",
+    "@starbeam/fundamental": "workspace:*",
+    "@starbeam/trace-internals": "workspace:*",
+    "@starbeam/lifetime": "workspace:*"
+  },
+  "devDependencies": {}
+}

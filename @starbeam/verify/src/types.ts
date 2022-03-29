@@ -2,7 +2,8 @@ import {
   describeTypeofFor,
   isNull,
   isObject,
-  isTypeofType,
+  isTypeof,
+  type TypeForTypeOf,
   type TypeOf,
   type VerifierFunction,
 } from "@starbeam/fundamental";
@@ -18,8 +19,12 @@ Verifier.implement(
     })
 );
 
-function typeofVerifier<T>(typeOf: string): VerifierFunction<unknown, T> {
-  const verifier: VerifierFunction<unknown, T> = isTypeofType(typeOf);
+function typeofVerifier<Type extends TypeOf>(
+  typeOf: Type
+): VerifierFunction<unknown, TypeForTypeOf<Type>> {
+  const verifier: VerifierFunction<unknown, TypeForTypeOf<Type>> = isTypeof(
+    typeOf
+  );
 
   Verifier.implement(
     verifier,
@@ -34,13 +39,13 @@ function typeofVerifier<T>(typeOf: string): VerifierFunction<unknown, T> {
 const IS_TYPEOF = {
   object: isObject,
   null: isNull,
-  undefined: typeofVerifier<undefined>("undefined"),
-  function: typeofVerifier<(...args: unknown[]) => unknown>("function"),
-  string: typeofVerifier<string>("string"),
-  number: typeofVerifier<number>("number"),
-  boolean: typeofVerifier<boolean>("boolean"),
-  symbol: typeofVerifier<symbol>("symbol"),
-  bigint: typeofVerifier<bigint>("bigint"),
+  undefined: typeofVerifier("undefined"),
+  function: typeofVerifier("function"),
+  string: typeofVerifier("string"),
+  number: typeofVerifier("number"),
+  boolean: typeofVerifier("boolean"),
+  symbol: typeofVerifier("symbol"),
+  bigint: typeofVerifier("bigint"),
 } as const;
 
 type IsTypeof = typeof IS_TYPEOF;

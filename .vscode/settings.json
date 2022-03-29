@@ -30,7 +30,7 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "quokka.codeAutoPlayDelay": 1000,
   "quokka.automaticRestart": true,
-  "quokka.automaticStartRegex": "quokka\\.[tj]s$",
+  "quokka.automaticStartRegex": "quokka\\.[tj]s$|quokka/*.[tjs]$",
   "quokka.compactMessageOutput": false,
   "quokka.darkTheme.log.decorationAttachmentRenderOptions": {
     "border": "2px dashed",

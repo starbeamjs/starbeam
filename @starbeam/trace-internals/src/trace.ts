@@ -1,3 +1,4 @@
+import type { Frame } from "@starbeam/debug-utils";
 import { exhaustive } from "@starbeam/verify";
 import { Abstraction } from "./abstraction.js";
 import { assert } from "./assert.js";
@@ -590,54 +591,82 @@ interface LocationOptions {
 }
 
 export class LocationScope extends AbstractScope {
-  static create(options: LocationOptions): LocationScope {
-    return new LocationScope(options);
+  static create(frame: Frame): LocationScope {
+    return new LocationScope(frame);
   }
 
-  readonly #options: LocationOptions;
+  readonly #frame: Frame;
 
-  constructor(options: LocationOptions) {
+  constructor(frame: Frame) {
     super();
-    this.#options = options;
+    this.#frame = frame;
   }
 
   get segments(): readonly string[] {
-    const options = this.#options;
+    const frame = this.#frame;
+    const { parsed } = frame;
 
-    const segments = [options.package, options.file];
-    if (options.tag) {
-      segments.push(options.tag);
+    const segments: string[] = [];
+
+    if (parsed) {
+      const { source } = parsed;
+
+      if (source.isPackage()) {
+        const path = source.sourcePath;
+
+        if (path.scope) {
+          segments.push(path.scope);
+        }
+
+        segments.push(path.fullName);
+      }
+
+      if (parsed.source.path) {
+        segments.push(parsed.source.path);
+      }
+
+      if (parsed.action) {
+        segments.push(parsed.action.original);
+      }
+    } else if (frame.source) {
+      segments.push(frame.source);
     }
 
-    if (options.location) {
-      segments.push(options.location.line, options.location.column);
+    if (frame.location) {
+      segments.push(String(frame.location.line), String(frame.location.column));
     }
 
     return segments;
   }
 
-  get package(): string {
-    return this.#options.package;
+  get package(): string | null {
+    return this.#frame.package;
   }
 
-  get file(): string {
-    return this.#options.file;
+  get source(): string | null {
+    return this.#frame.fullPath;
   }
 
-  get tag(): string | undefined {
-    return this.#options.tag;
+  get action(): string | null {
+    return this.#frame.action;
   }
 
-  get location(): Location | undefined {
-    return this.#options.location;
+  get location(): Location | null {
+    const { location } = this.#frame;
+
+    if (!location) {
+      return null;
+    }
+
+    return { line: String(location.line), column: String(location.column) };
   }
 
   toString() {
-    return `${this.#options.package}::${this.#options.file}${
-      this.#options.tag ? `@${this.#options.tag}` : ""
+    return `${this.#frame.package}::${this.#frame.localPath}${
+      this.#frame.action ? `@${this.#frame.action}` : ""
     }${
-      this.#options.location
-        ? `:${this.#options.location.line}:${this.#options.location.column}`
+      this.#frame.location
+        ? `:${this.#frame.location.line}:${this.#frame.location.column}`
         : ""
     }`;
   }
@@ -786,11 +815,12 @@ class Matcher {
   matches(path: string): Specificity | null {
     const captures = capture({ pattern: this.#pattern, path });
 
-    if (captures === null) {
+    if (captures === null || captures === undefined) {
       return null;
     }
 
     const dynamic = captures;
+    console.log({ captures, dynamic });
     const dynamicSize = dynamic.reduce((sum, string) => sum + string.length, 0);
     return new Specificity(this.#pattern, path.length - dynamicSize, captures);
   }
@@ -911,10 +941,14 @@ const DEFAULT_GENERIC_FORMATTER: FormatterFunction = ({
 }) => {
   function format(): { line: StyledLine; scope: Styled } {
     if (scope instanceof LocationScope) {
-      let scopeParts: IntoStyled[] = [SHEET.green(scope.package)];
+      let scopeParts: IntoStyled[] = [];
 
-      if (scope.tag) {
-        scopeParts.push(SP, SHEET.inert("@"), SP, SHEET.red(scope.tag));
+      if (scope.package) {
+        scopeParts.push(SHEET.green(scope.package));
+      }
+
+      if (scope.action) {
+        scopeParts.push(SP, SHEET.inert("@"), SP, SHEET.red(scope.action));
       }
 
       scopeParts = [
@@ -1106,18 +1140,16 @@ export class Logger implements TraceMethods, TraceModifiers {
     return this.#options.asLevel >= this.#levelFor(scope);
   }
 
-  #inferScope(): Scope {
+  #inferScope(internal = 0): Scope {
     if (this.#options.asScope) {
       return this.#options.asScope;
     }
 
-    return (
-      Abstraction.callerScope({ extraFrames: 2 }) ?? this.#options.defaultScope
-    );
+    return Abstraction.callerScope(internal + 1) ?? this.#options.defaultScope;
   }
 
   log(...args: LogArgs): void {
-    const scope = this.#inferScope();
+    const scope = this.#inferScope(1);
     const emitter = this.#emitter(scope);
 
     if (this.#shouldLog(scope)) {
@@ -1132,7 +1164,7 @@ export class Logger implements TraceMethods, TraceModifiers {
   group<T>(args: string | LogArgs, callback: () => T): T;
   group<T>(args: string | LogArgs): T;
   group(args: string | LogArgs, callback?: () => unknown): unknown {
-    const scope = this.#inferScope();
+    const scope = this.#inferScope(1);
     const shouldLog = this.#shouldLog(scope);
     const argList = typeof args === "string" ? [args] : args;
     const emitter = this.#emitter(scope);

@@ -1,10 +1,10 @@
 export {
-  AnonymousFrame,
+  Action as Name,
   Frame,
+  FrameWithAction as NamedFrame,
+  FrameWithoutAction as AnonymousFrame,
   KnownFrame,
   Location,
-  Name,
-  NamedFrame,
   UnknownFrame,
 } from "./src/frame.js";
 export { isErrorWithStack, ParsedStack, Stack } from "./src/stack.js";

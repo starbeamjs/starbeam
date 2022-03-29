@@ -15,7 +15,8 @@ export {
   describeTypeofFor,
   isNull,
   isObject,
-  isTypeofType,
+  isTypeof,
+  type TypeForTypeOf,
   type TypeOf,
   type Verifier as VerifierFunction,
 } from "./src/type.js";

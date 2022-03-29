@@ -1,25 +1,24 @@
+// export type Modifier<
+//   E extends browser.Element = browser.HTMLElement,
+//   T = unknown
+// > = (element: E, hook: SimpleHook<T>) => T;
+
 import type { browser } from "@domtree/flavors";
-import { Hook, type HookBlueprint, type SimpleHook } from "@starbeam/core";
 import type { InferReturn, VerifierFunction } from "@starbeam/fundamental";
 import { Enum } from "@starbeam/utils";
 import { expected, isPresent, verified, Verifier } from "@starbeam/verify";
 
-export type Modifier<
-  E extends browser.Element = browser.HTMLElement,
-  T = unknown
-> = (element: E, hook: SimpleHook<T>) => T;
+// export function Modifier<M extends Modifier>(modifier: M): M {
+//   return modifier;
+// }
 
-export function Modifier<M extends Modifier>(modifier: M): M {
-  return modifier;
-}
-
-export function reifyModifier<T, E extends browser.Element>(
-  modifier: Modifier<E, T>,
-  element: E,
-  description: string
-): HookBlueprint<T> {
-  return Hook((hook: SimpleHook<T>) => modifier(element, hook), description);
-}
+// export function reifyModifier<T, E extends browser.Element>(
+//   modifier: Modifier<E, T>,
+//   element: E,
+//   description: string
+// ): HookBlueprint<T> {
+//   return Hook((hook: SimpleHook<T>) => modifier(element, hook), description);
+// }
 
 class RefState<E extends browser.Element> extends Enum(
   "PreRender",
@@ -98,9 +97,9 @@ export interface ElementRef<E extends browser.Element = browser.Element> {
   readonly [REF]: E;
 }
 
-export type ElementType<E extends browser.Element> = abstract new (
-  ...args: any[]
-) => E;
+// export type ElementType<E extends browser.Element> = abstract new (
+//   ...args: any[]
+// ) => E;
 
 export type ElementVerifier<E extends browser.Element> = VerifierFunction<
   browser.Element,
@@ -149,43 +148,45 @@ export function ref<E extends browser.Element>(
   return refCallback as InferReturn;
 }
 
-const LAYOUT_VALUES = new WeakMap<
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  Layout<any>,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  { readonly promise: Promise<unknown>; fulfill: (value: any) => void }
->();
+// const LAYOUT_VALUES = new WeakMap<
+//   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//   Layout<any>,
+//   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//   { readonly promise: Promise<unknown>; fulfill: (value: any) => void }
+// >();
 
-export class Layout<T> extends Enum("Rendering", "Rendered(T)")<T> {
-  map<U>(callback: (value: T) => U): Layout<U> {
-    return this.match({
-      Rendering: () => Layout.Rendering(),
-      Rendered: (value) => Layout.Rendered(callback(value)),
-    });
-  }
+// export class Layout<T> extends Enum("Rendering", "Rendered(T)")<T> {
+//   map<U>(callback: (value: T) => U): Layout<U> {
+//     return this.match({
+//       Rendering: () => Layout.Rendering(),
+//       Rendered: (value) => Layout.Rendered(callback(value)),
+//     });
+//   }
 
-  get(): T | null {
-    return this.match({
-      Rendering: () => null,
-      Rendered: (value) => value,
-    });
-  }
+//   get(): T | null {
+//     return this.match({
+//       Rendering: () => null,
+//       Rendered: (value) => value,
+//     });
+//   }
 
-  get rendered(): T {
-    const values = LAYOUT_VALUES.get(this);
-    let promise: Promise<T>;
+//   get rendered(): T {
+//     const values = LAYOUT_VALUES.get(this);
+//     let promise: Promise<T>;
 
-    if (values) {
-      promise = values.promise as Promise<T>;
-    } else {
-      let fulfill!: (value: T) => void;
-      promise = new Promise((f) => {
-        fulfill = f;
-      });
+//     if (values) {
+//       promise = values.promise as Promise<T>;
+//     } else {
+//       let fulfill!: (value: T) => void;
+//       promise = new Promise((f) => {
+//         fulfill = f;
+//       });
 
-      LAYOUT_VALUES.set(this, { promise, fulfill });
-    }
+//       LAYOUT_VALUES.set(this, { promise, fulfill });
+//     }
 
-    throw promise;
-  }
-}
+//     throw promise;
+//   }
+// }
+
+export {};

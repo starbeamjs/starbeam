@@ -78,12 +78,8 @@ export class Package {
     return this.root.directory("dist");
   }
 
-  get #sourceFiles(): Promise<AbsolutePaths> {
-    return AbsolutePaths.glob([`src/**/*.ts`, `index.ts`], this.root);
-  }
-
   async #packageTranspilation(): Promise<Transpilation> {
-    const sourceFiles = await this.#sourceFiles;
+    const sourceFiles = await this.#sourceFiles();
 
     const dts = sourceFiles.filter((file) => file.hasExactExtension("d.ts"));
 
@@ -103,8 +99,16 @@ export class Package {
     );
   }
 
+  async #sourceFiles(): Promise<AbsolutePaths> {
+    return AbsolutePaths.glob([`src/**/*.ts`, `index.ts`], this.root);
+  }
+
   async #getDistFiles(): Promise<AbsolutePaths> {
-    return this.#dist.glob("**", { kind: "all" });
+    // Since #sourceFiles doesn't include the `src` directory, remove it here so
+    // it doesn't end up appearing to be a directory to remove.
+    return await (
+      await this.#dist.glob(`**`, { kind: "all" })
+    ).without(this.#dist.directory("src"));
   }
 
   #fileTranspilation(inputPath: AbsolutePath): TranspileTask {
@@ -381,6 +385,7 @@ class TranspileTask {
     await fs.writeFile(AbsolutePath.getFilename(this.#digest), digests.next, {
       encoding: "utf-8",
     });
+
     await fs.writeFile(
       AbsolutePath.getFilename(this.#map),
       JSON.stringify(map),

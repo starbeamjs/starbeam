@@ -1,6 +1,6 @@
 /// <reference path="../types/upstream.d.ts" />
 
-import * as picomatch from "picomatch-browser";
+import picomatch from "picomatch-browser";
 
 export function capture({ path, pattern }: { path: string; pattern: string }) {
   const re = picomatch.makeRe(pattern, { capture: true });

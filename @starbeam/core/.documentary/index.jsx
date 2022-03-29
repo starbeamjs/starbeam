@@ -2,6 +2,12 @@
 
 /// <reference path="./jsx.d.ts" />
 
+/**
+ *
+ * @param {object} props
+ * @param {string[]} props.children
+ * @returns {JSX.Element}
+ */
 export function Mermaid({ children }) {
   const body = `${INIT}\n${trimString(children.join(""))}`;
 
@@ -12,7 +18,7 @@ export function Mermaid({ children }) {
  * @param {object} options
  * @param {string[]} options.children
  * @param {"TB" | "BT" | "LR" | "RL"} options.direction
- * @returns
+ * @returns {JSX.Element}
  */
 export function Flowchart({ children, direction = "TB" }) {
   return Mermaid({
@@ -24,34 +30,85 @@ export function Flowchart({ children, direction = "TB" }) {
   });
 }
 
+/** @typedef {{ name: string; title?: string; type: StateType }} State */
+/** @typedef {[from: string, to: string]} Edge */
+
 /**
  * @param {object} options
  * @param {string} options.name
  * @param {"vertical" | "horizontal"} options.direction
+ * @param {string} options.states
+ * @param {string} options.edges
  * @param {string} options.description
  * @param {string[]} options.children
- * @returns
+ * @returns {JSX.Element}
  */
-
-export function Graph({ name, direction = "vertical", description, children }) {
+export function Graph({
+  name,
+  direction = "vertical",
+  description,
+  states,
+  edges,
+  children,
+}) {
   const headerDir = direction === "vertical" ? "LR" : "TB";
   const bodyDir = direction === "vertical" ? "TB" : "LR";
 
-  console.log(name);
+  console.log({ states, edges, children });
 
-  return trimString(`
-    style ${name}Body fill:#0000,stroke:#0000
+  const statesBody =
+    typeof states === "string"
+      ? JSON.parse(states.replaceAll("'", '"'))
+          .map(
+            (/** @type {State} */ state) =>
+              `${name}${state.name}[${state.title || state.name}]:::${
+                state.type
+              }`
+          )
+          .join("\n")
+      : "";
 
-    subgraph ${name} [ ]
-      direction ${headerDir}
-      subgraph ${name}Body [ ]
-        direction ${bodyDir}
-        ${trimString(children.join(""))}
-        ${name}Description(${description}):::note
+  const edgesBody =
+    typeof edges === "string"
+      ? edges
+          .split(",")
+          .map((edge) => edge.split("/"))
+          .map(([from, to]) => `${name}${from}-->${name}${to}`)
+          .join("\n")
+      : "";
+
+  const descriptionBox = description
+    ? `${name}Description(${description}):::note`
+    : "";
+  const body = trimString(children.join("\n"));
+
+  // const body =
+  //   typeof children === "function"
+  //     ? trimString(children(new GraphChildren(name)))
+  //     : trimString(children.join(""));
+
+  return /** @type {any} */ (
+    trimString(`
+      style ${name}Body fill:#0000,stroke:#0000
+  
+      subgraph ${name} [ ]
+        direction ${headerDir}
+        subgraph ${name}Body [ ]
+          direction ${bodyDir}
+          ${body}
+          ${statesBody}
+          ${edgesBody}
+        end
+        ${descriptionBox}
+
       end
-    end
-  `);
+    `)
+  );
 }
+
+/**
+ * @typedef {keyof typeof FLOWCHART_CLASSES} StateType
+ */
 
 /**
  *
@@ -81,6 +138,13 @@ const FLOWCHART_CLASSES = {
     fill: "#ccf9",
     stroke: "#0099",
     color: "#009",
+  },
+  next: {
+    fill: "#eef",
+    stroke: "#aac",
+    color: "#66c",
+    "font-weight": "bold",
+    "font-size": "90%",
   },
 };
 
@@ -204,6 +268,10 @@ export function trim(raw, ...values) {
   return trimString(out);
 }
 
+/**
+ * @param {string} string
+ * @returns string
+ */
 function trimString(string) {
   const lines = string.split("\n");
 
@@ -211,7 +279,9 @@ function trimString(string) {
     lines.shift();
   }
 
-  if (!isPresent(lines[lines.length - 1])) {
+  const last = lines[lines.length - 1];
+
+  if (last && !isPresent(last)) {
     lines.pop();
   }
 
@@ -220,10 +290,18 @@ function trimString(string) {
   return lines.map((item) => item.slice(leading)).join("\n");
 }
 
+/**
+ * @param {string} line
+ * @returns {boolean}
+ */
 function isPresent(line) {
   return line.trim() !== "";
 }
 
+/**
+ * @param {string} line
+ * @returns {number}
+ */
 function leadingSpace(line) {
   return line.length - line.trimStart().length;
 }
@@ -237,6 +315,11 @@ const INIT_OPTIONS = {
 
 const INIT = `%%{init: ${JSON.stringify(INIT_OPTIONS)} }%%`;
 
+/**
+ * @param {string} lang
+ * @param {string} body
+ * @returns {string}
+ */
 function fenced(lang, body) {
   return "```" + lang + "\n" + body + "\n" + "```";
 }

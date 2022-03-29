@@ -1,5 +1,5 @@
 import type { minimal } from "@domtree/flavors";
-import { AbstractProgramNode } from "@starbeam/core";
+import { AbstractProgramNode } from "@starbeam/output";
 import {
   REACTIVE,
   ReactiveInternals,

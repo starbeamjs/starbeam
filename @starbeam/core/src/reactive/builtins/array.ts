@@ -96,13 +96,13 @@ export class TrackedArray<T = unknown> {
 
           return target[index];
         } else if (prop === "length") {
-          mark(self.#marker);
+          consume(self.#marker);
         } else if (ARRAY_GETTER_METHODS.has(prop)) {
           let fn = boundFns.get(prop);
 
           if (fn === undefined) {
             fn = (...args: unknown[]) => {
-              mark(self.#marker);
+              consume(self.#marker);
               return (target as any)[prop](...args);
             };
 

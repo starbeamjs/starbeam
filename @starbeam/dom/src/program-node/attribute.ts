@@ -1,5 +1,8 @@
 import type * as minimal from "@domtree/minimal";
-import { AbstractProgramNode, type RenderedProgramNode } from "@starbeam/core";
+import {
+  AbstractProgramNode,
+  type RenderedProgramNode,
+} from "@starbeam/output";
 import type { Reactive } from "@starbeam/reactive";
 import { REACTIVE, ReactiveInternals } from "@starbeam/timeline";
 import { DOM } from "../dom/streaming/compatible-dom.js";

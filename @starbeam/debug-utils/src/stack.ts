@@ -199,9 +199,9 @@ export class Stack {
     return Stack.create(internal).slice(2);
   }
 
-  static callerFrame(): Frame {
+  static callerFrame(internal: number = 0): Frame {
     // Remove *this* `callerFrame` frame from the stack *and* the caller's frame, then
-    return Stack.fromCaller(1).caller;
+    return Stack.fromCaller(internal + 1).caller;
   }
 
   readonly #parsed: ParsedStack;

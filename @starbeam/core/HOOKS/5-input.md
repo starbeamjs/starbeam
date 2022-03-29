@@ -4,7 +4,8 @@
 
 ### Stateful External Connections: Resources
 
-A resource is a [stateful object][lifetime] that represents external input data that can change over time.
+A resource is a [stateful object][lifetime] that represents external input data
+that can change over time.
 
 <Flowchart direction="TD">
   Setup --> Running --> Finalize

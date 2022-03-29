@@ -17,6 +17,7 @@
     "@starbeam/fundamental": "workspace:*",
     "@starbeam/verify": "workspace:*",
     "@starbeam/utils": "workspace:*",
+    "@starbeam/debug-utils": "workspace:*",
     "picomatch-browser": "^2.2.6"
   },
   "devDependencies": {

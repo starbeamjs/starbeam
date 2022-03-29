@@ -1,27 +1,26 @@
 import type { browser } from "@domtree/flavors";
-import {
-  HookBlueprint,
-  HookInstance,
-  lifetime,
-  SimpleHook,
-} from "@starbeam/core";
-import { Stack } from "@starbeam/debug-utils";
+import { lifetime } from "@starbeam/core";
 import {
   assert,
   type AnyRecord,
   type InferReturn,
 } from "@starbeam/fundamental";
-import { Cell, type Reactive } from "@starbeam/reactive";
-import { Abstraction } from "@starbeam/trace-internals";
+import type { Cell, Reactive } from "@starbeam/reactive";
 import { Enum } from "@starbeam/utils";
 import {
   getElement,
   ref,
-  reifyModifier,
   type ElementRef,
-  type Modifier,
   type ReactElementRef,
-} from "./modifier.js";
+} from "./ref.js";
+// import {
+//   getElement,
+//   ref,
+//   reifyModifier,
+//   type ElementRef,
+//   type Modifier,
+//   type ReactElementRef,
+// } from "./modifier.js";
 
 type IntoReactive<T> = T extends Reactive<unknown> ? T : Reactive<T>;
 
@@ -140,39 +139,39 @@ export class ReactiveElement {
     return refsRecord as InferReturn;
   }
 
-  use<T>(blueprint: HookBlueprint<T>): Reactive<T>;
-  use<T>(callback: (parent: ReactiveElement) => T): IntoReactive<T>;
-  use(
-    blueprint:
-      | HookBlueprint<unknown>
-      | ((parent: ReactiveElement) => Reactive<unknown>),
-    description = Stack.describeCaller()
-  ): Reactive<unknown> {
-    const normalized = HookBlueprint.is(blueprint)
-      ? blueprint
-      : HookBlueprint.create(() => blueprint(this), description);
+  // use<T>(blueprint: HookBlueprint<T>): Reactive<T>;
+  // use<T>(callback: (parent: ReactiveElement) => T): IntoReactive<T>;
+  // use(
+  //   blueprint:
+  //     | HookBlueprint<unknown>
+  //     | ((parent: ReactiveElement) => Reactive<unknown>),
+  //   description = Stack.describeCaller()
+  // ): Reactive<unknown> {
+  //   const normalized = HookBlueprint.is(blueprint)
+  //     ? blueprint
+  //     : HookBlueprint.create(() => blueprint(this), description);
 
-    return normalized.asData(this);
-  }
+  //   return normalized.asData(this);
+  // }
 
-  useModifier<T, E extends browser.Element>(
-    ref: ElementRef<E>,
-    Modifier: Modifier<E, T>,
-    description = Abstraction.callerFrame()
-  ): Cell<HookInstance<T> | null> {
-    const modifier: Cell<HookInstance<T> | null> = Cell(null);
+  // useModifier<T, E extends browser.Element>(
+  //   ref: ElementRef<E>,
+  //   Modifier: Modifier<E, T>,
+  //   description = Abstraction.callerFrame()
+  // ): Cell<PhasedInstance<T> | null> {
+  //   const modifier: Cell<PhasedInstance<T> | null> = Cell(null);
 
-    this.#modifiers.insert(
-      ref as ElementRef,
-      (element: browser.Element): void => {
-        const blueprint = reifyModifier(Modifier, element as E, description);
-        const hook = SimpleHook.construct(blueprint, this);
-        modifier.set(hook);
-      }
-    );
+  //   this.#modifiers.insert(
+  //     ref as ElementRef,
+  //     (element: browser.Element): void => {
+  //       const blueprint = reifyModifier(Modifier, element as E, description);
+  //       const hook = SimpleHook.construct(blueprint, this);
+  //       modifier.set(hook);
+  //     }
+  //   );
 
-    return modifier;
-  }
+  //   return modifier;
+  // }
 }
 
 type Callback<T = void> = (instance: T) => void;

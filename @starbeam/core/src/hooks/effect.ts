@@ -2,11 +2,11 @@ import { UNINITIALIZED } from "@starbeam/fundamental";
 import { LIFETIME } from "@starbeam/lifetime";
 import { Memo } from "@starbeam/reactive";
 import { Callbacks } from "./callbacks.js";
-import { type Linkable } from "./linkable.js";
+import type { PhasedBuilder } from "./linkable.js";
 
 type EffectBlueprint = (effect: ReactiveEffect) => () => void;
 
-class ReactiveEffect implements Linkable {
+class ReactiveEffect implements PhasedBuilder {
   static construct(blueprint: EffectBlueprint): ReactiveEffect {
     const effect = ReactiveEffect.create();
     effect.#memo = blueprint(effect);
