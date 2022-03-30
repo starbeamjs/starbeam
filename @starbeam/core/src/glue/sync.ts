@@ -1,8 +1,12 @@
 import { assert, DisplayStruct } from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/fundamental";
-import { LIFETIME } from "@starbeam/lifetime";
 import { Reactive } from "@starbeam/reactive";
-import { REACTIVE, TIMELINE, type MutableInternals } from "@starbeam/timeline";
+import {
+  LIFETIME,
+  REACTIVE,
+  TIMELINE,
+  type MutableInternals,
+} from "@starbeam/timeline";
 import { Abstraction, LOGGER } from "@starbeam/trace-internals";
 import { Enum } from "@starbeam/utils";
 import { INSPECT } from "../utils.js";

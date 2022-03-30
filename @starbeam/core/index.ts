@@ -1,7 +1,6 @@
 export { UNINITIALIZED } from "@starbeam/fundamental";
-export { Finalizer, LIFETIME } from "@starbeam/lifetime";
 export { Memo as computed, Memo as formula } from "@starbeam/reactive";
-export { TIMELINE } from "@starbeam/timeline";
+export { Finalizer, LIFETIME, TIMELINE } from "@starbeam/timeline";
 export * from "./src/decorator/reactive.js";
 export {
   subscribe,

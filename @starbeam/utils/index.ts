@@ -15,3 +15,4 @@ export {
 } from "./src/enumeration.js";
 export { enumerate } from "./src/itertools.js";
 export { mapObject } from "./src/object.js";
+export { FrameStack } from "./src/stack.js";

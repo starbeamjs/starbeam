@@ -24,7 +24,7 @@ export class ElementProgramNode extends ContentProgramNode {
   ): ElementProgramNode {
     let attributes = buildAttributes.map(AttributeProgramNode.create);
 
-    const composite = Composite.from(
+    const composite = Composite.fromReactives(
       [...attributes, ...content],
       `ElementProgramNode`
     );

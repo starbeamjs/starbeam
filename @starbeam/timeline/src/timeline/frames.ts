@@ -52,7 +52,12 @@ export class ActiveFrame {
     now: Timestamp
   ): { readonly frame: FinalizedFrame<T>; readonly value: T } {
     return {
-      frame: new FinalizedFrame(this.#storages, now, value, this.description),
+      frame: FinalizedFrame.create({
+        children: this.#storages,
+        finalizedAt: now,
+        value,
+        description: this.description,
+      }),
       value,
     };
   }
@@ -70,11 +75,25 @@ export interface InvalidFrame {
 export type FrameValidation<T> = ValidFrame<T> | InvalidFrame;
 
 export class FinalizedFrame<T = unknown> implements IsUpdatedSince {
+  static create<T>({
+    children,
+    finalizedAt,
+    value,
+    description,
+  }: {
+    children: Set<FrameChild>;
+    finalizedAt: Timestamp;
+    value: T;
+    description: string;
+  }): FinalizedFrame<T> {
+    return new FinalizedFrame(children, finalizedAt, value, description);
+  }
+
   readonly #children: Set<FrameChild>;
   readonly #finalizedAt: Timestamp;
   readonly #value: T;
 
-  constructor(
+  private constructor(
     children: Set<FrameChild>,
     finalizedAt: Timestamp,
     value: T,

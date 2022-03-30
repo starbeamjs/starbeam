@@ -1,6 +1,4 @@
-import { LIFETIME, type IntoFinalizer } from "@starbeam/lifetime";
-import type { Reactive } from "@starbeam/reactive";
-import type { PhasedInstance } from "./phased.js";
+import { LIFETIME, type IntoFinalizer } from "@starbeam/timeline";
 
 export interface LinkableLifecycle {
   finalize(finalizer: IntoFinalizer): void;
@@ -8,22 +6,14 @@ export interface LinkableLifecycle {
 
 export function LinkableLifecycle(parent: object): LinkableLifecycle {
   return {
-    finalize: () => {
-      LIFETIME.finalize(parent);
+    finalize: (callback: IntoFinalizer) => {
+      LIFETIME.on.finalize(parent, callback);
     },
   };
 }
 
-export const MANAGER = Symbol("MANAGER");
-export type MANAGER = typeof MANAGER;
-
-interface Poll<T> {
-  poll(): T;
-}
-
 export interface PhasedBuilder {
   readonly on: LinkableLifecycle;
-  use<T>(linkable: PhasedInstance<T>): Reactive<T>;
 }
 
 export class BasicPhasedBuilder implements PhasedBuilder {
@@ -32,9 +22,4 @@ export class BasicPhasedBuilder implements PhasedBuilder {
   }
 
   readonly on = LinkableLifecycle(this);
-
-  use<T>(linkable: PhasedInstance<T>): Reactive<T> {
-    LIFETIME.link(this, linkable);
-    return linkable;
-  }
 }

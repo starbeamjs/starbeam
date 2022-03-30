@@ -1,5 +1,4 @@
-import { LIFETIME } from "@starbeam/lifetime";
-import { TIMELINE } from "@starbeam/timeline";
+import { LIFETIME, TIMELINE } from "@starbeam/timeline";
 
 // export type Hook<T = unknown> = Reactive<T>;
 

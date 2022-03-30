@@ -1,8 +1,7 @@
+import type { InitializedCompositeInternals } from "@starbeam/timeline";
 import {
   CompositeChild,
   UNINITIALIZED_REACTIVE,
-  type CompositeInternals,
-  type InitializedCompositeInternals,
   type MutableInternals,
   type Timestamp,
   type UninitializedCompositeInternals,
@@ -97,3 +96,15 @@ export class InitializedCompositeInternalsImpl
     return this.#children.isUpdatedSince(timestamp);
   }
 }
+
+export function CompositeInternals(
+  dependencies: readonly MutableInternals[],
+  description: string
+): InitializedCompositeInternals {
+  return InitializedCompositeInternalsImpl.create(
+    CompositeChild.Interior(dependencies),
+    description
+  );
+}
+
+export type CompositeInternals = InitializedCompositeInternals;

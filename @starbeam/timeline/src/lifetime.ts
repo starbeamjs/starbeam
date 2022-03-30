@@ -1,8 +1,9 @@
 import { DebugFinalizer, DebugObjectLifetime } from "@starbeam/debug";
-import { TIMELINE } from "@starbeam/timeline";
+import { isObject } from "@starbeam/fundamental";
+import { TIMELINE } from "./timeline/timeline.js";
 
 export class Lifetime {
-  static scoped(): Lifetime {
+  static global(): Lifetime {
     return new Lifetime(new WeakMap());
   }
 
@@ -17,20 +18,26 @@ export class Lifetime {
       this.#lifetime(object).add(Finalizer.from(finalizer)),
   } as const;
 
-  readonly finalize = (object: object): void => {
-    const lifetime = this.#lifetimes.get(object);
+  readonly finalize = (value: unknown): void => {
+    if (isObject(value)) {
+      const lifetime = this.#lifetimes.get(value);
 
-    if (lifetime) {
-      // TODO: Make this strippable
-      TIMELINE.withAssertFrame(
-        () => lifetime.finalize(),
-        `while destroying an object`
-      );
+      if (lifetime) {
+        // TODO: Make this strippable
+        TIMELINE.withAssertFrame(
+          () => lifetime.finalize(),
+          `while destroying an object`
+        );
+      }
     }
   };
 
-  readonly link = (parent: object, child: object): void => {
-    this.#lifetime(parent).link(this.#lifetime(child));
+  readonly link = <T>(parent: object, child: T): T => {
+    if (isObject(child)) {
+      this.#lifetime(parent).link(this.#lifetime(child));
+    }
+
+    return child;
   };
 
   debug(...roots: object[]): readonly DebugObjectLifetime[] {
@@ -57,25 +64,28 @@ export class Lifetime {
   }
 }
 
-export const LIFETIME = Lifetime.scoped();
+export const LIFETIME = Lifetime.global();
 
 export class ObjectLifetime {
   static of(object: object): ObjectLifetime {
-    return new ObjectLifetime(object, new Set(), new Set());
+    return new ObjectLifetime(object, new Set(), new Set(), false);
   }
 
   readonly #object: object;
   readonly #finalizers: Set<Finalizer>;
   readonly #children: Set<ObjectLifetime>;
+  #isFinalizing: boolean;
 
   private constructor(
     object: object,
     finalizers: Set<Finalizer>,
-    children: Set<ObjectLifetime>
+    children: Set<ObjectLifetime>,
+    isFinalizing: boolean
   ) {
     this.#object = object;
     this.#finalizers = finalizers;
     this.#children = children;
+    this.#isFinalizing = isFinalizing;
   }
 
   get isEmpty(): boolean {
@@ -87,10 +97,28 @@ export class ObjectLifetime {
   }
 
   link(child: ObjectLifetime): void {
+    if (child === this) {
+      console.error(`Unxpectedly attempted to link an object to itself`, {
+        parent: this.#object,
+        child: child.#object,
+      });
+      throw Error(
+        `An assumption was wrong: Unexpected attempted to link an object to itself`
+      );
+    }
+
     this.#children.add(child);
   }
 
   finalize(): void {
+    if (this.#isFinalizing) {
+      throw Error(
+        `An assumption was wrong: Attempted to finalize an object that was already finalizing`
+      );
+    }
+
+    this.#isFinalizing = true;
+
     for (let child of this.#children) {
       child.finalize();
     }

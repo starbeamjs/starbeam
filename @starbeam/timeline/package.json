@@ -19,7 +19,8 @@
     "@starbeam/schedule": "workspace:*",
     "@starbeam/now": "workspace:*",
     "@starbeam/config": "workspace:*",
-    "@starbeam/utils": "workspace:*"
+    "@starbeam/utils": "workspace:*",
+    "@starbeam/fundamental": "workspace:*"
   },
   "devDependencies": {
     "@types/treeify": "workspace:*"

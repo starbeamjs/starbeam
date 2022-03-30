@@ -19,8 +19,7 @@
     "@starbeam/core": "workspace:*",
     "@starbeam/debug": "workspace:*",
     "@starbeam/fundamental": "workspace:*",
-    "@starbeam/trace-internals": "workspace:*",
-    "@starbeam/lifetime": "workspace:*"
+    "@starbeam/trace-internals": "workspace:*"
   },
   "devDependencies": {}
 }

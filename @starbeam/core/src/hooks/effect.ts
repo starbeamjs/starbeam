@@ -1,6 +1,6 @@
 import { UNINITIALIZED } from "@starbeam/fundamental";
-import { LIFETIME } from "@starbeam/lifetime";
 import { Memo } from "@starbeam/reactive";
+import { LIFETIME } from "@starbeam/timeline";
 import { Callbacks } from "./callbacks.js";
 import type { PhasedBuilder } from "./linkable.js";
 

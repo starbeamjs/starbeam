@@ -27,11 +27,11 @@ export class ReactiveMemo<T> implements ReactiveValue<T> {
     );
   }
 
-  readonly #callback: () => T;
+  readonly #formula: () => T;
   #internal: DerivedInternals<T>;
 
   private constructor(callback: () => T, internals: DerivedInternals<T>) {
-    this.#callback = callback;
+    this.#formula = callback;
     this.#internal = internals;
   }
 
@@ -91,7 +91,7 @@ export class ReactiveMemo<T> implements ReactiveValue<T> {
     initialized.update();
 
     return LOGGER.trace.group(`initializing memo: ${description}`, () =>
-      TIMELINE.withFrame(this.#callback, description)
+      TIMELINE.evaluateFormula(this.#formula, description)
     );
   }
 
@@ -123,7 +123,7 @@ export class ReactiveMemo<T> implements ReactiveValue<T> {
     }
 
     return LOGGER.trace.group(`recomputing ${description}`, () =>
-      TIMELINE.withFrame(this.#callback, description)
+      TIMELINE.evaluateFormula(this.#formula, description)
     );
   }
 }

@@ -156,7 +156,6 @@ importers:
       '@cucumber/messages': ^17.1.1
       '@starbeam/debug': workspace:*
       '@starbeam/fundamental': workspace:*
-      '@starbeam/lifetime': workspace:*
       '@starbeam/reactive': workspace:*
       '@starbeam/schedule': workspace:*
       '@starbeam/timeline': workspace:*
@@ -171,7 +170,6 @@ importers:
     dependencies:
       '@starbeam/debug': link:../debug
       '@starbeam/fundamental': link:../fundamental
-      '@starbeam/lifetime': link:../lifetime
       '@starbeam/reactive': link:../reactive
       '@starbeam/schedule': link:../schedule
       '@starbeam/timeline': link:../timeline
@@ -239,21 +237,6 @@ importers:
   '@starbeam/fundamental':
     specifiers: {}
 
-  '@starbeam/lifetime':
-    specifiers:
-      '@starbeam/debug': workspace:*
-      '@starbeam/fundamental': workspace:*
-      '@starbeam/timeline': workspace:*
-      '@starbeam/verify': workspace:*
-      '@types/treeify': workspace:*
-    dependencies:
-      '@starbeam/debug': link:../debug
-      '@starbeam/fundamental': link:../fundamental
-      '@starbeam/timeline': link:../timeline
-      '@starbeam/verify': link:../verify
-    devDependencies:
-      '@types/treeify': link:../../@types/treeify
-
   '@starbeam/now':
     specifiers: {}
 
@@ -262,7 +245,6 @@ importers:
       '@starbeam/core': workspace:*
       '@starbeam/debug': workspace:*
       '@starbeam/fundamental': workspace:*
-      '@starbeam/lifetime': workspace:*
       '@starbeam/reactive': workspace:*
       '@starbeam/timeline': workspace:*
       '@starbeam/trace-internals': workspace:*
@@ -270,7 +252,6 @@ importers:
       '@starbeam/core': link:../core
       '@starbeam/debug': link:../debug
       '@starbeam/fundamental': link:../fundamental
-      '@starbeam/lifetime': link:../lifetime
       '@starbeam/reactive': link:../reactive
       '@starbeam/timeline': link:../timeline
       '@starbeam/trace-internals': link:../trace-internals
@@ -349,6 +330,7 @@ importers:
   '@starbeam/reactive':
     specifiers:
       '@starbeam/debug': workspace:*
+      '@starbeam/debug-utils': workspace:*
       '@starbeam/fundamental': workspace:*
       '@starbeam/schedule': workspace:*
       '@starbeam/timeline': workspace:*
@@ -357,6 +339,7 @@ importers:
       '@starbeam/verify': workspace:*
     dependencies:
       '@starbeam/debug': link:../debug
+      '@starbeam/debug-utils': link:../debug-utils
       '@starbeam/fundamental': link:../fundamental
       '@starbeam/schedule': link:../schedule
       '@starbeam/timeline': link:../timeline
@@ -380,6 +363,7 @@ importers:
     specifiers:
       '@starbeam/config': workspace:*
       '@starbeam/debug': workspace:*
+      '@starbeam/fundamental': workspace:*
       '@starbeam/now': workspace:*
       '@starbeam/schedule': workspace:*
       '@starbeam/trace-internals': workspace:*
@@ -389,6 +373,7 @@ importers:
     dependencies:
       '@starbeam/config': link:../config
       '@starbeam/debug': link:../debug
+      '@starbeam/fundamental': link:../fundamental
       '@starbeam/now': link:../now
       '@starbeam/schedule': link:../schedule
       '@starbeam/trace-internals': link:../trace-internals

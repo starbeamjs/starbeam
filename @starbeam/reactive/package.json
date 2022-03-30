@@ -17,6 +17,7 @@
     "@starbeam/verify": "workspace:*",
     "@starbeam/schedule": "workspace:*",
     "@starbeam/debug": "workspace:*",
+    "@starbeam/debug-utils": "workspace:*",
     "@starbeam/trace-internals": "workspace:*",
     "@starbeam/utils": "workspace:*",
     "@starbeam/fundamental": "workspace:*"

@@ -1,6 +1,6 @@
-import { LIFETIME } from "@starbeam/lifetime";
 import { Memo, Reactive } from "@starbeam/reactive";
 import {
+  LIFETIME,
   REACTIVE,
   ReactiveInternals,
   type ReactiveProtocol,
@@ -45,6 +45,10 @@ export class PhasedInstance<T> implements ReactiveProtocol {
 
   get current(): T {
     return this.#instance.current;
+  }
+
+  poll(): T {
+    return this.current;
   }
 }
 
@@ -163,15 +167,17 @@ export function PhasedReactive<T, L extends PhasedBuilder>({
     // associated element is attached).
     const builder = createBuilder();
 
-    // Construct a new instance PhasedTask. This is the _current_ PhasedTask for
-    // the long-lived PhasedInstance we are in the middle of constructing.
-    task = PhasedTask.create(blueprint(builder));
+    LIFETIME.withFrame(builder, () => {
+      // Construct a new instance PhasedTask. This is the _current_ PhasedTask for
+      // the long-lived PhasedInstance we are in the middle of constructing.
+      task = PhasedTask.create(blueprint(builder));
+    });
 
     // Link the task we have just created with the builder instance. As a
     // result, when the task is finalized (above), any finalizers associated
     // with the builder will be run and any of its linked children will be
     // finalized.
-    lifetime.link(task, builder);
+    LIFETIME.link(builder, task);
 
     // Next, link the PhasedInstance we're in the process of creating to the
     // current task. If the PhasedInstance is finalized, its final task will be

@@ -140,8 +140,16 @@ export class Timeline {
     }
   }
 
-  // Run a computation in the context of a frame, and return a finalized frame.
-  withFrame<T>(
+  /**
+   * Run a formula in the context of a lifetime, and return a
+   * {@link FinalizedFrame}.
+   *
+   * If the formula is re-evaluated, it will be re-evaluated in the context of
+   * the same lifetime. You can think of a Starbeam Formula as a function that
+   * closes over the "current lifetime" as well as the normal JavaScript
+   * environment.
+   */
+  evaluateFormula<T>(
     callback: () => T,
     description: string
   ): { readonly frame: FinalizedFrame<T>; readonly value: T } {

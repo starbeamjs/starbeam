@@ -1,5 +1,4 @@
-import { LIFETIME } from "@starbeam/lifetime";
-import { TIMELINE } from "@starbeam/timeline";
+import { LIFETIME, TIMELINE } from "@starbeam/timeline";
 import type { ProgramNode } from "../program-node/program-node.js";
 import { RenderedRoot } from "./rendered-root.js";
 

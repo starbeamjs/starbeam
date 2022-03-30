@@ -2,20 +2,26 @@ import {
   CompositeChild,
   REACTIVE,
   ReactiveInternals,
-  type CompositeInternals,
-  type ReactiveProtocol
+  type InitializedCompositeInternals,
+  type MutableInternals,
+  type ReactiveProtocol,
+  type UninitializedCompositeInternals,
 } from "@starbeam/timeline";
 import { Abstraction } from "@starbeam/trace-internals";
 import { UninitializedCompositeInternalsImpl } from "../internals/composite.js";
 
 export class CompositeReactive implements ReactiveProtocol {
-  static create(internals: CompositeInternals): CompositeReactive {
+  static create(
+    internals: UninitializedCompositeInternals | InitializedCompositeInternals
+  ): CompositeReactive {
     return new CompositeReactive(internals);
   }
 
-  #internals: CompositeInternals;
+  #internals: UninitializedCompositeInternals | InitializedCompositeInternals;
 
-  private constructor(internals: CompositeInternals) {
+  private constructor(
+    internals: UninitializedCompositeInternals | InitializedCompositeInternals
+  ) {
     this.#internals = internals;
   }
 
@@ -45,6 +51,13 @@ export function Composite(
 }
 
 Composite.from = (
+  dependencies: Iterable<MutableInternals>,
+  description: string
+) => {
+  return Composite(description).set([...dependencies]);
+};
+
+Composite.fromReactives = (
   reactives: Iterable<ReactiveProtocol>,
   description = Abstraction.callerFrame()
 ) => {
