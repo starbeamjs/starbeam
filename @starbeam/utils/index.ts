@@ -1,4 +1,5 @@
 export type { InferReturn } from "./src/any.js";
+export { isArray, last } from "./src/array.js";
 export {
   Enum,
   type Discriminant,

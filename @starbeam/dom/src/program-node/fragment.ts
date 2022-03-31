@@ -1,6 +1,6 @@
 import type { ParentNode } from "@domtree/minimal";
 import { has, NonemptyList } from "@starbeam/core";
-import { Composite } from "@starbeam/reactive";
+import { CompositeInternals } from "@starbeam/reactive";
 import { REACTIVE, ReactiveInternals } from "@starbeam/timeline";
 import { verify } from "@starbeam/verify";
 import { RangeSnapshot, RANGE_SNAPSHOT } from "../dom/streaming/cursor.js";
@@ -12,23 +12,23 @@ export class FragmentProgramNode implements ContentProgramNode {
   static of(children: NonemptyList<ContentProgramNode>): FragmentProgramNode {
     return new FragmentProgramNode(
       children,
-      Composite.from(children, "Fragment")
+      CompositeInternals(children.asArray(), "Fragment")
     );
   }
 
   readonly #children: NonemptyList<ContentProgramNode>;
-  readonly #composite: Composite;
+  readonly #composite: ReactiveInternals;
 
   constructor(
     children: NonemptyList<ContentProgramNode>,
-    composite: Composite
+    composite: ReactiveInternals
   ) {
     this.#children = children;
     this.#composite = composite;
   }
 
   get [REACTIVE](): ReactiveInternals {
-    return ReactiveInternals.get(this.#composite);
+    return this.#composite;
   }
 
   render(buffer: ContentConstructor): RenderedFragmentNode {
@@ -43,17 +43,17 @@ export class FragmentProgramNode implements ContentProgramNode {
 export class RenderedFragmentNode extends RenderedContent {
   static create(
     children: readonly RenderedContent[],
-    composite: Composite
+    composite: ReactiveInternals
   ): RenderedFragmentNode {
     return new RenderedFragmentNode(children, composite);
   }
 
   #content: readonly RenderedContent[];
-  #composite: Composite;
+  #composite: ReactiveInternals;
 
   private constructor(
     content: readonly RenderedContent[],
-    composite: Composite
+    composite: ReactiveInternals
   ) {
     super();
     this.#content = content;
@@ -61,7 +61,7 @@ export class RenderedFragmentNode extends RenderedContent {
   }
 
   get [REACTIVE](): ReactiveInternals {
-    return ReactiveInternals.get(this.#composite);
+    return this.#composite;
   }
 
   [RANGE_SNAPSHOT](inside: ParentNode): RangeSnapshot {

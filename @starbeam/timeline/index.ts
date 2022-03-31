@@ -12,21 +12,13 @@ export {
   UNINITIALIZED,
   UNINITIALIZED_REACTIVE,
 } from "./src/timeline/constants.js";
+export { FinalizedFrame, type FrameValidation } from "./src/timeline/frames.js";
 export {
-  FinalizedFrame,
-  type FrameChild,
-  type FrameValidation,
-} from "./src/timeline/frames.js";
-export {
-  CompositeChild,
+  InternalChildren,
   ReactiveInternals,
-  type DerivedInternals,
-  type InitializedCompositeInternals,
-  type InitializedDerivedInternals,
+  type CompositeInternals,
   type MutableInternals,
   type StaticInternals,
-  type UninitializedCompositeInternals,
-  type UninitializedDerivedInternals,
 } from "./src/timeline/internals.js";
 export { type ReactiveDependencies } from "./src/timeline/reactive-node.js";
 export { REACTIVE, type ReactiveProtocol } from "./src/timeline/reactive.js";

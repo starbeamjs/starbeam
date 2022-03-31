@@ -1,13 +1,9 @@
 import { config, Priority } from "@starbeam/config";
 import { Coordinator, COORDINATOR, Work } from "@starbeam/schedule";
 import { LOGGER } from "@starbeam/trace-internals";
-import {
-  ActiveFrame,
-  AssertFrame,
-  FrameChild,
-  type FinalizedFrame,
-} from "./frames.js";
+import { ActiveFrame, AssertFrame, type FinalizedFrame } from "./frames.js";
 import type { MutableInternals } from "./internals.js";
+import { REACTIVE, type ReactiveProtocol } from "./reactive.js";
 import { Timestamp } from "./timestamp.js";
 
 export class Timeline {
@@ -122,10 +118,10 @@ export class Timeline {
   }
 
   // Indicate that a particular cell was used inside of the current computation.
-  didConsume(storage: FrameChild) {
+  didConsume(reactive: ReactiveProtocol) {
     if (this.#frame) {
-      LOGGER.trace.log(`adding ${storage.description}`);
-      this.#frame.add(storage);
+      LOGGER.trace.log(`adding ${reactive[REACTIVE].description}`);
+      this.#frame.add(reactive);
     }
   }
 

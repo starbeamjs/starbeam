@@ -1,7 +1,5 @@
 import type { minimal } from "@domtree/flavors";
 import { is, NonemptyList, OrderedIndex } from "@starbeam/core";
-import { Reactive } from "@starbeam/reactive";
-import type { MutableInternals } from "@starbeam/timeline";
 import { RenderedContent } from "../interfaces/rendered-content.js";
 import type { ContentsIndex } from "./loop.js";
 
@@ -39,16 +37,6 @@ export class RenderSnapshot {
     readonly contents: ContentsIndex
   ) {
     this.#list = list;
-  }
-
-  get dependencies(): readonly MutableInternals[] {
-    if (this.#list === null) {
-      return [];
-    } else {
-      return this.#list
-        .asArray()
-        .flatMap((item) => Reactive.getDependencies(item.content).dependencies);
-    }
   }
 
   isEmpty(): boolean {

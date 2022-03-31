@@ -1,95 +1,47 @@
-import type { InitializedCompositeInternals } from "@starbeam/timeline";
 import {
-  CompositeChild,
-  UNINITIALIZED_REACTIVE,
-  type MutableInternals,
+  InternalChildren,
+  REACTIVE,
+  type CompositeInternals as AbstractCompositeInternals,
+  type ReactiveInternals,
+  type ReactiveProtocol,
   type Timestamp,
-  type UninitializedCompositeInternals,
 } from "@starbeam/timeline";
+import { isArray } from "@starbeam/utils";
 
-type InferReturn = any;
-
-export class UninitializedCompositeInternalsImpl
-  implements UninitializedCompositeInternals
+export class CompositeInternalsImpl
+  implements AbstractCompositeInternals, ReactiveProtocol
 {
-  static create<T>(
+  static create(
+    children: InternalChildren,
     description: string
-  ): UninitializedCompositeInternals & CompositeInternals {
-    return new UninitializedCompositeInternalsImpl(description) as InferReturn;
+  ): CompositeInternalsImpl {
+    return new CompositeInternalsImpl(children, description);
   }
 
   readonly type = "composite";
-  readonly state = "uninitialized";
 
+  #children: InternalChildren;
   readonly #description: string;
 
-  private constructor(description: string) {
+  private constructor(children: InternalChildren, description: string) {
+    this.#children = children;
     this.#description = description;
   }
 
-  /** impl UninitializedDerivedInternals */
-  readonly isInitialized: false = false;
+  get [REACTIVE](): ReactiveInternals {
+    return this;
+  }
 
   get description(): string {
     return this.#description;
   }
 
-  dependencies(): UNINITIALIZED_REACTIVE {
-    return UNINITIALIZED_REACTIVE;
-  }
-
-  isUpdatedSince(timestamp: Timestamp): boolean {
-    return false;
-  }
-
-  initialize<T>(children: CompositeChild): InitializedCompositeInternals {
-    return InitializedCompositeInternalsImpl.create(
-      children,
-      this.#description
-    );
-  }
-}
-
-export class InitializedCompositeInternalsImpl
-  implements InitializedCompositeInternals
-{
-  static create<T>(
-    dependencies: CompositeChild,
-    description: string
-  ): InitializedCompositeInternalsImpl {
-    return new InitializedCompositeInternalsImpl(dependencies, description);
-  }
-
-  readonly type = "composite";
-  readonly state = "initialized";
-
-  #children: CompositeChild;
-  readonly #description: string;
-
-  private constructor(children: CompositeChild, description: string) {
-    this.#children = children;
-    this.#description = description;
-  }
-
-  children(): CompositeChild {
+  children(): InternalChildren {
     return this.#children;
   }
 
-  /** impl InitializedCompositeInternals */
-
-  dependencies(): readonly MutableInternals[] {
-    return this.#children.dependencies;
-  }
-
-  update(children: CompositeChild): void {
+  update(children: InternalChildren): void {
     this.#children = children;
-  }
-
-  /** impl ReactiveInternals */
-  readonly isInitialized: true = true;
-
-  get description(): string {
-    return this.#description;
   }
 
   isUpdatedSince(timestamp: Timestamp): boolean {
@@ -98,13 +50,15 @@ export class InitializedCompositeInternalsImpl
 }
 
 export function CompositeInternals(
-  dependencies: readonly MutableInternals[],
+  children: InternalChildren | readonly ReactiveProtocol[],
   description: string
-): InitializedCompositeInternals {
-  return InitializedCompositeInternalsImpl.create(
-    CompositeChild.Interior(dependencies),
-    description
-  );
+): CompositeInternalsImpl {
+  if (isArray(children)) {
+    return CompositeInternalsImpl.create(
+      InternalChildren.from(children),
+      description
+    );
+  } else {
+    return CompositeInternalsImpl.create(children, description);
+  }
 }
-
-export type CompositeInternals = InitializedCompositeInternals;

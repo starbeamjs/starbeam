@@ -47,6 +47,10 @@ class FormulaState<T> {
     this.#description = description;
   }
 
+  get frame(): FinalizedFrame<T> {
+    return this.#frame;
+  }
+
   get dependencies(): readonly MutableInternals[] {
     return this.#frame.dependencies;
   }
@@ -126,7 +130,7 @@ export class ReactiveFormula<T> implements ReactiveValue<T> {
       return this.#marker[REACTIVE];
     } else {
       return CompositeInternals(
-        [this.#marker[REACTIVE], ...this.#last.frame.dependencies],
+        [this.#marker, this.#last.frame],
         this.#description
       );
     }
@@ -188,7 +192,7 @@ export class StatefulReactiveFormula<T> implements ReactiveValue<T> {
 
   get [REACTIVE](): ReactiveInternals {
     return CompositeInternals(
-      [...this.#taskFormula.dependencies, ...this.#task.dependencies],
+      [this.#taskFormula.frame, this.#task.formula],
       this.#description
     );
   }
@@ -223,8 +227,8 @@ class Task<T> {
     this.#description = description;
   }
 
-  get dependencies(): readonly MutableInternals[] {
-    return ReactiveFormula.dependencies(this.#formula);
+  get formula(): ReactiveFormula<T> {
+    return this.#formula;
   }
 
   get current(): T {

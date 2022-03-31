@@ -1,18 +1,13 @@
 import {
   FinalizedFrame,
   REACTIVE,
+  ReactiveInternals,
   TIMELINE,
-  type DerivedInternals,
-  type ReactiveInternals,
-  type UninitializedDerivedInternals,
 } from "@starbeam/timeline";
-import { Abstraction, LOGGER } from "@starbeam/trace-internals";
-import { exhaustive } from "@starbeam/verify";
-import {
-  InitializedDerivedInternalsImpl,
-  UninitializedDerivedInternalsImpl,
-} from "../internals/derived.js";
-import type { ReactiveValue } from "../reactive.js";
+import { Abstraction } from "@starbeam/trace-internals";
+import { CompositeInternals } from "../internals/composite.js";
+import { Reactive, type ReactiveValue } from "../reactive.js";
+import { Initializable } from "./initializable.js";
 
 export interface PolledMemo<T> {
   readonly value: T;
@@ -21,110 +16,75 @@ export interface PolledMemo<T> {
 
 export class ReactiveMemo<T> implements ReactiveValue<T> {
   static create<T>(callback: () => T, description: string): ReactiveMemo<T> {
-    return new ReactiveMemo(
-      callback,
-      UninitializedDerivedInternalsImpl.create(description)
-    );
+    return new ReactiveMemo(callback, Initializable.create(description));
   }
 
   readonly #formula: () => T;
-  #internal: DerivedInternals<T>;
+  #frame: Initializable<FinalizedFrame<T>>;
 
-  private constructor(callback: () => T, internals: DerivedInternals<T>) {
+  private constructor(
+    callback: () => T,
+    frame: Initializable<FinalizedFrame<T>>
+  ) {
     this.#formula = callback;
-    this.#internal = internals;
+    this.#frame = frame;
   }
 
   toString() {
-    if (this.#internal.state === "initialized") {
-      const valid = this.#internal.validate();
-      const desc = valid.status === "valid" ? `fresh ${valid.value}` : `stale`;
-      return `Memo(${desc})`;
-    } else {
-      return `Memo({uninitialized})`;
-    }
+    return this.#frame.match({
+      Initialized: ({ value }) => {
+        const valid = value.validate();
+        const desc =
+          valid.status === "valid" ? `fresh ${valid.value}` : `stale`;
+        return `Memo(${desc})`;
+      },
+      Uninitialized: (marker) =>
+        `Memo({uninitialized ${Reactive.description(marker)}})`,
+    });
   }
 
   get [REACTIVE](): ReactiveInternals {
-    return this.#internal;
+    return this.#frame.match({
+      Uninitialized: (marker): ReactiveInternals => marker[REACTIVE],
+      Initialized: ({ value }) =>
+        CompositeInternals(value.children, this.#frame.description),
+    });
   }
 
   get current(): T {
-    if (this.#internal.state === "initialized") {
-      const internals = this.#internal;
-      const valid = internals.validate();
+    const { initialized, value } = this.#frame.upsert({
+      create: (description) => {
+        const { frame, value } = TIMELINE.evaluateFormula(
+          this.#formula,
+          description
+        );
+        return { initialized: frame, value };
+      },
+      update: (frame, description) => {
+        const validation = frame.validate();
 
-      if (valid.status === "valid") {
-        TIMELINE.didConsume(internals.frame);
-        TIMELINE.didConsume(internals.initialized);
-        return valid.value;
-      }
+        switch (validation.status) {
+          case "valid": {
+            return {
+              updated: frame,
+              value: validation.value,
+            };
+          }
+          case "invalid": {
+            const { frame, value } = TIMELINE.evaluateFormula(
+              this.#formula,
+              description
+            );
 
-      const { frame, value } = this.poll(
-        internals.frame,
-        internals.description
-      );
-
-      this.#internal = InitializedDerivedInternalsImpl.create(
-        frame,
-        internals.initialized,
-        internals.description
-      );
-      return value;
-    } else {
-      const internals = this.#internal;
-      const { frame, value } = this.#initialize(internals);
-
-      this.#internal = InitializedDerivedInternalsImpl.create(
-        frame,
-        internals.initialized,
-        internals.description
-      );
-      return value;
-    }
-  }
-
-  #initialize({
-    initialized,
-    description,
-  }: UninitializedDerivedInternals): PolledMemo<T> {
-    initialized.update();
-
-    return LOGGER.trace.group(`initializing memo: ${description}`, () =>
-      TIMELINE.evaluateFormula(this.#formula, description)
-    );
-  }
-
-  poll(frame: FinalizedFrame<T>, description: string): PolledMemo<T> {
-    this.#internal.initialized.consume();
-
-    const validation = LOGGER.trace.group(`validating ${description}`, () => {
-      const validation = frame.validate();
-
-      switch (validation.status) {
-        case "valid":
-          LOGGER.trace.log(`=> valid frame`);
-          break;
-        case "invalid":
-          LOGGER.trace.log(`=> invalid frame, recomputing`);
-          break;
-        default:
-          exhaustive(validation, `validation.status`);
-      }
-
-      return validation;
+            return { updated: frame, value };
+          }
+        }
+      },
     });
 
-    if (validation.status === "valid") {
-      return {
-        value: validation.value,
-        frame,
-      };
-    }
+    this.#frame = initialized;
 
-    return LOGGER.trace.group(`recomputing ${description}`, () =>
-      TIMELINE.evaluateFormula(this.#formula, description)
-    );
+    return value;
   }
 }
 

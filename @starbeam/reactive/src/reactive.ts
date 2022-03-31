@@ -1,12 +1,10 @@
 import {
   REACTIVE,
-  ReactiveInternals,
   type MutableInternals,
   type ReactiveProtocol,
 } from "@starbeam/timeline";
 import { Abstraction } from "@starbeam/trace-internals";
 import { Enum } from "@starbeam/utils";
-import { exhaustive } from "@starbeam/verify";
 import { Static } from "./core/static.js";
 
 export interface ReactiveValue<T> extends ReactiveProtocol {
@@ -81,68 +79,20 @@ export const Reactive = new (class {
   }
 
   isConstant(value: ReactiveProtocol): boolean {
-    return Reactive.getDependencies(value).matches("Constant");
+    return Reactive.getDependencies(value).length === 0;
+  }
+
+  getDependencies(reactive: ReactiveProtocol): readonly MutableInternals[] {
+    return reactive[REACTIVE].children().dependencies;
   }
 
   isDynamic(value: ReactiveProtocol): boolean {
     return !Reactive.isConstant(value);
   }
 
-  getDependencies(value: ReactiveProtocol): ReactiveDependencies {
-    const internals = ReactiveInternals.classify(value[REACTIVE]);
-
-    switch (internals.type) {
-      case "static":
-        return ReactiveDependencies.Constant();
-      case "mutable":
-        return ReactiveDependencies.Stable(internals);
-      case "derived": {
-        if (internals.state === "uninitialized") {
-          return ReactiveDependencies.Uninitialized();
-        }
-
-        const dependencies = internals.dependencies();
-
-        if (dependencies.length === 0) {
-          // Once dependencies has become empty, the derived can't change
-          // anymore.
-          //
-          // One way this can happen is if all of the previous dependencies
-          // became frozen.
-          //
-          // But even this would be sufficient:
-          //
-          // ```ts
-          // const bool = Cell(false);
-          // const name = Cell("@tomdale");
-          // const anonymous = Static("@anonymous");
-          //
-          // const memo = Memo(() => bool.current ? name.current : anonymous.current);
-          // memo.current //? "@anonymous"
-          //
-          // bool.freeze();
-          // memo.current //? "@anonymous"
-          // ```
-          //
-          // `memo` is now constant because `bool` can't change anymore, and the
-          // last code path had no other dependencies.
-          return ReactiveDependencies.Constant();
-        } else {
-          return ReactiveDependencies.Derived(dependencies);
-        }
-      }
-      case "composite": {
-        const dependencies = ReactiveInternals.currentDependencies(internals);
-
-        if (dependencies.length === 0) {
-          return ReactiveDependencies.Constant();
-        } else {
-          return ReactiveDependencies.Derived(dependencies);
-        }
-      }
-
-      default:
-        exhaustive(internals, "internals.type");
+  children(...reactives: ReactiveProtocol[]) {
+    for (const reactive of reactives) {
+      reactive[REACTIVE].children;
     }
   }
 

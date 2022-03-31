@@ -1,7 +1,16 @@
-import { TIMELINE, Timestamp, type MutableInternals } from "@starbeam/timeline";
+import {
+  InternalChildren,
+  REACTIVE,
+  TIMELINE,
+  Timestamp,
+  type MutableInternals,
+  type ReactiveProtocol,
+} from "@starbeam/timeline";
 import { expected, isEqual, verify } from "@starbeam/verify";
 
-export class MutableInternalsImpl implements MutableInternals {
+export class MutableInternalsImpl
+  implements MutableInternals, ReactiveProtocol
+{
   static create(description: string): MutableInternalsImpl {
     return new MutableInternalsImpl(false, TIMELINE.now, description);
   }
@@ -22,8 +31,20 @@ export class MutableInternalsImpl implements MutableInternals {
     this.#description = description;
   }
 
+  get [REACTIVE]() {
+    return this;
+  }
+
   get debug(): { readonly lastUpdated: Timestamp } {
     return { lastUpdated: this.#lastUpdate };
+  }
+
+  children(): InternalChildren {
+    if (this.#frozen) {
+      return InternalChildren.None();
+    } else {
+      return InternalChildren.Children([this]);
+    }
   }
 
   isFrozen(): boolean {

@@ -1,10 +1,12 @@
-import type {
-  ReactiveInternals,
-  StaticInternals,
-  Timestamp,
+import {
+  InternalChildren,
+  REACTIVE,
+  type ReactiveInternals,
+  type StaticInternals,
+  type Timestamp,
 } from "@starbeam/timeline";
 
-export class StaticInternalsImpl implements ReactiveInternals {
+export class StaticInternalsImpl implements StaticInternals {
   static create(description: string): StaticInternals {
     return new StaticInternalsImpl(description);
   }
@@ -14,6 +16,14 @@ export class StaticInternalsImpl implements ReactiveInternals {
 
   private constructor(description: string) {
     this.#description = description;
+  }
+
+  get [REACTIVE](): ReactiveInternals {
+    return this;
+  }
+
+  children(): InternalChildren {
+    return InternalChildren.None();
   }
 
   /** impl ReactiveInternals */

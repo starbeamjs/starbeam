@@ -10,6 +10,10 @@ export function assert(
   assertCondition(condition, () => info);
 }
 
+export function failure(assumption: string): never {
+  throw Error(`An assumption was wrong: ${assumption}`);
+}
+
 /** @internal */
 export const assertCondition: (
   condition: UnsafeAny,

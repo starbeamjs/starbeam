@@ -13,7 +13,7 @@ import {
 
 export abstract class RenderedContent implements ReactiveProtocol {
   static isConstant(this: void, rendered: RenderedContent): boolean {
-    return Reactive.getDependencies(rendered).matches("Constant");
+    return Reactive.isConstant(rendered);
   }
 
   static isUpdating(this: void, rendered: RenderedContent): boolean {

@@ -1,6 +1,6 @@
 import type * as minimal from "@domtree/minimal";
 import { NonemptyList } from "@starbeam/core";
-import { Composite, Reactive, Static } from "@starbeam/reactive";
+import { CompositeInternals, Reactive, Static } from "@starbeam/reactive";
 import { REACTIVE, ReactiveInternals } from "@starbeam/timeline";
 import type { ElementBody } from "../dom/buffer/body.js";
 import { RangeSnapshot, RANGE_SNAPSHOT } from "../dom/streaming/cursor.js";
@@ -24,7 +24,7 @@ export class ElementProgramNode extends ContentProgramNode {
   ): ElementProgramNode {
     let attributes = buildAttributes.map(AttributeProgramNode.create);
 
-    const composite = Composite.fromReactives(
+    const composite = CompositeInternals(
       [...attributes, ...content],
       `ElementProgramNode`
     );
@@ -41,13 +41,13 @@ export class ElementProgramNode extends ContentProgramNode {
   readonly #tagName: Reactive<string>;
   readonly #attributes: readonly AttributeProgramNode[];
   readonly #children: FragmentProgramNode;
-  readonly #composite: Composite;
+  readonly #composite: ReactiveInternals;
 
   private constructor(
     tagName: Reactive<string>,
     attributes: readonly AttributeProgramNode[],
     children: FragmentProgramNode,
-    composite: Composite
+    composite: ReactiveInternals
   ) {
     super();
     this.#tagName = tagName;
@@ -57,7 +57,7 @@ export class ElementProgramNode extends ContentProgramNode {
   }
 
   get [REACTIVE](): ReactiveInternals {
-    return ReactiveInternals.get(this.#composite);
+    return this.#composite;
   }
 
   render(buffer: TreeConstructor): RenderedElementNode {
@@ -81,21 +81,21 @@ class DehydratedElementBuilder {
   static create(
     tag: Reactive<string>,
     head: ElementHeadConstructor,
-    composite: Composite
+    composite: ReactiveInternals
   ): DehydratedElementBuilder {
     return new DehydratedElementBuilder(tag, head, composite, [], null);
   }
 
   readonly #tag: Reactive<string>;
   readonly #head: ElementHeadConstructor;
-  readonly #composite: Composite;
+  readonly #composite: ReactiveInternals;
   readonly #attributes: RenderedAttribute[];
   #content: RenderedFragmentNode | null;
 
   private constructor(
     tag: Reactive<string>,
     head: ElementHeadConstructor,
-    composite: Composite,
+    composite: ReactiveInternals,
     attributes: RenderedAttribute[],
     content: RenderedFragmentNode | null
   ) {
@@ -159,7 +159,7 @@ export class RenderedElementNode extends RenderedContent {
   static create(
     node: LazyDOM<minimal.Element>,
     tagName: Reactive<string>,
-    composite: Composite,
+    composite: ReactiveInternals,
     attributes: readonly RenderedAttribute[],
     children: RenderedFragmentNode | null
   ): RenderedElementNode {
@@ -174,14 +174,14 @@ export class RenderedElementNode extends RenderedContent {
 
   readonly #element: LazyDOM<minimal.Element>;
   readonly #tagName: Reactive<string>;
-  readonly #composite: Composite;
+  readonly #composite: ReactiveInternals;
   #attributes: readonly RenderedAttribute[];
   #children: RenderedFragmentNode | null;
 
   private constructor(
     node: LazyDOM<minimal.Element>,
     tagName: Reactive<string>,
-    composite: Composite,
+    composite: ReactiveInternals,
     attributes: readonly RenderedAttribute[],
     children: RenderedFragmentNode | null
   ) {
@@ -194,7 +194,7 @@ export class RenderedElementNode extends RenderedContent {
   }
 
   get [REACTIVE](): ReactiveInternals {
-    return ReactiveInternals.get(this.#composite);
+    return this.#composite;
   }
 
   [RANGE_SNAPSHOT](inside: minimal.ParentNode): RangeSnapshot {

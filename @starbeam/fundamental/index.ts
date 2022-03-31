@@ -1,4 +1,4 @@
-export { assert, assertCondition } from "./src/assert.js";
+export { assert, assertCondition, failure } from "./src/assert.js";
 export { UNINITIALIZED } from "./src/constants.js";
 export type {
   AnyDict,

@@ -1,6 +1,6 @@
 import type { minimal } from "@domtree/flavors";
 import { is, NonemptyList, OrderedIndex } from "@starbeam/core";
-import { Composite, Reactive, Static } from "@starbeam/reactive";
+import { CompositeInternals, Reactive, Static } from "@starbeam/reactive";
 import {
   REACTIVE,
   type ReactiveInternals,
@@ -213,17 +213,22 @@ export const Loop = {
  */
 export class StaticListProgramNode extends ContentProgramNode {
   static of(loop: StaticLoop) {
-    return new StaticListProgramNode([...loop], loop, Composite("loop"));
+    return new StaticListProgramNode(
+      [...loop],
+      loop,
+      // TODO: Make this initializable
+      CompositeInternals([], "loop")
+    );
   }
 
   readonly #components: readonly KeyedProgramNode[];
   readonly #loop: StaticLoop;
-  readonly #composite: Composite;
+  #composite: ReactiveInternals;
 
   constructor(
     components: readonly KeyedProgramNode[],
     loop: StaticLoop,
-    composite: Composite
+    composite: ReactiveInternals
   ) {
     super();
     this.#components = components;
@@ -232,7 +237,7 @@ export class StaticListProgramNode extends ContentProgramNode {
   }
 
   get [REACTIVE](): ReactiveInternals {
-    return this.#composite[REACTIVE];
+    return this.#composite;
   }
 
   render(buffer: TreeConstructor): RenderedContent {
@@ -252,7 +257,10 @@ export class StaticListProgramNode extends ContentProgramNode {
         buffer.comment("", TOKEN).dom
       );
     } else {
-      this.#composite.set(content.map((c) => c.content[REACTIVE]));
+      this.#composite = CompositeInternals(
+        content.map((c) => c.content),
+        "loop"
+      );
       return RenderedStaticList.create(
         RenderSnapshot.of(NonemptyList.verified(content)),
         this.#composite
@@ -266,22 +274,22 @@ export type ContentsIndex = OrderedIndex<unknown, KeyedContent>;
 export class RenderedStaticList extends RenderedContent {
   static create(
     artifacts: RenderSnapshot,
-    composite: Composite
+    composite: ReactiveInternals
   ): RenderedStaticList {
     return new RenderedStaticList(artifacts, composite);
   }
 
   readonly #artifacts: RenderSnapshot;
-  readonly #composite: Composite;
+  readonly #composite: ReactiveInternals;
 
-  constructor(artifacts: RenderSnapshot, composite: Composite) {
+  constructor(artifacts: RenderSnapshot, composite: ReactiveInternals) {
     super();
     this.#artifacts = artifacts;
     this.#composite = composite;
   }
 
   get [REACTIVE](): ReactiveInternals {
-    return this.#composite[REACTIVE];
+    return this.#composite;
   }
 
   [RANGE_SNAPSHOT](parent: minimal.ParentNode): RangeSnapshot {

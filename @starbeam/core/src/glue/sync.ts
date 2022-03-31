@@ -1,4 +1,4 @@
-import { assert, DisplayStruct } from "@starbeam/debug";
+import { DisplayStruct } from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/fundamental";
 import { Reactive } from "@starbeam/reactive";
 import {
@@ -82,7 +82,7 @@ export function subscribe<T>(
     reactive[REACTIVE]
   }) <- ${Abstraction.callerFrame()}`
 ): ReactiveSubscription<T> {
-  const dependencies = Reactive.getDependencies(reactive);
+  const dependencies = reactive[REACTIVE].children().dependencies;
 
   if (Array.isArray(dependencies) && dependencies.length === 0) {
     return initialize(ConstantSubscription.create(reactive.current));
@@ -163,12 +163,7 @@ class AnyReactiveSubscription<T> implements ReactiveSubscription<T> {
     const newValue = this.#reactive.current;
     const newDeps = Reactive.getDependencies(this.#reactive);
 
-    assert(
-      !newDeps.matches("Uninitialized"),
-      `A reactive's cells should not be uninitialized once its value was consumed`
-    );
-
-    this.#synchronize(new Set(newDeps.dependencies));
+    this.#synchronize(new Set(newDeps));
 
     if (last === UNINITIALIZED) {
       this.#last = newValue;

@@ -1,5 +1,11 @@
 import { LOGGER } from "@starbeam/trace-internals";
-import type { IsUpdatedSince, MutableInternals } from "./internals.js";
+import {
+  InternalChildren,
+  type IsUpdatedSince,
+  type MutableInternals,
+  type ReactiveInternals
+} from "./internals.js";
+import { REACTIVE, type ReactiveProtocol } from "./reactive.js";
 import type { Timestamp } from "./timestamp.js";
 
 export class AssertFrame {
@@ -20,31 +26,22 @@ export class AssertFrame {
   }
 }
 
-export type FrameChild = MutableInternals | FinalizedFrame;
-
-export const FrameChild = {
-  isFrame: (child: FrameChild): child is FinalizedFrame => {
-    return child instanceof FinalizedFrame;
-  },
-
-  isLeaf: (child: FrameChild): child is MutableInternals => {
-    return !FrameChild.isFrame(child);
-  },
-} as const;
-
 export class ActiveFrame {
   static create(description: string): ActiveFrame {
     return new ActiveFrame(new Set(), description);
   }
 
-  readonly #storages: Set<FrameChild>;
+  readonly #children: Set<ReactiveProtocol>;
 
-  private constructor(cells: Set<FrameChild>, readonly description: string) {
-    this.#storages = cells;
+  private constructor(
+    children: Set<ReactiveProtocol>,
+    readonly description: string
+  ) {
+    this.#children = children;
   }
 
-  add(storage: FrameChild): void {
-    this.#storages.add(storage);
+  add(child: ReactiveProtocol): void {
+    this.#children.add(child);
   }
 
   finalize<T>(
@@ -53,7 +50,7 @@ export class ActiveFrame {
   ): { readonly frame: FinalizedFrame<T>; readonly value: T } {
     return {
       frame: FinalizedFrame.create({
-        children: this.#storages,
+        children: this.#children,
         finalizedAt: now,
         value,
         description: this.description,
@@ -74,14 +71,16 @@ export interface InvalidFrame {
 
 export type FrameValidation<T> = ValidFrame<T> | InvalidFrame;
 
-export class FinalizedFrame<T = unknown> implements IsUpdatedSince {
+export class FinalizedFrame<T = unknown>
+  implements ReactiveProtocol, IsUpdatedSince
+{
   static create<T>({
     children,
     finalizedAt,
     value,
     description,
   }: {
-    children: Set<FrameChild>;
+    children: Set<ReactiveProtocol>;
     finalizedAt: Timestamp;
     value: T;
     description: string;
@@ -89,12 +88,12 @@ export class FinalizedFrame<T = unknown> implements IsUpdatedSince {
     return new FinalizedFrame(children, finalizedAt, value, description);
   }
 
-  readonly #children: Set<FrameChild>;
+  readonly #children: Set<ReactiveProtocol>;
   readonly #finalizedAt: Timestamp;
   readonly #value: T;
 
   private constructor(
-    children: Set<FrameChild>,
+    children: Set<ReactiveProtocol>,
     finalizedAt: Timestamp,
     value: T,
     readonly description: string
@@ -104,36 +103,38 @@ export class FinalizedFrame<T = unknown> implements IsUpdatedSince {
     this.#value = value;
   }
 
-  get children(): Set<FrameChild> {
-    return this.#children;
+  get [REACTIVE](): ReactiveInternals {
+    return {
+      type: "composite",
+      description: this.description,
+      isUpdatedSince: (timestamp) => {
+        return [...this.#children].some((child) =>
+          child[REACTIVE].isUpdatedSince(timestamp)
+        );
+      },
+      children: () => {
+        return InternalChildren.from(this.children)
+      },
+    };
   }
 
-  // TODO: Merge with ReactiveInternals.currentDependencies
+  get children(): readonly ReactiveProtocol[] {
+    return [...this.#children];
+  }
+
   get dependencies(): readonly MutableInternals[] {
-    return [...this.#children].flatMap((child) =>
-      FrameChild.isFrame(child) ? child.#leaves : child
+    return this.children.flatMap(
+      (child) => child[REACTIVE].children().dependencies
     );
-  }
-
-  get #leaves(): readonly MutableInternals[] {
-    return [...this.#children].flatMap((child) => {
-      if (child instanceof FinalizedFrame) {
-        return child.#leaves;
-      } else if (child.isFrozen()) {
-        return [];
-      } else {
-        return [child];
-      }
-    });
   }
 
   isUpdatedSince(timestamp: Timestamp): boolean {
     let isUpdated = false;
 
     for (let child of this.#children) {
-      if (child.isUpdatedSince(timestamp)) {
+      if (child[REACTIVE].isUpdatedSince(timestamp)) {
         LOGGER.trace.log(
-          `[invalidated] by ${child.description || "anonymous"}`
+          `[invalidated] by ${child[REACTIVE].description || "anonymous"}`
         );
         isUpdated = true;
       }
