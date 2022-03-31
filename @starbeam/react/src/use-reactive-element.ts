@@ -1,7 +1,7 @@
-import { LIFETIME, lifetime, subscribe } from "@starbeam/core";
+import { lifetime, subscribe } from "@starbeam/core";
 import { Stack } from "@starbeam/debug-utils";
 import type { AnyRecord } from "@starbeam/fundamental";
-import { Memo } from "@starbeam/reactive";
+import { Formula } from "@starbeam/reactive";
 import { inspect, LOGGER, SHEET, SP } from "@starbeam/trace-internals";
 import { useResource, useUpdatingRef } from "@starbeam/use-resource";
 import { useState, type ReactElement } from "react";
@@ -288,51 +288,44 @@ export function useReactiveElement<I extends Inputs>(
      * our `useReactiveElement` hook will return a brand new JSX, which
      * React will reconcile.
      */
-    const value = stableProps
-      ? LIFETIME.withFrame(element, (element) =>
-          Memo(definition(stableProps.current.reactive as any, element))
-        )
-      : LIFETIME.withFrame(element, (element) =>
-          Memo((definition as SimpleDefinition<ReactElement>)(element))
-        );
+    let value: Formula<ReactElement>;
+
+    if (stableProps) {
+      value = Formula(definition(stableProps.current.reactive as any, element));
+    } else {
+      value = Formula((definition as SimpleDefinition<ReactElement>)(element));
+    }
 
     /**
-     * Subscribe to the value in the lifetime context of the
-     * {@link ReactiveElement}.
+     * That all works, but React doesn't intrinsically know when the Formula has
+     * invalidated.
+     *
+     * So we'll set up a Starbeam subscriber on the Formula we created. Whenever
+     * that subscriber fires, we'll notify React, and React will re-render the
+     * component.
+     *
+     * When it reaches the useReactiveElement call again, it will update the
+     * stable props at {@link stableProps} and then re-enter the useResource
+     * call.
+     *
+     * At that point, the resource will be in the `updating` state, so the
+     * `updating` lifecycle hook below will run.
      */
-    LIFETIME.withFrame(element, () => {
-      /**
-       * That all works, but React doesn't intrinsically know when the Memo
-       * has invalidated.
-       *
-       * So we'll set up a Starbeam subscriber on the Memo we created.
-       * Whenever that subscriber fires, we'll notify React, and React will
-       * re-render the component.
-       *
-       * When it reaches the useReactiveElement call again, it will update the
-       * stable props at {@link stableProps} and then re-enter the useResource
-       * call.
-       *
-       * At that point, the resource will be in the `updating` state, so the
-       * `updating` lifecycle hook below will run.
-       */
+    const subscription = subscribe(
+      value,
+      () => {
+        LOGGER.debug.log(
+          SHEET.inert(description),
+          SP,
+          SHEET.stale("subscription fired")
+        );
+        notify();
+      },
+      description
+    );
 
-      const subscription = subscribe(
-        value,
-        () => {
-          LOGGER.debug.log(
-            SHEET.inert(description),
-            SP,
-            SHEET.stale("subscription fired")
-          );
-          notify();
-        },
-        description
-      );
-
-      lifetime.on.finalize(subscription, () => {
-        console.log("tearing down subscription", description);
-      });
+    lifetime.on.finalize(subscription, () => {
+      console.log("tearing down subscription", description);
     });
 
     LOGGER.trace.log(

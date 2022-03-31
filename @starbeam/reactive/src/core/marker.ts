@@ -2,7 +2,6 @@ import { COORDINATOR } from "@starbeam/schedule";
 import {
   REACTIVE,
   type MutableInternals,
-  type ReactiveInternals,
   type ReactiveProtocol,
 } from "@starbeam/timeline";
 import { Abstraction } from "@starbeam/trace-internals";
@@ -49,7 +48,7 @@ export class ReactiveMarker implements ReactiveProtocol {
 
   /** impl Reactive<T> */
 
-  get [REACTIVE](): ReactiveInternals {
+  get [REACTIVE](): MutableInternals {
     return this.#bookkeeping;
   }
 }

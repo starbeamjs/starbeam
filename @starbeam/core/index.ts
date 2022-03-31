@@ -8,7 +8,7 @@ export {
   type ReactiveSubscription,
 } from "./src/glue/sync.js";
 export { Effect } from "./src/hooks/effect.js";
-export { Log, type LogInstance } from "./src/hooks/log.js";
+export { Log } from "./src/hooks/log.js";
 export * from "./src/hooks/phased.js";
 export * from "./src/public.js";
 export {
