@@ -1,6 +1,6 @@
 import { DisplayStruct } from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/fundamental";
-import { Reactive } from "@starbeam/reactive";
+import { Linkable, Reactive } from "@starbeam/reactive";
 import {
   LIFETIME,
   REACTIVE,
@@ -42,10 +42,15 @@ export interface ReactiveSubscription<T = unknown> {
   unsubscribe: () => void;
 }
 
-function initialize<S extends ReactiveSubscription>(subscription: S): S {
-  LIFETIME.on.finalize(subscription, () => subscription.unsubscribe());
-  subscription.poll();
-  return subscription;
+function initialize<S extends ReactiveSubscription>(
+  subscription: S
+): Linkable<S> {
+  return Linkable.create((owner) => {
+    LIFETIME.on.finalize(subscription, () => subscription.unsubscribe());
+    LIFETIME.link(owner, subscription);
+    subscription.poll();
+    return subscription;
+  });
 }
 
 /**
@@ -81,7 +86,7 @@ export function subscribe<T>(
   description = `subscriber (to ${
     reactive[REACTIVE]
   }) <- ${Abstraction.callerFrame()}`
-): ReactiveSubscription<T> {
+): Linkable<ReactiveSubscription<T>> {
   const dependencies = reactive[REACTIVE].children().dependencies;
 
   if (Array.isArray(dependencies) && dependencies.length === 0) {

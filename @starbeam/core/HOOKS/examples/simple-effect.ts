@@ -1,11 +1,10 @@
-import type { Reactive } from "@starbeam/reactive";
-import { reactive } from "@starbeam/core";
+import { Formula, type Reactive } from "@starbeam/reactive";
 
 function LogDuration(
   seconds: Reactive<number>,
   options?: { numeric?: "force"; style?: "long" | "short" | "narrow" }
 ) {
-  const formatted = reactive(() =>
+  const formatted = Formula(() =>
     new Intl.RelativeTimeFormat(undefined, {
       numeric: options?.numeric ? "always" : "auto",
       style: options?.style,

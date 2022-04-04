@@ -1,7 +1,7 @@
 import type { Component, ReactiveDOM } from "@starbeam/dom";
 import { Cell, Reactive } from "@starbeam/reactive";
-import { test } from "../support/define.js";
-import { Expects } from "../support/index.js";
+import { test } from "../../support/define.js";
+import { Expects } from "../../support/index.js";
 
 test("a simple, static list", ({ universe, test }) => {
   const dom = universe.dom;

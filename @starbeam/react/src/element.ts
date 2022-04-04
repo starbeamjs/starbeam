@@ -300,7 +300,6 @@ class Elements {
     callback: Callback<browser.Element>
   ): void {
     this.#elements.upsert(element, (callbacks) => callbacks.add(callback));
-    console.log(this.#elements);
   }
 
   populate(): void {

@@ -54,8 +54,6 @@ export function Graph({
   const headerDir = direction === "vertical" ? "LR" : "TB";
   const bodyDir = direction === "vertical" ? "TB" : "LR";
 
-  console.log({ states, edges, children });
-
   const statesBody =
     typeof states === "string"
       ? JSON.parse(states.replaceAll("'", '"'))

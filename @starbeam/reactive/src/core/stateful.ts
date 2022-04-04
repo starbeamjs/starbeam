@@ -7,10 +7,11 @@ import {
   ReactiveInternals,
   TIMELINE,
   type IntoFinalizer,
-  type MutableInternals,
+  type MutableInternals
 } from "@starbeam/timeline";
 import { CompositeInternals } from "../internals/composite.js";
 import type { ReactiveValue } from "../reactive.js";
+import { Initializable } from "./initializable.js";
 import { Marker } from "./marker.js";
 
 /**
@@ -94,12 +95,6 @@ export class ReactiveFormula<T> implements ReactiveValue<T> {
     );
   }
 
-  static dependencies<T>(
-    formula: ReactiveFormula<T>
-  ): readonly MutableInternals[] {
-    return formula.#dependencies;
-  }
-
   #marker: Marker;
   #last: LastEvaluation<T> | UNINITIALIZED;
   readonly #formula: () => T;
@@ -117,14 +112,6 @@ export class ReactiveFormula<T> implements ReactiveValue<T> {
     this.#description = description;
   }
 
-  get #dependencies(): readonly MutableInternals[] {
-    if (this.#last === UNINITIALIZED) {
-      return [this.#marker[REACTIVE]];
-    } else {
-      return [this.#marker[REACTIVE], ...this.#last.frame.dependencies];
-    }
-  }
-
   get [REACTIVE](): ReactiveInternals {
     if (this.#last === UNINITIALIZED) {
       return this.#marker[REACTIVE];
@@ -139,6 +126,7 @@ export class ReactiveFormula<T> implements ReactiveValue<T> {
   get current(): T {
     if (this.#last === UNINITIALIZED) {
       this.#marker.update();
+      this.#marker.freeze();
     } else {
       const validation = this.#last.frame.validate();
       if (validation.status === "valid") {
@@ -211,32 +199,42 @@ export class StatefulReactiveFormula<T> implements ReactiveValue<T> {
 }
 
 interface TaskBlueprint<T> {
-  (builder: TaskBuilder): () => T;
+  (builder: TaskBuilder<T>): () => T;
 }
 
 class Task<T> {
-  static create<T>(formula: ReactiveFormula<T>, description: string): Task<T> {
-    return new Task(formula, description);
+  static create<T>(description: string): Task<T> {
+    return new Task(
+      Initializable.create<ReactiveFormula<T>>(description),
+      description
+    );
   }
 
-  readonly #formula: ReactiveFormula<T>;
+  static initialize<T>(task: Task<T>, formula: ReactiveFormula<T>): void {
+    task.#formula = task.#formula.initialize(formula);
+  }
+
+  #formula: Initializable<ReactiveFormula<T>>;
   readonly #description: string;
 
-  private constructor(formula: ReactiveFormula<T>, description: string) {
+  private constructor(
+    formula: Initializable<ReactiveFormula<T>>,
+    description: string
+  ) {
     this.#formula = formula;
     this.#description = description;
   }
 
   get formula(): ReactiveFormula<T> {
-    return this.#formula;
+    return this.#formula.value;
   }
 
   get current(): T {
-    return this.#formula.current;
+    return this.formula.current;
   }
 }
 
-class TaskBuilder {
+export class TaskBuilder<T> {
   /**
    * Take a {@link TaskBlueprint} and build it into a formula that will
    * construct the task (the "task formula").
@@ -254,62 +252,65 @@ class TaskBuilder {
     owner: object,
     description: string
   ): Task<T> {
-    const builder = TaskBuilder.#create();
-    const formula = create(builder);
+    const builder = TaskBuilder.#create(Task.create<T>(description));
+    const formula = Formula(create(builder), description);
 
-    const task = builder.#finalize(
-      ReactiveFormula.create(formula, description),
-      description
-    );
+    const task = builder.#finalize(formula);
 
     LIFETIME.link(owner, task);
 
     return task;
   }
 
-  static #create(): TaskBuilder {
-    return new TaskBuilder(new Set(), new Set());
+  static #create<T>(task: Task<T>): TaskBuilder<T> {
+    return new TaskBuilder(task);
   }
 
-  readonly #children: Set<object>;
-  readonly #owner: object | undefined;
-  readonly #finalizers: Set<IntoFinalizer>;
+  readonly #task: Task<T>;
 
-  private constructor(children: Set<object>, finalizers: Set<IntoFinalizer>) {
-    this.#children = children;
-    this.#finalizers = finalizers;
+  private constructor(task: Task<T>) {
+    this.#task = task;
   }
 
   readonly on = {
     finalize: (finalizer: IntoFinalizer) => {
-      this.#finalizers.add(finalizer);
+      LIFETIME.on.finalize(this.#task, finalizer);
     },
   };
 
-  #finalize<T>(formula: ReactiveFormula<T>, description: string): Task<T> {
-    const task = Task.create(formula, description);
+  use<T>(child: Linkable<T>): T {
+    return child.owner(this.#task);
+  }
 
-    for (const finalizer of this.#finalizers) {
-      LIFETIME.on.finalize(task, finalizer);
-    }
+  #finalize(formula: ReactiveFormula<T>): Task<T> {
+    Task.initialize(this.#task, formula);
+    return this.#task;
+  }
+}
 
-    for (const child of this.#children) {
-      LIFETIME.link(task, child);
-    }
+export class Linkable<T> {
+  static create<T>(link: (owner: object) => T): Linkable<T> {
+    return new Linkable(link);
+  }
 
-    return task;
+  readonly #link: (owner: object) => T;
+
+  private constructor(link: (link: object) => T) {
+    this.#link = link;
+  }
+
+  owner(owner: object): T {
+    return this.#link(owner);
   }
 }
 
 export function StatefulFormula<T>(
   task: TaskBlueprint<T>,
   description = Stack.describeCaller()
-): { owner: (parent: object) => StatefulReactiveFormula<T> } {
-  return {
-    owner: (parent) => {
-      return StatefulReactiveFormula.create(task, parent, description);
-    },
-  };
+): Linkable<StatefulReactiveFormula<T>> {
+  return Linkable.create((owner) =>
+    StatefulReactiveFormula.create(task, owner, description)
+  );
 }
 
 export type StatefulFormula<T> = StatefulReactiveFormula<T>;

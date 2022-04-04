@@ -5,8 +5,10 @@ import { Cell, Reactive } from "@starbeam/reactive";
 import { exhaustive, expected, verify } from "@starbeam/verify";
 import type { InternalReactiveProps, ReactiveProps } from "./element.js";
 
-export class StableProps<Variables> {
-  static from<Variables>(props: Variables): StableProps<Variables> {
+export class StableProps<Variables extends AnyRecord> {
+  static from<Variables extends AnyRecord>(
+    props: Variables
+  ): StableProps<Variables> {
     let internal = Object.fromEntries(
       Object.entries(props).map(([key, value]) => initialPropEntry(key, value))
     ) as InternalReactiveProps<Variables>;

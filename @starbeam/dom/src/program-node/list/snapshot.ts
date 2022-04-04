@@ -1,6 +1,6 @@
 import type { minimal } from "@domtree/flavors";
 import { is, NonemptyList, OrderedIndex } from "@starbeam/core";
-import { RenderedContent } from "../interfaces/rendered-content.js";
+import type { RenderedContent } from "../interfaces/rendered-content.js";
 import type { ContentsIndex } from "./loop.js";
 
 export class RenderSnapshot {
@@ -19,10 +19,6 @@ export class RenderSnapshot {
         OrderedIndex.empty((keyed) => keyed.key)
       );
     }
-
-    let isConstant = [...list].every((item) =>
-      RenderedContent.isConstant(item.content)
-    );
 
     return new RenderSnapshot(
       list,

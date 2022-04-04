@@ -1,4 +1,4 @@
-import { expect, test, toBe } from "../support/define.js";
+import { expect, test, toBe } from "../../support/define.js";
 
 test("tree constructor", () => {
   expect("pending", toBe("pending"));

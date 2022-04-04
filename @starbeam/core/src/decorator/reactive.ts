@@ -1,5 +1,5 @@
 import type { InferReturn } from "@starbeam/fundamental";
-import { Cell, Memo } from "@starbeam/reactive";
+import { Cell, Formula } from "@starbeam/reactive";
 import { expected, verify } from "@starbeam/verify";
 import {
   builtin,
@@ -65,14 +65,14 @@ export const cached = <T>(
     configurable: true,
 
     get: function () {
-      let memo = CACHED.get(this);
+      let formula = CACHED.get(this);
 
-      if (!memo) {
-        memo = Memo(() => get.call(this), `computing ${String(key)}`);
-        CACHED.set(this, memo);
+      if (!formula) {
+        formula = Formula(() => get.call(this), `computing ${String(key)}`);
+        CACHED.set(this, formula);
       }
 
-      return memo.current;
+      return formula.current;
     },
   };
 };

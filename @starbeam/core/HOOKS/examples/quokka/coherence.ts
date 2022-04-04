@@ -1,4 +1,5 @@
-import { computed, reactive } from "@starbeam/core";
+import { reactive } from "@starbeam/core";
+import { Formula } from "@starbeam/reactive";
 
 const person = reactive({
   name: "Tom Dale",
@@ -6,7 +7,7 @@ const person = reactive({
   country: "United States",
 });
 
-const description = computed(
+const description = Formula(
   () => `${person.name} (${person.username}) in ${person.country}`
 );
 

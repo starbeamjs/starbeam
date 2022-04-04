@@ -1,3 +1,4 @@
+import { debug } from "@starbeam/debug-utils";
 import {
   InternalChildren,
   REACTIVE,
@@ -11,6 +12,20 @@ import { expected, isEqual, verify } from "@starbeam/verify";
 export class MutableInternalsImpl
   implements MutableInternals, ReactiveProtocol
 {
+  static {
+    debug(this, "MutableInternals").inspector((internals, debug) =>
+      debug.struct(
+        {
+          frozen: internals.#frozen,
+          lastUpdate: internals.#lastUpdate,
+        },
+        {
+          description: internals.#description,
+        }
+      )
+    );
+  }
+
   static create(description: string): MutableInternalsImpl {
     return new MutableInternalsImpl(false, TIMELINE.now, description);
   }

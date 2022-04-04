@@ -31,7 +31,8 @@
     "@starbeam/*/*/examples/**/*.ts",
     "@starbeam/*/src/**/*.ts",
     "@starbeam/*/tests/**/*.spec.ts",
-    "tests/specs/**/*.spec.ts"
+    "tests/specs/**/*.spec.ts",
+    "tests/specs/formula.spec.ts"
   ],
   "exclude": ["node_modules", "**/node_modules/**"],
   "ts-node": {

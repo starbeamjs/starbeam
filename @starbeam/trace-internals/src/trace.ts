@@ -842,20 +842,22 @@ class Matchers {
   add(pattern: string, level: LogLevel) {
     this.#matchers.set(pattern, { matcher: Matcher.from(pattern), level });
 
-    console.groupCollapsed(
-      ...styledLog(
-        ["Adding log matcher: ", INERT],
-        ["pattern", LABEL],
-        ["=", INERT],
-        [pattern, VALUE],
-        [", ", INERT],
-        ["level", LABEL],
-        ["=", INERT],
-        [describeLevel(level), VALUE]
-      )
-    );
-    console.trace();
-    console.groupEnd();
+    if (false) {
+      console.groupCollapsed(
+        ...styledLog(
+          ["Adding log matcher: ", INERT],
+          ["pattern", LABEL],
+          ["=", INERT],
+          [pattern, VALUE],
+          [", ", INERT],
+          ["level", LABEL],
+          ["=", INERT],
+          [describeLevel(level), VALUE]
+        )
+      );
+      console.trace();
+      console.groupEnd();
+    }
   }
 
   levelFor(scope: Scope | string): LogLevel {

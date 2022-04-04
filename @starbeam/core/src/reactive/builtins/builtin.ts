@@ -1,7 +1,6 @@
 import type { AnyRecord } from "@starbeam/fundamental";
-import { Cell, Memo, type Reactive } from "@starbeam/reactive";
+import { Cell, type Reactive } from "@starbeam/reactive";
 import { Abstraction } from "@starbeam/trace-internals";
-import type { FIXME } from "../../utils.js";
 import { TrackedArray } from "./array.js";
 import { TrackedMap, TrackedWeakMap } from "./map.js";
 import TrackedObject from "./object.js";
@@ -45,14 +44,15 @@ type CoerceReactiveObject<O extends CoercibleIntoReactiveObject> = {
   readonly [P in keyof O]: CoerceReactive<O[P]>;
 };
 
-type BuiltinConstructor =  // the Map constructor is coerced into an instance of TrackedMap
-  | typeof Map
-  // the Set constructor is coerced into an instance of TrackedSet
-  | typeof Set
-  // the WeakMap constructor is coerced into an instance of TrackedWeakMap
-  | typeof WeakMap
-  // the WeakSet constructor is coerced into an instance of TrackedWeakSet
-  | typeof WeakSet;
+type BuiltinConstructor = // the Map constructor is coerced into an instance of TrackedMap
+
+    | typeof Map
+    // the Set constructor is coerced into an instance of TrackedSet
+    | typeof Set
+    // the WeakMap constructor is coerced into an instance of TrackedWeakMap
+    | typeof WeakMap
+    // the WeakSet constructor is coerced into an instance of TrackedWeakSet
+    | typeof WeakSet;
 
 type CoercibleIntoReactive =
   // A Reactive can, of course, be coerced into a Reactive
@@ -108,11 +108,7 @@ export function builtin<V extends object>(
   value: typeof WeakSet,
   description?: BuiltinDescription
 ): WeakSet<V>;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function builtin<M extends () => any>(
-  callback: M,
-  description?: BuiltinDescription
-): M extends () => infer T ? Reactive<T> : never;
+
 export function builtin<T extends Primitive>(
   value: T,
   description?: BuiltinDescription
@@ -144,8 +140,6 @@ export function builtin(
     return new TrackedWeakMap();
   } else if (value === WeakSet) {
     return new TrackedWeakSet();
-  } else if (typeof value === "function") {
-    return Memo(value as FIXME, description);
   } else if (isSimpleObject(value)) {
     // freeze the object to prevent mutating it directly and expecting to see updates
     Object.freeze(value);

@@ -1,5 +1,8 @@
 export { assert, assertCondition } from "./src/assert.js";
-export { DisplayStruct } from "./src/inspect.js";
+export {
+  DisplayStruct,
+  type DisplayStructOptions,
+} from "./src/inspect/display-struct.js";
 export { DebugFinalizer, DebugObjectLifetime } from "./src/lifetime.js";
 export { tree, TreeContent, TreeRecord } from "./src/tree.js";
 export {

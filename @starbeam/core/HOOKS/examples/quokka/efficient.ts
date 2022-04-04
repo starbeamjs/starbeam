@@ -1,4 +1,5 @@
-import { formula, reactive } from "@starbeam/core";
+import { reactive } from "@starbeam/core";
+import { Formula } from "@starbeam/reactive";
 
 //********** CELLS **********//
 
@@ -12,11 +13,11 @@ const person = reactive({
 
 // The `personCard` formula creates a description of `person` by combining their
 // name and company.
-const personCard = formula(() => `${person.name} (${person.company})`);
+const personCard = Formula(() => `${person.name} (${person.company})`);
 
 // The `personProject` formula creates a description of `person` by combining
 // their name and current project.
-const personProject = formula(() => `${person.name} (${person.project})`);
+const personProject = Formula(() => `${person.name} (${person.project})`);
 
 //********* LET'S GO ********//
 

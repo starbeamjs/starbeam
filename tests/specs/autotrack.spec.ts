@@ -1,5 +1,4 @@
-import type { Root } from "@starbeam/core";
-import { Cell, Memo } from "@starbeam/reactive";
+import { Cell, Formula, Reactive } from "@starbeam/reactive";
 import { Dynamism } from "../support/expect/expect.js";
 import { expect, Expects, test, toBe } from "../support/index.js";
 
@@ -7,7 +6,7 @@ test("universe.memo", () => {
   const name = Cell("Tom");
   let counter = 0;
 
-  const nameMemo = Memo(() => {
+  const nameMemo = Formula(() => {
     counter++;
     return name.current;
   });
@@ -25,7 +24,7 @@ test("universe.memo", () => {
 });
 
 test("nested.universe.memo", ({ universe }) => {
-  const { firstName, fullName, counters } = testName(universe, "Tom", "Dale");
+  const { firstName, fullName, counters } = testName("Tom", "Dale");
 
   expect(fullName.current, toBe("Tom Dale"));
 
@@ -42,7 +41,7 @@ test("nested.universe.memo", ({ universe }) => {
 });
 
 test("universe.memo => text", ({ universe, test }) => {
-  const { firstName, fullName } = testName(universe, "Tom", "Dale");
+  const { firstName, fullName } = testName("Tom", "Dale");
 
   const text = test.buildText(fullName, Dynamism.Dynamic());
   const result = test.render(text, Expects.dynamic.html("Tom Dale"));
@@ -52,7 +51,7 @@ test("universe.memo => text", ({ universe, test }) => {
 
 // becomes constant if the underlying cell is frozen
 test("universe.memo.frozen-cell", ({ universe, test }) => {
-  let { firstName, lastName, fullName } = testName(universe, "Tom", "Dale");
+  let { firstName, lastName, fullName } = testName("Tom", "Dale");
 
   test
     .render(
@@ -67,13 +66,12 @@ test("universe.memo.frozen-cell", ({ universe, test }) => {
 });
 
 function testName(
-  universe: Root,
   first: string,
   last: string
 ): {
   readonly firstName: Cell<string>;
   readonly lastName: Cell<string>;
-  readonly fullName: Memo<string>;
+  readonly fullName: Reactive<string>;
   readonly counters: {
     readonly firstName: { readonly count: number };
     readonly lastName: { readonly count: number };
@@ -95,20 +93,20 @@ function testName(
     count: 0,
   };
 
-  const firstNameMemo = Memo(() => {
+  const firstNameMemo = Formula(() => {
     firstNameCounter.count++;
     return firstName.current;
-  });
+  }, "firstNameMemo");
 
-  const lastNameMemo = Memo(() => {
+  const lastNameMemo = Formula(() => {
     lastNameCounter.count++;
     return lastName.current;
-  });
+  }, "lastNameMemo");
 
-  const fullNameMemo = Memo(() => {
+  const fullNameMemo = Formula(() => {
     fullNameCounter.count++;
     return `${firstNameMemo.current} ${lastNameMemo.current}`;
-  });
+  }, "fullNameMemo");
 
   return {
     firstName,

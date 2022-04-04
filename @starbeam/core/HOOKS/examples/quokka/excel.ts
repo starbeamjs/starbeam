@@ -1,4 +1,5 @@
-import { formula, reactive } from "@starbeam/core";
+import { reactive } from "@starbeam/core";
+import { Formula } from "@starbeam/reactive";
 
 //***********//
 //** CELLS **//
@@ -13,7 +14,7 @@ const numbers = reactive([1, 2, 3]);
 
 // create a formula that sums up the numbers by looping over them and adding
 // them up.
-const sum = formula(() => {
+const sum = Formula(() => {
   let sum = 0;
 
   for (const number of numbers) {
@@ -25,7 +26,7 @@ const sum = formula(() => {
 
 // create a second formula that turns the array of numbers into a
 // comma-separated string
-const stringified = formula(() => numbers.join(","));
+const stringified = Formula(() => numbers.join(","));
 
 //**************//
 //** LET'S GO **//

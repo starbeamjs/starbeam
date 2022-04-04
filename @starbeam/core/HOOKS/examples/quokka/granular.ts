@@ -1,4 +1,5 @@
-import { formula, reactive } from "@starbeam/core";
+import { reactive } from "@starbeam/core";
+import { Formula } from "@starbeam/reactive";
 
 //***************//
 //** FUNCTIONS **//
@@ -30,7 +31,7 @@ const people = reactive([
 
 // The `companies` formula creates a unique `Set` of companies from the list of
 // people in the `people` cell.
-const companies = formula(
+const companies = Formula(
   () => new Set(people.map((person) => person.company))
 );
 
@@ -42,7 +43,7 @@ const companies = formula(
 
 // The `commaSeparatedPeople` formula turns the list of people in the `people`
 // cell into a comma-separated list of each person's name.
-const commaSeparatedPeople = formula(() =>
+const commaSeparatedPeople = Formula(() =>
   people.map((person) => person.name).join(", ")
 );
 

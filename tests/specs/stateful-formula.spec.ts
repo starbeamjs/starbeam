@@ -1,8 +1,6 @@
 import { config, Priority } from "@starbeam/config";
-import { Hook, HookBlueprint, HookValue, lifetime } from "@starbeam/core";
-import { tree } from "@starbeam/debug";
-import { Cell, Memo, Reactive } from "@starbeam/reactive";
-import { REACTIVE } from "@starbeam/timeline";
+import { lifetime } from "@starbeam/core";
+import { Cell, Linkable, Reactive, StatefulFormula } from "@starbeam/reactive";
 import { LOGGER } from "@starbeam/trace-internals";
 import { value, when } from "../support/expect/expect.js";
 import { expect, test, toBe } from "../support/index.js";
@@ -53,70 +51,72 @@ test("universe.hook.values", ({ universe }) => {
   function Channel(
     channel: Reactive<string>,
     user: Reactive<string>
-  ): HookBlueprint<string> {
-    return Hook((hook) => {
+  ): Linkable<StatefulFormula<string>> {
+    return StatefulFormula((formula) => {
       const subscription = new Subscription(channel.current);
 
-      hook.onDestroy(() => subscription.destroy());
+      formula.on.finalize(() => subscription.destroy());
 
-      return Memo(
-        () => `${subscription.name} for ${user.current}`,
-        `channel description`
-      );
-    }, "Channel");
+      return () => `${subscription.name} for ${user.current}`;
+    }, "channel description");
   }
 
-  const RootHook = Hook((hook) => {
+  const AnnotatedChannel = StatefulFormula((hook) => {
     const description = hook.use(Channel(channel, user));
 
-    return Memo(() => {
-      debugger;
-      description.current;
+    return () => `[timestamp = ${tick.current}] ${description.current}`;
+  }, "annotated channel description");
 
-      return `[timestamp = ${tick.current}] ${description.current}`;
-    }, `annotated channel description`);
-  }, "RootHook");
+  // const output = HookValue.create<string>();
 
-  const output = HookValue.create<string>();
+  // LOGGER.trace.log("\n> building hook");
+  // const root = universe.use(RootHook, { into: output });
 
-  LOGGER.trace.log("\n> building hook");
-  const root = universe.use(RootHook, { into: output });
+  // const rootReactive = root[REACTIVE];
 
-  const rootReactive = root[REACTIVE];
+  // LOGGER.trace.log("\n> initializing");
+  // root.initialize();
 
-  LOGGER.trace.log("\n> initializing");
-  root.initialize();
+  // LOGGER.trace.log("\n> polling");
+  // root.poll();
 
-  LOGGER.trace.log("\n> polling");
-  root.poll();
-
-  Reactive.getDependencies(root);
+  const root = {};
+  const annotatedChannel = AnnotatedChannel.owner(root);
 
   LOGGER.trace.log("\n> reading output.current");
-  expect(output.current, toBe("[timestamp = 0] chat.today for @tomdale"));
+  expect(
+    annotatedChannel.current,
+    toBe("[timestamp = 0] chat.today for @tomdale")
+  );
 
   let subscription = Subscription.last();
   expect(subscription.destroyed, toBe(0));
 
   user.current = "@todale";
-  root.poll();
+  // root.poll();
 
   expect(
-    output.current,
+    annotatedChannel.current,
     toBe("[timestamp = 0] chat.today for @todale").when("after updating user")
   );
   expect(subscription.destroyed, toBe(0));
 
   tick.current = 1;
-  root.poll();
+  // root.poll();
 
-  expect(output.current, toBe("[timestamp = 1] chat.today for @todale"));
+  expect(
+    annotatedChannel.current,
+    toBe("[timestamp = 1] chat.today for @todale")
+  );
   expect(subscription.destroyed, toBe(0));
 
   channel.current = "chat.yesterday";
-  root.poll();
+  // root.poll();
 
-  expect(output.current, toBe("[timestamp = 1] chat.yesterday for @todale"));
+  expect(
+    annotatedChannel.current,
+    toBe("[timestamp = 1] chat.yesterday for @todale")
+  );
   expect(
     when(`after channel update`),
     value(subscription.destroyed).as(`subscription.destroyed`),
@@ -127,9 +127,12 @@ test("universe.hook.values", ({ universe }) => {
   expect(subscription2.destroyed, toBe(0));
 
   channel.current = "chat.tomorrow";
-  root.poll();
+  // root.poll();
 
-  expect(output.current, toBe("[timestamp = 1] chat.tomorrow for @todale"));
+  expect(
+    annotatedChannel.current,
+    toBe("[timestamp = 1] chat.tomorrow for @todale")
+  );
   expect(
     when(`after channel update`),
     value(subscription2.destroyed).as(`subscription2.destroyed`),
@@ -139,14 +142,14 @@ test("universe.hook.values", ({ universe }) => {
   let subscription3 = Subscription.last();
   expect(subscription3.destroyed, toBe(0));
 
-  console.log(
-    tree((b) =>
-      b.list(
-        "roots",
-        lifetime.debug(root).map((o) => o.tree())
-      )
-    ).stringify()
-  );
+  // console.log(
+  //   tree((b) =>
+  //     b.list(
+  //       "roots",
+  //       lifetime.debug(root).map((o) => o.tree())
+  //     )
+  //   ).stringify()
+  // );
 
   lifetime.finalize(root);
   expect(

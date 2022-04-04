@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "@starbeam/debug": "workspace:*",
+    "@starbeam/debug-utils": "workspace:*",
     "@starbeam/fundamental": "workspace:*",
     "@starbeam/reactive": "workspace:*",
     "@starbeam/schedule": "workspace:*",

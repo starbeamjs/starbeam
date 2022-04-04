@@ -46,7 +46,10 @@ export class InternalChildren extends Enum("None", "Children(U)")<
   readonly ReactiveProtocol[]
 > {
   static from(children: Iterable<ReactiveProtocol>): InternalChildren {
-    const childList = [...children];
+    const childList = [...children].filter((child) => {
+      const reactive = child[REACTIVE];
+      return reactive.type !== "mutable" || reactive.isFrozen() === false;
+    });
 
     if (childList.length === 0) {
       return InternalChildren.None();
@@ -63,7 +66,9 @@ export class InternalChildren extends Enum("None", "Children(U)")<
 
         for (const child of children) {
           if (child[REACTIVE].type === "mutable") {
-            deps.push(child[REACTIVE]);
+            if (!child[REACTIVE].isFrozen()) {
+              deps.push(child[REACTIVE]);
+            }
           } else {
             deps.push(...child[REACTIVE].children().dependencies);
           }

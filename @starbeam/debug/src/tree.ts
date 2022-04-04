@@ -1,8 +1,6 @@
 import { isObject } from "@starbeam/fundamental";
 import type { TreeObject } from "treeify";
-import * as treeify from "treeify";
-
-const { asTree } = treeify;
+import treeify from "treeify";
 
 interface TreeifyObject {
   [k: string]: TreeifyValue;
@@ -280,7 +278,7 @@ export class TreeRecord extends TreeValue {
   }
 
   stringify(): string {
-    return asTree(this.treeify() as TreeObject, true, false);
+    return treeify.asTree(this.treeify() as TreeObject, true, false);
   }
 }
 

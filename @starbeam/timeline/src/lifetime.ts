@@ -119,12 +119,20 @@ export class ObjectLifetime {
 
     this.#isFinalizing = true;
 
-    for (let child of this.#children) {
-      child.finalize();
-    }
+    try {
+      for (let child of this.#children) {
+        child.finalize();
+      }
 
-    for (let finalizer of this.#finalizers) {
-      Finalizer.finalize(finalizer);
+      this.#children.clear();
+
+      for (let finalizer of this.#finalizers) {
+        Finalizer.finalize(finalizer);
+      }
+
+      this.#finalizers.clear();
+    } finally {
+      this.#isFinalizing = false;
     }
   }
 

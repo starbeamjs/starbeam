@@ -1,3 +1,4 @@
+import type { AnyRecord, InferArgument } from "@starbeam/fundamental";
 import {
   fireEvent,
   getByRole,
@@ -110,16 +111,20 @@ export class TestElement<E extends Element> {
   }
 }
 
-export class RenderResult<Props, T> {
-  static render<Props, T>(
+export class RenderResult<Props extends AnyRecord | void, T> {
+  static render<Props extends AnyRecord, T>(
     component: (props: Props) => ReactElement,
     options: RenderResultOptions<Props, T>
   ): RenderResult<Props, T>;
-  static render<Props, T>(
+  static render<T>(
     component: () => ReactElement,
     options: RenderResultConfiguration<T>
+  ): RenderResult<void, T>;
+  static render<Props extends AnyRecord | void, T>(
+    component: (props: Props) => ReactElement,
+    options: RenderResultOptions<Props, T>
   ): RenderResult<Props, T>;
-  static render<Props, T>(
+  static render<Props extends AnyRecord, T>(
     component: (props?: Props) => ReactElement,
     options: RenderResultConfiguration<T> & { readonly props?: Props }
   ): RenderResult<Props, T> {
@@ -494,14 +499,14 @@ export class Mode {
   //   return RenderResult.render(() => this.root(component));
   // }
 
-  render<T, Props>(
+  render<T, Props extends AnyRecord>(
     definition: (props: Props) => { dom: ReactElement; value: T },
     props: Props
   ): RenderResult<Props, T>;
   render<T>(
     definition: () => { dom: ReactElement; value: T }
   ): RenderResult<void, T>;
-  render<T, Props>(
+  render<T, Props extends AnyRecord | void>(
     definition: (props?: Props) => { dom: ReactElement; value: T },
     props?: Props
   ): RenderResult<Props, T> {
@@ -519,10 +524,10 @@ export class Mode {
       return dom;
     }
 
-    const result = RenderResult.render(
+    const result = RenderResult.render<Props, T>(
       (props) => this.#root(Component, props),
       {
-        props,
+        props: props as InferArgument,
         values,
         rerender,
         count: () => renderCount,
@@ -534,13 +539,16 @@ export class Mode {
     return result;
   }
 
-  #root<Props>(
+  #root<Props extends AnyRecord | void>(
     component: FunctionComponent<Props>,
     props?: Props
   ): ReactElement {
     switch (this.mode) {
       case "loose":
-        return createElement(component, props);
+        return createElement(
+          component as InferArgument,
+          props as InferArgument
+        );
       case "strict":
         return strictElement(component);
     }
@@ -559,7 +567,7 @@ export function testModes(
   });
 }
 
-export function strictElement<Props>(
+export function strictElement<Props extends AnyRecord>(
   component: FunctionComponent<Props>,
   props?: Props
 ) {
