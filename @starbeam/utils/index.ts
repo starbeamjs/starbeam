@@ -15,5 +15,6 @@ export {
   type Variant,
 } from "./src/enumeration.js";
 export { enumerate } from "./src/itertools.js";
+export { IterableMapOf, MapOf, MapOfSet, WeakMapOfSet } from "./src/map.js";
 export { mapObject } from "./src/object.js";
 export { FrameStack } from "./src/stack.js";

@@ -15,6 +15,7 @@
   "dependencies": {
     "@starbeam/verify": "workspace:*",
     "@starbeam/debug": "workspace:*",
+    "@starbeam/debug-utils": "workspace:*",
     "@starbeam/trace-internals": "workspace:*",
     "@starbeam/schedule": "workspace:*",
     "@starbeam/now": "workspace:*",

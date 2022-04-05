@@ -368,6 +368,7 @@ importers:
       '@mdx-js/mdx': ^2.1.1
       '@starbeam/config': workspace:*
       '@starbeam/debug': workspace:*
+      '@starbeam/debug-utils': workspace:*
       '@starbeam/fundamental': workspace:*
       '@starbeam/now': workspace:*
       '@starbeam/schedule': workspace:*
@@ -378,6 +379,7 @@ importers:
     dependencies:
       '@starbeam/config': link:../config
       '@starbeam/debug': link:../debug
+      '@starbeam/debug-utils': link:../debug-utils
       '@starbeam/fundamental': link:../fundamental
       '@starbeam/now': link:../now
       '@starbeam/schedule': link:../schedule
@@ -555,7 +557,7 @@ importers:
       symbol-observable: 4.0.0
       zen-observable-ts: 0.8.21
     devDependencies:
-      typescript: 4.7.0-dev.20220404
+      typescript: 4.7.0-dev.20220405
 
   notes/examples:
     specifiers:
@@ -602,7 +604,7 @@ importers:
       '@starbeam/trace-internals': link:../@starbeam/trace-internals
       '@starbeam/utils': link:../@starbeam/utils
       '@starbeam/verify': link:../@starbeam/verify
-      typescript: 4.7.0-dev.20220404
+      typescript: 4.7.0-dev.20220405
     devDependencies:
       '@jest/globals': 27.4.6
       '@types/lodash.zip': 4.2.6
@@ -8527,6 +8529,12 @@ packages:
 
   /typescript/4.7.0-dev.20220404:
     resolution: {integrity: sha512-mwDmc7qyaMDaspyaXZLK5W82M8fmvMf+4Eo0jWJBKcLNSPqQl/K50jr0/Of1LETKVoYZEB/G80aBI/MRyHBwaw==}
+    engines: {node: '>=4.2.0'}
+    hasBin: true
+    dev: true
+
+  /typescript/4.7.0-dev.20220405:
+    resolution: {integrity: sha512-eZ+4zZzog1VweWlCXbyuq9zI9h7HqVxvfPQip7XlhAtpPeu4Hx4fj5YR6pgCkDGCK8ntFmmU6AywuIwT2P1ZuQ==}
     engines: {node: '>=4.2.0'}
     hasBin: true
 
