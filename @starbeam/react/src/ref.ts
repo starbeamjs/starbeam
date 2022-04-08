@@ -4,8 +4,12 @@
 // > = (element: E, hook: SimpleHook<T>) => T;
 
 import type { browser } from "@domtree/flavors";
-import type { InferReturn, VerifierFunction } from "@starbeam/fundamental";
-import { Enum } from "@starbeam/utils";
+import { ElementPlaceholder, type ElementType } from "@starbeam/core";
+import {
+  assert,
+  type InferReturn,
+  type VerifierFunction,
+} from "@starbeam/fundamental";
 import { expected, isPresent, verified, Verifier } from "@starbeam/verify";
 
 // export function Modifier<M extends Modifier>(modifier: M): M {
@@ -20,64 +24,56 @@ import { expected, isPresent, verified, Verifier } from "@starbeam/verify";
 //   return Hook((hook: SimpleHook<T>) => modifier(element, hook), description);
 // }
 
-class RefState<E extends browser.Element> extends Enum(
-  "PreRender",
-  "Rendered(T)",
-  "Detached"
-)<E> {
-  get element(): E {
-    return this.match({
-      PreRender: () => {
-        throw Error(
-          `Unexpectedly attempted to get element before the component was rendered`
-        );
-      },
-      Rendered: (element) => element,
-      Detached: () => {
-        throw Error(
-          `Unexpectedly attempted to get element after the ref was detached`
-        );
-      },
-    });
-  }
+// class RefState<E extends browser.Element> extends Enum(
+//   "PreRender(T)",
+//   "Rendered(T)",
+//   "Detached"
+// )<ElementPlaceholder<E>> {
+//   get placeholder(): ElementPlaceholder<E> {
+//     return this.match({
+//       PreRender: () => {
+//         throw Error(
+//           `Unexpectedly attempted to get element before the component was rendered`
+//         );
+//       },
+//       Rendered: (element) => element,
+//       Detached: () => {
+//         throw Error(
+//           `Unexpectedly attempted to get element after the ref was detached`
+//         );
+//       },
+//     });
+//   }
 
-  try(): E | null {
-    return this.match({
-      PreRender: () => null,
-      Detached: () => null,
-      Rendered: (element) => element,
-    });
-  }
+//   detached(): RefState<E> {
+//     return this.match({
+//       PreRender: () => {
+//         throw Error(
+//           `Unexpectedly attempted to detach element from ref before the ref was attached`
+//         );
+//       },
+//       Rendered: () => RefState.Detached(),
+//       Detached: () => {
+//         throw Error(
+//           `Unexpectedly attempted to detach an element from ref twice`
+//         );
+//       },
+//     });
+//   }
+// }
 
-  detached(): RefState<E> {
-    return this.match({
-      PreRender: () => {
-        throw Error(
-          `Unexpectedly attempted to detach element from ref before the ref was attached`
-        );
-      },
-      Rendered: () => RefState.Detached(),
-      Detached: () => {
-        throw Error(
-          `Unexpectedly attempted to detach an element from ref twice`
-        );
-      },
-    });
-  }
-}
+const REFS = new WeakMap<object, ElementPlaceholder<browser.Element>>();
 
-const REFS = new WeakMap<object, RefState<browser.Element>>();
-
-export function getElement<E extends browser.Element>(ref: ElementRef<E>): E {
-  const state = verified(
+export function getPlaceholder<E extends browser.Element>(
+  ref: ElementRef<E>
+): ElementPlaceholder<E> {
+  return verified(
     REFS.get(ref),
     isPresent,
     expected(`a Starbeam ref's element`)
       .toBe(`present`)
       .when(`accessed from the internals of a Starbeam hook`)
-  ) as RefState<E>;
-
-  return state.element;
+  ) as unknown as ElementPlaceholder<E>;
 }
 
 const REF = Symbol("REF");
@@ -125,25 +121,32 @@ function ClassVerifier<E extends browser.Element>(
 }
 
 export function ref<E extends browser.Element>(
-  kind: abstract new (...args: any[]) => E
+  kind: ElementType<E>
 ): ReactElementRef<E> {
+  const placeholder = ElementPlaceholder<E>(kind);
   const verifier = ClassVerifier(kind);
 
   const refCallback = ((element: E | null) => {
-    const state = verified(REFS.get(refCallback), isPresent);
-
-    if (element === null) {
-      const detached = state.detached();
-      REFS.set(refCallback, detached);
-    } else {
+    if (element !== null) {
       const el = verified(element, verifier);
-      REFS.set(refCallback, RefState.Rendered(el));
+
+      if (placeholder.current === null) {
+        placeholder.initialize(el);
+      } else {
+        assert(
+          placeholder.current === el,
+          `You cannot initialize a ref with different elements.`
+        );
+      }
     }
   }) as InternalElementRef<E>;
 
   refCallback[REF] = true;
 
-  REFS.set(refCallback, RefState.PreRender());
+  REFS.set(
+    refCallback,
+    placeholder as unknown as ElementPlaceholder<browser.Element>
+  );
 
   return refCallback as InferReturn;
 }

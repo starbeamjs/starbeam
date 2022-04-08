@@ -1,4 +1,4 @@
-import { debug } from "@starbeam/debug-utils";
+import { debug } from "@starbeam/debug";
 import {
   InternalChildren,
   REACTIVE,

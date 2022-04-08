@@ -1,8 +1,8 @@
-import { lifetime, subscribe } from "@starbeam/core";
+import { LIFETIME, lifetime, TIMELINE } from "@starbeam/core";
 import { Stack } from "@starbeam/debug-utils";
 import type { AnyRecord } from "@starbeam/fundamental";
 import { Formula } from "@starbeam/reactive";
-import { inspect, LOGGER, SHEET, SP } from "@starbeam/trace-internals";
+import { LOGGER, SHEET, SP } from "@starbeam/trace-internals";
 import { useResource, useUpdatingRef } from "@starbeam/use-resource";
 import { useState, type ReactElement } from "react";
 import { ReactiveElement } from "./element.js";
@@ -226,7 +226,7 @@ export function useReactiveElement<I extends Inputs>(
    * changed, the memo will produce a fresh {@link ReactElement}, and React will
    * reconcile it.
    */
-  return memo.current;
+  return memo.poll();
 
   function createReactiveElement({
     prev,
@@ -288,12 +288,16 @@ export function useReactiveElement<I extends Inputs>(
      * our `useReactiveElement` hook will return a brand new JSX, which
      * React will reconcile.
      */
-    let value: Formula<ReactElement>;
+    let formula: Formula<ReactElement>;
 
     if (stableProps) {
-      value = Formula(definition(stableProps.current.reactive as any, element));
+      formula = Formula(
+        definition(stableProps.current.reactive as any, element)
+      );
     } else {
-      value = Formula((definition as SimpleDefinition<ReactElement>)(element));
+      formula = Formula(
+        (definition as SimpleDefinition<ReactElement>)(element)
+      );
     }
 
     /**
@@ -311,36 +315,30 @@ export function useReactiveElement<I extends Inputs>(
      * At that point, the resource will be in the `updating` state, so the
      * `updating` lifecycle hook below will run.
      */
-    const subscription = subscribe(
-      value,
-      () => {
+    const renderable = TIMELINE.on.change(
+      formula,
+      (renderable) => {
         LOGGER.debug.log(
           SHEET.inert(description),
           SP,
           SHEET.stale("subscription fired")
         );
-        notify();
+        queueMicrotask(notify);
       },
       description
     );
 
-    lifetime.on.finalize(subscription, () => {
-      console.log("tearing down subscription", description);
+    lifetime.on.finalize(renderable, () => {
+      console.log("tearing down renderable", description);
     });
 
-    LOGGER.trace.log(
-      SHEET.inert(description),
-      SP,
-      "subscribing to",
-      SP,
-      inspect(value)
-    );
+    LIFETIME.link(element, renderable);
 
     /**
      * The resource, as far as useResource is concerned, is a record
      * containing the component and value.
      */
-    return { element: element, value };
+    return { element, value: renderable };
   }
 }
 

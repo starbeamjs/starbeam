@@ -3,10 +3,17 @@ import { Enum } from "@starbeam/utils";
 import { Reactive } from "../reactive.js";
 import { Marker } from "./marker.js";
 
+type Uninitialized = Marker;
+
+interface Initialized<T> {
+  readonly marker: Marker;
+  readonly value: T;
+}
+
 export class Initializable<T> extends Enum(
   "Uninitialized(T)",
   "Initialized(U)"
-)<Marker, { readonly marker: Marker; readonly value: T }> {
+)<Uninitialized, Initialized<T>> {
   static create<T>(description: string): Initializable<T> {
     return Initializable.Uninitialized(Marker(description));
   }
@@ -16,7 +23,7 @@ export class Initializable<T> extends Enum(
   }
 
   get #marker(): Marker {
-    return this.match({
+    return super.match({
       Initialized: ({ marker }) => marker,
       Uninitialized: (marker) => marker,
     });
@@ -39,7 +46,7 @@ export class Initializable<T> extends Enum(
       description: string
     ) => { readonly updated: T; readonly value: U };
   }): { readonly initialized: Initializable<T>; readonly value: U } {
-    return this.match({
+    return super.match({
       Uninitialized: (marker) => {
         marker.update();
         const { initialized, value } = create(Reactive.description(marker));
@@ -62,7 +69,7 @@ export class Initializable<T> extends Enum(
   }
 
   initialize(value: T): Initializable<T> {
-    return this.match({
+    return super.match({
       Uninitialized: (marker) => {
         marker.update();
         marker.freeze();
@@ -75,7 +82,7 @@ export class Initializable<T> extends Enum(
   }
 
   update(value: T): Initializable<T> {
-    return this.match({
+    return super.match({
       Uninitialized: () => {
         failure(
           `Uninitialized values cannot be updated. Did you mean initialize()?`
@@ -85,8 +92,44 @@ export class Initializable<T> extends Enum(
     });
   }
 
+  /**
+   * @deprecated in Initializable, use `map` or `matchVariants` instead of Enum's `match`
+   *
+   * TODO: Composition over inheritance
+   */
+  declare match;
+
+  #match<V>(matcher: {
+    Initialized: (value: Initialized<T>) => V;
+    Uninitialized: (value: Uninitialized) => V;
+  }): V {
+    this.#marker.consume();
+
+    return super.match(matcher);
+  }
+
+  matchVariants<V>(matcher: {
+    Initialized: (value: T) => V;
+    Uninitialized: () => V;
+  }): V {
+    return this.#match({
+      Initialized: ({ value }) => matcher.Initialized(value),
+      Uninitialized: () => matcher.Uninitialized(),
+    });
+  }
+
+  map<V>(mapper: (value: T) => V): Initializable<V> {
+    this.#marker.consume();
+
+    return super.match({
+      Initialized: ({ marker, value }) =>
+        Initializable.initialized(marker, mapper(value)),
+      Uninitialized: (marker) => Initializable.Uninitialized(marker),
+    });
+  }
+
   get value(): T {
-    return this.match({
+    return this.#match({
       Initialized: ({ value }) => value,
       Uninitialized: () => {
         failure(
@@ -96,6 +139,10 @@ export class Initializable<T> extends Enum(
     });
   }
 }
+
+type Public<T> = {
+  [P in keyof T]: T[P];
+};
 
 // export class Initializable<T> {
 //   static create<T>(description: string): Initializable<T> {

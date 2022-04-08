@@ -1,3 +1,4 @@
+import type { InferArgument } from "@starbeam/fundamental";
 import type { InferReturn } from "./any.js";
 
 type Entry<T> = {
@@ -5,7 +6,7 @@ type Entry<T> = {
 }[keyof T];
 
 export function entries<T>(object: T): readonly Entry<T>[] {
-  return Object.entries(object) as InferReturn;
+  return Object.entries(object as InferArgument) as InferReturn;
 }
 
 type TupleUnion<U extends PropertyKey, R extends PropertyKey[] = []> = {
@@ -16,13 +17,13 @@ type TupleUnion<U extends PropertyKey, R extends PropertyKey[] = []> = {
   PropertyKey[];
 
 export function keys<T>(object: T): TupleUnion<keyof T & string> {
-  return Object.entries(object) as InferReturn;
+  return Object.entries(object as InferArgument) as InferReturn;
 }
 
 type Value<T> = T[keyof T];
 
 export function values<T>(object: T): readonly Value<T>[] {
-  return Object.values(object);
+  return Object.values(object as InferArgument);
 }
 
 type MapValues<O, U> = {

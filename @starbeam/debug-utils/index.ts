@@ -7,9 +7,4 @@ export {
   Location,
   UnknownFrame,
 } from "./src/frame.js";
-export {
-  debug,
-  INSPECT,
-  type Inspect as NodeInspect,
-} from "../debug/src/inspect/inspect-support.js";
 export { isErrorWithStack, ParsedStack, Stack } from "./src/stack.js";

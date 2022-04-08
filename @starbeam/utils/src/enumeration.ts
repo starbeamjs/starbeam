@@ -38,7 +38,7 @@ export interface EnumInstance0<D extends Discriminant>
   match<Out>(matcher: MatcherFor0<D, Out>): Out;
 }
 
-type MatcherFor0<D extends Discriminant, Out> = {
+export type MatcherFor0<D extends Discriminant, Out> = {
   [P in D]: () => Out;
 };
 
@@ -47,7 +47,7 @@ export interface EnumInstance1<D extends Discriminant, T>
   match<Out>(matcher: MatcherFor1<D, T, Out>): Out;
 }
 
-type MatcherFor1<D extends Discriminant, T, Out> = {
+export type MatcherFor1<D extends Discriminant, T, Out> = {
   [P in D as Variant<P>]: true extends HasGeneric<P, "T">
     ? (value: T) => Out
     : () => Out;
@@ -58,7 +58,7 @@ export interface EnumInstance2<D extends Discriminant, T, U>
   match<Out>(matcher: MatcherFor2<D, T, U, Out>): Out;
 }
 
-type MatcherFor2<D extends Discriminant, T, U, Out> = {
+export type MatcherFor2<D extends Discriminant, T, U, Out> = {
   [P in D as Variant<P>]: true extends HasGeneric<P, "T">
     ? (value: T) => Out
     : true extends HasGeneric<P, "U">

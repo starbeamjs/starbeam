@@ -1,11 +1,14 @@
 export { Cell } from "./src/core/cell.js";
+export { Initializable } from "./src/core/initializable.js";
 export { Marker } from "./src/core/marker.js";
 export {
   Formula,
+  FormulaState,
   Linkable,
   StatefulFormula,
   StatefulReactiveFormula,
   TaskBuilder,
+  type TaskBlueprint,
 } from "./src/core/stateful.js";
 export { Static } from "./src/core/static.js";
 export * as impl from "./src/impl.js";

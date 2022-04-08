@@ -3,6 +3,13 @@ export {
   DisplayStruct,
   type DisplayStructOptions,
 } from "./src/inspect/display-struct.js";
+export {
+  debug,
+  DEBUG,
+  DEBUG_NAME,
+  INSPECT,
+  type Inspect,
+} from "./src/inspect/inspect-support.js";
 export { DebugFinalizer, DebugObjectLifetime } from "./src/lifetime.js";
 export { tree, TreeContent, TreeRecord } from "./src/tree.js";
 export {

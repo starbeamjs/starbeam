@@ -1,5 +1,5 @@
 import type { browser } from "@domtree/flavors";
-import { lifetime } from "@starbeam/core";
+import { lifetime, Modifier } from "@starbeam/core";
 import {
   assert,
   type AnyRecord,
@@ -8,19 +8,11 @@ import {
 import type { Cell, Reactive } from "@starbeam/reactive";
 import { Enum } from "@starbeam/utils";
 import {
-  getElement,
+  getPlaceholder,
   ref,
   type ElementRef,
   type ReactElementRef,
 } from "./ref.js";
-// import {
-//   getElement,
-//   ref,
-//   reifyModifier,
-//   type ElementRef,
-//   type Modifier,
-//   type ReactElementRef,
-// } from "./modifier.js";
 
 type IntoReactive<T> = T extends Reactive<unknown> ? T : Reactive<T>;
 
@@ -76,26 +68,19 @@ class Refs extends Enum(
  */
 export class ReactiveElement {
   static create(notify: () => void): ReactiveElement {
-    return new ReactiveElement(
-      notify,
-      Lifecycle.create(),
-      Elements.create(),
-      Refs.None()
-    );
+    return new ReactiveElement(notify, Lifecycle.create(), Refs.None());
   }
 
   static reactivate(prev: ReactiveElement): ReactiveElement {
     return new ReactiveElement(
       prev.notify,
       Lifecycle.create(),
-      Elements.create(),
       prev.#refs.fromPrev()
     );
   }
 
   static attached(element: ReactiveElement): void {
     element.#lifecycle.attached();
-    element.#modifiers.populate();
   }
 
   static ready(elements: ReactiveElement): void {
@@ -103,18 +88,15 @@ export class ReactiveElement {
   }
 
   readonly #lifecycle: Lifecycle;
-  readonly #modifiers: Elements;
   #refs: Refs;
 
   private constructor(
     readonly notify: () => void,
     lifecycle: Lifecycle,
-    elements: Elements,
     refs: Refs
   ) {
     this.#lifecycle = lifecycle;
     this.on = Lifecycle.on(lifecycle, this);
-    this.#modifiers = elements;
     this.#refs = refs;
   }
 
@@ -139,39 +121,13 @@ export class ReactiveElement {
     return refsRecord as InferReturn;
   }
 
-  // use<T>(blueprint: HookBlueprint<T>): Reactive<T>;
-  // use<T>(callback: (parent: ReactiveElement) => T): IntoReactive<T>;
-  // use(
-  //   blueprint:
-  //     | HookBlueprint<unknown>
-  //     | ((parent: ReactiveElement) => Reactive<unknown>),
-  //   description = Stack.describeCaller()
-  // ): Reactive<unknown> {
-  //   const normalized = HookBlueprint.is(blueprint)
-  //     ? blueprint
-  //     : HookBlueprint.create(() => blueprint(this), description);
-
-  //   return normalized.asData(this);
-  // }
-
-  // useModifier<T, E extends browser.Element>(
-  //   ref: ElementRef<E>,
-  //   Modifier: Modifier<E, T>,
-  //   description = Abstraction.callerFrame()
-  // ): Cell<PhasedInstance<T> | null> {
-  //   const modifier: Cell<PhasedInstance<T> | null> = Cell(null);
-
-  //   this.#modifiers.insert(
-  //     ref as ElementRef,
-  //     (element: browser.Element): void => {
-  //       const blueprint = reifyModifier(Modifier, element as E, description);
-  //       const hook = SimpleHook.construct(blueprint, this);
-  //       modifier.set(hook);
-  //     }
-  //   );
-
-  //   return modifier;
-  // }
+  useModifier<T, E extends browser.Element>(
+    ref: ElementRef<E>,
+    modifier: Modifier<E, T>
+  ) {
+    const placeholder = getPlaceholder(ref);
+    return modifier(placeholder).owner(this);
+  }
 }
 
 type Callback<T = void> = (instance: T) => void;
@@ -300,13 +256,6 @@ class Elements {
     callback: Callback<browser.Element>
   ): void {
     this.#elements.upsert(element, (callbacks) => callbacks.add(callback));
-  }
-
-  populate(): void {
-    for (const [ref, callbacks] of this.#elements) {
-      const element = getElement(ref);
-      callbacks.invoke(element);
-    }
   }
 }
 

@@ -20,7 +20,7 @@ test("registering renderables", () => {
       return;
     }
 
-    text = update.next;
+    text = update.value;
   }
 
   const batch = TestBatch.create();
@@ -30,6 +30,7 @@ test("registering renderables", () => {
   });
 
   user.location = "NYC";
+  expect(text, toBe("@tomdale (United States)"));
 
   batch.flush();
 

@@ -36,6 +36,24 @@ export class Renderables {
     }
   }
 
+  poll<T>(renderable: Renderable<T>): T {
+    const {
+      add,
+      remove,
+      values: { next },
+    } = Renderable.flush(renderable);
+
+    for (const dep of add) {
+      this.#internalsMap.insert(dep, renderable as Renderable<unknown>);
+    }
+
+    for (const dep of remove) {
+      this.#internalsMap.delete(dep, renderable as Renderable<unknown>);
+    }
+
+    return next;
+  }
+
   render<T>(
     renderable: Renderable<T>,
     changed: (next: T, prev: T | UNINITIALIZED) => void
@@ -49,6 +67,8 @@ export class Renderables {
     if (prev !== next) {
       changed(next, prev);
     }
+
+    console.log({ add, remove });
 
     for (const dep of add) {
       this.#internalsMap.insert(dep, renderable as Renderable<unknown>);
@@ -137,20 +157,28 @@ export class Renderable<T> {
     this.#description = description;
   }
 
+  poll(): T {
+    return TIMELINE.poll(this);
+  }
+
   render():
-    | { status: "changed"; prev: T; next: T }
+    | { status: "changed"; prev: T; value: T }
     | { status: "unchanged"; value: T }
-    | { status: "initialized"; next: T } {
+    | { status: "initialized"; value: T } {
     const {
       values: { prev, next },
+      add,
+      remove,
     } = this.#flush();
 
+    console.log({ prev, next, add, remove });
+
     if (prev === UNINITIALIZED) {
-      return { status: "initialized", next };
+      return { status: "initialized", value: next };
     } else if (prev === next) {
       return { status: "unchanged", value: next };
     } else {
-      return { status: "changed", prev, next };
+      return { status: "changed", prev, value: next };
     }
   }
 

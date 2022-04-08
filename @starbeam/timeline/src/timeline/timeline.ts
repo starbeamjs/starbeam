@@ -1,41 +1,110 @@
 import { config, Priority } from "@starbeam/config";
+import { Stack } from "@starbeam/debug-utils";
 import { Coordinator, COORDINATOR, Work } from "@starbeam/schedule";
 import { LOGGER } from "@starbeam/trace-internals";
 import { ActiveFrame, AssertFrame, type FinalizedFrame } from "./frames.js";
 import type { MutableInternals } from "./internals.js";
-import { REACTIVE, type ReactiveProtocol } from "./reactive.js";
+import { REACTIVE, type Reactive, type ReactiveProtocol } from "./reactive.js";
+import { Renderable, Renderables } from "./renderable.js";
 import { Timestamp } from "./timestamp.js";
+
+export abstract class Phase {
+  abstract bump(internals: MutableInternals): void;
+}
+
+export class ActionsPhase extends Phase {
+  static create(description: string): ActionsPhase {
+    return new ActionsPhase(description, new Set());
+  }
+
+  readonly #description: string;
+  readonly #bumped: Set<MutableInternals>;
+
+  private constructor(description: string, bumped: Set<MutableInternals>) {
+    super();
+    this.#description = description;
+    this.#bumped = bumped;
+  }
+
+  bump(internals: MutableInternals) {
+    this.#bumped.add(internals);
+  }
+}
+
+export class RenderPhase extends Phase {
+  static create(description: string): RenderPhase {
+    return new RenderPhase(new Set(), description);
+  }
+
+  readonly #consumed: Set<ReactiveProtocol>;
+  readonly #description: string;
+
+  private constructor(consumed: Set<ReactiveProtocol>, description: string) {
+    super();
+    this.#consumed = consumed;
+    this.#description = description;
+  }
+
+  bump(internals: MutableInternals): void {
+    throw Error(
+      `You cannot mutate a data cell during the Render phase. You attempted to mutate ${internals.description}`
+    );
+  }
+}
 
 export class Timeline {
   static create(): Timeline {
-    return new Timeline(COORDINATOR, new Map(), new Set());
+    return new Timeline(
+      COORDINATOR,
+      ActionsPhase.create("initialization"),
+      Renderables.create(),
+      new Map(),
+      new Set()
+    );
   }
 
   readonly #coordinator: Coordinator;
+  #phase: Phase;
   #now = Timestamp.initial();
   #frame: ActiveFrame | null = null;
   #assertFrame: AssertFrame | null = null;
 
+  readonly #renderables: Renderables;
   readonly #onUpdate: WeakMap<MutableInternals, Set<() => void>>;
   readonly #onAdvance: Set<() => void>;
 
   private constructor(
     coordinator: Coordinator,
+    phase: RenderPhase | ActionsPhase,
+    renderables: Renderables,
     updaters: WeakMap<MutableInternals, Set<() => void>>,
     onAdvance: Set<() => void>
   ) {
     this.#coordinator = coordinator;
+    this.#phase = phase;
+    this.#renderables = renderables;
     this.#onUpdate = updaters;
     this.#onAdvance = onAdvance;
   }
 
   on = {
-    advance: (callback: () => void): (() => void) => {
+    render: (callback: () => void): (() => void) => {
       this.#onAdvance.add(callback);
 
       return () => {
         this.#onAdvance.delete(callback);
       };
+    },
+
+    change: <T>(
+      input: Reactive<T>,
+      ready: (renderable: Renderable<T>) => void,
+      description = Stack.describeCaller()
+    ): Renderable<T> => {
+      const renderable = Renderable.create(input, { ready }, description);
+      this.#renderables.insert(renderable as Renderable<unknown>);
+
+      return renderable;
     },
 
     update: (storage: MutableInternals, callback: () => void): (() => void) => {
@@ -59,6 +128,21 @@ export class Timeline {
     },
   } as const;
 
+  poll<T>(renderable: Renderable<T>): T {
+    return this.#renderables.poll(renderable);
+  }
+
+  render<T>(renderable: Renderable<T>, changed: (next: T, prev: T) => void) {
+    this.#renderables.render(
+      renderable,
+      changed as (next: unknown, prev: unknown) => void
+    );
+  }
+
+  prune(renderable: Renderable<unknown>): void {
+    this.#renderables.prune(renderable);
+  }
+
   #updatersFor(storage: MutableInternals): Set<() => void> {
     let callbacks = this.#onUpdate.get(storage);
 
@@ -76,7 +160,9 @@ export class Timeline {
   }
 
   // Increment the current timestamp and return the incremented timestamp.
-  bump(storage: MutableInternals): Timestamp {
+  bump(mutable: MutableInternals): Timestamp {
+    this.#phase.bump(mutable);
+
     this.#assertFrame?.assert();
 
     this.#now = this.#now.next();
@@ -85,7 +171,8 @@ export class Timeline {
       this.#enqueue(...this.#onAdvance);
     }
 
-    this.#notifySubscribers(storage);
+    this.#notifySubscribers(mutable);
+    this.#renderables.bumped(mutable);
 
     return this.#now;
   }

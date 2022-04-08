@@ -11,6 +11,9 @@ export {
   type EnumInstanceN,
   type Matcher,
   type MatcherFor,
+  type MatcherFor0,
+  type MatcherFor1,
+  type MatcherFor2,
   type Matchers,
   type Variant,
 } from "./src/enumeration.js";
