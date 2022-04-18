@@ -203,7 +203,7 @@ export class DeactivatedReactState<T> extends ReactState<T> {
     this.#prev = prev;
   }
 
-  ready(): ReadyToReactivateReactState<T> {
+  readyToReactivate(): ReadyToReactivateReactState<T> {
     return ReadyToReactivateReactState.create(this.#prev);
   }
 }

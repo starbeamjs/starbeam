@@ -308,7 +308,7 @@ function useReadyLifecycle<T>(
 ): void {
   useEffect(() => {
     if (ReadyToReactivateReactState.is(state.current)) {
-      // If we're running inside ReadyToReactivate, we can't run the reaedy
+      // If we're running inside ReadyToReactivate, we can't run the ready
       // callback yet, because the instance will be created when the top-level
       // component renders.
       //
@@ -342,7 +342,8 @@ function useLayoutLifecycle<T>(
     // If we're reactivating, notify React so that a top-level render will occur
     // and cause the state to instantiate.
     if (DeactivatedReactState.is(current)) {
-      state.current = current.ready();
+      notify();
+      state.current = current.readyToReactivate();
     } else {
       delegate.attached?.(current.value);
       state.current = current.attached();

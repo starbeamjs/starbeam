@@ -3,10 +3,10 @@
 import sh from "shell-escape-tag";
 import shell from "shelljs";
 
-shell.env.NODE_OPTIONS = "--experimental-vm-modules --no-warnings";
+// shell.env.NODE_OPTIONS = "";
 
 const args = sh.escape(...process.argv.slice(2));
-const command = sh`node ./node_modules/jest/bin/jest.js --runInBand --watchAll=false --colors ${args}`;
+const command = sh`node --experimental-vm-modules --no-warnings ./node_modules/jest/bin/jest.js --runInBand --watchAll=false --colors ${args}`;
 
 console.log(command);
 
