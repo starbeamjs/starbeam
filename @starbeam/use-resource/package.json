@@ -28,7 +28,7 @@
     "@testing-library/user-event": "^13.5.0",
     "@types/react": "^17.0.40",
     "@types/react-dom": "^17.0.13",
-    "@starbeam/react-test-utils": "workspace:*",
+    "@starbeam/test-utils": "workspace:*",
     "@starbeam/debug-utils": "workspace:*",
     "documentary": "^1.38.7",
     "expect": "^27.5.1",

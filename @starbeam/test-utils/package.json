@@ -1,5 +1,5 @@
 {
-  "name": "@starbeam/react-test-utils",
+  "name": "@starbeam/test-utils",
   "version": "0.0.0",
   "type": "module",
   "main": "index.ts",

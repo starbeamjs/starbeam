@@ -1,0 +1,27 @@
+{
+  "name": "@starbeam/db",
+  "type": "module",
+  "main": "index.ts",
+  "exports": {
+    ".": {
+      "types": "./index.js",
+      "import": {
+        "node": "./index.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "version": "0.5.0",
+  "dependencies": {
+    "@starbeam/fundamental": "workspace:*",
+    "@starbeam/reactive": "workspace:*",
+    "@starbeam/core": "workspace:*",
+    "@starbeam/utils": "workspace:*"
+  },
+  "devDependencies": {
+    "@starbeam/trace-internals": "workspace:*",
+    "@starbeam/test-utils": "workspace:*",
+    "@starbeam/debug-utils": "workspace:*",
+    "@starbeam/verify": "workspace:*"
+  }
+}

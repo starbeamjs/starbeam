@@ -17,6 +17,7 @@ export {
   type Matchers,
   type Variant,
 } from "./src/enumeration.js";
+export { IndexMap } from "./src/index-map.js";
 export { enumerate } from "./src/itertools.js";
 export { IterableMapOf, MapOf, MapOfSet, WeakMapOfSet } from "./src/map.js";
 export { mapObject } from "./src/object.js";

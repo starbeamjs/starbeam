@@ -56,6 +56,40 @@ export class FormulaState<T> {
     return this.#frame.dependencies;
   }
 
+  validate():
+    | { state: "valid"; value: T }
+    | {
+        state: "invalid";
+        oldValue: T;
+        compute: () =>
+          | { state: "unchanged"; value: T }
+          | { state: "changed"; value: T };
+      } {
+    const validation = this.#frame.validate();
+
+    if (validation.status === "valid") {
+      // TODO: Consume the reactive
+      return { state: "valid", value: validation.value };
+    }
+
+    return {
+      state: "invalid",
+      oldValue: this.#lastValue,
+      compute: () => {
+        const { frame, value } = TIMELINE.evaluateFormula(
+          this.#formula,
+          this.#description
+        );
+
+        const changed = this.#lastValue !== value;
+        this.#lastValue = value;
+        this.#frame = frame;
+
+        return { state: changed ? "changed" : "unchanged", value };
+      },
+    };
+  }
+
   poll():
     | { state: "unchanged"; value: T }
     | { state: "changed"; oldValue: T; value: T } {

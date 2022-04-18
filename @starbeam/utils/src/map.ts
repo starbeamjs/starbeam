@@ -207,8 +207,6 @@ class SetDelegate<V> implements MapDelegate<Set<V>, V> {
   }
 }
 
-const SET_DELEGATE = new SetDelegate();
-
 class IterableSetDelegate<V>
   extends SetDelegate<V>
   implements IterableMapDelegate<Set<V>, V>
