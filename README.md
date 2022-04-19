@@ -277,7 +277,7 @@ const Document = component(({ path }, starbeam) => {
   export let path: string;
 
   $: db = service(firebase);
-  $: document = db.at(path);
+  $: document = use(db.at(path));
 </script>
 
 {#if document.type === "loading"}
