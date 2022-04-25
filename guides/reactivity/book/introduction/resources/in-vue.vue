@@ -1,15 +1,12 @@
-<script lang="typescript">
+<script setup lang="ts">
 import { use } from "@starbeam/vue";
+import { RemoteData } from "./remote-data.js";
 
-export let username: string;
+const props = defineProps<{ username: string }>();
 
-export default {
-  setup() {
-    const { user } = use(RemoteData(`https://api.github.com/users/${username}`));
+const user = use(() => RemoteData(`https://api.github.com/users/${props.username}`));
 
-    return { user };
-  },
-};
+defineExpose({ user });
 </script>
 
 <template>

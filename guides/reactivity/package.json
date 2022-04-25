@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "highlight.js": "^11.5.1",
-    "typescript": "next"
+    "typescript": "next",
+    "vue": "^3.2.33"
   }
 }
