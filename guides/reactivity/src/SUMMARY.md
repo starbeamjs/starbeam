@@ -1,7 +1,9 @@
 # Summary
 
 - [Starbeam Reactivity](./introduction/index.md)
-  - [Data Land](./introduction/dataland.md)
+  - [Data Cells and Formula Cells](./introduction/cells-and-formulas.md)
+  - [Resources](./introduction/resources.md)
+  - [Data Universe](./introduction/data-universe.md)
   - [Reactive Computations](./introduction/computations.md)
   - [Structured Finalization](./introduction/teardown.md)
 - [Starbeam in Your App](./adapters/index.md)

@@ -1,7 +1,6 @@
 {
   "collectCoverage": false,
   "preset": "ts-jest/presets/default-esm",
-  "cacheDirectory": "./.jest.cache",
   "extensionsToTreatAsEsm": [".ts", ".tsx"],
   "testEnvironment": "./bootstrap/dist/environment.js",
 

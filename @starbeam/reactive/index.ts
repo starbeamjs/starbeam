@@ -1,8 +1,9 @@
-export { Cell } from "./src/core/cell.js";
+export { Cell, Cell as cell, type Cell as DataCell } from "./src/core/cell.js";
 export { Initializable } from "./src/core/initializable.js";
 export { Marker } from "./src/core/marker.js";
 export {
   Formula,
+  Formula as formula,
   FormulaState,
   Linkable,
   StatefulFormula,
