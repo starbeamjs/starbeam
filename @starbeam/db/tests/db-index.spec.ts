@@ -83,7 +83,6 @@ test("indexing a table", async () => {
   expect(contactsForTom.current.map((c) => c.columns.phone)).toEqual([
     "555-1234",
   ]);
-  console.log([...peopleInNewYork.current]);
   // expect(
   //   [...peopleInNewYork.current].map((p) => {
   //     console.log(p.columns);
@@ -147,3 +146,4 @@ function contactsFor(db: DB, personId: string): Row<ContactType>[] {
 }
 
 export {};
+

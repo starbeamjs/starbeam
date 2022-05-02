@@ -2,6 +2,7 @@ import { config, Priority } from "@starbeam/config";
 import { Stack } from "@starbeam/debug-utils";
 import { Coordinator, COORDINATOR, Work } from "@starbeam/schedule";
 import { LOGGER } from "@starbeam/trace-internals";
+import { assert } from "console";
 import { ActiveFrame, AssertFrame, type FinalizedFrame } from "./frames.js";
 import type { MutableInternals } from "./internals.js";
 import { REACTIVE, type Reactive, type ReactiveProtocol } from "./reactive.js";
@@ -52,6 +53,18 @@ export class RenderPhase extends Phase {
   }
 }
 
+export interface FormulaResult<T> {
+  readonly frame: FinalizedFrame<T>;
+  readonly value: T;
+}
+
+export interface StartedFormula {
+  done(): FormulaResult<void>;
+  done<T>(value: T): FormulaResult<T>;
+
+  finally(): void;
+}
+
 export class Timeline {
   static create(): Timeline {
     return new Timeline(
@@ -62,6 +75,42 @@ export class Timeline {
       new Set()
     );
   }
+
+  static StartedFormula = class StartedFormula {
+    static create(description: string): StartedFormula {
+      const prevFrame = TIMELINE.#frame;
+
+      const currentFrame = (TIMELINE.#frame = ActiveFrame.create(description));
+
+      return new StartedFormula(prevFrame, currentFrame);
+    }
+
+    #prev: ActiveFrame | null;
+    #current: ActiveFrame;
+
+    private constructor(prev: ActiveFrame | null, current: ActiveFrame) {
+      this.#prev = prev;
+      this.#current = current;
+    }
+
+    done<T>(value: T): FormulaResult<T>;
+    done(): FormulaResult<void>;
+    done(value?: unknown): FormulaResult<unknown> {
+      assert(
+        TIMELINE.#frame === this.#current,
+        `Formula must be ended with the same frame it was started with`
+      );
+
+      const newFrame = this.#current.finalize(value, TIMELINE.#now);
+      TIMELINE.#frame = this.#prev;
+      TIMELINE.didConsume(newFrame.frame);
+      return newFrame;
+    }
+
+    finally() {
+      TIMELINE.#frame = this.#prev;
+    }
+  };
 
   readonly #coordinator: Coordinator;
   #phase: Phase;
@@ -223,6 +272,10 @@ export class Timeline {
     }
   }
 
+  startFormula(description: string): StartedFormula {
+    return Timeline.StartedFormula.create(description);
+  }
+
   /**
    * Run a formula in the context of a lifetime, and return a
    * {@link FinalizedFrame}.
@@ -236,18 +289,13 @@ export class Timeline {
     callback: () => T,
     description: string
   ): { readonly frame: FinalizedFrame<T>; readonly value: T } {
-    const currentFrame = this.#frame;
+    const formula = this.startFormula(description);
 
     try {
-      this.#frame = ActiveFrame.create(description);
       const result = callback();
-
-      const newFrame = this.#frame.finalize(result, this.#now);
-      this.#frame = currentFrame;
-      this.didConsume(newFrame.frame);
-      return newFrame;
+      return formula.done(result);
     } catch (e) {
-      this.#frame = currentFrame;
+      formula.finally();
       throw e;
     }
   }

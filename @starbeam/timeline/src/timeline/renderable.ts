@@ -68,8 +68,6 @@ export class Renderables {
       changed(next, prev);
     }
 
-    console.log({ add, remove });
-
     for (const dep of add) {
       this.#internalsMap.insert(dep, renderable as Renderable<unknown>);
     }
@@ -170,8 +168,6 @@ export class Renderable<T> {
       add,
       remove,
     } = this.#flush();
-
-    console.log({ prev, next, add, remove });
 
     if (prev === UNINITIALIZED) {
       return { status: "initialized", value: next };

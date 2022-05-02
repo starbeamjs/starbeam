@@ -23,5 +23,10 @@ export {
 export { type ReactiveDependencies } from "./src/timeline/reactive-node.js";
 export { REACTIVE, type ReactiveProtocol } from "./src/timeline/reactive.js";
 export { Renderable } from "./src/timeline/renderable.js";
-export { TIMELINE } from "./src/timeline/timeline.js";
+export {
+  TIMELINE,
+  type FormulaResult,
+  type StartedFormula,
+} from "./src/timeline/timeline.js";
 export { INSPECT, Timestamp } from "./src/timeline/timestamp.js";
+
