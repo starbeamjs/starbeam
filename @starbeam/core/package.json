@@ -46,7 +46,6 @@
     "@cucumber/gherkin": "^22.0.0",
     "@cucumber/message-streams": "^3.0.0",
     "@cucumber/messages": "^17.1.1",
-    "@synion/md-docs": "^1.0.15",
     "@types/treeify": "workspace:*",
     "documentary": "^1.38.7"
   }
