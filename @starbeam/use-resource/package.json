@@ -19,7 +19,7 @@
     "doc:all": "node ./scripts/docs.js"
   },
   "peerDependencies": {
-    "react": "rc"
+    "react": "^18.1.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.2",
@@ -34,8 +34,8 @@
     "expect": "^27.5.1",
     "jest": "^27.5.1",
     "jsdom": "^19.0.0",
-    "react": "^18.0.0-rc.3",
-    "react-dom": "^18.0.0-rc.3",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
     "shelljs": "^0.8.5",
     "shell-escape-tag": "^2.0.2"
   }

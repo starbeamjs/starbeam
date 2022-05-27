@@ -15,24 +15,27 @@
   "dependencies": {
     "@starbeam/core": "workspace:*",
     "@starbeam/debug": "workspace:*",
+    "@starbeam/debug-utils": "workspace:*",
     "@starbeam/dom": "workspace:*",
     "@starbeam/fundamental": "workspace:*",
     "@starbeam/reactive": "workspace:*",
     "@starbeam/trace-internals": "workspace:*",
-    "@starbeam/debug-utils": "workspace:*",
+    "@starbeam/use-resource": "workspace:*",
     "@starbeam/utils": "workspace:*",
     "@starbeam/verify": "workspace:*",
-    "@starbeam/use-resource": "workspace:*",
     "@types/use-sync-external-store": "ts4.6",
     "react-element-to-jsx-string": "^14.3.4",
     "use-ssr": "^1.0.24",
     "use-sync-external-store": "rc"
   },
   "devDependencies": {
-    "react": "^18.0.0-rc.3",
-    "typescript": ""
+    "@types/react": "^18.0.9",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
+    "typescript": "next"
   },
   "peerDependencies": {
-    "react": "next"
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0"
   }
 }

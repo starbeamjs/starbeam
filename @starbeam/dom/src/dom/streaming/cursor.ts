@@ -1,7 +1,7 @@
 import type { minimal } from "@domtree/flavors";
 import { is, mutable } from "@starbeam/core";
 import { assert } from "@starbeam/debug";
-import { as, verified } from "@starbeam/verify";
+import { expected, verified } from "@starbeam/verify";
 import type { RenderedContent } from "../../program-node/interfaces/rendered-content.js";
 import type { DomEnvironment } from "../environment.js";
 
@@ -151,7 +151,9 @@ export class RangeSnapshot {
       let next = verified(
         current.nextSibling,
         is.Present,
-        as(`nextSibling when iterating forwards through a RangeSnapshot`)
+        expected.as(
+          `nextSibling when iterating forwards through a RangeSnapshot`
+        )
       );
 
       to.mutate(this.environment).insert(current);

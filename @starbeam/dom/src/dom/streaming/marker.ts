@@ -1,7 +1,7 @@
 import type { minimal } from "@domtree/flavors";
 import { has, is } from "@starbeam/core";
 import { assert } from "@starbeam/debug";
-import { as, verified, verify } from "@starbeam/verify";
+import { expected, verified, verify } from "@starbeam/verify";
 import type { ContentBuffer, ElementHeadBuffer } from "../buffer/body.js";
 import type { DomEnvironment } from "../environment.js";
 import { ContentRange, ContentRangeNode, MINIMAL } from "./compatible-dom.js";
@@ -241,8 +241,12 @@ export function findElement(
 ): minimal.Element {
   let elements = [...findElements(container, selector)];
 
-  verify(elements, has.length(1), as(`${selector} in ${container}`));
-  verify(elements[0], is.Element, as(`the first child of ${container}`));
+  verify(elements, has.length(1), expected.as(`${selector} in ${container}`));
+  verify(
+    elements[0],
+    is.Element,
+    expected.as(`the first child of ${container}`)
+  );
 
   return elements[0];
 }

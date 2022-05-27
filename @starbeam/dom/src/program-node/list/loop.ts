@@ -6,7 +6,7 @@ import {
   type ReactiveInternals,
   type ReactiveProtocol,
 } from "@starbeam/timeline";
-import { as, verified } from "@starbeam/verify";
+import { expected, verified } from "@starbeam/verify";
 import type { DomEnvironment } from "../../dom.js";
 import type { ContentRange } from "../../dom/streaming/compatible-dom.js";
 import { RangeSnapshot, RANGE_SNAPSHOT } from "../../dom/streaming/cursor.js";
@@ -296,7 +296,9 @@ export class RenderedStaticList extends RenderedContent {
     let [start, end] = verified(
       this.#artifacts.boundaries,
       is.Present,
-      as(`artifact boundaries`).when(`the list is a RenderedStaticList`)
+      expected
+        .as(`artifact boundaries`)
+        .when(`the list is a RenderedStaticList`)
     );
 
     return RangeSnapshot.forContent(parent, start.content, end.content);
@@ -373,14 +375,18 @@ class Fragment {
       this.#placeholder = verified(
         this.#lazy.get(inside).asNode(),
         is.Comment,
-        as(`the ContentRange for a rendered list`).when(`the list was empty`)
+        expected
+          .as(`the ContentRange for a rendered list`)
+          .when(`the list was empty`)
       );
     }
 
     return verified(
       this.#placeholder,
       is.Present,
-      as(`The ContentRange for a rendered list`).when(`the list was empty`)
+      expected
+        .as(`The ContentRange for a rendered list`)
+        .when(`the list was empty`)
     );
   }
 

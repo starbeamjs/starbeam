@@ -10,7 +10,7 @@ import {
   type InferReturn,
   type VerifierFunction,
 } from "@starbeam/fundamental";
-import { expected, isPresent, verified, Verifier } from "@starbeam/verify";
+import { expected, isPresent, verified } from "@starbeam/verify";
 
 // export function Modifier<M extends Modifier>(modifier: M): M {
 //   return modifier;
@@ -109,15 +109,13 @@ function ClassVerifier<E extends browser.Element>(
     return element instanceof Class;
   }
 
-  Verifier.implement(
+  return expected.associate(
     verify,
     expected(`element provided by React`)
-      .toBe(Class.name)
+      .toBe(`an instance of ${Class.name}`)
       .when(`receiving an element from React's ref={} attribute`)
-      .butGot((element) => element.constructor.name)
+      .butGot((element: browser.Element) => element.constructor.name)
   );
-
-  return verify;
 }
 
 export function ref<E extends browser.Element>(

@@ -1,6 +1,6 @@
 import type { minimal } from "@domtree/flavors";
 import { is } from "@starbeam/core";
-import { as, verified } from "@starbeam/verify";
+import { expected, verified } from "@starbeam/verify";
 import type { DomEnvironment } from "../dom.js";
 import type { ContentRange } from "../dom/streaming/compatible-dom.js";
 import type { LazyDOM } from "../dom/streaming/token.js";
@@ -34,14 +34,18 @@ export class LazyFragment {
       this.#placeholder = verified(
         this.#lazy.get(inside).asNode(),
         is.Comment,
-        as(`the ContentRange for a rendered list`).when(`the list was empty`)
+        expected
+          .as(`the ContentRange for a rendered list`)
+          .when(`the list was empty`)
       );
     }
 
     return verified(
       this.#placeholder,
       is.Present,
-      as(`The ContentRange for a rendered list`).when(`the list was empty`)
+      expected
+        .as(`The ContentRange for a rendered list`)
+        .when(`the list was empty`)
     );
   }
 

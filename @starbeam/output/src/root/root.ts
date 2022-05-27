@@ -1,4 +1,4 @@
-import { LIFETIME, TIMELINE } from "@starbeam/timeline";
+import { LIFETIME } from "@starbeam/timeline";
 import type { ProgramNode } from "../program-node/program-node.js";
 import { RenderedRoot } from "./rendered-root.js";
 
@@ -10,11 +10,6 @@ export class Root {
   }
 
   readonly #description: string;
-
-  readonly on = {
-    advance: (callback: () => void): (() => void) =>
-      TIMELINE.on.advance(callback),
-  } as const;
 
   protected constructor(description: string) {
     this.#description = description;

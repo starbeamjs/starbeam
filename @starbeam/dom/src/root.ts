@@ -1,5 +1,5 @@
 import type { anydom, minimal } from "@domtree/flavors";
-import { minimize, TIMELINE } from "@starbeam/core";
+import { minimize } from "@starbeam/core";
 import { Root as CoreRoot, type RenderedRoot } from "@starbeam/output";
 import type { JSDOM } from "jsdom";
 import { ReactiveDOM } from "./dom.js";
@@ -28,10 +28,6 @@ export class Root extends CoreRoot {
   readonly #environment: DomEnvironment;
 
   readonly dom: ReactiveDOM = new ReactiveDOM();
-  readonly on = {
-    advance: (callback: () => void): (() => void) =>
-      TIMELINE.on.advance(callback),
-  } as const;
 
   private constructor(
     document: DomEnvironment,

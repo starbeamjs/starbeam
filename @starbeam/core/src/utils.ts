@@ -1,5 +1,5 @@
 import { Abstraction } from "@starbeam/trace-internals";
-import { as, verified } from "@starbeam/verify";
+import { expected, verified } from "@starbeam/verify";
 import { has } from "./strippable/minimal.js";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars,@typescript-eslint/no-explicit-any
@@ -69,7 +69,9 @@ export class NonemptyList<T> {
   }
 
   static verified<T>(list: readonly T[]): NonemptyList<T> {
-    return NonemptyList.of(verified(list, has.items, as(`non-empty list`)));
+    return NonemptyList.of(
+      verified(list, has.items, expected(`non-empty list`))
+    );
   }
 
   readonly #list: [T, ...(readonly T[])];

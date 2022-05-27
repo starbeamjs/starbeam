@@ -56,5 +56,6 @@
     "NODE_OPTIONS": "--experimental-vm-modules --no-warnings"
   },
   "typescript.preferences.includePackageJsonAutoImports": "auto",
-  "typescript.updateImportsOnFileMove.enabled": "always"
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true
 }

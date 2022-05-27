@@ -1,16 +1,7 @@
 import type * as dom from "@domtree/any";
 import type { anydom } from "@domtree/flavors";
 import type * as minimal from "@domtree/minimal";
-import type { VerifierFunction } from "@starbeam/fundamental";
-import {
-  CreatedContext,
-  expected,
-  isEqual,
-  isPresent,
-  Verifier,
-  VerifyContext,
-  type PartialVerifier,
-} from "@starbeam/verify";
+import { expected, isEqual, isPresent } from "@starbeam/verify";
 
 /**
  * @strip.value node
@@ -70,7 +61,7 @@ export type DOCUMENT_NODE = 9;
 export type DOCUMENT_TYPE_NODE = 10;
 export type DOCUMENT_FRAGMENT_NODE = 11;
 
-type MaybeNode = dom.Node | minimal.Node | null;
+type MaybeNode = dom.Node | null;
 
 isNode.message = (value: MaybeNode) =>
   value === null
@@ -88,17 +79,17 @@ function nodeMessage(actual: dom.Node | null): string {
 function isSpecificNode<T extends minimal.Node>(
   nodeType: number,
   description: string
-): VerifierFunction<MaybeNode, T> {
-  const isSpecificNode = ((node: MaybeNode): node is T => {
+): (node: MaybeNode) => node is T {
+  const isSpecificNode = (node: MaybeNode): node is T => {
     return isNode(node) && node.nodeType === nodeType;
-  }) as PartialVerifier<MaybeNode, T>;
+  };
 
-  Verifier.implement(
+  expected.associate(
     isSpecificNode,
     expected("node").toBe(description).butGot(nodeMessage)
   );
 
-  return isSpecificNode as VerifierFunction<MaybeNode, T>;
+  return isSpecificNode;
 }
 
 function isNode(node: MaybeNode): node is minimal.Node {
@@ -113,7 +104,7 @@ function isParentNode(node: MaybeNode): node is minimal.ParentNode {
   return isElement(node) || isDocument(node) || isDocumentFragment(node);
 }
 
-Verifier.implement(isParentNode, expected("node").toBe("a ParentNode"));
+expected.associate(isParentNode, expected("node").toBe("parent node"));
 
 const isElement = isSpecificNode<minimal.Element>(1, "an element");
 const isText = isSpecificNode<minimal.Text>(3, "a text node");
@@ -130,7 +121,7 @@ function isCharacterData(
   return isText(node) || isComment(node);
 }
 
-Verifier.implement(
+expected.associate(
   isCharacterData,
   expected("node").toBe("a text or comment node").butGot(nodeMessage)
 );
@@ -141,16 +132,16 @@ function isTemplateElement(node: MaybeNode): node is minimal.TemplateElement {
   return isElement(node) && hasTagName("template")(node);
 }
 
-Verifier.implement(
+expected.associate(
   isTemplateElement,
   expected("node").toBe("a template node").butGot(nodeMessage)
 );
 
-Verifier.implement(isPresent, expected("value").toBe("present"));
+expected.associate(isPresent, expected("value").toBe("present"));
 
 export function isNullable<In, Out extends In>(
-  verifier: VerifierFunction<In, Out>
-): VerifierFunction<In | null, Out | null> {
+  verifier: (value: In) => value is Out
+): (value: In | null) => value is Out | null {
   function verify(input: In | null): input is Out | null {
     if (input === null) {
       return true;
@@ -159,33 +150,41 @@ export function isNullable<In, Out extends In>(
     }
   }
 
-  let context = Verifier.context(verifier).updating({
-    relationship: ({ kind, description }) => {
-      return { kind, description: `${description} or null` };
+  const expectation = expected.updated(verifier, {
+    to: (to) => {
+      if (to === undefined) {
+        return ["to be", "nullable"];
+      } else {
+        return `${to[1]} or null`;
+      }
+    },
+    actual: (actual) => {
+      return (input: In | null) => {
+        if (input === null) {
+          return "null";
+        } else if (actual) {
+          return actual(input);
+        } else {
+          return undefined;
+        }
+      };
     },
   });
 
-  // TODO: Determine whether this any-cast is hiding a real problem. Since
-  // nullable is widening the space of allowed types, and `butGot` is only
-  // called when the type is outside of the space of allowed types, the original
-  // `butGot` should work. However, the type error suggests that there may be a
-  // mistake in how the generics are structured.
-  Verifier.implement<In | null, Out | null>(
-    verify,
-    context as CreatedContext<In | null>
-  );
+  expected.associate(verify, expectation);
+
   return verify;
 }
 
 export function is<T extends I, I = unknown>(
   predicate: (value: I) => value is T
-): VerifierFunction<I, T> {
+): (value: I) => value is T {
   function verify(input: I): input is T {
     return predicate(input);
   }
 
   if (predicate.name) {
-    Verifier.implement<I, T>(verify, expected(`value`).toBe(predicate.name));
+    expected.associate(verify, expected.toBe(predicate.name));
   }
 
   return verify;
@@ -208,23 +207,23 @@ is.value = isEqual;
 // TODO: Deal with SVG and MathML tag names
 function hasTagName<T extends string>(
   tagName: T
-): VerifierFunction<
-  minimal.Element,
-  minimal.Element & { readonly tagName: Uppercase<T> }
-> {
+): (
+  value: minimal.Element
+) => value is minimal.Element & { readonly tagName: Uppercase<T> } {
   function hasTagName(
     element: minimal.Element
   ): element is minimal.Element & { readonly tagName: Uppercase<T> } {
     return element.tagName === tagName.toUpperCase();
   }
 
-  hasTagName.default = { expected: "element" };
-  hasTagName.message = (context: VerifyContext, element: minimal.Element) =>
-    `Expected ${
-      context.expected
-    } to be <${tagName}>, but was <${element.tagName.toLowerCase()}>`;
-
-  return hasTagName;
+  return expected.associate(
+    hasTagName,
+    expected("element")
+      .toBe(`<${tagName}>`)
+      .butGot(
+        (element: minimal.Element) => `<${element.tagName.toLowerCase()}>`
+      )
+  );
 }
 
 function hasLength<L extends number>(length: L) {
@@ -234,22 +233,14 @@ function hasLength<L extends number>(length: L) {
     return value.length === length;
   }
 
-  Verifier.implement<unknown[], Tuple<unknown, L>>(
-    has,
-    expected("value").toHave(`${length} items`)
-  );
-
-  return has;
+  return expected.associate(has, expected.toHave(`${length} items`));
 }
 
 function hasItems<T>(value: readonly T[]): value is [T, ...(readonly T[])] {
   return value.length > 0;
 }
 
-Verifier.implement<unknown[], [unknown, ...(readonly unknown[])]>(
-  hasItems,
-  expected("value").toHave(`at least one item`)
-);
+expected.associate(hasItems, expected.toHave(`at least one item`));
 
 interface Typeof {
   string: string;
@@ -262,21 +253,19 @@ interface Typeof {
 
 function hasTypeof<T extends keyof Typeof>(
   type: T
-): VerifierFunction<unknown, Typeof[T]> {
+): (value: unknown) => value is Typeof[T] {
   function hasTypeof<T extends keyof Typeof>(
     value: unknown
   ): value is Typeof[T] {
     return typeof value === type;
   }
 
-  Verifier.implement(
+  return expected.associate(
     hasTypeof,
-    expected(`value`)
+    expected
       .toBe(`typeof ${type}`)
       .butGot((actual) => `a value with typeof ${typeof actual}`)
   );
-
-  return hasTypeof;
 }
 
 export const has = {

@@ -2,7 +2,7 @@ import { reactive } from "@starbeam/core";
 import type { AnyRecord } from "@starbeam/fundamental";
 import { Marker } from "@starbeam/reactive";
 import type { InferReturn } from "@starbeam/utils";
-import { as, isPresent, verified } from "@starbeam/verify";
+import { expected, isPresent, verified } from "@starbeam/verify";
 import { Index, Indexes } from "./db-index.js";
 import { Reference } from "./reference.js";
 import { DraftForNew, Row } from "./row.js";
@@ -102,7 +102,7 @@ export class Table<T extends TableType = TableType>
     const [firstIndexName, firstIndexValue] = verified(
       indexes.shift(),
       isPresent,
-      as("a query key").when("calling queryBy")
+      expected.as("a query key").when("calling queryBy")
     );
     const firstIndex = this.#getIndex(firstIndexName);
 
@@ -125,7 +125,7 @@ export class Table<T extends TableType = TableType>
     return verified(
       this.#indexes.get(key),
       isPresent,
-      as(`an index named ${key}`)
+      expected.as(`an index named ${key}`)
     );
   }
 

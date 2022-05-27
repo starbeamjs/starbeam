@@ -13,6 +13,7 @@
     "@starbeam/timeline": "workspace:*",
     "@starbeam/trace-internals": "workspace:*",
     "@starbeam/config": "workspace:*",
+    "@starbeam/output": "workspace:*",
     "typescript": "next"
   },
   "devDependencies": {

@@ -12,7 +12,7 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 let root = path.resolve(dirname, "..", "bootstrap", "src");
 let dist = path.resolve(root, "..", "dist");
 
-shell.rm("-r", dist);
+shell.rm("-rf", dist);
 shell.mkdir("-p", dist);
 
 let bootstrap = path.resolve(root, "**/*.ts");
