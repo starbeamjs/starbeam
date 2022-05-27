@@ -1,4 +1,5 @@
 import { expected } from "../verify.js";
+import { format } from "./describe.js";
 import type { FixedArray, ReadonlyFixedArray } from "./type-utils.js";
 
 export function isPresent<T>(value: T | null | undefined | void): value is T {
@@ -24,16 +25,14 @@ export type Primitive =
   | null
   | undefined;
 
-export function isEqual<T extends Primitive | object>(
-  value: T
-): (other: Primitive | object) => other is T {
-  function verify(input: Primitive | object): input is T {
+export function isEqual<T>(value: T): (other: unknown) => other is T {
+  function verify(input: unknown): input is T {
     return Object.is(input, value);
   }
 
   return expected.associate(
     verify,
-    expected.toBe(String(value)).butGot(String)
+    expected.toBe(String(value)).butGot(format)
   );
 }
 

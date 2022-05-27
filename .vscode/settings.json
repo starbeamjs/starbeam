@@ -7,6 +7,8 @@
     "types": true,
     "**/dist": true
   },
+  "files.autoSave": "onFocusChange",
+
   "search.exclude": {
     "**/node_modules": true,
     "**/bower_components": true,
@@ -25,17 +27,24 @@
   },
   "explorer.fileNesting.enabled": true,
 
+  "editor.formatOnSave": true,
+
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true,
+    "source.organizeImports": false
+  },
+
+  "[typescript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+
   "html.customData": ["./node_modules/documentary/web-components.json"],
 
   "typescript.preferences.importModuleSpecifier": "project-relative",
   "editor.semanticHighlighting.enabled": true,
 
   "npm.packageManager": "pnpm",
-  "eslint.packageManager": "pnpm",
-  // "jest.autoRun": {
-  //   "watch": "test-file"
-  // }
-  "jest.enableCodeLens": true,
+  "eslint.packageManager": "yarn",
   "javascript.preferences.importModuleSpecifierEnding": "js",
   "typescript.preferences.importModuleSpecifierEnding": "js",
   "typescript.tsdk": "node_modules/typescript/lib",
@@ -53,19 +62,15 @@
     "margin": "1rem"
   },
   "quokka.suppressGlyphMarginNotifications": false,
-  "wycats.languageFeatures.semanticTokens": true,
-  "wycats.dev.logLevel": "DEBUG",
-  "wycats.dev.vlsPort": 8900,
-  "wycats.trace.server": "messages",
-  "[wycats-typescript].trace.server": "verbose",
-  "jest.autoRun": "off",
-  "jest.testExplorer": {
-    "enabled": true
-  },
-  "jest.jestCommandLine": "node ./bootstrap/dist/run-jest.js",
-  "jest.nodeEnv": {
-    "NODE_OPTIONS": "--experimental-vm-modules --no-warnings"
-  },
+  "vitest.enable": true,
+  "vitest.include": ["packages/*/tests/**/*.spec.ts"],
+  "vitest.exclude": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/cypress/**",
+    "**/.{idea,git,cache,output,temp}/**",
+    "@starbeam/**"
+  ],
   "typescript.preferences.includePackageJsonAutoImports": "auto",
   "typescript.updateImportsOnFileMove.enabled": "always",
   "typescript.tsserver.experimental.enableProjectDiagnostics": true

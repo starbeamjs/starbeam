@@ -2,7 +2,8 @@
  * Everything in this file is, in principle, strippable.
  */
 
-import type { UnsafeAny } from "@starbeam/fundamental";
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type UnsafeAny = any;
 
 /**
  * The strippable usage pattern is:

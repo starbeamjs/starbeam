@@ -1,4 +1,5 @@
-import { expected, verify } from "../index.js";
+import { expected, verify } from "@starbeam/verify";
+import { describe, expect, test } from "vitest";
 
 describe("verify", () => {
   test("default verify message", () => {
