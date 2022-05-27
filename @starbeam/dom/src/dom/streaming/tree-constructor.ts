@@ -1,7 +1,7 @@
 // import type { AnyNode } from "./simplest-dom.js";
 import type * as minimal from "@domtree/minimal";
-import { is, mutable } from "@starbeam/core";
-import { verified } from "@starbeam/verify";
+import { isPresent, verified } from "@starbeam/verify";
+import { mutable } from "../../verify.js";
 import type { AttributeValue, AttrType } from "../buffer/attribute.js";
 import type { ElementHeadBuffer } from "../buffer/body.js";
 import {
@@ -137,7 +137,7 @@ export class ContentConstructor<B extends ContentBuffer = ContentBuffer> {
       }
     ) as Dehydrated<ContentRange>;
 
-    return { result: verified(result, is.Present), range };
+    return { result: verified(result, isPresent), range };
   }
 
   text(

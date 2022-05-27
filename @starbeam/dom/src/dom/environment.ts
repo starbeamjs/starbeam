@@ -1,6 +1,7 @@
 import type { browser, minimal } from "@domtree/flavors";
-import { minimize, type FIXME } from "@starbeam/core";
+import type { FIXME } from "@starbeam/core";
 import type { JSDOM } from "jsdom";
+import { minimize } from "../verify.js";
 import { MinimalDocumentUtilities } from "./streaming/compatible-dom.js";
 import { Tokens } from "./streaming/token.js";
 
@@ -25,25 +26,6 @@ export abstract class DomEnvironment {
 export interface DomEnvironment {
   readonly document: minimal.Document;
 }
-
-// class JsDomEnvironment extends DomEnvironment {
-//   readonly #jsdom: JSDOM;
-
-//   constructor(jsdom: JSDOM, readonly document: minimal.Document) {
-//     super();
-//     this.#jsdom = jsdom;
-//   }
-
-//   liveRange(): minimal.LiveRange {
-//     return new this.#jsdom.window.Range() as unknown as minimal.LiveRange;
-//   }
-
-//   staticRange(options: minimal.StaticRangeOptions): minimal.StaticRange {
-//     return new this.#jsdom.window.StaticRange(
-//       options as browser.StaticRangeOptions
-//     ) as minimal.StaticRange;
-//   }
-// }
 
 class WindowEnvironment extends DomEnvironment {
   static of(window: browser.Window): WindowEnvironment {

@@ -1,11 +1,10 @@
 import type { InferReturn } from "@starbeam/fundamental";
 import { Cell, Formula } from "@starbeam/reactive";
-import { expected, verify } from "@starbeam/verify";
+import { expected, isPresent, verify } from "@starbeam/verify";
 import {
   builtin,
   type BuiltinDescription,
 } from "../reactive/builtins/builtin.js";
-import { is } from "../strippable/minimal.js";
 
 type BuiltinFunction = typeof builtin;
 
@@ -50,7 +49,7 @@ export const cached = <T>(
 
   verify(
     get,
-    is.Present,
+    isPresent,
     expected(`the target of @cached`)
       .toBe(`a getter`)
       .butGot(() =>

@@ -1,6 +1,5 @@
 import type { minimal } from "@domtree/flavors";
 import * as jest from "@jest/globals";
-import { is } from "@starbeam/core";
 import {
   DomEnvironment,
   ElementProgramNodeBuilder,
@@ -16,7 +15,7 @@ import {
 import type { RenderedRoot } from "@starbeam/output";
 import type { Cell, Reactive } from "@starbeam/reactive";
 import { Abstraction } from "@starbeam/trace-internals";
-import { verify } from "@starbeam/verify";
+import { isPresent, verify } from "@starbeam/verify";
 import { JSDOM } from "jsdom";
 import {
   ElementArgs,
@@ -194,7 +193,7 @@ export class TestSupport {
     );
     let result = this.universe.render(node, { append: element });
 
-    verify(result, is.Present);
+    verify(result, isPresent);
 
     if (expectation.dynamism === null) {
       throw Error(

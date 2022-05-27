@@ -1,8 +1,8 @@
 import type { minimal } from "@domtree/flavors";
-import { is, mutable } from "@starbeam/core";
 import { assert } from "@starbeam/debug";
-import { expected, verified } from "@starbeam/verify";
+import { expected, isPresent, verified } from "@starbeam/verify";
 import type { RenderedContent } from "../../program-node/interfaces/rendered-content.js";
+import { mutable } from "../../verify.js";
 import type { DomEnvironment } from "../environment.js";
 
 export class ContentCursor {
@@ -17,7 +17,7 @@ export class ContentCursor {
     parent: minimal.ParentNode | null,
     next: minimal.ChildNode | null
   ): ContentCursor {
-    return ContentCursor.create(verified(parent, is.Present), next);
+    return ContentCursor.create(verified(parent, isPresent), next);
   }
 
   protected constructor(
@@ -77,7 +77,7 @@ export class RangeSnapshot {
     first: minimal.ChildNode,
     last: minimal.ChildNode = first
   ): RangeSnapshot {
-    let parent = verified(first.parentNode, is.Present);
+    let parent = verified(first.parentNode, isPresent);
 
     assert(
       parent === last.parentNode,
@@ -150,7 +150,7 @@ export class RangeSnapshot {
     while (true) {
       let next = verified(
         current.nextSibling,
-        is.Present,
+        isPresent,
         expected.as(
           `nextSibling when iterating forwards through a RangeSnapshot`
         )

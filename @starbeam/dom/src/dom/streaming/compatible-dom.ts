@@ -4,8 +4,14 @@ import type * as browser from "@domtree/browser";
 import type * as minimal from "@domtree/minimal";
 // eslint-disable-next-line import/no-duplicates
 import type { Mutable } from "@domtree/minimal";
-import { is, minimize, mutable, tap } from "@starbeam/core";
-import { exhaustive, verified, verify } from "@starbeam/verify";
+import { exhaustive, isPresent, verified, verify } from "@starbeam/verify";
+import {
+  isAttr,
+  isElement,
+  isParentNode,
+  minimize,
+  mutable,
+} from "../../verify.js";
 import type { DomEnvironment } from "../environment.js";
 import { ContentCursor, RangeSnapshot } from "./cursor.js";
 import {
@@ -94,14 +100,14 @@ export abstract class ContentRange {
   get before(): ContentCursor {
     let end = this.end;
     return ContentCursor.create(
-      verified(end.parentNode, is.Present),
+      verified(end.parentNode, isPresent),
       end.nextSibling
     );
   }
 
   get after(): ContentCursor {
     let start = this.start;
-    return ContentCursor.create(verified(start.parentNode, is.Present), start);
+    return ContentCursor.create(verified(start.parentNode, isPresent), start);
   }
 }
 
@@ -133,13 +139,12 @@ export class MutateContentRange {
   }
 
   remove(): ContentCursor {
-    return tap(
-      ContentCursor.create(
-        verified(this.#start.parentNode, is.Present),
-        this.#start.nextSibling
-      ),
-      () => this.toLiveRange().deleteContents()
+    const cursor = ContentCursor.create(
+      verified(this.#start.parentNode, isPresent),
+      this.#start.nextSibling
     );
+    this.toLiveRange().deleteContents();
+    return cursor;
   }
 }
 
@@ -204,7 +209,7 @@ export class AbstractDOM {
   // }
 
   getNodeType(node: dom.Node): number {
-    verify(node, is.Node);
+    verify(node, isPresent);
     return node.nodeType;
   }
 
@@ -273,7 +278,7 @@ export class AbstractDOM {
   }
 
   updateAttr(attr: dom.Attr, value: string | null): void {
-    verify(attr, is.Attr);
+    verify(attr, isAttr);
     if (value === null) {
       this.removeAttr(attr);
     } else {
@@ -282,7 +287,7 @@ export class AbstractDOM {
   }
 
   removeAttr(attr: dom.Attr): void {
-    MINIMAL.removeAttr(verified(attr, is.Attr));
+    MINIMAL.removeAttr(verified(attr, isAttr));
   }
 
   /**
@@ -293,7 +298,7 @@ export class AbstractDOM {
    * @param qualifiedName
    */
   getAttr(element: dom.Element, qualifiedName: string): minimal.Attr | null {
-    verify(element, is.Element);
+    verify(element, isElement);
     return MINIMAL.getAttr(element, qualifiedName);
   }
 
@@ -305,13 +310,13 @@ export class AbstractDOM {
    * https://html.spec.whatwg.org/multipage/parsing.html#adjust-foreign-attributes
    */
   setAttr(element: dom.Element, qualifiedName: string, value: string): void {
-    verify(element, is.Element);
+    verify(element, isElement);
 
     MINIMAL.setAttr(mutable(element), qualifiedName, value);
   }
 
   hasAttr(element: dom.Element, qualifiedName: string): boolean {
-    verify(element, is.Element);
+    verify(element, isElement);
 
     return MINIMAL.hasAttr(element, qualifiedName);
   }
@@ -449,7 +454,7 @@ export class MinimalUtilities {
     child: minimal.ChildNode,
     atCursor: (cursor: ContentCursor) => T
   ): T {
-    let parent = verified(child.parentNode, is.ParentNode);
+    let parent = verified(child.parentNode, isParentNode);
     let next = child.nextSibling as minimal.ChildNode | null;
 
     (child as Mutable<minimal.ChildNode>).remove();
@@ -545,17 +550,17 @@ export class MinimalDocumentUtilities {
     first: minimal.ChildNode,
     last: minimal.ChildNode = first
   ): minimal.LiveRange {
-    return tap(minimize(this.environment.liveRange()), (range) => {
-      range.setStartBefore(first);
-      range.setEndAfter(last);
-    });
+    const range = minimize(this.environment.liveRange());
+    range.setStartBefore(first);
+    range.setEndAfter(last);
+    return range;
   }
 
   rangeAppendingTo(parent: minimal.ParentNode): minimal.LiveRange {
-    return tap(minimize(this.environment.liveRange()), (range) => {
-      range.selectNodeContents(parent);
-      range.collapse();
-    });
+    const range = minimize(this.environment.liveRange());
+    range.selectNodeContents(parent);
+    range.collapse();
+    return range;
   }
 }
 

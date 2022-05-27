@@ -14,6 +14,7 @@
   "version": "0.5.0",
   "dependencies": {
     "@starbeam/fundamental": "workspace:*",
+    "@starbeam/verify": "workspace:*",
     "treeify": "^1.1.0"
   },
   "devDependencies": {

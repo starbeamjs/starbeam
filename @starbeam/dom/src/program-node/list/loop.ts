@@ -1,12 +1,12 @@
 import type { minimal } from "@domtree/flavors";
-import { is, NonemptyList, OrderedIndex } from "@starbeam/core";
+import { NonemptyList, OrderedIndex } from "@starbeam/core";
 import { CompositeInternals, Reactive, Static } from "@starbeam/reactive";
 import {
   REACTIVE,
   type ReactiveInternals,
   type ReactiveProtocol,
 } from "@starbeam/timeline";
-import { expected, verified } from "@starbeam/verify";
+import { expected, isPresent, verified } from "@starbeam/verify";
 import type { DomEnvironment } from "../../dom.js";
 import type { ContentRange } from "../../dom/streaming/compatible-dom.js";
 import { RangeSnapshot, RANGE_SNAPSHOT } from "../../dom/streaming/cursor.js";
@@ -16,6 +16,7 @@ import {
   TOKEN,
   TreeConstructor,
 } from "../../dom/streaming/tree-constructor.js";
+import { isComment } from "../../verify.js";
 import type { Component } from "../component.js";
 import { ContentProgramNode } from "../content.js";
 import { RenderedCharacterData } from "../data.js";
@@ -295,7 +296,7 @@ export class RenderedStaticList extends RenderedContent {
   [RANGE_SNAPSHOT](parent: minimal.ParentNode): RangeSnapshot {
     let [start, end] = verified(
       this.#artifacts.boundaries,
-      is.Present,
+      isPresent,
       expected
         .as(`artifact boundaries`)
         .when(`the list is a RenderedStaticList`)
@@ -374,7 +375,7 @@ class Fragment {
     if (this.#placeholder === undefined) {
       this.#placeholder = verified(
         this.#lazy.get(inside).asNode(),
-        is.Comment,
+        isComment,
         expected
           .as(`the ContentRange for a rendered list`)
           .when(`the list was empty`)
@@ -383,7 +384,7 @@ class Fragment {
 
     return verified(
       this.#placeholder,
-      is.Present,
+      isPresent,
       expected
         .as(`The ContentRange for a rendered list`)
         .when(`the list was empty`)

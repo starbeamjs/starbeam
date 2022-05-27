@@ -1,6 +1,5 @@
 import type { minimal } from "@domtree/flavors";
-import { is } from "@starbeam/core";
-import { verified } from "@starbeam/verify";
+import { isPresent, verified } from "@starbeam/verify";
 import type { DomEnvironment } from "../environment.js";
 import { MINIMAL } from "./compatible-dom.js";
 import type { ContentCursor } from "./cursor.js";
@@ -130,5 +129,5 @@ export class LazyDOM<Hydrated> {
 
 // @internal
 export function tokenId(token: Token): string {
-  return verified(TOKEN_IDS.get(token), is.Present);
+  return verified(TOKEN_IDS.get(token), isPresent);
 }

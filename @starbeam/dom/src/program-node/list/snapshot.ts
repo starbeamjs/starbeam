@@ -1,5 +1,6 @@
 import type { minimal } from "@domtree/flavors";
-import { is, NonemptyList, OrderedIndex } from "@starbeam/core";
+import { NonemptyList, OrderedIndex } from "@starbeam/core";
+import { isPresent } from "@starbeam/verify";
 import type { RenderedContent } from "../interfaces/rendered-content.js";
 import type { ContentsIndex } from "./loop.js";
 
@@ -59,7 +60,7 @@ export class RenderSnapshot {
 
   getPresent(keys: readonly unknown[]): readonly KeyedContent[] {
     let contents = this.contents;
-    return keys.map((key) => contents.get(key)).filter(is.Present);
+    return keys.map((key) => contents.get(key)).filter(isPresent);
   }
 
   get keys(): readonly unknown[] {

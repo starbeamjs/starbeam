@@ -95,4 +95,6 @@ export function Cell<T>(
 Cell.is = <T>(value: unknown | Reactive<T>): value is Cell<T> =>
   isObject(value) && value instanceof ReactiveCell;
 
+expected.associate(Cell.is, expected.toBe(`a cell`));
+
 export type Cell<T = unknown> = ReactiveCell<T>;

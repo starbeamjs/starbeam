@@ -1,10 +1,11 @@
 export {
   exhaustive,
-  present,
-  Verifier,
-  type PartialVerifier,
-} from "./src/assert.js";
-export { isPresent } from "./src/presence.js";
-export { isEqual, isOneOf, matches, matchesAny } from "./src/verifiers.js";
-export { CreatedContext, VerifyContext } from "./src/verify-context.js";
-export { Expected, expected, verified, verify } from "./src/verify2.js";
+  hasItems,
+  hasLength,
+  isEqual,
+  isNullable,
+  isPresent,
+} from "./src/assertions/basic.js";
+export { isOneOf } from "./src/assertions/multi.js";
+export { hasType, type TypeOf } from "./src/assertions/types.js";
+export { Expected, expected, verified, verify } from "./src/verify.js";

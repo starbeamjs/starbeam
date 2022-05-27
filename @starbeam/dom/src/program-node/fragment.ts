@@ -1,8 +1,8 @@
 import type { ParentNode } from "@domtree/minimal";
-import { has, NonemptyList } from "@starbeam/core";
+import { NonemptyList } from "@starbeam/core";
 import { CompositeInternals } from "@starbeam/reactive";
 import { REACTIVE, ReactiveInternals } from "@starbeam/timeline";
-import { verify } from "@starbeam/verify";
+import { hasItems, verify } from "@starbeam/verify";
 import { RangeSnapshot, RANGE_SNAPSHOT } from "../dom/streaming/cursor.js";
 import type { ContentConstructor } from "../dom/streaming/tree-constructor.js";
 import type { ContentProgramNode } from "./content.js";
@@ -65,7 +65,7 @@ export class RenderedFragmentNode extends RenderedContent {
   }
 
   [RANGE_SNAPSHOT](inside: ParentNode): RangeSnapshot {
-    verify(this.#content, has.items);
+    verify(this.#content, hasItems);
 
     let first = this.#content[0];
     let last = this.#content[this.#content.length - 1];

@@ -1,3 +1,4 @@
+export { isParentNode } from "../dom/src/verify.js";
 export { assert, assertCondition } from "./src/assert.js";
 export {
   DisplayStruct,

@@ -1,7 +1,13 @@
 import type { minimal } from "@domtree/flavors";
-import { has, is } from "@starbeam/core";
 import { assert } from "@starbeam/debug";
-import { expected, verified, verify } from "@starbeam/verify";
+import {
+  expected,
+  hasLength,
+  isPresent,
+  verified,
+  verify,
+} from "@starbeam/verify";
+import { isCharacterData, isElement, isTemplateElement } from "../../verify.js";
 import type { ContentBuffer, ElementHeadBuffer } from "../buffer/body.js";
 import type { DomEnvironment } from "../environment.js";
 import { ContentRange, ContentRangeNode, MINIMAL } from "./compatible-dom.js";
@@ -84,7 +90,7 @@ export class AttributeMarker implements AbstractHydration<minimal.Attr> {
     let attrName = String.raw`data-starbeam-marker:attr:${tokenId(token)}`;
     let element = findElement(container, attrSelector(attrName));
 
-    let attr = verified(element.getAttributeNode(attrName), is.Present);
+    let attr = verified(element.getAttributeNode(attrName), isPresent);
     element.removeAttribute(attrName);
     return attr;
   }
@@ -154,7 +160,7 @@ export class CharacterDataMarker extends RangeMarker<minimal.ReadonlyCharacterDa
     let range = Markers.find(container, token).hydrateRange(environment);
 
     assert(ContentRangeNode.is(range));
-    verify(range.node, is.CharacterData);
+    verify(range.node, isCharacterData);
 
     return range.node;
   }
@@ -185,8 +191,8 @@ class Markers {
       attrSelector(`data-starbeam-marker:end`, tokenId(token))
     );
 
-    verify(start, is.TemplateElement);
-    verify(end, is.TemplateElement);
+    verify(start, isTemplateElement);
+    verify(end, isTemplateElement);
 
     return new Markers(start, end);
   }
@@ -214,8 +220,8 @@ class Markers {
         return ContentRange.empty(comment);
       });
     } else {
-      verify(first, is.Present);
-      verify(last, is.Present);
+      verify(first, isPresent);
+      verify(last, isPresent);
 
       MINIMAL.remove(this.#start);
       MINIMAL.remove(this.#end);
@@ -241,10 +247,10 @@ export function findElement(
 ): minimal.Element {
   let elements = [...findElements(container, selector)];
 
-  verify(elements, has.length(1), expected.as(`${selector} in ${container}`));
+  verify(elements, hasLength(1), expected.as(`${selector} in ${container}`));
   verify(
     elements[0],
-    is.Element,
+    isElement,
     expected.as(`the first child of ${container}`)
   );
 
@@ -256,7 +262,7 @@ export function findElements(
   selector: string
 ): IterableIterator<minimal.ChildNode> {
   function* iterate(): IterableIterator<minimal.ChildNode> {
-    if (is.Element(container) && container.matches(selector)) {
+    if (isElement(container) && container.matches(selector)) {
       yield container;
     }
 

@@ -1,10 +1,12 @@
-import { has, is, Position, positioned } from "@starbeam/core";
+import { Position, positioned } from "@starbeam/core";
 import { assert, QualifiedName, Wrapper } from "@starbeam/debug";
 import { isObject } from "@starbeam/fundamental";
 import {
   exhaustive,
   expected,
-  present,
+  hasType,
+  isNullable,
+  isPresent,
   verified,
   verify,
 } from "@starbeam/verify";
@@ -118,7 +120,7 @@ export class ConcatAttribute extends HtmlAttribute {
     if (ConcatAttribute.is(value)) {
       return value.#value;
     } else {
-      verify(value, is.nullable(has.typeof("string")));
+      verify(value, isNullable(hasType("string")));
       return value ? [value] : null;
     }
   }
@@ -150,7 +152,7 @@ export class ClobberAttribute extends HtmlAttribute {
     } else {
       verify(
         newValue,
-        is.nullable(has.typeof("string")),
+        isNullable(hasType("string")),
         expected(`value passed to ClobberAttribute#merge`).toBe(
           `another ClobberAttribute, a string or null`
         )
@@ -192,7 +194,7 @@ export class IdempotentAttribute extends HtmlAttribute {
     if (IdempotentAttribute.is(value)) {
       return value.#value;
     } else {
-      return verified(value, is.nullable(has.typeof("string")));
+      return verified(value, isNullable(hasType("string")));
     }
   }
 
@@ -213,7 +215,7 @@ export class AttributesBuffer implements Serialize {
   }
 
   merge(name: QualifiedName, value: string | null): void {
-    let attr = present(this.#attrs.get(Wrapper.getInner(name)));
+    let attr = verified(this.#attrs.get(Wrapper.getInner(name)), isPresent);
     attr.merge(value);
   }
 

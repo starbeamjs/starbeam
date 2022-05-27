@@ -21,3 +21,9 @@ export {
   type FragmentProgramNode,
 } from "./src/program-node/fragment.js";
 export { Root } from "./src/root.js";
+export {
+  isAttr,
+  isCharacterData,
+  isComment,
+  isDocument,
+} from "./src/verify.js";

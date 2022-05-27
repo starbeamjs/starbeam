@@ -1,11 +1,11 @@
 import type { minimal } from "@domtree/flavors";
-import { is, NonemptyList, OrderedIndex } from "@starbeam/core";
+import { NonemptyList, OrderedIndex } from "@starbeam/core";
 import {
   REACTIVE,
   type ReactiveInternals,
   type ReactiveProtocol,
 } from "@starbeam/timeline";
-import { exhaustive, verified } from "@starbeam/verify";
+import { exhaustive, isPresent, verified } from "@starbeam/verify";
 import { getPatch, type Patch } from "fast-array-diff";
 import type { DomEnvironment } from "../../dom/environment.js";
 import {
@@ -98,7 +98,7 @@ export class ListArtifacts {
     }
 
     let mergedIndex = this.#last.contents.mergedMap(updates);
-    let newList = newKeys.map((key) => mergedIndex.get(key)).filter(is.Present);
+    let newList = newKeys.map((key) => mergedIndex.get(key)).filter(isPresent);
 
     if (newList.length === 0) {
       this.#last = RenderSnapshot.of(null);
@@ -152,13 +152,13 @@ export class ListArtifacts {
 
               if (removes.has(key)) {
                 removes.delete(key);
-                let current = verified(this.#last.get(key), is.Present);
+                let current = verified(this.#last.get(key), isPresent);
 
                 operations.push(MoveOperation.create(current, insertion));
               } else {
                 operations.push(
                   InsertOperation.create(
-                    verified(loop.get(key), is.Present),
+                    verified(loop.get(key), isPresent),
                     insertion
                   )
                 );
@@ -184,7 +184,7 @@ export class ListArtifacts {
   }
 
   #existing(key: unknown): KeyedContent {
-    return verified(this.#last.get(key), is.Present);
+    return verified(this.#last.get(key), isPresent);
   }
 
   #insertBeforeContent(next: KeyedContent): InsertAt {

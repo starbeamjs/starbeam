@@ -5,7 +5,7 @@ import { subscribe } from "../glue/sync.js";
 export function Log(
   blueprint: () => void,
   description = Stack.describeCaller()
-): Linkable<void> {
+): Linkable<StatefulFormula<void>> {
   const expression = Formula(blueprint, description);
 
   return StatefulFormula((log) => {
@@ -19,6 +19,6 @@ export function Log(
       )
     );
 
-    return () => null;
+    return () => undefined as void;
   }, description);
 }

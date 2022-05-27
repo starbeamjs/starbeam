@@ -1,5 +1,3 @@
-import type { InferReturn } from "@starbeam/utils";
-
 export function verify<T, U extends T>(
   value: T,
   check: (input: T) => input is U,
@@ -56,18 +54,19 @@ export class Expected<In> {
     );
   }
 
-  readonly #description: string | undefined;
-  readonly #to:
-    | [relationship: "to be" | "to have", description: string]
+  readonly #description: string | void | undefined;
+  readonly #to: To | void | undefined;
+  readonly #actual:
+    | ((input: In) => string | void | undefined)
+    | void
     | undefined;
-  readonly #actual: ((input: In) => string | undefined) | undefined;
-  readonly #when: string | undefined;
+  readonly #when: string | void | undefined;
 
   private constructor(
-    description: string | undefined,
-    to: [relationship: "to be" | "to have", description: string] | undefined,
-    got: ((input: In) => string | undefined) | undefined,
-    when: string | undefined
+    description: string | void | undefined,
+    to: To | void | undefined,
+    got: ((input: In) => string | void | undefined) | void | undefined,
+    when: string | void | undefined
   ) {
     this.#description = description;
     this.#to = to;
@@ -75,14 +74,16 @@ export class Expected<In> {
     this.#when = when;
   }
 
+  as(description: string): Expected<In> {
+    return new Expected(description, this.#to, this.#actual, this.#when);
+  }
+
   update<NewIn>(updater: Updater<In, NewIn>): Expected<NewIn> {
     const description = updater.description
       ? updater.description(this.#description)
       : this.#description;
     const updatedTo = updater.to ? updater.to(this.#to) : this.#to;
-    const to:
-      | [relationship: "to be" | "to have", description: string]
-      | undefined =
+    const to: To | void =
       typeof updatedTo === "string"
         ? [this.#to?.[0] ?? "to be", updatedTo]
         : updatedTo;
@@ -145,6 +146,9 @@ export class Expected<In> {
   }
 }
 
+export type Relationship = "to be" | "to have" | "to be one of";
+export type To = [relationship: Relationship, kind: string];
+
 export function expected(description?: string): Expected<any> {
   return Expected.create(description);
 }
@@ -164,21 +168,16 @@ expected.associate = <Check extends (input: In) => any, In>(
   expected: Expected<In>
 ): Check extends infer C ? C : never => {
   ASSOCIATED.set(check, expected);
-  return check as InferReturn;
+  return check as any;
 };
 
 interface Updater<In, NewIn = In> {
-  description?: (description: string | undefined) => string | undefined;
-  to?: (
-    to: [relationship: "to be" | "to have", description: string] | undefined
-  ) =>
-    | string
-    | undefined
-    | [relationship: "to be" | "to have", description: string];
+  description?: (description: string | void | undefined) => string | void;
+  to?: (to: To | void | undefined) => string | To | void;
   actual?: (
-    actual: ((input: In) => string | undefined) | undefined
-  ) => ((input: NewIn) => string | undefined) | undefined;
-  when?: (when: string | undefined) => string | undefined;
+    actual: ((input: In) => string | void) | void | undefined
+  ) => ((input: NewIn) => string | void) | void;
+  when?: (when: string | void | undefined) => string | void;
 }
 
 expected.updated = <In, NewIn = In>(

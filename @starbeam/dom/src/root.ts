@@ -1,5 +1,4 @@
 import type { anydom, minimal } from "@domtree/flavors";
-import { minimize } from "@starbeam/core";
 import { Root as CoreRoot, type RenderedRoot } from "@starbeam/output";
 import type { JSDOM } from "jsdom";
 import { ReactiveDOM } from "./dom.js";
@@ -7,6 +6,7 @@ import { DomEnvironment } from "./dom/environment.js";
 import { DOM, MINIMAL } from "./dom/streaming/compatible-dom.js";
 import { TreeConstructor } from "./dom/streaming/tree-constructor.js";
 import type { ContentProgramNode } from "./program-node/content.js";
+import { minimize } from "./verify.js";
 
 export class Root extends CoreRoot {
   static jsdom(jsdom: JSDOM): Root {

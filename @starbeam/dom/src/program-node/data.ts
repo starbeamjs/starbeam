@@ -1,5 +1,4 @@
 import type * as minimal from "@domtree/minimal";
-import { mutable } from "@starbeam/core";
 import type { Reactive } from "@starbeam/reactive";
 import { REACTIVE, ReactiveInternals } from "@starbeam/timeline";
 import type { ContentBuffer } from "../dom/buffer/body.js";
@@ -9,6 +8,7 @@ import {
   ContentConstructor,
   TOKEN,
 } from "../dom/streaming/tree-constructor.js";
+import { mutable } from "../verify.js";
 import type { ContentProgramNode } from "./content.js";
 import { RenderedContent } from "./interfaces/rendered-content.js";
 

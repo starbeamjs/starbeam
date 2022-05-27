@@ -14,7 +14,5 @@ export {
 } from "./src/hooks/modifier.js";
 export * from "./src/public.js";
 export { IndexMap } from "./src/reactive/index-map.js";
-export * from "./src/strippable/core.js";
-export * from "./src/strippable/minimal.js";
 export * from "./src/utils.js";
 export * from "./src/utils/index-map.js";
