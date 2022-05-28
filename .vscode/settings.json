@@ -64,14 +64,8 @@
   "quokka.suppressGlyphMarginNotifications": false,
   "vitest.enable": true,
   "vitest.include": ["packages/*/tests/**/*.spec.ts"],
-  "vitest.exclude": [
-    "**/node_modules/**",
-    "**/dist/**",
-    "**/cypress/**",
-    "**/.{idea,git,cache,output,temp}/**",
-    "@starbeam/**"
-  ],
   "typescript.preferences.includePackageJsonAutoImports": "auto",
   "typescript.updateImportsOnFileMove.enabled": "always",
-  "typescript.tsserver.experimental.enableProjectDiagnostics": true
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+  "testing.automaticallyOpenPeekView": "never"
 }

@@ -1,5 +1,3 @@
-import { DebugFinalizer, DebugObjectLifetime } from "@starbeam/debug";
-import { isObject } from "@starbeam/fundamental";
 import { TIMELINE } from "./timeline/timeline.js";
 
 export class Lifetime {

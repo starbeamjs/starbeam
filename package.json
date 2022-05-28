@@ -92,7 +92,8 @@
   },
   "pnpm": {
     "overrides": {
-      "typescript": "4.8.0-dev.20220526"
+      "typescript": "4.8.0-dev.20220528",
+      "vite": "^2.9.9"
     }
   },
   "nodemonConfig": {

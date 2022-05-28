@@ -4,14 +4,15 @@ export {
   hasLength,
   isEqual,
   isNullable,
+  isObject,
   isPresent,
 } from "./src/assertions/basic.js";
 export { isOneOf } from "./src/assertions/multi.js";
-export { hasType, type TypeOf } from "./src/assertions/types.js";
+export { type TypeOf, hasType } from "./src/assertions/types.js";
 export {
+  type Expectation,
   expected,
   VerificationError,
   verified,
   verify,
-  type Expectation,
 } from "./src/verify.js";

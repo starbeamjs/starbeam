@@ -1,11 +1,10 @@
-import { config, Priority } from "@starbeam/config";
 import { Stack } from "@starbeam/debug-utils";
-import { Coordinator, COORDINATOR, Work } from "@starbeam/schedule";
 import { LOGGER } from "@starbeam/trace-internals";
 import { assert } from "console";
-import { ActiveFrame, AssertFrame, type FinalizedFrame } from "./frames.js";
+
+import { type FinalizedFrame, ActiveFrame, AssertFrame } from "./frames.js";
 import type { MutableInternals } from "./internals.js";
-import { REACTIVE, type Reactive, type ReactiveProtocol } from "./reactive.js";
+import { type Reactive, type ReactiveProtocol, REACTIVE } from "./reactive.js";
 import { Renderable, Renderables } from "./renderable.js";
 import { Timestamp } from "./timestamp.js";
 

@@ -48,7 +48,7 @@ function formatChildren(
 
 function formatParent(
   [label, ...children]: ParentNode,
-  { depth, isLast }: { depth: number; isLast: boolean }
+  { depth }: { depth: number; isLast: boolean }
 ): string {
   const title = `${prefix({ depth, isLast: false })} ${label}`;
 

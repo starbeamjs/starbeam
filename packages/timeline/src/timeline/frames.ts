@@ -1,11 +1,10 @@
-import { LOGGER } from "@starbeam/trace-internals";
 import {
-  InternalChildren,
   type IsUpdatedSince,
   type MutableInternals,
-  type ReactiveInternals
+  type ReactiveInternals,
+  InternalChildren,
 } from "./internals.js";
-import { REACTIVE, type ReactiveProtocol } from "./reactive.js";
+import { type ReactiveProtocol, REACTIVE } from "./reactive.js";
 import type { Timestamp } from "./timestamp.js";
 
 export class AssertFrame {
@@ -113,7 +112,7 @@ export class FinalizedFrame<T = unknown>
         );
       },
       children: () => {
-        return InternalChildren.from(this.children)
+        return InternalChildren.from(this.children);
       },
     };
   }

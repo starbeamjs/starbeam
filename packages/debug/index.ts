@@ -1,4 +1,3 @@
-export { isParentNode } from "../../@starbeam/dom/src/verify.js";
 export {
   type DisplayStructOptions,
   DisplayStruct,
@@ -10,6 +9,8 @@ export {
   DEBUG_NAME,
   INSPECT,
 } from "./src/inspect/inspect-support.js";
+export { describeModule } from "./src/module.js";
+export { Stack, StackFrame } from "./src/stack.js";
 export { Tree } from "./src/tree.js";
 export {
   type OpaqueAlias,

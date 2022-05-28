@@ -1,10 +1,10 @@
 export {
+  type IntoFinalizer,
+  type OnDestroy,
   Finalizer,
   LIFETIME,
   Lifetime,
   ObjectLifetime,
-  type IntoFinalizer,
-  type OnDestroy,
 } from "./src/lifetime.js";
 export {
   IS_UPDATED_SINCE,
@@ -12,21 +12,20 @@ export {
   UNINITIALIZED,
   UNINITIALIZED_REACTIVE,
 } from "./src/timeline/constants.js";
-export { FinalizedFrame, type FrameValidation } from "./src/timeline/frames.js";
+export { type FrameValidation, FinalizedFrame } from "./src/timeline/frames.js";
 export {
-  InternalChildren,
-  ReactiveInternals,
   type CompositeInternals,
   type MutableInternals,
   type StaticInternals,
+  InternalChildren,
+  ReactiveInternals,
 } from "./src/timeline/internals.js";
+export { type ReactiveProtocol, REACTIVE } from "./src/timeline/reactive.js";
 export { type ReactiveDependencies } from "./src/timeline/reactive-node.js";
-export { REACTIVE, type ReactiveProtocol } from "./src/timeline/reactive.js";
 export { Renderable } from "./src/timeline/renderable.js";
 export {
-  TIMELINE,
   type FormulaResult,
   type StartedFormula,
+  TIMELINE,
 } from "./src/timeline/timeline.js";
 export { INSPECT, Timestamp } from "./src/timeline/timestamp.js";
-
