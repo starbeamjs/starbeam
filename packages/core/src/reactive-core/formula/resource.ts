@@ -23,7 +23,7 @@ import {
   REACTIVE,
 } from "@starbeam/timeline";
 
-import type { ReactiveValue } from "../../reactive.js";
+import type { Reactive } from "../../reactive.js";
 import { CompositeInternals } from "../../storage/composite.js";
 import { Marker } from "../marker.js";
 import type { Formula } from "./formula.js";
@@ -39,7 +39,7 @@ interface ResourceState<T> {
   readonly formula: Formula<T>;
 }
 
-class ReactiveResource<T> implements ReactiveValue<T> {
+class ReactiveResource<T> implements Reactive<T> {
   static create<T>(
     create: ResourceConstructor<T>,
     description = Stack.describeCaller()

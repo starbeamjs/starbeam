@@ -3,5 +3,8 @@
   "version": "0.9.0",
   "private": true,
   "type": "module",
-  "types": "index.ts"
+  "types": "index.ts",
+  "dependencies": {
+    "@domtree/interface": "workspace:*"
+  }
 }

@@ -7,14 +7,6 @@
     "types": true,
     "**/dist": true
   },
-  "files.autoSave": "onFocusChange",
-
-  "search.exclude": {
-    "**/node_modules": true,
-    "**/bower_components": true,
-    "**/*.code-search": true,
-    "**/dist": true
-  },
 
   "explorer.fileNesting.patterns": {
     "*.ts": "${capture}.js",
@@ -34,41 +26,20 @@
     "source.organizeImports": false
   },
 
-  "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-
-  "html.customData": ["./node_modules/documentary/web-components.json"],
-
   "typescript.preferences.importModuleSpecifier": "project-relative",
-  "editor.semanticHighlighting.enabled": true,
+  "javascript.preferences.importModuleSpecifierEnding": "js",
+  "typescript.preferences.importModuleSpecifierEnding": "js",
 
   "npm.packageManager": "pnpm",
   "eslint.packageManager": "yarn",
-  "javascript.preferences.importModuleSpecifierEnding": "js",
-  "typescript.preferences.importModuleSpecifierEnding": "js",
   "typescript.tsdk": "node_modules/typescript/lib",
-  "quokka.codeAutoPlayDelay": 1000,
-  "quokka.automaticRestart": true,
-  "quokka.automaticStartRegex": "quokka\\.[tj]s$|quokka/*.[tjs]$",
-  "quokka.compactMessageOutput": false,
-  "quokka.darkTheme.log.decorationAttachmentRenderOptions": {
-    "border": "2px dashed",
-    "borderColor": "hsla(50, 20%, 20%, 0.5) transparent",
-    "fontWeight": "500",
-    "textDecoration": "none",
-    "color": "#9996",
-    "backgroundColor": "#2222229",
-    "margin": "1rem"
-  },
-  "quokka.suppressGlyphMarginNotifications": false,
+
   "vitest.enable": true,
-  "vitest.include": ["packages/*/tests/**/*.spec.ts"],
-  "vitest.exclude": [
-    "tests/**",
-    "@starbeam/**",
-    "packages/*/tests/node_modules/**"
+  "vitest.include": [
+    "packages/*/tests/**/*.spec.ts",
+    "framework/*/*/tests/**/*.spec.ts"
   ],
+  "vitest.exclude": ["tests/**", "packages/*/tests/node_modules/**"],
   "typescript.preferences.includePackageJsonAutoImports": "auto",
   "typescript.updateImportsOnFileMove.enabled": "always",
   "typescript.tsserver.experimental.enableProjectDiagnostics": true,

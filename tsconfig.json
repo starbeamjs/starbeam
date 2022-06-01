@@ -23,17 +23,11 @@
     "skipDefaultLibCheck": true
   },
   "include": [
-    "tests/framework/setup.ts",
-    "@starbeam/*/index.ts",
-    "@starbeam/*/*/examples/**/*.ts",
-    "@starbeam/*/src/**/*.ts",
-    "@starbeam/*/tests/**/*.spec.ts",
-    "tests/specs/**/*.spec.ts",
-    "tests/specs/formula.spec.ts",
     "packages/*/index.ts",
     "packages/*/src/**/*.ts",
     "packages/*/tests/**/*.ts",
-    "packages/now/constants.ts"
+    "framework/*/*/src/**/*.ts",
+    "framework/*/*/tests/**/*.spec.ts"
   ],
   "ts-node": {
     "swc": true,

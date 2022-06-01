@@ -1,9 +1,0 @@
-[book]
-authors = ["Yehuda Katz"]
-language = "en"
-multilingual = false
-src = "src"
-title = "Starbeam Low-Level Guide"
-
-[output.html]
-mathjax-support = true

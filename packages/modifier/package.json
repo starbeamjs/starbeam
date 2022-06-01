@@ -1,0 +1,22 @@
+{
+  "name": "@starbeam/modifier",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.ts",
+  "exports": {
+    ".": {
+      "types": "./index.js",
+      "import": {
+        "node": "./index.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "dependencies": {
+    "@starbeam/core": "workspace:*",
+    "@starbeam/debug": "workspace:*",
+    "@starbeam/peer": "workspace:*",
+    "@starbeam/verify": "workspace:*"
+  },
+  "devDependencies": {}
+}

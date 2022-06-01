@@ -3,5 +3,9 @@
   "version": "0.9.0",
   "private": true,
   "type": "module",
-  "types": "index.ts"
+  "types": "index.ts",
+  "dependencies": {
+    "@domtree/browser": "workspace:*",
+    "@domtree/interface": "workspace:*"
+  }
 }

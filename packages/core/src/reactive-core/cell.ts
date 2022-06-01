@@ -1,3 +1,4 @@
+import { isObject } from "@starbeam/core-utils";
 import { DisplayStruct, Stack } from "@starbeam/debug";
 import {
   type ReactiveInternals,
@@ -6,12 +7,12 @@ import {
   TX,
 } from "@starbeam/timeline";
 
-import type { ReactiveValue } from "../reactive.js";
+import type { Reactive } from "../reactive.js";
 import { MutableInternalsImpl } from "../storage/mutable.js";
 
 export type Equality<T> = (a: T, b: T) => boolean;
 
-export class ReactiveCell<T> implements ReactiveValue<T> {
+export class ReactiveCell<T> implements Reactive<T> {
   static create<T>(
     value: T,
     equals: Equality<T>,
@@ -123,5 +124,9 @@ export function Cell<T>(
     );
   }
 }
+
+Cell.is = <T>(value: unknown): value is Cell<T> => {
+  return isObject(value) && value instanceof ReactiveCell;
+};
 
 export type Cell<T = unknown> = ReactiveCell<T>;

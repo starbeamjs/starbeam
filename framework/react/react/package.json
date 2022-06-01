@@ -1,0 +1,38 @@
+{
+  "name": "@starbeam/react",
+  "type": "module",
+  "main": "index.ts",
+  "exports": {
+    ".": {
+      "types": "./index.js",
+      "import": {
+        "node": "./index.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "version": "0.5.0",
+  "dependencies": {
+    "@starbeam/core": "workspace:*",
+    "@starbeam/debug": "workspace:*",
+    "@starbeam/use-resource": "workspace:*",
+    "@starbeam/core-utils": "workspace:*",
+    "@starbeam/verify": "workspace:*",
+    "@starbeam/timeline": "workspace:*",
+    "@starbeam/peer": "workspace:*",
+    "@starbeam/ecmascript": "workspace:*",
+    "@starbeam/modifier": "workspace:*",
+    "@types/use-sync-external-store": "ts4.6",
+    "use-sync-external-store": "rc"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.9",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
+    "typescript": "next"
+  },
+  "peerDependencies": {
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0"
+  }
+}

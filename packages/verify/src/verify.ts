@@ -8,6 +8,16 @@ export function verify<T, U extends T>(
   value: T,
   check: (input: T) => input is U,
   error?: Expectation<T>
+): asserts value is U;
+export function verify<T>(
+  value: T,
+  check: (input: T) => boolean,
+  error?: Expectation<T>
+): asserts value is T;
+export function verify<T, U extends T>(
+  value: T,
+  check: ((input: T) => input is U) | ((input: T) => boolean),
+  error?: Expectation<T>
 ): asserts value is U {
   if (!check(value)) {
     const associated = ASSOCIATED.get(check);
@@ -34,7 +44,8 @@ export function verified<T, U extends T>(
   return value;
 }
 
-export class Expectation<In = unknown> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export class Expectation<In = any> {
   static create(description?: string) {
     return new Expectation(description, undefined, undefined, undefined);
   }
@@ -158,7 +169,7 @@ export class Expectation<In = unknown> {
     }
 
     if (this.#actual) {
-      message += `, but got ${this.#actual(input)}`;
+      message += `, but got ${String(this.#actual(input))}`;
     }
 
     return message;
@@ -168,27 +179,28 @@ export class Expectation<In = unknown> {
 export type Relationship = "to be" | "to have" | "to be one of";
 export type To = [relationship: Relationship, kind: string];
 
-export function expected(description?: string): Expectation<any> {
+export function expected(description?: string): Expectation {
   return Expectation.create(description);
 }
 
 expected.as = expected;
-expected.toBe = (kind: string): Expectation<any> => expected().toBe(kind);
-expected.toHave = (items: string): Expectation<any> => expected().toHave(items);
-expected.when = (situation: string): Expectation<any> =>
-  expected().when(situation);
+expected.toBe = (kind: string): Expectation => expected().toBe(kind);
+expected.toHave = (items: string): Expectation => expected().toHave(items);
+expected.when = (situation: string): Expectation => expected().when(situation);
 expected.butGot = <In>(
   kind: string | ((input: In) => string)
 ): Expectation<In> => expected().butGot(kind);
 
+// eslint-disable-next-line
 const ASSOCIATED: WeakMap<Function, Expectation<any>> = new WeakMap();
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 expected.associate = <Check extends (input: In) => any, In>(
   check: Check,
   expected: Expectation<In>
 ): Check extends infer C ? C : never => {
   ASSOCIATED.set(check, expected);
-  return check as any;
+  return check as Check extends infer C ? C : never;
 };
 
 interface Updater<In, NewIn = In> {

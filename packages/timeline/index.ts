@@ -4,6 +4,7 @@ export {
   type OnCleanup,
   LIFETIME,
 } from "./src/lifetime/api.js";
+export type { Unsubscribe } from "./src/lifetime/object-lifetime.js";
 export { Renderable } from "./src/renderables/renderable.js";
 export { type FrameValidation, FinalizedFrame } from "./src/timeline/frames.js";
 export { InternalChildren } from "./src/timeline/internals.js";

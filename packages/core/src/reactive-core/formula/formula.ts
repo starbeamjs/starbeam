@@ -3,7 +3,7 @@ import { UNINITIALIZED } from "@starbeam/peer";
 import type { FinalizedFrame, ReactiveInternals } from "@starbeam/timeline";
 import { REACTIVE, TIMELINE } from "@starbeam/timeline";
 
-import type { ReactiveValue } from "../../reactive.js";
+import type { Reactive } from "../../reactive.js";
 import { CompositeInternals } from "../../storage/composite.js";
 import { Marker } from "../marker.js";
 
@@ -12,7 +12,7 @@ interface LastEvaluation<T> {
   readonly value: T;
 }
 
-export class ReactiveFormula<T> implements ReactiveValue<T> {
+export class ReactiveFormula<T> implements Reactive<T> {
   static create<T>(formula: () => T, description: string): ReactiveFormula<T> {
     return new ReactiveFormula(
       Marker(description),

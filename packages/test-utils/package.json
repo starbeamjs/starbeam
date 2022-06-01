@@ -1,0 +1,27 @@
+{
+  "name": "@starbeam/test-utils",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "index.ts",
+  "exports": {
+    ".": {
+      "types": "./index.js",
+      "import": {
+        "node": "./index.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "peerDependencies": {
+    "react": "^18.0.0"
+  },
+  "dependencies": {
+    "@testing-library/react": "alpha",
+    "@testing-library/dom": "^8.11.3",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "react": "^18.0.0-rc.3",
+    "react-dom": "^18.0.0-rc.3"
+  }
+}
