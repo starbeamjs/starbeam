@@ -1,4 +1,4 @@
-import { bump, now } from "@starbeam/now";
+import { bump, now } from "@starbeam/peer";
 import { describe, expect, test } from "vitest";
 
 describe("now", () => {

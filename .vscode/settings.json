@@ -35,7 +35,7 @@
   },
 
   "[typescript]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
 
   "html.customData": ["./node_modules/documentary/web-components.json"],
@@ -64,6 +64,11 @@
   "quokka.suppressGlyphMarginNotifications": false,
   "vitest.enable": true,
   "vitest.include": ["packages/*/tests/**/*.spec.ts"],
+  "vitest.exclude": [
+    "tests/**",
+    "@starbeam/**",
+    "packages/*/tests/node_modules/**"
+  ],
   "typescript.preferences.includePackageJsonAutoImports": "auto",
   "typescript.updateImportsOnFileMove.enabled": "always",
   "typescript.tsserver.experimental.enableProjectDiagnostics": true,

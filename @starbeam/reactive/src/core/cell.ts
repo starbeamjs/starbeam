@@ -13,14 +13,14 @@ import { MutableInternalsImpl } from "../internals/mutable.js";
 import type { Reactive, ReactiveValue } from "../reactive.js";
 
 export class ReactiveCell<T> implements ReactiveValue<T> {
-  static create<T>(value: T, internals: MutableInternals): ReactiveCell<T> {
+  static create<T>(value: T, internals: MutableInternalsImpl): ReactiveCell<T> {
     return new ReactiveCell(value, internals);
   }
 
   #value: T;
-  readonly #internals: MutableInternals;
+  readonly #internals: MutableInternalsImpl;
 
-  private constructor(value: T, reactive: MutableInternals) {
+  private constructor(value: T, reactive: MutableInternalsImpl) {
     this.#value = value;
     this.#internals = reactive;
   }

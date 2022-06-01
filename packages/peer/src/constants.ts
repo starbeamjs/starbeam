@@ -1,0 +1,4 @@
+const UNINITIALIZED = Symbol.for("starbeam.UNINITIALIZED");
+type UNINITIALIZED = typeof UNINITIALIZED;
+
+export { UNINITIALIZED };

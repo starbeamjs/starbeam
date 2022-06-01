@@ -2,9 +2,11 @@ export interface DisplayStructOptions {
   readonly description: string;
 }
 
+export type Fields = Record<PropertyKey, unknown>;
+
 export function DisplayStruct(
   name: string,
-  fields: object,
+  fields: Record<PropertyKey, unknown>,
   options?: DisplayStructOptions
 ) {
   let displayName = name;
@@ -17,12 +19,18 @@ export function DisplayStruct(
   Object.defineProperty(constructor, "name", { value: displayName });
   let object = new constructor();
 
-  for (let [key, value] of Object.entries(fields)) {
+  for (let [key, value] of entries(fields)) {
     Object.defineProperty(object, key, {
-      value: value,
+      value,
       enumerable: true,
     });
   }
 
   return object;
+}
+
+type Entries<R extends object> = { [P in keyof R]: [P, R[P]] }[keyof R];
+
+function entries<R extends object>(object: R): Entries<R>[] {
+  return Object.entries(object) as Entries<R>[];
 }

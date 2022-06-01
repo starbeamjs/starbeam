@@ -201,7 +201,7 @@ importers:
       '@starbeam/core': workspace:*
       '@starbeam/reactive': workspace:*
     dependencies:
-      '@starbeam/core': link:../..
+      '@starbeam/core': link:../../../../packages/core
       '@starbeam/reactive': link:../../../reactive
 
   '@starbeam/db':
@@ -215,7 +215,7 @@ importers:
       '@starbeam/utils': workspace:*
       '@starbeam/verify': workspace:*
     dependencies:
-      '@starbeam/core': link:../core
+      '@starbeam/core': link:../../packages/core
       '@starbeam/fundamental': link:../fundamental
       '@starbeam/reactive': link:../reactive
       '@starbeam/utils': link:../utils
@@ -243,7 +243,7 @@ importers:
       fast-array-diff: ^1.0.1
       typescript: 4.8.0-dev.20220528
     dependencies:
-      '@starbeam/core': link:../core
+      '@starbeam/core': link:../../packages/core
       '@starbeam/debug': link:../../packages/debug
       '@starbeam/fundamental': link:../fundamental
       '@starbeam/output': link:../output
@@ -266,7 +266,7 @@ importers:
       '@starbeam/timeline': workspace:*
       '@starbeam/trace-internals': workspace:*
     dependencies:
-      '@starbeam/core': link:../core
+      '@starbeam/core': link:../../packages/core
       '@starbeam/debug': link:../../packages/debug
       '@starbeam/fundamental': link:../fundamental
       '@starbeam/reactive': link:../reactive
@@ -294,7 +294,7 @@ importers:
       use-ssr: ^1.0.24
       use-sync-external-store: rc
     dependencies:
-      '@starbeam/core': link:../core
+      '@starbeam/core': link:../../packages/core
       '@starbeam/debug': link:../../packages/debug
       '@starbeam/debug-utils': link:../debug-utils
       '@starbeam/dom': link:../dom
@@ -508,7 +508,7 @@ importers:
       fast-array-diff: ^1.0.1
       jsdom: ^19.0.0
     dependencies:
-      '@starbeam/core': link:../@starbeam/core
+      '@starbeam/core': link:../packages/core
       '@starbeam/dom': link:../@starbeam/dom
       '@starbeam/reactive': link:../@starbeam/reactive
       fast-array-diff: 1.0.1
@@ -518,7 +518,7 @@ importers:
     specifiers:
       '@starbeam/core': workspace:*
     dependencies:
-      '@starbeam/core': link:../@starbeam/core
+      '@starbeam/core': link:../packages/core
 
   guides/reactivity:
     specifiers:
@@ -534,7 +534,7 @@ importers:
       zen-observable-ts: ^0.8.15
     dependencies:
       '@starbeam/config': link:../../@starbeam/config
-      '@starbeam/core': link:../../@starbeam/core
+      '@starbeam/core': link:../../packages/core
       '@starbeam/react': link:../../@starbeam/react
       '@starbeam/reactive': link:../../@starbeam/reactive
       '@starbeam/verify': link:../../packages/verify
@@ -553,7 +553,7 @@ importers:
       '@types/react': ^17.0.39
       react: rc
     dependencies:
-      '@starbeam/core': link:../../@starbeam/core
+      '@starbeam/core': link:../../packages/core
       '@starbeam/react': link:../../@starbeam/react
       '@types/react': 17.0.39
       react: 18.0.0-rc.3
@@ -590,6 +590,35 @@ importers:
       prettier: 2.6.2
       typescript: 4.8.0-dev.20220528
 
+  packages/core:
+    specifiers:
+      '@starbeam/core-utils': workspace:*
+      '@starbeam/debug': workspace:*
+      '@starbeam/peer': workspace:*
+      '@starbeam/timeline': workspace:*
+      '@starbeam/verify': workspace:*
+    dependencies:
+      '@starbeam/core-utils': link:../core-utils
+      '@starbeam/debug': link:../debug
+      '@starbeam/peer': link:../peer
+      '@starbeam/timeline': link:../timeline
+      '@starbeam/verify': link:../verify
+
+  packages/core-utils:
+    specifiers: {}
+
+  packages/core-utils/tests:
+    specifiers:
+      '@starbeam/core-utils': workspace:*
+    dependencies:
+      '@starbeam/core-utils': link:..
+
+  packages/core/tests:
+    specifiers:
+      '@starbeam/core': workspace:*
+    dependencies:
+      '@starbeam/core': link:..
+
   packages/debug:
     specifiers:
       '@starbeam/verify': workspace:*
@@ -604,22 +633,50 @@ importers:
     dependencies:
       '@starbeam/debug': link:..
 
-  packages/now:
+  packages/ecmascript:
+    specifiers:
+      '@starbeam/core': workspace:*
+      '@starbeam/core-utils': workspace:*
+      '@starbeam/debug': workspace:*
+      '@starbeam/verify': workspace:*
+    dependencies:
+      '@starbeam/core': link:../core
+      '@starbeam/core-utils': link:../core-utils
+      '@starbeam/debug': link:../debug
+      '@starbeam/verify': link:../verify
+
+  packages/ecmascript/tests:
+    specifiers:
+      '@starbeam/core': workspace:*
+      '@starbeam/ecmascript': workspace:*
+    dependencies:
+      '@starbeam/core': link:../../core
+      '@starbeam/ecmascript': link:..
+
+  packages/peer:
     specifiers: {}
 
-  packages/now/tests:
+  packages/peer/tests:
     specifiers:
-      '@starbeam/now': workspace:*
+      '@starbeam/peer': workspace:*
     dependencies:
-      '@starbeam/now': link:..
+      '@starbeam/peer': link:..
 
   packages/timeline:
     specifiers:
       '@starbeam/debug': workspace:*
+      '@starbeam/peer': ^1.0.0
       '@starbeam/verify': workspace:*
     dependencies:
       '@starbeam/debug': link:../debug
+      '@starbeam/peer': link:../peer
       '@starbeam/verify': link:../verify
+
+  packages/timeline/tests:
+    specifiers:
+      '@starbeam/timeline': workspace:*
+    dependencies:
+      '@starbeam/timeline': link:..
 
   packages/verify:
     specifiers: {}
@@ -652,7 +709,7 @@ importers:
       typescript: 4.8.0-dev.20220528
     dependencies:
       '@starbeam/config': link:../@starbeam/config
-      '@starbeam/core': link:../@starbeam/core
+      '@starbeam/core': link:../packages/core
       '@starbeam/debug': link:../packages/debug
       '@starbeam/dom': link:../@starbeam/dom
       '@starbeam/fundamental': link:../@starbeam/fundamental
@@ -5705,7 +5762,7 @@ packages:
     dev: true
 
   /isexe/2.0.0:
-    resolution: {integrity: sha1-6PvzdNxVb/iUehDcsFctYz8s+hA=}
+    resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
 
   /istanbul-lib-coverage/3.2.0:
     resolution: {integrity: sha512-eOeJ5BHCmHYvQK7xt9GkdHuzuCGS1Y6g9Gvnx3Ym33fz/HpLRYxiS0wHNr+m/MBC8B647Xt608vCDEvhl9c6Mw==}

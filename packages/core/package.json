@@ -1,0 +1,23 @@
+{
+  "name": "@starbeam/core",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "index.ts",
+  "exports": {
+    ".": {
+      "types": "./index.js",
+      "import": {
+        "node": "./index.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "dependencies": {
+    "@starbeam/peer": "workspace:*",
+    "@starbeam/debug": "workspace:*",
+    "@starbeam/verify": "workspace:*",
+    "@starbeam/timeline": "workspace:*",
+    "@starbeam/core-utils": "workspace:*"
+  },
+  "devDependencies": {}
+}

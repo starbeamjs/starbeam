@@ -1,11 +1,16 @@
-import { Stack } from "@starbeam/debug-utils";
-import { LOGGER } from "@starbeam/trace-internals";
-import { assert } from "console";
+import { LOGGER, Stack } from "@starbeam/debug";
+import { expected, isEqual, verify } from "@starbeam/verify";
 
+import { Renderable } from "../renderables/renderable.js";
+import { Renderables } from "../renderables/renderables.js";
 import { type FinalizedFrame, ActiveFrame, AssertFrame } from "./frames.js";
-import type { MutableInternals } from "./internals.js";
-import { type Reactive, type ReactiveProtocol, REACTIVE } from "./reactive.js";
-import { Renderable, Renderables } from "./renderable.js";
+import { Queue } from "./queue.js";
+import {
+  type MutableInternals,
+  type Reactive,
+  type ReactiveProtocol,
+  REACTIVE,
+} from "./reactive.js";
 import { Timestamp } from "./timestamp.js";
 
 export abstract class Phase {
@@ -67,7 +72,6 @@ export interface StartedFormula {
 export class Timeline {
   static create(): Timeline {
     return new Timeline(
-      COORDINATOR,
       ActionsPhase.create("initialization"),
       Renderables.create(),
       new Map(),
@@ -95,9 +99,13 @@ export class Timeline {
     done<T>(value: T): FormulaResult<T>;
     done(): FormulaResult<void>;
     done(value?: unknown): FormulaResult<unknown> {
-      assert(
-        TIMELINE.#frame === this.#current,
-        `Formula must be ended with the same frame it was started with`
+      verify(
+        TIMELINE.#frame,
+        isEqual(this.#current),
+        expected
+          .as("the current frame")
+          .when("ending a formula")
+          .toBe(`the same as the frame that started the formula`)
       );
 
       const newFrame = this.#current.finalize(value, TIMELINE.#now);
@@ -111,7 +119,6 @@ export class Timeline {
     }
   };
 
-  readonly #coordinator: Coordinator;
   #phase: Phase;
   #now = Timestamp.initial();
   #frame: ActiveFrame | null = null;
@@ -122,13 +129,11 @@ export class Timeline {
   readonly #onAdvance: Set<() => void>;
 
   private constructor(
-    coordinator: Coordinator,
     phase: RenderPhase | ActionsPhase,
     renderables: Renderables,
     updaters: WeakMap<MutableInternals, Set<() => void>>,
     onAdvance: Set<() => void>
   ) {
-    this.#coordinator = coordinator;
     this.#phase = phase;
     this.#renderables = renderables;
     this.#onUpdate = updaters;
@@ -149,7 +154,7 @@ export class Timeline {
       ready: (renderable: Renderable<T>) => void,
       description = Stack.describeCaller()
     ): Renderable<T> => {
-      const renderable = Renderable.create(input, { ready }, description);
+      const renderable = Renderable.create(input, { ready }, this, description);
       this.#renderables.insert(renderable as Renderable<unknown>);
 
       return renderable;
@@ -216,7 +221,9 @@ export class Timeline {
     this.#now = this.#now.next();
 
     if (this.#onAdvance.size > 0) {
-      this.#enqueue(...this.#onAdvance);
+      this.#enqueue(...this.#onAdvance).catch((e) => {
+        LOGGER.warn.log(`unexpected error during bump: %o`, e);
+      });
     }
 
     this.#notifySubscribers(mutable);
@@ -225,14 +232,11 @@ export class Timeline {
     return this.#now;
   }
 
-  #enqueue(...notifications: (() => void)[]): void {
-    for (let notification of notifications) {
-      this.#coordinator.enqueue(
-        Work.create(
-          config().get("DefaultPriority") ?? Priority.BeforeLayout,
-          notification
-        )
-      );
+  async #enqueue(...notifications: (() => void)[]): Promise<void> {
+    try {
+      await Queue.enqueue(new Set(notifications));
+    } catch (e) {
+      LOGGER.warn.log(`unexpected error during enqueue: %o`, e);
     }
   }
 
@@ -247,7 +251,9 @@ export class Timeline {
       );
 
       if (updaters.size > 0) {
-        this.#enqueue(...updaters);
+        this.#enqueue(...updaters).catch((e) => {
+          LOGGER.warn.log(`unexpected error during notify: %o`, e);
+        });
       }
     }
   }

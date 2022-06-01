@@ -1,0 +1,18 @@
+{
+  "name": "@starbeam/peer",
+  "description": "A handful of variables that should remain stable forever, and can therefore be used as peer dependencies to enable interop between major versions of Starbeam",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.ts",
+  "exports": {
+    ".": {
+      "types": "./index.js",
+      "import": {
+        "node": "./index.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

@@ -1,89 +1,15 @@
-import { UNINITIALIZED } from "@starbeam/fundamental";
-import { WeakMapOfSet } from "@starbeam/utils";
-import { LIFETIME } from "../lifetime.js";
-import type { MutableInternals } from "./internals.js";
-import { REACTIVE, type Reactive } from "./reactive.js";
-import { TIMELINE } from "./timeline.js";
+import { UNINITIALIZED } from "@starbeam/peer";
 
-export class Renderables {
-  static create(): Renderables {
-    return new Renderables(WeakMapOfSet());
-  }
+import { LIFETIME } from "../lifetime/api.js";
+import {
+  type MutableInternals,
+  type Reactive,
+  REACTIVE,
+} from "../timeline/reactive.js";
 
-  readonly #internalsMap: WeakMapOfSet<MutableInternals, Renderable<unknown>>;
-
-  private constructor(
-    internals: WeakMapOfSet<MutableInternals, Renderable<unknown>>
-  ) {
-    this.#internalsMap = internals;
-  }
-
-  prune(renderable: Renderable<unknown>) {
-    const dependencies = Renderable.dependencies(renderable);
-
-    for (const dependency of dependencies) {
-      this.#internalsMap.delete(dependency, renderable);
-    }
-  }
-
-  bumped(dependency: MutableInternals): void {
-    const renderables = this.#internalsMap.get(dependency);
-
-    if (renderables) {
-      for (const renderable of renderables) {
-        Renderable.notifyReady(renderable);
-      }
-    }
-  }
-
-  poll<T>(renderable: Renderable<T>): T {
-    const {
-      add,
-      remove,
-      values: { next },
-    } = Renderable.flush(renderable);
-
-    for (const dep of add) {
-      this.#internalsMap.insert(dep, renderable as Renderable<unknown>);
-    }
-
-    for (const dep of remove) {
-      this.#internalsMap.delete(dep, renderable as Renderable<unknown>);
-    }
-
-    return next;
-  }
-
-  render<T>(
-    renderable: Renderable<T>,
-    changed: (next: T, prev: T | UNINITIALIZED) => void
-  ): void {
-    const {
-      add,
-      remove,
-      values: { prev, next },
-    } = Renderable.flush(renderable);
-
-    if (prev !== next) {
-      changed(next, prev);
-    }
-
-    for (const dep of add) {
-      this.#internalsMap.insert(dep, renderable as Renderable<unknown>);
-    }
-
-    for (const dep of remove) {
-      this.#internalsMap.delete(dep, renderable as Renderable<unknown>);
-    }
-  }
-
-  insert(renderable: Renderable<unknown>) {
-    const dependencies = Renderable.dependencies(renderable);
-
-    for (const dep of dependencies) {
-      this.#internalsMap.insert(dep, renderable);
-    }
-  }
+interface RenderableOperations {
+  prune(renderable: Renderable<unknown>): void;
+  poll<T>(renderable: Renderable<T>): T;
 }
 
 /**
@@ -97,10 +23,11 @@ export class Renderables {
  * `Reactive` object onto an external output. You should use a normal formula or
  * resource if you are trying to compute a value from other values.
  */
-export class Renderable<T> {
+export class Renderable<T = unknown> {
   static create<T>(
     input: Reactive<T>,
     notify: { readonly ready: (renderable: Renderable<T>) => void },
+    operations: RenderableOperations,
     description: string
   ): Renderable<T> {
     const initialDependencies = input[REACTIVE].children().dependencies;
@@ -108,12 +35,13 @@ export class Renderable<T> {
       input,
       notify,
       UNINITIALIZED,
+      operations,
       new Set(initialDependencies),
       description
     );
 
-    LIFETIME.on.finalize(renderable, () =>
-      TIMELINE.prune(renderable as Renderable<unknown>)
+    LIFETIME.on.cleanup(renderable, () =>
+      operations.prune(renderable as Renderable<unknown>)
     );
 
     return renderable;
@@ -138,6 +66,7 @@ export class Renderable<T> {
   readonly #input: Reactive<T>;
   readonly #notify: { readonly ready: (renderable: Renderable<T>) => void };
   readonly #last: UNINITIALIZED | T;
+  readonly #operations: RenderableOperations;
   #dependencies: Set<MutableInternals>;
   readonly #description: string;
 
@@ -145,18 +74,20 @@ export class Renderable<T> {
     input: Reactive<T>,
     notify: { readonly ready: (renderable: Renderable<T>) => void },
     last: UNINITIALIZED | T,
+    operations: RenderableOperations,
     dependencies: Set<MutableInternals>,
     description: string
   ) {
     this.#input = input;
     this.#dependencies = dependencies;
     this.#last = last;
+    this.#operations = operations;
     this.#notify = notify;
     this.#description = description;
   }
 
   poll(): T {
-    return TIMELINE.poll(this);
+    return this.#operations.poll(this);
   }
 
   render():
@@ -165,8 +96,6 @@ export class Renderable<T> {
     | { status: "initialized"; value: T } {
     const {
       values: { prev, next },
-      add,
-      remove,
     } = this.#flush();
 
     if (prev === UNINITIALIZED) {

@@ -3,7 +3,12 @@ import type {
   InspectOptionsStylized,
   Style,
 } from "util";
-import { DisplayStruct, type DisplayStructOptions } from "./display-struct.js";
+
+import {
+  type DisplayStructOptions,
+  type Fields,
+  DisplayStruct,
+} from "./display-struct.js";
 
 export const INSPECT = Symbol.for("nodejs.util.inspect.custom");
 
@@ -43,7 +48,7 @@ class Debug {
     return this.#options.stylize(text, styleType);
   }
 
-  struct(fields: object, options?: DisplayStructOptions) {
+  struct(fields: Fields, options?: DisplayStructOptions) {
     return DisplayStruct(this.#name, fields, options);
   }
 }
@@ -53,7 +58,7 @@ interface DebugClass<I> {
   prototype: I & Partial<Inspect>;
 }
 
-export function debug<I>(
+export function inspector<I>(
   Class: DebugClass<
     I extends { [INSPECT]: any }
       ? `Do not pass a class to debug() that already implements nodejs.util.inspect.custom`
@@ -61,21 +66,16 @@ export function debug<I>(
   >,
   name = Class.name
 ): {
-  inspector: (
-    inspector: (
-      instance: I extends { [INSPECT]: any } ? `NOPE` : I,
-      debug: Debug
-    ) => unknown
-  ) => void;
+  define: (inspector: (instance: I, debug: Debug) => unknown) => void;
 } {
   return {
-    inspector: (inspector) => {
+    define: (inspector: (instance: I, debug: Debug) => unknown) => {
       Class.prototype[INSPECT] = function (
         this: I,
         _depth: number,
         options: InspectOptionsStylized
       ) {
-        return inspector(this as any, Debug.create(name, options));
+        return inspector(this, Debug.create(name, options));
       };
     },
   };

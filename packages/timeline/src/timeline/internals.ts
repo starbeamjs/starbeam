@@ -1,51 +1,28 @@
-import { Enum } from "@starbeam/utils";
-import { REACTIVE, type ReactiveProtocol } from "./reactive.js";
+import {
+  type MutableInternals,
+  type ReactiveProtocol,
+  REACTIVE,
+} from "./reactive.js";
 import type { Timestamp } from "./timestamp.js";
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type InferReturn = any;
 
 export interface IsUpdatedSince {
   isUpdatedSince(timestamp: Timestamp): boolean;
 }
 
-export type ReactiveInternals =
-  | StaticInternals
-  | CompositeInternals
-  | MutableInternals;
+type InternalChildrenEnum =
+  | { type: "None" }
+  | { type: "Children"; children: readonly ReactiveProtocol[] };
 
-export interface StaticInternals extends IsUpdatedSince {
-  readonly type: "static";
-  readonly description: string;
+export class InternalChildren {
+  static None(): InternalChildren {
+    return new InternalChildren({ type: "None" });
+  }
 
-  children(): InternalChildren;
-}
+  static Children(children: readonly ReactiveProtocol[]): InternalChildren {
+    return InternalChildren.from(children);
+  }
 
-export interface CompositeInternals extends IsUpdatedSince {
-  readonly type: "composite";
-  readonly description: string;
-
-  children(): InternalChildren;
-}
-
-export interface MutableInternals extends IsUpdatedSince {
-  readonly type: "mutable";
-  readonly description: string;
-  readonly debug: { lastUpdated: Timestamp };
-
-  children(): InternalChildren;
-
-  isFrozen(): boolean;
-  freeze(): void;
-  update(): void;
-  consume(): void;
-}
-
-export class InternalChildren extends Enum("None", "Children(U)")<
-  MutableInternals,
-  readonly ReactiveProtocol[]
-> {
-  static from(children: Iterable<ReactiveProtocol>): InternalChildren {
+  static from(children: readonly ReactiveProtocol[]) {
     const childList = [...children].filter((child) => {
       const reactive = child[REACTIVE];
       return reactive.type !== "mutable" || reactive.isFrozen() === false;
@@ -54,47 +31,47 @@ export class InternalChildren extends Enum("None", "Children(U)")<
     if (childList.length === 0) {
       return InternalChildren.None();
     } else {
-      return InternalChildren.Children(childList);
+      return new InternalChildren({
+        type: "Children",
+        children: childList,
+      });
     }
   }
 
-  get dependencies(): readonly MutableInternals[] {
-    return this.match({
-      None: () => [],
-      Children: (children) => {
-        const deps: MutableInternals[] = [];
+  #enum: InternalChildrenEnum;
 
-        for (const child of children) {
+  constructor(children: InternalChildrenEnum) {
+    this.#enum = children;
+  }
+
+  get dependencies(): readonly MutableInternals[] {
+    switch (this.#enum.type) {
+      case "None":
+        return [];
+
+      case "Children":
+        return this.#enum.children.flatMap((child) => {
           if (child[REACTIVE].type === "mutable") {
             if (!child[REACTIVE].isFrozen()) {
-              deps.push(child[REACTIVE]);
+              return child[REACTIVE].children().dependencies;
             }
           } else {
-            deps.push(...child[REACTIVE].children().dependencies);
+            return child[REACTIVE].children().dependencies;
           }
-        }
 
-        return deps;
-      },
-      // children.flatMap((child) => child[REACTIVE].children().dependencies),
-    });
+          return [];
+        });
+    }
   }
 
   isUpdatedSince(timestamp: Timestamp): boolean {
-    return this.match({
-      None: () => false,
-      Children: (dependencies) =>
-        dependencies.some((dep) => dep[REACTIVE].isUpdatedSince(timestamp)),
-    });
+    switch (this.#enum.type) {
+      case "None":
+        return false;
+      case "Children":
+        return this.#enum.children.some((child) =>
+          child[REACTIVE].isUpdatedSince(timestamp)
+        );
+    }
   }
 }
-
-export const ReactiveInternals = new (class {
-  get(reactive: ReactiveProtocol): ReactiveInternals {
-    return reactive[REACTIVE];
-  }
-
-  dependencies(internals: ReactiveInternals): readonly MutableInternals[] {
-    return internals.children().dependencies;
-  }
-})();

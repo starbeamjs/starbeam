@@ -1,4 +1,4 @@
-import { debug } from "@starbeam/debug";
+import { inspector } from "@starbeam/debug";
 import {
   InternalChildren,
   REACTIVE,
@@ -13,7 +13,7 @@ export class MutableInternalsImpl
   implements MutableInternals, ReactiveProtocol
 {
   static {
-    debug(this, "MutableInternals").inspector((internals, debug) =>
+    inspector(this, "MutableInternals").define((internals, debug) =>
       debug.struct(
         {
           frozen: internals.#frozen,

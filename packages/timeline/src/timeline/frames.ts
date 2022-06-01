@@ -1,10 +1,12 @@
+import { LOGGER } from "@starbeam/debug";
+
+import { type IsUpdatedSince, InternalChildren } from "./internals.js";
 import {
-  type IsUpdatedSince,
   type MutableInternals,
   type ReactiveInternals,
-  InternalChildren,
-} from "./internals.js";
-import { type ReactiveProtocol, REACTIVE } from "./reactive.js";
+  type ReactiveProtocol,
+  REACTIVE,
+} from "./reactive.js";
 import type { Timestamp } from "./timestamp.js";
 
 export class AssertFrame {

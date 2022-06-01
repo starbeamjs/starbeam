@@ -1,5 +1,5 @@
 {
-  "name": "@starbeam/core",
+  "name": "@starbeam/core-legacy",
   "version": "0.0.0",
   "type": "module",
   "main": "index.ts",

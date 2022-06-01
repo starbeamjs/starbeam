@@ -1,5 +1,5 @@
 {
-  "name": "@starbeam/now",
+  "name": "@starbeam/core-utils",
   "version": "0.0.0",
   "type": "module",
   "main": "index.ts",

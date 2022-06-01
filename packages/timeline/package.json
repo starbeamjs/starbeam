@@ -13,6 +13,7 @@
     }
   },
   "dependencies": {
+    "@starbeam/peer": "^1.0.0",
     "@starbeam/verify": "workspace:*",
     "@starbeam/debug": "workspace:*"
   }

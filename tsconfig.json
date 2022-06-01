@@ -32,7 +32,8 @@
     "tests/specs/formula.spec.ts",
     "packages/*/index.ts",
     "packages/*/src/**/*.ts",
-    "packages/*/tests/**/*.ts"
+    "packages/*/tests/**/*.ts",
+    "packages/now/constants.ts"
   ],
   "ts-node": {
     "swc": true,
