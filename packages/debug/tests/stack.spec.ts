@@ -9,12 +9,8 @@ describe("Error stacks", () => {
       return anOuterFunction();
     }
 
-    expect(anArrow(aFunction).caller?.display).toMatch(
-      /^at anOuterFunction \([^)]*\)/
-    );
-    expect(anArrow(describeCallerInArgs)).toMatch(
-      /^at describeCallerInArgs \([^)]*\)/
-    );
+    expect(anArrow(aFunction).caller?.display).toMatch(/^aFunction \([^)]*\)/);
+    expect(anArrow(describeCallerInArgs)).toMatch(/^anArrow \([^)]*\)/);
   });
 });
 

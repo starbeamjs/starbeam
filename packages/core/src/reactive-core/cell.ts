@@ -1,4 +1,5 @@
 import { isObject } from "@starbeam/core-utils";
+import type { Description } from "@starbeam/debug";
 import { DisplayStruct, Stack } from "@starbeam/debug";
 import {
   type ReactiveInternals,
@@ -38,7 +39,7 @@ export class ReactiveCell<T> implements Reactive<T> {
   [INSPECT]() {
     const { description, debug } = this.#internals;
 
-    return DisplayStruct(`Cell (${description})`, {
+    return DisplayStruct(`Cell (${description.describe()})`, {
       value: this.#value,
       updated: debug.lastUpdated,
     });
@@ -74,7 +75,7 @@ export class ReactiveCell<T> implements Reactive<T> {
       return;
     }
 
-    TX.batch(`updating ${this.#internals.description}`, () => {
+    TX.batch(["updating", this.#internals.description], () => {
       this.#value = value;
       this.#internals.update();
     });
@@ -96,31 +97,34 @@ export class ReactiveCell<T> implements Reactive<T> {
 export function Cell<T>(
   value: T,
   equals: Equality<T>,
-  description?: string
+  description?: string | Description
 ): ReactiveCell<T>;
-export function Cell<T>(value: T, description?: string): ReactiveCell<T>;
 export function Cell<T>(
   value: T,
-  equals?: Equality<T> | string,
-  description?: string
+  description?: string | Description
+): ReactiveCell<T>;
+export function Cell<T>(
+  value: T,
+  equals?: Equality<T> | string | Description,
+  description?: string | Description
 ): ReactiveCell<T> {
   if (equals === undefined) {
     return ReactiveCell.create(
       value,
       Object.is,
-      MutableInternalsImpl.create(Stack.describeCaller())
+      MutableInternalsImpl.create(Stack.description("Cell", description))
     );
-  } else if (typeof equals === "string") {
+  } else if (typeof equals === "function") {
     return ReactiveCell.create(
       value,
-      Object.is,
-      MutableInternalsImpl.create(equals)
+      equals,
+      MutableInternalsImpl.create(Stack.description("Cell", description))
     );
   } else {
     return ReactiveCell.create(
       value,
-      equals,
-      MutableInternalsImpl.create(description ?? Stack.describeCaller())
+      Object.is,
+      MutableInternalsImpl.create(Stack.description("Cell", equals))
     );
   }
 }

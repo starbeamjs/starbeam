@@ -1,29 +1,35 @@
-import { Cell, Marker, type Reactive } from "@starbeam/core";
+import { type Reactive, Cell, Marker } from "@starbeam/core";
 import { Stack } from "@starbeam/debug";
+import reactive from "@starbeam/js";
 import { useUpdatingVariable } from "@starbeam/use-resource";
 import type { Dispatch, SetStateAction } from "react";
-import { StableProps } from "./stable-props.js";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyRecord = Record<PropertyKey, any>;
 
 /**
- * {@link useReactive} takes an object containing stable React variables
+ * {@link useStable} takes an object containing stable React variables
  * (such as React props) and converts it into a Starbeam
  * [Reactive Object].
  *
  * [reactive object]: https://github.com/wycats/starbeam/tree/main/%40starbeam/react/GLOSSARY.md#reactive-object
  */
-export function useReactive<I extends AnyRecord>(variable: I): I {
+export function useStable<I extends AnyRecord>(
+  variable: I,
+  description?: string
+): I {
+  const desc = Stack.description("{stable}", description);
+
   return useUpdatingVariable({
-    initial: () => StableProps.from(variable),
+    initial: () => reactive.object(variable, desc),
     update: (stableProps) => {
-      stableProps.update(variable);
+      Object.assign(stableProps, variable);
     },
-  }).proxy;
+  });
 }
 
 /**
- * {@link useReactiveVariable} takes a stable React variable and converts it
+ * {@link useStableVariable} takes a stable React variable and converts it
  * into a Starbeam Reactive value.
  *
  * ```ts
@@ -41,19 +47,46 @@ export function useReactive<I extends AnyRecord>(variable: I): I {
  * }
  * ```
  */
-export function useReactiveVariable<T>(variable: T): Reactive<T> {
+export function useStableVariable<T>(
+  variable: T,
+  description = Stack.describeCaller()
+): Reactive<T> {
   return useUpdatingVariable({
-    initial: () => Cell(variable),
+    initial: () => Cell(variable, description),
     update: (cell) => cell.set(variable),
   });
 }
 
+export function useProp<T>(
+  variable: T,
+  description = Stack.describeCaller()
+): Reactive<T> {
+  return useUpdatingVariable({
+    initial: () => Cell(variable, description),
+    update: (cell) => cell.set(variable),
+  });
+}
+
+export function useProps<T extends AnyRecord>(
+  props: T,
+  description?: string
+): T {
+  const desc = Stack.description("{props}", description);
+
+  return useUpdatingVariable({
+    initial: () => reactive.object(props, desc),
+    update: (stableProps) => {
+      Object.assign(stableProps, props);
+    },
+  });
+}
+
 /**
- * {@link useReactiveVariable.mutable} takes a stable React variable *plus* an
+ * {@link useStableVariable.mutable} takes a stable React variable *plus* an
  * updater function returned by {@link useState} and returns a Starbeam _Mutable
  * Reactive Value_.
  */
-useReactiveVariable.mutable = <S>(
+useStableVariable.mutable = <S>(
   value: S,
   setValue: SetValue<S>,
   description = Stack.describeCaller()

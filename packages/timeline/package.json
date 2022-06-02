@@ -3,15 +3,6 @@
   "version": "0.0.0",
   "type": "module",
   "main": "index.ts",
-  "exports": {
-    ".": {
-      "types": "./index.js",
-      "import": {
-        "node": "./index.ts",
-        "default": "./dist/index.js"
-      }
-    }
-  },
   "dependencies": {
     "@starbeam/peer": "^1.0.0",
     "@starbeam/verify": "workspace:*",

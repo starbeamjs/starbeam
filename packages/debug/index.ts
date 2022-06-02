@@ -1,3 +1,4 @@
+export { Description } from "./src/description/debug.js";
 export {
   type DisplayStructOptions,
   DisplayStruct,

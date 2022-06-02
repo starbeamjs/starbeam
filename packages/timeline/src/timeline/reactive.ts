@@ -1,3 +1,5 @@
+import type { Description } from "@starbeam/debug";
+
 import type { InternalChildren } from "./internals.js";
 import type { Timestamp } from "./timestamp.js";
 
@@ -6,7 +8,7 @@ export type REACTIVE = typeof REACTIVE;
 
 export interface MutableInternals {
   readonly type: "mutable";
-  readonly description: string;
+  readonly description: Description;
   children(): InternalChildren;
   isFrozen(): boolean;
   isUpdatedSince(timestamp: Timestamp): boolean;
@@ -14,14 +16,14 @@ export interface MutableInternals {
 
 export interface CompositeInternals {
   readonly type: "composite";
-  readonly description: string;
+  readonly description: Description;
   children(): InternalChildren;
   isUpdatedSince(timestamp: Timestamp): boolean;
 }
 
 export interface StaticInternals {
   readonly type: "static";
-  readonly description: string;
+  readonly description: Description;
   children(): InternalChildren;
   isUpdatedSince(timestamp: Timestamp): boolean;
 }

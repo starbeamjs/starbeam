@@ -2,15 +2,14 @@ const VBAR = "│";
 const NEXT = "├";
 const LAST = "╰";
 
-type RootNode = Node[];
 type Leaf = string;
 type ParentNode = [label: string, ...children: Node[]];
 type Node = Leaf | ParentNode;
 
 export class Root {
-  #root: RootNode;
+  #root: Node[];
 
-  constructor(root: RootNode) {
+  constructor(root: Node[]) {
     this.#root = root;
   }
 
@@ -19,7 +18,7 @@ export class Root {
   }
 }
 
-export function Tree(...root: RootNode): Root {
+export function Tree(...root: Node[]): Root {
   return new Root(root);
 }
 

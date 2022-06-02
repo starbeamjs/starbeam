@@ -5,6 +5,8 @@ import {
 } from "./reactive.js";
 import type { Timestamp } from "./timestamp.js";
 
+Error.stackTraceLimit = 100;
+
 export interface IsUpdatedSince {
   isUpdatedSince(timestamp: Timestamp): boolean;
 }
@@ -44,23 +46,28 @@ export class InternalChildren {
     this.#enum = children;
   }
 
-  get dependencies(): readonly MutableInternals[] {
+  get dependencies(): Set<MutableInternals> {
     switch (this.#enum.type) {
       case "None":
-        return [];
+        return new Set();
 
-      case "Children":
-        return this.#enum.children.flatMap((child) => {
-          if (child[REACTIVE].type === "mutable") {
-            if (!child[REACTIVE].isFrozen()) {
-              return child[REACTIVE].children().dependencies;
+      case "Children": {
+        const children = this.#enum.children.flatMap(
+          (child): readonly MutableInternals[] => {
+            if (child[REACTIVE].type === "mutable") {
+              if (!child[REACTIVE].isFrozen()) {
+                return [child[REACTIVE]];
+              }
+            } else {
+              return [...child[REACTIVE].children().dependencies];
             }
-          } else {
-            return child[REACTIVE].children().dependencies;
-          }
 
-          return [];
-        });
+            return [];
+          }
+        );
+
+        return new Set(children);
+      }
     }
   }
 

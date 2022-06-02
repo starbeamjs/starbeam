@@ -74,6 +74,14 @@ export class Logger {
     this.fatal = new LoggerAsLevel(this, LogLevel.Fatal, config);
   }
 
+  set level(level: LogLevel) {
+    this.#config = { ...this.#config, minimum: level };
+  }
+
+  get isVerbose() {
+    return this.#config.minimum === LogLevel.Trace;
+  }
+
   configure(config: Partial<LoggerConfig>): void {
     Object.assign(this.#config, config);
   }

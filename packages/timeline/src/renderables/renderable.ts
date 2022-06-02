@@ -1,3 +1,5 @@
+import { type Description, LOGGER } from "@starbeam/debug";
+import { Tree } from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/peer";
 
 import { LIFETIME } from "../lifetime/api.js";
@@ -6,8 +8,10 @@ import {
   type Reactive,
   REACTIVE,
 } from "../timeline/reactive.js";
+import { TIMELINE } from "../timeline/timeline.js";
+import type { Timestamp } from "../timeline/timestamp.js";
 
-interface RenderableOperations {
+export interface RenderableOperations {
   prune(renderable: Renderable<unknown>): void;
   poll<T>(renderable: Renderable<T>): T;
 }
@@ -28,15 +32,17 @@ export class Renderable<T = unknown> {
     input: Reactive<T>,
     notify: { readonly ready: (renderable: Renderable<T>) => void },
     operations: RenderableOperations,
-    description: string
+    description: Description
   ): Renderable<T> {
     const initialDependencies = input[REACTIVE].children().dependencies;
+
     const renderable = new Renderable(
       input,
       notify,
       UNINITIALIZED,
       operations,
       new Set(initialDependencies),
+      TIMELINE.now,
       description
     );
 
@@ -68,7 +74,10 @@ export class Renderable<T = unknown> {
   readonly #last: UNINITIALIZED | T;
   readonly #operations: RenderableOperations;
   #dependencies: Set<MutableInternals>;
-  readonly #description: string;
+  readonly #description: Description;
+
+  // for debug purposes
+  #lastChecked: Timestamp;
 
   private constructor(
     input: Reactive<T>,
@@ -76,18 +85,62 @@ export class Renderable<T = unknown> {
     last: UNINITIALIZED | T,
     operations: RenderableOperations,
     dependencies: Set<MutableInternals>,
-    description: string
+    lastChecked: Timestamp,
+    description: Description
   ) {
     this.#input = input;
     this.#dependencies = dependencies;
     this.#last = last;
     this.#operations = operations;
     this.#notify = notify;
+    this.#lastChecked = lastChecked;
     this.#description = description;
   }
 
   poll(): T {
+    // TODO: Debug infrastructure
+    // eslint-disable-next-line no-constant-condition
+    if (true) {
+      const invalid = [...this.#dependencies].filter((dep) =>
+        dep.isUpdatedSince(this.#lastChecked)
+      );
+
+      if (LOGGER.isVerbose && invalid.length > 0) {
+        console.group(
+          `${this.#description.userFacing().describe()} invalidated`
+        );
+        console.log(
+          Tree(
+            ...invalid.map((d) =>
+              d.description.userFacing().describe({ source: true })
+            )
+          ).format()
+        );
+        console.groupEnd();
+      }
+    }
+
     return this.#operations.poll(this);
+  }
+
+  debug({
+    source = false,
+    implementation = false,
+  }: { source?: boolean; implementation?: boolean } = {}): string {
+    const dependencies = [...this.#input[REACTIVE].children().dependencies];
+    const descriptions = new Set(
+      dependencies.map((dependency) => {
+        return implementation
+          ? dependency.description
+          : dependency.description.userFacing();
+      })
+    );
+
+    const nodes = [...descriptions].map((d) =>
+      d.describe({ source, implementation })
+    );
+
+    return Tree([this.#description.describe(), ...nodes]).format();
   }
 
   render():
@@ -115,6 +168,7 @@ export class Renderable<T = unknown> {
     const nextDeps = new Set(this.#input[REACTIVE].children().dependencies);
 
     this.#dependencies = nextDeps;
+    this.#lastChecked = TIMELINE.now;
 
     return { ...diff(prevDeps, nextDeps), values: { prev, next } };
   }

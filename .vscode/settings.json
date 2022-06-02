@@ -1,7 +1,8 @@
 {
   "files.exclude": {
     "node_modules": true,
-    "**/node_modules": true,
+    "{packages,framework,demos}/**/node_modules": true,
+
     "docs": true,
     "**/*.tsbuildinfo": true,
     "types": true,
@@ -22,7 +23,7 @@
   "editor.formatOnSave": true,
 
   "editor.codeActionsOnSave": {
-    "source.fixAll": true,
+    "source.fixAll.eslint": true,
     "source.organizeImports": false
   },
 
@@ -42,6 +43,17 @@
   "vitest.exclude": ["tests/**", "packages/*/tests/node_modules/**"],
   "typescript.preferences.includePackageJsonAutoImports": "auto",
   "typescript.updateImportsOnFileMove.enabled": "always",
-  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": false,
+
+  "searchEverywhere.shouldUseDebounce": true,
+  "searchEverywhere.itemsFilterPhrases": {
+    "0": "$$",
+    "4": "@@",
+    "5": "!!",
+    "11": "!!",
+    "14": "##",
+    "17": "%%"
+  },
+  "editor.insertSpaces": true,
   "testing.automaticallyOpenPeekView": "never"
 }

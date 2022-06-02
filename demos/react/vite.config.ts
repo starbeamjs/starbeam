@@ -1,0 +1,37 @@
+import { defineConfig } from "vitest/config";
+import { NodeGlobalsPolyfillPlugin } from "@esbuild-plugins/node-globals-polyfill";
+import ViteFonts from "vite-plugin-fonts";
+
+export default defineConfig({
+  plugins: [
+    ViteFonts.default({
+      google: {
+        families: ["Roboto:wght@300;400;500;700"],
+        display: "swap",
+        preconnect: true,
+      },
+    }),
+  ],
+  esbuild: {
+    jsxFactory: "_jsx",
+    jsxFragment: "_jsxFragment",
+    jsxInject: `import { createElement as _jsx, Fragment as _jsxFragment } from 'react'`,
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      define: {
+        global: "globalThis",
+      },
+      plugins: [
+        NodeGlobalsPolyfillPlugin({
+          buffer: true,
+        }),
+      ],
+    },
+  },
+  build: {
+    rollupOptions: {
+      plugins: [],
+    },
+  },
+});

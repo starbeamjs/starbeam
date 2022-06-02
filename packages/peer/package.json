@@ -4,15 +4,6 @@
   "version": "1.0.0",
   "type": "module",
   "main": "index.ts",
-  "exports": {
-    ".": {
-      "types": "./index.js",
-      "import": {
-        "node": "./index.ts",
-        "default": "./dist/index.js"
-      }
-    }
-  },
   "dependencies": {},
   "devDependencies": {}
 }

@@ -1,3 +1,4 @@
+import type { Description } from "@starbeam/debug";
 import { inspector } from "@starbeam/debug";
 import type { Timestamp } from "@starbeam/timeline";
 import {
@@ -16,13 +17,13 @@ export class MutableInternalsImpl implements ReactiveProtocol {
           lastUpdate: internals.#lastUpdate,
         },
         {
-          description: internals.#description,
+          description: internals.#description.describe(),
         }
       )
     );
   }
 
-  static create(description: string): MutableInternalsImpl {
+  static create(description: Description): MutableInternalsImpl {
     return new MutableInternalsImpl(false, TIMELINE.now, description);
   }
 
@@ -30,12 +31,12 @@ export class MutableInternalsImpl implements ReactiveProtocol {
 
   #frozen: boolean;
   #lastUpdate: Timestamp;
-  readonly #description: string;
+  readonly #description: Description;
 
   private constructor(
     frozen: boolean,
     lastUpdate: Timestamp,
-    description: string
+    description: Description
   ) {
     this.#frozen = frozen;
     this.#lastUpdate = lastUpdate;
@@ -71,7 +72,7 @@ export class MutableInternalsImpl implements ReactiveProtocol {
   update(): void {
     if (this.#frozen) {
       throw TypeError(
-        `Cannot update a frozen reactive object (${this.description})`
+        `Cannot update a frozen reactive object (${this.description.describe()})`
       );
     }
 
@@ -83,7 +84,7 @@ export class MutableInternalsImpl implements ReactiveProtocol {
   }
 
   /** impl ReactiveInternals */
-  get description(): string {
+  get description(): Description {
     return this.#description;
   }
 

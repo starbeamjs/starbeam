@@ -19,6 +19,7 @@
     "@types/shelljs": "^0.8.11",
     "@typescript-eslint/eslint-plugin": "5.27.0",
     "@typescript-eslint/parser": "5.27.0",
+    "@vitest/ui": "^0.13.1",
     "eslint": "8.16.0",
     "eslint-import-resolver-typescript": "2.7.1",
     "eslint-plugin-import": "2.26.0",
@@ -27,6 +28,8 @@
     "shelljs": "^0.8.5",
     "typescript": "next",
     "vite": "^2.9.9",
+    "vite-plugin-mpa": "^1.1.2",
+    "vite-react-jsx": "^1.1.2",
     "vitest": "^0.12.9",
     "watcher": "^1.2.0"
   },

@@ -1,4 +1,5 @@
-import { Cell, Formula, Resource } from "@starbeam/core";
+import { Cell, Resource } from "@starbeam/core";
+import { LIFETIME } from "@starbeam/timeline";
 import { describe, expect, test } from "vitest";
 
 class Subscription {
@@ -32,16 +33,18 @@ describe("resources", () => {
     const channel = Cell("emails");
     const username = Cell("@tomdale");
 
+    const parent = {};
+
     const resource = Resource((resource) => {
       const socket = Subscription.subscribe(channel.current);
 
       resource.on.cleanup(() => socket.disconnect());
 
-      return Formula(() => ({
+      return () => ({
         socket,
         description: `${username.current} @ ${channel.current}`,
-      }));
-    });
+      });
+    }).owner(parent);
 
     let last = resource.current;
     expect(last.description).toBe("@tomdale @ emails");
@@ -75,6 +78,17 @@ describe("resources", () => {
     expect(next.socket).toMatchObject({
       name: "twitter",
       isActive: true,
+    });
+
+    last = next;
+
+    LIFETIME.finalize(parent);
+
+    next = resource.current;
+
+    expect(next.socket).toMatchObject({
+      name: "twitter",
+      isActive: false,
     });
   });
 });

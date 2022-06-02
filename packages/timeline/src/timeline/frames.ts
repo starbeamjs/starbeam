@@ -1,4 +1,4 @@
-import { LOGGER } from "@starbeam/debug";
+import type { Description } from "@starbeam/debug";
 
 import { type IsUpdatedSince, InternalChildren } from "./internals.js";
 import {
@@ -28,7 +28,7 @@ export class AssertFrame {
 }
 
 export class ActiveFrame {
-  static create(description: string): ActiveFrame {
+  static create(description: Description): ActiveFrame {
     return new ActiveFrame(new Set(), description);
   }
 
@@ -36,7 +36,7 @@ export class ActiveFrame {
 
   private constructor(
     children: Set<ReactiveProtocol>,
-    readonly description: string
+    readonly description: Description
   ) {
     this.#children = children;
   }
@@ -84,7 +84,7 @@ export class FinalizedFrame<T = unknown>
     children: Set<ReactiveProtocol>;
     finalizedAt: Timestamp;
     value: T;
-    description: string;
+    description: Description;
   }): FinalizedFrame<T> {
     return new FinalizedFrame(children, finalizedAt, value, description);
   }
@@ -97,7 +97,7 @@ export class FinalizedFrame<T = unknown>
     children: Set<ReactiveProtocol>,
     finalizedAt: Timestamp,
     value: T,
-    readonly description: string
+    readonly description: Description
   ) {
     this.#children = children;
     this.#finalizedAt = finalizedAt;
@@ -124,9 +124,9 @@ export class FinalizedFrame<T = unknown>
   }
 
   get dependencies(): readonly MutableInternals[] {
-    return this.children.flatMap(
-      (child) => child[REACTIVE].children().dependencies
-    );
+    return this.children.flatMap((child) => [
+      ...child[REACTIVE].children().dependencies,
+    ]);
   }
 
   isUpdatedSince(timestamp: Timestamp): boolean {
@@ -134,9 +134,6 @@ export class FinalizedFrame<T = unknown>
 
     for (let child of this.#children) {
       if (child[REACTIVE].isUpdatedSince(timestamp)) {
-        LOGGER.trace.log(
-          `[invalidated] by ${child[REACTIVE].description || "anonymous"}`
-        );
         isUpdated = true;
       }
     }

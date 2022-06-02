@@ -1,9 +1,14 @@
+import type { Description } from "@starbeam/debug";
+
 /**
  * This API is a placeholder for better debugging around grouping.
  */
 export class Batching {
-  batch(description: string, callback: () => void): void {
-    const transaction = new BatchingTransaction(description);
+  batch(
+    [operation, description]: [operation: string, description: Description],
+    callback: () => void
+  ): void {
+    const transaction = new BatchingTransaction(operation, description);
     try {
       callback();
     } finally {
@@ -13,9 +18,11 @@ export class Batching {
 }
 
 export class BatchingTransaction {
-  #description: string;
+  #operation: string;
+  #description: Description;
 
-  constructor(description: string) {
+  constructor(operation: string, description: Description) {
+    this.#operation = operation;
     this.#description = description;
   }
 

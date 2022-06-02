@@ -1,4 +1,4 @@
-import es from "@starbeam/ecmascript";
+import es from "@starbeam/js";
 import { REACTIVE } from "@starbeam/timeline";
 import { exhaustive, expected, isEqual, verify } from "@starbeam/verify";
 import { isObject } from "@starbeam/core-utils";

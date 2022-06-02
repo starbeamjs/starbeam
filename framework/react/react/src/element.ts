@@ -1,18 +1,16 @@
 import type { browser } from "@domtree/flavors";
+import type { Linkable, Resource } from "@starbeam/core";
 import type { Cell, Reactive } from "@starbeam/core";
 import type { OnCleanup, Unsubscribe } from "@starbeam/timeline";
 import { LIFETIME } from "@starbeam/timeline";
 
-import {
-  getPlaceholder,
-  ref,
-  type ElementRef,
-  type ReactElementRef,
-} from "./ref.js";
+import { type ElementRef, type ReactElementRef, ref } from "./ref.js";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyRecord = Record<PropertyKey, any>;
 
 interface RefType<E extends browser.Element = browser.Element> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   new (...args: any[]): E;
 }
 
@@ -166,20 +164,16 @@ export class ReactiveElement {
 
   readonly on: OnLifecycle;
 
+  use<T>(resource: Linkable<Resource<T>>): Resource<T> {
+    return resource.owner(this);
+  }
+
   refs<R extends RefsTypes>(refs: R): RefsRecordFor<R> {
     const { refs: newRefs, record } = this.#refs.update(refs);
 
     this.#refs = newRefs;
     return record;
   }
-
-  // useModifier<T, E extends browser.Element>(
-  //   ref: ElementRef<E>,
-  //   modifier: Modifier<E, T>
-  // ) {
-  //   const placeholder = getPlaceholder(ref);
-  //   return modifier(placeholder).owner(this);
-  // }
 }
 
 type Callback<T = void> = (instance: T) => void;
@@ -240,74 +234,6 @@ class Lifecycle {
 
   attached(): void {
     this.#attached.invoke();
-  }
-}
-
-type RefMap = LazyMap<ElementRef, Callbacks<browser.Element>>;
-
-class LazyMap<K, V> implements Iterable<[K, V]> {
-  static create<K, V>(initialize: () => V): LazyMap<K, V> {
-    return new LazyMap(new Map(), initialize);
-  }
-
-  readonly #map: Map<K, V>;
-  readonly #initialize: () => V;
-
-  private constructor(map: Map<K, V>, initialize: () => V) {
-    this.#map = map;
-    this.#initialize = initialize;
-    // this.entries = map[Symbol.iterator];
-  }
-
-  [Symbol.iterator](): IterableIterator<[K, V]> {
-    return this.#map[Symbol.iterator]();
-  }
-
-  get entries(): IterableIterator<[K, V]> {
-    return this.#map.entries();
-  }
-
-  get(key: K): V {
-    let value = this.#map.get(key);
-
-    if (!value) {
-      value = this.#initialize();
-      this.#map.set(key, value);
-    }
-
-    return value;
-  }
-
-  upsert(key: K, updater: (value: V) => V | void): V {
-    const value = this.get(key);
-    const updated = updater(value);
-
-    if (updated !== undefined) {
-      this.#map.set(key, updated);
-    }
-
-    return value;
-  }
-}
-
-class Elements {
-  static create(): Elements {
-    return new Elements(
-      LazyMap.create(() => Callbacks.create<browser.Element>())
-    );
-  }
-
-  readonly #elements: RefMap;
-
-  private constructor(elements: RefMap) {
-    this.#elements = elements;
-  }
-
-  insert(
-    element: ElementRef<browser.Element>,
-    callback: Callback<browser.Element>
-  ): void {
-    this.#elements.upsert(element, (callbacks) => callbacks.add(callback));
   }
 }
 

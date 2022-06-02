@@ -1,15 +1,18 @@
+import type { Description } from "@starbeam/debug";
 import { LOGGER, Stack } from "@starbeam/debug";
 import { expected, isEqual, verify } from "@starbeam/verify";
 
-import { Renderable } from "../renderables/renderable.js";
+import {
+  type RenderableOperations,
+  Renderable,
+} from "../renderables/renderable.js";
 import { Renderables } from "../renderables/renderables.js";
 import { type FinalizedFrame, ActiveFrame, AssertFrame } from "./frames.js";
 import { Queue } from "./queue.js";
-import {
-  type MutableInternals,
-  type Reactive,
-  type ReactiveProtocol,
-  REACTIVE,
+import type {
+  MutableInternals,
+  Reactive,
+  ReactiveProtocol,
 } from "./reactive.js";
 import { Timestamp } from "./timestamp.js";
 
@@ -52,7 +55,7 @@ export class RenderPhase extends Phase {
 
   bump(internals: MutableInternals): void {
     throw Error(
-      `You cannot mutate a data cell during the Render phase. You attempted to mutate ${internals.description}`
+      `You cannot mutate a data cell during the Render phase. You attempted to mutate ${internals.description.describe()}`
     );
   }
 }
@@ -69,7 +72,7 @@ export interface StartedFormula {
   finally(): void;
 }
 
-export class Timeline {
+export class Timeline implements RenderableOperations {
   static create(): Timeline {
     return new Timeline(
       ActionsPhase.create("initialization"),
@@ -80,7 +83,7 @@ export class Timeline {
   }
 
   static StartedFormula = class StartedFormula {
-    static create(description: string): StartedFormula {
+    static create(description: Description): StartedFormula {
       const prevFrame = TIMELINE.#frame;
 
       const currentFrame = (TIMELINE.#frame = ActiveFrame.create(description));
@@ -152,32 +155,17 @@ export class Timeline {
     change: <T>(
       input: Reactive<T>,
       ready: (renderable: Renderable<T>) => void,
-      description = Stack.describeCaller()
+      description?: string | Description
     ): Renderable<T> => {
-      const renderable = Renderable.create(input, { ready }, this, description);
+      const renderable = Renderable.create(
+        input,
+        { ready },
+        this,
+        Stack.description("{subscription}", description)
+      );
       this.#renderables.insert(renderable as Renderable<unknown>);
 
       return renderable;
-    },
-
-    update: (storage: MutableInternals, callback: () => void): (() => void) => {
-      LOGGER.trace.log(
-        `adding listener for cell\ncell: %o\ncallback:%o`,
-        storage,
-        callback
-      );
-
-      let callbacks = this.#updatersFor(storage);
-      callbacks.add(callback);
-
-      return () => {
-        LOGGER.trace.withStack.log(
-          `tearing down listener for cell\ncell: %o\ncallback: %o`,
-          storage,
-          callback
-        );
-        callbacks.delete(callback);
-      };
     },
   } as const;
 
@@ -261,7 +249,6 @@ export class Timeline {
   // Indicate that a particular cell was used inside of the current computation.
   didConsume(reactive: ReactiveProtocol) {
     if (this.#frame) {
-      LOGGER.trace.log(`adding ${reactive[REACTIVE].description}`);
       this.#frame.add(reactive);
     }
   }
@@ -277,7 +264,7 @@ export class Timeline {
     }
   }
 
-  startFormula(description: string): StartedFormula {
+  startFormula(description: Description): StartedFormula {
     return Timeline.StartedFormula.create(description);
   }
 
@@ -292,7 +279,7 @@ export class Timeline {
    */
   evaluateFormula<T>(
     callback: () => T,
-    description: string
+    description: Description
   ): { readonly frame: FinalizedFrame<T>; readonly value: T } {
     const formula = this.startFormula(description);
 

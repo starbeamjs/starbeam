@@ -1,3 +1,4 @@
+import type { Description } from "@starbeam/debug";
 import {
   type ReactiveInternals,
   InternalChildren,
@@ -5,14 +6,14 @@ import {
 } from "@starbeam/timeline";
 
 export class StaticInternals {
-  static create(description: string): StaticInternals {
+  static create(description: Description): StaticInternals {
     return new StaticInternals(description);
   }
 
   readonly type = "static";
-  readonly #description: string;
+  readonly #description: Description;
 
-  private constructor(description: string) {
+  private constructor(description: Description) {
     this.#description = description;
   }
 
@@ -24,7 +25,7 @@ export class StaticInternals {
     return InternalChildren.None();
   }
 
-  get description(): string {
+  get description(): Description {
     return this.#description;
   }
 

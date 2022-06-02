@@ -2,9 +2,9 @@ import type { UNINITIALIZED } from "@starbeam/peer";
 
 import type { MutableInternals } from "../timeline/reactive.js";
 import { RenderableMap } from "./map.js";
-import { Renderable } from "./renderable.js";
+import { type RenderableOperations, Renderable } from "./renderable.js";
 
-export class Renderables {
+export class Renderables implements RenderableOperations {
   static create(): Renderables {
     return new Renderables(RenderableMap.empty());
   }

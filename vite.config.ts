@@ -8,9 +8,12 @@ export default defineConfig({
     ],
     exclude: ["packages/*/tests/node_modules/**"],
     threads: false,
+    allowOnly: true,
   },
 
   define: {
     "import.meta.vitest": false,
   },
+
+  plugins: [],
 });

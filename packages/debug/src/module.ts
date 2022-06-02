@@ -12,13 +12,10 @@ export class DescribedModule {
   }
 
   get #simple() {
-    return `at ${this.#module.path}`;
+    return `${this.#module.path}`;
   }
 
-  display(location?: {
-    loc?: { line: number; column: number };
-    action?: string;
-  }): string {
+  display(location?: { loc?: Loc; action?: string }): string {
     if (location === undefined) {
       return this.#simple;
     }
@@ -26,17 +23,30 @@ export class DescribedModule {
     const { loc, action } = location;
 
     const hasLoc = loc !== undefined;
-    const hasAction = action !== undefined;
+    const hasAction = action !== undefined && action.trim().length !== 0;
 
     if (hasLoc && hasAction) {
-      return `at ${action} (${this.#module.path}:${loc.line}:${loc.column})`;
+      return `${action} (${this.#module.path}:${formatLoc(loc)})`;
     } else if (hasLoc) {
-      return `at ${this.#module.path}:${loc.line}:${loc.column}`;
+      return `${this.#module.path}:${formatLoc(loc)}`;
     } else if (hasAction) {
-      return `at ${action} (${this.#module.path})`;
+      return `${action} (${this.#module.path})`;
     } else {
       return this.#simple;
     }
+  }
+}
+
+interface Loc {
+  line: number;
+  column?: number;
+}
+
+function formatLoc(loc: Loc) {
+  if (loc.column === undefined) {
+    return `${loc.line}`;
+  } else {
+    return `${loc.line}:${loc.column}`;
   }
 }
 

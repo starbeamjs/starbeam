@@ -1,3 +1,4 @@
+import type { Description } from "@starbeam/debug";
 import {
   type FinalizedFrame,
   type ReactiveInternals,
@@ -13,7 +14,7 @@ import { type MutableInternals, TIMELINE } from "@starbeam/timeline";
 export class FormulaState<T> implements ReactiveProtocol {
   static evaluate<T>(
     formula: () => T,
-    description: string
+    description: Description
   ): { state: FormulaState<T>; value: T } {
     const { frame, value } = TIMELINE.evaluateFormula(formula, description);
 
@@ -26,13 +27,13 @@ export class FormulaState<T> implements ReactiveProtocol {
   readonly #formula: () => T;
   #frame: FinalizedFrame<T>;
   #lastValue: T;
-  readonly #description: string;
+  readonly #description: Description;
 
   private constructor(
     formula: () => T,
     frame: FinalizedFrame<T>,
     lastValue: T,
-    description: string
+    description: Description
   ) {
     this.#formula = formula;
     this.#frame = frame;

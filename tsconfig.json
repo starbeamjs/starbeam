@@ -1,18 +1,19 @@
 {
   "compilerOptions": {
+    "jsx": "preserve",
     "allowJs": false,
     "declaration": true,
     "declarationMap": true,
-    "target": "ESNext",
+    "target": "esnext",
     "strict": true,
     "noEmit": true,
     "useDefineForClassFields": true,
-    "allowSyntheticDefaultImports": false,
-    "esModuleInterop": false,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "experimentalDecorators": true,
-    "module": "ESNext",
-    "moduleResolution": "nodenext",
-    "lib": ["ESNext", "DOM"],
+    "module": "esnext",
+    "moduleResolution": "node",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noImplicitReturns": true,
@@ -22,17 +23,14 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true
   },
-  "include": [
-    "packages/*/index.ts",
-    "packages/*/src/**/*.ts",
-    "packages/*/tests/**/*.ts",
-    "framework/*/*/src/**/*.ts",
-    "framework/*/*/tests/**/*.spec.ts"
-  ],
+
+  "exclude": ["**/node_modules/**"],
+
   "ts-node": {
     "swc": true,
+    "transpileOnly": true,
     "experimentalResolverFeatures": true,
     "preferTsExts": true,
-    "emit": true
+    "emit": false
   }
 }

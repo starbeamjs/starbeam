@@ -3,15 +3,6 @@
   "version": "0.0.0",
   "type": "module",
   "main": "index.ts",
-  "exports": {
-    ".": {
-      "types": "./index.js",
-      "import": {
-        "node": "./index.ts",
-        "default": "./dist/index.js"
-      }
-    }
-  },
   "scripts": {
     "doc": "node ./scripts/doc.js",
     "doc:readme": "node ./scripts/doc.js README",

@@ -1,9 +1,14 @@
 import { hasType, isObject, verified } from "@starbeam/verify";
 import StackTracey from "stacktracey";
 
+import { Description } from "./description/debug.js";
 import { describeModule } from "./module.js";
 
 export class ParsedStack {
+  static empty() {
+    return new ParsedStack("", "", []);
+  }
+
   static parse({ stack }: { stack: string }) {
     const parsed = new StackTracey(stack);
     const frames = parsed.items;
@@ -95,13 +100,34 @@ export class Stack {
     return Stack.callerFrame(internal + 1)?.display ?? "";
   }
 
+  static empty(): Stack {
+    return new Stack(ParsedStack.empty());
+  }
+
+  static description(
+    kind: string,
+    specified?: string | Description,
+    internal = 0
+  ): Description {
+    if (typeof specified === "string" || specified === undefined) {
+      return new Description(
+        kind,
+        Stack.fromCaller(internal + 1),
+        specified,
+        undefined
+      );
+    } else {
+      return specified;
+    }
+  }
+
   static callerFrame(internal = 0): StackFrame | undefined {
     return Stack.fromCaller(internal + 1).caller;
   }
 
   static fromCaller(internal = 0): Stack {
     // Remove *this* `fromCaller` frame from the stack *and* the caller's frame
-    return Stack.create(internal + 1);
+    return Stack.create(internal + 2);
   }
 
   #parsed: ParsedStack;
@@ -160,8 +186,12 @@ export class StackFrame {
     return this.#reify().callee;
   }
 
-  get loc() {
+  get loc(): { line: number; column?: number } | undefined {
     const entry = this.#reify();
+
+    if (entry.line === undefined) {
+      return undefined;
+    }
 
     return { line: entry.line, column: entry.column };
   }
@@ -172,7 +202,7 @@ export class StackFrame {
 
   get display() {
     const module = describeModule(this.#reify().file);
-    return module.display({ action: this.action, ...this.loc });
+    return module.display({ action: this.action, loc: this.loc });
   }
 }
 
