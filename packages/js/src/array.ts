@@ -150,7 +150,7 @@ class Shadow<T> {
   }
 }
 
-export class TrackedArray<T = unknown> {
+export default class TrackedArray<T = unknown> {
   /**
    * Creates an array from an iterable object.
    * @param iterable An iterable object to convert to an array.
@@ -242,8 +242,6 @@ export class TrackedArray<T = unknown> {
     return proxy;
   }
 }
-
-export default TrackedArray;
 
 // Ensure instanceof works correctly
 Object.setPrototypeOf(TrackedArray.prototype, Array.prototype);

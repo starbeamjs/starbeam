@@ -1,6 +1,7 @@
 import type { Description } from "@starbeam/debug";
 import { Stack } from "@starbeam/debug";
 
+import TrackedArray from "./src/array.js";
 import { Collection } from "./src/collection.js";
 import { TrackedMap, TrackedWeakMap } from "./src/map.js";
 import TrackedObject from "./src/object.js";
@@ -32,10 +33,10 @@ function reactive(
   throw new Error(`Unsupported constructor: ${constructor.name}`);
 }
 
-reactive.Map = <K, V>(description?: string | Description) => {
-  const map = new TrackedMap() as Map<K, V>;
-  Collection.for(map).description = Stack.description("{Map}", description);
-  return map;
+reactive.Map = <K, V>(description?: string | Description): Map<K, V> => {
+  const map = new TrackedMap();
+  TrackedMap.setDescription(map, Stack.description("{Map}", description));
+  return map as Map<K, V>;
 };
 
 reactive.WeakMap = <K extends object, V>(
@@ -68,6 +69,13 @@ reactive.object = <T extends object>(
     description
   );
   return object;
+};
+
+reactive.array = <T>(values: T[], description?: string | Description): T[] => {
+  const array = new TrackedArray(values) as T[];
+
+  Collection.for(array).description = Stack.description("{array}", description);
+  return array;
 };
 
 export default reactive;

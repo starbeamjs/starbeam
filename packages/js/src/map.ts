@@ -11,6 +11,11 @@ export class TrackedMap<K = unknown, V = unknown> implements Map<K, V> {
     return new TrackedMap(INTERNAL, new Map(map)) as unknown as M;
   }
 
+  static setDescription(map: TrackedMap, description: Description): void {
+    map.#collection.description = description;
+    Marker.setDescription(map.#values, description.implementation("{values}"));
+  }
+
   readonly #collection: Collection<K>;
   readonly #values: Marker;
   readonly #equals: Equality<V> = Object.is;
@@ -40,12 +45,11 @@ export class TrackedMap<K = unknown, V = unknown> implements Map<K, V> {
       this.#vals = existing ? new Map<K, V>(existing) : new Map<K, V>();
     }
 
-    this.#collection = Collection.create(
-      Description.create("Map", Stack.empty()),
-      this
-    );
+    const desc = Description.create("Map", Stack.empty());
 
-    this.#values = Marker(`TrackedMap @ ${Stack.describeCaller()}`);
+    this.#collection = Collection.create(desc, this);
+
+    this.#values = Marker(desc.implementation("{values}"));
   }
 
   // **** KEY GETTERS ****

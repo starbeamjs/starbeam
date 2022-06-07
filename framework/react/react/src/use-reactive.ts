@@ -57,12 +57,11 @@ export function useStableVariable<T>(
   });
 }
 
-export function useProp<T>(
-  variable: T,
-  description = Stack.describeCaller()
-): Reactive<T> {
+export function useProp<T>(variable: T, description?: string): Reactive<T> {
   return useUpdatingVariable({
-    initial: () => Cell(variable, description),
+    initial: () => {
+      return Cell(variable, Stack.description("{prop}", description, 3));
+    },
     update: (cell) => cell.set(variable),
   });
 }

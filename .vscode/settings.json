@@ -1,59 +1,13 @@
 {
-  "files.exclude": {
-    "node_modules": true,
-    "{packages,framework,demos}/**/node_modules": true,
-
-    "docs": true,
-    "**/*.tsbuildinfo": true,
-    "types": true,
-    "**/dist": true
-  },
-
-  "explorer.fileNesting.patterns": {
-    "*.ts": "${capture}.js",
-    "*.js": "${capture}.js.map, ${capture}.min.js, ${capture}.d.ts",
-    "*.jsx": "${capture}.js",
-    "*.tsx": "${capture}.ts",
-    "tsconfig.json": "tsconfig.*.json",
-    "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, pnpm-workspace.yaml, .npmrc, babel.config.json, .quokka, .swcrc, jest.config.json",
-    ".eslintrc.*": ".eslintignore"
-  },
-  "explorer.fileNesting.enabled": true,
-
-  "editor.formatOnSave": true,
-
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true,
-    "source.organizeImports": false
+    "source.fixAll.eslint.format": true,
+    "organizeImports": true
   },
-
-  "typescript.preferences.importModuleSpecifier": "project-relative",
-  "javascript.preferences.importModuleSpecifierEnding": "js",
-  "typescript.preferences.importModuleSpecifierEnding": "js",
-
-  "npm.packageManager": "pnpm",
-  "eslint.packageManager": "yarn",
-  "typescript.tsdk": "node_modules/typescript/lib",
-
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
   "vitest.enable": true,
-  "vitest.include": [
-    "packages/*/tests/**/*.spec.ts",
-    "framework/*/*/tests/**/*.spec.ts"
-  ],
-  "vitest.exclude": ["tests/**", "packages/*/tests/node_modules/**"],
-  "typescript.preferences.includePackageJsonAutoImports": "auto",
-  "typescript.updateImportsOnFileMove.enabled": "always",
-  "typescript.tsserver.experimental.enableProjectDiagnostics": false,
-
-  "searchEverywhere.shouldUseDebounce": true,
-  "searchEverywhere.itemsFilterPhrases": {
-    "0": "$$",
-    "4": "@@",
-    "5": "!!",
-    "11": "!!",
-    "14": "##",
-    "17": "%%"
-  },
-  "editor.insertSpaces": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.preferences.importModuleSpecifier": "project-relative",
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
   "testing.automaticallyOpenPeekView": "never"
 }

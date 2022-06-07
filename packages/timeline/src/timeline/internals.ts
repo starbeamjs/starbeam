@@ -54,9 +54,10 @@ export class InternalChildren {
       case "Children": {
         const children = this.#enum.children.flatMap(
           (child): readonly MutableInternals[] => {
-            if (child[REACTIVE].type === "mutable") {
-              if (!child[REACTIVE].isFrozen()) {
-                return [child[REACTIVE]];
+            const internals = child[REACTIVE];
+            if (internals.type === "mutable") {
+              if (!internals.isFrozen()) {
+                return [internals];
               }
             } else {
               return [...child[REACTIVE].children().dependencies];

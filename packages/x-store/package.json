@@ -1,0 +1,12 @@
+{
+  "name": "@starbeamx/store",
+  "description": "A Starbeam Store that's fun and easy to use",
+  "version": "0.5.0",
+  "type": "module",
+  "main": "index.ts",
+  "dependencies": {
+    "@starbeam/core": "workspace:*",
+    "@starbeam/debug": "workspace:*",
+    "@starbeam/js": "workspace:*"
+  }
+}

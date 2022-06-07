@@ -82,6 +82,10 @@ export class Logger {
     return this.#config.minimum === LogLevel.Trace;
   }
 
+  get isDebug() {
+    return this.#config.minimum <= LogLevel.Debug;
+  }
+
   configure(config: Partial<LoggerConfig>): void {
     Object.assign(this.#config, config);
   }

@@ -188,9 +188,9 @@ export function useStarbeam<T>(
   const polled = renderable.poll();
 
   // eslint-disable-next-line
-  if (LOGGER.isVerbose) {
-    console.group(`${desc.userFacing().describe()} dependencies`);
-    console.log(renderable.debug({ source: true }));
+  if (LOGGER.isDebug) {
+    console.groupCollapsed(`${desc.userFacing().describe()} dependencies`);
+    console.log(renderable.debug({ source: LOGGER.isVerbose || undefined }));
     console.groupEnd();
   }
 
@@ -285,6 +285,8 @@ export function useStarbeam<T>(
     });
 
     LIFETIME.link(element, renderable);
+
+    ReactiveElement.setupDev(element, renderable);
 
     /**
      * The resource, as far as useResource is concerned, is a record

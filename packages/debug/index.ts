@@ -10,7 +10,7 @@ export {
   INSPECT,
   inspector,
 } from "./src/inspect/inspect-support.js";
-export { type Logger, LOGGER } from "./src/logger.js";
+export { type Logger, LOGGER, LogLevel } from "./src/logger.js";
 export { describeModule } from "./src/module.js";
 export { Stack, StackFrame } from "./src/stack.js";
 export { Tree } from "./src/tree.js";

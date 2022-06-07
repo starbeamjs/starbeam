@@ -1,8 +1,9 @@
 import type { browser } from "@domtree/flavors";
 import type { Linkable, Resource } from "@starbeam/core";
 import type { Cell, Reactive } from "@starbeam/core";
-import type { OnCleanup, Unsubscribe } from "@starbeam/timeline";
+import type { OnCleanup, Renderable, Unsubscribe } from "@starbeam/timeline";
 import { LIFETIME } from "@starbeam/timeline";
+import type { ReactElement } from "react";
 
 import { type ElementRef, type ReactElementRef, ref } from "./ref.js";
 
@@ -130,15 +131,30 @@ class Refs {
  */
 export class ReactiveElement {
   static create(notify: () => void): ReactiveElement {
-    return new ReactiveElement(notify, Lifecycle.create(), Refs.None());
+    return new ReactiveElement(
+      notify,
+      Lifecycle.create(),
+      new Set(),
+      Refs.None()
+    );
   }
 
   static reactivate(prev: ReactiveElement): ReactiveElement {
     return new ReactiveElement(
       prev.notify,
       Lifecycle.create(),
+      prev.#renderable,
       prev.#refs.fromPrev()
     );
+  }
+
+  static setupDev(
+    element: ReactiveElement,
+    renderable: Renderable<ReactElement>
+  ): void {
+    for (const callback of element.#renderable) {
+      callback(renderable);
+    }
   }
 
   static attached(element: ReactiveElement): void {
@@ -150,15 +166,18 @@ export class ReactiveElement {
   }
 
   readonly #lifecycle: Lifecycle;
+  readonly #renderable: Set<(renderable: Renderable<ReactElement>) => void>;
   #refs: Refs;
 
   private constructor(
     readonly notify: () => void,
     lifecycle: Lifecycle,
+    renderable: Set<(renderable: Renderable<ReactElement>) => void>,
     refs: Refs
   ) {
     this.#lifecycle = lifecycle;
     this.on = Lifecycle.on(lifecycle, this);
+    this.#renderable = renderable;
     this.#refs = refs;
   }
 
@@ -166,6 +185,10 @@ export class ReactiveElement {
 
   use<T>(resource: Linkable<Resource<T>>): Resource<T> {
     return resource.owner(this);
+  }
+
+  dev(callback: (renderable: Renderable<ReactElement>) => void) {
+    this.#renderable.add(callback);
   }
 
   refs<R extends RefsTypes>(refs: R): RefsRecordFor<R> {

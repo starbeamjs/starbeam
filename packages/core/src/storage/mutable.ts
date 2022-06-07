@@ -31,7 +31,7 @@ export class MutableInternalsImpl implements ReactiveProtocol {
 
   #frozen: boolean;
   #lastUpdate: Timestamp;
-  readonly #description: Description;
+  #description: Description;
 
   private constructor(
     frozen: boolean,
@@ -86,6 +86,10 @@ export class MutableInternalsImpl implements ReactiveProtocol {
   /** impl ReactiveInternals */
   get description(): Description {
     return this.#description;
+  }
+
+  set description(value: Description) {
+    this.#description = value;
   }
 
   isUpdatedSince(timestamp: Timestamp): boolean {

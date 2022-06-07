@@ -1,8 +1,9 @@
 import { Formula } from "@starbeam/core";
-import { LOGGER, Stack } from "@starbeam/debug";
+import { Stack } from "@starbeam/debug";
 import { LIFETIME, TIMELINE } from "@starbeam/timeline";
 import { useResource, useUpdatingRef } from "@starbeam/use-resource";
-import { useState, type ReactElement } from "react";
+import { type ReactElement, useState } from "react";
+
 import { ReactiveElement } from "./element.js";
 import { StableProps } from "./stable-props.js";
 
@@ -301,7 +302,7 @@ export function useReactiveElement<I extends Inputs>(
      */
     const renderable = TIMELINE.on.change(
       formula,
-      (renderable) => {
+      () => {
         queueMicrotask(notify);
       },
       description
@@ -312,6 +313,8 @@ export function useReactiveElement<I extends Inputs>(
     });
 
     LIFETIME.link(element, renderable);
+
+    ReactiveElement.setupDev(element, renderable);
 
     /**
      * The resource, as far as useResource is concerned, is a record

@@ -61,7 +61,7 @@ export class Description {
    * @param options.implementation include descriptions that are implementation details
    */
   describe({
-    source = false,
+    source,
     implementation = false,
   }: { source?: boolean; implementation?: boolean } = {}): string {
     if (this.#parent && !implementation) {
@@ -87,7 +87,7 @@ export class Description {
       if (source) {
         description += ` at ${caller}`;
       }
-    } else if (!this.#parent) {
+    } else if (!this.#parent && source !== false) {
       description += ` @ ${caller}`;
     }
 

@@ -37,16 +37,7 @@
         "message": "const enums are not supported in isolated module mode"
       }
     ],
-    "import/no-unresolved": [
-      "error",
-      {
-        "ignore": [
-          "^@glimmer/local-debug-flags$",
-          "^@glimmer/env$",
-          "^@glimmer/syntax$"
-        ]
-      }
-    ],
+
     "import/no-cycle": ["warn"],
     "import/no-duplicates": "off",
     "simple-import-sort/imports": "error",
@@ -81,9 +72,14 @@
   },
   "overrides": [
     {
-      "files": ["demos/react/**/*.{tsx,ts}"],
+      "files": ["demos/*/**/*.{tsx,ts}"],
       "rules": {
-        "@typescript-eslint/no-non-null-assertion": "off"
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-unsafe-call": "off",
+        "@typescript-eslint/no-unsafe-return": "off",
+        "@typescript-eslint/no-unsafe-member-access": "off",
+        "@typescript-eslint/no-unsafe-assignment": "off"
       }
     }
   ]

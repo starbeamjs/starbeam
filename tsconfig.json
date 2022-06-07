@@ -21,16 +21,19 @@
     "isolatedModules": true,
     "preserveValueImports": true,
     "skipLibCheck": true,
-    "skipDefaultLibCheck": true
+    "skipDefaultLibCheck": true,
+    "inlineSourceMap": true,
+    "inlineSources": true
   },
 
-  "exclude": ["**/node_modules/**"],
+  "include": ["packages", "framework", "demos", "vite.config.ts"],
+  "exclude": ["**/node_modules/**", "node_modules/**"]
 
-  "ts-node": {
-    "swc": true,
-    "transpileOnly": true,
-    "experimentalResolverFeatures": true,
-    "preferTsExts": true,
-    "emit": false
-  }
+  // "ts-node": {
+  //   "swc": true,
+  //   "transpileOnly": true,
+  //   "experimentalResolverFeatures": true,
+  //   "preferTsExts": true,
+  //   "emit": false
+  // }
 }

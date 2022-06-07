@@ -16,6 +16,20 @@ export interface RenderableOperations {
   poll<T>(renderable: Renderable<T>): T;
 }
 
+export interface DevLifecycle<T> {
+  readonly dependencies?: (change: DevDependencies<T>) => void;
+  readonly invalidated?: (invalidated: DevInvalidated) => void;
+}
+
+export interface DevInvalidated {
+  readonly dependencies: MutableInternals[];
+}
+
+export interface DevDependencies<T> {
+  readonly dependencies: MutableInternals[];
+  readonly diff?: Diff<T>;
+}
+
 /**
  * A {@link Renderable} associates a {@link Reactive} object with a render
  * phase.
@@ -41,6 +55,7 @@ export class Renderable<T = unknown> {
       notify,
       UNINITIALIZED,
       operations,
+      new Set(),
       new Set(initialDependencies),
       TIMELINE.now,
       description
@@ -73,6 +88,7 @@ export class Renderable<T = unknown> {
   readonly #notify: { readonly ready: (renderable: Renderable<T>) => void };
   readonly #last: UNINITIALIZED | T;
   readonly #operations: RenderableOperations;
+  readonly #dev: Set<DevLifecycle<T>>;
   #dependencies: Set<MutableInternals>;
   readonly #description: Description;
 
@@ -84,6 +100,7 @@ export class Renderable<T = unknown> {
     notify: { readonly ready: (renderable: Renderable<T>) => void },
     last: UNINITIALIZED | T,
     operations: RenderableOperations,
+    dev: Set<DevLifecycle<T>>,
     dependencies: Set<MutableInternals>,
     lastChecked: Timestamp,
     description: Description
@@ -92,30 +109,43 @@ export class Renderable<T = unknown> {
     this.#dependencies = dependencies;
     this.#last = last;
     this.#operations = operations;
+    this.#dev = dev;
     this.#notify = notify;
     this.#lastChecked = lastChecked;
     this.#description = description;
   }
 
   poll(): T {
+    const invalid = [...this.#dependencies].filter((dep) =>
+      dep.isUpdatedSince(this.#lastChecked)
+    );
+
+    if (invalid.length > 0) {
+      for (const dev of this.#dev) {
+        dev.invalidated?.({
+          dependencies: invalid,
+        });
+      }
+    }
+
     // TODO: Debug infrastructure
     // eslint-disable-next-line no-constant-condition
     if (true) {
-      const invalid = [...this.#dependencies].filter((dep) =>
-        dep.isUpdatedSince(this.#lastChecked)
-      );
-
-      if (LOGGER.isVerbose && invalid.length > 0) {
+      if (LOGGER.isDebug && invalid.length > 0) {
         console.group(
-          `${this.#description.userFacing().describe()} invalidated`
+          `%c${this.#description.userFacing().describe()} invalidated`,
+          "color: red"
         );
-        console.log(
-          Tree(
-            ...invalid.map((d) =>
-              d.description.userFacing().describe({ source: true })
-            )
-          ).format()
+
+        const userFacing = new Set(
+          invalid.map((d) => d.description.userFacing())
         );
+
+        const descs = [...userFacing].map((d) =>
+          d.describe({ source: LOGGER.isVerbose || undefined })
+        );
+
+        console.log(Tree(...descs).format());
         console.groupEnd();
       }
     }
@@ -123,8 +153,21 @@ export class Renderable<T = unknown> {
     return this.#operations.poll(this);
   }
 
+  dev(
+    lifecycle: DevLifecycle<T>
+  ): [dependencies: MutableInternals[], cleanup: () => void] {
+    this.#dev.add(lifecycle);
+
+    return [
+      [...this.#dependencies],
+      () => {
+        this.#dev.delete(lifecycle);
+      },
+    ];
+  }
+
   debug({
-    source = false,
+    source,
     implementation = false,
   }: { source?: boolean; implementation?: boolean } = {}): string {
     const dependencies = [...this.#input[REACTIVE].children().dependencies];
@@ -140,7 +183,7 @@ export class Renderable<T = unknown> {
       d.describe({ source, implementation })
     );
 
-    return Tree([this.#description.describe(), ...nodes]).format();
+    return Tree(...nodes).format();
   }
 
   render():
@@ -170,11 +213,23 @@ export class Renderable<T = unknown> {
     this.#dependencies = nextDeps;
     this.#lastChecked = TIMELINE.now;
 
-    return { ...diff(prevDeps, nextDeps), values: { prev, next } };
+    const diffs: Diff<T> = {
+      ...diff(prevDeps, nextDeps),
+      values: { prev, next },
+    };
+
+    for (const dev of this.#dev) {
+      dev.dependencies?.({
+        dependencies: [...nextDeps],
+        diff: diffs,
+      });
+    }
+
+    return diffs;
   }
 }
 
-interface Diff<T> {
+export interface Diff<T> {
   readonly values: {
     readonly prev: T | UNINITIALIZED;
     readonly next: T;

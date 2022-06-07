@@ -11,7 +11,7 @@ Starbeam's reactivity is based on a very simple, but powerful, idea:
 - You mark your mutable state as reactive. Individual pieces of mutable state are called **data cells**.
 - You use normal functions (or getters) to compute values based on your mutable state.
 - You can turn a function into a **formula cell** to automatically cache it, and it will only recompute when the data cells it uses change.
-- You use **resources** to compute values that require structured cleanup.
+- You use **resources** to compute values that require structured cleanup.q
 
 We call this collection of values the **data universe**. The data universe is always internally coherent. Once you mutate your state, you can call any function that depends on the mutable state, and that function will see an up-to-date version of the state.
 

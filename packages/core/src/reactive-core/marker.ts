@@ -13,6 +13,13 @@ export class ReactiveMarker implements ReactiveProtocol {
     return new ReactiveMarker(internals);
   }
 
+  static setDescription(
+    marker: ReactiveMarker,
+    description: Description
+  ): void {
+    marker.#internals.description = description;
+  }
+
   readonly #internals: MutableInternalsImpl;
 
   private constructor(reactive: MutableInternalsImpl) {
@@ -45,5 +52,8 @@ export function Marker(description?: string | Description): ReactiveMarker {
     MutableInternalsImpl.create(Stack.description("Marker", description))
   );
 }
+
+// eslint-disable-next-line @typescript-eslint/unbound-method
+Marker.setDescription = ReactiveMarker.setDescription;
 
 export type Marker = ReactiveMarker;

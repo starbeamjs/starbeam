@@ -4,11 +4,17 @@ import { expected, isPresent, verified } from "@starbeam/verify";
 
 class ItemState {
   static uninitialized(description: Description): ItemState {
-    return new ItemState(Cell(false, description), Marker(description));
+    return new ItemState(
+      Cell(false as boolean, description),
+      Marker(description)
+    );
   }
 
   static initialized(description: Description): ItemState {
-    return new ItemState(Cell(true, description), Marker(description));
+    return new ItemState(
+      Cell(true as boolean, description),
+      Marker(description)
+    );
   }
 
   #present: Cell<boolean>;

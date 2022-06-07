@@ -1,0 +1,61 @@
+:root {
+  --devtools-bgcolor-1: #ddd;
+  --devtools-fgcolor-1: #333;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --devtools-bgcolor-1: #333;
+    --devtools-fgcolor-1: #ddd;
+  }
+}
+
+.starbeam-devtool * {
+  font-family: monospace;
+  color: var(--devtools-fgcolor-1);
+  box-sizing: border-box;
+}
+
+.starbeam-devtool :is(h1, h2, h3, h4, h5, h6) {
+  margin: 0;
+  padding: 0;
+  font-weight: normal;
+  font-size: inherit;
+  line-height: inherit;
+  text-align: start;
+}
+
+.starbeam-devtool {
+  position: fixed;
+  display: grid;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem;
+  /* height: max-content; */
+  background-color: var(--devtools-bgcolor-1);
+  color: var(--devtools-fgcolor-1);
+  z-index: 99999;
+
+  font-family: monospace;
+  font-size: 14px;
+  color: #fff;
+  overflow: auto;
+}
+
+.starbeam-devtool ul {
+  list-style-type: "→";
+  padding: 0;
+  padding-inline-start: 1ch;
+  margin: 0;
+}
+
+.starbeam-devtool li {
+  padding-inline-start: 1ch;
+}
+
+.starbeam-devtool section + section {
+  margin-top: 1rem;
+}
+
+}
