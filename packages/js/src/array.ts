@@ -6,8 +6,7 @@
 // and it will blow up in JS in exactly the same way, so it is safe to assume
 // that properties within the getter have the correct type in TS.
 
-import { Stack } from "@starbeam/debug";
-import { Description } from "@starbeam/debug/src/description/debug.js";
+import type { DescriptionArgs } from "@starbeam/debug";
 
 import { Collection } from "./collection.js";
 
@@ -151,39 +150,7 @@ class Shadow<T> {
 }
 
 export default class TrackedArray<T = unknown> {
-  /**
-   * Creates an array from an iterable object.
-   * @param iterable An iterable object to convert to an array.
-   */
-  static from<T>(iterable: Iterable<T> | ArrayLike<T>): TrackedArray<T>;
-
-  /**
-   * Creates an array from an iterable object.
-   * @param iterable An iterable object to convert to an array.
-   * @param mapfn A mapping function to call on every element of the array.
-   * @param thisArg Value of 'this' used to invoke the mapfn.
-   */
-  static from<T, U>(
-    iterable: Iterable<T> | ArrayLike<T>,
-    mapfn: (v: T, k: number) => U,
-    thisArg?: unknown
-  ): TrackedArray<U>;
-
-  static from<T, U>(
-    iterable: Iterable<T> | ArrayLike<T>,
-    mapfn?: (v: T, k: number) => U,
-    thisArg?: unknown
-  ): TrackedArray<T> | TrackedArray<U> {
-    return mapfn
-      ? new TrackedArray(Array.from(iterable, mapfn, thisArg))
-      : new TrackedArray(Array.from(iterable));
-  }
-
-  static of<T>(...arr: T[]): TrackedArray<T> {
-    return new TrackedArray(arr);
-  }
-
-  constructor(arr: T[] = []) {
+  constructor(description: DescriptionArgs, arr: T[] = []) {
     Object.freeze(arr);
 
     const target = [...arr];
@@ -232,10 +199,7 @@ export default class TrackedArray<T = unknown> {
       },
     });
 
-    const collection = Collection.create<number>(
-      Description.create("array", Stack.empty()),
-      proxy
-    );
+    const collection = Collection.create<number>(description, proxy);
 
     const shadow = Shadow.create(target, collection);
 

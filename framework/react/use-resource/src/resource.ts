@@ -1,9 +1,10 @@
 import {
+  type MutableRefObject,
   useEffect,
   useLayoutEffect,
   useState,
-  type MutableRefObject,
 } from "react";
+
 import {
   isAttachedState,
   isPreparedForActivationState,
@@ -17,16 +18,15 @@ import type {
   UpdateResource,
 } from "./delegate.js";
 import { callerFrame } from "./description.js";
+import type { ReadyReactState, RenderedReactState } from "./states.js";
 import {
+  type TopLevelReactState,
   DeactivatedReactState,
   InstantiatedReactState,
   ReactState,
-  ReadyReactState,
   ReadyToReactivateReactState,
-  RenderedReactState,
-  type TopLevelReactState,
 } from "./states.js";
-import { useLastRenderRef, useUpdatingRef, type Ref } from "./updating-ref.js";
+import { type Ref, useLastRenderRef, useUpdatingRef } from "./updating-ref.js";
 import { check, checked, exhaustive } from "./utils.js";
 
 export interface LifecycleConfig {
@@ -282,8 +282,7 @@ export function useResource(): {
 }
 
 useResource.create = <T>(
-  create: CreateResource<T, void>,
-  options?: LifecycleConfig
+  create: CreateResource<T, void>
 ): Resource<T, void> => {
   return useResource.with(undefined as void).create(create);
 };

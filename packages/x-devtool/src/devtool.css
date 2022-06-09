@@ -1,17 +1,22 @@
 :root {
   --devtools-bgcolor-1: #ddd;
   --devtools-fgcolor-1: #333;
+  --devtools-fgcolor-2: #555;
+  --devtools-fgcolor-3: #777;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --devtools-bgcolor-1: #333;
+    --devtools-bgcolor-1: #444;
     --devtools-fgcolor-1: #ddd;
+    --devtools-fgcolor-2: #bbb;
+    --devtools-fgcolor-3: #999;
   }
 }
 
 .starbeam-devtool * {
   font-family: monospace;
+  font-size: 12px;
   color: var(--devtools-fgcolor-1);
   box-sizing: border-box;
 }
@@ -58,4 +63,57 @@
   margin-top: 1rem;
 }
 
+.starbeam-devtool section.dependencies {
+  display: grid;
+  column-gap: 0.5rem;
+  align-items: center;
+  grid-template-columns: max-content max-content max-content max-content;
+}
+
+.starbeam-devtool section.dependencies ul.dependencies {
+  display: contents;
+}
+
+.starbeam-devtool section.dependencies h1 {
+  font-weight: bold;
+  grid-column: 1 / span 2;
+}
+
+.starbeam-devtool section.dependencies :not(h1) + h1 {
+  margin-top: 1rem;
+}
+
+.starbeam-devtool ul.dependencies li {
+  display: contents;
+}
+
+.starbeam-devtool ul.dependencies li::before {
+  content: "→";
+  grid-column: 1;
+}
+
+.starbeam-devtool ul.dependencies li span.kind {
+  grid-column: 3;
+}
+
+.starbeam-devtool ul.dependencies li span.specified {
+  grid-column: 2;
+}
+
+.starbeam-devtool ul.dependencies li button {
+  background-color: transparent;
+  color: var(--devtools-fgcolor-2);
+  border: transparent;
+  text-decoration: underline;
+  cursor: pointer;
+  text-align: start;
+  width: max-content;
+}
+
+.starbeam-devtool ul.dependencies li button:hover {
+  color: var(--devtools-fgcolor-3);
+}
+
+.starbeam-devtool ul.dependencies li button:active {
+  color: var(--devtools-fgcolor-1);
 }

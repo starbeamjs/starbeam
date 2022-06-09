@@ -1,4 +1,4 @@
-import type { Description } from "@starbeam/debug";
+import type { DescriptionArgs } from "@starbeam/debug";
 import { Stack } from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/peer";
 import type { FinalizedFrame, ReactiveInternals } from "@starbeam/timeline";
@@ -16,31 +16,25 @@ interface LastEvaluation<T> {
 export class ReactiveFormula<T> implements Reactive<T> {
   static create<T>(
     formula: () => T,
-    description: Description
+    description: DescriptionArgs
   ): ReactiveFormula<T> {
-    return new ReactiveFormula(
-      Marker(description),
-      UNINITIALIZED,
-      formula,
-      description
-    );
+    return new ReactiveFormula(UNINITIALIZED, formula, description);
   }
 
   #marker: Marker;
   #last: LastEvaluation<T> | UNINITIALIZED;
   readonly #formula: () => T;
-  readonly #description: Description;
+  readonly #description: DescriptionArgs;
 
   private constructor(
-    marker: Marker,
     last: LastEvaluation<T> | UNINITIALIZED,
     formula: () => T,
-    description: Description
+    description: DescriptionArgs
   ) {
-    this.#marker = marker;
     this.#last = last;
     this.#formula = formula;
     this.#description = description;
+    this.#marker = Marker(description);
   }
 
   get [REACTIVE](): ReactiveInternals {
@@ -83,12 +77,9 @@ export class ReactiveFormula<T> implements Reactive<T> {
 
 export function Formula<T>(
   formula: () => T,
-  description?: string | Description
+  description?: string | DescriptionArgs
 ): ReactiveFormula<T> {
-  return ReactiveFormula.create(
-    formula,
-    Stack.description("Formula", description)
-  );
+  return ReactiveFormula.create(formula, Stack.description(description));
 }
 
 export type Formula<T> = ReactiveFormula<T>;

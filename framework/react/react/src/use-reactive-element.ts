@@ -303,7 +303,7 @@ export function useReactiveElement<I extends Inputs>(
     const renderable = TIMELINE.on.change(
       formula,
       () => {
-        queueMicrotask(notify);
+        TIMELINE.enqueue(notify);
       },
       description
     );
@@ -314,7 +314,7 @@ export function useReactiveElement<I extends Inputs>(
 
     LIFETIME.link(element, renderable);
 
-    ReactiveElement.setupDev(element, renderable);
+    ReactiveElement.attach(element, renderable);
 
     /**
      * The resource, as far as useResource is concerned, is a record

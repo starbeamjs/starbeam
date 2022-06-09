@@ -13,7 +13,7 @@
  * worrying about its lifetime.
  */
 
-import type { Description } from "@starbeam/debug";
+import type { DescriptionArgs } from "@starbeam/debug";
 import { Stack } from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/peer";
 import {
@@ -44,7 +44,7 @@ interface ResourceState<T> {
 export class ReactiveResource<T> implements Reactive<T> {
   static create<T>(
     create: ResourceConstructor<T>,
-    description: Description
+    description: DescriptionArgs
   ): ReactiveResource<T> {
     return new ReactiveResource(
       create,
@@ -60,13 +60,13 @@ export class ReactiveResource<T> implements Reactive<T> {
    */
   #initialized: Marker;
   #state: ResourceState<T> | UNINITIALIZED;
-  #description: Description;
+  #description: DescriptionArgs;
 
   private constructor(
     create: ResourceConstructor<T>,
     initialized: Marker,
     state: ResourceState<T> | UNINITIALIZED,
-    description: Description
+    description: DescriptionArgs
   ) {
     this.#create = create;
     this.#initialized = initialized;
@@ -115,10 +115,11 @@ export class ReactiveResource<T> implements Reactive<T> {
       this.#description
     );
 
-    const formula = Formula(
-      definition,
-      this.#description.implementation("{constructor formula}")
-    );
+    const formula = Formula(definition, {
+      ...this.#description,
+      transform: (description) =>
+        description.implementation({ reason: "constructor formula" }),
+    });
 
     const lifetime = BuildResource.lifetime(build);
 
@@ -166,12 +167,12 @@ class BuildResource implements CleanupTarget {
 
 export function Resource<T>(
   create: ResourceConstructor<T>,
-  description?: string | Description
+  description?: string | DescriptionArgs
 ): Linkable<ReactiveResource<T>> {
   return Linkable.create((owner) => {
     const resource = ReactiveResource.create(
       create,
-      Stack.description("Resource", description)
+      Stack.description(description)
     );
 
     LIFETIME.link(owner, resource);

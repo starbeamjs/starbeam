@@ -96,7 +96,7 @@ describe("A reactive formula", () => {
         name: "Tom Dale",
         location: "New York",
       },
-      (a, b) => a.name === b.name && a.location === b.location
+      { equals: (a, b) => a.name === b.name && a.location === b.location }
     );
 
     const card = Formula(() => ({

@@ -1,19 +1,11 @@
 import { type Equality, Marker } from "@starbeam/core";
-import { Description, Stack } from "@starbeam/debug";
+import type { DescriptionArgs } from "@starbeam/debug";
 
 import { Collection } from "./collection.js";
 
-const INTERNAL = Symbol("INTERNAL");
-type INTERNAL = typeof INTERNAL;
-
 export class TrackedMap<K = unknown, V = unknown> implements Map<K, V> {
-  static reactive<M extends Map<unknown, unknown>>(map: M): M {
-    return new TrackedMap(INTERNAL, new Map(map)) as unknown as M;
-  }
-
-  static setDescription(map: TrackedMap, description: Description): void {
-    map.#collection.description = description;
-    Marker.setDescription(map.#values, description.implementation("{values}"));
+  static reactive<K, V>(description: DescriptionArgs): TrackedMap<K, V> {
+    return new TrackedMap(description);
   }
 
   readonly #collection: Collection<K>;
@@ -21,35 +13,14 @@ export class TrackedMap<K = unknown, V = unknown> implements Map<K, V> {
   readonly #equals: Equality<V> = Object.is;
   readonly #vals: Map<K, V>;
 
-  constructor();
-  constructor(internal: INTERNAL, map: Map<K, V>);
-  constructor(entries: readonly (readonly [K, V])[] | null);
-  constructor(iterable: Iterable<readonly [K, V]>);
-  constructor(
-    ...args:
-      | [INTERNAL, Map<K, V>]
-      | [
-          | readonly (readonly [K, V])[]
-          | Iterable<readonly [K, V]>
-          | null
-          | undefined
-        ]
-  ) {
-    if (args.length === 2 && args[0] === INTERNAL) {
-      let [, map] = args;
-      this.#vals = map;
-    } else {
-      let [existing] = args;
-      // TypeScript doesn't correctly resolve the overloads for calling the `Map`
-      // constructor for the no-value constructor. This resolves that.
-      this.#vals = existing ? new Map<K, V>(existing) : new Map<K, V>();
-    }
+  private constructor(description: DescriptionArgs) {
+    this.#vals = new Map<K, V>();
+    this.#values = Marker({
+      ...description,
+      transform: (d) => d.member("values"),
+    });
 
-    const desc = Description.create("Map", Stack.empty());
-
-    this.#collection = Collection.create(desc, this);
-
-    this.#values = Marker(desc.implementation("{values}"));
+    this.#collection = Collection.create(description, this);
   }
 
   // **** KEY GETTERS ****
@@ -157,27 +128,25 @@ Object.setPrototypeOf(TrackedMap.prototype, Map.prototype);
 export class TrackedWeakMap<K extends object = object, V = unknown>
   implements WeakMap<K, V>
 {
+  static reactive<K extends object, V>(
+    description: DescriptionArgs
+  ): WeakMap<K, V> {
+    return new TrackedWeakMap(description) as WeakMap<K, V>;
+  }
+
   readonly #collection: Collection<K>;
   readonly #vals: WeakMap<K, V>;
   readonly #equals: Equality<V> = Object.is;
 
-  constructor();
-  constructor(iterable: Iterable<readonly [K, V]>);
-  constructor(entries: readonly [K, V][] | null);
-  constructor(
-    existing?: readonly [K, V][] | Iterable<readonly [K, V]> | null | undefined
-  ) {
+  private constructor(description: DescriptionArgs) {
     // TypeScript doesn't correctly resolve the overloads for calling the `Map`
     // constructor for the no-value constructor. This resolves that.
-    this.#vals = existing ? new WeakMap(existing) : new WeakMap();
+    this.#vals = new WeakMap();
 
     // FIXME: Avoid using a regular Map in Collection to avoid leaks. The best
     // thing to do would probably be to have a non-iterable, object-keyed
     // Collection that WeakMap and WeakSet can use.
-    this.#collection = Collection.create(
-      Description.create("TrackedWeakMap", Stack.empty()),
-      this
-    );
+    this.#collection = Collection.create(description, this);
   }
 
   get(key: K): V | undefined {

@@ -1,9 +1,13 @@
-import { Description, Stack } from "@starbeam/debug";
+import type { DescriptionArgs } from "@starbeam/debug";
 
 import { Collection } from "./collection.js";
 
 export default class TrackedObject {
-  constructor(obj: object = {}) {
+  static reactive<T extends object>(description: DescriptionArgs, obj: T): T {
+    return new TrackedObject(description, obj) as T;
+  }
+
+  private constructor(description: DescriptionArgs, obj: object) {
     const target = { ...obj };
 
     const proxy = new Proxy(target, {
@@ -86,10 +90,7 @@ export default class TrackedObject {
       },
     });
 
-    const collection = Collection.create<PropertyKey>(
-      Description.create("{object}", Stack.empty()),
-      proxy
-    );
+    const collection = Collection.create<PropertyKey>(description, proxy);
 
     return proxy;
 

@@ -1,26 +1,24 @@
-import { type Description, LOGGER } from "@starbeam/debug";
+import type { DescriptionArgs } from "@starbeam/debug";
 import { Tree } from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/peer";
 
-import { LIFETIME } from "../lifetime/api.js";
+import { LIFETIME } from "../../lifetime/api.js";
+import type { DebugListener } from "../debug.js";
+import { Queue } from "../queue.js";
 import {
   type MutableInternals,
   type Reactive,
+  type ReactiveInternals,
+  type ReactiveProtocol,
   REACTIVE,
-} from "../timeline/reactive.js";
-import { TIMELINE } from "../timeline/timeline.js";
-import type { Timestamp } from "../timeline/timestamp.js";
+} from "../reactive.js";
+import { TIMELINE } from "../timeline.js";
+import type { Timestamp } from "../timestamp.js";
 
 export interface RenderableOperations {
   prune(renderable: Renderable<unknown>): void;
   poll<T>(renderable: Renderable<T>): T;
 }
-
-export interface DevLifecycle<T> {
-  readonly dependencies?: (change: DevDependencies<T>) => void;
-  readonly invalidated?: (invalidated: DevInvalidated) => void;
-}
-
 export interface DevInvalidated {
   readonly dependencies: MutableInternals[];
 }
@@ -41,12 +39,12 @@ export interface DevDependencies<T> {
  * `Reactive` object onto an external output. You should use a normal formula or
  * resource if you are trying to compute a value from other values.
  */
-export class Renderable<T = unknown> {
+export class Renderable<T = unknown> implements ReactiveProtocol {
   static create<T>(
     input: Reactive<T>,
     notify: { readonly ready: (renderable: Renderable<T>) => void },
     operations: RenderableOperations,
-    description: Description
+    description: DescriptionArgs
   ): Renderable<T> {
     const initialDependencies = input[REACTIVE].children().dependencies;
 
@@ -55,10 +53,8 @@ export class Renderable<T = unknown> {
       notify,
       UNINITIALIZED,
       operations,
-      new Set(),
       new Set(initialDependencies),
-      TIMELINE.now,
-      description
+      TIMELINE.now
     );
 
     LIFETIME.on.cleanup(renderable, () =>
@@ -66,6 +62,10 @@ export class Renderable<T = unknown> {
     );
 
     return renderable;
+  }
+
+  static reactive<T>(renderable: Renderable<T>): Reactive<T> {
+    return renderable.#input;
   }
 
   static dependencies(renderable: Renderable<unknown>): Set<MutableInternals> {
@@ -88,9 +88,7 @@ export class Renderable<T = unknown> {
   readonly #notify: { readonly ready: (renderable: Renderable<T>) => void };
   readonly #last: UNINITIALIZED | T;
   readonly #operations: RenderableOperations;
-  readonly #dev: Set<DevLifecycle<T>>;
   #dependencies: Set<MutableInternals>;
-  readonly #description: Description;
 
   // for debug purposes
   #lastChecked: Timestamp;
@@ -100,70 +98,47 @@ export class Renderable<T = unknown> {
     notify: { readonly ready: (renderable: Renderable<T>) => void },
     last: UNINITIALIZED | T,
     operations: RenderableOperations,
-    dev: Set<DevLifecycle<T>>,
     dependencies: Set<MutableInternals>,
-    lastChecked: Timestamp,
-    description: Description
+    lastChecked: Timestamp
   ) {
     this.#input = input;
     this.#dependencies = dependencies;
     this.#last = last;
     this.#operations = operations;
-    this.#dev = dev;
     this.#notify = notify;
     this.#lastChecked = lastChecked;
-    this.#description = description;
+  }
+
+  get [REACTIVE](): ReactiveInternals {
+    return this.#input[REACTIVE];
   }
 
   poll(): T {
-    const invalid = [...this.#dependencies].filter((dep) =>
-      dep.isUpdatedSince(this.#lastChecked)
-    );
-
-    if (invalid.length > 0) {
-      for (const dev of this.#dev) {
-        dev.invalidated?.({
-          dependencies: invalid,
-        });
-      }
-    }
-
-    // TODO: Debug infrastructure
-    // eslint-disable-next-line no-constant-condition
-    if (true) {
-      if (LOGGER.isDebug && invalid.length > 0) {
-        console.group(
-          `%c${this.#description.userFacing().describe()} invalidated`,
-          "color: red"
-        );
-
-        const userFacing = new Set(
-          invalid.map((d) => d.description.userFacing())
-        );
-
-        const descs = [...userFacing].map((d) =>
-          d.describe({ source: LOGGER.isVerbose || undefined })
-        );
-
-        console.log(Tree(...descs).format());
-        console.groupEnd();
-      }
-    }
-
     return this.#operations.poll(this);
   }
 
-  dev(
-    lifecycle: DevLifecycle<T>
-  ): [dependencies: MutableInternals[], cleanup: () => void] {
-    this.#dev.add(lifecycle);
+  attach(notify: () => void): DebugListener {
+    let last = TIMELINE.now;
 
-    return [
-      [...this.#dependencies],
+    const listener = TIMELINE.attach(
       () => {
-        this.#dev.delete(lifecycle);
+        if (this.#input[REACTIVE].isUpdatedSince(last)) {
+          last = TIMELINE.now;
+          notify();
+        }
       },
-    ];
+      {
+        filter: { type: "by-reactive", reactive: this.#input },
+      }
+    );
+
+    LIFETIME.link(this, listener);
+
+    // notify the listener for the first time so it can get set up properly, but do it after the
+    // rest of the current render phase has finished.
+    Queue.afterFlush(notify);
+
+    return listener;
   }
 
   debug({
@@ -179,9 +154,10 @@ export class Renderable<T = unknown> {
       })
     );
 
-    const nodes = [...descriptions].map((d) =>
-      d.describe({ source, implementation })
-    );
+    const nodes = [...descriptions].map((d) => {
+      let description = implementation ? d : d.userFacing();
+      return description.describe({ source });
+    });
 
     return Tree(...nodes).format();
   }
@@ -217,13 +193,6 @@ export class Renderable<T = unknown> {
       ...diff(prevDeps, nextDeps),
       values: { prev, next },
     };
-
-    for (const dev of this.#dev) {
-      dev.dependencies?.({
-        dependencies: [...nextDeps],
-        diff: diffs,
-      });
-    }
 
     return diffs;
   }

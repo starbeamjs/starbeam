@@ -1,20 +1,18 @@
-import { Description, Stack } from "@starbeam/debug";
+import type { DescriptionArgs } from "@starbeam/debug";
 
 import { Collection } from "./collection.js";
 
 export class TrackedSet<T = unknown> implements Set<T> {
+  static reactive<T>(description: DescriptionArgs): TrackedSet<T> {
+    return new TrackedSet(description);
+  }
+
   readonly #collection: Collection<T>;
   readonly #vals: Set<T>;
 
-  constructor();
-  constructor(values: readonly T[] | null);
-  constructor(iterable: Iterable<T>);
-  constructor(existing?: readonly T[] | Iterable<T> | null | undefined) {
-    this.#vals = new Set(existing);
-    this.#collection = Collection.create(
-      Description.create("Set", Stack.empty()),
-      this
-    );
+  constructor(description: DescriptionArgs) {
+    this.#vals = new Set();
+    this.#collection = Collection.create(description, this);
   }
 
   // **** KEY GETTERS ****
@@ -108,15 +106,16 @@ export class TrackedSet<T = unknown> implements Set<T> {
 Object.setPrototypeOf(TrackedSet.prototype, Set.prototype);
 
 export class TrackedWeakSet<T extends object = object> implements WeakSet<T> {
+  static reactive(description: DescriptionArgs): TrackedWeakSet {
+    return new TrackedWeakSet(description);
+  }
+
   readonly #collection: Collection<T>;
   readonly #vals: WeakSet<T>;
 
-  constructor(values?: readonly T[] | null) {
-    this.#collection = Collection.create(
-      Description.create("WeakSet", Stack.empty()),
-      this
-    );
-    this.#vals = new WeakSet(values);
+  private constructor(description: DescriptionArgs) {
+    this.#collection = Collection.create(description, this);
+    this.#vals = new WeakSet();
   }
 
   has(value: T): boolean {

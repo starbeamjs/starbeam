@@ -1,7 +1,15 @@
 import { hasType, isObject, verified } from "@starbeam/verify";
 import StackTracey from "stacktracey";
 
-import { Description } from "./description/debug.js";
+import {
+  type CreateDescription,
+  type DescriptionArgs,
+  Description,
+} from "./description/reactive-value.js";
+import {
+  type ImplementationDetails,
+  ImplementationDescription,
+} from "./description/reactive-value.js";
 import { describeModule } from "./module.js";
 
 export class ParsedStack {
@@ -104,20 +112,34 @@ export class Stack {
     return new Stack(ParsedStack.empty());
   }
 
-  static description(
-    kind: string,
-    specified?: string | Description,
+  static marker(
+    description:
+      | ImplementationDescription
+      | (ImplementationDetails & CreateDescription),
     internal = 0
-  ): Description {
-    if (typeof specified === "string" || specified === undefined) {
-      return new Description(
-        kind,
-        Stack.fromCaller(internal + 1),
-        specified,
-        undefined
-      );
+  ): ImplementationDescription {
+    if (Description.is(description)) {
+      return description;
+    }
+
+    const stack = Stack.fromCaller(internal + 1);
+    return ImplementationDescription.from({ ...description, stack });
+  }
+
+  static description(
+    name?: string | DescriptionArgs,
+    internal = 0
+  ): DescriptionArgs {
+    if (name !== undefined && typeof name !== "string") {
+      return name;
+    }
+
+    const stack = Stack.fromCaller(internal + 1);
+
+    if (name === undefined) {
+      return { stack };
     } else {
-      return specified;
+      return { name, stack };
     }
   }
 

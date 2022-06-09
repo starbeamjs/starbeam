@@ -1,5 +1,5 @@
 import { Formula } from "@starbeam/core";
-import { type Description, LOGGER } from "@starbeam/debug";
+import type { DescriptionArgs } from "@starbeam/debug";
 import { Stack } from "@starbeam/debug";
 import type { Renderable } from "@starbeam/timeline";
 import { LIFETIME, TIMELINE } from "@starbeam/timeline";
@@ -104,10 +104,12 @@ type AnyRecord<T = any> = Record<PropertyKey, T>;
  */
 export function useStarbeam<T>(
   definition: ReactiveDefinition<T, void>,
-  description?: string | Description
+  description?: string | DescriptionArgs
 ): T {
   const [, setNotify] = useState({});
-  const desc = Stack.description("{useStarbeam}", description);
+  const desc = Stack.description(description);
+
+  console.log(desc);
 
   // We use useResource here because the ReactiveElement we're creating has
   // teardown logic, which means that we want it to have a *fresh identity* when
@@ -132,7 +134,7 @@ export function useStarbeam<T>(
        * any special updating behavior to see the updates.
        */
     })
-    .as(desc.describe())
+    .as("useStarbeam")
     .notifier(() => setNotify({}))
     .on({
       attached: ({ element }) => {
@@ -186,13 +188,6 @@ export function useStarbeam<T>(
    * reconcile it.
    */
   const polled = renderable.poll();
-
-  // eslint-disable-next-line
-  if (LOGGER.isDebug) {
-    console.groupCollapsed(`${desc.userFacing().describe()} dependencies`);
-    console.log(renderable.debug({ source: LOGGER.isVerbose || undefined }));
-    console.groupEnd();
-  }
 
   return polled;
 
@@ -275,7 +270,7 @@ export function useStarbeam<T>(
     const renderable: Renderable<T> = TIMELINE.on.change(
       formula,
       () => {
-        queueMicrotask(notify);
+        TIMELINE.enqueue(notify);
       },
       desc
     );
@@ -286,7 +281,7 @@ export function useStarbeam<T>(
 
     LIFETIME.link(element, renderable);
 
-    ReactiveElement.setupDev(element, renderable);
+    ReactiveElement.attach(element, renderable);
 
     /**
      * The resource, as far as useResource is concerned, is a record

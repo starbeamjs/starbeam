@@ -1,5 +1,5 @@
 import { type Reactive, Cell, Marker } from "@starbeam/core";
-import { Stack } from "@starbeam/debug";
+import { type DescriptionArgs, Stack } from "@starbeam/debug";
 import reactive from "@starbeam/js";
 import { useUpdatingVariable } from "@starbeam/use-resource";
 import type { Dispatch, SetStateAction } from "react";
@@ -16,9 +16,9 @@ type AnyRecord = Record<PropertyKey, any>;
  */
 export function useStable<I extends AnyRecord>(
   variable: I,
-  description?: string
+  description?: string | DescriptionArgs
 ): I {
-  const desc = Stack.description("{stable}", description);
+  const desc = Stack.description(description);
 
   return useUpdatingVariable({
     initial: () => reactive.object(variable, desc),
@@ -60,7 +60,7 @@ export function useStableVariable<T>(
 export function useProp<T>(variable: T, description?: string): Reactive<T> {
   return useUpdatingVariable({
     initial: () => {
-      return Cell(variable, Stack.description("{prop}", description, 3));
+      return Cell(variable, Stack.description(description, 3));
     },
     update: (cell) => cell.set(variable),
   });
@@ -68,9 +68,9 @@ export function useProp<T>(variable: T, description?: string): Reactive<T> {
 
 export function useProps<T extends AnyRecord>(
   props: T,
-  description?: string
+  description?: string | DescriptionArgs
 ): T {
-  const desc = Stack.description("{props}", description);
+  const desc = Stack.description(description);
 
   return useUpdatingVariable({
     initial: () => reactive.object(props, desc),
@@ -88,10 +88,12 @@ export function useProps<T extends AnyRecord>(
 useStableVariable.mutable = <S>(
   value: S,
   setValue: SetValue<S>,
-  description = Stack.describeCaller()
+  description?: string | DescriptionArgs
 ): ReactiveState<S> => {
+  const desc = Stack.description(description);
+
   return useUpdatingVariable({
-    initial: () => ReactiveState.create(value, setValue, description),
+    initial: () => ReactiveState.create(value, setValue, desc),
     update: (state) => ReactiveState.update(state, value),
   });
 };
@@ -102,7 +104,7 @@ export class ReactiveState<T> {
   static create<T>(
     value: T,
     setValue: SetValue<T>,
-    description: string
+    description: DescriptionArgs
   ): ReactiveState<T> {
     return new ReactiveState(value, setValue, Marker(description));
   }

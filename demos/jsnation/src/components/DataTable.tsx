@@ -1,7 +1,7 @@
 import { Cell } from "@starbeam/core";
 import { LOGGER, LogLevel } from "@starbeam/debug";
 import { useProp, useStarbeam } from "@starbeam/react";
-import DevtoolsPane from "@starbeamx/devtool";
+import { DevTools } from "@starbeamx/devtool";
 import type { FormEvent } from "react";
 
 import { type Person, People } from "../lib/people.js";
@@ -13,9 +13,7 @@ export default function (props: { locale: string }) {
   const locale = useProp(props.locale, "props.locale");
 
   return useStarbeam((component) => {
-    component.dev((renderable) => {
-      DevtoolsPane(renderable, document.querySelector("#devtools") as Element);
-    });
+    component.attach(DevTools);
 
     const table = new Table<Person>(["name", "location"]);
 
@@ -119,5 +117,5 @@ export default function (props: { locale: string }) {
         </>
       );
     };
-  });
+  }, "DataTable");
 }

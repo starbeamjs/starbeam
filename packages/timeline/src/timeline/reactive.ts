@@ -6,9 +6,10 @@ import type { Timestamp } from "./timestamp.js";
 export const REACTIVE = Symbol("REACTIVE");
 export type REACTIVE = typeof REACTIVE;
 
-export interface MutableInternals {
+export interface MutableInternals extends ReactiveProtocol {
   readonly type: "mutable";
   readonly description: Description;
+  readonly debug: { lastUpdated: Timestamp };
   children(): InternalChildren;
   isFrozen(): boolean;
   isUpdatedSince(timestamp: Timestamp): boolean;
@@ -17,6 +18,7 @@ export interface MutableInternals {
 export interface CompositeInternals {
   readonly type: "composite";
   readonly description: Description;
+  readonly debug: { lastUpdated: Timestamp };
   children(): InternalChildren;
   isUpdatedSince(timestamp: Timestamp): boolean;
 }
@@ -24,6 +26,7 @@ export interface CompositeInternals {
 export interface StaticInternals {
   readonly type: "static";
   readonly description: Description;
+  readonly debug: { lastUpdated: Timestamp };
   children(): InternalChildren;
   isUpdatedSince(timestamp: Timestamp): boolean;
 }

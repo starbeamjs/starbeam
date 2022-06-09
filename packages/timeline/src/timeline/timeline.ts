@@ -1,19 +1,26 @@
-import type { Description } from "@starbeam/debug";
+import type { DescriptionArgs } from "@starbeam/debug";
 import { LOGGER, Stack } from "@starbeam/debug";
 import { expected, isEqual, verify } from "@starbeam/verify";
 
 import {
-  type RenderableOperations,
-  Renderable,
-} from "../renderables/renderable.js";
-import { Renderables } from "../renderables/renderables.js";
+  type DebugFilter,
+  type DebugListener,
+  DebugTimeline,
+  isDebug,
+} from "./debug.js";
 import { type FinalizedFrame, ActiveFrame, AssertFrame } from "./frames.js";
+import { NOW } from "./now.js";
 import { Queue } from "./queue.js";
 import type {
   MutableInternals,
   Reactive,
   ReactiveProtocol,
 } from "./reactive.js";
+import {
+  type RenderableOperations,
+  Renderable,
+} from "./renderables/renderable.js";
+import { Renderables } from "./renderables/renderables.js";
 import { Timestamp } from "./timestamp.js";
 
 export abstract class Phase {
@@ -83,7 +90,7 @@ export class Timeline implements RenderableOperations {
   }
 
   static StartedFormula = class StartedFormula {
-    static create(description: Description): StartedFormula {
+    static create(description: DescriptionArgs): StartedFormula {
       const prevFrame = TIMELINE.#frame;
 
       const currentFrame = (TIMELINE.#frame = ActiveFrame.create(description));
@@ -111,7 +118,7 @@ export class Timeline implements RenderableOperations {
           .toBe(`the same as the frame that started the formula`)
       );
 
-      const newFrame = this.#current.finalize(value, TIMELINE.#now);
+      const newFrame = this.#current.finalize(value, NOW.now);
       TIMELINE.#frame = this.#prev;
       TIMELINE.didConsume(newFrame.frame);
       return newFrame;
@@ -123,9 +130,9 @@ export class Timeline implements RenderableOperations {
   };
 
   #phase: Phase;
-  #now = Timestamp.initial();
   #frame: ActiveFrame | null = null;
   #assertFrame: AssertFrame | null = null;
+  #debugTimeline: DebugTimeline | null = null;
 
   readonly #renderables: Renderables;
   readonly #onUpdate: WeakMap<MutableInternals, Set<() => void>>;
@@ -144,7 +151,7 @@ export class Timeline implements RenderableOperations {
   }
 
   on = {
-    render: (callback: () => void): (() => void) => {
+    rendered: (callback: () => void): (() => void) => {
       this.#onAdvance.add(callback);
 
       return () => {
@@ -155,19 +162,37 @@ export class Timeline implements RenderableOperations {
     change: <T>(
       input: Reactive<T>,
       ready: (renderable: Renderable<T>) => void,
-      description?: string | Description
+      description?: string | DescriptionArgs
     ): Renderable<T> => {
       const renderable = Renderable.create(
         input,
         { ready },
         this,
-        Stack.description("{subscription}", description)
+        Stack.description(description)
       );
       this.#renderables.insert(renderable as Renderable<unknown>);
 
       return renderable;
     },
   } as const;
+
+  attach(
+    notify: () => void,
+    options: { filter: DebugFilter } = { filter: { type: "all" } }
+  ): DebugListener {
+    return this.#debug.attach(notify, options);
+  }
+
+  get #debug() {
+    if (!this.#debugTimeline) {
+      const debugTimeline = (this.#debugTimeline = DebugTimeline.create(
+        Timestamp.initial()
+      ));
+      TIMELINE.on.rendered(() => debugTimeline.notify());
+    }
+
+    return this.#debugTimeline;
+  }
 
   poll<T>(renderable: Renderable<T>): T {
     return this.#renderables.poll(renderable);
@@ -197,35 +222,48 @@ export class Timeline implements RenderableOperations {
 
   // Returns the current timestamp
   get now(): Timestamp {
-    return this.#now;
+    return NOW.now;
   }
 
   // Increment the current timestamp and return the incremented timestamp.
   bump(mutable: MutableInternals): Timestamp {
     this.#phase.bump(mutable);
 
-    this.#assertFrame?.assert();
+    if (isDebug()) {
+      this.#debug.updateCell(mutable);
+    }
 
-    this.#now = this.#now.next();
+    this.#assertFrame?.assert();
+    NOW.bump();
 
     if (this.#onAdvance.size > 0) {
-      this.#enqueue(...this.#onAdvance).catch((e) => {
-        LOGGER.warn.log(`unexpected error during bump: %o`, e);
-      });
+      this.afterFlush(...this.#onAdvance);
     }
 
     this.#notifySubscribers(mutable);
     this.#renderables.bumped(mutable);
 
-    return this.#now;
+    return NOW.now;
   }
 
-  async #enqueue(...notifications: (() => void)[]): Promise<void> {
-    try {
-      await Queue.enqueue(new Set(notifications));
-    } catch (e) {
-      LOGGER.warn.log(`unexpected error during enqueue: %o`, e);
+  mutation<T>(description: string, callback: () => T): T {
+    if (isDebug()) {
+      return this.#debug.mutation(description, callback);
     }
+
+    return callback();
+  }
+
+  enqueue(...notifications: (() => void)[]): void {
+    Queue.enqueue(...notifications);
+  }
+
+  afterFlush(...callbacks: (() => void)[]): void {
+    Queue.afterFlush(...callbacks);
+  }
+
+  #enqueue(...notifications: (() => void)[]): void {
+    Queue.enqueue(...notifications);
   }
 
   #notifySubscribers(...storages: MutableInternals[]) {
@@ -239,9 +277,7 @@ export class Timeline implements RenderableOperations {
       );
 
       if (updaters.size > 0) {
-        this.#enqueue(...updaters).catch((e) => {
-          LOGGER.warn.log(`unexpected error during notify: %o`, e);
-        });
+        this.#enqueue(...updaters);
       }
     }
   }
@@ -250,6 +286,10 @@ export class Timeline implements RenderableOperations {
   didConsume(reactive: ReactiveProtocol) {
     if (this.#frame) {
       this.#frame.add(reactive);
+    } else if (isDebug()) {
+      // we don't add a consumption to the debug timeline if we're in a frame, because the frame
+      // itself gets consumed
+      this.#debug.consume(reactive);
     }
   }
 
@@ -264,10 +304,6 @@ export class Timeline implements RenderableOperations {
     }
   }
 
-  startFormula(description: Description): StartedFormula {
-    return Timeline.StartedFormula.create(description);
-  }
-
   /**
    * Run a formula in the context of a lifetime, and return a
    * {@link FinalizedFrame}.
@@ -279,9 +315,9 @@ export class Timeline implements RenderableOperations {
    */
   evaluateFormula<T>(
     callback: () => T,
-    description: Description
+    description: DescriptionArgs
   ): { readonly frame: FinalizedFrame<T>; readonly value: T } {
-    const formula = this.startFormula(description);
+    const formula = Timeline.StartedFormula.create(description);
 
     try {
       const result = callback();

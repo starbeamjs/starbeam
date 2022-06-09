@@ -13,7 +13,7 @@ export default function (props: { locale: string }) {
   const locale = useProp(props.locale);
 
   return useStarbeam((component) => {
-    const timeZone = Cell(SYSTEM_TZ);
+    const timeZone = Cell(SYSTEM_TZ, "system time zone");
     const date = component.use(Clock(timeZone, locale));
 
     return () => {
@@ -51,7 +51,7 @@ export default function (props: { locale: string }) {
 }
 
 function Clock(timeZone: Reactive<string>, locale: Reactive<string>) {
-  const date = Cell(new Date());
+  const date = Cell(new Date(), "current time");
 
   function refresh() {
     date.current = new Date();

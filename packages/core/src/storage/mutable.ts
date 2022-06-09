@@ -1,5 +1,11 @@
-import type { Description } from "@starbeam/debug";
 import { inspector } from "@starbeam/debug";
+import {
+  type DescriptionArgs,
+  type DescriptionType,
+  CellDescription,
+  Description,
+} from "@starbeam/debug";
+import { TimestampValidatorDescription } from "@starbeam/debug";
 import type { Timestamp } from "@starbeam/timeline";
 import {
   type ReactiveProtocol,
@@ -17,14 +23,26 @@ export class MutableInternalsImpl implements ReactiveProtocol {
           lastUpdate: internals.#lastUpdate,
         },
         {
-          description: internals.#description.describe(),
+          description: internals.#description.fullName,
         }
       )
     );
   }
 
-  static create(description: Description): MutableInternalsImpl {
-    return new MutableInternalsImpl(false, TIMELINE.now, description);
+  static create(description: DescriptionArgs): MutableInternalsImpl {
+    return new MutableInternalsImpl(
+      false,
+      TIMELINE.now,
+      CellDescription,
+      description
+    );
+  }
+
+  static described(
+    type: DescriptionType,
+    description: DescriptionArgs
+  ): MutableInternalsImpl {
+    return new MutableInternalsImpl(false, TIMELINE.now, type, description);
   }
 
   readonly type = "mutable";
@@ -36,11 +54,17 @@ export class MutableInternalsImpl implements ReactiveProtocol {
   private constructor(
     frozen: boolean,
     lastUpdate: Timestamp,
-    description: Description
+    type: DescriptionType,
+    description: DescriptionArgs
   ) {
     this.#frozen = frozen;
     this.#lastUpdate = lastUpdate;
-    this.#description = description;
+
+    this.#description = Description.from(
+      type,
+      description,
+      TimestampValidatorDescription.from(this)
+    );
   }
 
   get [REACTIVE]() {
@@ -72,7 +96,7 @@ export class MutableInternalsImpl implements ReactiveProtocol {
   update(): void {
     if (this.#frozen) {
       throw TypeError(
-        `Cannot update a frozen reactive object (${this.description.describe()})`
+        `Cannot update a frozen reactive object (${this.#description.fullName})`
       );
     }
 

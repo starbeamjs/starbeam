@@ -1,20 +1,29 @@
-import { Cell, Marker } from "@starbeam/core";
-import type { Description } from "@starbeam/debug/src/description/debug.js";
+import { Cell, Marker, Reactive } from "@starbeam/core";
+import type { Description, DescriptionArgs } from "@starbeam/debug";
 import { expected, isPresent, verified } from "@starbeam/verify";
 
 class ItemState {
-  static uninitialized(description: Description): ItemState {
+  static create(
+    initialized: boolean,
+    description: Description,
+    member: string
+  ): ItemState {
     return new ItemState(
-      Cell(false as boolean, description),
-      Marker(description)
+      Cell(initialized, {
+        ...description.memberArgs(member),
+        transform: (d: Description) =>
+          d.implementation({ reason: "initialization tracking" }),
+      }),
+      Marker(description.memberArgs(member))
     );
   }
 
-  static initialized(description: Description): ItemState {
-    return new ItemState(
-      Cell(true as boolean, description),
-      Marker(description)
-    );
+  static uninitialized(description: Description, member: string): ItemState {
+    return ItemState.create(false, description, member);
+  }
+
+  static initialized(description: Description, member: string): ItemState {
+    return ItemState.create(true, description, member);
   }
 
   #present: Cell<boolean>;
@@ -49,8 +58,8 @@ class ItemState {
 }
 
 class Item {
-  static uninitialized(description: Description) {
-    const item = new Item(description, ItemState.uninitialized(description));
+  static uninitialized(description: Description, member: string): Item {
+    const item = new Item(ItemState.uninitialized(description, member));
 
     // check the item so that subsequent writes to the item will invalidate the
     // read that caused this item to be created
@@ -59,22 +68,16 @@ class Item {
     return item;
   }
 
-  static initialized(description: Description): Item {
+  static initialized(description: Description, member: string): Item {
     // If an item is initialized for the first time with a value, that means
     // that no consumer attempted to read the value before, so there's nothing
     // to do (other than update the iteration of the entire collection).
-    return new Item(description, ItemState.initialized(description));
+    return new Item(ItemState.initialized(description, member));
   }
-
-  /**
-   * The description of the individual item.
-   */
-  #description: Description;
 
   #value: ItemState;
 
-  constructor(description: Description, value: ItemState) {
-    this.#description = description;
+  constructor(value: ItemState) {
     this.#value = value;
   }
 
@@ -108,32 +111,30 @@ export class Collection<K> {
     );
   }
 
-  static create<K>(description: Description, object: object): Collection<K> {
-    const collection = new Collection<K>(undefined, new Map(), description);
+  static create<K>(
+    description: DescriptionArgs,
+    object: object
+  ): Collection<K> {
+    const collection = new Collection<K>(undefined, new Map(), {
+      ...description,
+      transform: (d) => d.member("entries"),
+    });
     Collection.#objects.set(object, collection);
     return collection;
   }
 
   #iteration: Marker | undefined;
   #items: Map<K, Item>;
-  #description: Description;
+  #description: DescriptionArgs;
 
   constructor(
     iteration: undefined,
     items: Map<K, Item>,
-    description: Description
+    description: DescriptionArgs
   ) {
     this.#description = description;
     this.#iteration = iteration;
     this.#items = items;
-  }
-
-  set description(value: Description) {
-    this.#description = value;
-  }
-
-  get description(): Description {
-    return this.#description;
   }
 
   iterateKeys(): void {
@@ -228,13 +229,18 @@ export class Collection<K> {
     this.splice();
   }
 
-  #initialize(key: K, disposition: "hit" | "miss", specified: string): Item {
+  #initialize(key: K, disposition: "hit" | "miss", member: string): Item {
+    if (this.#iteration === undefined) {
+      this.#iteration = Marker(this.#description);
+    }
+
     let item: Item;
+    const iteration = Reactive.internals(this.#iteration).description;
 
     if (disposition === "miss") {
-      item = Item.uninitialized(this.#description.member(specified));
+      item = Item.uninitialized(iteration, member);
     } else {
-      item = Item.initialized(this.#description.member(specified));
+      item = Item.initialized(iteration, member);
     }
 
     this.#items.set(key, item);

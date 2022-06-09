@@ -1,4 +1,4 @@
-import type { Description } from "@starbeam/debug";
+import type { DescriptionArgs } from "@starbeam/debug";
 import {
   type FinalizedFrame,
   type ReactiveInternals,
@@ -14,12 +14,12 @@ import { type MutableInternals, TIMELINE } from "@starbeam/timeline";
 export class FormulaState<T> implements ReactiveProtocol {
   static evaluate<T>(
     formula: () => T,
-    description: Description
+    description: DescriptionArgs
   ): { state: FormulaState<T>; value: T } {
     const { frame, value } = TIMELINE.evaluateFormula(formula, description);
 
     return {
-      state: new FormulaState(formula, frame, value, description),
+      state: new FormulaState(formula, frame, value),
       value,
     };
   }
@@ -27,18 +27,15 @@ export class FormulaState<T> implements ReactiveProtocol {
   readonly #formula: () => T;
   #frame: FinalizedFrame<T>;
   #lastValue: T;
-  readonly #description: Description;
 
   private constructor(
     formula: () => T,
     frame: FinalizedFrame<T>,
-    lastValue: T,
-    description: Description
+    lastValue: T
   ) {
     this.#formula = formula;
     this.#frame = frame;
     this.#lastValue = lastValue;
-    this.#description = description;
   }
 
   get [REACTIVE](): ReactiveInternals {
@@ -75,7 +72,7 @@ export class FormulaState<T> implements ReactiveProtocol {
       compute: () => {
         const { frame, value } = TIMELINE.evaluateFormula(
           this.#formula,
-          this.#description
+          this.#frame.description
         );
 
         const changed = this.#lastValue !== value;
@@ -101,7 +98,7 @@ export class FormulaState<T> implements ReactiveProtocol {
 
     const { frame, value } = TIMELINE.evaluateFormula(
       this.#formula,
-      this.#description
+      this.#frame.description
     );
 
     this.#lastValue = value;

@@ -1,9 +1,10 @@
+import { Cell } from "@starbeam/core";
+import { isObject } from "@starbeam/core-utils";
 import es from "@starbeam/js";
 import { REACTIVE } from "@starbeam/timeline";
 import { exhaustive, expected, isEqual, verify } from "@starbeam/verify";
-import { isObject } from "@starbeam/core-utils";
+
 import type { InternalReactiveProps, ReactiveProps } from "./element.js";
-import { Cell } from "@starbeam/core";
 
 type AnyRecord<T = any> = Record<PropertyKey, T>;
 
@@ -64,7 +65,7 @@ export class StableProps<Variables extends AnyRecord> {
 // should result in a re-render. But we may not want to require
 // useCallback... probably?
 function isPassthruProp(key: PropertyKey): boolean {
-  verify(key, function isPropertyKey(value: unknown): value is string | symbol {
+  verify(key, (value: unknown): value is string | symbol => {
     return typeof value === "string" || typeof value === "symbol";
   });
 

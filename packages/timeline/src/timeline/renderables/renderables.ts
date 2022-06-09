@@ -1,6 +1,6 @@
 import type { UNINITIALIZED } from "@starbeam/peer";
 
-import type { MutableInternals } from "../timeline/reactive.js";
+import type { MutableInternals } from "../reactive.js";
 import { RenderableMap } from "./map.js";
 import { type RenderableOperations, Renderable } from "./renderable.js";
 

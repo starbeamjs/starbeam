@@ -1,10 +1,10 @@
 import {
+  type FunctionComponent,
+  type ReactElement,
+  type ReactNode,
   createElement,
   Fragment,
   isValidElement,
-  type FunctionComponent,
-  type ReactElement,
-  type ReactNode
 } from "react";
 
 type PropsFor<E> = typeof createElement extends (
@@ -63,7 +63,7 @@ export const react = {
     return createElement(Fragment, null, ...children);
   },
 
-  render
+  render,
 } as const;
 
 export const html: HtmlProxy = new Proxy(() => {}, {

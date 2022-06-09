@@ -3,7 +3,7 @@ import {
   type ReactiveProtocol,
   REACTIVE,
 } from "./reactive.js";
-import type { Timestamp } from "./timestamp.js";
+import { Timestamp } from "./timestamp.js";
 
 Error.stackTraceLimit = 100;
 
@@ -69,6 +69,23 @@ export class InternalChildren {
 
         return new Set(children);
       }
+    }
+  }
+
+  /**
+   * For debugging
+   */
+  get lastUpdated(): Timestamp {
+    switch (this.#enum.type) {
+      case "None":
+        return Timestamp.initial();
+      case "Children":
+        return this.#enum.children
+          .map((child) => child[REACTIVE].debug.lastUpdated)
+          .reduce(
+            (max, child) => (child.gt(max) ? child : max),
+            Timestamp.initial()
+          );
     }
   }
 

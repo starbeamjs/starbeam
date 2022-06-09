@@ -1,6 +1,6 @@
-import { defineConfig } from "vitest/config";
 import { NodeGlobalsPolyfillPlugin } from "@esbuild-plugins/node-globals-polyfill";
 import ViteFonts from "vite-plugin-fonts";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   plugins: [

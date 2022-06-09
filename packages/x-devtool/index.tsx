@@ -4,69 +4,100 @@
 import { h, Fragment, render } from "preact";
 import "./src/devtool.css";
 
-import { useEffect, useRef, useState } from "preact/hooks";
-import type { MutableInternals, Renderable } from "@starbeam/timeline";
+import { Reactive } from "@starbeam/core";
+import {
+  type Renderable,
+  TIMELINE,
+  type DebugListener,
+  type DebugOperation,
+  type MutableInternals,
+  type ReactiveInternals,
+} from "@starbeam/timeline";
 import type { Description } from "@starbeam/debug";
 
-export function Devtools(props: { renderable: Renderable<unknown> }) {
-  const [dependencies, setDependencies] = useState([] as MutableInternals[]);
-  const [invalidated, setInvalidated] = useState(
-    null as MutableInternals[] | null
-  );
+export function Devtools(props: {
+  renderable: ReactiveInternals;
+  log: DebugOperation[];
+}) {
+  function computeDependencies() {
+    return props.renderable.children().dependencies;
+  }
 
-  const last = useRef<{
-    renderable: Renderable<unknown>;
-    cleanup: () => void;
-  } | null>(null);
+  function computeInvalidated() {
+    return props.log
+      .map((operation) => operation.for)
+      .filter(
+        (value: ReactiveInternals | undefined): value is MutableInternals =>
+          value !== undefined && value.type === "mutable"
+      );
+  }
 
-  useEffect(() => {
-    if (props.renderable === last.current?.renderable) {
-      return;
-    }
-
-    if (last.current) {
-      last.current.cleanup();
-    }
-
-    const [deps, cleanup] = props.renderable.dev({
-      dependencies: ({ dependencies }) => {
-        setDependencies(dependencies);
-      },
-      invalidated: ({ dependencies }) => {
-        setInvalidated(dependencies.length > 0 ? dependencies : null);
-      },
-    });
-
-    setDependencies(deps);
-
-    last.current = { renderable: props.renderable, cleanup };
-
-    return cleanup;
-  }, [props.renderable]);
+  const invalidated = computeInvalidated();
 
   return (
     <>
       <div class="starbeam-devtool">
-        <section>
+        <section></section>
+        <section class="dependencies">
+          <h1>Renderable</h1>
+          <ul class="dependencies">
+            <li>
+              <span class="specified">description</span>
+              <span class="kind">{props.renderable.description.fullName}</span>
+            </li>
+            <li>
+              <span class="specified">last updated</span>
+              <span class="kind">{String(TIMELINE.now)}</span>
+            </li>
+          </ul>
           <h1>Dependencies</h1>
-          <ul>
-            {unique(dependencies).map((d) => (
-              <li>{d.describe()}</li>
+          <ul class="dependencies">
+            {unique([...computeDependencies()]).map((d) => (
+              <li>
+                <Dependency description={d} />
+              </li>
             ))}
           </ul>
-        </section>
-
-        <section>
           <h1>Last Invalidated</h1>
-          <ul>
-            {invalidated ? (
-              unique(invalidated).map((d) => <li>{d.describe()}</li>)
+          <ul class="dependencies">
+            {invalidated.length ? (
+              unique(invalidated).map((d) => (
+                <li>
+                  <Dependency description={d} />
+                </li>
+              ))
             ) : (
               <li>None</li>
             )}
           </ul>
         </section>
       </div>
+    </>
+  );
+}
+
+function Dependency({ description }: { description: Description }) {
+  const specified = <span class="specified">{description.fullName}</span>;
+
+  function displayLink() {
+    if (description.fullName) {
+      console.log(
+        "%c%s @ %s",
+        "color:red",
+        description.fullName,
+        description.frame?.display
+      );
+    } else {
+      console.log("%c%s", "color:red", description.frame?.display);
+    }
+  }
+
+  return (
+    <>
+      {specified}
+      <button type="button" onClick={displayLink}>
+        log {description.type} location
+      </button>
     </>
   );
 }
@@ -80,16 +111,34 @@ function unique(dependencies: MutableInternals[]): Description[] {
 }
 
 export default function DevtoolsPane(
-  renderable: Renderable<any>,
+  renderable: ReactiveInternals,
+  log: DebugOperation[],
   into: Element
 ) {
-  const app = <Devtools renderable={renderable} />;
+  const app = <Devtools renderable={renderable} log={log} />;
 
   render(app, into);
 
   return {
-    update: (renderable: Renderable<unknown>) => {
-      render(<Devtools renderable={renderable} />, into);
+    update: (renderable: ReactiveInternals, log: DebugOperation[]) => {
+      render(<Devtools renderable={renderable} log={log} />, into);
     },
+  };
+}
+
+export function DevTools(
+  listener: DebugListener,
+  renderable: Renderable<any>
+): () => void {
+  const pane = DevtoolsPane(
+    Reactive.internals(renderable),
+    listener.flush(),
+    document.querySelector("#devtools") as Element
+  );
+
+  return () => {
+    const log = listener.flush();
+
+    pane.update(Reactive.internals(renderable), log);
   };
 }

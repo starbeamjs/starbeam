@@ -1,5 +1,7 @@
+import type { JSONValue } from "../description/json-value.js";
+
 export interface DisplayStructOptions {
-  readonly description: string;
+  readonly description: JSONValue;
 }
 
 export type Fields = Record<PropertyKey, unknown>;
@@ -12,7 +14,11 @@ export function DisplayStruct(
   let displayName = name;
 
   if (options?.description) {
-    displayName = `${displayName} [${options.description}]`;
+    displayName = `${displayName} [${
+      typeof options.description === "string"
+        ? options.description
+        : JSON.stringify(options.description)
+    }]`;
   }
 
   let constructor = class {};

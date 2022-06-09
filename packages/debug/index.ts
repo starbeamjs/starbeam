@@ -1,4 +1,18 @@
-export { Description } from "./src/description/debug.js";
+export {
+  type CreateDescription,
+  type CreateStaticDescription,
+  type DescriptionArgs,
+  type DescriptionType,
+  type ImplementationDetails,
+  type UserFacingDescription,
+  CellDescription,
+  Description,
+  FormulaDescription,
+  ImplementationDescription,
+  MarkerDescription,
+  StaticDescription,
+} from "./src/description/reactive-value.js";
+export { TimestampValidatorDescription } from "./src/description/validator.js";
 export {
   type DisplayStructOptions,
   DisplayStruct,

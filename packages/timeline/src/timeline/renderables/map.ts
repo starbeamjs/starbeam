@@ -1,4 +1,4 @@
-import type { MutableInternals } from "../timeline/reactive.js";
+import type { MutableInternals } from "../reactive.js";
 import type { Renderable } from "./renderable.js";
 
 export class RenderableMap {

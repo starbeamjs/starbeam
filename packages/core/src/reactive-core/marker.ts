@@ -1,9 +1,8 @@
-import { type Description, Stack } from "@starbeam/debug";
+import type { DescriptionArgs, DescriptionType } from "@starbeam/debug";
 import {
   type MutableInternals,
   type ReactiveProtocol,
   REACTIVE,
-  TX,
 } from "@starbeam/timeline";
 
 import { MutableInternalsImpl } from "../storage/mutable.js";
@@ -11,13 +10,6 @@ import { MutableInternalsImpl } from "../storage/mutable.js";
 export class ReactiveMarker implements ReactiveProtocol {
   static create(internals: MutableInternalsImpl): ReactiveMarker {
     return new ReactiveMarker(internals);
-  }
-
-  static setDescription(
-    marker: ReactiveMarker,
-    description: Description
-  ): void {
-    marker.#internals.description = description;
   }
 
   readonly #internals: MutableInternalsImpl;
@@ -35,9 +27,7 @@ export class ReactiveMarker implements ReactiveProtocol {
   }
 
   update(): void {
-    TX.batch(["updating", this.#internals.description], () => {
-      this.#internals.update();
-    });
+    this.#internals.update();
   }
 
   /** impl Reactive<T> */
@@ -47,13 +37,12 @@ export class ReactiveMarker implements ReactiveProtocol {
   }
 }
 
-export function Marker(description?: string | Description): ReactiveMarker {
-  return ReactiveMarker.create(
-    MutableInternalsImpl.create(Stack.description("Marker", description))
-  );
+export function Marker(description: DescriptionArgs): ReactiveMarker {
+  return ReactiveMarker.create(MutableInternalsImpl.create(description));
 }
 
-// eslint-disable-next-line @typescript-eslint/unbound-method
-Marker.setDescription = ReactiveMarker.setDescription;
+Marker.described = (type: DescriptionType, args: DescriptionArgs) => {
+  return ReactiveMarker.create(MutableInternalsImpl.described(type, args));
+};
 
 export type Marker = ReactiveMarker;

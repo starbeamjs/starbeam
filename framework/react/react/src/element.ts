@@ -1,7 +1,8 @@
 import type { browser } from "@domtree/flavors";
 import type { Linkable, Resource } from "@starbeam/core";
 import type { Cell, Reactive } from "@starbeam/core";
-import type { OnCleanup, Renderable, Unsubscribe } from "@starbeam/timeline";
+import type { Renderable } from "@starbeam/timeline";
+import type { DebugListener, OnCleanup, Unsubscribe } from "@starbeam/timeline";
 import { LIFETIME } from "@starbeam/timeline";
 import type { ReactElement } from "react";
 
@@ -112,6 +113,10 @@ class Refs {
   }
 }
 
+export interface DebugLifecycle {
+  (listener: DebugListener, renderable: Renderable<unknown>): () => void;
+}
+
 /**
  * A {@link ReactiveElement} is a stable representation of a
  * {@link ReactElement}.
@@ -148,12 +153,13 @@ export class ReactiveElement {
     );
   }
 
-  static setupDev(
-    element: ReactiveElement,
-    renderable: Renderable<ReactElement>
-  ): void {
-    for (const callback of element.#renderable) {
-      callback(renderable);
+  static attach(element: ReactiveElement, renderable: Renderable<any>): void {
+    if (element.#debugLifecycle) {
+      const lifecycle = element.#debugLifecycle;
+      const listener = renderable.attach(() => {
+        invalidate();
+      });
+      const invalidate = lifecycle(listener, renderable);
     }
   }
 
@@ -167,6 +173,7 @@ export class ReactiveElement {
 
   readonly #lifecycle: Lifecycle;
   readonly #renderable: Set<(renderable: Renderable<ReactElement>) => void>;
+  #debugLifecycle: DebugLifecycle | null = null;
   #refs: Refs;
 
   private constructor(
@@ -183,12 +190,12 @@ export class ReactiveElement {
 
   readonly on: OnLifecycle;
 
-  use<T>(resource: Linkable<Resource<T>>): Resource<T> {
-    return resource.owner(this);
+  attach(lifecycle: DebugLifecycle): void {
+    this.#debugLifecycle = lifecycle;
   }
 
-  dev(callback: (renderable: Renderable<ReactElement>) => void) {
-    this.#renderable.add(callback);
+  use<T>(resource: Linkable<Resource<T>>): Resource<T> {
+    return resource.owner(this);
   }
 
   refs<R extends RefsTypes>(refs: R): RefsRecordFor<R> {

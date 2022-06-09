@@ -1,7 +1,13 @@
-import type { Description } from "@starbeam/debug";
+import {
+  type DescriptionArgs,
+  TimestampValidatorDescription,
+} from "@starbeam/debug";
+import type { Description } from "@starbeam/debug/src/description/reactive-value.js";
+import { FormulaDescription } from "@starbeam/debug/src/description/reactive-value.js";
 
 import { type IsUpdatedSince, InternalChildren } from "./internals.js";
 import {
+  type CompositeInternals,
   type MutableInternals,
   type ReactiveInternals,
   type ReactiveProtocol,
@@ -28,7 +34,7 @@ export class AssertFrame {
 }
 
 export class ActiveFrame {
-  static create(description: Description): ActiveFrame {
+  static create(description: DescriptionArgs): ActiveFrame {
     return new ActiveFrame(new Set(), description);
   }
 
@@ -36,7 +42,7 @@ export class ActiveFrame {
 
   private constructor(
     children: Set<ReactiveProtocol>,
-    readonly description: Description
+    readonly description: DescriptionArgs
   ) {
     this.#children = children;
   }
@@ -84,7 +90,7 @@ export class FinalizedFrame<T = unknown>
     children: Set<ReactiveProtocol>;
     finalizedAt: Timestamp;
     value: T;
-    description: Description;
+    description: DescriptionArgs;
   }): FinalizedFrame<T> {
     return new FinalizedFrame(children, finalizedAt, value, description);
   }
@@ -92,31 +98,43 @@ export class FinalizedFrame<T = unknown>
   readonly #children: Set<ReactiveProtocol>;
   readonly #finalizedAt: Timestamp;
   readonly #value: T;
+  readonly #composite: CompositeInternals;
 
   private constructor(
     children: Set<ReactiveProtocol>,
     finalizedAt: Timestamp,
     value: T,
-    readonly description: Description
+    readonly description: DescriptionArgs
   ) {
     this.#children = children;
     this.#finalizedAt = finalizedAt;
     this.#value = value;
-  }
 
-  get [REACTIVE](): ReactiveInternals {
-    return {
+    this.#composite = {
       type: "composite",
-      description: this.description,
       isUpdatedSince: (timestamp) => {
         return [...this.#children].some((child) =>
           child[REACTIVE].isUpdatedSince(timestamp)
         );
       },
+      debug: {
+        lastUpdated: this.#finalizedAt,
+      },
       children: () => {
         return InternalChildren.from(this.children);
       },
-    };
+    } as CompositeInternals;
+
+    (
+      this.#composite as ReactiveInternals & { description: Description }
+    ).description = FormulaDescription.from({
+      ...description,
+      validator: TimestampValidatorDescription.from(this.#composite),
+    });
+  }
+
+  get [REACTIVE](): ReactiveInternals {
+    return this.#composite;
   }
 
   get children(): readonly ReactiveProtocol[] {

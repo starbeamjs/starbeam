@@ -1,22 +1,22 @@
 import { isObject } from "@starbeam/core-utils";
-import type { Description } from "@starbeam/debug";
-import { DisplayStruct, Stack } from "@starbeam/debug";
-import {
-  type ReactiveInternals,
-  INSPECT,
-  REACTIVE,
-  TX,
-} from "@starbeam/timeline";
+import { type DescriptionArgs, DisplayStruct, Stack } from "@starbeam/debug";
+import { type ReactiveInternals, INSPECT, REACTIVE } from "@starbeam/timeline";
 
 import type { Reactive } from "../reactive.js";
 import { MutableInternalsImpl } from "../storage/mutable.js";
 
 export type Equality<T> = (a: T, b: T) => boolean;
 
+function isEquality<T>(
+  value: Equality<T> | string | DescriptionArgs
+): value is Equality<T> {
+  return typeof value === "function";
+}
+
 export class ReactiveCell<T> implements Reactive<T> {
   static create<T>(
     value: T,
-    equals: Equality<T>,
+    equals: Equality<T> = Object.is,
     internals: MutableInternalsImpl
   ): ReactiveCell<T> {
     return new ReactiveCell(value, equals, internals);
@@ -75,10 +75,8 @@ export class ReactiveCell<T> implements Reactive<T> {
       return;
     }
 
-    TX.batch(["updating", this.#internals.description], () => {
-      this.#value = value;
-      this.#internals.update();
-    });
+    this.#value = value;
+    this.#internals.update();
   }
 
   get [REACTIVE](): ReactiveInternals {
@@ -94,39 +92,26 @@ export class ReactiveCell<T> implements Reactive<T> {
  * It defaults to `Object.is` (`===` except that `Object.is(NaN, NaN)` is
  * `true`).
  * */
+
 export function Cell<T>(
   value: T,
-  equals: Equality<T>,
-  description?: string | Description
-): ReactiveCell<T>;
-export function Cell<T>(
-  value: T,
-  description?: string | Description
-): ReactiveCell<T>;
-export function Cell<T>(
-  value: T,
-  equals?: Equality<T> | string | Description,
-  description?: string | Description
+  description?: string | (DescriptionArgs & { equals?: Equality<T> })
 ): ReactiveCell<T> {
-  if (equals === undefined) {
+  if (typeof description === "string" || description === undefined) {
     return ReactiveCell.create(
       value,
       Object.is,
-      MutableInternalsImpl.create(Stack.description("Cell", description))
-    );
-  } else if (typeof equals === "function") {
-    return ReactiveCell.create(
-      value,
-      equals,
-      MutableInternalsImpl.create(Stack.description("Cell", description))
-    );
-  } else {
-    return ReactiveCell.create(
-      value,
-      Object.is,
-      MutableInternalsImpl.create(Stack.description("Cell", equals))
+      MutableInternalsImpl.create(Stack.description(description))
     );
   }
+
+  const { equals, ...rest } = description;
+
+  return ReactiveCell.create(
+    value,
+    equals,
+    MutableInternalsImpl.create(Stack.description(rest))
+  );
 }
 
 Cell.is = <T>(value: unknown): value is Cell<T> => {
