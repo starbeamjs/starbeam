@@ -138,7 +138,6 @@ describe("TrackedMap", () => {
     );
 
     // update the value of hamburgers
-    debugger;
     map.set("hamburgers", "sandwich");
     expect(delicious.state).toEqual([
       ["hot dogs", "brie", "chevre", "hamburgers"],
@@ -205,7 +204,6 @@ describe("TrackedMap", () => {
     expect(foodTypes.state).toEqual([[], "initialized"]);
     expect(hasBurgers.state).toEqual([false, "initialized"]);
 
-    debugger;
     map.set("hamburgers", "burger");
     expect(food.state).toEqual(["burger", "invalidated"]);
     expect(foodTypes.state).toEqual([["burger"], "invalidated"]);
