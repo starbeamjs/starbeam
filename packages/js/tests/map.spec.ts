@@ -138,6 +138,7 @@ describe("TrackedMap", () => {
     );
 
     // update the value of hamburgers
+    debugger;
     map.set("hamburgers", "sandwich");
     expect(delicious.state).toEqual([
       ["hot dogs", "brie", "chevre", "hamburgers"],
@@ -190,7 +191,7 @@ describe("TrackedMap", () => {
   });
 
   test("updating a map's values invalidates consumers who checked those values or who fetched them", () => {
-    const map = reactive(Map);
+    const map = reactive.Map();
 
     const hasBurgers = Invalidation.trace(() => {
       return map.has("hamburgers") || map.has("smashburgers");
@@ -204,6 +205,7 @@ describe("TrackedMap", () => {
     expect(foodTypes.state).toEqual([[], "initialized"]);
     expect(hasBurgers.state).toEqual([false, "initialized"]);
 
+    debugger;
     map.set("hamburgers", "burger");
     expect(food.state).toEqual(["burger", "invalidated"]);
     expect(foodTypes.state).toEqual([["burger"], "invalidated"]);

@@ -62,21 +62,26 @@ export class ReactiveCell<T> implements Reactive<T> {
     this.#set(value);
   }
 
-  set(value: T) {
-    this.#set(value);
+  /**
+   * Returns true if the value was updated, and false if the value was already present and equal to
+   * the new value.
+   */
+  set(value: T): boolean {
+    return this.#set(value);
   }
 
-  update(updater: (prev: T) => T): void {
-    this.#set(updater(this.#value));
+  update(updater: (prev: T) => T): boolean {
+    return this.#set(updater(this.#value));
   }
 
-  #set(value: T): void {
+  #set(value: T): boolean {
     if (this.#equals(this.#value, value)) {
-      return;
+      return false;
     }
 
     this.#value = value;
     this.#internals.update();
+    return true;
   }
 
   get [REACTIVE](): ReactiveInternals {

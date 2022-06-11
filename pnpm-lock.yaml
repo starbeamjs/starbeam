@@ -384,30 +384,6 @@ importers:
       '@starbeam/timeline': link:../timeline
       preact: 10.7.3
 
-  packages/x-sheet:
-    specifiers:
-      '@starbeam/core': workspace:*
-      '@starbeam/debug': workspace:*
-      '@starbeam/js': workspace:*
-      '@starbeam/verify': workspace:*
-      '@starbeamx/store': workspace:*
-    dependencies:
-      '@starbeam/core': link:../core
-      '@starbeam/debug': link:../debug
-      '@starbeam/js': link:../js
-      '@starbeam/verify': link:../verify
-      '@starbeamx/store': link:../x-store
-
-  packages/x-sheet/tests:
-    specifiers:
-      '@starbeam/core': workspace:*
-      '@starbeam/js': workspace:*
-      '@starbeamx/store': workspace:*
-    dependencies:
-      '@starbeam/core': link:../../core
-      '@starbeam/js': link:../../js
-      '@starbeamx/store': link:../../x-store
-
   packages/x-store:
     specifiers:
       '@faker-js/faker': ^7.2.0

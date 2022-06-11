@@ -2,7 +2,8 @@ import type { DescriptionArgs } from "@starbeam/debug";
 import { Stack } from "@starbeam/debug";
 
 import TrackedArray from "./src/array.js";
-import { TrackedMap, TrackedWeakMap } from "./src/map.js";
+import { ReactiveMap } from "./src/iterable.js";
+import { TrackedWeakMap } from "./src/map.js";
 import TrackedObject from "./src/object.js";
 import { TrackedSet, TrackedWeakSet } from "./src/set.js";
 
@@ -41,7 +42,7 @@ function reactive(
 }
 
 reactive.Map = <K, V>(description?: string): Map<K, V> => {
-  return TrackedMap.reactive(Stack.description(description));
+  return ReactiveMap.reactive(Object.is, Stack.description(description));
 };
 
 reactive.WeakMap = <K extends object, V>(

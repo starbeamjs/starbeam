@@ -53,7 +53,9 @@ export function useStableVariable<T>(
 ): Reactive<T> {
   return useUpdatingVariable({
     initial: () => Cell(variable, description),
-    update: (cell) => cell.set(variable),
+    update: (cell) => {
+      cell.set(variable);
+    },
   });
 }
 
@@ -62,7 +64,9 @@ export function useProp<T>(variable: T, description?: string): Reactive<T> {
     initial: () => {
       return Cell(variable, Stack.description(description, 3));
     },
-    update: (cell) => cell.set(variable),
+    update: (cell) => {
+      cell.set(variable);
+    },
   });
 }
 
