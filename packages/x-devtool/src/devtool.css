@@ -14,11 +14,12 @@
   }
 }
 
-.starbeam-devtool * {
+.starbeam-devtool[open] * {
   font-family: monospace;
   font-size: 12px;
   color: var(--devtools-fgcolor-1);
   box-sizing: border-box;
+  transition: width 0.2s ease-in-out;
 }
 
 .starbeam-devtool :is(h1, h2, h3, h4, h5, h6) {
@@ -33,10 +34,11 @@
 .starbeam-devtool {
   position: fixed;
   display: grid;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 1rem;
+  /* bottom: 0; */
+  /* bottom: 0; */
+  /* left: 0; */
+  /* right: 0; */
+  /* padding: 1rem; */
   /* height: max-content; */
   background-color: var(--devtools-bgcolor-1);
   color: var(--devtools-fgcolor-1);
@@ -46,6 +48,46 @@
   font-size: 14px;
   color: #fff;
   overflow: auto;
+}
+
+.starbeam-devtool:not([open]) {
+  position: fixed;
+  border-radius: 0.2rem;
+  bottom: 1rem;
+  font-size: 3rem;
+  right: 1rem;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+.starbeam-devtool:not([open]) summary {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  place-content: center;
+}
+
+.starbeam-devtool summary {
+  list-style: none;
+}
+
+.starbeam-devtool[open] {
+  position: fixed;
+  padding: 1rem;
+  bottom: 0;
+  width: 100vw;
+  height: auto;
+}
+
+.starbeam-devtool {
+  min-height: 1rem;
+}
+
+.starbeam-devtool summary {
+  cursor: pointer;
 }
 
 .starbeam-devtool ul {

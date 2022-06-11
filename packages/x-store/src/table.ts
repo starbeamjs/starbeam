@@ -1,14 +1,16 @@
 import reactive from "@starbeam/js";
 
-export class TableImpl<T extends TableTypes> {
-  static define<S extends SpecifiedTableDefinition>(
+import { FlatRows } from "./flat.js";
+
+export class TableImpl<T extends TableTypes> extends FlatRows<T> {
+  static create<S extends SpecifiedTableDefinition>(
     this: void,
     definition: S
   ): TableImpl<{
     Columns: ReturnType<S["model"]>["row"];
     Row: ReturnType<S["model"]>;
   }>;
-  static define<C extends object>(
+  static create<C extends object>(
     this: void,
     definition: {
       columns: (keyof C)[];
@@ -17,7 +19,7 @@ export class TableImpl<T extends TableTypes> {
     Columns: C;
     Row: { id: string } & C;
   }>;
-  static define(
+  static create(
     this: void,
     definition: {
       columns: (keyof object)[];
@@ -36,6 +38,7 @@ export class TableImpl<T extends TableTypes> {
   readonly #rows = reactive.Map<string, T["Row"]>("table");
 
   private constructor(definition: TableDefinition<T>) {
+    super();
     this.#definition = definition;
   }
 
@@ -47,11 +50,18 @@ export class TableImpl<T extends TableTypes> {
     return [...this.#rows.values()];
   }
 
-  append(columns: T["Columns"] & { id?: string }): T["Row"] {
-    const id = columns.id ?? String(this.#id++);
-    const row = this.#definition.model(id, columns);
-    this.#rows.set(id, row);
-    return row;
+  append(row: T["Columns"] & { id?: string }): T["Row"];
+  append(...rows: (T["Columns"] & { id?: string })[]): void;
+  append(...rows: (T["Columns"] & { id?: string })[]): T["Row"] | void {
+    for (const columns of rows) {
+      const id = columns.id ?? String(this.#id++);
+      const row = this.#definition.model(id, columns);
+      this.#rows.set(id, row);
+
+      if (rows.length === 1) {
+        return row;
+      }
+    }
   }
 
   delete(id: string) {
@@ -67,7 +77,7 @@ export type Table<T extends TableTypes | object> = T extends TableTypes
     }>;
 
 export const Table = {
-  define: TableImpl.define,
+  create: TableImpl.create,
 };
 
 type ColumnName<C> = keyof C;
@@ -78,12 +88,12 @@ export interface Model<T extends TableTypes> {
 
 export interface TableTypes {
   Columns: object;
-  Row: unknown;
+  Row: { id: string };
 }
 
 interface SpecifiedTableDefinition {
   readonly columns: string[];
-  readonly model: (id: string, data: any) => { row: any };
+  readonly model: (id: string, data: any) => { id: string; row: any };
 }
 
 export interface TableDefinition<T extends TableTypes> {

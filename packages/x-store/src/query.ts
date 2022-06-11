@@ -1,9 +1,10 @@
 import { type Filter, type FilterInstance, filter } from "./filter.js";
+import { FlatRows } from "./flat.js";
 import type { Table, TableTypes } from "./table.js";
 
 type Sort<T extends TableTypes> = (a: T["Row"], b: T["Row"]) => number;
 
-export class Query<T extends TableTypes> {
+export class Query<T extends TableTypes> extends FlatRows<T> {
   static for<T extends TableTypes>(table: Table<T>): Query<T> {
     return new Query(table, filter.unfiltered(), undefined);
   }
@@ -17,6 +18,7 @@ export class Query<T extends TableTypes> {
     filter: FilterInstance<T>,
     sort: Sort<T> | undefined
   ) {
+    super();
     this.#table = table;
     this.#filter = filter;
     this.#sort = sort;

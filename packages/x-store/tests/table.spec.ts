@@ -6,19 +6,19 @@ import { type Person, PersonModel } from "./support.js";
 
 describe("tables", () => {
   test("a table knows it column names", () => {
-    const people = Table.define<Person>({ columns: ["name", "location"] });
+    const people = Table.create<Person>({ columns: ["name", "location"] });
 
     expect(people.columns).toEqual(["name", "location"]);
   });
 
   test("a table can append rows", () => {
-    const people = Table.define<Person>({ columns: ["name", "location"] });
+    const people = Table.create<Person>({ columns: ["name", "location"] });
     const row = people.append({ name: "John", location: "Berlin" });
     expect(row).toEqual({ id: "0", name: "John", location: "Berlin" });
   });
 
   test("a table can append rows as models", () => {
-    const people = Table.define({
+    const people = Table.create({
       columns: ["name", "location"],
       model: PersonModel.create,
     });
@@ -31,7 +31,7 @@ describe("tables", () => {
   });
 
   test("a model can use the attr decorator", () => {
-    const people = Table.define({
+    const people = Table.create({
       columns: ["name", "location"],
       model: PersonModel.create,
     });
@@ -45,7 +45,7 @@ describe("tables", () => {
   });
 
   test("a table's rows can be enumerated", () => {
-    const people = Table.define<Person>({ columns: ["name", "location"] });
+    const people = Table.create<Person>({ columns: ["name", "location"] });
 
     const list = Formula(() => people.rows.map(({ name }) => name).join(", "));
 

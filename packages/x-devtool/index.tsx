@@ -36,10 +36,9 @@ export function Devtools(props: {
 
   return (
     <>
-      <div class="starbeam-devtool">
-        <section></section>
+      <details class="starbeam-devtool">
+        <summary>🧑‍💻</summary>
         <section class="dependencies">
-          <h1>Renderable</h1>
           <ul class="dependencies">
             <li>
               <span class="specified">description</span>
@@ -71,7 +70,7 @@ export function Devtools(props: {
             )}
           </ul>
         </section>
-      </div>
+      </details>
     </>
   );
 }

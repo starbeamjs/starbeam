@@ -7,6 +7,10 @@
   "dependencies": {
     "@starbeam/core": "workspace:*",
     "@starbeam/debug": "workspace:*",
+    "@starbeam/verify": "workspace:*",
     "@starbeam/js": "workspace:*"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^7.2.0"
   }
 }

@@ -6,7 +6,7 @@ import { type Person, PersonModel } from "./support.js";
 
 describe("queries", () => {
   test("it should be possible to filter a table", () => {
-    const people = Table.define<Person>({ columns: ["name", "location"] });
+    const people = Table.create<Person>({ columns: ["name", "location"] });
 
     people.append({ name: "John", location: "Berlin" });
     people.append({ name: "Jane", location: "London" });
@@ -87,7 +87,7 @@ describe("queries", () => {
   });
 
   test("a query should invalidate correctly inside a formula", () => {
-    const people = Table.define<Person>({ columns: ["name", "location"] });
+    const people = Table.create<Person>({ columns: ["name", "location"] });
 
     function card(person: Person) {
       return `${person.name} (in ${person.location})`;
@@ -159,7 +159,7 @@ describe("queries", () => {
   });
 
   test("queries work with models", () => {
-    const people = Table.define({
+    const people = Table.create({
       columns: ["name", "location"],
       model: PersonModel.create,
     });
