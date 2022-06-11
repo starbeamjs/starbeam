@@ -147,7 +147,16 @@ export class ReactiveMap<K, V> implements Map<K, V> {
 
   get size(): number {
     this.#keys.consume();
-    return this.#entries.size;
+
+    let size = 0;
+
+    for (const [, entry] of this.#iterate()) {
+      if (entry.isPresent()) {
+        size++;
+      }
+    }
+
+    return size;
   }
 
   *#iterate(): IterableIterator<[K, Entry<V>]> {
@@ -195,6 +204,136 @@ export class ReactiveMap<K, V> implements Map<K, V> {
     if (entry === undefined) {
       entry = Entry.uninitialized(this.#description, this.#equality);
       this.#entries.set(key, entry);
+    }
+
+    return entry;
+  }
+}
+
+export class ReactiveSet<T> implements Set<T> {
+  static reactive<T>(
+    equality: Equality<T>,
+    description: DescriptionArgs
+  ): ReactiveSet<T> {
+    return new ReactiveSet(description, equality);
+  }
+
+  #description: DescriptionArgs;
+  #entries: Map<T, Entry<T>> = new Map();
+  #equality: Equality<T>;
+  #values: Marker;
+
+  private constructor(description: DescriptionArgs, equality: Equality<T>) {
+    this.#description = description;
+    this.#equality = equality;
+    this.#values = Marker({
+      ...description,
+      transform: (d: Description) => d.member("values"),
+    });
+  }
+
+  add(value: T): this {
+    const entry = this.#entry(value);
+
+    if (!entry.isPresent()) {
+      this.#entries.set(value, entry);
+      this.#values.update();
+      entry.set(value);
+    }
+
+    return this;
+  }
+
+  clear(): void {
+    if (this.#entries.size > 0) {
+      this.#entries.clear();
+      this.#values.update();
+    }
+  }
+
+  delete(value: T): boolean {
+    const entry = this.#entries.get(value);
+
+    if (entry) {
+      const disposition = entry.delete();
+
+      if (disposition === "deleted") {
+        this.#values.update();
+        this.#entries.delete(value);
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  forEach(
+    callbackfn: (value: T, value2: T, set: Set<T>) => void,
+    thisArg?: any
+  ): void {
+    this.#values.consume();
+
+    for (const [value] of this.#iterate()) {
+      callbackfn.call(thisArg, value, value, this);
+    }
+  }
+
+  has(value: T): boolean {
+    return this.#entry(value).isPresent();
+  }
+
+  get size(): number {
+    this.#values.consume();
+
+    let size = 0;
+
+    for (const _ of this.#iterate()) {
+      size++;
+    }
+
+    return size;
+  }
+
+  *#iterate(): IterableIterator<[T, Entry<T>]> {
+    for (const [value, entry] of this.#entries) {
+      if (entry.isPresent()) {
+        yield [value, entry];
+      }
+    }
+  }
+
+  *entries(): IterableIterator<[T, T]> {
+    this.#values.consume();
+
+    for (const [value, entry] of this.#iterate()) {
+      yield [value, entry.get() as T];
+    }
+  }
+
+  *keys(): IterableIterator<T> {
+    this.#values.consume();
+
+    for (const [value] of this.#iterate()) {
+      yield value;
+    }
+  }
+
+  values(): IterableIterator<T> {
+    return this.keys();
+  }
+
+  [Symbol.iterator](): IterableIterator<T> {
+    return this.keys();
+  }
+
+  [Symbol.toStringTag] = "Set";
+
+  #entry(value: T): Entry<T> {
+    let entry = this.#entries.get(value);
+
+    if (entry === undefined) {
+      entry = Entry.uninitialized(this.#description, this.#equality);
+      this.#entries.set(value, entry);
     }
 
     return entry;

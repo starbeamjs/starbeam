@@ -13,6 +13,7 @@ describe("TrackedSet", () => {
 
     expect(size.current).toBe("The set has 0 items");
 
+    debugger;
     set.add("hot dogs");
     expect(size.current).toBe("The set has 1 items");
 

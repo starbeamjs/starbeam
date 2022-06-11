@@ -2,10 +2,10 @@ import type { DescriptionArgs } from "@starbeam/debug";
 import { Stack } from "@starbeam/debug";
 
 import TrackedArray from "./src/array.js";
-import { ReactiveMap } from "./src/iterable.js";
+import { ReactiveMap, ReactiveSet } from "./src/iterable.js";
 import { TrackedWeakMap } from "./src/map.js";
 import TrackedObject from "./src/object.js";
-import { TrackedSet, TrackedWeakSet } from "./src/set.js";
+import { TrackedWeakSet } from "./src/set.js";
 
 function reactive<T>(constructor: typeof Set, description?: string): Set<T>;
 function reactive<T extends object>(
@@ -52,7 +52,7 @@ reactive.WeakMap = <K extends object, V>(
 };
 
 reactive.Set = <T>(description?: string | DescriptionArgs): Set<T> => {
-  return TrackedSet.reactive(Stack.description(description));
+  return ReactiveSet.reactive(Object.is, Stack.description(description));
 };
 
 reactive.WeakSet = <T extends object>(
