@@ -104,57 +104,5 @@ class ReactiveFormulaList<T, U> implements Reactive<U[]> {
   }
 }
 
-interface Move<T> {
-  from: number;
-  to: number;
-  entry: Entry<T>;
-}
-
-function diff<T>(
-  a: Entry<T>[],
-  b: Entry<T>[]
-): { adds: Entry<T>[]; removes: Entry<T>[]; moves: Move<T>[] } {
-  const adds: Entry<T>[] = [];
-  const removes: Entry<T>[] = [];
-  const moves: Move<T>[] = [];
-
-  const aMap = new Map(a);
-  const bMap = new Map(b);
-
-  for (const [key, value] of bMap) {
-    if (!aMap.has(key)) {
-      adds.push([key, value]);
-    }
-  }
-
-  for (const [key, value] of aMap) {
-    if (!bMap.has(key)) {
-      removes.push([key, value]);
-    }
-  }
-
-  for (let i = 0; i < b.length; i++) {
-    const [key, value] = b[i];
-
-    if (aMap.has(key)) {
-      const aIndex = a.findIndex(([k]) => k === key);
-
-      if (aIndex !== i) {
-        moves.push({
-          from: aIndex,
-          to: i,
-          entry: [key, value],
-        });
-      }
-    }
-  }
-
-  return {
-    adds,
-    removes,
-    moves,
-  };
-}
-
 export type FormulaList<U> = ReactiveFormulaList<unknown, U>;
 export const FormulaList = ReactiveFormulaList.create;
