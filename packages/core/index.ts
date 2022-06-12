@@ -7,4 +7,6 @@ export {
   type ResourceConstructor,
   Resource,
 } from "./src/reactive-core/formula/resource.js";
+export { FormulaList } from "./src/reactive-core/formula-list.js";
 export { Marker } from "./src/reactive-core/marker.js";
+export { ResourceList } from "./src/reactive-core/resource-list.js";

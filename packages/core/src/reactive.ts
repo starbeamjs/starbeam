@@ -1,3 +1,4 @@
+import type { Description } from "@starbeam/debug";
 import {
   type ReactiveInternals,
   type ReactiveProtocol,
@@ -11,5 +12,9 @@ export interface Reactive<T> extends ReactiveProtocol {
 export const Reactive = {
   internals(reactive: ReactiveProtocol): ReactiveInternals {
     return reactive[REACTIVE];
+  },
+
+  description(reactive: ReactiveProtocol): Description {
+    return Reactive.internals(reactive).description;
   },
 };

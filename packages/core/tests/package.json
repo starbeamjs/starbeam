@@ -2,6 +2,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@starbeam/core": "workspace:*"
+    "@starbeam/core": "workspace:*",
+    "@starbeam/js": "workspace:*"
   }
 }

@@ -176,6 +176,53 @@ importers:
       vite-plugin-fonts: 0.4.0_vite@2.9.9
       vite-react-jsx: 1.1.2_vite@2.9.9
 
+  demos/react-store:
+    specifiers:
+      '@esbuild-plugins/node-globals-polyfill': ^0.1.1
+      '@esbuild-plugins/node-modules-polyfill': ^0.1.4
+      '@rollup/plugin-inject': ^4.0.4
+      '@starbeam/core': workspace:*
+      '@starbeam/debug': workspace:*
+      '@starbeam/js': workspace:*
+      '@starbeam/react': workspace:*
+      '@starbeamx/devtool': workspace:*
+      '@starbeamx/store': workspace:*
+      '@types/react': ^18.0.10
+      '@types/react-dom': ^18.0.5
+      esbuild: ^0.14.42
+      firebase: ^9.8.2
+      lit: ^2.2.5
+      purecss: ^2.1.0
+      react: ^18.1.0
+      react-dom: ^18.1.0
+      rollup: ^2.75.5
+      vite: ^2.9.9
+      vite-plugin-fonts: ^0.4.0
+      vite-react-jsx: ^1.1.2
+    dependencies:
+      '@starbeam/core': link:../../packages/core
+      '@starbeam/debug': link:../../packages/debug
+      '@starbeam/js': link:../../packages/js
+      '@starbeam/react': link:../../framework/react/react
+      '@starbeamx/devtool': link:../../packages/x-devtool
+      '@starbeamx/store': link:../../packages/x-store
+      firebase: 9.8.2
+      lit: 2.2.5
+      purecss: 2.1.0
+      react: 18.1.0
+      react-dom: 18.1.0_react@18.1.0
+    devDependencies:
+      '@esbuild-plugins/node-globals-polyfill': 0.1.1_esbuild@0.14.42
+      '@esbuild-plugins/node-modules-polyfill': 0.1.4_esbuild@0.14.42
+      '@rollup/plugin-inject': 4.0.4_rollup@2.75.5
+      '@types/react': 18.0.10
+      '@types/react-dom': 18.0.5
+      esbuild: 0.14.42
+      rollup: 2.75.5
+      vite: 2.9.9
+      vite-plugin-fonts: 0.4.0_vite@2.9.9
+      vite-react-jsx: 1.1.2_vite@2.9.9
+
   framework/react/react:
     specifiers:
       '@starbeam/core': workspace:*
@@ -269,8 +316,10 @@ importers:
   packages/core/tests:
     specifiers:
       '@starbeam/core': workspace:*
+      '@starbeam/js': workspace:*
     dependencies:
       '@starbeam/core': link:..
+      '@starbeam/js': link:../../js
 
   packages/debug:
     specifiers:
@@ -1430,7 +1479,7 @@ packages:
     engines: {node: ^8.13.0 || >=10.10.0}
     dependencies:
       '@grpc/proto-loader': 0.6.12
-      '@types/node': 17.0.38
+      '@types/node': 17.0.40
     dev: false
 
   /@grpc/proto-loader/0.6.12:
@@ -2140,10 +2189,10 @@ packages:
 
   /@types/node/17.0.38:
     resolution: {integrity: sha512-5jY9RhV7c0Z4Jy09G+NIDTsCZ5G0L5n+Z+p+Y7t5VJHM30bgwzSjVtlcBxqAj+6L/swIlvtOSzr8rBk/aNyV2g==}
+    dev: true
 
   /@types/node/17.0.40:
     resolution: {integrity: sha512-UXdBxNGqTMtm7hCwh9HtncFVLrXoqA3oJW30j6XWp5BH/wu3mVeaxo7cq5benFdBw34HB3XDT2TRPI7rXZ+mDg==}
-    dev: true
 
   /@types/parse5/6.0.3:
     resolution: {integrity: sha512-SuT16Q1K51EAVPz1K29DJ/sXjhSQ0zjvsypYJ6tlwVsRV9jwW5Adq2ch8Dq8kDBCkYnELS7N7VNCSB5nC56t/g==}
@@ -5246,7 +5295,7 @@ packages:
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
       '@types/long': 4.0.2
-      '@types/node': 17.0.38
+      '@types/node': 17.0.40
       long: 4.0.0
     dev: false
 
@@ -5320,7 +5369,7 @@ packages:
     dev: true
 
   /require-directory/2.1.1:
-    resolution: {integrity: sha1-jGStX9MNqxyXbiNE/+f3kqam30I=}
+    resolution: {integrity: sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q==}
     engines: {node: '>=0.10.0'}
 
   /resolve-cwd/3.0.0:
@@ -5451,7 +5500,7 @@ packages:
     dev: true
 
   /setimmediate/1.0.5:
-    resolution: {integrity: sha1-KQy7Iy4waULX1+qbg3Mqt4VvgoU=}
+    resolution: {integrity: sha512-MATJdZp8sLqDl/68LfQmbP8zKPLQNV6BIZoIgrscFDQ+RsvK/BxeDQOgyxKKoh0y/8h3BqVFnCqQ/gd+reiIXA==}
     dev: false
 
   /shebang-command/2.0.0:
@@ -5719,7 +5768,7 @@ packages:
     dev: true
 
   /to-fast-properties/2.0.0:
-    resolution: {integrity: sha1-3F5pjL0HkmW8c+A3doGk5Og/YW4=}
+    resolution: {integrity: sha512-/OaKK0xYrs3DmxRYqL/yDc+FxFUVYhDlXMhRmv3z915w2HF1tnN1omB354j8VUGO/hbRzyD6Y3sA7v7GS/ceog==}
     engines: {node: '>=4'}
     dev: true
 
@@ -5745,7 +5794,7 @@ packages:
     dev: true
 
   /tr46/0.0.3:
-    resolution: {integrity: sha1-gYT9NH2snNwYWZLzpmIuFLnZq2o=}
+    resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
     dev: false
 
   /tr46/2.1.0:
@@ -5901,7 +5950,7 @@ packages:
     dev: false
 
   /util-deprecate/1.0.2:
-    resolution: {integrity: sha1-RQ1Nyfpw3nMnYvvS1KKJgUGaDM8=}
+    resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
     dev: false
 
   /v8-compile-cache/2.3.0:

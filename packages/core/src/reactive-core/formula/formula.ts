@@ -75,11 +75,34 @@ export class ReactiveFormula<T> implements Reactive<T> {
   }
 }
 
+interface FormulaInstance<T> extends Reactive<T> {
+  (): T;
+}
+
 export function Formula<T>(
   formula: () => T,
   description?: string | DescriptionArgs
-): ReactiveFormula<T> {
-  return ReactiveFormula.create(formula, Stack.description(description));
+): FormulaInstance<T> {
+  const reactive = ReactiveFormula.create(
+    formula,
+    Stack.description(description)
+  );
+
+  function Formula() {
+    return reactive.current;
+  }
+
+  Object.defineProperty(Formula, REACTIVE, {
+    configurable: true,
+    get: () => reactive[REACTIVE],
+  });
+
+  Object.defineProperty(Formula, "current", {
+    configurable: true,
+    get: () => reactive.current,
+  });
+
+  return Formula as FormulaInstance<T>;
 }
 
-export type Formula<T> = ReactiveFormula<T>;
+export type Formula<T> = FormulaInstance<T>;

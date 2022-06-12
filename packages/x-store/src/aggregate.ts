@@ -1,4 +1,4 @@
-import type { TableTypes } from "./table.js";
+import type { TableTypes, TableTypesFor, UserTypes } from "./table.js";
 
 export interface Aggregator<T, U = T> {
   initialize: () => AggregatorInstance<T, U>;
@@ -9,8 +9,11 @@ export interface AggregatorInstance<T, U = T> {
   value(): U;
 }
 
-export type AggregatorFor<T extends TableTypes> = {
-  [K in keyof T["Columns"]]?: Aggregator<T["Columns"][K], unknown>;
+export type AggregatorFor<U extends UserTypes> = {
+  [K in keyof TableTypesFor<U>["Columns"]]?: Aggregator<
+    TableTypesFor<U>["Columns"][K],
+    unknown
+  >;
 };
 
 export type AggregateRow<T extends TableTypes, A extends AggregatorFor<T>> = {

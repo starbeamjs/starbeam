@@ -45,8 +45,24 @@ const ARRAY_GETTER_METHODS = new Set<ArrayMethodName>([
   "values",
 ]);
 
+const ARRAY_SETTER_METHODS = new Set<ArrayMethodName>([
+  "copyWithin",
+  "fill",
+  "pop",
+  "push",
+  "reverse",
+  "shift",
+  "sort",
+  "splice",
+  "unshift",
+]);
+
 function isGetterMethod(prop: PropertyKey): prop is ArrayMethodName {
   return ARRAY_GETTER_METHODS.has(prop as ArrayMethodName);
+}
+
+function isSetterMethod(prop: PropertyKey): prop is ArrayMethodName {
+  return ARRAY_SETTER_METHODS.has(prop as ArrayMethodName);
 }
 
 function convertToInt(prop: PropertyKey): number | null {
@@ -80,7 +96,7 @@ class Shadow<T> {
     this.#collection = collection;
   }
 
-  #method(prop: PropertyKey): Fn | undefined {
+  #getterMethod(prop: ArrayMethodName): Fn | undefined {
     let fn = this.#fns.get(prop);
 
     if (!fn) {
@@ -91,6 +107,30 @@ class Shadow<T> {
       };
 
       this.#fns.set(prop, fn);
+    }
+
+    return fn;
+  }
+
+  #setterMethod(name: ArrayMethodName) {
+    let fn = this.#fns.get(name);
+
+    if (!fn) {
+      fn = (...args: unknown[]) => {
+        const prev = this.#target.length;
+
+        // eslint-disable-next-line
+        const result = (this.#target as any)[name](...args);
+
+        const next = this.#target.length;
+
+        if (prev !== 0 || next !== 0) {
+          this.#collection.splice();
+        }
+
+        // eslint-disable-next-line
+        return result;
+      };
     }
 
     return fn;
@@ -122,7 +162,9 @@ class Shadow<T> {
 
   get(prop: PropertyKey): unknown {
     if (isGetterMethod(prop)) {
-      return this.method(prop);
+      return this.getterMethod(prop);
+    } else if (isSetterMethod(prop)) {
+      return this.setterMethod(prop);
     } else {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       return (this.#target as UnsafeIndex)[prop];
@@ -135,8 +177,12 @@ class Shadow<T> {
     (this.#target as UnsafeIndex)[prop] = value;
   }
 
-  method(name: ArrayMethodName) {
-    return this.#method(name);
+  getterMethod(name: ArrayMethodName) {
+    return this.#getterMethod(name);
+  }
+
+  setterMethod(name: ArrayMethodName) {
+    return this.#setterMethod(name);
   }
 
   updateLength(to: number) {

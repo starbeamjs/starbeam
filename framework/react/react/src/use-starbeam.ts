@@ -109,8 +109,6 @@ export function useStarbeam<T>(
   const [, setNotify] = useState({});
   const desc = Stack.description(description);
 
-  console.log(desc);
-
   // We use useResource here because the ReactiveElement we're creating has
   // teardown logic, which means that we want it to have a *fresh identity* when
   // this instance of `useReactElement` is reactivated.

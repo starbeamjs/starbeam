@@ -9,7 +9,10 @@ class Entry<V> {
     equality: Equality<V>
   ) {
     return new Entry(
-      Cell<undefined | Cell<V>>(Cell(value, desc), desc),
+      Cell<undefined | Cell<V>>(Cell(value, desc), {
+        ...desc,
+        transform: (d) => d.implementation({ reason: "initialized entry" }),
+      }),
       equality
     );
   }
@@ -49,7 +52,15 @@ class Entry<V> {
     const cell = this.#value.current;
 
     if (cell === undefined) {
-      this.#value.set(Cell(value, Reactive.internals(this.#value).description));
+      this.#value.set(
+        Cell(value, {
+          description: Reactive.internals(
+            this.#value
+          ).description.implementation({
+            reason: "initialized entry",
+          }),
+        })
+      );
       return "initialized";
     } else {
       return cell.set(value) ? "updated" : "unchanged";
@@ -202,7 +213,10 @@ export class ReactiveMap<K, V> implements Map<K, V> {
     let entry = this.#entries.get(key);
 
     if (entry === undefined) {
-      entry = Entry.uninitialized(this.#description, this.#equality);
+      entry = Entry.uninitialized(
+        { ...this.#description, transform: (d) => d.member("entry") },
+        this.#equality
+      );
       this.#entries.set(key, entry);
     }
 

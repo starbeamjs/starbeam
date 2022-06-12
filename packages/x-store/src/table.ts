@@ -1,12 +1,13 @@
+import { type DescriptionArgs, Stack } from "@starbeam/debug";
 import reactive from "@starbeam/js";
 
 import { FlatRows } from "./flat.js";
 
-export class TableImpl<T extends TableTypes> extends FlatRows<T> {
+export class Table<U extends UserTypes> extends FlatRows<U> {
   static create<S extends SpecifiedTableDefinition>(
     this: void,
     definition: S
-  ): TableImpl<{
+  ): Table<{
     Columns: ReturnType<S["model"]>["row"];
     Row: ReturnType<S["model"]>;
   }>;
@@ -14,45 +15,61 @@ export class TableImpl<T extends TableTypes> extends FlatRows<T> {
     this: void,
     definition: {
       columns: (keyof C)[];
+      name?: string;
     }
-  ): TableImpl<{
-    Columns: C;
-    Row: { id: string } & C;
-  }>;
+  ): Table<C>;
   static create(
     this: void,
     definition: {
       columns: (keyof object)[];
       model?: Model<TableTypes>;
+      name?: string;
     }
-  ): TableImpl<TableTypes> {
-    return new TableImpl<TableTypes>({
-      columns: definition.columns,
-      model:
-        definition.model ?? ((id: string, data: object) => ({ id, ...data })),
-    });
+  ): Table<TableTypes> {
+    const description = Stack.description(
+      definition.name ?? definition.model?.name ?? "table"
+    );
+
+    return new Table<TableTypes>(
+      {
+        columns: definition.columns,
+        model:
+          definition.model ?? ((id: string, data: object) => ({ id, ...data })),
+      },
+      description
+    );
   }
 
   #id = 0;
-  readonly #definition: TableDefinition<T>;
-  readonly #rows = reactive.Map<string, T["Row"]>("table");
+  readonly #definition: TableDefinition<TableTypesFor<U>>;
+  readonly #rows: Map<string, TableTypesFor<U>["Row"]>;
+  readonly #description: DescriptionArgs;
 
-  private constructor(definition: TableDefinition<T>) {
+  private constructor(
+    definition: TableDefinition<TableTypesFor<U>>,
+    description: DescriptionArgs
+  ) {
     super();
+    this.#rows = reactive.Map(description);
     this.#definition = definition;
+    this.#description = description;
   }
 
-  get columns(): ColumnName<T["Columns"]>[] {
+  get columns(): ColumnName<TableTypesFor<U>["Columns"]>[] {
     return this.#definition.columns;
   }
 
-  get rows(): T["Row"][] {
+  get rows(): TableTypesFor<U>["Row"][] {
     return [...this.#rows.values()];
   }
 
-  append(row: T["Columns"] & { id?: string }): T["Row"];
-  append(...rows: (T["Columns"] & { id?: string })[]): void;
-  append(...rows: (T["Columns"] & { id?: string })[]): T["Row"] | void {
+  append(
+    row: TableTypesFor<U>["Columns"] & { id?: string }
+  ): TableTypesFor<U>["Row"];
+  append(...rows: (TableTypesFor<U>["Columns"] & { id?: string })[]): void;
+  append(
+    ...rows: (TableTypesFor<U>["Columns"] & { id?: string })[]
+  ): TableTypesFor<U>["Row"] | void {
     for (const columns of rows) {
       const id = columns.id ?? String(this.#id++);
       const row = this.#definition.model(id, columns);
@@ -64,27 +81,40 @@ export class TableImpl<T extends TableTypes> extends FlatRows<T> {
     }
   }
 
+  clear() {
+    this.#rows.clear();
+  }
+
   delete(id: string) {
     this.#rows.delete(id);
   }
 }
 
-export type Table<T extends TableTypes | object> = T extends TableTypes
-  ? TableImpl<T>
-  : TableImpl<{
-      Columns: T;
-      Row: { id: string } & T;
-    }>;
+// export type Table<T extends TableTypes | object> = T extends TableTypes
+//   ? TableImpl<T>
+//   : TableImpl<{
+//       Columns: T;
+//       Row: { id: string } & T;
+//     }>;
 
-export const Table = {
-  create: TableImpl.create,
-};
+// export const Table = {
+//   create: TableImpl.create,
+// };
 
 type ColumnName<C> = keyof C;
 
 export interface Model<T extends TableTypes> {
   (id: string, columns: T["Columns"]): T["Row"];
 }
+
+export type UserTypes = object | TableTypes;
+
+export type TableTypesFor<U extends UserTypes> = U extends TableTypes
+  ? U
+  : {
+      Columns: U;
+      Row: { id: string } & U;
+    };
 
 export interface TableTypes {
   Columns: object;
@@ -94,6 +124,7 @@ export interface TableTypes {
 interface SpecifiedTableDefinition {
   readonly columns: string[];
   readonly model: (id: string, data: any) => { id: string; row: any };
+  readonly name?: string;
 }
 
 export interface TableDefinition<T extends TableTypes> {

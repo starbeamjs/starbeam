@@ -41,6 +41,7 @@ type DescriptionDetails =
 
 export interface DescriptionArgs {
   name?: DescriptionDetails;
+  description?: Description;
   transform?: (description: Description) => Description;
   stack?: Stack;
 }
@@ -55,6 +56,10 @@ export const Description = {
     args: DescriptionArgs,
     validator: ValidatorDescription
   ): Description => {
+    if (args.description) {
+      return args.description;
+    }
+
     const description = type.from({ ...args, validator });
 
     if (args.transform) {

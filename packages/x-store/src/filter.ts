@@ -1,17 +1,19 @@
-import type { TableTypes } from "./table.js";
+import type { TableTypes, TableTypesFor, UserTypes } from "./table.js";
 
-export type FilterFn<T extends TableTypes> = (row: T["Row"]) => boolean;
-export type Filter<T extends TableTypes> = FilterFn<T> | FilterInstance<T>;
+export type FilterFn<U extends UserTypes> = (
+  row: TableTypesFor<U>["Row"]
+) => boolean;
+export type Filter<U extends UserTypes> = FilterFn<U> | FilterInstance<U>;
 
-export interface FilterInstance<T extends TableTypes> {
-  matches(row: T["Row"]): boolean;
-  and(...filters: Filter<T>[]): FilterInstance<T>;
-  or(...filters: Filter<T>[]): FilterInstance<T>;
+export interface FilterInstance<U extends UserTypes> {
+  matches(row: TableTypesFor<U>["Row"]): boolean;
+  and(...filters: Filter<U>[]): FilterInstance<U>;
+  or(...filters: Filter<U>[]): FilterInstance<U>;
 }
 
-export function filter<T extends TableTypes>(
-  filter: Filter<T>
-): FilterInstance<T> {
+export function Filter<U extends UserTypes>(
+  filter: Filter<U>
+): FilterInstance<U> {
   if (typeof filter === "function") {
     return new SingleFilter(filter);
   } else {
@@ -19,20 +21,20 @@ export function filter<T extends TableTypes>(
   }
 }
 
-filter.unfiltered = function <T extends TableTypes>(): FilterInstance<T> {
+Filter.unfiltered = function <T extends TableTypes>(): FilterInstance<T> {
   return new UnfilteredFilter();
 };
 
-filter.all = function <T extends TableTypes>(
+Filter.all = function <T extends TableTypes>(
   ...filters: Filter<T>[]
 ): FilterInstance<T> {
-  return new EveryFilter(...filters.map(filter));
+  return new EveryFilter(...filters.map(Filter));
 };
 
-filter.any = function <T extends TableTypes>(
+Filter.any = function <T extends TableTypes>(
   ...filters: Filter<T>[]
 ): FilterInstance<T> {
-  return new SomeFilter(...filters.map(filter));
+  return new SomeFilter(...filters.map(Filter));
 };
 
 export class UnfilteredFilter<T extends TableTypes>
@@ -43,11 +45,11 @@ export class UnfilteredFilter<T extends TableTypes>
   }
 
   and(...filters: Filter<T>[]): FilterInstance<T> {
-    return new EveryFilter(...filters.map(filter));
+    return new EveryFilter(...filters.map(Filter));
   }
 
   or(...filters: Filter<T>[]): FilterInstance<T> {
-    return new SomeFilter(...filters.map(filter));
+    return new SomeFilter(...filters.map(Filter));
   }
 }
 
@@ -59,11 +61,11 @@ export class SingleFilter<T extends TableTypes> implements FilterInstance<T> {
   }
 
   and(...filters: Filter<T>[]): FilterInstance<T> {
-    return new EveryFilter(this, ...filters.map(filter));
+    return new EveryFilter(this, ...filters.map(Filter));
   }
 
   or(...filters: Filter<T>[]): FilterInstance<T> {
-    return new SomeFilter(this, ...filters.map(filter));
+    return new SomeFilter(this, ...filters.map(Filter));
   }
 
   matches(row: T["Row"]): boolean {
@@ -79,11 +81,11 @@ export class EveryFilter<T extends TableTypes> implements FilterInstance<T> {
   }
 
   and(...filters: Filter<T>[]): FilterInstance<T> {
-    return new EveryFilter(...this.#filters, ...filters.map(filter));
+    return new EveryFilter(...this.#filters, ...filters.map(Filter));
   }
 
   or(...filters: Filter<T>[]): FilterInstance<T> {
-    return new SomeFilter(this, ...filters.map(filter));
+    return new SomeFilter(this, ...filters.map(Filter));
   }
 
   matches(row: T["Row"]): boolean {
@@ -99,11 +101,11 @@ export class SomeFilter<T extends TableTypes> implements FilterInstance<T> {
   }
 
   and(...filters: Filter<T>[]): FilterInstance<T> {
-    return new EveryFilter(this, ...filters.map(filter));
+    return new EveryFilter(this, ...filters.map(Filter));
   }
 
   or(...filters: Filter<T>[]): FilterInstance<T> {
-    return new SomeFilter(...this.#filters, ...filters.map(filter));
+    return new SomeFilter(...this.#filters, ...filters.map(Filter));
   }
 
   matches(row: T["Row"]): boolean {

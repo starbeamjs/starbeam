@@ -41,7 +41,7 @@ function reactive(
   throw new Error(`Unsupported constructor: ${constructor.name}`);
 }
 
-reactive.Map = <K, V>(description?: string): Map<K, V> => {
+reactive.Map = <K, V>(description?: string | DescriptionArgs): Map<K, V> => {
   return ReactiveMap.reactive(Object.is, Stack.description(description));
 };
 
