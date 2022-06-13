@@ -1,10 +1,10 @@
 import { type DescriptionArgs, Stack } from "@starbeam/debug";
 import { type ReactiveInternals, LIFETIME, REACTIVE } from "@starbeam/timeline";
 
-import type { Reactive } from "../reactive.js";
-import { Formula } from "./formula/formula.js";
-import { Linkable } from "./formula/linkable.js";
-import type { Resource } from "./formula/resource.js";
+import type { Reactive } from "../../reactive.js";
+import { Formula } from "../formula/formula.js";
+import { Linkable } from "../formula/linkable.js";
+import type { Resource } from "../formula/resource.js";
 
 type Key = unknown;
 type Entry<T> = [Key, T];
@@ -90,7 +90,7 @@ class ReactiveResourceList<T, U> implements Reactive<U[]> {
 
       if (formula === undefined) {
         const linkable = this.#resource(item);
-        const resource = linkable.owner(this);
+        const resource = linkable.create({ owner: this });
 
         map.set(key, resource);
       } else {

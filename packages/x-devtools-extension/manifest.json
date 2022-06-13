@@ -1,0 +1,6 @@
+{
+  "name": "Starbeam",
+  "version": "1.0",
+  "minimum_chrome_version": "100.0",
+  "devtools_page": "dist/devtools/index.html"
+}

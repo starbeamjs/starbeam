@@ -6,6 +6,7 @@ import { REACTIVE, TIMELINE } from "@starbeam/timeline";
 
 import type { Reactive } from "../../reactive.js";
 import { CompositeInternals } from "../../storage/composite.js";
+import { ReactiveFn } from "../fn.js";
 import { Marker } from "../marker.js";
 
 interface LastEvaluation<T> {
@@ -75,34 +76,16 @@ export class ReactiveFormula<T> implements Reactive<T> {
   }
 }
 
-interface FormulaInstance<T> extends Reactive<T> {
-  (): T;
-}
-
 export function Formula<T>(
   formula: () => T,
   description?: string | DescriptionArgs
-): FormulaInstance<T> {
+): ReactiveFn<T> {
   const reactive = ReactiveFormula.create(
     formula,
     Stack.description(description)
   );
 
-  function Formula() {
-    return reactive.current;
-  }
-
-  Object.defineProperty(Formula, REACTIVE, {
-    configurable: true,
-    get: () => reactive[REACTIVE],
-  });
-
-  Object.defineProperty(Formula, "current", {
-    configurable: true,
-    get: () => reactive.current,
-  });
-
-  return Formula as FormulaInstance<T>;
+  return ReactiveFn(reactive);
 }
 
-export type Formula<T> = FormulaInstance<T>;
+export type Formula<T> = ReactiveFn<T>;

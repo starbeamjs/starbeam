@@ -5,9 +5,11 @@
   "main": "src/index.js",
   "private": true,
   "scripts": {
-    "dev": "vite",
+    "dev": "esno ./.scripts/scripts.ts",
+    "demo": "esno ./.scripts/scripts.ts demo",
     "serve": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "demos:react:store": "vite --port 3001 -c ./demos/react-store/vite.config.ts"
   },
   "devDependencies": {
     "@domtree/any": "workspace:*",
@@ -23,6 +25,7 @@
     "eslint": "^8.16.0",
     "eslint-import-resolver-typescript": "^2.7.1",
     "eslint-plugin-import": "^2.26.0",
+    "esno": "^0.16.3",
     "fast-glob": "^3.2.11",
     "jsdom": "^19.0.0",
     "shelljs": "^0.8.5",

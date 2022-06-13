@@ -195,7 +195,7 @@ export class ReactiveElement {
   }
 
   use<T>(resource: Linkable<Resource<T>>): Resource<T> {
-    return resource.owner(this);
+    return resource.create({ owner: this });
   }
 
   refs<R extends RefsTypes>(refs: R): RefsRecordFor<R> {

@@ -54,7 +54,7 @@ describe("ResourceList", () => {
       resource,
     });
 
-    const resources = linkables.owner(lifetime);
+    const resources = linkables.create({ owner: lifetime });
 
     expect(resources.current).toEqual([
       { card: "Tom (NYC)", subscription: { name: "Tom", isActive: true } },

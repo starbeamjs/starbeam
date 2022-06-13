@@ -9,7 +9,7 @@ export class Linkable<T> {
     this.#link = link;
   }
 
-  owner(owner: object): T {
+  create({ owner }: { owner: object }): T {
     return this.#link(owner);
   }
 

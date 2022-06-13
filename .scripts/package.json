@@ -1,0 +1,12 @@
+{
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "commander": "^9.3.0",
+    "dirfilename": "^1.0.4",
+    "shell-escape-tag": "^2.0.2"
+  },
+  "devDependencies": {
+    "esno": "^0.16.3"
+  }
+}

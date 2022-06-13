@@ -5,6 +5,11 @@ import { type ReactiveInternals, INSPECT, REACTIVE } from "@starbeam/timeline";
 import type { Reactive } from "../reactive.js";
 import { MutableInternalsImpl } from "../storage/mutable.js";
 
+export interface CellPolicy<T, U = T> {
+  equals(a: T, b: T): boolean;
+  map(value: T): U;
+}
+
 export type Equality<T> = (a: T, b: T) => boolean;
 
 function isEquality<T>(

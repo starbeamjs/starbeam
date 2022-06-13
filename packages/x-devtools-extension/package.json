@@ -1,0 +1,9 @@
+{
+  "name": "@starbeamx/devtools-extension",
+  "version": "1.0.0",
+  "devDependencies": {
+    "chrome-types": "^0.1.114",
+    "vite": "^2.9.12",
+    "vite-plugin-mpa": "^1.1.3"
+  }
+}

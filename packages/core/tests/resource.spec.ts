@@ -44,7 +44,7 @@ describe("resources", () => {
         socket,
         description: `${username.current} @ ${channel.current}`,
       });
-    }).owner(parent);
+    }).create({ owner: parent });
 
     let last = resource.current;
     expect(last.description).toBe("@tomdale @ emails");

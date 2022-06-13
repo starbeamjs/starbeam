@@ -3,6 +3,7 @@ export {
   hasItems,
   hasLength,
   isEqual,
+  isNotEqual,
   isNullable,
   isObject,
   isPresent,

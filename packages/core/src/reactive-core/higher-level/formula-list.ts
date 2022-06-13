@@ -1,8 +1,8 @@
 import { type DescriptionArgs, Stack } from "@starbeam/debug";
 import { type ReactiveInternals, REACTIVE } from "@starbeam/timeline";
 
-import { Reactive } from "../reactive.js";
-import { Formula } from "./formula/formula.js";
+import { Reactive } from "../../reactive.js";
+import { Formula } from "../formula/formula.js";
 
 type Key = unknown;
 type Entry<T> = [Key, T];

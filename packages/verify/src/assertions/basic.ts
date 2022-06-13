@@ -36,6 +36,19 @@ export function isEqual<T>(value: T): (other: unknown) => other is T {
   );
 }
 
+export function isNotEqual<T>(
+  value: T
+): <U>(other: U) => other is Exclude<U, T> {
+  function verify<U>(input: U): input is Exclude<U, T> {
+    return !Object.is(input, value);
+  }
+
+  return expected.associate(
+    verify,
+    expected.toBe(`not ${String(value)}`).butGot(format)
+  );
+}
+
 export function isObject(value: unknown): value is object {
   return typeof value === "object" && value !== null;
 }
