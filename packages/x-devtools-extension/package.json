@@ -1,8 +1,12 @@
 {
   "name": "@starbeamx/devtools-extension",
+  "type": "module",
   "version": "1.0.0",
   "devDependencies": {
+    "@crxjs/vite-plugin": "^1.0.11",
     "chrome-types": "^0.1.114",
+    "dirfilename": "^1.0.4",
+    "preact": "^10.7.3",
     "vite": "^2.9.12",
     "vite-plugin-mpa": "^1.1.3"
   }
