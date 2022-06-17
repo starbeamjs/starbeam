@@ -150,6 +150,25 @@ export class Timeline implements RenderableOperations {
     this.#onAdvance = onAdvance;
   }
 
+  render<T>(
+    input: Reactive<T>,
+    render: () => void,
+    description?: string | DescriptionArgs
+  ): Renderable<T> {
+    const ready = () => Queue.afterFlush(render);
+
+    const renderable = Renderable.create(
+      input,
+      { ready },
+      this,
+      Stack.description(description)
+    );
+    this.#renderables.insert(renderable as Renderable<unknown>);
+
+    ready();
+    return renderable;
+  }
+
   on = {
     rendered: (callback: () => void): (() => void) => {
       this.#onAdvance.add(callback);
@@ -198,12 +217,12 @@ export class Timeline implements RenderableOperations {
     return this.#renderables.poll(renderable);
   }
 
-  render<T>(renderable: Renderable<T>, changed: (next: T, prev: T) => void) {
-    this.#renderables.render(
-      renderable,
-      changed as (next: unknown, prev: unknown) => void
-    );
-  }
+  // render<T>(renderable: Renderable<T>, changed: (next: T, prev: T) => void) {
+  //   this.#renderables.render(
+  //     renderable,
+  //     changed as (next: unknown, prev: unknown) => void
+  //   );
+  // }
 
   prune(renderable: Renderable<unknown>): void {
     this.#renderables.prune(renderable);

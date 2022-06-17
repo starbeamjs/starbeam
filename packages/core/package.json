@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "main": "index.ts",
+  "types": "index.ts",
   "dependencies": {
     "@starbeam/peer": "workspace:*",
     "@starbeam/debug": "workspace:*",

@@ -31,7 +31,7 @@ import { Formula } from "./formula.js";
 import { Linkable } from "./linkable.js";
 import { FormulaState } from "./state.js";
 
-export interface ResourceConstructor<T> {
+export interface ResourceBlueprint<T> {
   (builder: BuildResource): () => T;
 }
 
@@ -43,7 +43,7 @@ interface ResourceState<T> {
 
 export class ReactiveResource<T> implements Reactive<T> {
   static create<T>(
-    create: ResourceConstructor<T>,
+    create: ResourceBlueprint<T>,
     description: DescriptionArgs
   ): ReactiveResource<T> {
     return new ReactiveResource(
@@ -54,7 +54,7 @@ export class ReactiveResource<T> implements Reactive<T> {
     );
   }
 
-  #create: ResourceConstructor<T>;
+  #create: ResourceBlueprint<T>;
   /**
    * The marker will bump when the resource is first initialized. This allows consumers of the resource to invalidate without forcing them computing the value of the resource.
    */
@@ -63,7 +63,7 @@ export class ReactiveResource<T> implements Reactive<T> {
   #description: DescriptionArgs;
 
   private constructor(
-    create: ResourceConstructor<T>,
+    create: ResourceBlueprint<T>,
     initialized: Marker,
     state: ResourceState<T> | UNINITIALIZED,
     description: DescriptionArgs
@@ -79,7 +79,7 @@ export class ReactiveResource<T> implements Reactive<T> {
       return this.#initialized[REACTIVE];
     } else {
       return CompositeInternals(
-        [this.#initialized, this.#state.creation],
+        [this.#initialized, this.#state.creation, this.#state.formula],
         this.#description
       );
     }
@@ -87,6 +87,7 @@ export class ReactiveResource<T> implements Reactive<T> {
 
   get current(): T {
     if (this.#state === UNINITIALIZED) {
+      this.#initialized.update();
       const formula = this.#initialize();
       return formula.current;
     } else {
@@ -166,9 +167,9 @@ class BuildResource implements CleanupTarget {
 }
 
 export function Resource<T>(
-  create: ResourceConstructor<T>,
+  create: ResourceBlueprint<T>,
   description?: string | DescriptionArgs
-): Linkable<ReactiveResource<T>> {
+): ResourceConstructor<T> {
   return Linkable.create((owner) => {
     const resource = ReactiveResource.create(
       create,
@@ -181,3 +182,4 @@ export function Resource<T>(
 }
 
 export type Resource<T> = ReactiveResource<T>;
+export type ResourceConstructor<T> = Linkable<Resource<T>>;

@@ -16,19 +16,4 @@ sw.postMessage({
   script: debug,
 });
 
-// Chrome.runtime.onConnect.addListener(connection => {
-//   const listener = (message: ConnectMessage, port: chrome.runtime.Port) => {
-//     chrome.scripting.executeScript({
-//       target: { tabId: message.tabId },
-//       files: [message.script]
-//     });
-//   };
-
-//   connection.onMessage.addListener(listener);
-
-//   connection.onDisconnect.addListener(() => {
-//     connection.onMessage.removeListener(listener);
-//   });
-// });
-
 export {};

@@ -4,6 +4,7 @@
     "allowJs": false,
     "declaration": true,
     "declarationMap": true,
+    // "emitDeclarationOnly": true,
     "target": "esnext",
     "strict": true,
     "noEmit": true,

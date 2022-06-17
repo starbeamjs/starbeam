@@ -33,4 +33,5 @@ export {
   type StartedFormula,
   TIMELINE,
 } from "./src/timeline/timeline.js";
+export { Queue } from "./src/timeline/queue.js";
 export { INSPECT, Timestamp } from "./src/timeline/timestamp.js";
