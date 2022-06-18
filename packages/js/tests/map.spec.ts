@@ -5,7 +5,7 @@ import { Invalidation } from "./support.js";
 
 describe("TrackedMap", () => {
   test("adding and deleting items updates the size", () => {
-    const map = reactive(Map);
+    const map = reactive.Map();
     expect(map.size).toBe(0);
 
     const size = Invalidation.trace(() => `The map has ${map.size} items`);
@@ -29,7 +29,7 @@ describe("TrackedMap", () => {
   });
 
   test("checking a non-existent item invalidates if the item is added", () => {
-    const map = reactive(Map);
+    const map = reactive.Map();
 
     const delicious = Invalidation.trace(
       () => map.has("brie") || map.has("chevre")
@@ -60,7 +60,7 @@ describe("TrackedMap", () => {
   });
 
   test("iterating the map invalidates if the items are changed", () => {
-    const map = reactive(Map);
+    const map = reactive.Map();
 
     const delicious = Invalidation.trace(() => [...map.keys()]);
 

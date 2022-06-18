@@ -165,7 +165,7 @@ export class Timeline implements RenderableOperations {
     );
     this.#renderables.insert(renderable as Renderable<unknown>);
 
-    ready();
+    renderable.poll();
     return renderable;
   }
 

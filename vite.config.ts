@@ -8,16 +8,16 @@ export default defineConfig({
   esbuild: {},
   build: {
     lib: {
-      entry: "./packages/core/index.ts",
+      entry: "./packages/bundle/index.ts",
       formats: ["es", "cjs"],
       fileName: (format) =>
-        format === "cjs" ? "starbeam-core.cjs" : "starbeam-core.mjs",
+        format === "cjs" ? "starbeam.cjs" : "starbeam.mjs",
     },
     minify: false,
     target: "esnext",
     rollupOptions: {
       input: {
-        "core.js": "./packages/core/index.ts",
+        "starbeam.js": "./packages/bundle/index.ts",
       },
       // output: [
       //   {

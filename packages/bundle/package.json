@@ -1,0 +1,17 @@
+{
+  "name": "@starbeam/bundle",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "index.ts",
+  "types": "index.ts",
+  "dependencies": {
+    "@starbeam/peer": "workspace:*",
+    "@starbeam/debug": "workspace:*",
+    "@starbeam/verify": "workspace:*",
+    "@starbeam/timeline": "workspace:*",
+    "@starbeam/core-utils": "workspace:*",
+    "@starbeam/core": "workspace:*",
+    "@starbeam/js": "workspace:*"
+  },
+  "devDependencies": {}
+}

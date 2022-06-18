@@ -314,6 +314,24 @@ importers:
       shell-escape-tag: 2.0.2
       shelljs: 0.8.5
 
+  packages/bundle:
+    specifiers:
+      '@starbeam/core': workspace:*
+      '@starbeam/core-utils': workspace:*
+      '@starbeam/debug': workspace:*
+      '@starbeam/js': workspace:*
+      '@starbeam/peer': workspace:*
+      '@starbeam/timeline': workspace:*
+      '@starbeam/verify': workspace:*
+    dependencies:
+      '@starbeam/core': link:../core
+      '@starbeam/core-utils': link:../core-utils
+      '@starbeam/debug': link:../debug
+      '@starbeam/js': link:../js
+      '@starbeam/peer': link:../peer
+      '@starbeam/timeline': link:../timeline
+      '@starbeam/verify': link:../verify
+
   packages/core:
     specifiers:
       '@starbeam/core-utils': workspace:*

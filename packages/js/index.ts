@@ -1,3 +1,4 @@
+import { Cell } from "@starbeam/core";
 import type { DescriptionArgs } from "@starbeam/debug";
 import { Stack } from "@starbeam/debug";
 
@@ -7,39 +8,41 @@ import { TrackedWeakMap } from "./src/map.js";
 import TrackedObject from "./src/object.js";
 import { TrackedWeakSet } from "./src/set.js";
 
-function reactive<T>(constructor: typeof Set, description?: string): Set<T>;
-function reactive<T extends object>(
-  constructor: typeof WeakSet,
-  description?: string
-): Set<T>;
-function reactive<K, V>(
-  constructor: typeof Map,
-  description?: string
-): Map<K, V>;
-function reactive<K extends object, V>(
-  constructor: typeof WeakMap,
-  description?: string
-): WeakMap<K, V>;
-function reactive(
-  constructor: typeof Set | typeof WeakSet | typeof Map | typeof WeakMap,
-  description?: string
-):
-  | Set<unknown>
-  | WeakSet<object>
-  | Map<unknown, unknown>
-  | WeakMap<object, unknown> {
-  if (constructor === Set) {
-    return reactive.Set(description);
-  } else if (constructor === WeakSet) {
-    return reactive.WeakSet(description);
-  } else if (constructor === Map) {
-    return reactive.Map(description);
-  } else if (constructor === WeakMap) {
-    return reactive.WeakMap(description);
-  }
+export const reactive = (
+  target: unknown,
+  key: PropertyKey,
+  _descriptor?: object
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): any => {
+  const CELLS = new WeakMap<object, Cell>();
 
-  throw new Error(`Unsupported constructor: ${constructor.name}`);
-}
+  Object.defineProperty(target, key, {
+    enumerable: true,
+    configurable: true,
+    get: function (this: object) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let cell: Cell<any> | undefined = CELLS.get(this);
+
+      if (!cell) {
+        cell = Cell(undefined, `@reactive ${String(key)}`);
+        CELLS.set(this, cell);
+      }
+
+      return cell.current as unknown;
+    },
+    set: function (this: object, value: unknown) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let cell: Cell<any> | undefined = CELLS.get(this);
+
+      if (!cell) {
+        cell = Cell(undefined, `@reactive ${String(key)}`);
+        CELLS.set(this, cell);
+      }
+
+      cell.set(value);
+    },
+  });
+};
 
 reactive.Map = <K, V>(description?: string | DescriptionArgs): Map<K, V> => {
   return ReactiveMap.reactive(Object.is, Stack.description(description));

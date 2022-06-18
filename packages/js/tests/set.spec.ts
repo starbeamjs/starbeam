@@ -6,7 +6,7 @@ import { Invalidation } from "./support.js";
 
 describe("TrackedSet", () => {
   test("adding and deleting items updates the size", () => {
-    const set = reactive(Set);
+    const set = reactive.Set();
     expect(set.size).toBe(0);
 
     const size = Formula(() => `The set has ${set.size} items`);
@@ -27,7 +27,7 @@ describe("TrackedSet", () => {
   });
 
   test("checking a non-existent item invalidates if the item is added", () => {
-    const set = reactive(Set);
+    const set = reactive.Set();
 
     const delicious = Invalidation.trace(
       () => set.has("brie") || set.has("chevre")
@@ -58,7 +58,7 @@ describe("TrackedSet", () => {
   });
 
   test("iterating the set invalidates if the items are changed", () => {
-    const set = reactive<string>(Set);
+    const set = reactive.Set<string>();
 
     const foods = Invalidation.trace(() => {
       return [...set].join(", ") || "<nothing>";

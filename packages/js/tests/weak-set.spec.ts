@@ -9,7 +9,7 @@ describe("TrackedWeakSet", () => {
   const hotDogs = { name: "hot dogs" };
 
   test("checking a non-existent item invalidates if the item is added", () => {
-    const set = reactive(Set);
+    const set = reactive.WeakSet();
 
     const delicious = Invalidation.trace(
       () => set.has(brie) || set.has(chevre)
@@ -40,7 +40,7 @@ describe("TrackedWeakSet", () => {
   });
 
   test("checking an existing item invalidates if the item is deleted", () => {
-    const set = reactive(WeakSet);
+    const set = reactive.WeakSet();
 
     set.add(brie);
     set.add(chevre);
