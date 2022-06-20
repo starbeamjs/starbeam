@@ -1,0 +1,4 @@
+{
+  "extends": "../../tsconfig.package.json",
+  "files": ["index.ts"]
+}

@@ -1,10 +1,12 @@
 {
+  "name": "@starbeam-private/scripts",
   "type": "module",
   "private": true,
   "dependencies": {
     "commander": "^9.3.0",
     "dirfilename": "^1.0.4",
-    "shell-escape-tag": "^2.0.2"
+    "shell-escape-tag": "^2.0.2",
+    "fast-glob": "^3.2.11"
   },
   "devDependencies": {
     "esno": "^0.16.3"

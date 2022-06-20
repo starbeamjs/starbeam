@@ -7,6 +7,8 @@ import { version } from "../package.json" assert { type: "json" };
 import { dirname } from "dirfilename";
 import { resolve } from "path";
 import { DemoCommand } from "./demo.js";
+import { TemplateCommand } from "./template.js";
+import { DtsCommand } from "./dts.js";
 
 const root = resolve(dirname(import.meta), "..");
 
@@ -22,5 +24,7 @@ program
   });
 
 program.addCommand(DemoCommand({ root }));
+program.addCommand(TemplateCommand({ root }));
+program.addCommand(DtsCommand({ root }));
 
 program.parse();

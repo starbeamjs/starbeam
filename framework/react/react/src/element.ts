@@ -55,37 +55,37 @@ class Refs {
     });
   }
 
-  #enum: RefsEnum;
+  #refs: RefsEnum;
 
   constructor(refs: RefsEnum) {
-    this.#enum = refs;
+    this.#refs = refs;
   }
 
   get record(): RefsRecord | null {
-    switch (this.#enum.type) {
+    switch (this.#refs.type) {
       case "None":
         return null;
       case "FromPrevious":
       case "FromConstructor":
-        return this.#enum.value;
+        return this.#refs.value;
     }
   }
 
   fromPrev(): Refs {
-    switch (this.#enum.type) {
+    switch (this.#refs.type) {
       case "None":
         return Refs.None();
       case "FromPrevious":
         return this;
       case "FromConstructor":
-        return Refs.FromPrevious(this.#enum.value);
+        return Refs.FromPrevious(this.#refs.value);
     }
   }
 
   update<R extends RefsTypes>(
     refs: R
   ): { refs: Refs; record: RefsRecordFor<R> } {
-    switch (this.#enum.type) {
+    switch (this.#refs.type) {
       case "None": {
         const refsRecord = Object.fromEntries(
           Object.entries(refs).map(([name, type]) => [name, ref(type)])
@@ -99,7 +99,7 @@ class Refs {
       case "FromPrevious":
         return {
           refs: this,
-          record: this.#enum.value as unknown as RefsRecordFor<R>,
+          record: this.#refs.value as unknown as RefsRecordFor<R>,
         };
       case "FromConstructor":
         throw Error(
@@ -109,7 +109,7 @@ class Refs {
   }
 
   isFromConstructor(): boolean {
-    return this.#enum.type === "FromConstructor";
+    return this.#refs.type === "FromConstructor";
   }
 }
 

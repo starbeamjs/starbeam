@@ -1,5 +1,6 @@
 {
   "private": true,
+  "name": "@starbeam-tests/x-store",
   "type": "module",
   "dependencies": {
     "@starbeam/core": "workspace:*",

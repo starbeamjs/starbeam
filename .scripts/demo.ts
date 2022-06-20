@@ -7,7 +7,7 @@ import type { StarbeamCommandOptions } from "./commands.js";
 
 export function DemoCommand({ root }: StarbeamCommandOptions): Command {
   return program
-    .command("demo")
+    .createCommand("demo")
     .description("run a demo")
     .argument("<name>", "the name of the demo (a subdirectory of <root>/demos)")
     .option("-p, --port <port>", "the port to run vite on", "3001")

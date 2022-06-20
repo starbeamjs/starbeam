@@ -1,10 +1,10 @@
 import { NodeGlobalsPolyfillPlugin } from "@esbuild-plugins/node-globals-polyfill";
-import ViteFonts from "vite-plugin-fonts";
+import { VitePluginFonts } from "vite-plugin-fonts";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   plugins: [
-    ViteFonts.default({
+    VitePluginFonts({
       google: {
         families: ["Roboto:wght@300;400;500;700"],
         display: "swap",

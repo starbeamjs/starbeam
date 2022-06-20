@@ -5,8 +5,6 @@ import {
 } from "./reactive.js";
 import { Timestamp } from "./timestamp.js";
 
-Error.stackTraceLimit = 100;
-
 export interface IsUpdatedSince {
   isUpdatedSince(timestamp: Timestamp): boolean;
 }
@@ -40,19 +38,19 @@ export class InternalChildren {
     }
   }
 
-  #enum: InternalChildrenEnum;
+  #internal: InternalChildrenEnum;
 
   constructor(children: InternalChildrenEnum) {
-    this.#enum = children;
+    this.#internal = children;
   }
 
   get dependencies(): Set<MutableInternals> {
-    switch (this.#enum.type) {
+    switch (this.#internal.type) {
       case "None":
         return new Set();
 
       case "Children": {
-        const children = this.#enum.children.flatMap(
+        const children = this.#internal.children.flatMap(
           (child): readonly MutableInternals[] => {
             const internals = child[REACTIVE];
             if (internals.type === "mutable") {
@@ -76,11 +74,11 @@ export class InternalChildren {
    * For debugging
    */
   get lastUpdated(): Timestamp {
-    switch (this.#enum.type) {
+    switch (this.#internal.type) {
       case "None":
         return Timestamp.initial();
       case "Children":
-        return this.#enum.children
+        return this.#internal.children
           .map((child) => child[REACTIVE].debug.lastUpdated)
           .reduce(
             (max, child) => (child.gt(max) ? child : max),
@@ -90,11 +88,11 @@ export class InternalChildren {
   }
 
   isUpdatedSince(timestamp: Timestamp): boolean {
-    switch (this.#enum.type) {
+    switch (this.#internal.type) {
       case "None":
         return false;
       case "Children":
-        return this.#enum.children.some((child) =>
+        return this.#internal.children.some((child) =>
           child[REACTIVE].isUpdatedSince(timestamp)
         );
     }

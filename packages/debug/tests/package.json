@@ -1,5 +1,6 @@
 {
   "private": true,
+  "name": "@starbeam-tests/debug",
   "type": "module",
   "dependencies": {
     "@starbeam/debug": "workspace:*"

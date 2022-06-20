@@ -1,5 +1,6 @@
 {
   "private": true,
+  "name": "@starbeam-tests/verify",
   "type": "module",
   "dependencies": {
     "@starbeam/verify": "workspace:*"

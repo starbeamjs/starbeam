@@ -1,5 +1,6 @@
 {
   "private": true,
+  "name": "@starbeam-demos/react-store",
   "type": "module",
   "dependencies": {
     "@starbeam/core": "workspace:*",

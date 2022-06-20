@@ -1,5 +1,6 @@
 {
   "private": true,
+  "name": "@starbeam-tests/core-utils",
   "type": "module",
   "dependencies": {
     "@starbeam/core-utils": "workspace:*"

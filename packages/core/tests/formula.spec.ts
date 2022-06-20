@@ -1,5 +1,6 @@
-import { cached, Cell, Formula, reactive } from "@starbeam/core";
+import { Cell, Formula } from "@starbeam/core";
 import { describe, expect, test } from "vitest";
+import { cached, reactive } from "@starbeam/js";
 
 describe("A reactive formula", () => {
   test("can be validated", () => {

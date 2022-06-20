@@ -1,5 +1,6 @@
 {
   "private": true,
+  "name": "@starbeam-tests/timeline",
   "type": "module",
   "dependencies": {
     "@starbeam/timeline": "workspace:*"

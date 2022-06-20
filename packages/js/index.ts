@@ -8,6 +8,8 @@ import { TrackedWeakMap } from "./src/map.js";
 import TrackedObject from "./src/object.js";
 import { TrackedWeakSet } from "./src/set.js";
 
+export { cached } from "./src/decorator.js";
+
 export const reactive = (
   target: unknown,
   key: PropertyKey,

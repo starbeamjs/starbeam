@@ -1,7 +1,5 @@
+import { Formula } from "@starbeam/core";
 import { expected, isPresent, verify } from "@starbeam/verify";
-
-import { Cell } from "@starbeam/core/src/reactive-core/cell.js-core/cell.js";
-import { Formula } from "@starbeam/core/src/reactive-core/formula/formula.jsla/formula.js";
 
 export const cached = <T>(
   target: object,

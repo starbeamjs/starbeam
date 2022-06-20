@@ -1,15 +1,11 @@
 {
   "compilerOptions": {
     "jsx": "preserve",
-    "allowJs": true,
-    "checkJs": true,
-    "noEmit": true,
     "target": "esnext",
     "strict": true,
     "useDefineForClassFields": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "experimentalDecorators": true,
     "resolveJsonModule": true,
     "module": "esnext",
     "moduleResolution": "node",
@@ -24,22 +20,5 @@
     "skipDefaultLibCheck": true,
     "inlineSourceMap": true,
     "inlineSources": true
-  },
-
-  "include": [
-    "packages",
-    "framework",
-    "demos",
-    ".scripts/**/*.ts",
-    "vite.config.ts",
-    "**/vite.config.ts",
-    "rollup.config.ts",
-    "rollup.config.js"
-  ],
-  "exclude": [
-    "**/node_modules/**",
-    "node_modules/**",
-    "**/dist/**",
-    "packages/x-devtools-extension"
-  ]
+  }
 }
