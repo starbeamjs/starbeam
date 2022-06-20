@@ -21,7 +21,7 @@ const packages = glob
     return { name: pkg.name, main: resolve(root, pkg.main), root };
   });
 
-export default [packages[0]].map((pkg) =>
+export default packages.map((pkg) =>
   defineConfig({
     input: pkg.main,
     output: [
