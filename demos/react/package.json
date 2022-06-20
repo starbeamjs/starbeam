@@ -21,5 +21,6 @@
     "vite": "^2.9.9",
     "vite-plugin-fonts": "^0.4.0",
     "vite-react-jsx": "^1.1.2"
-  }
+  },
+  "version": null
 }

@@ -1,10 +1,10 @@
 {
   "name": "@starbeam/timeline",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "type": "module",
   "main": "index.ts",
   "dependencies": {
-    "@starbeam/peer": "^1.0.0",
+    "@starbeam/peer": "^1.0.1",
     "@starbeam/verify": "workspace:*",
     "@starbeam/debug": "workspace:*"
   },

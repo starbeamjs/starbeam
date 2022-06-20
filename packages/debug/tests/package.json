@@ -4,5 +4,6 @@
   "type": "module",
   "dependencies": {
     "@starbeam/debug": "workspace:*"
-  }
+  },
+  "version": null
 }

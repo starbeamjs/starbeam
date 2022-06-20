@@ -2,7 +2,7 @@
   "name": "@starbeam/verify",
   "type": "module",
   "main": "index.ts",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "dependencies": {},
   "publishConfig": {
     "main": "dist/index.cjs",

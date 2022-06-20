@@ -6,5 +6,6 @@
     "@starbeam/core": "workspace:*",
     "@starbeamx/store": "workspace:*",
     "@starbeam/js": "workspace:*"
-  }
+  },
+  "version": null
 }
