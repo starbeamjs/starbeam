@@ -1,5 +1,5 @@
 {
-  "name": "@starbeamx/devtools-extension",
+  "name": "@starbeamx-draft/devtools-extension",
   "private": true,
   "type": "module",
   "version": "1.0.0",

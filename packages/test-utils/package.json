@@ -1,5 +1,5 @@
 {
-  "name": "@starbeam/test-utils",
+  "name": "@starbeam-workspace/test-utils",
   "private": true,
   "version": "0.0.0",
   "type": "module",

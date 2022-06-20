@@ -4,6 +4,9 @@
   "types": "src/index.ts",
   "main": "src/index.ts",
   "private": true,
+  "publishConfig": {
+    "registry": "http://localhost:4873/"
+  },
   "scripts": {
     "dev": "esno ./.scripts/scripts.ts",
     "demo": "esno ./.scripts/scripts.ts demo",
