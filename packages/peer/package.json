@@ -5,5 +5,15 @@
   "type": "module",
   "main": "index.ts",
   "dependencies": {},
-  "devDependencies": {}
+  "devDependencies": {},
+  "publishConfig": {
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.cts",
+    "exports": {
+      ".": {
+        "import": "dist/index.js",
+        "default": "dist/index.cjs"
+      }
+    }
+  }
 }

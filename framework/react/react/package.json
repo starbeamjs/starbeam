@@ -25,5 +25,15 @@
   "peerDependencies": {
     "react": "^18.1.0",
     "react-dom": "^18.1.0"
+  },
+  "publishConfig": {
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.cts",
+    "exports": {
+      ".": {
+        "import": "dist/index.js",
+        "default": "dist/index.cjs"
+      }
+    }
   }
 }

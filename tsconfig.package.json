@@ -3,6 +3,8 @@
     "jsx": "preserve",
     "target": "esnext",
     "strict": true,
+    "declaration": true,
+    "declarationMap": true,
     "useDefineForClassFields": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,

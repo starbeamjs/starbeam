@@ -9,5 +9,15 @@
     "@starbeam/timeline": "workspace:*",
     "@starbeam/js": "workspace:*",
     "preact": "^10.7.3"
+  },
+  "publishConfig": {
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.cts",
+    "exports": {
+      ".": {
+        "import": "dist/index.js",
+        "default": "dist/index.cjs"
+      }
+    }
   }
 }

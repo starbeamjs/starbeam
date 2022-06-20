@@ -4,6 +4,8 @@ import { resolve } from "path";
 import type { StarbeamCommandOptions } from "./commands.js";
 import shell from "shelljs";
 import sh from "shell-escape-tag";
+import { readFileSync, writeFileSync } from "fs";
+import { packages } from "./packages.js";
 
 export function TemplateCommand({ root }: StarbeamCommandOptions): Command {
   const TEMPLATES = {
@@ -25,18 +27,29 @@ export function TemplateCommand({ root }: StarbeamCommandOptions): Command {
       "packages"
     )
     .action((dir, { file, type }) => {
-      const absoluteDir = resolve(root, type, dir);
+      const dirs =
+        dir === "all"
+          ? packages(root).map((p) => p.root)
+          : [resolve(root, type, dir)];
 
-      if (file === undefined || file === "tsconfig") {
-        shell.cp(TEMPLATES.tsconfig, resolve(absoluteDir, "tsconfig.json"));
+      for (const dir of dirs) {
+        console.log(`Updating package.json in ${dir}`);
+        const absoluteDir = resolve(root, type, dir);
+
+        const splice = JSON.parse(
+          readFileSync(
+            resolve(root, ".templates", "package", "package.json"),
+            "utf8"
+          )
+        );
+
+        const editingJSON = resolve(absoluteDir, "package.json");
+
+        const json = JSON.parse(readFileSync(editingJSON, "utf-8"));
+
+        json.publishConfig = splice.publishConfig;
+
+        writeFileSync(editingJSON, JSON.stringify(json, null, 2));
       }
-
-      // const cmd = sh`vite --port ${port} --host ${host} -c ${root}/demos/${name}/vite.config.ts ${
-      //   strict ? "--strictPort" : ""
-      // }`;
-      // execSync(cmd, {
-      //   stdio: "inherit",
-      //   cwd: resolve(root, "demos", name),
-      // });
     });
 }

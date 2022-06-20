@@ -21,14 +21,21 @@ const packages = glob
     return { name: pkg.name, main: resolve(root, pkg.main), root };
   });
 
-export default packages.map((pkg) =>
+export default [packages[0]].map((pkg) =>
   defineConfig({
     input: pkg.main,
     output: [
       {
-        file: resolve(pkg.root, "dist", "index.js"),
-        format: "esm",
+        // file: resolve(pkg.root, "dist", "index.js"),
+        dir: resolve(pkg.root, "dist"),
+        format: "es",
         sourcemap: true,
+      },
+      {
+        file: resolve(pkg.root, "dist", "index.cjs"),
+        format: "cjs",
+        sourcemap: true,
+        exports: "named",
       },
     ],
     external: (id) => !(id.startsWith(".") || id.startsWith("/")),
@@ -36,7 +43,6 @@ export default packages.map((pkg) =>
       postcss(),
       ts({
         transpiler: "swc",
-        transpileOnly: true,
         swcConfig: {
           jsc: {
             target: "es2022",
