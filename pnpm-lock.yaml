@@ -321,6 +321,7 @@ importers:
       '@starbeam/debug': workspace:*
       '@starbeam/js': workspace:*
       '@starbeam/peer': workspace:*
+      '@starbeam/react': workspace:*
       '@starbeam/timeline': workspace:*
       '@starbeam/verify': workspace:*
     dependencies:
@@ -329,6 +330,7 @@ importers:
       '@starbeam/debug': link:../debug
       '@starbeam/js': link:../js
       '@starbeam/peer': link:../peer
+      '@starbeam/react': link:../../framework/react/react
       '@starbeam/timeline': link:../timeline
       '@starbeam/verify': link:../verify
 

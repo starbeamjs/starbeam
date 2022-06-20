@@ -1,17 +1,21 @@
 {
   "compilerOptions": {
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationMap": true,
+    "outDir": "./dist/types",
+
     "jsx": "preserve",
-    "allowJs": false,
-    "noEmit": true,
     "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
     "strict": true,
     "useDefineForClassFields": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "resolveJsonModule": true,
-    "module": "esnext",
-    "moduleResolution": "node",
+
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "noUnusedLocals": false,
     "noUnusedParameters": false,
@@ -22,24 +26,9 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "inlineSourceMap": true,
-    "inlineSources": true
+    "inlineSources": true,
+
+    "rootDir": "./packages"
   },
-
-  "include": [
-    "packages",
-    "framework",
-    "demos",
-    ".scripts/**/*.ts",
-    "vite.config.ts",
-    "**/vite.config.ts"
-  ],
-  "exclude": ["**/node_modules/**", "node_modules/**"]
-
-  // "ts-node": {
-  //   "swc": true,
-  //   "transpileOnly": true,
-  //   "experimentalResolverFeatures": true,
-  //   "preferTsExts": true,
-  //   "emit": false
-  // }
+  "include": ["./packages/bundle/src/*.ts"]
 }

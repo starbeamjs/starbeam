@@ -11,6 +11,7 @@
     "@starbeam/timeline": "workspace:*",
     "@starbeam/core-utils": "workspace:*",
     "@starbeam/core": "workspace:*",
+    "@starbeam/react": "workspace:*",
     "@starbeam/js": "workspace:*"
   },
   "devDependencies": {}
