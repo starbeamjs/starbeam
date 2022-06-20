@@ -1,7 +1,0 @@
-{
-  "extends": "../../tsconfig.package.json",
-  "compilerOptions": {
-    "outDir": "dist/types"
-  },
-  "files": ["index.ts"]
-}

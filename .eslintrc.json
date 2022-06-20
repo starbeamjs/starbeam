@@ -39,7 +39,7 @@
       }
     ],
 
-    "import/default": ["error", { "allowDefaultClass": true }],
+    "import/default": ["warn"],
     "import/no-cycle": ["warn"],
     "import/no-duplicates": "off",
     "simple-import-sort/imports": "error",

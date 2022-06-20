@@ -177,6 +177,7 @@ export function Resource<T>(
     );
 
     LIFETIME.link(owner, resource);
+    resource.current;
     return resource;
   });
 }
