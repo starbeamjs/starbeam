@@ -1,17 +1,17 @@
+import type { Description } from "@starbeam/debug";
 import {
-  type DescriptionArgs,
+  FormulaDescription,
   TimestampValidatorDescription,
+  type DescriptionArgs,
 } from "@starbeam/debug";
-import type { Description } from "@starbeam/debug/src/description/reactive-value.js";
-import { FormulaDescription } from "@starbeam/debug/src/description/reactive-value.js";
 
-import { type IsUpdatedSince, InternalChildren } from "./internals.js";
+import { InternalChildren, type IsUpdatedSince } from "./internals.js";
 import {
+  REACTIVE,
   type CompositeInternals,
   type MutableInternals,
   type ReactiveInternals,
   type ReactiveProtocol,
-  REACTIVE,
 } from "./reactive.js";
 import type { Timestamp } from "./timestamp.js";
 
