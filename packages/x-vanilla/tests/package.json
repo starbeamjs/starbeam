@@ -2,6 +2,7 @@
   "private": true,
   "name": "@starbeam-tests/x-vanilla",
   "dependencies": {
-    "@starbeamx/vanilla": "workspace:*"
+    "@starbeamx/vanilla": "workspace:*",
+    "@starbeam/core": "workspace:*"
   }
 }
