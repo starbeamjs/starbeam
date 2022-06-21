@@ -1,7 +1,7 @@
 import { Timestamp } from "./timestamp.js";
 
 export class Now {
-  #now = Timestamp.initial();
+  #now = Timestamp.now();
 
   get now(): Timestamp {
     return this.#now;

@@ -24,7 +24,7 @@ export class StaticInternals implements timeline.StaticInternals {
     this.#description = description;
   }
 
-  readonly debug = { lastUpdated: Timestamp.initial() };
+  readonly debug = { lastUpdated: Timestamp.zero() };
 
   get [REACTIVE](): ReactiveInternals {
     return this;

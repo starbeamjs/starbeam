@@ -205,7 +205,7 @@ export class Timeline implements RenderableOperations {
   get #debug() {
     if (!this.#debugTimeline) {
       const debugTimeline = (this.#debugTimeline = DebugTimeline.create(
-        Timestamp.initial()
+        Timestamp.zero()
       ));
       TIMELINE.on.rendered(() => debugTimeline.notify());
     }

@@ -76,13 +76,13 @@ export class InternalChildren {
   get lastUpdated(): Timestamp {
     switch (this.#internal.type) {
       case "None":
-        return Timestamp.initial();
+        return Timestamp.now();
       case "Children":
         return this.#internal.children
           .map((child) => child[REACTIVE].debug.lastUpdated)
           .reduce(
             (max, child) => (child.gt(max) ? child : max),
-            Timestamp.initial()
+            Timestamp.zero()
           );
     }
   }

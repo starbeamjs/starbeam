@@ -1,12 +1,25 @@
 import { DisplayStruct } from "@starbeam/debug";
 // import type { IS_UPDATED_SINCE } from "../../fundamental/constants.js";
 // import { INSPECT } from "../../utils.js";
+import { bump as peerBump, now as peerNow } from "@starbeam/peer";
 
 export const INSPECT = Symbol.for("nodejs.util.inspect.custom");
 
 export class Timestamp {
-  static initial(): Timestamp {
-    return new Timestamp(1);
+  static #initial = peerNow();
+
+  /**
+   * Returns the current `Timestamp` according to @starbeam/peer
+   */
+  static now(): Timestamp {
+    return new Timestamp(peerNow());
+  }
+
+  /**
+   * The earliest timestamp from @starbeam/peer that was visible to this @starbeam/timeline.
+   */
+  static zero(): Timestamp {
+    return new Timestamp(Timestamp.#initial);
   }
 
   readonly #timestamp: number;
@@ -23,8 +36,11 @@ export class Timestamp {
     return this.#timestamp > other.#timestamp;
   }
 
+  /**
+   * Bump the timestamp using `@starbeam/peer`
+   */
   next(): Timestamp {
-    return new Timestamp(this.#timestamp + 1);
+    return new Timestamp(peerBump());
   }
 
   toString() {
