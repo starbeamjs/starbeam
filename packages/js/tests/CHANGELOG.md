@@ -1,7 +1,5 @@
 # @starbeam-tests/js
 
-## null
-
 ### Patch Changes
 
 - Updated dependencies [2a957e5]

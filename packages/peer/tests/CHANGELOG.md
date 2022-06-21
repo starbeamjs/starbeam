@@ -1,7 +1,5 @@
 # @starbeam-tests/peer
 
-## null
-
 ### Patch Changes
 
 - Updated dependencies [2a957e5]

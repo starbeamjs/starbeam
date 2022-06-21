@@ -1,7 +1,5 @@
 # @starbeam-tests/x-store
 
-## null
-
 ### Patch Changes
 
 - Updated dependencies [2a957e5]

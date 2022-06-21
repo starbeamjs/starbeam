@@ -1,7 +1,5 @@
 # @starbeam-tests/debug
 
-## null
-
 ### Patch Changes
 
 - Updated dependencies [2a957e5]

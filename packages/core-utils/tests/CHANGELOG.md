@@ -1,7 +1,5 @@
 # @starbeam-tests/core-utils
 
-## null
-
 ### Patch Changes
 
 - Updated dependencies [2a957e5]
