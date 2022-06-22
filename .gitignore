@@ -5,3 +5,4 @@ coverage
 tsconfig.tsbuildinfo
 pack
 .pnpm-debug.log
+.eslintcache

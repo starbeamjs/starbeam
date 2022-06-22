@@ -10,8 +10,10 @@
   "scripts": {
     "dev": "esno ./.scripts/scripts.ts",
     "demo": "esno ./.scripts/scripts.ts demo",
+    "lint": "eslint . --cache",
     "serve": "vite preview",
     "test": "vitest",
+    "typecheck": "tsc --build",
     "demos:react:store": "vite --port 3001 -c ./demos/react-store/vite.config.ts"
   },
   "devDependencies": {
