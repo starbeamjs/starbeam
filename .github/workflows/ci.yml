@@ -3,6 +3,9 @@ on:
   push:
     branches: [master]
   pull_request:
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
 jobs:
   install_dependencies:
     name: "Setup"
@@ -61,3 +64,21 @@ jobs:
       - name: "Setup node and install dependencies"
         uses: ./.github/actions/setup-node-and-install
       - run: pnpm lint
+
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: "Setup node and install dependencies"
+        uses: ./.github/actions/setup-node-and-install
+
+      - name: Create Release Pull Request or Publish to npm
+        id: changesets
+        uses: changesets/action@v1
+        # with:
+        #   publish: pnpm release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
