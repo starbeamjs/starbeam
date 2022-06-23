@@ -35,6 +35,14 @@ export function verify<T, U extends T>(
   }
 }
 
+verify.noop = <T, U extends T>(
+  value: T,
+  _check: ((input: T) => input is U) | ((input: T) => boolean),
+  _error?: Expectation<T>
+): asserts value is U => {
+  return;
+};
+
 export function verified<T, U extends T>(
   value: T,
   check: (input: T) => input is U,
@@ -43,6 +51,14 @@ export function verified<T, U extends T>(
   verify(value, check, error);
   return value;
 }
+
+verified.noop = <T, U extends T>(
+  value: T,
+  _check: (input: T) => input is U,
+  _error?: Expectation<T>
+): U => {
+  return value as U;
+};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class Expectation<In = any> {

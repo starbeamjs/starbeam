@@ -11,7 +11,8 @@
     "*.jsx": "${capture}.js",
     "*.tsx": "${capture}.ts",
     "tsconfig.json": "tsconfig.*",
-    "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, .editorconfig, .eslintrc.json, .gitignore, .npmrc, .quokka, pnpm-workspace.yaml, vite.config.ts"
+    "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, .pnpm-debug.log, .editorconfig, .eslintrc.json, .gitignore, .npmrc, .quokka, pnpm-workspace.yaml",
+    "vite.config.ts": "rollup.config.js, .env.*"
   },
   "editor.defaultFormatter": "dbaeumer.vscode-eslint",
   "vitest.enable": true,
@@ -29,6 +30,9 @@
     "editor.defaultFormatter": "redhat.vscode-xml"
   },
   "[ignore]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+  },
+  "[dotenv]": {
     "editor.defaultFormatter": "foxundermoon.shell-format"
   }
 }

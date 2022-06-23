@@ -1,10 +1,6 @@
 {
   "root": true,
-  "plugins": [
-    "prettier",
-    "unused-imports",
-    "simple-import-sort"
-  ],
+  "plugins": ["prettier", "unused-imports", "simple-import-sort"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "project": false,
@@ -107,7 +103,10 @@
       }
     },
     {
-      "files": ["framework/react/use-resource/scripts/**/*"],
+      "files": [
+        "framework/react/use-resource/scripts/**/*",
+        "rollup.config.js"
+      ],
       "env": {
         "node": true
       }
