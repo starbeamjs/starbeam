@@ -8,6 +8,7 @@
     "registry": "http://localhost:4873/"
   },
   "scripts": {
+    "build": "rollup -c ./rollup.config.js",
     "dev": "esno ./.scripts/scripts.ts",
     "demo": "esno ./.scripts/scripts.ts demo",
     "lint": "eslint . --cache",
