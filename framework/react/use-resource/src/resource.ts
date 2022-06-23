@@ -1,42 +1,6 @@
-import {
-  type MutableRefObject,
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from "react";
-
-import {
-  isAttachedState,
-  isPreparedForActivationState,
-  isReadyState,
-} from "./assertions.js";
-import type {
-  CreateResource,
-  LifecycleDelegate,
-  LifecycleEvents,
-  ReactivateResource,
-  UpdateResource,
-} from "./delegate.js";
-import { callerFrame } from "./description.js";
-import type { ReadyReactState, RenderedReactState } from "./states.js";
-import {
-  type TopLevelReactState,
-  DeactivatedReactState,
-  InstantiatedReactState,
-  ReactState,
-  ReadyToReactivateReactState,
-} from "./states.js";
-import { type Ref, useLastRenderRef, useUpdatingRef } from "./updating-ref.js";
-import { check, checked, exhaustive } from "./utils.js";
-
-export interface LifecycleConfig {
-  readonly description: string;
-  readonly notify: () => void;
-}
-
-export type LifecycleOptions = Partial<LifecycleConfig>;
-
 /**
+ * # High Level Documentation
+ *
  * When you render a component in React, it gets a unique "rendered component
  * instance". If the component function contains any calls to `useState`,
  * `useRef`, etc. they will be associated with that unique instance.
@@ -100,9 +64,9 @@ export type LifecycleOptions = Partial<LifecycleConfig>;
  *
  * ## The Solution
  *
- * The `useInstance` hook gives you a way to create a new instance of something
+ * The `useResource` hook gives you a way to create a new instance of something
  * when the component is first instantiated, clean it up when the component is
- * deactivated, and create a brand **new** instance when the component is
+ * unmounted, and create a brand **new** instance when the component is
  * reactivated.
  *
  * TL;DR It works almost the same way that per-component state in React works,
@@ -123,10 +87,10 @@ export type LifecycleOptions = Partial<LifecycleConfig>;
  * second run: updating
  * - inline: update
  *
- * deactivating
- * - inline: finalize instance & deactivate
+ * unmounting
+ * - inline: finalize instance & unmount
  *
- * reactivating (same as activating)
+ * remounting (same as mounting)
  * - inline: create
  * - before paint: attach
  * - browser idle: ready
@@ -136,256 +100,160 @@ export type LifecycleOptions = Partial<LifecycleConfig>;
  * [fast refresh]: https://www.npmjs.com/package/react-refresh
  */
 
-class Resource<T, A> {
-  static create<T, A>(
-    delegate: CreateResource<T, A>,
-    args: A,
-    options?: LifecycleOptions
-  ): Resource<T, A> {
-    if (typeof delegate === "function") {
-      return new Resource({ create: delegate }, options ?? {}, args);
+import {
+  type MutableRefObject,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+
+import { useLastRenderRef } from "./updating-ref.js";
+import { UNINITIALIZED } from "./utils.js";
+
+type State = "mounting" | "mounted" | "remounting" | "unmounted";
+
+export function useResource<T, A>(
+  build: (builder: ResourceBuilder<A>, args: A, prev?: T) => T,
+  args: A
+): T {
+  const [, setNotify] = useState({});
+  const state = useRef<State>("mounting");
+
+  const initialRef = useRef<UNINITIALIZED | ResourceInstance<T, A>>(
+    UNINITIALIZED
+  );
+
+  if (initialRef.current === UNINITIALIZED) {
+    initialRef.current = ResourceBuilder.build(build, args);
+  } else {
+    // If we're remounting, we're effectively in the initial state, and the work already happened
+    // in `useLayoutEffect`, so don't do anything here.
+
+    if (state.current === "mounted") {
+      initialRef.current.run("update", args);
     } else {
-      return new Resource(delegate, options ?? {}, args);
+      state.current = "mounted";
     }
   }
 
-  #delegate: LifecycleDelegate<T, A>;
-  #options: LifecycleOptions;
-  #args: A;
+  const ref = initialRef as MutableRefObject<ResourceInstance<T, A>>;
 
-  private constructor(
-    delegate: LifecycleDelegate<T, A>,
-    options: LifecycleOptions,
+  // The callback to useLayoutEffect is created once, but should see the most recent rendered args.
+  const renderedArgs = useLastRenderRef(args);
+
+  useLayoutEffect(() => {
+    switch (state.current) {
+      case "unmounted": {
+        setNotify({});
+        ref.current = ref.current.remount(renderedArgs.current);
+        state.current = "remounting";
+        break;
+      }
+      default: {
+        state.current = "mounted";
+      }
+    }
+
+    ref.current.run("layout", renderedArgs.current);
+
+    return () => {
+      ref.current.run("cleanup", renderedArgs.current);
+      state.current = "unmounted";
+    };
+  }, []);
+
+  useEffect(() => {
+    ref.current.run("idle", renderedArgs.current);
+
+    // we don't need to return a cleanup function since we already did that in useLayoutEffect
+  }, []);
+
+  return ref.current.instance;
+}
+
+class ResourceInstance<T, A> {
+  #builder: ResourceBuilder<A>;
+  #instance: T;
+
+  constructor(builder: ResourceBuilder<A>, instance: T) {
+    this.#builder = builder;
+    this.#instance = instance;
+  }
+
+  get instance(): T {
+    return this.#instance;
+  }
+
+  remount(args: A): ResourceInstance<T, A> {
+    return ResourceBuilder.remount(this.#builder, args, this.#instance);
+  }
+
+  run(event: "cleanup" | "layout" | "idle" | "update", args: A) {
+    ResourceBuilder.run(this.#builder, event, args);
+  }
+}
+
+class ResourceBuilder<A> {
+  static build<T, A>(
+    build: (builder: ResourceBuilder<A>, args: A, prev?: T) => T,
+    args: A,
+    prev?: T
+  ): ResourceInstance<T, A> {
+    const builder = new ResourceBuilder(build);
+    return new ResourceInstance(builder, build(builder, args, prev));
+  }
+
+  static remount<T, A>(
+    builder: ResourceBuilder<A>,
+    args: A,
+    prev: T
+  ): ResourceInstance<T, A> {
+    return ResourceBuilder.build(
+      builder.#build,
+      args,
+      prev
+    ) as ResourceInstance<T, A>;
+  }
+
+  static run<A>(
+    resource: ResourceBuilder<A>,
+    event: "cleanup" | "layout" | "idle" | "update",
     args: A
   ) {
-    this.#delegate = delegate;
-    this.#options = options;
-    this.#args = args;
+    for (const callback of resource.#on[event]) {
+      callback(args);
+    }
   }
 
-  options(options: LifecycleOptions): Resource<T, A> {
-    return new Resource(
-      this.#delegate,
-      { ...this.#options, ...options },
-      this.#args
-    );
+  #build: (builder: ResourceBuilder<A>, args: A, prev: unknown) => unknown;
+
+  constructor(build: (builder: ResourceBuilder<A>, args: A) => unknown) {
+    this.#build = build;
   }
 
-  as(description: string): Resource<T, A> {
-    return this.options({ description });
-  }
-
-  notifier(notify: () => void): Resource<T, A> {
-    return this.options({ notify });
-  }
-
-  update(updater: UpdateResource<T, A>): Resource<T, A> {
-    return new Resource(
-      { ...this.#delegate, update: updater },
-      this.#options,
-      this.#args
-    );
-  }
-
-  reactivate(reactivate: ReactivateResource<T, A>): Resource<T, A> {
-    return new Resource(
-      { ...this.#delegate, reactivate },
-      this.#options,
-      this.#args
-    );
-  }
-
-  on(delegate: LifecycleEvents<T, A>): Ref<T> {
-    this.#delegate = { ...this.#delegate, ...delegate };
-    return createResource(
-      { ...this.#delegate, ...delegate },
-      this.#args,
-      this.#options
-    );
-  }
-}
-
-function createResource<T, A>(
-  delegate: LifecycleDelegate<T, A>,
-  args: A,
-  options?: LifecycleOptions
-): Ref<T> {
-  const description = options?.description ?? callerFrame({ extraFrames: 1 });
-  const perRenderState = useLastRenderRef(args);
-
-  let notify: () => void;
-
-  if (options?.notify) {
-    notify = options.notify;
-  } else {
-    const [, setNotify] = useState({});
-    notify = () => setNotify({});
-  }
-
-  const config: LifecycleConfig = { description, notify };
-
-  const { ref: state, value: current } = useUpdatingRef.mutable<
-    TopLevelReactState<T>,
-    ReactState<T>
-  >({
-    initial: () => {
-      const instance = delegate.create(perRenderState.current, config);
-      return ReactState.rendering(instance);
-    },
-    update: (lifecycle) => {
-      if (ReadyToReactivateReactState.is(lifecycle)) {
-        if (delegate.reactivate && lifecycle.prev) {
-          return lifecycle.reactivating(
-            delegate.reactivate(perRenderState.current, lifecycle.prev, config)
-          );
-        } else {
-          return lifecycle.reactivating(
-            delegate.create(perRenderState.current, config)
-          );
-        }
-      } else {
-        check(
-          lifecycle,
-          isReadyState({
-            situation: "rerendering a component",
-          })
-        );
-
-        return lifecycle.updating();
-      }
-    },
-  });
-
-  const rendered = (state.current = renderLifecycle(
-    current,
-    delegate,
-    perRenderState.current
-  ));
-
-  useLayoutLifecycle(state, delegate, notify);
-  useReadyLifecycle(state, delegate);
-
-  state.current.flush();
-
-  const result = useLastRenderRef(rendered.value);
-
-  return result;
-}
-
-export function useResource(): {
-  create: <T>(
-    create: CreateResource<T, void>,
-    options?: LifecycleOptions
-  ) => Resource<T, void>;
-} {
-  return useResource.withState(undefined as void);
-}
-
-useResource.create = <T>(
-  create: CreateResource<T, void>
-): Resource<T, void> => {
-  return useResource.withState(undefined as void).create(create);
-};
-
-useResource.withState = <A>(
-  state: A
-): {
-  create: <T>(
-    create: CreateResource<T, A>,
-    options?: LifecycleOptions
-  ) => Resource<T, A>;
-} => {
-  return {
-    create: <T>(create: CreateResource<T, A>, options?: LifecycleOptions) =>
-      Resource.create(create, state, options),
+  #on = {
+    cleanup: new Set<(args: A) => void>(),
+    layout: new Set<(args: A) => void>(),
+    idle: new Set<(args: A) => void>(),
+    update: new Set<(args: A) => void>(),
   };
-};
 
-function useReadyLifecycle<T>(
-  state: MutableRefObject<ReactState<T>>,
-  delegate: LifecycleEvents<T, any>
-): void {
-  useEffect(() => {
-    if (ReadyToReactivateReactState.is(state.current)) {
-      // If we're running inside ReadyToReactivate, we can't run the ready
-      // callback yet, because the instance will be created when the top-level
-      // component renders.
-      //
-      // We'll run the ready callback once instantiation has occurred.
+  on = {
+    cleanup: (cleanup: (args: A) => void): void => {
+      this.#on.cleanup.add(cleanup);
+    },
 
-      return;
-    }
+    update: (update: (args: A) => void): void => {
+      this.#on.update.add(update);
+    },
 
-    const current = checked(
-      state.current,
-      isAttachedState<T>({ situation: "Inside of useEffect" })
-    );
+    layout: (onLayout: (args: A) => void): void => {
+      this.#on.layout.add(onLayout);
+    },
 
-    state.current = current.ready({ delegate, callbacks: ["ready"] }).flush();
-  }, []);
-}
-
-function useLayoutLifecycle<T>(
-  state: MutableRefObject<ReactState<T>>,
-  delegate: LifecycleDelegate<T, any>,
-  notify: () => void
-): void {
-  useLayoutEffect(() => {
-    const current = checked(
-      state.current,
-      isPreparedForActivationState<T>({
-        situation: "Inside of useLayoutEffect",
-      })
-    );
-
-    // If we're reactivating, notify React so that a top-level render will occur
-    // and cause the state to instantiate.
-    if (DeactivatedReactState.is(current)) {
-      notify();
-      state.current = current.readyToReactivate();
-    } else {
-      delegate.attached?.(current.value);
-      state.current = current.attached();
-    }
-
-    return cleanup(state, delegate);
-  }, []);
-}
-
-function cleanup<T>(
-  state: MutableRefObject<ReactState<T>>,
-  delegate: LifecycleDelegate<T, any>
-) {
-  return () => {
-    const current = state.current;
-
-    if (InstantiatedReactState.is(current)) {
-      delegate.deactivate?.(current.value);
-
-      state.current = delegate.reactivate
-        ? ReactState.deactivated(current.value)
-        : ReactState.deactivated(null);
-    } else {
-      console.warn(`TODO: Unexpectedly deactivating in state`, current);
-      state.current = ReactState.deactivated(null);
-    }
+    idle: (onIdle: (args: A) => void): void => {
+      this.#on.idle.add(onIdle);
+    },
   };
-}
-
-function renderLifecycle<T, A>(
-  state: TopLevelReactState<T>,
-  delegate: LifecycleDelegate<T, A>,
-  props: A
-): ReadyReactState<T> | RenderedReactState<T> {
-  switch (state.type) {
-    case "Rendering":
-      return state.rendered();
-    case "Updating":
-      delegate.update?.(state.value, props);
-      return state.ready();
-    case "Reactivating":
-      return state.ready({ delegate, callbacks: ["attached", "ready"] });
-    default:
-      exhaustive(state, `state.type`);
-  }
 }

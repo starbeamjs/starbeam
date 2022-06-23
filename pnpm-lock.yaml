@@ -349,6 +349,12 @@ importers:
       shell-escape-tag: 2.0.2
       shelljs: 0.8.5
 
+  framework/react/use-resource/tests:
+    specifiers:
+      '@starbeam/use-resource': workspace:*
+    dependencies:
+      '@starbeam/use-resource': link:..
+
   packages/bundle:
     specifiers:
       '@starbeam/core': workspace:*

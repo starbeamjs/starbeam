@@ -81,19 +81,3 @@ export function parseStack(stack: string): {
 
   return { header: headerLines, stack: stackLines };
 }
-
-// function filter(frames: number, lines:string[]): Error {
-//   let removed = 0;
-
-//   let filtered: string[] = [];
-
-//   for (let line of lines) {
-//     if (!line.startsWith(FRAME_START)) {
-//       filtered.push(line);
-//     } else if (removed++ >= frames) {
-//       filtered.push(line);
-//     }
-//   }
-
-//   return filtered;
-// }

@@ -66,7 +66,7 @@ This is all rather hard to get right.
 
 ## The Solution
 
-The `useInstance` hook gives you a way to create a new instance of something
+The `useResource` hook gives you a way to create a new instance of something
 when the component is first instantiated, clean it up when the component is
 deactivated, and create a brand **new** instance when the component is
 reactivated.

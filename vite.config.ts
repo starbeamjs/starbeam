@@ -64,8 +64,11 @@ export default defineConfig({
     },
   },
   test: {
-    include: ["packages/*/tests/**/*.spec.ts"],
-    exclude: ["packages/*/tests/node_modules/**"],
+    include: [
+      "packages/*/tests/**/*.spec.ts",
+      "framework/*/*/tests/**/*.spec.ts",
+    ],
+    exclude: ["**/node_modules/**"],
     threads: false,
     allowOnly: true,
   },

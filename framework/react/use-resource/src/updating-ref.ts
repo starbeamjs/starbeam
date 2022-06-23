@@ -2,6 +2,10 @@ import { type MutableRefObject, useRef } from "react";
 
 import { UNINITIALIZED } from "./utils.js";
 
+/**
+ * This is basically the React `Ref` type, but the React version forces `current` to be `| null`,
+ * which is impossible here, because it's not a DOM ref.
+ */
 export interface Ref<T> {
   readonly current: T;
 }
@@ -41,6 +45,10 @@ export interface MutableUpdatingRef<T, Wide = T> {
   readonly ref: MutableRefObject<Wide>;
 }
 
+export function useMutableRef<T>(initial: () => T): MutableRefObject<T> {
+  return useRef(initial());
+}
+
 export function useUpdatingVariable<T>(options: {
   initial: () => T;
   update: (value: T) => T | void;
@@ -48,6 +56,20 @@ export function useUpdatingVariable<T>(options: {
   return useUpdatingRef(options).current;
 }
 
+/**
+ * `useUpdatingRef` is a React hook that lets you create a value on initial render and keep it up
+ * to date on subsequent renders.
+ *
+ * ## Details
+ *
+ * On the first render, this hook calls the `initial` function and populates a Ref with the
+ * value the `initial` function returned.
+ *
+ * On subsequent renders, this hook calls the `update` function with the previous value. If the
+ * `update` function returns a value, it becomes the new value of the Ref.
+ *
+ * Either way, this function returns a `Ref` containing the current value.
+ */
 export function useUpdatingRef<T>({
   initial,
   update,
@@ -71,6 +93,10 @@ export function useUpdatingRef<T>({
 }
 
 /**
+ * The `mutable` variant of `useUpdatingRef` works exactly the same way as `useUpdatingRef`, but
+ * returns a React `MutableRefObject` that you can update. If you update the ref, that value will be
+ * passed to the `update` function on subsequent renders.
+ *
  * The `T` type is the type you can assign to `current`.
  */
 useUpdatingRef.mutable = <Returned extends Supports, Supports = Returned>({

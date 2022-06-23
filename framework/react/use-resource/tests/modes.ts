@@ -40,6 +40,7 @@ interface HtmlTemplate<T> {
 
 type BoundFireObject = {
   [P in keyof FireObject]: FireObject[P] extends (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     element: any,
     ...args: infer Args
   ) => infer Return
@@ -60,6 +61,7 @@ export class TestElement<E extends Element> {
 
   readonly fire: {
     [P in keyof FireObject]: FireObject[P] extends (
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       element: any,
       ...args: infer Args
     ) => infer Return
@@ -82,6 +84,7 @@ export class TestElement<E extends Element> {
   }
 
   #bind(method: FireObject[keyof FireObject]) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (...args: any) => {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       const result = method(this.#element, ...args);
@@ -225,9 +228,6 @@ export class RenderResult<Props, T> {
 
     return { expecting: this.#postcondition() };
   };
-
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  deactivate() {}
 
   unmount(): { expecting: RerenderContext<T> } {
     return entryPoint(() => {
@@ -382,6 +382,7 @@ class RerenderContext<T> {
 
   static assert<T>(
     context: RerenderContext<T>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     result: RenderResult<any, T>
   ): RerenderContext<T> {
     if (context.#current.stability) {

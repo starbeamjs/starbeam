@@ -1,0 +1,7 @@
+{
+  "name": "@starbeam-tests/react-use-resource",
+  "private": true,
+  "dependencies": {
+    "@starbeam/use-resource": "workspace:*"
+  }
+}
