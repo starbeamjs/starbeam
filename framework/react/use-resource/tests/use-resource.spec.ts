@@ -1,11 +1,12 @@
 // @vitest-environment jsdom
 
 import { useState } from "react";
-import { useResource, type Ref } from "../index.js";
+import { expect } from "vitest";
+
+import { type Ref, useResource } from "../index.js";
 import { html, react } from "./dom.js";
 import { entryPoint } from "./entry.js";
 import { testModes } from "./modes.js";
-import { expect } from "vitest";
 
 testModes("useResource", (mode) => {
   TestResource.resetId();

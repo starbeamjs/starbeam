@@ -1,6 +1,6 @@
 import type * as browser from "@domtree/browser";
-import type * as minimal from "@domtree/minimal";
 import type * as dom from "@domtree/interface";
+import type * as minimal from "@domtree/minimal";
 
 export type Document = browser.Document | minimal.Document;
 export type Text = browser.Text | minimal.Text;

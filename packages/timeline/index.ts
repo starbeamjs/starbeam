@@ -15,6 +15,7 @@ export {
 } from "./src/timeline/debug.js";
 export { type FrameValidation, FinalizedFrame } from "./src/timeline/frames.js";
 export { InternalChildren } from "./src/timeline/internals.js";
+export { Queue } from "./src/timeline/queue.js";
 export {
   type CompositeInternals,
   type MutableInternals,
@@ -33,5 +34,4 @@ export {
   type StartedFormula,
   TIMELINE,
 } from "./src/timeline/timeline.js";
-export { Queue } from "./src/timeline/queue.js";
 export { INSPECT, Timestamp } from "./src/timeline/timestamp.js";

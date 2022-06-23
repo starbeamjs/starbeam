@@ -1,13 +1,11 @@
 import {
+  type FunctionComponent,
+  type ReactElement,
+  type ReactHTML,
+  type ReactNode,
   createElement,
   Fragment,
   isValidElement,
-  type FunctionComponent,
-  type ReactElement,
-  type ReactNode,
-  type HTMLAttributes,
-  type DOMAttributes,
-  type ReactHTML,
 } from "react";
 
 type PropsFor<E> = E extends keyof ReactHTML

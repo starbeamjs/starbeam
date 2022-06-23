@@ -6,12 +6,12 @@
 // );
 
 import {
+  type PreparedForActivationReactState,
+  type ReactState,
   DeactivatedReactState,
   InstantiatedReactState,
   ReadyReactState,
   RenderedReactState,
-  type PreparedForActivationReactState,
-  type ReactState,
 } from "./states.js";
 import type { Check } from "./utils.js";
 

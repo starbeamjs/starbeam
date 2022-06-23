@@ -1,4 +1,5 @@
 import type { anydom, browser } from "@domtree/flavors";
+import { ElementPlaceholder } from "@starbeam/modifier";
 import {
   expected,
   isEqual,
@@ -6,8 +7,6 @@ import {
   verified,
   verify,
 } from "@starbeam/verify";
-
-import { ElementPlaceholder } from "@starbeam/modifier";
 
 const REFS = new WeakMap<object, ElementPlaceholder<browser.Element>>();
 

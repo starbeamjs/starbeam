@@ -1,10 +1,10 @@
-import { defineConfig } from "rollup";
-import { dirname, resolve } from "path";
-import { fileURLToPath } from "url";
 import glob from "fast-glob";
 import { readFileSync } from "fs";
-import ts from "rollup-plugin-ts";
+import { dirname, resolve } from "path";
+import { defineConfig } from "rollup";
 import postcss from "rollup-plugin-postcss";
+import ts from "rollup-plugin-ts";
+import { fileURLToPath } from "url";
 
 const dir = fileURLToPath(import.meta.url);
 const root = dirname(resolve(dir));

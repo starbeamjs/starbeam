@@ -1,23 +1,24 @@
 import {
-  fireEvent,
-  getByRole,
-  render,
   type ByRoleMatcher,
   type ByRoleOptions,
   type FireObject,
   type RenderResult as UpstreamRenderResult,
+  fireEvent,
+  getByRole,
+  render,
 } from "@testing-library/react";
 import {
+  type FunctionComponent,
+  type ReactElement,
   createElement,
   StrictMode,
   useState,
-  type FunctionComponent,
-  type ReactElement,
 } from "react";
+import { expect, test } from "vitest";
+
 import { UNINITIALIZED } from "../src/utils.js";
 import { entryPoint } from "./entry.js";
 import { act } from "./react.js";
-import { test, expect } from "vitest";
 
 interface RenderResultConfiguration<T> {
   readonly values: Values<T>;

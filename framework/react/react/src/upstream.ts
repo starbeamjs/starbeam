@@ -15,13 +15,13 @@ const {
 const { useSyncExternalStore } = shim;
 
 export {
+  createContext,
+  createElement,
   useCallback,
+  useContext,
+  useDebugValue,
   useLayoutEffect,
   useRef,
   useState,
-  useContext,
-  useDebugValue,
-  createContext,
-  createElement,
   useSyncExternalStore,
 };

@@ -1,8 +1,9 @@
 // @vitest-environment jsdom
 
+import { expect } from "vitest";
+
 import { useUpdatingRef } from "../src/updating-ref.js";
 import { react } from "./dom.js";
-import { expect, test } from "vitest";
 import { testModes } from "./modes.js";
 
 testModes("useUpdatingRef.mutable", async (mode) => {

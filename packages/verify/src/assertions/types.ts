@@ -46,7 +46,7 @@ function isTypeof<K extends keyof TypeOfTypes>(
   }
 
   const verify = define.builtin(
-    function verify(value: unknown): value is TypeOfTypes[K] {
+    (value: unknown): value is TypeOfTypes[K] => {
       return typeof value === type;
     },
     "name",
