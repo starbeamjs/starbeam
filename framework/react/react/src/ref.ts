@@ -88,5 +88,6 @@ export function ref<E extends browser.Element>(
     placeholder as unknown as ElementPlaceholder<browser.Element>
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return refCallback as any;
 }

@@ -67,9 +67,9 @@ describe("ResourceList", () => {
     list.push({ id: 3, name: "John", location: "NYC" });
 
     let currentResources = resources.current;
-    let tom = currentResources[0].subscription;
-    let chirag = currentResources[1].subscription;
-    let john = currentResources[2].subscription;
+    const tom = currentResources[0].subscription;
+    const chirag = currentResources[1].subscription;
+    const john = currentResources[2].subscription;
 
     expect(resources.current).toEqual([
       { card: "Tom (NYC)", subscription: { name: "Tom", isActive: true } },

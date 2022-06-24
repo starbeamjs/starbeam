@@ -286,8 +286,8 @@ export class Timeline implements RenderableOperations {
   }
 
   #notifySubscribers(...storages: MutableInternals[]) {
-    for (let storage of storages) {
-      let updaters = this.#updatersFor(storage);
+    for (const storage of storages) {
+      const updaters = this.#updatersFor(storage);
 
       LOGGER.trace.log(
         `notifying listeners for cell\ncell: %o\nlisteners:%o`,
@@ -313,7 +313,7 @@ export class Timeline implements RenderableOperations {
   }
 
   withAssertFrame(callback: () => void, description: string): void {
-    let currentFrame = this.#assertFrame;
+    const currentFrame = this.#assertFrame;
 
     try {
       this.#assertFrame = AssertFrame.describing(description);

@@ -161,6 +161,7 @@ testModes("useResource (nested, stability across remounting)", (mode) => {
     .expectStable((value) => value.current)
     .expectHTML(
       ({ current: { state, count, id } }) =>
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         `<p>${state}</p><p>parent:${count}</p><p>child:${count} id:${id}</p><label><span>Increment</span><button>++</button></label>`
     );
 

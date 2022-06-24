@@ -73,7 +73,8 @@ export class TestElement<E extends Element> {
 
     const fire: Partial<BoundFireObject> = {};
 
-    for (let [key, value] of Object.entries(fireEvent)) {
+    for (const [key, value] of Object.entries(fireEvent)) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       fire[key as keyof BoundFireObject] = this.#bind(value);
     }
 
@@ -82,6 +83,7 @@ export class TestElement<E extends Element> {
 
   #bind(method: FireObject[keyof FireObject]) {
     return (...args: any) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       const result = method(this.#element, ...args);
       entryPoint(() => this.#assert());
       return result;
@@ -224,6 +226,7 @@ export class RenderResult<Props, T> {
     return { expecting: this.#postcondition() };
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   deactivate() {}
 
   unmount(): { expecting: RerenderContext<T> } {
@@ -390,7 +393,7 @@ class RerenderContext<T> {
       context.html(expectedHTML);
     }
 
-    for (let value of context.#current.stableValues) {
+    for (const value of context.#current.stableValues) {
       value.assert(result.value);
     }
 
@@ -507,7 +510,7 @@ export class Mode {
     definition: (props?: Props) => { dom: ReactElement; value: T },
     props?: Props
   ): RenderResult<Props, T> {
-    let rerender: { current: () => void } = { current: () => null };
+    const rerender: { current: () => void } = { current: () => null };
     let renderCount = 0;
     const values: Values<T> = Values.create();
 

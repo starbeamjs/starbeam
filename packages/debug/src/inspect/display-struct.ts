@@ -21,11 +21,11 @@ export function DisplayStruct(
     }]`;
   }
 
-  let constructor = class {};
+  const constructor = class {};
   Object.defineProperty(constructor, "name", { value: displayName });
-  let object = new constructor();
+  const object = new constructor();
 
-  for (let [key, value] of entries(fields)) {
+  for (const [key, value] of entries(fields)) {
     Object.defineProperty(object, key, {
       value,
       enumerable: true,

@@ -25,7 +25,12 @@ export namespace Node {
   export type DOCUMENT_FRAGMENT_NODE = 11;
 }
 
-type ReadonlyNode = {};
+// --- Type utilities for component signatures --- //
+// Type-only "symbol" to use with `ReadonlyNode` below, so that it is *not*
+// equivalent to an empty interface.
+declare const Empty: unique symbol;
+
+type ReadonlyNode = { [Empty]?: true };
 
 interface ReadonlyParent extends ReadonlyNode {
   readonly firstChild: ChildNode | null;

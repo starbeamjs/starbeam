@@ -69,7 +69,7 @@ describe("A reactive formula", () => {
       location: location.current,
     }));
 
-    let last = card.current;
+    const last = card.current;
 
     expect(last).toEqual({
       name: "@tomdale",
@@ -81,7 +81,7 @@ describe("A reactive formula", () => {
     // set the name to the same value
     name.set("@tomdale");
 
-    let next = card.current;
+    const next = card.current;
 
     expect(next).toEqual({
       name: "@tomdale",
@@ -105,8 +105,8 @@ describe("A reactive formula", () => {
       location: person.current.location,
     }));
 
-    let lastCard = card.current;
-    let lastPerson = person.current;
+    const lastCard = card.current;
+    const lastPerson = person.current;
 
     expect(lastCard).toEqual({
       name: "Tom Dale",
@@ -126,8 +126,8 @@ describe("A reactive formula", () => {
       location: "New York",
     });
 
-    let nextCard = card.current;
-    let nextPerson = person.current;
+    const nextCard = card.current;
+    const nextPerson = person.current;
 
     expect(nextCard).toEqual({
       name: "Tom Dale",
@@ -184,10 +184,10 @@ test("Formula", () => {
     }
   }
 
-  let person = new Person("Tom", "USA");
+  const person = new Person("Tom", "USA");
   let counter = 0;
 
-  let formatted = Formula(() => {
+  const formatted = Formula(() => {
     counter++;
     return person.formatted(false);
   });
@@ -205,7 +205,7 @@ test("Formula", () => {
 });
 
 test("nested Formula", () => {
-  let person = testName("Tom", "Dale");
+  const person = testName("Tom", "Dale");
 
   expect(person.fullName).toBe("Tom Dale");
 

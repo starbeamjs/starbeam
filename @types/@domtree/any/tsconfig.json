@@ -1,0 +1,13 @@
+{
+  "extends": "../../../tsconfig.json",
+  "compilerOptions": {
+    // this is a type-definitions package,
+    // we author the types by hand, and are only
+    // checking validitiy
+    "noEmit": true
+  },
+  "include": [
+    "*.d.ts",
+    "*.ts"
+  ]
+}
