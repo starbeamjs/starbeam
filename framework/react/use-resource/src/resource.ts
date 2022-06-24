@@ -278,16 +278,16 @@ export function useResource(): {
     options?: LifecycleOptions
   ) => Resource<T, void>;
 } {
-  return useResource.with(undefined as void);
+  return useResource.withState(undefined as void);
 }
 
 useResource.create = <T>(
   create: CreateResource<T, void>
 ): Resource<T, void> => {
-  return useResource.with(undefined as void).create(create);
+  return useResource.withState(undefined as void).create(create);
 };
 
-useResource.with = <A>(
+useResource.withState = <A>(
   state: A
 ): {
   create: <T>(

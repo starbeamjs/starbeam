@@ -1,4 +1,5 @@
-import glob from "fast-glob";
+/// <reference types="node" />
+import { sync as glob } from "fast-glob";
 import { readFileSync } from "fs";
 import { dirname, resolve } from "path";
 import { defineConfig } from "rollup";
@@ -6,15 +7,24 @@ import postcss from "rollup-plugin-postcss";
 import ts from "rollup-plugin-ts";
 import { fileURLToPath } from "url";
 
+import importMetaPlugin from "./.build/import-meta.js";
+
 const dir = fileURLToPath(import.meta.url);
 const root = dirname(resolve(dir));
 
-const packages = glob
-  .sync([
-    resolve(root, "packages/*/package.json"),
-    resolve(root, "framework/*/*/package.json"),
-  ])
-  .map((path) => [path, JSON.parse(readFileSync(path, "utf8"))])
+/** @typedef {{main: string; private: boolean; name: string}} PackageJSON */
+
+const packages = glob([
+  resolve(root, "packages/*/package.json"),
+  resolve(root, "framework/*/*/package.json"),
+])
+  .map(
+    (path) =>
+      /** @type {[string, PackageJSON]} */ ([
+        path,
+        /** @type {PackageJSON} */ (JSON.parse(readFileSync(path, "utf8"))),
+      ])
+  )
   .filter(([, pkg]) => pkg.main && pkg.private !== true)
   .map(([path, pkg]) => {
     const root = dirname(path);
@@ -26,13 +36,12 @@ export default packages.map((pkg) =>
     input: pkg.main,
     output: [
       {
-        // file: resolve(pkg.root, "dist", "index.js"),
         dir: resolve(pkg.root, "dist"),
         format: "es",
         sourcemap: true,
       },
       {
-        file: resolve(pkg.root, "dist", "index.cjs"),
+        dir: resolve(pkg.root, "dist"),
         format: "cjs",
         sourcemap: true,
         exports: "named",
@@ -40,6 +49,7 @@ export default packages.map((pkg) =>
     ],
     external: (id) => !(id.startsWith(".") || id.startsWith("/")),
     plugins: [
+      importMetaPlugin,
       postcss(),
       ts({
         transpiler: "swc",

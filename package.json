@@ -4,6 +4,7 @@
   "types": "src/index.ts",
   "main": "src/index.ts",
   "private": true,
+  "license": "MIT",
   "publishConfig": {
     "registry": "http://localhost:4873/"
   },
@@ -15,6 +16,7 @@
     "serve": "vite preview",
     "test": "vitest",
     "typecheck": "tsc --build",
+    "test:prod": "vitest --mode production",
     "demos:react:store": "vite --port 3001 -c ./demos/react-store/vite.config.ts"
   },
   "devDependencies": {
@@ -23,6 +25,7 @@
     "@domtree/any": "workspace:*",
     "@domtree/flavors": "workspace:*",
     "@domtree/minimal": "workspace:*",
+    "@import-meta-env/unplugin": "^0.1.8",
     "@rollup/plugin-sucrase": "^4.0.4",
     "@rollup/plugin-typescript": "^8.3.3",
     "@swc/core": "^1.2.203",
@@ -33,6 +36,7 @@
     "@typescript-eslint/eslint-plugin": "^5.27.0",
     "@typescript-eslint/parser": "^5.27.0",
     "@vitest/ui": "^0.14.1",
+    "dotenv": "^16.0.1",
     "esbuild": "^0.14.46",
     "eslint": "^8.16.0",
     "eslint-config-prettier": "^8.5.0",
@@ -45,6 +49,7 @@
     "esno": "^0.16.3",
     "fast-glob": "^3.2.11",
     "jsdom": "^19.0.0",
+    "magic-string": "^0.26.2",
     "postcss": "^8.4.14",
     "prettier": "^2.6.2",
     "rollup": "^2.75.6",

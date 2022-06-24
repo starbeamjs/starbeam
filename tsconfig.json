@@ -30,12 +30,12 @@
     "packages",
     "framework",
     "demos",
+    "build/**/*.ts",
     ".scripts/**/*.ts",
     "vite.config.ts",
     "**/vite.config.ts",
-    "rollup.config.ts",
     "rollup.config.js",
-    "**/.eslintrc.cjs"
+    ".build/*.js"
   ],
   "exclude": [
     "**/node_modules/**",

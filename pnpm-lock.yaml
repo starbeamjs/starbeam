@@ -19,6 +19,7 @@ importers:
       '@domtree/any': workspace:*
       '@domtree/flavors': workspace:*
       '@domtree/minimal': workspace:*
+      '@import-meta-env/unplugin': ^0.1.8
       '@rollup/plugin-sucrase': ^4.0.4
       '@rollup/plugin-typescript': ^8.3.3
       '@swc/core': ^1.2.203
@@ -29,6 +30,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.27.0
       '@typescript-eslint/parser': ^5.27.0
       '@vitest/ui': ^0.14.1
+      dotenv: ^16.0.1
       esbuild: ^0.14.46
       eslint: ^8.16.0
       eslint-config-prettier: ^8.5.0
@@ -41,6 +43,7 @@ importers:
       esno: ^0.16.3
       fast-glob: ^3.2.11
       jsdom: ^19.0.0
+      magic-string: ^0.26.2
       postcss: ^8.4.14
       prettier: ^2.6.2
       rollup: ^2.75.6
@@ -60,6 +63,7 @@ importers:
       '@domtree/any': link:@types/@domtree/any
       '@domtree/flavors': link:@types/@domtree/flavors
       '@domtree/minimal': link:@types/@domtree/minimal
+      '@import-meta-env/unplugin': 0.1.8_qyqavhxsy6dzc3xcfnsab7uxuy
       '@rollup/plugin-sucrase': 4.0.4_rollup@2.75.6
       '@rollup/plugin-typescript': 8.3.3_rqgbr5uopfiucphy7ckzhieyka
       '@swc/core': 1.2.203
@@ -70,6 +74,7 @@ importers:
       '@typescript-eslint/eslint-plugin': 5.28.0_p7dpmbng2fwzidrcb7adceb33q
       '@typescript-eslint/parser': 5.28.0_aycqmkwbwxl3m4pnvl44sjixha
       '@vitest/ui': 0.14.2
+      dotenv: 16.0.1
       esbuild: 0.14.46
       eslint: 8.18.0
       eslint-config-prettier: 8.5.0_eslint@8.18.0
@@ -82,6 +87,7 @@ importers:
       esno: 0.16.3
       fast-glob: 3.2.11
       jsdom: 19.0.0
+      magic-string: 0.26.2
       postcss: 8.4.14
       prettier: 2.7.1
       rollup: 2.75.6
@@ -1717,6 +1723,23 @@ packages:
 
   /@humanwhocodes/object-schema/1.2.1:
     resolution: {integrity: sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==}
+    dev: true
+
+  /@import-meta-env/unplugin/0.1.8_qyqavhxsy6dzc3xcfnsab7uxuy:
+    resolution: {integrity: sha512-BSMxFokncqHijsdMztRg/xv20LAr5FdJ+hhKFZ1wJNYRhSoF28DsMlQ119B52XKWycj5okuAQO4Bh69Lb7729Q==}
+    engines: {node: ^12.20.0 || >= 14}
+    peerDependencies:
+      dotenv: ^11.0.0 || ^12.0.4 || ^13.0.1 || ^14.3.2 || ^15.0.1 || ^16.0.0
+    dependencies:
+      dotenv: 16.0.1
+      object-hash: 3.0.0
+      picocolors: 1.0.0
+      unplugin: 0.3.3_alb2oewjl62jflpa6tdsfn4mjy
+    transitivePeerDependencies:
+      - esbuild
+      - rollup
+      - vite
+      - webpack
     dev: true
 
   /@istanbuljs/load-nyc-config/1.1.0:
@@ -3774,6 +3797,11 @@ packages:
       dom-serializer: 2.0.0
       domelementtype: 2.3.0
       domhandler: 5.0.3
+    dev: true
+
+  /dotenv/16.0.1:
+    resolution: {integrity: sha512-1K6hR6wtk2FviQ4kEiSjFiH5rpzEVi8WW0x96aztHVMhEspNpc4DVOUTEHtEva5VThQ8IaBX1Pe4gSzpVVUsKQ==}
+    engines: {node: '>=12'}
     dev: true
 
   /electron-to-chromium/1.4.160:
@@ -6705,6 +6733,11 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
+  /object-hash/3.0.0:
+    resolution: {integrity: sha512-RSn9F68PjH9HqtltsSnqYC1XXoWe9Bju5+213R98cNGttag9q9yAOTzdbsqvIa7aNm5WffBZFpWYr2aWrklWAw==}
+    engines: {node: '>= 6'}
+    dev: true
+
   /object-inspect/1.12.2:
     resolution: {integrity: sha512-z+cPxW0QGUp0mcqcsgQyLVRDoXFQbXOwBaqyF7VIgI4TWNQsDHrBpUQslRmIfAoYWdYzs6UlKJtB2XJpTaNSpQ==}
     dev: true
@@ -8502,6 +8535,29 @@ packages:
       - rollup
       - vite
       - webpack
+    dev: true
+
+  /unplugin/0.3.3_alb2oewjl62jflpa6tdsfn4mjy:
+    resolution: {integrity: sha512-WjZWpUqqcYPQ/efR00Zm2m1+J1LitwoZ4uhHV4VdZ+IpW0Nh/qnDYtVf+nLhozXdGxslMPecOshVR7NiWFl4gA==}
+    peerDependencies:
+      esbuild: '>=0.13'
+      rollup: ^2.50.0
+      vite: ^2.3.0
+      webpack: 4 || 5
+    peerDependenciesMeta:
+      esbuild:
+        optional: true
+      rollup:
+        optional: true
+      vite:
+        optional: true
+      webpack:
+        optional: true
+    dependencies:
+      esbuild: 0.14.46
+      rollup: 2.75.6
+      vite: 2.9.12
+      webpack-virtual-modules: 0.4.3
     dev: true
 
   /unplugin/0.6.3_alb2oewjl62jflpa6tdsfn4mjy:
