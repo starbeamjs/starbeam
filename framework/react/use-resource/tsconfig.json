@@ -1,3 +1,6 @@
 {
-  "extends": "../../../tsconfig.package.json"
+  "extends": "../../../tsconfig.package.json",
+  "compilerOptions": {
+    "types": ["../../../packages/env"]
+  }
 }

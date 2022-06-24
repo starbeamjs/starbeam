@@ -9,6 +9,7 @@ import { resolve } from "path";
 import { DemoCommand } from "./demo.js";
 import { TemplateCommand } from "./template.js";
 import { DtsCommand } from "./dts.js";
+import { TestCommand } from "./test.js";
 
 const root = resolve(dirname(import.meta), "..");
 
@@ -26,5 +27,6 @@ program
 program.addCommand(DemoCommand({ root }));
 program.addCommand(TemplateCommand({ root }));
 program.addCommand(DtsCommand({ root }));
+program.addCommand(TestCommand({ root }));
 
 program.parse();
