@@ -1,6 +1,9 @@
 import { isArray } from "@starbeam/core-utils";
-import { type DescriptionArgs, FormulaDescription } from "@starbeam/debug";
-import { TimestampValidatorDescription } from "@starbeam/debug";
+import {
+  type DescriptionArgs,
+  FormulaDescription,
+  TimestampValidatorDescription,
+} from "@starbeam/debug";
 import {
   type ReactiveInternals,
   type ReactiveProtocol,

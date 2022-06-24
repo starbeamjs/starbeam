@@ -4,10 +4,8 @@ import StackTracey from "stacktracey";
 import {
   type CreateDescription,
   type DescriptionArgs,
-  Description,
-} from "./description/reactive-value.js";
-import {
   type ImplementationDetails,
+  Description,
   ImplementationDescription,
 } from "./description/reactive-value.js";
 import { describeModule } from "./module.js";
