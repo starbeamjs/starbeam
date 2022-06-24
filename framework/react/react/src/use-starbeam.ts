@@ -102,7 +102,7 @@ type AnyRecord<T = any> = Record<PropertyKey, T>;
  * [reactive dependencies]:
  * https://github.com/wycats/starbeam/tree/main/%40starbeam/react/GLOSSARY.md#reactive-dependencies
  */
-export function useStarbeam<T>(
+export function useStarbeam<_T>(
   definition: ReactiveDefinition<ReactElement, void>,
   description?: string | DescriptionArgs
 ): ReactElement {

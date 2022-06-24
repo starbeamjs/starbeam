@@ -25,7 +25,7 @@ export function getPlaceholder<E extends browser.Element>(
 const REF = Symbol("REF");
 type REF = typeof REF;
 
-interface InternalElementRef<E extends browser.Element = browser.Element> {
+interface InternalElementRef<_E extends browser.Element = browser.Element> {
   (element: browser.Element): void;
   [REF]: true;
 }
@@ -40,6 +40,7 @@ export interface ElementRef<E extends browser.Element = browser.Element> {
 }
 
 function ClassVerifier<E extends browser.Element>(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Class: abstract new (...args: any[]) => E
 ): (element: browser.Element) => element is E {
   function verify(element: browser.Element): element is E {
@@ -55,6 +56,7 @@ function ClassVerifier<E extends browser.Element>(
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ElementType<E extends anydom.Element> = abstract new (...args: any[]) => E;
 
 export function ref<E extends browser.Element>(
@@ -88,6 +90,6 @@ export function ref<E extends browser.Element>(
     placeholder as unknown as ElementPlaceholder<browser.Element>
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  // eslint-disable-next-line
   return refCallback as any;
 }

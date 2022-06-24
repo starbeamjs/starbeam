@@ -6,11 +6,6 @@ import { Reactive } from "../../reactive.js";
 import { type Equality, Cell } from "../cell.js";
 import { Formula } from "../formula/formula.js";
 
-interface MappedOptions<T, U> {
-  equals?: Equality<T>;
-  fn: (value: T) => U;
-}
-
 type FormulaFnOptions<T, U> =
   | {
       equals?: Equality<T>;

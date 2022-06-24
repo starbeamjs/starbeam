@@ -29,8 +29,6 @@ export interface Inspect {
   [INSPECT]: InspectFunction;
 }
 
-type Stylize = (text: string, styleType: Style) => string;
-
 class Debug {
   static create(name: string, options: InspectOptionsStylized): Debug {
     return new Debug(name, options);
@@ -60,6 +58,7 @@ interface DebugClass<I> {
 
 export function inspector<I>(
   Class: DebugClass<
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     I extends { [INSPECT]: any }
       ? `Do not pass a class to debug() that already implements nodejs.util.inspect.custom`
       : I

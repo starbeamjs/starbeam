@@ -1,5 +1,5 @@
 import { Resource, ResourceList } from "@starbeam/core";
-import reactive from "@starbeam/js";
+import { reactive } from "@starbeam/js";
 import { describe, expect, test } from "vitest";
 
 interface Item {

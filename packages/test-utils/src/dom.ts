@@ -10,8 +10,10 @@ import {
 type PropsFor<E> = typeof createElement extends (
   type: E,
   props: infer Props,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ...args: any[]
-) => any
+) => // eslint-disable-next-line @typescript-eslint/no-explicit-any
+any
   ? Props
   : // TODO: empty interface means any non-nullish value
     // eslint-disable-next-line @typescript-eslint/ban-types
@@ -56,6 +58,7 @@ function render(
   component: FunctionComponent,
   ...children: ReactNode[]
 ): ReactElement;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function render(...args: any): ReactElement {
   return createElement(...(args as Parameters<typeof createElement>));
 }

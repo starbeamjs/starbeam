@@ -1,8 +1,4 @@
-export function format(value: any): string {
-  if (value === null) {
-    return `null`;
-  }
-
+export function format(value: unknown): string {
   /* eslint-disable */
   switch (typeof value) {
     case "boolean":
@@ -30,6 +26,10 @@ export function format(value: any): string {
       }
     }
     case "object": {
+      if (value === null) {
+        return `null`;
+      }
+
       const proto = Object.getPrototypeOf(value);
 
       if (proto === null || proto === Object.prototype) {

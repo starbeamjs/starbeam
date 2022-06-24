@@ -127,6 +127,7 @@ export default function DevtoolsPane(
 
 export function DevTools(
   listener: DebugListener,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   renderable: Renderable<any>
 ): () => void {
   const pane = DevtoolsPane(

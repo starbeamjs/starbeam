@@ -6,6 +6,7 @@ import { exhaustive, expected, isEqual, verify } from "@starbeam/verify";
 
 import type { InternalReactiveProps, ReactiveProps } from "./element.js";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyRecord<T = any> = Record<PropertyKey, T>;
 
 export class StableProps<Variables extends AnyRecord> {

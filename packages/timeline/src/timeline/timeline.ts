@@ -16,10 +16,12 @@ import type {
   Reactive,
   ReactiveProtocol,
 } from "./reactive.js";
+// eslint-disable-next-line import/no-cycle
 import {
   type RenderableOperations,
   Renderable,
 } from "./renderables/renderable.js";
+// eslint-disable-next-line import/no-cycle
 import { Renderables } from "./renderables/renderables.js";
 import { Timestamp } from "./timestamp.js";
 

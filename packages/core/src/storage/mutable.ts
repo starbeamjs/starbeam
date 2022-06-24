@@ -1,11 +1,11 @@
-import { inspector } from "@starbeam/debug";
 import {
   type DescriptionArgs,
   type DescriptionType,
   CellDescription,
   Description,
+  inspector,
+  TimestampValidatorDescription,
 } from "@starbeam/debug";
-import { TimestampValidatorDescription } from "@starbeam/debug";
 import type { Timestamp } from "@starbeam/timeline";
 import {
   type ReactiveProtocol,

@@ -7,5 +7,6 @@ export function act<T>(callback: () => T): T {
     value = callback();
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   return value! as T;
 }

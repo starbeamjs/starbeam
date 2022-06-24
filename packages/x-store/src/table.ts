@@ -1,5 +1,5 @@
 import { type DescriptionArgs, Stack } from "@starbeam/debug";
-import reactive from "@starbeam/js";
+import { reactive } from "@starbeam/js";
 
 import { FlatRows } from "./flat.js";
 
@@ -123,6 +123,7 @@ export interface TableTypes {
 
 interface SpecifiedTableDefinition {
   readonly columns: string[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly model: (id: string, data: any) => { id: string; row: any };
   readonly name?: string;
 }
