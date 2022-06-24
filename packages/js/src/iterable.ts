@@ -1,5 +1,4 @@
-import { type Equality, Marker, Reactive } from "@starbeam/core";
-import { Cell } from "@starbeam/core";
+import { type Equality, Cell, Marker, Reactive } from "@starbeam/core";
 import type { Description, DescriptionArgs } from "@starbeam/debug";
 
 class Entry<V> {

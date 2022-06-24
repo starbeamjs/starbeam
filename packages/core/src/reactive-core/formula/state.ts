@@ -1,11 +1,12 @@
 import type { DescriptionArgs } from "@starbeam/debug";
 import {
   type FinalizedFrame,
+  type MutableInternals,
   type ReactiveInternals,
   type ReactiveProtocol,
   REACTIVE,
+  TIMELINE,
 } from "@starbeam/timeline";
-import { type MutableInternals, TIMELINE } from "@starbeam/timeline";
 
 /**
  * {@link FormulaState} represents the an instance of a formula and an

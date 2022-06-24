@@ -1,8 +1,11 @@
 import type { browser } from "@domtree/flavors";
-import type { Linkable, Resource } from "@starbeam/core";
-import type { Cell, Reactive } from "@starbeam/core";
-import type { Renderable } from "@starbeam/timeline";
-import type { DebugListener, OnCleanup, Unsubscribe } from "@starbeam/timeline";
+import type { Cell, Linkable, Reactive, Resource } from "@starbeam/core";
+import type {
+  DebugListener,
+  OnCleanup,
+  Renderable,
+  Unsubscribe,
+} from "@starbeam/timeline";
 import { LIFETIME } from "@starbeam/timeline";
 import type { ReactElement } from "react";
 

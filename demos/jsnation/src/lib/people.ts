@@ -1,5 +1,4 @@
-import type { Row, Table } from "./table.js";
-import type { Query } from "./table.js";
+import type { Query, Row, Table } from "./table.js";
 
 export interface Person {
   name: string;
