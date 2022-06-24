@@ -42,5 +42,5 @@
     "node_modules/**",
     "**/dist/**",
     "packages/x-devtools-extension"
-  ]
+  ],
 }
