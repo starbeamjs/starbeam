@@ -34,7 +34,8 @@
     "vite.config.ts",
     "**/vite.config.ts",
     "rollup.config.ts",
-    "rollup.config.js"
+    "rollup.config.js",
+    "**/.eslintrc.cjs"
   ],
   "exclude": [
     "**/node_modules/**",

@@ -13,7 +13,9 @@ type PropsFor<E> = typeof createElement extends (
   ...args: any[]
 ) => any
   ? Props
-  : {};
+  : // TODO: empty interface means any non-nullish value
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    {};
 
 interface HtmlProxyFunction<E> {
   (props: PropsFor<E>, children: ReactNode[]): ReactElement;
@@ -51,7 +53,7 @@ function render<P>(
   ...children: ReactNode[]
 ): ReactElement;
 function render(
-  component: FunctionComponent<{}>,
+  component: FunctionComponent,
   ...children: ReactNode[]
 ): ReactElement;
 function render(...args: any): ReactElement {
@@ -66,6 +68,7 @@ export const react = {
   render,
 } as const;
 
+/* eslint-disable */
 export const html: HtmlProxy = new Proxy(() => {}, {
   get: (target, property, receiver) => {
     if (typeof property === "symbol") {
@@ -84,7 +87,8 @@ export const html: HtmlProxy = new Proxy(() => {}, {
 
   apply: (target, receiver, args) => {},
 }) as unknown as HtmlProxy;
+/* eslint-enable */
 
-export function el(tag: string | FunctionComponent<{}>, children: ReactNode[]) {
+export function el(tag: string | FunctionComponent, children: ReactNode[]) {
   return createElement(tag, null, ...children);
 }

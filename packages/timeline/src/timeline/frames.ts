@@ -150,7 +150,7 @@ export class FinalizedFrame<T = unknown>
   isUpdatedSince(timestamp: Timestamp): boolean {
     let isUpdated = false;
 
-    for (let child of this.#children) {
+    for (const child of this.#children) {
       if (child[REACTIVE].isUpdatedSince(timestamp)) {
         isUpdated = true;
       }

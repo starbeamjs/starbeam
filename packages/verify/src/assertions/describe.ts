@@ -3,6 +3,7 @@ export function format(value: any): string {
     return `null`;
   }
 
+  /* eslint-disable */
   switch (typeof value) {
     case "boolean":
     case "number":
@@ -43,4 +44,5 @@ export function format(value: any): string {
       }
     }
   }
+  /* eslint-enable */
 }

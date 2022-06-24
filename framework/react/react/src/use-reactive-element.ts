@@ -277,6 +277,7 @@ export function useReactiveElement<I extends Inputs>(
 
     if (stableProps) {
       formula = Formula(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         definition(stableProps.current.reactive as any, element)
       );
     } else {
@@ -372,6 +373,7 @@ function useReactiveElementArgs<I extends Inputs>(
 ): NormalizedArgs<I> {
   if (isCompleteArgs(args)) {
     const [props, definition, description] = args;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return { props, definition, description } as any;
   }
 

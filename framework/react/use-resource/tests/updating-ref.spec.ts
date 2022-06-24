@@ -6,6 +6,7 @@ import { useUpdatingRef } from "../src/updating-ref.js";
 import { react } from "./dom.js";
 import { testModes } from "./modes.js";
 
+// eslint-disable-next-line @typescript-eslint/require-await
 testModes("useUpdatingRef.mutable", async (mode) => {
   const result = mode
     .render(() => {

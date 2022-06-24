@@ -34,8 +34,8 @@ class LifetimeAPI {
   };
 
   link(parent: object, child: object): Unsubscribe {
-    let parentLifetime = this.#initialize(parent);
-    let childLifetime = this.#initialize(child);
+    const parentLifetime = this.#initialize(parent);
+    const childLifetime = this.#initialize(child);
 
     return parentLifetime.link(childLifetime);
   }

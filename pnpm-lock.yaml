@@ -115,9 +115,12 @@ importers:
     specifiers:
       '@domtree/browser': workspace:*
       '@domtree/interface': workspace:*
+      eslint: ^8.16.0
     dependencies:
       '@domtree/browser': link:../browser
       '@domtree/interface': link:../interface
+    devDependencies:
+      eslint: 8.18.0
 
   '@types/@domtree/browser':
     specifiers:
