@@ -12,7 +12,7 @@ export class StableProps<Variables extends AnyRecord> {
   static from<Variables extends AnyRecord>(
     props: Variables
   ): StableProps<Variables> {
-    let internal = Object.fromEntries(
+    const internal = Object.fromEntries(
       Object.entries(props).map(([key, value]) => initialPropEntry(key, value))
     ) as InternalReactiveProps<Variables>;
 
@@ -34,11 +34,11 @@ export class StableProps<Variables extends AnyRecord> {
     const proxy = this.#proxy;
     let changes = false;
 
-    for (let [key, newValue] of Object.entries(newReactProps)) {
+    for (const [key, newValue] of Object.entries(newReactProps)) {
       changes = changes || updateProp(stableProps, proxy, key, newValue);
     }
 
-    for (let key of Object.keys(stableProps)) {
+    for (const key of Object.keys(stableProps)) {
       if (!(key in newReactProps)) {
         delete stableProps[key as keyof Variables];
         delete proxy[key as keyof Variables];

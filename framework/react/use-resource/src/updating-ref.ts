@@ -1,4 +1,5 @@
-import { useRef, type MutableRefObject } from "react";
+import { type MutableRefObject, useRef } from "react";
+
 import { UNINITIALIZED } from "./utils.js";
 
 export interface Ref<T> {
@@ -85,7 +86,7 @@ useUpdatingRef.mutable = <Returned extends Supports, Supports = Returned>({
   if (ref.current === UNINITIALIZED) {
     value = ref.current = initial();
   } else {
-    const next = update(ref.current as Supports);
+    const next = update(ref.current);
 
     if (next !== undefined) {
       ref.current = next;

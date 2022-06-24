@@ -1,5 +1,6 @@
-import { Stack, type DescriptionArgs } from "@starbeam/debug";
+import { type DescriptionArgs, Stack } from "@starbeam/debug";
 import { TIMELINE } from "@starbeam/timeline";
+
 import { Formula } from "./reactive-core/formula/formula.js";
 
 export const DEBUG_RENDERER = {

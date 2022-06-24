@@ -1,17 +1,17 @@
 import type { Description } from "@starbeam/debug";
 import {
+  type DescriptionArgs,
   FormulaDescription,
   TimestampValidatorDescription,
-  type DescriptionArgs,
 } from "@starbeam/debug";
 
-import { InternalChildren, type IsUpdatedSince } from "./internals.js";
+import { type IsUpdatedSince, InternalChildren } from "./internals.js";
 import {
-  REACTIVE,
   type CompositeInternals,
   type MutableInternals,
   type ReactiveInternals,
   type ReactiveProtocol,
+  REACTIVE,
 } from "./reactive.js";
 import type { Timestamp } from "./timestamp.js";
 
@@ -150,7 +150,7 @@ export class FinalizedFrame<T = unknown>
   isUpdatedSince(timestamp: Timestamp): boolean {
     let isUpdated = false;
 
-    for (let child of this.#children) {
+    for (const child of this.#children) {
       if (child[REACTIVE].isUpdatedSince(timestamp)) {
         isUpdated = true;
       }

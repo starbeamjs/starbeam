@@ -1,13 +1,11 @@
 import {
+  type FunctionComponent,
+  type ReactElement,
+  type ReactHTML,
+  type ReactNode,
   createElement,
   Fragment,
   isValidElement,
-  type FunctionComponent,
-  type ReactElement,
-  type ReactNode,
-  type HTMLAttributes,
-  type DOMAttributes,
-  type ReactHTML,
 } from "react";
 
 type PropsFor<E> = E extends keyof ReactHTML
@@ -62,7 +60,7 @@ function render<P>(
   ...children: ReactNode[]
 ): ReactElement;
 function render(
-  component: FunctionComponent<{}>,
+  component: FunctionComponent,
   ...children: ReactNode[]
 ): ReactElement;
 function render(...args: any): ReactElement {
@@ -77,6 +75,7 @@ export const react = {
   render,
 } as const;
 
+/* eslint-disable */
 export const html: HtmlProxy = new Proxy(() => {}, {
   get: (target, property, receiver) => {
     if (typeof property === "symbol") {
@@ -95,7 +94,8 @@ export const html: HtmlProxy = new Proxy(() => {}, {
 
   apply: (target, receiver, args) => {},
 }) as unknown as HtmlProxy;
+/* eslint-enable */
 
-export function el(tag: string | FunctionComponent<{}>, children: ReactNode[]) {
+export function el(tag: string | FunctionComponent, children: ReactNode[]) {
   return createElement(tag, null, ...children);
 }

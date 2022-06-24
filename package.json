@@ -8,10 +8,13 @@
     "registry": "http://localhost:4873/"
   },
   "scripts": {
+    "build": "rollup -c ./rollup.config.js",
     "dev": "esno ./.scripts/scripts.ts",
     "demo": "esno ./.scripts/scripts.ts demo",
+    "lint": "eslint . --cache",
     "serve": "vite preview",
     "test": "vitest",
+    "typecheck": "tsc --build",
     "demos:react:store": "vite --port 3001 -c ./demos/react-store/vite.config.ts"
   },
   "devDependencies": {
@@ -74,5 +77,8 @@
       "pnpm-workspace.yaml",
       "scripts"
     ]
+  },
+  "volta": {
+    "node": "16.15.1"
   }
 }

@@ -1,4 +1,5 @@
 import type { anydom, browser } from "@domtree/flavors";
+import { ElementPlaceholder } from "@starbeam/modifier";
 import {
   expected,
   isEqual,
@@ -6,8 +7,6 @@ import {
   verified,
   verify,
 } from "@starbeam/verify";
-
-import { ElementPlaceholder } from "@starbeam/modifier";
 
 const REFS = new WeakMap<object, ElementPlaceholder<browser.Element>>();
 
@@ -89,5 +88,6 @@ export function ref<E extends browser.Element>(
     placeholder as unknown as ElementPlaceholder<browser.Element>
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return refCallback as any;
 }

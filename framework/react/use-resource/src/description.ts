@@ -60,13 +60,13 @@ export function parseStack(stack: string): {
   header: string[];
   stack: string[];
 } {
-  let lines = stack.split("\n");
+  const lines = stack.split("\n");
   let headerDone = false;
 
-  let headerLines = [];
-  let stackLines = [];
+  const headerLines = [];
+  const stackLines = [];
 
-  for (let line of lines) {
+  for (const line of lines) {
     if (headerDone) {
       stackLines.push(line);
     } else {

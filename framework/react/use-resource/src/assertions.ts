@@ -6,12 +6,12 @@
 // );
 
 import {
+  type PreparedForActivationReactState,
+  type ReactState,
   DeactivatedReactState,
   InstantiatedReactState,
   ReadyReactState,
   RenderedReactState,
-  type PreparedForActivationReactState,
-  type ReactState,
 } from "./states.js";
 import type { Check } from "./utils.js";
 
@@ -42,6 +42,7 @@ export function isState<T, S extends ReactState<T>>(
     } else {
       const types = Type;
 
+      // eslint-disable-next-line no-inner-declarations
       function isOneOf<T>(value: ReactState<T>): value is S {
         return types.some((type) => type.is(value));
       }

@@ -1,6 +1,6 @@
 export { useResource } from "./src/resource.js";
 export {
+  type Ref,
   useUpdatingRef,
   useUpdatingVariable,
-  type Ref,
 } from "./src/updating-ref.js";
