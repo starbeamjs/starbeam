@@ -85,8 +85,6 @@ about.
 
 ## Lifecycle
 
-<p>Hi</p>
-
 ```mermaid
 %%{init: {
   "theme": "neutral",

@@ -1,0 +1,16 @@
+{
+  "name": "@starbeam-workspace/react-test-utils",
+  "private": true,
+  "dependencies": {
+    "@starbeam-workspace/test-utils": "workspace:*",
+    "@starbeam/core-utils": "workspace:*",
+    "@starbeam/peer": "workspace:*",
+    "@testing-library/react": "^13.3.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.14",
+    "@types/react-dom": "^18.0.5"
+  }
+}

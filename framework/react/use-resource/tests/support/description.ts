@@ -1,4 +1,4 @@
-import { assert } from "./utils.js";
+import { assert } from "../../src/utils.js";
 
 const FRAME_START = "    at ";
 

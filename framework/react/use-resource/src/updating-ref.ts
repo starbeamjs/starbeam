@@ -45,10 +45,6 @@ export interface MutableUpdatingRef<T, Wide = T> {
   readonly ref: MutableRefObject<Wide>;
 }
 
-export function useMutableRef<T>(initial: () => T): MutableRefObject<T> {
-  return useRef(initial());
-}
-
 export function useUpdatingVariable<T>(options: {
   initial: () => T;
   update: (value: T) => T | void;
@@ -91,39 +87,6 @@ export function useUpdatingRef<T>({
 
   return ref as Ref<T>;
 }
-
-/**
- * The `mutable` variant of `useUpdatingRef` works exactly the same way as `useUpdatingRef`, but
- * returns a React `MutableRefObject` that you can update. If you update the ref, that value will be
- * passed to the `update` function on subsequent renders.
- *
- * The `T` type is the type you can assign to `current`.
- */
-useUpdatingRef.mutable = <Returned extends Supports, Supports = Returned>({
-  initial,
-  update,
-}: {
-  initial: () => Returned;
-  update: (value: Supports) => Returned | void;
-}): { ref: MutableRefObject<Supports>; value: Returned } => {
-  const ref = useRef<Supports | UNINITIALIZED>(UNINITIALIZED);
-  let value: Returned;
-
-  if (ref.current === UNINITIALIZED) {
-    value = ref.current = initial();
-  } else {
-    const next = update(ref.current);
-
-    if (next !== undefined) {
-      ref.current = next;
-    }
-
-    value = ref.current as Returned;
-  }
-
-  return { ref: ref as MutableRefObject<Supports>, value };
-};
-
 /**
  * This function takes a piece of state that is available as a per-render value
  * (e.g. props or the first element of the array returned by useState) and

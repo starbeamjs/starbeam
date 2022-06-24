@@ -17,6 +17,7 @@
     "react": "^18.0.0"
   },
   "dependencies": {
+    "@starbeam/debug": "workspace:*",
     "@testing-library/react": "alpha",
     "@testing-library/dom": "^8.11.3",
     "@testing-library/user-event": "^13.5.0",

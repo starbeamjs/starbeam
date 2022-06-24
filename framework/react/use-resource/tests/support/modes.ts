@@ -16,8 +16,8 @@ import {
 } from "react";
 import { expect, test } from "vitest";
 
-import { UNINITIALIZED } from "../src/utils.js";
-import { entryPoint } from "./entry.js";
+import { UNINITIALIZED } from "../../src/utils.js";
+import { entryPoint } from "./entry-point.js";
 import { act } from "./react.js";
 
 interface RenderResultConfiguration<T> {
@@ -553,7 +553,7 @@ export class Mode {
   }
 }
 
-export function testModes(
+export function testStrictAndLoose(
   description: string,
   callback: (mode: Mode) => void | Promise<void>
 ): void {
