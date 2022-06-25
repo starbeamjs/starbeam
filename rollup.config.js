@@ -63,7 +63,7 @@ export default packages.map((pkg) =>
             },
           },
         },
-        tsconfig: resolve(root, "tsconfig.package.json"),
+        tsconfig: resolve(pkg.root, "tsconfig.json"),
       }),
     ],
   })

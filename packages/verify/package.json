@@ -4,6 +4,9 @@
   "main": "index.ts",
   "version": "0.5.1",
   "dependencies": {},
+  "devDependencies": {
+    "@types/globals": "*"
+  },
   "publishConfig": {
     "main": "dist/index.cjs",
     "types": "dist/index.d.ts",

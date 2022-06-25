@@ -1,0 +1,8 @@
+{
+  "name": "@types/globals",
+  "private": true,
+  "types": "index.d.ts",
+  "dependencies": {
+    "vite": "^2.9.9"
+  }
+}
