@@ -40,7 +40,7 @@ jobs:
           root_of_repo=$(git rev-parse --show-toplevel)
           echo "::set-output name=workspaces::'$(\
                   pnpm ls -r --depth -1 --json \
-                  | sed 's~$()~.~g' \
+                  | sed 's~$root_of_repo~.~g' \
                 )'"
   temp:
     name: "temp"
