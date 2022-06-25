@@ -55,12 +55,13 @@ jobs:
       - run: pnpm test
 
   typecheck:
-    name: "Types ${{ matrix.path }}"
+    name: "Types ${{ matrix.workspace.path }}"
     runs-on: "ubuntu-latest"
     needs: ['preflight']
     strategy:
       fail-fast: true
-      matrix: ${{needs.preflight.outputs.workspaces}}
+      matrix:
+        workspace: ${{fromJson(needs.preflight.outputs.workspaces)}}
 
     steps:
       - uses: actions/checkout@v2
@@ -68,7 +69,7 @@ jobs:
         uses: ./.github/actions/setup-node-and-install
       - name: "Check types"
         run: pnpm tsc --build
-        working-directory: ${{matrix.path}}
+        working-directory: ${{matrix.workspace.path}}
 
   lint:
     name: "Lint"
