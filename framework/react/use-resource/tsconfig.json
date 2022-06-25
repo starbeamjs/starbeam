@@ -1,6 +1,6 @@
 {
   "extends": "../../../tsconfig.package.json",
   "compilerOptions": {
-    "types": ["../../../packages/env"]
+    "types": ["./env"]
   }
 }
