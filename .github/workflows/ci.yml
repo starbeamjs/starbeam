@@ -42,7 +42,7 @@ jobs:
             pnpm ls -r --depth -1 --json \
             | sed 's~$root_of_repo~.~g' \
           )
-          echo "::set-output name=workspaces::'$(echo $workspaces)'"
+          echo "::set-output name=workspaces::$(echo $workspaces)"
 
   test:
     name: "Tests"
@@ -60,7 +60,7 @@ jobs:
     needs: ['preflight']
     strategy:
       fail-fast: true
-      matrix: ${{(needs.preflight.outputs.workspaces)}}
+      matrix: ${{fromJson(needs.preflight.outputs.workspaces)}}
 
     steps:
       - uses: actions/checkout@v2
