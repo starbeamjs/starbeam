@@ -1,5 +1,12 @@
 # How To Contribute
 
+## Questions?
+
+Feel free to ask your questions in any of these places:
+
+* [GitHub Discussions](https://github.com/starbeamjs/starbeam/discussions)
+* [Discord](https://discord.gg/HXq3PMmj8A)
+
 ## Installation
 
 * Fork the repo at https://github.com/starbeamjs/starbeam/fork
@@ -11,6 +18,14 @@
 
 * `pnpm lint`
 * `pnpm lint --fix`
+
+## Running demos
+
+At the root of this monorepo, the `pnpm demo` script can be used to start the various demos.
+
+* `pnpm demo jsnation`
+* `pnpm demo react`
+* `pnpm demo react-store`
 
 ## Running tests
 
@@ -25,9 +40,8 @@
 
 * `pnpm build` -- uses rollup to build out every package
 
-## Questions?
+## Development utilities
 
-Feel free to ask your questions in any of these places:
+These are aliased via `pnpm dev` at the monorepo root and is an alias for for the scripts located at `<repo-root>/.scripts/*`.
 
-* [GitHub Discussions](https://github.com/starbeamjs/starbeam/discussions)
-* [Discord](https://discord.gg/HXq3PMmj8A)
+Common monorepo tasks can be added to `<repo-root>/.scripts/*` and then invoke with `pnpm dev <command name>`
