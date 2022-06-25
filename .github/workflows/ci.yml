@@ -38,10 +38,10 @@ jobs:
         # the sed command changes the absolute path to a relative path
         run: |
           root_of_repo=$(git rev-parse --show-toplevel)
-          echo "::set-output name=workspaces::$(\
+          echo "::set-output name=workspaces::'$(\
                   pnpm ls -r --depth -1 --json \
-                  | sed 's~$root_of_repo~.~g' \
-                )"
+                  | sed 's~$()~.~g' \
+                )'"
   temp:
     name: "temp"
     runs-on: "ubuntu-latest"
@@ -61,12 +61,12 @@ jobs:
       - run: pnpm test
 
   typecheck:
-    name: "Typecheck"
+    name: "Types ${{ matrix.path }}"
     runs-on: "ubuntu-latest"
     needs: ['preflight']
     strategy:
       fail-fast: true
-      matrix: ${{ fromJson(needs.preflight.outputs.workspaces) }}
+      matrix: ${{fromJson(needs.preflight.outputs.workspaces)}}
 
     steps:
       - uses: actions/checkout@v2
