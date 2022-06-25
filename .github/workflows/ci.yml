@@ -38,11 +38,10 @@ jobs:
         # the sed command changes the absolute path to a relative path
         run: |
           root_of_repo=$(git rev-parse --show-toplevel)
-          workspaces=$( \
-            pnpm ls -r --depth -1 --json \
-            | sed "s~$root_of_repo~.~g" \
-          )
-          echo "::set-output name=workspaces::$(echo $workspaces)"
+          echo "::set-output name=workspaces::$(\
+                  pnpm ls -r --depth -1 --json \
+                  | sed 's~$root_of_repo~.~g' \
+                )"
   temp:
     name: "temp"
     runs-on: "ubuntu-latest"
