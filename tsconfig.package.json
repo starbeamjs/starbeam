@@ -1,11 +1,18 @@
 {
   "compilerOptions": {
     "composite": true,
+
+    "declarationDir": "dist",
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+
+    "checkJs": false,
+    "allowJs": false,
+
     "jsx": "preserve",
     "target": "esnext",
     "strict": true,
-    "declaration": true,
-    "declarationMap": true,
     "useDefineForClassFields": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,

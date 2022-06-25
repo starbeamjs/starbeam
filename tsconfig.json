@@ -1,3 +1,5 @@
+// This is a convinience tsconfig.json and is
+// not needed for bundling / type checking
 {
   "compilerOptions": {
     "jsx": "preserve",
@@ -26,19 +28,19 @@
     "inlineSources": true
   },
 
-  "include": [
-    "build/**/*.ts",
-    ".scripts/**/*.ts",
-    "vite.config.ts",
-    "**/vite.config.ts",
-    "rollup.config.js",
-    ".build/*.js"
-  ],
-  "exclude": [
-    "**/node_modules/**",
-    "node_modules/**",
-    "**/dist/**",
-  ],
+  // "include": [
+  //   "build/**/*.ts",
+  //   ".scripts/**/*.ts",
+  //   "vite.config.ts",
+  //   "**/vite.config.ts",
+  //   "rollup.config.js",
+  //   ".build/*.js"
+  // ],
+  // "exclude": [
+  //   "**/node_modules/**",
+  //   "node_modules/**",
+  //   "**/dist/**",
+  // ],
   "references": [
     // references + composite projects --
     // each project allow the individual projects to define their own
