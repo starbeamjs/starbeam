@@ -39,9 +39,7 @@ jobs:
           echo $workspaces
           echo "::set-output name=workspaces::$(echo $workspaces)"
       - name: 'Show workspaces'
-        run: |
-          echo " ${{ steps.find-workspaces.outputs.workspaces }}"
-          echo " ${{ fromJson( steps.find-workspaces.outputs.workspaces )}}"
+        run: echo " ${{ steps.find-workspaces.outputs.workspaces }} " && echo " ${{ fromJson( steps.find-workspaces.outputs.workspaces )}} "
 
   test:
     name: "Tests"
