@@ -11,7 +11,7 @@ jobs:
     name: "Setup"
     runs-on: "ubuntu-latest"
     outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      workspaces: ${{ steps.find-workspaces.outputs.workspaces }}
 
     steps:
       - uses: actions/checkout@v2
@@ -20,7 +20,7 @@ jobs:
         # currently not used - as tests, lints, etc are all top-level commands / projects
         # if we were to make each workspace isolated, we'd first need to copy tsc/eslint/vitest
         # configs into each package -- but that would be slower than what today's setup is.
-      - id: set-matrix
+      - id: find-workspaces
         name: "Find workspaces"
         # generates a list of root-relative paths to each workspace
         #
@@ -36,7 +36,8 @@ jobs:
             | sed "s~$root_of_repo~~g" \
             | sed '/^[[:space:]]*$/d' \
             | sed 's~^/~~g')
-          echo "::set-output name=matrix::$(echo $workspaces)"
+          echo $workspaces
+          echo "::set-output name=workspaces::$(echo $workspaces)"
 
   test:
     name: "Tests"
@@ -54,7 +55,7 @@ jobs:
     needs: ['install_dependencies']
     strategy:
       fail-fast: true
-      matrix: ${{ needs.install_dependencies.outputs.matrix }}
+      matrix: ${{ needs.install_dependencies.outputs.workspaces }}
 
     steps:
       - uses: actions/checkout@v2
