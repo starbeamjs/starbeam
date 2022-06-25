@@ -24,3 +24,10 @@
 ## Building the packages
 
 * `pnpm build` -- uses rollup to build out every package
+
+## Questions?
+
+Feel free to ask your questions in any of these places:
+
+* [GitHub Discussions](https://github.com/starbeamjs/starbeam/discussions)
+* [Discord](https://discord.gg/HXq3PMmj8A)
