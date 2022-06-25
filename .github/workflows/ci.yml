@@ -39,8 +39,8 @@ jobs:
         run: |
           root_of_repo=$(git rev-parse --show-toplevel)
           workspaces=$(\
-            pnpm ls -r --depth -1 --json \
-            | sed 's~$root_of_repo~.~g' \
+            pnpm ls -r --depth -1 --json
+            | sed "s~$root_of_repo~.~g" \
           )
           echo "::set-output name=workspaces::$(echo $workspaces)"
 
