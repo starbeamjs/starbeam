@@ -60,7 +60,7 @@ jobs:
     needs: ['preflight']
     strategy:
       fail-fast: true
-      matrix: ${{fromJson(needs.preflight.outputs.workspaces)}}
+      matrix: ${{needs.preflight.outputs.workspaces}}
 
     steps:
       - uses: actions/checkout@v2
