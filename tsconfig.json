@@ -27,9 +27,6 @@
   },
 
   "include": [
-    "packages",
-    "framework",
-    "demos",
     "build/**/*.ts",
     ".scripts/**/*.ts",
     "vite.config.ts",
@@ -41,6 +38,45 @@
     "**/node_modules/**",
     "node_modules/**",
     "**/dist/**",
-    "packages/x-devtools-extension"
   ],
+  "references": [
+    // references + composite projects --
+    // each project allow the individual projects to define their own
+    // tsconfig.jsons
+
+    // @types
+    { "path": "./@types/@domtree/any" },
+    { "path": "./@types/@domtree/browser" },
+    { "path": "./@types/@domtree/flavors" },
+    { "path": "./@types/@domtree/minimal" },
+    { "path": "./@types/@domtree/interface" },
+    { "path": "./@types/shell-escape-tag" },
+    { "path": "./@types/globals" },
+
+    // demos
+    { "path": "./demos/react" },
+    { "path": "./demos/jsnation" },
+    { "path": "./demos/react-store" },
+
+    // framework integrations
+    { "path": "./framework/react/react" },
+    { "path": "./framework/react/use-resource" },
+
+    // starbeam packages
+    { "path": "./packages/bundle" },
+    { "path": "./packages/core" },
+    { "path": "./packages/core-utils" },
+    { "path": "./packages/debug" },
+    { "path": "./packages/js" },
+    { "path": "./packages/modifier" },
+    { "path": "./packages/peer" },
+    { "path": "./packages/test-utils" },
+    { "path": "./packages/timeline" },
+    { "path": "./packages/verify" },
+    { "path": "./packages/x-devtool" },
+    // { "path": "./packages/x-devtools-extension" },
+    // { "path": "./packages/x-headless-form" },
+    { "path": "./packages/x-store" },
+    { "path": "./packages/x-vanilla" },
+  ]
 }
