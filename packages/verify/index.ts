@@ -1,3 +1,5 @@
+import 'globals';
+
 export {
   exhaustive,
   hasItems,
