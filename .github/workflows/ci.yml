@@ -22,29 +22,34 @@ jobs:
         # configs into each package -- but that would be slower than what today's setup is.
       - id: find-workspaces
         name: "Find workspaces"
-        # generates a list of root-relative paths to each workspace
         #
-        # the pipes line-by-line:
-        #   Remove version information
-        #   Remove the current directory
-        #   Remove empty lines
-        #   Remove leading slashes
+        # json looks like:
+        #
+        # [
+        #   {
+        #      "name": "@starbeam/cocre"
+        #      "version": "...",
+        #      "path": "/absolute path from root of drive",
+        #      "private": false,
+        #   }
+        #   ...
+        # ]
+        #
+        # the sed command changes the absolute path to a relative path
         run: |
           root_of_repo=$(git rev-parse --show-toplevel)
-          workspaces=$(pnpm ls -r --depth -1 --long --parseable \
-            | cut -f1 -d':' \
-            | sed "s~$root_of_repo~~g" \
-            | sed '/^[[:space:]]*$/d' \
-            | sed 's~^/~~g')
-          echo $workspaces
-          echo "::set-output name=workspaces::$(echo $workspaces)"
+          workspaces=$( \
+            pnpm ls -r --depth -1 --json \
+            | sed "s~$root_of_repo~.~g" \
+          )
+          echo "::set-output name=workspaces::$()"
   temp:
-    name: "Tests"
+    name: "temp"
     runs-on: "ubuntu-latest"
     needs: ['preflight']
     steps:
       - name: 'Show workspaces'
-        run: echo " ${{ needs.preflight.outputs.workspaces }} " && echo " ${{ fromJson( needs.preflight.outputs.workspaces )}} "
+        run: echo " ${{ fromJson( needs.preflight.outputs.workspaces )}} "
 
   test:
     name: "Tests"
@@ -61,7 +66,7 @@ jobs:
     runs-on: "ubuntu-latest"
     needs: ['preflight']
     strategy:
-      # fail-fast: true
+      fail-fast: true
       matrix: ${{ fromJson(needs.preflight.outputs.workspaces) }}
 
     steps:
@@ -70,7 +75,7 @@ jobs:
         uses: ./.github/actions/setup-node-and-install
       - name: "Check types"
         run: pnpm tsc --build
-        working-directory: ${{matrix}}
+        working-directory: ${{matrix.path}}
 
   lint:
     name: "Lint"
