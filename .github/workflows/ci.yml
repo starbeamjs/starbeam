@@ -7,7 +7,7 @@ on:
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
-  install_dependencies:
+  preflight:
     name: "Setup"
     runs-on: "ubuntu-latest"
     outputs:
@@ -42,7 +42,7 @@ jobs:
   test:
     name: "Tests"
     runs-on: "ubuntu-latest"
-    needs: ['install_dependencies']
+    needs: ['preflight']
     steps:
       - uses: actions/checkout@v2
       - name: "Setup node and install dependencies"
@@ -52,10 +52,10 @@ jobs:
   typecheck:
     name: "Typecheck"
     runs-on: "ubuntu-latest"
-    needs: ['install_dependencies']
+    needs: ['preflight']
     strategy:
       fail-fast: true
-      matrix: ${{ needs.install_dependencies.outputs.workspaces }}
+      matrix: ${{ fromJson(needs.preflight.outputs.workspaces) }}
 
     steps:
       - uses: actions/checkout@v2
@@ -68,7 +68,7 @@ jobs:
   lint:
     name: "Lint"
     runs-on: "ubuntu-latest"
-    needs: ['install_dependencies']
+    needs: ['preflight']
     steps:
       - uses: actions/checkout@v2
       - name: "Setup node and install dependencies"
@@ -79,7 +79,7 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    needs: ['install_dependencies', 'lint', 'typecheck', 'test']
+    needs: ['preflight', 'lint', 'typecheck', 'test']
     steps:
       - uses: actions/checkout@v2
       - name: "Setup node and install dependencies"
