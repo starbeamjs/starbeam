@@ -8,7 +8,7 @@ Starbeam is a new kind of reactive library. It makes reactive programming simple
 
 </center>
 
-[docs]: https://starbeamjs.github.io/docs/
+[docs]: https://starbeamjs.com
 [discord]: https://discord.gg/HXq3PMmj8A
 
 It interoperates natively with React state management patterns, Svelte stores,
@@ -21,4 +21,4 @@ the Vue composition API, and Ember's auto-tracking system.
 - **Works everywhere.** You don't need to learn a new framework to take advantage of Starbeam's cutting edge reactive system. You can render Starbeam data using renderers designed for your framework of choice, or even build your own renderer.
 - **TypeScript types are a first-class consideration.** Every part of Starbeam's API was designed from the ground up using TypeScript types with careful attention to the details. And if you're not a TypeScript user, you can still get the benefit in normal JavaScript code through inline suggestions, documentation and tab completion in your editor, no configuration needed.
 
-Get started with Starbeam and learn more at the [docs website](https://starbeamjs.github.io/docs/).
+Get started with Starbeam and learn more at the [docs website](https://starbeamjs.com).

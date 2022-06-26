@@ -8,6 +8,7 @@ import { dirname } from "dirfilename";
 import { resolve } from "path";
 import { DemoCommand } from "./demo.js";
 import { TemplateCommand } from "./template.js";
+<<<<<<< HEAD
 import { DtsCommand } from "./dts.js";
 import { TestCommand } from "./test.js";
 
@@ -26,7 +27,6 @@ program
 
 program.addCommand(DemoCommand({ root }));
 program.addCommand(TemplateCommand({ root }));
-program.addCommand(DtsCommand({ root }));
 program.addCommand(TestCommand({ root }));
 
 program.parse();
