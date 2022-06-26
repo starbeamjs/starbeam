@@ -1,5 +1,13 @@
 # @starbeam/core-utils
 
+## 0.5.2
+
+### Patch Changes
+
+- 719a6fe: Updated package export maps
+- Updated dependencies [719a6fe]
+  - @starbeam/peer@1.0.2
+
 ## 0.5.1
 
 ### Patch Changes
