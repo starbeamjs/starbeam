@@ -8,8 +8,6 @@ import { dirname } from "dirfilename";
 import { resolve } from "path";
 import { DemoCommand } from "./demo.js";
 import { TemplateCommand } from "./template.js";
-<<<<<<< HEAD
-import { DtsCommand } from "./dts.js";
 import { TestCommand } from "./test.js";
 
 const root = resolve(dirname(import.meta), "..");
