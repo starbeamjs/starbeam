@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import reactive from "@starbeam/js";
+import { reactive } from "@starbeam/js";
 import { useProp, useStarbeam } from "@starbeam/react";
 import type { FormEvent } from "react";
 

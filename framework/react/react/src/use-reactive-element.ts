@@ -1,5 +1,6 @@
 import { Formula } from "@starbeam/core";
 import { Stack } from "@starbeam/debug";
+import type { Renderable } from "@starbeam/timeline";
 import { LIFETIME, TIMELINE } from "@starbeam/timeline";
 import { useResource, useUpdatingRef } from "@starbeam/use-resource";
 import { type ReactElement, useState } from "react";
@@ -7,6 +8,7 @@ import { type ReactElement, useState } from "react";
 import { ReactiveElement } from "./element.js";
 import { StableProps } from "./stable-props.js";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyRecord<T = any> = Record<PropertyKey, T>;
 
 /**
@@ -140,66 +142,21 @@ export function useReactiveElement<I extends Inputs>(
   // We use useResource here because the ReactiveElement we're creating has
   // teardown logic, which means that we want it to have a *fresh identity* when
   // this instance of `useReactElement` is reactivated.
-  const { current: resource } = useResource
-    // This will get run on initial render **and** reactivation
-    .create((_args, { notify }) => {
-      return createReactiveElement({ prev: null, notify });
-    })
-    .reactivate((_args, { element: prev }, { notify }) => {
-      return createReactiveElement({ prev, notify });
-    })
-    .update(() => {
-      /**
-       * There's nothing specific to do in `update`. The notification already
-       * occurred, and the updates to {@link stableProps} have already occured
-       * above. We also don't need to do anything to the Memo containing the
-       * ReactElement, because it's already stable.
-       *
-       * In other words, both `component` and `value` are stable objects that
-       * work within the Starbeam reactivity system, and therefore don't need
-       * any special updating behavior to see the updates.
-       */
-    })
-    .as(description)
-    .notifier(() => setNotify({}))
-    .on({
-      attached: ({ element }) => {
-        /**
-         * At the moment, we're not doing anything special when the
-         * ReactiveElement instance is attached.
-         *
-         * Eventually, we should support something like `.on.attach` in the
-         * {@link ReactiveElement} API, and this is where the implementation
-         * for that feature would live.
-         */
+  const resource = useResource<CreatedReactiveElement, null>(
+    (resource, args, prev) => {
+      const { element, value } = createReactiveElement({
+        prev: prev?.element ?? null,
+        notify: () => setNotify({}),
+      });
 
-        ReactiveElement.attached(element);
-      },
-      ready: ({ element }) => {
-        /**
-         * At the moment, we're not doing anything special when the
-         * ReactiveElement instance becomes ready.
-         *
-         * Eventually, we should support something like `.on.ready` in the
-         * {@link ReactiveElement} API, and this is where the implementation
-         * for that feature would live.
-         */
+      resource.on.cleanup(() => LIFETIME.finalize(element));
+      resource.on.layout(() => ReactiveElement.layout(element));
+      resource.on.idle(() => ReactiveElement.idle(element));
 
-        ReactiveElement.ready(element);
-      },
-      deactivate: ({ element }) => {
-        LIFETIME.finalize(element);
-      },
-    });
-
-  /**
-   * The call to {@link useResource} gave us the `{ component, value }` record
-   * we were working with above.
-   *
-   * In this case, the `value` is the Starbeam memo that produces the
-   * ReactElement.
-   */
-  const memo = resource.value;
+      return { element, value };
+    },
+    null
+  );
 
   /**
    * The whole function returns a ReactElement. Since it's inside of a
@@ -213,7 +170,12 @@ export function useReactiveElement<I extends Inputs>(
    * changed, the memo will produce a fresh {@link ReactElement}, and React will
    * reconcile it.
    */
-  return memo.poll();
+  return resource.value.poll();
+
+  interface CreatedReactiveElement {
+    element: ReactiveElement;
+    value: Renderable<ReactElement>;
+  }
 
   function createReactiveElement({
     prev,
@@ -221,7 +183,7 @@ export function useReactiveElement<I extends Inputs>(
   }: {
     prev: ReactiveElement | null;
     notify: () => void;
-  }) {
+  }): CreatedReactiveElement {
     let element: ReactiveElement;
 
     // Instantiate a new ReactiveElement. There is one instance per
@@ -277,7 +239,7 @@ export function useReactiveElement<I extends Inputs>(
 
     if (stableProps) {
       formula = Formula(
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        // eslint-disable-next-line
         definition(stableProps.current.reactive as any, element)
       );
     } else {
@@ -373,7 +335,7 @@ function useReactiveElementArgs<I extends Inputs>(
 ): NormalizedArgs<I> {
   if (isCompleteArgs(args)) {
     const [props, definition, description] = args;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    // eslint-disable-next-line
     return { props, definition, description } as any;
   }
 

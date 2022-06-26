@@ -1,26 +1,17 @@
 import {
   type FunctionComponent,
   type ReactElement,
+  type ReactHTML,
   type ReactNode,
   createElement,
   Fragment,
   isValidElement,
 } from "react";
 
-type PropsFor<E> = typeof createElement extends (
-  type: E,
-  props: infer Props,
-  ...args: any[]
-) => any
-  ? Props
-  : // TODO: empty interface means any non-nullish value
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    {};
+type ReactProxyFunction<E extends keyof ReactHTML> = ReactHTML[E];
 
-interface HtmlProxyFunction<E> {
-  (props: PropsFor<E>, children: ReactNode[]): ReactElement;
-  (...children: ReactNode[]): ReactElement;
-}
+type HtmlProxyFunction<E extends keyof ReactHTML> = ReactProxyFunction<E> &
+  ((...children: ReactNode[]) => ReactElement);
 
 // ReactElement | ReactFragment | ReactPortal | boolean | null | string | null | undefined;
 
@@ -44,7 +35,7 @@ function isReactNode(value: unknown): value is ReactNode {
 }
 
 type HtmlProxy = {
-  [P in string]: HtmlProxyFunction<P>;
+  [P in keyof ReactHTML]: HtmlProxyFunction<P>;
 };
 
 function render<P>(
@@ -56,6 +47,7 @@ function render(
   component: FunctionComponent,
   ...children: ReactNode[]
 ): ReactElement;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function render(...args: any): ReactElement {
   return createElement(...(args as Parameters<typeof createElement>));
 }

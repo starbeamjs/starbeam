@@ -2,6 +2,10 @@ import { type MutableRefObject, useRef } from "react";
 
 import { UNINITIALIZED } from "./utils.js";
 
+/**
+ * This is basically the React `Ref` type, but the React version forces `current` to be `| null`,
+ * which is impossible here, because it's not a DOM ref.
+ */
 export interface Ref<T> {
   readonly current: T;
 }
@@ -48,6 +52,20 @@ export function useUpdatingVariable<T>(options: {
   return useUpdatingRef(options).current;
 }
 
+/**
+ * `useUpdatingRef` is a React hook that lets you create a value on initial render and keep it up
+ * to date on subsequent renders.
+ *
+ * ## Details
+ *
+ * On the first render, this hook calls the `initial` function and populates a Ref with the
+ * value the `initial` function returned.
+ *
+ * On subsequent renders, this hook calls the `update` function with the previous value. If the
+ * `update` function returns a value, it becomes the new value of the Ref.
+ *
+ * Either way, this function returns a `Ref` containing the current value.
+ */
 export function useUpdatingRef<T>({
   initial,
   update,
@@ -69,35 +87,6 @@ export function useUpdatingRef<T>({
 
   return ref as Ref<T>;
 }
-
-/**
- * The `T` type is the type you can assign to `current`.
- */
-useUpdatingRef.mutable = <Returned extends Supports, Supports = Returned>({
-  initial,
-  update,
-}: {
-  initial: () => Returned;
-  update: (value: Supports) => Returned | void;
-}): { ref: MutableRefObject<Supports>; value: Returned } => {
-  const ref = useRef<Supports | UNINITIALIZED>(UNINITIALIZED);
-  let value: Returned;
-
-  if (ref.current === UNINITIALIZED) {
-    value = ref.current = initial();
-  } else {
-    const next = update(ref.current);
-
-    if (next !== undefined) {
-      ref.current = next;
-    }
-
-    value = ref.current as Returned;
-  }
-
-  return { ref: ref as MutableRefObject<Supports>, value };
-};
-
 /**
  * This function takes a piece of state that is available as a per-render value
  * (e.g. props or the first element of the array returned by useState) and

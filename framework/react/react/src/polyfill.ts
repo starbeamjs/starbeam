@@ -1,5 +1,5 @@
 if (typeof process === "undefined") {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  // eslint-disable-next-line
   globalThis.process = {} as any;
 }
 

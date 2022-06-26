@@ -1,5 +1,5 @@
 import { Formula } from "@starbeam/core";
-import reactive from "@starbeam/js";
+import { reactive } from "@starbeam/js";
 import { describe, expect, test } from "vitest";
 
 import { Invalidation } from "./support.js";

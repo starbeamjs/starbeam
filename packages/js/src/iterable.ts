@@ -282,6 +282,7 @@ export class ReactiveSet<T> implements Set<T> {
 
   forEach(
     callbackfn: (value: T, value2: T, set: Set<T>) => void,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     thisArg?: any
   ): void {
     this.#values.consume();

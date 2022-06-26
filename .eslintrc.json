@@ -94,7 +94,8 @@
             "args": "after-used",
             "ignoreRestSiblings": false,
             "caughtErrors": "none",
-            "argsIgnorePattern": "^_"
+            "argsIgnorePattern": "^_",
+            "varsIgnorePattern": "^_"
           }
         ]
       }

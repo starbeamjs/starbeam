@@ -2,6 +2,7 @@ import type { UNINITIALIZED } from "@starbeam/peer";
 
 import type { MutableInternals } from "../reactive.js";
 import { RenderableMap } from "./map.js";
+// eslint-disable-next-line import/no-cycle
 import { type RenderableOperations, Renderable } from "./renderable.js";
 
 export class Renderables implements RenderableOperations {

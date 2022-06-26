@@ -4,7 +4,7 @@ import { Stack } from "@starbeam/debug";
 import type { Renderable } from "@starbeam/timeline";
 import { LIFETIME, TIMELINE } from "@starbeam/timeline";
 import { useResource } from "@starbeam/use-resource";
-import { useState } from "react";
+import { type ReactElement, useState } from "react";
 
 import { ReactiveElement } from "./element.js";
 
@@ -102,67 +102,31 @@ type AnyRecord<T = any> = Record<PropertyKey, T>;
  * [reactive dependencies]:
  * https://github.com/wycats/starbeam/tree/main/%40starbeam/react/GLOSSARY.md#reactive-dependencies
  */
-export function useStarbeam<T>(
-  definition: ReactiveDefinition<T, void>,
+export function useStarbeam<_T>(
+  definition: ReactiveDefinition<ReactElement, void>,
   description?: string | DescriptionArgs
-): T {
+): ReactElement {
   const [, setNotify] = useState({});
   const desc = Stack.description(description);
 
   // We use useResource here because the ReactiveElement we're creating has
   // teardown logic, which means that we want it to have a *fresh identity* when
   // this instance of `useReactElement` is reactivated.
-  const { current: resource } = useResource
-    // This will get run on initial render **and** reactivation
-    .create((_args, { notify }) => {
-      return createReactiveElement({ prev: null, notify });
-    })
-    .reactivate((_args, { element: prev }, { notify }) => {
-      return createReactiveElement({ prev, notify });
-    })
-    .update(() => {
-      /**
-       * There's nothing specific to do in `update`. The notification already
-       * occurred, and the updates to {@link stableProps} have already occured
-       * above. We also don't need to do anything to the Memo containing the
-       * ReactElement, because it's already stable.
-       *
-       * In other words, both `component` and `value` are stable objects that
-       * work within the Starbeam reactivity system, and therefore don't need
-       * any special updating behavior to see the updates.
-       */
-    })
-    .as("useStarbeam")
-    .notifier(() => setNotify({}))
-    .on({
-      attached: ({ element }) => {
-        /**
-         * At the moment, we're not doing anything special when the
-         * ReactiveElement instance is attached.
-         *
-         * Eventually, we should support something like `.on.attach` in the
-         * {@link ReactiveElement} API, and this is where the implementation
-         * for that feature would live.
-         */
+  const resource = useResource<CreatedReactiveElement, null>(
+    (resource, args, prev) => {
+      const { element, value } = createReactiveElement({
+        prev: prev?.element ?? null,
+        notify: () => setNotify({}),
+      });
 
-        ReactiveElement.attached(element);
-      },
-      ready: ({ element }) => {
-        /**
-         * At the moment, we're not doing anything special when the
-         * ReactiveElement instance becomes ready.
-         *
-         * Eventually, we should support something like `.on.ready` in the
-         * {@link ReactiveElement} API, and this is where the implementation
-         * for that feature would live.
-         */
+      resource.on.cleanup(() => LIFETIME.finalize(element));
+      resource.on.layout(() => ReactiveElement.layout(element));
+      resource.on.idle(() => ReactiveElement.idle(element));
 
-        ReactiveElement.ready(element);
-      },
-      deactivate: ({ element }) => {
-        LIFETIME.finalize(element);
-      },
-    });
+      return { element, value };
+    },
+    null
+  );
 
   /**
    * The call to {@link useResource} gave us the `{ component, value }` record
@@ -195,7 +159,7 @@ export function useStarbeam<T>(
   }: {
     prev: ReactiveElement | null;
     notify: () => void;
-  }): { element: ReactiveElement; value: Renderable<T> } {
+  }): CreatedReactiveElement {
     let element: ReactiveElement;
 
     // Instantiate a new ReactiveElement. There is one instance per
@@ -265,7 +229,7 @@ export function useStarbeam<T>(
      * At that point, the resource will be in the `updating` state, so the
      * `updating` lifecycle hook below will run.
      */
-    const renderable: Renderable<T> = TIMELINE.on.change(
+    const renderable: Renderable<ReactElement> = TIMELINE.on.change(
       formula,
       () => {
         TIMELINE.enqueue(notify);
@@ -287,6 +251,11 @@ export function useStarbeam<T>(
      */
     return { element, value: renderable };
   }
+}
+
+interface CreatedReactiveElement {
+  element: ReactiveElement;
+  value: Renderable<ReactElement>;
 }
 
 export type Inputs = AnyRecord | void;

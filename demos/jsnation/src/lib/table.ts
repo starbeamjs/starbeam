@@ -1,4 +1,4 @@
-import reactive from "@starbeam/js";
+import { reactive } from "@starbeam/js";
 
 export type Row<T> = {
   id: string;

@@ -12,6 +12,7 @@
     "module": "esnext",
     "moduleResolution": "node",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "experimentalDecorators": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noImplicitReturns": true,

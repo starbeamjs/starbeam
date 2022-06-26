@@ -3,6 +3,7 @@
   "name": "@starbeam-tests/x-vanilla",
   "dependencies": {
     "@starbeamx/vanilla": "workspace:*",
-    "@starbeam/core": "workspace:*"
+    "@starbeam/core": "workspace:*",
+    "happy-dom": "^5.3.1"
   }
 }
