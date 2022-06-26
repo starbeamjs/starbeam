@@ -12,6 +12,7 @@ import {
   type ReactiveProtocol,
   REACTIVE,
 } from "../reactive.js";
+// eslint-disable-next-line import/no-cycle
 import { TIMELINE } from "../timeline.js";
 import type { Timestamp } from "../timestamp.js";
 
@@ -53,6 +54,7 @@ export class Renderable<T = unknown> implements ReactiveProtocol {
       notify,
       UNINITIALIZED,
       operations,
+      description,
       new Set(initialDependencies),
       TIMELINE.now
     );
@@ -92,6 +94,7 @@ export class Renderable<T = unknown> implements ReactiveProtocol {
   readonly #notify: { readonly ready: (renderable: Renderable<T>) => void };
   readonly #last: UNINITIALIZED | T;
   readonly #operations: RenderableOperations;
+  readonly #description: DescriptionArgs;
   #dependencies: Set<MutableInternals>;
 
   // for debug purposes
@@ -102,6 +105,7 @@ export class Renderable<T = unknown> implements ReactiveProtocol {
     notify: { readonly ready: (renderable: Renderable<T>) => void },
     last: UNINITIALIZED | T,
     operations: RenderableOperations,
+    description: DescriptionArgs,
     dependencies: Set<MutableInternals>,
     lastChecked: Timestamp
   ) {
@@ -109,6 +113,7 @@ export class Renderable<T = unknown> implements ReactiveProtocol {
     this.#dependencies = dependencies;
     this.#last = last;
     this.#operations = operations;
+    this.#description = description;
     this.#notify = notify;
     this.#lastChecked = lastChecked;
   }

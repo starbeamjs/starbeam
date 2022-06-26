@@ -1,34 +1,35 @@
 // @vitest-environment jsdom
 
+import { useResource } from "@starbeam/use-resource";
 import { useState } from "react";
 import { expect } from "vitest";
 
-import { type Ref, useResource } from "../index.js";
-import { html, react } from "./dom.js";
-import { entryPoint } from "./entry.js";
-import { testModes } from "./modes.js";
+import { html, react } from "./support/dom.js";
+import { entryPoint } from "./support/entry-point.js";
+import { testStrictAndLoose } from "./support/modes.js";
 
-testModes("useResource", (mode) => {
+testStrictAndLoose("useResource", (mode) => {
   TestResource.resetId();
 
   const result = mode
     .render(() => {
       const [count, setCount] = useState(0);
 
-      const resource = useResource
-        .withState({ count })
-        .create(({ count }) => TestResource.initial(count))
-        .update((resource, { count }) => resource.transition("updated", count))
-        .on({
-          attached: (resource) => resource.transition("attached"),
-          ready: (resource) => resource.transition("ready"),
-          deactivate: (resource) => resource.transition("detached"),
-        });
+      const test = useResource((resource, count) => {
+        const test = TestResource.initial(count);
+
+        resource.on.update((count) => test.transition("updated", count));
+        resource.on.layout(() => test.transition("layout"));
+        resource.on.idle(() => test.transition("idle"));
+        resource.on.cleanup(() => test.transition("unmounted"));
+
+        return test;
+      }, count);
 
       return {
-        value: resource,
+        value: test,
         dom: react.fragment(
-          html.p(resource.current.state),
+          html.p(test.state),
           html.p(count),
           html.label(
             html.span("Increment"),
@@ -40,15 +41,16 @@ testModes("useResource", (mode) => {
     .expectStableValue()
     .expectHTML(
       (value) =>
-        `<p>${value.current.state}</p><p>${value.current.count}</p><label><span>Increment</span><button>++</button></label>`
+        `<p>${value.state}</p><p>${value.count}</p><label><span>Increment</span><button>++</button></label>`
     );
 
-  const resource = result.value.current;
+  const resource = result.value;
 
   resource.assert(
     mode.match({
+      // strict mode runs initial render twice
       strict: () => "updated",
-      loose: () => "ready",
+      loose: () => "idle",
     }),
     0
   );
@@ -63,30 +65,31 @@ testModes("useResource", (mode) => {
   resource.assert("updated", 1);
 
   result.unmount();
-  resource.assert("detached", 1);
+  resource.assert("unmounted", 1);
 });
 
-testModes("useResource (nested)", (mode) => {
+testStrictAndLoose("useResource (nested)", (mode) => {
   TestResource.resetId();
 
   const result = mode
     .render(() => {
       const [count, setCount] = useState(0);
 
-      const resource = useResource
-        .withState({ count })
-        .create(({ count }) => TestResource.initial(count))
-        .update((resource, { count }) => resource.transition("updated", count))
-        .on({
-          attached: (resource) => resource.transition("attached"),
-          ready: (resource) => resource.transition("ready"),
-          deactivate: (resource) => resource.transition("detached"),
-        });
+      const test = useResource((resource, count) => {
+        const test = TestResource.initial(count);
+
+        resource.on.update((count) => test.transition("updated", count));
+        resource.on.layout(() => test.transition("layout"));
+        resource.on.idle(() => test.transition("idle"));
+        resource.on.cleanup(() => test.transition("unmounted"));
+
+        return test;
+      }, count);
 
       return {
-        value: resource,
+        value: test,
         dom: react.fragment(
-          react.render(ChildComponent, { count: resource }),
+          react.render(ChildComponent, { count: test }),
           html.p(count),
           html.label(
             html.span("Increment"),
@@ -97,20 +100,20 @@ testModes("useResource (nested)", (mode) => {
     })
     .expectStableValue()
     .expectHTML(
-      ({ current: { state, count } }) =>
+      ({ state, count }) =>
         `<p>${state}</p><p>${count}</p><label><span>Increment</span><button>++</button></label>`
     );
 
-  function ChildComponent({ count }: { count: Ref<TestResource> }) {
-    return html.p(count.current.state);
+  function ChildComponent({ count }: { count: TestResource }) {
+    return html.p(count.state);
   }
 
-  const resource = result.value.current;
+  const resource = result.value;
 
   resource.assert(
     mode.match({
       strict: () => "updated",
-      loose: () => "ready",
+      loose: () => "idle",
     }),
     0
   );
@@ -125,88 +128,93 @@ testModes("useResource (nested)", (mode) => {
   resource.assert("updated", 1);
 
   result.unmount();
-  resource.assert("detached", 1);
+  resource.assert("unmounted", 1);
 });
 
-testModes("useResource (nested, stability across remounting)", (mode) => {
-  TestResource.resetId();
+testStrictAndLoose(
+  "useResource (nested, stability across remounting)",
+  (mode) => {
+    TestResource.resetId();
 
-  const result = mode
-    .render(() => {
-      const [count, setCount] = useState(0);
+    const result = mode
+      .render(() => {
+        const [count, setCount] = useState(0);
 
-      const resource = useResource
-        .withState({ count })
-        .create(({ count }) => TestResource.initial(count))
-        .update((resource, { count }) => resource.transition("updated", count))
-        .on({
-          attached: (resource) => resource.transition("attached"),
-          ready: (resource) => resource.transition("ready"),
-          deactivate: (resource) => resource.transition("detached"),
-        });
+        const test = useResource((resource, count) => {
+          const test = TestResource.initial(count);
 
-      return {
-        value: resource,
-        dom: react.fragment(
-          html.p(resource.current.state),
-          html.p("parent:", count),
-          react.render(ChildComponent, {
-            count: resource,
-            increment: () => setCount(count + 1),
-          })
-        ),
-      };
-    })
-    .expectStableValue()
-    .expectStable((value) => value.current)
-    .expectHTML(
-      ({ current: { state, count, id } }) =>
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        `<p>${state}</p><p>parent:${count}</p><p>child:${count} id:${id}</p><label><span>Increment</span><button>++</button></label>`
+          resource.on.update((count) => test.transition("updated", count));
+          resource.on.layout(() => test.transition("layout"));
+          resource.on.idle(() => test.transition("idle"));
+          resource.on.cleanup(() => test.transition("unmounted"));
+
+          return test;
+        }, count);
+
+        return {
+          value: test,
+          dom: react.fragment(
+            html.p(test.state),
+            html.p("parent:", count),
+            react.render(ChildComponent, {
+              count: test,
+              increment: () => setCount(count + 1),
+            })
+          ),
+        };
+      })
+      .expectStableValue()
+      .expectStable((value) => value)
+      .expectHTML(
+        ({ state, count, id }) =>
+          `<p>${state}</p><p>parent:${count}</p><p>child:${count} id:${String(
+            id
+          )}</p><label><span>Increment</span><button>++</button></label>`
+      );
+
+    function ChildComponent({
+      count,
+      increment,
+    }: {
+      count: TestResource;
+      increment: () => void;
+    }) {
+      return react.fragment(
+        // verify that the child sees the same TestResource as the parent
+        html.p("child:", count.count, " ", "id:", count.id),
+
+        html.label(
+          html.span("Increment"),
+          html.button({ onClick: () => increment() }, "++")
+        )
+      );
+    }
+
+    const resource = result.value;
+
+    const stableId = mode.match({ strict: () => 3, loose: () => 1 });
+
+    resource.assert(
+      mode.match({
+        strict: () => "updated",
+        loose: () => "idle",
+      }),
+      0
     );
 
-  function ChildComponent({
-    count,
-    increment,
-  }: {
-    count: Ref<TestResource>;
-    increment: () => void;
-  }) {
-    return react.fragment(
-      // verify that the child sees the same TestResource as the parent
-      html.p("child:", count.current.count, " ", "id:", count.current.id),
+    result.rerender();
+    resource.assert("updated", 0, stableId);
 
-      html.label(
-        html.span("Increment"),
-        html.button({ onClick: () => increment() }, "++")
-      )
-    );
+    result.find("button").fire.click();
+    resource.assert("updated", 1, stableId);
+
+    result.rerender();
+    resource.assert("updated", 1, stableId);
+
+    result.unmount();
+    resource.assert("unmounted", 1, stableId);
   }
-
-  const resource = result.value.current;
-
-  const stableId = mode.match({ strict: () => 3, loose: () => 1 });
-
-  resource.assert(
-    mode.match({
-      strict: () => "updated",
-      loose: () => "ready",
-    }),
-    0
-  );
-
-  result.rerender();
-  resource.assert("updated", 0, stableId);
-
-  result.find("button").fire.click();
-  resource.assert("updated", 1, stableId);
-
-  result.rerender();
-  resource.assert("updated", 1, stableId);
-
-  result.unmount();
-  resource.assert("detached", 1, stableId);
-});
+);
 
 let id = 0;
 

@@ -1,13 +1,13 @@
 import { Formula } from "@starbeam/core";
-import reactive from "@starbeam/js";
+import { reactive } from "@starbeam/js";
 import { describe, expect, test } from "vitest";
 
 import { Invalidation } from "./support.js";
 
 // import { Invalidation } from "./support.js";
 
-describe.only("TrackedObject", () => {
-  test.only("adding and deleting items updates the size", () => {
+describe("TrackedObject", () => {
+  test("adding and deleting items updates the size", () => {
     const object = reactive.object<Record<string, string>>({});
 
     const size = Formula(() => Object.keys(object).length);

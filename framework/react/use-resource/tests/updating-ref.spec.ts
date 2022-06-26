@@ -3,14 +3,13 @@
 import { expect } from "vitest";
 
 import { useUpdatingRef } from "../src/updating-ref.js";
-import { react } from "./dom.js";
-import { testModes } from "./modes.js";
+import { react } from "./support/dom.js";
+import { testStrictAndLoose } from "./support/modes.js";
 
-// eslint-disable-next-line @typescript-eslint/require-await
-testModes("useUpdatingRef.mutable", async (mode) => {
+testStrictAndLoose("useUpdatingRef", (mode) => {
   const result = mode
     .render(() => {
-      const { ref, value } = useUpdatingRef.mutable({
+      const ref = useUpdatingRef({
         initial: () => ({ count: 0 }),
         update: (counter) => {
           counter.count++;
@@ -20,7 +19,7 @@ testModes("useUpdatingRef.mutable", async (mode) => {
 
       return {
         value: ref,
-        dom: react.fragment(value.count),
+        dom: react.fragment(ref.current.count),
       };
     })
     .expectStableValue()

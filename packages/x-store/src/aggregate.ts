@@ -4,7 +4,7 @@ export interface Aggregator<T, U = T> {
   initialize: () => AggregatorInstance<T, U>;
 }
 
-export interface AggregatorInstance<T, U = T> {
+export interface AggregatorInstance<in T, out U = T> {
   add(value: T): void;
   value(): U;
 }
@@ -18,6 +18,7 @@ export type AggregatorFor<U extends UserTypes> = {
 
 export type AggregateRow<T extends TableTypes, A extends AggregatorFor<T>> = {
   [K in keyof T["Columns"]]: A[K] extends {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     initialize: () => AggregatorInstance<any, infer V>;
   }
     ? V

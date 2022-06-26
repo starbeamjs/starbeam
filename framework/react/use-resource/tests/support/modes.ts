@@ -1,5 +1,3 @@
-/* eslint-disable  */
-
 import {
   type ByRoleMatcher,
   type ByRoleOptions,
@@ -18,10 +16,9 @@ import {
 } from "react";
 import { expect, test } from "vitest";
 
+import { UNINITIALIZED } from "../../src/utils.js";
+import { entryPoint } from "./entry-point.js";
 import { act } from "./react.js";
-import { UNINITIALIZED } from "./utils.js";
-
-type InferArgument = any;
 
 interface RenderResultConfiguration<T> {
   readonly values: Values<T>;
@@ -43,6 +40,7 @@ interface HtmlTemplate<T> {
 
 type BoundFireObject = {
   [P in keyof FireObject]: FireObject[P] extends (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     element: any,
     ...args: infer Args
   ) => infer Return
@@ -63,6 +61,7 @@ export class TestElement<E extends Element> {
 
   readonly fire: {
     [P in keyof FireObject]: FireObject[P] extends (
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       element: any,
       ...args: infer Args
     ) => infer Return
@@ -76,7 +75,8 @@ export class TestElement<E extends Element> {
 
     const fire: Partial<BoundFireObject> = {};
 
-    for (let [key, value] of Object.entries(fireEvent)) {
+    for (const [key, value] of Object.entries(fireEvent)) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       fire[key as keyof BoundFireObject] = this.#bind(value);
     }
 
@@ -84,9 +84,11 @@ export class TestElement<E extends Element> {
   }
 
   #bind(method: FireObject[keyof FireObject]) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (...args: any) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       const result = method(this.#element, ...args);
-      this.#assert();
+      entryPoint(() => this.#assert());
       return result;
     };
   }
@@ -115,22 +117,16 @@ export class TestElement<E extends Element> {
   }
 }
 
-type AnyRecord = Record<PropertyKey, any>;
-
-export class RenderResult<Props extends AnyRecord | void, T> {
-  static render<Props extends AnyRecord, T>(
+export class RenderResult<Props, T> {
+  static render<Props, T>(
     component: (props: Props) => ReactElement,
     options: RenderResultOptions<Props, T>
   ): RenderResult<Props, T>;
-  static render<T>(
+  static render<Props, T>(
     component: () => ReactElement,
     options: RenderResultConfiguration<T>
-  ): RenderResult<void, T>;
-  static render<Props extends AnyRecord | void, T>(
-    component: (props: Props) => ReactElement,
-    options: RenderResultOptions<Props, T>
   ): RenderResult<Props, T>;
-  static render<Props extends AnyRecord, T>(
+  static render<Props, T>(
     component: (props?: Props) => ReactElement,
     options: RenderResultConfiguration<T> & { readonly props?: Props }
   ): RenderResult<Props, T> {
@@ -233,12 +229,12 @@ export class RenderResult<Props extends AnyRecord | void, T> {
     return { expecting: this.#postcondition() };
   };
 
-  deactivate() {}
-
   unmount(): { expecting: RerenderContext<T> } {
-    this.#result.unmount();
+    return entryPoint(() => {
+      this.#result.unmount();
 
-    return { expecting: this.#postcondition() };
+      return { expecting: this.#postcondition() };
+    });
   }
 
   #postcondition(): RerenderContext<T> {
@@ -386,6 +382,7 @@ class RerenderContext<T> {
 
   static assert<T>(
     context: RerenderContext<T>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     result: RenderResult<any, T>
   ): RerenderContext<T> {
     if (context.#current.stability) {
@@ -397,7 +394,7 @@ class RerenderContext<T> {
       context.html(expectedHTML);
     }
 
-    for (let value of context.#current.stableValues) {
+    for (const value of context.#current.stableValues) {
       value.assert(result.value);
     }
 
@@ -413,13 +410,17 @@ class RerenderContext<T> {
   }
 
   html(expected: string): this {
-    expect(this.#current.container.innerHTML).toBe(expected);
+    entryPoint(() => {
+      expect(this.#current.container.innerHTML).toBe(expected);
+    });
 
     return this;
   }
 
   stableHTML(): this {
-    this.html(this.#last.container.innerHTML);
+    entryPoint(() => {
+      this.html(this.#last.container.innerHTML);
+    });
 
     return this;
   }
@@ -499,18 +500,18 @@ export class Mode {
   //   return RenderResult.render(() => this.root(component));
   // }
 
-  render<T, Props extends AnyRecord>(
+  render<T, Props extends object>(
     definition: (props: Props) => { dom: ReactElement; value: T },
     props: Props
   ): RenderResult<Props, T>;
   render<T>(
     definition: () => { dom: ReactElement; value: T }
   ): RenderResult<void, T>;
-  render<T, Props extends AnyRecord | void>(
+  render<T, Props extends object>(
     definition: (props?: Props) => { dom: ReactElement; value: T },
     props?: Props
   ): RenderResult<Props, T> {
-    let rerender: { current: () => void } = { current: () => null };
+    const rerender: { current: () => void } = { current: () => null };
     let renderCount = 0;
     const values: Values<T> = Values.create();
 
@@ -524,10 +525,10 @@ export class Mode {
       return dom;
     }
 
-    const result = RenderResult.render<Props, T>(
+    const result = RenderResult.render(
       (props) => this.#root(Component, props),
       {
-        props: props as InferArgument,
+        props,
         values,
         rerender,
         count: () => renderCount,
@@ -539,23 +540,20 @@ export class Mode {
     return result;
   }
 
-  #root<Props extends AnyRecord | void>(
+  #root<Props extends object>(
     component: FunctionComponent<Props>,
     props?: Props
   ): ReactElement {
     switch (this.mode) {
       case "loose":
-        return createElement(
-          component as InferArgument,
-          props as InferArgument
-        );
+        return createElement(component, props);
       case "strict":
         return strictElement(component);
     }
   }
 }
 
-export function testModes(
+export function testStrictAndLoose(
   description: string,
   callback: (mode: Mode) => void | Promise<void>
 ): void {
@@ -567,7 +565,7 @@ export function testModes(
   });
 }
 
-export function strictElement<Props extends AnyRecord>(
+export function strictElement<Props extends object>(
   component: FunctionComponent<Props>,
   props?: Props
 ) {

@@ -62,6 +62,7 @@ function checkValue<In, Out extends In>(
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function assert(condition: any, message: string): asserts condition {
   if (!condition) {
     throw Error(message);

@@ -8,22 +8,6 @@ import {
   isValidElement,
 } from "react";
 
-type PropsFor<E> = E extends keyof ReactHTML
-  ? ReactHTML[E] extends (props?: infer Props) => any
-    ? Props
-    : never
-  : never;
-
-// ReactHTML[E]> extends          (props?: ClassAttributes<T> & P | null, ...children: ReactNode[]) => DetailedReactHTMLElement<P, T> ? 1 : 0;
-
-// typeof createElement extends (
-//   type: E,
-//   props: infer Props,
-//   ...args: any[]
-// ) => any
-//   ? Props
-//   : {};
-
 type ReactProxyFunction<E extends keyof ReactHTML> = ReactHTML[E];
 
 type HtmlProxyFunction<E extends keyof ReactHTML> = ReactProxyFunction<E> &
@@ -63,6 +47,7 @@ function render(
   component: FunctionComponent,
   ...children: ReactNode[]
 ): ReactElement;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function render(...args: any): ReactElement {
   return createElement(...(args as Parameters<typeof createElement>));
 }

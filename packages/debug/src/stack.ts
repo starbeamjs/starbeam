@@ -12,7 +12,7 @@ import { describeModule } from "./module.js";
 
 export class ParsedStack {
   static empty() {
-    return new ParsedStack("", "", []);
+    return new ParsedStack("", "", "", []);
   }
 
   static parse({ stack }: { stack: string }) {
@@ -20,7 +20,7 @@ export class ParsedStack {
     const frames = parsed.items;
 
     if (frames.length === 0) {
-      return new ParsedStack(stack, stack, []);
+      return new ParsedStack(stack, stack, "", []);
     }
 
     const first = frames[0].beforeParse;
@@ -36,34 +36,65 @@ export class ParsedStack {
 
     // the header is all of the lines before the offset
     const header = lines.slice(0, offset).join("\n");
+    const rest = lines.slice(offset).join("\n");
 
     return new ParsedStack(
       stack,
       header,
+      rest,
       frames.map((f) => StackFrame.from(parsed, f))
     );
   }
 
   readonly #source: string;
   readonly #header: string;
+  readonly #rest: string;
   readonly #frames: readonly StackFrame[];
 
   private constructor(
     source: string,
     header: string,
+    rest: string,
     frames: readonly StackFrame[]
   ) {
     this.#source = source;
     this.#header = header;
+    this.#rest = rest;
     this.#frames = frames;
+  }
+
+  replaceFrames(stack: ParsedStack) {
+    return new ParsedStack(
+      this.#source,
+      this.#header,
+      stack.#rest,
+      stack.#frames
+    );
+  }
+
+  get header(): string {
+    return this.#header;
   }
 
   get entries(): readonly StackFrame[] {
     return this.#frames;
   }
 
+  /**
+   * The formatted stack trace, suitable to be attached to `error.stack`.
+   */
+  get stack() {
+    return `${this.#header}\n${this.#rest}`;
+  }
+
   slice(n: number): ParsedStack {
-    return new ParsedStack(this.#source, this.#header, this.#frames.slice(n));
+    const rest = this.#rest.split("\n").slice(n).join("\n");
+    return new ParsedStack(
+      this.#source,
+      this.#header,
+      rest,
+      this.#frames.slice(n)
+    );
   }
 }
 
@@ -85,6 +116,20 @@ export class Stack {
 
   static fromStack(stack: string): Stack {
     return new Stack(ParsedStack.parse({ stack }));
+  }
+
+  /**
+   * Replace the stack frames in the specified error with the stack frames from the specified stack,
+   * but leave the header from the specified error.
+   *
+   * If the error is not an Error with a stack, this function does nothing.
+   */
+  static replaceFrames(error: unknown, fromStack: Stack): void {
+    if (isErrorWithStack(error)) {
+      const errorStack = Stack.from(error);
+      errorStack.replaceFrames(fromStack);
+      error.stack = errorStack.toString();
+    }
   }
 
   static from(error: ErrorWithStack): Stack;
@@ -162,6 +207,25 @@ export class Stack {
 
   get caller(): StackFrame | undefined {
     return this.#parsed.entries[0];
+  }
+
+  get header(): string {
+    return this.#parsed.header;
+  }
+
+  /**
+   * The formatted stack trace, suitable to be attached to `error.stack`.
+   */
+  get stack(): string {
+    return this.#parsed.stack;
+  }
+
+  /**
+   * Replace the stack frames with the current Stack with the frames from the given Stack, but keep
+   * the same header.
+   */
+  replaceFrames(stack: Stack) {
+    return new Stack(this.#parsed.replaceFrames(stack.#parsed));
   }
 
   slice(n: number): Stack {

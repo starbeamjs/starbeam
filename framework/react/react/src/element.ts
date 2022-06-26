@@ -156,6 +156,7 @@ export class ReactiveElement {
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static attach(element: ReactiveElement, renderable: Renderable<any>): void {
     if (element.#debugLifecycle) {
       const lifecycle = element.#debugLifecycle;
@@ -166,12 +167,12 @@ export class ReactiveElement {
     }
   }
 
-  static attached(element: ReactiveElement): void {
-    element.#lifecycle.attached();
+  static layout(element: ReactiveElement): void {
+    element.#lifecycle.layout();
   }
 
-  static ready(elements: ReactiveElement): void {
-    elements.#lifecycle.ready();
+  static idle(elements: ReactiveElement): void {
+    elements.#lifecycle.idle();
   }
 
   readonly #lifecycle: Lifecycle;
@@ -235,8 +236,8 @@ class Callbacks<T = void> {
 
 interface OnLifecycle extends OnCleanup {
   readonly cleanup: (finalizer: Callback) => Unsubscribe;
-  readonly ready: (ready: Callback) => void;
-  readonly attached: (attached: Callback) => void;
+  readonly idle: (ready: Callback) => void;
+  readonly layout: (attached: Callback) => void;
 }
 
 class Lifecycle {
@@ -248,25 +249,25 @@ class Lifecycle {
     return {
       cleanup: (finalizer: Callback) =>
         LIFETIME.on.cleanup(instance, finalizer),
-      ready: (ready: Callback) => lifecycle.#ready.add(ready),
-      attached: (attached: Callback) => lifecycle.#attached.add(attached),
+      idle: (ready: Callback) => lifecycle.#idle.add(ready),
+      layout: (attached: Callback) => lifecycle.#layout.add(attached),
     } as const;
   }
 
-  readonly #ready: Callbacks;
-  readonly #attached: Callbacks;
+  readonly #idle: Callbacks;
+  readonly #layout: Callbacks;
 
   private constructor(ready: Callbacks, attached: Callbacks) {
-    this.#ready = ready;
-    this.#attached = attached;
+    this.#idle = ready;
+    this.#layout = attached;
   }
 
-  ready(): void {
-    this.#ready.invoke();
+  idle(): void {
+    this.#idle.invoke();
   }
 
-  attached(): void {
-    this.#attached.invoke();
+  layout(): void {
+    this.#layout.invoke();
   }
 }
 

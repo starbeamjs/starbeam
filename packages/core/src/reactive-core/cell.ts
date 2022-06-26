@@ -12,12 +12,6 @@ export interface CellPolicy<T, U = T> {
 
 export type Equality<T> = (a: T, b: T) => boolean;
 
-function isEquality<T>(
-  value: Equality<T> | string | DescriptionArgs
-): value is Equality<T> {
-  return typeof value === "function";
-}
-
 export class ReactiveCell<T> implements Reactive<T> {
   static create<T>(
     value: T,
