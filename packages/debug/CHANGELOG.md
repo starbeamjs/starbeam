@@ -1,5 +1,13 @@
 # @starbeam/debug
 
+## 0.5.2
+
+### Patch Changes
+
+- 719a6fe: Updated package export maps
+- Updated dependencies [719a6fe]
+  - @starbeam/verify@0.5.2
+
 ## 0.5.1
 
 ### Patch Changes

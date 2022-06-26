@@ -1,5 +1,11 @@
 # @starbeam/use-resource
 
+## 0.5.2
+
+### Patch Changes
+
+- 719a6fe: Updated package export maps
+
 ## 0.5.1
 
 ### Patch Changes
