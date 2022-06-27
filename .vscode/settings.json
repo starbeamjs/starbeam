@@ -19,7 +19,6 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.preferences.importModuleSpecifier": "project-relative",
   "typescript.tsserver.experimental.enableProjectDiagnostics": true,
-  "testing.automaticallyOpenPeekView": "never",
   "json.schemas": [
     {
       "fileMatch": ["manifest.json"],
@@ -34,5 +33,6 @@
   },
   "[dotenv]": {
     "editor.defaultFormatter": "foxundermoon.shell-format"
-  }
+  },
+  "testing.automaticallyOpenPeekView": "never"
 }

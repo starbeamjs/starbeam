@@ -145,7 +145,7 @@ export class Renderable<T = unknown> implements ReactiveProtocol {
 
     // notify the listener for the first time so it can get set up properly, but do it after the
     // rest of the current render phase has finished.
-    Queue.afterFlush(notify);
+    Queue.enqueueRender(notify);
 
     return listener;
   }

@@ -138,7 +138,7 @@ export class Timeline implements RenderableOperations {
 
   readonly #renderables: Renderables;
   readonly #onUpdate: WeakMap<MutableInternals, Set<() => void>>;
-  readonly #onAdvance: Set<() => void>;
+  readonly #afterRender: Set<() => void>;
 
   private constructor(
     phase: RenderPhase | ActionsPhase,
@@ -149,15 +149,20 @@ export class Timeline implements RenderableOperations {
     this.#phase = phase;
     this.#renderables = renderables;
     this.#onUpdate = updaters;
-    this.#onAdvance = onAdvance;
+    this.#afterRender = onAdvance;
   }
 
+  /**
+   * Render a reactive value using the specified `render` function.
+   *
+   * A `render` function will run **after** all pending actions have flushed.
+   */
   render<T>(
     input: Reactive<T>,
     render: () => void,
     description?: string | DescriptionArgs
   ): Renderable<T> {
-    const ready = () => Queue.afterFlush(render);
+    const ready = () => Queue.enqueueRender(render);
 
     const renderable = Renderable.create(
       input,
@@ -173,10 +178,10 @@ export class Timeline implements RenderableOperations {
 
   on = {
     rendered: (callback: () => void): (() => void) => {
-      this.#onAdvance.add(callback);
+      this.#afterRender.add(callback);
 
       return () => {
-        this.#onAdvance.delete(callback);
+        this.#afterRender.delete(callback);
       };
     },
 
@@ -219,13 +224,6 @@ export class Timeline implements RenderableOperations {
     return this.#renderables.poll(renderable);
   }
 
-  // render<T>(renderable: Renderable<T>, changed: (next: T, prev: T) => void) {
-  //   this.#renderables.render(
-  //     renderable,
-  //     changed as (next: unknown, prev: unknown) => void
-  //   );
-  // }
-
   prune(renderable: Renderable<unknown>): void {
     this.#renderables.prune(renderable);
   }
@@ -257,8 +255,8 @@ export class Timeline implements RenderableOperations {
     this.#assertFrame?.assert();
     NOW.bump();
 
-    if (this.#onAdvance.size > 0) {
-      this.afterFlush(...this.#onAdvance);
+    if (this.#afterRender.size > 0) {
+      this.enqueueAfterRender(...this.#afterRender);
     }
 
     this.#notifySubscribers(mutable);
@@ -275,16 +273,42 @@ export class Timeline implements RenderableOperations {
     return callback();
   }
 
-  enqueue(...notifications: (() => void)[]): void {
-    Queue.enqueue(...notifications);
+  /**
+   * Enqueue an _action_ to be executed asynchronously.
+   *
+   * Actions are allowed to read **and** mutate reactive state. In general, actions should occur
+   * **before** the next render, which will convert any changes to reactive state into outputs.
+   */
+  enqueueAction(...notifications: (() => void)[]): void {
+    Queue.enqueueAction(...notifications);
   }
 
-  afterFlush(...callbacks: (() => void)[]): void {
-    Queue.afterFlush(...callbacks);
+  /**
+   * Enqueue a _render_ to be executed asynchronously.
+   *
+   * Renders are allowed to **read** reactive state, but **must not** mutate it. All renders take
+   * place together, after enqueued actions have executed.
+   *
+   * Since renders cannot mutate reactive state, the order in which renders run cannot affect the
+   * reactive values that other renders read.
+   */
+  enqueueRender(...callbacks: (() => void)[]): void {
+    Queue.enqueueRender(...callbacks);
+  }
+
+  enqueueAfterRender(...callbacks: (() => void)[]): void {
+    Queue.enqueueAfterRender(...callbacks);
+  }
+
+  /**
+   * The `nextIdle` promise resolves the next time the queue is empty.
+   */
+  nextIdle(): Promise<void> {
+    return Queue.idle();
   }
 
   #enqueue(...notifications: (() => void)[]): void {
-    Queue.enqueue(...notifications);
+    Queue.enqueueAction(...notifications);
   }
 
   #notifySubscribers(...storages: MutableInternals[]) {

@@ -15,7 +15,7 @@ testStrictAndLoose("useResource", (mode) => {
     .render(() => {
       const [count, setCount] = useState(0);
 
-      const test = useResource((resource, count) => {
+      const test = useResource(count, (resource, count) => {
         const test = TestResource.initial(count);
 
         resource.on.update((count) => test.transition("updated", count));
@@ -24,7 +24,7 @@ testStrictAndLoose("useResource", (mode) => {
         resource.on.cleanup(() => test.transition("unmounted"));
 
         return test;
-      }, count);
+      });
 
       return {
         value: test,
@@ -68,6 +68,77 @@ testStrictAndLoose("useResource", (mode) => {
   resource.assert("unmounted", 1);
 });
 
+testStrictAndLoose("useResource (no argument)", (mode) => {
+  TestResource.resetId();
+
+  const result = mode
+    .render(() => {
+      const [, setNotify] = useState({});
+
+      const test = useResource((resource) => {
+        const test = TestResource.initial(0);
+
+        resource.on.update(() => test.transition("updated"));
+        resource.on.layout(() => test.transition("layout"));
+        resource.on.idle(() => test.transition("idle"));
+        resource.on.cleanup(() => test.transition("unmounted"));
+
+        return test;
+      });
+
+      return {
+        value: test,
+        dom: react.fragment(
+          html.p(test.state),
+          html.p(test.id),
+          html.label(
+            html.span("Notify"),
+            html.button({ onClick: () => setNotify({}) }, "setNotify({})")
+          )
+        ),
+      };
+    })
+    .expectStableValue()
+    .expectHTML(
+      (value) =>
+        `<p>${value.state}</p><p>${String(
+          value.id
+        )}</p><label><span>Notify</span><button>setNotify({})</button></label>`
+    );
+
+  const resource = result.value;
+
+  // strict mode runs initial render twice and *then* unmounts and remounts the component, which
+  // results in the resource getting create three times.
+  const expectedId = mode.match({
+    strict: () => 3,
+    loose: () => 1,
+  });
+
+  expect(resource.id).toBe(expectedId);
+
+  resource.assert(
+    mode.match({
+      // strict mode runs initial render twice
+      strict: () => "updated",
+      loose: () => "idle",
+    }),
+    0
+  );
+
+  result.rerender();
+  resource.assert("updated", 0, expectedId);
+
+  result.find("button").fire.click();
+  resource.assert("updated", 0, expectedId);
+
+  result.rerender();
+  resource.assert("updated", 0, expectedId);
+
+  result.unmount();
+  resource.assert("unmounted", 0, expectedId);
+});
+
 testStrictAndLoose("useResource (nested)", (mode) => {
   TestResource.resetId();
 
@@ -75,7 +146,7 @@ testStrictAndLoose("useResource (nested)", (mode) => {
     .render(() => {
       const [count, setCount] = useState(0);
 
-      const test = useResource((resource, count) => {
+      const test = useResource(count, (resource, count) => {
         const test = TestResource.initial(count);
 
         resource.on.update((count) => test.transition("updated", count));
@@ -84,7 +155,7 @@ testStrictAndLoose("useResource (nested)", (mode) => {
         resource.on.cleanup(() => test.transition("unmounted"));
 
         return test;
-      }, count);
+      });
 
       return {
         value: test,
@@ -140,7 +211,7 @@ testStrictAndLoose(
       .render(() => {
         const [count, setCount] = useState(0);
 
-        const test = useResource((resource, count) => {
+        const test = useResource(count, (resource, count) => {
           const test = TestResource.initial(count);
 
           resource.on.update((count) => test.transition("updated", count));
@@ -149,7 +220,7 @@ testStrictAndLoose(
           resource.on.cleanup(() => test.transition("unmounted"));
 
           return test;
-        }, count);
+        });
 
         return {
           value: test,

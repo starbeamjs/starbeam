@@ -63,7 +63,7 @@ function updateTsconfig(root: string, pkg: Package) {
 
   editor.addUnique(
     "compilerOptions.types",
-    "./env",
+    join(relative(pkg.root, resolve(root, "packages", "./env"))),
     (type) => typeof type === "string" && type.endsWith("/env")
   );
 

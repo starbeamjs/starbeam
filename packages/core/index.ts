@@ -13,4 +13,5 @@ export { FormulaFn } from "./src/reactive-core/higher-level/mapped-formula.js";
 export { ResourceFn } from "./src/reactive-core/higher-level/mapped-resource.js";
 export { ResourceList } from "./src/reactive-core/higher-level/resource-list.js";
 export { Marker } from "./src/reactive-core/marker.js";
+export { RenderedValue } from "./src/reactive-core/render.js";
 export { LIFETIME, REACTIVE, Renderable, TIMELINE } from "@starbeam/timeline";
