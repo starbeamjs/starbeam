@@ -6,7 +6,7 @@
   "dependencies": {
     "@starbeam/core": "workspace:*",
     "@starbeam/debug": "workspace:*",
-    "@starbeam/use-resource": "workspace:*",
+    "@starbeam/use-strict-lifecycle": "workspace:*",
     "@starbeam/core-utils": "workspace:*",
     "@starbeam/verify": "workspace:*",
     "@starbeam/timeline": "workspace:*",

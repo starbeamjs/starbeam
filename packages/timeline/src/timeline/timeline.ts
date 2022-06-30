@@ -135,6 +135,7 @@ export class Timeline implements RenderableOperations {
   #frame: ActiveFrame | null = null;
   #assertFrame: AssertFrame | null = null;
   #debugTimeline: DebugTimeline | null = null;
+  #writeAssertions: Set<() => { problem: string } | void> = new Set();
 
   readonly #renderables: Renderables;
   readonly #onUpdate: WeakMap<MutableInternals, Set<() => void>>;
@@ -201,6 +202,10 @@ export class Timeline implements RenderableOperations {
       return renderable;
     },
   } as const;
+
+  assert = {
+    readonly: (assertion: () => void): (() => void) => {},
+  };
 
   attach(
     notify: () => void,

@@ -3,7 +3,7 @@ import type { DescriptionArgs } from "@starbeam/debug";
 import { Stack } from "@starbeam/debug";
 import type { Renderable } from "@starbeam/timeline";
 import { LIFETIME, TIMELINE } from "@starbeam/timeline";
-import { useResource } from "@starbeam/use-resource";
+import { useLifecycle } from "@starbeam/use-strict-lifecycle";
 import { type ReactElement, useState } from "react";
 
 import { ReactiveElement } from "./element.js";
@@ -112,7 +112,7 @@ export function useStarbeam<_T>(
   // We use useResource here because the ReactiveElement we're creating has
   // teardown logic, which means that we want it to have a *fresh identity* when
   // this instance of `useReactElement` is reactivated.
-  const resource = useResource<CreatedReactiveElement>((resource, prev) => {
+  const resource = useLifecycle<CreatedReactiveElement>((resource, prev) => {
     const { element, value } = createReactiveElement({
       prev: prev?.element ?? null,
       notify: () => setNotify({}),
@@ -126,7 +126,7 @@ export function useStarbeam<_T>(
   });
 
   /**
-   * The call to {@link useResource} gave us the `{ component, value }` record
+   * The call to {@link useLifecycle} gave us the `{ component, value }` record
    * we were working with above.
    *
    * In this case, the `value` is the Starbeam memo that produces the

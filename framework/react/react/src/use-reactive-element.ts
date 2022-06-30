@@ -2,7 +2,7 @@ import { Formula } from "@starbeam/core";
 import { Stack } from "@starbeam/debug";
 import type { Renderable } from "@starbeam/timeline";
 import { LIFETIME, TIMELINE } from "@starbeam/timeline";
-import { useResource, useUpdatingRef } from "@starbeam/use-resource";
+import { useLifecycle, useUpdatingRef } from "@starbeam/use-strict-lifecycle";
 import { type ReactElement, useState } from "react";
 
 import { ReactiveElement } from "./element.js";
@@ -142,7 +142,7 @@ export function useReactiveElement<I extends Inputs>(
   // We use useResource here because the ReactiveElement we're creating has
   // teardown logic, which means that we want it to have a *fresh identity* when
   // this instance of `useReactElement` is reactivated.
-  const resource = useResource<CreatedReactiveElement>((resource, prev) => {
+  const resource = useLifecycle<CreatedReactiveElement>((resource, prev) => {
     const { element, value } = createReactiveElement({
       prev: prev?.element ?? null,
       notify: () => setNotify({}),

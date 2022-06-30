@@ -34,8 +34,9 @@ type DescriptionDetails =
   | string
   | {
       type: "member";
+      kind: "index" | "property" | "key";
       parent: Description;
-      name: string;
+      name: string | number;
     }
   | { type: "method"; parent: Description; name: string };
 
@@ -45,6 +46,35 @@ export interface DescriptionArgs {
   transform?: (description: Description) => Description;
   stack?: Stack;
 }
+
+export const DescriptionArgs = {
+  key: (args: DescriptionArgs, member: string): DescriptionArgs => {
+    return DescriptionArgs.transform(args, (desc) => desc.key(member));
+  },
+
+  index: (args: DescriptionArgs, index: number): DescriptionArgs => {
+    return DescriptionArgs.transform(args, (desc) => desc.index(index));
+  },
+
+  property: (args: DescriptionArgs, property: string): DescriptionArgs => {
+    return DescriptionArgs.transform(args, (desc) => desc.property(property));
+  },
+
+  transform: (
+    args: DescriptionArgs,
+    transform: (description: Description) => Description
+  ): DescriptionArgs => {
+    const originalTransform = args.transform;
+    if (originalTransform) {
+      return {
+        ...args,
+        transform: (description) => transform(originalTransform(description)),
+      };
+    } else {
+      return { ...args, transform };
+    }
+  },
+} as const;
 
 export const Description = {
   is: (value: unknown): value is Description => {
@@ -60,6 +90,10 @@ export const Description = {
       return args.description;
     }
 
+    if (Description.is(args)) {
+      return args;
+    }
+
     const description = type.from({ ...args, validator });
 
     if (args.transform) {
@@ -70,7 +104,7 @@ export const Description = {
   },
 };
 
-export abstract class AbstractDescription {
+export abstract class AbstractDescription implements DescriptionArgs {
   abstract readonly type: ValueType;
 
   /**
@@ -126,7 +160,16 @@ export abstract class AbstractDescription {
       } else {
         switch (this.#name.type) {
           case "member":
-            return `->${this.#name.name}`;
+            switch (this.#name.kind) {
+              case "index":
+                return `[${this.#name.name}]`;
+              case "property":
+                return `.${this.#name.name}`;
+              case "key":
+                return `->${this.#name.name}`;
+            }
+            break;
+
           case "method":
             return `.${this.#name.name}()`;
         }
@@ -148,10 +191,37 @@ export abstract class AbstractDescription {
     });
   }
 
-  member(this: Description, name: string): Description {
+  index(this: Description, index: number): Description {
     return FormulaDescription.from({
       name: {
         type: "member",
+        parent: this,
+        kind: "index",
+        name: index,
+      },
+      validator: this.#validator,
+      stack: this.#stack,
+    });
+  }
+
+  property(this: Description, name: string): Description {
+    return FormulaDescription.from({
+      name: {
+        type: "member",
+        parent: this,
+        kind: "property",
+        name,
+      },
+      validator: this.#validator,
+      stack: this.#stack,
+    });
+  }
+
+  key(this: Description, name: string): Description {
+    return FormulaDescription.from({
+      name: {
+        type: "member",
+        kind: "key",
         parent: this,
         name,
       },
@@ -160,13 +230,9 @@ export abstract class AbstractDescription {
     });
   }
 
-  memberArgs(this: Description, name: string): DescriptionArgs {
+  get args(): DescriptionArgs {
     return {
-      name: {
-        type: "member",
-        parent: this,
-        name,
-      },
+      name: this.#name,
       stack: this.#stack,
     };
   }

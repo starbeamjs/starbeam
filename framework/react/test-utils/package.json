@@ -1,6 +1,7 @@
 {
   "name": "@starbeam-workspace/react-test-utils",
   "private": true,
+  "main": "index.ts",
   "dependencies": {
     "@starbeam-workspace/test-utils": "workspace:*",
     "@starbeam/core-utils": "workspace:*",

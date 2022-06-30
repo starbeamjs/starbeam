@@ -1,14 +1,16 @@
 // @vitest-environment jsdom
 
+import {
+  react,
+  testStrictAndLoose,
+} from "@starbeam-workspace/react-test-utils";
 import { expect } from "vitest";
 
 import { useUpdatingRef } from "../src/updating-ref.js";
-import { react } from "./support/dom.js";
-import { testStrictAndLoose } from "./support/modes.js";
 
 testStrictAndLoose("useUpdatingRef", (mode) => {
   const result = mode
-    .render(() => {
+    .test(() => {
       const ref = useUpdatingRef({
         initial: () => ({ count: 0 }),
         update: (counter) => {

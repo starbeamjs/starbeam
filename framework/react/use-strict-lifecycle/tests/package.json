@@ -1,0 +1,8 @@
+{
+  "name": "@starbeam-tests/react-use-strict-lifecycle",
+  "private": true,
+  "dependencies": {
+    "@starbeam/use-strict-lifecycle": "workspace:*",
+    "@starbeam-workspace/react-test-utils": "workspace:*"
+  }
+}

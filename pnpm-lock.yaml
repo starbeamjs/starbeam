@@ -321,7 +321,7 @@ importers:
       '@starbeam/modifier': workspace:*
       '@starbeam/peer': workspace:*
       '@starbeam/timeline': workspace:*
-      '@starbeam/use-resource': workspace:*
+      '@starbeam/use-strict-lifecycle': workspace:*
       '@starbeam/verify': workspace:*
       '@types/react': ^18.0.10
       '@types/use-sync-external-store': ts4.6
@@ -337,7 +337,7 @@ importers:
       '@starbeam/modifier': link:../../../packages/modifier
       '@starbeam/peer': link:../../../packages/peer
       '@starbeam/timeline': link:../../../packages/timeline
-      '@starbeam/use-resource': link:../use-resource
+      '@starbeam/use-strict-lifecycle': link:../use-strict-lifecycle
       '@starbeam/verify': link:../../../packages/verify
       '@types/use-sync-external-store': 0.0.3
       use-sync-external-store: 1.0.0-rc.3_react@18.2.0
@@ -346,6 +346,18 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       typescript: 4.8.0-dev.20220627
+
+  framework/react/react/tests:
+    specifiers:
+      '@starbeam-workspace/react-test-utils': workspace:*
+      '@starbeam/core': workspace:*
+      '@starbeam/js': workspace:*
+      '@starbeam/react': workspace:*
+    dependencies:
+      '@starbeam-workspace/react-test-utils': link:../../test-utils
+      '@starbeam/core': link:../../../../packages/core
+      '@starbeam/js': link:../../../../packages/js
+      '@starbeam/react': link:..
 
   framework/react/test-utils:
     specifiers:
@@ -368,7 +380,7 @@ importers:
       '@types/react': 18.0.14
       '@types/react-dom': 18.0.5
 
-  framework/react/use-resource:
+  framework/react/use-strict-lifecycle:
     specifiers:
       '@starbeam-workspace/test-utils': workspace:*
       '@testing-library/dom': ^8.13.0
@@ -400,11 +412,13 @@ importers:
       shell-escape-tag: 2.0.2
       shelljs: 0.8.5
 
-  framework/react/use-resource/tests:
+  framework/react/use-strict-lifecycle/tests:
     specifiers:
-      '@starbeam/use-resource': workspace:*
+      '@starbeam-workspace/react-test-utils': workspace:*
+      '@starbeam/use-strict-lifecycle': workspace:*
     dependencies:
-      '@starbeam/use-resource': link:..
+      '@starbeam-workspace/react-test-utils': link:../../test-utils
+      '@starbeam/use-strict-lifecycle': link:..
 
   packages/bundle:
     specifiers:

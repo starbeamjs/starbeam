@@ -1,21 +1,26 @@
 // @vitest-environment jsdom
 
-import { useResource } from "@starbeam/use-resource";
+import { useLifecycle } from "@starbeam/use-strict-lifecycle";
+import {
+  entryPoint,
+  html,
+  react,
+  testStrictAndLoose,
+} from "@starbeam-workspace/react-test-utils";
 import { useState } from "react";
 import { expect } from "vitest";
 
-import { html, react } from "./support/dom.js";
-import { entryPoint } from "./support/entry-point.js";
-import { testStrictAndLoose } from "./support/modes.js";
+// import { html, react } from "./support/dom.js";
+// import { entryPoint } from "./support/entry-point.js";
 
-testStrictAndLoose("useResource", (mode) => {
+testStrictAndLoose("useResource", async (mode) => {
   TestResource.resetId();
 
   const result = mode
-    .render(() => {
+    .test(() => {
       const [count, setCount] = useState(0);
 
-      const test = useResource(count, (resource, count) => {
+      const test = useLifecycle(count, (resource, count) => {
         const test = TestResource.initial(count);
 
         resource.on.update((count) => test.transition("updated", count));
@@ -58,7 +63,7 @@ testStrictAndLoose("useResource", (mode) => {
   result.rerender();
   resource.assert("updated", 0);
 
-  result.find("button").fire.click();
+  await result.find("button").fire.click();
   resource.assert("updated", 1);
 
   result.rerender();
@@ -68,14 +73,14 @@ testStrictAndLoose("useResource", (mode) => {
   resource.assert("unmounted", 1);
 });
 
-testStrictAndLoose("useResource (no argument)", (mode) => {
+testStrictAndLoose("useResource (no argument)", async (mode) => {
   TestResource.resetId();
 
   const result = mode
-    .render(() => {
+    .test(() => {
       const [, setNotify] = useState({});
 
-      const test = useResource((resource) => {
+      const test = useLifecycle((resource) => {
         const test = TestResource.initial(0);
 
         resource.on.update(() => test.transition("updated"));
@@ -129,7 +134,7 @@ testStrictAndLoose("useResource (no argument)", (mode) => {
   result.rerender();
   resource.assert("updated", 0, expectedId);
 
-  result.find("button").fire.click();
+  await result.find("button").fire.click();
   resource.assert("updated", 0, expectedId);
 
   result.rerender();
@@ -139,14 +144,14 @@ testStrictAndLoose("useResource (no argument)", (mode) => {
   resource.assert("unmounted", 0, expectedId);
 });
 
-testStrictAndLoose("useResource (nested)", (mode) => {
+testStrictAndLoose("useResource (nested)", async (mode) => {
   TestResource.resetId();
 
   const result = mode
-    .render(() => {
+    .test(() => {
       const [count, setCount] = useState(0);
 
-      const test = useResource(count, (resource, count) => {
+      const test = useLifecycle(count, (resource, count) => {
         const test = TestResource.initial(count);
 
         resource.on.update((count) => test.transition("updated", count));
@@ -192,7 +197,7 @@ testStrictAndLoose("useResource (nested)", (mode) => {
   result.rerender();
   resource.assert("updated", 0);
 
-  result.find("button").fire.click();
+  await result.find("button").fire.click();
   resource.assert("updated", 1);
 
   result.rerender();
@@ -204,14 +209,14 @@ testStrictAndLoose("useResource (nested)", (mode) => {
 
 testStrictAndLoose(
   "useResource (nested, stability across remounting)",
-  (mode) => {
+  async (mode) => {
     TestResource.resetId();
 
     const result = mode
-      .render(() => {
+      .test(() => {
         const [count, setCount] = useState(0);
 
-        const test = useResource(count, (resource, count) => {
+        const test = useLifecycle(count, (resource, count) => {
           const test = TestResource.initial(count);
 
           resource.on.update((count) => test.transition("updated", count));
@@ -276,7 +281,7 @@ testStrictAndLoose(
     result.rerender();
     resource.assert("updated", 0, stableId);
 
-    result.find("button").fire.click();
+    await result.find("button").fire.click();
     resource.assert("updated", 1, stableId);
 
     result.rerender();

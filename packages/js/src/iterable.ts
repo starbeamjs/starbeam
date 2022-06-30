@@ -86,11 +86,11 @@ export class ReactiveMap<K, V> implements Map<K, V> {
     this.#equality = equality;
     this.#keys = Marker({
       ...description,
-      transform: (d: Description) => d.member("keys"),
+      transform: (d: Description) => d.key("keys"),
     });
     this.#values = Marker({
       ...description,
-      transform: (d: Description) => d.member("values"),
+      transform: (d: Description) => d.key("values"),
     });
   }
 
@@ -213,7 +213,7 @@ export class ReactiveMap<K, V> implements Map<K, V> {
 
     if (entry === undefined) {
       entry = Entry.uninitialized(
-        { ...this.#description, transform: (d) => d.member("entry") },
+        { ...this.#description, transform: (d) => d.key("entry") },
         this.#equality
       );
       this.#entries.set(key, entry);
@@ -241,7 +241,7 @@ export class ReactiveSet<T> implements Set<T> {
     this.#equality = equality;
     this.#values = Marker({
       ...description,
-      transform: (d: Description) => d.member("values"),
+      transform: (d: Description) => d.key("values"),
     });
   }
 
