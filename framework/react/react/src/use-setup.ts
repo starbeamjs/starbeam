@@ -5,6 +5,7 @@ import {
   type CleanupTarget,
   type Unsubscribe,
   LIFETIME,
+  TIMELINE,
 } from "@starbeam/timeline";
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
 import { useState } from "react";
@@ -36,17 +37,24 @@ export function useSetup<T>(
     });
 
     let reactive: Reactive<T>;
-
     if (Reactive.is(instance)) {
       reactive = instance;
     } else {
       reactive = Formula(instance, desc);
     }
 
-    // const renderer = TIMELINE.render(reactive, () => setNotify({}), desc);
+    lifecycle.on.layout(() => {
+      const renderer = TIMELINE.on.change(
+        reactive,
+        () => {
+          setNotify({});
+        },
+        desc
+      );
 
-    lifecycle.on.cleanup(() => {
-      LIFETIME.finalize(renderer);
+      lifecycle.on.cleanup(() => {
+        LIFETIME.finalize(renderer);
+      });
     });
 
     return reactive;

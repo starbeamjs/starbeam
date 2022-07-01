@@ -1,6 +1,24 @@
-import type { ReactElement } from "react";
+/* eslint-disable */
+
+import { TIMELINE } from "@starbeam/core";
+import { entryPoint } from "@starbeam-workspace/test-utils";
+import * as testing from "@testing-library/react";
+import { getByRole, getByText, waitFor } from "@testing-library/react";
+import {
+  type FunctionComponent,
+  type ReactElement,
+  createElement,
+  StrictMode,
+} from "react";
+import { expect, test } from "vitest";
+
+import { react } from "./dom.js";
+import { act } from "./act.js";
 
 class Mode {
+  static strict = new Mode("strict");
+  static loose = new Mode("loose");
+
   #mode: "strict" | "loose";
 
   constructor(mode: "strict" | "loose") {
@@ -16,17 +34,270 @@ class Mode {
   }
 }
 
-class TestRender<Props, T> {
-  #values: T[] = [];
-  #render: (props: Props) => ReactElement;
+class RenderState<T> {
+  static getValue<T>(state: RenderState<T>): T {
+    if (state.#values.length === 0) {
+      throw new Error(
+        "Attempted to get last render value, but no value was set"
+      );
+    }
 
-  test(render: (props: Props) => ReactElement): void {}
+    const value = state.#values[state.#values.length - 1];
+    state.#lastChecked = value;
+    return value;
+  }
+
+  static getLastChecked<T>(state: RenderState<T>): T | undefined {
+    return state.#lastChecked;
+  }
+
+  #values: T[] = [];
+  #lastChecked: T | undefined;
+  #renderCount = 0;
+
+  value(value: T) {
+    this.#values.push(value);
+  }
+
+  rendered() {
+    this.#renderCount++;
+  }
+
+  get renderCount(): number {
+    return this.#renderCount;
+  }
 }
 
-type TestModes = (mode: Mode, render: TestRender) => ReactElement;
+class RenderResult<Props, T> {
+  static getValue<T>(result: RenderResult<any, T>): T {
+    return RenderState.getValue(result.#state);
+  }
 
-export function testModes(modes: TestModes) {}
+  static getLastChecked<T>(result: RenderResult<any, T>): T | undefined {
+    return RenderState.getLastChecked(result.#state);
+  }
 
+  #setup: SetupTestRender<Props, T>;
+  #state: RenderState<T>;
+  #result: testing.RenderResult;
+  #rerender: (props?: Props) => ReactElement;
+
+  constructor(
+    setup: SetupTestRender<Props, T>,
+    state: RenderState<T>,
+    result: testing.RenderResult,
+    rerender: (props?: Props) => ReactElement
+  ) {
+    this.#setup = setup;
+    this.#state = state;
+    this.#result = result;
+    this.#rerender = rerender;
+  }
+
+  get #element(): TestElement<HTMLElement> {
+    return TestElement.create(this.#result.container);
+  }
+
+  get value(): T {
+    return RenderState.getValue(this.#state);
+  }
+
+  async rerender(props?: Props): Promise<RenderResult<Props, T>> {
+    act(() => this.#result.rerender(this.#rerender(props)));
+
+    await TIMELINE.nextIdle();
+
+    return entryPoint(() => {
+      SetupTestRender.assert(this.#setup, this);
+
+      return this;
+    });
+  }
+
+  async act(behavior: () => void): Promise<void> {
+    act(behavior);
+    await this.rendered();
+  }
+
+  async rendered(): Promise<void> {
+    const current = this.#state.renderCount;
+
+    await testing.waitFor(() => {
+      expect(this.#state.renderCount).toBeGreaterThan(current);
+    });
+  }
+
+  unmount(): Promise<void> {
+    this.#result.unmount();
+    return TIMELINE.nextIdle();
+  }
+
+  find(role: testing.ByRoleMatcher, options?: testing.ByRoleOptions) {
+    return this.#element.find(role, options);
+  }
+
+  findByText(
+    id: testing.Matcher,
+    options?: testing.SelectorMatcherOptions
+  ): TestElement<HTMLElement> {
+    return this.#element.findByText(id, options);
+  }
+
+  get innerHTML(): string {
+    return this.#element.innerHTML;
+  }
+
+  get textContent(): string {
+    return this.#element.textContent ?? "";
+  }
+
+  raw<T>(callback: (element: HTMLElement) => T): T {
+    return this.#element.raw(callback);
+  }
+}
+
+class SetupTestRender<Props, T> {
+  static assert<T>(
+    render: SetupTestRender<any, T>,
+    result: RenderResult<any, T>
+  ): void {
+    if (render.#expectHtml) {
+      expect(result.innerHTML).toBe(
+        render.#expectHtml(RenderResult.getValue(result))
+      );
+    }
+
+    if (render.#expectStable) {
+      const lastChecked = RenderResult.getLastChecked(result);
+      const current = RenderResult.getValue(result);
+
+      if (lastChecked === undefined || current === undefined) {
+        if (lastChecked !== current) {
+          console.error("Expected current value to equal last checked value", {
+            lastChecked,
+            current,
+          });
+          throw new Error(
+            "Expected stable value to be equal to last checked value"
+          );
+        }
+
+        return;
+      }
+
+      expect(render.#expectStable(current)).toBe(
+        render.#expectStable(lastChecked)
+      );
+    }
+  }
+
+  #expectHtml: undefined | ((value: T) => string);
+  #expectStable: undefined | ((value: T) => unknown);
+  #options: testing.RenderOptions;
+
+  constructor(options: testing.RenderOptions) {
+    this.#options = options;
+  }
+
+  render(
+    this: SetupTestRender<RenderState<void>, T>,
+    render: (state: RenderState<T>, props?: void) => ReactElement,
+    props?: void
+  ): Promise<RenderResult<void, T>>;
+  render(
+    render: (state: RenderState<T>, props: Props) => ReactElement,
+    props: Props
+  ): Promise<RenderResult<Props, T>>;
+  async render(
+    this: SetupTestRender<RenderState<any>, any>,
+    render: (state: RenderState<any>, props?: any) => ReactElement,
+    props?: any
+  ): Promise<RenderResult<any, T>> {
+    const result = entryPoint(() => {
+      const state = new RenderState<T>();
+
+      const Component = (props: any): ReactElement => {
+        state.rendered();
+        return render(state, props);
+      };
+
+      const result = act(() =>
+        testing.render(react.render(Component, props), this.#options)
+      );
+      const renderResult = new RenderResult(
+        this,
+        state,
+        result,
+        (updatedProps?: any) => react.render(Component, updatedProps ?? props)
+      );
+
+      return renderResult;
+    }) as unknown as RenderResult<Props, T>;
+
+    await TIMELINE.nextIdle();
+
+    entryPoint(() => {
+      SetupTestRender.assert(this, result);
+    });
+
+    return result;
+  }
+
+  expectHTML(expectHtml: (value: T) => string): this {
+    this.#expectHtml = expectHtml;
+    return this;
+  }
+
+  expectStable(expectStable: (value: T) => unknown = (value) => value): this {
+    this.#expectStable = expectStable;
+    return this;
+  }
+}
+
+type TestModes<Props, T> = (
+  mode: Mode,
+  render: SetupTestRender<Props, T>
+) => void | Promise<void>;
+
+export function testStrictAndLoose<Props, T>(
+  name: string,
+  modes: TestModes<Props, T>
+) {
+  testStrictAndLoose.strict(name, modes);
+  testStrictAndLoose.loose(name, modes);
+}
+
+testStrictAndLoose.strict = <Props, T>(
+  name: string,
+  modes: TestModes<Props, T>
+) => {
+  test(`${name} (strict mode)`, async () => {
+    const setup = new SetupTestRender<Props, T>({ wrapper: StrictMode });
+    return modes(Mode.strict, setup);
+  });
+};
+
+testStrictAndLoose.loose = <Props, T>(
+  name: string,
+  modes: TestModes<Props, T>
+) => {
+  test(`${name} (loose mode)`, async () => {
+    const setup = new SetupTestRender<Props, T>({});
+    return modes(Mode.loose, setup);
+  });
+};
+
+type BoundFireObject = {
+  [P in keyof testing.FireObject]: testing.FireObject[P] extends (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    element: any,
+    ...args: infer Args
+  ) => infer Return
+    ? (...args: Args) => Promise<Return>
+    : never;
+};
+
+// #region commented1
 // import { entryPoint, UNINITIALIZED } from "@starbeam-workspace/test-utils";
 // import {
 //   type ByRoleMatcher,
@@ -83,87 +354,78 @@ export function testModes(modes: TestModes) {}
 //     ? (...args: Args) => Promise<Return>
 //     : never;
 // };
+// #endregion
 
-// export class TestElement<E extends Element> {
-//   static create<E extends Element>(
-//     element: E,
-//     assert: () => void
-//   ): TestElement<E> {
-//     return new TestElement(element, assert);
-//   }
+export class TestElement<E extends Element> {
+  static create<E extends Element>(element: E): TestElement<E> {
+    return new TestElement(element);
+  }
 
-//   readonly #element: E;
-//   readonly #assert: () => void;
+  readonly #element: E;
 
-//   readonly fire: {
-//     [P in keyof FireObject]: FireObject[P] extends (
-//       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//       element: any,
-//       ...args: infer Args
-//     ) => infer Return
-//       ? (...args: Args) => Promise<Return>
-//       : never;
-//   };
+  readonly fire: {
+    [P in keyof testing.FireObject]: testing.FireObject[P] extends (
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      element: any,
+      ...args: infer Args
+    ) => infer Return
+      ? (...args: Args) => Promise<Return>
+      : never;
+  };
 
-//   constructor(element: E, assert: () => void) {
-//     this.#element = element;
-//     this.#assert = assert;
+  constructor(element: E) {
+    this.#element = element;
 
-//     const fire: Partial<BoundFireObject> = {};
+    const fire: Partial<BoundFireObject> = {};
 
-//     for (const [key, value] of Object.entries(fireEvent)) {
-//       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-//       fire[key as keyof BoundFireObject] = this.#bind(value);
-//     }
+    for (const [key, value] of Object.entries(testing.fireEvent)) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      fire[key as keyof BoundFireObject] = this.#bind(value);
+    }
 
-//     this.fire = fire as BoundFireObject;
-//   }
+    this.fire = fire as BoundFireObject;
+  }
 
-//   #bind(method: FireObject[keyof FireObject]) {
-//     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//     return async (...args: any) => {
-//       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-//       const result = method(this.#element, ...args);
-//       await TIMELINE.nextIdle();
-//       entryPoint(() => this.#assert());
-//       return result;
-//     };
-//   }
+  #bind(method: testing.FireObject[keyof testing.FireObject]) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return async (...args: any) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      const result = method(this.#element, ...args);
+      await TIMELINE.nextIdle();
+      return result;
+    };
+  }
 
-//   find(
-//     this: TestElement<HTMLElement>,
-//     role: ByRoleMatcher,
-//     options?: ByRoleOptions
-//   ) {
-//     return TestElement.create(
-//       getByRole(this.#element, role, options),
-//       this.#assert
-//     );
-//   }
+  find(
+    this: TestElement<HTMLElement>,
+    role: testing.ByRoleMatcher,
+    options?: testing.ByRoleOptions
+  ) {
+    return TestElement.create(getByRole(this.#element, role, options));
+  }
 
-//   findByText(
-//     this: TestElement<HTMLElement>,
-//     id: Matcher,
-//     options?: SelectorMatcherOptions
-//   ): TestElement<HTMLElement> {
-//     return TestElement.create(
-//       getByText(this.#element, id, options),
-//       this.#assert
-//     );
-//   }
+  findByText(
+    this: TestElement<HTMLElement>,
+    id: testing.Matcher,
+    options?: testing.SelectorMatcherOptions
+  ): TestElement<HTMLElement> {
+    return TestElement.create(getByText(this.#element, id, options));
+  }
 
-//   get innerHTML(): string {
-//     return this.#element.innerHTML;
-//   }
+  get innerHTML(): string {
+    return this.#element.innerHTML;
+  }
 
-//   get textContent(): string {
-//     return this.#element.textContent ?? "";
-//   }
+  get textContent(): string {
+    return this.#element.textContent ?? "";
+  }
 
-//   raw<T>(callback: (element: E) => T): T {
-//     return callback(this.#element);
-//   }
-// }
+  raw<T>(callback: (element: E) => T): T {
+    return callback(this.#element);
+  }
+}
+
+// #region commented
 
 // export class RenderResult<Props, T> {
 //   // static render<Props, T>(
@@ -669,12 +931,11 @@ export function testModes(modes: TestModes) {}
 //     await callback(new Mode("loose"));
 //   });
 // };
+// #endregion
 
-// export function strictElement<Props extends object>(
-//   component: FunctionComponent<Props>,
-//   props?: Props
-// ) {
-//   return createElement(StrictMode, null, createElement(component, props));
-// }
-
-function testModes();
+export function strictElement<Props extends object>(
+  component: FunctionComponent<Props>,
+  props?: Props
+) {
+  return createElement(StrictMode, null, createElement(component, props));
+}

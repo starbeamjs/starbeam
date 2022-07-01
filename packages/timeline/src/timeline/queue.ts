@@ -29,14 +29,13 @@ export class Queue {
   }
 
   static idle(): Promise<void> {
-    if (Queue.#current.#isEmpty()) {
-      return Promise.resolve();
+    if (Queue.#current.#hasPendingWork()) {
+      return Queue.#current.#defer.promise;
     }
-    return Queue.#current.#defer.promise;
+    return Promise.resolve();
   }
 
-  #phase: "pending" | "started" | "actions" | "render" | "afterRender" =
-    "pending";
+  #phase: "idle" | "started" | "actions" | "render" | "afterRender" = "idle";
   readonly #actions: Set<() => void> = new Set();
   readonly #renders: Set<() => void> = new Set();
   readonly #afterRender: Set<() => void> = new Set();
@@ -48,6 +47,15 @@ export class Queue {
       this.#renders.size === 0 &&
       this.#afterRender.size === 0
     );
+  }
+
+  /**
+   * This returns true if there are no current actions or renders enqueued. It returns false if
+   * there are any enqueued `afterRender`s, because those wait for a render to occur, and don't, on
+   * their own, trigger a flush.
+   */
+  #hasPendingWork() {
+    return this.#phase !== "idle";
   }
 
   action(...notifications: (() => void)[]): void {
@@ -82,7 +90,7 @@ export class Queue {
    * `flush`, but only does anything if the phase is `pending`.
    */
   #start() {
-    if (this.#phase === "pending") {
+    if (this.#phase === "idle") {
       this.#phase = "started";
 
       queueMicrotask(() => {
@@ -98,10 +106,6 @@ export class Queue {
   //     fulfillParent();
   //   }
   // }
-
-  #hasPendingWork() {
-    return !this.#isEmpty();
-  }
 
   #flushActions() {
     if (this.#actions.size > 0) {
@@ -142,13 +146,7 @@ export class Queue {
   }
 
   #flush() {
-    // If the queue is empty, then don't do anything. In particular, we definitely don't want to
-    // resolve the `idle` promise if nothing at all happened.
-    if (this.#isEmpty()) {
-      return;
-    }
-
-    while (this.#hasPendingWork()) {
+    while (!this.#isEmpty()) {
       while (this.#actions.size > 0 || this.#renders.size > 0) {
         // flush actions until they're empty
         this.#flushActions();
@@ -163,9 +161,10 @@ export class Queue {
 
     // resolve the "idle queue" promise
     this.#defer.fulfill();
+
     // create a new defer for the next phase
     this.#defer = defer<void>();
-    this.#phase = "pending";
+    this.#phase = "idle";
   }
 }
 

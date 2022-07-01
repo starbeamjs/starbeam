@@ -1,43 +1,86 @@
 // @vitest-environment jsdom
 
+import { type Ref, useUpdatingRef } from "@starbeam/use-strict-lifecycle";
 import {
+  html,
   react,
   testStrictAndLoose,
 } from "@starbeam-workspace/react-test-utils";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { expect } from "vitest";
 
-import { useUpdatingRef } from "../src/updating-ref.js";
+testStrictAndLoose<void, { count: number; state: string }>(
+  "testStrictAndLoose (testing the test infra)",
+  async (mode, test) => {
+    await test
+      .expectHTML(
+        ({ count, state }) => `<p>count = ${count}</p><p>state = ${state}</p>`
+      )
+      .render((test) => {
+        const count = useRef(0);
+        const [state, setState] = useState("initial");
 
-testStrictAndLoose("useUpdatingRef", (mode) => {
-  const result = mode
-    .test(() => {
-      const ref = useUpdatingRef({
-        initial: () => ({ count: 0 }),
-        update: (counter) => {
-          counter.count++;
-          return counter;
-        },
+        useLayoutEffect(() => {
+          setState("layout:setup");
+          test.value({ count: count.current, state });
+
+          return () => {
+            test.value({ count: count.current, state });
+            setState("layout:cleanup");
+          };
+        }, []);
+
+        useEffect(() => {
+          test.value({ count: count.current, state });
+          setState("effect:setup");
+
+          return () => {
+            test.value({ count: count.current, state });
+            setState("effect:cleanup");
+          };
+        }, []);
+
+        test.value({ count: count.current, state });
+
+        return react.fragment(
+          html.p("count = ", String(count.current)),
+          html.p("state = ", state)
+        );
       });
+  }
+);
 
-      return {
-        value: ref,
-        dom: react.fragment(ref.current.count),
-      };
-    })
-    .expectStableValue()
-    .expectHTML(({ current: counter }) => `${counter.count}`);
+testStrictAndLoose<void, Ref<{ count: number }>>(
+  "useUpdatingRef",
+  async (mode, test) => {
+    const result = await test
+      .expectStable((value) => value)
+      .expectHTML((ref) => `${ref.current.count}`)
+      .render((test) => {
+        const ref = useUpdatingRef({
+          initial: () => ({ count: 0 }),
+          update: (counter) => {
+            counter.count++;
+            return counter;
+          },
+        });
 
-  const ref = result.value;
+        test.value(ref);
 
-  expect(result.count).toBe(mode.match({ strict: () => 2, loose: () => 1 }));
-  expect(ref.current.count).toBe(0);
+        return react.fragment(ref.current.count);
+      }, undefined);
 
-  result.rerender();
+    const ref = result.value;
 
-  expect(ref.current.count).toBe(
-    mode.match({
-      loose: () => 1,
-      strict: () => 2,
-    })
-  );
-});
+    expect(ref.current.count).toBe(0);
+
+    await result.rerender();
+
+    expect(ref.current.count).toBe(
+      mode.match({
+        loose: () => 1,
+        strict: () => 2,
+      })
+    );
+  }
+);

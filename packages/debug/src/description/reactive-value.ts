@@ -149,7 +149,7 @@ export abstract class AbstractDescription implements DescriptionArgs {
         return `${this.#name.parent.fullName}${this.name}`;
       }
     } else {
-      return `{anonymous ${this.type}}`;
+      return `{anonymous ${this.type} @ ${this.#caller}}`;
     }
   }
 

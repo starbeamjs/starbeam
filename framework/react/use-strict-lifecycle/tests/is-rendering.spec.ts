@@ -1,66 +1,68 @@
 // @vitest-environment jsdom
 
+import { isRendering, useLifecycle } from "@starbeam/use-strict-lifecycle";
 import { html, testStrictAndLoose } from "@starbeam-workspace/react-test-utils";
 import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { expect } from "vitest";
 
-import { isRendering } from "../src/react.js";
-import { useLifecycle } from "../src/resource.js";
+testStrictAndLoose<void, boolean>("useResource", async (mode, test) => {
+  const result = await test
+    .expectHTML((value) => `<p>isRendering = ${String(value)}</p>`)
+    .render((state) => {
+      expect(isRendering(), "isRendering at the top level").toBe(true);
 
-testStrictAndLoose("useResource", (mode) => {
-  const result = mode.test(() => {
-    expect(isRendering()).toBe(true);
+      const [rendering] = useState(() => {
+        return isRendering();
+      });
 
-    const [rendering] = useState(() => {
-      return isRendering();
-    });
+      expect(rendering, "isRendering in a useState callback").toBe(true);
 
-    expect(rendering).toBe(true);
+      const renderingMemo = useMemo(() => {
+        return isRendering();
+      }, []);
 
-    const renderingMemo = useMemo(() => {
-      return isRendering();
-    }, []);
+      expect(renderingMemo, "isRendering in a useMemo").toBe(true);
 
-    expect(renderingMemo).toBe(true);
+      useLayoutEffect(() => {
+        expect(isRendering(), "isRendering in useLayoutEffect").toBe(false);
 
-    useLayoutEffect(() => {
-      expect(isRendering()).toBe(false);
+        return () => {
+          expect(isRendering()).toBe(false);
+        };
+      });
 
-      return () => {
+      useEffect(() => {
         expect(isRendering()).toBe(false);
-      };
-    });
 
-    useEffect(() => {
-      expect(isRendering()).toBe(false);
+        return () => {
+          expect(isRendering()).toBe(false);
+        };
+      });
 
-      return () => {
-        expect(isRendering()).toBe(false);
-      };
-    });
-
-    useLifecycle((lifecycle) => {
-      expect(isRendering()).toBe(true);
-
-      lifecycle.on.update(() => {
+      useLifecycle((lifecycle) => {
         expect(isRendering()).toBe(true);
+
+        lifecycle.on.update(() => {
+          expect(isRendering()).toBe(true);
+        });
+
+        lifecycle.on.layout(() => {
+          expect(isRendering()).toBe(false);
+        });
+
+        lifecycle.on.idle(() => {
+          expect(isRendering()).toBe(false);
+        });
+
+        lifecycle.on.cleanup(() => {
+          expect(isRendering()).toBe(false);
+        });
       });
 
-      lifecycle.on.layout(() => {
-        expect(isRendering()).toBe(false);
-      });
+      state.value(isRendering());
 
-      lifecycle.on.idle(() => {
-        expect(isRendering()).toBe(false);
-      });
-
-      lifecycle.on.cleanup(() => {
-        expect(isRendering()).toBe(false);
-      });
+      return html.p("isRendering = ", String(isRendering()));
     });
-
-    return { value: isRendering(), dom: html.p("Rendering") };
-  });
 
   expect(result.value).toBe(true);
 });

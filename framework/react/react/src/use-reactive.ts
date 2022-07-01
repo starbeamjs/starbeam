@@ -33,12 +33,14 @@ export function useReactive<T>(
     const formula = Formula(() => {
       reactiveDeps.consume();
       return compute();
-    });
+    }, desc);
 
-    const renderer = TIMELINE.render(formula, () => setNotify({}), desc);
+    lifecycle.on.layout(() => {
+      const renderer = TIMELINE.on.change(formula, () => setNotify({}), desc);
 
-    lifecycle.on.cleanup(() => {
-      LIFETIME.finalize(renderer);
+      lifecycle.on.cleanup(() => {
+        LIFETIME.finalize(renderer);
+      });
     });
 
     return formula;
@@ -62,7 +64,7 @@ function normalizeArgs(
   } else {
     return {
       dependencies: dependencies as unknown[],
-      description: Stack.description(description, 1),
+      description: Stack.description(description, 2),
     };
   }
 }

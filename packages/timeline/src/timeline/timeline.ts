@@ -163,7 +163,13 @@ export class Timeline implements RenderableOperations {
     render: () => void,
     description?: string | DescriptionArgs
   ): Renderable<T> {
-    const ready = () => Queue.enqueueRender(render);
+    const ready = () => {
+      if (this.#renderables.isRemoved(renderable as Renderable<unknown>)) {
+        return;
+      }
+
+      return Queue.enqueueRender(render);
+    };
 
     const renderable = Renderable.create(
       input,
@@ -173,7 +179,7 @@ export class Timeline implements RenderableOperations {
     );
     this.#renderables.insert(renderable as Renderable<unknown>);
 
-    renderable.poll();
+    // renderable.poll();
     return renderable;
   }
 
@@ -203,9 +209,9 @@ export class Timeline implements RenderableOperations {
     },
   } as const;
 
-  assert = {
-    readonly: (assertion: () => void): (() => void) => {},
-  };
+  // assert = {
+  //   readonly: (assertion: () => void): (() => void) => {},
+  // };
 
   attach(
     notify: () => void,

@@ -16,21 +16,26 @@ export class Renderables implements RenderableOperations {
     this.#internalsMap = internals;
   }
 
-  prune(renderable: Renderable<unknown>) {
-    const dependencies = Renderable.dependencies(renderable);
+  isRemoved(renderable: Renderable<unknown>): boolean {
+    return this.#internalsMap.isRemoved(renderable);
+  }
 
-    for (const dependency of dependencies) {
-      this.#internalsMap.delete(dependency, renderable);
-    }
+  prune(renderable: Renderable<unknown>) {
+    this.#internalsMap.remove(renderable);
+    // for (const [key, value] of this.#internalsMap) {
+    //   if (value === renderable) {
+    //     this.#internalsMap.delete(key);
+
+    // const dependencies = Renderable.dependencies(renderable);
+
+    // for (const dependency of dependencies) {
+    //   this.#internalsMap.delete(dependency, renderable);
+    // }
   }
 
   bumped(dependency: MutableInternals): void {
-    const renderables = this.#internalsMap.get(dependency);
-
-    if (renderables) {
-      for (const renderable of renderables) {
-        Renderable.notifyReady(renderable);
-      }
+    for (const renderable of this.#internalsMap.get(dependency)) {
+      Renderable.notifyReady(renderable);
     }
   }
 

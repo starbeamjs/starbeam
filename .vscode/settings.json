@@ -34,5 +34,10 @@
   "[dotenv]": {
     "editor.defaultFormatter": "foxundermoon.shell-format"
   },
-  "testing.automaticallyOpenPeekView": "never"
+  "editor.fontWeight": "normal",
+  "workbench.colorTheme": "Visual Studio Light",
+  "customPresentationMode.backup": {
+    "workbench.colorTheme": "Visual Studio Light",
+    "editor.fontWeight": "normal"
+  }
 }

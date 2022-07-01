@@ -6,9 +6,12 @@ overrides:
   vitest: ^0.16.0
   '@vitest/ui': ^0.16.0
   vue: ^3.2.37
-  react: ^18.1.0
+  react: ^18.2.0
+  react-dom: ^18.2.0
   '@types/react': ^18.0.10
   '@types/react-dom': ^18.0.5
+
+patchedDependencies: {}
 
 importers:
 
@@ -199,8 +202,8 @@ importers:
       firebase: ^9.8.2
       lit: ^2.2.5
       purecss: ^2.1.0
-      react: ^18.1.0
-      react-dom: ^18.1.0
+      react: ^18.2.0
+      react-dom: ^18.2.0
       rollup: ^2.75.5
       vite: ^2.9.9
       vite-plugin-fonts: ^0.4.0
@@ -240,8 +243,8 @@ importers:
       '@types/react-dom': ^18.0.5
       esbuild: ^0.14.42
       purecss: ^2.1.0
-      react: ^18.1.0
-      react-dom: ^18.1.0
+      react: ^18.2.0
+      react-dom: ^18.2.0
       rollup: ^2.75.5
       vite: ^2.9.9
       vite-plugin-fonts: ^0.4.0
@@ -282,8 +285,8 @@ importers:
       firebase: ^9.8.2
       lit: ^2.2.5
       purecss: ^2.1.0
-      react: ^18.1.0
-      react-dom: ^18.1.0
+      react: ^18.2.0
+      react-dom: ^18.2.0
       rollup: ^2.75.5
       vite: ^2.9.9
       vite-plugin-fonts: ^0.4.0
@@ -325,8 +328,8 @@ importers:
       '@starbeam/verify': workspace:*
       '@types/react': ^18.0.10
       '@types/use-sync-external-store': ts4.6
-      react: ^18.1.0
-      react-dom: ^18.1.0
+      react: ^18.2.0
+      react-dom: ^18.2.0
       typescript: 4.8.0-dev.20220627
       use-sync-external-store: rc
     dependencies:
@@ -353,32 +356,36 @@ importers:
       '@starbeam/core': workspace:*
       '@starbeam/js': workspace:*
       '@starbeam/react': workspace:*
+      '@testing-library/react': ^13.3.0
     dependencies:
       '@starbeam-workspace/react-test-utils': link:../../test-utils
       '@starbeam/core': link:../../../../packages/core
       '@starbeam/js': link:../../../../packages/js
       '@starbeam/react': link:..
+      '@testing-library/react': 13.3.0_biqbaboplfbrettd7655fr4n2y
 
   framework/react/test-utils:
     specifiers:
       '@starbeam-workspace/test-utils': workspace:*
+      '@starbeam/core': workspace:*
       '@starbeam/core-utils': workspace:*
-      '@starbeam/peer': workspace:*
+      '@starbeam/timeline': workspace:*
       '@testing-library/react': ^13.3.0
       '@types/react': ^18.0.10
       '@types/react-dom': ^18.0.5
-      react: ^18.1.0
+      react: ^18.2.0
       react-dom: ^18.2.0
     dependencies:
       '@starbeam-workspace/test-utils': link:../../../packages/test-utils
+      '@starbeam/core': link:../../../packages/core
       '@starbeam/core-utils': link:../../../packages/core-utils
-      '@starbeam/peer': link:../../../packages/peer
+      '@starbeam/timeline': link:../../../packages/timeline
       '@testing-library/react': 13.3.0_biqbaboplfbrettd7655fr4n2y
-      react: 18.2.0
-      react-dom: 18.2.0_react@18.2.0
     devDependencies:
       '@types/react': 18.0.14
       '@types/react-dom': 18.0.5
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
 
   framework/react/use-strict-lifecycle:
     specifiers:
@@ -392,8 +399,8 @@ importers:
       expect: ^27.5.1
       jest: ^27.5.1
       jsdom: ^19.0.0
-      react: ^18.1.0
-      react-dom: ^18.1.0
+      react: ^18.2.0
+      react-dom: ^18.2.0
       shell-escape-tag: ^2.0.2
       shelljs: ^0.8.5
     devDependencies:
@@ -415,10 +422,21 @@ importers:
   framework/react/use-strict-lifecycle/tests:
     specifiers:
       '@starbeam-workspace/react-test-utils': workspace:*
+      '@starbeam/peer': workspace:*
       '@starbeam/use-strict-lifecycle': workspace:*
+      '@types/react': ^18.0.10
+      '@types/react-dom': ^18.0.5
+      react: ^18.2.0
+      react-dom: ^18.2.0
     dependencies:
       '@starbeam-workspace/react-test-utils': link:../../test-utils
+      '@starbeam/peer': link:../../../../packages/peer
       '@starbeam/use-strict-lifecycle': link:..
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+    devDependencies:
+      '@types/react': 18.0.14
+      '@types/react-dom': 18.0.5
 
   packages/bundle:
     specifiers:
@@ -537,8 +555,6 @@ importers:
       '@testing-library/user-event': ^13.5.0
       '@types/react': ^18.0.10
       '@types/react-dom': ^18.0.5
-      react: ^18.1.0
-      react-dom: ^18.0.0-rc.3
     dependencies:
       '@starbeam/debug': link:../debug
       '@testing-library/dom': 8.14.0
@@ -546,8 +562,6 @@ importers:
       '@testing-library/user-event': 13.5.0_ihvo3xlg2d6kwqju3os3zitn3y
       '@types/react': 18.0.14
       '@types/react-dom': 18.0.5
-      react: 18.2.0
-      react-dom: 18.2.0_react@18.2.0
 
   packages/timeline:
     specifiers:

@@ -11,27 +11,37 @@ import { useState } from "react";
 import { describe, expect } from "vitest";
 
 describe("useReactive", () => {
-  testStrictAndLoose.loose("useReactive", async (mode) => {
-    const result = await mode
-      .test(() => {
-        const [reactCount, setReactCount] = useState(0);
+  testStrictAndLoose<void, { starbeam: number; react: number }>(
+    "useReactive",
+    async (mode, test) => {
+      const result = await test
+        .expectStable()
+        .expectHTML(
+          (count) =>
+            `<p>${count.starbeam} + ${count.react} = ${
+              count.starbeam + count.react
+            }</p><label><span>Increment</span><button>++Starbeam++</button><button>++React++</button></label>`
+        )
 
-        const { count, increment } = useSetup(() => {
-          const cell = Cell(0);
+        .render((test) => {
+          const [reactCount, setReactCount] = useState(0);
 
-          function increment() {
-            cell.update((count) => count + 1);
-          }
+          const { count, increment } = useSetup(() => {
+            const cell = Cell(0);
 
-          return () => ({
-            count: cell,
-            increment,
+            function increment() {
+              cell.update((count) => count + 1);
+            }
+
+            return () => ({
+              count: cell,
+              increment,
+            });
           });
-        });
 
-        return {
-          value: { starbeam: count.current, react: reactCount },
-          dom: useReactive(() =>
+          test.value({ starbeam: count.current, react: reactCount });
+
+          return useReactive(() =>
             react.fragment(
               html.p(
                 count.current,
@@ -49,23 +59,16 @@ describe("useReactive", () => {
                 )
               )
             )
-          ),
-        };
-      })
-      .expectStableValue()
-      .expectHTML(
-        (count) =>
-          `<p>${count.starbeam} + ${count.react} = ${
-            count.starbeam + count.react
-          }</p><label><span>Increment</span><button>++Starbeam++</button><button>++React++</button></label>`
-      )
-      .render();
+          );
+        });
 
-    expect(result.value).toEqual({ starbeam: 0, react: 0 });
-    await result.findByText("++Starbeam++").fire.click();
-  });
+      expect(result.value).toEqual({ starbeam: 0, react: 0 });
+      await result.findByText("++Starbeam++").fire.click();
+    }
+  );
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class TestResource {
   static #nextId = 0;
 

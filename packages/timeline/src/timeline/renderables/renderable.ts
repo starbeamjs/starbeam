@@ -83,10 +83,6 @@ export class Renderable<T = unknown> implements ReactiveProtocol {
   }
 
   static flush<T>(renderable: Renderable<T>): Diff<T> {
-    if (!(renderable instanceof Renderable)) {
-      console.log("renderable", renderable);
-    }
-
     return renderable.#flush();
   }
 
