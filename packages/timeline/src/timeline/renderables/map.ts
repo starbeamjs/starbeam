@@ -7,7 +7,8 @@ export class RenderableMap {
   }
 
   #map: WeakMap<MutableInternals, Set<Renderable>>;
-  #removed: WeakSet<Renderable>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  #removed: WeakSet<Renderable<any>>;
 
   constructor(
     map: WeakMap<MutableInternals, Set<Renderable>>,
@@ -17,7 +18,7 @@ export class RenderableMap {
     this.#removed = removed;
   }
 
-  remove(renderable: Renderable): void {
+  remove<T>(renderable: Renderable<T>): void {
     this.#removed.add(renderable);
   }
 

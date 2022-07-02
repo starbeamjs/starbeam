@@ -39,5 +39,6 @@
   "customPresentationMode.backup": {
     "workbench.colorTheme": "Visual Studio Light",
     "editor.fontWeight": "normal"
-  }
+  },
+  "testing.automaticallyOpenPeekView": "never"
 }

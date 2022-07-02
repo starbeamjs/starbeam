@@ -296,6 +296,10 @@ export class ImplementationDescription extends AbstractDescription {
   userFacing(): UserFacingDescription {
     return this.#implementation.userFacing;
   }
+
+  describe(options?: { source?: boolean }): string {
+    return super.describe(options) + `(${this.#implementation.reason})`;
+  }
 }
 
 export interface CreateDescription extends DescriptionArgs {

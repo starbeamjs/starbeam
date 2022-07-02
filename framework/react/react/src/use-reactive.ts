@@ -1,42 +1,40 @@
-import { Formula, LIFETIME, TIMELINE } from "@starbeam/core";
-import { type DescriptionArgs, Stack } from "@starbeam/debug";
+import { LIFETIME, PolledFormula, TIMELINE } from "@starbeam/core";
+import { Stack } from "@starbeam/debug";
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
 import { useState } from "react";
-
-import { useDeps } from "./utils.js";
 
 /**
  * {@linkcode useReactive} is a Starbeam renderer that computes a value from reactive values and
  * automatically notifies React when the inputs change.
+ *
+ * It doesn't memoize the value, so if the component re-renders, the value will be recomputed. This
+ * means that you can use normal React values in the formula without declaring any dependencies, but
+ * still get notified if Starbeam dependencies change.
+ *
+ * If you also want to memoize the value, you can use {@linkcode useReactiveMemo}.
  */
-export function useReactive<T>(
-  compute: () => T,
-  dependencies?: unknown[],
-  description?: string
-): T;
-export function useReactive<T>(compute: () => T, description?: string): T;
-export function useReactive<T>(
-  compute: () => T,
-  dependencies?: unknown[] | string,
-  description?: string
-): T {
-  const { dependencies: deps, description: desc } = normalizeArgs(
-    dependencies,
-    description
-  );
-
-  const reactiveDeps = useDeps(deps ?? [], desc);
+export function useReactive<T>(compute: () => T, description?: string): T {
+  const desc = Stack.description(description);
 
   const [, setNotify] = useState({});
 
-  const formula = useLifecycle((lifecycle) => {
-    const formula = Formula(() => {
-      reactiveDeps.consume();
+  const formula = useLifecycle(compute, (lifecycle) => {
+    const formula = PolledFormula(() => {
       return compute();
     }, desc);
 
+    lifecycle.on.update((compute) => {
+      formula.update(compute);
+    });
+
     lifecycle.on.layout(() => {
-      const renderer = TIMELINE.on.change(formula, () => setNotify({}), desc);
+      const renderer = TIMELINE.on.change(
+        formula,
+        () => {
+          setNotify({});
+        },
+        desc
+      );
 
       lifecycle.on.cleanup(() => {
         LIFETIME.finalize(renderer);
@@ -49,22 +47,48 @@ export function useReactive<T>(
   return formula.current;
 }
 
-function normalizeArgs(
-  dependencies?: unknown[] | string,
+/**
+ * {@linkcode useReactive} is a Starbeam renderer that computes a value from reactive values and
+ * automatically notifies React when the inputs change.
+ *
+ * It doesn't memoize the value, so if the component re-renders, the value will be recomputed. This
+ * means that you can use normal React values in the formula without declaring any dependencies, but
+ * still get notified if Starbeam dependencies change.
+ */
+export function useReactiveMemo<T>(
+  compute: () => T,
+  dependencies: unknown[],
   description?: string
-): { dependencies?: unknown[]; description?: DescriptionArgs } {
-  if (description === undefined) {
-    if (typeof dependencies === "string") {
-      return { description: Stack.description(dependencies, 1) };
-    } else if (dependencies === undefined) {
-      return {};
-    } else {
-      return { dependencies };
-    }
-  } else {
-    return {
-      dependencies: dependencies as unknown[],
-      description: Stack.description(description, 2),
-    };
-  }
+): T {
+  const desc = Stack.description(description);
+
+  const [, setNotify] = useState({});
+
+  const formula = useLifecycle(compute, (lifecycle) => {
+    const formula = PolledFormula.memo(() => {
+      return compute();
+    }, desc);
+
+    lifecycle.on.update((compute) => {
+      formula.update(compute);
+    });
+
+    lifecycle.on.layout(() => {
+      const renderer = TIMELINE.on.change(
+        formula,
+        () => {
+          setNotify({});
+        },
+        desc
+      );
+
+      lifecycle.on.cleanup(() => {
+        LIFETIME.finalize(renderer);
+      });
+    });
+
+    return formula;
+  });
+
+  return formula.current;
 }

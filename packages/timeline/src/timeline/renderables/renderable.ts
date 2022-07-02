@@ -15,11 +15,8 @@ import {
 // eslint-disable-next-line import/no-cycle
 import { TIMELINE } from "../timeline.js";
 import type { Timestamp } from "../timestamp.js";
+import type { Renderables } from "./renderables.js";
 
-export interface RenderableOperations {
-  prune(renderable: Renderable<unknown>): void;
-  poll<T>(renderable: Renderable<T>): T;
-}
 export interface DevInvalidated {
   readonly dependencies: MutableInternals[];
 }
@@ -44,7 +41,7 @@ export class Renderable<T = unknown> implements ReactiveProtocol {
   static create<T>(
     input: Reactive<T>,
     notify: { readonly ready: (renderable: Renderable<T>) => void },
-    operations: RenderableOperations,
+    renderables: Renderables,
     description: DescriptionArgs
   ): Renderable<T> {
     const initialDependencies = input[REACTIVE].children().dependencies;
@@ -53,15 +50,13 @@ export class Renderable<T = unknown> implements ReactiveProtocol {
       input,
       notify,
       UNINITIALIZED,
-      operations,
+      renderables,
       description,
       new Set(initialDependencies),
       TIMELINE.now
     );
 
-    LIFETIME.on.cleanup(renderable, () =>
-      operations.prune(renderable as Renderable<unknown>)
-    );
+    LIFETIME.on.cleanup(renderable, () => renderables.prune(renderable));
 
     return renderable;
   }
@@ -86,10 +81,24 @@ export class Renderable<T = unknown> implements ReactiveProtocol {
     return renderable.#flush();
   }
 
+  static updateDeps(renderable: Renderable<any>) {
+    const prevDeps = renderable.#dependencies;
+    const nextDeps = new Set(
+      renderable.#input[REACTIVE].children().dependencies
+    );
+
+    renderable.#dependencies = nextDeps;
+    renderable.#lastChecked = TIMELINE.now;
+
+    return diff(prevDeps, nextDeps);
+  }
+
   readonly #input: Reactive<T>;
-  readonly #notify: { readonly ready: (renderable: Renderable<T>) => void };
+  readonly #notify: {
+    readonly ready: (renderable: Renderable<T>) => void;
+  };
   readonly #last: UNINITIALIZED | T;
-  readonly #operations: RenderableOperations;
+  readonly #renderables: Renderables;
   readonly #description: DescriptionArgs;
   #dependencies: Set<MutableInternals>;
 
@@ -100,7 +109,7 @@ export class Renderable<T = unknown> implements ReactiveProtocol {
     input: Reactive<T>,
     notify: { readonly ready: (renderable: Renderable<T>) => void },
     last: UNINITIALIZED | T,
-    operations: RenderableOperations,
+    renderables: Renderables,
     description: DescriptionArgs,
     dependencies: Set<MutableInternals>,
     lastChecked: Timestamp
@@ -108,7 +117,7 @@ export class Renderable<T = unknown> implements ReactiveProtocol {
     this.#input = input;
     this.#dependencies = dependencies;
     this.#last = last;
-    this.#operations = operations;
+    this.#renderables = renderables;
     this.#description = description;
     this.#notify = notify;
     this.#lastChecked = lastChecked;
@@ -116,10 +125,6 @@ export class Renderable<T = unknown> implements ReactiveProtocol {
 
   get [REACTIVE](): ReactiveInternals {
     return this.#input[REACTIVE];
-  }
-
-  poll(): T {
-    return this.#operations.poll(this);
   }
 
   attach(notify: () => void): DebugListener {
@@ -167,6 +172,8 @@ export class Renderable<T = unknown> implements ReactiveProtocol {
     return Tree(...nodes).format();
   }
 
+  // FIXME: Now that formulas update themselves, remove the infrastructure that treats Renderables
+  // as values.
   render():
     | { status: "changed"; prev: T; value: T }
     | { status: "unchanged"; value: T }
@@ -203,16 +210,22 @@ export class Renderable<T = unknown> implements ReactiveProtocol {
   }
 }
 
-export interface Diff<T> {
-  readonly values: {
-    readonly prev: T | UNINITIALIZED;
-    readonly next: T;
-  };
+export interface DependencyDiff {
   readonly add: Set<MutableInternals>;
   readonly remove: Set<MutableInternals>;
 }
 
-function diff(prev: Set<MutableInternals>, next: Set<MutableInternals>) {
+export interface Diff<T> extends DependencyDiff {
+  readonly values: {
+    readonly prev: T | UNINITIALIZED;
+    readonly next: T;
+  };
+}
+
+function diff(
+  prev: Set<MutableInternals>,
+  next: Set<MutableInternals>
+): DependencyDiff {
   const add = new Set<MutableInternals>();
   const remove = new Set<MutableInternals>();
 

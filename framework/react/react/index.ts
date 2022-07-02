@@ -1,7 +1,6 @@
 export * from "./src/element.js";
 export * from "./src/ref.js";
-export { useReactive } from "./src/use-reactive.js";
-export { useReactiveElement } from "./src/use-reactive-element.js";
+export { useReactive, useReactiveMemo } from "./src/use-reactive.js";
 export { useResource } from "./src/use-resource.js";
 export { useSetup } from "./src/use-setup.js";
 export { useStarbeam } from "./src/use-starbeam.js";

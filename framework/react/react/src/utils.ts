@@ -65,7 +65,7 @@ export function useStableVariable<T>(
 export function useDeps<T extends unknown[]>(
   deps: T,
   description?: string | DescriptionArgs
-): { consume: () => void } {
+): { consume: () => void; debug: () => Reactive<unknown>[] } {
   const desc = Stack.description(description);
 
   const dependencies = deps.map((d, i) =>
@@ -73,6 +73,10 @@ export function useDeps<T extends unknown[]>(
   );
 
   return {
+    debug: (): Reactive<unknown>[] => {
+      return dependencies;
+    },
+
     consume: () => {
       dependencies.forEach((d) => d.current);
     },
@@ -83,9 +87,11 @@ export function useProp<T>(
   variable: T,
   description?: string | DescriptionArgs
 ): Reactive<T> {
+  const desc = Stack.description(description);
+
   return useUpdatingVariable({
     initial: () => {
-      return Cell(variable, Stack.description(description, 3));
+      return Cell(variable, desc);
     },
     update: (cell) => {
       cell.set(variable);

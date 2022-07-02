@@ -267,11 +267,20 @@ export function testStrictAndLoose<Props, T>(
   testStrictAndLoose.loose(name, modes);
 }
 
-testStrictAndLoose.strict = <Props, T>(
+testStrictAndLoose.skip = <Props, T>(
   name: string,
   modes: TestModes<Props, T>
 ) => {
-  test(`${name} (strict mode)`, async () => {
+  testStrictAndLoose.strict(name, modes, test.skip);
+  testStrictAndLoose.loose(name, modes, test.skip);
+};
+
+testStrictAndLoose.strict = <Props, T>(
+  name: string,
+  modes: TestModes<Props, T>,
+  testFn: typeof test | typeof test.skip = test
+) => {
+  testFn(`${name} (strict mode)`, async () => {
     const setup = new SetupTestRender<Props, T>({ wrapper: StrictMode });
     return modes(Mode.strict, setup);
   });
@@ -279,9 +288,10 @@ testStrictAndLoose.strict = <Props, T>(
 
 testStrictAndLoose.loose = <Props, T>(
   name: string,
-  modes: TestModes<Props, T>
+  modes: TestModes<Props, T>,
+  testFn: typeof test | typeof test.skip = test
 ) => {
-  test(`${name} (loose mode)`, async () => {
+  testFn(`${name} (loose mode)`, async () => {
     const setup = new SetupTestRender<Props, T>({});
     return modes(Mode.loose, setup);
   });
