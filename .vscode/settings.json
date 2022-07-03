@@ -36,9 +36,5 @@
   },
   "editor.fontWeight": "normal",
   "workbench.colorTheme": "Visual Studio Light",
-  "customPresentationMode.backup": {
-    "workbench.colorTheme": "Visual Studio Light",
-    "editor.fontWeight": "normal"
-  },
   "testing.automaticallyOpenPeekView": "never"
 }

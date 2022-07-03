@@ -34,7 +34,7 @@ class Mode {
   }
 }
 
-class RenderState<T> {
+export class RenderState<T> {
   static getValue<T>(state: RenderState<T>): T {
     if (state.#values.length === 0) {
       throw new Error(
@@ -156,7 +156,7 @@ class RenderResult<Props, T> {
   }
 }
 
-class SetupTestRender<Props, T> {
+export class SetupTestRender<Props, T> {
   static assert<T>(
     render: SetupTestRender<any, T>,
     result: RenderResult<any, T>

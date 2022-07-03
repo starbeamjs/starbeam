@@ -1,12 +1,18 @@
-import { Formula } from "@starbeam/core";
+import { Formula, PolledFormula } from "@starbeam/core";
 import type { DescriptionArgs } from "@starbeam/debug";
 import { Stack } from "@starbeam/debug";
 import type { Renderable } from "@starbeam/timeline";
 import { LIFETIME, TIMELINE } from "@starbeam/timeline";
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
-import { type ReactElement, useState } from "react";
+import {
+  type ReactElement,
+  useRef,
+  useState,
+  type FunctionComponent,
+} from "react";
 
 import { ReactiveElement } from "./element.js";
+import { useSetup } from "./use-setup.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyRecord<T = any> = Record<PropertyKey, T>;
@@ -106,49 +112,25 @@ export function useStarbeam<_T>(
   definition: ReactiveDefinition<ReactElement, void>,
   description?: string | DescriptionArgs
 ): ReactElement {
-  const [, setNotify] = useState({});
   const desc = Stack.description(description);
+  const [, setNotify] = useState({});
+  const last = useRef(null as ReactiveElement | null);
 
-  // We use useResource here because the ReactiveElement we're creating has
-  // teardown logic, which means that we want it to have a *fresh identity* when
-  // this instance of `useReactElement` is reactivated.
-  const resource = useLifecycle<CreatedReactiveElement>((resource, prev) => {
+  return useSetup((setup) => {
     const { element, value } = createReactiveElement({
-      prev: prev?.element ?? null,
+      prev: last.current,
       notify: () => setNotify({}),
     });
 
-    resource.on.cleanup(() => LIFETIME.finalize(element));
-    resource.on.layout(() => ReactiveElement.layout(element));
-    resource.on.idle(() => ReactiveElement.idle(element));
+    last.current = element;
 
-    return { element, value };
+    setup.link(element);
+
+    setup.layout(() => ReactiveElement.layout(element));
+    setup.effect(() => ReactiveElement.idle(element));
+
+    return PolledFormula(definition(element));
   });
-
-  /**
-   * The call to {@link useLifecycle} gave us the `{ component, value }` record
-   * we were working with above.
-   *
-   * In this case, the `value` is the Starbeam memo that produces the
-   * ReactElement.
-   */
-  const renderable = resource.value;
-
-  /**
-   * The whole function returns a ReactElement. Since it's inside of a
-   * {@link Memo}, that means that its computation is auto-tracked.
-   *
-   * If all of the reactive cells used by the render function (its
-   * "dependencies") remain the same, `memo.current` will produce an identical
-   * {@link ReactElement}, and React will skip reconciliation.
-   *
-   * On the other hand, if any of the render function's dependencies have
-   * changed, the memo will produce a fresh {@link ReactElement}, and React will
-   * reconcile it.
-   */
-  const polled = renderable.poll();
-
-  return polled;
 
   function createReactiveElement({
     prev,
@@ -248,6 +230,30 @@ export function useStarbeam<_T>(
      */
     return { element, value: renderable };
   }
+}
+
+export function component<Props>(
+  component: (component: ReactiveElement) => (props: Props) => ReactElement,
+  description?: string | DescriptionArgs
+): (props: Props, context?: any) => ReactElement {
+  const desc = Stack.description(description);
+
+  function Component(props: Props) {
+    return useStarbeam((element) => {
+      const render = component(element);
+      return () => render(props);
+    }, desc);
+  }
+
+  Object.defineProperty(Component, "name", {
+    value:
+      desc.name ??
+      desc.description?.name ??
+      desc.stack?.caller?.display ??
+      "Component",
+  });
+
+  return Component;
 }
 
 interface CreatedReactiveElement {
