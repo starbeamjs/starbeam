@@ -1,5 +1,11 @@
 # @starbeam-workspace/bundle
 
+## 0.0.3
+
+### Patch Changes
+
+- @starbeam/react@0.5.3
+
 ## 0.0.2
 
 ### Patch Changes
