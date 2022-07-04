@@ -1,4 +1,5 @@
 import { type DescriptionArgs, Stack } from "@starbeam/debug";
+import type { Renderable } from "@starbeam/timeline";
 import { TIMELINE } from "@starbeam/timeline";
 
 import { Formula } from "./reactive-core/formula/formula.js";
@@ -13,11 +14,10 @@ export const DEBUG_RENDERER = {
       debug: (value: T) => void;
     },
     description?: DescriptionArgs | string
-  ): void {
+  ): Renderable<T> {
     const formula = Formula(render, Stack.description(description));
-    const renderable = TIMELINE.render(formula, () => {
+    return TIMELINE.render(formula, () => {
       debug(formula.current);
     });
-    renderable.poll();
   },
 };

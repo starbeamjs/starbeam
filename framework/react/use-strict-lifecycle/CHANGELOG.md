@@ -1,4 +1,4 @@
-# @starbeam/use-resource
+# @starbeam/use-strict-lifecycle
 
 ## 0.5.2
 

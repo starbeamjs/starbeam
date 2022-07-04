@@ -1,5 +1,5 @@
 ---
-"@starbeam/use-resource": patch
+"@starbeam/use-strict-lifecycle": patch
 ---
 
-Allow useResource to take no args
+Allow useLifecycle to take no args

@@ -17,7 +17,7 @@ export class TrackedMap<K = unknown, V = unknown> implements Map<K, V> {
     this.#vals = new Map<K, V>();
     this.#values = Marker({
       ...description,
-      transform: (d) => d.member("values"),
+      transform: (d) => d.key("values"),
     });
 
     this.#collection = Collection.create(description, this);

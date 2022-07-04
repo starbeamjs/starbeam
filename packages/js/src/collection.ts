@@ -10,11 +10,11 @@ class ItemState {
   ): ItemState {
     return new ItemState(
       Cell(initialized, {
-        ...description.memberArgs(member),
+        ...description.key(member).args,
         transform: (d: Description) =>
           d.implementation({ reason: "initialization tracking" }),
       }),
-      Marker(description.memberArgs(member))
+      Marker(description.key(member))
     );
   }
 
@@ -117,7 +117,7 @@ export class Collection<K> {
   ): Collection<K> {
     const collection = new Collection<K>(undefined, new Map(), {
       ...description,
-      transform: (d) => d.member("entries"),
+      transform: (d) => d.key("entries"),
     });
     Collection.#objects.set(object, collection);
     return collection;

@@ -1,0 +1,16 @@
+{
+  "name": "@starbeam-tests/react-use-strict-lifecycle",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@starbeam/use-strict-lifecycle": "workspace:*",
+    "@starbeam-workspace/react-test-utils": "workspace:*",
+    "@starbeam/peer": "workspace:*",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.14",
+    "@types/react-dom": "^18.0.5"
+  }
+}
