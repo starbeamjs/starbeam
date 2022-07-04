@@ -15,10 +15,11 @@ import {
  *
  * The reactive constructor
  */
-export function useResource<T>(blueprint: ReactiveBlueprint<T>) {
+export function useResource<_T>() {
   throw Error("Not implemented");
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface ReactiveBlueprint<T> {
   (builder: ReactiveBuilder): Reactive<T> | (() => T);
 }

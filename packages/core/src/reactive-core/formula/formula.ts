@@ -104,6 +104,7 @@ export function Formula<T>(
   const fn = ReactiveFn(reactive) as FormulaFn<T>;
   fn.update = (formula) => reactive.update(formula);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (fn as Record<PropertyKey, any>)[Symbol.for("nodejs.util.inspect.custom")] =
     () => {
       return reactive[INSPECT]();

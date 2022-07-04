@@ -81,6 +81,7 @@ export class Renderable<T = unknown> implements ReactiveProtocol {
     return renderable.#flush();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static updateDeps(renderable: Renderable<any>) {
     const prevDeps = renderable.#dependencies;
     const nextDeps = new Set(

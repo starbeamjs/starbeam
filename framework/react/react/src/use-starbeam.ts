@@ -3,13 +3,7 @@ import type { DescriptionArgs } from "@starbeam/debug";
 import { Stack } from "@starbeam/debug";
 import type { Renderable } from "@starbeam/timeline";
 import { LIFETIME, TIMELINE } from "@starbeam/timeline";
-import { useLifecycle } from "@starbeam/use-strict-lifecycle";
-import {
-  type ReactElement,
-  useRef,
-  useState,
-  type FunctionComponent,
-} from "react";
+import { type ReactElement, useRef, useState } from "react";
 
 import { ReactiveElement } from "./element.js";
 import { useSetup } from "./use-setup.js";
@@ -117,7 +111,7 @@ export function useStarbeam<_T>(
   const last = useRef(null as ReactiveElement | null);
 
   return useSetup((setup) => {
-    const { element, value } = createReactiveElement({
+    const { element } = createReactiveElement({
       prev: last.current,
       notify: () => setNotify({}),
     });
@@ -235,6 +229,7 @@ export function useStarbeam<_T>(
 export function component<Props>(
   component: (component: ReactiveElement) => (props: Props) => ReactElement,
   description?: string | DescriptionArgs
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): (props: Props, context?: any) => ReactElement {
   const desc = Stack.description(description);
 

@@ -3,11 +3,10 @@
 import { Cell, Formula, LIFETIME, PolledFormula } from "@starbeam/core";
 import { component, useReactive, useSetup, useStarbeam } from "@starbeam/react";
 import {
+  type RenderState,
   html,
   react,
   testStrictAndLoose,
-  type RenderState,
-  type SetupTestRender,
 } from "@starbeam-workspace/react-test-utils";
 import { useState } from "react";
 import { describe, expect } from "vitest";
@@ -85,15 +84,13 @@ describe("useStarbeam", () => {
     });
 
     const result = await test
-      .expectHTML(
-        ({ cell, resource }) => `<p>${cell.current}</p><button>++</button>`
-      )
+      .expectHTML(({ cell }) => `<p>${cell.current}</p><button>++</button>`)
       .render((test) => {
         return hoc({ test });
       });
 
     expect(result.value.cell.current).toBe(0);
-    let lastResource = result.value.resource;
+    const lastResource = result.value.resource;
     expect(lastResource.current?.isActive).toBe(true);
 
     expect(TestResource.resources.length).toBe(1);
