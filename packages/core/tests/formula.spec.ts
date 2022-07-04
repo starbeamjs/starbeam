@@ -1,4 +1,5 @@
 import { Cell, Formula } from "@starbeam/core";
+// eslint-disable-next-line unused-imports/no-unused-imports, @typescript-eslint/no-unused-vars
 import { cached, reactive } from "@starbeam/js";
 import { describe, expect, test } from "vitest";
 

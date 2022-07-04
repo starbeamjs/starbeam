@@ -112,21 +112,18 @@ export function useStarbeam<_T>(
   // We use useResource here because the ReactiveElement we're creating has
   // teardown logic, which means that we want it to have a *fresh identity* when
   // this instance of `useReactElement` is reactivated.
-  const resource = useResource<CreatedReactiveElement, null>(
-    (resource, args, prev) => {
-      const { element, value } = createReactiveElement({
-        prev: prev?.element ?? null,
-        notify: () => setNotify({}),
-      });
+  const resource = useResource<CreatedReactiveElement>((resource, prev) => {
+    const { element, value } = createReactiveElement({
+      prev: prev?.element ?? null,
+      notify: () => setNotify({}),
+    });
 
-      resource.on.cleanup(() => LIFETIME.finalize(element));
-      resource.on.layout(() => ReactiveElement.layout(element));
-      resource.on.idle(() => ReactiveElement.idle(element));
+    resource.on.cleanup(() => LIFETIME.finalize(element));
+    resource.on.layout(() => ReactiveElement.layout(element));
+    resource.on.idle(() => ReactiveElement.idle(element));
 
-      return { element, value };
-    },
-    null
-  );
+    return { element, value };
+  });
 
   /**
    * The call to {@link useResource} gave us the `{ component, value }` record
@@ -232,7 +229,7 @@ export function useStarbeam<_T>(
     const renderable: Renderable<ReactElement> = TIMELINE.on.change(
       formula,
       () => {
-        TIMELINE.enqueue(notify);
+        TIMELINE.enqueueAction(notify);
       },
       desc
     );

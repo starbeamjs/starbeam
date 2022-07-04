@@ -2,7 +2,7 @@
   "name": "@starbeam/react",
   "type": "module",
   "main": "index.ts",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "dependencies": {
     "@starbeam/core": "workspace:*",
     "@starbeam/debug": "workspace:*",

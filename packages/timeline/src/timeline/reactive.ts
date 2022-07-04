@@ -43,3 +43,9 @@ export interface ReactiveProtocol {
 export interface Reactive<T> extends ReactiveProtocol {
   readonly current: T;
 }
+
+export const Reactive = {
+  is<T>(value: unknown | Reactive<T>): value is Reactive<T> {
+    return typeof value === "object" && value !== null && REACTIVE in value;
+  },
+};
