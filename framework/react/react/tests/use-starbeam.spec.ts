@@ -44,18 +44,39 @@ describe("useStarbeam", () => {
     expect(result.value).toBe(1);
   });
 
-  testStrictAndLoose<void, number>("useStarbeam HOC", async (mode, test) => {
+  testStrictAndLoose.skip<
+    void,
+    { cell: Cell<number>; resource: Cell<TestResource | null> }
+  >("useStarbeam HOC", async (mode, test) => {
     id = 0;
+    TestResource.setup();
 
     const hoc = component((c) => {
       const cell = Cell(0, `#${++id}`);
+      const resource = Cell(null as TestResource | null);
 
       function increment() {
         cell.set(cell.current + 1);
       }
 
-      return ({ test }: { test: RenderState<any> }) => {
-        test.value(cell.current);
+      c.on.layout(() => {
+        const r = TestResource.create();
+        resource.set(r);
+
+        c.on.cleanup(() => {
+          LIFETIME.finalize(resource);
+        });
+      });
+
+      return ({
+        test,
+      }: {
+        test: RenderState<{
+          cell: Cell<number>;
+          resource: Cell<TestResource | null>;
+        }>;
+      }) => {
+        test.value({ cell, resource });
         return react.fragment(
           html.p(String(cell.current)),
           html.button({ onClick: increment }, "++")
@@ -64,17 +85,22 @@ describe("useStarbeam", () => {
     });
 
     const result = await test
-      .expectHTML((value) => `<p>${value}</p><button>++</button>`)
+      .expectHTML(
+        ({ cell, resource }) => `<p>${cell.current}</p><button>++</button>`
+      )
       .render((test) => {
         return hoc({ test });
       });
 
-    expect(result.value).toBe(0);
+    expect(result.value.cell.current).toBe(0);
+    let lastResource = result.value.resource;
+    expect(lastResource.current?.isActive).toBe(true);
+
+    expect(TestResource.resources.length).toBe(1);
 
     await result.find("button").fire.click();
 
-    expect(result.value).toBe(1);
-    HOC;
+    expect(result.value.cell.current).toBe(1);
   });
 
   testStrictAndLoose<void, number>(
@@ -299,15 +325,27 @@ describe("useStarbeam", () => {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class TestResource {
   static #nextId = 0;
+  static #resources: TestResource[] = [];
+
+  static setup() {
+    this.#nextId = 0;
+    this.#resources = [];
+  }
+
+  static get resources(): TestResource[] {
+    return TestResource.#resources;
+  }
 
   static create() {
-    return new TestResource(TestResource.#nextId++);
+    const resource = new TestResource(TestResource.#nextId++);
+    TestResource.#resources.push(resource);
+    return resource;
   }
 
   #id: number;
   #active = true;
 
-  constructor(id: number) {
+  private constructor(id: number) {
     this.#id = id;
 
     LIFETIME.on.cleanup(this, () => {
