@@ -114,24 +114,40 @@ import { UNINITIALIZED } from "./utils.js";
 type State = "mounting" | "mounted" | "remounting" | "unmounted";
 
 export function useResource<T, A>(
-  build: (builder: ResourceBuilder<A>, args: A, prev?: T) => T,
-  args: A
+  args: A,
+  build: (builder: ResourceBuilder<A>, args: A, prev?: T) => T
+): T;
+export function useResource<T>(
+  build: (builder: ResourceBuilder<void>, prev?: T) => T
+): T;
+export function useResource<T, A>(
+  ...options:
+    | [args: A, build: (builder: ResourceBuilder<A>, args: A, prev?: T) => T]
+    | [build: (builder: ResourceBuilder<void>, prev?: T) => T]
 ): T {
   const [, setNotify] = useState({});
   const state = useRef<State>("mounting");
+
+  const arg = options.length === 1 ? (undefined as unknown as A) : options[0];
+  const buildFn =
+    options.length === 1
+      ? (builder: ResourceBuilder<A>, _: A, prev?: T) =>
+          // eslint-disable-next-line
+          options[0](builder as any, prev)
+      : options[1];
 
   const initialRef = useRef<UNINITIALIZED | ResourceInstance<T, A>>(
     UNINITIALIZED
   );
 
   if (initialRef.current === UNINITIALIZED) {
-    initialRef.current = ResourceBuilder.build(build, args);
+    initialRef.current = ResourceBuilder.build(buildFn, arg);
   } else {
     // If we're remounting, we're effectively in the initial state, and the work already happened
     // in `useLayoutEffect`, so don't do anything here.
 
     if (state.current === "mounted") {
-      initialRef.current.run("update", args);
+      initialRef.current.run("update", arg);
     } else {
       state.current = "mounted";
     }
@@ -140,13 +156,14 @@ export function useResource<T, A>(
   const ref = initialRef as MutableRefObject<ResourceInstance<T, A>>;
 
   // The callback to useLayoutEffect is created once, but should see the most recent rendered args.
-  const renderedArgs = useLastRenderRef(args);
+  const renderedArgs = useLastRenderRef(arg);
 
   useLayoutEffect(() => {
     switch (state.current) {
       case "unmounted": {
         setNotify({});
         ref.current = ref.current.remount(renderedArgs.current);
+
         state.current = "remounting";
         break;
       }
@@ -209,6 +226,7 @@ class ResourceBuilder<A> {
     args: A,
     prev: T
   ): ResourceInstance<T, A> {
+    console.log("remounting");
     return ResourceBuilder.build(
       builder.#build,
       args,
