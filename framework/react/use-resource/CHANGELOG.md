@@ -1,5 +1,11 @@
 # @starbeam/use-resource
 
+## 0.5.3
+
+### Patch Changes
+
+- 54556a6: Allow useResource to take no args
+
 ## 0.5.2
 
 ### Patch Changes
