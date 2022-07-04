@@ -1,0 +1,6 @@
+*.js
+*.js.map
+*.jsx
+*.jsx.map
+*.d.ts
+*.d.ts.map
