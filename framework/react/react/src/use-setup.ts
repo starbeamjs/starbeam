@@ -1,26 +1,114 @@
 import { Formula, Reactive } from "@starbeam/core";
 import { isObject } from "@starbeam/core-utils";
-import { type DescriptionArgs, Stack } from "@starbeam/debug";
 import {
-  type CleanupTarget,
-  type Unsubscribe,
-  LIFETIME,
-  TIMELINE,
-} from "@starbeam/timeline";
-import { useLifecycle } from "@starbeam/use-strict-lifecycle";
+  type DescriptionArgs,
+  Stack,
+  Description,
+  Block,
+  Message,
+} from "@starbeam/debug";
+import { isDebug, LIFETIME, TIMELINE } from "@starbeam/timeline";
+import { isRendering, useLifecycle } from "@starbeam/use-strict-lifecycle";
+import { unsafeTrackedElsewhere } from "@starbeam/use-strict-lifecycle/src/react.js";
 import { useState } from "react";
 
+import { ReactiveElement } from "./element.js";
+
+let WARNED = false;
+
+if (isDebug()) {
+  TIMELINE.untrackedReadBarrier((reactive, stack) => {
+    if (isRendering()) {
+      if (!WARNED) {
+        WARNED = true;
+
+        const description = Reactive.description(reactive).userFacing;
+        const caller = stack.caller;
+
+        const message = Message([
+          [
+            ["ERROR", "color:#f00", "font-weight:bold"],
+            " ",
+            [
+              "You read from a reactive value but you were not inside the `useReactive` hook.",
+              "color: #b00",
+            ],
+          ],
+          "",
+          [
+            ["Created: ".padEnd(11, "…"), "color:#666"],
+            " ",
+            [description.fullName, "color:#6a6"],
+          ],
+          [
+            [" ".repeat(11), "color:#666"],
+            " ",
+            [description.frame?.link ?? "<unknown>", "color:#6a6"],
+          ],
+          [
+            ["Accessed: ".padEnd(11, "…"), "color:#666"],
+            " ",
+            [caller?.link ?? "<unknown>", "color:#6a6"],
+          ],
+          "",
+          [
+            [
+              "This will prevent React from re-rendering when the reactive value changes.",
+              "color:#b00",
+            ],
+          ],
+          "",
+          [
+            [
+              "Make sure that you are inside a `useReactive` hook whenever you access reactive state.",
+              "color:#559",
+            ],
+          ],
+          "",
+          [
+            [
+              "You can wrap your entire component in `useReactive`, and return JSX to avoid this error. If you are also creating reactive cells in your component, you can use the `useSetup` hook to create cells and return JSX that reads from those cells.",
+              "color:#559",
+            ],
+          ],
+          "",
+          [
+            [
+              "You can also use the `starbeam` HOC to create a component that automatically wraps your the entire body of your component in `useSetup`.",
+              "color:#559",
+            ],
+          ],
+        ]);
+
+        console.warn(...message);
+
+        console.groupCollapsed("Complete stack trace");
+        console.log(stack.stack);
+        console.groupEnd();
+
+        throw Error(
+          `You read from a reactive value, but you were not inside the \`useReactive\` hook.`
+        );
+      }
+    }
+  });
+}
+
 export function useSetup<T>(
-  callback: (setup: SetupBuilder) => (() => T) | Reactive<T>,
-  description?: string | DescriptionArgs
+  callback: (setup: ReactiveElement) => (() => T) | Reactive<T>,
+  description?: string | Description
 ): T {
-  const desc = Stack.description(description);
+  const desc = Stack.description({
+    type: "resource",
+    api: "useSetup",
+    fromUser: description,
+  });
 
   const [, setNotify] = useState({});
 
   const instance = useLifecycle((lifecycle) => {
-    const builder = new SetupBuilder();
-    const instance = callback(builder);
+    const builder = ReactiveElement.create(() => setNotify({}));
+    const instance = unsafeTrackedElsewhere(() => callback(builder));
 
     lifecycle.on.cleanup(() => {
       if (isObject(instance)) {
@@ -29,11 +117,11 @@ export function useSetup<T>(
     });
 
     lifecycle.on.layout(() => {
-      SetupBuilder.runLayouts(builder);
+      ReactiveElement.layout(builder);
     });
 
     lifecycle.on.idle(() => {
-      SetupBuilder.runEffects(builder);
+      ReactiveElement.idle(builder);
     });
 
     let reactive: Reactive<T>;
@@ -60,63 +148,5 @@ export function useSetup<T>(
     return reactive;
   });
 
-  return instance.current;
-}
-
-class SetupBuilder implements CleanupTarget {
-  static runLayouts(builder: SetupBuilder) {
-    for (const layout of builder.#layouts) {
-      const cleanup = layout();
-
-      if (cleanup) {
-        LIFETIME.on.cleanup(builder, cleanup);
-      }
-    }
-  }
-
-  static runEffects(builder: SetupBuilder) {
-    for (const effect of builder.#effects) {
-      const cleanup = effect();
-
-      if (cleanup) {
-        LIFETIME.on.cleanup(builder, cleanup);
-      }
-    }
-  }
-
-  #layouts: Set<() => void | (() => void)> = new Set();
-  #effects: Set<() => void | (() => void)> = new Set();
-
-  /**
-   * This code is executed after the component is rendered, but before the DOM is painted. It runs
-   * in `useLayoutEffect` timing (i.e. in a browser microtask).
-   */
-  layout(callback: () => void | (() => void)): Unsubscribe {
-    this.#layouts.add(callback);
-
-    return () => {
-      this.#layouts.delete(callback);
-    };
-  }
-
-  /**
-   * https://beta.reactjs.org/learn/synchronizing-with-effects
-   */
-  effect(callback: () => void | (() => void)): Unsubscribe {
-    this.#effects.add(callback);
-
-    return () => {
-      this.#effects.delete(callback);
-    };
-  }
-
-  link(child: object): Unsubscribe {
-    return LIFETIME.link(this, child);
-  }
-
-  on = {
-    cleanup: (finalizer: () => void): Unsubscribe => {
-      return LIFETIME.on.cleanup(this, finalizer);
-    },
-  };
+  return unsafeTrackedElsewhere(() => instance.current);
 }

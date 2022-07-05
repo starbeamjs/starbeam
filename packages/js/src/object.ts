@@ -1,13 +1,13 @@
-import type { DescriptionArgs } from "@starbeam/debug";
+import { Stack, type Description } from "@starbeam/debug";
 
 import { Collection } from "./collection.js";
 
 export default class TrackedObject {
-  static reactive<T extends object>(description: DescriptionArgs, obj: T): T {
+  static reactive<T extends object>(description: Description, obj: T): T {
     return new TrackedObject(description, obj) as T;
   }
 
-  private constructor(description: DescriptionArgs, obj: object) {
+  private constructor(description: Description, obj: object) {
     const target = { ...obj };
 
     const proxy = new Proxy(target, {
@@ -29,7 +29,8 @@ export default class TrackedObject {
         collection.get(
           prop,
           Reflect.has(target, prop) ? "hit" : "miss",
-          member(prop)
+          member(prop),
+          Stack.fromCaller()
         );
         return Reflect.get(target, prop) as unknown;
       },
@@ -38,7 +39,8 @@ export default class TrackedObject {
         collection.get(
           prop,
           Reflect.has(target, prop) ? "hit" : "miss",
-          member(prop)
+          member(prop),
+          Stack.fromCaller()
         );
         return Reflect.getOwnPropertyDescriptor(target, prop);
       },
@@ -49,7 +51,12 @@ export default class TrackedObject {
 
       has(target, prop) {
         const has = Reflect.has(target, prop);
-        collection.check(prop, has ? "hit" : "miss", member(prop));
+        collection.check(
+          prop,
+          has ? "hit" : "miss",
+          member(prop),
+          Stack.fromCaller()
+        );
         return has;
       },
 
@@ -58,7 +65,7 @@ export default class TrackedObject {
       },
 
       ownKeys(target) {
-        collection.iterateKeys();
+        collection.iterateKeys(Stack.fromCaller());
         return Reflect.ownKeys(target);
       },
 
@@ -78,7 +85,12 @@ export default class TrackedObject {
             return true;
           }
 
-          collection.set(prop, updates.disposition, member(prop));
+          collection.set(
+            prop,
+            updates.disposition,
+            member(prop),
+            Stack.fromCaller()
+          );
         }
 
         Reflect.set(target, prop, value);
@@ -101,7 +113,7 @@ export default class TrackedObject {
         return true;
       }
 
-      collection.set(key, updates.disposition, String(key));
+      collection.set(key, updates.disposition, String(key), Stack.fromCaller());
 
       return true;
     }

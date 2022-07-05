@@ -116,9 +116,9 @@ describe("useStarbeam", () => {
             return () => ({ cell, increment });
           });
 
-          test.value(cell.current);
-
           return useReactive(() => {
+            test.value(cell.current);
+
             return react.fragment(
               html.p(String(cell.current)),
               html.button({ onClick: increment }, "++")
@@ -229,10 +229,10 @@ describe("useStarbeam", () => {
             });
           });
 
-          test.value({ starbeam: count.current, react: reactCount });
+          return useReactive(() => {
+            test.value({ starbeam: count.current, react: reactCount });
 
-          return useReactive(() =>
-            react.fragment(
+            return react.fragment(
               html.p(
                 count.current,
                 " + ",
@@ -248,8 +248,8 @@ describe("useStarbeam", () => {
                   "++React++"
                 )
               )
-            )
-          );
+            );
+          });
         });
 
       expect(result.value).toEqual({ starbeam: 0, react: 0 });

@@ -1,4 +1,4 @@
-import { type DescriptionArgs, Stack } from "@starbeam/debug";
+import { type DescriptionArgs, Stack, Description } from "@starbeam/debug";
 import { type ReactiveInternals, REACTIVE } from "@starbeam/timeline";
 
 import { Reactive } from "../../reactive.js";
@@ -18,9 +18,15 @@ class ReactiveFormulaList<T, U> implements Reactive<U[]> {
       key: (item: T) => Key;
       value: (item: T) => U;
     },
-    desc?: string | DescriptionArgs
+    desc?: string | Description
   ) {
-    const descArgs = Stack.description(desc);
+    const descArgs = Stack.description({
+      type: "collection:value",
+      api: {
+        package: "@starbeam/core",
+        name: "ReactiveFormulaList",
+      },
+    });
 
     const list = Formula(
       () => [...iterable].map((item): [Key, T] => [key(item), item]),
@@ -34,7 +40,7 @@ class ReactiveFormulaList<T, U> implements Reactive<U[]> {
     for (const [key, item] of last) {
       map.set(
         key,
-        Formula(() => value(item), { description: description.key("item") })
+        Formula(() => value(item), description.key("item"))
       );
     }
 
@@ -71,10 +77,16 @@ class ReactiveFormulaList<T, U> implements Reactive<U[]> {
   }
 
   get current(): U[] {
-    return this.#outputs.current;
+    return this.read(Stack.fromCaller());
+  }
+
+  read(caller: Stack): U[] {
+    return this.#outputs.read(caller);
   }
 
   #update() {
+    // this `current` happens inside a write phase, so we don't need to propagate a read caller
+    // (which is used in the readonly phase to produce good errors in read barrier assertions).
     const next = this.#inputs.current;
 
     if (this.#last === next) {
@@ -91,9 +103,10 @@ class ReactiveFormulaList<T, U> implements Reactive<U[]> {
       if (formula === undefined) {
         map.set(
           key,
-          Formula(() => this.#value(item), {
-            description: Reactive.description(this.#inputs).key("item"),
-          })
+          Formula(
+            () => this.#value(item),
+            Reactive.description(this.#inputs).key("item")
+          )
         );
       } else {
         map.set(key, formula);

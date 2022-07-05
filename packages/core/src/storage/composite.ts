@@ -1,21 +1,17 @@
 import { isArray } from "@starbeam/core-utils";
+import type { Description, DescriptionArgs } from "@starbeam/debug";
 import {
-  type DescriptionArgs,
-  FormulaDescription,
-  TimestampValidatorDescription,
-} from "@starbeam/debug";
-import {
+  InternalChildren,
+  REACTIVE,
   type ReactiveInternals,
   type ReactiveProtocol,
   type Timestamp,
-  InternalChildren,
-  REACTIVE,
 } from "@starbeam/timeline";
 
 export class CompositeInternalsImpl implements ReactiveProtocol {
   static create(
     children: InternalChildren,
-    description: DescriptionArgs
+    description: Description
   ): CompositeInternalsImpl {
     return new CompositeInternalsImpl(children, description);
   }
@@ -23,17 +19,11 @@ export class CompositeInternalsImpl implements ReactiveProtocol {
   readonly type = "composite";
 
   #children: InternalChildren;
-  readonly #description: FormulaDescription;
+  readonly #description: Description;
 
-  private constructor(
-    children: InternalChildren,
-    description: DescriptionArgs
-  ) {
+  private constructor(children: InternalChildren, description: Description) {
     this.#children = children;
-    this.#description = FormulaDescription.from({
-      ...description,
-      validator: TimestampValidatorDescription.from(this),
-    });
+    this.#description = description;
   }
 
   get debug() {
@@ -46,7 +36,7 @@ export class CompositeInternalsImpl implements ReactiveProtocol {
     return this;
   }
 
-  get description(): FormulaDescription {
+  get description(): Description {
     return this.#description;
   }
 
@@ -65,7 +55,7 @@ export class CompositeInternalsImpl implements ReactiveProtocol {
 
 export function CompositeInternals(
   children: InternalChildren | readonly ReactiveProtocol[],
-  description: DescriptionArgs
+  description: Description
 ): CompositeInternalsImpl {
   if (isArray(children)) {
     return CompositeInternalsImpl.create(

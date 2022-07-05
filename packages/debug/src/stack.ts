@@ -2,11 +2,9 @@ import { hasType, isObject, verified } from "@starbeam/verify";
 import StackTracey from "stacktracey";
 
 import {
-  type CreateDescription,
-  type DescriptionArgs,
-  type ImplementationDetails,
   Description,
-  ImplementationDescription,
+  type DescriptionArgs,
+  type DescriptionDetails,
 } from "./description/reactive-value.js";
 import { describeModule } from "./module.js";
 
@@ -155,34 +153,20 @@ export class Stack {
     return new Stack(ParsedStack.empty());
   }
 
-  static marker(
-    description:
-      | ImplementationDescription
-      | (ImplementationDetails & CreateDescription),
-    internal = 0
-  ): ImplementationDescription {
-    if (Description.is(description)) {
-      return description;
-    }
-
-    const stack = Stack.fromCaller(internal + 1);
-    return ImplementationDescription.from({ ...description, stack });
-  }
-
   static description(
-    name?: string | DescriptionArgs,
+    args: DescriptionArgs & {
+      fromUser?: string | DescriptionDetails | Description;
+    },
     internal = 0
-  ): DescriptionArgs {
-    if (name !== undefined && typeof name !== "string") {
-      return name;
-    }
-
+  ): Description {
     const stack = Stack.fromCaller(internal + 1);
 
-    if (name === undefined) {
-      return { stack };
+    if (args.fromUser === undefined || typeof args.fromUser === "string") {
+      return Description.from({ ...args, stack });
+    } else if (args.fromUser instanceof Description) {
+      return args.fromUser;
     } else {
-      return { name, stack };
+      return Description.from({ ...args, stack });
     }
   }
 
@@ -282,6 +266,11 @@ export class StackFrame {
 
   get debug(): StackTracey.Entry {
     return this.#reify();
+  }
+
+  get link() {
+    const module = describeModule(this.#reify().file);
+    return module.display({ loc: this.loc });
   }
 
   get display() {

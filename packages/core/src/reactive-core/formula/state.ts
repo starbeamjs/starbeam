@@ -1,4 +1,4 @@
-import type { DescriptionArgs } from "@starbeam/debug";
+import type { Description, DescriptionArgs, Stack } from "@starbeam/debug";
 import {
   type FinalizedFrame,
   type MutableInternals,
@@ -15,9 +15,14 @@ import {
 export class FormulaState<T> implements ReactiveProtocol {
   static evaluate<T>(
     formula: () => T,
-    description: DescriptionArgs
+    description: Description,
+    caller: Stack
   ): { state: FormulaState<T>; value: T } {
-    const { frame, value } = TIMELINE.evaluateFormula(formula, description);
+    const { frame, value } = TIMELINE.evaluateFormula(
+      formula,
+      description,
+      caller
+    );
 
     return {
       state: new FormulaState(formula, frame, value),
@@ -51,7 +56,7 @@ export class FormulaState<T> implements ReactiveProtocol {
     return this.#frame.dependencies;
   }
 
-  validate():
+  validate(caller: Stack):
     | { state: "valid"; value: T }
     | {
         state: "invalid";
@@ -73,7 +78,8 @@ export class FormulaState<T> implements ReactiveProtocol {
       compute: () => {
         const { frame, value } = TIMELINE.evaluateFormula(
           this.#formula,
-          this.#frame.description
+          this.#frame.description,
+          caller
         );
 
         const changed = this.#lastValue !== value;
@@ -83,28 +89,5 @@ export class FormulaState<T> implements ReactiveProtocol {
         return { state: changed ? "changed" : "unchanged", value };
       },
     };
-  }
-
-  poll():
-    | { state: "unchanged"; value: T }
-    | { state: "changed"; oldValue: T; value: T } {
-    const validation = this.#frame.validate();
-
-    if (validation.status === "valid") {
-      // TODO: Consume the reactive
-      return { state: "unchanged", value: validation.value };
-    }
-
-    const oldValue = this.#lastValue;
-
-    const { frame, value } = TIMELINE.evaluateFormula(
-      this.#formula,
-      this.#frame.description
-    );
-
-    this.#lastValue = value;
-    this.#frame = frame;
-
-    return { state: "changed", value, oldValue };
   }
 }

@@ -1,4 +1,5 @@
-import { type DescriptionArgs, Stack } from "@starbeam/debug";
+import { TIMELINE } from "@starbeam/core";
+import { type DescriptionArgs, Stack, Description } from "@starbeam/debug";
 import { reactive } from "@starbeam/js";
 
 import { FlatRows } from "./flat.js";
@@ -26,9 +27,14 @@ export class Table<U extends UserTypes> extends FlatRows<U> {
       name?: string;
     }
   ): Table<TableTypes> {
-    const description = Stack.description(
-      definition.name ?? definition.model?.name ?? "table"
-    );
+    const description = Stack.description({
+      type: "formula",
+      api: {
+        package: "internal",
+        name: "Table",
+      },
+      fromUser: definition.name ?? definition.model?.name ?? "table",
+    });
 
     return new Table<TableTypes>(
       {
@@ -43,11 +49,11 @@ export class Table<U extends UserTypes> extends FlatRows<U> {
   #id = 0;
   readonly #definition: TableDefinition<TableTypesFor<U>>;
   readonly #rows: Map<string, TableTypesFor<U>["Row"]>;
-  readonly #description: DescriptionArgs;
+  readonly #description: Description;
 
   private constructor(
     definition: TableDefinition<TableTypesFor<U>>,
-    description: DescriptionArgs
+    description: Description
   ) {
     super();
     this.#rows = reactive.Map(description);
@@ -60,7 +66,7 @@ export class Table<U extends UserTypes> extends FlatRows<U> {
   }
 
   get rows(): TableTypesFor<U>["Row"][] {
-    return [...this.#rows.values()];
+    return TIMELINE.entryPoint(() => [...this.#rows.values()]);
   }
 
   append(

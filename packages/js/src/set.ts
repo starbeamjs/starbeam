@@ -1,16 +1,16 @@
-import type { DescriptionArgs } from "@starbeam/debug";
+import { Stack, type Description, type DescriptionArgs } from "@starbeam/debug";
 
 import { Collection } from "./collection.js";
 
 export class TrackedSet<T = unknown> implements Set<T> {
-  static reactive<T>(description: DescriptionArgs): TrackedSet<T> {
+  static reactive<T>(description: Description): TrackedSet<T> {
     return new TrackedSet(description);
   }
 
   readonly #collection: Collection<T>;
   readonly #vals: Set<T>;
 
-  constructor(description: DescriptionArgs) {
+  constructor(description: Description) {
     this.#vals = new Set();
     this.#collection = Collection.create(description, this);
   }
@@ -19,41 +19,46 @@ export class TrackedSet<T = unknown> implements Set<T> {
   has(value: T): boolean {
     const has = this.#vals.has(value);
 
-    this.#collection.check(value, has ? "hit" : "miss", " {value}");
+    this.#collection.check(
+      value,
+      has ? "hit" : "miss",
+      " {value}",
+      Stack.fromCaller()
+    );
 
     return has;
   }
 
   // **** ALL GETTERS ****
   entries(): IterableIterator<[T, T]> {
-    this.#collection.iterateKeys();
+    this.#collection.iterateKeys(Stack.fromCaller());
     return this.#vals.entries();
   }
 
   keys(): IterableIterator<T> {
-    this.#collection.iterateKeys();
+    this.#collection.iterateKeys(Stack.fromCaller());
     return this.#vals.keys();
   }
 
   values(): IterableIterator<T> {
-    this.#collection.iterateKeys();
+    this.#collection.iterateKeys(Stack.fromCaller());
     return this.#vals.values();
   }
 
   forEach(fn: (value1: T, value2: T, set: Set<T>) => void): void {
-    this.#collection.iterateKeys();
+    this.#collection.iterateKeys(Stack.fromCaller());
     this.#vals.forEach(fn);
   }
 
   get size(): number {
     // It's definitely possible to do better than invalidating this any time the
     // collection is modified at all, but it may not be worth the effort.
-    this.#collection.iterateKeys();
+    this.#collection.iterateKeys(Stack.fromCaller());
     return this.#vals.size;
   }
 
   [Symbol.iterator](): IterableIterator<T> {
-    this.#collection.iterateKeys();
+    this.#collection.iterateKeys(Stack.fromCaller());
     return this.#vals[Symbol.iterator]();
   }
 
@@ -70,7 +75,7 @@ export class TrackedSet<T = unknown> implements Set<T> {
     }
 
     this.#collection.splice();
-    this.#collection.set(value, "key:changes", " {value}");
+    this.#collection.set(value, "key:changes", " {value}", Stack.fromCaller());
     this.#vals.add(value);
 
     return this;
@@ -106,14 +111,14 @@ export class TrackedSet<T = unknown> implements Set<T> {
 Object.setPrototypeOf(TrackedSet.prototype, Set.prototype);
 
 export class TrackedWeakSet<T extends object = object> implements WeakSet<T> {
-  static reactive(description: DescriptionArgs): TrackedWeakSet {
+  static reactive(description: Description): TrackedWeakSet {
     return new TrackedWeakSet(description);
   }
 
   readonly #collection: Collection<T>;
   readonly #vals: WeakSet<T>;
 
-  private constructor(description: DescriptionArgs) {
+  private constructor(description: Description) {
     this.#collection = Collection.create(description, this);
     this.#vals = new WeakSet();
   }
@@ -121,7 +126,12 @@ export class TrackedWeakSet<T extends object = object> implements WeakSet<T> {
   has(value: T): boolean {
     const has = this.#vals.has(value);
 
-    this.#collection.check(value, has ? "hit" : "miss", " {value}");
+    this.#collection.check(
+      value,
+      has ? "hit" : "miss",
+      " {value}",
+      Stack.fromCaller()
+    );
 
     return has;
   }
@@ -134,7 +144,7 @@ export class TrackedWeakSet<T extends object = object> implements WeakSet<T> {
     }
 
     this.#vals.add(value);
-    this.#collection.set(value, "key:changes", " {value}");
+    this.#collection.set(value, "key:changes", " {value}", Stack.fromCaller());
 
     return this;
   }

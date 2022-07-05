@@ -1,5 +1,5 @@
 import { Formula, PolledFormula } from "@starbeam/core";
-import type { DescriptionArgs } from "@starbeam/debug";
+import type { Description, DescriptionArgs } from "@starbeam/debug";
 import { Stack } from "@starbeam/debug";
 import type { Renderable } from "@starbeam/timeline";
 import { LIFETIME, TIMELINE } from "@starbeam/timeline";
@@ -104,9 +104,13 @@ type AnyRecord<T = any> = Record<PropertyKey, T>;
  */
 export function useStarbeam<_T>(
   definition: ReactiveDefinition<ReactElement, void>,
-  description?: string | DescriptionArgs
+  description?: string | Description
 ): ReactElement {
-  const desc = Stack.description(description);
+  const desc = Stack.description({
+    type: "resource",
+    api: "useStarbeam",
+    fromUser: description,
+  });
   const [, setNotify] = useState({});
   const last = useRef(null as ReactiveElement | null);
 
@@ -119,9 +123,6 @@ export function useStarbeam<_T>(
     last.current = element;
 
     setup.link(element);
-
-    setup.layout(() => ReactiveElement.layout(element));
-    setup.effect(() => ReactiveElement.idle(element));
 
     return PolledFormula(definition(element));
   });
@@ -228,10 +229,14 @@ export function useStarbeam<_T>(
 
 export function component<Props>(
   component: (component: ReactiveElement) => (props: Props) => ReactElement,
-  description?: string | DescriptionArgs
+  description?: string | Description
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): (props: Props, context?: any) => ReactElement {
-  const desc = Stack.description(description);
+  const desc = Stack.description({
+    type: "resource",
+    api: "starbeam.component",
+    fromUser: description,
+  });
 
   function Component(props: Props) {
     return useStarbeam((element) => {
@@ -241,11 +246,7 @@ export function component<Props>(
   }
 
   Object.defineProperty(Component, "name", {
-    value:
-      desc.name ??
-      desc.description?.name ??
-      desc.stack?.caller?.display ??
-      "Component",
+    value: desc.describe(),
   });
 
   return Component;

@@ -1,10 +1,10 @@
 import { type Equality, Marker } from "@starbeam/core";
-import type { DescriptionArgs } from "@starbeam/debug";
+import { Stack, type Description, type DescriptionArgs } from "@starbeam/debug";
 
 import { Collection } from "./collection.js";
 
 export class TrackedMap<K = unknown, V = unknown> implements Map<K, V> {
-  static reactive<K, V>(description: DescriptionArgs): TrackedMap<K, V> {
+  static reactive<K, V>(description: Description): TrackedMap<K, V> {
     return new TrackedMap(description);
   }
 
@@ -13,12 +13,9 @@ export class TrackedMap<K = unknown, V = unknown> implements Map<K, V> {
   readonly #equals: Equality<V> = Object.is;
   readonly #vals: Map<K, V>;
 
-  private constructor(description: DescriptionArgs) {
+  private constructor(description: Description) {
     this.#vals = new Map<K, V>();
-    this.#values = Marker({
-      ...description,
-      transform: (d) => d.key("values"),
-    });
+    this.#values = Marker(description.key("values"));
 
     this.#collection = Collection.create(description, this);
   }
@@ -27,48 +24,60 @@ export class TrackedMap<K = unknown, V = unknown> implements Map<K, V> {
   get(key: K): V | undefined {
     const has = this.#vals.has(key);
 
-    this.#collection.get(key, has ? "hit" : "miss", " {entry}");
+    this.#collection.get(
+      key,
+      has ? "hit" : "miss",
+      " {entry}",
+      Stack.fromCaller()
+    );
     return this.#vals.get(key);
   }
 
   has(key: K): boolean {
     const has = this.#vals.has(key);
-    this.#collection.check(key, has ? "hit" : "miss", " {entry}");
+    this.#collection.check(
+      key,
+      has ? "hit" : "miss",
+      " {entry}",
+      Stack.fromCaller()
+    );
     return has;
   }
 
   // **** ALL GETTERS ****
   entries(): IterableIterator<[K, V]> {
-    this.#collection.iterateKeys();
-    this.#values.consume();
+    this.#collection.iterateKeys(Stack.fromCaller());
+    this.#values.consume(Stack.fromCaller());
     return this.#vals.entries();
   }
 
   keys(): IterableIterator<K> {
-    this.#collection.iterateKeys();
+    this.#collection.iterateKeys(Stack.fromCaller());
     return this.#vals.keys();
   }
 
   values(): IterableIterator<V> {
-    this.#collection.iterateKeys();
-    this.#values.consume();
+    console.trace();
+    this.#collection.iterateKeys(Stack.fromCaller());
+    this.#values.consume(Stack.fromCaller());
     return this.#vals.values();
   }
 
   forEach(fn: (value: V, key: K, map: Map<K, V>) => void): void {
-    this.#collection.iterateKeys();
-    this.#values.consume();
+    this.#collection.iterateKeys(Stack.fromCaller());
+    this.#values.consume(Stack.fromCaller());
     this.#vals.forEach(fn);
   }
 
   get size(): number {
-    this.#collection.iterateKeys();
+    this.#collection.iterateKeys(Stack.fromCaller());
     return this.#vals.size;
   }
 
   [Symbol.iterator](): IterableIterator<[K, V]> {
-    this.#collection.iterateKeys();
-    this.#values.consume();
+    const caller = Stack.fromCaller();
+    this.#collection.iterateKeys(caller);
+    this.#values.consume(caller);
     return this.#vals[Symbol.iterator]();
   }
 
@@ -89,7 +98,12 @@ export class TrackedMap<K = unknown, V = unknown> implements Map<K, V> {
     }
 
     this.#values.update();
-    this.#collection.set(key, has ? "key:stable" : "key:changes", " {entry}");
+    this.#collection.set(
+      key,
+      has ? "key:stable" : "key:changes",
+      " {entry}",
+      Stack.fromCaller()
+    );
     this.#vals.set(key, value);
 
     return this;
@@ -129,7 +143,7 @@ export class TrackedWeakMap<K extends object = object, V = unknown>
   implements WeakMap<K, V>
 {
   static reactive<K extends object, V>(
-    description: DescriptionArgs
+    description: Description
   ): WeakMap<K, V> {
     return new TrackedWeakMap(description) as WeakMap<K, V>;
   }
@@ -138,7 +152,7 @@ export class TrackedWeakMap<K extends object = object, V = unknown>
   readonly #vals: WeakMap<K, V>;
   readonly #equals: Equality<V> = Object.is;
 
-  private constructor(description: DescriptionArgs) {
+  private constructor(description: Description) {
     // TypeScript doesn't correctly resolve the overloads for calling the `Map`
     // constructor for the no-value constructor. This resolves that.
     this.#vals = new WeakMap();
@@ -152,13 +166,23 @@ export class TrackedWeakMap<K extends object = object, V = unknown>
   get(key: K): V | undefined {
     const has = this.#vals.has(key);
 
-    this.#collection.get(key, has ? "hit" : "miss", " {entry}");
+    this.#collection.get(
+      key,
+      has ? "hit" : "miss",
+      " {entry}",
+      Stack.fromCaller()
+    );
     return this.#vals.get(key);
   }
 
   has(key: K): boolean {
     const has = this.#vals.has(key);
-    this.#collection.check(key, has ? "hit" : "miss", " {entry}");
+    this.#collection.check(
+      key,
+      has ? "hit" : "miss",
+      " {entry}",
+      Stack.fromCaller()
+    );
     return has;
   }
 
@@ -173,7 +197,12 @@ export class TrackedWeakMap<K extends object = object, V = unknown>
       }
     }
 
-    this.#collection.set(key, has ? "key:stable" : "key:changes", " {entry}");
+    this.#collection.set(
+      key,
+      has ? "key:stable" : "key:changes",
+      " {entry}",
+      Stack.fromCaller()
+    );
     this.#vals.set(key, value);
 
     return this;

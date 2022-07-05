@@ -1,5 +1,10 @@
 import { isObject } from "@starbeam/core-utils";
-import { type DescriptionArgs, DisplayStruct, Stack } from "@starbeam/debug";
+import {
+  type DescriptionArgs,
+  DisplayStruct,
+  Stack,
+  Description,
+} from "@starbeam/debug";
 import { type ReactiveInternals, INSPECT, REACTIVE } from "@starbeam/timeline";
 
 import type { Reactive } from "../reactive.js";
@@ -53,7 +58,11 @@ export class ReactiveCell<T> implements Reactive<T> {
   }
 
   get current(): T {
-    this.#internals.consume();
+    return this.read(Stack.fromCaller());
+  }
+
+  read(caller: Stack): T {
+    this.#internals.consume(caller);
     return this.#value;
   }
 
@@ -99,22 +108,37 @@ export class ReactiveCell<T> implements Reactive<T> {
 
 export function Cell<T>(
   value: T,
-  description?: string | (DescriptionArgs & { equals?: Equality<T> })
+  description?:
+    | string
+    | { description?: string | Description; equals?: Equality<T> }
 ): ReactiveCell<T> {
   if (typeof description === "string" || description === undefined) {
     return ReactiveCell.create(
       value,
       Object.is,
-      MutableInternalsImpl.create(Stack.description(description))
+      MutableInternalsImpl.create(
+        Stack.description({
+          type: "cell",
+          api: "Cell",
+          fromUser: description,
+        })
+      )
     );
   }
 
-  const { equals, ...rest } = description;
-
   return ReactiveCell.create(
     value,
-    equals,
-    MutableInternalsImpl.create(Stack.description(rest))
+    description.equals,
+    MutableInternalsImpl.create(
+      Stack.description({
+        type: "cell",
+        api: {
+          package: "@starbeam/core",
+          name: "Cell",
+        },
+        fromUser: description.description,
+      })
+    )
   );
 }
 

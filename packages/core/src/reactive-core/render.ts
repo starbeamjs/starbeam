@@ -1,4 +1,4 @@
-import type { DescriptionArgs } from "@starbeam/debug";
+import type { Description, DescriptionArgs } from "@starbeam/debug";
 import { Stack } from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/peer";
 import type { FinalizedFrame, ReactiveInternals } from "@starbeam/timeline";
@@ -27,7 +27,7 @@ interface LastEvaluation<T> {
 export class RenderedValueImpl<T> implements Reactive<T> {
   static create<T>(
     evaluate: () => T,
-    description: DescriptionArgs
+    description: Description
   ): RenderedValueImpl<T> {
     return new RenderedValueImpl(UNINITIALIZED, evaluate, description);
   }
@@ -35,12 +35,12 @@ export class RenderedValueImpl<T> implements Reactive<T> {
   #marker: Marker;
   #last: LastEvaluation<T> | UNINITIALIZED;
   readonly #function: () => T;
-  readonly #description: DescriptionArgs;
+  readonly #description: Description;
 
   private constructor(
     last: LastEvaluation<T> | UNINITIALIZED,
     formula: () => T,
-    description: DescriptionArgs
+    description: Description
   ) {
     this.#last = last;
     this.#function = formula;
@@ -60,11 +60,16 @@ export class RenderedValueImpl<T> implements Reactive<T> {
   }
 
   get current(): T {
+    return this.read(Stack.fromCaller());
+  }
+
+  read(caller: Stack): T {
     const { value, frame } = TIMELINE.evaluateFormula(
       this.#function,
-      this.#description
+      this.#description,
+      caller
     );
-    TIMELINE.didConsume(frame);
+    TIMELINE.didConsume(frame, caller);
     this.#last = { value, frame };
 
     return value;
@@ -73,11 +78,18 @@ export class RenderedValueImpl<T> implements Reactive<T> {
 
 export function RenderedValue<T>(
   formula: () => T,
-  description?: string | DescriptionArgs
+  description?: string | Description
 ): ReactiveFn<T> {
   const reactive = RenderedValueImpl.create(
     formula,
-    Stack.description(description)
+    Stack.description({
+      type: "renderer",
+      api: {
+        package: "@starbeam/core",
+        name: "RenderedValue",
+      },
+      fromUser: description,
+    })
   );
 
   return ReactiveFn(reactive);

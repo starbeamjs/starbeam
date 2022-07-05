@@ -1,5 +1,5 @@
 import { type Reactive, Cell, Marker } from "@starbeam/core";
-import { DescriptionArgs, Stack } from "@starbeam/debug";
+import { Description, Stack } from "@starbeam/debug";
 import { reactive } from "@starbeam/js";
 import { useUpdatingVariable } from "@starbeam/use-strict-lifecycle";
 import type { Dispatch, SetStateAction } from "react";
@@ -16,9 +16,13 @@ type AnyRecord = Record<PropertyKey, any>;
  */
 export function useStable<I extends AnyRecord>(
   variable: I,
-  description?: string | DescriptionArgs
+  description?: string | Description
 ): I {
-  const desc = Stack.description(description);
+  const desc = Stack.description({
+    type: "external",
+    api: "useStable",
+    fromUser: description,
+  });
 
   return useUpdatingVariable({
     initial: () => reactive.object(variable, desc),
@@ -64,13 +68,15 @@ export function useStableVariable<T>(
  */
 export function useDeps<T extends unknown[]>(
   deps: T,
-  description?: string | DescriptionArgs
+  description?: string | Description
 ): { consume: () => void; debug: () => Reactive<unknown>[] } {
-  const desc = Stack.description(description);
+  const desc = Stack.description({
+    type: "external",
+    api: "useDeps",
+    fromUser: description,
+  });
 
-  const dependencies = deps.map((d, i) =>
-    useProp(d, DescriptionArgs.index(desc, i))
-  );
+  const dependencies = deps.map((d, i) => useProp(d, desc.index(i)));
 
   return {
     debug: (): Reactive<unknown>[] => {
@@ -85,13 +91,17 @@ export function useDeps<T extends unknown[]>(
 
 export function useProp<T>(
   variable: T,
-  description?: string | DescriptionArgs
+  description?: string | Description
 ): Reactive<T> {
-  const desc = Stack.description(description);
+  const desc = Stack.description({
+    type: "external",
+    api: "useProp",
+    fromUser: description,
+  });
 
   return useUpdatingVariable({
     initial: () => {
-      return Cell(variable, desc);
+      return Cell(variable, { description: desc });
     },
     update: (cell) => {
       cell.set(variable);
@@ -101,9 +111,13 @@ export function useProp<T>(
 
 export function useProps<T extends AnyRecord>(
   props: T,
-  description?: string | DescriptionArgs
+  description?: string | Description
 ): T {
-  const desc = Stack.description(description);
+  const desc = Stack.description({
+    type: "external",
+    api: "useProps",
+    fromUser: description,
+  });
 
   return useUpdatingVariable({
     initial: () => reactive.object(props, desc),
@@ -121,9 +135,13 @@ export function useProps<T extends AnyRecord>(
 useStableVariable.mutable = <S>(
   value: S,
   setValue: SetValue<S>,
-  description?: string | DescriptionArgs
+  description?: string | Description
 ): ReactiveState<S> => {
-  const desc = Stack.description(description);
+  const desc = Stack.description({
+    type: "external",
+    api: "useStableVariable.mutable",
+    fromUser: description,
+  });
 
   return useUpdatingVariable({
     initial: () => ReactiveState.create(value, setValue, desc),
@@ -137,7 +155,7 @@ export class ReactiveState<T> {
   static create<T>(
     value: T,
     setValue: SetValue<T>,
-    description: DescriptionArgs
+    description: Description
   ): ReactiveState<T> {
     return new ReactiveState(value, setValue, Marker(description));
   }
@@ -160,7 +178,7 @@ export class ReactiveState<T> {
   }
 
   get current(): T {
-    this.#marker.consume();
+    this.#marker.consume(Stack.fromCaller());
     return this.#value;
   }
 

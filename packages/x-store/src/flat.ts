@@ -1,3 +1,4 @@
+import { TIMELINE } from "@starbeam/core";
 import type {
   AggregateRow,
   AggregatorFor,
@@ -32,7 +33,7 @@ export abstract class FlatRows<U extends UserTypes>
   }
 
   [Symbol.iterator](): IterableIterator<TableTypesFor<U>["Row"]> {
-    return this.rows[Symbol.iterator]();
+    return TIMELINE.entryPoint(() => this.rows[Symbol.iterator]());
   }
 }
 
@@ -228,15 +229,17 @@ export class Query<U extends UserTypes> extends FlatRows<U> {
   }
 
   get rows(): TableTypesFor<U>["Row"][] {
-    const table = this.#rows;
-    const rows = [...table.rows];
-    const filtered = rows.filter((row) => this.#filter.matches(row));
+    return TIMELINE.entryPoint(() => {
+      const table = this.#rows;
+      const rows = [...table.rows];
+      const filtered = rows.filter((row) => this.#filter.matches(row));
 
-    if (this.#sort) {
-      return filtered.sort(this.#sort);
-    } else {
-      return filtered;
-    }
+      if (this.#sort) {
+        return filtered.sort(this.#sort);
+      } else {
+        return filtered;
+      }
+    });
   }
 }
 

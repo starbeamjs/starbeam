@@ -1,16 +1,9 @@
 export {
-  type CreateDescription,
-  type CreateStaticDescription,
-  type DescriptionType,
-  type ImplementationDetails,
-  type UserFacingDescription,
-  CellDescription,
   Description,
-  DescriptionArgs,
-  FormulaDescription,
-  ImplementationDescription,
-  MarkerDescription,
-  StaticDescription,
+  type DescriptionArgs,
+  type DescriptionDetails,
+  type DescriptionType,
+  type ValueType,
 } from "./src/description/reactive-value.js";
 export { TimestampValidatorDescription } from "./src/description/validator.js";
 export {
@@ -36,3 +29,11 @@ export {
   QualifiedName,
   Wrapper,
 } from "./src/wrapper.js";
+export {
+  Block,
+  Fragment,
+  Style,
+  Styled,
+  Styles,
+  Message,
+} from "./src/message.js";

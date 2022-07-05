@@ -1,4 +1,4 @@
-import type { Description } from "@starbeam/debug";
+import type { Description, Stack } from "@starbeam/debug";
 
 import type { InternalChildren } from "./internals.js";
 import type { Timestamp } from "./timestamp.js";
@@ -42,6 +42,7 @@ export interface ReactiveProtocol {
 
 export interface Reactive<T> extends ReactiveProtocol {
   readonly current: T;
+  read(stack: Stack): T;
 }
 
 export const Reactive = {
