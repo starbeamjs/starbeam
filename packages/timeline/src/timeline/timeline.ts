@@ -17,10 +17,7 @@ import type {
   ReactiveProtocol,
 } from "./reactive.js";
 // eslint-disable-next-line import/no-cycle
-import {
-  type RenderableOperations,
-  Renderable,
-} from "./renderables/renderable.js";
+import { Renderable } from "./renderables/renderable.js";
 // eslint-disable-next-line import/no-cycle
 import { Renderables } from "./renderables/renderables.js";
 import { Timestamp } from "./timestamp.js";
@@ -81,7 +78,7 @@ export interface StartedFormula {
   finally(): void;
 }
 
-export class Timeline implements RenderableOperations {
+export class Timeline {
   static create(): Timeline {
     return new Timeline(
       ActionsPhase.create("initialization"),
@@ -135,6 +132,7 @@ export class Timeline implements RenderableOperations {
   #frame: ActiveFrame | null = null;
   #assertFrame: AssertFrame | null = null;
   #debugTimeline: DebugTimeline | null = null;
+  #writeAssertions: Set<() => { problem: string } | void> = new Set();
 
   readonly #renderables: Renderables;
   readonly #onUpdate: WeakMap<MutableInternals, Set<() => void>>;
@@ -162,17 +160,23 @@ export class Timeline implements RenderableOperations {
     render: () => void,
     description?: string | DescriptionArgs
   ): Renderable<T> {
-    const ready = () => Queue.enqueueRender(render);
+    const ready = () => {
+      if (this.#renderables.isRemoved(renderable as Renderable<unknown>)) {
+        return;
+      }
+
+      return Queue.enqueueRender(render);
+    };
 
     const renderable = Renderable.create(
       input,
       { ready },
-      this,
+      this.#renderables,
       Stack.description(description)
     );
     this.#renderables.insert(renderable as Renderable<unknown>);
 
-    renderable.poll();
+    // renderable.poll();
     return renderable;
   }
 
@@ -193,7 +197,7 @@ export class Timeline implements RenderableOperations {
       const renderable = Renderable.create(
         input,
         { ready },
-        this,
+        this.#renderables,
         Stack.description(description)
       );
       this.#renderables.insert(renderable as Renderable<unknown>);
@@ -201,6 +205,10 @@ export class Timeline implements RenderableOperations {
       return renderable;
     },
   } as const;
+
+  // assert = {
+  //   readonly: (assertion: () => void): (() => void) => {},
+  // };
 
   attach(
     notify: () => void,
@@ -220,8 +228,19 @@ export class Timeline implements RenderableOperations {
     return this.#debugTimeline;
   }
 
-  poll<T>(renderable: Renderable<T>): T {
-    return this.#renderables.poll(renderable);
+  /**
+   * When a reactive's dependencies might have changed, any renderables that depend on this reactive
+   * need to refresh their dependencies. If there are no renderers for this reactive value,
+   * {@linkcode TIMELINE.update} does nothing.
+   *
+   * Otherwise, each relevant renderable will unsubscribe from any stale dependencies and subscribe
+   * to any new dependencies.
+   *
+   * For example, Formulas call this method after recomputing their value, which results in a
+   * possible change to their dependencies.
+   */
+  update<T>(reactive: Reactive<T>): void {
+    this.#renderables.update(reactive);
   }
 
   prune(renderable: Renderable<unknown>): void {

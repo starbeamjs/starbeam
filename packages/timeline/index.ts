@@ -27,7 +27,7 @@ export {
 } from "./src/timeline/reactive.js";
 export {
   type Diff,
-  Renderable,
+  Renderable as Renderable,
 } from "./src/timeline/renderables/renderable.js";
 export {
   type FormulaResult,

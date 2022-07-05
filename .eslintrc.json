@@ -36,9 +36,7 @@
   },
   "overrides": [
     {
-      "files": [
-        "**/.eslintrc.cjs"
-      ],
+      "files": ["**/.eslintrc.cjs"],
       "env": {
         "node": true
       }
@@ -113,7 +111,7 @@
     },
     {
       "files": [
-        "framework/react/use-resource/scripts/**/*",
+        "framework/react/use-strict-lifecycle/scripts/**/*",
         "rollup.config.js"
       ],
       "env": {

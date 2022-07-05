@@ -64,7 +64,7 @@
  *
  * ## The Solution
  *
- * The `useResource` hook gives you a way to create a new instance of something
+ * The `useLifecycle` hook gives you a way to create a new instance of something
  * when the component is first instantiated, clean it up when the component is
  * unmounted, and create a brand **new** instance when the component is
  * reactivated.
@@ -108,19 +108,20 @@ import {
   useState,
 } from "react";
 
+import { beginReadonly, endReadonly } from "./react.js";
 import { useLastRenderRef } from "./updating-ref.js";
 import { UNINITIALIZED } from "./utils.js";
 
 type State = "mounting" | "mounted" | "remounting" | "unmounted";
 
-export function useResource<T, A>(
+export function useLifecycle<T, A>(
   args: A,
   build: (builder: ResourceBuilder<A>, args: A, prev?: T) => T
 ): T;
-export function useResource<T>(
+export function useLifecycle<T>(
   build: (builder: ResourceBuilder<void>, prev?: T) => T
 ): T;
-export function useResource<T, A>(
+export function useLifecycle<T, A>(
   ...options:
     | [args: A, build: (builder: ResourceBuilder<A>, args: A, prev?: T) => T]
     | [build: (builder: ResourceBuilder<void>, prev?: T) => T]
@@ -218,7 +219,10 @@ class ResourceBuilder<A> {
     prev?: T
   ): ResourceInstance<T, A> {
     const builder = new ResourceBuilder(build);
-    return new ResourceInstance(builder, build(builder, args, prev));
+    beginReadonly();
+    const instance = new ResourceInstance(builder, build(builder, args, prev));
+    endReadonly();
+    return instance;
   }
 
   static remount<T, A>(
@@ -226,7 +230,6 @@ class ResourceBuilder<A> {
     args: A,
     prev: T
   ): ResourceInstance<T, A> {
-    console.log("remounting");
     return ResourceBuilder.build(
       builder.#build,
       args,

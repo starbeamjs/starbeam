@@ -1,55 +1,63 @@
 import type { UNINITIALIZED } from "@starbeam/peer";
 
-import type { MutableInternals } from "../reactive.js";
+import type { MutableInternals, Reactive } from "../reactive.js";
 import { RenderableMap } from "./map.js";
 // eslint-disable-next-line import/no-cycle
-import { type RenderableOperations, Renderable } from "./renderable.js";
+import { Renderable } from "./renderable.js";
 
-export class Renderables implements RenderableOperations {
+export class Renderables {
   static create(): Renderables {
-    return new Renderables(RenderableMap.empty());
+    return new Renderables(RenderableMap.empty(), new WeakMap());
   }
 
   readonly #internalsMap: RenderableMap;
+  readonly #reactiveMap: WeakMap<Reactive<unknown>, Renderable>;
 
-  private constructor(internals: RenderableMap) {
+  private constructor(
+    internals: RenderableMap,
+    reactiveMap: WeakMap<Reactive<unknown>, Renderable>
+  ) {
     this.#internalsMap = internals;
+    this.#reactiveMap = reactiveMap;
   }
 
-  prune(renderable: Renderable<unknown>) {
-    const dependencies = Renderable.dependencies(renderable);
+  isRemoved(renderable: Renderable<unknown>): boolean {
+    return this.#internalsMap.isRemoved(renderable);
+  }
 
-    for (const dependency of dependencies) {
-      this.#internalsMap.delete(dependency, renderable);
-    }
+  prune<T>(renderable: Renderable<T>) {
+    this.#internalsMap.remove(renderable);
+    // for (const [key, value] of this.#internalsMap) {
+    //   if (value === renderable) {
+    //     this.#internalsMap.delete(key);
+
+    // const dependencies = Renderable.dependencies(renderable);
+
+    // for (const dependency of dependencies) {
+    //   this.#internalsMap.delete(dependency, renderable);
+    // }
   }
 
   bumped(dependency: MutableInternals): void {
-    const renderables = this.#internalsMap.get(dependency);
-
-    if (renderables) {
-      for (const renderable of renderables) {
-        Renderable.notifyReady(renderable);
-      }
+    for (const renderable of this.#internalsMap.get(dependency)) {
+      Renderable.notifyReady(renderable);
     }
   }
 
-  poll<T>(renderable: Renderable<T>): T {
-    const {
-      add,
-      remove,
-      values: { next },
-    } = Renderable.flush(renderable);
+  update<T>(reactive: Reactive<T>) {
+    const renderable = this.#reactiveMap.get(reactive);
 
-    for (const dep of add) {
-      this.#internalsMap.insert(dep, renderable as Renderable<unknown>);
+    if (renderable) {
+      const { add, remove } = Renderable.updateDeps(renderable);
+
+      for (const dep of add) {
+        this.#internalsMap.insert(dep, renderable);
+      }
+
+      for (const dep of remove) {
+        this.#internalsMap.delete(dep, renderable);
+      }
     }
-
-    for (const dep of remove) {
-      this.#internalsMap.delete(dep, renderable as Renderable<unknown>);
-    }
-
-    return next;
   }
 
   render<T>(
@@ -76,6 +84,7 @@ export class Renderables implements RenderableOperations {
   }
 
   insert(renderable: Renderable<unknown>) {
+    this.#reactiveMap.set(Renderable.reactive(renderable), renderable);
     const dependencies = Renderable.dependencies(renderable);
 
     for (const dep of dependencies) {

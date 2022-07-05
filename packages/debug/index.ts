@@ -1,12 +1,12 @@
 export {
   type CreateDescription,
   type CreateStaticDescription,
-  type DescriptionArgs,
   type DescriptionType,
   type ImplementationDetails,
   type UserFacingDescription,
   CellDescription,
   Description,
+  DescriptionArgs,
   FormulaDescription,
   ImplementationDescription,
   MarkerDescription,

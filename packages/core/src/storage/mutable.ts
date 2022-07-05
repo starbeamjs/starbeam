@@ -20,7 +20,7 @@ export class MutableInternalsImpl implements ReactiveProtocol {
       debug.struct(
         {
           frozen: internals.#frozen,
-          lastUpdate: internals.#lastUpdate,
+          lastUpdate: String(internals.#lastUpdate),
         },
         {
           description: internals.#description.fullName,

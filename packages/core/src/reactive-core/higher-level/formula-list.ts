@@ -34,7 +34,7 @@ class ReactiveFormulaList<T, U> implements Reactive<U[]> {
     for (const [key, item] of last) {
       map.set(
         key,
-        Formula(() => value(item), { description: description.member("item") })
+        Formula(() => value(item), { description: description.key("item") })
       );
     }
 
@@ -92,7 +92,7 @@ class ReactiveFormulaList<T, U> implements Reactive<U[]> {
         map.set(
           key,
           Formula(() => this.#value(item), {
-            description: Reactive.description(this.#inputs).member("item"),
+            description: Reactive.description(this.#inputs).key("item"),
           })
         );
       } else {
