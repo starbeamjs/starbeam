@@ -1,5 +1,19 @@
 # @starbeam/react
 
+## 0.5.3
+
+### Patch Changes
+
+- 194e461: Added untracked consumption errors and infrastructure for tracking reads and writes to cells
+- Updated dependencies [194e461]
+- Updated dependencies [54556a6]
+  - @starbeam/core@0.5.3
+  - @starbeam/debug@0.5.3
+  - @starbeam/js@0.5.3
+  - @starbeam/timeline@0.5.3
+  - @starbeam/use-strict-lifecycle@0.5.3
+  - @starbeam/modifier@0.5.3
+
 ## 0.5.2
 
 ### Patch Changes
