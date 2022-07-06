@@ -161,12 +161,12 @@ export class Renderable<T = unknown> implements ReactiveProtocol {
       dependencies.map((dependency) => {
         return implementation
           ? dependency.description
-          : dependency.description.userFacing();
+          : dependency.description.userFacing;
       })
     );
 
     const nodes = [...descriptions].map((d) => {
-      const description = implementation ? d : d.userFacing();
+      const description = implementation ? d : d.userFacing;
       return description.describe({ source });
     });
 

@@ -1,4 +1,4 @@
-export { isRendering } from "./src/react.js";
+export { isRestrictedRead as isRendering } from "./src/react.js";
 export {
   beginReadonly as maskRendering,
   endReadonly as unmaskRendering,

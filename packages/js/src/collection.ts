@@ -1,5 +1,5 @@
 import { Cell, Marker, Reactive } from "@starbeam/core";
-import type { Description, DescriptionArgs } from "@starbeam/debug";
+import type { Description, Stack } from "@starbeam/debug";
 import { expected, isPresent, verified } from "@starbeam/verify";
 
 class ItemState {
@@ -10,9 +10,9 @@ class ItemState {
   ): ItemState {
     return new ItemState(
       Cell(initialized, {
-        ...description.key(member).args,
-        transform: (d: Description) =>
-          d.implementation({ reason: "initialization tracking" }),
+        ...description
+          .key(member)
+          .implementation({ reason: "initialization tracking" }),
       }),
       Marker(description.key(member))
     );
@@ -34,13 +34,13 @@ class ItemState {
     this.#value = value;
   }
 
-  check(): void {
-    this.#present.current;
+  check(caller: Stack): void {
+    this.#present.read(caller);
   }
 
-  read(): void {
-    this.#present.current;
-    this.#value.consume();
+  read(caller: Stack): void {
+    this.#present.read(caller);
+    this.#value.consume(caller);
   }
 
   initialize(): void {
@@ -58,12 +58,16 @@ class ItemState {
 }
 
 class Item {
-  static uninitialized(description: Description, member: string): Item {
+  static uninitialized(
+    description: Description,
+    member: string,
+    caller: Stack
+  ): Item {
     const item = new Item(ItemState.uninitialized(description, member));
 
     // check the item so that subsequent writes to the item will invalidate the
     // read that caused this item to be created
-    item.#value.check();
+    item.#value.check(caller);
 
     return item;
   }
@@ -81,8 +85,8 @@ class Item {
     this.#value = value;
   }
 
-  check() {
-    this.#value.check();
+  check(caller: Stack) {
+    this.#value.check(caller);
   }
 
   set() {
@@ -93,8 +97,8 @@ class Item {
     this.#value.delete();
   }
 
-  read(): void {
-    return this.#value.read();
+  read(caller: Stack): void {
+    return this.#value.read(caller);
   }
 }
 
@@ -111,40 +115,38 @@ export class Collection<K> {
     );
   }
 
-  static create<K>(
-    description: DescriptionArgs,
-    object: object
-  ): Collection<K> {
-    const collection = new Collection<K>(undefined, new Map(), {
-      ...description,
-      transform: (d) => d.key("entries"),
-    });
+  static create<K>(description: Description, object: object): Collection<K> {
+    const collection = new Collection<K>(
+      undefined,
+      new Map(),
+      description.key("entries")
+    );
     Collection.#objects.set(object, collection);
     return collection;
   }
 
   #iteration: Marker | undefined;
   #items: Map<K, Item>;
-  #description: DescriptionArgs;
+  #description: Description;
 
   constructor(
     iteration: undefined,
     items: Map<K, Item>,
-    description: DescriptionArgs
+    description: Description
   ) {
     this.#description = description;
     this.#iteration = iteration;
     this.#items = items;
   }
 
-  iterateKeys(): void {
+  iterateKeys(caller: Stack): void {
     if (this.#iteration === undefined) {
       this.#iteration = Marker(this.#description);
     }
 
     // remember that we iterated this collection so that consumers of the
     // iteration detect changes to the collection itself.
-    this.#iteration.consume();
+    this.#iteration.consume(caller);
   }
 
   splice() {
@@ -168,18 +170,23 @@ export class Collection<K> {
     this.#iteration.update();
   }
 
-  check(key: K, disposition: "hit" | "miss", description: string) {
+  check(
+    key: K,
+    disposition: "hit" | "miss",
+    description: string,
+    caller: Stack
+  ) {
     let item = this.#items.get(key);
 
     // If we're checking this key for the first time, we need to initialize the
     // item so that this consumer will be invalidated by subsequent writes.
     if (item === undefined) {
-      item = this.#initialize(key, disposition, description);
+      item = this.#initialize(key, disposition, description, caller);
     }
 
     // otherwise, read the presence of the key so that this consumer will be
     // invalidated by deletes.
-    item.check();
+    item.check(caller);
   }
 
   /**
@@ -187,17 +194,22 @@ export class Collection<K> {
    *
    * If the key is not present, that means that this is the first read from the key.
    */
-  get(key: K, disposition: "hit" | "miss", description: string) {
+  get(key: K, disposition: "hit" | "miss", description: string, caller: Stack) {
     let item = this.#items.get(key);
 
     if (item === undefined) {
-      item = this.#initialize(key, disposition, description);
+      item = this.#initialize(key, disposition, description, caller);
     }
 
-    return item.read();
+    return item.read(caller);
   }
 
-  set(key: K, disposition: "key:stable" | "key:changes", description: string) {
+  set(
+    key: K,
+    disposition: "key:stable" | "key:changes",
+    description: string,
+    caller: Stack
+  ) {
     if (disposition === "key:changes") {
       this.splice();
     }
@@ -205,7 +217,7 @@ export class Collection<K> {
     let item = this.#items.get(key);
 
     if (item === undefined) {
-      item = this.#initialize(key, "hit", description);
+      item = this.#initialize(key, "hit", description, caller);
       return;
     }
 
@@ -229,7 +241,12 @@ export class Collection<K> {
     this.splice();
   }
 
-  #initialize(key: K, disposition: "hit" | "miss", member: string): Item {
+  #initialize(
+    key: K,
+    disposition: "hit" | "miss",
+    member: string,
+    caller: Stack
+  ): Item {
     if (this.#iteration === undefined) {
       this.#iteration = Marker(this.#description);
     }
@@ -238,7 +255,7 @@ export class Collection<K> {
     const iteration = Reactive.internals(this.#iteration).description;
 
     if (disposition === "miss") {
-      item = Item.uninitialized(iteration, member);
+      item = Item.uninitialized(iteration, member, caller);
     } else {
       item = Item.initialized(iteration, member);
     }

@@ -1,16 +1,9 @@
 export {
-  type CreateDescription,
-  type CreateStaticDescription,
+  type DescriptionArgs,
+  type DescriptionDetails,
   type DescriptionType,
-  type ImplementationDetails,
-  type UserFacingDescription,
-  CellDescription,
+  type ValueType,
   Description,
-  DescriptionArgs,
-  FormulaDescription,
-  ImplementationDescription,
-  MarkerDescription,
-  StaticDescription,
 } from "./src/description/reactive-value.js";
 export { TimestampValidatorDescription } from "./src/description/validator.js";
 export {
@@ -25,6 +18,14 @@ export {
   inspector,
 } from "./src/inspect/inspect-support.js";
 export { type Logger, LOGGER, LogLevel } from "./src/logger.js";
+export {
+  Block,
+  Fragment,
+  Message,
+  Style,
+  Styled,
+  Styles,
+} from "./src/message.js";
 export { describeModule } from "./src/module.js";
 export { Stack, StackFrame } from "./src/stack.js";
 export { Tree } from "./src/tree.js";

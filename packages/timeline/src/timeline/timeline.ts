@@ -1,4 +1,4 @@
-import type { DescriptionArgs } from "@starbeam/debug";
+import type { Description } from "@starbeam/debug";
 import { LOGGER, Stack } from "@starbeam/debug";
 import { expected, isEqual, verify } from "@starbeam/verify";
 
@@ -11,10 +11,11 @@ import {
 import { type FinalizedFrame, ActiveFrame, AssertFrame } from "./frames.js";
 import { NOW } from "./now.js";
 import { Queue } from "./queue.js";
-import type {
-  MutableInternals,
-  Reactive,
-  ReactiveProtocol,
+import type { Reactive } from "./reactive.js";
+import {
+  type MutableInternals,
+  type ReactiveProtocol,
+  REACTIVE,
 } from "./reactive.js";
 // eslint-disable-next-line import/no-cycle
 import { Renderable } from "./renderables/renderable.js";
@@ -89,20 +90,26 @@ export class Timeline {
   }
 
   static StartedFormula = class StartedFormula {
-    static create(description: DescriptionArgs): StartedFormula {
+    static create(description: Description, caller: Stack): StartedFormula {
       const prevFrame = TIMELINE.#frame;
 
       const currentFrame = (TIMELINE.#frame = ActiveFrame.create(description));
 
-      return new StartedFormula(prevFrame, currentFrame);
+      return new StartedFormula(prevFrame, currentFrame, caller);
     }
 
     #prev: ActiveFrame | null;
     #current: ActiveFrame;
+    #caller: Stack;
 
-    private constructor(prev: ActiveFrame | null, current: ActiveFrame) {
+    private constructor(
+      prev: ActiveFrame | null,
+      current: ActiveFrame,
+      caller: Stack
+    ) {
       this.#prev = prev;
       this.#current = current;
+      this.#caller = caller;
     }
 
     done<T>(value: T): FormulaResult<T>;
@@ -119,7 +126,7 @@ export class Timeline {
 
       const newFrame = this.#current.finalize(value, NOW.now);
       TIMELINE.#frame = this.#prev;
-      TIMELINE.didConsume(newFrame.frame);
+      TIMELINE.didConsume(newFrame.frame, this.#caller);
       return newFrame;
     }
 
@@ -129,10 +136,10 @@ export class Timeline {
   };
 
   #phase: Phase;
+  #callerStack: Stack | null = null;
   #frame: ActiveFrame | null = null;
   #assertFrame: AssertFrame | null = null;
   #debugTimeline: DebugTimeline | null = null;
-  #writeAssertions: Set<() => { problem: string } | void> = new Set();
 
   readonly #renderables: Renderables;
   readonly #onUpdate: WeakMap<MutableInternals, Set<() => void>>;
@@ -158,7 +165,7 @@ export class Timeline {
   render<T>(
     input: Reactive<T>,
     render: () => void,
-    description?: string | DescriptionArgs
+    description?: string | Description
   ): Renderable<T> {
     const ready = () => {
       if (this.#renderables.isRemoved(renderable as Renderable<unknown>)) {
@@ -172,7 +179,18 @@ export class Timeline {
       input,
       { ready },
       this.#renderables,
-      Stack.description(description)
+      Stack.description({
+        type: "renderer",
+        api: {
+          package: "@starbeam/timeline",
+          name: "TIMELINE",
+          method: {
+            type: "static",
+            name: "render",
+          },
+        },
+        fromUser: description,
+      })
     );
     this.#renderables.insert(renderable as Renderable<unknown>);
 
@@ -192,19 +210,38 @@ export class Timeline {
     change: <T>(
       input: Reactive<T>,
       ready: (renderable: Renderable<T>) => void,
-      description?: string | DescriptionArgs
+      description?: string | Description
     ): Renderable<T> => {
       const renderable = Renderable.create(
         input,
         { ready },
         this.#renderables,
-        Stack.description(description)
+        Stack.description({
+          type: "renderer",
+          api: {
+            package: "@starbeam/timeline",
+            name: "TIMELINE",
+            method: {
+              type: "static",
+              name: "on.change",
+            },
+          },
+          fromUser: description,
+        })
       );
       this.#renderables.insert(renderable as Renderable<unknown>);
 
       return renderable;
     },
   } as const;
+
+  /**
+   * Dynamic assertions that are used in development mode to detect reads that occur outside of a
+   * tracking frame, but which are used to produce rendered outputs.
+   */
+  #readAssertions = new Set<
+    (reactive: ReactiveProtocol, caller: Stack) => void
+  >();
 
   // assert = {
   //   readonly: (assertion: () => void): (() => void) => {},
@@ -284,6 +321,20 @@ export class Timeline {
     return NOW.now;
   }
 
+  entryPoint<T>(callback: () => T): T {
+    // the outermost entry point wins.
+    if (isDebug() && !this.#callerStack) {
+      try {
+        this.#callerStack = Stack.fromCaller(1);
+        return callback();
+      } finally {
+        this.#callerStack = null;
+      }
+    } else {
+      return callback();
+    }
+  }
+
   mutation<T>(description: string, callback: () => T): T {
     if (isDebug()) {
       return this.#debug.mutation(description, callback);
@@ -347,13 +398,39 @@ export class Timeline {
   }
 
   // Indicate that a particular cell was used inside of the current computation.
-  didConsume(reactive: ReactiveProtocol) {
+  didConsume(reactive: ReactiveProtocol, caller: Stack) {
     if (this.#frame) {
       this.#frame.add(reactive);
-    } else if (isDebug()) {
+      return;
+    }
+
+    if (isDebug()) {
       // we don't add a consumption to the debug timeline if we're in a frame, because the frame
       // itself gets consumed
       this.#debug.consume(reactive);
+
+      // if we're consuming a cell, but we're not in the context of a tracking frame, give read
+      // barriers a chance to assert.
+      if (reactive[REACTIVE].type === "mutable") {
+        this.#untrackedRead(reactive, this.#callerStack ?? caller);
+      }
+    }
+  }
+
+  /**
+   * In debug mode, register a barrier for untracked reads. This allows you to throw an error if an
+   * untracked read occurred in a context (such as a render function) that a renderer knows will
+   * produce rendered content.
+   */
+  untrackedReadBarrier(
+    assertion: (reactive: ReactiveProtocol, caller: Stack) => void
+  ) {
+    this.#readAssertions.add(assertion);
+  }
+
+  #untrackedRead(reactive: ReactiveProtocol, caller: Stack) {
+    for (const read of this.#readAssertions) {
+      read(reactive, caller);
     }
   }
 
@@ -379,9 +456,10 @@ export class Timeline {
    */
   evaluateFormula<T>(
     callback: () => T,
-    description: DescriptionArgs
+    description: Description,
+    caller: Stack
   ): { readonly frame: FinalizedFrame<T>; readonly value: T } {
-    const formula = Timeline.StartedFormula.create(description);
+    const formula = Timeline.StartedFormula.create(description, caller);
 
     try {
       const result = callback();

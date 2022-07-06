@@ -1,5 +1,5 @@
 import { Cell } from "@starbeam/core";
-import type { DescriptionArgs } from "@starbeam/debug";
+import type { Description } from "@starbeam/debug";
 import { Stack } from "@starbeam/debug";
 
 import TrackedArray from "./src/array.js";
@@ -46,38 +46,93 @@ export const reactive = (
   });
 };
 
-reactive.Map = <K, V>(description?: string | DescriptionArgs): Map<K, V> => {
-  return ReactiveMap.reactive(Object.is, Stack.description(description));
+reactive.Map = <K, V>(description?: string | Description): Map<K, V> => {
+  return ReactiveMap.reactive(
+    Object.is,
+    Stack.description({
+      type: "collection:key-value",
+      api: {
+        package: "@starbeam/js",
+        name: "reactive.Map",
+      },
+      fromUser: description,
+    })
+  );
 };
 
 reactive.WeakMap = <K extends object, V>(
-  description?: string | DescriptionArgs
+  description?: string | Description
 ): WeakMap<K, V> => {
-  return TrackedWeakMap.reactive<K, V>(Stack.description(description));
+  return TrackedWeakMap.reactive<K, V>(
+    Stack.description({
+      type: "collection:key-value",
+      api: {
+        package: "@starbeam/js",
+        name: "reactive.WeakMap",
+      },
+      fromUser: description,
+    })
+  );
 };
 
-reactive.Set = <T>(description?: string | DescriptionArgs): Set<T> => {
-  return ReactiveSet.reactive(Object.is, Stack.description(description));
+reactive.Set = <T>(description?: string | Description): Set<T> => {
+  return ReactiveSet.reactive(
+    Object.is,
+    Stack.description({
+      type: "collection:value",
+      api: {
+        package: "@starbeam/js",
+        name: "reactive.Set",
+      },
+      fromUser: description,
+    })
+  );
 };
 
 reactive.WeakSet = <T extends object>(
-  description?: string | DescriptionArgs
+  description?: string | Description
 ): WeakSet<T> => {
-  return TrackedWeakSet.reactive(Stack.description(description));
+  return TrackedWeakSet.reactive(
+    Stack.description({
+      type: "collection:value",
+      api: {
+        package: "@starbeam/js",
+        name: "reactive.WeakSet",
+      },
+      fromUser: description,
+    })
+  );
 };
 
 reactive.object = <T extends object>(
   values: T,
-  description?: string | DescriptionArgs
+  description?: string | Description
 ): T => {
-  return TrackedObject.reactive(Stack.description(description), values);
+  return TrackedObject.reactive(
+    Stack.description({
+      type: "collection:key-value",
+      api: {
+        package: "@starbeam/js",
+        name: "reactive.object",
+      },
+      fromUser: description,
+    }),
+    values
+  );
 };
 
-reactive.array = <T>(
-  values: T[],
-  description?: string | DescriptionArgs
-): T[] => {
-  return new TrackedArray(Stack.description(description), values) as T[];
+reactive.array = <T>(values: T[], description?: string | Description): T[] => {
+  return new TrackedArray(
+    Stack.description({
+      type: "collection:value",
+      api: {
+        package: "@starbeam/js",
+        name: "reactive.array",
+      },
+      fromUser: description,
+    }),
+    values
+  ) as T[];
 };
 
 export default reactive;

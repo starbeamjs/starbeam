@@ -103,7 +103,7 @@ function Dependency({ description }: { description: Description }) {
 
 function unique(dependencies: MutableInternals[]): Description[] {
   const descriptions = new Set(
-    dependencies.map((d) => d.description.userFacing())
+    dependencies.map((d) => d.description.userFacing)
   );
 
   return [...descriptions];

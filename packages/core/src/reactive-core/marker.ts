@@ -1,4 +1,4 @@
-import type { DescriptionArgs, DescriptionType } from "@starbeam/debug";
+import type { Description, Stack } from "@starbeam/debug";
 import {
   type MutableInternals,
   type ReactiveProtocol,
@@ -22,8 +22,8 @@ export class ReactiveMarker implements ReactiveProtocol {
     this.#internals.freeze();
   }
 
-  consume(): void {
-    this.#internals.consume();
+  consume(caller: Stack): void {
+    this.#internals.consume(caller);
   }
 
   update(): void {
@@ -37,12 +37,8 @@ export class ReactiveMarker implements ReactiveProtocol {
   }
 }
 
-export function Marker(description: DescriptionArgs): ReactiveMarker {
+export function Marker(description: Description): ReactiveMarker {
   return ReactiveMarker.create(MutableInternalsImpl.create(description));
 }
-
-Marker.described = (type: DescriptionType, args: DescriptionArgs) => {
-  return ReactiveMarker.create(MutableInternalsImpl.described(type, args));
-};
 
 export type Marker = ReactiveMarker;

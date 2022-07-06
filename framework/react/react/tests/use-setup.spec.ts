@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { Cell, TIMELINE } from "@starbeam/core";
-import { useSetup } from "@starbeam/react";
+import { useReactive, useSetup } from "@starbeam/react";
 import {
   entryPoint,
   html,
@@ -43,9 +43,9 @@ describe("useSetup", () => {
         )
         .render((test) => {
           const state = useSetup((setup) => {
-            const state = Cell({ state: "rendering" } as State);
+            const state = Cell({ state: "rendering" } as State, "outer cell");
 
-            setup.effect(() => {
+            setup.on.idle(() => {
               const channel = Channel.subscribe("test");
               state.set({ state: "connected" });
 
@@ -61,12 +61,14 @@ describe("useSetup", () => {
             return state;
           });
 
-          test.value(state);
+          return useReactive(() => {
+            test.value(state);
 
-          return react.fragment(
-            html.span(state.state),
-            state.state === "message" ? html.span(state.lastMessage) : null
-          );
+            return react.fragment(
+              html.span(state.state),
+              state.state === "message" ? html.span(state.lastMessage) : null
+            );
+          });
         });
 
       function send(message: string) {

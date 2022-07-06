@@ -1,11 +1,5 @@
-import {
-  type DescriptionArgs,
-  type DescriptionType,
-  CellDescription,
-  Description,
-  inspector,
-  TimestampValidatorDescription,
-} from "@starbeam/debug";
+import type { Description, Stack } from "@starbeam/debug";
+import { inspector } from "@starbeam/debug";
 import type { Timestamp } from "@starbeam/timeline";
 import {
   type ReactiveProtocol,
@@ -29,20 +23,12 @@ export class MutableInternalsImpl implements ReactiveProtocol {
     );
   }
 
-  static create(description: DescriptionArgs): MutableInternalsImpl {
-    return new MutableInternalsImpl(
-      false,
-      TIMELINE.now,
-      CellDescription,
-      description
-    );
+  static create(description: Description): MutableInternalsImpl {
+    return new MutableInternalsImpl(false, TIMELINE.now, description);
   }
 
-  static described(
-    type: DescriptionType,
-    description: DescriptionArgs
-  ): MutableInternalsImpl {
-    return new MutableInternalsImpl(false, TIMELINE.now, type, description);
+  static described(description: Description): MutableInternalsImpl {
+    return new MutableInternalsImpl(false, TIMELINE.now, description);
   }
 
   readonly type = "mutable";
@@ -54,17 +40,11 @@ export class MutableInternalsImpl implements ReactiveProtocol {
   private constructor(
     frozen: boolean,
     lastUpdate: Timestamp,
-    type: DescriptionType,
-    description: DescriptionArgs
+    description: Description
   ) {
     this.#frozen = frozen;
     this.#lastUpdate = lastUpdate;
-
-    this.#description = Description.from(
-      type,
-      description,
-      TimestampValidatorDescription.from(this)
-    );
+    this.#description = description;
   }
 
   get [REACTIVE]() {
@@ -87,9 +67,9 @@ export class MutableInternalsImpl implements ReactiveProtocol {
     return this.#frozen;
   }
 
-  consume(): void {
+  consume(caller: Stack): void {
     if (!this.#frozen) {
-      TIMELINE.didConsume(this);
+      TIMELINE.didConsume(this, caller);
     }
   }
 
