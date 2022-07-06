@@ -1,5 +1,5 @@
 import { Cell, Marker, Reactive } from "@starbeam/core";
-import type { Description, DescriptionArgs, Stack } from "@starbeam/debug";
+import type { Description, Stack } from "@starbeam/debug";
 import { expected, isPresent, verified } from "@starbeam/verify";
 
 class ItemState {

@@ -136,7 +136,7 @@ class Buffer {
   }
 
   #message: string[] = [];
-  #current: string = "";
+  #current = "";
   #styles: string[] = [];
   #plain: boolean;
 

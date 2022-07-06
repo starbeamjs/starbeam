@@ -1,5 +1,6 @@
 import { type Reactive, Cell, Marker } from "@starbeam/core";
-import { Description, Stack } from "@starbeam/debug";
+import type { Description } from "@starbeam/debug";
+import { Stack } from "@starbeam/debug";
 import { reactive } from "@starbeam/js";
 import { useUpdatingVariable } from "@starbeam/use-strict-lifecycle";
 import type { Dispatch, SetStateAction } from "react";

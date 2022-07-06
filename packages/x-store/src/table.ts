@@ -1,5 +1,6 @@
 import { TIMELINE } from "@starbeam/core";
-import { type DescriptionArgs, Stack, Description } from "@starbeam/debug";
+import type { Description } from "@starbeam/debug";
+import { Stack } from "@starbeam/debug";
 import { reactive } from "@starbeam/js";
 
 import { FlatRows } from "./flat.js";

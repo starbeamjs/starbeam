@@ -1,4 +1,5 @@
-import { type DescriptionArgs, Stack, Description } from "@starbeam/debug";
+import type { Description } from "@starbeam/debug";
+import { Stack } from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/peer";
 import { isNotEqual, verified } from "@starbeam/verify";
 
@@ -45,6 +46,7 @@ export function FormulaFn<T, U>(
         package: "@starbeam/core",
         name: "FormulaFn",
       },
+      fromUser: description,
     }),
     equals: (a: T | UNINITIALIZED, b: T | UNINITIALIZED) => {
       if (a === UNINITIALIZED || b === UNINITIALIZED) {

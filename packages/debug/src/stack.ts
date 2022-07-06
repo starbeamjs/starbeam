@@ -2,9 +2,9 @@ import { hasType, isObject, verified } from "@starbeam/verify";
 import StackTracey from "stacktracey";
 
 import {
-  Description,
   type DescriptionArgs,
   type DescriptionDetails,
+  Description,
 } from "./description/reactive-value.js";
 import { describeModule } from "./module.js";
 

@@ -1,9 +1,4 @@
-import type {
-  Description,
-  DescriptionArgs,
-  DescriptionType,
-  Stack,
-} from "@starbeam/debug";
+import type { Description, Stack } from "@starbeam/debug";
 import {
   type MutableInternals,
   type ReactiveProtocol,

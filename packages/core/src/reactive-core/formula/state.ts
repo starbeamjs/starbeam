@@ -1,4 +1,4 @@
-import type { Description, DescriptionArgs, Stack } from "@starbeam/debug";
+import type { Description, Stack } from "@starbeam/debug";
 import {
   type FinalizedFrame,
   type MutableInternals,

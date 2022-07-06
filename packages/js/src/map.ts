@@ -1,5 +1,5 @@
 import { type Equality, Marker } from "@starbeam/core";
-import { Stack, type Description, type DescriptionArgs } from "@starbeam/debug";
+import { type Description, Stack } from "@starbeam/debug";
 
 import { Collection } from "./collection.js";
 

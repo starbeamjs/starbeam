@@ -13,7 +13,7 @@
  * worrying about its lifetime.
  */
 
-import type { Description, DescriptionArgs } from "@starbeam/debug";
+import type { Description } from "@starbeam/debug";
 import { Stack } from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/peer";
 import {

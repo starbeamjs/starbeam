@@ -1,4 +1,5 @@
 import { TIMELINE } from "@starbeam/core";
+
 import type {
   AggregateRow,
   AggregatorFor,

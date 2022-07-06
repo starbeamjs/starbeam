@@ -1,12 +1,7 @@
 import { Formula, Reactive } from "@starbeam/core";
 import { isObject } from "@starbeam/core-utils";
-import {
-  type DescriptionArgs,
-  Stack,
-  Description,
-  Block,
-  Message,
-} from "@starbeam/debug";
+import type { Description } from "@starbeam/debug";
+import { Message, Stack } from "@starbeam/debug";
 import { isDebug, LIFETIME, TIMELINE } from "@starbeam/timeline";
 import { isRendering, useLifecycle } from "@starbeam/use-strict-lifecycle";
 import { unsafeTrackedElsewhere } from "@starbeam/use-strict-lifecycle/src/react.js";

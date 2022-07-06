@@ -1,5 +1,5 @@
 import { Formula, PolledFormula } from "@starbeam/core";
-import type { Description, DescriptionArgs } from "@starbeam/debug";
+import type { Description } from "@starbeam/debug";
 import { Stack } from "@starbeam/debug";
 import type { Renderable } from "@starbeam/timeline";
 import { LIFETIME, TIMELINE } from "@starbeam/timeline";

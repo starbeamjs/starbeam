@@ -1,11 +1,11 @@
 import { isArray } from "@starbeam/core-utils";
-import type { Description, DescriptionArgs } from "@starbeam/debug";
+import type { Description } from "@starbeam/debug";
 import {
-  InternalChildren,
-  REACTIVE,
   type ReactiveInternals,
   type ReactiveProtocol,
   type Timestamp,
+  InternalChildren,
+  REACTIVE,
 } from "@starbeam/timeline";
 
 export class CompositeInternalsImpl implements ReactiveProtocol {

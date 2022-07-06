@@ -1,4 +1,4 @@
-import type { Description, DescriptionArgs } from "@starbeam/debug";
+import type { Description } from "@starbeam/debug";
 import { LOGGER, Stack } from "@starbeam/debug";
 import { expected, isEqual, verify } from "@starbeam/verify";
 
@@ -11,11 +11,11 @@ import {
 import { type FinalizedFrame, ActiveFrame, AssertFrame } from "./frames.js";
 import { NOW } from "./now.js";
 import { Queue } from "./queue.js";
+import type { Reactive } from "./reactive.js";
 import {
-  REACTIVE,
-  Reactive,
   type MutableInternals,
   type ReactiveProtocol,
+  REACTIVE,
 } from "./reactive.js";
 // eslint-disable-next-line import/no-cycle
 import { Renderable } from "./renderables/renderable.js";

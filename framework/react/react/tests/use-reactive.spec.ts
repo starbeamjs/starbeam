@@ -26,10 +26,7 @@ describe("useReactive", () => {
               cell.set(cell.current + 1);
             }
 
-            return () => {
-              debugger;
-              return { cell, increment };
-            };
+            return () => ({ cell, increment });
           }, "first useSetup");
 
           return useReactive(() => {

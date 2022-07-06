@@ -1,4 +1,4 @@
-import { Stack, type Description } from "@starbeam/debug";
+import { type Description, Stack } from "@starbeam/debug";
 
 import { Collection } from "./collection.js";
 

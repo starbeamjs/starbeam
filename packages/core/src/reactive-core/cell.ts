@@ -1,10 +1,6 @@
 import { isObject } from "@starbeam/core-utils";
-import {
-  type DescriptionArgs,
-  DisplayStruct,
-  Stack,
-  Description,
-} from "@starbeam/debug";
+import type { Description } from "@starbeam/debug";
+import { DisplayStruct, Stack } from "@starbeam/debug";
 import { type ReactiveInternals, INSPECT, REACTIVE } from "@starbeam/timeline";
 
 import type { Reactive } from "../reactive.js";
@@ -61,13 +57,13 @@ export class ReactiveCell<T> implements Reactive<T> {
     return this.read(Stack.fromCaller());
   }
 
+  set current(value: T) {
+    this.#set(value);
+  }
+
   read(caller: Stack): T {
     this.#internals.consume(caller);
     return this.#value;
-  }
-
-  set current(value: T) {
-    this.#set(value);
   }
 
   /**

@@ -1,5 +1,5 @@
 import { Cell } from "@starbeam/core";
-import type { Description, DescriptionArgs } from "@starbeam/debug";
+import type { Description } from "@starbeam/debug";
 import { Stack } from "@starbeam/debug";
 
 import TrackedArray from "./src/array.js";

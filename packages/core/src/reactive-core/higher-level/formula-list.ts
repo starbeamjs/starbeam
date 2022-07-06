@@ -1,4 +1,5 @@
-import { type DescriptionArgs, Stack, Description } from "@starbeam/debug";
+import type { Description } from "@starbeam/debug";
+import { Stack } from "@starbeam/debug";
 import { type ReactiveInternals, REACTIVE } from "@starbeam/timeline";
 
 import { Reactive } from "../../reactive.js";
@@ -26,6 +27,7 @@ class ReactiveFormulaList<T, U> implements Reactive<U[]> {
         package: "@starbeam/core",
         name: "ReactiveFormulaList",
       },
+      fromUser: desc,
     });
 
     const list = Formula(

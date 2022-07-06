@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { Cell, TIMELINE } from "@starbeam/core";
-import { useSetup, useReactive } from "@starbeam/react";
+import { useReactive, useSetup } from "@starbeam/react";
 import {
   entryPoint,
   html,

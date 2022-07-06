@@ -1,10 +1,11 @@
-import { Description, inspector, Stack } from "@starbeam/debug";
+import type { Description, Stack } from "@starbeam/debug";
+import { inspector } from "@starbeam/debug";
 import type { Timestamp } from "@starbeam/timeline";
 import {
+  type ReactiveProtocol,
   InternalChildren,
   REACTIVE,
   TIMELINE,
-  type ReactiveProtocol,
 } from "@starbeam/timeline";
 
 export class MutableInternalsImpl implements ReactiveProtocol {
