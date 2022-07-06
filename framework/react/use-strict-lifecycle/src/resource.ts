@@ -220,9 +220,17 @@ class ResourceBuilder<A> {
   ): ResourceInstance<T, A> {
     const builder = new ResourceBuilder(build);
     beginReadonly();
-    const instance = new ResourceInstance(builder, build(builder, args, prev));
-    endReadonly();
-    return instance;
+    try {
+      const instance = new ResourceInstance(
+        builder,
+        build(builder, args, prev)
+      );
+      endReadonly();
+      return instance;
+    } catch (e) {
+      endReadonly();
+      throw e;
+    }
   }
 
   static remount<T, A>(

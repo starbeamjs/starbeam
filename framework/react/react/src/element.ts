@@ -1,6 +1,7 @@
 import type { browser } from "@domtree/flavors";
 import type { Cell, Linkable, Reactive, Resource } from "@starbeam/core";
 import type {
+  CleanupTarget,
   DebugListener,
   OnCleanup,
   Renderable,
@@ -137,7 +138,9 @@ export interface DebugLifecycle {
  * {@link useReactiveElement} API (when a {@link useReactElement} definition is
  * instantiated, it is passed a {@link ReactiveElement}).
  */
-export class ReactiveElement {
+export class ReactiveElement implements CleanupTarget {
+  static stack: ReactiveElement[] = [];
+
   static create(notify: () => void): ReactiveElement {
     return new ReactiveElement(
       notify,
@@ -193,6 +196,10 @@ export class ReactiveElement {
   }
 
   readonly on: OnLifecycle;
+
+  link(child: object): Unsubscribe {
+    return LIFETIME.link(this, child);
+  }
 
   attach(lifecycle: DebugLifecycle): void {
     this.#debugLifecycle = lifecycle;

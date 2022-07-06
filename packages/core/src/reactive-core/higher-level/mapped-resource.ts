@@ -1,4 +1,5 @@
-import { type DescriptionArgs, Stack } from "@starbeam/debug";
+import type { Description } from "@starbeam/debug";
+import { Stack } from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/peer";
 import { LIFETIME } from "@starbeam/timeline";
 import { isNotEqual, verified } from "@starbeam/verify";
@@ -15,14 +16,18 @@ interface MappedResourceOptions<T, U> {
 
 export function ResourceFn<T, U>(
   options: MappedResourceOptions<T, U>,
-  description?: string | DescriptionArgs
+  description?: string | Description
 ): Linkable<(value: T) => U> {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return Linkable.create((owner) => {
     const equals = options.equals ?? Object.is;
 
     const cell = Cell<T | UNINITIALIZED>(UNINITIALIZED, {
-      ...Stack.description(description),
+      description: Stack.description({
+        type: "resource",
+        api: { package: "@starbeam/core", name: "ResourceFn" },
+        fromUser: description,
+      }),
       equals: (a: T | UNINITIALIZED, b: T | UNINITIALIZED) => {
         if (a === UNINITIALIZED || b === UNINITIALIZED) {
           return false;

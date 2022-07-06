@@ -1,4 +1,5 @@
-import { type DescriptionArgs, Stack } from "@starbeam/debug";
+import type { Description } from "@starbeam/debug";
+import { Stack } from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/peer";
 import { isNotEqual, verified } from "@starbeam/verify";
 
@@ -34,12 +35,19 @@ function normalizeOptions<T, U>(
 
 export function FormulaFn<T, U>(
   options: FormulaFnOptions<T, U>,
-  description?: DescriptionArgs | string
+  description?: Description | string
 ): (value: T) => U {
   const { equals, fn } = normalizeOptions(options);
 
   const cell = Cell<T | UNINITIALIZED>(UNINITIALIZED, {
-    ...Stack.description(description),
+    description: Stack.description({
+      type: "formula",
+      api: {
+        package: "@starbeam/core",
+        name: "FormulaFn",
+      },
+      fromUser: description,
+    }),
     equals: (a: T | UNINITIALIZED, b: T | UNINITIALIZED) => {
       if (a === UNINITIALIZED || b === UNINITIALIZED) {
         return false;
@@ -51,13 +59,10 @@ export function FormulaFn<T, U>(
 
   const desc = Reactive.description(cell);
 
-  const formula = Formula(
-    () => {
-      const value = verified(cell.current, isNotEqual(UNINITIALIZED));
-      return fn(value);
-    },
-    { description: desc.implementation({ reason: "FormulaFn formula" }) }
-  );
+  const formula = Formula(() => {
+    const value = verified(cell.current, isNotEqual(UNINITIALIZED));
+    return fn(value);
+  }, desc.implementation({ reason: "FormulaFn formula" }));
 
   return (value: T) => {
     cell.set(value);

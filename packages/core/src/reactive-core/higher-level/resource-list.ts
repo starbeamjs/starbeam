@@ -1,3 +1,4 @@
+import type { Description } from "@starbeam/debug";
 import { type DescriptionArgs, Stack } from "@starbeam/debug";
 import { type ReactiveInternals, LIFETIME, REACTIVE } from "@starbeam/timeline";
 
@@ -20,13 +21,20 @@ class ReactiveResourceList<T, U> implements Reactive<U[]> {
       key: (item: T) => Key;
       resource: (item: T) => Linkable<Resource<U>>;
     },
-    desc?: string | DescriptionArgs
+    desc?: string | Description
   ): Linkable<ResourceList<U>> {
     const formula = Formula(() =>
       [...iterable].map((item): [Key, T] => [key(item), item])
     );
 
-    const description = Stack.description(desc);
+    const description = Stack.description({
+      type: "collection:value",
+      api: {
+        package: "@starbeam/core",
+        name: "ResourceList",
+      },
+      fromUser: desc,
+    });
 
     return Linkable.create((owner) => {
       const list = new ReactiveResourceList(formula, resource, description);
@@ -71,7 +79,11 @@ class ReactiveResourceList<T, U> implements Reactive<U[]> {
   }
 
   get current(): U[] {
-    return this.#outputs.current;
+    return this.read(Stack.fromCaller());
+  }
+
+  read(caller: Stack): U[] {
+    return this.#outputs.read(caller);
   }
 
   #update(): Map<Key, Resource<U>> {

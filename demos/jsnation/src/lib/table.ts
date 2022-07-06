@@ -1,3 +1,4 @@
+import { TIMELINE } from "@starbeam/core";
 import { reactive } from "@starbeam/js";
 
 export type Row<T> = {
@@ -57,14 +58,16 @@ export class Query<T> {
   }
 
   get rows(): Row<T>[] {
-    const filtered = this.#table.rows.filter((row) =>
-      this.#filters.every((filter) => filter(row))
-    );
+    return TIMELINE.entryPoint(() => {
+      const filtered = this.#table.rows.filter((row) =>
+        this.#filters.every((filter) => filter(row))
+      );
 
-    if (this.#sort) {
-      return filtered.sort(this.#sort);
-    } else {
-      return filtered;
-    }
+      if (this.#sort) {
+        return filtered.sort(this.#sort);
+      } else {
+        return filtered;
+      }
+    });
   }
 }

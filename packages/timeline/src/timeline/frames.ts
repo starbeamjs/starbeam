@@ -1,9 +1,4 @@
 import type { Description } from "@starbeam/debug";
-import {
-  type DescriptionArgs,
-  FormulaDescription,
-  TimestampValidatorDescription,
-} from "@starbeam/debug";
 
 import { type IsUpdatedSince, InternalChildren } from "./internals.js";
 import {
@@ -34,7 +29,7 @@ export class AssertFrame {
 }
 
 export class ActiveFrame {
-  static create(description: DescriptionArgs): ActiveFrame {
+  static create(description: Description): ActiveFrame {
     return new ActiveFrame(new Set(), description);
   }
 
@@ -42,7 +37,7 @@ export class ActiveFrame {
 
   private constructor(
     children: Set<ReactiveProtocol>,
-    readonly description: DescriptionArgs
+    readonly description: Description
   ) {
     this.#children = children;
   }
@@ -90,7 +85,7 @@ export class FinalizedFrame<T = unknown>
     children: Set<ReactiveProtocol>;
     finalizedAt: Timestamp;
     value: T;
-    description: DescriptionArgs;
+    description: Description;
   }): FinalizedFrame<T> {
     return new FinalizedFrame(children, finalizedAt, value, description);
   }
@@ -104,7 +99,7 @@ export class FinalizedFrame<T = unknown>
     children: Set<ReactiveProtocol>,
     finalizedAt: Timestamp,
     value: T,
-    readonly description: DescriptionArgs
+    readonly description: Description
   ) {
     this.#children = children;
     this.#finalizedAt = finalizedAt;
@@ -127,10 +122,7 @@ export class FinalizedFrame<T = unknown>
 
     (
       this.#composite as ReactiveInternals & { description: Description }
-    ).description = FormulaDescription.from({
-      ...description,
-      validator: TimestampValidatorDescription.from(this.#composite),
-    });
+    ).description = description;
   }
 
   get [REACTIVE](): ReactiveInternals {

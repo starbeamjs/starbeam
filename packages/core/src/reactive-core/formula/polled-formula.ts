@@ -1,4 +1,4 @@
-import type { DescriptionArgs } from "@starbeam/debug";
+import type { Description } from "@starbeam/debug";
 import { Stack } from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/peer";
 import type { FinalizedFrame, ReactiveInternals } from "@starbeam/timeline";
@@ -28,7 +28,7 @@ interface LastEvaluation<T> {
 export class ReactivePolledFormula<T> implements Reactive<T> {
   static create<T>(
     formula: () => T,
-    description: DescriptionArgs
+    description: Description
   ): ReactivePolledFormula<T> {
     return new ReactivePolledFormula(
       UNINITIALIZED,
@@ -40,7 +40,7 @@ export class ReactivePolledFormula<T> implements Reactive<T> {
 
   static memo<T>(
     formula: () => T,
-    description: DescriptionArgs
+    description: Description
   ): ReactivePolledFormula<T> {
     return new ReactivePolledFormula(UNINITIALIZED, true, formula, description);
   }
@@ -49,13 +49,13 @@ export class ReactivePolledFormula<T> implements Reactive<T> {
   #shouldMemo: boolean;
   #last: LastEvaluation<T> | UNINITIALIZED;
   #formula: () => T;
-  readonly #description: DescriptionArgs;
+  readonly #description: Description;
 
   private constructor(
     last: LastEvaluation<T> | UNINITIALIZED,
     shouldMemo: boolean,
     formula: () => T,
-    description: DescriptionArgs
+    description: Description
   ) {
     this.#last = last;
     this.#shouldMemo = shouldMemo;
@@ -73,7 +73,11 @@ export class ReactivePolledFormula<T> implements Reactive<T> {
   }
 
   get current(): T {
-    return this.#evaluate();
+    return this.#evaluate(Stack.fromCaller());
+  }
+
+  read(caller: Stack): T {
+    return this.#evaluate(caller);
   }
 
   update(formula: () => T): void {
@@ -84,20 +88,21 @@ export class ReactivePolledFormula<T> implements Reactive<T> {
     TIMELINE.update(this);
   }
 
-  #evaluate(): T {
+  #evaluate(caller: Stack): T {
     if (this.#shouldMemo && this.#last !== UNINITIALIZED) {
       const validation = this.#last.frame.validate();
       if (validation.status === "valid") {
-        TIMELINE.didConsume(this.#last.frame);
+        TIMELINE.didConsume(this.#last.frame, caller);
         return validation.value;
       }
     }
 
     const { value, frame } = TIMELINE.evaluateFormula(
       this.#formula,
-      this.#description
+      this.#description,
+      caller
     );
-    TIMELINE.didConsume(frame);
+    TIMELINE.didConsume(frame, caller);
     this.#last = { value, frame };
 
     // Update any renderables that depend on this formula.
@@ -129,16 +134,19 @@ export class ReactivePolledFormula<T> implements Reactive<T> {
  */
 export function PolledFormula<T>(
   formula: () => T,
-  description?: string | DescriptionArgs
+  description?: string | Description
 ): Reactive<T> & { update(formula: () => T): void } {
-  return ReactivePolledFormula.create(formula, Stack.description(description));
+  return ReactivePolledFormula.create(
+    formula,
+    Stack.description({
+      type: "formula",
+      api: {
+        package: "@starbeam/core",
+        name: "PolledFormula",
+      },
+      fromUser: description,
+    })
+  );
 }
-
-PolledFormula.memo = <T>(
-  formula: () => T,
-  description?: string | DescriptionArgs
-): Reactive<T> & { update(formula: () => T): void } => {
-  return ReactivePolledFormula.memo(formula, Stack.description(description));
-};
 
 export type Formula<T> = ReactiveFn<T>;

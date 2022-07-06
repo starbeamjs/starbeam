@@ -1,23 +1,21 @@
 import { type Equality, Cell, Marker, Reactive } from "@starbeam/core";
-import type { Description, DescriptionArgs } from "@starbeam/debug";
+import { type Description, Stack } from "@starbeam/debug";
 
 class Entry<V> {
-  static initialized<V>(
-    value: V,
-    desc: DescriptionArgs,
-    equality: Equality<V>
-  ) {
+  static initialized<V>(value: V, desc: Description, equality: Equality<V>) {
     return new Entry(
-      Cell<undefined | Cell<V>>(Cell(value, desc), {
-        ...desc,
-        transform: (d) => d.implementation({ reason: "initialized entry" }),
+      Cell<undefined | Cell<V>>(Cell(value, { description: desc }), {
+        description: desc.implementation({ reason: "initialized entry" }),
       }),
       equality
     );
   }
 
-  static uninitialized<V>(desc: DescriptionArgs, equality: Equality<V>) {
-    return new Entry(Cell<undefined | Cell<V>>(undefined, desc), equality);
+  static uninitialized<V>(desc: Description, equality: Equality<V>) {
+    return new Entry(
+      Cell<undefined | Cell<V>>(undefined, { description: desc }),
+      equality
+    );
   }
 
   #value: Cell<undefined | Cell<V>>;
@@ -70,28 +68,22 @@ class Entry<V> {
 export class ReactiveMap<K, V> implements Map<K, V> {
   static reactive<K, V>(
     equality: Equality<V>,
-    description: DescriptionArgs
+    description: Description
   ): ReactiveMap<K, V> {
     return new ReactiveMap(description, equality);
   }
 
-  #description: DescriptionArgs;
+  #description: Description;
   #entries: Map<K, Entry<V>> = new Map();
   #equality: Equality<V>;
   #keys: Marker;
   #values: Marker;
 
-  private constructor(description: DescriptionArgs, equality: Equality<V>) {
+  private constructor(description: Description, equality: Equality<V>) {
     this.#description = description;
     this.#equality = equality;
-    this.#keys = Marker({
-      ...description,
-      transform: (d: Description) => d.key("keys"),
-    });
-    this.#values = Marker({
-      ...description,
-      transform: (d: Description) => d.key("values"),
-    });
+    this.#keys = Marker(description.key("keys"));
+    this.#values = Marker(description.key("values"));
   }
 
   clear(): void {
@@ -123,8 +115,8 @@ export class ReactiveMap<K, V> implements Map<K, V> {
     callbackfn: (value: V, key: K, map: Map<K, V>) => void,
     thisArg?: unknown
   ): void {
-    this.#keys.consume();
-    this.#values.consume();
+    this.#keys.consume(Stack.fromCaller());
+    this.#values.consume(Stack.fromCaller());
 
     for (const [key, entry] of this.#entries) {
       callbackfn.call(thisArg, entry.get() as V, key, this);
@@ -156,7 +148,7 @@ export class ReactiveMap<K, V> implements Map<K, V> {
   }
 
   get size(): number {
-    this.#keys.consume();
+    this.#keys.consume(Stack.fromCaller());
 
     let size = 0;
 
@@ -178,8 +170,8 @@ export class ReactiveMap<K, V> implements Map<K, V> {
   }
 
   *entries(): IterableIterator<[K, V]> {
-    this.#keys.consume();
-    this.#values.consume();
+    this.#keys.consume(Stack.fromCaller());
+    this.#values.consume(Stack.fromCaller());
 
     for (const [key, value] of this.#iterate()) {
       yield [key, value.get() as V];
@@ -187,7 +179,7 @@ export class ReactiveMap<K, V> implements Map<K, V> {
   }
 
   *keys(): IterableIterator<K> {
-    this.#keys.consume();
+    this.#keys.consume(Stack.fromCaller());
 
     for (const [key] of this.#iterate()) {
       yield key;
@@ -195,7 +187,8 @@ export class ReactiveMap<K, V> implements Map<K, V> {
   }
 
   *values(): IterableIterator<V> {
-    this.#values.consume();
+    // add an extra frame for the internal JS call to .next()
+    this.#values.consume(Stack.fromCaller(1));
 
     for (const [, value] of this.#iterate()) {
       yield value.get() as V;
@@ -213,7 +206,7 @@ export class ReactiveMap<K, V> implements Map<K, V> {
 
     if (entry === undefined) {
       entry = Entry.uninitialized(
-        { ...this.#description, transform: (d) => d.key("entry") },
+        this.#description.key("entry"),
         this.#equality
       );
       this.#entries.set(key, entry);
@@ -226,23 +219,20 @@ export class ReactiveMap<K, V> implements Map<K, V> {
 export class ReactiveSet<T> implements Set<T> {
   static reactive<T>(
     equality: Equality<T>,
-    description: DescriptionArgs
+    description: Description
   ): ReactiveSet<T> {
     return new ReactiveSet(description, equality);
   }
 
-  #description: DescriptionArgs;
+  #description: Description;
   #entries: Map<T, Entry<T>> = new Map();
   #equality: Equality<T>;
   #values: Marker;
 
-  private constructor(description: DescriptionArgs, equality: Equality<T>) {
+  private constructor(description: Description, equality: Equality<T>) {
     this.#description = description;
     this.#equality = equality;
-    this.#values = Marker({
-      ...description,
-      transform: (d: Description) => d.key("values"),
-    });
+    this.#values = Marker(description.key("values"));
   }
 
   add(value: T): this {
@@ -285,7 +275,7 @@ export class ReactiveSet<T> implements Set<T> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     thisArg?: any
   ): void {
-    this.#values.consume();
+    this.#values.consume(Stack.fromCaller());
 
     for (const [value] of this.#iterate()) {
       callbackfn.call(thisArg, value, value, this);
@@ -297,7 +287,7 @@ export class ReactiveSet<T> implements Set<T> {
   }
 
   get size(): number {
-    this.#values.consume();
+    this.#values.consume(Stack.fromCaller());
 
     let size = 0;
 
@@ -317,7 +307,7 @@ export class ReactiveSet<T> implements Set<T> {
   }
 
   *entries(): IterableIterator<[T, T]> {
-    this.#values.consume();
+    this.#values.consume(Stack.fromCaller());
 
     for (const [value, entry] of this.#iterate()) {
       yield [value, entry.get() as T];
@@ -325,7 +315,7 @@ export class ReactiveSet<T> implements Set<T> {
   }
 
   *keys(): IterableIterator<T> {
-    this.#values.consume();
+    this.#values.consume(Stack.fromCaller());
 
     for (const [value] of this.#iterate()) {
       yield value;

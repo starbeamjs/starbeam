@@ -13,7 +13,7 @@
  * worrying about its lifetime.
  */
 
-import type { DescriptionArgs } from "@starbeam/debug";
+import type { Description } from "@starbeam/debug";
 import { Stack } from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/peer";
 import {
@@ -44,7 +44,7 @@ interface ResourceState<T> {
 export class ReactiveResource<T> implements Reactive<T> {
   static create<T>(
     create: ResourceBlueprint<T>,
-    description: DescriptionArgs
+    description: Description
   ): ReactiveResource<T> {
     return new ReactiveResource(
       create,
@@ -60,13 +60,13 @@ export class ReactiveResource<T> implements Reactive<T> {
    */
   #initialized: Marker;
   #state: ResourceState<T> | UNINITIALIZED;
-  #description: DescriptionArgs;
+  #description: Description;
 
   private constructor(
     create: ResourceBlueprint<T>,
     initialized: Marker,
     state: ResourceState<T> | UNINITIALIZED,
-    description: DescriptionArgs
+    description: Description
   ) {
     this.#create = create;
     this.#initialized = initialized;
@@ -85,26 +85,30 @@ export class ReactiveResource<T> implements Reactive<T> {
     }
   }
 
-  get current(): T {
+  get current() {
+    return this.read(Stack.fromCaller());
+  }
+
+  read(caller: Stack): T {
     if (this.#state === UNINITIALIZED) {
       this.#initialized.update();
-      const formula = this.#initialize();
-      return formula.current;
+      const formula = this.#initialize({ caller });
+      return formula.read(caller);
     } else {
       const { creation, formula, lifetime } = this.#state;
 
-      const result = creation.validate();
+      const result = creation.validate(caller);
 
       if (result.state === "valid") {
-        return formula.current;
+        return formula.read(caller);
       } else {
-        const formula = this.#initialize({ last: lifetime });
-        return formula.current;
+        const formula = this.#initialize({ last: lifetime, caller });
+        return formula.read(caller);
       }
     }
   }
 
-  #initialize(options?: { last: object | undefined }) {
+  #initialize(options: { last?: object; caller: Stack }) {
     if (options?.last) {
       LIFETIME.finalize(options.last);
     }
@@ -113,14 +117,14 @@ export class ReactiveResource<T> implements Reactive<T> {
 
     const { state, value: definition } = FormulaState.evaluate(
       () => this.#create(build),
-      this.#description
+      this.#description,
+      options.caller
     );
 
-    const formula = Formula(definition, {
-      ...this.#description,
-      transform: (description) =>
-        description.implementation({ reason: "constructor formula" }),
-    });
+    const formula = Formula(
+      definition,
+      this.#description.implementation({ reason: "constructor formula" })
+    );
 
     const lifetime = BuildResource.lifetime(build);
 
@@ -168,12 +172,19 @@ class BuildResource implements CleanupTarget {
 
 export function Resource<T>(
   create: ResourceBlueprint<T>,
-  description?: string | DescriptionArgs
+  description?: string | Description
 ): ResourceConstructor<T> {
   return Linkable.create((owner) => {
     const resource = ReactiveResource.create(
       create,
-      Stack.description(description)
+      Stack.description({
+        type: "resource",
+        api: {
+          package: "@starbeam/core",
+          name: "Resource",
+        },
+        fromUser: description,
+      })
     );
 
     LIFETIME.link(owner, resource);

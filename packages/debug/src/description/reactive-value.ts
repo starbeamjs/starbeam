@@ -1,8 +1,4 @@
 import type { Stack, StackFrame } from "../stack.js";
-import {
-  type ValidatorDescription,
-  StaticValidatorDescription,
-} from "./validator.js";
 
 export type MarkerType =
   | "collection:key-value"
@@ -12,166 +8,197 @@ export type MarkerType =
 
 export type ValueType =
   | "implementation"
+  // represents a value that is not Starbeam-reactive, but is reactive according to the rules of the
+  // external framework embedding Starbeam (e.g. React)
+  | "external"
+  // represents a renderer value
+  | "renderer"
   | "static"
   | "cell"
   | "formula"
-  | "resource"
-  | MarkerType;
+  | "resource";
 
-export type UserFacingDescription =
-  | StaticDescription
-  | CellDescription
-  | FormulaDescription
-  | MarkerDescription;
+export type DescriptionType = MarkerType | ValueType;
 
-export type Description = UserFacingDescription | ImplementationDescription;
-
-export interface DescriptionType {
-  from(create: CreateDescription): Description;
+export interface MemberDescription {
+  type: "member";
+  kind: "index" | "property" | "key";
+  parent: Description;
+  name: string | number;
 }
 
-type DescriptionDetails =
-  | string
-  | {
-      type: "member";
-      kind: "index" | "property" | "key";
-      parent: Description;
-      name: string | number;
-    }
-  | { type: "method"; parent: Description; name: string };
+interface MethodDescription {
+  type: "method";
+  parent: Description;
+  name: string;
+}
+
+export type DescriptionDetails = string | MemberDescription | MethodDescription;
+
+interface ApiDetails {
+  package: string;
+  module?: string;
+  // default is allowed here
+  name: string;
+  method?:
+    | {
+        type: "static";
+        name: string;
+      }
+    | {
+        type: "instance";
+        name: string;
+      };
+}
 
 export interface DescriptionArgs {
-  name?: DescriptionDetails;
-  description?: Description;
-  transform?: (description: Description) => Description;
+  /**
+   * The type is a high-level categorization from the perspective of Starbeam. It is used in
+   * developer tools to decide how to render the description.
+   */
+  type: DescriptionType;
+  /**
+   * The {@linkcode api} is the user-facing, public API entry point that the developer used to
+   * construct the thing that this description is describing. For example, the `useSetup` hook in
+   * `@starbeam/react` has the type "resource" and the api "useStarbeam".
+   */
+  api: string | ApiDetails;
+  /**
+   * An optional description, as provided by the end user. Each instance of an abstraction like
+   * `useSetup` should have a different description (this is the distinction between `api` and
+   * `fromUser`).
+   */
+  fromUser?: DescriptionDetails | Description;
+
+  internal?: {
+    reason: string;
+    userFacing: DescriptionArgs;
+  };
+
   stack?: Stack;
 }
 
-export const DescriptionArgs = {
-  key: (args: DescriptionArgs, member: string): DescriptionArgs => {
-    return DescriptionArgs.transform(args, (desc) => desc.key(member));
-  },
-
-  index: (args: DescriptionArgs, index: number): DescriptionArgs => {
-    return DescriptionArgs.transform(args, (desc) => desc.index(index));
-  },
-
-  property: (args: DescriptionArgs, property: string): DescriptionArgs => {
-    return DescriptionArgs.transform(args, (desc) => desc.property(property));
-  },
-
-  transform: (
-    args: DescriptionArgs,
-    transform: (description: Description) => Description
-  ): DescriptionArgs => {
-    const originalTransform = args.transform;
-    if (originalTransform) {
-      return {
-        ...args,
-        transform: (description) => transform(originalTransform(description)),
-      };
-    } else {
-      return { ...args, transform };
-    }
-  },
-} as const;
-
-export const Description = {
-  is: (value: unknown): value is Description => {
-    return value instanceof AbstractDescription;
-  },
-
-  from: (
-    type: DescriptionType,
-    args: DescriptionArgs,
-    validator: ValidatorDescription
-  ): Description => {
-    if (args.description) {
-      return args.description;
-    }
-
-    if (Description.is(args)) {
+export class Description implements DescriptionArgs {
+  static from(args: DescriptionArgs): Description {
+    if (args instanceof Description) {
       return args;
+    } else if (args.fromUser instanceof Description) {
+      return args.fromUser;
     }
 
-    const description = type.from({ ...args, validator });
-
-    if (args.transform) {
-      return args.transform(description);
-    } else {
-      return description;
-    }
-  },
-};
-
-export abstract class AbstractDescription implements DescriptionArgs {
-  abstract readonly type: ValueType;
-
-  /**
-   * The name of the storage, as specified by the user. If no name was specified, the name is
-   * `undefined`.
-   */
-  #name: DescriptionDetails | undefined;
-
-  /**
-   * The stack (in code that called into Starbeam) that created this storage.
-   */
-  #stack: Stack | undefined;
-
-  #validator: ValidatorDescription;
-
-  constructor({ name, stack, validator }: CreateDescription) {
-    this.#name = name;
-    this.#stack = stack;
-    this.#validator = validator;
+    return new Description(
+      args.type,
+      args.api,
+      args.fromUser,
+      args.internal,
+      args.stack
+    );
   }
 
-  abstract userFacing(): UserFacingDescription;
+  /**
+   * The type is a high-level categorization from the perspective of Starbeam. It is used in
+   * developer tools to decide how to render the description.
+   */
+  readonly #type: DescriptionType;
+
+  /**
+   * The {@linkcode DescriptionArgs.api} is the user-facing, public API entry point that the developer used to
+   * construct the thing that this description is describing. For example, the `useSetup` hook in
+   * `@starbeam/react` has the type "resource" and the api "useStarbeam".
+   */
+  readonly #api: string | ApiDetails;
+  /**
+   * Optional additional details, provided by the end user. The `DescriptionDetails` may represent a
+   * part of a parent description (see {@linkcode MemberDescription},
+   * {@linkcode MethodDescription}). In those cases, they are still rooted in end-user supplied
+   * description details .
+   */
+  readonly #details: DescriptionDetails | undefined;
+
+  #internal:
+    | {
+        reason: string;
+        userFacing: DescriptionArgs;
+      }
+    | undefined;
+
+  #stack?: Stack | undefined;
+
+  constructor(
+    type: DescriptionType,
+    api: string | ApiDetails,
+    details: DescriptionDetails | undefined,
+    internal: { reason: string; userFacing: DescriptionArgs } | undefined,
+    stack: Stack | undefined
+  ) {
+    this.#type = type;
+    this.#api = api;
+    this.#details = details;
+    this.#internal = internal;
+    this.#stack = stack;
+  }
+
+  get type(): DescriptionType {
+    return this.#type;
+  }
+
+  get api(): string | ApiDetails {
+    return this.#api;
+  }
+
+  get userFacing(): Description {
+    if (this.#internal) {
+      return Description.from(this.#internal.userFacing);
+    } else {
+      return this;
+    }
+  }
+
+  get isAnonymous(): boolean {
+    return this.#details === undefined;
+  }
 
   implementation(details: { reason: string }) {
-    return ImplementationDescription.from({
-      ...details,
-      validator: this.#validator,
-      userFacing: this.userFacing(),
-      stack: this.#stack,
-    });
-  }
-
-  get validator(): ValidatorDescription {
-    return this.#validator;
+    return new Description(
+      this.#type,
+      this.#api,
+      this.#details,
+      { reason: details.reason, userFacing: this.userFacing },
+      this.#stack
+    );
   }
 
   get fullName(): string {
-    if (this.#name !== undefined) {
-      if (typeof this.#name === "string") {
-        return this.#name;
+    if (this.#details !== undefined) {
+      if (typeof this.#details === "string") {
+        return this.#details;
       } else {
-        return `${this.#name.parent.fullName}${this.name}`;
+        return `${this.#details.parent.fullName}${this.fromUser}`;
       }
     } else {
-      return `{anonymous ${this.type} @ ${this.#caller}}`;
+      return `{anonymous ${this.type}}`;
     }
   }
 
-  get name(): string {
-    if (this.#name) {
-      if (typeof this.#name === "string") {
-        return this.#name;
+  get fromUser(): string {
+    if (this.#details) {
+      if (typeof this.#details === "string") {
+        return this.#details;
       } else {
-        switch (this.#name.type) {
+        switch (this.#details.type) {
           case "member":
-            switch (this.#name.kind) {
+            switch (this.#details.kind) {
               case "index":
-                return `[${this.#name.name}]`;
+                return `[${this.#details.name}]`;
               case "property":
-                return `.${this.#name.name}`;
+                return `.${this.#details.name}`;
               case "key":
-                return `->${this.#name.name}`;
+                return `->${this.#details.name}`;
             }
             break;
 
           case "method":
-            return `.${this.#name.name}()`;
+            return `.${this.#details.name}()`;
         }
       }
     } else {
@@ -180,67 +207,66 @@ export abstract class AbstractDescription implements DescriptionArgs {
   }
 
   method(this: Description, name: string): Description {
-    return FormulaDescription.from({
-      name: {
+    return new Description(
+      "formula",
+      this.#api,
+      {
         type: "method",
         parent: this,
         name,
       },
-      validator: this.#validator,
-      stack: this.#stack,
-    });
+      undefined,
+      this.#stack
+    );
   }
 
   index(this: Description, index: number): Description {
-    return FormulaDescription.from({
-      name: {
+    return new Description(
+      "formula",
+      this.#api,
+      {
         type: "member",
         parent: this,
         kind: "index",
         name: index,
       },
-      validator: this.#validator,
-      stack: this.#stack,
-    });
+      undefined,
+      this.#stack
+    );
   }
 
   property(this: Description, name: string): Description {
-    return FormulaDescription.from({
-      name: {
+    return new Description(
+      "formula",
+      this.#api,
+      {
         type: "member",
         parent: this,
         kind: "property",
         name,
       },
-      validator: this.#validator,
-      stack: this.#stack,
-    });
+      undefined,
+      this.#stack
+    );
   }
 
   key(this: Description, name: string): Description {
-    return FormulaDescription.from({
-      name: {
+    return new Description(
+      "formula",
+      this.#api,
+      {
         type: "member",
         kind: "key",
         parent: this,
         name,
       },
-      validator: this.#validator,
-      stack: this.#stack,
-    });
-  }
-
-  get args(): DescriptionArgs {
-    return {
-      name: this.#name,
-      stack: this.#stack,
-    };
+      undefined,
+      this.#stack
+    );
   }
 
   describe({ source = false }: { source?: boolean } = {}): string {
-    if (this.#name === undefined) {
-      return `${this.fullName} @ ${this.#caller}`;
-    } else if (source) {
+    if (this.isAnonymous || source) {
       return `${this.fullName} @ ${this.#caller}`;
     } else {
       return this.fullName;
@@ -260,123 +286,4 @@ export abstract class AbstractDescription implements DescriptionArgs {
   get frame(): StackFrame | undefined {
     return this.#stack?.caller;
   }
-}
-
-abstract class AbstractUserFacingDescription extends AbstractDescription {
-  userFacing(): UserFacingDescription {
-    return this as UserFacingDescription;
-  }
-}
-
-export interface ImplementationDetails {
-  readonly reason: string;
-  readonly userFacing: UserFacingDescription;
-}
-
-export class ImplementationDescription extends AbstractDescription {
-  static from(
-    create: CreateDescription & ImplementationDetails
-  ): ImplementationDescription {
-    return new ImplementationDescription(create, create);
-  }
-
-  readonly type = "implementation";
-
-  readonly #implementation: ImplementationDetails;
-
-  constructor(
-    create: CreateDescription,
-    implementation: ImplementationDetails
-  ) {
-    super(create);
-
-    this.#implementation = implementation;
-  }
-
-  userFacing(): UserFacingDescription {
-    return this.#implementation.userFacing;
-  }
-
-  describe(options?: { source?: boolean }): string {
-    return super.describe(options) + `(${this.#implementation.reason})`;
-  }
-}
-
-export interface CreateDescription extends DescriptionArgs {
-  validator: ValidatorDescription;
-}
-
-export interface CreateStaticDescription {
-  name?: string;
-  stack?: Stack;
-}
-
-export class StaticDescription extends AbstractUserFacingDescription {
-  static from(
-    options: CreateStaticDescription | StaticDescription
-  ): StaticDescription {
-    if (Description.is(options)) {
-      return options;
-    }
-
-    return new StaticDescription({
-      ...options,
-      validator: new StaticValidatorDescription(),
-    });
-  }
-
-  readonly type = "static";
-}
-
-export class CellDescription extends AbstractUserFacingDescription {
-  static from(
-    this: void,
-    options: CreateDescription | CellDescription
-  ): CellDescription {
-    if (Description.is(options)) {
-      return options;
-    }
-
-    return new CellDescription(options);
-  }
-
-  readonly type = "cell";
-}
-
-export class MarkerDescription extends AbstractUserFacingDescription {
-  static type(type: MarkerType): DescriptionType {
-    return {
-      from: (options) => MarkerDescription.from(type, options),
-    };
-  }
-
-  static from(
-    this: void,
-    type: MarkerType,
-    options: CreateDescription | MarkerDescription
-  ): MarkerDescription {
-    if (Description.is(options)) {
-      return options;
-    }
-
-    return new MarkerDescription(options, type);
-  }
-
-  private constructor(options: CreateDescription, readonly type: MarkerType) {
-    super(options);
-  }
-}
-
-export class FormulaDescription extends AbstractUserFacingDescription {
-  static from(
-    options: CreateDescription | FormulaDescription
-  ): FormulaDescription {
-    if (Description.is(options)) {
-      return options;
-    }
-
-    return new FormulaDescription(options);
-  }
-
-  readonly type = "formula";
 }

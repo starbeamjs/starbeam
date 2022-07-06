@@ -6,7 +6,7 @@
 // and it will blow up in JS in exactly the same way, so it is safe to assume
 // that properties within the getter have the correct type in TS.
 
-import type { DescriptionArgs } from "@starbeam/debug";
+import { type Description, Stack } from "@starbeam/debug";
 
 import { Collection } from "./collection.js";
 
@@ -101,7 +101,7 @@ class Shadow<T> {
 
     if (!fn) {
       fn = (...args: unknown[]) => {
-        this.#collection.iterateKeys();
+        this.#collection.iterateKeys(Stack.fromCaller());
         // eslint-disable-next-line
         return (this.#target as any)[prop](...args);
       };
@@ -136,18 +136,19 @@ class Shadow<T> {
     return fn;
   }
 
-  at(index: number) {
+  at(index: number, caller: Stack) {
     this.#collection.get(
       index,
       index in this.#target ? "hit" : "miss",
-      member(index)
+      member(index),
+      caller
     );
-    this.#collection.iterateKeys();
+    this.#collection.iterateKeys(caller);
 
     return this.#target[index];
   }
 
-  updateAt(index: number, value: T) {
+  updateAt(index: number, value: T, caller: Stack) {
     const current = this.#target[index];
 
     if (Object.is(current, value)) {
@@ -155,7 +156,7 @@ class Shadow<T> {
     }
 
     this.#collection.splice();
-    this.#collection.set(index, "key:changes", member(index));
+    this.#collection.set(index, "key:changes", member(index), caller);
 
     this.#target[index] = value;
   }
@@ -196,7 +197,7 @@ class Shadow<T> {
 }
 
 export default class TrackedArray<T = unknown> {
-  constructor(description: DescriptionArgs, arr: T[] = []) {
+  constructor(description: Description, arr: T[] = []) {
     Object.freeze(arr);
 
     const target = [...arr];
@@ -205,7 +206,7 @@ export default class TrackedArray<T = unknown> {
     const proxy: T[] = new Proxy(target, {
       get(target, prop /*, _receiver */) {
         if (prop === "length") {
-          collection.iterateKeys();
+          collection.iterateKeys(Stack.fromCaller());
           return target.length;
         }
 
@@ -214,7 +215,7 @@ export default class TrackedArray<T = unknown> {
         if (index === null) {
           return shadow.get(prop);
         } else {
-          return shadow.at(index);
+          return shadow.at(index, Stack.fromCaller());
         }
       },
 
@@ -232,7 +233,7 @@ export default class TrackedArray<T = unknown> {
         if (index === null) {
           shadow.set(prop, value);
         } else if (index in target) {
-          shadow.updateAt(index, value as T);
+          shadow.updateAt(index, value as T, Stack.fromCaller());
         } else {
           shadow.set(prop, value);
         }
