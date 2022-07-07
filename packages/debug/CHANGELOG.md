@@ -1,5 +1,11 @@
 # @starbeam/debug
 
+## 0.5.3
+
+### Patch Changes
+
+- 194e461: Added untracked consumption errors and infrastructure for tracking reads and writes to cells
+
 ## 0.5.2
 
 ### Patch Changes

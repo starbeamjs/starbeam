@@ -1,7 +1,7 @@
 {
   "name": "@starbeamx/vanilla",
   "description": "A renderer for Starbeam using Vanilla JavaScript",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "type": "module",
   "main": "index.ts",
   "dependencies": {

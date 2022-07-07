@@ -1,5 +1,13 @@
 # @starbeam/timeline
 
+## 0.5.3
+
+### Patch Changes
+
+- 194e461: Added untracked consumption errors and infrastructure for tracking reads and writes to cells
+- Updated dependencies [194e461]
+  - @starbeam/debug@0.5.3
+
 ## 0.5.2
 
 ### Patch Changes
