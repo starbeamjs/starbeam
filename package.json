@@ -15,7 +15,7 @@
     "test:lint": "eslint . --cache",
     "test:all": "esno ./scripts/scripts.ts test",
     "typecheck": "tsc --build",
-    "test:prod": "vitest --mode production",
+    "test:prod": "PROD=1 DEV= vitest",
     "demos:react:store": "pnpm demo react-store"
   },
   "devDependencies": {

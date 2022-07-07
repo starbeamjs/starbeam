@@ -570,7 +570,7 @@ importers:
   packages/timeline:
     specifiers:
       '@starbeam/debug': workspace:*
-      '@starbeam/peer': ^1.0.2
+      '@starbeam/peer': workspace:*
       '@starbeam/verify': workspace:*
     dependencies:
       '@starbeam/debug': link:../debug
