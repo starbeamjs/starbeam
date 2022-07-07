@@ -1,4 +1,5 @@
 import type { anydom, browser } from "@domtree/flavors";
+import { type Description, descriptionFrom } from "@starbeam/debug";
 import { ElementPlaceholder } from "@starbeam/modifier";
 import {
   expected,
@@ -60,9 +61,20 @@ function ClassVerifier<E extends browser.Element>(
 type ElementType<E extends anydom.Element> = abstract new (...args: any[]) => E;
 
 export function ref<E extends browser.Element>(
-  kind: ElementType<E>
+  kind: ElementType<E>,
+  description?: string | Description
 ): ReactElementRef<E> {
-  const placeholder = ElementPlaceholder<E>(kind);
+  const placeholder = ElementPlaceholder<E>(
+    kind,
+    descriptionFrom({
+      type: "formula",
+      api: {
+        package: "@starbeam/react",
+        name: "ref",
+      },
+      fromUser: description,
+    })
+  );
   const verifier = ClassVerifier<E>(kind);
 
   const refCallback = ((element: E | null) => {

@@ -1,5 +1,5 @@
 import { type Equality, Cell, Marker, Reactive } from "@starbeam/core";
-import { type Description, Stack } from "@starbeam/debug";
+import { type Description, callerStack } from "@starbeam/debug";
 
 class Entry<V> {
   static initialized<V>(value: V, desc: Description, equality: Equality<V>) {
@@ -115,8 +115,8 @@ export class ReactiveMap<K, V> implements Map<K, V> {
     callbackfn: (value: V, key: K, map: Map<K, V>) => void,
     thisArg?: unknown
   ): void {
-    this.#keys.consume(Stack.fromCaller());
-    this.#values.consume(Stack.fromCaller());
+    this.#keys.consume(callerStack());
+    this.#values.consume(callerStack());
 
     for (const [key, entry] of this.#entries) {
       callbackfn.call(thisArg, entry.get() as V, key, this);
@@ -148,7 +148,7 @@ export class ReactiveMap<K, V> implements Map<K, V> {
   }
 
   get size(): number {
-    this.#keys.consume(Stack.fromCaller());
+    this.#keys.consume(callerStack());
 
     let size = 0;
 
@@ -170,8 +170,8 @@ export class ReactiveMap<K, V> implements Map<K, V> {
   }
 
   *entries(): IterableIterator<[K, V]> {
-    this.#keys.consume(Stack.fromCaller());
-    this.#values.consume(Stack.fromCaller());
+    this.#keys.consume(callerStack());
+    this.#values.consume(callerStack());
 
     for (const [key, value] of this.#iterate()) {
       yield [key, value.get() as V];
@@ -179,7 +179,7 @@ export class ReactiveMap<K, V> implements Map<K, V> {
   }
 
   *keys(): IterableIterator<K> {
-    this.#keys.consume(Stack.fromCaller());
+    this.#keys.consume(callerStack());
 
     for (const [key] of this.#iterate()) {
       yield key;
@@ -188,7 +188,7 @@ export class ReactiveMap<K, V> implements Map<K, V> {
 
   *values(): IterableIterator<V> {
     // add an extra frame for the internal JS call to .next()
-    this.#values.consume(Stack.fromCaller(1));
+    this.#values.consume(callerStack(1));
 
     for (const [, value] of this.#iterate()) {
       yield value.get() as V;
@@ -275,7 +275,7 @@ export class ReactiveSet<T> implements Set<T> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     thisArg?: any
   ): void {
-    this.#values.consume(Stack.fromCaller());
+    this.#values.consume(callerStack());
 
     for (const [value] of this.#iterate()) {
       callbackfn.call(thisArg, value, value, this);
@@ -287,7 +287,7 @@ export class ReactiveSet<T> implements Set<T> {
   }
 
   get size(): number {
-    this.#values.consume(Stack.fromCaller());
+    this.#values.consume(callerStack());
 
     let size = 0;
 
@@ -307,7 +307,7 @@ export class ReactiveSet<T> implements Set<T> {
   }
 
   *entries(): IterableIterator<[T, T]> {
-    this.#values.consume(Stack.fromCaller());
+    this.#values.consume(callerStack());
 
     for (const [value, entry] of this.#iterate()) {
       yield [value, entry.get() as T];
@@ -315,7 +315,7 @@ export class ReactiveSet<T> implements Set<T> {
   }
 
   *keys(): IterableIterator<T> {
-    this.#values.consume(Stack.fromCaller());
+    this.#values.consume(callerStack());
 
     for (const [value] of this.#iterate()) {
       yield value;

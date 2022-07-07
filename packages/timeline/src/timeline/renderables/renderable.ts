@@ -1,20 +1,17 @@
-import type { DescriptionArgs } from "@starbeam/debug";
+import type { DebugListener } from "@starbeam/debug";
 import { Tree } from "@starbeam/debug";
-import { UNINITIALIZED } from "@starbeam/peer";
+import { REACTIVE, UNINITIALIZED } from "@starbeam/peer";
 
 import { LIFETIME } from "../../lifetime/api.js";
-import type { DebugListener } from "../debug.js";
 import { Queue } from "../queue.js";
-import {
-  type MutableInternals,
-  type Reactive,
-  type ReactiveInternals,
-  type ReactiveProtocol,
-  REACTIVE,
+import type {
+  MutableInternals,
+  Reactive,
+  ReactiveInternals,
+  ReactiveProtocol,
 } from "../reactive.js";
 // eslint-disable-next-line import/no-cycle
 import { TIMELINE } from "../timeline.js";
-import type { Timestamp } from "../timestamp.js";
 import type { Renderables } from "./renderables.js";
 
 export interface DevInvalidated {
@@ -41,8 +38,7 @@ export class Renderable<T = unknown> implements ReactiveProtocol {
   static create<T>(
     input: Reactive<T>,
     notify: { readonly ready: (renderable: Renderable<T>) => void },
-    renderables: Renderables,
-    description: DescriptionArgs
+    renderables: Renderables
   ): Renderable<T> {
     const initialDependencies = input[REACTIVE].children().dependencies;
 
@@ -50,10 +46,7 @@ export class Renderable<T = unknown> implements ReactiveProtocol {
       input,
       notify,
       UNINITIALIZED,
-      renderables,
-      description,
-      new Set(initialDependencies),
-      TIMELINE.now
+      new Set(initialDependencies)
     );
 
     LIFETIME.on.cleanup(renderable, () => renderables.prune(renderable));
@@ -89,7 +82,6 @@ export class Renderable<T = unknown> implements ReactiveProtocol {
     );
 
     renderable.#dependencies = nextDeps;
-    renderable.#lastChecked = TIMELINE.now;
 
     return diff(prevDeps, nextDeps);
   }
@@ -99,29 +91,18 @@ export class Renderable<T = unknown> implements ReactiveProtocol {
     readonly ready: (renderable: Renderable<T>) => void;
   };
   readonly #last: UNINITIALIZED | T;
-  readonly #renderables: Renderables;
-  readonly #description: DescriptionArgs;
   #dependencies: Set<MutableInternals>;
-
-  // for debug purposes
-  #lastChecked: Timestamp;
 
   private constructor(
     input: Reactive<T>,
     notify: { readonly ready: (renderable: Renderable<T>) => void },
     last: UNINITIALIZED | T,
-    renderables: Renderables,
-    description: DescriptionArgs,
-    dependencies: Set<MutableInternals>,
-    lastChecked: Timestamp
+    dependencies: Set<MutableInternals>
   ) {
     this.#input = input;
     this.#dependencies = dependencies;
     this.#last = last;
-    this.#renderables = renderables;
-    this.#description = description;
     this.#notify = notify;
-    this.#lastChecked = lastChecked;
   }
 
   get [REACTIVE](): ReactiveInternals {
@@ -200,7 +181,6 @@ export class Renderable<T = unknown> implements ReactiveProtocol {
     const nextDeps = new Set(this.#input[REACTIVE].children().dependencies);
 
     this.#dependencies = nextDeps;
-    this.#lastChecked = TIMELINE.now;
 
     const diffs: Diff<T> = {
       ...diff(prevDeps, nextDeps),

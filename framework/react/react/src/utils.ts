@@ -1,6 +1,10 @@
 import { type Reactive, Cell, Marker } from "@starbeam/core";
-import type { Description } from "@starbeam/debug";
-import { Stack } from "@starbeam/debug";
+import {
+  type Description,
+  callerStack,
+  descriptionFrom,
+  Stack,
+} from "@starbeam/debug";
 import { reactive } from "@starbeam/js";
 import { useUpdatingVariable } from "@starbeam/use-strict-lifecycle";
 import type { Dispatch, SetStateAction } from "react";
@@ -19,7 +23,7 @@ export function useStable<I extends AnyRecord>(
   variable: I,
   description?: string | Description
 ): I {
-  const desc = Stack.description({
+  const desc = descriptionFrom({
     type: "external",
     api: "useStable",
     fromUser: description,
@@ -71,7 +75,7 @@ export function useDeps<T extends unknown[]>(
   deps: T,
   description?: string | Description
 ): { consume: () => void; debug: () => Reactive<unknown>[] } {
-  const desc = Stack.description({
+  const desc = descriptionFrom({
     type: "external",
     api: "useDeps",
     fromUser: description,
@@ -94,7 +98,7 @@ export function useProp<T>(
   variable: T,
   description?: string | Description
 ): Reactive<T> {
-  const desc = Stack.description({
+  const desc = descriptionFrom({
     type: "external",
     api: "useProp",
     fromUser: description,
@@ -114,7 +118,7 @@ export function useProps<T extends AnyRecord>(
   props: T,
   description?: string | Description
 ): T {
-  const desc = Stack.description({
+  const desc = descriptionFrom({
     type: "external",
     api: "useProps",
     fromUser: description,
@@ -138,7 +142,7 @@ useStableVariable.mutable = <S>(
   setValue: SetValue<S>,
   description?: string | Description
 ): ReactiveState<S> => {
-  const desc = Stack.description({
+  const desc = descriptionFrom({
     type: "external",
     api: "useStableVariable.mutable",
     fromUser: description,
@@ -179,7 +183,7 @@ export class ReactiveState<T> {
   }
 
   get current(): T {
-    this.#marker.consume(Stack.fromCaller());
+    this.#marker.consume(callerStack());
     return this.#value;
   }
 

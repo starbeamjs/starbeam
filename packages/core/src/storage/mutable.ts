@@ -1,5 +1,11 @@
-import type { Description, Stack } from "@starbeam/debug";
-import { inspector } from "@starbeam/debug";
+import {
+  type Description,
+  type Stack,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ifDebug,
+  inspector,
+  isDebug,
+} from "@starbeam/debug";
 import type { Timestamp } from "@starbeam/timeline";
 import {
   type ReactiveProtocol,
@@ -10,17 +16,19 @@ import {
 
 export class MutableInternalsImpl implements ReactiveProtocol {
   static {
-    inspector(this, "MutableInternals").define((internals, debug) =>
-      debug.struct(
-        {
-          frozen: internals.#frozen,
-          lastUpdate: String(internals.#lastUpdate),
-        },
-        {
-          description: internals.#description.fullName,
-        }
-      )
-    );
+    if (isDebug()) {
+      inspector(this, "MutableInternals").define((internals, debug) =>
+        debug.struct(
+          {
+            frozen: internals.#frozen,
+            lastUpdate: String(internals.#lastUpdate),
+          },
+          {
+            description: internals.#description.fullName,
+          }
+        )
+      );
+    }
   }
 
   static create(description: Description): MutableInternalsImpl {
@@ -51,6 +59,7 @@ export class MutableInternalsImpl implements ReactiveProtocol {
     return this;
   }
 
+  @ifDebug
   get debug(): { readonly lastUpdated: Timestamp } {
     return { lastUpdated: this.#lastUpdate };
   }
@@ -67,7 +76,7 @@ export class MutableInternalsImpl implements ReactiveProtocol {
     return this.#frozen;
   }
 
-  consume(caller: Stack): void {
+  consume(caller: Stack | undefined): void {
     if (!this.#frozen) {
       TIMELINE.didConsume(this, caller);
     }
@@ -90,10 +99,6 @@ export class MutableInternalsImpl implements ReactiveProtocol {
   /** impl ReactiveInternals */
   get description(): Description {
     return this.#description;
-  }
-
-  set description(value: Description) {
-    this.#description = value;
   }
 
   isUpdatedSince(timestamp: Timestamp): boolean {

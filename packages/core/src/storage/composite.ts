@@ -1,5 +1,6 @@
 import { isArray } from "@starbeam/core-utils";
-import type { Description } from "@starbeam/debug";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { type Description, ifDebug } from "@starbeam/debug";
 import {
   type ReactiveInternals,
   type ReactiveProtocol,
@@ -26,6 +27,7 @@ export class CompositeInternalsImpl implements ReactiveProtocol {
     this.#description = description;
   }
 
+  @ifDebug
   get debug() {
     return {
       lastUpdated: this.#children.lastUpdated,

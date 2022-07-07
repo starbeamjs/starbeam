@@ -1,5 +1,9 @@
-import type { Description } from "@starbeam/debug";
-import { Stack } from "@starbeam/debug";
+import type { Stack } from "@starbeam/debug";
+import {
+  type Description,
+  callerStack,
+  descriptionFrom,
+} from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/peer";
 import type { FinalizedFrame, ReactiveInternals } from "@starbeam/timeline";
 import { REACTIVE, TIMELINE } from "@starbeam/timeline";
@@ -60,7 +64,7 @@ export class RenderedValueImpl<T> implements Reactive<T> {
   }
 
   get current(): T {
-    return this.read(Stack.fromCaller());
+    return this.read(callerStack());
   }
 
   read(caller: Stack): T {
@@ -82,7 +86,7 @@ export function RenderedValue<T>(
 ): ReactiveFn<T> {
   const reactive = RenderedValueImpl.create(
     formula,
-    Stack.description({
+    descriptionFrom({
       type: "renderer",
       api: {
         package: "@starbeam/core",

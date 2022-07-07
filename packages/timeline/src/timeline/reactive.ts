@@ -1,31 +1,30 @@
-import type { Description, Stack } from "@starbeam/debug";
+// eslint-disable-next-line import/no-duplicates
+import type * as debug from "@starbeam/debug";
+import { REACTIVE } from "@starbeam/peer";
 
 import type { InternalChildren } from "./internals.js";
 import type { Timestamp } from "./timestamp.js";
 
-export const REACTIVE = Symbol("REACTIVE");
-export type REACTIVE = typeof REACTIVE;
-
 export interface MutableInternals extends ReactiveProtocol {
   readonly type: "mutable";
-  readonly description: Description;
+  readonly description: debug.Description;
   readonly debug: { lastUpdated: Timestamp };
   children(): InternalChildren;
   isFrozen(): boolean;
   isUpdatedSince(timestamp: Timestamp): boolean;
 }
 
-export interface CompositeInternals {
+export interface CompositeInternals extends ReactiveProtocol {
   readonly type: "composite";
-  readonly description: Description;
+  readonly description: debug.Description;
   readonly debug: { lastUpdated: Timestamp };
   children(): InternalChildren;
   isUpdatedSince(timestamp: Timestamp): boolean;
 }
 
-export interface StaticInternals {
+export interface StaticInternals extends ReactiveProtocol {
   readonly type: "static";
-  readonly description: Description;
+  readonly description: debug.Description;
   readonly debug: { lastUpdated: Timestamp };
   children(): InternalChildren;
   isUpdatedSince(timestamp: Timestamp): boolean;
@@ -36,13 +35,11 @@ export type ReactiveInternals =
   | CompositeInternals
   | StaticInternals;
 
-export interface ReactiveProtocol {
-  readonly [REACTIVE]: ReactiveInternals;
-}
+export type ReactiveProtocol = debug.ReactiveProtocol<ReactiveInternals>;
 
 export interface Reactive<T> extends ReactiveProtocol {
   readonly current: T;
-  read(stack: Stack): T;
+  read(stack: debug.Stack): T;
 }
 
 export const Reactive = {

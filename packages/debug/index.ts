@@ -1,3 +1,4 @@
+export { ifDebug, isDebug, isProd } from "./src/conditional.js";
 export {
   type DescriptionArgs,
   type DescriptionDetails,
@@ -5,7 +6,6 @@ export {
   type ValueType,
   Description,
 } from "./src/description/reactive-value.js";
-export { TimestampValidatorDescription } from "./src/description/validator.js";
 export {
   type DisplayStructOptions,
   DisplayStruct,
@@ -15,6 +15,7 @@ export {
   DEBUG,
   DEBUG_NAME,
   INSPECT,
+  inspect,
   inspector,
 } from "./src/inspect/inspect-support.js";
 export { type Logger, LOGGER, LogLevel } from "./src/logger.js";
@@ -27,13 +28,20 @@ export {
   Styles,
 } from "./src/message.js";
 export { describeModule } from "./src/module.js";
-export { Stack, StackFrame } from "./src/stack.js";
-export { Tree } from "./src/tree.js";
 export {
-  type OpaqueAlias,
-  type OpaqueMetadata,
-  type OpaqueValue,
-  LocalName,
-  QualifiedName,
-  Wrapper,
-} from "./src/wrapper.js";
+  type StackFrame,
+  callerStack,
+  descriptionFrom,
+  entryPoint,
+  Stack,
+} from "./src/stack.js";
+export {
+  type DebugFilter,
+  type DebugListener,
+  type DebugOperation,
+  type Flush,
+  type Internals,
+  type ReactiveProtocol,
+  DebugTimeline,
+} from "./src/timeline.js";
+export { Tree } from "./src/tree.js";

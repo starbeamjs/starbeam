@@ -99,14 +99,6 @@ export class Queue {
     }
   }
 
-  // #fulfill() {
-  //   this.#defer.fulfill();
-
-  //   for (const fulfillParent of this.#fulfillParents) {
-  //     fulfillParent();
-  //   }
-  // }
-
   #flushActions() {
     if (this.#actions.size > 0) {
       this.#phase = "actions";

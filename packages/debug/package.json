@@ -5,6 +5,7 @@
   "version": "0.5.2",
   "dependencies": {
     "@starbeam/verify": "workspace:*",
+    "@starbeam/peer": "workspace:*",
     "stacktracey": "^2.1.8"
   },
   "publishConfig": {

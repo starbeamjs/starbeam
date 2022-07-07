@@ -10,7 +10,7 @@ class ItemState {
   ): ItemState {
     return new ItemState(
       Cell(initialized, {
-        ...description
+        description: description
           .key(member)
           .implementation({ reason: "initialization tracking" }),
       }),

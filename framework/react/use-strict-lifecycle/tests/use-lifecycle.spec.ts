@@ -1,17 +1,14 @@
 // @vitest-environment jsdom
 
+import { entryPoint } from "@starbeam/debug";
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
 import {
-  entryPoint,
   html,
   react,
   testStrictAndLoose,
 } from "@starbeam-workspace/react-test-utils";
 import { useState } from "react";
 import { expect } from "vitest";
-
-// import { html, react } from "./support/dom.js";
-// import { entryPoint } from "./support/entry-point.js";
 
 testStrictAndLoose<
   void,

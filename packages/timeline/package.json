@@ -4,7 +4,7 @@
   "type": "module",
   "main": "index.ts",
   "dependencies": {
-    "@starbeam/peer": "^1.0.2",
+    "@starbeam/peer": "workspace:*",
     "@starbeam/verify": "workspace:*",
     "@starbeam/debug": "workspace:*"
   },
