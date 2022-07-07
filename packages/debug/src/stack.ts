@@ -63,7 +63,11 @@ export interface StackStatics {
    * not the direct call site from user code), you can specify an additional number of frames to erase
    * using the `extra` parameter.
    */
-  entryPoint<T>(this: void, callback: () => T, options?: { extra?: number }): T;
+  entryPoint<T>(
+    this: void,
+    callback: () => T,
+    options?: { extra?: number; stack?: Stack }
+  ): T;
 }
 
 let PickedStack: StackStatics;
@@ -192,7 +196,7 @@ if (isDebug()) {
       if (isErrorWithStack(error)) {
         const errorStack = DebugStack.from(error);
         errorStack.replaceFrames(fromStack);
-        error.stack = errorStack.toString();
+        error.stack = errorStack.stack;
       }
     }
 
@@ -239,10 +243,11 @@ if (isDebug()) {
 
     static entryPoint<T>(
       callback: () => T,
-      { extra = 0 }: { extra?: number } = {}
+      {
+        extra = 0,
+        stack = Stack.create(1 + extra),
+      }: { extra?: number; stack?: Stack } = {}
     ): T {
-      const stack = Stack.create(1 + extra);
-
       try {
         return callback();
       } catch (e) {

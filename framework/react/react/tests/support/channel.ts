@@ -1,6 +1,10 @@
 import { type Unsubscribe, TIMELINE } from "@starbeam/timeline";
 
 export class Channel {
+  static reset(this: void) {
+    Channel.#active = [];
+  }
+
   static subscribe(name: string): Channel {
     const channel = new Channel(Channel.#nextId++, name);
     Channel.#active.push(channel);

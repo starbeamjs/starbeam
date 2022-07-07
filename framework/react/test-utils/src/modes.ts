@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 import { TIMELINE } from "@starbeam/core";
-import { entryPoint } from "@starbeam/debug";
+import { callerStack, entryPoint, Stack } from "@starbeam/debug";
 import * as testing from "@testing-library/react";
 import { getByRole, getByText, waitFor } from "@testing-library/react";
 import {
@@ -102,28 +102,48 @@ class RenderResult<Props, T> {
     return RenderState.getValue(this.#state);
   }
 
-  async rerender(props?: Props): Promise<RenderResult<Props, T>> {
-    act(() => this.#result.rerender(this.#rerender(props)));
+  async rerender(
+    props?: Props,
+    caller = callerStack()
+  ): Promise<RenderResult<Props, T>> {
+
+    await this.act(() => this.#result.rerender(this.#rerender(props)), caller);
 
     await TIMELINE.nextIdle();
 
-    return entryPoint(() => {
-      SetupTestRender.assert(this.#setup, this);
+    return entryPoint(
+      () => {
+        SetupTestRender.assert(this.#setup, this);
 
-      return this;
-    });
+        return this;
+      },
+      { stack: caller }
+    );
   }
 
-  async act(behavior: () => void): Promise<void> {
-    act(behavior);
-    await this.rendered();
+  async act(behavior: () => void, caller = callerStack()): Promise<void> {
+    entryPoint(
+      () => {
+        act(behavior);
+      },
+      { stack: caller }
+    );
+    await this.rendered(caller);
   }
 
-  async rendered(): Promise<void> {
+  async rendered(caller = callerStack()): Promise<void> {
     const current = this.#state.renderCount;
 
     await testing.waitFor(() => {
-      expect(this.#state.renderCount).toBeGreaterThan(current);
+      entryPoint(
+        () => {
+          expect(
+            this.#state.renderCount,
+            "expected another render"
+          ).toBeGreaterThan(current);
+        },
+        { stack: caller }
+      );
     });
   }
 

@@ -1,3 +1,5 @@
+import type { ResourceConstructor } from "@starbeam/core";
+import { ReactiveResource } from "@starbeam/core/src/reactive-core/formula/resource.js";
 import {
   type CleanupTarget,
   type OnCleanup,
@@ -6,17 +8,26 @@ import {
   LIFETIME,
 } from "@starbeam/timeline";
 
-/**
- * {@linkcode useResource} is a Starbeam renderer that reads from reactive values and returns a
- * regular value.
- *
- * It takes a "reactive constructor" function that gets called on mount (including React 18
- * remounts).
- *
- * The reactive constructor
- */
-export function useResource<_T>() {
-  throw Error("Not implemented");
+import { useSetup } from "./use-setup.js";
+import { useDeps } from "./utils.js";
+
+export function useResource<T>(
+  resource: () => ResourceConstructor<T>,
+  deps: unknown[]
+): T {
+  const reactiveDeps = deps.length === 0 ? null : useDeps(deps);
+  return useSetup((setup) => {
+    const r = setup.use(
+      resource(),
+      reactiveDeps ? () => reactiveDeps.consume() : undefined
+    );
+
+    setup.on.layout(() => {
+      ReactiveResource.setup(r);
+    });
+
+    return r;
+  });
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -205,8 +205,8 @@ export class ReactiveElement implements CleanupTarget {
     this.#debugLifecycle = lifecycle;
   }
 
-  use<T>(resource: Linkable<Resource<T>>): Resource<T> {
-    return resource.create({ owner: this });
+  use<T>(resource: Linkable<Resource<T>>, extra?: () => void): Resource<T> {
+    return resource.create({ owner: this, extra });
   }
 
   refs<R extends RefsTypes>(refs: R): RefsRecordFor<R> {

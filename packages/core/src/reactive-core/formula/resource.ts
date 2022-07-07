@@ -22,11 +22,11 @@ import {
 import { UNINITIALIZED } from "@starbeam/peer";
 import {
   type CleanupTarget,
-  type OnCleanup,
   type ReactiveInternals,
   LIFETIME,
   REACTIVE,
 } from "@starbeam/timeline";
+import { expected, isPresent, verified } from "@starbeam/verify";
 
 import type { Reactive } from "../../reactive.js";
 import { CompositeInternals } from "../../storage/composite.js";
@@ -43,6 +43,8 @@ interface ResourceState<T> {
   readonly creation: FormulaState<() => T>;
   readonly lifetime: object;
   readonly formula: Formula<T>;
+  readonly builder: BuildResource;
+  isSetup: boolean;
 }
 
 export class ReactiveResource<T> implements Reactive<T> {
@@ -56,6 +58,13 @@ export class ReactiveResource<T> implements Reactive<T> {
       UNINITIALIZED,
       description
     );
+  }
+
+  static setup<T>(resource: ReactiveResource<T>) {
+    if (resource.#state !== UNINITIALIZED) {
+      BuildResource.setup(resource.#state.builder);
+      resource.#state.isSetup = true;
+    }
   }
 
   #create: ResourceBlueprint<T>;
@@ -117,10 +126,10 @@ export class ReactiveResource<T> implements Reactive<T> {
       LIFETIME.finalize(options.last);
     }
 
-    const build = BuildResource.create();
+    const builder = BuildResource.create();
 
     const { state, value: definition } = FormulaState.evaluate(
-      () => this.#create(build),
+      () => this.#create(builder),
       this.#description,
       options.caller
     );
@@ -130,27 +139,48 @@ export class ReactiveResource<T> implements Reactive<T> {
       this.#description.implementation({ reason: "constructor formula" })
     );
 
-    const lifetime = BuildResource.lifetime(build);
-
+    const lifetime = BuildResource.lifetime(builder);
     LIFETIME.link(this, lifetime);
+
+    const isSetup = this.#state === UNINITIALIZED ? false : this.#state.isSetup;
 
     this.#state = {
       creation: state,
       lifetime,
       formula,
+      builder,
+      isSetup,
     };
+
+    if (isSetup) {
+      BuildResource.setup(builder);
+    }
 
     return formula;
   }
 }
 
-class BuildResource implements CleanupTarget {
+export class BuildResource implements CleanupTarget {
   static create() {
-    return new BuildResource({});
+    return new BuildResource({}, new Set());
+  }
+
+  static setup(resource: BuildResource) {
+    for (const setup of resource.#setup) {
+      const cleanup = setup();
+
+      if (cleanup) {
+        resource.on.cleanup(cleanup);
+      }
+    }
   }
 
   static lifetime(build: BuildResource): object {
     return build.#object;
+  }
+
+  static setups(build: BuildResource): Set<() => void | (() => void)> {
+    return build.#setup;
   }
 
   /**
@@ -160,13 +190,18 @@ class BuildResource implements CleanupTarget {
    */
   #object: object;
 
-  constructor(object: object) {
+  #setup: Set<() => void | (() => void)>;
+
+  private constructor(object: object, setup: Set<() => void | (() => void)>) {
     this.#object = object;
+    this.#setup = setup;
   }
 
-  readonly on: OnCleanup = {
+  readonly on = {
     cleanup: (handler: () => void) =>
       LIFETIME.on.cleanup(this.#object, handler),
+
+    setup: (handler: () => void | (() => void)) => this.#setup.add(handler),
   };
 
   link(child: object): () => void {
@@ -178,9 +213,17 @@ export function Resource<T>(
   create: ResourceBlueprint<T>,
   description?: string | Description
 ): ResourceConstructor<T> {
-  return Linkable.create((owner) => {
+  return Linkable.create((owner, extra) => {
+    // If extra dependencies were passed to .create(), consume them while creating the resource.
+    const Create = extra
+      ? (builder: BuildResource) => {
+          extra();
+          return create(builder);
+        }
+      : create;
+
     const resource = ReactiveResource.create(
-      create,
+      Create,
       descriptionFrom({
         type: "resource",
         api: {

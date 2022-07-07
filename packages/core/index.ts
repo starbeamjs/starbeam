@@ -7,6 +7,7 @@ export { PolledFormula } from "./src/reactive-core/formula/polled-formula.js";
 export {
   type ResourceBlueprint,
   type ResourceConstructor,
+  BuildResource,
   Resource,
 } from "./src/reactive-core/formula/resource.js";
 export { FormulaList } from "./src/reactive-core/higher-level/formula-list.js";
