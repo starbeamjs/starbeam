@@ -1,5 +1,9 @@
-import type { Description } from "@starbeam/debug";
-import { Stack } from "@starbeam/debug";
+import {
+  callerStack,
+  descriptionFrom,
+  type Description,
+} from "@starbeam/debug";
+import type { Stack } from "@starbeam/debug";
 import { type ReactiveInternals, REACTIVE } from "@starbeam/timeline";
 
 import { Reactive } from "../../reactive.js";
@@ -21,7 +25,7 @@ class ReactiveFormulaList<T, U> implements Reactive<U[]> {
     },
     desc?: string | Description
   ) {
-    const descArgs = Stack.description({
+    const descArgs = descriptionFrom({
       type: "collection:value",
       api: {
         package: "@starbeam/core",
@@ -79,7 +83,7 @@ class ReactiveFormulaList<T, U> implements Reactive<U[]> {
   }
 
   get current(): U[] {
-    return this.read(Stack.fromCaller());
+    return this.read(callerStack());
   }
 
   read(caller: Stack): U[] {

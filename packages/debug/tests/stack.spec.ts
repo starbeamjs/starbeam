@@ -1,8 +1,8 @@
-import { Stack } from "@starbeam/debug";
+import { callerStack, isProd, Stack } from "@starbeam/debug";
 import { describe, expect, test } from "vitest";
 
 describe("Error stacks", () => {
-  test("getting the caller", () => {
+  test.skipIf(() => isProd())("getting the caller", () => {
     const anArrow = <T>(next: () => T): T => next();
 
     function aFunction() {
@@ -15,7 +15,7 @@ describe("Error stacks", () => {
 });
 
 function anOuterFunction() {
-  return Stack.fromCaller();
+  return callerStack();
 }
 
 function describeCallerInArgs(desc = Stack.describeCaller()) {

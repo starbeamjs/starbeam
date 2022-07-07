@@ -1,5 +1,5 @@
 import { isArray } from "@starbeam/core-utils";
-import type { Description } from "@starbeam/debug";
+import { ifDebug, type Description } from "@starbeam/debug";
 import {
   type ReactiveInternals,
   type ReactiveProtocol,
@@ -26,6 +26,7 @@ export class CompositeInternalsImpl implements ReactiveProtocol {
     this.#description = description;
   }
 
+  @ifDebug
   get debug() {
     return {
       lastUpdated: this.#children.lastUpdated,

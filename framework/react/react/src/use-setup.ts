@@ -1,7 +1,6 @@
 import { Formula, Reactive } from "@starbeam/core";
 import { isObject } from "@starbeam/core-utils";
-import type { Description } from "@starbeam/debug";
-import { Message, Stack } from "@starbeam/debug";
+import { descriptionFrom, Message, type Description } from "@starbeam/debug";
 import { isDebug, LIFETIME, TIMELINE } from "@starbeam/timeline";
 import { isRendering, useLifecycle } from "@starbeam/use-strict-lifecycle";
 import { unsafeTrackedElsewhere } from "@starbeam/use-strict-lifecycle/src/react.js";
@@ -93,7 +92,7 @@ export function useSetup<T>(
   callback: (setup: ReactiveElement) => (() => T) | Reactive<T>,
   description?: string | Description
 ): T {
-  const desc = Stack.description({
+  const desc = descriptionFrom({
     type: "resource",
     api: "useSetup",
     fromUser: description,

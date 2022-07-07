@@ -1,21 +1,27 @@
-import type { Description } from "@starbeam/debug";
-import { LOGGER, Stack } from "@starbeam/debug";
-import { expected, isEqual, verify } from "@starbeam/verify";
-
 import {
+  callerStack,
+  DebugTimeline,
+  descriptionFrom,
+  ifDebug,
+  isDebug,
+  LOGGER,
+  Stack,
   type DebugFilter,
   type DebugListener,
-  DebugTimeline,
-  isDebug,
-} from "./debug.js";
-import { type FinalizedFrame, ActiveFrame, AssertFrame } from "./frames.js";
+  type Description,
+} from "@starbeam/debug";
+import { REACTIVE } from "@starbeam/peer";
+import { expected, isEqual, verify } from "@starbeam/verify";
+import { LIFETIME } from "../lifetime/api.js";
+
+import { ActiveFrame, type FinalizedFrame } from "./frames.js";
 import { NOW } from "./now.js";
 import { Queue } from "./queue.js";
-import type { Reactive } from "./reactive.js";
-import {
-  type MutableInternals,
-  type ReactiveProtocol,
-  REACTIVE,
+import type {
+  MutableInternals,
+  Reactive,
+  ReactiveInternals,
+  ReactiveProtocol,
 } from "./reactive.js";
 // eslint-disable-next-line import/no-cycle
 import { Renderable } from "./renderables/renderable.js";
@@ -25,45 +31,50 @@ import { Timestamp } from "./timestamp.js";
 
 export abstract class Phase {
   abstract bump(internals: MutableInternals): void;
+  abstract consume(internals: ReactiveInternals): void;
 }
 
 export class ActionsPhase extends Phase {
-  static create(description: string): ActionsPhase {
-    return new ActionsPhase(description, new Set());
+  static create(): ActionsPhase {
+    return new ActionsPhase(new Set());
   }
 
-  readonly #description: string;
   readonly #bumped: Set<MutableInternals>;
 
-  private constructor(description: string, bumped: Set<MutableInternals>) {
+  private constructor(bumped: Set<MutableInternals>) {
     super();
-    this.#description = description;
     this.#bumped = bumped;
   }
 
   bump(internals: MutableInternals) {
     this.#bumped.add(internals);
   }
+
+  consume(_internals: MutableInternals) {
+    // do nothing
+  }
 }
 
 export class RenderPhase extends Phase {
-  static create(description: string): RenderPhase {
-    return new RenderPhase(new Set(), description);
+  static create(): RenderPhase {
+    return new RenderPhase(new Set());
   }
 
-  readonly #consumed: Set<ReactiveProtocol>;
-  readonly #description: string;
+  readonly #consumed: Set<ReactiveInternals>;
 
-  private constructor(consumed: Set<ReactiveProtocol>, description: string) {
+  private constructor(consumed: Set<ReactiveInternals>) {
     super();
     this.#consumed = consumed;
-    this.#description = description;
   }
 
   bump(internals: MutableInternals): void {
     throw Error(
       `You cannot mutate a data cell during the Render phase. You attempted to mutate ${internals.description.describe()}`
     );
+  }
+
+  consume(internals: MutableInternals) {
+    this.#consumed.add(internals);
   }
 }
 
@@ -82,7 +93,7 @@ export interface StartedFormula {
 export class Timeline {
   static create(): Timeline {
     return new Timeline(
-      ActionsPhase.create("initialization"),
+      ActionsPhase.create(),
       Renderables.create(),
       new Map(),
       new Set()
@@ -90,7 +101,7 @@ export class Timeline {
   }
 
   static StartedFormula = class StartedFormula {
-    static create(description: Description, caller: Stack): StartedFormula {
+    static create(description: Description, caller?: Stack): StartedFormula {
       const prevFrame = TIMELINE.#frame;
 
       const currentFrame = (TIMELINE.#frame = ActiveFrame.create(description));
@@ -100,12 +111,12 @@ export class Timeline {
 
     #prev: ActiveFrame | null;
     #current: ActiveFrame;
-    #caller: Stack;
+    #caller?: Stack;
 
     private constructor(
       prev: ActiveFrame | null,
       current: ActiveFrame,
-      caller: Stack
+      caller?: Stack
     ) {
       this.#prev = prev;
       this.#current = current;
@@ -138,7 +149,6 @@ export class Timeline {
   #phase: Phase;
   #callerStack: Stack | null = null;
   #frame: ActiveFrame | null = null;
-  #assertFrame: AssertFrame | null = null;
   #debugTimeline: DebugTimeline | null = null;
 
   readonly #renderables: Renderables;
@@ -179,7 +189,7 @@ export class Timeline {
       input,
       { ready },
       this.#renderables,
-      Stack.description({
+      descriptionFrom({
         type: "renderer",
         api: {
           package: "@starbeam/timeline",
@@ -216,7 +226,7 @@ export class Timeline {
         input,
         { ready },
         this.#renderables,
-        Stack.description({
+        descriptionFrom({
           type: "renderer",
           api: {
             package: "@starbeam/timeline",
@@ -243,15 +253,16 @@ export class Timeline {
     (reactive: ReactiveProtocol, caller: Stack) => void
   >();
 
-  // assert = {
-  //   readonly: (assertion: () => void): (() => void) => {},
-  // };
-
+  @ifDebug
   attach(
     notify: () => void,
     options: { filter: DebugFilter } = { filter: { type: "all" } }
   ): DebugListener {
-    return this.#debug.attach(notify, options);
+    const listener = this.#debug.attach(notify, options);
+
+    LIFETIME.on.cleanup(listener, () => listener.detach());
+
+    return listener;
   }
 
   get #debug() {
@@ -308,7 +319,6 @@ export class Timeline {
       this.#debug.updateCell(mutable);
     }
 
-    this.#assertFrame?.assert();
     NOW.bump();
 
     if (this.#afterRender.size > 0) {
@@ -325,7 +335,7 @@ export class Timeline {
     // the outermost entry point wins.
     if (isDebug() && !this.#callerStack) {
       try {
-        this.#callerStack = Stack.fromCaller(1);
+        this.#callerStack = callerStack(1);
         return callback();
       } finally {
         this.#callerStack = null;
@@ -385,11 +395,13 @@ export class Timeline {
     for (const storage of storages) {
       const updaters = this.#updatersFor(storage);
 
-      LOGGER.trace.log(
-        `notifying listeners for cell\ncell: %o\nlisteners:%o`,
-        storage,
-        updaters
-      );
+      if (isDebug()) {
+        LOGGER.trace.log(
+          `notifying listeners for cell\ncell: %o\nlisteners:%o`,
+          storage,
+          updaters
+        );
+      }
 
       if (updaters.size > 0) {
         this.#enqueue(...updaters);
@@ -398,7 +410,9 @@ export class Timeline {
   }
 
   // Indicate that a particular cell was used inside of the current computation.
-  didConsume(reactive: ReactiveProtocol, caller: Stack) {
+  didConsume(reactive: ReactiveProtocol, caller?: Stack) {
+    this.#phase.consume(reactive[REACTIVE]);
+
     if (this.#frame) {
       this.#frame.add(reactive);
       return;
@@ -422,26 +436,16 @@ export class Timeline {
    * untracked read occurred in a context (such as a render function) that a renderer knows will
    * produce rendered content.
    */
+  @ifDebug
   untrackedReadBarrier(
     assertion: (reactive: ReactiveProtocol, caller: Stack) => void
   ) {
     this.#readAssertions.add(assertion);
   }
 
-  #untrackedRead(reactive: ReactiveProtocol, caller: Stack) {
+  #untrackedRead(reactive: ReactiveProtocol, caller?: Stack) {
     for (const read of this.#readAssertions) {
-      read(reactive, caller);
-    }
-  }
-
-  withAssertFrame(callback: () => void, description: string): void {
-    const currentFrame = this.#assertFrame;
-
-    try {
-      this.#assertFrame = AssertFrame.describing(description);
-      callback();
-    } finally {
-      this.#assertFrame = currentFrame;
+      read(reactive, caller ?? Stack.EMPTY);
     }
   }
 
@@ -457,7 +461,7 @@ export class Timeline {
   evaluateFormula<T>(
     callback: () => T,
     description: Description,
-    caller: Stack
+    caller?: Stack
   ): { readonly frame: FinalizedFrame<T>; readonly value: T } {
     const formula = Timeline.StartedFormula.create(description, caller);
 

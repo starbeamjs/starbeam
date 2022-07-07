@@ -2,12 +2,12 @@ import type { browser } from "@domtree/flavors";
 import type { Cell, Linkable, Reactive, Resource } from "@starbeam/core";
 import type {
   CleanupTarget,
-  DebugListener,
   OnCleanup,
   Renderable,
   Unsubscribe,
 } from "@starbeam/timeline";
 import { LIFETIME } from "@starbeam/timeline";
+import type { DebugListener } from "@starbeam/debug";
 import type { ReactElement } from "react";
 
 import { type ElementRef, type ReactElementRef, ref } from "./ref.js";

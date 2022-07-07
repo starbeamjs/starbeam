@@ -1,5 +1,5 @@
 import { LIFETIME, PolledFormula, TIMELINE } from "@starbeam/core";
-import { Stack } from "@starbeam/debug";
+import { descriptionFrom, Stack } from "@starbeam/debug";
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
 import { useState } from "react";
 
@@ -14,7 +14,7 @@ import { useState } from "react";
  * If you also want to memoize the value, you can use {@linkcode useReactiveMemo}.
  */
 export function useReactive<T>(compute: () => T, description?: string): T {
-  const desc = Stack.description({
+  const desc = descriptionFrom({
     type: "formula",
     api: "useReactive",
     fromUser: description,

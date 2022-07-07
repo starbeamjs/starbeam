@@ -1,9 +1,8 @@
 import { Formula, PolledFormula } from "@starbeam/core";
-import type { Description } from "@starbeam/debug";
-import { Stack } from "@starbeam/debug";
+import { descriptionFrom, type Description } from "@starbeam/debug";
 import type { Renderable } from "@starbeam/timeline";
 import { LIFETIME, TIMELINE } from "@starbeam/timeline";
-import { type ReactElement, useRef, useState } from "react";
+import { useRef, useState, type ReactElement } from "react";
 
 import { ReactiveElement } from "./element.js";
 import { useSetup } from "./use-setup.js";
@@ -106,7 +105,7 @@ export function useStarbeam<_T>(
   definition: ReactiveDefinition<ReactElement, void>,
   description?: string | Description
 ): ReactElement {
-  const desc = Stack.description({
+  const desc = descriptionFrom({
     type: "resource",
     api: "useStarbeam",
     fromUser: description,
@@ -232,7 +231,7 @@ export function component<Props>(
   description?: string | Description
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): (props: Props, context?: any) => ReactElement {
-  const desc = Stack.description({
+  const desc = descriptionFrom({
     type: "resource",
     api: "starbeam.component",
     fromUser: description,

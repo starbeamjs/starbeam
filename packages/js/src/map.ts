@@ -1,5 +1,5 @@
 import { type Equality, Marker } from "@starbeam/core";
-import { type Description, Stack } from "@starbeam/debug";
+import { callerStack, type Description, type Stack } from "@starbeam/debug";
 
 import { Collection } from "./collection.js";
 
@@ -24,12 +24,7 @@ export class TrackedMap<K = unknown, V = unknown> implements Map<K, V> {
   get(key: K): V | undefined {
     const has = this.#vals.has(key);
 
-    this.#collection.get(
-      key,
-      has ? "hit" : "miss",
-      " {entry}",
-      Stack.fromCaller()
-    );
+    this.#collection.get(key, has ? "hit" : "miss", " {entry}", callerStack());
     return this.#vals.get(key);
   }
 
@@ -39,43 +34,43 @@ export class TrackedMap<K = unknown, V = unknown> implements Map<K, V> {
       key,
       has ? "hit" : "miss",
       " {entry}",
-      Stack.fromCaller()
+      callerStack()
     );
     return has;
   }
 
   // **** ALL GETTERS ****
   entries(): IterableIterator<[K, V]> {
-    this.#collection.iterateKeys(Stack.fromCaller());
-    this.#values.consume(Stack.fromCaller());
+    this.#collection.iterateKeys(callerStack());
+    this.#values.consume(callerStack());
     return this.#vals.entries();
   }
 
   keys(): IterableIterator<K> {
-    this.#collection.iterateKeys(Stack.fromCaller());
+    this.#collection.iterateKeys(callerStack());
     return this.#vals.keys();
   }
 
   values(): IterableIterator<V> {
     console.trace();
-    this.#collection.iterateKeys(Stack.fromCaller());
-    this.#values.consume(Stack.fromCaller());
+    this.#collection.iterateKeys(callerStack());
+    this.#values.consume(callerStack());
     return this.#vals.values();
   }
 
   forEach(fn: (value: V, key: K, map: Map<K, V>) => void): void {
-    this.#collection.iterateKeys(Stack.fromCaller());
-    this.#values.consume(Stack.fromCaller());
+    this.#collection.iterateKeys(callerStack());
+    this.#values.consume(callerStack());
     this.#vals.forEach(fn);
   }
 
   get size(): number {
-    this.#collection.iterateKeys(Stack.fromCaller());
+    this.#collection.iterateKeys(callerStack());
     return this.#vals.size;
   }
 
   [Symbol.iterator](): IterableIterator<[K, V]> {
-    const caller = Stack.fromCaller();
+    const caller = callerStack();
     this.#collection.iterateKeys(caller);
     this.#values.consume(caller);
     return this.#vals[Symbol.iterator]();
@@ -102,7 +97,7 @@ export class TrackedMap<K = unknown, V = unknown> implements Map<K, V> {
       key,
       has ? "key:stable" : "key:changes",
       " {entry}",
-      Stack.fromCaller()
+      callerStack()
     );
     this.#vals.set(key, value);
 
@@ -166,12 +161,7 @@ export class TrackedWeakMap<K extends object = object, V = unknown>
   get(key: K): V | undefined {
     const has = this.#vals.has(key);
 
-    this.#collection.get(
-      key,
-      has ? "hit" : "miss",
-      " {entry}",
-      Stack.fromCaller()
-    );
+    this.#collection.get(key, has ? "hit" : "miss", " {entry}", callerStack());
     return this.#vals.get(key);
   }
 
@@ -181,7 +171,7 @@ export class TrackedWeakMap<K extends object = object, V = unknown>
       key,
       has ? "hit" : "miss",
       " {entry}",
-      Stack.fromCaller()
+      callerStack()
     );
     return has;
   }
@@ -201,7 +191,7 @@ export class TrackedWeakMap<K extends object = object, V = unknown>
       key,
       has ? "key:stable" : "key:changes",
       " {entry}",
-      Stack.fromCaller()
+      callerStack()
     );
     this.#vals.set(key, value);
 

@@ -1,5 +1,4 @@
-import type { Description } from "@starbeam/debug";
-import { Stack } from "@starbeam/debug";
+import { descriptionFrom, type Description } from "@starbeam/debug";
 import type { Renderable } from "@starbeam/timeline";
 import { TIMELINE } from "@starbeam/timeline";
 
@@ -18,7 +17,7 @@ export const DEBUG_RENDERER = {
   ): Renderable<T> {
     const formula = Formula(
       render,
-      Stack.description({
+      descriptionFrom({
         type: "renderer",
         api: "DEBUG_RENDERER",
         fromUser: description,

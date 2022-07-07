@@ -3,6 +3,7 @@ import type {
   InspectOptionsStylized,
   Style,
 } from "util";
+import { isDebug } from "../conditional.js";
 
 import {
   type DisplayStructOptions,
@@ -63,19 +64,25 @@ export function inspector<I>(
       ? `Do not pass a class to debug() that already implements nodejs.util.inspect.custom`
       : I
   >,
-  name = Class.name
+  name?: string
 ): {
   define: (inspector: (instance: I, debug: Debug) => unknown) => void;
 } {
-  return {
-    define: (inspector: (instance: I, debug: Debug) => unknown) => {
-      Class.prototype[INSPECT] = function (
-        this: I,
-        _depth: number,
-        options: InspectOptionsStylized
-      ) {
-        return inspector(this, Debug.create(name, options));
-      };
-    },
-  };
+  if (isDebug()) {
+    return {
+      define: (inspector: (instance: I, debug: Debug) => unknown) => {
+        Class.prototype[INSPECT] = function (
+          this: I,
+          _depth: number,
+          options: InspectOptionsStylized
+        ) {
+          return inspector(this, Debug.create(name ?? Class.name, options));
+        };
+      },
+    };
+  } else {
+    return {
+      define: () => {},
+    };
+  }
 }

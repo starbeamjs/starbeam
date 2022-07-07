@@ -1,3 +1,4 @@
+export { ifDebug, isDebug, isProd } from "./src/conditional.js";
 export {
   type DescriptionArgs,
   type DescriptionDetails,
@@ -5,7 +6,6 @@ export {
   type ValueType,
   Description,
 } from "./src/description/reactive-value.js";
-export { TimestampValidatorDescription } from "./src/description/validator.js";
 export {
   type DisplayStructOptions,
   DisplayStruct,
@@ -27,13 +27,21 @@ export {
   Styles,
 } from "./src/message.js";
 export { describeModule } from "./src/module.js";
-export { Stack, StackFrame } from "./src/stack.js";
+export {
+  type StackFrame,
+  entryPoint,
+  Stack,
+  descriptionFrom,
+  callerStack,
+} from "./src/stack.js";
 export { Tree } from "./src/tree.js";
 export {
-  type OpaqueAlias,
-  type OpaqueMetadata,
-  type OpaqueValue,
-  LocalName,
-  QualifiedName,
-  Wrapper,
-} from "./src/wrapper.js";
+  type DebugFilter,
+  type DebugListener,
+  type DebugOperation,
+  DebugTimeline,
+  type Flush,
+  type ReactiveProtocol,
+  type Internals,
+  type Timestamp,
+} from "./src/timeline.js";

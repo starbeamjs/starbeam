@@ -6,7 +6,7 @@
 // and it will blow up in JS in exactly the same way, so it is safe to assume
 // that properties within the getter have the correct type in TS.
 
-import { type Description, Stack } from "@starbeam/debug";
+import { callerStack, type Description, type Stack } from "@starbeam/debug";
 
 import { Collection } from "./collection.js";
 
@@ -101,7 +101,7 @@ class Shadow<T> {
 
     if (!fn) {
       fn = (...args: unknown[]) => {
-        this.#collection.iterateKeys(Stack.fromCaller());
+        this.#collection.iterateKeys(callerStack());
         // eslint-disable-next-line
         return (this.#target as any)[prop](...args);
       };
@@ -206,7 +206,7 @@ export default class TrackedArray<T = unknown> {
     const proxy: T[] = new Proxy(target, {
       get(target, prop /*, _receiver */) {
         if (prop === "length") {
-          collection.iterateKeys(Stack.fromCaller());
+          collection.iterateKeys(callerStack());
           return target.length;
         }
 
@@ -215,7 +215,7 @@ export default class TrackedArray<T = unknown> {
         if (index === null) {
           return shadow.get(prop);
         } else {
-          return shadow.at(index, Stack.fromCaller());
+          return shadow.at(index, callerStack());
         }
       },
 
@@ -233,7 +233,7 @@ export default class TrackedArray<T = unknown> {
         if (index === null) {
           shadow.set(prop, value);
         } else if (index in target) {
-          shadow.updateAt(index, value as T, Stack.fromCaller());
+          shadow.updateAt(index, value as T, callerStack());
         } else {
           shadow.set(prop, value);
         }

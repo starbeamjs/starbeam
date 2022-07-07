@@ -13,8 +13,12 @@
  * worrying about its lifetime.
  */
 
-import type { Description } from "@starbeam/debug";
-import { Stack } from "@starbeam/debug";
+import {
+  callerStack,
+  descriptionFrom,
+  Stack,
+  type Description,
+} from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/peer";
 import {
   type CleanupTarget,
@@ -86,7 +90,7 @@ export class ReactiveResource<T> implements Reactive<T> {
   }
 
   get current() {
-    return this.read(Stack.fromCaller());
+    return this.read(callerStack());
   }
 
   read(caller: Stack): T {
@@ -177,7 +181,7 @@ export function Resource<T>(
   return Linkable.create((owner) => {
     const resource = ReactiveResource.create(
       create,
-      Stack.description({
+      descriptionFrom({
         type: "resource",
         api: {
           package: "@starbeam/core",

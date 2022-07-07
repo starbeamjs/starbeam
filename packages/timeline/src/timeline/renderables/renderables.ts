@@ -27,15 +27,6 @@ export class Renderables {
 
   prune<T>(renderable: Renderable<T>) {
     this.#internalsMap.remove(renderable);
-    // for (const [key, value] of this.#internalsMap) {
-    //   if (value === renderable) {
-    //     this.#internalsMap.delete(key);
-
-    // const dependencies = Renderable.dependencies(renderable);
-
-    // for (const dependency of dependencies) {
-    //   this.#internalsMap.delete(dependency, renderable);
-    // }
   }
 
   bumped(dependency: MutableInternals): void {

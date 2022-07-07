@@ -1,4 +1,4 @@
-import { type Description, Stack } from "@starbeam/debug";
+import { callerStack, type Description, type Stack } from "@starbeam/debug";
 
 import { Collection } from "./collection.js";
 
@@ -30,7 +30,7 @@ export default class TrackedObject {
           prop,
           Reflect.has(target, prop) ? "hit" : "miss",
           member(prop),
-          Stack.fromCaller()
+          callerStack()
         );
         return Reflect.get(target, prop) as unknown;
       },
@@ -40,7 +40,7 @@ export default class TrackedObject {
           prop,
           Reflect.has(target, prop) ? "hit" : "miss",
           member(prop),
-          Stack.fromCaller()
+          callerStack()
         );
         return Reflect.getOwnPropertyDescriptor(target, prop);
       },
@@ -55,7 +55,7 @@ export default class TrackedObject {
           prop,
           has ? "hit" : "miss",
           member(prop),
-          Stack.fromCaller()
+          callerStack()
         );
         return has;
       },
@@ -65,7 +65,7 @@ export default class TrackedObject {
       },
 
       ownKeys(target) {
-        collection.iterateKeys(Stack.fromCaller());
+        collection.iterateKeys(callerStack());
         return Reflect.ownKeys(target);
       },
 
@@ -89,7 +89,7 @@ export default class TrackedObject {
             prop,
             updates.disposition,
             member(prop),
-            Stack.fromCaller()
+            callerStack()
           );
         }
 
@@ -113,7 +113,7 @@ export default class TrackedObject {
         return true;
       }
 
-      collection.set(key, updates.disposition, String(key), Stack.fromCaller());
+      collection.set(key, updates.disposition, String(key), callerStack());
 
       return true;
     }

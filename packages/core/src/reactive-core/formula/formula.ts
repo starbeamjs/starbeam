@@ -1,5 +1,11 @@
-import type { Description } from "@starbeam/debug";
-import { Stack } from "@starbeam/debug";
+import {
+  callerStack,
+  descriptionFrom,
+  ifDebug,
+  isDebug,
+  Stack,
+  type Description,
+} from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/peer";
 import type { FinalizedFrame, ReactiveInternals } from "@starbeam/timeline";
 import { REACTIVE, TIMELINE } from "@starbeam/timeline";
@@ -13,8 +19,6 @@ interface LastEvaluation<T> {
   readonly frame: FinalizedFrame<T>;
   readonly value: T;
 }
-
-const INSPECT = Symbol.for("nodejs.util.inspect.custom");
 
 export class ReactiveFormula<T> implements Reactive<T> {
   static create<T>(
@@ -59,7 +63,7 @@ export class ReactiveFormula<T> implements Reactive<T> {
   }
 
   get current(): T {
-    return this.read(Stack.fromCaller());
+    return this.read(callerStack());
   }
 
   read(caller: Stack): T {
@@ -76,7 +80,8 @@ export class ReactiveFormula<T> implements Reactive<T> {
     return this.#evaluate(caller);
   }
 
-  [INSPECT]() {
+  @ifDebug
+  [Symbol.for("nodejs.util.inspect.custom")]() {
     return `Formula(${Reactive.description(this).describe()})`;
   }
 
@@ -104,7 +109,7 @@ export function Formula<T>(
 ): FormulaFn<T> {
   const reactive = ReactiveFormula.create(
     formula,
-    Stack.description({
+    descriptionFrom({
       type: "formula",
       api: {
         package: "@starbeam/core",
@@ -117,11 +122,11 @@ export function Formula<T>(
   const fn = ReactiveFn(reactive) as FormulaFn<T>;
   fn.update = (formula) => reactive.update(formula);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (fn as Record<PropertyKey, any>)[Symbol.for("nodejs.util.inspect.custom")] =
-    () => {
-      return reactive[INSPECT]();
-    };
+  if (isDebug()) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (fn as Record<PropertyKey, any>)[Symbol.for("nodejs.util.inspect.custom")] =
+      () => (reactive as any)[Symbol.for("nodejs.util.inspect.custom")]?.();
+  }
 
   return fn;
 }

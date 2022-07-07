@@ -1,7 +1,13 @@
 import { isObject } from "@starbeam/core-utils";
-import type { Description } from "@starbeam/debug";
-import { DisplayStruct, Stack } from "@starbeam/debug";
-import { type ReactiveInternals, INSPECT, REACTIVE } from "@starbeam/timeline";
+import {
+  callerStack,
+  Description,
+  descriptionFrom,
+  DisplayStruct,
+  ifDebug,
+  Stack,
+} from "@starbeam/debug";
+import { INSPECT, REACTIVE, type ReactiveInternals } from "@starbeam/timeline";
 
 import type { Reactive } from "../reactive.js";
 import { MutableInternalsImpl } from "../storage/mutable.js";
@@ -36,6 +42,7 @@ export class ReactiveCell<T> implements Reactive<T> {
     this.#internals = reactive;
   }
 
+  @ifDebug
   [INSPECT]() {
     const { description, debug } = this.#internals;
 
@@ -45,6 +52,7 @@ export class ReactiveCell<T> implements Reactive<T> {
     });
   }
 
+  @ifDebug
   toString() {
     return `Cell (${String(this.#value)})`;
   }
@@ -54,14 +62,14 @@ export class ReactiveCell<T> implements Reactive<T> {
   }
 
   get current(): T {
-    return this.read(Stack.fromCaller());
+    return this.read(callerStack());
   }
 
   set current(value: T) {
     this.#set(value);
   }
 
-  read(caller: Stack): T {
+  read(caller: Stack | undefined): T {
     this.#internals.consume(caller);
     return this.#value;
   }
@@ -108,34 +116,33 @@ export function Cell<T>(
     | string
     | { description?: string | Description; equals?: Equality<T> }
 ): ReactiveCell<T> {
+  let desc: Description;
+  let equals: Equality<T>;
+
   if (typeof description === "string" || description === undefined) {
-    return ReactiveCell.create(
-      value,
-      Object.is,
-      MutableInternalsImpl.create(
-        Stack.description({
-          type: "cell",
-          api: "Cell",
-          fromUser: description,
-        })
-      )
-    );
+    desc = normalize(description);
+    equals = Object.is;
+  } else {
+    desc = normalize(description.description);
+    equals = description.equals ?? Object.is;
   }
 
-  return ReactiveCell.create(
-    value,
-    description.equals,
-    MutableInternalsImpl.create(
-      Stack.description({
-        type: "cell",
-        api: {
-          package: "@starbeam/core",
-          name: "Cell",
-        },
-        fromUser: description.description,
-      })
-    )
-  );
+  return ReactiveCell.create(value, equals, MutableInternalsImpl.create(desc));
+}
+
+function normalize(description?: string | Description): Description {
+  if (typeof description === "string" || description === undefined) {
+    return descriptionFrom({
+      type: "cell",
+      api: {
+        package: "@starbeam/core",
+        name: "Cell",
+      },
+      fromUser: description,
+    });
+  }
+
+  return description;
 }
 
 Cell.is = <T>(value: unknown): value is Cell<T> => {

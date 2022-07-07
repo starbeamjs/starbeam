@@ -21,6 +21,7 @@
     "@types/react": "^18.0.14",
     "@types/react-dom": "^18.0.5",
     "@starbeam-workspace/test-utils": "workspace:*",
+    "@starbeam/debug": "workspace:*",
     "documentary": "^1.38.7",
     "expect": "^27.5.1",
     "jest": "^27.5.1",

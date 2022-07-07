@@ -11,8 +11,6 @@ overrides:
   '@types/react': ^18.0.10
   '@types/react-dom': ^18.0.5
 
-patchedDependencies: {}
-
 importers:
 
   .:
@@ -369,6 +367,7 @@ importers:
       '@starbeam-workspace/test-utils': workspace:*
       '@starbeam/core': workspace:*
       '@starbeam/core-utils': workspace:*
+      '@starbeam/debug': workspace:*
       '@starbeam/timeline': workspace:*
       '@testing-library/react': ^13.3.0
       '@types/react': ^18.0.10
@@ -379,6 +378,7 @@ importers:
       '@starbeam-workspace/test-utils': link:../../../packages/test-utils
       '@starbeam/core': link:../../../packages/core
       '@starbeam/core-utils': link:../../../packages/core-utils
+      '@starbeam/debug': link:../../../packages/debug
       '@starbeam/timeline': link:../../../packages/timeline
       '@testing-library/react': 13.3.0_biqbaboplfbrettd7655fr4n2y
     devDependencies:
@@ -390,6 +390,7 @@ importers:
   framework/react/use-strict-lifecycle:
     specifiers:
       '@starbeam-workspace/test-utils': workspace:*
+      '@starbeam/debug': workspace:*
       '@testing-library/dom': ^8.13.0
       '@testing-library/react': latest
       '@testing-library/user-event': ^14.2.0
@@ -405,6 +406,7 @@ importers:
       shelljs: ^0.8.5
     devDependencies:
       '@starbeam-workspace/test-utils': link:../../../packages/test-utils
+      '@starbeam/debug': link:../../../packages/debug
       '@testing-library/dom': 8.14.0
       '@testing-library/react': 13.3.0_biqbaboplfbrettd7655fr4n2y
       '@testing-library/user-event': 14.2.1_ihvo3xlg2d6kwqju3os3zitn3y
@@ -494,9 +496,11 @@ importers:
 
   packages/debug:
     specifiers:
+      '@starbeam/peer': workspace:*
       '@starbeam/verify': workspace:*
       stacktracey: ^2.1.8
     dependencies:
+      '@starbeam/peer': link:../peer
       '@starbeam/verify': link:../verify
       stacktracey: 2.1.8
 
