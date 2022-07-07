@@ -1,6 +1,6 @@
 import type { anydom } from "@domtree/flavors";
 import { Cell } from "@starbeam/core";
-import { Stack } from "@starbeam/debug";
+import type { Description } from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/peer";
 import { expected, isPresent, verified, verify } from "@starbeam/verify";
 
@@ -21,10 +21,15 @@ const REFS = new WeakMap<object, Cell<anydom.Element | UNINITIALIZED>>();
 
 export function ElementPlaceholder<E extends anydom.Element>(
   type: ElementType<E>,
-  description = Stack.describeCaller()
+  description: Description
 ): ElementPlaceholder<E> {
   const ref = Object.create(null) as object;
-  REFS.set(ref, Cell<anydom.Element | UNINITIALIZED>(UNINITIALIZED));
+  REFS.set(
+    ref,
+    Cell<anydom.Element | UNINITIALIZED>(UNINITIALIZED, {
+      description,
+    })
+  );
 
   return {
     initialize(value: anydom.Element): void {
@@ -32,7 +37,7 @@ export function ElementPlaceholder<E extends anydom.Element>(
       verify(
         value,
         (value): value is E => value instanceof type,
-        expected(`A ref (${description})`)
+        expected(`A ref (${description.describe()})`)
           .toBe(`initialized with an instance of ${type.name}`)
           .butGot(() => `an instance of ${value.constructor.name}`)
       );

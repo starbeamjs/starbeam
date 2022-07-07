@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 
 import { Cell, TIMELINE } from "@starbeam/core";
+import { entryPoint } from "@starbeam/debug";
 import { useReactive, useSetup } from "@starbeam/react";
 import {
-  entryPoint,
   html,
   react,
   testStrictAndLoose,

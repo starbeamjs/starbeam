@@ -1,5 +1,4 @@
-import type { Description } from "@starbeam/debug";
-import { Stack } from "@starbeam/debug";
+import { type Description, descriptionFrom } from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/peer";
 import { LIFETIME } from "@starbeam/timeline";
 import { isNotEqual, verified } from "@starbeam/verify";
@@ -23,7 +22,7 @@ export function ResourceFn<T, U>(
     const equals = options.equals ?? Object.is;
 
     const cell = Cell<T | UNINITIALIZED>(UNINITIALIZED, {
-      description: Stack.description({
+      description: descriptionFrom({
         type: "resource",
         api: { package: "@starbeam/core", name: "ResourceFn" },
         fromUser: description,

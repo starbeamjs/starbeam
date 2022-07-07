@@ -1,4 +1,4 @@
-import { inspector } from "@starbeam/debug";
+import { inspector, isProd } from "@starbeam/debug";
 import { describe, expect, test } from "vitest";
 
 class Person {
@@ -25,7 +25,7 @@ class Person {
   }
 }
 
-describe("inspect utilities", () => {
+describe.skipIf(isProd)("inspect utilities", () => {
   test("an installed DisplayStruct is used by util.inspect", async () => {
     const util = await import("node:util");
 

@@ -1,4 +1,5 @@
-import { DisplayStruct } from "@starbeam/debug";
+// eslint-disable-next-line unused-imports/no-unused-imports, @typescript-eslint/no-unused-vars
+import { DisplayStruct, ifDebug } from "@starbeam/debug";
 // import type { IS_UPDATED_SINCE } from "../../fundamental/constants.js";
 // import { INSPECT } from "../../utils.js";
 import { bump as peerBump, now as peerNow } from "@starbeam/peer";
@@ -28,6 +29,7 @@ export class Timestamp {
     this.#timestamp = timestamp;
   }
 
+  @ifDebug
   [INSPECT]() {
     return DisplayStruct("Timestamp", { at: this.#timestamp });
   }

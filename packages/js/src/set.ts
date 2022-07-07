@@ -1,4 +1,4 @@
-import { type Description, Stack } from "@starbeam/debug";
+import { type Description, callerStack } from "@starbeam/debug";
 
 import { Collection } from "./collection.js";
 
@@ -23,7 +23,7 @@ export class TrackedSet<T = unknown> implements Set<T> {
       value,
       has ? "hit" : "miss",
       " {value}",
-      Stack.fromCaller()
+      callerStack()
     );
 
     return has;
@@ -31,34 +31,34 @@ export class TrackedSet<T = unknown> implements Set<T> {
 
   // **** ALL GETTERS ****
   entries(): IterableIterator<[T, T]> {
-    this.#collection.iterateKeys(Stack.fromCaller());
+    this.#collection.iterateKeys(callerStack());
     return this.#vals.entries();
   }
 
   keys(): IterableIterator<T> {
-    this.#collection.iterateKeys(Stack.fromCaller());
+    this.#collection.iterateKeys(callerStack());
     return this.#vals.keys();
   }
 
   values(): IterableIterator<T> {
-    this.#collection.iterateKeys(Stack.fromCaller());
+    this.#collection.iterateKeys(callerStack());
     return this.#vals.values();
   }
 
   forEach(fn: (value1: T, value2: T, set: Set<T>) => void): void {
-    this.#collection.iterateKeys(Stack.fromCaller());
+    this.#collection.iterateKeys(callerStack());
     this.#vals.forEach(fn);
   }
 
   get size(): number {
     // It's definitely possible to do better than invalidating this any time the
     // collection is modified at all, but it may not be worth the effort.
-    this.#collection.iterateKeys(Stack.fromCaller());
+    this.#collection.iterateKeys(callerStack());
     return this.#vals.size;
   }
 
   [Symbol.iterator](): IterableIterator<T> {
-    this.#collection.iterateKeys(Stack.fromCaller());
+    this.#collection.iterateKeys(callerStack());
     return this.#vals[Symbol.iterator]();
   }
 
@@ -75,7 +75,7 @@ export class TrackedSet<T = unknown> implements Set<T> {
     }
 
     this.#collection.splice();
-    this.#collection.set(value, "key:changes", " {value}", Stack.fromCaller());
+    this.#collection.set(value, "key:changes", " {value}", callerStack());
     this.#vals.add(value);
 
     return this;
@@ -130,7 +130,7 @@ export class TrackedWeakSet<T extends object = object> implements WeakSet<T> {
       value,
       has ? "hit" : "miss",
       " {value}",
-      Stack.fromCaller()
+      callerStack()
     );
 
     return has;
@@ -144,7 +144,7 @@ export class TrackedWeakSet<T extends object = object> implements WeakSet<T> {
     }
 
     this.#vals.add(value);
-    this.#collection.set(value, "key:changes", " {value}", Stack.fromCaller());
+    this.#collection.set(value, "key:changes", " {value}", callerStack());
 
     return this;
   }

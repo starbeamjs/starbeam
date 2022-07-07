@@ -1,5 +1,9 @@
-import type { Description } from "@starbeam/debug";
-import { type DescriptionArgs, Stack } from "@starbeam/debug";
+import type { DescriptionArgs, Stack } from "@starbeam/debug";
+import {
+  type Description,
+  callerStack,
+  descriptionFrom,
+} from "@starbeam/debug";
 import { type ReactiveInternals, LIFETIME, REACTIVE } from "@starbeam/timeline";
 
 import type { Reactive } from "../../reactive.js";
@@ -27,7 +31,7 @@ class ReactiveResourceList<T, U> implements Reactive<U[]> {
       [...iterable].map((item): [Key, T] => [key(item), item])
     );
 
-    const description = Stack.description({
+    const description = descriptionFrom({
       type: "collection:value",
       api: {
         package: "@starbeam/core",
@@ -79,7 +83,7 @@ class ReactiveResourceList<T, U> implements Reactive<U[]> {
   }
 
   get current(): U[] {
-    return this.read(Stack.fromCaller());
+    return this.read(callerStack());
   }
 
   read(caller: Stack): U[] {

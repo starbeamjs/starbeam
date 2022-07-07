@@ -1,32 +1,14 @@
 import type { Description } from "@starbeam/debug";
+import { REACTIVE } from "@starbeam/peer";
 
 import { type IsUpdatedSince, InternalChildren } from "./internals.js";
-import {
-  type CompositeInternals,
-  type MutableInternals,
-  type ReactiveInternals,
-  type ReactiveProtocol,
-  REACTIVE,
+import type {
+  CompositeInternals,
+  MutableInternals,
+  ReactiveInternals,
+  ReactiveProtocol,
 } from "./reactive.js";
 import type { Timestamp } from "./timestamp.js";
-
-export class AssertFrame {
-  static describing(description: string): AssertFrame {
-    return new AssertFrame(description);
-  }
-
-  readonly #description: string;
-
-  private constructor(description: string) {
-    this.#description = description;
-  }
-
-  assert(): void {
-    throw Error(
-      `The current timestamp should not change while ${this.#description}`
-    );
-  }
-}
 
 export class ActiveFrame {
   static create(description: Description): ActiveFrame {
@@ -73,6 +55,30 @@ export interface InvalidFrame {
 
 export type FrameValidation<T> = ValidFrame<T> | InvalidFrame;
 
+class Composite implements CompositeInternals {
+  readonly type = "composite";
+  readonly #children: Set<ReactiveProtocol>;
+  readonly [REACTIVE] = this;
+
+  constructor(
+    children: Set<ReactiveProtocol>,
+    readonly description: Description,
+    readonly debug: { lastUpdated: Timestamp }
+  ) {
+    this.#children = children;
+  }
+
+  children(): InternalChildren {
+    return InternalChildren.from([...this.#children]);
+  }
+
+  isUpdatedSince(timestamp: Timestamp): boolean {
+    return [...this.#children].some((child) =>
+      child[REACTIVE].isUpdatedSince(timestamp)
+    );
+  }
+}
+
 export class FinalizedFrame<T = unknown>
   implements ReactiveProtocol, IsUpdatedSince
 {
@@ -105,24 +111,9 @@ export class FinalizedFrame<T = unknown>
     this.#finalizedAt = finalizedAt;
     this.#value = value;
 
-    this.#composite = {
-      type: "composite",
-      isUpdatedSince: (timestamp) => {
-        return [...this.#children].some((child) =>
-          child[REACTIVE].isUpdatedSince(timestamp)
-        );
-      },
-      debug: {
-        lastUpdated: this.#finalizedAt,
-      },
-      children: () => {
-        return InternalChildren.from(this.children);
-      },
-    } as CompositeInternals;
-
-    (
-      this.#composite as ReactiveInternals & { description: Description }
-    ).description = description;
+    this.#composite = new Composite(children, description, {
+      lastUpdated: finalizedAt,
+    });
   }
 
   get [REACTIVE](): ReactiveInternals {

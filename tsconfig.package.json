@@ -16,6 +16,7 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noImplicitReturns": true,
+    "noImplicitAny": true,
     "importsNotUsedAsValues": "error",
     "isolatedModules": true,
     "preserveValueImports": true,

@@ -8,12 +8,14 @@ import { Reactive } from "@starbeam/core";
 import {
   type Renderable,
   TIMELINE,
-  type DebugListener,
-  type DebugOperation,
   type MutableInternals,
   type ReactiveInternals,
 } from "@starbeam/timeline";
-import type { Description } from "@starbeam/debug";
+import type {
+  Description,
+  DebugListener,
+  DebugOperation,
+} from "@starbeam/debug";
 
 export function Devtools(props: {
   renderable: ReactiveInternals;
@@ -27,7 +29,7 @@ export function Devtools(props: {
     return props.log
       .map((operation) => operation.for)
       .filter(
-        (value: ReactiveInternals | undefined): value is MutableInternals =>
+        (value): value is MutableInternals =>
           value !== undefined && value.type === "mutable"
       );
   }

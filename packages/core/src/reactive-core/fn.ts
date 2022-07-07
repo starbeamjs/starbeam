@@ -1,4 +1,5 @@
-import { Stack } from "@starbeam/debug";
+import type { Stack } from "@starbeam/debug";
+import { callerStack } from "@starbeam/debug";
 import { type Reactive, REACTIVE } from "@starbeam/timeline";
 
 export interface ReactiveFn<T> extends Reactive<T> {
@@ -7,7 +8,7 @@ export interface ReactiveFn<T> extends Reactive<T> {
 
 export function ReactiveFn<T>(reactive: Reactive<T>): ReactiveFn<T> {
   function Reactive() {
-    return reactive.read(Stack.fromCaller());
+    return reactive.read(callerStack());
   }
 
   Object.defineProperty(Reactive, REACTIVE, {
@@ -17,7 +18,7 @@ export function ReactiveFn<T>(reactive: Reactive<T>): ReactiveFn<T> {
 
   Object.defineProperty(Reactive, "current", {
     configurable: true,
-    get: () => reactive.read(Stack.fromCaller()),
+    get: () => reactive.read(callerStack()),
   });
 
   Object.defineProperty(Reactive, "read", {

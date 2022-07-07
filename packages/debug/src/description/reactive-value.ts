@@ -1,3 +1,4 @@
+import { isDebug } from "../conditional.js";
 import type { Stack, StackFrame } from "../stack.js";
 
 export type MarkerType =
@@ -18,7 +19,8 @@ export type ValueType =
   | "formula"
   | "resource";
 
-export type DescriptionType = MarkerType | ValueType;
+/** DescriptionType is `erased` in production */
+export type DescriptionType = MarkerType | ValueType | "erased";
 
 export interface MemberDescription {
   type: "member";
@@ -78,212 +80,291 @@ export interface DescriptionArgs {
   stack?: Stack;
 }
 
-export class Description implements DescriptionArgs {
-  static from(args: DescriptionArgs): Description {
-    if (args instanceof Description) {
-      return args;
-    } else if (args.fromUser instanceof Description) {
-      return args.fromUser;
+export let PickedDescription: DescriptionStatics;
+
+export interface Description extends DescriptionArgs {
+  readonly fullName: string;
+  readonly type: DescriptionType;
+  readonly api: string | ApiDetails;
+  readonly userFacing: Description;
+
+  method(name: string): Description;
+  index(index: number): Description;
+  property(name: string): Description;
+  key(name: string): Description;
+  implementation(options: { reason: string }): Description;
+
+  describe(options?: { source?: boolean }): string;
+  readonly frame: StackFrame | undefined;
+}
+
+export interface DescriptionStatics {
+  is(description: unknown): description is Description;
+  from(args: DescriptionArgs): Description;
+}
+
+if (isDebug()) {
+  class DebugDescription implements Description, DescriptionArgs {
+    static is(description: unknown): description is Description {
+      return !!(description && description instanceof DebugDescription);
     }
 
-    return new Description(
-      args.type,
-      args.api,
-      args.fromUser,
-      args.internal,
-      args.stack
-    );
-  }
-
-  /**
-   * The type is a high-level categorization from the perspective of Starbeam. It is used in
-   * developer tools to decide how to render the description.
-   */
-  readonly #type: DescriptionType;
-
-  /**
-   * The {@linkcode DescriptionArgs.api} is the user-facing, public API entry point that the developer used to
-   * construct the thing that this description is describing. For example, the `useSetup` hook in
-   * `@starbeam/react` has the type "resource" and the api "useStarbeam".
-   */
-  readonly #api: string | ApiDetails;
-  /**
-   * Optional additional details, provided by the end user. The `DescriptionDetails` may represent a
-   * part of a parent description (see {@linkcode MemberDescription},
-   * {@linkcode MethodDescription}). In those cases, they are still rooted in end-user supplied
-   * description details .
-   */
-  readonly #details: DescriptionDetails | undefined;
-
-  #internal:
-    | {
-        reason: string;
-        userFacing: DescriptionArgs;
+    static from(args: DescriptionArgs): Description {
+      if (DebugDescription.is(args)) {
+        return args;
+      } else if (DebugDescription.is(args.fromUser)) {
+        return args.fromUser;
       }
-    | undefined;
 
-  #stack?: Stack | undefined;
+      return new DebugDescription(
+        args.type,
+        args.api,
+        args.fromUser,
+        args.internal,
+        args.stack
+      );
+    }
 
-  constructor(
-    type: DescriptionType,
-    api: string | ApiDetails,
-    details: DescriptionDetails | undefined,
-    internal: { reason: string; userFacing: DescriptionArgs } | undefined,
-    stack: Stack | undefined
-  ) {
-    this.#type = type;
-    this.#api = api;
-    this.#details = details;
-    this.#internal = internal;
-    this.#stack = stack;
+    /**
+     * The type is a high-level categorization from the perspective of Starbeam. It is used in
+     * developer tools to decide how to render the description.
+     */
+    readonly #type: DescriptionType;
+
+    /**
+     * The {@linkcode DescriptionArgs.api} is the user-facing, public API entry point that the developer used to
+     * construct the thing that this description is describing. For example, the `useSetup` hook in
+     * `@starbeam/react` has the type "resource" and the api "useStarbeam".
+     */
+    readonly #api: string | ApiDetails;
+    /**
+     * Optional additional details, provided by the end user. The `DescriptionDetails` may represent a
+     * part of a parent description (see {@linkcode MemberDescription},
+     * {@linkcode MethodDescription}). In those cases, they are still rooted in end-user supplied
+     * description details .
+     */
+    readonly #details: DescriptionDetails | undefined;
+
+    #internal:
+      | {
+          reason: string;
+          userFacing: DescriptionArgs;
+        }
+      | undefined;
+
+    #stack?: Stack | undefined;
+
+    constructor(
+      type: DescriptionType,
+      api: string | ApiDetails,
+      details: DescriptionDetails | undefined,
+      internal: { reason: string; userFacing: DescriptionArgs } | undefined,
+      stack: Stack | undefined
+    ) {
+      this.#type = type;
+      this.#api = api;
+      this.#details = details;
+      this.#internal = internal;
+      this.#stack = stack;
+    }
+
+    get type(): DescriptionType {
+      return this.#type;
+    }
+
+    get api(): string | ApiDetails {
+      return this.#api;
+    }
+
+    get userFacing(): Description {
+      if (this.#internal) {
+        return DebugDescription.from(this.#internal.userFacing);
+      } else {
+        return this;
+      }
+    }
+
+    get isAnonymous(): boolean {
+      return this.#details === undefined;
+    }
+
+    implementation(details: { reason: string }) {
+      return new DebugDescription(
+        this.#type,
+        this.#api,
+        this.#details,
+        { reason: details.reason, userFacing: this.userFacing },
+        this.#stack
+      );
+    }
+
+    get fullName(): string {
+      if (this.#details !== undefined) {
+        if (typeof this.#details === "string") {
+          return this.#details;
+        } else {
+          return `${this.#details.parent.fullName}${this.fromUser}`;
+        }
+      } else {
+        return `{anonymous ${this.type}}`;
+      }
+    }
+
+    get fromUser(): string {
+      if (this.#details) {
+        if (typeof this.#details === "string") {
+          return this.#details;
+        } else {
+          switch (this.#details.type) {
+            case "member":
+              switch (this.#details.kind) {
+                case "index":
+                  return `[${this.#details.name}]`;
+                case "property":
+                  return `.${this.#details.name}`;
+                case "key":
+                  return `->${this.#details.name}`;
+              }
+
+            case "method":
+              return `.${this.#details.name}()`;
+          }
+        }
+      } else {
+        return `{anonymous ${this.type}}`;
+      }
+    }
+
+    method(this: DebugDescription, name: string): Description {
+      return new DebugDescription(
+        "formula",
+        this.#api,
+        {
+          type: "method",
+          parent: this,
+          name,
+        },
+        undefined,
+        this.#stack
+      );
+    }
+
+    index(this: DebugDescription, index: number): Description {
+      return new DebugDescription(
+        "formula",
+        this.#api,
+        {
+          type: "member",
+          parent: this,
+          kind: "index",
+          name: index,
+        },
+        undefined,
+        this.#stack
+      );
+    }
+
+    property(this: DebugDescription, name: string): Description {
+      return new DebugDescription(
+        "formula",
+        this.#api,
+        {
+          type: "member",
+          parent: this,
+          kind: "property",
+          name,
+        },
+        undefined,
+        this.#stack
+      );
+    }
+
+    key(this: DebugDescription, name: string): Description {
+      return new DebugDescription(
+        "formula",
+        this.#api,
+        {
+          type: "member",
+          kind: "key",
+          parent: this,
+          name,
+        },
+        undefined,
+        this.#stack
+      );
+    }
+
+    describe({ source = false }: { source?: boolean } = {}): string {
+      if (this.isAnonymous || source) {
+        return `${this.fullName} @ ${this.#caller}`;
+      } else {
+        return this.fullName;
+      }
+    }
+
+    get #caller(): string {
+      const caller = this.#stack?.caller;
+
+      if (caller !== undefined) {
+        return caller.display;
+      } else {
+        return "<unknown>";
+      }
+    }
+
+    get frame(): StackFrame | undefined {
+      return this.#stack?.caller;
+    }
   }
 
-  get type(): DescriptionType {
-    return this.#type;
-  }
+  PickedDescription = DebugDescription;
+} else {
+  class ProdDescription implements Description {
+    static PROD = new ProdDescription();
 
-  get api(): string | ApiDetails {
-    return this.#api;
-  }
+    static is(description: unknown): description is Description {
+      return !!(description && description instanceof ProdDescription);
+    }
 
-  get userFacing(): Description {
-    if (this.#internal) {
-      return Description.from(this.#internal.userFacing);
-    } else {
+    static from(): Description {
+      return ProdDescription.PROD;
+    }
+
+    readonly fullName = "";
+    readonly type = "erased";
+    readonly api = "";
+    readonly fromUser = undefined;
+    readonly internal = undefined;
+    readonly stack = undefined;
+    readonly userFacing = this;
+    readonly frame: StackFrame = { link: "", display: "" };
+
+    method(): Description {
       return this;
     }
-  }
 
-  get isAnonymous(): boolean {
-    return this.#details === undefined;
-  }
+    index(): Description {
+      return this;
+    }
 
-  implementation(details: { reason: string }) {
-    return new Description(
-      this.#type,
-      this.#api,
-      this.#details,
-      { reason: details.reason, userFacing: this.userFacing },
-      this.#stack
-    );
-  }
+    property(): Description {
+      return this;
+    }
 
-  get fullName(): string {
-    if (this.#details !== undefined) {
-      if (typeof this.#details === "string") {
-        return this.#details;
-      } else {
-        return `${this.#details.parent.fullName}${this.fromUser}`;
-      }
-    } else {
-      return `{anonymous ${this.type}}`;
+    key(): Description {
+      return this;
+    }
+
+    implementation(_options: { reason: string }): Description {
+      return this;
+    }
+
+    describe(): string {
+      return "";
     }
   }
 
-  get fromUser(): string {
-    if (this.#details) {
-      if (typeof this.#details === "string") {
-        return this.#details;
-      } else {
-        switch (this.#details.type) {
-          case "member":
-            switch (this.#details.kind) {
-              case "index":
-                return `[${this.#details.name}]`;
-              case "property":
-                return `.${this.#details.name}`;
-              case "key":
-                return `->${this.#details.name}`;
-            }
-            break;
-
-          case "method":
-            return `.${this.#details.name}()`;
-        }
-      }
-    } else {
-      return `{anonymous ${this.type}}`;
-    }
-  }
-
-  method(this: Description, name: string): Description {
-    return new Description(
-      "formula",
-      this.#api,
-      {
-        type: "method",
-        parent: this,
-        name,
-      },
-      undefined,
-      this.#stack
-    );
-  }
-
-  index(this: Description, index: number): Description {
-    return new Description(
-      "formula",
-      this.#api,
-      {
-        type: "member",
-        parent: this,
-        kind: "index",
-        name: index,
-      },
-      undefined,
-      this.#stack
-    );
-  }
-
-  property(this: Description, name: string): Description {
-    return new Description(
-      "formula",
-      this.#api,
-      {
-        type: "member",
-        parent: this,
-        kind: "property",
-        name,
-      },
-      undefined,
-      this.#stack
-    );
-  }
-
-  key(this: Description, name: string): Description {
-    return new Description(
-      "formula",
-      this.#api,
-      {
-        type: "member",
-        kind: "key",
-        parent: this,
-        name,
-      },
-      undefined,
-      this.#stack
-    );
-  }
-
-  describe({ source = false }: { source?: boolean } = {}): string {
-    if (this.isAnonymous || source) {
-      return `${this.fullName} @ ${this.#caller}`;
-    } else {
-      return this.fullName;
-    }
-  }
-
-  get #caller(): string {
-    const caller = this.#stack?.caller;
-
-    if (caller !== undefined) {
-      return caller.display;
-    } else {
-      return "<unknown>";
-    }
-  }
-
-  get frame(): StackFrame | undefined {
-    return this.#stack?.caller;
-  }
+  PickedDescription = ProdDescription;
 }
+
+export const Description: DescriptionStatics = PickedDescription;

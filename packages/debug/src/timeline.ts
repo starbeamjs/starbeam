@@ -1,29 +1,32 @@
+import { REACTIVE } from "@starbeam/peer";
 import { exhaustive } from "@starbeam/verify";
 
-import { LIFETIME } from "../lifetime/api.js";
-import {
-  type CompositeInternals,
-  type MutableInternals,
-  type ReactiveInternals,
-  type ReactiveProtocol,
-  REACTIVE,
-} from "./reactive.js";
-import type { Timestamp } from "./timestamp.js";
-
-// TODO: Make this a build time concern
-let DEBUG = true;
-
-export function isDebug() {
-  return DEBUG;
+export interface ReactiveProtocol<I extends Internals = Internals> {
+  [REACTIVE]: I;
 }
 
-export function setDebug(value: boolean) {
-  DEBUG = value;
+export interface Internals<
+  Type extends "mutable" | "composite" | "static" =
+    | "mutable"
+    | "composite"
+    | "static"
+> extends ReactiveProtocol {
+  readonly type: Type;
+
+  children(): {
+    readonly dependencies: ReadonlySet<unknown>;
+  };
 }
+
+function reactiveInternals(reactive: ReactiveProtocol): Internals {
+  return reactive[REACTIVE];
+}
+
+type Timestamp = unknown;
 
 abstract class AbstractDebugOperation {
   #at: Timestamp;
-  abstract readonly for: ReactiveInternals | undefined;
+  abstract readonly for: Internals | undefined;
 
   constructor(at: Timestamp) {
     this.#at = at;
@@ -31,9 +34,9 @@ abstract class AbstractDebugOperation {
 }
 
 abstract class InternalsOperation extends AbstractDebugOperation {
-  readonly for: ReactiveInternals;
+  readonly for: Internals;
 
-  constructor(at: Timestamp, internals: ReactiveInternals) {
+  constructor(at: Timestamp, internals: Internals) {
     super(at);
     this.for = internals;
   }
@@ -88,7 +91,8 @@ function filterToPredicate(
 ): ((operation: DebugOperation) => boolean) | undefined {
   switch (filter.type) {
     case "by-reactive": {
-      const dependencies = filter.reactive[REACTIVE].children().dependencies;
+      const dependencies = reactiveInternals(filter.reactive).children()
+        .dependencies;
 
       return (operation) => {
         if (operation.for === undefined) {
@@ -128,7 +132,7 @@ export class DebugTimeline {
     constructor(readonly history: DebugOperation[]) {}
 
     for(reactive: ReactiveProtocol) {
-      const internals = reactive[REACTIVE];
+      const internals = reactiveInternals(reactive);
       return this.history.filter((item) => item.for === internals);
     }
   };
@@ -155,8 +159,6 @@ export class DebugTimeline {
       this.#timeline = timeline;
       this.#notify = notify;
       this.#filter = filter;
-
-      LIFETIME.on.cleanup(this, () => this.detach());
     }
 
     update(filter: DebugFilter) {
@@ -240,24 +242,24 @@ export class DebugTimeline {
   }
 
   consume(reactive: ReactiveProtocol) {
-    const internals = reactive[REACTIVE];
+    const internals = reactiveInternals(reactive);
 
     if (internals.type === "mutable") {
-      this.#consumeCell(internals);
+      this.#consumeCell(internals as Internals<"mutable">);
     } else if (internals.type === "composite") {
-      this.#consumeFrame(internals);
+      this.#consumeFrame(internals as Internals<"composite">);
     }
   }
 
-  #consumeCell(cell: MutableInternals) {
+  #consumeCell(cell: Internals<"mutable">) {
     this.#add(new ConsumeCell(this.#lastUpdate, cell));
   }
 
-  updateCell(cell: MutableInternals) {
+  updateCell(cell: Internals<"mutable">) {
     this.#add(new UpdateCell(this.#lastUpdate, cell));
   }
 
-  #consumeFrame(frame: CompositeInternals) {
+  #consumeFrame(frame: Internals<"composite">) {
     this.#add(new ConsumeFrame(this.#lastUpdate, frame));
   }
 

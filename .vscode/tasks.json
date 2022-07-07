@@ -8,16 +8,26 @@
       "label": "npm: lint",
       "detail": "eslint . --cache",
       "group": {
-        "kind": "build",
-        "isDefault": true
+        "kind": "build"
       }
     },
     {
       "type": "typescript",
       "tsconfig": "tsconfig.json",
       "problemMatcher": ["$tsc"],
-      "group": "build",
-      "label": "typecheck"
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "label": "typecheck",
+      "presentation": {
+        "echo": true,
+        "reveal": "never",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
     }
   ]
 }

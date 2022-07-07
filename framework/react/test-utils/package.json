@@ -6,6 +6,7 @@
     "@starbeam-workspace/test-utils": "workspace:*",
     "@starbeam/core-utils": "workspace:*",
     "@starbeam/core": "workspace:*",
+    "@starbeam/debug": "workspace:*",
     "@starbeam/timeline": "workspace:*",
     "@testing-library/react": "^13.3.0"
   },

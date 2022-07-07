@@ -1,8 +1,8 @@
 import type { browser } from "@domtree/flavors";
 import type { Cell, Linkable, Reactive, Resource } from "@starbeam/core";
+import type { DebugListener } from "@starbeam/debug";
 import type {
   CleanupTarget,
-  DebugListener,
   OnCleanup,
   Renderable,
   Unsubscribe,

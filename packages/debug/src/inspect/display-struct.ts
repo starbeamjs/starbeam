@@ -1,4 +1,4 @@
-import type { JSONValue } from "../description/json-value.js";
+import type { JSONValue } from "./json-value.js";
 
 export interface DisplayStructOptions {
   readonly description: JSONValue;

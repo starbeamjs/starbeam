@@ -1,5 +1,9 @@
-import type { Description } from "@starbeam/debug";
-import { Stack } from "@starbeam/debug";
+import type { Stack } from "@starbeam/debug";
+import {
+  type Description,
+  callerStack,
+  descriptionFrom,
+} from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/peer";
 import type { FinalizedFrame, ReactiveInternals } from "@starbeam/timeline";
 import { REACTIVE, TIMELINE } from "@starbeam/timeline";
@@ -73,7 +77,7 @@ export class ReactivePolledFormula<T> implements Reactive<T> {
   }
 
   get current(): T {
-    return this.#evaluate(Stack.fromCaller());
+    return this.#evaluate(callerStack());
   }
 
   read(caller: Stack): T {
@@ -138,7 +142,7 @@ export function PolledFormula<T>(
 ): Reactive<T> & { update(formula: () => T): void } {
   return ReactivePolledFormula.create(
     formula,
-    Stack.description({
+    descriptionFrom({
       type: "formula",
       api: {
         package: "@starbeam/core",

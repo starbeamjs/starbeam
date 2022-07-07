@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 import { TIMELINE } from "@starbeam/core";
-import { entryPoint } from "@starbeam-workspace/test-utils";
+import { entryPoint } from "@starbeam/debug";
 import * as testing from "@testing-library/react";
 import { getByRole, getByText, waitFor } from "@testing-library/react";
 import {

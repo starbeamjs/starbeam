@@ -30,9 +30,8 @@
     "simple-import-sort/exports": "error",
     "unused-imports/no-unused-imports": "error",
     "no-empty": "warn",
-    "no-fallthrough": "off",
-    "prefer-const": "off",
-    "prefer-arrow-callback": "warn"
+    "prefer-arrow-callback": "warn",
+    "no-inner-declarations": "off"
   },
   "overrides": [
     {
@@ -65,6 +64,9 @@
         "plugin:json/recommended"
       ],
       "rules": {
+        "no-inner-declarations": "off",
+        "no-fallthrough": "off",
+
         "no-restricted-syntax": [
           "error",
           {
@@ -72,6 +74,8 @@
             "message": "const enums are not supported in isolated module mode"
           }
         ],
+
+        "unused-imports/no-unused-imports": "off",
 
         "@typescript-eslint/consistent-type-imports": [
           "error",
