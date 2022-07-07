@@ -1,4 +1,4 @@
-import { descriptionFrom, type Description } from "@starbeam/debug";
+import { type Description, descriptionFrom } from "@starbeam/debug";
 import type { Renderable } from "@starbeam/timeline";
 import { TIMELINE } from "@starbeam/timeline";
 

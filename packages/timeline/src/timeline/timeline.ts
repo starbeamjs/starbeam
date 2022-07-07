@@ -1,20 +1,20 @@
 import {
+  type DebugFilter,
+  type DebugListener,
+  type Description,
   callerStack,
   DebugTimeline,
-  descriptionFrom,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ifDebug,
   isDebug,
   LOGGER,
   Stack,
-  type DebugFilter,
-  type DebugListener,
-  type Description,
 } from "@starbeam/debug";
 import { REACTIVE } from "@starbeam/peer";
 import { expected, isEqual, verify } from "@starbeam/verify";
-import { LIFETIME } from "../lifetime/api.js";
 
-import { ActiveFrame, type FinalizedFrame } from "./frames.js";
+import { LIFETIME } from "../lifetime/api.js";
+import { type FinalizedFrame, ActiveFrame } from "./frames.js";
 import { NOW } from "./now.js";
 import { Queue } from "./queue.js";
 import type {
@@ -172,11 +172,7 @@ export class Timeline {
    *
    * A `render` function will run **after** all pending actions have flushed.
    */
-  render<T>(
-    input: Reactive<T>,
-    render: () => void,
-    description?: string | Description
-  ): Renderable<T> {
+  render<T>(input: Reactive<T>, render: () => void): Renderable<T> {
     const ready = () => {
       if (this.#renderables.isRemoved(renderable as Renderable<unknown>)) {
         return;
@@ -185,23 +181,7 @@ export class Timeline {
       return Queue.enqueueRender(render);
     };
 
-    const renderable = Renderable.create(
-      input,
-      { ready },
-      this.#renderables,
-      descriptionFrom({
-        type: "renderer",
-        api: {
-          package: "@starbeam/timeline",
-          name: "TIMELINE",
-          method: {
-            type: "static",
-            name: "render",
-          },
-        },
-        fromUser: description,
-      })
-    );
+    const renderable = Renderable.create(input, { ready }, this.#renderables);
     this.#renderables.insert(renderable as Renderable<unknown>);
 
     // renderable.poll();
@@ -219,26 +199,9 @@ export class Timeline {
 
     change: <T>(
       input: Reactive<T>,
-      ready: (renderable: Renderable<T>) => void,
-      description?: string | Description
+      ready: (renderable: Renderable<T>) => void
     ): Renderable<T> => {
-      const renderable = Renderable.create(
-        input,
-        { ready },
-        this.#renderables,
-        descriptionFrom({
-          type: "renderer",
-          api: {
-            package: "@starbeam/timeline",
-            name: "TIMELINE",
-            method: {
-              type: "static",
-              name: "on.change",
-            },
-          },
-          fromUser: description,
-        })
-      );
+      const renderable = Renderable.create(input, { ready }, this.#renderables);
       this.#renderables.insert(renderable as Renderable<unknown>);
 
       return renderable;

@@ -1,5 +1,4 @@
-import { descriptionFrom, type Description } from "@starbeam/debug";
-import { Stack } from "@starbeam/debug";
+import { type Description, descriptionFrom } from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/peer";
 import { isNotEqual, verified } from "@starbeam/verify";
 

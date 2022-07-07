@@ -1,7 +1,7 @@
 const UNINITIALIZED = Symbol.for("starbeam.UNINITIALIZED");
 type UNINITIALIZED = typeof UNINITIALIZED;
 
-const REACTIVE = Symbol.for("starbeam.REACTIVE");
+const REACTIVE: unique symbol = Symbol.for("starbeam.REACTIVE");
 type REACTIVE = typeof REACTIVE;
 
-export { UNINITIALIZED, REACTIVE };
+export { REACTIVE, UNINITIALIZED };

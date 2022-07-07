@@ -1,8 +1,8 @@
 import { Formula, PolledFormula } from "@starbeam/core";
-import { descriptionFrom, type Description } from "@starbeam/debug";
+import { type Description, descriptionFrom } from "@starbeam/debug";
 import type { Renderable } from "@starbeam/timeline";
 import { LIFETIME, TIMELINE } from "@starbeam/timeline";
-import { useRef, useState, type ReactElement } from "react";
+import { type ReactElement, useRef, useState } from "react";
 
 import { ReactiveElement } from "./element.js";
 import { useSetup } from "./use-setup.js";
@@ -206,8 +206,7 @@ export function useStarbeam<_T>(
       formula,
       () => {
         TIMELINE.enqueueAction(notify);
-      },
-      desc
+      }
     );
 
     LIFETIME.on.cleanup(renderable, () => {

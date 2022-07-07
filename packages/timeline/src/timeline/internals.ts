@@ -1,5 +1,7 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { ifDebug } from "@starbeam/debug";
 import { REACTIVE } from "@starbeam/peer";
+
 import type { MutableInternals, ReactiveProtocol } from "./reactive.js";
 import { Timestamp } from "./timestamp.js";
 
@@ -68,9 +70,6 @@ export class InternalChildren {
     }
   }
 
-  /**
-   * For debugging
-   */
   @ifDebug
   get lastUpdated(): Timestamp {
     switch (this.#internal.type) {

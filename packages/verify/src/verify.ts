@@ -4,8 +4,6 @@ export class VerificationError<T = unknown> extends Error {
   }
 }
 
-const DEBUG = import.meta.env ? !import.meta.env.PROD : false;
-
 export function verify<T, U extends T>(
   value: T,
   check: (input: T) => input is U,

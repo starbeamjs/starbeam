@@ -1,13 +1,14 @@
 import { isObject } from "@starbeam/core-utils";
 import {
+  type Description,
+  type Stack,
   callerStack,
-  Description,
   descriptionFrom,
   DisplayStruct,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ifDebug,
-  Stack,
 } from "@starbeam/debug";
-import { INSPECT, REACTIVE, type ReactiveInternals } from "@starbeam/timeline";
+import { type ReactiveInternals, INSPECT, REACTIVE } from "@starbeam/timeline";
 
 import type { Reactive } from "../reactive.js";
 import { MutableInternalsImpl } from "../storage/mutable.js";
@@ -115,7 +116,7 @@ export function Cell<T>(
   description?:
     | string
     | { description?: string | Description; equals?: Equality<T> }
-): ReactiveCell<T> {
+): Cell<T> {
   let desc: Description;
   let equals: Equality<T>;
 

@@ -15,6 +15,7 @@ export {
   DEBUG,
   DEBUG_NAME,
   INSPECT,
+  inspect,
   inspector,
 } from "./src/inspect/inspect-support.js";
 export { type Logger, LOGGER, LogLevel } from "./src/logger.js";
@@ -29,19 +30,18 @@ export {
 export { describeModule } from "./src/module.js";
 export {
   type StackFrame,
+  callerStack,
+  descriptionFrom,
   entryPoint,
   Stack,
-  descriptionFrom,
-  callerStack,
 } from "./src/stack.js";
-export { Tree } from "./src/tree.js";
 export {
   type DebugFilter,
   type DebugListener,
   type DebugOperation,
-  DebugTimeline,
   type Flush,
-  type ReactiveProtocol,
   type Internals,
-  type Timestamp,
+  type ReactiveProtocol,
+  DebugTimeline,
 } from "./src/timeline.js";
+export { Tree } from "./src/tree.js";

@@ -34,7 +34,7 @@ export function ifDebug<C extends Class>(
 export function ifDebug<C extends Class>(
   target: C["prototype"],
   propertyKey?: PropertyKey,
-  descriptor?: PropertyDescriptor
+  descriptor?: TypedPropertyDescriptor<unknown>
 ): PropertyDescriptor | void {
   if (propertyKey === undefined || descriptor === undefined) {
     if (isProd()) {
@@ -64,7 +64,7 @@ export function ifDebug<C extends Class>(
     };
   }
 
-  const originalMethod = descriptor.value as unknown;
+  const originalMethod = descriptor.value;
 
   if (isMethod<Method>(originalMethod)) {
     descriptor.value = function (this: C["prototype"], ...args: unknown[]) {

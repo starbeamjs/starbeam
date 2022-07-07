@@ -1,4 +1,4 @@
-import type { DebugListener, Description } from "@starbeam/debug";
+import type { DebugListener } from "@starbeam/debug";
 import { Tree } from "@starbeam/debug";
 import { REACTIVE, UNINITIALIZED } from "@starbeam/peer";
 
@@ -38,8 +38,7 @@ export class Renderable<T = unknown> implements ReactiveProtocol {
   static create<T>(
     input: Reactive<T>,
     notify: { readonly ready: (renderable: Renderable<T>) => void },
-    renderables: Renderables,
-    description?: Description
+    renderables: Renderables
   ): Renderable<T> {
     const initialDependencies = input[REACTIVE].children().dependencies;
 

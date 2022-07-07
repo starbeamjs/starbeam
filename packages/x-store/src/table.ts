@@ -1,5 +1,5 @@
 import { TIMELINE } from "@starbeam/core";
-import { descriptionFrom, type Description } from "@starbeam/debug";
+import { type Description, descriptionFrom } from "@starbeam/debug";
 import { reactive } from "@starbeam/js";
 
 import { FlatRows } from "./flat.js";

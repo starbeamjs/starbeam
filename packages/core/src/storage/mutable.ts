@@ -1,10 +1,11 @@
 import {
-  ifDebug,
-  isDebug,
   type Description,
   type Stack,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ifDebug,
+  inspector,
+  isDebug,
 } from "@starbeam/debug";
-import { inspector } from "@starbeam/debug";
 import type { Timestamp } from "@starbeam/timeline";
 import {
   type ReactiveProtocol,

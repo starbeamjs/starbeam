@@ -1,5 +1,5 @@
 import { type Equality, Cell, Marker, Reactive } from "@starbeam/core";
-import { callerStack, type Description, type Stack } from "@starbeam/debug";
+import { type Description, callerStack } from "@starbeam/debug";
 
 class Entry<V> {
   static initialized<V>(value: V, desc: Description, equality: Equality<V>) {

@@ -1,5 +1,5 @@
 import { LIFETIME, PolledFormula, TIMELINE } from "@starbeam/core";
-import { descriptionFrom, Stack } from "@starbeam/debug";
+import { descriptionFrom } from "@starbeam/debug";
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
 import { useState } from "react";
 
@@ -32,13 +32,9 @@ export function useReactive<T>(compute: () => T, description?: string): T {
     });
 
     lifecycle.on.layout(() => {
-      const renderer = TIMELINE.on.change(
-        formula,
-        () => {
-          setNotify({});
-        },
-        desc
-      );
+      const renderer = TIMELINE.on.change(formula, () => {
+        setNotify({});
+      });
 
       lifecycle.on.cleanup(() => {
         LIFETIME.finalize(renderer);

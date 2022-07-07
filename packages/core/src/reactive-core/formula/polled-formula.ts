@@ -1,9 +1,9 @@
+import type { Stack } from "@starbeam/debug";
 import {
+  type Description,
   callerStack,
   descriptionFrom,
-  type Description,
 } from "@starbeam/debug";
-import type { Stack } from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/peer";
 import type { FinalizedFrame, ReactiveInternals } from "@starbeam/timeline";
 import { REACTIVE, TIMELINE } from "@starbeam/timeline";

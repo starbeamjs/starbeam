@@ -1,14 +1,19 @@
 import {
+  type Description,
+  type Inspect,
+  type Stack,
   callerStack,
   descriptionFrom,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ifDebug,
+  INSPECT,
+  inspect,
   isDebug,
-  Stack,
-  type Description,
 } from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/peer";
 import type { FinalizedFrame, ReactiveInternals } from "@starbeam/timeline";
 import { REACTIVE, TIMELINE } from "@starbeam/timeline";
+import type { CustomInspectFunction } from "util";
 
 import { Reactive } from "../../reactive.js";
 import { CompositeInternals } from "../../storage/composite.js";
@@ -123,9 +128,9 @@ export function Formula<T>(
   fn.update = (formula) => reactive.update(formula);
 
   if (isDebug()) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (fn as Record<PropertyKey, any>)[Symbol.for("nodejs.util.inspect.custom")] =
-      () => (reactive as any)[Symbol.for("nodejs.util.inspect.custom")]?.();
+    (fn as Partial<Inspect>)[INSPECT] = (
+      ...args: Parameters<CustomInspectFunction>
+    ) => inspect(reactive, ...args);
   }
 
   return fn;

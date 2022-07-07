@@ -16,7 +16,6 @@ export {
   type ReactiveProtocol,
   type StaticInternals,
 } from "./src/timeline/reactive.js";
-export { REACTIVE } from "@starbeam/peer";
 export {
   type Diff,
   Renderable as Renderable,
@@ -28,3 +27,4 @@ export {
 } from "./src/timeline/timeline.js";
 export { INSPECT, Timestamp } from "./src/timeline/timestamp.js";
 export { isDebug } from "@starbeam/debug";
+export { REACTIVE } from "@starbeam/peer";

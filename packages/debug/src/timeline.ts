@@ -1,5 +1,5 @@
-import { exhaustive } from "@starbeam/verify";
 import { REACTIVE } from "@starbeam/peer";
+import { exhaustive } from "@starbeam/verify";
 
 export interface ReactiveProtocol<I extends Internals = Internals> {
   [REACTIVE]: I;
@@ -18,7 +18,11 @@ export interface Internals<
   };
 }
 
-export interface Timestamp {}
+function reactiveInternals(reactive: ReactiveProtocol): Internals {
+  return reactive[REACTIVE];
+}
+
+type Timestamp = unknown;
 
 abstract class AbstractDebugOperation {
   #at: Timestamp;
@@ -87,7 +91,8 @@ function filterToPredicate(
 ): ((operation: DebugOperation) => boolean) | undefined {
   switch (filter.type) {
     case "by-reactive": {
-      const dependencies = filter.reactive[REACTIVE].children().dependencies;
+      const dependencies = reactiveInternals(filter.reactive).children()
+        .dependencies;
 
       return (operation) => {
         if (operation.for === undefined) {
@@ -127,7 +132,7 @@ export class DebugTimeline {
     constructor(readonly history: DebugOperation[]) {}
 
     for(reactive: ReactiveProtocol) {
-      const internals = reactive[REACTIVE];
+      const internals = reactiveInternals(reactive);
       return this.history.filter((item) => item.for === internals);
     }
   };
@@ -237,7 +242,7 @@ export class DebugTimeline {
   }
 
   consume(reactive: ReactiveProtocol) {
-    const internals = reactive[REACTIVE];
+    const internals = reactiveInternals(reactive);
 
     if (internals.type === "mutable") {
       this.#consumeCell(internals as Internals<"mutable">);

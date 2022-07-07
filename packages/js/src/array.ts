@@ -6,7 +6,7 @@
 // and it will blow up in JS in exactly the same way, so it is safe to assume
 // that properties within the getter have the correct type in TS.
 
-import { callerStack, type Description, type Stack } from "@starbeam/debug";
+import { type Description, type Stack, callerStack } from "@starbeam/debug";
 
 import { Collection } from "./collection.js";
 

@@ -1,5 +1,6 @@
 import { isArray } from "@starbeam/core-utils";
-import { ifDebug, type Description } from "@starbeam/debug";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { type Description, ifDebug } from "@starbeam/debug";
 import {
   type ReactiveInternals,
   type ReactiveProtocol,

@@ -1,9 +1,9 @@
+import type { DescriptionArgs, Stack } from "@starbeam/debug";
 import {
+  type Description,
   callerStack,
   descriptionFrom,
-  type Description,
 } from "@starbeam/debug";
-import type { DescriptionArgs, Stack } from "@starbeam/debug";
 import { type ReactiveInternals, LIFETIME, REACTIVE } from "@starbeam/timeline";
 
 import type { Reactive } from "../../reactive.js";

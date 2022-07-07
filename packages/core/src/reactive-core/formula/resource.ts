@@ -13,11 +13,11 @@
  * worrying about its lifetime.
  */
 
+import type { Stack } from "@starbeam/debug";
 import {
+  type Description,
   callerStack,
   descriptionFrom,
-  Stack,
-  type Description,
 } from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/peer";
 import {

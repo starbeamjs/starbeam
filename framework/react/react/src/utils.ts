@@ -1,9 +1,9 @@
-import { Cell, Marker, type Reactive } from "@starbeam/core";
+import { type Reactive, Cell, Marker } from "@starbeam/core";
 import {
+  type Description,
   callerStack,
   descriptionFrom,
   Stack,
-  type Description,
 } from "@starbeam/debug";
 import { reactive } from "@starbeam/js";
 import { useUpdatingVariable } from "@starbeam/use-strict-lifecycle";

@@ -1,4 +1,5 @@
-import { callerStack, Stack } from "@starbeam/debug";
+import type { Stack } from "@starbeam/debug";
+import { callerStack } from "@starbeam/debug";
 import { type Reactive, REACTIVE } from "@starbeam/timeline";
 
 export interface ReactiveFn<T> extends Reactive<T> {

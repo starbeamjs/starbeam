@@ -1,10 +1,10 @@
 import { isObject } from "@starbeam/core-utils";
 import type { Description, Stack } from "@starbeam/debug";
-import {
-  type MutableInternals,
-  type ReactiveInternals,
-  type ReactiveProtocol,
-  REACTIVE,
+import { REACTIVE } from "@starbeam/peer";
+import type {
+  MutableInternals,
+  ReactiveInternals,
+  ReactiveProtocol,
 } from "@starbeam/timeline";
 
 export interface Reactive<T> extends ReactiveProtocol {
@@ -26,7 +26,7 @@ export const Reactive = {
   },
 
   dependencies(reactive: ReactiveProtocol): Set<MutableInternals> {
-    return reactive[REACTIVE].children().dependencies;
+    return Reactive.internals(reactive).children().dependencies;
   },
 
   internals(reactive: ReactiveProtocol): ReactiveInternals {

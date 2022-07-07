@@ -1,10 +1,11 @@
+import { isObject } from "@starbeam/verify";
 import type {
   CustomInspectFunction,
   InspectOptionsStylized,
   Style,
 } from "util";
-import { isDebug } from "../conditional.js";
 
+import { isDebug } from "../conditional.js";
 import {
   type DisplayStructOptions,
   type Fields,
@@ -82,7 +83,20 @@ export function inspector<I>(
     };
   } else {
     return {
-      define: () => {},
+      define: () => {
+        // noop
+      },
     };
+  }
+}
+
+export function inspect(
+  value: unknown,
+  ...args: Parameters<CustomInspectFunction>
+) {
+  if (isObject(value)) {
+    return (value as Partial<Inspect>)[INSPECT]?.(...args);
+  } else {
+    return value;
   }
 }
