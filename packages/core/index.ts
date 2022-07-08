@@ -5,10 +5,10 @@ export { Formula } from "./src/reactive-core/formula/formula.js";
 export { Linkable } from "./src/reactive-core/formula/linkable.js";
 export { PolledFormula } from "./src/reactive-core/formula/polled-formula.js";
 export {
-  type ResourceBlueprint,
-  type ResourceConstructor,
-  BuildResource,
   Resource,
+  type ResourceBuilder,
+  type ResourceConstructor,
+  type CreateResource,
 } from "./src/reactive-core/formula/resource.js";
 export { FormulaList } from "./src/reactive-core/higher-level/formula-list.js";
 export { FormulaFn } from "./src/reactive-core/higher-level/mapped-formula.js";

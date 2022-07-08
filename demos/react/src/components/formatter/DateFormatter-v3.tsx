@@ -60,9 +60,11 @@ function Clock(timeZone: Reactive<string>) {
   }
 
   return Resource((resource) => {
-    const interval = setInterval(() => refresh(), 1000);
+    resource.on.setup(() => {
+      const interval = setInterval(() => refresh(), 1000);
 
-    resource.on.cleanup(() => clearInterval(interval));
+      return () => clearInterval(interval);
+    });
 
     return () => ({
       formatted: formatTime(date.now, {

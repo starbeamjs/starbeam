@@ -80,13 +80,13 @@ class RenderResult<Props, T> {
   #setup: SetupTestRender<Props, T>;
   #state: RenderState<T>;
   #result: testing.RenderResult;
-  #rerender: (props?: Props) => ReactElement;
+  #rerender: (props?: Props) => void;
 
   constructor(
     setup: SetupTestRender<Props, T>,
     state: RenderState<T>,
     result: testing.RenderResult,
-    rerender: (props?: Props) => ReactElement
+    rerender: (props?: Props) => void
   ) {
     this.#setup = setup;
     this.#state = state;
@@ -106,9 +106,7 @@ class RenderResult<Props, T> {
     props?: Props,
     caller = callerStack()
   ): Promise<RenderResult<Props, T>> {
-
-    await this.act(() => this.#result.rerender(this.#rerender(props)), caller);
-
+    await this.act(() => this.#rerender(props), caller);
     await TIMELINE.nextIdle();
 
     return entryPoint(
@@ -122,25 +120,24 @@ class RenderResult<Props, T> {
   }
 
   async act(behavior: () => void, caller = callerStack()): Promise<void> {
+    const prev = this.#state.renderCount;
     entryPoint(
       () => {
         act(behavior);
       },
       { stack: caller }
     );
-    await this.rendered(caller);
+    await this.rendered(prev, caller);
   }
 
-  async rendered(caller = callerStack()): Promise<void> {
-    const current = this.#state.renderCount;
-
+  async rendered(prev: number, caller = callerStack()): Promise<void> {
     await testing.waitFor(() => {
       entryPoint(
         () => {
           expect(
             this.#state.renderCount,
             "expected another render"
-          ).toBeGreaterThan(current);
+          ).toBeGreaterThan(prev);
         },
         { stack: caller }
       );
@@ -235,6 +232,7 @@ export class SetupTestRender<Props, T> {
   ): Promise<RenderResult<any, T>> {
     const result = entryPoint(() => {
       const state = new RenderState<T>();
+      let i = 0;
 
       const Component = (props: any): ReactElement => {
         state.rendered();
@@ -242,13 +240,30 @@ export class SetupTestRender<Props, T> {
       };
 
       const result = act(() =>
-        testing.render(react.render(Component, props), this.#options)
+        testing.render(
+          react.render(Component, { ...props, rerender: ++i }),
+          this.#options
+        )
       );
+
       const renderResult = new RenderResult(
         this,
         state,
         result,
-        (updatedProps?: any) => react.render(Component, updatedProps ?? props)
+        (updatedProps?: any) => {
+          if (updatedProps) {
+            console.log("rerendering with updated props");
+            result.rerender(
+              react.render(Component, { ...updatedProps, rerender: ++i })
+            );
+          } else {
+            console.log("rerendering without updated props");
+
+            result.rerender(
+              react.render(Component, { ...props, rerender: ++i })
+            );
+          }
+        }
       );
 
       return renderResult;

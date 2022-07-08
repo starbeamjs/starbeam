@@ -1,5 +1,9 @@
-import type { ResourceConstructor } from "@starbeam/core";
-import { ReactiveResource } from "@starbeam/core/src/reactive-core/formula/resource.js";
+import {
+  Resource,
+  type CreateResource,
+  type ResourceConstructor,
+} from "@starbeam/core";
+import { callerStack } from "@starbeam/debug";
 import {
   type CleanupTarget,
   type OnCleanup,
@@ -9,24 +13,18 @@ import {
 } from "@starbeam/timeline";
 
 import { useSetup } from "./use-setup.js";
-import { useDeps } from "./utils.js";
 
-export function useResource<T>(
-  resource: () => ResourceConstructor<T>,
-  deps: unknown[]
-): T {
-  const reactiveDeps = deps.length === 0 ? null : useDeps(deps);
-  return useSetup((setup) => {
-    const r = setup.use(
-      resource(),
-      reactiveDeps ? () => reactiveDeps.consume() : undefined
-    );
+export function useResource<T>(resource: () => CreateResource<T>): T {
+  const caller = callerStack();
+
+  return useSetup<T>((setup) => {
+    const instance = setup.use(resource());
 
     setup.on.layout(() => {
-      ReactiveResource.setup(r);
+      Resource.setup(instance, caller);
     });
 
-    return r;
+    return instance;
   });
 }
 
