@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 
-import { Cell, Reactive, Resource, TIMELINE } from "@starbeam/core";
+import type { Reactive } from "@starbeam/core";
+import { Cell, Resource, TIMELINE } from "@starbeam/core";
 import { entryPoint } from "@starbeam/debug";
 import { useProp, useResource } from "@starbeam/react";
 import {
@@ -11,14 +12,6 @@ import {
 import { beforeEach, describe, expect } from "vitest";
 
 import { Channel } from "./support/channel.js";
-
-function IntoReactive<T>(value: T | Reactive<T>): Reactive<T> {
-  if (Reactive.is(value)) {
-    return value;
-  } else {
-    return Cell(value);
-  }
-}
 
 function ChannelResource(name: Reactive<string>) {
   return Resource((r) => {

@@ -1,12 +1,11 @@
 import type { browser } from "@domtree/flavors";
 import {
-  Resource,
   type Cell,
   type CreateResource,
-  type Linkable,
   type Reactive,
+  Resource,
 } from "@starbeam/core";
-import { callerStack, type DebugListener } from "@starbeam/debug";
+import { type DebugListener, callerStack } from "@starbeam/debug";
 import type {
   CleanupTarget,
   OnCleanup,

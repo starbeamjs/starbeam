@@ -1,5 +1,5 @@
 import { Cell, Resource } from "@starbeam/core";
-import { callerStack, Stack } from "@starbeam/debug";
+import { Stack } from "@starbeam/debug";
 import { LIFETIME } from "@starbeam/timeline";
 import { describe, expect, test } from "vitest";
 
@@ -37,7 +37,7 @@ describe("resources", () => {
     const parent = {};
 
     const resource = Resource((resource) => {
-      let socket = Cell(undefined as Subscription | undefined);
+      const socket = Cell(undefined as Subscription | undefined);
 
       resource.on.setup(() => {
         console.log("Running setup");

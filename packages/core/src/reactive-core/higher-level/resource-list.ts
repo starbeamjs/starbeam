@@ -1,8 +1,9 @@
-import { Stack, type DescriptionArgs } from "@starbeam/debug";
 import {
   type Description,
+  type DescriptionArgs,
   callerStack,
   descriptionFrom,
+  Stack,
 } from "@starbeam/debug";
 import { type ReactiveInternals, LIFETIME, REACTIVE } from "@starbeam/timeline";
 import { expected, isEqual, verify } from "@starbeam/verify";
@@ -10,7 +11,7 @@ import { expected, isEqual, verify } from "@starbeam/verify";
 import type { Reactive } from "../../reactive.js";
 import { Formula } from "../formula/formula.js";
 import { Linkable } from "../formula/linkable.js";
-import { Resource, type CreateResource } from "../formula/resource.js";
+import { type CreateResource, Resource } from "../formula/resource.js";
 
 type Key = unknown;
 type Entry<T> = [Key, T];
@@ -52,7 +53,11 @@ class ReactiveResourceList<T, U> implements Reactive<U[]> {
     });
   }
 
-  static setup<T, U>(list: ReactiveResourceList<T, U>, caller: Stack): void {
+  static setup<T, U>(
+    this: void,
+    list: ReactiveResourceList<T, U>,
+    caller: Stack
+  ): void {
     verify(
       list.#setup,
       isEqual(false),

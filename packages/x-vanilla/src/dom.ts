@@ -1,12 +1,6 @@
-import {
-  Formula,
-  LIFETIME,
-  type CreateResource,
-  type Reactive,
-  type ResourceConstructor,
-} from "@starbeam/core";
-import { Resource } from "@starbeam/core";
-import { callerStack, Description, descriptionFrom } from "@starbeam/debug";
+import { type Reactive, Formula, LIFETIME } from "@starbeam/core";
+import type { Description } from "@starbeam/debug";
+import { descriptionFrom } from "@starbeam/debug";
 
 import { Cursor } from "./cursor.js";
 
