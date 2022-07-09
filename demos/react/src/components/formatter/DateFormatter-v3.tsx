@@ -1,6 +1,6 @@
 import { type Reactive, Cell, Resource } from "@starbeam/core";
 import js from "@starbeam/js";
-import { useStarbeam } from "@starbeam/react";
+import { useReactiveSetup } from "@starbeam/react";
 
 import {
   formatLocale,
@@ -11,7 +11,7 @@ import {
 } from "../intl.js";
 
 export default function DateFormatterStarbeam() {
-  return useStarbeam((component) => {
+  return useReactiveSetup((component) => {
     const timeZone = Cell(SYSTEM_TZ, "timeZone");
     const date = component.use(Clock(timeZone));
 

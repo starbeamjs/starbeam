@@ -252,13 +252,10 @@ export class SetupTestRender<Props, T> {
         result,
         (updatedProps?: any) => {
           if (updatedProps) {
-            console.log("rerendering with updated props");
             result.rerender(
               react.render(Component, { ...updatedProps, rerender: ++i })
             );
           } else {
-            console.log("rerendering without updated props");
-
             result.rerender(
               react.render(Component, { ...props, rerender: ++i })
             );

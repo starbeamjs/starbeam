@@ -5,7 +5,7 @@ import { LIFETIME, TIMELINE } from "@starbeam/timeline";
 import { type ReactElement, useRef, useState } from "react";
 
 import { ReactiveElement } from "./element.js";
-import { useSetup } from "./use-setup.js";
+import { useReactiveSetup } from "./use-setup.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyRecord<T = any> = Record<PropertyKey, T>;
@@ -113,7 +113,7 @@ export function useStarbeam<_T>(
   const [, setNotify] = useState({});
   const last = useRef(null as ReactiveElement | null);
 
-  return useSetup((setup) => {
+  return useReactiveSetup((setup) => {
     const { element } = createReactiveElement({
       prev: last.current,
       notify: () => setNotify({}),

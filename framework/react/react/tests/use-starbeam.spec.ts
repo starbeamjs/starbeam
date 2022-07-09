@@ -1,9 +1,8 @@
 // @vitest-environment jsdom
 
 import { Cell, Formula, LIFETIME, PolledFormula } from "@starbeam/core";
-import { component, useReactive, useSetup, useStarbeam } from "@starbeam/react";
+import { useReactive, useReactiveSetup } from "@starbeam/react";
 import {
-  RenderState,
   html,
   react,
   testStrictAndLoose,
@@ -14,12 +13,12 @@ import { describe, expect } from "vitest";
 let id = 0;
 
 describe("useStarbeam", () => {
-  testStrictAndLoose<void, number>("useStarbeam", async (mode, test) => {
+  testStrictAndLoose<void, number>("useSetup", async (mode, test) => {
     id = 0;
     const result = await test
       .expectHTML((value) => `<p>${value}</p><button>++</button>`)
       .render((test) => {
-        return useStarbeam(() => {
+        return useReactiveSetup(() => {
           const cell = Cell(0, `#${++id}`);
 
           function increment() {
@@ -49,7 +48,7 @@ describe("useStarbeam", () => {
       const result = await test
         .expectHTML((value) => `<p>${value}</p><button>++</button>`)
         .render((test) => {
-          const { cell, increment } = useSetup(() => {
+          const { cell, increment } = useReactiveSetup(() => {
             const cell = Cell(0, `#${++id}`);
 
             function increment() {
@@ -86,7 +85,7 @@ describe("useStarbeam", () => {
         .expectStable()
         .render((test) => {
           ++id;
-          const counter = useSetup(() => {
+          const counter = useReactiveSetup(() => {
             const cell = Cell(0, `#${id}`);
             return Formula(() => ({ counter: cell.current }), `inner #${id}`);
           }, `#${id}`);
@@ -112,7 +111,7 @@ describe("useStarbeam", () => {
         .expectStable()
         .render((test) => {
           ++id;
-          const { formula, increment } = useSetup(() => {
+          const { formula, increment } = useReactiveSetup(() => {
             const cell = Cell(0, `#${id}`);
             return () => ({
               formula: Formula(
@@ -159,7 +158,7 @@ describe("useStarbeam", () => {
         .render((test) => {
           const [reactCount, setReactCount] = useState(0);
 
-          const { count, increment } = useSetup(() => {
+          const { count, increment } = useReactiveSetup(() => {
             const cell = Cell(0);
 
             function increment() {
@@ -218,7 +217,7 @@ describe("useStarbeam", () => {
         )
 
         .render((test) => {
-          return useSetup(() => {
+          return useReactiveSetup(() => {
             const cell = Cell(0);
 
             function increment() {

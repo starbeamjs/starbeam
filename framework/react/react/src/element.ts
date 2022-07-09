@@ -1,12 +1,12 @@
 import type { browser } from "@domtree/flavors";
-import type {
-  Cell,
-  CreateResource,
-  Linkable,
-  Reactive,
+import {
   Resource,
+  type Cell,
+  type CreateResource,
+  type Linkable,
+  type Reactive,
 } from "@starbeam/core";
-import type { DebugListener } from "@starbeam/debug";
+import { callerStack, type DebugListener } from "@starbeam/debug";
 import type {
   CleanupTarget,
   OnCleanup,
@@ -211,8 +211,12 @@ export class ReactiveElement implements CleanupTarget {
     this.#debugLifecycle = lifecycle;
   }
 
-  use<T>(resource: CreateResource<T>): Resource<T> {
-    return resource.create({ owner: this });
+  use<T>(resource: CreateResource<T>, caller = callerStack()): Resource<T> {
+    const r = resource.create({ owner: this });
+
+    this.on.layout(() => Resource.setup(r, caller));
+
+    return r;
   }
 
   refs<R extends RefsTypes>(refs: R): RefsRecordFor<R> {

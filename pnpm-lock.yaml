@@ -235,6 +235,7 @@ importers:
       '@esbuild-plugins/node-modules-polyfill': ^0.1.4
       '@rollup/plugin-inject': ^4.0.4
       '@starbeam/core': workspace:*
+      '@starbeam/debug': workspace:*
       '@starbeam/js': workspace:*
       '@starbeam/react': workspace:*
       '@types/react': ^18.0.10
@@ -249,6 +250,7 @@ importers:
       vite-react-jsx: ^1.1.2
     dependencies:
       '@starbeam/core': link:../../packages/core
+      '@starbeam/debug': link:../../packages/debug
       '@starbeam/js': link:../../packages/js
       '@starbeam/react': link:../../framework/react/react
       purecss: 2.1.0

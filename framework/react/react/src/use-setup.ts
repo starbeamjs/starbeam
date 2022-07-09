@@ -1,4 +1,4 @@
-import { Formula, Reactive } from "@starbeam/core";
+import { PolledFormula, Reactive } from "@starbeam/core";
 import { isObject } from "@starbeam/core-utils";
 import { type Description, descriptionFrom, Message } from "@starbeam/debug";
 import { isDebug, LIFETIME, TIMELINE } from "@starbeam/timeline";
@@ -88,21 +88,12 @@ if (isDebug()) {
   });
 }
 
-export function useSetup<T>(
-  callback: (setup: ReactiveElement) => (() => T) | Reactive<T>,
-  description?: string | Description
-): T {
-  const desc = descriptionFrom({
-    type: "resource",
-    api: "useSetup",
-    fromUser: description,
-  });
-
+export function useSetup<T>(callback: (setup: ReactiveElement) => T): T {
   const [, setNotify] = useState({});
 
-  const instance = useLifecycle((lifecycle) => {
+  return useLifecycle((lifecycle) => {
     const builder = ReactiveElement.create(() => setNotify({}));
-    const instance = unsafeTrackedElsewhere(() => callback(builder));
+    const instance = callback(builder);
 
     lifecycle.on.cleanup(() => {
       if (isObject(instance)) {
@@ -118,14 +109,46 @@ export function useSetup<T>(
       ReactiveElement.idle(builder);
     });
 
+    return instance;
+  });
+}
+
+export function useReactiveSetup<T>(
+  callback: (setup: ReactiveElement) => (() => T) | Reactive<T>,
+  description?: string | Description
+): T {
+  const desc = descriptionFrom({
+    type: "resource",
+    api: "useReactiveSetup",
+    fromUser: description,
+  });
+
+  const [, setNotify] = useState({});
+
+  const instance = useLifecycle((lifecycle) => {
+    const builder = ReactiveElement.create(() => setNotify({}));
+    const instance = unsafeTrackedElsewhere(() => callback(builder));
+
+    lifecycle.on.cleanup(() => {
+      if (isObject(instance)) {
+        LIFETIME.finalize(instance);
+      }
+    });
+
+    lifecycle.on.idle(() => {
+      ReactiveElement.idle(builder);
+    });
+
     let reactive: Reactive<T>;
     if (Reactive.is(instance)) {
       reactive = instance;
     } else {
-      reactive = Formula(instance, desc);
+      reactive = PolledFormula(instance, desc);
     }
 
     lifecycle.on.layout(() => {
+      ReactiveElement.layout(builder);
+
       const renderer = TIMELINE.on.change(reactive, () => {
         setNotify({});
       });

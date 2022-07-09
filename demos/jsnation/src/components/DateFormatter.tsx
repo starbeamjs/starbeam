@@ -1,5 +1,5 @@
 import { type Reactive, Cell, Resource } from "@starbeam/core";
-import { useProp, useStarbeam } from "@starbeam/react";
+import { useProp, useReactiveSetup } from "@starbeam/react";
 
 import {
   formatLocale,
@@ -12,7 +12,7 @@ import {
 export default function (props: { locale: string }) {
   const locale = useProp(props.locale);
 
-  return useStarbeam((component) => {
+  return useReactiveSetup((component) => {
     const timeZone = Cell(SYSTEM_TZ, "system time zone");
     const date = component.use(Clock(timeZone, locale));
 
@@ -58,9 +58,11 @@ function Clock(timeZone: Reactive<string>, locale: Reactive<string>) {
   }
 
   return Resource((resource) => {
-    const interval = setInterval(() => refresh(), 1000);
+    resource.on.setup(() => {
+      const interval = setInterval(() => refresh(), 1000);
 
-    resource.on.cleanup(() => clearInterval(interval));
+      return () => clearInterval(interval);
+    });
 
     return () => ({
       formatted: formatDate(date.current, locale.current, timeZone.current),

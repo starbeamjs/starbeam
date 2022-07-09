@@ -1,7 +1,10 @@
-import { LIFETIME, PolledFormula, TIMELINE } from "@starbeam/core";
+import { Cell, LIFETIME, PolledFormula, TIMELINE } from "@starbeam/core";
+import type { Description } from "@starbeam/debug";
 import { descriptionFrom } from "@starbeam/debug";
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
 import { useState } from "react";
+
+import { useSetup } from "./use-setup.js";
 
 /**
  * {@linkcode useReactive} is a Starbeam renderer that computes a value from reactive values and
@@ -45,4 +48,20 @@ export function useReactive<T>(compute: () => T, description?: string): T {
   });
 
   return formula.current;
+}
+
+export function useCell<T>(
+  value: T,
+  description?: Description | string
+): Cell<T> {
+  const desc = descriptionFrom({
+    type: "cell",
+    api: {
+      package: "@starbeam/react",
+      name: "useCell",
+    },
+    fromUser: description,
+  });
+
+  return useSetup(() => Cell(value, { description: desc }));
 }

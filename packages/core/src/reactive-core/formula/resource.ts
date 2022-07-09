@@ -14,20 +14,20 @@
  */
 
 import {
+  type Description,
+  type Stack,
   callerStack,
   descriptionFrom,
   DisplayStruct,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ifDebug,
   INSPECT,
-  type Description,
-  type Stack,
 } from "@starbeam/debug";
 import {
-  LIFETIME,
-  REACTIVE,
   type ReactiveInternals,
   type Unsubscribe,
+  LIFETIME,
+  REACTIVE,
 } from "@starbeam/timeline";
 import { expected, isEqual, verify } from "@starbeam/verify";
 
@@ -66,8 +66,16 @@ import { FormulaState } from "./state.js";
  * quite a bit, and even getting cleaned up and reinitialized behind the scenes.
  */
 class ReactiveResource<T> implements Reactive<T> {
-  static setup<T>(resource: Resource<T>, caller: Stack): void {
+  static setup<T>(this: void, resource: Resource<T>, caller: Stack): void {
     resource.#built.setup(caller);
+  }
+
+  static reinitialize(
+    this: void,
+    resource: Resource<unknown>,
+    caller: Stack
+  ): void {
+    return resource.#reinitialize(caller);
   }
 
   readonly #description: Description;
@@ -109,19 +117,23 @@ class ReactiveResource<T> implements Reactive<T> {
       // invalid, finalize it and run it again.
       this.#built.poll(caller);
     } else {
-      LIFETIME.finalize(this.#built);
-
-      const { built, constructorFormula, formula } = this.#initializer(caller);
-
-      this.#built = built;
-      LIFETIME.link(this, built);
-
-      this.#constructorFormula = constructorFormula;
-      this.#formula = formula;
+      this.#reinitialize(caller);
     }
 
     // Now that we've revalidated the formula, get the current value.
     return this.#formula.current;
+  }
+
+  #reinitialize(caller: Stack) {
+    LIFETIME.finalize(this.#built);
+
+    const { built, constructorFormula, formula } = this.#initializer(caller);
+
+    this.#built = built;
+    LIFETIME.link(this, built);
+
+    this.#constructorFormula = constructorFormula;
+    this.#formula = formula;
   }
 
   get [REACTIVE](): ReactiveInternals {
@@ -314,6 +326,7 @@ export function Resource<T>(
 }
 
 Resource.setup = ReactiveResource.setup;
+Resource.reinitialize = ReactiveResource.reinitialize;
 
 export type Resource<T> = ReactiveResource<T>;
 export type ResourceConstructor<T> = (builder: ResourceBuilder) => () => T;

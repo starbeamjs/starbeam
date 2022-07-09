@@ -1,5 +1,5 @@
 import { Cell } from "@starbeam/core";
-import { useStarbeam } from "@starbeam/react";
+import { useReactiveSetup } from "@starbeam/react";
 import type { FormEvent } from "react";
 
 import { type Person, People } from "../lib/people.js";
@@ -7,7 +7,7 @@ import { Table } from "../lib/table.js";
 import { SYSTEM_LOCALE } from "./intl.js";
 
 export default function () {
-  return useStarbeam(() => {
+  return useReactiveSetup(() => {
     const table = new Table<Person>(["name", "location"]);
 
     table.append({ name: "Tom Dale", location: "NYC" });

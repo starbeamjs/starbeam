@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { Cell, Formula, LIFETIME, PolledFormula } from "@starbeam/core";
-import { useReactive, useSetup } from "@starbeam/react";
+import { useReactive, useReactiveSetup } from "@starbeam/react";
 import {
   html,
   react,
@@ -14,12 +14,12 @@ let id = 0;
 
 describe("useReactive", () => {
   testStrictAndLoose<void, number>(
-    "useSetup with useReactive",
+    "useReactiveSetup with useReactive",
     async (mode, test) => {
       const result = await test
         .expectHTML((value) => `<p>${value}</p><button>++</button>`)
         .render((test) => {
-          const { cell, increment } = useSetup(() => {
+          const { cell, increment } = useReactiveSetup(() => {
             const cell = Cell(0, `#${++id}`);
 
             function increment() {
@@ -27,7 +27,7 @@ describe("useReactive", () => {
             }
 
             return () => ({ cell, increment });
-          }, "first useSetup");
+          }, "first useReactiveSetup");
 
           return useReactive(() => {
             test.value(cell.current);
@@ -56,7 +56,7 @@ describe("useReactive", () => {
         .expectStable()
         .render((test) => {
           ++id;
-          const counter = useSetup(() => {
+          const counter = useReactiveSetup(() => {
             const cell = Cell(0, `#${id}`);
             return Formula(() => ({ counter: cell.current }), `inner #${id}`);
           }, `#${id}`);
@@ -82,7 +82,7 @@ describe("useReactive", () => {
         .expectStable()
         .render((test) => {
           ++id;
-          const { formula, increment } = useSetup(() => {
+          const { formula, increment } = useReactiveSetup(() => {
             const cell = Cell(0, `#${id}`);
             return () => ({
               formula: Formula(
@@ -129,7 +129,7 @@ describe("useReactive", () => {
         .render((test) => {
           const [reactCount, setReactCount] = useState(0);
 
-          const { count, increment } = useSetup(() => {
+          const { count, increment } = useReactiveSetup(() => {
             const cell = Cell(0);
 
             function increment() {
@@ -188,7 +188,7 @@ describe("useReactive", () => {
         )
 
         .render((test) => {
-          return useSetup(() => {
+          return useReactiveSetup(() => {
             const cell = Cell(0);
 
             function increment() {
