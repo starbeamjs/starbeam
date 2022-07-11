@@ -144,7 +144,7 @@ export function useStarbeam<_T>(
     if (prev) {
       element = ReactiveElement.reactivate(prev);
     } else {
-      element = ReactiveElement.create(notify);
+      element = ReactiveElement.create(notify, desc);
     }
 
     /**
