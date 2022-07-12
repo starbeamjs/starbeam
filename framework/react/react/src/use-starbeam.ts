@@ -1,11 +1,11 @@
 import { Formula, PolledFormula } from "@starbeam/core";
 import { type Description, descriptionFrom } from "@starbeam/debug";
-import type { Renderable } from "@starbeam/timeline";
+import type { Pollable } from "@starbeam/timeline";
 import { LIFETIME, TIMELINE } from "@starbeam/timeline";
 import { type ReactElement, useRef, useState } from "react";
 
 import { ReactiveElement } from "./element.js";
-import { useSetup } from "./use-setup.js";
+import { useReactiveSetup } from "./use-setup.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyRecord<T = any> = Record<PropertyKey, T>;
@@ -113,7 +113,7 @@ export function useStarbeam<_T>(
   const [, setNotify] = useState({});
   const last = useRef(null as ReactiveElement | null);
 
-  return useSetup((setup) => {
+  return useReactiveSetup((setup) => {
     const { element } = createReactiveElement({
       prev: last.current,
       notify: () => setNotify({}),
@@ -144,7 +144,7 @@ export function useStarbeam<_T>(
     if (prev) {
       element = ReactiveElement.reactivate(prev);
     } else {
-      element = ReactiveElement.create(notify);
+      element = ReactiveElement.create(notify, desc);
     }
 
     /**
@@ -202,12 +202,9 @@ export function useStarbeam<_T>(
      * At that point, the resource will be in the `updating` state, so the
      * `updating` lifecycle hook below will run.
      */
-    const renderable: Renderable<ReactElement> = TIMELINE.on.change(
-      formula,
-      () => {
-        TIMELINE.enqueueAction(notify);
-      }
-    );
+    const renderable: Pollable = TIMELINE.on.change(formula, () => {
+      TIMELINE.enqueueAction(notify);
+    });
 
     LIFETIME.on.cleanup(renderable, () => {
       console.log("tearing down renderable", description);
@@ -252,7 +249,7 @@ export function component<Props>(
 
 interface CreatedReactiveElement {
   element: ReactiveElement;
-  value: Renderable<ReactElement>;
+  value: Pollable;
 }
 
 export type Inputs = AnyRecord | void;

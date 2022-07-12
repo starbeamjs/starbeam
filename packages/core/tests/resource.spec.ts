@@ -1,4 +1,5 @@
 import { Cell, Resource } from "@starbeam/core";
+import { Stack } from "@starbeam/debug";
 import { LIFETIME } from "@starbeam/timeline";
 import { describe, expect, test } from "vitest";
 
@@ -36,59 +37,56 @@ describe("resources", () => {
     const parent = {};
 
     const resource = Resource((resource) => {
-      const socket = Subscription.subscribe(channel.current);
+      const socket = Cell(undefined as Subscription | undefined);
 
-      resource.on.cleanup(() => socket.disconnect());
+      resource.on.setup(() => {
+        console.log("Running setup");
+        const s = Subscription.subscribe(channel.current);
+        socket.set(s);
+
+        return () => s.disconnect();
+      });
 
       return () => ({
-        socket,
+        socket: socket.current,
         description: `${username.current} @ ${channel.current}`,
       });
     }).create({ owner: parent });
 
     let last = resource.current;
     expect(last.description).toBe("@tomdale @ emails");
-    expect(last.socket.name).toBe("emails");
+    expect(last.socket).toBe(undefined);
+
+    Resource.setup(resource, Stack.EMPTY);
+
+    let next = resource.current;
+    expect(next.description).toBe("@tomdale @ emails");
+    expect(next.socket?.name).toBe("emails");
+    last = next;
 
     username.set("@todale");
 
-    let next = resource.current;
-
+    next = resource.current;
     expect(next.description).toBe("@todale @ emails");
     expect(last.socket).toBe(next.socket);
-    expect(last.socket).toMatchObject({
-      name: "emails",
-      isActive: true,
-    });
-
+    expect(last.socket?.name).toBe("emails");
+    expect(last.socket?.isActive).toBe(true);
     last = next;
 
     channel.set("twitter");
 
     next = resource.current;
-
-    expect(next.description).toBe("@todale @ twitter");
     expect(last.socket).not.toBe(next.socket);
-
-    expect(last.socket).toMatchObject({
-      name: "emails",
-      isActive: false,
-    });
-
-    expect(next.socket).toMatchObject({
-      name: "twitter",
-      isActive: true,
-    });
-
+    expect(last.socket?.isActive).toBe(false);
+    expect(next.description).toBe("@todale @ twitter");
+    expect(next.socket?.name).toBe("twitter");
+    expect(next.socket?.isActive).toBe(true);
     last = next;
 
     LIFETIME.finalize(parent);
 
     next = resource.current;
-
-    expect(next.socket).toMatchObject({
-      name: "twitter",
-      isActive: false,
-    });
+    expect(next.socket?.name).toBe("twitter");
+    expect(next.socket?.isActive).toBe(false);
   });
 });

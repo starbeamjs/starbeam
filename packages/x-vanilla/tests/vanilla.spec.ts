@@ -14,12 +14,12 @@ describe("Vanilla Renderer", () => {
     expect(body.innerHTML).toBe("Hello World");
 
     cell.set("Goodbye world");
-    render.current;
+    render.poll();
 
     expect(body.innerHTML).toBe("Goodbye world");
 
     LIFETIME.finalize(owner);
-    render.current;
+    render.poll();
 
     expect(body.innerHTML).toBe("");
   });
@@ -41,13 +41,13 @@ describe("Vanilla Renderer", () => {
     expect(body.innerHTML).toBe("Hello World - Goodbye World");
 
     b.set(" ::: ");
-    range.current;
+    range.poll();
 
     expect(body.innerHTML).toBe("Hello World ::: Goodbye World");
     body.expectStable();
 
     a.set("Hola World");
-    range.current;
+    range.poll();
 
     expect(body.innerHTML).toBe("Hola World ::: Goodbye World");
     body.expectStable();

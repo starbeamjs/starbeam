@@ -1,5 +1,5 @@
 import { isObject } from "@starbeam/core-utils";
-import type { Description, Stack } from "@starbeam/debug";
+import { type Description, type Stack, Tree } from "@starbeam/debug";
 import { REACTIVE } from "@starbeam/peer";
 import type {
   MutableInternals,
@@ -35,5 +35,29 @@ export const Reactive = {
 
   description(reactive: ReactiveProtocol): Description {
     return Reactive.internals(reactive).description;
+  },
+
+  debug(
+    reactive: ReactiveProtocol,
+    {
+      implementation = false,
+      source = false,
+    }: { implementation?: boolean; source?: boolean } = {}
+  ) {
+    const dependencies = [...reactive[REACTIVE].children().dependencies];
+    const descriptions = new Set(
+      dependencies.map((dependency) => {
+        return implementation
+          ? dependency.description
+          : dependency.description.userFacing;
+      })
+    );
+
+    const nodes = [...descriptions].map((d) => {
+      const description = implementation ? d : d.userFacing;
+      return description.describe({ source });
+    });
+
+    return Tree(...nodes).format();
   },
 };

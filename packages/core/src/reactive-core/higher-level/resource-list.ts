@@ -1,18 +1,24 @@
-import type { DescriptionArgs, Stack } from "@starbeam/debug";
 import {
   type Description,
+  type DescriptionArgs,
   callerStack,
   descriptionFrom,
+  Stack,
 } from "@starbeam/debug";
 import { type ReactiveInternals, LIFETIME, REACTIVE } from "@starbeam/timeline";
+import { expected, isEqual, verify } from "@starbeam/verify";
 
 import type { Reactive } from "../../reactive.js";
 import { Formula } from "../formula/formula.js";
 import { Linkable } from "../formula/linkable.js";
-import type { Resource } from "../formula/resource.js";
+import { type CreateResource, Resource } from "../formula/resource.js";
 
 type Key = unknown;
 type Entry<T> = [Key, T];
+
+export interface CreateResourceList<T> {
+  create(this: void, options: { owner: object }): ResourceList<T>;
+}
 
 class ReactiveResourceList<T, U> implements Reactive<U[]> {
   static create<T, U>(
@@ -23,10 +29,10 @@ class ReactiveResourceList<T, U> implements Reactive<U[]> {
       resource,
     }: {
       key: (item: T) => Key;
-      resource: (item: T) => Linkable<Resource<U>>;
+      resource: (item: T) => CreateResource<U>;
     },
     desc?: string | Description
-  ): Linkable<ResourceList<U>> {
+  ): CreateResourceList<U> {
     const formula = Formula(() =>
       [...iterable].map((item): [Key, T] => [key(item), item])
     );
@@ -47,19 +53,40 @@ class ReactiveResourceList<T, U> implements Reactive<U[]> {
     });
   }
 
+  static setup<T, U>(
+    this: void,
+    list: ReactiveResourceList<T, U>,
+    caller: Stack
+  ): void {
+    verify(
+      list.#setup,
+      isEqual(false),
+      expected("setup handler").toBe("setup only once").butGot("a second run")
+    );
+
+    list.#setup = true;
+
+    if (list.#map) {
+      for (const resource of list.#map.values()) {
+        Resource.setup(resource, caller);
+      }
+    }
+  }
+
   #last: Entry<T>[] | undefined;
   #map: Map<Key, Resource<U>> | undefined;
 
   readonly #inputs: Formula<Entry<T>[]>;
-  readonly #resource: (item: T) => Linkable<Resource<U>>;
+  readonly #resource: (item: T) => CreateResource<U>;
+  readonly #outputs: Formula<U[]>;
   readonly #description: DescriptionArgs;
 
-  readonly #outputs: Formula<U[]>;
+  #setup = false;
 
   constructor(
     iterable: Formula<Entry<T>[]>,
-    resource: (item: T) => Linkable<Resource<U>>,
-    description: DescriptionArgs
+    resource: (item: T) => CreateResource<U>,
+    description: Description
   ) {
     this.#inputs = iterable;
 
@@ -69,13 +96,13 @@ class ReactiveResourceList<T, U> implements Reactive<U[]> {
     this.#resource = resource;
     this.#description = description;
 
-    this.#map = this.#update();
+    this.#map = this.#initialize();
 
     this.#outputs = Formula(() => {
-      this.#map = this.#update();
+      this.#map = this.#initialize();
 
       return [...this.#map.values()].map((formula) => formula.current);
-    });
+    }, description);
   }
 
   get [REACTIVE](): ReactiveInternals {
@@ -90,7 +117,11 @@ class ReactiveResourceList<T, U> implements Reactive<U[]> {
     return this.#outputs.read(caller);
   }
 
-  #update(): Map<Key, Resource<U>> {
+  #initialize(): Map<Key, Resource<U>> {
+    return this.#update(Stack.EMPTY);
+  }
+
+  #update(caller: Stack): Map<Key, Resource<U>> {
     const next = this.#inputs.current;
 
     if (this.#map !== undefined && this.#last === next) {
@@ -109,6 +140,10 @@ class ReactiveResourceList<T, U> implements Reactive<U[]> {
         const resource = linkable.create({ owner: this });
 
         map.set(key, resource);
+
+        if (this.#setup) {
+          Resource.setup(resource, caller);
+        }
       } else {
         map.set(key, formula);
       }
@@ -127,4 +162,16 @@ class ReactiveResourceList<T, U> implements Reactive<U[]> {
 }
 
 export type ResourceList<U> = ReactiveResourceList<unknown, U>;
-export const ResourceList = ReactiveResourceList.create;
+
+export const ResourceList = <T, U>(
+  iterable: Iterable<T>,
+  options: {
+    key: (item: T) => Key;
+    resource: (item: T) => CreateResource<U>;
+  },
+  desc?: string | Description
+): CreateResourceList<U> => {
+  return ReactiveResourceList.create(iterable, options, desc);
+};
+
+ResourceList.setup = ReactiveResourceList.setup;

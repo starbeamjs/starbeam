@@ -1,4 +1,4 @@
-import { Formula, Reactive } from "@starbeam/core";
+import { PolledFormula, Reactive } from "@starbeam/core";
 import { isObject } from "@starbeam/core-utils";
 import { type Description, descriptionFrom, Message } from "@starbeam/debug";
 import { isDebug, LIFETIME, TIMELINE } from "@starbeam/timeline";
@@ -89,49 +89,100 @@ if (isDebug()) {
 }
 
 export function useSetup<T>(
+  callback: (setup: ReactiveElement) => T,
+  description?: string | Description
+): T {
+  const [, setNotify] = useState({});
+
+  const desc = descriptionFrom({
+    type: "resource",
+    api: {
+      package: "@starbeam/react",
+      name: "useSetup",
+    },
+    fromUser: description,
+  });
+
+  const { instance } = useLifecycle<{ element: ReactiveElement; instance: T }>(
+    (lifecycle, prev) => {
+      const element = prev?.element
+        ? ReactiveElement.reactivate(prev.element)
+        : ReactiveElement.create(() => setNotify({}), desc);
+      const instance = callback(element);
+
+      lifecycle.on.cleanup(() => {
+        if (isObject(instance)) {
+          LIFETIME.finalize(instance);
+        }
+      });
+
+      lifecycle.on.layout(() => {
+        ReactiveElement.layout(element);
+      });
+
+      lifecycle.on.idle(() => {
+        ReactiveElement.idle(element);
+      });
+
+      return { element, instance };
+    }
+  );
+
+  return instance;
+}
+
+export function useReactiveSetup<T>(
   callback: (setup: ReactiveElement) => (() => T) | Reactive<T>,
   description?: string | Description
 ): T {
   const desc = descriptionFrom({
     type: "resource",
-    api: "useSetup",
+    api: "useReactiveSetup",
     fromUser: description,
   });
 
   const [, setNotify] = useState({});
 
   const instance = useLifecycle((lifecycle) => {
-    const builder = ReactiveElement.create(() => setNotify({}));
-    const instance = unsafeTrackedElsewhere(() => callback(builder));
+    const element = ReactiveElement.create(() => setNotify({}), desc);
+    const instance = unsafeTrackedElsewhere(() => callback(element));
+
+    const setups = TIMELINE.on.change(element, () => {
+      setNotify({});
+    });
+
+    lifecycle.on.update(() => {
+      element.poll();
+    });
 
     lifecycle.on.cleanup(() => {
       if (isObject(instance)) {
         LIFETIME.finalize(instance);
       }
-    });
-
-    lifecycle.on.layout(() => {
-      ReactiveElement.layout(builder);
+      LIFETIME.finalize(element);
     });
 
     lifecycle.on.idle(() => {
-      ReactiveElement.idle(builder);
+      ReactiveElement.idle(element);
     });
 
     let reactive: Reactive<T>;
     if (Reactive.is(instance)) {
       reactive = instance;
     } else {
-      reactive = Formula(instance, desc);
+      reactive = PolledFormula(instance, desc);
     }
 
     lifecycle.on.layout(() => {
-      const renderer = TIMELINE.on.change(reactive, () => {
+      ReactiveElement.layout(element);
+
+      const renderedValue = TIMELINE.on.change(reactive, () => {
         setNotify({});
       });
 
       lifecycle.on.cleanup(() => {
-        LIFETIME.finalize(renderer);
+        LIFETIME.finalize(renderedValue);
+        LIFETIME.finalize(setups);
       });
     });
 

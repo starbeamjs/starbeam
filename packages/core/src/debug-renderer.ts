@@ -1,5 +1,5 @@
 import { type Description, descriptionFrom } from "@starbeam/debug";
-import type { Renderable } from "@starbeam/timeline";
+import type { Pollable } from "@starbeam/timeline";
 import { TIMELINE } from "@starbeam/timeline";
 
 import { Formula } from "./reactive-core/formula/formula.js";
@@ -14,7 +14,7 @@ export const DEBUG_RENDERER = {
       debug: (value: T) => void;
     },
     description?: Description | string
-  ): Renderable<T> {
+  ): Pollable {
     const formula = Formula(
       render,
       descriptionFrom({

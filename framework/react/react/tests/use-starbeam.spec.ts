@@ -1,9 +1,8 @@
 // @vitest-environment jsdom
 
 import { Cell, Formula, LIFETIME, PolledFormula } from "@starbeam/core";
-import { component, useReactive, useSetup, useStarbeam } from "@starbeam/react";
+import { useReactive, useReactiveSetup } from "@starbeam/react";
 import {
-  type RenderState,
   html,
   react,
   testStrictAndLoose,
@@ -14,12 +13,12 @@ import { describe, expect } from "vitest";
 let id = 0;
 
 describe("useStarbeam", () => {
-  testStrictAndLoose<void, number>("useStarbeam", async (mode, test) => {
+  testStrictAndLoose<void, number>("useSetup", async (mode, test) => {
     id = 0;
     const result = await test
       .expectHTML((value) => `<p>${value}</p><button>++</button>`)
       .render((test) => {
-        return useStarbeam(() => {
+        return useReactiveSetup(() => {
           const cell = Cell(0, `#${++id}`);
 
           function increment() {
@@ -43,70 +42,13 @@ describe("useStarbeam", () => {
     expect(result.value).toBe(1);
   });
 
-  testStrictAndLoose.skip<
-    void,
-    { cell: Cell<number>; resource: Cell<TestResource | null> }
-  >("useStarbeam HOC", async (mode, test) => {
-    id = 0;
-    TestResource.setup();
-
-    const hoc = component((c) => {
-      const cell = Cell(0, `#${++id}`);
-      const resource = Cell(null as TestResource | null);
-
-      function increment() {
-        cell.set(cell.current + 1);
-      }
-
-      c.on.layout(() => {
-        const r = TestResource.create();
-        resource.set(r);
-
-        c.on.cleanup(() => {
-          LIFETIME.finalize(resource);
-        });
-      });
-
-      return ({
-        test,
-      }: {
-        test: RenderState<{
-          cell: Cell<number>;
-          resource: Cell<TestResource | null>;
-        }>;
-      }) => {
-        test.value({ cell, resource });
-        return react.fragment(
-          html.p(String(cell.current)),
-          html.button({ onClick: increment }, "++")
-        );
-      };
-    });
-
-    const result = await test
-      .expectHTML(({ cell }) => `<p>${cell.current}</p><button>++</button>`)
-      .render((test) => {
-        return hoc({ test });
-      });
-
-    expect(result.value.cell.current).toBe(0);
-    const lastResource = result.value.resource;
-    expect(lastResource.current?.isActive).toBe(true);
-
-    expect(TestResource.resources.length).toBe(1);
-
-    await result.find("button").fire.click();
-
-    expect(result.value.cell.current).toBe(1);
-  });
-
   testStrictAndLoose<void, number>(
     "useSetup with useReactive",
     async (mode, test) => {
       const result = await test
         .expectHTML((value) => `<p>${value}</p><button>++</button>`)
         .render((test) => {
-          const { cell, increment } = useSetup(() => {
+          const { cell, increment } = useReactiveSetup(() => {
             const cell = Cell(0, `#${++id}`);
 
             function increment() {
@@ -143,7 +85,7 @@ describe("useStarbeam", () => {
         .expectStable()
         .render((test) => {
           ++id;
-          const counter = useSetup(() => {
+          const counter = useReactiveSetup(() => {
             const cell = Cell(0, `#${id}`);
             return Formula(() => ({ counter: cell.current }), `inner #${id}`);
           }, `#${id}`);
@@ -169,7 +111,7 @@ describe("useStarbeam", () => {
         .expectStable()
         .render((test) => {
           ++id;
-          const { formula, increment } = useSetup(() => {
+          const { formula, increment } = useReactiveSetup(() => {
             const cell = Cell(0, `#${id}`);
             return () => ({
               formula: Formula(
@@ -216,7 +158,7 @@ describe("useStarbeam", () => {
         .render((test) => {
           const [reactCount, setReactCount] = useState(0);
 
-          const { count, increment } = useSetup(() => {
+          const { count, increment } = useReactiveSetup(() => {
             const cell = Cell(0);
 
             function increment() {
@@ -275,7 +217,7 @@ describe("useStarbeam", () => {
         )
 
         .render((test) => {
-          return useSetup(() => {
+          return useReactiveSetup(() => {
             const cell = Cell(0);
 
             function increment() {

@@ -1,27 +1,71 @@
-import type { Reactive, ResourceConstructor } from "@starbeam/core";
-import { Resource } from "@starbeam/core";
+import { type Reactive, Formula, LIFETIME } from "@starbeam/core";
+import type { Description } from "@starbeam/debug";
+import { descriptionFrom } from "@starbeam/debug";
 
 import { Cursor } from "./cursor.js";
 
-type ContentNode = (into: Cursor) => ResourceConstructor<void>;
+interface Rendered {
+  poll(): void;
+}
+
+interface OutputConstructor {
+  create: (options: { owner: object }) => Rendered;
+}
+
+type ContentNode = (into: Cursor) => OutputConstructor;
+type AttrNode<E extends Element = Element> = (into: E) => OutputConstructor;
+
+function Render<T extends Cursor | Element>(
+  create: (options: { into: T; owner: object }) => {
+    cleanup: () => void;
+    update: () => void;
+  },
+  description: Description
+): (into: T) => OutputConstructor {
+  return (into: T) => {
+    return {
+      create({ owner }) {
+        const { cleanup, update } = create({ into, owner });
+
+        const formula = Formula(update, description);
+
+        LIFETIME.on.cleanup(owner, cleanup);
+
+        return {
+          poll() {
+            formula.current;
+          },
+        };
+      },
+    };
+  };
+}
 
 export function Text(
-  text: Reactive<string>
-): (into: Cursor) => ResourceConstructor<void> {
-  return (into) => {
-    const current = text.current;
+  text: Reactive<string>,
+  description?: string | Description
+): ContentNode {
+  return Render(
+    ({ into }) => {
+      const node = into.insert(into.document.createTextNode(text.current));
 
-    return Resource((r) => {
-      const node = into.document.createTextNode(current);
-      into.insert(node);
-      r.on.cleanup(() => {
-        node.remove();
-      });
-      return () => {
-        node.data = text.current;
+      return {
+        cleanup: () => node.remove(),
+
+        update: () => {
+          node.textContent = text.current;
+        },
       };
-    });
-  };
+    },
+    descriptionFrom({
+      type: "resource",
+      api: {
+        package: "@starbeam/dom",
+        name: "Text",
+      },
+      fromUser: description,
+    })
+  );
 }
 
 class FragmentRange {
@@ -75,117 +119,134 @@ class FragmentRange {
 }
 
 export function Fragment(
-  nodes: ContentNode[]
-): (into: Cursor) => ResourceConstructor<void> {
-  return (into) => {
-    const owner = {};
+  nodes: ContentNode[],
+  description?: string | Description
+): ContentNode {
+  const desc = descriptionFrom({
+    type: "resource",
+    api: {
+      package: "@starbeam/dom",
+      name: "Fragment",
+    },
+    fromUser: description,
+  });
 
+  return Render(({ into, owner }) => {
     const start = placeholder(into.document);
     into.insert(start);
 
-    const renderNodes: Resource<void>[] = [];
+    const renderedNodes: Rendered[] = [];
 
     for (const nodeConstructor of nodes) {
       const node = nodeConstructor(into).create({ owner });
-      renderNodes.push(node);
+      renderedNodes.push(node);
     }
 
     const end = placeholder(into.document);
     into.insert(end);
-
     const range = FragmentRange.create(start, end);
-    return Resource((r) => {
-      r.link(owner);
 
-      r.on.cleanup(() => {
-        range.clear();
-      });
+    return {
+      cleanup: () => range.clear(),
 
-      return () => {
-        for (const node of renderNodes) {
-          node.current;
-        }
-      };
-    });
-  };
+      update() {
+        renderedNodes.forEach((node) => node.poll());
+      },
+    };
+  }, desc);
 }
-
-type AttrNode = <E extends Element>(into: E) => ResourceConstructor<void>;
 
 export function Attr<E extends Element>(
   name: string,
-  value: Reactive<string | null | boolean>
-): (into: E) => ResourceConstructor<void> {
-  return (into) => {
-    const current = value.current;
+  value: Reactive<string | null | boolean>,
+  description?: string | Description
+): AttrNode<E> {
+  return Render(
+    ({ into }) => {
+      const current = value.current;
 
-    return Resource((r) => {
       if (typeof current === "string") {
         into.setAttribute(name, current);
       } else if (current === true) {
         into.setAttribute(name, "");
       }
 
-      r.on.cleanup(() => {
-        into.removeAttribute(name);
-      });
+      return {
+        cleanup: () => into.removeAttribute(name),
+        update: () => {
+          const next = value.current;
 
-      return () => {
-        const next = value.current;
-        if (typeof next === "string") {
-          into.setAttribute(name, next);
-        } else if (next === true) {
-          into.setAttribute(name, "");
-        } else {
-          into.removeAttribute(name);
-        }
+          if (typeof next === "string") {
+            into.setAttribute(name, next);
+          } else if (next === true) {
+            into.setAttribute(name, "");
+          } else if (next === false) {
+            into.removeAttribute(name);
+          }
+        },
       };
-    });
-  };
+    },
+    descriptionFrom({
+      type: "resource",
+      api: {
+        package: "@starbeam/dom",
+        name: "Attr",
+      },
+      fromUser: description,
+    })
+  );
 }
 
-export function Element({
-  tag,
-  attributes,
-  body,
-}: {
-  tag: string;
-  attributes: AttrNode[];
-  body: ContentNode | ContentNode[];
-}): (into: Cursor) => ResourceConstructor<void> {
-  return (into) => {
-    const owner = {};
+export function Element(
+  {
+    tag,
+    attributes,
+    body,
+  }: {
+    tag: string;
+    attributes: AttrNode[];
+    body: ContentNode | ContentNode[];
+  },
+  description?: Description | string
+): ContentNode {
+  return Render(
+    ({ into, owner }) => {
+      const element = into.document.createElement(tag);
+      const elementCursor = Cursor.appendTo(element);
 
-    const element = into.document.createElement(tag);
-    const elementCursor = Cursor.appendTo(element);
+      const renderAttributes: Rendered[] = [];
 
-    const renderAttributes: Resource<void>[] = [];
+      for (const attrConstructor of attributes) {
+        const attr = attrConstructor(element).create({ owner });
+        renderAttributes.push(attr);
+      }
 
-    for (const attrConstructor of attributes) {
-      const attr = attrConstructor(element).create({ owner });
-      renderAttributes.push(attr);
-    }
+      const fragment = Array.isArray(body) ? Fragment(body) : body;
+      const renderBody = fragment(elementCursor).create({ owner });
 
-    const fragment = Array.isArray(body) ? Fragment(body) : body;
-    const renderBody = fragment(elementCursor).create({ owner });
+      into.insert(element);
 
-    into.insert(element);
+      return {
+        cleanup: () => element.remove(),
 
-    return Resource((r) => {
-      r.link(owner);
+        update: () => {
+          for (const attr of renderAttributes) {
+            attr.poll();
+          }
 
-      r.on.cleanup(() => {
-        element.remove();
-      });
-
-      return () => {
-        for (const attr of renderAttributes) {
-          attr.current;
-        }
-        renderBody.current;
+          renderBody.poll();
+        },
       };
-    });
-  };
+    },
+    descriptionFrom({
+      type: "resource",
+      api: {
+        package: "@starbeam/dom",
+        name: "Element",
+      },
+      fromUser: description,
+    })
+  );
 }
 
 Element.Attr = Attr;

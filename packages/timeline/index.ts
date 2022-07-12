@@ -7,6 +7,7 @@ export {
 export type { Unsubscribe } from "./src/lifetime/object-lifetime.js";
 export { type FrameValidation, FinalizedFrame } from "./src/timeline/frames.js";
 export { InternalChildren } from "./src/timeline/internals.js";
+export { type Diff, Pollable } from "./src/timeline/pollables/pollable.js";
 export { Queue } from "./src/timeline/queue.js";
 export {
   type CompositeInternals,
@@ -16,10 +17,6 @@ export {
   type ReactiveProtocol,
   type StaticInternals,
 } from "./src/timeline/reactive.js";
-export {
-  type Diff,
-  Renderable as Renderable,
-} from "./src/timeline/renderables/renderable.js";
 export {
   type FormulaResult,
   type StartedFormula,

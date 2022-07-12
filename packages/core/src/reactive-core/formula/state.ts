@@ -30,6 +30,15 @@ export class FormulaState<T> implements ReactiveProtocol {
     };
   }
 
+  /**
+   * Returns the previous value of the formula without validating it. This is primarily useful for
+   * cleanup logic, which wants to use the previous value, but doesn't need (or want) to compute a
+   * new value.
+   */
+  static lastValue<T>(state: FormulaState<T>): T {
+    return state.#lastValue;
+  }
+
   readonly #formula: () => T;
   #frame: FinalizedFrame<T>;
   #lastValue: T;
@@ -54,6 +63,10 @@ export class FormulaState<T> implements ReactiveProtocol {
 
   get dependencies(): readonly MutableInternals[] {
     return this.#frame.dependencies;
+  }
+
+  isValid() {
+    return this.#frame.validate().status === "valid";
   }
 
   validate(caller: Stack):

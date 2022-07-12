@@ -4,7 +4,7 @@ import {
   type Stack,
   callerStack,
   descriptionFrom,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-imports
   ifDebug,
   INSPECT,
   inspect,
@@ -106,12 +106,14 @@ export class ReactiveFormula<T> implements Reactive<T> {
   }
 }
 
-type FormulaFn<T> = ReactiveFn<T> & { update: (formula: () => T) => void };
+export type FormulaFn<T> = ReactiveFn<T> & {
+  update: (formula: () => T) => void;
+};
 
 export function Formula<T>(
   formula: () => T,
   description?: string | Description
-): FormulaFn<T> {
+): Formula<T> {
   const reactive = ReactiveFormula.create(
     formula,
     descriptionFrom({
@@ -136,4 +138,4 @@ export function Formula<T>(
   return fn;
 }
 
-export type Formula<T> = ReactiveFn<T>;
+export type Formula<T> = FormulaFn<T>;

@@ -1,6 +1,6 @@
-import { type Reactive, Cell, Resource } from "@starbeam/core";
+import { type Reactive, Resource } from "@starbeam/core";
 import js from "@starbeam/js";
-import { useProp, useStarbeam } from "@starbeam/react";
+import { useCell, useReactive, useResource } from "@starbeam/react";
 
 import {
   formatLocale,
@@ -11,46 +11,45 @@ import {
 } from "../intl.js";
 
 export default function DateFormatterStarbeam(props: { locale: string }) {
-  const locale = useProp(props.locale, "locale");
+  const timeZone = useCell(SYSTEM_TZ, "time zone");
 
-  return useStarbeam((component) => {
-    const timeZone = Cell(SYSTEM_TZ, "timeZone");
+  const date = useResource(() => {
+    return Clock(timeZone, props.locale);
+  }, [props.locale]);
 
-    const date = component.use(Clock(timeZone, locale));
+  const localeInfo = formatLocale(props.locale);
+  return (
+    <>
+      <h2>A Date Formatter</h2>
+      <h3>
+        for {localeInfo.region} ({localeInfo.language})
+      </h3>
 
-    return () => {
-      const localeInfo = formatLocale(props.locale);
-      return (
-        <>
-          <h2>A Date Formatter</h2>
-          <h3>
-            for {localeInfo.region} ({localeInfo.language})
-          </h3>
-
-          <form>
-            <label>
-              <span>Time Zone</span>
-              <select
-                size={5}
-                value={timeZone.current}
-                onInput={(e) => (timeZone.current = e.currentTarget.value)}
-              >
-                {TIME_ZONES.map((tz) => (
-                  <option key={tz} value={tz}>
-                    {timeZoneName(locale.current, tz)}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </form>
-          <p className="output">{date.current.formatted}</p>
-        </>
-      );
-    };
-  });
+      <form>
+        <label>
+          <span>Time Zone</span>
+          <select
+            size={5}
+            value={useReactive(() => timeZone.current)}
+            onInput={(e) => (timeZone.current = e.currentTarget.value)}
+          >
+            {TIME_ZONES.map((tz) => (
+              <option key={tz} value={tz}>
+                {timeZoneName(props.locale, tz)}
+              </option>
+            ))}
+          </select>
+        </label>
+      </form>
+      <p className="output">{date.formatted}</p>
+    </>
+  );
 }
 
-function Clock(timeZone: Reactive<string>, locale: Reactive<string>) {
+function Clock(
+  timeZone: Reactive<string> | string,
+  locale: Reactive<string> | string
+) {
   const date = js.object({ now: new Date() });
 
   function refresh() {
@@ -58,14 +57,16 @@ function Clock(timeZone: Reactive<string>, locale: Reactive<string>) {
   }
 
   return Resource((resource) => {
-    const interval = setInterval(() => refresh(), 1000);
+    resource.on.setup(() => {
+      const interval = setInterval(() => refresh(), 1000);
 
-    resource.on.cleanup(() => clearInterval(interval));
+      return () => clearInterval(interval);
+    });
 
     return () => ({
       formatted: formatTime(date.now, {
-        timeZone: timeZone.current,
-        locale: locale.current,
+        timeZone: typeof timeZone === "string" ? timeZone : timeZone.current,
+        locale: typeof locale === "string" ? locale : locale.current,
       }),
       refresh,
     });
