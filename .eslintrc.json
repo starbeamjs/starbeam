@@ -60,7 +60,7 @@
         "prettier",
         "plugin:prettier/recommended",
         "plugin:@typescript-eslint/recommended",
-        "plugin:@typescript-eslint/recommended-requiring-type-checking",
+        // "plugin:@typescript-eslint/recommended-requiring-type-checking",
         "plugin:json/recommended"
       ],
       "rules": {
@@ -75,7 +75,7 @@
           }
         ],
 
-        "unused-imports/no-unused-imports": "off",
+        "unused-imports/no-unused-imports": "warn",
 
         "@typescript-eslint/consistent-type-imports": [
           "error",

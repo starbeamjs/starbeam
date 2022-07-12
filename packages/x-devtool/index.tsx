@@ -6,7 +6,7 @@ import "./src/devtool.css";
 
 import { Reactive } from "@starbeam/core";
 import {
-  type Renderable,
+  type Pollable,
   TIMELINE,
   type MutableInternals,
   type ReactiveInternals,
@@ -130,10 +130,10 @@ export default function DevtoolsPane(
 export function DevTools(
   listener: DebugListener,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  renderable: Renderable<any>
+  pollable: Pollable
 ): () => void {
   const pane = DevtoolsPane(
-    Reactive.internals(renderable),
+    Reactive.internals(pollable),
     listener.flush(),
     document.querySelector("#devtools") as Element
   );
@@ -141,6 +141,6 @@ export function DevTools(
   return () => {
     const log = listener.flush();
 
-    pane.update(Reactive.internals(renderable), log);
+    pane.update(Reactive.internals(pollable), log);
   };
 }

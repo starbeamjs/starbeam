@@ -4,7 +4,7 @@ import {
   type Description,
   callerStack,
   DebugTimeline,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line unused-imports/no-unused-imports, @typescript-eslint/no-unused-vars
   ifDebug,
   isDebug,
   LOGGER,
@@ -16,6 +16,10 @@ import { expected, isEqual, verify } from "@starbeam/verify";
 import { LIFETIME } from "../lifetime/api.js";
 import { type FinalizedFrame, ActiveFrame } from "./frames.js";
 import { NOW } from "./now.js";
+// eslint-disable-next-line import/no-cycle
+import { Pollable } from "./pollables/pollable.js";
+// eslint-disable-next-line import/no-cycle
+import { Pollables } from "./pollables/pollables.js";
 import { Queue } from "./queue.js";
 import type {
   MutableInternals,
@@ -23,10 +27,6 @@ import type {
   ReactiveInternals,
   ReactiveProtocol,
 } from "./reactive.js";
-// eslint-disable-next-line import/no-cycle
-import { Renderable } from "./renderables/renderable.js";
-// eslint-disable-next-line import/no-cycle
-import { Renderables } from "./renderables/renderables.js";
 import { Timestamp } from "./timestamp.js";
 
 export abstract class Phase {
@@ -94,7 +94,7 @@ export class Timeline {
   static create(): Timeline {
     return new Timeline(
       ActionsPhase.create(),
-      Renderables.create(),
+      Pollables.create(),
       new Map(),
       new Set()
     );
@@ -151,18 +151,18 @@ export class Timeline {
   #frame: ActiveFrame | null = null;
   #debugTimeline: DebugTimeline | null = null;
 
-  readonly #renderables: Renderables;
+  readonly #pollables: Pollables;
   readonly #onUpdate: WeakMap<MutableInternals, Set<() => void>>;
   readonly #afterRender: Set<() => void>;
 
   private constructor(
     phase: RenderPhase | ActionsPhase,
-    renderables: Renderables,
+    renderables: Pollables,
     updaters: WeakMap<MutableInternals, Set<() => void>>,
     onAdvance: Set<() => void>
   ) {
     this.#phase = phase;
-    this.#renderables = renderables;
+    this.#pollables = renderables;
     this.#onUpdate = updaters;
     this.#afterRender = onAdvance;
   }
@@ -172,20 +172,20 @@ export class Timeline {
    *
    * A `render` function will run **after** all pending actions have flushed.
    */
-  render<T>(input: Reactive<T>, render: () => void): Renderable<T> {
+  render<T>(input: Reactive<T>, render: () => void): Pollable {
     const ready = () => {
-      if (this.#renderables.isRemoved(renderable as Renderable<unknown>)) {
+      if (this.#pollables.isRemoved(pollable)) {
         return;
       }
 
       return Queue.enqueueRender(render);
     };
 
-    const renderable = Renderable.create(input, { ready }, this.#renderables);
-    this.#renderables.insert(renderable as Renderable<unknown>);
+    const pollable = Pollable.create(input, { ready }, this.#pollables);
+    this.#pollables.insert(pollable);
 
     // renderable.poll();
-    return renderable;
+    return pollable;
   }
 
   on = {
@@ -197,14 +197,14 @@ export class Timeline {
       };
     },
 
-    change: <T>(
-      input: Reactive<T>,
-      ready: (renderable: Renderable<T>) => void
-    ): Renderable<T> => {
-      const renderable = Renderable.create(input, { ready }, this.#renderables);
-      this.#renderables.insert(renderable as Renderable<unknown>);
+    change: (
+      input: ReactiveProtocol,
+      ready: (pollable: Pollable) => void
+    ): Pollable => {
+      const pollable = Pollable.create(input, { ready }, this.#pollables);
+      this.#pollables.insert(pollable);
 
-      return renderable;
+      return pollable;
     },
   } as const;
 
@@ -250,12 +250,12 @@ export class Timeline {
    * For example, Formulas call this method after recomputing their value, which results in a
    * possible change to their dependencies.
    */
-  update<T>(reactive: Reactive<T>): void {
-    this.#renderables.update(reactive);
+  update(reactive: ReactiveProtocol): void {
+    this.#pollables.update(reactive);
   }
 
-  prune(renderable: Renderable<unknown>): void {
-    this.#renderables.prune(renderable);
+  prune(pollable: Pollable): void {
+    this.#pollables.prune(pollable);
   }
 
   #updatersFor(storage: MutableInternals): Set<() => void> {
@@ -289,7 +289,7 @@ export class Timeline {
     }
 
     this.#notifySubscribers(mutable);
-    this.#renderables.bumped(mutable);
+    this.#pollables.bumped(mutable);
 
     return NOW.now;
   }

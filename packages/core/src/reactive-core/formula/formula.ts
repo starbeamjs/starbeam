@@ -4,7 +4,7 @@ import {
   type Stack,
   callerStack,
   descriptionFrom,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-imports
   ifDebug,
   INSPECT,
   inspect,

@@ -1,10 +1,13 @@
 import type { Description, ReactiveProtocol } from "@starbeam/debug";
 import { REACTIVE } from "@starbeam/peer";
-import { LIFETIME, type Unsubscribe } from "@starbeam/timeline";
+import { type Unsubscribe, LIFETIME } from "@starbeam/timeline";
+
 import { CompositeInternals } from "../../storage/composite.js";
 import { Formula } from "./formula.js";
 
 type SetupFunction = () => void | (() => void);
+
+// TODO: I think that setups should ignore reads that are followed by writes.
 
 class Setup implements ReactiveProtocol {
   static create(setupFn: SetupFunction, description: Description): Setup {

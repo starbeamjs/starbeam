@@ -1,27 +1,25 @@
 import { useReactiveSetup } from "@starbeam/react";
 
-import {
-  type QueryFunction,
-  type QueryResult,
-  type Serializable,
-  QUERY_CACHE,
-} from "./query.js";
+import type { Serializable } from "./key.js";
+import { type QueryFunction, type QueryResult, QUERY_CACHE } from "./query.js";
 
 export function useQuery<T>(
   key: Serializable,
   query: QueryFunction<T>
 ): QueryResult<T> {
   return useReactiveSetup((setup) => {
-    const running = QUERY_CACHE.fetch(key, query);
+    const entry = QUERY_CACHE.initialize(key, query);
 
     setup.on.layout(() => {
-      QUERY_CACHE.start(key);
+      QUERY_CACHE.fetch(key);
 
       return () => {
-        QUERY_CACHE.abort(key);
+        QUERY_CACHE.invalidate(key);
       };
     });
 
-    return running;
+    return () => {
+      return entry.result;
+    };
   });
 }

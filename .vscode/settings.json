@@ -26,9 +26,6 @@
       "url": "https://json.schemastore.org/chrome-manifest"
     }
   ],
-  "[xml]": {
-    "editor.defaultFormatter": "redhat.vscode-xml"
-  },
   "[ignore]": {
     "editor.defaultFormatter": "foxundermoon.shell-format"
   },

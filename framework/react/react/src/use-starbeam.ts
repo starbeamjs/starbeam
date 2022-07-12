@@ -1,6 +1,6 @@
 import { Formula, PolledFormula } from "@starbeam/core";
 import { type Description, descriptionFrom } from "@starbeam/debug";
-import type { Renderable } from "@starbeam/timeline";
+import type { Pollable } from "@starbeam/timeline";
 import { LIFETIME, TIMELINE } from "@starbeam/timeline";
 import { type ReactElement, useRef, useState } from "react";
 
@@ -202,12 +202,9 @@ export function useStarbeam<_T>(
      * At that point, the resource will be in the `updating` state, so the
      * `updating` lifecycle hook below will run.
      */
-    const renderable: Renderable<ReactElement> = TIMELINE.on.change(
-      formula,
-      () => {
-        TIMELINE.enqueueAction(notify);
-      }
-    );
+    const renderable: Pollable = TIMELINE.on.change(formula, () => {
+      TIMELINE.enqueueAction(notify);
+    });
 
     LIFETIME.on.cleanup(renderable, () => {
       console.log("tearing down renderable", description);
@@ -252,7 +249,7 @@ export function component<Props>(
 
 interface CreatedReactiveElement {
   element: ReactiveElement;
-  value: Renderable<ReactElement>;
+  value: Pollable;
 }
 
 export type Inputs = AnyRecord | void;

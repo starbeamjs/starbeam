@@ -1,18 +1,18 @@
 import type { DebugListener } from "@starbeam/debug";
 import { Tree } from "@starbeam/debug";
-import { REACTIVE, UNINITIALIZED } from "@starbeam/peer";
+import type { UNINITIALIZED } from "@starbeam/peer";
+import { REACTIVE } from "@starbeam/peer";
 
 import { LIFETIME } from "../../lifetime/api.js";
 import { Queue } from "../queue.js";
 import type {
   MutableInternals,
-  Reactive,
   ReactiveInternals,
   ReactiveProtocol,
 } from "../reactive.js";
 // eslint-disable-next-line import/no-cycle
 import { TIMELINE } from "../timeline.js";
-import type { Renderables } from "./renderables.js";
+import type { Pollables } from "./pollables.js";
 
 export interface DevInvalidated {
   readonly dependencies: MutableInternals[];
@@ -23,85 +23,64 @@ export interface DevDependencies<T> {
   readonly diff?: Diff<T>;
 }
 
-/**
- * A {@link Renderable} associates a {@link Reactive} object with a render
- * phase.
- *
- * A {@link Renderable} can be polled through the {@link Timeline}, and its
- * render phase will run at that time.
- *
- * `Renderable`s have no value. Their entire purpose is to reflect some
- * `Reactive` object onto an external output. You should use a normal formula or
- * resource if you are trying to compute a value from other values.
- */
-export class Renderable<T = unknown> implements ReactiveProtocol {
-  static create<T>(
-    input: Reactive<T>,
-    notify: { readonly ready: (renderable: Renderable<T>) => void },
-    renderables: Renderables
-  ): Renderable<T> {
+export class Pollable implements ReactiveProtocol {
+  static create(
+    input: ReactiveProtocol,
+    notify: { readonly ready: (pollable: Pollable) => void },
+    pollables: Pollables
+  ): Pollable {
     const initialDependencies = input[REACTIVE].children().dependencies;
 
-    const renderable = new Renderable(
-      input,
-      notify,
-      UNINITIALIZED,
-      new Set(initialDependencies)
-    );
+    const pollable = new Pollable(input, notify, new Set(initialDependencies));
 
-    LIFETIME.on.cleanup(renderable, () => renderables.prune(renderable));
+    LIFETIME.on.cleanup(pollable, () => pollables.prune(pollable));
 
-    return renderable;
+    return pollable;
   }
 
-  static reactive<T>(renderable: Renderable<T>): Reactive<T> {
-    return renderable.#input;
+  static reactive(pollable: Pollable): ReactiveProtocol {
+    return pollable.#input;
   }
 
-  static dependencies(renderable: Renderable<unknown>): Set<MutableInternals> {
-    return renderable.#dependencies;
+  static dependencies(pollable: Pollable): Set<MutableInternals> {
+    return pollable.#dependencies;
   }
 
   /**
    * The readiness notification is synchronous, but should be used to schedule a
    * flush at a later time.
    */
-  static notifyReady(renderable: Renderable<unknown>): void {
-    renderable.#notify.ready(renderable);
+  static notifyReady(pollable: Pollable): void {
+    pollable.#notify.ready(pollable);
   }
 
-  static flush<T>(renderable: Renderable<T>): Diff<T> {
-    return renderable.#flush();
+  static flush(pollable: Pollable): DependencyDiff {
+    return pollable.#flush();
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static updateDeps(renderable: Renderable<any>) {
-    const prevDeps = renderable.#dependencies;
-    const nextDeps = new Set(
-      renderable.#input[REACTIVE].children().dependencies
-    );
+  static updateDeps(pollable: Pollable): DependencyDiff {
+    const prevDeps = pollable.#dependencies;
+    const nextDeps = new Set(pollable.#input[REACTIVE].children().dependencies);
 
-    renderable.#dependencies = nextDeps;
+    pollable.#dependencies = nextDeps;
 
     return diff(prevDeps, nextDeps);
   }
 
-  readonly #input: Reactive<T>;
+  readonly #input: ReactiveProtocol;
   readonly #notify: {
-    readonly ready: (renderable: Renderable<T>) => void;
+    readonly ready: (pollable: Pollable) => void;
   };
-  readonly #last: UNINITIALIZED | T;
   #dependencies: Set<MutableInternals>;
 
   private constructor(
-    input: Reactive<T>,
-    notify: { readonly ready: (renderable: Renderable<T>) => void },
-    last: UNINITIALIZED | T,
+    input: ReactiveProtocol,
+    notify: { readonly ready: (pollable: Pollable) => void },
     dependencies: Set<MutableInternals>
   ) {
     this.#input = input;
     this.#dependencies = dependencies;
-    this.#last = last;
     this.#notify = notify;
   }
 
@@ -154,40 +133,13 @@ export class Renderable<T = unknown> implements ReactiveProtocol {
     return Tree(...nodes).format();
   }
 
-  // FIXME: Now that formulas update themselves, remove the infrastructure that treats Renderables
-  // as values.
-  render():
-    | { status: "changed"; prev: T; value: T }
-    | { status: "unchanged"; value: T }
-    | { status: "initialized"; value: T } {
-    const {
-      values: { prev, next },
-    } = this.#flush();
-
-    if (prev === UNINITIALIZED) {
-      return { status: "initialized", value: next };
-    } else if (prev === next) {
-      return { status: "unchanged", value: next };
-    } else {
-      return { status: "changed", prev, value: next };
-    }
-  }
-
-  #flush(): Diff<T> {
-    const prev = this.#last;
-    const next = this.#input.current;
-
+  #flush(): DependencyDiff {
     const prevDeps = this.#dependencies;
     const nextDeps = new Set(this.#input[REACTIVE].children().dependencies);
 
     this.#dependencies = nextDeps;
 
-    const diffs: Diff<T> = {
-      ...diff(prevDeps, nextDeps),
-      values: { prev, next },
-    };
-
-    return diffs;
+    return diff(prevDeps, nextDeps);
   }
 }
 

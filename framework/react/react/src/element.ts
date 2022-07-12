@@ -1,36 +1,26 @@
 import type { browser } from "@domtree/flavors";
+import type { Reactive } from "@starbeam/core";
 import {
   type Cell,
   type CreateResource,
-  Reactive,
   Resource,
-  Formula,
-  FormulaState,
-  FormulaFn,
   Setups,
 } from "@starbeam/core";
+import { CompositeInternals } from "@starbeam/core/src/storage/composite.js";
+import type { Description } from "@starbeam/debug";
+import { type DebugListener, callerStack } from "@starbeam/debug";
 import {
-  type DebugListener,
-  callerStack,
-  Description,
-  descriptionFrom,
-  Stack,
-  type DescriptionArgs,
-} from "@starbeam/debug";
-import {
-  REACTIVE,
   type CleanupTarget,
   type OnCleanup,
+  type Pollable,
   type ReactiveProtocol,
-  type Renderable,
   type Unsubscribe,
+  LIFETIME,
+  REACTIVE,
+  TIMELINE,
 } from "@starbeam/timeline";
-import js from "@starbeam/js";
-import { LIFETIME } from "@starbeam/timeline";
-import type { ReactElement } from "react";
 
 import { type ElementRef, type ReactElementRef, ref } from "./ref.js";
-import { CompositeInternals } from "@starbeam/core/src/storage/composite.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyRecord = Record<PropertyKey, any>;
@@ -138,7 +128,7 @@ class Refs {
 }
 
 export interface DebugLifecycle {
-  (listener: DebugListener, renderable: Renderable<unknown>): () => void;
+  (listener: DebugListener, pollable: Pollable): () => void;
 }
 
 /**
@@ -175,20 +165,20 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
     return new ReactiveElement(
       prev.notify,
       Lifecycle.create(prev.#description),
-      prev.#renderable,
+      prev.#pollable,
       prev.#refs.fromPrev(),
       prev.#description
     );
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static attach(element: ReactiveElement, renderable: Renderable<any>): void {
+  static attach(element: ReactiveElement, pollable: Pollable): void {
     if (element.#debugLifecycle) {
       const lifecycle = element.#debugLifecycle;
-      const listener = renderable.attach(() => {
+      const listener = pollable.attach(() => {
         invalidate();
       });
-      const invalidate = lifecycle(listener, renderable);
+      const invalidate = lifecycle(listener, pollable);
     }
   }
 
@@ -205,7 +195,7 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
     element.#lifecycle = Lifecycle.create(element.#description);
   }
 
-  readonly #renderable: Set<(renderable: Renderable<ReactElement>) => void>;
+  readonly #pollable: Set<(pollable: Pollable) => void>;
   #lifecycle: Lifecycle;
   #debugLifecycle: DebugLifecycle | null = null;
   #refs: Refs;
@@ -214,13 +204,13 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
   private constructor(
     readonly notify: () => void,
     lifecycle: Lifecycle,
-    renderable: Set<(renderable: Renderable<ReactElement>) => void>,
+    renderable: Set<(pollable: Pollable) => void>,
     refs: Refs,
     description: Description
   ) {
     this.#lifecycle = lifecycle;
     this.on = Lifecycle.on(lifecycle, this);
-    this.#renderable = renderable;
+    this.#pollable = renderable;
     this.#refs = refs;
     this.#description = description;
   }
@@ -233,6 +223,7 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
 
   poll() {
     this.#lifecycle.poll();
+    TIMELINE.update(this);
   }
 
   link(child: object): Unsubscribe {
@@ -260,75 +251,6 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
 }
 
 type Callback<T = void> = (instance: T) => void | (() => void);
-
-class Callbacks implements ReactiveProtocol {
-  static create(): Callbacks {
-    return new Callbacks(js.Set());
-  }
-
-  readonly #callbacks: Set<Formula<void>>;
-  readonly #invoke: Formula<void>;
-
-  private constructor(callbacks: Set<Formula<void>>) {
-    this.#callbacks = callbacks;
-
-    this.#invoke = Formula(() => {
-      for (const callback of this.#callbacks) {
-        callback();
-      }
-    });
-
-    LIFETIME.on.cleanup(this, () => {
-      for (const formula of this.#callbacks.values()) {
-        LIFETIME.finalize(formula);
-      }
-    });
-  }
-
-  get [REACTIVE]() {
-    return Reactive.internals(this.#invoke);
-  }
-
-  add(callback: Callback, description: Description): Unsubscribe {
-    const formula = SetupFormula(callback, description);
-
-    this.#callbacks.add(formula);
-
-    return () => {
-      this.#callbacks.delete(formula);
-    };
-  }
-
-  invoke(): void {
-    this.#invoke();
-  }
-}
-
-/**
- * A `SetupFormula` is a formula that automatically runs its cleanup (if any) and reinvokes its
- * setup if dependencies of the setup function change.
- */
-function SetupFormula(
-  callback: () => void | (() => void),
-  desc: Description
-): Formula<void> {
-  let cleanup: void | (() => void);
-  const formula = Formula(() => {
-    if (cleanup) {
-      cleanup();
-    }
-
-    cleanup = callback();
-  }, desc);
-
-  LIFETIME.on.cleanup(formula, () => {
-    if (cleanup) {
-      cleanup();
-    }
-  });
-
-  return formula;
-}
 
 interface OnLifecycle extends OnCleanup {
   readonly cleanup: (finalizer: Callback) => Unsubscribe;
