@@ -3,7 +3,7 @@ import "@shopify/polaris/build/esm/styles.css";
 import axios from "axios";
 import { StrictMode } from "react";
 
-import { QUERY_CACHE, type QueryResult } from "../lib/query.js";
+import { type QueryResult, QUERY_CACHE } from "../lib/query.js";
 import { useQuery } from "../lib/use-query.js";
 import type { Todo } from "./api.js";
 import {

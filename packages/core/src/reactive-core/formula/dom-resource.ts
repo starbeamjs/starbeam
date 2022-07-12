@@ -13,15 +13,16 @@
  * worrying about its lifetime.
  */
 
+// eslint-disable-next-line simple-import-sort/imports
 import {
   type Description,
   type Stack,
   callerStack,
   descriptionFrom,
   DisplayStruct,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  ifDebug,
   INSPECT,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-imports
+  ifDebug,
 } from "@starbeam/debug";
 import {
   type ReactiveInternals,
