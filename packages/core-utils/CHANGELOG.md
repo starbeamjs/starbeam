@@ -1,5 +1,13 @@
 # @starbeam/core-utils
 
+## 0.5.3
+
+### Patch Changes
+
+- d21391d: Update resources to support React's three-phase lifecycle
+- Updated dependencies [d21391d]
+  - @starbeam/peer@1.0.3
+
 ## 0.5.2
 
 ### Patch Changes

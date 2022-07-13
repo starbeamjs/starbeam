@@ -1,5 +1,16 @@
 # @starbeamx/store
 
+## 0.5.3
+
+### Patch Changes
+
+- d21391d: Update resources to support React's three-phase lifecycle
+- Updated dependencies [d21391d]
+  - @starbeam/core@0.5.3
+  - @starbeam/debug@0.5.3
+  - @starbeam/js@0.5.3
+  - @starbeam/verify@0.5.3
+
 ## 0.5.2
 
 ### Patch Changes
