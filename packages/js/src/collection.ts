@@ -149,7 +149,7 @@ export class Collection<K> {
     this.#iteration.consume(caller);
   }
 
-  splice() {
+  splice(): void {
     if (this.#iteration === undefined) {
       // if nobody has iterated this collection, nobody will care that it was modified
       return;
@@ -175,7 +175,7 @@ export class Collection<K> {
     disposition: "hit" | "miss",
     description: string,
     caller: Stack
-  ) {
+  ): void {
     let item = this.#items.get(key);
 
     // If we're checking this key for the first time, we need to initialize the
@@ -194,7 +194,12 @@ export class Collection<K> {
    *
    * If the key is not present, that means that this is the first read from the key.
    */
-  get(key: K, disposition: "hit" | "miss", description: string, caller: Stack) {
+  get(
+    key: K,
+    disposition: "hit" | "miss",
+    description: string,
+    caller: Stack
+  ): void {
     let item = this.#items.get(key);
 
     if (item === undefined) {
@@ -209,7 +214,7 @@ export class Collection<K> {
     disposition: "key:stable" | "key:changes",
     description: string,
     caller: Stack
-  ) {
+  ): void {
     if (disposition === "key:changes") {
       this.splice();
     }
@@ -228,7 +233,7 @@ export class Collection<K> {
     }
   }
 
-  delete(key: K) {
+  delete(key: K): void {
     const item = this.#items.get(key);
 
     // if there's no item with that key, that means that no consumer read from

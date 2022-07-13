@@ -60,7 +60,7 @@ export class ReactiveFormula<T> implements Reactive<T> {
     }
   }
 
-  update(formula: () => T) {
+  update(formula: () => T): void {
     this.#formula = formula;
 
     // remove the last computation, which is no longer valid
@@ -86,7 +86,7 @@ export class ReactiveFormula<T> implements Reactive<T> {
   }
 
   @ifDebug
-  [Symbol.for("nodejs.util.inspect.custom")]() {
+  [Symbol.for("nodejs.util.inspect.custom")](): string {
     return `Formula(${Reactive.description(this).describe()})`;
   }
 

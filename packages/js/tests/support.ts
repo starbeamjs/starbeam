@@ -40,7 +40,7 @@ export class Invalidation<T> {
     return this.#bumped;
   }
 
-  get current() {
+  get current(): T {
     return this.#formula.current;
   }
 }

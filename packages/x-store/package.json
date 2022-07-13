@@ -1,14 +1,14 @@
 {
   "name": "@starbeamx/store",
   "description": "A Starbeam Store that's fun and easy to use",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "type": "module",
   "main": "index.ts",
   "dependencies": {
-    "@starbeam/core": "workspace:*",
-    "@starbeam/debug": "workspace:*",
-    "@starbeam/verify": "workspace:*",
-    "@starbeam/js": "workspace:*"
+    "@starbeam/core": "workspace:^",
+    "@starbeam/debug": "workspace:^",
+    "@starbeam/verify": "workspace:^",
+    "@starbeam/js": "workspace:^"
   },
   "devDependencies": {
     "@faker-js/faker": "^7.2.0"

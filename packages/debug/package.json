@@ -2,10 +2,10 @@
   "name": "@starbeam/debug",
   "type": "module",
   "main": "index.ts",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "dependencies": {
-    "@starbeam/verify": "workspace:*",
-    "@starbeam/peer": "workspace:*",
+    "@starbeam/verify": "workspace:^",
+    "@starbeam/peer": "workspace:^",
     "stacktracey": "^2.1.8"
   },
   "publishConfig": {

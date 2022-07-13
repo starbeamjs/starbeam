@@ -1,7 +1,7 @@
 {
   "name": "@starbeam/use-strict-lifecycle",
   "description": "React hook to manage the lifecycle of a component correctly. It handles double-rendering in React 16.8+ strict mode and remounting in React 18+ strict mode. It does not circumvent those strict modes, but rather provides an ergonomic way to satisfy their requirements.",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "type": "module",
   "main": "index.ts",
   "scripts": {
@@ -20,8 +20,8 @@
     "@testing-library/user-event": "^14.2.0",
     "@types/react": "^18.0.14",
     "@types/react-dom": "^18.0.5",
-    "@starbeam-workspace/test-utils": "workspace:*",
-    "@starbeam/debug": "workspace:*",
+    "@starbeam-workspace/test-utils": "workspace:^",
+    "@starbeam/debug": "workspace:^",
     "documentary": "^1.38.7",
     "expect": "^27.5.1",
     "jest": "^27.5.1",

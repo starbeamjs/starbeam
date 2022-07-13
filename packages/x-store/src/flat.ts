@@ -6,7 +6,12 @@ import type {
   AggregatorInstance,
 } from "./aggregate.js";
 import { type FilterInstance, Filter } from "./filter.js";
-import type { TableTypes, TableTypesFor, UserTypes } from "./table.js";
+import type {
+  GroupTypeFor,
+  TableTypes,
+  TableTypesFor,
+  UserTypes,
+} from "./table.js";
 
 export type TableRows<U extends UserTypes> = FlatRows<U>;
 
@@ -54,7 +59,7 @@ export class Group<T extends TableTypes> extends FlatRows<T> {
     return new Group(grouping, description, []);
   }
 
-  static add<T extends TableTypes>(group: Group<T>, row: T["Row"]) {
+  static add<T extends TableTypes>(group: Group<T>, row: T["Row"]): void {
     group.#rows.push(row);
   }
 
@@ -129,7 +134,7 @@ export class GroupBy<U extends UserTypes, Bucket, Description> {
     this.#groupBy = groupBy;
   }
 
-  get groups() {
+  get groups(): GroupTypeFor<U, Description> {
     const groups = Groups.empty<TableTypesFor<U>, Description>();
 
     for (const row of this.#rows.rows) {

@@ -8,7 +8,7 @@ export class ObjectLifetime {
   static finalize(
     lifetime: ObjectLifetime,
     finalizing?: (block: () => void) => void
-  ) {
+  ): void {
     lifetime.#finalizeIn(finalizing);
   }
 

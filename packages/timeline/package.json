@@ -1,12 +1,12 @@
 {
   "name": "@starbeam/timeline",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "type": "module",
   "main": "index.ts",
   "dependencies": {
-    "@starbeam/peer": "workspace:*",
-    "@starbeam/verify": "workspace:*",
-    "@starbeam/debug": "workspace:*"
+    "@starbeam/peer": "workspace:^",
+    "@starbeam/verify": "workspace:^",
+    "@starbeam/debug": "workspace:^"
   },
   "publishConfig": {
     "main": "dist/index.cjs",

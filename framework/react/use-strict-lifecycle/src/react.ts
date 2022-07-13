@@ -9,11 +9,11 @@ import React from "react";
  */
 let IS_RESTRICTED = false;
 
-export function beginReadonly() {
+export function beginReadonly(): void {
   IS_RESTRICTED = true;
 }
 
-export function endReadonly() {
+export function endReadonly(): void {
   IS_RESTRICTED = false;
 }
 
@@ -36,11 +36,11 @@ export function unsafeTrackedElsewhere<T>(callback: () => T): T {
   }
 }
 
-export function endUnsafeTrackedElsewhere() {
+export function endUnsafeTrackedElsewhere(): void {
   IS_RESTRICTED = true;
 }
 
-export function isRestrictedRead() {
+export function isRestrictedRead(): boolean {
   if (IS_UNRESTRICTED) {
     return false;
   }

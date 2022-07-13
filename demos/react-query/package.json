@@ -3,17 +3,13 @@
   "name": "@starbeam-demos/react-store",
   "type": "module",
   "dependencies": {
-    "@starbeam/core": "workspace:*",
-    "@starbeam/debug": "workspace:*",
-    "@starbeam/js": "workspace:*",
-    "@starbeam/react": "workspace:*",
-    "@starbeamx/devtool": "workspace:*",
-    "@starbeamx/store": "workspace:*",
-    "firebase": "^9.8.2",
-    "lit": "^2.2.5",
-    "purecss": "^2.1.0",
-    "react": "^18.1.0",
-    "react-dom": "^18.1.0"
+    "@starbeam/core": "workspace:^",
+    "@starbeam/debug": "workspace:^",
+    "@starbeam/js": "workspace:^",
+    "@starbeam/react": "workspace:^",
+    "@starbeamx/devtool": "workspace:^",
+    "react": "^17",
+    "react-dom": "^17"
   },
   "devDependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.1.1",

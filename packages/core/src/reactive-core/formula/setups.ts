@@ -1,6 +1,10 @@
 import type { Description, ReactiveProtocol } from "@starbeam/debug";
 import { REACTIVE } from "@starbeam/peer";
-import { type Unsubscribe, LIFETIME } from "@starbeam/timeline";
+import {
+  type ReactiveInternals,
+  type Unsubscribe,
+  LIFETIME,
+} from "@starbeam/timeline";
 
 import { CompositeInternals } from "../../storage/composite.js";
 import { Formula } from "./formula.js";
@@ -55,7 +59,7 @@ class Setup implements ReactiveProtocol {
  * {@linkcode ReactiveSetups}.
  */
 export class ReactiveSetups implements ReactiveProtocol {
-  static create(description: Description): Setups {
+  static create(this: void, description: Description): Setups {
     return new ReactiveSetups(new Set(), description);
   }
 
@@ -67,7 +71,7 @@ export class ReactiveSetups implements ReactiveProtocol {
     this.#description = description;
   }
 
-  get [REACTIVE]() {
+  get [REACTIVE](): ReactiveInternals {
     return CompositeInternals([...this.#setups.keys()], this.#description);
   }
 

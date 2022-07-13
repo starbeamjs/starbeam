@@ -2,8 +2,7 @@
   "eslint.enable": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true,
-    "source.fixAll.eslint.format": true,
-    "organizeImports": true
+    "source.fixAll.eslint.format": true
   },
   "explorer.fileNesting.patterns": {
     "*.ts": "${capture}.js",
@@ -32,5 +31,7 @@
   "[dotenv]": {
     "editor.defaultFormatter": "foxundermoon.shell-format"
   },
-  "editor.fontWeight": "normal",
+  "[shellscript]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+  }
 }

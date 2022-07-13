@@ -65,7 +65,7 @@ export class FormulaState<T> implements ReactiveProtocol {
     return this.#frame.dependencies;
   }
 
-  isValid() {
+  isValid(): boolean {
     return this.#frame.validate().status === "valid";
   }
 

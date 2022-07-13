@@ -1,5 +1,7 @@
 import type { Table } from "@starbeamx/store";
 
+import type { RowTypeFor } from "../src/table.js";
+
 export interface Person {
   name: string;
   location: string;
@@ -12,7 +14,7 @@ export class People {
     this.#table = table;
   }
 
-  get rows() {
+  get rows(): RowTypeFor<Person>[] {
     return this.#table.rows;
   }
 }

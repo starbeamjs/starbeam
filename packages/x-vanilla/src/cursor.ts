@@ -1,9 +1,9 @@
 export class Cursor {
-  static appendTo(node: ParentNode) {
+  static appendTo(node: ParentNode): Cursor {
     return new Cursor(node, null);
   }
 
-  static insertBefore(parent: ParentNode, node: Node) {
+  static insertBefore(parent: ParentNode, node: Node): Cursor {
     return new Cursor(parent, node);
   }
 

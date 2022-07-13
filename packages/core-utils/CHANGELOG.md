@@ -1,5 +1,13 @@
 # @starbeam/core-utils
 
+## 0.5.4
+
+### Patch Changes
+
+- The 0.5.3 release was missing dists
+- Updated dependencies
+  - @starbeam/peer@1.0.4
+
 ## 0.5.3
 
 ### Patch Changes

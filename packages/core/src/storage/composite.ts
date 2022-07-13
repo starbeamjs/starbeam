@@ -31,7 +31,7 @@ export class CompositeInternalsImpl implements ReactiveProtocol {
   }
 
   @ifDebug
-  get debug() {
+  get debug(): { lastUpdated: Timestamp } {
     return {
       lastUpdated: this.#children.lastUpdated,
     };

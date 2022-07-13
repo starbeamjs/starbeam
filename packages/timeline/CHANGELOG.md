@@ -1,5 +1,15 @@
 # @starbeam/timeline
 
+## 0.5.4
+
+### Patch Changes
+
+- The 0.5.3 release was missing dists
+- Updated dependencies
+  - @starbeam/debug@0.5.4
+  - @starbeam/verify@0.5.4
+  - @starbeam/peer@1.0.4
+
 ## 0.5.3
 
 ### Patch Changes

@@ -60,9 +60,12 @@ expected.associate(
     .butGot((value) => (value === null ? "null" : typeof value))
 );
 
-export function hasLength<L extends number>(length: L) {
-  function has<T>(value: T[]): value is FixedArray<T, L>;
-  function has<T>(value: readonly T[]): value is ReadonlyFixedArray<T, L>;
+interface HasLength<L extends number> {
+  <T>(value: T[]): value is FixedArray<T, L>;
+  <T>(value: readonly T[]): value is ReadonlyFixedArray<T, L>;
+}
+
+export function hasLength<L extends number>(length: L): HasLength<L> {
   function has<T>(value: T[] | readonly T[]): value is FixedArray<T, L> {
     return value.length === length;
   }

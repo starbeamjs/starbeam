@@ -3,7 +3,7 @@
   "name": "@starbeam-tests/core-utils",
   "type": "module",
   "dependencies": {
-    "@starbeam/core-utils": "workspace:*"
+    "@starbeam/core-utils": "workspace:^"
   },
   "version": null
 }

@@ -78,11 +78,11 @@ export class Logger {
     this.#config = { ...this.#config, minimum: level };
   }
 
-  get isVerbose() {
+  get isVerbose(): boolean {
     return this.#config.minimum === LogLevel.Trace;
   }
 
-  get isDebug() {
+  get isDebug(): boolean {
     return this.#config.minimum <= LogLevel.Debug;
   }
 

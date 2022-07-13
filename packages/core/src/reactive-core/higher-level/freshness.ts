@@ -10,14 +10,14 @@ export class ReactiveFreshness {
     this.#cell = Cell(0, { description });
   }
 
-  get isStale() {
+  get isStale(): boolean {
     const lastChecked = this.#lastChecked;
     const current = (this.#lastChecked = this.#cell.current);
 
     return lastChecked !== current;
   }
 
-  expire() {
+  expire(): void {
     this.#cell.update((revision) => revision + 1);
   }
 }

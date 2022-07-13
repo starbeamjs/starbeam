@@ -1,13 +1,13 @@
 {
   "name": "@starbeam/modifier",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "type": "module",
   "main": "index.ts",
   "dependencies": {
-    "@starbeam/core": "workspace:*",
-    "@starbeam/debug": "workspace:*",
-    "@starbeam/peer": "workspace:*",
-    "@starbeam/verify": "workspace:*"
+    "@starbeam/core": "workspace:^",
+    "@starbeam/debug": "workspace:^",
+    "@starbeam/peer": "workspace:^",
+    "@starbeam/verify": "workspace:^"
   },
   "devDependencies": {},
   "publishConfig": {

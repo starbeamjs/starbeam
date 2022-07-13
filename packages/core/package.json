@@ -1,6 +1,6 @@
 {
   "name": "@starbeam/core",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "type": "module",
   "main": "index.ts",
   "publishConfig": {
@@ -15,11 +15,11 @@
     }
   },
   "dependencies": {
-    "@starbeam/peer": "workspace:*",
-    "@starbeam/debug": "workspace:*",
-    "@starbeam/verify": "workspace:*",
-    "@starbeam/timeline": "workspace:*",
-    "@starbeam/core-utils": "workspace:*"
+    "@starbeam/peer": "workspace:^",
+    "@starbeam/debug": "workspace:^",
+    "@starbeam/verify": "workspace:^",
+    "@starbeam/timeline": "workspace:^",
+    "@starbeam/core-utils": "workspace:^"
   },
   "devDependencies": {}
 }

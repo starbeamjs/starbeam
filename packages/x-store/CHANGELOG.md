@@ -1,5 +1,16 @@
 # @starbeamx/store
 
+## 0.5.4
+
+### Patch Changes
+
+- The 0.5.3 release was missing dists
+- Updated dependencies
+  - @starbeam/core@0.5.4
+  - @starbeam/debug@0.5.4
+  - @starbeam/js@0.5.4
+  - @starbeam/verify@0.5.4
+
 ## 0.5.3
 
 ### Patch Changes

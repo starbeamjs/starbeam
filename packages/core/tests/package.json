@@ -3,8 +3,8 @@
   "name": "@starbeam-tests/core",
   "type": "module",
   "dependencies": {
-    "@starbeam/core": "workspace:*",
-    "@starbeam/js": "workspace:*"
+    "@starbeam/core": "workspace:^",
+    "@starbeam/js": "workspace:^"
   },
   "version": null
 }

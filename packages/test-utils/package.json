@@ -14,10 +14,10 @@
     }
   },
   "peerDependencies": {
-    "@starbeam/peer": "workspace:*"
+    "@starbeam/peer": "workspace:^"
   },
   "dependencies": {
-    "@starbeam/debug": "workspace:*",
+    "@starbeam/debug": "workspace:^",
     "@testing-library/react": "alpha",
     "@testing-library/dom": "^8.11.3",
     "@testing-library/user-event": "^13.5.0",

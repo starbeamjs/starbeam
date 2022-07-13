@@ -93,7 +93,7 @@ export function inspector<I>(
 export function inspect(
   value: unknown,
   ...args: Parameters<CustomInspectFunction>
-) {
+): unknown {
   if (isObject(value)) {
     return (value as Partial<Inspect>)[INSPECT]?.(...args);
   } else {

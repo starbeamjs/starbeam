@@ -6,14 +6,14 @@
   "main": "index.ts",
   "types": "index.ts",
   "dependencies": {
-    "@starbeam/peer": "workspace:*",
-    "@starbeam/debug": "workspace:*",
-    "@starbeam/verify": "workspace:*",
-    "@starbeam/timeline": "workspace:*",
-    "@starbeam/core-utils": "workspace:*",
-    "@starbeam/core": "workspace:*",
-    "@starbeam/react": "workspace:*",
-    "@starbeam/js": "workspace:*"
+    "@starbeam/peer": "workspace:^",
+    "@starbeam/debug": "workspace:^",
+    "@starbeam/verify": "workspace:^",
+    "@starbeam/timeline": "workspace:^",
+    "@starbeam/core-utils": "workspace:^",
+    "@starbeam/core": "workspace:^",
+    "@starbeam/react": "workspace:^",
+    "@starbeam/js": "workspace:^"
   },
   "devDependencies": {},
   "publishConfig": {
