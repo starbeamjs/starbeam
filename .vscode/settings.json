@@ -33,5 +33,4 @@
     "editor.defaultFormatter": "foxundermoon.shell-format"
   },
   "editor.fontWeight": "normal",
-  "workbench.colorTheme": "Visual Studio Light"
 }

@@ -7,5 +7,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["@starbeamx-draft/*", "@starbeam-tests/*", "@starbeam-demos/*"]
+  "ignore": ["@starbeamx-draft/*", "@starbeam-tests/*", "@starbeam-demos/*", "@starbeam/bundle"]
 }

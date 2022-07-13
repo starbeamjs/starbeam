@@ -1,5 +1,17 @@
 # @starbeam/js
 
+## 0.5.3
+
+### Patch Changes
+
+- 194e461: Added untracked consumption errors and infrastructure for tracking reads and writes to cells
+- d21391d: Update resources to support React's three-phase lifecycle
+- Updated dependencies [d21391d]
+  - @starbeam/core@0.5.3
+  - @starbeam/debug@0.5.3
+  - @starbeam/core-utils@0.5.3
+  - @starbeam/verify@0.5.3
+
 ## 0.5.2
 
 ### Patch Changes
