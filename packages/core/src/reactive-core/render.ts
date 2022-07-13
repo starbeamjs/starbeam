@@ -1,102 +1,85 @@
-import type { Stack } from "@starbeam/debug";
-import {
-  type Description,
-  callerStack,
-  descriptionFrom,
-} from "@starbeam/debug";
-import { UNINITIALIZED } from "@starbeam/peer";
-import type { FinalizedFrame, ReactiveInternals } from "@starbeam/timeline";
-import { REACTIVE, TIMELINE } from "@starbeam/timeline";
+import { type Description, descriptionFrom } from "@starbeam/debug";
+import { type ReactiveProtocol, REACTIVE, TIMELINE } from "@starbeam/timeline";
 
-import type { Reactive } from "../reactive.js";
-import { CompositeInternals } from "../storage/composite.js";
-import { ReactiveFn } from "./fn.js";
-import { Marker } from "./marker.js";
-
-interface LastEvaluation<T> {
-  readonly frame: FinalizedFrame<T>;
-  readonly value: T;
-}
+import { Formula } from "./formula/formula.js";
+import { PolledFormula } from "./formula/polled-formula.js";
 
 /**
- * A {@linkcode RenderedValueImpl} value takes a function to evaluate.
+ * A {@linkcode Renderable} represents a reactive output whose render timing is controlled by a
+ * renderer.
  *
- * Unlike a {@linkcode Formula}, it never caches the intermediate result. Instead, it serves as an
- * input to `Timeline.render`, which will notify the framework when the `Rendered` invalidates, but
- * still allow the framework's own reactive concepts to drive the rendering.
+ * Because it implements {@linkcode ReactiveProtocol}, it can notify a renderer when it changes, and
+ * the renderer can call {@linkcode Renderable#poll} to refresh the output at an appropriate timing.
  *
- * This means that even if the `Rendered` doesn't invalidate, if the framework attempts to compute
- * the value of the `Rendered`, it will be re-evaluated.
+ * For example, the React renderer notifies React whenever the renderable has changed, and the
+ * normal React render cycle is then responsible for polling the renderable.
+ *
  */
-export class RenderedValueImpl<T> implements Reactive<T> {
-  static create<T>(
-    evaluate: () => T,
-    description: Description
-  ): RenderedValueImpl<T> {
-    return new RenderedValueImpl(UNINITIALIZED, evaluate, description);
-  }
-
-  #marker: Marker;
-  #last: LastEvaluation<T> | UNINITIALIZED;
-  readonly #function: () => T;
-  readonly #description: Description;
-
-  private constructor(
-    last: LastEvaluation<T> | UNINITIALIZED,
-    formula: () => T,
-    description: Description
-  ) {
-    this.#last = last;
-    this.#function = formula;
-    this.#description = description;
-    this.#marker = Marker(description);
-  }
-
-  get [REACTIVE](): ReactiveInternals {
-    if (this.#last === UNINITIALIZED) {
-      return this.#marker[REACTIVE];
-    } else {
-      return CompositeInternals(
-        [this.#marker, this.#last.frame],
-        this.#description
-      );
-    }
-  }
-
-  get current(): T {
-    return this.read(callerStack());
-  }
-
-  read(caller: Stack): T {
-    const { value, frame } = TIMELINE.evaluateFormula(
-      this.#function,
-      this.#description,
-      caller
-    );
-    TIMELINE.didConsume(frame, caller);
-    this.#last = { value, frame };
-
-    return value;
-  }
-}
-
-export function RenderedValue<T>(
-  formula: () => T,
-  description?: string | Description
-): ReactiveFn<T> {
-  const reactive = RenderedValueImpl.create(
-    formula,
-    descriptionFrom({
+export class ReactiveRenderable implements ReactiveProtocol {
+  /**
+   * A cached renderer depends only on Starbeam state, and therefore can cache its result, assuming
+   * that any changes to dependencies are tracked by Starbeam.
+   */
+  static cached(
+    fn: () => void,
+    description?: string | Description
+  ): Renderable {
+    const desc = descriptionFrom({
       type: "renderer",
       api: {
-        package: "@starbeam/core",
-        name: "RenderedValue",
+        package: "@stareabem/core",
+        name: "Renderable",
+        method: {
+          name: "cached",
+          type: "static",
+        },
       },
       fromUser: description,
-    })
-  );
+    });
 
-  return ReactiveFn(reactive);
+    const formula = Formula(fn, desc);
+    return new Renderable(formula);
+  }
+
+  /**
+   * A mixed renderable depends on both Starbeam state and external reactive state (such as stable
+   * react variables). As a result, it uses a {@linkcode PolledFormula} under the hood, which
+   * **notifies** the renderer when any reactive state has changed, but doesn't attempt to cache the
+   * result of the formula function.
+   */
+  static mixed(fn: () => void, description?: Description | string): Renderable {
+    const desc = descriptionFrom({
+      type: "renderer",
+      api: {
+        package: "@stareabem/core",
+        name: "Renderable",
+        method: {
+          name: "mixed",
+          type: "static",
+        },
+      },
+      fromUser: description,
+    });
+
+    const formula = PolledFormula(fn, desc);
+    return new Renderable(formula);
+  }
+
+  readonly #formula: Formula<void> | PolledFormula<void>;
+
+  constructor(formula: Formula<void> | PolledFormula<void>) {
+    this.#formula = formula;
+  }
+
+  get [REACTIVE]() {
+    return this.#formula[REACTIVE];
+  }
+
+  readonly poll = () => {
+    this.#formula.current;
+    TIMELINE.update(this);
+  };
 }
 
-export type RenderedValue<T> = ReactiveFn<T>;
+export const Renderable = ReactiveRenderable;
+export type Renderable = ReactiveRenderable;

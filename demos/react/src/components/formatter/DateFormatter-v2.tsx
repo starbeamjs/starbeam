@@ -1,11 +1,11 @@
 import { Resource } from "@starbeam/core";
 import js from "@starbeam/js";
-import { useStarbeam } from "@starbeam/react";
+import { useReactiveSetup } from "@starbeam/react";
 
 import { formatLocale, SYSTEM_LOCALE, SYSTEM_TZ } from "../intl.js";
 
 export default function DateFormatterStarbeam() {
-  return useStarbeam((component) => {
+  return useReactiveSetup((component) => {
     const date = component.use(Clock());
 
     return () => {
@@ -32,10 +32,11 @@ function Clock() {
   }
 
   return Resource((resource) => {
-    const interval = setInterval(() => refresh(), 1000);
+    resource.on.setup(() => {
+      const interval = setInterval(() => refresh(), 1000);
 
-    resource.on.cleanup(() => clearInterval(interval));
-
+      return () => clearInterval(interval);
+    });
     return () => ({
       formatted: formatTime(date.now, {
         timeZone: SYSTEM_TZ,

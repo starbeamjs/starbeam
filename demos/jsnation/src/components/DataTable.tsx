@@ -1,6 +1,6 @@
 import { Cell, Formula } from "@starbeam/core";
 import { LOGGER, LogLevel } from "@starbeam/debug";
-import { useProp, useStarbeam } from "@starbeam/react";
+import { useProp, useReactiveSetup } from "@starbeam/react";
 import { DevTools } from "@starbeamx/devtool";
 import type { FormEvent } from "react";
 
@@ -12,7 +12,7 @@ LOGGER.level = LogLevel.Debug;
 export default function (props: { locale: string }) {
   const locale = useProp(props.locale, "props.locale");
 
-  return useStarbeam((component) => {
+  return useReactiveSetup((component) => {
     component.attach(DevTools);
 
     const table = new Table<Person>(["name", "location"]);

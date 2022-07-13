@@ -1,11 +1,11 @@
 import { Formula } from "@starbeam/core";
 import js from "@starbeam/js";
-import { useStarbeam } from "@starbeam/react";
+import { useReactiveSetup } from "@starbeam/react";
 
 import { formatLocale, SYSTEM_LOCALE, SYSTEM_TZ } from "../intl.js";
 
 export default function DateFormatterStarbeam() {
-  return useStarbeam(() => {
+  return useReactiveSetup(() => {
     const date = Clock();
 
     return () => {

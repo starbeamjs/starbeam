@@ -2,7 +2,7 @@
 
 import { Cell, TIMELINE } from "@starbeam/core";
 import { entryPoint } from "@starbeam/debug";
-import { useReactive, useSetup } from "@starbeam/react";
+import { useReactive, useReactiveSetup } from "@starbeam/react";
 import {
   html,
   react,
@@ -42,7 +42,7 @@ describe("useSetup", () => {
             }`
         )
         .render((test) => {
-          const state = useSetup((setup) => {
+          const state = useReactiveSetup((setup) => {
             const state = Cell({ state: "rendering" } as State, "outer cell");
 
             setup.on.idle(() => {

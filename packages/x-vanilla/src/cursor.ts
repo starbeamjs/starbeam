@@ -23,8 +23,9 @@ export class Cursor {
     this.#document = parentNode.ownerDocument;
   }
 
-  insert(node: ChildNode): void {
+  insert(node: ChildNode): ChildNode {
     this.#parentNode.insertBefore(node, this.#nextSibling);
+    return node;
   }
 
   get document(): Document {

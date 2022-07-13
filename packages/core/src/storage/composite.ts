@@ -1,6 +1,9 @@
-import { isArray } from "@starbeam/core-utils";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { type Description, ifDebug } from "@starbeam/debug";
+import { isArray, isPresent } from "@starbeam/core-utils";
+import {
+  type Description,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-imports
+  ifDebug,
+} from "@starbeam/debug";
 import {
   type ReactiveInternals,
   type ReactiveProtocol,
@@ -56,12 +59,12 @@ export class CompositeInternalsImpl implements ReactiveProtocol {
 }
 
 export function CompositeInternals(
-  children: InternalChildren | readonly ReactiveProtocol[],
+  children: InternalChildren | readonly (ReactiveProtocol | undefined | null)[],
   description: Description
 ): CompositeInternalsImpl {
   if (isArray(children)) {
     return CompositeInternalsImpl.create(
-      InternalChildren.from(children),
+      InternalChildren.from(children.filter(isPresent)),
       description
     );
   } else {

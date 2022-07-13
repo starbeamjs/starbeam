@@ -13,189 +13,321 @@
  * worrying about its lifetime.
  */
 
-import type { Stack } from "@starbeam/debug";
 import {
   type Description,
+  type Stack,
   callerStack,
   descriptionFrom,
+  DisplayStruct,
+  // eslint-disable-next-line unused-imports/no-unused-imports, @typescript-eslint/no-unused-vars
+  ifDebug,
+  INSPECT,
 } from "@starbeam/debug";
-import { UNINITIALIZED } from "@starbeam/peer";
 import {
-  type CleanupTarget,
-  type OnCleanup,
   type ReactiveInternals,
+  type Unsubscribe,
   LIFETIME,
   REACTIVE,
 } from "@starbeam/timeline";
+import { expected, isEqual, verify } from "@starbeam/verify";
 
 import type { Reactive } from "../../reactive.js";
-import { CompositeInternals } from "../../storage/composite.js";
-import { Marker } from "../marker.js";
 import { Formula } from "./formula.js";
-import { Linkable } from "./linkable.js";
 import { FormulaState } from "./state.js";
 
-export interface ResourceBlueprint<T> {
-  (builder: BuildResource): () => T;
-}
+/**
+ * A Resource instance is a stable value, but it has multiple possible internal layers of
+ * invalidation.
+ *
+ * 1. The entire resource constructor can invalidate, which causes the resource to be cleaned up and
+ *    the constructor to run again. If the resource is already set up, the setup function will run
+ *    again once the resource is reinitialized.
+ * 2. Setup handlers can invalidate, which causes their cleanups to run, and then for the setup
+ *    handers to run again.
+ * 3. The formula that represents the resource can invalidate, which simply causes the resource to
+ *    invalidate.
+ *
+ * The trick of resources is providing a DSL that represents all of these three layers in a way that:
+ *
+ * 1. Naturally captures dependencies in all three layers.
+ * 2. Provides a lexical structure that naturally gives access to longer lived values inside of
+ *    shorter-lived closures (e.g. the long-lived cells that power a resource are in the outermost
+ *    scope; they can be used inside of setup handlers, and variables created inside setup handlers
+ *    are available inside cleanup handlers). The goal is to avoid introducing unnecessary nulls or
+ *    forcing inner callbacks to mutate outer-scope variables that are initialized to null or
+ *    undefined.
+ */
 
-interface ResourceState<T> {
-  readonly creation: FormulaState<() => T>;
-  readonly lifetime: object;
-  readonly formula: Formula<T>;
-}
-
-export class ReactiveResource<T> implements Reactive<T> {
-  static create<T>(
-    create: ResourceBlueprint<T>,
-    description: Description
-  ): ReactiveResource<T> {
-    return new ReactiveResource(
-      create,
-      Marker(description),
-      UNINITIALIZED,
-      description
-    );
+/**
+ * {@linkcode ReactiveResource} is the stable value produced by instantiating a
+ * {@linkcode ResourceConstructor}.
+ *
+ * Its primary purpose is to present a stable reactive value that is nonetheless internally changing
+ * quite a bit, and even getting cleaned up and reinitialized behind the scenes.
+ */
+class ReactiveResource<T> implements Reactive<T> {
+  static setup<T>(this: void, resource: Resource<T>, caller: Stack): void {
+    resource.#built.setup(caller);
   }
 
-  #create: ResourceBlueprint<T>;
-  /**
-   * The marker will bump when the resource is first initialized. This allows consumers of the resource to invalidate without forcing them computing the value of the resource.
-   */
-  #initialized: Marker;
-  #state: ResourceState<T> | UNINITIALIZED;
-  #description: Description;
+  static reinitialize(
+    this: void,
+    resource: Resource<unknown>,
+    caller: Stack
+  ): void {
+    return resource.#reinitialize(caller);
+  }
 
-  private constructor(
-    create: ResourceBlueprint<T>,
-    initialized: Marker,
-    state: ResourceState<T> | UNINITIALIZED,
+  readonly #description: Description;
+  readonly #initializer: (caller: Stack) => InitializedResource<T>;
+  #built: BuiltResource;
+  #constructorFormula: FormulaState<unknown>;
+  #formula: Formula<T>;
+
+  constructor(
+    built: BuiltResource,
+    initializer: (caller: Stack) => InitializedResource<T>,
+    constructorFormula: FormulaState<unknown>,
+    formula: Formula<T>,
     description: Description
   ) {
-    this.#create = create;
-    this.#initialized = initialized;
-    this.#state = state;
+    this.#built = built;
+    this.#initializer = initializer;
+    this.#constructorFormula = constructorFormula;
+    this.#formula = formula;
     this.#description = description;
+
+    LIFETIME.link(this, built);
   }
 
-  get [REACTIVE](): ReactiveInternals {
-    if (this.#state === UNINITIALIZED) {
-      return this.#initialized[REACTIVE];
-    } else {
-      return CompositeInternals(
-        [this.#initialized, this.#state.creation, this.#state.formula],
-        this.#description
-      );
-    }
+  @ifDebug
+  [INSPECT]() {
+    return DisplayStruct("ReactiveResource", {
+      description: this.#description.describe(),
+    });
   }
 
-  get current() {
+  get current(): T {
     return this.read(callerStack());
   }
 
   read(caller: Stack): T {
-    if (this.#state === UNINITIALIZED) {
-      this.#initialized.update();
-      const formula = this.#initialize({ caller });
-      return formula.read(caller);
+    if (this.#constructorFormula.isValid()) {
+      // If the constructor function is valid, poll the setup handlers. If a setup handler is
+      // invalid, finalize it and run it again.
+      this.#built.poll(caller);
     } else {
-      const { creation, formula, lifetime } = this.#state;
-
-      const result = creation.validate(caller);
-
-      if (result.state === "valid") {
-        return formula.read(caller);
-      } else {
-        const formula = this.#initialize({ last: lifetime, caller });
-        return formula.read(caller);
-      }
+      this.#reinitialize(caller);
     }
+
+    // Now that we've revalidated the formula, get the current value.
+    return this.#formula.current;
   }
 
-  #initialize(options: { last?: object; caller: Stack }) {
-    if (options?.last) {
-      LIFETIME.finalize(options.last);
-    }
+  #reinitialize(caller: Stack) {
+    LIFETIME.finalize(this.#built);
 
-    const build = BuildResource.create();
+    const { built, constructorFormula, formula } = this.#initializer(caller);
 
-    const { state, value: definition } = FormulaState.evaluate(
-      () => this.#create(build),
-      this.#description,
-      options.caller
-    );
+    this.#built = built;
+    LIFETIME.link(this, built);
 
-    const formula = Formula(
-      definition,
-      this.#description.implementation({ reason: "constructor formula" })
-    );
+    this.#constructorFormula = constructorFormula;
+    this.#formula = formula;
+  }
 
-    const lifetime = BuildResource.lifetime(build);
-
-    LIFETIME.link(this, lifetime);
-
-    this.#state = {
-      creation: state,
-      lifetime,
-      formula,
-    };
-
-    return formula;
+  get [REACTIVE](): ReactiveInternals {
+    return this.#formula[REACTIVE];
   }
 }
 
-class BuildResource implements CleanupTarget {
-  static create() {
-    return new BuildResource({});
+interface InitializedResource<T> {
+  built: BuiltResource;
+  constructorFormula: FormulaState<unknown>;
+  formula: Formula<T>;
+}
+
+/**
+ * This the public API passed into the {@linkcode Resource} function. It is created every time the
+ * constructor formula is invalidated, in order to produce a new instance of {@linkcode BuiltResource}.
+ */
+class ResourceBuilder {
+  static build<T>(
+    constructorFn: ResourceConstructor<T>,
+    description: Description,
+    caller: Stack
+  ): Resource<T> {
+    const { built, constructorFormula, formula } = ResourceBuilder.initialize(
+      constructorFn,
+      description,
+      caller
+    );
+
+    return new ReactiveResource(
+      built,
+      (caller) =>
+        ResourceBuilder.initialize(constructorFn, description, caller),
+      constructorFormula,
+      formula,
+      description
+    );
   }
 
-  static lifetime(build: BuildResource): object {
-    return build.#object;
+  static initialize<T>(
+    constructor: ResourceConstructor<T>,
+    description: Description,
+    caller: Stack
+  ): InitializedResource<T> {
+    const builder = new ResourceBuilder(description);
+    const constructorFormula = FormulaState.evaluate(
+      () => constructor(builder),
+      description.key("constructor"),
+      caller
+    );
+
+    const formula = Formula(constructorFormula.value, description);
+
+    return {
+      built: builder.#built(),
+      constructorFormula: constructorFormula.state,
+      formula,
+    };
+  }
+
+  readonly #setups: Set<RegisteredSetup> = new Set();
+  readonly #description: Description;
+
+  constructor(description: Description) {
+    this.#description = description;
+  }
+
+  on = {
+    setup: (callback: () => () => void): Unsubscribe => {
+      const handler = new RegisteredSetup(callback, this.#description);
+      this.#setups.add(handler);
+
+      return () => {
+        this.#setups.delete(handler);
+      };
+    },
+  };
+
+  #built(): BuiltResource {
+    return new BuiltResource(this.#setups);
+  }
+}
+
+class BuiltResource {
+  readonly #setups: Set<RegisteredSetup>;
+
+  constructor(setups: Set<RegisteredSetup>) {
+    this.#setups = setups;
+
+    LIFETIME.on.cleanup(this, () => {
+      for (const setup of setups) {
+        LIFETIME.finalize(setup);
+      }
+    });
+  }
+
+  setup(caller: Stack) {
+    for (const setup of this.#setups) {
+      LIFETIME.link(this, setup);
+      setup.run(caller);
+    }
   }
 
   /**
-   * This object represents the instance of the resource being constructed.
-   * Finalizers and linked children will be associated with this object, and
-   * when the resource is finalized, this object will be finalized;
+   * Once we've validated the constructor itself, revalidate setup handlers.
+   *
+   * For each handler, if the setup function is invalid, run its cleanup function and then run its
+   * setup function again.
    */
-  #object: object;
+  poll(caller: Stack) {
+    for (const setup of this.#setups) {
+      setup.poll(caller);
+    }
+  }
+}
 
-  constructor(object: object) {
-    this.#object = object;
+class RegisteredSetup {
+  #setup: () => () => void;
+  #active: FormulaState<() => void> | undefined = undefined;
+  #description: Description;
+
+  constructor(setup: () => () => void, description: Description) {
+    this.#setup = setup;
+    this.#description = description;
+
+    LIFETIME.on.cleanup(this, () => {
+      if (this.#active) {
+        const cleanup = FormulaState.lastValue(this.#active);
+        cleanup();
+      }
+    });
   }
 
-  readonly on: OnCleanup = {
-    cleanup: (handler: () => void) =>
-      LIFETIME.on.cleanup(this.#object, handler),
-  };
+  run(caller: Stack): void {
+    verify(
+      this.#active,
+      isEqual(undefined),
+      expected("setup handler").toBe("setup only once").butGot("a second run")
+    );
 
-  link(child: object): () => void {
-    return LIFETIME.link(this.#object, child);
+    const cleanup = FormulaState.evaluate(
+      () => this.#setup(),
+      this.#description,
+      caller
+    );
+
+    this.#active = cleanup.state;
   }
+
+  poll(caller: Stack): void {
+    if (this.#active) {
+      const validate = this.#active.validate(caller);
+
+      if (validate.state === "valid") {
+        return;
+      }
+
+      validate.oldValue();
+      validate.compute();
+    }
+  }
+}
+
+export interface CreateResource<T> {
+  create(this: void, options: { owner: object }): Resource<T>;
 }
 
 export function Resource<T>(
-  create: ResourceBlueprint<T>,
+  constructor: ResourceConstructor<T>,
   description?: string | Description
-): ResourceConstructor<T> {
-  return Linkable.create((owner) => {
-    const resource = ReactiveResource.create(
-      create,
-      descriptionFrom({
-        type: "resource",
-        api: {
-          package: "@starbeam/core",
-          name: "Resource",
-        },
-        fromUser: description,
-      })
-    );
-
-    LIFETIME.link(owner, resource);
-    resource.current;
-    return resource;
+): CreateResource<T> {
+  const desc = descriptionFrom({
+    type: "resource",
+    api: {
+      package: "@starbeam/core",
+      name: "Resource",
+    },
+    fromUser: description,
   });
+
+  const caller = callerStack();
+
+  return {
+    create: (options) => {
+      const resource = ResourceBuilder.build(constructor, desc, caller);
+      LIFETIME.link(options.owner, resource);
+      return resource;
+    },
+  };
 }
 
+Resource.setup = ReactiveResource.setup;
+Resource.reinitialize = ReactiveResource.reinitialize;
+
 export type Resource<T> = ReactiveResource<T>;
-export type ResourceConstructor<T> = Linkable<Resource<T>>;
+export type ResourceConstructor<T> = (builder: ResourceBuilder) => () => T;
+export type { ResourceBuilder };

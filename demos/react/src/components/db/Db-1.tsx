@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { reactive } from "@starbeam/js";
-import { useStarbeam } from "@starbeam/react";
+import { useReactiveSetup } from "@starbeam/react";
 import type { FormEvent } from "react";
 
 interface Person {
@@ -24,7 +24,7 @@ class Table<T> {
 }
 
 export default function Database() {
-  return useStarbeam(() => {
+  return useReactiveSetup(() => {
     const people = new Table<Person>(["name", "location"]);
 
     function append(event: FormEvent<HTMLFormElement>) {

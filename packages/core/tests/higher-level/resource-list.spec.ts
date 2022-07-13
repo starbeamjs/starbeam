@@ -1,4 +1,5 @@
 import { Resource, ResourceList } from "@starbeam/core";
+import { Stack } from "@starbeam/debug";
 import { reactive } from "@starbeam/js";
 import { describe, expect, test } from "vitest";
 
@@ -20,6 +21,10 @@ class Subscription {
     });
   }
 
+  connect() {
+    this.#active = true;
+  }
+
   disconnect() {
     this.#active = false;
   }
@@ -39,13 +44,19 @@ describe("ResourceList", () => {
     const resource = (item: Item) =>
       Resource((r) => {
         const subscription = new Subscription(item.name);
-        r.on.cleanup(() => subscription.disconnect());
+
+        r.on.setup(() => {
+          subscription.connect();
+          return () => {
+            subscription.disconnect();
+          };
+        });
 
         return () => ({
           card: `${subscription.name} (${item.location})`,
           subscription: subscription,
         });
-      });
+      }, `subscription for '${item.name}' (${item.id})`);
 
     const lifetime = {};
 
@@ -55,6 +66,8 @@ describe("ResourceList", () => {
     });
 
     const resources = linkables.create({ owner: lifetime });
+
+    ResourceList.setup(resources, Stack.EMPTY);
 
     expect(resources.current).toEqual([
       { card: "Tom (NYC)", subscription: { name: "Tom", isActive: true } },

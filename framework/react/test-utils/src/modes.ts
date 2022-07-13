@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 import { TIMELINE } from "@starbeam/core";
-import { entryPoint } from "@starbeam/debug";
+import { callerStack, entryPoint, Stack } from "@starbeam/debug";
 import * as testing from "@testing-library/react";
 import { getByRole, getByText, waitFor } from "@testing-library/react";
 import {
@@ -80,13 +80,13 @@ class RenderResult<Props, T> {
   #setup: SetupTestRender<Props, T>;
   #state: RenderState<T>;
   #result: testing.RenderResult;
-  #rerender: (props?: Props) => ReactElement;
+  #rerender: (props?: Props) => void;
 
   constructor(
     setup: SetupTestRender<Props, T>,
     state: RenderState<T>,
     result: testing.RenderResult,
-    rerender: (props?: Props) => ReactElement
+    rerender: (props?: Props) => void
   ) {
     this.#setup = setup;
     this.#state = state;
@@ -102,28 +102,45 @@ class RenderResult<Props, T> {
     return RenderState.getValue(this.#state);
   }
 
-  async rerender(props?: Props): Promise<RenderResult<Props, T>> {
-    act(() => this.#result.rerender(this.#rerender(props)));
-
+  async rerender(
+    props?: Props,
+    caller = callerStack()
+  ): Promise<RenderResult<Props, T>> {
+    await this.act(() => this.#rerender(props), caller);
     await TIMELINE.nextIdle();
 
-    return entryPoint(() => {
-      SetupTestRender.assert(this.#setup, this);
+    return entryPoint(
+      () => {
+        SetupTestRender.assert(this.#setup, this);
 
-      return this;
-    });
+        return this;
+      },
+      { stack: caller }
+    );
   }
 
-  async act(behavior: () => void): Promise<void> {
-    act(behavior);
-    await this.rendered();
+  async act(behavior: () => void, caller = callerStack()): Promise<void> {
+    const prev = this.#state.renderCount;
+    entryPoint(
+      () => {
+        act(behavior);
+      },
+      { stack: caller }
+    );
+    await this.rendered(prev, caller);
   }
 
-  async rendered(): Promise<void> {
-    const current = this.#state.renderCount;
-
+  async rendered(prev: number, caller = callerStack()): Promise<void> {
     await testing.waitFor(() => {
-      expect(this.#state.renderCount).toBeGreaterThan(current);
+      entryPoint(
+        () => {
+          expect(
+            this.#state.renderCount,
+            "expected another render"
+          ).toBeGreaterThan(prev);
+        },
+        { stack: caller }
+      );
     });
   }
 
@@ -215,6 +232,7 @@ export class SetupTestRender<Props, T> {
   ): Promise<RenderResult<any, T>> {
     const result = entryPoint(() => {
       const state = new RenderState<T>();
+      let i = 0;
 
       const Component = (props: any): ReactElement => {
         state.rendered();
@@ -222,13 +240,27 @@ export class SetupTestRender<Props, T> {
       };
 
       const result = act(() =>
-        testing.render(react.render(Component, props), this.#options)
+        testing.render(
+          react.render(Component, { ...props, rerender: ++i }),
+          this.#options
+        )
       );
+
       const renderResult = new RenderResult(
         this,
         state,
         result,
-        (updatedProps?: any) => react.render(Component, updatedProps ?? props)
+        (updatedProps?: any) => {
+          if (updatedProps) {
+            result.rerender(
+              react.render(Component, { ...updatedProps, rerender: ++i })
+            );
+          } else {
+            result.rerender(
+              react.render(Component, { ...props, rerender: ++i })
+            );
+          }
+        }
       );
 
       return renderResult;

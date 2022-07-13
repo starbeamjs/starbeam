@@ -62,14 +62,14 @@ export default function (props: { locale: string }) {
         }
       }
 
-      return () => ({
+      return {
         append,
         filter,
         total,
         rows,
         people,
         table,
-      });
+      };
     }
   );
 

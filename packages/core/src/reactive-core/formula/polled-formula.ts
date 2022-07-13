@@ -10,7 +10,6 @@ import { REACTIVE, TIMELINE } from "@starbeam/timeline";
 
 import type { Reactive } from "../../reactive.js";
 import { CompositeInternals } from "../../storage/composite.js";
-import type { ReactiveFn } from "../fn.js";
 import { Marker } from "../marker.js";
 
 interface LastEvaluation<T> {
@@ -33,7 +32,7 @@ export class ReactivePolledFormula<T> implements Reactive<T> {
   static create<T>(
     formula: () => T,
     description: Description
-  ): ReactivePolledFormula<T> {
+  ): PolledFormula<T> {
     return new ReactivePolledFormula(
       UNINITIALIZED,
       false,
@@ -139,7 +138,7 @@ export class ReactivePolledFormula<T> implements Reactive<T> {
 export function PolledFormula<T>(
   formula: () => T,
   description?: string | Description
-): Reactive<T> & { update(formula: () => T): void } {
+): PolledFormula<T> {
   return ReactivePolledFormula.create(
     formula,
     descriptionFrom({
@@ -153,4 +152,4 @@ export function PolledFormula<T>(
   );
 }
 
-export type Formula<T> = ReactiveFn<T>;
+export type PolledFormula<T> = ReactivePolledFormula<T>;
