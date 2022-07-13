@@ -2,12 +2,12 @@
   "name": "@starbeamx/devtool",
   "type": "module",
   "main": "index.tsx",
-  "version": "0.5.2",
+  "version": "0.5.4",
   "dependencies": {
-    "@starbeam/core": "workspace:*",
-    "@starbeam/debug": "workspace:*",
-    "@starbeam/timeline": "workspace:*",
-    "@starbeam/js": "workspace:*",
+    "@starbeam/core": "workspace:^",
+    "@starbeam/debug": "workspace:^",
+    "@starbeam/timeline": "workspace:^",
+    "@starbeam/js": "workspace:^",
     "preact": "^10.7.3"
   },
   "publishConfig": {

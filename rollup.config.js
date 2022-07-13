@@ -60,6 +60,7 @@ export default packages.map((pkg) =>
             parser: {
               syntax: "typescript",
               tsx: true,
+              decorators: true,
             },
           },
         },

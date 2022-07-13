@@ -2,6 +2,7 @@ import { TIMELINE } from "@starbeam/core";
 import { type Description, descriptionFrom } from "@starbeam/debug";
 import { reactive } from "@starbeam/js";
 
+import type { Groups } from "./flat.js";
 import { FlatRows } from "./flat.js";
 
 export class Table<U extends UserTypes> extends FlatRows<U> {
@@ -87,11 +88,11 @@ export class Table<U extends UserTypes> extends FlatRows<U> {
     }
   }
 
-  clear() {
+  clear(): void {
     this.#rows.clear();
   }
 
-  delete(id: string) {
+  delete(id: string): void {
     this.#rows.delete(id);
   }
 }
@@ -121,6 +122,12 @@ export type TableTypesFor<U extends UserTypes> = U extends TableTypes
       Columns: U;
       Row: { id: string } & U;
     };
+
+export type RowTypeFor<U extends UserTypes> = TableTypesFor<U>["Row"];
+export type GroupTypeFor<U extends UserTypes, Description> = Groups<
+  TableTypesFor<U>,
+  Description
+>;
 
 export interface TableTypes {
   Columns: object;

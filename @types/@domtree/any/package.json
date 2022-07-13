@@ -5,8 +5,8 @@
   "type": "module",
   "types": "index.ts",
   "dependencies": {
-    "@domtree/browser": "workspace:*",
-    "@domtree/interface": "workspace:*"
+    "@domtree/browser": "workspace:^",
+    "@domtree/interface": "workspace:^"
   },
   "devDependencies": {
     "eslint": "^8.16.0"

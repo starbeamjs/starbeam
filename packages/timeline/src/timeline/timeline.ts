@@ -46,11 +46,11 @@ export class ActionsPhase extends Phase {
     this.#bumped = bumped;
   }
 
-  bump(internals: MutableInternals) {
+  bump(internals: MutableInternals): void {
     this.#bumped.add(internals);
   }
 
-  consume(_internals: MutableInternals) {
+  consume(_internals: MutableInternals): void {
     // do nothing
   }
 }
@@ -73,7 +73,7 @@ export class RenderPhase extends Phase {
     );
   }
 
-  consume(internals: MutableInternals) {
+  consume(internals: MutableInternals): void {
     this.#consumed.add(internals);
   }
 }
@@ -141,7 +141,7 @@ export class Timeline {
       return newFrame;
     }
 
-    finally() {
+    finally(): void {
       TIMELINE.#frame = this.#prev;
     }
   };
@@ -373,7 +373,7 @@ export class Timeline {
   }
 
   // Indicate that a particular cell was used inside of the current computation.
-  didConsume(reactive: ReactiveProtocol, caller?: Stack) {
+  didConsume(reactive: ReactiveProtocol, caller?: Stack): void {
     this.#phase.consume(reactive[REACTIVE]);
 
     if (this.#frame) {
@@ -402,7 +402,7 @@ export class Timeline {
   @ifDebug
   untrackedReadBarrier(
     assertion: (reactive: ReactiveProtocol, caller: Stack) => void
-  ) {
+  ): void {
     this.#readAssertions.add(assertion);
   }
 

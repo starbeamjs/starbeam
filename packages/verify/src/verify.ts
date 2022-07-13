@@ -62,7 +62,7 @@ verified.noop = <T, U extends T>(
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class Expectation<In = any> {
-  static create(description?: string) {
+  static create<In>(description?: string): Expectation<In> {
     return new Expectation(description, undefined, undefined, undefined);
   }
 
@@ -162,7 +162,7 @@ export class Expectation<In = any> {
     );
   }
 
-  when(situation: string) {
+  when(situation: string): Expectation<In> {
     return new Expectation(
       this.#description,
       this.#to,
@@ -171,7 +171,7 @@ export class Expectation<In = any> {
     );
   }
 
-  message(input: In) {
+  message(input: In): string {
     let message = ``;
 
     if (this.#when) {

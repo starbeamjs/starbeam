@@ -30,11 +30,11 @@ export class Timestamp {
   }
 
   @ifDebug
-  [INSPECT]() {
+  [INSPECT](): object {
     return DisplayStruct("Timestamp", { at: this.#timestamp });
   }
 
-  gt(other: Timestamp) {
+  gt(other: Timestamp): boolean {
     return this.#timestamp > other.#timestamp;
   }
 
@@ -45,7 +45,7 @@ export class Timestamp {
     return new Timestamp(peerBump());
   }
 
-  toString() {
+  toString(): string {
     return `#<Timestamp ${this.#timestamp}>`;
   }
 }

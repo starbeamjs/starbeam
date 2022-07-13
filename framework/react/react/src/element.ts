@@ -13,6 +13,7 @@ import {
   type CleanupTarget,
   type OnCleanup,
   type Pollable,
+  type ReactiveInternals,
   type ReactiveProtocol,
   type Unsubscribe,
   LIFETIME,
@@ -190,7 +191,7 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
     element.#lifecycle.idle();
   }
 
-  static cleanup(element: ReactiveElement) {
+  static cleanup(element: ReactiveElement): void {
     LIFETIME.finalize(element.#lifecycle);
     element.#lifecycle = Lifecycle.create(element.#description);
   }
@@ -217,11 +218,11 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
 
   readonly on: OnLifecycle;
 
-  get [REACTIVE]() {
+  get [REACTIVE](): ReactiveInternals {
     return this.#lifecycle[REACTIVE];
   }
 
-  poll() {
+  poll(): void {
     this.#lifecycle.poll();
     TIMELINE.update(this);
   }

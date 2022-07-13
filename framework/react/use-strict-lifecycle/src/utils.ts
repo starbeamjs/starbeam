@@ -62,14 +62,13 @@ function checkValue<In, Out extends In>(
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function assert(condition: any, message: string): asserts condition {
+export function assert(condition: unknown, message: string): asserts condition {
   if (!condition) {
     throw Error(message);
   }
 }
 
-export function exhaustive(value: never, variable: string): never {
+export function exhaustive(_value: never, variable: string): never {
   throw Error(`Exhaustive check failed for ${variable}`);
 }
 

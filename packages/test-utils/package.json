@@ -1,7 +1,7 @@
 {
   "name": "@starbeam-workspace/test-utils",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "main": "index.ts",
   "exports": {
@@ -14,10 +14,10 @@
     }
   },
   "peerDependencies": {
-    "@starbeam/peer": "workspace:*"
+    "@starbeam/peer": "workspace:^"
   },
   "dependencies": {
-    "@starbeam/debug": "workspace:*",
+    "@starbeam/debug": "workspace:^",
     "@testing-library/react": "alpha",
     "@testing-library/dom": "^8.11.3",
     "@testing-library/user-event": "^13.5.0",

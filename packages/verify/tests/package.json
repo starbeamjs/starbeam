@@ -3,7 +3,7 @@
   "name": "@starbeam-tests/verify",
   "type": "module",
   "dependencies": {
-    "@starbeam/verify": "workspace:*"
+    "@starbeam/verify": "workspace:^"
   },
   "version": null
 }

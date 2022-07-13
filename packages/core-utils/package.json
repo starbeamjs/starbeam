@@ -1,10 +1,10 @@
 {
   "name": "@starbeam/core-utils",
-  "version": "0.5.2",
+  "version": "0.5.4",
   "type": "module",
   "main": "index.ts",
   "dependencies": {
-    "@starbeam/peer": "workspace:*"
+    "@starbeam/peer": "workspace:^"
   },
   "devDependencies": {},
   "publishConfig": {

@@ -13,7 +13,7 @@ export class Root {
     this.#root = root;
   }
 
-  format() {
+  format(): string {
     return formatChildren(this.#root, { depth: 0 });
   }
 }
@@ -75,7 +75,7 @@ function prefix({ depth, isLast }: { depth: number; isLast: boolean }) {
 
 /**
  * Source material:
- * 
+ *
  * https://github.com/zkat/miette/blob/1a36fa7ec80de77e910e04cdb902270970611b39/src/handlers/theme.rs
  *         Self {
             hbar: '─',

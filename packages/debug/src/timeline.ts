@@ -131,18 +131,18 @@ export class DebugTimeline {
   static Flush = class Flush {
     constructor(readonly history: DebugOperation[]) {}
 
-    for(reactive: ReactiveProtocol) {
+    for(reactive: ReactiveProtocol): DebugOperation[] {
       const internals = reactiveInternals(reactive);
       return this.history.filter((item) => item.for === internals);
     }
   };
 
   static DebugListener = class DebugListener {
-    static offset(this: void, listener: DebugListener) {
+    static offset(this: void, listener: DebugListener): number {
       return listener.#offset;
     }
 
-    static notify(this: void, listener: DebugListener) {
+    static notify(this: void, listener: DebugListener): void {
       listener.#notify();
     }
 
@@ -161,7 +161,7 @@ export class DebugTimeline {
       this.#filter = filter;
     }
 
-    update(filter: DebugFilter) {
+    update(filter: DebugFilter): void {
       this.#filter = filter;
     }
 
@@ -176,7 +176,7 @@ export class DebugTimeline {
       return flush.history;
     }
 
-    detach() {
+    detach(): void {
       this.#timeline.#listeners.delete(this);
     }
   };
@@ -191,7 +191,7 @@ export class DebugTimeline {
     this.#lastUpdate = lastUpdate;
   }
 
-  notify() {
+  notify(): void {
     this.#listeners.forEach(DebugTimeline.DebugListener.notify);
   }
 
@@ -241,7 +241,7 @@ export class DebugTimeline {
     }
   }
 
-  consume(reactive: ReactiveProtocol) {
+  consume(reactive: ReactiveProtocol): void {
     const internals = reactiveInternals(reactive);
 
     if (internals.type === "mutable") {
@@ -255,7 +255,7 @@ export class DebugTimeline {
     this.#add(new ConsumeCell(this.#lastUpdate, cell));
   }
 
-  updateCell(cell: Internals<"mutable">) {
+  updateCell(cell: Internals<"mutable">): void {
     this.#add(new UpdateCell(this.#lastUpdate, cell));
   }
 

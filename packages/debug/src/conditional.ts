@@ -1,11 +1,11 @@
 // TODO: Make this a build time concern
 const DEBUG = import.meta.env ? !import.meta.env.PROD : false;
 
-export function isDebug() {
+export function isDebug(): boolean {
   return DEBUG;
 }
 
-export function isProd() {
+export function isProd(): boolean {
   return !DEBUG;
 }
 

@@ -39,12 +39,15 @@ class CacheEntry<T> {
     return entry;
   }
 
-  #query: (network: Network) => void;
+  #query: (network: Network) => void | Promise<void>;
   #freshness: Freshness = Freshness("CacheEntry#freshness");
   #status: Status<T>;
   #network: Network | undefined;
 
-  constructor(status: Status<T>, query: (network: Network) => void) {
+  constructor(
+    status: Status<T>,
+    query: (network: Network) => void | Promise<void>
+  ) {
     this.#status = status;
     this.#query = query;
   }
@@ -64,14 +67,14 @@ class CacheEntry<T> {
     return "current";
   }
 
-  fetch(txid: number) {
+  fetch(txid: number): void {
     this.#network = { controller: new AbortController(), txid };
 
     this.#status.state.update((state) =>
       state === "loaded" || state === "reloading" ? "reloading" : "loading"
     );
 
-    Promise.resolve(this.#query(this.#network));
+    void Promise.resolve(this.#query(this.#network));
   }
 
   invalidate() {
@@ -97,8 +100,6 @@ class CacheEntry<T> {
           this.#status.data.current as T
         );
       }
-      default:
-        throw new Error(`Unknown state: ${this.#status.state.current}`);
     }
   }
 

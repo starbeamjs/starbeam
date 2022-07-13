@@ -3,7 +3,7 @@
   "name": "@starbeam-tests/debug",
   "type": "module",
   "dependencies": {
-    "@starbeam/debug": "workspace:*"
+    "@starbeam/debug": "workspace:^"
   },
   "version": null
 }

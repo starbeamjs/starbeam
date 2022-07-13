@@ -10,7 +10,7 @@ export function DisplayStruct(
   name: string,
   fields: Record<PropertyKey, unknown>,
   options?: DisplayStructOptions
-) {
+): object {
   let displayName = name;
 
   if (options?.description) {

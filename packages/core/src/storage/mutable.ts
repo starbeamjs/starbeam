@@ -6,7 +6,7 @@ import {
   inspector,
   isDebug,
 } from "@starbeam/debug";
-import type { Timestamp } from "@starbeam/timeline";
+import type { ReactiveInternals, Timestamp } from "@starbeam/timeline";
 import {
   type ReactiveProtocol,
   InternalChildren,
@@ -55,7 +55,7 @@ export class MutableInternalsImpl implements ReactiveProtocol {
     this.#description = description;
   }
 
-  get [REACTIVE]() {
+  get [REACTIVE](): ReactiveInternals {
     return this;
   }
 

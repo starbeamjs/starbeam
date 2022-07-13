@@ -22,7 +22,7 @@ export class InternalChildren {
     return InternalChildren.from(children);
   }
 
-  static from(children: readonly ReactiveProtocol[]) {
+  static from(children: readonly ReactiveProtocol[]): InternalChildren {
     const childList = [...children].filter((child) => {
       const reactive = child[REACTIVE];
       return reactive.type !== "mutable" || reactive.isFrozen() === false;

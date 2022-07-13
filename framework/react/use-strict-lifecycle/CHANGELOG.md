@@ -1,5 +1,18 @@
 # @starbeam/use-strict-lifecycle
 
+## 0.5.4
+
+### Patch Changes
+
+- The 0.5.3 release was missing dists
+
+## 0.5.3
+
+### Patch Changes
+
+- d21391d: Update resources to support React's three-phase lifecycle
+- 54556a6: Allow useLifecycle to take no args
+
 ## 0.5.2
 
 ### Patch Changes

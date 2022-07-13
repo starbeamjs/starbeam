@@ -1,5 +1,10 @@
 import { type Description, descriptionFrom } from "@starbeam/debug";
-import { type ReactiveProtocol, REACTIVE, TIMELINE } from "@starbeam/timeline";
+import {
+  type ReactiveInternals,
+  type ReactiveProtocol,
+  REACTIVE,
+  TIMELINE,
+} from "@starbeam/timeline";
 
 import { Formula } from "./formula/formula.js";
 import { PolledFormula } from "./formula/polled-formula.js";
@@ -71,11 +76,11 @@ export class ReactiveRenderable implements ReactiveProtocol {
     this.#formula = formula;
   }
 
-  get [REACTIVE]() {
+  get [REACTIVE](): ReactiveInternals {
     return this.#formula[REACTIVE];
   }
 
-  readonly poll = () => {
+  readonly poll = (): void => {
     this.#formula.current;
     TIMELINE.update(this);
   };

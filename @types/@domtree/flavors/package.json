@@ -5,8 +5,8 @@
   "type": "module",
   "types": "index.ts",
   "dependencies": {
-    "@domtree/any": "workspace:*",
-    "@domtree/browser": "workspace:*",
-    "@domtree/minimal": "workspace:*"
+    "@domtree/any": "workspace:^",
+    "@domtree/browser": "workspace:^",
+    "@domtree/minimal": "workspace:^"
   }
 }

@@ -3,10 +3,10 @@
   "name": "@starbeam-demos/react",
   "type": "module",
   "dependencies": {
-    "@starbeam/core": "workspace:*",
-    "@starbeam/react": "workspace:*",
-    "@starbeam/js": "workspace:*",
-    "@starbeam/debug": "workspace:*",
+    "@starbeam/core": "workspace:^",
+    "@starbeam/react": "workspace:^",
+    "@starbeam/js": "workspace:^",
+    "@starbeam/debug": "workspace:^",
     "purecss": "^2.1.0",
     "react": "^18.1.0",
     "react-dom": "^18.1.0"

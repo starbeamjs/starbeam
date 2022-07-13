@@ -3,11 +3,11 @@
   "private": true,
   "main": "index.ts",
   "dependencies": {
-    "@starbeam-workspace/test-utils": "workspace:*",
-    "@starbeam/core-utils": "workspace:*",
-    "@starbeam/core": "workspace:*",
-    "@starbeam/debug": "workspace:*",
-    "@starbeam/timeline": "workspace:*",
+    "@starbeam-workspace/test-utils": "workspace:^",
+    "@starbeam/core-utils": "workspace:^",
+    "@starbeam/core": "workspace:^",
+    "@starbeam/debug": "workspace:^",
+    "@starbeam/timeline": "workspace:^",
     "@testing-library/react": "^13.3.0"
   },
   "devDependencies": {
@@ -17,8 +17,9 @@
     "react-dom": "^18.2.0"
   },
   "peerDependencies": {
-    "@starbeam/peer": "workspace:*",
+    "@starbeam/peer": "workspace:^",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
-  }
+  },
+  "version": null
 }

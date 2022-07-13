@@ -43,7 +43,7 @@ export const Reactive = {
       implementation = false,
       source = false,
     }: { implementation?: boolean; source?: boolean } = {}
-  ) {
+  ): string {
     const dependencies = [...reactive[REACTIVE].children().dependencies];
     const descriptions = new Set(
       dependencies.map((dependency) => {

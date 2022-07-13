@@ -5,6 +5,6 @@
   "type": "module",
   "types": "index.ts",
   "dependencies": {
-    "@domtree/interface": "workspace:*"
+    "@domtree/interface": "workspace:^"
   }
 }

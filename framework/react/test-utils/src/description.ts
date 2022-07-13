@@ -23,7 +23,7 @@ export function callerFrame({
 /**
  * Get a stack trace from the current frame (**including** the current frame).
  */
-export function getMyStack({ extra = 0 }: { extra?: number } = {}) {
+export function getMyStack({ extra = 0 }: { extra?: number } = {}): string {
   try {
     throw Error("callerFrame");
   } catch (e) {

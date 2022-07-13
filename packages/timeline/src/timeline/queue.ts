@@ -76,7 +76,7 @@ export class Queue {
     this.#start();
   }
 
-  afterRender(...callbacks: (() => void)[]) {
+  afterRender(...callbacks: (() => void)[]): void {
     for (const callback of callbacks) {
       this.#afterRender.add(callback);
     }

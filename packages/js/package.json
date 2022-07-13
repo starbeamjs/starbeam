@@ -1,14 +1,14 @@
 {
   "name": "@starbeam/js",
   "description": "An implementation of JavaScript builtins built on top of Starbeam reactivity",
-  "version": "0.5.2",
+  "version": "0.5.4",
   "type": "module",
   "main": "index.ts",
   "dependencies": {
-    "@starbeam/core": "workspace:*",
-    "@starbeam/core-utils": "workspace:*",
-    "@starbeam/debug": "workspace:*",
-    "@starbeam/verify": "workspace:*"
+    "@starbeam/core": "workspace:^",
+    "@starbeam/core-utils": "workspace:^",
+    "@starbeam/debug": "workspace:^",
+    "@starbeam/verify": "workspace:^"
   },
   "devDependencies": {},
   "publishConfig": {

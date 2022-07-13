@@ -3,9 +3,9 @@
   "name": "@starbeam-tests/x-store",
   "type": "module",
   "dependencies": {
-    "@starbeam/core": "workspace:*",
-    "@starbeamx/store": "workspace:*",
-    "@starbeam/js": "workspace:*"
+    "@starbeam/core": "workspace:^",
+    "@starbeamx/store": "workspace:^",
+    "@starbeam/js": "workspace:^"
   },
   "version": null
 }

@@ -1,7 +1,7 @@
 /** @jsx h */
 /** @jsxFrag Fragment */
 // eslint-disable-next-line
-import { h, Fragment, render } from "preact";
+import { h, Fragment, render, type JSX } from "preact";
 import "./src/devtool.css";
 
 import { Reactive } from "@starbeam/core";
@@ -20,7 +20,7 @@ import type {
 export function Devtools(props: {
   renderable: ReactiveInternals;
   log: DebugOperation[];
-}) {
+}): JSX.Element {
   function computeDependencies() {
     return props.renderable.children().dependencies;
   }
@@ -115,7 +115,7 @@ export default function DevtoolsPane(
   renderable: ReactiveInternals,
   log: DebugOperation[],
   into: Element
-) {
+): { update: (renderable: ReactiveInternals, log: DebugOperation[]) => void } {
   const app = <Devtools renderable={renderable} log={log} />;
 
   render(app, into);

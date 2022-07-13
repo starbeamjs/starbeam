@@ -1,7 +1,7 @@
 import { type Unsubscribe, TIMELINE } from "@starbeam/timeline";
 
 export class Channel {
-  static reset(this: void) {
+  static reset(this: void): void {
     Channel.#active = [];
   }
 
@@ -19,7 +19,7 @@ export class Channel {
 
   static #active: Channel[] = [];
 
-  static sendMessage(channel: Channel, message: string) {
+  static sendMessage(channel: Channel, message: string): void {
     TIMELINE.enqueueAction(() => {
       if (channel.isActive) {
         for (const subscriber of channel.#onMessage) {
@@ -48,19 +48,19 @@ export class Channel {
     };
   }
 
-  get id() {
+  get id(): number {
     return this.#id;
   }
 
-  get name() {
+  get name(): string {
     return this.#name;
   }
 
-  get isActive() {
+  get isActive(): boolean {
     return Channel.#active.includes(this);
   }
 
-  cleanup() {
+  cleanup(): void {
     const index = Channel.#active.indexOf(this);
     if (index >= 0) {
       Channel.#active.splice(index, 1);

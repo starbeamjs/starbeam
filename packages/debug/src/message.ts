@@ -11,7 +11,7 @@ export class Style {
     this.#value = value;
   }
 
-  toCSS() {
+  toCSS(): string {
     return `${this.#property}: ${this.#value};`;
   }
 }
@@ -19,11 +19,11 @@ export class Style {
 export class Styles {
   #styles: Style[] = [];
 
-  add(property: string, value: string) {
+  add(property: string, value: string): void {
     this.#styles.push(Style.create(property, value));
   }
 
-  toCSS() {
+  toCSS(): string {
     return this.#styles.map((style) => style.toCSS()).join(" ");
   }
 }
@@ -36,18 +36,18 @@ export class Fragment {
     this.#content = content;
   }
 
-  css(style: `${string}:${string}`) {
+  css(style: `${string}:${string}`): this {
     const [property, value] = style.split(":");
     this.#styles.add(property.trim(), value.trim());
     return this;
   }
 
-  append(buffer: Buffer) {
+  append(buffer: Buffer): void {
     buffer.add(this.#content, this.#styles.toCSS());
   }
 }
 
-export function Styled(content: string) {
+export function Styled(content: string): Fragment {
   return new Fragment(content);
 }
 
@@ -60,7 +60,7 @@ export type IntoBlock = IntoFragment[] | "";
 export class Block {
   #fragments: Fragment[] = [];
 
-  add(fragment: Fragment | string) {
+  add(fragment: Fragment | string): void {
     if (typeof fragment === "string") {
       this.#fragments.push(new Fragment(fragment));
     } else {
@@ -68,7 +68,7 @@ export class Block {
     }
   }
 
-  appendTo(buffer: Buffer) {
+  appendTo(buffer: Buffer): void {
     for (const fragment of this.#fragments) {
       fragment.append(buffer);
     }
@@ -78,7 +78,7 @@ export class Block {
 export class Blocks {
   #blocks: Block[] = [];
 
-  add(block: Block | string) {
+  add(block: Block | string): void {
     if (typeof block === "string") {
       const b = new Block();
       b.add(block);
@@ -88,7 +88,7 @@ export class Blocks {
     }
   }
 
-  appendTo(buffer: Buffer) {
+  appendTo(buffer: Buffer): void {
     for (const block of this.#blocks) {
       block.appendTo(buffer);
       buffer.break();
@@ -96,7 +96,10 @@ export class Blocks {
   }
 }
 
-export function Message(into: IntoBlock[], options?: { plain: boolean }) {
+export function Message(
+  into: IntoBlock[],
+  options?: { plain: boolean }
+): unknown[] {
   const blocks = new Blocks();
 
   for (const intoBlock of into) {

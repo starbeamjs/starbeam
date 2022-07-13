@@ -83,6 +83,9 @@ export const html: HtmlProxy = new Proxy(() => {}, {
 }) as unknown as HtmlProxy;
 /* eslint-enable */
 
-export function el(tag: string | FunctionComponent, children: ReactNode[]) {
+export function el(
+  tag: string | FunctionComponent,
+  children: ReactNode[]
+): JSX.Element {
   return createElement(tag, null, ...children);
 }

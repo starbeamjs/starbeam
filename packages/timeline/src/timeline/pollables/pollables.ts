@@ -23,7 +23,7 @@ export class Pollables {
     return this.#internalsMap.isRemoved(renderable);
   }
 
-  prune(renderable: Pollable) {
+  prune(renderable: Pollable): void {
     this.#internalsMap.remove(renderable);
   }
 
@@ -33,7 +33,7 @@ export class Pollables {
     }
   }
 
-  update(reactive: ReactiveProtocol) {
+  update(reactive: ReactiveProtocol): void {
     const pollable = this.#reactiveMap.get(reactive);
 
     if (pollable) {
@@ -61,7 +61,7 @@ export class Pollables {
     }
   }
 
-  insert(pollable: Pollable) {
+  insert(pollable: Pollable): void {
     this.#reactiveMap.set(Pollable.reactive(pollable), pollable);
     const dependencies = Pollable.dependencies(pollable);
 

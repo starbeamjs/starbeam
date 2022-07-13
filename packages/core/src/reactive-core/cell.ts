@@ -44,7 +44,7 @@ export class ReactiveCell<T> implements Reactive<T> {
   }
 
   @ifDebug
-  [INSPECT]() {
+  [INSPECT](): object {
     const { description, debug } = this.#internals;
 
     return DisplayStruct(`Cell (${description.describe()})`, {
@@ -54,7 +54,7 @@ export class ReactiveCell<T> implements Reactive<T> {
   }
 
   @ifDebug
-  toString() {
+  toString(): string {
     return `Cell (${String(this.#value)})`;
   }
 

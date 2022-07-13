@@ -1,14 +1,14 @@
 {
   "name": "@starbeamx/vanilla",
   "description": "A renderer for Starbeam using Vanilla JavaScript",
-  "version": "0.5.2",
+  "version": "0.5.4",
   "type": "module",
   "main": "index.ts",
   "dependencies": {
-    "@starbeam/core": "workspace:*",
-    "@starbeam/debug": "workspace:*",
-    "@starbeam/js": "workspace:*",
-    "@starbeam/verify": "workspace:*"
+    "@starbeam/core": "workspace:^",
+    "@starbeam/debug": "workspace:^",
+    "@starbeam/js": "workspace:^",
+    "@starbeam/verify": "workspace:^"
   },
   "publishConfig": {
     "main": "dist/index.cjs",

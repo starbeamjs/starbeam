@@ -1,5 +1,17 @@
 # @starbeam/peer
 
+## 1.0.4
+
+### Patch Changes
+
+- The 0.5.3 release was missing dists
+
+## 1.0.3
+
+### Patch Changes
+
+- d21391d: Update resources to support React's three-phase lifecycle
+
 ## 1.0.2
 
 ### Patch Changes

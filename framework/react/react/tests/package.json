@@ -2,10 +2,10 @@
   "private": true,
   "name": "@starbeam-tests/react",
   "dependencies": {
-    "@starbeam/react": "workspace:*",
-    "@starbeam/core": "workspace:*",
-    "@starbeam/js": "workspace:*",
-    "@starbeam-workspace/react-test-utils": "workspace:*",
+    "@starbeam/react": "workspace:^",
+    "@starbeam/core": "workspace:^",
+    "@starbeam/js": "workspace:^",
+    "@starbeam-workspace/react-test-utils": "workspace:^",
     "@testing-library/react": "^13.3.0"
   }
 }
