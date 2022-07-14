@@ -1,5 +1,16 @@
 # @starbeamx/devtool
 
+## 0.5.5
+
+### Patch Changes
+
+- Another attempt to get the build right
+- Updated dependencies
+  - @starbeam/core@0.5.5
+  - @starbeam/debug@0.5.5
+  - @starbeam/js@0.5.5
+  - @starbeam/timeline@0.5.5
+
 ## 0.5.4
 
 ### Patch Changes

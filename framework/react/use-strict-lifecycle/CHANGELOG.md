@@ -1,5 +1,11 @@
 # @starbeam/use-strict-lifecycle
 
+## 0.5.5
+
+### Patch Changes
+
+- Another attempt to get the build right
+
 ## 0.5.4
 
 ### Patch Changes

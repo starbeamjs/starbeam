@@ -1,5 +1,21 @@
 # @starbeam/react
 
+## 0.5.5
+
+### Patch Changes
+
+- Another attempt to get the build right
+- Updated dependencies
+  - @starbeam/use-strict-lifecycle@0.5.5
+  - @starbeam/core@0.5.5
+  - @starbeam/core-utils@0.5.5
+  - @starbeam/debug@0.5.5
+  - @starbeam/js@0.5.5
+  - @starbeam/modifier@0.5.5
+  - @starbeam/peer@1.0.5
+  - @starbeam/timeline@0.5.5
+  - @starbeam/verify@0.5.5
+
 ## 0.5.4
 
 ### Patch Changes

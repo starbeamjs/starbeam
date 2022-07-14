@@ -1,5 +1,11 @@
 # @starbeam/peer
 
+## 1.0.5
+
+### Patch Changes
+
+- Another attempt to get the build right
+
 ## 1.0.4
 
 ### Patch Changes

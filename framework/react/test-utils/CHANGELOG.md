@@ -5,6 +5,18 @@
 ### Patch Changes
 
 - Updated dependencies
+  - @starbeam/core@0.5.5
+  - @starbeam/core-utils@0.5.5
+  - @starbeam/debug@0.5.5
+  - @starbeam/peer@1.0.5
+  - @starbeam/timeline@0.5.5
+  - @starbeam-workspace/test-utils@0.0.3
+
+## null
+
+### Patch Changes
+
+- Updated dependencies
   - @starbeam/core@0.5.4
   - @starbeam/debug@0.5.4
   - @starbeam/timeline@0.5.4

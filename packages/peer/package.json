@@ -1,7 +1,7 @@
 {
   "name": "@starbeam/peer",
   "description": "A handful of variables that should remain stable forever, and can therefore be used as peer dependencies to enable interop between major versions of Starbeam",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "type": "module",
   "main": "index.ts",
   "dependencies": {},

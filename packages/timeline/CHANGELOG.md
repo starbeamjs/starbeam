@@ -1,5 +1,15 @@
 # @starbeam/timeline
 
+## 0.5.5
+
+### Patch Changes
+
+- Another attempt to get the build right
+- Updated dependencies
+  - @starbeam/debug@0.5.5
+  - @starbeam/peer@1.0.5
+  - @starbeam/verify@0.5.5
+
 ## 0.5.4
 
 ### Patch Changes

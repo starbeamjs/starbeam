@@ -1,5 +1,19 @@
 # @starbeam-workspace/bundle
 
+## 0.0.3
+
+### Patch Changes
+
+- Updated dependencies
+  - @starbeam/react@0.5.5
+  - @starbeam/core@0.5.5
+  - @starbeam/core-utils@0.5.5
+  - @starbeam/debug@0.5.5
+  - @starbeam/js@0.5.5
+  - @starbeam/peer@1.0.5
+  - @starbeam/timeline@0.5.5
+  - @starbeam/verify@0.5.5
+
 ## 0.0.2
 
 ### Patch Changes
