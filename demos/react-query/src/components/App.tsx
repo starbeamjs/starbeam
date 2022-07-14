@@ -1,6 +1,6 @@
 import "@shopify/polaris/build/esm/styles.css";
 
-import axios from "axios";
+import { default as axios } from "axios";
 import { StrictMode } from "react";
 
 import { type QueryResult, QUERY_CACHE } from "../lib/query.js";

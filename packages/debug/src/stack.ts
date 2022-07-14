@@ -1,5 +1,7 @@
+/// <reference types="node" />
+
 import { hasType, isObject, verified } from "@starbeam/verify";
-import StackTracey from "stacktracey";
+import { default as StackTracey } from "stacktracey";
 
 import { isDebug } from "./conditional.js";
 import {

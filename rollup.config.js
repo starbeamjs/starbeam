@@ -3,7 +3,7 @@ import { sync as glob } from "fast-glob";
 import { readFileSync } from "fs";
 import { dirname, resolve } from "path";
 import { defineConfig } from "rollup";
-import postcss from "rollup-plugin-postcss";
+import { default as postcss } from "rollup-plugin-postcss";
 import ts from "rollup-plugin-ts";
 import { fileURLToPath } from "url";
 
@@ -47,7 +47,7 @@ export default packages.map((pkg) =>
         exports: "named",
       },
     ],
-    external: (id) => !(id.startsWith(".") || id.startsWith("/")),
+    external,
     plugins: [
       importMetaPlugin,
       postcss(),
@@ -57,6 +57,7 @@ export default packages.map((pkg) =>
           jsc: {
             target: "es2022",
             keepClassNames: true,
+            externalHelpers: false,
             parser: {
               syntax: "typescript",
               tsx: true,
@@ -69,3 +70,18 @@ export default packages.map((pkg) =>
     ],
   })
 );
+
+/**
+ * @param {string} id
+ */
+function external(id) {
+  if (id.startsWith("@swc") || id === "tslib") {
+    return false;
+  }
+
+  if (id.startsWith(".") || id.startsWith("/")) {
+    return false;
+  }
+
+  return true;
+}

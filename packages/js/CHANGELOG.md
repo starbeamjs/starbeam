@@ -1,5 +1,16 @@
 # @starbeam/js
 
+## 0.5.6
+
+### Patch Changes
+
+- Fix ESM package mistakes
+- Updated dependencies
+  - @starbeam/core@0.5.6
+  - @starbeam/core-utils@0.5.6
+  - @starbeam/debug@0.5.6
+  - @starbeam/verify@0.5.6
+
 ## 0.5.5
 
 ### Patch Changes

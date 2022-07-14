@@ -8,7 +8,7 @@ import {
 } from "@starbeam/timeline";
 
 export class StaticInternals implements timeline.StaticInternals {
-  static create(description: Description): StaticInternals {
+  static create(this: void, description: Description): StaticInternals {
     return new StaticInternals(description);
   }
 
@@ -37,3 +37,7 @@ export class StaticInternals implements timeline.StaticInternals {
     return false;
   }
 }
+
+export const Static: (description: Description) => Static =
+  StaticInternals.create;
+export type Static = StaticInternals;

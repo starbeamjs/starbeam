@@ -5,5 +5,8 @@
   "dependencies": {
     "@starbeam/verify": "workspace:^"
   },
+  "devDependencies": {
+    "vite": "^3.0.0"
+  },
   "version": null
 }

@@ -1,4 +1,4 @@
-import { Cell, Reactive, Renderable, TIMELINE } from "@starbeam/core";
+import { Cell, Renderable, TIMELINE } from "@starbeam/core";
 import { describe, expect, test } from "vitest";
 
 describe("Renderable", () => {
@@ -7,7 +7,6 @@ describe("Renderable", () => {
     let output: string | undefined;
 
     const render = Renderable.cached(() => {
-      console.log("polling");
       output = name.current;
     }, "update output");
 
@@ -18,11 +17,8 @@ describe("Renderable", () => {
     render.poll();
     expect(output).toBe("Tom");
 
-    console.log(Reactive.dependencies(render));
-
     name.set("Thomas");
     await TIMELINE.nextIdle();
-    console.log("idle");
 
     expect(output).toBe("Thomas");
   });

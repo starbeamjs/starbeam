@@ -1,7 +1,7 @@
 import { expected, verify } from "@starbeam/verify";
 import { describe, expect, test } from "vitest";
 
-const isProd = import.meta.env.PROD;
+const isProd: boolean = import.meta.env.PROD;
 
 describe.skipIf(isProd)("verify", () => {
   test("default verify message", () => {

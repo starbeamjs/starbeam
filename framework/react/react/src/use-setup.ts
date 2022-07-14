@@ -2,8 +2,11 @@ import { PolledFormula, Reactive } from "@starbeam/core";
 import { isObject } from "@starbeam/core-utils";
 import { type Description, descriptionFrom, Message } from "@starbeam/debug";
 import { isDebug, LIFETIME, TIMELINE } from "@starbeam/timeline";
-import { isRendering, useLifecycle } from "@starbeam/use-strict-lifecycle";
-import { unsafeTrackedElsewhere } from "@starbeam/use-strict-lifecycle/src/react.js";
+import {
+  isRendering,
+  unsafeTrackedElsewhere,
+  useLifecycle,
+} from "@starbeam/use-strict-lifecycle";
 import { useState } from "react";
 
 import { ReactiveElement } from "./element.js";

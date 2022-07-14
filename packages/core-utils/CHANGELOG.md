@@ -1,5 +1,13 @@
 # @starbeam/core-utils
 
+## 0.5.6
+
+### Patch Changes
+
+- Fix ESM package mistakes
+- Updated dependencies
+  - @starbeam/peer@1.0.6
+
 ## 0.5.5
 
 ### Patch Changes

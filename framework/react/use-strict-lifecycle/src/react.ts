@@ -36,10 +36,6 @@ export function unsafeTrackedElsewhere<T>(callback: () => T): T {
   }
 }
 
-export function endUnsafeTrackedElsewhere(): void {
-  IS_RESTRICTED = true;
-}
-
 export function isRestrictedRead(): boolean {
   if (IS_UNRESTRICTED) {
     return false;

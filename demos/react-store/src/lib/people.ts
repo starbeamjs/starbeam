@@ -1,6 +1,5 @@
-import type { Query } from "@starbeamx/store";
-import { Filter } from "@starbeamx/store/src/filter.js";
-import type { TableRows } from "@starbeamx/store/src/flat.js";
+import type { Query, TableRows } from "@starbeamx/store";
+import { Filter } from "@starbeamx/store";
 
 export interface Person {
   name: string;

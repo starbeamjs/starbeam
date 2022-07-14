@@ -8,8 +8,10 @@ import {
 import type { Description } from "@starbeam/debug";
 import { callerStack, descriptionFrom } from "@starbeam/debug";
 import { LIFETIME } from "@starbeam/timeline";
-import { useLifecycle } from "@starbeam/use-strict-lifecycle";
-import { unsafeTrackedElsewhere } from "@starbeam/use-strict-lifecycle/src/react.js";
+import {
+  unsafeTrackedElsewhere,
+  useLifecycle,
+} from "@starbeam/use-strict-lifecycle";
 import { useState } from "react";
 
 function createResource<T>(

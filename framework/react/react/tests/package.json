@@ -1,5 +1,6 @@
 {
   "private": true,
+  "type": "module",
   "name": "@starbeam-tests/react",
   "dependencies": {
     "@starbeam/react": "workspace:^",

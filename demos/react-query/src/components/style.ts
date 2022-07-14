@@ -1,4 +1,4 @@
-import styled, { keyframes } from "styled-components";
+import { default as styled, keyframes } from "styled-components";
 
 export const spinner = keyframes`
   0% { transform: rotate(0deg); }

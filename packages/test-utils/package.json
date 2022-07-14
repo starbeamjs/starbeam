@@ -1,7 +1,7 @@
 {
   "name": "@starbeam-workspace/test-utils",
   "private": true,
-  "version": "0.0.3",
+  "version": "0.0.4",
   "type": "module",
   "main": "index.ts",
   "exports": {
@@ -23,6 +23,9 @@
     "@testing-library/user-event": "^13.5.0",
     "@types/react": "^18",
     "@types/react-dom": "^18"
+  },
+  "devDependencies": {
+    "vite": "^3.0.0"
   },
   "publishConfig": {
     "main": "dist/index.cjs",

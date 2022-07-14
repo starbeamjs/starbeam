@@ -1,19 +1,20 @@
 {
   "compilerOptions": {
     "jsx": "preserve",
-    "allowJs": true,
-    "checkJs": true,
-    "noEmit": true,
     "target": "esnext",
     "strict": true,
+    "declaration": true,
     "useDefineForClassFields": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "experimentalDecorators": true,
     "resolveJsonModule": true,
-    "module": "esnext",
-    "moduleResolution": "node",
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "experimentalDecorators": true,
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noImplicitReturns": true,
@@ -24,7 +25,8 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "inlineSourceMap": true,
-    "inlineSources": true
+    "inlineSources": true,
+    "types": ["vite/client"]
   },
 
   "include": [

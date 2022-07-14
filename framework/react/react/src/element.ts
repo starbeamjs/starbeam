@@ -3,10 +3,10 @@ import type { Reactive } from "@starbeam/core";
 import {
   type Cell,
   type CreateResource,
+  CompositeInternals,
   Resource,
   Setups,
 } from "@starbeam/core";
-import { CompositeInternals } from "@starbeam/core/src/storage/composite.js";
 import type { Description } from "@starbeam/debug";
 import { type DebugListener, callerStack } from "@starbeam/debug";
 import {

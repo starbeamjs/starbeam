@@ -9,8 +9,8 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "module": "esnext",
-    "moduleResolution": "node",
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "experimentalDecorators": true,
     "noUnusedLocals": false,
@@ -23,6 +23,7 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "inlineSourceMap": true,
-    "inlineSources": true
+    "inlineSources": true,
+    "types": ["vite/client"]
   }
 }
