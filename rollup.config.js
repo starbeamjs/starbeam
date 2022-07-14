@@ -36,12 +36,12 @@ export default packages.map((pkg) =>
     input: pkg.main,
     output: [
       {
-        dir: resolve(pkg.root, "dist"),
-        format: "es",
+        file: resolve(pkg.root, "dist", `index.js`),
+        format: "esm",
         sourcemap: true,
       },
       {
-        dir: resolve(pkg.root, "dist"),
+        file: resolve(pkg.root, "dist", `index.cjs`),
         format: "cjs",
         sourcemap: true,
         exports: "named",
