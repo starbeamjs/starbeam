@@ -16,7 +16,7 @@ export class CompositeInternalsImpl implements ReactiveProtocol {
   static create(
     children: InternalChildren,
     description: Description
-  ): CompositeInternalsImpl {
+  ): CompositeInternals {
     return new CompositeInternalsImpl(children, description);
   }
 
@@ -61,7 +61,7 @@ export class CompositeInternalsImpl implements ReactiveProtocol {
 export function CompositeInternals(
   children: InternalChildren | readonly (ReactiveProtocol | undefined | null)[],
   description: Description
-): CompositeInternalsImpl {
+): CompositeInternals {
   if (isArray(children)) {
     return CompositeInternalsImpl.create(
       InternalChildren.from(children.filter(isPresent)),
@@ -71,3 +71,5 @@ export function CompositeInternals(
     return CompositeInternalsImpl.create(children, description);
   }
 }
+
+export type CompositeInternals = CompositeInternalsImpl;

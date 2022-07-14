@@ -25,4 +25,6 @@ export { ResourceFn } from "./src/reactive-core/higher-level/mapped-resource.js"
 export { ResourceList } from "./src/reactive-core/higher-level/resource-list.js";
 export { Marker } from "./src/reactive-core/marker.js";
 export { Renderable } from "./src/reactive-core/render.js";
+export { CompositeInternals } from "./src/storage/composite.js";
+export { StaticInternals } from "./src/storage/static.js";
 export { LIFETIME, Pollable, REACTIVE, TIMELINE } from "@starbeam/timeline";

@@ -2,7 +2,7 @@
   "name": "@starbeam/react",
   "type": "module",
   "main": "index.ts",
-  "version": "0.5.5",
+  "version": "0.5.6",
   "dependencies": {
     "@starbeam/core": "workspace:^",
     "@starbeam/debug": "workspace:^",
@@ -36,5 +36,8 @@
         "default": "./dist/index.cjs"
       }
     }
+  },
+  "exports": {
+    "default": "./index.ts"
   }
 }

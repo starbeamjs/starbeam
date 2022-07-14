@@ -11,10 +11,6 @@ import { format } from "prettier";
 import chalk from "chalk";
 
 export function TemplateCommand({ root }: StarbeamCommandOptions): Command {
-  const TEMPLATES = {
-    tsconfig: resolve(root, ".templates", "package", "tsconfig.json"),
-  };
-
   return program
     .createCommand("template")
     .description("template a package")
@@ -49,7 +45,13 @@ function updatePackageJSON(root: string, pkg: Package) {
 
   const json = JSON.parse(readFileSync(editingJSON, "utf-8"));
 
-  json.publishConfig = splice.publishConfig;
+  Object.assign(json, splice);
+
+  if (json.main) {
+    json.exports = {
+      default: `./${json.main}`,
+    };
+  }
 
   writeFileSync(editingJSON, JSON.stringify(json, null, 2));
 }

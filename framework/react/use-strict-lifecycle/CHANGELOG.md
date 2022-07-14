@@ -1,5 +1,11 @@
 # @starbeam/use-strict-lifecycle
 
+## 0.5.6
+
+### Patch Changes
+
+- Fix ESM package mistakes
+
 ## 0.5.5
 
 ### Patch Changes

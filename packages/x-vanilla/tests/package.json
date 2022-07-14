@@ -1,5 +1,6 @@
 {
   "private": true,
+  "type": "module",
   "name": "@starbeam-tests/x-vanilla",
   "dependencies": {
     "@starbeamx/vanilla": "workspace:^",
