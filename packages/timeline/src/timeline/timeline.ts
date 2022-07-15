@@ -436,6 +436,10 @@ export class Timeline {
       throw e;
     }
   }
+
+  startFormula(description: Description): StartedFormula {
+    return Timeline.StartedFormula.create(description);
+  }
 }
 
 export const TIMELINE = Timeline.create();

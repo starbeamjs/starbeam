@@ -9,6 +9,11 @@ export {
 } from "./src/reactive-core/formula/dom-resource.js";
 export { Formula } from "./src/reactive-core/formula/formula.js";
 export { Linkable } from "./src/reactive-core/formula/linkable.js";
+export {
+  type FinishedManualFormula,
+  type StartedManualFormula,
+  ManualFormula,
+} from "./src/reactive-core/formula/manual-formula.js";
 export { PolledFormula } from "./src/reactive-core/formula/polled-formula.js";
 export {
   type CreateResource,
