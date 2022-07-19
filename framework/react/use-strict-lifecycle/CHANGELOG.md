@@ -1,5 +1,11 @@
 # @starbeam/use-strict-lifecycle
 
+## 0.5.7
+
+### Patch Changes
+
+- Fix a bug in the transition from uninitialized to initialized reactive Map
+
 ## 0.5.6
 
 ### Patch Changes
