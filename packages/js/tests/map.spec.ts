@@ -251,4 +251,24 @@ describe("TrackedMap", () => {
     expect(foodTypes.state).toEqual([[], "stable"]);
     expect(hasBurgers.state).toEqual([false, "stable"]);
   });
+
+  test("setting a value invalidates a prior get when the entry was uninitialized", () => {
+    const map = reactive.Map();
+
+    const food = Invalidation.trace(() => map.get("hamburgers"));
+    const hasHamburgers = Invalidation.trace(() => map.has("hamburgers"));
+
+    expect(food.state).toEqual([undefined, "initialized"]);
+    expect(hasHamburgers.state).toEqual([false, "initialized"]);
+
+    map.set("hamburgers", "burger");
+
+    expect(food.state).toEqual(["burger", "invalidated"]);
+    expect(hasHamburgers.state).toEqual([true, "invalidated"]);
+
+    map.delete("hamburgers");
+
+    expect(food.state).toEqual([undefined, "invalidated"]);
+    expect(hasHamburgers.state).toEqual([false, "invalidated"]);
+  });
 });

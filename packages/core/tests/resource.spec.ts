@@ -40,7 +40,6 @@ describe("resources", () => {
       const socket = Cell(undefined as Subscription | undefined);
 
       resource.on.setup(() => {
-        console.log("Running setup");
         const s = Subscription.subscribe(channel.current);
         socket.set(s);
 

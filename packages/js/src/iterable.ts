@@ -1,68 +1,85 @@
-import { type Equality, Cell, Marker, Reactive } from "@starbeam/core";
+import { type Equality, Cell, Marker } from "@starbeam/core";
+import { UNINITIALIZED } from "@starbeam/core-utils";
 import { type Description, callerStack } from "@starbeam/debug";
 
 class Entry<V> {
   static initialized<V>(value: V, desc: Description, equality: Equality<V>) {
     return new Entry(
-      Cell<undefined | Cell<V>>(Cell(value, { description: desc }), {
-        description: desc.implementation({ reason: "initialized entry" }),
+      Cell<UNINITIALIZED | V>(value, {
+        description: desc,
+        equals: equals(equality),
       }),
-      equality
+      Cell(true, {
+        description: desc.implementation({ reason: "initialized" }),
+      })
     );
   }
 
   static uninitialized<V>(desc: Description, equality: Equality<V>) {
     return new Entry(
-      Cell<undefined | Cell<V>>(undefined, { description: desc }),
-      equality
+      Cell<UNINITIALIZED | V>(UNINITIALIZED, {
+        description: desc,
+        equals: equals(equality),
+      }),
+      Cell(false, {
+        description: desc.implementation({ reason: "initialized" }),
+      })
     );
   }
 
-  #value: Cell<undefined | Cell<V>>;
-  #equality: Equality<V>;
+  #initialized: Cell<boolean>;
+  #value: Cell<V | UNINITIALIZED>;
 
-  constructor(value: Cell<undefined | Cell<V>>, equality: Equality<V>) {
+  constructor(value: Cell<V | UNINITIALIZED>, initialized: Cell<boolean>) {
     this.#value = value;
-    this.#equality = equality;
+    this.#initialized = initialized;
   }
 
   isPresent(): boolean {
-    return this.#value.current !== undefined;
+    return this.#initialized.current;
   }
 
   delete(): "deleted" | "unchanged" {
     const cell = this.#value.current;
 
-    if (cell === undefined) {
+    if (cell === UNINITIALIZED) {
       return "unchanged";
     } else {
-      this.#value.set(undefined);
+      this.#initialized.set(false);
+      this.#value.set(UNINITIALIZED);
       return "deleted";
     }
   }
 
   get(): V | undefined {
-    return this.#value.current?.current;
+    const current = this.#value.current;
+
+    if (current === UNINITIALIZED) {
+      return undefined;
+    } else {
+      return current;
+    }
   }
 
   set(value: V): "initialized" | "updated" | "unchanged" {
-    const cell = this.#value.current;
-
-    if (cell === undefined) {
-      this.#value.set(
-        Cell(value, {
-          description: Reactive.internals(
-            this.#value
-          ).description.implementation({
-            reason: "initialized entry",
-          }),
-        })
-      );
+    if (this.#value.current === UNINITIALIZED) {
+      this.#value.set(value);
+      this.#initialized.set(true);
       return "initialized";
     } else {
-      return cell.set(value) ? "updated" : "unchanged";
+      return this.#value.set(value) ? "updated" : "unchanged";
     }
   }
+}
+
+function equals<T>(equality: Equality<T>): Equality<T | UNINITIALIZED> {
+  return (a, b) => {
+    if (a === UNINITIALIZED || b === UNINITIALIZED) {
+      return Object.is(a, b);
+    }
+
+    return equality(a, b);
+  };
 }
 
 export class ReactiveMap<K, V> implements Map<K, V> {
@@ -206,7 +223,11 @@ export class ReactiveMap<K, V> implements Map<K, V> {
 
     if (entry === undefined) {
       entry = Entry.uninitialized(
-        this.#description.key("entry"),
+        this.#description.key(
+          typeof key === "string" || typeof key === "number"
+            ? String(key)
+            : "entry"
+        ),
         this.#equality
       );
       this.#entries.set(key, entry);

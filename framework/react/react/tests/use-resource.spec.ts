@@ -15,20 +15,16 @@ import { Channel } from "./support/channel.js";
 
 function ChannelResource(name: Reactive<string>) {
   return Resource((r) => {
-    console.log("creating resource");
     const lastMessage = Cell<string | null>(null);
 
     r.on.setup(() => {
-      console.log("setting up resource");
       const c = Channel.subscribe(name.current);
 
       c.onMessage((message) => {
-        console.log("received message", message);
         lastMessage.set(message);
       });
 
       return () => {
-        console.log("finalizing resource");
         return c.cleanup();
       };
     });
