@@ -1,6 +1,6 @@
 import "./App.css";
 
-import axios from "axios";
+import { default as axios } from "axios";
 
 import useQuery from "./lib/use-query.js";
 

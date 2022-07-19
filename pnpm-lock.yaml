@@ -268,10 +268,12 @@ importers:
     specifiers:
       '@emotion/react': ^11.9.3
       '@emotion/styled': ^11.9.3
+      '@esbuild-plugins/node-globals-polyfill': ^0.1.1
       '@mui/material': ^5.9.0
       '@starbeam/core': ^0.5.6
       '@starbeam/js': ^0.5.6
       '@starbeam/react': ^0.5.6
+      '@starbeamx/devtool': workspace:*
       '@types/react': ^18.0.10
       '@types/react-dom': ^18.0.5
       '@vitejs/plugin-react': ^1.3.2
@@ -280,6 +282,7 @@ importers:
       react-dom: ^18.1.0
       typescript: next
       vite: ^2.9.9
+      vite-plugin-fonts: ^0.5.0
     dependencies:
       '@emotion/react': 11.9.3_7eu627umq2cbnjxmysy5yb5jqq
       '@emotion/styled': 11.9.3_qbwmrvb6ojitbfrbjtglmejmbm
@@ -287,15 +290,18 @@ importers:
       '@starbeam/core': link:../../packages/core
       '@starbeam/js': link:../../packages/js
       '@starbeam/react': link:../../framework/react/react
+      '@starbeamx/devtool': link:../../packages/x-devtool
       axios: 0.27.2
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     devDependencies:
+      '@esbuild-plugins/node-globals-polyfill': 0.1.1_esbuild@0.14.47
       '@types/react': 18.0.14
       '@types/react-dom': 18.0.5
       '@vitejs/plugin-react': 1.3.2
       typescript: 4.8.0-dev.20220719
       vite: 2.9.12
+      vite-plugin-fonts: 0.5.0_vite@2.9.12
 
   demos/react-query:
     specifiers:
@@ -9115,6 +9121,15 @@ packages:
 
   /vite-plugin-fonts/0.4.0_vite@2.9.12:
     resolution: {integrity: sha512-BK9eFKxDM5/ptMcFSTpXyBmwPw6rH1wrYqFvOm1QLBezmzPQAhG72JyLDQO5KJ7b1fU65mxo/aHypZ4PJRSEJg==}
+    peerDependencies:
+      vite: ^2.0.0
+    dependencies:
+      fast-glob: 3.2.11
+      vite: 2.9.12
+    dev: true
+
+  /vite-plugin-fonts/0.5.0_vite@2.9.12:
+    resolution: {integrity: sha512-TIzI748vvNN6aW1+BkDs60ry1QH3VkjTM5f0vB+dMczuCFogtCu9jbUVyCAZnk2z9veFgBQs8SLh3+qBfrJvvw==}
     peerDependencies:
       vite: ^2.0.0
     dependencies:
