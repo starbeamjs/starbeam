@@ -104,6 +104,8 @@ export interface DescriptionStatics {
 }
 
 if (isDebug()) {
+  let id = 0;
+
   class DebugDescription implements Description, DescriptionArgs {
     static is(description: unknown): description is Description {
       return !!(description && description instanceof DebugDescription);
@@ -130,6 +132,8 @@ if (isDebug()) {
      * developer tools to decide how to render the description.
      */
     readonly #type: DescriptionType;
+
+    readonly #id = id++;
 
     /**
      * The {@linkcode DescriptionArgs.api} is the user-facing, public API entry point that the developer used to
@@ -206,7 +210,7 @@ if (isDebug()) {
           return `${this.#details.parent.fullName}${this.fromUser}`;
         }
       } else {
-        return `{anonymous ${this.type}}`;
+        return `{${this.#id}:anonymous ${this.type}}`;
       }
     }
 
