@@ -1,5 +1,11 @@
 # @starbeam/peer
 
+## 1.0.7
+
+### Patch Changes
+
+- Fix a bug in the transition from uninitialized to initialized reactive Map
+
 ## 1.0.6
 
 ### Patch Changes

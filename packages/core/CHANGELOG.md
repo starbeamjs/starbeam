@@ -1,5 +1,17 @@
 # @starbeam/core
 
+## 0.5.7
+
+### Patch Changes
+
+- Fix a bug in the transition from uninitialized to initialized reactive Map
+- Updated dependencies
+  - @starbeam/core-utils@0.5.7
+  - @starbeam/debug@0.5.7
+  - @starbeam/peer@1.0.7
+  - @starbeam/timeline@0.5.7
+  - @starbeam/verify@0.5.7
+
 ## 0.5.6
 
 ### Patch Changes
