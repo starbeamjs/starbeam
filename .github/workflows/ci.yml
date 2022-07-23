@@ -7,6 +7,15 @@ on:
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
+  alert_maintainers:
+    name: "Alert Maintainers"
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+
+
   install_dependencies:
     name: "Setup"
     runs-on: "ubuntu-latest"
