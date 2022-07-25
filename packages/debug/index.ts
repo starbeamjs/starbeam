@@ -33,6 +33,7 @@ export {
   callerStack,
   descriptionFrom,
   entryPoint,
+  isErrorWithStack,
   Stack,
 } from "./src/stack.js";
 export {

@@ -6,16 +6,13 @@ export interface ReactiveProtocol<I extends Internals = Internals> {
 }
 
 export interface Internals<
-  Type extends "mutable" | "composite" | "static" =
+  Type extends "mutable" | "composite" | "static" | "delegate" =
     | "mutable"
     | "composite"
     | "static"
-> extends ReactiveProtocol {
+    | "delegate"
+> {
   readonly type: Type;
-
-  children(): {
-    readonly dependencies: ReadonlySet<unknown>;
-  };
 }
 
 function reactiveInternals(reactive: ReactiveProtocol): Internals {
@@ -91,25 +88,17 @@ function filterToPredicate(
 ): ((operation: DebugOperation) => boolean) | undefined {
   switch (filter.type) {
     case "by-reactive": {
-      const dependencies = reactiveInternals(filter.reactive).children()
+      const dependencies = reactiveDependencies(filter.reactive).children()
         .dependencies;
 
       return (operation) => {
         if (operation.for === undefined) {
           return false;
-        } else {
-          // if the operation is for the reactive we're filtering by,
-          // then it's a match.
-          if (operation.for === filter.reactive) {
-            return true;
-          }
-
+        } else if (operation.for.type === "mutable") {
           // if the operation is for a dependency of the reactive we're
           // filtering by, then it's a match.
-          if (operation.for.type === "mutable") {
-            return dependencies.has(operation.for);
-          }
-
+          return dependencies.has(operation.for);
+        } else {
           return false;
         }
       };

@@ -13,27 +13,12 @@
  * worrying about its lifetime.
  */
 
-import {
-  type Description,
-  type Stack,
-  callerStack,
-  descriptionFrom,
-  DisplayStruct,
-  // eslint-disable-next-line unused-imports/no-unused-imports, @typescript-eslint/no-unused-vars
-  ifDebug,
-  INSPECT,
-} from "@starbeam/debug";
-import {
-  type ReactiveInternals,
-  type Unsubscribe,
-  LIFETIME,
-  REACTIVE,
-} from "@starbeam/timeline";
-import { expected, isEqual, verify } from "@starbeam/verify";
+import type { Description } from "@starbeam/debug";
+import { descriptionFrom } from "@starbeam/debug";
+import { type Reactive, type Unsubscribe, LIFETIME } from "@starbeam/timeline";
 
-import type { Reactive } from "../../reactive.js";
-import { Formula } from "./formula.js";
-import { FormulaState } from "./state.js";
+import { FormulaFn } from "./formula.js";
+import { Setups } from "./setups.js";
 
 /**
  * A Resource instance is a stable value, but it has multiple possible internal layers of
@@ -65,246 +50,10 @@ import { FormulaState } from "./state.js";
  * Its primary purpose is to present a stable reactive value that is nonetheless internally changing
  * quite a bit, and even getting cleaned up and reinitialized behind the scenes.
  */
-class ReactiveResource<T> implements Reactive<T> {
-  static setup<T>(this: void, resource: Resource<T>, caller: Stack): void {
-    resource.#built.setup(caller);
-  }
-
-  static reinitialize(
-    this: void,
-    resource: Resource<unknown>,
-    caller: Stack
-  ): void {
-    return resource.#reinitialize(caller);
-  }
-
-  readonly #description: Description;
-  readonly #initializer: (caller: Stack) => InitializedResource<T>;
-  #built: BuiltResource;
-  #constructorFormula: FormulaState<unknown>;
-  #formula: Formula<T>;
-
-  constructor(
-    built: BuiltResource,
-    initializer: (caller: Stack) => InitializedResource<T>,
-    constructorFormula: FormulaState<unknown>,
-    formula: Formula<T>,
-    description: Description
-  ) {
-    this.#built = built;
-    this.#initializer = initializer;
-    this.#constructorFormula = constructorFormula;
-    this.#formula = formula;
-    this.#description = description;
-
-    LIFETIME.link(this, built);
-  }
-
-  @ifDebug
-  [INSPECT]() {
-    return DisplayStruct("ReactiveResource", {
-      description: this.#description.describe(),
-    });
-  }
-
-  get current(): T {
-    return this.read(callerStack());
-  }
-
-  read(caller: Stack): T {
-    if (this.#constructorFormula.isValid()) {
-      // If the constructor function is valid, poll the setup handlers. If a setup handler is
-      // invalid, finalize it and run it again.
-      this.#built.poll(caller);
-    } else {
-      this.#reinitialize(caller);
-    }
-
-    // Now that we've revalidated the formula, get the current value.
-    return this.#formula.current;
-  }
-
-  #reinitialize(caller: Stack) {
-    LIFETIME.finalize(this.#built);
-
-    const { built, constructorFormula, formula } = this.#initializer(caller);
-
-    this.#built = built;
-    LIFETIME.link(this, built);
-
-    this.#constructorFormula = constructorFormula;
-    this.#formula = formula;
-  }
-
-  get [REACTIVE](): ReactiveInternals {
-    return this.#formula[REACTIVE];
-  }
-}
-
-interface InitializedResource<T> {
-  built: BuiltResource;
-  constructorFormula: FormulaState<unknown>;
-  formula: Formula<T>;
-}
-
-/**
- * This the public API passed into the {@linkcode Resource} function. It is created every time the
- * constructor formula is invalidated, in order to produce a new instance of {@linkcode BuiltResource}.
- */
-class ResourceBuilder {
-  static build<T>(
-    constructorFn: ResourceConstructor<T>,
-    description: Description,
-    caller: Stack
-  ): Resource<T> {
-    const { built, constructorFormula, formula } = ResourceBuilder.initialize(
-      constructorFn,
-      description,
-      caller
-    );
-
-    return new ReactiveResource(
-      built,
-      (caller) =>
-        ResourceBuilder.initialize(constructorFn, description, caller),
-      constructorFormula,
-      formula,
-      description
-    );
-  }
-
-  static initialize<T>(
-    constructor: ResourceConstructor<T>,
-    description: Description,
-    caller: Stack
-  ): InitializedResource<T> {
-    const builder = new ResourceBuilder(description);
-    const constructorFormula = FormulaState.evaluate(
-      () => constructor(builder),
-      description.key("constructor"),
-      caller
-    );
-
-    const formula = Formula(constructorFormula.value, description);
-
-    return {
-      built: builder.#built(),
-      constructorFormula: constructorFormula.state,
-      formula,
-    };
-  }
-
-  readonly #setups: Set<RegisteredSetup> = new Set();
-  readonly #description: Description;
-
-  constructor(description: Description) {
-    this.#description = description;
-  }
-
-  on = {
-    setup: (callback: () => () => void): Unsubscribe => {
-      const handler = new RegisteredSetup(callback, this.#description);
-      this.#setups.add(handler);
-
-      return () => {
-        this.#setups.delete(handler);
-      };
-    },
-  };
-
-  #built(): BuiltResource {
-    return new BuiltResource(this.#setups);
-  }
-}
-
-class BuiltResource {
-  readonly #setups: Set<RegisteredSetup>;
-
-  constructor(setups: Set<RegisteredSetup>) {
-    this.#setups = setups;
-
-    LIFETIME.on.cleanup(this, () => {
-      for (const setup of setups) {
-        LIFETIME.finalize(setup);
-      }
-    });
-  }
-
-  setup(caller: Stack) {
-    for (const setup of this.#setups) {
-      LIFETIME.link(this, setup);
-      setup.run(caller);
-    }
-  }
-
-  /**
-   * Once we've validated the constructor itself, revalidate setup handlers.
-   *
-   * For each handler, if the setup function is invalid, run its cleanup function and then run its
-   * setup function again.
-   */
-  poll(caller: Stack) {
-    for (const setup of this.#setups) {
-      setup.poll(caller);
-    }
-  }
-}
-
-class RegisteredSetup {
-  #setup: () => () => void;
-  #active: FormulaState<() => void> | undefined = undefined;
-  #description: Description;
-
-  constructor(setup: () => () => void, description: Description) {
-    this.#setup = setup;
-    this.#description = description;
-
-    LIFETIME.on.cleanup(this, () => {
-      if (this.#active) {
-        const cleanup = FormulaState.lastValue(this.#active);
-        cleanup();
-      }
-    });
-  }
-
-  run(caller: Stack): void {
-    verify(
-      this.#active,
-      isEqual(undefined),
-      expected("setup handler").toBe("setup only once").butGot("a second run")
-    );
-
-    const cleanup = FormulaState.evaluate(
-      () => this.#setup(),
-      this.#description,
-      caller
-    );
-
-    this.#active = cleanup.state;
-  }
-
-  poll(caller: Stack): void {
-    if (this.#active) {
-      const validate = this.#active.validate(caller);
-
-      if (validate.state === "valid") {
-        return;
-      }
-
-      validate.oldValue();
-      validate.compute();
-    }
-  }
-}
-
-export interface CreateResource<T> {
-  create(this: void, options: { owner: object }): Resource<T>;
-}
-
 export function Resource<T>(
-  constructor: ResourceConstructor<T>,
+  create: ResourceConstructor<T>,
   description?: string | Description
-): CreateResource<T> {
+): ResourceBlueprint<T> {
   const desc = descriptionFrom({
     type: "resource",
     api: {
@@ -314,20 +63,86 @@ export function Resource<T>(
     fromUser: description,
   });
 
-  const caller = callerStack();
-
   return {
-    create: (options) => {
-      const resource = ResourceBuilder.build(constructor, desc, caller);
-      LIFETIME.link(options.owner, resource);
+    create({ owner }: { owner: object }) {
+      const builder = new ResourceBuilder(Setups(desc));
+      const fn = create(builder);
+      const resource = FormulaFn(() => {
+        ResourceBuilder.validate(builder);
+        return fn();
+      }, desc);
+
+      LIFETIME.link(owner, builder);
+      LIFETIME.link(resource, builder);
+      BUILDERS.set(resource, builder);
+
       return resource;
     },
   };
 }
 
-Resource.setup = ReactiveResource.setup;
-Resource.reinitialize = ReactiveResource.reinitialize;
+const BUILDERS = new WeakMap<Resource<unknown>, ResourceBuilder>();
 
-export type Resource<T> = ReactiveResource<T>;
-export type ResourceConstructor<T> = (builder: ResourceBuilder) => () => T;
-export type { ResourceBuilder };
+Resource.setup = function <T>(resource: Resource<T>): void {
+  const builder = BUILDERS.get(resource);
+
+  if (builder) {
+    ResourceBuilder.setup(builder);
+  }
+};
+
+type ResourceConstructor<T> = (resource: ResourceBuilder) => () => T;
+
+export interface Resource<T> extends Reactive<T> {
+  readonly current: T;
+}
+
+export interface ResourceBlueprint<T> {
+  create(options: { owner: object }): Resource<T>;
+}
+
+type Handler = () => void | (() => void);
+
+export class ResourceBuilder {
+  static setup(builder: ResourceBuilder): void {
+    builder.#setups.setups();
+    builder.#isSetup = true;
+  }
+
+  static validate(builder: ResourceBuilder): void {
+    if (builder.#isSetup) {
+      builder.#setups.setups();
+    }
+  }
+
+  #isSetup = false;
+  readonly #setups: Setups;
+
+  constructor(setups: Setups) {
+    this.#setups = setups;
+
+    LIFETIME.link(this, setups);
+  }
+
+  readonly on = {
+    setup: (
+      handler: Handler,
+      description?: Description | string
+    ): Unsubscribe => {
+      const desc = descriptionFrom({
+        type: "formula",
+        api: {
+          package: "@starbeam/core",
+          name: "ResourceBuilder",
+          method: {
+            name: "on.setup",
+            type: "instance",
+          },
+        },
+        fromUser: description,
+      });
+
+      return this.#setups.register(handler, desc);
+    },
+  };
+}

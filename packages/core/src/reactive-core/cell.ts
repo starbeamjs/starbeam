@@ -8,10 +8,16 @@ import {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-imports
   ifDebug,
 } from "@starbeam/debug";
-import { type ReactiveInternals, INSPECT, REACTIVE } from "@starbeam/timeline";
+import {
+  type Reactive,
+  type ReactiveInternals,
+  INSPECT,
+  REACTIVE,
+  TIMELINE,
+} from "@starbeam/timeline";
 
-import type { Reactive } from "../reactive.js";
-import { MutableInternalsImpl } from "../storage/mutable.js";
+import type { MutableInternalsImpl } from "../storage.js";
+import { MutableInternals } from "../storage.js";
 
 export interface CellPolicy<T, U = T> {
   equals(a: T, b: T): boolean;
@@ -45,11 +51,13 @@ export class ReactiveCell<T> implements Reactive<T> {
 
   @ifDebug
   [INSPECT](): object {
-    const { description, debug } = this.#internals;
+    const { description, lastUpdated } = this.#internals;
 
-    return DisplayStruct(`Cell (${description.describe()})`, {
+    const desc = description ? ` (${description.describe()})` : "";
+
+    return DisplayStruct(`Cell${desc}`, {
       value: this.#value,
-      updated: debug.lastUpdated,
+      updated: lastUpdated,
     });
   }
 
@@ -71,7 +79,7 @@ export class ReactiveCell<T> implements Reactive<T> {
   }
 
   read(caller: Stack | undefined): T {
-    this.#internals.consume(caller);
+    TIMELINE.frame.didConsume(this, caller);
     return this.#value;
   }
 
@@ -128,7 +136,7 @@ export function Cell<T>(
     equals = description.equals ?? Object.is;
   }
 
-  return ReactiveCell.create(value, equals, MutableInternalsImpl.create(desc));
+  return ReactiveCell.create(value, equals, MutableInternals(desc));
 }
 
 function normalize(description?: string | Description): Description {

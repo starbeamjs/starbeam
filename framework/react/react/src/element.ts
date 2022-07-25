@@ -1,8 +1,8 @@
 import type { browser } from "@domtree/flavors";
-import type { Reactive } from "@starbeam/core";
 import {
   type Cell,
   type CreateResource,
+  type Reactive,
   CompositeInternals,
   Resource,
   Setups,
@@ -184,11 +184,13 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
   }
 
   static layout(element: ReactiveElement): void {
-    element.#lifecycle.layout();
+    element.#lifecycle.layout.current;
+    TIMELINE.update(element);
   }
 
   static idle(element: ReactiveElement): void {
-    element.#lifecycle.idle();
+    element.#lifecycle.idle.current;
+    TIMELINE.update(element);
   }
 
   static cleanup(element: ReactiveElement): void {
@@ -196,11 +198,11 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
     element.#lifecycle = Lifecycle.create(element.#description);
   }
 
-  readonly #pollable: Set<(pollable: Pollable) => void>;
   #lifecycle: Lifecycle;
   #debugLifecycle: DebugLifecycle | null = null;
   #refs: Refs;
-  #description: Description;
+  readonly #pollable: Set<(pollable: Pollable) => void>;
+  readonly #description: Description;
 
   private constructor(
     readonly notify: () => void,
@@ -216,16 +218,14 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
     this.#description = description;
   }
 
-  readonly on: OnLifecycle;
-
   get [REACTIVE](): ReactiveInternals {
-    return this.#lifecycle[REACTIVE];
+    return CompositeInternals(
+      [this.#lifecycle.layout, this.#lifecycle.idle],
+      this.#description
+    );
   }
 
-  poll(): void {
-    this.#lifecycle.poll();
-    TIMELINE.update(this);
-  }
+  readonly on: OnLifecycle;
 
   link(child: object): Unsubscribe {
     return LIFETIME.link(this, child);
@@ -259,7 +259,7 @@ interface OnLifecycle extends OnCleanup {
   readonly layout: (attached: Callback) => void;
 }
 
-class Lifecycle implements ReactiveProtocol {
+class Lifecycle {
   static create(description: Description): Lifecycle {
     return new Lifecycle(Setups(description), Setups(description), description);
   }
@@ -288,21 +288,12 @@ class Lifecycle implements ReactiveProtocol {
     LIFETIME.link(this, layout);
   }
 
-  get [REACTIVE]() {
-    return CompositeInternals([this.#idle, this.#layout], this.#description);
+  get idle(): Reactive<void> {
+    return this.#idle.poller;
   }
 
-  idle(): void {
-    this.#idle.poll();
-  }
-
-  layout(): void {
-    this.#layout.poll();
-  }
-
-  poll() {
-    this.#idle.poll();
-    this.#layout.poll();
+  get layout(): Reactive<void> {
+    return this.#idle.poller;
   }
 }
 

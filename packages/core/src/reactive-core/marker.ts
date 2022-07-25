@@ -3,13 +3,9 @@ import {
   callerStack,
   descriptionFrom,
 } from "@starbeam/debug";
-import {
-  type MutableInternals,
-  type ReactiveProtocol,
-  REACTIVE,
-} from "@starbeam/timeline";
+import { type ReactiveProtocol, REACTIVE, TIMELINE } from "@starbeam/timeline";
 
-import { MutableInternalsImpl } from "../storage/mutable.js";
+import { type MutableInternalsImpl, MutableInternals } from "../storage.js";
 
 export class ReactiveMarker implements ReactiveProtocol {
   static create(internals: MutableInternalsImpl): ReactiveMarker {
@@ -27,7 +23,7 @@ export class ReactiveMarker implements ReactiveProtocol {
   }
 
   consume(caller = callerStack()): void {
-    this.#internals.consume(caller);
+    TIMELINE.frame.didConsume(this, caller);
   }
 
   update(): void {
@@ -43,7 +39,7 @@ export class ReactiveMarker implements ReactiveProtocol {
 
 export function Marker(description?: string | Description): ReactiveMarker {
   return ReactiveMarker.create(
-    MutableInternalsImpl.create(
+    MutableInternals(
       descriptionFrom({
         type: "cell",
         api: {

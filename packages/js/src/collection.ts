@@ -1,5 +1,6 @@
-import { Cell, Marker, Reactive } from "@starbeam/core";
+import { Cell, Marker } from "@starbeam/core";
 import type { Description, Stack } from "@starbeam/debug";
+import { ReactiveProtocol } from "@starbeam/timeline";
 import { expected, isPresent, verified } from "@starbeam/verify";
 
 class ItemState {
@@ -257,7 +258,7 @@ export class Collection<K> {
     }
 
     let item: Item;
-    const iteration = Reactive.internals(this.#iteration).description;
+    const iteration = ReactiveProtocol.description(this.#iteration);
 
     if (disposition === "miss") {
       item = Item.uninitialized(iteration, member, caller);

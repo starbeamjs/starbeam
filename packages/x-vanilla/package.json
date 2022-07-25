@@ -8,6 +8,7 @@
     "@starbeam/core": "workspace:^",
     "@starbeam/debug": "workspace:^",
     "@starbeam/js": "workspace:^",
+    "@starbeam/timeline": "workspace:^",
     "@starbeam/verify": "workspace:^"
   },
   "publishConfig": {

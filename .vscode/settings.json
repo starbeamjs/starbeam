@@ -1,8 +1,25 @@
 {
   "eslint.enable": true,
+  "explorer.excludeGitIgnore": true,
+  "vite.autoStart": false,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true,
     "source.fixAll.eslint.format": true
+  },
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/dist": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/*.code-search": true,
+    "**/dist": true
   },
   "explorer.fileNesting.patterns": {
     "*.ts": "${capture}.js",
@@ -18,7 +35,7 @@
   "vitest.enable": true,
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.preferences.importModuleSpecifier": "project-relative",
-  "typescript.tsserver.experimental.enableProjectDiagnostics": false,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
   "json.schemas": [
     {
       "fileMatch": ["manifest.json"],
@@ -33,5 +50,6 @@
   },
   "[shellscript]": {
     "editor.defaultFormatter": "foxundermoon.shell-format"
-  }
+  },
+  "testing.automaticallyOpenPeekView": "never"
 }

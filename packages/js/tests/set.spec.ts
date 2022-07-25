@@ -1,4 +1,4 @@
-import { Formula } from "@starbeam/core";
+import { FormulaFn } from "@starbeam/core";
 import { reactive } from "@starbeam/js";
 import { describe, expect, test } from "vitest";
 
@@ -9,7 +9,7 @@ describe("TrackedSet", () => {
     const set = reactive.Set();
     expect(set.size).toBe(0);
 
-    const size = Formula(() => `The set has ${set.size} items`);
+    const size = FormulaFn(() => `The set has ${set.size} items`);
 
     expect(size.current).toBe("The set has 0 items");
 

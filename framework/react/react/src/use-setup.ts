@@ -155,7 +155,8 @@ export function useReactiveSetup<T>(
     });
 
     lifecycle.on.update(() => {
-      element.poll();
+      ReactiveElement.layout(element);
+      ReactiveElement.idle(element);
     });
 
     lifecycle.on.cleanup(() => {

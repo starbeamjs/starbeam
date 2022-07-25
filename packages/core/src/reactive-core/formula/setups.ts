@@ -1,98 +1,85 @@
-import type { Description, ReactiveProtocol } from "@starbeam/debug";
-import { REACTIVE } from "@starbeam/peer";
-import {
-  type ReactiveInternals,
-  type Unsubscribe,
-  LIFETIME,
-} from "@starbeam/timeline";
+import { type Description, descriptionFrom } from "@starbeam/debug";
+import { type Unsubscribe, LIFETIME } from "@starbeam/timeline";
 
-import { CompositeInternals } from "../../storage/composite.js";
-import { Formula } from "./formula.js";
+import { Marker } from "../marker.js";
+import { FormulaFn } from "./formula.js";
 
 type SetupFunction = () => void | (() => void);
+export type Setup = FormulaFn<void>;
 
 // TODO: I think that setups should ignore reads that are followed by writes.
 
-class Setup implements ReactiveProtocol {
-  static create(setupFn: SetupFunction, description: Description): Setup {
-    let cleanup: (() => void) | void;
+export function Setup(
+  setupFn: SetupFunction,
+  description?: string | Description
+): Setup {
+  const desc = descriptionFrom({
+    type: "formula",
+    api: {
+      package: "@starbeam/core",
+      name: "Setup",
+    },
+    fromUser: description,
+  });
 
-    const formula = Formula(() => {
-      if (cleanup) {
-        cleanup();
-      }
+  let cleanup: (() => void) | void;
 
-      cleanup = setupFn();
-    }, description);
+  const setup = FormulaFn(() => {
+    if (cleanup) {
+      cleanup();
+    }
 
-    const setup = new Setup(formula);
+    cleanup = setupFn();
+  }, desc);
 
-    LIFETIME.on.cleanup(setup, () => {
-      if (cleanup) cleanup();
-    });
+  LIFETIME.on.cleanup(setup, () => {
+    if (cleanup) {
+      cleanup();
+    }
+  });
 
-    return setup;
-  }
-
-  #formula: Formula<void>;
-
-  constructor(formula: Formula<void>) {
-    this.#formula = formula;
-  }
-
-  get [REACTIVE]() {
-    return this.#formula[REACTIVE];
-  }
-
-  poll() {
-    this.#formula();
-  }
+  return setup;
 }
 
 /**
- * {@linkcode ReactiveSetups} represents a collection of reactive setup functions that automatically
- * clean themselves up and reinitialize whenever any of their dependencies invalidates.
+ * {@linkcode Setups} represents a collection of reactive setup functions that automatically clean
+ * themselves up and reinitialize whenever any of their dependencies invalidates.
  *
- * The {@linkcode ReactiveSetups} itself is a {@linkcode ReactiveProtocol}, which means that other
- * can subscribe to it in order to poll it for updates, which will result in the setup functions
- * being reinitialized at a timing that is appropriate for the renderer using the
- * {@linkcode ReactiveSetups}.
+ * The {@linkcode Setups} itself is a {@linkcode ReactiveProtocol}, which means that other can
+ * subscribe to it in order to poll it for updates, which will result in the setup functions being
+ * reinitialized at a timing that is appropriate for the renderer using the {@linkcode Setups}.
  */
-export class ReactiveSetups implements ReactiveProtocol {
-  static create(this: void, description: Description): Setups {
-    return new ReactiveSetups(new Set(), description);
-  }
 
-  #setups: Set<Setup>;
-  #description: Description;
-
-  constructor(setups: Set<Setup>, description: Description) {
-    this.#setups = setups;
-    this.#description = description;
-  }
-
-  get [REACTIVE](): ReactiveInternals {
-    return CompositeInternals([...this.#setups.keys()], this.#description);
-  }
-
-  register(setupFn: SetupFunction): Unsubscribe {
-    const setup = Setup.create(setupFn, this.#description.key("setup"));
-    const unsubscribe = LIFETIME.link(this, setup);
-
-    this.#setups.add(setup);
-
-    return () => {
-      unsubscribe();
-      this.#setups.delete(setup);
-    };
-  }
-
-  poll(): void {
-    for (const setup of this.#setups) {
-      setup.poll();
-    }
-  }
+export interface Setups {
+  register: (setupFn: SetupFunction, description: Description) => Unsubscribe;
+  setups: FormulaFn<void>;
 }
 
-export const Setups = ReactiveSetups.create;
-export type Setups = ReactiveSetups;
+export function Setups(description: Description): Setups {
+  const setups = new Set<Setup>();
+  const marker = Marker(
+    description.implementation({ reason: "setups changed" })
+  );
+
+  const register = (setupFn: SetupFunction, description: Description) => {
+    const setup = Setup(setupFn, description);
+    const unsubscribe = LIFETIME.link(result, setup);
+    setups.add(setup);
+
+    return () => {
+      setups.delete(setup);
+      unsubscribe();
+    };
+  };
+
+  const formula = FormulaFn(() => {
+    marker.consume();
+    for (const setup of setups) {
+      setup();
+    }
+  }, description);
+
+  const result = { register, setups: formula };
+
+  return result;
+}

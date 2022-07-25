@@ -1,13 +1,13 @@
 import type { Stack } from "@starbeam/debug";
+import { type Description, descriptionFrom } from "@starbeam/debug";
 import {
-  type Description,
-  callerStack,
-  descriptionFrom,
-} from "@starbeam/debug";
-import { type ReactiveInternals, REACTIVE } from "@starbeam/timeline";
+  type Reactive,
+  type ReactiveInternals,
+  REACTIVE,
+  ReactiveProtocol,
+} from "@starbeam/timeline";
 
-import { Reactive } from "../../reactive.js";
-import { Formula } from "../formula/formula.js";
+import { FormulaFn } from "../formula/formula.js";
 
 type Key = unknown;
 type Entry<T> = [Key, T];
@@ -34,19 +34,19 @@ class ReactiveFormulaList<T, U> implements Reactive<U[]> {
       fromUser: desc,
     });
 
-    const list = Formula(
+    const list = FormulaFn(
       () => [...iterable].map((item): [Key, T] => [key(item), item]),
       descArgs
     );
-    const description = Reactive.description(list);
-    const last = list.current;
+    const description = ReactiveProtocol.description(list);
+    const last = list();
 
-    const map = new Map<Key, Formula<U>>();
+    const map = new Map<Key, FormulaFn<U>>();
 
     for (const [key, item] of last) {
       map.set(
         key,
-        Formula(() => value(item), description.key("item"))
+        FormulaFn(() => value(item), description.key("item"))
       );
     }
 
@@ -54,16 +54,18 @@ class ReactiveFormulaList<T, U> implements Reactive<U[]> {
   }
 
   #last: Entry<T>[];
-  #inputs: Formula<Entry<T>[]>;
-  #map: Map<Key, Formula<U>>;
+  #inputs: FormulaFn<Entry<T>[]>;
+  #map: Map<Key, FormulaFn<U>>;
   #value: (item: T) => U;
 
-  #outputs: Formula<U[]>;
+  #outputs: FormulaFn<U[]>;
+
+  readonly [REACTIVE]: ReactiveInternals;
 
   constructor(
     last: Entry<T>[],
-    list: Formula<Entry<T>[]>,
-    map: Map<Key, Formula<U>>,
+    list: FormulaFn<Entry<T>[]>,
+    map: Map<Key, FormulaFn<U>>,
     value: (item: T) => U
   ) {
     this.#last = last;
@@ -71,29 +73,30 @@ class ReactiveFormulaList<T, U> implements Reactive<U[]> {
     this.#map = map;
     this.#value = value;
 
-    this.#outputs = Formula(() => {
+    this.#outputs = FormulaFn(() => {
       this.#update();
 
-      return [...this.#map.values()].map((formula) => formula.current);
+      return [...this.#map.values()].map((formula) => formula());
     });
-  }
 
-  get [REACTIVE](): ReactiveInternals {
-    return this.#outputs[REACTIVE];
+    this[REACTIVE] = {
+      type: "delegate",
+      delegate: this.#outputs,
+    };
   }
 
   get current(): U[] {
-    return this.read(callerStack());
+    return this.read();
   }
 
-  read(caller: Stack): U[] {
-    return this.#outputs.read(caller);
+  read(_caller?: Stack): U[] {
+    return this.#outputs();
   }
 
   #update() {
     // this `current` happens inside a write phase, so we don't need to propagate a read caller
     // (which is used in the readonly phase to produce good errors in read barrier assertions).
-    const next = this.#inputs.current;
+    const next = this.#inputs();
 
     if (this.#last === next) {
       return;
@@ -101,7 +104,7 @@ class ReactiveFormulaList<T, U> implements Reactive<U[]> {
 
     this.#last = next;
 
-    const map: Map<Key, Formula<U>> = new Map();
+    const map: Map<Key, FormulaFn<U>> = new Map();
 
     for (const [key, item] of next) {
       const formula = this.#map.get(key);
@@ -109,9 +112,9 @@ class ReactiveFormulaList<T, U> implements Reactive<U[]> {
       if (formula === undefined) {
         map.set(
           key,
-          Formula(
+          FormulaFn(
             () => this.#value(item),
-            Reactive.description(this.#inputs).key("item")
+            ReactiveProtocol.description(this.#inputs).key("item")
           )
         );
       } else {

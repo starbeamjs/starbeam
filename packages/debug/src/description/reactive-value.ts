@@ -14,6 +14,8 @@ export type ValueType =
   | "external"
   // represents a renderer value
   | "renderer"
+  // represents a value that delegates to another reactive value
+  | "delegate"
   | "static"
   | "cell"
   | "formula"

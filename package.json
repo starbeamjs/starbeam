@@ -11,11 +11,12 @@
     "demo": "esno ./.scripts/scripts.ts demo",
     "lint": "eslint . --cache",
     "test": "vitest",
+    "test:dev": "vitest --mode=development",
+    "test:prod": "PROD=1 DEV= vitest",
     "test:types": "tsc --build",
     "test:lint": "eslint . --cache",
     "test:all": "esno ./scripts/scripts.ts test",
     "typecheck": "tsc --build",
-    "test:prod": "PROD=1 DEV= vitest",
     "demos:react:store": "pnpm demo react-store"
   },
   "devDependencies": {

@@ -1,17 +1,21 @@
 import {
   type Description,
-  type DescriptionArgs,
   callerStack,
   descriptionFrom,
   Stack,
 } from "@starbeam/debug";
-import { type ReactiveInternals, LIFETIME, REACTIVE } from "@starbeam/timeline";
+import {
+  type Reactive,
+  type ReactiveInternals,
+  Frame,
+  LIFETIME,
+  REACTIVE,
+} from "@starbeam/timeline";
 import { expected, isEqual, verify } from "@starbeam/verify";
 
-import type { Reactive } from "../../reactive.js";
 import { Formula } from "../formula/formula.js";
 import { Linkable } from "../formula/linkable.js";
-import { type CreateResource, Resource } from "../formula/resource.js";
+import { type ResourceBlueprint, Resource } from "../formula/resource.js";
 
 type Key = unknown;
 type Entry<T> = [Key, T];
@@ -29,7 +33,7 @@ class ReactiveResourceList<T, U> implements Reactive<U[]> {
       resource,
     }: {
       key: (item: T) => Key;
-      resource: (item: T) => CreateResource<U>;
+      resource: (item: T) => ResourceBlueprint<U>;
     },
     desc?: string | Description
   ): CreateResourceList<U> {
@@ -56,7 +60,7 @@ class ReactiveResourceList<T, U> implements Reactive<U[]> {
   static setup<T, U>(
     this: void,
     list: ReactiveResourceList<T, U>,
-    caller: Stack
+    _caller: Stack
   ): void {
     verify(
       list.#setup,
@@ -68,7 +72,7 @@ class ReactiveResourceList<T, U> implements Reactive<U[]> {
 
     if (list.#map) {
       for (const resource of list.#map.values()) {
-        Resource.setup(resource, caller);
+        Resource.setup(resource);
       }
     }
   }
@@ -77,15 +81,15 @@ class ReactiveResourceList<T, U> implements Reactive<U[]> {
   #map: Map<Key, Resource<U>> | undefined;
 
   readonly #inputs: Formula<Entry<T>[]>;
-  readonly #resource: (item: T) => CreateResource<U>;
+  readonly #resource: (item: T) => ResourceBlueprint<U>;
   readonly #outputs: Formula<U[]>;
-  readonly #description: DescriptionArgs;
+  readonly [REACTIVE]: ReactiveInternals;
 
   #setup = false;
 
   constructor(
     iterable: Formula<Entry<T>[]>,
-    resource: (item: T) => CreateResource<U>,
+    resource: (item: T) => ResourceBlueprint<U>,
     description: Description
   ) {
     this.#inputs = iterable;
@@ -94,7 +98,6 @@ class ReactiveResourceList<T, U> implements Reactive<U[]> {
     this.#last = undefined;
 
     this.#resource = resource;
-    this.#description = description;
 
     this.#map = this.#initialize();
 
@@ -103,26 +106,28 @@ class ReactiveResourceList<T, U> implements Reactive<U[]> {
 
       return [...this.#map.values()].map((formula) => formula.current);
     }, description);
-  }
 
-  get [REACTIVE](): ReactiveInternals {
-    return this.#outputs[REACTIVE];
+    this[REACTIVE] = {
+      type: "delegate",
+      delegate: this.#outputs.frame,
+      description: description,
+    };
   }
 
   get current(): U[] {
     return this.read(callerStack());
   }
 
-  read(caller: Stack): U[] {
-    return this.#outputs.read(caller);
+  read(_caller: Stack): U[] {
+    return Frame.value(this.#outputs.poll());
   }
 
   #initialize(): Map<Key, Resource<U>> {
     return this.#update(Stack.EMPTY);
   }
 
-  #update(caller: Stack): Map<Key, Resource<U>> {
-    const next = this.#inputs.current;
+  #update(_caller: Stack): Map<Key, Resource<U>> {
+    const next = Frame.value(this.#inputs.poll());
 
     if (this.#map !== undefined && this.#last === next) {
       return this.#map;
@@ -142,7 +147,7 @@ class ReactiveResourceList<T, U> implements Reactive<U[]> {
         map.set(key, resource);
 
         if (this.#setup) {
-          Resource.setup(resource, caller);
+          Resource.setup(resource);
         }
       } else {
         map.set(key, formula);
@@ -167,7 +172,7 @@ export const ResourceList = <T, U>(
   iterable: Iterable<T>,
   options: {
     key: (item: T) => Key;
-    resource: (item: T) => CreateResource<U>;
+    resource: (item: T) => ResourceBlueprint<U>;
   },
   desc?: string | Description
 ): CreateResourceList<U> => {

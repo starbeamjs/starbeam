@@ -1,4 +1,4 @@
-import { Formula } from "@starbeam/core";
+import { FormulaFn } from "@starbeam/core";
 import { Query, Table } from "@starbeamx/store";
 import { describe, expect, test } from "vitest";
 
@@ -104,25 +104,25 @@ describe("queries", () => {
       .filter(({ name }) => name === "John")
       .and(({ location }) => location === "Berlin");
 
-    const johnInBerlin = Formula(() => cards(johnInBerlinQuery.rows));
+    const johnInBerlin = FormulaFn(() => cards(johnInBerlinQuery.rows));
 
     const berlinQuery = Query.for(people).filter(
       ({ location }) => location === "Berlin"
     );
 
-    const berliners = Formula(() => cards(berlinQuery.rows));
+    const berliners = FormulaFn(() => cards(berlinQuery.rows));
 
     const jNamesQuery = Query.for(people).filter(({ name }) =>
       name.startsWith("J")
     );
 
-    const jNames = Formula(() => cards(jNamesQuery.rows));
+    const jNames = FormulaFn(() => cards(jNamesQuery.rows));
 
     const johnOrBerlinQuery = Query.for(people)
       .filter(({ name }) => name === "John")
       .or(({ location }) => location === "Berlin");
 
-    const johnsAndBerliners = Formula(() => cards(johnOrBerlinQuery.rows));
+    const johnsAndBerliners = FormulaFn(() => cards(johnOrBerlinQuery.rows));
 
     expect(johnInBerlin.current).toEqual("<p>John (in Berlin)</p>");
     expect(berliners.current).toEqual("<p>John (in Berlin)</p>");
@@ -180,25 +180,25 @@ describe("queries", () => {
       .filter(({ name }) => name === "John")
       .and(({ location }) => location === "Berlin");
 
-    const johnInBerlin = Formula(() => cards(johnInBerlinQuery.rows));
+    const johnInBerlin = FormulaFn(() => cards(johnInBerlinQuery.rows));
 
     const berlinQuery = Query.for(people).filter(
       ({ location }) => location === "Berlin"
     );
 
-    const berliners = Formula(() => cards(berlinQuery.rows));
+    const berliners = FormulaFn(() => cards(berlinQuery.rows));
 
     const jNamesQuery = Query.for(people).filter(({ name }) =>
       name.startsWith("J")
     );
 
-    const jNames = Formula(() => cards(jNamesQuery.rows));
+    const jNames = FormulaFn(() => cards(jNamesQuery.rows));
 
     const johnOrBerlinQuery = Query.for(people)
       .filter(({ name }) => name === "John")
       .or(({ location }) => location === "Berlin");
 
-    const johnsAndBerliners = Formula(() => cards(johnOrBerlinQuery.rows));
+    const johnsAndBerliners = FormulaFn(() => cards(johnOrBerlinQuery.rows));
 
     expect(johnInBerlin.current).toEqual("<p>John (in Berlin)</p>");
     expect(berliners.current).toEqual("<p>John (in Berlin)</p>");

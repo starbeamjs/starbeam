@@ -1,152 +1,120 @@
-import type { Description } from "@starbeam/debug";
-import { REACTIVE } from "@starbeam/peer";
+import type { Description, Stack } from "@starbeam/debug";
+import type { UNINITIALIZED } from "@starbeam/peer";
 
-import { type IsUpdatedSince, InternalChildren } from "./internals.js";
-import type {
-  CompositeInternals,
-  MutableInternals,
-  ReactiveInternals,
-  ReactiveProtocol,
-} from "./reactive.js";
-import type { Timestamp } from "./timestamp.js";
+// eslint-disable-next-line import/no-cycle
+import { type Frame, ActiveFrame } from "./frame.js";
+import type { ReactiveProtocol } from "./protocol.js";
+import type { Subscriptions } from "./subscriptions.js";
+import type { Timeline } from "./timeline.js";
 
-export class ActiveFrame {
-  static create(description: Description): ActiveFrame {
-    return new ActiveFrame(new Set(), description);
+export class FrameStack {
+  static empty(timeline: Timeline, subscriptions: Subscriptions): FrameStack {
+    return new FrameStack(subscriptions, null, timeline);
   }
 
-  readonly #children: Set<ReactiveProtocol>;
-
-  private constructor(
-    children: Set<ReactiveProtocol>,
-    readonly description: Description
-  ) {
-    this.#children = children;
-  }
-
-  add(child: ReactiveProtocol): void {
-    this.#children.add(child);
-  }
-
-  finalize<T>(
-    value: T,
-    now: Timestamp
-  ): { readonly frame: FinalizedFrame<T>; readonly value: T } {
-    return {
-      frame: FinalizedFrame.create({
-        children: this.#children,
-        finalizedAt: now,
-        value,
-        description: this.description,
-      }),
-      value,
-    };
-  }
-}
-
-export interface ValidFrame<T> {
-  readonly status: "valid";
-  readonly value: T;
-}
-
-export interface InvalidFrame {
-  readonly status: "invalid";
-}
-
-export type FrameValidation<T> = ValidFrame<T> | InvalidFrame;
-
-class Composite implements CompositeInternals {
-  readonly type = "composite";
-  readonly #children: Set<ReactiveProtocol>;
-  readonly [REACTIVE] = this;
+  #subscriptions: Subscriptions;
+  #current: ActiveFrame<unknown> | null;
+  #timeline: Timeline;
 
   constructor(
-    children: Set<ReactiveProtocol>,
-    readonly description: Description,
-    readonly debug: { lastUpdated: Timestamp }
+    subscriptions: Subscriptions,
+    current: ActiveFrame<unknown> | null,
+    timeline: Timeline
   ) {
-    this.#children = children;
+    this.#subscriptions = subscriptions;
+    this.#current = current;
+    this.#timeline = timeline;
   }
 
-  children(): InternalChildren {
-    return InternalChildren.from([...this.#children]);
+  get currentFrame(): ActiveFrame<unknown> | null {
+    return this.#current;
   }
 
-  isUpdatedSince(timestamp: Timestamp): boolean {
-    return [...this.#children].some((child) =>
-      child[REACTIVE].isUpdatedSince(timestamp)
-    );
+  finally<T>(prev: ActiveFrame<T> | null): void {
+    this.#current = prev;
   }
-}
 
-export class FinalizedFrame<T = unknown>
-  implements ReactiveProtocol, IsUpdatedSince
-{
-  static create<T>({
-    children,
-    finalizedAt,
-    value,
+  // Indicate that a particular cell was used inside of the current computation.
+  didConsume(reactive: ReactiveProtocol, caller?: Stack): void {
+    const frame = this.currentFrame;
+    if (frame) {
+      frame.add(reactive);
+      return;
+    }
+  }
+
+  create<T>(options: { evaluate: () => T; description: Description }): Frame<T>;
+  create<T>(options: { description: Description }): ActiveFrame<T>;
+  create<T>({
+    evaluate,
     description,
   }: {
-    children: Set<ReactiveProtocol>;
-    finalizedAt: Timestamp;
-    value: T;
+    evaluate?: () => T;
     description: Description;
-  }): FinalizedFrame<T> {
-    return new FinalizedFrame(children, finalizedAt, value, description);
-  }
+  }): Frame<T> | ActiveFrame<T> {
+    const frame = this.#start(description) as ActiveFrame<T>;
 
-  readonly #children: Set<ReactiveProtocol>;
-  readonly #finalizedAt: Timestamp;
-  readonly #value: T;
-  readonly #composite: CompositeInternals;
-
-  private constructor(
-    children: Set<ReactiveProtocol>,
-    finalizedAt: Timestamp,
-    value: T,
-    readonly description: Description
-  ) {
-    this.#children = children;
-    this.#finalizedAt = finalizedAt;
-    this.#value = value;
-
-    this.#composite = new Composite(children, description, {
-      lastUpdated: finalizedAt,
-    });
-  }
-
-  get [REACTIVE](): ReactiveInternals {
-    return this.#composite;
-  }
-
-  get children(): readonly ReactiveProtocol[] {
-    return [...this.#children];
-  }
-
-  get dependencies(): readonly MutableInternals[] {
-    return this.children.flatMap((child) => [
-      ...child[REACTIVE].children().dependencies,
-    ]);
-  }
-
-  isUpdatedSince(timestamp: Timestamp): boolean {
-    let isUpdated = false;
-
-    for (const child of this.#children) {
-      if (child[REACTIVE].isUpdatedSince(timestamp)) {
-        isUpdated = true;
+    if (evaluate) {
+      try {
+        const result = evaluate();
+        return this.#end<T>(frame, result);
+      } catch (e) {
+        this.finally(frame);
+        throw e;
       }
+    } else {
+      return frame;
     }
-
-    return isUpdated;
   }
 
-  validate(): FrameValidation<T> {
-    if (this.isUpdatedSince(this.#finalizedAt)) {
-      return { status: "invalid" };
-    }
+  update<T>(options: {
+    updating: Frame<T | UNINITIALIZED>;
+    evaluate: () => T;
+  }): Frame<T>;
+  update<T>({
+    updating,
+  }: {
+    updating: Frame<T | UNINITIALIZED>;
+  }): ActiveFrame<T>;
+  update<T>({
+    updating,
+    evaluate: callback,
+  }: {
+    updating: Frame<T>;
+    evaluate?: () => T;
+  }): Frame<T> | ActiveFrame<T> {
+    const activeFrame = this.#start(
+      updating.description,
+      updating
+    ) as ActiveFrame<T>;
 
-    return { status: "valid", value: this.#value };
+    if (callback) {
+      try {
+        const result = callback();
+        const frame = this.#end<T>(activeFrame, result);
+        this.#subscriptions.update(frame);
+        return frame;
+      } catch (e) {
+        this.finally(activeFrame);
+        throw e;
+      }
+    } else {
+      return activeFrame;
+    }
+  }
+
+  #start<T>(description: Description, frame?: Frame<T>) {
+    const prev = this.#current;
+    return (this.#current = ActiveFrame.create(
+      frame ?? null,
+      prev,
+      description
+    ));
+  }
+
+  #end<T>(active: ActiveFrame<T>, value: T): Frame<T> {
+    const { prev, frame } = active.finalize(value, this.#timeline);
+    this.#current = prev;
+    return frame;
   }
 }
