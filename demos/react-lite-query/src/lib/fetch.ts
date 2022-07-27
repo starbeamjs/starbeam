@@ -4,7 +4,6 @@ export class Queries {
   readonly #queries = reactive.Map<string, { state: Async; query: Query }>();
 
   query<T>(key: string, query: () => Promise<T>): Async<T> {
-    debugger;
     let result = this.#queries.get(key);
 
     if (!result) {

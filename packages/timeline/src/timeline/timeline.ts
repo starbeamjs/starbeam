@@ -11,7 +11,7 @@ import {
 import { LIFETIME } from "../lifetime/api.js";
 import type { Unsubscribe } from "../lifetime/object-lifetime.js";
 import { FrameStack } from "./frames.js";
-import type { MutableInternals, ReactiveProtocol } from "./protocol.js";
+import { type MutableInternals, ReactiveProtocol } from "./protocol.js";
 import { Subscriptions } from "./subscriptions.js";
 import { NOW, Timestamp } from "./timestamp.js";
 
@@ -147,7 +147,8 @@ export class Timeline {
   get #debug() {
     if (!this.#debugTimeline) {
       const debugTimeline = (this.#debugTimeline = DebugTimeline.create(
-        Timestamp.zero()
+        Timestamp.zero(),
+        ReactiveProtocol
       ));
       this.on.rendered(() => debugTimeline.notify());
     }

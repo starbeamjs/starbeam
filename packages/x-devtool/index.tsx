@@ -5,23 +5,23 @@ import { h, Fragment, render, type JSX } from "preact";
 import "./src/devtool.css";
 
 import {
-  Reactive,
+  ReactiveProtocol,
   TIMELINE,
   type MutableInternals,
-  type ReactiveInternals,
 } from "@starbeam/timeline";
-import type {
-  Description,
-  DebugListener,
-  DebugOperation,
+import {
+  type Description,
+  type DebugListener,
+  type DebugOperation,
+  defaultDescription,
 } from "@starbeam/debug";
 
 export function Devtools(props: {
-  renderable: ReactiveInternals;
+  renderable: ReactiveProtocol;
   log: DebugOperation[];
 }): JSX.Element {
   function computeDependencies() {
-    return props.renderable.children().dependencies;
+    return ReactiveProtocol.dependencies(props.renderable);
   }
 
   function computeInvalidated() {
@@ -43,7 +43,9 @@ export function Devtools(props: {
           <ul class="dependencies">
             <li>
               <span class="specified">description</span>
-              <span class="kind">{props.renderable.description.fullName}</span>
+              <span class="kind">
+                {ReactiveProtocol.description(props.renderable).fullName}
+              </span>
             </li>
             <li>
               <span class="specified">last updated</span>
@@ -104,23 +106,23 @@ function Dependency({ description }: { description: Description }) {
 
 function unique(dependencies: MutableInternals[]): Description[] {
   const descriptions = new Set(
-    dependencies.map((d) => d.description.userFacing)
+    dependencies.map((d) => d.description?.userFacing ?? defaultDescription)
   );
 
   return [...descriptions];
 }
 
 export default function DevtoolsPane(
-  renderable: ReactiveInternals,
+  renderable: ReactiveProtocol,
   log: DebugOperation[],
   into: Element
-): { update: (renderable: ReactiveInternals, log: DebugOperation[]) => void } {
+): { update: (renderable: ReactiveProtocol, log: DebugOperation[]) => void } {
   const app = <Devtools renderable={renderable} log={log} />;
 
   render(app, into);
 
   return {
-    update: (renderable: ReactiveInternals, log: DebugOperation[]) => {
+    update: (renderable: ReactiveProtocol, log: DebugOperation[]) => {
       render(<Devtools renderable={renderable} log={log} />, into);
     },
   };
@@ -129,10 +131,10 @@ export default function DevtoolsPane(
 export function DevTools(
   listener: DebugListener,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  pollable: Pollable
+  reactive: ReactiveProtocol
 ): () => void {
   const pane = DevtoolsPane(
-    Reactive.internals(pollable),
+    reactive,
     listener.flush(),
     document.querySelector("#devtools") as Element
   );
@@ -140,6 +142,6 @@ export function DevTools(
   return () => {
     const log = listener.flush();
 
-    pane.update(Reactive.internals(pollable), log);
+    pane.update(reactive, log);
   };
 }

@@ -1,8 +1,8 @@
 import { type Description, descriptionFrom } from "@starbeam/debug";
-import type { Pollable } from "@starbeam/timeline";
+import type { Unsubscribe } from "@starbeam/timeline";
 import { TIMELINE } from "@starbeam/timeline";
 
-import { Formula } from "./reactive-core/formula/formula.js";
+import { FormulaFn } from "./reactive-core/formula/formula.js";
 
 export const DEBUG_RENDERER = {
   render<T>(
@@ -14,8 +14,8 @@ export const DEBUG_RENDERER = {
       debug: (value: T) => void;
     },
     description?: Description | string
-  ): Pollable {
-    const formula = Formula(
+  ): Unsubscribe {
+    const formula = FormulaFn(
       render,
       descriptionFrom({
         type: "renderer",
@@ -23,8 +23,10 @@ export const DEBUG_RENDERER = {
         fromUser: description,
       })
     );
-    return TIMELINE.render(formula, () => {
-      debug(formula.current);
+    return TIMELINE.on.change(formula, () => {
+      queueMicrotask(() => {
+        debug(formula.read());
+      });
     });
   },
 };

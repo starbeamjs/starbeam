@@ -31,6 +31,7 @@ export { describeModule } from "./src/module.js";
 export {
   type StackFrame,
   callerStack,
+  defaultDescription,
   descriptionFrom,
   entryPoint,
   isErrorWithStack,

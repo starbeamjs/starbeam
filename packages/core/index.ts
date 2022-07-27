@@ -16,4 +16,4 @@ export { FormulaList } from "./src/reactive-core/higher-level/formula-list.js";
 export { Freshness } from "./src/reactive-core/higher-level/freshness.js";
 export { ResourceList } from "./src/reactive-core/higher-level/resource-list.js";
 export { Marker } from "./src/reactive-core/marker.js";
-export { LIFETIME, REACTIVE, TIMELINE } from "@starbeam/timeline";
+export { LIFETIME, REACTIVE, Reactive, TIMELINE } from "@starbeam/timeline";

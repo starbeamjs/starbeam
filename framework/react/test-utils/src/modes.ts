@@ -143,7 +143,7 @@ class RenderResult<Props, T> {
     });
   }
 
-  unmount(): void {
+  async unmount(): Promise<void> {
     this.#result.unmount();
   }
 

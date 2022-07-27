@@ -5,14 +5,24 @@ export interface ReactiveProtocol<I extends Internals = Internals> {
   [REACTIVE]: I;
 }
 
-export interface Internals<
+export type Internals<
   Type extends "mutable" | "composite" | "static" | "delegate" =
     | "mutable"
     | "composite"
     | "static"
     | "delegate"
-> {
-  readonly type: Type;
+> = Type extends "mutable"
+  ? { readonly type: "mutable" }
+  : Type extends "composite"
+  ? { readonly type: "composite" }
+  : Type extends "static"
+  ? { readonly type: "static" }
+  : Type extends "delegate"
+  ? { readonly type: "delegate" }
+  : never;
+
+interface ReactiveProtocolStatics {
+  dependencies(reactive: ReactiveProtocol): Iterable<Internals<"mutable">>;
 }
 
 function reactiveInternals(reactive: ReactiveProtocol): Internals {
@@ -56,7 +66,7 @@ class Mutation extends AbstractDebugOperation {
   #children: Set<DebugOperation> = new Set();
   #parent: Mutation | null;
 
-  readonly for = undefined;
+  readonly for: Internals<"mutable"> | undefined = undefined;
 
   constructor(at: Timestamp, description: string, parent: Mutation | null) {
     super(at);
@@ -84,12 +94,14 @@ export type DebugFilter =
   | { type: "none" };
 
 function filterToPredicate(
-  filter: DebugFilter
+  filter: DebugFilter,
+  reactive: ReactiveProtocolStatics
 ): ((operation: DebugOperation) => boolean) | undefined {
   switch (filter.type) {
     case "by-reactive": {
-      const dependencies = reactiveDependencies(filter.reactive).children()
-        .dependencies;
+      const dependencies = reactive.dependencies(filter.reactive);
+      // const dependencies = reactiveDependencies(filter.reactive).children()
+      //   .dependencies;
 
       return (operation) => {
         if (operation.for === undefined) {
@@ -97,7 +109,7 @@ function filterToPredicate(
         } else if (operation.for.type === "mutable") {
           // if the operation is for a dependency of the reactive we're
           // filtering by, then it's a match.
-          return dependencies.has(operation.for);
+          return [...dependencies].includes(operation.for);
         } else {
           return false;
         }
@@ -113,8 +125,11 @@ function filterToPredicate(
 }
 
 export class DebugTimeline {
-  static create(updatedAt: Timestamp): DebugTimeline {
-    return new DebugTimeline(updatedAt);
+  static create(
+    updatedAt: Timestamp,
+    statics: ReactiveProtocolStatics
+  ): DebugTimeline {
+    return new DebugTimeline(updatedAt, statics);
   }
 
   static Flush = class Flush {
@@ -157,7 +172,7 @@ export class DebugTimeline {
     flush(): DebugOperation[] {
       const flush = this.#timeline.#flush(
         this.#offset,
-        filterToPredicate(this.#filter)
+        filterToPredicate(this.#filter, this.#timeline.#statics)
       );
       this.#offset = this.#timeline.#end;
       this.#timeline.#prune();
@@ -171,13 +186,15 @@ export class DebugTimeline {
   };
 
   #lastUpdate: Timestamp;
+  #statics: ReactiveProtocolStatics;
   #trimOffset = 0;
   #operationList: DebugOperation[] = [];
   #currentMutation: Mutation | null = null;
   #listeners: Set<DebugListener> = new Set();
 
-  private constructor(lastUpdate: Timestamp) {
+  private constructor(lastUpdate: Timestamp, statics: ReactiveProtocolStatics) {
     this.#lastUpdate = lastUpdate;
+    this.#statics = statics;
   }
 
   notify(): void {
@@ -234,9 +251,9 @@ export class DebugTimeline {
     const internals = reactiveInternals(reactive);
 
     if (internals.type === "mutable") {
-      this.#consumeCell(internals as Internals<"mutable">);
+      this.#consumeCell(internals);
     } else if (internals.type === "composite") {
-      this.#consumeFrame(internals as Internals<"composite">);
+      this.#consumeFrame(internals);
     }
   }
 

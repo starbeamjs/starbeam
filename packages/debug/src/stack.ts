@@ -429,6 +429,11 @@ export const entryPoint = PickedStack.entryPoint;
 /** This should be convertable to something like Description.EMPTY in prod builds  */
 export const descriptionFrom = PickedStack.description;
 
+export const defaultDescription = descriptionFrom({
+  type: "erased",
+  api: "anonymous",
+});
+
 export const callerStack = PickedStack.fromCaller;
 
 export function isErrorWithStack(error: unknown): error is ErrorWithStack {

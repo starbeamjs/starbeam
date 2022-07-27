@@ -17,7 +17,6 @@ import {
   type Reactive,
   type ReactiveInternals,
   type ReactiveProtocol,
-  type Subscription,
   type Unsubscribe,
   LIFETIME,
   REACTIVE,
@@ -132,7 +131,7 @@ class Refs {
 }
 
 export interface DebugLifecycle {
-  (listener: DebugListener, subscription: Subscription): () => void;
+  (listener: DebugListener, reactive: ReactiveProtocol): () => void;
 }
 
 /**
