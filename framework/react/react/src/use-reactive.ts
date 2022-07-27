@@ -1,4 +1,4 @@
-import { Cell, LIFETIME, PolledFormula, TIMELINE } from "@starbeam/core";
+import { Cell, LIFETIME, PolledFormulaFn, TIMELINE } from "@starbeam/core";
 import type { Description } from "@starbeam/debug";
 import { descriptionFrom } from "@starbeam/debug";
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
@@ -26,12 +26,12 @@ export function useReactive<T>(compute: () => T, description?: string): T {
   const [, setNotify] = useState({});
 
   const formula = useLifecycle(compute, (lifecycle) => {
-    const formula = PolledFormula(() => {
+    const formula = PolledFormulaFn(() => {
       return compute();
     }, desc);
 
-    lifecycle.on.update((compute) => {
-      formula.update(compute);
+    lifecycle.on.update((newCompute) => {
+      compute = newCompute;
     });
 
     lifecycle.on.layout(() => {

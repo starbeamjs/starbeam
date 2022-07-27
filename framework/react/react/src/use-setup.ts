@@ -1,7 +1,13 @@
-import { PolledFormula, Reactive } from "@starbeam/core";
+import { PolledFormulaFn } from "@starbeam/core";
 import { isObject } from "@starbeam/core-utils";
 import { type Description, descriptionFrom, Message } from "@starbeam/debug";
-import { isDebug, LIFETIME, TIMELINE } from "@starbeam/timeline";
+import {
+  isDebug,
+  LIFETIME,
+  Reactive,
+  ReactiveProtocol,
+  TIMELINE,
+} from "@starbeam/timeline";
 import {
   isRendering,
   unsafeTrackedElsewhere,
@@ -19,7 +25,7 @@ if (isDebug()) {
       if (!WARNED) {
         WARNED = true;
 
-        const description = Reactive.description(reactive).userFacing;
+        const description = ReactiveProtocol.description(reactive).userFacing;
         const caller = stack.caller;
 
         const message = Message([
@@ -146,6 +152,7 @@ export function useReactiveSetup<T>(
 
   const [, setNotify] = useState({});
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const instance = useLifecycle((lifecycle) => {
     const element = ReactiveElement.create(() => setNotify({}), desc);
     const instance = unsafeTrackedElsewhere(() => callback(element));
@@ -174,18 +181,18 @@ export function useReactiveSetup<T>(
     if (Reactive.is(instance)) {
       reactive = instance;
     } else {
-      reactive = PolledFormula(instance, desc);
+      reactive = PolledFormulaFn(instance, desc);
     }
 
     lifecycle.on.layout(() => {
       ReactiveElement.layout(element);
 
-      const renderedValue = TIMELINE.on.change(reactive, () => {
+      const unsubscribe = TIMELINE.on.change(reactive, () => {
         setNotify({});
       });
 
       lifecycle.on.cleanup(() => {
-        LIFETIME.finalize(renderedValue);
+        unsubscribe();
         LIFETIME.finalize(setups);
       });
     });
@@ -193,5 +200,5 @@ export function useReactiveSetup<T>(
     return reactive;
   });
 
-  return unsafeTrackedElsewhere(() => instance.current);
+  return unsafeTrackedElsewhere(() => instance.read());
 }

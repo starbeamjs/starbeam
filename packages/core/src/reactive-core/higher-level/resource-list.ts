@@ -109,7 +109,7 @@ class ReactiveResourceList<T, U> implements Reactive<U[]> {
 
     this[REACTIVE] = {
       type: "delegate",
-      delegate: this.#outputs.frame,
+      delegate: [this.#outputs.frame],
       description: description,
     };
   }

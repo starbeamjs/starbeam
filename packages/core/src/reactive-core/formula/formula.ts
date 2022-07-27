@@ -96,7 +96,7 @@ export function FormulaFn<T>(
     value: {
       type: "delegate",
       description,
-      delegate: formula.frame,
+      delegate: [formula.frame],
     },
   });
 

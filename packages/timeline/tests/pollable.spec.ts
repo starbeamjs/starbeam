@@ -68,7 +68,7 @@ describe("pollable", () => {
       read: () => cell.current,
       [REACTIVE]: {
         type: "delegate",
-        delegate: cell,
+        delegate: [cell],
       },
     };
 
@@ -95,7 +95,7 @@ describe("pollable", () => {
       read: () => sum.read(),
       [REACTIVE]: {
         type: "delegate",
-        delegate: sum,
+        delegate: [sum],
       },
     };
 
@@ -158,7 +158,7 @@ function Sum() {
     },
     [REACTIVE]: {
       type: "delegate",
-      delegate: frame,
+      delegate: [frame],
     },
   };
 

@@ -31,13 +31,13 @@ export function CompositeInternals(
 
 export function DelegateInternals(
   this: void,
-  delegate: ReactiveProtocol,
+  delegate: readonly ReactiveProtocol[],
   description?: Description
 ): DelegateInternals {
   return {
     type: "delegate",
     description,
-    delegate,
+    delegate: [...delegate],
   };
 }
 
@@ -66,7 +66,7 @@ export class MutableInternalsImpl implements MutableInternals {
       throw TypeError("Cannot update frozen object");
     }
 
-    this.#lastUpdated = TIMELINE.bump();
+    this.#lastUpdated = TIMELINE.bump(this);
   }
 }
 

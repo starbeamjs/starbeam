@@ -7,11 +7,6 @@ import {
 import type { UNINITIALIZED } from "@starbeam/peer";
 import { type Reactive, Frame, REACTIVE, TIMELINE } from "@starbeam/timeline";
 
-interface LastEvaluation<T> {
-  readonly frame: Frame<T>;
-  readonly value: T;
-}
-
 /**
  * A {@linkcode PolledFormula} is like a {@linkcode Formula}, but it never attempts to avoid running the
  * formula function when the formula is still valid.
@@ -112,7 +107,7 @@ export function PolledFormulaFn<T>(
     value: {
       type: "delegate",
       description,
-      delegate: formula.frame,
+      delegate: [formula.frame],
     },
   });
 

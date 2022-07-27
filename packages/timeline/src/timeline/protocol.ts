@@ -21,7 +21,7 @@ export interface CompositeInternals {
 export interface DelegateInternals {
   readonly type: "delegate";
   readonly description?: Debug.Description;
-  readonly delegate: ReactiveProtocol;
+  readonly delegate: ReactiveProtocol[];
 }
 
 export interface StaticInternals {
@@ -52,7 +52,7 @@ type DefaultMatcher<T> = Partial<ExhaustiveMatcher<T>> & {
 type Matcher<T> = ExhaustiveMatcher<T> | DefaultMatcher<T>;
 
 export const ReactiveProtocol = {
-  description(reactive: ReactiveProtocol): Debug.Description {
+  description(this: void, reactive: ReactiveProtocol): Debug.Description {
     let desc = reactive[REACTIVE].description;
 
     if (!desc) {
@@ -70,7 +70,7 @@ export const ReactiveProtocol = {
     return desc;
   },
 
-  match<T>(reactive: ReactiveProtocol, matcher: Matcher<T>): T {
+  match<T>(this: void, reactive: ReactiveProtocol, matcher: Matcher<T>): T {
     return invoke(reactive[REACTIVE], matcher);
 
     function invoke<T>(internals: ReactiveInternals, matcher: Matcher<T>): T {
@@ -83,13 +83,13 @@ export const ReactiveProtocol = {
     }
   },
 
-  subscribesTo(reactive: ReactiveProtocol): ReactiveProtocol {
+  subscribesTo(this: void, reactive: ReactiveProtocol): ReactiveProtocol[] {
     const internals = reactive[REACTIVE];
 
     if (internals.type === "delegate") {
-      return ReactiveProtocol.subscribesTo(internals.delegate);
+      return internals.delegate.flatMap(ReactiveProtocol.subscribesTo);
     } else {
-      return reactive;
+      return [reactive];
     }
   },
 
@@ -109,7 +109,9 @@ export const ReactiveProtocol = {
         yield internals;
         break;
       case "delegate":
-        yield* ReactiveProtocol.dependencies(internals.delegate);
+        for (const protocol of ReactiveProtocol.subscribesTo(reactive)) {
+          yield* ReactiveProtocol.dependencies(protocol);
+        }
         break;
       case "composite":
         yield* ReactiveProtocol.dependenciesInList(internals.children());
@@ -135,7 +137,8 @@ export const ReactiveProtocol = {
       case "mutable":
         return internals.lastUpdated;
       case "delegate": {
-        return ReactiveProtocol.lastUpdated(internals.delegate);
+        const delegates = ReactiveProtocol.subscribesTo(reactive);
+        return ReactiveProtocol.lastUpdatedIn(delegates);
       }
       case "composite": {
         let lastUpdatedTimestamp = Timestamp.zero();

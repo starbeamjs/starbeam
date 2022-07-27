@@ -4,7 +4,7 @@ import { ReactiveProtocol } from "./protocol.js";
 import { Timestamp } from "./timestamp.js";
 import { diff } from "./utils.js";
 
-class Subscription {
+export class Subscription {
   #dependencies: Set<MutableInternals>;
   #lastNotified: undefined | Timestamp;
   #ready: () => void;
@@ -19,7 +19,7 @@ class Subscription {
     this.#ready = ready;
   }
 
-  update(dependencies: Set<MutableInternals>) {
+  update(dependencies: Set<MutableInternals>): void {
     this.#dependencies = dependencies;
   }
 
@@ -31,13 +31,7 @@ class Subscription {
     return this.#lastNotified;
   }
 
-  // get lastUpdated(): Timestamp {
-  //   return Timestamp.max(
-  //     ...[...this.#dependencies].map((dependency) => dependency.lastUpdated)
-  //   );
-  // }
-
-  notify(timestamp: Timestamp) {
+  notify(timestamp: Timestamp): void {
     this.#lastNotified = timestamp;
     this.#ready();
   }
@@ -79,10 +73,14 @@ export class Subscriptions {
       this.#addDep(dependency, subscription);
     }
 
-    this.#addReactive(subscribesTo, subscription);
+    for (const subscribeTo of subscribesTo) {
+      this.#addReactive(subscribeTo, subscription);
+    }
 
     return () => {
-      this.#removeReactive(subscribesTo, subscription);
+      for (const subscribeTo of subscribesTo) {
+        this.#removeReactive(subscribeTo, subscription);
+      }
     };
   }
 

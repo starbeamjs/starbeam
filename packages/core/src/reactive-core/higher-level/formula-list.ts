@@ -81,7 +81,7 @@ class ReactiveFormulaList<T, U> implements Reactive<U[]> {
 
     this[REACTIVE] = {
       type: "delegate",
-      delegate: this.#outputs,
+      delegate: [this.#outputs],
     };
   }
 

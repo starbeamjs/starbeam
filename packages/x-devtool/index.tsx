@@ -4,9 +4,8 @@
 import { h, Fragment, render, type JSX } from "preact";
 import "./src/devtool.css";
 
-import { Reactive } from "@starbeam/core";
 import {
-  type Pollable,
+  Reactive,
   TIMELINE,
   type MutableInternals,
   type ReactiveInternals,

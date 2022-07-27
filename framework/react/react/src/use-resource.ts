@@ -1,12 +1,12 @@
 import {
-  type CreateResource,
+  type ResourceBlueprint,
   Cell,
-  PolledFormula,
+  PolledFormulaFn,
   Resource,
   TIMELINE,
 } from "@starbeam/core";
 import type { Description } from "@starbeam/debug";
-import { callerStack, descriptionFrom } from "@starbeam/debug";
+import { descriptionFrom } from "@starbeam/debug";
 import { LIFETIME } from "@starbeam/timeline";
 import {
   unsafeTrackedElsewhere,
@@ -15,7 +15,7 @@ import {
 import { useState } from "react";
 
 function createResource<T>(
-  resource: () => CreateResource<T>,
+  resource: () => ResourceBlueprint<T>,
   deps: unknown[] | undefined,
   description: string | Description | undefined
 ): T {
@@ -24,8 +24,6 @@ function createResource<T>(
     api: "useReactiveSetup",
     fromUser: description,
   });
-
-  const caller = callerStack();
 
   const [, setNotify] = useState({});
 
@@ -41,7 +39,7 @@ function createResource<T>(
 
     const resourceCell = Cell(currentResource);
 
-    const value = PolledFormula(() => {
+    const value = PolledFormulaFn(() => {
       return resourceCell.current.current;
     }, desc);
 
@@ -57,14 +55,14 @@ function createResource<T>(
         resourceCell.set(currentResource);
 
         if (setup) {
-          Resource.setup(currentResource, caller);
+          Resource.setup(currentResource);
         }
       }
     });
 
     lifecycle.on.layout(() => {
       setup = true;
-      Resource.setup(resourceCell.current, caller);
+      Resource.setup(resourceCell.current);
 
       const renderer = TIMELINE.on.change(value, () => {
         setNotify({});
@@ -82,7 +80,7 @@ function createResource<T>(
 }
 
 export function useResource<T>(
-  resource: () => CreateResource<T>,
+  resource: () => ResourceBlueprint<T>,
   deps?: unknown[] | string | Description,
   description?: string | Description
 ): T {

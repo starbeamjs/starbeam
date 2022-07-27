@@ -7,6 +7,7 @@ export {
   PolledFormulaFn,
 } from "./src/reactive-core/formula/polled-formula.js";
 export {
+  type ResourceBlueprint,
   type ResourceBuilder,
   Resource,
 } from "./src/reactive-core/formula/resource.js";
