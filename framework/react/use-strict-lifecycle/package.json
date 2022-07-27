@@ -26,8 +26,6 @@
     "expect": "^27.5.1",
     "jest": "^27.5.1",
     "jsdom": "^19.0.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "shelljs": "^0.8.5",
     "shell-escape-tag": "^2.0.2"
   },

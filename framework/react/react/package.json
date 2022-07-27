@@ -12,19 +12,14 @@
     "@starbeam/timeline": "workspace:^",
     "@starbeam/peer": "workspace:^",
     "@starbeam/js": "workspace:^",
-    "@starbeam/modifier": "workspace:^",
-    "@types/use-sync-external-store": "ts4.6",
-    "use-sync-external-store": "rc"
+    "@starbeam/modifier": "workspace:^"
   },
   "devDependencies": {
-    "@types/react": "^18.0.9",
-    "react": "^18.1.0",
-    "react-dom": "^18.1.0",
-    "typescript": "next"
+    "@types/react": "^18.0.9"
   },
   "peerDependencies": {
-    "react": "^18.1.0",
-    "react-dom": "^18.1.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "publishConfig": {
     "main": "dist/index.cjs",
