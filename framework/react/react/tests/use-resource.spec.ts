@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 
-import type { Reactive } from "@starbeam/core";
-import { Cell, Resource, TIMELINE } from "@starbeam/core";
+import { Cell, Resource } from "@starbeam/core";
 import { entryPoint } from "@starbeam/debug";
 import { useProp, useResource } from "@starbeam/react";
+import type { Reactive } from "@starbeam/timeline";
 import {
   html,
   react,
@@ -18,7 +18,7 @@ function ChannelResource(name: Reactive<string>) {
     const lastMessage = Cell<string | null>(null);
 
     r.on.setup(() => {
-      const c = Channel.subscribe(name.current);
+      const c = Channel.subscribe(name.read());
 
       c.onMessage((message) => {
         lastMessage.set(message);
@@ -62,9 +62,7 @@ describe("useResource", () => {
             return;
           }
 
-          TIMELINE.enqueueAction(() => {
-            Channel.sendMessage(latest, message);
-          });
+          Channel.sendMessage(latest, message);
         });
       }
 

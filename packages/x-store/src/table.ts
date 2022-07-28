@@ -1,5 +1,4 @@
-import { TIMELINE } from "@starbeam/core";
-import { type Description, descriptionFrom } from "@starbeam/debug";
+import { type Description, descriptionFrom, entryPoint } from "@starbeam/debug";
 import { reactive } from "@starbeam/js";
 
 import type { Groups } from "./flat.js";
@@ -67,7 +66,7 @@ export class Table<U extends UserTypes> extends FlatRows<U> {
   }
 
   get rows(): TableTypesFor<U>["Row"][] {
-    return TIMELINE.entryPoint(() => [...this.#rows.values()]);
+    return entryPoint(() => [...this.#rows.values()]);
   }
 
   append(

@@ -13,6 +13,7 @@
     "moduleResolution": "nodenext",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "experimentalDecorators": true,
+    "emitDecoratorMetadata": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noImplicitReturns": true,

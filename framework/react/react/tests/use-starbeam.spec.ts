@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { Cell, Formula, LIFETIME, PolledFormula } from "@starbeam/core";
+import { Cell, FormulaFn, LIFETIME, PolledFormulaFn } from "@starbeam/core";
 import { useReactive, useReactiveSetup } from "@starbeam/react";
 import {
   html,
@@ -38,7 +38,6 @@ describe("useStarbeam", () => {
     expect(result.value).toBe(0);
 
     await result.find("button").fire.click();
-
     expect(result.value).toBe(1);
   });
 
@@ -87,7 +86,7 @@ describe("useStarbeam", () => {
           ++id;
           const counter = useReactiveSetup(() => {
             const cell = Cell(0, `#${id}`);
-            return Formula(() => ({ counter: cell.current }), `inner #${id}`);
+            return FormulaFn(() => ({ counter: cell.current }), `inner #${id}`);
           }, `#${id}`);
 
           test.value(counter);
@@ -114,7 +113,7 @@ describe("useStarbeam", () => {
           const { formula, increment } = useReactiveSetup(() => {
             const cell = Cell(0, `#${id}`);
             return () => ({
-              formula: Formula(
+              formula: FormulaFn(
                 () => ({ counter: cell.current }),
                 `inner #${id}`
               ),
@@ -124,7 +123,7 @@ describe("useStarbeam", () => {
             });
           }, `#${id}`);
 
-          const counter = useReactive(() => formula());
+          const counter = useReactive(formula);
 
           test.value(counter);
 
@@ -224,7 +223,7 @@ describe("useStarbeam", () => {
               cell.update((count) => count + 1);
             }
 
-            return PolledFormula(() => {
+            return PolledFormulaFn(() => {
               const [reactCount, setReactCount] = useState(0);
 
               test.value({ starbeam: cell.current, react: reactCount });

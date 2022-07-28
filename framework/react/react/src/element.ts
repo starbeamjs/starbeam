@@ -1,18 +1,20 @@
 import type { browser } from "@domtree/flavors";
-import type { Reactive } from "@starbeam/core";
 import {
   type Cell,
-  type CreateResource,
-  CompositeInternals,
+  type ResourceBlueprint,
   Resource,
   Setups,
 } from "@starbeam/core";
-import type { Description } from "@starbeam/debug";
-import { type DebugListener, callerStack } from "@starbeam/debug";
+import {
+  type DebugListener,
+  type Description,
+  callerStack,
+  descriptionFrom,
+} from "@starbeam/debug";
 import {
   type CleanupTarget,
   type OnCleanup,
-  type Pollable,
+  type Reactive,
   type ReactiveInternals,
   type ReactiveProtocol,
   type Unsubscribe,
@@ -129,7 +131,7 @@ class Refs {
 }
 
 export interface DebugLifecycle {
-  (listener: DebugListener, pollable: Pollable): () => void;
+  (listener: DebugListener, reactive: ReactiveProtocol): () => void;
 }
 
 /**
@@ -156,7 +158,6 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
     return new ReactiveElement(
       notify,
       Lifecycle.create(description),
-      new Set(),
       Refs.None(),
       description
     );
@@ -166,29 +167,30 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
     return new ReactiveElement(
       prev.notify,
       Lifecycle.create(prev.#description),
-      prev.#pollable,
       prev.#refs.fromPrev(),
       prev.#description
     );
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static attach(element: ReactiveElement, pollable: Pollable): void {
-    if (element.#debugLifecycle) {
-      const lifecycle = element.#debugLifecycle;
-      const listener = pollable.attach(() => {
-        invalidate();
-      });
-      const invalidate = lifecycle(listener, pollable);
-    }
-  }
+  // // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // static attach(element: ReactiveElement, subscription: Subscription): void {
+  //   if (element.#debugLifecycle) {
+  //     const lifecycle = element.#debugLifecycle;
+  //     const listener = subscription.attach(() => {
+  //       invalidate();
+  //     });
+  //     const invalidate = lifecycle(listener, pollable);
+  //   }
+  // }
 
   static layout(element: ReactiveElement): void {
-    element.#lifecycle.layout();
+    element.#lifecycle.layout.read();
+    TIMELINE.update(element);
   }
 
   static idle(element: ReactiveElement): void {
-    element.#lifecycle.idle();
+    element.#lifecycle.idle.read();
+    TIMELINE.update(element);
   }
 
   static cleanup(element: ReactiveElement): void {
@@ -196,36 +198,31 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
     element.#lifecycle = Lifecycle.create(element.#description);
   }
 
-  readonly #pollable: Set<(pollable: Pollable) => void>;
   #lifecycle: Lifecycle;
   #debugLifecycle: DebugLifecycle | null = null;
   #refs: Refs;
-  #description: Description;
+  readonly #description: Description;
+  readonly [REACTIVE]: ReactiveInternals;
 
   private constructor(
     readonly notify: () => void,
     lifecycle: Lifecycle,
-    renderable: Set<(pollable: Pollable) => void>,
     refs: Refs,
     description: Description
   ) {
     this.#lifecycle = lifecycle;
     this.on = Lifecycle.on(lifecycle, this);
-    this.#pollable = renderable;
     this.#refs = refs;
     this.#description = description;
+
+    this[REACTIVE] = {
+      type: "delegate",
+      delegate: [lifecycle.layout, lifecycle.idle],
+      description,
+    };
   }
 
   readonly on: OnLifecycle;
-
-  get [REACTIVE](): ReactiveInternals {
-    return this.#lifecycle[REACTIVE];
-  }
-
-  poll(): void {
-    this.#lifecycle.poll();
-    TIMELINE.update(this);
-  }
 
   link(child: object): Unsubscribe {
     return LIFETIME.link(this, child);
@@ -235,10 +232,10 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
     this.#debugLifecycle = lifecycle;
   }
 
-  use<T>(resource: CreateResource<T>, caller = callerStack()): Resource<T> {
+  use<T>(resource: ResourceBlueprint<T>, _caller = callerStack()): Resource<T> {
     const r = resource.create({ owner: this });
 
-    this.on.layout(() => Resource.setup(r, caller));
+    this.on.layout(() => Resource.setup(r));
 
     return r;
   }
@@ -259,7 +256,7 @@ interface OnLifecycle extends OnCleanup {
   readonly layout: (attached: Callback) => void;
 }
 
-class Lifecycle implements ReactiveProtocol {
+class Lifecycle {
   static create(description: Description): Lifecycle {
     return new Lifecycle(Setups(description), Setups(description), description);
   }
@@ -270,8 +267,37 @@ class Lifecycle implements ReactiveProtocol {
     return {
       cleanup: (finalizer: Callback) =>
         LIFETIME.on.cleanup(instance, finalizer),
-      idle: (idle: Callback) => lifecycle.#idle.register(idle),
-      layout: (layout: Callback) => lifecycle.#layout.register(layout),
+      idle: (idle: Callback, description?: string | Description) => {
+        const desc = descriptionFrom({
+          type: "resource",
+          api: {
+            package: "@starbeam/react",
+            name: "ReactiveElement",
+            method: {
+              name: "on.idle",
+              type: "instance",
+            },
+          },
+          fromUser: description,
+        });
+        return lifecycle.#idle.register(idle, desc);
+      },
+      layout: (layout: Callback, description?: string | Description) => {
+        const desc = descriptionFrom({
+          type: "resource",
+          api: {
+            package: "@starbeam/react",
+            name: "ReactiveElement",
+            method: {
+              name: "on.layout",
+              type: "instance",
+            },
+          },
+          fromUser: description,
+        });
+
+        return lifecycle.#layout.register(layout, desc);
+      },
     } as const;
   }
 
@@ -288,21 +314,12 @@ class Lifecycle implements ReactiveProtocol {
     LIFETIME.link(this, layout);
   }
 
-  get [REACTIVE]() {
-    return CompositeInternals([this.#idle, this.#layout], this.#description);
+  get idle(): Reactive<void> {
+    return this.#idle.setups;
   }
 
-  idle(): void {
-    this.#idle.poll();
-  }
-
-  layout(): void {
-    this.#layout.poll();
-  }
-
-  poll() {
-    this.#idle.poll();
-    this.#layout.poll();
+  get layout(): Reactive<void> {
+    return this.#layout.setups;
   }
 }
 

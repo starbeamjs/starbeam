@@ -1,6 +1,4 @@
-import { Cell, Resource } from "@starbeam/core";
-import { Stack } from "@starbeam/debug";
-import { LIFETIME } from "@starbeam/timeline";
+import { Cell, LIFETIME, Resource } from "@starbeam/core";
 import { describe, expect, test } from "vitest";
 
 class Subscription {
@@ -43,20 +41,24 @@ describe("resources", () => {
         const s = Subscription.subscribe(channel.current);
         socket.set(s);
 
-        return () => s.disconnect();
+        return () => {
+          return s.disconnect();
+        };
       });
 
-      return () => ({
-        socket: socket.current,
-        description: `${username.current} @ ${channel.current}`,
-      });
+      return () => {
+        return {
+          socket: socket.current,
+          description: `${username.current} @ ${channel.current}`,
+        };
+      };
     }).create({ owner: parent });
 
     let last = resource.current;
     expect(last.description).toBe("@tomdale @ emails");
     expect(last.socket).toBe(undefined);
 
-    Resource.setup(resource, Stack.EMPTY);
+    Resource.setup(resource);
 
     let next = resource.current;
     expect(next.description).toBe("@tomdale @ emails");

@@ -1,4 +1,4 @@
-import { Cell, Formula } from "@starbeam/core";
+import { Cell, FormulaFn } from "@starbeam/core";
 // eslint-disable-next-line unused-imports/no-unused-imports, @typescript-eslint/no-unused-vars
 import { cached, reactive } from "@starbeam/js";
 import { describe, expect, test } from "vitest";
@@ -8,20 +8,20 @@ describe("A reactive formula", () => {
     const name = Cell("@tomdale");
     const location = Cell("New York");
 
-    const card = Formula(() => `${name.current} (${location.current})`);
+    const card = FormulaFn(() => `${name.current} (${location.current})`);
 
-    expect(card.current).toBe("@tomdale (New York)");
+    expect(card()).toBe("@tomdale (New York)");
 
     name.set("Tom Dale");
 
-    expect(card.current).toBe("Tom Dale (New York)");
+    expect(card()).toBe("Tom Dale (New York)");
   });
 
   test("produces stable values if inputs don't change", () => {
     const name = Cell("@tomdale");
     const location = Cell("New York");
 
-    const card = Formula(() => ({
+    const card = FormulaFn(() => ({
       name: name.current,
       location: location.current,
     }));
@@ -65,7 +65,7 @@ describe("A reactive formula", () => {
     const name = Cell("@tomdale");
     const location = Cell("New York");
 
-    const card = Formula(() => ({
+    const card = FormulaFn(() => ({
       name: name.current,
       location: location.current,
     }));
@@ -101,7 +101,7 @@ describe("A reactive formula", () => {
       { equals: (a, b) => a.name === b.name && a.location === b.location }
     );
 
-    const card = Formula(() => ({
+    const card = FormulaFn(() => ({
       name: person.current.name,
       location: person.current.location,
     }));
@@ -149,8 +149,8 @@ describe("A reactive formula", () => {
     const location = Cell("New York");
     const organization = Cell("LinkedIn");
 
-    const card = Formula(() => `${name.current} (${location.current})`);
-    const complete = Formula(
+    const card = FormulaFn(() => `${name.current} (${location.current})`);
+    const complete = FormulaFn(
       () => `${card.current} at ${organization.current}`
     );
 
@@ -203,7 +203,7 @@ test("Formula using cells", () => {
   const person = new Person("Tom", "USA");
   let counter = 0;
 
-  const formatted = Formula(() => {
+  const formatted = FormulaFn(() => {
     counter++;
     return person.formatted(false);
   });
@@ -242,7 +242,7 @@ test("Formula using the @reactive decorator", () => {
   const person = new Person("Tom", "USA");
   let counter = 0;
 
-  const formatted = Formula(() => {
+  const formatted = FormulaFn(() => {
     counter++;
     return person.formatted(false);
   });

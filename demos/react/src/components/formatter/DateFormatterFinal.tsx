@@ -65,8 +65,8 @@ function Clock(
 
     return () => ({
       formatted: formatTime(date.now, {
-        timeZone: typeof timeZone === "string" ? timeZone : timeZone.current,
-        locale: typeof locale === "string" ? locale : locale.current,
+        timeZone: typeof timeZone === "string" ? timeZone : timeZone.read(),
+        locale: typeof locale === "string" ? locale : locale.read(),
       }),
       refresh,
     });

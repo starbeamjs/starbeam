@@ -1,4 +1,4 @@
-import { Formula } from "@starbeam/core";
+import { FormulaFn } from "@starbeam/core";
 import { reactive } from "@starbeam/js";
 import { describe, expect, test } from "vitest";
 
@@ -10,9 +10,9 @@ describe("TrackedObject", () => {
   test("adding and deleting items updates the size", () => {
     const object = reactive.object<Record<string, string>>({});
 
-    const size = Formula(() => Object.keys(object).length);
-    const described = Formula(() => `The object has ${size.current} items`);
-    const isEmpty = Formula(() => size.current === 0);
+    const size = FormulaFn(() => Object.keys(object).length);
+    const described = FormulaFn(() => `The object has ${size.current} items`);
+    const isEmpty = FormulaFn(() => size.current === 0);
 
     expect(size.current).toBe(0);
     expect(described.current).toBe("The object has 0 items");

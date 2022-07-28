@@ -44,7 +44,7 @@ export default function (props: { locale: string }) {
       const filter = Cell("", "filter");
 
       const query = () => {
-        return people.filter(filter.current).sort("name", locale.current);
+        return people.filter(filter.current).sort("name", locale.read());
       };
 
       function rows() {

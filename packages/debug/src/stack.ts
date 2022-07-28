@@ -168,6 +168,7 @@ if (isDebug()) {
       if ("captureStackTrace" in Error) {
         const err = {} as { stack: string };
         Error.captureStackTrace(err, DebugStack.create);
+
         return DebugStack.fromStack(err.stack).slice(internal);
       } else {
         const stack = Error(
@@ -247,16 +248,19 @@ if (isDebug()) {
       callback: () => T,
       {
         extra = 0,
-        stack = Stack.create(1 + extra),
+        stack = DebugStack.create(1 + extra),
       }: { extra?: number; stack?: Stack } = {}
     ): T {
       try {
         return callback();
       } catch (e) {
-        const errorStack = Stack.from(e);
+        if (isErrorWithStack(e)) {
+          const errorStack = DebugStack.from(e);
 
-        if (errorStack) {
-          Stack.replaceFrames(e, stack);
+          if (errorStack) {
+            errorStack.replaceFrames(stack as DebugStack);
+            e.stack = errorStack.stack;
+          }
         }
         throw e;
       }
@@ -363,14 +367,6 @@ if (isDebug()) {
       return module.display({ action: this.action, loc: this.loc });
     }
   }
-
-  function isErrorWithStack(error: unknown): error is ErrorWithStack {
-    return (
-      isObject(error) &&
-      error instanceof Error &&
-      typeof error.stack === "string"
-    );
-  }
 } else {
   /**
    * A stub implementation of the `Stack` infrastructure that doesn't do anything.
@@ -433,4 +429,15 @@ export const entryPoint = PickedStack.entryPoint;
 /** This should be convertable to something like Description.EMPTY in prod builds  */
 export const descriptionFrom = PickedStack.description;
 
+export const defaultDescription = descriptionFrom({
+  type: "erased",
+  api: "anonymous",
+});
+
 export const callerStack = PickedStack.fromCaller;
+
+export function isErrorWithStack(error: unknown): error is ErrorWithStack {
+  return (
+    isObject(error) && error instanceof Error && typeof error.stack === "string"
+  );
+}

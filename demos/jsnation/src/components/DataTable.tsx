@@ -1,4 +1,4 @@
-import { Cell, Formula } from "@starbeam/core";
+import { Cell, FormulaFn } from "@starbeam/core";
 import { LOGGER, LogLevel } from "@starbeam/debug";
 import { useProp, useReactiveSetup } from "@starbeam/react";
 import { DevTools } from "@starbeamx/devtool";
@@ -39,8 +39,8 @@ export default function (props: { locale: string }) {
 
     const filter = Cell("", "filter");
 
-    const query = Formula(() => {
-      return people.filter(filter.current).sort("name", locale.current);
+    const query = FormulaFn(() => {
+      return people.filter(filter.current).sort("name", locale.read());
     });
 
     function rows() {

@@ -23,6 +23,10 @@ export class Timestamp {
     return new Timestamp(Timestamp.#initial);
   }
 
+  static max(...timestamps: Timestamp[]): Timestamp {
+    return timestamps.reduce((a, b) => (a.gt(b) ? a : b), Timestamp.zero());
+  }
+
   readonly #timestamp: number;
 
   constructor(timestamp: number) {
@@ -38,6 +42,10 @@ export class Timestamp {
     return this.#timestamp > other.#timestamp;
   }
 
+  eq(other: Timestamp): boolean {
+    return this.#timestamp === other.#timestamp;
+  }
+
   /**
    * Bump the timestamp using `@starbeam/peer`
    */
@@ -45,7 +53,21 @@ export class Timestamp {
     return new Timestamp(peerBump());
   }
 
-  toString(): string {
+  toString = (): string => {
     return `#<Timestamp ${this.#timestamp}>`;
+  };
+}
+
+export class Now {
+  #now = Timestamp.now();
+
+  get now(): Timestamp {
+    return this.#now;
+  }
+
+  bump(): Timestamp {
+    return (this.#now = this.#now.next());
   }
 }
+
+export const NOW = new Now();

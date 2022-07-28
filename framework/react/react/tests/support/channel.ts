@@ -1,4 +1,4 @@
-import { type Unsubscribe, TIMELINE } from "@starbeam/timeline";
+import type { Unsubscribe } from "@starbeam/timeline";
 
 export class Channel {
   static reset(this: void): void {
@@ -20,13 +20,11 @@ export class Channel {
   static #active: Channel[] = [];
 
   static sendMessage(channel: Channel, message: string): void {
-    TIMELINE.enqueueAction(() => {
-      if (channel.isActive) {
-        for (const subscriber of channel.#onMessage) {
-          subscriber(message);
-        }
+    if (channel.isActive) {
+      for (const subscriber of channel.#onMessage) {
+        subscriber(message);
       }
-    });
+    }
   }
 
   static #nextId = 0;

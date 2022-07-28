@@ -1,4 +1,4 @@
-import { Formula } from "@starbeam/core";
+import { FormulaFn } from "@starbeam/core";
 import { Table } from "@starbeamx/store";
 import { describe, expect, test } from "vitest";
 
@@ -47,7 +47,9 @@ describe("tables", () => {
   test("a table's rows can be enumerated", () => {
     const people = Table.create<Person>({ columns: ["name", "location"] });
 
-    const list = Formula(() => people.rows.map(({ name }) => name).join(", "));
+    const list = FormulaFn(() =>
+      people.rows.map(({ name }) => name).join(", ")
+    );
 
     people.append({ name: "John", location: "Berlin" });
     people.append({ name: "Jane", location: "London" });

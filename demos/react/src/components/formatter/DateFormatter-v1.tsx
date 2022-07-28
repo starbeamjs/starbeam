@@ -1,4 +1,4 @@
-import { Formula } from "@starbeam/core";
+import { FormulaFn } from "@starbeam/core";
 import js from "@starbeam/js";
 import { useReactiveSetup } from "@starbeam/react";
 
@@ -17,10 +17,7 @@ export default function DateFormatterStarbeam() {
             for {localeInfo.region} ({localeInfo.language})
           </h3>
 
-          <button
-            className="pure-button"
-            onClick={() => date.current.refresh()}
-          >
+          <button className="pure-button" onClick={() => date.read().refresh()}>
             🔃
           </button>
           <p className="output">{date.current.formatted}</p>
@@ -37,7 +34,7 @@ function Clock() {
     date.now = new Date();
   }
 
-  return Formula(() => {
+  return FormulaFn(() => {
     return {
       formatted: formatTime(date.now, {
         timeZone: SYSTEM_TZ,

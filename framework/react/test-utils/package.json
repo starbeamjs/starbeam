@@ -8,14 +8,12 @@
     "@starbeam/core-utils": "workspace:^",
     "@starbeam/core": "workspace:^",
     "@starbeam/debug": "workspace:^",
-    "@starbeam/timeline": "workspace:^",
-    "@testing-library/react": "^13.3.0"
+    "@starbeam/timeline": "workspace:^"
   },
   "devDependencies": {
+    "@testing-library/react": "latest",
     "@types/react": "^18.0.14",
     "@types/react-dom": "^18.0.5",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "vite": "^3.0.0"
   },
   "peerDependencies": {

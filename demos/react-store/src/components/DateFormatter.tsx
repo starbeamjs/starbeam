@@ -17,7 +17,7 @@ export default function (props: { locale: string }) {
     const date = component.use(Clock(timeZone, locale));
 
     return () => {
-      const localeInfo = formatLocale(locale.current);
+      const localeInfo = formatLocale(locale.read());
 
       return (
         <>
@@ -36,7 +36,7 @@ export default function (props: { locale: string }) {
               >
                 {TIME_ZONES.map((tz) => (
                   <option key={tz} value={tz}>
-                    {timeZoneName(locale.current, tz)}
+                    {timeZoneName(locale.read(), tz)}
                   </option>
                 ))}
               </select>
@@ -65,7 +65,7 @@ function Clock(timeZone: Reactive<string>, locale: Reactive<string>) {
     });
 
     return () => ({
-      formatted: formatDate(date.current, locale.current, timeZone.current),
+      formatted: formatDate(date.current, locale.read(), timeZone.read()),
       refresh,
     });
   });

@@ -1,4 +1,4 @@
-import { Cell, Formula } from "@starbeam/core";
+import { Cell, FormulaFn } from "@starbeam/core";
 import { isPresent, verified } from "@starbeam/verify";
 import { type Aggregator, Average, Sum, Table } from "@starbeamx/store";
 import { describe, expect, test } from "vitest";
@@ -86,7 +86,7 @@ describe("aggregating tables", () => {
 
     people.append(...data);
 
-    const averageAge = Formula(() => {
+    const averageAge = FormulaFn(() => {
       const average = people.aggregateBy({
         age: Average,
       });
@@ -94,7 +94,7 @@ describe("aggregating tables", () => {
       return average.row.age;
     });
 
-    const totalVisits = Formula(() => {
+    const totalVisits = FormulaFn(() => {
       const total = people.aggregateBy({
         visits: Sum,
       });
@@ -160,7 +160,7 @@ describe("aggregating tables", () => {
 
     const aggregate = Cell(Sum as Aggregator<number>);
 
-    const activeVisits = Formula(() => {
+    const activeVisits = FormulaFn(() => {
       const byStatus = people.groupBy((row) => ({ bucket: row.status }));
 
       const active = verified(byStatus.groups.get("active"), isPresent);

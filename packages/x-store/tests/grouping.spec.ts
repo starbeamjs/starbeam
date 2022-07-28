@@ -1,4 +1,4 @@
-import { Formula } from "@starbeam/core";
+import { FormulaFn } from "@starbeam/core";
 import { isPresent, verified } from "@starbeam/verify";
 import { Table } from "@starbeamx/store";
 import { describe, expect, test } from "vitest";
@@ -177,7 +177,7 @@ describe("grouping tables", () => {
     people.append(...data);
 
     // group by age decade
-    const byAgeDecade = Formula(() => {
+    const byAgeDecade = FormulaFn(() => {
       return people.groupBy((row) => {
         const decade = Math.floor(row.age / 10);
         return { bucket: decade, as: `${decade}0s` };

@@ -1,6 +1,7 @@
-import { type Reactive, Formula, LIFETIME } from "@starbeam/core";
+import { FormulaFn, LIFETIME } from "@starbeam/core";
 import type { Description } from "@starbeam/debug";
 import { descriptionFrom } from "@starbeam/debug";
+import type { Reactive } from "@starbeam/timeline";
 
 import { Cursor } from "./cursor.js";
 
@@ -27,7 +28,7 @@ function Render<T extends Cursor | Element>(
       create({ owner }) {
         const { cleanup, update } = create({ into, owner });
 
-        const formula = Formula(update, description);
+        const formula = FormulaFn(update, description);
 
         LIFETIME.on.cleanup(owner, cleanup);
 
@@ -47,13 +48,13 @@ export function Text(
 ): ContentNode {
   return Render(
     ({ into }) => {
-      const node = into.insert(into.document.createTextNode(text.current));
+      const node = into.insert(into.document.createTextNode(text.read()));
 
       return {
         cleanup: () => node.remove(),
 
         update: () => {
-          node.textContent = text.current;
+          node.textContent = text.read();
         },
       };
     },
@@ -163,7 +164,7 @@ export function Attr<E extends Element>(
 ): AttrNode<E> {
   return Render(
     ({ into }) => {
-      const current = value.current;
+      const current = value.read();
 
       if (typeof current === "string") {
         into.setAttribute(name, current);
@@ -174,7 +175,7 @@ export function Attr<E extends Element>(
       return {
         cleanup: () => into.removeAttribute(name),
         update: () => {
-          const next = value.current;
+          const next = value.read();
 
           if (typeof next === "string") {
             into.setAttribute(name, next);

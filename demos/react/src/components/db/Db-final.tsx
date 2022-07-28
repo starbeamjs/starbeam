@@ -47,7 +47,7 @@ export default function Database(props: { locale: string }) {
 
     function sorted() {
       return people.rows.sort((a, b) =>
-        new Intl.Collator(locale.current).compare(a[1].name, b[1].name)
+        new Intl.Collator(locale.read()).compare(a[1].name, b[1].name)
       );
     }
 

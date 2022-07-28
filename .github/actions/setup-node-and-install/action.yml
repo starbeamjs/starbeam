@@ -15,6 +15,6 @@ runs:
           ${{ runner.os }}-pnpm-
     - uses: pnpm/action-setup@v2.0.1
       with:
-        version: 6.23.6
+        version: 7.6.0
     - run: pnpm install --frozen-lockfile
       shell: bash

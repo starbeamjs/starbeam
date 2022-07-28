@@ -1,4 +1,4 @@
-import { type Reactive, Cell, Marker } from "@starbeam/core";
+import { Cell, Marker } from "@starbeam/core";
 import {
   type Description,
   callerStack,
@@ -6,6 +6,7 @@ import {
   Stack,
 } from "@starbeam/debug";
 import { reactive } from "@starbeam/js";
+import type { Reactive } from "@starbeam/timeline";
 import { useUpdatingVariable } from "@starbeam/use-strict-lifecycle";
 import type { Dispatch, SetStateAction } from "react";
 
@@ -89,7 +90,7 @@ export function useDeps<T extends unknown[]>(
     },
 
     consume: () => {
-      dependencies.forEach((d) => d.current);
+      dependencies.forEach((d) => d.read());
     },
   };
 }

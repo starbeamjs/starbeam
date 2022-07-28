@@ -68,7 +68,7 @@ function Clock(timeZone: Reactive<string>) {
 
     return () => ({
       formatted: formatTime(date.now, {
-        timeZone: timeZone.current,
+        timeZone: timeZone.read(),
         locale: SYSTEM_LOCALE,
       }),
       refresh,

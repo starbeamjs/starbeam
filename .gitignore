@@ -1,6 +1,7 @@
 node_modules
-dist/
-**/dist/
+**/node_modules
+**/dist
+dist
 .DS_Store
 coverage
 tsconfig.tsbuildinfo

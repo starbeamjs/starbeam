@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { Cell, TIMELINE } from "@starbeam/core";
+import { Cell } from "@starbeam/core";
 import { entryPoint } from "@starbeam/debug";
 import { useReactive, useReactiveSetup } from "@starbeam/react";
 import {
@@ -80,9 +80,7 @@ describe("useSetup", () => {
             return;
           }
 
-          TIMELINE.enqueueAction(() => {
-            Channel.sendMessage(latest, message);
-          });
+          Channel.sendMessage(latest, message);
         });
       }
 
