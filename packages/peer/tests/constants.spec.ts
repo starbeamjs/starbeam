@@ -1,46 +1,52 @@
-import { UNINITIALIZED } from "@starbeam/peer";
+import { NOW, REACTIVE, UNINITIALIZED } from "@starbeam/peer";
 import { describe, expect, test } from "vitest";
 
 describe("UNINITALIZED", () => {
+  testSymbol(UNINITIALIZED, "UNINITIALIZED");
+  testSymbol(REACTIVE, "REACTIVE");
+  testSymbol(NOW, "NOW");
+});
+
+function testSymbol(symbol: symbol, description: string) {
   test("is a symbol", () => {
-    expect(typeof UNINITIALIZED).toBe("symbol");
-    expect(UNINITIALIZED.description).toBe("starbeam.UNINITIALIZED");
+    expect(typeof symbol).toBe("symbol");
+    expect(symbol.description).toBe(`starbeam.${description}`);
   });
 
   test("is the same value each time (i.e. not an export let)", () => {
-    expect(UNINITIALIZED).toBe(UNINITIALIZED);
+    expect(symbol).toBe(symbol);
   });
 
-  test("is registered at Symbol.for('starbeam.UNINITIALIZED')", () => {
-    expect(Symbol.for("starbeam.UNINITIALIZED")).toBe(UNINITIALIZED);
+  test(`is registered at Symbol.for('starbeam.${description}')`, () => {
+    expect(Symbol.for(`starbeam.${description}`)).toBe(symbol);
   });
 
   test("isn't one of the builtin symbols", () => {
-    expect(UNINITIALIZED).not.toBe(Symbol.iterator);
-    expect(UNINITIALIZED).not.toBe(Symbol.toStringTag);
-    expect(UNINITIALIZED).not.toBe(Symbol.unscopables);
-    expect(UNINITIALIZED).not.toBe(Symbol.hasInstance);
-    expect(UNINITIALIZED).not.toBe(Symbol.isConcatSpreadable);
-    expect(UNINITIALIZED).not.toBe(Symbol.match);
-    expect(UNINITIALIZED).not.toBe(Symbol.replace);
-    expect(UNINITIALIZED).not.toBe(Symbol.search);
-    expect(UNINITIALIZED).not.toBe(Symbol.species);
-    expect(UNINITIALIZED).not.toBe(Symbol.split);
-    expect(UNINITIALIZED).not.toBe(Symbol.toPrimitive);
+    expect(symbol).not.toBe(Symbol.iterator);
+    expect(symbol).not.toBe(Symbol.toStringTag);
+    expect(symbol).not.toBe(Symbol.unscopables);
+    expect(symbol).not.toBe(Symbol.hasInstance);
+    expect(symbol).not.toBe(Symbol.isConcatSpreadable);
+    expect(symbol).not.toBe(Symbol.match);
+    expect(symbol).not.toBe(Symbol.replace);
+    expect(symbol).not.toBe(Symbol.search);
+    expect(symbol).not.toBe(Symbol.species);
+    expect(symbol).not.toBe(Symbol.split);
+    expect(symbol).not.toBe(Symbol.toPrimitive);
 
     // it's not node's inspect symbol
-    expect(UNINITIALIZED).not.toBe(Symbol.for("nodejs.util.inspect.custom"));
+    expect(symbol).not.toBe(Symbol.for("nodejs.util.inspect.custom"));
 
     // other react symbols
-    expect(UNINITIALIZED).not.toBe(Symbol.for("react.element"));
-    expect(UNINITIALIZED).not.toBe(Symbol.for("react.forward_ref"));
-    expect(UNINITIALIZED).not.toBe(Symbol.for("react.fragment"));
-    expect(UNINITIALIZED).not.toBe(Symbol.for("react.profiler"));
-    expect(UNINITIALIZED).not.toBe(Symbol.for("react.provider"));
-    expect(UNINITIALIZED).not.toBe(Symbol.for("react.context"));
-    expect(UNINITIALIZED).not.toBe(Symbol.for("react.concurrent_mode"));
+    expect(symbol).not.toBe(Symbol.for("react.element"));
+    expect(symbol).not.toBe(Symbol.for("react.forward_ref"));
+    expect(symbol).not.toBe(Symbol.for("react.fragment"));
+    expect(symbol).not.toBe(Symbol.for("react.profiler"));
+    expect(symbol).not.toBe(Symbol.for("react.provider"));
+    expect(symbol).not.toBe(Symbol.for("react.context"));
+    expect(symbol).not.toBe(Symbol.for("react.concurrent_mode"));
 
     // observable symbol, casting Symbol to avoid TS error
-    expect(UNINITIALIZED).not.toBe(Symbol.for("rxjs.internal.observable"));
+    expect(symbol).not.toBe(Symbol.for("rxjs.internal.observable"));
   });
-});
+}
