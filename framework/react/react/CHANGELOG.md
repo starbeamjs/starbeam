@@ -1,5 +1,21 @@
 # @starbeam/react
 
+## 0.5.8
+
+### Patch Changes
+
+- Prepare 0.5.8
+- Updated dependencies
+  - @starbeam/use-strict-lifecycle@0.5.8
+  - @starbeam/core@0.5.8
+  - @starbeam/core-utils@0.5.8
+  - @starbeam/debug@0.5.8
+  - @starbeam/js@0.5.8
+  - @starbeam/modifier@0.5.8
+  - @starbeam/peer@1.0.8
+  - @starbeam/timeline@0.5.8
+  - @starbeam/verify@0.5.8
+
 ## 0.5.7
 
 ### Patch Changes

@@ -2,7 +2,7 @@
   "name": "@starbeamx/devtool",
   "type": "module",
   "main": "index.tsx",
-  "version": "0.5.7",
+  "version": "0.5.8",
   "dependencies": {
     "@starbeam/core": "workspace:^",
     "@starbeam/debug": "workspace:^",
