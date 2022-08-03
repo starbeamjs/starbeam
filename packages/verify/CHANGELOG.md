@@ -1,5 +1,11 @@
 # @starbeam/verify
 
+## 0.6.0
+
+### Minor Changes
+
+- Prepare 0.6.0
+
 ## 0.5.8
 
 ### Patch Changes

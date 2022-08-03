@@ -1,6 +1,6 @@
 {
   "name": "@starbeam/modifier",
-  "version": "0.5.8",
+  "version": "0.6.0",
   "type": "module",
   "main": "index.ts",
   "dependencies": {

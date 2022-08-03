@@ -1,5 +1,11 @@
 # @starbeam/peer
 
+## 1.1.0
+
+### Minor Changes
+
+- Prepare 0.6.0
+
 ## 1.0.8
 
 ### Patch Changes
