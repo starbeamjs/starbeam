@@ -1,5 +1,13 @@
 # @starbeam-workspace/test-utils
 
+## 0.0.5
+
+### Patch Changes
+
+- Updated dependencies
+  - @starbeam/debug@0.5.8
+  - @starbeam/peer@1.0.8
+
 ## 0.0.4
 
 ### Patch Changes

@@ -5,7 +5,7 @@ import shell from "shelljs";
 
 /**
  * @param {string} name
- * @param {object} [options]
+ * @param {object} options
  * @param {string} [options.npm]
  * @param {string[]} [options.args]
  */

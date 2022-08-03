@@ -1,5 +1,11 @@
 # @starbeam/use-strict-lifecycle
 
+## 0.5.8
+
+### Patch Changes
+
+- Prepare 0.5.8
+
 ## 0.5.7
 
 ### Patch Changes

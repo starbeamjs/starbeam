@@ -141,6 +141,14 @@ export function useSetup<T>(
 }
 
 export function useReactiveSetup<T>(
+  callback: (setup: ReactiveElement) => () => T,
+  description?: string | Description
+): T;
+export function useReactiveSetup<T>(
+  callback: (setup: ReactiveElement) => Reactive<T>,
+  description?: string | Description
+): T;
+export function useReactiveSetup<T>(
   callback: (setup: ReactiveElement) => (() => T) | Reactive<T>,
   description?: string | Description
 ): T {

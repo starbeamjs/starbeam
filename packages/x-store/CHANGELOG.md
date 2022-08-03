@@ -1,5 +1,16 @@
 # @starbeamx/store
 
+## 0.5.8
+
+### Patch Changes
+
+- Prepare 0.5.8
+- Updated dependencies
+  - @starbeam/core@0.5.8
+  - @starbeam/debug@0.5.8
+  - @starbeam/js@0.5.8
+  - @starbeam/verify@0.5.8
+
 ## 0.5.7
 
 ### Patch Changes
