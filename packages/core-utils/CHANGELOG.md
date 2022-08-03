@@ -1,5 +1,16 @@
 # @starbeam/core-utils
 
+## 0.6.0
+
+### Minor Changes
+
+- Prepare 0.6.0
+
+### Patch Changes
+
+- Updated dependencies
+  - @starbeam/peer@1.1.0
+
 ## 0.5.8
 
 ### Patch Changes
