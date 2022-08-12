@@ -1,4 +1,4 @@
-import { FormulaFn, LIFETIME, Resource, type ResourceBlueprint } from "@starbeam/core";
+import { type ResourceBlueprint, LIFETIME, Resource } from "@starbeam/core";
 import type { Description } from "@starbeam/debug";
 import { descriptionFrom } from "@starbeam/debug";
 import type { Reactive } from "@starbeam/timeline";
@@ -17,13 +17,12 @@ type ContentNode = (into: Cursor) => OutputConstructor;
 type AttrNode<E extends Element = Element> = (into: E) => OutputConstructor;
 
 function Render<T extends Cursor | Element>(
-  callback: (options: { into: T }) => ResourceBlueprint<T>,
-  description: Description
+  callback: (options: { into: T; owner: object }) => ResourceBlueprint<T>
 ): (into: T) => OutputConstructor {
   return (into: T) => {
     return {
       create({ owner }) {
-        let resource = callback({ into }).create({ owner });
+        const resource = callback({ into, owner }).create({ owner });
 
         LIFETIME.link(owner, resource);
         Resource.setup(resource);
@@ -42,6 +41,15 @@ export function Text(
   text: Reactive<string>,
   description?: string | Description
 ): ContentNode {
+  const desc = descriptionFrom({
+    type: "resource",
+    api: {
+      package: "@starbeam/dom",
+      name: "Text",
+    },
+    fromUser: description,
+  });
+
   return Render(({ into }) => {
     return Resource(({ on }) => {
       const node = into.document.createTextNode(text.read());
@@ -53,19 +61,11 @@ export function Text(
       });
 
       return () => {
-        node.textContent = text.read()
+        node.textContent = text.read();
         return into;
       };
-    })},
-    descriptionFrom({
-      type: "resource",
-      api: {
-        package: "@starbeam/dom",
-        name: "Text",
-      },
-      fromUser: description,
-    })
-  );
+    }, desc);
+  });
 }
 
 class FragmentRange {
@@ -132,28 +132,34 @@ export function Fragment(
   });
 
   return Render(({ into, owner }) => {
-    const start = placeholder(into.document);
-    into.insert(start);
+    return Resource(({ on }) => {
+      const renderedNodes: Rendered[] = [];
 
-    const renderedNodes: Rendered[] = [];
+      on.setup(() => {
+        const start = placeholder(into.document);
+        const end = placeholder(into.document);
+        const range = FragmentRange.create(start, end);
 
-    for (const nodeConstructor of nodes) {
-      const node = nodeConstructor(into).create({ owner });
-      renderedNodes.push(node);
-    }
+        into.insert(start);
 
-    const end = placeholder(into.document);
-    into.insert(end);
-    const range = FragmentRange.create(start, end);
+        for (const nodeConstructor of nodes) {
+          const node = nodeConstructor(into).create({ owner });
+          renderedNodes.push(node);
+        }
 
-    return {
-      cleanup: () => range.clear(),
+        into.insert(end);
 
-      update() {
+        return () => {
+          range.clear();
+        };
+      });
+
+      return () => {
         renderedNodes.forEach((node) => node.poll());
-      },
-    };
-  }, desc);
+        return into;
+      };
+    }, desc);
+  });
 }
 
 export function Attr<E extends Element>(
@@ -161,8 +167,16 @@ export function Attr<E extends Element>(
   value: Reactive<string | null | boolean>,
   description?: string | Description
 ): AttrNode<E> {
-  return Render(
-    ({ into }) => {
+  const desc = descriptionFrom({
+    type: "resource",
+    api: {
+      package: "@starbeam/dom",
+      name: "Attr",
+    },
+    fromUser: description,
+  });
+  return Render(({ into }) => {
+    return Resource(({ on }) => {
       const current = value.read();
 
       if (typeof current === "string") {
@@ -171,30 +185,28 @@ export function Attr<E extends Element>(
         into.setAttribute(name, "");
       }
 
-      return {
-        cleanup: () => into.removeAttribute(name),
-        update: () => {
-          const next = value.read();
+      on.setup(() => {
 
-          if (typeof next === "string") {
-            into.setAttribute(name, next);
-          } else if (next === true) {
-            into.setAttribute(name, "");
-          } else if (next === false) {
-            into.removeAttribute(name);
-          }
-        },
+        return () => {
+          into.removeAttribute(name);
+        }
+      });
+
+      return () => {
+        const next = value.read();
+
+        if (typeof next === "string") {
+          into.setAttribute(name, next);
+        } else if (next === true) {
+          into.setAttribute(name, "");
+        } else if (next === false) {
+          into.removeAttribute(name);
+        }
+
+        return into;
       };
-    },
-    descriptionFrom({
-      type: "resource",
-      api: {
-        package: "@starbeam/dom",
-        name: "Attr",
-      },
-      fromUser: description,
-    })
-  );
+    }, desc);
+  });
 }
 
 export function Element(
@@ -209,8 +221,16 @@ export function Element(
   },
   description?: Description | string
 ): ContentNode {
-  return Render(
-    ({ into, owner }) => {
+  const desc = descriptionFrom({
+    type: "resource",
+    api: {
+      package: "@starbeam/dom",
+      name: "Element",
+    },
+    fromUser: description,
+  });
+  return Render(({ into, owner }) => {
+    return Resource(({ on }) => {
       const element = into.document.createElement(tag);
       const elementCursor = Cursor.appendTo(element);
 
@@ -224,29 +244,27 @@ export function Element(
       const fragment = Array.isArray(body) ? Fragment(body) : body;
       const renderBody = fragment(elementCursor).create({ owner });
 
-      into.insert(element);
 
-      return {
-        cleanup: () => element.remove(),
+      on.setup(() => {
+        into.insert(element);
 
-        update: () => {
-          for (const attr of renderAttributes) {
-            attr.poll();
-          }
+        return () => {
+          element.remove();
+        }
+      });
 
-          renderBody.poll();
-        },
+      return () => {
+
+        for (const attr of renderAttributes) {
+          attr.poll();
+        }
+
+        renderBody.poll();
+
+        return into;
       };
-    },
-    descriptionFrom({
-      type: "resource",
-      api: {
-        package: "@starbeam/dom",
-        name: "Element",
-      },
-      fromUser: description,
     })
-  );
+  });
 }
 
 Element.Attr = Attr;

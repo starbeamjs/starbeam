@@ -125,7 +125,7 @@ class Body {
       const snapshotNode = snapshot[i];
 
       // they should have the same type
-      expect(node, `node ${i}`).toBe(snapshotNode);
+      expect(node.constructor.name, `node ${i}`).toBe(snapshotNode.constructor.name);
     }
   }
 }
