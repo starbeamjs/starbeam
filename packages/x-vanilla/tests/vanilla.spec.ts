@@ -78,6 +78,58 @@ describe("Vanilla Renderer", () => {
       `<div title="Hello World">Hello World - Goodbye World</div>`
     );
   });
+
+  test("it can render mixed content", () => {
+    const { body, owner } = env();
+    const cursor = body.cursor;
+
+    const a = Cell("Hello World");
+    const b = Cell(" - ");
+    const c = Cell("Goodbye World");
+    const d = Cell("!");
+
+    const title = El.Attr("title", a);
+
+    const fragment = Fragment([
+      Text(a),
+      El({
+        tag: "div",
+        attributes: [title],
+        body: [Text(b), Text(c)],
+      }),
+      Text(d),
+    ]);
+    const range = fragment(cursor).create({ owner });
+
+    body.snapshot();
+    expect(body.innerHTML).toBe(
+      `Hello World<div title="Hello World"> - Goodbye World</div>!`
+    );
+
+    b.set(" ::: ");
+    range.poll();
+
+    expect(body.innerHTML).toBe(
+      `Hello World<div title="Hello World"> ::: Goodbye World</div>!`
+    );
+    body.expectStable();
+
+    a.set("Hola World");
+    range.poll();
+
+    expect(body.innerHTML).toBe(
+      `Hola World<div title="Hello World"> ::: Goodbye World</div>!`
+    );
+    body.expectStable();
+
+    d.set("!!!")
+    range.poll();
+
+    expect(body.innerHTML).toBe(
+      `Hola World<div title="Hello World"> ::: Goodbye World</div>!!!`
+    );
+    body.expectStable();
+  });
 });
 
 function env() {
@@ -125,7 +177,9 @@ class Body {
       const snapshotNode = snapshot[i];
 
       // they should have the same type
-      expect(node.constructor.name, `node ${i}`).toBe(snapshotNode.constructor.name);
+      expect(node.constructor.name, `node ${i}`).toBe(
+        snapshotNode.constructor.name
+      );
     }
   }
 }

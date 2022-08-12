@@ -134,12 +134,11 @@ export function Fragment(
   return Render(({ into, owner }) => {
     return Resource(({ on }) => {
       const renderedNodes: Rendered[] = [];
+      const start = placeholder(into.document);
+      const end = placeholder(into.document);
+      const range = FragmentRange.create(start, end);
 
       on.setup(() => {
-        const start = placeholder(into.document);
-        const end = placeholder(into.document);
-        const range = FragmentRange.create(start, end);
-
         into.insert(start);
 
         for (const nodeConstructor of nodes) {
@@ -186,10 +185,9 @@ export function Attr<E extends Element>(
       }
 
       on.setup(() => {
-
         return () => {
           into.removeAttribute(name);
-        }
+        };
       });
 
       return () => {
@@ -244,17 +242,15 @@ export function Element(
       const fragment = Array.isArray(body) ? Fragment(body) : body;
       const renderBody = fragment(elementCursor).create({ owner });
 
-
       on.setup(() => {
         into.insert(element);
 
         return () => {
           element.remove();
-        }
+        };
       });
 
       return () => {
-
         for (const attr of renderAttributes) {
           attr.poll();
         }
@@ -263,7 +259,7 @@ export function Element(
 
         return into;
       };
-    })
+    });
   });
 }
 
