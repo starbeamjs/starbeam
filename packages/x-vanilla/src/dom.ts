@@ -1,4 +1,4 @@
-import { FormulaFn, LIFETIME } from "@starbeam/core";
+import { FormulaFn, LIFETIME, Resource, type ResourceBlueprint } from "@starbeam/core";
 import type { Description } from "@starbeam/debug";
 import { descriptionFrom } from "@starbeam/debug";
 import type { Reactive } from "@starbeam/timeline";
@@ -17,24 +17,20 @@ type ContentNode = (into: Cursor) => OutputConstructor;
 type AttrNode<E extends Element = Element> = (into: E) => OutputConstructor;
 
 function Render<T extends Cursor | Element>(
-  create: (options: { into: T; owner: object }) => {
-    cleanup: () => void;
-    update: () => void;
-  },
+  callback: (options: { into: T }) => ResourceBlueprint<T>,
   description: Description
 ): (into: T) => OutputConstructor {
   return (into: T) => {
     return {
       create({ owner }) {
-        const { cleanup, update } = create({ into, owner });
+        let resource = callback({ into }).create({ owner });
 
-        const formula = FormulaFn(update, description);
-
-        LIFETIME.on.cleanup(owner, cleanup);
+        LIFETIME.link(owner, resource);
+        Resource.setup(resource);
 
         return {
           poll() {
-            formula.current;
+            resource.current;
           },
         };
       },
@@ -46,18 +42,21 @@ export function Text(
   text: Reactive<string>,
   description?: string | Description
 ): ContentNode {
-  return Render(
-    ({ into }) => {
-      const node = into.insert(into.document.createTextNode(text.read()));
+  return Render(({ into }) => {
+    return Resource(({ on }) => {
+      const node = into.document.createTextNode(text.read());
 
-      return {
-        cleanup: () => node.remove(),
+      on.setup(() => {
+        into.insert(node);
 
-        update: () => {
-          node.textContent = text.read();
-        },
+        return () => node.remove();
+      });
+
+      return () => {
+        node.textContent = text.read()
+        return into;
       };
-    },
+    })},
     descriptionFrom({
       type: "resource",
       api: {
