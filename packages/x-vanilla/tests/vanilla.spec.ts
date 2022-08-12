@@ -122,7 +122,7 @@ describe("Vanilla Renderer", () => {
     );
     body.expectStable();
 
-    d.set("!!!")
+    d.set("!!!");
     range.poll();
 
     expect(body.innerHTML).toBe(
