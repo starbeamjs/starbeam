@@ -1,5 +1,7 @@
 /// <reference types="node" />
+// @ts-expect-error https://github.com/rollup/plugins/pull/1196
 import commonjs from "@rollup/plugin-commonjs";
+// @ts-expect-error https://github.com/rollup/plugins/pull/1196
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 import { sync as glob } from "fast-glob";
 import { readFileSync } from "fs";

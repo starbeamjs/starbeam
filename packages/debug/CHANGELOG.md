@@ -1,5 +1,11 @@
 # @starbeam/debug
 
+## 0.6.1
+
+### Patch Changes
+
+- 90556b5: Bundle stacktracey and other problematic CJS deps
+
 ## 0.6.0
 
 ### Minor Changes
