@@ -1,4 +1,6 @@
 /// <reference types="node" />
+import commonjs from "@rollup/plugin-commonjs";
+import { nodeResolve } from "@rollup/plugin-node-resolve";
 import { sync as glob } from "fast-glob";
 import { readFileSync } from "fs";
 import { dirname, resolve } from "path";
@@ -41,69 +43,29 @@ export default defineConfig(
   packages.flatMap((pkg) =>
     defineConfig([
       {
+        ...files(pkg.root, pkg.main, "esm"),
         input: pkg.main,
-        output: [
-          {
-            file: resolve(pkg.root, "dist", `index.js`),
-            format: "esm",
-            sourcemap: true,
-          },
-        ],
         external,
         plugins: [
+          nodeResolve(),
+          commonjs(),
           importMetaPlugin,
           postcss(),
-          ts({
-            transpiler: "swc",
-            swcConfig: {
-              jsc: {
-                target: "es2022",
-                keepClassNames: true,
-                externalHelpers: false,
-                parser: {
-                  syntax: "typescript",
-                  tsx: true,
-                  decorators: true,
-                },
-              },
-            },
-            tsconfig: tsconfig(),
-          }),
+          typescript("es2022"),
         ],
       },
       {
-        input: pkg.main,
-        output: [
-          {
-            file: resolve(pkg.root, "dist", `index.cjs`),
-            format: "cjs",
-            sourcemap: true,
-            exports: "named",
-          },
-        ],
+        ...files(pkg.root, pkg.main, "cjs"),
         external,
         plugins: [
+          commonjs(),
+          nodeResolve(),
           importMetaPlugin,
           postcss(),
-          ts({
-            transpiler: "swc",
-            swcConfig: {
-              jsc: {
-                target: "es2019",
-                keepClassNames: true,
-                externalHelpers: false,
-                parser: {
-                  syntax: "typescript",
-                  tsx: true,
-                  decorators: true,
-                },
-              },
-            },
-            tsconfig: tsconfig({
-              target: ScriptTarget.ES2021,
-              module: ModuleKind.CommonJS,
-              moduleResolution: ModuleResolutionKind.NodeJs,
-            }),
+          typescript("es2019", {
+            target: ScriptTarget.ES2021,
+            module: ModuleKind.CommonJS,
+            moduleResolution: ModuleResolutionKind.NodeJs,
           }),
         ],
       },
@@ -120,6 +82,15 @@ function external(id) {
   }
 
   if (id.startsWith(".") || id.startsWith("/")) {
+    return false;
+  }
+
+  if (
+    id === "stacktracey" ||
+    id === "get-source" ||
+    id === "as-table" ||
+    id === "printable-characters"
+  ) {
     return false;
   }
 
@@ -158,5 +129,47 @@ function tsconfig(updates) {
     inlineSources: true,
     types: ["vite/client"],
     ...updates,
+  };
+}
+
+/**
+ * @param {string} target
+ * @param {Partial<import("typescript").CompilerOptions>} [config]
+ */
+function typescript(target, config) {
+  return ts({
+    transpiler: "swc",
+    swcConfig: {
+      jsc: {
+        target,
+        keepClassNames: true,
+        externalHelpers: false,
+        parser: {
+          syntax: "typescript",
+          tsx: true,
+          decorators: true,
+        },
+      },
+    },
+    tsconfig: tsconfig(config ?? {}),
+  });
+}
+
+/**
+ * @param {string} root
+ * @param {string} input
+ * @param {"esm" | "cjs"} format
+ * @returns {{input: string; output: {file: string; format: "esm" | "cjs"; sourcemap: true; exports?: "named";}}}
+ */
+function files(root, input, format) {
+  const ext = format === "esm" ? "js" : "cjs";
+  return {
+    input,
+    output: {
+      file: resolve(root, "dist", `index.${ext}`),
+      format,
+      sourcemap: true,
+      exports: format === "cjs" ? "named" : undefined,
+    },
   };
 }
