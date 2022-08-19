@@ -1,19 +1,10 @@
 {
   "eslint.enable": true,
-  "explorer.excludeGitIgnore": true,
+  "explorer.excludeGitIgnore": false,
   "vite.autoStart": false,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true,
     "source.fixAll.eslint.format": true
-  },
-  "files.exclude": {
-    "**/.git": true,
-    "**/.svn": true,
-    "**/.hg": true,
-    "**/CVS": true,
-    "**/.DS_Store": true,
-    "**/Thumbs.db": true,
-    "**/dist": true
   },
   "search.exclude": {
     "**/node_modules": true,
