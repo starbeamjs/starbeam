@@ -35,11 +35,13 @@ export class FrameStack {
   }
 
   // Indicate that a particular cell was used inside of the current computation.
-  didConsume(reactive: ReactiveProtocol, _caller?: Stack): void {
+  didConsume(reactive: ReactiveProtocol, caller: Stack): void {
     const frame = this.currentFrame;
     if (frame) {
       frame.add(reactive);
       return;
+    } else {
+      this.#timeline.untrackedRead(reactive, caller);
     }
   }
 

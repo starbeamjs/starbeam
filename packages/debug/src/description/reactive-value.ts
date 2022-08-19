@@ -1,4 +1,8 @@
+import { exhaustive } from "@starbeam/verify";
+import chalk from "chalk";
+
 import { isDebug } from "../conditional.js";
+import { DisplayStruct } from "../inspect/display-struct.js";
 import type { Stack, StackFrame } from "../stack.js";
 
 export type MarkerType =
@@ -19,7 +23,8 @@ export type ValueType =
   | "static"
   | "cell"
   | "formula"
-  | "resource";
+  | "resource"
+  | "variants";
 
 /** DescriptionType is `erased` in production */
 export type DescriptionType = MarkerType | ValueType | "erased";
@@ -27,8 +32,17 @@ export type DescriptionType = MarkerType | ValueType | "erased";
 export interface MemberDescription {
   type: "member";
   kind: "index" | "property" | "key";
+  note?: string;
   parent: Description;
   name: string | number;
+}
+
+export interface DetailDescription {
+  type: "detail";
+  args?: string[];
+  note?: string;
+  parent: Description;
+  name: string;
 }
 
 interface MethodDescription {
@@ -37,7 +51,11 @@ interface MethodDescription {
   name: string;
 }
 
-export type DescriptionDetails = string | MemberDescription | MethodDescription;
+export type DescriptionDetails =
+  | string
+  | MemberDescription
+  | MethodDescription
+  | DetailDescription;
 
 interface ApiDetails {
   package: string;
@@ -93,8 +111,15 @@ export interface Description extends DescriptionArgs {
   method(name: string): Description;
   index(index: number): Description;
   property(name: string): Description;
+  detail(
+    name: string,
+    args?: string[] | { args?: string[]; note?: string }
+  ): Description;
   key(name: string): Description;
-  implementation(options: { reason: string }): Description;
+  implementation(options?: {
+    reason?: string;
+    userFacing?: Description;
+  }): Description;
 
   describe(options?: { source?: boolean }): string;
   readonly frame: StackFrame | undefined;
@@ -153,7 +178,7 @@ if (isDebug()) {
 
     #internal:
       | {
-          reason: string;
+          reason?: string;
           userFacing: DescriptionArgs;
         }
       | undefined;
@@ -164,7 +189,7 @@ if (isDebug()) {
       type: DescriptionType,
       api: string | ApiDetails,
       details: DescriptionDetails | undefined,
-      internal: { reason: string; userFacing: DescriptionArgs } | undefined,
+      internal: { reason?: string; userFacing: DescriptionArgs } | undefined,
       stack: Stack | undefined
     ) {
       this.#type = type;
@@ -172,6 +197,17 @@ if (isDebug()) {
       this.#details = details;
       this.#internal = internal;
       this.#stack = stack;
+    }
+
+    [Symbol.for("nodejs.util.inspect.custom")](): object {
+      return DisplayStruct("Description", {
+        id: this.#id,
+        type: this.#type,
+        api: this.#api,
+        details: this.#details,
+        internal: this.#internal,
+        stack: this.#stack,
+      });
     }
 
     get type(): DescriptionType {
@@ -194,12 +230,15 @@ if (isDebug()) {
       return this.#details === undefined;
     }
 
-    implementation(details: { reason: string }) {
+    implementation(details?: { reason: string; userFacing: Description }) {
       return new DebugDescription(
         this.#type,
         this.#api,
         this.#details,
-        { reason: details.reason, userFacing: this.userFacing },
+        {
+          reason: details?.reason,
+          userFacing: details?.userFacing ?? this.userFacing,
+        },
         this.#stack
       );
     }
@@ -228,12 +267,28 @@ if (isDebug()) {
                   return `[${this.#details.name}]`;
                 case "property":
                   return `.${this.#details.name}`;
-                case "key":
+                case "key": {
                   return `->${this.#details.name}`;
+                }
               }
+
+            case "detail": {
+              const detail = chalk.dim(`->${this.#details.name}`);
+
+              if (this.#details.args) {
+                return `${detail}(${this.#details.args
+                  .map((a) => chalk.magenta(a))
+                  .join(", ")})`;
+              } else {
+                return detail;
+              }
+            }
 
             case "method":
               return `.${this.#details.name}()`;
+
+            default:
+              exhaustive(this.#details);
           }
         }
       } else {
@@ -285,7 +340,43 @@ if (isDebug()) {
       );
     }
 
-    key(this: DebugDescription, name: string): Description {
+    detail(
+      this: DebugDescription,
+      name: string,
+      args?: string[] | { args?: string[]; note?: string }
+    ): Description {
+      let detailArgs: string[] | undefined;
+      let note: string | undefined;
+
+      if (Array.isArray(args)) {
+        detailArgs = args;
+      } else if (args) {
+        detailArgs = args.args;
+        note = args.note;
+      }
+
+      return new DebugDescription(
+        "formula",
+        this.#api,
+        {
+          type: "detail",
+          parent: this,
+          name,
+          args: detailArgs,
+          note,
+        },
+        undefined,
+        this.#stack
+      );
+    }
+
+    /**
+     * A key represents a string that the user wrote in their source code. In contrast, `detail`,
+     * represents a user-facing *concept* that created by Starbeam, and `implementation` represents
+     * a concept that normal users don't have enough context to understand (but which can be
+     * revealed by passing `implementation: true` to the debug APIs).
+     */
+    key(this: DebugDescription, name: string, note?: string): Description {
       return new DebugDescription(
         "formula",
         this.#api,
@@ -294,6 +385,7 @@ if (isDebug()) {
           kind: "key",
           parent: this,
           name,
+          note,
         },
         undefined,
         this.#stack
@@ -301,6 +393,19 @@ if (isDebug()) {
     }
 
     describe({ source = false }: { source?: boolean } = {}): string {
+      const name = this.#name(source);
+
+      if (this.#internal) {
+        const desc = this.#internal.reason
+          ? chalk.dim(`[${this.#internal.reason}]`)
+          : chalk.dim("[internals]");
+        return `${name} ${desc}`;
+      } else {
+        return name;
+      }
+    }
+
+    #name(source: boolean): string {
       if (this.isAnonymous || source) {
         return `${this.fullName} @ ${this.#caller}`;
       } else {
@@ -361,7 +466,11 @@ if (isDebug()) {
       return this;
     }
 
-    implementation(_options: { reason: string }): Description {
+    detail(): Description {
+      return this;
+    }
+
+    implementation(_options?: { reason: string }): Description {
       return this;
     }
 

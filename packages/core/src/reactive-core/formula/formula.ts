@@ -62,17 +62,16 @@ export function FormulaFn<T>(
   callback: () => T,
   description?: Description | string
 ): FormulaFn<T> {
-  const formula = Formula(
-    callback,
-    descriptionFrom({
-      type: "formula",
-      api: {
-        package: "@starbeam/core",
-        name: "FormulaFn",
-      },
-      fromUser: description,
-    })
-  );
+  const desc = descriptionFrom({
+    type: "formula",
+    api: {
+      package: "@starbeam/core",
+      name: "FormulaFn",
+    },
+    fromUser: description,
+  });
+
+  const formula = Formula(callback, desc);
 
   const fn = () => Frame.value(formula.poll());
 
@@ -95,7 +94,7 @@ export function FormulaFn<T>(
     writable: true,
     value: {
       type: "delegate",
-      description,
+      description: desc,
       delegate: [formula.frame],
     },
   });

@@ -26,7 +26,9 @@ export class Frame<T = unknown> implements ReactiveProtocol {
         [REACTIVE]: {
           type: "mutable",
           lastUpdated: finalized,
-          description,
+          description: description
+            .key("initialized?")
+            .implementation({ userFacing: description }),
         },
       },
       children,
@@ -45,7 +47,7 @@ export class Frame<T = unknown> implements ReactiveProtocol {
         [REACTIVE]: {
           type: "mutable",
           lastUpdated: finalized,
-          description,
+          description: description.detail("initialized?"),
         },
       },
       new Set(),

@@ -166,6 +166,18 @@ export const ReactiveProtocol = {
     return lastUpdatedTimestamp;
   },
 
+  log(
+    this: void,
+    reactive: ReactiveProtocol,
+    options: { implementation?: boolean; source?: boolean } = {}
+  ) {
+    const debug = ReactiveProtocol.debug(reactive, options);
+
+    console.group(ReactiveProtocol.description(reactive).describe());
+    console.log(debug);
+    console.groupEnd();
+  },
+
   debug(
     this: void,
     reactive: ReactiveProtocol,

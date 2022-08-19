@@ -7,12 +7,12 @@ import { diff } from "./utils.js";
 export class Subscription {
   #dependencies: Set<MutableInternals>;
   #lastNotified: undefined | Timestamp;
-  #ready: () => void;
+  #ready: (internals: MutableInternals) => void;
 
   constructor(
     dependencies: Set<MutableInternals>,
     lastNotified: undefined | Timestamp,
-    ready: () => void
+    ready: (internals: MutableInternals) => void
   ) {
     this.#dependencies = dependencies;
     this.#lastNotified = lastNotified;
@@ -31,9 +31,9 @@ export class Subscription {
     return this.#lastNotified;
   }
 
-  notify(timestamp: Timestamp): void {
+  notify(timestamp: Timestamp, internals: MutableInternals): void {
     this.#lastNotified = timestamp;
-    this.#ready();
+    this.#ready(internals);
   }
 }
 
@@ -57,13 +57,16 @@ export class Subscriptions {
     const subscriptions = this.#depMap.get(dependency);
 
     if (subscriptions) {
-      for (const pollable of subscriptions) {
-        pollable.notify(Timestamp.now());
+      for (const subscription of subscriptions) {
+        subscription.notify(Timestamp.now(), dependency);
       }
     }
   }
 
-  register(reactive: ReactiveProtocol, ready: () => void): Unsubscribe {
+  register(
+    reactive: ReactiveProtocol,
+    ready: (internals: MutableInternals) => void
+  ): Unsubscribe {
     const subscribesTo = ReactiveProtocol.subscribesTo(reactive);
     const dependencies = new Set(ReactiveProtocol.dependencies(reactive));
 

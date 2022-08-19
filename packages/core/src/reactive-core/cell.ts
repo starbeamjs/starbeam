@@ -136,19 +136,25 @@ export function Cell<T>(
     equals = description.equals ?? Object.is;
   }
 
+  // if (desc.fullName.includes("anonymous")) {
+  //   debugger;
+  // }
   return ReactiveCell.create(value, equals, MutableInternals(desc));
 }
 
 function normalize(description?: string | Description): Description {
   if (typeof description === "string" || description === undefined) {
-    return descriptionFrom({
-      type: "cell",
-      api: {
-        package: "@starbeam/core",
-        name: "Cell",
+    return descriptionFrom(
+      {
+        type: "cell",
+        api: {
+          package: "@starbeam/core",
+          name: "Cell",
+        },
+        fromUser: description,
       },
-      fromUser: description,
-    });
+      1
+    );
   }
 
   return description;

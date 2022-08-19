@@ -70,7 +70,10 @@ export class Timeline {
       };
     },
 
-    change: (input: ReactiveProtocol, ready: () => void): Unsubscribe => {
+    change: (
+      input: ReactiveProtocol,
+      ready: (internals: MutableInternals) => void
+    ): Unsubscribe => {
       return this.#subscriptions.register(input, ready);
     },
   } as const;
@@ -131,6 +134,13 @@ export class Timeline {
   #readAssertions = new Set<
     (reactive: ReactiveProtocol, caller: Stack) => void
   >();
+
+  /** @internal */
+  untrackedRead(cell: ReactiveProtocol, caller: Stack): void {
+    for (const assertion of this.#readAssertions) {
+      assertion(cell, caller);
+    }
+  }
 
   @ifDebug
   attach(
