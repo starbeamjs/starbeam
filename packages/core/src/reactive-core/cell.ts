@@ -92,7 +92,7 @@ export class ReactiveCell<T>
   }
 
   initialize(initializer: () => T, caller = callerStack()): T {
-    if (this.#value === UNINITIALIZED) {
+    if ((this.#value as T | UNINITIALIZED) === UNINITIALIZED) {
       this.#set(initializer(), caller);
     }
 
