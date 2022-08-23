@@ -3,6 +3,7 @@ import {
   callerStack,
   descriptionFrom,
 } from "@starbeam/debug";
+import type { Stack } from "@starbeam/interfaces";
 import { type ReactiveProtocol, REACTIVE, TIMELINE } from "@starbeam/timeline";
 
 import { type MutableInternalsImpl, MutableInternals } from "../storage.js";
@@ -26,8 +27,8 @@ export class ReactiveMarker implements ReactiveProtocol {
     TIMELINE.frame.didConsume(this, caller);
   }
 
-  update(): void {
-    this.#internals.update();
+  update(caller: Stack): void {
+    this.#internals.update(caller);
   }
 
   /** impl Reactive<T> */

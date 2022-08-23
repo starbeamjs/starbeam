@@ -1,5 +1,6 @@
 // eslint-disable-next-line unused-imports/no-unused-imports, @typescript-eslint/no-unused-vars
 import { DisplayStruct, ifDebug } from "@starbeam/debug";
+import type * as interfaces from "@starbeam/interfaces";
 // import type { IS_UPDATED_SINCE } from "../../fundamental/constants.js";
 // import { INSPECT } from "../../utils.js";
 import { bump as peerBump, now as peerNow } from "@starbeam/peer";
@@ -12,7 +13,7 @@ export class Timestamp {
   /**
    * Returns the current `Timestamp` according to @starbeam/peer
    */
-  static now(): Timestamp {
+  static now(): interfaces.Timestamp {
     return new Timestamp(peerNow());
   }
 
@@ -23,8 +24,14 @@ export class Timestamp {
     return new Timestamp(Timestamp.#initial);
   }
 
-  static max(...timestamps: Timestamp[]): Timestamp {
-    return timestamps.reduce((a, b) => (a.gt(b) ? a : b), Timestamp.zero());
+  static debug(timestamp: interfaces.Timestamp): { at: number } {
+    if (#timestamp in timestamp) {
+      return { at: timestamp.#timestamp };
+    } else {
+      throw Error(
+        "Value passed to Timestamp.debug was unexpectedly not a timestamp"
+      );
+    }
   }
 
   readonly #timestamp: number;
@@ -58,14 +65,28 @@ export class Timestamp {
   };
 }
 
+export function zero(): interfaces.Timestamp {
+  return Timestamp.zero();
+}
+
+export function now(): interfaces.Timestamp {
+  return Timestamp.now();
+}
+
+export function max(
+  ...timestamps: interfaces.Timestamp[]
+): interfaces.Timestamp {
+  return timestamps.reduce((a, b) => (a.gt(b) ? a : b), zero());
+}
+
 export class Now {
   #now = Timestamp.now();
 
-  get now(): Timestamp {
+  get now(): interfaces.Timestamp {
     return this.#now;
   }
 
-  bump(): Timestamp {
+  bump(): interfaces.Timestamp {
     return (this.#now = this.#now.next());
   }
 }

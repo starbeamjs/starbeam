@@ -1,5 +1,6 @@
 import { type Equality, Cell, Marker } from "@starbeam/core";
 import { UNINITIALIZED } from "@starbeam/core-utils";
+import type { Stack } from "@starbeam/debug";
 import { type Description, callerStack } from "@starbeam/debug";
 
 class Entry<V> {
@@ -35,24 +36,24 @@ class Entry<V> {
     this.#initialized = initialized;
   }
 
-  isPresent(): boolean {
-    return this.#initialized.current;
+  isPresent(caller: Stack): boolean {
+    return this.#initialized.read(caller);
   }
 
-  delete(): "deleted" | "unchanged" {
-    const cell = this.#value.current;
+  delete(caller: Stack): "deleted" | "unchanged" {
+    const cell = this.#value.read(caller);
 
     if (cell === UNINITIALIZED) {
       return "unchanged";
     } else {
-      this.#initialized.set(false);
-      this.#value.set(UNINITIALIZED);
+      this.#initialized.set(false, caller);
+      this.#value.set(UNINITIALIZED, caller);
       return "deleted";
     }
   }
 
-  get(): V | undefined {
-    const current = this.#value.current;
+  get(caller: Stack): V | undefined {
+    const current = this.#value.read(caller);
 
     if (current === UNINITIALIZED) {
       return undefined;
@@ -61,13 +62,13 @@ class Entry<V> {
     }
   }
 
-  set(value: V): "initialized" | "updated" | "unchanged" {
-    if (this.#value.current === UNINITIALIZED) {
-      this.#value.set(value);
-      this.#initialized.set(true);
+  set(value: V, caller: Stack): "initialized" | "updated" | "unchanged" {
+    if (this.#value.read(caller) === UNINITIALIZED) {
+      this.#value.set(value, caller);
+      this.#initialized.set(true, caller);
       return "initialized";
     } else {
-      return this.#value.set(value) ? "updated" : "unchanged";
+      return this.#value.set(value, caller) ? "updated" : "unchanged";
     }
   }
 }
@@ -104,23 +105,25 @@ export class ReactiveMap<K, V> implements Map<K, V> {
   }
 
   clear(): void {
+    const caller = callerStack();
     if (this.#entries.size > 0) {
       this.#entries.clear();
-      this.#keys.update();
-      this.#values.update();
+      this.#keys.update(caller);
+      this.#values.update(caller);
     }
   }
 
   delete(key: K): boolean {
+    const caller = callerStack();
     const entry = this.#entries.get(key);
 
     if (entry) {
-      const disposition = entry.delete();
+      const disposition = entry.delete(caller);
 
       if (disposition === "deleted") {
         this.#entries.delete(key);
-        this.#keys.update();
-        this.#values.update();
+        this.#keys.update(caller);
+        this.#values.update(caller);
         return true;
       }
     }
@@ -132,45 +135,51 @@ export class ReactiveMap<K, V> implements Map<K, V> {
     callbackfn: (value: V, key: K, map: Map<K, V>) => void,
     thisArg?: unknown
   ): void {
-    this.#keys.consume(callerStack());
-    this.#values.consume(callerStack());
+    const caller = callerStack();
+    this.#keys.consume(caller);
+    this.#values.consume(caller);
 
     for (const [key, entry] of this.#entries) {
-      callbackfn.call(thisArg, entry.get() as V, key, this);
+      callbackfn.call(thisArg, entry.get(caller) as V, key, this);
     }
   }
 
   get(key: K): V | undefined {
+    const caller = callerStack();
     const entry = this.#entry(key);
-    return entry?.get();
+    return entry?.get(caller);
   }
 
   has(key: K): boolean {
-    return this.#entry(key).isPresent();
+    const caller = callerStack();
+    return this.#entry(key).isPresent(caller);
   }
 
   set(key: K, value: V): this {
+    const caller = callerStack();
+
     const entry = this.#entry(key);
-    const disposition = entry.set(value);
+    const disposition = entry.set(value, caller);
 
     if (disposition === "initialized") {
-      this.#keys.update();
+      this.#keys.update(caller);
     }
 
     if (disposition === "initialized" || disposition === "updated") {
-      this.#values.update();
+      this.#values.update(caller);
     }
 
     return this;
   }
 
   get size(): number {
-    this.#keys.consume(callerStack());
+    const caller = callerStack();
+    this.#keys.consume(caller);
 
     let size = 0;
 
-    for (const [, entry] of this.#iterate()) {
-      if (entry.isPresent()) {
+    for (const [, entry] of this.#iterate(caller)) {
+      if (entry.isPresent(caller)) {
         size++;
       }
     }
@@ -178,37 +187,41 @@ export class ReactiveMap<K, V> implements Map<K, V> {
     return size;
   }
 
-  *#iterate(): IterableIterator<[K, Entry<V>]> {
+  *#iterate(caller: Stack): IterableIterator<[K, Entry<V>]> {
     for (const [key, entry] of this.#entries) {
-      if (entry.isPresent()) {
+      if (entry.isPresent(caller)) {
         yield [key, entry];
       }
     }
   }
 
   *entries(): IterableIterator<[K, V]> {
-    this.#keys.consume(callerStack());
-    this.#values.consume(callerStack());
+    const caller = callerStack();
+    this.#keys.consume(caller);
+    this.#values.consume(caller);
 
-    for (const [key, value] of this.#iterate()) {
-      yield [key, value.get() as V];
+    for (const [key, value] of this.#iterate(caller)) {
+      yield [key, value.get(caller) as V];
     }
   }
 
   *keys(): IterableIterator<K> {
-    this.#keys.consume(callerStack());
+    const caller = callerStack();
+    this.#keys.consume(caller);
 
-    for (const [key] of this.#iterate()) {
+    for (const [key] of this.#iterate(caller)) {
       yield key;
     }
   }
 
   *values(): IterableIterator<V> {
     // add an extra frame for the internal JS call to .next()
-    this.#values.consume(callerStack(1));
+    const caller = callerStack(1);
 
-    for (const [, value] of this.#iterate()) {
-      yield value.get() as V;
+    this.#values.consume(caller);
+
+    for (const [, value] of this.#iterate(caller)) {
+      yield value.get(caller) as V;
     }
   }
 
@@ -257,32 +270,38 @@ export class ReactiveSet<T> implements Set<T> {
   }
 
   add(value: T): this {
+    const caller = callerStack();
+
     const entry = this.#entry(value);
 
-    if (!entry.isPresent()) {
+    if (!entry.isPresent(caller)) {
       this.#entries.set(value, entry);
-      this.#values.update();
-      entry.set(value);
+      this.#values.update(caller);
+      entry.set(value, caller);
     }
 
     return this;
   }
 
   clear(): void {
+    const caller = callerStack();
+
     if (this.#entries.size > 0) {
       this.#entries.clear();
-      this.#values.update();
+      this.#values.update(caller);
     }
   }
 
   delete(value: T): boolean {
+    const caller = callerStack();
+
     const entry = this.#entries.get(value);
 
     if (entry) {
-      const disposition = entry.delete();
+      const disposition = entry.delete(caller);
 
       if (disposition === "deleted") {
-        this.#values.update();
+        this.#values.update(caller);
         this.#entries.delete(value);
         return true;
       }
@@ -295,49 +314,59 @@ export class ReactiveSet<T> implements Set<T> {
     callbackfn: (value: T, value2: T, set: Set<T>) => void,
     thisArg?: unknown
   ): void {
-    this.#values.consume(callerStack());
+    const caller = callerStack();
 
-    for (const [value] of this.#iterate()) {
+    this.#values.consume(caller);
+
+    for (const [value] of this.#iterate(caller)) {
       callbackfn.call(thisArg, value, value, this);
     }
   }
 
   has(value: T): boolean {
-    return this.#entry(value).isPresent();
+    const caller = callerStack();
+
+    return this.#entry(value).isPresent(caller);
   }
 
   get size(): number {
-    this.#values.consume(callerStack());
+    const caller = callerStack();
+
+    this.#values.consume(caller);
 
     let size = 0;
 
-    for (const _ of this.#iterate()) {
+    for (const _ of this.#iterate(caller)) {
       size++;
     }
 
     return size;
   }
 
-  *#iterate(): IterableIterator<[T, Entry<T>]> {
+  *#iterate(caller: Stack): IterableIterator<[T, Entry<T>]> {
     for (const [value, entry] of this.#entries) {
-      if (entry.isPresent()) {
+      if (entry.isPresent(caller)) {
         yield [value, entry];
       }
     }
   }
 
   *entries(): IterableIterator<[T, T]> {
-    this.#values.consume(callerStack());
+    const caller = callerStack();
 
-    for (const [value, entry] of this.#iterate()) {
-      yield [value, entry.get() as T];
+    this.#values.consume(caller);
+
+    for (const [value, entry] of this.#iterate(caller)) {
+      yield [value, entry.get(caller) as T];
     }
   }
 
   *keys(): IterableIterator<T> {
-    this.#values.consume(callerStack());
+    const caller = callerStack();
 
-    for (const [value] of this.#iterate()) {
+    this.#values.consume(caller);
+
+    for (const [value] of this.#iterate(caller)) {
       yield value;
     }
   }

@@ -1,5 +1,6 @@
 import { type Stack, callerStack, descriptionFrom } from "@starbeam/debug";
 import type { UNINITIALIZED } from "@starbeam/peer";
+import type { Timestamp } from "@starbeam/timeline";
 import {
   type MutableInternals,
   type Reactive,
@@ -7,7 +8,7 @@ import {
   Frame,
   REACTIVE,
   TIMELINE,
-  Timestamp,
+  zero,
 } from "@starbeam/timeline";
 
 export interface Cell<T> extends ReactiveProtocol {
@@ -20,7 +21,7 @@ export interface FreezableCell<T> extends Cell<T> {
 }
 
 export function Cell<T>(value: T): Cell<T> {
-  let lastUpdated = TIMELINE.bump();
+  let lastUpdated = TIMELINE.next();
   const internals: MutableInternals = {
     type: "mutable",
     get lastUpdated(): Timestamp {
@@ -40,13 +41,13 @@ export function Cell<T>(value: T): Cell<T> {
     set current(newValue: T) {
       value = newValue;
 
-      lastUpdated = TIMELINE.bump(internals);
+      lastUpdated = TIMELINE.bump(internals, callerStack());
     },
   };
 }
 
 export function FreezableCell<T>(value: T): FreezableCell<T> {
-  let lastUpdated = Timestamp.zero();
+  let lastUpdated = zero();
   let isFrozen = false;
 
   const internals: MutableInternals = {
@@ -69,7 +70,7 @@ export function FreezableCell<T>(value: T): FreezableCell<T> {
     set current(newValue: T) {
       value = newValue;
 
-      lastUpdated = TIMELINE.bump(internals);
+      lastUpdated = TIMELINE.bump(internals, callerStack());
     },
     freeze() {
       isFrozen = true;
@@ -97,7 +98,7 @@ export function Formula<T>(computation: () => T): {
   poll: () => T;
 } {
   const frame = Frame.uninitialized<T>(
-    TIMELINE.bump(),
+    TIMELINE.next(),
     descriptionFrom({
       type: "formula",
       api: "Formula",
@@ -130,7 +131,7 @@ export function Marker(): {
   instance: ReactiveProtocol;
   update: () => void;
 } {
-  let lastUpdated = TIMELINE.bump();
+  let lastUpdated = TIMELINE.next();
   const internals: MutableInternals = {
     type: "mutable",
     get lastUpdated() {
@@ -143,7 +144,7 @@ export function Marker(): {
       [REACTIVE]: internals,
     },
     update: () => {
-      lastUpdated = TIMELINE.bump(internals);
+      lastUpdated = TIMELINE.bump(internals, callerStack());
     },
   };
 }

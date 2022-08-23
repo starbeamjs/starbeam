@@ -6,7 +6,8 @@
   "dependencies": {
     "@starbeam/peer": "workspace:^",
     "@starbeam/verify": "workspace:^",
-    "@starbeam/debug": "workspace:^"
+    "@starbeam/debug": "workspace:^",
+    "@starbeam/interfaces": "workspace:^"
   },
   "publishConfig": {
     "main": "dist/index.cjs",

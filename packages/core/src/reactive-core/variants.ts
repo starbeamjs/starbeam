@@ -1,5 +1,7 @@
+import type { Stack } from "@starbeam/debug";
 import {
   type Description,
+  callerStack,
   descriptionFrom,
   DisplayStruct,
 } from "@starbeam/debug";
@@ -47,19 +49,19 @@ export class VariantGroups {
     return group;
   }
 
-  transition(from: string, to: string): void {
+  transition(from: string, to: string, caller: Stack): void {
     const fromGroups = this.#groupsByType.get(from);
     const toGroups = this.#groupsByType.get(to);
 
     if (fromGroups) {
       for (const group of fromGroups) {
-        group.transition(to);
+        group.transition(to, caller);
       }
     }
 
     if (toGroups) {
       for (const group of toGroups) {
-        group.transition(from);
+        group.transition(from, caller);
       }
     }
   }
@@ -109,12 +111,12 @@ export class VariantGroup {
 
   // Transition to or from another variant. If the variant is not present in this group, then this
   // group is invalidated.
-  transition(type: string): void {
+  transition(type: string, caller: Stack): void {
     if (this.#types.has(type)) {
       return;
     }
 
-    this.#marker.update();
+    this.#marker.update(caller);
   }
 }
 
@@ -185,16 +187,16 @@ export class Variant<T> implements ReactiveProtocol {
     };
   }
 
-  static set<T>(variant: Variant<T>, value: T): void {
-    variant.#value.set(value);
+  static set<T>(variant: Variant<T>, value: T, caller = callerStack()): void {
+    variant.#value.set(value, caller);
   }
 
-  static select<T>(variant: Variant<T>): void {
-    variant.#localTypeMarker.update();
+  static select<T>(variant: Variant<T>, caller = callerStack()): void {
+    variant.#localTypeMarker.update(caller);
   }
 
-  static deselect<T>(variant: Variant<T>): void {
-    variant.#localTypeMarker.update();
+  static deselect<T>(variant: Variant<T>, caller = callerStack()): void {
+    variant.#localTypeMarker.update(caller);
   }
 
   static consumeType(variant: Variant<unknown>): void {
@@ -399,6 +401,7 @@ class VariantsImpl implements ReactiveProtocol {
   }
 
   choose(type: string, value?: unknown): void {
+    const caller = callerStack();
     const current = this.#current;
     const from = Variant.type(current);
 
@@ -408,7 +411,7 @@ class VariantsImpl implements ReactiveProtocol {
     }
 
     Variant.deselect(current);
-    this.#groups.transition(from, type);
+    this.#groups.transition(from, type, caller);
 
     const existing = this.#variants[type] as Variant<unknown> | undefined;
 
@@ -420,7 +423,7 @@ class VariantsImpl implements ReactiveProtocol {
       this.#current = this.#create(type, ["selected", value]);
     }
 
-    this.#typeMarker.update();
+    this.#typeMarker.update(caller);
     // this.#current.consumeType();
     TIMELINE.update(this);
   }

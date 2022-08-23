@@ -7,13 +7,14 @@ import {
   ifDebug,
   isDebug,
 } from "@starbeam/debug";
+import type { MutableInternals, Timestamp } from "@starbeam/interfaces";
 
 import { LIFETIME } from "../lifetime/api.js";
 import type { Unsubscribe } from "../lifetime/object-lifetime.js";
 import { FrameStack } from "./frames.js";
-import { type MutableInternals, ReactiveProtocol } from "./protocol.js";
+import { ReactiveProtocol } from "./protocol.js";
 import { Subscriptions } from "./subscriptions.js";
-import { NOW, Timestamp } from "./timestamp.js";
+import { NOW, now } from "./timestamp.js";
 
 /**
  * # How Subscriptions Work at the Lowest Level
@@ -102,18 +103,18 @@ export class Timeline {
     return this.#frame;
   }
 
+  next(): Timestamp {
+    return NOW.bump();
+  }
+
   // Increment the current timestamp and return the incremented timestamp.
-  bump(mutable?: MutableInternals): Timestamp {
-    if (isDebug() && mutable) {
-      this.#debug.updateCell(mutable);
+  bump(mutable: MutableInternals, caller: Stack): Timestamp {
+    if (isDebug()) {
+      this.#debug.updateCell(mutable, caller);
     }
 
     const now = NOW.bump();
-
-    if (mutable) {
-      this.#subscriptions.notify(mutable);
-    }
-
+    this.#subscriptions.notify(mutable);
     return now;
   }
 
@@ -154,10 +155,14 @@ export class Timeline {
     return listener;
   }
 
-  get #debug() {
+  get log(): DebugTimeline {
+    return this.#debug;
+  }
+
+  get #debug(): DebugTimeline {
     if (!this.#debugTimeline) {
       const debugTimeline = (this.#debugTimeline = DebugTimeline.create(
-        Timestamp.zero(),
+        { now },
         ReactiveProtocol
       ));
       this.on.rendered(() => debugTimeline.notify());

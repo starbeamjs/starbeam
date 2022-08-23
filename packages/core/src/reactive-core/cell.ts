@@ -75,10 +75,10 @@ export class ReactiveCell<T> implements Reactive<T> {
   }
 
   set current(value: T) {
-    this.#set(value);
+    this.#set(value, callerStack());
   }
 
-  read(caller?: Stack): T {
+  read(caller: Stack): T {
     TIMELINE.frame.didConsume(this, caller);
     return this.#value;
   }
@@ -87,21 +87,21 @@ export class ReactiveCell<T> implements Reactive<T> {
    * Returns true if the value was updated, and false if the value was already present and equal to
    * the new value.
    */
-  set(value: T): boolean {
-    return this.#set(value);
+  set(value: T, caller = callerStack()): boolean {
+    return this.#set(value, caller);
   }
 
-  update(updater: (prev: T) => T): boolean {
-    return this.#set(updater(this.#value));
+  update(updater: (prev: T) => T, caller = callerStack()): boolean {
+    return this.#set(updater(this.#value), caller);
   }
 
-  #set(value: T): boolean {
+  #set(value: T, caller: Stack): boolean {
     if (this.#equals(this.#value, value)) {
       return false;
     }
 
     this.#value = value;
-    this.#internals.update();
+    this.#internals.update(caller);
     return true;
   }
 

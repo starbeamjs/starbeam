@@ -6,6 +6,7 @@
   "dependencies": {
     "@starbeam/peer": "workspace:^",
     "@starbeam/verify": "workspace:^",
+    "@starbeam/interfaces": "workspace:^",
     "stacktracey": "^2.1.8"
   },
   "devDependencies": {

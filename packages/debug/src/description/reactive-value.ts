@@ -1,144 +1,39 @@
+import type {
+  ApiDetails,
+  DescriptionArgs,
+  DescriptionDetails,
+  DescriptionParts,
+  DescriptionType,
+  DetailsPart,
+  StackFrame,
+  StackFrameDescribeOptions,
+  // eslint-disable-next-line import/no-duplicates
+} from "@starbeam/interfaces";
+// eslint-disable-next-line import/no-duplicates
+import type * as interfaces from "@starbeam/interfaces";
 import { exhaustive } from "@starbeam/verify";
 import chalk from "chalk";
 
 import { isDebug } from "../conditional.js";
 import { DisplayStruct } from "../inspect/display-struct.js";
-import type { Stack, StackFrame } from "../stack.js";
-
-export type MarkerType =
-  | "collection:key-value"
-  | "collection:value"
-  | "collection:value:entry"
-  | "collection:key-value:entry";
-
-export type ValueType =
-  | "implementation"
-  // represents a value that is not Starbeam-reactive, but is reactive according to the rules of the
-  // external framework embedding Starbeam (e.g. React)
-  | "external"
-  // represents a renderer value
-  | "renderer"
-  // represents a value that delegates to another reactive value
-  | "delegate"
-  | "static"
-  | "cell"
-  | "formula"
-  | "resource"
-  | "variants";
-
-/** DescriptionType is `erased` in production */
-export type DescriptionType = MarkerType | ValueType | "erased";
-
-export interface MemberDescription {
-  type: "member";
-  kind: "index" | "property" | "key";
-  note?: string;
-  parent: Description;
-  name: string | number;
-}
-
-export interface DetailDescription {
-  type: "detail";
-  args?: string[];
-  note?: string;
-  parent: Description;
-  name: string;
-}
-
-interface MethodDescription {
-  type: "method";
-  parent: Description;
-  name: string;
-}
-
-export type DescriptionDetails =
-  | string
-  | MemberDescription
-  | MethodDescription
-  | DetailDescription;
-
-interface ApiDetails {
-  package: string;
-  module?: string;
-  // default is allowed here
-  name: string;
-  method?:
-    | {
-        type: "static";
-        name: string;
-      }
-    | {
-        type: "instance";
-        name: string;
-      };
-}
-
-export interface DescriptionArgs {
-  /**
-   * The type is a high-level categorization from the perspective of Starbeam. It is used in
-   * developer tools to decide how to render the description.
-   */
-  type: DescriptionType;
-  /**
-   * The {@linkcode api} is the user-facing, public API entry point that the developer used to
-   * construct the thing that this description is describing. For example, the `useSetup` hook in
-   * `@starbeam/react` has the type "resource" and the api "useStarbeam".
-   */
-  api: string | ApiDetails;
-  /**
-   * An optional description, as provided by the end user. Each instance of an abstraction like
-   * `useSetup` should have a different description (this is the distinction between `api` and
-   * `fromUser`).
-   */
-  fromUser?: DescriptionDetails | Description;
-
-  internal?: {
-    reason: string;
-    userFacing: DescriptionArgs;
-  };
-
-  stack?: Stack;
-}
+import type { Stack } from "../stack.js";
 
 export let PickedDescription: DescriptionStatics;
 
-export interface Description extends DescriptionArgs {
-  readonly fullName: string;
-  readonly type: DescriptionType;
-  readonly api: string | ApiDetails;
-  readonly userFacing: Description;
-
-  method(name: string): Description;
-  index(index: number): Description;
-  property(name: string): Description;
-  detail(
-    name: string,
-    args?: string[] | { args?: string[]; note?: string }
-  ): Description;
-  key(name: string): Description;
-  implementation(options?: {
-    reason?: string;
-    userFacing?: Description;
-  }): Description;
-
-  describe(options?: { source?: boolean }): string;
-  readonly frame: StackFrame | undefined;
-}
-
 export interface DescriptionStatics {
-  is(description: unknown): description is Description;
-  from(args: DescriptionArgs): Description;
+  is(description: unknown): description is interfaces.Description;
+  from(args: DescriptionArgs): interfaces.Description;
 }
 
 if (isDebug()) {
   let id = 0;
 
-  class DebugDescription implements Description, DescriptionArgs {
-    static is(description: unknown): description is Description {
+  class DebugDescription implements interfaces.Description, DescriptionArgs {
+    static is(description: unknown): description is interfaces.Description {
       return !!(description && description instanceof DebugDescription);
     }
 
-    static from(args: DescriptionArgs): Description {
+    static from(args: DescriptionArgs): interfaces.Description {
       if (DebugDescription.is(args)) {
         return args;
       } else if (DebugDescription.is(args.fromUser)) {
@@ -218,7 +113,7 @@ if (isDebug()) {
       return this.#api;
     }
 
-    get userFacing(): Description {
+    get userFacing(): interfaces.Description {
       if (this.#internal) {
         return DebugDescription.from(this.#internal.userFacing);
       } else {
@@ -230,7 +125,10 @@ if (isDebug()) {
       return this.#details === undefined;
     }
 
-    implementation(details?: { reason: string; userFacing: Description }) {
+    implementation(details?: {
+      reason: string;
+      userFacing: interfaces.Description;
+    }) {
       return new DebugDescription(
         this.#type,
         this.#api,
@@ -296,7 +194,7 @@ if (isDebug()) {
       }
     }
 
-    method(this: DebugDescription, name: string): Description {
+    method(this: DebugDescription, name: string): interfaces.Description {
       return new DebugDescription(
         "formula",
         this.#api,
@@ -310,7 +208,7 @@ if (isDebug()) {
       );
     }
 
-    index(this: DebugDescription, index: number): Description {
+    index(this: DebugDescription, index: number): interfaces.Description {
       return new DebugDescription(
         "formula",
         this.#api,
@@ -325,7 +223,7 @@ if (isDebug()) {
       );
     }
 
-    property(this: DebugDescription, name: string): Description {
+    property(this: DebugDescription, name: string): interfaces.Description {
       return new DebugDescription(
         "formula",
         this.#api,
@@ -344,7 +242,7 @@ if (isDebug()) {
       this: DebugDescription,
       name: string,
       args?: string[] | { args?: string[]; note?: string }
-    ): Description {
+    ): interfaces.Description {
       let detailArgs: string[] | undefined;
       let note: string | undefined;
 
@@ -376,7 +274,11 @@ if (isDebug()) {
      * a concept that normal users don't have enough context to understand (but which can be
      * revealed by passing `implementation: true` to the debug APIs).
      */
-    key(this: DebugDescription, name: string, note?: string): Description {
+    key(
+      this: DebugDescription,
+      name: string,
+      note?: string
+    ): interfaces.Description {
       return new DebugDescription(
         "formula",
         this.#api,
@@ -392,8 +294,38 @@ if (isDebug()) {
       );
     }
 
-    describe({ source = false }: { source?: boolean } = {}): string {
-      const name = this.#name(source);
+    get parts(): DescriptionParts {
+      return {
+        type: this.#type,
+        api: this.#apiPart,
+        details: this.#detailsPart,
+        frame: this.#stack?.caller,
+        stack: this.#stack?.stack,
+      };
+    }
+
+    get #apiPart(): ApiDetails {
+      if (typeof this.#api === "string") {
+        return {
+          name: this.#api,
+        };
+      } else {
+        return this.#api;
+      }
+    }
+
+    get #detailsPart(): DetailsPart {
+      if (typeof this.#details === "string") {
+        return { type: "value", name: this.#details };
+      } else if (this.#details === undefined) {
+        return { type: "anonymous" };
+      } else {
+        return this.#details;
+      }
+    }
+
+    describe(options: StackFrameDescribeOptions = {}): string {
+      const name = this.#name(options);
 
       if (this.#internal) {
         const desc = this.#internal.reason
@@ -405,19 +337,19 @@ if (isDebug()) {
       }
     }
 
-    #name(source: boolean): string {
-      if (this.isAnonymous || source) {
-        return `${this.fullName} @ ${this.#caller}`;
+    #name(options: StackFrameDescribeOptions): string {
+      if ((this.isAnonymous || options.source) ?? false) {
+        return `${this.fullName} @ ${this.#caller(options)}`;
       } else {
         return this.fullName;
       }
     }
 
-    get #caller(): string {
+    #caller(options?: StackFrameDescribeOptions): string {
       const caller = this.#stack?.caller;
 
       if (caller !== undefined) {
-        return caller.display;
+        return caller.display(options);
       } else {
         return "<unknown>";
       }
@@ -430,14 +362,14 @@ if (isDebug()) {
 
   PickedDescription = DebugDescription;
 } else {
-  class ProdDescription implements Description {
+  class ProdDescription implements interfaces.Description {
     static PROD = new ProdDescription();
 
-    static is(description: unknown): description is Description {
+    static is(description: unknown): description is interfaces.Description {
       return !!(description && description instanceof ProdDescription);
     }
 
-    static from(): Description {
+    static from(): interfaces.Description {
       return ProdDescription.PROD;
     }
 
@@ -448,29 +380,36 @@ if (isDebug()) {
     readonly internal = undefined;
     readonly stack = undefined;
     readonly userFacing = this;
-    readonly frame: StackFrame = { link: "", display: "" };
+    readonly parts: DescriptionParts = {
+      api: { name: "erased" },
+      details: { type: "anonymous" },
+      type: "erased",
+      frame: undefined,
+      stack: undefined,
+    };
+    readonly frame: StackFrame = { link: () => "", display: () => "" };
 
-    method(): Description {
+    method(): interfaces.Description {
       return this;
     }
 
-    index(): Description {
+    index(): interfaces.Description {
       return this;
     }
 
-    property(): Description {
+    property(): interfaces.Description {
       return this;
     }
 
-    key(): Description {
+    key(): interfaces.Description {
       return this;
     }
 
-    detail(): Description {
+    detail(): interfaces.Description {
       return this;
     }
 
-    implementation(_options?: { reason: string }): Description {
+    implementation(_options?: { reason: string }): interfaces.Description {
       return this;
     }
 
@@ -482,4 +421,5 @@ if (isDebug()) {
   PickedDescription = ProdDescription;
 }
 
+export type Description = interfaces.Description;
 export const Description: DescriptionStatics = PickedDescription;

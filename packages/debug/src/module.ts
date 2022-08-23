@@ -1,3 +1,4 @@
+import type { StackFrameDisplayOptions } from "@starbeam/interfaces";
 import { hasType } from "@starbeam/verify";
 
 export function describeModule(module: string): DescribedModule {
@@ -11,13 +12,16 @@ export class DescribedModule {
     this.#module = module;
   }
 
-  get #simple() {
-    return `${this.#module.path}`;
+  #simple(options: StackFrameDisplayOptions) {
+    return `${this.#module.path(options)}`;
   }
 
-  display(location?: { loc?: Loc; action?: string }): string {
+  display(
+    location?: { loc?: Loc; action?: string },
+    options: StackFrameDisplayOptions = {}
+  ): string {
     if (location === undefined) {
-      return this.#simple;
+      return this.#simple(options);
     }
 
     const { loc, action } = location;
@@ -26,13 +30,13 @@ export class DescribedModule {
     const hasAction = action !== undefined && action.trim().length !== 0;
 
     if (hasLoc && hasAction) {
-      return `${action} (${this.#module.path}:${formatLoc(loc)})`;
+      return `${action} (${this.#module.path(options)}:${formatLoc(loc)})`;
     } else if (hasLoc) {
-      return `${this.#module.path}:${formatLoc(loc)}`;
+      return `${this.#module.path(options)}:${formatLoc(loc)}`;
     } else if (hasAction) {
-      return `${action} (${this.#module.path})`;
+      return `${action} (${this.#module.path(options)})`;
     } else {
-      return this.#simple;
+      return this.#simple(options);
     }
   }
 }
@@ -62,12 +66,8 @@ class DescribedModulePath {
     return null;
   }
 
-  get path() {
-    return this.localPath;
-  }
-
-  get localPath() {
-    return join(this.#path);
+  path(options?: StackFrameDisplayOptions): string {
+    return relative({ root: options?.root, full: normalize(this.#path) });
   }
 }
 
@@ -84,20 +84,16 @@ class DescribedPackage {
   }
 
   get pkg() {
-    return join(this.#scope, this.#name);
+    return normalize(this.#scope, this.#name);
   }
 
-  get path() {
-    return join(this.#scope, this.#name, this.#path);
-  }
-
-  get localPath() {
-    return this.#path;
+  path(options?: StackFrameDisplayOptions): string {
+    return relative({ root: options?.root, full: this.#path });
   }
 }
 
 const SOURCE_PARTS =
-  /^(?:(?<scope>@[^/\\]+)[/])?(?<name>[^/\\]+)(?:[/\\](?<path>.*))?$/;
+  /^(?![a-z]+:)(?:(?<scope>@[^/\\]+)[/])?(?<name>[^/\\]+)(?:[/\\](?<path>.*))?$/;
 
 function parse(module: string): DescribedModulePath | DescribedPackage {
   if (module.startsWith(".") || module.startsWith("/")) {
@@ -120,9 +116,23 @@ function parse(module: string): DescribedModulePath | DescribedPackage {
  * edge-cases where this normalization wouldn't work (verbatim paths on Windows)
  * shouldn't matter.
  */
-function join(...pathParts: (string | null | undefined)[]): string {
+function normalize(...pathParts: (string | null | undefined)[]): string {
   return pathParts
     .filter(hasType("string"))
     .map((p: string) => p.replaceAll(/[\\]/g, "/"))
     .join("/");
+}
+
+function relative({
+  root,
+  full,
+}: {
+  root: string | undefined;
+  full: string;
+}): string {
+  if (root && full.startsWith(root)) {
+    return full.slice(root.length);
+  } else {
+    return full;
+  }
 }

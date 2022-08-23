@@ -48,13 +48,13 @@ class ItemState {
     this.#present.current = true;
   }
 
-  update() {
+  update(caller: Stack) {
     this.#present.current = true;
-    this.#value.update();
+    this.#value.update(caller);
   }
 
-  delete() {
-    this.#present.current = false;
+  delete(caller: Stack) {
+    this.#present.set(false, caller);
   }
 }
 
@@ -90,12 +90,12 @@ class Item {
     this.#value.check(caller);
   }
 
-  set() {
-    this.#value.update();
+  set(caller: Stack) {
+    this.#value.update(caller);
   }
 
-  delete(): void {
-    this.#value.delete();
+  delete(caller: Stack): void {
+    this.#value.delete(caller);
   }
 
   read(caller: Stack): void {
@@ -150,7 +150,7 @@ export class Collection<K> {
     this.#iteration.consume(caller);
   }
 
-  splice(): void {
+  splice(caller: Stack): void {
     if (this.#iteration === undefined) {
       // if nobody has iterated this collection, nobody will care that it was modified
       return;
@@ -168,7 +168,7 @@ export class Collection<K> {
     // of Starbeam can used keyed collections, we should make sure the
     // bookkeeping would actually pay for itself before spending the time to
     // implement it.
-    this.#iteration.update();
+    this.#iteration.update(caller);
   }
 
   check(
@@ -217,7 +217,7 @@ export class Collection<K> {
     caller: Stack
   ): void {
     if (disposition === "key:changes") {
-      this.splice();
+      this.splice(caller);
     }
 
     let item = this.#items.get(key);
@@ -227,14 +227,14 @@ export class Collection<K> {
       return;
     }
 
-    item.set();
+    item.set(caller);
 
     if (disposition === "key:changes") {
-      this.splice();
+      this.splice(caller);
     }
   }
 
-  delete(key: K): void {
+  delete(key: K, caller: Stack): void {
     const item = this.#items.get(key);
 
     // if there's no item with that key, that means that no consumer read from
@@ -243,8 +243,8 @@ export class Collection<K> {
       return;
     }
 
-    item.delete();
-    this.splice();
+    item.delete(caller);
+    this.splice(caller);
   }
 
   #initialize(

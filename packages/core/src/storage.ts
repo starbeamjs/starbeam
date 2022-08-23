@@ -1,11 +1,12 @@
 import type { Description } from "@starbeam/debug";
+import type { Stack } from "@starbeam/interfaces";
 import {
   type CompositeInternals,
   type DelegateInternals,
   type ReactiveProtocol,
   type StaticInternals,
+  type Timestamp,
   TIMELINE,
-  Timestamp,
 } from "@starbeam/timeline";
 
 export function StaticInternals(description?: Description): StaticInternals {
@@ -45,7 +46,7 @@ export class MutableInternalsImpl implements MutableInternals {
   readonly type = "mutable";
 
   #frozen = false;
-  #lastUpdated: Timestamp = Timestamp.now();
+  #lastUpdated: Timestamp = TIMELINE.now;
 
   constructor(readonly description?: Description) {}
 
@@ -61,12 +62,12 @@ export class MutableInternalsImpl implements MutableInternals {
     this.#frozen = true;
   }
 
-  update(): void {
+  update(caller: Stack): void {
     if (this.#frozen) {
       throw TypeError("Cannot update frozen object");
     }
 
-    this.#lastUpdated = TIMELINE.bump(this);
+    this.#lastUpdated = TIMELINE.bump(this, caller);
   }
 }
 

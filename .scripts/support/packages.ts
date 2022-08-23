@@ -1,6 +1,7 @@
 import glob from "fast-glob";
 import { readFileSync } from "fs";
 import { dirname, resolve } from "path";
+import { Query } from "./query.js";
 export interface Package {
   name: string;
   main: string;
@@ -9,9 +10,9 @@ export interface Package {
   isTypescript: boolean;
 }
 
-export function packages(
+export function queryPackages(
   root: string,
-  { include }: { include: "private"[] } = { include: [] }
+  query: Query = Query.all
 ): Package[] {
   return glob
     .sync([
@@ -19,20 +20,18 @@ export function packages(
       resolve(root, "framework/*/*/package.json"),
     ])
     .map((path) => [path, JSON.parse(readFileSync(path, "utf8"))])
-    .filter(
-      ([, pkg]) =>
-        pkg.main && (include.includes("private") || pkg.private !== true)
-    )
+    .filter(([, pkg]) => pkg.main)
     .map(([path, pkg]) => {
       const root = dirname(path);
       return {
         name: pkg.name,
         main: resolve(root, pkg.main),
         root,
-        isPrivate: pkg.private,
+        isPrivate: !!pkg.private,
         isTypescript: !!(pkg.type || pkg?.exports?.["."]?.types),
       };
-    });
+    })
+    .filter((pkg) => query.match(pkg));
 }
 
 export function getPackages(
@@ -40,9 +39,9 @@ export function getPackages(
   name: string,
   scope?: string
 ): Package[] {
-  const all = packages(root);
+  const all = queryPackages(root);
 
-  if (name === "all") {
+  if (name === "any") {
     return all;
   }
 

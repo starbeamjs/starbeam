@@ -3,7 +3,7 @@ import type { Command } from "commander";
 import { program } from "commander";
 import sh from "shell-escape-tag";
 import type { StarbeamCommandOptions } from "./commands.js";
-import { packages } from "./packages.js";
+import { queryPackages } from "./support/packages.js";
 import chalk from "chalk";
 
 export function TestCommand({ root }: StarbeamCommandOptions): Command {
@@ -17,7 +17,7 @@ export function TestCommand({ root }: StarbeamCommandOptions): Command {
       "starbeam"
     )
     .action(({ package: packageName, scope }) => {
-      const pkgs = packages(root);
+      const pkgs = queryPackages(root);
       const pkgName = normalizePackageName(packageName, scope);
 
       if (packageName !== "all") {

@@ -1,4 +1,5 @@
 import { type Description, callerStack } from "@starbeam/debug";
+import type { Stack } from "@starbeam/interfaces";
 
 import { Collection } from "./collection.js";
 
@@ -12,13 +13,17 @@ export default class TrackedObject {
 
     const proxy = new Proxy(target, {
       defineProperty(target, key, descriptor) {
-        define(key, descriptor);
+        const caller = callerStack();
+
+        define(key, descriptor, caller);
         return true;
       },
 
       deleteProperty(target, prop) {
         if (Reflect.has(target, prop)) {
-          collection.delete(prop);
+          const caller = callerStack();
+
+          collection.delete(prop, caller);
           Reflect.deleteProperty(target, prop);
         }
 
@@ -26,21 +31,25 @@ export default class TrackedObject {
       },
 
       get(target, prop, _receiver) {
+        const caller = callerStack();
+
         collection.get(
           prop,
           Reflect.has(target, prop) ? "hit" : "miss",
           member(prop),
-          callerStack()
+          caller
         );
         return Reflect.get(target, prop) as unknown;
       },
 
       getOwnPropertyDescriptor(target, prop) {
+        const caller = callerStack();
+
         collection.get(
           prop,
           Reflect.has(target, prop) ? "hit" : "miss",
           member(prop),
-          callerStack()
+          caller
         );
         return Reflect.getOwnPropertyDescriptor(target, prop);
       },
@@ -50,13 +59,10 @@ export default class TrackedObject {
       },
 
       has(target, prop) {
+        const caller = callerStack();
+
         const has = Reflect.has(target, prop);
-        collection.check(
-          prop,
-          has ? "hit" : "miss",
-          member(prop),
-          callerStack()
-        );
+        collection.check(prop, has ? "hit" : "miss", member(prop), caller);
         return has;
       },
 
@@ -65,7 +71,9 @@ export default class TrackedObject {
       },
 
       ownKeys(target) {
-        collection.iterateKeys(callerStack());
+        const caller = callerStack();
+
+        collection.iterateKeys(caller);
         return Reflect.ownKeys(target);
       },
 
@@ -74,6 +82,8 @@ export default class TrackedObject {
       },
 
       set(target: object, prop: PropertyKey, value: unknown, _receiver) {
+        const caller = callerStack();
+
         const descriptor = Reflect.getOwnPropertyDescriptor(target, prop);
 
         if (descriptor === undefined || isDataProperty(descriptor)) {
@@ -85,12 +95,7 @@ export default class TrackedObject {
             return true;
           }
 
-          collection.set(
-            prop,
-            updates.disposition,
-            member(prop),
-            callerStack()
-          );
+          collection.set(prop, updates.disposition, member(prop), caller);
         }
 
         Reflect.set(target, prop, value);
@@ -106,14 +111,18 @@ export default class TrackedObject {
 
     return proxy;
 
-    function define(key: PropertyKey, descriptor: PropertyDescriptor) {
+    function define(
+      key: PropertyKey,
+      descriptor: PropertyDescriptor,
+      caller: Stack
+    ) {
       const updates = Descriptor.updates(target, key, descriptor);
 
       if (updates.isNoop) {
         return true;
       }
 
-      collection.set(key, updates.disposition, String(key), callerStack());
+      collection.set(key, updates.disposition, String(key), caller);
 
       return true;
     }

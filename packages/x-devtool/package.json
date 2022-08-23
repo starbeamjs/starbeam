@@ -8,6 +8,7 @@
     "@starbeam/debug": "workspace:^",
     "@starbeam/timeline": "workspace:^",
     "@starbeam/js": "workspace:^",
+    "@starbeam/interfaces": "workspace:^",
     "preact": "^10.7.3"
   },
   "publishConfig": {

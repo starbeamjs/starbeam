@@ -1,9 +1,10 @@
-import type { CompositeInternals } from "@starbeam/timeline";
+import { callerStack } from "@starbeam/debug";
 import {
+  type CompositeInternals,
   REACTIVE,
   ReactiveProtocol,
   TIMELINE,
-  Timestamp,
+  zero,
 } from "@starbeam/timeline";
 import { beforeAll, describe, expect, it } from "vitest";
 
@@ -13,17 +14,15 @@ describe("ReactiveProtocol", () => {
   beforeAll(() => {
     // make sure the timeline is not at 0, which would make a comparison with TIMELINE.now sometimes
     // equivalent to Timestamp.zero(), and we want to test the difference.
-    TIMELINE.bump({ type: "mutable", lastUpdated: Timestamp.zero() });
+    TIMELINE.bump({ type: "mutable", lastUpdated: zero() }, callerStack(-1));
   });
   describe("Static", () => {
     it("has the zero timestamp for lastUpdated", () => {
       const tom = Static("Tom Dale");
 
-      expect(String(ReactiveProtocol.lastUpdated(tom))).toBe(
-        String(Timestamp.zero())
-      );
+      expect(String(ReactiveProtocol.lastUpdated(tom))).toBe(String(zero()));
       expect(String(ReactiveProtocol.lastUpdatedIn([tom]))).toBe(
-        String(Timestamp.zero())
+        String(zero())
       );
     });
 

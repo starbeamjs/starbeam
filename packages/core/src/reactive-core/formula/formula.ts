@@ -1,5 +1,8 @@
-import type { Description } from "@starbeam/debug";
-import { descriptionFrom } from "@starbeam/debug";
+import {
+  type Description,
+  callerStack,
+  descriptionFrom,
+} from "@starbeam/debug";
 import type { UNINITIALIZED } from "@starbeam/peer";
 import { type Reactive, Frame, REACTIVE, TIMELINE } from "@starbeam/timeline";
 
@@ -31,7 +34,7 @@ export function Formula<T>(
     TIMELINE.update(frame);
   };
 
-  function poll(): Frame<T> {
+  function poll(caller = callerStack()): Frame<T> {
     if (frame) {
       const validation = frame.validate();
 
@@ -46,7 +49,7 @@ export function Formula<T>(
       TIMELINE.update(frame);
     }
 
-    TIMELINE.frame.didConsume(frame);
+    TIMELINE.frame.didConsume(frame, caller);
     return frame as Frame<T>;
   }
 

@@ -5,7 +5,11 @@ import type { StarbeamCommandOptions } from "./commands.js";
 import shell from "shelljs";
 import sh from "shell-escape-tag";
 import { readFileSync, write, writeFileSync } from "fs";
-import { getPackages, packages, type Package } from "./packages.js";
+import {
+  getPackages,
+  queryPackages,
+  type Package,
+} from "./support/packages.js";
 import * as jsonc from "jsonc-parser";
 import { format } from "prettier";
 import chalk from "chalk";

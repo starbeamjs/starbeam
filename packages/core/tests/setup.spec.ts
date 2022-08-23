@@ -1,5 +1,5 @@
 import { Cell, Setup } from "@starbeam/core";
-import { ReactiveProtocol, Timestamp } from "@starbeam/timeline";
+import { ReactiveProtocol, TIMELINE } from "@starbeam/timeline";
 import { describe, expect, test } from "vitest";
 
 describe("Setup", () => {
@@ -121,7 +121,7 @@ describe("Setup", () => {
       };
     });
 
-    let ts = Timestamp.now();
+    let ts = TIMELINE.now;
 
     expect(variable).toEqual({
       cell: 0,

@@ -1,11 +1,5 @@
 import { descriptionFrom } from "@starbeam/debug";
-import {
-  type Reactive,
-  Frame,
-  REACTIVE,
-  TIMELINE,
-  Timestamp,
-} from "@starbeam/timeline";
+import { type Reactive, Frame, REACTIVE, TIMELINE } from "@starbeam/timeline";
 import { describe, expect, test } from "vitest";
 
 import { Cell } from "./support/mini-reactives.js";
@@ -139,7 +133,7 @@ function Sum() {
   const numbers: Cell<Cell<number>[]> = Cell([]);
 
   const frame = Frame.uninitialized<number>(
-    Timestamp.now(),
+    TIMELINE.now,
     descriptionFrom({
       type: "formula",
       api: "Formula",

@@ -1,5 +1,6 @@
 import {
   type Description,
+  callerStack,
   descriptionFrom,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-imports
   ifDebug,
@@ -46,7 +47,7 @@ export function PolledFormula<T>(
     TIMELINE.update(frame);
   };
 
-  function poll(): Frame<T> {
+  function poll(caller = callerStack()): Frame<T> {
     if (frame) {
       update();
     } else {
@@ -57,7 +58,7 @@ export function PolledFormula<T>(
       TIMELINE.update(frame);
     }
 
-    TIMELINE.frame.didConsume(frame);
+    TIMELINE.frame.didConsume(frame, caller);
     return frame as Frame<T>;
   }
 

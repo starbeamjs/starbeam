@@ -1,10 +1,14 @@
-import type { Description } from "@starbeam/debug";
+import type {
+  Description,
+  MutableInternals,
+  ReactiveInternals,
+  Timestamp,
+} from "@starbeam/interfaces";
 import { REACTIVE, UNINITIALIZED } from "@starbeam/peer";
 
-import type { MutableInternals, ReactiveInternals } from "./protocol.js";
 import { ReactiveProtocol } from "./protocol.js";
 import type { Timeline } from "./timeline.js";
-import { Timestamp } from "./timestamp.js";
+import { now } from "./timestamp.js";
 
 interface Marker {
   [REACTIVE]: Omit<MutableInternals, "lastUpdated"> & {
@@ -183,15 +187,10 @@ export class ActiveFrame<T> {
     let frame = this.#updating;
 
     if (frame) {
-      frame.update(value, this.#children, Timestamp.now());
+      frame.update(value, this.#children, now());
       timeline.update(frame);
     } else {
-      frame = Frame.create(
-        value,
-        this.#children,
-        Timestamp.now(),
-        this.description
-      );
+      frame = Frame.create(value, this.#children, now(), this.description);
     }
 
     return { prev: this.#prev, frame };

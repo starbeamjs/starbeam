@@ -1,0 +1,366 @@
+.pane {
+  --hue: 30;
+
+  --bg-sat: 50%;
+  --bg-lightness: 70%;
+  --bg-alpha: 1;
+
+  --bg-lightness-pure: 100%;
+  --bg-lightness-faded: 90%;
+  --bg-lightness-dim1: 75%;
+  --bg-lightness-dim2: 50%;
+  --bg-lightness-dim3: 30%;
+
+  --fg-hue: var(--hue);
+  --fg-sat: 100%;
+  --fg-lightness: 10%;
+  --fg-alpha: 1;
+
+  --fg-lightness-pure: 10%;
+  --fg-lightness-faded: 20%;
+  --fg-lightness-dim1: 25%;
+  --fg-lightness-dim2: 10%;
+  --fg-lightness-dim3: 70%;
+  --fg-lightness-invert: 90%;
+
+  --ratio: 1.4;
+  --base-size: 16px;
+  --size-medium: var(--base-size);
+  --size-small1: calc(var(--size-medium) / var(--ratio));
+  --size-small2: calc(var(--size-small1) / var(--ratio));
+  --size-small3: calc(var(--size-small2) / var(--ratio));
+  --size-small4: calc(var(--size-small3) / var(--ratio));
+
+  --size-large1: calc(var(--size-medium) * var(--ratio));
+  --size-large2: calc(var(--size-large1) * var(--ratio));
+  --size-large3: calc(var(--size-large2) * var(--ratio));
+  --size-large4: calc(var(--size-large3) * var(--ratio));
+
+  --font-family: "Roboto Flex";
+
+  --font-slant: 0;
+  --font-slant-min: -10;
+  --font-slant-max: 0;
+
+  --font-width: 0.6;
+  --font-width-min: 25;
+  --font-width-max: 151;
+  --font-width-range: calc(var(--font-width-max) - var(--font-width-min));
+
+  /** Can go from 200 to 550 and remain compatible with grade-based weight */
+  --font-weight: 400;
+
+  --font-grade: 0;
+  --font-grade-min: -200;
+  --font-grade-max: 150;
+
+  --font-ascender-height: 750;
+  --font-descender-depth: -203;
+  --font-negative-shape-width: 468;
+
+  --card-radius: var(--size-small3);
+  --card-shadow: hsla(0, 0%, 0%, 0.2) 0px 2px 1px -1px,
+    hsla(0, 0%, 0%, 0.14) 0px 1px 1px 0px, hsla(0, 0%, 0%, 0.12) 0px 1px 3px 0px;
+  --card-padding-normal: var(--size-medium);
+  --card-padding-compact: var(--size-small2);
+
+  --button-radius: var(--size-small3);
+  --button-radius-compact: var(--size-small4);
+  --button-shadow: hsla(0, 0%, 0%, 0.2) 0px 3px 1px -2px,
+    hsla(0, 0%, 0%, 0.14) 0px 2px 2px 0px, hsla(0, 0%, 0%, 0.12) 0px 1px 5px 0px;
+  --button-padding-normal: var(--size-small1);
+  --button-padding-compact: var(--size-small3);
+
+  --absolute-top: 9999;
+  --animation-timing: 100ms;
+}
+
+.pane {
+  /* --bg-lightness: 100%; */
+  --bg-sat: 0%;
+  /* background-color: hsla(var(--bg-hue), var(--bg-sat), 100%, var(--bg-alpha)); */
+
+  font-size: var(--size-medium);
+  padding: calc(var(--size-medium));
+}
+
+.pane,
+.pane *,
+.pane *::before,
+.pane *::after {
+  --bg-hue: var(--hue);
+  --fg-hue: var(--hue);
+
+  --fg: hsla(
+    var(--fg-hue),
+    var(--fg-sat),
+    var(--fg-lightness),
+    var(--fg-alpha)
+  );
+
+  --bg: hsla(
+    var(--bg-hue),
+    var(--bg-sat),
+    var(--bg-lightness),
+    var(--bg-alpha)
+  );
+}
+
+.pane *,
+.pane *::before,
+.pane *::after {
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  font-weight: var(--font-weight);
+  font-variation-settings: "wdth"
+      calc(
+        (var(--font-width-range)) * var(--font-width) + var(--font-width-min)
+      ),
+    "slnt" calc(var(--font-slant) / 10 * -1), "wght" 400,
+    "GRAD" clamp(-200, calc(var(--font-weight) - 400), 150),
+    "XTRA" var(--font-negative-shape-width), "YTAS" var(--font-ascender-height),
+    "YTDE" var(--font-descender-depth);
+}
+
+@media (prefers-color-scheme: dark) {
+  .starbeam-devtools {
+    --bg-lightness-pure: 10%;
+    --bg-lightness-faded: 20%;
+    --bg-lightness-dim1: 25%;
+    --bg-lightness-dim2: 50%;
+    --bg-lightness-dim3: 70%;
+
+    --fg-lightness-pure: 90%;
+    --fg-lightness-faded: 80%;
+    --fg-lightness-dim1: 80%;
+    --fg-lightness-dim2: 90%;
+    --fg-lightness-dim3: 25%;
+    --fg-lightness-invert: 10%;
+  }
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  padding: 0;
+}
+
+p,
+pre,
+div {
+  margin: 0;
+  padding: 0;
+}
+
+.pane,
+.pane *,
+.pane *::before,
+.pane *::after {
+  color: hsla(
+    var(--fg-hue),
+    var(--fg-sat),
+    var(--fg-lightness),
+    var(--fg-alpha)
+  );
+
+  background-color: hsla(
+    var(--bg-hue),
+    var(--bg-sat),
+    var(--bg-lightness),
+    var(--bg-alpha)
+  );
+
+  box-sizing: border-box;
+}
+
+.pane > .starbeam-devtools {
+  --bg-lightness: var(--bg-lightness-pure);
+  display: grid;
+  grid-template-columns: max-content max-content var(--size-small2) 1fr;
+
+  justify-items: start;
+  align-items: center;
+  justify-content: start;
+
+  padding: var(--size-medium);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+}
+
+/* cards */
+.pane > .starbeam-devtools,
+div.log-line > span.what:hover::after {
+  padding: var(--card-padding, var(--card-padding-normal));
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+}
+
+.pane > .starbeam-devtools > .log-line {
+  display: contents;
+}
+
+div.log-line > span.timestamp {
+  --bg-lightness: var(--bg-lightness-faded);
+  --fg-lightness: var(--fg-lightness-faded);
+  grid-column: 1;
+  grid-row: auto / span 2;
+  align-self: start;
+
+  display: grid;
+  inline-size: 2rem;
+  block-size: 2rem;
+  place-content: center;
+  border-radius: 100%;
+  margin-inline-end: var(--size-large1);
+}
+
+div.log-line > span.timestamp:empty {
+  visibility: hidden;
+}
+
+div.log-line > span.what {
+  grid-column: 2;
+  display: grid;
+  place-content: center;
+  position: relative;
+}
+
+div.log-line > span.what::after {
+  content: "";
+  top: calc(100% * 0.85);
+  display: inline-block;
+  transform: scale3d(0, 0, 0);
+  width: max-content;
+  height: max-content;
+  overflow: hidden;
+  opacity: 0%;
+  transition: opacity var(--animation-timing) ease-in-out,
+    transform var(--animation-timing) ease-in-out,
+    top var(--animation-timing) ease-in-out;
+}
+
+div.log-line > span.what::before {
+  --font-family: "Material Symbols Outlined";
+  width: max-content;
+  content: attr(data-icon);
+  display: block;
+  visibility: visible;
+}
+
+div.log-line > span.what:hover::after {
+  content: attr(aria-label);
+  top: initial;
+  transform: scale3d(1, 1, 1);
+  --card-padding: var(--card-padding-compact);
+  --font-size: var(--size-small1);
+  --bg-lightness: var(--bg-lightness-pure);
+  --fg-lightness: var(--fg-lightness-dim1);
+  opacity: 100%;
+  line-height: 1;
+  z-index: var(--absolute-top);
+  position: absolute;
+  inset-block-start: 100%;
+}
+
+div.log-line > p.message {
+  grid-column: 4;
+}
+
+div.log-line > p.stack {
+  grid-column: 2 / span all;
+  width: 100%;
+  font-size: var(--size-small1);
+  --fg-lightness: var(--fg-lightness-dim1);
+  padding-block-end: var(--size-small1);
+  margin-block-end: var(--size-small1);
+  border-bottom: 1px solid
+    hsla(var(--fg-hue), var(--fg-sat), var(--fg-lightness), 0.1);
+}
+
+div.log-line p.stack:hover > button.stack {
+  transform: scale3d(1, 1, 1);
+  opacity: 1;
+}
+
+div.log-line p.stack > button.stack {
+  --font-size: var(--size-small1);
+  --font-weight: 550;
+  text-transform: uppercase;
+
+  transform: scale3d(0.2, 0.2, 0.2);
+  opacity: 0;
+
+  box-shadow: var(--button-shadow);
+  padding: var(--button-padding-compact);
+  border-radius: var(--button-radius-compact);
+
+  transition: color var(--animation-timing) ease-in-out,
+    background-color var(--animation-timing) ease-in-out,
+    transform var(--animation-timing) ease-in-out,
+    opacity var(--animation-timing) ease-in-out;
+  margin-inline-start: var(--size-small1);
+  border: 0;
+
+  --hue: 200;
+  --bg-lightness: var(--bg-lightness-faded);
+  --bg-sat: 100%;
+  --fg-lightness: var(--fg-lightness-faded);
+
+  /* border-block-end: 1px solid var(--fg); */
+  cursor: pointer;
+}
+
+div.log-line p.stack > button.stack:hover {
+  --bg-lightness: var(--bg-lightness-dim1);
+  --fg-lightness: var(--fg-lightness-dim1);
+}
+
+div.log-line p.stack > button.stack:active {
+  --bg-lightness: var(--bg-lightness-dim2);
+  --fg-lightness: var(--fg-lightness-invert);
+}
+
+span.anonymous {
+  --fg-sat: 20%;
+  --fg-lightness: var(--fg-lightness-dim2);
+}
+
+span.index.name::before {
+  content: "[";
+}
+span.index.name::after {
+  content: "]";
+}
+
+span.property.name::before {
+  content: ".";
+}
+
+span.key.name::before,
+span.detail.name::before,
+span.key.name::after,
+span.detail.name::after {
+  --fg-sat: 20%;
+  --fg-lightness: var(--fg-lightness-dim3);
+}
+
+span.key.name::before {
+  content: "➔";
+}
+
+span.detail.name::before {
+  content: "(";
+}
+
+span.detail.name::after {
+  content: ")";
+}
+
+span.detail.name {
+  --fg-sat: 20%;
+  --fg-lightness: var(--fg-lightness-dim3);
+}

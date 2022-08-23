@@ -46,12 +46,12 @@ if (isDebug()) {
           [
             [" ".repeat(11), "color:#666"],
             " ",
-            [description.frame?.link ?? "<unknown>", "color:#6a6"],
+            [description.frame?.link() ?? "<unknown>", "color:#6a6"],
           ],
           [
             ["Accessed: ".padEnd(11, "…"), "color:#666"],
             " ",
-            [caller?.link ?? "<unknown>", "color:#6a6"],
+            [caller?.link() ?? "<unknown>", "color:#6a6"],
           ],
           "",
           [

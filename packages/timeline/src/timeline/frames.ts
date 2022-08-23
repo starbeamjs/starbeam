@@ -1,9 +1,10 @@
-import type { Description, Stack } from "@starbeam/debug";
+import type { DebugTimeline, Stack } from "@starbeam/debug";
+import type { Description } from "@starbeam/interfaces";
 import type { UNINITIALIZED } from "@starbeam/peer";
 
 // eslint-disable-next-line import/no-cycle
 import { type Frame, ActiveFrame } from "./frame.js";
-import type { ReactiveProtocol } from "./protocol.js";
+import { ReactiveProtocol } from "./protocol.js";
 import type { Subscriptions } from "./subscriptions.js";
 import type { Timeline } from "./timeline.js";
 
@@ -30,18 +31,32 @@ export class FrameStack {
     return this.#current;
   }
 
+  get #debug(): DebugTimeline {
+    return this.#timeline.log;
+  }
+
   finally<T>(prev: ActiveFrame<T> | null): void {
     this.#current = prev;
   }
 
   // Indicate that a particular cell was used inside of the current computation.
   didConsume(reactive: ReactiveProtocol, caller: Stack): void {
+    this.#debug.consume(reactive, caller);
+
     const frame = this.currentFrame;
     if (frame) {
       frame.add(reactive);
       return;
     } else {
-      this.#timeline.untrackedRead(reactive, caller);
+      const delegatesTo = ReactiveProtocol.subscribesTo(reactive).filter((r) =>
+        ReactiveProtocol.is(r, "mutable")
+      );
+
+      for (const reactive of delegatesTo) {
+        if (ReactiveProtocol.is(reactive, "mutable")) {
+          this.#timeline.untrackedRead(reactive, caller);
+        }
+      }
     }
   }
 

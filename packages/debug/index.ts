@@ -1,11 +1,5 @@
 export { ifDebug, isDebug, isProd } from "./src/conditional.js";
-export {
-  type DescriptionArgs,
-  type DescriptionDetails,
-  type DescriptionType,
-  type ValueType,
-  Description,
-} from "./src/description/reactive-value.js";
+export { Description } from "./src/description/reactive-value.js";
 export {
   type DisplayStructOptions,
   DisplayStruct,
@@ -29,7 +23,6 @@ export {
 } from "./src/message.js";
 export { describeModule } from "./src/module.js";
 export {
-  type StackFrame,
   callerStack,
   defaultDescription,
   descriptionFrom,
@@ -42,8 +35,18 @@ export {
   type DebugListener,
   type DebugOperation,
   type Flush,
-  type Internals,
-  type ReactiveProtocol,
+  type LeafDebugOperation,
+  type MutationLog,
   DebugTimeline,
 } from "./src/timeline.js";
 export { Tree } from "./src/tree.js";
+export type {
+  ApiDetails,
+  DescriptionArgs,
+  DescriptionDetails,
+  DescriptionParts,
+  DescriptionType,
+  DetailDescription,
+  DetailsPart,
+  MemberDescription,
+} from "@starbeam/interfaces";

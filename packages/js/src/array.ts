@@ -6,7 +6,8 @@
 // and it will blow up in JS in exactly the same way, so it is safe to assume
 // that properties within the getter have the correct type in TS.
 
-import { type Description, type Stack, callerStack } from "@starbeam/debug";
+import { type Description, callerStack } from "@starbeam/debug";
+import type { Stack } from "@starbeam/interfaces";
 
 import { Collection } from "./collection.js";
 
@@ -117,6 +118,7 @@ class Shadow<T> {
 
     if (!fn) {
       fn = (...args: unknown[]) => {
+        const caller = callerStack();
         const prev = this.#target.length;
 
         // eslint-disable-next-line
@@ -125,7 +127,7 @@ class Shadow<T> {
         const next = this.#target.length;
 
         if (prev !== 0 || next !== 0) {
-          this.#collection.splice();
+          this.#collection.splice(caller);
         }
 
         // eslint-disable-next-line
@@ -155,7 +157,7 @@ class Shadow<T> {
       return;
     }
 
-    this.#collection.splice();
+    this.#collection.splice(caller);
     this.#collection.set(index, "key:changes", member(index), caller);
 
     this.#target[index] = value;
@@ -172,8 +174,8 @@ class Shadow<T> {
     }
   }
 
-  set(prop: PropertyKey, value: unknown): void {
-    this.#collection.splice();
+  set(prop: PropertyKey, value: unknown, caller: Stack): void {
+    this.#collection.splice(caller);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     (this.#target as UnsafeIndex)[prop] = value;
   }
@@ -186,12 +188,12 @@ class Shadow<T> {
     return this.#setterMethod(name);
   }
 
-  updateLength(to: number) {
+  updateLength(to: number, caller: Stack) {
     // This happens when popping an empty array, for example.
     if (this.#target.length === to) {
       return;
     } else {
-      this.#collection.splice();
+      this.#collection.splice(caller);
     }
   }
 }
@@ -221,9 +223,10 @@ export default class TrackedArray<T = unknown> {
 
       set(target, prop, value /*, _receiver */) {
         const index = convertToInt(prop);
+        const caller = callerStack();
 
         if (prop === "length") {
-          shadow.updateLength(value as number);
+          shadow.updateLength(value as number, caller);
 
           if (value === target.length) {
             return true;
@@ -231,11 +234,11 @@ export default class TrackedArray<T = unknown> {
         }
 
         if (index === null) {
-          shadow.set(prop, value);
+          shadow.set(prop, value, caller);
         } else if (index in target) {
-          shadow.updateAt(index, value as T, callerStack());
+          shadow.updateAt(index, value as T, caller);
         } else {
-          shadow.set(prop, value);
+          shadow.set(prop, value, caller);
         }
 
         return true;

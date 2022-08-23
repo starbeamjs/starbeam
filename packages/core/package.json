@@ -22,7 +22,8 @@
     "@starbeam/debug": "workspace:^",
     "@starbeam/verify": "workspace:^",
     "@starbeam/timeline": "workspace:^",
-    "@starbeam/core-utils": "workspace:^"
+    "@starbeam/core-utils": "workspace:^",
+    "@starbeam/interfaces": "workspace:^"
   },
   "devDependencies": {}
 }

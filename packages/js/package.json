@@ -9,7 +9,8 @@
     "@starbeam/core-utils": "workspace:^",
     "@starbeam/debug": "workspace:^",
     "@starbeam/verify": "workspace:^",
-    "@starbeam/timeline": "workspace:^"
+    "@starbeam/timeline": "workspace:^",
+    "@starbeam/interfaces": "workspace:^"
   },
   "devDependencies": {},
   "publishConfig": {

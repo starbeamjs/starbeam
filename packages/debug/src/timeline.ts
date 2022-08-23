@@ -1,85 +1,87 @@
+import type {
+  CompositeInternals,
+  MutableInternals,
+  ReactiveInternals,
+  ReactiveProtocol,
+  Stack,
+  Timestamp,
+} from "@starbeam/interfaces";
 import { REACTIVE } from "@starbeam/peer";
 import { exhaustive } from "@starbeam/verify";
 
-export interface ReactiveProtocol<I extends Internals = Internals> {
-  [REACTIVE]: I;
-}
-
-export type Internals<
-  Type extends "mutable" | "composite" | "static" | "delegate" =
-    | "mutable"
-    | "composite"
-    | "static"
-    | "delegate"
-> = Type extends "mutable"
-  ? { readonly type: "mutable" }
-  : Type extends "composite"
-  ? { readonly type: "composite" }
-  : Type extends "static"
-  ? { readonly type: "static" }
-  : Type extends "delegate"
-  ? { readonly type: "delegate" }
-  : never;
-
 interface ReactiveProtocolStatics {
-  dependencies(reactive: ReactiveProtocol): Iterable<Internals<"mutable">>;
+  dependencies(reactive: ReactiveProtocol): Iterable<MutableInternals>;
 }
 
-function reactiveInternals(reactive: ReactiveProtocol): Internals {
+function reactiveInternals(reactive: ReactiveProtocol): ReactiveInternals {
   return reactive[REACTIVE];
 }
 
-type Timestamp = unknown;
+interface DebugOperationOptions<
+  I extends ReactiveInternals = ReactiveInternals
+> {
+  readonly type: "cell:consume" | "frame:consume" | "cell:update";
+  readonly at: Timestamp;
+  readonly for: I;
+  readonly caller: Stack;
+}
 
-abstract class AbstractDebugOperation {
-  #at: Timestamp;
-  abstract readonly for: Internals | undefined;
+export class LeafDebugOperation<
+  I extends ReactiveInternals = ReactiveInternals
+> {
+  readonly #options: DebugOperationOptions<I>;
 
-  constructor(at: Timestamp) {
-    this.#at = at;
+  constructor(options: DebugOperationOptions<I>) {
+    this.#options = options;
+  }
+
+  get type(): "cell:consume" | "frame:consume" | "cell:update" {
+    return this.#options.type;
+  }
+
+  get at(): Timestamp {
+    return this.#options.at;
+  }
+
+  get for(): I {
+    return this.#options.for;
+  }
+
+  get caller(): Stack {
+    return this.#options.caller;
   }
 }
 
-abstract class InternalsOperation extends AbstractDebugOperation {
-  readonly for: Internals;
-
-  constructor(at: Timestamp, internals: Internals) {
-    super(at);
-    this.for = internals;
-  }
-}
-
-class ConsumeCell extends InternalsOperation {
-  readonly type = "cell:consume";
-}
-class ConsumeFrame extends InternalsOperation {
-  readonly type = "frame:consume";
-}
-class UpdateCell extends InternalsOperation {
-  readonly type = "cell:update";
-}
-
-class Mutation extends AbstractDebugOperation {
+export class MutationLog {
   readonly type = "mutation";
+  // This makes `DebugOperation.for` ==== `ReactiveInternals | undefined`, which makes it possible
+  // to easily compare the `for` value without a lot of extra type shenanigans.
+  readonly for: ReactiveInternals | undefined = undefined;
 
+  readonly #at: Timestamp;
   #description: string;
   #children: Set<DebugOperation> = new Set();
-  #parent: Mutation | null;
+  #parent: MutationLog | null;
 
-  readonly for: Internals<"mutable"> | undefined = undefined;
-
-  constructor(at: Timestamp, description: string, parent: Mutation | null) {
-    super(at);
+  constructor(at: Timestamp, description: string, parent: MutationLog | null) {
+    this.#at = at;
     this.#description = description;
     this.#parent = parent;
   }
 
-  add(child: DebugOperation) {
+  get at(): Timestamp {
+    return this.#at;
+  }
+
+  add(child: DebugOperation): void {
     this.#children.add(child);
   }
 }
 
-export type DebugOperation = ConsumeCell | ConsumeFrame | UpdateCell | Mutation;
+export type DebugOperation =
+  | LeafDebugOperation<MutableInternals>
+  | LeafDebugOperation<CompositeInternals>
+  | MutationLog;
 
 export interface Flush {
   readonly history: DebugOperation[];
@@ -126,10 +128,10 @@ function filterToPredicate(
 
 export class DebugTimeline {
   static create(
-    updatedAt: Timestamp,
+    timestamp: { now(): Timestamp },
     statics: ReactiveProtocolStatics
   ): DebugTimeline {
-    return new DebugTimeline(updatedAt, statics);
+    return new DebugTimeline(timestamp, statics);
   }
 
   static Flush = class Flush {
@@ -185,15 +187,18 @@ export class DebugTimeline {
     }
   };
 
-  #lastUpdate: Timestamp;
+  #timestamp: { now(): Timestamp };
   #statics: ReactiveProtocolStatics;
   #trimOffset = 0;
   #operationList: DebugOperation[] = [];
-  #currentMutation: Mutation | null = null;
+  #currentMutation: MutationLog | null = null;
   #listeners: Set<DebugListener> = new Set();
 
-  private constructor(lastUpdate: Timestamp, statics: ReactiveProtocolStatics) {
-    this.#lastUpdate = lastUpdate;
+  private constructor(
+    timestamp: { now(): Timestamp },
+    statics: ReactiveProtocolStatics
+  ) {
+    this.#timestamp = timestamp;
     this.#statics = statics;
   }
 
@@ -205,12 +210,16 @@ export class DebugTimeline {
     return this.#trimOffset + this.#operationList.length;
   }
 
-  attach(notify: () => void, options: { filter: DebugFilter }): DebugListener {
-    const listener = new DebugTimeline.DebugListener(
-      this,
-      notify,
-      options.filter
-    );
+  attach(
+    notify: () => void,
+    options: { filter: DebugFilter | "all" | "none" } = { filter: "all" }
+  ): DebugListener {
+    const filter: DebugFilter =
+      typeof options.filter === "string"
+        ? { type: options.filter }
+        : options.filter;
+
+    const listener = new DebugTimeline.DebugListener(this, notify, filter);
     this.#listeners.add(listener);
 
     return listener;
@@ -247,31 +256,52 @@ export class DebugTimeline {
     }
   }
 
-  consume(reactive: ReactiveProtocol): void {
+  consume(reactive: ReactiveProtocol, caller: Stack): void {
     const internals = reactiveInternals(reactive);
 
     if (internals.type === "mutable") {
-      this.#consumeCell(internals);
+      this.#consumeCell(internals, caller);
     } else if (internals.type === "composite") {
-      this.#consumeFrame(internals);
+      this.#consumeFrame(internals, caller);
     }
   }
 
-  #consumeCell(cell: Internals<"mutable">) {
-    this.#add(new ConsumeCell(this.#lastUpdate, cell));
+  #consumeCell(cell: MutableInternals, caller: Stack) {
+    this.#add(
+      new LeafDebugOperation({
+        type: "cell:consume",
+        at: this.#timestamp.now(),
+        for: cell,
+        caller,
+      })
+    );
   }
 
-  updateCell(cell: Internals<"mutable">): void {
-    this.#add(new UpdateCell(this.#lastUpdate, cell));
+  updateCell(cell: MutableInternals, caller: Stack): void {
+    this.#add(
+      new LeafDebugOperation({
+        type: "cell:update",
+        at: this.#timestamp.now(),
+        for: cell,
+        caller,
+      })
+    );
   }
 
-  #consumeFrame(frame: Internals<"composite">) {
-    this.#add(new ConsumeFrame(this.#lastUpdate, frame));
+  #consumeFrame(frame: CompositeInternals, caller: Stack) {
+    this.#add(
+      new LeafDebugOperation({
+        type: "frame:consume",
+        at: this.#timestamp.now(),
+        for: frame,
+        caller,
+      })
+    );
   }
 
   mutation<T>(description: string, callback: () => T): T {
     const prev = this.#currentMutation;
-    const operation = new Mutation(this.#lastUpdate, description, prev);
+    const operation = new MutationLog(this.#timestamp.now(), description, prev);
 
     try {
       this.#currentMutation = operation;

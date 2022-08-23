@@ -1,4 +1,5 @@
 import logo from "../../assets/logo.svg";
+// @ts-expect-error
 import debug from "../coordination/debug.js?script";
 import { type MessageFromSW, Chrome } from "../types.js";
 

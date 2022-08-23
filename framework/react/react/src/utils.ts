@@ -1,9 +1,9 @@
 import { Cell, Marker } from "@starbeam/core";
+import type { Stack } from "@starbeam/debug";
 import {
   type Description,
   callerStack,
   descriptionFrom,
-  Stack,
 } from "@starbeam/debug";
 import { reactive } from "@starbeam/js";
 import type { Reactive } from "@starbeam/timeline";
@@ -59,10 +59,19 @@ export function useStable<I extends AnyRecord>(
  */
 export function useStableVariable<T>(
   variable: T,
-  description = Stack.describeCaller()
+  description?: string | Description
 ): Reactive<T> {
+  const desc = descriptionFrom({
+    type: "external",
+    api: {
+      package: "@starbeam/react",
+      name: "useStableVariable",
+    },
+    fromUser: description,
+  });
+
   return useUpdatingVariable({
-    initial: () => Cell(variable, description),
+    initial: () => Cell(variable, { description: desc }),
     update: (cell) => {
       cell.set(variable);
     },
@@ -149,9 +158,11 @@ useStableVariable.mutable = <S>(
     fromUser: description,
   });
 
+  const stack = callerStack();
+
   return useUpdatingVariable({
     initial: () => ReactiveState.create(value, setValue, desc),
-    update: (state) => ReactiveState.update(state, value),
+    update: (state) => ReactiveState.update(state, value, stack),
   });
 };
 
@@ -166,10 +177,10 @@ export class ReactiveState<T> {
     return new ReactiveState(value, setValue, Marker(description));
   }
 
-  static update<T>(state: ReactiveState<T>, value: T): void {
+  static update<T>(state: ReactiveState<T>, value: T, caller: Stack): void {
     if (value !== state.#value) {
       state.#value = value;
-      state.#marker.update();
+      state.#marker.update(caller);
     }
   }
 
@@ -191,7 +202,7 @@ export class ReactiveState<T> {
   set current(value: T) {
     this.#value = value;
     this.#setValue(value);
-    this.#marker.update();
+    this.#marker.update(callerStack());
   }
 
   update(updater: (value: T) => T): void {
