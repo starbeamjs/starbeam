@@ -32,14 +32,16 @@ export function DevtoolsLog({
   const listener = useMemo(() => {
     const listener = TIMELINE.attach(
       () => {
-        setLogs((prev) => [...prev, ...listener.flush()]);
+        setLogs((prev) => [...listener.flush().reverse(), ...prev]);
       },
       { filter }
     );
     return listener;
   }, [filter]);
 
-  const [logs, setLogs] = useState<DebugOperation[]>(listener.flush());
+  const [logs, setLogs] = useState<DebugOperation[]>(
+    listener.flush().reverse()
+  );
 
   const operations: JSX.Element[] = [];
   let prevTimestamp: Timestamp | undefined;
