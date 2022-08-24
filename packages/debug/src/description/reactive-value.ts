@@ -1,12 +1,12 @@
 import type {
   ApiDetails,
   DescriptionArgs,
+  DescriptionDescribeOptions,
   DescriptionDetails,
   DescriptionParts,
   DescriptionType,
   DetailsPart,
   StackFrame,
-  StackFrameDescribeOptions,
   // eslint-disable-next-line import/no-duplicates
 } from "@starbeam/interfaces";
 // eslint-disable-next-line import/no-duplicates
@@ -16,6 +16,7 @@ import chalk from "chalk";
 
 import { isDebug } from "../conditional.js";
 import { DisplayStruct } from "../inspect/display-struct.js";
+import { DisplayParts } from "../module.js";
 import type { Stack } from "../stack.js";
 
 export let PickedDescription: DescriptionStatics;
@@ -123,6 +124,16 @@ if (isDebug()) {
 
     get isAnonymous(): boolean {
       return this.#details === undefined;
+    }
+
+    withStack(stack: Stack): interfaces.Description {
+      return new DebugDescription(
+        this.#type,
+        this.#api,
+        this.#details,
+        this.#internal,
+        stack
+      );
     }
 
     implementation(details?: {
@@ -324,7 +335,7 @@ if (isDebug()) {
       }
     }
 
-    describe(options: StackFrameDescribeOptions = {}): string {
+    describe(options: DescriptionDescribeOptions = {}): string {
       const name = this.#name(options);
 
       if (this.#internal) {
@@ -337,7 +348,7 @@ if (isDebug()) {
       }
     }
 
-    #name(options: StackFrameDescribeOptions): string {
+    #name(options: DescriptionDescribeOptions): string {
       if ((this.isAnonymous || options.source) ?? false) {
         return `${this.fullName} @ ${this.#caller(options)}`;
       } else {
@@ -345,7 +356,7 @@ if (isDebug()) {
       }
     }
 
-    #caller(options?: StackFrameDescribeOptions): string {
+    #caller(options?: DescriptionDescribeOptions): string {
       const caller = this.#stack?.caller;
 
       if (caller !== undefined) {
@@ -387,7 +398,11 @@ if (isDebug()) {
       frame: undefined,
       stack: undefined,
     };
-    readonly frame: StackFrame = { link: () => "", display: () => "" };
+    readonly frame: StackFrame = {
+      parts: () => new DisplayParts({ path: "" }),
+      link: () => "",
+      display: () => "",
+    };
 
     method(): interfaces.Description {
       return this;
@@ -410,6 +425,10 @@ if (isDebug()) {
     }
 
     implementation(_options?: { reason: string }): interfaces.Description {
+      return this;
+    }
+
+    withStack(): interfaces.Description {
       return this;
     }
 

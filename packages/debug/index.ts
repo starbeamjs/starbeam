@@ -21,7 +21,7 @@ export {
   Styled,
   Styles,
 } from "./src/message.js";
-export { describeModule } from "./src/module.js";
+export { type DisplayParts, describeModule } from "./src/module.js";
 export {
   callerStack,
   defaultDescription,

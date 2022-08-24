@@ -58,7 +58,7 @@ export function PolledFormula<T>(
       TIMELINE.update(frame);
     }
 
-    TIMELINE.frame.didConsume(frame, caller);
+    TIMELINE.didConsume(frame, caller);
     return frame as Frame<T>;
   }
 

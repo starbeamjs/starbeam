@@ -24,7 +24,7 @@ export class ReactiveMarker implements ReactiveProtocol {
   }
 
   consume(caller = callerStack()): void {
-    TIMELINE.frame.didConsume(this, caller);
+    TIMELINE.didConsume(this, caller);
   }
 
   update(caller: Stack): void {

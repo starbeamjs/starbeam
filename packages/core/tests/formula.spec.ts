@@ -18,13 +18,16 @@ describe("A reactive formula", () => {
   });
 
   test("produces stable values if inputs don't change", () => {
-    const name = Cell("@tomdale");
-    const location = Cell("New York");
+    const name = Cell("@tomdale", "name");
+    const location = Cell("New York", "location");
 
-    const card = FormulaFn(() => ({
-      name: name.current,
-      location: location.current,
-    }));
+    const card = FormulaFn(
+      () => ({
+        name: name.current,
+        location: location.current,
+      }),
+      "card"
+    );
 
     let last = card.current;
 

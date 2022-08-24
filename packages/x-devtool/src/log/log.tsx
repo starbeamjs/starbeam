@@ -12,11 +12,9 @@ import { useMemo, useState } from "preact/hooks";
 import { CellConsumeLine, CellUpdateLine } from "./cell.jsx";
 import { LogLine } from "./ui.jsx";
 import { FrameConsumeLine } from "./frame.jsx";
-import type { Timestamp } from "@starbeam/interfaces";
+import type { StackFrameDisplayOptions, Timestamp } from "@starbeam/interfaces";
 
-export interface DevtoolsLineOptions {
-  root?: string;
-}
+export type DevtoolsLineOptions = StackFrameDisplayOptions;
 
 export interface DevtoolsLogOptions extends DevtoolsLineOptions {
   filter?: DebugFilter;

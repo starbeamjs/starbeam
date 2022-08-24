@@ -11,7 +11,7 @@ describe("consumption", () => {
 
     const here = Stack.fromCaller(-1);
     const frame = TIMELINE.frame.create({
-      evaluate: () => TIMELINE.frame.didConsume(instance, here),
+      evaluate: () => TIMELINE.didConsume(instance, here),
       description: descriptionFrom({
         type: "formula",
         api: "Formula",

@@ -32,7 +32,7 @@ export function Cell<T>(value: T): Cell<T> {
   return {
     [REACTIVE]: internals,
     read(caller: Stack) {
-      TIMELINE.frame.didConsume(this, caller);
+      TIMELINE.didConsume(this, caller);
       return value;
     },
     get current() {
@@ -61,7 +61,7 @@ export function FreezableCell<T>(value: T): FreezableCell<T> {
   return {
     [REACTIVE]: internals,
     read(caller: Stack) {
-      TIMELINE.frame.didConsume(this, caller);
+      TIMELINE.didConsume(this, caller);
       return value;
     },
     get current() {
@@ -109,7 +109,7 @@ export function Formula<T>(computation: () => T): {
     const validation = frame.validate();
 
     if (validation.status === "valid") {
-      TIMELINE.frame.didConsume(frame, caller);
+      TIMELINE.didConsume(frame, caller);
       return validation.value;
     }
 
@@ -120,7 +120,7 @@ export function Formula<T>(computation: () => T): {
       })
     );
     TIMELINE.update(frame);
-    TIMELINE.frame.didConsume(frame, caller);
+    TIMELINE.didConsume(frame, caller);
     return result;
   }
 

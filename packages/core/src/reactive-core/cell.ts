@@ -79,7 +79,7 @@ export class ReactiveCell<T> implements Reactive<T> {
   }
 
   read(caller: Stack): T {
-    TIMELINE.frame.didConsume(this, caller);
+    TIMELINE.didConsume(this, caller);
     return this.#value;
   }
 

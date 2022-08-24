@@ -6,7 +6,6 @@ import type {
   MutableInternals,
   ReactiveInternals,
   StaticInternals,
-  Timestamp,
   // eslint-disable-next-line import/no-duplicates
 } from "@starbeam/interfaces";
 // eslint-disable-next-line import/no-duplicates
@@ -14,7 +13,7 @@ import type * as interfaces from "@starbeam/interfaces";
 import { REACTIVE } from "@starbeam/peer";
 import { isPresent } from "@starbeam/verify";
 
-import { zero } from "./timestamp.js";
+import { Timestamp, zero } from "./timestamp.js";
 
 interface ExhaustiveMatcher<T> {
   mutable(internals: MutableInternals): T;
@@ -161,7 +160,12 @@ export const ReactiveProtocol = {
   ) {
     const debug = ReactiveProtocol.debug(reactive, options);
 
-    console.group(ReactiveProtocol.description(reactive).describe());
+    console.group(
+      ReactiveProtocol.description(reactive).describe(),
+      `(updated at ${
+        Timestamp.debug(ReactiveProtocol.lastUpdated(reactive)).at
+      })`
+    );
     console.log(debug);
     console.groupEnd();
   },

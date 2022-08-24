@@ -3,7 +3,9 @@ import { type Description, type Stack, callerStack } from "@starbeam/debug";
 import { reactive } from "@starbeam/js";
 
 export class Queries {
-  readonly #queries = reactive.Map<string, { state: Async; query: Query }>();
+  readonly #queries = reactive.Map<string, { state: Async; query: Query }>(
+    "query-cache"
+  );
 
   query<T>(
     key: string,

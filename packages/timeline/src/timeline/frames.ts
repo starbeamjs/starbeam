@@ -13,6 +13,14 @@ export class FrameStack {
     return new FrameStack(subscriptions, null, timeline);
   }
 
+  static didConsume(
+    frames: FrameStack,
+    reactive: ReactiveProtocol,
+    caller: Stack
+  ): void {
+    return frames.#didConsume(reactive, caller);
+  }
+
   #subscriptions: Subscriptions;
   #current: ActiveFrame<unknown> | null;
   #timeline: Timeline;
@@ -40,7 +48,7 @@ export class FrameStack {
   }
 
   // Indicate that a particular cell was used inside of the current computation.
-  didConsume(reactive: ReactiveProtocol, caller: Stack): void {
+  #didConsume(reactive: ReactiveProtocol, caller: Stack): void {
     this.#debug.consume(reactive, caller);
 
     const frame = this.currentFrame;
@@ -107,6 +115,7 @@ export class FrameStack {
 
     if (callback) {
       try {
+        this.#timeline.willEvaluate();
         const result = callback();
         const frame = this.#end<T>(activeFrame, result);
         this.#subscriptions.update(frame);

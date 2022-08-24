@@ -7,31 +7,35 @@ import { bump as peerBump, now as peerNow } from "@starbeam/peer";
 
 export const INSPECT = Symbol.for("nodejs.util.inspect.custom");
 
-export class Timestamp {
+export class TimestampImpl implements interfaces.Timestamp {
   static #initial = peerNow();
 
   /**
    * Returns the current `Timestamp` according to @starbeam/peer
    */
   static now(): interfaces.Timestamp {
-    return new Timestamp(peerNow());
+    return new TimestampImpl(peerNow());
   }
 
   /**
    * The earliest timestamp from @starbeam/peer that was visible to this @starbeam/timeline.
    */
-  static zero(): Timestamp {
-    return new Timestamp(Timestamp.#initial);
+  static zero(): interfaces.Timestamp {
+    return new TimestampImpl(TimestampImpl.#initial);
+  }
+
+  static assert(
+    timestamp: interfaces.Timestamp,
+    what: string
+  ): asserts timestamp is TimestampImpl {
+    if (!(#timestamp in timestamp)) {
+      throw Error(`Value passed to ${what} was unexpectedly not a timestamp`);
+    }
   }
 
   static debug(timestamp: interfaces.Timestamp): { at: number } {
-    if (#timestamp in timestamp) {
-      return { at: timestamp.#timestamp };
-    } else {
-      throw Error(
-        "Value passed to Timestamp.debug was unexpectedly not a timestamp"
-      );
-    }
+    TimestampImpl.assert(timestamp, "Timestamp.debug");
+    return { at: timestamp.#timestamp };
   }
 
   readonly #timestamp: number;
@@ -46,10 +50,14 @@ export class Timestamp {
   }
 
   gt(other: Timestamp): boolean {
+    TimestampImpl.assert(other, "Timestamp#gt");
+
     return this.#timestamp > other.#timestamp;
   }
 
   eq(other: Timestamp): boolean {
+    TimestampImpl.assert(other, "Timestamp#eq");
+
     return this.#timestamp === other.#timestamp;
   }
 
@@ -72,6 +80,9 @@ export function zero(): interfaces.Timestamp {
 export function now(): interfaces.Timestamp {
   return Timestamp.now();
 }
+
+export type Timestamp = interfaces.Timestamp;
+export const Timestamp = TimestampImpl;
 
 export function max(
   ...timestamps: interfaces.Timestamp[]

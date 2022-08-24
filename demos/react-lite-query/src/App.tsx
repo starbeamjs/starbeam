@@ -13,6 +13,10 @@ export default function App(): JSX.Element {
     if (ref.current !== null) {
       DevtoolsLogPane(ref.current, {
         root: "http://localhost:3001/home/wycats/Code/Starbeam/starbeam/demos/react-lite-query/",
+        roots: {
+          workspace:
+            "http://localhost:3001/home/wycats/Code/Starbeam/starbeam/",
+        },
       });
     }
   }, [ref.current]);

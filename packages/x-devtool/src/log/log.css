@@ -1,7 +1,7 @@
 .pane {
   --hue: 30;
+  --sat: 50%;
 
-  --bg-sat: 50%;
   --bg-lightness: 70%;
   --bg-alpha: 1;
 
@@ -10,9 +10,9 @@
   --bg-lightness-dim1: 75%;
   --bg-lightness-dim2: 50%;
   --bg-lightness-dim3: 30%;
+  --bg-lightness-invert: 20%;
+  --bg-lightness-invert-faded: 30%;
 
-  --fg-hue: var(--hue);
-  --fg-sat: 100%;
   --fg-lightness: 10%;
   --fg-alpha: 1;
 
@@ -22,6 +22,7 @@
   --fg-lightness-dim2: 10%;
   --fg-lightness-dim3: 70%;
   --fg-lightness-invert: 90%;
+  --fg-lightness-invert-faded: 70%;
 
   --ratio: 1.4;
   --base-size: 16px;
@@ -75,19 +76,13 @@
   --animation-timing: 100ms;
 }
 
-.pane {
-  /* --bg-lightness: 100%; */
-  --bg-sat: 0%;
-  /* background-color: hsla(var(--bg-hue), var(--bg-sat), 100%, var(--bg-alpha)); */
-
-  font-size: var(--size-medium);
-  padding: calc(var(--size-medium));
-}
-
 .pane,
 .pane *,
 .pane *::before,
 .pane *::after {
+  --fg-sat: var(--sat);
+  --bg-sat: var(--sat);
+
   --bg-hue: var(--hue);
   --fg-hue: var(--hue);
 
@@ -104,6 +99,13 @@
     var(--bg-lightness),
     var(--bg-alpha)
   );
+
+  --chip-radius: calc(var(--font-size) * var(--ratio));
+  --chip-padding-inline: calc(var(--font-size) / var(--ratio) / var(--ratio));
+  --chip-padding-block: calc(
+    var(--chip-padding-inline) / var(--ratio) / var(--ratio)
+  );
+  --chip-padding: var(--chip-padding-block) var(--chip-padding-inline);
 }
 
 .pane *,
@@ -129,6 +131,8 @@
     --bg-lightness-dim1: 25%;
     --bg-lightness-dim2: 50%;
     --bg-lightness-dim3: 70%;
+    --bg-lightness-invert: 90%;
+    --bg-lightness-invert-faded: 90%;
 
     --fg-lightness-pure: 90%;
     --fg-lightness-faded: 80%;
@@ -136,7 +140,17 @@
     --fg-lightness-dim2: 90%;
     --fg-lightness-dim3: 25%;
     --fg-lightness-invert: 10%;
+    --fg-lightness-invert-faded: 25%;
   }
+}
+
+.pane {
+  /* --bg-lightness: 100%; */
+  --bg-sat: 0%;
+  /* background-color: hsla(var(--bg-hue), var(--bg-sat), 100%, var(--bg-alpha)); */
+
+  font-size: var(--size-medium);
+  padding: calc(var(--size-medium));
 }
 
 h1,
@@ -271,11 +285,13 @@ div.log-line > p.message {
 }
 
 div.log-line > p.stack {
+  /* align-items: center; */
   grid-column: 2 / span all;
   width: 100%;
-  font-size: var(--size-small1);
+  --font-size: var(--size-small1);
   --fg-lightness: var(--fg-lightness-dim1);
   padding-block-end: var(--size-small1);
+  padding-block-start: var(--size-small3);
   margin-block-end: var(--size-small1);
   border-bottom: 1px solid
     hsla(var(--fg-hue), var(--fg-sat), var(--fg-lightness), 0.1);
@@ -322,6 +338,30 @@ div.log-line p.stack > button.stack:hover {
 div.log-line p.stack > button.stack:active {
   --bg-lightness: var(--bg-lightness-dim2);
   --fg-lightness: var(--fg-lightness-invert);
+}
+
+div.log-line p.stack > * {
+  align-self: center;
+}
+
+div.log-line p.stack > span.root {
+  --hue: 20;
+  --sat: 50%;
+  --fg-lightness: var(--fg-lightness-dim3);
+  --bg-lightness: var(--bg-lightness-pure);
+  padding: var(--chip-padding);
+  border-radius: var(--chip-radius);
+  border: 1px solid var(--fg);
+}
+
+div.log-line p.stack > span.root.main {
+  --hue: 140;
+  --sat: 50%;
+  --fg-lightness: var(--fg-lightness-dim3);
+}
+
+div.log-line p.stack > span.path::before {
+  content: " ";
 }
 
 span.anonymous {

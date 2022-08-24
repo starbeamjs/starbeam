@@ -113,7 +113,6 @@ describe("Variants", () => {
     // since we're transitioning from loading to loaded, the `.is("idle")` check in the formula is
     // is not invalidated.
     expect(advanceStable.changed).toBe(false);
-    ReactiveProtocol.log(value);
 
     // since `value` depends on the `loaded` state, it is invalidated.
     expect(valueStable.changed).toBe(true);
@@ -142,7 +141,6 @@ describe("Variants", () => {
     expect(render()).toBe(2);
     expect(value()).toBe(2);
 
-    console.log(ReactiveProtocol.log(advance));
     lifecycle.choose("idle");
     expect(advanceStable.changed).toBe(true);
     expect(renderStable.changed).toBe(true);
@@ -192,15 +190,20 @@ describe("Variants", () => {
   });
 });
 
+const debug = false;
+
 function Stability(reactive: ReactiveProtocol) {
   let changed = false;
+
   TIMELINE.on.change(reactive, (internals) => {
-    console.group(
-      ReactiveProtocol.description(reactive).describe(),
-      "invalidated by"
-    );
-    console.log(internals.description?.describe());
-    console.groupEnd();
+    if (debug) {
+      console.group(
+        ReactiveProtocol.description(reactive).describe(),
+        "invalidated by"
+      );
+      console.log(internals.description?.describe());
+      console.groupEnd();
+    }
     changed = true;
   });
 

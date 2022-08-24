@@ -10,7 +10,7 @@ import {
   createElement,
   StrictMode,
 } from "react";
-import { expect, test } from "vitest";
+import { expect, test, type TestAPI } from "vitest";
 
 import { react } from "./dom.js";
 import { act } from "./act.js";
@@ -299,15 +299,15 @@ testStrictAndLoose.skip = <Props, T>(
   name: string,
   modes: TestModes<Props, T>
 ) => {
-  testStrictAndLoose.strict(name, modes, test.skip);
-  testStrictAndLoose.loose(name, modes, test.skip);
+  testStrictAndLoose.strict(name, modes, test.skip as TestAPI);
+  testStrictAndLoose.loose(name, modes, test.skip as TestAPI);
 };
 
 testStrictAndLoose.strict = <Props, T>(
   name: string,
   modes: TestModes<Props, T>,
-  testFn: typeof test | typeof test.skip = test
-) => {
+  testFn: TestAPI = test
+): void => {
   testFn(`${name} (strict mode)`, async () => {
     const setup = new SetupTestRender<Props, T>({ wrapper: StrictMode });
     return modes(Mode.strict, setup);
@@ -317,7 +317,7 @@ testStrictAndLoose.strict = <Props, T>(
 testStrictAndLoose.loose = <Props, T>(
   name: string,
   modes: TestModes<Props, T>,
-  testFn: typeof test | typeof test.skip = test
+  testFn: TestAPI = test
 ) => {
   testFn(`${name} (loose mode)`, async () => {
     const setup = new SetupTestRender<Props, T>({});

@@ -27,7 +27,7 @@ export interface DescriptionArgs {
   stack?: Stack;
 }
 
-export interface StackFrameDescribeOptions extends StackFrameDisplayOptions {
+export interface DescriptionDescribeOptions extends StackFrameDisplayOptions {
   source?: boolean;
 }
 
@@ -51,7 +51,9 @@ export interface Description extends DescriptionArgs {
     userFacing?: Description;
   }): Description;
 
-  describe(options?: StackFrameDescribeOptions): string;
+  withStack(stack: Stack): Description;
+
+  describe(options?: DescriptionDescribeOptions): string;
   readonly frame: StackFrame | undefined;
 }
 

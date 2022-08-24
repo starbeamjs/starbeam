@@ -87,10 +87,10 @@ function Dependency({ description }: { description: Description }) {
         "%c%s @ %s",
         "color:red",
         description.fullName,
-        description.frame?.display
+        description.frame?.display()
       );
     } else {
-      console.log("%c%s", "color:red", description.frame?.display);
+      console.log("%c%s", "color:red", description.frame?.display());
     }
   }
 

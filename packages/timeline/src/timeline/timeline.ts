@@ -44,7 +44,7 @@ import { NOW, now } from "./timestamp.js";
  */
 export class Timeline {
   static create(): Timeline {
-    return new Timeline(Subscriptions.create(), new Set());
+    return new Timeline(Subscriptions.create(), new Set(), "initial");
   }
 
   #debugTimeline: DebugTimeline | null = null;
@@ -52,14 +52,17 @@ export class Timeline {
   readonly #frame: FrameStack;
   readonly #subscriptions: Subscriptions;
   readonly #afterRender: Set<() => void>;
+  #lastOp: "consumed" | "bumped" | "evaluating" | "initial";
 
   private constructor(
     subscriptions: Subscriptions,
-    onAdvance: Set<() => void>
+    onAdvance: Set<() => void>,
+    lastOp: "consumed" | "bumped" | "evaluating" | "initial"
   ) {
     this.#subscriptions = subscriptions;
     this.#afterRender = onAdvance;
     this.#frame = FrameStack.empty(this, subscriptions);
+    this.#lastOp = lastOp;
   }
 
   on = {
@@ -109,13 +112,56 @@ export class Timeline {
 
   // Increment the current timestamp and return the incremented timestamp.
   bump(mutable: MutableInternals, caller: Stack): Timestamp {
+    const now = this.#adjustTimestamp("bumped");
+
     if (isDebug()) {
       this.#debug.updateCell(mutable, caller);
     }
 
-    const now = NOW.bump();
     this.#subscriptions.notify(mutable);
     return now;
+  }
+
+  didConsume(reactive: ReactiveProtocol, caller: Stack): void {
+    this.#adjustTimestamp("consumed");
+    return FrameStack.didConsume(this.#frame, reactive, caller);
+  }
+
+  willEvaluate(): void {
+    this.#lastOp = "evaluating";
+  }
+
+  #adjustTimestamp(operation: "consumed" | "bumped" | "evaluating"): Timestamp {
+    // console.log("adjusting timestamp", {
+    //   operation,
+    //   lastOp: this.#lastOp,
+    //   now: this.now,
+    // });
+
+    const prev = this.#lastOp;
+    const prevIsRead = prev === "consumed" || prev === "evaluating";
+    const nextIsRead = operation === "consumed" || operation === "evaluating";
+
+    try {
+      this.#lastOp = operation;
+      if (prevIsRead === nextIsRead) {
+        return this.now;
+      } else {
+        return this.next();
+      }
+
+      // if (this.#lastOp === operation) {
+      //   return this.now;
+      // } else {
+      //   this.#lastOp = operation;
+      // }
+    } finally {
+      // console.log("adjusted timestamp", {
+      //   operation,
+      //   lastOp: this.#lastOp,
+      //   now: this.now,
+      // });
+    }
   }
 
   mutation<T>(description: string, callback: () => T): T {

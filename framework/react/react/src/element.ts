@@ -211,7 +211,7 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
     description: Description
   ) {
     this.#lifecycle = lifecycle;
-    this.on = Lifecycle.on(lifecycle, this);
+    this.on = Lifecycle.on(lifecycle, this, description);
     this.#refs = refs;
     this.#description = description;
 
@@ -261,7 +261,11 @@ class Lifecycle {
     return new Lifecycle(Setups(description), Setups(description), description);
   }
 
-  static on<T extends object>(lifecycle: Lifecycle, instance: T): OnLifecycle {
+  static on<T extends object>(
+    lifecycle: Lifecycle,
+    instance: T,
+    elementDescription: Description
+  ): OnLifecycle {
     LIFETIME.link(instance, lifecycle);
 
     return {
@@ -278,7 +282,7 @@ class Lifecycle {
               type: "instance",
             },
           },
-          fromUser: description,
+          fromUser: description ?? elementDescription.key("on.idle"),
         });
         return lifecycle.#idle.register(idle, desc);
       },
@@ -293,7 +297,7 @@ class Lifecycle {
               type: "instance",
             },
           },
-          fromUser: description,
+          fromUser: description ?? elementDescription.key("on.layout"),
         });
 
         return lifecycle.#layout.register(layout, desc);

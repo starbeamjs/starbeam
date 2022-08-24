@@ -209,11 +209,12 @@ if (isDebug()) {
     ): interfaces.Description {
       if (isDebug()) {
         const stack = DebugStack.fromCaller(internal + 1);
+        const fromUser = args.fromUser;
 
-        if (args.fromUser === undefined || typeof args.fromUser === "string") {
+        if (fromUser === undefined || typeof fromUser === "string") {
           return Description.from({ ...args, stack });
-        } else if (Description.is(args.fromUser)) {
-          return args.fromUser;
+        } else if (Description.is(fromUser)) {
+          return fromUser.withStack(stack);
         } else {
           return Description.from({ ...args, stack });
         }
@@ -347,6 +348,13 @@ if (isDebug()) {
     display(options?: StackFrameDisplayOptions): string {
       const module = describeModule(this.#reify().file);
       return module.display({ action: this.action, loc: this.loc }, options);
+    }
+
+    parts(
+      options?: StackFrameDisplayOptions | undefined
+    ): interfaces.DisplayParts {
+      const module = describeModule(this.#reify().file);
+      return module.parts({ action: this.action, loc: this.loc }, options);
     }
   }
 } else {

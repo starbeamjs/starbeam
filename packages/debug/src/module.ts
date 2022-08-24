@@ -1,8 +1,88 @@
 import type { StackFrameDisplayOptions } from "@starbeam/interfaces";
+import type * as interfaces from "@starbeam/interfaces";
 import { hasType } from "@starbeam/verify";
 
 export function describeModule(module: string): DescribedModule {
   return new DescribedModule(parse(module));
+}
+
+export interface DisplayRoot {
+  name?: string;
+  prefix: string;
+}
+
+export class DisplayPathParts {
+  readonly #path: string;
+  readonly #root: DisplayRoot | undefined;
+
+  constructor({ path, root }: { path: string; root?: DisplayRoot }) {
+    this.#path = path;
+    this.#root = root;
+  }
+
+  finish(options: { action?: string; loc?: Loc } = {}): DisplayParts {
+    return new DisplayParts({ path: this.#path, root: this.#root, ...options });
+  }
+}
+
+export class DisplayParts implements interfaces.DisplayParts {
+  readonly #path: string;
+  readonly #root: DisplayRoot | undefined;
+  readonly #action: string | undefined;
+  readonly #loc: Loc | undefined;
+
+  constructor({
+    path,
+    root,
+    action,
+    loc,
+  }: {
+    path: string;
+    root?: DisplayRoot;
+    action?: string;
+    loc?: Loc;
+  }) {
+    this.#path = path;
+    this.#root = root;
+    this.#action = action;
+    this.#loc = loc;
+  }
+
+  get path(): string {
+    return this.#path;
+  }
+
+  get root(): DisplayRoot | undefined {
+    return this.#root;
+  }
+
+  get action(): string | undefined {
+    return this.#action;
+  }
+
+  get loc(): Loc | undefined {
+    return this.#loc;
+  }
+
+  get #displayPath() {
+    if (this.#root?.name) {
+      return `[${this.#root.name}]/${this.#path}`;
+    } else {
+      return this.#path;
+    }
+  }
+
+  display(): string {
+    if (this.#loc && this.#action) {
+      return `${this.#action} (${this.#displayPath}:${formatLoc(this.#loc)})`;
+    } else if (this.#loc) {
+      return `${this.#displayPath}:${formatLoc(this.#loc)}`;
+    } else if (this.#action) {
+      return `${this.#action} (${this.#displayPath})`;
+    } else {
+      return this.#displayPath;
+    }
+  }
 }
 
 export class DescribedModule {
@@ -12,16 +92,14 @@ export class DescribedModule {
     this.#module = module;
   }
 
-  #simple(options: StackFrameDisplayOptions) {
-    return `${this.#module.path(options)}`;
-  }
-
-  display(
+  parts(
     location?: { loc?: Loc; action?: string },
     options: StackFrameDisplayOptions = {}
-  ): string {
+  ): DisplayParts {
+    const parts = this.#module.parts(options);
+
     if (location === undefined) {
-      return this.#simple(options);
+      return parts.finish();
     }
 
     const { loc, action } = location;
@@ -30,14 +108,21 @@ export class DescribedModule {
     const hasAction = action !== undefined && action.trim().length !== 0;
 
     if (hasLoc && hasAction) {
-      return `${action} (${this.#module.path(options)}:${formatLoc(loc)})`;
+      return parts.finish({ action, loc });
     } else if (hasLoc) {
-      return `${this.#module.path(options)}:${formatLoc(loc)}`;
+      return parts.finish({ loc });
     } else if (hasAction) {
-      return `${action} (${this.#module.path(options)})`;
-    } else {
-      return this.#simple(options);
+      return parts.finish({ action });
     }
+
+    return parts.finish();
+  }
+
+  display(
+    location?: { loc?: Loc; action?: string },
+    options: StackFrameDisplayOptions = {}
+  ): string {
+    return this.parts(location, options).display();
   }
 }
 
@@ -54,7 +139,12 @@ function formatLoc(loc: Loc) {
   }
 }
 
-class DescribedModulePath {
+interface DescribedPath {
+  // path(options?: StackFrameDisplayOptions): string;
+  parts(options?: StackFrameDisplayOptions): DisplayPathParts;
+}
+
+class DescribedModulePath implements DescribedPath {
   readonly type = "relative";
   readonly #path: string;
 
@@ -66,12 +156,16 @@ class DescribedModulePath {
     return null;
   }
 
-  path(options?: StackFrameDisplayOptions): string {
-    return relative({ root: options?.root, full: normalize(this.#path) });
+  [Symbol.for("nodejs.util.inspect.custom")]() {
+    return `DescribedModulePath(${this.#path})`;
+  }
+
+  parts(options?: StackFrameDisplayOptions): DisplayPathParts {
+    return relative({ ...options, full: normalize(this.#path) });
   }
 }
 
-class DescribedPackage {
+class DescribedPackage implements DescribedPath {
   readonly type = "package";
   readonly #scope: string | undefined;
   readonly #name: string;
@@ -83,12 +177,38 @@ class DescribedPackage {
     this.#path = path;
   }
 
+  [Symbol.for("nodejs.util.inspect.custom")]() {
+    const path = this.#path ? ` at ${this.#path}` : "";
+
+    if (this.#scope) {
+      return `DescribedPackage(${this.#scope}/${this.#name}${path})`;
+    } else {
+      return `DescribedPackage(${this.#name}${path})`;
+    }
+  }
+
   get pkg() {
     return normalize(this.#scope, this.#name);
   }
 
-  path(options?: StackFrameDisplayOptions): string {
-    return relative({ root: options?.root, full: this.#path });
+  parts(): DisplayPathParts {
+    return new DisplayPathParts({ path: this.#fullPath });
+  }
+
+  get #fullPath(): string {
+    const parts: string[] = [];
+
+    if (this.#scope) {
+      parts.push(this.#scope);
+    }
+
+    parts.push(this.#name);
+
+    if (this.#path) {
+      parts.push(this.#path);
+    }
+
+    return normalize(...parts);
   }
 }
 
@@ -125,14 +245,29 @@ function normalize(...pathParts: (string | null | undefined)[]): string {
 
 function relative({
   root,
+  roots,
   full,
 }: {
-  root: string | undefined;
+  root?: string;
+  roots?: Record<string, string>;
   full: string;
-}): string {
+}): DisplayPathParts {
   if (root && full.startsWith(root)) {
-    return full.slice(root.length);
-  } else {
-    return full;
+    const path = full.slice(root.length);
+    const relative = path.startsWith("/") ? path.slice(1) : path;
+    return new DisplayPathParts({ root: { prefix: root }, path: relative });
+  } else if (roots) {
+    for (const [key, value] of Object.entries(roots)) {
+      if (full.startsWith(value)) {
+        const path = full.slice(value.length);
+        const relative = path.startsWith("/") ? path.slice(1) : path;
+        return new DisplayPathParts({
+          root: { name: key, prefix: value },
+          path: relative,
+        });
+      }
+    }
   }
+
+  return new DisplayPathParts({ path: full });
 }
