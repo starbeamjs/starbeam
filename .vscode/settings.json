@@ -42,5 +42,8 @@
   "[shellscript]": {
     "editor.defaultFormatter": "foxundermoon.shell-format"
   },
-  "testing.automaticallyOpenPeekView": "never"
+  "testing.automaticallyOpenPeekView": "never",
+  "browse-lite.format": "png",
+  "browse-lite.quality": 100,
+  "vscode-edge-devtools.defaultUrl": "3001"
 }

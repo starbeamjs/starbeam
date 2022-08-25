@@ -13,7 +13,7 @@ const EXTERNAL_PACKAGES = ["react", "react-dom"];
 
 export default defineConfig({
   optimizeDeps: {
-    disabled: true,
+    include: ["stacktracey"],
   },
 
   esbuild: {},
