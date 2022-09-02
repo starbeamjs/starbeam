@@ -1,10 +1,10 @@
-.pane {
-  --hue: 30;
-  --sat: 50%;
-
-  --bg-lightness: 70%;
-  --bg-alpha: 1;
-
+/**
+ * These are variables that can be overridden by child elements, so we don't apply them to
+ * pseudo-elements via `*`.
+ */
+:host(*),
+.pane *::before,
+.pane *::after {
   --bg-lightness-pure: 100%;
   --bg-lightness-faded: 90%;
   --bg-lightness-dim1: 75%;
@@ -13,14 +13,11 @@
   --bg-lightness-invert: 20%;
   --bg-lightness-invert-faded: 30%;
 
-  --fg-lightness: 10%;
-  --fg-alpha: 1;
-
   --fg-lightness-pure: 10%;
   --fg-lightness-faded: 20%;
-  --fg-lightness-dim1: 25%;
-  --fg-lightness-dim2: 10%;
-  --fg-lightness-dim3: 70%;
+  --fg-lightness-dim1: 35%;
+  --fg-lightness-dim2: 50%;
+  --fg-lightness-dim3: 65%;
   --fg-lightness-invert: 90%;
   --fg-lightness-invert-faded: 70%;
 
@@ -38,6 +35,31 @@
   --size-large4: calc(var(--size-large3) * var(--ratio));
 
   --font-family: "Roboto Flex";
+
+  --card-radius: var(--size-small3);
+  --card-shadow: hsla(0, 0%, 0%, 0.2) 0px 2px 1px -1px,
+    hsla(0, 0%, 0%, 0.14) 0px 1px 1px 0px, hsla(0, 0%, 0%, 0.12) 0px 1px 3px 0px;
+  --card-padding-normal: var(--size-medium);
+  --card-padding-compact: var(--size-small2);
+
+  --button-radius: var(--size-small3);
+  --button-radius-compact: var(--size-small4);
+  --button-shadow: hsla(0, 0%, 0%, 0.2) 0px 3px 1px -2px,
+    hsla(0, 0%, 0%, 0.14) 0px 2px 2px 0px, hsla(0, 0%, 0%, 0.12) 0px 1px 5px 0px;
+  --button-padding-normal: var(--size-small1);
+  --button-padding-compact: var(--size-small3);
+
+  --absolute-top: 9999;
+  --animation-timing: 100ms;
+
+  --hue: 30;
+  --sat: 50%;
+
+  --bg-lightness: 70%;
+  --bg-alpha: 1;
+
+  --fg-lightness: 10%;
+  --fg-alpha: 1;
 
   --font-slant: 0;
   --font-slant-min: -10;
@@ -58,22 +80,11 @@
   --font-ascender-height: 750;
   --font-descender-depth: -203;
   --font-negative-shape-width: 468;
+}
 
-  --card-radius: var(--size-small3);
-  --card-shadow: hsla(0, 0%, 0%, 0.2) 0px 2px 1px -1px,
-    hsla(0, 0%, 0%, 0.14) 0px 1px 1px 0px, hsla(0, 0%, 0%, 0.12) 0px 1px 3px 0px;
-  --card-padding-normal: var(--size-medium);
-  --card-padding-compact: var(--size-small2);
-
-  --button-radius: var(--size-small3);
-  --button-radius-compact: var(--size-small4);
-  --button-shadow: hsla(0, 0%, 0%, 0.2) 0px 3px 1px -2px,
-    hsla(0, 0%, 0%, 0.14) 0px 2px 2px 0px, hsla(0, 0%, 0%, 0.12) 0px 1px 5px 0px;
-  --button-padding-normal: var(--size-small1);
-  --button-padding-compact: var(--size-small3);
-
-  --absolute-top: 9999;
-  --animation-timing: 100ms;
+.pane *::before,
+.pane *::after {
+  --bg-alpha: 0;
 }
 
 .pane,
@@ -194,7 +205,11 @@ div {
 .pane > .starbeam-devtools {
   --bg-lightness: var(--bg-lightness-pure);
   display: grid;
-  grid-template-columns: max-content max-content var(--size-small2) 1fr;
+  grid-template-columns:
+    [timestamp] max-content
+    [content1] max-content
+    [break] var(--size-small2)
+    [content2] 1fr [end];
 
   justify-items: start;
   align-items: center;
@@ -205,9 +220,24 @@ div {
   box-shadow: var(--card-shadow);
 }
 
-/* cards */
+.pane > .starbeam-devtools > .log-line {
+  grid-column: content;
+}
+
+div.log-line > div.content {
+  display: grid;
+  grid-auto-flow: column;
+  column-gap: var(--size-small4);
+  grid-column-start: content1;
+  grid-column-end: 5;
+}
+
+div.log-line.internals > :is(div.content, p.stack) {
+  margin-inline-start: var(--size-small1);
+}
+
 .pane > .starbeam-devtools,
-div.log-line > span.what:hover::after {
+span.what:hover::after {
   padding: var(--card-padding, var(--card-padding-normal));
   border-radius: var(--card-radius);
   box-shadow: var(--card-shadow);
@@ -236,14 +266,13 @@ div.log-line > span.timestamp:empty {
   visibility: hidden;
 }
 
-div.log-line > span.what {
-  grid-column: 2;
+span.what {
   display: grid;
   place-content: center;
   position: relative;
 }
 
-div.log-line > span.what::after {
+span.what::after {
   content: "";
   top: calc(100% * 0.85);
   display: inline-block;
@@ -257,7 +286,7 @@ div.log-line > span.what::after {
     top var(--animation-timing) ease-in-out;
 }
 
-div.log-line > span.what::before {
+span.what::before {
   --font-family: "Material Symbols Outlined";
   width: max-content;
   content: attr(data-icon);
@@ -265,13 +294,32 @@ div.log-line > span.what::before {
   visibility: visible;
 }
 
-div.log-line > span.what:hover::after {
+div.log-line.internals {
+  display: contents;
+}
+
+div.log-line.internals > p.stack,
+div.log-line.internals > div.content > :is(p, span) {
+  --fg-alpha: 0.5;
+  --bg-alpha: 0.5;
+}
+
+div.log-line.internals > div.content > span::after {
+  --fg-alpha: 1;
+}
+
+span.what::before {
+  --fg-alpha: 0.5;
+}
+
+span.what:hover::after {
   content: attr(aria-label);
   top: initial;
   transform: scale3d(1, 1, 1);
   --card-padding: var(--card-padding-compact);
   --font-size: var(--size-small1);
   --bg-lightness: var(--bg-lightness-pure);
+  --bg-alpha: 1;
   --fg-lightness: var(--fg-lightness-dim1);
   opacity: 100%;
   line-height: 1;
@@ -280,8 +328,22 @@ div.log-line > span.what:hover::after {
   inset-block-start: 100%;
 }
 
-div.log-line > p.message {
-  grid-column: 4;
+p.message > :first-child {
+  --fg-lightness: var(--fg-lightness-dim3);
+}
+
+div.log-line > p.message > span:not(.tail) {
+  --fg-lightness: var(--fg-lightness-dim3);
+  /* display: none; */
+}
+
+div.log-line:hover > p.message > span:not(.tail) {
+  /* display: inline-block; */
+}
+
+div.log-line > p.message > span::before,
+div.log-line > p.message > span::after {
+  --fg-lightness: var(--fg-lightness-dim3);
 }
 
 div.log-line > p.stack {
@@ -383,24 +445,60 @@ span.property.name::before {
 span.key.name::before,
 span.detail.name::before,
 span.key.name::after,
-span.detail.name::after {
+span.detail.name::after,
+span.name.head {
   --fg-sat: 20%;
   --fg-lightness: var(--fg-lightness-dim3);
 }
 
 span.key.name::before {
   content: "➔";
+  position: relative;
+  --fg-lightness: var(--fg-lightness-dim3);
+  top: 0.1ex;
 }
 
-span.detail.name::before {
+span.detail.name:not(.key)::before {
+  content: ".";
+}
+
+span.detail.args::before {
   content: "(";
 }
 
-span.detail.name::after {
+span.detail.args::after {
   content: ")";
 }
 
-span.detail.name {
-  --fg-sat: 20%;
+span.detail.name:not(.tail) {
+  --fg-sat: 50%;
   --fg-lightness: var(--fg-lightness-dim3);
+}
+
+span.tail {
+  --fg-sat: 0%;
+}
+
+span.detail.name.tail {
+  /* --fg-sat: 100%;  */
+  --fg-lightness: var(--fg-lightness-dim1);
+}
+
+span.detail.args:not(.tail) {
+  --fg-sat: 50%;
+  --fg-lightness: var(--fg-lightness-dim3);
+}
+
+span.detail.args:not(.tail)::before,
+span.detail.args:not(.tail)::after {
+  --fg-sat: 20%;
+  --fg-lightness: var(--fg-lightness-dim2);
+}
+
+span.tail,
+span.tail::before,
+span.tail::after {
+  --font-weight: 550;
+  --fg-sat: 0%;
+  --fg-lightness: var(--fg-lightness-pure);
 }

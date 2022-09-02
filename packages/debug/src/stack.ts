@@ -61,6 +61,8 @@ export interface StackStatics {
 let PickedStack: StackStatics;
 
 if (isDebug()) {
+  Error.stackTraceLimit = Infinity;
+
   class ParsedStack {
     static empty() {
       return new ParsedStack("", "", "", []);
@@ -214,7 +216,7 @@ if (isDebug()) {
         if (fromUser === undefined || typeof fromUser === "string") {
           return Description.from({ ...args, stack });
         } else if (Description.is(fromUser)) {
-          return fromUser.withStack(stack);
+          return fromUser;
         } else {
           return Description.from({ ...args, stack });
         }
@@ -341,8 +343,16 @@ if (isDebug()) {
     }
 
     link(options?: StackFrameDisplayOptions): string {
+      if (options?.complete) {
+        return this.#stack.items.map((entry) => entry.beforeParse).join("\n");
+      }
+
       const module = describeModule(this.#reify().file);
       return module.display({ loc: this.loc }, options);
+    }
+
+    fullStack(): string {
+      return this.#stack.asTable();
     }
 
     display(options?: StackFrameDisplayOptions): string {
@@ -415,11 +425,6 @@ export const entryPoint = PickedStack.entryPoint;
 
 /** This should be convertable to something like Description.EMPTY in prod builds  */
 export const descriptionFrom = PickedStack.description;
-
-export const defaultDescription = descriptionFrom({
-  type: "erased",
-  api: "anonymous",
-});
 
 export const callerStack = PickedStack.fromCaller;
 

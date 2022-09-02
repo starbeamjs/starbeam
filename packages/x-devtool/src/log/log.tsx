@@ -18,6 +18,7 @@ export type DevtoolsLineOptions = StackFrameDisplayOptions;
 
 export interface DevtoolsLogOptions extends DevtoolsLineOptions {
   filter?: DebugFilter;
+  internals?: boolean;
 }
 
 export function DevtoolsLog({
@@ -96,10 +97,14 @@ function LogOperation({
   }
 }
 
+export interface UpdateDevtools {
+  update: (options?: DevtoolsLogOptions) => void;
+}
+
 export function DevtoolsLogPane(
   into: Element,
   options: DevtoolsLogOptions = {}
-): { update: (options: DevtoolsLogOptions) => void } {
+): UpdateDevtools {
   const app = <DevtoolsLog options={options} />;
   let shadow = into.shadowRoot;
 
@@ -124,7 +129,7 @@ export function DevtoolsLogPane(
   render(app, shadow);
 
   return {
-    update: (newOptions: DevtoolsLogOptions) => {
+    update: (newOptions?: DevtoolsLogOptions) => {
       render(<DevtoolsLog options={{ ...options, ...newOptions }} />, into);
     },
   };

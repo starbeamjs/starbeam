@@ -1,3 +1,5 @@
+import { descriptionFrom } from "./src/stack.js";
+
 export { ifDebug, isDebug, isProd } from "./src/conditional.js";
 export { Description } from "./src/description/reactive-value.js";
 export {
@@ -24,7 +26,6 @@ export {
 export { type DisplayParts, describeModule } from "./src/module.js";
 export {
   callerStack,
-  defaultDescription,
   descriptionFrom,
   entryPoint,
   isErrorWithStack,
@@ -50,3 +51,8 @@ export type {
   DetailsPart,
   MemberDescription,
 } from "@starbeam/interfaces";
+
+export const defaultDescription = descriptionFrom({
+  type: "erased",
+  api: "anonymous",
+});

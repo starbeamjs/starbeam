@@ -27,7 +27,7 @@ export default function useQuery<T>(
       QUERIES.fetch(key).catch((e) => {
         console.error(e);
       });
-    });
+    }, desc.implementation({ reason: "on.idle" }));
 
     return () => {
       return QUERIES.query(key, query, desc).asData(callerStack());

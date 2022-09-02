@@ -6,6 +6,10 @@ export interface Stack {
 export interface StackFrameDisplayOptions {
   readonly root?: string;
   readonly roots?: Record<string, string>;
+  /**
+   * display the entire stack trace
+   */
+  readonly complete?: boolean;
 }
 
 export interface StackFrame {

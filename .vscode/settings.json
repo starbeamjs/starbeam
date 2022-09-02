@@ -45,5 +45,8 @@
   "testing.automaticallyOpenPeekView": "never",
   "browse-lite.format": "png",
   "browse-lite.quality": 100,
-  "vscode-edge-devtools.defaultUrl": "3001"
+  "vscode-edge-devtools.defaultUrl": "3001",
+  "[postcss]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

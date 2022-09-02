@@ -21,7 +21,7 @@ export interface DescriptionArgs {
 
   internal?: {
     reason: string;
-    userFacing: DescriptionArgs;
+    userFacing: Description;
   };
 
   stack?: Stack;
@@ -38,7 +38,7 @@ export interface Description extends DescriptionArgs {
   readonly userFacing: Description;
   readonly parts: DescriptionParts;
 
-  method(name: string): Description;
+  method(name: string, args?: DescriptionArgument[]): Description;
   index(index: number): Description;
   property(name: string): Description;
   detail(
@@ -49,6 +49,7 @@ export interface Description extends DescriptionArgs {
   implementation(options?: {
     reason?: string;
     userFacing?: Description;
+    stack?: Stack;
   }): Description;
 
   withStack(stack: Stack): Description;
@@ -97,10 +98,13 @@ export interface DetailDescription {
   name: string;
 }
 
+export type DescriptionArgument = string | number | boolean;
+
 interface MethodDescription {
   type: "method";
   parent: Description;
   name: string;
+  args?: DescriptionArgument[];
 }
 
 interface ValueDescription {
@@ -141,11 +145,17 @@ export interface ApiDetails {
       };
 }
 
+export interface InternalDescription {
+  reason?: string;
+  userFacing: Description;
+}
+
 export interface DescriptionParts {
   readonly type: DescriptionType;
   readonly api: ApiDetails;
   readonly details: DetailsPart;
-  readonly userFacing?: Description | undefined;
+  readonly userFacing: Description;
+  readonly internal?: InternalDescription | undefined;
   readonly frame: StackFrame | undefined;
   readonly stack: string | undefined;
 }

@@ -251,9 +251,15 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
 type Callback<T = void> = (instance: T) => void | (() => void);
 
 interface OnLifecycle extends OnCleanup {
-  readonly cleanup: (finalizer: Callback) => Unsubscribe;
-  readonly idle: (ready: Callback) => void;
-  readonly layout: (attached: Callback) => void;
+  readonly cleanup: (
+    finalizer: Callback,
+    description?: string | Description
+  ) => Unsubscribe;
+  readonly idle: (ready: Callback, description?: string | Description) => void;
+  readonly layout: (
+    attached: Callback,
+    description?: string | Description
+  ) => void;
 }
 
 class Lifecycle {

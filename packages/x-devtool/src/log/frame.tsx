@@ -4,8 +4,7 @@
 import { h, Fragment, type JSX } from "preact";
 import type { LeafDebugOperation } from "@starbeam/debug";
 import type { MutableInternals, Timestamp } from "@starbeam/interfaces";
-import { LogLine } from "./ui.jsx";
-import { DescribeLeaf } from "./describe.jsx";
+import { LogLine, LogLineFor } from "./ui.jsx";
 import type { DevtoolsLineOptions } from "./log.jsx";
 
 export function FrameConsumeLine({
@@ -30,9 +29,14 @@ export function FrameConsumeLine({
     );
   } else {
     return (
-      <LogLine at={at} prev={prev} what="frame" operation="consume">
-        <DescribeLeaf leaf={description} options={options} />
-      </LogLine>
+      <LogLineFor
+        at={at}
+        prev={prev}
+        what="frame"
+        operation="consume"
+        parts={description}
+        options={options}
+      />
     );
   }
 }

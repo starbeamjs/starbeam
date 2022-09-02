@@ -1,6 +1,7 @@
 import type {
   ApiDetails,
   DescriptionArgs,
+  DescriptionArgument,
   DescriptionDescribeOptions,
   DescriptionDetails,
   DescriptionParts,
@@ -17,7 +18,7 @@ import chalk from "chalk";
 import { isDebug } from "../conditional.js";
 import { DisplayStruct } from "../inspect/display-struct.js";
 import { DisplayParts } from "../module.js";
-import type { Stack } from "../stack.js";
+import { type Stack, callerStack } from "../stack.js";
 
 export let PickedDescription: DescriptionStatics;
 
@@ -75,7 +76,7 @@ if (isDebug()) {
     #internal:
       | {
           reason?: string;
-          userFacing: DescriptionArgs;
+          userFacing: Description;
         }
       | undefined;
 
@@ -85,7 +86,7 @@ if (isDebug()) {
       type: DescriptionType,
       api: string | ApiDetails,
       details: DescriptionDetails | undefined,
-      internal: { reason?: string; userFacing: DescriptionArgs } | undefined,
+      internal: { reason?: string; userFacing: Description } | undefined,
       stack: Stack | undefined
     ) {
       this.#type = type;
@@ -116,7 +117,7 @@ if (isDebug()) {
 
     get userFacing(): interfaces.Description {
       if (this.#internal) {
-        return DebugDescription.from(this.#internal.userFacing);
+        return this.#internal.userFacing;
       } else {
         return this;
       }
@@ -139,6 +140,7 @@ if (isDebug()) {
     implementation(details?: {
       reason: string;
       userFacing: interfaces.Description;
+      stack?: Stack;
     }) {
       return new DebugDescription(
         this.#type,
@@ -148,7 +150,7 @@ if (isDebug()) {
           reason: details?.reason,
           userFacing: details?.userFacing ?? this.userFacing,
         },
-        this.#stack
+        details?.stack ?? callerStack()
       );
     }
 
@@ -205,7 +207,11 @@ if (isDebug()) {
       }
     }
 
-    method(this: DebugDescription, name: string): interfaces.Description {
+    method(
+      this: DebugDescription,
+      name: string,
+      args?: DescriptionArgument[]
+    ): interfaces.Description {
       return new DebugDescription(
         "formula",
         this.#api,
@@ -213,6 +219,7 @@ if (isDebug()) {
           type: "method",
           parent: this,
           name,
+          args,
         },
         undefined,
         this.#stack
@@ -310,8 +317,10 @@ if (isDebug()) {
         type: this.#type,
         api: this.#apiPart,
         details: this.#detailsPart,
+        userFacing: this.#internal ? this.#internal.userFacing : this,
         frame: this.#stack?.caller,
         stack: this.#stack?.stack,
+        internal: this.#internal,
       };
     }
 
@@ -394,6 +403,7 @@ if (isDebug()) {
     readonly parts: DescriptionParts = {
       api: { name: "erased" },
       details: { type: "anonymous" },
+      userFacing: this,
       type: "erased",
       frame: undefined,
       stack: undefined,

@@ -5,8 +5,8 @@ import { h, Fragment, type JSX } from "preact";
 
 import type { LeafDebugOperation } from "@starbeam/debug";
 import type { Timestamp, MutableInternals } from "@starbeam/interfaces";
-import { LogLine } from "./ui.jsx";
-import { DescribeLeaf } from "./describe.jsx";
+import { LogLine, LogLineFor, title } from "./ui.jsx";
+import { Internal } from "./describe.jsx";
 import type { DevtoolsLineOptions } from "./log.jsx";
 
 export function CellConsumeLine({
@@ -31,9 +31,16 @@ export function CellConsumeLine({
     );
   } else {
     return (
-      <LogLine at={at} prev={prev} what="cell" operation="consume">
-        <DescribeLeaf leaf={description} options={options} />
-      </LogLine>
+      <>
+        <LogLineFor
+          at={at}
+          prev={prev}
+          what="cell"
+          operation="consume"
+          parts={description}
+          options={options}
+        />
+      </>
     );
   }
 }
@@ -60,9 +67,14 @@ export function CellUpdateLine({
     );
   } else {
     return (
-      <LogLine at={at} prev={prev} what="cell" operation="update">
-        <DescribeLeaf leaf={description} options={options} />
-      </LogLine>
+      <LogLineFor
+        at={at}
+        prev={prev}
+        what="cell"
+        operation="update"
+        parts={description}
+        options={options}
+      />
     );
   }
 }

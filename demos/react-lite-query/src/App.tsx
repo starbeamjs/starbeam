@@ -1,6 +1,6 @@
 import "./App.css";
 
-import { DevtoolsLogPane } from "@starbeamx/devtool";
+import { type UpdateDevtools, DevtoolsLogPane } from "@starbeamx/devtool";
 import { default as axios } from "axios";
 import { useEffect, useRef } from "react";
 
@@ -8,16 +8,23 @@ import useQuery from "./lib/use-query.js";
 
 export default function App(): JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
+  const devtools = useRef<UpdateDevtools>();
 
   useEffect(() => {
     if (ref.current !== null) {
-      DevtoolsLogPane(ref.current, {
-        root: "http://localhost:3001/home/wycats/Code/Starbeam/starbeam/demos/react-lite-query/",
-        roots: {
-          workspace:
-            "http://localhost:3001/home/wycats/Code/Starbeam/starbeam/",
-        },
-      });
+      const currentDevtools = devtools.current;
+
+      if (currentDevtools === null || currentDevtools === undefined) {
+        devtools.current = DevtoolsLogPane(ref.current, {
+          root: "http://localhost:3001/home/wycats/Code/Starbeam/starbeam/demos/react-lite-query/",
+          roots: {
+            workspace:
+              "http://localhost:3001/home/wycats/Code/Starbeam/starbeam/",
+          },
+        });
+      } else {
+        currentDevtools.update();
+      }
     }
   }, [ref.current]);
 

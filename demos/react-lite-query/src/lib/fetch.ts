@@ -80,10 +80,15 @@ function selected(
 
   return {
     selected: Cell(true, {
-      description: description.implementation({ reason: "selected?" }),
+      description: description.implementation({
+        reason: "selected?",
+      }),
     }),
     value: Cell(value, {
-      description: description.implementation({ reason: "value" }),
+      description: description.implementation({
+        reason: "value",
+        stack: callerStack(),
+      }),
     }),
   };
 }
@@ -132,10 +137,10 @@ export class Async<T = unknown> {
   static idle<T>(description: Description): Async<T> {
     return new Async<T>(
       {
-        idle: Variant.selected(description.key("idle")),
-        loading: Variant.deselected(description.key("loading")),
-        loaded: Variant.deselected(description.key("loaded")),
-        error: Variant.deselected(description.key("error")),
+        idle: Variant.selected(description.detail("variant", ["idle"])),
+        loading: Variant.deselected(description.detail("variant", ["loading"])),
+        loaded: Variant.deselected(description.detail("variant", ["loaded"])),
+        error: Variant.deselected(description.detail("variant", ["error"])),
       },
       "idle"
     );
