@@ -7,10 +7,11 @@ import {
   ifDebug,
   isDebug,
 } from "@starbeam/debug";
-import type { MutableInternals, Timestamp } from "@starbeam/interfaces";
+import type { Diff, MutableInternals, Timestamp } from "@starbeam/interfaces";
 
 import { LIFETIME } from "../lifetime/api.js";
 import type { Unsubscribe } from "../lifetime/object-lifetime.js";
+import type { Frame } from "./frame.js";
 import { FrameStack } from "./frames.js";
 import { ReactiveProtocol } from "./protocol.js";
 import { Subscriptions } from "./subscriptions.js";
@@ -122,9 +123,21 @@ export class Timeline {
     return now;
   }
 
-  didConsume(reactive: ReactiveProtocol, caller: Stack): void {
+  didConsumeCell(
+    cell: ReactiveProtocol<MutableInternals>,
+    caller: Stack
+  ): void {
     this.#adjustTimestamp("consumed");
-    return FrameStack.didConsume(this.#frame, reactive, caller);
+    return FrameStack.didConsumeCell(this.#frame, cell, caller);
+  }
+
+  didConsumeFrame(
+    frame: Frame,
+    diff: Diff<MutableInternals>,
+    caller: Stack
+  ): void {
+    this.#adjustTimestamp("consumed");
+    return FrameStack.didConsumeFrame(this.#frame, frame, diff, caller);
   }
 
   willEvaluate(): void {

@@ -1,5 +1,4 @@
-import { NOW } from "./constants.js";
-import type { GlobalWithNow } from "./env.js";
+import { getCoordination } from "./env.js";
 
 /**
  * The `CLOCK` constant is a universal monotonically increasing clock. The `Timestamp` class is used
@@ -9,13 +8,17 @@ import type { GlobalWithNow } from "./env.js";
  * The term "timestamp" is used in this context to refer to a monotonically increasing number, where
  * each number represents a different moment in time.
  */
-let CLOCK = (globalThis as unknown as GlobalWithNow)[NOW];
+const coordination = getCoordination();
 
-if (!CLOCK) {
-  CLOCK = (globalThis as unknown as GlobalWithNow)[NOW] = {
+let clock = coordination.now;
+
+if (!clock) {
+  clock = coordination.now = {
     timestamp: 0,
   };
 }
+
+const CLOCK = clock;
 
 /**
  * Get the current timestamp.

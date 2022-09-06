@@ -18,7 +18,7 @@ type REACTIVE = typeof REACTIVE;
 /**
  * The `NOW` symbol is the name on `globalThis` that is used to store the current timestamp.
  */
-const NOW: unique symbol = Symbol.for("starbeam.NOW");
-type NOW = typeof NOW;
+const COORDINATION: unique symbol = Symbol.for("starbeam.COORDINATION");
+type COORDINATION = typeof COORDINATION;
 
-export { NOW, REACTIVE, UNINITIALIZED };
+export { COORDINATION, REACTIVE, UNINITIALIZED };

@@ -3,6 +3,7 @@
 import type {
   DescriptionArgs,
   DescriptionDetails,
+  ReactiveId,
   Stack as StackProtocol,
   StackFrame,
   StackFrameDisplayOptions,
@@ -10,6 +11,7 @@ import type {
 } from "@starbeam/interfaces";
 // eslint-disable-next-line import/no-duplicates
 import type * as interfaces from "@starbeam/interfaces";
+import { getID } from "@starbeam/peer";
 import { hasType, isObject, verified } from "@starbeam/verify";
 import { default as StackTracey } from "stacktracey";
 
@@ -27,6 +29,11 @@ export interface StackStatics {
 
   from(error: ErrorWithStack): StackProtocol;
   from(error: unknown): StackProtocol | null;
+
+  id(
+    this: void,
+    description?: string | Description | { id: ReactiveId }
+  ): ReactiveId;
 
   description(
     this: void,
@@ -209,19 +216,26 @@ if (isDebug()) {
       },
       internal = 0
     ): interfaces.Description {
-      if (isDebug()) {
-        const stack = DebugStack.fromCaller(internal + 1);
-        const fromUser = args.fromUser;
+      const stack = DebugStack.fromCaller(internal + 1);
+      const fromUser = args.fromUser;
 
-        if (fromUser === undefined || typeof fromUser === "string") {
-          return Description.from({ ...args, stack });
-        } else if (Description.is(fromUser)) {
-          return fromUser;
-        } else {
-          return Description.from({ ...args, stack });
-        }
+      if (fromUser === undefined || typeof fromUser === "string") {
+        return Description.from({ ...args, stack });
+      } else if (Description.is(fromUser)) {
+        return fromUser.withId(args.id);
       } else {
-        return Description.from({ ...args, stack: DebugStack.EMPTY });
+        return Description.from({ ...args, stack });
+      }
+    }
+
+    static id(
+      this: void,
+      description?: string | { id: ReactiveId }
+    ): ReactiveId {
+      if (description === undefined || typeof description === "string") {
+        return getID();
+      } else {
+        return description.id;
       }
     }
 
@@ -400,6 +414,10 @@ if (isDebug()) {
       return Description.from({ ...args, stack: ProdStack.EMPTY });
     }
 
+    static id(): ReactiveId {
+      return getID();
+    }
+
     static callerFrame(): StackFrame | undefined {
       return undefined;
     }
@@ -425,6 +443,11 @@ export const entryPoint = PickedStack.entryPoint;
 
 /** This should be convertable to something like Description.EMPTY in prod builds  */
 export const descriptionFrom = PickedStack.description;
+
+/**
+ * If it isn't already removed, this should be convertable to getID in prod builds
+ */
+export const idFrom = PickedStack.id;
 
 export const callerStack = PickedStack.fromCaller;
 

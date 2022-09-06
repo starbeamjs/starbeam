@@ -1,5 +1,7 @@
 import type {
   CompositeInternals,
+  Diff,
+  Frame,
   MutableInternals,
   ReactiveInternals,
   ReactiveProtocol,
@@ -17,41 +19,69 @@ function reactiveInternals(reactive: ReactiveProtocol): ReactiveInternals {
   return reactive[REACTIVE];
 }
 
-interface DebugOperationOptions<
-  I extends ReactiveInternals = ReactiveInternals
-> {
-  readonly type: "cell:consume" | "frame:consume" | "cell:update";
+interface OperationInfo<I extends ReactiveInternals> {
   readonly at: Timestamp;
   readonly for: I;
   readonly caller: Stack;
 }
 
-export class LeafDebugOperation<
-  I extends ReactiveInternals = ReactiveInternals
-> {
-  readonly #options: DebugOperationOptions<I>;
+export type DebugOperationOptions =
+  | CellConsumeOperation
+  | CellUpdateOperation
+  | FrameConsumeOperation;
 
-  constructor(options: DebugOperationOptions<I>) {
-    this.#options = options;
-  }
+export class LeafOperation<I extends ReactiveInternals> {
+  #data: OperationInfo<I>;
 
-  get type(): "cell:consume" | "frame:consume" | "cell:update" {
-    return this.#options.type;
+  constructor(data: OperationInfo<I>) {
+    this.#data = data;
   }
 
   get at(): Timestamp {
-    return this.#options.at;
+    return this.#data.at;
   }
 
   get for(): I {
-    return this.#options.for;
+    return this.#data.for;
   }
 
   get caller(): Stack {
-    return this.#options.caller;
+    return this.#data.caller;
   }
 }
 
+export class CellConsumeOperation extends LeafOperation<MutableInternals> {
+  readonly type = "cell:consume";
+}
+
+export class CellUpdateOperation extends LeafOperation<MutableInternals> {
+  readonly type = "cell:update";
+}
+
+interface FrameConsumeInfo extends OperationInfo<CompositeInternals> {
+  readonly diff: Diff<MutableInternals>;
+  readonly frame: Frame;
+}
+
+export class FrameConsumeOperation extends LeafOperation<CompositeInternals> {
+  readonly type = "frame:consume";
+  readonly #diff: Diff<MutableInternals>;
+  readonly #frame: Frame;
+
+  constructor(data: FrameConsumeInfo) {
+    super(data);
+    this.#diff = data.diff;
+    this.#frame = data.frame;
+  }
+
+  get diff(): Diff<MutableInternals> {
+    return this.#diff;
+  }
+
+  get frame(): Frame {
+    return this.#frame;
+  }
+}
 export class MutationLog {
   readonly type = "mutation";
   // This makes `DebugOperation.for` ==== `ReactiveInternals | undefined`, which makes it possible
@@ -79,8 +109,9 @@ export class MutationLog {
 }
 
 export type DebugOperation =
-  | LeafDebugOperation<MutableInternals>
-  | LeafDebugOperation<CompositeInternals>
+  | CellConsumeOperation
+  | CellUpdateOperation
+  | FrameConsumeOperation
   | MutationLog;
 
 export interface Flush {
@@ -256,20 +287,21 @@ export class DebugTimeline {
     }
   }
 
-  consume(reactive: ReactiveProtocol, caller: Stack): void {
-    const internals = reactiveInternals(reactive);
+  consumeCell(internals: MutableInternals, caller: Stack): void {
+    this.#consumeCell(internals, caller);
+  }
 
-    if (internals.type === "mutable") {
-      this.#consumeCell(internals, caller);
-    } else if (internals.type === "composite") {
-      this.#consumeFrame(internals, caller);
-    }
+  consumeFrame(
+    frame: Frame,
+    diff: Diff<MutableInternals>,
+    caller: Stack
+  ): void {
+    this.#consumeFrame(frame, diff, caller);
   }
 
   #consumeCell(cell: MutableInternals, caller: Stack) {
     this.#add(
-      new LeafDebugOperation({
-        type: "cell:consume",
+      new CellConsumeOperation({
         at: this.#timestamp.now(),
         for: cell,
         caller,
@@ -279,8 +311,7 @@ export class DebugTimeline {
 
   updateCell(cell: MutableInternals, caller: Stack): void {
     this.#add(
-      new LeafDebugOperation({
-        type: "cell:update",
+      new CellUpdateOperation({
         at: this.#timestamp.now(),
         for: cell,
         caller,
@@ -288,13 +319,14 @@ export class DebugTimeline {
     );
   }
 
-  #consumeFrame(frame: CompositeInternals, caller: Stack) {
+  #consumeFrame(frame: Frame, diff: Diff<MutableInternals>, caller: Stack) {
     this.#add(
-      new LeafDebugOperation({
-        type: "frame:consume",
+      new FrameConsumeOperation({
         at: this.#timestamp.now(),
-        for: frame,
+        for: frame[REACTIVE],
+        diff,
         caller,
+        frame,
       })
     );
   }

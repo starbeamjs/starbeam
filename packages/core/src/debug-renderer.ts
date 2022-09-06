@@ -1,4 +1,5 @@
 import { type Description, descriptionFrom } from "@starbeam/debug";
+import { getID } from "@starbeam/peer";
 import type { Unsubscribe } from "@starbeam/timeline";
 import { TIMELINE } from "@starbeam/timeline";
 
@@ -19,6 +20,7 @@ export const DEBUG_RENDERER = {
       render,
       descriptionFrom({
         type: "renderer",
+        id: getID(),
         api: "DEBUG_RENDERER",
         fromUser: description,
       })

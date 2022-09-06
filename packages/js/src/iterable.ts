@@ -11,7 +11,9 @@ class Entry<V> {
         equals: equals(equality),
       }),
       Cell(true, {
-        description: desc.implementation({ reason: "initialized" }),
+        description: desc.implementation("initialized", {
+          reason: "initialized",
+        }),
       })
     );
   }
@@ -23,7 +25,9 @@ class Entry<V> {
         equals: equals(equality),
       }),
       Cell(false, {
-        description: desc.implementation({ reason: "initialized" }),
+        description: desc.implementation("initialized", {
+          reason: "initialized",
+        }),
       })
     );
   }

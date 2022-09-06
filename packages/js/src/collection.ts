@@ -13,7 +13,7 @@ class ItemState {
       Cell(initialized, {
         description: description
           .key(member)
-          .implementation({ reason: "initialization tracking" }),
+          .asImplementation({ reason: "initialization tracking" }),
       }),
       Marker(description.key(member))
     );

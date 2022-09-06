@@ -1,4 +1,5 @@
 import { descriptionFrom, Stack } from "@starbeam/debug";
+import { getID } from "@starbeam/peer";
 import { TIMELINE } from "@starbeam/timeline";
 import { describe, expect, test } from "vitest";
 
@@ -9,10 +10,12 @@ describe("consumption", () => {
   test("in the context of a frame", () => {
     const { update, instance } = Marker();
 
+    const id = getID();
     const here = Stack.fromCaller(-1);
     const frame = TIMELINE.frame.create({
-      evaluate: () => TIMELINE.didConsume(instance, here),
+      evaluate: () => TIMELINE.didConsumeCell(instance, here),
       description: descriptionFrom({
+        id,
         type: "formula",
         api: "Formula",
       }),

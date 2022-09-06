@@ -3,18 +3,21 @@
 // eslint-disable-next-line
 import { h, Fragment, type JSX } from "preact";
 
-import type { LeafDebugOperation } from "@starbeam/debug";
 import type { Timestamp, MutableInternals } from "@starbeam/interfaces";
 import { LogLine, LogLineFor, title } from "./ui.jsx";
 import { Internal } from "./describe.jsx";
 import type { DevtoolsLineOptions } from "./log.jsx";
+import type {
+  CellConsumeOperation,
+  CellUpdateOperation,
+} from "@starbeam/debug";
 
 export function CellConsumeLine({
   line,
   prev,
   options = {},
 }: {
-  line: LeafDebugOperation;
+  line: CellConsumeOperation;
   prev: Timestamp | undefined;
   options: DevtoolsLineOptions;
 }): JSX.Element {
@@ -50,7 +53,7 @@ export function CellUpdateLine({
   prev,
   options = {},
 }: {
-  line: LeafDebugOperation;
+  line: CellUpdateOperation;
   prev: Timestamp | undefined;
   options: DevtoolsLineOptions;
 }): JSX.Element {

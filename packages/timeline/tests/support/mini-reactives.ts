@@ -1,8 +1,8 @@
 import { type Stack, callerStack, descriptionFrom } from "@starbeam/debug";
-import type { UNINITIALIZED } from "@starbeam/peer";
-import type { Timestamp } from "@starbeam/timeline";
+import type { MutableInternals } from "@starbeam/interfaces";
+import { getID, type UNINITIALIZED } from "@starbeam/peer";
+import { type Timestamp, diff } from "@starbeam/timeline";
 import {
-  type MutableInternals,
   type Reactive,
   type ReactiveProtocol,
   Frame,
@@ -11,7 +11,7 @@ import {
   zero,
 } from "@starbeam/timeline";
 
-export interface Cell<T> extends ReactiveProtocol {
+export interface Cell<T> extends ReactiveProtocol<MutableInternals> {
   current: T;
   read(stack: Stack): T;
 }
@@ -24,6 +24,11 @@ export function Cell<T>(value: T): Cell<T> {
   let lastUpdated = TIMELINE.next();
   const internals: MutableInternals = {
     type: "mutable",
+    description: descriptionFrom({
+      id: getID(),
+      api: "Cell",
+      type: "cell",
+    }),
     get lastUpdated(): Timestamp {
       return lastUpdated;
     },
@@ -32,7 +37,7 @@ export function Cell<T>(value: T): Cell<T> {
   return {
     [REACTIVE]: internals,
     read(caller: Stack) {
-      TIMELINE.didConsume(this, caller);
+      TIMELINE.didConsumeCell(this, caller);
       return value;
     },
     get current() {
@@ -49,9 +54,15 @@ export function Cell<T>(value: T): Cell<T> {
 export function FreezableCell<T>(value: T): FreezableCell<T> {
   let lastUpdated = zero();
   let isFrozen = false;
+  const id = getID();
 
   const internals: MutableInternals = {
     type: "mutable",
+    description: descriptionFrom({
+      id: getID(),
+      api: "FreezableCell",
+      type: "cell",
+    }),
     get lastUpdated(): Timestamp {
       return lastUpdated;
     },
@@ -61,7 +72,7 @@ export function FreezableCell<T>(value: T): FreezableCell<T> {
   return {
     [REACTIVE]: internals,
     read(caller: Stack) {
-      TIMELINE.didConsume(this, caller);
+      TIMELINE.didConsumeCell(this, caller);
       return value;
     },
     get current() {
@@ -82,6 +93,11 @@ export function Static<T>(value: T): Reactive<T> {
   return {
     [REACTIVE]: {
       type: "static",
+      description: descriptionFrom({
+        id: getID(),
+        api: "Static",
+        type: "static",
+      }),
     },
     read() {
       return value;
@@ -101,6 +117,7 @@ export function Formula<T>(computation: () => T): {
     TIMELINE.next(),
     descriptionFrom({
       type: "formula",
+      id: getID(),
       api: "Formula",
     })
   );
@@ -109,7 +126,7 @@ export function Formula<T>(computation: () => T): {
     const validation = frame.validate();
 
     if (validation.status === "valid") {
-      TIMELINE.didConsume(frame, caller);
+      TIMELINE.didConsumeFrame(frame, diff.empty(), caller);
       return validation.value;
     }
 
@@ -120,7 +137,7 @@ export function Formula<T>(computation: () => T): {
       })
     );
     TIMELINE.update(frame);
-    TIMELINE.didConsume(frame, caller);
+    TIMELINE.didConsumeFrame(frame, diff.empty(), caller);
     return result;
   }
 
@@ -128,12 +145,17 @@ export function Formula<T>(computation: () => T): {
 }
 
 export function Marker(): {
-  instance: ReactiveProtocol;
+  instance: ReactiveProtocol<MutableInternals>;
   update: () => void;
 } {
   let lastUpdated = TIMELINE.next();
   const internals: MutableInternals = {
     type: "mutable",
+    description: descriptionFrom({
+      id: getID(),
+      type: "cell",
+      api: "Marker",
+    }),
     get lastUpdated() {
       return lastUpdated;
     },

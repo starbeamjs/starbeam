@@ -1,10 +1,12 @@
 import type {
+  CompositeInternals,
   Description,
   MutableInternals,
-  ReactiveInternals,
+  ReactiveId,
   Timestamp,
 } from "@starbeam/interfaces";
 import { REACTIVE, UNINITIALIZED } from "@starbeam/peer";
+import { getID } from "./id.js";
 
 import { ReactiveProtocol } from "./protocol.js";
 import type { Timeline } from "./timeline.js";
@@ -16,7 +18,9 @@ interface Marker {
   };
 }
 
-export class Frame<T = unknown> implements ReactiveProtocol {
+export class Frame<T = unknown>
+  implements ReactiveProtocol<CompositeInternals>
+{
   static create<T>(
     this: void,
     value: T,
@@ -24,15 +28,16 @@ export class Frame<T = unknown> implements ReactiveProtocol {
     finalized: Timestamp,
     description: Description
   ): Frame<T> {
+    const id = getID();
+
     return new Frame(
+      id,
       value,
       {
         [REACTIVE]: {
           type: "mutable",
           lastUpdated: finalized,
-          description: description
-            .key("initialized?")
-            .implementation({ userFacing: description }),
+          description: description.key("initialized?").asImplementation(),
         },
       },
       children,
@@ -45,7 +50,11 @@ export class Frame<T = unknown> implements ReactiveProtocol {
     finalized: Timestamp,
     description: Description
   ): Frame<T | UNINITIALIZED> {
+    const id = description.id;
+    const initializedId = [id, getID()];
+
     return new Frame<T | UNINITIALIZED>(
+      id,
       UNINITIALIZED,
       {
         [REACTIVE]: {
@@ -64,6 +73,16 @@ export class Frame<T = unknown> implements ReactiveProtocol {
     return frame.#value;
   }
 
+  static update<T>(
+    this: void,
+    frame: Frame<T>,
+    value: T,
+    children: Set<ReactiveProtocol>,
+    finalized: Timestamp
+  ): Frame<T> {
+    return frame.#update(value, children, finalized);
+  }
+
   static updateChildren<T>(
     this: void,
     frame: Frame<T>,
@@ -79,6 +98,7 @@ export class Frame<T = unknown> implements ReactiveProtocol {
   #description: Description;
 
   constructor(
+    id: ReactiveId,
     value: T,
     initialized: {
       [REACTIVE]: Omit<MutableInternals, "lastUpdated"> & {
@@ -96,7 +116,7 @@ export class Frame<T = unknown> implements ReactiveProtocol {
     this.#description = description;
   }
 
-  get [REACTIVE](): ReactiveInternals {
+  get [REACTIVE](): CompositeInternals {
     return {
       type: "composite",
       description: this.#description,
@@ -110,18 +130,18 @@ export class Frame<T = unknown> implements ReactiveProtocol {
     return this.#description;
   }
 
-  update<U>(
+  #update<U>(
     this: Frame<U | UNINITIALIZED>,
     value: U,
     children: Set<ReactiveProtocol>,
     finalized: Timestamp
   ): Frame<U>;
-  update(
+  #update(
     value: T,
     children: Set<ReactiveProtocol>,
     finalized: Timestamp
   ): Frame<T>;
-  update(
+  #update(
     value: T,
     children: Set<ReactiveProtocol>,
     finalized: Timestamp
@@ -187,7 +207,7 @@ export class ActiveFrame<T> {
     let frame = this.#updating;
 
     if (frame) {
-      frame.update(value, this.#children, now());
+      Frame.update(frame, value, this.#children, now());
       timeline.update(frame);
     } else {
       frame = Frame.create(value, this.#children, now(), this.description);

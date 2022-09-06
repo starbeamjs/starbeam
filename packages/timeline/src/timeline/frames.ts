@@ -1,6 +1,6 @@
 import type { DebugTimeline, Stack } from "@starbeam/debug";
-import type { Description } from "@starbeam/interfaces";
-import type { UNINITIALIZED } from "@starbeam/peer";
+import type { Description, Diff, MutableInternals } from "@starbeam/interfaces";
+import { type UNINITIALIZED, REACTIVE } from "@starbeam/peer";
 
 // eslint-disable-next-line import/no-cycle
 import { type Frame, ActiveFrame } from "./frame.js";
@@ -13,12 +13,23 @@ export class FrameStack {
     return new FrameStack(subscriptions, null, timeline);
   }
 
-  static didConsume(
+  static didConsumeCell(
     frames: FrameStack,
-    reactive: ReactiveProtocol,
+    reactive: ReactiveProtocol<MutableInternals>,
     caller: Stack
   ): void {
-    return frames.#didConsume(reactive, caller);
+    frames.#debug.consumeCell(reactive[REACTIVE], caller);
+    frames.#didConsumeReactive(reactive, caller);
+  }
+
+  static didConsumeFrame(
+    frames: FrameStack,
+    frame: Frame,
+    diff: Diff<MutableInternals>,
+    caller: Stack
+  ): void {
+    frames.#debug.consumeFrame(frame, diff, caller);
+    frames.#didConsumeReactive(frame, caller);
   }
 
   #subscriptions: Subscriptions;
@@ -48,9 +59,19 @@ export class FrameStack {
   }
 
   // Indicate that a particular cell was used inside of the current computation.
-  #didConsume(reactive: ReactiveProtocol, caller: Stack): void {
-    this.#debug.consume(reactive, caller);
+  #didConsumeCell(
+    reactive: ReactiveProtocol<MutableInternals>,
+    caller: Stack
+  ): void {
+    this.#debug.consumeCell(reactive[REACTIVE], caller);
+    this.#didConsumeReactive(reactive, caller);
+  }
 
+  #didConsumeFrame(reactive: Frame, caller: Stack): void {
+    this.#didConsumeReactive(reactive, caller);
+  }
+
+  #didConsumeReactive(reactive: ReactiveProtocol, caller: Stack): void {
     const frame = this.currentFrame;
     if (frame) {
       frame.add(reactive);

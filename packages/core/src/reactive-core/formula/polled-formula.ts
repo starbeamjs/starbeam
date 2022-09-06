@@ -4,9 +4,18 @@ import {
   descriptionFrom,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-imports
   ifDebug,
+  isDebug,
 } from "@starbeam/debug";
-import type { UNINITIALIZED } from "@starbeam/peer";
-import { type Reactive, Frame, REACTIVE, TIMELINE } from "@starbeam/timeline";
+import type { Stack } from "@starbeam/interfaces";
+import { getID, type UNINITIALIZED } from "@starbeam/peer";
+import {
+  type Reactive,
+  diff,
+  Frame,
+  REACTIVE,
+  ReactiveProtocol,
+  TIMELINE,
+} from "@starbeam/timeline";
 
 /**
  * A {@linkcode PolledFormula} is like a {@linkcode Formula}, but it never attempts to avoid running the
@@ -26,10 +35,11 @@ export function PolledFormula<T>(
 ): {
   frame: Frame<T | UNINITIALIZED>;
   poll: () => Frame<T>;
-  update: (callback: () => T) => void;
+  update: (caller?: Stack) => void;
 } {
   const desc = descriptionFrom({
     type: "formula",
+    id: getID(),
     api: {
       package: "@starbeam/core",
       name: "Formula",
@@ -39,26 +49,32 @@ export function PolledFormula<T>(
 
   const frame = Frame.uninitialized<T | UNINITIALIZED>(TIMELINE.now, desc);
 
-  const update = () => {
-    TIMELINE.frame.update({
-      updating: frame,
-      evaluate: callback,
-    });
-    TIMELINE.update(frame);
-  };
+  const update = (caller: Stack = callerStack()) => {
+    if (isDebug()) {
+      const oldDeps = new Set(ReactiveProtocol.dependencies(frame));
 
-  function poll(caller = callerStack()): Frame<T> {
-    if (frame) {
-      update();
+      TIMELINE.frame.update({
+        updating: frame,
+        evaluate: callback,
+      });
+      TIMELINE.update(frame);
+
+      const newDeps = new Set(ReactiveProtocol.dependencies(frame));
+
+      TIMELINE.didConsumeFrame(frame, diff(oldDeps, newDeps), caller);
     } else {
       TIMELINE.frame.update({
         updating: frame,
         evaluate: callback,
       });
       TIMELINE.update(frame);
+      TIMELINE.didConsumeFrame(frame, diff.empty(), caller);
     }
+  };
 
-    TIMELINE.didConsume(frame, caller);
+  function poll(caller = callerStack()): Frame<T> {
+    update(caller);
+
     return frame as Frame<T>;
   }
 
@@ -78,6 +94,7 @@ export function PolledFormulaFn<T>(
     callback,
     descriptionFrom({
       type: "formula",
+      id: getID(),
       api: {
         package: "@starbeam/core",
         name: "FormulaFn",

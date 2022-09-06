@@ -102,7 +102,8 @@ export class Subscriptions {
       const prev = pollable.dependencies;
       const lastNotified = pollable.lastNotified;
 
-      const { add, remove } = diff(prev, next);
+      const delta = diff(prev, next);
+      const { add, remove } = delta;
 
       for (const dep of add) {
         this.#addDep(dep, pollable);

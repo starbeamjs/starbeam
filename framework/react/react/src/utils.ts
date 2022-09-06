@@ -6,77 +6,13 @@ import {
   descriptionFrom,
 } from "@starbeam/debug";
 import { reactive } from "@starbeam/js";
+import { getID } from "@starbeam/peer";
 import type { Reactive } from "@starbeam/timeline";
 import { useUpdatingVariable } from "@starbeam/use-strict-lifecycle";
 import type { Dispatch, SetStateAction } from "react";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyRecord = Record<PropertyKey, any>;
-
-/**
- * {@link useStable} takes an object containing stable React variables
- * (such as React props) and converts it into a Starbeam
- * [Reactive Object].
- *
- * [reactive object]: https://github.com/wycats/starbeam/tree/main/%40starbeam/react/GLOSSARY.md#reactive-object
- */
-export function useStable<I extends AnyRecord>(
-  variable: I,
-  description?: string | Description
-): I {
-  const desc = descriptionFrom({
-    type: "external",
-    api: "useStable",
-    fromUser: description,
-  });
-
-  return useUpdatingVariable({
-    initial: () => reactive.object(variable, desc),
-    update: (stableProps) => {
-      Object.assign(stableProps, variable);
-    },
-  });
-}
-
-/**
- * {@link useStableVariable} takes a stable React variable and converts it
- * into a Starbeam Reactive value.
- *
- * ```ts
- * function Counter({ count }: { count: number }) {
- *   const stableCount = useReactiveVariable(count);
- *
- *   return useReactiveElement(() => {
- *     const extra = reactive({ count: 0 });
- *
- *     return () => <>
- *       <button onClick={() => extra.count++}>++ extra ++</button>
- *       <p>Total: {stableCount.current + extras.count}</p>
- *     </>
- *   });
- * }
- * ```
- */
-export function useStableVariable<T>(
-  variable: T,
-  description?: string | Description
-): Reactive<T> {
-  const desc = descriptionFrom({
-    type: "external",
-    api: {
-      package: "@starbeam/react",
-      name: "useStableVariable",
-    },
-    fromUser: description,
-  });
-
-  return useUpdatingVariable({
-    initial: () => Cell(variable, { description: desc }),
-    update: (cell) => {
-      cell.set(variable);
-    },
-  });
-}
 
 /**
  * Convert a React hooks dependency list into a reactive
@@ -87,7 +23,11 @@ export function useDeps<T extends unknown[]>(
 ): { consume: () => void; debug: () => Reactive<unknown>[] } {
   const desc = descriptionFrom({
     type: "external",
-    api: "useDeps",
+    id: getID(),
+    api: {
+      name: "useDeps",
+      package: "@starbeam/react",
+    },
     fromUser: description,
   });
 
@@ -110,6 +50,7 @@ export function useProp<T>(
 ): Reactive<T> {
   const desc = descriptionFrom({
     type: "external",
+    id: getID(),
     api: "useProp",
     fromUser: description,
   });
@@ -130,6 +71,7 @@ export function useProps<T extends AnyRecord>(
 ): T {
   const desc = descriptionFrom({
     type: "external",
+    id: getID(),
     api: "useProps",
     fromUser: description,
   });
@@ -141,30 +83,6 @@ export function useProps<T extends AnyRecord>(
     },
   });
 }
-
-/**
- * {@link useStableVariable.mutable} takes a stable React variable *plus* an
- * updater function returned by {@link useState} and returns a Starbeam _Mutable
- * Reactive Value_.
- */
-useStableVariable.mutable = <S>(
-  value: S,
-  setValue: SetValue<S>,
-  description?: string | Description
-): ReactiveState<S> => {
-  const desc = descriptionFrom({
-    type: "external",
-    api: "useStableVariable.mutable",
-    fromUser: description,
-  });
-
-  const stack = callerStack();
-
-  return useUpdatingVariable({
-    initial: () => ReactiveState.create(value, setValue, desc),
-    update: (state) => ReactiveState.update(state, value, stack),
-  });
-};
 
 type SetValue<T> = Dispatch<SetStateAction<T>>;
 

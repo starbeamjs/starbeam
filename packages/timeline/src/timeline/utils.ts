@@ -1,7 +1,4 @@
-export interface Diff<T> {
-  readonly add: Set<T>;
-  readonly remove: Set<T>;
-}
+import type { Diff } from "@starbeam/interfaces";
 
 export function diff<T>(
   prev: Set<T> | ReadonlySet<T>,
@@ -24,3 +21,6 @@ export function diff<T>(
 
   return { add, remove };
 }
+
+const EMPTY = { add: new Set(), remove: new Set() };
+diff.empty = <T>() => EMPTY as Diff<T>;

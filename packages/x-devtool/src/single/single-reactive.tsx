@@ -4,17 +4,14 @@
 import { h, Fragment, render, type JSX } from "preact";
 import "./devtool.css";
 
-import {
-  ReactiveProtocol,
-  TIMELINE,
-  type MutableInternals,
-} from "@starbeam/timeline";
+import { ReactiveProtocol, TIMELINE } from "@starbeam/timeline";
 import {
   type Description,
   type DebugListener,
   type DebugOperation,
   defaultDescription,
 } from "@starbeam/debug";
+import type { MutableInternals } from "@starbeam/interfaces";
 
 export function DevtoolsFor(props: {
   reactive: ReactiveProtocol;

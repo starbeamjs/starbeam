@@ -1,11 +1,13 @@
 import type { Stack } from "@starbeam/debug";
 import { type Description, descriptionFrom } from "@starbeam/debug";
+import { getID } from "@starbeam/peer";
 import {
   type Reactive,
   type ReactiveInternals,
   REACTIVE,
   ReactiveProtocol,
 } from "@starbeam/timeline";
+import { DelegateInternals } from "../delegate.js";
 
 import { FormulaFn } from "../formula/formula.js";
 
@@ -27,6 +29,7 @@ class ReactiveFormulaList<T, U> implements Reactive<U[]> {
   ) {
     const descArgs = descriptionFrom({
       type: "collection:value",
+      id: getID(),
       api: {
         package: "@starbeam/core",
         name: "ReactiveFormulaList",
@@ -46,17 +49,21 @@ class ReactiveFormulaList<T, U> implements Reactive<U[]> {
     for (const [key, item] of last) {
       map.set(
         key,
-        FormulaFn(() => value(item), description.key("item"))
+        FormulaFn(
+          () => value(item),
+          description.key(String(key), { id: getID() })
+        )
       );
     }
 
-    return new ReactiveFormulaList(last, list, map, value);
+    return new ReactiveFormulaList(last, list, map, value, description);
   }
 
   #last: Entry<T>[];
   #inputs: FormulaFn<Entry<T>[]>;
   #map: Map<Key, FormulaFn<U>>;
   #value: (item: T) => U;
+  #description: Description;
 
   #outputs: FormulaFn<U[]>;
 
@@ -66,12 +73,14 @@ class ReactiveFormulaList<T, U> implements Reactive<U[]> {
     last: Entry<T>[],
     list: FormulaFn<Entry<T>[]>,
     map: Map<Key, FormulaFn<U>>,
-    value: (item: T) => U
+    value: (item: T) => U,
+    description: Description
   ) {
     this.#last = last;
     this.#inputs = list;
     this.#map = map;
     this.#value = value;
+    this.#description = description;
 
     this.#outputs = FormulaFn(() => {
       this.#update();
@@ -79,10 +88,7 @@ class ReactiveFormulaList<T, U> implements Reactive<U[]> {
       return [...this.#map.values()].map((formula) => formula());
     });
 
-    this[REACTIVE] = {
-      type: "delegate",
-      delegate: [this.#outputs],
-    };
+    this[REACTIVE] = DelegateInternals([this.#outputs]);
   }
 
   get current(): U[] {

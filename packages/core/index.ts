@@ -1,5 +1,6 @@
 export { DEBUG_RENDERER } from "./src/debug-renderer.js";
 export { type Equality, Cell } from "./src/reactive-core/cell.js";
+export { DelegateInternals } from "./src/reactive-core/delegate.js";
 export { Formula, FormulaFn } from "./src/reactive-core/formula/formula.js";
 export { Linkable } from "./src/reactive-core/formula/linkable.js";
 export {

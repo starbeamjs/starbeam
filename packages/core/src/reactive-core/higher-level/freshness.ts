@@ -1,4 +1,5 @@
 import { type Description, descriptionFrom } from "@starbeam/debug";
+import { getID } from "@starbeam/peer";
 
 import { Cell } from "../cell.js";
 
@@ -37,6 +38,7 @@ export function Freshness(
   return new ReactiveFreshness(
     descriptionFrom({
       type: "cell",
+      id: getID(),
       api: { package: "@starbeam/core", name: "Freshness" },
       fromUser: description,
     })

@@ -1,6 +1,7 @@
 import { Cell, LIFETIME, PolledFormulaFn, TIMELINE } from "@starbeam/core";
 import type { Description } from "@starbeam/debug";
 import { descriptionFrom } from "@starbeam/debug";
+import { getID } from "@starbeam/peer";
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
 import { useState } from "react";
 
@@ -16,9 +17,13 @@ import { useSetup } from "./use-setup.js";
  *
  * If you also want to memoize the value, you can use {@linkcode useReactiveMemo}.
  */
-export function useReactive<T>(compute: () => T, description?: string): T {
+export function useReactive<T>(
+  compute: () => T,
+  description?: string | Description
+): T {
   const desc = descriptionFrom({
     type: "formula",
+    id: getID(),
     api: "useReactive",
     fromUser: description,
   });
@@ -56,6 +61,7 @@ export function useCell<T>(
 ): Cell<T> {
   const desc = descriptionFrom({
     type: "cell",
+    id: getID(),
     api: {
       package: "@starbeam/react",
       name: "useCell",

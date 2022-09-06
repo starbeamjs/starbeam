@@ -11,7 +11,8 @@
   },
   "devDependencies": {
     "chalk": "^5.0.1",
-    "vite": "^3.0.0"
+    "vite": "^3.0.0",
+    "@domtree/flavors": "workspace:^"
   },
   "publishConfig": {
     "main": "dist/index.cjs",

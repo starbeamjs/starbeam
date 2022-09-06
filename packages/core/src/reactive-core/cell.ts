@@ -8,16 +8,11 @@ import {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-imports
   ifDebug,
 } from "@starbeam/debug";
-import {
-  type Reactive,
-  type ReactiveInternals,
-  INSPECT,
-  REACTIVE,
-  TIMELINE,
-} from "@starbeam/timeline";
+import { type Reactive, INSPECT, REACTIVE, TIMELINE } from "@starbeam/timeline";
+import type * as interfaces from "@starbeam/interfaces";
 
-import type { MutableInternalsImpl } from "../storage.js";
-import { MutableInternals } from "../storage.js";
+import { MutableInternals, MutableInternalsImpl } from "../storage.js";
+import { getID } from "@starbeam/peer";
 
 export interface CellPolicy<T, U = T> {
   equals(a: T, b: T): boolean;
@@ -26,7 +21,9 @@ export interface CellPolicy<T, U = T> {
 
 export type Equality<T> = (a: T, b: T) => boolean;
 
-export class ReactiveCell<T> implements Reactive<T> {
+export class ReactiveCell<T>
+  implements Reactive<T, interfaces.MutableInternals>
+{
   static create<T>(
     value: T,
     equals: Equality<T> = Object.is,
@@ -79,7 +76,7 @@ export class ReactiveCell<T> implements Reactive<T> {
   }
 
   read(caller: Stack): T {
-    TIMELINE.didConsume(this, caller);
+    TIMELINE.didConsumeCell(this, caller);
     return this.#value;
   }
 
@@ -105,7 +102,7 @@ export class ReactiveCell<T> implements Reactive<T> {
     return true;
   }
 
-  get [REACTIVE](): ReactiveInternals {
+  get [REACTIVE](): MutableInternals {
     return this.#internals;
   }
 }
@@ -147,6 +144,7 @@ function normalize(description?: string | Description): Description {
     return descriptionFrom(
       {
         type: "cell",
+        id: getID(),
         api: {
           package: "@starbeam/core",
           name: "Cell",

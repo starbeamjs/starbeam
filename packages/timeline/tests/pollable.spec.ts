@@ -1,6 +1,7 @@
 import { descriptionFrom } from "@starbeam/debug";
 import { type Reactive, Frame, REACTIVE, TIMELINE } from "@starbeam/timeline";
 import { describe, expect, test } from "vitest";
+import { getID } from "../src/timeline/id.js";
 
 import { Cell } from "./support/mini-reactives.js";
 
@@ -55,13 +56,18 @@ describe("pollable", () => {
     expect(sum.read()).toBe(4);
   });
 
-  test("subcribing to a delegate", () => {
+  test("subscribing to a delegate", () => {
     const cell = Cell(0);
 
     const delegate: Reactive<number> = {
       read: () => cell.current,
       [REACTIVE]: {
         type: "delegate",
+        description: descriptionFrom({
+          id: getID(),
+          type: "delegate",
+          api: "delegate",
+        }),
         delegate: [cell],
       },
     };
@@ -89,6 +95,11 @@ describe("pollable", () => {
       read: () => sum.read(),
       [REACTIVE]: {
         type: "delegate",
+        description: descriptionFrom({
+          id: getID(),
+          type: "delegate",
+          api: "delegate",
+        }),
         delegate: [sum],
       },
     };
@@ -136,6 +147,7 @@ function Sum() {
     TIMELINE.now,
     descriptionFrom({
       type: "formula",
+      id: getID(),
       api: "Formula",
     })
   );
@@ -152,6 +164,11 @@ function Sum() {
     },
     [REACTIVE]: {
       type: "delegate",
+      description: descriptionFrom({
+        id: getID(),
+        type: "delegate",
+        api: "delegate",
+      }),
       delegate: [frame],
     },
   };

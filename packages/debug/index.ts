@@ -1,7 +1,7 @@
 import { descriptionFrom } from "./src/stack.js";
 
 export { ifDebug, isDebug, isProd } from "./src/conditional.js";
-export { Description } from "./src/description/reactive-value.js";
+export { Description, REUSE_ID } from "./src/description/reactive-value.js";
 export {
   type DisplayStructOptions,
   DisplayStruct,
@@ -27,16 +27,19 @@ export { type DisplayParts, describeModule } from "./src/module.js";
 export {
   callerStack,
   descriptionFrom,
+  idFrom,
   entryPoint,
   isErrorWithStack,
   Stack,
 } from "./src/stack.js";
 export {
+  type CellConsumeOperation,
+  type CellUpdateOperation,
   type DebugFilter,
   type DebugListener,
   type DebugOperation,
   type Flush,
-  type LeafDebugOperation,
+  type FrameConsumeOperation,
   type MutationLog,
   DebugTimeline,
 } from "./src/timeline.js";
@@ -53,6 +56,7 @@ export type {
 } from "@starbeam/interfaces";
 
 export const defaultDescription = descriptionFrom({
+  id: NaN,
   type: "erased",
   api: "anonymous",
 });

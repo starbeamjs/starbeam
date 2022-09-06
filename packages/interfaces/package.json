@@ -3,7 +3,8 @@
   "type": "module",
   "main": "index.ts",
   "dependencies": {
-    "@starbeam/peer": "workspace:^"
+    "@starbeam/peer": "workspace:^",
+    "@domtree/any": "workspace:^"
   },
   "publishConfig": {
     "main": "dist/index.cjs",

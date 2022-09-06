@@ -4,28 +4,31 @@ import type { Description } from "./description.js";
 import type { Stack } from "./stack.js";
 import type { Timestamp } from "./timestamp.js";
 
-export interface MutableInternals {
+export type ReactiveId = number | string | ReactiveId[];
+
+interface Internals {
+  readonly type: string;
+  readonly description: Description;
+}
+
+export interface MutableInternals extends Internals {
   readonly type: "mutable";
-  readonly description?: Description;
   readonly lastUpdated: Timestamp;
   isFrozen?(): boolean;
 }
 
-export interface CompositeInternals {
+export interface CompositeInternals extends Internals {
   readonly type: "composite";
-  readonly description?: Description;
   children(): ReactiveProtocol[];
 }
 
-export interface DelegateInternals {
+export interface DelegateInternals extends Internals {
   readonly type: "delegate";
-  readonly description?: Description;
-  readonly delegate: ReactiveProtocol[];
+  readonly delegate: readonly ReactiveProtocol[];
 }
 
-export interface StaticInternals {
+export interface StaticInternals extends Internals {
   readonly type: "static";
-  readonly description?: Description;
 }
 
 export type ReactiveInternals =
@@ -34,10 +37,13 @@ export type ReactiveInternals =
   | DelegateInternals
   | StaticInternals;
 
-export interface ReactiveProtocol {
-  [REACTIVE]: ReactiveInternals;
+export interface ReactiveProtocol<
+  I extends ReactiveInternals = ReactiveInternals
+> {
+  [REACTIVE]: I;
 }
 
-export interface Reactive<T> extends ReactiveProtocol {
+export interface Reactive<T, I extends ReactiveInternals = ReactiveInternals>
+  extends ReactiveProtocol<I> {
   read(stack?: Stack): T;
 }

@@ -2,9 +2,18 @@ import {
   type Description,
   callerStack,
   descriptionFrom,
+  isDebug,
 } from "@starbeam/debug";
-import type { UNINITIALIZED } from "@starbeam/peer";
-import { type Reactive, Frame, REACTIVE, TIMELINE } from "@starbeam/timeline";
+import type { Stack } from "@starbeam/interfaces";
+import { getID, type UNINITIALIZED } from "@starbeam/peer";
+import {
+  type Reactive,
+  diff,
+  Frame,
+  REACTIVE,
+  ReactiveProtocol,
+  TIMELINE,
+} from "@starbeam/timeline";
 
 export interface Formula<T> {
   frame: Frame<T | UNINITIALIZED>;
@@ -17,6 +26,7 @@ export function Formula<T>(
 ): Formula<T> {
   const desc = descriptionFrom({
     type: "formula",
+    id: getID(),
     api: {
       package: "@starbeam/core",
       name: "Formula",
@@ -26,30 +36,44 @@ export function Formula<T>(
 
   const frame = Frame.uninitialized<T | UNINITIALIZED>(TIMELINE.now, desc);
 
-  const update = () => {
-    TIMELINE.frame.update({
-      updating: frame,
-      evaluate: callback,
-    });
-    TIMELINE.update(frame);
-  };
+  const update = (caller: Stack) => {
+    if (isDebug()) {
+      const oldDeps = new Set(ReactiveProtocol.dependencies(frame));
 
-  function poll(caller = callerStack()): Frame<T> {
-    if (frame) {
-      const validation = frame.validate();
+      TIMELINE.frame.update({
+        updating: frame,
+        evaluate: callback,
+      });
+      TIMELINE.update(frame);
 
-      if (validation.status !== "valid") {
-        update();
-      }
+      const newDeps = new Set(ReactiveProtocol.dependencies(frame));
+
+      console.log({ old: new Set(oldDeps), new: new Set(newDeps) });
+
+      TIMELINE.didConsumeFrame(frame, diff(oldDeps, newDeps), caller);
     } else {
       TIMELINE.frame.update({
         updating: frame,
         evaluate: callback,
       });
       TIMELINE.update(frame);
+      TIMELINE.didConsumeFrame(frame, diff.empty(), caller);
+    }
+  };
+
+  function poll(caller = callerStack()): Frame<T> {
+    if (frame) {
+      const validation = frame.validate();
+
+      if (validation.status === "valid") {
+        TIMELINE.didConsumeFrame(frame, diff.empty(), caller);
+      } else {
+        update(caller);
+      }
+    } else {
+      update(caller);
     }
 
-    TIMELINE.didConsume(frame, caller);
     return frame as Frame<T>;
   }
 
@@ -67,6 +91,7 @@ export function FormulaFn<T>(
 ): FormulaFn<T> {
   const desc = descriptionFrom({
     type: "formula",
+    id: getID(),
     api: {
       package: "@starbeam/core",
       name: "FormulaFn",

@@ -1,10 +1,10 @@
-import { NOW, REACTIVE, UNINITIALIZED } from "@starbeam/peer";
+import { COORDINATION, REACTIVE, UNINITIALIZED } from "@starbeam/peer";
 import { describe, expect, test } from "vitest";
 
-describe("UNINITALIZED", () => {
+describe("symbols", () => {
   testSymbol(UNINITIALIZED, "UNINITIALIZED");
   testSymbol(REACTIVE, "REACTIVE");
-  testSymbol(NOW, "NOW");
+  testSymbol(COORDINATION, "COORDINATION");
 });
 
 function testSymbol(symbol: symbol, description: string) {

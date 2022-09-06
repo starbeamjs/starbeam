@@ -5,7 +5,7 @@ import {
   descriptionFrom,
   DisplayStruct,
 } from "@starbeam/debug";
-import { UNINITIALIZED } from "@starbeam/peer";
+import { getID, UNINITIALIZED } from "@starbeam/peer";
 import {
   type ReactiveInternals,
   type ReactiveProtocol,
@@ -128,11 +128,13 @@ export class Variant<T> implements ReactiveProtocol {
     description: Description
   ): Variant<T> {
     const val = Cell(value as T | UNINITIALIZED, {
-      description: description.implementation({ reason: `${type} cell` }),
+      description: description.implementation(type, {
+        reason: `${type} cell`,
+      }),
     });
 
     const localTypeMarker = Marker(
-      description.implementation({ reason: "selected" })
+      description.implementation("selected:local", { reason: "selected" })
     );
 
     return new Variant(
@@ -143,7 +145,7 @@ export class Variant<T> implements ReactiveProtocol {
       { value },
       CompositeInternals(
         [val, localTypeMarker],
-        description.implementation({
+        description.implementation("selected", {
           reason: `selected`,
         })
       )
@@ -158,7 +160,7 @@ export class Variant<T> implements ReactiveProtocol {
     const val = Cell(UNINITIALIZED as T | UNINITIALIZED);
 
     const localTypeMarker = Marker(
-      description.implementation({ reason: "selected" })
+      description.implementation("selected:local", { reason: "selected" })
     );
 
     return new Variant<T | UNINITIALIZED>(
@@ -170,7 +172,7 @@ export class Variant<T> implements ReactiveProtocol {
 
       CompositeInternals(
         [val, localTypeMarker],
-        description.implementation({ reason: "selected" })
+        description.implementation("selected", { reason: "selected" })
       )
     ) as Variant<T>;
   }
@@ -358,7 +360,7 @@ class VariantsImpl implements ReactiveProtocol {
   }
 
   get [REACTIVE](): ReactiveInternals {
-    return CompositeInternals([this.#current]);
+    return CompositeInternals([this.#current], this.#description);
   }
 
   get current(): Variant<unknown> {
@@ -474,6 +476,7 @@ export function Variants<V extends VariantType>(
 ): VariantConstructors<V> {
   const desc = descriptionFrom({
     type: "variants",
+    id: getID(),
     api: {
       package: "@starbeam/core",
       name: "Variants",

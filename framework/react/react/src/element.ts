@@ -4,6 +4,7 @@ import {
   type ResourceBlueprint,
   Resource,
   Setups,
+  DelegateInternals,
 } from "@starbeam/core";
 import {
   type DebugListener,
@@ -11,6 +12,7 @@ import {
   callerStack,
   descriptionFrom,
 } from "@starbeam/debug";
+import { getID } from "@starbeam/peer";
 import {
   type CleanupTarget,
   type OnCleanup,
@@ -215,11 +217,9 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
     this.#refs = refs;
     this.#description = description;
 
-    this[REACTIVE] = {
-      type: "delegate",
-      delegate: [lifecycle.layout, lifecycle.idle],
+    this[REACTIVE] = DelegateInternals([lifecycle.layout, lifecycle.idle], {
       description,
-    };
+    });
   }
 
   readonly on: OnLifecycle;
@@ -280,6 +280,7 @@ class Lifecycle {
       idle: (idle: Callback, description?: string | Description) => {
         const desc = descriptionFrom({
           type: "resource",
+          id: getID(),
           api: {
             package: "@starbeam/react",
             name: "ReactiveElement",
@@ -288,13 +289,14 @@ class Lifecycle {
               type: "instance",
             },
           },
-          fromUser: description ?? elementDescription.key("on.idle"),
+          fromUser: description ?? "on.idle",
         });
         return lifecycle.#idle.register(idle, desc);
       },
       layout: (layout: Callback, description?: string | Description) => {
         const desc = descriptionFrom({
           type: "resource",
+          id: getID(),
           api: {
             package: "@starbeam/react",
             name: "ReactiveElement",
@@ -303,7 +305,7 @@ class Lifecycle {
               type: "instance",
             },
           },
-          fromUser: description ?? elementDescription.key("on.layout"),
+          fromUser: description ?? "on.layout",
         });
 
         return lifecycle.#layout.register(layout, desc);

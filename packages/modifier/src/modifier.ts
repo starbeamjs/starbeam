@@ -1,7 +1,8 @@
 import type { anydom } from "@domtree/flavors";
-import { Cell } from "@starbeam/core";
-import type { Description } from "@starbeam/debug";
-import { UNINITIALIZED } from "@starbeam/peer";
+import { Cell, DelegateInternals } from "@starbeam/core";
+import { REUSE_ID, type Description } from "@starbeam/debug";
+import { REACTIVE, UNINITIALIZED } from "@starbeam/peer";
+import type { ReactiveProtocol } from "@starbeam/interfaces";
 import { expected, isPresent, verified, verify } from "@starbeam/verify";
 
 export type ElementType<E extends anydom.Element> = abstract new <
@@ -12,7 +13,8 @@ export type ElementType<E extends anydom.Element> = abstract new <
 
 // export type Ref<E extends anydom.Element> = Initializable<E>;
 
-export interface ElementPlaceholder<E extends anydom.Element> {
+export interface ElementPlaceholder<E extends anydom.Element>
+  extends ReactiveProtocol {
   readonly initialize: (value: E) => void;
   readonly current: E | null;
 }
@@ -24,14 +26,17 @@ export function ElementPlaceholder<E extends anydom.Element>(
   description: Description
 ): ElementPlaceholder<E> {
   const ref = Object.create(null) as object;
-  REFS.set(
-    ref,
-    Cell<anydom.Element | UNINITIALIZED>(UNINITIALIZED, {
-      description,
-    })
-  );
+  const element = Cell<anydom.Element | UNINITIALIZED>(UNINITIALIZED, {
+    description: description.implementation(REUSE_ID, {
+      reason: "element cell",
+    }),
+  });
+
+  REFS.set(ref, element);
 
   return {
+    [REACTIVE]: DelegateInternals([element]),
+
     initialize(value: anydom.Element): void {
       const element = verified(REFS.get(ref), isPresent);
       verify(

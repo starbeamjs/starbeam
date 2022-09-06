@@ -7,6 +7,7 @@ import type {
   DescriptionParts,
   DescriptionType,
   DetailsPart,
+  ReactiveId,
   StackFrame,
   // eslint-disable-next-line import/no-duplicates
 } from "@starbeam/interfaces";
@@ -20,7 +21,21 @@ import { DisplayStruct } from "../inspect/display-struct.js";
 import { DisplayParts } from "../module.js";
 import { type Stack, callerStack } from "../stack.js";
 
-export let PickedDescription: DescriptionStatics;
+/**
+ * This symbol is used in APIs that accept an ID to indicate that an existing ID should be reused.
+ * This value should never be used as an ID.
+ */
+export const REUSE_ID = Symbol.for("starbeam.id:reuse");
+export type REUSE_ID = typeof REUSE_ID;
+
+/**
+ * This symbol is used in production mode to indicate that there is no description available. This
+ * value should never be used as an ID.
+ */
+export const ERASED_ID = Symbol.for("starbeam.id:erased");
+export type ERASED_ID = typeof ERASED_ID;
+
+let PickedDescription: DescriptionStatics;
 
 export interface DescriptionStatics {
   is(description: unknown): description is interfaces.Description;
@@ -43,6 +58,7 @@ if (isDebug()) {
       }
 
       return new DebugDescription(
+        args.id,
         args.type,
         args.api,
         args.fromUser,
@@ -57,7 +73,7 @@ if (isDebug()) {
      */
     readonly #type: DescriptionType;
 
-    readonly #id = id++;
+    readonly #id: ReactiveId;
 
     /**
      * The {@linkcode DescriptionArgs.api} is the user-facing, public API entry point that the developer used to
@@ -83,12 +99,14 @@ if (isDebug()) {
     #stack?: Stack | undefined;
 
     constructor(
+      id: ReactiveId,
       type: DescriptionType,
       api: string | ApiDetails,
       details: DescriptionDetails | undefined,
       internal: { reason?: string; userFacing: Description } | undefined,
       stack: Stack | undefined
     ) {
+      this.#id = id;
       this.#type = type;
       this.#api = api;
       this.#details = details;
@@ -105,6 +123,22 @@ if (isDebug()) {
         internal: this.#internal,
         stack: this.#stack,
       });
+    }
+
+    #newId(id: ReactiveId | REUSE_ID): ReactiveId {
+      return id === REUSE_ID ? this.#id : id;
+    }
+
+    #extendId(id: ReactiveId): ReactiveId {
+      if (Array.isArray(this.#id)) {
+        return [...this.#id, id];
+      } else {
+        return [this.#id, id];
+      }
+    }
+
+    get id(): ReactiveId {
+      return this.#id;
     }
 
     get type(): DescriptionType {
@@ -127,8 +161,24 @@ if (isDebug()) {
       return this.#details === undefined;
     }
 
-    withStack(stack: Stack): interfaces.Description {
+    withId(id?: ReactiveId): interfaces.Description {
+      if (id === undefined) {
+        return this;
+      }
+
       return new DebugDescription(
+        id,
+        this.#type,
+        this.#api,
+        this.#details,
+        this.#internal,
+        this.#stack
+      );
+    }
+
+    withStack(stack: Stack, id: ReactiveId | REUSE_ID): interfaces.Description {
+      return new DebugDescription(
+        this.#newId(id),
         this.#type,
         this.#api,
         this.#details,
@@ -137,12 +187,36 @@ if (isDebug()) {
       );
     }
 
-    implementation(details?: {
-      reason: string;
-      userFacing: interfaces.Description;
-      stack?: Stack;
-    }) {
+    get #parent(): interfaces.Description | void {
+      if (typeof this.#details === "object") {
+        return this.#details.parent;
+      }
+    }
+
+    asImplementation(options?: { reason: string }): interfaces.Description {
       return new DebugDescription(
+        this.#id,
+        this.#type,
+        this.#api,
+        this.#details,
+        {
+          reason: options?.reason,
+          userFacing: this.#parent ?? this,
+        },
+        this.#stack
+      );
+    }
+
+    implementation(
+      id: ReactiveId,
+      details?: {
+        reason: string;
+        userFacing: interfaces.Description;
+        stack?: Stack;
+      }
+    ) {
+      return new DebugDescription(
+        this.#extendId(id),
         this.#type,
         this.#api,
         this.#details,
@@ -209,10 +283,12 @@ if (isDebug()) {
 
     method(
       this: DebugDescription,
+      id: ReactiveId | REUSE_ID,
       name: string,
       args?: DescriptionArgument[]
     ): interfaces.Description {
       return new DebugDescription(
+        this.#newId(id),
         "formula",
         this.#api,
         {
@@ -228,6 +304,7 @@ if (isDebug()) {
 
     index(this: DebugDescription, index: number): interfaces.Description {
       return new DebugDescription(
+        this.#extendId(index),
         "formula",
         this.#api,
         {
@@ -243,6 +320,7 @@ if (isDebug()) {
 
     property(this: DebugDescription, name: string): interfaces.Description {
       return new DebugDescription(
+        this.#extendId(name),
         "formula",
         this.#api,
         {
@@ -259,19 +337,25 @@ if (isDebug()) {
     detail(
       this: DebugDescription,
       name: string,
-      args?: string[] | { args?: string[]; note?: string }
+      args?: string[] | { args?: string[]; note?: string; id?: string | number }
     ): interfaces.Description {
       let detailArgs: string[] | undefined;
       let note: string | undefined;
+      let id: ReactiveId;
 
       if (Array.isArray(args)) {
         detailArgs = args;
+        id = this.#extendId(name);
       } else if (args) {
         detailArgs = args.args;
         note = args.note;
+        id = this.#extendId(args.id ?? name);
+      } else {
+        id = this.#extendId(name);
       }
 
       return new DebugDescription(
+        id,
         "formula",
         this.#api,
         {
@@ -295,9 +379,10 @@ if (isDebug()) {
     key(
       this: DebugDescription,
       name: string,
-      note?: string
+      options?: { id?: string | number; note?: string }
     ): interfaces.Description {
       return new DebugDescription(
+        this.#extendId(options?.id ? [name, options.id] : name),
         "formula",
         this.#api,
         {
@@ -305,7 +390,7 @@ if (isDebug()) {
           kind: "key",
           parent: this,
           name,
-          note,
+          note: options?.note,
         },
         undefined,
         this.#stack
@@ -393,6 +478,7 @@ if (isDebug()) {
       return ProdDescription.PROD;
     }
 
+    readonly id: ReactiveId = "@starbeam:erased";
     readonly fullName = "";
     readonly type = "erased";
     readonly api = "";
@@ -434,7 +520,15 @@ if (isDebug()) {
       return this;
     }
 
-    implementation(_options?: { reason: string }): interfaces.Description {
+    asImplementation(): interfaces.Description {
+      return this;
+    }
+
+    implementation(): interfaces.Description {
+      return this;
+    }
+
+    withId(): interfaces.Description {
       return this;
     }
 

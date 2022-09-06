@@ -4,6 +4,7 @@ import {
   descriptionFrom,
   Stack,
 } from "@starbeam/debug";
+import { getID } from "@starbeam/peer";
 import {
   type Reactive,
   type ReactiveInternals,
@@ -43,6 +44,7 @@ class ReactiveResourceList<T, U> implements Reactive<U[]> {
 
     const description = descriptionFrom({
       type: "collection:value",
+      id: getID(),
       api: {
         package: "@starbeam/core",
         name: "ResourceList",

@@ -2,24 +2,32 @@
 /** @jsxFrag Fragment */
 // eslint-disable-next-line
 import { h, Fragment, type JSX } from "preact";
-import type { LeafDebugOperation } from "@starbeam/debug";
-import type { MutableInternals, Timestamp } from "@starbeam/interfaces";
+import type { FrameConsumeOperation } from "@starbeam/debug";
+import type {
+  CompositeInternals,
+  MutableInternals,
+  Timestamp,
+} from "@starbeam/interfaces";
 import { LogLine, LogLineFor } from "./ui.jsx";
 import type { DevtoolsLineOptions } from "./log.jsx";
+import { ReactiveInternals } from "@starbeam/timeline";
+import { DescribeLeaf } from "./describe.jsx";
 
 export function FrameConsumeLine({
   line,
   prev,
   options,
 }: {
-  line: LeafDebugOperation;
+  line: FrameConsumeOperation;
   prev: Timestamp | undefined;
   options: DevtoolsLineOptions;
 }): JSX.Element {
   const at = line.at;
-  const cell = line.for as MutableInternals;
+  const frame = line.for;
+  console.log(line.diff);
+  ReactiveInternals.log(frame);
 
-  const description = cell.description?.parts;
+  const description = frame.description?.parts;
 
   if (description === undefined) {
     return (
@@ -28,15 +36,52 @@ export function FrameConsumeLine({
       </LogLine>
     );
   } else {
+    const { add, remove } = line.diff;
+
+    // TODO: Internals should have IDs so we can use them as keys and link to them.
+    // TODO: Style diff correctly.
+
     return (
-      <LogLineFor
-        at={at}
-        prev={prev}
-        what="frame"
-        operation="consume"
-        parts={description}
-        options={options}
-      />
+      <>
+        <LogLineFor
+          at={at}
+          prev={prev}
+          what="frame"
+          operation="consume"
+          parts={description}
+          options={options}
+        />
+        <List change="add" cells={add} />
+        <List change="remove" cells={remove} />
+      </>
     );
   }
+}
+
+function List({
+  cells,
+  change,
+}: {
+  cells: Set<MutableInternals>;
+  change: "add" | "remove";
+}) {
+  if (cells.size === 0) {
+    return null;
+  } else {
+    return (
+      <>
+        <div class={`change ${change}`}>
+          <h3>{change}</h3>
+          {[...cells].map((cell) => (
+            <DescribeLeaf leaf={cell.description!.parts} options={{}} />
+          ))}
+        </div>
+      </>
+    );
+  }
+}
+
+function Dependencies({ frame }: { frame: CompositeInternals }) {
+  console.log(ReactiveInternals.dependencies(frame));
+  return <></>;
 }
