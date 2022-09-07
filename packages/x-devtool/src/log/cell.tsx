@@ -5,12 +5,11 @@ import { h, Fragment, type JSX } from "preact";
 
 import type { Timestamp, MutableInternals } from "@starbeam/interfaces";
 import { LogLine, LogLineFor, title } from "./ui.jsx";
-import { Internal } from "./describe.jsx";
-import type { DevtoolsLineOptions } from "./log.jsx";
 import type {
   CellConsumeOperation,
   CellUpdateOperation,
 } from "@starbeam/debug";
+import type { DevtoolsOptions } from "./shared.js";
 
 export function CellConsumeLine({
   line,
@@ -19,7 +18,7 @@ export function CellConsumeLine({
 }: {
   line: CellConsumeOperation;
   prev: Timestamp | undefined;
-  options: DevtoolsLineOptions;
+  options: DevtoolsOptions;
 }): JSX.Element {
   const at = line.at;
   const cell = line.for as MutableInternals;
@@ -55,7 +54,7 @@ export function CellUpdateLine({
 }: {
   line: CellUpdateOperation;
   prev: Timestamp | undefined;
-  options: DevtoolsLineOptions;
+  options: DevtoolsOptions;
 }): JSX.Element {
   const at = line.at;
   const cell = line.for as MutableInternals;

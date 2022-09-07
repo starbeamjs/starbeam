@@ -7,7 +7,7 @@ import { type ComponentChildren, type JSX, Fragment, h, render } from "preact";
 import { useState } from "preact/hooks";
 
 import { DescribeLeaf, Frame, Internal } from "./describe.jsx";
-import type { DevtoolsLineOptions } from "./log.jsx";
+import type { DevtoolsOptions } from "./shared.js";
 
 function Line({
   timestamp,
@@ -70,7 +70,7 @@ export function LogLineFor({
   what?: string;
   operation?: string;
   parts: DescriptionParts;
-  options: DevtoolsLineOptions;
+  options: DevtoolsOptions;
 }): JSX.Element {
   const [showInternal, setShowInternal] = useState(false);
 

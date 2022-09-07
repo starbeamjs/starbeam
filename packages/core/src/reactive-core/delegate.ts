@@ -1,4 +1,5 @@
-import { Description, descriptionFrom, idFrom } from "@starbeam/debug";
+import type { Description } from "@starbeam/debug";
+import { descriptionFrom } from "@starbeam/debug";
 import type { ReactiveProtocol } from "@starbeam/interfaces";
 import type * as interfaces from "@starbeam/interfaces";
 import { getID } from "@starbeam/peer";

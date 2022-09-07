@@ -1,30 +1,25 @@
 /** @jsx h */
 /** @jsxFrag Fragment */
 // eslint-disable-next-line
-import { h, Fragment, render, type JSX, type ComponentChildren } from "preact";
+import { h, Fragment, type ComponentChildren, type JSX } from "preact";
 
 // @ts-expect-error `?inline` URLs aren't supported by TS
-import css from "./log.css?inline";
+import css from "./css/log.css?inline";
 
-import type { DebugFilter, DebugOperation } from "@starbeam/debug";
+import type { DebugOperation } from "@starbeam/debug";
+import type { Timestamp } from "@starbeam/interfaces";
 import { TIMELINE } from "@starbeam/timeline";
 import { useMemo, useState } from "preact/hooks";
 import { CellConsumeLine, CellUpdateLine } from "./cell.jsx";
-import { LogLine } from "./ui.jsx";
 import { FrameConsumeLine } from "./frame.jsx";
-import type { StackFrameDisplayOptions, Timestamp } from "@starbeam/interfaces";
-
-export type DevtoolsLineOptions = StackFrameDisplayOptions;
-
-export interface DevtoolsLogOptions extends DevtoolsLineOptions {
-  filter?: DebugFilter;
-  internals?: boolean;
-}
+import { Pane, UiPane, type UpdatePane } from "./pane.jsx";
+import type { DevtoolsOptions } from "./shared.js";
+import { LogLine } from "./ui.jsx";
 
 export function DevtoolsLog({
   options = {},
 }: {
-  options?: DevtoolsLogOptions;
+  options?: DevtoolsOptions;
 }): JSX.Element {
   const { filter = { type: "all" } } = options;
 
@@ -59,17 +54,9 @@ export function DevtoolsLog({
   });
 
   return (
-    <Pane>
+    <UiPane>
       <section class="starbeam-devtools">{operations}</section>
-    </Pane>
-  );
-}
-
-function Pane({ children }: { children: ComponentChildren }): JSX.Element {
-  return (
-    <>
-      <section class="pane">{children}</section>
-    </>
+    </UiPane>
   );
 }
 
@@ -80,7 +67,7 @@ function LogOperation({
 }: {
   line: DebugOperation;
   prev: Timestamp | undefined;
-  options: DevtoolsLineOptions;
+  options: DevtoolsOptions;
 }): JSX.Element {
   switch (line.type) {
     case "cell:consume":
@@ -97,40 +84,13 @@ function LogOperation({
   }
 }
 
-export interface UpdateDevtools {
-  update: (options?: DevtoolsLogOptions) => void;
-}
-
 export function DevtoolsLogPane(
   into: Element,
-  options: DevtoolsLogOptions = {}
-): UpdateDevtools {
-  const app = <DevtoolsLog options={options} />;
-  let shadow = into.shadowRoot;
-
-  if (!shadow) {
-    const font = document.createElement("style");
-    const fonts = [
-      `https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,slnt,wdth,wght,GRAD,XTRA,YTAS,YTDE@8..144,-10..0,25..151,100..1000,-200..150,323..603,649..854,-305..-98&display=swap`,
-      `https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap`,
-      `https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200`,
-    ];
-    font.textContent = fonts
-      .map((font) => `@import url(${JSON.stringify(font)});`)
-      .join("\n");
-    document.body.appendChild(font);
-
-    shadow = into.attachShadow({ mode: "open" });
-    const style = document.createElement("style");
-    style.textContent = css;
-    shadow.appendChild(style);
-  }
-
-  render(app, shadow);
-
-  return {
-    update: (newOptions?: DevtoolsLogOptions) => {
-      render(<DevtoolsLog options={{ ...options, ...newOptions }} />, into);
-    },
-  };
+  options: DevtoolsOptions = {}
+): UpdatePane<{ options: DevtoolsOptions }> {
+  return Pane(into, {
+    Component: DevtoolsLog,
+    props: { options },
+    css,
+  });
 }

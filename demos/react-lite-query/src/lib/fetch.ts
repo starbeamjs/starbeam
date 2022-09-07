@@ -80,12 +80,12 @@ function selected(
 
   return {
     selected: Cell(true, {
-      description: description.implementation({
+      description: description.implementation("selected?", {
         reason: "selected?",
       }),
     }),
     value: Cell(value, {
-      description: description.implementation({
+      description: description.implementation("value", {
         reason: "value",
         stack: callerStack(),
       }),
@@ -97,10 +97,12 @@ function deselected<T>(description: Description): Variant<T>;
 function deselected(description: Description): Variant<unknown> {
   return {
     selected: Cell(false, {
-      description: description.implementation({ reason: "selected?" }),
+      description: description.implementation("selected?", {
+        reason: "selected?",
+      }),
     }),
     value: Cell(null as unknown | null, {
-      description: description.implementation({ reason: "value" }),
+      description: description.implementation("value", { reason: "value" }),
     }),
   };
 }

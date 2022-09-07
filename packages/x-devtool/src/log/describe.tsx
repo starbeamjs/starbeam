@@ -8,14 +8,14 @@ import type {
   DetailsPart,
   StackFrameDisplayOptions,
 } from "@starbeam/interfaces";
-import type { DevtoolsLineOptions } from "./log.jsx";
+import type { DevtoolsOptions } from "./shared.js";
 
 export function DescribeLeaf({
   leaf,
   options,
 }: {
   leaf: DescriptionParts;
-  options: DevtoolsLineOptions;
+  options: DevtoolsOptions;
 }): JSX.Element {
   const userFacing = leaf.userFacing.parts;
 
@@ -35,7 +35,7 @@ export function Internal({
 }: {
   leaf: DescriptionParts;
   label?: string;
-  options: DevtoolsLineOptions;
+  options: DevtoolsOptions;
 }): JSX.Element | null {
   if (leaf.internal) {
     return (
@@ -131,7 +131,7 @@ export function Name({
   more,
 }: {
   details: DetailsPart;
-  options: DevtoolsLineOptions;
+  options: DevtoolsOptions;
   head?: boolean;
   more?: boolean;
 }): JSX.Element {

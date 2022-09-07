@@ -47,7 +47,7 @@ export function useDeps<T extends unknown[]>(
 export function useProp<T>(
   variable: T,
   description?: string | Description
-): Reactive<T> {
+): Reactive<T> & { readonly current: T } {
   const desc = descriptionFrom({
     type: "external",
     id: getID(),

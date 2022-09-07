@@ -1,0 +1,27 @@
+body {
+  background: var(--bg-color);
+  color: var(--text-color);
+  padding: 0;
+  margin: 0;
+  font-family: var(--font-family);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --accent-color: #549ef4;
+  --text-color: #444;
+  --bg-color: #FDFDFD;
+  --border-color: #F2F2F2;
+  --border-radius: 10px;
+  --box-shadow: 0 0 20px rgba(0, 0, 0, .2);
+  --dropdown-bg-color: #FFF;
+  --font-family: 'Open Sans', sans-serif;
+  --input-bg: #EAEAEA;
+  --padding: 30px;
+  --padding-sm: 15px;
+  --modal-bg: #FFF;
+  --negative-padding: -30px;
+}

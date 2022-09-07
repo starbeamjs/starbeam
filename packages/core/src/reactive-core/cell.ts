@@ -8,11 +8,12 @@ import {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-imports
   ifDebug,
 } from "@starbeam/debug";
-import { type Reactive, INSPECT, REACTIVE, TIMELINE } from "@starbeam/timeline";
 import type * as interfaces from "@starbeam/interfaces";
+import { getID, UNINITIALIZED } from "@starbeam/peer";
+import { type Reactive, INSPECT, REACTIVE, TIMELINE } from "@starbeam/timeline";
 
-import { MutableInternals, MutableInternalsImpl } from "../storage.js";
-import { getID } from "@starbeam/peer";
+import type { MutableInternalsImpl } from "../storage.js";
+import { MutableInternals } from "../storage.js";
 
 export interface CellPolicy<T, U = T> {
   equals(a: T, b: T): boolean;
@@ -90,6 +91,14 @@ export class ReactiveCell<T>
 
   update(updater: (prev: T) => T, caller = callerStack()): boolean {
     return this.#set(updater(this.#value), caller);
+  }
+
+  initialize(initializer: () => T, caller = callerStack()): T {
+    if (this.#value === UNINITIALIZED) {
+      this.#set(initializer(), caller);
+    }
+
+    return this.#value;
   }
 
   #set(value: T, caller: Stack): boolean {

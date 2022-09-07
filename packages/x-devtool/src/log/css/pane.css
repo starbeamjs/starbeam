@@ -1,0 +1,90 @@
+:host(*) {
+  --hue: 190;
+
+  --hue-fg: var(--hue);
+  --hue-border: var(--hue);
+  --hue-bg: var(--hue);
+
+  /** defaults */
+  --saturation-fg: 100%;
+  --saturation-border: 100%;
+  --saturation-bg: 100%;
+
+  --saturation-gray: 0%;
+  --saturation-color: 100%;
+  --saturation-semi: 50%;
+
+  --lightness-fg: var(--lightness-fg-base);
+  --lightness-bg: var(--lightness-bg-base);
+  --lightness-border: var(--lightness-fg);
+
+  --ratio: 1.618;
+  --size-base: 18px;
+
+  --size-sm1: calc(var(--size-base) / var(--ratio));
+  --size-sm2: calc(var(--size-sm1) / var(--ratio));
+  --size-sm3: calc(var(--size-sm2) / var(--ratio));
+  --size-sm4: calc(var(--size-sm3) / var(--ratio));
+
+  --size-lg1: calc(var(--size-base) * var(--ratio));
+  --size-lg2: calc(var(--size-lg1) * var(--ratio));
+  --size-lg3: calc(var(--size-lg2) * var(--ratio));
+  --size-lg4: calc(var(--size-lg3) * var(--ratio));
+
+  --font-family: "Roboto Flex";
+}
+
+@media (prefers-color-scheme: dark) {
+  :host(*) {
+    --lightness-fg-base: 100%;
+    --lightness-fg-fade1: 90%;
+    --lightness-fg-fade2: 80%;
+    --lightness-fg-fade3: 70%;
+
+    --lightness-bg-base: 0%;
+    --lightness-bg-fade1: 10%;
+    --lightness-bg-fade2: 20%;
+    --lightness-bg-fade3: 30%;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :host(*) {
+    --lightness-fg-base: 0%;
+    --lightness-fg-fade1: 10%;
+    --lightness-fg-fade2: 20%;
+    --lightness-fg-fade3: 30%;
+
+    --lightness-bg-base: 100%;
+    --lightness-bg-fade1: 90%;
+    --lightness-bg-fade2: 80%;
+    --lightness-bg-fade3: 70%;
+  }
+}
+
+.card,
+.content,
+.card *,
+.content * {
+  --fg-color: hsl(var(--hue-fg), var(--saturation-fg), var(--lightness-fg));
+  --border-color: hsl(
+    var(--hue-border),
+    var(--saturation-border),
+    var(--lightness-border)
+  );
+  --bg-color: hsl(var(--hue-bg), var(--saturation-bg), var(--lightness-bg));
+  color: var(--fg-color);
+  border-color: var(--border-color);
+
+  font-family: var(--font-family);
+}
+.card {
+  --saturation-fg: var(--saturation-gray);
+  --lightness-fg: var(--lightness-fg-fade3);
+  --lightness-border: var(--lightness-fg-fade3);
+  border-width: 1px;
+  border-style: solid;
+
+  border-radius: var(--size-sm2);
+  padding: var(--size-base);
+}

@@ -9,7 +9,7 @@ import type {
   Timestamp,
 } from "@starbeam/interfaces";
 import { LogLine, LogLineFor } from "./ui.jsx";
-import type { DevtoolsLineOptions } from "./log.jsx";
+import type { DevtoolsOptions } from "./shared.js";
 import { ReactiveInternals } from "@starbeam/timeline";
 import { DescribeLeaf } from "./describe.jsx";
 
@@ -20,7 +20,7 @@ export function FrameConsumeLine({
 }: {
   line: FrameConsumeOperation;
   prev: Timestamp | undefined;
-  options: DevtoolsLineOptions;
+  options: DevtoolsOptions;
 }): JSX.Element {
   const at = line.at;
   const frame = line.for;

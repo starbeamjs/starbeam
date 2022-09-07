@@ -9,7 +9,15 @@ export default class TrackedObject {
   }
 
   private constructor(description: Description, obj: object) {
-    const target = { ...obj };
+    // copy the properties from the object to the proxy, but preserve getters and setters
+    const target = Object.create(null) as object;
+    for (const key of Object.getOwnPropertyNames(obj)) {
+      const descriptor = Object.getOwnPropertyDescriptor(obj, key);
+      if (descriptor) {
+        Object.defineProperty(target, key, descriptor);
+      }
+    }
+    // const target = { ...obj };
 
     const proxy = new Proxy(target, {
       defineProperty(target, key, descriptor) {
