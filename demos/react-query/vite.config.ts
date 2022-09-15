@@ -1,4 +1,3 @@
-import { NodeGlobalsPolyfillPlugin } from "@esbuild-plugins/node-globals-polyfill";
 import { VitePluginFonts } from "vite-plugin-fonts";
 import { defineConfig } from "vitest/config";
 
@@ -13,20 +12,14 @@ export default defineConfig({
     }),
   ],
   esbuild: {
-    jsxFactory: "_jsx",
-    jsxFragment: "_jsxFragment",
-    jsxInject: `import { createElement as _jsx, Fragment as _jsxFragment } from 'react'`,
+    jsx: "automatic",
   },
   optimizeDeps: {
     esbuildOptions: {
       define: {
         global: "globalThis",
       },
-      plugins: [
-        NodeGlobalsPolyfillPlugin({
-          buffer: true,
-        }),
-      ],
+      plugins: [],
     },
   },
   build: {

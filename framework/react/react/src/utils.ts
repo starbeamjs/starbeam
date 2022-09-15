@@ -6,7 +6,6 @@ import {
   descriptionFrom,
 } from "@starbeam/debug";
 import { reactive } from "@starbeam/js";
-import { getID } from "@starbeam/peer";
 import type { Reactive } from "@starbeam/timeline";
 import { useUpdatingVariable } from "@starbeam/use-strict-lifecycle";
 import type { Dispatch, SetStateAction } from "react";
@@ -23,7 +22,6 @@ export function useDeps<T extends unknown[]>(
 ): { consume: () => void; debug: () => Reactive<unknown>[] } {
   const desc = descriptionFrom({
     type: "external",
-    id: getID(),
     api: {
       name: "useDeps",
       package: "@starbeam/react",
@@ -50,7 +48,6 @@ export function useProp<T>(
 ): Reactive<T> & { readonly current: T } {
   const desc = descriptionFrom({
     type: "external",
-    id: getID(),
     api: "useProp",
     fromUser: description,
   });
@@ -71,7 +68,6 @@ export function useProps<T extends AnyRecord>(
 ): T {
   const desc = descriptionFrom({
     type: "external",
-    id: getID(),
     api: "useProps",
     fromUser: description,
   });

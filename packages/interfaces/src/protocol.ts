@@ -1,4 +1,4 @@
-import type { REACTIVE } from "@starbeam/peer";
+import type { REACTIVE } from "@starbeam/shared";
 
 import type { Description } from "./description.js";
 import type { Stack } from "./stack.js";

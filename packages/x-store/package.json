@@ -8,7 +8,8 @@
     "@starbeam/core": "workspace:^",
     "@starbeam/debug": "workspace:^",
     "@starbeam/verify": "workspace:^",
-    "@starbeam/js": "workspace:^"
+    "@starbeam/js": "workspace:^",
+    "@starbeam/shared": "workspace:^"
   },
   "devDependencies": {
     "@faker-js/faker": "^7.2.0"

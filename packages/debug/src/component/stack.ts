@@ -1,51 +1,49 @@
 import type { anydom } from "@domtree/flavors";
-import type {
-  ComponentNode,
-  Description,
-  EmptyRoot,
-  ReactiveProtocol,
-  RootNode,
-  Unsubscribe,
-} from "@starbeam/interfaces";
 import type * as interfaces from "@starbeam/interfaces";
+
 import { isDebug } from "../conditional.js";
 
 export interface DebugTree {
-  app(description: Description): App;
-  route(description: Description): Route;
-  component(description: Description): Component;
-  snapshot(): RootNode;
+  app(description: interfaces.Description): App;
+  route(description: interfaces.Description): Route;
+  component(description: interfaces.Description): Component;
+  snapshot(): interfaces.RootNode;
 }
 
 export interface App {
-  route(description: Description): Route;
-  component(description: Description): Component;
+  route(description: interfaces.Description): Route;
+  component(description: interfaces.Description): Component;
 }
 
 export interface Route {
-  component(description: Description): Component;
+  component(description: interfaces.Description): Component;
 }
 
 export interface Component {
-  component(description: Description): Component;
+  component(description: interfaces.Description): Component;
   lifecycle(timing: "layout" | "idle"): Lifecycle;
-  ref(description: Description): Ref;
+  ref(description: interfaces.Description): Ref;
   modifier(timing: "layout" | "idle"): Modifier;
-  resource(reactive: ReactiveProtocol): Unsubscribe;
+  resource(reactive: interfaces.ReactiveProtocol): interfaces.Unsubscribe;
   domResource(
     timing: "layout" | "idle",
-    reactive: ReactiveProtocol
-  ): Unsubscribe;
+    reactive: interfaces.ReactiveProtocol
+  ): interfaces.Unsubscribe;
 }
 
 export interface Lifecycle {
-  setup(timing: "layout" | "idle", protocol: ReactiveProtocol): Unsubscribe;
+  setup(
+    timing: "layout" | "idle",
+    protocol: interfaces.ReactiveProtocol
+  ): interfaces.Unsubscribe;
 }
 
 export interface Ref {
-  element(element: anydom.Element | null): Unsubscribe;
+  element(element: anydom.Element | null): interfaces.Unsubscribe;
 }
 
+// intentionally empty for now
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface Modifier {}
 
 let PickedDebugTree: DebugTree;
@@ -53,20 +51,20 @@ let PickedDebugTree: DebugTree;
 if (isDebug()) {
   class RootNode {
     #children: ChildNode[] = [];
-    #description?: Description;
+    #description?: interfaces.Description;
   }
 
   class AppNode implements App {
     #children: ChildNode[] = [];
-    #description: Description;
+    #description: interfaces.Description;
 
-    constructor(description: Description) {
+    constructor(description: interfaces.Description) {
       this.#description = description;
     }
-    route(description: Description): Route {
+    route(_description: interfaces.Description): Route {
       throw new Error("Method not implemented.");
     }
-    component(description: Description): Component {
+    component(_description: interfaces.Description): Component {
       throw new Error("Method not implemented.");
     }
   }
@@ -75,18 +73,18 @@ if (isDebug()) {
     #root: RootNode = new RootNode();
     #app: AppNode | null = null;
 
-    app(description: Description): App {
+    app(description: interfaces.Description): App {
       if (!this.#app) {
         this.#app = new AppNode(description);
       }
       return this.#app;
     }
 
-    route(description: Description): Route {
+    route(_description: interfaces.Description): Route {
       throw new Error("Method not implemented.");
     }
 
-    component(description: Description): Component {
+    component(_description: interfaces.Description): Component {
       throw new Error("Method not implemented.");
     }
     snapshot(): interfaces.RootNode {
@@ -94,47 +92,50 @@ if (isDebug()) {
     }
   }
 
+  // eslint-disable-next-line unused-imports/no-unused-vars, @typescript-eslint/no-unused-vars
   class ComponentImpl implements Component {
     #delegate: ChildDelegate;
-    #parts: ComponentNode[] = [];
-    #children: ComponentNode[] = [];
+    #parts: interfaces.ComponentNode[] = [];
+    #children: interfaces.ComponentNode[] = [];
 
     constructor(delegate: ChildDelegate) {
       this.#delegate = delegate;
     }
 
-    component(description: Description): Component {
+    component(_description: interfaces.Description): Component {
       throw new Error("Method not implemented.");
     }
-    lifecycle(timing: "layout" | "idle"): Lifecycle {
+    lifecycle(_timing: "layout" | "idle"): Lifecycle {
       throw new Error("Method not implemented.");
     }
-    ref(description: Description): Ref {
+    ref(_description: interfaces.Description): Ref {
       throw new Error("Method not implemented.");
     }
-    modifier(timing: "layout" | "idle"): Modifier {
+    modifier(_timing: "layout" | "idle"): Modifier {
       throw new Error("Method not implemented.");
     }
-    resource(reactive: ReactiveProtocol): Unsubscribe {
+    resource(_reactive: interfaces.ReactiveProtocol): interfaces.Unsubscribe {
       throw new Error("Method not implemented.");
     }
     domResource(
-      timing: "layout" | "idle",
-      reactive: ReactiveProtocol
-    ): Unsubscribe {
+      _timing: "layout" | "idle",
+      _reactive: interfaces.ReactiveProtocol
+    ): interfaces.Unsubscribe {
       throw new Error("Method not implemented.");
     }
   }
 
   interface ChildDelegate {
-    addChild(child: ChildNode): Unsubscribe;
+    addChild(child: ChildNode): interfaces.Unsubscribe;
   }
 
   PickedDebugTree = new DebugTreeImpl();
 } else {
-  const NOOP_UNSUBSCRIBE = () => {};
+  const NOOP_UNSUBSCRIBE = () => {
+    /* noop */
+  };
 
-  const EMPTY_ROOT: EmptyRoot = {
+  const EMPTY_ROOT: interfaces.EmptyRoot = {
     type: "empty",
   };
 
@@ -159,15 +160,15 @@ if (isDebug()) {
     lifecycle: (): Lifecycle => NOOP_LIFECYCLE,
     ref: (): Ref => NOOP_REF,
     modifier: (): Modifier => NOOP_MODIFIER,
-    resource: (): Unsubscribe => NOOP_UNSUBSCRIBE,
-    domResource: (): Unsubscribe => NOOP_UNSUBSCRIBE,
+    resource: (): interfaces.Unsubscribe => NOOP_UNSUBSCRIBE,
+    domResource: (): interfaces.Unsubscribe => NOOP_UNSUBSCRIBE,
   };
   const NOOP_LIFECYCLE: Lifecycle = {
-    setup: (): Unsubscribe => NOOP_UNSUBSCRIBE,
+    setup: (): interfaces.Unsubscribe => NOOP_UNSUBSCRIBE,
   };
 
   const NOOP_REF: Ref = {
-    element: (): Unsubscribe => NOOP_UNSUBSCRIBE,
+    element: (): interfaces.Unsubscribe => NOOP_UNSUBSCRIBE,
   };
 
   const NOOP_MODIFIER: Modifier = {};

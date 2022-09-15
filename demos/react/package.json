@@ -1,7 +1,9 @@
 {
   "private": true,
   "name": "@starbeam-demos/react",
+  "version": "1.0.0",
   "type": "module",
+  "main": "index.ts",
   "dependencies": {
     "@starbeam/core": "workspace:^",
     "@starbeam/react": "workspace:^",
@@ -12,16 +14,27 @@
     "react-dom": "^18.1.0"
   },
   "devDependencies": {
-    "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
-    "@esbuild-plugins/node-modules-polyfill": "^0.1.4",
     "@rollup/plugin-inject": "^4.0.4",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "esbuild": "^0.14.42",
     "rollup": "^2.75.5",
-    "vite": "^2.9.9",
-    "vite-plugin-fonts": "^0.4.0",
+    "vite": "*",
+    "vite-plugin-fonts": "^0.6.0",
     "vite-react-jsx": "^1.1.2"
   },
-  "version": null
+  "publishConfig": {
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "exports": {
+    "default": "./index.ts"
+  }
 }

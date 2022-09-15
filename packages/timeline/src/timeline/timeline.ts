@@ -145,12 +145,6 @@ export class Timeline {
   }
 
   #adjustTimestamp(operation: "consumed" | "bumped" | "evaluating"): Timestamp {
-    // console.log("adjusting timestamp", {
-    //   operation,
-    //   lastOp: this.#lastOp,
-    //   now: this.now,
-    // });
-
     const prev = this.#lastOp;
     const prevIsRead = prev === "consumed" || prev === "evaluating";
     const nextIsRead = operation === "consumed" || operation === "evaluating";

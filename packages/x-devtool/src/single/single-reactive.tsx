@@ -1,7 +1,4 @@
-/** @jsx h */
-/** @jsxFrag Fragment */
-// eslint-disable-next-line
-import { h, Fragment, render, type JSX } from "preact";
+import { render, type JSX } from "preact";
 import "./devtool.css";
 
 import { ReactiveProtocol, TIMELINE } from "@starbeam/timeline";

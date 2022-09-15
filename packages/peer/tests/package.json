@@ -1,9 +1,0 @@
-{
-  "private": true,
-  "name": "@starbeam-tests/peer",
-  "type": "module",
-  "dependencies": {
-    "@starbeam/peer": "workspace:^"
-  },
-  "version": null
-}

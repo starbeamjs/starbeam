@@ -1,12 +1,9 @@
-/** @jsx h */
-/** @jsxFrag Fragment */
-// eslint-disable-next-line
-import { h, Fragment, type ComponentChildren, type JSX } from "preact";
-import { Pane, UiPane, type UpdatePane } from "./pane.jsx";
+/** @jsxRuntime automatic @jsxImportSource preact */
 
-// @ts-expect-error `?inline` URLs aren't supported by TS
+import type { JSX } from "preact";
+
 import css from "./css/pane.css?inline";
-
+import { type UpdatePane, Pane, UiPane } from "./pane.jsx";
 import type { DevtoolsOptions } from "./shared.js";
 
 export function TabsPane(
@@ -16,7 +13,8 @@ export function TabsPane(
   return Pane(into, { Component: Tabs, props: { options }, css });
 }
 
-function Tabs({ options }: { options: DevtoolsOptions }) {
+// eslint-disable-next-line unused-imports/no-unused-vars
+function Tabs({ options }: { options: DevtoolsOptions }): JSX.Element {
   return (
     <UiPane>
       <section class="card starbeam-devtools">

@@ -1,5 +1,5 @@
 import { descriptionFrom, Stack } from "@starbeam/debug";
-import { getID } from "@starbeam/peer";
+import { getID } from "@starbeam/shared";
 import { TIMELINE } from "@starbeam/timeline";
 import { describe, expect, test } from "vitest";
 

@@ -1,11 +1,11 @@
 import "./App.css";
 
 import {
-  type UpdatePane,
   type DevtoolsOptions,
+  type UpdatePane,
   TabsPane,
 } from "@starbeamx/devtool";
-import { default as axios } from "axios";
+import { Axios } from "axios";
 import { useEffect, useRef } from "react";
 
 import useQuery from "./lib/use-query.js";
@@ -46,6 +46,8 @@ export default function App(): JSX.Element {
     </>
   );
 }
+
+const axios = new Axios();
 
 function Queried(): JSX.Element {
   const query = useQuery("techy", async () => {

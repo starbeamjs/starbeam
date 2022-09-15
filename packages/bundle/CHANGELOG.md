@@ -10,7 +10,7 @@
   - @starbeam/core-utils@0.5.8
   - @starbeam/debug@0.5.8
   - @starbeam/js@0.5.8
-  - @starbeam/peer@1.0.8
+  - @starbeam/shared@1.0.8
   - @starbeam/timeline@0.5.8
   - @starbeam/verify@0.5.8
 
@@ -24,7 +24,7 @@
   - @starbeam/core-utils@0.5.7
   - @starbeam/debug@0.5.7
   - @starbeam/js@0.5.7
-  - @starbeam/peer@1.0.7
+  - @starbeam/shared@1.0.7
   - @starbeam/timeline@0.5.7
   - @starbeam/verify@0.5.7
 
@@ -38,7 +38,7 @@
   - @starbeam/core-utils@0.5.6
   - @starbeam/debug@0.5.6
   - @starbeam/js@0.5.6
-  - @starbeam/peer@1.0.6
+  - @starbeam/shared@1.0.6
   - @starbeam/timeline@0.5.6
   - @starbeam/verify@0.5.6
 
@@ -52,7 +52,7 @@
   - @starbeam/core-utils@0.5.5
   - @starbeam/debug@0.5.5
   - @starbeam/js@0.5.5
-  - @starbeam/peer@1.0.5
+  - @starbeam/shared@1.0.5
   - @starbeam/timeline@0.5.5
   - @starbeam/verify@0.5.5
 
@@ -66,7 +66,7 @@
   - @starbeam/core-utils@0.5.2
   - @starbeam/debug@0.5.2
   - @starbeam/js@0.5.2
-  - @starbeam/peer@1.0.2
+  - @starbeam/shared@1.0.2
   - @starbeam/timeline@0.5.2
   - @starbeam/verify@0.5.2
 
@@ -81,6 +81,6 @@
   - @starbeam/core-utils@0.5.1
   - @starbeam/debug@0.5.1
   - @starbeam/js@0.5.1
-  - @starbeam/peer@1.0.1
+  - @starbeam/shared@1.0.1
   - @starbeam/timeline@0.5.1
   - @starbeam/verify@0.5.1

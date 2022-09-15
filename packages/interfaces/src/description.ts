@@ -9,7 +9,7 @@ export interface DescriptionArgs {
    * For example, a `Cell` is allowed to return a new description each time its `[REACTIVE]` symbol
    * is read, but the description must have the same `id` each time.
    */
-  readonly id: ReactiveId;
+  readonly id?: ReactiveId;
 
   /**
    * The type is a high-level categorization from the perspective of Starbeam. It is used in
@@ -43,6 +43,7 @@ export interface DescriptionDescribeOptions extends StackFrameDisplayOptions {
 
 export interface Description extends DescriptionArgs {
   readonly fullName: string;
+  readonly id: ReactiveId;
   readonly type: DescriptionType;
   readonly api: string | ApiDetails;
   readonly userFacing: Description;

@@ -1,5 +1,4 @@
 import { descriptionFrom } from "@starbeam/debug";
-import { getID } from "@starbeam/peer";
 import { Frame, TIMELINE } from "@starbeam/timeline";
 import { describe, expect, test } from "vitest";
 
@@ -13,7 +12,6 @@ describe("frames", () => {
       evaluate: () => cell.current,
       description: descriptionFrom({
         type: "formula",
-        id: getID(),
         api: "Formula",
       }),
     });
@@ -57,7 +55,6 @@ describe("frames", () => {
       evaluate: () => cell.current,
       description: descriptionFrom({
         type: "formula",
-        id: getID(),
         api: "Formula",
       }),
     });

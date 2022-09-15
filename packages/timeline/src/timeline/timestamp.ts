@@ -3,7 +3,7 @@ import { DisplayStruct, ifDebug } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
 // import type { IS_UPDATED_SINCE } from "../../fundamental/constants.js";
 // import { INSPECT } from "../../utils.js";
-import { bump as peerBump, now as peerNow } from "@starbeam/peer";
+import { bump as peerBump, now as peerNow } from "../../../shared/index.js";
 
 export const INSPECT = Symbol.for("nodejs.util.inspect.custom");
 
@@ -11,14 +11,14 @@ export class TimestampImpl implements interfaces.Timestamp {
   static #initial = peerNow();
 
   /**
-   * Returns the current `Timestamp` according to @starbeam/peer
+   * Returns the current `Timestamp` according to @starbeam/shared
    */
   static now(): interfaces.Timestamp {
     return new TimestampImpl(peerNow());
   }
 
   /**
-   * The earliest timestamp from @starbeam/peer that was visible to this @starbeam/timeline.
+   * The earliest timestamp from @starbeam/shared that was visible to this @starbeam/timeline.
    */
   static zero(): interfaces.Timestamp {
     return new TimestampImpl(TimestampImpl.#initial);
@@ -62,7 +62,7 @@ export class TimestampImpl implements interfaces.Timestamp {
   }
 
   /**
-   * Bump the timestamp using `@starbeam/peer`
+   * Bump the timestamp using `@starbeam/shared`
    */
   next(): Timestamp {
     return new Timestamp(peerBump());

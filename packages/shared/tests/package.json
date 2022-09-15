@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "name": "@starbeam-tests/peer",
+  "type": "module",
+  "dependencies": {
+    "@starbeam/shared": "workspace:^"
+  },
+  "version": null
+}

@@ -1,12 +1,12 @@
 {
   "private": true,
   "name": "@starbeam-tests/verify",
+  "version": "1.0.0",
   "type": "module",
   "dependencies": {
     "@starbeam/verify": "workspace:^"
   },
   "devDependencies": {
-    "vite": "^3.0.0"
-  },
-  "version": null
+    "vite": "*"
+  }
 }

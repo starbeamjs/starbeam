@@ -1,32 +1,27 @@
+import chalk from "chalk";
 import type { Command } from "commander";
 import { program } from "commander";
-import { join, relative, resolve } from "path";
-import type { StarbeamCommandOptions } from "./commands.js";
-import shell from "shelljs";
-import sh from "shell-escape-tag";
-import { readFileSync, write, writeFileSync } from "fs";
-import {
-  getPackages,
-  queryPackages,
-  type Package,
-} from "./support/packages.js";
 import * as jsonc from "jsonc-parser";
+import { readFileSync, writeFileSync } from "node:fs";
+import { isAbsolute, join, relative, resolve } from "node:path";
 import { format } from "prettier";
-import chalk from "chalk";
+import type { StarbeamCommandOptions } from "./commands.js";
+import { queryable } from "./list.js";
+import type { Package } from "./support/packages.js";
 
 export function TemplateCommand({ root }: StarbeamCommandOptions): Command {
-  return program
-    .createCommand("template")
-    .description("template a package")
-    .option("-p, --package <package-name>", "the package to test", "all")
-    .option(
-      "-s, --scope <package-scope>",
-      "the scope of the package",
-      "starbeam"
-    )
-    .action(({ package: packageName, scope }) => {
-      const packages = getPackages(root, packageName, scope);
-
+  return queryable(
+    root,
+    program
+      .createCommand("template")
+      .description("template a package")
+      .addHelpText(
+        "afterAll",
+        chalk.yellow(
+          "\nPackages are only included if they include a `main` field in their package.json"
+        )
+      ),
+    (packages) => {
       for (const pkg of packages) {
         console.log(chalk.magenta(`=== Updating ${pkg.name} ===`));
         updatePackageJSON(root, pkg);
@@ -35,7 +30,8 @@ export function TemplateCommand({ root }: StarbeamCommandOptions): Command {
           updateTsconfig(root, pkg);
         }
       }
-    });
+    }
+  );
 }
 
 function updatePackageJSON(root: string, pkg: Package) {
@@ -61,6 +57,9 @@ function updatePackageJSON(root: string, pkg: Package) {
 }
 
 function updateTsconfig(root: string, pkg: Package) {
+  const parent = resolve(pkg.root, "..");
+  const relativeParent = relative(root, parent);
+
   console.log(chalk.gray(`+ tsconfig.json`));
 
   const tsconfigFile = resolve(pkg.root, "tsconfig.json");
@@ -73,13 +72,53 @@ function updateTsconfig(root: string, pkg: Package) {
     (type) => typeof type === "string" && type.endsWith("/env")
   );
 
+  if (pkg.tsconfig) {
+    editor.set(
+      "extends",
+      join(relative(pkg.root, resolve(root, pkg.tsconfig))),
+      { position: 0 }
+    );
+  } else if (isInside("packages") || isInside("framework/react")) {
+    editor.set(
+      "extends",
+      join(relative(pkg.root, resolve(root, "tsconfig.package.json"))),
+      { position: 0 }
+    );
+  } else if (isInside("demos")) {
+    editor.set(
+      "extends",
+      join(relative(pkg.root, resolve(root, "tsconfig.demo.json"))),
+      { position: 0 }
+    );
+  } else {
+    console.error(
+      chalk.red(
+        `${pkg.root} is inside of unknown parent directory: ${relativeParent}`
+      )
+    );
+    process.exit(1);
+  }
+
+  editor.set("compilerOptions.composite", true);
+  editor.set("compilerOptions.declaration", true);
+  editor.set("compilerOptions.emitDeclarationOnly", true);
   editor.set(
-    "extends",
-    join(relative(pkg.root, resolve(root, "tsconfig.package.json"))),
-    { position: 0 }
+    "compilerOptions.declarationDir",
+    relative(pkg.root, resolve(root, "dist", "types", ...pkg.name.split("/")))
   );
+  editor.set("compilerOptions.declarationMap", true);
 
   editor.write();
+
+  function isInside(directory: string) {
+    const absoluteDirectory = resolve(root, directory);
+    const relativePath = relative(absoluteDirectory, pkg.root);
+    return (
+      relativePath &&
+      !relativePath.startsWith("..") &&
+      !isAbsolute(relativePath)
+    );
+  }
 }
 
 class EditJsonc {
@@ -100,6 +139,13 @@ class EditJsonc {
     this.#filename = filename;
     this.#source = source;
     this.#json = json;
+  }
+
+  remove(path: string) {
+    const jsonPath = this.#path(path);
+    const edit = jsonc.modify(this.#source, jsonPath, undefined, {});
+    this.#source = jsonc.applyEdits(this.#source, edit);
+    this.#json = jsonc.parseTree(this.#source)!;
   }
 
   addUnique(path: string, value: unknown, check: (json: unknown) => boolean) {

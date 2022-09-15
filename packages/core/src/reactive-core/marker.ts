@@ -4,7 +4,6 @@ import {
   descriptionFrom,
 } from "@starbeam/debug";
 import type { Stack } from "@starbeam/interfaces";
-import { getID } from "@starbeam/peer";
 import { type ReactiveProtocol, REACTIVE, TIMELINE } from "@starbeam/timeline";
 
 import { type MutableInternalsImpl, MutableInternals } from "../storage.js";
@@ -44,7 +43,6 @@ export function Marker(description?: string | Description): ReactiveMarker {
     MutableInternals(
       descriptionFrom({
         type: "cell",
-        id: getID(),
         api: {
           package: "@starbeam/core",
           name: "Marker",

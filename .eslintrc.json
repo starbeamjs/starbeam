@@ -1,130 +1,53 @@
 {
   "root": true,
-  "plugins": ["prettier", "unused-imports", "simple-import-sort"],
   "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "project": false,
-    "sourceType": "module"
-  },
+  "parserOptions": { "project": "./tsconfig.json" },
+  "ignorePatterns": [""],
+
   "settings": {
     "import/resolver": {
       "typescript": {
-        "alwaysTryTypes": true,
-        "project": "./tsconfig.json"
+        "alwaysTryTypes": true
       }
     },
     "import/ignore": ["\\.js\\?script"]
   },
-  "extends": [
-    "eslint:recommended",
-    "plugin:import/recommended",
-    "prettier",
-    "plugin:prettier/recommended",
-    "plugin:json/recommended"
-  ],
-  "rules": {
-    "import/default": ["warn"],
-    "import/no-cycle": ["warn"],
-    "import/no-duplicates": "off",
-    "simple-import-sort/imports": "error",
-    "simple-import-sort/exports": "error",
-    "unused-imports/no-unused-imports": "error",
-    "no-empty": "warn",
-    "prefer-arrow-callback": "warn",
-    "no-inner-declarations": "off"
-  },
+
   "overrides": [
     {
-      "files": ["**/.eslintrc.cjs"],
-      "env": {
-        "node": true
-      }
-    },
-    {
-      "files": ["**/*.{ts,tsx}"],
-      "parser": "@typescript-eslint/parser",
-      "plugins": [
-        "prettier",
-        "@typescript-eslint",
-        "unused-imports",
-        "simple-import-sort"
-      ],
-      "parserOptions": {
-        "project": "./tsconfig.json",
-        "sourceType": "module"
-      },
-      "extends": [
-        "eslint:recommended",
-        "plugin:import/recommended",
-        "plugin:import/typescript",
-        "prettier",
-        "plugin:prettier/recommended",
-        "plugin:@typescript-eslint/recommended",
-        "plugin:@typescript-eslint/recommended-requiring-type-checking",
-        "plugin:json/recommended"
-      ],
-      "rules": {
-        "no-inner-declarations": "off",
-        "no-fallthrough": "off",
-        "import/no-duplicates": "off",
-
-        "no-restricted-syntax": [
-          "error",
-          {
-            "selector": "TSEnumDeclaration[const=true]",
-            "message": "const enums are not supported in isolated module mode"
-          }
-        ],
-
-        "unused-imports/no-unused-imports": "warn",
-
-        "@typescript-eslint/consistent-type-imports": [
-          "error",
-          {
-            "prefer": "type-imports"
-          }
-        ],
-        "@typescript-eslint/consistent-type-exports": [
-          "error",
-          {
-            "fixMixedExportsWithInlineTypeSpecifier": true
-          }
-        ],
-        "@typescript-eslint/no-unused-vars": [
-          "warn",
-          {
-            "vars": "all",
-            "args": "after-used",
-            "ignoreRestSiblings": false,
-            "caughtErrors": "none",
-            "argsIgnorePattern": "^_",
-            "varsIgnorePattern": "^_"
-          }
-        ],
-        "@typescript-eslint/explicit-module-boundary-types": "error"
-      }
-    },
-    {
-      "files": ["demos/*/**/*.{tsx,ts}"],
-      "rules": {
-        "@typescript-eslint/no-non-null-assertion": "off",
-        "@typescript-eslint/no-explicit-any": "off",
-        "@typescript-eslint/no-unsafe-call": "off",
-        "@typescript-eslint/no-unsafe-return": "off",
-        "@typescript-eslint/no-unsafe-member-access": "off",
-        "@typescript-eslint/no-unsafe-assignment": "off",
-        "@typescript-eslint/explicit-module-boundary-types": "off",
-        "@typescript-eslint/no-misused-promises": "off"
-      }
-    },
-    {
       "files": [
-        "framework/react/use-strict-lifecycle/scripts/**/*",
-        "rollup.config.js"
+        "./packages/**/*.{d.,}ts",
+        "./framework/**/*.ts{x,}",
+        "./@types/**/*.ts"
       ],
-      "env": {
-        "node": true
+      "extends": ["./eslintrc.shared.json"],
+      "excludedFiles": ["packages/x-devtool/**"],
+      "parserOptions": {
+        "sourceType": "module",
+        "project": "./tsconfig-packages.json"
       }
+    },
+    {
+      "files": ["./packages/x-devtool/**/*.ts{x,}"],
+      "extends": ["./eslintrc.shared.json"],
+      "parserOptions": {
+        "sourceType": "module",
+        "project": "./tsconfig-devtool.json"
+      }
+    },
+    {
+      "files": ["demos/react*/**/*.ts{x,}"],
+      "extends": ["./eslintrc.shared.json"],
+      "parser": "@typescript-eslint/parser",
+      "parserOptions": {
+        "sourceType": "module",
+        "project": "./tsconfig-react-demos.json"
+      }
+    },
+    {
+      "files": ["./rollup.config.ts", "./.build/**/*.ts", "**/vite.config.ts"],
+      "extends": ["./eslintrc.shared.json"],
+      "parserOptions": { "project": "./tsconfig-rollup.json" }
     }
   ]
 }

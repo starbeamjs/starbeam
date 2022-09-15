@@ -133,10 +133,6 @@ describe("Setup", () => {
 
     setup();
 
-    console.log({
-      setup: ReactiveProtocol.lastUpdated(setup),
-      ts: ts,
-    });
     expect(ReactiveProtocol.lastUpdated(setup)).toSatisfy(eq(ts));
 
     expect(variable).toEqual({

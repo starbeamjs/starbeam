@@ -1,5 +1,5 @@
 import { type Description, descriptionFrom } from "@starbeam/debug";
-import { getID } from "@starbeam/peer";
+import { getID } from "@starbeam/shared";
 import { type Unsubscribe, LIFETIME } from "@starbeam/timeline";
 
 import { Marker } from "../marker.js";
@@ -16,7 +16,6 @@ export function Setup(
 ): Setup {
   const desc = descriptionFrom({
     type: "formula",
-    id: getID(),
     api: {
       package: "@starbeam/core",
       name: "Setup",

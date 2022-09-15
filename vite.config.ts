@@ -16,7 +16,9 @@ export default defineConfig({
     include: ["stacktracey"],
   },
 
-  esbuild: {},
+  esbuild: {
+    jsx: "automatic",
+  },
   build: {
     lib: {
       entry: "./packages/bundle/src/vanilla.ts",

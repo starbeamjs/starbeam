@@ -1,7 +1,6 @@
 {
   "eslint.enable": true,
   "explorer.excludeGitIgnore": true,
-  "vite.autoStart": false,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true,
     "source.fixAll.eslint.format": true
@@ -12,14 +11,22 @@
     "**/*.code-search": true,
     "**/dist": true
   },
+  "files.exclude": {
+    "packages/x-devtool": true,
+    "packages/x-devtools-extension": true,
+    "**/dist": true,
+    "coverage": true,
+    "*.tsbuildinfo": true
+  },
   "explorer.fileNesting.patterns": {
     "*.ts": "${capture}.js",
     "*.js": "${capture}.js.map, ${capture}.min.js, ${capture}.d.ts, ${capture}.d.ts.map",
     "*.cjs": "${capture}.cjs.map, ${capture}.min.cjs, ${capture}.d.cts, ${capture}.d.cts.map",
     "*.jsx": "${capture}.js",
-    "*.tsx": "${capture}.ts",
-    "tsconfig.json": "tsconfig.*",
-    "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, .pnpm-debug.log, .editorconfig, .eslintrc.json, .gitignore, .npmrc, .quokka, pnpm-workspace.yaml",
+    "*.tsx": "${capture}.jsx, ${capture}.js",
+    "tsconfig.json": "tsconfig.*.json, tsconfig-*.json, *.tsbuildinfo",
+    "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, .pnpm-debug.log, .editorconfig, .gitignore, .npmrc, .quokka, pnpm-workspace.yaml",
+    ".eslintrc.json": "eslintrc*, .eslintignore, .eslintcache",
     "vite.config.ts": "rollup.config.js, .env.*"
   },
   "editor.defaultFormatter": "dbaeumer.vscode-eslint",

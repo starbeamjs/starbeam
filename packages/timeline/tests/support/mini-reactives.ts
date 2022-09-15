@@ -1,8 +1,9 @@
 import { type Stack, callerStack, descriptionFrom } from "@starbeam/debug";
 import type { MutableInternals } from "@starbeam/interfaces";
-import { getID, type UNINITIALIZED } from "@starbeam/peer";
-import { type Timestamp, diff } from "@starbeam/timeline";
+import { type UNINITIALIZED } from "@starbeam/shared";
 import {
+  type Timestamp,
+  diff,
   type Reactive,
   type ReactiveProtocol,
   Frame,
@@ -25,7 +26,6 @@ export function Cell<T>(value: T): Cell<T> {
   const internals: MutableInternals = {
     type: "mutable",
     description: descriptionFrom({
-      id: getID(),
       api: "Cell",
       type: "cell",
     }),
@@ -54,12 +54,10 @@ export function Cell<T>(value: T): Cell<T> {
 export function FreezableCell<T>(value: T): FreezableCell<T> {
   let lastUpdated = zero();
   let isFrozen = false;
-  const id = getID();
 
   const internals: MutableInternals = {
     type: "mutable",
     description: descriptionFrom({
-      id: getID(),
       api: "FreezableCell",
       type: "cell",
     }),
@@ -94,7 +92,6 @@ export function Static<T>(value: T): Reactive<T> {
     [REACTIVE]: {
       type: "static",
       description: descriptionFrom({
-        id: getID(),
         api: "Static",
         type: "static",
       }),
@@ -117,7 +114,6 @@ export function Formula<T>(computation: () => T): {
     TIMELINE.next(),
     descriptionFrom({
       type: "formula",
-      id: getID(),
       api: "Formula",
     })
   );
@@ -152,7 +148,6 @@ export function Marker(): {
   const internals: MutableInternals = {
     type: "mutable",
     description: descriptionFrom({
-      id: getID(),
       type: "cell",
       api: "Marker",
     }),

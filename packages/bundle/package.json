@@ -6,7 +6,7 @@
   "main": "index.ts",
   "types": "index.ts",
   "dependencies": {
-    "@starbeam/peer": "workspace:^",
+    "@starbeam/shared": "workspace:^",
     "@starbeam/debug": "workspace:^",
     "@starbeam/verify": "workspace:^",
     "@starbeam/timeline": "workspace:^",
@@ -26,5 +26,8 @@
         "default": "./dist/index.cjs"
       }
     }
+  },
+  "exports": {
+    "default": "./index.ts"
   }
 }

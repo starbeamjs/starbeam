@@ -7,7 +7,7 @@ import {
   isDebug,
 } from "@starbeam/debug";
 import type { Stack } from "@starbeam/interfaces";
-import { getID, type UNINITIALIZED } from "@starbeam/peer";
+import type { UNINITIALIZED } from "@starbeam/shared";
 import {
   type Reactive,
   diff,
@@ -39,7 +39,6 @@ export function PolledFormula<T>(
 } {
   const desc = descriptionFrom({
     type: "formula",
-    id: getID(),
     api: {
       package: "@starbeam/core",
       name: "Formula",
@@ -94,7 +93,6 @@ export function PolledFormulaFn<T>(
     callback,
     descriptionFrom({
       type: "formula",
-      id: getID(),
       api: {
         package: "@starbeam/core",
         name: "FormulaFn",

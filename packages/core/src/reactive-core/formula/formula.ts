@@ -5,7 +5,7 @@ import {
   isDebug,
 } from "@starbeam/debug";
 import type { Stack } from "@starbeam/interfaces";
-import { getID, type UNINITIALIZED } from "@starbeam/peer";
+import type { UNINITIALIZED } from "@starbeam/shared";
 import {
   type Reactive,
   diff,
@@ -26,7 +26,6 @@ export function Formula<T>(
 ): Formula<T> {
   const desc = descriptionFrom({
     type: "formula",
-    id: getID(),
     api: {
       package: "@starbeam/core",
       name: "Formula",
@@ -47,8 +46,6 @@ export function Formula<T>(
       TIMELINE.update(frame);
 
       const newDeps = new Set(ReactiveProtocol.dependencies(frame));
-
-      console.log({ old: new Set(oldDeps), new: new Set(newDeps) });
 
       TIMELINE.didConsumeFrame(frame, diff(oldDeps, newDeps), caller);
     } else {
@@ -91,7 +88,6 @@ export function FormulaFn<T>(
 ): FormulaFn<T> {
   const desc = descriptionFrom({
     type: "formula",
-    id: getID(),
     api: {
       package: "@starbeam/core",
       name: "FormulaFn",

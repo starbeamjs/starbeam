@@ -1,15 +1,14 @@
-/** @jsx h */
-/** @jsxFrag Fragment */
-// eslint-disable-next-line
-import { h, Fragment, type JSX } from "preact";
+/** @jsxRuntime automatic @jsxImportSource preact */
 
-import type { Timestamp, MutableInternals } from "@starbeam/interfaces";
-import { LogLine, LogLineFor, title } from "./ui.jsx";
 import type {
   CellConsumeOperation,
   CellUpdateOperation,
 } from "@starbeam/debug";
+import type { MutableInternals, Timestamp } from "@starbeam/interfaces";
+import type { JSX } from "preact";
+
 import type { DevtoolsOptions } from "./shared.js";
+import { LogLine, LogLineFor } from "./ui.jsx";
 
 export function CellConsumeLine({
   line,

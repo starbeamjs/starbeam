@@ -1,21 +1,23 @@
 {
   "private": true,
   "name": "@starbeam-demos/react-store",
+  "version": "1.0.0",
   "type": "module",
+  "main": "index.ts",
   "dependencies": {
     "@starbeam/core": "workspace:^",
     "@starbeam/debug": "workspace:^",
     "@starbeam/js": "workspace:^",
     "@starbeam/react": "workspace:^",
     "@starbeamx/devtool": "workspace:^",
-    "react": "^17",
-    "react-dom": "^17"
+    "purecss": "^2.1.0",
+    "react": "^18",
+    "react-dom": "^18"
   },
   "devDependencies": {
-    "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
     "@esbuild-plugins/node-modules-polyfill": "^0.1.4",
     "@rollup/plugin-inject": "^4.0.4",
-    "@shopify/polaris": "^9.20.0",
+    "@shopify/polaris": "^10.2.0",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/styled-components": "^5.1.25",
@@ -23,9 +25,22 @@
     "esbuild": "^0.14.42",
     "rollup": "^2.75.5",
     "styled-components": "^5.3.5",
-    "vite": "^2.9.9",
-    "vite-plugin-fonts": "^0.4.0",
+    "vite": "*",
+    "vite-plugin-fonts": "^0.6.0",
     "vite-react-jsx": "^1.1.2"
   },
-  "version": null
+  "publishConfig": {
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "exports": {
+    "default": "./index.ts"
+  }
 }

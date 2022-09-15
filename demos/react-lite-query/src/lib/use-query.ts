@@ -3,7 +3,6 @@ import {
   callerStack,
   descriptionFrom,
 } from "@starbeam/debug";
-import { getID } from "@starbeam/peer";
 import { useReactiveSetup } from "@starbeam/react";
 
 import type { AsyncData, Query } from "./fetch.js";
@@ -16,7 +15,6 @@ export default function useQuery<T>(
 ): AsyncData<T> {
   const desc = descriptionFrom({
     type: "resource",
-    id: getID(),
     api: {
       package: "@starbeam-demos/react-lite-query",
       name: "useQuery",

@@ -5,7 +5,7 @@ import {
   descriptionFrom,
   DisplayStruct,
 } from "@starbeam/debug";
-import { getID, UNINITIALIZED } from "@starbeam/peer";
+import { UNINITIALIZED } from "@starbeam/shared";
 import {
   type ReactiveInternals,
   type ReactiveProtocol,
@@ -311,11 +311,13 @@ export interface Variants<V extends VariantType, Narrow = V>
 
   match<M extends Matcher<V, unknown>>(
     matcher: M
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): M[keyof M] extends (...args: any[]) => infer R ? R : M[keyof M];
   match<M extends Partial<Matcher<V, unknown>>>(
     matcher: M
   ):
     | {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         [K in keyof M]: M[K] extends (...args: any[]) => infer R ? R : never;
       }[keyof M]
     | undefined;
@@ -476,7 +478,6 @@ export function Variants<V extends VariantType>(
 ): VariantConstructors<V> {
   const desc = descriptionFrom({
     type: "variants",
-    id: getID(),
     api: {
       package: "@starbeam/core",
       name: "Variants",

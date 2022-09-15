@@ -1,21 +1,18 @@
 import { callerStack, descriptionFrom } from "@starbeam/debug";
+import type { CompositeInternals } from "@starbeam/interfaces";
 import { REACTIVE, ReactiveProtocol, TIMELINE, zero } from "@starbeam/timeline";
 import { beforeAll, describe, expect, it } from "vitest";
-import { getID } from "@starbeam/peer";
 
 import { Cell, FreezableCell, Static } from "./support/mini-reactives.js";
-import type { CompositeInternals } from "@starbeam/interfaces";
 
 describe("ReactiveProtocol", () => {
   beforeAll(() => {
-    const id = getID();
     // make sure the timeline is not at 0, which would make a comparison with TIMELINE.now sometimes
     // equivalent to Timestamp.zero(), and we want to test the difference.
     TIMELINE.bump(
       {
         type: "mutable",
         description: descriptionFrom({
-          id: getID(),
           type: "cell",
           api: "Cell",
         }),
@@ -104,12 +101,9 @@ describe("ReactiveProtocol", () => {
       const tom = Cell("Tom");
       const nullvox = Cell("nullvox");
 
-      const id = getID();
-
       const composite: CompositeInternals = {
         type: "composite",
         description: descriptionFrom({
-          id: getID(),
           type: "formula",
           api: "Composite",
         }),

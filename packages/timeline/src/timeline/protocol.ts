@@ -9,7 +9,7 @@ import type {
 } from "@starbeam/interfaces";
 // eslint-disable-next-line import/no-duplicates
 import type * as interfaces from "@starbeam/interfaces";
-import { REACTIVE } from "@starbeam/peer";
+import { REACTIVE } from "../../../shared/index.js";
 import { isPresent } from "@starbeam/verify";
 
 import { Timestamp, zero } from "./timestamp.js";

@@ -1,18 +1,15 @@
-/** @jsx h */
-/** @jsxFrag Fragment */
-// eslint-disable-next-line
-import { h, Fragment, type ComponentChildren, type JSX } from "preact";
-
-// @ts-expect-error `?inline` URLs aren't supported by TS
-import css from "./css/log.css?inline";
+/** @jsxRuntime automatic @jsxImportSource preact */
 
 import type { DebugOperation } from "@starbeam/debug";
 import type { Timestamp } from "@starbeam/interfaces";
 import { TIMELINE } from "@starbeam/timeline";
+import type { JSX } from "preact";
 import { useMemo, useState } from "preact/hooks";
+
 import { CellConsumeLine, CellUpdateLine } from "./cell.jsx";
+import css from "./css/log.css?inline";
 import { FrameConsumeLine } from "./frame.jsx";
-import { Pane, UiPane, type UpdatePane } from "./pane.jsx";
+import { type UpdatePane, Pane, UiPane } from "./pane.jsx";
 import type { DevtoolsOptions } from "./shared.js";
 import { LogLine } from "./ui.jsx";
 
@@ -64,7 +61,7 @@ function LogOperation({
   line,
   prev,
   options,
-}: {
+}: JSX.IntrinsicAttributes & {
   line: DebugOperation;
   prev: Timestamp | undefined;
   options: DevtoolsOptions;
@@ -88,7 +85,7 @@ export function DevtoolsLogPane(
   into: Element,
   options: DevtoolsOptions = {}
 ): UpdatePane<{ options: DevtoolsOptions }> {
-  return Pane(into, {
+  return Pane<{ options: DevtoolsOptions }>(into, {
     Component: DevtoolsLog,
     props: { options },
     css,

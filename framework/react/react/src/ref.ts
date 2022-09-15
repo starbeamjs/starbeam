@@ -1,7 +1,6 @@
 import type { anydom, browser } from "@domtree/flavors";
 import { type Description, descriptionFrom } from "@starbeam/debug";
 import { ElementPlaceholder } from "@starbeam/modifier";
-import { getID } from "@starbeam/peer";
 import {
   expected,
   isEqual,
@@ -69,7 +68,6 @@ export function ref<E extends browser.Element>(
     kind,
     descriptionFrom({
       type: "formula",
-      id: getID(),
       api: {
         package: "@starbeam/react",
         name: "ref",

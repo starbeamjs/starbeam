@@ -1,12 +1,9 @@
-/** @jsx h */
-/** @jsxFrag Fragment */
-// eslint-disable-next-line
-import { h, Fragment, type ComponentChildren, type JSX } from "preact";
+/** @jsxRuntime automatic @jsxImportSource preact */
 
-import { render, type FunctionComponent } from "preact";
+import { type ComponentChildren, type JSX, render } from "preact";
 
-export interface UpdatePane<Props> {
-  update: (props?: Partial<Props>) => void;
+export interface UpdatePane<P> {
+  update: (props?: Partial<P>) => void;
 }
 
 export function Pane<Props>(
@@ -16,12 +13,12 @@ export function Pane<Props>(
     props,
     css,
   }: {
-    Component: FunctionComponent<Props>;
+    Component: (props: Props) => JSX.Element | null;
     props: Props;
     css: string;
   }
 ): UpdatePane<Props> {
-  const app = <Component {...props} />;
+  const app = <Component {...(props as Props & JSX.IntrinsicAttributes)} />;
   let shadow = into.shadowRoot;
 
   if (!shadow) {
@@ -52,7 +49,11 @@ export function Pane<Props>(
   };
 }
 
-export function UiPane({ children }: { children: ComponentChildren }) {
+export function UiPane({
+  children,
+}: {
+  children?: ComponentChildren;
+}): JSX.Element {
   return (
     <>
       <section class="pane">{children}</section>

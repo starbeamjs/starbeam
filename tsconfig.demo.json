@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.target.json",
+  "compilerOptions": { "jsx": "react-jsx" }
+}

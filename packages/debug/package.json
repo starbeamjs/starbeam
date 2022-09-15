@@ -4,14 +4,14 @@
   "main": "index.ts",
   "version": "0.6.1",
   "dependencies": {
-    "@starbeam/peer": "workspace:^",
+    "@starbeam/shared": "workspace:^",
     "@starbeam/verify": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
     "stacktracey": "^2.1.8"
   },
   "devDependencies": {
     "chalk": "^5.0.1",
-    "vite": "^3.0.0",
+    "vite": "*",
     "@domtree/flavors": "workspace:^"
   },
   "publishConfig": {

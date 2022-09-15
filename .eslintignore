@@ -1,5 +1,7 @@
 dist
 coverage
+node_modules
+**/node_modules
 
 # These paths are either already built (and will error due to the type-aware lints not having the paths included in the tsconfig.json)
 # or are not built at all (except maybe by vite), and excluded from tsconfig.json
@@ -8,3 +10,5 @@ coverage
 @types/@domtree/**/*.js
 @types/@domtree/**/*.d.ts
 packages/x-devtools-extension
+rollup.config.d.ts
+vite.config.d.ts

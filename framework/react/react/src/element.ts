@@ -11,8 +11,8 @@ import {
   type Description,
   callerStack,
   descriptionFrom,
+  Stack,
 } from "@starbeam/debug";
-import { getID } from "@starbeam/peer";
 import {
   type CleanupTarget,
   type OnCleanup,
@@ -232,7 +232,10 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
     this.#debugLifecycle = lifecycle;
   }
 
-  use<T>(resource: ResourceBlueprint<T>, _caller = callerStack()): Resource<T> {
+  use<T>(
+    resource: ResourceBlueprint<T>,
+    _caller: Stack = callerStack()
+  ): Resource<T> {
     const r = resource.create({ owner: this });
 
     this.on.layout(() => Resource.setup(r));
@@ -270,7 +273,7 @@ class Lifecycle {
   static on<T extends object>(
     lifecycle: Lifecycle,
     instance: T,
-    elementDescription: Description
+    _elementDescription: Description
   ): OnLifecycle {
     LIFETIME.link(instance, lifecycle);
 
@@ -280,7 +283,6 @@ class Lifecycle {
       idle: (idle: Callback, description?: string | Description) => {
         const desc = descriptionFrom({
           type: "resource",
-          id: getID(),
           api: {
             package: "@starbeam/react",
             name: "ReactiveElement",
@@ -296,7 +298,6 @@ class Lifecycle {
       layout: (layout: Callback, description?: string | Description) => {
         const desc = descriptionFrom({
           type: "resource",
-          id: getID(),
           api: {
             package: "@starbeam/react",
             name: "ReactiveElement",

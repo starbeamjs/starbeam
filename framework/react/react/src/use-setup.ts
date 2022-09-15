@@ -1,7 +1,6 @@
 import { PolledFormulaFn } from "@starbeam/core";
 import { isObject } from "@starbeam/core-utils";
 import { type Description, descriptionFrom, Message } from "@starbeam/debug";
-import { getID } from "@starbeam/peer";
 import {
   isDebug,
   LIFETIME,
@@ -106,7 +105,6 @@ export function useSetup<T>(
 
   const desc = descriptionFrom({
     type: "resource",
-    id: getID(),
     api: {
       package: "@starbeam/react",
       name: "useSetup",
@@ -156,7 +154,6 @@ export function useReactiveSetup<T>(
 ): T {
   const desc = descriptionFrom({
     type: "resource",
-    id: getID(),
     api: "useReactiveSetup",
     fromUser: description,
   });

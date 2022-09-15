@@ -1,4 +1,4 @@
-import type { UNINITIALIZED } from "@starbeam/peer";
+import type { UNINITIALIZED } from "@starbeam/shared";
 
 import type { Description } from "./description.js";
 import type { CompositeInternals, ReactiveProtocol } from "./protocol.js";

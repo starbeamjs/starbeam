@@ -15,7 +15,6 @@
 
 import type { Description } from "@starbeam/debug";
 import { descriptionFrom } from "@starbeam/debug";
-import { getID } from "@starbeam/peer";
 import { type Reactive, type Unsubscribe, LIFETIME } from "@starbeam/timeline";
 
 import { FormulaFn } from "./formula.js";
@@ -57,7 +56,6 @@ export function Resource<T>(
 ): ResourceBlueprint<T> {
   const desc = descriptionFrom({
     type: "resource",
-    id: getID(),
     api: {
       package: "@starbeam/core",
       name: "Resource",
@@ -133,7 +131,6 @@ export class ResourceBuilder {
     ): Unsubscribe => {
       const desc = descriptionFrom({
         type: "formula",
-        id: getID(),
         api: {
           package: "@starbeam/core",
           name: "ResourceBuilder",

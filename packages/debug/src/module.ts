@@ -1,4 +1,3 @@
-import type { StackFrameDisplayOptions } from "@starbeam/interfaces";
 import type * as interfaces from "@starbeam/interfaces";
 import { hasType } from "@starbeam/verify";
 
@@ -94,7 +93,7 @@ export class DescribedModule {
 
   parts(
     location?: { loc?: Loc; action?: string },
-    options: StackFrameDisplayOptions = {}
+    options: interfaces.StackFrameDisplayOptions = {}
   ): DisplayParts {
     const parts = this.#module.parts(options);
 
@@ -120,7 +119,7 @@ export class DescribedModule {
 
   display(
     location?: { loc?: Loc; action?: string },
-    options: StackFrameDisplayOptions = {}
+    options: interfaces.StackFrameDisplayOptions = {}
   ): string {
     return this.parts(location, options).display();
   }
@@ -141,7 +140,7 @@ function formatLoc(loc: Loc) {
 
 interface DescribedPath {
   // path(options?: StackFrameDisplayOptions): string;
-  parts(options?: StackFrameDisplayOptions): DisplayPathParts;
+  parts(options?: interfaces.StackFrameDisplayOptions): DisplayPathParts;
 }
 
 class DescribedModulePath implements DescribedPath {
@@ -160,7 +159,7 @@ class DescribedModulePath implements DescribedPath {
     return `DescribedModulePath(${this.#path})`;
   }
 
-  parts(options?: StackFrameDisplayOptions): DisplayPathParts {
+  parts(options?: interfaces.StackFrameDisplayOptions): DisplayPathParts {
     return relative({ ...options, full: normalize(this.#path) });
   }
 }

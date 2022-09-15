@@ -1,6 +1,11 @@
 {
   "extends": "../../tsconfig.package.json",
   "compilerOptions": {
+    "declaration": true,
+    "composite": true,
+    "declarationMap": true,
+    "declarationDir": "../../dist/types/@starbeam/modifier",
+    "emitDeclarationOnly": true,
     "types": ["../env"]
   }
 }

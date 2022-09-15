@@ -1,6 +1,6 @@
 import type { DebugTimeline, Stack } from "@starbeam/debug";
 import type { Description, Diff, MutableInternals } from "@starbeam/interfaces";
-import { type UNINITIALIZED, REACTIVE } from "@starbeam/peer";
+import { type UNINITIALIZED, REACTIVE } from "../../../shared/index.js";
 
 // eslint-disable-next-line import/no-cycle
 import { type Frame, ActiveFrame } from "./frame.js";

@@ -11,12 +11,13 @@ import type {
 } from "@starbeam/interfaces";
 // eslint-disable-next-line import/no-duplicates
 import type * as interfaces from "@starbeam/interfaces";
-import { getID } from "@starbeam/peer";
+import { getID } from "@starbeam/shared";
 import { hasType, isObject, verified } from "@starbeam/verify";
 import { default as StackTracey } from "stacktracey";
 
 import { isDebug } from "./conditional.js";
-import { Description } from "./description/reactive-value.js";
+// eslint-disable-next-line import/no-cycle
+import { Description } from "./description/impl.js";
 import { describeModule } from "./module.js";
 
 type ErrorWithStack = Error & { stack: string };

@@ -1,14 +1,14 @@
 import type { Stack } from "@starbeam/debug";
 import { type Description, descriptionFrom } from "@starbeam/debug";
-import { getID } from "@starbeam/peer";
+import { getID } from "@starbeam/shared";
 import {
   type Reactive,
   type ReactiveInternals,
   REACTIVE,
   ReactiveProtocol,
 } from "@starbeam/timeline";
-import { DelegateInternals } from "../delegate.js";
 
+import { DelegateInternals } from "../delegate.js";
 import { FormulaFn } from "../formula/formula.js";
 
 type Key = unknown;
@@ -29,7 +29,6 @@ class ReactiveFormulaList<T, U> implements Reactive<U[]> {
   ) {
     const descArgs = descriptionFrom({
       type: "collection:value",
-      id: getID(),
       api: {
         package: "@starbeam/core",
         name: "ReactiveFormulaList",

@@ -8,7 +8,7 @@ import type {
   Stack,
   Timestamp,
 } from "@starbeam/interfaces";
-import { REACTIVE } from "@starbeam/peer";
+import { REACTIVE } from "../../shared/index.js";
 import { exhaustive } from "@starbeam/verify";
 
 interface ReactiveProtocolStatics {

@@ -1,4 +1,3 @@
-import { NodeGlobalsPolyfillPlugin } from "@esbuild-plugins/node-globals-polyfill";
 import { VitePluginFonts } from "vite-plugin-fonts";
 import { defineConfig } from "vitest/config";
 
@@ -22,11 +21,6 @@ export default defineConfig({
       define: {
         global: "globalThis",
       },
-      plugins: [
-        NodeGlobalsPolyfillPlugin({
-          buffer: true,
-        }),
-      ],
     },
   },
   build: {

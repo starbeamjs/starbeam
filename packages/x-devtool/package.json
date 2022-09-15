@@ -1,7 +1,9 @@
 {
   "name": "@starbeamx/devtool",
   "type": "module",
+  "private": true,
   "main": "index.tsx",
+  "starbeam:tsconfig": "tsconfig.devtool.json",
   "version": "0.6.0",
   "dependencies": {
     "@starbeam/core": "workspace:^",
@@ -9,7 +11,7 @@
     "@starbeam/timeline": "workspace:^",
     "@starbeam/js": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
-    "preact": "^10.7.3"
+    "preact": "^10.11.0"
   },
   "publishConfig": {
     "main": "dist/index.cjs",

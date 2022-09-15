@@ -5,9 +5,9 @@ import type {
   ReactiveId,
   Timestamp,
 } from "@starbeam/interfaces";
-import { REACTIVE, UNINITIALIZED } from "@starbeam/peer";
-import { getID } from "./id.js";
+import { REACTIVE, UNINITIALIZED } from "../../../shared/index.js";
 
+import { getID } from "./id.js";
 import { ReactiveProtocol } from "./protocol.js";
 import type { Timeline } from "./timeline.js";
 import { now } from "./timestamp.js";
@@ -51,7 +51,6 @@ export class Frame<T = unknown>
     description: Description
   ): Frame<T | UNINITIALIZED> {
     const id = description.id;
-    const initializedId = [id, getID()];
 
     return new Frame<T | UNINITIALIZED>(
       id,

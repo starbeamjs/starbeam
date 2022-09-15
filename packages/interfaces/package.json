@@ -3,7 +3,7 @@
   "type": "module",
   "main": "index.ts",
   "dependencies": {
-    "@starbeam/peer": "workspace:^",
+    "@starbeam/shared": "workspace:^",
     "@domtree/any": "workspace:^"
   },
   "publishConfig": {

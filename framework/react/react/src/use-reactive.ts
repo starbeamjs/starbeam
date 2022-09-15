@@ -1,7 +1,6 @@
 import { Cell, LIFETIME, PolledFormulaFn, TIMELINE } from "@starbeam/core";
 import type { Description } from "@starbeam/debug";
 import { descriptionFrom } from "@starbeam/debug";
-import { getID } from "@starbeam/peer";
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
 import { useState } from "react";
 
@@ -23,7 +22,6 @@ export function useReactive<T>(
 ): T {
   const desc = descriptionFrom({
     type: "formula",
-    id: getID(),
     api: "useReactive",
     fromUser: description,
   });
@@ -61,7 +59,6 @@ export function useCell<T>(
 ): Cell<T> {
   const desc = descriptionFrom({
     type: "cell",
-    id: getID(),
     api: {
       package: "@starbeam/react",
       name: "useCell",

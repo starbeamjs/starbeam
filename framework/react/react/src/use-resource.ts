@@ -7,7 +7,6 @@ import {
 } from "@starbeam/core";
 import type { Description } from "@starbeam/debug";
 import { descriptionFrom } from "@starbeam/debug";
-import { getID } from "@starbeam/peer";
 import { LIFETIME } from "@starbeam/timeline";
 import {
   unsafeTrackedElsewhere,
@@ -22,7 +21,6 @@ function createReactiveResource<T>(
 ): Resource<T> {
   const desc = descriptionFrom({
     type: "resource",
-    id: getID(),
     api: "useReactiveSetup",
     fromUser: description,
   });

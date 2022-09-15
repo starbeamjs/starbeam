@@ -9,7 +9,7 @@ import {
   ifDebug,
 } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
-import { getID, UNINITIALIZED } from "@starbeam/peer";
+import { UNINITIALIZED } from "@starbeam/shared";
 import { type Reactive, INSPECT, REACTIVE, TIMELINE } from "@starbeam/timeline";
 
 import type { MutableInternalsImpl } from "../storage.js";
@@ -153,7 +153,6 @@ function normalize(description?: string | Description): Description {
     return descriptionFrom(
       {
         type: "cell",
-        id: getID(),
         api: {
           package: "@starbeam/core",
           name: "Cell",

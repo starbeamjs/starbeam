@@ -1,26 +1,64 @@
+import chalk from "chalk";
 import type { Command } from "commander";
 import { program } from "commander";
-import { relative, resolve } from "path";
+import { relative } from "path";
 import type { StarbeamCommandOptions } from "./commands.js";
-import { getPackages, queryPackages } from "./support/packages.js";
-import chalk from "chalk";
+import { type Package, queryPackages } from "./support/packages.js";
 import {
-  type ParsedFilter,
-  parse,
-  SingleFilter,
-  Query,
   formatScope,
+  parse,
+  Query,
+  SingleFilter,
+  type ParsedFilter,
 } from "./support/query.js";
 
 export function ListCommand({ root }: StarbeamCommandOptions): Command {
-  return program
-    .createCommand("list")
-    .option("-p, --package <package-name>", "the package to test", "any")
-    .option(
-      "-s, --scope <package-scope>",
-      "the scope of the package",
-      "starbeam"
+  return queryable(
+    root,
+    program.createCommand("list"),
+    (packages, { query }) => {
+      for (const pkg of packages) {
+        const flags = [];
+
+        if (!query.unifies("private")) {
+          if (pkg.isPrivate) {
+            flags.push(chalk.bgGray.black("private"));
+          } else {
+            flags.push(chalk.bgGray.black("public"));
+          }
+        }
+
+        if (pkg.isTypescript && !query.unifies("typescript")) {
+          flags.push(chalk.bgGreen.black("typescript"));
+        }
+
+        const pkgRoot = relative(root, pkg.root);
+        console.log(chalk.gray(pkg.name), ...flags);
+        console.log(`  ${chalk.bgCyan("dir")} ${chalk.magenta(pkgRoot)}`);
+
+        console.log("");
+      }
+    }
+  );
+}
+
+export function queryable<T>(
+  root: string,
+  command: Command,
+  action: (
+    packages: Package[],
+    options: { query: Query } & T
+  ) => void | Promise<void>
+) {
+  return command
+    .addHelpText(
+      "afterAll",
+      chalk.yellow(
+        "\nPackages are only included if they include a `main` field in their package.json"
+      )
     )
+    .option("-p, --package <package-name>", "the package to test")
+    .option("-s, --scope <package-scope>", "the scope of the package")
     .option<ParsedFilter[]>(
       "-a, --and <query...>",
       "query",
@@ -35,26 +73,26 @@ export function ListCommand({ root }: StarbeamCommandOptions): Command {
         return [...queries, parse(query)];
       }
     )
-    .description("list all packages")
     .action(
       ({
         package: packageName,
         scope,
         and: andFilters = [],
         or: orFilters = [],
+        ...options
       }: {
-        package: string;
-        scope: string;
+        package: string | undefined;
+        scope: string | undefined;
         and?: SingleFilter[];
         or?: SingleFilter[];
       }) => {
         const where = Query.empty();
 
-        if (packageName === "any") {
-          if (scope !== "any") {
+        if (packageName === "any" || packageName === undefined) {
+          if (scope !== undefined) {
             where.and("scope", formatScope(scope));
           }
-        } else if (scope === "any") {
+        } else if (scope === undefined) {
           where.and("name", packageName);
         } else {
           where.and("name", `${formatScope(scope)}/${packageName}`);
@@ -83,31 +121,9 @@ export function ListCommand({ root }: StarbeamCommandOptions): Command {
 
         const packages = queryPackages(root, where);
 
-        for (const pkg of packages) {
-          if (!where.match(pkg)) {
-            continue;
-          }
-
-          const flags = [];
-
-          if (!where.unifies("private")) {
-            if (pkg.isPrivate) {
-              flags.push(chalk.bgGray.black("private"));
-            } else {
-              flags.push(chalk.bgGray.black("public"));
-            }
-          }
-
-          if (pkg.isTypescript && !where.unifies("typescript")) {
-            flags.push(chalk.bgGreen.black("typescript"));
-          }
-
-          const pkgRoot = relative(root, pkg.root);
-          console.log(chalk.gray(pkg.name), ...flags);
-          console.log(`  ${chalk.bgCyan("dir")} ${chalk.magenta(pkgRoot)}`);
-
-          console.log("");
-        }
+        return action(packages, { query: where, ...options } as {
+          query: Query;
+        } & T);
       }
     );
 }

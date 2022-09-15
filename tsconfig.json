@@ -1,50 +1,14 @@
 {
   "compilerOptions": {
-    "jsx": "preserve",
-    "target": "esnext",
-    "strict": true,
-    "declaration": true,
-    "useDefineForClassFields": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "module": "NodeNext",
-    "moduleResolution": "nodenext",
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": false,
-    "allowJs": true,
-    "checkJs": true,
-    "noEmit": true,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noImplicitReturns": true,
-    "noImplicitAny": true,
-    "importsNotUsedAsValues": "error",
-    "isolatedModules": true,
-    "preserveValueImports": true,
-    "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-    "inlineSourceMap": true,
-    "inlineSources": true,
-    "types": ["vite/client"]
+    "composite": true
   },
 
-  "include": [
-    "packages",
-    "framework",
-    "demos",
-    "build/**/*.ts",
-    ".scripts/**/*.ts",
-    "vite.config.ts",
-    "**/vite.config.ts",
-    "rollup.config.js",
-    ".build/*.js"
-  ],
-  "exclude": [
-    "**/node_modules/**",
-    "node_modules/**",
-    "**/dist/**",
-    "packages/x-devtools-extension"
+  "files": [],
+  "references": [
+    { "path": "./tsconfig-react-demos.json" },
+    { "path": "./tsconfig-rollup.json" },
+    { "path": "./tsconfig-packages.json" },
+    { "path": "./tsconfig-devtool.json" },
+    { "path": "./tsconfig-scripts.json" }
   ]
 }

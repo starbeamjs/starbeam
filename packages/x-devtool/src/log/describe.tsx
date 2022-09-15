@@ -1,13 +1,12 @@
-/** @jsx h */
-/** @jsxFrag Fragment */
-// eslint-disable-next-line
-import { h, Fragment, type JSX, type ComponentChildren } from "preact";
+/** @jsxRuntime automatic @jsxImportSource preact */
 
 import type {
   DescriptionParts,
   DetailsPart,
   StackFrameDisplayOptions,
 } from "@starbeam/interfaces";
+import type { ComponentChildren, JSX } from "preact";
+
 import type { DevtoolsOptions } from "./shared.js";
 
 export function DescribeLeaf({

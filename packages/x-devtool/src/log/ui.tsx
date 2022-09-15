@@ -1,9 +1,8 @@
-/** @jsx h */
-/** @jsxFrag Fragment */
+/** @jsxRuntime automatic @jsxImportSource preact */
+
 import type { DescriptionParts } from "@starbeam/debug";
 import { Timestamp } from "@starbeam/timeline";
-// eslint-disable-next-line
-import { type ComponentChildren, type JSX, Fragment, h, render } from "preact";
+import type { ComponentChildren, JSX } from "preact";
 import { useState } from "preact/hooks";
 
 import { DescribeLeaf, Frame, Internal } from "./describe.jsx";

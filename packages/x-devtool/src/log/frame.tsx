@@ -1,17 +1,17 @@
-/** @jsx h */
-/** @jsxFrag Fragment */
-// eslint-disable-next-line
-import { h, Fragment, type JSX } from "preact";
+/** @jsxRuntime automatic @jsxImportSource preact */
+
 import type { FrameConsumeOperation } from "@starbeam/debug";
 import type {
   CompositeInternals,
   MutableInternals,
   Timestamp,
 } from "@starbeam/interfaces";
-import { LogLine, LogLineFor } from "./ui.jsx";
-import type { DevtoolsOptions } from "./shared.js";
 import { ReactiveInternals } from "@starbeam/timeline";
+import type { JSX } from "preact";
+
 import { DescribeLeaf } from "./describe.jsx";
+import type { DevtoolsOptions } from "./shared.js";
+import { LogLine, LogLineFor } from "./ui.jsx";
 
 export function FrameConsumeLine({
   line,
@@ -73,7 +73,7 @@ function List({
         <div class={`change ${change}`}>
           <h3>{change}</h3>
           {[...cells].map((cell) => (
-            <DescribeLeaf leaf={cell.description!.parts} options={{}} />
+            <DescribeLeaf leaf={cell.description.parts} options={{}} />
           ))}
         </div>
       </>
@@ -81,6 +81,7 @@ function List({
   }
 }
 
+// eslint-disable-next-line unused-imports/no-unused-vars
 function Dependencies({ frame }: { frame: CompositeInternals }) {
   console.log(ReactiveInternals.dependencies(frame));
   return <></>;

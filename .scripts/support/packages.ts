@@ -8,6 +8,7 @@ export interface Package {
   root: string;
   isPrivate: boolean;
   isTypescript: boolean;
+  tsconfig: string | undefined;
 }
 
 export function queryPackages(
@@ -18,6 +19,7 @@ export function queryPackages(
     .sync([
       resolve(root, "packages/*/package.json"),
       resolve(root, "framework/*/*/package.json"),
+      resolve(root, "demos/*/package.json"),
     ])
     .map((path) => [path, JSON.parse(readFileSync(path, "utf8"))])
     .filter(([, pkg]) => pkg.main)
@@ -29,6 +31,7 @@ export function queryPackages(
         root,
         isPrivate: !!pkg.private,
         isTypescript: !!(pkg.type || pkg?.exports?.["."]?.types),
+        tsconfig: pkg["starbeam:tsconfig"],
       };
     })
     .filter((pkg) => query.match(pkg));

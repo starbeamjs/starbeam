@@ -67,7 +67,7 @@ function ResultList<T>({
   each,
 }: {
   result: QueryResult<T[]>;
-  each: (data: T) => JSX.Element;
+  each: (_data: T) => JSX.Element;
 }) {
   switch (result.state) {
     case "loading":
@@ -89,5 +89,4 @@ function TodoItem({ todo }: { todo: Todo }) {
       <p>{todo.title}</p>
     </TodoContainer>
   );
-  return <pre>{JSON.stringify(todo, null, 2)}</pre>;
 }
