@@ -1,42 +1,18 @@
-import * as Debug from "@starbeam/debug";
+import type * as Debug from "@starbeam/debug";
 import { Tree } from "@starbeam/debug";
-import { REACTIVE } from "@starbeam/peer";
+import type {
+  CompositeInternals,
+  DelegateInternals,
+  MutableInternals,
+  StaticInternals,
+  // eslint-disable-next-line import/no-duplicates
+} from "@starbeam/interfaces";
+// eslint-disable-next-line import/no-duplicates
+import type * as interfaces from "@starbeam/interfaces";
+import { REACTIVE } from "../../../shared/index.js";
 import { isPresent } from "@starbeam/verify";
 
-import { Timestamp } from "./timestamp.js";
-
-export interface MutableInternals {
-  readonly type: "mutable";
-  readonly description?: Debug.Description;
-  readonly lastUpdated: Timestamp;
-  isFrozen?(): boolean;
-}
-
-export interface CompositeInternals {
-  readonly type: "composite";
-  readonly description?: Debug.Description;
-  children(): ReactiveProtocol[];
-}
-
-export interface DelegateInternals {
-  readonly type: "delegate";
-  readonly description?: Debug.Description;
-  readonly delegate: ReactiveProtocol[];
-}
-
-export interface StaticInternals {
-  readonly type: "static";
-  readonly description?: Debug.Description;
-}
-
-export type ReactiveInternals =
-  | MutableInternals
-  | CompositeInternals
-  | DelegateInternals
-  | StaticInternals;
-
-export type ReactiveProtocol<I extends ReactiveInternals = ReactiveInternals> =
-  Debug.ReactiveProtocol<I>;
+import { Timestamp, zero } from "./timestamp.js";
 
 interface ExhaustiveMatcher<T> {
   mutable(internals: MutableInternals): T;
@@ -46,41 +22,32 @@ interface ExhaustiveMatcher<T> {
 }
 
 type DefaultMatcher<T> = Partial<ExhaustiveMatcher<T>> & {
-  default(internals: ReactiveInternals): T;
+  default(internals: interfaces.ReactiveInternals): T;
 };
 
 type Matcher<T> = ExhaustiveMatcher<T> | DefaultMatcher<T>;
 
+export type ReactiveProtocol<
+  I extends interfaces.ReactiveInternals = interfaces.ReactiveInternals
+> = interfaces.ReactiveProtocol<I>;
+
 export const ReactiveProtocol = {
   description(this: void, reactive: ReactiveProtocol): Debug.Description {
-    let desc = reactive[REACTIVE].description;
+    return ReactiveInternals.description(reactive[REACTIVE]);
+  },
 
-    if (!desc) {
-      desc = Debug.descriptionFrom({
-        type: ReactiveProtocol.match(reactive, {
-          static: () => "static",
-          composite: () => "formula",
-          delegate: () => "delegate",
-          mutable: () => "cell",
-        }),
-        api: "unknown",
-      });
-    }
-
-    return desc;
+  is<T extends "mutable" | "composite" | "static" | "delegate">(
+    this: void,
+    reactive: ReactiveProtocol,
+    kind: T
+  ): reactive is {
+    [REACTIVE]: Extract<interfaces.ReactiveInternals, { type: T }>;
+  } {
+    return ReactiveInternals.is(reactive[REACTIVE], kind);
   },
 
   match<T>(this: void, reactive: ReactiveProtocol, matcher: Matcher<T>): T {
-    return invoke(reactive[REACTIVE], matcher);
-
-    function invoke<T>(internals: ReactiveInternals, matcher: Matcher<T>): T {
-      const fn = matcher[internals.type];
-      if (typeof fn === "function") {
-        return fn(internals as never);
-      }
-
-      return (matcher as DefaultMatcher<T>).default(internals);
-    }
+    return ReactiveInternals.match(reactive[REACTIVE], matcher);
   },
 
   subscribesTo(this: void, reactive: ReactiveProtocol): ReactiveProtocol[] {
@@ -93,11 +60,73 @@ export const ReactiveProtocol = {
     }
   },
 
-  *dependencies(
+  dependencies(
     this: void,
     reactive: ReactiveProtocol
   ): Iterable<MutableInternals> {
-    const internals = reactive[REACTIVE];
+    return ReactiveInternals.dependencies(reactive[REACTIVE]);
+  },
+
+  *dependenciesInList(
+    this: void,
+    children: readonly ReactiveProtocol[]
+  ): Iterable<MutableInternals> {
+    for (const child of children) {
+      yield* ReactiveInternals.dependencies(child[REACTIVE]);
+    }
+  },
+
+  lastUpdated(this: void, reactive: ReactiveProtocol): Timestamp {
+    return ReactiveInternals.lastUpdated(reactive[REACTIVE]);
+  },
+
+  lastUpdatedIn(this: void, reactives: ReactiveProtocol[]): Timestamp {
+    let lastUpdatedTimestamp = zero();
+
+    for (const child of ReactiveProtocol.dependenciesInList(reactives)) {
+      if (child.lastUpdated.gt(lastUpdatedTimestamp)) {
+        lastUpdatedTimestamp = child.lastUpdated;
+      }
+    }
+
+    return lastUpdatedTimestamp;
+  },
+
+  log(
+    this: void,
+    reactive: ReactiveProtocol,
+    options: { implementation?: boolean; source?: boolean } = {}
+  ) {
+    return ReactiveInternals.log(reactive[REACTIVE], options);
+  },
+
+  debug(
+    this: void,
+    reactive: ReactiveProtocol,
+    {
+      implementation = false,
+      source = false,
+    }: { implementation?: boolean; source?: boolean } = {}
+  ): string {
+    return ReactiveInternals.debug(reactive[REACTIVE], {
+      implementation,
+      source,
+    });
+  },
+} as const;
+
+export const ReactiveInternals = {
+  is<T extends "mutable" | "composite" | "static" | "delegate">(
+    this: void,
+    internals: interfaces.ReactiveInternals,
+    kind: T
+  ): internals is Extract<interfaces.ReactiveInternals, { type: T }> {
+    return internals.type === kind;
+  },
+
+  *dependencies(
+    internals: interfaces.ReactiveInternals
+  ): Iterable<MutableInternals> {
     switch (internals.type) {
       case "static":
         return;
@@ -109,8 +138,8 @@ export const ReactiveProtocol = {
         yield internals;
         break;
       case "delegate":
-        for (const protocol of ReactiveProtocol.subscribesTo(reactive)) {
-          yield* ReactiveProtocol.dependencies(protocol);
+        for (const target of ReactiveInternals.subscribesTo(internals)) {
+          yield* ReactiveInternals.dependencies(target);
         }
         break;
       case "composite":
@@ -121,29 +150,42 @@ export const ReactiveProtocol = {
 
   *dependenciesInList(
     this: void,
-    children: readonly ReactiveProtocol[]
+    children: readonly ReactiveInternals[]
   ): Iterable<MutableInternals> {
     for (const child of children) {
-      yield* ReactiveProtocol.dependencies(child);
+      yield* ReactiveInternals.dependencies(child);
     }
   },
 
-  lastUpdated(this: void, reactive: ReactiveProtocol): Timestamp {
-    const internals = reactive[REACTIVE];
+  subscribesTo(
+    this: void,
+    internals: interfaces.ReactiveInternals
+  ): interfaces.ReactiveInternals[] {
+    if (internals.type === "delegate") {
+      return internals.delegate.flatMap((protocol) =>
+        ReactiveProtocol.subscribesTo(protocol).map(
+          (protocol) => protocol[REACTIVE]
+        )
+      );
+    } else {
+      return [internals];
+    }
+  },
 
+  lastUpdated(this: void, internals: ReactiveInternals): Timestamp {
     switch (internals.type) {
       case "static":
-        return Timestamp.zero();
+        return zero();
       case "mutable":
         return internals.lastUpdated;
       case "delegate": {
-        const delegates = ReactiveProtocol.subscribesTo(reactive);
-        return ReactiveProtocol.lastUpdatedIn(delegates);
+        const delegates = ReactiveInternals.subscribesTo(internals);
+        return ReactiveInternals.lastUpdatedIn(delegates);
       }
       case "composite": {
-        let lastUpdatedTimestamp = Timestamp.zero();
+        let lastUpdatedTimestamp = zero();
 
-        for (const child of ReactiveProtocol.dependencies(reactive)) {
+        for (const child of ReactiveInternals.dependencies(internals)) {
           if (child.lastUpdated.gt(lastUpdatedTimestamp)) {
             lastUpdatedTimestamp = child.lastUpdated;
           }
@@ -154,10 +196,10 @@ export const ReactiveProtocol = {
     }
   },
 
-  lastUpdatedIn(this: void, reactives: ReactiveProtocol[]): Timestamp {
-    let lastUpdatedTimestamp = Timestamp.zero();
+  lastUpdatedIn(this: void, internals: ReactiveInternals[]): Timestamp {
+    let lastUpdatedTimestamp = zero();
 
-    for (const child of ReactiveProtocol.dependenciesInList(reactives)) {
+    for (const child of ReactiveInternals.dependenciesInList(internals)) {
       if (child.lastUpdated.gt(lastUpdatedTimestamp)) {
         lastUpdatedTimestamp = child.lastUpdated;
       }
@@ -166,15 +208,19 @@ export const ReactiveProtocol = {
     return lastUpdatedTimestamp;
   },
 
+  description(this: void, internals: ReactiveInternals): Debug.Description {
+    return internals.description;
+  },
+
   debug(
     this: void,
-    reactive: ReactiveProtocol,
+    internals: interfaces.ReactiveInternals,
     {
       implementation = false,
       source = false,
     }: { implementation?: boolean; source?: boolean } = {}
   ): string {
-    const dependencies = [...ReactiveProtocol.dependencies(reactive)];
+    const dependencies = [...ReactiveInternals.dependencies(internals)];
     const descriptions = new Set(
       dependencies.map((dependency) => {
         return implementation
@@ -192,14 +238,51 @@ export const ReactiveProtocol = {
 
     return Tree(...nodes).format();
   },
-} as const;
 
-export interface Reactive<T> extends ReactiveProtocol {
-  read(stack?: Debug.Stack): T;
-}
+  log(
+    this: void,
+    internals: interfaces.ReactiveInternals,
+    options: { implementation?: boolean; source?: boolean } = {}
+  ): void {
+    const debug = ReactiveInternals.debug(internals, options);
 
+    console.group(
+      ReactiveInternals.description(internals).describe(),
+      `(updated at ${
+        Timestamp.debug(ReactiveInternals.lastUpdated(internals)).at
+      })`
+    );
+    console.log(debug);
+    console.groupEnd();
+  },
+
+  match<T>(this: void, internals: ReactiveInternals, matcher: Matcher<T>): T {
+    return invoke(internals, matcher);
+
+    function invoke<T>(
+      internals: interfaces.ReactiveInternals,
+      matcher: Matcher<T>
+    ): T {
+      const fn = matcher[internals.type];
+      if (typeof fn === "function") {
+        return fn(internals as never);
+      }
+
+      return (matcher as DefaultMatcher<T>).default(internals);
+    }
+  },
+};
+
+export type ReactiveInternals = interfaces.ReactiveInternals;
+
+export type Reactive<
+  T,
+  I extends ReactiveInternals = ReactiveInternals
+> = interfaces.Reactive<T, I>;
 export const Reactive = {
-  is<T>(value: unknown | Reactive<T>): value is Reactive<T> {
+  is<T>(
+    value: unknown | interfaces.Reactive<T>
+  ): value is interfaces.Reactive<T> {
     return typeof value === "object" && value !== null && REACTIVE in value;
   },
 };

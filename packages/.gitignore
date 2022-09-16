@@ -4,3 +4,4 @@
 *.jsx.map
 *.d.ts
 *.d.ts.map
+!env.d.ts

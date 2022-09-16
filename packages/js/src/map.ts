@@ -1,138 +1,7 @@
-import { type Equality, Marker } from "@starbeam/core";
+import type { Equality } from "@starbeam/core";
 import { type Description, callerStack } from "@starbeam/debug";
 
 import { Collection } from "./collection.js";
-
-export class TrackedMap<K = unknown, V = unknown> implements Map<K, V> {
-  static reactive<K, V>(description: Description): TrackedMap<K, V> {
-    return new TrackedMap(description);
-  }
-
-  readonly #collection: Collection<K>;
-  readonly #values: Marker;
-  readonly #equals: Equality<V> = Object.is;
-  readonly #vals: Map<K, V>;
-
-  private constructor(description: Description) {
-    this.#vals = new Map<K, V>();
-    this.#values = Marker(description.key("values"));
-
-    this.#collection = Collection.create(description, this);
-  }
-
-  // **** KEY GETTERS ****
-  get(key: K): V | undefined {
-    const has = this.#vals.has(key);
-
-    this.#collection.get(key, has ? "hit" : "miss", " {entry}", callerStack());
-    return this.#vals.get(key);
-  }
-
-  has(key: K): boolean {
-    const has = this.#vals.has(key);
-    this.#collection.check(
-      key,
-      has ? "hit" : "miss",
-      " {entry}",
-      callerStack()
-    );
-    return has;
-  }
-
-  // **** ALL GETTERS ****
-  entries(): IterableIterator<[K, V]> {
-    this.#collection.iterateKeys(callerStack());
-    this.#values.consume(callerStack());
-    return this.#vals.entries();
-  }
-
-  keys(): IterableIterator<K> {
-    this.#collection.iterateKeys(callerStack());
-    return this.#vals.keys();
-  }
-
-  values(): IterableIterator<V> {
-    console.trace();
-    this.#collection.iterateKeys(callerStack());
-    this.#values.consume(callerStack());
-    return this.#vals.values();
-  }
-
-  forEach(fn: (value: V, key: K, map: Map<K, V>) => void): void {
-    this.#collection.iterateKeys(callerStack());
-    this.#values.consume(callerStack());
-    this.#vals.forEach(fn);
-  }
-
-  get size(): number {
-    this.#collection.iterateKeys(callerStack());
-    return this.#vals.size;
-  }
-
-  [Symbol.iterator](): IterableIterator<[K, V]> {
-    const caller = callerStack();
-    this.#collection.iterateKeys(caller);
-    this.#values.consume(caller);
-    return this.#vals[Symbol.iterator]();
-  }
-
-  get [Symbol.toStringTag](): string {
-    return this.#vals[Symbol.toStringTag];
-  }
-
-  // **** KEY SETTERS ****
-  set(key: K, value: V): this {
-    const has = this.#vals.has(key);
-
-    if (has) {
-      const current = this.#vals.get(key) as V;
-
-      if (this.#equals(current, value)) {
-        return this;
-      }
-    }
-
-    this.#values.update();
-    this.#collection.set(
-      key,
-      has ? "key:stable" : "key:changes",
-      " {entry}",
-      callerStack()
-    );
-    this.#vals.set(key, value);
-
-    return this;
-  }
-
-  delete(key: K): boolean {
-    const has = this.#vals.has(key);
-
-    if (!has) {
-      return false;
-    }
-
-    this.#collection.splice();
-    this.#values.update();
-    this.#collection.delete(key);
-    return this.#vals.delete(key);
-  }
-
-  // **** ALL SETTERS ****
-  clear(): void {
-    const hasItems = this.#vals.size > 0;
-
-    if (!hasItems) {
-      return;
-    }
-
-    this.#collection.splice();
-    this.#values.update();
-    this.#vals.clear();
-  }
-}
-
-// So instanceof works
-Object.setPrototypeOf(TrackedMap.prototype, Map.prototype);
 
 export class TrackedWeakMap<K extends object = object, V = unknown>
   implements WeakMap<K, V>
@@ -177,6 +46,8 @@ export class TrackedWeakMap<K extends object = object, V = unknown>
   }
 
   set(key: K, value: V): this {
+    const caller = callerStack();
+
     const has = this.#vals.has(key);
 
     if (has) {
@@ -191,7 +62,7 @@ export class TrackedWeakMap<K extends object = object, V = unknown>
       key,
       has ? "key:stable" : "key:changes",
       " {entry}",
-      callerStack()
+      caller
     );
     this.#vals.set(key, value);
 
@@ -199,13 +70,15 @@ export class TrackedWeakMap<K extends object = object, V = unknown>
   }
 
   delete(key: K): boolean {
+    const caller = callerStack();
+
     const has = this.#vals.has(key);
 
     if (!has) {
       return false;
     }
 
-    this.#collection.delete(key);
+    this.#collection.delete(key, caller);
     return this.#vals.delete(key);
   }
 

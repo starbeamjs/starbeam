@@ -22,7 +22,9 @@ export default function DateFormatterStarbeam(props: { locale: string }) {
     <>
       <h2>A Date Formatter</h2>
       <h3>
-        for {localeInfo.region} ({localeInfo.language})
+        <>
+          for {localeInfo.region} ({localeInfo.language})
+        </>
       </h3>
 
       <form>

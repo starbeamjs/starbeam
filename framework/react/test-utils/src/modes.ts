@@ -1,19 +1,18 @@
 /* eslint-disable */
 
-import { TIMELINE } from "@starbeam/core";
-import { callerStack, entryPoint, Stack } from "@starbeam/debug";
+import { type Stack, callerStack, entryPoint } from "@starbeam/debug";
 import * as testing from "@testing-library/react";
-import { getByRole, getByText, waitFor } from "@testing-library/react";
+import { getByRole, getByText } from "@testing-library/react";
 import {
-  type FunctionComponent,
-  type ReactElement,
   createElement,
   StrictMode,
+  type FunctionComponent,
+  type ReactElement,
 } from "react";
-import { expect, test } from "vitest";
+import { expect, test, type TestAPI } from "vitest";
 
-import { react } from "./dom.js";
 import { act } from "./act.js";
+import { react } from "./dom.js";
 
 class Mode {
   static strict = new Mode("strict");
@@ -104,7 +103,7 @@ class RenderResult<Props, T> {
 
   async rerender(
     props?: Props,
-    caller = callerStack()
+    caller: Stack = callerStack()
   ): Promise<RenderResult<Props, T>> {
     await this.act(() => this.#rerender(props), caller);
 
@@ -118,7 +117,10 @@ class RenderResult<Props, T> {
     );
   }
 
-  async act(behavior: () => void, caller = callerStack()): Promise<void> {
+  async act(
+    behavior: () => void,
+    caller: Stack = callerStack()
+  ): Promise<void> {
     const prev = this.#state.renderCount;
     entryPoint(
       () => {
@@ -129,7 +131,7 @@ class RenderResult<Props, T> {
     await this.rendered(prev, caller);
   }
 
-  async rendered(prev: number, caller = callerStack()): Promise<void> {
+  async rendered(prev: number, caller: Stack = callerStack()): Promise<void> {
     await testing.waitFor(() => {
       entryPoint(
         () => {
@@ -299,15 +301,15 @@ testStrictAndLoose.skip = <Props, T>(
   name: string,
   modes: TestModes<Props, T>
 ) => {
-  testStrictAndLoose.strict(name, modes, test.skip);
-  testStrictAndLoose.loose(name, modes, test.skip);
+  testStrictAndLoose.strict(name, modes, test.skip as TestAPI);
+  testStrictAndLoose.loose(name, modes, test.skip as TestAPI);
 };
 
 testStrictAndLoose.strict = <Props, T>(
   name: string,
   modes: TestModes<Props, T>,
-  testFn: typeof test | typeof test.skip = test
-) => {
+  testFn: TestAPI = test
+): void => {
   testFn(`${name} (strict mode)`, async () => {
     const setup = new SetupTestRender<Props, T>({ wrapper: StrictMode });
     return modes(Mode.strict, setup);
@@ -317,7 +319,7 @@ testStrictAndLoose.strict = <Props, T>(
 testStrictAndLoose.loose = <Props, T>(
   name: string,
   modes: TestModes<Props, T>,
-  testFn: typeof test | typeof test.skip = test
+  testFn: TestAPI = test
 ) => {
   testFn(`${name} (loose mode)`, async () => {
     const setup = new SetupTestRender<Props, T>({});

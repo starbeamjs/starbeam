@@ -32,24 +32,46 @@ export const SYSTEM_TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 export function formatLocale(localeName: string) {
   const locale = new Intl.Locale(localeName);
-  const language = new Intl.DisplayNames([locale.language], {
-    type: "language",
-  }).of(locale.language);
-  const region = new Intl.DisplayNames([locale.language], {
-    type: "region",
-  }).of(locale.region!);
-  const full = new Intl.DisplayNames([locale.language], {
-    type: "language",
-  }).of(localeName);
-
-  return { language, region, full };
+  return {
+    language: localeInfo(locale, locale.language, "language"),
+    region: localeInfo(locale, locale.region, "region"),
+    full: localeInfo(locale, localeName, "language"),
+  };
 }
 
-export function timeZoneName(locale: string, timeZone: string) {
-  return new Intl.DateTimeFormat(locale, {
+function localeInfo(
+  locale: Intl.Locale,
+  code: string,
+  type: Intl.DisplayNamesType
+): string;
+function localeInfo(
+  locale: Intl.Locale,
+  code: string | undefined,
+  type: Intl.DisplayNamesType
+): string | void;
+function localeInfo(
+  locale: Intl.Locale,
+  code: string | undefined,
+  type: Intl.DisplayNamesType
+): string | void {
+  if (code) {
+    return new Intl.DisplayNames([locale.language], { type }).of(code);
+  }
+}
+
+export function timeZoneName(locale: string, timeZone: string): string {
+  const tz = new Intl.DateTimeFormat(locale, {
     timeZone,
     timeZoneName: "long",
   })
     .formatToParts(new Date())
-    .find(({ type }) => type === "timeZoneName")!.value;
+    .find(({ type }) => type === "timeZoneName");
+
+  if (tz === undefined) {
+    throw Error(
+      `Could not find time zone name for specified time zone: ${timeZone}`
+    );
+  }
+
+  return tz.value;
 }

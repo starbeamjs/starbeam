@@ -1,5 +1,6 @@
 {
   "name": "@starbeam-workspace/react-test-utils",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "main": "index.ts",
@@ -14,12 +15,25 @@
     "@testing-library/react": "latest",
     "@types/react": "^18.0.14",
     "@types/react-dom": "^18.0.5",
-    "vite": "^3.0.0"
+    "vite": "*"
   },
   "peerDependencies": {
-    "@starbeam/peer": "workspace:^",
+    "@starbeam/shared": "workspace:^",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
-  "version": null
+  "publishConfig": {
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "exports": {
+    "default": "./index.ts"
+  }
 }

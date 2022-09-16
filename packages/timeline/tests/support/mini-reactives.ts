@@ -1,16 +1,18 @@
 import { type Stack, callerStack, descriptionFrom } from "@starbeam/debug";
-import type { UNINITIALIZED } from "@starbeam/peer";
+import type { MutableInternals } from "@starbeam/interfaces";
+import type { UNINITIALIZED } from "@starbeam/shared";
 import {
-  type MutableInternals,
+  type Timestamp,
+  diff,
   type Reactive,
   type ReactiveProtocol,
   Frame,
   REACTIVE,
   TIMELINE,
-  Timestamp,
+  zero,
 } from "@starbeam/timeline";
 
-export interface Cell<T> extends ReactiveProtocol {
+export interface Cell<T> extends ReactiveProtocol<MutableInternals> {
   current: T;
   read(stack: Stack): T;
 }
@@ -20,9 +22,13 @@ export interface FreezableCell<T> extends Cell<T> {
 }
 
 export function Cell<T>(value: T): Cell<T> {
-  let lastUpdated = TIMELINE.bump();
+  let lastUpdated = TIMELINE.next();
   const internals: MutableInternals = {
     type: "mutable",
+    description: descriptionFrom({
+      api: "Cell",
+      type: "cell",
+    }),
     get lastUpdated(): Timestamp {
       return lastUpdated;
     },
@@ -30,8 +36,8 @@ export function Cell<T>(value: T): Cell<T> {
 
   return {
     [REACTIVE]: internals,
-    read(stack?: Stack) {
-      TIMELINE.frame.didConsume(this, stack);
+    read(caller: Stack) {
+      TIMELINE.didConsumeCell(this, caller);
       return value;
     },
     get current() {
@@ -40,17 +46,21 @@ export function Cell<T>(value: T): Cell<T> {
     set current(newValue: T) {
       value = newValue;
 
-      lastUpdated = TIMELINE.bump(internals);
+      lastUpdated = TIMELINE.bump(internals, callerStack());
     },
   };
 }
 
 export function FreezableCell<T>(value: T): FreezableCell<T> {
-  let lastUpdated = Timestamp.zero();
+  let lastUpdated = zero();
   let isFrozen = false;
 
   const internals: MutableInternals = {
     type: "mutable",
+    description: descriptionFrom({
+      api: "FreezableCell",
+      type: "cell",
+    }),
     get lastUpdated(): Timestamp {
       return lastUpdated;
     },
@@ -59,8 +69,8 @@ export function FreezableCell<T>(value: T): FreezableCell<T> {
 
   return {
     [REACTIVE]: internals,
-    read(stack?: Stack) {
-      TIMELINE.frame.didConsume(this, stack);
+    read(caller: Stack) {
+      TIMELINE.didConsumeCell(this, caller);
       return value;
     },
     get current() {
@@ -69,7 +79,7 @@ export function FreezableCell<T>(value: T): FreezableCell<T> {
     set current(newValue: T) {
       value = newValue;
 
-      lastUpdated = TIMELINE.bump(internals);
+      lastUpdated = TIMELINE.bump(internals, callerStack());
     },
     freeze() {
       isFrozen = true;
@@ -81,6 +91,10 @@ export function Static<T>(value: T): Reactive<T> {
   return {
     [REACTIVE]: {
       type: "static",
+      description: descriptionFrom({
+        api: "Static",
+        type: "static",
+      }),
     },
     read() {
       return value;
@@ -97,18 +111,18 @@ export function Formula<T>(computation: () => T): {
   poll: () => T;
 } {
   const frame = Frame.uninitialized<T>(
-    TIMELINE.bump(),
+    TIMELINE.next(),
     descriptionFrom({
       type: "formula",
       api: "Formula",
     })
   );
 
-  function poll(): T {
+  function poll(caller = callerStack()): T {
     const validation = frame.validate();
 
     if (validation.status === "valid") {
-      TIMELINE.frame.didConsume(frame);
+      TIMELINE.didConsumeFrame(frame, diff.empty(), caller);
       return validation.value;
     }
 
@@ -119,7 +133,7 @@ export function Formula<T>(computation: () => T): {
       })
     );
     TIMELINE.update(frame);
-    TIMELINE.frame.didConsume(frame);
+    TIMELINE.didConsumeFrame(frame, diff.empty(), caller);
     return result;
   }
 
@@ -127,12 +141,16 @@ export function Formula<T>(computation: () => T): {
 }
 
 export function Marker(): {
-  instance: ReactiveProtocol;
+  instance: ReactiveProtocol<MutableInternals>;
   update: () => void;
 } {
-  let lastUpdated = TIMELINE.bump();
+  let lastUpdated = TIMELINE.next();
   const internals: MutableInternals = {
     type: "mutable",
+    description: descriptionFrom({
+      type: "cell",
+      api: "Marker",
+    }),
     get lastUpdated() {
       return lastUpdated;
     },
@@ -143,7 +161,7 @@ export function Marker(): {
       [REACTIVE]: internals,
     },
     update: () => {
-      lastUpdated = TIMELINE.bump(internals);
+      lastUpdated = TIMELINE.bump(internals, callerStack());
     },
   };
 }

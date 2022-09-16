@@ -10,7 +10,7 @@
     "@starbeam/core-utils": "workspace:^",
     "@starbeam/verify": "workspace:^",
     "@starbeam/timeline": "workspace:^",
-    "@starbeam/peer": "workspace:^",
+    "@starbeam/shared": "workspace:^",
     "@starbeam/js": "workspace:^",
     "@starbeam/modifier": "workspace:^"
   },

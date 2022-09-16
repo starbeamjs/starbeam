@@ -1,58 +1,52 @@
 /// <reference types="node" />
 
+import type {
+  DescriptionArgs,
+  DescriptionDetails,
+  ReactiveId,
+  Stack as StackProtocol,
+  StackFrame,
+  StackFrameDisplayOptions,
+  // eslint-disable-next-line import/no-duplicates
+} from "@starbeam/interfaces";
+// eslint-disable-next-line import/no-duplicates
+import type * as interfaces from "@starbeam/interfaces";
+import { getID } from "@starbeam/shared";
 import { hasType, isObject, verified } from "@starbeam/verify";
 import { default as StackTracey } from "stacktracey";
 
 import { isDebug } from "./conditional.js";
-import {
-  type DescriptionArgs,
-  type DescriptionDetails,
-  Description,
-} from "./description/reactive-value.js";
+// eslint-disable-next-line import/no-cycle
+import { Description } from "./description/impl.js";
 import { describeModule } from "./module.js";
 
 type ErrorWithStack = Error & { stack: string };
 
-export interface Stack {
-  readonly caller: StackFrame | undefined;
-  readonly stack: string;
-}
-
-export interface StackFrame {
-  /**
-   * A link to the file/line/column that this stack frame represents, in a format suitable to be
-   * used in console.log()s in browser devtools.
-   */
-  readonly link: string;
-
-  /**
-   * A displayable representation of the stack frame.
-   */
-  readonly display: string;
-}
-
 export interface StackStatics {
-  readonly EMPTY: Stack;
+  readonly EMPTY: StackProtocol;
 
-  create(this: void, internal?: number): Stack;
-  fromStack(stack: string): Stack;
+  create(this: void, internal?: number): StackProtocol;
+  fromStack(stack: string): StackProtocol;
 
-  from(error: ErrorWithStack): Stack;
-  from(error: unknown): Stack | null;
+  from(error: ErrorWithStack): StackProtocol;
+  from(error: unknown): StackProtocol | null;
 
-  describeCaller(internal?: number): string;
+  id(
+    this: void,
+    description?: string | Description | { id: ReactiveId }
+  ): ReactiveId;
 
   description(
     this: void,
     args: DescriptionArgs & {
-      fromUser?: string | DescriptionDetails | Description;
+      fromUser?: string | DescriptionDetails | interfaces.Description;
     },
     internal?: number
-  ): Description;
+  ): interfaces.Description;
 
-  fromCaller(this: void, internal?: number): Stack;
+  fromCaller(this: void, internal?: number): StackProtocol;
 
-  replaceFrames(error: unknown, fromStack: Stack): void;
+  replaceFrames(error: unknown, fromStack: StackProtocol): void;
 
   /**
    * Erase an abstraction from the call stack so the test error points at the user code, rather than
@@ -68,13 +62,15 @@ export interface StackStatics {
   entryPoint<T>(
     this: void,
     callback: () => T,
-    options?: { extra?: number; stack?: Stack }
+    options?: { extra?: number; stack?: StackProtocol }
   ): T;
 }
 
 let PickedStack: StackStatics;
 
 if (isDebug()) {
+  Error.stackTraceLimit = Infinity;
+
   class ParsedStack {
     static empty() {
       return new ParsedStack("", "", "", []);
@@ -163,7 +159,7 @@ if (isDebug()) {
     }
   }
 
-  class DebugStack implements Stack {
+  class DebugStack implements StackProtocol {
     static create(this: void, internal = 0): DebugStack {
       if ("captureStackTrace" in Error) {
         const err = {} as { stack: string };
@@ -213,30 +209,34 @@ if (isDebug()) {
       }
     }
 
-    static describeCaller(internal = 0): string {
-      return DebugStack.callerFrame(internal + 1)?.display ?? "";
-    }
-
     static EMPTY = new DebugStack(ParsedStack.empty());
 
     static description(
       args: DescriptionArgs & {
-        fromUser?: string | DescriptionDetails | Description;
+        fromUser?: string | DescriptionDetails | interfaces.Description;
       },
       internal = 0
-    ): Description {
-      if (isDebug()) {
-        const stack = DebugStack.fromCaller(internal + 1);
+    ): interfaces.Description {
+      const stack = DebugStack.fromCaller(internal + 1);
+      const fromUser = args.fromUser;
 
-        if (args.fromUser === undefined || typeof args.fromUser === "string") {
-          return Description.from({ ...args, stack });
-        } else if (Description.is(args.fromUser)) {
-          return args.fromUser;
-        } else {
-          return Description.from({ ...args, stack });
-        }
+      if (fromUser === undefined || typeof fromUser === "string") {
+        return Description.from({ ...args, stack });
+      } else if (Description.is(fromUser)) {
+        return fromUser.withId(args.id);
       } else {
-        return Description.from({ ...args, stack: DebugStack.EMPTY });
+        return Description.from({ ...args, stack });
+      }
+    }
+
+    static id(
+      this: void,
+      description?: string | { id: ReactiveId }
+    ): ReactiveId {
+      if (description === undefined || typeof description === "string") {
+        return getID();
+      } else {
+        return description.id;
       }
     }
 
@@ -249,7 +249,7 @@ if (isDebug()) {
       {
         extra = 0,
         stack = DebugStack.create(1 + extra),
-      }: { extra?: number; stack?: Stack } = {}
+      }: { extra?: number; stack?: StackProtocol } = {}
     ): T {
       try {
         return callback();
@@ -310,7 +310,7 @@ if (isDebug()) {
 
   PickedStack = DebugStack;
 
-  class StackFrame {
+  class StackFrame implements interfaces.StackFrame {
     static from(stack: StackTracey, frame: StackTracey.Entry): StackFrame {
       return new StackFrame(stack, frame, null);
     }
@@ -357,34 +357,49 @@ if (isDebug()) {
       return this.#reify();
     }
 
-    get link() {
+    link(options?: StackFrameDisplayOptions): string {
+      if (options?.complete) {
+        return this.#stack.items.map((entry) => entry.beforeParse).join("\n");
+      }
+
       const module = describeModule(this.#reify().file);
-      return module.display({ loc: this.loc });
+      return module.display({ loc: this.loc }, options);
     }
 
-    get display() {
+    fullStack(): string {
+      return this.#stack.asTable();
+    }
+
+    display(options?: StackFrameDisplayOptions): string {
       const module = describeModule(this.#reify().file);
-      return module.display({ action: this.action, loc: this.loc });
+      return module.display({ action: this.action, loc: this.loc }, options);
+    }
+
+    parts(
+      options?: StackFrameDisplayOptions | undefined
+    ): interfaces.DisplayParts {
+      const module = describeModule(this.#reify().file);
+      return module.parts({ action: this.action, loc: this.loc }, options);
     }
   }
 } else {
   /**
    * A stub implementation of the `Stack` infrastructure that doesn't do anything.
    */
-  class ProdStack implements Stack {
+  class ProdStack implements StackProtocol {
     static EMPTY = new ProdStack();
 
-    static create(this: void): Stack {
+    static create(this: void): StackProtocol {
       return ProdStack.EMPTY;
     }
 
-    static fromStack(this: void): Stack {
+    static fromStack(this: void): StackProtocol {
       return ProdStack.EMPTY;
     }
 
-    static from(error: ErrorWithStack): Stack;
-    static from(error: unknown): Stack | null;
-    static from(): Stack | null {
+    static from(error: ErrorWithStack): StackProtocol;
+    static from(error: unknown): StackProtocol | null;
+    static from(): StackProtocol | null {
       return ProdStack.EMPTY;
     }
 
@@ -392,23 +407,23 @@ if (isDebug()) {
       return;
     }
 
-    static describeCaller(): string {
-      return "";
-    }
-
     static description(
       args: DescriptionArgs & {
-        fromUser?: string | DescriptionDetails | Description;
+        fromUser?: string | DescriptionDetails | interfaces.Description;
       }
-    ): Description {
+    ): interfaces.Description {
       return Description.from({ ...args, stack: ProdStack.EMPTY });
+    }
+
+    static id(): ReactiveId {
+      return getID();
     }
 
     static callerFrame(): StackFrame | undefined {
       return undefined;
     }
 
-    static fromCaller(): Stack {
+    static fromCaller(): StackProtocol {
       return ProdStack.EMPTY;
     }
 
@@ -424,15 +439,16 @@ if (isDebug()) {
 }
 
 export const Stack: StackStatics = PickedStack;
+export type Stack = interfaces.Stack;
 export const entryPoint = PickedStack.entryPoint;
 
 /** This should be convertable to something like Description.EMPTY in prod builds  */
 export const descriptionFrom = PickedStack.description;
 
-export const defaultDescription = descriptionFrom({
-  type: "erased",
-  api: "anonymous",
-});
+/**
+ * If it isn't already removed, this should be convertable to getID in prod builds
+ */
+export const idFrom = PickedStack.id;
 
 export const callerStack = PickedStack.fromCaller;
 

@@ -8,13 +8,9 @@ import {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-imports
   ifDebug,
 } from "@starbeam/debug";
-import {
-  type Reactive,
-  type ReactiveInternals,
-  INSPECT,
-  REACTIVE,
-  TIMELINE,
-} from "@starbeam/timeline";
+import type * as interfaces from "@starbeam/interfaces";
+import { UNINITIALIZED } from "@starbeam/shared";
+import { type Reactive, INSPECT, REACTIVE, TIMELINE } from "@starbeam/timeline";
 
 import type { MutableInternalsImpl } from "../storage.js";
 import { MutableInternals } from "../storage.js";
@@ -26,7 +22,9 @@ export interface CellPolicy<T, U = T> {
 
 export type Equality<T> = (a: T, b: T) => boolean;
 
-export class ReactiveCell<T> implements Reactive<T> {
+export class ReactiveCell<T>
+  implements Reactive<T, interfaces.MutableInternals>
+{
   static create<T>(
     value: T,
     equals: Equality<T> = Object.is,
@@ -75,11 +73,11 @@ export class ReactiveCell<T> implements Reactive<T> {
   }
 
   set current(value: T) {
-    this.#set(value);
+    this.#set(value, callerStack());
   }
 
-  read(caller?: Stack): T {
-    TIMELINE.frame.didConsume(this, caller);
+  read(caller: Stack): T {
+    TIMELINE.didConsumeCell(this, caller);
     return this.#value;
   }
 
@@ -87,25 +85,33 @@ export class ReactiveCell<T> implements Reactive<T> {
    * Returns true if the value was updated, and false if the value was already present and equal to
    * the new value.
    */
-  set(value: T): boolean {
-    return this.#set(value);
+  set(value: T, caller = callerStack()): boolean {
+    return this.#set(value, caller);
   }
 
-  update(updater: (prev: T) => T): boolean {
-    return this.#set(updater(this.#value));
+  update(updater: (prev: T) => T, caller = callerStack()): boolean {
+    return this.#set(updater(this.#value), caller);
   }
 
-  #set(value: T): boolean {
+  initialize(initializer: () => T, caller = callerStack()): T {
+    if (this.#value === UNINITIALIZED) {
+      this.#set(initializer(), caller);
+    }
+
+    return this.#value;
+  }
+
+  #set(value: T, caller: Stack): boolean {
     if (this.#equals(this.#value, value)) {
       return false;
     }
 
     this.#value = value;
-    this.#internals.update();
+    this.#internals.update(caller);
     return true;
   }
 
-  get [REACTIVE](): ReactiveInternals {
+  get [REACTIVE](): MutableInternals {
     return this.#internals;
   }
 }
@@ -136,19 +142,25 @@ export function Cell<T>(
     equals = description.equals ?? Object.is;
   }
 
+  // if (desc.fullName.includes("anonymous")) {
+  //   debugger;
+  // }
   return ReactiveCell.create(value, equals, MutableInternals(desc));
 }
 
 function normalize(description?: string | Description): Description {
   if (typeof description === "string" || description === undefined) {
-    return descriptionFrom({
-      type: "cell",
-      api: {
-        package: "@starbeam/core",
-        name: "Cell",
+    return descriptionFrom(
+      {
+        type: "cell",
+        api: {
+          package: "@starbeam/core",
+          name: "Cell",
+        },
+        fromUser: description,
       },
-      fromUser: description,
-    });
+      1
+    );
   }
 
   return description;

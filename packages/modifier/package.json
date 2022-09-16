@@ -6,8 +6,9 @@
   "dependencies": {
     "@starbeam/core": "workspace:^",
     "@starbeam/debug": "workspace:^",
-    "@starbeam/peer": "workspace:^",
-    "@starbeam/verify": "workspace:^"
+    "@starbeam/shared": "workspace:^",
+    "@starbeam/verify": "workspace:^",
+    "@starbeam/interfaces": "workspace:^"
   },
   "devDependencies": {},
   "publishConfig": {

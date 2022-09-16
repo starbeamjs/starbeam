@@ -18,11 +18,12 @@
     }
   },
   "dependencies": {
-    "@starbeam/peer": "workspace:^",
+    "@starbeam/shared": "workspace:^",
     "@starbeam/debug": "workspace:^",
     "@starbeam/verify": "workspace:^",
     "@starbeam/timeline": "workspace:^",
-    "@starbeam/core-utils": "workspace:^"
+    "@starbeam/core-utils": "workspace:^",
+    "@starbeam/interfaces": "workspace:^"
   },
   "devDependencies": {}
 }

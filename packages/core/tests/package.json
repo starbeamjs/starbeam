@@ -1,10 +1,11 @@
 {
   "private": true,
   "name": "@starbeam-tests/core",
+  "version": "0.0.0",
   "type": "module",
   "dependencies": {
     "@starbeam/core": "workspace:^",
-    "@starbeam/js": "workspace:^"
-  },
-  "version": null
+    "@starbeam/js": "workspace:^",
+    "@starbeam/interfaces": "workspace:^"
+  }
 }

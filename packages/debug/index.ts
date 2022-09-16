@@ -1,11 +1,7 @@
+import { descriptionFrom } from "./src/stack.js";
+
 export { ifDebug, isDebug, isProd } from "./src/conditional.js";
-export {
-  type DescriptionArgs,
-  type DescriptionDetails,
-  type DescriptionType,
-  type ValueType,
-  Description,
-} from "./src/description/reactive-value.js";
+export { Description, REUSE_ID } from "./src/description/impl.js";
 export {
   type DisplayStructOptions,
   DisplayStruct,
@@ -27,23 +23,40 @@ export {
   Styled,
   Styles,
 } from "./src/message.js";
-export { describeModule } from "./src/module.js";
+export { type DisplayParts, describeModule } from "./src/module.js";
 export {
-  type StackFrame,
   callerStack,
-  defaultDescription,
   descriptionFrom,
   entryPoint,
+  idFrom,
   isErrorWithStack,
   Stack,
 } from "./src/stack.js";
 export {
+  type CellConsumeOperation,
+  type CellUpdateOperation,
   type DebugFilter,
   type DebugListener,
   type DebugOperation,
   type Flush,
-  type Internals,
-  type ReactiveProtocol,
+  type FrameConsumeOperation,
+  type MutationLog,
   DebugTimeline,
 } from "./src/timeline.js";
 export { Tree } from "./src/tree.js";
+export type {
+  ApiDetails,
+  DescriptionArgs,
+  DescriptionDetails,
+  DescriptionParts,
+  DescriptionType,
+  DetailDescription,
+  DetailsPart,
+  MemberDescription,
+} from "@starbeam/interfaces";
+
+export const defaultDescription = descriptionFrom({
+  id: NaN,
+  type: "erased",
+  api: "anonymous",
+});

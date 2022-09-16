@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.target.json",
+  "compilerOptions": {
+    "declaration": true,
+    "declarationMap": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "emitDeclarationOnly": false,
+    "types": ["./@types/shell-escape-tag", "node"]
+  },
+  "include": ["./rollup.config.ts", "./.build/**/*.ts", "**/vite.config.ts"],
+  "exclude": ["**/node_modules/**", "packages/x-devtools-extension/**"]
+}

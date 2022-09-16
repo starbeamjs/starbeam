@@ -16,7 +16,10 @@ import { useSetup } from "./use-setup.js";
  *
  * If you also want to memoize the value, you can use {@linkcode useReactiveMemo}.
  */
-export function useReactive<T>(compute: () => T, description?: string): T {
+export function useReactive<T>(
+  compute: () => T,
+  description?: string | Description
+): T {
   const desc = descriptionFrom({
     type: "formula",
     api: "useReactive",

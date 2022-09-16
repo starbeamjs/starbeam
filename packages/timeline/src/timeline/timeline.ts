@@ -7,13 +7,15 @@ import {
   ifDebug,
   isDebug,
 } from "@starbeam/debug";
+import type { Diff, MutableInternals, Timestamp } from "@starbeam/interfaces";
 
 import { LIFETIME } from "../lifetime/api.js";
 import type { Unsubscribe } from "../lifetime/object-lifetime.js";
+import type { Frame } from "./frame.js";
 import { FrameStack } from "./frames.js";
-import { type MutableInternals, ReactiveProtocol } from "./protocol.js";
+import { ReactiveProtocol } from "./protocol.js";
 import { Subscriptions } from "./subscriptions.js";
-import { NOW, Timestamp } from "./timestamp.js";
+import { NOW, now } from "./timestamp.js";
 
 /**
  * # How Subscriptions Work at the Lowest Level
@@ -43,7 +45,7 @@ import { NOW, Timestamp } from "./timestamp.js";
  */
 export class Timeline {
   static create(): Timeline {
-    return new Timeline(Subscriptions.create(), new Set());
+    return new Timeline(Subscriptions.create(), new Set(), "initial");
   }
 
   #debugTimeline: DebugTimeline | null = null;
@@ -51,14 +53,17 @@ export class Timeline {
   readonly #frame: FrameStack;
   readonly #subscriptions: Subscriptions;
   readonly #afterRender: Set<() => void>;
+  #lastOp: "consumed" | "bumped" | "evaluating" | "initial";
 
   private constructor(
     subscriptions: Subscriptions,
-    onAdvance: Set<() => void>
+    onAdvance: Set<() => void>,
+    lastOp: "consumed" | "bumped" | "evaluating" | "initial"
   ) {
     this.#subscriptions = subscriptions;
     this.#afterRender = onAdvance;
     this.#frame = FrameStack.empty(this, subscriptions);
+    this.#lastOp = lastOp;
   }
 
   on = {
@@ -70,7 +75,10 @@ export class Timeline {
       };
     },
 
-    change: (input: ReactiveProtocol, ready: () => void): Unsubscribe => {
+    change: (
+      input: ReactiveProtocol,
+      ready: (internals: MutableInternals) => void
+    ): Unsubscribe => {
       return this.#subscriptions.register(input, ready);
     },
   } as const;
@@ -99,19 +107,68 @@ export class Timeline {
     return this.#frame;
   }
 
+  next(): Timestamp {
+    return NOW.bump();
+  }
+
   // Increment the current timestamp and return the incremented timestamp.
-  bump(mutable?: MutableInternals): Timestamp {
-    if (isDebug() && mutable) {
-      this.#debug.updateCell(mutable);
+  bump(mutable: MutableInternals, caller: Stack): Timestamp {
+    const now = this.#adjustTimestamp("bumped");
+
+    if (isDebug()) {
+      this.#debug.updateCell(mutable, caller);
     }
 
-    const now = NOW.bump();
-
-    if (mutable) {
-      this.#subscriptions.notify(mutable);
-    }
-
+    this.#subscriptions.notify(mutable);
     return now;
+  }
+
+  didConsumeCell(
+    cell: ReactiveProtocol<MutableInternals>,
+    caller: Stack
+  ): void {
+    this.#adjustTimestamp("consumed");
+    return FrameStack.didConsumeCell(this.#frame, cell, caller);
+  }
+
+  didConsumeFrame(
+    frame: Frame,
+    diff: Diff<MutableInternals>,
+    caller: Stack
+  ): void {
+    this.#adjustTimestamp("consumed");
+    return FrameStack.didConsumeFrame(this.#frame, frame, diff, caller);
+  }
+
+  willEvaluate(): void {
+    this.#lastOp = "evaluating";
+  }
+
+  #adjustTimestamp(operation: "consumed" | "bumped" | "evaluating"): Timestamp {
+    const prev = this.#lastOp;
+    const prevIsRead = prev === "consumed" || prev === "evaluating";
+    const nextIsRead = operation === "consumed" || operation === "evaluating";
+
+    try {
+      this.#lastOp = operation;
+      if (prevIsRead === nextIsRead) {
+        return this.now;
+      } else {
+        return this.next();
+      }
+
+      // if (this.#lastOp === operation) {
+      //   return this.now;
+      // } else {
+      //   this.#lastOp = operation;
+      // }
+    } finally {
+      // console.log("adjusted timestamp", {
+      //   operation,
+      //   lastOp: this.#lastOp,
+      //   now: this.now,
+      // });
+    }
   }
 
   mutation<T>(description: string, callback: () => T): T {
@@ -132,6 +189,13 @@ export class Timeline {
     (reactive: ReactiveProtocol, caller: Stack) => void
   >();
 
+  /** @internal */
+  untrackedRead(cell: ReactiveProtocol, caller: Stack): void {
+    for (const assertion of this.#readAssertions) {
+      assertion(cell, caller);
+    }
+  }
+
   @ifDebug
   attach(
     notify: () => void,
@@ -144,10 +208,14 @@ export class Timeline {
     return listener;
   }
 
-  get #debug() {
+  get log(): DebugTimeline {
+    return this.#debug;
+  }
+
+  get #debug(): DebugTimeline {
     if (!this.#debugTimeline) {
       const debugTimeline = (this.#debugTimeline = DebugTimeline.create(
-        Timestamp.zero(),
+        { now },
         ReactiveProtocol
       ));
       this.on.rendered(() => debugTimeline.notify());

@@ -65,7 +65,7 @@ export function Resource<T>(
 
   return {
     create({ owner }: { owner: object }) {
-      const builder = new ResourceBuilder(Setups(desc));
+      const builder = new ResourceBuilder(Setups(desc.detail("setups")));
       const fn = create(builder);
       const resource = FormulaFn(() => {
         ResourceBuilder.validate(builder);

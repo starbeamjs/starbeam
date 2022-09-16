@@ -1,14 +1,14 @@
 import type { Description } from "@starbeam/debug";
+import type * as interfaces from "@starbeam/interfaces";
 import {
-  type CompositeInternals,
-  type DelegateInternals,
   type ReactiveProtocol,
-  type StaticInternals,
+  type Timestamp,
   TIMELINE,
-  Timestamp,
 } from "@starbeam/timeline";
 
-export function StaticInternals(description?: Description): StaticInternals {
+export function StaticInternals(
+  description: Description
+): interfaces.StaticInternals {
   return {
     type: "static",
     description,
@@ -18,8 +18,8 @@ export function StaticInternals(description?: Description): StaticInternals {
 export function CompositeInternals(
   this: void,
   children: ReactiveProtocol[],
-  description?: Description
-): CompositeInternals {
+  description: Description
+): interfaces.CompositeInternals {
   return {
     type: "composite",
     description,
@@ -32,8 +32,8 @@ export function CompositeInternals(
 export function DelegateInternals(
   this: void,
   delegate: readonly ReactiveProtocol[],
-  description?: Description
-): DelegateInternals {
+  description: Description
+): interfaces.DelegateInternals {
   return {
     type: "delegate",
     description,
@@ -41,13 +41,13 @@ export function DelegateInternals(
   };
 }
 
-export class MutableInternalsImpl implements MutableInternals {
+export class MutableInternalsImpl implements interfaces.MutableInternals {
   readonly type = "mutable";
 
   #frozen = false;
-  #lastUpdated: Timestamp = Timestamp.now();
+  #lastUpdated: Timestamp = TIMELINE.now;
 
-  constructor(readonly description?: Description) {}
+  constructor(readonly description: Description) {}
 
   get lastUpdated(): Timestamp {
     return this.#lastUpdated;
@@ -61,25 +61,20 @@ export class MutableInternalsImpl implements MutableInternals {
     this.#frozen = true;
   }
 
-  update(): void {
+  update(caller: interfaces.Stack): void {
     if (this.#frozen) {
       throw TypeError("Cannot update frozen object");
     }
 
-    this.#lastUpdated = TIMELINE.bump(this);
+    this.#lastUpdated = TIMELINE.bump(this, caller);
   }
-}
-
-export interface MutableInternals {
-  readonly type: "mutable";
-  readonly description?: Description;
-  readonly lastUpdated: Timestamp;
-  isFrozen?(): boolean;
 }
 
 export function MutableInternals(
   this: void,
-  description?: Description
+  description: Description
 ): MutableInternalsImpl {
   return new MutableInternalsImpl(description);
 }
+
+export type MutableInternals = interfaces.MutableInternals;

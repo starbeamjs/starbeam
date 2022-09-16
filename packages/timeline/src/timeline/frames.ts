@@ -1,15 +1,35 @@
-import type { Description, Stack } from "@starbeam/debug";
-import type { UNINITIALIZED } from "@starbeam/peer";
+import type { DebugTimeline, Stack } from "@starbeam/debug";
+import type { Description, Diff, MutableInternals } from "@starbeam/interfaces";
+import { type UNINITIALIZED, REACTIVE } from "../../../shared/index.js";
 
 // eslint-disable-next-line import/no-cycle
 import { type Frame, ActiveFrame } from "./frame.js";
-import type { ReactiveProtocol } from "./protocol.js";
+import { ReactiveProtocol } from "./protocol.js";
 import type { Subscriptions } from "./subscriptions.js";
 import type { Timeline } from "./timeline.js";
 
 export class FrameStack {
   static empty(timeline: Timeline, subscriptions: Subscriptions): FrameStack {
     return new FrameStack(subscriptions, null, timeline);
+  }
+
+  static didConsumeCell(
+    frames: FrameStack,
+    reactive: ReactiveProtocol<MutableInternals>,
+    caller: Stack
+  ): void {
+    frames.#debug.consumeCell(reactive[REACTIVE], caller);
+    frames.#didConsumeReactive(reactive, caller);
+  }
+
+  static didConsumeFrame(
+    frames: FrameStack,
+    frame: Frame,
+    diff: Diff<MutableInternals>,
+    caller: Stack
+  ): void {
+    frames.#debug.consumeFrame(frame, diff, caller);
+    frames.#didConsumeReactive(frame, caller);
   }
 
   #subscriptions: Subscriptions;
@@ -30,16 +50,42 @@ export class FrameStack {
     return this.#current;
   }
 
+  get #debug(): DebugTimeline {
+    return this.#timeline.log;
+  }
+
   finally<T>(prev: ActiveFrame<T> | null): void {
     this.#current = prev;
   }
 
   // Indicate that a particular cell was used inside of the current computation.
-  didConsume(reactive: ReactiveProtocol, _caller?: Stack): void {
+  #didConsumeCell(
+    reactive: ReactiveProtocol<MutableInternals>,
+    caller: Stack
+  ): void {
+    this.#debug.consumeCell(reactive[REACTIVE], caller);
+    this.#didConsumeReactive(reactive, caller);
+  }
+
+  #didConsumeFrame(reactive: Frame, caller: Stack): void {
+    this.#didConsumeReactive(reactive, caller);
+  }
+
+  #didConsumeReactive(reactive: ReactiveProtocol, caller: Stack): void {
     const frame = this.currentFrame;
     if (frame) {
       frame.add(reactive);
       return;
+    } else {
+      const delegatesTo = ReactiveProtocol.subscribesTo(reactive).filter((r) =>
+        ReactiveProtocol.is(r, "mutable")
+      );
+
+      for (const reactive of delegatesTo) {
+        if (ReactiveProtocol.is(reactive, "mutable")) {
+          this.#timeline.untrackedRead(reactive, caller);
+        }
+      }
     }
   }
 
@@ -90,6 +136,7 @@ export class FrameStack {
 
     if (callback) {
       try {
+        this.#timeline.willEvaluate();
         const result = callback();
         const frame = this.#end<T>(activeFrame, result);
         this.#subscriptions.update(frame);

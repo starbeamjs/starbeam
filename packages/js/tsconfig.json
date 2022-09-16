@@ -1,6 +1,11 @@
 {
   "extends": "../../tsconfig.package.json",
   "compilerOptions": {
+    "declaration": true,
+    "composite": true,
+    "declarationMap": true,
+    "declarationDir": "../../dist/types/@starbeam/js",
+    "emitDeclarationOnly": true,
     "types": ["../env"]
   }
 }

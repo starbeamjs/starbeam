@@ -14,11 +14,11 @@ import {
 } from "@starbeam/use-strict-lifecycle";
 import { useState } from "react";
 
-function createResource<T>(
+function createReactiveResource<T>(
   resource: () => ResourceBlueprint<T>,
   deps: unknown[] | undefined,
   description: string | Description | undefined
-): T {
+): Resource<T> {
   const desc = descriptionFrom({
     type: "resource",
     api: "useReactiveSetup",
@@ -76,6 +76,16 @@ function createResource<T>(
     return value;
   });
 
+  return instance;
+}
+
+function createResource<T>(
+  resource: () => ResourceBlueprint<T>,
+  deps: unknown[] | undefined,
+  description: string | Description | undefined
+): T {
+  const instance = useReactiveResource(resource, deps, description);
+
   return unsafeTrackedElsewhere(() => instance.current);
 }
 
@@ -88,6 +98,18 @@ export function useResource<T>(
     return createResource(resource, deps, description);
   } else {
     return createResource(resource, undefined, deps);
+  }
+}
+
+export function useReactiveResource<T>(
+  resource: () => ResourceBlueprint<T>,
+  deps?: unknown[] | string | Description,
+  description?: string | Description
+): Resource<T> {
+  if (Array.isArray(deps)) {
+    return createReactiveResource(resource, deps, description);
+  } else {
+    return createReactiveResource(resource, undefined, deps);
   }
 }
 

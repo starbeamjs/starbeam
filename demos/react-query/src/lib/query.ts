@@ -39,7 +39,7 @@ class CacheEntry<T> {
     return entry;
   }
 
-  #query: (network: Network) => void | Promise<void>;
+  #query: (_network: Network) => void | Promise<void>;
   #freshness: Freshness = Freshness("CacheEntry#freshness");
   #status: Status<T>;
   #network: Network | undefined;

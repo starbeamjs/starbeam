@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationMap": true,
+
+    "strict": true,
+
+    "isolatedModules": true,
+    "preserveValueImports": true,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
+    "useDefineForClassFields": true,
+    "importsNotUsedAsValues": "error",
+
+    "resolveJsonModule": true,
+
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": false,
+
+    "types": ["vite/client"]
+  }
+}

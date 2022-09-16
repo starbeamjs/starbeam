@@ -1,0 +1,6 @@
+{
+  "extends": "./tsconfig.target.json",
+  "compilerOptions": { "composite": true },
+  "include": [".scripts/**/*.ts", "package.json"],
+  "exclude": [".scripts/node_modules/**"]
+}

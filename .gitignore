@@ -2,9 +2,10 @@ node_modules
 **/node_modules
 **/dist
 dist
+dist
 .DS_Store
 coverage
-tsconfig.tsbuildinfo
+*.tsbuildinfo
 pack
 .pnpm-debug.log
 .eslintcache

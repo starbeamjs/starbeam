@@ -1,9 +1,9 @@
 import { Cell, Marker } from "@starbeam/core";
+import type { Stack } from "@starbeam/debug";
 import {
   type Description,
   callerStack,
   descriptionFrom,
-  Stack,
 } from "@starbeam/debug";
 import { reactive } from "@starbeam/js";
 import type { Reactive } from "@starbeam/timeline";
@@ -14,62 +14,6 @@ import type { Dispatch, SetStateAction } from "react";
 type AnyRecord = Record<PropertyKey, any>;
 
 /**
- * {@link useStable} takes an object containing stable React variables
- * (such as React props) and converts it into a Starbeam
- * [Reactive Object].
- *
- * [reactive object]: https://github.com/wycats/starbeam/tree/main/%40starbeam/react/GLOSSARY.md#reactive-object
- */
-export function useStable<I extends AnyRecord>(
-  variable: I,
-  description?: string | Description
-): I {
-  const desc = descriptionFrom({
-    type: "external",
-    api: "useStable",
-    fromUser: description,
-  });
-
-  return useUpdatingVariable({
-    initial: () => reactive.object(variable, desc),
-    update: (stableProps) => {
-      Object.assign(stableProps, variable);
-    },
-  });
-}
-
-/**
- * {@link useStableVariable} takes a stable React variable and converts it
- * into a Starbeam Reactive value.
- *
- * ```ts
- * function Counter({ count }: { count: number }) {
- *   const stableCount = useReactiveVariable(count);
- *
- *   return useReactiveElement(() => {
- *     const extra = reactive({ count: 0 });
- *
- *     return () => <>
- *       <button onClick={() => extra.count++}>++ extra ++</button>
- *       <p>Total: {stableCount.current + extras.count}</p>
- *     </>
- *   });
- * }
- * ```
- */
-export function useStableVariable<T>(
-  variable: T,
-  description = Stack.describeCaller()
-): Reactive<T> {
-  return useUpdatingVariable({
-    initial: () => Cell(variable, description),
-    update: (cell) => {
-      cell.set(variable);
-    },
-  });
-}
-
-/**
  * Convert a React hooks dependency list into a reactive
  */
 export function useDeps<T extends unknown[]>(
@@ -78,7 +22,10 @@ export function useDeps<T extends unknown[]>(
 ): { consume: () => void; debug: () => Reactive<unknown>[] } {
   const desc = descriptionFrom({
     type: "external",
-    api: "useDeps",
+    api: {
+      name: "useDeps",
+      package: "@starbeam/react",
+    },
     fromUser: description,
   });
 
@@ -98,7 +45,7 @@ export function useDeps<T extends unknown[]>(
 export function useProp<T>(
   variable: T,
   description?: string | Description
-): Reactive<T> {
+): Reactive<T> & { readonly current: T } {
   const desc = descriptionFrom({
     type: "external",
     api: "useProp",
@@ -133,28 +80,6 @@ export function useProps<T extends AnyRecord>(
   });
 }
 
-/**
- * {@link useStableVariable.mutable} takes a stable React variable *plus* an
- * updater function returned by {@link useState} and returns a Starbeam _Mutable
- * Reactive Value_.
- */
-useStableVariable.mutable = <S>(
-  value: S,
-  setValue: SetValue<S>,
-  description?: string | Description
-): ReactiveState<S> => {
-  const desc = descriptionFrom({
-    type: "external",
-    api: "useStableVariable.mutable",
-    fromUser: description,
-  });
-
-  return useUpdatingVariable({
-    initial: () => ReactiveState.create(value, setValue, desc),
-    update: (state) => ReactiveState.update(state, value),
-  });
-};
-
 type SetValue<T> = Dispatch<SetStateAction<T>>;
 
 export class ReactiveState<T> {
@@ -166,10 +91,10 @@ export class ReactiveState<T> {
     return new ReactiveState(value, setValue, Marker(description));
   }
 
-  static update<T>(state: ReactiveState<T>, value: T): void {
+  static update<T>(state: ReactiveState<T>, value: T, caller: Stack): void {
     if (value !== state.#value) {
       state.#value = value;
-      state.#marker.update();
+      state.#marker.update(caller);
     }
   }
 
@@ -191,7 +116,7 @@ export class ReactiveState<T> {
   set current(value: T) {
     this.#value = value;
     this.#setValue(value);
-    this.#marker.update();
+    this.#marker.update(callerStack());
   }
 
   update(updater: (value: T) => T): void {

@@ -11,7 +11,7 @@
 - Updated dependencies
   - @starbeam/core@0.6.0
   - @starbeam/debug@0.6.0
-  - @starbeam/peer@1.1.0
+  - @starbeam/shared@1.1.0
   - @starbeam/verify@0.6.0
 
 ## 0.5.8
@@ -22,7 +22,7 @@
 - Updated dependencies
   - @starbeam/core@0.5.8
   - @starbeam/debug@0.5.8
-  - @starbeam/peer@1.0.8
+  - @starbeam/shared@1.0.8
   - @starbeam/verify@0.5.8
 
 ## 0.5.7
@@ -33,7 +33,7 @@
 - Updated dependencies
   - @starbeam/core@0.5.7
   - @starbeam/debug@0.5.7
-  - @starbeam/peer@1.0.7
+  - @starbeam/shared@1.0.7
   - @starbeam/verify@0.5.7
 
 ## 0.5.6
@@ -44,7 +44,7 @@
 - Updated dependencies
   - @starbeam/core@0.5.6
   - @starbeam/debug@0.5.6
-  - @starbeam/peer@1.0.6
+  - @starbeam/shared@1.0.6
   - @starbeam/verify@0.5.6
 
 ## 0.5.5
@@ -55,7 +55,7 @@
 - Updated dependencies
   - @starbeam/core@0.5.5
   - @starbeam/debug@0.5.5
-  - @starbeam/peer@1.0.5
+  - @starbeam/shared@1.0.5
   - @starbeam/verify@0.5.5
 
 ## 0.5.4
@@ -67,7 +67,7 @@
   - @starbeam/core@0.5.4
   - @starbeam/debug@0.5.4
   - @starbeam/verify@0.5.4
-  - @starbeam/peer@1.0.4
+  - @starbeam/shared@1.0.4
 
 ## 0.5.3
 
@@ -77,7 +77,7 @@
 - Updated dependencies [d21391d]
   - @starbeam/core@0.5.3
   - @starbeam/debug@0.5.3
-  - @starbeam/peer@1.0.3
+  - @starbeam/shared@1.0.3
   - @starbeam/verify@0.5.3
 
 ## 0.5.2
@@ -88,7 +88,7 @@
 - Updated dependencies [719a6fe]
   - @starbeam/core@0.5.2
   - @starbeam/debug@0.5.2
-  - @starbeam/peer@1.0.2
+  - @starbeam/shared@1.0.2
   - @starbeam/verify@0.5.2
 
 ## 0.5.1
@@ -101,5 +101,5 @@
 - Updated dependencies [e03c2a0]
   - @starbeam/core@0.5.1
   - @starbeam/debug@0.5.1
-  - @starbeam/peer@1.0.1
+  - @starbeam/shared@1.0.1
   - @starbeam/verify@0.5.1

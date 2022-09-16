@@ -8,7 +8,7 @@
     "chrome-types": "^0.1.114",
     "dirfilename": "^1.0.4",
     "preact": "^10.7.3",
-    "vite": "^2.9.12",
+    "vite": "*",
     "vite-plugin-mpa": "^1.1.3"
   }
 }

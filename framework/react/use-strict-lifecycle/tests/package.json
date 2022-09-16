@@ -5,7 +5,7 @@
   "dependencies": {
     "@starbeam/use-strict-lifecycle": "workspace:^",
     "@starbeam-workspace/react-test-utils": "workspace:^",
-    "@starbeam/peer": "workspace:^",
+    "@starbeam/shared": "workspace:^",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },

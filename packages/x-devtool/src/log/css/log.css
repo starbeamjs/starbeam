@@ -1,0 +1,504 @@
+/**
+ * These are variables that can be overridden by child elements, so we don't apply them to
+ * pseudo-elements via `*`.
+ */
+:host(*),
+.pane *::before,
+.pane *::after {
+  --bg-lightness-pure: 100%;
+  --bg-lightness-faded: 90%;
+  --bg-lightness-dim1: 75%;
+  --bg-lightness-dim2: 50%;
+  --bg-lightness-dim3: 30%;
+  --bg-lightness-invert: 20%;
+  --bg-lightness-invert-faded: 30%;
+
+  --fg-lightness-pure: 10%;
+  --fg-lightness-faded: 20%;
+  --fg-lightness-dim1: 35%;
+  --fg-lightness-dim2: 50%;
+  --fg-lightness-dim3: 65%;
+  --fg-lightness-invert: 90%;
+  --fg-lightness-invert-faded: 70%;
+
+  --ratio: 1.4;
+  --base-size: 16px;
+  --size-medium: var(--base-size);
+  --size-small1: calc(var(--size-medium) / var(--ratio));
+  --size-small2: calc(var(--size-small1) / var(--ratio));
+  --size-small3: calc(var(--size-small2) / var(--ratio));
+  --size-small4: calc(var(--size-small3) / var(--ratio));
+
+  --size-large1: calc(var(--size-medium) * var(--ratio));
+  --size-large2: calc(var(--size-large1) * var(--ratio));
+  --size-large3: calc(var(--size-large2) * var(--ratio));
+  --size-large4: calc(var(--size-large3) * var(--ratio));
+
+  --font-family: "Roboto Flex";
+
+  --card-radius: var(--size-small3);
+  --card-shadow: hsla(0, 0%, 0%, 0.2) 0px 2px 1px -1px,
+    hsla(0, 0%, 0%, 0.14) 0px 1px 1px 0px, hsla(0, 0%, 0%, 0.12) 0px 1px 3px 0px;
+  --card-padding-normal: var(--size-medium);
+  --card-padding-compact: var(--size-small2);
+
+  --button-radius: var(--size-small3);
+  --button-radius-compact: var(--size-small4);
+  --button-shadow: hsla(0, 0%, 0%, 0.2) 0px 3px 1px -2px,
+    hsla(0, 0%, 0%, 0.14) 0px 2px 2px 0px, hsla(0, 0%, 0%, 0.12) 0px 1px 5px 0px;
+  --button-padding-normal: var(--size-small1);
+  --button-padding-compact: var(--size-small3);
+
+  --absolute-top: 9999;
+  --animation-timing: 100ms;
+
+  --hue: 30;
+  --sat: 50%;
+
+  --bg-lightness: 70%;
+  --bg-alpha: 1;
+
+  --fg-lightness: 10%;
+  --fg-alpha: 1;
+
+  --font-slant: 0;
+  --font-slant-min: -10;
+  --font-slant-max: 0;
+
+  --font-width: 0.6;
+  --font-width-min: 25;
+  --font-width-max: 151;
+  --font-width-range: calc(var(--font-width-max) - var(--font-width-min));
+
+  /** Can go from 200 to 550 and remain compatible with grade-based weight */
+  --font-weight: 400;
+
+  --font-grade: 0;
+  --font-grade-min: -200;
+  --font-grade-max: 150;
+
+  --font-ascender-height: 750;
+  --font-descender-depth: -203;
+  --font-negative-shape-width: 468;
+}
+
+.pane *::before,
+.pane *::after {
+  --bg-alpha: 0;
+}
+
+.pane,
+.pane *,
+.pane *::before,
+.pane *::after {
+  --fg-sat: var(--sat);
+  --bg-sat: var(--sat);
+
+  --bg-hue: var(--hue);
+  --fg-hue: var(--hue);
+
+  --fg: hsla(
+    var(--fg-hue),
+    var(--fg-sat),
+    var(--fg-lightness),
+    var(--fg-alpha)
+  );
+
+  --bg: hsla(
+    var(--bg-hue),
+    var(--bg-sat),
+    var(--bg-lightness),
+    var(--bg-alpha)
+  );
+
+  --chip-radius: calc(var(--font-size) * var(--ratio));
+  --chip-padding-inline: calc(var(--font-size) / var(--ratio) / var(--ratio));
+  --chip-padding-block: calc(
+    var(--chip-padding-inline) / var(--ratio) / var(--ratio)
+  );
+  --chip-padding: var(--chip-padding-block) var(--chip-padding-inline);
+}
+
+.pane *,
+.pane *::before,
+.pane *::after {
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  font-weight: var(--font-weight);
+  font-variation-settings: "wdth"
+      calc(
+        (var(--font-width-range)) * var(--font-width) + var(--font-width-min)
+      ),
+    "slnt" calc(var(--font-slant) / 10 * -1), "wght" 400,
+    "GRAD" clamp(-200, calc(var(--font-weight) - 400), 150),
+    "XTRA" var(--font-negative-shape-width), "YTAS" var(--font-ascender-height),
+    "YTDE" var(--font-descender-depth);
+}
+
+@media (prefers-color-scheme: dark) {
+  .starbeam-devtools {
+    --bg-lightness-pure: 10%;
+    --bg-lightness-faded: 20%;
+    --bg-lightness-dim1: 25%;
+    --bg-lightness-dim2: 50%;
+    --bg-lightness-dim3: 70%;
+    --bg-lightness-invert: 90%;
+    --bg-lightness-invert-faded: 90%;
+
+    --fg-lightness-pure: 90%;
+    --fg-lightness-faded: 80%;
+    --fg-lightness-dim1: 80%;
+    --fg-lightness-dim2: 90%;
+    --fg-lightness-dim3: 25%;
+    --fg-lightness-invert: 10%;
+    --fg-lightness-invert-faded: 25%;
+  }
+}
+
+.pane {
+  /* --bg-lightness: 100%; */
+  --bg-sat: 0%;
+  /* background-color: hsla(var(--bg-hue), var(--bg-sat), 100%, var(--bg-alpha)); */
+
+  font-size: var(--size-medium);
+  padding: calc(var(--size-medium));
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  padding: 0;
+}
+
+p,
+pre,
+div {
+  margin: 0;
+  padding: 0;
+}
+
+.pane,
+.pane *,
+.pane *::before,
+.pane *::after {
+  color: hsla(
+    var(--fg-hue),
+    var(--fg-sat),
+    var(--fg-lightness),
+    var(--fg-alpha)
+  );
+
+  background-color: hsla(
+    var(--bg-hue),
+    var(--bg-sat),
+    var(--bg-lightness),
+    var(--bg-alpha)
+  );
+
+  box-sizing: border-box;
+}
+
+.pane > .starbeam-devtools {
+  --bg-lightness: var(--bg-lightness-pure);
+  display: grid;
+  grid-template-columns:
+    [timestamp] max-content
+    [content1] max-content
+    [break] var(--size-small2)
+    [content2] 1fr [end];
+
+  justify-items: start;
+  align-items: center;
+  justify-content: start;
+
+  padding: var(--size-medium);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+}
+
+.pane > .starbeam-devtools > .log-line {
+  grid-column: content;
+}
+
+div.log-line > div.content {
+  display: grid;
+  grid-auto-flow: column;
+  column-gap: var(--size-small4);
+  grid-column-start: content1;
+  grid-column-end: 5;
+}
+
+div.log-line.internals > :is(div.content, p.stack) {
+  margin-inline-start: var(--size-small1);
+}
+
+.pane > .starbeam-devtools,
+span.what:hover::after {
+  padding: var(--card-padding, var(--card-padding-normal));
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+}
+
+.pane > .starbeam-devtools > .log-line {
+  display: contents;
+}
+
+div.log-line > span.timestamp {
+  --bg-lightness: var(--bg-lightness-faded);
+  --fg-lightness: var(--fg-lightness-faded);
+  grid-column: 1;
+  grid-row: auto / span 2;
+  align-self: start;
+
+  display: grid;
+  inline-size: 2rem;
+  block-size: 2rem;
+  place-content: center;
+  border-radius: 100%;
+  margin-inline-end: var(--size-large1);
+}
+
+div.log-line > span.timestamp:empty {
+  visibility: hidden;
+}
+
+span.what {
+  display: grid;
+  place-content: center;
+  position: relative;
+}
+
+span.what::after {
+  content: "";
+  top: calc(100% * 0.85);
+  display: inline-block;
+  transform: scale3d(0, 0, 0);
+  width: max-content;
+  height: max-content;
+  overflow: hidden;
+  opacity: 0%;
+  transition: opacity var(--animation-timing) ease-in-out,
+    transform var(--animation-timing) ease-in-out,
+    top var(--animation-timing) ease-in-out;
+}
+
+span.what::before {
+  --font-family: "Material Symbols Outlined";
+  width: max-content;
+  content: attr(data-icon);
+  display: block;
+  visibility: visible;
+}
+
+div.log-line.internals {
+  display: contents;
+}
+
+div.log-line.internals > p.stack,
+div.log-line.internals > div.content > :is(p, span) {
+  --fg-alpha: 0.5;
+  --bg-alpha: 0.5;
+}
+
+div.log-line.internals > div.content > span::after {
+  --fg-alpha: 1;
+}
+
+span.what::before {
+  --fg-alpha: 0.5;
+}
+
+span.what:hover::after {
+  content: attr(aria-label);
+  top: initial;
+  transform: scale3d(1, 1, 1);
+  --card-padding: var(--card-padding-compact);
+  --font-size: var(--size-small1);
+  --bg-lightness: var(--bg-lightness-pure);
+  --bg-alpha: 1;
+  --fg-lightness: var(--fg-lightness-dim1);
+  opacity: 100%;
+  line-height: 1;
+  z-index: var(--absolute-top);
+  position: absolute;
+  inset-block-start: 100%;
+}
+
+p.message > :first-child {
+  --fg-lightness: var(--fg-lightness-dim3);
+}
+
+div.log-line > p.message > span:not(.tail) {
+  --fg-lightness: var(--fg-lightness-dim3);
+  /* display: none; */
+}
+
+div.log-line:hover > p.message > span:not(.tail) {
+  /* display: inline-block; */
+}
+
+div.log-line > p.message > span::before,
+div.log-line > p.message > span::after {
+  --fg-lightness: var(--fg-lightness-dim3);
+}
+
+div.log-line > p.stack {
+  /* align-items: center; */
+  grid-column: 2 / span all;
+  width: 100%;
+  --font-size: var(--size-small1);
+  --fg-lightness: var(--fg-lightness-dim1);
+  padding-block-end: var(--size-small1);
+  padding-block-start: var(--size-small3);
+  margin-block-end: var(--size-small1);
+  border-bottom: 1px solid
+    hsla(var(--fg-hue), var(--fg-sat), var(--fg-lightness), 0.1);
+}
+
+div.log-line p.stack:hover > button.stack {
+  transform: scale3d(1, 1, 1);
+  opacity: 1;
+}
+
+div.log-line p.stack > button.stack {
+  --font-size: var(--size-small1);
+  --font-weight: 550;
+  text-transform: uppercase;
+
+  transform: scale3d(0.2, 0.2, 0.2);
+  opacity: 0;
+
+  box-shadow: var(--button-shadow);
+  padding: var(--button-padding-compact);
+  border-radius: var(--button-radius-compact);
+
+  transition: color var(--animation-timing) ease-in-out,
+    background-color var(--animation-timing) ease-in-out,
+    transform var(--animation-timing) ease-in-out,
+    opacity var(--animation-timing) ease-in-out;
+  margin-inline-start: var(--size-small1);
+  border: 0;
+
+  --hue: 200;
+  --bg-lightness: var(--bg-lightness-faded);
+  --bg-sat: 100%;
+  --fg-lightness: var(--fg-lightness-faded);
+
+  /* border-block-end: 1px solid var(--fg); */
+  cursor: pointer;
+}
+
+div.log-line p.stack > button.stack:hover {
+  --bg-lightness: var(--bg-lightness-dim1);
+  --fg-lightness: var(--fg-lightness-dim1);
+}
+
+div.log-line p.stack > button.stack:active {
+  --bg-lightness: var(--bg-lightness-dim2);
+  --fg-lightness: var(--fg-lightness-invert);
+}
+
+div.log-line p.stack > * {
+  align-self: center;
+}
+
+div.log-line p.stack > span.root {
+  --hue: 20;
+  --sat: 50%;
+  --fg-lightness: var(--fg-lightness-dim3);
+  --bg-lightness: var(--bg-lightness-pure);
+  padding: var(--chip-padding);
+  border-radius: var(--chip-radius);
+  border: 1px solid var(--fg);
+}
+
+div.log-line p.stack > span.root.main {
+  --hue: 140;
+  --sat: 50%;
+  --fg-lightness: var(--fg-lightness-dim3);
+}
+
+div.log-line p.stack > span.path::before {
+  content: " ";
+}
+
+span.anonymous {
+  --fg-sat: 20%;
+  --fg-lightness: var(--fg-lightness-dim2);
+}
+
+span.index.name::before {
+  content: "[";
+}
+span.index.name::after {
+  content: "]";
+}
+
+span.property.name::before {
+  content: ".";
+}
+
+span.key.name::before,
+span.detail.name::before,
+span.key.name::after,
+span.detail.name::after,
+span.name.head {
+  --fg-sat: 20%;
+  --fg-lightness: var(--fg-lightness-dim3);
+}
+
+span.key.name::before {
+  content: "➔";
+  position: relative;
+  --fg-lightness: var(--fg-lightness-dim3);
+  top: 0.1ex;
+}
+
+span.detail.name:not(.key)::before {
+  content: ".";
+}
+
+span.detail.args::before {
+  content: "(";
+}
+
+span.detail.args::after {
+  content: ")";
+}
+
+span.detail.name:not(.tail) {
+  --fg-sat: 50%;
+  --fg-lightness: var(--fg-lightness-dim3);
+}
+
+span.tail {
+  --fg-sat: 0%;
+}
+
+span.detail.name.tail {
+  /* --fg-sat: 100%;  */
+  --fg-lightness: var(--fg-lightness-dim1);
+}
+
+span.detail.args:not(.tail) {
+  --fg-sat: 50%;
+  --fg-lightness: var(--fg-lightness-dim3);
+}
+
+span.detail.args:not(.tail)::before,
+span.detail.args:not(.tail)::after {
+  --fg-sat: 20%;
+  --fg-lightness: var(--fg-lightness-dim2);
+}
+
+span.tail,
+span.tail::before,
+span.tail::after {
+  --font-weight: 550;
+  --fg-sat: 0%;
+  --fg-lightness: var(--fg-lightness-pure);
+}

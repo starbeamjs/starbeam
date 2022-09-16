@@ -4,12 +4,14 @@ import {
   type ResourceBlueprint,
   Resource,
   Setups,
+  DelegateInternals,
 } from "@starbeam/core";
 import {
   type DebugListener,
   type Description,
   callerStack,
   descriptionFrom,
+  Stack,
 } from "@starbeam/debug";
 import {
   type CleanupTarget,
@@ -211,15 +213,13 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
     description: Description
   ) {
     this.#lifecycle = lifecycle;
-    this.on = Lifecycle.on(lifecycle, this);
+    this.on = Lifecycle.on(lifecycle, this, description);
     this.#refs = refs;
     this.#description = description;
 
-    this[REACTIVE] = {
-      type: "delegate",
-      delegate: [lifecycle.layout, lifecycle.idle],
+    this[REACTIVE] = DelegateInternals([lifecycle.layout, lifecycle.idle], {
       description,
-    };
+    });
   }
 
   readonly on: OnLifecycle;
@@ -232,7 +232,10 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
     this.#debugLifecycle = lifecycle;
   }
 
-  use<T>(resource: ResourceBlueprint<T>, _caller = callerStack()): Resource<T> {
+  use<T>(
+    resource: ResourceBlueprint<T>,
+    _caller: Stack = callerStack()
+  ): Resource<T> {
     const r = resource.create({ owner: this });
 
     this.on.layout(() => Resource.setup(r));
@@ -251,9 +254,15 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
 type Callback<T = void> = (instance: T) => void | (() => void);
 
 interface OnLifecycle extends OnCleanup {
-  readonly cleanup: (finalizer: Callback) => Unsubscribe;
-  readonly idle: (ready: Callback) => void;
-  readonly layout: (attached: Callback) => void;
+  readonly cleanup: (
+    finalizer: Callback,
+    description?: string | Description
+  ) => Unsubscribe;
+  readonly idle: (ready: Callback, description?: string | Description) => void;
+  readonly layout: (
+    attached: Callback,
+    description?: string | Description
+  ) => void;
 }
 
 class Lifecycle {
@@ -261,7 +270,11 @@ class Lifecycle {
     return new Lifecycle(Setups(description), Setups(description), description);
   }
 
-  static on<T extends object>(lifecycle: Lifecycle, instance: T): OnLifecycle {
+  static on<T extends object>(
+    lifecycle: Lifecycle,
+    instance: T,
+    _elementDescription: Description
+  ): OnLifecycle {
     LIFETIME.link(instance, lifecycle);
 
     return {
@@ -278,7 +291,7 @@ class Lifecycle {
               type: "instance",
             },
           },
-          fromUser: description,
+          fromUser: description ?? "on.idle",
         });
         return lifecycle.#idle.register(idle, desc);
       },
@@ -293,7 +306,7 @@ class Lifecycle {
               type: "instance",
             },
           },
-          fromUser: description,
+          fromUser: description ?? "on.layout",
         });
 
         return lifecycle.#layout.register(layout, desc);

@@ -1,4 +1,12 @@
 {
   "extends": "../../tsconfig.package.json",
-  "compilerOptions": { "types": ["../env"], "experimentalDecorators": true }
+  "compilerOptions": {
+    "declaration": true,
+    "composite": true,
+    "declarationMap": true,
+    "declarationDir": "../../dist/types/@starbeam/core",
+    "emitDeclarationOnly": true,
+    "types": ["../env"],
+    "experimentalDecorators": true
+  }
 }

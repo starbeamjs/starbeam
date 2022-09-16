@@ -22,9 +22,7 @@ export default function (props: { locale: string }) {
       return (
         <>
           <h2>A Date Formatter</h2>
-          <h3>
-            for {localeInfo.region} ({localeInfo.language})
-          </h3>
+          <h3>{`for ${localeInfo.region} (${localeInfo.language})`}</h3>
 
           <form>
             <label>

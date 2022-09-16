@@ -1,4 +1,5 @@
 import { type Description, descriptionFrom } from "@starbeam/debug";
+import { getID } from "@starbeam/shared";
 import { type Unsubscribe, LIFETIME } from "@starbeam/timeline";
 
 import { Marker } from "../marker.js";
@@ -58,7 +59,7 @@ export interface Setups {
 export function Setups(description: Description): Setups {
   const setups = new Set<Setup>();
   const marker = Marker(
-    description.implementation({ reason: "setups changed" })
+    description.implementation(getID(), { reason: "setups changed" })
   );
 
   const register = (setupFn: SetupFunction, description: Description) => {
