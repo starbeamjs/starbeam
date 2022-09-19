@@ -1,5 +1,5 @@
 {
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "types": "src/index.ts",
   "main": "src/index.ts",
@@ -10,7 +10,6 @@
     "build:packages": "rollup -c ./rollup.config.mjs",
     "build": "esno ./.scripts/scripts.ts build",
     "prepack": "pnpm run build",
-    "prepare": "pnpm run build",
     "dev": "esno ./.scripts/scripts.ts",
     "demo": "esno ./.scripts/scripts.ts demo",
     "lint": "eslint --cache -c ./.eslintrc.json --ext .ts,.tsx .",
