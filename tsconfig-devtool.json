@@ -2,9 +2,12 @@
   "extends": "./tsconfig.devtool.json",
   "compilerOptions": {
     "composite": true,
-    "moduleResolution": "Node",
     "outDir": "./dist"
   },
   "include": ["./packages/x-devtool/**/*"],
-  "references": [{ "path": "./tsconfig-packages.json" }]
+  "references": [
+    {
+      "path": "./tsconfig-packages.json"
+    }
+  ]
 }

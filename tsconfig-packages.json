@@ -1,10 +1,9 @@
 {
-  "extends": "./tsconfig.target.json",
+  "extends": "./tsconfig.package.json",
   "compilerOptions": {
     "composite": true,
-    "moduleResolution": "Node",
-    "module": "ESNext",
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "types": ["./packages/env"]
   },
   "include": ["./packages/**/*", "./framework/**/*", "./@types/**/*"],
   "exclude": ["./packages/x-devtool/**", "./packages/x-devtools-extension/**"]

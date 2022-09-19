@@ -5,6 +5,6 @@
     "jsx": "react-jsx",
     "jsxImportSource": "preact",
     "lib": ["esnext", "DOM", "DOM.Iterable"],
-    "moduleResolution": "Node"
+    "types": ["preact"]
   }
 }

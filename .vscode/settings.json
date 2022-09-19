@@ -11,13 +11,7 @@
     "**/*.code-search": true,
     "**/dist": true
   },
-  "files.exclude": {
-    "packages/x-devtool": true,
-    "packages/x-devtools-extension": true,
-    "**/dist": true,
-    "coverage": true,
-    "*.tsbuildinfo": true
-  },
+
   "explorer.fileNesting.patterns": {
     "*.ts": "${capture}.js",
     "*.js": "${capture}.js.map, ${capture}.min.js, ${capture}.d.ts, ${capture}.d.ts.map",

@@ -2,9 +2,7 @@
   "extends": "./tsconfig.demo.json",
   "compilerOptions": {
     "composite": true,
-    "outDir": "dist/demos",
-    "module": "ESNext",
-    "moduleResolution": "Node"
+    "outDir": "dist/demos"
   },
   "include": ["./demos/react/**/*", "./demos/react*/**/*"],
   "exclude": ["./packages/**/*", "./framework/**/*"],
