@@ -1,5 +1,14 @@
 # @starbeamx/store
 
+## 0.7.1
+
+### Patch Changes
+
+- Updated dependencies [4501b1f]
+  - @starbeam/debug@0.7.1
+  - @starbeam/core@0.7.1
+  - @starbeam/js@0.7.1
+
 ## 0.7.0
 
 ### Minor Changes
