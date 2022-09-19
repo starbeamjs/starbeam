@@ -1,20 +1,21 @@
 {
   "compilerOptions": {
-    "allowJs": false,
     "declaration": true,
+    "emitDeclarationOnly": true,
     "declarationMap": true,
-    "target": "ESNext",
+    "outDir": "../dist/types",
+    "jsx": "preserve",
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
     "strict": true,
-    "noEmit": true,
     "useDefineForClassFields": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
-    "module": "NodeNext",
-    "moduleResolution": "nodenext",
-    "lib": ["ESNext", "DOM"],
-    "sourceMap": true,
-    "sourceRoot": ".",
+    "resolveJsonModule": true,
+
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noImplicitReturns": true,
@@ -22,6 +23,11 @@
     "isolatedModules": true,
     "preserveValueImports": true,
     "skipLibCheck": true,
-    "skipDefaultLibCheck": true
-  }
+    "skipDefaultLibCheck": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+
+    "rootDir": "../packages"
+  },
+  "include": ["../packages/bundle/src/*.ts"]
 }

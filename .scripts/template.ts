@@ -75,19 +75,31 @@ function updateTsconfig(root: string, pkg: Package) {
   if (pkg.tsconfig) {
     editor.set(
       "extends",
-      join(relative(pkg.root, resolve(root, pkg.tsconfig))),
+      join(
+        relative(pkg.root, resolve(root, ".config", "tsconfig", pkg.tsconfig))
+      ),
       { position: 0 }
     );
   } else if (isInside("packages") || isInside("framework/react")) {
     editor.set(
       "extends",
-      join(relative(pkg.root, resolve(root, "tsconfig.package.json"))),
+      join(
+        relative(
+          pkg.root,
+          resolve(root, ".config", "tsconfig", "tsconfig.-package.json")
+        )
+      ),
       { position: 0 }
     );
   } else if (isInside("demos")) {
     editor.set(
       "extends",
-      join(relative(pkg.root, resolve(root, "tsconfig.demo.json"))),
+      join(
+        relative(
+          pkg.root,
+          resolve(root, ".config", "tsconfig", "tsconfig.-demo.json")
+        )
+      ),
       { position: 0 }
     );
   } else {

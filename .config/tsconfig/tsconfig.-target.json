@@ -1,8 +1,10 @@
 {
   "compilerOptions": {
+    "rootDir": "../..",
+
     "target": "ESNext",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "ESNext",
+    "moduleResolution": "Node",
 
     "declaration": true,
     "emitDeclarationOnly": true,

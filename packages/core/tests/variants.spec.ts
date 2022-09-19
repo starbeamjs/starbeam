@@ -79,7 +79,7 @@ describe("Variants", () => {
       }
     }, "advance");
 
-    const render = FormulaFn(() => {
+    const render = FormulaFn((): number | Error | "idle" | "loading" => {
       advance();
 
       if (lifecycle.is("idle")) {
@@ -90,6 +90,8 @@ describe("Variants", () => {
         return lifecycle.current.value;
       } else if (lifecycle.is("error")) {
         return lifecycle.current.value;
+      } else {
+        throw Error("unreachable");
       }
     }, "render");
 

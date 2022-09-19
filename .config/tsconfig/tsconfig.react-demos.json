@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.-demo.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "../../dist/demos"
+  },
+  "include": ["../../demos/react/**/*", "../../demos/react*/**/*"],
+  "exclude": ["../../packages/**/*", "../../framework/**/*"],
+  "references": [
+    {
+      "path": "./tsconfig.packages.json"
+    },
+    {
+      "path": "./tsconfig.devtool.json"
+    }
+  ]
+}

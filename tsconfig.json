@@ -5,10 +5,10 @@
 
   "files": [],
   "references": [
-    { "path": "./tsconfig-react-demos.json" },
-    { "path": "./tsconfig-rollup.json" },
-    { "path": "./tsconfig-packages.json" },
-    { "path": "./tsconfig-devtool.json" },
-    { "path": "./tsconfig-scripts.json" }
+    { "path": "./.config/tsconfig/tsconfig.react-demos.json" },
+    { "path": "./.config/tsconfig/tsconfig.rollup.json" },
+    { "path": "./.config/tsconfig/tsconfig.packages.json" },
+    { "path": "./.config/tsconfig/tsconfig.devtool.json" },
+    { "path": "./.config/tsconfig/tsconfig.scripts.json" }
   ]
 }

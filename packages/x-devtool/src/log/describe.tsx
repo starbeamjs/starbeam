@@ -1,3 +1,5 @@
+import "preact";
+
 /** @jsxRuntime automatic @jsxImportSource preact */
 
 import type {
