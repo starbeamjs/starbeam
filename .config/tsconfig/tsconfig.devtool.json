@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.-devtool.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "../../dist/packages/x-devtool"
+  },
+  "include": ["../../packages/x-devtool/**/*"],
+  "references": [
+    {
+      "path": "./tsconfig.packages.json"
+    }
+  ]
+}

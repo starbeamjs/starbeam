@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.demo.json",
+  "extends": "../../.config/tsconfig/tsconfig.-demo.json",
   "compilerOptions": {
     "declaration": true,
     "composite": true,

@@ -3,8 +3,7 @@
     "declaration": true,
     "emitDeclarationOnly": true,
     "declarationMap": true,
-    "outDir": "./dist/types",
-
+    "outDir": "../dist/types",
     "jsx": "preserve",
     "target": "esnext",
     "module": "esnext",
@@ -28,7 +27,7 @@
     "inlineSourceMap": true,
     "inlineSources": true,
 
-    "rootDir": "./packages"
+    "rootDir": "../packages"
   },
-  "include": ["./packages/bundle/src/*.ts"]
+  "include": ["../packages/bundle/src/*.ts"]
 }

@@ -23,7 +23,7 @@
       "excludedFiles": ["packages/x-devtool/**"],
       "parserOptions": {
         "sourceType": "module",
-        "project": "./tsconfig-packages.json"
+        "project": "./.config/tsconfig/tsconfig.packages.json"
       }
     },
     {
@@ -31,7 +31,7 @@
       "extends": ["./eslintrc.shared.json"],
       "parserOptions": {
         "sourceType": "module",
-        "project": "./tsconfig-devtool.json"
+        "project": "./.config/tsconfig/tsconfig.devtool.json"
       }
     },
     {
@@ -40,13 +40,13 @@
       "parser": "@typescript-eslint/parser",
       "parserOptions": {
         "sourceType": "module",
-        "project": "./tsconfig-react-demos.json"
+        "project": "./.config/tsconfig/tsconfig.react-demos.json"
       }
     },
     {
       "files": ["./rollup.config.ts", "./.build/**/*.ts", "**/vite.config.ts"],
       "extends": ["./eslintrc.shared.json"],
-      "parserOptions": { "project": "./tsconfig-rollup.json" }
+      "parserOptions": { "project": "./.config/tsconfig/tsconfig.rollup.json" }
     }
   ]
 }

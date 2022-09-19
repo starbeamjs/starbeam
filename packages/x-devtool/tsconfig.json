@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.devtool.json",
+  "extends": "../../.config/tsconfig/tsconfig.-devtool.json",
   "compilerOptions": {
     "declarationMap": true,
     "declarationDir": "../../dist/types/@starbeamx/devtool",
