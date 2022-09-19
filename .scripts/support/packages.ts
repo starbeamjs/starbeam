@@ -8,7 +8,10 @@ export interface Package {
   root: string;
   isPrivate: boolean;
   isTypescript: boolean;
-  tsconfig: string | undefined;
+  starbeam: {
+    tsconfig: string | undefined;
+    type: "interfaces" | "library" | undefined;
+  };
 }
 
 export function queryPackages(
@@ -31,7 +34,10 @@ export function queryPackages(
         root,
         isPrivate: !!pkg.private,
         isTypescript: !!(pkg.type || pkg?.exports?.["."]?.types),
-        tsconfig: pkg["starbeam:tsconfig"],
+        starbeam: {
+          tsconfig: pkg["starbeam:tsconfig"],
+          type: pkg["starbeam:type"],
+        },
       };
     })
     .filter((pkg) => query.match(pkg));

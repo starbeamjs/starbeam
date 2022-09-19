@@ -1,5 +1,5 @@
 {
-  "$schema": "https://unpkg.com/@changesets/config@2.0.1/schema.json",
+  "$schema": "https://unpkg.com/@changesets/config@2.1.1/schema.json",
   "changelog": "@changesets/cli/changelog",
   "commit": false,
   "fixed": [],
@@ -7,11 +7,11 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
+  "bumpVersionsWithWorkspaceProtocolOnly": true,
   "ignore": [
     "@starbeamx-draft/*",
     "@starbeam-tests/*",
     "@starbeam-demos/*",
-    "@starbeam-private/*",
-    "@domtree/*"
+    "@starbeam-private/*"
   ]
 }

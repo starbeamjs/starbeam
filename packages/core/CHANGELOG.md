@@ -1,5 +1,23 @@
 # @starbeam/core
 
+## 0.7.0
+
+### Minor Changes
+
+- 58f7974: Starbeam 0.7.0
+
+  - Significant improvements to debugging infrastructure
+
+### Patch Changes
+
+- Updated dependencies [58f7974]
+  - @starbeam/core-utils@0.7.0
+  - @starbeam/debug@0.7.0
+  - @starbeam/interfaces@null
+  - @starbeam/shared@1.2.0
+  - @starbeam/timeline@0.7.0
+  - @starbeam/verify@0.7.0
+
 ## 0.6.0
 
 ### Minor Changes
