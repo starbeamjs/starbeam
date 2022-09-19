@@ -18,7 +18,8 @@
     "test:lint": "eslint . --cache",
     "test:all": "esno ./scripts/scripts.ts test",
     "typecheck": "tsc --build",
-    "demos:react:store": "pnpm demo react-store"
+    "demos:react:store": "pnpm demo react-store",
+    "release": "pnpm publish -r --access public"
   },
   "devDependencies": {
     "@changesets/cli": "^2.24.4",
