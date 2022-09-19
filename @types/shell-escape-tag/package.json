@@ -1,4 +1,5 @@
 {
   "name": "@types/shell-escape-tag",
+  "private": true,
   "types": "index.d.ts"
 }

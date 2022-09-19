@@ -1,22 +1,17 @@
 import commonjs from "@rollup/plugin-commonjs";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
-import { sync as glob } from "fast-glob";
-import { readFileSync } from "fs";
-import { dirname, resolve } from "path";
+import glob from "fast-glob";
+import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "rollup";
-import ts from "rollup-plugin-ts";
-import {
-  ImportsNotUsedAsValues,
-  JsxEmit,
-  ModuleKind,
-  ModuleResolutionKind,
-  ScriptTarget,
-  type CompilerOptions,
-} from "typescript";
-import { fileURLToPath } from "url";
 import postcss from "rollup-plugin-postcss";
+import rollupTS from "rollup-plugin-ts";
 
 import importMetaPlugin from "./.build/import-meta.js";
+
+// importing from typescript using a static import massively slows down eslint for some reason.
+type CompilerOptions = import("typescript").CompilerOptions;
 
 const dir = fileURLToPath(import.meta.url);
 const root = dirname(resolve(dir));
@@ -27,10 +22,11 @@ interface PackageJSON {
   name: string;
 }
 
-const packages = glob([
-  resolve(root, "packages/*/package.json"),
-  resolve(root, "framework/*/*/package.json"),
-])
+const packages = glob
+  .sync([
+    resolve(root, "packages/*/package.json"),
+    resolve(root, "framework/*/*/package.json"),
+  ])
   .map((path): [string, PackageJSON] => [
     path,
     JSON.parse(readFileSync(path, "utf8")),
@@ -65,15 +61,17 @@ export default defineConfig(
           importMetaPlugin,
           postcss(),
           typescript("es2019", {
-            target: ScriptTarget.ES2021,
-            module: ModuleKind.CommonJS,
-            moduleResolution: ModuleResolutionKind.NodeJs,
+            target: "ES2021" as Setting<"target">,
+            module: "commonjs" as Setting<"module">,
+            moduleResolution: "node" as Setting<"moduleResolution">,
           }),
         ],
       }),
     ])
   )
 );
+
+type Setting<T extends keyof CompilerOptions> = CompilerOptions[T] & string;
 
 function external(id: string) {
   if (id.startsWith("@swc") || id === "tslib") {
@@ -88,7 +86,8 @@ function external(id: string) {
     id === "stacktracey" ||
     id === "get-source" ||
     id === "as-table" ||
-    id === "printable-characters"
+    id === "printable-characters" ||
+    id === "chalk"
   ) {
     return false;
   }
@@ -96,14 +95,10 @@ function external(id: string) {
   return true;
 }
 
-/**
- * @param {Partial<import("typescript").CompilerOptions>} [updates]
- * @returns {import("typescript").CompilerOptions}
- */
 function tsconfig(updates: CompilerOptions): CompilerOptions {
   return {
-    jsx: JsxEmit.Preserve,
-    target: ScriptTarget.ESNext,
+    jsx: "preserve" as unknown as CompilerOptions["jsx"],
+    target: "esnext" as unknown as CompilerOptions["target"],
     strict: true,
     declaration: true,
     declarationMap: true,
@@ -111,15 +106,17 @@ function tsconfig(updates: CompilerOptions): CompilerOptions {
     allowSyntheticDefaultImports: true,
     esModuleInterop: true,
     resolveJsonModule: true,
-    module: ModuleKind.NodeNext,
-    moduleResolution: ModuleResolutionKind.NodeNext,
+    module: "NodeNext" as unknown as CompilerOptions["module"],
+    moduleResolution:
+      "NodeNext" as unknown as CompilerOptions["moduleResolution"],
     experimentalDecorators: true,
     emitDecoratorMetadata: false,
     noUnusedLocals: false,
     noUnusedParameters: false,
     noImplicitReturns: true,
     noImplicitAny: true,
-    importsNotUsedAsValues: ImportsNotUsedAsValues.Error,
+    importsNotUsedAsValues:
+      "error" as unknown as CompilerOptions["importsNotUsedAsValues"],
     isolatedModules: true,
     preserveValueImports: true,
     skipLibCheck: true,
@@ -132,7 +129,7 @@ function tsconfig(updates: CompilerOptions): CompilerOptions {
 }
 
 function typescript(target: string, config?: Partial<CompilerOptions>) {
-  return ts({
+  return rollupTS({
     transpiler: "swc",
     swcConfig: {
       jsc: {

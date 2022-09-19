@@ -144,13 +144,23 @@ function updateTsconfig(root: string, pkg: Package) {
   }
 }
 
+function parse(source: string): jsonc.Node {
+  const parsed = jsonc.parseTree(source);
+
+  if (parsed === undefined) {
+    throw Error(`Unable to parse JSON (${JSON.stringify(source)})`);
+  }
+
+  return parsed;
+}
+
 class EditJsonc {
   static parse(filename: string) {
     try {
       const source = readFileSync(filename, "utf8");
-      return new EditJsonc(filename, source, jsonc.parse(source));
+      return new EditJsonc(filename, source, parse(source));
     } catch {
-      return new EditJsonc(filename, "{}", jsonc.parseTree("{}")!);
+      return new EditJsonc(filename, "{}", parse("{}"));
     }
   }
 
@@ -168,7 +178,7 @@ class EditJsonc {
     const jsonPath = this.#path(path);
     const edit = jsonc.modify(this.#source, jsonPath, undefined, {});
     this.#source = jsonc.applyEdits(this.#source, edit);
-    this.#json = jsonc.parseTree(this.#source)!;
+    this.#json = parse(this.#source);
   }
 
   addUnique(path: string, value: unknown, check: (json: unknown) => boolean) {
@@ -187,11 +197,11 @@ class EditJsonc {
 
       const edit = jsonc.modify(this.#source, [...jsonPath, index], value, {});
       this.#source = jsonc.applyEdits(this.#source, edit);
-      this.#json = jsonc.parseTree(this.#source)!;
+      this.#json = parse(this.#source);
     } else {
       const edit = jsonc.modify(this.#source, jsonPath, [value], {});
       this.#source = jsonc.applyEdits(this.#source, edit);
-      this.#json = jsonc.parseTree(this.#source)!;
+      this.#json = parse(this.#source);
     }
   }
 
@@ -208,7 +218,7 @@ class EditJsonc {
     });
 
     this.#source = jsonc.applyEdits(this.#source, edit);
-    this.#json = jsonc.parseTree(this.#source)!;
+    this.#json = parse(this.#source);
   }
 
   write() {
@@ -224,19 +234,5 @@ class EditJsonc {
         return p;
       }
     });
-  }
-}
-
-function typeIndex(tsconfig: unknown): number {
-  if (typeof tsconfig !== "object" || tsconfig === null) {
-    return -1;
-  }
-
-  const types = (tsconfig as Record<string, any>)?.compilerOptions?.types;
-
-  if (Array.isArray(types)) {
-    return types.findIndex((t) => t.endsWith("/env"));
-  } else {
-    return -1;
   }
 }

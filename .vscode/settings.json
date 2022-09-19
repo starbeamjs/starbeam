@@ -1,15 +1,24 @@
 {
   "eslint.enable": true,
-  "explorer.excludeGitIgnore": true,
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true,
-    "source.fixAll.eslint.format": true
-  },
+  "explorer.excludeGitIgnore": false,
+
   "search.exclude": {
     "**/node_modules": true,
     "**/bower_components": true,
     "**/*.code-search": true,
     "**/dist": true
+  },
+
+  "[typescript]": {
+    "editor.formatOnSave": false,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": true,
+      "source.fixAll.eslint.format": true
+    },
+  },
+  "[json]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
 
   "explorer.fileNesting.patterns": {
@@ -21,10 +30,10 @@
     "tsconfig.json": "tsconfig.*.json, tsconfig-*.json, *.tsbuildinfo",
     "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, .pnpm-debug.log, .editorconfig, .gitignore, .npmrc, .quokka, pnpm-workspace.yaml",
     ".eslintrc.json": "eslintrc*, .eslintignore, .eslintcache",
-    "vite.config.ts": "rollup.config.js, .env.*"
+    "vite.config.ts": "rollup.config.*, .env.*"
   },
   "editor.defaultFormatter": "dbaeumer.vscode-eslint",
-  "vitest.enable": true,
+  "vitest.enable": false,
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.preferences.importModuleSpecifier": "project-relative",
   "typescript.tsserver.experimental.enableProjectDiagnostics": true,
@@ -44,10 +53,10 @@
     "editor.defaultFormatter": "foxundermoon.shell-format"
   },
   "testing.automaticallyOpenPeekView": "never",
-  "browse-lite.format": "png",
-  "browse-lite.quality": 100,
-  "vscode-edge-devtools.defaultUrl": "3001",
   "[postcss]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
+  "eslint.options": {
   }
 }

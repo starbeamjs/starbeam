@@ -1,16 +1,14 @@
 {
   "root": true,
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": { "project": "./tsconfig.json" },
 
   "settings": {
     "import/resolver": {
-      "typescript": {
-        "alwaysTryTypes": true
-      }
+      "typescript": {}
     },
     "import/ignore": ["\\.js\\?script"]
   },
+
+  "ignorePatterns": ["**/node_modules/**", "node_modules/**", "*.d.ts"],
 
   "overrides": [
     {
@@ -35,7 +33,8 @@
       }
     },
     {
-      "files": ["demos/react*/**/*.ts{x,}"],
+      "files": ["./demos/react*/**/*.ts{x,}"],
+      "excludedFiles": ["./demos/*/vite.config.ts"],
       "extends": ["./eslintrc.shared.json"],
       "parser": "@typescript-eslint/parser",
       "parserOptions": {
@@ -44,7 +43,23 @@
       }
     },
     {
-      "files": ["./rollup.config.ts", "./.build/**/*.ts", "**/vite.config.ts"],
+      "files": ["./.scripts/**/*.ts"],
+      "extends": ["./eslintrc.shared.json"],
+      "parser": "@typescript-eslint/parser",
+      "parserOptions": {
+        "sourceType": "module",
+        "project": "./.config/tsconfig/tsconfig.scripts.json"
+      }
+    },
+    {
+      "files": [
+        "./rollup.config.mts",
+        "./vite.config.ts",
+        "./.build/**/*.ts",
+        "./demos/*/vite.config.ts"
+      ],
+
+      "excludedFiles": ["./.build/**/*.d.ts"],
       "extends": ["./eslintrc.shared.json"],
       "parserOptions": { "project": "./.config/tsconfig/tsconfig.rollup.json" }
     }

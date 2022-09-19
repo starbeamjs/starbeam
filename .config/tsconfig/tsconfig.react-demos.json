@@ -5,7 +5,11 @@
     "outDir": "../../dist/demos"
   },
   "include": ["../../demos/react/**/*", "../../demos/react*/**/*"],
-  "exclude": ["../../packages/**/*", "../../framework/**/*"],
+  "exclude": [
+    "../../packages/**/*",
+    "../../framework/**/*",
+    "../../demos/*/vite.config.ts"
+  ],
   "references": [
     {
       "path": "./tsconfig.packages.json"

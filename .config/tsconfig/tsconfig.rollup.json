@@ -8,12 +8,14 @@
     // intentionally not putting the output in dist/
   },
   "include": [
-    "../../rollup.config.ts",
+    "../../rollup.config.mts",
+    "../../vite.config.ts",
     "../../.build/**/*.ts",
     "../../**/vite.config.ts"
   ],
   "exclude": [
     "../../**/node_modules/**",
-    "../../packages/x-devtools-extension/**"
+    "../../packages/x-devtools-extension/**",
+    "../../**/*.d.ts"
   ]
 }

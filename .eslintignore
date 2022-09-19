@@ -10,5 +10,10 @@ node_modules
 @types/@domtree/**/*.js
 @types/@domtree/**/*.d.ts
 packages/x-devtools-extension
-rollup.config.d.ts
-vite.config.d.ts
+
+.scripts/**/*.d.ts
+!.scripts
+.build/**/*.d.ts
+!.build
+
+demos/*/vite.config.d.ts

@@ -1,17 +1,17 @@
 import commonjs from "@rollup/plugin-commonjs";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
-import { sync as glob } from "fast-glob";
-import { readFileSync } from "fs";
-import { dirname, resolve } from "path";
+import glob from "fast-glob";
+import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "rollup";
-import ts from "rollup-plugin-ts";
-import { ImportsNotUsedAsValues, JsxEmit, ModuleKind, ModuleResolutionKind, ScriptTarget, } from "typescript";
-import { fileURLToPath } from "url";
 import postcss from "rollup-plugin-postcss";
+import rollupTS from "rollup-plugin-ts";
 import importMetaPlugin from "./.build/import-meta.js";
 const dir = fileURLToPath(import.meta.url);
 const root = dirname(resolve(dir));
-const packages = glob([
+const packages = glob
+    .sync([
     resolve(root, "packages/*/package.json"),
     resolve(root, "framework/*/*/package.json"),
 ])
@@ -46,9 +46,9 @@ export default defineConfig(packages.flatMap((pkg) => defineConfig([
             importMetaPlugin,
             postcss(),
             typescript("es2019", {
-                target: ScriptTarget.ES2021,
-                module: ModuleKind.CommonJS,
-                moduleResolution: ModuleResolutionKind.NodeJs,
+                target: "ES2021",
+                module: "commonjs",
+                moduleResolution: "node",
             }),
         ],
     }),
@@ -63,19 +63,16 @@ function external(id) {
     if (id === "stacktracey" ||
         id === "get-source" ||
         id === "as-table" ||
-        id === "printable-characters") {
+        id === "printable-characters" ||
+        id === "chalk") {
         return false;
     }
     return true;
 }
-/**
- * @param {Partial<import("typescript").CompilerOptions>} [updates]
- * @returns {import("typescript").CompilerOptions}
- */
 function tsconfig(updates) {
     return {
-        jsx: JsxEmit.Preserve,
-        target: ScriptTarget.ESNext,
+        jsx: "preserve",
+        target: "esnext",
         strict: true,
         declaration: true,
         declarationMap: true,
@@ -83,15 +80,15 @@ function tsconfig(updates) {
         allowSyntheticDefaultImports: true,
         esModuleInterop: true,
         resolveJsonModule: true,
-        module: ModuleKind.NodeNext,
-        moduleResolution: ModuleResolutionKind.NodeNext,
+        module: "NodeNext",
+        moduleResolution: "NodeNext",
         experimentalDecorators: true,
         emitDecoratorMetadata: false,
         noUnusedLocals: false,
         noUnusedParameters: false,
         noImplicitReturns: true,
         noImplicitAny: true,
-        importsNotUsedAsValues: ImportsNotUsedAsValues.Error,
+        importsNotUsedAsValues: "error",
         isolatedModules: true,
         preserveValueImports: true,
         skipLibCheck: true,
@@ -103,7 +100,7 @@ function tsconfig(updates) {
     };
 }
 function typescript(target, config) {
-    return ts({
+    return rollupTS({
         transpiler: "swc",
         swcConfig: {
             jsc: {
