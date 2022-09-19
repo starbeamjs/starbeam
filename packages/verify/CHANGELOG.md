@@ -1,5 +1,11 @@
 # @starbeam/verify
 
+## 0.7.2
+
+### Patch Changes
+
+- 50f7a8f: Publish @domtree
+
 ## 0.7.0
 
 ### Minor Changes

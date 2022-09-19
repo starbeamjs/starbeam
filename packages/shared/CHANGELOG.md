@@ -1,5 +1,11 @@
 # @starbeam/shared
 
+## 1.2.1
+
+### Patch Changes
+
+- 50f7a8f: Publish @domtree
+
 ## 1.2.0
 
 ### Minor Changes

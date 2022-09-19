@@ -1,5 +1,14 @@
 # @starbeam/interfaces
 
+## 0.7.2
+
+### Patch Changes
+
+- 50f7a8f: Publish @domtree
+- Updated dependencies [50f7a8f]
+  - @domtree/any@0.9.1
+  - @starbeam/shared@1.2.1
+
 ## 0.7.1
 
 ### Patch Changes
