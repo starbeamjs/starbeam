@@ -7,12 +7,12 @@
     "@starbeam/shared": "workspace:^",
     "@starbeam/verify": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
+    "@domtree/flavors": "workspace:^",
     "stacktracey": "^2.1.8"
   },
   "devDependencies": {
     "chalk": "^5.0.1",
-    "vite": "*",
-    "@domtree/flavors": "workspace:^"
+    "vite": "*"
   },
   "publishConfig": {
     "main": "dist/index.cjs",
