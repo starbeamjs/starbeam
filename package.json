@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "build": "rollup -c ./rollup.config.js",
-    "prebuild": "tsc -p ./tsconfig-rollup.json",
+    "prebuild": "tsc -p ./.config/tsconfig/tsconfig.rollup.json",
     "dev": "esno ./.scripts/scripts.ts",
     "demo": "esno ./.scripts/scripts.ts demo",
     "lint": "eslint --cache -c ./.eslintrc.json --ext .ts,.tsx .",

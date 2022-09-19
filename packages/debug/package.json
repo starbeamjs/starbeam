@@ -2,7 +2,7 @@
   "name": "@starbeam/debug",
   "type": "module",
   "main": "index.ts",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "dependencies": {
     "@starbeam/shared": "workspace:^",
     "@starbeam/verify": "workspace:^",

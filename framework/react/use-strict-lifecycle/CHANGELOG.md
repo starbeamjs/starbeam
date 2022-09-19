@@ -1,5 +1,13 @@
 # @starbeam/use-strict-lifecycle
 
+## 0.7.0
+
+### Minor Changes
+
+- 58f7974: Starbeam 0.7.0
+
+  - Significant improvements to debugging infrastructure
+
 ## 0.6.0
 
 ### Minor Changes

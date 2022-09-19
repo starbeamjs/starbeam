@@ -1,5 +1,13 @@
 # @starbeam/shared
 
+## 1.2.0
+
+### Minor Changes
+
+- 58f7974: Starbeam 0.7.0
+
+  - Significant improvements to debugging infrastructure
+
 ## 1.1.0
 
 ### Minor Changes

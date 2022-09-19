@@ -2,7 +2,7 @@
   "name": "@starbeam/verify",
   "type": "module",
   "main": "index.ts",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "dependencies": {},
   "devDependencies": {
     "vite": "*",

@@ -37,9 +37,20 @@ export function TemplateCommand({ root }: StarbeamCommandOptions): Command {
 function updatePackageJSON(root: string, pkg: Package) {
   console.log(chalk.gray(`+ package.json`));
 
-  const splice = JSON.parse(
-    readFileSync(resolve(root, ".templates", "package", "package.json"), "utf8")
+  let templateFile;
+
+  if (pkg.starbeam.type === "interfaces") {
+    templateFile = "interfaces.package.json";
+  } else {
+    templateFile = "package.json";
+  }
+
+  const template = readFileSync(
+    resolve(root, ".templates", "package", templateFile),
+    "utf8"
   );
+
+  const splice = JSON.parse(template);
 
   const editingJSON = resolve(pkg.root, "package.json");
 
@@ -72,12 +83,12 @@ function updateTsconfig(root: string, pkg: Package) {
     (type) => typeof type === "string" && type.endsWith("/env")
   );
 
-  if (pkg.tsconfig) {
+  const tsconfig = pkg.starbeam.tsconfig;
+
+  if (tsconfig) {
     editor.set(
       "extends",
-      join(
-        relative(pkg.root, resolve(root, ".config", "tsconfig", pkg.tsconfig))
-      ),
+      join(relative(pkg.root, resolve(root, ".config", "tsconfig", tsconfig))),
       { position: 0 }
     );
   } else if (isInside("packages") || isInside("framework/react")) {
