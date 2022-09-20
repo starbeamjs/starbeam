@@ -34,7 +34,7 @@ export default defineConfig(packages.flatMap((pkg) => defineConfig([
             commonjs(),
             importMetaPlugin,
             postcss(),
-            typescript("es2022"),
+            typescript(pkg, { target: "es2022" }),
         ],
     }),
     defineConfig({
@@ -45,7 +45,7 @@ export default defineConfig(packages.flatMap((pkg) => defineConfig([
             nodeResolve(),
             importMetaPlugin,
             postcss(),
-            typescript("es2019", {
+            typescript(pkg, {
                 target: "ES2021",
                 module: "commonjs",
                 moduleResolution: "node",
@@ -69,13 +69,13 @@ function external(id) {
     }
     return true;
 }
-function tsconfig(updates) {
+function tsconfig(pkg, updates) {
     return {
         jsx: "preserve",
-        target: "esnext",
         strict: true,
         declaration: true,
         declarationMap: true,
+        emitDeclarationOnly: true,
         useDefineForClassFields: true,
         allowSyntheticDefaultImports: true,
         esModuleInterop: true,
@@ -93,28 +93,23 @@ function tsconfig(updates) {
         preserveValueImports: true,
         skipLibCheck: true,
         skipDefaultLibCheck: true,
+        sourceMap: true,
+        sourceRoot: pkg.root,
         inlineSourceMap: true,
         inlineSources: true,
         types: ["vite/client"],
         ...updates,
     };
 }
-function typescript(target, config) {
+function typescript(pkg, config) {
+    const ts = tsconfig(pkg, config ?? {});
     return rollupTS({
-        transpiler: "swc",
-        swcConfig: {
-            jsc: {
-                target,
-                keepClassNames: true,
-                externalHelpers: false,
-                parser: {
-                    syntax: "typescript",
-                    tsx: true,
-                    decorators: true,
-                },
-            },
+        transpiler: "babel",
+        transpileOnly: true,
+        babelConfig: {
+            presets: [["@babel/preset-typescript", { allowDeclareFields: true }]],
         },
-        tsconfig: tsconfig(config ?? {}),
+        tsconfig: ts,
     });
 }
 function files(root, input, format) {

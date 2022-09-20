@@ -1,8 +1,8 @@
-import { callerStack, isProd } from "@starbeam/debug";
+import { callerStack } from "@starbeam/debug";
 import { describe, expect, test } from "vitest";
 
 describe("Error stacks", () => {
-  test.skipIf(() => isProd())("getting the caller", () => {
+  test.skipIf(() => import.meta.env.PROD)("getting the caller", () => {
     const anArrow = <T>(next: () => T): T => next();
 
     function aFunction() {

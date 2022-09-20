@@ -16,8 +16,7 @@ export { Subscription, Subscriptions } from "./src/timeline/subscriptions.js";
 export { INSPECT } from "./src/timeline/timestamp.js";
 export { max, now, zero } from "./src/timeline/timestamp.js";
 export { diff } from "./src/timeline/utils.js";
-export { isDebug } from "@starbeam/debug";
-export { REACTIVE } from "../shared/index.js";
+export { REACTIVE } from "@starbeam/shared";
 
 import type * as interfaces from "@starbeam/interfaces";
 

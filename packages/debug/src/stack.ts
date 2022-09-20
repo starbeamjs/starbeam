@@ -15,7 +15,6 @@ import { getID } from "@starbeam/shared";
 import { hasType, isObject, verified } from "@starbeam/verify";
 import { default as StackTracey } from "stacktracey";
 
-import { isDebug } from "./conditional.js";
 // eslint-disable-next-line import/no-cycle
 import { Description } from "./description/impl.js";
 import { describeModule } from "./module.js";
@@ -68,7 +67,7 @@ export interface StackStatics {
 
 let PickedStack: StackStatics;
 
-if (isDebug()) {
+if (import.meta.env.DEV) {
   Error.stackTraceLimit = Infinity;
 
   class ParsedStack {

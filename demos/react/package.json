@@ -14,7 +14,6 @@
     "react-dom": "^18.1.0"
   },
   "devDependencies": {
-    "@rollup/plugin-inject": "^4.0.4",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "esbuild": "^0.14.42",

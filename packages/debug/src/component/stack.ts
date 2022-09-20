@@ -1,8 +1,6 @@
 import type { anydom } from "@domtree/flavors";
 import type * as interfaces from "@starbeam/interfaces";
 
-import { isDebug } from "../conditional.js";
-
 export interface DebugTree {
   app(description: interfaces.Description): App;
   route(description: interfaces.Description): Route;
@@ -48,7 +46,7 @@ export interface Modifier {}
 
 let PickedDebugTree: DebugTree;
 
-if (isDebug()) {
+if (import.meta.env.DEV) {
   class RootNode {
     #children: ChildNode[] = [];
     #description?: interfaces.Description;

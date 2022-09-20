@@ -5,7 +5,7 @@ import type {
   ReactiveId,
   Timestamp,
 } from "@starbeam/interfaces";
-import { REACTIVE, UNINITIALIZED } from "../../../shared/index.js";
+import { REACTIVE, UNINITIALIZED } from "@starbeam/shared";
 
 import { getID } from "./id.js";
 import { ReactiveProtocol } from "./protocol.js";

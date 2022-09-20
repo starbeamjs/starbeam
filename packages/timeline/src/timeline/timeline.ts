@@ -3,13 +3,10 @@ import {
   type DebugFilter,
   type DebugListener,
   DebugTimeline,
-  // eslint-disable-next-line unused-imports/no-unused-imports, @typescript-eslint/no-unused-vars
-  ifDebug,
-  isDebug,
 } from "@starbeam/debug";
 import type { Diff, MutableInternals, Timestamp } from "@starbeam/interfaces";
-
 import { LIFETIME } from "../lifetime/api.js";
+
 import type { Unsubscribe } from "../lifetime/object-lifetime.js";
 import type { Frame } from "./frame.js";
 import { FrameStack } from "./frames.js";
@@ -64,6 +61,25 @@ export class Timeline {
     this.#afterRender = onAdvance;
     this.#frame = FrameStack.empty(this, subscriptions);
     this.#lastOp = lastOp;
+
+    if (import.meta.env.DEV) {
+      this.attach = (
+        notify: () => void,
+        options: { filter: DebugFilter } = { filter: { type: "all" } }
+      ): DebugListener => {
+        const listener = this.#debug.attach(notify, options);
+
+        LIFETIME.on.cleanup(listener, () => listener.detach());
+
+        return listener;
+      };
+
+      this.untrackedReadBarrier = (
+        assertion: (reactive: ReactiveProtocol, caller: Stack) => void
+      ): void => {
+        this.#readAssertions.add(assertion);
+      };
+    }
   }
 
   on = {
@@ -115,7 +131,7 @@ export class Timeline {
   bump(mutable: MutableInternals, caller: Stack): Timestamp {
     const now = this.#adjustTimestamp("bumped");
 
-    if (isDebug()) {
+    if (import.meta.env.DEV) {
       this.#debug.updateCell(mutable, caller);
     }
 
@@ -172,7 +188,7 @@ export class Timeline {
   }
 
   mutation<T>(description: string, callback: () => T): T {
-    if (isDebug()) {
+    if (import.meta.env.DEV) {
       return this.#debug.mutation(description, callback);
     }
 
@@ -196,17 +212,10 @@ export class Timeline {
     }
   }
 
-  @ifDebug
-  attach(
+  declare attach: (
     notify: () => void,
-    options: { filter: DebugFilter } = { filter: { type: "all" } }
-  ): DebugListener {
-    const listener = this.#debug.attach(notify, options);
-
-    LIFETIME.on.cleanup(listener, () => listener.detach());
-
-    return listener;
-  }
+    options?: { filter: DebugFilter }
+  ) => DebugListener;
 
   get log(): DebugTimeline {
     return this.#debug;
@@ -229,10 +238,7 @@ export class Timeline {
    * untracked read occurred in a context (such as a render function) that a renderer knows will
    * produce rendered content.
    */
-  @ifDebug
-  untrackedReadBarrier(
+  declare untrackedReadBarrier: (
     assertion: (reactive: ReactiveProtocol, caller: Stack) => void
-  ): void {
-    this.#readAssertions.add(assertion);
-  }
+  ) => void;
 }

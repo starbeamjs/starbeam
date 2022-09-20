@@ -55,8 +55,5 @@
   "testing.automaticallyOpenPeekView": "never",
   "[postcss]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-
-  "eslint.options": {
   }
 }

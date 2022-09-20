@@ -16,7 +16,6 @@
   },
   "devDependencies": {
     "@esbuild-plugins/node-modules-polyfill": "^0.1.4",
-    "@rollup/plugin-inject": "^4.0.4",
     "@shopify/polaris": "^10.2.0",
     "@types/react": "^18",
     "@types/react-dom": "^18",

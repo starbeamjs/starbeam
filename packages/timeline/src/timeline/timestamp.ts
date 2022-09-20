@@ -1,9 +1,6 @@
-// eslint-disable-next-line unused-imports/no-unused-imports, @typescript-eslint/no-unused-vars
-import { DisplayStruct, ifDebug } from "@starbeam/debug";
+import { DisplayStruct } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
-// import type { IS_UPDATED_SINCE } from "../../fundamental/constants.js";
-// import { INSPECT } from "../../utils.js";
-import { bump as peerBump, now as peerNow } from "../../../shared/index.js";
+import { bump as peerBump, now as peerNow } from "@starbeam/shared";
 
 export const INSPECT = Symbol.for("nodejs.util.inspect.custom");
 
@@ -42,12 +39,14 @@ export class TimestampImpl implements interfaces.Timestamp {
 
   constructor(timestamp: number) {
     this.#timestamp = timestamp;
+
+    if (import.meta.env.DEV) {
+      this[INSPECT] = (): object =>
+        DisplayStruct("Timestamp", { at: this.#timestamp });
+    }
   }
 
-  @ifDebug
-  [INSPECT](): object {
-    return DisplayStruct("Timestamp", { at: this.#timestamp });
-  }
+  declare [INSPECT]: () => object;
 
   gt(other: Timestamp): boolean {
     TimestampImpl.assert(other, "Timestamp#gt");

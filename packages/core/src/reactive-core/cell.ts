@@ -5,8 +5,6 @@ import {
   callerStack,
   descriptionFrom,
   DisplayStruct,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-imports
-  ifDebug,
 } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
 import { UNINITIALIZED } from "@starbeam/shared";
@@ -37,6 +35,8 @@ export class ReactiveCell<T>
   readonly #internals: MutableInternalsImpl;
   readonly #equals: Equality<T>;
 
+  declare [INSPECT]: () => object;
+
   private constructor(
     value: T,
     equals: Equality<T>,
@@ -45,23 +45,21 @@ export class ReactiveCell<T>
     this.#value = value;
     this.#equals = equals;
     this.#internals = reactive;
-  }
 
-  @ifDebug
-  [INSPECT](): object {
-    const { description, lastUpdated } = this.#internals;
+    if (import.meta.env.DEV) {
+      this[INSPECT] = (): object => {
+        const { description, lastUpdated } = this.#internals;
 
-    const desc = description ? ` (${description.describe()})` : "";
+        const desc = description ? ` (${description.describe()})` : "";
 
-    return DisplayStruct(`Cell${desc}`, {
-      value: this.#value,
-      updated: lastUpdated,
-    });
-  }
+        return DisplayStruct(`Cell${desc}`, {
+          value: this.#value,
+          updated: lastUpdated,
+        });
+      };
 
-  @ifDebug
-  toString(): string {
-    return `Cell (${String(this.#value)})`;
+      this.toString = (): string => `Cell (${String(this.#value)})`;
+    }
   }
 
   freeze(): void {

@@ -22,6 +22,12 @@ interface PackageJSON {
   name: string;
 }
 
+interface Package {
+  name: string;
+  root: string;
+  main: string;
+}
+
 const packages = glob
   .sync([
     resolve(root, "packages/*/package.json"),
@@ -38,7 +44,7 @@ const packages = glob
   });
 
 export default defineConfig(
-  packages.flatMap((pkg) =>
+  packages.flatMap((pkg: Package) =>
     defineConfig([
       defineConfig({
         ...files(pkg.root, pkg.main, "esm"),
@@ -49,7 +55,7 @@ export default defineConfig(
           commonjs(),
           importMetaPlugin,
           postcss(),
-          typescript("es2022"),
+          typescript(pkg, { target: "es2022" as Setting<"target"> }),
         ],
       }),
       defineConfig({
@@ -60,7 +66,7 @@ export default defineConfig(
           nodeResolve(),
           importMetaPlugin,
           postcss(),
-          typescript("es2019", {
+          typescript(pkg, {
             target: "ES2021" as Setting<"target">,
             module: "commonjs" as Setting<"module">,
             moduleResolution: "node" as Setting<"moduleResolution">,
@@ -74,7 +80,7 @@ export default defineConfig(
 type Setting<T extends keyof CompilerOptions> = CompilerOptions[T] & string;
 
 function external(id: string) {
-  if (id.startsWith("@swc") || id === "tslib") {
+  if (id === "tslib") {
     return false;
   }
 
@@ -92,16 +98,18 @@ function external(id: string) {
     return false;
   }
 
+  console.warn("unhandled external", id);
+
   return true;
 }
 
-function tsconfig(updates: CompilerOptions): CompilerOptions {
+function tsconfig(pkg: Package, updates: CompilerOptions): CompilerOptions {
   return {
     jsx: "preserve" as unknown as CompilerOptions["jsx"],
-    target: "esnext" as unknown as CompilerOptions["target"],
     strict: true,
     declaration: true,
     declarationMap: true,
+    emitDeclarationOnly: true,
     useDefineForClassFields: true,
     allowSyntheticDefaultImports: true,
     esModuleInterop: true,
@@ -121,6 +129,8 @@ function tsconfig(updates: CompilerOptions): CompilerOptions {
     preserveValueImports: true,
     skipLibCheck: true,
     skipDefaultLibCheck: true,
+    sourceMap: true,
+    sourceRoot: pkg.root,
     inlineSourceMap: true,
     inlineSources: true,
     types: ["vite/client"],
@@ -128,22 +138,16 @@ function tsconfig(updates: CompilerOptions): CompilerOptions {
   };
 }
 
-function typescript(target: string, config?: Partial<CompilerOptions>) {
+function typescript(pkg: Package, config?: Partial<CompilerOptions>) {
+  const ts = tsconfig(pkg, config ?? {});
   return rollupTS({
-    transpiler: "swc",
-    swcConfig: {
-      jsc: {
-        target,
-        keepClassNames: true,
-        externalHelpers: false,
-        parser: {
-          syntax: "typescript",
-          tsx: true,
-          decorators: true,
-        },
-      },
+    transpiler: "babel",
+    transpileOnly: true,
+    babelConfig: {
+      presets: [["@babel/preset-typescript", { allowDeclareFields: true }]],
     },
-    tsconfig: tsconfig(config ?? {}),
+
+    tsconfig: ts,
   });
 }
 

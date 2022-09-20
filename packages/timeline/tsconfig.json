@@ -7,5 +7,6 @@
     "declarationDir": "../../dist/types/@starbeam/timeline",
     "emitDeclarationOnly": true,
     "types": ["../env"]
-  }
+  },
+  "include": ["index.ts", "src/**/*.ts", "package.json"]
 }

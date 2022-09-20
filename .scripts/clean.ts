@@ -24,7 +24,7 @@ export function CleanCommand({ root }: StarbeamCommandOptions): Command {
         return cleanFiles({
           description: options.dir,
           cwd: resolve(root, options.dir),
-          root: resolve(root, options.dir),
+          pkgRoot: resolve(root, options.dir),
           options,
         });
       }
@@ -34,7 +34,7 @@ export function CleanCommand({ root }: StarbeamCommandOptions): Command {
           await cleanFiles({
             description: pkg.name,
             cwd: pkg.root,
-            root: pkg.root,
+            pkgRoot: pkg.root,
             options,
           });
         } else {
@@ -48,31 +48,41 @@ export function CleanCommand({ root }: StarbeamCommandOptions): Command {
 async function cleanFiles({
   description,
   cwd,
-  root,
+  pkgRoot,
   options,
 }: {
   description: string;
   cwd: string;
-  root: string;
+  pkgRoot: string;
   options: { verbose: boolean; dryRun: boolean };
 }) {
   const verbose = options.dryRun || options.verbose;
   const dryRun = options.dryRun;
 
   console.log(chalk.magenta(`=== Cleaning ${description} ===`));
-  const files = await glob(["**/*.{js,jsx,d.ts,map}"], {
-    cwd,
-    ignore: ["**/node_modules/**", "**/env.d.ts"],
-  });
+  const files = await glob(
+    ["*.{js,jsx,d.ts,map}", "src/**/*.{js,jsx,d.ts,map}", "dist/"],
+    {
+      cwd,
+      objectMode: true,
+      onlyFiles: false,
+      throwErrorOnBrokenSymbolicLink: true,
+      ignore: ["**/node_modules/**", "**/env.d.ts"],
+    }
+  );
 
   if (files.length > 0) {
     for (const file of files) {
       if (verbose) {
-        console.log(chalk.gray(`- removing ${file}`));
+        console.log(chalk.gray(`- removing ${file.name}`));
       }
 
       if (!dryRun) {
-        shell.rm(resolve(root, file));
+        if (file.dirent.isDirectory()) {
+          shell.rm("-rf", resolve(pkgRoot, file.name));
+        } else {
+          shell.rm(resolve(pkgRoot, file.name));
+        }
       }
     }
   } else {

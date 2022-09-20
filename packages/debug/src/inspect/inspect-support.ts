@@ -5,7 +5,6 @@ import type {
   Style,
 } from "util";
 
-import { isDebug } from "../conditional.js";
 import {
   type DisplayStructOptions,
   type Fields,
@@ -69,7 +68,7 @@ export function inspector<I>(
 ): {
   define: (inspector: (instance: I, debug: Debug) => unknown) => void;
 } {
-  if (isDebug()) {
+  if (import.meta.env.DEV) {
     return {
       define: (inspector: (instance: I, debug: Debug) => unknown) => {
         Class.prototype[INSPECT] = function (
