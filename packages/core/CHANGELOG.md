@@ -1,5 +1,13 @@
 # @starbeam/core
 
+## 0.7.3
+
+### Patch Changes
+
+- Updated dependencies [f38704e]
+  - @starbeam/debug@0.7.3
+  - @starbeam/timeline@0.7.3
+
 ## 0.7.2
 
 ### Patch Changes
