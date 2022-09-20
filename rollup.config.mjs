@@ -57,7 +57,7 @@ function external(id) {
     if (id.startsWith("@swc") || id === "tslib") {
         return false;
     }
-    if (id.startsWith(".") || id.startsWith("/")) {
+    if (id.startsWith(".") || id.startsWith("/") || id.startsWith("#")) {
         return false;
     }
     if (id === "stacktracey" ||

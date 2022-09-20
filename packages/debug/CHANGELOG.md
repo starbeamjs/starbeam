@@ -1,5 +1,11 @@
 # @starbeam/debug
 
+## 0.7.3
+
+### Patch Changes
+
+- f38704e: Fix the build when deps have an `imports` key in their package.json
+
 ## 0.7.2
 
 ### Patch Changes
