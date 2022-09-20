@@ -78,7 +78,7 @@ function external(id: string) {
     return false;
   }
 
-  if (id.startsWith(".") || id.startsWith("/")) {
+  if (id.startsWith(".") || id.startsWith("/") || id.startsWith("#")) {
     return false;
   }
 
