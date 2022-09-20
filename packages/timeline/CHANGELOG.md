@@ -1,5 +1,16 @@
 # @starbeam/timeline
 
+## 0.7.2
+
+### Patch Changes
+
+- 50f7a8f: Publish @domtree
+- Updated dependencies [50f7a8f]
+  - @starbeam/debug@0.7.2
+  - @starbeam/interfaces@0.7.2
+  - @starbeam/shared@1.2.1
+  - @starbeam/verify@0.7.1
+
 ## 0.7.1
 
 ### Patch Changes

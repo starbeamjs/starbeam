@@ -1,5 +1,11 @@
 # @starbeam/use-strict-lifecycle
 
+## 0.7.1
+
+### Patch Changes
+
+- 50f7a8f: Publish @domtree
+
 ## 0.7.0
 
 ### Minor Changes

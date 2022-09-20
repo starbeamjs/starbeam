@@ -1,5 +1,21 @@
 # @starbeam/react
 
+## 0.7.2
+
+### Patch Changes
+
+- 50f7a8f: Publish @domtree
+- Updated dependencies [50f7a8f]
+  - @starbeam/use-strict-lifecycle@0.7.1
+  - @starbeam/core@0.7.2
+  - @starbeam/core-utils@0.7.1
+  - @starbeam/debug@0.7.2
+  - @starbeam/js@0.7.2
+  - @starbeam/modifier@0.7.2
+  - @starbeam/shared@1.2.1
+  - @starbeam/timeline@0.7.2
+  - @starbeam/verify@0.7.1
+
 ## 0.7.1
 
 ### Patch Changes
