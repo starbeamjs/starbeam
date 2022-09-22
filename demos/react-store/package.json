@@ -4,29 +4,33 @@
   "version": "1.0.0",
   "type": "module",
   "main": "index.ts",
+  "starbeam": {
+    "type": "demo:react",
+    "used": [
+      {
+        "reason": "css",
+        "packages": [
+          "purecss"
+        ]
+      }
+    ]
+  },
   "dependencies": {
     "@starbeam/core": "workspace:^",
     "@starbeam/debug": "workspace:^",
-    "@starbeam/js": "workspace:^",
     "@starbeam/react": "workspace:^",
     "@starbeamx/devtool": "workspace:^",
     "@starbeamx/store": "workspace:^",
-    "firebase": "^9.8.2",
-    "lit": "^2.2.5",
     "purecss": "^2.1.0",
     "react": "^18.1.0",
     "react-dom": "^18.1.0"
   },
   "devDependencies": {
-    "@esbuild-plugins/node-modules-polyfill": "^0.1.4",
-    "@rollup/plugin-inject": "^4.0.4",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "esbuild": "^0.14.42",
-    "rollup": "^2.75.5",
     "vite": "*",
-    "vite-plugin-fonts": "^0.6.0",
-    "vite-react-jsx": "^1.1.2"
+    "vitest": "*",
+    "vite-plugin-fonts": "^0.6.0"
   },
   "publishConfig": {
     "main": "dist/index.cjs",

@@ -10,7 +10,7 @@ import {
   timeZoneName,
 } from "../intl.js";
 
-export default function DateFormatterStarbeam() {
+export default function DateFormatterStarbeam(): JSX.Element {
   return useReactiveSetup((component) => {
     const timeZone = Cell(SYSTEM_TZ, "timeZone");
     const date = component.use(Clock(timeZone));

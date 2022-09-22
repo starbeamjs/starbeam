@@ -1,11 +1,12 @@
 {
   "name": "@domtree/any",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "type": "module",
   "types": "index.ts",
   "dependencies": {
     "@domtree/browser": "workspace:^",
-    "@domtree/interface": "workspace:^"
+    "@domtree/interface": "workspace:^",
+    "@domtree/minimal": "workspace:^"
   },
   "devDependencies": {
     "eslint": "^8.16.0"

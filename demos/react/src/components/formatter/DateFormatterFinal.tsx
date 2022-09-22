@@ -10,7 +10,9 @@ import {
   timeZoneName,
 } from "../intl.js";
 
-export default function DateFormatterStarbeam(props: { locale: string }) {
+export default function DateFormatterStarbeam(props: {
+  locale: string;
+}): JSX.Element {
   const timeZone = useCell(SYSTEM_TZ, "time zone");
 
   const date = useResource(() => {

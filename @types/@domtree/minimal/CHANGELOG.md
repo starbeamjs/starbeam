@@ -4,6 +4,14 @@
 
 ### Patch Changes
 
+- 40844fd: Try to fix the build
+- Updated dependencies [40844fd]
+  - @domtree/interface@0.9.1
+
+## 0.9.1
+
+### Patch Changes
+
 - 50f7a8f: Publish @domtree
 - Updated dependencies [50f7a8f]
   - @domtree/interface@0.9.1

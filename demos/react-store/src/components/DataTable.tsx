@@ -9,7 +9,7 @@ import { type Person, People } from "../lib/people.js";
 
 LOGGER.level = LogLevel.Debug;
 
-export default function (props: { locale: string }) {
+export default function (props: { locale: string }): JSX.Element {
   const locale = useProp(props.locale, "props.locale");
 
   const { people, append, filter, total, rows, table } = useSetup(

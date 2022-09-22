@@ -9,14 +9,18 @@
     "**/dist": true
   },
 
-  "[typescript]": {
+  "[typescript][typescriptreact]": {
     "editor.formatOnSave": false,
     "editor.codeActionsOnSave": {
       "source.fixAll.eslint": true,
       "source.fixAll.eslint.format": true
-    },
+    }
   },
-  "[json]": {
+  "[json][jsonc]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript][javascriptreact]": {
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
@@ -56,7 +60,7 @@
   "[postcss]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-
-  "eslint.options": {
+  "[svelte]": {
+    "editor.defaultFormatter": "SimonSiefke.prettier-vscode"
   }
 }

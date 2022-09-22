@@ -4,7 +4,7 @@ import { useReactiveSetup } from "@starbeam/react";
 
 import { formatLocale, SYSTEM_LOCALE, SYSTEM_TZ } from "../intl.js";
 
-export default function DateFormatterStarbeam() {
+export default function DateFormatterStarbeam(): JSX.Element {
   return useReactiveSetup((component) => {
     const date = component.use(Clock());
 

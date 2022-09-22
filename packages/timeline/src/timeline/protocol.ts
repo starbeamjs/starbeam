@@ -1,24 +1,16 @@
 import type * as Debug from "@starbeam/debug";
 import { Tree } from "@starbeam/debug";
-import type {
-  CompositeInternals,
-  DelegateInternals,
-  MutableInternals,
-  StaticInternals,
-  // eslint-disable-next-line import/no-duplicates
-} from "@starbeam/interfaces";
-// eslint-disable-next-line import/no-duplicates
 import type * as interfaces from "@starbeam/interfaces";
-import { REACTIVE } from "../../../shared/index.js";
+import { REACTIVE } from "@starbeam/shared";
 import { isPresent } from "@starbeam/verify";
 
 import { Timestamp, zero } from "./timestamp.js";
 
 interface ExhaustiveMatcher<T> {
-  mutable(internals: MutableInternals): T;
-  composite(internals: CompositeInternals): T;
-  delegate(internals: DelegateInternals): T;
-  static(internals: StaticInternals): T;
+  mutable(internals: interfaces.MutableInternals): T;
+  composite(internals: interfaces.CompositeInternals): T;
+  delegate(internals: interfaces.DelegateInternals): T;
+  static(internals: interfaces.StaticInternals): T;
 }
 
 type DefaultMatcher<T> = Partial<ExhaustiveMatcher<T>> & {
@@ -63,14 +55,14 @@ export const ReactiveProtocol = {
   dependencies(
     this: void,
     reactive: ReactiveProtocol
-  ): Iterable<MutableInternals> {
+  ): Iterable<interfaces.MutableInternals> {
     return ReactiveInternals.dependencies(reactive[REACTIVE]);
   },
 
   *dependenciesInList(
     this: void,
     children: readonly ReactiveProtocol[]
-  ): Iterable<MutableInternals> {
+  ): Iterable<interfaces.MutableInternals> {
     for (const child of children) {
       yield* ReactiveInternals.dependencies(child[REACTIVE]);
     }
@@ -126,7 +118,7 @@ export const ReactiveInternals = {
 
   *dependencies(
     internals: interfaces.ReactiveInternals
-  ): Iterable<MutableInternals> {
+  ): Iterable<interfaces.MutableInternals> {
     switch (internals.type) {
       case "static":
         return;
@@ -151,7 +143,7 @@ export const ReactiveInternals = {
   *dependenciesInList(
     this: void,
     children: readonly ReactiveInternals[]
-  ): Iterable<MutableInternals> {
+  ): Iterable<interfaces.MutableInternals> {
     for (const child of children) {
       yield* ReactiveInternals.dependencies(child);
     }

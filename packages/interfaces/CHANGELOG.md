@@ -1,5 +1,14 @@
 # @starbeam/interfaces
 
+## 0.7.3
+
+### Patch Changes
+
+- 40844fd: Try to fix the build
+- Updated dependencies [40844fd]
+  - @domtree/any@0.9.1
+  - @starbeam/shared@1.2.2
+
 ## 0.7.2
 
 ### Patch Changes

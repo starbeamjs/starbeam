@@ -1,4 +1,4 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig, type UserConfigExport } from "vitest/config";
 
 const BUNDLED_EXTERNAL_PACKAGES = [
   "stacktracey",
@@ -11,7 +11,7 @@ const BUNDLED_EXTERNAL_PACKAGES = [
 
 const EXTERNAL_PACKAGES = ["react", "react-dom"];
 
-export default defineConfig({
+const config: UserConfigExport = defineConfig({
   optimizeDeps: {
     include: ["stacktracey"],
   },
@@ -72,3 +72,5 @@ export default defineConfig({
     // allowOnly: true,
   },
 });
+
+export default config;

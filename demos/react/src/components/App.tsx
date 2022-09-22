@@ -12,7 +12,7 @@ import DateFormatterv3 from "./formatter/DateFormatter-v3.jsx";
 import DateFormatterFinal from "./formatter/DateFormatterFinal.jsx";
 import { formatLocale, LOCALES, SYSTEM_LOCALE } from "./intl.js";
 
-export default function App() {
+export default function App(): JSX.Element {
   const [locale, setLocale] = useState(SYSTEM_LOCALE);
 
   const LocaleSelector = () => (

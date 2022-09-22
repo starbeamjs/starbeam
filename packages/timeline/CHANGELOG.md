@@ -1,5 +1,16 @@
 # @starbeam/timeline
 
+## 0.7.4
+
+### Patch Changes
+
+- 40844fd: Try to fix the build
+- Updated dependencies [40844fd]
+  - @starbeam/debug@0.7.4
+  - @starbeam/interfaces@0.7.3
+  - @starbeam/verify@0.7.3
+  - @starbeam/shared@1.2.2
+
 ## 0.7.3
 
 ### Patch Changes

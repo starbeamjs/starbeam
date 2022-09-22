@@ -27,7 +27,7 @@ class Table<T> {
   }
 }
 
-export default function Database(props: { locale: string }) {
+export default function Database(props: { locale: string }): JSX.Element {
   const locale = useProp(props.locale, "locale");
 
   return useReactiveSetup(() => {

@@ -1,15 +1,13 @@
 {
   "root": true,
 
+  "ignorePatterns": ["**/node_modules/**", "node_modules/**", "*.d.ts"],
   "settings": {
     "import/resolver": {
       "typescript": {}
     },
     "import/ignore": ["\\.js\\?script"]
   },
-
-  "ignorePatterns": ["**/node_modules/**", "node_modules/**", "*.d.ts"],
-
   "overrides": [
     {
       "files": [
@@ -43,7 +41,7 @@
       }
     },
     {
-      "files": ["./.scripts/**/*.ts"],
+      "files": ["./scripts/**/*.ts"],
       "extends": ["./eslintrc.shared.json"],
       "parser": "@typescript-eslint/parser",
       "parserOptions": {
@@ -53,7 +51,7 @@
     },
     {
       "files": [
-        "./rollup.config.mts",
+        "./rollup.config.ts",
         "./vite.config.ts",
         "./.build/**/*.ts",
         "./demos/*/vite.config.ts"

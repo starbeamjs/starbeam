@@ -3,10 +3,19 @@
   "name": "@starbeam-tests/verify",
   "version": "1.0.0",
   "type": "module",
+  "starbeam:type": "tests",
   "dependencies": {
     "@starbeam/verify": "workspace:^"
   },
-  "devDependencies": {
-    "vite": "*"
+  "publishConfig": {
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      }
+    }
   }
 }

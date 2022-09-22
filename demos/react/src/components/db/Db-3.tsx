@@ -27,7 +27,7 @@ class Table<T> {
   }
 }
 
-export default function Database() {
+export default function Database(): JSX.Element {
   return useReactiveSetup(() => {
     const people = new Table<Person>(["name", "location"]);
 

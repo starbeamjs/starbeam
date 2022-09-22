@@ -2,9 +2,6 @@ import {
   type Description,
   callerStack,
   descriptionFrom,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-imports
-  ifDebug,
-  isDebug,
 } from "@starbeam/debug";
 import type { Stack } from "@starbeam/interfaces";
 import type { UNINITIALIZED } from "@starbeam/shared";
@@ -49,7 +46,7 @@ export function PolledFormula<T>(
   const frame = Frame.uninitialized<T | UNINITIALIZED>(TIMELINE.now, desc);
 
   const update = (caller: Stack = callerStack()) => {
-    if (isDebug()) {
+    if (import.meta.env.DEV) {
       const oldDeps = new Set(ReactiveProtocol.dependencies(frame));
 
       TIMELINE.frame.update({

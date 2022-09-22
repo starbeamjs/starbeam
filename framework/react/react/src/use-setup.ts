@@ -2,7 +2,6 @@ import { PolledFormulaFn } from "@starbeam/core";
 import { isObject } from "@starbeam/core-utils";
 import { type Description, descriptionFrom, Message } from "@starbeam/debug";
 import {
-  isDebug,
   LIFETIME,
   Reactive,
   ReactiveProtocol,
@@ -19,7 +18,7 @@ import { ReactiveElement } from "./element.js";
 
 let WARNED = false;
 
-if (isDebug()) {
+if (import.meta.env.DEV) {
   TIMELINE.untrackedReadBarrier((reactive, stack) => {
     if (isRendering()) {
       if (!WARNED) {

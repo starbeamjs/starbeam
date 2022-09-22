@@ -2,7 +2,7 @@
   "extends": "./tsconfig.-demo.json",
   "compilerOptions": {
     "composite": true,
-    "outDir": "../../dist/demos"
+    "outDir": "../../dist/packages"
   },
   "include": ["../../demos/react/**/*", "../../demos/react*/**/*"],
   "exclude": [

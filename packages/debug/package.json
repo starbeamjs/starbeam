@@ -2,7 +2,8 @@
   "name": "@starbeam/debug",
   "type": "module",
   "main": "index.ts",
-  "version": "0.7.3",
+  "version": "0.7.4",
+  "starbeam:type": "library",
   "dependencies": {
     "@starbeam/shared": "workspace:^",
     "@starbeam/verify": "workspace:^",
@@ -11,8 +12,7 @@
     "stacktracey": "^2.1.8"
   },
   "devDependencies": {
-    "chalk": "^5.0.1",
-    "vite": "*"
+    "chalk": "^5.0.1"
   },
   "publishConfig": {
     "main": "dist/index.cjs",

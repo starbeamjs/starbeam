@@ -5,6 +5,7 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
 
+    "importHelpers": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": false,
     "noUnusedLocals": false,

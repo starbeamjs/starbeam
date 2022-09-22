@@ -66,7 +66,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: "Setup node and install dependencies"
         uses: ./.github/actions/setup-node-and-install
-      - run: pnpm typecheck
+      - run: pnpm check:types
 
   lint:
     name: "Lint"
@@ -76,7 +76,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: "Setup node and install dependencies"
         uses: ./.github/actions/setup-node-and-install
-      - run: pnpm lint
+      - run: pnpm check:lint
 
 
   release:

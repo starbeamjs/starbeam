@@ -1,11 +1,10 @@
 {
   "name": "@starbeam/core-utils",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "type": "module",
   "main": "index.ts",
-  "dependencies": {
-    "@starbeam/shared": "workspace:^"
-  },
+  "starbeam:type": "library",
+  "dependencies": {},
   "devDependencies": {},
   "publishConfig": {
     "main": "dist/index.cjs",

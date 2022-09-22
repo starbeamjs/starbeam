@@ -3,7 +3,6 @@ import { getID } from "@starbeam/shared";
 import { exhaustive } from "@starbeam/verify";
 import chalk from "chalk";
 
-import { isDebug } from "../conditional.js";
 import { DisplayStruct } from "../inspect/display-struct.js";
 import { DisplayParts } from "../module.js";
 // eslint-disable-next-line import/no-cycle
@@ -30,7 +29,7 @@ export interface DescriptionStatics {
   from(args: interfaces.DescriptionArgs): interfaces.Description;
 }
 
-if (isDebug()) {
+if (import.meta.env.DEV) {
   class DebugDescription
     implements interfaces.Description, interfaces.DescriptionArgs
   {

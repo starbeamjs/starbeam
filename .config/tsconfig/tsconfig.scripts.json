@@ -2,8 +2,8 @@
   "extends": "./tsconfig.-target.json",
   "compilerOptions": {
     "composite": true,
-    "outDir": "../../dist/.scripts"
+    "outDir": "../../dist/packages"
   },
-  "include": ["../../.scripts/**/*.ts", "../../package.json"],
-  "exclude": ["../../.scripts/node_modules/**"]
+  "include": ["../../scripts/**/*.ts", "../../package.json"],
+  "exclude": ["../../scripts/node_modules/**"]
 }

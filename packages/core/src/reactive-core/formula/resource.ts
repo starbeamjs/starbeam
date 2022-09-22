@@ -15,7 +15,7 @@
 
 import type { Description } from "@starbeam/debug";
 import { descriptionFrom } from "@starbeam/debug";
-import { type Reactive, type Unsubscribe, LIFETIME } from "@starbeam/timeline";
+import { Reactive, type Unsubscribe, LIFETIME } from "@starbeam/timeline";
 
 import { FormulaFn } from "./formula.js";
 import { Setups } from "./setups.js";
@@ -67,9 +67,11 @@ export function Resource<T>(
     create({ owner }: { owner: object }) {
       const builder = new ResourceBuilder(Setups(desc.detail("setups")));
       const fn = create(builder);
+      const reactive = Reactive.is(fn) ? fn : FormulaFn(fn, desc);
+
       const resource = FormulaFn(() => {
         ResourceBuilder.validate(builder);
-        return fn();
+        return reactive.read();
       }, desc);
 
       LIFETIME.link(owner, builder);
@@ -91,7 +93,9 @@ Resource.setup = function <T>(resource: Resource<T>): void {
   }
 };
 
-type ResourceConstructor<T> = (resource: ResourceBuilder) => () => T;
+type ResourceConstructor<T> = (
+  resource: ResourceBuilder
+) => (() => T) | Reactive<T>;
 
 export interface Resource<T> extends Reactive<T> {
   readonly current: T;

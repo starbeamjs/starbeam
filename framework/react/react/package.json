@@ -2,7 +2,8 @@
   "name": "@starbeam/react",
   "type": "module",
   "main": "index.ts",
-  "version": "0.7.3",
+  "version": "0.7.4",
+  "starbeam:type": "library",
   "dependencies": {
     "@starbeam/core": "workspace:^",
     "@starbeam/debug": "workspace:^",
@@ -10,12 +11,12 @@
     "@starbeam/core-utils": "workspace:^",
     "@starbeam/verify": "workspace:^",
     "@starbeam/timeline": "workspace:^",
-    "@starbeam/shared": "workspace:^",
     "@starbeam/js": "workspace:^",
     "@starbeam/modifier": "workspace:^"
   },
   "devDependencies": {
-    "@types/react": "^18.0.9"
+    "@types/react": "^18.0.9",
+    "@domtree/flavors": "workspace:^"
   },
   "peerDependencies": {
     "react": "^18.2.0",

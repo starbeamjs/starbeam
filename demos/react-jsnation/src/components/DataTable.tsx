@@ -9,7 +9,7 @@ import { Table } from "../lib/table.js";
 
 LOGGER.level = LogLevel.Debug;
 
-export default function (props: { locale: string }) {
+export default function (props: { locale: string }): JSX.Element {
   const locale = useProp(props.locale, "props.locale");
 
   return useReactiveSetup((component) => {

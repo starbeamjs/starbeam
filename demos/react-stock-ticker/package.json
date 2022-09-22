@@ -1,0 +1,44 @@
+{
+  "name": "@starbeam-demos/stock-ticker",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.ts",
+  "starbeam:type": "demo:react",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@starbeam/core": "workspace:^",
+    "@starbeam/js": "workspace:^",
+    "@starbeam/react": "workspace:^",
+    "@starbeamx/devtool": "workspace:*",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
+    "react-portal": "^4.2.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.12",
+    "@types/react-dom": "^18.0.5",
+    "@types/react-portal": "^4.0.4",
+    "vite": "*",
+    "vitest": "*",
+    "vite-plugin-fonts": "^0.6.0"
+  },
+  "publishConfig": {
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "exports": {
+    "default": "./index.ts"
+  }
+}

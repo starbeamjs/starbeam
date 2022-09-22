@@ -6,4 +6,4 @@ packages:
   - framework/*/*
   - framework/*/*/tests
   - demos/*
-  - .scripts
+  - scripts

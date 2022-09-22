@@ -1,9 +1,21 @@
 {
   "private": true,
+  "version": "1.0.0",
   "name": "@starbeam-tests/core-utils",
   "type": "module",
+  "starbeam:type": "tests",
   "dependencies": {
     "@starbeam/core-utils": "workspace:^"
   },
-  "version": null
+  "publishConfig": {
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      }
+    }
+  }
 }

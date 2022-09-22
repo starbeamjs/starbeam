@@ -30,7 +30,11 @@ export const LOCALES = [
 export const SYSTEM_LOCALE = Intl.DateTimeFormat().resolvedOptions().locale;
 export const SYSTEM_TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-export function formatLocale(localeName: string) {
+export function formatLocale(localeName: string): {
+  language: string;
+  region: string | void;
+  full: string;
+} {
   const locale = new Intl.Locale(localeName);
 
   return {

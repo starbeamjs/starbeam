@@ -2,7 +2,7 @@
   "extends": "./tsconfig.-devtool.json",
   "compilerOptions": {
     "composite": true,
-    "outDir": "../../dist/packages/x-devtool"
+    "outDir": "../../dist/packages"
   },
   "include": ["../../packages/x-devtool/**/*"],
   "references": [

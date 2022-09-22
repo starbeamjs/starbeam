@@ -2,12 +2,8 @@
   "name": "@starbeam/verify",
   "type": "module",
   "main": "index.ts",
-  "version": "0.7.2",
-  "dependencies": {},
-  "devDependencies": {
-    "vite": "*",
-    "@types/node": "^18.0.4"
-  },
+  "version": "0.7.3",
+  "starbeam:type": "library",
   "publishConfig": {
     "main": "dist/index.cjs",
     "types": "dist/index.d.ts",
