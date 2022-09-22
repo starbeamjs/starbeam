@@ -25,6 +25,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.38.0
       '@typescript-eslint/parser': ^5.38.0
       '@vitest/ui': 0.23.4
+      babel-eslint: ^10.1.0
       eslint: ^8.23.1
       eslint-config-airbnb: ^19.0.4
       eslint-config-prettier: ^8.5.0
@@ -62,6 +63,7 @@ importers:
       '@typescript-eslint/eslint-plugin': 5.38.0_wsb62dxj2oqwgas4kadjymcmry
       '@typescript-eslint/parser': 5.38.0_irgkl5vooow2ydyo6aokmferha
       '@vitest/ui': 0.23.4
+      babel-eslint: 10.1.0_eslint@8.23.1
       eslint: 8.23.1
       eslint-config-airbnb: 19.0.4_4zstfqq5uopk5xuvotejlnl36y
       eslint-config-prettier: 8.5.0_eslint@8.23.1
@@ -432,13 +434,11 @@ importers:
 
   packages/core/tests:
     specifiers:
-      '@starbeam-workspace/test-utils': workspace:^
       '@starbeam/core': workspace:^
       '@starbeam/debug': workspace:^
       '@starbeam/js': workspace:^
       '@starbeam/timeline': workspace:^
     dependencies:
-      '@starbeam-workspace/test-utils': link:../../test-utils
       '@starbeam/core': link:..
       '@starbeam/debug': link:../../debug
       '@starbeam/js': link:../../js
@@ -526,10 +526,7 @@ importers:
       '@starbeam/shared': link:..
 
   packages/test-utils:
-    specifiers:
-      '@starbeam/shared': workspace:^
-    dependencies:
-      '@starbeam/shared': link:../shared
+    specifiers: {}
 
   packages/timeline:
     specifiers:
@@ -3123,6 +3120,24 @@ packages:
     resolution: {integrity: sha512-Td525n+iPOOyUQIeBfcASuG6uJsDOITl7Mds5gFyerkWiX7qhUTdYUBlSgNMyVqtSJqwpt1kXGLdUt6SykLMRA==}
     dev: true
 
+  /babel-eslint/10.1.0_eslint@8.23.1:
+    resolution: {integrity: sha512-ifWaTHQ0ce+448CYop8AdrQiBsGrnC+bMgfyKFdi6EsPLTAWG+QfyDeM6OH+FmWnKvEq5NnBMLvlBUPKQZoDSg==}
+    engines: {node: '>=6'}
+    deprecated: babel-eslint is now @babel/eslint-parser. This package will no longer receive updates.
+    peerDependencies:
+      eslint: '>= 4.12.1'
+    dependencies:
+      '@babel/code-frame': 7.18.6
+      '@babel/parser': 7.19.1
+      '@babel/traverse': 7.19.1
+      '@babel/types': 7.19.0
+      eslint: 8.23.1
+      eslint-visitor-keys: 1.3.0
+      resolve: 1.22.1
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
   /babel-plugin-dynamic-import-node/2.3.3:
     resolution: {integrity: sha512-jZVI+s9Zg3IqA/kdi0i6UDCybUI3aSBLnglhYbSSjKlV7yF1F/5LWv8MakQmvYpnbJDS6fcBL2KzHSxNCMtWSQ==}
     dependencies:
@@ -4611,6 +4626,11 @@ packages:
     dependencies:
       eslint: 8.23.1
       eslint-visitor-keys: 2.1.0
+    dev: true
+
+  /eslint-visitor-keys/1.3.0:
+    resolution: {integrity: sha512-6J72N8UNa462wa/KFODt/PJ3IU60SDpC3QXC1Hjc1BXXpfL2C9R5+AU7jhe0F6GREqVMh4Juu+NY7xn+6dipUQ==}
+    engines: {node: '>=4'}
     dev: true
 
   /eslint-visitor-keys/2.1.0:
