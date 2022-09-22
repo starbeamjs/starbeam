@@ -13,6 +13,7 @@ import { UnusedCommand } from "./unused.js";
 import { TemplateCommand } from "./template.js";
 import { TestCommand } from "./test.js";
 import { CheckCommand } from "./check.js";
+import { ReleaseCommand } from "./release.js";
 
 const root = resolve(dirname(import.meta), "..");
 new StarbeamCommands(
@@ -37,4 +38,5 @@ new StarbeamCommands(
   .add(TemplateCommand)
   .add(TestCommand)
   .add(CheckCommand)
+  .add(ReleaseCommand)
   .run();
