@@ -1,5 +1,11 @@
 # @starbeam/shared
 
+## 1.2.2
+
+### Patch Changes
+
+- 40844fd: Try to fix the build
+
 ## 1.2.1
 
 ### Patch Changes

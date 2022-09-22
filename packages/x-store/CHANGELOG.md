@@ -1,5 +1,14 @@
 # @starbeamx/store
 
+## 0.7.4
+
+### Patch Changes
+
+- 40844fd: Try to fix the build
+- Updated dependencies [40844fd]
+  - @starbeam/debug@0.7.4
+  - @starbeam/js@0.7.4
+
 ## 0.7.3
 
 ### Patch Changes

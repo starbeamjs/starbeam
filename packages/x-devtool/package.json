@@ -4,7 +4,7 @@
   "private": true,
   "main": "index.tsx",
   "starbeam:tsconfig": "tsconfig.-devtool.json",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "dependencies": {
     "@starbeam/debug": "workspace:^",
     "@starbeam/timeline": "workspace:^",

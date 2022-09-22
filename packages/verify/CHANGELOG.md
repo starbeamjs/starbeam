@@ -1,5 +1,11 @@
 # @starbeam/verify
 
+## 0.7.3
+
+### Patch Changes
+
+- 40844fd: Try to fix the build
+
 ## 0.7.2
 
 ### Patch Changes
