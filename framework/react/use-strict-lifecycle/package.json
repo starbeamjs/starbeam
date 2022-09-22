@@ -4,6 +4,7 @@
   "version": "0.7.3",
   "type": "module",
   "main": "index.ts",
+  "starbeam:type": "library",
   "scripts": {
     "doc": "node ./scripts/doc.js",
     "doc:readme": "node ./scripts/doc.js README",

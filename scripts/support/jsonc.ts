@@ -14,11 +14,13 @@ export class EditJsonc {
 
   #filename: string;
   #source: string;
+  readonly #original: string;
   #json: jsonc.Node;
 
   constructor(filename: string, source: string, json: jsonc.Node) {
     this.#filename = filename;
     this.#source = source;
+    this.#original = source;
     this.#json = json;
   }
 
@@ -43,7 +45,7 @@ export class EditJsonc {
     const jsonPath = this.#path(path);
     const node = jsonc.findNodeAtLocation(this.#json, jsonPath);
 
-    if (node && node.type === "array") {
+    if (node && node.type === "array" && node.value) {
       const value = node.value as unknown[];
       const index = value.findIndex((v) => check(v));
 
@@ -73,9 +75,20 @@ export class EditJsonc {
     this.#json = parse(this.#source);
   }
 
-  write(): void {
+  /**
+   * Write the JSON to the file. If the JSON is unchanged, the file is not
+   * written, and false is returned. If the JSON is changed, the file is
+   * written, and true is returned.
+   */
+  write(): "create" | "update" | "remove" | false {
     const formatted = format(this.#source, { parser: "json" });
-    writeFileSync(this.#filename, formatted);
+
+    if (formatted !== this.#original) {
+      writeFileSync(this.#filename, formatted);
+      return "update";
+    } else {
+      return false;
+    }
   }
 
   #path(source: string) {

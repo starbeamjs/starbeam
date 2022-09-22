@@ -7,14 +7,17 @@
   "exports": {
     "default": "./index.ts"
   },
-  "starbeam:used": [
-    {
-      "reason": "css",
-      "packages": [
-        "purecss"
-      ]
-    }
-  ],
+  "starbeam": {
+    "type": "demo:react",
+    "used": [
+      {
+        "reason": "css",
+        "packages": [
+          "purecss"
+        ]
+      }
+    ]
+  },
   "dependencies": {
     "@starbeam/core": "workspace:^",
     "@starbeam/debug": "workspace:^",

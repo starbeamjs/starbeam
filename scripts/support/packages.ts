@@ -7,6 +7,7 @@ export type StarbeamType =
   | "interfaces"
   | "library"
   | "tests"
+  | "demo:react"
   | "unknown"
   | "draft";
 
@@ -56,12 +57,17 @@ export class Package {
     | "tests"
     | "unknown"
     | "draft"
+    | "demo:react"
     | undefined {
     return this.info.starbeam.type;
   }
 
   get used(): Used[] {
     return this.info.starbeam.used;
+  }
+
+  resolve(...path: string[]): string {
+    return resolve(this.root, ...path);
   }
 }
 

@@ -12,9 +12,10 @@ import { DemoCommand } from "./demo.js";
 import { UnusedCommand } from "./unused.js";
 import { TemplateCommand } from "./template.js";
 import { TestCommand } from "./test.js";
+import { CheckCommand } from "./check.js";
 
 const root = resolve(dirname(import.meta), "..");
-const starbeam = new StarbeamCommands(
+new StarbeamCommands(
   root,
   program
     .name("pnpm dev")
@@ -35,4 +36,5 @@ const starbeam = new StarbeamCommands(
   .add(DemoCommand)
   .add(TemplateCommand)
   .add(TestCommand)
+  .add(CheckCommand)
   .run();

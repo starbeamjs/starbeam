@@ -8,8 +8,7 @@
     "@starbeam/core": "workspace:^",
     "@starbeam/js": "workspace:^",
     "@starbeam/timeline": "workspace:^",
-    "@starbeam/debug": "workspace:^",
-    "@starbeam-workspace/test-utils": "workspace:^"
+    "@starbeam/debug": "workspace:^"
   },
   "publishConfig": {
     "main": "dist/index.cjs",

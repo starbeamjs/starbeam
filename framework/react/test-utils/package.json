@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "main": "index.ts",
+  "starbeam:type": "library",
   "dependencies": {
     "@starbeam-workspace/test-utils": "workspace:^",
     "@starbeam/debug": "workspace:^"

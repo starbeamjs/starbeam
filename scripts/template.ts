@@ -5,27 +5,31 @@ import { QueryCommand } from "./support/commands";
 import type { JsonValue, Package, StarbeamType } from "./support/packages.js";
 import { EditJsonc } from "./support/jsonc.js";
 import { log, comment, header } from "./support/log.js";
+import type { Workspace } from "./support/workspace.js";
 
 export const TemplateCommand = QueryCommand("template", {
   description: "template a package",
   notes:
     "Packages are only included if they include a `main` field in their package.json",
-}).action(({ packages, root, verbose }) => {
-  const updateAll = new UpdatePackages(root, verbose);
+}).action(({ packages, workspace, verbose }) => {
+  const updateAll = new UpdatePackages(workspace, verbose);
   for (const pkg of packages) {
     const updater = updateAll.pkg(pkg);
-    log(`=== Updating ${pkg.name} ===`, header);
+
     updatePackageJSON(updater);
     if (pkg.isTests) {
-      updateTest(root, updater);
-    } else if (pkg.isTypescript) {
-      // intentionally leave out tsconfig in tests
-      updateTsconfig(root, updater);
+      updateTest(workspace, updater);
     }
+
+    if (pkg.isTypescript) {
+      updateTsconfig(workspace, updater);
+    }
+
+    updater.done();
   }
 });
 
-function updatePackageJSON(updater: UpdatePackage) {
+function updatePackageJSON(updater: UpdatePackage): void {
   let templateFile: TemplateName;
 
   if (updater.type === "interfaces") {
@@ -50,24 +54,40 @@ function updatePackageJSON(updater: UpdatePackage) {
   });
 }
 
-function updateTsconfig(root: string, updater: UpdatePackage) {
+function updateTsconfig(workspace: Workspace, updater: UpdatePackage): void {
   const parent = updater.resolve("..");
   const relativeParent = updater.relative(parent);
 
-  console.log(chalk.gray(`+ tsconfig.json`));
-
   const editor = updater.jsonEditor("tsconfig.json");
+
+  editor.remove("compilerOptions.emitDeclarationOnly");
 
   editor.addUnique(
     "compilerOptions.types",
-    updater.relative(resolve(root, "packages", "./env")),
+    updater.relative(workspace.resolve("packages", "env")),
     (type) => typeof type === "string" && type.endsWith("/env")
   );
+
+  if (updater.type === "demo:react") {
+    const path = updater.relative(
+      workspace.resolve("packages", "x-devtool", "tsconfig.json")
+    );
+
+    editor.addUnique(
+      "references",
+      {
+        path,
+      },
+      (reference) => isObject(reference) && reference.path === path
+    );
+  }
 
   if (updater.tsconfig) {
     editor.set(
       "extends",
-      updater.resolve(resolve(root, ".config", "tsconfig", updater.tsconfig)),
+      updater.relative(
+        workspace.resolve(".config", "tsconfig", updater.tsconfig)
+      ),
       { position: 0 }
     );
   } else if (
@@ -77,7 +97,7 @@ function updateTsconfig(root: string, updater: UpdatePackage) {
     editor.set(
       "extends",
       updater.relative(
-        resolve(root, ".config", "tsconfig", "tsconfig.-package.json")
+        workspace.resolve(".config", "tsconfig", "tsconfig.-package.json")
       ),
       { position: 0 }
     );
@@ -85,7 +105,7 @@ function updateTsconfig(root: string, updater: UpdatePackage) {
     editor.set(
       "extends",
       updater.relative(
-        resolve(root, ".config", "tsconfig", "tsconfig.-demo.json")
+        workspace.resolve(".config", "tsconfig", "tsconfig.-demo.json")
       ),
       { position: 0 }
     );
@@ -101,15 +121,23 @@ function updateTsconfig(root: string, updater: UpdatePackage) {
   }
 
   editor.set("compilerOptions.composite", true);
+  editor.set(
+    "compilerOptions.outDir",
+    updater.relative(workspace.resolve("dist", "packages"))
+  );
   editor.set("compilerOptions.declaration", true);
-  editor.set("compilerOptions.emitDeclarationOnly", true);
   editor.set(
     "compilerOptions.declarationDir",
-    updater.relative(resolve(root, "dist", "types", ...updater.name.split("/")))
+    updater.relative(workspace.resolve("dist", "types"))
   );
+
   editor.set("compilerOptions.declarationMap", true);
 
-  editor.write();
+  const changed = editor.write();
+
+  if (changed) {
+    updater.change(changed, "tsconfig.json");
+  }
 }
 
 type TemplateName =
@@ -119,28 +147,28 @@ type TemplateName =
   | "tsconfig.json";
 
 class Templates {
-  readonly #root: string;
+  readonly #workspace: Workspace;
 
-  constructor(root: string) {
-    this.#root = root;
+  constructor(workspace: Workspace) {
+    this.#workspace = workspace;
   }
 
   get(name: TemplateName): string {
     return readFileSync(
-      resolve(this.#root, ".templates", "package", name),
+      this.#workspace.resolve(".templates", "package", name),
       "utf8"
     );
   }
 }
 
 class UpdatePackages {
-  readonly #root: string;
+  readonly #workspace: Workspace;
   readonly #templates: Templates;
   readonly #verbose: boolean;
 
-  constructor(root: string, verbose: boolean) {
-    this.#root = root;
-    this.#templates = new Templates(root);
+  constructor(workspace: Workspace, verbose: boolean) {
+    this.#workspace = workspace;
+    this.#templates = new Templates(workspace);
     this.#verbose = verbose;
   }
 
@@ -151,12 +179,12 @@ class UpdatePackages {
   }
 
   pkg(pkg: Package) {
-    return new UpdatePackage(pkg, this);
+    return new UpdatePackage(pkg, this, this.#workspace);
   }
 
-  get root(): string {
-    return this.#root;
-  }
+  // get root(): string {
+  //   return this.#workspace.ro;
+  // }
 
   template(name: TemplateName): string {
     return this.#templates.get(name);
@@ -166,14 +194,13 @@ class UpdatePackages {
 class UpdatePackage {
   readonly #pkg: Package;
   readonly #packages: UpdatePackages;
+  readonly #workspace: Workspace;
+  #emittedHeader = false;
 
-  constructor(pkg: Package, packages: UpdatePackages) {
+  constructor(pkg: Package, packages: UpdatePackages, workspace: Workspace) {
     this.#pkg = pkg;
     this.#packages = packages;
-  }
-
-  get #root(): string {
-    return this.#packages.root;
+    this.#workspace = workspace;
   }
 
   get tsconfig(): string | undefined {
@@ -188,12 +215,44 @@ class UpdatePackage {
     return this.#pkg.type;
   }
 
+  done(): void {
+    if (this.#emittedHeader) {
+      console.groupEnd();
+    } else {
+      this.#packages.verbose(() =>
+        log(`${header.dim(this.name)}${comment(": no changes")}`)
+      );
+    }
+  }
+
+  change(kind: "create" | "remove" | "update", description: string) {
+    if (!this.#emittedHeader) {
+      this.#emittedHeader = true;
+      console.group(header(this.name));
+    }
+
+    let flag: string;
+    switch (kind) {
+      case "create":
+        flag = "+";
+        break;
+      case "remove":
+        flag = "-";
+        break;
+      case "update":
+        flag = "~";
+        break;
+    }
+
+    log(`${flag} ${description}`, comment);
+  }
+
   template(name: TemplateName): string {
     return this.#packages.template(name);
   }
 
   isInside(relativeToRoot: string): boolean {
-    const absoluteDirectory = resolve(this.#root, relativeToRoot);
+    const absoluteDirectory = this.#workspace.resolve(relativeToRoot);
     const relativePath = relative(absoluteDirectory, this.#pkg.root);
     return !!(
       relativePath &&
@@ -207,7 +266,7 @@ class UpdatePackage {
     callback: (json: { [key: string]: JsonValue }) => {
       [key: string]: JsonValue;
     }
-  ) {
+  ): void {
     this.update(relativePath, (prev) => {
       const json = JSON.parse(prev || "{}");
 
@@ -218,7 +277,7 @@ class UpdatePackage {
       }
 
       const next = callback(json);
-      return JSON.stringify(next, null, 2);
+      return JSON.stringify(next, null, 2) + "\n";
     });
   }
 
@@ -232,7 +291,7 @@ class UpdatePackage {
     const prev = existsSync(path) ? readFileSync(path, "utf-8") : undefined;
     const next = updateFn(prev);
     if (prev !== next) {
-      log(`${prev === undefined ? "+" : "U"} ${relativePath}`, comment);
+      this.change(prev === undefined ? "create" : "update", relativePath);
       writeFileSync(path, next);
     }
   }
@@ -254,9 +313,13 @@ class UpdatePackage {
   }
 }
 
-function updateTest(root: string, updater: UpdatePackage): void {
-  const templates = new Templates(root);
+function updateTest(workspace: Workspace, updater: UpdatePackage): void {
+  const templates = new Templates(workspace);
   const npmrc = templates.get("npmrc");
 
   updater.update(".npmrc", npmrc);
+}
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
 }

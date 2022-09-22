@@ -4,12 +4,9 @@
   "version": "1.0.0",
   "type": "module",
   "main": "index.ts",
+  "starbeam:type": "library",
   "exports": {
     "default": "./index.ts"
-  },
-  "dependencies": {},
-  "peerDependencies": {
-    "@starbeam/shared": "workspace:^"
   },
   "publishConfig": {
     "main": "dist/index.cjs",

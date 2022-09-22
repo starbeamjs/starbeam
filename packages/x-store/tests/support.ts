@@ -1,6 +1,4 @@
-import type { Table } from "@starbeamx/store";
-
-import type { RowTypeFor } from "../src/table.js";
+import type { Table, RowTypeFor } from "@starbeamx/store";
 
 export interface Person {
   name: string;

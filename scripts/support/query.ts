@@ -1,6 +1,6 @@
-import { type Package, type StarbeamType } from "./packages.js";
-import chalk from "chalk";
 import util from "util";
+import { comment, log, problem } from "./log.js";
+import type { Package, StarbeamType } from "./packages.js";
 
 export class SingleFilter implements Filter {
   static ok(key: FilterKey, matches: string | boolean = true): SingleFilter {
@@ -11,12 +11,17 @@ export class SingleFilter implements Filter {
     return new SingleFilter("none", true);
   }
 
+  static not(key: FilterKey, matches: string | boolean = true): Filter {
+    return new NotFilter(SingleFilter.ok(key, matches));
+  }
+
   static err(source: string, reason: string): ParseError {
     return new ParseError(source, reason);
   }
 
   readonly type = "ok";
   readonly kind = "single";
+  readonly operator = "=";
 
   constructor(readonly key: FilterKey, readonly value: string | boolean) {}
 
@@ -49,6 +54,30 @@ export class SingleFilter implements Filter {
       case "none":
         return false;
     }
+  }
+}
+
+class NotFilter implements Filter {
+  readonly type = "ok";
+  readonly kind = "not";
+  readonly key: FilterKey;
+  readonly value: string | boolean;
+  readonly operator = "!=";
+
+  readonly #filter: SingleFilter;
+
+  constructor(filter: SingleFilter) {
+    this.#filter = filter;
+    this.key = filter.key;
+    this.value = filter.value;
+  }
+
+  [Symbol.for("nodejs.util.inspect.custom")](): string {
+    return `not ${util.inspect(this.#filter)}`;
+  }
+
+  match(pkg: Package): boolean {
+    return !this.#filter.match(pkg);
   }
 }
 
@@ -126,7 +155,7 @@ class AnyFilter {
     return this.#filters.length > 0;
   }
 
-  add(filter: SingleFilter): void {
+  add(filter: Filter): void {
     this.#filters.push(filter);
   }
 
@@ -186,10 +215,10 @@ export class Query {
     }
   }
 
-  and(filter: SingleFilter): Query;
+  and(filter: Filter | ParseError): Query;
   and(key: FilterKey, value?: string | boolean): Query;
   and(
-    ...args: [SingleFilter] | [key: FilterKey, value?: string | boolean]
+    ...args: [Filter | ParseError] | [key: FilterKey, value?: string | boolean]
   ): Query {
     if (typeof args[0] === "string") {
       this.#all.add(
@@ -198,17 +227,19 @@ export class Query {
           args[1] ?? (true as string | boolean)
         )
       );
+    } else if (args[0] instanceof ParseError) {
+      args[0].log();
     } else {
-      this.#all.add(args[0] as SingleFilter);
+      this.#all.add(args[0]);
     }
 
     return this;
   }
 
-  or(filter: SingleFilter): Query;
+  or(filter: Filter | ParseError): Query;
   or(key: FilterKey, value?: string | boolean): Query;
   or(
-    ...args: [SingleFilter] | [key: FilterKey, value?: string | boolean]
+    ...args: [Filter | ParseError] | [key: FilterKey, value?: string | boolean]
   ): Query {
     if (typeof args[0] === "string") {
       this.#any.add(
@@ -217,8 +248,10 @@ export class Query {
           args[1] ?? (true as string | boolean)
         )
       );
+    } else if (args[0] instanceof ParseError) {
+      args[0].log();
     } else {
-      this.#any.add(args[0] as SingleFilter);
+      this.#any.add(args[0]);
     }
 
     return this;
@@ -265,24 +298,29 @@ export const FILTER_KEYS: Record<FilterKey, [kind: string, example: string]> = {
   scope: ["package scope", "-a scope=@starbeam"],
 };
 
+export type FilterOperator = "=" | "!=";
+
 export interface Filter {
   readonly type: "ok" | "error";
-  readonly kind: "single";
+  readonly kind: "single" | "not";
   readonly key: FilterKey;
+  readonly value: string | boolean;
+  readonly operator: FilterOperator;
   readonly match: (pkg: Package) => boolean;
 }
 
-class ParseError {
+export class ParseError {
   readonly type = "error";
 
   constructor(readonly source: string, readonly message: string) {}
 
   log(): void {
-    console.log(`${chalk.red("Invalid query")}: ${chalk.grey(this.source)}`);
+    log(`${problem("Invalid query")}${comment(`: ${this.source}`)}`);
   }
 }
-type OkFilter = SingleFilter | AnyFilter | AllFilter;
+type OkFilter = SingleFilter | NotFilter | AnyFilter | AllFilter;
 export type ParsedFilter = OkFilter | ParseError;
+
 function parseKey(key: string): FilterKey {
   switch (key) {
     case "ts":
@@ -298,24 +336,37 @@ function parseKey(key: string): FilterKey {
       throw Error(`Invalid filter key: ${key}`);
   }
 }
-export function parse(query: string): SingleFilter | ParseError {
+export function parse(query: string): Filter | ParseError {
+  if (query.includes("!=")) {
+    const [rawKey, rawValue] = query.split("!=");
+    return parsePair([rawKey, rawValue], SingleFilter.not);
+  }
+
   if (query.includes("=")) {
     const [rawKey, value] = query.split("=");
-    const key = parseKey(rawKey);
-
-    switch (value) {
-      case "true":
-      case "false":
-        return SingleFilter.ok(key, value === "true");
-      default:
-        return SingleFilter.ok(key, value);
-    }
+    return parsePair([rawKey, value], SingleFilter.ok);
   }
 
   const key = parseKey(query);
 
   return SingleFilter.ok(key);
 }
+
+function parsePair(
+  [rawKey, value]: [string, string],
+  construct: (key: FilterKey, matches?: string | boolean) => Filter
+): Filter {
+  const key = parseKey(rawKey);
+
+  switch (value) {
+    case "true":
+    case "false":
+      return construct(key, value === "true");
+    default:
+      return construct(key, value);
+  }
+}
+
 export function formatScope(scope: string): string {
   if (scope.startsWith("@")) {
     return scope;

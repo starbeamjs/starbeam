@@ -1,9 +1,9 @@
 import chalk from "chalk";
-import { relative } from "path";
 import { QueryCommand } from "./support/commands";
+import { comment, log } from "./support/log.js";
 
 export const ListCommand = QueryCommand("list").action(
-  ({ packages, query, root }) => {
+  ({ packages, query, workspace }) => {
     for (const pkg of packages) {
       const flags = [];
 
@@ -19,11 +19,11 @@ export const ListCommand = QueryCommand("list").action(
         flags.push(chalk.bgGreen.black("typescript"));
       }
 
-      const pkgRoot = relative(root, pkg.root);
-      console.log(chalk.gray(pkg.name), ...flags);
-      console.log(`  ${chalk.bgCyan("dir")} ${chalk.magenta(pkgRoot)}`);
-
-      console.log("");
+      const pkgRoot = workspace.relative(pkg.root);
+      console.group(`${comment(pkg.name)} ${flags.join(" ")}`);
+      log(`${chalk.bgCyan("dir")} ${chalk.magenta(pkgRoot)}`);
+      console.groupEnd();
+      log.newline();
     }
   }
 );

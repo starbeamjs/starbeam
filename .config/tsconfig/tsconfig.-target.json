@@ -7,7 +7,6 @@
     "moduleResolution": "Node",
 
     "declaration": true,
-    "emitDeclarationOnly": true,
     "declarationMap": true,
 
     "strict": true,

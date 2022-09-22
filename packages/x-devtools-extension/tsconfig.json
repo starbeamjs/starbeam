@@ -1,3 +1,11 @@
 {
-  "extends": "../../.config/tsconfig/tsconfig.-package.json"
+  "extends": "../../.config/tsconfig/tsconfig.-package.json",
+  "compilerOptions": {
+    "declarationMap": true,
+    "declarationDir": "../../dist/types/@starbeamx-draft/devtools-extension",
+    "declaration": true,
+    "outDir": "../../dist/packages/@starbeamx-draft/devtools-extension",
+    "composite": true,
+    "types": ["../env"]
+  }
 }

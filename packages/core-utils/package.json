@@ -3,6 +3,7 @@
   "version": "0.7.3",
   "type": "module",
   "main": "index.ts",
+  "starbeam:type": "library",
   "dependencies": {},
   "devDependencies": {},
   "publishConfig": {

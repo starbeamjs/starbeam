@@ -2,8 +2,8 @@
   "extends": "./tsconfig.-package.json",
   "compilerOptions": {
     "composite": true,
-    "outDir": "../../dist/packages",
-    "types": ["../../packages/env"]
+    "types": ["../../packages/env"],
+    "outDir": "../../dist/packages"
   },
   "include": [
     "../../packages/**/*",

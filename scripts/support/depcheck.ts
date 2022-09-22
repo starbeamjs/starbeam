@@ -64,7 +64,10 @@ export async function checkUnused({
   const unused = await depcheck(pkg.root, {
     ...OPTIONS,
     ...options,
-    ignoreMatches: pkg.used.flatMap((used) => used.packages),
+    // vitest is included in the root package.json, which is necessary to be able to run the tests
+    // all at once and have them all use the same version of vitest. This is necessary because
+    // vitest doesn't work properly when it's installed multiple times in the same project.
+    ignoreMatches: ["vitest", ...pkg.used.flatMap((used) => used.packages)],
   });
 
   if (

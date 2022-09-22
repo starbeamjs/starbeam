@@ -17,7 +17,6 @@
     }
   },
   "exports": {
-    "types": "./index.ts",
     "default": "./index.ts"
   }
 }

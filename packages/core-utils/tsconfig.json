@@ -1,11 +1,11 @@
 {
   "extends": "../../.config/tsconfig/tsconfig.-package.json",
   "compilerOptions": {
+    "outDir": "../../dist/packages",
     "declaration": true,
     "composite": true,
     "declarationMap": true,
-    "declarationDir": "../../dist/types/@starbeam/core-utils",
-    "emitDeclarationOnly": true,
+    "declarationDir": "../../dist/types",
     "types": ["../env"]
   }
 }

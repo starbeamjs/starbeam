@@ -4,6 +4,7 @@
   "version": "0.7.4",
   "type": "module",
   "main": "index.ts",
+  "starbeam:type": "library",
   "dependencies": {
     "@starbeam/debug": "workspace:^",
     "@starbeam/js": "workspace:^"

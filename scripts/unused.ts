@@ -1,17 +1,16 @@
 import { checkUnused } from "./support/depcheck.js";
 import { QueryCommand } from "./support/commands";
 import { getPackage } from "./support/packages.js";
-import { relative, resolve } from "node:path";
-import { comment } from "./support/log.js";
+import { comment, log } from "./support/log.js";
 
 export const UnusedCommand = QueryCommand("unused")
   .flag(["-w", "workspaceRoot"], "include workspace root")
   .flag(["-f", "failFast"], "fail fast")
-  .action(async ({ packages, workspaceRoot, verbose, failFast, root }) => {
+  .action(async ({ packages, workspaceRoot, verbose, failFast, workspace }) => {
     if (workspaceRoot) {
       console.group("Workspace root");
       const result = await checkUnused({
-        pkg: getPackage(resolve(root, "package.json")),
+        pkg: getPackage(workspace.resolve("package.json")),
         verbose,
       });
       console.groupEnd();
@@ -21,12 +20,12 @@ export const UnusedCommand = QueryCommand("unused")
       }
 
       if (packages.length > 0) {
-        console.log("");
+        log.newline();
       }
     }
 
     for (const pkg of packages) {
-      console.group(pkg.name, comment(`(${relative(root, pkg.root)})`));
+      console.group(pkg.name, comment(`(${workspace.relative(pkg.root)})`));
       const result = await checkUnused({ pkg, verbose });
       console.groupEnd();
 
@@ -34,6 +33,6 @@ export const UnusedCommand = QueryCommand("unused")
         process.exit(1);
       }
 
-      console.log("");
+      log.newline();
     }
   });

@@ -1,5 +1,6 @@
 import chalk from "chalk";
 import { type Command, program } from "commander";
+import type { ParseError } from "./query.js";
 import { comment } from "./log.js";
 import { Package, queryPackages } from "./packages.js";
 import {
@@ -7,9 +8,9 @@ import {
   formatScope,
   parse,
   Query,
-  SingleFilter,
-  type ParsedFilter,
+  type Filter,
 } from "./query.js";
+import { Workspace } from "./workspace.js";
 
 interface BasicOptions {
   description?: string;
@@ -225,6 +226,7 @@ export class BuildQueryCommand<
             scope,
             and: andFilters,
             or: orFilters,
+            allowDraft,
             ...options
           },
         } = this.extractOptions<
@@ -232,8 +234,9 @@ export class BuildQueryCommand<
           {
             package: string;
             scope: string | undefined;
-            and: SingleFilter[] | undefined;
-            or: SingleFilter[] | undefined;
+            and: (Filter | ParseError)[] | undefined;
+            or: (Filter | ParseError)[] | undefined;
+            allowDraft: boolean;
           }
         >(allArgs);
 
@@ -253,16 +256,24 @@ export class BuildQueryCommand<
           }
         }
 
+        let explicitDraft = false;
+
         if (andFilters) {
           for (const filter of andFilters) {
-            where.and(filter.key, filter.value);
+            where.and(filter);
+            explicitDraft ||= isExplicitDraft(filter);
           }
         }
 
         if (orFilters) {
           for (const filter of orFilters) {
-            where.or(filter.key, filter.value);
+            where.or(filter);
+            explicitDraft ||= isExplicitDraft(filter);
           }
+        }
+
+        if (!allowDraft && !explicitDraft) {
+          where.and(parse("type!=draft"));
         }
 
         const errors = where?.errors;
@@ -281,11 +292,20 @@ export class BuildQueryCommand<
         return action(...(args as Args), {
           packages,
           query: where,
-          root,
+          workspace: new Workspace(root),
           ...options,
         } as Options);
       });
   }
+}
+
+function isExplicitDraft(filter: Filter | ParseError): boolean {
+  return (
+    filter.type === "ok" &&
+    filter.key === "type" &&
+    filter.value === "draft" &&
+    filter.operator === "="
+  );
 }
 
 export class BuildDevCommand<
@@ -315,7 +335,12 @@ export class BuildDevCommand<
   ): ({ root }: { root: string }) => Command {
     return ({ root }) =>
       this.command.action((...args) =>
-        action(...(this.parseOptions(args, { root }) as [...Args, Options]))
+        action(
+          ...(this.parseOptions(args, { workspace: new Workspace(root) }) as [
+            ...Args,
+            Options
+          ])
+        )
       );
   }
 }
@@ -346,31 +371,32 @@ export function queryable(command: Command): Command {
     )
     .option("-p, --package <package-name>", "the package to test")
     .option("-s, --scope <package-scope>", "the scope of the package")
-    .option<ParsedFilter[]>(
+    .option<(Filter | ParseError)[]>(
       "-a, --and <query...>",
       "a package query",
-      (query: string, queries: ParsedFilter[] = []) => {
+      (query: string, queries: (Filter | ParseError)[] = []) => {
         return [...queries, parse(query)];
       }
     )
     .option(
       "-o, --or <query...>",
-      "a pacakge query",
-      (query: string, queries: ParsedFilter[] = []) => {
+      "a package query",
+      (query: string, queries: (Filter | ParseError)[] = []) => {
         return [...queries, parse(query)];
       }
-    );
+    )
+    .option("--allow-draft", "allow draft packages", false);
 }
 
 export interface CommandOptions {
-  root: string;
+  workspace: Workspace;
   verbose: boolean;
 }
 
 export interface QueryOptions extends CommandOptions {
   query: Query;
   packages: Package[];
-  root: string;
+  workspace: Workspace;
 }
 
 function normalizeFlag(

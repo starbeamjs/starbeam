@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "main": "index.ts",
+  "starbeam:type": "demo:react",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

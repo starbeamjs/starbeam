@@ -13,7 +13,6 @@
     "prepack": "pnpm run build",
     "dev": "esno ./scripts/index.ts",
     "demo": "esno ./scripts/index.ts demo",
-    "lint": "eslint --cache -c ./.eslintrc.json --ext .ts,.tsx .",
     "test": "vitest",
     "test:dev": "vitest --mode=development",
     "test:prod": "PROD=1 DEV= vitest",
@@ -21,12 +20,9 @@
     "test:lint": "eslint --cache",
     "test:all": "esno ./scripts/scripts.ts test",
     "check:types": "tsc --build",
-    "check:unused": "node ./.config/depcheck.js",
+    "check:unused": "esno ./scripts/index.ts unused",
     "check:lint": "eslint --cache -c ./.eslintrc.json --ext .ts,.tsx .",
-    "typecheck": "tsc --build",
-    "depcheck": "node ./.config/depcheck.js",
-    "demos:react:store": "pnpm demo react-store",
-    "release": "pnpm publish -r --access public"
+    "release": "esno ./scripts/index.ts release"
   },
   "devDependencies": {
     "typescript": "*",
@@ -63,6 +59,7 @@
     "rollup-plugin-ts": "^3.0.2",
     "tslib": "^2.4.0",
     "eslint-config-airbnb": "^19.0.4",
+    "babel-eslint": "^10.1.0",
     "jsdom": "^20.0.0",
     "happy-dom": "^6.0.4"
   },
@@ -71,7 +68,8 @@
       {
         "reason": "vscode eslint pulled in depcheck's .eslintrc.yml",
         "packages": [
-          "eslint-config-airbnb"
+          "eslint-config-airbnb",
+          "babel-eslint"
         ]
       },
       {
