@@ -6,7 +6,7 @@ import sh from "shell-escape-tag";
 export const DemoCommand = DevCommand("demo", {
   description: "run the demo",
 })
-  .argument("name", "the name of the demo to run", StringOption)
+  .argument("name", "the name of the demo to run", StringOption.required)
   .option(
     ["-p", "port"],
     "the port to run the demo on",
@@ -17,10 +17,10 @@ export const DemoCommand = DevCommand("demo", {
     "the host to run the demo on",
     StringOption.default("localhost")
   )
-  .flag(["-s", "strict"], "fail if the port is already in use", {
+  .flag(["-S", "strict"], "fail if the port is already in use", {
     default: true,
   })
-  .action(({ port, host, root, strict, name }) => {
+  .action((name, { port, host, root, strict }) => {
     const cmd = sh`vite --port ${port} --host ${host} -c ${root}/demos/${name}/vite.config.ts ${
       strict ? "--strictPort" : ""
     }`;

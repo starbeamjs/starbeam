@@ -59,5 +59,8 @@
   "testing.automaticallyOpenPeekView": "never",
   "[postcss]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[svelte]": {
+    "editor.defaultFormatter": "SimonSiefke.prettier-vscode"
   }
 }

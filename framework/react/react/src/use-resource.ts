@@ -90,14 +90,17 @@ function createResource<T>(
 }
 
 export function useResource<T>(
-  resource: () => ResourceBlueprint<T>,
+  resource: ResourceBlueprint<T> | (() => ResourceBlueprint<T>),
   deps?: unknown[] | string | Description,
   description?: string | Description
 ): T {
+  const constructor =
+    typeof resource === "function" ? resource : () => resource;
+
   if (Array.isArray(deps)) {
-    return createResource(resource, deps, description);
+    return createResource(constructor, deps, description);
   } else {
-    return createResource(resource, undefined, deps);
+    return createResource(constructor, undefined, deps);
   }
 }
 

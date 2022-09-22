@@ -1,4 +1,4 @@
-import type { Package } from "./packages.js";
+import { type Package, type StarbeamType } from "./packages.js";
 import chalk from "chalk";
 import util from "util";
 
@@ -245,7 +245,27 @@ export type FilterKey =
   | "scope"
   | "none";
 
-interface Filter {
+export const STARBEAM_TYPES: StarbeamType[] = [
+  "interfaces",
+  "library",
+  "tests",
+  "unknown",
+  "draft",
+];
+
+export const FILTER_KEYS: Record<FilterKey, [kind: string, example: string]> = {
+  typescript: ["package authored in TypeScript", "-a typescript"],
+  private: ["is a private package", "-a private"],
+  none: ["match nothing", "-a none"],
+  type: [
+    `type of the package (${STARBEAM_TYPES.join(" | ")})`,
+    "-a type=library",
+  ],
+  name: ["package name", "-a name=@starbeam/core"],
+  scope: ["package scope", "-a scope=@starbeam"],
+};
+
+export interface Filter {
   readonly type: "ok" | "error";
   readonly kind: "single";
   readonly key: FilterKey;
@@ -272,6 +292,7 @@ function parseKey(key: string): FilterKey {
     case "name":
     case "scope":
     case "type":
+    case "none":
       return key;
     default:
       throw Error(`Invalid filter key: ${key}`);

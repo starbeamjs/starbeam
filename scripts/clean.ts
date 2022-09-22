@@ -3,13 +3,13 @@ import glob from "fast-glob";
 import { resolve } from "node:path";
 import shell from "shelljs";
 import { QueryCommand, StringOption } from "./support/commands.js";
+import { comment, header, log } from "./support/log.js";
 
 export const CleanCommand = QueryCommand("clean", {
   description: "clean up build artifacts",
 })
   .flag(["-d", "dryRun"], "don't actually delete anything")
   .option("dir", "the directory to clean", StringOption)
-
   .action(async ({ root, packages, ...options }) => {
     if (options.dir) {
       return cleanFiles({
@@ -45,10 +45,6 @@ async function cleanFiles({
   pkgRoot: string;
   options: { verbose: boolean; dryRun: boolean };
 }) {
-  const verbose = options.dryRun || options.verbose;
-  const dryRun = options.dryRun;
-
-  console.log(chalk.magenta(`=== Cleaning ${description} ===`));
   const files = await glob(
     ["*.{js,jsx,d.ts,map}", "src/**/*.{js,jsx,d.ts,map}", "dist/"],
     {
@@ -61,24 +57,37 @@ async function cleanFiles({
   );
 
   if (files.length > 0) {
+    console.group(header(description));
+  } else if (options.verbose) {
+    log(header(description) + comment(": no files to clean"));
+    return;
+  }
+
+  const REMOVING = options.dryRun ? `Would remove` : `Removing`;
+
+  if (files.length > 0) {
     for (const file of files) {
-      if (verbose) {
-        console.log(chalk.gray(`- removing ${file.name}`));
+      if (options.verbose || options.dryRun) {
+        console.log(chalk.red(`- ${REMOVING} ${file.name}`));
       }
 
-      if (!dryRun) {
+      if (!options.dryRun) {
         if (file.dirent.isDirectory()) {
           shell.rm("-rf", resolve(pkgRoot, file.name));
         } else {
           shell.rm(resolve(pkgRoot, file.name));
         }
       }
-    }
 
-    if (!verbose) {
-      console.log(chalk.gray(`  - done`));
+      if (!options.verbose && !options.dryRun) {
+        log("- done", comment);
+      }
     }
-  } else {
-    console.log(chalk.gray(`  - nothing to clean`));
+  } else if (options.verbose) {
+    log(`- nothing to clean`, comment);
+  }
+
+  if (files.length > 0 || options.verbose) {
+    console.groupEnd();
   }
 }

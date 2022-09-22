@@ -1,7 +1,7 @@
 import chalk from "chalk";
 
-export function log(message: string, kind: (message: string) => string): void {
-  console.log(kind(message));
+export function log(message: string, kind?: (message: string) => string): void {
+  console.log(kind ? kind(message) : message);
 }
 
 export function header(message: string): string {
