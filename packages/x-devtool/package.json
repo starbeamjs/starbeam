@@ -6,10 +6,8 @@
   "starbeam:tsconfig": "tsconfig.-devtool.json",
   "version": "0.7.3",
   "dependencies": {
-    "@starbeam/core": "workspace:^",
     "@starbeam/debug": "workspace:^",
     "@starbeam/timeline": "workspace:^",
-    "@starbeam/js": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
     "preact": "^10.11.0"
   },

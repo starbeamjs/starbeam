@@ -9,7 +9,7 @@ import {
   timeZoneName,
 } from "./intl.js";
 
-export default function (props: { locale: string }) {
+export default function (props: { locale: string }): JSX.Element {
   const locale = useProp(props.locale);
 
   return useReactiveSetup((component) => {

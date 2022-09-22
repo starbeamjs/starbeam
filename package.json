@@ -1,4 +1,5 @@
 {
+  "name": "@starbeam-workspace/root",
   "version": "1.0.0",
   "type": "module",
   "types": "src/index.ts",
@@ -7,11 +8,11 @@
   "license": "MIT",
   "scripts": {
     "build:scripts": "tsc -p ./.config/tsconfig/tsconfig.rollup.json",
-    "build:packages": "rollup -c ./rollup.config.mjs",
-    "build": "esno ./.scripts/scripts.ts build",
+    "build:packages": "rollup -c ./rollup.config.js",
+    "build": "esno ./scripts/index.ts build",
     "prepack": "pnpm run build",
-    "dev": "esno ./.scripts/scripts.ts",
-    "demo": "esno ./.scripts/scripts.ts demo",
+    "dev": "esno ./scripts/index.ts",
+    "demo": "esno ./scripts/index.ts demo",
     "lint": "eslint --cache -c ./.eslintrc.json --ext .ts,.tsx .",
     "test": "vitest",
     "test:dev": "vitest --mode=development",
@@ -19,75 +20,105 @@
     "test:types": "tsc --build",
     "test:lint": "eslint --cache",
     "test:all": "esno ./scripts/scripts.ts test",
+    "check:types": "tsc --build",
+    "check:unused": "node ./.config/depcheck.js",
+    "check:lint": "eslint --cache -c ./.eslintrc.json --ext .ts,.tsx .",
     "typecheck": "tsc --build",
+    "depcheck": "node ./.config/depcheck.js",
     "demos:react:store": "pnpm demo react-store",
     "release": "pnpm publish -r --access public"
   },
   "devDependencies": {
+    "typescript": "*",
+    "vite": "*",
+    "vitest": "*",
+    "@vitest/ui": "*",
     "@babel/plugin-proposal-decorators": "^7.19.1",
     "@babel/plugin-syntax-dynamic-import": "^7.8.3",
     "@babel/plugin-transform-runtime": "^7.19.1",
     "@babel/preset-env": "^7.19.1",
     "@babel/preset-typescript": "^7.18.6",
+    "@babel/runtime": "^7.19.0",
     "@changesets/cli": "^2.24.4",
-    "@domtree/any": "workspace:^",
-    "@domtree/flavors": "workspace:^",
-    "@domtree/minimal": "workspace:^",
-    "@eslint/eslintrc": "^1.3.2",
     "@rollup/plugin-commonjs": "^22.0.2",
     "@rollup/plugin-node-resolve": "^14.1.0",
-    "@rollup/plugin-sucrase": "^4.0.4",
-    "@rollup/plugin-typescript": "^8.5.0",
     "@types/node": "^18.7.18",
-    "@types/shelljs": "^0.8.11",
     "@typescript-eslint/eslint-plugin": "^5.38.0",
     "@typescript-eslint/parser": "^5.38.0",
-    "@typescript-eslint/scope-manager": "^5.38.0",
-    "@typescript-eslint/type-utils": "^5.38.0",
-    "@typescript-eslint/types": "^5.38.0",
-    "@typescript-eslint/utils": "^5.38.0",
-    "@typescript-eslint/visitor-keys": "^5.38.0",
-    "@vitejs/plugin-react": "^2.1.0",
-    "@vitest/ui": "^0.23.4",
-    "dotenv": "^16.0.2",
-    "esbuild": "^0.15.8",
     "eslint": "^8.23.1",
     "eslint-config-prettier": "^8.5.0",
-    "eslint-import-resolver-node": "^0.3.6",
     "eslint-import-resolver-typescript": "^3.5.1",
-    "eslint-module-utils": "^2.7.4",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-json": "^3.1.0",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-simple-import-sort": "^8.0.0",
     "eslint-plugin-unused-imports": "^2.0.0",
-    "eslint-rule-composer": "^0.3.0",
-    "eslint-scope": "^7.1.1",
-    "eslint-utils": "^3.0.0",
     "esno": "^0.16.3",
     "fast-glob": "^3.2.12",
     "magic-string": "^0.26.3",
     "postcss": "^8.4.16",
-    "preact": "^10.11.0",
     "prettier": "^2.7.1",
-    "prettier-linter-helpers": "^1.0.0",
     "rollup": "^2.79.0",
-    "rollup-plugin-esbuild": "^4.10.1",
     "rollup-plugin-postcss": "^4.0.2",
-    "rollup-plugin-swc": "^0.2.1",
     "rollup-plugin-ts": "^3.0.2",
-    "shelljs": "^0.8.5",
     "tslib": "^2.4.0",
-    "typescript": "^4.8.3",
-    "vite": "^3.1.3",
-    "vitest": "^0.23.4",
-    "watcher": "^1.2.0"
+    "eslint-config-airbnb": "^19.0.4",
+    "jsdom": "^20.0.0",
+    "happy-dom": "^6.0.4"
+  },
+  "starbeam": {
+    "used": [
+      {
+        "reason": "vscode eslint pulled in depcheck's .eslintrc.yml",
+        "packages": [
+          "eslint-config-airbnb"
+        ]
+      },
+      {
+        "reason": "babel",
+        "packages": [
+          "@babel/plugin-proposal-decorators",
+          "@babel/plugin-syntax-dynamic-import",
+          "@babel/plugin-transform-runtime",
+          "@babel/preset-env",
+          "@babel/preset-typescript"
+        ]
+      },
+      {
+        "reason": "vite.config.ts",
+        "packages": [
+          "vite"
+        ]
+      },
+      {
+        "reason": ".changeset/config.json",
+        "packages": [
+          "@changesets/cli"
+        ]
+      },
+      {
+        "reason": "package.json scripts",
+        "packages": [
+          "esno"
+        ]
+      },
+      {
+        "reason": "build packages",
+        "packages": [
+          "typescript",
+          "tslib",
+          "@babel/runtime"
+        ]
+      }
+    ]
   },
   "pnpm": {
     "overrides": {
       "typescript": "^4.8.3",
-      "vite": "^3",
-      "vue": "^3.2.37",
+      "vite": "3.1.3",
+      "vue": "^3.2.39",
+      "vitest": "0.23.4",
+      "@vitest/ui": "0.23.4",
       "stacktracey": "file:./stacktracey.tgz"
     },
     "peerDependencyRules": {
@@ -105,6 +136,6 @@
     ]
   },
   "volta": {
-    "node": "18.7.0"
+    "node": "18.9.0"
   }
 }

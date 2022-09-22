@@ -3,9 +3,7 @@
   "version": "0.7.2",
   "type": "module",
   "main": "index.ts",
-  "dependencies": {
-    "@starbeam/shared": "workspace:^"
-  },
+  "dependencies": {},
   "devDependencies": {},
   "publishConfig": {
     "main": "dist/index.cjs",

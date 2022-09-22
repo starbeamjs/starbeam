@@ -4,3 +4,6 @@ interface ImportMeta {
     DEV: boolean;
   };
 }
+
+declare module "*.scss";
+declare module "*.svg";

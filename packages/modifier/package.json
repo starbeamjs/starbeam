@@ -10,7 +10,9 @@
     "@starbeam/verify": "workspace:^",
     "@starbeam/interfaces": "workspace:^"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@domtree/flavors": "workspace:^"
+  },
   "publishConfig": {
     "main": "dist/index.cjs",
     "types": "dist/index.d.ts",

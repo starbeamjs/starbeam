@@ -4,7 +4,6 @@
     "composite": true,
     "jsx": "react-jsx",
     "jsxImportSource": "preact",
-    "lib": ["esnext", "DOM", "DOM.Iterable"],
-    "types": ["preact"]
+    "lib": ["esnext", "DOM", "DOM.Iterable"]
   }
 }

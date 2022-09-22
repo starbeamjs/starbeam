@@ -1,6 +1,7 @@
 {
   "parser": "@typescript-eslint/parser",
   "plugins": [
+    "import",
     "unused-imports",
     "simple-import-sort",
     "prettier",
@@ -14,8 +15,10 @@
     "plugin:@typescript-eslint/recommended",
     "plugin:json/recommended"
   ],
+
   "rules": {
     "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "error",
     "unused-imports/no-unused-imports": "error",
     "unused-imports/no-unused-vars": [
       "warn",

@@ -11,8 +11,8 @@ node_modules
 @types/@domtree/**/*.d.ts
 packages/x-devtools-extension
 
-.scripts/**/*.d.ts
-!.scripts
+scripts/**/*.d.ts
+!scripts
 .build/**/*.d.ts
 !.build
 

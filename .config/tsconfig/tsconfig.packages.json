@@ -7,7 +7,7 @@
   },
   "include": [
     "../../packages/**/*",
-    "../../framework/**/*",
+    "../../framework/*/**/*",
     "../../@types/**/*"
   ],
   "exclude": [

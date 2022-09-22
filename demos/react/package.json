@@ -8,7 +8,6 @@
     "@starbeam/core": "workspace:^",
     "@starbeam/react": "workspace:^",
     "@starbeam/js": "workspace:^",
-    "@starbeam/debug": "workspace:^",
     "purecss": "^2.1.0",
     "react": "^18.1.0",
     "react-dom": "^18.1.0"
@@ -16,11 +15,9 @@
   "devDependencies": {
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "esbuild": "^0.14.42",
-    "rollup": "^2.75.5",
     "vite": "*",
-    "vite-plugin-fonts": "^0.6.0",
-    "vite-react-jsx": "^1.1.2"
+    "vitest": "*",
+    "vite-plugin-fonts": "^0.6.0"
   },
   "publishConfig": {
     "main": "dist/index.cjs",
@@ -32,6 +29,16 @@
         "default": "./dist/index.cjs"
       }
     }
+  },
+  "starbeam": {
+    "used": [
+      {
+        "reason": "css",
+        "packages": [
+          "purecss"
+        ]
+      }
+    ]
   },
   "exports": {
     "default": "./index.ts"

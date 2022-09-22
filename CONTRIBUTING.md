@@ -16,8 +16,8 @@ Feel free to ask your questions in any of these places:
 
 ## Linting
 
-* `pnpm lint`
-* `pnpm lint --fix`
+* `pnpm check:lint`
+* `pnpm check:lint --fix`
 
 ## Running demos
 
@@ -32,9 +32,14 @@ At the root of this monorepo, the `pnpm demo` script can be used to start the va
 * `pnpm test` -- Runs cli-based node tests
 * `pnpm test:prod` -- Runs cli-based node tests in production mode
 
-## Checking type correctness
+## Checking correctness
 
-* `pnpm typecheck`
+* `pnpm check:types`
+* `pnpm check:lint`
+
+## Checking for unused dependencies
+
+* `pnpm check:unused`
 
 ## Building the packages
 
@@ -42,6 +47,6 @@ At the root of this monorepo, the `pnpm demo` script can be used to start the va
 
 ## Development utilities
 
-These are aliased via `pnpm dev` at the monorepo root and is an alias for for the scripts located at `<repo-root>/.scripts/*`.
+These are aliased via `pnpm dev` at the monorepo root and is an alias for for the scripts located at `<repo-root>/scripts/*`.
 
-Common monorepo tasks can be added to `<repo-root>/.scripts/*` and then invoke with `pnpm dev <command name>`
+Common monorepo tasks can be added to `<repo-root>/scripts/*` and then invoke with `pnpm dev <command name>`

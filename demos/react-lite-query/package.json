@@ -10,14 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@emotion/react": "^11.9.3",
-    "@emotion/styled": "^11.9.3",
-    "@mui/material": "^5.9.0",
     "@starbeam/core": "workspace:^",
     "@starbeam/js": "workspace:^",
     "@starbeam/react": "workspace:^",
     "@starbeam/debug": "workspace:^",
-    "@starbeam/shared": "workspace:^",
     "@starbeamx/devtool": "workspace:*",
     "axios": "^0.27.2",
     "react": "^18.1.0",
@@ -26,11 +22,9 @@
   "devDependencies": {
     "@types/react": "^18.0.12",
     "@types/react-dom": "^18.0.5",
-    "@types/web": "^0.0.72",
-    "@vitejs/plugin-react": "^1.3.2",
     "vite-plugin-fonts": "^0.6.0",
-    "typescript": "^4.7.0",
-    "vite": "*"
+    "vite": "*",
+    "vitest": "*"
   },
   "publishConfig": {
     "main": "dist/index.cjs",

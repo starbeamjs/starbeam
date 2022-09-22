@@ -26,7 +26,7 @@ export class Table<T> {
     this.#rows.delete(id);
   }
 
-  clear() {
+  clear(): void {
     this.#rows.clear();
   }
 

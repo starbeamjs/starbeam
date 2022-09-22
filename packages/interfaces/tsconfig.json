@@ -7,5 +7,6 @@
     "declarationDir": "../../dist/types/@starbeam/interfaces",
     "emitDeclarationOnly": true,
     "types": ["../env"]
-  }
+  },
+  "include": ["./index.ts", "./src/**/*.ts"]
 }

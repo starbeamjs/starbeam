@@ -1,4 +1,3 @@
-import type { browser } from "@domtree/flavors";
 import type * as dom from "@domtree/interface";
 
 declare global {
@@ -9,7 +8,7 @@ declare global {
 
   interface Window {
     StaticRange: {
-      new (options: browser.StaticRangeOptions): browser.StaticRange;
+      new (options: StaticRangeOptions): StaticRange;
     };
   }
 }

@@ -3,7 +3,7 @@ import { dirname } from "dirfilename";
 import { resolve } from "path";
 import { defineConfig } from "vite";
 
-import manifest from "./manifest.json" assert { type: "json" };
+import manifest from "./manifest.json" ;
 
 const root = dirname(import.meta);
 

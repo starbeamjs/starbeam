@@ -3,7 +3,7 @@
   "tasks": [
     {
       "type": "npm",
-      "script": "lint",
+      "script": "check:lint",
       "problemMatcher": ["$eslint-stylish"],
       "label": "npm: lint",
       "detail": "eslint . --cache",
@@ -28,6 +28,13 @@
         "showReuseMessage": true,
         "clear": false
       }
+    },
+    {
+      "type": "npm",
+      "script": "lint",
+      "problemMatcher": ["$eslint-stylish"],
+      "label": "npm: lint",
+      "detail": "eslint --cache -c ./.eslintrc.json --ext .ts,.tsx ."
     }
   ]
 }

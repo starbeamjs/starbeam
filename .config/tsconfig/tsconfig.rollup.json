@@ -8,7 +8,7 @@
     // intentionally not putting the output in dist/
   },
   "include": [
-    "../../rollup.config.mts",
+    "../../rollup.config.ts",
     "../../vite.config.ts",
     "../../.build/**/*.ts",
     "../../**/vite.config.ts"

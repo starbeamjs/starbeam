@@ -7,17 +7,9 @@
   "exports": {
     "default": "./index.ts"
   },
+  "dependencies": {},
   "peerDependencies": {
     "@starbeam/shared": "workspace:^"
-  },
-  "dependencies": {
-    "@starbeam/debug": "workspace:^",
-    "@testing-library/react": "latest",
-    "@testing-library/dom": "^8.13.0",
-    "@testing-library/user-event": "^14.2.0"
-  },
-  "devDependencies": {
-    "vite": "*"
   },
   "publishConfig": {
     "main": "dist/index.cjs",

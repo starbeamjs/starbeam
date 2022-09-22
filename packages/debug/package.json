@@ -11,8 +11,7 @@
     "stacktracey": "^2.1.8"
   },
   "devDependencies": {
-    "chalk": "^5.0.1",
-    "vite": "*"
+    "chalk": "^5.0.1"
   },
   "publishConfig": {
     "main": "dist/index.cjs",

@@ -4,7 +4,7 @@ export interface Aggregator<T, U = T> {
   initialize: () => AggregatorInstance<T, U>;
 }
 
-export interface AggregatorInstance<in T, out U = T> {
+export interface AggregatorInstance<T, U = T> {
   add(value: T): void;
   value(): U;
 }

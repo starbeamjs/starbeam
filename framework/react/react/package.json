@@ -10,12 +10,12 @@
     "@starbeam/core-utils": "workspace:^",
     "@starbeam/verify": "workspace:^",
     "@starbeam/timeline": "workspace:^",
-    "@starbeam/shared": "workspace:^",
     "@starbeam/js": "workspace:^",
     "@starbeam/modifier": "workspace:^"
   },
   "devDependencies": {
-    "@types/react": "^18.0.9"
+    "@types/react": "^18.0.9",
+    "@domtree/flavors": "workspace:^"
   },
   "peerDependencies": {
     "react": "^18.2.0",

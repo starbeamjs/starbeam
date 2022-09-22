@@ -6,7 +6,7 @@ import { type Person, People } from "../lib/people.js";
 import { Table } from "../lib/table.js";
 import { SYSTEM_LOCALE } from "./intl.js";
 
-export default function () {
+export default function (): JSX.Element {
   return useReactiveSetup(() => {
     const table = new Table<Person>(["name", "location"]);
 

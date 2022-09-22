@@ -1,5 +1,5 @@
 import { type Equality, Cell, Marker } from "@starbeam/core";
-import { UNINITIALIZED } from "@starbeam/core-utils";
+import { UNINITIALIZED } from "@starbeam/shared";
 import type { Stack } from "@starbeam/debug";
 import { type Description, callerStack } from "@starbeam/debug";
 
