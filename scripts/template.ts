@@ -17,12 +17,16 @@ export const TemplateCommand = QueryCommand("template", {
     const updater = updateAll.pkg(pkg);
 
     updatePackageJSON(updater);
-    if (pkg.isTests) {
+    if (pkg.isSupport("tests")) {
       updateTest(workspace, updater);
     }
 
     if (pkg.isTypescript) {
       updateTsconfig(workspace, updater);
+    }
+
+    if (pkg.type === "library") {
+      updateLibrary(workspace, updater);
     }
 
     updater.done();
@@ -144,7 +148,8 @@ type TemplateName =
   | "npmrc"
   | "interfaces.package.json"
   | "package.json"
-  | "tsconfig.json";
+  | "tsconfig.json"
+  | "rollup.config.mjs";
 
 class Templates {
   readonly #workspace: Workspace;
@@ -155,7 +160,12 @@ class Templates {
 
   get(name: TemplateName): string {
     return readFileSync(
-      this.#workspace.resolve(".templates", "package", name),
+      this.#workspace.resolve(
+        "scripts",
+        "templates",
+        "package",
+        `${name}.template`
+      ),
       "utf8"
     );
   }
@@ -181,10 +191,6 @@ class UpdatePackages {
   pkg(pkg: Package) {
     return new UpdatePackage(pkg, this, this.#workspace);
   }
-
-  // get root(): string {
-  //   return this.#workspace.ro;
-  // }
 
   template(name: TemplateName): string {
     return this.#templates.get(name);
@@ -318,6 +324,13 @@ function updateTest(workspace: Workspace, updater: UpdatePackage): void {
   const npmrc = templates.get("npmrc");
 
   updater.update(".npmrc", npmrc);
+}
+
+function updateLibrary(workspace: Workspace, updater: UpdatePackage): void {
+  const templates = new Templates(workspace);
+  const rollup = templates.get("rollup.config.mjs");
+
+  updater.update("rollup.config.mjs", rollup);
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {

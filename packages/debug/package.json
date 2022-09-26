@@ -4,6 +4,18 @@
   "main": "index.ts",
   "version": "0.7.4",
   "starbeam:type": "library",
+  "starbeam": {
+    "type": "library",
+    "inline": [
+      "stacktracey",
+      "get-source",
+      "source-map",
+      "data-uri-to-buffer",
+      "as-table",
+      "printable-characters",
+      "chalk"
+    ]
+  },
   "dependencies": {
     "@starbeam/shared": "workspace:^",
     "@starbeam/verify": "workspace:^",

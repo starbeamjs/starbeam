@@ -8,5 +8,7 @@
     "declarationDir": "../../dist/types",
     "types": ["../env"],
     "experimentalDecorators": true
-  }
+  },
+  "exclude": ["rollup.config.mjss"],
+  "references": [{ "path": "../../.config/tsconfig/tsconfig.rollup.json" }]
 }

@@ -26,5 +26,9 @@
     "@starbeam/core-utils": "workspace:^",
     "@starbeam/interfaces": "workspace:^"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "*",
+    "@rollup/plugin-node-resolve": "*",
+    "@starbeam-workspace/build-support": "workspace:^"
+  }
 }

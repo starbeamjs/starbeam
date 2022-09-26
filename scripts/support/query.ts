@@ -1,6 +1,7 @@
 import util from "util";
 import { comment, log, problem } from "./log.js";
 import type { Package, StarbeamType } from "./packages.js";
+import type { EveryUnionMember } from "./type-magic.js";
 
 export class SingleFilter implements Filter {
   static ok(key: FilterKey, matches: string | boolean = true): SingleFilter {
@@ -278,10 +279,12 @@ export type FilterKey =
   | "scope"
   | "none";
 
-export const STARBEAM_TYPES: StarbeamType[] = [
+export const STARBEAM_TYPES: EveryUnionMember<StarbeamType> = [
   "interfaces",
   "library",
-  "tests",
+  "support:tests",
+  "support:build",
+  "demo:react",
   "unknown",
   "draft",
 ];

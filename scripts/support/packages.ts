@@ -6,7 +6,8 @@ import { Query } from "./query.js";
 export type StarbeamType =
   | "interfaces"
   | "library"
-  | "tests"
+  | "support:tests"
+  | "support:build"
   | "demo:react"
   | "unknown"
   | "draft";
@@ -43,22 +44,15 @@ export class Package {
     return this.info.isTypescript;
   }
 
-  get isTests(): boolean {
-    return this.type === "tests";
+  isSupport(kind: "tests" | "build"): boolean {
+    return this.type === `support:${kind}`;
   }
 
   get tsconfig(): string | undefined {
     return this.info.starbeam.tsconfig;
   }
 
-  get type():
-    | "interfaces"
-    | "library"
-    | "tests"
-    | "unknown"
-    | "draft"
-    | "demo:react"
-    | undefined {
+  get type(): StarbeamType | undefined {
     return this.info.starbeam.type;
   }
 

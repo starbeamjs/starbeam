@@ -1,9 +1,11 @@
 packages:
   - "@types/@domtree/*"
   - "@types/*"
+  - "@types/*/*"
   - packages/*
   - packages/*/tests
   - framework/*/*
   - framework/*/*/tests
   - demos/*
   - scripts
+  - .build

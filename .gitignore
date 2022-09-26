@@ -9,4 +9,6 @@ pack
 .pnpm-debug.log
 .eslintcache
 *.config.*
+!*.config.mjs
 !*.config.ts
+!*.config.mts

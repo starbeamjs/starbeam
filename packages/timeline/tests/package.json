@@ -3,7 +3,7 @@
   "name": "@starbeam-tests/timeline",
   "version": "1.0.0",
   "type": "module",
-  "starbeam:type": "tests",
+  "starbeam:type": "support:tests",
   "dependencies": {
     "@starbeam/timeline": "workspace:^",
     "@starbeam/debug": "workspace:^",

@@ -1,0 +1,20 @@
+{
+  "extends": "../.config/tsconfig/tsconfig.-target.json",
+  "compilerOptions": {
+    "composite": true,
+    "target": "esnext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "declarationDir": "./dist",
+    "emitDeclarationOnly": true,
+    "allowJs": true,
+    "checkJs": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitAny": true,
+    "types": ["node"]
+  },
+  "include": ["./**/*"]
+}

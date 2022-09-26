@@ -1,19 +1,19 @@
 {
   "extends": "./tsconfig.-target.json",
   "compilerOptions": {
+    "composite": true,
     "declaration": true,
-    "outDir": "../../dist/packages",
-    "types": ["../../@types/shell-escape-tag", "node"]
+    "types": ["../../@types/shell-escape-tag", "node"],
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "allowJs": true,
+    "checkJs": true,
+    "emitDeclarationOnly": true
   },
-  "include": [
-    "../../rollup.config.ts",
+  "files": [
+    "../../rollup.config.mjs",
     "../../vite.config.ts",
-    "../../.build/**/*.ts",
-    "../../**/vite.config.ts"
-  ],
-  "exclude": [
-    "../../**/node_modules/**",
-    "../../packages/x-devtools-extension/**",
-    "../../**/*.d.ts"
+    "../../packages/core/rollup.config.mjs"
   ]
 }

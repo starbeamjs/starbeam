@@ -12,6 +12,13 @@
   ],
   "exclude": [
     "../../packages/x-devtool/**",
-    "../../packages/x-devtools-extension/**"
+    "../../packages/x-devtools-extension/**",
+    "../../packages/*/*.config.ts",
+    "../../framework/*/*.config.ts"
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.rollup.json"
+    }
   ]
 }

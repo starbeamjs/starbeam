@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "starbeam:type": "tests",
+  "starbeam:type": "support:tests",
   "dependencies": {
     "@starbeam/use-strict-lifecycle": "workspace:^",
     "@starbeam/debug": "workspace:^",

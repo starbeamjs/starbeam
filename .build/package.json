@@ -1,0 +1,30 @@
+{
+  "name": "@starbeam-workspace/build-support",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "starbeam:type": "support:build",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.js",
+      "default": "./index.js"
+    }
+  },
+  "dependencies": {
+    "rollup": "*",
+    "magic-string": "*",
+    "rollup-plugin-ts": "*",
+    "rollup-plugin-postcss": "*",
+    "@rollup/plugin-commonjs": "*",
+    "@rollup/plugin-node-resolve": "*"
+  },
+  "devDependencies": {
+    "@types/node": "*",
+    "@types/rollup__plugin-commonjs": "workspace:^",
+    "@types/rollup__plugin-node-resolve": "workspace:^",
+    "typescript": "*"
+  }
+}

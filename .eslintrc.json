@@ -51,15 +51,23 @@
     },
     {
       "files": [
-        "./rollup.config.ts",
+        "./rollup.config.mjs",
+        "./packages/core/rollup.config.mjs",
         "./vite.config.ts",
-        "./.build/**/*.ts",
         "./demos/*/vite.config.ts"
       ],
 
-      "excludedFiles": ["./.build/**/*.d.ts"],
       "extends": ["./eslintrc.shared.json"],
       "parserOptions": { "project": "./.config/tsconfig/tsconfig.rollup.json" }
+    },
+    {
+      "files": ["./.build/**/*.{js,d.ts}"],
+      "extends": ["./eslintrc.shared.json"],
+      "parserOptions": { "project": "./.build/tsconfig.json" },
+      "rules": {
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/no-explicit-any": "error"
+      }
     }
   ]
 }

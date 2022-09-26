@@ -13,7 +13,5 @@ packages/x-devtools-extension
 
 scripts/**/*.d.ts
 !scripts
-.build/**/*.d.ts
-!.build
 
 demos/*/vite.config.d.ts

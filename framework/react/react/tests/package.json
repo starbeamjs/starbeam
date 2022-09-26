@@ -3,7 +3,7 @@
   "type": "module",
   "name": "@starbeam-tests/react",
   "version": "1.0.0",
-  "starbeam:type": "tests",
+  "starbeam:type": "support:tests",
   "dependencies": {
     "@starbeam/react": "workspace:^",
     "@starbeam/core": "workspace:^",

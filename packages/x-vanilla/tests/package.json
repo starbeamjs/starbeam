@@ -3,7 +3,7 @@
   "type": "module",
   "name": "@starbeam-tests/x-vanilla",
   "version": "1.0.0",
-  "starbeam:type": "tests",
+  "starbeam:type": "support:tests",
   "dependencies": {
     "@starbeamx/vanilla": "workspace:^",
     "@starbeam/core": "workspace:^"

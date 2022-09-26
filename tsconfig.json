@@ -9,6 +9,7 @@
     { "path": "./.config/tsconfig/tsconfig.rollup.json" },
     { "path": "./.config/tsconfig/tsconfig.packages.json" },
     { "path": "./.config/tsconfig/tsconfig.devtool.json" },
-    { "path": "./.config/tsconfig/tsconfig.scripts.json" }
+    { "path": "./.config/tsconfig/tsconfig.scripts.json" },
+    { "path": "./.build/tsconfig.json" }
   ]
 }
