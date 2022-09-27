@@ -1,16 +1,34 @@
 import { execSync, type ExecSyncOptions } from "node:child_process";
-import { relative, resolve } from "node:path";
 import { comment, header, log } from "./log.js";
+import {
+  Directory,
+  Glob,
+  Paths,
+  type GlobOptions,
+  type Path,
+} from "./paths.js";
 
 export class Workspace {
-  readonly #root: string;
-
-  constructor(root: string) {
-    this.#root = root;
+  static root(root: string): Workspace {
+    return new Workspace(Paths.root(root));
   }
 
-  get root(): string {
-    return this.#root;
+  readonly #paths: Paths;
+
+  constructor(paths: Paths) {
+    this.#paths = paths;
+  }
+
+  get root(): Directory {
+    return this.#paths.root;
+  }
+
+  get paths(): Paths {
+    return this.#paths;
+  }
+
+  glob(path: string, options?: GlobOptions): Glob {
+    return this.root.glob(path, options);
   }
 
   exec(
@@ -18,7 +36,7 @@ export class Workspace {
     options?: Partial<ExecSyncOptions & { failFast: boolean }>
   ): "ok" | "err" {
     try {
-      execSync(command, { cwd: this.#root, stdio: "inherit", ...options });
+      execSync(command, { cwd: this.root, stdio: "inherit", ...options });
       return "ok";
     } catch {
       if (options?.failFast) {
@@ -29,11 +47,15 @@ export class Workspace {
     }
   }
 
-  resolve(...paths: string[]): string {
-    return resolve(this.#root, ...paths);
+  dir(path: string): Directory {
+    return this.#paths.root.dir(path);
   }
 
-  relative(path: string): string {
-    return relative(this.#root, path);
+  relative(path: string | Path): string {
+    if (typeof path === "string") {
+      return this.dir(path).relativeFrom(this.root);
+    } else {
+      return path.relativeFrom(this.root);
+    }
   }
 }

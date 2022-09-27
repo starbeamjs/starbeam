@@ -1,9 +1,10 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import * as jsonc from "jsonc-parser";
 import { format } from "prettier";
+import type { RegularFile } from "./paths.js";
 
 export class EditJsonc {
-  static parse(filename: string): EditJsonc {
+  static parse(filename: RegularFile): EditJsonc {
     try {
       const source = readFileSync(filename, "utf8");
       return new EditJsonc(filename, source, parse(source));
@@ -12,12 +13,12 @@ export class EditJsonc {
     }
   }
 
-  #filename: string;
+  #filename: RegularFile;
   #source: string;
   readonly #original: string;
   #json: jsonc.Node;
 
-  constructor(filename: string, source: string, json: jsonc.Node) {
+  constructor(filename: RegularFile, source: string, json: jsonc.Node) {
     this.#filename = filename;
     this.#source = source;
     this.#original = source;

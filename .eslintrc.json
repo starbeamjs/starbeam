@@ -52,7 +52,8 @@
     {
       "files": [
         "./rollup.config.mjs",
-        "./packages/core/rollup.config.mjs",
+        "./packages/*/rollup.config.mjs",
+        "./framework/*/*/rollup.config.mjs",
         "./vite.config.ts",
         "./demos/*/vite.config.ts"
       ],

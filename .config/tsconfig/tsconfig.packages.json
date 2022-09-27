@@ -14,7 +14,9 @@
     "../../packages/x-devtool/**",
     "../../packages/x-devtools-extension/**",
     "../../packages/*/*.config.ts",
-    "../../framework/*/*.config.ts"
+    "../../framework/*/*.config.ts",
+    "../../packages/*/*.config.mjs",
+    "../../framework/*/*/*.config.mjs"
   ],
   "references": [
     {

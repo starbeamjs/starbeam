@@ -1,5 +1,8 @@
 import { Cell, Resource } from "@starbeam/core";
-import { useReactive, useReactiveResource } from "@starbeam/react";
+import {
+  useReactive,
+  useReactiveResource,
+} from "../../../../packages/react/react";
 import { Portal } from "react-portal";
 
 import { getDailyValues, getTickerDetails } from "../lib/api/api.js";

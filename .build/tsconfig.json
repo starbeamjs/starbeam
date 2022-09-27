@@ -2,19 +2,20 @@
   "extends": "../.config/tsconfig/tsconfig.-target.json",
   "compilerOptions": {
     "composite": true,
-    "target": "esnext",
+    "target": "ESNext",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "declarationDir": "./dist",
-    "emitDeclarationOnly": true,
+    "declarationDir": "./dist/types",
+    "outDir": "./dist/src",
     "allowJs": true,
     "checkJs": true,
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "noImplicitAny": true,
-    "types": ["node"]
-  },
-  "include": ["./**/*"]
+    "allowSyntheticDefaultImports": false,
+    "esModuleInterop": false,
+    "types": [
+      "node",
+      "magic-string",
+      "@rollup/plugin-commonjs",
+      "@rollup/plugin-node-resolve"
+    ]
+  }
 }

@@ -10,7 +10,7 @@ import {
   Query,
   type Filter,
 } from "./query.js";
-import { Workspace } from "./workspace.js";
+import type { Workspace } from "./workspace.js";
 
 interface BasicOptions {
   description?: string;
@@ -51,16 +51,16 @@ function applyBasicOptions(command: Command, options?: BasicOptions) {
 }
 
 export class StarbeamCommands {
-  readonly #root: string;
+  readonly #workspace: Workspace;
   #program: Command;
 
-  constructor(root: string, program: Command) {
-    this.#root = root;
+  constructor(workspace: Workspace, program: Command) {
+    this.#workspace = workspace;
     this.#program = program;
   }
 
-  add(command: ({ root }: { root: string }) => Command): this {
-    this.#program.addCommand(command({ root: this.#root }));
+  add(command: ({ workspace }: { workspace: Workspace }) => Command): this {
+    this.#program.addCommand(command({ workspace: this.#workspace }));
     return this;
   }
 
@@ -217,8 +217,8 @@ export class BuildQueryCommand<
 
   action(
     action: (...args: [...Args, Options]) => Promise<void> | void
-  ): ({ root }: { root: string }) => Command {
-    return ({ root }: { root: string }) =>
+  ): ({ workspace }: { workspace: Workspace }) => Command {
+    return ({ workspace }) =>
       this.command.action((...allArgs) => {
         const {
           options: {
@@ -285,14 +285,14 @@ export class BuildQueryCommand<
           process.exit(1);
         }
 
-        const packages = queryPackages(root, where);
+        const packages = queryPackages(workspace, where);
 
         const { args } = this.extractOptions<Args, Options>(allArgs);
 
         return action(...(args as Args), {
           packages,
           query: where,
-          workspace: new Workspace(root),
+          workspace,
           ...options,
         } as Options);
       });
@@ -332,14 +332,13 @@ export class BuildDevCommand<
 
   action(
     action: (...args: [...Args, Options]) => void | Promise<void>
-  ): ({ root }: { root: string }) => Command {
-    return ({ root }) =>
+  ): ({ workspace }: { workspace: Workspace }) => Command {
+    return ({ workspace }) =>
       this.command.action((...args) =>
         action(
-          ...(this.parseOptions(args, { workspace: new Workspace(root) }) as [
-            ...Args,
-            Options
-          ])
+          ...(this.parseOptions(args, {
+            workspace,
+          }) as [...Args, Options])
         )
       );
   }

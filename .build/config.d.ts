@@ -20,8 +20,10 @@ export interface PackageJSON {
   readonly private: boolean;
   readonly name: string;
   readonly "starbeam:inline"?: PackageJsonInline[];
+  readonly "starbeam:type"?: string;
   readonly starbeam?: {
     readonly inline?: PackageJsonInline[];
+    readonly type?: string;
   };
 }
 
@@ -36,7 +38,7 @@ export type RollupExport = RollupOptions | RollupOptions[];
 
 export class Package {
   static root(meta: ImportMeta): string;
-  static at(meta: ImportMeta | string): Package;
+  static at(meta: ImportMeta | string): Package | undefined;
   static config(meta: ImportMeta | string): RollupExport;
 
   config(): RollupExport;

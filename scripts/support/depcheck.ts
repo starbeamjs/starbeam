@@ -61,7 +61,7 @@ export async function checkUnused({
   verbose: boolean;
   options?: depcheck.Options;
 }): Promise<"success" | "failure"> {
-  const unused = await depcheck(pkg.root, {
+  const unused = await depcheck(pkg.root.absolute, {
     ...OPTIONS,
     ...options,
     // vitest is included in the root package.json, which is necessary to be able to run the tests

@@ -1,6 +1,10 @@
 import { Cell } from "@starbeam/core";
 import { LOGGER, LogLevel } from "@starbeam/debug";
-import { useProp, useReactive, useSetup } from "@starbeam/react";
+import {
+  useProp,
+  useReactive,
+  useSetup,
+} from "../../../../packages/react/react";
 import { DevTools } from "@starbeamx/devtool";
 import { Table } from "@starbeamx/store";
 import type { FormEvent } from "react";

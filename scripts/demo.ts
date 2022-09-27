@@ -20,14 +20,12 @@ export const DemoCommand = DevCommand("demo", {
     default: true,
   })
   .action((name, { port, host, workspace, strict }) => {
-    const cmd = sh`vite --port ${port} --host ${host} -c ${workspace.resolve(
-      "demos",
-      name,
-      "vite.config.ts"
-    )} ${strict ? "--strictPort" : ""}`;
+    const cmd = sh`vite --port ${port} --host ${host} -c ${workspace.paths
+      .demo(name)
+      .file("vite.config.ts")} ${strict ? "--strictPort" : ""}`;
 
     execSync(cmd, {
       stdio: "inherit",
-      cwd: workspace.resolve("demos", name),
+      cwd: workspace.paths.demo(name),
     });
   });

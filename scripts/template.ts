@@ -1,11 +1,12 @@
 import chalk from "chalk";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { isAbsolute, relative, resolve } from "node:path";
+import { isAbsolute, relative } from "node:path";
 import { QueryCommand } from "./support/commands";
 import type { JsonValue, Package, StarbeamType } from "./support/packages.js";
 import { EditJsonc } from "./support/jsonc.js";
 import { log, comment, header } from "./support/log.js";
 import type { Workspace } from "./support/workspace.js";
+import type { Directory, Path } from "./support/paths.js";
 
 export const TemplateCommand = QueryCommand("template", {
   description: "template a package",
@@ -54,13 +55,19 @@ function updatePackageJSON(updater: UpdatePackage): void {
       };
     }
 
+    if (updater.type === "library") {
+      prev.devDependencies = {
+        ...(prev.devDependencies as object),
+        "@starbeam-workspace/build-support": "workspace:^",
+      };
+    }
+
     return prev;
   });
 }
 
 function updateTsconfig(workspace: Workspace, updater: UpdatePackage): void {
-  const parent = updater.resolve("..");
-  const relativeParent = updater.relative(parent);
+  const relativeParent = updater.relative(updater.pkg.root.parent);
 
   const editor = updater.jsonEditor("tsconfig.json");
 
@@ -68,13 +75,13 @@ function updateTsconfig(workspace: Workspace, updater: UpdatePackage): void {
 
   editor.addUnique(
     "compilerOptions.types",
-    updater.relative(workspace.resolve("packages", "env")),
+    updater.relative(workspace.paths.packages.file("env")),
     (type) => typeof type === "string" && type.endsWith("/env")
   );
 
   if (updater.type === "demo:react") {
     const path = updater.relative(
-      workspace.resolve("packages", "x-devtool", "tsconfig.json")
+      workspace.paths.packages.x.dir("devtool").file("tsconfig.json")
     );
 
     editor.addUnique(
@@ -90,7 +97,7 @@ function updateTsconfig(workspace: Workspace, updater: UpdatePackage): void {
     editor.set(
       "extends",
       updater.relative(
-        workspace.resolve(".config", "tsconfig", updater.tsconfig)
+        workspace.root.file(`.config/tsconfig/${updater.tsconfig}`)
       ),
       { position: 0 }
     );
@@ -101,7 +108,7 @@ function updateTsconfig(workspace: Workspace, updater: UpdatePackage): void {
     editor.set(
       "extends",
       updater.relative(
-        workspace.resolve(".config", "tsconfig", "tsconfig.-package.json")
+        workspace.root.file(".config/tsconfig/tsconfig.-package.json")
       ),
       { position: 0 }
     );
@@ -109,7 +116,7 @@ function updateTsconfig(workspace: Workspace, updater: UpdatePackage): void {
     editor.set(
       "extends",
       updater.relative(
-        workspace.resolve(".config", "tsconfig", "tsconfig.-demo.json")
+        workspace.root.file(`.config/tsconfig/tsconfig.-demo.json`)
       ),
       { position: 0 }
     );
@@ -127,12 +134,12 @@ function updateTsconfig(workspace: Workspace, updater: UpdatePackage): void {
   editor.set("compilerOptions.composite", true);
   editor.set(
     "compilerOptions.outDir",
-    updater.relative(workspace.resolve("dist", "packages"))
+    updater.relative(workspace.root.dir(`dist/packages`))
   );
   editor.set("compilerOptions.declaration", true);
   editor.set(
     "compilerOptions.declarationDir",
-    updater.relative(workspace.resolve("dist", "types"))
+    updater.relative(workspace.root.dir(`dist/types`))
   );
 
   editor.set("compilerOptions.declarationMap", true);
@@ -159,15 +166,9 @@ class Templates {
   }
 
   get(name: TemplateName): string {
-    return readFileSync(
-      this.#workspace.resolve(
-        "scripts",
-        "templates",
-        "package",
-        `${name}.template`
-      ),
-      "utf8"
-    );
+    return this.#workspace.root
+      .file(`scripts/templates/package/${name}.template`)
+      .readSync();
   }
 }
 
@@ -221,6 +222,10 @@ class UpdatePackage {
     return this.#pkg.type;
   }
 
+  get pkg(): Package {
+    return this.#pkg;
+  }
+
   done(): void {
     if (this.#emittedHeader) {
       console.groupEnd();
@@ -258,8 +263,11 @@ class UpdatePackage {
   }
 
   isInside(relativeToRoot: string): boolean {
-    const absoluteDirectory = this.#workspace.resolve(relativeToRoot);
-    const relativePath = relative(absoluteDirectory, this.#pkg.root);
+    const absoluteDirectory = this.#workspace.root.join(relativeToRoot);
+    const relativePath = relative(
+      absoluteDirectory.absolute,
+      this.#pkg.root.absolute
+    );
     return !!(
       relativePath &&
       !relativePath.startsWith("..") &&
@@ -293,7 +301,7 @@ class UpdatePackage {
   ): void {
     const updateFn = typeof updater === "function" ? updater : () => updater;
 
-    const path = resolve(this.#pkg.root, relativePath);
+    const path = this.root.file(relativePath);
     const prev = existsSync(path) ? readFileSync(path, "utf-8") : undefined;
     const next = updateFn(prev);
     if (prev !== next) {
@@ -302,19 +310,19 @@ class UpdatePackage {
     }
   }
 
-  resolve(...paths: string[]): string {
-    return resolve(this.#pkg.root, ...paths);
+  get root() {
+    return this.#pkg.root;
   }
 
-  relative(path: string): string {
-    return relative(this.#pkg.root, path);
+  relative(path: Path): string {
+    return this.root.join(path.absolute).relative;
   }
 
   jsonEditor(relativePath: string): EditJsonc {
-    return EditJsonc.parse(this.resolve(relativePath));
+    return EditJsonc.parse(this.root.file(relativePath));
   }
 
-  error(callback: (root: string) => void): void {
+  error(callback: (root: Directory) => void): void {
     callback(this.#pkg.root);
   }
 }

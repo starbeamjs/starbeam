@@ -1,0 +1,30 @@
+{
+  "name": "@starbeamx/vanilla",
+  "description": "A renderer for Starbeam using Vanilla JavaScript",
+  "version": "0.7.4",
+  "type": "module",
+  "main": "index.ts",
+  "starbeam:type": "library",
+  "dependencies": {
+    "@starbeam/core": "workspace:^",
+    "@starbeam/debug": "workspace:^",
+    "@starbeam/timeline": "workspace:^"
+  },
+  "publishConfig": {
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "exports": {
+    "default": "./index.ts"
+  },
+  "devDependencies": {
+    "@starbeam-workspace/build-support": "workspace:^"
+  }
+}

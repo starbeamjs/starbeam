@@ -3,17 +3,23 @@
   "compilerOptions": {
     "composite": true,
     "declaration": true,
-    "types": ["../../@types/shell-escape-tag", "node"],
+    "outDir": "./dist",
     "target": "ESNext",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "allowJs": true,
     "checkJs": true,
-    "emitDeclarationOnly": true
+    "types": [
+      "node",
+      "magic-string",
+      "@rollup/plugin-commonjs",
+      "@rollup/plugin-node-resolve"
+    ]
   },
-  "files": [
+  "include": [
     "../../rollup.config.mjs",
     "../../vite.config.ts",
-    "../../packages/core/rollup.config.mjs"
+    "../../packages/*/rollup.config.mjs",
+    "../../framework/*/*/rollup.config.mjs"
   ]
 }

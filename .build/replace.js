@@ -1,8 +1,8 @@
-// @ts-check
+/// <reference path="./replace.d.ts" />
 
 // originally from: https://github.com/vitejs/vite/blob/51e9c83458e30e3ce70abead14e02a7b353322d9/src/node/build/buildPluginReplace.ts
 
-import { default as MagicString } from "magic-string";
+const { default: MagicString } = await import("magic-string");
 
 /** @typedef {import("rollup").TransformResult} TransformResult */
 /** @typedef {import("rollup").Plugin} RollupPlugin */

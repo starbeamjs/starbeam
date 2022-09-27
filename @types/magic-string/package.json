@@ -1,0 +1,14 @@
+{
+  "name": "@types/magic-string",
+  "version": "1.0.0",
+  "type": "module",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts"
+    }
+  },
+  "dependencies": {
+    "magic-string": "*"
+  }
+}

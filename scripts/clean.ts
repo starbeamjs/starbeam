@@ -15,7 +15,7 @@ export const CleanCommand = QueryCommand("clean", {
     if (options.dir) {
       return cleanFiles({
         description: options.dir,
-        cwd: workspace.resolve(options.dir),
+        cwd: workspace.dir(options.dir).absolute,
         roots: ["**/"],
         options,
       });
@@ -25,7 +25,7 @@ export const CleanCommand = QueryCommand("clean", {
       if (pkg.isTypescript) {
         await cleanFiles({
           description: pkg.name,
-          cwd: pkg.root,
+          cwd: pkg.root.absolute,
           roots: roots(pkg),
           options,
         });

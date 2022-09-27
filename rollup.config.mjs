@@ -2,7 +2,7 @@
 
 import { Package } from "@starbeam-workspace/build-support";
 import glob from "fast-glob";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 // import { readFileSync } from "node:fs";
 // import { dirname, resolve } from "node:path";
 // import { fileURLToPath } from "node:url";
@@ -14,14 +14,15 @@ import { resolve } from "node:path";
 
 const root = Package.root(import.meta);
 
-const packages = glob
+export default glob
   .sync([
     resolve(root, "packages/*/package.json"),
     resolve(root, "framework/*/*/package.json"),
   ])
-  .map((path) => Package.at(path));
-
-export default [await import("./packages/core/rollup.config.mjs")];
+  .flatMap((path) => {
+    console.log(path);
+    return Package.config(dirname(path));
+  });
 
 /** @typedef {import("rollup").RollupOptions} RollupOptions */
 /**

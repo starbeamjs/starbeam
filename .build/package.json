@@ -23,8 +23,6 @@
   },
   "devDependencies": {
     "@types/node": "*",
-    "@types/rollup__plugin-commonjs": "workspace:^",
-    "@types/rollup__plugin-node-resolve": "workspace:^",
     "typescript": "*"
   }
 }

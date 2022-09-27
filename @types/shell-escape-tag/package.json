@@ -1,5 +1,10 @@
 {
   "name": "@types/shell-escape-tag",
   "private": true,
-  "types": "index.d.ts"
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts"
+    }
+  }
 }

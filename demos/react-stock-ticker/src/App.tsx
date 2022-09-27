@@ -1,4 +1,4 @@
-import { useReactive } from "@starbeam/react";
+import { useReactive } from "../../../packages/react/react";
 import { useEffect } from "react";
 
 import styles from "./App.module.scss";

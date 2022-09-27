@@ -2,10 +2,8 @@ packages:
   - "@types/@domtree/*"
   - "@types/*"
   - "@types/*/*"
-  - packages/*
-  - packages/*/tests
-  - framework/*/*
-  - framework/*/*/tests
+  - packages/*/*
+  - packages/*/*/tests
   - demos/*
   - scripts
   - .build

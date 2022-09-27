@@ -14,10 +14,10 @@ import { TemplateCommand } from "./template.js";
 import { TestCommand } from "./test.js";
 import { CheckCommand } from "./check.js";
 import { ReleaseCommand } from "./release.js";
+import { Workspace } from "./support/workspace.js";
 
-const root = resolve(dirname(import.meta), "..");
 new StarbeamCommands(
-  root,
+  Workspace.root(resolve(dirname(import.meta), "..")),
   program
     .name("pnpm dev")
     .description("CLI commands to run from package.json")

@@ -1,7 +1,6 @@
-import glob from "fast-glob";
-import { readFileSync } from "fs";
-import { dirname, resolve } from "path";
+import type { Directory, Path, RegularFile } from "./paths.js";
 import { Query } from "./query.js";
+import type { Workspace } from "./workspace.js";
 
 export type StarbeamType =
   | "interfaces"
@@ -13,6 +12,7 @@ export type StarbeamType =
   | "draft";
 
 export interface PackageInfo {
+  manifest: Path;
   name: string;
   main?: string;
   root: string;
@@ -26,14 +26,45 @@ export interface PackageInfo {
 }
 
 export class Package {
+  static from(this: void, manifest: RegularFile): Package {
+    const pkg = manifest.readSync<Record<string, JsonValue>>({ as: "json" });
+
+    if (pkg === null || typeof pkg !== "object") {
+      throw Error(`Invalid package.json at ${manifest}`);
+    }
+
+    const root = manifest.dirname;
+    const raw = new RawPackage(pkg, root);
+
+    const main = raw.get("main", { default: undefined as undefined | string });
+
+    return new Package({
+      manifest,
+      name: raw.get("name"),
+      main,
+      root,
+      isPrivate: raw.get("private", { default: false }),
+      isTypescript:
+        !!raw.get("type", { default: undefined }) ||
+        !!raw.get("exports:.:types", { default: undefined }) !== undefined,
+      starbeam: {
+        tsconfig: raw.get("starbeam:tsconfig", { default: undefined }),
+        type: raw.get("starbeam:type", {
+          default: main ? undefined : "unknown",
+        }),
+        used: raw.get("starbeam:used", { default: [] }),
+      },
+    });
+  }
+
   constructor(readonly info: PackageInfo) {}
 
   get name(): string {
     return this.info.name;
   }
 
-  get root(): string {
-    return this.info.root;
+  get root(): Directory {
+    return this.info.manifest.parent;
   }
 
   get isPrivate(): boolean {
@@ -60,8 +91,8 @@ export class Package {
     return this.info.starbeam.used;
   }
 
-  resolve(...path: string[]): string {
-    return resolve(this.root, ...path);
+  get tests(): Directory {
+    return this.root.dir("tests");
   }
 }
 
@@ -70,48 +101,23 @@ export interface Used {
   packages: string[];
 }
 
-export function getPackage(path: string): Package {
-  const pkg = JSON.parse(readFileSync(path, "utf8"));
-
-  if (pkg === null || typeof pkg !== "object") {
-    throw Error(`Invalid package.json at ${path}`);
-  }
-
-  const root = dirname(path);
-
-  const raw = new RawPackage(pkg, root);
-
-  const main = raw.get("main", { default: undefined as undefined | string });
-
-  return new Package({
-    name: raw.get("name"),
-    main,
-    root,
-    isPrivate: raw.get("private", { default: false }),
-    isTypescript:
-      !!raw.get("type", { default: undefined }) ||
-      !!raw.get("exports:.:types", { default: undefined }) !== undefined,
-    starbeam: {
-      tsconfig: raw.get("starbeam:tsconfig", { default: undefined }),
-      type: raw.get("starbeam:type", { default: main ? undefined : "unknown" }),
-      used: raw.get("starbeam:used", { default: [] }),
-    },
-  });
-}
-
 export function queryPackages(
-  root: string,
+  workspace: Workspace,
   query: Query = Query.all
 ): Package[] {
-  return glob
-    .sync([
-      resolve(root, "packages/*/package.json"),
-      resolve(root, "packages/*/tests/package.json"),
-      resolve(root, "framework/*/*/package.json"),
-      resolve(root, "framework/*/*/tests/package.json"),
-      resolve(root, "demos/*/package.json"),
+  const packages = workspace.paths.packages.all;
+  const tests = packages.dir("tests");
+  const demos = workspace.paths.demos.glob("*", { match: ["directories"] });
+
+  return workspace.root
+    .globs({ match: ["files"] })
+    .add([
+      packages.file("package.json"),
+      tests.file("package.json"),
+      demos.file("package.json"),
     ])
-    .map((path) => getPackage(path))
+    .expand()
+    .map(Package.from)
     .filter((pkg) => query.match(pkg));
 }
 
@@ -219,31 +225,5 @@ function formatKey(soFar: string[], key: string): string {
     return key;
   } else {
     return `${soFar.join(".")}.${key}`;
-  }
-}
-
-export function getPackages(
-  root: string,
-  name: string,
-  scope?: string
-): Package[] {
-  const all = queryPackages(root);
-
-  if (name === "any") {
-    return all;
-  }
-
-  const pkgName = normalizePackageName(name, scope);
-
-  return all.filter((pkg) => pkg.name === pkgName);
-}
-
-function normalizePackageName(name: string, scope: string | undefined): string {
-  if (name === "all") {
-    return "all";
-  } else if (name.startsWith("@") || scope === undefined) {
-    return name;
-  } else {
-    return `@${scope}/${name}`;
   }
 }

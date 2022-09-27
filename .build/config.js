@@ -1,15 +1,14 @@
-// @ts-check
-
 import { dirname, resolve } from "node:path";
 import { defineConfig } from "rollup";
 import rollupTS from "rollup-plugin-ts";
-import { default as commonjs } from "@rollup/plugin-commonjs";
-import { default as nodeResolve } from "@rollup/plugin-node-resolve";
 import importMeta from "./import-meta.js";
-import { default as postcss } from "rollup-plugin-postcss";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import typescriptLibrary from "typescript";
+
+const { default: commonjs } = await import("@rollup/plugin-commonjs");
+const { default: nodeResolve } = await import("@rollup/plugin-node-resolve");
+const { default: postcss } = await import("rollup-plugin-postcss");
 
 const {
   ImportsNotUsedAsValues,
@@ -50,7 +49,8 @@ const EXTERNAL = true;
  */
 export function tsconfig(updates) {
   return {
-    jsx: JsxEmit.Preserve,
+    jsx: JsxEmit.ReactJSX,
+    jsxImportSource: "preact",
     strict: true,
     declaration: true,
     declarationMap: true,
@@ -114,7 +114,7 @@ export class Package {
 
   /**
    * @param {ImportMeta | string} meta
-   * @returns {Package}
+   * @returns {Package | undefined}
    */
   static at(meta) {
     const root = typeof meta === "string" ? meta : Package.root(meta);
@@ -135,12 +135,35 @@ export class Package {
       starbeamExternal.push(...json.starbeam.inline.map(mapExternal));
     }
 
-    return new Package({
-      name: json.name,
-      main: resolve(root, json.main),
-      root,
-      starbeamExternal,
-    });
+    if (json.main) {
+      return new Package({
+        name: json.name,
+        main: resolve(root, json.main),
+        root,
+        starbeamExternal,
+      });
+    } else if (
+      json["starbeam:type"] === "draft" ||
+      json.starbeam?.type === "draft"
+    ) {
+      // do nothing
+    } else {
+      console.warn(`No main entry point found for ${json.name} (in ${root})`);
+    }
+  }
+
+  /**
+   * @param {ImportMeta | string} meta
+   * @returns {import("./config.js").RollupExport}
+   */
+  static config(meta) {
+    const pkg = Package.at(meta);
+
+    if (pkg) {
+      return pkg.config();
+    } else {
+      return [];
+    }
   }
 
   /** @readonly @type {PackageInfo} */

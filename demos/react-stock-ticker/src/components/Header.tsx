@@ -1,5 +1,5 @@
 import { Cell } from "@starbeam/core";
-import { useReactive, useSetup } from "@starbeam/react";
+import { useReactive, useSetup } from "../../../../packages/react/react";
 import type { FormEvent } from "react";
 
 import { searchTicker } from "../lib/api/api.js";

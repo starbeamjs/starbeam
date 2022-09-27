@@ -19,7 +19,7 @@ export const ListCommand = QueryCommand("list").action(
         flags.push(chalk.bgGreen.black("typescript"));
       }
 
-      const pkgRoot = workspace.relative(pkg.root);
+      const pkgRoot = pkg.root.relativeFrom(workspace.root);
       console.group(`${comment(pkg.name)} ${flags.join(" ")}`);
       log(`${chalk.bgCyan("dir")} ${chalk.magenta(pkgRoot)}`);
       console.groupEnd();
