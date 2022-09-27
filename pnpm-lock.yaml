@@ -22,6 +22,7 @@ importers:
       '@babel/plugin-syntax-dynamic-import': ^7.8.3
       '@babel/plugin-transform-runtime': ^7.19.1
       '@babel/preset-env': ^7.19.1
+      '@babel/preset-react': ^7.18.6
       '@babel/preset-typescript': ^7.18.6
       '@babel/runtime': ^7.19.0
       '@changesets/cli': ^2.24.4
@@ -60,6 +61,7 @@ importers:
       '@babel/plugin-syntax-dynamic-import': 7.8.3_@babel+core@7.19.3
       '@babel/plugin-transform-runtime': 7.19.1_@babel+core@7.19.3
       '@babel/preset-env': 7.19.1_@babel+core@7.19.3
+      '@babel/preset-react': 7.18.6_@babel+core@7.19.3
       '@babel/preset-typescript': 7.18.6_@babel+core@7.19.3
       '@babel/runtime': 7.19.0
       '@changesets/cli': 2.24.4
@@ -105,6 +107,7 @@ importers:
       rollup: 2.79.1
       rollup-plugin-postcss: '*'
       rollup-plugin-ts: 3.0.2
+      rollup-pluginutils: ^2.8.2
       typescript: ^4.8.3
     dependencies:
       '@rollup/plugin-commonjs': 22.0.2_rollup@2.79.1
@@ -115,6 +118,7 @@ importers:
       rollup: 2.79.1
       rollup-plugin-postcss: 4.0.2_postcss@8.4.16
       rollup-plugin-ts: 3.0.2_5q64ijqsuisqe52alrh6v6njki
+      rollup-pluginutils: 2.8.2
     devDependencies:
       '@types/node': 18.7.23
       typescript: 4.8.3
@@ -724,6 +728,7 @@ importers:
       jsonc: ^2.0.0
       jsonc-parser: ^3.0.0
       prettier: ^2.7.1
+      rollup-plugin-ts: 3.0.2
       shell-escape-tag: ^2.0.2
       shelljs: ^0.8.5
     dependencies:
@@ -742,6 +747,7 @@ importers:
       esno: 0.16.3
       jsonc: 2.0.0
       jsonc-parser: 3.2.0
+      rollup-plugin-ts: 3.0.2_5q64ijqsuisqe52alrh6v6njki
 
 packages:
 
@@ -1365,7 +1371,6 @@ packages:
       '@babel/core': 7.19.3
       '@babel/helper-plugin-utils': 7.19.0
     dev: true
-    optional: true
 
   /@babel/plugin-syntax-logical-assignment-operators/7.10.4_@babel+core@7.19.3:
     resolution: {integrity: sha512-d8waShlpFDinQ5MtvGU9xDAOzKH47+FFoney2baFIoMr952hKOLp1HR7VszoZvOsV/4+RRszNY7D17ba0te0ig==}
@@ -1721,6 +1726,16 @@ packages:
       '@babel/helper-plugin-utils': 7.19.0
     dev: true
 
+  /@babel/plugin-transform-react-display-name/7.18.6_@babel+core@7.19.3:
+    resolution: {integrity: sha512-TV4sQ+T013n61uMoygyMRm+xf04Bd5oqFpv2jAEQwSZ8NwQA7zeRPg1LMVg2PWi3zWBz+CLKD+v5bcpZ/BS0aA==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+    dependencies:
+      '@babel/core': 7.19.3
+      '@babel/helper-plugin-utils': 7.19.0
+    dev: true
+
   /@babel/plugin-transform-react-jsx-development/7.18.6_@babel+core@7.19.3:
     resolution: {integrity: sha512-SA6HEjwYFKF7WDjWcMcMGUimmw/nhNRDWxr+KaLSCrkD/LMDBvWRmHAYgE1HDeF8KUuI8OAu+RT6EOtKxSW2qA==}
     engines: {node: '>=6.9.0'}
@@ -1730,7 +1745,6 @@ packages:
       '@babel/core': 7.19.3
       '@babel/plugin-transform-react-jsx': 7.19.0_@babel+core@7.19.3
     dev: true
-    optional: true
 
   /@babel/plugin-transform-react-jsx-self/7.18.6_@babel+core@7.19.3:
     resolution: {integrity: sha512-A0LQGx4+4Jv7u/tWzoJF7alZwnBDQd6cGLh9P+Ttk4dpiL+J5p7NSNv/9tlEFFJDq3kjxOavWmbm6t0Gk+A3Ig==}
@@ -1767,7 +1781,17 @@ packages:
       '@babel/plugin-syntax-jsx': 7.18.6_@babel+core@7.19.3
       '@babel/types': 7.19.3
     dev: true
-    optional: true
+
+  /@babel/plugin-transform-react-pure-annotations/7.18.6_@babel+core@7.19.3:
+    resolution: {integrity: sha512-I8VfEPg9r2TRDdvnHgPepTKvuRomzA8+u+nhY7qSI1fR2hRNebasZEETLyM5mAUr0Ku56OkXJ0I7NHJnO6cJiQ==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+    dependencies:
+      '@babel/core': 7.19.3
+      '@babel/helper-annotate-as-pure': 7.18.6
+      '@babel/helper-plugin-utils': 7.19.0
+    dev: true
 
   /@babel/plugin-transform-regenerator/7.18.6_@babel+core@7.19.3:
     resolution: {integrity: sha512-poqRI2+qiSdeldcz4wTSTXBRryoq3Gc70ye7m7UD5Ww0nE29IXqMl6r7Nd15WBgRd74vloEMlShtH6CKxVzfmQ==}
@@ -1990,6 +2014,21 @@ packages:
       '@babel/plugin-transform-dotall-regex': 7.18.6_@babel+core@7.19.3
       '@babel/types': 7.19.3
       esutils: 2.0.3
+    dev: true
+
+  /@babel/preset-react/7.18.6_@babel+core@7.19.3:
+    resolution: {integrity: sha512-zXr6atUmyYdiWRVLOZahakYmOBHtWc2WGCkP8PYTgZi0iJXDY2CN180TdrIW4OGOAdLc7TifzDIvtx6izaRIzg==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+    dependencies:
+      '@babel/core': 7.19.3
+      '@babel/helper-plugin-utils': 7.19.0
+      '@babel/helper-validator-option': 7.18.6
+      '@babel/plugin-transform-react-display-name': 7.18.6_@babel+core@7.19.3
+      '@babel/plugin-transform-react-jsx': 7.19.0_@babel+core@7.19.3
+      '@babel/plugin-transform-react-jsx-development': 7.18.6_@babel+core@7.19.3
+      '@babel/plugin-transform-react-pure-annotations': 7.18.6_@babel+core@7.19.3
     dev: true
 
   /@babel/preset-typescript/7.18.6_@babel+core@7.19.3:
@@ -7016,7 +7055,6 @@ packages:
       ts-clone-node: 1.0.0_typescript@4.8.3
       tslib: 2.4.0
       typescript: 4.8.3
-    dev: false
 
   /rollup-plugin-ts/3.0.2_ar2sr7kqsuppay3wobbj6t3rku:
     resolution: {integrity: sha512-67qi2QTHewhLyKDG6fX3jpohWpmUPPIT/xJ7rsYK46X6MqmoWy64Ti0y8ygPfLv8mXDCdRZUofM3mTxDfCswRA==}

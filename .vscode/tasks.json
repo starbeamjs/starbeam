@@ -12,29 +12,18 @@
       }
     },
     {
-      "type": "typescript",
-      "tsconfig": "tsconfig.json",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["check:types"],
       "problemMatcher": ["$tsc"],
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      },
-      "label": "typecheck",
-      "presentation": {
-        "echo": true,
-        "reveal": "never",
-        "focus": false,
-        "panel": "shared",
-        "showReuseMessage": true,
-        "clear": false
-      }
+      "label": "check:types"
     },
     {
-      "type": "npm",
-      "script": "lint",
-      "problemMatcher": ["$eslint-stylish"],
-      "label": "npm: lint",
-      "detail": "eslint --cache -c ./.eslintrc.json --ext .ts,.tsx ."
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["check:types", "-w"],
+      "problemMatcher": ["$tsc-watch"],
+      "label": "check:types (watch)"
     }
   ]
 }

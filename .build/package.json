@@ -24,7 +24,8 @@
     "rollup-plugin-ts": "*",
     "rollup-plugin-postcss": "*",
     "@rollup/plugin-commonjs": "*",
-    "@rollup/plugin-node-resolve": "*"
+    "@rollup/plugin-node-resolve": "*",
+    "rollup-pluginutils": "^2.8.2"
   },
   "devDependencies": {
     "@types/node": "*",

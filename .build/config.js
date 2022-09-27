@@ -5,6 +5,7 @@ import importMeta from "./import-meta.js";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import typescriptLibrary from "typescript";
+import inline from "./inline.js";
 
 const { default: commonjs } = await import("@rollup/plugin-commonjs");
 const { default: nodeResolve } = await import("@rollup/plugin-node-resolve");
@@ -74,17 +75,27 @@ export function tsconfig(updates) {
 }
 
 /**
+ * @param {PackageInfo} pkg
  * @param {Partial<CompilerOptions>} [config]
  * @returns {RollupPlugin}
  */
-export function typescript(config) {
+export function typescript(pkg, config) {
   const ts = tsconfig(config ?? {});
+
+  /** @type {[string, object][]} */
+  const presets = [["@babel/preset-typescript", { allowDeclareFields: true }]];
+
+  if (pkg.starbeam.jsx) {
+    presets.push([
+      "@babel/preset-react",
+      { runtime: "automatic", importSource: pkg.starbeam.jsx },
+    ]);
+  }
+
   return rollupTS({
     transpiler: "babel",
     transpileOnly: true,
-    babelConfig: {
-      presets: [["@babel/preset-typescript", { allowDeclareFields: true }]],
-    },
+    babelConfig: { presets },
 
     tsconfig: ts,
   });
@@ -135,12 +146,24 @@ export class Package {
       starbeamExternal.push(...json.starbeam.inline.map(mapExternal));
     }
 
+    /** @type {string | undefined} */
+    let jsx;
+
+    if (json["starbeam:jsx"]) {
+      jsx = json["starbeam:jsx"];
+    } else if (json.starbeam?.jsx) {
+      jsx = json.starbeam.jsx;
+    }
+
     if (json.main) {
       return new Package({
         name: json.name,
         main: resolve(root, json.main),
         root,
-        starbeamExternal,
+        starbeam: {
+          external: starbeamExternal,
+          jsx,
+        },
       });
     } else if (
       json["starbeam:type"] === "draft" ||
@@ -198,10 +221,10 @@ export class Package {
   }
 
   /**
-   * @returns {ExternalOption[]}
+   * @returns {PackageInfo["starbeam"]}
    */
-  get starbeamExternal() {
-    return this.#package.starbeamExternal;
+  get starbeam() {
+    return this.#package.starbeam;
   }
 
   /**
@@ -222,11 +245,12 @@ export class Package {
       input: pkg.main,
       external: this.#external,
       plugins: [
+        inline(),
         commonjs(),
         nodeResolve(),
         importMeta,
         postcss(),
-        typescript({
+        typescript(this.#package, {
           target: ScriptTarget.ES2022,
         }),
       ],
@@ -241,11 +265,12 @@ export class Package {
       ...this.#shared("cjs"),
       external: this.#external,
       plugins: [
+        inline(),
         commonjs(),
         nodeResolve(),
         importMeta,
         postcss(),
-        typescript({
+        typescript(this.#package, {
           target: ScriptTarget.ES2021,
           module: ModuleKind.CommonJS,
           moduleResolution: ModuleResolutionKind.NodeJs,
@@ -271,7 +296,7 @@ export class Package {
         return INLINE;
       }
 
-      for (const option of this.#package.starbeamExternal ?? []) {
+      for (const option of this.#package.starbeam.external) {
         if (Array.isArray(option)) {
           const [type, value] = option;
           const entries = Object.entries(value);

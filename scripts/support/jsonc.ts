@@ -69,9 +69,7 @@ export class EditJsonc {
   set(
     path: string,
     value: unknown,
-    {
-      position = -1,
-    }: { position?: number | ((siblings: string[]) => number) } = {}
+    { position = -1 }: JsoncPosition = { position: -1 }
   ): void {
     const edit = jsonc.modify(this.#source, this.#path(path), value, {
       getInsertionIndex:
@@ -108,6 +106,11 @@ export class EditJsonc {
     });
   }
 }
+
+export type JsoncPosition =
+  | { position: number }
+  | { position: (siblings: string[]) => number }
+  | undefined;
 
 function parse(source: string): jsonc.Node {
   const parsed = jsonc.parseTree(source);

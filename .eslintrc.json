@@ -62,14 +62,7 @@
       }
     },
     {
-      "files": [
-        "./rollup.config.mjs",
-        "./packages/*/rollup.config.mjs",
-        "./framework/*/*/rollup.config.mjs",
-        "./vite.config.ts",
-        "./demos/*/vite.config.ts"
-      ],
-
+      "files": ["./packages/*/*/rollup.config.mjs", "./demos/*/vite.config.ts"],
       "extends": ["./eslintrc.shared.json"],
       "parserOptions": { "project": "./packages/tsconfig.rollup.json" }
     },

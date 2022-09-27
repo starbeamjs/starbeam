@@ -2,7 +2,10 @@ export interface PackageInfo {
   readonly name: string;
   readonly root: string;
   readonly main: string;
-  readonly starbeamExternal: ExternalOption[];
+  readonly starbeam: {
+    readonly external: ExternalOption[];
+    readonly jsx: string | undefined;
+  }
 }
 
 // importing from typescript using a static import massively slows down eslint for some reason.
@@ -21,9 +24,11 @@ export interface PackageJSON {
   readonly name: string;
   readonly "starbeam:inline"?: PackageJsonInline[];
   readonly "starbeam:type"?: string;
+  readonly "starbeam:jsx"?: string;
   readonly starbeam?: {
     readonly inline?: PackageJsonInline[];
     readonly type?: string;
+    readonly jsx?: string;
   };
 }
 

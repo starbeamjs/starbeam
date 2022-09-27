@@ -1,5 +1,5 @@
 {
-  "extends": "../../../../.config/tsconfig/tsconfig.-package.json",
+  "extends": "../../../../.config/tsconfig/tsconfig.shared.json",
   "compilerOptions": {
     "outDir": "../../../../dist/packages",
     "declarationMap": true,

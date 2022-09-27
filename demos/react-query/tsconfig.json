@@ -8,6 +8,6 @@
     "declarationDir": "../../dist/types",
     "types": ["../../packages/env"]
   },
-  "references": [{ "path": "../../packages/x/devtool/tsconfig.json" }],
+  "references": [{ "path": "../../packages/tsconfig.packages.json" }],
   "exclude": ["dist/**/*"]
 }

@@ -18,6 +18,7 @@
     "jsonc-parser": "^3.0.0",
     "@types/shell-escape-tag": "workspace:^",
     "@types/shelljs": "^0.8.11",
-    "@types/prettier": "^2.7.0"
+    "@types/prettier": "^2.7.0",
+    "rollup-plugin-ts": "*"
   }
 }
