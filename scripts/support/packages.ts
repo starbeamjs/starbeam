@@ -11,6 +11,13 @@ export type StarbeamType =
   | "unknown"
   | "draft";
 
+export interface StarbeamInfo {
+  tsconfig: string | undefined;
+  type: StarbeamType | undefined;
+  used: Used[];
+  "keep:js": boolean | undefined;
+}
+
 export interface PackageInfo {
   manifest: Path;
   name: string;
@@ -18,19 +25,53 @@ export interface PackageInfo {
   root: string;
   isPrivate: boolean;
   isTypescript: boolean;
-  starbeam: {
-    tsconfig: string | undefined;
-    type: StarbeamType | undefined;
-    used: Used[];
-  };
+  starbeam: StarbeamInfo;
+}
+
+export class Starbeam {
+  #info: StarbeamInfo;
+
+  constructor(info: StarbeamInfo) {
+    this.#info = info;
+  }
+
+  get tsconfig(): string | undefined {
+    return this.#info.tsconfig;
+  }
+
+  get type(): StarbeamType {
+    return this.#info.type ?? "unknown";
+  }
+
+  get used(): Used[] {
+    return this.#info.used;
+  }
+
+  get keepJs(): boolean {
+    return this.#info["keep:js"] ?? false;
+  }
 }
 
 export class Package {
-  static from(this: void, manifest: RegularFile): Package {
+  static from(this: void, manifest: RegularFile): Package;
+  static from(
+    this: void,
+    manifest: RegularFile,
+    options: { allow: "missing" }
+  ): Package | undefined;
+  static from(
+    this: void,
+    manifest: RegularFile,
+    options?: { allow: "missing" }
+  ): Package | undefined {
     const pkg = manifest.readSync<Record<string, JsonValue>>({ as: "json" });
 
     if (pkg === null || typeof pkg !== "object") {
-      throw Error(`Invalid package.json at ${manifest}`);
+      if (options?.allow === "missing") {
+        return undefined;
+      } else {
+        throw Error(`Invalid package.json at ${manifest}`);
+      }
     }
 
     const root = manifest.dirname;
@@ -53,6 +94,7 @@ export class Package {
           default: main ? undefined : "unknown",
         }),
         used: raw.get("starbeam:used", { default: [] }),
+        "keep:js": raw.get("starbeam:keep:js", { default: undefined }),
       },
     });
   }
@@ -65,6 +107,10 @@ export class Package {
 
   get root(): Directory {
     return this.info.manifest.parent;
+  }
+
+  get starbeam(): Starbeam {
+    return new Starbeam(this.info.starbeam);
   }
 
   get isPrivate(): boolean {
@@ -117,7 +163,7 @@ export function queryPackages(
       demos.file("package.json"),
     ])
     .expand()
-    .map(Package.from)
+    .map((manifest) => Package.from(manifest))
     .filter((pkg) => query.match(pkg));
 }
 
@@ -187,6 +233,12 @@ class RawPackage {
     if (key.length === 0) {
       return undefined;
     } else {
+      const shorthand = key.join(":");
+
+      if (shorthand in object) {
+        return object[shorthand] as T;
+      }
+
       const [first, ...rest] = key;
 
       if (first in object) {

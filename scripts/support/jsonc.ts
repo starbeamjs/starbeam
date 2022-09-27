@@ -32,10 +32,16 @@ export class EditJsonc {
     this.#json = parse(this.#source);
   }
 
+  addUnique(path: string, value: string | number | boolean): void;
   addUnique(
     path: string,
     value: unknown,
     check: (json: unknown) => boolean
+  ): void;
+  addUnique(
+    path: string,
+    value: unknown,
+    check: (json: unknown) => boolean = (json) => json === value
   ): void {
     if (check(this.#json)) {
       return;

@@ -4,7 +4,7 @@ import { relative } from "node:path";
 import shell from "shelljs";
 import { QueryCommand, StringOption } from "./support/commands.js";
 import { comment, header, log, problem } from "./support/log.js";
-import type { Package } from "./support/packages.js";
+import { Package } from "./support/packages.js";
 
 export const CleanCommand = QueryCommand("clean", {
   description: "clean up build artifacts",
@@ -13,10 +13,19 @@ export const CleanCommand = QueryCommand("clean", {
   .option("dir", "the directory to clean", StringOption)
   .action(async ({ workspace, packages, ...options }) => {
     if (options.dir) {
+      const pkg = Package.from(
+        workspace.root.dir(options.dir).file("package.json"),
+        { allow: "missing" }
+      );
+
+      if (pkg === undefined) {
+        log(`No package found at ${options.dir}`, problem);
+        process.exit(1);
+      }
+
       return cleanFiles({
         description: options.dir,
-        cwd: workspace.dir(options.dir).absolute,
-        roots: ["**/"],
+        pkg,
         options,
       });
     }
@@ -25,8 +34,7 @@ export const CleanCommand = QueryCommand("clean", {
       if (pkg.isTypescript) {
         await cleanFiles({
           description: pkg.name,
-          cwd: pkg.root.absolute,
-          roots: roots(pkg),
+          pkg,
           options,
         });
       } else {
@@ -35,7 +43,7 @@ export const CleanCommand = QueryCommand("clean", {
     }
   });
 
-function roots(pkg: Package) {
+function packageRoots(pkg: Package) {
   if (pkg.type === "library") {
     return ["", "src/**/"];
   } else {
@@ -45,19 +53,21 @@ function roots(pkg: Package) {
 
 async function cleanFiles({
   description,
-  cwd,
-  roots,
+  pkg,
   options,
 }: {
   description: string;
-  cwd: string;
-  roots: string[];
+  pkg: Package;
   options: { verbose: boolean; dryRun: boolean };
 }) {
-  const patterns = [
-    ...roots.map((root) => `${root}*.{js,jsx,d.ts,map}`),
-    "dist/",
-  ];
+  const patterns = ["dist/"];
+  const roots = packageRoots(pkg);
+  const cwd = pkg.root.absolute;
+
+  console.log(pkg?.starbeam);
+  if (pkg?.starbeam.keepJs === false) {
+    patterns.push(...roots.map((root) => `${root}*.{js,jsx,d.ts,map}`));
+  }
 
   const files = await glob(patterns, {
     cwd,
