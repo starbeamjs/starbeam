@@ -1,12 +1,15 @@
 {
-  "extends": ".config/tsconfig/tsconfig.-devtool.json",
+  "extends": "../../../.config/tsconfig/tsconfig.shared.json",
   "compilerOptions": {
-    "outDir": "dist/packages",
+    "outDir": "../../../dist/packages",
     "declarationMap": true,
-    "declarationDir": "dist/types",
+    "declarationDir": "../../../dist/types",
     "declaration": true,
     "composite": true,
-    "types": ["packages/env"]
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
+    "lib": ["esnext", "DOM", "DOM.Iterable"],
+    "types": ["../../env"]
   },
   "exclude": ["dist/**/*"]
 }

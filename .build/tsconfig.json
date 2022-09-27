@@ -1,5 +1,5 @@
 {
-  "extends": "../.config/tsconfig/tsconfig.-target.json",
+  "extends": "../.config/tsconfig/tsconfig.shared.json",
   "compilerOptions": {
     "composite": true,
     "target": "ESNext",

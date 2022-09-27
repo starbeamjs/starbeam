@@ -1,5 +1,5 @@
 {
-  "extends": "../.config/tsconfig/tsconfig.-target.json",
+  "extends": "../.config/tsconfig/tsconfig.shared.json",
   "compilerOptions": {
     "composite": true,
     "declaration": true,
@@ -9,12 +9,7 @@
     "moduleResolution": "NodeNext",
     "allowJs": true,
     "checkJs": true,
-    "types": [
-      "node",
-      "magic-string",
-      "@rollup/plugin-commonjs",
-      "@rollup/plugin-node-resolve"
-    ]
+    "types": ["node", "magic-string"]
   },
   "include": ["*/*/rollup.config.mjs"]
 }

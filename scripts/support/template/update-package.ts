@@ -132,7 +132,7 @@ export class UpdatePackage {
   }
 
   relative(path: Path): string {
-    return relative(this.#workspace.root.absolute, path.absolute);
+    return relative(this.#pkg.root.absolute, path.absolute);
   }
 
   jsonEditor(relativePath: string): EditJsonc {

@@ -11,6 +11,11 @@
     // { "path": "./.config/tsconfig/tsconfig.devtool.json" },
     // { "path": "./.config/tsconfig/tsconfig.scripts.json" },
     { "path": "./packages/tsconfig.packages.json" },
-    { "path": "./.build/tsconfig.json" }
+    { "path": "./packages/tsconfig.rollup.json" },
+    { "path": "./packages/x/devtool/tsconfig.json" },
+    { "path": "./demos/tsconfig.react-demos.json" },
+    { "path": "./.build/tsconfig.json" },
+    { "path": "./scripts/tsconfig.json" },
+    { "path": "./tsconfig.root.json" }
   ]
 }

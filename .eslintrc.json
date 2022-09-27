@@ -1,7 +1,12 @@
 {
   "root": true,
 
-  "ignorePatterns": ["**/node_modules/**", "node_modules/**", "*.d.ts"],
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "node_modules/**",
+    "*.d.ts",
+    "packages/x/devtools-extension/**"
+  ],
   "settings": {
     "import/resolver": {
       "typescript": {}
@@ -10,24 +15,31 @@
   },
   "overrides": [
     {
-      "files": [
-        "./packages/**/*.{d.,}ts",
-        "./framework/**/*.ts{x,}",
-        "./@types/**/*.ts"
-      ],
+      "files": ["./packages/*/*/**/*.{d.,}ts"],
       "extends": ["./eslintrc.shared.json"],
-      "excludedFiles": ["packages/x-devtool/**"],
+      "excludedFiles": [
+        "packages/x/devtool/**",
+        "packages/x/devtools-extension/**"
+      ],
       "parserOptions": {
         "sourceType": "module",
-        "project": "./.config/tsconfig/tsconfig.packages.json"
+        "project": "./packages/tsconfig.packages.json"
       }
     },
     {
-      "files": ["./packages/x-devtool/**/*.ts{x,}"],
+      "files": ["./@types/**/*.ts"],
       "extends": ["./eslintrc.shared.json"],
       "parserOptions": {
         "sourceType": "module",
-        "project": "./.config/tsconfig/tsconfig.devtool.json"
+        "project": "./@types/tsconfig.json"
+      }
+    },
+    {
+      "files": ["./packages/x/devtool/**/*.ts{x,}"],
+      "extends": ["./eslintrc.shared.json"],
+      "parserOptions": {
+        "sourceType": "module",
+        "project": "./packages/x/devtool/tsconfig.json"
       }
     },
     {
@@ -37,7 +49,7 @@
       "parser": "@typescript-eslint/parser",
       "parserOptions": {
         "sourceType": "module",
-        "project": "./.config/tsconfig/tsconfig.react-demos.json"
+        "project": "./demos/tsconfig.react-demos.json"
       }
     },
     {
@@ -46,7 +58,7 @@
       "parser": "@typescript-eslint/parser",
       "parserOptions": {
         "sourceType": "module",
-        "project": "./.config/tsconfig/tsconfig.scripts.json"
+        "project": "./scripts/tsconfig.json"
       }
     },
     {
@@ -59,7 +71,7 @@
       ],
 
       "extends": ["./eslintrc.shared.json"],
-      "parserOptions": { "project": "./.config/tsconfig/tsconfig.rollup.json" }
+      "parserOptions": { "project": "./packages/tsconfig.rollup.json" }
     },
     {
       "files": ["./.build/**/*.{js,d.ts}"],
@@ -69,6 +81,11 @@
         "@typescript-eslint/explicit-module-boundary-types": "off",
         "@typescript-eslint/no-explicit-any": "error"
       }
+    },
+    {
+      "files": ["./rollup.config.mjs"],
+      "extends": ["./eslintrc.shared.json"],
+      "parserOptions": { "project": "./tsconfig.root.json" }
     }
   ]
 }

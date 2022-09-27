@@ -18,7 +18,7 @@ export const TestCommand = QueryCommand("test", {
     if (verbose) {
       log(`> cleaning root/dist`, comment);
     }
-    shell.rm("-rf", workspace.resolve("dist"));
+    shell.rm("-rf", workspace.root.dir("dist").absolute);
 
     for (const pkg of packages) {
       exitCode |= runTests(pkg, workspace, { failFast });
@@ -38,12 +38,12 @@ function runTests(
     )}\n`
   );
 
-  const tests = pkg.resolve("tests");
+  const tests = pkg.root.dir("tests");
   let vitestExit = 0;
 
   if (existsSync(tests)) {
     vitestExit = tryExec(sh`pnpm vitest --dir ${pkg.root} --run`, {
-      cwd: workspace.root,
+      cwd: workspace.root.absolute,
       workspace,
       pkg,
       failFast,
@@ -51,13 +51,13 @@ function runTests(
   }
 
   const eslintExit = tryExec(sh`pnpm eslint`, {
-    cwd: pkg.root,
+    cwd: pkg.root.absolute,
     workspace,
     pkg,
     failFast,
   });
   const tscExit = tryExec(sh`tsc -b`, {
-    cwd: pkg.root,
+    cwd: pkg.root.absolute,
     workspace,
     pkg,
     failFast,

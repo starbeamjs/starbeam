@@ -56,7 +56,7 @@ export function updateTsconfig(
     editor.set(
       "extends",
       updater.relative(
-        workspace.root.file(`.config/tsconfig/tsconfig.-demo.json`)
+        workspace.root.file(`.config/tsconfig/tsconfig.react-demo.json`)
       ),
       { position: 0 }
     );

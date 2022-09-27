@@ -1,0 +1,9 @@
+{
+  "extends": "./.config/tsconfig/tsconfig.shared.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "outDir": "./dist/root"
+  },
+  "files": ["rollup.config.mjs"]
+}

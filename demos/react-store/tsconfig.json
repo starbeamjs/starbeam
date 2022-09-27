@@ -1,13 +1,13 @@
 {
-  "extends": ".config/tsconfig/tsconfig.-demo.json",
+  "extends": "../../.config/tsconfig/tsconfig.react-demo.json",
   "compilerOptions": {
-    "outDir": "dist/packages",
+    "outDir": "../../dist/packages",
     "declaration": true,
     "composite": true,
     "declarationMap": true,
-    "declarationDir": "dist/types",
-    "types": ["packages/env"]
+    "declarationDir": "../../dist/types",
+    "types": ["../../packages/env"]
   },
-  "references": [{ "path": "packages/x/devtool/tsconfig.json" }],
+  "references": [{ "path": "../../packages/x/devtool/tsconfig.json" }],
   "exclude": ["dist/**/*"]
 }

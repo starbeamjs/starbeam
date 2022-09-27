@@ -26,7 +26,6 @@
   },
   "devDependencies": {
     "@starbeam-workspace/build-support": "workspace:^",
-    "@types/magic-string": "workspace:^",
     "@babel/plugin-proposal-decorators": "^7.19.1",
     "@babel/plugin-syntax-dynamic-import": "^7.8.3",
     "@babel/plugin-transform-runtime": "^7.19.1",
@@ -36,8 +35,6 @@
     "@changesets/cli": "^2.24.4",
     "@rollup/plugin-commonjs": "^22.0.2",
     "@rollup/plugin-node-resolve": "^14.1.0",
-    "@types/rollup__plugin-commonjs": "workspace:^",
-    "@types/rollup__plugin-node-resolve": "workspace:^",
     "@types/node": "18.7.23",
     "@typescript-eslint/eslint-plugin": "^5.38.1",
     "@typescript-eslint/parser": "^5.38.1",
