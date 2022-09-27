@@ -17,6 +17,8 @@
     }
   },
   "dependencies": {
+    "@types/rollup__plugin-commonjs": "workspace:^",
+    "@types/rollup__plugin-node-resolve": "workspace:^",
     "rollup": "*",
     "magic-string": "*",
     "rollup-plugin-ts": "*",

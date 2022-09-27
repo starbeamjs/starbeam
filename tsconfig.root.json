@@ -3,7 +3,8 @@
   "compilerOptions": {
     "allowJs": true,
     "checkJs": true,
-    "outDir": "./dist/root"
+    "outDir": "./dist/root",
+    "esModuleInterop": true
   },
   "files": ["rollup.config.mjs"]
 }

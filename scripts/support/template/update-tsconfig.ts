@@ -6,8 +6,6 @@ export function updateTsconfig(
   updater: UpdatePackage,
   workspace: Workspace
 ): void {
-  const relativeParent = updater.relative(updater.pkg.root.parent);
-
   const editor = updater.jsonEditor("tsconfig.json");
 
   editor.remove("compilerOptions.emitDeclarationOnly");

@@ -60,11 +60,10 @@ async function cleanFiles({
   pkg: Package;
   options: { verbose: boolean; dryRun: boolean };
 }) {
-  const patterns = ["dist/"];
+  const patterns = ["dist/", "**/tsconfig.tsbuildinfo"];
   const roots = packageRoots(pkg);
   const cwd = pkg.root.absolute;
 
-  console.log(pkg?.starbeam);
   if (pkg?.starbeam.keepJs === false) {
     patterns.push(...roots.map((root) => `${root}*.{js,jsx,d.ts,map}`));
   }
@@ -75,7 +74,7 @@ async function cleanFiles({
     objectMode: true,
     onlyFiles: false,
     throwErrorOnBrokenSymbolicLink: true,
-    ignore: ["**/node_modules/**", "**/env.d.ts"],
+    ignore: ["**/node_modules/**", "**/env.d.ts", "dist/**"],
   });
 
   if (files.length > 0) {

@@ -99,6 +99,8 @@ importers:
       '@rollup/plugin-commonjs': ^22.0.2
       '@rollup/plugin-node-resolve': ^14.1.0
       '@types/node': 18.7.23
+      '@types/rollup__plugin-commonjs': workspace:^
+      '@types/rollup__plugin-node-resolve': workspace:^
       magic-string: 0.26.4
       rollup: 2.79.1
       rollup-plugin-postcss: '*'
@@ -107,6 +109,8 @@ importers:
     dependencies:
       '@rollup/plugin-commonjs': 22.0.2_rollup@2.79.1
       '@rollup/plugin-node-resolve': 14.1.0_rollup@2.79.1
+      '@types/rollup__plugin-commonjs': link:../@types/@rollup/plugin-commonjs
+      '@types/rollup__plugin-node-resolve': link:../@types/@rollup/plugin-node-resolve
       magic-string: 0.26.4
       rollup: 2.79.1
       rollup-plugin-postcss: 4.0.2_postcss@8.4.16
@@ -152,6 +156,18 @@ importers:
       '@domtree/interface': workspace:^
     dependencies:
       '@domtree/interface': link:../interface
+
+  '@types/@rollup/plugin-commonjs':
+    specifiers:
+      '@rollup/plugin-commonjs': ^22.0.2
+    dependencies:
+      '@rollup/plugin-commonjs': 22.0.2_rollup@2.79.1
+
+  '@types/@rollup/plugin-node-resolve':
+    specifiers:
+      '@rollup/plugin-node-resolve': ^14.1.0
+    dependencies:
+      '@rollup/plugin-node-resolve': 14.1.0_rollup@2.79.1
 
   '@types/shell-escape-tag':
     specifiers: {}
