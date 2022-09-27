@@ -1,0 +1,20 @@
+{
+  "extends": "../.config/tsconfig/tsconfig.-target.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "outDir": "../dist",
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "allowJs": true,
+    "checkJs": true,
+    "types": [
+      "node",
+      "magic-string",
+      "@rollup/plugin-commonjs",
+      "@rollup/plugin-node-resolve"
+    ]
+  },
+  "include": ["*/*/rollup.config.mjs"]
+}

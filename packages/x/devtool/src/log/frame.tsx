@@ -9,9 +9,9 @@ import type {
 import { ReactiveInternals } from "@starbeam/timeline";
 import type { JSX } from "preact";
 
-import { DescribeLeaf } from "./describe.jsx";
+import { DescribeLeaf } from "./describe.js";
 import type { DevtoolsOptions } from "./shared.js";
-import { LogLine, LogLineFor } from "./ui.jsx";
+import { LogLine, LogLineFor } from "./ui.js";
 
 export function FrameConsumeLine({
   line,

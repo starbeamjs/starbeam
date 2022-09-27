@@ -3,7 +3,7 @@
 import type { JSX } from "preact";
 
 import css from "./css/pane.css?inline";
-import { type UpdatePane, Pane, UiPane } from "./pane.jsx";
+import { type UpdatePane, Pane, UiPane } from "./pane.js";
 import type { DevtoolsOptions } from "./shared.js";
 
 export function TabsPane(

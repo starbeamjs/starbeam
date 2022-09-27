@@ -10,7 +10,7 @@ import type { MutableInternals, Timestamp } from "@starbeam/interfaces";
 import type { JSX } from "preact";
 
 import type { DevtoolsOptions } from "./shared.js";
-import { LogLine, LogLineFor } from "./ui.jsx";
+import { LogLine, LogLineFor } from "./ui.js";
 
 export function CellConsumeLine({
   line,

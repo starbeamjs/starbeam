@@ -5,7 +5,7 @@ import { Timestamp } from "@starbeam/timeline";
 import type { ComponentChildren, JSX } from "preact";
 import { useState } from "preact/hooks";
 
-import { DescribeLeaf, Frame, Internal } from "./describe.jsx";
+import { DescribeLeaf, Frame, Internal } from "./describe.js";
 import type { DevtoolsOptions } from "./shared.js";
 
 function Line({

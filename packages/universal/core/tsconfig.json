@@ -9,6 +9,6 @@
     "types": ["../env"],
     "experimentalDecorators": true
   },
-  "exclude": ["rollup.config.mjss"],
+  "exclude": ["rollup.config.mjs"],
   "references": [{ "path": "../../.config/tsconfig/tsconfig.rollup.json" }]
 }

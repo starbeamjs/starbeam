@@ -8,12 +8,12 @@ import { TIMELINE } from "@starbeam/timeline";
 import type { JSX } from "preact";
 import { useMemo, useState } from "preact/hooks";
 
-import { CellConsumeLine, CellUpdateLine } from "./cell.jsx";
+import { CellConsumeLine, CellUpdateLine } from "./cell.js";
 import css from "./css/log.css?inline";
-import { FrameConsumeLine } from "./frame.jsx";
-import { type UpdatePane, Pane, UiPane } from "./pane.jsx";
+import { FrameConsumeLine } from "./frame.js";
+import { type UpdatePane, Pane, UiPane } from "./pane.js";
 import type { DevtoolsOptions } from "./shared.js";
-import { LogLine } from "./ui.jsx";
+import { LogLine } from "./ui.js";
 
 export function DevtoolsLog({
   options = {},
