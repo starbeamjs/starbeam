@@ -27,6 +27,11 @@
     "chalk": "^5.0.1",
     "@starbeam-workspace/build-support": "workspace:^"
   },
+  "pnpm": {
+    "overrides": {
+      "stacktracey": "file:./stacktracey.tgz"
+    }
+  },
   "publishConfig": {
     "main": "dist/index.cjs",
     "types": "dist/index.d.ts",

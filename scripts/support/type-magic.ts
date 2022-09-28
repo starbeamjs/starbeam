@@ -27,3 +27,92 @@ export type EveryUnionMember<
   L = LastOf<T>,
   N = [T] extends [never] ? true : false
 > = true extends N ? [] : Push<EveryUnionMember<Exclude<T, L>>, L>;
+
+// interface Union<S extends string> {
+//   readonly members: S[];
+//   is(value: unknown): value is S;
+//   assert(value: unknown): S;
+// }
+
+export interface UnionClass<S extends string> {
+  readonly members: S[];
+  readonly MEMBER: S;
+  from<This extends UnionClass<S>>(
+    this: This,
+    value: S | InstanceType<This>
+  ): InstanceType<This>;
+  fromString<This extends UnionClass<S>>(
+    this: This,
+    value: unknown
+  ): InstanceType<This>;
+  isMember(value: S): value is S;
+  format(): string;
+
+  new (value: S): UnionInstance<S>;
+}
+
+export declare class UnionInstance<S extends string> {
+  constructor(value: S);
+
+  readonly value: S;
+  is(...values: S[]): boolean;
+}
+
+export type IntoUnion<U extends UnionInstance<string>> =
+  U extends UnionInstance<infer S> ? S | U : never;
+
+export function Union<S extends string>(...members: S[]): UnionClass<S> {
+  return class Union {
+    static readonly members: S[] = members;
+
+    declare static MEMBER: S;
+
+    static from<This extends UnionClass<S>>(
+      this: This,
+      value: S | InstanceType<This>
+    ): InstanceType<This> {
+      if (typeof value === "string") {
+        return this.fromString(value);
+      } else {
+        return value;
+      }
+    }
+
+    static fromString<This extends UnionClass<S>>(
+      this: This,
+      value: string
+    ): InstanceType<This> {
+      if (Union.isMember(value)) {
+        return new Union(value) as InstanceType<This>;
+      } else {
+        throw new Error(`Expected one of ${members.join(", ")}, got ${value}`);
+      }
+    }
+
+    static isMember(this: void, value: unknown): value is S {
+      return members.includes(value as S);
+    }
+
+    static format(): string {
+      return members.join(" | ");
+    }
+
+    #instance: S;
+
+    constructor(value: S) {
+      this.#instance = value;
+    }
+
+    is(...values: S[]): boolean {
+      return values.includes(this.#instance);
+    }
+
+    get value(): S {
+      return this.#instance;
+    }
+
+    toString(): string {
+      return this.#instance;
+    }
+  };
+}

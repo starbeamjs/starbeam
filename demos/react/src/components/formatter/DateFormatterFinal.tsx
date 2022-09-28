@@ -1,10 +1,6 @@
 import { type Reactive, Resource } from "@starbeam/core";
 import js from "@starbeam/js";
-import {
-  useCell,
-  useReactive,
-  useResource,
-} from "../../../../../packages/react/react";
+import { useCell, useReactive, useResource } from "@starbeam/react";
 
 import {
   formatLocale,

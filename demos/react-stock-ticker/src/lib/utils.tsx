@@ -1,4 +1,4 @@
-import { useReactive } from "../../../../packages/react/react";
+import { useReactive } from "@starbeam/react";
 
 export function When<T>({
   value,

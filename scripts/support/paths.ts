@@ -258,11 +258,7 @@ export class Glob<T extends Path = Path> extends Path {
       const actual = [...globMatches].sort();
       const expected = [...expectedMatches].sort();
 
-      for (let i = 0; i < actual.length; i++) {
-        if (actual[i] !== expected[i]) {
-          return false;
-        }
-      }
+      return JSON.stringify(actual) === JSON.stringify(expected);
     }
 
     return false;

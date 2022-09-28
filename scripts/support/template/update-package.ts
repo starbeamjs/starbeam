@@ -1,12 +1,13 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { isAbsolute, relative } from "node:path";
-import type { JsonValue, Package, StarbeamType } from "../packages.js";
+import type { JsonValue, Package } from "../packages.js";
 import { EditJsonc } from "../jsonc.js";
 import { log, comment, header } from "../log.js";
 import type { Workspace } from "../workspace.js";
 import type { Directory, Path } from "../paths.js";
-import { Templates, type TemplateName } from "./templates.js";
 import type { PackageUpdater } from "./updates.js";
+import type { IntoUnion } from "../type-magic.js";
+import { TemplateName, type StarbeamType } from "../unions.js";
 
 export class UpdatePackage {
   readonly #pkg: Package;
@@ -68,7 +69,7 @@ export class UpdatePackage {
     log(`${flag} ${description}`, comment);
   }
 
-  template(name: TemplateName): string {
+  template(name: IntoUnion<TemplateName>): string {
     return this.#packages.template(name);
   }
 
@@ -140,7 +141,6 @@ export class UpdatePackage {
     return updater(this, {
       workspace: this.#workspace,
       paths: this.#workspace.paths,
-      templates: new Templates(this.#workspace),
     });
   }
 }
@@ -148,13 +148,11 @@ export class UpdatePackage {
 export class UpdatePackages {
   readonly #workspace: Workspace;
   readonly #packages: Package[];
-  readonly #templates: Templates;
   readonly #verbose: boolean;
   readonly #updates: Update[] = [];
 
   constructor(workspace: Workspace, packages: Package[], verbose: boolean) {
     this.#workspace = workspace;
-    this.#templates = new Templates(workspace);
     this.#packages = packages;
     this.#verbose = verbose;
   }
@@ -169,8 +167,8 @@ export class UpdatePackages {
     return new UpdatePackage(pkg, this, this.#workspace);
   }
 
-  template(name: TemplateName): string {
-    return this.#templates.get(name);
+  template(name: IntoUnion<TemplateName>): string {
+    return TemplateName.from(name).read(this.#workspace.root);
   }
 
   when = (

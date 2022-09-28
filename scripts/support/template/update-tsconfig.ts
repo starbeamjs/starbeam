@@ -124,7 +124,7 @@ export const updateTsconfig = PackageUpdater((updater, { workspace }) => {
       { matches: (type) => type.endsWith("/env") }
     );
 
-  if (updater.type === "demo:react") {
+  if (updater.type?.is("demo:react")) {
     const devtool = updater.relative(
       workspace.paths.packages.x.dir("devtool").file("tsconfig.json")
     );
@@ -161,11 +161,7 @@ export const updateTsconfig = PackageUpdater((updater, { workspace }) => {
       ),
       "start"
     );
-  } else if (
-    updater.type === "library" ||
-    updater.type === "interfaces" ||
-    updater.type === "support:tests"
-  ) {
+  } else if (updater.type?.is("library", "interfaces", "support:tests")) {
     migrator.set(
       "extends",
       updater.relative(
@@ -173,7 +169,7 @@ export const updateTsconfig = PackageUpdater((updater, { workspace }) => {
       ),
       "start"
     );
-  } else if (updater.type === "demo:react") {
+  } else if (updater.type?.is("demo:react")) {
     migrator.set(
       "extends",
       updater.relative(

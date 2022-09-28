@@ -1,6 +1,6 @@
 import { Cell, FormulaFn } from "@starbeam/core";
 import { LOGGER, LogLevel } from "@starbeam/debug";
-import { useProp, useReactiveSetup } from "../../../../packages/react/react";
+import { useProp, useReactiveSetup } from "@starbeam/react";
 import { DevTools } from "@starbeamx/devtool";
 import type { FormEvent } from "react";
 

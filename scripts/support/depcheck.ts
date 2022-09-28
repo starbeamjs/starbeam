@@ -35,6 +35,7 @@ const OPTIONS: depcheck.Options = {
   parsers: {
     // the target parsers
     "**/*.js": depcheck.parser.es6,
+    "**/*.mjs": depcheck.parser.es6,
     "**/*.jsx": depcheck.parser.jsx,
     "**/*.ts": depcheck.parser.typescript,
     "**/*.tsx": depcheck.parser.typescript,

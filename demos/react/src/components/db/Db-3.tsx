@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { reactive } from "@starbeam/js";
-import { useReactiveSetup } from "../../../../../packages/react/react";
+import { useReactiveSetup } from "@starbeam/react";
 import type { FormEvent } from "react";
 
 interface Person {

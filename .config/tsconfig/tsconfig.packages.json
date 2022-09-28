@@ -1,5 +1,5 @@
 {
-  "extends": "./tsconfig.-package.json",
+  "extends": "./tsconfig.shared.json",
   "compilerOptions": {
     "composite": true,
     "types": ["../../packages/env"],

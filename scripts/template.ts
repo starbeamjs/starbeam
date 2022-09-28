@@ -18,6 +18,6 @@ export const TemplateCommand = QueryCommand("template", {
     when(() => true, { use: updatePackageJSON });
     when((pkg) => pkg.isSupport("tests"), { use: updateTest });
     when((pkg) => pkg.isTypescript, { use: updateTsconfig });
-    when((pkg) => pkg.type === "library", { use: updateLibrary });
+    when((pkg) => pkg.type?.is("library") ?? false, { use: updateLibrary });
   });
 });

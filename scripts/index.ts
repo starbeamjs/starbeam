@@ -1,6 +1,6 @@
 import { program } from "commander";
 
-import { version } from "../package.json" assert { type: "json" };
+import { version } from "@starbeam-workspace/root/package.json" assert { type: "json" };
 
 import { dirname } from "dirfilename";
 import { resolve } from "path";
@@ -14,10 +14,10 @@ import { TemplateCommand } from "./template.js";
 import { TestCommand } from "./test.js";
 import { CheckCommand } from "./check.js";
 import { ReleaseCommand } from "./release.js";
-import { Workspace } from "./support/workspace.js";
+import { LintCommand } from "./lint.js";
 
 new StarbeamCommands(
-  Workspace.root(resolve(dirname(import.meta), "..")),
+  resolve(dirname(import.meta), ".."),
   program
     .name("pnpm dev")
     .description("CLI commands to run from package.json")
@@ -34,9 +34,9 @@ new StarbeamCommands(
   .add(CleanCommand)
   .add(DemoCommand)
   .add(UnusedCommand)
-  .add(DemoCommand)
   .add(TemplateCommand)
   .add(TestCommand)
   .add(CheckCommand)
   .add(ReleaseCommand)
+  .add(LintCommand)
   .run();

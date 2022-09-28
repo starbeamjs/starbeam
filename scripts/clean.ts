@@ -44,7 +44,7 @@ export const CleanCommand = QueryCommand("clean", {
   });
 
 function packageRoots(pkg: Package) {
-  if (pkg.type === "library") {
+  if (pkg.type?.is("library")) {
     return ["", "src/**/"];
   } else {
     return ["**/"];

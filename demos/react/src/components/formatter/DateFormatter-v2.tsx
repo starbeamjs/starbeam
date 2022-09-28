@@ -1,6 +1,6 @@
 import { Resource } from "@starbeam/core";
 import js from "@starbeam/js";
-import { useReactiveSetup } from "../../../../../packages/react/react";
+import { useReactiveSetup } from "@starbeam/react";
 
 import { formatLocale, SYSTEM_LOCALE, SYSTEM_TZ } from "../intl.js";
 

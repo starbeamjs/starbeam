@@ -1,7 +1,6 @@
 import chalk from "chalk";
 import { type Command, program } from "commander";
 import type { ParseError } from "./query.js";
-import { comment } from "./log.js";
 import { Package, queryPackages } from "./packages.js";
 import {
   FILTER_KEYS,
@@ -10,7 +9,9 @@ import {
   Query,
   type Filter,
 } from "./query.js";
-import type { Workspace } from "./workspace.js";
+import { Workspace } from "./workspace.js";
+import { format, wrapIndented } from "./format.js";
+import { comment } from "./log.js";
 
 interface BasicOptions {
   description?: string;
@@ -43,7 +44,7 @@ function applyBasicOptions(command: Command, options?: BasicOptions) {
   if (options?.notes) {
     command = command.addHelpText(
       "afterAll",
-      chalk.yellow(`\n${options.notes}`)
+      wrapIndented(chalk.yellow(`\n${options.notes}`))
     );
   }
 
@@ -51,16 +52,16 @@ function applyBasicOptions(command: Command, options?: BasicOptions) {
 }
 
 export class StarbeamCommands {
-  readonly #workspace: Workspace;
+  readonly #root: string;
   #program: Command;
 
-  constructor(workspace: Workspace, program: Command) {
-    this.#workspace = workspace;
+  constructor(root: string, program: Command) {
+    this.#root = root;
     this.#program = program;
   }
 
-  add(command: ({ workspace }: { workspace: Workspace }) => Command): this {
-    this.#program.addCommand(command({ workspace: this.#workspace }));
+  add(command: ({ root }: { root: string }) => Command): this {
+    this.#program.addCommand(command({ root: this.#root }));
     return this;
   }
 
@@ -82,6 +83,10 @@ StringOption.default = (value: string): Value<string> => [
   { default: value },
 ];
 
+StringOption.optional = (value: unknown): value is string | undefined => {
+  return typeof value === "string" || value === undefined;
+};
+
 export function BooleanOption(value: unknown): value is boolean {
   return typeof value === "boolean";
 }
@@ -92,6 +97,10 @@ BooleanOption.default = (value: boolean): Value<boolean> => [
   BooleanOption,
   { default: value },
 ];
+
+BooleanOption.optional = (value: unknown): value is boolean | undefined => {
+  return typeof value === "boolean" || value === undefined;
+};
 
 type Type<T> = (input: unknown) => input is T;
 type Value<T extends CommandValue> = Type<T> | [Type<T>, { default: T }];
@@ -167,7 +176,10 @@ export abstract class BuildCommand {
     return this.#command;
   }
 
-  protected extractOptions<Args extends unknown[], Options>(
+  protected extractOptions<
+    Args extends unknown[],
+    Options extends { verbose: boolean }
+  >(
     options: unknown[]
   ): {
     args: Args;
@@ -179,10 +191,10 @@ export abstract class BuildCommand {
     return { args, options: opts };
   }
 
-  protected parseOptions<Args extends unknown[], Options>(
-    allArgs: unknown[],
-    extra: Record<string, unknown>
-  ): unknown[] {
+  protected parseOptions<
+    Args extends unknown[],
+    Options extends { verbose: boolean }
+  >(allArgs: unknown[], extra: Record<string, unknown>): unknown[] {
     const { args, options } = this.extractOptions<Args, Options>(allArgs);
 
     return [...args, { ...options, ...extra }];
@@ -217,8 +229,8 @@ export class BuildQueryCommand<
 
   action(
     action: (...args: [...Args, Options]) => Promise<void> | void
-  ): ({ workspace }: { workspace: Workspace }) => Command {
-    return ({ workspace }) =>
+  ): (options: { root: string }) => Command {
+    return ({ root }) =>
       this.command.action((...allArgs) => {
         const {
           options: {
@@ -227,6 +239,7 @@ export class BuildQueryCommand<
             and: andFilters,
             or: orFilters,
             allowDraft,
+            verbose,
             ...options
           },
         } = this.extractOptions<
@@ -237,6 +250,7 @@ export class BuildQueryCommand<
             and: (Filter | ParseError)[] | undefined;
             or: (Filter | ParseError)[] | undefined;
             allowDraft: boolean;
+            verbose: boolean;
           }
         >(allArgs);
 
@@ -285,6 +299,7 @@ export class BuildQueryCommand<
           process.exit(1);
         }
 
+        const workspace = Workspace.root(root, verbose);
         const packages = queryPackages(workspace, where);
 
         const { args } = this.extractOptions<Args, Options>(allArgs);
@@ -332,15 +347,16 @@ export class BuildDevCommand<
 
   action(
     action: (...args: [...Args, Options]) => void | Promise<void>
-  ): ({ workspace }: { workspace: Workspace }) => Command {
-    return ({ workspace }) =>
-      this.command.action((...args) =>
-        action(
+  ): (options: { root: string }) => Command {
+    return ({ root }) =>
+      this.command.action((...args) => {
+        const { options } = this.extractOptions(args);
+        return action(
           ...(this.parseOptions(args, {
-            workspace,
+            workspace: Workspace.root(root, options.verbose),
           }) as [...Args, Options])
-        )
-      );
+        );
+      });
   }
 }
 
@@ -358,15 +374,17 @@ export function queryable(command: Command): Command {
     )
     .addHelpText(
       "afterAll",
-      chalk.yellow("\nFilters:") +
+      format("\nFilters\n", chalk.yellowBright.bold.inverse) +
         Object.entries(FILTER_KEYS)
-          .map(
-            ([key, [kind, example]]) =>
-              `${chalk.yellow(`\n  ${key}`)}: ${kind}\n    ${comment(
-                `e.g. ${example}`
-              )}`
-          )
-          .join("")
+          .flatMap(([key, [kind, example]]) => [
+            format.entry([key, kind], {
+              key: chalk.yellowBright,
+              value: chalk.yellow,
+              indent: 2,
+            }),
+            format(`e.g. ${example}`, { style: comment, indent: 4 }),
+          ])
+          .join("\n")
     )
     .option("-p, --package <package-name>", "the package to test")
     .option("-s, --scope <package-scope>", "the scope of the package")

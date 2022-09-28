@@ -1,15 +1,8 @@
-import type { Directory, Path, RegularFile } from "./paths.js";
+import { Directory, RegularFile, type Path } from "./paths.js";
 import { Query } from "./query.js";
+import { StarbeamType } from "./unions.js";
 import type { Workspace } from "./workspace.js";
-
-export type StarbeamType =
-  | "interfaces"
-  | "library"
-  | "support:tests"
-  | "support:build"
-  | "demo:react"
-  | "unknown"
-  | "draft";
+import sh from "shell-escape-tag";
 
 export interface StarbeamTemplates {
   "package.json": string;
@@ -17,7 +10,7 @@ export interface StarbeamTemplates {
 
 export interface StarbeamInfo {
   tsconfig: string | undefined;
-  type: StarbeamType | undefined;
+  type: StarbeamType;
   used: Used[];
   templates: StarbeamTemplates;
   "keep:js": boolean | undefined;
@@ -45,7 +38,7 @@ export class Starbeam {
   }
 
   get type(): StarbeamType {
-    return this.#info.type ?? "unknown";
+    return this.#info.type;
   }
 
   get used(): Used[] {
@@ -59,6 +52,13 @@ export class Starbeam {
   get templates(): StarbeamTemplates {
     return this.#info.templates;
   }
+}
+
+interface PnpmPackage {
+  name: string;
+  version: string;
+  path: string;
+  private: boolean;
 }
 
 export class Package {
@@ -99,9 +99,11 @@ export class Package {
         !!raw.get("exports:.:types", { default: undefined }) !== undefined,
       starbeam: {
         tsconfig: raw.get("starbeam:tsconfig", { default: undefined }),
-        type: raw.get("starbeam:type", {
-          default: main ? undefined : "unknown",
-        }),
+        type: StarbeamType.from(
+          raw.get("starbeam:type", {
+            default: main ? "none" : "unknown",
+          })
+        ),
         used: raw.get("starbeam:used", { default: [] }),
         "keep:js": raw.get("starbeam:keep:js", { default: undefined }),
         templates: {
@@ -136,7 +138,7 @@ export class Package {
   }
 
   isSupport(kind: "tests" | "build"): boolean {
-    return this.type === `support:${kind}`;
+    return this.type === StarbeamType.from(`support:${kind}`);
   }
 
   get tsconfig(): string | undefined {
@@ -165,18 +167,19 @@ export function queryPackages(
   workspace: Workspace,
   query: Query = Query.all
 ): Package[] {
-  const packages = workspace.paths.packages.all;
-  const tests = packages.dir("tests");
-  const demos = workspace.paths.demos.glob("*", { match: ["directories"] });
+  // const packages = workspace.paths.packages.all;
+  // const tests = packages.dir("tests");
+  // const demos = workspace.paths.demos.glob("*", { match: ["directories"] });
+  // const scripts = workspace.root.glob("scripts");
 
-  return workspace.root
-    .globs({ match: ["files"] })
-    .add([
-      packages.file("package.json"),
-      tests.file("package.json"),
-      demos.file("package.json"),
-    ])
-    .expand()
+  const packages: PnpmPackage[] = JSON.parse(
+    workspace.cmd(sh`pnpm ls -r --depth -1 --json`)
+  );
+
+  return packages
+    .map((p) =>
+      new Directory(workspace.root.absolute, p.path).file("package.json")
+    )
     .map((manifest) => Package.from(manifest))
     .filter((pkg) => query.match(pkg));
 }

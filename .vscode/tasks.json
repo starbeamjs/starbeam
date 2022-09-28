@@ -24,6 +24,13 @@
       "args": ["check:types", "-w"],
       "problemMatcher": ["$tsc-watch"],
       "label": "check:types (watch)"
+    },
+    {
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["check:lint"],
+      "problemMatcher": ["$eslint-stylish"],
+      "label": "check:lint"
     }
   ]
 }
