@@ -1,5 +1,5 @@
 import { Plugin } from "rollup";
 
-const InlinePlugin: () => Plugin;
+declare const InlinePlugin: () => Plugin;
 
 export default InlinePlugin;

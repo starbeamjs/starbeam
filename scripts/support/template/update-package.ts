@@ -5,15 +5,8 @@ import { EditJsonc } from "../jsonc.js";
 import { log, comment, header } from "../log.js";
 import type { Workspace } from "../workspace.js";
 import type { Directory, Path } from "../paths.js";
-import { Templates } from "./templates.js";
+import { Templates, type TemplateName } from "./templates.js";
 import type { PackageUpdater } from "./updates.js";
-
-export type TemplateName =
-  | "npmrc"
-  | "interfaces.package.json"
-  | "package.json"
-  | "tsconfig.json"
-  | "rollup.config.mjs";
 
 export class UpdatePackage {
   readonly #pkg: Package;
@@ -144,7 +137,11 @@ export class UpdatePackage {
   }
 
   update(updater: PackageUpdater): void {
-    return updater(this, this.#workspace);
+    return updater(this, {
+      workspace: this.#workspace,
+      paths: this.#workspace.paths,
+      templates: new Templates(this.#workspace),
+    });
   }
 }
 

@@ -1,20 +1,21 @@
+import type { Paths } from "../paths.js";
 import type { Workspace } from "../workspace.js";
-import { Templates } from "./templates.js";
-import type { TemplateName, UpdatePackage } from "./update-package.js";
+import { TemplateName, type Templates } from "./templates.js";
+import type { UpdatePackage } from "./update-package.js";
 
 export type PackageUpdater = (
   updater: UpdatePackage,
-  workspace: Workspace
+  options: { workspace: Workspace; paths: Paths; templates: Templates }
 ) => void;
 
-export function updatePackageJSON(updater: UpdatePackage): void {
-  let templateFile: TemplateName;
+export function PackageUpdater(updater: PackageUpdater): PackageUpdater {
+  return updater;
+}
 
-  if (updater.type === "interfaces") {
-    templateFile = "interfaces.package.json";
-  } else {
-    templateFile = "package.json";
-  }
+export function updatePackageJSON(updater: UpdatePackage): void {
+  const templateFile = TemplateName.assert(
+    updater.pkg.starbeam.templates["package.json"]
+  );
 
   const template = updater.template(templateFile);
   const splice = JSON.parse(template);
@@ -39,19 +40,12 @@ export function updatePackageJSON(updater: UpdatePackage): void {
   });
 }
 
-export function updateTest(updater: UpdatePackage, workspace: Workspace): void {
-  const templates = new Templates(workspace);
+export const updateTest = PackageUpdater((updater, { templates }) => {
   const npmrc = templates.get("npmrc");
-
   updater.updateFile(".npmrc", npmrc);
-}
+});
 
-export function updateLibrary(
-  updater: UpdatePackage,
-  workspace: Workspace
-): void {
-  const templates = new Templates(workspace);
+export const updateLibrary = PackageUpdater((updater, { templates }) => {
   const rollup = templates.get("rollup.config.mjs");
-
   updater.updateFile("rollup.config.mjs", rollup);
-}
+});

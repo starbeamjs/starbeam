@@ -3,7 +3,10 @@
   "version": "0.7.3",
   "type": "module",
   "main": "index.ts",
-  "starbeam:type": "interfaces",
+  "starbeam": {
+    "type": "interfaces",
+    "template:package": "interfaces.package.json"
+  },
   "dependencies": {
     "@starbeam/shared": "workspace:^",
     "@domtree/any": "workspace:^"

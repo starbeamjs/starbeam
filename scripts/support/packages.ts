@@ -11,10 +11,15 @@ export type StarbeamType =
   | "unknown"
   | "draft";
 
+export interface StarbeamTemplates {
+  "package.json": string;
+}
+
 export interface StarbeamInfo {
   tsconfig: string | undefined;
   type: StarbeamType | undefined;
   used: Used[];
+  templates: StarbeamTemplates;
   "keep:js": boolean | undefined;
 }
 
@@ -49,6 +54,10 @@ export class Starbeam {
 
   get keepJs(): boolean {
     return this.#info["keep:js"] ?? false;
+  }
+
+  get templates(): StarbeamTemplates {
+    return this.#info.templates;
   }
 }
 
@@ -95,6 +104,11 @@ export class Package {
         }),
         used: raw.get("starbeam:used", { default: [] }),
         "keep:js": raw.get("starbeam:keep:js", { default: undefined }),
+        templates: {
+          "package.json": raw.get("starbeam:template:package", {
+            default: "package.json",
+          }),
+        },
       },
     });
   }

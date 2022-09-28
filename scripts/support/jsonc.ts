@@ -43,18 +43,16 @@ export class EditJsonc {
     value: unknown,
     check: (json: unknown) => boolean = (json) => json === value
   ): void {
-    if (check(this.#json)) {
-      return;
-    }
-
-    jsonc.findNodeAtLocation;
-
     const jsonPath = this.#path(path);
     const node = jsonc.findNodeAtLocation(this.#json, jsonPath);
+    let oldValue: unknown[] | undefined;
 
-    if (node && node.type === "array" && node.value) {
-      const value = node.value as unknown[];
-      const index = value.findIndex((v) => check(v));
+    if (
+      node &&
+      node.type === "array" &&
+      (oldValue = jsonc.getNodeValue(node))
+    ) {
+      const index = oldValue.findIndex((v) => check(v));
 
       const edit = jsonc.modify(this.#source, [...jsonPath, index], value, {});
       this.#source = jsonc.applyEdits(this.#source, edit);

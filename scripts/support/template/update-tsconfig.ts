@@ -1,7 +1,6 @@
 import chalk from "chalk";
 import { Migrator } from "../json-editor/migration.js";
-import type { Workspace } from "../workspace.js";
-import type { UpdatePackage } from "./update-package.js";
+import { PackageUpdater } from "./updates.js";
 
 /**
  * Unfortunately, this is not exposed in a useful/viable way from the typescript package.
@@ -112,10 +111,7 @@ export interface TsConfig {
   };
 }
 
-export function updateTsconfig(
-  updater: UpdatePackage,
-  workspace: Workspace
-): void {
+export const updateTsconfig = PackageUpdater((updater, { workspace }) => {
   const editor = updater.jsonEditor("tsconfig.json");
 
   const migrator = new Migrator<TsConfig>(editor);
@@ -211,4 +207,4 @@ export function updateTsconfig(
   if (changed) {
     updater.change(changed, "tsconfig.json");
   }
-}
+});

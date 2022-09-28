@@ -1,3 +1,4 @@
+import { inspect } from "node:util";
 import type { EditJsonc, JsoncPosition } from "../jsonc.js";
 
 type Migration =
@@ -48,8 +49,8 @@ export class Migrator<R extends object> {
 
   add<K extends DeepKeyOf<R>>(
     path: K,
-    value: DeepArrayElement<R, K>,
-    options?: { matches: (prev: DeepArrayElement<R, K>) => boolean }
+    value: DeepArrayAdd<R, K>,
+    options?: { matches: (prev: DeepArrayAdd<R, K>) => boolean }
   ): Migrator<R> {
     const check = options?.matches ?? ((prev) => prev === value);
     this.#migrations.push({
@@ -76,11 +77,18 @@ export class Migrator<R extends object> {
           this.#editor.remove(migration.path);
           break;
         case "add:unique":
-          this.#editor.addUnique(
-            migration.path,
-            migration.value,
-            migration.check
-          );
+          this.#editor.addUnique(migration.path, migration.value, (value) => {
+            try {
+              return migration.check(value);
+            } catch (e) {
+              console.error(
+                `Error while checking migration value at \`${
+                  migration.path
+                }\`: ${inspect(value)}\n\n${e}`
+              );
+              throw e;
+            }
+          });
           break;
       }
     }
@@ -118,7 +126,7 @@ type DeepIndex<T, K extends string> = T extends object
     : never
   : never;
 
-type DeepArrayElement<T, K extends string> = DeepIndex<T, K> extends
+type DeepArrayAdd<T, K extends string> = DeepIndex<T, K> extends
   | (infer E)[]
   | undefined
   ? E
