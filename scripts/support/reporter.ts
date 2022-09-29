@@ -113,7 +113,9 @@ class Logger {
           case "always":
             if (header.nested) {
               console.group(this.format(header.header, options));
-              console.log(header.empty);
+              if (header.empty) {
+                console.log(header.empty);
+              }
               console.groupEnd();
 
               this.#state.didPrint = true;
@@ -387,8 +389,11 @@ export class Reporter {
     return this.#logger.format(message, this.#formatOptions);
   }
 
-  verbose(log: (reporter: Reporter) => void): void {
-    if (this.#options.verbose) {
+  verbose(
+    log: (reporter: Reporter) => void,
+    options?: { also: unknown }
+  ): void {
+    if (this.#options.verbose || options?.also) {
       log(this);
     }
   }
@@ -606,7 +611,7 @@ export class Reporter {
         return {
           type: "none",
         };
-      } else if (this.#empty) {
+      } else if (this.#empty !== undefined) {
         return {
           type: "always",
           header: this.#message,
@@ -620,6 +625,11 @@ export class Reporter {
           nested: this.#nested,
         };
       }
+    }
+
+    allowEmpty(): IGroup<Catch, Finally> {
+      this.#empty = "";
+      return this;
     }
 
     empty(value: string): IGroup<Catch, Finally> {
@@ -676,6 +686,7 @@ export interface IGroup<Catch = void, Finally = void> {
 
   stylish(options: "header"): IGroup<Catch, Finally>;
 
+  allowEmpty(): IGroup<Catch, Finally>;
   empty(value: string): IGroup<Catch, Finally>;
   flat(): IGroup<Catch, Finally>;
 

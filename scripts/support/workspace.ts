@@ -67,7 +67,8 @@ export class Workspace {
       )
       .try(async (r) => {
         r.verbose(() => {
-          r.section((r) => r.log(comment(`$ ${command}`)), { break: "after" });
+          r.log(comment(`$ ${command}`));
+          r.log("");
         });
 
         return execSync(command, {

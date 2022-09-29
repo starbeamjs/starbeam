@@ -5,6 +5,8 @@ import shell from "shelljs";
 import { QueryCommand, StringOption } from "./support/commands.js";
 import { comment, header, log, problem } from "./support/log.js";
 import { Package } from "./support/packages.js";
+import type { Reporter } from "./support/reporter.js";
+import type { Workspace } from "./support/workspace.js";
 
 export const CleanCommand = QueryCommand("clean", {
   description: "clean up build artifacts",
@@ -12,6 +14,8 @@ export const CleanCommand = QueryCommand("clean", {
   .flag(["-d", "dryRun"], "don't actually delete anything")
   .option("dir", "the directory to clean", StringOption)
   .action(async ({ workspace, packages, ...options }) => {
+    const reporter = workspace.reporter;
+
     if (options.dir) {
       const pkg = Package.from(
         workspace,
@@ -27,6 +31,8 @@ export const CleanCommand = QueryCommand("clean", {
       return cleanFiles({
         description: options.dir,
         pkg,
+        workspace,
+        reporter,
         options,
       });
     }
@@ -36,6 +42,8 @@ export const CleanCommand = QueryCommand("clean", {
         await cleanFiles({
           description: pkg.name,
           pkg,
+          workspace,
+          reporter,
           options,
         });
       } else {
@@ -53,20 +61,34 @@ function packageRoots(pkg: Package) {
 }
 
 async function cleanFiles({
-  description,
   pkg,
+  workspace,
+  reporter,
   options,
 }: {
   description: string;
   pkg: Package;
+  workspace: Workspace;
+  reporter: Reporter;
   options: { verbose: boolean; dryRun: boolean };
 }) {
   const patterns = ["dist/", "**/tsconfig.tsbuildinfo"];
   const roots = packageRoots(pkg);
   const cwd = pkg.root.absolute;
 
-  if (pkg?.starbeam.keepJs === false) {
-    patterns.push(...roots.map((root) => `${root}*.{js,jsx,d.ts,map}`));
+  if (!pkg.type?.is("root")) {
+    const extensions = new Set(["map", "js", "jsx", "d.ts"]);
+    if (pkg.type?.is("interfaces")) {
+      extensions.delete("d.ts");
+    }
+    if (pkg?.starbeam.keepJs === true) {
+      extensions.delete("js");
+      extensions.delete("jsx");
+      extensions.delete("d.ts");
+    }
+    patterns.push(
+      ...roots.map((root) => `${root}*.{${[...extensions].join(",")}}`)
+    );
   }
 
   const files = await glob(patterns, {
@@ -78,39 +100,33 @@ async function cleanFiles({
     ignore: ["**/node_modules/**", "**/env.d.ts", "dist/**"],
   });
 
-  if (files.length > 0) {
-    console.group(header(description));
-  } else if (options.verbose) {
-    log(header(description) + comment(": no files to clean"));
-    return;
-  }
+  const isClean = files.length === 0;
+  const action = isClean ? "✔️" : "🧹";
 
-  const REMOVING = options.dryRun ? `Would remove` : `Removing`;
+  await reporter.group(header(pkg.name) + comment(": ") + action).try((r) => {
+    r.verbose((r) => {
+      r.log(comment(`in ${pkg.root.relativeFrom(workspace.root)}`));
+    });
 
-  if (files.length > 0) {
+    if (isClean) {
+      return;
+    }
+
+    const REMOVING = options.dryRun ? `Would remove` : `Removing`;
+
     for (const file of files) {
-      if (options.verbose || options.dryRun) {
-        log(`${REMOVING} ${relative(cwd, file.path)}`, problem);
-      }
+      reporter.verbose(
+        (r) => r.log(`${REMOVING} ${relative(cwd, file.path)}`),
+        { also: options.dryRun }
+      );
 
       if (!options.dryRun) {
         if (file.dirent.isDirectory()) {
           shell.rm("-rf", file.path);
         } else {
           rmSync(file.path);
-          // shell.rm(resolve(pkgRoot, file.name));
         }
       }
     }
-
-    if (!options.verbose && !options.dryRun) {
-      log("- done", comment);
-    }
-  } else if (options.verbose) {
-    log(`- nothing to clean`, comment);
-  }
-
-  if (files.length > 0 || options.verbose) {
-    console.groupEnd();
-  }
+  });
 }
