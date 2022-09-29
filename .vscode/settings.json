@@ -33,7 +33,7 @@
     "*.tsx": "${capture}.jsx, ${capture}.js",
     "tsconfig.json": "tsconfig.*.json, tsconfig-*.json, *.tsbuildinfo",
     "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, .pnpm-debug.log, .editorconfig, .gitignore, .npmrc, .quokka, pnpm-workspace.yaml",
-    ".eslintrc.json": "eslintrc*, .eslintignore, .eslintcache",
+    ".eslintrc.cjs": ".eslint*, eslintrc*, .eslintignore, .eslintcache",
     "vite.config.ts": "rollup.config.*, .env.*"
   },
   "editor.defaultFormatter": "dbaeumer.vscode-eslint",

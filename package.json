@@ -22,7 +22,7 @@
     "test:all": "esno ./scripts/scripts.ts test",
     "check:types": "tsc --build",
     "check:unused": "esno ./scripts/index.ts unused",
-    "check:lint": "eslint --cache -c ./.eslintrc.json --ext .ts,.tsx,.mjs .",
+    "check:lint": "eslint --cache -c ./.eslintrc.cjs --ext .ts,.tsx,.mjs .",
     "release": "esno ./scripts/index.ts release"
   },
   "devDependencies": {

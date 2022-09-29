@@ -37,6 +37,14 @@ export class UpdatePackage {
     return this.#pkg;
   }
 
+  hasTsconfig(): boolean {
+    return !!this.#pkg.tsconfig;
+  }
+
+  hasTests(): boolean {
+    return this.#pkg.root.dir("tests").exists();
+  }
+
   done(): void {
     if (this.#emittedHeader) {
       console.groupEnd();

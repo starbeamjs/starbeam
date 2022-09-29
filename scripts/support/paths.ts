@@ -6,7 +6,7 @@ import {
 } from "node:path";
 import { pathToFileURL } from "node:url";
 import glob, { type Entry, type Options } from "fast-glob";
-import { readFileSync, type Dirent } from "node:fs";
+import { existsSync, readFileSync, type Dirent } from "node:fs";
 import { readFile } from "node:fs/promises";
 
 export class Paths {
@@ -128,6 +128,10 @@ export type { Path };
 export abstract class DiskFile extends Path {
   declare dir: (path: string) => Directory;
   declare file: (path: string) => RegularFile;
+
+  exists(): boolean {
+    return existsSync(this.absolute);
+  }
 }
 
 export class UnknownFile extends DiskFile {

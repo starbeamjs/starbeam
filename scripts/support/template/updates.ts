@@ -36,6 +36,23 @@ export function updatePackageJSON(updater: UpdatePackage): void {
       };
     }
 
+    const scripts: Record<string, string> = {
+      "test:lint": "eslint",
+    };
+
+    if (updater.hasTsconfig()) {
+      scripts["test:build"] = "tsc --noEmit";
+    }
+
+    if (updater.hasTests()) {
+      scripts["test:specs"] = "vitest --dir ./tests --run";
+    }
+
+    prev.scripts = {
+      ...(prev.scripts as object),
+      ...scripts,
+    };
+
     return prev;
   });
 }
