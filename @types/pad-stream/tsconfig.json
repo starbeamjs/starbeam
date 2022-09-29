@@ -6,7 +6,7 @@
     "declaration": true,
     "outDir": "../../dist/packages",
     "composite": true,
-    "types": ["../../packages/env", "node"]
+    "types": ["../../packages/env"]
   },
   "exclude": ["dist/**/*"]
 }

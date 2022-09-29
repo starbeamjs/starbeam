@@ -12,6 +12,7 @@ import {
 import { Workspace } from "./workspace.js";
 import { format, wrapIndented } from "./format.js";
 import { comment } from "./log.js";
+import type { ReporterOptions } from "./reporter.js";
 
 interface BasicOptions {
   description?: string;
@@ -178,7 +179,7 @@ export abstract class BuildCommand {
 
   protected extractOptions<
     Args extends unknown[],
-    Options extends { verbose: boolean }
+    Options extends { verbose: boolean; stylish: boolean }
   >(
     options: unknown[]
   ): {
@@ -193,7 +194,7 @@ export abstract class BuildCommand {
 
   protected parseOptions<
     Args extends unknown[],
-    Options extends { verbose: boolean }
+    Options extends { verbose: boolean; stylish: boolean }
   >(allArgs: unknown[], extra: Record<string, unknown>): unknown[] {
     const { args, options } = this.extractOptions<Args, Options>(allArgs);
 
@@ -231,7 +232,7 @@ export class BuildQueryCommand<
     action: (...args: [...Args, Options]) => Promise<void> | void
   ): (options: { root: string }) => Command {
     return ({ root }) =>
-      this.command.action((...allArgs) => {
+      this.command.action(async (...allArgs) => {
         const {
           options: {
             package: packageName,
@@ -239,7 +240,6 @@ export class BuildQueryCommand<
             and: andFilters,
             or: orFilters,
             allowDraft,
-            verbose,
             ...options
           },
         } = this.extractOptions<
@@ -251,6 +251,8 @@ export class BuildQueryCommand<
             or: (Filter | ParseError)[] | undefined;
             allowDraft: boolean;
             verbose: boolean;
+            stylish: boolean;
+            [key: string]: unknown;
           }
         >(allArgs);
 
@@ -299,8 +301,8 @@ export class BuildQueryCommand<
           process.exit(1);
         }
 
-        const workspace = Workspace.root(root, verbose);
-        const packages = queryPackages(workspace, where);
+        const workspace = createWorkspace(root, options);
+        const packages = await queryPackages(workspace, where);
 
         const { args } = this.extractOptions<Args, Options>(allArgs);
 
@@ -353,7 +355,7 @@ export class BuildDevCommand<
         const { options } = this.extractOptions(args);
         return action(
           ...(this.parseOptions(args, {
-            workspace: Workspace.root(root, options.verbose),
+            workspace: createWorkspace(root, options),
           }) as [...Args, Options])
         );
       });
@@ -361,7 +363,9 @@ export class BuildDevCommand<
 }
 
 export function withOptions(command: Command): Command {
-  return command.option("-v, --verbose", "print verbose output", false);
+  return command
+    .option("-v, --verbose", "print verbose output", false)
+    .option("-s, --stylish", "print stylish output", false);
 }
 
 export function queryable(command: Command): Command {
@@ -387,7 +391,6 @@ export function queryable(command: Command): Command {
           .join("\n")
     )
     .option("-p, --package <package-name>", "the package to test")
-    .option("-s, --scope <package-scope>", "the scope of the package")
     .option<(Filter | ParseError)[]>(
       "-a, --and <query...>",
       "a package query",
@@ -408,6 +411,7 @@ export function queryable(command: Command): Command {
 export interface CommandOptions {
   workspace: Workspace;
   verbose: boolean;
+  stylish: boolean;
 }
 
 export interface QueryOptions extends CommandOptions {
@@ -436,14 +440,35 @@ function normalize(name: string | [short: string, long: string]): string {
   }
 }
 
-function long(name: string | [short: string, long: string]): string {
-  if (typeof name === "string") {
-    return dasherize(name);
-  } else {
-    return dasherize(name[1]);
+function dasherize(name: string): string {
+  return name.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
+}
+
+function getOption<T>(
+  options: Record<string, unknown>,
+  key: string,
+  check: (value: unknown) => value is T
+): T | void {
+  const value = options[key];
+
+  if (value && check(value)) {
+    return value;
   }
 }
 
-function dasherize(name: string): string {
-  return name.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
+function createWorkspace(
+  root: string,
+  options: {
+    verbose: boolean;
+    stylish: boolean;
+    [key: string]: unknown;
+  }
+): Workspace {
+  const reporterOptions: ReporterOptions = {
+    verbose: options.verbose,
+    stylish: options.stylish,
+    failFast: getOption(options, "failFast", BooleanOption) ?? false,
+  };
+
+  return Workspace.root(root, reporterOptions);
 }

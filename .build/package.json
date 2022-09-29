@@ -10,11 +10,7 @@
   "main": "index.js",
   "types": "index.d.ts",
   "exports": {
-    ".": {
-      "types": "./index.d.ts",
-      "import": "./index.js",
-      "default": "./index.js"
-    }
+    "default": "./index.js"
   },
   "dependencies": {
     "@types/rollup__plugin-commonjs": "workspace:^",
@@ -30,5 +26,20 @@
   "devDependencies": {
     "@types/node": "*",
     "typescript": "*"
+  },
+  "publishConfig": {
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "scripts": {
+    "test:lint": "eslint",
+    "test:build": "tsc -b"
   }
 }

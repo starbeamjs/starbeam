@@ -2,6 +2,9 @@
   "name": "@starbeam-private/scripts",
   "type": "module",
   "private": true,
+  "starbeam": {
+    "type": "support:build"
+  },
   "dependencies": {
     "@starbeam-workspace/root": "workspace:^",
     "chalk": "^5.0.1",
@@ -10,15 +13,21 @@
     "dirfilename": "^1.0.4",
     "eslint": "*",
     "fast-glob": "^3.2.11",
+    "node-pty": "^0.10.1",
+    "pad-stream": "^4.0.0",
     "prettier": "^2.7.1",
     "shell-escape-tag": "^2.0.2",
-    "shelljs": "^0.8.5"
+    "shell-split": "^1.0.0",
+    "shelljs": "^0.8.5",
+    "split2": "^4.1.0"
   },
   "devDependencies": {
     "@pnpm/find-workspace-packages": "^4.0.39",
+    "@types/pad-stream": "workspace:^",
     "@types/prettier": "^2.7.0",
     "@types/shell-escape-tag": "workspace:^",
     "@types/shelljs": "^0.8.11",
+    "@types/split2": "^3.2.1",
     "@types/wrap-ansi": "^8.0.1",
     "esno": "^0.16.3",
     "jsonc": "^2.0.0",
@@ -26,5 +35,20 @@
     "rollup-plugin-ts": "*",
     "term-size": "^3.0.2",
     "wrap-ansi": "^8.0.1"
+  },
+  "publishConfig": {
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "scripts": {
+    "test:lint": "eslint",
+    "test:build": "tsc -b"
   }
 }

@@ -1,14 +1,15 @@
 {
+  "name": "@types/pad-stream",
   "private": true,
-  "name": "@starbeam-tests/timeline",
-  "version": "1.0.0",
-  "type": "module",
-  "starbeam:type": "support:tests",
+  "types": "index.d.ts",
+  "starbeam:type": "interfaces",
   "dependencies": {
-    "@starbeam/timeline": "workspace:^",
-    "@starbeam/debug": "workspace:^",
-    "@starbeam/shared": "workspace:^",
-    "@starbeam/interfaces": "workspace:^"
+    "@types/node": "*"
+  },
+  "exports": {
+    ".": {
+      "types": "./index.d.ts"
+    }
   },
   "publishConfig": {
     "main": "dist/index.cjs",

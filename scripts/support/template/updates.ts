@@ -23,7 +23,7 @@ export function updatePackageJSON(updater: UpdatePackage): void {
   updater.updateJsonFile("package.json", (prev) => {
     Object.assign(prev, splice);
 
-    if (prev.main) {
+    if (prev.main && !updater.type?.is("root")) {
       prev.exports = {
         default: `./${prev.main}`,
       };
@@ -41,7 +41,7 @@ export function updatePackageJSON(updater: UpdatePackage): void {
     };
 
     if (updater.hasTsconfig()) {
-      scripts["test:build"] = "tsc --noEmit";
+      scripts["test:build"] = "tsc -b";
     }
 
     if (updater.hasTests()) {

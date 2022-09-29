@@ -14,6 +14,7 @@ export const CleanCommand = QueryCommand("clean", {
   .action(async ({ workspace, packages, ...options }) => {
     if (options.dir) {
       const pkg = Package.from(
+        workspace,
         workspace.root.dir(options.dir).file("package.json"),
         { allow: "missing" }
       );

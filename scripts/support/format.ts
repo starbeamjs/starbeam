@@ -2,9 +2,13 @@ import chalk from "chalk";
 import terminalSize from "term-size";
 import wrap from "wrap-ansi";
 
+export function terminalWidth(): number {
+  return terminalSize().columns;
+}
+
 export function wrapIndented(string: string, columns?: number): string {
   const lines = string.split("\n");
-  const terminalWidth = terminalSize().columns;
+  const width = terminalWidth();
 
   const formatted = lines.flatMap((line) => {
     if (line.trim() === "") {
@@ -23,7 +27,7 @@ export function wrapIndented(string: string, columns?: number): string {
       spaces = length + 2;
     }
 
-    const wrapped = wrap(line, terminalWidth - spaces, { trim: false });
+    const wrapped = wrap(line, width - spaces, { trim: false });
     const [first, ...rest] = wrapped.split("\n");
 
     return [first, ...rest.map((line) => " ".repeat(spaces) + line.trim())];

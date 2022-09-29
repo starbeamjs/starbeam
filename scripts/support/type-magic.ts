@@ -82,8 +82,8 @@ export function Union<S extends string>(...members: S[]): UnionClass<S> {
       this: This,
       value: string
     ): InstanceType<This> {
-      if (Union.isMember(value)) {
-        return new Union(value) as InstanceType<This>;
+      if (members.includes(value as S)) {
+        return new this(value as S) as InstanceType<This>;
       } else {
         throw new Error(`Expected one of ${members.join(", ")}, got ${value}`);
       }

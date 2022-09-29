@@ -22,5 +22,9 @@
         "default": "./dist/index.cjs"
       }
     }
+  },
+  "scripts": {
+    "test:lint": "eslint",
+    "test:build": "tsc -b"
   }
 }

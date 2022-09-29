@@ -38,7 +38,7 @@ export class UpdatePackage {
   }
 
   hasTsconfig(): boolean {
-    return !!this.#pkg.tsconfig;
+    return this.#pkg.root.file("tsconfig.json").exists();
   }
 
   hasTests(): boolean {
@@ -49,8 +49,8 @@ export class UpdatePackage {
     if (this.#emittedHeader) {
       console.groupEnd();
     } else {
-      this.#packages.verbose(() =>
-        log(`${header.dim(this.name)}${comment(": no changes")}`)
+      this.#workspace.reporter.verbose((r) =>
+        r.log(`${header.sub(this.name)}${comment(": no changes")}`)
       );
     }
   }
@@ -163,12 +163,6 @@ export class UpdatePackages {
     this.#workspace = workspace;
     this.#packages = packages;
     this.#verbose = verbose;
-  }
-
-  verbose(log: () => void): void {
-    if (this.#verbose) {
-      log();
-    }
   }
 
   pkg(pkg: Package): UpdatePackage {

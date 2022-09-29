@@ -45,5 +45,10 @@
   },
   "exports": {
     "default": "./index.ts"
+  },
+  "scripts": {
+    "test:lint": "eslint",
+    "test:specs": "vitest --dir ./tests --run",
+    "test:build": "tsc -b"
   }
 }

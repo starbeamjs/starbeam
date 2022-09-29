@@ -18,12 +18,13 @@
     "test:dev": "vitest --mode=development",
     "test:prod": "PROD=1 DEV= vitest",
     "test:types": "tsc --build",
-    "test:lint": "eslint --cache",
+    "test:lint": "eslint",
     "test:all": "esno ./scripts/scripts.ts test",
     "check:types": "tsc --build",
     "check:unused": "esno ./scripts/index.ts unused",
     "check:lint": "eslint --cache -c ./.eslintrc.cjs --ext .ts,.tsx,.mjs .",
-    "release": "esno ./scripts/index.ts release"
+    "release": "esno ./scripts/index.ts release",
+    "test:build": "tsc -b"
   },
   "devDependencies": {
     "@babel/plugin-proposal-decorators": "^7.19.1",
@@ -68,6 +69,7 @@
     "vitest": "0.23.4"
   },
   "starbeam": {
+    "type": "root",
     "used": [
       {
         "reason": "vscode eslint pulled in depcheck's .eslintrc.yml",
@@ -144,5 +146,16 @@
   },
   "volta": {
     "node": "18.9.1"
+  },
+  "publishConfig": {
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      }
+    }
   }
 }

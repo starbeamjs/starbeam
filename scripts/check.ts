@@ -5,8 +5,8 @@ export const CheckCommand = DevCommand("check", {
   description: "run all of the checks",
 })
   .flag(["-f", "failFast"], `exit on first failure`)
-  .action(({ workspace, failFast }) => {
-    workspace.exec(sh`pnpm check:unused -f`, { failFast });
-    workspace.exec(sh`pnpm check:types`, { failFast });
-    workspace.exec(sh`pnpm check:lint`, { failFast });
+  .action(async ({ workspace }) => {
+    await workspace.exec(sh`pnpm check:unused -f`);
+    await workspace.exec(sh`pnpm check:types`);
+    await workspace.exec(sh`pnpm check:lint`);
   });

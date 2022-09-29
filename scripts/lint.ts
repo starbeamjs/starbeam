@@ -9,14 +9,14 @@ export const LintCommand = QueryCommand("lint")
   )
   .action(async ({ workspace, packages, files }) => {
     if (files) {
-      workspace.exec(
+      await workspace.exec(
         sh`pnpm eslint --cache -c ${workspace.root.file(
           ".eslintrc.cjs"
         )} ${files}`
       );
     } else {
       for (const pkg of packages) {
-        workspace.exec(sh`pnpm eslint --cache`, {
+        await workspace.exec(sh`pnpm eslint --cache`, {
           cwd: pkg.root.absolute,
         });
       }

@@ -1,7 +1,6 @@
 import chalk from "chalk";
-import { execSync, type ExecSyncOptions } from "node:child_process";
-import { wrapIndented } from "./format.js";
-import { comment, header, log } from "./log.js";
+import { spawn } from "node-pty";
+import { comment, header } from "./log.js";
 import {
   Directory,
   Glob,
@@ -9,18 +8,31 @@ import {
   type GlobOptions,
   type Path,
 } from "./paths.js";
+import { Reporter, type ReporterOptions } from "./reporter.js";
+import { Readable } from "node:stream";
+import {
+  execSync,
+  type ExecSyncOptionsWithStringEncoding,
+} from "child_process";
+import { terminalWidth } from "./format.js";
+import split from "split2";
+import shellSplit from "shell-split";
 
 export class Workspace {
-  static root(root: string, verbose: boolean): Workspace {
-    return new Workspace(Paths.root(root), verbose);
+  static root(root: string, options: ReporterOptions): Workspace {
+    return new Workspace(Paths.root(root), options);
   }
 
   readonly #verbose: boolean;
+  readonly #stylish: boolean;
   readonly #paths: Paths;
+  readonly #reporter: Reporter;
 
-  constructor(paths: Paths, verbose: boolean) {
+  constructor(paths: Paths, options: ReporterOptions) {
     this.#paths = paths;
-    this.#verbose = verbose;
+    this.#verbose = options.verbose;
+    this.#stylish = options.stylish;
+    this.#reporter = Reporter.root(this, options);
   }
 
   get root(): Directory {
@@ -31,53 +43,93 @@ export class Workspace {
     return this.#paths;
   }
 
+  get reporter(): Reporter {
+    return this.#reporter;
+  }
+
   glob(path: string, options?: GlobOptions): Glob {
     return this.root.glob(path, options);
   }
 
   cmd(
     command: string,
-    options?: Partial<ExecSyncOptions & { failFast: boolean }>
-  ): string {
-    if (this.#verbose) {
-      log(`> running <`, chalk.redBright.bold);
-      log(wrapIndented(`$ ${command}`, 2), comment);
-    }
+    options?: Partial<ExecSyncOptionsWithStringEncoding & { failFast: boolean }>
+  ): Promise<string | void> {
+    return this.#reporter.handle
+      .fatal((r) =>
+        r.section((r) =>
+          r.log(
+            chalk.red.bold(
+              `> ${chalk.redBright.inverse("failed")} ${header(command)}`
+            )
+          )
+        )
+      )
+      .try(async (r) => {
+        r.verbose(() => {
+          r.section((r) => r.log(comment(`$ ${command}`)), { break: "after" });
+        });
 
-    try {
-      return execSync(command, {
-        cwd: this.root,
-        ...options,
-        encoding: "utf-8",
+        return execSync(command, {
+          cwd: this.root.absolute,
+          encoding: "utf8",
+          ...options,
+        });
       });
-    } catch (e) {
-      if (options?.failFast) {
-        log(`\n> ${comment("failed")} ${header(command)}\n`);
-        process.exit(1);
-      }
-      throw e;
-    }
   }
 
-  exec(
+  async exec(
     command: string,
-    options?: Partial<ExecSyncOptions & { failFast: boolean }>
-  ): "ok" | "err" {
-    if (this.#verbose) {
-      log(`> running <`, chalk.redBright.bold);
-      log(wrapIndented(`$ ${command}`, 2), comment);
-    }
+    options: { cwd: string } = { cwd: this.root.absolute }
+  ): Promise<"ok" | "err"> {
+    const parsed: string[] = shellSplit(command);
+    const [cmd, ...args] = parsed;
 
-    try {
-      execSync(command, { cwd: this.root, stdio: "inherit", ...options });
-      return "ok";
-    } catch {
-      if (options?.failFast) {
-        log(`\n> ${comment("failed")} ${header(command)}\n`);
-        process.exit(1);
-      }
-      return "err";
-    }
+    return this.#reporter.handle
+      .fatal((r) =>
+        r.section((r) =>
+          r.log(
+            chalk.red.bold(
+              `> ${chalk.redBright.inverse("failed")} ${header(command)}`
+            )
+          )
+        )
+      )
+      .catch((_): "ok" | "err" => "err")
+      .try(async (r): Promise<"ok" | "err"> => {
+        r.verbose(() => {
+          r.section((r) => r.log(comment(`$ ${command}`)), { break: "after" });
+        });
+
+        r.flush();
+
+        const pty = PtyStream(cmd, args, {
+          cols: terminalWidth(),
+          cwd: options.cwd ?? this.root.absolute,
+        });
+
+        const padded = pty.stream.pipe(split());
+
+        for await (const chunk of padded) {
+          r.log(chunk);
+        }
+
+        if (pty.code === undefined) {
+          throw new Error("pty exited without a code");
+        } else if (pty.code === 0) {
+          this.#reporter.verbose((r) => {
+            r.log(chalk.green("✅"));
+            r.log("");
+          });
+          return "ok";
+        } else {
+          this.#reporter.verbose((r) => {
+            r.log(chalk.red.bold("❌"));
+            r.log("");
+          });
+          return "err";
+        }
+      });
   }
 
   dir(path: string): Directory {
@@ -91,4 +143,38 @@ export class Workspace {
       return path.relativeFrom(this.root);
     }
   }
+}
+
+function PtyStream(
+  file: string,
+  args: string[] | string,
+  options: {
+    cols: number;
+    cwd: string;
+    env?: { [key: string]: string };
+  }
+): { readonly stream: Readable; readonly code: number | undefined } {
+  const stream = new Readable({
+    read() {
+      /* noop */
+    },
+  });
+  const pty = spawn(file, args, options);
+  let code: number | undefined = undefined;
+
+  pty.onData((data) => {
+    stream.push(data);
+  });
+
+  pty.onExit(({ exitCode }) => {
+    stream.push(null);
+    code = exitCode;
+  });
+
+  return {
+    stream,
+    get code() {
+      return code;
+    },
+  };
 }

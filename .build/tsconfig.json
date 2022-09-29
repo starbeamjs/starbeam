@@ -1,12 +1,14 @@
 {
   "extends": "../.config/tsconfig/tsconfig.shared.json",
   "compilerOptions": {
+    "declarationMap": true,
+    "declaration": true,
     "composite": true,
     "target": "ESNext",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "declarationDir": "./dist/types",
-    "outDir": "./dist/src",
+    "declarationDir": "../dist/types",
+    "outDir": "../dist/packages",
     "allowJs": true,
     "checkJs": true,
     "allowSyntheticDefaultImports": false,
@@ -15,7 +17,9 @@
       "node",
       "magic-string",
       "@rollup/plugin-commonjs",
-      "@rollup/plugin-node-resolve"
+      "@rollup/plugin-node-resolve",
+      "../packages/env"
     ]
-  }
+  },
+  "exclude": ["dist/**/*"]
 }

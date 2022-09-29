@@ -161,7 +161,9 @@ export const updateTsconfig = PackageUpdater((updater, { workspace }) => {
       ),
       "start"
     );
-  } else if (updater.type?.is("library", "interfaces", "support:tests")) {
+  } else if (
+    updater.type?.is("library", "interfaces", "support:tests", "support:build")
+  ) {
     migrator.set(
       "extends",
       updater.relative(
@@ -177,6 +179,8 @@ export const updateTsconfig = PackageUpdater((updater, { workspace }) => {
       ),
       "start"
     );
+  } else if (updater.type?.is("root")) {
+    // do nothing
   } else {
     updater.error((root) =>
       console.error(chalk.red(`${root} is an unknown type: ${updater.type}`))

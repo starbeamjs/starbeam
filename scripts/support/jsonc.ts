@@ -27,9 +27,13 @@ export class EditJsonc {
 
   remove(path: string): void {
     const jsonPath = this.#path(path);
-    const edit = jsonc.modify(this.#source, jsonPath, undefined, {});
-    this.#source = jsonc.applyEdits(this.#source, edit);
-    this.#json = parse(this.#source);
+    const node = jsonc.findNodeAtLocation(this.#json, jsonPath);
+
+    if (node) {
+      const edit = jsonc.modify(this.#source, jsonPath, undefined, {});
+      this.#source = jsonc.applyEdits(this.#source, edit);
+      this.#json = parse(this.#source);
+    }
   }
 
   addUnique(path: string, value: string | number | boolean): void;

@@ -24,6 +24,8 @@ export interface PackageInfo {
   isPrivate: boolean;
   isTypescript: boolean;
   starbeam: StarbeamInfo;
+  scripts: Record<string, string>;
+  tests: Record<string, string>;
 }
 
 export class Starbeam {
@@ -62,14 +64,16 @@ interface PnpmPackage {
 }
 
 export class Package {
-  static from(this: void, manifest: RegularFile): Package;
+  static from(this: void, workspace: Workspace, manifest: RegularFile): Package;
   static from(
     this: void,
+    workspace: Workspace,
     manifest: RegularFile,
     options: { allow: "missing" }
   ): Package | undefined;
   static from(
     this: void,
+    workspace: Workspace,
     manifest: RegularFile,
     options?: { allow: "missing" }
   ): Package | undefined {
@@ -88,7 +92,19 @@ export class Package {
 
     const main = raw.get("main", { default: undefined as undefined | string });
 
-    return new Package({
+    const scripts: Record<string, string> = raw.get("scripts", {
+      default: {},
+    });
+
+    const tests: Record<string, string> = {};
+
+    for (const [name, script] of Object.entries(scripts)) {
+      if (name.startsWith("test:")) {
+        tests[name.slice(5)] = script;
+      }
+    }
+
+    return new Package(workspace, {
       manifest,
       name: raw.get("name"),
       main,
@@ -97,6 +113,8 @@ export class Package {
       isTypescript:
         !!raw.get("type", { default: undefined }) ||
         !!raw.get("exports:.:types", { default: undefined }) !== undefined,
+      scripts,
+      tests,
       starbeam: {
         tsconfig: raw.get("starbeam:tsconfig", { default: undefined }),
         type: StarbeamType.from(
@@ -115,7 +133,11 @@ export class Package {
     });
   }
 
-  constructor(readonly info: PackageInfo) {}
+  #workspace: Workspace;
+
+  constructor(workspace: Workspace, readonly info: PackageInfo) {
+    this.#workspace = workspace;
+  }
 
   get name(): string {
     return this.info.name;
@@ -137,10 +159,6 @@ export class Package {
     return this.info.isTypescript;
   }
 
-  isSupport(kind: "tests" | "build"): boolean {
-    return this.type === StarbeamType.from(`support:${kind}`);
-  }
-
   get tsconfig(): string | undefined {
     return this.info.starbeam.tsconfig;
   }
@@ -153,8 +171,16 @@ export class Package {
     return this.info.starbeam.used;
   }
 
-  get tests(): Directory {
+  get testsDirectory(): Directory {
     return this.root.dir("tests");
+  }
+
+  get tests(): Record<string, string> {
+    return this.info.tests;
+  }
+
+  isSupport(kind: "tests" | "build"): boolean {
+    return this.type === StarbeamType.from(`support:${kind}`);
   }
 }
 
@@ -163,24 +189,28 @@ export interface Used {
   packages: string[];
 }
 
-export function queryPackages(
+export async function queryPackages(
   workspace: Workspace,
   query: Query = Query.all
-): Package[] {
+): Promise<Package[]> {
   // const packages = workspace.paths.packages.all;
   // const tests = packages.dir("tests");
   // const demos = workspace.paths.demos.glob("*", { match: ["directories"] });
   // const scripts = workspace.root.glob("scripts");
 
-  const packages: PnpmPackage[] = JSON.parse(
-    workspace.cmd(sh`pnpm ls -r --depth -1 --json`)
-  );
+  const packageList = await workspace.cmd(sh`pnpm ls -r --depth -1 --json`);
+
+  if (packageList === undefined) {
+    throw workspace.reporter.fatal("Failed to list packages");
+  }
+
+  const packages: PnpmPackage[] = JSON.parse(packageList);
 
   return packages
     .map((p) =>
       new Directory(workspace.root.absolute, p.path).file("package.json")
     )
-    .map((manifest) => Package.from(manifest))
+    .map((manifest) => Package.from(workspace, manifest))
     .filter((pkg) => query.match(pkg));
 }
 

@@ -12,7 +12,7 @@ export function header(message: string, style?: "dim"): string {
   return color(message);
 }
 
-header.dim = (message: string) => header(message, "dim");
+header.sub = (message: string) => header(message, "dim");
 
 export function problem(
   message: string,

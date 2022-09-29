@@ -21,5 +21,10 @@
   },
   "devDependencies": {
     "@starbeam-workspace/build-support": "workspace:^"
+  },
+  "scripts": {
+    "test:lint": "eslint",
+    "test:specs": "vitest --dir ./tests --run",
+    "test:build": "tsc -b"
   }
 }

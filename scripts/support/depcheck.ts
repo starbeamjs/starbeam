@@ -56,10 +56,12 @@ const OPTIONS: depcheck.Options = {
 export async function checkUnused({
   pkg,
   verbose,
+  stylish,
   options,
 }: {
   pkg: Package;
   verbose: boolean;
+  stylish: boolean;
   options?: depcheck.Options;
 }): Promise<"success" | "failure"> {
   const unused = await depcheck(pkg.root.absolute, {
@@ -81,7 +83,7 @@ export async function checkUnused({
     return "success";
   }
 
-  const reporter = new Reporter(verbose);
+  const reporter = new Reporter(verbose, stylish);
 
   reporter.unused("Unused dependencies", unused.dependencies);
   reporter.unused("Unused devDependencies", unused.devDependencies);
@@ -94,9 +96,11 @@ export async function checkUnused({
 
 class Reporter {
   readonly #verbose: boolean;
+  readonly #stylish: boolean;
 
-  constructor(verbose: boolean) {
+  constructor(verbose: boolean, stylish: boolean) {
     this.#verbose = verbose;
+    this.#stylish = stylish;
   }
 
   unused(name: string, unused: string[]): void {

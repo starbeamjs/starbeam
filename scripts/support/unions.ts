@@ -11,6 +11,7 @@ export class StarbeamType extends Union(
   "demo:react",
   "unknown",
   "draft",
+  "root",
   "none"
 ) {}
 

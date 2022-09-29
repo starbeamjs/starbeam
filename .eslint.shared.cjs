@@ -22,6 +22,7 @@ exports.rules = {
   rules: {
     "@typescript-eslint/no-unused-vars": "off",
     "@typescript-eslint/explicit-module-boundary-types": "error",
+    "@typescript-eslint/no-floating-promises": "error",
     "unused-imports/no-unused-imports": "error",
     "unused-imports/no-unused-vars": [
       "warn",
@@ -61,5 +62,9 @@ exports.typescript = (tsconfigPath, config = {}) => {
       project: tsconfigPath,
     },
     ...config,
+    rules: {
+      ...exports.rules.rules,
+      ...rules,
+    },
   };
 };

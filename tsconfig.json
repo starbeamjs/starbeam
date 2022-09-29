@@ -1,6 +1,11 @@
 {
   "compilerOptions": {
-    "composite": true
+    "declarationMap": true,
+    "declarationDir": "dist/types",
+    "declaration": true,
+    "outDir": "dist/packages",
+    "composite": true,
+    "types": ["packages/env"]
   },
 
   "files": [],
@@ -12,5 +17,6 @@
     { "path": "./.build/tsconfig.json" },
     { "path": "./scripts/tsconfig.json" },
     { "path": "./tsconfig.root.json" }
-  ]
+  ],
+  "exclude": ["dist/**/*"]
 }
