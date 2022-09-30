@@ -83,6 +83,13 @@ export class StarbeamSources extends Union(
     return globs;
   }
 
+  #output(globs: Globs<RegularFile>, ext: Ext): Globs<RegularFile> {
+    if (!this.has(ext)) {
+      globs = globs.add(`**/*.${ext}`);
+    }
+    return globs;
+  }
+
   typescript(root: Directory): Globs<RegularFile> {
     return this.select(root, ["ts", "tsx", "d.ts"]);
   }
@@ -120,6 +127,16 @@ export class StarbeamSources extends Union(
    */
   inputs(root: Directory): Globs<RegularFile> {
     return this.exclude(root, []);
+  }
+
+  outputs(root: Directory): Globs<RegularFile> {
+    let globs = Globs.root(root, { match: ["files"] });
+
+    for (const ext of EXTS) {
+      globs = this.#output(globs, ext);
+    }
+
+    return globs;
   }
 }
 

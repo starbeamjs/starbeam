@@ -390,7 +390,7 @@ export class Glob<T extends Path = Path> extends Path {
   }
 }
 
-export class Globs<T extends Path = Path> {
+export class Globs<T extends Path = Path> implements Iterable<Glob<T>> {
   static root(root: Path, options: GlobOptions<["files"]>): Globs<RegularFile>;
   static root(
     root: Path,

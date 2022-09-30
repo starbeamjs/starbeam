@@ -73,22 +73,14 @@ async function cleanFiles({
   options: { verbose: boolean; dryRun: boolean };
 }) {
   const patterns = ["dist/", "**/tsconfig.tsbuildinfo"];
-  const roots = packageRoots(pkg);
   const cwd = pkg.root.absolute;
 
   if (!pkg.type?.is("root")) {
-    const extensions = new Set(["map", "js", "jsx", "d.ts"]);
-    if (pkg.type?.is("interfaces")) {
-      extensions.delete("d.ts");
+    const outputs = pkg.sources.outputs(pkg.root);
+
+    for (const output of outputs) {
+      patterns.push(output.absolute);
     }
-    if (pkg?.starbeam.keepJs === true) {
-      extensions.delete("js");
-      extensions.delete("jsx");
-      extensions.delete("d.ts");
-    }
-    patterns.push(
-      ...roots.map((root) => `${root}*.{${[...extensions].join(",")}}`)
-    );
   }
 
   const files = await glob(patterns, {
@@ -97,7 +89,15 @@ async function cleanFiles({
     objectMode: true,
     onlyFiles: false,
     throwErrorOnBrokenSymbolicLink: true,
-    ignore: ["**/node_modules/**", "**/env.d.ts", "dist/**"],
+    ignore: [
+      "**/node_modules/**",
+      "**/env.d.ts",
+      "dist/**",
+      // these aren't currently included in EXT, but let's make sure we don't actually clean these
+      // up if they get added
+      "**/*.mjs",
+      "**/*.cjs",
+    ],
   });
 
   const isClean = files.length === 0;

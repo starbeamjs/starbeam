@@ -22,7 +22,5 @@
     "test:lint": "eslint",
     "test:build": "tsc -b"
   },
-  "devDependencies": {
-    "@starbeam-workspace/build-support": "workspace:^"
-  }
+  "devDependencies": {}
 }

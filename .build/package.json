@@ -18,7 +18,7 @@
     "rollup": "*",
     "magic-string": "^0.26.5",
     "postcss": "^8.4.17",
-    "rollup-plugin-ts": "^3.0.2",
+    "rollup-plugin-ts": "*",
     "rollup-plugin-postcss": "^4.0.2",
     "@rollup/plugin-commonjs": "*",
     "@rollup/plugin-node-resolve": "*"

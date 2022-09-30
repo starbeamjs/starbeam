@@ -29,11 +29,15 @@ export function updatePackageJSON(updater: UpdatePackage): void {
       };
     }
 
-    if (updater.type?.is("library")) {
+    if (updater.type?.is("library", "root")) {
       prev.devDependencies = {
         ...(prev.devDependencies as object),
         "@starbeam-workspace/build-support": "workspace:^",
       };
+    } else if (prev.devDependencies) {
+      delete (prev.devDependencies as Record<string, string>)[
+        "@starbeam-workspace/build-support"
+      ];
     }
 
     if (updater.type?.is("demo:react")) {
