@@ -241,6 +241,11 @@ export class Reporter {
     }
   }
 
+  exit(code: number): never {
+    console.log("");
+    process.exit(code);
+  }
+
   fallible<T, U>(options: {
     setup?: (reporter: Reporter) => void;
     try: (reporter: Reporter) => Promise<T>;
@@ -447,7 +452,7 @@ export class Reporter {
 
   fatal(message: string): never {
     this.error(`${chalk.redBright.inverse("FATAL")} ${chalk.red(message)}`);
-    process.exit(1);
+    this.exit(1);
   }
 
   info(message: string): void {

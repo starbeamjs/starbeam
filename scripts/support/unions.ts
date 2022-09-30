@@ -43,19 +43,37 @@ export class StarbeamSources extends Union(
   "tsx",
   "d.ts"
 ) {
+  /**
+   * Determine whether this source type includes the given extension.
+   */
   has(ext: Ext): boolean {
-    switch (ext) {
-      case "d.ts":
-        return this.is("d.ts", "js:typed", "jsx:typed");
-      case "js":
-        return this.value.startsWith("js");
-      case "jsx":
-        return this.value.startsWith("jsx");
+    return this.extensions.includes(ext);
+  }
+
+  /**
+   * The list of extensions that are included in this source type.
+   */
+  get extensions(): Ext[] {
+    switch (this.value) {
+      case "js:untyped":
+        return ["js"];
+      case "js:typed":
+        return ["js", "d.ts"];
+      case "jsx:untyped":
+        return ["jsx", "js"];
+      case "jsx:typed":
+        return ["jsx", "js", "d.ts"];
       case "ts":
-        return this.is("ts");
+        return ["ts"];
       case "tsx":
-        return this.is("tsx");
+        return ["tsx", "ts"];
+      case "d.ts":
+        return ["d.ts"];
     }
+  }
+
+  hasCategory(...kinds: ("js" | "jsx")[]): boolean {
+    return kinds.some((kind) => this.value.startsWith(`${kind}:`));
   }
 
   #add(globs: Globs<RegularFile>, ext: Ext): Globs<RegularFile> {

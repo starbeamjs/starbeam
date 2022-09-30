@@ -92,8 +92,14 @@ abstract class Path extends URL {
     return new Directory(this.#root, this.dirname);
   }
 
-  relativeFrom(path: Path): string {
-    return relative(path.absolute, this.#absolutePath);
+  relativeFrom(path: Path | string): string {
+    const absolutePath = typeof path === "string" ? path : path.absolute;
+    return relative(absolutePath, this.#absolutePath);
+  }
+
+  relativeTo(path: Path | string): string {
+    const absolutePath = typeof path === "string" ? path : path.absolute;
+    return relative(this.#absolutePath, absolutePath);
   }
 
   dir(path: string): Directory | Glob<Directory> {

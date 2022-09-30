@@ -39,7 +39,8 @@
           "purecss"
         ]
       }
-    ]
+    ],
+    "source": "tsx"
   },
   "exports": {
     "default": "./index.ts"

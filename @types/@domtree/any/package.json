@@ -2,15 +2,18 @@
   "name": "@domtree/any",
   "version": "0.9.1",
   "type": "module",
-  "types": "index.ts",
-  "starbeam:type": "interfaces",
+  "types": "index.d.ts",
+  "starbeam": {
+    "type": "interfaces",
+    "source": "ts"
+  },
   "dependencies": {
     "@domtree/browser": "workspace:^",
     "@domtree/interface": "workspace:^",
     "@domtree/minimal": "workspace:^"
   },
   "devDependencies": {
-    "eslint": "^8.16.0"
+    "@starbeam-workspace/build-support": "workspace:^"
   },
   "publishConfig": {
     "main": "dist/index.cjs",

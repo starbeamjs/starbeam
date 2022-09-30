@@ -16,7 +16,8 @@
           "purecss"
         ]
       }
-    ]
+    ],
+    "source": "tsx"
   },
   "dependencies": {
     "@starbeam/core": "workspace:^",

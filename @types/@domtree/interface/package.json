@@ -2,8 +2,8 @@
   "name": "@domtree/interface",
   "version": "0.9.1",
   "type": "module",
-  "types": "index.ts",
-  "starbeam:type": "interfaces",
+  "types": "index.d.ts",
+  "starbeam:type": "library",
   "publishConfig": {
     "main": "dist/index.cjs",
     "types": "dist/index.d.ts",
@@ -18,5 +18,8 @@
   "scripts": {
     "test:lint": "eslint",
     "test:build": "tsc -b"
+  },
+  "devDependencies": {
+    "@starbeam-workspace/build-support": "workspace:^"
   }
 }

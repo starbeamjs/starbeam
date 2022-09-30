@@ -48,6 +48,7 @@ const OPTIONS: depcheck.Options = {
     depcheck.detector.importDeclaration,
     depcheck.detector.importCallExpression,
     depcheck.detector.typescriptImportType,
+    depcheck.detector.exportDeclaration,
   ],
   specials: [
     // the target special parsers
@@ -105,18 +106,28 @@ export async function checkUnused({
 
   reporter.invalid("Invalid files", unused.invalidFiles);
   reporter.invalid("Invalid directories", unused.invalidDirs);
-  return "failure";
+
+  if (reporter.exitCode === 0) {
+    return "success";
+  } else {
+    return "failure";
+  }
 }
 
 class UnusedReporter {
   readonly #unused: depcheck.Results;
   readonly #package: Package;
   readonly #workspace: Workspace;
+  #exitCode = 0;
 
   constructor(workspace: Workspace, unused: depcheck.Results, pkg: Package) {
     this.#workspace = workspace;
     this.#unused = unused;
     this.#package = pkg;
+  }
+
+  get exitCode(): number {
+    return this.#exitCode;
   }
 
   unused(name: string, unused: string[]): void {
@@ -130,29 +141,45 @@ class UnusedReporter {
       }
     });
 
+    if (filtered.length === 0) {
+      return;
+    }
+
     this.#group(filtered, header(name), {
       each: (dep) => log(`- ${listDep(dep)}`, problem),
       empty: () => log("- None", ok),
     });
+
+    this.#exitCode = 1;
   }
 
   usage(name: string, usage: Record<string, string[]>): void {
     const entries = Object.entries(usage);
 
+    if (entries.length === 0) {
+      return;
+    }
+
     this.#group(entries, header(name), {
       each: ([dep, files]) => {
         console.group(problem(dep, { header: true }), comment("used in"));
         for (const file of files) {
-          log(`- ${relative(root, file)}`, comment);
+          log(`- ${this.#workspace.root.relativeTo(file)}`, comment);
         }
         console.groupEnd();
       },
       empty: () => log("- None", ok),
     });
+
+    this.#exitCode = 1;
   }
 
   invalid(name: string, invalid: Record<string, unknown>): void {
     const entries = Object.entries(invalid);
+
+    if (entries.length === 0) {
+      return;
+    }
 
     this.#group(entries, header(name), {
       each: ([file, error]) => {
@@ -162,6 +189,8 @@ class UnusedReporter {
       },
       empty: () => log("- None", ok),
     });
+
+    this.#exitCode = 1;
   }
 
   #group<T>(

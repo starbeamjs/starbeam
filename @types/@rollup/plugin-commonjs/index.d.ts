@@ -1,6 +1,4 @@
-import type { Plugin } from "rollup";
-// eslint-disable-next-line import/no-relative-packages
-import Plugin from "./node_modules/@rollup/plugin-commonjs/types";
+import Plugin from "@rollup/plugin-commonjs";
 
 const plugin: () => Plugin;
 
