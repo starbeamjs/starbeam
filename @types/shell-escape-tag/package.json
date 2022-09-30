@@ -3,7 +3,7 @@
   "private": true,
   "types": "index.d.ts",
   "starbeam:type": "interfaces",
-  "dependencies": {
+  "devDependencies": {
     "@types/node": "*"
   },
   "exports": {

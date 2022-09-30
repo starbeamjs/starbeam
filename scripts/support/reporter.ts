@@ -389,6 +389,10 @@ export class Reporter {
     return this.#logger.format(message, this.#formatOptions);
   }
 
+  get isVerbose(): boolean {
+    return this.#options.verbose;
+  }
+
   verbose(
     log: (reporter: Reporter) => void,
     options?: { also: unknown }

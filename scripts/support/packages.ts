@@ -1,6 +1,6 @@
 import { Directory, RegularFile, type Path } from "./paths.js";
 import { Query } from "./query.js";
-import { StarbeamType } from "./unions.js";
+import { StarbeamSources, StarbeamType } from "./unions.js";
 import type { Workspace } from "./workspace.js";
 import sh from "shell-escape-tag";
 
@@ -11,9 +11,9 @@ export interface StarbeamTemplates {
 export interface StarbeamInfo {
   tsconfig: string | undefined;
   type: StarbeamType;
+  sources: StarbeamSources;
   used: Used[];
   templates: StarbeamTemplates;
-  "keep:js": boolean | undefined;
 }
 
 export interface PackageInfo {
@@ -26,6 +26,7 @@ export interface PackageInfo {
   starbeam: StarbeamInfo;
   scripts: Record<string, string>;
   tests: Record<string, string>;
+  dependencies: Dependencies;
 }
 
 export class Starbeam {
@@ -47,12 +48,12 @@ export class Starbeam {
     return this.#info.used;
   }
 
-  get keepJs(): boolean {
-    return this.#info["keep:js"] ?? false;
-  }
-
   get templates(): StarbeamTemplates {
     return this.#info.templates;
+  }
+
+  isInput(extension: "d.ts" | "js"): boolean {
+    return this.#info.sources.has(extension);
   }
 }
 
@@ -104,6 +105,21 @@ export class Package {
       }
     }
 
+    const type = StarbeamType.from(
+      raw.get("starbeam:type", {
+        default: main ? "none" : "unknown",
+      })
+    );
+
+    // const defaultInputs = type.is("interfaces") ? ["d.ts"]
+    // const isInput = raw.get("starbeam:inputs", { default: [] as string[] });
+
+    const source = StarbeamSources.from(
+      raw.get("starbeam:source", {
+        default: "ts",
+      })
+    );
+
     return new Package(workspace, {
       manifest,
       name: raw.get("name"),
@@ -115,15 +131,12 @@ export class Package {
         !!raw.get("exports:.:types", { default: undefined }) !== undefined,
       scripts,
       tests,
+      dependencies: createDependencies(raw),
       starbeam: {
         tsconfig: raw.get("starbeam:tsconfig", { default: undefined }),
-        type: StarbeamType.from(
-          raw.get("starbeam:type", {
-            default: main ? "none" : "unknown",
-          })
-        ),
+        type,
+        sources: source,
         used: raw.get("starbeam:used", { default: [] }),
-        "keep:js": raw.get("starbeam:keep:js", { default: undefined }),
         templates: {
           "package.json": raw.get("starbeam:template:package", {
             default: "package.json",
@@ -133,7 +146,7 @@ export class Package {
     });
   }
 
-  #workspace: Workspace;
+  readonly #workspace: Workspace;
 
   constructor(workspace: Workspace, readonly info: PackageInfo) {
     this.#workspace = workspace;
@@ -145,6 +158,10 @@ export class Package {
 
   get root(): Directory {
     return this.info.manifest.parent;
+  }
+
+  get sources(): StarbeamSources {
+    return this.info.starbeam.sources;
   }
 
   get starbeam(): Starbeam {
@@ -179,8 +196,70 @@ export class Package {
     return this.info.tests;
   }
 
+  get dependencies(): Dependencies {
+    return this.info.dependencies;
+  }
+
   isSupport(kind: "tests" | "build"): boolean {
     return this.type === StarbeamType.from(`support:${kind}`);
+  }
+
+  isInput(kind: "d.ts" | "js"): boolean {
+    return this.starbeam.isInput(kind);
+  }
+}
+
+export type DependencyType = "normal" | "dev" | "peer" | "optional";
+
+class Dependency {
+  readonly #kind: DependencyType;
+  readonly #name: string;
+  readonly #version: string;
+
+  constructor(kind: DependencyType, name: string, version: string) {
+    this.#kind = kind;
+    this.#name = name;
+    this.#version = version;
+  }
+
+  is(kind: DependencyType): boolean {
+    return this.#kind === kind;
+  }
+
+  get kind(): DependencyType {
+    return this.#kind;
+  }
+
+  get name(): string {
+    return this.#name;
+  }
+
+  get version(): string {
+    return this.#version;
+  }
+}
+
+class Dependencies {
+  readonly #deps: Dependency[];
+
+  constructor(deps: Dependency[]) {
+    this.#deps = deps;
+  }
+
+  has(name: string, kind?: DependencyType): boolean {
+    return !!this.get(name, kind);
+  }
+
+  get(name: string, kind?: DependencyType): Dependency | undefined {
+    return this.#deps.find((dep) => {
+      const match = dep.name === name;
+
+      if (kind === undefined) {
+        return match;
+      } else {
+        return match && dep.is(kind);
+      }
+    });
   }
 }
 
@@ -325,4 +404,29 @@ function formatKey(soFar: string[], key: string): string {
   } else {
     return `${soFar.join(".")}.${key}`;
   }
+}
+
+function createDependencies(raw: RawPackage): Dependencies {
+  return new Dependencies([
+    ...parseDependencies(raw, "dependencies", "normal"),
+    ...parseDependencies(raw, "devDependencies", "dev"),
+    ...parseDependencies(raw, "peerDependencies", "peer"),
+    ...parseDependencies(raw, "optionalDependencies", "optional"),
+  ]);
+}
+
+function parseDependencies(
+  raw: RawPackage,
+  key:
+    | "dependencies"
+    | "devDependencies"
+    | "peerDependencies"
+    | "optionalDependencies",
+  kind: DependencyType
+): Dependency[] {
+  const deps = raw.get(key, { default: {} as Record<string, string> });
+
+  return Object.entries(deps).map(([name, version]) => {
+    return new Dependency(kind, name, version);
+  });
 }

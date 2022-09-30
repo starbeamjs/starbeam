@@ -9,7 +9,7 @@
     "moduleResolution": "NodeNext",
     "allowJs": true,
     "checkJs": true,
-    "types": ["node", "magic-string"]
+    "types": ["node"]
   },
   "include": ["*/*/rollup.config.mjs"]
 }

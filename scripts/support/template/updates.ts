@@ -34,6 +34,19 @@ export function updatePackageJSON(updater: UpdatePackage): void {
         ...(prev.devDependencies as object),
         "@starbeam-workspace/build-support": "workspace:^",
       };
+
+      if (updater.type?.is("demo:react")) {
+        if (prev["starbeam:source"]) {
+          prev["starbeam:source"] = "tsx";
+        } else if (prev["starbeam"]) {
+          prev["starbeam"] = {
+            ...(prev["starbeam"] as object),
+            source: "tsx",
+          };
+        } else {
+          prev["starbeam:source"] = "tsx";
+        }
+      }
     }
 
     const scripts: Record<string, string> = {

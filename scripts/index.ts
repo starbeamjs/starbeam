@@ -1,6 +1,6 @@
 import { program } from "commander";
 
-import { version } from "@starbeam-workspace/root/package.json" assert { type: "json" };
+import { version } from "@starbeam-workspace/root/package.json";
 
 import { dirname } from "dirfilename";
 import { resolve } from "path";

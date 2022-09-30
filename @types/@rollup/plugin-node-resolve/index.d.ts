@@ -1,5 +1,5 @@
 import type { Plugin } from "rollup";
-import Plugin from "./node_modules/@rollup/plugin-node-resolve/types";
+import Plugin from "@rollup/plugin-node-resolve";
 
 const plugin: () => Plugin;
 

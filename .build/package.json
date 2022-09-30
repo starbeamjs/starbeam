@@ -5,7 +5,7 @@
   "type": "module",
   "starbeam": {
     "type": "support:build",
-    "keep:js": true
+    "source": "js:typed"
   },
   "main": "index.js",
   "types": "index.d.ts",
@@ -16,12 +16,12 @@
     "@types/rollup__plugin-commonjs": "workspace:^",
     "@types/rollup__plugin-node-resolve": "workspace:^",
     "rollup": "*",
-    "magic-string": "*",
+    "magic-string": "^0.26.5",
+    "postcss": "^8.4.17",
     "rollup-plugin-ts": "*",
-    "rollup-plugin-postcss": "*",
+    "rollup-plugin-postcss": "^4.0.2",
     "@rollup/plugin-commonjs": "*",
-    "@rollup/plugin-node-resolve": "*",
-    "rollup-pluginutils": "^2.8.2"
+    "@rollup/plugin-node-resolve": "*"
   },
   "devDependencies": {
     "@types/node": "*",

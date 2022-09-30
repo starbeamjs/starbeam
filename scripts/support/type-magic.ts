@@ -54,6 +54,7 @@ export interface UnionClass<S extends string> {
 export declare class UnionInstance<S extends string> {
   constructor(value: S);
 
+  readonly MEMBER: S;
   readonly value: S;
   is(...values: S[]): boolean;
 }
@@ -97,10 +98,16 @@ export function Union<S extends string>(...members: S[]): UnionClass<S> {
       return members.join(" | ");
     }
 
+    declare MEMBER: S;
+
     #instance: S;
 
     constructor(value: S) {
       this.#instance = value;
+    }
+
+    [Symbol.for("nodejs.util.inspect.custom")](): string {
+      return `${this.constructor.name}(${this.#instance})`;
     }
 
     is(...values: S[]): boolean {

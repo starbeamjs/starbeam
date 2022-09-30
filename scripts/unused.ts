@@ -1,4 +1,4 @@
-import { checkUnused } from "./support/depcheck.js";
+import { checkUnused } from "./support/unused.js";
 import { QueryCommand } from "./support/commands.js";
 import { Package } from "./support/packages.js";
 import { comment, log } from "./support/log.js";
@@ -19,8 +19,7 @@ export const UnusedCommand = QueryCommand("unused")
         console.group("Workspace root");
         const result = await checkUnused({
           pkg: Package.from(workspace, workspace.root.file("package.json")),
-          verbose,
-          stylish,
+          workspace,
         });
         console.groupEnd();
 
@@ -35,7 +34,7 @@ export const UnusedCommand = QueryCommand("unused")
 
       for (const pkg of packages) {
         console.group(pkg.name, comment(`(${workspace.relative(pkg.root)})`));
-        const result = await checkUnused({ pkg, verbose, stylish });
+        const result = await checkUnused({ pkg, workspace });
         console.groupEnd();
 
         if (failFast && result === "failure") {

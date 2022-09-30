@@ -306,6 +306,10 @@ export class Glob<T extends Path = Path> extends Path {
     return this.join(path, { match: ["directories"] }) as Glob<Directory>;
   }
 
+  asGlobs(): Globs<T> {
+    return Globs.root<T>(this.root, this.#options).add(this);
+  }
+
   expand(): T[] {
     const options = this.#options;
 
@@ -380,13 +384,13 @@ export class Glob<T extends Path = Path> extends Path {
   }
 }
 
-class Globs<T extends Path = Path> {
+export class Globs<T extends Path = Path> {
   static root(root: Path, options: GlobOptions<["files"]>): Globs<RegularFile>;
   static root(
     root: Path,
     options?: GlobOptions<["directories"]>
   ): Globs<Directory>;
-  static root(root: Path, options?: GlobOptions): Globs;
+  static root<T extends Path>(root: Path, options?: GlobOptions): Globs<T>;
   static root(root: Path, options?: GlobOptions): Globs {
     return new Globs(root, [], options);
   }
@@ -405,18 +409,24 @@ class Globs<T extends Path = Path> {
     this.#options = options ?? {};
   }
 
-  [Symbol.for("nodejs.util.inspect.custom")]() {
+  [Symbol.for("nodejs.util.inspect.custom")](): object {
     if (this.#options.match) {
-      return [
-        ...this.#globs.map((g) => g.absolute),
-        {
-          files: this.#options.match.includes("files"),
-          directories: this.#options.match.includes("directories"),
-        },
-      ];
+      return {
+        globs: this.#globs.map((g) => g.absolute),
+        files: this.#options.match.includes("files"),
+        directories: this.#options.match.includes("directories"),
+      };
     } else {
       return [...this.#globs];
     }
+  }
+
+  *[Symbol.iterator](): IterableIterator<Glob<T>> {
+    yield* this.#globs as Glob<T>[];
+  }
+
+  asGlobs(): Globs<T> {
+    return this;
   }
 
   add(globs: string | readonly string[]): Globs<T>;

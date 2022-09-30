@@ -10,7 +10,8 @@
     "@starbeam/debug": "workspace:^",
     "@starbeam/timeline": "workspace:^",
     "@starbeam-workspace/react-test-utils": "workspace:^",
-    "react": "^18"
+    "react": "^18",
+    "jsdom": "^20.0.0"
   },
   "publishConfig": {
     "main": "dist/index.cjs",

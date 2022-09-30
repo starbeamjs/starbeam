@@ -3,48 +3,51 @@ import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Package } from "./packages.js";
 import { comment, header, log, ok, problem } from "./log.js";
+import type { Globs, RegularFile, Glob } from "./paths.js";
+import type { Workspace } from "./workspace.js";
+
+/**
+ * These types represent builtin APIs that don't require an implementation package.
+ */
+const ALLOW_TYPE_ONLY = ["@types/node"];
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+
+type ParserName = keyof typeof depcheck.parser;
+
+function Parsers(options: {
+  [P in ParserName]?: Globs<RegularFile> | Glob<RegularFile>;
+}): Record<string, depcheck.Parser> {
+  const parsers: Record<string, depcheck.Parser> = {};
+
+  for (const [parser, globs] of Object.entries(options) as [
+    ParserName,
+    Glob | Globs
+  ][]) {
+    for (const glob of globs.asGlobs()) {
+      add(glob, parser);
+    }
+  }
+
+  return parsers;
+
+  function add(glob: Glob, parser: ParserName): void {
+    parsers[glob.absolute] = depcheck.parser[parser];
+  }
+}
 
 const OPTIONS: depcheck.Options = {
   ignoreDirs: ["dist"],
   ignoreBinPackage: false, // ignore the packages with bin entry
   skipMissing: false, // skip calculation of missing dependencies
   ignorePatterns: [],
-  // ignoreMatches: [
-  //   // all of these are used by the TypeScript plugin in rollup
-  //   "@babel/plugin-proposal-decorators",
-  //   "@babel/plugin-syntax-dynamic-import",
-  //   "@babel/plugin-transform-runtime",
-  //   "@babel/preset-env",
-  //   "@babel/preset-typescript",
 
-  //   // used by vite.config.ts
-  //   "vite",
-
-  //   // used by .changeset/config.json
-  //   "@changesets/cli",
-
-  //   // used in package.json scripts
-  //   "esno",
-
-  //   // used to build packages
-  //   "typescript",
-  //   "tslib",
-  // ],
-  parsers: {
-    // the target parsers
-    "**/*.js": depcheck.parser.es6,
-    "**/*.mjs": depcheck.parser.es6,
-    "**/*.jsx": depcheck.parser.jsx,
-    "**/*.ts": depcheck.parser.typescript,
-    "**/*.tsx": depcheck.parser.typescript,
-    "**/*.css": depcheck.parser.sass,
-  },
   detectors: [
     // the target detectors
     depcheck.detector.requireCallExpression,
     depcheck.detector.importDeclaration,
+    depcheck.detector.importCallExpression,
+    depcheck.detector.typescriptImportType,
   ],
   specials: [
     // the target special parsers
@@ -55,18 +58,29 @@ const OPTIONS: depcheck.Options = {
 
 export async function checkUnused({
   pkg,
-  verbose,
-  stylish,
+  workspace,
   options,
 }: {
   pkg: Package;
-  verbose: boolean;
-  stylish: boolean;
+  workspace: Workspace;
   options?: depcheck.Options;
 }): Promise<"success" | "failure"> {
+  const config = {
+    es6: pkg.sources
+      .javascript(pkg.root)
+      .add(pkg.root.glob("rollup.config.mjs", { match: ["files"] }))
+      .add(pkg.root.glob("vite.config.ts", { match: ["files"] })),
+    jsx: pkg.sources.jsx(pkg.root),
+    typescript: pkg.sources.typescript(pkg.root),
+    sass: pkg.root.glob("**/*.css"),
+  };
+
+  const parsers = Parsers(config);
+
   const unused = await depcheck(pkg.root.absolute, {
     ...OPTIONS,
     ...options,
+    parsers,
     // vitest is included in the root package.json, which is necessary to be able to run the tests
     // all at once and have them all use the same version of vitest. This is necessary because
     // vitest doesn't work properly when it's installed multiple times in the same project.
@@ -83,7 +97,7 @@ export async function checkUnused({
     return "success";
   }
 
-  const reporter = new Reporter(verbose, stylish);
+  const reporter = new UnusedReporter(workspace, unused, pkg);
 
   reporter.unused("Unused dependencies", unused.dependencies);
   reporter.unused("Unused devDependencies", unused.devDependencies);
@@ -94,18 +108,30 @@ export async function checkUnused({
   return "failure";
 }
 
-class Reporter {
-  readonly #verbose: boolean;
-  readonly #stylish: boolean;
+class UnusedReporter {
+  readonly #unused: depcheck.Results;
+  readonly #package: Package;
+  readonly #workspace: Workspace;
 
-  constructor(verbose: boolean, stylish: boolean) {
-    this.#verbose = verbose;
-    this.#stylish = stylish;
+  constructor(workspace: Workspace, unused: depcheck.Results, pkg: Package) {
+    this.#workspace = workspace;
+    this.#unused = unused;
+    this.#package = pkg;
   }
 
   unused(name: string, unused: string[]): void {
-    this.#group(unused, header(name), {
-      each: (dep) => log(`- ${dep}`, problem),
+    const filtered = unused.filter((dep) => {
+      if (ALLOW_TYPE_ONLY.includes(dep)) {
+        return false;
+      } else if (dep.startsWith("@types/")) {
+        return isTypePkgForPresentPkg(dep, this.#package);
+      } else {
+        return true;
+      }
+    });
+
+    this.#group(filtered, header(name), {
+      each: (dep) => log(`- ${listDep(dep)}`, problem),
       empty: () => log("- None", ok),
     });
   }
@@ -143,7 +169,7 @@ class Reporter {
     header: string,
     { each, empty }: { each: (item: T) => void; empty: () => void }
   ): void {
-    if (items.length === 0 && !this.#verbose) {
+    if (items.length === 0 && !this.#workspace.reporter.isVerbose) {
       return;
     }
 
@@ -157,5 +183,35 @@ class Reporter {
       }
     }
     console.groupEnd();
+  }
+}
+
+function isTypePkgForPresentPkg(dep: string, pkg: Package) {
+  if (dep.startsWith("@types/")) {
+    const name = formatPkgForTypePkg(dep);
+
+    if (pkg.dependencies.has(name)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function formatPkgForTypePkg(pkg: string) {
+  const withoutTypes = pkg.slice("@types/".length);
+
+  if (withoutTypes.includes("__")) {
+    return `@${withoutTypes.replace("__", "/")}`;
+  } else {
+    return withoutTypes;
+  }
+}
+
+function listDep(dep: string) {
+  if (dep.startsWith("@types/")) {
+    return `${dep} (missing ${formatPkgForTypePkg(dep)})`;
+  } else {
+    return dep;
   }
 }
