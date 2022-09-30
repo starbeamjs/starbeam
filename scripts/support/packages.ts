@@ -111,9 +111,6 @@ export class Package {
       })
     );
 
-    // const defaultInputs = type.is("interfaces") ? ["d.ts"]
-    // const isInput = raw.get("starbeam:inputs", { default: [] as string[] });
-
     const source = StarbeamSources.from(
       raw.get("starbeam:source", {
         default: "ts",

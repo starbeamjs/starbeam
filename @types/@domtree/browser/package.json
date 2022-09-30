@@ -3,7 +3,10 @@
   "version": "0.9.1",
   "type": "module",
   "types": "index.d.ts",
-  "starbeam:type": "library",
+  "starbeam": {
+    "type": "interfaces",
+    "source": "ts"
+  },
   "dependencies": {
     "@domtree/interface": "workspace:^"
   },
