@@ -166,9 +166,13 @@ if (import.meta.env.DEV) {
 
         return DebugStack.fromStack(err.stack).slice(internal);
       } else {
-        const stack = Error(
+        /**
+         * Fallback for older environments
+         * (which newer TypeScripts don't support)
+         */
+        const stack = (Error as any)(
           "An error created in the internals of Stack.create"
-        ).stack;
+        ).stack as string;
         return DebugStack.fromStack(verified(stack, hasType("string"))).slice(
           internal + 1
         );
