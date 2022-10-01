@@ -143,7 +143,7 @@ class RawPackage {
 
     if (typeof key === "string" && key.includes(":")) {
       if (key in this.#pkg) {
-        return this.#pkg[key] as T;
+        return this.#pkg[key] as unknown as T;
       }
     }
 
@@ -158,11 +158,7 @@ class RawPackage {
     }
   }
 
-  #get<T>({
-    object = this.#pkg,
-    key,
-    soFar,
-  }: {
+  #get<T>(options: {
     object?: Record<string, JsonValue>;
     key: string[];
     soFar: string[];
@@ -191,7 +187,7 @@ class RawPackage {
 
       if (first in object) {
         if (rest.length === 0) {
-          return object[first] as T;
+          return object[first] as unknown as T;
         } else {
           const next = object[first];
 
