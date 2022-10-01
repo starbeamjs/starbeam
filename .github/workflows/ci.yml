@@ -63,7 +63,7 @@ jobs:
     runs-on: "ubuntu-latest"
     needs: ['install_dependencies']
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         typescript-scenario:
           - typescript@next
