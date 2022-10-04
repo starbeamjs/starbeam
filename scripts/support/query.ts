@@ -1,5 +1,5 @@
 import util from "util";
-import { comment, log, problem } from "./log.js";
+import { log, Style } from "./log.js";
 import type { Package } from "./packages.js";
 import { StarbeamType } from "./unions.js";
 
@@ -305,7 +305,12 @@ export class ParseError {
   constructor(readonly source: string, readonly message: string) {}
 
   log(): void {
-    log(`${problem("Invalid query")}${comment(`: ${this.source}`)}`);
+    log(
+      `${Style("problem", "Invalid query")}${Style(
+        "comment",
+        `: ${this.source}`
+      )}`
+    );
   }
 }
 type OkFilter = SingleFilter | NotFilter | AnyFilter | AllFilter;

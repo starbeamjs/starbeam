@@ -149,6 +149,10 @@ export class Package {
     this.#workspace = workspace;
   }
 
+  get workspace(): Workspace {
+    return this.#workspace;
+  }
+
   get name(): string {
     return this.info.name;
   }

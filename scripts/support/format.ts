@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import terminalSize from "term-size";
 import wrap from "wrap-ansi";
+import { Style } from "./log.js";
 
 export function terminalWidth(): number {
   return terminalSize().columns;
@@ -36,8 +37,6 @@ export function wrapIndented(string: string, columns?: number): string {
   return formatted.join("\n");
 }
 
-type Style = (value: string) => string;
-
 type FormatStyle =
   | {
       style: Style;
@@ -58,7 +57,7 @@ type EntryStyle =
   | FormatStyle;
 
 export function format(value: string, style: FormatStyle): string {
-  return getStyle(style)(getIndent(style) + wrapIndented(value));
+  return Style(getStyle(style), getIndent(style) + wrapIndented(value));
 }
 
 format.entry = ([key, value]: [string, string], style?: EntryStyle): string => {
@@ -67,7 +66,7 @@ format.entry = ([key, value]: [string, string], style?: EntryStyle): string => {
   const indent = getIndent(style);
 
   return wrapIndented(
-    `${indent}${keyStyle(key)}: ${valueStyle(value)}`,
+    `${indent}${Style(keyStyle, key)}: ${Style(valueStyle, value)}`,
     key.length + 4
   );
 };
@@ -78,6 +77,8 @@ function getStyle(
 ): Style {
   if (style === undefined) {
     return chalk.visible;
+  } else if (Style.is(style)) {
+    return style;
   } else if (typeof style === "function") {
     return style;
   } else if (part && part in style) {
@@ -85,14 +86,12 @@ function getStyle(
   } else if ("style" in style) {
     return style.style;
   } else {
-    return chalk.visible;
+    return chalk;
   }
 }
 
 function getIndent(style: EntryStyle | FormatStyle): string {
-  if (style === undefined) {
-    return "";
-  } else if (typeof style === "function") {
+  if (style === undefined || Style.is(style)) {
     return "";
   } else if (style.indent) {
     return " ".repeat(style.indent);

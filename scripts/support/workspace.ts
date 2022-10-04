@@ -1,6 +1,5 @@
 import chalk from "chalk";
 import { spawn } from "node-pty";
-import { comment, header } from "./log.js";
 import {
   Directory,
   Glob,
@@ -8,7 +7,7 @@ import {
   type GlobOptions,
   type Path,
 } from "./paths.js";
-import { Reporter, type ReporterOptions } from "./reporter.js";
+import { Reporter, type ReporterOptions } from "./reporter/reporter.js";
 import { Readable } from "node:stream";
 import {
   execSync,
@@ -17,6 +16,7 @@ import {
 import { terminalWidth } from "./format.js";
 import split from "split2";
 import shellSplit from "shell-split";
+import { Style } from "./log.js";
 
 export class Workspace {
   static root(root: string, options: ReporterOptions): Workspace {
@@ -51,23 +51,22 @@ export class Workspace {
     return this.root.glob(path, options);
   }
 
-  cmd(
+  async cmd(
     command: string,
     options?: Partial<ExecSyncOptionsWithStringEncoding & { failFast: boolean }>
   ): Promise<string | void> {
-    return this.#reporter.handle
+    return await this.#reporter.handle
       .fatal((r) =>
-        r.section((r) =>
-          r.log(
-            chalk.red.bold(
-              `> ${chalk.redBright.inverse("failed")} ${header(command)}`
-            )
-          )
+        r.log(
+          `> ${Style.inverted("problem:header", "failed")} ${Style.header(
+            "problem",
+            command
+          )}`
         )
       )
       .try(async (r) => {
         r.verbose(() => {
-          r.log(comment(`$ ${command}`));
+          r.log(`$ ${command}`, "comment");
           r.log("");
         });
 
@@ -86,21 +85,15 @@ export class Workspace {
     const parsed: string[] = shellSplit(command);
     const [cmd, ...args] = parsed;
 
-    return this.#reporter.handle
+    return await this.#reporter.handle
       .fatal((r) =>
-        r.section((r) =>
-          r.log(
-            chalk.red.bold(
-              `> ${chalk.redBright.inverse("failed")} ${header(command)}`
-            )
-          )
+        r.log(
+          `> ${Style({ problem: "failed" })} ${Style({ comment: command })}`
         )
       )
       .catch((_): "ok" | "err" => "err")
       .try(async (r): Promise<"ok" | "err"> => {
-        r.verbose(() => {
-          r.section((r) => r.log(comment(`$ ${command}`)), { break: "after" });
-        });
+        r.verbose(() => r.log({ comment: `$ ${command}` }));
 
         r.flush();
 

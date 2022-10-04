@@ -2,12 +2,13 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { isAbsolute, relative } from "node:path";
 import type { JsonValue, Package } from "../packages.js";
 import { EditJsonc } from "../jsonc.js";
-import { log, comment, header } from "../log.js";
+import { log, Style } from "../log.js";
 import type { Workspace } from "../workspace.js";
 import type { Directory, Path } from "../paths.js";
 import type { PackageUpdater } from "./updates.js";
 import type { IntoUnion } from "../type-magic.js";
 import { TemplateName, type StarbeamType } from "../unions.js";
+import { STYLES } from "../reporter/styles.js";
 
 export class UpdatePackage {
   readonly #pkg: Package;
@@ -50,7 +51,12 @@ export class UpdatePackage {
       console.groupEnd();
     } else {
       this.#workspace.reporter.verbose((r) =>
-        r.log(`${header.sub(this.name)}${comment(": no changes")}`)
+        r.log(
+          `${Style.header(STYLES.header.sub, this.name)}${Style(
+            "comment",
+            ": no changes"
+          )}`
+        )
       );
     }
   }
@@ -58,7 +64,7 @@ export class UpdatePackage {
   change(kind: "create" | "remove" | "update", description: string): void {
     if (!this.#emittedHeader) {
       this.#emittedHeader = true;
-      console.group(header(this.name));
+      console.group(Style.header("header", this.name));
     }
 
     let flag: string;
@@ -74,7 +80,7 @@ export class UpdatePackage {
         break;
     }
 
-    log(`${flag} ${description}`, comment);
+    log(`${flag} ${description}`, "comment");
   }
 
   template(name: IntoUnion<TemplateName>): string {

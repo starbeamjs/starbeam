@@ -1,8 +1,8 @@
 import { QueryCommand } from "./support/commands.js";
 import type { Workspace } from "./support/workspace.js";
 import type { Package } from "./support/packages.js";
-import { comment, header } from "./support/log.js";
 import shell from "shelljs";
+import { Style } from "./support/log.js";
 
 export const TestCommand = QueryCommand("test", {
   description: "run the tests for the selected packages",
@@ -10,7 +10,7 @@ export const TestCommand = QueryCommand("test", {
   .flag(["-f", "failFast"], "exit on first failure")
   .action(async ({ packages, workspace }) => {
     workspace.reporter.verbose((r) =>
-      r.section((r) => r.log(comment(`> cleaning root/dist`)))
+      r.log({ comment: `> cleaning root/dist` })
     );
 
     shell.rm("-rf", workspace.root.dir("dist").absolute);
@@ -48,23 +48,25 @@ class TestRunner {
 
     return this.#reporter
       .group(
-        `\n${comment("testing")} ${header(this.#pkg.name)} ${comment(
-          `(${this.#workspace.relative(this.#pkg.root)})`
-        )}`
+        `\n${Style({ comment: "testing" })} ${Style({
+          header: this.#pkg.name,
+        })} ${Style({
+          comment: `(${this.#workspace.relative(this.#pkg.root)})`,
+        })}`
       )
       .catch(() => results)
       .try(async () => {
         for (const testName of Object.keys(tests)) {
-          await this.#reporter.group(header.sub(testName), async () => {
-            const result = await this.#workspace.exec(
-              `pnpm run test:${testName}`,
-              {
-                cwd: this.#pkg.root.absolute,
-              }
-            );
+          await this.#reporter
+            .group({ "header:sub": testName })
+            .try(async () => {
+              const result = await this.#workspace.exec(
+                `pnpm run test:${testName}`,
+                { cwd: this.#pkg.root.absolute }
+              );
 
-            results.add(testName, result);
-          });
+              results.add(testName, result);
+            });
         }
 
         return results;

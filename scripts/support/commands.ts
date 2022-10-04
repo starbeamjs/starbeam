@@ -11,8 +11,7 @@ import {
 } from "./query.js";
 import { Workspace } from "./workspace.js";
 import { format, wrapIndented } from "./format.js";
-import { comment } from "./log.js";
-import type { ReporterOptions } from "./reporter.js";
+import type { ReporterOptions } from "./reporter/reporter.js";
 
 interface BasicOptions {
   description?: string;
@@ -189,7 +188,10 @@ export abstract class BuildCommand {
     const args = options.slice(0, this.args) as Args;
     const opts = options[this.args] as Options;
 
-    return { args, options: opts };
+    return {
+      args,
+      options: opts,
+    };
   }
 
   protected parseOptions<
@@ -229,7 +231,9 @@ export class BuildQueryCommand<
   ) => BuildQueryCommand<Options, [...Args, V]>;
 
   action(
-    action: (...args: [...Args, Options]) => Promise<void> | void
+    action: (
+      ...args: [...Args, Options]
+    ) => Promise<void | number> | void | number
   ): (options: { root: string }) => Command {
     return ({ root }) =>
       this.command.action(async (...allArgs) => {
@@ -298,6 +302,7 @@ export class BuildQueryCommand<
           for (const err of where.errors) {
             err.log();
           }
+          await Promise.resolve();
           process.exit(1);
         }
 
@@ -306,12 +311,17 @@ export class BuildQueryCommand<
 
         const { args } = this.extractOptions<Args, Options>(allArgs);
 
-        return action(...(args as Args), {
+        const result = await action(...(args as Args), {
           packages,
           query: where,
           workspace,
           ...options,
-        } as Options);
+        } as Options & { stylish: boolean });
+
+        if (typeof result === "number") {
+          await Promise.resolve();
+          process.exit(result);
+        }
       });
   }
 }
@@ -365,7 +375,7 @@ export class BuildDevCommand<
 export function withOptions(command: Command): Command {
   return command
     .option("-v, --verbose", "print verbose output", false)
-    .option("-s, --stylish", "print stylish output", false);
+    .option("-S, --no-stylish", "print less compact output", true);
 }
 
 export function queryable(command: Command): Command {
@@ -386,7 +396,7 @@ export function queryable(command: Command): Command {
               value: chalk.yellow,
               indent: 2,
             }),
-            format(`e.g. ${example}`, { style: comment, indent: 4 }),
+            format(`e.g. ${example}`, { style: "comment", indent: 4 }),
           ])
           .join("\n")
     )

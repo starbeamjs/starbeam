@@ -1,8 +1,6 @@
 import { Globs, RegularFile, type Directory } from "./paths.js";
 import { Union } from "./type-magic.js";
 
-const X = 1;
-
 export class StarbeamType extends Union(
   "interfaces",
   "library",
@@ -150,8 +148,4 @@ export class TemplateName extends Union(
   read(root: Directory): string {
     return root.file(`scripts/templates/package/${this}.template`).readSync();
   }
-}
-
-function exhaustive(_x: never): never {
-  throw new Error(`Unexpected value: ${_x}`);
 }

@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { DisplayStruct } from "./reporter/inspect.js";
+
 /**
  * From https://stackoverflow.com/questions/55127004/how-to-transform-union-type-to-tuple-type
  *
@@ -122,4 +124,101 @@ export function Union<S extends string>(...members: S[]): UnionClass<S> {
       return this.#instance;
     }
   };
+}
+
+export function hasItems<T>(array: T[]): array is [T, ...T[]];
+export function hasItems<T>(array: readonly T[]): array is readonly [T, ...T[]];
+export function hasItems<T>(
+  array: T[] | readonly T[]
+): array is [T, ...T[]] | readonly [T, ...T[]];
+export function hasItems<T>(
+  array: T[] | readonly T[]
+): array is [T, ...T[]] | readonly [T, ...T[]] {
+  return array.length > 0;
+}
+
+export type IntoPresentArray<T> =
+  | [T, ...T[]]
+  | readonly [T, ...T[]]
+  | PresentArray<T>;
+
+export class PresentArray<T> extends Array<T> {
+  static #hasItems<T>(array: readonly T[]): array is readonly [T, ...T[]];
+  static #hasItems<T>(array: T[]): array is [T, ...T[]];
+  static #hasItems<T>(
+    array: T[] | readonly T[]
+  ): array is [T, ...T[]] | readonly [T, ...T[]];
+  static #hasItems<T>(array: T[]): array is [T, ...T[]] {
+    return hasItems(array);
+  }
+
+  static from<T>(array: PresentArray<T> | T[] | readonly T[]): PresentArray<T> {
+    if (array instanceof PresentArray) {
+      return array;
+    } else if (PresentArray.#hasItems(array)) {
+      return new PresentArray(array);
+    } else {
+      return new PresentArray([]);
+    }
+  }
+
+  readonly #array: readonly T[];
+
+  private constructor(array: readonly T[]) {
+    super(...array);
+    this.#array = array;
+  }
+
+  andThen<U>(options: {
+    present: (array: PresentArray<T> & [T, ...T[]]) => U;
+    empty: () => U;
+  }): U;
+  andThen<U>(options: {
+    present: (array: PresentArray<T> & [T, ...T[]]) => U;
+    empty?: () => U;
+  }): U | void;
+  andThen<U>(fn: (array: PresentArray<T> & [T, ...T[]]) => U): U | void;
+  andThen<U>(
+    options:
+      | {
+          present: (array: PresentArray<T> & [T, ...T[]]) => U;
+          empty?: () => U;
+        }
+      | ((array: PresentArray<T> & [T, ...T[]]) => U)
+  ): U | void {
+    const ifPresent = typeof options === "function" ? options : options.present;
+    const ifEmpty =
+      (typeof options === "function" ? undefined : options.empty) ??
+      (() => void 0);
+
+    if (this.#array.length === 0) {
+      return ifEmpty();
+    } else {
+      return ifPresent(this as unknown as PresentArray<T> & [T, ...T[]]);
+    }
+  }
+
+  orElse<U>(callback: () => U): U {
+    return callback();
+  }
+
+  map<U>(
+    mapper: (value: T, index: number, collection: PresentArray<T>) => U
+  ): PresentArray<U> {
+    return new PresentArray(
+      this.#array.map((e, i) => mapper(e, i, this))
+    ) as PresentArray<U>;
+  }
+
+  [Symbol.iterator](): IterableIterator<T> {
+    return this.#array[Symbol.iterator]();
+  }
+
+  [Symbol.for("nodejs.util.inspect.custom")](): object {
+    return DisplayStruct("PresentArray", { array: this.#array });
+  }
+}
+
+export function map<T>(items: [T, ...T[]] | readonly [T, ...T[]]): T[] {
+  return items.map((item) => item);
 }

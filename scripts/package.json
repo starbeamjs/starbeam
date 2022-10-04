@@ -38,6 +38,7 @@
     "@types/prettier": "^2.7.0",
     "@types/shell-escape-tag": "workspace:^",
     "@types/shelljs": "^0.8.11",
+    "@types/shell-split": "workspace:^",
     "@types/split2": "^3.2.1",
     "@types/wrap-ansi": "^8.0.1",
     "esno": "^0.16.3",

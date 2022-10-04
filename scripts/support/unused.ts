@@ -1,17 +1,15 @@
 import depcheck from "depcheck";
-import { dirname, relative, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import type { Package } from "./packages.js";
-import { comment, header, log, ok, problem } from "./log.js";
+import { Style } from "./log.js";
 import type { Globs, RegularFile, Glob } from "./paths.js";
 import type { Workspace } from "./workspace.js";
+import type { Reporter } from "./reporter/reporter.js";
+import { PresentArray } from "./type-magic.js";
 
 /**
  * These types represent builtin APIs that don't require an implementation package.
  */
 const ALLOW_TYPE_ONLY = ["@types/node"];
-
-const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 type ParserName = keyof typeof depcheck.parser;
 
@@ -59,13 +57,13 @@ const OPTIONS: depcheck.Options = {
 
 export async function checkUnused({
   pkg,
-  workspace,
   options,
 }: {
   pkg: Package;
-  workspace: Workspace;
   options?: depcheck.Options;
 }): Promise<"success" | "failure"> {
+  const workspace = pkg.workspace;
+
   const config = {
     es6: pkg.sources
       .javascript(pkg.root)
@@ -94,18 +92,18 @@ export async function checkUnused({
     Reflect.ownKeys(unused.missing).length === 0 &&
     Reflect.ownKeys(unused.invalidFiles).length === 0
   ) {
-    log("- Clean", ok);
+    workspace.reporter.verbose((r) => r.li("Clean", "ok"));
     return "success";
   }
 
   const reporter = new UnusedReporter(workspace, unused, pkg);
 
-  reporter.unused("Unused dependencies", unused.dependencies);
-  reporter.unused("Unused devDependencies", unused.devDependencies);
-  reporter.usage("Missing dependencies", unused.missing);
+  await reporter.unused("Unused dependencies", unused.dependencies);
+  await reporter.unused("Unused devDependencies", unused.devDependencies);
+  await reporter.usage("Missing dependencies", unused.missing);
 
-  reporter.invalid("Invalid files", unused.invalidFiles);
-  reporter.invalid("Invalid directories", unused.invalidDirs);
+  await reporter.invalid("Invalid files", unused.invalidFiles);
+  await reporter.invalid("Invalid directories", unused.invalidDirs);
 
   if (reporter.exitCode === 0) {
     return "success";
@@ -130,7 +128,11 @@ class UnusedReporter {
     return this.#exitCode;
   }
 
-  unused(name: string, unused: string[]): void {
+  get #reporter(): Reporter {
+    return this.#workspace.reporter;
+  }
+
+  async unused(name: string, unused: string[]): Promise<void> {
     const filtered = unused.filter((dep) => {
       if (ALLOW_TYPE_ONLY.includes(dep)) {
         return false;
@@ -141,77 +143,62 @@ class UnusedReporter {
       }
     });
 
-    if (filtered.length === 0) {
-      return;
-    }
+    return PresentArray.from(filtered).andThen((present) => {
+      this.#reporter.ul({
+        header: name,
+        items: present.map((dep) => listDep(dep)),
+        style: "problem",
+      });
 
-    this.#group(filtered, header(name), {
-      each: (dep) => log(`- ${listDep(dep)}`, problem),
-      empty: () => log("- None", ok),
+      this.#exitCode = 1;
     });
-
-    this.#exitCode = 1;
   }
 
-  usage(name: string, usage: Record<string, string[]>): void {
+  async usage(name: string, usage: Record<string, string[]>): Promise<void> {
     const entries = Object.entries(usage);
 
     if (entries.length === 0) {
       return;
     }
 
-    this.#group(entries, header(name), {
-      each: ([dep, files]) => {
-        console.group(problem(dep, { header: true }), comment("used in"));
-        for (const file of files) {
-          log(`- ${this.#workspace.root.relativeTo(file)}`, comment);
-        }
-        console.groupEnd();
-      },
-      empty: () => log("- None", ok),
+    this.#reporter.group(name, { style: "problem" }).try((r) => {
+      for (const [dep, files] of entries) {
+        PresentArray.from(files).andThen((present) => {
+          r.ul({
+            header: `${Style.header("problem", listDep(dep))} ${Style.header(
+              "comment",
+              "is used by:"
+            )}`,
+            items: present.map((file) =>
+              Style({ comment: this.#workspace.root.relativeTo(file) })
+            ),
+            marker: "comment",
+          });
+        });
+      }
     });
 
     this.#exitCode = 1;
   }
 
-  invalid(name: string, invalid: Record<string, unknown>): void {
+  async invalid(name: string, invalid: Record<string, unknown>): Promise<void> {
     const entries = Object.entries(invalid);
 
     if (entries.length === 0) {
       return;
     }
 
-    this.#group(entries, header(name), {
-      each: ([file, error]) => {
-        console.group(problem(relative(root, file), { header: true }));
-        log(`- ${error}`, comment);
-        console.groupEnd();
-      },
-      empty: () => log("- None", ok),
+    await this.#reporter.group(name).try(async (r) => {
+      for (const [file, error] of entries) {
+        r.ul({
+          header: Style({ problem: this.#workspace.root.relativeTo(file) }),
+          items: [String(error)],
+          item: "comment",
+        });
+      }
     });
 
     this.#exitCode = 1;
-  }
-
-  #group<T>(
-    items: T[],
-    header: string,
-    { each, empty }: { each: (item: T) => void; empty: () => void }
-  ): void {
-    if (items.length === 0 && !this.#workspace.reporter.isVerbose) {
-      return;
-    }
-
-    console.group(header);
-
-    if (items.length === 0) {
-      empty();
-    } else {
-      for (const item of items) {
-        each(item);
-      }
-    }
-    console.groupEnd();
   }
 }
 

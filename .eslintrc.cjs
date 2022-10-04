@@ -12,6 +12,7 @@ module.exports = {
     },
     "import/ignore": ["\\.js\\?script"],
   },
+  ignorePatterns: ["packages/x/devtools-extension"],
   overrides: [
     {
       ...shared,
@@ -25,7 +26,7 @@ module.exports = {
       },
     },
     typescript("./packages/tsconfig.packages.json", {
-      files: ["./packages/*/*/**/*.{d.,}ts"],
+      files: ["./packages/*/*/**/*.{d.,}ts", "./packages/env.d.ts"],
       excludedFiles: [
         "packages/x/devtool/**",
         "packages/x/devtools-extension/**",

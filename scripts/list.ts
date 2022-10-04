@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import { QueryCommand } from "./support/commands";
-import { comment, log } from "./support/log.js";
+import { Style } from "./support/log.js";
 
 export const ListCommand = QueryCommand("list").action(
   ({ packages, query, workspace }) => {
@@ -20,10 +20,16 @@ export const ListCommand = QueryCommand("list").action(
       }
 
       const pkgRoot = pkg.root.relativeFrom(workspace.root);
-      console.group(`${comment(pkg.name)} ${flags.join(" ")}`);
-      log(`${chalk.bgCyan("dir")} ${chalk.magenta(pkgRoot)}`);
-      console.groupEnd();
-      log.newline();
+
+      workspace.reporter.ul({
+        header: `${Style({ "comment:header": pkg.name })} ${flags.join(" ")}`,
+        items: [`${chalk.bgCyan("dir")} ${chalk.magenta(pkgRoot)}`],
+        marker: "none",
+      });
+
+      if (workspace.reporter.isStylish) {
+        workspace.reporter.log("");
+      }
     }
   }
 );

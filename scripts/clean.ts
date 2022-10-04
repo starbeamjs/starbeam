@@ -3,9 +3,9 @@ import { rmSync } from "node:fs";
 import { relative } from "node:path";
 import shell from "shelljs";
 import { QueryCommand, StringOption } from "./support/commands.js";
-import { comment, header, log, problem } from "./support/log.js";
+import { log, Style } from "./support/log.js";
 import { Package } from "./support/packages.js";
-import type { Reporter } from "./support/reporter.js";
+import type { Reporter } from "./support/reporter/reporter.js";
 import type { Workspace } from "./support/workspace.js";
 
 export const CleanCommand = QueryCommand("clean", {
@@ -16,49 +16,54 @@ export const CleanCommand = QueryCommand("clean", {
   .action(async ({ workspace, packages, ...options }) => {
     const reporter = workspace.reporter;
 
-    if (options.dir) {
-      const pkg = Package.from(
-        workspace,
-        workspace.root.dir(options.dir).file("package.json"),
-        { allow: "missing" }
-      );
+    await reporter
+      .group()
+      .finally((r) => {
+        if (!r.didPrint) {
+          r.log({ ok: "👍 Nothing to clean" });
+        }
+      })
+      .try(async (r) => {
+        if (options.dir) {
+          const pkg = Package.from(
+            workspace,
+            workspace.root.dir(options.dir).file("package.json"),
+            { allow: "missing" }
+          );
 
-      if (pkg === undefined) {
-        log(`No package found at ${options.dir}`, problem);
-        process.exit(1);
-      }
+          if (pkg === undefined) {
+            log(`No package found at ${options.dir}`, "problem");
+            process.exit(1);
+          }
 
-      return cleanFiles({
-        description: options.dir,
-        pkg,
-        workspace,
-        reporter,
-        options,
+          return cleanFiles({
+            description: options.dir,
+            pkg,
+            workspace,
+            reporter,
+            options,
+          });
+        }
+
+        for (const pkg of packages) {
+          if (pkg.isTypescript) {
+            await cleanFiles({
+              description: pkg.name,
+              pkg,
+              workspace,
+              reporter,
+              options,
+            });
+          } else {
+            r.ul({
+              header: pkg.name,
+              items: [`skipping ${pkg.name} (not a typescript package)`],
+              item: "comment",
+            });
+          }
+        }
       });
-    }
-
-    for (const pkg of packages) {
-      if (pkg.isTypescript) {
-        await cleanFiles({
-          description: pkg.name,
-          pkg,
-          workspace,
-          reporter,
-          options,
-        });
-      } else {
-        log(`- skipping ${pkg.name} (not a typescript package)`, comment);
-      }
-    }
   });
-
-function packageRoots(pkg: Package) {
-  if (pkg.type?.is("library")) {
-    return ["", "src/**/"];
-  } else {
-    return ["**/"];
-  }
-}
 
 async function cleanFiles({
   pkg,
@@ -72,7 +77,7 @@ async function cleanFiles({
   reporter: Reporter;
   options: { verbose: boolean; dryRun: boolean };
 }) {
-  const patterns = ["dist/", "**/tsconfig.tsbuildinfo"];
+  const patterns = ["dist", "**/tsconfig.tsbuildinfo"];
   const cwd = pkg.root.absolute;
 
   if (!pkg.type?.is("root")) {
@@ -92,7 +97,8 @@ async function cleanFiles({
     ignore: [
       "**/node_modules/**",
       "**/env.d.ts",
-      "dist/**",
+      "dist/*",
+      "dist/*/**",
       // these aren't currently included in EXT, but let's make sure we don't actually clean these
       // up if they get added
       "**/*.mjs",
@@ -101,32 +107,47 @@ async function cleanFiles({
   });
 
   const isClean = files.length === 0;
-  const action = isClean ? "✔️" : "🧹";
 
-  await reporter.group(header(pkg.name) + comment(": ") + action).try((r) => {
-    r.verbose((r) => {
-      r.log(comment(`in ${pkg.root.relativeFrom(workspace.root)}`));
-    });
-
-    if (isClean) {
-      return;
+  if (isClean) {
+    if (reporter.isVerbose) {
+      reporter.log({ header: `👍 ${pkg.name}` });
     }
 
-    const REMOVING = options.dryRun ? `Would remove` : `Removing`;
+    return;
+  }
 
-    for (const file of files) {
-      reporter.verbose(
-        (r) => r.log(`${REMOVING} ${relative(cwd, file.path)}`),
-        { also: options.dryRun }
-      );
+  reporter
+    .group(Style({ comment: "✔️ " }) + Style({ header: pkg.name }))
+    .try((r) => {
+      r.verbose((r) => {
+        r.log(` in ${pkg.root.relativeFrom(workspace.root)}`, "comment");
+      });
 
-      if (!options.dryRun) {
-        if (file.dirent.isDirectory()) {
-          shell.rm("-rf", file.path);
-        } else {
-          rmSync(file.path);
+      if (isClean) {
+        if (reporter.isVerbose) {
+          r.flush();
+        }
+        return;
+      }
+
+      const REMOVING = options.dryRun ? `Would remove` : `Removing`;
+
+      for (const file of files) {
+        if (reporter.isVerbose || options.dryRun) {
+          reporter.log(` ${REMOVING} ${relative(cwd, file.path)}`);
+        }
+
+        if (!options.dryRun) {
+          if (file.dirent.isDirectory()) {
+            shell.rm("-rf", file.path);
+          } else {
+            rmSync(file.path);
+          }
+        }
+
+        if (!reporter.isVerbose && !options.dryRun) {
+          reporter.flush();
         }
       }
-    }
-  });
+    });
 }

@@ -1,38 +1,55 @@
 import { checkUnused } from "./support/unused.js";
 import { QueryCommand } from "./support/commands.js";
-import { Package } from "./support/packages.js";
-import { comment, log } from "./support/log.js";
+import type { Package } from "./support/packages.js";
+import { Style } from "./support/log.js";
+import { PresentArray } from "./support/type-magic.js";
 
 export const UnusedCommand = QueryCommand("unused")
-  .flag(["-w", "workspaceRoot"], "include workspace root")
   .flag(["-f", "failFast"], "fail fast")
-  .action(async ({ packages, workspaceRoot, failFast, workspace }) => {
-    if (workspaceRoot) {
-      console.group("Workspace root");
-      const result = await checkUnused({
-        pkg: Package.from(workspace, workspace.root.file("package.json")),
-        workspace,
-      });
-      console.groupEnd();
-
-      if (failFast && result === "failure") {
-        throw workspace.reporter.exit(1);
-      }
-
-      if (packages.length > 0) {
-        log.newline();
-      }
-    }
+  .action(async ({ packages, failFast, workspace }) => {
+    const failures: Package[] = [];
 
     for (const pkg of packages) {
-      console.group(pkg.name, comment(`(${workspace.relative(pkg.root)})`));
-      const result = await checkUnused({ pkg, workspace });
-      console.groupEnd();
+      const result = await workspace.reporter
+        .group(
+          pkg.name +
+            " " +
+            Style({ comment: `(${workspace.relative(pkg.root)})` })
+        )
+        .try(async () => {
+          const result = await checkUnused({ pkg });
 
-      if (failFast && result === "failure") {
-        process.exit(1);
+          if (workspace.reporter.didPrint && workspace.reporter.isStylish) {
+            workspace.reporter.log("");
+          }
+
+          return result;
+        });
+
+      if (result === "failure") {
+        if (failFast) {
+          return 1;
+        } else {
+          failures.push(pkg);
+        }
       }
-
-      log.newline();
     }
+
+    PresentArray.from(failures).andThen({
+      present: (failures) => {
+        workspace.reporter.ul({
+          header: Style({
+            header: `✗ ${Style.inverted({
+              "problem:header": failures.length,
+            })} packages with unused dependencies`,
+          }),
+          items: failures.map((pkg) => pkg.name),
+          style: "problem",
+        });
+        return 1;
+      },
+      empty: () => {
+        workspace.reporter.log({ ok: "✓ no unused dependencies" });
+      },
+    });
   });
