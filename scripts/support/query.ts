@@ -112,6 +112,14 @@ class AllFilter {
     return this.#filters.some((f) => f.key === key);
   }
 
+  filtersExactly(key: FilterKey): boolean {
+    const filters = this.#filters.filter(
+      (f) => f.key === key && f.operator === "="
+    );
+
+    return filters.length === 1;
+  }
+
   add(filter: Filter): void {
     this.#filters.push(filter);
   }
@@ -259,7 +267,7 @@ export class Query {
   }
 
   unifies(filter: FilterKey): boolean {
-    return this.#all.filters(filter);
+    return this.#all.filtersExactly(filter);
   }
 
   get errors(): ParseError[] | null {
