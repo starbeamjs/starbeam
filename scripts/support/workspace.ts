@@ -95,7 +95,7 @@ export class Workspace {
       .try(async (r): Promise<"ok" | "err"> => {
         r.verbose(() => r.log({ comment: `$ ${command}` }));
 
-        r.flush();
+        r.ensureOpen();
 
         const pty = PtyStream(cmd, args, {
           cols: terminalWidth(),

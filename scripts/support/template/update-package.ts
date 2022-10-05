@@ -8,7 +8,6 @@ import type { Directory, Path } from "../paths.js";
 import type { PackageUpdater } from "./updates.js";
 import type { IntoUnion } from "../type-magic.js";
 import { TemplateName, type StarbeamType } from "../unions.js";
-import { STYLES } from "../reporter/styles.js";
 
 export class UpdatePackage {
   readonly #pkg: Package;
@@ -50,14 +49,6 @@ export class UpdatePackage {
     if (this.#emittedHeader) {
       console.groupEnd();
     } else {
-      this.#workspace.reporter.verbose((r) =>
-        r.log(
-          `${Style.header(STYLES.header.sub, this.name)}${Style(
-            "comment",
-            ": no changes"
-          )}`
-        )
-      );
     }
   }
 
@@ -199,14 +190,26 @@ export class UpdatePackages {
 
     for (const pkg of this.#packages) {
       const updater = this.pkg(pkg);
+      this.#workspace.reporter
+        .group()
+        .empty((r) => {
+          if (r.isVerbose) {
+            r.logCompact(
+              `${Style({ "header:sub": updater.name })}${Style({
+                comment: ": no changes",
+              })}`
+            );
+          }
+        })
+        .try(() => {
+          for (const { condition, use } of this.#updates) {
+            if (condition(pkg)) {
+              updater.update(use);
+            }
+          }
 
-      for (const { condition, use } of this.#updates) {
-        if (condition(pkg)) {
-          updater.update(use);
-        }
-      }
-
-      updater.done();
+          updater.done();
+        });
     }
   }
 }

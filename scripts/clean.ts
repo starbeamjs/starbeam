@@ -18,10 +18,8 @@ export const CleanCommand = QueryCommand("clean", {
 
     await reporter
       .group()
-      .finally((r) => {
-        if (!r.didPrint) {
-          r.log({ ok: "👍 Nothing to clean" });
-        }
+      .empty((r) => {
+        r.log({ ok: "👍 Nothing to clean" });
       })
       .try(async (r) => {
         if (options.dir) {
@@ -125,7 +123,7 @@ async function cleanFiles({
 
       if (isClean) {
         if (reporter.isVerbose) {
-          r.flush();
+          r.printEmpty();
         }
         return;
       }
@@ -146,7 +144,7 @@ async function cleanFiles({
         }
 
         if (!reporter.isVerbose && !options.dryRun) {
-          reporter.flush();
+          reporter.printEmpty();
         }
       }
     });

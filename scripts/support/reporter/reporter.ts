@@ -133,11 +133,20 @@ export class Reporter {
   }
 
   /**
-   * Flush is called automatically when anything is logged through the reporter. It may also be
-   * called manually if you're calling a function that logs directly to the console.
+   * Flush is called automatically when anything is logged through the reporter.
+   *
+   * When something is logged manually to the console (e.g. `console.log`) you should call `.flush({
+   * whenEmpty: "open" })`, which will flush the group header and leave the group open.
+   *
+   * Otherwise, you should call `.flush({ whenEmpty: "log" })`, which will log the current header
+   * with `console.log` and close the group.
    */
-  flush(): void {
-    return this.#logger.flush();
+  ensureOpen(): void {
+    this.#logger.ensureOpen({ expect: "group" });
+  }
+
+  printEmpty(): void {
+    this.#logger.printEmpty();
   }
 
   ifPrinted(callback: (reporter: Reporter) => void): void {
@@ -241,6 +250,17 @@ export class Reporter {
     }
   }
 
+  /**
+   * If the current group has already printing, log the message on a new line. Otherwise,
+   * concatenate the message onto the group's header and log it on the same line.
+   */
+  logCompact(args: StyleRecord | string): void {
+    const message = typeof args === "string" ? args : Style(args);
+
+    this.#logger.concat("log", message, this.#formatOptions);
+    this.#logger.printEmpty();
+  }
+
   log(message: string, style?: Style): void;
   log(record: StyleRecord): void;
   log(message: string | StyleRecord, style: Style = Style.default): void {
@@ -280,7 +300,7 @@ export class Reporter {
     this.#log("log", chalk.greenBright(message));
   }
 
-  static Group = class Group<Catch, Finally> implements IGroup<Catch, Finally> {
+  static Group = class Group<Catch, Finally> implements IGroup<Catch> {
     static create(reporter: Reporter, message?: string): Group<void, void> {
       return new Group(reporter, message, {
         verbose: "none:verbose",
@@ -291,48 +311,51 @@ export class Reporter {
         finally: () => {
           /* Do nothing */
         },
+        empty: () => {
+          /* Do nothing */
+        },
       });
     }
 
     readonly #reporter: Reporter;
     readonly #message: string | undefined;
     #messageVerbosity: MessageVerbosity;
-    #empty: string | undefined;
     #nested: boolean;
     #catchHandler: (reporter: Reporter, log: () => void) => unknown;
     #fatalHandler: (reporter: Reporter) => void;
-    #finallyHandler: (reporter: Reporter) => unknown;
+    #finallyHandler: (reporter: Reporter) => void;
+    #emptyHandler: (reporter: Reporter) => void;
 
     constructor(
       reporter: Reporter,
       message: string | undefined,
       handlers: {
         verbose: MessageVerbosity;
-        empty?: string;
         nested?: boolean;
         catch: (reporter: Reporter, log: () => void) => Catch;
         fatal: (reporter: Reporter) => void;
-        finally: (reporter: Reporter) => Finally;
+        finally: (reporter: Reporter) => void;
+        empty: (reporter: Reporter) => void;
       }
     ) {
       this.#reporter = reporter;
       this.#message = message;
       this.#messageVerbosity = handlers.verbose;
-      this.#empty = handlers.empty;
+      this.#emptyHandler = handlers.empty;
       this.#nested = handlers.nested ?? true;
       this.#catchHandler = handlers.catch;
       this.#fatalHandler = handlers.fatal;
       this.#finallyHandler = handlers.finally;
     }
 
-    stylish(_options: "header"): IGroup<Catch, Finally> {
+    stylish(_options: "header"): IGroup<Catch> {
       this.#messageVerbosity = "header:stylish";
       return this;
     }
 
-    verbose(options: "header"): IGroup<Catch, Finally>;
-    verbose(): IGroup<void | Catch, void | Finally>;
-    verbose(options?: "header"): IGroup<unknown, unknown> {
+    verbose(options: "header"): IGroup<Catch>;
+    verbose(): IGroup<void | Catch>;
+    verbose(options?: "header"): IGroup<unknown> {
       if (options === "header") {
         this.#messageVerbosity = "header:verbose";
       } else {
@@ -382,35 +405,25 @@ export class Reporter {
 
     catch<HandleCatch>(
       callback: (reporter: Reporter, log: () => void) => HandleCatch
-    ): IGroup<HandleCatch, Finally extends void ? HandleCatch : Finally> {
+    ): IGroup<HandleCatch> {
       this.#catchHandler = callback;
-      return this as unknown as IGroup<HandleCatch, Finally>;
+      return this as unknown as IGroup<HandleCatch>;
     }
 
-    finally<HandleFinally>(
-      callback: (reporter: Reporter) => HandleFinally
-    ): IGroup<Catch, HandleFinally> {
+    finally(callback: (reporter: Reporter) => void): IGroup<Catch> {
       this.#finallyHandler = callback;
-      return this as unknown as IGroup<Catch, HandleFinally>;
+      return this as IGroup<Catch>;
     }
 
-    fatal(callback: (reporter: Reporter) => void): IGroup<Catch, Finally> {
+    fatal(callback: (reporter: Reporter) => void): IGroup<Catch> {
       this.#fatalHandler = callback;
-      return this as unknown as IGroup<Catch, Finally>;
+      return this as unknown as IGroup<Catch>;
     }
 
     get #header(): Header {
       if (this.#message === undefined) {
         return {
           type: "none",
-        };
-      } else if (this.#empty !== undefined) {
-        return {
-          type: "always",
-          message: this.#message,
-          empty: this.#empty,
-          nested: this.#nested,
-          options: this.#reporter.#formatOptions,
         };
       } else {
         return {
@@ -422,13 +435,17 @@ export class Reporter {
       }
     }
 
-    allowEmpty(): IGroup<Catch, Finally> {
-      this.#empty = "";
+    allowEmpty(): IGroup<Catch> {
+      this.#emptyHandler = (r) => r.#logger.printEmpty();
       return this;
     }
 
-    empty(value: string): IGroup<Catch, Finally> {
-      this.#empty = value;
+    empty(value: string | ((reporter: Reporter) => void)): IGroup<Catch> {
+      if (typeof value === "string") {
+        this.#emptyHandler = (r) => r.log(value);
+      } else {
+        this.#emptyHandler = value;
+      }
       return this;
     }
 
@@ -456,7 +473,12 @@ export class Reporter {
 
       try {
         const result = await callback(reporter);
-        this.#finallyHandler(reporter);
+
+        if (reporter.#logger.didPrint) {
+          this.#finallyHandler(reporter);
+        } else {
+          this.#emptyHandler(reporter);
+        }
         this.#end();
         return result;
       } catch (e) {
@@ -468,7 +490,11 @@ export class Reporter {
           this.#fatalHandler(reporter);
           this.#end();
         } else {
-          this.#finallyHandler(reporter);
+          if (this.#reporter.didPrint) {
+            this.#finallyHandler(reporter);
+          } else {
+            this.#emptyHandler(reporter);
+          }
           this.#end();
           return result as T | Catch;
         }
@@ -477,41 +503,41 @@ export class Reporter {
   };
 }
 
-export interface IGroup<Catch = void, Finally = void> {
+export interface IGroup<Catch = void> {
   catch<HandleCatch>(
     callback: (reporter: Reporter, log: () => void) => HandleCatch
-  ): IGroup<HandleCatch, Finally extends void ? HandleCatch : Finally>;
+  ): IGroup<HandleCatch>;
 
-  finally<HandleFinally>(
-    callback: (reporter: Reporter) => HandleFinally
-  ): IGroup<Catch, HandleFinally extends void ? Catch : HandleFinally>;
-  fatal(callback: (reporter: Reporter) => void): IGroup<Catch, Finally>;
+  finally(callback: (reporter: Reporter) => void): IGroup<Catch>;
+  fatal(callback: (reporter: Reporter) => void): IGroup<Catch>;
 
-  verbose(options: "header"): IGroup<Catch, Finally>;
-  verbose(): IGroup<Catch | void, Finally | void>;
+  verbose(options: "header"): IGroup<Catch>;
+  verbose(): IGroup<Catch | void>;
 
-  stylish(options: "header"): IGroup<Catch, Finally>;
+  stylish(options: "header"): IGroup<Catch>;
 
-  allowEmpty(): IGroup<Catch, Finally>;
-  empty(value: string): IGroup<Catch, Finally>;
+  allowEmpty(): IGroup<Catch>;
+
+  empty(value: string | ((reporter: Reporter) => void)): IGroup<Catch>;
 
   /**
    * Only logs the header if the reporter is in verbose mode.
    */
   try<HandleTry>(
-    this: IGroup<Promise<any>, any>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this: IGroup<Promise<any>>,
     callback: (reporter: Reporter) => Promise<HandleTry>
-  ): Promise<HandleTry | Catch | Finally>;
+  ): Promise<HandleTry | Catch>;
   try<HandleTry>(
     callback: (reporter: Reporter) => HandleTry
-  ): HandleTry | Catch | Finally;
+  ): HandleTry | Catch;
 
   /**
    * Only logs the header if the reporter is in verbose mode.
    */
   try<HandleTry>(
     callback: (reporter: Reporter) => HandleTry | Promise<HandleTry>
-  ): Promise<HandleTry | Catch | Finally>;
+  ): Promise<HandleTry | Catch>;
 }
 
 type MessageVerbosity =

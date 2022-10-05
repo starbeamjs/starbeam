@@ -11,35 +11,16 @@ export interface FormatOptions {
 export type Header =
   | { type: "none" }
   | {
-      type: "always";
-      message: string;
-      empty: string;
-      nested: boolean;
-      options: FormatOptions;
-    }
-  | {
       type: "if:contents";
       message: string;
       nested: boolean;
       options: FormatOptions;
     };
 
-const LoggerState = {
-  needsClose(state: LoggerState): boolean {
-    if (state.status !== "group" || state.didPrint === false) {
-      return false;
-    }
-
-    const header = state.header;
-
-    return header.type !== "none" && header.nested;
-  },
-};
-
 interface GroupState {
   readonly status: "group";
-  didPrint: boolean;
-  readonly header: Header;
+  printed: "none" | "open" | "flat";
+  header: Header;
 }
 
 export type LoggerState =
@@ -83,6 +64,10 @@ export class Logger {
     return this.#states[this.#states.length - 1];
   }
 
+  #pop(): LoggerState {
+    return this.#states.pop() as LoggerState;
+  }
+
   get #groupState(): GroupState {
     const state = this.#state;
 
@@ -95,14 +80,15 @@ export class Logger {
     }
   }
 
-  notifyPrinted(): void {
-    switch (this.#state.status) {
-      case "top":
-        return;
-      case "group": {
-        this.#state.didPrint = true;
-      }
+  #popGroupState(): GroupState {
+    const state = this.#groupState;
+    this.#states.pop();
+
+    if (state.printed === "open") {
+      this.logGroupEnd();
     }
+
+    return state;
   }
 
   get didPrint(): boolean {
@@ -111,7 +97,7 @@ export class Logger {
         throw Error("Cannot get didPrint in top state");
 
       case "group":
-        return this.#state.didPrint;
+        return this.#state.printed !== "none";
     }
   }
 
@@ -119,34 +105,34 @@ export class Logger {
     this.#states.push({
       status: "group",
       header: header ?? { type: "none" },
-      didPrint: false,
+      printed: "none",
+    });
+  }
+
+  /**
+   * Print the group header if it has not already been printed, even if the content is empty.
+   * Attempt to print the final header as a flat line (rather than a group) if possible.
+   */
+  printEmpty(): void {
+    this.#states = this.#states.map((state) => {
+      switch (state.status) {
+        case "top":
+          return state;
+        case "group":
+          this.#ensureHeader(state, "tryFlat");
+          return state;
+      }
     });
   }
 
   end(): void {
-    const state = this.#groupState;
-
-    if (LoggerState.needsClose(state)) {
-      console.groupEnd();
-    }
-
-    this.#states.pop();
-
-    if (state.didPrint) {
-      this.notifyPrinted();
-    }
-  }
-
-  newline(): void {
-    this.#flushHeaders({ printing: true });
-    console.log("");
+    this.#popGroupState();
   }
 
   async exit(code: number): Promise<never> {
     // this promise is never fulfilled, because it is blocking execution flow on process exit.
     return new Promise(() => {
       // if there are any open groups, close them
-      this.#flushHeaders({ printing: false });
       process.stdout.once("drain", () => {
         process.exit(code);
       });
@@ -155,8 +141,7 @@ export class Logger {
   }
 
   logGroupStart(message: string): void {
-    this.flush();
-    this.notifyPrinted();
+    this.ensureOpen({ expect: "any" });
 
     console.group(message);
   }
@@ -165,9 +150,33 @@ export class Logger {
     console.groupEnd();
   }
 
+  /**
+   * Replace the current group header with another log. This is useful for
+   * printing a one-line summary of a group instead of the header and contents.
+   */
+  concat(
+    logger: LoggerName | LogFunction,
+    message: string,
+    options: FormatOptions
+  ): void {
+    const state = this.#groupState;
+
+    if (state.printed !== "none") {
+      this.line(logger, message);
+    } else if (state.header.type !== "none") {
+      state.header.message += message;
+    } else {
+      state.header = {
+        type: "if:contents",
+        message,
+        nested: false,
+        options,
+      };
+    }
+  }
+
   line(logger: LoggerName | LogFunction, message = ""): void {
-    this.flush();
-    this.notifyPrinted();
+    this.ensureOpen({ expect: "any" });
 
     if (typeof logger === "function") {
       logger(message);
@@ -177,7 +186,7 @@ export class Logger {
   }
 
   reportError(e: unknown): void {
-    this.flush();
+    this.ensureOpen({ expect: "any" });
 
     console.log(chalk.red("An unexpected error occurred:"));
 
@@ -194,42 +203,67 @@ export class Logger {
     }
   }
 
-  flush(): void {
-    this.#flushHeaders({ printing: false });
-  }
+  ensureOpen(options: { expect: "group" | "any" }): void {
+    const state = this.#state;
 
-  #flushHeaders({ printing }: { printing: boolean }): void {
+    switch (state.status) {
+      case "top":
+        if (options.expect === "group") {
+          throw Error("ASSERTION: Expected an open group, but none was found");
+        } else {
+          return;
+        }
+
+      case "group":
+        if (state.printed !== "none") {
+          return;
+        }
+    }
+
     this.#states = this.#states.map((state) => {
       switch (state.status) {
         case "top":
           return state;
 
         case "group": {
-          if (!state.didPrint) {
-            state.didPrint ||= printing || this.#flushHeader(state);
-          }
+          this.#ensureHeader(state, "normal");
           return state;
         }
       }
     });
   }
 
-  #flushHeader(state: GroupState): boolean {
+  /**
+   * Flush the current group header, if necessary.
+   *
+   * Normally, the header will only be flushed if the group has printed something. If `force` is
+   * true, the header will be flushed regardless of whether the group has printed anything.
+   *
+   * If the header is flushed, any unflushed parent headers will also be flushed.
+   *
+   * Once a header is flushed, it is marked as printed (and `didPrint` will return true).
+   */
+
+  #ensureHeader(state: GroupState, style: "tryFlat" | "normal"): void {
+    if (state.printed !== "none") {
+      return;
+    }
+
     const { header } = state;
 
     if (header.type === "none") {
-      return false;
+      return;
     }
 
     const formatted = this.#format(header);
 
-    if (header.nested) {
+    if (header.nested && style !== "tryFlat") {
       console.group(formatted);
+      state.printed = "open";
     } else {
       console.log(formatted);
+      state.printed = "flat";
     }
-
-    return true;
   }
 
   #format(header: { type: "none" }): null;

@@ -16,14 +16,13 @@ export const UnusedCommand = QueryCommand("unused")
             " " +
             Style({ comment: `(${workspace.relative(pkg.root)})` })
         )
-        .try(async () => {
-          const result = await checkUnused({ pkg });
-
-          if (workspace.reporter.didPrint && workspace.reporter.isStylish) {
-            workspace.reporter.log("");
+        .finally((r) => {
+          if (r.isStylish) {
+            r.log("");
           }
-
-          return result;
+        })
+        .try(async () => {
+          return await checkUnused({ pkg });
         });
 
       if (result === "failure") {
