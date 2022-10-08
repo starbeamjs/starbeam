@@ -6,8 +6,7 @@
   "starbeam:type": "support:tests",
   "dependencies": {
     "@starbeamx/vanilla": "workspace:^",
-    "@starbeam/core": "workspace:^",
-    "happy-dom": "^6.0.4"
+    "@starbeam/core": "workspace:^"
   },
   "publishConfig": {
     "main": "dist/index.cjs",

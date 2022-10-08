@@ -2,6 +2,8 @@
 
 import { DisplayStruct } from "./reporter/inspect.js";
 
+Error.stackTraceLimit = Infinity;
+
 /**
  * From https://stackoverflow.com/questions/55127004/how-to-transform-union-type-to-tuple-type
  *
@@ -47,7 +49,7 @@ export interface UnionClass<S extends string> {
     this: This,
     value: unknown
   ): InstanceType<This>;
-  isMember(value: S): value is S;
+  isMember(value: unknown): value is S;
   format(): string;
 
   new (value: S): UnionInstance<S>;
@@ -152,14 +154,16 @@ export class PresentArray<T> extends Array<T> {
     return hasItems(array);
   }
 
-  static from<T>(array: PresentArray<T> | T[] | readonly T[]): PresentArray<T> {
+  static from<T>(array: PresentArray<T> | readonly T[] | T[]): PresentArray<T> {
     if (array instanceof PresentArray) {
       return array;
-    } else if (PresentArray.#hasItems(array)) {
-      return new PresentArray(array);
     } else {
-      return new PresentArray([]);
+      return new PresentArray([...array]);
     }
+  }
+
+  static fromIterable<T>(array: Iterable<T>): PresentArray<T> {
+    return new PresentArray([...array]);
   }
 
   readonly #array: readonly T[];
@@ -221,4 +225,150 @@ export class PresentArray<T> extends Array<T> {
 
 export function map<T>(items: [T, ...T[]] | readonly [T, ...T[]]): T[] {
   return items.map((item) => item);
+}
+
+export type IntoResult<T, E = unknown> = T | Result<T, E>;
+
+export type ResultRecord<E = unknown> = Record<string, IntoResult<unknown, E>>;
+
+export type OkRecord<T extends ResultRecord> = {
+  [P in keyof T]: T[P] extends Result<infer U, any> ? U : never;
+};
+
+export type RecordError<T extends ResultRecord> = {
+  [P in keyof T]: T[P] extends Result<any, infer E> ? E : never;
+}[keyof T];
+
+export class Result<T, E = unknown> {
+  static list<T, E>(items: IntoResult<T, E>[]): Result<T[], E> {
+    const list: T[] = [];
+
+    for (const item of items) {
+      const result = Result.from<T, E>(item).get();
+
+      switch (result.status) {
+        case "ok":
+          list.push(result.value);
+          break;
+        case "err":
+          return Result.err<T[], E>(result.reason);
+      }
+    }
+
+    return Result.ok(list);
+  }
+
+  static map<T, U, E>(
+    items: T[],
+    mapper: (value: T) => IntoResult<U, E>
+  ): Result<U[], E> {
+    return Result.list(items.map(mapper));
+  }
+
+  static flatMap<T, U, E>(
+    items: T[],
+    mapper: (value: T) => IntoResult<U, E>[]
+  ): Result<U[], E> {
+    return Result.list(items.flatMap(mapper));
+  }
+
+  static record<T extends ResultRecord>(
+    items: T
+  ): Result<OkRecord<T>, RecordError<T>> {
+    const result: Record<string, unknown> = {};
+
+    for (const key in items) {
+      const value = Result.from(items[key]).get();
+
+      switch (value.status) {
+        case "ok":
+          result[key] = value.value;
+          break;
+        case "err":
+          return Result.err(value.reason as RecordError<T>);
+      }
+    }
+
+    return Result.ok(result as OkRecord<T>);
+  }
+
+  static from<T, E>(value: IntoResult<T, E>): Result<T, E> {
+    if (value && value instanceof Result) {
+      return value;
+    } else {
+      return Result.ok(value);
+    }
+  }
+
+  static ok<T, E>(value: T): Result<T, E> {
+    return new Result({ status: "ok", value });
+  }
+
+  static err<T, E>(reason: E): Result<T, E> {
+    return new Result({ status: "err", reason });
+  }
+
+  readonly #variant: OkResult<T> | ErrResult<E>;
+
+  private constructor(variant: OkResult<T> | ErrResult<E>) {
+    this.#variant = variant;
+  }
+
+  get(): OkResult<T> | ErrResult<E> {
+    return this.#variant;
+  }
+
+  getValue(): T | E {
+    switch (this.#variant.status) {
+      case "ok":
+        return this.#variant.value;
+      case "err":
+        return this.#variant.reason;
+    }
+  }
+
+  map<T2, E2>(callback: (value: T) => Result<T2, E2>): Result<T2, E2>;
+  map<T2>(callback: (value: T) => T2): Result<T2, E>;
+  map(callback: (value: T) => IntoResult<any>): Result<any> {
+    return this.match({
+      ifOk: (value) => callback(value),
+      ifError: (reason) => reason,
+    });
+  }
+
+  mapErr<T2, E2>(callback: (error: E) => Result<T2, E2>): Result<T2, E2>;
+  mapErr<E2>(callback: (error: E) => E2): Result<T, E2>;
+  mapErr(callback: (error: E) => IntoResult<any>): Result<any> {
+    return this.match({
+      ifOk: () => this,
+      ifError: (reason) => Result.from(callback(reason)),
+    });
+  }
+
+  match<T2, E2>(options: {
+    ifOk: (value: T) => T2 | Result<T2, E>;
+    ifError: (value: E) => E2 | Result<T, E2>;
+  }): Result<T | T2, E | E2> {
+    if (this.#variant.status === "ok") {
+      return Result.from(options.ifOk(this.#variant.value));
+    } else {
+      const result = options.ifError(this.#variant.reason);
+
+      if (result instanceof Result) {
+        return result;
+      } else {
+        return Result.err(result);
+      }
+    }
+  }
+}
+
+export interface OkResult<T> {
+  readonly status: "ok";
+  readonly value: T;
+}
+
+export interface ErrResult<E> {
+  readonly status: "err";
+  readonly reason: E;
 }

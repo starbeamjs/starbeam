@@ -1,5 +1,5 @@
 import util from "util";
-import { log, Style } from "./log.js";
+import { log, Fragment } from "./log.js";
 import type { Package } from "./packages.js";
 import { StarbeamType } from "./unions.js";
 
@@ -314,7 +314,7 @@ export class ParseError {
 
   log(): void {
     log(
-      `${Style("problem", "Invalid query")}${Style(
+      `${Fragment("problem", "Invalid query")}${Fragment(
         "comment",
         `: ${this.source}`
       )}`

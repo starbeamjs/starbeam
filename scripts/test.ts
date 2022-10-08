@@ -1,8 +1,9 @@
 import { QueryCommand } from "./support/commands.js";
-import type { Workspace } from "./support/workspace.js";
-import type { Package } from "./support/packages.js";
+import { CheckDefinition } from "./support/workspace.js";
 import shell from "shelljs";
-import { Style } from "./support/log.js";
+import { Fragment } from "./support/log.js";
+import { FancyHeader } from "./support/reporter/fancy-header.js";
+import type { Package } from "./support/packages.js";
 
 export const TestCommand = QueryCommand("test", {
   description: "run the tests for the selected packages",
@@ -10,94 +11,28 @@ export const TestCommand = QueryCommand("test", {
   .flag(["-f", "failFast"], "exit on first failure")
   .action(async ({ packages, workspace }) => {
     workspace.reporter.verbose((r) =>
-      r.log({ comment: `> cleaning root/dist` })
+      r.log(Fragment.comment(`> cleaning root/dist`))
     );
 
     shell.rm("-rf", workspace.root.dir("dist").absolute);
 
-    const results = new AllResults();
+    const checks = new Map(
+      packages
+        .filter((pkg) => !pkg.type.is("root"))
+        .map((pkg) => {
+          return [
+            pkg,
+            Object.keys(pkg.tests).map((test) =>
+              CheckDefinition(test, `pnpm run test:${test}`, { cwd: pkg.root })
+            ),
+          ] as [Package, CheckDefinition[]];
+        })
+    );
 
-    for (const pkg of packages) {
-      if (pkg.type?.is("root")) {
-        continue;
-      }
+    const results = await workspace.checks(checks, {
+      label: (pkg) => pkg.name,
+      header: (pkg) => FancyHeader.header(`testing ${pkg.name}`),
+    });
 
-      const runner = new TestRunner(pkg, workspace);
-      results.add(pkg, await runner.run());
-    }
-
-    process.exit(results.exitCode);
+    workspace.reporter.reportCheckResults(results);
   });
-
-class TestRunner {
-  readonly #pkg: Package;
-  readonly #workspace: Workspace;
-
-  constructor(pkg: Package, workspace: Workspace) {
-    this.#pkg = pkg;
-    this.#workspace = workspace;
-  }
-
-  get #reporter() {
-    return this.#workspace.reporter;
-  }
-
-  run(): Promise<PackageResults> {
-    const tests = this.#pkg.tests;
-    const results = new PackageResults();
-
-    return this.#reporter
-      .group(
-        `\n${Style({ comment: "testing" })} ${Style({
-          header: this.#pkg.name,
-        })} ${Style({
-          comment: `(${this.#workspace.relative(this.#pkg.root)})`,
-        })}`
-      )
-      .catch(() => results)
-      .try(async () => {
-        for (const testName of Object.keys(tests)) {
-          await this.#reporter
-            .group({ "header:sub": testName })
-            .try(async () => {
-              const result = await this.#workspace.exec(
-                `pnpm run test:${testName}`,
-                { cwd: this.#pkg.root.absolute }
-              );
-
-              results.add(testName, result);
-            });
-        }
-
-        return results;
-      });
-  }
-}
-
-export class AllResults {
-  readonly #results: Map<Package, PackageResults> = new Map();
-
-  add(pkg: Package, results: PackageResults): void {
-    this.#results.set(pkg, results);
-  }
-
-  get ok(): boolean {
-    return [...this.#results.values()].every((r) => r.ok);
-  }
-
-  get exitCode(): number {
-    return this.ok ? 0 : 1;
-  }
-}
-
-export class PackageResults {
-  #results: Record<string, "ok" | "err"> = {};
-
-  add(name: string, result: "ok" | "err"): void {
-    this.#results[name] = result;
-  }
-
-  get ok(): boolean {
-    return Object.values(this.#results).every((r) => r === "ok");
-  }
-}

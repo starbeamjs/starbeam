@@ -1,7 +1,7 @@
 import { checkUnused } from "./support/unused.js";
 import { QueryCommand } from "./support/commands.js";
 import type { Package } from "./support/packages.js";
-import { Style } from "./support/log.js";
+import { Fragment } from "./support/log.js";
 import { PresentArray } from "./support/type-magic.js";
 
 export const UnusedCommand = QueryCommand("unused")
@@ -12,18 +12,14 @@ export const UnusedCommand = QueryCommand("unused")
     for (const pkg of packages) {
       const result = await workspace.reporter
         .group(
-          pkg.name +
-            " " +
-            Style({ comment: `(${workspace.relative(pkg.root)})` })
+          pkg.name + " " + Fragment.comment(`(${workspace.relative(pkg.root)})`)
         )
         .finally((r) => {
           if (r.isStylish) {
             r.log("");
           }
         })
-        .try(async () => {
-          return await checkUnused({ pkg });
-        });
+        .tryAsync(() => checkUnused({ pkg }));
 
       if (result === "failure") {
         if (failFast) {
@@ -37,18 +33,18 @@ export const UnusedCommand = QueryCommand("unused")
     PresentArray.from(failures).andThen({
       present: (failures) => {
         workspace.reporter.ul({
-          header: Style({
-            header: `✗ ${Style.inverted({
-              "problem:header": failures.length,
-            })} packages with unused dependencies`,
-          }),
+          header: Fragment.header(
+            `✗ ${Fragment.inverse(
+              failures.length
+            )} packages with unused dependencies`
+          ),
           items: failures.map((pkg) => pkg.name),
           style: "problem",
         });
         return 1;
       },
       empty: () => {
-        workspace.reporter.log({ ok: "✓ no unused dependencies" });
+        workspace.reporter.log(Fragment.ok("✓ no unused dependencies"));
       },
     });
   });

@@ -1,4 +1,3 @@
-import chalk from "chalk";
 import { spawn } from "node-pty";
 import {
   Directory,
@@ -16,7 +15,9 @@ import {
 import { terminalWidth } from "./format.js";
 import split from "split2";
 import shellSplit from "shell-split";
-import { Style } from "./log.js";
+import { Fragment, type IntoFragment } from "./log.js";
+import { CheckResults, Checks, GroupedCheckResults } from "./checks.js";
+import { FancyHeader } from "./reporter/fancy-header.js";
 
 export class Workspace {
   static root(root: string, options: ReporterOptions): Workspace {
@@ -58,15 +59,14 @@ export class Workspace {
     return await this.#reporter.handle
       .fatal((r) =>
         r.log(
-          `> ${Style.inverted("problem:header", "failed")} ${Style.header(
-            "problem",
-            command
-          )}`
+          `> ${Fragment.problem.header.inverse(
+            "failed"
+          )} ${Fragment.problem.header(command)}`
         )
       )
-      .try(async (r) => {
+      .try((r) => {
         r.verbose(() => {
-          r.log(`$ ${command}`, "comment");
+          r.log(`$ ${command}`);
           r.log("");
         });
 
@@ -78,6 +78,39 @@ export class Workspace {
       });
   }
 
+  async checks<T>(
+    groupedChecks: Map<T, CheckDefinition[]>,
+    options: {
+      label: (value: T) => string;
+      header: (value: T) => IntoFragment;
+    }
+  ): Promise<GroupedCheckResults> {
+    const grouped = GroupedCheckResults.empty();
+    const reporter = this.reporter;
+
+    for (const [value, definitions] of groupedChecks.entries()) {
+      reporter.ensureBlankLine();
+
+      await reporter.group(options.header(value)).tryAsync(async (r) => {
+        r.ensureBlankLine();
+        const results = await this.check(...definitions);
+        grouped.add(options.label(value), results);
+      });
+    }
+
+    return grouped;
+  }
+
+  async check(...checks: CheckDefinition[]): Promise<CheckResults> {
+    const runner = new Checks(this, this.#paths.root);
+
+    for (const check of checks) {
+      await runner.exec(...check);
+    }
+
+    return runner.statuses;
+  }
+
   async exec(
     command: string,
     options: { cwd: string } = { cwd: this.root.absolute }
@@ -85,45 +118,91 @@ export class Workspace {
     const parsed: string[] = shellSplit(command);
     const [cmd, ...args] = parsed;
 
-    return await this.#reporter.handle
+    return this.#reporter
+      .group(Fragment.comment(`$ ${command}`))
+      .verbose("header")
       .fatal((r) =>
-        r.log(
-          `> ${Style({ problem: "failed" })} ${Style({ comment: command })}`
-        )
+        r.log(`> ${Fragment.problem("failed")} ${Fragment.comment(command)}`)
       )
       .catch((_): "ok" | "err" => "err")
-      .try(async (r): Promise<"ok" | "err"> => {
-        r.verbose(() => r.log({ comment: `$ ${command}` }));
+      .tryAsync(async () => await this.#execWithPty(cmd, args, options));
+  }
 
-        r.ensureOpen();
-
-        const pty = PtyStream(cmd, args, {
-          cols: terminalWidth(),
-          cwd: options.cwd ?? this.root.absolute,
-        });
-
-        const padded = pty.stream.pipe(split());
-
-        for await (const chunk of padded) {
-          r.log(chunk);
-        }
-
-        if (pty.code === undefined) {
-          throw new Error("pty exited without a code");
-        } else if (pty.code === 0) {
-          this.#reporter.verbose((r) => {
-            r.log(chalk.green("✅"));
-            r.log("");
-          });
-          return "ok";
-        } else {
-          this.#reporter.verbose((r) => {
-            r.log(chalk.red.bold("❌"));
-            r.log("");
-          });
-          return "err";
-        }
+  #reportExecStatus(code: number | void): "ok" | "err" {
+    if (code === undefined) {
+      this.#reporter.error(`☠️ command exited without a status code`);
+      return "err";
+    } else if (code === 0) {
+      this.#reporter.verbose((r) => {
+        r.ensureBlankLine();
+        r.log(FancyHeader.ok("success"));
+        r.log("");
       });
+      return "ok";
+    } else {
+      this.#reporter.verbose((r) => {
+        r.ensureBlankLine();
+        r.log(FancyHeader.problem("failed"));
+        r.log("");
+      });
+      return "err";
+    }
+  }
+
+  async #execWithPty(
+    cmd: string,
+    args: string[],
+    options: { cwd: string }
+  ): Promise<"ok" | "err"> {
+    this.#reporter.ensureOpen();
+
+    const pty = PtyStream(cmd, args, {
+      cols: terminalWidth(),
+      cwd: options.cwd ?? this.root.absolute,
+    });
+
+    const padded = pty.stream.pipe(split());
+
+    await this.#reporter.raw(async ({ writeln, write }) => {
+      for await (const chunk of padded) {
+        const string = chunk.toString("utf8") as string;
+
+        const rewritten = string.replace(
+          /([\u001B\u009B])[\\]?\[(\d*)G/g,
+          (m, esc, n) => {
+            const leading = Number(n || "0") + this.#reporter.leading;
+            if (this.#reporter.leading) {
+              return `${esc}[0G${" ".repeat(leading)}`;
+            } else {
+              return m;
+            }
+          }
+        );
+
+        writeln(rewritten);
+      }
+    });
+
+    // const match = string.match(/[\u001B\u009B][\\]?\[(?<n>\d*)G/u);
+
+    // if (match) {
+    //   console.log({ match: match[0].replace(/[\u001B\u009B]/g, "<ESC>") });
+    // }
+
+    // if (string.match(/[\u001B\u009B][\\]?\[(?<n>\d*)G/u)) {
+    //   console.log({ string: JSON.stringify(string) });
+    // }
+
+    // console.log(rewritten);
+
+    // const line = anser.ansiToJson(chunk, { json: true });
+    // if (line.some((part) => part.content.includes(".spec.ts"))) {
+    //   console.log({ line });
+    // }
+    // this.#reporter.log(chunk);
+
+    this.#reporter.log("");
+    return this.#reportExecStatus(pty.code);
   }
 
   dir(path: string): Directory {
@@ -171,4 +250,18 @@ function PtyStream(
       return code;
     },
   };
+}
+
+export type CheckDefinition = [
+  label: string,
+  command: string,
+  options?: { cwd: Directory }
+];
+
+export function CheckDefinition(
+  label: string,
+  command: string,
+  options?: { cwd: Directory }
+): CheckDefinition {
+  return [label, command, options] as CheckDefinition;
 }

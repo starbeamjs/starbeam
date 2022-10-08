@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import terminalSize from "term-size";
 import wrap from "wrap-ansi";
-import { Style } from "./log.js";
+import { Style, Fragment } from "./log.js";
 
 export function terminalWidth(): number {
   return terminalSize().columns;
@@ -56,8 +56,8 @@ type EntryStyle =
     }
   | FormatStyle;
 
-export function format(value: string, style: FormatStyle): string {
-  return Style(getStyle(style), getIndent(style) + wrapIndented(value));
+export function format(value: string, style: FormatStyle): Fragment {
+  return Fragment(getStyle(style), getIndent(style) + wrapIndented(value));
 }
 
 format.entry = ([key, value]: [string, string], style?: EntryStyle): string => {
@@ -66,7 +66,7 @@ format.entry = ([key, value]: [string, string], style?: EntryStyle): string => {
   const indent = getIndent(style);
 
   return wrapIndented(
-    `${indent}${Style(keyStyle, key)}: ${Style(valueStyle, value)}`,
+    `${indent}${Fragment(keyStyle, key)}: ${Fragment(valueStyle, value)}`,
     key.length + 4
   );
 };

@@ -3,7 +3,7 @@ import { rmSync } from "node:fs";
 import { relative } from "node:path";
 import shell from "shelljs";
 import { QueryCommand, StringOption } from "./support/commands.js";
-import { log, Style } from "./support/log.js";
+import { Fragment, log } from "./support/log.js";
 import { Package } from "./support/packages.js";
 import type { Reporter } from "./support/reporter/reporter.js";
 import type { Workspace } from "./support/workspace.js";
@@ -19,9 +19,9 @@ export const CleanCommand = QueryCommand("clean", {
     await reporter
       .group()
       .empty((r) => {
-        r.log({ ok: "👍 Nothing to clean" });
+        r.log(Fragment("ok", "👍 Nothing to clean"));
       })
-      .try(async (r) => {
+      .tryAsync(async (r) => {
         if (options.dir) {
           const pkg = Package.from(
             workspace,
@@ -108,17 +108,19 @@ async function cleanFiles({
 
   if (isClean) {
     if (reporter.isVerbose) {
-      reporter.log({ header: `👍 ${pkg.name}` });
+      reporter.log(Fragment("header", `👍 ${pkg.name}`));
     }
 
     return;
   }
 
   reporter
-    .group(Style({ comment: "✔️ " }) + Style({ header: pkg.name }))
+    .group([Fragment("comment", "✔️ "), Fragment("header", pkg.name)])
     .try((r) => {
       r.verbose((r) => {
-        r.log(` in ${pkg.root.relativeFrom(workspace.root)}`, "comment");
+        r.log(
+          Fragment("comment", ` in ${pkg.root.relativeFrom(workspace.root)}`)
+        );
       });
 
       if (isClean) {

@@ -1,6 +1,6 @@
 import depcheck from "depcheck";
 import type { Package } from "./packages.js";
-import { Style } from "./log.js";
+import { Fragment } from "./log.js";
 import type { Globs, RegularFile, Glob } from "./paths.js";
 import type { Workspace } from "./workspace.js";
 import type { Reporter } from "./reporter/reporter.js";
@@ -161,16 +161,16 @@ class UnusedReporter {
       return;
     }
 
-    this.#reporter.group(name, { style: "problem" }).try((r) => {
+    this.#reporter.group(Fragment.problem(name)).try((r) => {
       for (const [dep, files] of entries) {
         PresentArray.from(files).andThen((present) => {
           r.ul({
-            header: `${Style.header("problem", listDep(dep))} ${Style.header(
-              "comment",
-              "is used by:"
-            )}`,
+            header: `${Fragment.header(
+              "problem",
+              listDep(dep)
+            )} ${Fragment.header("comment", "is used by:")}`,
             items: present.map((file) =>
-              Style({ comment: this.#workspace.root.relativeTo(file) })
+              Fragment.comment(this.#workspace.root.relativeTo(file))
             ),
             marker: "comment",
           });
@@ -188,10 +188,10 @@ class UnusedReporter {
       return;
     }
 
-    await this.#reporter.group(name).try(async (r) => {
+    await this.#reporter.group(name).try((r) => {
       for (const [file, error] of entries) {
         r.ul({
-          header: Style({ problem: this.#workspace.root.relativeTo(file) }),
+          header: Fragment.problem(this.#workspace.root.relativeTo(file)),
           items: [String(error)],
           item: "comment",
         });

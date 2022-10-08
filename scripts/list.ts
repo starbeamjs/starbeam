@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import { QueryCommand } from "./support/commands";
-import { Style } from "./support/log.js";
+import { Fragment } from "./support/log.js";
 
 export const ListCommand = QueryCommand("list").action(
   ({ packages, query, workspace }) => {
@@ -26,7 +26,7 @@ export const ListCommand = QueryCommand("list").action(
       const pkgRoot = pkg.root.relativeFrom(workspace.root);
 
       workspace.reporter.ul({
-        header: `${Style({ "comment:header": pkg.name })} ${flags.join(" ")}`,
+        header: Fragment.comment.header(pkg.name).concat(" " + flags.join(" ")),
         items: [`${chalk.bgCyan("dir")} ${chalk.magenta(pkgRoot)}`],
         marker: "none",
       });

@@ -2,7 +2,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { isAbsolute, relative } from "node:path";
 import type { JsonValue, Package } from "../packages.js";
 import { EditJsonc } from "../jsonc.js";
-import { log, Style } from "../log.js";
+import { log, Fragment } from "../log.js";
 import type { Workspace } from "../workspace.js";
 import type { Directory, Path } from "../paths.js";
 import type { PackageUpdater } from "./updates.js";
@@ -55,7 +55,7 @@ export class UpdatePackage {
   change(kind: "create" | "remove" | "update", description: string): void {
     if (!this.#emittedHeader) {
       this.#emittedHeader = true;
-      console.group(Style.header("header", this.name));
+      console.group(Fragment.header("header", this.name));
     }
 
     let flag: string;
@@ -195,9 +195,10 @@ export class UpdatePackages {
         .empty((r) => {
           if (r.isVerbose) {
             r.logCompact(
-              `${Style({ "header:sub": updater.name })}${Style({
-                comment: ": no changes",
-              })}`
+              `${Fragment("header:sub", updater.name)}${Fragment(
+                "comment",
+                ": no changes"
+              )}`
             );
           }
         })

@@ -27,7 +27,7 @@ export function DevCommand<T extends CommandOptions>(
   return new BuildDevCommand(command);
 }
 
-export function QueryCommand<T extends QueryOptions>(
+export function QueryCommand<T extends QueryCommandOptions>(
   name: string,
   options?: BasicOptions
 ): BuildQueryCommand<T, []> {
@@ -176,18 +176,14 @@ export abstract class BuildCommand {
     return this.#command;
   }
 
-  protected extractOptions<
-    Args extends unknown[],
-    Options extends { verbose: boolean; stylish: boolean }
-  >(
+  protected extractOptions<Args extends unknown[], Options>(
     options: unknown[]
   ): {
     args: Args;
-    options: Options;
+    options: Options & ReporterOptions;
   } {
     const args = options.slice(0, this.args) as Args;
-    const opts = options[this.args] as Options;
-
+    const opts = options[this.args] as Options & ReporterOptions;
     return {
       args,
       options: opts,
@@ -196,7 +192,7 @@ export abstract class BuildCommand {
 
   protected parseOptions<
     Args extends unknown[],
-    Options extends { verbose: boolean; stylish: boolean }
+    Options extends CommandOptions
   >(allArgs: unknown[], extra: Record<string, unknown>): unknown[] {
     const { args, options } = this.extractOptions<Args, Options>(allArgs);
 
@@ -209,7 +205,7 @@ export abstract class BuildCommand {
 }
 
 export class BuildQueryCommand<
-  Options extends QueryOptions,
+  Options extends QueryCommandOptions,
   Args extends unknown[]
 > extends BuildCommand {
   declare flag: <K extends string>(
@@ -254,8 +250,6 @@ export class BuildQueryCommand<
             and: (Filter | ParseError)[] | undefined;
             or: (Filter | ParseError)[] | undefined;
             allowDraft: boolean;
-            verbose: boolean;
-            stylish: boolean;
             [key: string]: unknown;
           }
         >(allArgs);
@@ -316,7 +310,7 @@ export class BuildQueryCommand<
           query: where,
           workspace,
           ...options,
-        } as Options & { stylish: boolean });
+        } as Options & QueryCommandOptions);
 
         if (typeof result === "number") {
           await Promise.resolve();
@@ -375,7 +369,12 @@ export class BuildDevCommand<
 export function withOptions(command: Command): Command {
   return command
     .option("-v, --verbose", "print verbose output", false)
-    .option("-S, --no-stylish", "print less compact output", true);
+    .option("-S, --no-stylish", "print less compact output", true)
+    .option(
+      "-d, --density",
+      "the density of the output ('compact' or 'comfortable')",
+      "comfortable"
+    );
 }
 
 export function queryable(command: Command): Command {
@@ -418,16 +417,16 @@ export function queryable(command: Command): Command {
     .option("--allow-draft", "allow draft packages", false);
 }
 
-export interface CommandOptions {
+export interface CommandOptions extends ReporterOptions {
   workspace: Workspace;
   verbose: boolean;
   stylish: boolean;
+  density: "compact" | "comfortable";
 }
 
-export interface QueryOptions extends CommandOptions {
+export interface QueryCommandOptions extends CommandOptions {
   query: Query;
   packages: Package[];
-  workspace: Workspace;
 }
 
 function normalizeFlag(
@@ -468,15 +467,12 @@ function getOption<T>(
 
 function createWorkspace(
   root: string,
-  options: {
-    verbose: boolean;
-    stylish: boolean;
-    [key: string]: unknown;
-  }
+  options: ReporterOptions & Record<string, unknown>
 ): Workspace {
   const reporterOptions: ReporterOptions = {
     verbose: options.verbose,
     stylish: options.stylish,
+    density: options.density,
     failFast: getOption(options, "failFast", BooleanOption) ?? false,
   };
 

@@ -1,4 +1,3 @@
-import sh from "shell-escape-tag";
 import { DevCommand } from "./support/commands.js";
 
 export const CheckCommand = DevCommand("check", {
@@ -6,7 +5,11 @@ export const CheckCommand = DevCommand("check", {
 })
   .flag(["-f", "failFast"], `exit on first failure`)
   .action(async ({ workspace }) => {
-    await workspace.exec(sh`pnpm check:unused -f`);
-    await workspace.exec(sh`pnpm check:types`);
-    await workspace.exec(sh`pnpm check:lint`);
+    const results = await workspace.check(
+      ["unused", "pnpm check:unused -f"],
+      ["types", "pnpm check:types"],
+      ["lint", "pnpm check:lint"]
+    );
+
+    workspace.reporter.reportCheckResults(results);
   });

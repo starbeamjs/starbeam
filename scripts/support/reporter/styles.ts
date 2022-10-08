@@ -1,10 +1,6 @@
 import chalk from "chalk";
-import {
-  isDetailed,
-  type DetailedStyle,
-  type Style,
-  type StyleInstance,
-} from "../log.js";
+import { isDetailed, type DetailedStyle, type StyleInstance } from "../log.js";
+import { Union } from "../type-magic.js";
 
 export const STYLE = Symbol("STYLE");
 export type STYLE = typeof STYLE;
@@ -47,9 +43,16 @@ export const STYLES = createStyles({
 export type STYLES = typeof STYLES;
 export type StyleName = keyof STYLES;
 
-export type StylePart = "header" | "decoration" | "sub" | "dim";
-export type FullStyleName = `${StyleName}:${StylePart}`;
+export class StylePartUnion extends Union(
+  "header",
+  "decoration",
+  "sub",
+  "dim"
+) {}
+export type StylePart = StylePartUnion["MEMBER"];
+export const StylePart = StylePartUnion;
 
+export type FullStyleName = `${StyleName}:${StylePart}`;
 export type AnyStyleName = StyleName | FullStyleName;
 
 export function getStyle(name: AnyStyleName): StyleInstance {
@@ -99,18 +102,20 @@ export function isStyleName(value: unknown): value is StyleName {
   return typeof value === "string" && value in STYLES;
 }
 
-export function isPossiblyQualifiedStyleName(
-  value: Style
-): value is StyleName | FullStyleName {
-  return typeof value === "string";
+export function isAnyStyleName(value: unknown): value is AnyStyleName {
+  if (isStyleName(value)) {
+    return true;
+  }
+
+  if (typeof value !== "string") {
+    return false;
+  }
+
+  const [styleName, part] = value.split(":");
+
+  return isStyleName(styleName) && isPartName(part);
 }
 
 export function isPartName(value: unknown): value is StylePart {
-  switch (value) {
-    case "header":
-    case "decoration":
-      return true;
-    default:
-      return false;
-  }
+  return StylePartUnion.isMember(value);
 }

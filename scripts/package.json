@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@starbeam-workspace/root": "workspace:^",
+    "ansicolor": "^1.1.100",
     "chalk": "^5.0.1",
     "commander": "^9.3.0",
     "depcheck": "^1.4.3",
@@ -35,10 +36,11 @@
     "split2": "^4.1.0"
   },
   "devDependencies": {
+    "@types/cli-table": "^0.3.1",
     "@types/prettier": "^2.7.0",
     "@types/shell-escape-tag": "workspace:^",
-    "@types/shelljs": "^0.8.11",
     "@types/shell-split": "workspace:^",
+    "@types/shelljs": "^0.8.11",
     "@types/split2": "^3.2.1",
     "@types/wrap-ansi": "^8.0.1",
     "esno": "^0.16.3",

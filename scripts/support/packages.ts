@@ -181,7 +181,7 @@ export class Package {
     return this.info.starbeam.tsconfig;
   }
 
-  get type(): StarbeamType | undefined {
+  get type(): StarbeamType {
     return this.info.starbeam.type;
   }
 

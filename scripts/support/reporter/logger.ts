@@ -1,6 +1,7 @@
 import chalk from "chalk";
-import { inspect } from "node:util";
 import { wrapIndented } from "../format.js";
+import { Fragment, type FragmentImpl, type IntoFragment } from "../log.js";
+import type { ReporterOptions } from "./reporter.js";
 
 export interface FormatOptions {
   readonly multiline: boolean;
@@ -8,19 +9,15 @@ export interface FormatOptions {
   readonly breakBefore: boolean;
 }
 
-export type Header =
-  | { type: "none" }
-  | {
-      type: "if:contents";
-      message: string;
-      nested: boolean;
-      options: FormatOptions;
-    };
+export interface Header {
+  message: FragmentImpl;
+  options: FormatOptions;
+}
 
 interface GroupState {
   readonly status: "group";
   printed: "none" | "open" | "flat";
-  header: Header;
+  header: Header | undefined;
 }
 
 export type LoggerState =
@@ -44,15 +41,18 @@ type LOGGERS = typeof LOGGERS;
 export type LoggerName = keyof LOGGERS;
 
 export class Logger {
-  static create(): Logger {
-    return new Logger();
+  static create(options: ReporterOptions): Logger {
+    return new Logger(options);
   }
 
+  #options: ReporterOptions;
   #states: LoggerState[];
+  #afterEmpty = false;
 
   readonly loggers = LOGGERS;
 
-  private constructor() {
+  private constructor(options: ReporterOptions) {
+    this.#options = options;
     this.#states = [
       {
         status: "top",
@@ -62,10 +62,6 @@ export class Logger {
 
   get #state(): LoggerState {
     return this.#states[this.#states.length - 1];
-  }
-
-  #pop(): LoggerState {
-    return this.#states.pop() as LoggerState;
   }
 
   get #groupState(): GroupState {
@@ -101,12 +97,32 @@ export class Logger {
     }
   }
 
-  begin(header?: Header): void {
+  ensureBlankLine(): void {
+    if (this.#afterEmpty === false) {
+      this.line("log", "");
+    }
+  }
+
+  begin(message: FragmentImpl | undefined, options: FormatOptions): void {
     this.#states.push({
       status: "group",
-      header: header ?? { type: "none" },
+      header: message && {
+        message,
+        options,
+      },
       printed: "none",
     });
+  }
+
+  /**
+   * Get the number of characters of indentation that are currently active (based on
+   * `console.group`). This is used to rewrite `\x1B[NG` escape sequences to the
+   * correct number of characters.
+   */
+  get leading(): number {
+    return this.#states.filter(
+      (s) => s.status === "group" && s.printed === "open"
+    ).length;
   }
 
   /**
@@ -140,12 +156,6 @@ export class Logger {
     });
   }
 
-  logGroupStart(message: string): void {
-    this.ensureOpen({ expect: "any" });
-
-    console.group(message);
-  }
-
   logGroupEnd(): void {
     console.groupEnd();
   }
@@ -154,25 +164,40 @@ export class Logger {
    * Replace the current group header with another log. This is useful for
    * printing a one-line summary of a group instead of the header and contents.
    */
-  concat(
-    logger: LoggerName | LogFunction,
-    message: string,
-    options: FormatOptions
-  ): void {
+  concat(logger: LoggerName | LogFunction, message: string): void {
     const state = this.#groupState;
 
     if (state.printed !== "none") {
       this.line(logger, message);
-    } else if (state.header.type !== "none") {
-      state.header.message += message;
-    } else {
+    } else if (state.header) {
       state.header = {
-        type: "if:contents",
-        message,
-        nested: false,
-        options,
+        ...state.header,
+        message: state.header.message.concat(message),
       };
     }
+  }
+
+  async raw(
+    callback: (options: {
+      write: (message: string) => void;
+      writeln: (message: string) => void;
+    }) => void
+  ): Promise<void> {
+    this.ensureOpen({ expect: "any" });
+    return callback({
+      write: (message) => this.#write(message),
+      writeln: (message) => {
+        this.#write(" ".repeat(this.leading) + message + "\n");
+      },
+    });
+  }
+
+  /**
+   * Write directly to stdout. If you use this API, you must make sure you have run `ensureOpen`
+   * first, and make sure a newline is printed to the console afterward.
+   */
+  #write(message: string): void {
+    process.stdout.write(message);
   }
 
   line(logger: LoggerName | LogFunction, message = ""): void {
@@ -183,9 +208,15 @@ export class Logger {
     } else {
       this.loggers[logger](message);
     }
+
+    if (message.trim() === "") {
+      this.#afterEmpty = true;
+    } else {
+      this.#afterEmpty = false;
+    }
   }
 
-  reportError(e: unknown): void {
+  reportError(e: Error | IntoFragment): void {
     this.ensureOpen({ expect: "any" });
 
     console.log(chalk.red("An unexpected error occurred:"));
@@ -197,8 +228,8 @@ export class Logger {
       console.log(chalk.grey.dim(wrapIndented(e.stack ?? "")));
       console.groupEnd();
     } else {
-      console.group(chalk.redBright("A non-Error object was thrown:"));
-      console.log(chalk.grey.dim(inspect(e)));
+      console.group(chalk.redBright("An unexpected error occurred:"));
+      console.log(Fragment.from(e).stringify(this.#options));
       console.groupEnd();
     }
   }
@@ -251,14 +282,15 @@ export class Logger {
 
     const { header } = state;
 
-    if (header.type === "none") {
+    if (header === undefined) {
       return;
     }
 
     const formatted = this.#format(header);
 
-    if (header.nested && style !== "tryFlat") {
+    if (style !== "tryFlat") {
       console.group(formatted);
+      this.#afterEmpty = false;
       state.printed = "open";
     } else {
       console.log(formatted);
@@ -266,15 +298,11 @@ export class Logger {
     }
   }
 
-  #format(header: { type: "none" }): null;
-  #format(header: Header): string;
-  #format(header: Header): string | null {
-    switch (header.type) {
-      case "none":
-        return null;
-      default:
-        return format(header);
-    }
+  #format(header: Header): string {
+    return format({
+      message: header.message.stringify(this.#options),
+      options: header.options,
+    });
   }
 }
 
