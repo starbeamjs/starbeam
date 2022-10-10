@@ -7,15 +7,12 @@ import {
   type IntoFallibleFragment,
   Style,
   LogResult,
+  type IntoFragment,
+  isIntoFragment,
 } from "../log.js";
 import type { IntoPresentArray } from "../type-magic.js";
 import type { Workspace } from "../workspace.js";
-import {
-  format,
-  Logger,
-  type FormatOptions,
-  type LoggerName,
-} from "./logger.js";
+import { Logger, type LoggerName, type LoggerState } from "./logger.js";
 import { STYLES } from "./styles.js";
 import { Cell, LoggedTable, type TableWithRows } from "./table.js";
 
@@ -26,47 +23,38 @@ export interface ReporterOptions extends Record<string, unknown> {
   readonly failFast: boolean;
 }
 
+export interface RawWriter {
+  write: (message: string) => void;
+  writeln: (message: string) => void;
+}
+
 export class Reporter {
   static root(workspace: Workspace, options: ReporterOptions): Reporter {
-    return new Reporter(
-      workspace,
-      options,
-      {
-        multiline: false,
-        indent: 0,
-        breakBefore: false,
-      },
-      null
-    );
+    return new Reporter(workspace, options, null);
   }
 
   readonly #workspace: Workspace;
   readonly #options: ReporterOptions;
-  readonly #formatOptions: FormatOptions;
   readonly #parent: Reporter | null;
   readonly #logger: Logger;
 
   private constructor(
     workspace: Workspace,
     options: ReporterOptions,
-    format: FormatOptions,
     parent: null
   );
   private constructor(
     workspace: Workspace,
     options: ReporterOptions,
-    format: FormatOptions,
     parent: Reporter
   );
   private constructor(
     workspace: Workspace,
     options: ReporterOptions,
-    format: FormatOptions,
     parent: Reporter | null
   ) {
     this.#workspace = workspace;
     this.#options = options;
-    this.#formatOptions = format;
     this.#parent = parent;
 
     if (parent) {
@@ -76,45 +64,20 @@ export class Reporter {
     }
   }
 
-  get multiline(): Reporter {
-    return new Reporter(
-      this.#workspace,
-      this.#options,
-      {
-        ...this.#formatOptions,
-        multiline: true,
-      },
-      this
-    );
-  }
-
-  get indented(): Reporter {
-    return new Reporter(
-      this.#workspace,
-      this.#options,
-      {
-        ...this.#formatOptions,
-        indent: this.#formatOptions.indent + 2,
-      },
-      this
-    );
+  get loggerState(): LoggerState {
+    return this.#logger.state;
   }
 
   get leading(): number {
     return this.#logger.leading;
   }
 
-  get indentation(): number {
-    return this.#formatOptions.indent;
-  }
-
   get didPrint(): boolean {
     return this.#logger.didPrint;
   }
 
-  indent(callback: (reporter: Reporter) => void): void {
-    const reporter = this.indented;
-    callback(reporter);
+  stringify(fragment: Fragment): string {
+    return fragment.stringify(this.loggerState);
   }
 
   /**
@@ -137,8 +100,8 @@ export class Reporter {
     }
   }
 
-  ensureBlankLine(): void {
-    this.#logger.ensureBlankLine();
+  ensureBreak(): void {
+    this.#logger.ensureBreak();
   }
 
   /**
@@ -182,15 +145,8 @@ export class Reporter {
   }
 
   #log(logger: LoggerName, message: IntoFallibleFragment): void {
-    if (this.#formatOptions.multiline) {
-      throw Error(`Multiline messages are not yet implemented`);
-    }
-
     this.#logResult(`logging using ${logger}`, message, (message) => {
-      this.#logger.line(
-        logger,
-        format({ message, options: this.#formatOptions })
-      );
+      this.#logger.logln(message, logger);
     });
   }
 
@@ -202,13 +158,11 @@ export class Reporter {
     const fragment = FragmentImpl.fallibleFrom(message);
 
     fragment
-      .map((fragment) => fragment.stringify(this.#options))
+      .map((fragment) =>
+        fragment.stringify(this.#workspace.reporter.loggerState)
+      )
       .mapErr((fragment) =>
-        this.#logger.reportError(
-          FragmentImpl.fallibleFrom(fragment)
-            .getValue()
-            .stringify(this.#options)
-        )
+        this.#logger.reportError(FragmentImpl.fallibleFrom(fragment).getValue())
       )
       .map((message) => fn(message));
   }
@@ -275,11 +229,26 @@ export class Reporter {
    * If the current group has already printing, log the message on a new line. Otherwise,
    * concatenate the message onto the group's header and log it on the same line.
    */
-  logCompact(fragment: IntoFallibleFragment): void {
-    this.#logResult("logCompact", fragment, (message) =>
-      this.#logger.concat("log", message)
-    );
-    this.#logger.printEmpty();
+  endWith(
+    fragment:
+      | IntoFragment
+      | { nested: IntoFragment; compact: IntoFragment; breakBefore?: boolean }
+  ): void {
+    let compact: Fragment;
+    let nested: Fragment;
+    let breakBefore: boolean;
+
+    if (isIntoFragment(fragment)) {
+      compact = Fragment.from(fragment);
+      nested = Fragment.from(fragment);
+      breakBefore = false;
+    } else {
+      compact = Fragment.from(fragment.compact);
+      nested = Fragment.from(fragment.nested);
+      breakBefore = fragment.breakBefore ?? false;
+    }
+
+    this.#logger.endWith("log", { compact, nested, breakBefore });
   }
 
   table(
@@ -292,15 +261,10 @@ export class Reporter {
       cell: (c) => FragmentImpl.fallibleFrom(c),
     });
 
-    this.log(builder(table).stringify(this.#options));
+    this.log(builder(table).stringify(this.loggerState));
   }
 
-  async raw(
-    callback: (options: {
-      write: (message: string) => void;
-      writeln: (message: string) => void;
-    }) => void
-  ): Promise<void> {
+  async raw(callback: (writer: RawWriter) => void): Promise<void> {
     return this.#logger.raw(callback);
   }
 
@@ -312,11 +276,15 @@ export class Reporter {
     this.#log("error", fragment);
   }
 
+  reportError(error: Error | IntoFragment): void {
+    this.#logger.reportError(error);
+  }
+
   async fatal(fragment: IntoFallibleFragment): Promise<never> {
     const message = FragmentImpl.fallibleFrom(fragment).map((f) => f);
-    this.#logger.line(
-      "error",
-      `${chalk.redBright.inverse("FATAL")} ${chalk.red(message)}`
+    this.#logger.logln(
+      `${chalk.redBright.inverse("FATAL")} ${chalk.red(message)}`,
+      "error"
     );
 
     throw await this.#logger.exit(1);
@@ -338,9 +306,12 @@ export class Reporter {
     this.#log("log", chalk.greenBright(message));
   }
 
-  reportCheckResults(results: CheckResults | GroupedCheckResults): void {
+  reportCheckResults(
+    results: CheckResults | GroupedCheckResults,
+    options: { success: string }
+  ): void {
     if (CheckResults.is(results)) {
-      reportCheckResults(this, results);
+      reportCheckResults(this, results, options);
     } else if (this.isVerbose) {
       return this.table((t) =>
         t
@@ -377,7 +348,7 @@ export class Reporter {
       reporter: Reporter,
       message?: LogResult<Fragment>
     ): Group<void> {
-      return new Group(reporter, message, {
+      return new Group(reporter, message ?? LogResult.ok(undefined), false, {
         verbose: "none:verbose",
         catch: (_, log) => log(),
         fatal: () => {
@@ -393,7 +364,8 @@ export class Reporter {
     }
 
     readonly #reporter: Reporter;
-    readonly #header: LogResult<Fragment> | undefined;
+    readonly #header: LogResult<Fragment | undefined>;
+    #breakBefore: boolean;
     #messageVerbosity: MessageVerbosity;
     #catchHandler: (reporter: Reporter, log: () => void) => unknown;
     #fatalHandler: (reporter: Reporter) => never;
@@ -402,7 +374,8 @@ export class Reporter {
 
     constructor(
       reporter: Reporter,
-      header: LogResult<Fragment> | undefined,
+      header: LogResult<Fragment | undefined>,
+      breakBefore: boolean,
       handlers: {
         verbose: MessageVerbosity;
         nested?: boolean;
@@ -414,6 +387,7 @@ export class Reporter {
     ) {
       this.#reporter = reporter;
       this.#header = header;
+      this.#breakBefore = breakBefore;
       this.#messageVerbosity = handlers.verbose;
       this.#emptyHandler = handlers.empty;
       this.#catchHandler = handlers.catch;
@@ -421,16 +395,21 @@ export class Reporter {
       this.#finallyHandler = handlers.finally;
     }
 
+    breakBefore(shouldBreak = true): IGroup<Catch> {
+      this.#breakBefore = shouldBreak;
+      return this;
+    }
+
     stylish(_options: "header"): IGroup<Catch> {
       this.#messageVerbosity = "header:stylish";
       return this;
     }
 
-    verbose(options: "header"): IGroup<Catch>;
-    verbose(): IGroup<void | Catch>;
-    verbose(options?: "header"): IGroup<unknown> {
+    verbose(options?: "header" | boolean): IGroup<unknown> {
       if (options === "header") {
         this.#messageVerbosity = "header:verbose";
+      } else if (options === false) {
+        this.#messageVerbosity = "none:verbose";
       } else {
         this.#messageVerbosity = "all:verbose";
       }
@@ -494,20 +473,15 @@ export class Reporter {
     }
 
     #begin() {
-      const header = this.#header?.get();
-
-      switch (header?.status) {
-        case undefined:
-        case "ok":
-          this.#reporter.#logger.begin(
-            header?.value,
-            this.#reporter.#formatOptions
-          );
-          break;
-        case "err":
-          this.#reporter.#logger.reportError(header.reason);
-      }
-      // const string = this.#header.map((header) => header.message.
+      return this.#header
+        .map((value) => {
+          this.#reporter.#logger.begin(value, {
+            breakBefore: this.#breakBefore,
+          });
+        })
+        .mapErr((reason) => {
+          this.#reporter.#logger.reportError(reason);
+        });
     }
 
     #end() {
@@ -605,21 +579,25 @@ export class Reporter {
 }
 
 export interface IGroup<Catch = void> {
+  /// STYLING OPTIONS ///
+  stylish(options: "header"): IGroup<Catch>;
+
+  verbose(options: "header" | false): IGroup<Catch>;
+  verbose(options?: "header" | boolean): IGroup<Catch | void>;
+
+  breakBefore(shouldBreak?: boolean): IGroup<Catch>;
+
+  allowEmpty(): IGroup<Catch>;
+  empty(value: string | ((reporter: Reporter) => void)): IGroup<Catch>;
+
+  /// EXECUTION OPTIONS ///
+
   catch<HandleCatch>(
     callback: (reporter: Reporter, log: () => void) => HandleCatch
   ): IGroup<HandleCatch>;
 
   finally(callback: (reporter: Reporter) => void): IGroup<Catch>;
   fatal(callback: (reporter: Reporter) => void): IGroup<Catch>;
-
-  verbose(options: "header"): IGroup<Catch>;
-  verbose(): IGroup<Catch | void>;
-
-  stylish(options: "header"): IGroup<Catch>;
-
-  allowEmpty(): IGroup<Catch>;
-
-  empty(value: string | ((reporter: Reporter) => void)): IGroup<Catch>;
 
   /**
    * Only logs the header if the reporter is in verbose mode.
@@ -642,10 +620,13 @@ type MessageVerbosity =
 
 export function reportCheckResults(
   reporter: Reporter,
-  results: CheckResults
+  results: CheckResults,
+  options: {
+    success: string;
+  }
 ): void {
   if (results.isOk && !reporter.isVerbose) {
-    reporter.success("✔️ all checks passed");
+    reporter.success(`✔️ ${options.success}`);
     return;
   }
 
@@ -653,7 +634,7 @@ export function reportCheckResults(
     ? [...results]
     : [...results.errors];
 
-  reporter.ensureBlankLine();
+  reporter.ensureBreak();
 
   reporter.table((t) => {
     const table = t.headers(["", Fragment("comment:header", "check")]);

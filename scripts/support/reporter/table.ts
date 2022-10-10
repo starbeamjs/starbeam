@@ -1,7 +1,7 @@
 import Table from "cli-table3";
 import { Fragment, LogResult, type IntoFragment } from "../log.js";
 import { Result } from "../type-magic.js";
-import type { ReporterOptions } from "./reporter.js";
+import type { LoggerState } from "./logger.js";
 
 interface Mappers<T> {
   header: (item: T) => LogResult<Cell | Fragment>;
@@ -62,22 +62,22 @@ class Columns {
     this.#columns = columns;
   }
 
-  headers(options: ReporterOptions): string[] | undefined {
+  headers(state: LoggerState): string[] | undefined {
     if (this.#columns.length === 0) {
       return undefined;
     } else {
-      return this.#columns.map((column) => column.header(options) ?? "");
+      return this.#columns.map((column) => column.header(state) ?? "");
     }
   }
 
-  columnWidths(rows: Cell[][], options: ReporterOptions): number[] | undefined {
+  columnWidths(rows: Cell[][], state: LoggerState): number[] | undefined {
     if (this.#columns.length === 0) {
       return undefined;
     } else {
       return rows.map((row, i) => {
         const column =
           (this.#columns[i] as Column | undefined) ?? Column.default;
-        return column.maxWidth(row, options);
+        return column.maxWidth(row, state);
       });
     }
   }
@@ -124,15 +124,15 @@ class Column {
     this.#options = options;
   }
 
-  header(options: ReporterOptions): string | undefined {
-    return this.#header?.stringify(options);
+  header(state: LoggerState): string | undefined {
+    return this.#header?.stringify(state);
   }
 
-  maxWidth(rows: Cell[], options: ReporterOptions): number {
+  maxWidth(rows: Cell[], state: LoggerState): number {
     if (this.#options.width === "auto") {
       return Math.max(
-        this.#header?.width(options) ?? 0,
-        ...rows.map((row) => row.width(options))
+        this.#header?.width(state) ?? 0,
+        ...rows.map((row) => row.width(state))
       );
     } else {
       return this.#options.width;
@@ -193,7 +193,7 @@ export class TableWithHeaders<T> {
   }
 }
 
-type CellMapper<T> = (value: T, options: ReporterOptions) => Fragment;
+type CellMapper<T> = (value: T, state: LoggerState) => Fragment;
 
 export class Cell {
   static is(value: unknown): value is Cell {
@@ -251,8 +251,8 @@ export class Cell {
     return new Cell(this.#value, this.#mapper, updater(this.#options));
   }
 
-  toTable3(options: ReporterOptions): Table.Cell {
-    const content = this.stringify(options);
+  toTable3(state: LoggerState): Table.Cell {
+    const content = this.stringify(state);
 
     if (this.#options) {
       return { content, ...this.#options.toTable3() };
@@ -261,11 +261,11 @@ export class Cell {
     }
   }
 
-  stringify(options: ReporterOptions): string {
-    return this.#mapper(this.#value, options).stringify(options);
+  stringify(state: LoggerState): string {
+    return this.#mapper(this.#value, state).stringify(state);
   }
 
-  width(options: ReporterOptions): number {
+  width(options: LoggerState): number {
     return this.#mapper(this.#value, options).width(options);
   }
 }
@@ -438,17 +438,11 @@ export class TableWithRows<T> {
     });
   }
 
-  stringify(options: ReporterOptions): LogResult<string> {
-    return this.toTable(options).map((table) => table.toString());
+  stringify(state: LoggerState): LogResult<string> {
+    return this.toTable(state).map((table) => table.toString());
   }
 
-  toTable(options: ReporterOptions): LogResult<Table.Table> {
-    const rows = this.#rows
-      ? this.#rows.map((rows) =>
-          rows.map((cells) => cells.map((cell) => cell.toTable3(options)))
-        )
-      : LogResult.ok([]);
-
+  toTable(state: LoggerState): LogResult<Table.Table> {
     return Result.record({
       columns: this.#columns ?? LogResult.ok(Columns.default()),
       rows: this.#rows ?? LogResult.ok([]),
@@ -458,13 +452,13 @@ export class TableWithRows<T> {
         chars: TABLE_CHARS,
       };
 
-      const headers = columns.headers(options);
+      const headers = columns.headers(state);
 
       if (headers) {
         table3Options.head = headers;
       }
 
-      const widths = columns.columnWidths(rows, options);
+      const widths = columns.columnWidths(rows, state);
 
       if (widths) {
         table3Options.colWidths = widths;
@@ -480,7 +474,7 @@ export class TableWithRows<T> {
 
       if (rows !== undefined) {
         table.push(
-          ...rows.map((cells) => cells.map((cell) => cell.toTable3(options)))
+          ...rows.map((cells) => cells.map((cell) => cell.toTable3(state)))
         );
       }
 

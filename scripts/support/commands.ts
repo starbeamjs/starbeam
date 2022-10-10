@@ -437,7 +437,7 @@ function normalizeFlag(
   if (typeof name === "string") {
     return defaultValue ? `--no-${dasherize(name)}` : `--${dasherize(name)}`;
   } else {
-    return `${name[0]}, ${normalizeFlag(name[1], defaultValue)}`;
+    return `${name[0].toUpperCase()}, ${normalizeFlag(name[1], defaultValue)}`;
   }
 }
 

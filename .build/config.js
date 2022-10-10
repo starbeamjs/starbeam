@@ -335,13 +335,13 @@ export class Package {
         exports: format === "cjs" ? "named" : undefined,
       },
       onwarn: (warning, warn) => {
-        if (warning.code === "EMPTY_BUNDLE") return;
-
-        // if (warning.code === "CIRCULAR_DEPENDENCY") {
-        //   console.log(inspect(warning, { depth: Infinity }));
-        // }
-
-        warn(warning);
+        switch (warning.code) {
+          case "CIRCULAR_DEPENDENCY":
+          case "EMPTY_BUNDLE":
+            return;
+          default:
+            warn(warning);
+        }
       },
     };
   }

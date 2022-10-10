@@ -1,5 +1,5 @@
 import type { Directory } from "./paths.js";
-import type { Workspace } from "./workspace.js";
+import type { ExecOptions, Workspace } from "./workspace.js";
 
 export class Checks {
   readonly #workspace: Workspace;
@@ -19,13 +19,9 @@ export class Checks {
   async exec(
     label: string,
     command: string,
-    {
-      cwd = this.#root,
-    }: {
-      cwd?: Directory;
-    } = {}
+    { cwd = this.#root, output = "stream" }: Partial<ExecOptions> = {}
   ): Promise<CheckResult> {
-    const check = new Check(label, command, cwd);
+    const check = new Check(label, command, { cwd, output });
     const result = await check.run(this.#workspace);
     this.#statuses.set(label, result);
     return result;
@@ -35,17 +31,20 @@ export class Checks {
 export class Check {
   #label: string;
   #command: string;
-  #cwd: Directory;
+  #options: ExecOptions;
 
-  constructor(label: string, command: string, cwd: Directory) {
+  constructor(label: string, command: string, options: ExecOptions) {
     this.#label = label;
     this.#command = command;
-    this.#cwd = cwd;
+    this.#options = options;
   }
 
   async run(workspace: Workspace): Promise<CheckResult> {
     const result = await workspace.exec(this.#command, {
-      cwd: this.#cwd.absolute,
+      cwd: this.#options.cwd.absolute,
+      label: this.#label,
+      output: this.#options.output ?? "stream",
+      breakBefore: true,
     });
 
     return new CheckResult(result, this.#label, this.#command);
@@ -106,6 +105,10 @@ export class CheckResults implements Iterable<[string, CheckResult]> {
     return [...this.#results.values()].every((r) => r.isOk);
   }
 
+  get exitCode(): number {
+    return this.isOk ? 0 : 1;
+  }
+
   get errors(): CheckResults {
     return new CheckResults(
       new Map([...this.#results.entries()].filter(([, r]) => !r.isOk))
@@ -138,5 +141,9 @@ export class CheckResult {
 
   get command(): string {
     return this.#command;
+  }
+
+  get exitCode(): number {
+    return this.isOk ? 0 : 1;
   }
 }

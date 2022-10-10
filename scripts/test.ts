@@ -8,8 +8,13 @@ import type { Package } from "./support/packages.js";
 export const TestCommand = QueryCommand("test", {
   description: "run the tests for the selected packages",
 })
+  .flag(
+    ["-O", "streamOutput"],
+    "do not stream the lint output (but display it when the command fails)",
+    { default: true }
+  )
   .flag(["-f", "failFast"], "exit on first failure")
-  .action(async ({ packages, workspace }) => {
+  .action(async ({ packages, workspace, streamOutput }) => {
     workspace.reporter.verbose((r) =>
       r.log(Fragment.comment(`> cleaning root/dist`))
     );
@@ -23,7 +28,10 @@ export const TestCommand = QueryCommand("test", {
           return [
             pkg,
             Object.keys(pkg.tests).map((test) =>
-              CheckDefinition(test, `pnpm run test:${test}`, { cwd: pkg.root })
+              CheckDefinition(test, `pnpm run test:${test}`, {
+                cwd: pkg.root,
+                output: streamOutput ? "stream" : "when-error",
+              })
             ),
           ] as [Package, CheckDefinition[]];
         })
@@ -34,5 +42,7 @@ export const TestCommand = QueryCommand("test", {
       header: (pkg) => FancyHeader.header(`testing ${pkg.name}`),
     });
 
-    workspace.reporter.reportCheckResults(results);
+    workspace.reporter.reportCheckResults(results, {
+      success: "all tests succeeded",
+    });
   });

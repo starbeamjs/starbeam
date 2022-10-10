@@ -1,30 +1,18 @@
 import chalk from "chalk";
 import { wrapIndented } from "../format.js";
-import { Fragment, type FragmentImpl, type IntoFragment } from "../log.js";
+import {
+  Fragment,
+  type DensityChoice,
+  type FragmentImpl,
+  type IntoFragment,
+} from "../log.js";
+import { DisplayStruct } from "./inspect.js";
 import type { ReporterOptions } from "./reporter.js";
-
-export interface FormatOptions {
-  readonly multiline: boolean;
-  readonly indent: number;
-  readonly breakBefore: boolean;
-}
 
 export interface Header {
   message: FragmentImpl;
-  options: FormatOptions;
+  breakBefore: boolean;
 }
-
-interface GroupState {
-  readonly status: "group";
-  printed: "none" | "open" | "flat";
-  header: Header | undefined;
-}
-
-export type LoggerState =
-  | {
-      readonly status: "top";
-    }
-  | GroupState;
 
 export type LogFunction = (...args: unknown[]) => void;
 
@@ -40,51 +28,156 @@ const LOGGERS = {
 type LOGGERS = typeof LOGGERS;
 export type LoggerName = keyof LOGGERS;
 
-export class Logger {
-  static create(options: ReporterOptions): Logger {
-    return new Logger(options);
+/**
+ * `LoggerState` is the state of the logger that is needed to convert a `Fragment` into a string, or
+ * to convert a raw chunk of text into a string with the correct amount of leading.
+ */
+export class LoggerState {
+  readonly #leading: number;
+  readonly #density: DensityChoice;
+  readonly #verbose: boolean;
+
+  constructor({
+    leading,
+    density,
+    verbose,
+  }: {
+    leading: number;
+    density: DensityChoice;
+    verbose: boolean;
+  }) {
+    this.#leading = leading;
+    this.#density = density;
+    this.#verbose = verbose;
   }
 
-  #options: ReporterOptions;
-  #states: LoggerState[];
-  #afterEmpty = false;
+  [Symbol.for("nodejs.util.inspect.custom")](): object {
+    return DisplayStruct("LoggerState", {
+      leading: this.#leading,
+      verbose: this.#verbose,
+      density: this.#density,
+    });
+  }
 
-  readonly loggers = LOGGERS;
+  get leading(): number {
+    return this.#leading;
+  }
 
-  private constructor(options: ReporterOptions) {
+  get leadingString(): string {
+    return "  ".repeat(this.#leading);
+  }
+
+  get verbose(): boolean {
+    return this.#verbose;
+  }
+
+  get density(): DensityChoice {
+    return this.#density;
+  }
+}
+
+interface GroupState {
+  readonly status: "group";
+  printed: boolean | "ended";
+  nesting: number;
+  header: Header | undefined;
+}
+
+export class InternalLoggerState {
+  static top(options: ReporterOptions): InternalLoggerState {
+    return new InternalLoggerState({ status: "top" }, options);
+  }
+
+  readonly #state: { readonly status: "top" } | GroupState;
+  readonly #options: ReporterOptions;
+
+  constructor(
+    state: { readonly status: "top" } | GroupState,
+    options: ReporterOptions
+  ) {
+    this.#state = state;
     this.#options = options;
-    this.#states = [
+  }
+
+  match<T>(options: {
+    top: () => T;
+    group: (state: GroupState, internal: InternalLoggerState) => T;
+  }): T {
+    switch (this.#state.status) {
+      case "top":
+        return options.top();
+      case "group":
+        return options.group(this.#state, this);
+    }
+  }
+
+  do(options: {
+    top?: () => InternalLoggerState | void;
+    group?: (internal: GroupState) => InternalLoggerState | void;
+  }): InternalLoggerState {
+    switch (this.#state.status) {
+      case "top":
+        return options.top?.() ?? this;
+      case "group":
+        return options.group?.(this.#state) ?? this;
+    }
+  }
+
+  begin(
+    message: Fragment | undefined,
+    options: { breakBefore: boolean }
+  ): InternalLoggerState {
+    return new InternalLoggerState(
       {
-        status: "top",
+        status: "group",
+        header: message && {
+          message,
+          ...options,
+        },
+        nesting: this.leading + 1,
+        printed: false,
       },
-    ];
+      this.#options
+    );
   }
 
-  get #state(): LoggerState {
-    return this.#states[this.#states.length - 1];
-  }
-
-  get #groupState(): GroupState {
+  endWith(
+    {
+      nested,
+      compact,
+      breakBefore,
+    }: { nested: Fragment; compact: Fragment; breakBefore: boolean },
+    ensureBreak: () => void
+  ): WriteResults {
     const state = this.#state;
 
-    switch (state.status) {
-      case "top":
-        throw Error("No open group to close");
-
-      case "group":
-        return state;
-    }
-  }
-
-  #popGroupState(): GroupState {
-    const state = this.#groupState;
-    this.#states.pop();
-
-    if (state.printed === "open") {
-      this.logGroupEnd();
+    if (state.status === "top") {
+      throw Error(
+        "Unexpected: You can only concat a header when in a group. Unless you are calling methods on Logger directly, this is a bug."
+      );
     }
 
-    return state;
+    if (state.printed) {
+      if (breakBefore) {
+        ensureBreak();
+      }
+
+      return this.#writeln(nested.stringify(this.loggerState), -1);
+    }
+
+    if (state.header) {
+      const message = state.header.message.concat(compact);
+      state.header = {
+        ...state.header,
+        message,
+      };
+
+      return this.#writeln(message.stringify(this.loggerState), -1);
+    } else {
+      return {
+        wrote: "nothing",
+      };
+    }
   }
 
   get didPrint(): boolean {
@@ -93,25 +186,8 @@ export class Logger {
         throw Error("Cannot get didPrint in top state");
 
       case "group":
-        return this.#state.printed !== "none";
+        return this.#state.printed !== false;
     }
-  }
-
-  ensureBlankLine(): void {
-    if (this.#afterEmpty === false) {
-      this.line("log", "");
-    }
-  }
-
-  begin(message: FragmentImpl | undefined, options: FormatOptions): void {
-    this.#states.push({
-      status: "group",
-      header: message && {
-        message,
-        options,
-      },
-      printed: "none",
-    });
   }
 
   /**
@@ -120,30 +196,296 @@ export class Logger {
    * correct number of characters.
    */
   get leading(): number {
-    return this.#states.filter(
-      (s) => s.status === "group" && s.printed === "open"
-    ).length;
+    switch (this.#state.status) {
+      case "top":
+        return 0;
+      case "group":
+        return this.#state.nesting;
+    }
+  }
+
+  get loggerState(): LoggerState {
+    return new LoggerState({
+      density: this.#options.density,
+      leading: this.leading,
+      verbose: this.#options.verbose,
+    });
+  }
+
+  ensureHeader(ensureNewline: () => void): WriteResults {
+    switch (this.#state.status) {
+      case "top":
+        throw Error("Cannot get header in top state");
+      case "group": {
+        if (this.#state.printed) {
+          return { wrote: "nothing" };
+        }
+
+        const { header } = this.#state;
+
+        if (header === undefined) {
+          return { wrote: "nothing" };
+        }
+
+        this.#state.printed = true;
+
+        if (header.breakBefore) {
+          ensureNewline();
+        }
+
+        return this.#writeln(header.message, -1);
+      }
+    }
+  }
+
+  wroteLine(message: string): { wroteEmpty: boolean } {
+    switch (this.#state.status) {
+      case "top":
+        return { wroteEmpty: false };
+      case "group":
+        this.#state.printed = true;
+        return { wroteEmpty: message.trim() === "" };
+    }
+  }
+
+  #format(message: IntoFragment): string {
+    return format({
+      message: Fragment.stringify(message, this.loggerState),
+      leading: this.leading,
+    });
+  }
+
+  #leadingString(leadingOffset: number): string {
+    return "  ".repeat(this.leading + leadingOffset);
+  }
+
+  formatLine(message: IntoFragment): string {
+    return this.#formatLine(message, 0);
+  }
+
+  #formatLine(message: IntoFragment, leadingOffset: number): string {
+    if (typeof message === "string" && message.trim() === "") {
+      return "";
+    } else {
+      return `${this.#leadingString(leadingOffset)}${this.#format(message)}`;
+    }
+  }
+
+  /**
+   * Write directly to stdout. If you use this API, you must make sure you have run `ensureOpen`
+   * first, and make sure a newline is printed to the console afterward.
+   */
+  write(message: string): void {
+    return this.#write(message);
+  }
+
+  writeln(message: string): { wrote: "contents" | "empty" } {
+    return this.#writeln(message, 0);
+  }
+
+  #write(message: string): void {
+    process.stdout.write(message);
+  }
+
+  #writeln(
+    message: IntoFragment,
+    leadingOffset: number
+  ): { wrote: "contents" | "empty" } {
+    this.#write(this.#formatLine(message, leadingOffset) + "\n");
+
+    return {
+      wrote: Fragment.isEmpty(message, this.loggerState) ? "empty" : "contents",
+    };
+  }
+}
+
+interface LoggerActions {
+  ensureNewline: (this: void) => void;
+  wrote: (this: void, results: WriteResults) => void;
+}
+
+class States {
+  static create(options: ReporterOptions, actions: LoggerActions): States {
+    return new States([InternalLoggerState.top(options)], actions);
+  }
+
+  #states: InternalLoggerState[];
+  readonly #actions: LoggerActions;
+
+  constructor(states: InternalLoggerState[], actions: LoggerActions) {
+    this.#states = states;
+    this.#actions = actions;
+  }
+
+  get #current(): InternalLoggerState {
+    return this.#states[this.#states.length - 1];
+  }
+
+  get current(): LoggerState {
+    return this.#current.loggerState;
+  }
+
+  get leading(): number {
+    return this.#current.leading;
+  }
+
+  get didPrint(): boolean {
+    return this.#current.didPrint;
+  }
+
+  write(message: string): void {
+    this.#current.write(message);
+  }
+
+  writeln(message: string): void {
+    this.ensureOpen({ expect: "any" });
+
+    return this.#actions.wrote(this.#current.writeln(message));
+  }
+
+  writelnRaw(message: string): void {
+    this.ensureOpen({ expect: "any" });
+
+    this.#current.write(message + "\n");
+
+    if (message.trim() !== "") {
+      this.#actions.wrote({ wrote: "contents" });
+    }
+  }
+
+  logln(message: string, logger: LoggerName | LogFunction = console.log): void {
+    this.ensureOpen({ expect: "any" });
+
+    const line = this.#current.formatLine(message);
+
+    const loggerFn = typeof logger === "string" ? LOGGERS[logger] : logger;
+    loggerFn(line);
+
+    this.#actions.wrote(
+      line.trim() === "" ? { wrote: "empty" } : { wrote: "contents" }
+    );
+  }
+
+  begin(message: Fragment | undefined, options: { breakBefore: boolean }) {
+    this.#states.push(this.#current.begin(message, options));
+  }
+
+  end(): void {
+    this.#states.pop();
+  }
+
+  endWith(
+    logger: LoggerName | LogFunction,
+    {
+      nested,
+      compact,
+      breakBefore,
+    }: { nested: Fragment; compact: Fragment; breakBefore: boolean }
+  ): void {
+    const needsFlush = this.#needsFlush({ expect: "group" });
+
+    if (needsFlush) {
+      this.#flushParents();
+      this.#current.endWith(
+        {
+          nested,
+          compact,
+          breakBefore,
+        },
+        this.#actions.ensureNewline
+      );
+    } else {
+      this.#actions.wrote(
+        this.#current.writeln(nested.stringify(this.#current.loggerState))
+      );
+    }
+  }
+
+  #needsFlush({ expect }: { expect: "group" | "any" }): boolean {
+    const state = this.#current;
+
+    return state.match({
+      top: () => {
+        if (expect === "group") {
+          throw Error(
+            "Expected to be in a group, but was at the top level. If you didn't call logger methods directly, this is a bug."
+          );
+        }
+        return false;
+      },
+      group: (group) => !group.printed,
+    });
+  }
+
+  #flushParents() {
+    const parents = [...this.#states.slice(0, -1)].map((state) =>
+      state.do({
+        group: () => this.#flushHeader(state),
+      })
+    );
+
+    this.#states = [...parents, this.#current];
+  }
+
+  ensureOpen({ expect }: { expect: "group" | "any" }): void {
+    if (this.#needsFlush({ expect })) {
+      this.#flushParents();
+      this.#flushHeader(this.#current);
+    }
+  }
+
+  #flushHeader(state: InternalLoggerState): void {
+    this.#actions.wrote(state.ensureHeader(this.#actions.ensureNewline));
+  }
+}
+
+export class Logger {
+  static create(options: ReporterOptions): Logger {
+    return new Logger(options);
+  }
+
+  #states: States;
+  #afterEmpty = false;
+
+  readonly loggers = LOGGERS;
+
+  private constructor(options: ReporterOptions) {
+    this.#states = States.create(options, {
+      ensureNewline: this.#ensureBreak,
+      wrote: this.#wrote,
+    });
+  }
+
+  get state(): LoggerState {
+    return this.#states.current;
+  }
+
+  get leading(): number {
+    return this.#states.leading;
+  }
+
+  get didPrint(): boolean {
+    return this.#states.didPrint;
+  }
+
+  ensureBreak(): void {
+    this.#ensureBreak();
   }
 
   /**
    * Print the group header if it has not already been printed, even if the content is empty.
-   * Attempt to print the final header as a flat line (rather than a group) if possible.
    */
   printEmpty(): void {
-    this.#states = this.#states.map((state) => {
-      switch (state.status) {
-        case "top":
-          return state;
-        case "group":
-          this.#ensureHeader(state, "tryFlat");
-          return state;
-      }
-    });
+    this.#states.ensureOpen({ expect: "group" });
   }
 
-  end(): void {
-    this.#popGroupState();
-  }
+  #wrote = (results: WriteResults): void => {
+    if (results.wrote === "contents") {
+      this.#afterEmpty = false;
+    } else if (results.wrote === "empty") {
+      this.#afterEmpty = true;
+    }
+  };
 
   async exit(code: number): Promise<never> {
     // this promise is never fulfilled, because it is blocking execution flow on process exit.
@@ -156,25 +498,32 @@ export class Logger {
     });
   }
 
-  logGroupEnd(): void {
-    console.groupEnd();
+  begin(
+    message: FragmentImpl | undefined,
+    options: { breakBefore: boolean } = { breakBefore: false }
+  ): void {
+    return this.#states.begin(message, options);
+  }
+
+  end(): void {
+    this.#states.end();
   }
 
   /**
-   * Replace the current group header with another log. This is useful for
-   * printing a one-line summary of a group instead of the header and contents.
+   * If the group has not printed anything, then append the final message to
+   * the header and print it. Otherwise, print it like a normal line.
+   *
+   * Either way, end the group.
    */
-  concat(logger: LoggerName | LogFunction, message: string): void {
-    const state = this.#groupState;
-
-    if (state.printed !== "none") {
-      this.line(logger, message);
-    } else if (state.header) {
-      state.header = {
-        ...state.header,
-        message: state.header.message.concat(message),
-      };
-    }
+  endWith(
+    logger: LoggerName | LogFunction,
+    {
+      nested,
+      compact,
+      breakBefore,
+    }: { nested: Fragment; compact: Fragment; breakBefore: boolean }
+  ): void {
+    this.#states.endWith(logger, { nested, compact, breakBefore });
   }
 
   async raw(
@@ -183,85 +532,47 @@ export class Logger {
       writeln: (message: string) => void;
     }) => void
   ): Promise<void> {
-    this.ensureOpen({ expect: "any" });
     return callback({
-      write: (message) => this.#write(message),
-      writeln: (message) => {
-        this.#write(" ".repeat(this.leading) + message + "\n");
-      },
+      write: (message) => this.#states.write(message),
+      writeln: (message) => this.#states.writelnRaw(message),
     });
   }
 
-  /**
-   * Write directly to stdout. If you use this API, you must make sure you have run `ensureOpen`
-   * first, and make sure a newline is printed to the console afterward.
-   */
-  #write(message: string): void {
-    process.stdout.write(message);
-  }
-
-  line(logger: LoggerName | LogFunction, message = ""): void {
-    this.ensureOpen({ expect: "any" });
-
-    if (typeof logger === "function") {
-      logger(message);
-    } else {
-      this.loggers[logger](message);
-    }
-
-    if (message.trim() === "") {
+  #ensureBreak = (): void => {
+    if (!this.#afterEmpty) {
+      process.stdout.write("\n");
       this.#afterEmpty = true;
-    } else {
-      this.#afterEmpty = false;
     }
+  };
+
+  logln(message = "", logger: LoggerName | LogFunction = console.log): void {
+    this.#states.ensureOpen({ expect: "any" });
+    this.#states.logln(message, logger);
   }
 
   reportError(e: Error | IntoFragment): void {
-    this.ensureOpen({ expect: "any" });
+    this.#states.ensureOpen({ expect: "any" });
 
-    console.log(chalk.red("An unexpected error occurred:"));
+    this.#states.logln(chalk.red("An unexpected error occurred:"));
 
     if (e && e instanceof Error) {
-      console.log(chalk.redBright(wrapIndented(e.message)));
-      console.log("");
-      console.group(chalk.redBright.inverse("Stack trace"));
-      console.log(chalk.grey.dim(wrapIndented(e.stack ?? "")));
-      console.groupEnd();
+      this.#states.logln(chalk.redBright(wrapIndented(e.message)));
+      this.#states.logln("");
+      this.#states.logln(chalk.redBright.inverse("Stack trace"), console.group);
+      this.#states.logln(chalk.grey.dim(wrapIndented(e.stack ?? "")));
+      console.groupEnd(); // intentionally manual
     } else {
-      console.group(chalk.redBright("An unexpected error occurred:"));
-      console.log(Fragment.from(e).stringify(this.#options));
-      console.groupEnd();
+      this.#states.logln(
+        chalk.redBright("An unexpected error occurred:"),
+        console.group
+      );
+      this.#states.logln(Fragment.from(e).stringify(this.state));
+      console.groupEnd(); // intentionally manual
     }
   }
 
-  ensureOpen(options: { expect: "group" | "any" }): void {
-    const state = this.#state;
-
-    switch (state.status) {
-      case "top":
-        if (options.expect === "group") {
-          throw Error("ASSERTION: Expected an open group, but none was found");
-        } else {
-          return;
-        }
-
-      case "group":
-        if (state.printed !== "none") {
-          return;
-        }
-    }
-
-    this.#states = this.#states.map((state) => {
-      switch (state.status) {
-        case "top":
-          return state;
-
-        case "group": {
-          this.#ensureHeader(state, "normal");
-          return state;
-        }
-      }
-    });
+  ensureOpen({ expect }: { expect: "any" | "group" }): void {
+    this.#states.ensureOpen({ expect });
   }
 
   /**
@@ -274,44 +585,19 @@ export class Logger {
    *
    * Once a header is flushed, it is marked as printed (and `didPrint` will return true).
    */
-
-  #ensureHeader(state: GroupState, style: "tryFlat" | "normal"): void {
-    if (state.printed !== "none") {
-      return;
-    }
-
-    const { header } = state;
-
-    if (header === undefined) {
-      return;
-    }
-
-    const formatted = this.#format(header);
-
-    if (style !== "tryFlat") {
-      console.group(formatted);
-      this.#afterEmpty = false;
-      state.printed = "open";
-    } else {
-      console.log(formatted);
-      state.printed = "flat";
-    }
-  }
-
-  #format(header: Header): string {
-    return format({
-      message: header.message.stringify(this.#options),
-      options: header.options,
-    });
-  }
 }
 
 export function format({
   message,
-  options,
+  leading,
 }: {
   message: string;
-  options: FormatOptions;
+  leading: number;
 }): string {
-  return wrapIndented(message, options.indent);
+  return wrapIndented(message, leading);
+}
+
+interface WriteResults {
+  wrote: "nothing" | "contents" | "empty";
+  flush?: boolean;
 }

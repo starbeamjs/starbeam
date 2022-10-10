@@ -1,4 +1,3 @@
-import { spawn } from "node-pty";
 import {
   Directory,
   Glob,
@@ -7,17 +6,16 @@ import {
   type Path,
 } from "./paths.js";
 import { Reporter, type ReporterOptions } from "./reporter/reporter.js";
-import { Readable } from "node:stream";
 import {
   execSync,
   type ExecSyncOptionsWithStringEncoding,
 } from "child_process";
-import { terminalWidth } from "./format.js";
-import split from "split2";
-import shellSplit from "shell-split";
 import { Fragment, type IntoFragment } from "./log.js";
 import { CheckResults, Checks, GroupedCheckResults } from "./checks.js";
-import { FancyHeader } from "./reporter/fancy-header.js";
+import {
+  CommandStream,
+  type CommandOutputType,
+} from "./reporter/command-stream.js";
 
 export class Workspace {
   static root(root: string, options: ReporterOptions): Workspace {
@@ -50,6 +48,10 @@ export class Workspace {
 
   glob(path: string, options?: GlobOptions): Glob {
     return this.root.glob(path, options);
+  }
+
+  stringify(fragment: Fragment): string {
+    return this.#reporter.stringify(fragment);
   }
 
   async cmd(
@@ -89,13 +91,21 @@ export class Workspace {
     const reporter = this.reporter;
 
     for (const [value, definitions] of groupedChecks.entries()) {
-      reporter.ensureBlankLine();
+      await reporter
+        .group(options.header(value))
+        .breakBefore()
+        .tryAsync(async (r) => {
+          const results = await this.check(...definitions);
+          grouped.add(options.label(value), results);
 
-      await reporter.group(options.header(value)).tryAsync(async (r) => {
-        r.ensureBlankLine();
-        const results = await this.check(...definitions);
-        grouped.add(options.label(value), results);
-      });
+          if (!r.didPrint) {
+            r.log(
+              grouped.isOk
+                ? Fragment.ok.inverse("ok")
+                : Fragment.problem.inverse("err")
+            );
+          }
+        });
     }
 
     return grouped;
@@ -113,96 +123,49 @@ export class Workspace {
 
   async exec(
     command: string,
-    options: { cwd: string } = { cwd: this.root.absolute }
+    {
+      cwd,
+      label,
+      output,
+      breakBefore,
+    }: {
+      cwd: string;
+      label?: string;
+      breakBefore: boolean;
+      output: CommandOutputType;
+    } = {
+      cwd: this.root.absolute,
+      output: "stream",
+      breakBefore: false,
+    }
   ): Promise<"ok" | "err"> {
-    const parsed: string[] = shellSplit(command);
-    const [cmd, ...args] = parsed;
+    const header = label
+      ? Fragment.header(label)
+      : Fragment.comment(`$ ${command}`);
+
+    const groupVerbosity = label === undefined ? "header" : false;
+    const verboseInnerHeader =
+      label && this.#reporter.isVerbose
+        ? Fragment.comment(`$ ${command}`)
+        : undefined;
 
     return this.#reporter
-      .group(Fragment.comment(`$ ${command}`))
-      .verbose("header")
-      .fatal((r) =>
-        r.log(`> ${Fragment.problem("failed")} ${Fragment.comment(command)}`)
-      )
-      .catch((_): "ok" | "err" => "err")
-      .tryAsync(async () => await this.#execWithPty(cmd, args, options));
-  }
-
-  #reportExecStatus(code: number | void): "ok" | "err" {
-    if (code === undefined) {
-      this.#reporter.error(`☠️ command exited without a status code`);
-      return "err";
-    } else if (code === 0) {
-      this.#reporter.verbose((r) => {
-        r.ensureBlankLine();
-        r.log(FancyHeader.ok("success"));
-        r.log("");
+      .group(header)
+      .verbose(groupVerbosity)
+      .breakBefore(breakBefore)
+      .fatal((r) => {
+        if (verboseInnerHeader) {
+          r.log(verboseInnerHeader);
+        }
+        r.log(`> ${Fragment.problem("failed")} ${Fragment.comment(command)}`);
+      })
+      .catch((_, log) => {
+        log();
+        return "err" as const;
+      })
+      .tryAsync(async () => {
+        return await CommandStream.exec(this, command, { cwd, output });
       });
-      return "ok";
-    } else {
-      this.#reporter.verbose((r) => {
-        r.ensureBlankLine();
-        r.log(FancyHeader.problem("failed"));
-        r.log("");
-      });
-      return "err";
-    }
-  }
-
-  async #execWithPty(
-    cmd: string,
-    args: string[],
-    options: { cwd: string }
-  ): Promise<"ok" | "err"> {
-    this.#reporter.ensureOpen();
-
-    const pty = PtyStream(cmd, args, {
-      cols: terminalWidth(),
-      cwd: options.cwd ?? this.root.absolute,
-    });
-
-    const padded = pty.stream.pipe(split());
-
-    await this.#reporter.raw(async ({ writeln, write }) => {
-      for await (const chunk of padded) {
-        const string = chunk.toString("utf8") as string;
-
-        const rewritten = string.replace(
-          /([\u001B\u009B])[\\]?\[(\d*)G/g,
-          (m, esc, n) => {
-            const leading = Number(n || "0") + this.#reporter.leading;
-            if (this.#reporter.leading) {
-              return `${esc}[0G${" ".repeat(leading)}`;
-            } else {
-              return m;
-            }
-          }
-        );
-
-        writeln(rewritten);
-      }
-    });
-
-    // const match = string.match(/[\u001B\u009B][\\]?\[(?<n>\d*)G/u);
-
-    // if (match) {
-    //   console.log({ match: match[0].replace(/[\u001B\u009B]/g, "<ESC>") });
-    // }
-
-    // if (string.match(/[\u001B\u009B][\\]?\[(?<n>\d*)G/u)) {
-    //   console.log({ string: JSON.stringify(string) });
-    // }
-
-    // console.log(rewritten);
-
-    // const line = anser.ansiToJson(chunk, { json: true });
-    // if (line.some((part) => part.content.includes(".spec.ts"))) {
-    //   console.log({ line });
-    // }
-    // this.#reporter.log(chunk);
-
-    this.#reporter.log("");
-    return this.#reportExecStatus(pty.code);
   }
 
   dir(path: string): Directory {
@@ -218,50 +181,21 @@ export class Workspace {
   }
 }
 
-function PtyStream(
-  file: string,
-  args: string[] | string,
-  options: {
-    cols: number;
-    cwd: string;
-    env?: { [key: string]: string };
-  }
-): { readonly stream: Readable; readonly code: number | undefined } {
-  const stream = new Readable({
-    read() {
-      /* noop */
-    },
-  });
-  const pty = spawn(file, args, options);
-  let code: number | undefined = undefined;
-
-  pty.onData((data) => {
-    stream.push(data);
-  });
-
-  pty.onExit(({ exitCode }) => {
-    stream.push(null);
-    code = exitCode;
-  });
-
-  return {
-    stream,
-    get code() {
-      return code;
-    },
-  };
+export interface ExecOptions {
+  cwd: Directory;
+  output?: CommandOutputType;
 }
 
 export type CheckDefinition = [
   label: string,
   command: string,
-  options?: { cwd: Directory }
+  options?: ExecOptions
 ];
 
 export function CheckDefinition(
   label: string,
   command: string,
-  options?: { cwd: Directory }
+  options?: { cwd: Directory; output: CommandOutputType }
 ): CheckDefinition {
   return [label, command, options] as CheckDefinition;
 }

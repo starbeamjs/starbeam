@@ -1,4 +1,6 @@
+import ansicolor from "ansicolor";
 import chalk, { type ChalkInstance } from "chalk";
+import type { LoggerState } from "./reporter/logger.js";
 import type { ReporterOptions } from "./reporter/reporter.js";
 import {
   getStyle,
@@ -48,6 +50,14 @@ export interface Verbosity {
 export type IntoLeafFragment = string | LeafFragment;
 export type IntoFragment = Fragment | string | IntoFragment[];
 
+export function isIntoFragment(value: unknown): value is IntoFragment {
+  return (
+    FragmentFn.is(value) ||
+    typeof value === "string" ||
+    (Array.isArray(value) && value.every(isIntoFragment))
+  );
+}
+
 export type FallibleFragment = Result<FragmentImpl, FragmentImpl>;
 export type IntoFallibleFragment = IntoFragment | LogResult<IntoFragment>;
 
@@ -80,6 +90,20 @@ export abstract class FragmentImpl {
     }
   }
 
+  static stringify(from: IntoFragment, options: LoggerState): string {
+    if (typeof from === "string") {
+      return from;
+    } else {
+      return Fragment.from(from).stringify(options);
+    }
+  }
+
+  static isEmpty(fragment: IntoFragment, options: LoggerState): boolean {
+    const string = FragmentImpl.stringify(fragment, options);
+
+    return /^\s*$/.test(ansicolor.strip(string));
+  }
+
   update(updater: (prev: StyleInstance) => IntoStyleInstance): Fragment {
     return this.updateStyle((prev) => IntoStyleInstance(updater(prev)));
   }
@@ -102,8 +126,8 @@ export abstract class FragmentImpl {
 
   abstract concatFragment(other: FragmentImpl): FragmentImpl;
 
-  abstract width(options: ReporterOptions): number;
-  abstract stringify(options: ReporterOptions): string;
+  abstract width(options: LoggerState): number;
+  abstract stringify(options: LoggerState): string;
 
   abstract toString(): string;
 }
@@ -116,7 +140,7 @@ class FragmentGroup extends FragmentImpl {
     this.#fragments = fragments;
   }
 
-  stringify(options: ReporterOptions): string {
+  stringify(options: LoggerState): string {
     return this.#fragments.map((f) => f.stringify(options)).join("");
   }
 
@@ -134,7 +158,7 @@ class FragmentGroup extends FragmentImpl {
     return new FragmentGroup([...this.#fragments, other]);
   }
 
-  width(options: ReporterOptions): number {
+  width(options: LoggerState): number {
     return this.#fragments.reduce((total, f) => total + f.width(options), 0);
   }
 }
@@ -222,12 +246,6 @@ class LeafFragment extends FragmentImpl {
   }
 }
 
-type DensityChoice = ReporterOptions["density"];
-
-export type DensityChoices = {
-  [P in DensityChoice]: Fragment;
-};
-
 export class DensityChoosingFragment extends FragmentImpl {
   readonly #choices: DensityChoices;
   readonly #defaultChoice: DensityChoice;
@@ -248,7 +266,7 @@ export class DensityChoosingFragment extends FragmentImpl {
     options,
     selection = this.#defaultChoice,
   }: {
-    options: ReporterOptions | undefined;
+    options: LoggerState | undefined;
     selection?: DensityChoice;
   }): string {
     let fragment = this.#choices[selection];
@@ -264,7 +282,7 @@ export class DensityChoosingFragment extends FragmentImpl {
     }
   }
 
-  stringify(options: ReporterOptions): string {
+  stringify(options: LoggerState): string {
     return this.#stringify({ options, selection: options.density });
   }
 
@@ -293,7 +311,7 @@ export class DensityChoosingFragment extends FragmentImpl {
     return new DensityChoosingFragment(choices);
   }
 
-  width(options: ReporterOptions): number {
+  width(options: LoggerState): number {
     return this.#choices[options.density].width(options);
   }
 }
@@ -316,6 +334,8 @@ export function FragmentFn(style: Style, message: Printable): FragmentImpl {
 
 FragmentFn.fallibleFrom = FragmentImpl.fallibleFrom;
 FragmentFn.from = FragmentImpl.from;
+FragmentFn.stringify = FragmentImpl.stringify;
+FragmentFn.isEmpty = FragmentImpl.isEmpty;
 
 FragmentFn.inverse = (message: Printable): FragmentImpl =>
   FragmentFn(chalk.inverse, message);
@@ -418,4 +438,10 @@ export const StyleInstance = {
       return style;
     }
   },
+};
+
+export type DensityChoice = ReporterOptions["density"];
+
+export type DensityChoices = {
+  [P in DensityChoice]: Fragment;
 };

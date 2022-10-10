@@ -194,7 +194,7 @@ export class UpdatePackages {
         .group()
         .empty((r) => {
           if (r.isVerbose) {
-            r.logCompact(
+            r.endWith(
               `${Fragment("header:sub", updater.name)}${Fragment(
                 "comment",
                 ": no changes"

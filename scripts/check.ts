@@ -11,5 +11,7 @@ export const CheckCommand = DevCommand("check", {
       ["lint", "pnpm check:lint"]
     );
 
-    workspace.reporter.reportCheckResults(results);
+    workspace.reporter.reportCheckResults(results, {
+      success: "all checks succeeded",
+    });
   });
