@@ -11,12 +11,14 @@ export const BuildCommand = QueryCommand("build", {
   )
   .action(async ({ workspace, packages, streamOutput }) => {
     const results = await workspace.check(
-      ...packages.map((pkg) =>
-        CheckDefinition(pkg.name, "rollup -c ./rollup.config.mjs", {
-          cwd: pkg.root,
-          output: streamOutput ? "stream" : "when-error",
-        })
-      )
+      ...packages
+        .filter((pkg) => !pkg.type.is("root"))
+        .map((pkg) =>
+          CheckDefinition(pkg.name, "rollup -c ./rollup.config.mjs", {
+            cwd: pkg.root,
+            output: streamOutput ? "stream" : "when-error",
+          })
+        )
     );
 
     workspace.reporter.reportCheckResults(results, {
