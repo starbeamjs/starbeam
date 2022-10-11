@@ -29,7 +29,6 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.38.1
       '@typescript-eslint/parser': ^5.38.1
       '@vitest/ui': ^0.23.4
-      cli-table3: ^0.6.3
       eslint: ^8.24.0
       eslint-config-airbnb: ^19.0.4
       eslint-config-prettier: ^8.5.0
@@ -48,8 +47,6 @@ importers:
       typescript: ^4.8.3
       vite: 3.1.4
       vitest: 0.23.4
-    dependencies:
-      cli-table3: 0.6.3
     devDependencies:
       '@babel/plugin-proposal-decorators': 7.19.1_@babel+core@7.19.3
       '@babel/plugin-syntax-dynamic-import': 7.8.3_@babel+core@7.19.3
@@ -717,7 +714,6 @@ importers:
   scripts:
     specifiers:
       '@starbeam-workspace/root': workspace:^
-      '@types/cli-table': ^0.3.1
       '@types/prettier': ^2.7.0
       '@types/shell-escape-tag': workspace:^
       '@types/shell-split': workspace:^
@@ -726,6 +722,7 @@ importers:
       '@types/wrap-ansi': ^8.0.1
       ansicolor: ^1.1.100
       chalk: ^5.0.1
+      cli-table3: ^0.6.3
       commander: ^9.3.0
       depcheck: ^1.4.3
       dirfilename: ^1.0.4
@@ -757,13 +754,13 @@ importers:
       shelljs: 0.8.5
       split2: 4.1.0
     devDependencies:
-      '@types/cli-table': 0.3.1
       '@types/prettier': 2.7.0
       '@types/shell-escape-tag': link:../@types/shell-escape-tag
       '@types/shell-split': link:../@types/shell-split
       '@types/shelljs': 0.8.11
       '@types/split2': 3.2.1
       '@types/wrap-ansi': 8.0.1
+      cli-table3: 0.6.3
       esno: 0.16.3
       jsonc-parser: 3.2.0
       term-size: 3.0.2
@@ -2346,7 +2343,7 @@ packages:
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
     engines: {node: '>=0.1.90'}
     requiresBuild: true
-    dev: false
+    dev: true
     optional: true
 
   /@crxjs/vite-plugin/1.0.13_vite@3.1.4:
@@ -2689,10 +2686,6 @@ packages:
 
   /@types/chai/4.3.3:
     resolution: {integrity: sha512-hC7OMnszpxhZPduX+m+nrx+uFoLkWOMiR4oa/AZF3MuSETYTZmFfJAHqZEM8MVlvfG7BEUcgvtwoCTxBp6hm3g==}
-    dev: true
-
-  /@types/cli-table/0.3.1:
-    resolution: {integrity: sha512-m3+6WWfSSl6zqoXy8uQQifbgqV7Gt6fsyWnHLgUWVtJQk75+OfUB+edSZ52YDj7leSiZtX7w1/E4w2x/Hb0orA==}
     dev: true
 
   /@types/concat-stream/1.6.1:
@@ -3581,7 +3574,7 @@ packages:
       string-width: 4.2.3
     optionalDependencies:
       '@colors/colors': 1.5.0
-    dev: false
+    dev: true
 
   /cliui/6.0.0:
     resolution: {integrity: sha512-t6wbgtoCXvAzst7QgXxJYqPt0usEfbgQdftEPbLL/cvv6HPE5VgvqCuAIDR0NgU52ds6rFwqrgakNLrHEjCbrQ==}

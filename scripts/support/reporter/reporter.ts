@@ -371,6 +371,7 @@ export class Reporter {
         )
       );
     } else if (results.isOk) {
+      this.#workspace.reporter.ensureBreak();
       this.#workspace.reporter.success(`✔️ ${options.success}`);
     } else {
       this.table((t) =>
