@@ -12,7 +12,7 @@ export const BuildCommand = QueryCommand("build", {
   .action(async ({ workspace, packages, streamOutput }) => {
     const results = await workspace.check(
       ...packages
-        .filter((pkg) => !pkg.type.is("root"))
+        .filter((pkg) => pkg.type.is("library"))
         .map((pkg) =>
           CheckDefinition(pkg.name, "rollup -c ./rollup.config.mjs", {
             cwd: pkg.root,
@@ -20,6 +20,8 @@ export const BuildCommand = QueryCommand("build", {
           })
         )
     );
+
+    workspace.reporter.ensureBreak();
 
     workspace.reporter.reportCheckResults(results, {
       success: "build succeeded",
