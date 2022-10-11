@@ -1,0 +1,40 @@
+{
+  "name": "@starbeamx/devtool",
+  "version": "0.7.4",
+  "type": "module",
+  "private": true,
+  "main": "index.tsx",
+  "starbeam": {
+    "type": "library",
+    "source": "tsx",
+    "jsx": "preact"
+  },
+  "starbeam:type": "library",
+  "dependencies": {
+    "@starbeam/debug": "workspace:^",
+    "@starbeam/timeline": "workspace:^",
+    "@starbeam/interfaces": "workspace:^",
+    "preact": "^10.11.0"
+  },
+  "publishConfig": {
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "exports": {
+    "default": "./index.tsx"
+  },
+  "devDependencies": {
+    "@starbeam-workspace/build-support": "workspace:^"
+  },
+  "scripts": {
+    "test:lint": "eslint",
+    "test:build": "tsc -b"
+  }
+}

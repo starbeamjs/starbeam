@@ -1,0 +1,32 @@
+{
+  "name": "@starbeam-tests/react-use-strict-lifecycle",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "starbeam:type": "support:tests",
+  "dependencies": {
+    "@starbeam/use-strict-lifecycle": "workspace:^",
+    "@starbeam/debug": "workspace:^",
+    "@starbeam-workspace/react-test-utils": "workspace:^",
+    "react": "18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.14",
+    "jsdom": "^20.0.0"
+  },
+  "publishConfig": {
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "scripts": {
+    "test:lint": "eslint",
+    "test:build": "tsc -b"
+  }
+}

@@ -1,6 +1,7 @@
 import util from "util";
-import { comment, log, problem } from "./log.js";
-import type { Package, StarbeamType } from "./packages.js";
+import { log, Fragment } from "./log.js";
+import type { Package } from "./packages.js";
+import { StarbeamType } from "./unions.js";
 
 export class SingleFilter implements Filter {
   static ok(key: FilterKey, matches: string | boolean = true): SingleFilter {
@@ -49,7 +50,7 @@ export class SingleFilter implements Filter {
       }
       case "type": {
         const type = pkg.type;
-        return type === this.value;
+        return type?.value === this.value ?? false;
       }
       case "none":
         return false;
@@ -109,6 +110,14 @@ class AllFilter {
 
   filters(key: FilterKey): boolean {
     return this.#filters.some((f) => f.key === key);
+  }
+
+  filtersExactly(key: FilterKey): boolean {
+    const filters = this.#filters.filter(
+      (f) => f.key === key && f.operator === "="
+    );
+
+    return filters.length === 1;
   }
 
   add(filter: Filter): void {
@@ -258,7 +267,7 @@ export class Query {
   }
 
   unifies(filter: FilterKey): boolean {
-    return this.#all.filters(filter);
+    return this.#all.filtersExactly(filter);
   }
 
   get errors(): ParseError[] | null {
@@ -278,22 +287,11 @@ export type FilterKey =
   | "scope"
   | "none";
 
-export const STARBEAM_TYPES: StarbeamType[] = [
-  "interfaces",
-  "library",
-  "tests",
-  "unknown",
-  "draft",
-];
-
 export const FILTER_KEYS: Record<FilterKey, [kind: string, example: string]> = {
   typescript: ["package authored in TypeScript", "-a typescript"],
   private: ["is a private package", "-a private"],
   none: ["match nothing", "-a none"],
-  type: [
-    `type of the package (${STARBEAM_TYPES.join(" | ")})`,
-    "-a type=library",
-  ],
+  type: [`type of the package (${StarbeamType.format()})`, "-a type=library"],
   name: ["package name", "-a name=@starbeam/core"],
   scope: ["package scope", "-a scope=@starbeam"],
 };
@@ -315,7 +313,12 @@ export class ParseError {
   constructor(readonly source: string, readonly message: string) {}
 
   log(): void {
-    log(`${problem("Invalid query")}${comment(`: ${this.source}`)}`);
+    log(
+      `${Fragment("problem", "Invalid query")}${Fragment(
+        "comment",
+        `: ${this.source}`
+      )}`
+    );
   }
 }
 type OkFilter = SingleFilter | NotFilter | AnyFilter | AllFilter;

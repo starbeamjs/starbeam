@@ -16,7 +16,8 @@
           "purecss"
         ]
       }
-    ]
+    ],
+    "source": "tsx"
   },
   "dependencies": {
     "@starbeam/core": "workspace:^",
@@ -45,5 +46,9 @@
         "default": "./dist/index.cjs"
       }
     }
+  },
+  "scripts": {
+    "test:lint": "eslint",
+    "test:build": "tsc -b"
   }
 }

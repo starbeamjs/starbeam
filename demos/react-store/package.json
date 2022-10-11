@@ -6,6 +6,7 @@
   "main": "index.ts",
   "starbeam": {
     "type": "demo:react",
+    "source": "tsx",
     "used": [
       {
         "reason": "css",
@@ -45,5 +46,9 @@
   },
   "exports": {
     "default": "./index.ts"
+  },
+  "scripts": {
+    "test:lint": "eslint",
+    "test:build": "tsc -b"
   }
 }

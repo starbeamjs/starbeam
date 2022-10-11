@@ -8,7 +8,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:lint": "eslint",
+    "test:build": "tsc -b"
   },
   "dependencies": {
     "@starbeam/core": "workspace:^",
@@ -40,5 +42,6 @@
   },
   "exports": {
     "default": "./index.ts"
-  }
+  },
+  "starbeam:source": "tsx"
 }

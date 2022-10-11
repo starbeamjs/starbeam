@@ -1,0 +1,15 @@
+{
+  "extends": "../../../.config/tsconfig/tsconfig.shared.json",
+  "compilerOptions": {
+    "outDir": "../../../dist/packages",
+    "declarationMap": true,
+    "declarationDir": "../../../dist/types",
+    "declaration": true,
+    "composite": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
+    "lib": ["esnext", "DOM", "DOM.Iterable"],
+    "types": ["../../env"]
+  },
+  "exclude": ["dist/**/*"]
+}

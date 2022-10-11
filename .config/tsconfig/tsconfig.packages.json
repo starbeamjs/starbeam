@@ -1,5 +1,5 @@
 {
-  "extends": "./tsconfig.-package.json",
+  "extends": "./tsconfig.shared.json",
   "compilerOptions": {
     "composite": true,
     "types": ["../../packages/env"],
@@ -12,6 +12,15 @@
   ],
   "exclude": [
     "../../packages/x-devtool/**",
-    "../../packages/x-devtools-extension/**"
+    "../../packages/x-devtools-extension/**",
+    "../../packages/*/*.config.ts",
+    "../../framework/*/*.config.ts",
+    "../../packages/*/*.config.mjs",
+    "../../framework/*/*/*.config.mjs"
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.rollup.json"
+    }
   ]
 }

@@ -1,0 +1,26 @@
+{
+  "private": true,
+  "type": "module",
+  "name": "@starbeam-tests/x-vanilla",
+  "version": "1.0.0",
+  "starbeam:type": "support:tests",
+  "dependencies": {
+    "@starbeamx/vanilla": "workspace:^",
+    "@starbeam/core": "workspace:^"
+  },
+  "publishConfig": {
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "scripts": {
+    "test:lint": "eslint",
+    "test:build": "tsc -b"
+  }
+}

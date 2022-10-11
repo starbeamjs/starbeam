@@ -8,5 +8,3 @@ coverage
 pack
 .pnpm-debug.log
 .eslintcache
-*.config.*
-!*.config.ts

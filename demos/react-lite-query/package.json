@@ -8,14 +8,16 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:lint": "eslint",
+    "test:build": "tsc -b"
   },
   "dependencies": {
     "@starbeam/core": "workspace:^",
     "@starbeam/js": "workspace:^",
     "@starbeam/react": "workspace:^",
     "@starbeam/debug": "workspace:^",
-    "@starbeamx/devtool": "workspace:*",
+    "@starbeamx/devtool": "workspace:^",
     "axios": "^0.27.2",
     "react": "^18.1.0",
     "react-dom": "^18.1.0"
@@ -40,5 +42,6 @@
   },
   "exports": {
     "default": "./index.ts"
-  }
+  },
+  "starbeam:source": "tsx"
 }

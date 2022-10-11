@@ -1,7 +1,6 @@
 import chalk from "chalk";
 import { type Command, program } from "commander";
 import type { ParseError } from "./query.js";
-import { comment } from "./log.js";
 import { Package, queryPackages } from "./packages.js";
 import {
   FILTER_KEYS,
@@ -11,6 +10,8 @@ import {
   type Filter,
 } from "./query.js";
 import { Workspace } from "./workspace.js";
+import { format, wrapIndented } from "./format.js";
+import type { ReporterOptions } from "./reporter/reporter.js";
 
 interface BasicOptions {
   description?: string;
@@ -26,7 +27,7 @@ export function DevCommand<T extends CommandOptions>(
   return new BuildDevCommand(command);
 }
 
-export function QueryCommand<T extends QueryOptions>(
+export function QueryCommand<T extends QueryCommandOptions>(
   name: string,
   options?: BasicOptions
 ): BuildQueryCommand<T, []> {
@@ -43,7 +44,7 @@ function applyBasicOptions(command: Command, options?: BasicOptions) {
   if (options?.notes) {
     command = command.addHelpText(
       "afterAll",
-      chalk.yellow(`\n${options.notes}`)
+      wrapIndented(chalk.yellow(`\n${options.notes}`))
     );
   }
 
@@ -82,6 +83,10 @@ StringOption.default = (value: string): Value<string> => [
   { default: value },
 ];
 
+StringOption.optional = (value: unknown): value is string | undefined => {
+  return typeof value === "string" || value === undefined;
+};
+
 export function BooleanOption(value: unknown): value is boolean {
   return typeof value === "boolean";
 }
@@ -92,6 +97,10 @@ BooleanOption.default = (value: boolean): Value<boolean> => [
   BooleanOption,
   { default: value },
 ];
+
+BooleanOption.optional = (value: unknown): value is boolean | undefined => {
+  return typeof value === "boolean" || value === undefined;
+};
 
 type Type<T> = (input: unknown) => input is T;
 type Value<T extends CommandValue> = Type<T> | [Type<T>, { default: T }];
@@ -171,18 +180,20 @@ export abstract class BuildCommand {
     options: unknown[]
   ): {
     args: Args;
-    options: Options;
+    options: Options & ReporterOptions;
   } {
     const args = options.slice(0, this.args) as Args;
-    const opts = options[this.args] as Options;
-
-    return { args, options: opts };
+    const opts = options[this.args] as Options & ReporterOptions;
+    return {
+      args,
+      options: opts,
+    };
   }
 
-  protected parseOptions<Args extends unknown[], Options>(
-    allArgs: unknown[],
-    extra: Record<string, unknown>
-  ): unknown[] {
+  protected parseOptions<
+    Args extends unknown[],
+    Options extends CommandOptions
+  >(allArgs: unknown[], extra: Record<string, unknown>): unknown[] {
     const { args, options } = this.extractOptions<Args, Options>(allArgs);
 
     return [...args, { ...options, ...extra }];
@@ -194,7 +205,7 @@ export abstract class BuildCommand {
 }
 
 export class BuildQueryCommand<
-  Options extends QueryOptions,
+  Options extends QueryCommandOptions,
   Args extends unknown[]
 > extends BuildCommand {
   declare flag: <K extends string>(
@@ -216,10 +227,12 @@ export class BuildQueryCommand<
   ) => BuildQueryCommand<Options, [...Args, V]>;
 
   action(
-    action: (...args: [...Args, Options]) => Promise<void> | void
-  ): ({ root }: { root: string }) => Command {
-    return ({ root }: { root: string }) =>
-      this.command.action((...allArgs) => {
+    action: (
+      ...args: [...Args, Options]
+    ) => Promise<void | number> | void | number
+  ): (options: { root: string }) => Command {
+    return ({ root }) =>
+      this.command.action(async (...allArgs) => {
         const {
           options: {
             package: packageName,
@@ -237,6 +250,7 @@ export class BuildQueryCommand<
             and: (Filter | ParseError)[] | undefined;
             or: (Filter | ParseError)[] | undefined;
             allowDraft: boolean;
+            [key: string]: unknown;
           }
         >(allArgs);
 
@@ -282,19 +296,26 @@ export class BuildQueryCommand<
           for (const err of where.errors) {
             err.log();
           }
+          await Promise.resolve();
           process.exit(1);
         }
 
-        const packages = queryPackages(root, where);
+        const workspace = createWorkspace(root, options);
+        const packages = await queryPackages(workspace, where);
 
         const { args } = this.extractOptions<Args, Options>(allArgs);
 
-        return action(...(args as Args), {
+        const result = await action(...(args as Args), {
           packages,
           query: where,
-          workspace: new Workspace(root),
+          workspace,
           ...options,
-        } as Options);
+        } as Options & QueryCommandOptions);
+
+        if (typeof result === "number") {
+          await Promise.resolve();
+          process.exit(result);
+        }
       });
   }
 }
@@ -332,21 +353,28 @@ export class BuildDevCommand<
 
   action(
     action: (...args: [...Args, Options]) => void | Promise<void>
-  ): ({ root }: { root: string }) => Command {
+  ): (options: { root: string }) => Command {
     return ({ root }) =>
-      this.command.action((...args) =>
-        action(
-          ...(this.parseOptions(args, { workspace: new Workspace(root) }) as [
-            ...Args,
-            Options
-          ])
-        )
-      );
+      this.command.action((...args) => {
+        const { options } = this.extractOptions(args);
+        return action(
+          ...(this.parseOptions(args, {
+            workspace: createWorkspace(root, options),
+          }) as [...Args, Options])
+        );
+      });
   }
 }
 
 export function withOptions(command: Command): Command {
-  return command.option("-v, --verbose", "print verbose output", false);
+  return command
+    .option("-v, --verbose", "print verbose output", false)
+    .option("-S, --no-stylish", "print less compact output", true)
+    .option(
+      "-d, --density",
+      "the density of the output ('compact' or 'comfortable')",
+      "comfortable"
+    );
 }
 
 export function queryable(command: Command): Command {
@@ -359,18 +387,19 @@ export function queryable(command: Command): Command {
     )
     .addHelpText(
       "afterAll",
-      chalk.yellow("\nFilters:") +
+      format("\nFilters\n", chalk.yellowBright.bold.inverse) +
         Object.entries(FILTER_KEYS)
-          .map(
-            ([key, [kind, example]]) =>
-              `${chalk.yellow(`\n  ${key}`)}: ${kind}\n    ${comment(
-                `e.g. ${example}`
-              )}`
-          )
-          .join("")
+          .flatMap(([key, [kind, example]]) => [
+            format.entry([key, kind], {
+              key: chalk.yellowBright,
+              value: chalk.yellow,
+              indent: 2,
+            }),
+            format(`e.g. ${example}`, { style: "comment", indent: 4 }),
+          ])
+          .join("\n")
     )
     .option("-p, --package <package-name>", "the package to test")
-    .option("-s, --scope <package-scope>", "the scope of the package")
     .option<(Filter | ParseError)[]>(
       "-a, --and <query...>",
       "a package query",
@@ -388,15 +417,16 @@ export function queryable(command: Command): Command {
     .option("--allow-draft", "allow draft packages", false);
 }
 
-export interface CommandOptions {
+export interface CommandOptions extends ReporterOptions {
   workspace: Workspace;
   verbose: boolean;
+  stylish: boolean;
+  density: "compact" | "comfortable";
 }
 
-export interface QueryOptions extends CommandOptions {
+export interface QueryCommandOptions extends CommandOptions {
   query: Query;
   packages: Package[];
-  workspace: Workspace;
 }
 
 function normalizeFlag(
@@ -407,7 +437,7 @@ function normalizeFlag(
   if (typeof name === "string") {
     return defaultValue ? `--no-${dasherize(name)}` : `--${dasherize(name)}`;
   } else {
-    return `${name[0]}, ${normalizeFlag(name[1], defaultValue)}`;
+    return `${name[0].toUpperCase()}, ${normalizeFlag(name[1], defaultValue)}`;
   }
 }
 
@@ -419,14 +449,32 @@ function normalize(name: string | [short: string, long: string]): string {
   }
 }
 
-function long(name: string | [short: string, long: string]): string {
-  if (typeof name === "string") {
-    return dasherize(name);
-  } else {
-    return dasherize(name[1]);
+function dasherize(name: string): string {
+  return name.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
+}
+
+function getOption<T>(
+  options: Record<string, unknown>,
+  key: string,
+  check: (value: unknown) => value is T
+): T | void {
+  const value = options[key];
+
+  if (value && check(value)) {
+    return value;
   }
 }
 
-function dasherize(name: string): string {
-  return name.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
+function createWorkspace(
+  root: string,
+  options: ReporterOptions & Record<string, unknown>
+): Workspace {
+  const reporterOptions: ReporterOptions = {
+    verbose: options.verbose,
+    stylish: options.stylish,
+    density: options.density,
+    failFast: getOption(options, "failFast", BooleanOption) ?? false,
+  };
+
+  return Workspace.root(root, reporterOptions);
 }

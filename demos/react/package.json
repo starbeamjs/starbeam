@@ -39,9 +39,14 @@
           "purecss"
         ]
       }
-    ]
+    ],
+    "source": "tsx"
   },
   "exports": {
     "default": "./index.ts"
+  },
+  "scripts": {
+    "test:lint": "eslint",
+    "test:build": "tsc -b"
   }
 }

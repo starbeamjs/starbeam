@@ -1,0 +1,15 @@
+{
+  "extends": "../.config/tsconfig/tsconfig.shared.json",
+  "compilerOptions": {
+    "composite": true,
+    "types": ["./env"],
+    "outDir": "../dist/packages"
+  },
+  "include": ["**/*"],
+  "exclude": [
+    "x/devtool/**/*",
+    "x/devtools-extension/**/*",
+    "**/dist/**/**",
+    "**/rollup.config.mjs"
+  ]
+}

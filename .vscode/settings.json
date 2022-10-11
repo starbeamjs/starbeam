@@ -1,12 +1,14 @@
 {
   "eslint.enable": true,
-  "explorer.excludeGitIgnore": false,
+  "explorer.excludeGitIgnore": true,
 
   "search.exclude": {
     "**/node_modules": true,
     "**/bower_components": true,
     "**/*.code-search": true,
-    "**/dist": true
+    "**/dist": true,
+    "pnpm-lock.yaml": true,
+    "**/CHANGELOG.md": true
   },
 
   "[typescript][typescriptreact]": {
@@ -33,7 +35,7 @@
     "*.tsx": "${capture}.jsx, ${capture}.js",
     "tsconfig.json": "tsconfig.*.json, tsconfig-*.json, *.tsbuildinfo",
     "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, .pnpm-debug.log, .editorconfig, .gitignore, .npmrc, .quokka, pnpm-workspace.yaml",
-    ".eslintrc.json": "eslintrc*, .eslintignore, .eslintcache",
+    ".eslintrc.cjs": ".eslint*, eslintrc*, .eslintignore, .eslintcache",
     "vite.config.ts": "rollup.config.*, .env.*"
   },
   "editor.defaultFormatter": "dbaeumer.vscode-eslint",

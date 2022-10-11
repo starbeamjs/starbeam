@@ -1,38 +1,50 @@
-import { checkUnused } from "./support/depcheck.js";
-import { QueryCommand } from "./support/commands";
-import { getPackage } from "./support/packages.js";
-import { comment, log } from "./support/log.js";
+import { checkUnused } from "./support/unused.js";
+import { QueryCommand } from "./support/commands.js";
+import type { Package } from "./support/packages.js";
+import { Fragment } from "./support/log.js";
+import { PresentArray } from "./support/type-magic.js";
 
 export const UnusedCommand = QueryCommand("unused")
-  .flag(["-w", "workspaceRoot"], "include workspace root")
   .flag(["-f", "failFast"], "fail fast")
-  .action(async ({ packages, workspaceRoot, verbose, failFast, workspace }) => {
-    if (workspaceRoot) {
-      console.group("Workspace root");
-      const result = await checkUnused({
-        pkg: getPackage(workspace.resolve("package.json")),
-        verbose,
-      });
-      console.groupEnd();
-
-      if (failFast && result === "failure") {
-        process.exit(1);
-      }
-
-      if (packages.length > 0) {
-        log.newline();
-      }
-    }
+  .action(async ({ packages, failFast, workspace }) => {
+    const failures: Package[] = [];
 
     for (const pkg of packages) {
-      console.group(pkg.name, comment(`(${workspace.relative(pkg.root)})`));
-      const result = await checkUnused({ pkg, verbose });
-      console.groupEnd();
+      const result = await workspace.reporter
+        .group(
+          pkg.name + " " + Fragment.comment(`(${workspace.relative(pkg.root)})`)
+        )
+        .finally((r) => {
+          if (r.isStylish) {
+            r.log("");
+          }
+        })
+        .tryAsync(() => checkUnused({ pkg }));
 
-      if (failFast && result === "failure") {
-        process.exit(1);
+      if (result === "failure") {
+        if (failFast) {
+          return 1;
+        } else {
+          failures.push(pkg);
+        }
       }
-
-      log.newline();
     }
+
+    PresentArray.from(failures).andThen({
+      present: (failures) => {
+        workspace.reporter.ul({
+          header: Fragment.header(
+            `✗ ${Fragment.inverse(
+              failures.length
+            )} packages with unused dependencies`
+          ),
+          items: failures.map((pkg) => pkg.name),
+          style: "problem",
+        });
+        return 1;
+      },
+      empty: () => {
+        workspace.reporter.log(Fragment.ok("✓ no unused dependencies"));
+      },
+    });
   });

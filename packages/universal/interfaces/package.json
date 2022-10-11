@@ -1,0 +1,30 @@
+{
+  "name": "@starbeam/interfaces",
+  "version": "0.7.3",
+  "type": "module",
+  "main": "index.ts",
+  "starbeam": {
+    "type": "interfaces",
+    "template:package": "interfaces.package.json"
+  },
+  "dependencies": {
+    "@starbeam/shared": "workspace:^",
+    "@domtree/any": "workspace:^"
+  },
+  "publishConfig": {
+    "types": "dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts"
+      }
+    }
+  },
+  "exports": {
+    "default": "./index.ts"
+  },
+  "scripts": {
+    "test:lint": "eslint",
+    "test:build": "tsc -b"
+  },
+  "types": "index.d.ts"
+}
