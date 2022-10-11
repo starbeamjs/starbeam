@@ -240,6 +240,7 @@ export class BuildQueryCommand<
             and: andFilters,
             or: orFilters,
             allowDraft,
+            workspaceOnly,
             ...options
           },
         } = this.extractOptions<
@@ -250,13 +251,16 @@ export class BuildQueryCommand<
             and: (Filter | ParseError)[] | undefined;
             or: (Filter | ParseError)[] | undefined;
             allowDraft: boolean;
+            workspaceOnly: boolean;
             [key: string]: unknown;
           }
         >(allArgs);
 
         const where = Query.empty();
 
-        if (packageName === "none") {
+        if (workspaceOnly) {
+          where.and("type", "root");
+        } else if (packageName === "none") {
           where.and("none");
         } else {
           if (packageName === "any" || packageName === undefined) {
@@ -309,6 +313,7 @@ export class BuildQueryCommand<
           packages,
           query: where,
           workspace,
+          workspaceOnly,
           ...options,
         } as Options & QueryCommandOptions);
 
@@ -414,7 +419,8 @@ export function queryable(command: Command): Command {
         return [...queries, parse(query)];
       }
     )
-    .option("--allow-draft", "allow draft packages", false);
+    .option("--allow-draft", "allow draft packages", false)
+    .option("-w, --workspace-only", "select the workspace package only", false);
 }
 
 export interface CommandOptions extends ReporterOptions {
@@ -427,6 +433,7 @@ export interface CommandOptions extends ReporterOptions {
 export interface QueryCommandOptions extends CommandOptions {
   query: Query;
   packages: Package[];
+  workspaceOnly: boolean;
 }
 
 function normalizeFlag(
@@ -436,8 +443,10 @@ function normalizeFlag(
   // if defaultValue is true, then the flag is a --no-<name> flag
   if (typeof name === "string") {
     return defaultValue ? `--no-${dasherize(name)}` : `--${dasherize(name)}`;
+  } else if (defaultValue) {
+    return `${name[0].toUpperCase()}, --no-${dasherize(name[1])}`;
   } else {
-    return `${name[0].toUpperCase()}, ${normalizeFlag(name[1], defaultValue)}`;
+    return `${name[0]}, --${dasherize(name[1])}`;
   }
 }
 

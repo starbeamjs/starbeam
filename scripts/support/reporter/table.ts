@@ -1,5 +1,6 @@
 import Table from "cli-table3";
 import { Fragment, isIntoFragment, type IntoFragment } from "../log.js";
+import { DisplayStruct } from "./inspect.js";
 import type { LoggerState } from "./logger.js";
 
 interface Mappers<T> {
@@ -45,18 +46,22 @@ export class LoggedTable<T> implements CreateRows<T> {
     }
 
     const rowList = rows.map((cells) =>
-      cells.map((cell) =>
-        Cell.create(cell, (value) => {
-          if (Cell.is(value)) {
-            return value;
-          } else if (isIntoFragment(value)) {
-            return Fragment.from(value);
-          } else {
-            return Fragment.from(this.#mappers.cell(value));
-          }
-        })
-      )
+      cells.map((cell) => {
+        if (Cell.is(cell)) {
+          return cell;
+        } else {
+          return Cell.create(cell, (value) => {
+            if (isIntoFragment(value)) {
+              return Fragment.from(value);
+            } else {
+              return Fragment.from(this.#mappers.cell(value));
+            }
+          });
+        }
+      })
     );
+
+    console.log(rowList);
 
     return TableWithRows.create({
       mappers: this.#mappers,
@@ -248,6 +253,13 @@ export class Cell {
     this.#options = options;
   }
 
+  [Symbol.for("nodejs.util.inspect.custom")](): object {
+    return DisplayStruct("Cell", {
+      value: this.#value,
+      options: this.#options,
+    });
+  }
+
   options(
     updater: (
       options: Table3Options<Table.CellOptions>
@@ -299,6 +311,10 @@ class Table3Options<O extends AnyTable3Options> {
 
   constructor(options: Omit<O, "content">) {
     this.#options = options;
+  }
+
+  [Symbol.for("nodejs.util.inspect.custom")](): object {
+    return DisplayStruct("Table3Options", this.#options);
   }
 
   replace(options: Omit<O, "content">): Table3Options<O> {

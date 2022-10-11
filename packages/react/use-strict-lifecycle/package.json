@@ -12,7 +12,8 @@
     "doc:all": "node ./scripts/docs.js",
     "test:lint": "eslint",
     "test:specs": "vitest --dir ./tests --run",
-    "test:build": "tsc -b"
+    "test:build": "tsc -b",
+    "test:types": "tsc -b"
   },
   "peerDependencies": {
     "react": "^18.2.0",
