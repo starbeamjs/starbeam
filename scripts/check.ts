@@ -13,5 +13,6 @@ export const CheckCommand = DevCommand("check", {
 
     workspace.reporter.reportCheckResults(results, {
       success: "all checks succeeded",
+      header: "check",
     });
   });

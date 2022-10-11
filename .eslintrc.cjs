@@ -48,6 +48,9 @@ module.exports = {
     typescript("./packages/tsconfig.rollup.json", {
       files: ["./packages/*/*/rollup.config.mjs", "./demos/*/vite.config.ts"],
     }),
+    typescript("./demos/tsconfig.vite.json", {
+      files: ["./demos/*/vite.config.ts"],
+    }),
     typescript("./.build/tsconfig.json", {
       files: ["./.build/**/*.{js,d.ts}"],
       rules: {

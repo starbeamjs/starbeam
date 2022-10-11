@@ -55,7 +55,7 @@ export class UpdatePackage {
   change(kind: "create" | "remove" | "update", description: string): void {
     if (!this.#emittedHeader) {
       this.#emittedHeader = true;
-      console.group(Fragment.header("header", this.name));
+      console.group(Fragment.header(this.name));
     }
 
     let flag: string;
@@ -191,15 +191,18 @@ export class UpdatePackages {
     for (const pkg of this.#packages) {
       const updater = this.pkg(pkg);
       this.#workspace.reporter
-        .group()
+        .group(pkg.name)
         .empty((r) => {
           if (r.isVerbose) {
-            r.endWith(
-              `${Fragment("header:sub", updater.name)}${Fragment(
-                "comment",
-                ": no changes"
-              )}`
-            );
+            r.endWith({
+              compact: {
+                fragment: `${Fragment("header:sub", updater.name)}${Fragment(
+                  "comment",
+                  ": no changes"
+                )}`,
+                replace: true,
+              },
+            });
           }
         })
         .try(() => {

@@ -314,6 +314,18 @@ export class Result<T, E = unknown> {
     this.#variant = variant;
   }
 
+  [Symbol.for("nodejs.util.inspect.custom")](): object {
+    if (this.#variant.status === "ok") {
+      return DisplayStruct("ok", {
+        value: this.#variant.value,
+      });
+    } else {
+      return DisplayStruct("err", {
+        reason: this.#variant.reason,
+      });
+    }
+  }
+
   get(): OkResult<T> | ErrResult<E> {
     return this.#variant;
   }

@@ -45,8 +45,10 @@ export class CommandStream {
       output,
     }: { cols?: number; cwd?: string; output: CommandOutputType }
   ): Promise<"ok" | "err"> {
+    const ptyCols = cols - (this.#reporter.leading + 2);
+
     const pty = PtyStream(cmd, args, {
-      cols,
+      cols: ptyCols,
       cwd,
       output,
       state: this.#reporter.loggerState,
@@ -62,7 +64,7 @@ export class CommandStream {
 
     await this.#reporter.raw(async (writer) => {
       for await (const chunk of padded) {
-        writer.write(`${ESC}[${this.#reporter.leading * 2 + 1}G`);
+        writer.write(`${ESC}[${this.#reporter.nesting * 2 + 1}G`);
         writer.writeln(chunk);
       }
     });
@@ -79,7 +81,6 @@ export class CommandStream {
         r.endWith({
           compact: Fragment.ok(" ok"),
           nested: FancyHeader.ok("success"),
-          breakBefore: true,
         });
       });
       return "ok";
@@ -88,7 +89,6 @@ export class CommandStream {
         r.endWith({
           compact: Fragment.problem(" err"),
           nested: FancyHeader.problem("error"),
-          breakBefore: true,
         });
       });
       return "err";

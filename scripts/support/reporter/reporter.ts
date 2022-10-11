@@ -9,8 +9,10 @@ import {
   LogResult,
   type IntoFragment,
   isIntoFragment,
+  FragmentMap,
+  type IntoFragmentMap,
 } from "../log.js";
-import type { IntoPresentArray } from "../type-magic.js";
+import { PresentArray, type IntoPresentArray } from "../type-magic.js";
 import type { Workspace } from "../workspace.js";
 import { Logger, type LoggerName, type LoggerState } from "./logger.js";
 import { STYLES } from "./styles.js";
@@ -68,8 +70,12 @@ export class Reporter {
     return this.#logger.state;
   }
 
-  get leading(): number {
+  get nesting(): number {
     return this.#logger.leading;
+  }
+
+  get leading(): number {
+    return this.#logger.leading * 2;
   }
 
   get didPrint(): boolean {
@@ -167,6 +173,26 @@ export class Reporter {
       .map((message) => fn(message));
   }
 
+  groupedTable({
+    header,
+    items,
+  }: {
+    header?: IntoFragment;
+    items: IntoFragmentMap<IntoPresentArray<IntoPresentArray<IntoFragment>>>;
+  }): void {
+    this.table((t) => {
+      return t.headers(header ? [Cell.spanned(header, 3)] : undefined).rows(
+        FragmentMap.from(items, (value) =>
+          PresentArray.from(value).map((nested) =>
+            PresentArray.from(nested).map(Fragment.from)
+          )
+        ).flatMap((header, fragments) => {
+          return [[Cell.spanned(header, 3)], fragments];
+        })
+      );
+    });
+  }
+
   ul({
     header,
     items,
@@ -229,36 +255,47 @@ export class Reporter {
    * If the current group has already printing, log the message on a new line. Otherwise,
    * concatenate the message onto the group's header and log it on the same line.
    */
-  endWith(
-    fragment:
-      | IntoFragment
-      | { nested: IntoFragment; compact: IntoFragment; breakBefore?: boolean }
-  ): void {
-    let compact: Fragment;
-    let nested: Fragment;
-    let breakBefore: boolean;
+  endWith(ending: Ending): void {
+    function normalize<P extends "nested" | "compact">(
+      partName: P
+    ): LoggerEndWith[P] {
+      if (isIntoFragment(ending)) {
+        return { fragment: Fragment.from(ending) } as LoggerEndWith[P];
+      } else {
+        const part = ending[partName] as
+          | undefined
+          | IntoFragment
+          | NestedEndWith
+          | CompactEndWith;
 
-    if (isIntoFragment(fragment)) {
-      compact = Fragment.from(fragment);
-      nested = Fragment.from(fragment);
-      breakBefore = false;
-    } else {
-      compact = Fragment.from(fragment.compact);
-      nested = Fragment.from(fragment.nested);
-      breakBefore = fragment.breakBefore ?? false;
+        if (isIntoFragment(part)) {
+          return {
+            fragment: Fragment.from(part),
+          } as LoggerEndWith[P];
+        } else if (part) {
+          return {
+            ...part,
+            fragment: Fragment.from(part.fragment),
+          } as LoggerEndWith[P];
+        }
+      }
     }
 
-    this.#logger.endWith("log", { compact, nested, breakBefore });
+    const compact = normalize("compact");
+    const nested = normalize("nested");
+
+    this.#logger.endWith("log", {
+      compact,
+      nested,
+    });
   }
 
   table(
-    builder: (
-      table: LoggedTable<IntoFallibleFragment>
-    ) => TableWithRows<IntoFallibleFragment>
+    builder: (table: LoggedTable<IntoFragment>) => TableWithRows<IntoFragment>
   ): void {
-    const table = new LoggedTable<IntoFallibleFragment>({
-      header: (h) => FragmentImpl.fallibleFrom(h),
-      cell: (c) => FragmentImpl.fallibleFrom(c),
+    const table = new LoggedTable<IntoFragment>({
+      header: (h) => Fragment.from(h),
+      cell: (c) => Fragment.from(c),
     });
 
     this.log(builder(table).stringify(this.loggerState));
@@ -307,30 +344,38 @@ export class Reporter {
   }
 
   reportCheckResults(
-    results: CheckResults | GroupedCheckResults,
+    results: CheckResults,
+    options: { success: string; header: string }
+  ): void;
+  reportCheckResults(
+    results: GroupedCheckResults,
     options: { success: string }
+  ): void;
+  reportCheckResults(
+    results: CheckResults | GroupedCheckResults,
+    options: { success: string; header: string }
   ): void {
     if (CheckResults.is(results)) {
       reportCheckResults(this, results, options);
     } else if (this.isVerbose) {
       return this.table((t) =>
-        t
-          .rows(
-            [...results].flatMap(([name, groupResults]) => [
-              [this.statusIcon(groupResults.isOk), Cell.spanned(name, 2)],
-              ...[...groupResults].map(([name, checkResults]) => [
-                "",
-                this.statusIcon(checkResults.isOk),
-                name,
-              ]),
-            ])
-          )
-          .options((o) => o.add({ colWidths: [4, 4] }))
+        t.rows(
+          [...results].flatMap(([name, groupResults]) => [
+            [this.statusIcon(groupResults.isOk), Cell.spanned(name, 2)],
+            ...[...groupResults].map(([name, checkResults]) => [
+              "",
+              this.statusIcon(checkResults.isOk),
+              name,
+            ]),
+          ])
+        )
       );
+    } else if (results.isOk) {
+      this.#workspace.reporter.success(`✔️ ${options.success}`);
     } else {
       this.table((t) =>
         t.rows(
-          [...results].map(([name, results]) => [
+          [...results.errors].map(([name, results]) => [
             this.statusIcon(results.isOk),
             name,
           ])
@@ -623,6 +668,7 @@ export function reportCheckResults(
   results: CheckResults,
   options: {
     success: string;
+    header: string;
   }
 ): void {
   if (results.isOk && !reporter.isVerbose) {
@@ -637,7 +683,7 @@ export function reportCheckResults(
   reporter.ensureBreak();
 
   reporter.table((t) => {
-    const table = t.headers(["", Fragment("comment:header", "check")]);
+    const table = t.headers(["", Fragment("comment:header", options.header)]);
 
     return table.rows(
       printedResults.map(([label, result]) => {
@@ -650,3 +696,32 @@ export function reportCheckResults(
     );
   });
 }
+
+export type NestedEndWith = { fragment: IntoFragment; breakBefore?: boolean };
+
+export type CompactEndWith = {
+  fragment: IntoFragment;
+  breakBefore?: boolean;
+  replace?: boolean;
+};
+
+export type EndWith = {
+  nested: IntoFragment | NestedEndWith;
+  compact: IntoFragment | CompactEndWith;
+};
+
+export type LoggerEndWith = {
+  nested?: { fragment: Fragment; breakBefore?: boolean };
+  compact?: {
+    fragment: Fragment;
+    breakBefore?: boolean;
+    replace: boolean;
+  };
+};
+
+export type Ending =
+  | IntoFragment
+  | {
+      nested?: IntoFragment | NestedEndWith;
+      compact?: IntoFragment | CompactEndWith;
+    };

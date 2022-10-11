@@ -25,6 +25,7 @@ export const BuildCommand = QueryCommand("build", {
 
     workspace.reporter.reportCheckResults(results, {
       success: "build succeeded",
+      header: "package",
     });
 
     return results.exitCode;

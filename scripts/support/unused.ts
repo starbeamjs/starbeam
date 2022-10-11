@@ -98,12 +98,12 @@ export async function checkUnused({
 
   const reporter = new UnusedReporter(workspace, unused, pkg);
 
-  await reporter.unused("Unused dependencies", unused.dependencies);
-  await reporter.unused("Unused devDependencies", unused.devDependencies);
-  await reporter.usage("Missing dependencies", unused.missing);
+  reporter.unused("Unused dependencies", unused.dependencies);
+  reporter.unused("Unused devDependencies", unused.devDependencies);
+  reporter.usage("Missing dependencies", unused.missing);
 
-  await reporter.invalid("Invalid files", unused.invalidFiles);
-  await reporter.invalid("Invalid directories", unused.invalidDirs);
+  reporter.invalid("Invalid files", unused.invalidFiles);
+  reporter.invalid("Invalid directories", unused.invalidDirs);
 
   if (reporter.exitCode === 0) {
     return "success";
@@ -132,7 +132,7 @@ class UnusedReporter {
     return this.#workspace.reporter;
   }
 
-  async unused(name: string, unused: string[]): Promise<void> {
+  unused(name: string, unused: string[]): void {
     const filtered = unused.filter((dep) => {
       if (ALLOW_TYPE_ONLY.includes(dep)) {
         return false;
@@ -143,7 +143,9 @@ class UnusedReporter {
       }
     });
 
-    return PresentArray.from(filtered).andThen((present) => {
+    PresentArray.from(filtered).andThen((present) => {
+      this.#reporter.ensureBreak();
+
       this.#reporter.ul({
         header: name,
         items: present.map((dep) => listDep(dep)),
@@ -154,25 +156,24 @@ class UnusedReporter {
     });
   }
 
-  async usage(name: string, usage: Record<string, string[]>): Promise<void> {
+  usage(name: string, usage: Record<string, string[]>): void {
     const entries = Object.entries(usage);
 
     if (entries.length === 0) {
       return;
     }
 
-    this.#reporter.group(Fragment.problem(name)).try((r) => {
+    this.#reporter.ensureBreak();
+
+    this.#reporter.group(Fragment.problem.header(name)).try((r) => {
       for (const [dep, files] of entries) {
         PresentArray.from(files).andThen((present) => {
           r.ul({
-            header: `${Fragment.header(
-              "problem",
+            header: `${Fragment.problem(
               listDep(dep)
-            )} ${Fragment.header("comment", "is used by:")}`,
-            items: present.map((file) =>
-              Fragment.comment(this.#workspace.root.relativeTo(file))
-            ),
-            marker: "comment",
+            )} ${Fragment.comment.header("is used by:")}`,
+            items: present.map((file) => this.#workspace.root.relativeTo(file)),
+            style: "problem",
           });
         });
       }
@@ -181,14 +182,16 @@ class UnusedReporter {
     this.#exitCode = 1;
   }
 
-  async invalid(name: string, invalid: Record<string, unknown>): Promise<void> {
+  invalid(name: string, invalid: Record<string, unknown>): void {
     const entries = Object.entries(invalid);
 
     if (entries.length === 0) {
       return;
     }
 
-    await this.#reporter.group(name).try((r) => {
+    this.#reporter.ensureBreak();
+
+    this.#reporter.group(name).try((r) => {
       for (const [file, error] of entries) {
         r.ul({
           header: Fragment.problem(this.#workspace.root.relativeTo(file)),

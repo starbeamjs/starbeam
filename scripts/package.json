@@ -36,7 +36,6 @@
     "split2": "^4.1.0"
   },
   "devDependencies": {
-    "@types/cli-table": "^0.3.1",
     "@types/prettier": "^2.7.0",
     "@types/shell-escape-tag": "workspace:^",
     "@types/shell-split": "workspace:^",
@@ -46,7 +45,8 @@
     "esno": "^0.16.3",
     "jsonc-parser": "^3.0.0",
     "term-size": "^3.0.2",
-    "wrap-ansi": "^8.0.1"
+    "wrap-ansi": "^8.0.1",
+    "cli-table3": "^0.6.3"
   },
   "publishConfig": {
     "main": "dist/index.cjs",

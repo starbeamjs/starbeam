@@ -1,32 +1,67 @@
 import Table from "cli-table3";
-import { Fragment, LogResult, type IntoFragment } from "../log.js";
-import { Result } from "../type-magic.js";
+import { Fragment, isIntoFragment, type IntoFragment } from "../log.js";
 import type { LoggerState } from "./logger.js";
 
 interface Mappers<T> {
-  header: (item: T) => LogResult<Cell | Fragment>;
-  cell: (item: T) => LogResult<Cell | Fragment>;
+  header: (item: T) => IntoFragment;
+  cell: (item: T) => IntoFragment;
 }
 
-export class LoggedTable<T> {
+type IntoCell<T> = Cell | T;
+type IntoRows<T> = IntoCell<T>[][];
+
+interface CreateRows<T> {
+  rows(rows?: IntoRows<T | IntoFragment>): TableWithRows<T>;
+}
+
+export class LoggedTable<T> implements CreateRows<T> {
   readonly #mappers: Mappers<T>;
 
   constructor(mappers: Mappers<T>) {
     this.#mappers = mappers;
   }
 
-  headers(headers: (Cell | T)[]): TableWithHeaders<T> {
-    return new TableWithHeaders(
-      this.#mappers,
-      mapHeader(headers, this.#mappers)
-    );
+  headers(
+    headers: (Cell | T)[] | undefined
+  ): TableWithHeaders<T> | LoggedTable<T> {
+    if (headers) {
+      return new TableWithHeaders(
+        this.#mappers,
+        Columns.from(headers.map((h) => Cell.from(h, this.#mappers.header)))
+      );
+    } else {
+      return this;
+    }
   }
 
-  rows(rows?: (Cell | T)[][]): TableWithRows<T> {
+  rows(rows?: IntoRows<T | IntoFragment>): TableWithRows<T> {
+    if (!rows) {
+      return new TableWithRows({
+        mappers: this.#mappers,
+        headers: undefined,
+        rows: [],
+        options: Table3Options.default(),
+      });
+    }
+
+    const rowList = rows.map((cells) =>
+      cells.map((cell) =>
+        Cell.create(cell, (value) => {
+          if (Cell.is(value)) {
+            return value;
+          } else if (isIntoFragment(value)) {
+            return Fragment.from(value);
+          } else {
+            return Fragment.from(this.#mappers.cell(value));
+          }
+        })
+      )
+    );
+
     return TableWithRows.create({
       mappers: this.#mappers,
       headers: undefined,
-      rows,
+      rows: rowList,
     });
   }
 }
@@ -41,19 +76,8 @@ class Columns {
     return new Columns([]);
   }
 
-  static from(cells: (Cell | Column)[]): Columns;
-  static from(cells: LogResult<(Cell | Column)[]>): LogResult<Columns>;
-  static from(
-    cells: LogResult<(Cell | Column)[]> | (Cell | Column)[]
-  ): LogResult<Columns> | Columns;
-  static from(
-    cells: LogResult<(Cell | Column)[]> | (Cell | Column)[]
-  ): LogResult<Columns> | Columns {
-    if (Array.isArray(cells)) {
-      return new Columns(cells.map(Column.from));
-    } else {
-      return cells.map((cells) => Columns.from(cells));
-    }
+  static from(cells: IntoColumn[]): Columns {
+    return new Columns(cells.map(Column.from));
   }
 
   readonly #columns: Column[];
@@ -74,11 +98,12 @@ class Columns {
     if (this.#columns.length === 0) {
       return undefined;
     } else {
-      return rows.map((row, i) => {
-        const column =
-          (this.#columns[i] as Column | undefined) ?? Column.default;
-        return column.maxWidth(row, state);
-      });
+      return this.#columns.map((column, index) =>
+        column.maxWidth(
+          rows.map((row) => row[index]),
+          state
+        )
+      );
     }
   }
 
@@ -91,7 +116,7 @@ class Columns {
   }
 }
 
-export type IntoColumn = Cell | Fragment | Column;
+export type IntoColumn = IntoCell<IntoFragment> | Column;
 
 export function Col(from: Cell | Fragment, options?: ColumnOptions): Column {
   return Column.from(from, options);
@@ -102,10 +127,14 @@ class Column {
     return new Column(undefined, { width: "auto", justify: "left" });
   }
 
-  static from(from: Cell | Fragment | Column): Column;
-  static from(from: Cell | Fragment | Column, options?: ColumnOptions): Column;
-  static from(from: Cell | Fragment | Column, options?: ColumnOptions): Column {
-    if (from instanceof Column) {
+  static is(value: unknown): value is Column {
+    return !!(value && typeof value === "object" && value instanceof Column);
+  }
+
+  static from(from: IntoColumn): Column;
+  static from(from: IntoColumn, options?: ColumnOptions): Column;
+  static from(from: IntoColumn, options?: ColumnOptions): Column {
+    if (Column.is(from)) {
       return from;
     } else {
       return new Column(Cell.from(from), {
@@ -144,92 +173,68 @@ class Column {
   }
 }
 
-function mapRows<T>(
-  rows: (T | Cell)[][],
-  mappers: Mappers<T>
-): LogResult<Cell[][]> {
-  return Result.map(rows, (row) => mapRow(row, mappers));
-}
-
-function mapHeader<T>(
-  header: (T | Cell)[],
-  mappers: Mappers<T>
-): LogResult<Columns> {
-  return Columns.from(
-    Result.map(header, (cell) => mapItem(cell, mappers.header))
-  );
-}
-
-function mapRow<T>(row: (T | Cell)[], mappers: Mappers<T>): LogResult<Cell[]> {
-  return Result.map(row, (cell) => mapItem(cell, mappers.cell));
-}
-
-function mapItem<T>(
-  value: T | Cell,
-  mapper: (item: T) => LogResult<Cell | Fragment>
-): LogResult<Cell> {
-  if (Cell.is(value)) {
-    return Result.ok(value);
-  } else {
-    return mapper(value).map(Cell.from);
-  }
-}
-
 export class TableWithHeaders<T> {
   readonly #mappers: Mappers<T>;
-  readonly #headers: LogResult<Columns>;
+  readonly #headers: Columns | undefined;
 
-  constructor(mappers: Mappers<T>, headers: LogResult<Columns>) {
+  constructor(mappers: Mappers<T>, headers: Columns | undefined) {
     this.#mappers = mappers;
     this.#headers = headers;
   }
 
-  rows(rows?: (Cell | T)[][]): TableWithRows<T> {
+  rows(rows?: IntoRows<T>): TableWithRows<T> {
     return TableWithRows.create({
       mappers: this.#mappers,
       headers: this.#headers,
-      rows,
+      rows:
+        rows?.map((cells) =>
+          cells.map((cell) => Cell.from(cell, this.#mappers.cell))
+        ) ?? [],
     });
   }
 }
 
-type CellMapper<T> = (value: T, state: LoggerState) => Fragment;
+type CellMapper<T> = (
+  value: Exclude<T, Cell>,
+  state: LoggerState
+) => Fragment | Cell;
 
 export class Cell {
   static is(value: unknown): value is Cell {
     return value instanceof Cell;
   }
 
-  static from(value: Cell | Fragment): Cell;
-  static from<T>(value: T | Cell, mapper: (value: T) => IntoFragment): Cell;
+  static from(value: IntoCell<IntoFragment>): Cell;
+  static from<T>(value: IntoCell<T>, mapper: (value: T) => IntoFragment): Cell;
   static from(
-    value: unknown | Cell | Fragment,
+    value: unknown | Cell | IntoFragment,
     mapper?: (value: unknown) => IntoFragment
   ): Cell {
     if (Cell.is(value)) {
       return value;
     } else if (mapper) {
-      return Cell.create(mapper(value), Fragment.from);
+      return Cell.create(value, mapper as CellMapper<unknown>);
     } else {
-      return Cell.create(value as Fragment, (value) => value);
+      return Cell.create(value as IntoFragment, Fragment.from);
     }
   }
 
-  static create(value: IntoFragment): Cell;
   static create<T>(value: T, mapper: CellMapper<T>): Cell;
   static create<T>(value: T | IntoFragment, mapper?: CellMapper<T>): Cell {
     return new Cell(
       value,
-      (mapper ?? Fragment.from) as CellMapper<unknown>,
+      mapper as CellMapper<unknown>,
       Table3Options.default()
     );
   }
 
   static spanned(value: IntoFragment, span: number): Cell {
-    return Cell.create(value).options((o) => o.add({ colSpan: span }));
+    return Cell.create(value, Fragment.from).options((o) =>
+      o.add({ colSpan: span })
+    );
   }
 
-  readonly #value: unknown;
+  readonly #value: unknown | IntoFragment;
   readonly #mapper: CellMapper<unknown>;
   readonly #options: Table3Options<Table.CellOptions>;
 
@@ -262,11 +267,22 @@ export class Cell {
   }
 
   stringify(state: LoggerState): string {
-    return this.#mapper(this.#value, state).stringify(state);
+    return this.#fragment(state).stringify(state);
   }
 
   width(options: LoggerState): number {
-    return this.#mapper(this.#value, options).width(options);
+    return this.#fragment(options).width(options);
+  }
+
+  #fragment(state: LoggerState): Fragment {
+    const value = this.#value;
+    const mapped = this.#mapper(value, state);
+
+    if (Cell.is(mapped)) {
+      return mapped.#fragment(state);
+    } else {
+      return mapped;
+    }
   }
 }
 
@@ -364,35 +380,40 @@ const TABLE_CHARS = {
 } as const;
 
 export class TableWithRows<T> {
+  static headers<T>(
+    headers: Columns | undefined,
+    mappers: Mappers<T>
+  ): TableWithRows<T> {
+    return new TableWithRows({
+      headers,
+      rows: [],
+      mappers,
+      options: Table3Options.default(),
+    });
+  }
+
   static create<T>({
     headers,
     rows,
     mappers,
   }: {
-    headers?: LogResult<Columns>;
-    rows?: (Cell | T)[][];
+    headers: Columns | undefined;
+    rows: Cell[][];
     mappers: Mappers<T>;
   }): TableWithRows<T> {
-    if (rows === undefined) {
-      return new TableWithRows({
-        mappers,
-        headers,
-        rows: undefined,
-        options: Table3Options.default(),
-      });
-    } else {
-      return new TableWithRows({
-        mappers,
-        headers: undefined,
-        rows: mapRows(rows, mappers),
-        options: Table3Options.default(),
-      });
-    }
+    return new TableWithRows({
+      mappers,
+      headers,
+      rows: rows.map((cells) =>
+        cells.map((cell) => Cell.from(cell, mappers.cell))
+      ),
+      options: Table3Options.default(),
+    });
   }
 
   readonly #mappers: Mappers<T>;
-  readonly #columns: LogResult<Columns> | undefined;
-  readonly #rows: LogResult<Cell[][]> | undefined;
+  readonly #columns: Columns | undefined;
+  readonly #rows: Cell[][];
   readonly #options: Table3Options<Table.TableConstructorOptions>;
 
   constructor({
@@ -402,8 +423,8 @@ export class TableWithRows<T> {
     options,
   }: {
     mappers: Mappers<T>;
-    headers: LogResult<Columns> | undefined;
-    rows: LogResult<Cell[][]> | undefined;
+    headers: Columns | undefined;
+    rows: Cell[][];
     options: Table3Options<Table.TableConstructorOptions>;
   }) {
     this.#mappers = mappers;
@@ -413,14 +434,13 @@ export class TableWithRows<T> {
   }
 
   add(items: (T | Cell)[]): TableWithRows<T> {
-    const list = mapRow(items, this.#mappers);
-
     return new TableWithRows({
       mappers: this.#mappers,
       headers: this.#columns,
-      rows: Result.record({ prev: this.#rows, next: list }).map(
-        ({ prev, next }) => [...prev, next]
-      ),
+      rows: [
+        ...this.#rows,
+        items.map((cell) => Cell.from(cell, this.#mappers.cell)),
+      ],
       options: Table3Options.default(),
     });
   }
@@ -438,47 +458,45 @@ export class TableWithRows<T> {
     });
   }
 
-  stringify(state: LoggerState): LogResult<string> {
-    return this.toTable(state).map((table) => table.toString());
+  stringify(state: LoggerState): string {
+    return String(this.toTable(state));
   }
 
-  toTable(state: LoggerState): LogResult<Table.Table> {
-    return Result.record({
-      columns: this.#columns ?? LogResult.ok(Columns.default()),
-      rows: this.#rows ?? LogResult.ok([]),
-    }).map(({ columns, rows }) => {
-      const table3Options = {
-        ...this.#options.toTable3(),
-        chars: TABLE_CHARS,
-      };
+  toTable(state: LoggerState): Table.Table {
+    const columns = this.#columns ?? Columns.default();
+    const rows = this.#rows ?? [];
 
-      const headers = columns.headers(state);
+    const table3Options = {
+      ...this.#options.toTable3(),
+      chars: TABLE_CHARS,
+    };
 
-      if (headers) {
-        table3Options.head = headers;
-      }
+    const headers = columns.headers(state);
 
-      const widths = columns.columnWidths(rows, state);
+    if (headers) {
+      table3Options.head = headers;
+    }
 
-      if (widths) {
-        table3Options.colWidths = widths;
-      }
+    const widths = columns.columnWidths(rows, state);
 
-      const aligns = columns.justifications;
+    if (widths) {
+      table3Options.colWidths = widths.map((w) => w + 2);
+    }
 
-      if (aligns) {
-        table3Options.colAligns = aligns;
-      }
+    const aligns = columns.justifications;
 
-      const table = new Table(table3Options);
+    if (aligns) {
+      table3Options.colAligns = aligns;
+    }
 
-      if (rows !== undefined) {
-        table.push(
-          ...rows.map((cells) => cells.map((cell) => cell.toTable3(state)))
-        );
-      }
+    const table = new Table(table3Options);
 
-      return table;
-    });
+    if (rows !== undefined) {
+      table.push(
+        ...rows.map((cells) => cells.map((cell) => cell.toTable3(state)))
+      );
+    }
+
+    return table;
   }
 }

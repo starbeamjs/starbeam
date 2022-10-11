@@ -23,7 +23,7 @@ export const LintCommand = QueryCommand("lint")
     } else {
       const results = await workspace.check(
         ...packages.map((pkg) =>
-          CheckDefinition(pkg.name, sh`pnpm eslint --cache`, {
+          CheckDefinition(pkg.name, `pnpm eslint --cache`, {
             cwd: pkg.root,
             output: streamOutput ? "stream" : "when-error",
           })
@@ -32,6 +32,7 @@ export const LintCommand = QueryCommand("lint")
 
       workspace.reporter.reportCheckResults(results, {
         success: "lint succeeded",
+        header: "package",
       });
 
       return results.exitCode;

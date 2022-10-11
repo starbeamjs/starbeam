@@ -12,6 +12,17 @@ export function PackageUpdater(updater: PackageUpdater): PackageUpdater {
   return updater;
 }
 
+export function updateReactDemo(updater: UpdatePackage): void {
+  updater.updateJsonFile("vite.config.js", (prev) => {
+    return {
+      ...prev,
+      esbuild: {
+        jsx: "automatic",
+      },
+    };
+  });
+}
+
 export function updatePackageJSON(updater: UpdatePackage): void {
   const templateFile = TemplateName.fromString(
     updater.pkg.starbeam.templates["package.json"]
@@ -62,7 +73,8 @@ export function updatePackageJSON(updater: UpdatePackage): void {
     };
 
     if (updater.hasTsconfig()) {
-      scripts["test:build"] = "tsc -b";
+      scripts["test:types"] = "tsc -b";
+      delete scripts["test:build"];
     }
 
     if (updater.hasTests()) {

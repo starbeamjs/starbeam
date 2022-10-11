@@ -4,6 +4,7 @@ import { updateTsconfig } from "./support/template/update-tsconfig.js";
 import {
   updateLibrary,
   updatePackageJSON,
+  updateReactDemo,
   updateTest,
 } from "./support/template/updates.js";
 
@@ -19,5 +20,8 @@ export const TemplateCommand = QueryCommand("template", {
     when((pkg) => pkg.isSupport("tests"), { use: updateTest });
     when((pkg) => pkg.isTypescript, { use: updateTsconfig });
     when((pkg) => pkg.type?.is("library") ?? false, { use: updateLibrary });
+    when((pkg) => pkg.type?.is("demo:react") ?? false, {
+      use: updateReactDemo,
+    });
   });
 });

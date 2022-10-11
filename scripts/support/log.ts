@@ -50,6 +50,48 @@ export interface Verbosity {
 export type IntoLeafFragment = string | LeafFragment;
 export type IntoFragment = Fragment | string | IntoFragment[];
 
+export type IntoFragmentMap<T> =
+  | Iterable<[IntoFragment, T]>
+  | Record<string, T>;
+
+export class FragmentMap<T> implements Iterable<[Fragment, T]> {
+  static from<T, U>(
+    from: IntoFragmentMap<T>,
+    mapItem: (value: T) => U
+  ): FragmentMap<U>;
+  static from<T>(from: IntoFragmentMap<T>): FragmentMap<T>;
+  static from(
+    from: IntoFragmentMap<unknown>,
+    mapItem: (value: unknown) => unknown = (value) => value
+  ): FragmentMap<unknown> {
+    const map = new Map();
+    for (const [key, value] of Object.entries(from)) {
+      map.set(Fragment.from(key), mapItem(value));
+    }
+    return new FragmentMap(map);
+  }
+
+  readonly #map: Map<Fragment, T>;
+
+  private constructor(map: Map<Fragment, T>) {
+    this.#map = map;
+  }
+
+  *[Symbol.iterator](): IterableIterator<[FragmentImpl, T]> {
+    return this.#map[Symbol.iterator];
+  }
+
+  map<U>(mapper: (key: Fragment, value: T) => U): U[] {
+    return [...this.#map.entries()].map(([key, value]) => mapper(key, value));
+  }
+
+  flatMap<U>(mapper: (key: Fragment, value: T) => U[]): U[] {
+    return [...this.#map.entries()].flatMap(([key, value]) =>
+      mapper(key, value)
+    );
+  }
+}
+
 export function isIntoFragment(value: unknown): value is IntoFragment {
   return (
     FragmentFn.is(value) ||
@@ -99,9 +141,11 @@ export abstract class FragmentImpl {
   }
 
   static isEmpty(fragment: IntoFragment, options: LoggerState): boolean {
-    const string = FragmentImpl.stringify(fragment, options);
-
-    return /^\s*$/.test(ansicolor.strip(string));
+    if (typeof fragment === "string") {
+      return /^\s*$/.test(ansicolor.strip(fragment));
+    } else {
+      return Fragment.from(fragment).width(options) === 0;
+    }
   }
 
   update(updater: (prev: StyleInstance) => IntoStyleInstance): Fragment {
@@ -122,6 +166,10 @@ export abstract class FragmentImpl {
     } else {
       return this.concatFragment(FragmentImpl.from(other));
     }
+  }
+
+  [Symbol.for("nodejs.util.inspect.custom")](): string {
+    return this.toString();
   }
 
   abstract concatFragment(other: FragmentImpl): FragmentImpl;
@@ -348,10 +396,6 @@ FragmentFn.decoration = (style: Style, message: Printable): Fragment => {
   return FragmentFn(Style.decoration(style), message);
 };
 
-FragmentFn.header = (style: Style, message: Printable): Fragment => {
-  return FragmentFn(Style.header(style), message);
-};
-
 FragmentFn.inverted = (style: Style, message: string): Fragment => {
   return FragmentFn(Style.inverse(style), message);
 };
@@ -425,7 +469,7 @@ export const Style = {
 };
 
 export function isDetailed(value: unknown): value is DetailedStyle {
-  return !!(value && STYLE in value);
+  return !!(value && typeof value === "object" && STYLE in value);
 }
 
 export const StyleInstance = {

@@ -162,8 +162,5 @@
         "default": "./dist/index.cjs"
       }
     }
-  },
-  "dependencies": {
-    "cli-table3": "^0.6.3"
   }
 }
