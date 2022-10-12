@@ -12,7 +12,7 @@ export default defineConfig({
     }),
   ],
   esbuild: {
-    jsxInject: `import React from 'react'`,
+    jsx: "automatic",
   },
   optimizeDeps: {
     esbuildOptions: {
@@ -21,9 +21,5 @@ export default defineConfig({
       },
     },
   },
-  build: {
-    rollupOptions: {
-      plugins: [],
-    },
-  },
+  build: {},
 });

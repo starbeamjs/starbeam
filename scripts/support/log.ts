@@ -10,7 +10,9 @@ import {
   StylePart,
   STYLES,
   type AnyStyleName,
+  type IntoStylePart,
   type StyleName,
+  type StylePartName,
 } from "./reporter/styles.js";
 import { Result } from "./type-magic.js";
 
@@ -405,7 +407,7 @@ type ToFragmentFn = ((message: Printable) => Fragment) & {
 };
 type ParentToFragmentFn = typeof FragmentFn & {
   [P in StyleName]: ToFragmentFn & {
-    [P in StylePart]: ToFragmentFn;
+    [P in StylePartName]: ToFragmentFn;
   };
 };
 
@@ -449,11 +451,12 @@ export const Style = {
     return resolved.inverse;
   },
 
-  specific: (style: Style, part: StylePart): StyleInstance => {
+  specific: (style: Style, part: IntoStylePart): StyleInstance => {
     const resolved = IntoDetailedStyle(style);
+    const partName = StylePart.asString(part);
 
-    if (hasPart(resolved, part)) {
-      return resolved[part][STYLE];
+    if (hasPart(resolved, partName)) {
+      return resolved[partName][STYLE];
     } else {
       return resolved[STYLE];
     }

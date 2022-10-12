@@ -38,13 +38,19 @@ export type EveryUnionMember<
 //   assert(value: unknown): S;
 // }
 
+export type Into<C extends UnionInstance<string>> = C["value"] | C;
+export type UnionString<C extends UnionInstance<string>> = C["value"];
+
 export interface UnionClass<S extends string> {
   readonly members: S[];
-  readonly MEMBER: S;
   from<This extends UnionClass<S>>(
     this: This,
     value: S | InstanceType<This>
   ): InstanceType<This>;
+  asString<This extends UnionClass<S>>(
+    this: This,
+    value: S | InstanceType<This>
+  ): S;
   fromString<This extends UnionClass<S>>(
     this: This,
     value: unknown
@@ -58,19 +64,15 @@ export interface UnionClass<S extends string> {
 export declare class UnionInstance<S extends string> {
   constructor(value: S);
 
-  readonly MEMBER: S;
   readonly value: S;
   is(...values: S[]): boolean;
 }
-
-export type IntoUnion<U extends UnionInstance<string>> =
-  U extends UnionInstance<infer S> ? S | U : never;
 
 export function Union<S extends string>(...members: S[]): UnionClass<S> {
   return class Union {
     static readonly members: S[] = members;
 
-    declare static MEMBER: S;
+    declare static Into: S;
 
     static from<This extends UnionClass<S>>(
       this: This,
@@ -81,6 +83,13 @@ export function Union<S extends string>(...members: S[]): UnionClass<S> {
       } else {
         return value;
       }
+    }
+
+    static asString<This extends UnionClass<S>>(
+      this: This,
+      value: S | InstanceType<This>
+    ): S {
+      return this.from(value).value;
     }
 
     static fromString<This extends UnionClass<S>>(
@@ -102,7 +111,7 @@ export function Union<S extends string>(...members: S[]): UnionClass<S> {
       return members.join(" | ");
     }
 
-    declare MEMBER: S;
+    declare Into: S;
 
     #instance: S;
 

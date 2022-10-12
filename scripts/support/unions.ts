@@ -143,7 +143,8 @@ export class TemplateName extends Union(
   "npmrc",
   "package.json",
   "rollup.config.mjs",
-  "tsconfig.json"
+  "tsconfig.json",
+  "vite.config.ts"
 ) {
   read(root: Directory): string {
     return root.file(`scripts/templates/package/${this}.template`).readSync();

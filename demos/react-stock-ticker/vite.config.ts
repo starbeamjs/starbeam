@@ -11,6 +11,9 @@ export default defineConfig({
       },
     }),
   ],
+  esbuild: {
+    jsx: "automatic",
+  },
   optimizeDeps: {
     esbuildOptions: {
       define: {
@@ -18,9 +21,5 @@ export default defineConfig({
       },
     },
   },
-  build: {
-    rollupOptions: {
-      plugins: [],
-    },
-  },
+  build: {},
 });

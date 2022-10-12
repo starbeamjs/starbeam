@@ -19,12 +19,7 @@ export default defineConfig({
       define: {
         global: "globalThis",
       },
-      plugins: [],
     },
   },
-  build: {
-    rollupOptions: {
-      plugins: [],
-    },
-  },
+  build: {},
 });
