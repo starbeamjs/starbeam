@@ -23,9 +23,9 @@ Feel free to ask your questions in any of these places:
 
 At the root of this monorepo, the `pnpm demo` script can be used to start the various demos.
 
-- `pnpm demo jsnation`
-- `pnpm demo react`
-- `pnpm demo react-store`
+* `pnpm demo react`
+* `pnpm demo react-jsnation`
+* `pnpm demo react-store`
 
 ## Running tests
 
