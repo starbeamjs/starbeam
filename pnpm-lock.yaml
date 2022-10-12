@@ -355,6 +355,33 @@ importers:
       vite-plugin-fonts: 0.6.0_vite@3.1.4
       vitest: 0.23.4
 
+  packages/preact/preact:
+    specifiers:
+      '@starbeam-workspace/build-support': workspace:^
+      preact: ^10.11.1
+    dependencies:
+      preact: 10.11.1
+    devDependencies:
+      '@starbeam-workspace/build-support': link:../../../.build
+
+  packages/preact/preact/tests:
+    specifiers:
+      '@starbeam-workspace/react-test-utils': workspace:^
+      '@starbeam/core': workspace:^
+      '@starbeam/debug': workspace:^
+      '@starbeam/react': workspace:^
+      '@starbeam/timeline': workspace:^
+      jsdom: ^20.0.0
+      react: ^18
+    dependencies:
+      '@starbeam-workspace/react-test-utils': link:../../../react/test-utils
+      '@starbeam/core': link:../../../universal/core
+      '@starbeam/debug': link:../../../universal/debug
+      '@starbeam/react': link:../../../react/react
+      '@starbeam/timeline': link:../../../universal/timeline
+      jsdom: 20.0.1
+      react: 18.2.0
+
   packages/react/react:
     specifiers:
       '@domtree/flavors': workspace:^
@@ -406,7 +433,6 @@ importers:
 
   packages/react/test-utils:
     specifiers:
-      '@starbeam-workspace/build-support': workspace:^
       '@starbeam-workspace/test-utils': workspace:^
       '@starbeam/debug': workspace:^
       '@starbeam/shared': workspace:^
@@ -421,7 +447,6 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     devDependencies:
-      '@starbeam-workspace/build-support': link:../../../.build
       '@testing-library/react': 13.4.0_biqbaboplfbrettd7655fr4n2y
       '@types/react': 18.0.20
 
@@ -3081,7 +3106,6 @@ packages:
     dependencies:
       acorn: 8.8.0
       acorn-walk: 8.2.0
-    dev: true
 
   /acorn-jsx/5.3.2_acorn@8.8.0:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -3097,7 +3121,6 @@ packages:
   /acorn-walk/8.2.0:
     resolution: {integrity: sha512-k+iyHEuPgSw6SbuDpGQM+06HQUa04DZ3o+F6CSzXMvvI5KMvnaEqXe+YVe555R9nn6GPt404fos4wcgpw12SDA==}
     engines: {node: '>=0.4.0'}
-    dev: true
 
   /acorn/7.4.1:
     resolution: {integrity: sha512-nQyp0o1/mNdbTO1PO6kHkwSrmgZ0MT/jCCpNiwbUjGoRN4dlBhqJtoQuCnEOKzgTVwg0ZWiCoQy6SxMebQVh8A==}
@@ -5644,7 +5667,6 @@ packages:
       - bufferutil
       - supports-color
       - utf-8-validate
-    dev: true
 
   /jsesc/0.5.0:
     resolution: {integrity: sha512-uZz5UnB7u4T9LvwmFqXii7pZSouaRPorGs5who1Ip7VO0wxanFvBL7GkM6dTHlgX+jhBApRetaWpnDabOeTcnA==}
@@ -6666,6 +6688,10 @@ packages:
 
   /preact/10.11.0:
     resolution: {integrity: sha512-Fk6+vB2kb6mSJfDgODq0YDhMfl0HNtK5+Uc9QqECO4nlyPAQwCI+BKyWO//idA7ikV7o+0Fm6LQmNuQi1wXI1w==}
+
+  /preact/10.11.1:
+    resolution: {integrity: sha512-1Wz5PCRm6Fg+6BTXWJHhX4wRK9MZbZBHuwBqfZlOdVm2NqPe8/rjYpufvYCwJSGb9layyzB2jTTXfpCTynLqFQ==}
+    dev: false
 
   /preferred-pm/3.0.3:
     resolution: {integrity: sha512-+wZgbxNES/KlJs9q40F/1sfOd/j7f1O9JaHcW5Dsn3aUUOZg3L2bjpVUcKV2jvtElYfoTuQiNeMfQJ4kwUAhCQ==}

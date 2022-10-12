@@ -8,6 +8,7 @@ import { pathToFileURL } from "node:url";
 import glob, { type Entry, type Options } from "fast-glob";
 import { existsSync, readFileSync, type Dirent } from "node:fs";
 import { readFile } from "node:fs/promises";
+import type { JsonObject } from "./json.js";
 
 export class Paths {
   static root(root: string): Paths {
@@ -156,13 +157,13 @@ export class RegularFile extends DiskFile implements AsRegularFile {
   }
 
   async read(): Promise<string>;
-  async read<T>(options: { as: "json" }): Promise<T>;
+  async read<T extends JsonObject>(options: { as: "json" }): Promise<T>;
   async read({ as }: { as?: "json" } = {}): Promise<unknown> {
     return this.#as(await readFile(this.absolute, "utf8"), as);
   }
 
   readSync(): string;
-  readSync<T>(options: { as: "json" }): T;
+  readSync<T extends JsonObject>(options: { as: "json" }): T;
   readSync({ as }: { as?: "json" } = {}): unknown {
     return this.#as(readFileSync(this.absolute, "utf8"), as);
   }

@@ -4,12 +4,6 @@
   "type": "module",
   "private": true,
   "main": "index.tsx",
-  "starbeam": {
-    "type": "library",
-    "source": "tsx",
-    "jsx": "preact"
-  },
-  "starbeam:type": "library",
   "dependencies": {
     "@starbeam/debug": "workspace:^",
     "@starbeam/timeline": "workspace:^",
@@ -35,7 +29,11 @@
   },
   "scripts": {
     "test:lint": "eslint",
-    "test:build": "tsc -b",
     "test:types": "tsc -b"
+  },
+  "starbeam": {
+    "type": "library",
+    "source": "tsx",
+    "jsx": "preact"
   }
 }

@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import { isDetailed, type DetailedStyle, type StyleInstance } from "../log.js";
-import { Union, type Into, type UnionString } from "../type-magic.js";
+import { Union, type Into, type AsString } from "../type-magic.js";
 
 export const STYLE = Symbol("STYLE");
 export type STYLE = typeof STYLE;
@@ -45,7 +45,7 @@ export type StyleName = keyof STYLES;
 
 export class StylePart extends Union("header", "decoration", "sub", "dim") {}
 export type IntoStylePart = Into<StylePart>;
-export type StylePartName = UnionString<StylePart>;
+export type StylePartName = AsString<StylePart>;
 
 export type FullStyleName = `${StyleName}:${StylePartName}`;
 export type AnyStyleName = StyleName | FullStyleName;

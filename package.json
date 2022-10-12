@@ -24,7 +24,6 @@
     "check:unused": "esno ./scripts/index.ts unused",
     "check:lint": "eslint --cache -c ./.eslintrc.cjs --ext .ts,.tsx,.mjs .",
     "release": "esno ./scripts/index.ts release",
-    "test:build": "tsc -b",
     "test:workspace:lint": "eslint --cache -c ./.eslintrc.cjs --max-warnings=0 --ext .ts,.tsx,.mjs .",
     "test:workspace:types": "tsc -b",
     "test:workspace:specs": "vitest --run"
@@ -62,6 +61,46 @@
     "vitest": "0.23.4",
     "happy-dom": "^7.4.0",
     "jsdom": "^20.0.1"
+  },
+  "pnpm": {
+    "overrides": {
+      "typescript": "^4.8.3",
+      "vite": "3.1.4",
+      "vue": "^3.2.39",
+      "vitest": "0.23.4",
+      "rollup": "2.79.1",
+      "@rollup/plugin-commonjs": "^22.0.2",
+      "@rollup/plugin-node-resolve": "^14.1.0",
+      "@types/node": "18.7.23",
+      "eslint": "^8.24.0"
+    },
+    "peerDependencyRules": {
+      "allowAny": [
+        "react",
+        "react-dom"
+      ]
+    }
+  },
+  "nodemonConfig": {
+    "watch": [
+      "package.json",
+      "pnpm-workspace.yaml",
+      "scripts"
+    ]
+  },
+  "volta": {
+    "node": "18.9.1"
+  },
+  "publishConfig": {
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      }
+    }
   },
   "starbeam": {
     "type": "root",
@@ -125,45 +164,5 @@
         ]
       }
     ]
-  },
-  "pnpm": {
-    "overrides": {
-      "typescript": "^4.8.3",
-      "vite": "3.1.4",
-      "vue": "^3.2.39",
-      "vitest": "0.23.4",
-      "rollup": "2.79.1",
-      "@rollup/plugin-commonjs": "^22.0.2",
-      "@rollup/plugin-node-resolve": "^14.1.0",
-      "@types/node": "18.7.23",
-      "eslint": "^8.24.0"
-    },
-    "peerDependencyRules": {
-      "allowAny": [
-        "react",
-        "react-dom"
-      ]
-    }
-  },
-  "nodemonConfig": {
-    "watch": [
-      "package.json",
-      "pnpm-workspace.yaml",
-      "scripts"
-    ]
-  },
-  "volta": {
-    "node": "18.9.1"
-  },
-  "publishConfig": {
-    "main": "dist/index.cjs",
-    "types": "dist/index.d.ts",
-    "exports": {
-      ".": {
-        "types": "./dist/index.d.ts",
-        "import": "./dist/index.js",
-        "default": "./dist/index.cjs"
-      }
-    }
   }
 }

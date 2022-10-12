@@ -1,13 +1,16 @@
 {
   "private": true,
-  "name": "@starbeam-tests/core",
-  "version": "1.0.0",
   "type": "module",
+  "name": "@starbeam-tests/preact",
+  "version": "1.0.0",
   "dependencies": {
+    "@starbeam/react": "workspace:^",
     "@starbeam/core": "workspace:^",
-    "@starbeam/js": "workspace:^",
+    "@starbeam/debug": "workspace:^",
     "@starbeam/timeline": "workspace:^",
-    "@starbeam/debug": "workspace:^"
+    "@starbeam-workspace/react-test-utils": "workspace:^",
+    "react": "^18",
+    "jsdom": "^20.0.0"
   },
   "scripts": {
     "test:lint": "eslint",

@@ -3,10 +3,6 @@
   "version": "0.7.3",
   "type": "module",
   "main": "index.ts",
-  "starbeam": {
-    "type": "interfaces",
-    "template:package": "interfaces.package.json"
-  },
   "dependencies": {
     "@starbeam/shared": "workspace:^",
     "@domtree/any": "workspace:^"
@@ -24,8 +20,12 @@
   },
   "scripts": {
     "test:lint": "eslint",
-    "test:build": "tsc -b",
     "test:types": "tsc -b"
   },
-  "types": "index.d.ts"
+  "types": "index.d.ts",
+  "starbeam": {
+    "type": "interfaces",
+    "template:package": "interfaces.package.json",
+    "source": "d.ts"
+  }
 }

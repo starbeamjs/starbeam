@@ -514,15 +514,8 @@ export class Logger {
     }
   };
 
-  async exit(code: number): Promise<never> {
-    // this promise is never fulfilled, because it is blocking execution flow on process exit.
-    return new Promise(() => {
-      // if there are any open groups, close them
-      process.stdout.once("drain", () => {
-        process.exit(code);
-      });
-      process.stdout.write("");
-    });
+  exit(code: number): never {
+    process.exit(code);
   }
 
   begin(

@@ -30,6 +30,13 @@
       }
     }
   },
+  "exports": {
+    "default": "./index.ts"
+  },
+  "scripts": {
+    "test:lint": "eslint",
+    "test:types": "tsc -b"
+  },
   "starbeam": {
     "type": "demo:react",
     "used": [
@@ -41,13 +48,5 @@
       }
     ],
     "source": "tsx"
-  },
-  "exports": {
-    "default": "./index.ts"
-  },
-  "scripts": {
-    "test:lint": "eslint",
-    "test:build": "tsc -b",
-    "test:types": "tsc -b"
   }
 }

@@ -1,94 +1,131 @@
+import { isObject, type JsonObject, type JsonValue } from "../json.js";
 import type { Paths } from "../paths.js";
-import { TemplateName } from "../unions.js";
 import type { Workspace } from "../workspace.js";
-import type { UpdatePackage } from "./update-package.js";
+import type { LabelledUpdater } from "./update-package.js";
 
-export type PackageUpdater = (
-  updater: UpdatePackage,
+export type UpdatePackageFn = (
+  updater: LabelledUpdater,
   options: { workspace: Workspace; paths: Paths }
 ) => void;
 
-export function PackageUpdater(updater: PackageUpdater): PackageUpdater {
+export function UpdatePackageFn(updater: UpdatePackageFn): UpdatePackageFn {
   return updater;
 }
 
-export function updateReactDemo(updater: UpdatePackage): void {
-  updater.updateFile("vite.config.ts");
+export const updateReactDemo = UpdatePackageFn((updater) =>
+  updater.template("vite.config.ts")
+);
+
+export function updatePackageJSON(updater: LabelledUpdater): void {
+  const { pkg } = updater;
+
+  updater
+    .template(".npmrc")
+    .json.template("package.json", ({ current = {}, template }) => {
+      Object.assign(current, template);
+
+      if (current.main && !pkg.type.is("root")) {
+        current.exports = {
+          default: `./${current.main}`,
+        };
+      }
+
+      if (pkg.type.is("tests")) {
+        delete current.publishConfig;
+      }
+
+      if (pkg.type.is("library", "root")) {
+        current.devDependencies = {
+          ...(current.devDependencies as object),
+          "@starbeam-workspace/build-support": "workspace:^",
+        };
+      } else if (current.devDependencies) {
+        delete (current.devDependencies as Record<string, string>)[
+          "@starbeam-workspace/build-support"
+        ];
+      }
+
+      function updateStarbeam(key: string, value: JsonValue): void {
+        if (current["starbeam"]) {
+          current["starbeam"] = {
+            ...(current["starbeam"] as object),
+            [key]: value,
+          };
+        } else {
+          current[`starbeam:${key}`] = value;
+        }
+      }
+
+      if (pkg.type.is("demo:react")) {
+        updateStarbeam("source", "tsx");
+      }
+
+      if (pkg.type.is("interfaces")) {
+        current.types = "index.d.ts";
+        updateStarbeam("source", "d.ts");
+      }
+
+      const scripts: Record<string, string> = {
+        "test:lint": "eslint",
+      };
+
+      if (pkg.file("tsconfig.json").exists()) {
+        scripts["test:types"] = "tsc -b";
+      }
+
+      if (pkg.dir("tests").exists()) {
+        scripts["test:specs"] = "vitest --dir ./tests --run";
+      }
+
+      current.scripts = {
+        ...(isObject(current.scripts) ? current.scripts : undefined),
+        ...scripts,
+      };
+
+      return consolidateStarbeam(current);
+    });
 }
 
-export function updatePackageJSON(updater: UpdatePackage): void {
-  const templateFile = TemplateName.fromString(
-    updater.pkg.starbeam.templates["package.json"]
+function consolidateStarbeam(json: JsonObject): JsonObject {
+  const starbeamEntries = Object.entries(json).filter(([key]) =>
+    key.startsWith("starbeam:")
   );
 
-  const template = updater.template(templateFile);
-  const splice = JSON.parse(template);
+  const otherEntries = Object.entries(json).filter(
+    ([key]) => !key.startsWith("starbeam")
+  );
 
-  updater.updateJsonFile("package.json", (prev) => {
-    Object.assign(prev, splice);
+  const rootStarbeamValue = json["starbeam"];
 
-    if (prev.main && !updater.type?.is("root")) {
-      prev.exports = {
-        default: `./${prev.main}`,
-      };
-    }
+  if (rootStarbeamValue !== undefined && !isObject(rootStarbeamValue)) {
+    throw Error(
+      `Invalid starbeam entry in package.json (the "starbeam" entry in package.json must be an object): ${rootStarbeamValue}`
+    );
+  }
 
-    if (updater.type?.is("library", "root")) {
-      prev.devDependencies = {
-        ...(prev.devDependencies as object),
-        "@starbeam-workspace/build-support": "workspace:^",
-      };
-    } else if (prev.devDependencies) {
-      delete (prev.devDependencies as Record<string, string>)[
-        "@starbeam-workspace/build-support"
-      ];
-    }
-
-    if (updater.type?.is("demo:react")) {
-      if (prev["starbeam:source"]) {
-        prev["starbeam:source"] = "tsx";
-      } else if (prev["starbeam"]) {
-        prev["starbeam"] = {
-          ...(prev["starbeam"] as object),
-          source: "tsx",
-        };
-      } else {
-        prev["starbeam:source"] = "tsx";
-      }
-    }
-
-    if (updater.type?.is("interfaces")) {
-      prev.types = "index.d.ts";
-    }
-
-    const scripts: Record<string, string> = {
-      "test:lint": "eslint",
+  if (starbeamEntries.length === 1 && rootStarbeamValue === undefined) {
+    return {
+      ...Object.fromEntries(otherEntries),
+      ...Object.fromEntries(starbeamEntries),
     };
+  }
 
-    if (updater.hasTsconfig()) {
-      scripts["test:types"] = "tsc -b";
-      delete scripts["test:build"];
-    }
+  const starbeamObject = Object.fromEntries(
+    starbeamEntries.map(([key, value]) => [
+      key.slice("starbeam:".length),
+      value,
+    ])
+  );
+  const rootStarbeam = rootStarbeamValue
+    ? { ...starbeamObject, ...rootStarbeamValue }
+    : starbeamObject;
 
-    if (updater.hasTests()) {
-      scripts["test:specs"] = "vitest --dir ./tests --run";
-    }
-
-    prev.scripts = {
-      ...(prev.scripts as object),
-      ...scripts,
-    };
-
-    return prev;
-  });
+  return {
+    ...Object.fromEntries(otherEntries),
+    starbeam: rootStarbeam,
+  };
 }
 
-export const updateTest = PackageUpdater((updater, { workspace }) => {
-  const npmrc = TemplateName.fromString("npmrc").read(workspace.root);
-  updater.updateFile(".npmrc", npmrc);
-});
-
-export const updateLibrary = PackageUpdater((updater) => {
-  const rollup = updater.template(TemplateName.from("rollup.config.mjs"));
-  updater.updateFile("rollup.config.mjs", rollup);
+export const updateLibrary = UpdatePackageFn((updater) => {
+  updater.template("rollup.config.mjs");
 });

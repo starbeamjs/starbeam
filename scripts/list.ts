@@ -16,7 +16,7 @@ export const ListCommand = QueryCommand("list").action(
       }
 
       if (!query.unifies("type")) {
-        flags.push(chalk.bgGray.black(pkg.type?.value ?? "unknown"));
+        flags.push(chalk.bgGray.black(pkg.type.value ?? "unknown"));
       }
 
       if (pkg.isTypescript && !query.unifies("typescript")) {

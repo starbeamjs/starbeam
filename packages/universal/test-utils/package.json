@@ -4,7 +4,6 @@
   "version": "1.0.0",
   "type": "module",
   "main": "index.ts",
-  "starbeam:type": "library",
   "exports": {
     "default": "./index.ts"
   },
@@ -24,7 +23,7 @@
   },
   "scripts": {
     "test:lint": "eslint",
-    "test:build": "tsc -b",
     "test:types": "tsc -b"
-  }
+  },
+  "starbeam:type": "library"
 }

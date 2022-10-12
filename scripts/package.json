@@ -2,23 +2,6 @@
   "name": "@starbeam-private/scripts",
   "type": "module",
   "private": true,
-  "starbeam": {
-    "type": "support:build",
-    "used": [
-      {
-        "reason": "used by exec",
-        "packages": [
-          "eslint"
-        ]
-      },
-      {
-        "reason": "package.json scripts",
-        "packages": [
-          "esno"
-        ]
-      }
-    ]
-  },
   "dependencies": {
     "@starbeam-workspace/root": "workspace:^",
     "ansicolor": "^1.1.100",
@@ -61,7 +44,23 @@
   },
   "scripts": {
     "test:lint": "eslint",
-    "test:build": "tsc -b",
     "test:types": "tsc -b"
+  },
+  "starbeam": {
+    "type": "support:build",
+    "used": [
+      {
+        "reason": "used by exec",
+        "packages": [
+          "eslint"
+        ]
+      },
+      {
+        "reason": "package.json scripts",
+        "packages": [
+          "esno"
+        ]
+      }
+    ]
   }
 }

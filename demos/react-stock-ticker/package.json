@@ -4,13 +4,11 @@
   "version": "1.0.0",
   "type": "module",
   "main": "index.ts",
-  "starbeam:type": "demo:react",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test:lint": "eslint",
-    "test:build": "tsc -b",
     "test:types": "tsc -b"
   },
   "dependencies": {
@@ -44,5 +42,8 @@
   "exports": {
     "default": "./index.ts"
   },
-  "starbeam:source": "tsx"
+  "starbeam": {
+    "type": "demo:react",
+    "source": "tsx"
+  }
 }

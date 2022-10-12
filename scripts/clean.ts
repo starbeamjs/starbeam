@@ -78,7 +78,7 @@ async function cleanFiles({
   const patterns = ["dist", "**/tsconfig.tsbuildinfo"];
   const cwd = pkg.root.absolute;
 
-  if (!pkg.type?.is("root")) {
+  if (!pkg.type.is("root")) {
     const outputs = pkg.sources.outputs(pkg.root);
 
     for (const output of outputs) {

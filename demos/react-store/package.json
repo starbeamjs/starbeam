@@ -4,18 +4,6 @@
   "version": "1.0.0",
   "type": "module",
   "main": "index.ts",
-  "starbeam": {
-    "type": "demo:react",
-    "source": "tsx",
-    "used": [
-      {
-        "reason": "css",
-        "packages": [
-          "purecss"
-        ]
-      }
-    ]
-  },
   "dependencies": {
     "@starbeam/core": "workspace:^",
     "@starbeam/debug": "workspace:^",
@@ -49,7 +37,18 @@
   },
   "scripts": {
     "test:lint": "eslint",
-    "test:build": "tsc -b",
     "test:types": "tsc -b"
+  },
+  "starbeam": {
+    "type": "demo:react",
+    "source": "tsx",
+    "used": [
+      {
+        "reason": "css",
+        "packages": [
+          "purecss"
+        ]
+      }
+    ]
   }
 }

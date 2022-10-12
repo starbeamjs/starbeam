@@ -3,7 +3,6 @@
   "version": "0.7.3",
   "type": "module",
   "main": "index.ts",
-  "starbeam:type": "library",
   "dependencies": {},
   "devDependencies": {
     "@starbeam-workspace/build-support": "workspace:^"
@@ -25,7 +24,7 @@
   "scripts": {
     "test:lint": "eslint",
     "test:specs": "vitest --dir ./tests --run",
-    "test:build": "tsc -b",
     "test:types": "tsc -b"
-  }
+  },
+  "starbeam:type": "library"
 }

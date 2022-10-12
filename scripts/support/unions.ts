@@ -1,9 +1,16 @@
+import {
+  isObject,
+  type JsonObject,
+  type JsonPrimitive,
+  type JsonValue,
+} from "./json.js";
 import { Globs, RegularFile, type Directory } from "./paths.js";
-import { Union } from "./type-magic.js";
+import { Union, UnionInstance, type IntoUnionInstance } from "./type-magic.js";
 
 export class StarbeamType extends Union(
   "interfaces",
   "library",
+  "tests",
   "support:tests",
   "support:build",
   "demo:react",
@@ -12,17 +19,6 @@ export class StarbeamType extends Union(
   "root",
   "none"
 ) {
-  /**
-   * The default extensions that should be treated as inputs (for unused analysis and cleaning).
-   */
-  defaultInputExtensions(): string[] {
-    if (this.is("interfaces")) {
-      return ["d.ts"];
-    } else {
-      return ["ts", "tsx", "js", "jsx", "d.ts"];
-    }
-  }
-
   hasCategory(kind: "demo" | "support"): boolean {
     return this.value.startsWith(`${kind}:`);
   }
@@ -45,13 +41,13 @@ export class StarbeamSources extends Union(
    * Determine whether this source type includes the given extension.
    */
   has(ext: Ext): boolean {
-    return this.extensions.includes(ext);
+    return this.inputExtensions.includes(ext);
   }
 
   /**
    * The list of extensions that are included in this source type.
    */
-  get extensions(): Ext[] {
+  get inputExtensions(): Ext[] {
     switch (this.value) {
       case "js:untyped":
         return ["js"];
@@ -68,10 +64,6 @@ export class StarbeamSources extends Union(
       case "d.ts":
         return ["d.ts"];
     }
-  }
-
-  hasCategory(...kinds: ("js" | "jsx")[]): boolean {
-    return kinds.some((kind) => this.value.startsWith(`${kind}:`));
   }
 
   #add(globs: Globs<RegularFile>, ext: Ext): Globs<RegularFile> {
@@ -120,13 +112,6 @@ export class StarbeamSources extends Union(
     return this.select(root, [...selected]);
   }
 
-  /**
-   * Inputs that can be parsed with a TypeScript parser.
-   */
-  inputs(root: Directory): Globs<RegularFile> {
-    return this.exclude(root, []);
-  }
-
   outputs(root: Directory): Globs<RegularFile> {
     let globs = Globs.root(root, { match: ["files"] });
 
@@ -138,9 +123,107 @@ export class StarbeamSources extends Union(
   }
 }
 
-export class TemplateName extends Union(
+export class JsonTemplate extends Union(
   "interfaces.package.json",
-  "npmrc",
+  "package.json",
+  "tsconfig.json"
+) {
+  read(
+    root: Directory,
+    filter?: [kind: string, value: IntoUnionInstance]
+  ): JsonObject {
+    const json = root
+      .file(`scripts/templates/package/${this}.template`)
+      .readSync({ as: "json" });
+
+    if (filter) {
+      return JsonEntries.create(json, this.value).filter(filter);
+    } else {
+      return json;
+    }
+  }
+}
+
+export type JsonFilter = [type: string, value: string | UnionInstance<string>];
+
+class JsonEntries {
+  static create(object: JsonObject, path: string): JsonEntries {
+    return new JsonEntries(path, Object.entries(object));
+  }
+
+  readonly #path: string;
+  readonly #entries: [string, JsonValue][];
+
+  private constructor(path: string, entries: [string, JsonValue][]) {
+    this.#path = path;
+    this.#entries = entries;
+  }
+
+  filter(filter: JsonFilter): JsonObject {
+    const entries = this.#entries;
+
+    const staticEntries = entries.filter(([key]) => !key.startsWith("switch:"));
+
+    return {
+      ...Object.fromEntries(staticEntries),
+      ...this.#objectFor(filter[0], String(filter[1])),
+    };
+  }
+
+  #objectFor(type: string, value: string): JsonObject {
+    const switchNode = this.#entries.find(([key]) =>
+      key.startsWith(`switch:${type}`)
+    );
+
+    if (!switchNode) {
+      return {};
+    }
+
+    const [key, switchValue] = switchNode;
+
+    this.#assert(type, switchValue);
+
+    if (value in switchValue) {
+      return this.#asserting(`${type}:${key}`, switchValue[value]);
+    } else if ("default" in switchValue) {
+      return this.#asserting(`${type}:default`, switchValue.default);
+    } else {
+      return {};
+    }
+  }
+
+  #assert(key: string, value: JsonValue): asserts value is JsonObject {
+    if (!isObject(value)) {
+      throw Error(
+        `Malformed switch entry for switch:${key} in ${
+          this.#path
+        }: ${value}\n\nA switch entry and its children must be objects, but the value is a ${typeof value}.`
+      );
+    }
+  }
+
+  #asserting(key: string, value: JsonValue): JsonObject {
+    this.#assert(key, value);
+    return value;
+  }
+
+  #isMalformed = (
+    entry: [string, JsonValue]
+  ): entry is [string, JsonPrimitive] =>
+    (entry[0].startsWith("if:") || entry[0] === "else") && !isObject(entry[1]);
+
+  #isStatic = (entry: [string, JsonValue]): boolean =>
+    !this.#isConditional(entry);
+
+  #isConditional = (
+    entry: [string, JsonValue]
+  ): entry is [string, JsonObject] =>
+    (entry[0].startsWith("if:") || entry[0] === "else") && isObject(entry[1]);
+}
+
+export class Template extends Union(
+  "interfaces.package.json",
+  ".npmrc",
   "package.json",
   "rollup.config.mjs",
   "tsconfig.json",

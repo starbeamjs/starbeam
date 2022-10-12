@@ -3,7 +3,6 @@
   "version": "0.7.4",
   "type": "module",
   "main": "index.ts",
-  "starbeam:type": "library",
   "dependencies": {
     "@starbeam/core": "workspace:^",
     "@starbeam/debug": "workspace:^",
@@ -31,7 +30,7 @@
   },
   "scripts": {
     "test:lint": "eslint",
-    "test:build": "tsc -b",
     "test:types": "tsc -b"
-  }
+  },
+  "starbeam:type": "library"
 }

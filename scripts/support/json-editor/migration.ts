@@ -1,5 +1,6 @@
 import { inspect } from "node:util";
 import type { EditJsonc, JsoncPosition } from "../jsonc.js";
+import type { ChangeResult } from "../reporter/reporter.js";
 
 type Migration =
   | {
@@ -20,9 +21,7 @@ type Migration =
     };
 
 export class Migrator<R extends object> {
-  static create<T extends Record<string, string>>(
-    editor: EditJsonc
-  ): Migrator<T> {
+  static create<T extends object>(editor: EditJsonc): Migrator<T> {
     return new Migrator(editor);
   }
 
@@ -94,7 +93,7 @@ export class Migrator<R extends object> {
     }
   }
 
-  write(): false | "create" | "update" | "remove" {
+  write(): ChangeResult {
     this.migrate();
     return this.#editor.write();
   }

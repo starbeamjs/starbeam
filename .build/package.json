@@ -3,10 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "starbeam": {
-    "type": "support:build",
-    "source": "js:typed"
-  },
   "main": "index.js",
   "types": "index.d.ts",
   "exports": {
@@ -40,7 +36,10 @@
   },
   "scripts": {
     "test:lint": "eslint",
-    "test:build": "tsc -b",
     "test:types": "tsc -b"
+  },
+  "starbeam": {
+    "type": "support:build",
+    "source": "js:typed"
   }
 }

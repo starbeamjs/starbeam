@@ -1,6 +1,5 @@
-import chalk from "chalk";
-import { Migrator } from "../json-editor/migration.js";
-import { PackageUpdater } from "./updates.js";
+import type { Migrator } from "../json-editor/migration.js";
+import { UpdatePackageFn } from "./updates.js";
 
 /**
  * Unfortunately, this is not exposed in a useful/viable way from the typescript package.
@@ -111,100 +110,96 @@ export interface TsConfig {
   };
 }
 
-export const updateTsconfig = PackageUpdater((updater, { workspace }) => {
-  const editor = updater.jsonEditor("tsconfig.json");
+export const updateTsconfig = UpdatePackageFn((updater, { workspace }) => {
+  const { path, pkg } = updater;
+  updater.json.migrator("tsconfig.json", (migrator: Migrator<TsConfig>) => {
+    migrator
+      .remove("compilerOptions.emitDeclarationOnly")
+      .add(
+        "compilerOptions.types",
+        path.relative(workspace.paths.packages.file("env")),
+        { matches: (type) => type.endsWith("/env") }
+      );
 
-  const migrator = new Migrator<TsConfig>(editor);
+    if (updater.pkg.type.is("demo:react")) {
+      const devtool = path.relative(
+        workspace.paths.packages.x.dir("devtool").file("tsconfig.json")
+      );
 
-  migrator
-    .remove("compilerOptions.emitDeclarationOnly")
-    .add(
-      "compilerOptions.types",
-      updater.relative(workspace.paths.packages.file("env")),
-      { matches: (type) => type.endsWith("/env") }
-    );
+      const packages = path.relative(
+        workspace.paths.packages.file("tsconfig.packages.json")
+      );
 
-  if (updater.type?.is("demo:react")) {
-    const devtool = updater.relative(
-      workspace.paths.packages.x.dir("devtool").file("tsconfig.json")
-    );
+      migrator
+        .add(
+          "references",
+          { path: devtool },
+          { matches: (ref) => ref.path === devtool }
+        )
+        .add(
+          "references",
+          { path: packages },
+          { matches: (ref) => ref.path === packages }
+        );
+    }
 
-    const packages = updater.relative(
-      workspace.paths.packages.file("tsconfig.packages.json")
-    );
+    if (updater.pkg.tsconfig) {
+      migrator.set(
+        "extends",
+        path.relative(
+          workspace.root.file(`.config/tsconfig/${updater.pkg.tsconfig}`)
+        ),
+        "start"
+      );
+      migrator.set(
+        "extends",
+        path.relative(
+          workspace.root.file(`.config/tsconfig/${updater.pkg.tsconfig}`)
+        ),
+        "start"
+      );
+    } else if (
+      updater.pkg.type.is(
+        "library",
+        "interfaces",
+        "tests",
+        "support:tests",
+        "support:build"
+      )
+    ) {
+      migrator.set(
+        "extends",
+        path.relative(
+          workspace.root.file(".config/tsconfig/tsconfig.shared.json")
+        ),
+        "start"
+      );
+    } else if (pkg.type.is("demo:react")) {
+      migrator.set(
+        "extends",
+        path.relative(
+          workspace.root.file(`.config/tsconfig/tsconfig.react-demo.json`)
+        ),
+        "start"
+      );
+    } else if (pkg.type.is("root")) {
+      // do nothing
+    } else {
+      workspace.reporter.fatal(`${pkg.root} is an unknown type: ${pkg.type}`);
+    }
 
     migrator
-      .add(
-        "references",
-        { path: devtool },
-        { matches: (ref) => ref.path === devtool }
+      .set("compilerOptions.composite", true)
+      .set(
+        "compilerOptions.outDir",
+        path.relative(workspace.root.dir(`dist/packages`))
       )
-      .add(
-        "references",
-        { path: packages },
-        { matches: (ref) => ref.path === packages }
-      );
-  }
-
-  if (updater.tsconfig) {
-    migrator.set(
-      "extends",
-      updater.relative(
-        workspace.root.file(`.config/tsconfig/${updater.tsconfig}`)
-      ),
-      "start"
-    );
-    migrator.set(
-      "extends",
-      updater.relative(
-        workspace.root.file(`.config/tsconfig/${updater.tsconfig}`)
-      ),
-      "start"
-    );
-  } else if (
-    updater.type?.is("library", "interfaces", "support:tests", "support:build")
-  ) {
-    migrator.set(
-      "extends",
-      updater.relative(
-        workspace.root.file(".config/tsconfig/tsconfig.shared.json")
-      ),
-      "start"
-    );
-  } else if (updater.type?.is("demo:react")) {
-    migrator.set(
-      "extends",
-      updater.relative(
-        workspace.root.file(`.config/tsconfig/tsconfig.react-demo.json`)
-      ),
-      "start"
-    );
-  } else if (updater.type?.is("root")) {
-    // do nothing
-  } else {
-    updater.error((root) =>
-      console.error(chalk.red(`${root} is an unknown type: ${updater.type}`))
-    );
-    process.exit(1);
-  }
-
-  migrator
-    .set("compilerOptions.composite", true)
-    .set(
-      "compilerOptions.outDir",
-      updater.relative(workspace.root.dir(`dist/packages`))
-    )
-    .set("compilerOptions.declaration", true)
-    .set(
-      "compilerOptions.declarationDir",
-      updater.relative(workspace.root.dir(`dist/types`))
-    )
-    .set("compilerOptions.declarationMap", true)
-    .add("exclude", "dist/**/*");
-
-  const changed = migrator.write();
-
-  if (changed) {
-    updater.change(changed, "tsconfig.json");
-  }
+      .set("compilerOptions.declaration", true)
+      .set(
+        "compilerOptions.declarationDir",
+        path.relative(workspace.root.dir(`dist/types`))
+      )
+      .set("compilerOptions.declarationMap", true)
+      .add("exclude", "dist/**/*");
+  });
 });

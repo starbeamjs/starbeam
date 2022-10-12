@@ -317,14 +317,14 @@ export class Reporter {
     this.#logger.reportError(error);
   }
 
-  async fatal(fragment: IntoFallibleFragment): Promise<never> {
+  fatal(fragment: IntoFallibleFragment): never {
     const message = FragmentImpl.fallibleFrom(fragment).map((f) => f);
     this.#logger.logln(
       `${chalk.redBright.inverse("FATAL")} ${chalk.red(message)}`,
       "error"
     );
 
-    throw await this.#logger.exit(1);
+    this.#logger.exit(1);
   }
 
   info(message: string): void {
@@ -728,3 +728,6 @@ export type Ending =
       nested?: IntoFragment | NestedEndWith;
       compact?: IntoFragment | CompactEndWith;
     };
+
+export type ChangeType = "create" | "remove" | "update";
+export type ChangeResult = ChangeType | false;

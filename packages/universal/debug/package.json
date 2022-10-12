@@ -3,19 +3,6 @@
   "type": "module",
   "main": "index.ts",
   "version": "0.7.4",
-  "starbeam:type": "library",
-  "starbeam": {
-    "type": "library",
-    "inline": [
-      "stacktracey",
-      "get-source",
-      "source-map",
-      "data-uri-to-buffer",
-      "as-table",
-      "printable-characters",
-      "chalk"
-    ]
-  },
   "dependencies": {
     "@starbeam/shared": "workspace:^",
     "@starbeam/verify": "workspace:^",
@@ -50,7 +37,18 @@
   "scripts": {
     "test:lint": "eslint",
     "test:specs": "vitest --dir ./tests --run",
-    "test:build": "tsc -b",
     "test:types": "tsc -b"
+  },
+  "starbeam": {
+    "type": "library",
+    "inline": [
+      "stacktracey",
+      "get-source",
+      "source-map",
+      "data-uri-to-buffer",
+      "as-table",
+      "printable-characters",
+      "chalk"
+    ]
   }
 }

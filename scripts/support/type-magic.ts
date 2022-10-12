@@ -39,7 +39,8 @@ export type EveryUnionMember<
 // }
 
 export type Into<C extends UnionInstance<string>> = C["value"] | C;
-export type UnionString<C extends UnionInstance<string>> = C["value"];
+export type IntoUnionInstance = string | UnionInstance<string>;
+export type AsString<C extends UnionInstance<string>> = C["value"];
 
 export interface UnionClass<S extends string> {
   readonly members: S[];
@@ -65,6 +66,8 @@ export declare class UnionInstance<S extends string> {
   constructor(value: S);
 
   readonly value: S;
+
+  toString(): string;
   is(...values: S[]): boolean;
 }
 

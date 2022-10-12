@@ -3,6 +3,7 @@ import { Query } from "./query.js";
 import { StarbeamSources, StarbeamType } from "./unions.js";
 import type { Workspace } from "./workspace.js";
 import sh from "shell-escape-tag";
+import type { JsonValue } from "./json";
 
 export interface StarbeamTemplates {
   "package.json": string;
@@ -161,6 +162,14 @@ export class Package {
     return this.info.manifest.parent;
   }
 
+  file(path: string): RegularFile {
+    return this.root.file(path);
+  }
+
+  dir(path: string): Directory {
+    return this.root.dir(path);
+  }
+
   get sources(): StarbeamSources {
     return this.info.starbeam.sources;
   }
@@ -293,16 +302,6 @@ export async function queryPackages(
     .map((manifest) => Package.from(workspace, manifest))
     .filter((pkg) => query.match(pkg));
 }
-
-export type JsonValue =
-  | string
-  | number
-  | boolean
-  | null
-  | JsonValue[]
-  | { [key: string]: JsonValue };
-
-export type JsonObject = { [key: string]: JsonValue };
 
 class RawPackage {
   readonly #pkg: Record<string, JsonValue>;

@@ -5,7 +5,6 @@ import {
   updateLibrary,
   updatePackageJSON,
   updateReactDemo,
-  updateTest,
 } from "./support/template/updates.js";
 
 export const TemplateCommand = QueryCommand("template", {
@@ -16,12 +15,22 @@ export const TemplateCommand = QueryCommand("template", {
   const updater = new UpdatePackages(workspace, packages);
 
   updater.update((when) => {
-    when(() => true, { use: updatePackageJSON });
-    when((pkg) => pkg.isSupport("tests"), { use: updateTest });
-    when((pkg) => pkg.isTypescript, { use: updateTsconfig });
-    when((pkg) => pkg.type?.is("library") ?? false, { use: updateLibrary });
-    when((pkg) => pkg.type?.is("demo:react") ?? false, {
-      use: updateReactDemo,
-    });
+    when(() => true, "all packages").use(updatePackageJSON);
+    when((pkg) => pkg.type.is("tests"), "tests").use((updater) =>
+      updater.json("package.json", (prev) => {
+        delete prev.publishConfig;
+        delete prev.private;
+
+        return {
+          private: true,
+          ...prev,
+        };
+      })
+    );
+    when((pkg) => pkg.isTypescript, "typescript").use(updateTsconfig);
+    when((pkg) => pkg.type.is("library"), "libraries").use(updateLibrary);
+    when((pkg) => pkg.type.is("demo:react"), "react demos").use(
+      updateReactDemo
+    );
   });
 });

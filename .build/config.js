@@ -50,8 +50,6 @@ const EXTERNAL = true;
  */
 export function tsconfig(updates) {
   return {
-    jsx: JsxEmit.ReactJSX,
-    jsxImportSource: "preact",
     strict: true,
     declaration: true,
     declarationMap: true,
@@ -80,7 +78,7 @@ export function tsconfig(updates) {
  * @returns {RollupPlugin}
  */
 export function typescript(pkg, config) {
-  const ts = tsconfig(config ?? {});
+  const typeScriptConfig = { ...config };
 
   /** @type {[string, object][]} */
   const presets = [["@babel/preset-typescript", { allowDeclareFields: true }]];
@@ -90,7 +88,12 @@ export function typescript(pkg, config) {
       "@babel/preset-react",
       { runtime: "automatic", importSource: pkg.starbeam.jsx },
     ]);
+
+    typeScriptConfig.jsx = JsxEmit.ReactJSX;
+    typeScriptConfig.jsxImportSource = pkg.starbeam.jsx;
   }
+
+  const ts = tsconfig(typeScriptConfig);
 
   return rollupTS({
     transpiler: "babel",
