@@ -302,6 +302,8 @@ export type JsonValue =
   | JsonValue[]
   | { [key: string]: JsonValue };
 
+export type JsonObject = { [key: string]: JsonValue };
+
 class RawPackage {
   readonly #pkg: Record<string, JsonValue>;
   readonly #root: string;

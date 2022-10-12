@@ -13,14 +13,7 @@ export function PackageUpdater(updater: PackageUpdater): PackageUpdater {
 }
 
 export function updateReactDemo(updater: UpdatePackage): void {
-  updater.updateJsonFile("vite.config.js", (prev) => {
-    return {
-      ...prev,
-      esbuild: {
-        jsx: "automatic",
-      },
-    };
-  });
+  updater.updateFile("vite.config.ts");
 }
 
 export function updatePackageJSON(updater: UpdatePackage): void {

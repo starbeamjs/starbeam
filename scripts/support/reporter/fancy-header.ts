@@ -1,12 +1,17 @@
 import { Style, StyleInstance, type Printable } from "../log.js";
-import { StylePart, STYLES, type StyleName } from "./styles.js";
+import {
+  StylePart,
+  STYLES,
+  type StyleName,
+  type StylePartName,
+} from "./styles.js";
 
 type ToFragmentFn = ((message: Printable) => string) & {
   inverse: (message: Printable) => string;
 };
 type ParentToFragmentFn = ToFragmentFn & {
   [P in StyleName]: ToFragmentFn & {
-    [Q in StylePart]: ToFragmentFn;
+    [Q in StylePartName]: ToFragmentFn;
   };
 };
 

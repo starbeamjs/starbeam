@@ -12,8 +12,8 @@ export const TemplateCommand = QueryCommand("template", {
   description: "template a package",
   notes:
     "Packages are only included if they include a `main` field in their package.json",
-}).action(({ packages, workspace, verbose }) => {
-  const updater = new UpdatePackages(workspace, packages, verbose);
+}).action(({ packages, workspace }) => {
+  const updater = new UpdatePackages(workspace, packages);
 
   updater.update((when) => {
     when(() => true, { use: updatePackageJSON });

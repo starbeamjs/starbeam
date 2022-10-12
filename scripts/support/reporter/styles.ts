@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import { isDetailed, type DetailedStyle, type StyleInstance } from "../log.js";
-import { Union } from "../type-magic.js";
+import { Union, type Into, type UnionString } from "../type-magic.js";
 
 export const STYLE = Symbol("STYLE");
 export type STYLE = typeof STYLE;
@@ -43,16 +43,11 @@ export const STYLES = createStyles({
 export type STYLES = typeof STYLES;
 export type StyleName = keyof STYLES;
 
-export class StylePartUnion extends Union(
-  "header",
-  "decoration",
-  "sub",
-  "dim"
-) {}
-export type StylePart = StylePartUnion["MEMBER"];
-export const StylePart = StylePartUnion;
+export class StylePart extends Union("header", "decoration", "sub", "dim") {}
+export type IntoStylePart = Into<StylePart>;
+export type StylePartName = UnionString<StylePart>;
 
-export type FullStyleName = `${StyleName}:${StylePart}`;
+export type FullStyleName = `${StyleName}:${StylePartName}`;
 export type AnyStyleName = StyleName | FullStyleName;
 
 export function getStyle(name: AnyStyleName): StyleInstance {
@@ -61,7 +56,7 @@ export function getStyle(name: AnyStyleName): StyleInstance {
     return resolve(style);
   }
 
-  const [styleName, part] = name.split(":") as [StyleName, StylePart];
+  const [styleName, part] = name.split(":") as [StyleName, StylePartName];
 
   const style = STYLES[styleName] as DetailedStyle;
 
@@ -82,7 +77,7 @@ function resolve(style: StyleInstance | DetailedStyle): StyleInstance {
 
 export function getSpecificStyle(
   name: StyleName | FullStyleName,
-  specific: StylePart
+  specific: StylePartName
 ): StyleInstance {
   if (isStyleName(name)) {
     return getStyle(`${name}:${specific}`);
@@ -91,9 +86,9 @@ export function getSpecificStyle(
   }
 }
 
-export function hasPart<K extends StylePart>(
+export function hasPart<K extends StylePartName>(
   style: DetailedStyle,
-  part: StylePart
+  part: K
 ): style is DetailedStyle & { [P in K]: DetailedStyle } {
   return part in style;
 }
@@ -117,5 +112,5 @@ export function isAnyStyleName(value: unknown): value is AnyStyleName {
 }
 
 export function isPartName(value: unknown): value is StylePart {
-  return StylePartUnion.isMember(value);
+  return StylePart.isMember(value);
 }

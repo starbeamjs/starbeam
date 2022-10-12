@@ -1,12 +1,12 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { isAbsolute, relative } from "node:path";
-import type { JsonValue, Package } from "../packages.js";
+import type { JsonObject, JsonValue, Package } from "../packages.js";
 import { EditJsonc } from "../jsonc.js";
 import { log, Fragment } from "../log.js";
 import type { Workspace } from "../workspace.js";
 import type { Directory, Path } from "../paths.js";
 import type { PackageUpdater } from "./updates.js";
-import type { IntoUnion } from "../type-magic.js";
+import type { Into } from "../type-magic.js";
 import { TemplateName, type StarbeamType } from "../unions.js";
 
 export class UpdatePackage {
@@ -74,7 +74,7 @@ export class UpdatePackage {
     log(`${flag} ${description}`, "comment");
   }
 
-  template(name: IntoUnion<TemplateName>): string {
+  template(name: Into<TemplateName>): string {
     return this.#packages.template(name);
   }
 
@@ -91,12 +91,7 @@ export class UpdatePackage {
     );
   }
 
-  updateJsonFile(
-    relativePath: string,
-    callback: (json: { [key: string]: JsonValue }) => {
-      [key: string]: JsonValue;
-    }
-  ): void {
+  updateJsonFile(relativePath: string, updater: JsonUpdater): void {
     this.updateFile(relativePath, (prev) => {
       const json = JSON.parse(prev || "{}");
 
@@ -106,20 +101,37 @@ export class UpdatePackage {
         );
       }
 
-      const next = callback(json);
+      const next = this.#updateJsonFn(updater)(json);
       return JSON.stringify(next, null, 2) + "\n";
     });
   }
 
-  updateFile(
-    relativePath: string,
-    updater: string | ((prev: string | undefined) => string)
-  ): void {
-    const updateFn = typeof updater === "function" ? updater : () => updater;
+  #updateJsonFn(updater: JsonUpdater): (prev: JsonObject) => JsonObject {
+    if (typeof updater === "function") {
+      return updater;
+    } else {
+      return (prev) => ({ ...prev, ...updater });
+    }
+  }
 
+  #updateFn(updater: FileUpdater): (prev: string | undefined) => string {
+    if (typeof updater === "function") {
+      return updater;
+    } else if (typeof updater === "string") {
+      return () => updater;
+    } else {
+      return () => this.template(updater.template);
+    }
+  }
+
+  updateFile(template: TemplateName["value"]): void;
+  updateFile(relativePath: string, updater: FileUpdater): void;
+  updateFile(relativePath: string, updater?: FileUpdater): void {
     const path = this.root.file(relativePath);
     const prev = existsSync(path) ? readFileSync(path, "utf-8") : undefined;
-    const next = updateFn(prev);
+    const next = this.#updateFn(
+      updater ?? { template: relativePath as TemplateName["value"] }
+    )(prev);
     if (prev !== next) {
       this.change(prev === undefined ? "create" : "update", relativePath);
       writeFileSync(path, next);
@@ -153,20 +165,18 @@ export class UpdatePackage {
 export class UpdatePackages {
   readonly #workspace: Workspace;
   readonly #packages: Package[];
-  readonly #verbose: boolean;
   readonly #updates: Update[] = [];
 
-  constructor(workspace: Workspace, packages: Package[], verbose: boolean) {
+  constructor(workspace: Workspace, packages: Package[]) {
     this.#workspace = workspace;
     this.#packages = packages;
-    this.#verbose = verbose;
   }
 
   pkg(pkg: Package): UpdatePackage {
     return new UpdatePackage(pkg, this, this.#workspace);
   }
 
-  template(name: IntoUnion<TemplateName>): string {
+  template(name: Into<TemplateName>): string {
     return TemplateName.from(name).read(this.#workspace.root);
   }
 
@@ -217,6 +227,15 @@ export class UpdatePackages {
     }
   }
 }
+
+export type JsonUpdater =
+  | Record<string, JsonValue>
+  | ((json: JsonObject) => JsonObject);
+
+export type FileUpdater =
+  | string
+  | ((prev: string | undefined) => string)
+  | { template: TemplateName["value"] };
 
 interface Update {
   condition: (pkg: Package) => boolean;
