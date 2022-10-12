@@ -41,6 +41,7 @@
   "scripts": {
     "test:lint": "eslint",
     "test:specs": "vitest --dir ./tests --run",
-    "test:build": "tsc -b"
+    "test:build": "tsc -b",
+    "test:types": "tsc -b"
   }
 }

@@ -10,7 +10,8 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test:lint": "eslint",
-    "test:build": "tsc -b"
+    "test:build": "tsc -b",
+    "test:types": "tsc -b"
   },
   "dependencies": {
     "@starbeam/core": "workspace:^",

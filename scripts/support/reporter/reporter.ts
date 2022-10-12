@@ -360,14 +360,16 @@ export class Reporter {
     } else if (this.isVerbose) {
       return this.table((t) =>
         t.rows(
-          [...results].flatMap(([name, groupResults]) => [
-            [this.statusIcon(groupResults.isOk), Cell.spanned(name, 2)],
-            ...[...groupResults].map(([name, checkResults]) => [
-              "",
-              this.statusIcon(checkResults.isOk),
-              name,
-            ]),
-          ])
+          [...results].flatMap(([name, groupResults]) => {
+            return [
+              [this.statusIcon(groupResults.isOk), Cell.spanned(name, 2)],
+              ...[...groupResults].map(([name, checkResults]) => [
+                "",
+                this.statusIcon(checkResults.isOk),
+                name,
+              ]),
+            ];
+          })
         )
       );
     } else if (results.isOk) {

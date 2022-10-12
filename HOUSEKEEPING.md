@@ -10,4 +10,4 @@
 # Final step
 
 - `pnpm i`
-- `pnpm test:all`
+- `pnpm test`

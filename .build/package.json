@@ -40,6 +40,7 @@
   },
   "scripts": {
     "test:lint": "eslint",
-    "test:build": "tsc -b"
+    "test:build": "tsc -b",
+    "test:types": "tsc -b"
   }
 }
