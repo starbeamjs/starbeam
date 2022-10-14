@@ -1,19 +1,12 @@
 {
-  "name": "@starbeam/preact",
+  "name": "@starbeam/preact-utils",
   "version": "0.7.4",
   "type": "module",
   "peerDependencies": {
     "preact": "^10.11.1"
   },
-  "dependencies": {
-    "@starbeam/timeline": "workspace:^",
-    "@starbeam/debug": "workspace:^",
-    "@starbeam/verify": "workspace:^",
-    "@starbeam/preact-utils": "workspace:^"
-  },
   "devDependencies": {
-    "@starbeam-workspace/build-support": "workspace:^",
-    "preact-render-to-string": "^5.2.5"
+    "@starbeam-workspace/build-support": "workspace:^"
   },
   "publishConfig": {
     "main": "dist/index.cjs",

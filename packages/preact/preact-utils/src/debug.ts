@@ -1,24 +1,29 @@
 import type { ComponentChild, ComponentChildren } from "preact";
-import {
-  getVNode,
-  isProbablyVNode,
-  type InternalComponent,
-  type InternalVNode,
-} from "./internals.js";
+import { isProbablyVNode } from "./internals.js";
+import { InternalComponent } from "./internals/component.js";
+import { InternalVNode, type InternalPreactVNode } from "./internals/vnode.js";
+import {} from "util/types";
 
-export function debugComponentChild(child: ComponentChild): unknown {
+function debugComponentChild(child: ComponentChild): unknown {
   if (isProbablyVNode(child)) {
-    return debugVNode(child);
+    return InternalVNode.of(child);
   } else {
     return child;
   }
 }
 
-export function debugVNode(
-  vnode: InternalVNode | undefined | null
-): object | undefined | null {
-  if (vnode) {
-    const { type, __e: element, props: props } = vnode;
+export function implementInspect(): void {
+  const INSPECT = Symbol.for("nodejs.util.inspect.custom");
+  type INSPECT = typeof INSPECT;
+
+  interface Inspectable {
+    [INSPECT]?(): unknown;
+  }
+
+  (InternalVNode.prototype as Inspectable)[INSPECT] = function (
+    this: InternalVNode
+  ) {
+    const { type, dom, props } = this;
 
     if (typeof props === "string") {
       return DisplayStruct("Text", { data: props });
@@ -37,22 +42,21 @@ export function debugVNode(
       "VNode",
       {
         ...typeField,
-        ...elementFields(element),
+        ...elementFields(dom),
         ...propsField,
       },
       structOptions
     );
-  } else {
-    return vnode;
-  }
-}
+  };
 
-export function debugComponent(component: InternalComponent): unknown {
-  return DisplayStruct("Component", {
-    props: mapProps(component.props),
-    state: component.state,
-    vnode: debugVNode(getVNode(component)),
-  });
+  (InternalComponent.prototype as Inspectable)[INSPECT] =
+    function debugComponent(this: InternalComponent): unknown {
+      return DisplayStruct("Component", {
+        ...propFields(mapProps(this.props)),
+        state: this.state,
+        vnode: this.vnode,
+      });
+    };
 }
 
 function elementFields(element: Element | Text | undefined): object {
@@ -100,11 +104,11 @@ function propFields(
   };
 }
 
-function mapProps(props: Record<string, any>): Record<string, any> {
+function mapProps(props: Record<string, unknown>): Record<string, unknown> {
   return mapAny(props, (value, key) => {
     if (key === "children") {
       if (Array.isArray(value)) {
-        return (value as InternalVNode[]).map(debugVNode);
+        return (value as InternalPreactVNode[]).map(InternalVNode.of);
       }
     }
 
@@ -113,11 +117,21 @@ function mapProps(props: Record<string, any>): Record<string, any> {
 }
 
 function mapAny<T, U>(
+  value: Record<PropertyKey, T>,
+  mapper: (value: T, key: unknown) => U
+): Record<PropertyKey, U>;
+function mapAny<T, U>(value: T[], mapper: (value: T, key: unknown) => U): U[];
+function mapAny<T, U>(value: T, mapper: (value: T, key: unknown) => U): U;
+function mapAny<T, U>(
+  value: T | T[] | Record<PropertyKey, T>,
+  mapper: (value: T, key: unknown) => U
+): Record<PropertyKey, U> | U[] | U;
+function mapAny<T, U>(
   value: T | T[] | Record<PropertyKey, T>,
   mapper: (value: T, key: unknown) => U
 ): Record<PropertyKey, U> | U[] | U {
   if (Array.isArray(value)) {
-    return value.map((value, index) => mapper(value, index)) as any;
+    return value.map((value, index) => mapper(value, index)) as U[];
   } else if (value && typeof value === "object") {
     return Object.fromEntries(
       Object.entries(value).map(([key, value]) => [key, mapper(value, key)])
@@ -127,13 +141,11 @@ function mapAny<T, U>(
   }
 }
 
-export interface DisplayStructOptions {
+interface DisplayStructOptions {
   readonly description: JSONValue;
 }
 
-export type Fields = Record<PropertyKey, unknown>;
-
-export function DisplayStruct(
+function DisplayStruct(
   name: string,
   fields: Record<PropertyKey, unknown>,
   options?: DisplayStructOptions
@@ -168,7 +180,7 @@ function entries<R extends object>(object: R): Entries<R>[] {
   return Object.entries(object) as Entries<R>[];
 }
 
-export type JSONValue =
+type JSONValue =
   | string
   | number
   | boolean

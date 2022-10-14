@@ -50,9 +50,7 @@ interface RawPreactOptions
 export type FilterFn<K extends keyof RawPreactOptions> =
   RawPreactOptions[K] extends AnyFn | void ? K : never;
 
-export type PreactOptionName = {
-  [K in keyof RawPreactOptions as FilterFn<K>]: K;
-}[keyof RawPreactOptions];
+export type PreactOptionName = keyof RawPreactOptions;
 
 export interface Effect {
   _sources: object | undefined;
@@ -145,6 +143,10 @@ export function getDOM(vnode: InternalVNode): Element | Text | undefined {
 
 export function getOwner(vnode: InternalVNode): InternalVNode | null {
   return vnode.__o;
+}
+
+export function getSelf(vnode: InternalVNode): unknown {
+  return vnode.__self;
 }
 
 export function setOwner(
@@ -255,7 +257,10 @@ export class Augment {
     }
   }
 
-  hook<T extends PreactOptionName>(devName: T, hook: HookFn<T>): void {
+  hook<T extends PreactOptionName & keyof RawPreactOptions>(
+    devName: T,
+    hook: HookFn<T>
+  ): void {
     const [original, name] = this.#getOriginal(devName);
 
     (this.#original as any)[name] = ((...args) => {

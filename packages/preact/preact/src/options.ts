@@ -1,86 +1,36 @@
-import {
-  type ComponentChild,
-  type ComponentChildren,
-  type Options,
-} from "preact";
-import { debugComponent, debugVNode } from "./debug.js";
-import {
-  Augment,
-  CATCH_ERROR,
-  DIFF,
-  HOOK,
-  RENDER,
-  type InternalComponent,
-  type InternalVNode,
-} from "./internals.js";
+import { Plugin } from "@starbeam/preact-utils";
 import { Reactive } from "@starbeam/timeline";
+import { descriptionFrom } from "@starbeam/debug";
+import { ComponentFrame } from "./frame.js";
 
-export function setup(options: Options): void {
-  const augment = new Augment(options as any);
-
-  augment.hook("vnode", (vnode) => {
-    if (vnode.props.children) {
-      vnode.props.children = mapChildren(vnode.props.children);
-    }
-    debug("vnode", debugVNode(vnode));
-  });
-
-  augment.hook(HOOK, (component, index, type) => {
-    debug("HOOK", {
-      component: debugComponent(component as InternalComponent),
-      index,
-      type,
+export const setup = Plugin((on) => {
+  on.vnode((vnode) => {
+    vnode.processChildren((child) => {
+      if (Reactive.is(child)) {
+        return String(child.read());
+      } else {
+        return child;
+      }
     });
   });
 
-  augment.hook(RENDER, (vnode) => {
-    debug("RENDER", debugVNode(vnode));
-    const component = vnode.__c;
-
-    if (component) {
-    }
+  on.component.render((component) => {
+    ComponentFrame.start(
+      component,
+      descriptionFrom({
+        api: "preact",
+        type: "implementation",
+      })
+    );
   });
 
-  augment.hook(DIFF, (vnode) => {
-    debug("DIFF", debugVNode(vnode));
+  on.component.diffed((component) => {
+    ComponentFrame.end(component, () => {
+      component.notify();
+    });
   });
 
-  augment.hook("diffed", (vnode) => {
-    debug("diffed", debugVNode(vnode as InternalVNode));
+  on.component.unmount((component) => {
+    ComponentFrame.unmount(component);
   });
-
-  augment.hook(CATCH_ERROR, (error, vnode, oldVNode) => {
-    debug("CATCH_ERROR", error);
-  });
-
-  augment.hook("unmount", (vnode) => {
-    debug("UNMOUNT", debugVNode(vnode as InternalVNode));
-  });
-}
-
-function debug(hook: string, debug?: unknown) {
-  if (debug === undefined) {
-    console.log(hook);
-  } else {
-    console.group(hook);
-    console.dir(debug, { depth: null });
-    console.groupEnd();
-    console.log("");
-  }
-}
-
-function mapChildren(children: ComponentChildren): ComponentChildren {
-  if (Array.isArray(children)) {
-    return children.map(mapChild);
-  } else {
-    return mapChild(children);
-  }
-}
-
-function mapChild(child: ComponentChild): ComponentChild {
-  if (Reactive.is(child)) {
-    return String(child.read());
-  } else {
-    return child;
-  }
-}
+});
