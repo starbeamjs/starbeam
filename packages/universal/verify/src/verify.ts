@@ -8,16 +8,6 @@ export function verify<T, U extends T>(
   value: T,
   check: (input: T) => input is U,
   error?: Expectation<T>
-): asserts value is U;
-export function verify<T>(
-  value: T,
-  check: (input: T) => boolean,
-  error?: Expectation<T>
-): asserts value is T;
-export function verify<T, U extends T>(
-  value: T,
-  check: ((input: T) => input is U) | ((input: T) => boolean),
-  error?: Expectation<T>
 ): asserts value is U {
   if (!check(value)) {
     const associated = ASSOCIATED.get(check);
@@ -37,7 +27,7 @@ export function verify<T, U extends T>(
 
 verify.noop = <T, U extends T>(
   value: T,
-  _check: ((input: T) => input is U) | ((input: T) => boolean),
+  _check: (input: T) => input is U,
   _error?: Expectation<T>
 ): asserts value is U => {
   return;

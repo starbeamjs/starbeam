@@ -7,16 +7,16 @@ export const DemoCommand = DevCommand("demo", {
 })
   .argument("name", "the name of the demo to run", StringOption.required)
   .option(
-    ["-p", "port"],
+    ["-p", "--port"],
     "the port to run the demo on",
     StringOption.default("3001")
   )
   .option(
-    ["-h", "host"],
+    ["-h", "--host"],
     "the host to run the demo on",
     StringOption.default("localhost")
   )
-  .flag(["-S", "strict"], "fail if the port is already in use", {
+  .flag("--no-strict", "fail if the port is already in use", {
     default: true,
   })
   .action((name, { port, host, workspace, strict }) => {

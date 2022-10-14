@@ -6,7 +6,11 @@ export {
 } from "./src/lifetime/api.js";
 export type { Unsubscribe } from "./src/lifetime/object-lifetime.js";
 export { TIMELINE } from "./src/timeline/api.js";
-export { type FrameValidation, Frame } from "./src/timeline/frame.js";
+export {
+  type FrameValidation,
+  Frame,
+  ActiveFrame,
+} from "./src/timeline/frame.js";
 export {
   Reactive,
   ReactiveInternals,

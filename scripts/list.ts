@@ -3,7 +3,7 @@ import { QueryCommand } from "./support/commands";
 import { Fragment } from "./support/log.js";
 
 export const ListCommand = QueryCommand("list").action(
-  ({ packages, query, workspace }) => {
+  ({ packages, query, workspace, ...options }) => {
     for (const pkg of packages) {
       const flags = [];
 

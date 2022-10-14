@@ -9,17 +9,40 @@ export const TestCommand = QueryCommand("test", {
   description: "run the tests for the selected packages",
 })
   .flag(
-    ["-O", "streamOutput"],
+    ["-O", "--stream-output"],
     "do not stream the lint output (but display it when the command fails)",
     { default: true }
   )
-  .flag(["-f", "failFast"], "exit on first failure")
-  .option("type", "the type of tests to run", StringOption.default("all"))
+  .option("--type", "the type of tests to run", StringOption.optional)
+  .flag(["-s", "--specs"], "run the specs")
+  .flag("--watch", "run the quick tests")
   .action(
-    async ({ packages, workspace, streamOutput, workspaceOnly, type }) => {
+    async ({
+      packages,
+      workspace,
+      streamOutput,
+      workspaceOnly,
+      type,
+      specs,
+      watch,
+    }) => {
       workspace.reporter.verbose((r) =>
         r.log(Fragment.comment(`> cleaning root/dist`))
       );
+
+      if (specs && type !== undefined && type !== "specs") {
+        workspace.reporter.fatal(
+          `You cannot specify both --specs and --type=${type}`
+        );
+      }
+
+      if (watch && type !== undefined && type !== "specs") {
+        workspace.reporter.fatal(
+          `The --watch flag can only be used with the "specs" test type. You passed --type ${type}.`
+        );
+      }
+
+      const testType = watch ? "specs" : specs ? "specs" : type ?? "all";
 
       shell.rm("-rf", workspace.root.dir("dist").absolute);
 
@@ -29,12 +52,21 @@ export const TestCommand = QueryCommand("test", {
           workspace.root.file("package.json")
         );
 
+        if (watch) {
+          await workspace.cmd(`pnpm run test:workspace:specs --watch`, {
+            cwd: workspace.root.absolute,
+            stdio: "inherit",
+          });
+          return;
+        }
+
         const results = await workspace.check(
           ...tests(rootPkg, {
             streamOutput,
+            watch,
             select: (name) => name.startsWith("workspace:"),
             header: (name) => name.slice("workspace:".length),
-            type,
+            type: testType,
           })
         );
 
@@ -46,23 +78,51 @@ export const TestCommand = QueryCommand("test", {
         return;
       }
 
+      const matches = packages
+        .filter((pkg) => !pkg.type.is("root"))
+        .filter((pkg) =>
+          Object.keys(pkg.tests).some((test) => testMatches(test, testType))
+        );
+
+      if (watch) {
+        if (matches.length !== 1) {
+          const found =
+            matches.length === 0
+              ? ` There were ${Fragment.problem.inverse(
+                  "no"
+                )} matching packages.`
+              : `\n\nFound ${Fragment.problem.inverse(
+                  matches.length
+                )} matching packages: ${matches
+                  .map((pkg) => `- ${pkg.name}`)
+                  .join(", ")}`;
+
+          workspace.reporter.fatal(
+            `The --watch flag can only be used when a single package is selected.${found}\n`
+          );
+        }
+
+        await workspace.cmd(`pnpm run test:specs`, {
+          cwd: matches[0].root.absolute,
+          stdio: "inherit",
+        });
+
+        return;
+      }
+
       const checks = new Map(
-        packages
-          .filter((pkg) => !pkg.type.is("root"))
-          .filter((pkg) =>
-            Object.keys(pkg.tests).some((test) => testMatches(test, type))
-          )
-          .map((pkg) => {
-            return [
-              pkg,
-              tests(pkg, {
-                streamOutput,
-                select: () => true,
-                header: (name) => name,
-                type,
-              }),
-            ] as [Package, CheckDefinition[]];
-          })
+        matches.map((pkg) => {
+          return [
+            pkg,
+            tests(pkg, {
+              streamOutput,
+              watch,
+              select: () => true,
+              header: (name) => name,
+              type: testType,
+            }),
+          ] as [Package, CheckDefinition[]];
+        })
       );
 
       const results = await workspace.checks(checks, {
@@ -80,6 +140,7 @@ function tests(
   pkg: Package,
   options: {
     streamOutput: boolean;
+    watch: boolean;
     select: (test: string) => boolean;
     header: (test: string) => string;
     type: string;
@@ -88,12 +149,16 @@ function tests(
   return Object.keys(pkg.tests)
     .filter(options.select)
     .filter((name) => testMatches(name, options.type))
-    .map((test) =>
-      CheckDefinition(options.header(test), `pnpm run test:${test}`, {
-        cwd: pkg.root,
-        output: options.streamOutput ? "stream" : "when-error",
-      })
-    );
+    .map((test) => {
+      return CheckDefinition(
+        options.header(test),
+        `pnpm run test:${test}${options.watch ? "" : " --run"}`,
+        {
+          cwd: pkg.root,
+          output: options.streamOutput ? "stream" : "when-error",
+        }
+      );
+    });
 }
 
 function testMatches(test: string, type: string) {

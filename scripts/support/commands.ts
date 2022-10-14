@@ -21,7 +21,7 @@ interface BasicOptions {
 export function DevCommand<T extends CommandOptions>(
   name: string,
   options?: BasicOptions
-): BuildDevCommand<T, []> {
+): BuildDevCommand<[], T, ShortCommandOptions> {
   const command = applyBasicOptions(program.createCommand(name), options);
 
   return new BuildDevCommand(command);
@@ -30,7 +30,7 @@ export function DevCommand<T extends CommandOptions>(
 export function QueryCommand<T extends QueryCommandOptions>(
   name: string,
   options?: BasicOptions
-): BuildQueryCommand<T, []> {
+): BuildQueryCommand<[], T, ShortQueryCommandOptions> {
   const command = applyBasicOptions(program.createCommand(name), options);
 
   return new BuildQueryCommand(queryable(command));
@@ -105,7 +105,52 @@ BooleanOption.optional = (value: unknown): value is boolean | undefined => {
 type Type<T> = (input: unknown) => input is T;
 type Value<T extends CommandValue> = Type<T> | [Type<T>, { default: T }];
 
-export abstract class BuildCommand {
+export type Indexable = Record<string, unknown>;
+
+type Arg = `--${string}` | [`-${string}`, `--${string}`];
+
+type LongFlag<A extends Arg> = A extends string ? A : A[1];
+type ShortFlag<A extends Arg> = A extends string ? never : A[0];
+
+type CheckOption<
+  Arg extends string | [short: string, long: string],
+  Options,
+  Short
+> = Arg extends [short: keyof Short & string, long: keyof Options & string]
+  ? [
+      short: CompileError<
+        `Compile Error: ${Arg[0]} is already a short option alias in this command`,
+        { [P in Arg[0]]: Short[Arg[0]] }
+      >,
+      long: CompileError<
+        `Compile Error: ${Arg[1]} is already an option in this command`,
+        { [P in Arg[1]]: Options[Arg[1]] }
+      >
+    ]
+  : Arg extends [short: string, long: keyof Options & string]
+  ? [
+      short: Arg[0],
+      long: CompileError<
+        `Compile Error: ${Arg[1]} is already an option in this command`,
+        { [P in Arg[1]]: Options[Arg[1]] }
+      >
+    ]
+  : Arg extends [short: keyof Short & string, long: string]
+  ? [
+      short: CompileError<
+        `Compile Error: ${Arg[0]} is already a short option alias in this command`,
+        { [P in Arg[0]]: Short[Arg[0]] }
+      >,
+      long: Arg[1]
+    ]
+  : Arg extends keyof Options & string
+  ? CompileError<
+      `Compile Error: ${Arg} is already an option in this command`,
+      { [P in Arg]: Options[Arg] }
+    >
+  : Arg;
+
+export abstract class BuildCommand<Args extends unknown[], Options, Short> {
   #command: Command;
   #arguments = 0;
 
@@ -118,24 +163,36 @@ export abstract class BuildCommand {
     return this;
   }
 
-  flag(
-    name: string | [short: string, long: string],
+  flag<A extends Arg>(
+    name: CheckOption<A, Options, Short>,
     description: string,
     options: { default?: boolean } = {}
-  ): BuildCommand {
+  ): BuildCommand<
+    Args,
+    Options & Record<LongFlag<A>, boolean>,
+    Short & Record<ShortFlag<A>, LongFlag<A>>
+  > {
     const defaultValue = options.default ?? false;
     const flags = normalizeFlag(name, defaultValue);
 
     this.#command = this.#command.option(flags, description, defaultValue);
 
-    return this;
+    return this as BuildCommand<
+      Args,
+      Options & Record<LongFlag<A>, boolean>,
+      Short & Record<ShortFlag<A>, boolean>
+    >;
   }
 
-  option(
-    name: string | [short: string, long: string],
+  option<A extends Arg, V extends CommandValue>(
+    name: CheckOption<A, Options, Short>,
     description: string,
-    value: Value<CommandValue>
-  ): BuildCommand {
+    value: Value<V>
+  ): BuildCommand<
+    Args,
+    Options & Record<LongFlag<A>, V>,
+    Short & Record<ShortFlag<A>, LongFlag<A>>
+  > {
     const flags = normalize(name);
 
     if (typeof value === "function") {
@@ -148,14 +205,18 @@ export abstract class BuildCommand {
       );
     }
 
-    return this;
+    return this as BuildCommand<
+      Args,
+      Options & Record<LongFlag<A>, V>,
+      Short & Record<ShortFlag<A>, LongFlag<A>>
+    >;
   }
 
-  argument(
+  argument<V extends CommandValue>(
     name: string,
     description: string,
-    value: Value<CommandValue>
-  ): BuildCommand {
+    value: Value<V>
+  ): BuildCommand<[...Args, V], Options, Short> {
     const arg = dasherize(name);
 
     if (typeof value === "function") {
@@ -180,10 +241,13 @@ export abstract class BuildCommand {
     options: unknown[]
   ): {
     args: Args;
-    options: Options & ReporterOptions;
+    options: CamelizedOptions<Options & ReporterOptions>;
   } {
     const args = options.slice(0, this.args) as Args;
-    const opts = options[this.args] as Options & ReporterOptions;
+    const opts = options[this.args] as CamelizedOptions<
+      Options & ReporterOptions
+    >;
+
     return {
       args,
       options: opts,
@@ -204,31 +268,49 @@ export abstract class BuildCommand {
   }
 }
 
+declare class CompileError<_S extends string = string, In = unknown> {
+  #in: In;
+}
+
+// CompileError<
+//   `${Name} is already ${kind} alias in this command`,
+//   { [P in Name]: Parent[Name] }
+// >;
+
 export class BuildQueryCommand<
+  Args extends unknown[],
   Options extends QueryCommandOptions,
-  Args extends unknown[]
-> extends BuildCommand {
-  declare flag: <K extends string>(
-    name: K | [short: string, long: K],
+  Short
+> extends BuildCommand<Args, Options, Short> {
+  declare flag: <A extends Arg>(
+    name: CheckOption<A, Options, Short>,
     description: string,
     options?: { default?: boolean }
-  ) => BuildQueryCommand<Options & { [P in K]: boolean }, Args>;
+  ) => BuildQueryCommand<
+    Args,
+    Options & Record<LongFlag<A>, boolean>,
+    Short & Record<ShortFlag<A>, LongFlag<A>>
+  >;
 
-  declare option: <V extends CommandValue, K extends string>(
-    name: K | [short: string, long: K, description?: string],
+  declare option: <A extends Arg, V extends CommandValue>(
+    name: CheckOption<A, Options, Short>,
     description: string,
     value: Value<V>
-  ) => BuildQueryCommand<Options & { [P in K]: V }, Args>;
+  ) => BuildQueryCommand<
+    Args,
+    Options & Record<LongFlag<A>, V>,
+    Short & Record<ShortFlag<A>, LongFlag<A>>
+  >;
 
-  declare argument: <V extends CommandValue, K extends string>(
-    name: K,
+  declare argument: <V extends CommandValue>(
+    name: string,
     description: string,
     value: Value<V>
-  ) => BuildQueryCommand<Options, [...Args, V]>;
+  ) => BuildQueryCommand<[...Args, V], Options, Short>;
 
   action(
     action: (
-      ...args: [...Args, Options]
+      ...args: [...Args, CamelizedOptions<Options>]
     ) => Promise<void | number> | void | number
   ): (options: { root: string }) => Command {
     return ({ root }) =>
@@ -294,17 +376,16 @@ export class BuildQueryCommand<
           where.and(parse("type!=draft"));
         }
 
-        const errors = where?.errors;
+        const workspace = createWorkspace(root, options);
 
-        if (errors) {
+        if (where?.errors) {
           for (const err of where.errors) {
-            err.log();
+            err.log(workspace.reporter);
           }
-          await Promise.resolve();
+          workspace.reporter.log("");
           process.exit(1);
         }
 
-        const workspace = createWorkspace(root, options);
         const packages = await queryPackages(workspace, where);
 
         const { args } = this.extractOptions<Args, Options>(allArgs);
@@ -315,7 +396,7 @@ export class BuildQueryCommand<
           workspace,
           workspaceOnly,
           ...options,
-        } as Options & QueryCommandOptions);
+        } as CamelizedOptions<Options & QueryCommandOptions>);
 
         if (typeof result === "number") {
           await Promise.resolve();
@@ -335,37 +416,48 @@ function isExplicitDraft(filter: Filter | ParseError): boolean {
 }
 
 export class BuildDevCommand<
+  Args extends unknown[],
   Options,
-  Args extends unknown[]
-> extends BuildCommand {
-  declare flag: <K extends string>(
-    name: K | [short: string, long: K],
+  Short
+> extends BuildCommand<Args, Options, Short> {
+  declare flag: <A extends Arg>(
+    name: CheckOption<A, Options, Short>,
     description: string,
     options?: { default?: boolean }
-  ) => BuildDevCommand<Options & { [P in K]: boolean }, Args>;
+  ) => BuildDevCommand<
+    Args,
+    Options & Record<LongFlag<A>, boolean>,
+    Short & Record<ShortFlag<A>, LongFlag<A>>
+  >;
 
-  declare option: <V extends CommandValue, K extends string>(
-    name: K | [short: string, long: K],
+  declare option: <A extends Arg, V extends CommandValue>(
+    name: CheckOption<A, Options, Short>,
     description: string,
     value: Value<V>
-  ) => BuildDevCommand<Options & { [P in K]: V }, Args>;
+  ) => BuildDevCommand<
+    Args,
+    Options & Record<LongFlag<A>, V>,
+    Short & Record<ShortFlag<A>, LongFlag<A>>
+  >;
 
-  declare argument: <V extends CommandValue, K extends string>(
-    name: K,
+  declare argument: <V extends CommandValue>(
+    name: string,
     description: string,
     value: Value<V>
-  ) => BuildDevCommand<Options, [...Args, V]>;
+  ) => BuildDevCommand<[...Args, V], Options, Short>;
 
   action(
-    action: (...args: [...Args, Options]) => void | Promise<void>
+    action: (
+      ...args: [...Args, CamelizedOptions<Options>]
+    ) => void | Promise<void>
   ): (options: { root: string }) => Command {
     return ({ root }) =>
       this.command.action((...args) => {
         const { options } = this.extractOptions(args);
         return action(
           ...(this.parseOptions(args, {
-            workspace: createWorkspace(root, options),
-          }) as [...Args, Options])
+            "--workspace": createWorkspace(root, options),
+          }) as [...Args, CamelizedOptions<Options>])
         );
       });
   }
@@ -376,7 +468,7 @@ export function withOptions(command: Command): Command {
     .option("-v, --verbose", "print verbose output", false)
     .option("-S, --no-stylish", "print less compact output", true)
     .option(
-      "-d, --density",
+      "-d, --density <density>",
       "the density of the output ('compact' or 'comfortable')",
       "comfortable"
     );
@@ -430,54 +522,98 @@ export interface CommandOptions extends ReporterOptions {
   density: "compact" | "comfortable";
 }
 
+interface ShortCommandOptions {
+  "-v": "verbose";
+  "-S": "no-stylish";
+  "-d": "density";
+}
+
 export interface QueryCommandOptions extends CommandOptions {
   query: Query;
   packages: Package[];
   workspaceOnly: boolean;
 }
 
+interface ShortQueryCommandOptions extends ShortCommandOptions {
+  "-q": "--query";
+  "-p": "--package";
+  "-w": "--workspace-only";
+  "-a": "--and";
+  "-o": "--or";
+}
+
 function normalizeFlag(
-  name: string | [short: string, long: string],
+  name: string | CompileError | [string | CompileError, string | CompileError],
   defaultValue: boolean
 ): string {
   // if defaultValue is true, then the flag is a --no-<name> flag
   if (typeof name === "string") {
-    return defaultValue ? `--no-${dasherize(name)}` : `--${dasherize(name)}`;
-  } else if (defaultValue) {
-    return `${name[0].toUpperCase()}, --no-${dasherize(name[1])}`;
+    const long = normalizeLong(name);
+    return defaultValue ? `--no-${long}` : `--${long}`;
   } else {
-    return `${name[0]}, --${dasherize(name[1])}`;
+    const [short, long] = name as [string, string];
+    const strippedLong = normalizeLong(long);
+
+    if (defaultValue) {
+      return `${short.toUpperCase()}, --no-${strippedLong}`;
+    } else {
+      return `${short}, --${strippedLong}`;
+    }
   }
 }
 
-function normalize(name: string | [short: string, long: string]): string {
+function normalizeLong(name: string | CompileError): string {
+  return (name as string).replace(/^--?/, "");
+}
+
+function normalize(
+  name: string | CompileError | [string | CompileError, string | CompileError]
+): string {
   if (typeof name === "string") {
-    return `--${dasherize(name)} <${dasherize(name)}>`;
+    const strippedName = normalizeLong(name);
+    return `--${strippedName} <${strippedName}>`;
   } else {
-    return `${name[0]}, ${normalize(name[1])}`;
+    const [short, long] = name as [string, string];
+    const strippedShort = short.replace(/^-?/, "");
+    return `-${strippedShort}, ${normalize(long)}`;
   }
 }
+
+type CamelizedOptions<O> = {
+  [P in keyof O as CamelizedOption<P>]: O[P];
+};
+
+type CamelizedOption<N extends PropertyKey> = N extends `--no-${infer K}`
+  ? CamelizedKey<K>
+  : N extends `--${infer K}`
+  ? CamelizedKey<K>
+  : N;
+
+type CamelizedKey<N extends PropertyKey> = N extends string
+  ? N extends `${infer A}-${infer B}${infer C}`
+    ? `${A}${Uppercase<B>}${CamelizedKey<C>}`
+    : N extends `${infer A}-${infer B}`
+    ? `${A}${Uppercase<B>}`
+    : N
+  : N;
 
 function dasherize(name: string): string {
   return name.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
 }
 
 function getOption<T>(
-  options: Record<string, unknown>,
+  options: object,
   key: string,
   check: (value: unknown) => value is T
 ): T | void {
-  const value = options[key];
+  const value = (options as Indexable)[key];
 
   if (value && check(value)) {
     return value;
   }
 }
 
-function createWorkspace(
-  root: string,
-  options: ReporterOptions & Record<string, unknown>
-): Workspace {
+function createWorkspace(root: string, options: ReporterOptions): Workspace {
   const reporterOptions: ReporterOptions = {
     verbose: options.verbose,
     stylish: options.stylish,

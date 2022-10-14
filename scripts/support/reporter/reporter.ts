@@ -18,7 +18,7 @@ import { Logger, type LoggerName, type LoggerState } from "./logger.js";
 import { STYLES } from "./styles.js";
 import { Cell, LoggedTable, type TableWithRows } from "./table.js";
 
-export interface ReporterOptions extends Record<string, unknown> {
+export interface ReporterOptions {
   readonly verbose: boolean;
   readonly stylish: boolean;
   readonly density: "comfortable" | "compact";
@@ -318,11 +318,23 @@ export class Reporter {
   }
 
   fatal(fragment: IntoFallibleFragment): never {
-    const message = FragmentImpl.fallibleFrom(fragment).map((f) => f);
-    this.#logger.logln(
-      `${chalk.redBright.inverse("FATAL")} ${chalk.red(message)}`,
-      "error"
-    );
+    FragmentImpl.fallibleFrom(fragment)
+      .map((f) => {
+        this.#logger.logln(
+          `${chalk.redBright.inverse("FATAL")} ${chalk.red(f)}`,
+          "error"
+        );
+      })
+      .mapErr((err) => {
+        this.#logger.logln(
+          `${chalk.redBright.inverse(
+            "FATAL"
+          )} Something went wrong when processing the fatal error message:\n\n${chalk.red(
+            String(err)
+          )}`,
+          "error"
+        );
+      });
 
     this.#logger.exit(1);
   }

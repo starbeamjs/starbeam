@@ -4,9 +4,8 @@ import type { Package } from "./support/packages.js";
 import { Fragment } from "./support/log.js";
 import { PresentArray } from "./support/type-magic.js";
 
-export const UnusedCommand = QueryCommand("unused")
-  .flag(["-f", "failFast"], "fail fast")
-  .action(async ({ packages, failFast, workspace }) => {
+export const UnusedCommand = QueryCommand("unused").action(
+  async ({ packages, failFast, workspace }) => {
     const failures: Package[] = [];
 
     for (const pkg of packages) {
@@ -47,4 +46,5 @@ export const UnusedCommand = QueryCommand("unused")
         workspace.reporter.log(Fragment.ok("✓ no unused dependencies"));
       },
     });
-  });
+  }
+);

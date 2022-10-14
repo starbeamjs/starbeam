@@ -2,7 +2,7 @@ import { expected } from "../verify.js";
 import { format } from "./describe.js";
 import type { FixedArray, ReadonlyFixedArray } from "./type-utils.js";
 
-export function isPresent<T>(value: T | null | undefined | void): value is T {
+export function isPresent<T>(value: T | null | undefined): value is T {
   return value !== null && value !== undefined;
 }
 

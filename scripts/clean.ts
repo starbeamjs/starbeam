@@ -11,8 +11,8 @@ import type { Workspace } from "./support/workspace.js";
 export const CleanCommand = QueryCommand("clean", {
   description: "clean up build artifacts",
 })
-  .flag(["-d", "dryRun"], "don't actually delete anything")
-  .option("dir", "the directory to clean", StringOption)
+  .flag("--dry-run", "don't actually delete anything")
+  .option("--dir", "the directory to clean", StringOption)
   .action(async ({ workspace, packages, ...options }) => {
     const reporter = workspace.reporter;
 

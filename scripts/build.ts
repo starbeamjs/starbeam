@@ -5,7 +5,7 @@ export const BuildCommand = QueryCommand("build", {
   description: "prepare the packages for publishing",
 })
   .flag(
-    ["-O", "streamOutput"],
+    ["-O", "--stream-output"],
     "do not stream the lint output (but display it when the command fails)",
     { default: true }
   )

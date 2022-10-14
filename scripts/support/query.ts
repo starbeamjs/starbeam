@@ -1,6 +1,7 @@
 import util from "util";
-import { log, Fragment } from "./log.js";
+import { Fragment } from "./log.js";
 import type { Package } from "./packages.js";
+import type { Reporter } from "./reporter/reporter.js";
 import { StarbeamType } from "./unions.js";
 
 export class SingleFilter implements Filter {
@@ -94,9 +95,9 @@ class AllFilter {
   readonly type = "ok";
   readonly kind = "all";
 
-  readonly #filters: Filter[];
+  readonly #filters: (Filter | ParseError)[];
 
-  constructor(filters: Filter[]) {
+  constructor(filters: (Filter | ParseError)[]) {
     this.#filters = filters;
   }
 
@@ -104,23 +105,29 @@ class AllFilter {
     return `${this.#filters.map((f) => util.inspect(f)).join(" & ")}`;
   }
 
+  get errors(): ParseError[] {
+    return this.#filters.filter((f) => f instanceof ParseError) as ParseError[];
+  }
+
   hasFilters(): boolean {
     return this.#filters.length > 0;
   }
 
   filters(key: FilterKey): boolean {
-    return this.#filters.some((f) => f.key === key);
+    return this.#filters.some(
+      (f) => !(f instanceof ParseError) && f.key === key
+    );
   }
 
   filtersExactly(key: FilterKey): boolean {
     const filters = this.#filters.filter(
-      (f) => f.key === key && f.operator === "="
+      (f) => !(f instanceof ParseError) && f.key === key && f.operator === "="
     );
 
     return filters.length === 1;
   }
 
-  add(filter: Filter): void {
+  add(filter: Filter | ParseError): void {
     this.#filters.push(filter);
   }
 
@@ -134,7 +141,9 @@ class AllFilter {
       return true;
     }
 
-    return this.#filters.every((f) => f.match(pkg));
+    return this.#filters.every(
+      (f) => !(f instanceof ParseError) && f.match(pkg)
+    );
   }
 }
 
@@ -150,9 +159,9 @@ class AnyFilter {
   readonly type = "ok";
   readonly kind = "any";
 
-  readonly #filters: Filter[];
+  readonly #filters: (Filter | ParseError)[];
 
-  constructor(filters: Filter[]) {
+  constructor(filters: (Filter | ParseError)[]) {
     this.#filters = filters;
   }
 
@@ -160,25 +169,38 @@ class AnyFilter {
     return `${this.#filters.map((f) => util.inspect(f)).join(" | ")}`;
   }
 
+  get errors(): ParseError[] {
+    return this.#filters.filter((f) => f instanceof ParseError) as ParseError[];
+  }
+
   hasFilters(): boolean {
     return this.#filters.length > 0;
   }
 
-  add(filter: Filter): void {
+  add(filter: Filter | ParseError): void {
     this.#filters.push(filter);
   }
 
-  or(filter: Filter): AnyFilter {
+  or(filter: Filter | ParseError): AnyFilter {
     const filters = [...this.#filters, filter];
     return new AnyFilter(filters);
   }
 
-  match(pkg: Package): boolean {
+  match(pkg: Package, reporter: Reporter): boolean {
     if (this.#filters.length === 0) {
       return true;
     }
 
-    return this.#filters.some((f) => f.match(pkg));
+    const problem = this.#filters.find((f) => f instanceof ParseError);
+
+    if (problem instanceof ParseError) {
+      problem.log(reporter);
+      return false;
+    }
+
+    return this.#filters.some(
+      (f) => !(f instanceof ParseError) && f.match(pkg)
+    );
   }
 }
 
@@ -186,21 +208,19 @@ export class Query {
   static readonly all = Query.empty();
 
   static empty(): Query {
-    return new Query(AnyFilter.empty(), AllFilter.empty(), []);
+    return new Query(AnyFilter.empty(), AllFilter.empty());
   }
 
   static none(): Query {
-    return new Query(AnyFilter.empty(), AllFilter.of(SingleFilter.none()), []);
+    return new Query(AnyFilter.empty(), AllFilter.of(SingleFilter.none()));
   }
 
   #any: AnyFilter;
   #all: AllFilter;
-  #errors: ParseError[];
 
-  constructor(any: AnyFilter, all: AllFilter, errors: ParseError[]) {
+  constructor(any: AnyFilter, all: AllFilter) {
     this.#any = any;
     this.#all = all;
-    this.#errors = errors;
   }
 
   [Symbol.for("nodejs.util.inspect.custom")](): object | string {
@@ -236,8 +256,6 @@ export class Query {
           args[1] ?? (true as string | boolean)
         )
       );
-    } else if (args[0] instanceof ParseError) {
-      args[0].log();
     } else {
       this.#all.add(args[0]);
     }
@@ -257,8 +275,6 @@ export class Query {
           args[1] ?? (true as string | boolean)
         )
       );
-    } else if (args[0] instanceof ParseError) {
-      args[0].log();
     } else {
       this.#any.add(args[0]);
     }
@@ -271,11 +287,12 @@ export class Query {
   }
 
   get errors(): ParseError[] | null {
-    return this.#errors.length > 0 ? this.#errors : null;
+    const errors = [...this.#any.errors, ...this.#all.errors];
+    return errors.length > 0 ? errors : null;
   }
 
-  match(pkg: Package): boolean {
-    return this.#all.match(pkg) && this.#any.match(pkg);
+  match(pkg: Package, reporter: Reporter): boolean {
+    return this.#all.match(pkg) && this.#any.match(pkg, reporter);
   }
 }
 
@@ -312,10 +329,9 @@ export class ParseError {
 
   constructor(readonly source: string, readonly message: string) {}
 
-  log(): void {
-    log(
-      `${Fragment("problem", "Invalid query")}${Fragment(
-        "comment",
+  log(reporter: Reporter): void {
+    reporter.log(
+      `${Fragment.problem("Invalid query")}${Fragment.comment(
         `: ${this.source}`
       )}`
     );
@@ -324,7 +340,7 @@ export class ParseError {
 type OkFilter = SingleFilter | NotFilter | AnyFilter | AllFilter;
 export type ParsedFilter = OkFilter | ParseError;
 
-function parseKey(key: string): FilterKey {
+function parseKey(key: string, source: string): FilterKey | ParseError {
   switch (key) {
     case "ts":
       return "typescript";
@@ -336,30 +352,39 @@ function parseKey(key: string): FilterKey {
     case "none":
       return key;
     default:
-      throw Error(`Invalid filter key: ${key}`);
+      return new ParseError(source, `unknown filter key: ${key}`);
   }
 }
 export function parse(query: string): Filter | ParseError {
   if (query.includes("!=")) {
     const [rawKey, rawValue] = query.split("!=");
-    return parsePair([rawKey, rawValue], SingleFilter.not);
+    return parsePair([rawKey, rawValue], query, SingleFilter.not);
   }
 
   if (query.includes("=")) {
     const [rawKey, value] = query.split("=");
-    return parsePair([rawKey, value], SingleFilter.ok);
+    return parsePair([rawKey, value], query, SingleFilter.ok);
   }
 
-  const key = parseKey(query);
+  const key = parseKey(query, query);
 
-  return SingleFilter.ok(key);
+  if (typeof key === "string") {
+    return SingleFilter.ok(key);
+  } else {
+    return key;
+  }
 }
 
 function parsePair(
   [rawKey, value]: [string, string],
+  source: string,
   construct: (key: FilterKey, matches?: string | boolean) => Filter
-): Filter {
-  const key = parseKey(rawKey);
+): Filter | ParseError {
+  const key = parseKey(rawKey, source);
+
+  if (typeof key !== "string") {
+    return key;
+  }
 
   switch (value) {
     case "true":
