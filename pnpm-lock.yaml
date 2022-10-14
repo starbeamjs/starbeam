@@ -358,29 +358,40 @@ importers:
   packages/preact/preact:
     specifiers:
       '@starbeam-workspace/build-support': workspace:^
+      '@starbeam/debug': ^0.7.4
+      '@starbeam/timeline': ^0.7.4
       preact: ^10.11.1
+      preact-render-to-string: ^5.2.5
     dependencies:
+      '@starbeam/debug': link:../../universal/debug
+      '@starbeam/timeline': link:../../universal/timeline
       preact: 10.11.1
     devDependencies:
       '@starbeam-workspace/build-support': link:../../../.build
+      preact-render-to-string: 5.2.5_preact@10.11.1
 
   packages/preact/preact/tests:
     specifiers:
-      '@starbeam-workspace/react-test-utils': workspace:^
+      '@starbeam-workspace/test-utils': workspace:^
       '@starbeam/core': workspace:^
       '@starbeam/debug': workspace:^
-      '@starbeam/react': workspace:^
+      '@starbeam/preact': workspace:^
       '@starbeam/timeline': workspace:^
+      htm: ^3.1.1
       jsdom: ^20.0.0
-      react: ^18
+      preact: ^10.5.13
+      preact-render-to-string: ^5.2.5
     dependencies:
-      '@starbeam-workspace/react-test-utils': link:../../../react/test-utils
+      '@starbeam-workspace/test-utils': link:../../../universal/test-utils
       '@starbeam/core': link:../../../universal/core
       '@starbeam/debug': link:../../../universal/debug
-      '@starbeam/react': link:../../../react/react
+      '@starbeam/preact': link:..
       '@starbeam/timeline': link:../../../universal/timeline
+      htm: 3.1.1
       jsdom: 20.0.1
-      react: 18.2.0
+      preact: 10.11.1
+    devDependencies:
+      preact-render-to-string: 5.2.5_preact@10.11.1
 
   packages/react/react:
     specifiers:
@@ -5244,6 +5255,10 @@ packages:
     resolution: {integrity: sha512-mxIDAb9Lsm6DoOJ7xH+5+X4y1LU/4Hi50L9C5sIswK3JzULS4bwk1FvjdBgvYR4bzT4tuUQiC15FE2f5HbLvYw==}
     dev: true
 
+  /htm/3.1.1:
+    resolution: {integrity: sha512-983Vyg8NwUE7JkZ6NmOqpCZ+sh1bKv2iYTlUkzlWmA5JD2acKoxd4KVxbMmxX/85mtfdnDmTFoNKcg5DGAvxNQ==}
+    dev: false
+
   /html-encoding-sniffer/3.0.0:
     resolution: {integrity: sha512-oWv4T4yJ52iKrufjnyZPkrN0CH3QnrUqdB6In1g5Fe1mia8GmF36gnfNySxoZtxD5+NmYw1EElVXiBk93UeskA==}
     engines: {node: '>=12'}
@@ -6686,12 +6701,20 @@ packages:
       picocolors: 1.0.0
       source-map-js: 1.0.2
 
+  /preact-render-to-string/5.2.5_preact@10.11.1:
+    resolution: {integrity: sha512-rEBn42C3Wh+AjPxXUbDkb6xw0cTJQgxdYlp6ytUR1uBZF647Wn6ykkopMeQlRl7ggX+qnYYjZ4Hs1abZENl7ww==}
+    peerDependencies:
+      preact: '>=10'
+    dependencies:
+      preact: 10.11.1
+      pretty-format: 3.8.0
+    dev: true
+
   /preact/10.11.0:
     resolution: {integrity: sha512-Fk6+vB2kb6mSJfDgODq0YDhMfl0HNtK5+Uc9QqECO4nlyPAQwCI+BKyWO//idA7ikV7o+0Fm6LQmNuQi1wXI1w==}
 
   /preact/10.11.1:
     resolution: {integrity: sha512-1Wz5PCRm6Fg+6BTXWJHhX4wRK9MZbZBHuwBqfZlOdVm2NqPe8/rjYpufvYCwJSGb9layyzB2jTTXfpCTynLqFQ==}
-    dev: false
 
   /preferred-pm/3.0.3:
     resolution: {integrity: sha512-+wZgbxNES/KlJs9q40F/1sfOd/j7f1O9JaHcW5Dsn3aUUOZg3L2bjpVUcKV2jvtElYfoTuQiNeMfQJ4kwUAhCQ==}
@@ -6730,6 +6753,10 @@ packages:
       ansi-regex: 5.0.1
       ansi-styles: 5.2.0
       react-is: 17.0.2
+    dev: true
+
+  /pretty-format/3.8.0:
+    resolution: {integrity: sha512-WuxUnVtlWL1OfZFQFuqvnvs6MiAGk9UNsBostyBOB0Is9wb5uRESevA6rnl/rkksXaGX3GzZhPup5d6Vp1nFew==}
     dev: true
 
   /printable-characters/1.0.42:

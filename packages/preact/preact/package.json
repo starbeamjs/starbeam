@@ -5,6 +5,14 @@
   "peerDependencies": {
     "preact": "^10.11.1"
   },
+  "dependencies": {
+    "@starbeam/timeline": "^0.7.4",
+    "@starbeam/debug": "^0.7.4"
+  },
+  "devDependencies": {
+    "@starbeam-workspace/build-support": "workspace:^",
+    "preact-render-to-string": "^5.2.5"
+  },
   "publishConfig": {
     "main": "dist/index.cjs",
     "types": "dist/index.d.ts",
@@ -15,9 +23,6 @@
         "default": "./dist/index.cjs"
       }
     }
-  },
-  "devDependencies": {
-    "@starbeam-workspace/build-support": "workspace:^"
   },
   "scripts": {
     "test:lint": "eslint",
