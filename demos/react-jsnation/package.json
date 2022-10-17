@@ -32,6 +32,7 @@
   "devDependencies": {
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@vitest/ui": "^0.24.1",
     "vite": "*",
     "vitest": "*",
     "vite-plugin-fonts": "^0.6.0"
@@ -50,6 +51,8 @@
   "scripts": {
     "test:lint": "eslint",
     "test:build": "tsc -b",
-    "test:types": "tsc -b"
+    "test:specs": "vitest --dir ./tests --run",
+    "test:types": "tsc -b",
+    "ui:test": "vitest --dir ./tests --ui"
   }
 }
