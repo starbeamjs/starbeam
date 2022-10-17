@@ -3,10 +3,10 @@
 import { Cell, LIFETIME } from "@starbeam/core";
 import { describe, expect, test } from "@starbeam-workspace/test-utils";
 import htm from "htm";
-import { h, options, render } from "preact";
+import { h, options } from "preact";
 import { create, setup } from "@starbeam/preact";
 import { beforeAll } from "vitest";
-import { TestElement } from "./support/testing.js";
+import { render, TestElement } from "./support/testing.js";
 
 const html = htm.bind(h);
 let id = 0;
@@ -14,14 +14,14 @@ let id = 0;
 describe("useReactive", () => {
   beforeAll(() => setup(options));
 
-  test("baseline", () => {
+  test("baseline", async () => {
     function App({ name }: { name: string }) {
       return html`<div>hello ${name}</div>`;
     }
 
-    render(html`<${App} name="World" />`, document.body);
+    const result = await render(App, { name: "world" });
 
-    expect(document.body.innerHTML).toBe("<div>hello World</div>");
+    expect(result.element.innerHTML).toBe(`<div>hello world</div>`);
   });
 
   test("reactive values render", () => {

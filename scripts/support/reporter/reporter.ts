@@ -18,7 +18,7 @@ import { Logger, type LoggerName, type LoggerState } from "./logger.js";
 import { STYLES } from "./styles.js";
 import { Cell, LoggedTable, type TableWithRows } from "./table.js";
 
-export interface ReporterOptions extends Record<string, unknown> {
+export interface ReporterOptions {
   readonly verbose: boolean;
   readonly stylish: boolean;
   readonly density: "comfortable" | "compact";

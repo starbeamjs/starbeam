@@ -4,12 +4,12 @@ import { CheckDefinition } from "./support/workspace.js";
 
 export const LintCommand = QueryCommand("lint")
   .option(
-    ["-f", "files"],
+    ["-f", "--files"],
     "a glob representing a list of files to lint",
     StringOption.optional
   )
   .flag(
-    ["-O", "streamOutput"],
+    ["-O", "--stream-output"],
     "do not stream the lint output (but display it when the command fails)",
     { default: true }
   )

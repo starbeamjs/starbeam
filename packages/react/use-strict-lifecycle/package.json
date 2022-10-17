@@ -10,7 +10,7 @@
     "doc:theory": "node ./scripts/doc.js THEORY",
     "doc:all": "node ./scripts/docs.js",
     "test:lint": "eslint",
-    "test:specs": "vitest --dir ./tests --run",
+    "test:specs": "vitest --dir ./tests",
     "test:types": "tsc -b"
   },
   "peerDependencies": {
