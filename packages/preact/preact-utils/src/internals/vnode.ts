@@ -1,10 +1,13 @@
+import { DisplayStruct } from "@starbeam/debug";
 import {
   Fragment,
   type ComponentChild,
+  type ComponentChildren,
   type ComponentType,
   type VNode,
 } from "preact";
 import type { InternalPreactElement, InternalSource } from "../interfaces.js";
+import { isProbablyVNode } from "../internals.js";
 import {
   InternalComponent,
   type InternalPreactComponent,
@@ -13,6 +16,8 @@ import {
 const BUILTINS = new Set<ComponentType>([Fragment]);
 
 export class InternalVNode {
+  static #nextId = 0;
+
   static is(value: unknown): value is InternalVNode {
     return !!(
       value &&
@@ -56,9 +61,58 @@ export class InternalVNode {
   }
 
   readonly #vnode: InternalPreactVNode;
+  readonly id: number;
 
   private constructor(vnode: InternalPreactVNode) {
     this.#vnode = vnode;
+    this.id = InternalVNode.#nextId++;
+  }
+
+  [Symbol.for("nodejs.util.inspect.custom")](): object {
+    let type: unknown;
+    const internalType = this.#vnode.type;
+
+    const childrenFields: Partial<{ _children: unknown; children: unknown }> =
+      {};
+
+    if (this.children) {
+      childrenFields._children = this.children;
+    }
+
+    if (this.props?.children) {
+      childrenFields.children = mapChildren(this.props.children, (c) => {
+        switch (typeof c) {
+          case "string":
+          case "number":
+            return c;
+          default:
+            if (isProbablyVNode(c)) {
+              return InternalVNode.of(c as InternalPreactVNode);
+            } else {
+              return c;
+            }
+        }
+      });
+    }
+
+    if (internalType === Fragment) {
+      type = "{Fragment}";
+    } else if (typeof internalType === "string") {
+      type = `<${internalType}>`;
+    } else if (internalType) {
+      type = internalType;
+    } else {
+      type = childrenFields.children;
+    }
+
+    return DisplayStruct(
+      `InternalVNode`,
+      {
+        type,
+        ...childrenFields,
+      },
+      { description: this.id }
+    );
   }
 
   get type(): VNode["type"] {
@@ -120,7 +174,7 @@ export class InternalVNode {
     return this.#vnode[KEYS["signals._signalProps"]];
   }
 
-  delete = {
+  #delete = {
     parent: (): void => {
       delete this.#vnode[KEYS._parent];
     },
@@ -130,17 +184,34 @@ export class InternalVNode {
     },
   } as const;
 
-  processChildren(process: (prev: ComponentChild) => ComponentChild): void {
+  get delete(): { readonly parent: () => void; readonly depth: () => void } {
+    return this.#delete;
+  }
+
+  processChildren(process: (prev: ComponentChild) => ComponentChild): boolean {
     const props = this.#vnode.props;
     const children = props.children;
 
+    let updated = false;
+
     if (children) {
       if (Array.isArray(children)) {
-        props.children = children.map(process);
+        const out: ComponentChild[] = [];
+
+        for (const child of children) {
+          const processed = process(child);
+          out.push(processed);
+          updated ||= processed !== child;
+        }
+
+        props.children = out;
       } else {
         props.children = process(children);
+        updated = props.children !== children;
       }
     }
+
+    return updated;
   }
 }
 
@@ -204,4 +275,15 @@ export function getVNodeComponent<N extends InternalPreactVNode>(
   vnode: N
 ): N["__c"] {
   return vnode.__c;
+}
+
+function mapChildren<T>(
+  children: ComponentChildren,
+  mapper: (child: ComponentChild) => T
+): T | T[] {
+  if (Array.isArray(children)) {
+    return children.map(mapper);
+  } else {
+    return mapper(children);
+  }
 }

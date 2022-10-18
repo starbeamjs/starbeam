@@ -8,3 +8,4 @@ coverage
 pack
 .pnpm-debug.log
 .eslintcache
+.env.dev.local

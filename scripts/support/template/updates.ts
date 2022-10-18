@@ -74,7 +74,7 @@ export function updatePackageJSON(updater: LabelledUpdater): void {
       }
 
       if (pkg.dir("tests").exists()) {
-        scripts["test:specs"] = "vitest --dir ./tests";
+        scripts["test:specs"] = "vitest";
       }
 
       current.scripts = {

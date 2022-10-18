@@ -1,16 +1,14 @@
 {
-  "name": "@starbeam/js",
-  "description": "An implementation of JavaScript builtins built on top of Starbeam reactivity",
+  "name": "@starbeam/preact-testing-utils",
   "version": "0.7.4",
   "type": "module",
-  "main": "index.ts",
+  "peerDependencies": {
+    "preact": "^10.11.1"
+  },
   "dependencies": {
-    "@starbeam/core": "workspace:^",
-    "@starbeam/shared": "workspace:^",
-    "@starbeam/debug": "workspace:^",
-    "@starbeam/verify": "workspace:^",
-    "@starbeam/timeline": "workspace:^",
-    "@starbeam/interfaces": "workspace:^"
+    "@testing-library/preact": "^3.2.2",
+    "@testing-library/dom": "^8.19.0",
+    "htm": "^3.1.1"
   },
   "devDependencies": {
     "@starbeam-workspace/build-support": "workspace:^"
@@ -25,9 +23,6 @@
         "default": "./dist/index.cjs"
       }
     }
-  },
-  "exports": {
-    "default": "./index.ts"
   },
   "scripts": {
     "test:lint": "eslint",

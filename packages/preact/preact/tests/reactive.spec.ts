@@ -1,67 +1,110 @@
 // @vitest-environment jsdom
 
-import { Cell, LIFETIME } from "@starbeam/core";
-import { describe, expect, test } from "@starbeam-workspace/test-utils";
-import htm from "htm";
-import { h, options, render } from "preact";
-import { create, setup } from "@starbeam/preact";
-import { beforeAll } from "vitest";
-import { TestElement } from "./support/testing.js";
+import {
+  Cell,
+  LIFETIME,
+  Resource,
+  type ResourceBlueprint,
+} from "@starbeam/core";
+import { describe } from "@starbeam-workspace/test-utils";
+import { html, rendering } from "@starbeam/preact-testing-utils";
+import { options } from "preact";
+import { create, setup, use } from "@starbeam/preact";
+import { beforeAll, expect } from "vitest";
+import { isPresent, verified } from "@starbeam/verify";
 
-const html = htm.bind(h);
 let id = 0;
 
 describe("useReactive", () => {
   beforeAll(() => setup(options));
 
-  test("baseline", () => {
+  rendering.test(
+    "baseline",
     function App({ name }: { name: string }) {
       return html`<div>hello ${name}</div>`;
-    }
+    },
+    (render) =>
+      render
+        .html(({ name }) => html`<div>hello ${name}</div>`)
+        .render({ name: "world" })
+  );
 
-    render(html`<${App} name="World" />`, document.body);
+  rendering.test(
+    "reactive values render",
+    function App() {
+      const { cell } = create(ReactiveObject);
+      return html`<p>${cell.current}</p>`;
+    },
+    (render) =>
+      render.html(({ count }) => html`<p>${count}</p>`).render({ count: 0 })
+  );
 
-    expect(document.body.innerHTML).toBe("<div>hello World</div>");
-  });
-
-  test("reactive values render", () => {
+  rendering.test(
+    "reactive values update",
     function App() {
       const { cell, increment } = create(ReactiveObject);
 
       return html`<p>${cell}</p>
         <button onClick=${increment}>++</button>`;
-    }
+    },
+    (render) =>
+      render
+        .html(
+          ({ count }: { count: number }) =>
+            html`<p>${count}</p>
+              <button>++</button>`
+        )
+        .render({ count: 0 })
+        .update(
+          { count: 1 },
+          { before: (prev) => prev.find("button").fire.click() }
+        )
+  );
 
-    render(html`<${App} />`, document.body);
-
-    expect(document.body.innerHTML).toBe("<p>0</p><button>++</button>");
-  });
-
-  test("reactive values update", async () => {
+  rendering.test(
+    "resources are handled correctly",
     function App() {
-      const { cell, increment } = create(ReactiveObject);
-
-      return html`<p>${cell}</p>
-        <button onClick=${increment}>++</button>`;
-    }
-
-    render(html`<${App} />`, document.body);
-    const result = TestElement.create(document.body);
-
-    expect(result.innerHTML).toBe("<p>0</p><button>++</button>");
-
-    await result.find("button").fire.click();
-
-    expect(result.innerHTML).toBe("<p>1</p><button>++</button>");
-  });
+      const test = use(TestResource);
+      return html`<p>${test.id}</p>`;
+    },
+    (render) =>
+      render
+        .html(({ id }) => html`<p>${id}</p>`)
+        .render({ id: TestResourceImpl.nextId })
+        .unmount({
+          after: () => {
+            expect(TestResourceImpl.getLast().isActive).toBe(false);
+          },
+        })
+  );
 });
 
-// eslint-disable-next-line unused-imports/no-unused-vars
-class TestResource {
+const TestResource: ResourceBlueprint<TestResourceImpl> = Resource((r) => {
+  const impl = TestResourceImpl.create();
+
+  r.on.setup(() => {
+    return () => {
+      LIFETIME.finalize(impl);
+    };
+  });
+
+  return () => impl;
+});
+
+class TestResourceImpl {
   static #nextId = 0;
+  static #last: TestResourceImpl | undefined;
+
+  static get nextId(): number {
+    return TestResourceImpl.#nextId;
+  }
+
+  static getLast(): TestResourceImpl {
+    return verified(TestResourceImpl.#last, isPresent);
+  }
 
   static create() {
-    return new TestResource(TestResource.#nextId++);
+    return new TestResourceImpl(TestResourceImpl.#nextId++);
   }
 
   #id: number;
@@ -69,6 +112,7 @@ class TestResource {
 
   constructor(id: number) {
     this.#id = id;
+    TestResourceImpl.#last = this;
 
     LIFETIME.on.cleanup(this, () => {
       this.#active = false;
@@ -85,7 +129,7 @@ class TestResource {
 }
 
 function ReactiveObject() {
-  const cell = Cell(0, `#${++id}`);
+  const cell = Cell(0, `ReactiveObject #${++id}`);
 
   function increment() {
     cell.set(cell.current + 1);

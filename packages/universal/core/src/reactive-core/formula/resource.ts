@@ -85,6 +85,15 @@ export function Resource<T>(
 
 const BUILDERS = new WeakMap<Resource<unknown>, ResourceBuilder>();
 
+Resource.create = function <T>(
+  blueprint: ResourceBlueprint<T>,
+  options: { owner: object }
+): Resource<T> {
+  const resource = blueprint.create(options);
+  Resource.setup(resource);
+  return resource;
+};
+
 Resource.setup = function <T>(resource: Resource<T>): void {
   const builder = BUILDERS.get(resource);
 

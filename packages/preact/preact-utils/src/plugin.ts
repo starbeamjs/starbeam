@@ -65,7 +65,7 @@ export class AugmentPreact {
    *
    * For example, Starbeam uses this hook to start a tracking frame.
    */
-  render(hook: (vnode: InternalVNode, handler: Handler) => void): void {
+  willRender(hook: (vnode: InternalVNode, handler: Handler) => void): void {
     createHook(this.#original, "_render", (vnode, handler) => {
       hook(InternalVNode.from(vnode), handler);
     });
@@ -81,7 +81,7 @@ export class AugmentPreact {
    * This plugin hook is called after a vnode is rendered and diffed, but before anything else
    * happens. If you started wrapping rendering in `render`, you should end it here.
    */
-  diffed(hook: (vnode: InternalVNode, handler: Handler) => void): void {
+  didRender(hook: (vnode: InternalVNode, handler: Handler) => void): void {
     createHook(this.#original, "diffed", (vnode, handler) => {
       hook(InternalVNode.from(vnode), handler);
     });
@@ -256,7 +256,7 @@ export class AugmentPreactAsComponent {
     this.#original = original;
   }
 
-  render(hook: (vnode: InternalComponent, handler: Handler) => void): void {
+  willRender(hook: (vnode: InternalComponent, handler: Handler) => void): void {
     createHook(this.#original, "_render", (vnode, handler) => {
       if (isUserspaceComponent(vnode)) {
         hook(InternalComponent.of(getVNodeComponent(vnode)), handler);
@@ -272,7 +272,7 @@ export class AugmentPreactAsComponent {
     });
   }
 
-  diffed(hook: (vnode: InternalComponent, handler: Handler) => void): void {
+  didRender(hook: (vnode: InternalComponent, handler: Handler) => void): void {
     createHook(this.#original, "diffed", (vnode, handler) => {
       if (isUserspaceComponent(vnode)) {
         hook(InternalComponent.of(getVNodeComponent(vnode)), handler);

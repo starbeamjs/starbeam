@@ -282,11 +282,6 @@ export async function queryPackages(
   workspace: Workspace,
   query: Query = Query.all
 ): Promise<Package[]> {
-  // const packages = workspace.paths.packages.all;
-  // const tests = packages.dir("tests");
-  // const demos = workspace.paths.demos.glob("*", { match: ["directories"] });
-  // const scripts = workspace.root.glob("scripts");
-
   const packageList = await workspace.cmd(sh`pnpm ls -r --depth -1 --json`);
 
   if (packageList === undefined) {
@@ -300,7 +295,7 @@ export async function queryPackages(
       new Directory(workspace.root.absolute, p.path).file("package.json")
     )
     .map((manifest) => Package.from(workspace, manifest))
-    .filter((pkg) => query.match(pkg));
+    .filter((pkg) => query.match(pkg, workspace.reporter));
 }
 
 class RawPackage {

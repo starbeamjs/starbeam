@@ -1,3 +1,4 @@
+import { DisplayStruct } from "@starbeam/debug";
 import type { Component } from "preact";
 import type { InternalEffect, InternalPreactElement } from "../interfaces.js";
 import { InternalVNode, type InternalPreactVNode } from "./vnode.js";
@@ -5,6 +6,8 @@ import { InternalVNode, type InternalPreactVNode } from "./vnode.js";
 const COMPONENTS = new WeakMap<InternalPreactComponent, InternalComponent>();
 
 export class InternalComponent {
+  static #nextId = 0;
+
   static is(value: unknown): value is InternalComponent {
     return !!(
       value &&
@@ -41,9 +44,34 @@ export class InternalComponent {
   }
 
   readonly #component: InternalPreactComponent;
+  readonly id: number;
 
   private constructor(component: InternalPreactComponent) {
     this.#component = component;
+    this.id = InternalComponent.#nextId++;
+  }
+
+  [Symbol.for("nodejs.util.inspect.custom")](): object {
+    const propsFields: Partial<{ props: unknown }> = {};
+    const stateFields: Partial<{ state: unknown }> = {};
+
+    if (Object.keys(this.#component.props).length > 0) {
+      propsFields.props = this.#component.props;
+    }
+
+    if (Object.keys(this.#component.state).length > 0) {
+      stateFields.state = this.#component.state;
+    }
+
+    return DisplayStruct(
+      "InternalComponent",
+      {
+        vnode: this.vnode,
+        ...propsFields,
+        ...stateFields,
+      },
+      { description: String(this.id) }
+    );
   }
 
   get props(): InternalPreactComponent["props"] {

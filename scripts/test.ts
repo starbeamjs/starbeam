@@ -85,15 +85,24 @@ export const TestCommand = QueryCommand("test", {
         );
 
       if (watch) {
-        if (matches.length > 1) {
+        if (matches.length !== 1) {
+          const found =
+            matches.length === 0
+              ? ` There were ${Fragment.problem.inverse(
+                  "no"
+                )} matching packages.`
+              : `\n\nFound ${Fragment.problem.inverse(
+                  matches.length
+                )} matching packages: ${matches
+                  .map((pkg) => `- ${pkg.name}`)
+                  .join(", ")}`;
+
           workspace.reporter.fatal(
-            `The --watch flag can only be used when a single package is selected.\n\nFound ${
-              matches.length
-            } matching packages:\n\n${matches.map((m) => `- ${m}`).join("\n")}`
+            `The --watch flag can only be used when a single package is selected.${found}\n`
           );
         }
 
-        await workspace.cmd(`pnpm run test:specs --watch`, {
+        await workspace.cmd(`pnpm run test:specs`, {
           cwd: matches[0].root.absolute,
           stdio: "inherit",
         });
@@ -141,7 +150,6 @@ function tests(
     .filter(options.select)
     .filter((name) => testMatches(name, options.type))
     .map((test) => {
-      console.log({ test, type: options.type, stream: options.streamOutput });
       return CheckDefinition(
         options.header(test),
         `pnpm run test:${test}${options.watch ? "" : " --run"}`,

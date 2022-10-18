@@ -358,13 +358,16 @@ importers:
   packages/preact/preact:
     specifiers:
       '@starbeam-workspace/build-support': workspace:^
+      '@starbeam/core': workspace:^
       '@starbeam/debug': workspace:^
       '@starbeam/preact-utils': workspace:^
       '@starbeam/timeline': workspace:^
       '@starbeam/verify': workspace:^
+      chalk: ^5.1.2
       preact: ^10.11.1
       preact-render-to-string: ^5.2.5
     dependencies:
+      '@starbeam/core': link:../../universal/core
       '@starbeam/debug': link:../../universal/debug
       '@starbeam/preact-utils': link:../preact-utils
       '@starbeam/timeline': link:../../universal/timeline
@@ -372,6 +375,51 @@ importers:
       preact: 10.11.1
     devDependencies:
       '@starbeam-workspace/build-support': link:../../../.build
+      chalk: 5.1.2
+      preact-render-to-string: 5.2.5_preact@10.11.1
+
+  packages/preact/preact-testing-utils:
+    specifiers:
+      '@starbeam-workspace/build-support': workspace:^
+      '@testing-library/dom': ^8.19.0
+      '@testing-library/preact': ^3.2.2
+      htm: ^3.1.1
+      preact: ^10.11.1
+    dependencies:
+      '@testing-library/dom': 8.19.0
+      '@testing-library/preact': 3.2.2_preact@10.11.1
+      htm: 3.1.1
+      preact: 10.11.1
+    devDependencies:
+      '@starbeam-workspace/build-support': link:../../../.build
+
+  packages/preact/preact-testing-utils/tests:
+    specifiers:
+      '@starbeam-workspace/test-utils': workspace:^
+      '@starbeam/core': workspace:^
+      '@starbeam/debug': workspace:^
+      '@starbeam/preact': workspace:^
+      '@starbeam/preact-testing-utils': workspace:^
+      '@starbeam/timeline': workspace:^
+      '@testing-library/dom': ^8.19.0
+      '@testing-library/preact': ^3.2.2
+      htm: ^3.1.1
+      jsdom: ^20.0.0
+      preact: ^10.5.13
+      preact-render-to-string: ^5.2.5
+    dependencies:
+      '@starbeam-workspace/test-utils': link:../../../universal/test-utils
+      '@starbeam/core': link:../../../universal/core
+      '@starbeam/debug': link:../../../universal/debug
+      '@starbeam/preact': link:../../preact
+      '@starbeam/preact-testing-utils': link:..
+      '@starbeam/timeline': link:../../../universal/timeline
+      '@testing-library/dom': 8.19.0
+      '@testing-library/preact': 3.2.2_preact@10.11.1
+      htm: 3.1.1
+      jsdom: 20.0.1
+      preact: 10.11.1
+    devDependencies:
       preact-render-to-string: 5.2.5_preact@10.11.1
 
   packages/preact/preact-utils:
@@ -416,6 +464,33 @@ importers:
       '@starbeam/core': workspace:^
       '@starbeam/debug': workspace:^
       '@starbeam/preact': workspace:^
+      '@starbeam/preact-testing-utils': workspace:^
+      '@starbeam/timeline': workspace:^
+      '@testing-library/dom': ^8.19.0
+      '@testing-library/preact': ^3.2.2
+      jsdom: ^20.0.0
+      preact: ^10.5.13
+      preact-render-to-string: ^5.2.5
+    dependencies:
+      '@starbeam-workspace/test-utils': link:../../../universal/test-utils
+      '@starbeam/core': link:../../../universal/core
+      '@starbeam/debug': link:../../../universal/debug
+      '@starbeam/preact': link:..
+      '@starbeam/preact-testing-utils': link:../../preact-testing-utils
+      '@starbeam/timeline': link:../../../universal/timeline
+      '@testing-library/dom': 8.19.0
+      '@testing-library/preact': 3.2.2_preact@10.11.1
+      jsdom: 20.0.1
+      preact: 10.11.1
+    devDependencies:
+      preact-render-to-string: 5.2.5_preact@10.11.1
+
+  packages/preact/testing-utils/tests:
+    specifiers:
+      '@starbeam-workspace/test-utils': workspace:^
+      '@starbeam/core': workspace:^
+      '@starbeam/debug': workspace:^
+      '@starbeam/preact': workspace:^
       '@starbeam/timeline': workspace:^
       '@testing-library/dom': ^8.19.0
       '@testing-library/preact': ^3.2.2
@@ -427,7 +502,7 @@ importers:
       '@starbeam-workspace/test-utils': link:../../../universal/test-utils
       '@starbeam/core': link:../../../universal/core
       '@starbeam/debug': link:../../../universal/debug
-      '@starbeam/preact': link:..
+      '@starbeam/preact': link:../../preact
       '@starbeam/timeline': link:../../../universal/timeline
       '@testing-library/dom': 8.19.0
       '@testing-library/preact': 3.2.2_preact@10.11.1
@@ -3594,6 +3669,11 @@ packages:
   /chalk/5.0.1:
     resolution: {integrity: sha512-Fo07WOYGqMfCWHOzSXOt2CxDbC6skS/jO9ynEcmpANMoPrD+W1r1K6Vx7iNm+AQmETU1Xr2t+n8nzkV9t6xh3w==}
     engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
+
+  /chalk/5.1.2:
+    resolution: {integrity: sha512-E5CkT4jWURs1Vy5qGJye+XwCkNj7Od3Af7CP6SujMetSMkLs8Do2RWJK5yx1wamHV/op8Rz+9rltjaTQWDnEFQ==}
+    engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
+    dev: true
 
   /chardet/0.7.0:
     resolution: {integrity: sha512-mT8iDcrh03qDGRRmoA2hmBJnxpllMR+0/0qlzjqZES6NdiWDcZkCNAk4rPFZ9Q85r27unkiNNg8ZOiwZXBHwcA==}

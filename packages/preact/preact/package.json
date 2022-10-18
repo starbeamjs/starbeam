@@ -7,13 +7,15 @@
   },
   "dependencies": {
     "@starbeam/timeline": "workspace:^",
+    "@starbeam/core": "workspace:^",
     "@starbeam/debug": "workspace:^",
     "@starbeam/verify": "workspace:^",
     "@starbeam/preact-utils": "workspace:^"
   },
   "devDependencies": {
     "@starbeam-workspace/build-support": "workspace:^",
-    "preact-render-to-string": "^5.2.5"
+    "preact-render-to-string": "^5.2.5",
+    "chalk": "^5.1.2"
   },
   "publishConfig": {
     "main": "dist/index.cjs",
@@ -28,7 +30,7 @@
   },
   "scripts": {
     "test:lint": "eslint",
-    "test:specs": "vitest --dir ./tests",
+    "test:specs": "vitest",
     "test:types": "tsc -b"
   },
   "starbeam:type": "library"

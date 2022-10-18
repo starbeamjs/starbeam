@@ -1,10 +1,11 @@
 {
   "private": true,
   "type": "module",
-  "name": "@starbeam-tests/preact-testing-utils",
+  "name": "@starbeam-tests/preact",
   "version": "1.0.0",
   "dependencies": {
     "@starbeam/preact": "workspace:^",
+    "@starbeam/preact-testing-utils": "workspace:^",
     "@starbeam/core": "workspace:^",
     "@starbeam/debug": "workspace:^",
     "@starbeam/timeline": "workspace:^",

@@ -25,11 +25,14 @@ export function isProbablyVNode(
     | Record<PropertyKey, unknown>
     | Primitive;
 
-  return (
-    candidate != null &&
-    typeof candidate === "object" &&
-    candidate["__"] !== undefined &&
-    candidate["__k"] !== undefined &&
-    candidate["__c"] !== undefined
-  );
+  if (candidate && typeof candidate === "object") {
+    const type = typeof candidate.type;
+    return (
+      (type === "string" || type === "function") &&
+      candidate.__k !== undefined &&
+      candidate.__c !== undefined
+    );
+  } else {
+    return false;
+  }
 }

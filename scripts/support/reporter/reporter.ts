@@ -318,11 +318,23 @@ export class Reporter {
   }
 
   fatal(fragment: IntoFallibleFragment): never {
-    const message = FragmentImpl.fallibleFrom(fragment).map((f) => f);
-    this.#logger.logln(
-      `${chalk.redBright.inverse("FATAL")} ${chalk.red(message)}`,
-      "error"
-    );
+    FragmentImpl.fallibleFrom(fragment)
+      .map((f) => {
+        this.#logger.logln(
+          `${chalk.redBright.inverse("FATAL")} ${chalk.red(f)}`,
+          "error"
+        );
+      })
+      .mapErr((err) => {
+        this.#logger.logln(
+          `${chalk.redBright.inverse(
+            "FATAL"
+          )} Something went wrong when processing the fatal error message:\n\n${chalk.red(
+            String(err)
+          )}`,
+          "error"
+        );
+      });
 
     this.#logger.exit(1);
   }

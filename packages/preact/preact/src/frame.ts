@@ -73,6 +73,7 @@ export class ComponentFrame {
     );
 
     const frame = (this.#frame = this.#active.finalize(null, TIMELINE).frame);
+
     this.#active = null;
 
     if (subscription) {

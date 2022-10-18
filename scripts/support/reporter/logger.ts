@@ -556,7 +556,7 @@ export class Logger {
 
   #ensureBreak = (): void => {
     if (!this.#afterEmpty) {
-      process.stdout.write("\n");
+      process.stderr.write("\n");
       this.#afterEmpty = true;
     }
   };

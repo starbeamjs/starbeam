@@ -61,8 +61,6 @@ export class LoggedTable<T> implements CreateRows<T> {
       })
     );
 
-    console.log(rowList);
-
     return TableWithRows.create({
       mappers: this.#mappers,
       headers: undefined,

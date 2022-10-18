@@ -22,7 +22,7 @@
   },
   "scripts": {
     "test:lint": "eslint",
-    "test:specs": "vitest --dir ./tests",
+    "test:specs": "vitest",
     "test:types": "tsc -b"
   },
   "starbeam:type": "library"

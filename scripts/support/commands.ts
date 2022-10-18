@@ -376,17 +376,16 @@ export class BuildQueryCommand<
           where.and(parse("type!=draft"));
         }
 
-        const errors = where?.errors;
+        const workspace = createWorkspace(root, options);
 
-        if (errors) {
+        if (where?.errors) {
           for (const err of where.errors) {
-            err.log();
+            err.log(workspace.reporter);
           }
-          await Promise.resolve();
+          workspace.reporter.log("");
           process.exit(1);
         }
 
-        const workspace = createWorkspace(root, options);
         const packages = await queryPackages(workspace, where);
 
         const { args } = this.extractOptions<Args, Options>(allArgs);
@@ -597,10 +596,6 @@ type CamelizedKey<N extends PropertyKey> = N extends string
     ? `${A}${Uppercase<B>}`
     : N
   : N;
-
-function camelize(name: string): string {
-  return name.replace(/-([a-z])/g, (match, letter) => letter.toUpperCase());
-}
 
 function dasherize(name: string): string {
   return name.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
