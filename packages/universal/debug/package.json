@@ -8,7 +8,8 @@
     "@starbeam/verify": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
     "@domtree/flavors": "workspace:^",
-    "stacktracey": "^2.1.8"
+    "stacktracey": "^2.1.8",
+    "buffer": "^6.0.3"
   },
   "devDependencies": {
     "chalk": "^5.0.1",

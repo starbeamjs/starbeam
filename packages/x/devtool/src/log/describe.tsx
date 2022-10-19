@@ -1,7 +1,6 @@
 import "preact";
 
 /** @jsxRuntime automatic @jsxImportSource preact */
-
 import type {
   DescriptionParts,
   DetailsPart,

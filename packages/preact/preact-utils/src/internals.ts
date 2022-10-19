@@ -1,6 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { ComponentChild } from "preact";
-import type { AnyFn, RawPreactOptions } from "./interfaces.js";
+import type { ComponentChild, Options } from "preact";
+
+import type {
+  AnyFn,
+  MangledHookNames,
+  PrivateHookNames,
+  RawPreactOptions,
+} from "./interfaces.js";
 import type { InternalPreactVNode } from "./internals/vnode.js";
 
 export interface HookName {
@@ -11,9 +17,14 @@ export interface HookName {
 export type FilterFn<K extends keyof RawPreactOptions> =
   RawPreactOptions[K] extends AnyFn | void ? K : never;
 
-export type PreactOptionName = keyof RawPreactOptions;
+export type PreactOptionName = keyof Options | PrivateHookNames;
+export type MangledPreactOptionName = keyof Options | MangledHookNames;
 
-export type PreactHook<T extends keyof RawPreactOptions> = RawPreactOptions[T];
+type Req<T> = {
+  [P in keyof T]-?: T[P] extends infer T | undefined ? T : T[P];
+};
+
+export type PreactHook<T extends PreactOptionName> = Req<RawPreactOptions>[T];
 
 type Primitive = string | number | bigint | boolean | null | undefined;
 

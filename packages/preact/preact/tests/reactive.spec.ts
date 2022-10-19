@@ -1,17 +1,18 @@
 // @vitest-environment jsdom
 
 import {
+  type ResourceBlueprint,
   Cell,
   LIFETIME,
   Resource,
-  type ResourceBlueprint,
+  Static,
 } from "@starbeam/core";
-import { describe } from "@starbeam-workspace/test-utils";
-import { html, rendering } from "@starbeam/preact-testing-utils";
-import { options } from "preact";
 import { create, setup, use } from "@starbeam/preact";
-import { beforeAll, expect } from "vitest";
+import { html, rendering } from "@starbeam/preact-testing-utils";
 import { isPresent, verified } from "@starbeam/verify";
+import { describe } from "@starbeam-workspace/test-utils";
+import { options } from "preact";
+import { beforeAll, expect } from "vitest";
 
 let id = 0;
 
@@ -82,13 +83,11 @@ describe("useReactive", () => {
 const TestResource: ResourceBlueprint<TestResourceImpl> = Resource((r) => {
   const impl = TestResourceImpl.create();
 
-  r.on.setup(() => {
-    return () => {
-      LIFETIME.finalize(impl);
-    };
+  r.on.cleanup(() => {
+    LIFETIME.finalize(impl);
   });
 
-  return () => impl;
+  return Static(impl);
 });
 
 class TestResourceImpl {

@@ -1,8 +1,9 @@
 import type { ComponentChild, ComponentChildren } from "preact";
+import {} from "util/types";
+
 import { isProbablyVNode } from "./internals.js";
 import { InternalComponent } from "./internals/component.js";
-import { InternalVNode, type InternalPreactVNode } from "./internals/vnode.js";
-import {} from "util/types";
+import { type InternalPreactVNode, InternalVNode } from "./internals/vnode.js";
 
 function debugComponentChild(child: ComponentChild): unknown {
   if (isProbablyVNode(child)) {

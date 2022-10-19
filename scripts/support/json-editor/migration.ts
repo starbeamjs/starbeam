@@ -1,4 +1,5 @@
 import { inspect } from "node:util";
+
 import type { EditJsonc, JsoncPosition } from "../jsonc.js";
 import type { ChangeResult } from "../reporter/reporter.js";
 

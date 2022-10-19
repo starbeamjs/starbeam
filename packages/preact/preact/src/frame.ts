@@ -1,9 +1,9 @@
 import type { Description } from "@starbeam/debug";
 import {
-  TIMELINE,
   type ActiveFrame,
   type Frame,
   type Unsubscribe,
+  TIMELINE,
 } from "@starbeam/timeline";
 import { expected, isPresent, verify } from "@starbeam/verify";
 
@@ -21,6 +21,12 @@ export class ComponentFrame {
     frame.#start(description);
   }
 
+  static isRenderingComponent(component: object): boolean {
+    const frame = ComponentFrame.#frames.get(component);
+
+    return !!frame && frame.#active !== null;
+  }
+
   static end(component: object, subscription?: () => void): Frame {
     const frame = ComponentFrame.#frames.get(component);
 
@@ -30,7 +36,8 @@ export class ComponentFrame {
       expected.when("in Preact's _diff hook").as("a tracking frame")
     );
 
-    return frame.#end(subscription);
+    const end = frame.#end(subscription);
+    return end;
   }
 
   static unmount(component: object): void {

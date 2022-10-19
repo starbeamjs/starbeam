@@ -1,11 +1,15 @@
+// @ts-check
+
 import { dirname, resolve } from "node:path";
 import { defineConfig } from "rollup";
+import * as vite from "vite";
 import rollupTS from "rollup-plugin-ts";
 import importMeta from "./import-meta.js";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import typescriptLibrary from "typescript";
 import inline from "./inline.js";
+import { VitePluginFonts } from "vite-plugin-fonts";
 
 const { default: commonjs } = await import("@rollup/plugin-commonjs");
 const { default: nodeResolve } = await import("@rollup/plugin-node-resolve");
@@ -192,6 +196,22 @@ export class Package {
     }
   }
 
+  /**
+   * @param {ImportMeta | string} meta
+   * @returns {import("./config.js").ViteExport}
+   */
+  static viteConfig(meta) {
+    const pkg = Package.at(meta);
+
+    if (pkg) return pkg.#viteConfig();
+
+    throw Error(
+      `No package found at ${
+        typeof meta === "string" ? meta : Package.root(meta)
+      }`
+    );
+  }
+
   /** @readonly @type {PackageInfo} */
   #package;
 
@@ -235,6 +255,55 @@ export class Package {
    */
   config() {
     return [this.esm(), this.cjs()];
+  }
+
+  /**
+   * @returns {import("./config.js").ViteExport}
+   */
+  #viteConfig() {
+    return viteConfig({
+      plugins: [
+        VitePluginFonts({
+          google: {
+            families: ["Roboto:wght@300;400;500;700"],
+            display: "swap",
+            preconnect: true,
+          },
+        }),
+      ],
+      esbuild: this.#esbuild(),
+      optimizeDeps: {
+        esbuildOptions: {
+          define: {
+            global: "globalThis",
+          },
+        },
+      },
+      build: {},
+    });
+  }
+
+  /**
+   * @returns {import("vite").ESBuildOptions | false}
+   */
+  #esbuild() {
+    const pkg = this.#package;
+    const jsx = pkg.starbeam.jsx;
+
+    if (jsx) {
+      if (jsx === "automatic") {
+        return {
+          jsx: "automatic",
+        };
+      } else {
+        return {
+          jsx: "automatic",
+          jsxImportSource: pkg.starbeam.jsx,
+        };
+      }
+    } else {
+      return false;
+    }
   }
 
   /**
@@ -335,7 +404,7 @@ export class Package {
         file: resolve(root, "dist", `index.${ext}`),
         format,
         sourcemap: true,
-        exports: format === "cjs" ? "named" : undefined,
+        exports: format === "cjs" ? "named" : "none",
       },
       onwarn: (warning, warn) => {
         switch (warning.code) {
@@ -366,3 +435,10 @@ function mapExternal(inline) {
  * @type {<K extends "jsx">(name: K, value: keyof CompilerOptions["jsx"]) => CompilerOptions[K]}
  */
 const setting = (_name, value) => /** @type {any} */ (value);
+
+/**
+ * @param {import("./config.js").ViteExport} config
+ */
+function viteConfig(config) {
+  return config;
+}

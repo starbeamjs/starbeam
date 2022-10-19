@@ -9,6 +9,9 @@
     "@starbeam/timeline": "workspace:^",
     "@starbeam/debug": "workspace:^"
   },
+  "devDependencies": {
+    "@starbeam-workspace/test-utils": "workspace:^"
+  },
   "scripts": {
     "test:lint": "eslint",
     "test:types": "tsc -b"

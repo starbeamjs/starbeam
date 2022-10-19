@@ -37,7 +37,7 @@ export class Fragment {
   }
 
   css(style: `${string}:${string}`): this {
-    const [property, value] = style.split(":");
+    const [property, value] = style.split(":") as [string, string];
     this.#styles.add(property.trim(), value.trim());
     return this;
   }

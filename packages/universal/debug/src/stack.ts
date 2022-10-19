@@ -17,6 +17,7 @@ import { default as StackTracey } from "stacktracey";
 
 // eslint-disable-next-line import/no-cycle
 import { Description } from "./description/impl.js";
+import { inspector } from "./inspect/inspect-support.js";
 import { describeModule } from "./module.js";
 
 type ErrorWithStack = Error & { stack: string };
@@ -38,9 +39,19 @@ export interface StackStatics {
   description(
     this: void,
     args: DescriptionArgs & {
-      fromUser?: string | DescriptionDetails | interfaces.Description;
+      fromUser?:
+        | string
+        | DescriptionDetails
+        | interfaces.Description
+        | undefined;
     },
     internal?: number
+  ): interfaces.Description;
+
+  desc(
+    type: interfaces.DescriptionType,
+    fromUser?: string | DescriptionDetails | interfaces.Description | undefined,
+    internal?: number | undefined
   ): interfaces.Description;
 
   fromCaller(this: void, internal?: number): StackProtocol;
@@ -56,12 +67,12 @@ export interface StackStatics {
    *
    * If you want to erase additional **caller** frames (because the code that calls the callback is
    * not the direct call site from user code), you can specify an additional number of frames to erase
-   * using the `extra` parameter.
+   * using the `internal` parameter.
    */
   entryPoint<T>(
     this: void,
     callback: () => T,
-    options?: { extra?: number; stack?: StackProtocol }
+    options?: { internal?: number; stack?: StackProtocol }
   ): T;
 }
 
@@ -79,11 +90,13 @@ if (import.meta.env.DEV) {
       const parsed = new StackTracey(stack);
       const frames = parsed.items;
 
-      if (frames.length === 0) {
+      const [firstFrame] = frames;
+
+      if (firstFrame === undefined) {
         return new ParsedStack(stack, stack, "", []);
       }
 
-      const first = frames[0].beforeParse;
+      const first = firstFrame.beforeParse;
       const lines = stack.split("\n");
 
       const offset = lines.findIndex((line) => line.trim() === first);
@@ -103,6 +116,16 @@ if (import.meta.env.DEV) {
         header,
         rest,
         frames.map((f) => StackFrame.from(parsed, f))
+      );
+    }
+
+    static {
+      inspector(this, "ParsedStack").define((stack, debug) =>
+        debug.struct({
+          header: stack.#header,
+          frames: stack.#frames.map((f) => f.parts().display()),
+          rest: stack.#rest,
+        })
       );
     }
 
@@ -158,6 +181,8 @@ if (import.meta.env.DEV) {
     }
   }
 
+  const REPLACED_ERRORS = new WeakSet<ErrorWithStack>();
+
   class DebugStack implements StackProtocol {
     static create(this: void, internal = 0): DebugStack {
       if ("captureStackTrace" in Error) {
@@ -193,7 +218,7 @@ if (import.meta.env.DEV) {
     static replaceFrames(error: unknown, fromStack: DebugStack): void {
       if (isErrorWithStack(error)) {
         const errorStack = DebugStack.from(error);
-        errorStack.replaceFrames(fromStack);
+        errorStack.withReplacedFrames(fromStack);
         error.stack = errorStack.stack;
       }
     }
@@ -212,12 +237,27 @@ if (import.meta.env.DEV) {
 
     static description(
       args: DescriptionArgs & {
-        fromUser?: string | DescriptionDetails | interfaces.Description;
+        fromUser?:
+          | string
+          | DescriptionDetails
+          | interfaces.Description
+          | undefined;
       },
       internal = 0
     ): interfaces.Description {
       const stack = DebugStack.fromCaller(internal + 1);
       const fromUser = args.fromUser;
+
+      const api: string | interfaces.ApiDetails | undefined = args.api ?? {};
+
+      if (typeof api !== "string" && api.package === undefined) {
+        const starbeam = stack.caller?.starbeamCaller;
+
+        if (starbeam) {
+          api.package = starbeam.package;
+          api.name = starbeam.name;
+        }
+      }
 
       if (fromUser === undefined || typeof fromUser === "string") {
         return Description.from({ ...args, stack });
@@ -226,6 +266,24 @@ if (import.meta.env.DEV) {
       } else {
         return Description.from({ ...args, stack });
       }
+    }
+
+    static desc(
+      type: interfaces.DescriptionType,
+      fromUser?:
+        | string
+        | DescriptionDetails
+        | interfaces.Description
+        | undefined,
+      internal = 0
+    ): interfaces.Description {
+      return DebugStack.description(
+        {
+          type,
+          fromUser,
+        },
+        internal + 1
+      );
     }
 
     static id(
@@ -246,19 +304,20 @@ if (import.meta.env.DEV) {
     static entryPoint<T>(
       callback: () => T,
       {
-        extra = 0,
-        stack = DebugStack.create(1 + extra),
-      }: { extra?: number; stack?: StackProtocol } = {}
+        internal = 0,
+        stack = DebugStack.create(1 + internal),
+      }: { internal?: number; stack?: StackProtocol } = {}
     ): T {
       try {
         return callback();
       } catch (e) {
-        if (isErrorWithStack(e)) {
+        if (isErrorWithStack(e) && !REPLACED_ERRORS.has(e)) {
           const errorStack = DebugStack.from(e);
 
           if (errorStack) {
-            errorStack.replaceFrames(stack as DebugStack);
-            e.stack = errorStack.stack;
+            const updated = errorStack.withReplacedFrames(stack as DebugStack);
+            e.stack = updated.stack;
+            REPLACED_ERRORS.add(e);
           }
         }
         throw e;
@@ -294,7 +353,7 @@ if (import.meta.env.DEV) {
      * Replace the stack frames with the current Stack with the frames from the given Stack, but keep
      * the same header.
      */
-    replaceFrames(stack: DebugStack) {
+    withReplacedFrames(stack: DebugStack) {
       return new DebugStack(this.#parsed.replaceFrames(stack.#parsed));
     }
 
@@ -312,6 +371,12 @@ if (import.meta.env.DEV) {
   class StackFrame implements interfaces.StackFrame {
     static from(stack: StackTracey, frame: StackTracey.Entry): StackFrame {
       return new StackFrame(stack, frame, null);
+    }
+
+    static {
+      inspector(this, "StackFrame").define((frame, debug) =>
+        debug.struct({ original: frame.parts().display() })
+      );
     }
 
     #stack: StackTracey;
@@ -338,11 +403,26 @@ if (import.meta.env.DEV) {
       return reified;
     }
 
+    get starbeamCaller():
+      | { package: string; name?: string | undefined }
+      | undefined {
+      const frame = this.#reify();
+
+      const pkg = frame.file.match(/(@starbeam\/[/]+)/);
+
+      if (pkg) {
+        return {
+          package: pkg[1] as string,
+          name: frame.callee === "" ? undefined : frame.callee,
+        };
+      }
+    }
+
     get action(): string {
       return this.#reify().callee;
     }
 
-    get loc(): { line: number; column?: number } | undefined {
+    get loc(): { line: number; column?: number | undefined } | undefined {
       const entry = this.#reify();
 
       if (entry.line === undefined) {
@@ -408,10 +488,29 @@ if (import.meta.env.DEV) {
 
     static description(
       args: DescriptionArgs & {
-        fromUser?: string | DescriptionDetails | interfaces.Description;
+        fromUser?:
+          | string
+          | DescriptionDetails
+          | interfaces.Description
+          | undefined;
       }
     ): interfaces.Description {
       return Description.from({ ...args, stack: ProdStack.EMPTY });
+    }
+
+    static desc(
+      type: interfaces.DescriptionType,
+      fromUser?:
+        | string
+        | DescriptionDetails
+        | interfaces.Description
+        | undefined
+    ): interfaces.Description {
+      return ProdStack.description({
+        type,
+        stack: ProdStack.EMPTY,
+        fromUser,
+      });
     }
 
     static id(): ReactiveId {
@@ -441,8 +540,34 @@ export const Stack: StackStatics = PickedStack;
 export type Stack = interfaces.Stack;
 export const entryPoint = PickedStack.entryPoint;
 
+export function entryPointFn<F extends (...args: any[]) => any>(
+  fn: F,
+  options?: { stack: Stack }
+): F {
+  return ((...args: any[]) =>
+    entryPoint(() => fn(...args), { internal: 1, ...options })) as F;
+}
+
+export function entryPoints<Funcs extends object>(
+  funcs: Funcs,
+  options?: { stack: Stack }
+): Funcs {
+  const result: Record<string, (...args: any[]) => any> = Object.create(null);
+
+  for (const [key, fn] of Object.entries(funcs)) {
+    if (typeof fn === "function") {
+      result[key] = entryPointFn(fn, options);
+    } else {
+      result[key] = fn;
+    }
+  }
+
+  return result as Funcs;
+}
+
 /** This should be convertable to something like Description.EMPTY in prod builds  */
 export const descriptionFrom = PickedStack.description;
+export const Desc = PickedStack.desc;
 
 /**
  * If it isn't already removed, this should be convertable to getID in prod builds

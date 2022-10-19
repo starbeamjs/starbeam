@@ -1,5 +1,5 @@
 import type * as Debug from "@starbeam/debug";
-import { Tree } from "@starbeam/debug";
+import { Desc, Tree } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
 import { REACTIVE } from "@starbeam/shared";
 import { isPresent } from "@starbeam/verify";
@@ -26,6 +26,10 @@ export type ReactiveProtocol<
 export const ReactiveProtocol = {
   description(this: void, reactive: ReactiveProtocol): Debug.Description {
     return ReactiveInternals.description(reactive[REACTIVE]);
+  },
+
+  id(this: void, reactive: ReactiveProtocol): interfaces.ReactiveId {
+    return ReactiveInternals.id(reactive[REACTIVE]);
   },
 
   is<T extends "mutable" | "composite" | "static" | "delegate">(
@@ -114,6 +118,13 @@ export const ReactiveInternals = {
     kind: T
   ): internals is Extract<interfaces.ReactiveInternals, { type: T }> {
     return internals.type === kind;
+  },
+
+  id(
+    this: void,
+    internals: interfaces.ReactiveInternals
+  ): interfaces.ReactiveId {
+    return internals.description.id;
   },
 
   *dependencies(
@@ -271,10 +282,71 @@ export type Reactive<
   T,
   I extends ReactiveInternals = ReactiveInternals
 > = interfaces.Reactive<T, I>;
+
 export const Reactive = {
   is<T>(
     value: unknown | interfaces.Reactive<T>
   ): value is interfaces.Reactive<T> {
-    return typeof value === "object" && value !== null && REACTIVE in value;
+    return !!(
+      value &&
+      (typeof value === "object" || typeof value === "function") &&
+      REACTIVE in value
+    );
+  },
+
+  from<T>(
+    value: T | Reactive<T>,
+    description?: string | Debug.Description
+  ): Reactive<T> {
+    if (Reactive.is(value)) {
+      return value;
+    } else {
+      return new Static(value, Desc("static", description));
+    }
   },
 };
+
+export type ReactiveCore<
+  T,
+  I extends ReactiveInternals = ReactiveInternals
+> = interfaces.ReactiveCore<T, I>;
+
+export const ReactiveCore = {
+  is<T>(
+    value: unknown | interfaces.ReactiveCore<T>
+  ): value is interfaces.ReactiveCore<T> {
+    return !!(
+      value &&
+      (typeof value === "object" || typeof value === "function") &&
+      REACTIVE in value &&
+      hasRead(value)
+    );
+  },
+};
+
+function hasRead<T>(
+  value: Partial<interfaces.ReactiveCore<T>>
+): value is { read(): T } {
+  return typeof value.read === "function";
+}
+
+class Static<T> {
+  readonly #value: T;
+  readonly [REACTIVE]: interfaces.StaticInternals;
+
+  constructor(value: T, description: Debug.Description) {
+    this.#value = value;
+    this[REACTIVE] = {
+      type: "static",
+      description,
+    };
+  }
+
+  get current(): T {
+    return this.#value;
+  }
+
+  read(): T {
+    return this.#value;
+  }
+}

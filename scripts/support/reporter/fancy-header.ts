@@ -1,9 +1,9 @@
-import { Style, StyleInstance, type Printable } from "../log.js";
+import { type Printable, Style, StyleInstance } from "../log.js";
 import {
-  StylePart,
-  STYLES,
   type StyleName,
   type StylePartName,
+  StylePart,
+  STYLES,
 } from "./styles.js";
 
 type ToFragmentFn = ((message: Printable) => string) & {

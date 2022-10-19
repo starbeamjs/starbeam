@@ -41,7 +41,7 @@ export class RenderState<T> {
       );
     }
 
-    const value = state.#values[state.#values.length - 1];
+    const value = state.#values[state.#values.length - 1] as T;
     state.#lastChecked = value;
     return value;
   }

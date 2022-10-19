@@ -1,6 +1,8 @@
 import type * as interfaces from "@starbeam/interfaces";
 import { hasType } from "@starbeam/verify";
 
+import { inspector } from "./inspect/inspect-support.js";
+
 export function describeModule(module: string): DescribedModule {
   return new DescribedModule(parse(module));
 }
@@ -30,6 +32,17 @@ export class DisplayParts implements interfaces.DisplayParts {
   readonly #action: string | undefined;
   readonly #loc: Loc | undefined;
 
+  static {
+    inspector(this, "DisplayParts").define((parts, debug) =>
+      debug.struct({
+        path: parts.#path,
+        root: parts.#root,
+        action: parts.#action,
+        loc: parts.#loc,
+      })
+    );
+  }
+
   constructor({
     path,
     root,
@@ -37,9 +50,9 @@ export class DisplayParts implements interfaces.DisplayParts {
     loc,
   }: {
     path: string;
-    root?: DisplayRoot;
-    action?: string;
-    loc?: Loc;
+    root?: DisplayRoot | undefined;
+    action?: string | undefined;
+    loc?: Loc | undefined;
   }) {
     this.#path = path;
     this.#root = root;
@@ -92,7 +105,7 @@ export class DescribedModule {
   }
 
   parts(
-    location?: { loc?: Loc; action?: string },
+    location?: { loc?: Loc | undefined; action?: string | undefined },
     options: interfaces.StackFrameDisplayOptions = {}
   ): DisplayParts {
     const parts = this.#module.parts(options);
@@ -118,7 +131,7 @@ export class DescribedModule {
   }
 
   display(
-    location?: { loc?: Loc; action?: string },
+    location?: { loc?: Loc | undefined; action?: string | undefined },
     options: interfaces.StackFrameDisplayOptions = {}
   ): string {
     return this.parts(location, options).display();
@@ -127,7 +140,7 @@ export class DescribedModule {
 
 interface Loc {
   line: number;
-  column?: number;
+  column?: number | undefined;
 }
 
 function formatLoc(loc: Loc) {
@@ -225,7 +238,11 @@ function parse(module: string): DescribedModulePath | DescribedPackage {
     return new DescribedModulePath(module);
   }
 
-  const { scope, name, path } = groups;
+  const { scope, name, path } = groups as {
+    scope: string;
+    name: string;
+    path: string;
+  };
 
   return new DescribedPackage(scope, name, path);
 }

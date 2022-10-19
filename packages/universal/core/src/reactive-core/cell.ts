@@ -58,7 +58,12 @@ export class ReactiveCell<T>
         });
       };
 
-      this.toString = (): string => `Cell (${String(this.#value)})`;
+      Object.defineProperty(this, "toString", {
+        enumerable: false,
+        configurable: true,
+        writable: true,
+        value: (): string => `Cell (${String(this.#value)})`,
+      });
     }
   }
 
@@ -74,7 +79,7 @@ export class ReactiveCell<T>
     this.#set(value, callerStack());
   }
 
-  read(caller: Stack): T {
+  read(caller = callerStack()): T {
     TIMELINE.didConsumeCell(this, caller);
     return this.#value;
   }
@@ -140,13 +145,13 @@ export function Cell<T>(
     equals = description.equals ?? Object.is;
   }
 
-  // if (desc.fullName.includes("anonymous")) {
-  //   debugger;
-  // }
   return ReactiveCell.create(value, equals, MutableInternals(desc));
 }
 
-function normalize(description?: string | Description): Description {
+function normalize(
+  description: string | Description | undefined,
+  internal = 0
+): Description {
   if (typeof description === "string" || description === undefined) {
     return descriptionFrom(
       {
@@ -157,7 +162,7 @@ function normalize(description?: string | Description): Description {
         },
         fromUser: description,
       },
-      1
+      internal + 1
     );
   }
 

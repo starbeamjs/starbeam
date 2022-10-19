@@ -5,8 +5,8 @@ import {
   DebugTimeline,
 } from "@starbeam/debug";
 import type { Diff, MutableInternals, Timestamp } from "@starbeam/interfaces";
-import { LIFETIME } from "../lifetime/api.js";
 
+import { LIFETIME } from "../lifetime/api.js";
 import type { Unsubscribe } from "../lifetime/object-lifetime.js";
 import type { Frame } from "./frame.js";
 import { FrameStack } from "./frames.js";

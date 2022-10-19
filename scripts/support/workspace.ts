@@ -1,21 +1,18 @@
 import {
-  Directory,
-  Glob,
-  Paths,
-  type GlobOptions,
-  type Path,
-} from "./paths.js";
-import { Reporter, type ReporterOptions } from "./reporter/reporter.js";
-import {
-  execSync,
   type ExecSyncOptionsWithStringEncoding,
+  execSync,
 } from "child_process";
-import { Fragment, type IntoFragment } from "./log.js";
-import { CheckResults, Checks, GroupedCheckResults } from "./checks.js";
+
+import type { CheckResults } from "./checks.js";
+import { Checks, GroupedCheckResults } from "./checks.js";
+import { type IntoFragment, Fragment } from "./log.js";
+import type { Directory, Glob } from "./paths.js";
+import { type GlobOptions, type Path, Paths } from "./paths.js";
 import {
-  CommandStream,
   type CommandOutputType,
+  CommandStream,
 } from "./reporter/command-stream.js";
+import { type ReporterOptions, Reporter } from "./reporter/reporter.js";
 
 export class Workspace {
   static root(root: string, options: ReporterOptions): Workspace {

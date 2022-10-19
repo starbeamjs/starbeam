@@ -1,14 +1,16 @@
-import { spawn } from "node-pty";
-import type { Reporter } from "./reporter.js";
 import { Readable } from "node:stream";
-import { terminalWidth } from "../format.js";
-import type { Workspace } from "../workspace.js";
-import split from "split2";
-import { FancyHeader } from "./fancy-header.js";
-import shellSplit from "shell-split";
-import type { LoggerState } from "./logger.js";
-import { Fragment } from "../log.js";
+
 import ansicolor from "ansicolor";
+import { spawn } from "node-pty";
+import shellSplit from "shell-split";
+import split from "split2";
+
+import { terminalWidth } from "../format.js";
+import { Fragment } from "../log.js";
+import type { Workspace } from "../workspace.js";
+import { FancyHeader } from "./fancy-header.js";
+import type { LoggerState } from "./logger.js";
+import type { Reporter } from "./reporter.js";
 
 export type CommandOutputType = "stream" | "when-error";
 

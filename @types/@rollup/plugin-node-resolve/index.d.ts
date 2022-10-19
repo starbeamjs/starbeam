@@ -1,4 +1,4 @@
-import Plugin from "@rollup/plugin-node-resolve";
+import type Plugin from "@rollup/plugin-node-resolve";
 
 const plugin: () => Plugin;
 

@@ -31,7 +31,7 @@ describe.skipIf(isProd)("verify", () => {
           .toBe("present")
           .butGot(() => String(absent))
       )
-    ).toThrowError("Expected absent to be present, but got null");
+    ).toThrowError("Expected absent to be present, but it was null");
   });
 
   test("merging verify message", () => {
@@ -49,7 +49,7 @@ describe.skipIf(isProd)("verify", () => {
         isPresent,
         expected("absent").butGot(() => String(absent))
       )
-    ).toThrowError("Expected absent to be present, but got null");
+    ).toThrowError("Expected absent to be present, but it was null");
   });
 
   test("adding a scenario", () => {
@@ -68,7 +68,7 @@ describe.skipIf(isProd)("verify", () => {
         expected.when("some scenario").butGot(() => String(absent))
       )
     ).toThrowError(
-      "When some scenario: Expected value to be present, but got null"
+      "When some scenario: Expected value to be present, but it was null"
     );
   });
 });

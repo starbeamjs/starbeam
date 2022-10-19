@@ -1,7 +1,8 @@
 import chalk from "chalk";
 import terminalSize from "term-size";
 import wrap from "wrap-ansi";
-import { Style, Fragment } from "./log.js";
+
+import { Fragment, Style } from "./log.js";
 
 export function terminalWidth(): number {
   return terminalSize().columns;

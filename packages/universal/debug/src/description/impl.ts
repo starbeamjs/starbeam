@@ -75,7 +75,7 @@ if (import.meta.env.DEV) {
      * construct the thing that this description is describing. For example, the `useSetup` hook in
      * `@starbeam/react` has the type "resource" and the api "useStarbeam".
      */
-    readonly #api: string | interfaces.ApiDetails;
+    readonly #api: string | interfaces.ApiDetails | undefined;
     /**
      * Optional additional details, provided by the end user. The `DescriptionDetails` may represent a
      * part of a parent description (see {@linkcode MemberDescription},
@@ -86,7 +86,7 @@ if (import.meta.env.DEV) {
 
     #internal:
       | {
-          reason?: string;
+          reason?: string | undefined;
           userFacing: Description;
         }
       | undefined;
@@ -96,9 +96,11 @@ if (import.meta.env.DEV) {
     constructor(
       id: interfaces.ReactiveId,
       type: interfaces.DescriptionType,
-      api: string | interfaces.ApiDetails,
+      api: string | interfaces.ApiDetails | undefined,
       details: interfaces.DescriptionDetails | undefined,
-      internal: { reason?: string; userFacing: Description } | undefined,
+      internal:
+        | { reason?: string | undefined; userFacing: Description }
+        | undefined,
       stack: Stack | undefined
     ) {
       this.#id = id;
@@ -140,8 +142,8 @@ if (import.meta.env.DEV) {
       return this.#type;
     }
 
-    get api(): string | interfaces.ApiDetails {
-      return this.#api;
+    get api(): string | interfaces.ApiDetails | undefined {
+      return this.#api || this.#parent?.api;
     }
 
     get userFacing(): interfaces.Description {
@@ -283,7 +285,7 @@ if (import.meta.env.DEV) {
       this: DebugDescription,
       id: interfaces.ReactiveId | REUSE_ID,
       name: string,
-      args?: interfaces.DescriptionArgument[]
+      args?: interfaces.DescriptionArgument[] | undefined
     ): interfaces.Description {
       return new DebugDescription(
         this.#newId(id),
@@ -407,7 +409,7 @@ if (import.meta.env.DEV) {
       };
     }
 
-    get #apiPart(): interfaces.ApiDetails {
+    get #apiPart(): interfaces.ApiDetails | undefined {
       if (typeof this.#api === "string") {
         return {
           name: this.#api,
@@ -493,6 +495,7 @@ if (import.meta.env.DEV) {
       stack: undefined,
     };
     readonly frame: interfaces.StackFrame = {
+      starbeamCaller: undefined,
       parts: () => new DisplayParts({ path: "" }),
       link: () => "",
       display: () => "",

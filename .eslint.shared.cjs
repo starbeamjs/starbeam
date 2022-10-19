@@ -23,6 +23,7 @@ exports.rules = {
     "@typescript-eslint/no-unused-vars": "off",
     "@typescript-eslint/explicit-module-boundary-types": "error",
     "@typescript-eslint/no-floating-promises": "error",
+    "@typescript-eslint/consistent-type-imports": "error",
     "unused-imports/no-unused-imports": "error",
     "unused-imports/no-unused-vars": [
       "warn",
@@ -34,6 +35,8 @@ exports.rules = {
       },
     ],
     "import/no-relative-packages": "error",
+    "simple-import-sort/imports": "error",
+    "simple-import-sort/exports": "error",
   },
 };
 

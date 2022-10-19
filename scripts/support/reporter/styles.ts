@@ -1,6 +1,7 @@
 import chalk from "chalk";
-import { isDetailed, type DetailedStyle, type StyleInstance } from "../log.js";
-import { Union, type Into, type AsString } from "../type-magic.js";
+
+import { type DetailedStyle, type StyleInstance, isDetailed } from "../log.js";
+import { type AsString, type Into, Union } from "../type-magic.js";
 
 export const STYLE = Symbol("STYLE");
 export type STYLE = typeof STYLE;

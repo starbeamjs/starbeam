@@ -1,6 +1,8 @@
 import { readFileSync, writeFileSync } from "node:fs";
+
 import * as jsonc from "jsonc-parser";
 import { format } from "prettier";
+
 import type { RegularFile } from "./paths.js";
 
 export class EditJsonc {

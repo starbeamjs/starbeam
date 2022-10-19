@@ -43,7 +43,18 @@ export interface ReactiveProtocol<
   [REACTIVE]: I;
 }
 
-export interface Reactive<T, I extends ReactiveInternals = ReactiveInternals>
-  extends ReactiveProtocol<I> {
+export interface ReactiveCore<
+  T,
+  I extends ReactiveInternals = ReactiveInternals
+> extends ReactiveProtocol<I> {
   read(stack?: Stack): T;
+}
+
+export interface Reactive<T, I extends ReactiveInternals = ReactiveInternals>
+  extends ReactiveCore<T, I> {
+  readonly current: T;
+}
+
+export interface ReactiveCell<T> extends Reactive<T, MutableInternals> {
+  current: T;
 }

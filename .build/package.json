@@ -17,7 +17,10 @@
     "rollup-plugin-ts": "*",
     "rollup-plugin-postcss": "^4.0.2",
     "@rollup/plugin-commonjs": "*",
-    "@rollup/plugin-node-resolve": "*"
+    "@rollup/plugin-node-resolve": "*",
+    "vite": "*",
+    "vite-plugin-fonts": "^0.6.0",
+    "@esbuild-plugins/node-globals-polyfill": "^0.1.1"
   },
   "devDependencies": {
     "@types/node": "*",

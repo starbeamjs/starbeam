@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 
-import { describe } from "@starbeam-workspace/test-utils";
-import { rendering, html } from "@starbeam/preact-testing-utils";
-import { options } from "preact";
 import { setup } from "@starbeam/preact";
+import { html, rendering } from "@starbeam/preact-testing-utils";
+import { describe } from "@starbeam-workspace/test-utils";
+import { options } from "preact";
 import { beforeAll } from "vitest";
 
 describe("useReactive", () => {

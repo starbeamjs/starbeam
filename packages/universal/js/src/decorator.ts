@@ -9,9 +9,10 @@ export const cached = <T>(
 ): void => {
   // const { get, enumerable = true, configurable = true } = descriptor;
 
+  const get = descriptor.get;
+
   verify(
-    // eslint-disable-next-line @typescript-eslint/unbound-method
-    descriptor.get,
+    get,
     isPresent,
     expected(`the target of @cached`)
       .toBe(`a getter`)
@@ -31,7 +32,7 @@ export const cached = <T>(
       if (!formula) {
         formula = FormulaFn(
           // eslint-disable-next-line
-          () => (descriptor.get as any).call(this),
+          () => get.call(this),
           `computing ${String(key)}`
         );
         CACHED.set(this, formula);

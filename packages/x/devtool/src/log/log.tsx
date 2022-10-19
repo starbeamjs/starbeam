@@ -1,7 +1,6 @@
 import "preact";
 
 /** @jsxRuntime automatic @jsxImportSource preact */
-
 import type { DebugOperation } from "@starbeam/debug";
 import type { Timestamp } from "@starbeam/interfaces";
 import { TIMELINE } from "@starbeam/timeline";

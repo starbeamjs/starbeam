@@ -1,22 +1,24 @@
-import chalk from "chalk";
 import { inspect } from "node:util";
-import { CheckResults, type GroupedCheckResults } from "../checks.js";
+
+import chalk from "chalk";
+
+import { type GroupedCheckResults, CheckResults } from "../checks.js";
 import {
-  FragmentImpl,
-  Fragment,
   type IntoFallibleFragment,
-  Style,
-  LogResult,
   type IntoFragment,
-  isIntoFragment,
-  FragmentMap,
   type IntoFragmentMap,
+  Fragment,
+  FragmentImpl,
+  FragmentMap,
+  isIntoFragment,
+  LogResult,
+  Style,
 } from "../log.js";
-import { PresentArray, type IntoPresentArray } from "../type-magic.js";
+import { type IntoPresentArray, PresentArray } from "../type-magic.js";
 import type { Workspace } from "../workspace.js";
-import { Logger, type LoggerName, type LoggerState } from "./logger.js";
+import { type LoggerName, type LoggerState, Logger } from "./logger.js";
 import { STYLES } from "./styles.js";
-import { Cell, LoggedTable, type TableWithRows } from "./table.js";
+import { type TableWithRows, Cell, LoggedTable } from "./table.js";
 
 export interface ReporterOptions {
   readonly verbose: boolean;

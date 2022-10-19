@@ -36,11 +36,11 @@ describe("isPresent", () => {
       .butGot((value) => JSON.stringify(value));
 
     expect(e.message({ nodeType: 1 })).toEqual(
-      `When appending to the DOM: Expected node to be a text node, but got {"nodeType":1}`
+      `When appending to the DOM: Expected node to be a text node, but it was {"nodeType":1}`
     );
 
     expect(e.message({ toJSON: () => `something weird` })).toEqual(
-      `When appending to the DOM: Expected node to be a text node, but got "something weird"`
+      `When appending to the DOM: Expected node to be a text node, but it was "something weird"`
     );
   });
 });

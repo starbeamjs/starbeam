@@ -42,6 +42,10 @@ module.exports = {
       files: ["./demos/react*/**/*.ts{x,}"],
       excludedFiles: ["./demos/*/vite.config.ts"],
     }),
+    typescript("./demos/tsconfig.preact-demos.json", {
+      files: ["./demos/preact*/**/*.ts{x,}"],
+      excludedFiles: ["./demos/*/vite.config.ts"],
+    }),
     typescript("./scripts/tsconfig.json", {
       files: ["./scripts/**/*.ts"],
     }),

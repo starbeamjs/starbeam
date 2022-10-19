@@ -1,5 +1,6 @@
-import { QueryCommand, StringOption } from "./support/commands.js";
 import sh from "shell-escape-tag";
+
+import { QueryCommand, StringOption } from "./support/commands.js";
 import { CheckDefinition } from "./support/workspace.js";
 
 export const LintCommand = QueryCommand("lint")

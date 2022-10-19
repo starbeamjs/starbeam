@@ -1,2 +1,11 @@
-import { describe, expect, test } from "vitest";
-export { describe, expect, test };
+import {
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  suite,
+  test,
+  vi,
+} from "vitest";
+export { beforeAll, beforeEach, describe, expect, it, suite, test, vi };

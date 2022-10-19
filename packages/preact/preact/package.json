@@ -3,7 +3,7 @@
   "version": "0.7.4",
   "type": "module",
   "peerDependencies": {
-    "preact": "^10.11.1"
+    "preact": "^10.11.2"
   },
   "dependencies": {
     "@starbeam/timeline": "workspace:^",

@@ -5,16 +5,18 @@ export interface PackageInfo {
   readonly starbeam: {
     readonly external: ExternalOption[];
     readonly jsx: string | undefined;
-  }
+  };
 }
 
 // importing from typescript using a static import massively slows down eslint for some reason.
 export type CompilerOptions = import("typescript").CompilerOptions;
 
-export type Setting<T extends keyof CompilerOptions> = unknown & CompilerOptions[T] &
+export type Setting<T extends keyof CompilerOptions> = unknown &
+  CompilerOptions[T] &
   string;
 
-import { type Plugin, type RollupOptions } from "rollup";
+import type * as rollup from "rollup";
+import type * as vite from "vite";
 
 export type PackageJsonInline = string | [ExternalOperator, string];
 
@@ -39,12 +41,16 @@ export type ExternalOption =
   | SimpleExternal
   | [ExternalOperator, SimpleExternal];
 
-export type RollupExport = RollupOptions | RollupOptions[];
+export type RollupExport = rollup.RollupOptions | rollup.RollupOptions[];
+export type ViteExport =
+  | Pick<vite.UserConfig, "plugins" | "esbuild" | "optimizeDeps" | "build">
+  | Promise<ViteExport>;
 
 export class Package {
   static root(meta: ImportMeta): string;
   static at(meta: ImportMeta | string): Package | undefined;
   static config(meta: ImportMeta | string): RollupExport;
+  static viteConfig(meta: ImportMeta | string): ViteExport;
 
   config(): RollupExport;
 }

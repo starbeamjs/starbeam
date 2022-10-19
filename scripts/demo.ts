@@ -1,6 +1,8 @@
 import { execSync } from "node:child_process";
-import { DevCommand, StringOption } from "./support/commands.js";
+
 import sh from "shell-escape-tag";
+
+import { DevCommand, StringOption } from "./support/commands.js";
 
 export const DemoCommand = DevCommand("demo", {
   description: "run the demo",

@@ -1,20 +1,20 @@
-import * as testing from "@testing-library/preact";
-import { test, expect } from "vitest";
 import { getByRole, getByText } from "@testing-library/dom";
+import * as testing from "@testing-library/preact";
+import htm from "htm";
 import {
-  createElement,
-  Fragment,
-  h,
   type Attributes,
   type ComponentChildren,
   type ComponentClass,
   type ComponentType,
   type FunctionComponent,
   type VNode,
+  createElement,
+  Fragment,
+  h,
 } from "preact";
 import { act } from "preact/test-utils";
 import { renderToString } from "preact-render-to-string";
-import htm from "htm";
+import { expect, test } from "vitest";
 
 export const html = htm.bind(h);
 
@@ -151,7 +151,7 @@ class Render<P, T extends P> {
       }),
       this.#render as RenderStep<U>,
       this.#update as unknown as UpdateStep<P, U>[],
-      this.#unmount as UnmountStep<P, U>
+      this.#unmount as UnmountStep<P, U> | undefined
     );
   }
 

@@ -1,7 +1,8 @@
 import { DisplayStruct } from "@starbeam/debug";
-import type { Component } from "preact";
+import type { Component, ComponentType } from "preact";
+
 import type { InternalEffect, InternalPreactElement } from "../interfaces.js";
-import { InternalVNode, type InternalPreactVNode } from "./vnode.js";
+import { type InternalPreactVNode, InternalVNode } from "./vnode.js";
 
 const COMPONENTS = new WeakMap<InternalPreactComponent, InternalComponent>();
 
@@ -72,6 +73,10 @@ export class InternalComponent {
       },
       { description: String(this.id) }
     );
+  }
+
+  get fn(): ComponentType<unknown> | string {
+    return this.vnode.type as ComponentType<unknown> | string;
   }
 
   get props(): InternalPreactComponent["props"] {

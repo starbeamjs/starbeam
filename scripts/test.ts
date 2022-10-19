@@ -1,9 +1,10 @@
-import { QueryCommand, StringOption } from "./support/commands.js";
-import { CheckDefinition } from "./support/workspace.js";
 import shell from "shelljs";
+
+import { QueryCommand, StringOption } from "./support/commands.js";
 import { Fragment } from "./support/log.js";
-import { FancyHeader } from "./support/reporter/fancy-header.js";
 import { Package } from "./support/packages.js";
+import { FancyHeader } from "./support/reporter/fancy-header.js";
+import { CheckDefinition } from "./support/workspace.js";
 
 export const TestCommand = QueryCommand("test", {
   description: "run the tests for the selected packages",

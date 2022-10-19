@@ -1,140 +1,117 @@
 import {
   type ResourceBlueprint,
-  Cell,
-  PolledFormulaFn,
+  FormulaFn,
   Resource,
+  Static,
   TIMELINE,
 } from "@starbeam/core";
-import type { Description } from "@starbeam/debug";
-import { descriptionFrom } from "@starbeam/debug";
-import { LIFETIME } from "@starbeam/timeline";
+import type { Reactive } from "@starbeam/timeline";
+import {
+  type Unsubscribe,
+  LIFETIME,
+  ReactiveProtocol,
+} from "@starbeam/timeline";
 import {
   unsafeTrackedElsewhere,
   useLifecycle,
 } from "@starbeam/use-strict-lifecycle";
-import { useState } from "react";
 
-function createReactiveResource<T>(
-  resource: () => ResourceBlueprint<T>,
-  deps: unknown[] | undefined,
-  description: string | Description | undefined
-): Resource<T> {
-  const desc = descriptionFrom({
-    type: "resource",
-    api: "useReactiveSetup",
-    fromUser: description,
-  });
+import { useNotify } from "./use-reactive.js";
+import type { Deps } from "./utils.js";
 
-  const [, setNotify] = useState({});
+type UseResourceConstructor<T> =
+  | ResourceBlueprint<T>
+  | (() => ResourceBlueprint<T>);
 
-  const instance = useLifecycle({ resource, deps }, (lifecycle) => {
-    let lastDeps = deps;
-    let setup = false;
-
-    const owner = {};
-
-    let currentResource = resource().create({
-      owner,
+const useResourceConstructor = <T>(
+  resource: UseResourceConstructor<T>,
+  deps: Deps | undefined
+): ResourceBlueprint<T> => {
+  if (typeof resource === "function") {
+    return Resource(({ use, describe }) => {
+      deps?.consume();
+      const instance = resource();
+      describe(instance.description);
+      return use(instance);
     });
+  } else if (deps) {
+    return Resource(({ use, describe }) => {
+      deps?.consume();
+      describe(resource.description);
+      return use(resource);
+    });
+  } else {
+    return resource;
+  }
+};
 
-    const resourceCell = Cell(currentResource);
+export function useReactiveResource<T>(
+  resource: UseResourceConstructor<T>,
+  dependencies?: unknown[]
+): Reactive<T> | undefined {
+  const notify = useNotify();
 
-    const value = PolledFormulaFn(() => {
-      return resourceCell.current.current;
-    }, desc);
+  const nextBlueprint: Reactive<ResourceBlueprint<T>> =
+    typeof resource === "function" ? FormulaFn(resource) : Static(resource);
+
+  return useLifecycle({ deps: dependencies }, (lifecycle) => {
+    const owner = {};
+    let next: { resource: Reactive<T>; cleanup: Unsubscribe } | undefined;
+    let currentBlueprint = nextBlueprint.current;
+
+    console.log("render");
 
     lifecycle.on.cleanup(() => {
       LIFETIME.finalize(owner);
     });
 
-    lifecycle.on.update(({ deps: nextDeps, resource: nextResource }) => {
-      if (!sameDeps(lastDeps, nextDeps)) {
-        lastDeps = nextDeps;
-        LIFETIME.finalize(currentResource);
-        currentResource = nextResource().create({ owner });
-        resourceCell.set(currentResource);
-
-        if (setup) {
-          Resource.setup(currentResource);
-        }
+    lifecycle.on.update(({ deps }) => {
+      const blueprint = nextBlueprint.current;
+      if (sameDeps(deps, dependencies) && currentBlueprint === blueprint) {
+        console.log("same");
+        return;
+      } else if (next) {
+        next.cleanup();
+        LIFETIME.finalize(next.resource);
       }
+
+      currentBlueprint = blueprint;
+      currentResource = blueprint.create(owner);
+      Resource.setup(currentResource);
     });
 
     lifecycle.on.layout(() => {
-      setup = true;
-      Resource.setup(resourceCell.current);
-
-      const renderer = TIMELINE.on.change(value, () => {
-        setNotify({});
-      });
-
-      lifecycle.on.cleanup(() => {
-        LIFETIME.finalize(renderer);
-      });
+      const resource = nextBlueprint.current.create(owner);
+      const cleanup = TIMELINE.on.change(resource, notify);
+      lifecycle.on.cleanup(cleanup);
+      next = { resource, cleanup };
+      Resource.setup(resource);
+      ReactiveProtocol.log(resource);
     });
 
-    return value;
+    return currentResource;
   });
-
-  return instance;
 }
 
-function createResource<T>(
-  resource: () => ResourceBlueprint<T>,
-  deps: unknown[] | undefined,
-  description: string | Description | undefined
-): T {
-  const instance = useReactiveResource(resource, deps, description);
-
-  return unsafeTrackedElsewhere(() => instance.current);
+export function useResource<T, U>(
+  resource: UseResourceConstructor<T>,
+  options: { initial: U },
+  deps?: unknown[]
+): T | U {
+  const instance = useReactiveResource(resource, deps);
+  return unsafeTrackedElsewhere(() => instance?.current);
 }
 
-export function useResource<T>(
-  resource: ResourceBlueprint<T> | (() => ResourceBlueprint<T>),
-  deps?: unknown[] | string | Description,
-  description?: string | Description
-): T {
-  const constructor =
-    typeof resource === "function" ? resource : () => resource;
-
-  if (Array.isArray(deps)) {
-    return createResource(constructor, deps, description);
-  } else {
-    return createResource(constructor, undefined, deps);
-  }
-}
-
-export function useReactiveResource<T>(
-  resource: () => ResourceBlueprint<T>,
-  deps?: unknown[] | string | Description,
-  description?: string | Description
-): Resource<T> {
-  if (Array.isArray(deps)) {
-    return createReactiveResource(resource, deps, description);
-  } else {
-    return createReactiveResource(resource, undefined, deps);
-  }
-}
-
-export function sameDeps(
-  deps: unknown[] | undefined,
-  nextDeps: unknown[] | undefined
+function sameDeps(
+  prev: unknown[] | undefined,
+  next: unknown[] | undefined
 ): boolean {
-  // make sure the items are equal according to Object.is
-
-  if (Array.isArray(deps) && Array.isArray(nextDeps)) {
-    if (deps.length !== nextDeps.length) {
-      return false;
-    }
-
-    for (let i = 0; i < deps.length; i++) {
-      if (deps[i] !== nextDeps[i]) {
-        return false;
-      }
-    }
-
-    return true;
-  } else {
-    return deps === nextDeps;
+  if (prev === undefined || next === undefined) {
+    return prev === next;
   }
+
+  return (
+    prev.length === next.length &&
+    prev.every((value, index) => Object.is(value, next[index]))
+  );
 }

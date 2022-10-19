@@ -16,7 +16,8 @@ export function callerFrame({
     );
 
     const { stack } = parseStack(e.stack);
-    return stack[1 + extraFrames].trimStart();
+    const frame = stack[extraFrames + 1] ?? "";
+    return frame.trimStart();
   }
 }
 

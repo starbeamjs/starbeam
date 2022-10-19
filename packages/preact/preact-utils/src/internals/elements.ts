@@ -1,4 +1,4 @@
-import { InternalVNode, type InternalPreactVNode } from "./vnode.js";
+import { type InternalPreactVNode, InternalVNode } from "./vnode.js";
 
 export class InternalElement {
   static of(element: InternalPreactElement): InternalElement {

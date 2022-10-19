@@ -1,4 +1,5 @@
 import type * as anydom from "@domtree/any";
+
 import type { Description } from "../description.js";
 import type { ReactiveProtocol } from "../protocol.js";
 

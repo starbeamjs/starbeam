@@ -1,16 +1,17 @@
 import { DisplayStruct } from "@starbeam/debug";
 import {
-  Fragment,
   type ComponentChild,
   type ComponentChildren,
   type ComponentType,
   type VNode,
+  Fragment,
 } from "preact";
+
 import type { InternalPreactElement, InternalSource } from "../interfaces.js";
 import { isProbablyVNode } from "../internals.js";
 import {
-  InternalComponent,
   type InternalPreactComponent,
+  InternalComponent,
 } from "./component.js";
 
 const BUILTINS = new Set<ComponentType>([Fragment]);
@@ -236,25 +237,25 @@ const KEYS = {
 } as const;
 
 export interface InternalPreactVNode<P = unknown> extends preact.VNode<P> {
-  __source?: InternalSource | null;
-  __self?: unknown;
+  __source?: InternalSource | null | undefined;
+  __self?: unknown | undefined;
 
   /** The parent DOM */
-  __P?: InternalPreactElement | null;
+  __P?: InternalPreactElement | null | undefined;
   /** The component's owner */
-  __o?: InternalPreactVNode | null;
+  __o?: InternalPreactVNode | null | undefined;
   /** The component's children */
   __k: InternalPreactVNode[] | null;
   /** The component instance for this VNode */
-  __c?: InternalPreactComponent | null;
+  __c?: InternalPreactComponent | null | undefined;
   /** The parent VNode */
-  __?: InternalPreactVNode;
+  __?: InternalPreactVNode | undefined;
   /** The DOM node for this VNode */
-  __e?: Element | Text;
+  __e?: Element | Text | undefined;
   /** The depth of the vnode */
-  __b?: number | null;
+  __b?: number | null | undefined;
   /** Props that had Signal values before diffing (used after diffing to subscribe) */
-  __np?: Record<string, unknown> | null;
+  __np?: Record<string, unknown> | null | undefined;
 }
 
 export function isUserspaceComponent(

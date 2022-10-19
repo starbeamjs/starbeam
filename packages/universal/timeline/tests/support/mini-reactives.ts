@@ -2,10 +2,10 @@ import { type Stack, callerStack, descriptionFrom } from "@starbeam/debug";
 import type { MutableInternals } from "@starbeam/interfaces";
 import type { UNINITIALIZED } from "@starbeam/shared";
 import {
-  type Timestamp,
-  diff,
   type Reactive,
   type ReactiveProtocol,
+  type Timestamp,
+  diff,
   Frame,
   REACTIVE,
   TIMELINE,

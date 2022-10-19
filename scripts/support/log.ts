@@ -1,18 +1,19 @@
 import ansicolor from "ansicolor";
 import chalk, { type ChalkInstance } from "chalk";
+
 import type { LoggerState } from "./reporter/logger.js";
 import type { ReporterOptions } from "./reporter/reporter.js";
 import {
+  type AnyStyleName,
+  type IntoStylePart,
+  type StyleName,
+  type StylePartName,
   getStyle,
   hasPart,
   isAnyStyleName,
   STYLE,
   StylePart,
   STYLES,
-  type AnyStyleName,
-  type IntoStylePart,
-  type StyleName,
-  type StylePartName,
 } from "./reporter/styles.js";
 import { Result } from "./type-magic.js";
 

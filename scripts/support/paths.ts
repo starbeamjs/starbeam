@@ -1,3 +1,5 @@
+import { type Dirent, existsSync, readFileSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 import {
   dirname,
   isAbsolute,
@@ -5,9 +7,9 @@ import {
   resolve as nodeResolve,
 } from "node:path";
 import { pathToFileURL } from "node:url";
+
 import glob, { type Entry, type Options } from "fast-glob";
-import { existsSync, readFileSync, type Dirent } from "node:fs";
-import { readFile } from "node:fs/promises";
+
 import type { JsonObject } from "./json.js";
 
 export class Paths {

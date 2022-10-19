@@ -54,12 +54,12 @@ function split(source: string): string[] {
   }
 
   // if the first line is entirely whitespace, remove it
-  if (lines[0].trim() === "") {
+  if (lines[0]?.trim() === "") {
     lines.shift();
   }
 
   // if the last line is entirely whitespace, remove it
-  if (lines[lines.length - 1].trim() === "") {
+  if (lines[lines.length - 1]?.trim() === "") {
     lines.pop();
   }
 

@@ -13,28 +13,32 @@ export interface StackFrameDisplayOptions {
 }
 
 export interface StackFrame {
+  readonly starbeamCaller:
+    | { package: string; api?: string | undefined }
+    | undefined;
+
   /**
    * A link to the file/line/column that this stack frame represents, in a format suitable to be
    * used in console.log()s in browser devtools.
    */
-  link(options?: StackFrameDisplayOptions): string;
+  link(options?: StackFrameDisplayOptions | undefined): string;
 
   /**
    * A displayable representation of the stack frame.
    */
-  display(options?: StackFrameDisplayOptions): string;
+  display(options?: StackFrameDisplayOptions | undefined): string;
 
-  parts(options?: StackFrameDisplayOptions): DisplayParts;
+  parts(options?: StackFrameDisplayOptions | undefined): DisplayParts;
 }
 
 export interface DisplayRoot {
-  name?: string;
+  name?: string | undefined;
   prefix: string;
 }
 
 export interface Loc {
   line: number;
-  column?: number;
+  column?: number | undefined;
 }
 
 export interface DisplayParts {

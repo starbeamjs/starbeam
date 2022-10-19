@@ -1,16 +1,17 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { isAbsolute, relative } from "node:path";
-import type { Package } from "../packages.js";
+
 import type { JsonObject, JsonValue } from "../json";
+import { Migrator } from "../json-editor/migration.js";
 import { EditJsonc } from "../jsonc.js";
 import { Fragment } from "../log.js";
-import type { Workspace } from "../workspace.js";
+import type { Package } from "../packages.js";
 import type { Directory, Path, Paths } from "../paths.js";
-import type { Into, AsString } from "../type-magic.js";
-import { JsonTemplate, Template, type StarbeamType } from "../unions.js";
-import type { UpdatePackageFn } from "./updates.js";
 import type { ChangeResult } from "../reporter/reporter.js";
-import { Migrator } from "../json-editor/migration.js";
+import type { AsString, Into } from "../type-magic.js";
+import { type StarbeamType, JsonTemplate, Template } from "../unions.js";
+import type { Workspace } from "../workspace.js";
+import type { UpdatePackageFn } from "./updates.js";
 
 export class UpdatePackage {
   static update(

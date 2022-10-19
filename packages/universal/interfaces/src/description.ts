@@ -9,7 +9,7 @@ export interface DescriptionArgs {
    * For example, a `Cell` is allowed to return a new description each time its `[REACTIVE]` symbol
    * is read, but the description must have the same `id` each time.
    */
-  readonly id?: ReactiveId;
+  readonly id?: ReactiveId | undefined;
 
   /**
    * The type is a high-level categorization from the perspective of Starbeam. It is used in
@@ -21,20 +21,22 @@ export interface DescriptionArgs {
    * construct the thing that this description is describing. For example, the `useSetup` hook in
    * `@starbeam/react` has the type "resource" and the api "useStarbeam".
    */
-  api: string | "delegate" | ApiDetails;
+  api?: string | "delegate" | ApiDetails | undefined;
   /**
    * An optional description, as provided by the end user. Each instance of an abstraction like
    * `useSetup` should have a different description (this is the distinction between `api` and
    * `fromUser`).
    */
-  fromUser?: DescriptionDetails | Description;
+  fromUser?: DescriptionDetails | Description | undefined;
 
-  internal?: {
-    reason: string;
-    userFacing: Description;
-  };
+  internal?:
+    | {
+        reason: string;
+        userFacing: Description;
+      }
+    | undefined;
 
-  stack?: Stack;
+  stack?: Stack | undefined;
 }
 
 export interface DescriptionDescribeOptions extends StackFrameDisplayOptions {
@@ -45,7 +47,7 @@ export interface Description extends DescriptionArgs {
   readonly fullName: string;
   readonly id: ReactiveId;
   readonly type: DescriptionType;
-  readonly api: string | ApiDetails;
+  readonly api: string | ApiDetails | undefined;
   readonly userFacing: Description;
   readonly parts: DescriptionParts;
 
@@ -134,21 +136,26 @@ export type ValueType =
   | "resource"
   | "variants";
 
+export type BlueprintType =
+  | "blueprint:reactive"
+  | "blueprint:resource"
+  | "blueprint:service";
+
 /** DescriptionType is `erased` in production */
-export type DescriptionType = MarkerType | ValueType | "erased";
+export type DescriptionType = MarkerType | ValueType | BlueprintType | "erased";
 
 export interface MemberDescription {
   type: "member";
   kind: "index" | "property" | "key";
-  note?: string;
+  note?: string | undefined;
   parent: Description;
   name: string | number;
 }
 
 export interface DetailDescription {
   type: "detail";
-  args?: string[];
-  note?: string;
+  args?: string[] | undefined;
+  note?: string | undefined;
   parent: Description;
   name: string;
 }
@@ -159,7 +166,7 @@ interface MethodDescription {
   type: "method";
   parent: Description;
   name: string;
-  args?: DescriptionArgument[];
+  args?: DescriptionArgument[] | undefined;
 }
 
 interface ValueDescription {
@@ -185,10 +192,10 @@ export type DetailsPart =
   | AnonymousDescription;
 
 export interface ApiDetails {
-  package?: string;
-  module?: string;
+  package?: string | undefined;
+  module?: string | undefined;
   // default is allowed here
-  name: string;
+  name?: string | undefined;
   method?:
     | {
         type: "static";
@@ -197,17 +204,18 @@ export interface ApiDetails {
     | {
         type: "instance";
         name: string;
-      };
+      }
+    | undefined;
 }
 
 export interface InternalDescription {
-  reason?: string;
+  reason?: string | undefined;
   userFacing: Description;
 }
 
 export interface DescriptionParts {
   readonly type: DescriptionType;
-  readonly api: ApiDetails;
+  readonly api: ApiDetails | undefined;
   readonly details: DetailsPart;
   readonly userFacing: Description;
   readonly internal?: InternalDescription | undefined;

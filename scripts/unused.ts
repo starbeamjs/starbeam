@@ -1,8 +1,8 @@
-import { checkUnused } from "./support/unused.js";
 import { QueryCommand } from "./support/commands.js";
-import type { Package } from "./support/packages.js";
 import { Fragment } from "./support/log.js";
+import type { Package } from "./support/packages.js";
 import { PresentArray } from "./support/type-magic.js";
+import { checkUnused } from "./support/unused.js";
 
 export const UnusedCommand = QueryCommand("unused").action(
   async ({ packages, failFast, workspace }) => {

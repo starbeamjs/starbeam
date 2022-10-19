@@ -2,16 +2,16 @@ import type { browser } from "@domtree/flavors";
 import {
   type Cell,
   type ResourceBlueprint,
+  DelegateInternals,
   Resource,
   Setups,
-  DelegateInternals,
 } from "@starbeam/core";
+import type { Stack } from "@starbeam/debug";
 import {
   type DebugListener,
   type Description,
   callerStack,
   descriptionFrom,
-  Stack,
 } from "@starbeam/debug";
 import {
   type CleanupTarget,
@@ -236,7 +236,7 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
     resource: ResourceBlueprint<T>,
     _caller: Stack = callerStack()
   ): Resource<T> {
-    const r = resource.create({ owner: this });
+    const r = resource.create(this);
 
     this.on.layout(() => Resource.setup(r));
 

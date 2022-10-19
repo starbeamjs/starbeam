@@ -12,7 +12,7 @@
     "@starbeam/preact-testing-utils": "workspace:^",
     "@testing-library/dom": "^8.19.0",
     "@testing-library/preact": "^3.2.2",
-    "preact": "^10.5.13",
+    "preact": "*",
     "jsdom": "^20.0.0"
   },
   "devDependencies": {

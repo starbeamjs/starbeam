@@ -4,11 +4,24 @@ export class VerificationError<T = unknown> extends Error {
   }
 }
 
-export function verify<T, U extends T>(
-  value: T,
-  check: (input: T) => input is U,
-  error?: Expectation<T>
-): asserts value is U {
+export interface VerifyFn {
+  <Input extends Value, Value, Output extends Input>(
+    value: Value,
+    check: (input: Input) => input is Output,
+    error?: Expectation<Value>
+  ): asserts value is Output & Value;
+}
+
+export function verify<Input extends Value, Value, Output extends Input>(
+  value: Value,
+  check: (input: Input) => input is Output,
+  error?: Expectation<Value>
+): asserts value is Output & Value;
+export function verify<Value, Narrow extends Value>(
+  value: Value,
+  check: (input: Value) => input is Narrow,
+  error?: Expectation<Value>
+): asserts value is Narrow {
   if (!check(value)) {
     const associated = ASSOCIATED.get(check);
     const expectation = Expectation.merge(associated, error);
@@ -25,13 +38,25 @@ export function verify<T, U extends T>(
   }
 }
 
-verify.noop = <T, U extends T>(
-  value: T,
-  _check: (input: T) => input is U,
-  _error?: Expectation<T>
-): asserts value is U => {
+verify.noop = (() => {
+  /** noop */
+}) as unknown as Exclude<typeof verify, "noop">;
+
+function noop<Input, Output extends Input, Value extends Output>(
+  value: Value,
+  check: (input: Input) => input is Output,
+  error?: Expectation<Value>
+): void;
+function noop<Input, Value extends Input, Output extends Input>(
+  value: Value,
+  check: (input: Input) => input is Output,
+  error?: Expectation<Value>
+): asserts value is Output & Value;
+function noop(): void {
   return;
-};
+}
+
+verify.noop = noop;
 
 export function verified<T, U extends T>(
   value: T,
@@ -175,7 +200,7 @@ export class Expectation<In = any> {
     }
 
     if (this.#actual) {
-      message += `, but got ${String(this.#actual(input))}`;
+      message += `, but it was ${String(this.#actual(input))}`;
     }
 
     return message;

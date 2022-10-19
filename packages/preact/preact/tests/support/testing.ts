@@ -1,19 +1,19 @@
-import * as testing from "@testing-library/preact";
 import { getByRole, getByText } from "@testing-library/dom";
+import * as testing from "@testing-library/preact";
 import {
-  createElement,
-  Fragment,
-  h,
   type Attributes,
   type ComponentChildren,
   type ComponentClass,
   type ComponentType,
   type FunctionComponent,
   type VNode,
+  createElement,
+  Fragment,
+  h,
 } from "preact";
 import { act } from "preact/test-utils";
-import { expect } from "vitest";
 import { renderToString } from "preact-render-to-string";
+import { expect } from "vitest";
 
 type TestComponentType<P> =
   | ComponentClass<P>

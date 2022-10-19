@@ -1,3 +1,9 @@
+// FIXME: Move the core of this to @starbeam/shared
+export {
+  type ComponentContext,
+  type Context,
+  CONTEXT,
+} from "./src/context/context.js";
 export {
   type CleanupTarget,
   type Lifetime,
@@ -8,11 +14,12 @@ export type { Unsubscribe } from "./src/lifetime/object-lifetime.js";
 export { TIMELINE } from "./src/timeline/api.js";
 export {
   type FrameValidation,
-  Frame,
   ActiveFrame,
+  Frame,
 } from "./src/timeline/frame.js";
 export {
   Reactive,
+  ReactiveCore,
   ReactiveInternals,
   ReactiveProtocol,
 } from "./src/timeline/protocol.js";

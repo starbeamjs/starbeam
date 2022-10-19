@@ -2,7 +2,9 @@ import { expected } from "../verify.js";
 import { format } from "./describe.js";
 import type { FixedArray, ReadonlyFixedArray } from "./type-utils.js";
 
-export function isPresent<T>(value: T | null | undefined): value is T {
+export function isPresent<T>(
+  value: T | null | undefined
+): value is Exclude<T, null | undefined> {
   return value !== null && value !== undefined;
 }
 
@@ -57,6 +59,19 @@ expected.associate(
   isObject,
   expected
     .toBe("an object")
+    .butGot((value) => (value === null ? "null" : typeof value))
+);
+
+export function isWeakKey(value: unknown): value is Record<string, unknown> {
+  return (
+    (typeof value === "object" || typeof value === "function") && value !== null
+  );
+}
+
+expected.associate(
+  isWeakKey,
+  expected
+    .toBe("an object or function")
     .butGot((value) => (value === null ? "null" : typeof value))
 );
 

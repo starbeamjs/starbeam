@@ -38,6 +38,12 @@ export class HookType {
 
   private constructor(type: number) {
     this.#type = type;
+
+    if (import.meta.env.DEV) {
+      Object.defineProperty(this, "name", {
+        value: HOOK_NAMES[type],
+      });
+    }
   }
 
   is(name: HookName): boolean {

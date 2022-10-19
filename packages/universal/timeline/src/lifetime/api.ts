@@ -1,3 +1,5 @@
+import { expected, isPresent, verify } from "@starbeam/verify";
+
 import { type Unsubscribe, ObjectLifetime } from "./object-lifetime.js";
 
 /**
@@ -38,6 +40,40 @@ class LifetimeAPI {
     const childLifetime = this.#initialize(child);
 
     return parentLifetime.link(childLifetime);
+  }
+
+  adopt(oldParent: object, newParent: object, child: object): Unsubscribe {
+    const oldParentLifetime = this.#associations.get(oldParent);
+    const childLifetime = this.#associations.get(child);
+
+    verify(
+      oldParentLifetime,
+      isPresent,
+      expected("a previous parent internal lifetime").when("adopting")
+    );
+
+    verify(
+      childLifetime,
+      isPresent,
+      expected("a previous child internal lifetime").when("adopting")
+    );
+
+    console.log({ before: oldParentLifetime });
+    oldParentLifetime.unlink(childLifetime);
+    console.log({ after: oldParentLifetime });
+    return this.#initialize(newParent).link(childLifetime);
+  }
+
+  unlink(parent: object, child: object): void {
+    const parentLifetime = this.#associations.get(parent);
+
+    if (parentLifetime) {
+      const childLifetime = this.#associations.get(child);
+
+      if (childLifetime) {
+        parentLifetime.unlink(childLifetime);
+      }
+    }
   }
 
   #initialize(object: object): ObjectLifetime {

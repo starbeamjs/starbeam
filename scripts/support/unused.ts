@@ -1,10 +1,11 @@
 import depcheck from "depcheck";
-import type { Package } from "./packages.js";
+
 import { Fragment } from "./log.js";
-import type { Globs, RegularFile, Glob } from "./paths.js";
-import type { Workspace } from "./workspace.js";
+import type { Package } from "./packages.js";
+import type { Glob, Globs, RegularFile } from "./paths.js";
 import type { Reporter } from "./reporter/reporter.js";
 import { PresentArray } from "./type-magic.js";
+import type { Workspace } from "./workspace.js";
 
 /**
  * These types represent builtin APIs that don't require an implementation package.

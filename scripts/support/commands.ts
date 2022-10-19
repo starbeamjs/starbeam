@@ -1,17 +1,19 @@
 import chalk from "chalk";
 import { type Command, program } from "commander";
+
+import { format, wrapIndented } from "./format.js";
+import type { Package } from "./packages.js";
+import { queryPackages } from "./packages.js";
 import type { ParseError } from "./query.js";
-import { Package, queryPackages } from "./packages.js";
 import {
+  type Filter,
   FILTER_KEYS,
   formatScope,
   parse,
   Query,
-  type Filter,
 } from "./query.js";
-import { Workspace } from "./workspace.js";
-import { format, wrapIndented } from "./format.js";
 import type { ReporterOptions } from "./reporter/reporter.js";
+import { Workspace } from "./workspace.js";
 
 interface BasicOptions {
   description?: string;
@@ -456,7 +458,7 @@ export class BuildDevCommand<
         const { options } = this.extractOptions(args);
         return action(
           ...(this.parseOptions(args, {
-            "--workspace": createWorkspace(root, options),
+            workspace: createWorkspace(root, options),
           }) as [...Args, CamelizedOptions<Options>])
         );
       });

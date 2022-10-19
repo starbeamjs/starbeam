@@ -1,4 +1,4 @@
-import { isObject, type JsonObject, type JsonValue } from "../json.js";
+import { type JsonObject, type JsonValue, isObject } from "../json.js";
 import type { Paths } from "../paths.js";
 import type { Workspace } from "../workspace.js";
 import type { LabelledUpdater } from "./update-package.js";

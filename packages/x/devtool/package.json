@@ -8,7 +8,7 @@
     "@starbeam/debug": "workspace:^",
     "@starbeam/timeline": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
-    "preact": "^10.11.0"
+    "preact": "^10.11.2"
   },
   "publishConfig": {
     "main": "dist/index.cjs",

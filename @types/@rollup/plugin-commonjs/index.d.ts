@@ -1,4 +1,4 @@
-import Plugin from "@rollup/plugin-commonjs";
+import type Plugin from "@rollup/plugin-commonjs";
 
 const plugin: () => Plugin;
 

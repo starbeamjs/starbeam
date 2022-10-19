@@ -1,9 +1,11 @@
-import { Directory, RegularFile, type Path } from "./paths.js";
+import sh from "shell-escape-tag";
+
+import type { JsonValue } from "./json";
+import type { RegularFile } from "./paths.js";
+import { type Path, Directory } from "./paths.js";
 import { Query } from "./query.js";
 import { StarbeamSources, StarbeamType } from "./unions.js";
 import type { Workspace } from "./workspace.js";
-import sh from "shell-escape-tag";
-import type { JsonValue } from "./json";
 
 export interface StarbeamTemplates {
   "package.json": string;

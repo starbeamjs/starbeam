@@ -1,3 +1,5 @@
+import "./src/setup.js";
+
 import { descriptionFrom } from "./src/stack.js";
 
 export { Description, REUSE_ID } from "./src/description/impl.js";
@@ -25,8 +27,11 @@ export {
 export { type DisplayParts, describeModule } from "./src/module.js";
 export {
   callerStack,
+  Desc,
   descriptionFrom,
   entryPoint,
+  entryPointFn,
+  entryPoints,
   idFrom,
   isErrorWithStack,
   Stack,

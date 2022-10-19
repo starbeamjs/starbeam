@@ -1,6 +1,8 @@
 import type { Options } from "preact";
+
 import type { InternalPreactComponent } from "./internals/component.js";
 import type { InternalPreactVNode } from "./internals/vnode.js";
+import type { HOOK_NAMES } from "./plugin.js";
 
 export interface RawPreactOptions extends Options {
   _hook?: Hook<
@@ -19,6 +21,9 @@ export interface RawPreactOptions extends Options {
   _render?: Hook;
   __r?: Hook;
 }
+
+export type MangledHookNames = typeof HOOK_NAMES[keyof typeof HOOK_NAMES];
+export type PrivateHookNames = keyof typeof HOOK_NAMES;
 
 type Hook<Args extends unknown[] = [vnode: InternalPreactVNode]> = (
   ...args: Args

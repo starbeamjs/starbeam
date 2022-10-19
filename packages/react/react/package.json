@@ -11,7 +11,8 @@
     "@starbeam/verify": "workspace:^",
     "@starbeam/timeline": "workspace:^",
     "@starbeam/js": "workspace:^",
-    "@starbeam/modifier": "workspace:^"
+    "@starbeam/modifier": "workspace:^",
+    "@starbeam/shared": "workspace:^"
   },
   "devDependencies": {
     "@types/react": "^18.0.9",

@@ -1,5 +1,11 @@
+import type { Options } from "preact";
+
 import type { AnyFn, RawPreactOptions } from "./interfaces.js";
-import type { PreactOptionName } from "./internals.js";
+import type {
+  MangledPreactOptionName,
+  PreactHook,
+  PreactOptionName,
+} from "./internals.js";
 import { InternalComponent } from "./internals/component.js";
 import { HookType } from "./internals/hooks.js";
 import {
@@ -22,6 +28,12 @@ export class AugmentPreact {
   constructor(original: RawPreactOptions) {
     this.#original = original;
     this.component = new AugmentPreactAsComponent(original);
+  }
+
+  root(hook: (vnode: InternalVNode, parent: ParentNode) => void): void {
+    createHook(this.#original, "_root", (vnode, parent) => {
+      hook(InternalVNode.from(vnode), parent);
+    });
   }
 
   /**
@@ -130,15 +142,15 @@ export class AugmentPreact {
 
 function createHook<
   K extends PreactOptionName,
-  V extends AnyFn = Required<RawPreactOptions>[K]
+  V extends AnyFn = PreactHook<K>
 >(
   originalOptions: RawPreactOptions,
   hookName: K,
   hook: (...args: [...args: Parameters<V>, handler: Handler]) => void
 ): void {
-  const [originalFn, name] = getOriginal(originalOptions, hookName);
+  const [originalFn, mangled] = getOriginal(originalOptions, hookName);
 
-  originalOptions[name] = ((...args: HookParams<K>) => {
+  originalOptions[mangled] = ((...args: HookParams<K>) => {
     const handler = AugmentHandler.create(
       hookName,
       originalFn && (() => originalFn(...args))
@@ -153,21 +165,15 @@ function createHook<
 function getOriginal(
   original: RawPreactOptions,
   name: PreactOptionName
-): [fn: AnyFn | undefined, name: PreactOptionName] {
-  const dev = original[name];
+): [fn: AnyFn | undefined, mangled: MangledPreactOptionName] {
+  const mangled = getHookName(name);
 
-  if (dev) {
-    return [dev, name];
+  if (mangled) {
+    return [original[mangled], mangled];
+  } else if (name[0] === "_") {
+    throw new Error(`Unknown hook name: ${name}`);
   } else {
-    const mangled = getHookName(name);
-
-    if (mangled) {
-      return [original[mangled], mangled];
-    } else if (name[0] === "_") {
-      throw new Error(`Unknown hook name: ${name}`);
-    } else {
-      return [undefined, name];
-    }
+    return [undefined, name as MangledPreactOptionName];
   }
 }
 
@@ -183,11 +189,13 @@ type HookNames = typeof HOOK_NAMES;
 type HookName = keyof HookNames;
 type MangledHookName = HookNames[HookName];
 
-function getHookName(name: PreactOptionName): MangledHookName | undefined {
+function getHookName(name: PreactOptionName): MangledHookName | keyof Options {
   if (name in HOOK_NAMES) {
-    return (
-      HOOK_NAMES as Record<PreactOptionName, MangledHookName | undefined>
-    )[name];
+    return HOOK_NAMES[name as HookName];
+  } else if (name.startsWith("_")) {
+    throw Error(`Unknown hook name: ${name}`);
+  } else {
+    return name as keyof Options;
   }
 }
 
@@ -211,6 +219,14 @@ class Noop implements Handler {
   };
 }
 
+export const HOOK_SUPER = {
+  _diff: "after",
+  _render: "before",
+  diffed: "before",
+  _commit: "after",
+  unmount: "before",
+} as const;
+
 export class AugmentHandler<F extends AnyFn> implements Handler {
   static create<F extends AnyFn>(
     name: string,
@@ -219,7 +235,16 @@ export class AugmentHandler<F extends AnyFn> implements Handler {
     if (original === undefined) {
       return new Noop(name);
     }
-    return new AugmentHandler(name, original) as AugmentHandler<F>;
+    const handler = new AugmentHandler(name, original) as AugmentHandler<F>;
+
+    if (
+      name in HOOK_SUPER &&
+      (HOOK_SUPER as Record<string, string>)[name] === "before"
+    ) {
+      handler.original();
+    }
+
+    return handler;
   }
 
   static finish(handler: AugmentHandler<AnyFn> | Noop): void {

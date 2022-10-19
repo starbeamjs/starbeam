@@ -1,4 +1,5 @@
 import util from "util";
+
 import { Fragment } from "./log.js";
 import type { Package } from "./packages.js";
 import type { Reporter } from "./reporter/reporter.js";

@@ -1,11 +1,13 @@
 import {
-  isObject,
   type JsonObject,
   type JsonPrimitive,
   type JsonValue,
+  isObject,
 } from "./json.js";
-import { Globs, RegularFile, type Directory } from "./paths.js";
-import { Union, UnionInstance, type IntoUnionInstance } from "./type-magic.js";
+import type { RegularFile } from "./paths.js";
+import { type Directory, Globs } from "./paths.js";
+import type { UnionInstance } from "./type-magic.js";
+import { type IntoUnionInstance, Union } from "./type-magic.js";
 
 export class StarbeamType extends Union(
   "interfaces",

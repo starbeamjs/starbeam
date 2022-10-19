@@ -10,6 +10,9 @@
     "declarationMap": true,
 
     "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noPropertyAccessFromIndexSignature": true,
 
     "isolatedModules": true,
     "preserveValueImports": true,

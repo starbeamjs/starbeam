@@ -1,10 +1,11 @@
 import chalk from "chalk";
+
 import { wrapIndented } from "../format.js";
 import {
-  Fragment,
   type DensityChoice,
   type FragmentImpl,
   type IntoFragment,
+  Fragment,
 } from "../log.js";
 import { DisplayStruct } from "./inspect.js";
 import type { LoggerEndWith, ReporterOptions } from "./reporter.js";

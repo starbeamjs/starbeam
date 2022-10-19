@@ -1,3 +1,5 @@
+import { inspector } from "@starbeam/debug";
+
 export type Unsubscribe = () => void;
 
 export class ObjectLifetime {
@@ -16,6 +18,18 @@ export class ObjectLifetime {
   #children: Set<ObjectLifetime> = new Set();
   #finalized = false;
 
+  static {
+    if (import.meta.env.DEV) {
+      inspector(this, "ObjectLifetime").define((lifetime, debug) =>
+        debug.struct({
+          finalizers: lifetime.#finalizers,
+          children: lifetime.#children,
+          finalized: lifetime.#finalized,
+        })
+      );
+    }
+  }
+
   readonly on = {
     finalize: (finalizer: () => void): Unsubscribe => {
       this.#finalizers.add(finalizer);
@@ -26,6 +40,10 @@ export class ObjectLifetime {
   link(child: ObjectLifetime): Unsubscribe {
     this.#children.add(child);
     return () => this.#children.delete(child);
+  }
+
+  unlink(child: ObjectLifetime): void {
+    this.#children.delete(child);
   }
 
   #finalizeIn(finalizing?: (block: () => void) => void) {

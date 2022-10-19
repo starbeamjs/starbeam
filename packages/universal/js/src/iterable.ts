@@ -1,7 +1,7 @@
 import { type Equality, Cell, Marker } from "@starbeam/core";
-import { UNINITIALIZED } from "@starbeam/shared";
 import type { Stack } from "@starbeam/debug";
 import { type Description, callerStack } from "@starbeam/debug";
+import { UNINITIALIZED } from "@starbeam/shared";
 
 class Entry<V> {
   static initialized<V>(value: V, desc: Description, equality: Equality<V>) {

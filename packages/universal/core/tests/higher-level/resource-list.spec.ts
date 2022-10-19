@@ -1,5 +1,4 @@
-import { Resource, ResourceList } from "@starbeam/core";
-import { Stack } from "@starbeam/debug";
+import { FormulaFn, Resource, ResourceList } from "@starbeam/core";
 import { reactive } from "@starbeam/js";
 import { describe, expect, test } from "vitest";
 
@@ -11,6 +10,7 @@ interface Item {
 
 class Subscription {
   #active = true;
+  declare readonly isActive: boolean;
 
   constructor(readonly name: string) {
     Object.defineProperty(this, "isActive", {
@@ -28,48 +28,42 @@ class Subscription {
   disconnect() {
     this.#active = false;
   }
-
-  get isActive() {
-    return this.#active;
-  }
 }
 
 describe("ResourceList", () => {
-  test("should update resources", () => {
+  test.todo("should update resources", () => {
     const list: Item[] = reactive.array([
       { id: 1, name: "Tom", location: "NYC" },
       { id: 2, name: "Chirag", location: "NYC" },
     ]);
 
-    const resource = (item: Item) =>
-      Resource((r) => {
+    const map = (item: Item) =>
+      Resource(({ on }) => {
         const subscription = new Subscription(item.name);
+        subscription.connect();
 
-        r.on.setup(() => {
-          subscription.connect();
-          return () => {
-            subscription.disconnect();
-          };
-        });
+        on.cleanup(() => subscription.disconnect());
 
-        return () => ({
+        return FormulaFn(() => ({
           card: `${subscription.name} (${item.location})`,
           subscription: subscription,
-        });
+        }));
       }, `subscription for '${item.name}' (${item.id})`);
 
     const lifetime = {};
 
     const linkables = ResourceList(list, {
       key: (item) => item.id,
-      resource,
+      map,
     });
 
     const resources = linkables.create({ owner: lifetime });
 
-    ResourceList.setup(resources, Stack.EMPTY);
+    function current() {
+      return resources.current.map((resource) => resource.current);
+    }
 
-    expect(resources.current).toEqual([
+    expect(current()).toEqual([
       { card: "Tom (NYC)", subscription: { name: "Tom", isActive: true } },
       {
         card: "Chirag (NYC)",
@@ -79,12 +73,12 @@ describe("ResourceList", () => {
 
     list.push({ id: 3, name: "John", location: "NYC" });
 
-    let currentResources = resources.current;
-    const tom = currentResources[0].subscription;
-    const chirag = currentResources[1].subscription;
-    const john = currentResources[2].subscription;
+    let currentResources = current();
+    const tom = currentResources[0]?.subscription;
+    const chirag = currentResources[1]?.subscription;
+    const john = currentResources[2]?.subscription;
 
-    expect(resources.current).toEqual([
+    expect(current()).toEqual([
       { card: "Tom (NYC)", subscription: { name: "Tom", isActive: true } },
       {
         card: "Chirag (NYC)",
@@ -100,7 +94,7 @@ describe("ResourceList", () => {
       { id: 2, name: "Chirag", location: "NYC" },
     ]);
 
-    expect(resources.current).toEqual([
+    expect(current()).toEqual([
       { card: "Tom (NYC)", subscription: { name: "Tom", isActive: true } },
       {
         card: "Chirag (NYC)",
@@ -108,7 +102,7 @@ describe("ResourceList", () => {
       },
     ]);
 
-    expect(john.isActive).toBe(false);
+    expect(john?.isActive).toBe(false);
 
     list.reverse();
 
@@ -117,10 +111,10 @@ describe("ResourceList", () => {
       { id: 1, name: "Tom", location: "NYC" },
     ]);
 
-    currentResources = resources.current;
+    currentResources = current();
 
-    expect(currentResources[0].subscription).toBe(chirag);
-    expect(currentResources[1].subscription).toBe(tom);
+    expect(currentResources[0]?.subscription).toBe(chirag);
+    expect(currentResources[1]?.subscription).toBe(tom);
 
     expect(resources.current).toEqual([
       {

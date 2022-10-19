@@ -1,20 +1,19 @@
-import { program } from "commander";
-
 import { version } from "@starbeam-workspace/root/package.json";
-
+import { program } from "commander";
 import { dirname } from "dirfilename";
 import { resolve } from "path";
+
 import { BuildCommand } from "./build.js";
-import { StarbeamCommands } from "./support/commands.js";
-import { ListCommand } from "./list.js";
+import { CheckCommand } from "./check.js";
 import { CleanCommand } from "./clean.js";
 import { DemoCommand } from "./demo.js";
-import { UnusedCommand } from "./unused.js";
+import { LintCommand } from "./lint.js";
+import { ListCommand } from "./list.js";
+import { ReleaseCommand } from "./release.js";
+import { StarbeamCommands } from "./support/commands.js";
 import { TemplateCommand } from "./template.js";
 import { TestCommand } from "./test.js";
-import { CheckCommand } from "./check.js";
-import { ReleaseCommand } from "./release.js";
-import { LintCommand } from "./lint.js";
+import { UnusedCommand } from "./unused.js";
 
 new StarbeamCommands(
   resolve(dirname(import.meta), ".."),

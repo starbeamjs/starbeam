@@ -1,5 +1,6 @@
 import Table from "cli-table3";
-import { Fragment, isIntoFragment, type IntoFragment } from "../log.js";
+
+import { type IntoFragment, Fragment, isIntoFragment } from "../log.js";
 import { DisplayStruct } from "./inspect.js";
 import type { LoggerState } from "./logger.js";
 

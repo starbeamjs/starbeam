@@ -1,7 +1,9 @@
-import glob from "fast-glob";
 import { rmSync } from "node:fs";
 import { relative } from "node:path";
+
+import glob from "fast-glob";
 import shell from "shelljs";
+
 import { QueryCommand, StringOption } from "./support/commands.js";
 import { Fragment, log } from "./support/log.js";
 import { Package } from "./support/packages.js";

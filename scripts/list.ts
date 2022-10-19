@@ -1,4 +1,5 @@
 import chalk from "chalk";
+
 import { QueryCommand } from "./support/commands";
 import { Fragment } from "./support/log.js";
 

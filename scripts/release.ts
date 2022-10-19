@@ -1,5 +1,6 @@
-import { DevCommand } from "./support/commands.js";
 import sh from "shell-escape-tag";
+
+import { DevCommand } from "./support/commands.js";
 
 export const ReleaseCommand = DevCommand("release", {
   description: "prepare the packages for publishing and release them",

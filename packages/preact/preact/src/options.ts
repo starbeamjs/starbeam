@@ -1,8 +1,9 @@
-import { Plugin } from "@starbeam/preact-utils";
-import { LIFETIME, Reactive } from "@starbeam/timeline";
 import { descriptionFrom } from "@starbeam/debug";
+import { Plugin } from "@starbeam/preact-utils";
+import { CONTEXT, LIFETIME, Reactive } from "@starbeam/timeline";
+import type { ComponentType } from "preact";
+
 import { ComponentFrame } from "./frame.js";
-import { createRequire } from "node:module";
 
 const CURRENT_COMPONENT: object[] = [];
 
@@ -15,9 +16,14 @@ export function getCurrentComponent(): object | undefined {
 }
 
 export const setup = Plugin((on) => {
-  console.groupEnd();
+  on.root((vnode, parent) => {
+    debug("root", vnode);
+    // FIXME: Support multiple roots on the same page
+    CONTEXT.app = parent;
+  });
+
   on.vnode((vnode) => {
-    debug("vnode", vnode);
+    debug("vnode", vnode.props.children);
 
     const updated = vnode.processChildren((child) => {
       if (Reactive.is(child)) {
@@ -28,43 +34,67 @@ export const setup = Plugin((on) => {
     });
 
     if (updated) {
-      debug("vnode:update", vnode);
+      debug("vnode:update", vnode.props.children);
     }
   });
 
-  on.diff((_component) => {
-    // debug("diff", component);
+  on.diff((component) => {
+    debug("diff", component);
   });
 
   on.component.willRender((component) => {
+    CONTEXT.component.push(component);
     debug("willRender", component);
     CURRENT_COMPONENT.push(component);
+
     ComponentFrame.start(
       component,
       descriptionFrom({
         api: "preact",
         type: "implementation",
+        fromUser: componentName(component.fn),
       })
     );
   });
 
   on.component.didRender((component) => {
-    ComponentFrame.end(component, () => {
-      component.notify();
-    });
-    CURRENT_COMPONENT.pop();
-
     debug("didRender", component);
+
+    if (ComponentFrame.isRenderingComponent(component)) {
+      CONTEXT.component.pop();
+      ComponentFrame.end(component, () => {
+        component.notify();
+      });
+      CURRENT_COMPONENT.pop();
+    }
   });
 
   on.component.unmount((component) => {
+    debug("unmount", component);
+
     ComponentFrame.unmount(component);
     LIFETIME.finalize(component);
   });
 });
 
+function componentName(component: ComponentType<unknown> | string) {
+  if (typeof component === "string") {
+    return component;
+  } else {
+    return component.name;
+  }
+}
+
 async function Debug(): Promise<(name: string, value: unknown) => void> {
-  if (import.meta.env.STARBEAM_TRACE) {
+  if (false) {
+    return (name, value) => {
+      console.log(name, value);
+      // console.group(name);
+      // console.debug(value);
+      // console.groupEnd();
+    };
+  } else if (import.meta.env.STARBEAM_TRACE) {
+    const createRequire = (await import("node:module")).Module.createRequire;
     const require = createRequire(import.meta.url);
     const inspect = require("util").inspect as typeof import("util").inspect;
     const chalk = (await import("chalk")).default;
