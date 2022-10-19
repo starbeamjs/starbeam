@@ -28,11 +28,13 @@ export type {
   CompositeInternals,
   DelegateInternals,
   MutableInternals,
-  Reactive,
+  ReactiveCore,
   ReactiveId,
   ReactiveInternals,
   ReactiveProtocol,
   StaticInternals,
+  Reactive,
+  ReactiveCell,
 } from "./src/protocol.js";
 export type {
   Stack,

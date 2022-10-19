@@ -275,6 +275,10 @@ export const Reactive = {
   is<T>(
     value: unknown | interfaces.Reactive<T>
   ): value is interfaces.Reactive<T> {
-    return typeof value === "object" && value !== null && REACTIVE in value;
+    return !!(
+      value &&
+      (typeof value === "object" || typeof value === "function") &&
+      REACTIVE in value
+    );
   },
 };

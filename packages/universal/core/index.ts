@@ -3,6 +3,7 @@ export { type Equality, Cell } from "./src/reactive-core/cell.js";
 export { DelegateInternals } from "./src/reactive-core/delegate.js";
 export { Formula, FormulaFn } from "./src/reactive-core/formula/formula.js";
 export { Linkable } from "./src/reactive-core/formula/linkable.js";
+export { Static } from "./src/reactive-core/static.js";
 export {
   PolledFormula,
   PolledFormulaFn,
@@ -12,6 +13,7 @@ export {
   type ResourceBuilder,
   Resource,
 } from "./src/reactive-core/formula/resource.js";
+export { ResourceFn } from "./src/reactive-core/resource/resource.js";
 export { Setup, Setups } from "./src/reactive-core/formula/setups.js";
 export { FormulaList } from "./src/reactive-core/higher-level/formula-list.js";
 export { Freshness } from "./src/reactive-core/higher-level/freshness.js";
