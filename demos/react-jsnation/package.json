@@ -34,7 +34,6 @@
     "@types/react-dom": "^18",
     "@vitest/ui": "^0.24.1",
     "vite": "*",
-    "vitest": "*",
     "vite-plugin-fonts": "^0.6.0"
   },
   "publishConfig": {
