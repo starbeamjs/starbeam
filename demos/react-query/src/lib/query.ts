@@ -1,4 +1,4 @@
-import { Cell, Freshness } from "@starbeam/core";
+import { Cell, Freshness } from "@starbeam/universal";
 import { reactive } from "@starbeam/js";
 import { CanceledError } from "axios";
 

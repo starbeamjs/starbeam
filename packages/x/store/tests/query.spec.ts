@@ -1,4 +1,4 @@
-import { FormulaFn } from "@starbeam/core";
+import { FormulaFn } from "@starbeam/universal";
 import { Query, Table } from "@starbeamx/store";
 import { describe, expect, test } from "vitest";
 

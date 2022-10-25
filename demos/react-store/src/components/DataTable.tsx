@@ -1,4 +1,4 @@
-import { Cell } from "@starbeam/core";
+import { Cell } from "@starbeam/universal";
 import { LOGGER, LogLevel } from "@starbeam/debug";
 import { useProp, useReactive, useSetup } from "@starbeam/react";
 import { DevTools } from "@starbeamx/devtool";

@@ -6,7 +6,7 @@
   "main": "index.ts",
   "dependencies": {
     "purecss": "^2.2.0",
-    "@starbeam/core": "workspace:^",
+    "@starbeam/universal": "workspace:^",
     "@starbeam/preact": "workspace:^",
     "@starbeam/timeline": "workspace:^",
     "@starbeam/js": "workspace:^",

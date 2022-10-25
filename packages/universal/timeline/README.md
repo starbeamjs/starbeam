@@ -10,7 +10,7 @@ That said, it is not intended to be used directly by application code. Rather, i
 
 > 📙 Philosophy
 >
-> Higher-level libraries like `@starbeam/core` build on lower-level primitives. These are not privileged internal APIs, and they are not marked as unstable. We believe that you, the people building Starbeam's library ecosystem, are just as innovative as Starbeam's creators. We avoid including "for me but not for thee" APIs in our composition abstractions. Go forth and build!
+> Higher-level libraries like `@starbeam/universal` build on lower-level primitives. These are not privileged internal APIs, and they are not marked as unstable. We believe that you, the people building Starbeam's library ecosystem, are just as innovative as Starbeam's creators. We avoid including "for me but not for thee" APIs in our composition abstractions. Go forth and build!
 
 ## Timeline and Lifetime
 

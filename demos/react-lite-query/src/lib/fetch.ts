@@ -1,4 +1,4 @@
-import { Cell } from "@starbeam/core";
+import { Cell } from "@starbeam/universal";
 import { type Description, type Stack, callerStack } from "@starbeam/debug";
 import { reactive } from "@starbeam/js";
 

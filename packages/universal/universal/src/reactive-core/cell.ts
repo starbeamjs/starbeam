@@ -1,4 +1,4 @@
-import { isObject } from "@starbeam/core-utils";
+import { isObject } from "@starbeam/universal-utils";
 import {
   type Description,
   type Stack,
@@ -157,7 +157,7 @@ function normalize(
       {
         type: "cell",
         api: {
-          package: "@starbeam/core",
+          package: "@starbeam/universal",
           name: "Cell",
         },
         fromUser: description,

@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "dependencies": {
     "@starbeamx/vanilla": "workspace:^",
-    "@starbeam/core": "workspace:^"
+    "@starbeam/universal": "workspace:^"
   },
   "scripts": {
     "test:lint": "eslint",

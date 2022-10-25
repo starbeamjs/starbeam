@@ -1,4 +1,4 @@
-import { FormulaFn } from "@starbeam/core";
+import { FormulaFn } from "@starbeam/universal";
 import { reactive } from "@starbeam/js";
 import { describe, expect, test } from "vitest";
 

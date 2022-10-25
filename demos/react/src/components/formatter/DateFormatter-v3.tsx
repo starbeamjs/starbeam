@@ -1,4 +1,4 @@
-import { type Reactive, Cell, Resource } from "@starbeam/core";
+import { type Reactive, Cell, Resource } from "@starbeam/universal";
 import js from "@starbeam/js";
 import { useReactiveSetup } from "@starbeam/react";
 

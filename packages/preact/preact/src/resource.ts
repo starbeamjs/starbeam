@@ -1,5 +1,9 @@
-import type { Factory } from "@starbeam/core";
-import { type Resource, type ResourceBlueprint, Service } from "@starbeam/core";
+import type { Factory } from "@starbeam/universal";
+import {
+  type Resource,
+  type ResourceBlueprint,
+  Service,
+} from "@starbeam/universal";
 import { isPresent, verified } from "@starbeam/verify";
 import { useMemo } from "preact/hooks";
 

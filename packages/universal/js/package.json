@@ -5,7 +5,7 @@
   "type": "module",
   "main": "index.ts",
   "dependencies": {
-    "@starbeam/core": "workspace:^",
+    "@starbeam/universal": "workspace:^",
     "@starbeam/shared": "workspace:^",
     "@starbeam/debug": "workspace:^",
     "@starbeam/verify": "workspace:^",

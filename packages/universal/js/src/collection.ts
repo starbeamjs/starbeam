@@ -1,6 +1,6 @@
-import { Cell, Marker } from "@starbeam/core";
 import type { Description, Stack } from "@starbeam/debug";
 import { ReactiveProtocol } from "@starbeam/timeline";
+import { Cell, Marker } from "@starbeam/universal";
 import { expected, isPresent, verified } from "@starbeam/verify";
 
 class ItemState {

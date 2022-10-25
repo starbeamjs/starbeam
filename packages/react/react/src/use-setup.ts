@@ -1,5 +1,5 @@
-import { PolledFormulaFn } from "@starbeam/core";
-import { isObject } from "@starbeam/core-utils";
+import { PolledFormulaFn } from "@starbeam/universal";
+import { isObject } from "@starbeam/universal-utils";
 import { type Description, descriptionFrom } from "@starbeam/debug";
 import { LIFETIME, Reactive, TIMELINE } from "@starbeam/timeline";
 import {

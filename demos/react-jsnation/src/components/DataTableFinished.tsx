@@ -1,4 +1,4 @@
-import { Cell } from "@starbeam/core";
+import { Cell } from "@starbeam/universal";
 import { useReactiveSetup } from "@starbeam/react";
 import type { FormEvent } from "react";
 

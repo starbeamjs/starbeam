@@ -57,7 +57,7 @@ export function ResourceList<T, U>(
 //     const description = descriptionFrom({
 //       type: "collection:value",
 //       api: {
-//         package: "@starbeam/core",
+//         package: "@starbeam/universal",
 //         name: "ResourceList",
 //       },
 //       fromUser: desc,

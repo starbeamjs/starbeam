@@ -6,8 +6,7 @@
     "composite": true,
     "declarationMap": true,
     "declarationDir": "../../../dist/types",
-    "types": ["../../env"],
-    "experimentalDecorators": true
+    "types": ["../../env"]
   },
   "exclude": ["dist/**/*"]
 }

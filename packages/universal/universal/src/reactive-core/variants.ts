@@ -479,7 +479,7 @@ export function Variants<V extends VariantType>(
   const desc = descriptionFrom({
     type: "variants",
     api: {
-      package: "@starbeam/core",
+      package: "@starbeam/universal",
       name: "Variants",
     },
     fromUser: description,

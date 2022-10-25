@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { Cell, FormulaFn, LIFETIME, PolledFormulaFn } from "@starbeam/core";
+import { Cell, FormulaFn, LIFETIME, PolledFormulaFn } from "@starbeam/universal";
 import { useReactive, useReactiveSetup } from "@starbeam/react";
 import {
   html,

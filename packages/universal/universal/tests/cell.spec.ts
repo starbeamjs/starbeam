@@ -1,4 +1,4 @@
-import { Cell } from "@starbeam/core";
+import { Cell } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 
 describe("Cell", () => {

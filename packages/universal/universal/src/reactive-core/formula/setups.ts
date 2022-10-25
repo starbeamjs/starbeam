@@ -17,7 +17,7 @@ export function Setup(
   const desc = descriptionFrom({
     type: "formula",
     api: {
-      package: "@starbeam/core",
+      package: "@starbeam/universal",
       name: "Setup",
     },
     fromUser: description,

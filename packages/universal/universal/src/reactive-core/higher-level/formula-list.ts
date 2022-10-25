@@ -30,7 +30,7 @@ class ReactiveFormulaList<T, U> implements Reactive<U[]> {
     const descArgs = descriptionFrom({
       type: "collection:value",
       api: {
-        package: "@starbeam/core",
+        package: "@starbeam/universal",
         name: "ReactiveFormulaList",
       },
       fromUser: desc,

@@ -44,7 +44,7 @@ export function Marker(description?: string | Description): ReactiveMarker {
       descriptionFrom({
         type: "cell",
         api: {
-          package: "@starbeam/core",
+          package: "@starbeam/universal",
           name: "Marker",
         },
         fromUser: description,

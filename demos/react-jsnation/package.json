@@ -8,7 +8,7 @@
     "default": "./index.ts"
   },
   "dependencies": {
-    "@starbeam/core": "workspace:^",
+    "@starbeam/universal": "workspace:^",
     "@starbeam/debug": "workspace:^",
     "@starbeam/js": "workspace:^",
     "@starbeam/react": "workspace:^",

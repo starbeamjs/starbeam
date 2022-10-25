@@ -1,4 +1,4 @@
-import { FormulaFn } from "@starbeam/core";
+import { FormulaFn } from "@starbeam/universal";
 import { expected, isPresent, verify } from "@starbeam/verify";
 
 export const cached = <T>(

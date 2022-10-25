@@ -1,33 +1,30 @@
-import { Cell, FormulaFn } from "@starbeam/core";
-// eslint-disable-next-line unused-imports/no-unused-imports, @typescript-eslint/no-unused-vars
+import { Cell, PolledFormulaFn } from "@starbeam/universal";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-imports
 import { cached, reactive } from "@starbeam/js";
 import { describe, expect, test } from "vitest";
 
-describe("A reactive formula", () => {
+describe("A polled reactive formula", () => {
   test("can be validated", () => {
     const name = Cell("@tomdale");
     const location = Cell("New York");
 
-    const card = FormulaFn(() => `${name.current} (${location.current})`);
+    const card = PolledFormulaFn(() => `${name.current} (${location.current})`);
 
-    expect(card()).toBe("@tomdale (New York)");
+    expect(card.current).toBe("@tomdale (New York)");
 
     name.set("Tom Dale");
 
-    expect(card()).toBe("Tom Dale (New York)");
+    expect(card.current).toBe("Tom Dale (New York)");
   });
 
   test("produces stable values if inputs don't change", () => {
-    const name = Cell("@tomdale", "name");
-    const location = Cell("New York", "location");
+    const name = Cell("@tomdale");
+    const location = Cell("New York");
 
-    const card = FormulaFn(
-      () => ({
-        name: name.current,
-        location: location.current,
-      }),
-      "card"
-    );
+    const card = PolledFormulaFn(() => ({
+      name: name.current,
+      location: location.current,
+    }));
 
     let last = card.current;
 
@@ -36,7 +33,7 @@ describe("A reactive formula", () => {
       location: "New York",
     });
 
-    expect(card.current).toBe(last);
+    expect(card.current).toEqual(last);
 
     name.set("Tom Dale");
 
@@ -50,7 +47,7 @@ describe("A reactive formula", () => {
     expect(next).not.toBe(last);
     last = next;
 
-    expect(card.current).toBe(last);
+    expect(card.current).toEqual(last);
 
     location.set("San Francisco");
 
@@ -68,19 +65,22 @@ describe("A reactive formula", () => {
     const name = Cell("@tomdale");
     const location = Cell("New York");
 
-    const card = FormulaFn(() => ({
+    const card = PolledFormulaFn(() => ({
       name: name.current,
       location: location.current,
     }));
 
     const last = card.current;
 
+    // intentionally use toEqual here because PolledFormulas don't cache anything, and therefore the
+    // values won't be `Object.is` equal.
+
     expect(last).toEqual({
       name: "@tomdale",
       location: "New York",
     });
 
-    expect(card.current).toBe(last);
+    expect(card.current).toEqual(last);
 
     // set the name to the same value
     name.set("@tomdale");
@@ -92,7 +92,10 @@ describe("A reactive formula", () => {
       location: "New York",
     });
 
-    expect(next).toBe(last);
+    // intentionally use toEqual here because PolledFormulas don't cache anything, and therefore the
+    // values won't be `Object.is` equal.
+
+    expect(next).toEqual(last);
   });
 
   test("a custom equals function can be used to determine whether a new value is equal to the current value", () => {
@@ -104,7 +107,7 @@ describe("A reactive formula", () => {
       { equals: (a, b) => a.name === b.name && a.location === b.location }
     );
 
-    const card = FormulaFn(() => ({
+    const card = PolledFormulaFn(() => ({
       name: person.current.name,
       location: person.current.location,
     }));
@@ -143,8 +146,10 @@ describe("A reactive formula", () => {
       location: "New York",
     });
 
-    expect(lastCard).toBe(nextCard);
-    expect(lastPerson).toBe(nextPerson);
+    // intentionally use toEqual here because PolledFormulas don't cache anything, and therefore the
+    // values won't be `Object.is` equal.
+    expect(lastCard).toEqual(nextCard);
+    expect(lastPerson).toEqual(nextPerson);
   });
 
   test("formulas that invoke other formulas", () => {
@@ -152,8 +157,8 @@ describe("A reactive formula", () => {
     const location = Cell("New York");
     const organization = Cell("LinkedIn");
 
-    const card = FormulaFn(() => `${name.current} (${location.current})`);
-    const complete = FormulaFn(
+    const card = PolledFormulaFn(() => `${name.current} (${location.current})`);
+    const complete = PolledFormulaFn(
       () => `${card.current} at ${organization.current}`
     );
 
@@ -169,64 +174,10 @@ describe("A reactive formula", () => {
   });
 });
 
-test("Formula using cells", () => {
+test("Formula", () => {
   class Person {
-    #name: Cell<string>;
-    #country: Cell<string>;
-
-    constructor(name: string, country: string) {
-      this.#name = Cell(name);
-      this.#country = Cell(country);
-    }
-
-    get name() {
-      return this.#name.current;
-    }
-
-    set name(value: string) {
-      this.#name.set(value);
-    }
-
-    get country() {
-      return this.#country.current;
-    }
-    set country(value: string) {
-      this.#country.set(value);
-    }
-
-    formatted(country = true) {
-      if (country) {
-        return `${this.name} (${this.country})`;
-      } else {
-        return this.name;
-      }
-    }
-  }
-
-  const person = new Person("Tom", "USA");
-  let counter = 0;
-
-  const formatted = FormulaFn(() => {
-    counter++;
-    return person.formatted(false);
-  });
-
-  expect(formatted.current).toBe("Tom");
-  expect(counter).toBe(1);
-
-  expect(formatted.current).toBe("Tom");
-  expect(counter).toBe(1);
-
-  person.name = "Thomas";
-
-  expect(formatted.current).toBe("Thomas");
-  expect(counter).toBe(2);
-});
-
-test("Formula using the @reactive decorator", () => {
-  class Person {
-    @reactive declare name: string;
-    @reactive declare country: string;
+    @reactive name: string;
+    @reactive country: string;
 
     constructor(name: string, country: string) {
       this.name = name;
@@ -245,7 +196,7 @@ test("Formula using the @reactive decorator", () => {
   const person = new Person("Tom", "USA");
   let counter = 0;
 
-  const formatted = FormulaFn(() => {
+  const formatted = PolledFormulaFn(() => {
     counter++;
     return person.formatted(false);
   });
@@ -254,12 +205,13 @@ test("Formula using the @reactive decorator", () => {
   expect(counter).toBe(1);
 
   expect(formatted.current).toBe("Tom");
-  expect(counter).toBe(1);
+  // PolledFormula doesn't cache any computations
+  expect(counter).toBe(2);
 
   person.name = "Thomas";
 
   expect(formatted.current).toBe("Thomas");
-  expect(counter).toBe(2);
+  expect(counter).toBe(3);
 });
 
 test("nested Formula", () => {

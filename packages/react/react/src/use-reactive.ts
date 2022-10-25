@@ -1,4 +1,4 @@
-import { Cell, PolledFormulaFn, TIMELINE } from "@starbeam/core";
+import { Cell, PolledFormulaFn, TIMELINE } from "@starbeam/universal";
 import { type Description, Desc } from "@starbeam/debug";
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
 import { useState } from "react";

@@ -1,6 +1,6 @@
-import { FormulaFn } from "@starbeam/core";
 import js from "@starbeam/js";
 import { create } from "@starbeam/preact";
+import { FormulaFn } from "@starbeam/universal";
 import type { JSX } from "preact";
 
 import { formatLocale, SYSTEM_LOCALE, SYSTEM_TZ } from "../intl.js";

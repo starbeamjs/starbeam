@@ -12,7 +12,7 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "@starbeam/core": "workspace:^",
+    "@starbeam/universal": "workspace:^",
     "@starbeam/js": "workspace:^",
     "@starbeam/react": "workspace:^",
     "@starbeamx/devtool": "workspace:*",

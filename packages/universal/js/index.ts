@@ -1,5 +1,5 @@
-import { Cell } from "@starbeam/core";
 import { type Description, descriptionFrom } from "@starbeam/debug";
+import { Cell } from "@starbeam/universal";
 
 import TrackedArray from "./src/array.js";
 import { ReactiveMap, ReactiveSet } from "./src/iterable.js";

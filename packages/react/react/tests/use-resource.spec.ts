@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { Cell, Resource } from "@starbeam/core";
+import { Cell, Resource } from "@starbeam/universal";
 import { entryPoint } from "@starbeam/debug";
 import { useProp, useResource } from "@starbeam/react";
 import { Reactive } from "@starbeam/timeline";

@@ -5,7 +5,7 @@ import {
   DelegateInternals,
   Resource,
   Setups,
-} from "@starbeam/core";
+} from "@starbeam/universal";
 import type { Stack } from "@starbeam/debug";
 import {
   type DebugListener,

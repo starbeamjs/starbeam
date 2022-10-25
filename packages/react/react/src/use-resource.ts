@@ -4,7 +4,7 @@ import {
   Resource,
   Static,
   TIMELINE,
-} from "@starbeam/core";
+} from "@starbeam/universal";
 import type { Reactive } from "@starbeam/timeline";
 import {
   type Unsubscribe,

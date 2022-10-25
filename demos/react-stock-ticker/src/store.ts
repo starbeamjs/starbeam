@@ -1,4 +1,4 @@
-import { Cell } from "@starbeam/core";
+import { Cell } from "@starbeam/universal";
 import { reactive } from "@starbeam/js";
 
 import type { Stock } from "./lib/api/interfaces.js";

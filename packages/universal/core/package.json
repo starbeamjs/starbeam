@@ -1,10 +1,13 @@
 {
   "name": "@starbeam/core",
-  "version": "0.7.4",
+  "version": "0.7.3",
   "type": "module",
   "main": "index.ts",
-  "exports": {
-    "default": "./index.ts"
+  "dependencies": {
+    "@starbeam/universal": "workspace:*"
+  },
+  "devDependencies": {
+    "@starbeam-workspace/build-support": "workspace:^"
   },
   "publishConfig": {
     "main": "dist/index.cjs",
@@ -17,16 +20,8 @@
       }
     }
   },
-  "dependencies": {
-    "@starbeam/shared": "workspace:^",
-    "@starbeam/debug": "workspace:^",
-    "@starbeam/verify": "workspace:^",
-    "@starbeam/timeline": "workspace:^",
-    "@starbeam/core-utils": "workspace:^",
-    "@starbeam/interfaces": "workspace:^"
-  },
-  "devDependencies": {
-    "@starbeam-workspace/build-support": "workspace:^"
+  "exports": {
+    "default": "./index.ts"
   },
   "scripts": {
     "test:lint": "eslint",

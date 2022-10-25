@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-import { Cell, LIFETIME } from "@starbeam/core";
+import { Cell, LIFETIME } from "@starbeam/universal";
 import { Cursor, El, Fragment, Text } from "@starbeamx/vanilla";
 import { describe, expect, test } from "vitest";
 

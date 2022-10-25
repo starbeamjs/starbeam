@@ -1,4 +1,4 @@
-import { FormulaFn, LIFETIME } from "@starbeam/core";
+import { FormulaFn, LIFETIME } from "@starbeam/universal";
 import type { Description } from "@starbeam/debug";
 import { descriptionFrom } from "@starbeam/debug";
 import type { Reactive } from "@starbeam/timeline";

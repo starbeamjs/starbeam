@@ -1,4 +1,4 @@
-import { FormulaFn, TIMELINE, Variants } from "@starbeam/core";
+import { FormulaFn, TIMELINE, Variants } from "@starbeam/universal";
 import { ReactiveProtocol } from "@starbeam/timeline";
 import { describe, expect, test } from "vitest";
 

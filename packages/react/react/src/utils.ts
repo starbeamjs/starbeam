@@ -1,4 +1,4 @@
-import { Cell } from "@starbeam/core";
+import { Cell } from "@starbeam/universal";
 import { type Description, Desc } from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/shared";
 import type { Reactive } from "@starbeam/timeline";

@@ -1,6 +1,6 @@
-import { Cell, Formula, Reactive, Static } from "@starbeam/core";
 import { entryPointFn } from "@starbeam/debug";
 import { Frame, ReactiveProtocol } from "@starbeam/timeline";
+import { Cell, Formula, Reactive, Static } from "@starbeam/universal";
 import { describe, expect, test } from "@starbeam-workspace/test-utils";
 
 describe("reactive Factory", () => {
@@ -85,6 +85,64 @@ describe("reactive Factory", () => {
 
     test("the reactive object *granularly* invalidates when its dependencies change", () => {
       const counter = Counter.create();
+      const countContext = TrackingContext(() => counter.count);
+      const extraContext = TrackingContext(() => counter.extra);
+
+      expectStale(countContext, 0);
+      expectStale(extraContext, 0);
+
+      counter.increment();
+
+      expectStale(countContext, 1);
+      expectValid(extraContext, 0);
+
+      counter.incrementExtra();
+
+      expectValid(countContext, 1);
+      expectStale(extraContext, 1);
+
+      expectValid(countContext, 1);
+      expectValid(extraContext, 1);
+
+      counter.increment();
+      counter.incrementExtra();
+
+      expectStale(countContext, 2);
+      expectStale(extraContext, 2);
+    });
+  });
+
+  describe("a class", () => {
+    class Counter {
+      #cell = Cell(0);
+      #extra = Cell(0);
+
+      get count() {
+        return this.#cell.current;
+      }
+
+      get extra() {
+        return this.#extra.current;
+      }
+
+      increment() {
+        this.#cell.update((value) => value + 1);
+      }
+
+      incrementExtra() {
+        this.#extra.update((value) => value + 1);
+      }
+    }
+
+    test("the cell is created", () => {
+      const counter = Reactive(Counter).create();
+      expect(counter.count).toBe(0);
+      counter.increment();
+      expect(counter.count).toBe(1);
+    });
+
+    test("the reactive object *granularly* invalidates when its dependencies change", () => {
+      const counter = Reactive(Counter).create();
       const countContext = TrackingContext(() => counter.count);
       const extraContext = TrackingContext(() => counter.extra);
 

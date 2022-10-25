@@ -1,10 +1,10 @@
 {
   "private": true,
-  "name": "@starbeam-tests/core",
+  "name": "@starbeam-tests/universal",
   "version": "1.0.0",
   "type": "module",
   "dependencies": {
-    "@starbeam/core": "workspace:^",
+    "@starbeam/universal": "workspace:^",
     "@starbeam/js": "workspace:^",
     "@starbeam/timeline": "workspace:^",
     "@starbeam/debug": "workspace:^"

@@ -14,19 +14,30 @@ import {
   TIMELINE,
 } from "@starbeam/timeline";
 
-export interface Formula<T> {
-  frame: Frame<T | UNINITIALIZED>;
-  poll(): Frame<T>;
-}
+/**
+ * A {@linkcode PolledFormula} is like a {@linkcode Formula}, but it never attempts to avoid running the
+ * formula function when the formula is still valid.
+ *
+ * Its purpose is to provide notifications if any reactive dependency is invalidated, but not get in
+ * the way of other kinds of polling-style reactive notifications coming from a framework.
+ *
+ * In other words, it is a way to create a reactive formula in an environment that will be
+ * invalidated by framework polling (and a framework-specific dependency tracking mechanism), but
+ * wants to mix in Starbeam's notification mechanism for Starbeam dependencies.
+ */
 
-export function Formula<T>(
+export function PolledFormula<T>(
   callback: () => T,
   description?: Description | string
-): Formula<T> {
+): {
+  frame: Frame<T | UNINITIALIZED>;
+  poll: () => Frame<T>;
+  update: (caller?: Stack) => void;
+} {
   const desc = descriptionFrom({
     type: "formula",
     api: {
-      package: "@starbeam/core",
+      package: "@starbeam/universal",
       name: "Formula",
     },
     fromUser: description,
@@ -34,7 +45,7 @@ export function Formula<T>(
 
   const frame = Frame.uninitialized<T | UNINITIALIZED>(TIMELINE.now, desc);
 
-  const update = (caller: Stack) => {
+  const update = (caller: Stack = callerStack()) => {
     if (import.meta.env.DEV) {
       const oldDeps = new Set(ReactiveProtocol.dependencies(frame));
 
@@ -58,43 +69,34 @@ export function Formula<T>(
   };
 
   function poll(caller = callerStack()): Frame<T> {
-    if (frame) {
-      const validation = frame.validate();
-
-      if (validation.status === "valid") {
-        TIMELINE.didConsumeFrame(frame, diff.empty(), caller);
-      } else {
-        update(caller);
-      }
-    } else {
-      update(caller);
-    }
+    update(caller);
 
     return frame as Frame<T>;
   }
 
-  return { poll, frame };
+  return { poll, update, frame };
 }
 
-export interface FormulaFn<T> extends Reactive<T> {
+interface FormulaFn<T> extends Reactive<T> {
   (): T;
   readonly current: T;
 }
 
-export function FormulaFn<T>(
+export function PolledFormulaFn<T>(
   callback: () => T,
   description?: Description | string
 ): FormulaFn<T> {
-  const desc = descriptionFrom({
-    type: "formula",
-    api: {
-      package: "@starbeam/core",
-      name: "FormulaFn",
-    },
-    fromUser: description,
-  });
-
-  const formula = Formula(callback, desc);
+  const formula = PolledFormula(
+    callback,
+    descriptionFrom({
+      type: "formula",
+      api: {
+        package: "@starbeam/universal",
+        name: "FormulaFn",
+      },
+      fromUser: description,
+    })
+  );
 
   const fn = () => Frame.value(formula.poll());
 
@@ -117,7 +119,7 @@ export function FormulaFn<T>(
     writable: true,
     value: {
       type: "delegate",
-      description: desc,
+      description,
       delegate: [formula.frame],
     },
   });

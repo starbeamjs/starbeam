@@ -1,4 +1,4 @@
-import { FormulaFn } from "@starbeam/core";
+import { FormulaFn } from "@starbeam/universal";
 
 export class Invalidation<T> {
   static trace<T>(formula: () => T): Invalidation<T> {

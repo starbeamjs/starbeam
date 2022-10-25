@@ -1,25 +1,3 @@
-import { VitePluginFonts } from "vite-plugin-fonts";
-import { defineConfig } from "vitest/config";
+import { Package } from "@starbeam-workspace/build-support";
 
-export default defineConfig({
-  plugins: [
-    VitePluginFonts({
-      google: {
-        families: ["Roboto:wght@300;400;500;700"],
-        display: "swap",
-        preconnect: true,
-      },
-    }),
-  ],
-  esbuild: {
-    jsx: "automatic",
-  },
-  optimizeDeps: {
-    esbuildOptions: {
-      define: {
-        global: "globalThis",
-      },
-    },
-  },
-  build: {},
-});
+export default Package.viteConfig(import.meta);

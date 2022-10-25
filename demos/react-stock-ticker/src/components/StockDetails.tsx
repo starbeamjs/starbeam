@@ -1,4 +1,4 @@
-import { Cell, Resource } from "@starbeam/core";
+import { Cell, Resource } from "@starbeam/universal";
 import { useReactive, useReactiveResource } from "@starbeam/react";
 import { Portal } from "react-portal";
 

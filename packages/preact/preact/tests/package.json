@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "dependencies": {
     "@starbeam/preact": "workspace:^",
-    "@starbeam/core": "workspace:^",
+    "@starbeam/universal": "workspace:^",
     "@starbeam/debug": "workspace:^",
     "@starbeam/timeline": "workspace:^",
     "@starbeam-workspace/test-utils": "workspace:^",

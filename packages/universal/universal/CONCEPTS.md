@@ -141,7 +141,7 @@ Then, you can use the `UserSession` service in your components.
 #### In React
 
 ```tsx
-import { service } from "@starbeam/core";
+import { service } from "@starbeam/universal";
 import { useReactive } from "@starbeam/react";
 
 function AvatarWidget() {
@@ -160,7 +160,7 @@ function AvatarWidget() {
 #### In Preact
 
 ```tsx
-import { service } from "@starbeam/core";
+import { service } from "@starbeam/universal";
 
 function AvatarWidget() {
   const session = service(UserSession);
@@ -241,7 +241,7 @@ backend details, and exposes a reactive object that you can use in your componen
 information about your user.
 
 ```ts
-import { Resource } from "@starbeam/core";
+import { Resource } from "@starbeam/universal";
 import { connectUserSession } from "my-backend";
 
 const UserSession = Resource(({ on }) => {
@@ -330,7 +330,7 @@ Services](#reactive-services) above.
 #### In React
 
 ```tsx
-import { service } from "@starbeam/core";
+import { service } from "@starbeam/universal";
 import { useReactive } from "@starbeam/react";
 import { useFetch } from "usehooks-ts";
 
@@ -350,7 +350,7 @@ function AvatarWidget() {
 #### In Preact
 
 ```tsx
-import { service } from "@starbeam/core";
+import { service } from "@starbeam/universal";
 import { useFetch } from "usehooks-ts";
 
 function AvatarWidget() {
@@ -371,7 +371,7 @@ You can interact with the user session in your components by calling the methods
 #### In React
 
 ```tsx
-import { service } from "@starbeam/core";
+import { service } from "@starbeam/universal";
 import { useReactive } from "@starbeam/react";
 
 function Account() {
@@ -423,7 +423,7 @@ function UserInfo() {
 #### In Preact
 
 ```tsx
-import { service } from "@starbeam/core";
+import { service } from "@starbeam/universal";
 
 function Account() {
   return (

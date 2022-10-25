@@ -5,7 +5,7 @@ import {
   LIFETIME,
   Resource,
   Wrap,
-} from "@starbeam/core";
+} from "@starbeam/universal";
 import type { Description } from "@starbeam/debug";
 import {
   callerStack,

@@ -1,4 +1,4 @@
-import { Resource } from "@starbeam/core";
+import { Resource } from "@starbeam/universal";
 import js from "@starbeam/js";
 import { useReactiveSetup } from "@starbeam/react";
 

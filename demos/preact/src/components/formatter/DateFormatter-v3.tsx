@@ -1,7 +1,7 @@
-import type { Reactive } from "@starbeam/core";
-import { Cell, Resource, Static } from "@starbeam/core";
 import js from "@starbeam/js";
 import { create, use } from "@starbeam/preact";
+import type { Reactive } from "@starbeam/universal";
+import { Cell, Resource, Static } from "@starbeam/universal";
 import type { JSX } from "preact";
 
 import {

@@ -5,7 +5,7 @@
   "type": "module",
   "main": "index.ts",
   "dependencies": {
-    "@starbeam/core": "workspace:^",
+    "@starbeam/universal": "workspace:^",
     "@starbeam/react": "workspace:^",
     "@starbeam/js": "workspace:^",
     "purecss": "^2.1.0",

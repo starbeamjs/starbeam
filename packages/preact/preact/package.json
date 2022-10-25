@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "@starbeam/timeline": "workspace:^",
-    "@starbeam/core": "workspace:^",
+    "@starbeam/universal": "workspace:^",
     "@starbeam/debug": "workspace:^",
     "@starbeam/verify": "workspace:^",
     "@starbeam/preact-utils": "workspace:^"

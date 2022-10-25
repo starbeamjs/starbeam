@@ -6,7 +6,7 @@ import {
   LIFETIME,
   Resource,
   Static,
-} from "@starbeam/core";
+} from "@starbeam/universal";
 import { create, setup, use } from "@starbeam/preact";
 import { html, rendering } from "@starbeam/preact-testing-utils";
 import { isPresent, verified } from "@starbeam/verify";

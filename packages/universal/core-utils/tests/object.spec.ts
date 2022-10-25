@@ -1,4 +1,4 @@
-import { isObject } from "@starbeam/core-utils";
+import { isObject } from "@starbeam/universal-utils";
 import { describe, expect, test } from "vitest";
 
 describe("object utils", () => {

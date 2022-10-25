@@ -1,4 +1,4 @@
-import { Cell, FormulaFn } from "@starbeam/core";
+import { Cell, FormulaFn } from "@starbeam/universal";
 import { isPresent, verified } from "@starbeam/verify";
 import { type Aggregator, Average, Sum, Table } from "@starbeamx/store";
 import { describe, expect, test } from "vitest";

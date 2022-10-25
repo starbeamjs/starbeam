@@ -1,6 +1,6 @@
-import { Resource, Static } from "@starbeam/core";
 import js from "@starbeam/js";
 import { use } from "@starbeam/preact";
+import { Resource, Static } from "@starbeam/universal";
 import type { JSX } from "preact";
 
 import { formatLocale, SYSTEM_LOCALE, SYSTEM_TZ } from "../intl.js";

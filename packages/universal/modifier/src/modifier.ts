@@ -1,5 +1,5 @@
 import type { anydom } from "@domtree/flavors";
-import { Cell, DelegateInternals } from "@starbeam/core";
+import { Cell, DelegateInternals } from "@starbeam/universal";
 import { type Description, REUSE_ID } from "@starbeam/debug";
 import type { ReactiveProtocol } from "@starbeam/interfaces";
 import { REACTIVE, UNINITIALIZED } from "@starbeam/shared";

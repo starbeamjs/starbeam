@@ -37,7 +37,7 @@ export function Freshness(
   return new ReactiveFreshness(
     descriptionFrom({
       type: "cell",
-      api: { package: "@starbeam/core", name: "Freshness" },
+      api: { package: "@starbeam/universal", name: "Freshness" },
       fromUser: description,
     })
   );

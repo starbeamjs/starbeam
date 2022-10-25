@@ -1,6 +1,9 @@
-import { type Reactive, Cell, Resource, Static } from "@starbeam/core";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+
 import js from "@starbeam/js";
 import { create, use } from "@starbeam/preact";
+import { type Reactive, Cell, Resource, Static } from "@starbeam/universal";
 import type { JSX } from "preact/jsx-runtime";
 
 import {

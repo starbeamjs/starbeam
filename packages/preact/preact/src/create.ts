@@ -1,5 +1,5 @@
-import { Cell } from "@starbeam/core";
 import { type Description, Desc } from "@starbeam/debug";
+import { Cell } from "@starbeam/universal";
 import { useMemo } from "preact/hooks";
 
 export function create<T>(Reactive: () => T): T {

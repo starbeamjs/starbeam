@@ -1,4 +1,4 @@
-import { Cell, Setup } from "@starbeam/core";
+import { Cell, Setup } from "@starbeam/universal";
 import { ReactiveProtocol, TIMELINE } from "@starbeam/timeline";
 import { describe, expect, test } from "vitest";
 

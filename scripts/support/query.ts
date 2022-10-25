@@ -310,7 +310,7 @@ export const FILTER_KEYS: Record<FilterKey, [kind: string, example: string]> = {
   private: ["is a private package", "-a private"],
   none: ["match nothing", "-a none"],
   type: [`type of the package (${StarbeamType.format()})`, "-a type=library"],
-  name: ["package name", "-a name=@starbeam/core"],
+  name: ["package name", "-a name=@starbeam/universal"],
   scope: ["package scope", "-a scope=@starbeam"],
 };
 
