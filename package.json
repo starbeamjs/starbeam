@@ -17,7 +17,7 @@
     "test:workspace": "esno ./scripts/index.ts test -w -v",
     "test": "esno ./scripts/index.ts test -v",
     "test:dev": "vitest --mode=development",
-    "test:prod": "PROD=1 DEV= vitest",
+    "test:prod": "PROD=1 DEV= pnpm -r test:specs",
     "test:types": "tsc -b",
     "test:lint": "eslint",
     "check:types": "tsc --build",
