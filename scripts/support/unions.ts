@@ -1,3 +1,5 @@
+import { stringify } from "@starbeam/core-utils";
+
 import {
   type JsonObject,
   type JsonPrimitive,
@@ -6,7 +8,6 @@ import {
 } from "./json.js";
 import type { RegularFile } from "./paths.js";
 import { type Directory, Globs } from "./paths.js";
-import type { UnionInstance } from "./type-magic.js";
 import { type IntoUnionInstance, Union } from "./type-magic.js";
 
 export class StarbeamType extends Union(
@@ -16,6 +17,7 @@ export class StarbeamType extends Union(
   "support:tests",
   "support:build",
   "demo:react",
+  "demo:preact",
   "unknown",
   "draft",
   "root",
@@ -135,7 +137,7 @@ export class JsonTemplate extends Union(
     filter?: [kind: string, value: IntoUnionInstance]
   ): JsonObject {
     const json = root
-      .file(`scripts/templates/package/${this}.template`)
+      .file(`scripts/templates/package/${String(this)}.template`)
       .readSync({ as: "json" });
 
     if (filter) {
@@ -146,7 +148,7 @@ export class JsonTemplate extends Union(
   }
 }
 
-export type JsonFilter = [type: string, value: string | UnionInstance<string>];
+export type JsonFilter = [type: string, value: IntoUnionInstance];
 
 class JsonEntries {
   static create(object: JsonObject, path: string): JsonEntries {
@@ -166,9 +168,11 @@ class JsonEntries {
 
     const staticEntries = entries.filter(([key]) => !key.startsWith("switch:"));
 
+    const [type, value] = filter;
+
     return {
       ...Object.fromEntries(staticEntries),
-      ...this.#objectFor(filter[0], String(filter[1])),
+      ...this.#objectFor(type, String(value)),
     };
   }
 
@@ -188,39 +192,48 @@ class JsonEntries {
     if (value in switchValue) {
       return this.#asserting(`${type}:${key}`, switchValue[value]);
     } else if ("default" in switchValue) {
-      return this.#asserting(`${type}:default`, switchValue.default);
+      return this.#asserting(
+        `${type}:default`,
+        switchValue["default"] as JsonValue
+      );
     } else {
       return {};
     }
   }
 
-  #assert(key: string, value: JsonValue): asserts value is JsonObject {
+  #assert(
+    key: string,
+    value: JsonValue | undefined
+  ): asserts value is JsonObject {
     if (!isObject(value)) {
       throw Error(
-        `Malformed switch entry for switch:${key} in ${
+        stringify`Malformed switch entry for switch:${key} in ${
           this.#path
-        }: ${value}\n\nA switch entry and its children must be objects, but the value is a ${typeof value}.`
+        }: ${JSON.stringify(
+          value
+        )}\n\nA switch entry and its children must be objects, but the value is a ${typeof value}.`
       );
     }
   }
 
-  #asserting(key: string, value: JsonValue): JsonObject {
+  #asserting(key: string, value: JsonValue | undefined): JsonObject {
     this.#assert(key, value);
     return value;
   }
 
   #isMalformed = (
     entry: [string, JsonValue]
-  ): entry is [string, JsonPrimitive] =>
-    (entry[0].startsWith("if:") || entry[0] === "else") && !isObject(entry[1]);
-
-  #isStatic = (entry: [string, JsonValue]): boolean =>
-    !this.#isConditional(entry);
+  ): entry is [string, JsonPrimitive] => {
+    const [key, value] = entry;
+    return (key.startsWith("if:") || key === "else") && !isObject(value);
+  };
 
   #isConditional = (
     entry: [string, JsonValue]
-  ): entry is [string, JsonObject] =>
-    (entry[0].startsWith("if:") || entry[0] === "else") && isObject(entry[1]);
+  ): entry is [string, JsonObject] => {
+    const [key, value] = entry;
+    return (key.startsWith("if:") || key === "else") && isObject(value);
+  };
 }
 
 export class Template extends Union(
@@ -232,6 +245,8 @@ export class Template extends Union(
   "vite.config.ts"
 ) {
   read(root: Directory): string {
-    return root.file(`scripts/templates/package/${this}.template`).readSync();
+    return root
+      .file(stringify`scripts/templates/package/${this}.template`)
+      .readSync();
   }
 }

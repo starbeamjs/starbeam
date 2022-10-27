@@ -1,3 +1,10 @@
+import {
+  isEmptyArray,
+  isPresentArray,
+  isSingleItemArray,
+  Overload,
+  stringify,
+} from "@starbeam/core-utils";
 import util from "util";
 
 import { Fragment } from "./log.js";
@@ -52,7 +59,7 @@ export class SingleFilter implements Filter {
       }
       case "type": {
         const type = pkg.type;
-        return type?.value === this.value ?? false;
+        return type.value === this.value ? true : false;
       }
       case "none":
         return false;
@@ -89,7 +96,7 @@ class AllFilter {
     return new AllFilter([]);
   }
 
-  static of(filter: Filter) {
+  static of(filter: Filter): AllFilter {
     return new AllFilter([filter]);
   }
 
@@ -111,7 +118,7 @@ class AllFilter {
   }
 
   hasFilters(): boolean {
-    return this.#filters.length > 0;
+    return isPresentArray(this.#filters);
   }
 
   filters(key: FilterKey): boolean {
@@ -125,7 +132,7 @@ class AllFilter {
       (f) => !(f instanceof ParseError) && f.key === key && f.operator === "="
     );
 
-    return filters.length === 1;
+    return isSingleItemArray(filters);
   }
 
   add(filter: Filter | ParseError): void {
@@ -138,7 +145,7 @@ class AllFilter {
   }
 
   match(pkg: Package): boolean {
-    if (this.#filters.length === 0) {
+    if (isEmptyArray(this.#filters)) {
       return true;
     }
 
@@ -153,7 +160,7 @@ class AnyFilter {
     return new AnyFilter([]);
   }
 
-  static of(filter: Filter) {
+  static of(filter: Filter): AnyFilter {
     return new AnyFilter([filter]);
   }
 
@@ -175,7 +182,7 @@ class AnyFilter {
   }
 
   hasFilters(): boolean {
-    return this.#filters.length > 0;
+    return isPresentArray(this.#filters);
   }
 
   add(filter: Filter | ParseError): void {
@@ -188,7 +195,7 @@ class AnyFilter {
   }
 
   match(pkg: Package, reporter: Reporter): boolean {
-    if (this.#filters.length === 0) {
+    if (isEmptyArray(this.#filters)) {
       return true;
     }
 
@@ -204,6 +211,10 @@ class AnyFilter {
     );
   }
 }
+
+type FilterArgs =
+  | [Filter | ParseError]
+  | [key: FilterKey, value?: string | boolean | undefined];
 
 export class Query {
   static readonly all = Query.empty();
@@ -246,41 +257,25 @@ export class Query {
   }
 
   and(filter: Filter | ParseError): Query;
-  and(key: FilterKey, value?: string | boolean): Query;
-  and(
-    ...args: [Filter | ParseError] | [key: FilterKey, value?: string | boolean]
-  ): Query {
-    if (typeof args[0] === "string") {
-      this.#all.add(
-        SingleFilter.ok(
-          args[0] as FilterKey,
-          args[1] ?? (true as string | boolean)
-        )
-      );
-    } else {
-      this.#all.add(args[0]);
-    }
-
+  and(key: FilterKey, value?: string | boolean | undefined): Query;
+  and(...args: FilterArgs): this {
+    this.#all.add(this.#resolveArgs(args));
     return this;
   }
 
   or(filter: Filter | ParseError): Query;
-  or(key: FilterKey, value?: string | boolean): Query;
-  or(
-    ...args: [Filter | ParseError] | [key: FilterKey, value?: string | boolean]
-  ): Query {
-    if (typeof args[0] === "string") {
-      this.#any.add(
-        SingleFilter.ok(
-          args[0] as FilterKey,
-          args[1] ?? (true as string | boolean)
-        )
-      );
-    } else {
-      this.#any.add(args[0]);
-    }
-
+  or(key: FilterKey, value?: string | boolean | undefined): Query;
+  or(...args: FilterArgs): this {
+    this.#any.add(this.#resolveArgs(args));
     return this;
+  }
+
+  #resolveArgs(args: FilterArgs): Filter | ParseError {
+    return Overload<Filter | ParseError>().resolve(args, {
+      [1]: (filter) =>
+        typeof filter === "string" ? SingleFilter.ok(filter, true) : filter,
+      [2]: (key, value) => SingleFilter.ok(key, value),
+    });
   }
 
   unifies(filter: FilterKey): boolean {
@@ -289,7 +284,7 @@ export class Query {
 
   get errors(): ParseError[] | null {
     const errors = [...this.#any.errors, ...this.#all.errors];
-    return errors.length > 0 ? errors : null;
+    return isPresentArray(errors) ? errors : null;
   }
 
   match(pkg: Package, reporter: Reporter): boolean {
@@ -332,7 +327,7 @@ export class ParseError {
 
   log(reporter: Reporter): void {
     reporter.log(
-      `${Fragment.problem("Invalid query")}${Fragment.comment(
+      stringify`${Fragment.problem("Invalid query")}${Fragment.comment(
         `: ${this.source}`
       )}`
     );
@@ -358,12 +353,13 @@ function parseKey(key: string, source: string): FilterKey | ParseError {
 }
 export function parse(query: string): Filter | ParseError {
   if (query.includes("!=")) {
-    const [rawKey, rawValue] = query.split("!=");
+    const [rawKey, rawValue] = query.split("!=") as [string, string];
+
     return parsePair([rawKey, rawValue], query, SingleFilter.not);
   }
 
   if (query.includes("=")) {
-    const [rawKey, value] = query.split("=");
+    const [rawKey, value] = query.split("=") as [string, string];
     return parsePair([rawKey, value], query, SingleFilter.ok);
   }
 

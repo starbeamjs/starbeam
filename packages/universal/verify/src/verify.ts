@@ -4,13 +4,11 @@ export class VerificationError<T = unknown> extends Error {
   }
 }
 
-export interface VerifyFn {
-  <Input extends Value, Value, Output extends Input>(
-    value: Value,
-    check: (input: Input) => input is Output,
-    error?: Expectation<Value>
-  ): asserts value is Output & Value;
-}
+export type VerifyFn = <Input extends Value, Value, Output extends Input>(
+  value: Value,
+  check: (input: Input) => input is Output,
+  error?: Expectation<Value>
+) => asserts value is Output & Value;
 
 export function verify<Input extends Value, Value, Output extends Input>(
   value: Value,
@@ -105,19 +103,16 @@ export class Expectation<In = any> {
     );
   }
 
-  readonly #description: string | void | undefined;
-  readonly #to: To | void | undefined;
-  readonly #actual:
-    | ((input: In) => string | void | undefined)
-    | void
-    | undefined;
-  readonly #when: string | void | undefined;
+  readonly #description: string | undefined;
+  readonly #to: To | undefined;
+  readonly #actual: ((input: In) => string | undefined) | undefined;
+  readonly #when: string | undefined;
 
   private constructor(
-    description: string | void | undefined,
-    to: To | void | undefined,
-    got: ((input: In) => string | void | undefined) | void | undefined,
-    when: string | void | undefined
+    description: string | undefined,
+    to: To | undefined,
+    got: ((input: In) => string | undefined) | undefined,
+    when: string | undefined
   ) {
     this.#description = description;
     this.#to = to;
@@ -134,9 +129,9 @@ export class Expectation<In = any> {
       ? updater.description(this.#description)
       : this.#description;
     const updatedTo = updater.to ? updater.to(this.#to) : this.#to;
-    const to: To | void =
+    const to: To | undefined =
       typeof updatedTo === "string"
-        ? [this.#to?.[0] ?? "to be", updatedTo]
+        ? [toRelationship(this.#to) ?? "to be", updatedTo]
         : updatedTo;
     const actual = updater.actual
       ? updater.actual(this.#actual)
@@ -168,7 +163,9 @@ export class Expectation<In = any> {
     );
   }
 
-  butGot<In>(kind: string | ((value: In) => string)): Expectation<In> {
+  butGot<NewIn extends In>(
+    kind: string | ((value: NewIn) => string)
+  ): Expectation<NewIn> {
     return new Expectation(
       this.#description,
       this.#to,
@@ -196,7 +193,7 @@ export class Expectation<In = any> {
     message += `Expected ${this.#description ?? "value"}`;
 
     if (this.#to) {
-      message += ` ${this.#to[0]} ${this.#to[1]}`;
+      message += ` ${toRelationship(this.#to)} ${toKind(this.#to)}`;
     }
 
     if (this.#actual) {
@@ -208,7 +205,23 @@ export class Expectation<In = any> {
 }
 
 export type Relationship = "to be" | "to have" | "to be one of";
+
+const REL_INDEX = 0;
+const KIND_INDEX = 1;
+
 export type To = [relationship: Relationship, kind: string];
+
+export function toRelationship(to: To): Relationship;
+export function toRelationship(to?: To): Relationship | undefined;
+export function toRelationship(to?: To): Relationship | undefined {
+  return to?.[REL_INDEX];
+}
+
+export function toKind(to: To): string;
+export function toKind(to?: To): string | undefined;
+export function toKind(to?: To): string | undefined {
+  return to?.[KIND_INDEX];
+}
 
 export function expected(description?: string): Expectation {
   return Expectation.create(description);
@@ -228,19 +241,19 @@ const ASSOCIATED: WeakMap<Function, Expectation<any>> = new WeakMap();
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 expected.associate = <Check extends (input: In) => any, In>(
   check: Check,
-  expected: Expectation<In>
+  expectation: Expectation<In>
 ): Check extends infer C ? C : never => {
-  ASSOCIATED.set(check, expected);
+  ASSOCIATED.set(check, expectation);
   return check as Check extends infer C ? C : never;
 };
 
 interface Updater<In, NewIn = In> {
-  description?: (description: string | void | undefined) => string | void;
-  to?: (to: To | void | undefined) => string | To | void;
+  description?: (description: string | undefined) => string | undefined;
+  to?: (to: To | undefined) => string | To | undefined;
   actual?: (
-    actual: ((input: In) => string | void) | void | undefined
-  ) => ((input: NewIn) => string | void) | void;
-  when?: (when: string | void | undefined) => string | void;
+    actual: ((input: In) => string | undefined) | undefined
+  ) => ((input: NewIn) => string | undefined) | undefined;
+  when?: (when: string | undefined) => string | undefined;
 }
 
 expected.updated = <In, NewIn = In>(

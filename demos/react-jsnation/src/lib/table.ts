@@ -41,7 +41,7 @@ export type Sort<T> = (rowA: Row<T>, rowB: Row<T>) => number;
 export class Query<T> {
   #table: Table<T>;
   #filters: Filter<T>[];
-  #sort?: Sort<T>;
+  #sort: Sort<T> | undefined;
 
   constructor(table: Table<T>, filters: Filter<T>[] = [], sort?: Sort<T>) {
     this.#table = table;

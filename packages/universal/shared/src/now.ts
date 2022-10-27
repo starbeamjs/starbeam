@@ -19,6 +19,7 @@ if (!clock) {
 }
 
 const CLOCK = clock;
+const TICK = 1;
 
 /**
  * Get the current timestamp.
@@ -31,6 +32,6 @@ export function now(): number {
  * Increment the current timestamp, and return the new one.
  */
 export function bump(): number {
-  CLOCK.timestamp = CLOCK.timestamp + 1;
+  CLOCK.timestamp = CLOCK.timestamp + TICK;
   return now();
 }

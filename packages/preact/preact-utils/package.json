@@ -2,6 +2,9 @@
   "name": "@starbeam/preact-utils",
   "version": "0.7.4",
   "type": "module",
+  "dependencies": {
+    "@starbeam/core-utils": "workspace:*"
+  },
   "peerDependencies": {
     "preact": ">=10"
   },

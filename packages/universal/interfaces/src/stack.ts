@@ -21,14 +21,14 @@ export interface StackFrame {
    * A link to the file/line/column that this stack frame represents, in a format suitable to be
    * used in console.log()s in browser devtools.
    */
-  link(options?: StackFrameDisplayOptions | undefined): string;
+  link: (options?: StackFrameDisplayOptions | undefined) => string;
 
   /**
    * A displayable representation of the stack frame.
    */
-  display(options?: StackFrameDisplayOptions | undefined): string;
+  display: (options?: StackFrameDisplayOptions | undefined) => string;
 
-  parts(options?: StackFrameDisplayOptions | undefined): DisplayParts;
+  parts: (options?: StackFrameDisplayOptions | undefined) => DisplayParts;
 }
 
 export interface DisplayRoot {
@@ -47,5 +47,5 @@ export interface DisplayParts {
   readonly action: string | undefined;
   readonly loc: Loc | undefined;
 
-  display(): string;
+  display: () => string;
 }

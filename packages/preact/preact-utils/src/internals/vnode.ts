@@ -1,4 +1,3 @@
-import { DisplayStruct } from "@starbeam/debug";
 import {
   type ComponentChild,
   type ComponentChildren,
@@ -7,8 +6,10 @@ import {
   Fragment,
 } from "preact";
 
+import { DisplayStruct } from "../inspect.js";
 import type { InternalPreactElement, InternalSource } from "../interfaces.js";
 import { isProbablyVNode } from "../internals.js";
+// eslint-disable-next-line import/no-cycle
 import {
   type InternalPreactComponent,
   InternalComponent,
@@ -16,8 +17,25 @@ import {
 
 const BUILTINS = new Set<ComponentType>([Fragment]);
 
+const INITIAL_ID = 0;
+
 export class InternalVNode {
-  static #nextId = 0;
+  #delete = {
+    parent: (): void => {
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+      delete this.#vnode[KEYS._parent];
+    },
+
+    depth: (): void => {
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+      delete this.#vnode[KEYS._depth];
+    },
+  } as const;
+
+  readonly id: number;
+  readonly #vnode: InternalPreactVNode;
+
+  static #nextId = INITIAL_ID;
 
   static is(value: unknown): value is InternalVNode {
     return !!(
@@ -27,13 +45,11 @@ export class InternalVNode {
     );
   }
 
-  static of(vnode: InternalPreactVNode): InternalVNode {
+  static of(this: void, vnode: InternalPreactVNode): InternalVNode {
     return new InternalVNode(vnode);
   }
 
-  static from(
-    node: InternalVNode | InternalPreactVNode<unknown> | VNode
-  ): InternalVNode;
+  static from(node: InternalVNode | InternalPreactVNode | VNode): InternalVNode;
   static from(node: IntoInternalVNode): InternalVNode | null | undefined;
   static from(node: IntoInternalVNode): InternalVNode | null | undefined {
     if (InternalVNode.is(node)) {
@@ -61,59 +77,13 @@ export class InternalVNode {
     }
   }
 
-  readonly #vnode: InternalPreactVNode;
-  readonly id: number;
-
   private constructor(vnode: InternalPreactVNode) {
     this.#vnode = vnode;
     this.id = InternalVNode.#nextId++;
   }
 
-  [Symbol.for("nodejs.util.inspect.custom")](): object {
-    let type: unknown;
-    const internalType = this.#vnode.type;
-
-    const childrenFields: Partial<{ _children: unknown; children: unknown }> =
-      {};
-
-    if (this.children) {
-      childrenFields._children = this.children;
-    }
-
-    if (this.props?.children) {
-      childrenFields.children = mapChildren(this.props.children, (c) => {
-        switch (typeof c) {
-          case "string":
-          case "number":
-            return c;
-          default:
-            if (isProbablyVNode(c)) {
-              return InternalVNode.of(c as InternalPreactVNode);
-            } else {
-              return c;
-            }
-        }
-      });
-    }
-
-    if (internalType === Fragment) {
-      type = "{Fragment}";
-    } else if (typeof internalType === "string") {
-      type = `<${internalType}>`;
-    } else if (internalType) {
-      type = internalType;
-    } else {
-      type = childrenFields.children;
-    }
-
-    return DisplayStruct(
-      `InternalVNode`,
-      {
-        type,
-        ...childrenFields,
-      },
-      { description: this.id }
-    );
+  get raw(): InternalPreactVNode {
+    return this.#vnode;
   }
 
   get type(): VNode["type"] {
@@ -140,6 +110,12 @@ export class InternalVNode {
     this.#vnode[KEYS.__self] = value;
   }
 
+  get children(): WrappedComponentChildren {
+    const children = this.#vnode.props.children;
+
+    return mapChildren(children, wrapVNodeChild);
+  }
+
   get dom(): Element | Text | undefined {
     return this.#vnode[KEYS._dom];
   }
@@ -161,7 +137,7 @@ export class InternalVNode {
     return InternalVNode.from(this.#vnode[KEYS._parent]);
   }
 
-  get children(): InternalVNode[] | undefined {
+  get vnodeChildren(): InternalVNode[] | undefined {
     const children = this.#vnode[KEYS._children];
 
     if (children) {
@@ -175,18 +151,52 @@ export class InternalVNode {
     return this.#vnode[KEYS["signals._signalProps"]];
   }
 
-  #delete = {
-    parent: (): void => {
-      delete this.#vnode[KEYS._parent];
-    },
-
-    depth: (): void => {
-      delete this.#vnode[KEYS._depth];
-    },
-  } as const;
-
   get delete(): { readonly parent: () => void; readonly depth: () => void } {
     return this.#delete;
+  }
+
+  [Symbol.for("nodejs.util.inspect.custom")](): object {
+    let type: unknown = undefined;
+    const internalType = this.#vnode.type;
+
+    const childrenFields: Partial<{ vnodes: unknown; children: unknown }> = {};
+
+    if (this.vnodeChildren) {
+      childrenFields.vnodes = this.vnodeChildren.map((vnode) => vnode.id);
+    }
+
+    if (this.props.children) {
+      childrenFields.children = mapChildren(this.props.children, (c) => {
+        switch (typeof c) {
+          case "string":
+          case "number":
+            return c;
+          default:
+            if (isProbablyVNode(c)) {
+              return InternalVNode.of(c);
+            } else {
+              return c;
+            }
+        }
+      });
+    }
+
+    if (internalType === Fragment) {
+      type = "{Fragment}";
+    } else if (typeof internalType === "string") {
+      type = `<${internalType}>`;
+    } else {
+      type = internalType;
+    }
+
+    return DisplayStruct(
+      `InternalVNode`,
+      {
+        type,
+        ...childrenFields,
+      },
+      { description: this.id }
+    );
   }
 
   processChildren(process: (prev: ComponentChild) => ComponentChild): boolean {
@@ -200,7 +210,7 @@ export class InternalVNode {
         const out: ComponentChild[] = [];
 
         for (const child of children) {
-          const processed = process(child);
+          const processed = process(child as ComponentChild);
           out.push(processed);
           updated ||= processed !== child;
         }
@@ -218,7 +228,7 @@ export class InternalVNode {
 
 export type IntoInternalVNode =
   | InternalVNode
-  | InternalPreactVNode<unknown>
+  | InternalPreactVNode
   | VNode
   | null
   | undefined;
@@ -238,7 +248,7 @@ const KEYS = {
 
 export interface InternalPreactVNode<P = unknown> extends preact.VNode<P> {
   __source?: InternalSource | null | undefined;
-  __self?: unknown | undefined;
+  __self?: unknown;
 
   /** The parent DOM */
   __P?: InternalPreactElement | null | undefined;
@@ -286,5 +296,19 @@ function mapChildren<T>(
     return children.map(mapper);
   } else {
     return mapper(children);
+  }
+}
+
+type WrappedComponentChildren = WrappedComponentChild | WrappedComponentChild[];
+
+type WrappedComponentChild =
+  | Exclude<ComponentChild, VNode | InternalPreactVNode>
+  | InternalVNode;
+
+function wrapVNodeChild(child: ComponentChild): WrappedComponentChild {
+  if (isProbablyVNode(child)) {
+    return InternalVNode.of(child);
+  } else {
+    return child;
   }
 }

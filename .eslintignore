@@ -15,6 +15,3 @@ scripts/**/*.d.ts
 !scripts
 
 demos/*/vite.config.d.ts
-
-!.eslintrc.cjs
-!.eslintrc.shared.cjs

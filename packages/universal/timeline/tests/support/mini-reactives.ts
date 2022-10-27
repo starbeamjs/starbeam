@@ -1,8 +1,7 @@
 import { type Stack, callerStack, descriptionFrom } from "@starbeam/debug";
-import type { MutableInternals } from "@starbeam/interfaces";
+import type { MutableInternals, ReactiveCore } from "@starbeam/interfaces";
 import type { UNINITIALIZED } from "@starbeam/shared";
 import {
-  type Reactive,
   type ReactiveProtocol,
   type Timestamp,
   diff,
@@ -14,11 +13,11 @@ import {
 
 export interface Cell<T> extends ReactiveProtocol<MutableInternals> {
   current: T;
-  read(stack: Stack): T;
+  read: (stack: Stack) => T;
 }
 
 export interface FreezableCell<T> extends Cell<T> {
-  freeze(): void;
+  freeze: () => void;
 }
 
 export function Cell<T>(value: T): Cell<T> {
@@ -87,7 +86,7 @@ export function FreezableCell<T>(value: T): FreezableCell<T> {
   };
 }
 
-export function Static<T>(value: T): Reactive<T> {
+export function Static<T>(value: T): ReactiveCore<T> {
   return {
     [REACTIVE]: {
       type: "static",

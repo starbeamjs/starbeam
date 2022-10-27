@@ -1,7 +1,9 @@
+import { matchPattern } from "@starbeam/core-utils";
 import chalk from "chalk";
 import terminalSize from "term-size";
 import wrap from "wrap-ansi";
 
+import { SPACES_PER_TAB } from "./constants.js";
 import { Fragment, Style } from "./log.js";
 
 export function terminalWidth(): number {
@@ -23,16 +25,16 @@ export function wrapIndented(string: string, columns?: number): string {
     if (columns) {
       spaces = columns;
     } else {
-      const match = line.match(/^(\s+)/);
-      const length = match ? match[1].length : 0;
+      const match = matchPattern<[string]>(/^(\s*)/, line);
+      const [leading] = match;
 
-      spaces = length + 2;
+      spaces = leading.length + SPACES_PER_TAB;
     }
 
     const wrapped = wrap(line, width - spaces, { trim: false });
     const [first, ...rest] = wrapped.split("\n");
 
-    return [first, ...rest.map((line) => " ".repeat(spaces) + line.trim())];
+    return [first, ...rest.map((l) => " ".repeat(spaces) + l.trim())];
   });
 
   return formatted.join("\n");
@@ -67,7 +69,9 @@ format.entry = ([key, value]: [string, string], style?: EntryStyle): string => {
   const indent = getIndent(style);
 
   return wrapIndented(
-    `${indent}${Fragment(keyStyle, key)}: ${Fragment(valueStyle, value)}`,
+    `${indent}${String(Fragment(keyStyle, key))}: ${String(
+      Fragment(valueStyle, value)
+    )}`,
     key.length + 4
   );
 };

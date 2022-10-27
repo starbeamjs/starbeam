@@ -6,7 +6,8 @@
   "main": "index.ts",
   "dependencies": {
     "@starbeam-workspace/test-utils": "workspace:^",
-    "@starbeam/debug": "workspace:^"
+    "@starbeam/debug": "workspace:^",
+    "@starbeam/verify": "workspace:^"
   },
   "devDependencies": {
     "@testing-library/react": "latest",

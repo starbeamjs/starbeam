@@ -5,8 +5,8 @@ export interface Aggregator<T, U = T> {
 }
 
 export interface AggregatorInstance<T, U = T> {
-  add(value: T): void;
-  value(): U;
+  add: (value: T) => void;
+  value: () => U;
 }
 
 export type AggregatorFor<U extends UserTypes> = {
@@ -25,12 +25,14 @@ export type AggregateRow<T extends TableTypes, A extends AggregatorFor<T>> = {
     : never;
 };
 
+const INITIAL_SUM = 0;
+
 export class Sum implements AggregatorInstance<number, number> {
   static initialize(): Sum {
     return new Sum();
   }
 
-  #value = 0;
+  #value = INITIAL_SUM;
 
   add(value: number): void {
     this.#value += value;
@@ -41,13 +43,15 @@ export class Sum implements AggregatorInstance<number, number> {
   }
 }
 
+const INITIAL_COUNT = 0;
+
 export class Average implements AggregatorInstance<number, number> {
   static initialize(): Average {
     return new Average();
   }
 
-  #value = 0;
-  #count = 0;
+  #value = INITIAL_SUM;
+  #count = INITIAL_COUNT;
 
   add(value: number): void {
     this.#value += value;

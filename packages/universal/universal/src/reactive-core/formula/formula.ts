@@ -16,7 +16,7 @@ import {
 
 export interface Formula<T> {
   frame: Frame<T | UNINITIALIZED>;
-  poll(): Frame<T>;
+  poll: () => Frame<T>;
 }
 
 export function Formula<T>(
@@ -34,7 +34,7 @@ export function Formula<T>(
 
   const frame = Frame.uninitialized<T | UNINITIALIZED>(TIMELINE.now, desc);
 
-  const update = (caller: Stack) => {
+  const update = (caller: Stack): void => {
     if (import.meta.env.DEV) {
       const oldDeps = new Set(ReactiveProtocol.dependencies(frame));
 
@@ -58,14 +58,20 @@ export function Formula<T>(
   };
 
   function poll(caller = callerStack()): Frame<T> {
-    if (frame) {
-      const validation = frame.validate();
+    // if (Frame.isInitialized(frame)) {
+    //   const validation = frame.validate();
 
-      if (validation.status === "valid") {
-        TIMELINE.didConsumeFrame(frame, diff.empty(), caller);
-      } else {
-        update(caller);
-      }
+    //   if (validation.status === "valid") {
+    //     TIMELINE.didConsumeFrame(frame, diff.empty(), caller);
+    //     return frame as Frame<T>;
+    //   }
+    // }
+
+    const validation = frame.validate();
+
+    if (validation.status === "valid") {
+      TIMELINE.didConsumeFrame(frame, diff.empty(), caller);
+      return frame as Frame<T>;
     } else {
       update(caller);
     }
@@ -96,7 +102,7 @@ export function FormulaFn<T>(
 
   const formula = Formula(callback, desc);
 
-  const fn = () => Frame.value(formula.poll());
+  const fn = (): T => Frame.value(formula.poll());
 
   Object.defineProperty(fn, "read", {
     enumerable: false,

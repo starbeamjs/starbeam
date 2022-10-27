@@ -3,20 +3,16 @@ import { inspector } from "@starbeam/debug";
 export type Unsubscribe = () => void;
 
 export class ObjectLifetime {
-  static create(): ObjectLifetime {
-    return new ObjectLifetime();
-  }
-
-  static finalize(
-    lifetime: ObjectLifetime,
-    finalizing?: (block: () => void) => void
-  ): void {
-    lifetime.#finalizeIn(finalizing);
-  }
-
-  #finalizers: Set<() => void> = new Set();
-  #children: Set<ObjectLifetime> = new Set();
+  readonly #children = new Set<ObjectLifetime>();
   #finalized = false;
+  readonly #finalizers = new Set<() => void>();
+
+  readonly on = {
+    finalize: (finalizer: () => void): Unsubscribe => {
+      this.#finalizers.add(finalizer);
+      return () => this.#finalizers.delete(finalizer);
+    },
+  };
 
   static {
     if (import.meta.env.DEV) {
@@ -30,23 +26,28 @@ export class ObjectLifetime {
     }
   }
 
-  readonly on = {
-    finalize: (finalizer: () => void): Unsubscribe => {
-      this.#finalizers.add(finalizer);
-      return () => this.#finalizers.delete(finalizer);
-    },
-  };
-
-  link(child: ObjectLifetime): Unsubscribe {
-    this.#children.add(child);
-    return () => this.#children.delete(child);
+  static create(): ObjectLifetime {
+    return new ObjectLifetime();
   }
 
-  unlink(child: ObjectLifetime): void {
-    this.#children.delete(child);
+  static finalize(
+    lifetime: ObjectLifetime,
+    finalizing?: (block: () => void) => void
+  ): void {
+    lifetime.#finalizeIn(finalizing);
   }
 
-  #finalizeIn(finalizing?: (block: () => void) => void) {
+  #finalize(): void {
+    for (const finalizer of this.#finalizers) {
+      finalizer();
+    }
+
+    for (const child of this.#children) {
+      child.#finalize();
+    }
+  }
+
+  #finalizeIn(finalizing?: (block: () => void) => void): void {
     if (this.#finalized) {
       return;
     }
@@ -62,13 +63,12 @@ export class ObjectLifetime {
     }
   }
 
-  #finalize() {
-    for (const finalizer of this.#finalizers) {
-      finalizer();
-    }
+  link(child: ObjectLifetime): Unsubscribe {
+    this.#children.add(child);
+    return () => this.#children.delete(child);
+  }
 
-    for (const child of this.#children) {
-      child.#finalize();
-    }
+  unlink(child: ObjectLifetime): void {
+    this.#children.delete(child);
   }
 }

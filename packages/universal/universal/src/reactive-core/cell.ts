@@ -1,4 +1,4 @@
-import { isObject } from "@starbeam/universal-utils";
+import { isObject } from "@starbeam/core-utils";
 import {
   type Description,
   type Stack,
@@ -14,8 +14,8 @@ import type { MutableInternalsImpl } from "../storage.js";
 import { MutableInternals } from "../storage.js";
 
 export interface CellPolicy<T, U = T> {
-  equals(a: T, b: T): boolean;
-  map(value: T): U;
+  equals: (a: T, b: T) => boolean;
+  map: (value: T) => U;
 }
 
 export type Equality<T> = (a: T, b: T) => boolean;
@@ -25,8 +25,8 @@ export class ReactiveCell<T>
 {
   static create<T>(
     value: T,
-    equals: Equality<T> = Object.is,
-    internals: MutableInternalsImpl
+    internals: MutableInternalsImpl,
+    equals: Equality<T> = Object.is
   ): ReactiveCell<T> {
     return new ReactiveCell(value, equals, internals);
   }
@@ -50,7 +50,7 @@ export class ReactiveCell<T>
       this[INSPECT] = (): object => {
         const { description, lastUpdated } = this.#internals;
 
-        const desc = description ? ` (${description.describe()})` : "";
+        const desc = ` (${description.describe()})`;
 
         return DisplayStruct(`Cell${desc}`, {
           value: this.#value,
@@ -119,6 +119,8 @@ export class ReactiveCell<T>
   }
 }
 
+const INITIAL_INTERNAL_FRAMES = 0;
+
 /**
  * The `equals` parameter is used to determine whether a new value is equal to
  * the current value. If `equals` returns `true` for a new value, the old value
@@ -145,12 +147,14 @@ export function Cell<T>(
     equals = description.equals ?? Object.is;
   }
 
-  return ReactiveCell.create(value, equals, MutableInternals(desc));
+  return ReactiveCell.create(value, MutableInternals(desc), equals);
 }
+
+const CALLER_FRAME = 1;
 
 function normalize(
   description: string | Description | undefined,
-  internal = 0
+  internal = INITIAL_INTERNAL_FRAMES
 ): Description {
   if (typeof description === "string" || description === undefined) {
     return descriptionFrom(
@@ -162,7 +166,7 @@ function normalize(
         },
         fromUser: description,
       },
-      internal + 1
+      internal + CALLER_FRAME
     );
   }
 

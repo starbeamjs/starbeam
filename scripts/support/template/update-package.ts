@@ -4,7 +4,7 @@ import { isAbsolute, relative } from "node:path";
 import type { JsonObject, JsonValue } from "../json";
 import { Migrator } from "../json-editor/migration.js";
 import { EditJsonc } from "../jsonc.js";
-import { Fragment } from "../log.js";
+import { Fragment, fragment } from "../log.js";
 import type { Package } from "../packages.js";
 import type { Directory, Path, Paths } from "../paths.js";
 import type { ChangeResult } from "../reporter/reporter.js";
@@ -12,6 +12,13 @@ import type { AsString, Into } from "../type-magic.js";
 import { type StarbeamType, JsonTemplate, Template } from "../unions.js";
 import type { Workspace } from "../workspace.js";
 import type { UpdatePackageFn } from "./updates.js";
+
+export interface GetRelativePath {
+  readonly fromPackageRoot: string;
+  readonly fromWorkspaceRoot: string;
+}
+
+const INDENT_SIZE = 2;
 
 export class UpdatePackage {
   static update(
@@ -22,7 +29,7 @@ export class UpdatePackage {
       options: { workspace: Workspace; paths: Paths }
     ) => void
   ): void {
-    return updater(updatePackage.update(label), {
+    updater(updatePackage.update(label), {
       workspace: updatePackage.#workspace,
       paths: updatePackage.#workspace.paths,
     });
@@ -70,7 +77,6 @@ export class UpdatePackage {
   done(): void {
     if (this.#emittedHeader) {
       console.groupEnd();
-    } else {
     }
   }
 
@@ -114,16 +120,17 @@ export class UpdatePackage {
 
       const json: UpdateJsonFn & Partial<UpdateJsonField> = this.#json;
 
-      json.migrator = <T extends object>(
+      json.migrate = <T extends object>(
         relativePath: string,
         callback: (migrator: Migrator<T>) => void
       ) => {
         const editor = EditJsonc.parse(
           this.#updatePackage.root.file(relativePath)
         );
-        callback(Migrator.create<T>(editor));
+        const migrator = Migrator.create<T>(editor);
+        callback(migrator);
         this.#reportChange({
-          result: editor.write(),
+          result: migrator.write(),
           label: this.#label,
           description: relativePath,
         });
@@ -146,16 +153,18 @@ export class UpdatePackage {
 
     #json: UpdateJsonFn = (relativePath, updater): LabelledUpdater => {
       this.#update(relativePath, (prev) => {
-        const json = JSON.parse(prev || "{}");
+        const json = JSON.parse(prev ?? "{}") as JsonValue;
 
-        if (typeof json !== "object" || json === null) {
+        if (typeof json !== "object" || json === null || Array.isArray(json)) {
           throw Error(
-            `Expected ${relativePath} to contain a json object, but got ${json}`
+            `Expected ${relativePath} to contain a json object, but got ${JSON.stringify(
+              json
+            )}`
           );
         }
 
         const next = this.#updateJsonFn(updater)(json);
-        return JSON.stringify(next, null, 2) + "\n";
+        return JSON.stringify(next, null, INDENT_SIZE) + "\n";
       });
       return this;
     };
@@ -166,11 +175,27 @@ export class UpdatePackage {
       return this;
     }
 
+    ensureRemoved(relativeFile: string): LabelledUpdater {
+      const path = this.#updatePackage.root.file(relativeFile);
+
+      if (path.exists()) {
+        this.#reportChange({
+          result: "remove",
+          description: relativeFile,
+          label: this.#label,
+        });
+        path.rmSync();
+      }
+
+      return this;
+    }
+
     template(
       intoTemplate: Into<Template>,
-      update: (options: { current?: string; template: string }) => string = ({
-        template,
-      }) => template
+      update: (options: {
+        current?: string | undefined;
+        template: string;
+      }) => string = ({ template }) => template
     ): LabelledUpdater {
       const templateName = Template.asString(intoTemplate);
 
@@ -184,26 +209,32 @@ export class UpdatePackage {
       return this;
     }
 
-    update(description: string, callback: () => ChangeResult): LabelledUpdater {
-      this.#reportChange({
-        result: callback(),
-        label: this.#label,
-        description,
-      });
-
-      return this;
-    }
-
     get pkg(): Package {
       return this.#updatePackage.pkg;
     }
 
-    readonly path = {
-      relative: (path: Path | string): string =>
-        relative(
-          this.pkg.root.absolute,
-          typeof path === "string" ? path : path.absolute
-        ),
+    path = (path: Path | string): GetRelativePath => {
+      const pkg = this.pkg;
+      const workspace = this.#updatePackage.#workspace;
+
+      return {
+        get fromPackageRoot(): string {
+          return relative(
+            pkg.root.absolute,
+            typeof path === "string"
+              ? pkg.root.join(path).absolute
+              : path.absolute
+          );
+        },
+        get fromWorkspaceRoot(): string {
+          return relative(
+            workspace.root.absolute,
+            typeof path === "string"
+              ? pkg.root.join(path).absolute
+              : path.absolute
+          );
+        },
+      };
     };
 
     #updateJsonFn(updater: JsonUpdates): (prev: JsonObject) => JsonObject {
@@ -329,10 +360,10 @@ export class UpdatePackages {
           if (r.isVerbose) {
             r.endWith({
               compact: {
-                fragment: `${Fragment("header:sub", pkg.name)}${Fragment(
-                  "comment",
-                  ": no changes"
-                )}`,
+                fragment: fragment`${Fragment(
+                  "header:sub",
+                  pkg.name
+                )}${Fragment("comment", ": no changes")}`,
                 replace: true,
               },
             });
@@ -357,9 +388,9 @@ export type JsonUpdates =
   | Record<string, JsonValue>
   | ((json: JsonObject) => JsonObject);
 
-export type TemplateFileUpdater = {
+export interface TemplateFileUpdater {
   template: AsString<Template>;
-};
+}
 
 export type FileUpdater =
   | string
@@ -379,38 +410,56 @@ export type UpdatePackagesFn = (
   use: (updater: UpdatePackageFn) => UpdatePackages;
 };
 
-interface UpdateJsonFn {
-  (this: void, relativePath: string, updater: JsonUpdates): LabelledUpdater;
-}
+type UpdateJsonFn = (
+  this: void,
+  relativePath: string,
+  updater: JsonUpdates
+) => LabelledUpdater;
 
 interface UpdateJsonField extends UpdateJsonFn {
-  migrator<T extends object>(
+  migrator: <T extends object>(
     relativePath: string,
     callback: (migrator: Migrator<T>) => void
-  ): LabelledUpdater;
-  template(
+  ) => LabelledUpdater;
+  migrate: <T extends object>(
+    relativePath: string,
+    callback: (migrator: Migrator<T>) => void
+  ) => void;
+  template: (
     template: Into<JsonTemplate>,
-    update?: (options: {
-      current?: JsonObject;
-      template: JsonObject;
-    }) => JsonObject
-  ): LabelledUpdater;
+    update?:
+      | ((options: {
+          current?: JsonObject | undefined;
+          template: JsonObject;
+        }) => JsonObject)
+      | undefined
+  ) => LabelledUpdater;
 }
 
 export interface LabelledUpdater {
-  readonly path: {
-    relative: (path: Path | string) => string;
+  path: (
+    this: void,
+    path: Path | string
+  ) => {
+    readonly fromPackageRoot: string;
+    readonly fromWorkspaceRoot: string;
   };
 
   readonly pkg: Package;
 
   readonly json: UpdateJsonField;
-  file(relativeFile: string, updater: FileUpdater): LabelledUpdater;
 
-  template(
+  file: (relativeFile: string, updater: FileUpdater) => LabelledUpdater;
+
+  ensureRemoved: (relativeFile: string) => LabelledUpdater;
+
+  template: (
     template: Into<Template>,
-    update?: (options: { current?: string; template: string }) => string
-  ): LabelledUpdater;
-
-  update(file: string, callback: () => ChangeResult): LabelledUpdater;
+    update?:
+      | ((options: {
+          current?: string | undefined;
+          template: string;
+        }) => string)
+      | undefined
+  ) => LabelledUpdater;
 }

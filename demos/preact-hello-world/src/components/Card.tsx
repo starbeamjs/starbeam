@@ -1,4 +1,7 @@
-import type { ComponentChildren, JSX } from "preact";
+import "preact";
+
+import type { ComponentChildren } from "preact";
+import type { JSXInternal } from "preact/src/jsx.js";
 
 export default function Card({
   children,
@@ -6,7 +9,7 @@ export default function Card({
 }: {
   children?: ComponentChildren;
   class?: string;
-}): JSX.Element {
+}): JSXInternal.Element {
   const classes = ["card"];
   if (className) classes.push(className);
   return <div class={classes.join(" ")}>{children}</div>;

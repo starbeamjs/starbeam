@@ -1,5 +1,5 @@
-import { FormulaList } from "@starbeam/universal";
 import { reactive } from "@starbeam/js";
+import { FormulaList } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 
 interface Item {

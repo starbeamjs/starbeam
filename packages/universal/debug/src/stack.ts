@@ -1,5 +1,6 @@
 /// <reference types="node" />
 
+import { type UnknownFn, getFirst } from "@starbeam/core-utils";
 import type {
   DescriptionArgs,
   DescriptionDetails,
@@ -20,23 +21,25 @@ import { Description } from "./description/impl.js";
 import { inspector } from "./inspect/inspect-support.js";
 import { describeModule } from "./module.js";
 
-type ErrorWithStack = Error & { stack: string };
+interface ErrorWithStack extends Error {
+  stack: string;
+}
 
 export interface StackStatics {
   readonly EMPTY: StackProtocol;
 
-  create(this: void, internal?: number): StackProtocol;
-  fromStack(stack: string): StackProtocol;
+  create: (this: void, internal?: number) => StackProtocol;
+  fromStack: (stack: string) => StackProtocol;
 
-  from(error: ErrorWithStack): StackProtocol;
-  from(error: unknown): StackProtocol | null;
+  from: ((error: ErrorWithStack) => StackProtocol) &
+    ((error: unknown) => StackProtocol | null);
 
-  id(
+  id: (
     this: void,
     description?: string | Description | { id: ReactiveId }
-  ): ReactiveId;
+  ) => ReactiveId;
 
-  description(
+  description: (
     this: void,
     args: DescriptionArgs & {
       fromUser?:
@@ -46,17 +49,17 @@ export interface StackStatics {
         | undefined;
     },
     internal?: number
-  ): interfaces.Description;
+  ) => interfaces.Description;
 
-  desc(
+  desc: (
     type: interfaces.DescriptionType,
     fromUser?: string | DescriptionDetails | interfaces.Description | undefined,
     internal?: number | undefined
-  ): interfaces.Description;
+  ) => interfaces.Description;
 
-  fromCaller(this: void, internal?: number): StackProtocol;
+  fromCaller: (this: void, internal?: number) => StackProtocol;
 
-  replaceFrames(error: unknown, fromStack: StackProtocol): void;
+  replaceFrames: (error: unknown, fromStack: StackProtocol) => void;
 
   /**
    * Erase an abstraction from the call stack so the test error points at the user code, rather than
@@ -69,24 +72,27 @@ export interface StackStatics {
    * not the direct call site from user code), you can specify an additional number of frames to erase
    * using the `internal` parameter.
    */
-  entryPoint<T>(
+  entryPoint: <T>(
     this: void,
     callback: () => T,
     options?: { internal?: number; stack?: StackProtocol }
-  ): T;
+  ) => T;
 }
 
 let PickedStack: StackStatics;
 
+const MISSING = -1;
+const START = 0;
+
 if (import.meta.env.DEV) {
-  Error.stackTraceLimit = Infinity;
+  Error.stackTraceLimit = 1000;
 
   class ParsedStack {
-    static empty() {
+    static empty(): ParsedStack {
       return new ParsedStack("", "", "", []);
     }
 
-    static parse({ stack }: { stack: string }) {
+    static parse({ stack }: { stack: string }): ParsedStack {
       const parsed = new StackTracey(stack);
       const frames = parsed.items;
 
@@ -101,14 +107,14 @@ if (import.meta.env.DEV) {
 
       const offset = lines.findIndex((line) => line.trim() === first);
 
-      if (offset === -1) {
+      if (offset === MISSING) {
         throw Error(
           `An assumption was incorrect: A line that came from StackTracey cannot be found in the original trace.\n\n== Stack ==\n\n${stack}\n\n== Line ==\n\n${first}`
         );
       }
 
       // the header is all of the lines before the offset
-      const header = lines.slice(0, offset).join("\n");
+      const header = lines.slice(START, offset).join("\n");
       const rest = lines.slice(offset).join("\n");
 
       return new ParsedStack(
@@ -146,15 +152,6 @@ if (import.meta.env.DEV) {
       this.#frames = frames;
     }
 
-    replaceFrames(stack: ParsedStack) {
-      return new ParsedStack(
-        this.#source,
-        this.#header,
-        stack.#rest,
-        stack.#frames
-      );
-    }
-
     get header(): string {
       return this.#header;
     }
@@ -166,8 +163,17 @@ if (import.meta.env.DEV) {
     /**
      * The formatted stack trace, suitable to be attached to `error.stack`.
      */
-    get stack() {
+    get stack(): string {
       return `${this.#header}\n${this.#rest}`;
+    }
+
+    replaceFrames(stack: ParsedStack): ParsedStack {
+      return new ParsedStack(
+        this.#source,
+        this.#header,
+        stack.#rest,
+        stack.#frames
+      );
     }
 
     slice(n: number): ParsedStack {
@@ -182,12 +188,19 @@ if (import.meta.env.DEV) {
   }
 
   const REPLACED_ERRORS = new WeakSet<ErrorWithStack>();
+  const INITIAL_INTERNAL_FRAMES = 0;
+  const CALLER = 1;
+  const ABSTRACTION_CALLER = 2;
 
   class DebugStack implements StackProtocol {
-    static create(this: void, internal = 0): DebugStack {
-      if ("captureStackTrace" in Error) {
+    static EMPTY = new DebugStack(ParsedStack.empty());
+
+    static create(this: void, internal = INITIAL_INTERNAL_FRAMES): DebugStack {
+      const ErrorClass = Error;
+
+      if ("captureStackTrace" in ErrorClass) {
         const err = {} as { stack: string };
-        Error.captureStackTrace(err, DebugStack.create);
+        ErrorClass.captureStackTrace(err, DebugStack.create);
 
         return DebugStack.fromStack(err.stack).slice(internal);
       } else {
@@ -195,14 +208,17 @@ if (import.meta.env.DEV) {
           "An error created in the internals of Stack.create"
         ).stack;
         return DebugStack.fromStack(verified(stack, hasType("string"))).slice(
-          internal + 1
+          internal + CALLER
         );
       }
     }
 
-    static fromCaller(this: void, internal = 0): DebugStack {
+    static fromCaller(
+      this: void,
+      internal = INITIAL_INTERNAL_FRAMES
+    ): DebugStack {
       // Remove *this* `fromCaller` frame from the stack *and* the caller's frame
-      return DebugStack.create(internal + 2);
+      return DebugStack.create(internal + ABSTRACTION_CALLER);
     }
 
     static fromStack(stack: string): DebugStack {
@@ -215,10 +231,10 @@ if (import.meta.env.DEV) {
      *
      * If the error is not an Error with a stack, this function does nothing.
      */
-    static replaceFrames(error: unknown, fromStack: DebugStack): void {
+    static replaceFrames(error: unknown, fromStack: Stack): void {
       if (isErrorWithStack(error)) {
         const errorStack = DebugStack.from(error);
-        errorStack.withReplacedFrames(fromStack);
+        errorStack.withReplacedFrames(fromStack as DebugStack);
         error.stack = errorStack.stack;
       }
     }
@@ -233,8 +249,6 @@ if (import.meta.env.DEV) {
       }
     }
 
-    static EMPTY = new DebugStack(ParsedStack.empty());
-
     static description(
       args: DescriptionArgs & {
         fromUser?:
@@ -243,9 +257,9 @@ if (import.meta.env.DEV) {
           | interfaces.Description
           | undefined;
       },
-      internal = 0
+      internal = INITIAL_INTERNAL_FRAMES
     ): interfaces.Description {
-      const stack = DebugStack.fromCaller(internal + 1);
+      const stack = DebugStack.fromCaller(internal + CALLER);
       const fromUser = args.fromUser;
 
       const api: string | interfaces.ApiDetails | undefined = args.api ?? {};
@@ -275,14 +289,14 @@ if (import.meta.env.DEV) {
         | DescriptionDetails
         | interfaces.Description
         | undefined,
-      internal = 0
+      internal = INITIAL_INTERNAL_FRAMES
     ): interfaces.Description {
       return DebugStack.description(
         {
           type,
           fromUser,
         },
-        internal + 1
+        internal + CALLER
       );
     }
 
@@ -297,15 +311,17 @@ if (import.meta.env.DEV) {
       }
     }
 
-    static callerFrame(internal = 0): StackFrame | undefined {
-      return DebugStack.fromCaller(internal + 1).caller;
+    static callerFrame(
+      internal = INITIAL_INTERNAL_FRAMES
+    ): StackFrame | undefined {
+      return DebugStack.fromCaller(internal + CALLER).caller;
     }
 
     static entryPoint<T>(
       callback: () => T,
       {
-        internal = 0,
-        stack = DebugStack.create(1 + internal),
+        internal = INITIAL_INTERNAL_FRAMES,
+        stack = DebugStack.create(CALLER + internal),
       }: { internal?: number; stack?: StackProtocol } = {}
     ): T {
       try {
@@ -314,11 +330,9 @@ if (import.meta.env.DEV) {
         if (isErrorWithStack(e) && !REPLACED_ERRORS.has(e)) {
           const errorStack = DebugStack.from(e);
 
-          if (errorStack) {
-            const updated = errorStack.withReplacedFrames(stack as DebugStack);
-            e.stack = updated.stack;
-            REPLACED_ERRORS.add(e);
-          }
+          const updated = errorStack.withReplacedFrames(stack as DebugStack);
+          e.stack = updated.stack;
+          REPLACED_ERRORS.add(e);
         }
         throw e;
       }
@@ -335,7 +349,7 @@ if (import.meta.env.DEV) {
     }
 
     get caller(): StackFrame | undefined {
-      return this.#parsed.entries[0];
+      return getFirst(this.#parsed.entries);
     }
 
     get header(): string {
@@ -353,12 +367,12 @@ if (import.meta.env.DEV) {
      * Replace the stack frames with the current Stack with the frames from the given Stack, but keep
      * the same header.
      */
-    withReplacedFrames(stack: DebugStack) {
+    withReplacedFrames(stack: DebugStack): DebugStack {
       return new DebugStack(this.#parsed.replaceFrames(stack.#parsed));
     }
 
     slice(n: number): DebugStack {
-      if (n === 0) {
+      if (n === START) {
         return this;
       } else {
         return new DebugStack(this.#parsed.slice(n));
@@ -393,26 +407,19 @@ if (import.meta.env.DEV) {
       this.#reified = reified;
     }
 
-    #reify(): StackTracey.Entry {
-      let reified = this.#reified;
-
-      if (!reified) {
-        this.#reified = reified = this.#stack.withSource(this.#frame);
-      }
-
-      return reified;
-    }
-
     get starbeamCaller():
       | { package: string; name?: string | undefined }
       | undefined {
       const frame = this.#reify();
 
-      const pkg = frame.file.match(/(@starbeam\/[/]+)/);
+      const pkg = /(@starbeam\/[/]+)/.exec(frame.file) as
+        | (RegExpExecArray & [string, string])
+        | undefined;
 
       if (pkg) {
         return {
-          package: pkg[1] as string,
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          package: pkg[1],
           name: frame.callee === "" ? undefined : frame.callee,
         };
       }
@@ -434,6 +441,16 @@ if (import.meta.env.DEV) {
 
     get debug(): StackTracey.Entry {
       return this.#reify();
+    }
+
+    #reify(): StackTracey.Entry {
+      let reified = this.#reified;
+
+      if (!reified) {
+        this.#reified = reified = this.#stack.withSource(this.#frame);
+      }
+
+      return reified;
     }
 
     link(options?: StackFrameDisplayOptions): string {
@@ -540,11 +557,11 @@ export const Stack: StackStatics = PickedStack;
 export type Stack = interfaces.Stack;
 export const entryPoint = PickedStack.entryPoint;
 
-export function entryPointFn<F extends (...args: any[]) => any>(
+export function entryPointFn<F extends UnknownFn>(
   fn: F,
   options?: { stack: Stack }
 ): F {
-  return ((...args: any[]) =>
+  return ((...args: unknown[]) =>
     entryPoint(() => fn(...args), { internal: 1, ...options })) as F;
 }
 
@@ -552,9 +569,9 @@ export function entryPoints<Funcs extends object>(
   funcs: Funcs,
   options?: { stack: Stack }
 ): Funcs {
-  const result: Record<string, (...args: any[]) => any> = Object.create(null);
+  const result = Object.create(null) as Record<string, UnknownFn>;
 
-  for (const [key, fn] of Object.entries(funcs)) {
+  for (const [key, fn] of Object.entries(funcs) as [string, UnknownFn][]) {
     if (typeof fn === "function") {
       result[key] = entryPointFn(fn, options);
     } else {

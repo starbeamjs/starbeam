@@ -24,25 +24,44 @@ testStrictAndLoose<
     .render((setup) => {
       const [count, setCount] = useState(0);
 
-      const test = useLifecycle(count, (resource, count) => {
-        const test = TestResource.initial(count);
+      const lifecycleTest = useLifecycle(count, ({ on }, i) => {
+        const resource = TestResource.initial(i);
 
-        resource.on.update((count) => test.transition("updated", count));
-        resource.on.layout(() => test.transition("layout"));
-        resource.on.idle(() => test.transition("idle"));
-        resource.on.cleanup(() => test.transition("unmounted"));
+        on.update((newCount) => {
+          resource.transition("updated", newCount);
+        });
+        on.layout(() => {
+          resource.transition("layout");
+        });
+        on.idle(() => {
+          resource.transition("idle");
+        });
+        on.cleanup(() => {
+          resource.transition("unmounted");
+        });
 
-        return test;
+        return resource;
       });
 
-      setup.value({ test, lastState: test.state, lastCount: test.count });
+      setup.value({
+        test: lifecycleTest,
+        lastState: lifecycleTest.state,
+        lastCount: lifecycleTest.count,
+      });
 
       return react.fragment(
-        html.p(test.state),
+        html.p(lifecycleTest.state),
         html.p(count),
         html.label(
           html.span("Increment"),
-          html.button({ onClick: () => setCount(count + 1) }, "++")
+          html.button(
+            {
+              onClick: () => {
+                setCount(count + 1);
+              },
+            },
+            "++"
+          )
         )
       );
     });
@@ -290,15 +309,15 @@ testStrictAndLoose<
 //   }
 // );
 
-let id = 0;
+let nextId = 0;
 
 class TestResource {
   static resetId(): void {
-    id = 0;
+    nextId = 0;
   }
 
   static initial(count: number): TestResource {
-    return new TestResource("initial", count, ++id);
+    return new TestResource("initial", count, ++nextId);
   }
 
   #state: string;
@@ -311,25 +330,6 @@ class TestResource {
     this.#id = id;
   }
 
-  transition(state: string, count?: number) {
-    this.#state = state;
-
-    if (count !== undefined) {
-      this.#count = count;
-    }
-  }
-
-  assert(state: string, count: number, id?: number) {
-    entryPoint(() => {
-      expect(this.#state).toBe(state);
-      expect(this.#count).toBe(count);
-
-      if (id) {
-        expect({ id: this.#id }).toMatchObject({ id });
-      }
-    });
-  }
-
   get state(): string {
     return this.#state;
   }
@@ -340,5 +340,24 @@ class TestResource {
 
   get id(): number | null {
     return this.#id;
+  }
+
+  transition(state: string, count?: number): void {
+    this.#state = state;
+
+    if (count !== undefined) {
+      this.#count = count;
+    }
+  }
+
+  assert(state: string, count: number, id?: number): void {
+    entryPoint(() => {
+      expect(this.#state).toBe(state);
+      expect(this.#count).toBe(count);
+
+      if (id) {
+        expect({ id: this.#id }).toMatchObject({ id });
+      }
+    });
   }
 }

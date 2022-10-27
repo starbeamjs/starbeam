@@ -27,7 +27,7 @@ FancyHeaderFn.wrapped = (
     if (start.trim() === "") {
       end = start;
     } else {
-      [start, end = start] = start.split(" ");
+      [start, end = start] = start.split(" ") as [string, string?];
     }
   }
 
@@ -56,14 +56,15 @@ for (const [name, style] of Object.entries(STYLES) as [StyleName, Style][]) {
   const UpdateFn = FancyHeaderFn as typeof FancyHeaderFn &
     Record<string, ToFragmentFn>;
 
-  const Fn = (message: Printable) => FancyHeaderFn(style, message);
+  const Fn = (message: Printable): string => FancyHeaderFn(style, message);
   Fn.inverse = (message: Printable) => UpdateFn(Style.inverse(style), message);
 
   UpdateFn[name] = Fn;
 
   for (const part of StylePart.members) {
     const SubFrag = UpdateFn[name] as unknown as Record<string, ToFragmentFn>;
-    const Fn = (message: Printable) => UpdateFn(`${name}:${part}`, message);
+    const Fn = (message: Printable): string =>
+      UpdateFn(`${name}:${part}`, message);
     Fn.inverse = (message: Printable) => UpdateFn(`${name}:${part}`, message);
 
     SubFrag[part] = Fn;

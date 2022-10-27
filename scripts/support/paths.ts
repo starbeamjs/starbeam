@@ -1,5 +1,11 @@
-import { type Dirent, existsSync, readFileSync } from "node:fs";
-import { readFile } from "node:fs/promises";
+import {
+  type Dirent,
+  existsSync,
+  readFileSync,
+  unlinkSync,
+  writeFileSync,
+} from "node:fs";
+import { readFile, unlink, writeFile } from "node:fs/promises";
 import {
   dirname,
   isAbsolute,
@@ -8,6 +14,12 @@ import {
 } from "node:path";
 import { pathToFileURL } from "node:url";
 
+import {
+  objectHasKeys,
+  stringify,
+  stringifyJSON,
+  TO_STRING,
+} from "@starbeam/core-utils";
 import glob, { type Entry, type Options } from "fast-glob";
 
 import type { JsonObject } from "./json.js";
@@ -52,6 +64,8 @@ abstract class Path extends URL {
     return path.#absolutePath === path.#root;
   }
 
+  declare [TO_STRING]: true;
+
   readonly #root: string;
   readonly #absolutePath: string;
 
@@ -64,7 +78,9 @@ abstract class Path extends URL {
   abstract create(root: string, absolutePath: string): Path;
 
   // make interpolation do the expected thing
-  override toString = (): string => this.absolute;
+  override toString(): string {
+    return this.absolute;
+  }
 
   rootTo(path: Path): ReturnType<this["create"]> {
     return this.create(path.absolute, this.#absolutePath) as ReturnType<
@@ -95,14 +111,32 @@ abstract class Path extends URL {
     return new Directory(this.#root, this.dirname);
   }
 
-  relativeFrom(path: Path | string): string {
+  relativeFrom(
+    path: Path | string,
+    options: { dotPrefix: boolean } = { dotPrefix: false }
+  ): string {
     const absolutePath = typeof path === "string" ? path : path.absolute;
-    return relative(absolutePath, this.#absolutePath);
+    const relativePath = relative(absolutePath, this.#absolutePath);
+
+    if (options.dotPrefix) {
+      return relativePath.startsWith(".") ? relativePath : `./${relativePath}`;
+    } else {
+      return relativePath;
+    }
   }
 
-  relativeTo(path: Path | string): string {
+  relativeTo(
+    path: Path | string,
+    options: { dotPrefix: boolean } = { dotPrefix: false }
+  ): string {
     const absolutePath = typeof path === "string" ? path : path.absolute;
-    return relative(this.#absolutePath, absolutePath);
+    const relativePath = relative(this.#absolutePath, absolutePath);
+
+    if (options.dotPrefix) {
+      return relativePath.startsWith(".") ? relativePath : `./${relativePath}`;
+    } else {
+      return relativePath;
+    }
   }
 
   dir(path: string): Directory | Glob<Directory> {
@@ -150,12 +184,20 @@ export class UnknownFile extends DiskFile {
 }
 
 export interface AsRegularFile {
-  expand(): RegularFile;
+  expand: () => RegularFile;
 }
 
 export class RegularFile extends DiskFile implements AsRegularFile {
   create(root: string, path: string): RegularFile {
     return new RegularFile(root, path);
+  }
+
+  async rm(): Promise<void> {
+    await unlink(this.absolute);
+  }
+
+  rmSync(): void {
+    unlinkSync(this.absolute);
   }
 
   async read(): Promise<string>;
@@ -170,6 +212,37 @@ export class RegularFile extends DiskFile implements AsRegularFile {
     return this.#as(readFileSync(this.absolute, "utf8"), as);
   }
 
+  async write(value: string): Promise<void>;
+  async write(value: JsonObject, options: { as: "json" }): Promise<void>;
+  async write(
+    value: string | object,
+    { as }: { as?: "json" } = {}
+  ): Promise<void> {
+    if (as === "json") {
+      await writeFile(this.absolute, stringifyJSON(value));
+    } else if (typeof value === "string") {
+      await writeFile(this.absolute, value);
+    } else {
+      throw Error(
+        `Cannot write an object to file without specifying { as: "json" }`
+      );
+    }
+  }
+
+  writeSync(value: string): void;
+  writeSync(value: JsonObject, options: { as: "json" }): void;
+  writeSync(value: string | object, { as }: { as?: "json" } = {}): void {
+    if (as === "json") {
+      writeFileSync(this.absolute, stringifyJSON(value));
+    } else if (typeof value === "string") {
+      writeFileSync(this.absolute, value);
+    } else {
+      throw Error(
+        `Cannot write an object to file without specifying { as: "json" }`
+      );
+    }
+  }
+
   #as(raw: string, as: "json" | undefined): unknown {
     if (as === "json") {
       return JSON.parse(raw);
@@ -178,13 +251,13 @@ export class RegularFile extends DiskFile implements AsRegularFile {
     }
   }
 
-  expand(): RegularFile {
+  expand(): this {
     return this;
   }
 }
 
 export interface AsDirectory {
-  expand(): Directory;
+  expand: () => Directory;
 }
 
 export class Directory extends DiskFile implements AsDirectory {
@@ -203,7 +276,7 @@ export class Directory extends DiskFile implements AsDirectory {
     return Path.isRoot(this);
   }
 
-  expand(): Directory {
+  expand(): this {
     return this;
   }
 }
@@ -289,10 +362,10 @@ export class Glob<T extends Path = Path> extends Path {
   }
 
   [Symbol.for("nodejs.util.inspect.custom")](): string {
-    if (this.#options) {
-      return `Glob(${this}) ${JSON.stringify(this.#options)}`;
+    if (objectHasKeys(this.#options)) {
+      return stringify`Glob(${this}) ${JSON.stringify(this.#options)}`;
     } else {
-      return `Glob(${this})`;
+      return stringify`Glob(${this})`;
     }
   }
 
@@ -347,7 +420,7 @@ export class Glob<T extends Path = Path> extends Path {
           // TODO
         } else {
           console.warn(
-            `glob pattern ${this} unexpectedly matched the ${classify(
+            stringify`glob pattern ${this} unexpectedly matched the ${classify(
               dirent
             )} ${entry.path}`
           );
@@ -374,7 +447,7 @@ export class Glob<T extends Path = Path> extends Path {
     }
   }
 
-  and(path: string): Globs<T>;
+  and(path: string): Globs<Path>;
   and(path: Glob<T>): Globs<T>;
   and(path: string | Glob, options?: GlobOptions): Globs {
     const globs = Globs.root(this.root, this.#options);
@@ -434,12 +507,13 @@ export class Globs<T extends Path = Path> implements Iterable<Glob<T>> {
     yield* this.#globs as Glob<T>[];
   }
 
-  asGlobs(): Globs<T> {
+  asGlobs(): this {
     return this;
   }
 
-  add(globs: string | readonly string[]): Globs<T>;
-  add(globs: Glob<T> | readonly Glob<T>[]): Globs<T>;
+  add(
+    globs: Glob<T> | readonly Glob<T>[] | string | readonly string[]
+  ): Globs<T>;
   add(globs: readonly Glob[] | Glob | string | readonly string[]): Globs {
     if (isArray(globs)) {
       const addedGlobs = globs.map((glob) => this.#added(glob));
@@ -535,8 +609,11 @@ function classify(entry: Dirent): string {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 function isArray<T>(value: unknown | readonly T[]): value is readonly T[];
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 function isArray<T>(value: unknown | T[]): value is T[];
-function isArray<T>(value: unknown | T[]): boolean {
+function isArray(value: unknown): value is unknown[];
+function isArray(value: unknown): boolean {
   return Array.isArray(value);
 }

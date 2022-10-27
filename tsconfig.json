@@ -5,7 +5,8 @@
     "declaration": true,
     "outDir": "dist/packages",
     "composite": true,
-    "types": ["packages/env"]
+    "types": ["packages/env"],
+    "skipLibCheck": true
   },
 
   "files": [],
@@ -14,9 +15,11 @@
     { "path": "./packages/tsconfig.rollup.json" },
     { "path": "./packages/x/devtool/tsconfig.json" },
     { "path": "./demos/tsconfig.react-demos.json" },
+    { "path": "./demos/tsconfig.preact-demos.json" },
     { "path": "./.build/tsconfig.json" },
     { "path": "./scripts/tsconfig.json" },
-    { "path": "./tsconfig.root.json" }
+    { "path": "./tsconfig.root.json" },
+    { "path": "./.config/eslint/tsconfig.json" }
   ],
   "exclude": ["dist/**/*"]
 }

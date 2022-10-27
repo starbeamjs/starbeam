@@ -36,7 +36,7 @@
     "test:types": "tsc -b"
   },
   "starbeam": {
-    "type": "demo:react",
+    "type": "demo:preact",
     "used": [
       {
         "reason": "css",

@@ -1,4 +1,4 @@
-import { expected } from "../verify.js";
+import { expected, toKind } from "../verify.js";
 import { format } from "./describe.js";
 import type { FixedArray, ReadonlyFixedArray } from "./type-utils.js";
 
@@ -88,11 +88,15 @@ export function hasLength<L extends number>(length: L): HasLength<L> {
   return expected.associate(has, expected.toHave(`${length} items`));
 }
 
-export function hasItems<T>(
-  value: readonly T[]
-): value is [T, ...(readonly T[])] {
-  return value.length > 0;
-}
+import { isPresentArray } from "@starbeam/core-utils";
+
+export const hasItems = isPresentArray;
+
+// export function hasItems<T>(
+//   value: readonly T[]
+// ): value is [T, ...(readonly T[])] {
+//   return value.length > 0;
+// }
 
 expected.associate(hasItems, expected.toHave(`at least one item`));
 
@@ -112,7 +116,7 @@ export function isNullable<In, Out extends In>(
       if (to === undefined) {
         return ["to be", "nullable"];
       } else {
-        return `${to[1]} or null`;
+        return `${toKind(to)} or null`;
       }
     },
     actual: (actual) => {

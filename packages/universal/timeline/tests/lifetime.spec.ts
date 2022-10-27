@@ -238,7 +238,7 @@ type Args = unknown[];
 class InstrumentedCallback {
   static create(): [InstrumentedCallback, (...args: unknown[]) => void] {
     const instrumented = new InstrumentedCallback();
-    const fn = (...args: unknown[]) => {
+    const fn = (...args: unknown[]): void => {
       instrumented.#called.push(args);
     };
 

@@ -5,11 +5,6 @@
     "types": ["./env"],
     "outDir": "../dist/packages"
   },
-  "include": ["**/*"],
-  "exclude": [
-    "x/devtool/**/*",
-    "x/devtools-extension/**/*",
-    "**/dist/**/**",
-    "**/rollup.config.mjs"
-  ]
+  "include": ["*/*/index.ts", "*/*/src/**/*"],
+  "exclude": ["x/devtool/**/*", "x/devtools-extension/**/*", "**/dist/**/*"]
 }

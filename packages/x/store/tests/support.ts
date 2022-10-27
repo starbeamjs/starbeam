@@ -31,7 +31,7 @@ export class PersonModel {
 // the attr field decorator returns the value of the property in the `row` property of the target
 // object
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function attr(target: object, propertyKey: string | symbol) {
+function attr(target: object, propertyKey: string | symbol): void {
   if (typeof propertyKey === "symbol") {
     throw Error("an @attr decorator can only be used on a string property");
   }

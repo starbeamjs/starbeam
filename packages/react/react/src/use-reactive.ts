@@ -1,5 +1,5 @@
-import { Cell, PolledFormulaFn, TIMELINE } from "@starbeam/universal";
 import { type Description, Desc } from "@starbeam/debug";
+import { Cell, PolledFormulaFn, TIMELINE } from "@starbeam/universal";
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
 import { useState } from "react";
 
@@ -41,7 +41,9 @@ export function useReactive<T>(
 
 export function useNotify(): () => void {
   const [, setNotify] = useState({});
-  return () => setNotify({});
+  return () => {
+    setNotify({});
+  };
 }
 
 export function useCell<T>(

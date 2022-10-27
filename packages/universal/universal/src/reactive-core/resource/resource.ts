@@ -19,7 +19,12 @@ import { type Unsubscribe, LIFETIME, ReactiveCore } from "@starbeam/timeline";
 import { isWeakKey } from "@starbeam/verify";
 
 import { FormulaFn } from "../formula/formula.js";
+import { type Blueprint, ReactiveBlueprint } from "../reactive.js";
 import { Static } from "../static.js";
+
+export type ResourceFactory<T> =
+  | ((resource: ResourceRun) => ResourceReturn<T>)
+  | (new (resource: ResourceRun) => ResourceReturn<T>);
 
 /**
  * A Resource instance is a stable value, but it has multiple possible internal layers of
@@ -52,9 +57,24 @@ import { Static } from "../static.js";
  * quite a bit, and even getting cleaned up and reinitialized behind the scenes.
  */
 export function Resource<T>(
-  create: ResourceFactory<T>,
+  create: ResourceFactory<T> | ResourceBlueprint<T>,
   description?: string | Description
-): ResourceBlueprint<T> {
+): ResourceBlueprint<T>;
+export function Resource<T>(
+  create: ResourceFactory<T> | Blueprint<T>,
+  description?: string | Description
+): ResourceBlueprint<T> | ReactiveBlueprint<T>;
+export function Resource<T>(
+  create: ResourceFactory<T> | Blueprint<T>,
+  description?: string | Description
+): ResourceBlueprint<T> | ReactiveBlueprint<T> {
+  if (
+    create instanceof ResourceBlueprint ||
+    create instanceof ReactiveBlueprint
+  ) {
+    return create;
+  }
+
   const desc = Desc("resource", description);
 
   return new ResourceBlueprint((owner: object): Resource<T> => {
@@ -72,16 +92,20 @@ export function Resource<T>(
 
     const resource = FormulaFn(() => {
       if (instance && finalized) return instance;
+
       instance = brandResource(reactiveConstructor.read(), {
         hasLifetime: true,
       });
       return instance;
     }, desc.detail("instance"));
 
-    const reactive = FormulaFn(
-      () => resource.read().read(),
-      desc.detail("value")
-    );
+    const reactive = FormulaFn(() => {
+      const o = resource.read();
+
+      debugger;
+      return o.read();
+      // return resource.read().read();
+    }, desc.detail("value"));
 
     // Allow the user of the resource to finalize it by finalizing the returned resource.
     LIFETIME.link(reactive, state);
@@ -106,7 +130,7 @@ export class ResourceBlueprint<T> {
   }
 
   root(): { resource: Resource<T>; owner: object } {
-    const owner = Object.create(null);
+    const owner = Object.create(null) as object;
     const resource = this.create(owner);
     return { resource, owner };
   }
@@ -117,8 +141,6 @@ export class ResourceBlueprint<T> {
 }
 
 export type ResourceReturn<T> = ResourceBlueprint<T> | ReactiveCore<T> | T;
-
-export type ResourceFactory<T> = (resource: ResourceRun) => ResourceReturn<T>;
 
 declare const RESOURCE: unique symbol;
 
@@ -140,7 +162,7 @@ export interface Resource<T> extends Reactive<T> {
   [RESOURCE]: true;
 }
 
-type Handler = () => void | (() => void);
+type Handler = (() => void) | (() => () => void);
 
 /**
  * The `ResourceState` is the state that is shared between all runs of a resource. A single resource
@@ -152,7 +174,23 @@ class ResourceState<T> {
     constructorFn: ResourceFactory<T>,
     desc: Description
   ): ResourceState<T> {
-    const state = new ResourceState(desc, constructorFn);
+    function construct(run: ResourceRun): ResourceReturn<T> {
+      try {
+        return (
+          constructorFn as Extract<
+            ResourceFactory<T>,
+            (run: ResourceRun) => unknown
+          >
+        )(run);
+      } catch {
+        return new (constructorFn as Extract<
+          ResourceFactory<T>,
+          new (run: ResourceRun) => unknown
+        >)(run);
+      }
+    }
+
+    const state = new ResourceState(desc, construct);
 
     // Link the owner that was provided to `Resource.create()` to this `ResourceState`. Child
     // resources created using this resource's `use` will be linked to this resource state.
@@ -162,10 +200,13 @@ class ResourceState<T> {
   }
 
   readonly #desc: Description;
-  readonly #constructorFn: ResourceFactory<T>;
+  readonly #constructorFn: (resource: ResourceRun) => ResourceReturn<T>;
   #currentRun: ResourceRun | undefined = undefined;
 
-  constructor(desc: Description, constructorFn: ResourceFactory<T>) {
+  constructor(
+    desc: Description,
+    constructorFn: (resource: ResourceRun) => ResourceReturn<T>
+  ) {
     this.#desc = desc;
     this.#constructorFn = constructorFn;
   }
@@ -190,7 +231,7 @@ class ResourceState<T> {
     return value;
   }
 
-  #startNext() {
+  #startNext(): { prev: ResourceRun | undefined; run: ResourceRun } {
     const prev = this.#currentRun;
     const run = (this.#currentRun = new ResourceRun(
       this.#desc,
@@ -214,6 +255,12 @@ export class ResourceRun {
   readonly #desc: Description;
   readonly #prev: ResourceRun | undefined;
 
+  readonly on = {
+    cleanup: (handler: Handler): Unsubscribe => {
+      return LIFETIME.on.cleanup(this, handler);
+    },
+  };
+
   constructor(desc: Description, prev: ResourceRun | undefined) {
     this.#desc = desc;
     this.#prev = prev;
@@ -230,6 +277,7 @@ export class ResourceRun {
     if (isResource<T>(resource)) {
       if (this.#prev) LIFETIME.unlink(this.#prev, resource);
       LIFETIME.link(this, resource);
+
       return resource;
     } else if (ReactiveCore.is(resource)) {
       return brandResource(resource, { hasLifetime: false });
@@ -246,11 +294,5 @@ export class ResourceRun {
       // );
       // return Resource(resource, this.#desc.detail("use")).create(this);
     }
-  };
-
-  readonly on = {
-    cleanup: (handler: Handler): Unsubscribe => {
-      return LIFETIME.on.cleanup(this, handler);
-    },
   };
 }

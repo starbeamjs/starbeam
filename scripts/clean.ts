@@ -1,13 +1,15 @@
 import { rmSync } from "node:fs";
 import { relative } from "node:path";
 
+import { isPresentArray } from "@starbeam/core-utils";
 import glob from "fast-glob";
 import shell from "shelljs";
 
 import { QueryCommand, StringOption } from "./support/commands.js";
-import { Fragment, log } from "./support/log.js";
+import { Fragment } from "./support/log.js";
 import { Package } from "./support/packages.js";
 import type { Reporter } from "./support/reporter/reporter.js";
+import { fatal } from "./support/type-magic.js";
 import type { Workspace } from "./support/workspace.js";
 
 export const CleanCommand = QueryCommand("clean", {
@@ -32,8 +34,9 @@ export const CleanCommand = QueryCommand("clean", {
           );
 
           if (pkg === undefined) {
-            log(`No package found at ${options.dir}`, "problem");
-            process.exit(1);
+            fatal(
+              workspace.reporter.fatal(`No package found at ${options.dir}`)
+            );
           }
 
           return cleanFiles({
@@ -76,7 +79,7 @@ async function cleanFiles({
   workspace: Workspace;
   reporter: Reporter;
   options: { verbose: boolean; dryRun: boolean };
-}) {
+}): Promise<void> {
   const patterns = ["dist", "**/tsconfig.tsbuildinfo"];
   const cwd = pkg.root.absolute;
 
@@ -106,7 +109,7 @@ async function cleanFiles({
     ],
   });
 
-  const isClean = files.length === 0;
+  const isClean = !isPresentArray(files);
 
   if (isClean) {
     if (reporter.isVerbose) {
@@ -124,13 +127,6 @@ async function cleanFiles({
           Fragment("comment", ` in ${pkg.root.relativeFrom(workspace.root)}`)
         );
       });
-
-      if (isClean) {
-        if (reporter.isVerbose) {
-          r.printEmpty();
-        }
-        return;
-      }
 
       const REMOVING = options.dryRun ? `Would remove` : `Removing`;
 

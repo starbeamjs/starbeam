@@ -11,14 +11,18 @@ export { Setup, Setups } from "./src/reactive-core/formula/setups.js";
 export { FormulaList } from "./src/reactive-core/higher-level/formula-list.js";
 export { Freshness } from "./src/reactive-core/higher-level/freshness.js";
 export { ResourceList } from "./src/reactive-core/higher-level/resource-list.js";
-export { Marker } from "./src/reactive-core/marker.js";
 export {
-  type Blueprint,
-  type ReactiveBlueprint,
-  type ReactiveFactory,
+  type IntoReactiveObject,
+  type IntoResource,
   Factory,
-  Reactive,
+} from "./src/reactive-core/into.js";
+export { Marker } from "./src/reactive-core/marker.js";
+export type {
+  Blueprint,
+  ReactiveBlueprint,
+  ReactiveFactory,
 } from "./src/reactive-core/reactive.js";
+export { Reactive } from "./src/reactive-core/reactive.js";
 export {
   type ResourceBlueprint,
   type ResourceFactory,

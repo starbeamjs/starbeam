@@ -1,10 +1,17 @@
-import { FormulaFn } from "@starbeam/universal";
 import js from "@starbeam/js";
 import { useReactiveSetup } from "@starbeam/react";
+import type { Reactive } from "@starbeam/universal";
+import { FormulaFn } from "@starbeam/universal";
+import type { JSXElementConstructor } from "react";
 
 import { formatLocale, SYSTEM_LOCALE, SYSTEM_TZ } from "../intl.js";
 
-export default function DateFormatterStarbeam(): JSX.Element {
+type JsxReturn = React.ReactElement<
+  unknown,
+  string | JSXElementConstructor<unknown>
+>;
+
+export default function DateFormatterStarbeam(): JsxReturn {
   return useReactiveSetup(() => {
     const date = Clock();
 
@@ -19,7 +26,12 @@ export default function DateFormatterStarbeam(): JSX.Element {
             </>
           </h3>
 
-          <button className="pure-button" onClick={() => date.read().refresh()}>
+          <button
+            className="pure-button"
+            onClick={() => {
+              date.read().refresh();
+            }}
+          >
             🔃
           </button>
           <p className="output">{date.current.formatted}</p>
@@ -29,10 +41,10 @@ export default function DateFormatterStarbeam(): JSX.Element {
   });
 }
 
-function Clock() {
+function Clock(): Reactive<{ formatted: string; refresh: () => void }> {
   const date = js.object({ now: new Date() });
 
-  function refresh() {
+  function refresh(): void {
     date.now = new Date();
   }
 
@@ -53,7 +65,7 @@ function formatTime(
     locale = SYSTEM_LOCALE,
     timeZone = SYSTEM_TZ,
   }: { locale?: string; timeZone?: string } = {}
-) {
+): string {
   return new Intl.DateTimeFormat(locale, {
     hour: "numeric",
     minute: "numeric",

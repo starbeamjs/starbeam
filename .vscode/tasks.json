@@ -2,40 +2,45 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "type": "npm",
-      "script": "check:lint",
-      "problemMatcher": ["$eslint-stylish"],
-      "label": "npm: lint",
-      "detail": "eslint . --cache",
-      "group": {
-        "kind": "build"
-      }
-    },
-    {
       "type": "shell",
       "command": "pnpm",
-      "args": ["check:types"],
-      "problemMatcher": ["$tsc"],
+      "args": [
+        "check:types"
+      ],
+      "problemMatcher": [
+        "$tsc"
+      ],
       "label": "check:types"
     },
     {
       "type": "shell",
       "command": "pnpm",
-      "args": ["check:types", "-w"],
-      "problemMatcher": ["$tsc-watch"],
+      "args": [
+        "check:types",
+        "-w"
+      ],
+      "problemMatcher": [
+        "$tsc-watch"
+      ],
       "label": "check:types (watch)"
     },
     {
       "type": "shell",
       "command": "pnpm",
-      "args": ["check:lint"],
-      "problemMatcher": ["$eslint-stylish"],
-      "label": "check:lint"
+      "args": [
+        "test:workspace:lint"
+      ],
+      "problemMatcher": [
+        "$eslint-stylish"
+      ],
+      "label": "Lint"
     },
     {
       "type": "shell",
       "command": "pnpm",
-      "args": ["install"],
+      "args": [
+        "install"
+      ],
       "group": "build",
       "problemMatcher": [],
       "presentation": {

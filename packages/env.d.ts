@@ -7,5 +7,8 @@ interface ImportMeta {
   assert: (condition: unknown, message: string) => asserts condition;
 }
 
-declare module "*.scss";
+declare module "*.scss" {
+  const DEFAULT: Record<string, string | undefined>;
+  export default DEFAULT;
+}
 declare module "*.svg";

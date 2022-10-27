@@ -1,10 +1,8 @@
-import { FormulaFn } from "@starbeam/universal";
 import { reactive } from "@starbeam/js";
+import { FormulaFn } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 
 import { Invalidation } from "./support.js";
-
-// import { Invalidation } from "./support.js";
 
 describe("TrackedObject", () => {
   test("adding and deleting items updates the size", () => {

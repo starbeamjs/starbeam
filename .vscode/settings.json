@@ -1,5 +1,9 @@
 {
   "eslint.enable": true,
+  "eslint.lintTask.enable": true,
+  "eslint.format.enable": true,
+  "eslint.lintTask.options": "--cache -c ./.eslintrc.json --max-warnings=0 --ext .ts,.tsx packages demos scripts .build @types",
+
   "explorer.excludeGitIgnore": true,
 
   "search.exclude": {
@@ -11,18 +15,13 @@
     "**/CHANGELOG.md": true
   },
 
-  "[typescript][typescriptreact]": {
+  "[typescript][typescriptreact][javascript][javascriptreact]": {
     "editor.formatOnSave": false,
     "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": true,
-      "source.fixAll.eslint.format": true
+      "source.fixAll.eslint": true
     }
   },
   "[json][jsonc]": {
-    "editor.formatOnSave": true,
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[javascript][javascriptreact]": {
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
@@ -63,5 +62,6 @@
   },
   "[svelte]": {
     "editor.defaultFormatter": "SimonSiefke.prettier-vscode"
-  }
+  },
+  "testing.automaticallyOpenPeekView": "never"
 }

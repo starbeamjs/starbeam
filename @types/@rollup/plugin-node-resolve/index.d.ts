@@ -1,5 +1,5 @@
 import type Plugin from "@rollup/plugin-node-resolve";
 
-const plugin: () => Plugin;
+declare const plugin: () => Plugin;
 
 export default plugin;

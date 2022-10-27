@@ -1,5 +1,5 @@
 {
-  "name": "@starbeam/universal-utils",
+  "name": "@starbeam/core-utils",
   "version": "0.7.3",
   "type": "module",
   "main": "index.ts",

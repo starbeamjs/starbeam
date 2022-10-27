@@ -1,12 +1,17 @@
 import { useReactive } from "@starbeam/react";
 import { useEffect } from "react";
 
-import styles from "./App.module.scss";
+import STYLES from "./App.module.scss";
 import { Branding } from "./components/Branding.js";
 import Header from "./components/Header.js";
 import { StockDetails } from "./components/StockDetails.js";
+import type { Stock } from "./lib/api/interfaces.js";
 import { For, When } from "./lib/utils.js";
 import { app } from "./store.js";
+
+const styles = STYLES as {
+  readonly app: string;
+};
 
 export default function App(): JSX.Element {
   useEffect(() => {
@@ -16,7 +21,7 @@ export default function App(): JSX.Element {
       return;
     }
 
-    app.stocks = JSON.parse(stocks);
+    app.stocks = JSON.parse(stocks) as Stock[];
   }, []);
 
   return useReactive(() => {

@@ -1,0 +1,17 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "EXPERIMENTAL_useSourceOfProjectReferenceRedirect": true
+  },
+  "reportUnusedDisableDirectives": false,
+  "settings": {
+    "import/resolver": {
+      "typescript": {}
+    },
+    "import/ignore": ["\\.js\\?script"]
+  },
+  "plugins": ["@starbeam"],
+  "ignorePatterns": ["*.cjs"],
+  "rules": {}
+}

@@ -17,6 +17,9 @@
   "exports": {
     "default": "./index.ts"
   },
+  "dependencies": {
+    "@starbeam/core-utils": "workspace:^"
+  },
   "devDependencies": {
     "@starbeam-workspace/build-support": "workspace:^"
   },

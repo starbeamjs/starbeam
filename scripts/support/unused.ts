@@ -1,3 +1,9 @@
+import {
+  ifPresentArray,
+  isEmptyArray,
+  objectHasKeys,
+  stringify,
+} from "@starbeam/core-utils";
 import depcheck from "depcheck";
 
 import { Fragment } from "./log.js";
@@ -56,6 +62,8 @@ const OPTIONS: depcheck.Options = {
   ],
 };
 
+const SUCCESS_CODE = 0;
+
 export async function checkUnused({
   pkg,
   options,
@@ -88,16 +96,18 @@ export async function checkUnused({
   });
 
   if (
-    unused.dependencies.length === 0 &&
-    unused.devDependencies.length === 0 &&
-    Reflect.ownKeys(unused.missing).length === 0 &&
-    Reflect.ownKeys(unused.invalidFiles).length === 0
+    isEmptyArray(unused.dependencies) &&
+    isEmptyArray(unused.devDependencies) &&
+    !objectHasKeys(unused.missing) &&
+    !objectHasKeys(unused.invalidFiles)
   ) {
-    workspace.reporter.verbose((r) => r.li("Clean", "ok"));
+    workspace.reporter.verbose((r) => {
+      r.li("Clean", "ok");
+    });
     return "success";
   }
 
-  const reporter = new UnusedReporter(workspace, unused, pkg);
+  const reporter = new UnusedReporter(workspace, pkg);
 
   reporter.unused("Unused dependencies", unused.dependencies);
   reporter.unused("Unused devDependencies", unused.devDependencies);
@@ -106,7 +116,7 @@ export async function checkUnused({
   reporter.invalid("Invalid files", unused.invalidFiles);
   reporter.invalid("Invalid directories", unused.invalidDirs);
 
-  if (reporter.exitCode === 0) {
+  if (reporter.isOk) {
     return "success";
   } else {
     return "failure";
@@ -114,19 +124,17 @@ export async function checkUnused({
 }
 
 class UnusedReporter {
-  readonly #unused: depcheck.Results;
   readonly #package: Package;
   readonly #workspace: Workspace;
-  #exitCode = 0;
+  #exitCode = SUCCESS_CODE;
 
-  constructor(workspace: Workspace, unused: depcheck.Results, pkg: Package) {
+  constructor(workspace: Workspace, pkg: Package) {
     this.#workspace = workspace;
-    this.#unused = unused;
     this.#package = pkg;
   }
 
-  get exitCode(): number {
-    return this.#exitCode;
+  get isOk(): boolean {
+    return this.#exitCode === SUCCESS_CODE;
   }
 
   get #reporter(): Reporter {
@@ -144,7 +152,7 @@ class UnusedReporter {
       }
     });
 
-    PresentArray.from(filtered).andThen((present) => {
+    PresentArray.from(filtered).ifPresent((present) => {
       this.#reporter.ensureBreak();
 
       this.#reporter.ul({
@@ -158,55 +166,49 @@ class UnusedReporter {
   }
 
   usage(name: string, usage: Record<string, string[]>): void {
-    const entries = Object.entries(usage);
+    ifPresentArray(Object.entries(usage), (entries) => {
+      this.#reporter.ensureBreak();
 
-    if (entries.length === 0) {
-      return;
-    }
-
-    this.#reporter.ensureBreak();
-
-    this.#reporter.group(Fragment.problem.header(name)).try((r) => {
-      for (const [dep, files] of entries) {
-        PresentArray.from(files).andThen((present) => {
-          r.ul({
-            header: `${Fragment.problem(
-              listDep(dep)
-            )} ${Fragment.comment.header("is used by:")}`,
-            items: present.map((file) => this.#workspace.root.relativeTo(file)),
-            style: "problem",
+      this.#reporter.group(Fragment.problem.header(name)).try((r) => {
+        for (const [dep, files] of entries) {
+          PresentArray.from(files).ifPresent((present) => {
+            r.ul({
+              header: stringify`${Fragment.problem(
+                listDep(dep)
+              )} ${Fragment.comment.header("is used by:")}`,
+              items: present.map((file) =>
+                this.#workspace.root.relativeTo(file)
+              ),
+              style: "problem",
+            });
           });
-        });
-      }
-    });
+        }
+      });
 
-    this.#exitCode = 1;
+      this.#exitCode = 1;
+    });
   }
 
   invalid(name: string, invalid: Record<string, unknown>): void {
-    const entries = Object.entries(invalid);
+    ifPresentArray(Object.entries(invalid), (entries) => {
+      this.#reporter.ensureBreak();
 
-    if (entries.length === 0) {
-      return;
-    }
+      this.#reporter.group(name).try((r) => {
+        for (const [file, error] of entries) {
+          r.ul({
+            header: Fragment.problem(this.#workspace.root.relativeTo(file)),
+            items: [String(error)],
+            item: "comment",
+          });
+        }
+      });
 
-    this.#reporter.ensureBreak();
-
-    this.#reporter.group(name).try((r) => {
-      for (const [file, error] of entries) {
-        r.ul({
-          header: Fragment.problem(this.#workspace.root.relativeTo(file)),
-          items: [String(error)],
-          item: "comment",
-        });
-      }
+      this.#exitCode = 1;
     });
-
-    this.#exitCode = 1;
   }
 }
 
-function isTypePkgForPresentPkg(dep: string, pkg: Package) {
+function isTypePkgForPresentPkg(dep: string, pkg: Package): boolean {
   if (dep.startsWith("@types/")) {
     const name = formatPkgForTypePkg(dep);
 
@@ -218,7 +220,7 @@ function isTypePkgForPresentPkg(dep: string, pkg: Package) {
   return true;
 }
 
-function formatPkgForTypePkg(pkg: string) {
+function formatPkgForTypePkg(pkg: string): string {
   const withoutTypes = pkg.slice("@types/".length);
 
   if (withoutTypes.includes("__")) {
@@ -228,7 +230,7 @@ function formatPkgForTypePkg(pkg: string) {
   }
 }
 
-function listDep(dep: string) {
+function listDep(dep: string): string {
   if (dep.startsWith("@types/")) {
     return `${dep} (missing ${formatPkgForTypePkg(dep)})`;
   } else {

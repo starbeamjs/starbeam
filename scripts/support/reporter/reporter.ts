@@ -1,8 +1,10 @@
 import { inspect } from "node:util";
 
+import { stringify } from "@starbeam/core-utils";
 import chalk from "chalk";
 
 import { type GroupedCheckResults, CheckResults } from "../checks.js";
+import { FATAL_EXIT_CODE, SPACES_PER_TAB } from "../constants.js";
 import {
   type IntoFallibleFragment,
   type IntoFragment,
@@ -14,6 +16,7 @@ import {
   LogResult,
   Style,
 } from "../log.js";
+import type { Result } from "../type-magic.js";
 import { type IntoPresentArray, PresentArray } from "../type-magic.js";
 import type { Workspace } from "../workspace.js";
 import { type LoggerName, type LoggerState, Logger } from "./logger.js";
@@ -45,16 +48,6 @@ export class Reporter {
   private constructor(
     workspace: Workspace,
     options: ReporterOptions,
-    parent: null
-  );
-  private constructor(
-    workspace: Workspace,
-    options: ReporterOptions,
-    parent: Reporter
-  );
-  private constructor(
-    workspace: Workspace,
-    options: ReporterOptions,
     parent: Reporter | null
   ) {
     this.#workspace = workspace;
@@ -77,7 +70,7 @@ export class Reporter {
   }
 
   get leading(): number {
-    return this.#logger.leading * 2;
+    return this.#logger.leading * SPACES_PER_TAB;
   }
 
   get didPrint(): boolean {
@@ -153,26 +146,25 @@ export class Reporter {
   }
 
   #log(logger: LoggerName, message: IntoFallibleFragment): void {
-    this.#logResult(`logging using ${logger}`, message, (message) => {
-      this.#logger.logln(message, logger);
+    this.#logResult(message, (string) => {
+      this.#logger.logln(string, logger);
     });
   }
 
   #logResult(
-    context: string,
     message: IntoFallibleFragment,
     fn: (message: string) => void
   ): void {
     const fragment = FragmentImpl.fallibleFrom(message);
 
     fragment
-      .map((fragment) =>
-        fragment.stringify(this.#workspace.reporter.loggerState)
-      )
-      .mapErr((fragment) =>
-        this.#logger.reportError(FragmentImpl.fallibleFrom(fragment).getValue())
-      )
-      .map((message) => fn(message));
+      .map((f) => f.stringify(this.#workspace.reporter.loggerState))
+      .mapErr((err) => {
+        this.#logger.reportError(FragmentImpl.fallibleFrom(err).getValue());
+      })
+      .map((f) => {
+        fn(f);
+      });
   }
 
   groupedTable({
@@ -183,15 +175,18 @@ export class Reporter {
     items: IntoFragmentMap<IntoPresentArray<IntoPresentArray<IntoFragment>>>;
   }): void {
     this.table((t) => {
-      return t.headers(header ? [Cell.spanned(header, 3)] : undefined).rows(
-        FragmentMap.from(items, (value) =>
-          PresentArray.from(value).map((nested) =>
-            PresentArray.from(nested).map(Fragment.from)
-          )
-        ).flatMap((header, fragments) => {
-          return [[Cell.spanned(header, 3)], fragments];
-        })
-      );
+      const FULL_WIDTH_SPAN = 3;
+      return t
+        .headers(header ? [Cell.spanned(header, FULL_WIDTH_SPAN)] : undefined)
+        .rows(
+          FragmentMap.from(items, (value) =>
+            PresentArray.from(value).map((nested) =>
+              PresentArray.from(nested).map(Fragment.from)
+            )
+          ).flatMap((nestedHeader, fragments) => {
+            return [[Cell.spanned(nestedHeader, FULL_WIDTH_SPAN)], fragments];
+          })
+        );
     });
   }
 
@@ -235,11 +230,16 @@ export class Reporter {
   }
 
   #li(item: IntoFallibleFragment, markerStyle: Style | "none"): void {
-    if (markerStyle === "none") {
-      this.#log("log", item);
-    } else {
-      this.#log("log", `${Fragment.decoration(markerStyle, "•")} ${item}`);
-    }
+    this.#logResult(item, (listItem) => {
+      if (markerStyle === "none") {
+        this.#log("log", listItem);
+      } else {
+        this.#log(
+          "log",
+          stringify`${Fragment.decoration(markerStyle, "•")} ${listItem}`
+        );
+      }
+    });
   }
 
   li(
@@ -303,7 +303,9 @@ export class Reporter {
     this.log(builder(table).stringify(this.loggerState));
   }
 
-  async raw(callback: (writer: RawWriter) => void): Promise<void> {
+  async raw(
+    callback: (writer: RawWriter) => void | Promise<void>
+  ): Promise<void> {
     return this.#logger.raw(callback);
   }
 
@@ -338,7 +340,7 @@ export class Reporter {
         );
       });
 
-    this.#logger.exit(1);
+    this.#logger.exit(FATAL_EXIT_CODE);
   }
 
   info(message: string): void {
@@ -372,28 +374,34 @@ export class Reporter {
     if (CheckResults.is(results)) {
       reportCheckResults(this, results, options);
     } else if (this.isVerbose) {
-      return this.table((t) =>
+      this.table((t) =>
         t.rows(
           [...results].flatMap(([name, groupResults]) => {
+            const SPAN_REST = 2;
+
             return [
-              [this.statusIcon(groupResults.isOk), Cell.spanned(name, 2)],
-              ...[...groupResults].map(([name, checkResults]) => [
+              [
+                this.statusIcon(groupResults.isOk),
+                Cell.spanned(name, SPAN_REST),
+              ],
+              ...[...groupResults].map(([groupName, checkResults]) => [
                 "",
                 this.statusIcon(checkResults.isOk),
-                name,
+                groupName,
               ]),
             ];
           })
         )
       );
+      return;
     } else if (results.isOk) {
       this.#workspace.reporter.ensureBreak();
       this.#workspace.reporter.success(`✔️ ${options.success}`);
     } else {
       this.table((t) =>
         t.rows(
-          [...results.errors].map(([name, results]) => [
-            this.statusIcon(results.isOk),
+          [...results.errors].map(([name, nestedResults]) => [
+            this.statusIcon(nestedResults.isOk),
             name,
           ])
         )
@@ -412,9 +420,11 @@ export class Reporter {
     ): Group<void> {
       return new Group(reporter, message ?? LogResult.ok(undefined), false, {
         verbose: "none:verbose",
-        catch: (_, log) => log(),
+        catch: (_, log) => {
+          log();
+        },
         fatal: () => {
-          process.exit(1);
+          process.exit(FATAL_EXIT_CODE);
         },
         finally: () => {
           /* Do nothing */
@@ -485,7 +495,7 @@ export class Reporter {
       return this.#run(callback);
     }
 
-    tryAsync<HandleTry>(
+    async tryAsync<HandleTry>(
       callback: (reporter: Reporter) => HandleTry | Promise<HandleTry>
     ): Promise<Catch | HandleTry> {
       return this.#runAsync(callback);
@@ -521,20 +531,24 @@ export class Reporter {
     }
 
     allowEmpty(): IGroup<Catch> {
-      this.#emptyHandler = (r) => r.#logger.printEmpty();
+      this.#emptyHandler = (r) => {
+        r.#logger.printEmpty();
+      };
       return this;
     }
 
     empty(value: string | ((reporter: Reporter) => void)): IGroup<Catch> {
       if (typeof value === "string") {
-        this.#emptyHandler = (r) => r.log(value);
+        this.#emptyHandler = (r) => {
+          r.log(value);
+        };
       } else {
         this.#emptyHandler = value;
       }
       return this;
     }
 
-    #begin() {
+    #begin(): Result<void, void> {
       return this.#header
         .map((value) => {
           this.#reporter.#logger.begin(value, {
@@ -546,7 +560,7 @@ export class Reporter {
         });
     }
 
-    #end() {
+    #end(): void {
       this.#reporter.#logger.end();
     }
 
@@ -570,7 +584,7 @@ export class Reporter {
         }
         this.#end();
         return result;
-      } catch (e: Error | unknown) {
+      } catch (e: unknown) {
         const result = this.#catchHandler(reporter, () => {
           if (e instanceof Error) {
             reporter.#logger.reportError(e);
@@ -580,7 +594,7 @@ export class Reporter {
         });
 
         if (this.#reporter.#options.failFast) {
-          throw this.#fatalHandler(reporter);
+          this.#fatalHandler(reporter);
         } else {
           if (this.#reporter.didPrint) {
             this.#finallyHandler(reporter);
@@ -615,7 +629,7 @@ export class Reporter {
         }
         this.#end();
         return result;
-      } catch (e: Error | unknown) {
+      } catch (e: unknown) {
         const result = this.#catchHandler(reporter, () => {
           if (e instanceof Error) {
             reporter.#logger.reportError(e);
@@ -625,7 +639,7 @@ export class Reporter {
         });
 
         if (this.#reporter.#options.failFast) {
-          throw this.#fatalHandler(reporter);
+          this.#fatalHandler(reporter);
         } else {
           if (this.#reporter.didPrint) {
             this.#finallyHandler(reporter);
@@ -642,36 +656,36 @@ export class Reporter {
 
 export interface IGroup<Catch = void> {
   /// STYLING OPTIONS ///
-  stylish(options: "header"): IGroup<Catch>;
+  stylish: (options: "header") => IGroup<Catch>;
 
-  verbose(options: "header" | false): IGroup<Catch>;
-  verbose(options?: "header" | boolean): IGroup<Catch | void>;
+  verbose: ((options: "header" | false) => IGroup<Catch>) &
+    ((options?: "header" | boolean) => IGroup<Catch | void>);
 
-  breakBefore(shouldBreak?: boolean): IGroup<Catch>;
+  breakBefore: (shouldBreak?: boolean) => IGroup<Catch>;
 
-  allowEmpty(): IGroup<Catch>;
-  empty(value: string | ((reporter: Reporter) => void)): IGroup<Catch>;
+  allowEmpty: () => IGroup<Catch>;
+  empty: (value: string | ((reporter: Reporter) => void)) => IGroup<Catch>;
 
   /// EXECUTION OPTIONS ///
 
-  catch<HandleCatch>(
+  catch: <HandleCatch>(
     callback: (reporter: Reporter, log: () => void) => HandleCatch
-  ): IGroup<HandleCatch>;
+  ) => IGroup<HandleCatch>;
 
-  finally(callback: (reporter: Reporter) => void): IGroup<Catch>;
-  fatal(callback: (reporter: Reporter) => void): IGroup<Catch>;
+  finally: (callback: (reporter: Reporter) => void) => IGroup<Catch>;
+  fatal: (callback: (reporter: Reporter) => never) => IGroup<Catch>;
 
   /**
    * Only logs the header if the reporter is in verbose mode.
    */
 
-  try<HandleTry>(
+  try: <HandleTry>(
     callback: (reporter: Reporter) => HandleTry
-  ): HandleTry | Catch;
+  ) => HandleTry | Catch;
 
-  tryAsync<HandleTry>(
+  tryAsync: <HandleTry>(
     callback: (reporter: Reporter) => HandleTry | Promise<HandleTry>
-  ): Promise<HandleTry | Catch>;
+  ) => Promise<HandleTry | Catch>;
 }
 
 type MessageVerbosity =
@@ -714,27 +728,34 @@ export function reportCheckResults(
   });
 }
 
-export type NestedEndWith = { fragment: IntoFragment; breakBefore?: boolean };
+export interface NestedEndWith {
+  fragment: IntoFragment;
+  breakBefore?: boolean;
+}
 
-export type CompactEndWith = {
+export interface CompactEndWith {
   fragment: IntoFragment;
   breakBefore?: boolean;
   replace?: boolean;
-};
+}
 
-export type EndWith = {
+export interface EndWith {
   nested: IntoFragment | NestedEndWith;
   compact: IntoFragment | CompactEndWith;
-};
+}
 
-export type LoggerEndWith = {
-  nested?: { fragment: Fragment; breakBefore?: boolean };
-  compact?: {
-    fragment: Fragment;
-    breakBefore?: boolean;
-    replace: boolean;
-  };
-};
+export interface LoggerEndWith {
+  nested?:
+    | { fragment: Fragment; breakBefore?: boolean | undefined }
+    | undefined;
+  compact?:
+    | {
+        fragment: Fragment;
+        breakBefore?: boolean | undefined;
+        replace: boolean;
+      }
+    | undefined;
+}
 
 export type Ending =
   | IntoFragment

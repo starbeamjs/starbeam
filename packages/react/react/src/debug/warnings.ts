@@ -13,6 +13,10 @@ if (import.meta.env.DEV) {
         const description = ReactiveProtocol.description(reactive).userFacing;
         const caller = stack.caller;
 
+        const pad = Math.max(
+          ...["Created: ", "Accessed: "].map((s) => s.length)
+        );
+
         const message = Message([
           [
             ["ERROR", "color:#f00", "font-weight:bold"],
@@ -24,17 +28,17 @@ if (import.meta.env.DEV) {
           ],
           "",
           [
-            ["Created: ".padEnd(11, "…"), "color:#666"],
+            ["Created: ".padEnd(pad, "…"), "color:#666"],
             " ",
             [description.fullName, "color:#6a6"],
           ],
           [
-            [" ".repeat(11), "color:#666"],
+            [" ".repeat(pad), "color:#666"],
             " ",
             [description.frame?.link() ?? "<unknown>", "color:#6a6"],
           ],
           [
-            ["Accessed: ".padEnd(11, "…"), "color:#666"],
+            ["Accessed: ".padEnd(pad, "…"), "color:#666"],
             " ",
             [caller?.link() ?? "<unknown>", "color:#6a6"],
           ],
@@ -81,5 +85,3 @@ if (import.meta.env.DEV) {
     }
   });
 }
-
-export {};

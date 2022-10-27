@@ -1,7 +1,7 @@
-import { Cell } from "@starbeam/universal";
 import { type Description, Desc } from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/shared";
 import type { Reactive } from "@starbeam/timeline";
+import { Cell } from "@starbeam/universal";
 import { useRef } from "react";
 
 export interface Deps {
@@ -18,10 +18,12 @@ export function useDeps<T extends unknown[] | undefined>(
 ): Deps | undefined {
   const desc = Desc("external", description);
 
-  if (deps && deps.length) {
+  if (deps?.length) {
     const dependencies = deps.map((dep, i) => useProp(dep, desc.index(i)));
     return {
-      consume: () => dependencies.forEach((dep) => dep.read()),
+      consume: () => {
+        dependencies.forEach((dep) => dep.read());
+      },
       debug: () => dependencies,
     };
   }

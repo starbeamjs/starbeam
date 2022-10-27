@@ -1,5 +1,5 @@
-import { Cell, Freshness } from "@starbeam/universal";
 import { reactive } from "@starbeam/js";
+import { Cell, Freshness } from "@starbeam/universal";
 import { CanceledError } from "axios";
 
 import { type Serializable, serialize } from "./key.js";
@@ -9,19 +9,19 @@ interface Network {
   txid: number;
 }
 
-interface Status<T> {
+interface Status {
   state: Cell<QueryResultState>;
-  data: Cell<unknown | T>;
+  data: Cell;
 }
 
 class CacheEntry<T> {
   static create<T>(query: QueryFunction<T>): CacheEntry<T> {
     const state = Cell("loading" as QueryResultState);
-    const data = Cell(undefined as T | unknown);
+    const data = Cell(undefined as unknown);
 
     const entry = new CacheEntry<T>({ state: state, data }, fetch);
 
-    async function fetch({ controller, txid }: Network) {
+    async function fetch({ controller, txid }: Network): Promise<void> {
       try {
         const data = await query({ signal: controller.signal });
 
@@ -41,11 +41,11 @@ class CacheEntry<T> {
 
   #query: (_network: Network) => void | Promise<void>;
   #freshness: Freshness = Freshness("CacheEntry#freshness");
-  #status: Status<T>;
+  #status: Status;
   #network: Network | undefined;
 
   constructor(
-    status: Status<T>,
+    status: Status,
     query: (network: Network) => void | Promise<void>
   ) {
     this.#status = status;
@@ -54,7 +54,7 @@ class CacheEntry<T> {
 
   #update(
     txid: number,
-    updates: { state: QueryResultState; data?: unknown | T }
+    updates: { state: QueryResultState; data?: unknown }
   ): "current" | "expired" {
     if (this.#network?.txid !== txid) return "expired";
 
@@ -77,7 +77,7 @@ class CacheEntry<T> {
     void Promise.resolve(this.#query(this.#network));
   }
 
-  invalidate() {
+  invalidate(): void {
     if (this.#network) {
       this.#network.controller.abort();
       this.#network = undefined;
@@ -125,15 +125,15 @@ class QueryCache {
     return entry as CacheEntry<T>;
   }
 
-  fetch(key: Serializable) {
+  fetch(key: Serializable): void {
     const entry = this.#map.get(serialize(key));
 
-    if (entry && entry.needsFetch) {
-      void entry.fetch(this.#txid++);
+    if (entry?.needsFetch) {
+      entry.fetch(this.#txid++);
     }
   }
 
-  invalidate(key: Serializable) {
+  invalidate(key: Serializable): void {
     this.#map.get(serialize(key))?.invalidate();
   }
 }
@@ -154,19 +154,19 @@ type QueryResultState =
 abstract class AbstractQueryResult {
   abstract readonly state: QueryResultState;
 
-  get isLoading() {
+  get isLoading(): boolean {
     return this.state === "loading" || this.state === "reloading";
   }
 
-  get isSuccess() {
+  get isSuccess(): boolean {
     return this.state === "loaded" || this.state === "reloading";
   }
 
-  get isError() {
+  get isError(): boolean {
     return this.state === "error";
   }
 
-  get isAborted() {
+  get isAborted(): boolean {
     return this.state === "aborted";
   }
 }

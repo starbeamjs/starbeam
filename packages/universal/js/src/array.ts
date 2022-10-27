@@ -66,6 +66,8 @@ function isSetterMethod(prop: PropertyKey): prop is ArrayMethodName {
   return ARRAY_SETTER_METHODS.has(prop as ArrayMethodName);
 }
 
+const EMPTY_SIZE = 0;
+
 function convertToInt(prop: PropertyKey): number | null {
   if (typeof prop === "symbol") return null;
 
@@ -73,19 +75,19 @@ function convertToInt(prop: PropertyKey): number | null {
 
   if (isNaN(num)) return null;
 
-  return num % 1 === 0 ? num : null;
+  return Number.isInteger(num) ? num : null;
 }
 
 type Fn = (...args: any[]) => any;
 
 class Shadow<T> {
+  readonly #collection: Collection<number>;
+  readonly #fns: Map<PropertyKey, Fn>;
+  readonly #target: T[];
+
   static create<T>(target: T[], collection: Collection<number>): Shadow<T> {
     return new Shadow(new Map(), target, collection);
   }
-
-  readonly #fns: Map<PropertyKey, Fn>;
-  readonly #target: T[];
-  readonly #collection: Collection<number>;
 
   private constructor(
     fns: Map<string, Fn>,
@@ -97,7 +99,19 @@ class Shadow<T> {
     this.#collection = collection;
   }
 
-  #getterMethod(prop: ArrayMethodName): Fn | undefined {
+  at(index: number, caller: Stack): T | undefined {
+    this.#collection.get(
+      index,
+      index in this.#target ? "hit" : "miss",
+      member(index),
+      caller
+    );
+    this.#collection.iterateKeys(caller);
+
+    return this.#target[index];
+  }
+
+  #createGetterMethod(prop: ArrayMethodName): Fn | undefined {
     let fn = this.#fns.get(prop);
 
     if (!fn) {
@@ -113,7 +127,7 @@ class Shadow<T> {
     return fn;
   }
 
-  #setterMethod(name: ArrayMethodName) {
+  #createSetterMethod(name: ArrayMethodName): Fn {
     let fn = this.#fns.get(name);
 
     if (!fn) {
@@ -126,7 +140,7 @@ class Shadow<T> {
 
         const next = this.#target.length;
 
-        if (prev !== 0 || next !== 0) {
+        if (prev !== EMPTY_SIZE || next !== EMPTY_SIZE) {
           this.#collection.splice(caller);
         }
 
@@ -136,31 +150,6 @@ class Shadow<T> {
     }
 
     return fn;
-  }
-
-  at(index: number, caller: Stack) {
-    this.#collection.get(
-      index,
-      index in this.#target ? "hit" : "miss",
-      member(index),
-      caller
-    );
-    this.#collection.iterateKeys(caller);
-
-    return this.#target[index];
-  }
-
-  updateAt(index: number, value: T, caller: Stack) {
-    const current = this.#target[index];
-
-    if (Object.is(current, value)) {
-      return;
-    }
-
-    this.#collection.splice(caller);
-    this.#collection.set(index, "key:changes", member(index), caller);
-
-    this.#target[index] = value;
   }
 
   get(prop: PropertyKey): unknown {
@@ -174,21 +163,34 @@ class Shadow<T> {
     }
   }
 
+  getterMethod(name: ArrayMethodName): Fn | undefined {
+    return this.#createGetterMethod(name);
+  }
+
   set(prop: PropertyKey, value: unknown, caller: Stack): void {
     this.#collection.splice(caller);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     (this.#target as UnsafeIndex)[prop] = value;
   }
 
-  getterMethod(name: ArrayMethodName) {
-    return this.#getterMethod(name);
+  setterMethod(name: ArrayMethodName): Fn {
+    return this.#createSetterMethod(name);
   }
 
-  setterMethod(name: ArrayMethodName) {
-    return this.#setterMethod(name);
+  updateAt(index: number, value: T, caller: Stack): void {
+    const current = this.#target[index];
+
+    if (Object.is(current, value)) {
+      return;
+    }
+
+    this.#collection.splice(caller);
+    this.#collection.set(index, "key:changes", member(index), caller);
+
+    this.#target[index] = value;
   }
 
-  updateLength(to: number, caller: Stack) {
+  updateLength(to: number, caller: Stack): void {
     // This happens when popping an empty array, for example.
     if (this.#target.length === to) {
       return;
@@ -198,18 +200,18 @@ class Shadow<T> {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export default class TrackedArray<T = unknown> {
   constructor(description: Description, arr: T[] = []) {
     Object.freeze(arr);
 
     const target = [...arr];
 
-    // eslint-disable-next-line
     const proxy: T[] = new Proxy(target, {
-      get(target, prop /*, _receiver */) {
+      get(getterTarget, prop /*, _receiver */) {
         if (prop === "length") {
           collection.iterateKeys(callerStack());
-          return target.length;
+          return getterTarget.length;
         }
 
         const index = convertToInt(prop);
@@ -221,21 +223,21 @@ export default class TrackedArray<T = unknown> {
         }
       },
 
-      set(target, prop, value /*, _receiver */) {
+      set(setterTarget, prop, value /*, _receiver */) {
         const index = convertToInt(prop);
         const caller = callerStack();
 
         if (prop === "length") {
           shadow.updateLength(value as number, caller);
 
-          if (value === target.length) {
+          if (value === setterTarget.length) {
             return true;
           }
         }
 
         if (index === null) {
           shadow.set(prop, value, caller);
-        } else if (index in target) {
+        } else if (index in setterTarget) {
           shadow.updateAt(index, value as T, caller);
         } else {
           shadow.set(prop, value, caller);
@@ -260,7 +262,7 @@ export default class TrackedArray<T = unknown> {
 // Ensure instanceof works correctly
 Object.setPrototypeOf(TrackedArray.prototype, Array.prototype);
 
-function member(prop: string | number | symbol) {
+function member(prop: string | number | symbol): string {
   if (typeof prop === "string") {
     return `.${prop}`;
   } else {

@@ -8,7 +8,7 @@ export interface Person {
   status: "active" | "inactive";
 }
 
-function CreatePerson() {
+function CreatePerson(): () => Person {
   let id = 1;
 
   return (): Person => {

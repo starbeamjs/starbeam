@@ -4,6 +4,7 @@ export type TypescriptConfig = Linter.Config & {
   excludedFiles?: string | string[];
   files?: string | string[];
   ts?: Linter.RulesRecord;
+  tight?: boolean;
 };
 
 export const rules: Linter.BaseConfig;

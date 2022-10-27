@@ -10,6 +10,7 @@ import { fileURLToPath } from "node:url";
 import typescriptLibrary from "typescript";
 import inline from "./inline.js";
 import { VitePluginFonts } from "vite-plugin-fonts";
+import { lintTypescript } from "./eslint.js";
 
 const { default: commonjs } = await import("@rollup/plugin-commonjs");
 const { default: nodeResolve } = await import("@rollup/plugin-node-resolve");
@@ -30,6 +31,15 @@ const {
 /** @typedef {import("./config.js").PackageJsonInline} PackageJsonInline */
 /** @typedef {import("rollup").Plugin} RollupPlugin */
 /** @typedef {import("rollup").RollupOptions} RollupOptions */
+/**
+ * @typedef {import("./config.js").ESLintExport} ESLintExport
+ * @typedef {import("./config.js").ViteExport} ViteExport
+ * @typedef {import("./config.js").StarbeamKey} StarbeamKey
+ * @typedef {import("./config.js").JsonValue} JsonValue
+ * @typedef {import("./config.js").JsonObject} JsonObject
+ * @typedef {import("./config.js").JsonArray} JsonArray
+ * @typedef {import("./config.js").PackageJSON} PackageJson
+ */
 
 /**
  * The package should be inlined into the output. In this situation, the `external` function should
@@ -153,6 +163,13 @@ export class Package {
       starbeamExternal.push(...json.starbeam.inline.map(mapExternal));
     }
 
+    const type = getStarbeam(json, "type", (value) => {
+      if (typeof value !== "string") {
+        throw new Error(`Invalid starbeam:type: ${value}`);
+      }
+      return value;
+    });
+
     /** @type {string | undefined} */
     let jsx;
 
@@ -170,6 +187,7 @@ export class Package {
         starbeam: {
           external: starbeamExternal,
           jsx,
+          type,
         },
       });
     } else if (
@@ -198,12 +216,28 @@ export class Package {
 
   /**
    * @param {ImportMeta | string} meta
-   * @returns {import("./config.js").ViteExport}
+   * @returns {ViteExport}
    */
   static viteConfig(meta) {
     const pkg = Package.at(meta);
 
     if (pkg) return pkg.#viteConfig();
+
+    throw Error(
+      `No package found at ${
+        typeof meta === "string" ? meta : Package.root(meta)
+      }`
+    );
+  }
+
+  /**
+   * @param {ImportMeta | string} meta
+   * @returns {ESLintExport}
+   */
+  static eslintConfig(meta) {
+    const pkg = Package.at(meta);
+
+    if (pkg) return pkg.#eslintConfig();
 
     throw Error(
       `No package found at ${
@@ -281,6 +315,33 @@ export class Package {
       },
       build: {},
     });
+  }
+
+  /**
+   * @returns {ESLintExport}
+   */
+  #eslintConfig() {
+    const pkg = this.#package;
+
+    if (pkg.starbeam.type === "library") {
+      const tsconfig = resolve(pkg.root, "tsconfig.json");
+
+      return [
+        ...lintTypescript(pkg.root, tsconfig, {
+          files: [
+            resolve(pkg.root, "index.ts"),
+            resolve(pkg.root, "src/**/*.ts"),
+          ],
+          tight: true,
+        }),
+        // ...lintTypescript(pkg.root, tsconfig, {
+        //   files: [resolve(pkg.root, "tests/**/*.ts")],
+        //   ignores: [resolve(pkg.root, "tests/node_modules/**")],
+        // }),
+      ];
+    }
+
+    throw Error("unimplemented");
   }
 
   /**
@@ -441,4 +502,35 @@ const setting = (_name, value) => /** @type {any} */ (value);
  */
 function viteConfig(config) {
   return config;
+}
+
+/**
+ * @template {JsonValue} T
+ * @param {PackageJSON} packageJSON
+ * @param {StarbeamKey} path
+ * @param {(value: JsonValue) => T} [map]
+ * @returns {T}
+ */
+function getStarbeam(
+  packageJSON,
+  path,
+  map = (value) => /** @type {T} */ (value)
+) {
+  const inline = packageJSON[`starbeam:${path}`];
+
+  if (inline) {
+    return map(inline);
+  }
+
+  const starbeam = packageJSON["starbeam"];
+
+  if (starbeam && typeof starbeam === "object" && !Array.isArray(starbeam)) {
+    const value = starbeam[path];
+
+    if (value) {
+      return map(value);
+    }
+  }
+
+  throw Error(`missing starbeam:${path}`);
 }

@@ -1,5 +1,5 @@
-import { Cell, Resource } from "@starbeam/universal";
 import { useReactive, useReactiveResource } from "@starbeam/react";
+import { Cell, Resource } from "@starbeam/universal";
 import { Portal } from "react-portal";
 
 import { getDailyValues, getTickerDetails } from "../lib/api/api.js";
@@ -19,7 +19,7 @@ export function StockDetails({
 }): JSX.Element {
   const query = useReactiveResource(() => getStock(ticker), [ticker]);
 
-  async function follow() {
+  async function follow(): Promise<void> {
     const stock = query.current.stock;
 
     if (!stock) {
@@ -45,7 +45,9 @@ export function StockDetails({
 
         <button
           className={styles.modal}
-          onClick={(event) => event.stopPropagation()}
+          onClick={(event) => {
+            event.stopPropagation();
+          }}
         >
           <When
             value={stock}

@@ -9,7 +9,7 @@ export interface StarbeamCoordination {
     timestamp: number;
   };
   id: {
-    get(): string | number;
+    get: () => string | number;
   };
 }
 
@@ -18,7 +18,7 @@ export interface GlobalWithStarbeam {
 }
 
 export function getCoordination(): Partial<StarbeamCoordination> {
-  let coordination = (globalThis as unknown as GlobalWithStarbeam)[
+  let coordination = (globalThis as unknown as Partial<GlobalWithStarbeam>)[
     COORDINATION
   ];
 

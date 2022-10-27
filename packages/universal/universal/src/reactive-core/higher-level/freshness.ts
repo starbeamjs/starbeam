@@ -2,12 +2,15 @@ import { type Description, descriptionFrom } from "@starbeam/debug";
 
 import { Cell } from "../cell.js";
 
+const INITIAL_COUNT = 0;
+const INCREMENT_COUNT = 1;
+
 export class ReactiveFreshness {
   #lastChecked: number | undefined;
   #cell: Cell<number>;
 
   constructor(description: Description) {
-    this.#cell = Cell(0, { description });
+    this.#cell = Cell(INITIAL_COUNT, { description });
   }
 
   get isStale(): boolean {
@@ -18,7 +21,7 @@ export class ReactiveFreshness {
   }
 
   expire(): void {
-    this.#cell.update((revision) => revision + 1);
+    this.#cell.update((revision) => revision + INCREMENT_COUNT);
   }
 }
 

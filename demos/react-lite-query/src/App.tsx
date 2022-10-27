@@ -18,7 +18,7 @@ export default function App(): JSX.Element {
     if (ref.current !== null) {
       const currentDevtools = devtools.current;
 
-      if (currentDevtools === null || currentDevtools === undefined) {
+      if (currentDevtools === undefined) {
         devtools.current = TabsPane(ref.current, {
           root: "http://localhost:3001/home/wycats/Code/Starbeam/starbeam/demos/react-lite-query/",
           roots: {
@@ -26,13 +26,6 @@ export default function App(): JSX.Element {
               "http://localhost:3001/home/wycats/Code/Starbeam/starbeam/",
           },
         });
-        // devtools.current = DevtoolsLogPane(ref.current, {
-        //   root: "http://localhost:3001/home/wycats/Code/Starbeam/starbeam/demos/react-lite-query/",
-        //   roots: {
-        //     workspace:
-        //       "http://localhost:3001/home/wycats/Code/Starbeam/starbeam/",
-        //   },
-        // });
       } else {
         currentDevtools.update();
       }
@@ -51,8 +44,10 @@ const axios = new Axios();
 
 function Queried(): JSX.Element {
   const query = useQuery("techy", async () => {
-    const response = await axios.get("https://techy-api.vercel.app/api/json");
-    return response.data.message as string;
+    const response = await axios.get<{ message: string }>(
+      "https://techy-api.vercel.app/api/json"
+    );
+    return response.data.message;
   });
 
   if (query.state === "loaded") {

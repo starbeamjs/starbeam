@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 
-import { Cell } from "@starbeam/universal";
 import { entryPoint } from "@starbeam/debug";
 import { useReactive, useReactiveSetup } from "@starbeam/react";
+import { Cell } from "@starbeam/universal";
 import {
   html,
   react,
@@ -41,38 +41,43 @@ describe("useSetup", () => {
                 : ""
             }`
         )
-        .render((test) => {
-          const state = useReactiveSetup((setup) => {
-            const state = Cell({ state: "rendering" } as State, "outer cell");
+        .render((state) => {
+          const reactiveState = useReactiveSetup((setup) => {
+            const renderState = Cell(
+              { state: "rendering" } as State,
+              "outer cell"
+            );
 
             setup.on.idle(() => {
               const channel = Channel.subscribe("test");
-              state.set({ state: "connected" });
+              renderState.set({ state: "connected" });
 
               channel.onMessage((message) => {
-                state.set({ state: "message", lastMessage: message });
+                renderState.set({ state: "message", lastMessage: message });
               });
 
               return () => {
-                state.set({ state: "disconnected" });
+                renderState.set({ state: "disconnected" });
               };
             });
 
-            return state;
+            return renderState;
           });
 
           return useReactive(() => {
-            test.value(state);
+            state.value(reactiveState);
 
             return react.fragment(
-              html.span(state.state),
-              state.state === "message" ? html.span(state.lastMessage) : null
+              html.span(reactiveState.state),
+              reactiveState.state === "message"
+                ? html.span(reactiveState.lastMessage)
+                : null
             );
           });
         });
 
-      function send(message: string) {
-        return entryPoint((): void => {
+      function send(message: string): void {
+        entryPoint((): void => {
           const latest = Channel.latest();
 
           if (latest === undefined) {
@@ -85,7 +90,9 @@ describe("useSetup", () => {
       }
 
       await result.rerender();
-      await result.act(() => send("first message"));
+      await result.act(() => {
+        send("first message");
+      });
 
       expect(result.value).toEqual({
         state: "message",

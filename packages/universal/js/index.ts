@@ -9,12 +9,19 @@ import { TrackedWeakSet } from "./src/set.js";
 
 export { cached } from "./src/decorator.js";
 
+interface DefaultExport extends PropertyDecorator {
+  map: <K, V>(description?: string | Description) => Map<K, V>;
+  object: <T extends object>(
+    values: T,
+    description?: string | Description
+  ) => T;
+}
+
 export const reactive = (
   target: unknown,
   key: PropertyKey,
   _descriptor?: object
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): any => {
+): void => {
   const CELLS = new WeakMap<object, Cell>();
 
   Object.defineProperty(target, key, {
@@ -103,10 +110,11 @@ reactive.WeakSet = <T extends object>(
   );
 };
 
-reactive.object = <T extends object>(
+export function object<T extends Record<string, unknown>>(
+  this: void,
   values: T,
   description?: string | Description
-): T => {
+): T {
   return TrackedObject.reactive(
     descriptionFrom({
       type: "collection:key-value",
@@ -118,7 +126,9 @@ reactive.object = <T extends object>(
     }),
     values
   );
-};
+}
+
+reactive.object = object;
 
 reactive.array = <T>(values: T[], description?: string | Description): T[] => {
   return new TrackedArray(
@@ -134,4 +144,4 @@ reactive.array = <T>(values: T[], description?: string | Description): T[] => {
   ) as T[];
 };
 
-export default reactive;
+export default reactive as unknown as DefaultExport;

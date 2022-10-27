@@ -1,6 +1,7 @@
-import { Resource } from "@starbeam/universal";
-import js from "@starbeam/js";
+import * as js from "@starbeam/js";
 import { useReactiveSetup } from "@starbeam/react";
+import type { ResourceBlueprint } from "@starbeam/universal";
+import { Resource } from "@starbeam/universal";
 
 import { formatLocale, SYSTEM_LOCALE, SYSTEM_TZ } from "../intl.js";
 
@@ -26,26 +27,32 @@ export default function DateFormatterStarbeam(): JSX.Element {
   });
 }
 
-function Clock() {
+function Clock(): ResourceBlueprint<{
+  formatted: string;
+  refresh: () => void;
+}> {
   const date = js.object({ now: new Date() });
 
-  function refresh() {
+  function refresh(): void {
     date.now = new Date();
   }
 
   return Resource((resource) => {
-    resource.on.setup(() => {
-      const interval = setInterval(() => refresh(), 1000);
+    const interval = setInterval(() => {
+      refresh();
+    }, 1000);
 
-      return () => clearInterval(interval);
+    resource.on.cleanup(() => {
+      clearInterval(interval);
     });
-    return () => ({
+
+    return {
       formatted: formatTime(date.now, {
         timeZone: SYSTEM_TZ,
         locale: SYSTEM_LOCALE,
       }),
       refresh,
-    });
+    };
   });
 }
 
@@ -55,7 +62,7 @@ function formatTime(
     locale = SYSTEM_LOCALE,
     timeZone = SYSTEM_TZ,
   }: { locale?: string; timeZone?: string } = {}
-) {
+): string {
   return new Intl.DateTimeFormat(locale, {
     hour: "numeric",
     minute: "numeric",

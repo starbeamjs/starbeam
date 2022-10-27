@@ -34,7 +34,7 @@ export function Internal({
   options,
 }: {
   leaf: DescriptionParts;
-  label?: string;
+  label?: string | undefined;
   options: DevtoolsOptions;
 }): JSX.Element | null {
   if (leaf.internal) {

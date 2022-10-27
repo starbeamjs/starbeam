@@ -1,12 +1,10 @@
 import { create, createCell, service, use } from "@starbeam/preact";
-import type { Factory } from "@starbeam/universal";
+import type { Factory, ResourceBlueprint } from "@starbeam/universal";
 import { Cell, Resource } from "@starbeam/universal";
 import type { JSX } from "preact";
 import { useState } from "preact/hooks";
 
 import Card from "./Card.jsx";
-
-// import DateFormatterFinal from "./formatter/DateFormatterFinal.jsx";
 
 export default function App(): JSX.Element {
   const counter = create(Count);
@@ -17,11 +15,11 @@ export default function App(): JSX.Element {
   const CounterService = CounterWithCleanup();
   const resourceStatus = createCell("idle", "resourceStatus");
 
-  function isIdle() {
+  function isIdle(): boolean {
     return resourceStatus.current === "idle";
   }
 
-  function toggle() {
+  function toggle(): void {
     if (isIdle()) {
       setShowChild(false);
     } else {
@@ -34,18 +32,6 @@ export default function App(): JSX.Element {
       <hr /> <UsingCounterResource status={resourceStatus} />
     </>
   ) : null;
-
-  // return (
-  //   <div class="cards">
-  //     <div class="card">
-  //       <h1>A resource</h1>
-  //       <p>{resourceStatus.current}</p>
-  //       <p>a: {String(showChild)}</p>
-  //       {child}
-  //       <button onClick={toggle}>Toggle</button>
-  //     </div>
-  //   </div>
-  // );
 
   return (
     <div class="cards">
@@ -127,7 +113,7 @@ function UsingCounterService({
 }: {
   name: string;
   Service: Factory<CounterData>;
-}) {
+}): JSX.Element {
   const counter = service(Service);
 
   return (
@@ -139,7 +125,11 @@ function UsingCounterService({
   );
 }
 
-function UsingCounterResource({ status }: { status: Cell<string> }) {
+function UsingCounterResource({
+  status,
+}: {
+  status: Cell<string>;
+}): JSX.Element {
   const counter = use(CounterWithCleanup(status));
 
   status.set("idle");
@@ -153,7 +143,7 @@ function UsingCounterResource({ status }: { status: Cell<string> }) {
   );
 }
 
-function Counter({ counter }: { counter: CounterData }) {
+function Counter({ counter }: { counter: CounterData }): JSX.Element {
   return (
     <>
       <p>Count: {counter.count}</p>
@@ -171,7 +161,7 @@ function Count(): CounterData {
   const count = Cell(0, "data count");
 
   return {
-    get count() {
+    get count(): number {
       return count.current;
     },
     increment: () => {
@@ -180,7 +170,12 @@ function Count(): CounterData {
   };
 }
 
-function CounterWithCleanup(status: Cell<string> = Cell("new")) {
+function CounterWithCleanup(
+  status: Cell<string> = Cell("new")
+): ResourceBlueprint<{
+  readonly count: number;
+  increment: () => void;
+}> {
   return Resource(({ on }) => {
     const count = Cell(0, "resource count");
 

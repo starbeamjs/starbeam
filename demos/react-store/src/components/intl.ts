@@ -32,7 +32,7 @@ export const SYSTEM_TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 export function formatLocale(localeName: string): {
   language: string;
-  region: string | void;
+  region: string | undefined;
   full: string;
 } {
   const locale = new Intl.Locale(localeName);
@@ -53,12 +53,12 @@ function localeInfo(
   locale: Intl.Locale,
   code: string | undefined,
   type: Intl.DisplayNamesType
-): string | void;
+): string | undefined;
 function localeInfo(
   locale: Intl.Locale,
   code: string | undefined,
   type: Intl.DisplayNamesType
-): string | void {
+): string | undefined {
   if (code) {
     return new Intl.DisplayNames([locale.language], { type }).of(code);
   }

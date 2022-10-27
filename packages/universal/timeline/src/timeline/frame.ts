@@ -1,6 +1,7 @@
 import type {
   CompositeInternals,
   Description,
+  Frame as IFrame,
   MutableInternals,
   ReactiveId,
   Timestamp,
@@ -10,7 +11,7 @@ import { REACTIVE, UNINITIALIZED } from "@starbeam/shared";
 import { getID } from "./id.js";
 import { ReactiveProtocol } from "./protocol.js";
 import type { Timeline } from "./timeline.js";
-import { now } from "./timestamp.js";
+import { getNow } from "./timestamp.js";
 
 interface Marker {
   [REACTIVE]: Omit<MutableInternals, "lastUpdated"> & {
@@ -19,7 +20,7 @@ interface Marker {
 }
 
 export class Frame<T = unknown>
-  implements ReactiveProtocol<CompositeInternals>
+  implements ReactiveProtocol<CompositeInternals>, IFrame
 {
   static create<T>(
     this: void,
@@ -72,6 +73,10 @@ export class Frame<T = unknown>
     return frame.#value;
   }
 
+  static isInitialized(this: void, frame: Frame): boolean {
+    return frame.#value !== UNINITIALIZED;
+  }
+
   static update<T>(
     this: void,
     frame: Frame<T>,
@@ -91,10 +96,10 @@ export class Frame<T = unknown>
   }
 
   #value: T;
-  #initialized: Marker;
+  readonly #initialized: Marker;
   #children: ReadonlySet<ReactiveProtocol>;
   #finalized: Timestamp;
-  #description: Description;
+  readonly #description: Description;
 
   constructor(
     id: ReactiveId,
@@ -144,7 +149,7 @@ export class Frame<T = unknown>
     value: T,
     children: Set<ReactiveProtocol>,
     finalized: Timestamp
-  ): Frame<T> {
+  ): this {
     if (Object.is(this.#value, UNINITIALIZED)) {
       this.#initialized[REACTIVE].lastUpdated = finalized;
     }
@@ -155,14 +160,17 @@ export class Frame<T = unknown>
     return this;
   }
 
-  validate<U>(this: Frame<U | UNINITIALIZED>): FrameValidation<U> {
+  validate(): FrameValidation<Exclude<T, UNINITIALIZED>> {
     if (
-      Object.is(this.#value, UNINITIALIZED) ||
+      this.#value === UNINITIALIZED ||
       ReactiveProtocol.lastUpdatedIn([...this.#children]).gt(this.#finalized)
     ) {
       return { status: "invalid" };
     } else {
-      return { status: "valid", value: this.#value as U };
+      return {
+        status: "valid",
+        value: this.#value as Exclude<T, UNINITIALIZED>,
+      };
     }
   }
 }
@@ -206,10 +214,10 @@ export class ActiveFrame<T> {
     let frame = this.#updating;
 
     if (frame) {
-      Frame.update(frame, value, this.#children, now());
+      Frame.update(frame, value, this.#children, getNow());
       timeline.update(frame);
     } else {
-      frame = Frame.create(value, this.#children, now(), this.description);
+      frame = Frame.create(value, this.#children, getNow(), this.description);
     }
 
     return { prev: this.#prev, frame };

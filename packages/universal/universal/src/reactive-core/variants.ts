@@ -247,31 +247,29 @@ export class Variant<T> implements ReactiveProtocol {
   }
 }
 
-export type VariantType = Record<string, unknown>;
+export type VariantType = object;
 
 type UnitVariantName<V extends VariantType> = {
-  [K in keyof V]: V[K] extends void ? K : never;
+  [K in keyof V]: V[K] extends [] ? K : never;
 }[keyof V];
 type ValueVariantName<V extends VariantType> = {
-  [K in keyof V]: V[K] extends void ? never : K;
+  [K in keyof V]: V[K] extends [] ? never : K;
 }[keyof V];
 
 export type VariantEntry<V extends VariantType> = {
   [K in keyof V]: K extends string
-    ? V[K] extends void
+    ? V[K] extends []
       ? { type: K; value?: undefined }
       : { type: K; value: V[K] }
     : never;
 }[keyof V];
 
 type VariantConstructors<V extends VariantType> = {
-  [K in keyof V]: V[K] extends void
-    ? () => Variants<V>
-    : (value: V[K]) => Variants<V>;
+  [K in keyof V]: (...args: V[K] & unknown[]) => Variants<V>;
 };
 
 type Matcher<V extends VariantType, T> = {
-  [K in keyof V]: V[K] extends void ? T : (value: V[K]) => T;
+  [K in keyof V]: (...value: V[K] & unknown[]) => T;
 };
 
 interface InternalVariant {
@@ -282,45 +280,50 @@ interface InternalVariant {
 export interface ReadonlyVariants<V extends VariantType, K extends keyof V> {
   readonly current: {
     [P in K]: K extends string
-      ? V[P] extends void
+      ? V[P] extends []
         ? { type: P }
         : { type: P; value: V[P] }
       : never;
   }[K];
 
-  is<T extends K>(
+  is: <T extends K>(
     ...keys: T[]
-  ): this is Omit<this, "current"> & ReadonlyVariants<V, T>;
+  ) => this is Omit<this, "current"> & ReadonlyVariants<V, T>;
 }
 
 export interface Variants<V extends VariantType, Narrow = V>
   extends ReactiveProtocol {
   current: {
     [K in keyof Narrow]: K extends string
-      ? Narrow[K] extends void
+      ? Narrow[K] extends []
         ? { type: K }
+        : Narrow[K] extends [infer Single]
+        ? { type: K; value: Single }
         : { type: K; value: Narrow[K] }
       : never;
   }[keyof Narrow];
-  choose(name: UnitVariantName<V>): void;
-  choose<N extends ValueVariantName<V>>(name: N, value: V[N]): void;
+  choose: ((name: UnitVariantName<V>) => void) &
+    (<N extends ValueVariantName<V>>(
+      name: N,
+      ...value: V[N] & unknown[]
+    ) => void);
 
-  is<K extends (keyof V)[]>(
+  is: <K extends (keyof V)[]>(
     ...keys: K
-  ): this is Variants<V, Pick<Narrow, K[number] & keyof Narrow>>;
+  ) => this is Variants<V, Pick<Narrow, K[number] & keyof Narrow>>;
 
-  match<M extends Matcher<V, unknown>>(
+  match: (<M extends Matcher<V, unknown>>(
     matcher: M
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ): M[keyof M] extends (...args: any[]) => infer R ? R : M[keyof M];
-  match<M extends Partial<Matcher<V, unknown>>>(
-    matcher: M
-  ):
-    | {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        [K in keyof M]: M[K] extends (...args: any[]) => infer R ? R : never;
-      }[keyof M]
-    | undefined;
+  ) => M[keyof M] extends (...args: any[]) => infer R ? R : M[keyof M]) &
+    (<M extends Partial<Matcher<V, unknown>>>(
+      matcher: M
+    ) =>
+      | {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          [K in keyof M]: M[K] extends (...args: any[]) => infer R ? R : never;
+        }[keyof M]
+      | undefined);
 }
 
 class VariantsImpl implements ReactiveProtocol {
@@ -382,13 +385,20 @@ class VariantsImpl implements ReactiveProtocol {
       Variant.consumeType(variant);
     }
 
-    const current = Variant.type(this.#current);
+    const current = Variant.type(this.#current) as keyof Matcher<
+      VariantType,
+      T
+    >;
 
     if (current in matcher) {
-      const value = matcher[current];
+      const value = matcher[current] as
+        | ((value: Variant<unknown>["value"]) => T)
+        | T;
 
       if (typeof value === "function") {
-        return value(this.#current.value);
+        return (value as (value: Variant<unknown>["value"]) => T)(
+          this.#current.value
+        );
       } else {
         return value;
       }
@@ -417,7 +427,7 @@ class VariantsImpl implements ReactiveProtocol {
     Variant.deselect(current);
     this.#groups.transition(from, type, caller);
 
-    const existing = this.#variants[type] as Variant<unknown> | undefined;
+    const existing = this.#variants[type];
 
     if (existing) {
       Variant.set(existing, value);
@@ -428,12 +438,11 @@ class VariantsImpl implements ReactiveProtocol {
     }
 
     this.#typeMarker.update(caller);
-    // this.#current.consumeType();
     TIMELINE.update(this);
   }
 
   #get(type: string): Variant<unknown> {
-    const existing = this.#variants[type] as Variant<unknown> | undefined;
+    const existing = this.#variants[type];
 
     if (existing) {
       return existing;
@@ -446,22 +455,21 @@ class VariantsImpl implements ReactiveProtocol {
     type: string,
     create: "deselected" | ["selected", unknown]
   ): Variant<unknown> {
-    const variant =
-      create === "deselected"
-        ? Variant.deselected(
-            type,
-            this.#typeMarker,
-            this.#description.key(type)
-          )
-        : Variant.selected(
-            type,
-            this.#typeMarker,
-            create[1],
-            this.#description.key(type)
-          );
-    this.#variants[type] = variant;
-
-    return variant;
+    if (create === "deselected") {
+      return (this.#variants[type] = Variant.deselected(
+        type,
+        this.#typeMarker,
+        this.#description.key(type)
+      ));
+    } else {
+      const [, value] = create;
+      return (this.#variants[type] = Variant.selected(
+        type,
+        this.#typeMarker,
+        value,
+        this.#description.key(type)
+      ));
+    }
   }
 }
 
@@ -486,20 +494,20 @@ export function Variants<V extends VariantType>(
   });
   const target: Record<string, (value: unknown) => VariantsImpl> = {};
   return new Proxy(target, {
-    get(target, name) {
+    get(getTarget, name) {
       if (typeof name === "symbol" || RESERVED.has(name)) {
-        return Reflect.get(target, name) as unknown;
+        return Reflect.get(getTarget, name) as unknown;
       }
 
-      let existing = target[name];
+      let existing = getTarget[name];
       if (!existing) {
         existing = (value?: unknown) => {
           return VariantsImpl.create({ type: name, value }, desc);
         };
-        target[name] = existing;
+        getTarget[name] = existing;
       }
 
-      return target[name];
+      return getTarget[name];
     },
   }) as unknown as VariantConstructors<V>;
 }

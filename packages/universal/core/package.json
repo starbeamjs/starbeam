@@ -7,7 +7,9 @@
     "@starbeam/universal": "workspace:*"
   },
   "devDependencies": {
-    "@starbeam-workspace/build-support": "workspace:^"
+    "@starbeam/eslint-plugin": "workspace:^",
+    "@starbeam-workspace/build-support": "workspace:^",
+    "@typescript-eslint/eslint-plugin": "*"
   },
   "publishConfig": {
     "main": "dist/index.cjs",

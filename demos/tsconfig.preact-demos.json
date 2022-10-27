@@ -5,12 +5,8 @@
     "outDir": "../../dist/packages",
     "types": ["preact"]
   },
-  "include": ["./preact*/**/*"],
-  "exclude": [
-    "../../packages/**/*",
-    "../../framework/**/*",
-    "../../demos/*/vite.config.ts"
-  ],
+  "include": ["./preact*/**/*", "./preact*/**/*.tsx"],
+  "exclude": ["./*/vite.config.ts"],
   "references": [
     {
       "path": "../packages/tsconfig.packages.json"

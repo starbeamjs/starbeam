@@ -1,5 +1,6 @@
 import { Readable } from "node:stream";
 
+import { isEmptyArray } from "@starbeam/core-utils";
 import ansicolor from "ansicolor";
 import { spawn } from "node-pty";
 import shellSplit from "shell-split";
@@ -7,6 +8,7 @@ import split from "split2";
 
 import { terminalWidth } from "../format.js";
 import { Fragment } from "../log.js";
+import { fatal } from "../type-magic.js";
 import type { Workspace } from "../workspace.js";
 import { FancyHeader } from "./fancy-header.js";
 import type { LoggerState } from "./logger.js";
@@ -14,14 +16,24 @@ import type { Reporter } from "./reporter.js";
 
 export type CommandOutputType = "stream" | "when-error";
 
+const SUCCESS_CODE = 0;
+
 export class CommandStream {
-  static exec(
+  static async exec(
     workspace: Workspace,
     command: string,
     options: { cols?: number; cwd?: string; output: CommandOutputType }
   ): Promise<"ok" | "err"> {
     const parsed: string[] = shellSplit(command);
     const [cmd, ...args] = parsed;
+
+    if (cmd === undefined) {
+      fatal(
+        workspace.reporter.fatal(
+          `a command passed to workspace.exec is unexpectedly empty`
+        )
+      );
+    }
 
     return new CommandStream(workspace).exec(cmd, args, options);
   }
@@ -47,7 +59,9 @@ export class CommandStream {
       output,
     }: { cols?: number; cwd?: string; output: CommandOutputType }
   ): Promise<"ok" | "err"> {
-    const ptyCols = cols - (this.#reporter.leading + 2);
+    // Extra padding for the divider
+    const PADDING = 2;
+    const ptyCols = cols - (this.#reporter.leading + PADDING);
 
     const pty = PtyStream(cmd, args, {
       cols: ptyCols,
@@ -66,19 +80,27 @@ export class CommandStream {
 
     await this.#reporter.raw(async (writer) => {
       for await (const chunk of padded) {
-        writer.write(`${ESC}[${this.#reporter.nesting * 2 + 1}G`);
-        writer.writeln(chunk);
+        writer.write(`${ESC}[${this.#nestingSize}G`);
+        writer.writeln(chunk as string);
       }
     });
 
     return this.#reportExecStatus(pty.code);
   }
 
+  get #nestingSize(): number {
+    // 2 spaces per nesting level
+    const SPACES_PER_NESTING = 2;
+    // 1 space for the divider
+    const PAD = 1;
+    return this.#reporter.nesting * SPACES_PER_NESTING + PAD;
+  }
+
   #reportExecStatus(code: number | void): "ok" | "err" {
     if (code === undefined) {
       this.#reporter.error(`☠️ command exited without a status code`);
       return "err";
-    } else if (code === 0) {
+    } else if (code === SUCCESS_CODE) {
       this.#reporter.verbose((r) => {
         r.endWith({
           compact: Fragment.ok(" ok"),
@@ -106,7 +128,7 @@ function PtyStream(
     cwd: string;
     output: CommandOutputType;
     state: LoggerState;
-    env?: { [key: string]: string };
+    env?: Record<string, string>;
     transform?: Transformer;
   }
 ): { readonly stream: Readable; readonly code: number | undefined } {
@@ -116,7 +138,8 @@ function PtyStream(
     },
   });
 
-  const transform = options.transform ?? ((data: string): string => data);
+  const transform =
+    options.transform ?? ((data: string): string | undefined => data);
   const pty = spawn(file, args, options);
   let code: number | undefined = undefined;
 
@@ -137,19 +160,16 @@ function PtyStream(
 
     pty.onData((chunk) => {
       const transformed = transform(chunk, options.state);
-      if (transformed) {
-        if (transformed === undefined) {
-          return;
-        } else if (typeof transformed === "string") {
-          buffer.push(transformed);
-        } else {
-          buffer.push(...transformed);
-        }
+
+      if (typeof transformed === "string") {
+        buffer.push(transformed);
+      } else if (transformed) {
+        buffer.push(...transformed);
       }
     });
 
     pty.onExit(({ exitCode }) => {
-      if (exitCode !== 0) {
+      if (exitCode !== SUCCESS_CODE) {
         buffer.forEach((chunk) => stream.push(chunk));
       }
       stream.push(null);
@@ -189,7 +209,7 @@ const Transformer = {
           }
         }
 
-        if (next.length === 0) {
+        if (isEmptyArray(next)) {
           return;
         }
 
@@ -215,7 +235,7 @@ function normalizeNewlines(chunk: string): string[] {
 
 function addLinePrefix(chunk: string, state: LoggerState): string | void {
   const everythingDimmed = chunk.replaceAll(
-    /\u001B\[22m/g,
+    /\u{001B}\[22m/g,
     (m) => `${ESC}${m}${colorCode(DIM)}`
   );
 
@@ -232,7 +252,7 @@ function addLinePrefix(chunk: string, state: LoggerState): string | void {
 }
 
 function transformDeprecated(chunk: string, state: LoggerState): string | void {
-  if (chunk.match(/^\s*DeprecationWarning:/)) {
+  if (/^\s*DeprecationWarning:/.exec(chunk)) {
     if (state.verbose) {
       return chunk.replaceAll(
         /^\s*DeprecationWarning:.*$/g,
@@ -257,5 +277,5 @@ function transformDeprecated(chunk: string, state: LoggerState): string | void {
  * bit more time-consuming than I (@wycats) want to spend right now.
  */
 function removeResetColumn(chunk: string): string {
-  return chunk.replace(/([\u001B\u009B])[\\]?\[0?G/g, "");
+  return chunk.replace(/([\u{001B}\u{009B}])[\\]?\[0?G/g, "");
 }

@@ -1,3 +1,8 @@
+export {
+  type TestResourceImpl,
+  resources,
+  TestResource,
+} from "./src/test-resource.js";
 export { assert, UNINITIALIZED } from "./src/utils.js";
 export {
   beforeAll,

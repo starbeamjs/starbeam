@@ -1,4 +1,6 @@
+import { getLast } from "@starbeam/core-utils";
 import type { Description } from "@starbeam/debug";
+import type { InternalComponent } from "@starbeam/preact-utils";
 import {
   type ActiveFrame,
   type Frame,
@@ -8,9 +10,14 @@ import {
 import { expected, isPresent, verify } from "@starbeam/verify";
 
 export class ComponentFrame {
-  static #frames: WeakMap<object, ComponentFrame> = new WeakMap();
+  #active: ActiveFrame<unknown> | null;
+  #frame: Frame | null;
+  #subscription: Unsubscribe | null;
 
-  static start(component: object, description: Description): void {
+  static #frames = new WeakMap<InternalComponent, ComponentFrame>();
+  static #stack: InternalComponent[] = [];
+
+  static start(component: InternalComponent, description: Description): void {
     let frame = ComponentFrame.#frames.get(component);
 
     if (!frame) {
@@ -18,16 +25,27 @@ export class ComponentFrame {
       ComponentFrame.#frames.set(component, frame);
     }
 
+    ComponentFrame.#stack.push(component);
     frame.#start(description);
   }
 
-  static isRenderingComponent(component: object): boolean {
+  static isRenderingComponent(component: InternalComponent): boolean {
     const frame = ComponentFrame.#frames.get(component);
 
     return !!frame && frame.#active !== null;
   }
 
-  static end(component: object, subscription?: () => void): Frame {
+  static get current(): InternalComponent {
+    const current = getLast(ComponentFrame.#stack);
+    if (!current) {
+      throw Error(
+        "You are attempting to use a feature of Starbeam that depends on the current component, but no component is currently active."
+      );
+    }
+    return current;
+  }
+
+  static end(component: InternalComponent, subscription?: () => void): Frame {
     const frame = ComponentFrame.#frames.get(component);
 
     verify(
@@ -37,20 +55,17 @@ export class ComponentFrame {
     );
 
     const end = frame.#end(subscription);
+    ComponentFrame.#stack.pop();
     return end;
   }
 
-  static unmount(component: object): void {
+  static unmount(component: InternalComponent): void {
     const frame = ComponentFrame.#frames.get(component);
 
     if (frame) {
       frame.#unmount();
     }
   }
-
-  #frame: Frame | null;
-  #active: ActiveFrame<unknown> | null;
-  #subscription: Unsubscribe | null;
 
   private constructor(
     frame: Frame | null,
@@ -72,7 +87,7 @@ export class ComponentFrame {
     }
   }
 
-  #end(subscription: (() => void) | void): Frame {
+  #end(subscription: (() => void) | undefined): Frame {
     verify(
       this.#active,
       isPresent,

@@ -1,6 +1,10 @@
+import { getLast, isPresentArray } from "@starbeam/core-utils";
+
 export class Context {
+  readonly component = new ComponentContext();
+
   #app: object | undefined;
-  #appContext = new SingletonContext();
+  #singletons = new SingletonContext();
 
   set app(app: object) {
     this.#app = app;
@@ -12,6 +16,7 @@ export class Context {
         "You are attempting to use a feature of Starbeam that depends on the application context, but no application context has been set."
       );
     }
+
     return this.#app;
   }
 
@@ -24,14 +29,12 @@ export class Context {
     constructor: (...args: Args) => Ret,
     ...args: Args
   ): Ret {
-    return this.#appContext.create(key, constructor, ...args);
+    return this.#singletons.create(key, constructor, ...args);
   }
-
-  readonly component = new ComponentContext();
 }
 
 class SingletonContext {
-  #instances: WeakMap<object, object> = new WeakMap();
+  #instances = new WeakMap<object, object>();
 
   create<Args extends unknown[], Ret>(
     key: object | undefined,
@@ -57,18 +60,6 @@ export class ComponentContext {
   readonly #stack: object[] = [];
   readonly #singleton = new SingletonContext();
 
-  push(component: object): void {
-    this.#stack.push(component);
-  }
-
-  pop(): void {
-    this.#stack.pop();
-  }
-
-  exists(): boolean {
-    return this.#stack.length > 0;
-  }
-
   get current(): object {
     const current = this.#current;
     if (current === undefined) {
@@ -80,11 +71,19 @@ export class ComponentContext {
   }
 
   get #current(): object | undefined {
-    if (this.#stack.length > 0) {
-      return this.#stack[this.#stack.length - 1];
-    } else {
-      return undefined;
-    }
+    return getLast(this.#stack);
+  }
+
+  push(component: object): void {
+    this.#stack.push(component);
+  }
+
+  pop(): void {
+    this.#stack.pop();
+  }
+
+  exists(): boolean {
+    return isPresentArray(this.#stack);
   }
 
   create<Args extends unknown[], Ret>(

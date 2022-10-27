@@ -1,3 +1,4 @@
+import { getLast, withoutLast } from "@starbeam/core-utils";
 import chalk from "chalk";
 
 import { wrapIndented } from "../format.js";
@@ -84,6 +85,8 @@ interface GroupState {
   header: Header | undefined;
 }
 
+const INCREMENT_NESTING = 1;
+
 abstract class InternalLoggerState {
   static top(options: ReporterOptions): InternalLoggerState {
     return new InternalLoggerTopState(options);
@@ -119,7 +122,7 @@ abstract class InternalLoggerState {
    * first, and make sure a newline is printed to the console afterward.
    */
   write(message: string): void {
-    return this.#write(message);
+    this.#write(message);
   }
 
   writeln(message: IntoFragment): { wrote: "contents" | "empty" } {
@@ -146,7 +149,7 @@ abstract class InternalLoggerState {
     if (typeof message === "string" && message.trim() === "") {
       return "";
     } else {
-      return `${this.#leadingString(0)}${this.#format(message)}`;
+      return `${this.#leadingString}${this.#format(message)}`;
     }
   }
 
@@ -157,8 +160,8 @@ abstract class InternalLoggerState {
     });
   }
 
-  #leadingString(leadingOffset: number): string {
-    return "  ".repeat(this.leading + leadingOffset);
+  get #leadingString(): string {
+    return "  ".repeat(this.leading);
   }
 
   begin(
@@ -172,7 +175,7 @@ abstract class InternalLoggerState {
           message,
           ...options,
         },
-        nesting: this.leading + 1,
+        nesting: this.leading + INCREMENT_NESTING,
         printed: false,
       },
       this.#options,
@@ -339,7 +342,13 @@ class States {
   }
 
   get #current(): InternalLoggerState {
-    return this.#states[this.#states.length - 1];
+    const state = getLast(this.#states);
+
+    if (state === undefined) {
+      throw Error("FATAL BUG: The logger doesn't have an internal state");
+    }
+
+    return state;
   }
 
   get current(): LoggerState {
@@ -361,7 +370,7 @@ class States {
   writeln(message: string): void {
     this.ensureOpen({ expect: "any" });
 
-    return this.#actions.wrote(this.#current.writeln(message));
+    this.#actions.wrote(this.#current.writeln(message));
   }
 
   writelnRaw(message: string): void {
@@ -398,7 +407,10 @@ class States {
     this.#logln(this.#current.formatLine(message), loggerFn);
   }
 
-  begin(message: Fragment | undefined, options: { breakBefore: boolean }) {
+  begin(
+    message: Fragment | undefined,
+    options: { breakBefore: boolean }
+  ): void {
     this.#states.push(this.#current.begin(message, options));
   }
 
@@ -424,7 +436,9 @@ class States {
             : { wrote: "contents" }
         );
       },
-      flush: () => this.#flushParents(),
+      flush: () => {
+        this.#flushParents();
+      },
     });
 
     // this.#current.endWith({
@@ -445,10 +459,12 @@ class States {
     // }
   }
 
-  #flushParents = () => {
-    const parents = [...this.#states.slice(0, -1)].map((state) =>
+  #flushParents = (): void => {
+    const parents = [...withoutLast(this.#states)].map((state) =>
       state.do({
-        group: () => this.#flushHeader(state),
+        group: () => {
+          this.#flushHeader(state);
+        },
       })
     );
 
@@ -523,7 +539,7 @@ export class Logger {
     message: FragmentImpl | undefined,
     options: { breakBefore: boolean } = { breakBefore: false }
   ): void {
-    return this.#states.begin(message, options);
+    this.#states.begin(message, options);
   }
 
   end(): void {
@@ -547,11 +563,15 @@ export class Logger {
     callback: (options: {
       write: (message: string) => void;
       writeln: (message: string) => void;
-    }) => void
+    }) => void | Promise<void>
   ): Promise<void> {
-    return callback({
-      write: (message) => this.#states.write(message),
-      writeln: (message) => this.#states.writelnRaw(message),
+    await callback({
+      write: (message) => {
+        this.#states.write(message);
+      },
+      writeln: (message) => {
+        this.#states.writelnRaw(message);
+      },
     });
   }
 

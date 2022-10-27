@@ -1,205 +1,225 @@
 import type { Migrator } from "../json-editor/migration.js";
+import { StarbeamType } from "../unions.js";
 import { UpdatePackageFn } from "./updates.js";
 
 /**
  * Unfortunately, this is not exposed in a useful/viable way from the typescript package.
  */
 export interface TsConfig {
-  extends?: string;
-  include?: string[];
-  exclude?: string[];
-  files?: string[];
-  references?: { path: string }[];
-  compilerOptions?: {
-    module?: string;
-    moduleResolution?: string;
-    moduleDetection?: string;
-    newLine?: string;
-    importsNotUsedAsValues?: string;
-    jsx?: string;
-    target?: string;
-    allowJs?: boolean;
-    allowSyntheticDefaultImports?: boolean;
-    allowUmdGlobalAccess?: boolean;
-    allowUnreachableCode?: boolean;
-    allowUnusedLabels?: boolean;
-    alwaysStrict?: boolean;
-    baseUrl?: string;
-    charset?: string;
-    checkJs?: boolean;
-    declaration?: boolean;
-    declarationMap?: boolean;
-    emitDeclarationOnly?: boolean;
-    declarationDir?: string;
-    disableSizeLimit?: boolean;
-    disableSourceOfProjectReferenceRedirect?: boolean;
-    disableSolutionSearching?: boolean;
-    disableReferencedProjectLoad?: boolean;
-    downlevelIteration?: boolean;
-    emitBOM?: boolean;
-    emitDecoratorMetadata?: boolean;
-    exactOptionalPropertyTypes?: boolean;
-    experimentalDecorators?: boolean;
-    forceConsistentCasingInFileNames?: boolean;
-    importHelpers?: boolean;
-    inlineSourceMap?: boolean;
-    inlineSources?: boolean;
-    isolatedModules?: boolean;
-    keyofStringsOnly?: boolean;
-    lib?: string[];
-    locale?: string;
-    mapRoot?: string;
-    maxNodeModuleJsDepth?: number;
-    moduleSuffixes?: string[];
-    noEmit?: boolean;
-    noEmitHelpers?: boolean;
-    noEmitOnError?: boolean;
-    noErrorTruncation?: boolean;
-    noFallthroughCasesInSwitch?: boolean;
-    noImplicitAny?: boolean;
-    noImplicitReturns?: boolean;
-    noImplicitThis?: boolean;
-    noStrictGenericChecks?: boolean;
-    noUnusedLocals?: boolean;
-    noUnusedParameters?: boolean;
-    noImplicitUseStrict?: boolean;
-    noPropertyAccessFromIndexSignature?: boolean;
-    assumeChangesOnlyAffectDirectDependencies?: boolean;
-    noLib?: boolean;
-    noResolve?: boolean;
-    noUncheckedIndexedAccess?: boolean;
-    out?: string;
-    outDir?: string;
-    outFile?: string;
-    paths?: Record<string, string[]>;
-    preserveConstEnums?: boolean;
-    noImplicitOverride?: boolean;
-    preserveSymlinks?: boolean;
-    preserveValueImports?: boolean;
-    project?: string;
-    reactNamespace?: string;
-    jsxFactory?: string;
-    jsxFragmentFactory?: string;
-    jsxImportSource?: string;
-    composite?: boolean;
-    incremental?: boolean;
-    tsBuildInfoFile?: string;
-    removeComments?: boolean;
-    rootDir?: string;
-    rootDirs?: string[];
-    skipLibCheck?: boolean;
-    skipDefaultLibCheck?: boolean;
-    sourceMap?: boolean;
-    sourceRoot?: string;
-    strict?: boolean;
-    strictFunctionTypes?: boolean;
-    strictBindCallApply?: boolean;
-    strictNullChecks?: boolean;
-    strictPropertyInitialization?: boolean;
-    stripInternal?: boolean;
-    suppressExcessPropertyErrors?: boolean;
-    suppressImplicitAnyIndexErrors?: boolean;
-    traceResolution?: boolean;
-    useUnknownInCatchVariables?: boolean;
-    resolveJsonModule?: boolean;
-    types?: string[];
-    /** Paths used to compute primary types search locations */
-    typeRoots?: string[];
-    esModuleInterop?: boolean;
-    useDefineForClassFields?: boolean;
-  };
+  extends?: string | undefined;
+  include?: string[] | undefined;
+  exclude?: string[] | undefined;
+  files?: string[] | undefined;
+  references?: { path: string }[] | undefined;
+  compilerOptions?:
+    | {
+        module?: string | undefined;
+        moduleResolution?: string | undefined;
+        moduleDetection?: string | undefined;
+        newLine?: string | undefined;
+        importsNotUsedAsValues?: string | undefined;
+        jsx?: string | undefined;
+        target?: string | undefined;
+        allowJs?: boolean | undefined;
+        allowSyntheticDefaultImports?: boolean | undefined;
+        allowUmdGlobalAccess?: boolean | undefined;
+        allowUnreachableCode?: boolean | undefined;
+        allowUnusedLabels?: boolean | undefined;
+        alwaysStrict?: boolean | undefined;
+        baseUrl?: string | undefined;
+        charset?: string | undefined;
+        checkJs?: boolean | undefined;
+        declaration?: boolean | undefined;
+        declarationMap?: boolean | undefined;
+        emitDeclarationOnly?: boolean | undefined;
+        declarationDir?: string | undefined;
+        disableSizeLimit?: boolean | undefined;
+        disableSourceOfProjectReferenceRedirect?: boolean | undefined;
+        disableSolutionSearching?: boolean | undefined;
+        disableReferencedProjectLoad?: boolean | undefined;
+        downlevelIteration?: boolean | undefined;
+        emitBOM?: boolean | undefined;
+        emitDecoratorMetadata?: boolean | undefined;
+        exactOptionalPropertyTypes?: boolean | undefined;
+        experimentalDecorators?: boolean | undefined;
+        forceConsistentCasingInFileNames?: boolean | undefined;
+        importHelpers?: boolean | undefined;
+        inlineSourceMap?: boolean | undefined;
+        inlineSources?: boolean | undefined;
+        isolatedModules?: boolean | undefined;
+        keyofStringsOnly?: boolean | undefined;
+        lib?: string[] | undefined;
+        locale?: string | undefined;
+        mapRoot?: string | undefined;
+        maxNodeModuleJsDepth?: number | undefined;
+        moduleSuffixes?: string[] | undefined;
+        noEmit?: boolean | undefined;
+        noEmitHelpers?: boolean | undefined;
+        noEmitOnError?: boolean | undefined;
+        noErrorTruncation?: boolean | undefined;
+        noFallthroughCasesInSwitch?: boolean | undefined;
+        noImplicitAny?: boolean | undefined;
+        noImplicitReturns?: boolean | undefined;
+        noImplicitThis?: boolean | undefined;
+        noStrictGenericChecks?: boolean | undefined;
+        noUnusedLocals?: boolean | undefined;
+        noUnusedParameters?: boolean | undefined;
+        noImplicitUseStrict?: boolean | undefined;
+        noPropertyAccessFromIndexSignature?: boolean | undefined;
+        assumeChangesOnlyAffectDirectDependencies?: boolean | undefined;
+        noLib?: boolean | undefined;
+        noResolve?: boolean | undefined;
+        noUncheckedIndexedAccess?: boolean | undefined;
+        out?: string | undefined;
+        outDir?: string | undefined;
+        outFile?: string | undefined;
+        paths?: Record<string, string[]> | undefined;
+        preserveConstEnums?: boolean | undefined;
+        noImplicitOverride?: boolean | undefined;
+        preserveSymlinks?: boolean | undefined;
+        preserveValueImports?: boolean | undefined;
+        project?: string | undefined;
+        reactNamespace?: string | undefined;
+        jsxFactory?: string | undefined;
+        jsxFragmentFactory?: string | undefined;
+        jsxImportSource?: string | undefined;
+        composite?: boolean | undefined;
+        incremental?: boolean | undefined;
+        tsBuildInfoFile?: string | undefined;
+        removeComments?: boolean | undefined;
+        rootDir?: string | undefined;
+        rootDirs?: string[] | undefined;
+        skipLibCheck?: boolean | undefined;
+        skipDefaultLibCheck?: boolean | undefined;
+        sourceMap?: boolean | undefined;
+        sourceRoot?: string | undefined;
+        strict?: boolean | undefined;
+        strictFunctionTypes?: boolean | undefined;
+        strictBindCallApply?: boolean | undefined;
+        strictNullChecks?: boolean | undefined;
+        strictPropertyInitialization?: boolean | undefined;
+        stripInternal?: boolean | undefined;
+        suppressExcessPropertyErrors?: boolean | undefined;
+        suppressImplicitAnyIndexErrors?: boolean | undefined;
+        traceResolution?: boolean | undefined;
+        useUnknownInCatchVariables?: boolean | undefined;
+        resolveJsonModule?: boolean | undefined;
+        types?: string[] | undefined;
+        /** Paths used to compute primary types search locations */
+        typeRoots?: string[] | undefined;
+        esModuleInterop?: boolean | undefined;
+        useDefineForClassFields?: boolean | undefined;
+      }
+    | undefined;
 }
 
-export const updateTsconfig = UpdatePackageFn((updater, { workspace }) => {
-  const { path, pkg } = updater;
-  updater.json.migrator("tsconfig.json", (migrator: Migrator<TsConfig>) => {
-    migrator
-      .remove("compilerOptions.emitDeclarationOnly")
-      .add(
-        "compilerOptions.types",
-        path.relative(workspace.paths.packages.file("env")),
-        { matches: (type) => type.endsWith("/env") }
-      );
+export const updateTsconfig = UpdatePackageFn(
+  (updater, { workspace, paths }) => {
+    const { path, pkg } = updater;
+    updater.json.migrate("tsconfig.json", (migrator: Migrator<TsConfig>) => {
+      migrator
+        .remove("compilerOptions.emitDeclarationOnly")
+        .array("compilerOptions.types", (update) =>
+          update.add(path(paths.packages.file("env")).fromPackageRoot, {
+            matches: (type) => type.endsWith("/env"),
+          })
+        );
 
-    if (updater.pkg.type.is("demo:react")) {
-      const devtool = path.relative(
-        workspace.paths.packages.x.dir("devtool").file("tsconfig.json")
-      );
+      if (updater.pkg.type.isType("demo")) {
+        const devtool = path(
+          workspace.paths.packages.x.dir("devtool").file("tsconfig.json")
+        ).fromPackageRoot;
 
-      const packages = path.relative(
-        workspace.paths.packages.file("tsconfig.packages.json")
-      );
+        const packages = path(
+          paths.packages.file("tsconfig.packages.json")
+        ).fromPackageRoot;
+
+        migrator
+          .array("references", (update) =>
+            update.add(...reference(devtool)).add(...reference(packages))
+          )
+          .array("include", (update) =>
+            update
+              .add("index.ts")
+              .add("src/**/*")
+              .add("vite.config.ts")
+              .remove("vite.config.js")
+          );
+      }
+
+      if (updater.pkg.tsconfig) {
+        migrator.set(
+          "extends",
+          path(workspace.root.file(`.config/tsconfig/${updater.pkg.tsconfig}`))
+            .fromPackageRoot,
+          "start"
+        );
+        migrator.set(
+          "extends",
+          path(workspace.root.file(`.config/tsconfig/${updater.pkg.tsconfig}`))
+            .fromPackageRoot,
+          "start"
+        );
+      } else if (
+        updater.pkg.type.is(
+          "library",
+          "interfaces",
+          "tests",
+          "support:tests",
+          "support:build"
+        )
+      ) {
+        migrator.set(
+          "extends",
+          path(workspace.root.file(".config/tsconfig/tsconfig.shared.json"))
+            .fromPackageRoot,
+          "start"
+        );
+      } else if (pkg.type.isType("demo")) {
+        migrator.set(
+          "extends",
+          updater.path(
+            workspace.root.file(
+              `.config/tsconfig/tsconfig.${pkg.type.subtype}-demo.json`
+            )
+          ).fromPackageRoot,
+          "start"
+        );
+
+        if (pkg.type.is("demo:preact")) {
+          migrator.addTo("compilerOptions.types", "preact");
+        }
+      } else if (pkg.type.is("root")) {
+        // do nothing
+      } else {
+        workspace.reporter.fatal(
+          `${String(pkg.root)} is an unknown type: ${String(
+            pkg.type
+          )}.\n\nIt should be one of:\n\n${StarbeamType.format()}`
+        );
+      }
 
       migrator
-        .add(
-          "references",
-          { path: devtool },
-          { matches: (ref) => ref.path === devtool }
+        .set("compilerOptions.composite", true)
+        .set(
+          "compilerOptions.outDir",
+          path(workspace.root.dir(`dist/packages`)).fromPackageRoot
         )
-        .add(
-          "references",
-          { path: packages },
-          { matches: (ref) => ref.path === packages }
-        );
-    }
+        .set("compilerOptions.declaration", true)
+        .set(
+          "compilerOptions.declarationDir",
+          path(workspace.root.dir(`dist/types`)).fromPackageRoot
+        )
+        .set("compilerOptions.declarationMap", true)
+        .addTo("exclude", "dist/**/*");
 
-    if (updater.pkg.tsconfig) {
-      migrator.set(
-        "extends",
-        path.relative(
-          workspace.root.file(`.config/tsconfig/${updater.pkg.tsconfig}`)
-        ),
-        "start"
-      );
-      migrator.set(
-        "extends",
-        path.relative(
-          workspace.root.file(`.config/tsconfig/${updater.pkg.tsconfig}`)
-        ),
-        "start"
-      );
-    } else if (
-      updater.pkg.type.is(
-        "library",
-        "interfaces",
-        "tests",
-        "support:tests",
-        "support:build"
-      )
-    ) {
-      migrator.set(
-        "extends",
-        path.relative(
-          workspace.root.file(".config/tsconfig/tsconfig.shared.json")
-        ),
-        "start"
-      );
-    } else if (pkg.type.is("demo:react")) {
-      migrator.set(
-        "extends",
-        path.relative(
-          workspace.root.file(`.config/tsconfig/tsconfig.react-demo.json`)
-        ),
-        "start"
-      );
-    } else if (pkg.type.is("root")) {
-      // do nothing
-    } else {
-      workspace.reporter.fatal(`${pkg.root} is an unknown type: ${pkg.type}`);
-    }
+      return migrator.write();
+    });
+  }
+);
 
-    migrator
-      .set("compilerOptions.composite", true)
-      .set(
-        "compilerOptions.outDir",
-        path.relative(workspace.root.dir(`dist/packages`))
-      )
-      .set("compilerOptions.declaration", true)
-      .set(
-        "compilerOptions.declarationDir",
-        path.relative(workspace.root.dir(`dist/types`))
-      )
-      .set("compilerOptions.declarationMap", true)
-      .add("exclude", "dist/**/*");
-  });
-});
+function reference<T extends string>(
+  to: T
+): [{ path: T }, { matches: (ref: { path: T }) => boolean }] {
+  return [{ path: to }, { matches: ({ path }) => path === to }];
+}

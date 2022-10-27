@@ -1,3 +1,4 @@
+import { FATAL_EXIT_CODE, OK_EXIT_CODE } from "./constants.js";
 import type { Directory } from "./paths.js";
 import type { ExecOptions, Workspace } from "./workspace.js";
 
@@ -47,7 +48,7 @@ export class Check {
       breakBefore: true,
     });
 
-    return new CheckResult(result, this.#label, this.#command);
+    return new CheckResult(result, this.#command);
   }
 }
 
@@ -106,7 +107,7 @@ export class CheckResults implements Iterable<[string, CheckResult]> {
   }
 
   get exitCode(): number {
-    return this.isOk ? 0 : 1;
+    return this.isOk ? OK_EXIT_CODE : FATAL_EXIT_CODE;
   }
 
   get errors(): CheckResults {
@@ -122,12 +123,10 @@ export class CheckResults implements Iterable<[string, CheckResult]> {
 
 export class CheckResult {
   readonly #status: "ok" | "err";
-  readonly #label: string;
   readonly #command: string;
 
-  constructor(status: "ok" | "err", label: string, command: string) {
+  constructor(status: "ok" | "err", command: string) {
     this.#status = status;
-    this.#label = label;
     this.#command = command;
   }
 
@@ -144,6 +143,6 @@ export class CheckResult {
   }
 
   get exitCode(): number {
-    return this.isOk ? 0 : 1;
+    return this.isOk ? OK_EXIT_CODE : FATAL_EXIT_CODE;
   }
 }

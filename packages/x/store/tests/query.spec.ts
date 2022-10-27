@@ -89,11 +89,11 @@ describe("queries", () => {
   test("a query should invalidate correctly inside a formula", () => {
     const people = Table.create<Person>({ columns: ["name", "location"] });
 
-    function card(person: Person) {
+    function card(person: Person): string {
       return `${person.name} (in ${person.location})`;
     }
 
-    function cards(people: Person[]) {
+    function cards(people: Person[]): string {
       return people.map((person) => `<p>${card(person)}</p>`).join("");
     }
 
@@ -166,11 +166,11 @@ describe("queries", () => {
 
     people.append({ name: "John", location: "Berlin" });
 
-    function card(person: Person) {
+    function card(person: Person): string {
       return `${person.name} (in ${person.location})`;
     }
 
-    function cards(people: Person[]) {
+    function cards(people: Person[]): string {
       return people.map((person) => `<p>${card(person)}</p>`).join("");
     }
 

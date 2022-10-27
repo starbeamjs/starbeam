@@ -1,9 +1,15 @@
+import {
+  isEmptyArray,
+  isSingleItemArray,
+  stringify,
+} from "@starbeam/core-utils";
 import shell from "shelljs";
 
 import { QueryCommand, StringOption } from "./support/commands.js";
 import { Fragment } from "./support/log.js";
 import { Package } from "./support/packages.js";
 import { FancyHeader } from "./support/reporter/fancy-header.js";
+import { fatal } from "./support/type-magic.js";
 import { CheckDefinition } from "./support/workspace.js";
 
 export const TestCommand = QueryCommand("test", {
@@ -27,9 +33,9 @@ export const TestCommand = QueryCommand("test", {
       specs,
       watch,
     }) => {
-      workspace.reporter.verbose((r) =>
-        r.log(Fragment.comment(`> cleaning root/dist`))
-      );
+      workspace.reporter.verbose((r) => {
+        r.log(Fragment.comment(`> cleaning root/dist`));
+      });
 
       if (specs && type !== undefined && type !== "specs") {
         workspace.reporter.fatal(
@@ -54,7 +60,7 @@ export const TestCommand = QueryCommand("test", {
         );
 
         if (watch) {
-          await workspace.cmd(`pnpm run test:workspace:specs --watch`, {
+          workspace.cmd(`pnpm run test:workspace:specs --watch`, {
             cwd: workspace.root.absolute,
             stdio: "inherit",
           });
@@ -86,27 +92,30 @@ export const TestCommand = QueryCommand("test", {
         );
 
       if (watch) {
-        if (matches.length !== 1) {
-          const found =
-            matches.length === 0
-              ? ` There were ${Fragment.problem.inverse(
-                  "no"
-                )} matching packages.`
-              : `\n\nFound ${Fragment.problem.inverse(
-                  matches.length
-                )} matching packages: ${matches
-                  .map((pkg) => `- ${pkg.name}`)
-                  .join(", ")}`;
+        if (isSingleItemArray(matches)) {
+          const [firstMatch] = matches;
 
-          workspace.reporter.fatal(
-            `The --watch flag can only be used when a single package is selected.${found}\n`
+          workspace.cmd(`pnpm run test:specs`, {
+            cwd: firstMatch.root,
+            stdio: "inherit",
+          });
+        } else {
+          const found = isEmptyArray(matches)
+            ? stringify` There were ${Fragment.problem.inverse(
+                "no"
+              )} matching packages.`
+            : stringify`\n\nFound ${Fragment.problem.inverse(
+                matches.length
+              )} matching packages: ${matches
+                .map((pkg) => `- ${pkg.name}`)
+                .join(", ")}`;
+
+          fatal(
+            workspace.reporter.fatal(
+              `The --watch flag can only be used when a single package is selected.${found}\n`
+            )
           );
         }
-
-        await workspace.cmd(`pnpm run test:specs`, {
-          cwd: matches[0].root.absolute,
-          stdio: "inherit",
-        });
 
         return;
       }
@@ -162,7 +171,7 @@ function tests(
     });
 }
 
-function testMatches(test: string, type: string) {
+function testMatches(test: string, type: string): boolean {
   if (type === "all") {
     return true;
   }

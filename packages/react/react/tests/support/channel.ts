@@ -1,6 +1,12 @@
+import { getLast, removeItem } from "@starbeam/core-utils";
 import type { Unsubscribe } from "@starbeam/timeline";
 
+const FIRST_ID = 0;
+
 export class Channel {
+  static #active: Channel[] = [];
+  static #nextId = FIRST_ID;
+
   static reset(this: void): void {
     Channel.#active = [];
   }
@@ -12,12 +18,8 @@ export class Channel {
   }
 
   static latest(): Channel | undefined {
-    return Channel.#active.length === 0
-      ? undefined
-      : Channel.#active[Channel.#active.length - 1];
+    return getLast(Channel.#active);
   }
-
-  static #active: Channel[] = [];
 
   static sendMessage(channel: Channel, message: string): void {
     if (channel.isActive) {
@@ -27,23 +29,13 @@ export class Channel {
     }
   }
 
-  static #nextId = 0;
-
   #id: number;
   #name: string;
-  #onMessage: Set<(message: string) => void> = new Set();
+  #onMessage = new Set<(message: string) => void>();
 
   constructor(id: number, name: string) {
     this.#id = id;
     this.#name = name;
-  }
-
-  onMessage(callback: (message: string) => void): Unsubscribe {
-    this.#onMessage.add(callback);
-
-    return () => {
-      this.#onMessage.delete(callback);
-    };
   }
 
   get id(): number {
@@ -58,10 +50,15 @@ export class Channel {
     return Channel.#active.includes(this);
   }
 
+  onMessage(callback: (message: string) => void): Unsubscribe {
+    this.#onMessage.add(callback);
+
+    return () => {
+      this.#onMessage.delete(callback);
+    };
+  }
+
   cleanup(): void {
-    const index = Channel.#active.indexOf(this);
-    if (index >= 0) {
-      Channel.#active.splice(index, 1);
-    }
+    removeItem(Channel.#active, this);
   }
 }

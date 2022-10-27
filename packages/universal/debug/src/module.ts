@@ -1,3 +1,4 @@
+import { isPresentString } from "@starbeam/core-utils";
 import type * as interfaces from "@starbeam/interfaces";
 import { hasType } from "@starbeam/verify";
 
@@ -27,10 +28,10 @@ export class DisplayPathParts {
 }
 
 export class DisplayParts implements interfaces.DisplayParts {
-  readonly #path: string;
-  readonly #root: DisplayRoot | undefined;
   readonly #action: string | undefined;
   readonly #loc: Loc | undefined;
+  readonly #path: string;
+  readonly #root: DisplayRoot | undefined;
 
   static {
     inspector(this, "DisplayParts").define((parts, debug) =>
@@ -60,28 +61,28 @@ export class DisplayParts implements interfaces.DisplayParts {
     this.#loc = loc;
   }
 
-  get path(): string {
-    return this.#path;
-  }
-
-  get root(): DisplayRoot | undefined {
-    return this.#root;
-  }
-
   get action(): string | undefined {
     return this.#action;
+  }
+
+  get #displayPath(): string {
+    if (this.#root?.name) {
+      return `[${this.#root.name}]/${this.#path}`;
+    } else {
+      return this.#path;
+    }
   }
 
   get loc(): Loc | undefined {
     return this.#loc;
   }
 
-  get #displayPath() {
-    if (this.#root?.name) {
-      return `[${this.#root.name}]/${this.#path}`;
-    } else {
-      return this.#path;
-    }
+  get path(): string {
+    return this.#path;
+  }
+
+  get root(): DisplayRoot | undefined {
+    return this.#root;
   }
 
   display(): string {
@@ -104,6 +105,13 @@ export class DescribedModule {
     this.#module = module;
   }
 
+  display(
+    location?: { loc?: Loc | undefined; action?: string | undefined },
+    options: interfaces.StackFrameDisplayOptions = {}
+  ): string {
+    return this.parts(location, options).display();
+  }
+
   parts(
     location?: { loc?: Loc | undefined; action?: string | undefined },
     options: interfaces.StackFrameDisplayOptions = {}
@@ -117,7 +125,7 @@ export class DescribedModule {
     const { loc, action } = location;
 
     const hasLoc = loc !== undefined;
-    const hasAction = action !== undefined && action.trim().length !== 0;
+    const hasAction = isPresentString(action);
 
     if (hasLoc && hasAction) {
       return parts.finish({ action, loc });
@@ -129,13 +137,6 @@ export class DescribedModule {
 
     return parts.finish();
   }
-
-  display(
-    location?: { loc?: Loc | undefined; action?: string | undefined },
-    options: interfaces.StackFrameDisplayOptions = {}
-  ): string {
-    return this.parts(location, options).display();
-  }
 }
 
 interface Loc {
@@ -143,7 +144,7 @@ interface Loc {
   column?: number | undefined;
 }
 
-function formatLoc(loc: Loc) {
+function formatLoc(loc: Loc): string {
   if (loc.column === undefined) {
     return `${loc.line}`;
   } else {
@@ -153,22 +154,19 @@ function formatLoc(loc: Loc) {
 
 interface DescribedPath {
   // path(options?: StackFrameDisplayOptions): string;
-  parts(options?: interfaces.StackFrameDisplayOptions): DisplayPathParts;
+  parts: (options?: interfaces.StackFrameDisplayOptions) => DisplayPathParts;
 }
 
 class DescribedModulePath implements DescribedPath {
-  readonly type = "relative";
   readonly #path: string;
+  readonly pkg = null;
+  readonly type = "relative";
 
   constructor(path: string) {
     this.#path = path;
   }
 
-  get pkg() {
-    return null;
-  }
-
-  [Symbol.for("nodejs.util.inspect.custom")]() {
+  [Symbol.for("nodejs.util.inspect.custom")](): string {
     return `DescribedModulePath(${this.#path})`;
   }
 
@@ -178,33 +176,15 @@ class DescribedModulePath implements DescribedPath {
 }
 
 class DescribedPackage implements DescribedPath {
-  readonly type = "package";
-  readonly #scope: string | undefined;
   readonly #name: string;
   readonly #path: string;
+  readonly #scope: string | undefined;
+  readonly type = "package";
 
   constructor(scope: string, name: string, path: string) {
     this.#scope = scope;
     this.#name = name;
     this.#path = path;
-  }
-
-  [Symbol.for("nodejs.util.inspect.custom")]() {
-    const path = this.#path ? ` at ${this.#path}` : "";
-
-    if (this.#scope) {
-      return `DescribedPackage(${this.#scope}/${this.#name}${path})`;
-    } else {
-      return `DescribedPackage(${this.#name}${path})`;
-    }
-  }
-
-  get pkg() {
-    return normalize(this.#scope, this.#name);
-  }
-
-  parts(): DisplayPathParts {
-    return new DisplayPathParts({ path: this.#fullPath });
   }
 
   get #fullPath(): string {
@@ -221,6 +201,24 @@ class DescribedPackage implements DescribedPath {
     }
 
     return normalize(...parts);
+  }
+
+  get pkg(): string {
+    return normalize(this.#scope, this.#name);
+  }
+
+  [Symbol.for("nodejs.util.inspect.custom")](): string {
+    const path = this.#path ? ` at ${this.#path}` : "";
+
+    if (this.#scope) {
+      return `DescribedPackage(${this.#scope}/${this.#name}${path})`;
+    } else {
+      return `DescribedPackage(${this.#name}${path})`;
+    }
+  }
+
+  parts(): DisplayPathParts {
+    return new DisplayPathParts({ path: this.#fullPath });
   }
 }
 
@@ -270,16 +268,16 @@ function relative({
 }): DisplayPathParts {
   if (root && full.startsWith(root)) {
     const path = full.slice(root.length);
-    const relative = path.startsWith("/") ? path.slice(1) : path;
-    return new DisplayPathParts({ root: { prefix: root }, path: relative });
+    const rel = path.startsWith("/") ? path.slice("/".length) : path;
+    return new DisplayPathParts({ root: { prefix: root }, path: rel });
   } else if (roots) {
     for (const [key, value] of Object.entries(roots)) {
       if (full.startsWith(value)) {
         const path = full.slice(value.length);
-        const relative = path.startsWith("/") ? path.slice(1) : path;
+        const r = path.startsWith("/") ? path.slice("/".length) : path;
         return new DisplayPathParts({
           root: { name: key, prefix: value },
-          path: relative,
+          path: r,
         });
       }
     }

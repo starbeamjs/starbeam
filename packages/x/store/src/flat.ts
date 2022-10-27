@@ -47,9 +47,9 @@ export abstract class FlatRows<U extends UserTypes>
  * `Group` is in here because of cycles
  */
 
-interface Grouping<U extends UserTypes, Bucket, Description> {
-  (row: TableTypesFor<U>["Row"]): { bucket: Bucket; as?: Description };
-}
+type Grouping<U extends UserTypes, Bucket, Description> = (
+  row: TableTypesFor<U>["Row"]
+) => { bucket: Bucket; as?: Description };
 
 export class Group<T extends TableTypes> extends FlatRows<T> {
   static empty<T extends TableTypes>(
@@ -222,7 +222,7 @@ export class Query<U extends UserTypes> extends FlatRows<U> {
     this.#sort = sort;
   }
 
-  sort(sort: SortFn<U>): Query<U> {
+  override sort(sort: SortFn<U>): Query<U> {
     return new Query(this.#rows, this.#filter, sort);
   }
 

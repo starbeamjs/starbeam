@@ -1,29 +1,33 @@
 import { descriptionFrom } from "@starbeam/debug";
+import type { InternalComponent } from "@starbeam/preact-utils";
 import { Plugin } from "@starbeam/preact-utils";
+import type { InternalElement } from "@starbeam/preact-utils/src/internals/elements.js";
 import { CONTEXT, LIFETIME, Reactive } from "@starbeam/timeline";
 import type { ComponentType } from "preact";
 
 import { ComponentFrame } from "./frame.js";
 
-const CURRENT_COMPONENT: object[] = [];
+const STARBEAM = Symbol("STARBEAM");
 
-export function getCurrentComponent(): object | undefined {
-  if (CURRENT_COMPONENT.length === 0) {
-    return undefined;
-  } else {
-    return CURRENT_COMPONENT[CURRENT_COMPONENT.length - 1];
-  }
+export function getCurrentComponent(): InternalComponent {
+  return ComponentFrame.current;
 }
 
 export const setup = Plugin((on) => {
   on.root((vnode, parent) => {
-    debug("root", vnode);
-    // FIXME: Support multiple roots on the same page
-    CONTEXT.app = parent;
+    debug("root", { vnode, parent, raw: vnode.raw });
+    ROOTS.current = parent;
+  });
+
+  on.unroot((parent) => {
+    debug("unroot", { parent, component: ROOTS.get(parent) });
   });
 
   on.vnode((vnode) => {
-    debug("vnode", vnode.props.children);
+    debug(`vnode [${vnode.id}]`, {
+      type: vnode.type,
+      children: vnode.children,
+    });
 
     const updated = vnode.processChildren((child) => {
       if (Reactive.is(child)) {
@@ -43,9 +47,13 @@ export const setup = Plugin((on) => {
   });
 
   on.component.willRender((component) => {
-    CONTEXT.component.push(component);
-    debug("willRender", component);
-    CURRENT_COMPONENT.push(component);
+    if (ROOTS.current) {
+      ROOTS.claim(component);
+      component.context[STARBEAM] = component;
+    }
+
+    debug("willRender", { component });
+    CONTEXT.app = component.context[STARBEAM] as InternalComponent;
 
     ComponentFrame.start(
       component,
@@ -61,23 +69,21 @@ export const setup = Plugin((on) => {
     debug("didRender", component);
 
     if (ComponentFrame.isRenderingComponent(component)) {
-      CONTEXT.component.pop();
       ComponentFrame.end(component, () => {
         component.notify();
       });
-      CURRENT_COMPONENT.pop();
     }
   });
 
   on.component.unmount((component) => {
-    debug("unmount", component);
+    debug("unmount", { component, vnode: component.vnode });
 
     ComponentFrame.unmount(component);
     LIFETIME.finalize(component);
   });
 });
 
-function componentName(component: ComponentType<unknown> | string) {
+function componentName(component: ComponentType<unknown> | string): string {
   if (typeof component === "string") {
     return component;
   } else {
@@ -86,17 +92,26 @@ function componentName(component: ComponentType<unknown> | string) {
 }
 
 async function Debug(): Promise<(name: string, value: unknown) => void> {
+  const Module = (await import("node:module")).Module;
+  const require = Module.createRequire(import.meta.url);
+  const inspect = (require("util") as typeof import("util")).inspect;
+  const chalk = (await import("chalk")).default;
+
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (false) {
     return (name, value) => {
-      console.log(name, value);
+      console.log(
+        chalk.magenta(name),
+        inspect(value, { customInspect: true, depth: null })
+      );
       // console.group(name);
       // console.debug(value);
       // console.groupEnd();
     };
   } else if (import.meta.env.STARBEAM_TRACE) {
-    const createRequire = (await import("node:module")).Module.createRequire;
-    const require = createRequire(import.meta.url);
-    const inspect = require("util").inspect as typeof import("util").inspect;
+    const Module = (await import("node:module")).Module;
+    const require = Module.createRequire(import.meta.url);
+    const inspect = (require("util") as typeof import("util")).inspect;
     const chalk = (await import("chalk")).default;
 
     return (name: string, value: unknown): void => {
@@ -125,5 +140,48 @@ async function Debug(): Promise<(name: string, value: unknown) => void> {
     };
   }
 }
+
+class Roots {
+  readonly #apps = new WeakMap<InternalElement, InternalComponent>();
+  readonly #roots = new WeakSet<InternalComponent>();
+  #current: InternalElement | undefined;
+
+  claim(component: InternalComponent): InternalComponent {
+    if (!this.#current) {
+      throw Error(`UNEXPECTED: No current root element`);
+    }
+
+    this.set(this.#current, component);
+    this.#current = undefined;
+    return component;
+  }
+
+  set current(value: InternalElement | undefined) {
+    this.#current = value;
+  }
+
+  get current(): InternalElement | undefined {
+    return this.#current;
+  }
+
+  hasComponent(component: InternalComponent): boolean {
+    return this.#roots.has(component);
+  }
+
+  hasElement(element: InternalElement): boolean {
+    return this.#apps.has(element);
+  }
+
+  get(element: InternalElement): InternalComponent | undefined {
+    return this.#apps.get(element);
+  }
+
+  set(element: InternalElement, component: InternalComponent): void {
+    this.#apps.set(element, component);
+    this.#roots.add(component);
+  }
+}
+
+const ROOTS = new Roots();
 
 const debug = await Debug();

@@ -1,5 +1,5 @@
-import { Cell } from "@starbeam/universal";
 import { reactive } from "@starbeam/js";
+import { Cell } from "@starbeam/universal";
 
 import type { Stock } from "./lib/api/interfaces.js";
 

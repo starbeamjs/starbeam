@@ -20,11 +20,11 @@ class Table<T> {
     return Object.entries(this.#rows);
   }
 
-  append(row: T) {
+  append(row: T): void {
     this.#rows[`${this.#id++}`] = row;
   }
 
-  delete(id: string) {
+  delete(id: string): void {
     delete this.#rows[id];
   }
 }
@@ -78,7 +78,13 @@ export default function Database(): JSX.Element {
               <td>{person.name}</td>
               <td>{person.location}</td>
               <td className="actions">
-                <button onClick={() => people.delete(id)}>✂️</button>
+                <button
+                  onClick={() => {
+                    people.delete(id);
+                  }}
+                >
+                  ✂️
+                </button>
               </td>
             </tr>
           ))}

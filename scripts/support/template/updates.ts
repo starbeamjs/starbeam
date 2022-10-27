@@ -24,23 +24,28 @@ export function updatePackageJSON(updater: LabelledUpdater): void {
     .json.template("package.json", ({ current = {}, template }) => {
       Object.assign(current, template);
 
-      if (current.main && !pkg.type.is("root")) {
-        current.exports = {
-          default: `./${current.main}`,
+      if (
+        current["main"] &&
+        typeof current["main"] === "string" &&
+        !pkg.type.is("root")
+      ) {
+        current["exports"] = {
+          default: `./${current["main"]}`,
         };
       }
 
       if (pkg.type.is("tests")) {
-        delete current.publishConfig;
+        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+        delete current["publishConfig"];
       }
 
       if (pkg.type.is("library", "root")) {
-        current.devDependencies = {
-          ...(current.devDependencies as object),
+        current["devDependencies"] = {
+          ...(current["devDependencies"] as object),
           "@starbeam-workspace/build-support": "workspace:^",
         };
-      } else if (current.devDependencies) {
-        delete (current.devDependencies as Record<string, string>)[
+      } else if (current["devDependencies"]) {
+        delete (current["devDependencies"] as Record<string, string>)[
           "@starbeam-workspace/build-support"
         ];
       }
@@ -61,7 +66,7 @@ export function updatePackageJSON(updater: LabelledUpdater): void {
       }
 
       if (pkg.type.is("interfaces")) {
-        current.types = "index.d.ts";
+        current["types"] = "index.d.ts";
         updateStarbeam("source", "d.ts");
       }
 
@@ -77,8 +82,8 @@ export function updatePackageJSON(updater: LabelledUpdater): void {
         scripts["test:specs"] = "vitest";
       }
 
-      current.scripts = {
-        ...(isObject(current.scripts) ? current.scripts : undefined),
+      current["scripts"] = {
+        ...(isObject(current["scripts"]) ? current["scripts"] : undefined),
         ...scripts,
       };
 
@@ -99,7 +104,9 @@ function consolidateStarbeam(json: JsonObject): JsonObject {
 
   if (rootStarbeamValue !== undefined && !isObject(rootStarbeamValue)) {
     throw Error(
-      `Invalid starbeam entry in package.json (the "starbeam" entry in package.json must be an object): ${rootStarbeamValue}`
+      `Invalid starbeam entry in package.json (the "starbeam" entry in package.json must be an object): ${String(
+        rootStarbeamValue
+      )}`
     );
   }
 
@@ -126,6 +133,71 @@ function consolidateStarbeam(json: JsonObject): JsonObject {
   };
 }
 
-export const updateLibrary = UpdatePackageFn((updater) => {
+export const updateLibrary = UpdatePackageFn((updater, options) => {
   updater.template("rollup.config.mjs");
+});
+
+export const updateDemo = UpdatePackageFn((updater, options) => {
+  updateDemoEslint(updater, options);
+});
+
+const updateDemoEslint = UpdatePackageFn((updater) => {
+  updater.ensureRemoved(".eslintrc.cjs");
+
+  updater.json(".eslintrc.json", () => {
+    return {
+      root: false,
+      parserOptions: {
+        project: updater.path("tsconfig.json").fromWorkspaceRoot,
+      },
+      overrides: [
+        {
+          files: ["index.ts{x,}", "src/**/*.ts{x,}"],
+          extends: ["plugin:@starbeam/demos"],
+        },
+        {
+          files: ["vite.config.ts"],
+          extends: ["plugin:@starbeam/loose"],
+        },
+      ],
+    };
+  });
+});
+
+export const updateLibraryEslint = UpdatePackageFn((update) => {
+  update.ensureRemoved(".eslintrc.cjs");
+
+  update.json(".eslintrc.json", () => {
+    return {
+      root: false,
+      parserOptions: {
+        project: update.path("tsconfig.json").fromWorkspaceRoot,
+      },
+      overrides: [
+        {
+          files: ["index.ts", "src/**/*.ts"],
+          extends: ["plugin:@starbeam/tight"],
+        },
+      ],
+    };
+  });
+
+  if (update.pkg.testsDirectory.exists()) {
+    update.ensureRemoved("tests/.eslintrc.cjs");
+
+    update.json("tests/.eslintrc.json", () => {
+      return {
+        root: false,
+        parserOptions: {
+          project: update.path("tests/tsconfig.json").fromWorkspaceRoot,
+        },
+        overrides: [
+          {
+            files: ["**/*.ts"],
+            extends: ["plugin:@starbeam/loose"],
+          },
+        ],
+      };
+    });
+  }
 });

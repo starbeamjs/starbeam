@@ -1,7 +1,7 @@
-import { PolledFormulaFn } from "@starbeam/universal";
-import { isObject } from "@starbeam/universal-utils";
+import { isObject } from "@starbeam/core-utils";
 import { type Description, descriptionFrom } from "@starbeam/debug";
 import { LIFETIME, Reactive, TIMELINE } from "@starbeam/timeline";
+import { type IntoReactiveObject, Factory } from "@starbeam/universal";
 import {
   unsafeTrackedElsewhere,
   useLifecycle,
@@ -9,6 +9,18 @@ import {
 import { useState } from "react";
 
 import { ReactiveElement } from "./element.js";
+
+export function useComponent(): object {
+  return useLifecycle(({ on }) => {
+    const owner = Object.create(null) as object;
+
+    on.cleanup(() => {
+      LIFETIME.finalize(owner);
+    });
+
+    return owner;
+  });
+}
 
 export function useSetup<T>(
   callback: (setup: ReactiveElement) => T,
@@ -29,12 +41,14 @@ export function useSetup<T>(
     (lifecycle, prev) => {
       const element = prev?.element
         ? ReactiveElement.reactivate(prev.element)
-        : ReactiveElement.create(() => setNotify({}), desc);
-      const instance = callback(element);
+        : ReactiveElement.create(() => {
+            setNotify({});
+          }, desc);
+      const nextInstance = callback(element);
 
       lifecycle.on.cleanup(() => {
-        if (isObject(instance)) {
-          LIFETIME.finalize(instance);
+        if (isObject(nextInstance)) {
+          LIFETIME.finalize(nextInstance);
         }
       });
 
@@ -46,7 +60,7 @@ export function useSetup<T>(
         ReactiveElement.idle(element);
       });
 
-      return { element, instance };
+      return { element, instance: nextInstance };
     }
   );
 
@@ -54,15 +68,7 @@ export function useSetup<T>(
 }
 
 export function useReactiveSetup<T>(
-  callback: (setup: ReactiveElement) => () => T,
-  description?: string | Description
-): T;
-export function useReactiveSetup<T>(
-  callback: (setup: ReactiveElement) => Reactive<T>,
-  description?: string | Description
-): T;
-export function useReactiveSetup<T>(
-  callback: (setup: ReactiveElement) => (() => T) | Reactive<T>,
+  callback: (setup: ReactiveElement) => IntoReactiveObject<T> | Reactive<T>,
   description?: string | Description
 ): T {
   const desc = descriptionFrom({
@@ -73,10 +79,11 @@ export function useReactiveSetup<T>(
 
   const [, setNotify] = useState({});
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const instance = useLifecycle((lifecycle) => {
-    const element = ReactiveElement.create(() => setNotify({}), desc);
-    const instance = unsafeTrackedElsewhere(() => callback(element));
+    const element = ReactiveElement.create(() => {
+      setNotify({});
+    }, desc);
+    const nextInstance = unsafeTrackedElsewhere(() => callback(element));
 
     const setups = TIMELINE.on.change(element, () => {
       setNotify({});
@@ -88,8 +95,8 @@ export function useReactiveSetup<T>(
     });
 
     lifecycle.on.cleanup(() => {
-      if (isObject(instance)) {
-        LIFETIME.finalize(instance);
+      if (isObject(nextInstance)) {
+        LIFETIME.finalize(nextInstance);
       }
       LIFETIME.finalize(element);
     });
@@ -98,28 +105,36 @@ export function useReactiveSetup<T>(
       ReactiveElement.idle(element);
     });
 
-    let reactive: Reactive<T>;
-    if (Reactive.is(instance)) {
-      reactive = instance;
-    } else {
-      reactive = PolledFormulaFn(instance, desc);
-    }
+    const reactive = Factory.create(nextInstance);
+
+    // let reactive: Reactive<T>;
+    // if (Reactive.is(instance)) {
+    //   reactive = instance;
+    // } else {
+    //   reactive = PolledFormulaFn(instance, desc);
+    // }
 
     lifecycle.on.layout(() => {
       ReactiveElement.layout(element);
 
-      const unsubscribe = TIMELINE.on.change(reactive, () => {
-        setNotify({});
-      });
+      if (Reactive.is(reactive)) {
+        const unsubscribe = TIMELINE.on.change(reactive, () => {
+          setNotify({});
+        });
 
-      lifecycle.on.cleanup(() => {
-        unsubscribe();
-        LIFETIME.finalize(setups);
-      });
+        lifecycle.on.cleanup(() => {
+          unsubscribe();
+          LIFETIME.finalize(setups);
+        });
+      }
     });
 
     return reactive;
   });
 
-  return unsafeTrackedElsewhere(() => instance.read());
+  if (Reactive.is(instance)) {
+    return unsafeTrackedElsewhere(() => instance.read());
+  } else {
+    return instance;
+  }
 }

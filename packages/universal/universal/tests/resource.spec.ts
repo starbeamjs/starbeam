@@ -1,11 +1,10 @@
 import {
-  type ResourceBlueprint,
-  Cell,
-  FormulaFn,
-  LIFETIME,
-  Resource,
-  Wrap,
-} from "@starbeam/universal";
+  getLast,
+  getLastIndex,
+  isPresent,
+  isPresentArray,
+  withoutLast,
+} from "@starbeam/core-utils";
 import type { Description } from "@starbeam/debug";
 import {
   callerStack,
@@ -15,13 +14,23 @@ import {
   entryPoints,
 } from "@starbeam/debug";
 import type { Reactive } from "@starbeam/interfaces";
-import { exhaustive } from "@starbeam/verify";
+import {
+  type ResourceBlueprint,
+  Cell,
+  FormulaFn,
+  LIFETIME,
+  Resource,
+  Wrap,
+} from "@starbeam/universal";
+import { exhaustive, verified } from "@starbeam/verify";
 import { describe, expect, test } from "vitest";
 
 import { scenario } from "./support/scenario.js";
 
+const INITIAL_ID = 0;
+
 class Socket {
-  static #nextId = 0;
+  static #nextId = INITIAL_ID;
 
   static subscribe(name: string): Socket {
     return new Socket(name, true);
@@ -37,15 +46,7 @@ class Socket {
     this.#active = active;
   }
 
-  [Symbol.for("nodejs.util.inspect.custom")]() {
-    return DisplayStruct("Socket", {
-      id: this.id,
-      name: this.#name,
-      active: this.#active,
-    });
-  }
-
-  get name() {
+  get name(): string {
     return this.#name;
   }
 
@@ -53,7 +54,15 @@ class Socket {
     return this.#active;
   }
 
-  disconnect() {
+  [Symbol.for("nodejs.util.inspect.custom")](): object {
+    return DisplayStruct("Socket", {
+      id: this.id,
+      name: this.#name,
+      active: this.#active,
+    });
+  }
+
+  disconnect(): void {
     this.#active = false;
   }
 }
@@ -102,13 +111,13 @@ Subscription({ username: "@tomdale", channel: "emails" })
         })
   )
   .describe("the resource can be cleaned up early", (start, { channel }) =>
-    start(({ assert }) =>
+    start(({ assert }) => {
       assert.initial({
         description: "@tomdale @ emails",
         name: "emails",
         state: "active",
-      })
-    )
+      });
+    })
       .finalize(({ assert }) => {
         assert.unstable();
         assert.socket.isStable({
@@ -131,6 +140,9 @@ Subscription({ username: "@tomdale", channel: "emails" })
       )
   );
 
+const INITIAL_COUNT = 0;
+const INCREMENT = 1;
+
 describe("use()", () => {
   test("using a resource in a previous run but not this one causes it to be cleaned up", () => {
     const Inner = Resource(({ on }) => {
@@ -143,10 +155,10 @@ describe("use()", () => {
       return cell;
     }, "Inner");
 
-    const i = Cell(0, "i");
+    const counter = Cell(INITIAL_COUNT, "i");
     let run = 0;
-    let currentInstance: Reactive<string> | undefined;
-    let prevInner: Reactive<string> | undefined;
+    let currentInstance = undefined as Reactive<string> | undefined;
+    let prevInner = undefined as Reactive<string> | undefined;
 
     const outer = Resource(({ use }) => {
       prevInner = currentInstance;
@@ -154,7 +166,7 @@ describe("use()", () => {
       const currentRun = run++;
 
       // intentionally do this at the top level so that the resource constructor is invalidated.
-      const currentI = i.current;
+      const currentI = counter.current;
 
       return FormulaFn(
         () => `${next.current} (run = ${currentRun}, i = ${currentI})`,
@@ -169,11 +181,11 @@ describe("use()", () => {
     expect(instance.current).toBe("active (run = 0, i = 0)");
     expect(prevInner?.current).toBe(undefined);
 
-    i.update((i) => i + 1);
+    counter.update((i) => i + INCREMENT);
     expect(instance.current).toBe("active (run = 1, i = 1)");
     expect(prevInner?.current).toBe("finalized");
 
-    i.update((i) => i + 1);
+    counter.update((i) => i + INCREMENT);
     expect(instance.current).toBe("active (run = 2, i = 2)");
     expect(prevInner?.current).toBe("finalized");
   });
@@ -181,8 +193,8 @@ describe("use()", () => {
   test("transferring a resource prevents it from being cleaned up", () => {
     const { resource: inner } = TestResource("inner");
 
-    const outerDep = Cell(0, "OuterDep");
-    const formulaDep = Cell(0, "FormulaDep");
+    const outerDep = Cell(INITIAL_COUNT, "OuterDep");
+    const formulaDep = Cell(INITIAL_COUNT, "FormulaDep");
 
     const Outer = Resource(({ use, on }) => {
       const innerValue = use(inner);
@@ -208,14 +220,14 @@ describe("use()", () => {
       "outer: active (0), inner: active, formula-dep: 0"
     );
 
-    formulaDep.update((i) => i + 1);
+    formulaDep.update((i) => i + INCREMENT);
 
     expect(outer.resource.current).toBe(
       "outer: active (0), inner: active, formula-dep: 1"
     );
     expect(inner.current).toBe("inner: active");
 
-    outerDep.update((i) => i + 1);
+    outerDep.update((i) => i + INCREMENT);
 
     expect(outer.resource.current).toBe(
       "outer: active (1), inner: active, formula-dep: 1"
@@ -300,7 +312,7 @@ scenario("use(resource)", () => {
   .test(
     "an inner value that wasn't reused is finalized",
     ({ inner: Inner, deps }) => {
-      function OnTheFly(value: number) {
+      function OnTheFly(value: number): TestResourceState {
         return TestResource(`on-the-fly-${value}`);
       }
 
@@ -308,16 +320,16 @@ scenario("use(resource)", () => {
 
       const verifyInvariants = entryPointFn(
         ({ finalized = false }: { finalized?: boolean } = {}) => {
-          if (finalized === false && items.active) {
+          if (!finalized && items.active) {
             const { item, index } = items.active;
             expect(item?.resource.current).toBe(`on-the-fly-${index}: active`);
           }
 
-          const inactive = finalized === true ? items.all : items.inactive;
+          const inactive = finalized ? items.all : items.inactive;
 
-          inactive.forEach((item, i) =>
-            expect(item.resource.current).toBe(`on-the-fly-${i}: finalized`)
-          );
+          inactive.forEach((item, i) => {
+            expect(item.resource.current).toBe(`on-the-fly-${i}: finalized`);
+          });
         }
       );
 
@@ -382,7 +394,7 @@ scenario("use(resource)", () => {
           verifyInvariants({ finalized: true });
         },
         () => {
-          const active = items.active?.item?.resource as Resource<string>;
+          const active = verified(items.active?.item?.resource, isPresent);
           LIFETIME.finalize(Inner);
 
           expect(Inner.current).toBe("inner: finalized");
@@ -425,43 +437,43 @@ scenario("use(resource)", () => {
 class Items<T> {
   readonly #items: T[] = [];
 
-  push(item: T) {
-    this.#items.push(item);
-  }
-
-  get all() {
+  get all(): T[] {
     return this.#items;
   }
 
-  get inactive() {
-    return [...this.#items].reverse().slice(1).reverse();
+  get inactive(): T[] {
+    return withoutLast(this.#items);
   }
 
-  get activeIndex() {
-    return this.#items.length === 0 ? undefined : this.#items.length - 1;
+  get activeIndex(): number | undefined {
+    return getLastIndex(this.#items);
   }
 
-  get active() {
-    if (this.#items.length === 0) {
-      return undefined;
-    } else {
-      const item = this.#items[this.#items.length - 1];
-      const index = this.#items.length - 1;
+  get active(): { item: T | undefined; index: number } | undefined {
+    if (isPresentArray(this.#items)) {
+      const item = getLast(this.#items);
+      const index = getLastIndex(this.#items);
 
       return { item, index };
     }
   }
+
+  push(item: T): void {
+    this.#items.push(item);
+  }
 }
 
-function Counter(description?: Description | string) {
+function Counter(
+  description?: Description | string
+): { increment: () => void } & Cell<number> {
   const desc = Desc("cell", description);
-  const cell = Cell(0, { description: desc });
+  const cell = Cell(INITIAL_COUNT, { description: desc });
 
   return Wrap(
     cell,
     {
       increment() {
-        cell.update((i) => i + 1);
+        cell.update((i) => i + INCREMENT);
       },
     },
     desc
@@ -477,8 +489,7 @@ interface TestResourceState {
 }
 
 const TestResource = entryPointFn((description: string): TestResourceState => {
-  const parent = Object.create(null);
-  const desc = Desc("resource", description);
+  const parent = Object.create(null) as object;
 
   const blueprint = Resource(({ on }) => {
     const id = getID();
@@ -508,13 +519,23 @@ interface ResourceState {
   readonly description: string;
 }
 
+interface DescribeSubscription {
+  describe: (
+    name: string,
+    callback: (
+      start: (this: void, assert: (state: StepState) => void) => Steps,
+      cells: { username: Cell<string>; channel: Cell<string> }
+    ) => void
+  ) => DescribeSubscription;
+}
+
 function Subscription({
   username: u,
   channel: c,
 }: {
   username: string;
   channel: string;
-}) {
+}): DescribeSubscription {
   const username = Cell(u);
   const channel = Cell(c);
 
@@ -524,7 +545,7 @@ function Subscription({
 
     on.cleanup(() => {
       status.set("did cleanup");
-      return socket.disconnect();
+      socket.disconnect();
     });
 
     return FormulaFn(() => {
@@ -543,7 +564,7 @@ function Subscription({
         start: (this: void, assert: (state: StepState) => void) => Steps,
         cells: { username: Cell<string>; channel: Cell<string> }
       ) => void
-    ) {
+    ): DescribeSubscription {
       function start(this: void, assert: (state: StepState) => void): Steps {
         const stack = callerStack();
         const steps = new Steps(resource);
@@ -560,71 +581,24 @@ function Subscription({
         return steps;
       }
 
-      describe(name, () => callback(start, { username, channel }));
+      describe(name, () => {
+        callback(start, { username, channel });
+      });
       return Subscription({ username: u, channel: c });
     },
   };
 }
 
 type StateAssertion = { state: "active" } | { state: "finalized" };
-type DetailsAssertion = { name: string; description: string };
+
+interface DetailsAssertion {
+  name: string;
+  description: string;
+}
+
 type Postcondition = StateAssertion & DetailsAssertion;
 
 class StepState {
-  constructor(
-    readonly prev: ResourceState | undefined,
-    readonly state: ResourceState
-  ) {}
-
-  #assertStatus(status: ResourceStatus, state = this.state): void {
-    expect(state.status, "the resource's status").toBe(status);
-  }
-
-  #assertSocketActive(isActive: boolean, state = this.state): void {
-    expect(state.socket?.isActive, "the socket's active state").toBe(isActive);
-  }
-
-  #assertStableSocket() {
-    expect(this.prev?.socket, "the previous socket").toBe(this.state.socket);
-  }
-
-  #assertUnstableSocket() {
-    expect(this.prev?.socket, "the previous socket").not.toBe(
-      this.state.socket
-    );
-  }
-
-  #assertState(options: StateAssertion, state = this.state): void {
-    switch (options.state) {
-      case "active":
-        this.#assertStatus("did construct", state);
-        this.#assertSocketActive(true, state);
-        break;
-      case "finalized":
-        this.#assertStatus("did cleanup", state);
-        this.#assertSocketActive(false, state);
-        this.#assertStableSocket();
-        break;
-      default:
-        exhaustive(options);
-    }
-  }
-
-  #assertDetails(options: DetailsAssertion, state = this.state): void {
-    expect(state.description, "the resource's description").toBe(
-      options.description
-    );
-    expect(state.socket?.name, "the resource's name").toBe(options.name);
-  }
-
-  #assert(
-    options: StateAssertion & DetailsAssertion,
-    state = this.state
-  ): void {
-    this.#assertState(options, state);
-    this.#assertDetails(options, state);
-  }
-
   assert = entryPoints({
     equivalent: () => {
       expect(this.prev).toEqual(this.state);
@@ -671,6 +645,60 @@ class StepState {
       },
     }),
   });
+
+  constructor(
+    readonly prev: ResourceState | undefined,
+    readonly state: ResourceState
+  ) {}
+
+  #assertStatus(status: ResourceStatus, state = this.state): void {
+    expect(state.status, "the resource's status").toBe(status);
+  }
+
+  #assertSocketActive(isActive: boolean, state = this.state): void {
+    expect(state.socket?.isActive, "the socket's active state").toBe(isActive);
+  }
+
+  #assertStableSocket(): void {
+    expect(this.prev?.socket, "the previous socket").toBe(this.state.socket);
+  }
+
+  #assertUnstableSocket(): void {
+    expect(this.prev?.socket, "the previous socket").not.toBe(
+      this.state.socket
+    );
+  }
+
+  #assertState(options: StateAssertion, state = this.state): void {
+    switch (options.state) {
+      case "active":
+        this.#assertStatus("did construct", state);
+        this.#assertSocketActive(true, state);
+        break;
+      case "finalized":
+        this.#assertStatus("did cleanup", state);
+        this.#assertSocketActive(false, state);
+        this.#assertStableSocket();
+        break;
+      default:
+        exhaustive(options);
+    }
+  }
+
+  #assertDetails(options: DetailsAssertion, state = this.state): void {
+    expect(state.description, "the resource's description").toBe(
+      options.description
+    );
+    expect(state.socket?.name, "the resource's name").toBe(options.name);
+  }
+
+  #assert(
+    options: StateAssertion & DetailsAssertion,
+    state = this.state
+  ): void {
+    this.#assertState(options, state);
+    this.#assertDetails(options, state);
+  }
 }
 
 class Steps {
@@ -690,7 +718,7 @@ class Steps {
     description: string,
     action: (options: { resource: Reactive<ResourceState> }) => void,
     assert: (options: StepState) => void
-  ) {
+  ): this {
     const stack = callerStack();
     test(
       description,
@@ -708,7 +736,7 @@ class Steps {
     return this;
   }
 
-  finalize(assert: (options: StepState) => void) {
+  finalize(assert: (options: StepState) => void): this {
     test(
       "finalizing",
       entryPointFn(

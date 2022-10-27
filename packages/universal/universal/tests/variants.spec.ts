@@ -1,23 +1,23 @@
-import { FormulaFn, TIMELINE, Variants } from "@starbeam/universal";
 import { ReactiveProtocol } from "@starbeam/timeline";
+import { FormulaFn, TIMELINE, Variants } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 
-type Bool = {
-  true: void;
-  false: void;
-};
+interface Bool {
+  true: [];
+  false: [];
+}
 
-type Option<T> = {
-  none: void;
-  some: T;
-};
+interface Option<T> {
+  none: [];
+  some: [T];
+}
 
-type Lifecycle<T> = {
-  idle: void;
-  loading: void;
-  loaded: T;
-  error: Error;
-};
+interface Lifecycle<T> {
+  idle: [];
+  loading: [];
+  loaded: [T];
+  error: [Error];
+}
 
 describe("Variants", () => {
   test("simple variant", () => {
@@ -97,7 +97,7 @@ describe("Variants", () => {
 
     const value = FormulaFn(() => {
       return lifecycle.match({
-        loaded: (value) => value,
+        loaded: (v) => v,
       });
     }, "value");
 
@@ -192,9 +192,10 @@ describe("Variants", () => {
   });
 });
 
-const debug = false;
+// eslint-disable-next-line @typescript-eslint/no-inferrable-types
+const debug: boolean = false;
 
-function Stability(reactive: ReactiveProtocol) {
+function Stability(reactive: ReactiveProtocol): { readonly changed: boolean } {
   let changed = false;
 
   TIMELINE.on.change(reactive, (internals) => {
@@ -203,7 +204,7 @@ function Stability(reactive: ReactiveProtocol) {
         ReactiveProtocol.description(reactive).describe(),
         "invalidated by"
       );
-      console.log(internals.description?.describe());
+      console.log(internals.description.describe());
       console.groupEnd();
     }
     changed = true;

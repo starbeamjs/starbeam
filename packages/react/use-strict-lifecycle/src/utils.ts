@@ -1,3 +1,5 @@
+import { checker } from "./checker.js";
+
 export interface Check<Out extends In, In = unknown> {
   test: (value: In) => value is Out;
   failure: (value: In) => string;
@@ -15,7 +17,7 @@ export function check<Out extends In, In>(
 ): asserts value is Out;
 export function check<Out extends In, In>(
   value: In,
-  check: Check<Out, In>
+  assertion: Check<Out, In>
 ): asserts value is Out;
 export function check<In, Out extends In>(
   value: In,
@@ -31,7 +33,7 @@ export function checked<Out extends In, In>(
 ): Out;
 export function checked<Out extends In, In>(
   value: In,
-  check: Check<Out, In>
+  assertion: Check<Out, In>
 ): Out;
 export function checked<Out extends In, In>(
   value: In,
@@ -39,17 +41,6 @@ export function checked<Out extends In, In>(
 ): Out {
   checkValue(value, checker(validator));
   return value;
-}
-
-function checker<Out extends In, In>(
-  checker: [Check<Out, In>] | AdHocCheck<Out, In>
-): Check<Out, In> {
-  if (checker.length === 1) {
-    return checker[0];
-  } else {
-    const [test, failure] = checker;
-    return { test, failure };
-  }
 }
 
 function checkValue<In, Out extends In>(

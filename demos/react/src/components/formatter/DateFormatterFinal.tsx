@@ -1,6 +1,6 @@
-import { type Reactive, Resource } from "@starbeam/universal";
 import js from "@starbeam/js";
 import { useCell, useReactive, useResource } from "@starbeam/react";
+import { type Reactive, Resource } from "@starbeam/universal";
 
 import {
   formatLocale,
@@ -62,9 +62,13 @@ function Clock(
 
   return Resource((resource) => {
     resource.on.setup(() => {
-      const interval = setInterval(() => refresh(), 1000);
+      const interval = setInterval(() => {
+        refresh();
+      }, 1000);
 
-      return () => clearInterval(interval);
+      return () => {
+        clearInterval(interval);
+      };
     });
 
     return () => ({

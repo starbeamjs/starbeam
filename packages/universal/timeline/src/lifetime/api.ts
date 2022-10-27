@@ -11,12 +11,12 @@ import { type Unsubscribe, ObjectLifetime } from "./object-lifetime.js";
  * to add cleanup support to objects consistently and idiomatically.
  */
 export interface CleanupTarget {
-  link(child: object): Unsubscribe;
+  readonly link: (child: object) => Unsubscribe;
   readonly on: OnCleanup;
 }
 
 export interface OnCleanup {
-  cleanup(finalizer: () => void): Unsubscribe;
+  readonly cleanup: (finalizer: () => void) => Unsubscribe;
 }
 
 class LifetimeAPI {
@@ -34,13 +34,6 @@ class LifetimeAPI {
       return lifetime.on.finalize(handler);
     },
   };
-
-  link(parent: object, child: object): Unsubscribe {
-    const parentLifetime = this.#initialize(parent);
-    const childLifetime = this.#initialize(child);
-
-    return parentLifetime.link(childLifetime);
-  }
 
   adopt(oldParent: object, newParent: object, child: object): Unsubscribe {
     const oldParentLifetime = this.#associations.get(oldParent);
@@ -64,15 +57,20 @@ class LifetimeAPI {
     return this.#initialize(newParent).link(childLifetime);
   }
 
-  unlink(parent: object, child: object): void {
-    const parentLifetime = this.#associations.get(parent);
+  /**
+   * Finalize an object.
+   *
+   * The second parameter is optional, and allows the caller to pass a callback
+   * that the finalization will run inside of.
+   *
+   * This allows the caller to catch any errors that may occur during
+   * finalization inside of an appropriate context.
+   */
+  finalize(object: object, finalizing?: (block: () => void) => void): void {
+    const lifetime = this.#associations.get(object);
 
-    if (parentLifetime) {
-      const childLifetime = this.#associations.get(child);
-
-      if (childLifetime) {
-        parentLifetime.unlink(childLifetime);
-      }
+    if (lifetime) {
+      ObjectLifetime.finalize(lifetime, finalizing);
     }
   }
 
@@ -87,20 +85,22 @@ class LifetimeAPI {
     return lifetime;
   }
 
-  /**
-   * Finalize an object.
-   *
-   * The second parameter is optional, and allows the caller to pass a callback
-   * that the finalization will run inside of.
-   *
-   * This allows the caller to catch any errors that may occur during
-   * finalization inside of an appropriate context.
-   */
-  finalize(object: object, finalizing?: (block: () => void) => void) {
-    const lifetime = this.#associations.get(object);
+  link(parent: object, child: object): Unsubscribe {
+    const parentLifetime = this.#initialize(parent);
+    const childLifetime = this.#initialize(child);
 
-    if (lifetime) {
-      ObjectLifetime.finalize(lifetime, finalizing);
+    return parentLifetime.link(childLifetime);
+  }
+
+  unlink(parent: object, child: object): void {
+    const parentLifetime = this.#associations.get(parent);
+
+    if (parentLifetime) {
+      const childLifetime = this.#associations.get(child);
+
+      if (childLifetime) {
+        parentLifetime.unlink(childLifetime);
+      }
     }
   }
 }

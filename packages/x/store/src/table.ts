@@ -4,6 +4,9 @@ import { reactive } from "@starbeam/js";
 import type { Groups } from "./flat.js";
 import { FlatRows } from "./flat.js";
 
+const INITIAL_ID = 0;
+const SINGLE_ELEMENT = 1;
+
 export class Table<U extends UserTypes> extends FlatRows<U> {
   static create<S extends SpecifiedTableDefinition>(
     this: void,
@@ -46,7 +49,7 @@ export class Table<U extends UserTypes> extends FlatRows<U> {
     );
   }
 
-  #id = 0;
+  #id = INITIAL_ID;
   readonly #definition: TableDefinition<TableTypesFor<U>>;
   readonly #rows: Map<string, TableTypesFor<U>["Row"]>;
   readonly #description: Description;
@@ -81,7 +84,7 @@ export class Table<U extends UserTypes> extends FlatRows<U> {
       const row = this.#definition.model(id, columns);
       this.#rows.set(id, row);
 
-      if (rows.length === 1) {
+      if (rows.length === SINGLE_ELEMENT) {
         return row;
       }
     }
@@ -109,9 +112,10 @@ export class Table<U extends UserTypes> extends FlatRows<U> {
 
 type ColumnName<C> = keyof C;
 
-export interface Model<T extends TableTypes> {
-  (id: string, columns: T["Columns"]): T["Row"];
-}
+export type Model<T extends TableTypes> = (
+  id: string,
+  columns: T["Columns"]
+) => T["Row"];
 
 export type UserTypes = object | TableTypes;
 
@@ -123,9 +127,9 @@ export type TableTypesFor<U extends UserTypes> = U extends TableTypes
     };
 
 export type RowTypeFor<U extends UserTypes> = TableTypesFor<U>["Row"];
-export type GroupTypeFor<U extends UserTypes, Description> = Groups<
+export type GroupTypeFor<U extends UserTypes, GroupDescription> = Groups<
   TableTypesFor<U>,
-  Description
+  GroupDescription
 >;
 
 export interface TableTypes {

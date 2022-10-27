@@ -25,7 +25,7 @@ export {
 } from "./src/timeline/protocol.js";
 export { Subscription, Subscriptions } from "./src/timeline/subscriptions.js";
 export { INSPECT } from "./src/timeline/timestamp.js";
-export { max, now, zero } from "./src/timeline/timestamp.js";
+export { max, getNow as now, zero } from "./src/timeline/timestamp.js";
 export { diff } from "./src/timeline/utils.js";
 export { REACTIVE } from "@starbeam/shared";
 

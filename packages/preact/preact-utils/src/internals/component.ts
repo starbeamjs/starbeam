@@ -1,13 +1,19 @@
-import { DisplayStruct } from "@starbeam/debug";
+import { objectHasKeys } from "@starbeam/core-utils";
 import type { Component, ComponentType } from "preact";
 
+import { DisplayStruct } from "../inspect.js";
 import type { InternalEffect, InternalPreactElement } from "../interfaces.js";
+// eslint-disable-next-line import/no-cycle
 import { type InternalPreactVNode, InternalVNode } from "./vnode.js";
 
 const COMPONENTS = new WeakMap<InternalPreactComponent, InternalComponent>();
+const INITIAL_ID = 0;
 
 export class InternalComponent {
-  static #nextId = 0;
+  readonly #component: InternalPreactComponent;
+  readonly id: number;
+
+  static #nextId = INITIAL_ID;
 
   static is(value: unknown): value is InternalComponent {
     return !!(
@@ -30,10 +36,6 @@ export class InternalComponent {
   }
 
   static of(component: InternalPreactComponent): InternalComponent {
-    if (component == null) {
-      throw Error(`unexpected nconst COMPONENTS = new WeakMap<InternalPreactComponent, InternalComponent>();
-      ull component`);
-    }
     let wrapper = COMPONENTS.get(component);
 
     if (!wrapper) {
@@ -44,35 +46,9 @@ export class InternalComponent {
     return wrapper;
   }
 
-  readonly #component: InternalPreactComponent;
-  readonly id: number;
-
   private constructor(component: InternalPreactComponent) {
     this.#component = component;
     this.id = InternalComponent.#nextId++;
-  }
-
-  [Symbol.for("nodejs.util.inspect.custom")](): object {
-    const propsFields: Partial<{ props: unknown }> = {};
-    const stateFields: Partial<{ state: unknown }> = {};
-
-    if (Object.keys(this.#component.props).length > 0) {
-      propsFields.props = this.#component.props;
-    }
-
-    if (Object.keys(this.#component.state).length > 0) {
-      stateFields.state = this.#component.state;
-    }
-
-    return DisplayStruct(
-      "InternalComponent",
-      {
-        vnode: this.vnode,
-        ...propsFields,
-        ...stateFields,
-      },
-      { description: String(this.id) }
-    );
   }
 
   get fn(): ComponentType<unknown> | string {
@@ -85,6 +61,24 @@ export class InternalComponent {
 
   get state(): InternalPreactComponent["state"] {
     return this.#component.state;
+  }
+
+  get context(): Record<PropertyKey, unknown> {
+    const context = this.#component.context as unknown;
+
+    if (typeof context !== "object" || context === null) {
+      throw Error(
+        `UNEXPECTED: Expected context to be an object, got ${
+          context === null ? "null" : typeof context
+        }`
+      );
+    }
+
+    return context as Record<PropertyKey, unknown>;
+  }
+
+  set context(value: unknown) {
+    this.#component.context = value;
   }
 
   get vnode(): InternalVNode {
@@ -101,6 +95,30 @@ export class InternalComponent {
 
   get updateFlags(): number {
     return this.#component[KEYS["signals._updateFlags"]];
+  }
+
+  [Symbol.for("nodejs.util.inspect.custom")](): object {
+    const propsFields: Partial<{ props: unknown }> = {};
+    const stateFields: Partial<{ state: unknown }> = {};
+
+    if (objectHasKeys(this.#component.props)) {
+      propsFields.props = this.#component.props;
+    }
+
+    if (objectHasKeys(this.#component.state)) {
+      stateFields.state = this.#component.state;
+    }
+
+    return DisplayStruct(
+      "InternalComponent",
+      {
+        vnode: this.vnode,
+        context: this.context,
+        ...propsFields,
+        ...stateFields,
+      },
+      { description: String(this.id) }
+    );
   }
 
   notify(): void {

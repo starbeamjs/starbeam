@@ -1,6 +1,5 @@
-import { Cell, FormulaFn } from "@starbeam/universal";
-// eslint-disable-next-line unused-imports/no-unused-imports, @typescript-eslint/no-unused-vars
 import { cached, reactive } from "@starbeam/js";
+import { Cell, FormulaFn } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 
 describe("A reactive formula", () => {
@@ -179,7 +178,7 @@ test("Formula using cells", () => {
       this.#country = Cell(country);
     }
 
-    get name() {
+    get name(): string {
       return this.#name.current;
     }
 
@@ -187,14 +186,14 @@ test("Formula using cells", () => {
       this.#name.set(value);
     }
 
-    get country() {
+    get country(): string {
       return this.#country.current;
     }
     set country(value: string) {
       this.#country.set(value);
     }
 
-    formatted(country = true) {
+    formatted(country = true): string {
       if (country) {
         return `${this.name} (${this.country})`;
       } else {
@@ -233,7 +232,7 @@ test("Formula using the @reactive decorator", () => {
       this.country = country;
     }
 
-    formatted(country = true) {
+    formatted(country = true): string {
       if (country) {
         return `${this.name} (${this.country})`;
       } else {
@@ -283,9 +282,9 @@ export function testName(first: string, last: string): Person {
     @reactive firstName: string;
     @reactive lastName: string;
 
-    constructor(first: string, last: string) {
-      this.firstName = first;
-      this.lastName = last;
+    constructor(firstName: string, lastName: string) {
+      this.firstName = firstName;
+      this.lastName = lastName;
     }
 
     @cached get firstNameMemo(): string {

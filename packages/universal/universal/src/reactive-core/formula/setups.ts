@@ -5,7 +5,7 @@ import { type Unsubscribe, LIFETIME } from "@starbeam/timeline";
 import { Marker } from "../marker.js";
 import { FormulaFn } from "./formula.js";
 
-type SetupFunction = () => void | (() => void);
+type SetupFunction = (() => void) | (() => () => void);
 export type Setup = FormulaFn<void>;
 
 // TODO: I think that setups should ignore reads that are followed by writes.
@@ -23,7 +23,7 @@ export function Setup(
     fromUser: description,
   });
 
-  let cleanup: (() => void) | void;
+  let cleanup: (() => void) | void = undefined;
 
   const setup = FormulaFn(() => {
     if (cleanup) {
@@ -62,8 +62,11 @@ export function Setups(description: Description): Setups {
     description.implementation(getID(), { reason: "setups changed" })
   );
 
-  const register = (setupFn: SetupFunction, description: Description) => {
-    const setup = Setup(setupFn, description);
+  const register = (
+    setupFn: SetupFunction,
+    desc: Description
+  ): (() => void) => {
+    const setup = Setup(setupFn, desc);
     const unsubscribe = LIFETIME.link(result, setup);
     setups.add(setup);
 

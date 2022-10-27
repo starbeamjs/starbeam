@@ -1,5 +1,5 @@
 {
-  "extends": "../../.config/tsconfig/tsconfig.react-demo.json",
+  "extends": "../../.config/tsconfig/tsconfig.preact-demo.json",
   "compilerOptions": {
     "outDir": "../../dist/packages",
     "declaration": true,
@@ -7,8 +7,9 @@
     "declarationMap": true,
     "declarationDir": "../../dist/types",
     "jsxImportSource": "preact",
-    "types": ["../../packages/env"]
+    "types": ["../../packages/env", "preact"]
   },
+  "include": ["index.ts", "src/**/*", "vite.config.ts"],
   "references": [
     { "path": "../../packages/tsconfig.packages.json" },
     { "path": "../../packages/x/devtool/tsconfig.json" }

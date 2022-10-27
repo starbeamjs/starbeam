@@ -22,13 +22,15 @@ export class Invalidation<T> {
 
     let state: "initialized" | "stable" | "invalidated";
 
-    if (this.#initialized === false) {
+    if (this.#initialized) {
+      if (this.#lastChecked === this.#bumped) {
+        state = "stable";
+      } else {
+        state = "invalidated";
+      }
+    } else {
       this.#initialized = true;
       state = "initialized";
-    } else if (this.#bumped > this.#lastChecked) {
-      state = "invalidated";
-    } else {
-      state = "stable";
     }
 
     this.#lastChecked = this.#bumped;

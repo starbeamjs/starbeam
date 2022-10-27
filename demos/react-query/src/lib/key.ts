@@ -10,8 +10,8 @@ type SerializableObject = {
   [P in string]: Serializable;
 };
 
-function hasToJSON(value: object): value is { toJSON(): Serializable } {
-  const toJSON = (value as Record<string, unknown>).toJSON;
+function hasToJSON(value: object): value is { toJSON: () => Serializable } {
+  const toJSON = (value as Record<string, unknown>)["toJSON"];
   return typeof toJSON === "function";
 }
 
@@ -34,7 +34,9 @@ export function serialize(value: Serializable): string {
     const keys = Object.keys(value).sort();
     return (
       "{" +
-      keys.map((key) => `"${key}":${serialize(value[key])}`).join(",") +
+      keys
+        .map((key) => `"${key}":${serialize(value[key] as Serializable)}`)
+        .join(",") +
       "}"
     );
   } else {

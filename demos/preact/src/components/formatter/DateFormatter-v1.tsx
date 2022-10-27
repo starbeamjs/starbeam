@@ -18,7 +18,12 @@ export default function DateFormatterStarbeam(): JSX.Element {
         </>
       </h3>
 
-      <button className="pure-button" onClick={() => date.read().refresh()}>
+      <button
+        className="pure-button"
+        onClick={() => {
+          date.read().refresh();
+        }}
+      >
         🔃
       </button>
       <p className="output">{date.current.formatted}</p>
@@ -26,10 +31,10 @@ export default function DateFormatterStarbeam(): JSX.Element {
   );
 }
 
-function Clock() {
+function Clock(): FormulaFn<{ formatted: string; refresh: () => void }> {
   const date = js.object({ now: new Date() });
 
-  function refresh() {
+  function refresh(): void {
     date.now = new Date();
   }
 
@@ -50,7 +55,7 @@ function formatTime(
     locale = SYSTEM_LOCALE,
     timeZone = SYSTEM_TZ,
   }: { locale?: string; timeZone?: string } = {}
-) {
+): string {
   return new Intl.DateTimeFormat(locale, {
     hour: "numeric",
     minute: "numeric",

@@ -1,0 +1,10 @@
+{
+  "extends": "../.config/tsconfig/tsconfig.shared.json",
+  "compilerOptions": {
+    "composite": true,
+    "types": ["./env"],
+    "outDir": "../dist/packages"
+  },
+  "include": ["*/*/tests/**/*"],
+  "exclude": ["**/node_modules/**/*", "**/dist/**/*"]
+}

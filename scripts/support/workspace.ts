@@ -1,3 +1,4 @@
+import { stringify } from "@starbeam/core-utils";
 import {
   type ExecSyncOptionsWithStringEncoding,
   execSync,
@@ -13,6 +14,7 @@ import {
   CommandStream,
 } from "./reporter/command-stream.js";
 import { type ReporterOptions, Reporter } from "./reporter/reporter.js";
+import { fatal } from "./type-magic.js";
 
 export class Workspace {
   static root(root: string, options: ReporterOptions): Workspace {
@@ -51,18 +53,20 @@ export class Workspace {
     return this.#reporter.stringify(fragment);
   }
 
-  async cmd(
+  cmd(
     command: string,
     options?: Partial<ExecSyncOptionsWithStringEncoding & { failFast: boolean }>
-  ): Promise<string | void> {
-    return await this.#reporter.handle
-      .fatal((r) =>
-        r.log(
-          `> ${Fragment.problem.header.inverse(
-            "failed"
-          )} ${Fragment.problem.header(command)}`
-        )
-      )
+  ): string | void {
+    return this.#reporter.handle
+      .fatal((r): never => {
+        fatal(
+          r.fatal(
+            stringify`> ${Fragment.problem.header.inverse(
+              "failed"
+            )} ${Fragment.problem.header(command)}`
+          )
+        );
+      })
       .try((r) => {
         r.verbose(() => {
           r.log(`$ ${command}`);
@@ -154,7 +158,13 @@ export class Workspace {
         if (verboseInnerHeader) {
           r.log(verboseInnerHeader);
         }
-        r.log(`> ${Fragment.problem("failed")} ${Fragment.comment(command)}`);
+        fatal(
+          r.fatal(
+            stringify`> ${Fragment.problem("failed")} ${Fragment.comment(
+              command
+            )}`
+          )
+        );
       })
       .catch((_, log) => {
         log();

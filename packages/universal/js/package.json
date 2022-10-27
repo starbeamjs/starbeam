@@ -4,6 +4,7 @@
   "version": "0.7.4",
   "type": "module",
   "main": "index.ts",
+  "types": "index.ts",
   "dependencies": {
     "@starbeam/universal": "workspace:^",
     "@starbeam/shared": "workspace:^",
@@ -26,13 +27,13 @@
       }
     }
   },
-  "exports": {
-    "default": "./index.ts"
-  },
   "scripts": {
     "test:lint": "eslint",
     "test:specs": "vitest",
     "test:types": "tsc -b"
+  },
+  "exports": {
+    "default": "./index.ts"
   },
   "starbeam:type": "library"
 }

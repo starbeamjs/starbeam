@@ -45,7 +45,7 @@ export function PolledFormula<T>(
 
   const frame = Frame.uninitialized<T | UNINITIALIZED>(TIMELINE.now, desc);
 
-  const update = (caller: Stack = callerStack()) => {
+  const update = (caller: Stack = callerStack()): void => {
     if (import.meta.env.DEV) {
       const oldDeps = new Set(ReactiveProtocol.dependencies(frame));
 
@@ -98,7 +98,7 @@ export function PolledFormulaFn<T>(
     })
   );
 
-  const fn = () => Frame.value(formula.poll());
+  const fn = (): T => Frame.value(formula.poll());
 
   Object.defineProperty(fn, "read", {
     enumerable: false,

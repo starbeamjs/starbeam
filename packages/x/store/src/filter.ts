@@ -6,9 +6,9 @@ export type FilterFn<U extends UserTypes> = (
 export type Filter<U extends UserTypes> = FilterFn<U> | FilterInstance<U>;
 
 export interface FilterInstance<U extends UserTypes> {
-  matches(row: TableTypesFor<U>["Row"]): boolean;
-  and(...filters: Filter<U>[]): FilterInstance<U>;
-  or(...filters: Filter<U>[]): FilterInstance<U>;
+  matches: (row: TableTypesFor<U>["Row"]) => boolean;
+  and: (...filters: Filter<U>[]) => FilterInstance<U>;
+  or: (...filters: Filter<U>[]) => FilterInstance<U>;
 }
 
 export function Filter<U extends UserTypes>(

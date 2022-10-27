@@ -20,7 +20,7 @@ class Table<T> {
     return Object.entries(this.#rows);
   }
 
-  append(row: T) {
+  append(row: T): void {
     this.#rows[`${this.#id++}`] = row;
   }
 }

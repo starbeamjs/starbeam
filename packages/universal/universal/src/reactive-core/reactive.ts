@@ -4,7 +4,6 @@ import { Reactive as TimelineReactive } from "@starbeam/timeline";
 import { isObject } from "@starbeam/verify";
 
 import type { ResourceBlueprint } from "./resource/resource.js";
-import { Static } from "./static.js";
 
 export type ReactiveFactory<T> =
   | (() => T)
@@ -47,7 +46,7 @@ export class ReactiveBlueprint<T> {
     if (ReactiveBlueprint.is(value)) {
       return value.create();
     } else {
-      return value as T;
+      return value;
     }
   }
 
@@ -65,22 +64,3 @@ function construct<T>(constructor: ReactiveFactory<T>): T | Reactive<T> {
 }
 
 export type Blueprint<T> = ResourceBlueprint<T> | ReactiveBlueprint<T>;
-export type Factory<T> = Blueprint<T> | ReactiveFactory<T>;
-
-export const Factory = {
-  create: <T>(create: Factory<T>, owner: object): Reactive<T> => {
-    let result: T | Reactive<T>;
-
-    if (typeof create === "function") {
-      result = Reactive(create).create(owner);
-    } else {
-      result = create.create(owner);
-    }
-
-    if (Reactive.is(result)) {
-      return result;
-    } else {
-      return Static(result);
-    }
-  },
-};

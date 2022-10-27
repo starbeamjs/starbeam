@@ -1,6 +1,7 @@
-import { Cell } from "@starbeam/universal";
 import { type Description, type Stack, callerStack } from "@starbeam/debug";
 import { reactive } from "@starbeam/js";
+import { Cell } from "@starbeam/universal";
+import { isPresent, verified } from "@starbeam/verify";
 
 export class Queries {
   readonly #queries = reactive.Map<string, { state: Async; query: Query }>(
@@ -52,16 +53,6 @@ interface Variant<T> {
   readonly value: Cell<T | null>;
 }
 
-// function Variant<T>(selected: false): Variant<T>;
-// function Variant<T extends void>(selected: true): Variant<T>;
-// function Variant<T>(selected: true, value: T): Variant<T>;
-// function Variant(selected: boolean, value?: unknown): Variant<unknown> {
-//   return {
-//     selected: Cell(selected),
-//     value: Cell(value),
-//   };
-// }
-
 function selected<T extends void>(description: Description): Variant<T>;
 function selected<T>(value: T, description: Description): Variant<T>;
 function selected(
@@ -101,7 +92,7 @@ function deselected(description: Description): Variant<unknown> {
         reason: "selected?",
       }),
     }),
-    value: Cell(null as unknown | null, {
+    value: Cell(null as unknown, {
       description: description.implementation("value", { reason: "value" }),
     }),
   };
@@ -170,12 +161,12 @@ export class Async<T = unknown> {
       case "error":
         return {
           state: "error",
-          error: this.#states.error.value.read(caller) as Error,
+          error: verified(this.#states.error.value.read(caller), isPresent),
         };
     }
   }
 
-  #deselect(type: keyof AsyncStates<T>) {
+  #deselect(type: keyof AsyncStates<T>): void {
     switch (type) {
       case "idle":
         this.#states.idle.selected.set(false);
@@ -205,28 +196,28 @@ export class Async<T = unknown> {
     return this.#states.loaded.value.read(callerStack());
   }
 
-  idle(): Async<T> {
+  idle(): this {
     this.#deselect(this.#currentType);
     this.#states.idle.selected.set(true);
     this.#currentType = "idle";
     return this;
   }
 
-  loading(): Async<T> {
+  loading(): this {
     this.#deselect(this.#currentType);
     this.#states.loading.selected.set(true);
     this.#currentType = "loading";
     return this;
   }
 
-  loaded(data: T): Async<T> {
+  loaded(data: T): this {
     this.#deselect(this.#currentType);
     this.#states.loaded.value.set(data);
     this.#currentType = "loaded";
     return this;
   }
 
-  error(error: Error): Async<T> {
+  error(error: Error): this {
     this.#deselect(this.#currentType);
     this.#states.error.value.set(error);
     this.#currentType = "error";

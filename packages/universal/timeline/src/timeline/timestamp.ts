@@ -36,6 +36,7 @@ export class TimestampImpl implements interfaces.Timestamp {
   }
 
   readonly #timestamp: number;
+  declare [INSPECT]: () => object;
 
   constructor(timestamp: number) {
     this.#timestamp = timestamp;
@@ -45,8 +46,6 @@ export class TimestampImpl implements interfaces.Timestamp {
         DisplayStruct("Timestamp", { at: this.#timestamp });
     }
   }
-
-  declare [INSPECT]: () => object;
 
   gt(other: Timestamp): boolean {
     TimestampImpl.assert(other, "Timestamp#gt");
@@ -76,7 +75,7 @@ export function zero(): interfaces.Timestamp {
   return Timestamp.zero();
 }
 
-export function now(): interfaces.Timestamp {
+export function getNow(): interfaces.Timestamp {
   return Timestamp.now();
 }
 

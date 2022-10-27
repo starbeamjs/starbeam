@@ -7,14 +7,16 @@ import { options } from "preact";
 import { beforeAll } from "vitest";
 
 describe("useReactive", () => {
-  beforeAll(() => setup(options));
+  beforeAll(() => {
+    setup(options);
+  });
 
   rendering.test(
     "baseline",
     ({ name }: { name: string }) => html`<div>hello ${name}</div>`,
     (render) =>
       render
-        .html(({ name }) => html`<div>hello ${name}</div>`)
+        .expect(({ name }) => html`<div>hello ${name}</div>`)
         .render({ name: "world" })
   );
 
@@ -23,7 +25,7 @@ describe("useReactive", () => {
     ({ name }: { name: string }) => html`<div>hello ${name}</div>`,
     (render) =>
       render
-        .html(({ name }) => html`<div>hello ${name}</div>`)
+        .expect(({ name }) => html`<div>hello ${name}</div>`)
         .render({ name: "world" })
         .update({ name: "cruel world" })
   );

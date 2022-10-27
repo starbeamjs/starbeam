@@ -26,7 +26,7 @@ class ReactiveFormulaList<T, U> implements Reactive<U[]> {
       value: (item: T) => U;
     },
     desc?: string | Description
-  ) {
+  ): ReactiveFormulaList<T, U> {
     const descArgs = descriptionFrom({
       type: "collection:value",
       api: {
@@ -45,12 +45,12 @@ class ReactiveFormulaList<T, U> implements Reactive<U[]> {
 
     const map = new Map<Key, FormulaFn<U>>();
 
-    for (const [key, item] of last) {
+    for (const [k, item] of last) {
       map.set(
-        key,
+        k,
         FormulaFn(
           () => value(item),
-          description.key(String(key), { id: getID() })
+          description.key(String(k), { id: getID() })
         )
       );
     }
@@ -98,7 +98,7 @@ class ReactiveFormulaList<T, U> implements Reactive<U[]> {
     return this.#outputs();
   }
 
-  #update() {
+  #update(): void {
     // this `current` happens inside a write phase, so we don't need to propagate a read caller
     // (which is used in the readonly phase to produce good errors in read barrier assertions).
     const next = this.#inputs();
@@ -109,7 +109,7 @@ class ReactiveFormulaList<T, U> implements Reactive<U[]> {
 
     this.#last = next;
 
-    const map: Map<Key, FormulaFn<U>> = new Map();
+    const map = new Map<Key, FormulaFn<U>>();
 
     for (const [key, item] of next) {
       const formula = this.#map.get(key);

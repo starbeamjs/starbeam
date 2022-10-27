@@ -6,6 +6,4 @@ export interface StarbeamCommandOptions {
   root: string;
 }
 
-export interface StarbeamCommandSetup {
-  (commands: StarbeamCommands): Command;
-}
+export type StarbeamCommandSetup = (commands: StarbeamCommands) => Command;

@@ -1,6 +1,12 @@
+import { mapOrNullifyEmpty, objectHasKeys } from "@starbeam/core-utils";
 import Table from "cli-table3";
 
-import { type IntoFragment, Fragment, isIntoFragment } from "../log.js";
+import {
+  type IntoFragment,
+  EMPTY_WIDTH,
+  Fragment,
+  isIntoFragment,
+} from "../log.js";
 import { DisplayStruct } from "./inspect.js";
 import type { LoggerState } from "./logger.js";
 
@@ -13,7 +19,7 @@ type IntoCell<T> = Cell | T;
 type IntoRows<T> = IntoCell<T>[][];
 
 interface CreateRows<T> {
-  rows(rows?: IntoRows<T | IntoFragment>): TableWithRows<T>;
+  rows: (rows?: IntoRows<T | IntoFragment>) => TableWithRows<T>;
 }
 
 export class LoggedTable<T> implements CreateRows<T> {
@@ -23,9 +29,7 @@ export class LoggedTable<T> implements CreateRows<T> {
     this.#mappers = mappers;
   }
 
-  headers(
-    headers: (Cell | T)[] | undefined
-  ): TableWithHeaders<T> | LoggedTable<T> {
+  headers(headers: (Cell | T)[] | undefined): TableWithHeaders<T> | this {
     if (headers) {
       return new TableWithHeaders(
         this.#mappers,
@@ -91,32 +95,24 @@ class Columns {
   }
 
   headers(state: LoggerState): string[] | undefined {
-    if (this.#columns.length === 0) {
-      return undefined;
-    } else {
-      return this.#columns.map((column) => column.header(state) ?? "");
-    }
+    return mapOrNullifyEmpty(
+      this.#columns,
+      (column) => column.header(state) ?? ""
+    );
   }
 
   columnWidths(rows: Cell[][], state: LoggerState): number[] | undefined {
-    if (this.#columns.length === 0) {
-      return undefined;
-    } else {
-      return this.#columns.map((column, index) =>
-        column.maxWidth(
-          rows.map((row) => row[index]),
-          state
-        )
-      );
-    }
+    return mapOrNullifyEmpty(this.#columns, (column, index) =>
+      column.maxWidth(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        rows.map((row) => row[index]!),
+        state
+      )
+    );
   }
 
   get justifications(): Table.HorizontalAlignment[] | undefined {
-    if (this.#columns.length === 0) {
-      return undefined;
-    } else {
-      return this.#columns.map((column) => column.justification);
-    }
+    return mapOrNullifyEmpty(this.#columns, (column) => column.justification);
   }
 }
 
@@ -136,6 +132,8 @@ class Column {
   }
 
   static from(from: IntoColumn): Column;
+  // This allows Column.from to be used as a function passed to .map()
+  // eslint-disable-next-line @typescript-eslint/unified-signatures
   static from(from: IntoColumn, options?: ColumnOptions): Column;
   static from(from: IntoColumn, options?: ColumnOptions): Column {
     if (Column.is(from)) {
@@ -164,7 +162,7 @@ class Column {
   maxWidth(rows: Cell[], state: LoggerState): number {
     if (this.#options.width === "auto") {
       return Math.max(
-        this.#header?.width(state) ?? 0,
+        this.#header?.width(state) ?? EMPTY_WIDTH,
         ...rows.map((row) => row.width(state))
       );
     } else {
@@ -210,10 +208,7 @@ export class Cell {
 
   static from(value: IntoCell<IntoFragment>): Cell;
   static from<T>(value: IntoCell<T>, mapper: (value: T) => IntoFragment): Cell;
-  static from(
-    value: unknown | Cell | IntoFragment,
-    mapper?: (value: unknown) => IntoFragment
-  ): Cell {
+  static from(value: unknown, mapper?: (value: unknown) => IntoFragment): Cell {
     if (Cell.is(value)) {
       return value;
     } else if (mapper) {
@@ -238,7 +233,7 @@ export class Cell {
     );
   }
 
-  readonly #value: unknown | IntoFragment;
+  readonly #value: unknown;
   readonly #mapper: CellMapper<unknown>;
   readonly #options: Table3Options<Table.CellOptions>;
 
@@ -270,7 +265,7 @@ export class Cell {
   toTable3(state: LoggerState): Table.Cell {
     const content = this.stringify(state);
 
-    if (this.#options) {
+    if (objectHasKeys(this.#options)) {
       return { content, ...this.#options.toTable3() };
     } else {
       return content;
@@ -335,20 +330,30 @@ class Table3Options<O extends AnyTable3Options> {
     return new Table3Options({
       ...this.#options,
       style: {
-        ...this.#options?.style,
+        ...this.#options.style,
         ...style,
       },
     });
   }
 
-  padding(amount: number, side?: "left" | "right"): Table3Options<O> {
+  padding(
+    amount: number,
+    side?: "left" | "right" | undefined
+  ): Table3Options<O> {
     const leftPadding = side !== "right" ? amount : undefined;
     const rightPadding = side !== "left" ? amount : undefined;
 
-    return this.style({
-      "padding-left": leftPadding,
-      "padding-right": rightPadding,
-    });
+    const style = {} as Exclude<O["style"], undefined>;
+
+    if (leftPadding) {
+      style["padding-left"] = leftPadding;
+    }
+
+    if (rightPadding) {
+      style["padding-right"] = rightPadding;
+    }
+
+    return this.style(style);
   }
 
   justify(
@@ -479,7 +484,7 @@ export class TableWithRows<T> {
 
   toTable(state: LoggerState): Table.Table {
     const columns = this.#columns ?? Columns.default();
-    const rows = this.#rows ?? [];
+    const rows = this.#rows;
 
     const table3Options = {
       ...this.#options.toTable3(),
@@ -495,7 +500,9 @@ export class TableWithRows<T> {
     const widths = columns.columnWidths(rows, state);
 
     if (widths) {
-      table3Options.colWidths = widths.map((w) => w + 2);
+      // Each cell is padded by 1 space on each side
+      const CELL_PADDING = 2;
+      table3Options.colWidths = widths.map((w) => w + CELL_PADDING);
     }
 
     const aligns = columns.justifications;
@@ -506,11 +513,9 @@ export class TableWithRows<T> {
 
     const table = new Table(table3Options);
 
-    if (rows !== undefined) {
-      table.push(
-        ...rows.map((cells) => cells.map((cell) => cell.toTable3(state)))
-      );
-    }
+    table.push(
+      ...rows.map((cells) => cells.map((cell) => cell.toTable3(state)))
+    );
 
     return table;
   }

@@ -1,5 +1,5 @@
-import { Cell, Setup } from "@starbeam/universal";
 import { ReactiveProtocol, TIMELINE } from "@starbeam/timeline";
+import { Cell, Setup } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 
 describe("Setup", () => {
@@ -8,7 +8,7 @@ describe("Setup", () => {
     let counter = 0;
     const cell = Cell(0);
 
-    const setup = Setup(() => {
+    const setup = Setup((): void => {
       variable = { cell: cell.current, counter: ++counter };
     });
 
@@ -199,10 +199,14 @@ describe("Setup", () => {
   });
 });
 
-function eq<T extends { eq(other: T): boolean }>(other: T) {
+function eq<T extends { eq: (other: T) => boolean }>(
+  other: T
+): (value: T) => boolean {
   return (value: T) => value.eq(other);
 }
 
-function gt<T extends { gt(other: T): boolean }>(other: T) {
+function gt<T extends { gt: (other: T) => boolean }>(
+  other: T
+): (value: T) => boolean {
   return (value: T) => value.gt(other);
 }

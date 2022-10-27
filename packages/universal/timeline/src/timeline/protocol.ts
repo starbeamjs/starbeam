@@ -7,15 +7,15 @@ import { isPresent } from "@starbeam/verify";
 import { Timestamp, zero } from "./timestamp.js";
 
 interface ExhaustiveMatcher<T> {
-  mutable(internals: interfaces.MutableInternals): T;
-  composite(internals: interfaces.CompositeInternals): T;
-  delegate(internals: interfaces.DelegateInternals): T;
-  static(internals: interfaces.StaticInternals): T;
+  mutable: (internals: interfaces.MutableInternals) => T;
+  composite: (internals: interfaces.CompositeInternals) => T;
+  delegate: (internals: interfaces.DelegateInternals) => T;
+  static: (internals: interfaces.StaticInternals) => T;
 }
 
-type DefaultMatcher<T> = Partial<ExhaustiveMatcher<T>> & {
-  default(internals: interfaces.ReactiveInternals): T;
-};
+interface DefaultMatcher<T> extends Partial<ExhaustiveMatcher<T>> {
+  default: (internals: interfaces.ReactiveInternals) => T;
+}
 
 type Matcher<T> = ExhaustiveMatcher<T> | DefaultMatcher<T>;
 
@@ -92,8 +92,8 @@ export const ReactiveProtocol = {
     this: void,
     reactive: ReactiveProtocol,
     options: { implementation?: boolean; source?: boolean } = {}
-  ) {
-    return ReactiveInternals.log(reactive[REACTIVE], options);
+  ): void {
+    ReactiveInternals.log(reactive[REACTIVE], options);
   },
 
   debug(
@@ -134,7 +134,7 @@ export const ReactiveInternals = {
       case "static":
         return;
       case "mutable":
-        if (internals.isFrozen && internals.isFrozen()) {
+        if (internals.isFrozen?.()) {
           break;
         }
 
@@ -166,9 +166,7 @@ export const ReactiveInternals = {
   ): interfaces.ReactiveInternals[] {
     if (internals.type === "delegate") {
       return internals.delegate.flatMap((protocol) =>
-        ReactiveProtocol.subscribesTo(protocol).map(
-          (protocol) => protocol[REACTIVE]
-        )
+        ReactiveProtocol.subscribesTo(protocol).map((p) => p[REACTIVE])
       );
     } else {
       return [internals];
@@ -228,14 +226,14 @@ export const ReactiveInternals = {
       dependencies.map((dependency) => {
         return implementation
           ? dependency.description
-          : dependency.description?.userFacing;
+          : dependency.description.userFacing;
       })
     );
 
     const nodes = [...descriptions]
       .map((d) => {
-        const description = implementation ? d : d?.userFacing;
-        return description?.describe({ source });
+        const description = implementation ? d : d.userFacing;
+        return description.describe({ source });
       })
       .filter(isPresent);
 
@@ -260,19 +258,12 @@ export const ReactiveInternals = {
   },
 
   match<T>(this: void, internals: ReactiveInternals, matcher: Matcher<T>): T {
-    return invoke(internals, matcher);
-
-    function invoke<T>(
-      internals: interfaces.ReactiveInternals,
-      matcher: Matcher<T>
-    ): T {
-      const fn = matcher[internals.type];
-      if (typeof fn === "function") {
-        return fn(internals as never);
-      }
-
-      return (matcher as DefaultMatcher<T>).default(internals);
+    const fn = matcher[internals.type];
+    if (typeof fn === "function") {
+      return fn(internals as never);
     }
+
+    return (matcher as DefaultMatcher<T>).default(internals);
   },
 };
 
@@ -284,9 +275,7 @@ export type Reactive<
 > = interfaces.Reactive<T, I>;
 
 export const Reactive = {
-  is<T>(
-    value: unknown | interfaces.Reactive<T>
-  ): value is interfaces.Reactive<T> {
+  is<T>(this: void, value: unknown): value is interfaces.Reactive<T> {
     return !!(
       value &&
       (typeof value === "object" || typeof value === "function") &&
@@ -295,6 +284,7 @@ export const Reactive = {
   },
 
   from<T>(
+    this: void,
     value: T | Reactive<T>,
     description?: string | Debug.Description
   ): Reactive<T> {
@@ -312,9 +302,7 @@ export type ReactiveCore<
 > = interfaces.ReactiveCore<T, I>;
 
 export const ReactiveCore = {
-  is<T>(
-    value: unknown | interfaces.ReactiveCore<T>
-  ): value is interfaces.ReactiveCore<T> {
+  is<T>(value: unknown): value is interfaces.ReactiveCore<T> {
     return !!(
       value &&
       (typeof value === "object" || typeof value === "function") &&
@@ -324,10 +312,8 @@ export const ReactiveCore = {
   },
 };
 
-function hasRead<T>(
-  value: Partial<interfaces.ReactiveCore<T>>
-): value is { read(): T } {
-  return typeof value.read === "function";
+function hasRead<T>(value: object): value is { read: () => T } {
+  return "read" in value && typeof value.read === "function";
 }
 
 class Static<T> {

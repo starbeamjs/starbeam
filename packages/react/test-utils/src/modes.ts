@@ -329,7 +329,7 @@ testStrictAndLoose.loose = <Props, T>(
 
 type BoundFireObject = {
   [P in keyof testing.FireObject]: testing.FireObject[P] extends (
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     element: any,
     ...args: infer Args
   ) => infer Return
@@ -405,7 +405,7 @@ export class TestElement<E extends Element> {
 
   readonly fire: {
     [P in keyof testing.FireObject]: testing.FireObject[P] extends (
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       element: any,
       ...args: infer Args
     ) => infer Return
@@ -419,7 +419,7 @@ export class TestElement<E extends Element> {
     const fire: Partial<BoundFireObject> = {};
 
     for (const [key, value] of Object.entries(testing.fireEvent)) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+       
       fire[key as keyof BoundFireObject] = this.#bind(value);
     }
 
@@ -427,9 +427,9 @@ export class TestElement<E extends Element> {
   }
 
   #bind(method: testing.FireObject[keyof testing.FireObject]) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     return async (...args: any) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+       
       const result = act(() => method(this.#element, ...args));
       return result;
     };

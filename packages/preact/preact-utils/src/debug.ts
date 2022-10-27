@@ -15,15 +15,14 @@ function debugComponentChild(child: ComponentChild): unknown {
 
 export function implementInspect(): void {
   const INSPECT = Symbol.for("nodejs.util.inspect.custom");
-  type INSPECT = typeof INSPECT;
 
   interface Inspectable {
-    [INSPECT]?(): unknown;
+    [INSPECT]?: () => unknown;
   }
 
   (InternalVNode.prototype as Inspectable)[INSPECT] = function (
     this: InternalVNode
-  ) {
+  ): object {
     const { type, dom, props } = this;
 
     if (typeof props === "string") {
@@ -36,8 +35,9 @@ export function implementInspect(): void {
     const structOptions =
       typeof type === "string" ? { description: type } : undefined;
 
-    const propsField =
-      Object.keys(updatedProps).length === 0 ? {} : { props: updatedProps };
+    const propsField = isPresent(Object.keys(updatedProps))
+      ? { props: updatedProps }
+      : {};
 
     return DisplayStruct(
       "VNode",
@@ -85,11 +85,9 @@ function propFields(
 
   const children = props.children;
 
-  const updatedProps = props
-    ? Object.fromEntries(
-        Object.entries(props).filter(([key]) => key !== "children")
-      )
-    : {};
+  const updatedProps = Object.fromEntries(
+    Object.entries(props).filter(([key]) => key !== "children")
+  );
 
   const childrenField = children
     ? {
@@ -132,13 +130,13 @@ function mapAny<T, U>(
   mapper: (value: T, key: unknown) => U
 ): Record<PropertyKey, U> | U[] | U {
   if (Array.isArray(value)) {
-    return value.map((value, index) => mapper(value, index)) as U[];
+    return value.map((item, index) => mapper(item, index));
   } else if (value && typeof value === "object") {
     return Object.fromEntries(
-      Object.entries(value).map(([key, value]) => [key, mapper(value, key)])
+      Object.entries(value).map(([k, v]) => [k, mapper(v as T, k)])
     ) as Record<keyof T, U>;
   } else {
-    return mapper(value, null) as U;
+    return mapper(value, null);
   }
 }
 
@@ -188,3 +186,13 @@ type JSONValue =
   | null
   | JSONValue[]
   | { [key: string]: JSONValue };
+
+const EMPTY_LENGTH = 0;
+
+function isPresent<T>(list: readonly T[]): list is readonly [T, ...T[]];
+function isPresent<T>(list: T[]): list is [T, ...T[]];
+function isPresent<T>(
+  list: T[] | readonly T[]
+): list is [T, ...T[]] | readonly [T, ...T[]] {
+  return list.length > EMPTY_LENGTH;
+}

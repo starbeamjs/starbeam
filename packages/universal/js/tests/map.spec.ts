@@ -85,7 +85,7 @@ describe("TrackedMap", () => {
       list: string[],
       types: string[],
       state: "initialized" | "stable" | "invalidated"
-    ) {
+    ): void {
       expect(foods.state).toEqual([formatted, state]);
       expect(foodsByKeys.state).toEqual([
         list.join(", ") || "<nothing>",

@@ -1,8 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { isEmptyArray, TO_STRING } from "@starbeam/core-utils";
 
+import { terminalWidth } from "./format.js";
 import { DisplayStruct } from "./reporter/inspect.js";
 
-Error.stackTraceLimit = Infinity;
+Error.stackTraceLimit = 1000;
 
 /**
  * From https://stackoverflow.com/questions/55127004/how-to-transform-union-type-to-tuple-type
@@ -13,14 +14,17 @@ Error.stackTraceLimit = Infinity;
  * StackOverflow (which says to no-no-never-never do this).
  */
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Push<T extends any[], V> = [...T, V];
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
   k: infer I
 ) => void
   ? I
   : never;
 type LastOf<T> = UnionToIntersection<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   T extends any ? () => T : never
 > extends () => infer R
   ? R
@@ -32,44 +36,58 @@ export type EveryUnionMember<
   N = [T] extends [never] ? true : false
 > = true extends N ? [] : Push<EveryUnionMember<Exclude<T, L>>, L>;
 
-// interface Union<S extends string> {
-//   readonly members: S[];
-//   is(value: unknown): value is S;
-//   assert(value: unknown): S;
-// }
-
 export type Into<C extends UnionInstance<string>> = C["value"] | C;
-export type IntoUnionInstance = string | UnionInstance<string>;
+export type IntoUnionInstance = string | { readonly value: string };
 export type AsString<C extends UnionInstance<string>> = C["value"];
 
 export interface UnionClass<S extends string> {
   readonly members: S[];
-  from<This extends UnionClass<S>>(
+  from: <This extends UnionClass<S>>(
     this: This,
     value: S | InstanceType<This>
-  ): InstanceType<This>;
-  asString<This extends UnionClass<S>>(
+  ) => InstanceType<This>;
+
+  asString: <This extends UnionClass<S>>(
     this: This,
     value: S | InstanceType<This>
-  ): S;
-  fromString<This extends UnionClass<S>>(
+  ) => S;
+
+  fromString: <This extends UnionClass<S>>(
     this: This,
-    value: unknown
-  ): InstanceType<This>;
-  isMember(value: unknown): value is S;
-  format(): string;
+    value: string
+  ) => InstanceType<This>;
+  isMember: (value: unknown) => value is S;
+  format: () => string;
 
   new (value: S): UnionInstance<S>;
+
+  toString: () => string;
 }
 
+type Kind<S extends string> = S extends `${infer K}:${string}` ? K : never;
+type Subtype<
+  S extends string,
+  Kind extends string = string
+> = S extends `${Kind}:${infer K}` ? K : never;
+
 export declare class UnionInstance<S extends string> {
+  declare [TO_STRING]: true;
+
   constructor(value: S);
 
   readonly value: S;
+  readonly subtype: Subtype<S>;
 
   toString(): string;
   is(...values: S[]): boolean;
+  isType<K extends Kind<S>>(...values: K[]): this is { subtype: Subtype<S, K> };
 }
+
+/**
+ * For a list of things, this is the maximum inline width before the list is printed as a bulleted
+ * list.
+ */
+const MAX_INLINE_LIST_WIDTH = 50;
 
 export function Union<S extends string>(...members: S[]): UnionClass<S> {
   return class Union {
@@ -111,9 +129,16 @@ export function Union<S extends string>(...members: S[]): UnionClass<S> {
     }
 
     static format(): string {
-      return members.join(" | ");
+      const oneline = `  ${members.join(" | ")}`;
+
+      if (oneline.length > Math.min(terminalWidth(), MAX_INLINE_LIST_WIDTH)) {
+        return members.map((member) => `  - ${member}`).join("\n");
+      } else {
+        return oneline;
+      }
     }
 
+    declare [TO_STRING]: true;
     declare Into: S;
 
     #instance: S;
@@ -130,8 +155,17 @@ export function Union<S extends string>(...members: S[]): UnionClass<S> {
       return values.includes(this.#instance);
     }
 
+    isType(...values: Kind<S>[]): boolean {
+      return values.some((v) => this.#instance.startsWith(`${v}:`));
+    }
+
     get value(): S {
       return this.#instance;
+    }
+
+    get subtype(): Subtype<S> {
+      const [, subtype] = this.#instance.split(":");
+      return subtype as Subtype<S>;
     }
 
     toString(): string {
@@ -140,33 +174,15 @@ export function Union<S extends string>(...members: S[]): UnionClass<S> {
   };
 }
 
-export function hasItems<T>(array: T[]): array is [T, ...T[]];
-export function hasItems<T>(array: readonly T[]): array is readonly [T, ...T[]];
-export function hasItems<T>(
-  array: T[] | readonly T[]
-): array is [T, ...T[]] | readonly [T, ...T[]];
-export function hasItems<T>(
-  array: T[] | readonly T[]
-): array is [T, ...T[]] | readonly [T, ...T[]] {
-  return array.length > 0;
-}
-
 export type IntoPresentArray<T> =
   | [T, ...T[]]
   | readonly [T, ...T[]]
   | PresentArray<T>;
 
 export class PresentArray<T> extends Array<T> {
-  static #hasItems<T>(array: readonly T[]): array is readonly [T, ...T[]];
-  static #hasItems<T>(array: T[]): array is [T, ...T[]];
-  static #hasItems<T>(
-    array: T[] | readonly T[]
-  ): array is [T, ...T[]] | readonly [T, ...T[]];
-  static #hasItems<T>(array: T[]): array is [T, ...T[]] {
-    return hasItems(array);
-  }
-
-  static from<T>(array: PresentArray<T> | readonly T[] | T[]): PresentArray<T> {
+  static override from<T>(
+    array: PresentArray<T> | readonly T[] | T[]
+  ): PresentArray<T> {
     if (array instanceof PresentArray) {
       return array;
     } else {
@@ -185,15 +201,22 @@ export class PresentArray<T> extends Array<T> {
     this.#array = array;
   }
 
+  ifPresent<U>(
+    then: (array: PresentArray<T> & [T, ...T[]]) => U
+  ): U | undefined {
+    return this.andThen({
+      present: then,
+    });
+  }
+
   andThen<U>(options: {
     present: (array: PresentArray<T> & [T, ...T[]]) => U;
     empty: () => U;
   }): U;
   andThen<U>(options: {
-    present: (array: PresentArray<T> & [T, ...T[]]) => U;
+    present: (array: PresentArray<T> & [T, ...T[]]) => U | void;
     empty?: () => U;
-  }): U | void;
-  andThen<U>(fn: (array: PresentArray<T> & [T, ...T[]]) => U): U | void;
+  }): U | undefined;
   andThen<U>(
     options:
       | {
@@ -201,13 +224,13 @@ export class PresentArray<T> extends Array<T> {
           empty?: () => U;
         }
       | ((array: PresentArray<T> & [T, ...T[]]) => U)
-  ): U | void {
+  ): U | undefined {
     const ifPresent = typeof options === "function" ? options : options.present;
     const ifEmpty =
       (typeof options === "function" ? undefined : options.empty) ??
-      (() => void 0);
+      (() => undefined);
 
-    if (this.#array.length === 0) {
+    if (isEmptyArray(this)) {
       return ifEmpty();
     } else {
       return ifPresent(this as unknown as PresentArray<T> & [T, ...T[]]);
@@ -218,12 +241,10 @@ export class PresentArray<T> extends Array<T> {
     return callback();
   }
 
-  map<U>(
+  override map<U>(
     mapper: (value: T, index: number, collection: PresentArray<T>) => U
   ): PresentArray<U> {
-    return new PresentArray(
-      this.#array.map((e, i) => mapper(e, i, this))
-    ) as PresentArray<U>;
+    return new PresentArray(this.#array.map((e, i) => mapper(e, i, this)));
   }
 
   [Symbol.iterator](): IterableIterator<T> {
@@ -244,10 +265,12 @@ export type IntoResult<T, E = unknown> = T | Result<T, E>;
 export type ResultRecord<E = unknown> = Record<string, IntoResult<unknown, E>>;
 
 export type OkRecord<T extends ResultRecord> = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [P in keyof T]: T[P] extends Result<infer U, any> ? U : never;
 };
 
 export type RecordError<T extends ResultRecord> = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [P in keyof T]: T[P] extends Result<any, infer E> ? E : never;
 }[keyof T];
 
@@ -353,7 +376,7 @@ export class Result<T, E = unknown> {
 
   map<T2, E2>(callback: (value: T) => Result<T2, E2>): Result<T2, E2>;
   map<T2>(callback: (value: T) => T2): Result<T2, E>;
-  map(callback: (value: T) => IntoResult<any>): Result<any> {
+  map(callback: (value: T) => IntoResult<unknown>): Result<unknown> {
     return this.match({
       ifOk: (value) => callback(value),
       ifError: (reason) => reason,
@@ -362,6 +385,7 @@ export class Result<T, E = unknown> {
 
   mapErr<T2, E2>(callback: (error: E) => Result<T2, E2>): Result<T2, E2>;
   mapErr<E2>(callback: (error: E) => E2): Result<T, E2>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   mapErr(callback: (error: E) => IntoResult<any>): Result<any> {
     return this.match({
       ifOk: () => this,
@@ -395,4 +419,8 @@ export interface OkResult<T> {
 export interface ErrResult<E> {
   readonly status: "err";
   readonly reason: E;
+}
+
+export function fatal(_: never): never {
+  throw Error("Unreachable");
 }

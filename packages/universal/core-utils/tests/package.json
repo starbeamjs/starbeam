@@ -4,7 +4,7 @@
   "name": "@starbeam-tests/core-utils",
   "type": "module",
   "dependencies": {
-    "@starbeam/universal-utils": "workspace:^"
+    "@starbeam/core-utils": "workspace:^"
   },
   "scripts": {
     "test:lint": "eslint",

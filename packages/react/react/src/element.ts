@@ -1,11 +1,4 @@
 import type { browser } from "@domtree/flavors";
-import {
-  type Cell,
-  type ResourceBlueprint,
-  DelegateInternals,
-  Resource,
-  Setups,
-} from "@starbeam/universal";
 import type { Stack } from "@starbeam/debug";
 import {
   type DebugListener,
@@ -24,18 +17,25 @@ import {
   REACTIVE,
   TIMELINE,
 } from "@starbeam/timeline";
+import {
+  type Cell,
+  type ResourceBlueprint,
+  DelegateInternals,
+  Resource,
+  Setups,
+} from "@starbeam/universal";
 
 import { type ElementRef, type ReactElementRef, ref } from "./ref.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyRecord = Record<PropertyKey, any>;
 
-interface RefType<E extends browser.Element = browser.Element> {
+type RefType<E extends browser.Element = browser.Element> = new (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  new (...args: any[]): E;
-}
+  ...args: any[]
+) => E;
 
-type RefsRecord = Record<string, ElementRef<browser.Element>>;
+type RefsRecord = Record<string, ElementRef>;
 type RefsTypes = Record<string, RefType>;
 
 type RefsRecordFor<T extends RefsTypes> = {
@@ -132,9 +132,10 @@ class Refs {
   }
 }
 
-export interface DebugLifecycle {
-  (listener: DebugListener, reactive: ReactiveProtocol): () => void;
-}
+export type DebugLifecycle = (
+  listener: DebugListener,
+  reactive: ReactiveProtocol
+) => () => void;
 
 /**
  * A {@link ReactiveElement} is a stable representation of a
@@ -206,6 +207,8 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
   readonly #description: Description;
   readonly [REACTIVE]: ReactiveInternals;
 
+  readonly on: OnLifecycle;
+
   private constructor(
     readonly notify: () => void,
     lifecycle: Lifecycle,
@@ -222,8 +225,6 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
     });
   }
 
-  readonly on: OnLifecycle;
-
   link(child: object): Unsubscribe {
     return LIFETIME.link(this, child);
   }
@@ -238,6 +239,8 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
   ): Resource<T> {
     const r = resource.create(this);
 
+    // @ts-expect-error FIXME
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
     this.on.layout(() => Resource.setup(r));
 
     return r;
@@ -251,7 +254,9 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
   }
 }
 
-type Callback<T = void> = (instance: T) => void | (() => void);
+type Callback<T = void> =
+  | ((instance: T) => void)
+  | ((instance: T) => () => void);
 
 interface OnLifecycle extends OnCleanup {
   readonly cleanup: (

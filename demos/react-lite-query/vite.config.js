@@ -1,5 +1,0 @@
-{
-  "esbuild": {
-    "jsx": "automatic"
-  }
-}

@@ -62,20 +62,16 @@ class Expect<T> {
   check(value: T): void {
     if (this.#expectations && this.#expectations.html) {
       const expected = this.#expectations.html(value);
-      const string = renderToString(h(Fragment, {}, expected));
+      const string = renderToString(
+        h(Fragment, {}, expected) as VNode<unknown>
+      );
 
       expect(this.#container.innerHTML).toBe(string);
     }
   }
 }
 
-class Render<
-  P,
-  T,
-  RenderFn = T extends void
-    ? () => Promise<RenderResult<P, void>>
-    : (value: T) => Promise<RenderResult<P, T>>
-> {
+class Render<P, T> {
   readonly #component: TestComponentType<P>;
   #props: Attributes & P;
   readonly #into: HTMLElement;
@@ -85,12 +81,33 @@ class Render<
     component: TestComponentType<P>,
     props: Attributes & P,
     into: HTMLElement,
-    expect: Expect<T>
+    expectation: Expect<T>
   ) {
     this.#component = component;
     this.#props = props;
     this.#into = into;
-    this.#expect = expect;
+    this.#expect = expectation;
+  }
+
+  render(value?: T): RenderResult<P, T> {
+    const result = testing.render(
+      createElement(this.#component as ComponentType<P>, this.#props),
+      {
+        container: this.#into as Element,
+      }
+    );
+
+    if (value) {
+      this.#expect.check(value);
+    }
+
+    return RenderResult.create<P, T>({
+      component: this.#component,
+      container: this.#into,
+      expectation: this.#expect,
+      props: this.#props,
+      result,
+    });
   }
 
   html(this: Render<P, void>, check: () => ComponentChildren): Render<P, void>;
@@ -113,46 +130,32 @@ class Render<
       })
     );
   }
-
-  render = (async (value?: T): Promise<RenderResult<P, T>> => {
-    const result = await testing.render(
-      createElement(this.#component as ComponentType<P>, this.#props),
-      {
-        container: this.#into as Element,
-      }
-    );
-
-    if (this.#expect && value) {
-      this.#expect.check(value);
-    }
-
-    return RenderResult.create<P, T>({
-      component: this.#component,
-      container: this.#into,
-      expect: this.#expect,
-      props: this.#props,
-      result,
-    });
-  }) as RenderFn;
 }
 
 class RenderResult<P, T> {
   static create<P, T>({
     component,
     container,
-    expect,
+    expectation,
     next,
     props,
     result,
   }: {
     component: TestComponentType<P>;
     container: HTMLElement;
-    expect: Expect<T>;
+    expectation: Expect<T>;
     props: Attributes & P;
     result: testing.RenderResult;
     next?: { value: T };
   }): RenderResult<P, T> {
-    return new RenderResult(component, container, expect, next, props, result);
+    return new RenderResult(
+      component,
+      container,
+      expectation,
+      next,
+      props,
+      result
+    );
   }
 
   readonly #component: TestComponentType<P>;
@@ -165,27 +168,17 @@ class RenderResult<P, T> {
   constructor(
     component: TestComponentType<P>,
     container: HTMLElement,
-    expect: Expect<T>,
+    expectation: Expect<T>,
     next: { value: T } | undefined,
     props: Attributes & P,
     result: testing.RenderResult
   ) {
     this.#component = component;
     this.#container = container;
-    this.#expect = expect;
+    this.#expect = expectation;
     this.#next = next;
     this.#props = props;
     this.#result = result;
-  }
-
-  async render(props?: P): Promise<RenderResult<P, T>> {
-    if (props) {
-      this.#props = props;
-    }
-    this.#result.rerender(
-      createElement(this.#component as ComponentType<P>, this.#props)
-    );
-    return this;
   }
 
   get element(): TestElement<HTMLElement, T> {
@@ -196,6 +189,20 @@ class RenderResult<P, T> {
     return this.element.innerHTML;
   }
 
+  get fire(): Fire {
+    return this.element.fire;
+  }
+
+  render(props?: P): this {
+    if (props) {
+      this.#props = props;
+    }
+    this.#result.rerender(
+      createElement(this.#component as ComponentType<P>, this.#props)
+    );
+    return this;
+  }
+
   find(
     role: testing.ByRoleMatcher,
     options?: testing.ByRoleOptions
@@ -203,11 +210,7 @@ class RenderResult<P, T> {
     return this.element.find(role, options);
   }
 
-  get fire(): Fire {
-    return this.element.fire;
-  }
-
-  async unmount(): Promise<void> {
+  unmount(): void {
     this.#result.unmount();
   }
 
@@ -215,7 +218,7 @@ class RenderResult<P, T> {
     return RenderResult.create({
       component: this.#component,
       container: this.#container,
-      expect: this.#expect,
+      expectation: this.#expect,
       props: this.#props,
       result: this.#result,
       next: { value },
@@ -236,10 +239,10 @@ type Fire = {
 export class TestElement<E extends Element, T> {
   static create<E extends Element, T>(
     element: E,
-    expect: Expect<T>,
+    expectation: Expect<T>,
     next: { value: T } | undefined
   ): TestElement<E, T> {
-    return new TestElement(element, expect, next);
+    return new TestElement(element, expectation, next);
   }
 
   readonly #element: E;
@@ -248,9 +251,13 @@ export class TestElement<E extends Element, T> {
 
   readonly fire: Fire;
 
-  constructor(element: E, expect: Expect<T>, next: { value: T } | undefined) {
+  constructor(
+    element: E,
+    expectation: Expect<T>,
+    next: { value: T } | undefined
+  ) {
     this.#element = element;
-    this.#expect = expect;
+    this.#expect = expectation;
     this.#next = next;
 
     const fire = new Proxy(testing.fireEvent, {
@@ -258,7 +265,7 @@ export class TestElement<E extends Element, T> {
         const value = Reflect.get(target, prop) as unknown;
         if (typeof value === "function") {
           return async (...args: unknown[]) => {
-            let result = false;
+            let result: unknown = false;
 
             await act(() => {
               result = value(this.#element, ...args);
@@ -278,18 +285,12 @@ export class TestElement<E extends Element, T> {
     this.fire = fire as unknown as Fire;
   }
 
-  #bind(method: testing.FireObject[keyof testing.FireObject]) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return async (...args: any) => {
-      let result = false;
+  get innerHTML(): string {
+    return this.#element.innerHTML;
+  }
 
-      await act(() => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        result = method(this.#element, ...args);
-      });
-
-      return result;
-    };
+  get textContent(): string {
+    return this.#element.textContent ?? "";
   }
 
   find(
@@ -316,15 +317,7 @@ export class TestElement<E extends Element, T> {
     );
   }
 
-  get innerHTML(): string {
-    return this.#element.innerHTML;
-  }
-
-  get textContent(): string {
-    return this.#element.textContent ?? "";
-  }
-
-  raw<T>(callback: (element: E) => T): T {
+  raw<U>(callback: (element: E) => U): U {
     return callback(this.#element);
   }
 }

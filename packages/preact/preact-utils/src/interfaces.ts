@@ -1,4 +1,4 @@
-import type { Options } from "preact";
+import type { ComponentChild, Options } from "preact";
 
 import type { InternalPreactComponent } from "./internals/component.js";
 import type { InternalPreactVNode } from "./internals/vnode.js";
@@ -29,7 +29,7 @@ type Hook<Args extends unknown[] = [vnode: InternalPreactVNode]> = (
   ...args: Args
 ) => void;
 
-type RootHook = Hook<[vnode: InternalPreactVNode, parent: ParentNode]>;
+type RootHook = Hook<[child: ComponentChild, parent: InternalPreactElement]>;
 
 type CatchErrorHook = Hook<
   [
@@ -72,9 +72,9 @@ export interface InternalPreactElement extends HTMLElement {
 
 export interface InternalEffect {
   _sources: object | undefined;
-  _start(): () => void;
-  _callback(): void;
-  _dispose(): void;
+  _start: () => () => void;
+  _callback: () => void;
+  _dispose: () => void;
 }
 
 export interface InternalSource {

@@ -7,7 +7,7 @@ describe("symbols", () => {
   testSymbol(COORDINATION, "COORDINATION");
 });
 
-function testSymbol(symbol: symbol, description: string) {
+function testSymbol(symbol: symbol, description: string): void {
   test("is a symbol", () => {
     expect(typeof symbol).toBe("symbol");
     expect(symbol.description).toBe(`starbeam.${description}`);

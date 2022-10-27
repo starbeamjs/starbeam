@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@starbeam/universal": "workspace:^",
+    "@starbeam/verify": "workspace:^",
     "@starbeam/js": "workspace:^",
     "@starbeam/react": "workspace:^",
     "@starbeam/debug": "workspace:^",

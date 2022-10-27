@@ -1,3 +1,5 @@
+import { getLastIndex } from "@starbeam/core-utils";
+
 const VBAR = "│";
 const NEXT = "├";
 const LAST = "╰";
@@ -37,13 +39,17 @@ function formatChildren(
   children: Node[],
   { depth }: { depth: number }
 ): string {
+  const lastIndex = getLastIndex(children);
+
   return children
     .map((child, index) => {
-      const isLast = index === children.length - 1;
+      const isLast = index === lastIndex;
       return formatNode(child, { depth, isLast });
     })
     .join("\n");
 }
+
+const ONE_DEEPER = 1;
 
 function formatParent(
   [label, ...children]: ParentNode,
@@ -51,7 +57,9 @@ function formatParent(
 ): string {
   const title = `${prefix({ depth, isLast: false })} ${label}`;
 
-  return `${title}\n${formatChildren(children, { depth: depth + 1 })}`;
+  return `${title}\n${formatChildren(children, {
+    depth: depth + ONE_DEEPER,
+  })}`;
 }
 
 function formatLeaf(
@@ -61,11 +69,11 @@ function formatLeaf(
   return `${prefix({ depth, isLast })} ${value}`;
 }
 
-function indent(depth: number) {
+function indent(depth: number): string {
   return `${VBAR} `.repeat(depth);
 }
 
-function prefix({ depth, isLast }: { depth: number; isLast: boolean }) {
+function prefix({ depth, isLast }: { depth: number; isLast: boolean }): string {
   if (isLast) {
     return `${indent(depth)}${LAST}`;
   } else {

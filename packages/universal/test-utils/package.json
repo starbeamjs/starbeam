@@ -21,6 +21,11 @@
   "devDependencies": {
     "@starbeam-workspace/build-support": "workspace:^"
   },
+  "dependencies": {
+    "@starbeam/universal": "workspace:^",
+    "@starbeam/verify": "workspace:^",
+    "@starbeam/timeline": "workspace:^"
+  },
   "scripts": {
     "test:lint": "eslint",
     "test:types": "tsc -b"

@@ -1,12 +1,14 @@
 import type { Options } from "preact";
 
 import type { AnyFn, RawPreactOptions } from "./interfaces.js";
-import type {
-  MangledPreactOptionName,
-  PreactHook,
-  PreactOptionName,
+import {
+  type MangledPreactOptionName,
+  type PreactHook,
+  type PreactOptionName,
+  isProbablyVNode,
 } from "./internals.js";
 import { InternalComponent } from "./internals/component.js";
+import { InternalElement } from "./internals/elements.js";
 import { HookType } from "./internals/hooks.js";
 import {
   getVNodeComponent,
@@ -17,22 +19,33 @@ import {
 export function Plugin(
   updater: (callback: AugmentPreact) => void
 ): (options: RawPreactOptions) => void {
-  return (options) => updater(new AugmentPreact(options));
+  return (options) => {
+    updater(new AugmentPreact(options));
+  };
 }
 
 export class AugmentPreact {
-  readonly #original: RawPreactOptions;
-
   readonly component: AugmentPreactAsComponent;
+  readonly #original: RawPreactOptions;
 
   constructor(original: RawPreactOptions) {
     this.#original = original;
     this.component = new AugmentPreactAsComponent(original);
   }
 
-  root(hook: (vnode: InternalVNode, parent: ParentNode) => void): void {
+  root(hook: (vnode: InternalVNode, parent: InternalElement) => void): void {
     createHook(this.#original, "_root", (vnode, parent) => {
-      hook(InternalVNode.from(vnode), parent);
+      if (isProbablyVNode(vnode)) {
+        hook(InternalVNode.from(vnode), InternalElement.of(parent));
+      }
+    });
+  }
+
+  unroot(hook: (parent: InternalElement) => void): void {
+    createHook(this.#original, "_root", (vnode, parent) => {
+      if (vnode === null) {
+        hook(InternalElement.of(parent));
+      }
     });
   }
 
@@ -41,9 +54,9 @@ export class AugmentPreact {
    * it's otherwise used by Preact.
    */
   vnode(hook: (vnode: InternalVNode, handler: Handler) => void): void {
-    createHook(this.#original, "vnode", (vnode, handler) =>
-      hook(InternalVNode.from(vnode), handler)
-    );
+    createHook(this.#original, "vnode", (vnode, handler) => {
+      hook(InternalVNode.from(vnode), handler);
+    });
   }
 
   /**
@@ -79,13 +92,13 @@ export class AugmentPreact {
    */
   willRender(hook: (vnode: InternalVNode, handler: Handler) => void): void {
     createHook(this.#original, "_render", (vnode, handler) => {
-      hook(InternalVNode.from(vnode), handler);
+      hook(InternalVNode.of(vnode), handler);
     });
   }
 
   diff(hook: (vnode: InternalVNode, handler: Handler) => void): void {
     createHook(this.#original, "_diff", (vnode, handler) => {
-      hook(InternalVNode.from(vnode), handler);
+      hook(InternalVNode.of(vnode), handler);
     });
   }
 
@@ -129,8 +142,8 @@ export class AugmentPreact {
         hook(
           {
             error,
-            vnode: InternalVNode.from(vnode),
-            oldVNode: InternalVNode.from(oldVNode),
+            vnode: InternalVNode.of(vnode),
+            oldVNode: InternalVNode.of(oldVNode),
             errorInfo,
           },
           handler
@@ -165,16 +178,13 @@ function createHook<
 function getOriginal(
   original: RawPreactOptions,
   name: PreactOptionName
-): [fn: AnyFn | undefined, mangled: MangledPreactOptionName] {
+): [
+  fn: ((...args: unknown[]) => unknown) | undefined,
+  mangled: MangledPreactOptionName
+] {
   const mangled = getHookName(name);
 
-  if (mangled) {
-    return [original[mangled], mangled];
-  } else if (name[0] === "_") {
-    throw new Error(`Unknown hook name: ${name}`);
-  } else {
-    return [undefined, name as MangledPreactOptionName];
-  }
+  return [original[mangled] as AnyFn, mangled];
 }
 
 export const HOOK_NAMES = {
@@ -204,19 +214,19 @@ type HookParams<K extends PreactOptionName> = RawPreactOptions[K] extends AnyFn
   : never;
 
 interface Handler {
-  original(): void;
-  override(): void;
+  original: () => void;
+  override: () => void;
 }
 
-class Noop implements Handler {
-  constructor(readonly name: string) {}
+const NOOP = (): void => {
+  /* noop */
+};
 
-  original = () => {
-    /* noop */
-  };
-  override = () => {
-    /* noop */
-  };
+class Noop implements Handler {
+  original = NOOP;
+  override = NOOP;
+
+  constructor(readonly name: string) {}
 }
 
 export const HOOK_SUPER = {
@@ -235,7 +245,7 @@ export class AugmentHandler<F extends AnyFn> implements Handler {
     if (original === undefined) {
       return new Noop(name);
     }
-    const handler = new AugmentHandler(name, original) as AugmentHandler<F>;
+    const handler = new AugmentHandler(name, original);
 
     if (
       name in HOOK_SUPER &&

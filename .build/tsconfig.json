@@ -22,6 +22,6 @@
       "../packages/env"
     ]
   },
-  "include": ["**/*", "**/*.d.ts"],
-  "exclude": ["dist/**/*"]
+  "include": ["**/*", "**/*.d.ts", "eslint-flat.ts"],
+  "exclude": ["dist/**/*", "eslint.js"]
 }

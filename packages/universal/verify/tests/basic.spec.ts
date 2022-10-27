@@ -7,16 +7,14 @@ const isProd = import.meta.env.PROD;
 
 describe.skipIf(isProd)("basic verification", () => {
   test("isPresent", () => {
-    expect((value: unknown) => verify(value, isPresent)).toFail(
-      null,
-      expected.toBe("present")
-    );
+    expect((value: unknown) => {
+      verify(value, isPresent);
+    }).toFail(null, expected.toBe("present"));
   });
 
   test("isEqual", () => {
-    expect((value: unknown) => verify(value, isEqual(null))).toFail(
-      undefined,
-      expected.toBe("null").butGot("undefined")
-    );
+    expect((value: unknown) => {
+      verify(value, isEqual(null));
+    }).toFail(undefined, expected.toBe("null").butGot("undefined"));
   });
 });

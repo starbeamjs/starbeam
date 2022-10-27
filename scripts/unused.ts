@@ -1,4 +1,7 @@
+import { stringify } from "@starbeam/core-utils";
+
 import { QueryCommand } from "./support/commands.js";
+import { FATAL_EXIT_CODE } from "./support/constants.js";
 import { Fragment } from "./support/log.js";
 import type { Package } from "./support/packages.js";
 import { PresentArray } from "./support/type-magic.js";
@@ -11,18 +14,20 @@ export const UnusedCommand = QueryCommand("unused").action(
     for (const pkg of packages) {
       const result = await workspace.reporter
         .group(
-          pkg.name + " " + Fragment.comment(`(${workspace.relative(pkg.root)})`)
+          stringify`${pkg.name} ${Fragment.comment(
+            `(${workspace.relative(pkg.root)})`
+          )}`
         )
         .finally((r) => {
           if (r.isStylish) {
             r.log("");
           }
         })
-        .tryAsync(() => checkUnused({ pkg }));
+        .tryAsync(async () => checkUnused({ pkg }));
 
       if (result === "failure") {
         if (failFast) {
-          return 1;
+          return FATAL_EXIT_CODE;
         } else {
           failures.push(pkg);
         }
@@ -33,14 +38,14 @@ export const UnusedCommand = QueryCommand("unused").action(
       present: (failures) => {
         workspace.reporter.ul({
           header: Fragment.header(
-            `✗ ${Fragment.inverse(
+            stringify`✗ ${Fragment.inverse(
               failures.length
             )} packages with unused dependencies`
           ),
           items: failures.map((pkg) => pkg.name),
           style: "problem",
         });
-        return 1;
+        return FATAL_EXIT_CODE;
       },
       empty: () => {
         workspace.reporter.log(Fragment.ok("✓ no unused dependencies"));

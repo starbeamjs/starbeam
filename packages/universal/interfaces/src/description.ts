@@ -21,7 +21,7 @@ export interface DescriptionArgs {
    * construct the thing that this description is describing. For example, the `useSetup` hook in
    * `@starbeam/react` has the type "resource" and the api "useStarbeam".
    */
-  api?: string | "delegate" | ApiDetails | undefined;
+  api?: string | ApiDetails | undefined;
   /**
    * An optional description, as provided by the end user. Each instance of an abstraction like
    * `useSetup` should have a different description (this is the distinction between `api` and
@@ -51,21 +51,21 @@ export interface Description extends DescriptionArgs {
   readonly userFacing: Description;
   readonly parts: DescriptionParts;
 
-  method(
+  method: (
     id: ReactiveId | symbol,
     name: string,
     args?: DescriptionArgument[]
-  ): Description;
+  ) => Description;
   /**
    * An index is an integer property access on an object. This access must refer to a stable
    * cell for the lifetime of the object referred to by the parent description.
    */
-  index(index: number): Description;
+  index: (index: number) => Description;
   /**
    * A property is a string property access on an object. This access must refer to a stable
    * cell for the lifetime of the object referred to by the parent description.
    */
-  property(name: string): Description;
+  property: (name: string) => Description;
   /**
    * A `key` is like a property access, but the name is not a string property access. For example,
    * the key passed to `.get` on a map is a key and not a property, because `.get` is not a property
@@ -76,10 +76,10 @@ export interface Description extends DescriptionArgs {
    * code creating the description must pass an `id` option that so that the description refers to a
    * stable cell backed by the key.
    */
-  key(
+  key: (
     name: string,
     options?: { id?: string | number; note?: string }
-  ): Description;
+  ) => Description;
   /**
    * A detail is a representation of a *public* part of a value. Unlike `.property` or `.index`, the
    * user will not have physically typed the name of the detail in the code. Unlike
@@ -89,29 +89,29 @@ export interface Description extends DescriptionArgs {
    * If an explicit id is not passed to `.detail`, a detail's name must refer to a stable cell for
    * the lifetime of the object referred to by the parent description.
    */
-  detail(
+  detail: (
     name: string,
     args?: string[] | { args?: string[]; note?: string; id?: string | number }
-  ): Description;
-  implementation(
+  ) => Description;
+  implementation: (
     id: ReactiveId | symbol,
     options?: {
       reason?: string;
       userFacing?: Description;
       stack?: Stack;
     }
-  ): Description;
+  ) => Description;
 
   /**
    * Mark the current description as an implementation detail. This allows the implementation detail
    * to refer to a user-facing concept (such as `.detail` or `.property`).
    */
-  asImplementation(options?: { reason: string }): Description;
+  asImplementation: (options?: { reason: string }) => Description;
 
-  withStack(stack: Stack, id: ReactiveId | symbol): Description;
-  withId(id?: ReactiveId): Description;
+  withStack: (stack: Stack, id: ReactiveId | symbol) => Description;
+  withId: (id?: ReactiveId) => Description;
 
-  describe(options?: DescriptionDescribeOptions): string;
+  describe: (options?: DescriptionDescribeOptions) => string;
   readonly frame: StackFrame | undefined;
 }
 

@@ -6,5 +6,9 @@
     "outDir": "./dist/root",
     "esModuleInterop": true
   },
-  "files": ["rollup.config.mjs"]
+  "files": [
+    "rollup.config.mjs",
+    "vitest.config.ts",
+    "packages/*/*/.eslintrc.cjs"
+  ]
 }

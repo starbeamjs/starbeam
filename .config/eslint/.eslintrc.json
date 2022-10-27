@@ -1,0 +1,17 @@
+{
+  "root": false,
+  "parserOptions": {
+    "project": ".config/eslint/tsconfig.json"
+  },
+  "overrides": [
+    {
+      "files": [
+        "index.ts",
+        "src/**/*.ts"
+      ],
+      "extends": [
+        "plugin:@starbeam/tight"
+      ]
+    }
+  ]
+}

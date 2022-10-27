@@ -1,0 +1,16 @@
+{
+  "root": false,
+  "parserOptions": {
+    "project": "packages/x/store/tests/tsconfig.json"
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/*.ts"
+      ],
+      "extends": [
+        "plugin:@starbeam/loose"
+      ]
+    }
+  ]
+}

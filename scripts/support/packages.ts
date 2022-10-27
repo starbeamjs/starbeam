@@ -1,9 +1,11 @@
+import { isObject, isPresentArray, stringify } from "@starbeam/core-utils";
 import sh from "shell-escape-tag";
 
 import type { JsonValue } from "./json";
 import type { RegularFile } from "./paths.js";
 import { type Path, Directory } from "./paths.js";
 import { Query } from "./query.js";
+import { fatal } from "./type-magic.js";
 import { StarbeamSources, StarbeamType } from "./unions.js";
 import type { Workspace } from "./workspace.js";
 
@@ -22,7 +24,7 @@ export interface StarbeamInfo {
 export interface PackageInfo {
   manifest: Path;
   name: string;
-  main?: string;
+  main?: string | undefined;
   root: string;
   isPrivate: boolean;
   isTypescript: boolean;
@@ -83,11 +85,11 @@ export class Package {
   ): Package | undefined {
     const pkg = manifest.readSync<Record<string, JsonValue>>({ as: "json" });
 
-    if (pkg === null || typeof pkg !== "object") {
+    if (!isObject(pkg)) {
       if (options?.allow === "missing") {
         return undefined;
       } else {
-        throw Error(`Invalid package.json at ${manifest}`);
+        throw Error(stringify`Invalid package.json at ${manifest}`);
       }
     }
 
@@ -104,7 +106,7 @@ export class Package {
 
     for (const [name, script] of Object.entries(scripts)) {
       if (name.startsWith("test:")) {
-        tests[name.slice(5)] = script;
+        tests[name.slice("test:".length)] = script;
       }
     }
 
@@ -127,13 +129,15 @@ export class Package {
       root,
       isPrivate: raw.get("private", { default: false }),
       isTypescript:
-        !!raw.get("type", { default: undefined }) ||
-        !!raw.get("exports:.:types", { default: undefined }) !== undefined,
+        raw.get("type", { default: false }) ||
+        raw.get("exports:.:types", { default: false }),
       scripts,
       tests,
       dependencies: createDependencies(raw),
       starbeam: {
-        tsconfig: raw.get("starbeam:tsconfig", { default: undefined }),
+        tsconfig: raw.get<string | undefined>("starbeam:tsconfig", {
+          default: undefined,
+        }),
         type,
         sources: source,
         used: raw.get("starbeam:used", { default: [] }),
@@ -280,17 +284,17 @@ export interface Used {
   packages: string[];
 }
 
-export async function queryPackages(
+export function queryPackages(
   workspace: Workspace,
   query: Query = Query.all
-): Promise<Package[]> {
-  const packageList = await workspace.cmd(sh`pnpm ls -r --depth -1 --json`);
+): Package[] {
+  const packageList = workspace.cmd(sh`pnpm ls -r --depth -1 --json`);
 
   if (packageList === undefined) {
-    throw workspace.reporter.fatal("Failed to list packages");
+    fatal(workspace.reporter.fatal("Failed to list packages"));
   }
 
-  const packages: PnpmPackage[] = JSON.parse(packageList);
+  const packages = JSON.parse(packageList) as PnpmPackage[];
 
   return packages
     .map((p) =>
@@ -309,7 +313,11 @@ class RawPackage {
     this.#root = root;
   }
 
-  get<T>(key: string | string[], options?: { default: T }): T {
+  get<T>(key: string | string[], options?: { default: T } | undefined): T;
+  get<T>(
+    key: string | string[],
+    options?: { default: T | undefined } | undefined
+  ): T | undefined {
     const keys = this.#key(key);
 
     if (typeof key === "string" && key.includes(":")) {
@@ -333,31 +341,14 @@ class RawPackage {
     object = this.#pkg,
     key,
     soFar,
-  }: {
-    object?: Record<string, JsonValue>;
-    key: string[];
-    soFar: string[];
-  }): T;
-  #get<T>(options: {
-    object?: Record<string, JsonValue>;
-    key: string[];
-    soFar: string[];
-    options?: { default: T };
-  }): T;
-  #get<T>({
-    object = this.#pkg,
-    key,
-    soFar,
     options,
   }: {
-    object?: Record<string, JsonValue>;
+    object?: Record<string, JsonValue> | undefined;
     key: string[];
     soFar: string[];
-    options?: { default: T };
+    options?: { default: T } | undefined;
   }): T | undefined {
-    if (key.length === 0) {
-      return undefined;
-    } else {
+    if (isPresentArray(key)) {
       const shorthand = key.join(":");
 
       if (shorthand in object) {
@@ -367,9 +358,7 @@ class RawPackage {
       const [first, ...rest] = key;
 
       if (first in object) {
-        if (rest.length === 0) {
-          return object[first] as T;
-        } else {
+        if (isPresentArray(rest)) {
           const next = object[first];
 
           if (typeof next === "object" && next !== null) {
@@ -382,6 +371,8 @@ class RawPackage {
           } else if (options && "default" in options) {
             return options.default;
           }
+        } else {
+          return object[first] as T;
         }
       } else if (options && "default" in options) {
         return options.default;
@@ -393,15 +384,17 @@ class RawPackage {
           first
         )} in package.json (at ${this.#root})`
       );
+    } else {
+      return undefined;
     }
   }
 }
 
 function formatKey(soFar: string[], key: string): string {
-  if (soFar.length === 0) {
-    return key;
-  } else {
+  if (isPresentArray(soFar)) {
     return `${soFar.join(".")}.${key}`;
+  } else {
+    return key;
   }
 }
 

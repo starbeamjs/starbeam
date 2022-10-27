@@ -1,6 +1,6 @@
 import type * as interfaces from "@starbeam/interfaces";
 import { getID } from "@starbeam/shared";
-import { exhaustive } from "@starbeam/verify";
+import { exhaustive, expected, isEqual, verify } from "@starbeam/verify";
 import chalk from "chalk";
 
 import { DisplayStruct } from "../inspect/display-struct.js";
@@ -25,17 +25,44 @@ export type ERASED_ID = typeof ERASED_ID;
 let PickedDescription: DescriptionStatics;
 
 export interface DescriptionStatics {
-  is(description: unknown): description is interfaces.Description;
-  from(args: interfaces.DescriptionArgs): interfaces.Description;
+  is: (description: unknown) => description is interfaces.Description;
+  from: (args: interfaces.DescriptionArgs) => interfaces.Description;
 }
 
 if (import.meta.env.DEV) {
   class DebugDescription
     implements interfaces.Description, interfaces.DescriptionArgs
   {
-    static is(description: unknown): description is interfaces.Description {
-      return !!(description && description instanceof DebugDescription);
-    }
+    /**
+     * The {@linkcode DescriptionArgs.api} is the user-facing, public API entry point that the developer used to
+     * construct the thing that this description is describing. For example, the `useSetup` hook in
+     * `@starbeam/react` has the type "resource" and the api "useStarbeam".
+     */
+    readonly #api: string | interfaces.ApiDetails | undefined;
+    /**
+     * Optional additional details, provided by the end user. The `DescriptionDetails` may represent a
+     * part of a parent description (see {@linkcode MemberDescription},
+     * {@linkcode MethodDescription}). In those cases, they are still rooted in end-user supplied
+     * description details .
+     */
+    readonly #details: interfaces.DescriptionDetails | undefined;
+
+    readonly #id: interfaces.ReactiveId;
+
+    #internal:
+      | {
+          reason?: string | undefined;
+          userFacing: Description;
+        }
+      | undefined;
+
+    #stack?: Stack | undefined;
+
+    /**
+     * The type is a high-level categorization from the perspective of Starbeam. It is used in
+     * developer tools to decide how to render the description.
+     */
+    readonly #type: interfaces.DescriptionType;
 
     static from(args: interfaces.DescriptionArgs): interfaces.Description {
       if (DebugDescription.is(args)) {
@@ -51,47 +78,12 @@ if (import.meta.env.DEV) {
         args.fromUser,
         args.internal,
         args.stack
-      );
+      ) as Description;
     }
 
-    /**
-     * The type is a high-level categorization from the perspective of Starbeam. It is used in
-     * developer tools to decide how to render the description.
-     */
-    readonly #type: interfaces.DescriptionType;
-
-    readonly #id: interfaces.ReactiveId;
-
-    get #idName(): string {
-      if (typeof this.#id === "string" || typeof this.#id === "number") {
-        return String(this.#id);
-      } else {
-        return this.#id.map(String).join("/");
-      }
+    static is(description: unknown): description is interfaces.Description {
+      return !!(description && description instanceof DebugDescription);
     }
-
-    /**
-     * The {@linkcode DescriptionArgs.api} is the user-facing, public API entry point that the developer used to
-     * construct the thing that this description is describing. For example, the `useSetup` hook in
-     * `@starbeam/react` has the type "resource" and the api "useStarbeam".
-     */
-    readonly #api: string | interfaces.ApiDetails | undefined;
-    /**
-     * Optional additional details, provided by the end user. The `DescriptionDetails` may represent a
-     * part of a parent description (see {@linkcode MemberDescription},
-     * {@linkcode MethodDescription}). In those cases, they are still rooted in end-user supplied
-     * description details .
-     */
-    readonly #details: interfaces.DescriptionDetails | undefined;
-
-    #internal:
-      | {
-          reason?: string | undefined;
-          userFacing: Description;
-        }
-      | undefined;
-
-    #stack?: Stack | undefined;
 
     constructor(
       id: interfaces.ReactiveId,
@@ -111,133 +103,32 @@ if (import.meta.env.DEV) {
       this.#stack = stack;
     }
 
-    [Symbol.for("nodejs.util.inspect.custom")](): object {
-      return DisplayStruct("Description", {
-        id: this.#id,
-        type: this.#type,
-        api: this.#api,
-        details: this.#details,
-        internal: this.#internal,
-        stack: this.#stack,
-      });
-    }
-
-    #newId(id: interfaces.ReactiveId | REUSE_ID): interfaces.ReactiveId {
-      return id === REUSE_ID ? this.#id : id;
-    }
-
-    #extendId(id: interfaces.ReactiveId): interfaces.ReactiveId {
-      if (Array.isArray(this.#id)) {
-        return [...this.#id, id];
-      } else {
-        return [this.#id, id];
-      }
-    }
-
-    get id(): interfaces.ReactiveId {
-      return this.#id;
-    }
-
-    get type(): interfaces.DescriptionType {
-      return this.#type;
-    }
-
     get api(): string | interfaces.ApiDetails | undefined {
-      return this.#api || this.#parent?.api;
+      return this.#api ?? this.#parent?.api;
     }
 
-    get userFacing(): interfaces.Description {
-      if (this.#internal) {
-        return this.#internal.userFacing;
+    get #apiPart(): interfaces.ApiDetails | undefined {
+      if (typeof this.#api === "string") {
+        return {
+          name: this.#api,
+        };
       } else {
-        return this;
+        return this.#api;
       }
     }
 
-    get isAnonymous(): boolean {
-      return this.#details === undefined;
-    }
-
-    withId(id?: interfaces.ReactiveId): interfaces.Description {
-      if (id === undefined) {
-        return this;
-      }
-
-      return new DebugDescription(
-        id,
-        this.#type,
-        this.#api,
-        this.#details,
-        this.#internal,
-        this.#stack
-      );
-    }
-
-    withStack(
-      stack: Stack,
-      id: interfaces.ReactiveId | REUSE_ID
-    ): interfaces.Description {
-      return new DebugDescription(
-        this.#newId(id),
-        this.#type,
-        this.#api,
-        this.#details,
-        this.#internal,
-        stack
-      );
-    }
-
-    get #parent(): interfaces.Description | void {
-      if (typeof this.#details === "object") {
-        return this.#details.parent;
-      }
-    }
-
-    asImplementation(options?: { reason: string }): interfaces.Description {
-      return new DebugDescription(
-        this.#id,
-        this.#type,
-        this.#api,
-        this.#details,
-        {
-          reason: options?.reason,
-          userFacing: this.#parent ?? this,
-        },
-        this.#stack
-      );
-    }
-
-    implementation(
-      id: interfaces.ReactiveId,
-      details?: {
-        reason: string;
-        userFacing: interfaces.Description;
-        stack?: Stack;
-      }
-    ) {
-      return new DebugDescription(
-        this.#extendId(id),
-        this.#type,
-        this.#api,
-        this.#details,
-        {
-          reason: details?.reason,
-          userFacing: details?.userFacing ?? this.userFacing,
-        },
-        details?.stack ?? callerStack()
-      );
-    }
-
-    get fullName(): string {
-      if (this.#details !== undefined) {
-        if (typeof this.#details === "string") {
-          return this.#details;
-        } else {
-          return `${this.#details.parent.fullName}${this.fromUser}`;
-        }
+    get #detailsPart(): interfaces.DetailsPart {
+      if (typeof this.#details === "string") {
+        return { type: "value", name: this.#details };
+      } else if (this.#details === undefined) {
+        return { type: "anonymous" };
       } else {
-        return `{${this.#idName}:anonymous ${this.type}}`;
+        return this.#details;
       }
+    }
+
+    get frame(): interfaces.StackFrame | undefined {
+      return this.#stack?.caller;
     }
 
     get fromUser(): string {
@@ -281,57 +172,113 @@ if (import.meta.env.DEV) {
       }
     }
 
-    method(
-      this: DebugDescription,
-      id: interfaces.ReactiveId | REUSE_ID,
-      name: string,
-      args?: interfaces.DescriptionArgument[] | undefined
-    ): interfaces.Description {
+    get fullName(): string {
+      if (this.#details !== undefined) {
+        if (typeof this.#details === "string") {
+          return this.#details;
+        } else {
+          return `${this.#details.parent.fullName}${this.fromUser}`;
+        }
+      } else {
+        return `{${this.#idName}:anonymous ${this.type}}`;
+      }
+    }
+
+    get id(): interfaces.ReactiveId {
+      return this.#id;
+    }
+
+    get #idName(): string {
+      if (typeof this.#id === "string" || typeof this.#id === "number") {
+        return String(this.#id);
+      } else {
+        return this.#id.map(String).join("/");
+      }
+    }
+
+    get isAnonymous(): boolean {
+      return this.#details === undefined;
+    }
+
+    get #parent(): interfaces.Description | undefined {
+      if (typeof this.#details === "object") {
+        return this.#details.parent;
+      }
+    }
+
+    get parts(): interfaces.DescriptionParts {
+      return {
+        type: this.#type,
+        api: this.#apiPart,
+        details: this.#detailsPart,
+        userFacing: this.#userFacingDesc,
+        frame: this.#stack?.caller,
+        stack: this.#stack?.stack,
+        internal: this.#internal,
+      };
+    }
+
+    get type(): interfaces.DescriptionType {
+      return this.#type;
+    }
+
+    get userFacing(): interfaces.Description {
+      if (this.#internal) {
+        return this.#internal.userFacing;
+      } else {
+        return this as interfaces.Description;
+      }
+    }
+    get #userFacingDesc(): interfaces.Description {
+      return (this.#internal?.userFacing ?? this) as interfaces.Description;
+    }
+
+    [Symbol.for("nodejs.util.inspect.custom")](): object {
+      return DisplayStruct("Description", {
+        id: this.#id,
+        type: this.#type,
+        api: this.#api,
+        details: this.#details,
+        internal: this.#internal,
+        stack: this.#stack,
+      });
+    }
+
+    asImplementation(options?: { reason: string }): interfaces.Description {
       return new DebugDescription(
-        this.#newId(id),
-        "formula",
+        this.#id,
+        this.#type,
         this.#api,
+        this.#details,
         {
-          type: "method",
-          parent: this,
-          name,
-          args,
+          reason: options?.reason,
+          userFacing: this.#parent ?? this,
         },
-        undefined,
         this.#stack
       );
     }
 
-    index(this: DebugDescription, index: number): interfaces.Description {
-      return new DebugDescription(
-        this.#extendId(index),
-        "formula",
-        this.#api,
-        {
-          type: "member",
-          parent: this,
-          kind: "index",
-          name: index,
-        },
-        undefined,
-        this.#stack
-      );
+    #caller(options?: interfaces.DescriptionDescribeOptions): string {
+      const caller = this.#stack?.caller;
+
+      if (caller !== undefined) {
+        return caller.display(options);
+      } else {
+        return "<unknown>";
+      }
     }
 
-    property(this: DebugDescription, name: string): interfaces.Description {
-      return new DebugDescription(
-        this.#extendId(name),
-        "formula",
-        this.#api,
-        {
-          type: "member",
-          parent: this,
-          kind: "property",
-          name,
-        },
-        undefined,
-        this.#stack
-      );
+    describe(options: interfaces.DescriptionDescribeOptions = {}): string {
+      const name = this.#name(options);
+
+      if (this.#internal) {
+        const desc = this.#internal.reason
+          ? chalk.dim(`[${this.#internal.reason}]`)
+          : chalk.dim("[internals]");
+        return `${name} ${desc}`;
+      } else {
+        return name;
+      }
     }
 
     detail(
@@ -370,6 +317,61 @@ if (import.meta.env.DEV) {
       );
     }
 
+    #extendId(id: interfaces.ReactiveId | REUSE_ID): interfaces.ReactiveId {
+      if (id === REUSE_ID) {
+        return this.#id;
+      } else if (Array.isArray(this.#id)) {
+        return [...this.#id, id];
+      } else {
+        return [this.#id, id];
+      }
+    }
+
+    implementation(
+      id: interfaces.ReactiveId | symbol,
+      details?: {
+        reason?: string;
+        userFacing?: interfaces.Description;
+        stack?: Stack;
+      }
+    ): DebugDescription {
+      if (typeof id === "symbol") {
+        verify(
+          id,
+          isEqual(REUSE_ID),
+          expected("symbol passed to implementation()").toBe("REUSE_ID")
+        );
+      }
+
+      return new DebugDescription(
+        this.#extendId(id),
+        this.#type,
+        this.#api,
+        this.#details,
+        {
+          reason: details?.reason,
+          userFacing: details?.userFacing ?? this.userFacing,
+        },
+        details?.stack ?? callerStack()
+      );
+    }
+
+    index(this: DebugDescription, index: number): interfaces.Description {
+      return new DebugDescription(
+        this.#extendId(index),
+        "formula",
+        this.#api,
+        {
+          type: "member",
+          parent: this,
+          kind: "index",
+          name: index,
+        },
+        undefined,
+        this.#stack
+      );
+    }
+
     /**
      * A key represents a string that the user wrote in their source code. In contrast, `detail`,
      * represents a user-facing *concept* that created by Starbeam, and `implementation` represents
@@ -397,49 +399,36 @@ if (import.meta.env.DEV) {
       );
     }
 
-    get parts(): interfaces.DescriptionParts {
-      return {
-        type: this.#type,
-        api: this.#apiPart,
-        details: this.#detailsPart,
-        userFacing: this.#internal ? this.#internal.userFacing : this,
-        frame: this.#stack?.caller,
-        stack: this.#stack?.stack,
-        internal: this.#internal,
-      };
-    }
-
-    get #apiPart(): interfaces.ApiDetails | undefined {
-      if (typeof this.#api === "string") {
-        return {
-          name: this.#api,
-        };
-      } else {
-        return this.#api;
+    method(
+      this: DebugDescription,
+      id: interfaces.ReactiveId | symbol,
+      name: string,
+      args?: interfaces.DescriptionArgument[] | undefined
+    ): interfaces.Description {
+      if (typeof id === "symbol") {
+        verify(
+          id,
+          isEqual(REUSE_ID),
+          expected
+            .as("symbol passed to desc.method()")
+            .toBe("REUSE_ID")
+            .butGot((s) => String(s))
+        );
       }
-    }
 
-    get #detailsPart(): interfaces.DetailsPart {
-      if (typeof this.#details === "string") {
-        return { type: "value", name: this.#details };
-      } else if (this.#details === undefined) {
-        return { type: "anonymous" };
-      } else {
-        return this.#details;
-      }
-    }
-
-    describe(options: interfaces.DescriptionDescribeOptions = {}): string {
-      const name = this.#name(options);
-
-      if (this.#internal) {
-        const desc = this.#internal.reason
-          ? chalk.dim(`[${this.#internal.reason}]`)
-          : chalk.dim("[internals]");
-        return `${name} ${desc}`;
-      } else {
-        return name;
-      }
+      return new DebugDescription(
+        this.#newId(id),
+        "formula",
+        this.#api,
+        {
+          type: "method",
+          parent: this,
+          name,
+          args,
+        },
+        undefined,
+        this.#stack
+      );
     }
 
     #name(options: interfaces.DescriptionDescribeOptions): string {
@@ -450,42 +439,83 @@ if (import.meta.env.DEV) {
       }
     }
 
-    #caller(options?: interfaces.DescriptionDescribeOptions): string {
-      const caller = this.#stack?.caller;
-
-      if (caller !== undefined) {
-        return caller.display(options);
-      } else {
-        return "<unknown>";
-      }
+    #newId(id: interfaces.ReactiveId | REUSE_ID): interfaces.ReactiveId {
+      return id === REUSE_ID ? this.#id : id;
     }
 
-    get frame(): interfaces.StackFrame | undefined {
-      return this.#stack?.caller;
+    property(this: DebugDescription, name: string): interfaces.Description {
+      return new DebugDescription(
+        this.#extendId(name),
+        "formula",
+        this.#api,
+        {
+          type: "member",
+          parent: this,
+          kind: "property",
+          name,
+        },
+        undefined,
+        this.#stack
+      );
+    }
+
+    withId(id?: interfaces.ReactiveId): interfaces.Description {
+      if (id === undefined) {
+        return this as interfaces.Description;
+      }
+
+      return new DebugDescription(
+        id,
+        this.#type,
+        this.#api,
+        this.#details,
+        this.#internal,
+        this.#stack
+      ) as interfaces.Description;
+    }
+
+    withStack(
+      stack: Stack,
+      id: interfaces.ReactiveId | symbol
+    ): interfaces.Description {
+      if (typeof id === "symbol") {
+        verify(
+          id,
+          isEqual(REUSE_ID),
+          expected
+            .as("symbol passed to withStack")
+            .toBe("REUSE_ID")
+            .butGot((s) => String(s))
+        );
+      }
+
+      return new DebugDescription(
+        this.#newId(id as REUSE_ID),
+        this.#type,
+        this.#api,
+        this.#details,
+        this.#internal,
+        stack
+      ) as interfaces.Description;
     }
   }
 
   PickedDescription = DebugDescription;
 } else {
   class ProdDescription implements interfaces.Description {
-    static PROD = new ProdDescription();
-
-    static is(description: unknown): description is interfaces.Description {
-      return !!(description && description instanceof ProdDescription);
-    }
-
-    static from(): interfaces.Description {
-      return ProdDescription.PROD;
-    }
-
-    readonly id: interfaces.ReactiveId = "@starbeam:erased";
-    readonly fullName = "";
-    readonly type = "erased";
     readonly api = "";
+
+    readonly frame: interfaces.StackFrame = {
+      starbeamCaller: undefined,
+      parts: () => new DisplayParts({ path: "" }),
+      link: () => "",
+      display: () => "",
+    };
+
     readonly fromUser = undefined;
+    readonly fullName = "";
+    readonly id: interfaces.ReactiveId = "@starbeam:erased";
     readonly internal = undefined;
-    readonly stack = undefined;
-    readonly userFacing = this;
     readonly parts: interfaces.DescriptionParts = {
       api: { name: "erased" },
       details: { type: "anonymous" },
@@ -494,14 +524,35 @@ if (import.meta.env.DEV) {
       frame: undefined,
       stack: undefined,
     };
-    readonly frame: interfaces.StackFrame = {
-      starbeamCaller: undefined,
-      parts: () => new DisplayParts({ path: "" }),
-      link: () => "",
-      display: () => "",
-    };
 
-    method(): interfaces.Description {
+    readonly stack = undefined;
+    readonly type = "erased";
+
+    readonly userFacing = this;
+
+    static PROD = new ProdDescription();
+
+    static from(): interfaces.Description {
+      return ProdDescription.PROD;
+    }
+
+    static is(description: unknown): description is interfaces.Description {
+      return !!(description && description instanceof ProdDescription);
+    }
+
+    asImplementation(): interfaces.Description {
+      return this;
+    }
+
+    describe(): string {
+      return "";
+    }
+
+    detail(): interfaces.Description {
+      return this;
+    }
+
+    implementation(): interfaces.Description {
       return this;
     }
 
@@ -509,23 +560,15 @@ if (import.meta.env.DEV) {
       return this;
     }
 
-    property(): interfaces.Description {
-      return this;
-    }
-
     key(): interfaces.Description {
       return this;
     }
 
-    detail(): interfaces.Description {
+    method(): interfaces.Description {
       return this;
     }
 
-    asImplementation(): interfaces.Description {
-      return this;
-    }
-
-    implementation(): interfaces.Description {
+    property(): interfaces.Description {
       return this;
     }
 
@@ -535,10 +578,6 @@ if (import.meta.env.DEV) {
 
     withStack(): interfaces.Description {
       return this;
-    }
-
-    describe(): string {
-      return "";
     }
   }
 

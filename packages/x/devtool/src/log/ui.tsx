@@ -16,10 +16,10 @@ function Line({
   frame,
 }: {
   timestamp: string;
-  label?: string;
-  icon: string;
-  content?: ComponentChildren;
-  frame?: ComponentChildren;
+  label?: string | undefined;
+  icon: string | undefined;
+  content?: ComponentChildren | undefined;
+  frame?: ComponentChildren | undefined;
 }): JSX.Element {
   return (
     <div class="log-line">
@@ -40,11 +40,11 @@ export function LogLine({
   operation,
   children,
 }: {
-  at?: Timestamp;
-  prev?: Timestamp;
-  what?: string;
-  operation?: string;
-  children?: ComponentChildren;
+  at?: Timestamp | undefined;
+  prev?: Timestamp | undefined;
+  what?: string | undefined;
+  operation?: string | undefined;
+  children?: ComponentChildren | undefined;
 }): JSX.Element {
   return (
     <Line
@@ -64,10 +64,10 @@ export function LogLineFor({
   parts,
   options,
 }: {
-  at?: Timestamp;
-  prev?: Timestamp;
-  what?: string;
-  operation?: string;
+  at?: Timestamp | undefined;
+  prev?: Timestamp | undefined;
+  what?: string | undefined;
+  operation?: string | undefined;
   parts: DescriptionParts;
   options: DevtoolsOptions;
 }): JSX.Element {

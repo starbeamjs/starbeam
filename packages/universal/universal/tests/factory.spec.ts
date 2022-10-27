@@ -117,19 +117,19 @@ describe("reactive Factory", () => {
       #cell = Cell(0);
       #extra = Cell(0);
 
-      get count() {
+      get count(): number {
         return this.#cell.current;
       }
 
-      get extra() {
+      get extra(): number {
         return this.#extra.current;
       }
 
-      increment() {
+      increment(): void {
         this.#cell.update((value) => value + 1);
       }
 
-      incrementExtra() {
+      incrementExtra(): void {
         this.#extra.update((value) => value + 1);
       }
     }
@@ -178,7 +178,7 @@ function s(value: Primitive): string {
     case "bigint":
       return `${value}n`;
     case "symbol":
-      return `Symbol(${value.description})`;
+      return `Symbol(${value.description ?? ""})`;
     default:
       return JSON.stringify(value);
   }

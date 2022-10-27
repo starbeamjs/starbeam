@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { ComponentChild, Options } from "preact";
 
 import type {
@@ -21,7 +20,7 @@ export type PreactOptionName = keyof Options | PrivateHookNames;
 export type MangledPreactOptionName = keyof Options | MangledHookNames;
 
 type Req<T> = {
-  [P in keyof T]-?: T[P] extends infer T | undefined ? T : T[P];
+  [P in keyof T]-?: T[P] extends infer U | undefined ? U : T[P];
 };
 
 export type PreactHook<T extends PreactOptionName> = Req<RawPreactOptions>[T];

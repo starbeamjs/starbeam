@@ -4,7 +4,7 @@ import { QueryCommand } from "./support/commands";
 import { Fragment } from "./support/log.js";
 
 export const ListCommand = QueryCommand("list").action(
-  ({ packages, query, workspace, ...options }) => {
+  ({ packages, query, workspace }) => {
     for (const pkg of packages) {
       const flags = [];
 
@@ -17,7 +17,7 @@ export const ListCommand = QueryCommand("list").action(
       }
 
       if (!query.unifies("type")) {
-        flags.push(chalk.bgGray.black(pkg.type.value ?? "unknown"));
+        flags.push(chalk.bgGray.black(pkg.type.value));
       }
 
       if (pkg.isTypescript && !query.unifies("typescript")) {

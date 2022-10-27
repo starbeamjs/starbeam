@@ -12,10 +12,10 @@ import {
 const REFS = new WeakMap<object, ElementPlaceholder<browser.Element>>();
 
 export function getPlaceholder<E extends browser.Element>(
-  ref: ElementRef<E>
+  elementRef: ElementRef<E>
 ): ElementPlaceholder<E> {
   return verified(
-    REFS.get(ref),
+    REFS.get(elementRef),
     isPresent,
     expected(`a Starbeam ref's element`)
       .toBe(`present`)
@@ -44,12 +44,12 @@ function ClassVerifier<E extends browser.Element>(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Class: abstract new (...args: any[]) => E
 ): (element: browser.Element) => element is E {
-  function verify(element: browser.Element): element is E {
+  function verifyClass(element: browser.Element): element is E {
     return element instanceof Class;
   }
 
   return expected.associate(
-    verify,
+    verifyClass,
     expected(`element provided by React`)
       .toBe(`an instance of ${Class.name}`)
       .when(`receiving an element from React's ref={} attribute`)

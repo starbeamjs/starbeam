@@ -19,6 +19,10 @@ export class ReactiveMarker implements ReactiveProtocol<MutableInternals> {
     this.#internals = reactive;
   }
 
+  get [REACTIVE](): MutableInternals {
+    return this.#internals;
+  }
+
   freeze(): void {
     this.#internals.freeze();
   }
@@ -29,12 +33,6 @@ export class ReactiveMarker implements ReactiveProtocol<MutableInternals> {
 
   update(caller: Stack): void {
     this.#internals.update(caller);
-  }
-
-  /** impl Reactive<T> */
-
-  get [REACTIVE](): MutableInternals {
-    return this.#internals;
   }
 }
 

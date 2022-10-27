@@ -1,5 +1,10 @@
-import { FormulaFn, Resource, ResourceList } from "@starbeam/universal";
 import { reactive } from "@starbeam/js";
+import {
+  type ResourceBlueprint,
+  FormulaFn,
+  Resource,
+  ResourceList,
+} from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 
 interface Item {
@@ -21,11 +26,11 @@ class Subscription {
     });
   }
 
-  connect() {
+  connect(): void {
     this.#active = true;
   }
 
-  disconnect() {
+  disconnect(): void {
     this.#active = false;
   }
 }
@@ -37,12 +42,19 @@ describe("ResourceList", () => {
       { id: 2, name: "Chirag", location: "NYC" },
     ]);
 
-    const map = (item: Item) =>
+    const map = (
+      item: Item
+    ): ResourceBlueprint<{
+      card: string;
+      subscription: Subscription;
+    }> =>
       Resource(({ on }) => {
         const subscription = new Subscription(item.name);
         subscription.connect();
 
-        on.cleanup(() => subscription.disconnect());
+        on.cleanup(() => {
+          subscription.disconnect();
+        });
 
         return FormulaFn(() => ({
           card: `${subscription.name} (${item.location})`,
@@ -59,7 +71,7 @@ describe("ResourceList", () => {
 
     const resources = linkables.create({ owner: lifetime });
 
-    function current() {
+    function current(): { card: string; subscription: Subscription }[] {
       return resources.current.map((resource) => resource.current);
     }
 

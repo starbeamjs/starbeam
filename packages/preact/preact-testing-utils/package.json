@@ -8,10 +8,12 @@
   "dependencies": {
     "@testing-library/preact": "^3.2.2",
     "@testing-library/dom": "^8.19.0",
+    "@starbeam/verify": "workspace:^",
     "htm": "^3.1.1"
   },
   "devDependencies": {
-    "@starbeam-workspace/build-support": "workspace:^"
+    "@starbeam-workspace/build-support": "workspace:^",
+    "preact-render-to-string": "^5.2.6"
   },
   "publishConfig": {
     "main": "dist/index.cjs",

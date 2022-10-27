@@ -1,5 +1,5 @@
-import { Cell } from "@starbeam/universal";
 import { useReactiveSetup } from "@starbeam/react";
+import { Cell } from "@starbeam/universal";
 import type { FormEvent } from "react";
 
 import { type Person, People } from "../lib/people.js";
@@ -17,7 +17,7 @@ export default function (): JSX.Element {
 
     const people = new People(table);
 
-    function append(e: FormEvent<HTMLFormElement>) {
+    function append(e: FormEvent<HTMLFormElement>): void {
       e.preventDefault();
 
       const form = e.currentTarget;
@@ -32,11 +32,11 @@ export default function (): JSX.Element {
 
     const filter = Cell("");
 
-    function query() {
+    function query(): People {
       return people.filter(filter.current).sort("name", SYSTEM_LOCALE);
     }
 
-    function total() {
+    function total(): string {
       const filteredCount = query().rows.length;
       const totalCount = table.rows.length;
 
@@ -83,7 +83,13 @@ export default function (): JSX.Element {
                   <th key={p}>{p}</th>
                 ))}
                 <th className="action">
-                  <button onClick={() => table.clear()}>✂️</button>
+                  <button
+                    onClick={() => {
+                      table.clear();
+                    }}
+                  >
+                    ✂️
+                  </button>
                 </th>
               </tr>
             </thead>
@@ -93,7 +99,13 @@ export default function (): JSX.Element {
                   <td>{person.name}</td>
                   <td>{person.location}</td>
                   <td className="actions">
-                    <button onClick={() => table.delete(person.id)}>✂️</button>
+                    <button
+                      onClick={() => {
+                        table.delete(person.id);
+                      }}
+                    >
+                      ✂️
+                    </button>
                   </td>
                 </tr>
               ))}

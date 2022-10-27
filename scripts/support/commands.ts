@@ -1,5 +1,6 @@
+import { firstNItems } from "@starbeam/core-utils";
 import chalk from "chalk";
-import { type Command, program } from "commander";
+import { type Command, program as CommanderProgram } from "commander";
 
 import { format, wrapIndented } from "./format.js";
 import type { Package } from "./packages.js";
@@ -24,7 +25,10 @@ export function DevCommand<T extends CommandOptions>(
   name: string,
   options?: BasicOptions
 ): BuildDevCommand<[], T, ShortCommandOptions> {
-  const command = applyBasicOptions(program.createCommand(name), options);
+  const command = applyBasicOptions(
+    CommanderProgram.createCommand(name),
+    options
+  );
 
   return new BuildDevCommand(command);
 }
@@ -33,12 +37,15 @@ export function QueryCommand<T extends QueryCommandOptions>(
   name: string,
   options?: BasicOptions
 ): BuildQueryCommand<[], T, ShortQueryCommandOptions> {
-  const command = applyBasicOptions(program.createCommand(name), options);
+  const command = applyBasicOptions(
+    CommanderProgram.createCommand(name),
+    options
+  );
 
   return new BuildQueryCommand(queryable(command));
 }
 
-function applyBasicOptions(command: Command, options?: BasicOptions) {
+function applyBasicOptions(command: Command, options?: BasicOptions): Command {
   if (options?.description) {
     command = command.description(options.description);
   }
@@ -115,46 +122,48 @@ type LongFlag<A extends Arg> = A extends string ? A : A[1];
 type ShortFlag<A extends Arg> = A extends string ? never : A[0];
 
 type CheckOption<
-  Arg extends string | [short: string, long: string],
+  CheckArg extends string | [short: string, long: string],
   Options,
   Short
-> = Arg extends [short: keyof Short & string, long: keyof Options & string]
+> = CheckArg extends [short: keyof Short & string, long: keyof Options & string]
   ? [
       short: CompileError<
-        `Compile Error: ${Arg[0]} is already a short option alias in this command`,
-        { [P in Arg[0]]: Short[Arg[0]] }
+        `Compile Error: ${CheckArg[0]} is already a short option alias in this command`,
+        { [P in CheckArg[0]]: Short[CheckArg[0]] }
       >,
       long: CompileError<
-        `Compile Error: ${Arg[1]} is already an option in this command`,
-        { [P in Arg[1]]: Options[Arg[1]] }
+        `Compile Error: ${CheckArg[1]} is already an option in this command`,
+        { [P in CheckArg[1]]: Options[CheckArg[1]] }
       >
     ]
-  : Arg extends [short: string, long: keyof Options & string]
+  : CheckArg extends [short: string, long: keyof Options & string]
   ? [
-      short: Arg[0],
+      short: CheckArg[0],
       long: CompileError<
-        `Compile Error: ${Arg[1]} is already an option in this command`,
-        { [P in Arg[1]]: Options[Arg[1]] }
+        `Compile Error: ${CheckArg[1]} is already an option in this command`,
+        { [P in CheckArg[1]]: Options[CheckArg[1]] }
       >
     ]
-  : Arg extends [short: keyof Short & string, long: string]
+  : CheckArg extends [short: keyof Short & string, long: string]
   ? [
       short: CompileError<
-        `Compile Error: ${Arg[0]} is already a short option alias in this command`,
-        { [P in Arg[0]]: Short[Arg[0]] }
+        `Compile Error: ${CheckArg[0]} is already a short option alias in this command`,
+        { [P in CheckArg[0]]: Short[CheckArg[0]] }
       >,
-      long: Arg[1]
+      long: CheckArg[1]
     ]
-  : Arg extends keyof Options & string
+  : CheckArg extends keyof Options & string
   ? CompileError<
-      `Compile Error: ${Arg} is already an option in this command`,
-      { [P in Arg]: Options[Arg] }
+      `Compile Error: ${CheckArg} is already an option in this command`,
+      { [P in CheckArg]: Options[CheckArg] }
     >
-  : Arg;
+  : CheckArg;
+
+const INITIAL_ARGUMENTS = 0;
 
 export abstract class BuildCommand<Args extends unknown[], Options, Short> {
   #command: Command;
-  #arguments = 0;
+  #arguments = INITIAL_ARGUMENTS;
 
   constructor(command: Command) {
     this.#command = command;
@@ -200,11 +209,9 @@ export abstract class BuildCommand<Args extends unknown[], Options, Short> {
     if (typeof value === "function") {
       this.#command = this.#command.option(flags, description);
     } else {
-      this.#command = this.#command.option(
-        flags,
-        description,
-        value[1].default
-      );
+      const [, options] = value;
+
+      this.#command = this.#command.option(flags, description, options.default);
     }
 
     return this as BuildCommand<
@@ -218,16 +225,18 @@ export abstract class BuildCommand<Args extends unknown[], Options, Short> {
     name: string,
     description: string,
     value: Value<V>
-  ): BuildCommand<[...Args, V], Options, Short> {
+  ): BuildCommand<Args, Options, Short> {
     const arg = dasherize(name);
 
     if (typeof value === "function") {
       this.#command = this.#command.argument(`<${arg}>`, description);
     } else {
+      const [, options] = value;
+
       this.#command = this.#command.argument(
         `<${arg}>`,
         description,
-        value[1].default
+        options.default
       );
     }
 
@@ -239,15 +248,15 @@ export abstract class BuildCommand<Args extends unknown[], Options, Short> {
     return this.#command;
   }
 
-  protected extractOptions<Args extends unknown[], Options>(
+  protected extractOptions<ExtractArgs extends unknown[], ExtractOptions>(
     options: unknown[]
   ): {
-    args: Args;
-    options: CamelizedOptions<Options & ReporterOptions>;
+    args: ExtractArgs;
+    options: CamelizedOptions<ExtractOptions & ReporterOptions>;
   } {
-    const args = options.slice(0, this.args) as Args;
+    const args = firstNItems(options, this.args) as ExtractArgs;
     const opts = options[this.args] as CamelizedOptions<
-      Options & ReporterOptions
+      ExtractOptions & ReporterOptions
     >;
 
     return {
@@ -257,10 +266,12 @@ export abstract class BuildCommand<Args extends unknown[], Options, Short> {
   }
 
   protected parseOptions<
-    Args extends unknown[],
-    Options extends CommandOptions
+    ParseArgs extends unknown[],
+    ParseOptions extends CommandOptions
   >(allArgs: unknown[], extra: Record<string, unknown>): unknown[] {
-    const { args, options } = this.extractOptions<Args, Options>(allArgs);
+    const { args, options } = this.extractOptions<ParseArgs, ParseOptions>(
+      allArgs
+    );
 
     return [...args, { ...options, ...extra }];
   }
@@ -330,7 +341,7 @@ export class BuildQueryCommand<
         } = this.extractOptions<
           Args,
           {
-            package: string;
+            package: string | undefined;
             scope: string | undefined;
             and: (Filter | ParseError)[] | undefined;
             or: (Filter | ParseError)[] | undefined;
@@ -380,19 +391,21 @@ export class BuildQueryCommand<
 
         const workspace = createWorkspace(root, options);
 
-        if (where?.errors) {
+        if (where.errors) {
           for (const err of where.errors) {
             err.log(workspace.reporter);
           }
           workspace.reporter.log("");
-          process.exit(1);
+
+          const ERROR_STATUS = 1;
+          process.exit(ERROR_STATUS);
         }
 
-        const packages = await queryPackages(workspace, where);
+        const packages = queryPackages(workspace, where);
 
         const { args } = this.extractOptions<Args, Options>(allArgs);
 
-        const result = await action(...(args as Args), {
+        const result = await action(...args, {
           packages,
           query: where,
           workspace,
@@ -486,7 +499,7 @@ export function queryable(command: Command): Command {
     )
     .addHelpText(
       "afterAll",
-      format("\nFilters\n", chalk.yellowBright.bold.inverse) +
+      String(format("\nFilters\n", chalk.yellowBright.bold.inverse)) +
         Object.entries(FILTER_KEYS)
           .flatMap(([key, [kind, example]]) => [
             format.entry([key, kind], {
@@ -607,7 +620,7 @@ function getOption<T>(
   options: object,
   key: string,
   check: (value: unknown) => value is T
-): T | void {
+): T | undefined {
   const value = (options as Indexable)[key];
 
   if (value && check(value)) {

@@ -1,5 +1,5 @@
-import { FormulaFn } from "@starbeam/universal";
 import { reactive } from "@starbeam/js";
+import { FormulaFn } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 
 import { Invalidation } from "./support.js";
@@ -101,7 +101,7 @@ describe("TrackedSet", () => {
     function assert(
       value: string,
       state: "initialized" | "stable" | "invalidated"
-    ) {
+    ): void {
       expect(foods.state).toEqual([value, state]);
       expect(foodsByKeys.state).toEqual([value, state]);
       expect(foodsByValues.state).toEqual([value, state]);

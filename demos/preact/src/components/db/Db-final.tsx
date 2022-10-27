@@ -20,11 +20,11 @@ class Table<T> {
     return [...this.#rows.entries()];
   }
 
-  append(row: T) {
+  append(row: T): void {
     this.#rows.set(`${this.#id++}`, row);
   }
 
-  delete(id: string) {
+  delete(id: string): void {
     this.#rows.delete(id);
   }
 }
@@ -44,7 +44,7 @@ export default function Database({ locale }: { locale: string }): JSX.Element {
     form.reset();
   };
 
-  function sorted() {
+  function sorted(): [string, Person][] {
     return people.rows.sort((a, b) =>
       new Intl.Collator(locale).compare(a[1].name, b[1].name)
     );
@@ -84,7 +84,13 @@ export default function Database({ locale }: { locale: string }): JSX.Element {
               <td>{person.name}</td>
               <td>{person.location}</td>
               <td className="actions">
-                <button onClick={() => people.delete(id)}>✂️</button>
+                <button
+                  onClick={() => {
+                    people.delete(id);
+                  }}
+                >
+                  ✂️
+                </button>
               </td>
             </tr>
           ))}

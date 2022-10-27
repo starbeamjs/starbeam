@@ -42,10 +42,9 @@ export function DelegateInternals(
 }
 
 export class MutableInternalsImpl implements interfaces.MutableInternals {
-  readonly type = "mutable";
-
   #frozen = false;
   #lastUpdated: Timestamp = TIMELINE.now;
+  readonly type = "mutable";
 
   constructor(readonly description: Description) {}
 

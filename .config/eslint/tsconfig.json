@@ -1,0 +1,42 @@
+{
+  "extends": "../tsconfig/tsconfig.shared.json",
+  "compilerOptions": {
+    "declarationDir": "../../dist/types",
+    "outDir": "../../dist/packages",
+    "composite": true,
+
+    "allowJs": true,
+    "checkJs": true,
+
+    "target": "ESNext",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "preserveValueImports": false,
+
+    "declaration": true,
+    "declarationMap": true,
+
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noPropertyAccessFromIndexSignature": true,
+
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
+    "useDefineForClassFields": true,
+
+    "resolveJsonModule": true,
+
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": false,
+
+    "types": ["vite/client", "../../packages/env"]
+  },
+  "include": ["./index.js", "./src/**/*.js"],
+  "exclude": ["dist/**/*"]
+}

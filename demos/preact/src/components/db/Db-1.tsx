@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-import { reactive } from "@starbeam/js";
+import { object } from "@starbeam/js";
 import { create } from "@starbeam/preact";
 import type { JSX } from "preact/jsx-runtime";
 
@@ -11,7 +10,7 @@ interface Person {
 }
 
 class Table<T> {
-  #rows: Record<string, T> = reactive.object({}, "rows");
+  #rows: Record<string, T> = object({}, "rows");
   #id = 0;
 
   constructor(readonly columns: string[]) {}
@@ -20,7 +19,7 @@ class Table<T> {
     return Object.entries(this.#rows);
   }
 
-  append(row: T) {
+  append(row: T): void {
     this.#rows[`${this.#id++}`] = row;
   }
 }

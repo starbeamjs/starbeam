@@ -1,3 +1,4 @@
+import { getFirst, TO_STRING } from "@starbeam/core-utils";
 import ansicolor from "ansicolor";
 import chalk, { type ChalkInstance } from "chalk";
 
@@ -21,7 +22,9 @@ export function log(message: string, style: Style = Style.default): void {
   console.log(Fragment(style, message));
 }
 
-log.newline = () => log("");
+log.newline = () => {
+  log("");
+};
 
 export type StyleInstance = ChalkInstance;
 
@@ -67,7 +70,7 @@ export class FragmentMap<T> implements Iterable<[Fragment, T]> {
     from: IntoFragmentMap<unknown>,
     mapItem: (value: unknown) => unknown = (value) => value
   ): FragmentMap<unknown> {
-    const map = new Map();
+    const map = new Map<Fragment, unknown>();
     for (const [key, value] of Object.entries(from)) {
       map.set(Fragment.from(key), mapItem(value));
     }
@@ -81,7 +84,7 @@ export class FragmentMap<T> implements Iterable<[Fragment, T]> {
   }
 
   *[Symbol.iterator](): IterableIterator<[FragmentImpl, T]> {
-    return this.#map[Symbol.iterator];
+    yield* this.#map;
   }
 
   map<U>(mapper: (key: Fragment, value: T) => U): U[] {
@@ -114,17 +117,23 @@ export const LogResult = {
   err: <T>(value: IntoFragment): LogResult<T> => Result.err(value),
 };
 
+export const EMPTY_WIDTH = 0;
+
 export abstract class FragmentImpl {
-  static fallibleFrom(from: IntoFallibleFragment): FallibleFragment {
+  static fallibleFrom(
+    this: void,
+    from: IntoFallibleFragment
+  ): FallibleFragment {
     return Result.from(from)
       .map((f) => FragmentImpl.from(f))
       .mapErr((f) => FragmentImpl.from(f));
   }
 
-  static from(from: IntoFragment): FragmentImpl {
+  static from(this: void, from: IntoFragment): FragmentImpl {
     if (Array.isArray(from)) {
-      if (from.length === 1) {
-        return FragmentImpl.from(from[0]);
+      const head = getFirst(from);
+      if (head !== undefined) {
+        return FragmentImpl.from(head);
       } else {
         return new FragmentGroup(from.map(FragmentImpl.from));
       }
@@ -135,7 +144,11 @@ export abstract class FragmentImpl {
     }
   }
 
-  static stringify(from: IntoFragment, options: LoggerState): string {
+  static stringify(
+    this: void,
+    from: IntoFragment,
+    options: LoggerState
+  ): string {
     if (typeof from === "string") {
       return from;
     } else {
@@ -143,13 +156,19 @@ export abstract class FragmentImpl {
     }
   }
 
-  static isEmpty(fragment: IntoFragment, options: LoggerState): boolean {
+  static isEmpty(
+    this: void,
+    fragment: IntoFragment,
+    options: LoggerState
+  ): boolean {
     if (typeof fragment === "string") {
       return /^\s*$/.test(ansicolor.strip(fragment));
     } else {
-      return Fragment.from(fragment).width(options) === 0;
+      return Fragment.from(fragment).width(options) === EMPTY_WIDTH;
     }
   }
+
+  declare [TO_STRING]: true;
 
   update(updater: (prev: StyleInstance) => IntoStyleInstance): Fragment {
     return this.updateStyle((prev) => IntoStyleInstance(updater(prev)));
@@ -180,7 +199,9 @@ export abstract class FragmentImpl {
   abstract width(options: LoggerState): number;
   abstract stringify(options: LoggerState): string;
 
-  abstract toString(): string;
+  toString(): string {
+    return "";
+  }
 }
 
 class FragmentGroup extends FragmentImpl {
@@ -195,7 +216,7 @@ class FragmentGroup extends FragmentImpl {
     return this.#fragments.map((f) => f.stringify(options)).join("");
   }
 
-  toString(): string {
+  override toString(): string {
     return this.#fragments.map(String).join("");
   }
 
@@ -210,12 +231,15 @@ class FragmentGroup extends FragmentImpl {
   }
 
   width(options: LoggerState): number {
-    return this.#fragments.reduce((total, f) => total + f.width(options), 0);
+    return this.#fragments.reduce(
+      (total, f) => total + f.width(options),
+      EMPTY_WIDTH
+    );
   }
 }
 
 class LeafFragment extends FragmentImpl {
-  static from(from: IntoLeafFragment): LeafFragment {
+  static override from(from: IntoLeafFragment): LeafFragment {
     if (from instanceof LeafFragment) {
       return from;
     } else {
@@ -273,7 +297,7 @@ class LeafFragment extends FragmentImpl {
   }
 
   stringify(): string {
-    return this.#style(this.#message) ?? "";
+    return this.#style(this.#message);
   }
 
   width(): number {
@@ -292,7 +316,7 @@ class LeafFragment extends FragmentImpl {
     return new FragmentGroup([this, other]);
   }
 
-  toString(): string {
+  override toString(): string {
     return this.#style(this.#message);
   }
 }
@@ -337,7 +361,7 @@ export class DensityChoosingFragment extends FragmentImpl {
     return this.#stringify({ options, selection: options.density });
   }
 
-  toString(): string {
+  override toString(): string {
     return this.#stringify({
       options: undefined,
       selection: this.#defaultChoice,
@@ -408,29 +432,58 @@ type ToFragmentFn = ((message: Printable) => Fragment) & {
 };
 type ParentToFragmentFn = typeof FragmentFn & {
   [P in StyleName]: ToFragmentFn & {
-    [P in StylePartName]: ToFragmentFn;
+    [Part in StylePartName]: ToFragmentFn;
   };
 };
 
 for (const [name, style] of Object.entries(STYLES) as [StyleName, Style][]) {
   const Frag = FragmentFn as unknown as Record<string, ToFragmentFn>;
 
-  const Fn = (message: Printable) => FragmentFn(style, message);
-  Fn.inverse = (message: Printable) =>
+  const Fn = (message: Printable): Fragment => FragmentFn(style, message);
+  // eslint-disable-next-line @typescript-eslint/no-loop-func
+  Fn.inverse = (message: Printable): Fragment =>
     FragmentFn(Style.inverse(style), message);
 
   Frag[name] = Fn;
 
   for (const part of StylePart.members) {
     const SubFrag = Frag[name] as unknown as Record<string, ToFragmentFn>;
-    const Fn = (message: Printable) => FragmentFn(`${name}:${part}`, message);
-    Fn.inverse = (message: Printable) => FragmentFn(`${name}:${part}`, message);
+    const NestedFn = (message: Printable): Fragment =>
+      FragmentFn(`${name}:${part}`, message);
+    NestedFn.inverse = (message: Printable) =>
+      FragmentFn(`${name}:${part}`, message);
 
-    SubFrag[part] = Fn;
+    SubFrag[part] = NestedFn;
   }
 }
 
-export type Fragment = FragmentImpl;
+/**
+ * Tagged template literal for creating a string out of a bunch of strings or fragments.
+ *
+ * @example
+ *
+ * ```ts
+ * const fragment = fragment`Hello ${Fragment("world")}!`;
+ * ```
+ */
+export function fragment(
+  raw: TemplateStringsArray,
+  ...dynamics: IntoFragment[]
+): FragmentImpl {
+  const out: Fragment[] = [];
+
+  raw.forEach((str, i) => {
+    out.push(Fragment.from(str));
+    const dynamic = dynamics[i];
+    if (i < dynamics.length && dynamic !== undefined) {
+      out.push(Fragment.from(dynamic));
+    }
+  });
+
+  return Fragment.from(out);
+}
+
+export type Fragment = FragmentImpl & { toString: () => string };
 export const Fragment = FragmentFn as typeof FragmentFn & ParentToFragmentFn;
 
 export const Style = {
@@ -470,7 +523,7 @@ export const Style = {
   header: (style: Style): StyleInstance => {
     return Style.specific(style, "header");
   },
-};
+} as const;
 
 export function isDetailed(value: unknown): value is DetailedStyle {
   return !!(value && typeof value === "object" && STYLE in value);

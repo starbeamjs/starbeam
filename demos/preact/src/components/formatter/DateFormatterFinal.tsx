@@ -3,7 +3,12 @@
 
 import js from "@starbeam/js";
 import { create, use } from "@starbeam/preact";
-import { type Reactive, Cell, Resource, Static } from "@starbeam/universal";
+import {
+  type Reactive,
+  type ResourceBlueprint,
+  Cell,
+  Resource,
+} from "@starbeam/universal";
 import type { JSX } from "preact/jsx-runtime";
 
 import {
@@ -19,9 +24,7 @@ export default function DateFormatterStarbeam(props: {
 }): JSX.Element {
   const timeZone = create(() => Cell(SYSTEM_TZ, "time zone"));
 
-  const date = use(() => {
-    return Clock(timeZone, props.locale);
-  }, [props.locale]);
+  const date = use(() => Clock(timeZone, props.locale));
 
   const localeInfo = formatLocale(props.locale);
   return (
@@ -57,26 +60,29 @@ export default function DateFormatterStarbeam(props: {
 function Clock(
   timeZone: Reactive<string> | string,
   locale: Reactive<string> | string
-) {
+): ResourceBlueprint<{ formatted: string; refresh: () => void }> {
   const date = js.object({ now: new Date() });
 
-  function refresh() {
+  function refresh(): void {
     date.now = new Date();
   }
 
   return Resource((resource) => {
-    const interval = setInterval(() => refresh(), 1000);
+    const interval = setInterval(() => {
+      refresh();
+    }, 1000);
 
-    resource.on.cleanup(() => clearInterval(interval));
+    resource.on.cleanup(() => {
+      clearInterval(interval);
+    });
 
-    return () =>
-      Static({
-        formatted: formatTime(date.now, {
-          timeZone: typeof timeZone === "string" ? timeZone : timeZone.read(),
-          locale: typeof locale === "string" ? locale : locale.read(),
-        }),
-        refresh,
-      });
+    return {
+      formatted: formatTime(date.now, {
+        timeZone: typeof timeZone === "string" ? timeZone : timeZone.read(),
+        locale: typeof locale === "string" ? locale : locale.read(),
+      }),
+      refresh,
+    };
   });
 }
 
@@ -86,7 +92,7 @@ function formatTime(
     locale = SYSTEM_LOCALE,
     timeZone = SYSTEM_TZ,
   }: { locale?: string; timeZone?: string } = {}
-) {
+): string {
   return new Intl.DateTimeFormat(locale, {
     hour: "numeric",
     minute: "numeric",
