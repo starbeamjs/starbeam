@@ -1,14 +1,7 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
-
 import js from "@starbeam/js";
 import { create, use } from "@starbeam/preact";
-import {
-  type Reactive,
-  type ResourceBlueprint,
-  Cell,
-  Resource,
-} from "@starbeam/universal";
+import type { ResourceBlueprint } from "@starbeam/universal";
+import { type Reactive, Cell, Resource } from "@starbeam/universal";
 import type { JSX } from "preact/jsx-runtime";
 
 import {
@@ -60,7 +53,7 @@ export default function DateFormatterStarbeam(props: {
 function Clock(
   timeZone: Reactive<string> | string,
   locale: Reactive<string> | string
-): ResourceBlueprint<{ formatted: string; refresh: () => void }> {
+): ResourceBlueprint<{ formatted: string; refresh: () => void }, undefined> {
   const date = js.object({ now: new Date() });
 
   function refresh(): void {

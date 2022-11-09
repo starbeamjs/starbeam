@@ -1,22 +1,23 @@
 {
-  "name": "@starbeam/debug",
-  "type": "module",
-  "main": "index.ts",
-  "version": "0.7.4",
   "dependencies": {
-    "@starbeam/shared": "workspace:^",
-    "@starbeam/verify": "workspace:^",
-    "@starbeam/interfaces": "workspace:^",
     "@domtree/flavors": "workspace:^",
     "@starbeam/core-utils": "workspace:^",
-    "stacktracey": "^2.1.8",
-    "buffer": "^6.0.3"
+    "@starbeam/interfaces": "workspace:^",
+    "@starbeam/shared": "workspace:^",
+    "@starbeam/verify": "workspace:^",
+    "buffer": "^6.0.3",
+    "stacktracey": "^2.1.8"
   },
   "devDependencies": {
-    "chalk": "^5.0.1",
     "@starbeam-workspace/build-support": "workspace:^",
-    "@types/node": "^18.7.23"
+    "@types/node": "^18.7.23",
+    "chalk": "^5.0.1"
   },
+  "exports": {
+    "default": "./index.ts"
+  },
+  "main": "index.ts",
+  "name": "@starbeam/debug",
   "pnpm": {
     "overrides": {
       "stacktracey": "file:./stacktracey.tgz"
@@ -33,16 +34,14 @@
       }
     }
   },
-  "exports": {
-    "default": "./index.ts"
-  },
   "scripts": {
     "test:lint": "eslint",
     "test:specs": "vitest",
     "test:types": "tsc -b"
   },
+  "type": "module",
+  "version": "0.7.4",
   "starbeam": {
-    "type": "library",
     "inline": [
       "stacktracey",
       "get-source",
@@ -51,6 +50,7 @@
       "as-table",
       "printable-characters",
       "chalk"
-    ]
+    ],
+    "type": "library"
   }
 }

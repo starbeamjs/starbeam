@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
+ 
 import { reactive } from "@starbeam/js";
 import { create } from "@starbeam/preact";
 import type { JSX } from "preact";

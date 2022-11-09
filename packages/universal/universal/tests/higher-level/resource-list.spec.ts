@@ -1,11 +1,12 @@
+import { DisplayStruct } from "@starbeam/debug";
 import { reactive } from "@starbeam/js";
 import {
   type ResourceBlueprint,
-  FormulaFn,
+  Formula,
   Resource,
   ResourceList,
 } from "@starbeam/universal";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "@starbeam-workspace/test-utils";
 
 interface Item {
   id: number;
@@ -26,6 +27,13 @@ class Subscription {
     });
   }
 
+  [Symbol.for("nodejs.util.inspect.custom")](): object {
+    return DisplayStruct("Subscription", {
+      name: this.name,
+      isActive: this.isActive,
+    });
+  }
+
   connect(): void {
     this.#active = true;
   }
@@ -36,7 +44,7 @@ class Subscription {
 }
 
 describe("ResourceList", () => {
-  test.todo("should update resources", () => {
+  test("should update resources", () => {
     const list: Item[] = reactive.array([
       { id: 1, name: "Tom", location: "NYC" },
       { id: 2, name: "Chirag", location: "NYC" },
@@ -56,7 +64,7 @@ describe("ResourceList", () => {
           subscription.disconnect();
         });
 
-        return FormulaFn(() => ({
+        return Formula(() => ({
           card: `${subscription.name} (${item.location})`,
           subscription: subscription,
         }));
@@ -71,11 +79,7 @@ describe("ResourceList", () => {
 
     const resources = linkables.create({ owner: lifetime });
 
-    function current(): { card: string; subscription: Subscription }[] {
-      return resources.current.map((resource) => resource.current);
-    }
-
-    expect(current()).toEqual([
+    expect(resources.current.map((r) => r.current)).toEqual([
       { card: "Tom (NYC)", subscription: { name: "Tom", isActive: true } },
       {
         card: "Chirag (NYC)",
@@ -85,12 +89,13 @@ describe("ResourceList", () => {
 
     list.push({ id: 3, name: "John", location: "NYC" });
 
-    let currentResources = current();
+    let currentResources = resources.current.map((r) => r.current);
+
     const tom = currentResources[0]?.subscription;
     const chirag = currentResources[1]?.subscription;
     const john = currentResources[2]?.subscription;
 
-    expect(current()).toEqual([
+    expect(resources.current.map((r) => r.current)).toEqual([
       { card: "Tom (NYC)", subscription: { name: "Tom", isActive: true } },
       {
         card: "Chirag (NYC)",
@@ -106,7 +111,7 @@ describe("ResourceList", () => {
       { id: 2, name: "Chirag", location: "NYC" },
     ]);
 
-    expect(current()).toEqual([
+    expect(resources.current.map((r) => r.current)).toEqual([
       { card: "Tom (NYC)", subscription: { name: "Tom", isActive: true } },
       {
         card: "Chirag (NYC)",
@@ -123,12 +128,12 @@ describe("ResourceList", () => {
       { id: 1, name: "Tom", location: "NYC" },
     ]);
 
-    currentResources = current();
+    currentResources = resources.current.map((r) => r.current);
 
     expect(currentResources[0]?.subscription).toBe(chirag);
     expect(currentResources[1]?.subscription).toBe(tom);
 
-    expect(resources.current).toEqual([
+    expect(currentResources).toEqual([
       {
         card: "Chirag (NYC)",
         subscription: { name: "Chirag", isActive: true },

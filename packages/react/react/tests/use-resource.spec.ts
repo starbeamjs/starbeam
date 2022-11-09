@@ -4,43 +4,18 @@ import { entryPoint } from "@starbeam/debug";
 import { use, useProp } from "@starbeam/react";
 import { Reactive } from "@starbeam/timeline";
 import { type ResourceBlueprint, Cell, Resource } from "@starbeam/universal";
-import {
-  html,
-  react,
-  testStrictAndLoose,
-} from "@starbeam-workspace/react-test-utils";
+import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
 import { beforeEach, describe, expect } from "vitest";
 
 import { Channel } from "./support/channel.js";
 
-function ChannelResource(
-  name: Reactive<string> | string
-): ResourceBlueprint<string | undefined> {
-  const reactive = Reactive.from(name);
-
-  return Resource((r) => {
-    const lastMessage = Cell<string | undefined>(undefined, "last message");
-
-    const c = Channel.subscribe(reactive.read());
-    c.onMessage((message) => {
-      lastMessage.set(message);
-    });
-
-    r.on.cleanup(() => {
-      c.cleanup();
-    });
-
-    return lastMessage;
-  }, "ChannelResource");
-}
-
 describe("useResource", () => {
   beforeEach(Channel.reset);
 
-  testStrictAndLoose<{ name: string }, string | null | undefined>(
+  testReact<{ name: string }, string | null | undefined>(
     "using useProp",
-    async (mode, test) => {
-      const result = await test
+    async (root) => {
+      const result = await root
         .expectHTML((message) => `<span>${message ?? "loading"}</span>`)
         .render(
           (state, props) => {
@@ -100,10 +75,10 @@ describe("useResource", () => {
     }
   );
 
-  testStrictAndLoose<{ name: string }, string | null | undefined>(
+  testReact<{ name: string }, string | null | undefined>(
     "using a dependency array",
-    async (mode, test) => {
-      const result = await test
+    async (root) => {
+      const result = await root
         .expectHTML((message) => `<span>${message ?? "loading"}</span>`)
         .render(
           (state, { name }) => {
@@ -159,116 +134,95 @@ describe("useResource", () => {
 
       await result.unmount();
       expect(channel?.isActive).toBe(false);
+      expect(Channel.latest()).toBe(undefined);
     }
   );
 
-  // testStrictAndLoose.loose<{ name: string }, string | null | undefined>(
-  //   "using a dependency array",
-  //   async (mode, test) => {
-  //     const result = await test
-  //       .expectHTML((message) => `<span>${message ?? "loading"}</span>`)
-  //       .render(
-  //         (test, { name }) => {
-  //           const message = useResource(
-  //             () => ChannelResource(name),
-  //             { initial: null },
-  //             [name]
-  //           );
+  testReact<{ name: string }, string | null | undefined>(
+    "the resource is created when the component is mounted, and effects run",
+    async (root) => {
+      const result = await root
+        .expectHTML((message) => `<span>${message ?? "loading"}</span>`)
+        .render(
+          (state, { name }) => {
+            const message = use(() => ChannelResource(name), [name]);
 
-  //           test.value(message);
+            if (state.renderCount === 0) {
+              expect(Channel.latest()).toBe(undefined);
+            }
 
-  //           return react.fragment(html.span(message ?? "loading"));
-  //         },
-  //         { name: "test" }
-  //       );
+            state.value(message);
 
-  //     function send(message: string) {
-  //       return entryPoint((): void => {
-  //         const latest = Channel.latest();
+            return react.fragment(html.span(message ?? "loading"));
+          },
+          { name: "test" }
+        );
 
-  //         if (latest === undefined) {
-  //           // expect(latest).not.toBeUndefined();
-  //           return;
-  //         }
+      function send(message: string): void {
+        entryPoint((): void => {
+          const latest = Channel.latest();
 
-  //         Channel.sendMessage(latest, message);
-  //       });
-  //     }
+          if (latest === undefined) {
+            expect(latest).not.toBeUndefined();
+            return;
+          }
 
-  //     let channel = Channel.latest();
-  //     // expect(channel).not.toBeUndefined();
+          Channel.sendMessage(latest, message);
+        });
+      }
 
-  //     expect(result.value).toBe(undefined);
-  //     await result.act(() => send("first message"));
-  //     await result.rerender();
-  //     expect(result.value).toEqual("first message");
+      let channel = Channel.latest();
+      expect(channel).not.toBeUndefined();
 
-  //     await result.act(() => send("second message"));
-  //     expect(result.value).toEqual("second message");
+      expect(result.value).toBe(undefined);
+      await result.act(() => {
+        send("first message");
+      });
 
-  //     await result.rerender({ name: "test2" });
-  //     expect(channel?.isActive).toBe(false);
+      await result.rerender();
+      expect(result.value).toEqual("first message");
 
-  //     channel = Channel.latest();
-  //     expect(channel).not.toBeUndefined();
-  //     expect(channel?.isActive).toBe(true);
+      await result.act(() => {
+        send("second message");
+      });
+      expect(result.value).toEqual("second message");
 
-  //     await result.act(() => send("third message"));
-  //     expect(result.value).toEqual("third message");
+      await result.rerender({ name: "test2" });
+      expect(channel?.isActive).toBe(false);
 
-  //     await result.unmount();
-  //     expect(channel?.isActive).toBe(false);
-  //   }
-  // );
+      channel = Channel.latest();
+      expect(channel).not.toBeUndefined();
+      expect(channel?.isActive).toBe(true);
 
-  // testStrictAndLoose.skip<{ name: string }, string | null>(
-  //   "using reactive inputs",
-  //   async (mode, test) => {
-  //     const result = await test
-  //       .expectHTML((message) => `<span>${message ?? "loading"}</span>`)
-  //       .render(
-  //         (test, { name }) => {
-  //           const channelName = useProp(name);
-  //           const message = useResource(
-  //             () => ChannelResource(channelName.current),
-  //             []
-  //           );
+      await result.act(() => {
+        send("third message");
+      });
+      expect(result.value).toEqual("third message");
 
-  //           test.value(message);
-
-  //           return react.fragment(html.span(message ?? "loading"));
-  //         },
-  //         { name: "test" }
-  //       );
-
-  //     function send(message: string) {
-  //       return entryPoint((): void => {
-  //         const latest = Channel.latest();
-
-  //         if (latest === undefined) {
-  //           expect(latest).not.toBeUndefined();
-  //           return;
-  //         }
-
-  //         TIMELINE.enqueueAction(() => {
-  //           Channel.sendMessage(latest, message);
-  //         });
-  //       });
-  //     }
-
-  //     const channel = Channel.latest();
-  //     expect(channel).not.toBeUndefined();
-
-  //     expect(result.value).toBe(null);
-  //     await result.rerender();
-  //     await result.act(() => send("first message"));
-  //     expect(result.value).toEqual("first message");
-
-  //     await result.act(() => send("second message"));
-  //     expect(result.value).toEqual("second message");
-
-  //     await result.rerender({ name: "test2" });
-  //     expect(channel?.isActive).toBe(false);
-  //   }
-  // );
+      await result.unmount();
+      expect(channel?.isActive).toBe(false);
+      expect(Channel.latest()).toBe(undefined);
+    }
+  );
 });
+
+function ChannelResource(
+  name: Reactive<string> | string
+): ResourceBlueprint<string | undefined> {
+  const reactive = Reactive.from(name);
+
+  return Resource((r) => {
+    const lastMessage = Cell<string | undefined>(undefined, "last message");
+
+    const c = Channel.subscribe<string | undefined>(reactive.read());
+    c.onMessage((message) => {
+      lastMessage.set(message);
+    });
+
+    r.on.cleanup(() => {
+      c.cleanup();
+    });
+
+    return lastMessage;
+  }, "ChannelResource");
+}

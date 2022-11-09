@@ -1,6 +1,6 @@
 import js from "@starbeam/js";
 import { create } from "@starbeam/preact";
-import { FormulaFn } from "@starbeam/universal";
+import { Formula } from "@starbeam/universal";
 import type { JSX } from "preact";
 
 import { formatLocale, SYSTEM_LOCALE, SYSTEM_TZ } from "../intl.js";
@@ -31,14 +31,14 @@ export default function DateFormatterStarbeam(): JSX.Element {
   );
 }
 
-function Clock(): FormulaFn<{ formatted: string; refresh: () => void }> {
+function Clock(): Formula<{ formatted: string; refresh: () => void }> {
   const date = js.object({ now: new Date() });
 
   function refresh(): void {
     date.now = new Date();
   }
 
-  return FormulaFn(() => {
+  return Formula(() => {
     return {
       formatted: formatTime(date.now, {
         timeZone: SYSTEM_TZ,

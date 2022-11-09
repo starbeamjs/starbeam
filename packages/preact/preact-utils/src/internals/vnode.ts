@@ -9,7 +9,6 @@ import {
 import { DisplayStruct } from "../inspect.js";
 import type { InternalPreactElement, InternalSource } from "../interfaces.js";
 import { isProbablyVNode } from "../internals.js";
-// eslint-disable-next-line import/no-cycle
 import {
   type InternalPreactComponent,
   InternalComponent,
@@ -22,12 +21,12 @@ const INITIAL_ID = 0;
 export class InternalVNode {
   #delete = {
     parent: (): void => {
-      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+       
       delete this.#vnode[KEYS._parent];
     },
 
     depth: (): void => {
-      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+       
       delete this.#vnode[KEYS._depth];
     },
   } as const;

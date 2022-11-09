@@ -1,14 +1,14 @@
 {
   "private": true,
-  "name": "@starbeam-tests/shared",
-  "version": "1.0.0",
-  "type": "module",
   "dependencies": {
     "@starbeam/shared": "workspace:^"
   },
+  "name": "@starbeam-tests/shared",
   "scripts": {
     "test:lint": "eslint",
     "test:types": "tsc -b"
   },
+  "type": "module",
+  "version": "1.0.0",
   "starbeam:type": "tests"
 }

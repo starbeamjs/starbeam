@@ -1,14 +1,18 @@
 {
-  "name": "@starbeamx/vanilla",
-  "description": "A renderer for Starbeam using Vanilla JavaScript",
-  "version": "0.7.4",
-  "type": "module",
-  "main": "index.ts",
   "dependencies": {
-    "@starbeam/universal": "workspace:^",
     "@starbeam/debug": "workspace:^",
-    "@starbeam/timeline": "workspace:^"
+    "@starbeam/timeline": "workspace:^",
+    "@starbeam/universal": "workspace:^"
   },
+  "description": "A renderer for Starbeam using Vanilla JavaScript",
+  "devDependencies": {
+    "@starbeam-workspace/build-support": "workspace:^"
+  },
+  "exports": {
+    "default": "./index.ts"
+  },
+  "main": "index.ts",
+  "name": "@starbeamx/vanilla",
   "publishConfig": {
     "main": "dist/index.cjs",
     "types": "dist/index.d.ts",
@@ -20,16 +24,12 @@
       }
     }
   },
-  "exports": {
-    "default": "./index.ts"
-  },
-  "devDependencies": {
-    "@starbeam-workspace/build-support": "workspace:^"
-  },
   "scripts": {
     "test:lint": "eslint",
     "test:specs": "vitest",
     "test:types": "tsc -b"
   },
+  "type": "module",
+  "version": "0.7.4",
   "starbeam:type": "library"
 }

@@ -14,36 +14,18 @@ export function getCurrentComponent(): InternalComponent {
 }
 
 export const setup = Plugin((on) => {
-  on.root((vnode, parent) => {
-    debug("root", { vnode, parent, raw: vnode.raw });
+  on.root((_, parent) => {
     ROOTS.current = parent;
   });
 
-  on.unroot((parent) => {
-    debug("unroot", { parent, component: ROOTS.get(parent) });
-  });
-
   on.vnode((vnode) => {
-    debug(`vnode [${vnode.id}]`, {
-      type: vnode.type,
-      children: vnode.children,
-    });
-
-    const updated = vnode.processChildren((child) => {
+    vnode.processChildren((child) => {
       if (Reactive.is(child)) {
         return String(child.read());
       } else {
         return child;
       }
     });
-
-    if (updated) {
-      debug("vnode:update", vnode.props.children);
-    }
-  });
-
-  on.diff((component) => {
-    debug("diff", component);
   });
 
   on.component.willRender((component) => {
@@ -52,7 +34,6 @@ export const setup = Plugin((on) => {
       component.context[STARBEAM] = component;
     }
 
-    debug("willRender", { component });
     CONTEXT.app = component.context[STARBEAM] as InternalComponent;
 
     ComponentFrame.start(
@@ -66,8 +47,6 @@ export const setup = Plugin((on) => {
   });
 
   on.component.didRender((component) => {
-    debug("didRender", component);
-
     if (ComponentFrame.isRenderingComponent(component)) {
       ComponentFrame.end(component, () => {
         component.notify();
@@ -76,8 +55,6 @@ export const setup = Plugin((on) => {
   });
 
   on.component.unmount((component) => {
-    debug("unmount", { component, vnode: component.vnode });
-
     ComponentFrame.unmount(component);
     LIFETIME.finalize(component);
   });
@@ -88,56 +65,6 @@ function componentName(component: ComponentType<unknown> | string): string {
     return component;
   } else {
     return component.name;
-  }
-}
-
-async function Debug(): Promise<(name: string, value: unknown) => void> {
-  const Module = (await import("node:module")).Module;
-  const require = Module.createRequire(import.meta.url);
-  const inspect = (require("util") as typeof import("util")).inspect;
-  const chalk = (await import("chalk")).default;
-
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  if (false) {
-    return (name, value) => {
-      console.log(
-        chalk.magenta(name),
-        inspect(value, { customInspect: true, depth: null })
-      );
-      // console.group(name);
-      // console.debug(value);
-      // console.groupEnd();
-    };
-  } else if (import.meta.env.STARBEAM_TRACE) {
-    const Module = (await import("node:module")).Module;
-    const require = Module.createRequire(import.meta.url);
-    const inspect = (require("util") as typeof import("util")).inspect;
-    const chalk = (await import("chalk")).default;
-
-    return (name: string, value: unknown): void => {
-      console.log(`${chalk.cyan(`> `)}${chalk.cyan.underline(name)}`);
-
-      const inspected = inspect(value, {
-        depth: Infinity,
-        colors: true,
-        customInspect: true,
-      });
-
-      if (inspected.includes("\n")) {
-        console.log(
-          inspected
-            .split("\n")
-            .map((line) => `  ${chalk.dim("|")} ${chalk.dim(line)}`)
-            .join("\n") + "\n"
-        );
-      } else {
-        console.log(`  ${chalk.dim(inspected)}\n`);
-      }
-    };
-  } else {
-    return () => {
-      /* noop */
-    };
   }
 }
 
@@ -183,5 +110,3 @@ class Roots {
 }
 
 const ROOTS = new Roots();
-
-const debug = await Debug();

@@ -1,0 +1,9 @@
+{
+  "extends": "../.config/tsconfig/tsconfig.shared.json",
+  "compilerOptions": {
+    "composite": true,
+    "types": ["../packages/env"],
+    "outDir": "../dist/workspace"
+  },
+  "include": ["*/*/index.*", "*/*/src/**/*", "*/index.*", "*/src/**/*"]
+}

@@ -1,0 +1,16 @@
+{
+  "root": false,
+  "parserOptions": {
+    "project": "workspace/@domtree/minimal/tsconfig.json"
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/*"
+      ],
+      "extends": [
+        "plugin:@starbeam/tight"
+      ]
+    }
+  ]
+}

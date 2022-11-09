@@ -44,14 +44,16 @@ export interface ReactiveProtocol<
 }
 
 export interface ReactiveCore<
-  T,
+  T = unknown,
   I extends ReactiveInternals = ReactiveInternals
 > extends ReactiveProtocol<I> {
   read: (stack?: Stack) => T;
 }
 
-export interface Reactive<T, I extends ReactiveInternals = ReactiveInternals>
-  extends ReactiveCore<T, I> {
+export interface Reactive<
+  out T,
+  I extends ReactiveInternals = ReactiveInternals
+> extends ReactiveCore<T, I> {
   readonly current: T;
 }
 

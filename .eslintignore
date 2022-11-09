@@ -3,15 +3,11 @@ coverage
 node_modules
 **/node_modules
 
-# These paths are either already built (and will error due to the type-aware lints not having the paths included in the tsconfig.json)
-# or are not built at all (except maybe by vite), and excluded from tsconfig.json
-# In any case, excluding paths from tsconfig.json makes them unlintable with
-# the type-aware lints.
-@types/@domtree/**/*.js
-@types/@domtree/**/*.d.ts
 packages/x-devtools-extension
 
 scripts/**/*.d.ts
 !scripts
 
 demos/*/vite.config.d.ts
+
+!.vscode

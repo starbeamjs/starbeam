@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
-    "declarationMap": true,
-    "declarationDir": "dist/types",
-    "declaration": true,
-    "outDir": "dist/packages",
     "composite": true,
-    "types": ["packages/env"],
-    "skipLibCheck": true
+    "declaration": true,
+    "declarationDir": "dist/types",
+    "declarationMap": true,
+    "outDir": "dist/packages",
+    "skipLibCheck": true,
+    "types": ["packages/env"]
   },
+  "exclude": ["dist/**/*"],
 
   "files": [],
   "references": [
@@ -19,7 +20,6 @@
     { "path": "./.build/tsconfig.json" },
     { "path": "./scripts/tsconfig.json" },
     { "path": "./tsconfig.root.json" },
-    { "path": "./.config/eslint/tsconfig.json" }
-  ],
-  "exclude": ["dist/**/*"]
+    { "path": "./workspace/tsconfig.json" }
+  ]
 }

@@ -1,5 +1,5 @@
-import { useReactive, useReactiveResource } from "@starbeam/react";
-import { Cell, Resource } from "@starbeam/universal";
+import { useReactive, useResource } from "@starbeam/react";
+import { type ResourceBlueprint, Cell, Resource } from "@starbeam/universal";
 import { Portal } from "react-portal";
 
 import { getDailyValues, getTickerDetails } from "../lib/api/api.js";
@@ -17,14 +17,16 @@ export function StockDetails({
   ticker: string;
   onClose: () => void;
 }): JSX.Element {
-  const query = useReactiveResource(() => getStock(ticker), [ticker]);
+  const query = useResource(() => getStock(ticker), [ticker]);
 
   async function follow(): Promise<void> {
-    const stock = query.current.stock;
+    const state = query.current;
 
-    if (!stock) {
+    if (state === undefined || state.stock === null) {
       return;
     }
+
+    const { stock } = state;
 
     const response = await getDailyValues(ticker);
     const data: Stock = {
@@ -37,14 +39,16 @@ export function StockDetails({
   }
 
   return useReactive(() => {
-    const { stock } = query.current;
+    const state = query.current;
+
+    const { stock } = state ?? {};
 
     return (
       <Portal>
-        <button className={styles.cover} onClick={onClose} />
+        <button className={styles["cover"]} onClick={onClose} />
 
         <button
-          className={styles.modal}
+          className={styles["modal"]}
           onClick={(event) => {
             event.stopPropagation();
           }}
@@ -96,7 +100,7 @@ export function StockDetails({
                 </section>
 
                 <footer>
-                  <button onClick={follow}>Follow</button>
+                  <button onClick={() => void follow()}>Follow</button>
                 </footer>
               </>
             )}
@@ -107,27 +111,26 @@ export function StockDetails({
   });
 }
 
-function getStock(ticker: string) {
-  return Resource((resource) => {
-    const state = Cell("idle" as "idle" | "loading" | "loaded" | "error");
+function getStock(ticker: string): ResourceBlueprint<{
+  state: "loading" | "idle" | "loaded" | "error";
+  stock: Stock | null;
+}> {
+  return Resource(() => {
+    const state = Cell("loading" as "idle" | "loading" | "loaded" | "error");
     const stock = Cell(null as null | Stock);
 
-    resource.on.setup(() => {
-      state.set("loading");
+    getTickerDetails(ticker)
+      .then((data) => {
+        state.set("loaded");
+        stock.set(data);
+      })
+      .catch(() => {
+        state.set("error");
+      });
 
-      getTickerDetails(ticker)
-        .then((data) => {
-          state.set("loaded");
-          stock.set(data);
-        })
-        .catch(() => {
-          state.set("error");
-        });
-    });
-
-    return () => ({
+    return {
       state: state.current,
       stock: stock.current,
-    });
+    };
   });
 }

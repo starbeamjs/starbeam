@@ -1,5 +1,5 @@
 import { reactive } from "@starbeam/js";
-import { FormulaFn } from "@starbeam/universal";
+import { Formula } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 
 import { Invalidation } from "./support.js";
@@ -11,8 +11,8 @@ describe("TrackedArray", () => {
     const array = reactive.array<string>([]);
     expect(array.length).toBe(0);
 
-    const size = FormulaFn(() => `The array has ${array.length} items`);
-    const isEmpty = FormulaFn(() => array.length === 0);
+    const size = Formula(() => `The array has ${array.length} items`);
+    const isEmpty = Formula(() => array.length === 0);
 
     expect(size.current).toBe("The array has 0 items");
     expect(isEmpty.current).toBe(true);

@@ -1,87 +1,166 @@
 {
+  "private": true,
   "name": "@starbeam-workspace/root",
   "version": "1.0.0",
   "type": "module",
-  "types": "src/index.ts",
   "main": "src/index.ts",
-  "private": true,
-  "license": "MIT",
+  "types": "src/index.ts",
   "exports": {
     "./package.json": "./package.json"
   },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts"
+  },
+  "starbeam": {
+    "type": "root",
+    "used": [
+      {
+        "packages": [
+          "eslint-config-airbnb"
+        ],
+        "reason": "vscode eslint pulled in depcheck's .eslintrc.yml"
+      },
+      {
+        "packages": [
+          "@types/eslint"
+        ],
+        "reason": "eslint"
+      },
+      {
+        "packages": [
+          "@babel/plugin-proposal-decorators",
+          "@babel/plugin-syntax-dynamic-import",
+          "@babel/plugin-transform-runtime",
+          "@babel/preset-env",
+          "@babel/preset-typescript",
+          "@babel/preset-react"
+        ],
+        "reason": "babel"
+      },
+      {
+        "packages": [
+          "vitest",
+          "@vitest/ui",
+          "happy-dom",
+          "jsdom"
+        ],
+        "reason": "vitest and dependencies it uses directly are in the root package so that vitest can identify its own test suites when the entire suite is run at once"
+      },
+      {
+        "packages": [
+          "@changesets/cli"
+        ],
+        "reason": ".changeset/config.json"
+      },
+      {
+        "packages": [
+          "esno"
+        ],
+        "reason": "package.json scripts"
+      },
+      {
+        "packages": [
+          "typescript",
+          "tslib",
+          "@babel/runtime"
+        ],
+        "reason": "build packages"
+      },
+      {
+        "packages": [
+          "vite"
+        ],
+        "reason": "tsconfig.shared.json"
+      }
+    ]
+  },
   "scripts": {
     "build": "esno ./scripts/index.ts build",
-    "prepack": "pnpm run build",
-    "dev": "esno ./scripts/index.ts",
+    "check:unused": "esno ./scripts/index.ts unused",
     "demo": "esno ./scripts/index.ts demo",
-    "test:workspace": "esno ./scripts/index.ts test -w -v",
+    "dev": "esno ./scripts/index.ts",
+    "prepack": "pnpm run build",
+    "release": "esno ./scripts/index.ts release",
     "test": "esno ./scripts/index.ts test -v",
     "test:dev": "vitest --mode=development",
+    "test:lint": "eslint",
     "test:prod": "PROD=1 DEV= vitest",
     "test:types": "tsc -b",
-    "test:lint": "eslint",
-    "check:types": "tsc --build",
-    "check:unused": "esno ./scripts/index.ts unused",
-    "check:lint": "eslint . --ext .ts,.tsx",
-    "release": "esno ./scripts/index.ts release",
-    "test:workspace:lint": "eslint --cache -c ./.eslintrc.json --max-warnings=0 --ext .ts,.tsx .",
-    "test:workspace:types": "tsc -b",
-    "test:workspace:specs": "vitest --run"
+    "test:workspace": "esno ./scripts/index.ts test -w -v",
+    "test:workspace:lint": "eslint --cache --max-warnings=0 \"**/*.ts\" \"**/*.tsx\" \"**/*.js\"",
+    "test:workspace:specs": "vitest --run",
+    "test:workspace:types": "tsc -b"
   },
   "dependencies": {
     "@starbeam/core-utils": "workspace:^"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.19.1",
-    "@babel/plugin-proposal-decorators": "^7.20.0",
+    "@babel/plugin-proposal-decorators": "^7.20.2",
     "@babel/plugin-syntax-dynamic-import": "^7.8.3",
     "@babel/plugin-transform-runtime": "^7.19.6",
-    "@babel/preset-env": "^7.19.4",
+    "@babel/preset-env": "^7.20.2",
     "@babel/preset-react": "^7.18.6",
     "@babel/preset-typescript": "^7.18.6",
-    "@babel/runtime": "^7.20.0",
+    "@babel/runtime": "^7.20.1",
     "@changesets/cli": "^2.25.2",
+    "@starbeam/eslint-plugin": "workspace:^",
     "@starbeam-workspace/build-support": "workspace:^",
     "@types/eslint": "*",
     "@types/node": "*",
-    "@typescript-eslint/eslint-plugin": "^5.42.0",
-    "@typescript-eslint/parser": "^5.42.0",
+    "@typescript-eslint/eslint-plugin": "^5.42.2-alpha",
+    "@typescript-eslint/parser": "^5.42.2-alpha",
     "@vitest/ui": "*",
     "eslint": "*",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^8.5.0",
     "eslint-import-resolver-typescript": "^3.5.2",
     "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-json": "^3.1.0",
+    "eslint-plugin-jsonc": "^2.5.0",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-simple-import-sort": "^8.0.0",
     "eslint-plugin-unused-imports": "^2.0.0",
     "esno": "^0.16.3",
     "fast-glob": "^3.2.7",
-    "happy-dom": "^7.6.6",
+    "happy-dom": "^7.6.7",
     "jsdom": "^20.0.2",
     "lint-to-the-future": "^1.3.1",
     "lint-to-the-future-eslint": "^1.0.1",
-    "@starbeam/eslint-plugin": "workspace:^",
     "prettier": "^2.7.1",
     "tslib": "^2.4.1",
     "typescript": "*",
     "vite": "*",
     "vitest": "*"
   },
+  "license": "MIT",
+  "nodemonConfig": {
+    "watch": [
+      "package.json",
+      "pnpm-workspace.yaml",
+      "scripts"
+    ]
+  },
   "pnpm": {
     "overrides": {
-      "typescript": "next",
-      "vite": "3.2.2",
-      "vue": "^3.2.39",
-      "vitest": "0.24.5",
-      "@vitest/ui": "^0.24.5",
-      "rollup": "2.79.1",
-      "@rollup/plugin-commonjs": "^22.0.2",
-      "@rollup/plugin-node-resolve": "^14.1.0",
-      "@types/node": "18.11.8",
-      "eslint": "^8.26.0",
-      "@types/eslint": "^8.4.9"
+      "@rollup/plugin-commonjs": "^23.0.2",
+      "@rollup/plugin-node-resolve": "^15.0.1",
+      "@types/eslint": "^8.4.10",
+      "@types/node": "18.11.9",
+      "@vitest/ui": "^0.25.1",
+      "eslint": "^8.27.0",
+      "rollup": "3.2.5",
+      "typescript": "^4.9.2-rc",
+      "vite": "3.2.3",
+      "vitest": "0.25.1",
+      "vue": "^3.2.39"
     },
     "peerDependencyRules": {
       "allowAny": [
@@ -93,88 +172,7 @@
       }
     }
   },
-  "nodemonConfig": {
-    "watch": [
-      "package.json",
-      "pnpm-workspace.yaml",
-      "scripts"
-    ]
-  },
   "volta": {
-    "node": "18.12.0"
-  },
-  "publishConfig": {
-    "main": "dist/index.cjs",
-    "types": "dist/index.d.ts",
-    "exports": {
-      ".": {
-        "types": "./dist/index.d.ts",
-        "import": "./dist/index.js",
-        "default": "./dist/index.cjs"
-      }
-    }
-  },
-  "starbeam": {
-    "type": "root",
-    "used": [
-      {
-        "reason": "vscode eslint pulled in depcheck's .eslintrc.yml",
-        "packages": [
-          "eslint-config-airbnb"
-        ]
-      },
-      {
-        "reason": "eslint",
-        "packages": [
-          "@types/eslint"
-        ]
-      },
-      {
-        "reason": "babel",
-        "packages": [
-          "@babel/plugin-proposal-decorators",
-          "@babel/plugin-syntax-dynamic-import",
-          "@babel/plugin-transform-runtime",
-          "@babel/preset-env",
-          "@babel/preset-typescript",
-          "@babel/preset-react"
-        ]
-      },
-      {
-        "reason": "vitest and dependencies it uses directly are in the root package so that vitest can identify its own test suites when the entire suite is run at once",
-        "packages": [
-          "vitest",
-          "@vitest/ui",
-          "happy-dom",
-          "jsdom"
-        ]
-      },
-      {
-        "reason": ".changeset/config.json",
-        "packages": [
-          "@changesets/cli"
-        ]
-      },
-      {
-        "reason": "package.json scripts",
-        "packages": [
-          "esno"
-        ]
-      },
-      {
-        "reason": "build packages",
-        "packages": [
-          "typescript",
-          "tslib",
-          "@babel/runtime"
-        ]
-      },
-      {
-        "reason": "tsconfig.shared.json",
-        "packages": [
-          "vite"
-        ]
-      }
-    ]
+    "node": "19.0.1"
   }
 }

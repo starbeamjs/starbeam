@@ -6,8 +6,7 @@
   "overrides": [
     {
       "files": [
-        "index.ts",
-        "src/**/*.ts"
+        "**/*"
       ],
       "extends": [
         "plugin:@starbeam/tight"

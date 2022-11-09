@@ -1,8 +1,15 @@
 {
-  "name": "@starbeam/verify",
-  "type": "module",
+  "dependencies": {
+    "@starbeam/core-utils": "workspace:^"
+  },
+  "devDependencies": {
+    "@starbeam-workspace/build-support": "workspace:^"
+  },
+  "exports": {
+    "default": "./index.ts"
+  },
   "main": "index.ts",
-  "version": "0.7.3",
+  "name": "@starbeam/verify",
   "publishConfig": {
     "main": "dist/index.cjs",
     "types": "dist/index.d.ts",
@@ -14,19 +21,12 @@
       }
     }
   },
-  "exports": {
-    "default": "./index.ts"
-  },
-  "dependencies": {
-    "@starbeam/core-utils": "workspace:^"
-  },
-  "devDependencies": {
-    "@starbeam-workspace/build-support": "workspace:^"
-  },
   "scripts": {
     "test:lint": "eslint",
     "test:specs": "vitest",
     "test:types": "tsc -b"
   },
+  "type": "module",
+  "version": "0.7.3",
   "starbeam:type": "library"
 }

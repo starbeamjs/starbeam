@@ -1,21 +1,15 @@
-import {
-  type ResourceBlueprint,
-  LIFETIME,
-  Resource,
-} from "@starbeam/universal";
+import { LIFETIME, Resource } from "@starbeam/universal";
 import { isPresent, verified } from "@starbeam/verify";
 
-export const TestResource: ResourceBlueprint<TestResourceImpl> = Resource(
-  (r) => {
-    const impl = TestResourceImpl.create();
+export const TestResource = Resource((r) => {
+  const impl = TestResourceImpl.create();
 
-    r.on.cleanup(() => {
-      LIFETIME.finalize(impl);
-    });
+  r.on.cleanup(() => {
+    LIFETIME.finalize(impl);
+  });
 
-    return impl;
-  }
-);
+  return impl;
+});
 
 const INITIAL_ID = 0;
 

@@ -5,12 +5,8 @@
   },
   "overrides": [
     {
-      "files": [
-        "**/*.ts"
-      ],
-      "extends": [
-        "plugin:@starbeam/loose"
-      ]
+      "extends": ["plugin:@starbeam/loose"],
+      "files": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"]
     }
   ]
 }

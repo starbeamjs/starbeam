@@ -8,15 +8,12 @@ import type {
   Stack as StackProtocol,
   StackFrame,
   StackFrameDisplayOptions,
-  // eslint-disable-next-line import/no-duplicates
 } from "@starbeam/interfaces";
-// eslint-disable-next-line import/no-duplicates
 import type * as interfaces from "@starbeam/interfaces";
 import { getID } from "@starbeam/shared";
 import { hasType, isObject, verified } from "@starbeam/verify";
 import { default as StackTracey } from "stacktracey";
 
-// eslint-disable-next-line import/no-cycle
 import { Description } from "./description/impl.js";
 import { inspector } from "./inspect/inspect-support.js";
 import { describeModule } from "./module.js";

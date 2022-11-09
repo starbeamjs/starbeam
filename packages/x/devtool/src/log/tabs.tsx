@@ -13,7 +13,7 @@ export function TabsPane(
   return Pane(into, { Component: Tabs, props: { options }, css });
 }
 
-// eslint-disable-next-line unused-imports/no-unused-vars
+ 
 function Tabs({ options }: { options: DevtoolsOptions }): JSX.Element {
   return (
     <UiPane>

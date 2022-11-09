@@ -1,11 +1,11 @@
 {
-  "extends": "../../../.config/tsconfig/tsconfig.shared.json",
   "compilerOptions": {
-    "declarationMap": true,
-    "declarationDir": "../../dist/types/@starbeamx-draft/devtools-extension",
-    "declaration": true,
-    "outDir": "../../dist/packages/@starbeamx-draft/devtools-extension",
     "composite": true,
+    "declaration": true,
+    "declarationDir": "../../dist/types/@starbeamx-draft/devtools-extension",
+    "declarationMap": true,
+    "outDir": "../../dist/packages/@starbeamx-draft/devtools-extension",
     "types": ["../env"]
-  }
+  },
+  "extends": "../../../.config/tsconfig/tsconfig.shared.json"
 }

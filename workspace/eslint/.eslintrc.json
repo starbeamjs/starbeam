@@ -1,0 +1,12 @@
+{
+  "root": false,
+  "parserOptions": {
+    "project": "workspace/eslint/tsconfig.json"
+  },
+  "overrides": [
+    {
+      "extends": ["plugin:@starbeam/commonjs"],
+      "files": ["./index.js", "./src/**/*.js", "./src/node-ext.d.ts"]
+    }
+  ]
+}

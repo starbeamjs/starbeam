@@ -1,0 +1,16 @@
+{
+  "root": false,
+  "parserOptions": {
+    "project": "@types/@rollup/plugin-node-resolve/tsconfig.json"
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/*"
+      ],
+      "extends": [
+        "plugin:@starbeam/commonjs"
+      ]
+    }
+  ]
+}

@@ -134,6 +134,7 @@ export type ValueType =
   | "cell"
   | "formula"
   | "resource"
+  | "service"
   | "variants";
 
 export type BlueprintType =

@@ -1,5 +1,5 @@
 import { cached, reactive } from "@starbeam/js";
-import { Cell, FormulaFn } from "@starbeam/universal";
+import { Cell, Formula } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 
 describe("A reactive formula", () => {
@@ -7,7 +7,7 @@ describe("A reactive formula", () => {
     const name = Cell("@tomdale");
     const location = Cell("New York");
 
-    const card = FormulaFn(() => `${name.current} (${location.current})`);
+    const card = Formula(() => `${name.current} (${location.current})`);
 
     expect(card()).toBe("@tomdale (New York)");
 
@@ -20,7 +20,7 @@ describe("A reactive formula", () => {
     const name = Cell("@tomdale", "name");
     const location = Cell("New York", "location");
 
-    const card = FormulaFn(
+    const card = Formula(
       () => ({
         name: name.current,
         location: location.current,
@@ -67,7 +67,7 @@ describe("A reactive formula", () => {
     const name = Cell("@tomdale");
     const location = Cell("New York");
 
-    const card = FormulaFn(() => ({
+    const card = Formula(() => ({
       name: name.current,
       location: location.current,
     }));
@@ -103,7 +103,7 @@ describe("A reactive formula", () => {
       { equals: (a, b) => a.name === b.name && a.location === b.location }
     );
 
-    const card = FormulaFn(() => ({
+    const card = Formula(() => ({
       name: person.current.name,
       location: person.current.location,
     }));
@@ -151,8 +151,8 @@ describe("A reactive formula", () => {
     const location = Cell("New York");
     const organization = Cell("LinkedIn");
 
-    const card = FormulaFn(() => `${name.current} (${location.current})`);
-    const complete = FormulaFn(
+    const card = Formula(() => `${name.current} (${location.current})`);
+    const complete = Formula(
       () => `${card.current} at ${organization.current}`
     );
 
@@ -205,7 +205,7 @@ test("Formula using cells", () => {
   const person = new Person("Tom", "USA");
   let counter = 0;
 
-  const formatted = FormulaFn(() => {
+  const formatted = Formula(() => {
     counter++;
     return person.formatted(false);
   });
@@ -244,7 +244,7 @@ test("Formula using the @reactive decorator", () => {
   const person = new Person("Tom", "USA");
   let counter = 0;
 
-  const formatted = FormulaFn(() => {
+  const formatted = Formula(() => {
     counter++;
     return person.formatted(false);
   });

@@ -1,6 +1,6 @@
-import { create, createCell, service, use } from "@starbeam/preact";
+import { create, createCell, use } from "@starbeam/preact";
 import type { Factory, ResourceBlueprint } from "@starbeam/universal";
-import { Cell, Resource } from "@starbeam/universal";
+import { Cell, Resource, service } from "@starbeam/universal";
 import type { JSX } from "preact";
 import { useState } from "preact/hooks";
 

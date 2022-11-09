@@ -34,8 +34,19 @@ export function isEqual<T>(value: T): (other: unknown) => other is T {
 
   return expected.associate(
     verify,
-    expected.toBe(String(value)).butGot(format)
+    expected.toBe(inspect(value)).butGot(format)
   );
+}
+
+function inspect(value: unknown): string {
+  if (isObject(value) && Symbol.for("nodejs.util.inspect.custom") in value) {
+    return JSON.stringify(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+      (value as any)[Symbol.for("nodejs.util.inspect.custom")]()
+    );
+  } else {
+    return JSON.stringify(value);
+  }
 }
 
 export function isNotEqual<T>(

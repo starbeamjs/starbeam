@@ -17,7 +17,7 @@ import type { Reactive } from "@starbeam/interfaces";
 import {
   type ResourceBlueprint,
   Cell,
-  FormulaFn,
+  Formula,
   LIFETIME,
   Resource,
   Wrap,
@@ -168,7 +168,7 @@ describe("use()", () => {
       // intentionally do this at the top level so that the resource constructor is invalidated.
       const currentI = counter.current;
 
-      return FormulaFn(
+      return Formula(
         () => `${next.current} (run = ${currentRun}, i = ${currentI})`,
         "OuterFormula"
       );
@@ -207,7 +207,7 @@ describe("use()", () => {
         cell.set("outer: finalized");
       });
 
-      return FormulaFn(
+      return Formula(
         () =>
           `${cell.current}, ${innerValue.current}, formula-dep: ${formulaDep.current}`,
         "Outer Formula"
@@ -280,7 +280,7 @@ scenario("use(resource)", () => {
       const inner = use(Inner);
       expect(inner).toBe(Inner);
 
-      return FormulaFn(
+      return Formula(
         () => `${inner.current} (run: ${run}, counter: ${deps.counter.current})`
       );
     }, "Outer").root();
@@ -342,7 +342,7 @@ scenario("use(resource)", () => {
         const usedDynamicResource = use(dynamicResource.resource);
         items.push(dynamicResource);
 
-        return FormulaFn(() => ({
+        return Formula(() => ({
           inner: inner.current,
           run,
           counter: deps.counter.current,
@@ -515,7 +515,7 @@ type ResourceStatus = "did construct" | "did cleanup";
 
 interface ResourceState {
   readonly status: ResourceStatus;
-  readonly socket: Socket | undefined;
+  readonly socket: Socket;
   readonly description: string;
 }
 
@@ -548,7 +548,7 @@ function Subscription({
       socket.disconnect();
     });
 
-    return FormulaFn(() => {
+    return Formula(() => {
       return {
         status: status.current,
         socket,

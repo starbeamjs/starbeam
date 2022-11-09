@@ -31,7 +31,7 @@ export function DelegateInternals(
 
 export function Wrap<
   T extends Record<PropertyKey, unknown>,
-  U extends interfaces.ReactiveCore<unknown>
+  U extends interfaces.ReactiveCore
 >(reactive: U, value: T, desc?: Description | string): T & U {
   Object.defineProperty(value, REACTIVE, {
     configurable: true,

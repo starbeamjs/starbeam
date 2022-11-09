@@ -4,7 +4,7 @@ export class Context {
   readonly component = new ComponentContext();
 
   #app: object | undefined;
-  #singletons = new SingletonContext();
+  #singletons = new WeakMap<object, SingletonContext>();
 
   set app(app: object) {
     this.#app = app;
@@ -29,7 +29,19 @@ export class Context {
     constructor: (...args: Args) => Ret,
     ...args: Args
   ): Ret {
-    return this.#singletons.create(key, constructor, ...args);
+    return this.#appSingletons.create(key, constructor, ...args);
+  }
+
+  get #appSingletons(): SingletonContext {
+    const app = this.app;
+    let singletons = this.#singletons.get(app);
+
+    if (singletons === undefined) {
+      singletons = new SingletonContext();
+      this.#singletons.set(app, singletons);
+    }
+
+    return singletons;
   }
 }
 

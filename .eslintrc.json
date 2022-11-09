@@ -1,17 +1,40 @@
 {
   "root": true,
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "EXPERIMENTAL_useSourceOfProjectReferenceRedirect": true
-  },
-  "reportUnusedDisableDirectives": false,
-  "settings": {
-    "import/resolver": {
-      "typescript": {}
-    },
-    "import/ignore": ["\\.js\\?script"]
-  },
-  "plugins": ["@starbeam"],
   "ignorePatterns": ["*.cjs"],
-  "rules": {}
+
+  "plugins": ["@starbeam"],
+
+  "overrides": [
+    {
+      "extends": ["plugin:@starbeam/json:parser"],
+      "files": "*.json"
+    },
+    {
+      "extends": ["plugin:@starbeam/json:default"],
+      "files": "*.json",
+      "excludedFiles": [
+        "tsconfig.*",
+        ".eslintrc.json",
+        "package.json",
+        ".vscode/settings.json"
+      ]
+    },
+    {
+      "extends": ["plugin:@starbeam/json:vscode-settings"],
+      "files": [".vscode/settings.json"]
+    },
+    {
+      "extends": ["plugin:@starbeam/json:tsconfig"],
+      "files": ["**/tsconfig.*.json", "**/tsconfig.json"]
+    },
+    {
+      "extends": ["plugin:@starbeam/json:eslintrc"],
+      "files": "**/.eslintrc.json"
+    },
+    {
+      "extends": ["plugin:@starbeam/json:package"],
+      "files": ["**/package.json"]
+    }
+  ],
+  "reportUnusedDisableDirectives": true
 }

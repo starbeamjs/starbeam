@@ -2,7 +2,7 @@ import { type Description, descriptionFrom } from "@starbeam/debug";
 import type { Unsubscribe } from "@starbeam/timeline";
 import { TIMELINE } from "@starbeam/timeline";
 
-import { FormulaFn } from "./reactive-core/formula/formula.js";
+import { Formula } from "./reactive-core/formula/formula.js";
 
 export const DEBUG_RENDERER = {
   render<T>(
@@ -15,7 +15,7 @@ export const DEBUG_RENDERER = {
     },
     description?: Description | string
   ): Unsubscribe {
-    const formula = FormulaFn(
+    const formula = Formula(
       render,
       descriptionFrom({
         type: "renderer",

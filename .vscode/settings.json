@@ -1,67 +1,70 @@
 {
-  "eslint.enable": true,
-  "eslint.lintTask.enable": true,
-  "eslint.format.enable": true,
-  "eslint.lintTask.options": "--cache -c ./.eslintrc.json --max-warnings=0 --ext .ts,.tsx packages demos scripts .build @types",
+  "[ignore][dotenv][shellscript]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+  },
 
-  "explorer.excludeGitIgnore": true,
-
-  "search.exclude": {
-    "**/node_modules": true,
-    "**/bower_components": true,
-    "**/*.code-search": true,
-    "**/dist": true,
-    "pnpm-lock.yaml": true,
-    "**/CHANGELOG.md": true
+  "[json][jsonc]": {
+    "editor.formatOnSave": false,
+    "editor.codeActionsOnSave": ["source.fixAll.eslint"]
   },
 
   "[typescript][typescriptreact][javascript][javascriptreact]": {
     "editor.formatOnSave": false,
-    "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": true
-    }
-  },
-  "[json][jsonc]": {
-    "editor.formatOnSave": true,
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.codeActionsOnSave": [
+      "source.fixAll.eslint",
+      "source.formatDocument"
+    ]
   },
 
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  "eslint.codeActionsOnSave.mode": "all",
+  "eslint.enable": true,
+  "eslint.format.enable": true,
+  "eslint.lintTask.enable": true,
+  "eslint.lintTask.options": "--cache -c ./.eslintrc.json --max-warnings=0 \"**/*.ts\" \"**/*.tsx\" \"**/*.json\"",
+  "eslint.onIgnoredFiles": "warn",
+  "eslint.quiet": false,
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "json",
+    "jsonc",
+    "html"
+  ],
+
+  "explorer.excludeGitIgnore": true,
   "explorer.fileNesting.patterns": {
-    "*.ts": "${capture}.js",
-    "*.js": "${capture}.js.map, ${capture}.min.js, ${capture}.d.ts, ${capture}.d.ts.map",
     "*.cjs": "${capture}.cjs.map, ${capture}.min.cjs, ${capture}.d.cts, ${capture}.d.cts.map",
+    "*.js": "${capture}.js.map, ${capture}.min.js, ${capture}.d.ts, ${capture}.d.ts.map",
     "*.jsx": "${capture}.js",
+    "*.ts": "${capture}.js",
     "*.tsx": "${capture}.jsx, ${capture}.js",
-    "tsconfig.json": "tsconfig.*.json, tsconfig-*.json, *.tsbuildinfo",
-    "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, .pnpm-debug.log, .editorconfig, .gitignore, .npmrc, .quokka, pnpm-workspace.yaml",
     ".eslintrc.cjs": ".eslint*, eslintrc*, .eslintignore, .eslintcache",
+    "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, .pnpm-debug.log, .editorconfig, .gitignore, .npmrc, .quokka, pnpm-workspace.yaml",
+    "tsconfig.json": "tsconfig.*.json, tsconfig-*.json, *.tsbuildinfo",
     "vite.config.ts": "rollup.config.*, .env.*"
   },
-  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
-  "vitest.enable": false,
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.preferences.importModuleSpecifier": "project-relative",
-  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+
   "json.schemas": [
     {
       "fileMatch": ["manifest.json"],
       "url": "https://json.schemastore.org/chrome-manifest"
     }
   ],
-  "[ignore]": {
-    "editor.defaultFormatter": "foxundermoon.shell-format"
+
+  "search.exclude": {
+    "**/CHANGELOG.md": true,
+    "pnpm-lock.yaml": true
   },
-  "[dotenv]": {
-    "editor.defaultFormatter": "foxundermoon.shell-format"
-  },
-  "[shellscript]": {
-    "editor.defaultFormatter": "foxundermoon.shell-format"
-  },
-  "[postcss]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[svelte]": {
-    "editor.defaultFormatter": "SimonSiefke.prettier-vscode"
-  },
-  "testing.automaticallyOpenPeekView": "never"
+
+  "testing.automaticallyOpenPeekView": "never",
+
+  "typescript.preferences.importModuleSpecifier": "project-relative",
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+
+  "vitest.enable": false
 }

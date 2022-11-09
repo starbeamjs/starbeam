@@ -23,7 +23,7 @@
     "test:types": "tsc -b"
   },
   "starbeam": {
-    "type": "interfaces",
+    "type": "library:interfaces",
     "source": "d.ts"
   }
 }

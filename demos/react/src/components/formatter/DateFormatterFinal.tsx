@@ -1,6 +1,10 @@
 import js from "@starbeam/js";
-import { useCell, useReactive, useResource } from "@starbeam/react";
-import { type Reactive, Resource } from "@starbeam/universal";
+import { use, useCell, useReactive } from "@starbeam/react";
+import {
+  type Reactive,
+  type ResourceBlueprint,
+  Resource,
+} from "@starbeam/universal";
 
 import {
   formatLocale,
@@ -15,9 +19,7 @@ export default function DateFormatterStarbeam(props: {
 }): JSX.Element {
   const timeZone = useCell(SYSTEM_TZ, "time zone");
 
-  const date = useResource(() => {
-    return Clock(timeZone, props.locale);
-  }, [props.locale]);
+  const date = use(() => Clock(timeZone, props.locale), [props.locale]);
 
   const localeInfo = formatLocale(props.locale);
   return (
@@ -53,31 +55,37 @@ export default function DateFormatterStarbeam(props: {
 function Clock(
   timeZone: Reactive<string> | string,
   locale: Reactive<string> | string
-) {
+): ResourceBlueprint<{ formatted: string; refresh: () => void }> {
   const date = js.object({ now: new Date() });
 
-  function refresh() {
+  function refresh(): void {
     date.now = new Date();
   }
 
-  return Resource((resource) => {
-    resource.on.setup(() => {
-      const interval = setInterval(() => {
-        refresh();
-      }, 1000);
+  return Resource(({ on }) => {
+    const interval = setInterval(() => {
+      refresh();
+    }, 1000);
 
-      return () => {
-        clearInterval(interval);
-      };
+    on.cleanup(() => {
+      clearInterval(interval);
     });
 
-    return () => ({
+    return {
       formatted: formatTime(date.now, {
         timeZone: typeof timeZone === "string" ? timeZone : timeZone.read(),
         locale: typeof locale === "string" ? locale : locale.read(),
       }),
       refresh,
-    });
+    };
+  }).initial(() => {
+    return {
+      formatted: formatTime(date.now, {
+        timeZone: typeof timeZone === "string" ? timeZone : timeZone.read(),
+        locale: typeof locale === "string" ? locale : locale.read(),
+      }),
+      refresh,
+    };
   });
 }
 
@@ -87,7 +95,7 @@ function formatTime(
     locale = SYSTEM_LOCALE,
     timeZone = SYSTEM_TZ,
   }: { locale?: string; timeZone?: string } = {}
-) {
+): string {
   return new Intl.DateTimeFormat(locale, {
     hour: "numeric",
     minute: "numeric",

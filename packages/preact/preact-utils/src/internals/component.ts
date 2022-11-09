@@ -3,7 +3,6 @@ import type { Component, ComponentType } from "preact";
 
 import { DisplayStruct } from "../inspect.js";
 import type { InternalEffect, InternalPreactElement } from "../interfaces.js";
-// eslint-disable-next-line import/no-cycle
 import { type InternalPreactVNode, InternalVNode } from "./vnode.js";
 
 const COMPONENTS = new WeakMap<InternalPreactComponent, InternalComponent>();

@@ -1,12 +1,13 @@
 {
-  "name": "@starbeam/core-utils",
-  "version": "0.7.3",
-  "type": "module",
-  "main": "index.ts",
   "dependencies": {},
   "devDependencies": {
     "@starbeam-workspace/build-support": "workspace:^"
   },
+  "exports": {
+    "default": "./index.ts"
+  },
+  "main": "index.ts",
+  "name": "@starbeam/core-utils",
   "publishConfig": {
     "main": "dist/index.cjs",
     "types": "dist/index.d.ts",
@@ -18,13 +19,12 @@
       }
     }
   },
-  "exports": {
-    "default": "./index.ts"
-  },
   "scripts": {
     "test:lint": "eslint",
     "test:specs": "vitest",
     "test:types": "tsc -b"
   },
+  "type": "module",
+  "version": "0.7.3",
   "starbeam:type": "library"
 }

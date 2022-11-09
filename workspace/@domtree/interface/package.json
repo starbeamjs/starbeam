@@ -1,0 +1,23 @@
+{
+  "name": "@domtree/interface",
+  "version": "0.9.1",
+  "type": "module",
+  "types": "index.d.ts",
+  "publishConfig": {
+    "types": "dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts"
+      }
+    }
+  },
+  "scripts": {
+    "test:lint": "eslint",
+    "test:types": "tsc -b"
+  },
+  "devDependencies": {},
+  "starbeam": {
+    "type": "library:interfaces",
+    "source": "ts"
+  }
+}

@@ -2,9 +2,9 @@ export function Overload<Out, Len extends number = never>(): {
   of: <In extends unknown[], InLen extends number = Len | In["length"]>(
     input: In
   ) => TypedOverload<In, Out, InLen>;
-  resolve: <In extends unknown[]>(
+  resolve: <In extends unknown[], M extends Matcher<In, Out, In["length"]>>(
     input: In,
-    matcher: Matcher<In, Out, In["length"]>
+    matcher: M
   ) => Out;
 } {
   return {

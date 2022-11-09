@@ -1,5 +1,5 @@
 import { ReactiveProtocol } from "@starbeam/timeline";
-import { FormulaFn, TIMELINE, Variants } from "@starbeam/universal";
+import { Formula, TIMELINE, Variants } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 
 interface Bool {
@@ -24,7 +24,7 @@ describe("Variants", () => {
     const Bool = Variants<Bool>();
     const bool = Bool.true();
 
-    const type = FormulaFn(() => bool.current.type);
+    const type = Formula(() => bool.current.type);
     const typeStable = Stability(type);
 
     expect(type.current).toBe("true");
@@ -70,7 +70,7 @@ describe("Variants", () => {
     const Lifecycle = Variants<Lifecycle<number>>("Lifecycle");
     const lifecycle = Lifecycle.idle();
 
-    const advance = FormulaFn(() => {
+    const advance = Formula(() => {
       // this is testing that only a transition from idle or to idle invalidates this formula, and
       // not transitions between other variants. This formula will invalidate if the variant returns
       // to `idle`, since the `lifecycle.is("idle")` check will have changed from `false` to `true`.
@@ -79,7 +79,7 @@ describe("Variants", () => {
       }
     }, "advance");
 
-    const render = FormulaFn((): number | Error | "idle" | "loading" => {
+    const render = Formula((): number | Error | "idle" | "loading" => {
       advance();
 
       if (lifecycle.is("idle")) {
@@ -95,7 +95,7 @@ describe("Variants", () => {
       }
     }, "render");
 
-    const value = FormulaFn(() => {
+    const value = Formula(() => {
       return lifecycle.match({
         loaded: (v) => v,
       });
@@ -166,7 +166,7 @@ describe("Variants", () => {
     const Lifecycle = Variants<Lifecycle<number>>("Lifecycle");
     const lifecycle = Lifecycle.idle();
 
-    const isResolved = FormulaFn(() => {
+    const isResolved = Formula(() => {
       return lifecycle.is("loaded", "error");
     });
 
@@ -224,16 +224,16 @@ function Instrument<T>(
 function Instrument<T>(
   callback: () => T,
   options: { returns: "formula" }
-): (options: { expect: "initialized" | "changed" | "stable" }) => FormulaFn<T>;
+): (options: { expect: "initialized" | "changed" | "stable" }) => Formula<T>;
 function Instrument<T>(
   callback: () => T,
   options?: { returns: "formula" }
 ): (options: {
   expect: "initialized" | "changed" | "stable";
-}) => T | FormulaFn<T> {
+}) => T | Formula<T> {
   let status: "initial" | "initialized" | "changed" | "stable" = "initial";
 
-  const formula = FormulaFn(() => {
+  const formula = Formula(() => {
     if (status === "initial") {
       status = "initialized";
     } else {

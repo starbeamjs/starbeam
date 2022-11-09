@@ -3,7 +3,7 @@ import type { Stack } from "@starbeam/interfaces";
 import { describe, expect, test } from "vitest";
 
 describe("Error stacks", () => {
-  test.skipIf(() => import.meta.env.PROD)("getting the caller", () => {
+  test.runIf(() => import.meta.env.DEV)("getting the caller", () => {
     const anArrow = <T>(next: () => T): T => next();
 
     function aFunction(): Stack {

@@ -1,4 +1,4 @@
-import { expected, isPresent, verify } from "@starbeam/verify";
+import { expected, isEqual, verify } from "@starbeam/verify";
 
 import { type Unsubscribe, ObjectLifetime } from "./object-lifetime.js";
 
@@ -21,13 +21,17 @@ export interface OnCleanup {
 
 class LifetimeAPI {
   readonly #associations = new WeakMap<object, ObjectLifetime>();
+  readonly #roots = new WeakMap<
+    object,
+    { root: object; unlink: Unsubscribe }
+  >();
 
   readonly on = {
     cleanup: (object: object, handler: () => void): Unsubscribe => {
       let lifetime = this.#associations.get(object);
 
       if (!lifetime) {
-        lifetime = ObjectLifetime.create();
+        lifetime = ObjectLifetime.create(object);
         this.#associations.set(object, lifetime);
       }
 
@@ -35,42 +39,15 @@ class LifetimeAPI {
     },
   };
 
-  adopt(oldParent: object, newParent: object, child: object): Unsubscribe {
-    const oldParentLifetime = this.#associations.get(oldParent);
-    const childLifetime = this.#associations.get(child);
-
-    verify(
-      oldParentLifetime,
-      isPresent,
-      expected("a previous parent internal lifetime").when("adopting")
-    );
-
-    verify(
-      childLifetime,
-      isPresent,
-      expected("a previous child internal lifetime").when("adopting")
-    );
-
-    console.log({ before: oldParentLifetime });
-    oldParentLifetime.unlink(childLifetime);
-    console.log({ after: oldParentLifetime });
-    return this.#initialize(newParent).link(childLifetime);
-  }
-
   /**
-   * Finalize an object.
-   *
-   * The second parameter is optional, and allows the caller to pass a callback
-   * that the finalization will run inside of.
-   *
-   * This allows the caller to catch any errors that may occur during
-   * finalization inside of an appropriate context.
+   * Finalize an object. This will run all of the finalizers registered on the
+   * object, then finalize all associated children.
    */
-  finalize(object: object, finalizing?: (block: () => void) => void): void {
+  finalize(object: object): void {
     const lifetime = this.#associations.get(object);
 
     if (lifetime) {
-      ObjectLifetime.finalize(lifetime, finalizing);
+      ObjectLifetime.finalize(lifetime);
     }
   }
 
@@ -78,30 +55,58 @@ class LifetimeAPI {
     let lifetime = this.#associations.get(object);
 
     if (!lifetime) {
-      lifetime = ObjectLifetime.create();
+      lifetime = ObjectLifetime.create(object);
       this.#associations.set(object, lifetime);
     }
 
     return lifetime;
   }
 
-  link(parent: object, child: object): Unsubscribe {
+  link(parent: object, child: object, options?: { root: object }): Unsubscribe {
     const parentLifetime = this.#initialize(parent);
     const childLifetime = this.#initialize(child);
 
-    return parentLifetime.link(childLifetime);
+    if (options?.root) {
+      const existingRoot = this.#roots.get(child);
+
+      if (existingRoot) {
+        verify(
+          existingRoot.root,
+          isEqual(options.root),
+          expected("a root passed to link")
+            .toBe("the same as the previous root")
+            .butGot("a different root")
+        );
+
+        existingRoot.unlink();
+      }
+
+      const unlink = parentLifetime.link(childLifetime);
+      this.#roots.set(child, {
+        root: options.root,
+        unlink,
+      });
+      return unlink;
+    } else {
+      return parentLifetime.link(childLifetime);
+    }
   }
 
   unlink(parent: object, child: object): void {
+    console.group({ unlinking: [parent, child] });
+
     const parentLifetime = this.#associations.get(parent);
 
     if (parentLifetime) {
       const childLifetime = this.#associations.get(child);
 
       if (childLifetime) {
+        console.log("found child lifetime", { parent, child });
         parentLifetime.unlink(childLifetime);
       }
     }
+
+    console.groupEnd();
   }
 }
 

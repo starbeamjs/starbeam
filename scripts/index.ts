@@ -1,24 +1,26 @@
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { version } from "@starbeam-workspace/root/package.json";
 import { program } from "commander";
-import { dirname } from "dirfilename";
-import { resolve } from "path";
 
-import { BuildCommand } from "./build.js";
-import { CheckCommand } from "./check.js";
-import { CleanCommand } from "./clean.js";
-import { DemoCommand } from "./demo.js";
-import { GenerateCommand } from "./generate.js";
-import { LintCommand } from "./lint.js";
-import { ListCommand } from "./list.js";
-import { ReleaseCommand } from "./release.js";
-import { StarbeamCommands } from "./support/commands.js";
-import { OK_EXIT_CODE } from "./support/constants.js";
-import { TemplateCommand } from "./template.js";
-import { TestCommand } from "./test.js";
-import { UnusedCommand } from "./unused.js";
+import { BuildCommand } from "./src/build.js";
+import { CheckCommand } from "./src/check.js";
+import { CleanCommand } from "./src/clean.js";
+import { DemoCommand } from "./src/demo.js";
+import { LintCommand } from "./src/lint.js";
+import { ListCommand } from "./src/list.js";
+import { ReleaseCommand } from "./src/release.js";
+import { StarbeamCommands } from "./src/support/commands.js";
+import { OK_EXIT_CODE } from "./src/support/constants.js";
+import { TemplateCommand } from "./src/template.js";
+import { TestCommand } from "./src/test.js";
+import { UnusedCommand } from "./src/unused.js";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 new StarbeamCommands(
-  resolve(dirname(import.meta), ".."),
+  resolve(__dirname, ".."),
   program
     .name("pnpm dev")
     .description("CLI commands to run from package.json")
@@ -36,7 +38,6 @@ new StarbeamCommands(
   .add(DemoCommand)
   .add(UnusedCommand)
   .add(TemplateCommand)
-  .add(GenerateCommand)
   .add(TestCommand)
   .add(CheckCommand)
   .add(ReleaseCommand)

@@ -175,17 +175,6 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
     );
   }
 
-  // // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  // static attach(element: ReactiveElement, subscription: Subscription): void {
-  //   if (element.#debugLifecycle) {
-  //     const lifecycle = element.#debugLifecycle;
-  //     const listener = subscription.attach(() => {
-  //       invalidate();
-  //     });
-  //     const invalidate = lifecycle(listener, pollable);
-  //   }
-  // }
-
   static layout(element: ReactiveElement): void {
     element.#lifecycle.layout.read();
     TIMELINE.update(element);

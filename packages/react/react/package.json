@@ -1,24 +1,25 @@
 {
-  "name": "@starbeam/react",
-  "type": "module",
-  "main": "index.ts",
-  "version": "0.7.4",
   "dependencies": {
-    "@starbeam/universal": "workspace:^",
-    "@starbeam/debug": "workspace:^",
-    "@starbeam/use-strict-lifecycle": "workspace:^",
     "@starbeam/core-utils": "workspace:^",
-    "@starbeam/verify": "workspace:^",
-    "@starbeam/timeline": "workspace:^",
+    "@starbeam/debug": "workspace:^",
     "@starbeam/js": "workspace:^",
     "@starbeam/modifier": "workspace:^",
-    "@starbeam/shared": "workspace:^"
+    "@starbeam/shared": "workspace:^",
+    "@starbeam/timeline": "workspace:^",
+    "@starbeam/universal": "workspace:^",
+    "@starbeam/use-strict-lifecycle": "workspace:^",
+    "@starbeam/verify": "workspace:^"
   },
   "devDependencies": {
-    "@types/react": "^18.0.9",
     "@domtree/flavors": "workspace:^",
-    "@starbeam-workspace/build-support": "workspace:^"
+    "@starbeam-workspace/build-support": "workspace:^",
+    "@types/react": "^18.0.9"
   },
+  "exports": {
+    "default": "./index.ts"
+  },
+  "main": "index.ts",
+  "name": "@starbeam/react",
   "peerDependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
@@ -34,16 +35,15 @@
       }
     }
   },
-  "exports": {
-    "default": "./index.ts"
-  },
   "scripts": {
     "test:lint": "eslint",
     "test:specs": "vitest",
     "test:types": "tsc -b"
   },
+  "type": "module",
+  "version": "0.7.4",
   "starbeam": {
-    "type": "library",
-    "source": "tsx"
+    "source": "tsx",
+    "type": "library"
   }
 }

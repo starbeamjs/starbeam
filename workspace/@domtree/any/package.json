@@ -1,0 +1,28 @@
+{
+  "name": "@domtree/any",
+  "version": "0.9.1",
+  "type": "module",
+  "types": "index.d.ts",
+  "dependencies": {
+    "@domtree/browser": "workspace:^",
+    "@domtree/interface": "workspace:^",
+    "@domtree/minimal": "workspace:^"
+  },
+  "devDependencies": {},
+  "publishConfig": {
+    "types": "dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts"
+      }
+    }
+  },
+  "scripts": {
+    "test:lint": "eslint",
+    "test:types": "tsc -b"
+  },
+  "starbeam": {
+    "type": "library:interfaces",
+    "source": "d.ts"
+  }
+}

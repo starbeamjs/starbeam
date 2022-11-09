@@ -25,7 +25,7 @@ class Person {
   }
 }
 
-describe.skipIf(() => import.meta.env.PROD)("inspect utilities", () => {
+describe.runIf(() => import.meta.env.DEV)("inspect utilities", () => {
   test("an installed DisplayStruct is used by util.inspect", async () => {
     const util = await import("node:util");
 

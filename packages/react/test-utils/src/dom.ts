@@ -74,7 +74,7 @@ export const html: HtmlProxy = new Proxy(() => {}, {
         return createElement(property, null, ...args);
       } else {
         const [props, ...children] = args;
-        return createElement(property, props, children);
+        return createElement(property, props, ...children);
       }
     };
   },

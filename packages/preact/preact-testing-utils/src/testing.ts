@@ -16,7 +16,10 @@ import { act } from "preact/test-utils";
 import { renderToString } from "preact-render-to-string";
 import { expect, test } from "vitest";
 
-export const html = htm.bind(h);
+export const html = htm.bind(h) as (
+  strings: TemplateStringsArray,
+  ...values: unknown[]
+) => VNode<unknown> | VNode<unknown>[];
 
 export type HtmlNode = ReturnType<typeof html>;
 
@@ -187,7 +190,6 @@ class Render<Args extends RenderProps, T extends Args> {
     );
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   render(...args: T): Render<Args, T> {
     return new Render(
       this.#component,

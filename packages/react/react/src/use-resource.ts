@@ -5,7 +5,7 @@ import {
   type Reactive,
   type ResourceBlueprint,
   Factory,
-  FormulaFn,
+  Formula,
   Marker,
 } from "@starbeam/universal";
 import {
@@ -16,23 +16,66 @@ import {
 import { useNotify } from "./use-reactive.js";
 import { useComponent } from "./use-setup.js";
 
-export type UseFactory<T> = ResourceBlueprint<T> | (() => IntoResource<T>);
+export type UseFactory<T, D extends undefined> =
+  | ResourceBlueprint<T, D>
+  | (() => IntoResource<T>);
 
-export function use<T>(factory: ResourceBlueprint<T>): T | undefined;
 export function use<T>(
-  factory: UseFactory<T>,
-  dependencies: unknown[]
-): T | undefined;
-export function use<T>(
-  factory: UseFactory<T>,
-  options: { initial: T },
-  dependencies: unknown[]
+  factory: ResourceBlueprint<T> | (() => ResourceBlueprint<T>),
+  dependencies?: unknown[]
 ): T;
+// export function use<T>(
+//   factory: ResourceBlueprint<T, UNINITIALIZED>
+// ): T | undefined;
+// export function use<T>(
+//   factory: UseFactory<T, UNINITIALIZED>,
+//   dependencies: unknown[]
+// ): T | undefined;
+// export function use<T>(
+//   factory: UseFactory<T, never>,
+//   dependencies: unknown[]
+// ): T;
+// export function use<T>(
+//   factory: UseFactory<T, UNINITIALIZED> | UseFactory<T, never>,
+//   options: { initial: T },
+//   dependencies: unknown[]
+// ): T;
+
 export function use<T>(
-  factory: UseFactory<T>,
+  factory: UseFactory<T, undefined>,
   options?: { initial: T } | unknown[],
   dependencies?: unknown[]
-): T {
+): T | undefined {
+  const value = createResource(factory, options, dependencies);
+
+  return unsafeTrackedElsewhere(() => value.current);
+}
+
+export function useResource<T>(factory: ResourceBlueprint<T>): T;
+export function useResource<T>(
+  factory: ResourceBlueprint<T, undefined>
+): T | undefined;
+export function useResource<T>(
+  factory: UseFactory<T, undefined>,
+  dependencies: unknown[]
+): Reactive<T | undefined>;
+export function useResource<T>(
+  factory: UseFactory<T, never>,
+  dependencies: unknown[]
+): Reactive<T>;
+export function useResource<T>(
+  factory: UseFactory<T, undefined>,
+  options?: { initial: T } | unknown[],
+  dependencies?: unknown[]
+): Reactive<T | undefined> {
+  return createResource(factory, options, dependencies);
+}
+
+function createResource<T>(
+  factory: UseFactory<T, undefined>,
+  options?: { initial: T } | unknown[],
+  dependencies?: unknown[]
+): Reactive<T | undefined> {
   const owner = useComponent();
   const notify = useNotify();
 
@@ -40,16 +83,16 @@ export function use<T>(
   const initialValue = Array.isArray(options) ? undefined : options?.initial;
   let prev: unknown[] = deps;
 
-  const result = useLifecycle(deps, ({ on }) => {
+  return useLifecycle(deps, ({ on }) => {
     let lastResource: Reactive<T | undefined> | undefined = undefined;
     const marker = Marker();
 
     function create(): void {
       if (lastResource) LIFETIME.finalize(lastResource);
 
-      const created =
+      const created: Reactive<T | undefined> =
         typeof factory === "function"
-          ? Factory.resource(factory(), owner)
+          ? Factory.resource(factory() as IntoResource<T | undefined>, owner)
           : factory.create(owner);
 
       lastResource = created;
@@ -70,7 +113,7 @@ export function use<T>(
       }
     });
 
-    const value = FormulaFn(() => {
+    const value = Formula(() => {
       marker.consume();
       return lastResource?.current ?? initialValue;
     });
@@ -79,88 +122,7 @@ export function use<T>(
 
     return value;
   });
-
-  return unsafeTrackedElsewhere(() => result.current) as T;
 }
-
-// const useResourceConstructor = <T>(
-//   resource: UseResourceConstructor<T>,
-//   deps: Deps | undefined
-// ): ResourceBlueprint<T> => {
-//   if (typeof resource === "function") {
-//     return Resource(({ use, describe }) => {
-//       deps?.consume();
-//       const instance = resource();
-//       describe(instance.description);
-//       return use(instance);
-//     });
-//   } else if (deps) {
-//     return Resource(({ use, describe }) => {
-//       deps?.consume();
-//       describe(resource.description);
-//       return use(resource);
-//     });
-//   } else {
-//     return resource;
-//   }
-// };
-
-// export function useReactiveResource<T>(
-//   resource: UseResourceConstructor<T>,
-//   dependencies?: unknown[]
-// ): Reactive<T> | undefined {
-//   const notify = useNotify();
-
-//   const nextBlueprint: Reactive<ResourceBlueprint<T>> =
-//     typeof resource === "function" ? FormulaFn(resource) : Static(resource);
-
-//   return useLifecycle({ deps: dependencies }, (lifecycle) => {
-//     const owner = {};
-//     let next: { resource: Reactive<T>; cleanup: Unsubscribe } | undefined;
-//     let currentBlueprint = nextBlueprint.current;
-
-//     console.log("render");
-
-//     lifecycle.on.cleanup(() => {
-//       LIFETIME.finalize(owner);
-//     });
-
-//     lifecycle.on.update(({ deps }) => {
-//       const blueprint = nextBlueprint.current;
-//       if (sameDeps(deps, dependencies) && currentBlueprint === blueprint) {
-//         console.log("same");
-//         return;
-//       } else if (next) {
-//         next.cleanup();
-//         LIFETIME.finalize(next.resource);
-//       }
-
-//       currentBlueprint = blueprint;
-//       currentResource = blueprint.create(owner);
-//       Resource.setup(currentResource);
-//     });
-
-//     lifecycle.on.layout(() => {
-//       const resource = nextBlueprint.current.create(owner);
-//       const cleanup = TIMELINE.on.change(resource, notify);
-//       lifecycle.on.cleanup(cleanup);
-//       next = { resource, cleanup };
-//       Resource.setup(resource);
-//       ReactiveProtocol.log(resource);
-//     });
-
-//     return currentResource;
-//   });
-// }
-
-// export function useResource<T, U>(
-//   resource: UseResourceConstructor<T>,
-//   options: { initial: U },
-//   deps?: unknown[]
-// ): T | U {
-//   const instance = useReactiveResource(resource, deps);
-//   return unsafeTrackedElsewhere(() => instance?.current);
-// }
 
 function sameDeps(
   prev: unknown[] | undefined,

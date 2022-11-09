@@ -4,43 +4,28 @@
     {
       "type": "shell",
       "command": "pnpm",
-      "args": [
-        "check:types"
-      ],
-      "problemMatcher": [
-        "$tsc"
-      ],
-      "label": "check:types"
+      "args": ["test:workspace:types"],
+      "problemMatcher": ["$tsc"],
+      "label": "test:workspace:types"
     },
     {
       "type": "shell",
       "command": "pnpm",
-      "args": [
-        "check:types",
-        "-w"
-      ],
-      "problemMatcher": [
-        "$tsc-watch"
-      ],
-      "label": "check:types (watch)"
+      "args": ["test:workspace:types", "-w"],
+      "problemMatcher": ["$tsc-watch"],
+      "label": "test:workspace:types (watch)"
     },
     {
       "type": "shell",
       "command": "pnpm",
-      "args": [
-        "test:workspace:lint"
-      ],
-      "problemMatcher": [
-        "$eslint-stylish"
-      ],
+      "args": ["test:workspace:lint"],
+      "problemMatcher": ["$eslint-stylish"],
       "label": "Lint"
     },
     {
       "type": "shell",
       "command": "pnpm",
-      "args": [
-        "install"
-      ],
+      "args": ["install"],
       "group": "build",
       "problemMatcher": [],
       "presentation": {

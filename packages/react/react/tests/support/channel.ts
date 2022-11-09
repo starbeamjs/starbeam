@@ -3,7 +3,28 @@ import type { Unsubscribe } from "@starbeam/timeline";
 
 const FIRST_ID = 0;
 
-export class Channel {
+export class Channels<Message = string> {
+  readonly reset = Channel.reset;
+
+  readonly subscribe = (name: string): Channel<Message> => {
+    return Channel.subscribe(name);
+  };
+
+  readonly latest = (): Channel<Message> | undefined => {
+    return Channel.latest() as Channel<Message> | undefined;
+  };
+
+  readonly sendMessage = (
+    channel: Channel<Message>,
+    message: Message
+  ): void => {
+    if (channel.isActive) {
+      Channel.sendMessage(channel, message);
+    }
+  };
+}
+
+export class Channel<Message = string> {
   static #active: Channel[] = [];
   static #nextId = FIRST_ID;
 
@@ -11,9 +32,9 @@ export class Channel {
     Channel.#active = [];
   }
 
-  static subscribe(name: string): Channel {
-    const channel = new Channel(Channel.#nextId++, name);
-    Channel.#active.push(channel);
+  static subscribe<Message>(name: string): Channel<Message> {
+    const channel = new Channel<Message>(Channel.#nextId++, name);
+    Channel.#active.push(channel as unknown as Channel);
     return channel;
   }
 
@@ -21,7 +42,10 @@ export class Channel {
     return getLast(Channel.#active);
   }
 
-  static sendMessage(channel: Channel, message: string): void {
+  static sendMessage<Message>(
+    channel: Channel<Message>,
+    message: Message
+  ): void {
     if (channel.isActive) {
       for (const subscriber of channel.#onMessage) {
         subscriber(message);
@@ -31,7 +55,7 @@ export class Channel {
 
   #id: number;
   #name: string;
-  #onMessage = new Set<(message: string) => void>();
+  #onMessage = new Set<(message: Message) => void>();
 
   constructor(id: number, name: string) {
     this.#id = id;
@@ -47,10 +71,10 @@ export class Channel {
   }
 
   get isActive(): boolean {
-    return Channel.#active.includes(this);
+    return Channel.#active.includes(this as unknown as Channel);
   }
 
-  onMessage(callback: (message: string) => void): Unsubscribe {
+  onMessage(callback: (message: Message) => void): Unsubscribe {
     this.#onMessage.add(callback);
 
     return () => {
@@ -59,6 +83,6 @@ export class Channel {
   }
 
   cleanup(): void {
-    removeItem(Channel.#active, this);
+    removeItem(Channel.#active, this as unknown as Channel);
   }
 }

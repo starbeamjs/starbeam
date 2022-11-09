@@ -1,17 +1,17 @@
 {
   "private": true,
-  "name": "@starbeam-tests/x-store",
-  "version": "1.0.0",
-  "type": "module",
   "dependencies": {
+    "@faker-js/faker": "^7.5.0",
     "@starbeam/universal": "workspace:^",
-    "@starbeamx/store": "workspace:^",
     "@starbeam/verify": "workspace:^",
-    "@faker-js/faker": "^7.5.0"
+    "@starbeamx/store": "workspace:^"
   },
+  "name": "@starbeam-tests/x-store",
   "scripts": {
     "test:lint": "eslint",
     "test:types": "tsc -b"
   },
+  "type": "module",
+  "version": "1.0.0",
   "starbeam:type": "tests"
 }

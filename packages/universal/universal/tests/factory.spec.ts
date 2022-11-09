@@ -1,6 +1,6 @@
 import { entryPointFn } from "@starbeam/debug";
 import { Frame, ReactiveProtocol } from "@starbeam/timeline";
-import { Cell, Formula, Reactive, Static } from "@starbeam/universal";
+import { Cell, FormulaValidation, Reactive, Static } from "@starbeam/universal";
 import { describe, expect, test } from "@starbeam-workspace/test-utils";
 
 describe("reactive Factory", () => {
@@ -210,7 +210,7 @@ interface Context<T> {
 }
 
 function TrackingContext<T>(callback: () => T): Context<T> {
-  const formula = Formula(callback);
+  const formula = FormulaValidation(callback);
 
   return {
     get value(): Validation<T> {

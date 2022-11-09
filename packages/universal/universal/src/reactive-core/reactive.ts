@@ -28,7 +28,7 @@ export type Reactive<
 > = TimelineReactive<T, I>;
 
 export class ReactiveBlueprint<T> {
-  static is(value: unknown): value is ReactiveBlueprint<unknown> {
+  static is<T>(value: T | ReactiveBlueprint<T>): value is ReactiveBlueprint<T> {
     return isObject(value) && value instanceof ReactiveBlueprint;
   }
 
@@ -63,4 +63,6 @@ function construct<T>(constructor: ReactiveFactory<T>): T | Reactive<T> {
   }
 }
 
-export type Blueprint<T> = ResourceBlueprint<T> | ReactiveBlueprint<T>;
+export type Blueprint<T, Default extends undefined = never> =
+  | ResourceBlueprint<T, Default>
+  | ReactiveBlueprint<T>;

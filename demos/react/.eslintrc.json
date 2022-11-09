@@ -5,21 +5,12 @@
   },
   "overrides": [
     {
-      "files": [
-        "index.ts{x,}",
-        "src/**/*.ts{x,}"
-      ],
-      "extends": [
-        "plugin:@starbeam/demos"
-      ]
+      "extends": ["plugin:@starbeam/demos"],
+      "files": ["index.ts", "index.tsx", "src/**/*.ts", "src/**/*.tsx"]
     },
     {
-      "files": [
-        "vite.config.ts"
-      ],
-      "extends": [
-        "plugin:@starbeam/loose"
-      ]
+      "extends": ["plugin:@starbeam/loose"],
+      "files": ["vite.config.ts"]
     }
   ]
 }

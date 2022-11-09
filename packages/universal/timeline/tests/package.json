@@ -1,17 +1,17 @@
 {
   "private": true,
-  "name": "@starbeam-tests/timeline",
-  "version": "1.0.0",
-  "type": "module",
   "dependencies": {
-    "@starbeam/timeline": "workspace:^",
     "@starbeam/debug": "workspace:^",
+    "@starbeam/interfaces": "workspace:^",
     "@starbeam/shared": "workspace:^",
-    "@starbeam/interfaces": "workspace:^"
+    "@starbeam/timeline": "workspace:^"
   },
+  "name": "@starbeam-tests/timeline",
   "scripts": {
     "test:lint": "eslint",
     "test:types": "tsc -b"
   },
+  "type": "module",
+  "version": "1.0.0",
   "starbeam:type": "tests"
 }

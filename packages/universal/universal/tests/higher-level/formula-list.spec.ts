@@ -17,7 +17,7 @@ describe("List transform", () => {
 
     const formulas = FormulaList(list, {
       key: (item) => item.id,
-      value: (item) => `${item.name} (${item.location})`,
+      map: (item) => `${item.name} (${item.location})`,
     });
 
     expect(formulas.current).toEqual(["Tom (NYC)", "Chirag (NYC)"]);

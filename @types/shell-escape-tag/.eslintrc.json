@@ -1,0 +1,16 @@
+{
+  "root": false,
+  "parserOptions": {
+    "project": "@types/shell-escape-tag/tsconfig.json"
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/*"
+      ],
+      "extends": [
+        "plugin:@starbeam/commonjs"
+      ]
+    }
+  ]
+}

@@ -6,11 +6,12 @@
   "overrides": [
     {
       "files": [
-        "index.ts",
-        "src/**/*.ts"
+        "**/*",
+        "**/*.d.ts",
+        "eslint-flat.ts"
       ],
       "extends": [
-        "plugin:@starbeam/tight"
+        "plugin:@starbeam/loose"
       ]
     }
   ]

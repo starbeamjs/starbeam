@@ -5,13 +5,8 @@
   },
   "overrides": [
     {
-      "files": [
-        "index.ts",
-        "src/**/*.ts"
-      ],
-      "extends": [
-        "plugin:@starbeam/tight"
-      ]
+      "extends": ["plugin:@starbeam/tight"],
+      "files": ["index.ts", "src/**/*.ts"]
     }
   ]
 }

@@ -52,7 +52,7 @@
     "test:types": "tsc -b"
   },
   "starbeam": {
-    "type": "support:build",
+    "type": "library:build-support",
     "source": "js:typed"
   }
 }

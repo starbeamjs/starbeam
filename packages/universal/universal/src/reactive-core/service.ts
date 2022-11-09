@@ -10,14 +10,14 @@ export function Service<T>(
   create: Blueprint<T> | ResourceFactory<T>,
   description?: string | Description
 ): ServiceBlueprint<T> {
-  const desc = Desc("blueprint:service", description);
-  return new ServiceBlueprint(create, desc);
+  return new ServiceBlueprint(create, Desc("blueprint:service", description));
 }
 
 Service.create = <T>(
-  create: Blueprint<T> | ResourceFactory<T>
+  create: Blueprint<T> | ResourceFactory<T>,
+  description?: string | Description
 ): Reactive<T> => {
-  return Service(create).create();
+  return createService(create, Desc("service", description));
 };
 
 export class ServiceBlueprint<T> {
@@ -30,8 +30,23 @@ export class ServiceBlueprint<T> {
   }
 
   create(): Reactive<T> {
-    return CONTEXT.create(this.#create, () =>
-      Factory.resource(this.#create, CONTEXT.app)
-    );
+    return createService(this.#create, this.#description);
   }
+}
+
+function createService<T>(
+  resource: IntoResource<T>,
+  description: Description,
+  app = CONTEXT.app
+): Reactive<T> {
+  return CONTEXT.create(resource, () =>
+    Factory.resource(resource, app, description)
+  );
+}
+
+export function service<T>(
+  factory: Blueprint<T> | ResourceFactory<T>,
+  description?: string | Description
+): T {
+  return createService(factory, Desc("service", description)).current;
 }

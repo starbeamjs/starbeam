@@ -2,95 +2,91 @@
 
 import { entryPoint } from "@starbeam/debug";
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
-import {
-  html,
-  react,
-  testStrictAndLoose,
-} from "@starbeam-workspace/react-test-utils";
+import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
 import { useState } from "react";
 import { expect } from "vitest";
 
-testStrictAndLoose<
-  void,
-  { test: TestResource; lastState: string; lastCount: number }
->("useLifecycle", async (mode, test) => {
-  TestResource.resetId();
+testReact<void, { test: TestResource; lastState: string; lastCount: number }>(
+  "useLifecycle",
+  async (root, mode) => {
+    TestResource.resetId();
 
-  const result = await test
-    .expectStable()
-    .expectHTML(({ lastState, lastCount }) => {
-      return `<p>${lastState}</p><p>${lastCount}</p><label><span>Increment</span><button>++</button></label>`;
-    })
-    .render((setup) => {
-      const [count, setCount] = useState(0);
+    const result = await root
+      .expectStable()
+      .expectHTML(({ lastState, lastCount }) => {
+        return `<p>${lastState}</p><p>${lastCount}</p><label><span>Increment</span><button>++</button></label>`;
+      })
+      .render((setup) => {
+        const [count, setCount] = useState(0);
 
-      const lifecycleTest = useLifecycle(count, ({ on }, i) => {
-        const resource = TestResource.initial(i);
+        const lifecycleTest = useLifecycle(count, ({ on }, i) => {
+          const resource = TestResource.initial(i);
 
-        on.update((newCount) => {
-          resource.transition("updated", newCount);
+          on.update((newCount) => {
+            resource.transition("updated", newCount);
+          });
+          on.layout(() => {
+            resource.transition("layout");
+          });
+          on.idle(() => {
+            resource.transition("idle");
+          });
+          on.cleanup(() => {
+            resource.transition("unmounted");
+          });
+
+          return resource;
         });
-        on.layout(() => {
-          resource.transition("layout");
-        });
-        on.idle(() => {
-          resource.transition("idle");
-        });
-        on.cleanup(() => {
-          resource.transition("unmounted");
+
+        setup.value({
+          test: lifecycleTest,
+          lastState: lifecycleTest.state,
+          lastCount: lifecycleTest.count,
         });
 
-        return resource;
-      });
-
-      setup.value({
-        test: lifecycleTest,
-        lastState: lifecycleTest.state,
-        lastCount: lifecycleTest.count,
-      });
-
-      return react.fragment(
-        html.p(lifecycleTest.state),
-        html.p(count),
-        html.label(
-          html.span("Increment"),
-          html.button(
-            {
-              onClick: () => {
-                setCount(count + 1);
+        return react.fragment(
+          html.p(lifecycleTest.state),
+          html.p(count),
+          html.label(
+            html.span("Increment"),
+            html.button(
+              {
+                onClick: () => {
+                  setCount(count + 1);
+                },
               },
-            },
-            "++"
+              "++"
+            )
           )
-        )
-      );
-    });
+        );
+      });
 
-  const { test: resource } = result.value;
+    const { test: resource } = result.value;
 
-  resource.assert(
-    mode.match({
-      // strict mode runs initial render twice
-      strict: () => "updated",
-      loose: () => "idle",
-    }),
-    0
-  );
+    resource.assert(
+      mode.match({
+        // strict mode runs initial render twice
+        strict: () => "updated",
+        loose: () => "idle",
+      }),
+      0
+    );
 
-  await result.rerender();
-  resource.assert("updated", 0);
+    await result.rerender();
+    resource.assert("updated", 0);
 
-  await result.find("button").fire.click();
-  resource.assert("updated", 1);
+    await result.find("button").fire.click();
+    resource.assert("updated", 1);
 
-  await result.rerender();
-  resource.assert("updated", 1);
+    await result.rerender();
+    resource.assert("updated", 1);
 
-  await result.unmount();
-  resource.assert("unmounted", 1);
-});
+    await result.unmount();
+    resource.assert("unmounted", 1);
+  }
+);
 
-// testStrictAndLoose("useResource (no argument)", async (mode) => {
+// testReact("useResource (no argument)", async (mode) => {
 //   TestResource.resetId();
 
 //   const result = mode
@@ -161,7 +157,7 @@ testStrictAndLoose<
 //   resource.assert("unmounted", 0, expectedId);
 // });
 
-// testStrictAndLoose("useResource (nested)", async (mode) => {
+// testReact("useResource (nested)", async (mode) => {
 //   TestResource.resetId();
 
 //   const result = mode
@@ -224,7 +220,7 @@ testStrictAndLoose<
 //   resource.assert("unmounted", 1);
 // });
 
-// testStrictAndLoose(
+// testReact(
 //   "useResource (nested, stability across remounting)",
 //   async (mode) => {
 //     TestResource.resetId();

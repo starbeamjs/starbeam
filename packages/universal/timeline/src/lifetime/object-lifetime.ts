@@ -3,6 +3,8 @@ import { inspector } from "@starbeam/debug";
 export type Unsubscribe = () => void;
 
 export class ObjectLifetime {
+  #owner: WeakRef<object> | undefined;
+  readonly #object: WeakRef<object>;
   readonly #children = new Set<ObjectLifetime>();
   #finalized = false;
   readonly #finalizers = new Set<() => void>();
@@ -26,40 +28,45 @@ export class ObjectLifetime {
     }
   }
 
-  static create(): ObjectLifetime {
-    return new ObjectLifetime();
+  static create(object: object): ObjectLifetime {
+    return new ObjectLifetime(undefined, object);
   }
 
-  static finalize(
-    lifetime: ObjectLifetime,
-    finalizing?: (block: () => void) => void
-  ): void {
-    lifetime.#finalizeIn(finalizing);
+  static finalize(lifetime: ObjectLifetime): void {
+    lifetime.#finalize();
+  }
+
+  constructor(owner: object | undefined, object: object) {
+    this.#owner = owner ? new WeakRef(owner) : undefined;
+    this.#object = new WeakRef(object);
+  }
+
+  get owner(): object | undefined {
+    return this.#owner?.deref();
+  }
+
+  get object(): object | undefined {
+    return this.#object.deref();
+  }
+
+  setOwnedBy(owner: object): { prev: object | undefined } {
+    this.#owner = new WeakRef(owner);
+    return { prev: this.#owner.deref() };
   }
 
   #finalize(): void {
-    for (const finalizer of this.#finalizers) {
-      finalizer();
-    }
-
-    for (const child of this.#children) {
-      child.#finalize();
-    }
-  }
-
-  #finalizeIn(finalizing?: (block: () => void) => void): void {
     if (this.#finalized) {
       return;
     }
 
     this.#finalized = true;
 
-    if (finalizing) {
-      finalizing(() => {
-        this.#finalize();
-      });
-    } else {
-      this.#finalize();
+    for (const finalizer of this.#finalizers) {
+      finalizer();
+    }
+
+    for (const child of this.#children) {
+      child.#finalize();
     }
   }
 

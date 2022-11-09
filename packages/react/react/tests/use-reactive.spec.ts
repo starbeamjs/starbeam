@@ -1,17 +1,8 @@
 // @vitest-environment jsdom
 
 import { useReactive, useReactiveSetup } from "@starbeam/react";
-import {
-  Cell,
-  FormulaFn,
-  LIFETIME,
-  PolledFormulaFn,
-} from "@starbeam/universal";
-import {
-  html,
-  react,
-  testStrictAndLoose,
-} from "@starbeam-workspace/react-test-utils";
+import { Cell, Formula, PolledFormulaFn } from "@starbeam/universal";
+import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
 import { useState } from "react";
 import { describe, expect } from "vitest";
 
@@ -22,43 +13,40 @@ const INCREMENT = 1;
 let nextId = INITIAL_ID;
 
 describe("useReactive", () => {
-  testStrictAndLoose<void, number>(
-    "useReactiveSetup with useReactive",
-    async (mode, test) => {
-      const result = await test
-        .expectHTML((value) => `<p>${value}</p><button>++</button>`)
-        .render((state) => {
-          const { cell, increment } = useReactiveSetup(() => {
-            const count = Cell(INITIAL_COUNT, `#${++nextId}`);
+  testReact<void, number>("useReactiveSetup with useReactive", async (root) => {
+    const result = await root
+      .expectHTML((value) => `<p>${value}</p><button>++</button>`)
+      .render((state) => {
+        const { cell, increment } = useReactiveSetup(() => {
+          const count = Cell(INITIAL_COUNT, `#${++nextId}`);
 
-            function incrementCell(): void {
-              count.set(count.current + INCREMENT);
-            }
+          function incrementCell(): void {
+            count.set(count.current + INCREMENT);
+          }
 
-            return () => ({ cell: count, increment: incrementCell });
-          }, "first useReactiveSetup");
+          return () => ({ cell: count, increment: incrementCell });
+        }, "first useReactiveSetup");
 
-          return useReactive(() => {
-            state.value(cell.current);
+        return useReactive(() => {
+          state.value(cell.current);
 
-            return react.fragment(
-              html.p(String(cell.current)),
-              html.button({ onClick: increment }, "++")
-            );
-          }, `JSX#${nextId}`);
-        });
+          return react.fragment(
+            html.p(String(cell.current)),
+            html.button({ onClick: increment }, "++")
+          );
+        }, `JSX#${nextId}`);
+      });
 
-      expect(result.value).toBe(INITIAL_COUNT);
+    expect(result.value).toBe(INITIAL_COUNT);
 
-      await result.find("button").fire.click();
+    await result.find("button").fire.click();
 
-      expect(result.value).toBe(INITIAL_COUNT + INCREMENT);
-    }
-  );
+    expect(result.value).toBe(INITIAL_COUNT + INCREMENT);
+  });
 
-  testStrictAndLoose<void, { counter: number }>(
+  testReact<void, { counter: number }>(
     "useSetup with Formula + useReactive",
-    async (mode, test) => {
+    async (test) => {
       let testId = 0;
       const result = await test
         .expectHTML(({ counter }) => `<p>${counter}</p>`)
@@ -67,7 +55,7 @@ describe("useReactive", () => {
           ++testId;
           const counter = useReactiveSetup(() => {
             const cell = Cell(INITIAL_COUNT, `#${testId}`);
-            return FormulaFn(
+            return Formula(
               () => ({ counter: cell.current }),
               `inner #${testId}`
             );
@@ -85,11 +73,11 @@ describe("useReactive", () => {
     }
   );
 
-  testStrictAndLoose<void, { counter: number }>(
+  testReact<void, { counter: number }>(
     "useSetup with Formula + useReactive",
-    async (mode, test) => {
+    async (root) => {
       nextId = INITIAL_ID;
-      const result = await test
+      const result = await root
         .expectHTML(({ counter }) => `<p>${counter}</p><button>++</button>`)
         .expectStable()
         .render((state) => {
@@ -97,7 +85,7 @@ describe("useReactive", () => {
           const { formula, increment } = useReactiveSetup(() => {
             const cell = Cell(INITIAL_COUNT, `#${nextId}`);
             return () => ({
-              formula: FormulaFn(
+              formula: Formula(
                 () => ({ counter: cell.current }),
                 `inner #${nextId}`
               ),
@@ -126,10 +114,10 @@ describe("useReactive", () => {
     }
   );
 
-  testStrictAndLoose<void, { starbeam: number; react: number }>(
+  testReact<void, { starbeam: number; react: number }>(
     "useReactive",
-    async (mode, test) => {
-      const result = await test
+    async (root) => {
+      const result = await root
         .expectStable()
         .expectHTML(
           (count) =>
@@ -191,10 +179,10 @@ describe("useReactive", () => {
     }
   );
 
-  testStrictAndLoose<void, { starbeam: number; react: number }>(
+  testReact<void, { starbeam: number; react: number }>(
     "everything in useSetup",
-    async (mode, test) => {
-      const result = await test
+    async (root) => {
+      const result = await root
         .expectStable()
         .expectHTML(
           (count) =>
@@ -251,31 +239,3 @@ describe("useReactive", () => {
     }
   );
 });
-
-// eslint-disable-next-line unused-imports/no-unused-vars
-class TestResource {
-  static #nextId = INITIAL_ID;
-
-  static create(): TestResource {
-    return new TestResource(TestResource.#nextId++);
-  }
-
-  #id: number;
-  #active = true;
-
-  constructor(id: number) {
-    this.#id = id;
-
-    LIFETIME.on.cleanup(this, () => {
-      this.#active = false;
-    });
-  }
-
-  get id(): number {
-    return this.#id;
-  }
-
-  get isActive(): boolean {
-    return this.#active;
-  }
-}

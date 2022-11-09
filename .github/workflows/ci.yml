@@ -41,7 +41,7 @@ jobs:
   test:
     name: "Tests"
     runs-on: "ubuntu-latest"
-    needs: ['install_dependencies']
+    needs: ["install_dependencies"]
     steps:
       - uses: actions/checkout@v2
       - name: "Setup node and install dependencies"
@@ -51,7 +51,7 @@ jobs:
   test_prod:
     name: "Tests (production)"
     runs-on: "ubuntu-latest"
-    needs: ['install_dependencies']
+    needs: ["install_dependencies"]
     steps:
       - uses: actions/checkout@v2
       - name: "Setup node and install dependencies"
@@ -61,28 +61,27 @@ jobs:
   typecheck:
     name: "Typecheck"
     runs-on: "ubuntu-latest"
-    needs: ['install_dependencies']
+    needs: ["install_dependencies"]
     steps:
       - uses: actions/checkout@v2
       - name: "Setup node and install dependencies"
         uses: ./.github/actions/setup-node-and-install
-      - run: pnpm check:types
+      - run: pnpm test:workspace:types
 
   lint:
     name: "Lint"
     runs-on: "ubuntu-latest"
-    needs: ['install_dependencies']
+    needs: ["install_dependencies"]
     steps:
       - uses: actions/checkout@v2
       - name: "Setup node and install dependencies"
         uses: ./.github/actions/setup-node-and-install
-      - run: pnpm check:lint
-
+      - run: pnpm test:workspace:lint
 
   release:
     name: Release
     runs-on: ubuntu-latest
-    needs: ['install_dependencies', 'lint', 'typecheck', 'test']
+    needs: ["install_dependencies", "lint", "typecheck", "test"]
 
     steps:
       - uses: actions/checkout@v2

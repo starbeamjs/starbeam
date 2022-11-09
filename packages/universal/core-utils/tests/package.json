@@ -1,14 +1,14 @@
 {
   "private": true,
-  "version": "1.0.0",
-  "name": "@starbeam-tests/core-utils",
-  "type": "module",
   "dependencies": {
     "@starbeam/core-utils": "workspace:^"
   },
+  "name": "@starbeam-tests/core-utils",
   "scripts": {
     "test:lint": "eslint",
     "test:types": "tsc -b"
   },
+  "type": "module",
+  "version": "1.0.0",
   "starbeam:type": "tests"
 }

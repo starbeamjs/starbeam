@@ -6,8 +6,10 @@
   "overrides": [
     {
       "files": [
-        "index.ts{x,}",
-        "src/**/*.ts{x,}"
+        "index.ts",
+        "index.tsx",
+        "src/**/*.ts",
+        "src/**/*.tsx"
       ],
       "extends": [
         "plugin:@starbeam/demos"

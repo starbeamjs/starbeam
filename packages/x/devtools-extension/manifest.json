@@ -1,24 +1,24 @@
 {
-  "manifest_version": 3,
-  "name": "Starbeam",
-  "description": "The Developer Tools for Starbeam",
-  "icons": {
-    "64": "assets/logo.png"
-  },
-  "version": "1.0",
-  "minimum_chrome_version": "100.0",
-  "devtools_page": "src/devtools/index.html",
 
   "background": {
     "service_worker": "src/service-worker.ts",
     "type": "module"
   },
+  "description": "The Developer Tools for Starbeam",
+  "devtools_page": "src/devtools/index.html",
+  "host_permissions": ["*://*/*"],
+  "icons": {
+    "64": "assets/logo.png"
+  },
+  "manifest_version": 3,
+  "minimum_chrome_version": "100.0",
+  "name": "Starbeam",
+  "permissions": ["scripting"],
+  "version": "1.0",
   "web_accessible_resources": [
     {
       "matches": ["*://*/*"],
       "resources": ["src/coordination/debug.ts"]
     }
-  ],
-  "host_permissions": ["*://*/*"],
-  "permissions": ["scripting"]
+  ]
 }

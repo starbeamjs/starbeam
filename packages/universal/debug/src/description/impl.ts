@@ -5,7 +5,6 @@ import chalk from "chalk";
 
 import { DisplayStruct } from "../inspect/display-struct.js";
 import { DisplayParts } from "../module.js";
-// eslint-disable-next-line import/no-cycle
 import { type Stack, callerStack } from "../stack.js";
 
 /**

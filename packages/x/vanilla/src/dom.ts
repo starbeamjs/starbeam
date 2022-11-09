@@ -1,7 +1,7 @@
 import type { Description } from "@starbeam/debug";
 import { descriptionFrom } from "@starbeam/debug";
 import type { Reactive } from "@starbeam/timeline";
-import { FormulaFn, LIFETIME } from "@starbeam/universal";
+import { Formula, LIFETIME } from "@starbeam/universal";
 
 import { Cursor } from "./cursor.js";
 
@@ -28,7 +28,7 @@ function Render<T extends Cursor | Element>(
       create({ owner }) {
         const { cleanup, update } = create({ into, owner });
 
-        const formula = FormulaFn(update, description);
+        const formula = Formula(update, description);
 
         LIFETIME.on.cleanup(owner, cleanup);
 

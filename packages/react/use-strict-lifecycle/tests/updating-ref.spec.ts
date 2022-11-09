@@ -1,18 +1,14 @@
 // @vitest-environment jsdom
 
 import { type Ref, useUpdatingRef } from "@starbeam/use-strict-lifecycle";
-import {
-  html,
-  react,
-  testStrictAndLoose,
-} from "@starbeam-workspace/react-test-utils";
+import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { expect } from "vitest";
 
-testStrictAndLoose<void, { count: number; state: string }>(
-  "testStrictAndLoose (testing the test infra)",
-  async (mode, test) => {
-    await test
+testReact<void, { count: number; state: string }>(
+  "testReact (testing the test infra)",
+  async (root) => {
+    await root
       .expectHTML(
         ({ count, state }) => `<p>count = ${count}</p><p>state = ${state}</p>`
       )
@@ -50,10 +46,10 @@ testStrictAndLoose<void, { count: number; state: string }>(
   }
 );
 
-testStrictAndLoose<void, Ref<{ count: number }>>(
+testReact<void, Ref<{ count: number }>>(
   "useUpdatingRef",
-  async (mode, test) => {
-    const result = await test
+  async (root, mode) => {
+    const result = await root
       .expectStable((value) => value)
       .expectHTML((ref) => `${ref.current.count}`)
       .render((test) => {

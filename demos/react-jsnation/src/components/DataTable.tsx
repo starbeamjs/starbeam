@@ -1,6 +1,6 @@
 import { LOGGER, LogLevel } from "@starbeam/debug";
 import { useProp, useReactiveSetup } from "@starbeam/react";
-import { Cell, FormulaFn } from "@starbeam/universal";
+import { Cell, Formula } from "@starbeam/universal";
 import { DevTools } from "@starbeamx/devtool";
 import type { FormEvent } from "react";
 
@@ -39,7 +39,7 @@ export default function (props: { locale: string }): JSX.Element {
 
     const filter = Cell("", "filter");
 
-    const query = FormulaFn(() => {
+    const query = Formula(() => {
       return people.filter(filter.current).sort("name", locale.read());
     });
 

@@ -1,15 +1,13 @@
 {
-  "name": "@starbeam/preact-utils",
-  "version": "0.7.4",
-  "type": "module",
   "dependencies": {
     "@starbeam/core-utils": "workspace:*"
   },
-  "peerDependencies": {
-    "preact": ">=10"
-  },
   "devDependencies": {
     "@starbeam-workspace/build-support": "workspace:^"
+  },
+  "name": "@starbeam/preact-utils",
+  "peerDependencies": {
+    "preact": ">=10"
   },
   "publishConfig": {
     "main": "dist/index.cjs",
@@ -27,5 +25,7 @@
     "test:specs": "vitest",
     "test:types": "tsc -b"
   },
+  "type": "module",
+  "version": "0.7.4",
   "starbeam:type": "library"
 }

@@ -14,15 +14,15 @@ import {
   TIMELINE,
 } from "@starbeam/timeline";
 
-export interface Formula<T> {
+export interface FormulaValidation<T> {
   frame: Frame<T | UNINITIALIZED>;
   poll: () => Frame<T>;
 }
 
-export function Formula<T>(
+export function FormulaValidation<T>(
   callback: () => T,
   description?: Description | string
-): Formula<T> {
+): FormulaValidation<T> {
   const desc = descriptionFrom({
     type: "formula",
     api: {
@@ -58,15 +58,6 @@ export function Formula<T>(
   };
 
   function poll(caller = callerStack()): Frame<T> {
-    // if (Frame.isInitialized(frame)) {
-    //   const validation = frame.validate();
-
-    //   if (validation.status === "valid") {
-    //     TIMELINE.didConsumeFrame(frame, diff.empty(), caller);
-    //     return frame as Frame<T>;
-    //   }
-    // }
-
     const validation = frame.validate();
 
     if (validation.status === "valid") {
@@ -82,15 +73,15 @@ export function Formula<T>(
   return { poll, frame };
 }
 
-export interface FormulaFn<T> extends Reactive<T> {
+export interface Formula<T> extends Reactive<T> {
   (): T;
   readonly current: T;
 }
 
-export function FormulaFn<T>(
+export function Formula<T>(
   callback: () => T,
   description?: Description | string
-): FormulaFn<T> {
+): Formula<T> {
   const desc = descriptionFrom({
     type: "formula",
     api: {
@@ -100,7 +91,7 @@ export function FormulaFn<T>(
     fromUser: description,
   });
 
-  const formula = Formula(callback, desc);
+  const formula = FormulaValidation(callback, desc);
 
   const fn = (): T => Frame.value(formula.poll());
 
@@ -128,5 +119,14 @@ export function FormulaFn<T>(
     },
   });
 
-  return fn as FormulaFn<T>;
+  Object.defineProperty(fn, Symbol.for("nodejs.util.inspect.custom"), {
+    enumerable: false,
+    configurable: true,
+    writable: true,
+    value: () => {
+      return `Formula(${desc.fullName}, id=${JSON.stringify(desc.id)})`;
+    },
+  });
+
+  return fn as Formula<T>;
 }

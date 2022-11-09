@@ -31,7 +31,7 @@ export function matchPattern<M extends Matches>(
     },
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+   
   return new Proxy(target, {
     ownKeys({ match }) {
       return Reflect.ownKeys(match.groups ?? {});
