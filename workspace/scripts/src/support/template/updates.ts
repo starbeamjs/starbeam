@@ -196,23 +196,6 @@ export const updateLibraryEslint = UpdatePackageFn((update) => {
       ],
     };
   });
-
-  if (update.pkg.testsDirectory.exists()) {
-    update.ensureRemoved("tests/.eslintrc.cjs");
-
-    update.json("tests/.eslintrc.json", () => {
-      return {
-        root: false,
-
-        overrides: [
-          localEslintConfig(update, {
-            extend: "@starbeam/loose",
-            tsconfig: "tests/tsconfig.json",
-          }),
-        ],
-      };
-    });
-  }
 });
 
 const updateTestsEslint = UpdatePackageFn((update) => {
@@ -221,14 +204,12 @@ const updateTestsEslint = UpdatePackageFn((update) => {
   update.json(".eslintrc.json", () => {
     return {
       root: false,
-      parserOptions: {
-        project: update.path("tsconfig.json").fromWorkspaceRoot,
-      },
+
       overrides: [
-        {
-          files: eslintFiles(update.pkg),
-          extends: ["plugin:@starbeam/loose"],
-        },
+        localEslintConfig(update, {
+          extend: "@starbeam/loose",
+          tsconfig: "tsconfig.json",
+        }),
       ],
     };
   });

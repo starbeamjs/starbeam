@@ -5,5 +5,10 @@
     "types": ["../packages/env"],
     "outDir": "../dist/workspace"
   },
-  "include": ["*/*/index.*", "*/*/src/**/*", "*/index.*", "*/src/**/*"]
+  "include": ["*/*/index.*", "*/*/src/**/*", "*/index.*", "*/src/**/*"],
+  "references": [
+    {
+      "path": "./scripts"
+    }
+  ]
 }

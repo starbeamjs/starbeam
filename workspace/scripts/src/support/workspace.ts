@@ -6,6 +6,7 @@ import {
 
 import type { CheckResults } from "./checks.js";
 import { Checks, GroupedCheckResults } from "./checks.js";
+import { FATAL_EXIT_CODE } from "./constants.js";
 import { type IntoFragment, Fragment, fragment } from "./log.js";
 import type { Directory, Glob } from "./paths.js";
 import { type GlobOptions, type Path, Paths } from "./paths.js";
@@ -84,6 +85,21 @@ export class Workspace {
           if (error instanceof Error) {
             r.ensureBreak();
 
+            if ("signal" in error) {
+              if (error.signal === "SIGINT") {
+                r.raw((writer) => {
+                  // go to the first column
+                  writer.write("\x1b[0G");
+                  writer.write(
+                    stringify`${Fragment.comment(
+                      "CTRL-C..."
+                    )} ${Fragment.problem("exiting")}`
+                  );
+                });
+                process.exit(FATAL_EXIT_CODE);
+              }
+            }
+
             r.group(
               Fragment.problem("An error occurred while executing the command:")
             ).try((r) => {
@@ -120,7 +136,6 @@ export class Workspace {
                   });
                 });
               }
-              // r.reportError(inspect(error));
             });
             // r.log(Fragment.problem(e.message));
             // r.reportError(e);

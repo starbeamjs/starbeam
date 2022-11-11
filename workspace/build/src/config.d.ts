@@ -59,7 +59,7 @@ export type ViteExport =
   | Pick<vite.UserConfig, "plugins" | "esbuild" | "optimizeDeps" | "build">
   | Promise<ViteExport>;
 
-import type { FlatConfigItem } from "./eslint-flat.js";
+import type { FlatConfigItem } from "./eslint-flat.js.js.js";
 
 export type ESLintExport = FlatConfigItem[];
 

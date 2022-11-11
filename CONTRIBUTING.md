@@ -45,11 +45,16 @@ At the root of this monorepo, the `pnpm demo` script can be used to start the va
 
 - `pnpm build` -- uses rollup to build out every package
 
+## Workspace Packages
+
+The packages in `<repo-root>/workspace` are workspace-private packages that are used to facilitate
+testing and building. They are not published to npm.
+
 ## Development utilities
 
-These are aliased via `pnpm dev` at the monorepo root and is an alias for for the scripts located at `<repo-root>/scripts/*`.
+These are aliased via `pnpm dev` at the monorepo root and is an alias for for the scripts located at `<repo-root>/workspace/scripts/*`.
 
-Common monorepo tasks can be added to `<repo-root>/scripts/*` and then invoke with `pnpm dev <command name>`
+Common monorepo tasks can be added to `<repo-root>/workspace/scripts/*` and then invoke with `pnpm dev <command name>`
 
 ## The `starbeam` key in `package.json`
 

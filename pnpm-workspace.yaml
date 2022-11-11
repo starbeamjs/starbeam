@@ -4,8 +4,5 @@ packages:
   - packages/*/*
   - packages/*/*/tests
   - demos/*
-  - scripts
-  - .build
-  - .config/eslint
   - workspace/*
   - workspace/*/*

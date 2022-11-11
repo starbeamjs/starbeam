@@ -326,9 +326,12 @@ export class Reporter {
     this.log(builder(table).stringify(this.loggerState));
   }
 
-  async raw(
+  raw(callback: (writer: RawWriter) => Promise<void>): Promise<void>;
+  raw(callback: (writer: RawWriter) => void): void;
+  // eslint-disable-next-line @typescript-eslint/promise-function-async
+  raw(
     callback: (writer: RawWriter) => void | Promise<void>
-  ): Promise<void> {
+  ): void | Promise<void> {
     return this.#logger.raw(callback);
   }
 

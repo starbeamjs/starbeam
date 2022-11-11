@@ -74,8 +74,8 @@ export class StarbeamCommands {
     return this;
   }
 
-  run(): void {
-    this.#program.parse();
+  async run(): Promise<Command> {
+    return this.#program.parseAsync();
   }
 }
 

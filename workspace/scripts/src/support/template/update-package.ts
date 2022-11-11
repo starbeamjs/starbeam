@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { isAbsolute, relative } from "node:path";
 
-import { isJSONObject } from "@starbeam/core-utils";
+import { isJSONObject, stringifyJSON } from "@starbeam/core-utils";
 import sh from "shell-escape-tag";
 
 import type { JsonObject, JsonValue } from "../json";
@@ -20,8 +20,6 @@ export interface GetRelativePath {
   readonly fromPackageRoot: string;
   readonly fromWorkspaceRoot: string;
 }
-
-const INDENT_SIZE = 2;
 
 export class UpdatePackage {
   static update(
@@ -179,8 +177,8 @@ export class UpdatePackage {
         ...cloneJSON(prevJSON),
       });
 
-      const prevString = JSON.stringify(normalizeJSON(prevJSON));
-      const nextString = JSON.stringify(normalizeJSON(next));
+      const prevString = stringifyJSON(normalizeJSON(prevJSON));
+      const nextString = stringifyJSON(normalizeJSON(next));
 
       if (prevString !== nextString) {
         this.#reportChange({
@@ -189,7 +187,7 @@ export class UpdatePackage {
           label: this.#label,
         });
 
-        writeFileSync(path, JSON.stringify(next, null, INDENT_SIZE) + "\n");
+        writeFileSync(path, nextString + "\n");
         this.#updatePackage.#workspace.cmd(sh`eslint --cache --fix ${path}`);
       }
 

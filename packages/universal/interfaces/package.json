@@ -31,5 +31,7 @@
     "@domtree/any": "workspace:^",
     "@starbeam/shared": "workspace:^"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@starbeam-workspace/build-support": "workspace:^"
+  }
 }
