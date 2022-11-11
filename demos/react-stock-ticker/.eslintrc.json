@@ -1,27 +1,19 @@
 {
   "root": false,
-  "parserOptions": {
-    "project": "demos/react-stock-ticker/tsconfig.json"
-  },
   "overrides": [
     {
-      "files": [
-        "index.ts",
-        "index.tsx",
-        "src/**/*.ts",
-        "src/**/*.tsx"
-      ],
-      "extends": [
-        "plugin:@starbeam/demos"
-      ]
+      "extends": ["plugin:@starbeam/demos"],
+      "files": ["index.ts", "index.tsx", "src/**/*.ts", "src/**/*.tsx"],
+      "parserOptions": {
+        "project": "demos/react-stock-ticker/tsconfig.json"
+      }
     },
     {
-      "files": [
-        "vite.config.ts"
-      ],
-      "extends": [
-        "plugin:@starbeam/loose"
-      ]
+      "extends": ["plugin:@starbeam/loose"],
+      "files": ["vite.config.ts"],
+      "parserOptions": {
+        "project": "demos/react-stock-ticker/tsconfig.json"
+      }
     }
   ]
 }

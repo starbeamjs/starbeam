@@ -208,6 +208,7 @@ if (import.meta.env.DEV) {
     get parts(): interfaces.DescriptionParts {
       return {
         type: this.#type,
+        id: this.#id,
         api: this.#apiPart,
         details: this.#detailsPart,
         userFacing: this.#userFacingDesc,
@@ -517,6 +518,7 @@ if (import.meta.env.DEV) {
     readonly internal = undefined;
     readonly parts: interfaces.DescriptionParts = {
       api: { name: "erased" },
+      id: "erased",
       details: { type: "anonymous" },
       userFacing: this,
       type: "erased",

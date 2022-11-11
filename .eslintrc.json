@@ -1,17 +1,28 @@
 {
   "root": true,
-  "ignorePatterns": ["*.cjs"],
+  "ignorePatterns": [
+    "*.cjs",
+    "packages/x/devtools-extension",
+    "packages/env.d.ts"
+  ],
 
   "plugins": ["@starbeam"],
 
   "overrides": [
     {
+      "extends": ["plugin:@starbeam/tight"],
+      "files": ["vitest.config.ts"],
+      "parserOptions": {
+        "project": ["./tsconfig.root.json"]
+      }
+    },
+    {
       "extends": ["plugin:@starbeam/json:parser"],
-      "files": "*.json"
+      "files": ["*.json", ".build/*.json"]
     },
     {
       "extends": ["plugin:@starbeam/json:default"],
-      "files": "*.json",
+      "files": ["*.json", ".build/*.json"],
       "excludedFiles": [
         "tsconfig.*",
         ".eslintrc.json",

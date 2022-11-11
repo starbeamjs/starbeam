@@ -42,6 +42,7 @@
     "commander": "^9.3.0",
     "depcheck": "^1.4.3",
     "dirfilename": "^1.0.4",
+    "emoji-regex": "^10.2.1",
     "eslint": "*",
     "fast-glob": "^3.2.11",
     "node-pty": "^0.10.1",
@@ -52,6 +53,7 @@
     "split2": "^4.1.0"
   },
   "devDependencies": {
+    "@starbeam-workspace/build-support": "workspace:^",
     "@types/prettier": "^2.7.1",
     "@types/shell-escape-tag": "workspace:^",
     "@types/shell-split": "workspace:^",

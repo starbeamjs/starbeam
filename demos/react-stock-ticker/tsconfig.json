@@ -8,10 +8,10 @@
     "declarationDir": "../../dist/types",
     "types": ["../../packages/env"]
   },
-  "references": [
-    { "path": "../../packages/tsconfig.packages.json" },
-    { "path": "../../packages/x/devtool/tsconfig.json" }
-  ],
   "exclude": ["dist/**/*"],
-  "include": ["index.ts", "src/**/*", "vite.config.ts"]
+  "include": ["index.ts", "src/**/*", "vite.config.ts"],
+  "references": [
+    { "path": "../../packages/x/devtool/tsconfig.json" },
+    { "path": "../../packages/tsconfig.packages.json" }
+  ]
 }

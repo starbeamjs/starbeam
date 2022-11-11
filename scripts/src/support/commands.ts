@@ -53,7 +53,7 @@ function applyBasicOptions(command: Command, options?: BasicOptions): Command {
   if (options?.notes) {
     command = command.addHelpText(
       "afterAll",
-      wrapIndented(chalk.yellow(`\n${options.notes}`))
+      wrapIndented(chalk.yellow(`\n${options.notes}`), { leading: "auto" })
     );
   }
 
@@ -81,13 +81,13 @@ export class StarbeamCommands {
 
 type CommandValue = string | boolean | string[] | undefined;
 
-export function StringOption(value: unknown): value is string {
+export function StringOption<V extends string>(value: unknown): value is V {
   return typeof value === "string";
 }
 
 StringOption.required = StringOption;
 
-StringOption.default = (value: string): Value<string> => [
+StringOption.default = <V extends string>(value: V): Value<V> => [
   StringOption,
   { default: value },
 ];

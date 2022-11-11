@@ -1,18 +1,12 @@
 {
   "root": false,
-  "parserOptions": {
-    "project": ".build/tsconfig.json"
-  },
   "overrides": [
     {
-      "files": [
-        "**/*",
-        "**/*.d.ts",
-        "eslint-flat.ts"
-      ],
-      "extends": [
-        "plugin:@starbeam/loose"
-      ]
+      "extends": ["plugin:@starbeam/esm"],
+      "files": ["index.js", "src/**/*.js", "index.d.ts", "src/**/*.d.ts"],
+      "parserOptions": {
+        "project": ".build/tsconfig.json"
+      }
     }
   ]
 }

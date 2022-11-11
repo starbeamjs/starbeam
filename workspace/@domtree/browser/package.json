@@ -2,25 +2,30 @@
   "name": "@domtree/browser",
   "version": "0.9.1",
   "type": "module",
-  "types": "index.d.ts",
-  "dependencies": {
-    "@domtree/interface": "workspace:^"
-  },
+  "types": "index.ts",
   "publishConfig": {
-    "types": "dist/index.d.ts",
     "exports": {
       ".": {
-        "types": "./dist/index.d.ts"
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
       }
-    }
+    },
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts"
+  },
+  "starbeam": {
+    "source": "ts",
+    "type": "library:interfaces"
   },
   "scripts": {
     "test:lint": "eslint",
     "test:types": "tsc -b"
   },
-  "devDependencies": {},
-  "starbeam": {
-    "type": "library:interfaces",
-    "source": "d.ts"
+  "dependencies": {
+    "@domtree/interface": "workspace:^"
+  },
+  "devDependencies": {
+    "@starbeam-workspace/build-support": "workspace:^"
   }
 }

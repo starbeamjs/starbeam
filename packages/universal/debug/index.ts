@@ -15,6 +15,7 @@ export {
   inspect,
   inspector,
 } from "./src/inspect/inspect-support.js";
+export { logged } from "./src/logged.js";
 export { type Logger, LOGGER, LogLevel } from "./src/logger.js";
 export {
   Block,

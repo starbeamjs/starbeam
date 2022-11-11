@@ -1,0 +1,14 @@
+{
+  "lint": {
+    "command": "eslint --cache --max-warnings 0 -c ${workspace.root}/.eslintrc.json ${package.root}",
+    "cwd": "${workspace.root}"
+  },
+  "specs": {
+    "command": "vitest --run",
+    "cwd": "${package.root}"
+  },
+  "types": {
+    "command": "tsc -b",
+    "cwd": "${package.root}"
+  }
+}

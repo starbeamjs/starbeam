@@ -9,7 +9,6 @@
     "types": ["packages/env"]
   },
   "exclude": ["dist/**/*"],
-
   "files": [],
   "references": [
     { "path": "./packages/tsconfig.packages.json" },

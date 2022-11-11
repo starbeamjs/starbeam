@@ -3,6 +3,7 @@
   "version": "0.7.4",
   "type": "module",
   "main": "index.ts",
+  "types": "index.ts",
   "exports": {
     "default": "./index.ts"
   },
@@ -17,10 +18,10 @@
     "main": "dist/index.cjs",
     "types": "dist/index.d.ts"
   },
-  "starbeam:type": "library",
+  "starbeam:type": "library:public",
   "scripts": {
     "test:lint": "eslint",
-    "test:specs": "vitest",
+    "test:specs": "vitest --run",
     "test:types": "tsc -b"
   },
   "dependencies": {

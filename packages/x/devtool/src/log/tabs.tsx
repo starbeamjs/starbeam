@@ -13,8 +13,7 @@ export function TabsPane(
   return Pane(into, { Component: Tabs, props: { options }, css });
 }
 
- 
-function Tabs({ options }: { options: DevtoolsOptions }): JSX.Element {
+function Tabs(_options: { options: DevtoolsOptions }): JSX.Element {
   return (
     <UiPane>
       <section class="card starbeam-devtools">

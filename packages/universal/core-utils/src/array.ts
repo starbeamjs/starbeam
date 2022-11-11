@@ -6,16 +6,15 @@ export type PresentArray<T> = MutablePresentArray<T> | ReadonlyPresentArray<T>;
 
 export type AnyArray<T> = T[] | readonly T[];
 
-type PresentArrayFor<T extends unknown[] | readonly unknown[]> = T extends
-  | readonly (infer Item)[]
-  | (infer Item)[]
-  ? readonly [Item, ...Item[]]
-  : never;
+type PresentArrayFor<T extends unknown[] | readonly unknown[] | undefined> =
+  T extends readonly (infer Item)[] | (infer Item)[]
+    ? readonly [Item, ...Item[]]
+    : never;
 
-export function isPresentArray<T extends unknown[] | readonly unknown[]>(
-  list: T
-): list is T & PresentArrayFor<T> {
-  return list.length > EMPTY_LENGTH;
+export function isPresentArray<
+  T extends unknown[] | readonly unknown[] | undefined
+>(list: T): list is T & PresentArrayFor<T> {
+  return list && list.length > EMPTY_LENGTH;
 }
 
 export function mapOrNullifyEmpty<T, U>(

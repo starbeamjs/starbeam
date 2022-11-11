@@ -1,10 +1,10 @@
 {
+  "extends": "../.config/tsconfig/tsconfig.shared.json",
   "compilerOptions": {
     "composite": true,
     "outDir": "../dist/packages",
     "types": ["./env"]
   },
   "exclude": ["x/devtool/**/*", "x/devtools-extension/**/*", "**/dist/**/*"],
-  "extends": "../.config/tsconfig/tsconfig.shared.json",
   "include": ["*/*/index.ts", "*/*/src/**/*"]
 }

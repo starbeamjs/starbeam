@@ -1,18 +1,12 @@
 {
   "root": false,
-  "parserOptions": {
-    "project": "packages/universal/timeline/tsconfig.json"
-  },
   "overrides": [
     {
-      "files": [
-        "index.ts",
-        "src/**/*.ts",
-        "package.json"
-      ],
-      "extends": [
-        "plugin:@starbeam/tight"
-      ]
+      "extends": ["plugin:@starbeam/tight"],
+      "files": ["index.ts", "src/**/*.ts"],
+      "parserOptions": {
+        "project": "packages/universal/timeline/tsconfig.json"
+      }
     }
   ]
 }

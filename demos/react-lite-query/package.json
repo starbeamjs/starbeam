@@ -1,22 +1,40 @@
 {
-  "name": "@starbeam-demos/react-lite-query",
   "private": true,
+  "name": "@starbeam-demos/react-lite-query",
   "version": "1.0.0",
   "type": "module",
   "main": "index.ts",
+  "exports": {
+    "default": "./index.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts"
+  },
+  "starbeam": {
+    "source": "tsx",
+    "type": "demo:react"
+  },
   "scripts": {
-    "dev": "vite",
     "build": "tsc && vite build",
+    "dev": "vite",
     "preview": "vite preview",
     "test:lint": "eslint",
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "@starbeam/universal": "workspace:^",
-    "@starbeam/verify": "workspace:^",
+    "@starbeam/debug": "workspace:^",
     "@starbeam/js": "workspace:^",
     "@starbeam/react": "workspace:^",
-    "@starbeam/debug": "workspace:^",
+    "@starbeam/universal": "workspace:^",
+    "@starbeam/verify": "workspace:^",
     "@starbeamx/devtool": "workspace:^",
     "axios": "^1.1.3",
     "react": "^18.1.0",
@@ -25,26 +43,8 @@
   "devDependencies": {
     "@types/react": "^18.0.12",
     "@types/react-dom": "^18.0.5",
-    "vite-plugin-fonts": "^0.6.0",
     "vite": "*",
+    "vite-plugin-fonts": "^0.6.0",
     "vitest": "*"
-  },
-  "publishConfig": {
-    "main": "dist/index.cjs",
-    "types": "dist/index.d.ts",
-    "exports": {
-      ".": {
-        "types": "./dist/index.d.ts",
-        "import": "./dist/index.js",
-        "default": "./dist/index.cjs"
-      }
-    }
-  },
-  "exports": {
-    "default": "./index.ts"
-  },
-  "starbeam": {
-    "type": "demo:react",
-    "source": "tsx"
   }
 }

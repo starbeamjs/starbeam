@@ -1,4 +1,8 @@
-import { mapOrNullifyEmpty, objectHasKeys } from "@starbeam/core-utils";
+import {
+  isPresent,
+  mapOrNullifyEmpty,
+  objectHasKeys,
+} from "@starbeam/core-utils";
 import Table from "cli-table3";
 
 import {
@@ -27,6 +31,13 @@ export class LoggedTable<T> implements CreateRows<T> {
 
   constructor(mappers: Mappers<T>) {
     this.#mappers = mappers;
+  }
+
+  columns(columns: IntoColumn[]): TableWithHeaders<T> {
+    return new TableWithHeaders(
+      this.#mappers,
+      Columns.from(columns.map((c) => Column.from(c)))
+    );
   }
 
   headers(headers: (Cell | T)[] | undefined): TableWithHeaders<T> | this {
@@ -75,8 +86,8 @@ export class LoggedTable<T> implements CreateRows<T> {
 }
 
 export interface ColumnOptions {
-  readonly width: number | "auto";
-  readonly justify: Table.HorizontalAlignment;
+  readonly width?: number | "auto";
+  readonly justify?: Table.HorizontalAlignment;
 }
 
 class Columns {
@@ -103,11 +114,7 @@ class Columns {
 
   columnWidths(rows: Cell[][], state: LoggerState): number[] | undefined {
     return mapOrNullifyEmpty(this.#columns, (column, index) =>
-      column.maxWidth(
-         
-        rows.map((row) => row[index]!),
-        state
-      )
+      column.maxWidth(rows.map((row) => row[index]).filter(isPresent), state)
     );
   }
 
@@ -118,7 +125,10 @@ class Columns {
 
 export type IntoColumn = IntoCell<IntoFragment> | Column;
 
-export function Col(from: Cell | Fragment, options?: ColumnOptions): Column {
+export function Col(
+  from: Cell | IntoFragment,
+  options?: ColumnOptions
+): Column {
   return Column.from(from, options);
 }
 
@@ -131,9 +141,9 @@ class Column {
     return !!(value && typeof value === "object" && value instanceof Column);
   }
 
-  static from(from: IntoColumn): Column;
   // This allows Column.from to be used as a function passed to .map()
-   
+  static from(from: IntoColumn): Column;
+  // eslint-disable-next-line @typescript-eslint/unified-signatures
   static from(from: IntoColumn, options?: ColumnOptions): Column;
   static from(from: IntoColumn, options?: ColumnOptions): Column {
     if (Column.is(from)) {
@@ -160,7 +170,7 @@ class Column {
   }
 
   maxWidth(rows: Cell[], state: LoggerState): number {
-    if (this.#options.width === "auto") {
+    if (this.#options.width === "auto" || this.#options.width === undefined) {
       return Math.max(
         this.#header?.width(state) ?? EMPTY_WIDTH,
         ...rows.map((row) => row.width(state))
@@ -171,7 +181,7 @@ class Column {
   }
 
   get justification(): Table.HorizontalAlignment {
-    return this.#options.justify;
+    return this.#options.justify ?? "left";
   }
 }
 

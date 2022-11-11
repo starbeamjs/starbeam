@@ -77,7 +77,12 @@ export function LogLineFor({
 
   if (parts.internal) {
     expand = (
-      <button class="stack" onClick={() => setShowInternal((prev) => !prev)}>
+      <button
+        class="stack"
+        onClick={() => {
+          setShowInternal((prev) => !prev);
+        }}
+      >
         {showInternal ? "Hide" : "Show"} internals
       </button>
     );
@@ -108,7 +113,7 @@ function timestamp(
   prev: Timestamp | undefined
 ): string {
   if (current) {
-    if (!prev || !prev.eq(current)) {
+    if (!prev?.eq(current)) {
       return String(Timestamp.debug(current).at);
     } else {
       return "";

@@ -1,16 +1,14 @@
-// @ts-check
-
-import { dirname, resolve } from "node:path";
-import { defineConfig } from "rollup";
-import * as vite from "vite";
-import rollupTS from "rollup-plugin-ts";
-import importMeta from "./import-meta.js";
 import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+
+import { defineConfig } from "rollup";
+import rollupTS from "rollup-plugin-ts";
 import typescriptLibrary from "typescript";
-import inline from "./inline.js";
 import { VitePluginFonts } from "vite-plugin-fonts";
-import { lintTypescript } from "./eslint.js";
+
+import importMeta from "./import-meta.js";
+import inline from "./inline.js";
 
 const { default: commonjs } = await import("@rollup/plugin-commonjs");
 const { default: nodeResolve } = await import("@rollup/plugin-node-resolve");
@@ -148,9 +146,7 @@ export class Package {
     const root = typeof meta === "string" ? meta : Package.root(meta);
 
     /** @type {PackageJSON} */
-    const json = JSON.parse(
-      readFileSync(resolve(root, "package.json"), "utf8")
-    );
+    const json = parse(readFileSync(resolve(root, "package.json"), "utf8"));
 
     /** @type {ExternalOption[]} */
     const starbeamExternal = [...DEFAULT_EXTERNAL_OPTIONS];
@@ -165,7 +161,7 @@ export class Package {
 
     const type = getStarbeam(json, "type", (value) => {
       if (typeof value !== "string") {
-        throw new Error(`Invalid starbeam:type: ${value}`);
+        throw new Error(`Invalid starbeam:type: ${JSON.stringify(value)}`);
       }
       return value;
     });
@@ -222,22 +218,6 @@ export class Package {
     const pkg = Package.at(meta);
 
     if (pkg) return pkg.#viteConfig();
-
-    throw Error(
-      `No package found at ${
-        typeof meta === "string" ? meta : Package.root(meta)
-      }`
-    );
-  }
-
-  /**
-   * @param {ImportMeta | string} meta
-   * @returns {ESLintExport}
-   */
-  static eslintConfig(meta) {
-    const pkg = Package.at(meta);
-
-    if (pkg) return pkg.#eslintConfig();
 
     throw Error(
       `No package found at ${
@@ -315,33 +295,6 @@ export class Package {
       },
       build: {},
     });
-  }
-
-  /**
-   * @returns {ESLintExport}
-   */
-  #eslintConfig() {
-    const pkg = this.#package;
-
-    if (pkg.starbeam.type === "library") {
-      const tsconfig = resolve(pkg.root, "tsconfig.json");
-
-      return [
-        ...lintTypescript(pkg.root, tsconfig, {
-          files: [
-            resolve(pkg.root, "index.ts"),
-            resolve(pkg.root, "src/**/*.ts"),
-          ],
-          tight: true,
-        }),
-        // ...lintTypescript(pkg.root, tsconfig, {
-        //   files: [resolve(pkg.root, "tests/**/*.ts")],
-        //   ignores: [resolve(pkg.root, "tests/node_modules/**")],
-        // }),
-      ];
-    }
-
-    throw Error("unimplemented");
   }
 
   /**
@@ -493,11 +446,6 @@ function mapExternal(inline) {
 }
 
 /**
- * @type {<K extends "jsx">(name: K, value: keyof CompilerOptions["jsx"]) => CompilerOptions[K]}
- */
-const setting = (_name, value) => /** @type {any} */ (value);
-
-/**
  * @param {import("./config.js").ViteExport} config
  */
 function viteConfig(config) {
@@ -505,24 +453,21 @@ function viteConfig(config) {
 }
 
 /**
- * @template {JsonValue} T
+ * @template T
  * @param {PackageJSON} packageJSON
  * @param {StarbeamKey} path
  * @param {(value: JsonValue) => T} [map]
  * @returns {T}
  */
-function getStarbeam(
-  packageJSON,
-  path,
-  map = (value) => /** @type {T} */ (value)
-) {
+// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+function getStarbeam(packageJSON, path, map = (value) => value) {
   const inline = packageJSON[`starbeam:${path}`];
 
   if (inline) {
     return map(inline);
   }
 
-  const starbeam = packageJSON["starbeam"];
+  const starbeam = packageJSON.starbeam;
 
   if (starbeam && typeof starbeam === "object" && !Array.isArray(starbeam)) {
     const value = starbeam[path];
@@ -533,4 +478,14 @@ function getStarbeam(
   }
 
   throw Error(`missing starbeam:${path}`);
+}
+
+/**
+ * @template T
+ * @param {string} string
+ * @returns {T}
+ */
+function parse(string) {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  return JSON.parse(string);
 }

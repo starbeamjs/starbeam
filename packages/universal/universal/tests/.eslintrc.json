@@ -6,7 +6,7 @@
   "overrides": [
     {
       "extends": ["plugin:@starbeam/loose"],
-      "files": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"]
+      "files": ["**/*.ts"]
     }
   ]
 }

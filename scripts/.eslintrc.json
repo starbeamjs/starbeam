@@ -1,12 +1,12 @@
 {
   "root": false,
-  "parserOptions": {
-    "project": "scripts/tsconfig.json"
-  },
   "overrides": [
     {
       "extends": ["plugin:@starbeam/tight"],
-      "files": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"]
+      "files": ["index.ts", "src/**/*.ts"],
+      "parserOptions": {
+        "project": "scripts/tsconfig.json"
+      }
     }
   ]
 }

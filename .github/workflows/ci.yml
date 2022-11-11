@@ -46,7 +46,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: "Setup node and install dependencies"
         uses: ./.github/actions/setup-node-and-install
-      - run: pnpm test
+      - run: pnpm ci:specs
 
   test_prod:
     name: "Tests (production)"
@@ -56,7 +56,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: "Setup node and install dependencies"
         uses: ./.github/actions/setup-node-and-install
-      - run: pnpm test:prod
+      - run: pnpm ci:prod
 
   typecheck:
     name: "Typecheck"
@@ -66,7 +66,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: "Setup node and install dependencies"
         uses: ./.github/actions/setup-node-and-install
-      - run: pnpm test:workspace:types
+      - run: pnpm ci:types
 
   lint:
     name: "Lint"
@@ -76,7 +76,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: "Setup node and install dependencies"
         uses: ./.github/actions/setup-node-and-install
-      - run: pnpm test:workspace:lint
+      - run: pnpm ci:lint
 
   release:
     name: Release

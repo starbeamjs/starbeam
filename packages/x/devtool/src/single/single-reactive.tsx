@@ -1,24 +1,24 @@
 import "./devtool.css";
 
-import {
-  type DebugListener,
-  type DebugOperation,
-  type Description,
-  defaultDescription,
+import type {
+  DebugListener,
+  DebugOperation,
+  Description,
 } from "@starbeam/debug";
 import type { MutableInternals } from "@starbeam/interfaces";
 import { ReactiveProtocol, TIMELINE } from "@starbeam/timeline";
+import { isPresent, verified } from "@starbeam/verify";
 import { type JSX, render } from "preact";
 
 export function DevtoolsFor(props: {
   reactive: ReactiveProtocol;
   log: DebugOperation[];
 }): JSX.Element {
-  function computeDependencies() {
+  function computeDependencies(): Iterable<MutableInternals> {
     return ReactiveProtocol.dependencies(props.reactive);
   }
 
-  function computeInvalidated() {
+  function computeInvalidated(): MutableInternals[] {
     return props.log
       .map((operation) => operation.for)
       .filter(
@@ -72,10 +72,14 @@ export function DevtoolsFor(props: {
   );
 }
 
-function Dependency({ description }: { description: Description }) {
+function Dependency({
+  description,
+}: {
+  description: Description;
+}): JSX.Element {
   const specified = <span class="specified">{description.fullName}</span>;
 
-  function displayLink() {
+  function displayLink(): void {
     if (description.fullName) {
       console.log(
         "%c%s @ %s",
@@ -100,7 +104,7 @@ function Dependency({ description }: { description: Description }) {
 
 function unique(dependencies: MutableInternals[]): Description[] {
   const descriptions = new Set(
-    dependencies.map((d) => d.description?.userFacing ?? defaultDescription)
+    dependencies.map((d) => d.description.userFacing)
   );
 
   return [...descriptions];
@@ -124,13 +128,13 @@ export default function DevtoolsPane(
 
 export function DevTools(
   listener: DebugListener,
-   
+
   reactive: ReactiveProtocol
 ): () => void {
   const pane = DevtoolsPane(
     reactive,
     listener.flush(),
-    document.querySelector("#devtools") as Element
+    verified(document.querySelector("#devtools"), isPresent)
   );
 
   return () => {

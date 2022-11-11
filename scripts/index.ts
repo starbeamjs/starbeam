@@ -6,6 +6,7 @@ import { program } from "commander";
 
 import { BuildCommand } from "./src/build.js";
 import { CheckCommand } from "./src/check.js";
+import { CiCommand } from "./src/ci.js";
 import { CleanCommand } from "./src/clean.js";
 import { DemoCommand } from "./src/demo.js";
 import { LintCommand } from "./src/lint.js";
@@ -39,6 +40,7 @@ new StarbeamCommands(
   .add(UnusedCommand)
   .add(TemplateCommand)
   .add(TestCommand)
+  .add(CiCommand)
   .add(CheckCommand)
   .add(ReleaseCommand)
   .add(LintCommand)

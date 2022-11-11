@@ -9,22 +9,21 @@ export interface PackageInfo {
   };
 }
 
+export type JsonArray = JsonValue[];
+export type JsonObject = Record<string, JsonValue>;
+
 export type JsonValue =
   | string
   | number
   | boolean
   | null
-  | JsonArray
-  | JsonObject;
-
-export type JsonArray = JsonValue[];
-export type JsonObject = { [key: string]: JsonValue };
+  | JsonValue[]
+  | Record<string, JsonValue>;
 
 // importing from typescript using a static import massively slows down eslint for some reason.
 export type CompilerOptions = import("typescript").CompilerOptions;
 
-export type Setting<T extends keyof CompilerOptions> = unknown &
-  CompilerOptions[T] &
+export type Setting<T extends keyof CompilerOptions> = CompilerOptions[T] &
   string;
 
 import type * as rollup from "rollup";
@@ -60,10 +59,9 @@ export type ViteExport =
   | Pick<vite.UserConfig, "plugins" | "esbuild" | "optimizeDeps" | "build">
   | Promise<ViteExport>;
 
-import { Linter } from "eslint";
-import type { FlatConfig, FlatConfigItem } from "./eslint-flat.js";
+import type { FlatConfigItem } from "./eslint-flat.js";
 
-export type ESLintExport =  FlatConfigItem[];
+export type ESLintExport = FlatConfigItem[];
 
 export class Package {
   static root(meta: ImportMeta): string;

@@ -216,6 +216,7 @@ export interface InternalDescription {
 
 export interface DescriptionParts {
   readonly type: DescriptionType;
+  readonly id: ReactiveId;
   readonly api: ApiDetails | undefined;
   readonly details: DetailsPart;
   readonly userFacing: Description;

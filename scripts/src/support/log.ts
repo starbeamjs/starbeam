@@ -1,6 +1,7 @@
-import { getFirst, TO_STRING } from "@starbeam/core-utils";
+import { getFirst, isSingleItemArray, TO_STRING } from "@starbeam/core-utils";
 import ansicolor from "ansicolor";
 import chalk, { type ChalkInstance } from "chalk";
+import emojiRegex from "emoji-regex";
 
 import type { LoggerState } from "./reporter/logger.js";
 import type { ReporterOptions } from "./reporter/reporter.js";
@@ -17,6 +18,45 @@ import {
   STYLES,
 } from "./reporter/styles.js";
 import { Result } from "./type-magic.js";
+
+export const Style = {
+  is: (value: unknown): value is Style => {
+    if (typeof value === "string") {
+      return isAnyStyleName(value);
+    } else if (typeof value === "function") {
+      return true;
+    } else {
+      return false;
+    }
+  },
+
+  reset: (message: string): string => chalk.reset(message),
+  default: chalk,
+
+  inverse: (style: Style): StyleInstance => {
+    const resolved = StyleInstance.resolve(style);
+    return resolved.inverse;
+  },
+
+  specific: (style: Style, part: IntoStylePart): StyleInstance => {
+    const resolved = IntoDetailedStyle(style);
+    const partName = StylePart.asString(part);
+
+    if (hasPart(resolved, partName)) {
+      return resolved[partName][STYLE];
+    } else {
+      return resolved[STYLE];
+    }
+  },
+
+  decoration: (style: Style): StyleInstance => {
+    return Style.specific(style, "decoration");
+  },
+
+  header: (style: Style): StyleInstance => {
+    return Style.specific(style, "header");
+  },
+} as const;
 
 export function log(message: string, style: Style = Style.default): void {
   console.log(Fragment(style, message));
@@ -131,9 +171,8 @@ export abstract class FragmentImpl {
 
   static from(this: void, from: IntoFragment): FragmentImpl {
     if (Array.isArray(from)) {
-      const head = getFirst(from);
-      if (head !== undefined) {
-        return FragmentImpl.from(head);
+      if (isSingleItemArray(from)) {
+        return FragmentImpl.from(getFirst(from));
       } else {
         return new FragmentGroup(from.map(FragmentImpl.from));
       }
@@ -301,7 +340,8 @@ class LeafFragment extends FragmentImpl {
   }
 
   width(): number {
-    return this.#message.length;
+    const emoji = [...this.#message.matchAll(emojiRegex())];
+    return this.#message.length + emoji.length;
   }
 
   get style(): StyleInstance {
@@ -440,7 +480,7 @@ for (const [name, style] of Object.entries(STYLES) as [StyleName, Style][]) {
   const Frag = FragmentFn as unknown as Record<string, ToFragmentFn>;
 
   const Fn = (message: Printable): Fragment => FragmentFn(style, message);
-   
+
   Fn.inverse = (message: Printable): Fragment =>
     FragmentFn(Style.inverse(style), message);
 
@@ -485,45 +525,6 @@ export function fragment(
 
 export type Fragment = FragmentImpl & { toString: () => string };
 export const Fragment = FragmentFn as typeof FragmentFn & ParentToFragmentFn;
-
-export const Style = {
-  is: (value: unknown): value is Style => {
-    if (typeof value === "string") {
-      return isAnyStyleName(value);
-    } else if (typeof value === "function") {
-      return true;
-    } else {
-      return false;
-    }
-  },
-
-  reset: (message: string): string => chalk.reset(message),
-  default: chalk,
-
-  inverse: (style: Style): StyleInstance => {
-    const resolved = StyleInstance.resolve(style);
-    return resolved.inverse;
-  },
-
-  specific: (style: Style, part: IntoStylePart): StyleInstance => {
-    const resolved = IntoDetailedStyle(style);
-    const partName = StylePart.asString(part);
-
-    if (hasPart(resolved, partName)) {
-      return resolved[partName][STYLE];
-    } else {
-      return resolved[STYLE];
-    }
-  },
-
-  decoration: (style: Style): StyleInstance => {
-    return Style.specific(style, "decoration");
-  },
-
-  header: (style: Style): StyleInstance => {
-    return Style.specific(style, "header");
-  },
-} as const;
 
 export function isDetailed(value: unknown): value is DetailedStyle {
   return !!(value && typeof value === "object" && STYLE in value);

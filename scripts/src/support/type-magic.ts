@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { isEmptyArray, TO_STRING } from "@starbeam/core-utils";
 
 import { terminalWidth } from "./format.js";
@@ -14,17 +15,14 @@ Error.stackTraceLimit = 1000;
  * StackOverflow (which says to no-no-never-never do this).
  */
 
- 
 type Push<T extends any[], V> = [...T, V];
 
- 
 type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
   k: infer I
 ) => void
   ? I
   : never;
 type LastOf<T> = UnionToIntersection<
-   
   T extends any ? () => T : never
 > extends () => infer R
   ? R
@@ -265,12 +263,10 @@ export type IntoResult<T, E = unknown> = T | Result<T, E>;
 export type ResultRecord<E = unknown> = Record<string, IntoResult<unknown, E>>;
 
 export type OkRecord<T extends ResultRecord> = {
-   
   [P in keyof T]: T[P] extends Result<infer U, any> ? U : never;
 };
 
 export type RecordError<T extends ResultRecord> = {
-   
   [P in keyof T]: T[P] extends Result<any, infer E> ? E : never;
 }[keyof T];
 
@@ -385,7 +381,7 @@ export class Result<T, E = unknown> {
 
   mapErr<T2, E2>(callback: (error: E) => Result<T2, E2>): Result<T2, E2>;
   mapErr<E2>(callback: (error: E) => E2): Result<T, E2>;
-   
+
   mapErr(callback: (error: E) => IntoResult<any>): Result<any> {
     return this.match({
       ifOk: () => this,

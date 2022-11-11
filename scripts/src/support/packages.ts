@@ -99,8 +99,8 @@ export class Package {
       }
     }
 
-    const root = manifest.dirname;
-    const raw = new RawPackage(pkg, root);
+    const root = manifest.parent;
+    const raw = new RawPackage(pkg, root.absolute);
 
     const main = raw.get("main", { default: undefined as undefined | string });
 
@@ -133,11 +133,9 @@ export class Package {
       name: raw.get("name"),
       type: raw.get("type", { default: "commonjs" }),
       main,
-      root,
+      root: root.absolute,
       isPrivate: raw.get("private", { default: false }),
-      isTypescript:
-        raw.get("type", { default: false }) ||
-        raw.get("exports:.:types", { default: false }),
+      isTypescript: root.file("tsconfig.json").exists(),
       scripts,
       tests,
       dependencies: createDependencies(raw),

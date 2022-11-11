@@ -143,6 +143,10 @@ export const TestCommand = QueryCommand("test", {
       workspace.reporter.reportCheckResults(results, {
         success: "all tests succeeded",
       });
+
+      if (!results.isOk) {
+        workspace.reporter.fail();
+      }
     }
   );
 
@@ -162,7 +166,9 @@ function tests(
     .map((test) => {
       return CheckDefinition(
         options.header(test),
-        `pnpm run test:${test}${options.watch ? "" : " --run"}`,
+        `pnpm run test:${test}${
+          options.watch ? "" : test.endsWith(":specs") ? " --run" : ""
+        }`,
         {
           cwd: pkg.root,
           output: options.streamOutput ? "stream" : "when-error",

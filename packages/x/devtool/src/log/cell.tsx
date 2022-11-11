@@ -5,11 +5,11 @@ import type {
   CellConsumeOperation,
   CellUpdateOperation,
 } from "@starbeam/debug";
-import type { MutableInternals, Timestamp } from "@starbeam/interfaces";
+import type { Timestamp } from "@starbeam/interfaces";
 import type { JSX } from "preact";
 
 import type { DevtoolsOptions } from "./shared.js";
-import { LogLine, LogLineFor } from "./ui.js";
+import { LogLineFor } from "./ui.js";
 
 export function CellConsumeLine({
   line,
@@ -21,30 +21,22 @@ export function CellConsumeLine({
   options: DevtoolsOptions;
 }): JSX.Element {
   const at = line.at;
-  const cell = line.for as MutableInternals;
+  const cell = line.for;
 
-  const description = cell.description?.parts;
+  const description = cell.description.parts;
 
-  if (description === undefined) {
-    return (
-      <LogLine at={at} prev={prev}>
-        A cell was consumed, but no information about it is available.
-      </LogLine>
-    );
-  } else {
-    return (
-      <>
-        <LogLineFor
-          at={at}
-          prev={prev}
-          what="cell"
-          operation="consume"
-          parts={description}
-          options={options}
-        />
-      </>
-    );
-  }
+  return (
+    <>
+      <LogLineFor
+        at={at}
+        prev={prev}
+        what="cell"
+        operation="consume"
+        parts={description}
+        options={options}
+      />
+    </>
+  );
 }
 
 export function CellUpdateLine({
@@ -57,26 +49,18 @@ export function CellUpdateLine({
   options: DevtoolsOptions;
 }): JSX.Element {
   const at = line.at;
-  const cell = line.for as MutableInternals;
+  const cell = line.for;
 
-  const description = cell.description?.parts;
+  const description = cell.description.parts;
 
-  if (description === undefined) {
-    return (
-      <LogLine at={at} prev={prev}>
-        A cell was updated, but no information about it is available.
-      </LogLine>
-    );
-  } else {
-    return (
-      <LogLineFor
-        at={at}
-        prev={prev}
-        what="cell"
-        operation="update"
-        parts={description}
-        options={options}
-      />
-    );
-  }
+  return (
+    <LogLineFor
+      at={at}
+      prev={prev}
+      what="cell"
+      operation="update"
+      parts={description}
+      options={options}
+    />
+  );
 }

@@ -23,8 +23,8 @@ import { Formula } from "../formula/formula.js";
 import type { IntoResource } from "../into.js";
 import { type Blueprint, ReactiveBlueprint } from "../reactive.js";
 import { Static } from "../static.js";
-import type { ResourceRun } from "./run";
-import { ResourceState } from "./state";
+import type { ResourceRun } from "./run.js";
+import { ResourceState } from "./state.js";
 
 export type ResourceFactory<T> =
   | ((resource: ResourceRun) => ResourceReturn<T>)

@@ -1,7 +1,8 @@
 import { getLast, withoutLast } from "@starbeam/core-utils";
 import chalk from "chalk";
 
-import { wrapIndented } from "../format.js";
+import { SPACES_PER_TAB } from "../constants.js";
+import { terminalWidth, wrapIndented, wrapLines } from "../format.js";
 import {
   type DensityChoice,
   type FragmentImpl,
@@ -9,7 +10,7 @@ import {
   Fragment,
 } from "../log.js";
 import { DisplayStruct } from "./inspect.js";
-import type { LoggerEndWith, ReporterOptions } from "./reporter.js";
+import type { LoggerEndWith, LogOptions, ReporterOptions } from "./reporter.js";
 
 export interface Header {
   message: Fragment;
@@ -65,8 +66,12 @@ export class LoggerState {
     return this.#leading;
   }
 
+  get leadingWidth(): number {
+    return this.#leading * SPACES_PER_TAB;
+  }
+
   get leadingString(): string {
-    return "  ".repeat(this.#leading);
+    return " ".repeat(this.leadingWidth);
   }
 
   get verbose(): boolean {
@@ -145,23 +150,27 @@ abstract class InternalLoggerState {
     return this.#formatLine(message);
   }
 
+  formatFragment(message: IntoFragment): string {
+    return Fragment.stringify(message, this.loggerState);
+  }
+
   #formatLine(message: IntoFragment): string {
     if (typeof message === "string" && message.trim() === "") {
       return "";
     } else {
-      return `${this.#leadingString}${this.#format(message)}`;
+      return this.#format(message, { leading: this.leading });
     }
   }
 
-  #format(message: IntoFragment): string {
+  #format(message: IntoFragment, options: { leading: number }): string {
     return format({
       message: Fragment.stringify(message, this.loggerState),
-      leading: this.leading,
+      indents: options.leading,
     });
   }
 
   get #leadingString(): string {
-    return "  ".repeat(this.leading);
+    return " ".repeat(this.leading * SPACES_PER_TAB);
   }
 
   begin(
@@ -401,10 +410,21 @@ class States {
 
   logln(
     message: IntoFragment,
-    logger: LoggerName | LogFunction = console.log
+    {
+      logger = console.log,
+      indented = false,
+    }: {
+      logger?: LoggerName | LogFunction | undefined;
+      indented?: boolean | undefined;
+    } = {}
   ): void {
     const loggerFn = typeof logger === "string" ? LOGGERS[logger] : logger;
-    this.#logln(this.#current.formatLine(message), loggerFn);
+
+    const line = indented
+      ? this.#current.formatFragment(message)
+      : this.#current.formatLine(message);
+
+    this.#logln(line, loggerFn);
   }
 
   begin(
@@ -483,6 +503,8 @@ class States {
   }
 }
 
+const TERMINAL_PADDING = 1;
+
 export class Logger {
   static create(options: ReporterOptions): Logger {
     return new Logger(options);
@@ -510,6 +532,14 @@ export class Logger {
 
   get didPrint(): boolean {
     return this.#states.didPrint;
+  }
+
+  get terminalWidth(): number {
+    return terminalWidth();
+  }
+
+  get availableWidth(): number {
+    return this.terminalWidth - this.state.leadingWidth - TERMINAL_PADDING;
   }
 
   ensureBreak(): void {
@@ -584,7 +614,22 @@ export class Logger {
 
   logln(message = "", logger: LoggerName | LogFunction = console.log): void {
     this.#states.ensureOpen({ expect: "any" });
-    this.#states.logln(message, logger);
+    this.#states.logln(message, { logger });
+  }
+
+  logLines(
+    message: string,
+    options: { logger?: LoggerName | LogFunction } & LogOptions = {
+      leading: { indents: this.leading },
+    }
+  ): void {
+    this.#states.ensureOpen({ expect: "any" });
+
+    const leading = options.leading ?? { indents: this.leading };
+
+    for (const line of wrapLines(message, { ...options, leading }).lines) {
+      this.#states.logln(line, { logger: options.logger, indented: true });
+    }
   }
 
   reportError(e: Error | IntoFragment): void {
@@ -593,16 +638,25 @@ export class Logger {
     this.#states.logln(chalk.red("An unexpected error occurred:"));
 
     if (e && e instanceof Error) {
-      this.#states.logln(chalk.redBright(wrapIndented(e.message)));
+      this.#states.logln(
+        chalk.redBright(
+          wrapIndented(e.message, { leading: { indents: this.leading } })
+        )
+      );
       this.#states.logln("");
-      this.#states.logln(chalk.redBright.inverse("Stack trace"), console.group);
-      this.#states.logln(chalk.grey.dim(wrapIndented(e.stack ?? "")));
+      this.#states.logln(chalk.redBright.inverse("Stack trace"), {
+        logger: console.group,
+      });
+      this.#states.logln(
+        chalk.grey.dim(
+          wrapIndented(e.stack ?? "", { leading: { indents: this.leading } })
+        )
+      );
       console.groupEnd(); // intentionally manual
     } else {
-      this.#states.logln(
-        chalk.redBright("An unexpected error occurred:"),
-        console.group
-      );
+      this.#states.logln(chalk.redBright("An unexpected error occurred:"), {
+        logger: console.group,
+      });
       this.#states.logln(Fragment.from(e).stringify(this.state));
       console.groupEnd(); // intentionally manual
     }
@@ -626,12 +680,12 @@ export class Logger {
 
 export function format({
   message,
-  leading,
+  indents,
 }: {
   message: string;
-  leading: number;
+  indents: number;
 }): string {
-  return wrapIndented(message, leading);
+  return wrapIndented(message, { leading: { indents } });
 }
 
 interface WriteResults {

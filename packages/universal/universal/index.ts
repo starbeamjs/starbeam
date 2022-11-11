@@ -48,5 +48,3 @@ export {
   Variants,
 } from "./src/reactive-core/variants.js";
 export { LIFETIME, REACTIVE, TIMELINE } from "@starbeam/timeline";
-
-console.log(1);

@@ -6,7 +6,7 @@ import {
 
 import type { CheckResults } from "./checks.js";
 import { Checks, GroupedCheckResults } from "./checks.js";
-import { type IntoFragment, Fragment } from "./log.js";
+import { type IntoFragment, Fragment, fragment } from "./log.js";
 import type { Directory, Glob } from "./paths.js";
 import { type GlobOptions, type Path, Paths } from "./paths.js";
 import {
@@ -73,11 +73,62 @@ export class Workspace {
           r.log("");
         });
 
-        return execSync(command, {
-          cwd: this.root.absolute,
-          encoding: "utf8",
-          ...options,
-        });
+        try {
+          return execSync(command, {
+            cwd: this.root.absolute,
+            encoding: "utf8",
+            ...options,
+          });
+        } catch (e) {
+          const error = e;
+          if (error instanceof Error) {
+            r.ensureBreak();
+
+            r.group(
+              Fragment.problem("An error occurred while executing the command:")
+            ).try((r) => {
+              r.log(
+                fragment`${Fragment.comment("$")} ${Fragment.comment(command)}`
+              );
+
+              if ("output" in error) {
+                r.ensureBreak();
+                r.group(Fragment.problem.inverse(`Output:`)).try((r) => {
+                  const output = (error.output as (string | null)[])
+                    .flatMap((o) => {
+                      if (o === null) {
+                        return [];
+                      } else {
+                        return o
+                          .split("\n")
+                          .map((line) => Fragment.comment(line));
+                      }
+                    })
+                    .join("\n");
+
+                  r.ensureBreak();
+
+                  r.fill(Fragment.comment("┏"), {
+                    repeat: Fragment.comment("╌"),
+                  });
+                  r.log(output, {
+                    lines: true,
+                    prefix: String(Fragment.comment("┇ ")),
+                  });
+                  r.fill(Fragment.comment("┗"), {
+                    repeat: Fragment.comment("╌"),
+                  });
+                });
+              }
+              // r.reportError(inspect(error));
+            });
+            // r.log(Fragment.problem(e.message));
+            // r.reportError(e);
+            return;
+          }
+
+          throw e;
+        }
       });
   }
 

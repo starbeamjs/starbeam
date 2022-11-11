@@ -1,16 +1,19 @@
 {
   "root": false,
-  "parserOptions": {
-    "project": "demos/react/tsconfig.json"
-  },
   "overrides": [
     {
       "extends": ["plugin:@starbeam/demos"],
-      "files": ["index.ts", "index.tsx", "src/**/*.ts", "src/**/*.tsx"]
+      "files": ["index.ts", "index.tsx", "src/**/*.ts", "src/**/*.tsx"],
+      "parserOptions": {
+        "project": "demos/react/tsconfig.json"
+      }
     },
     {
       "extends": ["plugin:@starbeam/loose"],
-      "files": ["vite.config.ts"]
+      "files": ["vite.config.ts"],
+      "parserOptions": {
+        "project": "demos/react/tsconfig.json"
+      }
     }
   ]
 }

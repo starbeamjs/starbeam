@@ -1,11 +1,6 @@
 import { stringify } from "@starbeam/core-utils";
 
-import {
-  type JsonObject,
-  type JsonPrimitive,
-  type JsonValue,
-  isObject,
-} from "./json.js";
+import type { JsonObject, JsonValue } from "./json.js";
 import type { RegularFile } from "./paths.js";
 import { type Directory, Globs } from "./paths.js";
 import { type IntoUnionInstance, Union } from "./type-magic.js";
@@ -141,10 +136,7 @@ export class JsonTemplate extends Union(
   "package.json",
   "tsconfig.json"
 ) {
-  read(
-    root: Directory,
-    filter?: [kind: string, value: IntoUnionInstance]
-  ): JsonObject {
+  read(root: Directory, filter?: JsonFilter): JsonObject | undefined {
     const json = root
       .file(`scripts/templates/package/${String(this)}.template`)
       .readSync({ as: "json" });
@@ -157,7 +149,8 @@ export class JsonTemplate extends Union(
   }
 }
 
-export type JsonFilter = [type: string, value: IntoUnionInstance];
+export type JsonFilterType = "source" | "type";
+export type JsonFilter = Record<JsonFilterType, IntoUnionInstance>;
 
 class JsonEntries {
   static create(object: JsonObject, path: string): JsonEntries {
@@ -172,77 +165,53 @@ class JsonEntries {
     this.#entries = entries;
   }
 
-  filter(filter: JsonFilter): JsonObject {
-    const entries = this.#entries;
+  filter(filter: JsonFilter): JsonObject | undefined {
+    const switchType = this.#switchType;
 
-    const staticEntries = entries.filter(([key]) => !key.startsWith("switch:"));
+    if (switchType === undefined) {
+      return Object.fromEntries(this.#entries);
+    }
 
-    const [type, value] = filter;
+    const { type, choices } = switchType;
 
-    return {
-      ...Object.fromEntries(staticEntries),
-      ...this.#objectFor(type, String(value)),
-    };
+    if (type in filter) {
+      const actual = String(filter[type]);
+
+      if (actual in choices) {
+        return choices[actual];
+      }
+    }
+
+    if ("default" in choices) {
+      return choices["default"];
+    } else {
+      throw Error(
+        `No default in switch:${type} (for ${
+          this.#path
+        }) and the given filter (${JSON.stringify(filter)}) had no matches.`
+      );
+    }
   }
 
-  #objectFor(type: string, value: string): JsonObject {
-    const switchNode = this.#entries.find(([key]) =>
-      key.startsWith(`switch:${type}`)
+  get #switchType():
+    | { type: JsonFilterType; choices: Record<string, JsonObject> }
+    | undefined {
+    const switchNode = this.#entries.find(
+      ([key]) => key.startsWith("switch:") && key !== "switch:default"
     );
 
     if (!switchNode) {
-      return {};
+      return;
     }
 
-    const [key, switchValue] = switchNode;
+    const [key, choices] = switchNode;
+    const [, switchType] = key.split(":") as ["switch", JsonFilterType];
 
-    this.#assert(type, switchValue);
-
-    if (value in switchValue) {
-      return this.#asserting(`${type}:${key}`, switchValue[value]);
-    } else if ("default" in switchValue) {
-      return this.#asserting(
-        `${type}:default`,
-        switchValue["default"] as JsonValue
-      );
-    } else {
-      return {};
-    }
+    return {
+      type: switchType,
+      choices: choices as Record<string, JsonObject>,
+    };
   }
-
-  #assert(
-    key: string,
-    value: JsonValue | undefined
-  ): asserts value is JsonObject {
-    if (!isObject(value)) {
-      throw Error(
-        stringify`Malformed switch entry for switch:${key} in ${
-          this.#path
-        }: ${JSON.stringify(
-          value
-        )}\n\nA switch entry and its children must be objects, but the value is a ${typeof value}.`
-      );
-    }
-  }
-
-  #asserting(key: string, value: JsonValue | undefined): JsonObject {
-    this.#assert(key, value);
-    return value;
-  }
-
-  #isMalformed = (
-    entry: [string, JsonValue]
-  ): entry is [string, JsonPrimitive] => {
-    const [key, value] = entry;
-    return (key.startsWith("if:") || key === "else") && !isObject(value);
-  };
-
-  #isConditional = (
-    entry: [string, JsonValue]
-  ): entry is [string, JsonObject] => {
-    const [key, value] = entry;
-    return (key.startsWith("if:") || key === "else") && isObject(value);
-  };
 }
 
 export class Template extends Union(

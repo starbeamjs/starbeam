@@ -10,6 +10,7 @@ import {
   type IntoFragment,
   type IntoFragmentMap,
   Fragment,
+  fragment,
   FragmentImpl,
   FragmentMap,
   isIntoFragment,
@@ -33,6 +34,19 @@ export interface ReporterOptions {
 export interface RawWriter {
   write: (message: string) => void;
   writeln: (message: string) => void;
+}
+
+export type LeadingOption = { indents: number } | { spaces: number } | "auto";
+
+export interface LogOptions {
+  lines?: boolean;
+  prefix?: string | undefined;
+  leading?: LeadingOption;
+}
+
+export interface InternalLogOptions {
+  prefix?: string | undefined;
+  leading: LeadingOption;
 }
 
 export class Reporter {
@@ -145,9 +159,17 @@ export class Reporter {
     }
   }
 
-  #log(logger: LoggerName, message: IntoFallibleFragment): void {
+  #log(
+    logger: LoggerName,
+    message: IntoFallibleFragment,
+    options: LogOptions
+  ): void {
     this.#logResult(message, (string) => {
-      this.#logger.logln(string, logger);
+      if (options.lines) {
+        this.#logger.logLines(string, options);
+      } else {
+        this.#logger.logln(string, logger);
+      }
     });
   }
 
@@ -232,11 +254,12 @@ export class Reporter {
   #li(item: IntoFallibleFragment, markerStyle: Style | "none"): void {
     this.#logResult(item, (listItem) => {
       if (markerStyle === "none") {
-        this.#log("log", listItem);
+        this.#log("log", listItem, { lines: false });
       } else {
         this.#log(
           "log",
-          stringify`${Fragment.decoration(markerStyle, "•")} ${listItem}`
+          stringify`${Fragment.decoration(markerStyle, "•")} ${listItem}`,
+          { lines: false }
         );
       }
     });
@@ -309,12 +332,29 @@ export class Reporter {
     return this.#logger.raw(callback);
   }
 
-  log(fragment: IntoFallibleFragment): void {
-    this.#log("log", fragment);
+  fill(
+    prefix: IntoFragment,
+    options: LogOptions & { repeat: IntoFragment }
+  ): void {
+    const fill = Fragment.from(options.repeat);
+    const fillSize = fill.width(this.loggerState);
+    const availableWidth = this.#logger.availableWidth;
+
+    const repeatFill = Math.floor(availableWidth / fillSize);
+
+    this.#log(
+      "log",
+      fragment`${prefix}${String(fill).repeat(repeatFill)}`,
+      options
+    );
   }
 
-  error(fragment: IntoFallibleFragment): void {
-    this.#log("error", fragment);
+  log(fragment: IntoFallibleFragment, options: LogOptions = {}): void {
+    this.#log("log", fragment, options);
+  }
+
+  error(fragment: IntoFallibleFragment, options: LogOptions = {}): void {
+    this.#log("error", fragment, options);
   }
 
   reportError(error: Error | IntoFragment): void {
@@ -343,20 +383,27 @@ export class Reporter {
     this.#logger.exit(FATAL_EXIT_CODE);
   }
 
-  info(message: string): void {
-    this.#log("info", message);
+  fail(): never {
+    this.#logger.exit(FATAL_EXIT_CODE);
   }
 
-  warn(message: string): void {
-    this.#log("warn", message);
+  info(message: string, options: { lines: boolean } = { lines: false }): void {
+    this.#log("info", message, options);
   }
 
-  debug(message: string): void {
-    this.#log("debug", message);
+  warn(message: string, options: { lines: boolean } = { lines: false }): void {
+    this.#log("warn", message, options);
   }
 
-  success(message: string): void {
-    this.#log("log", chalk.greenBright(message));
+  debug(message: string, options: { lines: boolean } = { lines: false }): void {
+    this.#log("debug", message, options);
+  }
+
+  success(
+    message: string,
+    options: { lines: boolean } = { lines: false }
+  ): void {
+    this.#log("log", chalk.greenBright(message), options);
   }
 
   reportCheckResults(

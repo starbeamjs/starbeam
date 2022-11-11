@@ -1,3 +1,3 @@
-export { default as importMeta } from "./import-meta.js";
-export { Package } from "./config.js";
-export { default as inline } from "./inline.js";
+export { Package } from "./src/config.js";
+export { default as importMeta } from "./src/import-meta.js";
+export { default as inline } from "./src/inline.js";

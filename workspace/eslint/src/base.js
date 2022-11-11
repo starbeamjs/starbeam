@@ -6,7 +6,7 @@ const Rules = require("./rules.js");
 exports.config = {
   parser: "@typescript-eslint/parser",
   parserOptions: {
-    EXPERIMENTAL_useSourceOfProjectReferenceRedirect: false,
+    EXPERIMENTAL_useSourceOfProjectReferenceRedirect: true,
     warnOnUnsupportedTypeScriptVersion: false,
     ecmaVersion: "latest",
   },

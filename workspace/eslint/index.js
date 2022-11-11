@@ -5,6 +5,7 @@ const base = require("./src/base.js");
 const tight = require("./src/tight.js");
 const demos = require("./src/demos.js");
 const commonjs = require("./src/commonjs.js");
+const esm = require("./src/esm.js");
 const json = require("./src/json.js");
 
 /** @type {ESLint.Plugin} */
@@ -24,6 +25,11 @@ module.exports = {
       ...commonjs.config,
       extends: commonjs.extends,
       rules: commonjs.rules,
+    },
+    esm: {
+      ...esm.config,
+      extends: esm.extends,
+      rules: esm.rules,
     },
     demos: {
       ...base.config,

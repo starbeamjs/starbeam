@@ -1,4 +1,40 @@
 {
+  "name": "@starbeam/debug",
+  "version": "0.7.4",
+  "type": "module",
+  "main": "index.ts",
+  "types": "index.ts",
+  "exports": {
+    "default": "./index.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts"
+  },
+  "starbeam": {
+    "inline": [
+      "stacktracey",
+      "get-source",
+      "source-map",
+      "data-uri-to-buffer",
+      "as-table",
+      "printable-characters",
+      "chalk"
+    ],
+    "type": "library:public"
+  },
+  "scripts": {
+    "test:lint": "eslint",
+    "test:specs": "vitest --run",
+    "test:types": "tsc -b"
+  },
   "dependencies": {
     "@domtree/flavors": "workspace:^",
     "@starbeam/core-utils": "workspace:^",
@@ -13,44 +49,9 @@
     "@types/node": "^18.7.23",
     "chalk": "^5.0.1"
   },
-  "exports": {
-    "default": "./index.ts"
-  },
-  "main": "index.ts",
-  "name": "@starbeam/debug",
   "pnpm": {
     "overrides": {
       "stacktracey": "file:./stacktracey.tgz"
     }
-  },
-  "publishConfig": {
-    "main": "dist/index.cjs",
-    "types": "dist/index.d.ts",
-    "exports": {
-      ".": {
-        "types": "./dist/index.d.ts",
-        "import": "./dist/index.js",
-        "default": "./dist/index.cjs"
-      }
-    }
-  },
-  "scripts": {
-    "test:lint": "eslint",
-    "test:specs": "vitest",
-    "test:types": "tsc -b"
-  },
-  "type": "module",
-  "version": "0.7.4",
-  "starbeam": {
-    "inline": [
-      "stacktracey",
-      "get-source",
-      "source-map",
-      "data-uri-to-buffer",
-      "as-table",
-      "printable-characters",
-      "chalk"
-    ],
-    "type": "library"
   }
 }

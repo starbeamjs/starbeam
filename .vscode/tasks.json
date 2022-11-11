@@ -1,42 +1,42 @@
 {
-  "version": "2.0.0",
   "tasks": [
     {
-      "type": "shell",
-      "command": "pnpm",
       "args": ["test:workspace:types"],
+      "command": "pnpm",
+      "label": "test:workspace:types",
       "problemMatcher": ["$tsc"],
-      "label": "test:workspace:types"
+      "type": "shell"
     },
     {
-      "type": "shell",
-      "command": "pnpm",
       "args": ["test:workspace:types", "-w"],
+      "command": "pnpm",
+      "label": "test:workspace:types (watch)",
       "problemMatcher": ["$tsc-watch"],
-      "label": "test:workspace:types (watch)"
+      "type": "shell"
     },
     {
-      "type": "shell",
-      "command": "pnpm",
       "args": ["test:workspace:lint"],
+      "command": "pnpm",
+      "label": "Lint",
       "problemMatcher": ["$eslint-stylish"],
-      "label": "Lint"
+      "type": "shell"
     },
     {
-      "type": "shell",
-      "command": "pnpm",
       "args": ["install"],
+      "command": "pnpm",
       "group": "build",
-      "problemMatcher": [],
+      "label": "npm: install",
       "presentation": {
+        "clear": true,
         "echo": true,
-        "reveal": "silent",
         "focus": false,
         "panel": "shared",
-        "showReuseMessage": true,
-        "clear": true
+        "reveal": "silent",
+        "showReuseMessage": true
       },
-      "label": "npm: install"
+      "problemMatcher": [],
+      "type": "shell"
     }
-  ]
+  ],
+  "version": "2.0.0"
 }

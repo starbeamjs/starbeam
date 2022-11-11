@@ -143,12 +143,19 @@ export class UpdatePackage {
 
       json.template = (intoTemplate, update = ({ template }) => template) => {
         const relativePath = String(intoTemplate);
-        const template = JsonTemplate.from(intoTemplate).read(
-          this.#updatePackage.#workspace.root,
-          ["type", this.#updatePackage.pkg.type]
-        );
+        const pkg = this.#updatePackage.pkg;
+        const template =
+          JsonTemplate.from(intoTemplate).read(
+            this.#updatePackage.#workspace.root,
+            {
+              type: pkg.type,
+              source: pkg.source,
+            }
+          ) ?? {};
 
-        return json(relativePath, (current) => update({ current, template }));
+        return json(relativePath, (current) =>
+          update({ current: cloneJSON(current), template })
+        );
       };
 
       this.json = json as UpdateJsonField;
@@ -168,7 +175,9 @@ export class UpdatePackage {
         );
       }
 
-      const next = this.#updateJsonFn(updater)(prevJSON);
+      const next = this.#updateJsonFn(updater)({
+        ...cloneJSON(prevJSON),
+      });
 
       const prevString = JSON.stringify(normalizeJSON(prevJSON));
       const nextString = JSON.stringify(normalizeJSON(next));
@@ -179,8 +188,9 @@ export class UpdatePackage {
           description: relativePath,
           label: this.#label,
         });
+
         writeFileSync(path, JSON.stringify(next, null, INDENT_SIZE) + "\n");
-        this.#updatePackage.#workspace.cmd(sh`eslint --fix ${path}`);
+        this.#updatePackage.#workspace.cmd(sh`eslint --cache --fix ${path}`);
       }
 
       return this;
@@ -286,7 +296,6 @@ export class UpdatePackage {
           label: this.#label,
         });
         writeFileSync(path, next);
-        this.#updatePackage.#workspace.cmd(sh`eslint --fix ${path}`);
       }
     }
 
@@ -346,13 +355,6 @@ export class UpdatePackages {
 
   template(name: Into<Template>): string {
     return Template.from(name).read(this.#workspace.root);
-  }
-
-  jsonTemplate(
-    name: Into<JsonTemplate>,
-    [kind, value]: [kind: string, value: string]
-  ): JsonObject {
-    return JsonTemplate.from(name).read(this.#workspace.root, [kind, value]);
   }
 
   when: UpdatePackagesFn = (condition, label) => {
@@ -497,4 +499,9 @@ function normalizeJSONValue(value: JsonValue): JsonValue {
   } else {
     return value;
   }
+}
+
+function cloneJSON<T extends JsonValue>(value: T): T {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  return JSON.parse(JSON.stringify(value));
 }

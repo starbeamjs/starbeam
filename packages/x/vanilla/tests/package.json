@@ -1,15 +1,15 @@
 {
   "private": true,
-  "dependencies": {
-    "@starbeam/universal": "workspace:^",
-    "@starbeamx/vanilla": "workspace:^"
-  },
   "name": "@starbeam-tests/x-vanilla",
+  "version": "1.0.0",
+  "type": "module",
+  "starbeam:type": "tests",
   "scripts": {
     "test:lint": "eslint",
     "test:types": "tsc -b"
   },
-  "type": "module",
-  "version": "1.0.0",
-  "starbeam:type": "tests"
+  "dependencies": {
+    "@starbeam/universal": "workspace:^",
+    "@starbeamx/vanilla": "workspace:^"
+  }
 }

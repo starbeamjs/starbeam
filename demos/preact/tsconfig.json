@@ -9,10 +9,10 @@
     "jsxImportSource": "preact",
     "types": ["../../packages/env", "preact"]
   },
+  "exclude": ["dist/**/*"],
+  "include": ["index.ts", "src/**/*", "vite.config.ts"],
   "references": [
     { "path": "../../packages/tsconfig.packages.json" },
     { "path": "../../packages/x/devtool/tsconfig.json" }
-  ],
-  "exclude": ["dist/**/*"],
-  "include": ["index.ts", "src/**/*", "vite.config.ts"]
+  ]
 }

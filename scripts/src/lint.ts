@@ -15,19 +15,25 @@ export const LintCommand = QueryCommand("lint")
     { default: true }
   )
   .action(async ({ workspace, packages, files, streamOutput }) => {
+    const eslintrc = workspace.root.file(".eslintrc.json");
+
     if (files) {
       await workspace.exec(
-        sh`pnpm eslint --cache -c ${workspace.root.file(
-          ".eslintrc.cjs"
-        )} ${files}`
+        sh`pnpm eslint --cache --max-warnings 0 -c ${eslintrc} ${files}`
       );
     } else {
       const results = await workspace.check(
         ...packages.map((pkg) =>
-          CheckDefinition(pkg.name, `pnpm eslint --cache`, {
-            cwd: pkg.root,
-            output: streamOutput ? "stream" : "when-error",
-          })
+          CheckDefinition(
+            pkg.name,
+            sh`pnpm eslint --cache --max-warnings 0 -c ${eslintrc} ${workspace.root.relativeTo(
+              pkg.root
+            )}`,
+            {
+              cwd: workspace.root,
+              output: streamOutput ? "stream" : "when-error",
+            }
+          )
         )
       );
 

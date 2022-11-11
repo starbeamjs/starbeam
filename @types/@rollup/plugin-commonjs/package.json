@@ -7,23 +7,24 @@
       "types": "./index.d.ts"
     }
   },
-  "dependencies": {
-    "@rollup/plugin-commonjs": "*"
-  },
   "publishConfig": {
-    "types": "dist/index.d.ts",
     "exports": {
       ".": {
         "types": "./dist/index.d.ts"
       }
-    }
+    },
+    "types": "dist/index.d.ts"
+  },
+  "starbeam": {
+    "source": "d.ts",
+    "type": "library:upstream-types"
   },
   "scripts": {
     "test:lint": "eslint",
     "test:types": "tsc -b"
   },
-  "starbeam": {
-    "type": "library:interfaces",
-    "source": "d.ts"
-  }
+  "dependencies": {
+    "@rollup/plugin-commonjs": "*"
+  },
+  "devDependencies": {}
 }

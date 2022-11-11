@@ -42,8 +42,8 @@
     "@types/node": "^18.11.9"
   },
   "peerDependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.42.0",
-    "@typescript-eslint/parser": "^5.42.0",
+    "@typescript-eslint/eslint-plugin": "^5.42.2-alpha",
+    "@typescript-eslint/parser": "^5.42.2-alpha",
     "eslint": "^8.26.0",
     "jsonc-eslint-parser": "^2.1.0",
     "typescript": "*"

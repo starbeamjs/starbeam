@@ -1,4 +1,5 @@
 {
+  "extends": "../../../../.config/tsconfig/tsconfig.shared.json",
   "compilerOptions": {
     "composite": true,
     "declaration": true,
@@ -8,8 +9,6 @@
     "types": ["../../../env"]
   },
   "exclude": ["dist/**/*"],
-  "extends": "../../../../.config/tsconfig/tsconfig.shared.json",
-  "include": ["**/*"],
   "references": [
     {
       "path": "../../preact-testing-utils/tsconfig.json"

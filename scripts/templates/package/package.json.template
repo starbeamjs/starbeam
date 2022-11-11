@@ -1,6 +1,6 @@
 {
-  "switch:type": {
-    "interfaces": {
+  "switch:source": {
+    "d.ts": {
       "publishConfig": {
         "types": "dist/index.d.ts",
         "exports": {

@@ -88,6 +88,16 @@ abstract class Path extends URL {
     >;
   }
 
+  /**
+   * Create a new Path from an absolute path. The new path will be rooted to this path.
+   */
+  rootedChild(path: Path | string): ReturnType<this["create"]> {
+    const absolutePath = typeof path === "string" ? path : path.absolute;
+    return this.create(this.#absolutePath, absolutePath) as ReturnType<
+      this["create"]
+    >;
+  }
+
   get relative(): string {
     return relative(this.#root, this.#absolutePath);
   }

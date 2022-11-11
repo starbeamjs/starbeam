@@ -1,6 +1,5 @@
 import { Cell } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
-console.log(1);
 
 describe("Cell", () => {
   test("creates reactive storage", () => {

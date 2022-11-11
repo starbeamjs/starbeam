@@ -1,14 +1,14 @@
 {
   "private": true,
-  "dependencies": {
-    "@starbeam/verify": "workspace:^"
-  },
   "name": "@starbeam-tests/verify",
+  "version": "1.0.0",
+  "type": "module",
+  "starbeam:type": "tests",
   "scripts": {
     "test:lint": "eslint",
     "test:types": "tsc -b"
   },
-  "type": "module",
-  "version": "1.0.0",
-  "starbeam:type": "tests"
+  "dependencies": {
+    "@starbeam/verify": "workspace:^"
+  }
 }

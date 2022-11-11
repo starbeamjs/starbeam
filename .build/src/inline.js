@@ -15,7 +15,7 @@ export const inline = () => {
         const resolved = await this.resolve(path, importer, options);
 
         if (resolved && !resolved.external) {
-          this.load(resolved);
+          await this.load(resolved);
           return INLINE_PREFIX + resolved.id;
         }
       }
@@ -26,9 +26,9 @@ export const inline = () => {
         const path = id.slice(INLINE_PREFIX.length);
         const code = readFileSync(path, "utf8");
 
-        return {
+        return Promise.resolve({
           code: `export default ${JSON.stringify(code)};`,
-        };
+        });
       }
     },
   };

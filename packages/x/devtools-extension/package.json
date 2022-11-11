@@ -1,20 +1,14 @@
 {
-  "devDependencies": {
-    "@crxjs/vite-plugin": "beta",
-    "chrome-types": "^0.1.114",
-    "dirfilename": "^1.0.4",
-    "preact": "^10.11.2",
-    "vite": "*",
-    "vite-plugin-mpa": "^1.1.3"
-  },
-  "name": "@starbeamx-draft/devtools-extension",
   "private": true,
+  "name": "@starbeamx-draft/devtools-extension",
+  "version": "1.0.0",
+  "type": "module",
   "publishConfig": {
     "exports": {
       ".": {
-        "default": "./dist/index.cjs",
+        "types": "./dist/index.d.ts",
         "import": "./dist/index.js",
-        "types": "./dist/index.d.ts"
+        "default": "./dist/index.cjs"
       }
     },
     "main": "dist/index.cjs",
@@ -33,6 +27,12 @@
     ]
   },
   "starbeam:type": "draft",
-  "type": "module",
-  "version": "1.0.0"
+  "devDependencies": {
+    "@crxjs/vite-plugin": "beta",
+    "chrome-types": "^0.1.114",
+    "dirfilename": "^1.0.4",
+    "preact": "^10.11.2",
+    "vite": "*",
+    "vite-plugin-mpa": "^1.1.3"
+  }
 }

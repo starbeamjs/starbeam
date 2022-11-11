@@ -35,9 +35,11 @@ describe("reactive Factory", () => {
     test("the inner cell is returned", () => {
       const counter = Counter.create();
 
-      expect(ReactiveProtocol.description(counter).describe()).toBe(
-        "Counter 0"
-      );
+      if (!import.meta.env.PROD) {
+        expect(ReactiveProtocol.description(counter).describe()).toBe(
+          "Counter 0"
+        );
+      }
 
       expect(counter.current).toBe(0);
       counter.update((value) => value + 1);

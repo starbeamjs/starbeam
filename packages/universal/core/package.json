@@ -1,34 +1,32 @@
 {
-  "dependencies": {
-    "@starbeam/universal": "workspace:*"
-  },
-  "devDependencies": {
-    "@starbeam-workspace/build-support": "workspace:^",
-    "@starbeam/eslint-plugin": "workspace:^",
-    "@typescript-eslint/eslint-plugin": "*"
-  },
+  "name": "@starbeam/core",
+  "version": "0.7.3",
+  "type": "module",
+  "main": "index.ts",
+  "types": "index.ts",
   "exports": {
     "default": "./index.ts"
   },
-  "main": "index.ts",
-  "name": "@starbeam/core",
   "publishConfig": {
-    "main": "dist/index.cjs",
-    "types": "dist/index.d.ts",
     "exports": {
       ".": {
         "types": "./dist/index.d.ts",
         "import": "./dist/index.js",
         "default": "./dist/index.cjs"
       }
-    }
+    },
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts"
   },
+  "starbeam:type": "library:public",
   "scripts": {
     "test:lint": "eslint",
-    "test:specs": "vitest",
     "test:types": "tsc -b"
   },
-  "type": "module",
-  "version": "0.7.3",
-  "starbeam:type": "library"
+  "dependencies": {
+    "@starbeam/universal": "workspace:^"
+  },
+  "devDependencies": {
+    "@starbeam-workspace/build-support": "workspace:^"
+  }
 }
