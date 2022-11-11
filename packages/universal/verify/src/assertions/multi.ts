@@ -1,4 +1,4 @@
-import { expected } from "../verify.js";
+import { expected, toKind } from "../verify.js";
 
 export function isOneOf<In, Out extends In>(
   ...verifiers: ((value: In) => value is Out)[]
@@ -18,7 +18,7 @@ export function isOneOf<In, Out extends In>(
       if (to === undefined) {
         return ["to be one of", "any"];
       } else {
-        return `${to[1]} or any`;
+        return `${toKind(to)} or any`;
       }
     },
     actual: (actual) => {

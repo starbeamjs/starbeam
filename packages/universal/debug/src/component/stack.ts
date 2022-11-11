@@ -2,42 +2,42 @@ import type { anydom } from "@domtree/flavors";
 import type * as interfaces from "@starbeam/interfaces";
 
 export interface DebugTree {
-  app(description: interfaces.Description): App;
-  route(description: interfaces.Description): Route;
-  component(description: interfaces.Description): Component;
-  snapshot(): interfaces.RootNode;
+  app: (description: interfaces.Description) => App;
+  route: (description: interfaces.Description) => Route;
+  component: (description: interfaces.Description) => Component;
+  snapshot: () => interfaces.RootNode;
 }
 
 export interface App {
-  route(description: interfaces.Description): Route;
-  component(description: interfaces.Description): Component;
+  route: (description: interfaces.Description) => Route;
+  component: (description: interfaces.Description) => Component;
 }
 
 export interface Route {
-  component(description: interfaces.Description): Component;
+  component: (description: interfaces.Description) => Component;
 }
 
 export interface Component {
-  component(description: interfaces.Description): Component;
-  lifecycle(timing: "layout" | "idle"): Lifecycle;
-  ref(description: interfaces.Description): Ref;
-  modifier(timing: "layout" | "idle"): Modifier;
-  resource(reactive: interfaces.ReactiveProtocol): interfaces.Unsubscribe;
-  domResource(
+  component: (description: interfaces.Description) => Component;
+  lifecycle: (timing: "layout" | "idle") => Lifecycle;
+  ref: (description: interfaces.Description) => Ref;
+  modifier: (timing: "layout" | "idle") => Modifier;
+  resource: (reactive: interfaces.ReactiveProtocol) => interfaces.Unsubscribe;
+  domResource: (
     timing: "layout" | "idle",
     reactive: interfaces.ReactiveProtocol
-  ): interfaces.Unsubscribe;
+  ) => interfaces.Unsubscribe;
 }
 
 export interface Lifecycle {
-  setup(
+  setup: (
     timing: "layout" | "idle",
     protocol: interfaces.ReactiveProtocol
-  ): interfaces.Unsubscribe;
+  ) => interfaces.Unsubscribe;
 }
 
 export interface Ref {
-  element(element: anydom.Element | null): interfaces.Unsubscribe;
+  element: (element: anydom.Element | null) => interfaces.Unsubscribe;
 }
 
 // intentionally empty for now
@@ -59,17 +59,19 @@ if (import.meta.env.DEV) {
     constructor(description: interfaces.Description) {
       this.#description = description;
     }
-    route(_description: interfaces.Description): Route {
+
+    component(_description: interfaces.Description): Component {
       throw new Error("Method not implemented.");
     }
-    component(_description: interfaces.Description): Component {
+
+    route(_description: interfaces.Description): Route {
       throw new Error("Method not implemented.");
     }
   }
 
   class DebugTreeImpl implements DebugTree {
-    #root: RootNode = new RootNode();
     #app: AppNode | null = null;
+    #root: RootNode = new RootNode();
 
     app(description: interfaces.Description): App {
       if (!this.#app) {
@@ -78,23 +80,24 @@ if (import.meta.env.DEV) {
       return this.#app;
     }
 
+    component(_description: interfaces.Description): Component {
+      throw new Error("Method not implemented.");
+    }
+
     route(_description: interfaces.Description): Route {
       throw new Error("Method not implemented.");
     }
 
-    component(_description: interfaces.Description): Component {
-      throw new Error("Method not implemented.");
-    }
     snapshot(): interfaces.RootNode {
       throw new Error("Method not implemented.");
     }
   }
 
-  // eslint-disable-next-line unused-imports/no-unused-vars, @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line unused-imports/no-unused-vars
   class ComponentImpl implements Component {
+    #children: interfaces.ComponentNode[] = [];
     #delegate: ChildDelegate;
     #parts: interfaces.ComponentNode[] = [];
-    #children: interfaces.ComponentNode[] = [];
 
     constructor(delegate: ChildDelegate) {
       this.#delegate = delegate;
@@ -103,33 +106,33 @@ if (import.meta.env.DEV) {
     component(_description: interfaces.Description): Component {
       throw new Error("Method not implemented.");
     }
-    lifecycle(_timing: "layout" | "idle"): Lifecycle {
-      throw new Error("Method not implemented.");
-    }
-    ref(_description: interfaces.Description): Ref {
-      throw new Error("Method not implemented.");
-    }
-    modifier(_timing: "layout" | "idle"): Modifier {
-      throw new Error("Method not implemented.");
-    }
-    resource(_reactive: interfaces.ReactiveProtocol): interfaces.Unsubscribe {
-      throw new Error("Method not implemented.");
-    }
     domResource(
       _timing: "layout" | "idle",
       _reactive: interfaces.ReactiveProtocol
     ): interfaces.Unsubscribe {
       throw new Error("Method not implemented.");
     }
+    lifecycle(_timing: "layout" | "idle"): Lifecycle {
+      throw new Error("Method not implemented.");
+    }
+    modifier(_timing: "layout" | "idle"): Modifier {
+      throw new Error("Method not implemented.");
+    }
+    ref(_description: interfaces.Description): Ref {
+      throw new Error("Method not implemented.");
+    }
+    resource(_reactive: interfaces.ReactiveProtocol): interfaces.Unsubscribe {
+      throw new Error("Method not implemented.");
+    }
   }
 
   interface ChildDelegate {
-    addChild(child: ChildNode): interfaces.Unsubscribe;
+    addChild: (child: ChildNode) => interfaces.Unsubscribe;
   }
 
   PickedDebugTree = new DebugTreeImpl();
 } else {
-  const NOOP_UNSUBSCRIBE = () => {
+  const NOOP_UNSUBSCRIBE = (): void => {
     /* noop */
   };
 

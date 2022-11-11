@@ -1,6 +1,5 @@
-import { Cell, LIFETIME, PolledFormulaFn, TIMELINE } from "@starbeam/core";
-import type { Description } from "@starbeam/debug";
-import { descriptionFrom } from "@starbeam/debug";
+import { type Description, Desc } from "@starbeam/debug";
+import { Cell, PolledFormulaFn, TIMELINE } from "@starbeam/universal";
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
 import { useState } from "react";
 
@@ -20,15 +19,10 @@ export function useReactive<T>(
   compute: () => T,
   description?: string | Description
 ): T {
-  const desc = descriptionFrom({
-    type: "formula",
-    api: "useReactive",
-    fromUser: description,
-  });
+  const desc = Desc("formula", description);
+  const notify = useNotify();
 
-  const [, setNotify] = useState({});
-
-  const formula = useLifecycle(compute, (lifecycle) => {
+  return useLifecycle(compute, (lifecycle) => {
     const formula = PolledFormulaFn(() => {
       return compute();
     }, desc);
@@ -38,33 +32,25 @@ export function useReactive<T>(
     });
 
     lifecycle.on.layout(() => {
-      const renderer = TIMELINE.on.change(formula, () => {
-        setNotify({});
-      });
-
-      lifecycle.on.cleanup(() => {
-        LIFETIME.finalize(renderer);
-      });
+      lifecycle.on.cleanup(TIMELINE.on.change(formula, notify));
     });
 
     return formula;
-  });
+  }).current;
+}
 
-  return formula.current;
+export function useNotify(): () => void {
+  const [, setNotify] = useState({});
+  return () => {
+    setNotify({});
+  };
 }
 
 export function useCell<T>(
   value: T,
   description?: Description | string
 ): Cell<T> {
-  const desc = descriptionFrom({
-    type: "cell",
-    api: {
-      package: "@starbeam/react",
-      name: "useCell",
-    },
-    fromUser: description,
-  });
+  const desc = Desc("cell", description);
 
   return useSetup(() => Cell(value, { description: desc }));
 }

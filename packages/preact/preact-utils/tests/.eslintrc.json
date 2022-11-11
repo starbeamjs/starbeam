@@ -1,0 +1,12 @@
+{
+  "root": false,
+  "parserOptions": {
+    "project": "packages/preact/preact-utils/tests/tsconfig.json"
+  },
+  "overrides": [
+    {
+      "extends": ["plugin:@starbeam/loose"],
+      "files": ["**/*.ts"]
+    }
+  ]
+}

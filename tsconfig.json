@@ -1,22 +1,24 @@
 {
   "compilerOptions": {
-    "declarationMap": true,
-    "declarationDir": "dist/types",
-    "declaration": true,
-    "outDir": "dist/packages",
     "composite": true,
+    "declaration": true,
+    "declarationDir": "dist/types",
+    "declarationMap": true,
+    "outDir": "dist/packages",
+    "skipLibCheck": true,
     "types": ["packages/env"]
   },
-
+  "exclude": ["dist/**/*"],
   "files": [],
   "references": [
     { "path": "./packages/tsconfig.packages.json" },
     { "path": "./packages/tsconfig.rollup.json" },
     { "path": "./packages/x/devtool/tsconfig.json" },
     { "path": "./demos/tsconfig.react-demos.json" },
+    { "path": "./demos/tsconfig.preact-demos.json" },
     { "path": "./.build/tsconfig.json" },
     { "path": "./scripts/tsconfig.json" },
-    { "path": "./tsconfig.root.json" }
-  ],
-  "exclude": ["dist/**/*"]
+    { "path": "./tsconfig.root.json" },
+    { "path": "./workspace/tsconfig.json" }
+  ]
 }

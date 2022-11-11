@@ -1,3 +1,5 @@
+import "./src/setup.js";
+
 import { descriptionFrom } from "./src/stack.js";
 
 export { Description, REUSE_ID } from "./src/description/impl.js";
@@ -13,6 +15,7 @@ export {
   inspect,
   inspector,
 } from "./src/inspect/inspect-support.js";
+export { logged } from "./src/logged.js";
 export { type Logger, LOGGER, LogLevel } from "./src/logger.js";
 export {
   Block,
@@ -25,8 +28,11 @@ export {
 export { type DisplayParts, describeModule } from "./src/module.js";
 export {
   callerStack,
+  Desc,
   descriptionFrom,
   entryPoint,
+  entryPointFn,
+  entryPoints,
   idFrom,
   isErrorWithStack,
   Stack,

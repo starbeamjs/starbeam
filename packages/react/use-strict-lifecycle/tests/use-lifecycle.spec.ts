@@ -2,76 +2,91 @@
 
 import { entryPoint } from "@starbeam/debug";
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
-import {
-  html,
-  react,
-  testStrictAndLoose,
-} from "@starbeam-workspace/react-test-utils";
+import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
 import { useState } from "react";
 import { expect } from "vitest";
 
-testStrictAndLoose<
-  void,
-  { test: TestResource; lastState: string; lastCount: number }
->("useLifecycle", async (mode, test) => {
-  TestResource.resetId();
+testReact<void, { test: TestResource; lastState: string; lastCount: number }>(
+  "useLifecycle",
+  async (root, mode) => {
+    TestResource.resetId();
 
-  const result = await test
-    .expectStable()
-    .expectHTML(({ lastState, lastCount }) => {
-      return `<p>${lastState}</p><p>${lastCount}</p><label><span>Increment</span><button>++</button></label>`;
-    })
-    .render((setup) => {
-      const [count, setCount] = useState(0);
+    const result = await root
+      .expectStable()
+      .expectHTML(({ lastState, lastCount }) => {
+        return `<p>${lastState}</p><p>${lastCount}</p><label><span>Increment</span><button>++</button></label>`;
+      })
+      .render((setup) => {
+        const [count, setCount] = useState(0);
 
-      const test = useLifecycle(count, (resource, count) => {
-        const test = TestResource.initial(count);
+        const lifecycleTest = useLifecycle(count, ({ on }, i) => {
+          const resource = TestResource.initial(i);
 
-        resource.on.update((count) => test.transition("updated", count));
-        resource.on.layout(() => test.transition("layout"));
-        resource.on.idle(() => test.transition("idle"));
-        resource.on.cleanup(() => test.transition("unmounted"));
+          on.update((newCount) => {
+            resource.transition("updated", newCount);
+          });
+          on.layout(() => {
+            resource.transition("layout");
+          });
+          on.idle(() => {
+            resource.transition("idle");
+          });
+          on.cleanup(() => {
+            resource.transition("unmounted");
+          });
 
-        return test;
+          return resource;
+        });
+
+        setup.value({
+          test: lifecycleTest,
+          lastState: lifecycleTest.state,
+          lastCount: lifecycleTest.count,
+        });
+
+        return react.fragment(
+          html.p(lifecycleTest.state),
+          html.p(count),
+          html.label(
+            html.span("Increment"),
+            html.button(
+              {
+                onClick: () => {
+                  setCount(count + 1);
+                },
+              },
+              "++"
+            )
+          )
+        );
       });
 
-      setup.value({ test, lastState: test.state, lastCount: test.count });
+    const { test: resource } = result.value;
 
-      return react.fragment(
-        html.p(test.state),
-        html.p(count),
-        html.label(
-          html.span("Increment"),
-          html.button({ onClick: () => setCount(count + 1) }, "++")
-        )
-      );
-    });
+    resource.assert(
+      mode.match({
+        // strict mode runs initial render twice
+        strict: () => "updated",
+        loose: () => "idle",
+      }),
+      0
+    );
 
-  const { test: resource } = result.value;
+    await result.rerender();
+    resource.assert("updated", 0);
 
-  resource.assert(
-    mode.match({
-      // strict mode runs initial render twice
-      strict: () => "updated",
-      loose: () => "idle",
-    }),
-    0
-  );
+    await result.find("button").fire.click();
+    resource.assert("updated", 1);
 
-  await result.rerender();
-  resource.assert("updated", 0);
+    await result.rerender();
+    resource.assert("updated", 1);
 
-  await result.find("button").fire.click();
-  resource.assert("updated", 1);
+    await result.unmount();
+    resource.assert("unmounted", 1);
+  }
+);
 
-  await result.rerender();
-  resource.assert("updated", 1);
-
-  await result.unmount();
-  resource.assert("unmounted", 1);
-});
-
-// testStrictAndLoose("useResource (no argument)", async (mode) => {
+// testReact("useResource (no argument)", async (mode) => {
 //   TestResource.resetId();
 
 //   const result = mode
@@ -142,7 +157,7 @@ testStrictAndLoose<
 //   resource.assert("unmounted", 0, expectedId);
 // });
 
-// testStrictAndLoose("useResource (nested)", async (mode) => {
+// testReact("useResource (nested)", async (mode) => {
 //   TestResource.resetId();
 
 //   const result = mode
@@ -205,7 +220,7 @@ testStrictAndLoose<
 //   resource.assert("unmounted", 1);
 // });
 
-// testStrictAndLoose(
+// testReact(
 //   "useResource (nested, stability across remounting)",
 //   async (mode) => {
 //     TestResource.resetId();
@@ -290,15 +305,15 @@ testStrictAndLoose<
 //   }
 // );
 
-let id = 0;
+let nextId = 0;
 
 class TestResource {
   static resetId(): void {
-    id = 0;
+    nextId = 0;
   }
 
   static initial(count: number): TestResource {
-    return new TestResource("initial", count, ++id);
+    return new TestResource("initial", count, ++nextId);
   }
 
   #state: string;
@@ -311,25 +326,6 @@ class TestResource {
     this.#id = id;
   }
 
-  transition(state: string, count?: number) {
-    this.#state = state;
-
-    if (count !== undefined) {
-      this.#count = count;
-    }
-  }
-
-  assert(state: string, count: number, id?: number) {
-    entryPoint(() => {
-      expect(this.#state).toBe(state);
-      expect(this.#count).toBe(count);
-
-      if (id) {
-        expect({ id: this.#id }).toMatchObject({ id });
-      }
-    });
-  }
-
   get state(): string {
     return this.#state;
   }
@@ -340,5 +336,24 @@ class TestResource {
 
   get id(): number | null {
     return this.#id;
+  }
+
+  transition(state: string, count?: number): void {
+    this.#state = state;
+
+    if (count !== undefined) {
+      this.#count = count;
+    }
+  }
+
+  assert(state: string, count: number, id?: number): void {
+    entryPoint(() => {
+      expect(this.#state).toBe(state);
+      expect(this.#count).toBe(count);
+
+      if (id) {
+        expect({ id: this.#id }).toMatchObject({ id });
+      }
+    });
   }
 }

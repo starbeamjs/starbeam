@@ -1,0 +1,43 @@
+{
+  "name": "@starbeam/preact",
+  "version": "0.7.4",
+  "type": "module",
+  "main": "index.ts",
+  "types": "index.ts",
+  "exports": {
+    "default": "./index.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts"
+  },
+  "starbeam:type": "library:public",
+  "scripts": {
+    "test:lint": "eslint",
+    "test:specs": "vitest --run",
+    "test:types": "tsc -b"
+  },
+  "dependencies": {
+    "@starbeam/core-utils": "workspace:^",
+    "@starbeam/debug": "workspace:^",
+    "@starbeam/preact-utils": "workspace:^",
+    "@starbeam/timeline": "workspace:^",
+    "@starbeam/universal": "workspace:^",
+    "@starbeam/verify": "workspace:^"
+  },
+  "devDependencies": {
+    "@starbeam-workspace/build-support": "workspace:^",
+    "chalk": "^5.1.2",
+    "preact-render-to-string": "^5.2.5"
+  },
+  "peerDependencies": {
+    "preact": "^10.11.2"
+  }
+}

@@ -23,7 +23,7 @@ export default function App(): JSX.Element {
   );
 }
 
-function Todos() {
+function Todos(): JSX.Element {
   const todos = useQuery("todos", async ({ signal }) => {
     await pause(1000);
     return (
@@ -33,7 +33,7 @@ function Todos() {
     ).data as Todo[];
   });
 
-  function invalidate() {
+  function invalidate(): void {
     QUERY_CACHE.invalidate("todos");
   }
 
@@ -56,7 +56,7 @@ function Todos() {
   );
 }
 
-function pause(ms: number) {
+async function pause(ms: number): Promise<void> {
   return new Promise((fulfill) => {
     setTimeout(fulfill, ms);
   });
@@ -68,7 +68,7 @@ function ResultList<T>({
 }: {
   result: QueryResult<T[]>;
   each: (_data: T) => JSX.Element;
-}) {
+}): JSX.Element {
   switch (result.state) {
     case "loading":
       return <div>Loading...</div>;
@@ -82,7 +82,7 @@ function ResultList<T>({
   }
 }
 
-function TodoItem({ todo }: { todo: Todo }) {
+function TodoItem({ todo }: { todo: Todo }): JSX.Element {
   return (
     <TodoContainer>
       <input type="checkbox" readOnly checked={todo.completed} />

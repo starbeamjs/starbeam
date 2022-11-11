@@ -1,8 +1,10 @@
-import { expected } from "../verify.js";
+import { expected, toKind } from "../verify.js";
 import { format } from "./describe.js";
 import type { FixedArray, ReadonlyFixedArray } from "./type-utils.js";
 
-export function isPresent<T>(value: T | null | undefined | void): value is T {
+export function isPresent<T>(
+  value: T | null | undefined
+): value is Exclude<T, null | undefined> {
   return value !== null && value !== undefined;
 }
 
@@ -32,8 +34,19 @@ export function isEqual<T>(value: T): (other: unknown) => other is T {
 
   return expected.associate(
     verify,
-    expected.toBe(String(value)).butGot(format)
+    expected.toBe(inspect(value)).butGot(format)
   );
+}
+
+function inspect(value: unknown): string {
+  if (isObject(value) && Symbol.for("nodejs.util.inspect.custom") in value) {
+    return JSON.stringify(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+      (value as any)[Symbol.for("nodejs.util.inspect.custom")]()
+    );
+  } else {
+    return JSON.stringify(value);
+  }
 }
 
 export function isNotEqual<T>(
@@ -60,6 +73,19 @@ expected.associate(
     .butGot((value) => (value === null ? "null" : typeof value))
 );
 
+export function isWeakKey(value: unknown): value is Record<string, unknown> {
+  return (
+    (typeof value === "object" || typeof value === "function") && value !== null
+  );
+}
+
+expected.associate(
+  isWeakKey,
+  expected
+    .toBe("an object or function")
+    .butGot((value) => (value === null ? "null" : typeof value))
+);
+
 interface HasLength<L extends number> {
   <T>(value: T[]): value is FixedArray<T, L>;
   <T>(value: readonly T[]): value is ReadonlyFixedArray<T, L>;
@@ -73,11 +99,15 @@ export function hasLength<L extends number>(length: L): HasLength<L> {
   return expected.associate(has, expected.toHave(`${length} items`));
 }
 
-export function hasItems<T>(
-  value: readonly T[]
-): value is [T, ...(readonly T[])] {
-  return value.length > 0;
-}
+import { isPresentArray } from "@starbeam/core-utils";
+
+export const hasItems = isPresentArray;
+
+// export function hasItems<T>(
+//   value: readonly T[]
+// ): value is [T, ...(readonly T[])] {
+//   return value.length > 0;
+// }
 
 expected.associate(hasItems, expected.toHave(`at least one item`));
 
@@ -97,7 +127,7 @@ export function isNullable<In, Out extends In>(
       if (to === undefined) {
         return ["to be", "nullable"];
       } else {
-        return `${to[1]} or null`;
+        return `${toKind(to)} or null`;
       }
     },
     actual: (actual) => {

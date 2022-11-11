@@ -1,4 +1,4 @@
-import { FormulaFn } from "@starbeam/core";
+import { Formula } from "@starbeam/universal";
 import { expected, isPresent, verify } from "@starbeam/verify";
 
 export const cached = <T>(
@@ -9,9 +9,10 @@ export const cached = <T>(
 ): void => {
   // const { get, enumerable = true, configurable = true } = descriptor;
 
+  const get = descriptor.get;
+
   verify(
-    // eslint-disable-next-line @typescript-eslint/unbound-method
-    descriptor.get,
+    get,
     isPresent,
     expected(`the target of @cached`)
       .toBe(`a getter`)
@@ -20,7 +21,7 @@ export const cached = <T>(
       )
   );
 
-  const CACHED = new WeakMap<object, FormulaFn<T>>();
+  const CACHED = new WeakMap<object, Formula<T>>();
 
   Object.defineProperty(target, key, {
     enumerable: descriptor.enumerable ?? true,
@@ -29,9 +30,9 @@ export const cached = <T>(
       let formula = CACHED.get(this);
 
       if (!formula) {
-        formula = FormulaFn(
+        formula = Formula(
           // eslint-disable-next-line
-          () => (descriptor.get as any).call(this),
+          () => get.call(this),
           `computing ${String(key)}`
         );
         CACHED.set(this, formula);

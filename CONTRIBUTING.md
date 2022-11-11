@@ -16,16 +16,16 @@ Feel free to ask your questions in any of these places:
 
 ## Linting
 
-- `pnpm check:lint`
-- `pnpm check:lint --fix`
+- `pnpm test:workspace:lint`
+- `pnpm test:workspace:lint --fix`
 
 ## Running demos
 
 At the root of this monorepo, the `pnpm demo` script can be used to start the various demos.
 
-* `pnpm demo react`
-* `pnpm demo react-jsnation`
-* `pnpm demo react-store`
+- `pnpm demo react`
+- `pnpm demo react-jsnation`
+- `pnpm demo react-store`
 
 ## Running tests
 
@@ -34,8 +34,8 @@ At the root of this monorepo, the `pnpm demo` script can be used to start the va
 
 ## Checking correctness
 
-- `pnpm check:types`
-- `pnpm check:lint`
+- `pnpm test:workspace:types`
+- `pnpm test:workspace:lint`
 
 ## Checking for unused dependencies
 

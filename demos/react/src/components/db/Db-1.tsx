@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { reactive } from "@starbeam/js";
 import { useReactiveSetup } from "@starbeam/react";
 import type { FormEvent } from "react";
@@ -18,7 +17,7 @@ class Table<T> {
     return Object.entries(this.#rows);
   }
 
-  append(row: T) {
+  append(row: T): void {
     this.#rows[`${this.#id++}`] = row;
   }
 }
@@ -27,7 +26,7 @@ export default function Database(): JSX.Element {
   return useReactiveSetup(() => {
     const people = new Table<Person>(["name", "location"]);
 
-    function append(event: FormEvent<HTMLFormElement>) {
+    function append(event: FormEvent<HTMLFormElement>): void {
       event.preventDefault();
       people.append({ name: "Lorem Ipsum", location: "NYC" });
     }

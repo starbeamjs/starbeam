@@ -1,5 +1,7 @@
+import { isPresentArray } from "@starbeam/core-utils";
 import { descriptionFrom } from "@starbeam/debug";
-import { type Reactive, Frame, REACTIVE, TIMELINE } from "@starbeam/timeline";
+import type { ReactiveCore } from "@starbeam/interfaces";
+import { Frame, REACTIVE, TIMELINE } from "@starbeam/timeline";
 import { describe, expect, test } from "vitest";
 
 import { Cell } from "./support/mini-reactives.js";
@@ -48,7 +50,10 @@ describe("pollable", () => {
     TIMELINE.update(sum);
     expect(stale).toBe(false);
 
-    numbers.current[0].current++;
+    const current = satisfying(numbers.current, isPresentArray);
+
+    current[0].current++;
+
     expect(stale).toBe(true);
     stale = false;
 
@@ -58,7 +63,7 @@ describe("pollable", () => {
   test("subscribing to a delegate", () => {
     const cell = Cell(0);
 
-    const delegate: Reactive<number> = {
+    const delegate: ReactiveCore<number> = {
       read: () => cell.current,
       [REACTIVE]: {
         type: "delegate",
@@ -89,7 +94,7 @@ describe("pollable", () => {
   test("subscribing to a delegate with a composite", () => {
     const { sum, numbers } = Sum();
 
-    const delegate: Reactive<number> = {
+    const delegate: ReactiveCore<number> = {
       read: () => sum.read(),
       [REACTIVE]: {
         type: "delegate",
@@ -116,7 +121,7 @@ describe("pollable", () => {
 
     expect(delegate.read()).toBe(3);
 
-    numbers.current[0].current++;
+    satisfying(numbers.current, isPresentArray)[0].current++;
     expect(stale).toBe(true);
     stale = false;
 
@@ -124,7 +129,7 @@ describe("pollable", () => {
 
     unsubscribe();
 
-    numbers.current[0].current++;
+    satisfying(numbers.current, isPresentArray)[0].current++;
     TIMELINE.update(sum);
     expect(stale).toBe(false);
     expect(delegate.read()).toBe(5);
@@ -137,7 +142,10 @@ describe("pollable", () => {
   });
 });
 
-function Sum() {
+function Sum(): {
+  sum: ReactiveCore<number>;
+  numbers: Cell<Cell<number>[]>;
+} {
   const numbers: Cell<Cell<number>[]> = Cell([]);
 
   const frame = Frame.uninitialized<number>(
@@ -148,7 +156,7 @@ function Sum() {
     })
   );
 
-  const sum: Reactive<number> = {
+  const sum: ReactiveCore<number> = {
     read: () => {
       return Frame.value(
         TIMELINE.frame.update({
@@ -169,4 +177,16 @@ function Sum() {
   };
 
   return { sum, numbers };
+}
+
+function satisfying<T, U extends T>(
+  value: T,
+  predicate: (value: T) => value is U
+): U {
+  if (predicate(value)) {
+    return value;
+  } else {
+    expect(value).toSatisfy(predicate);
+    throw Error("unreachable");
+  }
 }

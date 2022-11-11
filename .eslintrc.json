@@ -1,0 +1,51 @@
+{
+  "root": true,
+  "ignorePatterns": [
+    "*.cjs",
+    "packages/x/devtools-extension",
+    "packages/env.d.ts"
+  ],
+
+  "plugins": ["@starbeam"],
+
+  "overrides": [
+    {
+      "extends": ["plugin:@starbeam/tight"],
+      "files": ["vitest.config.ts"],
+      "parserOptions": {
+        "project": ["./tsconfig.root.json"]
+      }
+    },
+    {
+      "extends": ["plugin:@starbeam/json:parser"],
+      "files": ["*.json", ".build/*.json"]
+    },
+    {
+      "extends": ["plugin:@starbeam/json:default"],
+      "files": ["*.json", ".build/*.json"],
+      "excludedFiles": [
+        "tsconfig.*",
+        ".eslintrc.json",
+        "package.json",
+        ".vscode/settings.json"
+      ]
+    },
+    {
+      "extends": ["plugin:@starbeam/json:vscode-settings"],
+      "files": [".vscode/settings.json"]
+    },
+    {
+      "extends": ["plugin:@starbeam/json:tsconfig"],
+      "files": ["**/tsconfig.*.json", "**/tsconfig.json"]
+    },
+    {
+      "extends": ["plugin:@starbeam/json:eslintrc"],
+      "files": "**/.eslintrc.json"
+    },
+    {
+      "extends": ["plugin:@starbeam/json:package"],
+      "files": ["**/package.json"]
+    }
+  ],
+  "reportUnusedDisableDirectives": true
+}

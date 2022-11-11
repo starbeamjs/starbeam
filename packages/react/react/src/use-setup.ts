@@ -1,14 +1,8 @@
-import { PolledFormulaFn } from "@starbeam/core";
 import { isObject } from "@starbeam/core-utils";
-import { type Description, descriptionFrom, Message } from "@starbeam/debug";
+import { type Description, descriptionFrom } from "@starbeam/debug";
+import { LIFETIME, Reactive, TIMELINE } from "@starbeam/timeline";
+import { type IntoReactiveObject, Factory } from "@starbeam/universal";
 import {
-  LIFETIME,
-  Reactive,
-  ReactiveProtocol,
-  TIMELINE,
-} from "@starbeam/timeline";
-import {
-  isRendering,
   unsafeTrackedElsewhere,
   useLifecycle,
 } from "@starbeam/use-strict-lifecycle";
@@ -16,83 +10,15 @@ import { useState } from "react";
 
 import { ReactiveElement } from "./element.js";
 
-let WARNED = false;
+export function useComponent(): object {
+  return useLifecycle(({ on }) => {
+    const owner = Object.create(null) as object;
 
-if (import.meta.env.DEV) {
-  TIMELINE.untrackedReadBarrier((reactive, stack) => {
-    if (isRendering()) {
-      if (!WARNED) {
-        WARNED = true;
+    on.cleanup(() => {
+      LIFETIME.finalize(owner);
+    });
 
-        const description = ReactiveProtocol.description(reactive).userFacing;
-        const caller = stack.caller;
-
-        const message = Message([
-          [
-            ["ERROR", "color:#f00", "font-weight:bold"],
-            " ",
-            [
-              "You read from a reactive value but you were not inside the `useReactive` hook.",
-              "color: #b00",
-            ],
-          ],
-          "",
-          [
-            ["Created: ".padEnd(11, "…"), "color:#666"],
-            " ",
-            [description.fullName, "color:#6a6"],
-          ],
-          [
-            [" ".repeat(11), "color:#666"],
-            " ",
-            [description.frame?.link() ?? "<unknown>", "color:#6a6"],
-          ],
-          [
-            ["Accessed: ".padEnd(11, "…"), "color:#666"],
-            " ",
-            [caller?.link() ?? "<unknown>", "color:#6a6"],
-          ],
-          "",
-          [
-            [
-              "This will prevent React from re-rendering when the reactive value changes.",
-              "color:#b00",
-            ],
-          ],
-          "",
-          [
-            [
-              "Make sure that you are inside a `useReactive` hook whenever you access reactive state.",
-              "color:#559",
-            ],
-          ],
-          "",
-          [
-            [
-              "You can wrap your entire component in `useReactive`, and return JSX to avoid this error. If you are also creating reactive cells in your component, you can use the `useSetup` hook to create cells and return JSX that reads from those cells.",
-              "color:#559",
-            ],
-          ],
-          "",
-          [
-            [
-              "You can also use the `starbeam` HOC to create a component that automatically wraps your the entire body of your component in `useSetup`.",
-              "color:#559",
-            ],
-          ],
-        ]);
-
-        console.warn(...message);
-
-        console.groupCollapsed("Complete stack trace");
-        console.log(stack.stack);
-        console.groupEnd();
-
-        throw Error(
-          `You read from a reactive value, but you were not inside the \`useReactive\` hook.`
-        );
-      }
-    }
+    return owner;
   });
 }
 
@@ -115,12 +41,14 @@ export function useSetup<T>(
     (lifecycle, prev) => {
       const element = prev?.element
         ? ReactiveElement.reactivate(prev.element)
-        : ReactiveElement.create(() => setNotify({}), desc);
-      const instance = callback(element);
+        : ReactiveElement.create(() => {
+            setNotify({});
+          }, desc);
+      const nextInstance = callback(element);
 
       lifecycle.on.cleanup(() => {
-        if (isObject(instance)) {
-          LIFETIME.finalize(instance);
+        if (isObject(nextInstance)) {
+          LIFETIME.finalize(nextInstance);
         }
       });
 
@@ -132,7 +60,7 @@ export function useSetup<T>(
         ReactiveElement.idle(element);
       });
 
-      return { element, instance };
+      return { element, instance: nextInstance };
     }
   );
 
@@ -140,15 +68,7 @@ export function useSetup<T>(
 }
 
 export function useReactiveSetup<T>(
-  callback: (setup: ReactiveElement) => () => T,
-  description?: string | Description
-): T;
-export function useReactiveSetup<T>(
-  callback: (setup: ReactiveElement) => Reactive<T>,
-  description?: string | Description
-): T;
-export function useReactiveSetup<T>(
-  callback: (setup: ReactiveElement) => (() => T) | Reactive<T>,
+  callback: (setup: ReactiveElement) => IntoReactiveObject<T> | Reactive<T>,
   description?: string | Description
 ): T {
   const desc = descriptionFrom({
@@ -159,10 +79,11 @@ export function useReactiveSetup<T>(
 
   const [, setNotify] = useState({});
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const instance = useLifecycle((lifecycle) => {
-    const element = ReactiveElement.create(() => setNotify({}), desc);
-    const instance = unsafeTrackedElsewhere(() => callback(element));
+    const element = ReactiveElement.create(() => {
+      setNotify({});
+    }, desc);
+    const nextInstance = unsafeTrackedElsewhere(() => callback(element));
 
     const setups = TIMELINE.on.change(element, () => {
       setNotify({});
@@ -174,8 +95,8 @@ export function useReactiveSetup<T>(
     });
 
     lifecycle.on.cleanup(() => {
-      if (isObject(instance)) {
-        LIFETIME.finalize(instance);
+      if (isObject(nextInstance)) {
+        LIFETIME.finalize(nextInstance);
       }
       LIFETIME.finalize(element);
     });
@@ -184,28 +105,36 @@ export function useReactiveSetup<T>(
       ReactiveElement.idle(element);
     });
 
-    let reactive: Reactive<T>;
-    if (Reactive.is(instance)) {
-      reactive = instance;
-    } else {
-      reactive = PolledFormulaFn(instance, desc);
-    }
+    const reactive = Factory.create(nextInstance);
+
+    // let reactive: Reactive<T>;
+    // if (Reactive.is(instance)) {
+    //   reactive = instance;
+    // } else {
+    //   reactive = PolledFormulaFn(instance, desc);
+    // }
 
     lifecycle.on.layout(() => {
       ReactiveElement.layout(element);
 
-      const unsubscribe = TIMELINE.on.change(reactive, () => {
-        setNotify({});
-      });
+      if (Reactive.is(reactive)) {
+        const unsubscribe = TIMELINE.on.change(reactive, () => {
+          setNotify({});
+        });
 
-      lifecycle.on.cleanup(() => {
-        unsubscribe();
-        LIFETIME.finalize(setups);
-      });
+        lifecycle.on.cleanup(() => {
+          unsubscribe();
+          LIFETIME.finalize(setups);
+        });
+      }
     });
 
     return reactive;
   });
 
-  return unsafeTrackedElsewhere(() => instance.read());
+  if (Reactive.is(instance)) {
+    return unsafeTrackedElsewhere(() => instance.read());
+  } else {
+    return instance;
+  }
 }

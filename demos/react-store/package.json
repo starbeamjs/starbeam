@@ -4,25 +4,43 @@
   "version": "1.0.0",
   "type": "module",
   "main": "index.ts",
+  "exports": {
+    "default": "./index.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts"
+  },
   "starbeam": {
-    "type": "demo:react",
     "source": "tsx",
+    "type": "demo:react",
     "used": [
       {
-        "reason": "css",
         "packages": [
           "purecss"
-        ]
+        ],
+        "reason": "css"
       }
     ]
   },
+  "scripts": {
+    "test:lint": "eslint",
+    "test:types": "tsc -b"
+  },
   "dependencies": {
-    "@starbeam/core": "workspace:^",
     "@starbeam/debug": "workspace:^",
     "@starbeam/react": "workspace:^",
+    "@starbeam/universal": "workspace:^",
     "@starbeamx/devtool": "workspace:^",
     "@starbeamx/store": "workspace:^",
-    "purecss": "^2.1.0",
+    "purecss": "3.0.0",
     "react": "^18.1.0",
     "react-dom": "^18.1.0"
   },
@@ -30,26 +48,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "vite": "*",
-    "vitest": "*",
-    "vite-plugin-fonts": "^0.6.0"
-  },
-  "publishConfig": {
-    "main": "dist/index.cjs",
-    "types": "dist/index.d.ts",
-    "exports": {
-      ".": {
-        "types": "./dist/index.d.ts",
-        "import": "./dist/index.js",
-        "default": "./dist/index.cjs"
-      }
-    }
-  },
-  "exports": {
-    "default": "./index.ts"
-  },
-  "scripts": {
-    "test:lint": "eslint",
-    "test:build": "tsc -b",
-    "test:types": "tsc -b"
+    "vite-plugin-fonts": "^0.6.0",
+    "vitest": "*"
   }
 }

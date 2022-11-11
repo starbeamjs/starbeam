@@ -13,7 +13,9 @@ describe("consumption", () => {
     const id = getID();
     const here = Stack.fromCaller(-1);
     const frame = TIMELINE.frame.create({
-      evaluate: () => TIMELINE.didConsumeCell(instance, here),
+      evaluate: () => {
+        TIMELINE.didConsumeCell(instance, here);
+      },
       description: descriptionFrom({
         id,
         type: "formula",

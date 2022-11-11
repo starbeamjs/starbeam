@@ -1,8 +1,9 @@
 // @ts-check
 
+import { dirname, resolve } from "node:path";
+
 import { Package } from "@starbeam-workspace/build-support";
 import glob from "fast-glob";
-import { dirname, resolve } from "node:path";
 
 const root = Package.root(import.meta);
 

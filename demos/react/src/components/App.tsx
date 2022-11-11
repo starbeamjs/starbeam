@@ -15,13 +15,15 @@ import { formatLocale, LOCALES, SYSTEM_LOCALE } from "./intl.js";
 export default function App(): JSX.Element {
   const [locale, setLocale] = useState(SYSTEM_LOCALE);
 
-  const LocaleSelector = () => (
+  const LocaleSelector = (): JSX.Element => (
     <div className="header">
       <label>
         <span>My Locale</span>
         <select
           defaultValue={locale}
-          onInput={(e) => setLocale(e.currentTarget.value)}
+          onInput={(e) => {
+            setLocale(e.currentTarget.value);
+          }}
         >
           {LOCALES.map((l) => (
             <option key={l} value={l}>

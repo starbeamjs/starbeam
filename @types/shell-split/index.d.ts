@@ -1,2 +1,2 @@
-const DEFAULT: (command: string) => string[];
+declare const DEFAULT: (command: string) => string[];
 export default DEFAULT;

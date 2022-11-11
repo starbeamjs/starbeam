@@ -47,7 +47,7 @@ class Debug {
     return this.#options.stylize(text, styleType);
   }
 
-  struct(fields: Fields, options?: DisplayStructOptions) {
+  struct(fields: Fields, options?: DisplayStructOptions): object {
     return DisplayStruct(this.#name, fields, options);
   }
 }
@@ -70,13 +70,13 @@ export function inspector<I>(
 } {
   if (import.meta.env.DEV) {
     return {
-      define: (inspector: (instance: I, debug: Debug) => unknown) => {
+      define: (callback: (instance: I, debug: Debug) => unknown) => {
         Class.prototype[INSPECT] = function (
           this: I,
           _depth: number,
           options: InspectOptionsStylized
         ) {
-          return inspector(this, Debug.create(name ?? Class.name, options));
+          return callback(this, Debug.create(name ?? Class.name, options));
         };
       },
     };

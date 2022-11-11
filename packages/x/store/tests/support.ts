@@ -1,4 +1,4 @@
-import type { Table, RowTypeFor } from "@starbeamx/store";
+import type { RowTypeFor, Table } from "@starbeamx/store";
 
 export interface Person {
   name: string;
@@ -30,15 +30,15 @@ export class PersonModel {
 
 // the attr field decorator returns the value of the property in the `row` property of the target
 // object
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function attr(target: object, propertyKey: string | symbol) {
+ 
+function attr(target: object, propertyKey: string | symbol): void {
   if (typeof propertyKey === "symbol") {
     throw Error("an @attr decorator can only be used on a string property");
   }
 
   Object.defineProperty(target, propertyKey, {
     get: function (this: { row: Record<string, unknown> }) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+       
       return this.row[propertyKey];
     },
   });

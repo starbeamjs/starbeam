@@ -1,6 +1,6 @@
-import { Cell } from "@starbeam/core";
 import { LOGGER, LogLevel } from "@starbeam/debug";
 import { useProp, useReactive, useSetup } from "@starbeam/react";
+import { Cell } from "@starbeam/universal";
 import { DevTools } from "@starbeamx/devtool";
 import { Table } from "@starbeamx/store";
 import type { FormEvent } from "react";
@@ -28,7 +28,7 @@ export default function (props: { locale: string }): JSX.Element {
 
       const people = new People(table);
 
-      function append(e: FormEvent<HTMLFormElement>) {
+      function append(e: FormEvent<HTMLFormElement>): void {
         e.preventDefault();
 
         const form = e.currentTarget;
@@ -43,15 +43,14 @@ export default function (props: { locale: string }): JSX.Element {
 
       const filter = Cell("", "filter");
 
-      const query = () => {
-        return people.filter(filter.current).sort("name", locale.read());
-      };
+      const query = (): People =>
+        people.filter(filter.current).sort("name", locale.read());
 
-      function rows() {
+      function rows(): (Person & { id: string })[] {
         return query().rows;
       }
 
-      function total() {
+      function total(): string {
         const filteredCount = rows().length;
         const totalCount = table.rows.length;
 
@@ -108,7 +107,13 @@ export default function (props: { locale: string }): JSX.Element {
               <th key={p}>{p}</th>
             ))}
             <th className="action">
-              <button onClick={() => table.clear()}>✂️</button>
+              <button
+                onClick={() => {
+                  table.clear();
+                }}
+              >
+                ✂️
+              </button>
             </th>
           </tr>
         </thead>
@@ -118,7 +123,13 @@ export default function (props: { locale: string }): JSX.Element {
               <td>{person.name}</td>
               <td>{person.location}</td>
               <td className="actions">
-                <button onClick={() => table.delete(person.id)}>✂️</button>
+                <button
+                  onClick={() => {
+                    table.delete(person.id);
+                  }}
+                >
+                  ✂️
+                </button>
               </td>
             </tr>
           ))}

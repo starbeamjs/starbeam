@@ -1,0 +1,52 @@
+{
+  "private": true,
+  "name": "@starbeam-demos/preact-hello-world",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.ts",
+  "exports": {
+    "default": "./index.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts"
+  },
+  "starbeam": {
+    "jsx": "preact",
+    "source": "tsx",
+    "type": "demo:preact",
+    "used": [
+      {
+        "packages": [
+          "purecss"
+        ],
+        "reason": "css"
+      }
+    ]
+  },
+  "scripts": {
+    "test:lint": "eslint",
+    "test:types": "tsc -b"
+  },
+  "dependencies": {
+    "@starbeam/js": "workspace:^",
+    "@starbeam/preact": "workspace:^",
+    "@starbeam/timeline": "workspace:^",
+    "@starbeam/universal": "workspace:^",
+    "preact": "^10.11.2",
+    "purecss": "3.0.0"
+  },
+  "devDependencies": {
+    "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
+    "vite": "*",
+    "vite-plugin-fonts": "^0.6.0",
+    "vitest": "*"
+  }
+}

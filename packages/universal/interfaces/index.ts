@@ -1,21 +1,21 @@
 export type { Unsubscribe } from "./src/aliases.js";
 export type {
-  EmptyRoot,
   ComponentNode,
+  EmptyRoot,
   RootNode,
 } from "./src/debug-protocol/tree.js";
 export type {
-  Description,
   ApiDetails,
-  DescriptionDescribeOptions,
-  DescriptionArgument,
-  MemberDescription,
-  DetailsPart,
+  Description,
   DescriptionArgs,
-  DetailDescription,
+  DescriptionArgument,
+  DescriptionDescribeOptions,
   DescriptionDetails,
-  DescriptionType,
   DescriptionParts,
+  DescriptionType,
+  DetailDescription,
+  DetailsPart,
+  MemberDescription,
 } from "./src/description.js";
 export type { Diff } from "./src/diff.js";
 export type {
@@ -29,15 +29,17 @@ export type {
   DelegateInternals,
   MutableInternals,
   Reactive,
+  ReactiveCell,
+  ReactiveCore,
   ReactiveId,
   ReactiveInternals,
   ReactiveProtocol,
   StaticInternals,
 } from "./src/protocol.js";
 export type {
+  DisplayParts,
   Stack,
   StackFrame,
-  DisplayParts,
   StackFrameDisplayOptions,
 } from "./src/stack.js";
 export type { Timestamp, TimestampStatics } from "./src/timestamp.js";

@@ -1,23 +1,39 @@
 {
+  "private": true,
   "name": "@starbeam-private/scripts",
   "type": "module",
-  "private": true,
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts"
+  },
   "starbeam": {
-    "type": "support:build",
+    "source": "ts",
+    "type": "library:build-support",
     "used": [
       {
-        "reason": "used by exec",
         "packages": [
           "eslint"
-        ]
+        ],
+        "reason": "used by exec"
       },
       {
-        "reason": "package.json scripts",
         "packages": [
           "esno"
-        ]
+        ],
+        "reason": "package.json scripts"
       }
     ]
+  },
+  "scripts": {
+    "test:lint": "eslint",
+    "test:types": "tsc -b"
   },
   "dependencies": {
     "@starbeam-workspace/root": "workspace:^",
@@ -26,6 +42,7 @@
     "commander": "^9.3.0",
     "depcheck": "^1.4.3",
     "dirfilename": "^1.0.4",
+    "emoji-regex": "^10.2.1",
     "eslint": "*",
     "fast-glob": "^3.2.11",
     "node-pty": "^0.10.1",
@@ -36,32 +53,17 @@
     "split2": "^4.1.0"
   },
   "devDependencies": {
-    "@types/prettier": "^2.7.0",
+    "@starbeam-workspace/build-support": "workspace:^",
+    "@types/prettier": "^2.7.1",
     "@types/shell-escape-tag": "workspace:^",
     "@types/shell-split": "workspace:^",
     "@types/shelljs": "^0.8.11",
     "@types/split2": "^3.2.1",
     "@types/wrap-ansi": "^8.0.1",
+    "cli-table3": "^0.6.3",
     "esno": "^0.16.3",
     "jsonc-parser": "^3.0.0",
     "term-size": "^3.0.2",
-    "wrap-ansi": "^8.0.1",
-    "cli-table3": "^0.6.3"
-  },
-  "publishConfig": {
-    "main": "dist/index.cjs",
-    "types": "dist/index.d.ts",
-    "exports": {
-      ".": {
-        "types": "./dist/index.d.ts",
-        "import": "./dist/index.js",
-        "default": "./dist/index.cjs"
-      }
-    }
-  },
-  "scripts": {
-    "test:lint": "eslint",
-    "test:build": "tsc -b",
-    "test:types": "tsc -b"
+    "wrap-ansi": "^8.0.1"
   }
 }

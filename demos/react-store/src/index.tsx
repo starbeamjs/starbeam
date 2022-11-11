@@ -6,6 +6,11 @@ import App from "./components/App.jsx";
 
 // const dev = devtool();
 
-const container = document.querySelector("#root") as Element;
+const container = document.querySelector("#root");
+
+if (!container) {
+  throw Error("Could not find #root");
+}
+
 const root = ReactDOM.createRoot(container);
 root.render(<App />);

@@ -3,9 +3,9 @@ import { dirname } from "dirfilename";
 import { resolve } from "path";
 import { defineConfig } from "vite";
 
-import manifest from "./manifest.json" ;
+import manifest from "./manifest.json";
 
-const root = dirname(import.meta);
+const root = dirname(import.meta.url);
 
 export default defineConfig({
   base: "/",
@@ -20,10 +20,11 @@ export default defineConfig({
     rollupOptions: {
       input: {
         "debug.js": resolve(root, "src/coordination/debug.ts"),
-        "pane": resolve(root, "src/panes/main/index.html"),
+        pane: resolve(root, "src/panes/main/index.html"),
       },
     },
   },
 
+  // @ts-expect-error
   plugins: [crx({ manifest })],
 });

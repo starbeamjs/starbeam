@@ -1,36 +1,42 @@
 {
-  "version": "2.0.0",
   "tasks": [
     {
-      "type": "npm",
-      "script": "check:lint",
-      "problemMatcher": ["$eslint-stylish"],
-      "label": "npm: lint",
-      "detail": "eslint . --cache",
-      "group": {
-        "kind": "build"
-      }
-    },
-    {
-      "type": "shell",
+      "args": ["test:workspace:types"],
       "command": "pnpm",
-      "args": ["check:types"],
+      "label": "test:workspace:types",
       "problemMatcher": ["$tsc"],
-      "label": "check:types"
+      "type": "shell"
     },
     {
-      "type": "shell",
+      "args": ["test:workspace:types", "-w"],
       "command": "pnpm",
-      "args": ["check:types", "-w"],
+      "label": "test:workspace:types (watch)",
       "problemMatcher": ["$tsc-watch"],
-      "label": "check:types (watch)"
+      "type": "shell"
     },
     {
-      "type": "shell",
+      "args": ["test:workspace:lint"],
       "command": "pnpm",
-      "args": ["check:lint"],
+      "label": "Lint",
       "problemMatcher": ["$eslint-stylish"],
-      "label": "check:lint"
+      "type": "shell"
+    },
+    {
+      "args": ["install"],
+      "command": "pnpm",
+      "group": "build",
+      "label": "npm: install",
+      "presentation": {
+        "clear": true,
+        "echo": true,
+        "focus": false,
+        "panel": "shared",
+        "reveal": "silent",
+        "showReuseMessage": true
+      },
+      "problemMatcher": [],
+      "type": "shell"
     }
-  ]
+  ],
+  "version": "2.0.0"
 }

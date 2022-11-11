@@ -3,6 +3,7 @@ import type { Stack } from "@starbeam/interfaces";
 
 import { Collection } from "./collection.js";
 
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export default class TrackedObject {
   static reactive<T extends object>(description: Description, obj: T): T {
     return new TrackedObject(description, obj) as T;
@@ -10,24 +11,24 @@ export default class TrackedObject {
 
   private constructor(description: Description, obj: object) {
     // copy the properties from the object to the proxy, but preserve getters and setters
-    const target = Object.create(null) as object;
-    for (const key of Object.getOwnPropertyNames(obj)) {
+    const target = Object.create(Reflect.getPrototypeOf(obj)) as object;
+
+    for (const key of Reflect.ownKeys(obj)) {
       const descriptor = Object.getOwnPropertyDescriptor(obj, key);
       if (descriptor) {
         Object.defineProperty(target, key, descriptor);
       }
     }
-    // const target = { ...obj };
 
     const proxy = new Proxy(target, {
-      defineProperty(target, key, descriptor) {
+      defineProperty(_, key, descriptor) {
         const caller = callerStack();
 
         define(key, descriptor, caller);
         return true;
       },
 
-      deleteProperty(target, prop) {
+      deleteProperty(_, prop) {
         if (Reflect.has(target, prop)) {
           const caller = callerStack();
 
@@ -38,7 +39,7 @@ export default class TrackedObject {
         return true;
       },
 
-      get(target, prop, _receiver) {
+      get(_, prop, _receiver) {
         const caller = callerStack();
 
         collection.get(
@@ -50,7 +51,7 @@ export default class TrackedObject {
         return Reflect.get(target, prop) as unknown;
       },
 
-      getOwnPropertyDescriptor(target, prop) {
+      getOwnPropertyDescriptor(_, prop) {
         const caller = callerStack();
 
         collection.get(
@@ -66,7 +67,7 @@ export default class TrackedObject {
         return TrackedObject.prototype;
       },
 
-      has(target, prop) {
+      has(_, prop) {
         const caller = callerStack();
 
         const has = Reflect.has(target, prop);
@@ -74,22 +75,22 @@ export default class TrackedObject {
         return has;
       },
 
-      isExtensible(target) {
+      isExtensible() {
         return Reflect.isExtensible(target);
       },
 
-      ownKeys(target) {
+      ownKeys() {
         const caller = callerStack();
 
         collection.iterateKeys(caller);
         return Reflect.ownKeys(target);
       },
 
-      preventExtensions(target) {
+      preventExtensions(_) {
         return Reflect.preventExtensions(target);
       },
 
-      set(target: object, prop: PropertyKey, value: unknown, _receiver) {
+      set(_: object, prop: PropertyKey, value: unknown, _receiver) {
         const caller = callerStack();
 
         const descriptor = Reflect.getOwnPropertyDescriptor(target, prop);
@@ -123,7 +124,7 @@ export default class TrackedObject {
       key: PropertyKey,
       descriptor: PropertyDescriptor,
       caller: Stack
-    ) {
+    ): boolean {
       const updates = Descriptor.updates(target, key, descriptor);
 
       if (updates.isNoop) {
@@ -138,7 +139,10 @@ export default class TrackedObject {
 }
 
 class Descriptor {
-  static from(descriptor: PropertyDescriptor) {
+  #descriptor: PropertyDescriptor;
+  #before: PropertyDescriptor | undefined;
+
+  static from(descriptor: PropertyDescriptor): Descriptor {
     return new Descriptor(descriptor);
   }
 
@@ -146,15 +150,12 @@ class Descriptor {
     object: object,
     key: PropertyKey,
     updates: PropertyDescriptor
-  ) {
+  ): Descriptor {
     return new Descriptor(
       updates,
       Reflect.getOwnPropertyDescriptor(object, key)
     );
   }
-
-  #descriptor: PropertyDescriptor;
-  #before: PropertyDescriptor | undefined;
 
   constructor(updates: PropertyDescriptor, before?: PropertyDescriptor) {
     this.#descriptor = updates;
@@ -227,39 +228,31 @@ class Descriptor {
     return false;
   }
 
-  get value() {
+  get value(): unknown {
     return this.#get("value");
   }
 
-  get get() {
+  get get(): void | (() => unknown) {
     return this.#get("get");
   }
 
-  get set() {
+  get set(): void | ((value: unknown) => void) {
     return this.#get("set");
   }
 
-  get configurable() {
+  get configurable(): boolean {
     return this.#attr("configurable");
   }
 
-  get enumerable() {
+  get enumerable(): boolean {
     return this.#attr("enumerable");
   }
 
-  get writable() {
+  get writable(): boolean {
     return this.#attr("writable");
   }
 
-  #assert() {
-    if (this.#get("configurable") === false) {
-      throw TypeError(
-        `reactive object don't support non-configurable properties yet`
-      );
-    }
-  }
-
-  get type() {
+  get type(): string {
     if (this.#get("get")) {
       if (this.#get("set")) {
         return "accessor";
@@ -276,7 +269,15 @@ class Descriptor {
     return `value${readonly}`;
   }
 
-  #attr(key: "enumerable" | "configurable" | "writable") {
+  #assert(): void {
+    if (this.#get("configurable") === false) {
+      throw TypeError(
+        `reactive object don't support non-configurable properties yet`
+      );
+    }
+  }
+
+  #attr(key: "enumerable" | "configurable" | "writable"): boolean {
     return this.#get(key) ?? false;
   }
 
@@ -330,7 +331,7 @@ function isAccessorProperty(
   return "get" in descriptor || "set" in descriptor;
 }
 
-function member(prop: PropertyKey) {
+function member(prop: PropertyKey): string {
   if (typeof prop === "symbol") {
     return `[${String(prop)}]`;
   } else {

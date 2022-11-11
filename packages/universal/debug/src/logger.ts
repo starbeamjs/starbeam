@@ -18,11 +18,11 @@ export class LoggerAsLevel {
     this.#config = config;
   }
 
-  log(arg: unknown, ...args: unknown[]): void {
+  log = (arg: unknown, ...args: unknown[]): void => {
     if (this.#level >= this.#config.minimum) {
       this.#logger.send(this.#level, { args: [arg, ...args] });
     }
-  }
+  };
 
   get withStack(): LoggerWithStack {
     return new LoggerWithStack(this.#logger, this.#level, this.#config);

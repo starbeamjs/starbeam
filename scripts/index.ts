@@ -1,23 +1,27 @@
-import { program } from "commander";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { version } from "@starbeam-workspace/root/package.json";
+import { program } from "commander";
 
-import { dirname } from "dirfilename";
-import { resolve } from "path";
-import { BuildCommand } from "./build.js";
-import { StarbeamCommands } from "./support/commands.js";
-import { ListCommand } from "./list.js";
-import { CleanCommand } from "./clean.js";
-import { DemoCommand } from "./demo.js";
-import { UnusedCommand } from "./unused.js";
-import { TemplateCommand } from "./template.js";
-import { TestCommand } from "./test.js";
-import { CheckCommand } from "./check.js";
-import { ReleaseCommand } from "./release.js";
-import { LintCommand } from "./lint.js";
+import { BuildCommand } from "./src/build.js";
+import { CheckCommand } from "./src/check.js";
+import { CiCommand } from "./src/ci.js";
+import { CleanCommand } from "./src/clean.js";
+import { DemoCommand } from "./src/demo.js";
+import { LintCommand } from "./src/lint.js";
+import { ListCommand } from "./src/list.js";
+import { ReleaseCommand } from "./src/release.js";
+import { StarbeamCommands } from "./src/support/commands.js";
+import { OK_EXIT_CODE } from "./src/support/constants.js";
+import { TemplateCommand } from "./src/template.js";
+import { TestCommand } from "./src/test.js";
+import { UnusedCommand } from "./src/unused.js";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 new StarbeamCommands(
-  resolve(dirname(import.meta), ".."),
+  resolve(__dirname, ".."),
   program
     .name("pnpm dev")
     .description("CLI commands to run from package.json")
@@ -26,7 +30,7 @@ new StarbeamCommands(
     .showSuggestionAfterError()
     .exitOverride(() => {
       // we're calling this from an npm script, so the noisy exit 1 is not useful
-      process.exit(0);
+      process.exit(OK_EXIT_CODE);
     })
 )
   .add(ListCommand)
@@ -36,6 +40,7 @@ new StarbeamCommands(
   .add(UnusedCommand)
   .add(TemplateCommand)
   .add(TestCommand)
+  .add(CiCommand)
   .add(CheckCommand)
   .add(ReleaseCommand)
   .add(LintCommand)

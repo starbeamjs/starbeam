@@ -18,7 +18,7 @@ export interface Frame<_T = unknown>
   extends ReactiveProtocol<CompositeInternals> {
   readonly description: Description;
 
-  validate<U>(this: Frame<U | UNINITIALIZED>): FrameValidation<U>;
+  validate: () => FrameValidation<Exclude<_T, UNINITIALIZED>>;
 
   // update<U>(
   //   this: Frame<U | UNINITIALIZED>,

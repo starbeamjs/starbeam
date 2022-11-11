@@ -1,17 +1,10 @@
 import type { browser } from "@domtree/flavors";
-import {
-  type Cell,
-  type ResourceBlueprint,
-  Resource,
-  Setups,
-  DelegateInternals,
-} from "@starbeam/core";
+import type { Stack } from "@starbeam/debug";
 import {
   type DebugListener,
   type Description,
   callerStack,
   descriptionFrom,
-  Stack,
 } from "@starbeam/debug";
 import {
   type CleanupTarget,
@@ -24,18 +17,25 @@ import {
   REACTIVE,
   TIMELINE,
 } from "@starbeam/timeline";
+import {
+  type Cell,
+  type ResourceBlueprint,
+  DelegateInternals,
+  Resource,
+  Setups,
+} from "@starbeam/universal";
 
 import { type ElementRef, type ReactElementRef, ref } from "./ref.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyRecord = Record<PropertyKey, any>;
 
-interface RefType<E extends browser.Element = browser.Element> {
+type RefType<E extends browser.Element = browser.Element> = new (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  new (...args: any[]): E;
-}
+  ...args: any[]
+) => E;
 
-type RefsRecord = Record<string, ElementRef<browser.Element>>;
+type RefsRecord = Record<string, ElementRef>;
 type RefsTypes = Record<string, RefType>;
 
 type RefsRecordFor<T extends RefsTypes> = {
@@ -132,9 +132,10 @@ class Refs {
   }
 }
 
-export interface DebugLifecycle {
-  (listener: DebugListener, reactive: ReactiveProtocol): () => void;
-}
+export type DebugLifecycle = (
+  listener: DebugListener,
+  reactive: ReactiveProtocol
+) => () => void;
 
 /**
  * A {@link ReactiveElement} is a stable representation of a
@@ -174,17 +175,6 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
     );
   }
 
-  // // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  // static attach(element: ReactiveElement, subscription: Subscription): void {
-  //   if (element.#debugLifecycle) {
-  //     const lifecycle = element.#debugLifecycle;
-  //     const listener = subscription.attach(() => {
-  //       invalidate();
-  //     });
-  //     const invalidate = lifecycle(listener, pollable);
-  //   }
-  // }
-
   static layout(element: ReactiveElement): void {
     element.#lifecycle.layout.read();
     TIMELINE.update(element);
@@ -206,6 +196,8 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
   readonly #description: Description;
   readonly [REACTIVE]: ReactiveInternals;
 
+  readonly on: OnLifecycle;
+
   private constructor(
     readonly notify: () => void,
     lifecycle: Lifecycle,
@@ -222,8 +214,6 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
     });
   }
 
-  readonly on: OnLifecycle;
-
   link(child: object): Unsubscribe {
     return LIFETIME.link(this, child);
   }
@@ -236,8 +226,10 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
     resource: ResourceBlueprint<T>,
     _caller: Stack = callerStack()
   ): Resource<T> {
-    const r = resource.create({ owner: this });
+    const r = resource.create(this);
 
+    // @ts-expect-error FIXME
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
     this.on.layout(() => Resource.setup(r));
 
     return r;
@@ -251,7 +243,9 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
   }
 }
 
-type Callback<T = void> = (instance: T) => void | (() => void);
+type Callback<T = void> =
+  | ((instance: T) => void)
+  | ((instance: T) => () => void);
 
 interface OnLifecycle extends OnCleanup {
   readonly cleanup: (

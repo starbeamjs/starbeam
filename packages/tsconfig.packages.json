@@ -2,14 +2,9 @@
   "extends": "../.config/tsconfig/tsconfig.shared.json",
   "compilerOptions": {
     "composite": true,
-    "types": ["./env"],
-    "outDir": "../dist/packages"
+    "outDir": "../dist/packages",
+    "types": ["./env"]
   },
-  "include": ["**/*"],
-  "exclude": [
-    "x/devtool/**/*",
-    "x/devtools-extension/**/*",
-    "**/dist/**/**",
-    "**/rollup.config.mjs"
-  ]
+  "exclude": ["x/devtool/**/*", "x/devtools-extension/**/*", "**/dist/**/*"],
+  "include": ["*/*/index.ts", "*/*/src/**/*"]
 }

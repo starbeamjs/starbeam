@@ -199,37 +199,52 @@ describe("lifetimes", () => {
     expect(tracer1.calls).toBe(1);
   });
 
-  test("finalizing an object in the context of a block", () => {
-    const object = {};
+  test("adopting an object causes it to be unlinked from its previous value", () => {
+    const root = {};
+    const parent1 = {};
+    const parent2 = {};
+    const child = {};
     const [tracer, finalizer] = InstrumentedCallback.create();
 
-    LIFETIME.on.cleanup(object, finalizer);
+    // setup
+    {
+      LIFETIME.on.cleanup(child, finalizer);
 
-    // The finalizer isn't called
-    expect(tracer.calls).toBe(0);
+      LIFETIME.link(parent1, child, { root });
 
-    LIFETIME.finalize(object, (finalize) => {
+      // The finalizers aren't called
       expect(tracer.calls).toBe(0);
+    }
 
-      finalize();
+    // The finalizers are not called once the child is adopted by a new owner.
+    {
+      LIFETIME.link(parent2, child, { root });
+      LIFETIME.finalize(parent1);
+
+      expect(tracer.calls).toBe(0);
+    }
+
+    // The finalizers are called once when the new parent is finalized
+    {
+      LIFETIME.finalize(parent2);
 
       expect(tracer.calls).toBe(1);
-    });
+    }
 
-    // It's called once when the object is finalized
-    expect(tracer.calls).toBe(1);
+    // but aren't called again, even if the child is directly finalized
+    {
+      LIFETIME.finalize(child);
+      expect(tracer.calls).toBe(1);
+    }
 
-    LIFETIME.finalize(object);
+    // Linking the child to a new parent doesn't cause it to get called again
+    {
+      const parent3 = {};
 
-    // Finalizing a second time is a noop
-    expect(tracer.calls).toBe(1);
-
-    // Finalizing with a new callback is still a noop
-    const [inContextTracer, inContext] = InstrumentedCallback.create();
-    LIFETIME.finalize(object, inContext);
-
-    // The finalizer isn't called
-    expect(inContextTracer.calls).toBe(0);
+      LIFETIME.link(parent3, child, { root });
+      LIFETIME.finalize(parent3);
+      expect(tracer.calls).toBe(1);
+    }
   });
 });
 
@@ -238,7 +253,7 @@ type Args = unknown[];
 class InstrumentedCallback {
   static create(): [InstrumentedCallback, (...args: unknown[]) => void] {
     const instrumented = new InstrumentedCallback();
-    const fn = (...args: unknown[]) => {
+    const fn = (...args: unknown[]): void => {
       instrumented.#called.push(args);
     };
 

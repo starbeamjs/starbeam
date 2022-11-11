@@ -1,6 +1,11 @@
 /* eslint-disable */
 
-import { type Stack, callerStack, entryPoint } from "@starbeam/debug";
+import {
+  type Stack,
+  callerStack,
+  entryPoint,
+  entryPointFn,
+} from "@starbeam/debug";
 import * as testing from "@testing-library/react";
 import { getByRole, getByText } from "@testing-library/react";
 import {
@@ -41,7 +46,7 @@ export class RenderState<T> {
       );
     }
 
-    const value = state.#values[state.#values.length - 1];
+    const value = state.#values[state.#values.length - 1] as T;
     state.#lastChecked = value;
     return value;
   }
@@ -54,13 +59,13 @@ export class RenderState<T> {
   #lastChecked: T | undefined;
   #renderCount = 0;
 
-  value(value: T) {
+  readonly value = (value: T) => {
     this.#values.push(value);
-  }
+  };
 
-  rendered() {
+  readonly rendered = () => {
     this.#renderCount++;
-  }
+  };
 
   get renderCount(): number {
     return this.#renderCount;
@@ -76,13 +81,13 @@ class RenderResult<Props, T> {
     return RenderState.getLastChecked(result.#state);
   }
 
-  #setup: SetupTestRender<Props, T>;
+  #setup: SetupTestRoot<Props, T>;
   #state: RenderState<T>;
   #result: testing.RenderResult;
   #rerender: (props?: Props) => void;
 
   constructor(
-    setup: SetupTestRender<Props, T>,
+    setup: SetupTestRoot<Props, T>,
     state: RenderState<T>,
     result: testing.RenderResult,
     rerender: (props?: Props) => void
@@ -109,7 +114,7 @@ class RenderResult<Props, T> {
 
     return entryPoint(
       () => {
-        SetupTestRender.assert(this.#setup, this);
+        SetupTestRoot.assert(this.#setup, this);
 
         return this;
       },
@@ -122,12 +127,7 @@ class RenderResult<Props, T> {
     caller: Stack = callerStack()
   ): Promise<void> {
     const prev = this.#state.renderCount;
-    entryPoint(
-      () => {
-        act(behavior);
-      },
-      { stack: caller }
-    );
+    act(() => entryPoint(behavior, { stack: caller }));
     await this.rendered(prev, caller);
   }
 
@@ -173,9 +173,9 @@ class RenderResult<Props, T> {
   }
 }
 
-export class SetupTestRender<Props, T> {
+export class SetupTestRoot<Props, T> {
   static assert<T>(
-    render: SetupTestRender<any, T>,
+    render: SetupTestRoot<any, T>,
     result: RenderResult<any, T>
   ): void {
     if (render.#expectHtml) {
@@ -217,7 +217,7 @@ export class SetupTestRender<Props, T> {
   }
 
   render(
-    this: SetupTestRender<RenderState<void>, T>,
+    this: SetupTestRoot<RenderState<void>, T>,
     render: (state: RenderState<T>, props?: void) => ReactElement,
     props?: void
   ): Promise<RenderResult<void, T>>;
@@ -226,49 +226,55 @@ export class SetupTestRender<Props, T> {
     props: Props
   ): Promise<RenderResult<Props, T>>;
   async render(
-    this: SetupTestRender<RenderState<any>, any>,
+    this: SetupTestRoot<RenderState<any>, any>,
     render: (state: RenderState<any>, props?: any) => ReactElement,
     props?: any
   ): Promise<RenderResult<any, T>> {
-    const result = entryPoint(() => {
-      const state = new RenderState<T>();
-      let i = 0;
+    const result = entryPoint(
+      () => {
+        const state = new RenderState<T>();
+        let i = 0;
 
-      const Component = (props: any): ReactElement => {
-        state.rendered();
-        return render(state, props);
-      };
+        const Component = (props: any): ReactElement => {
+          state.rendered();
+          return render(state, props);
+        };
 
-      const result = act(() =>
-        testing.render(
-          react.render(Component, { ...props, rerender: ++i }),
-          this.#options
-        )
-      );
+        const result = act(() =>
+          testing.render(
+            react.render(Component, { ...props, rerender: ++i }),
+            this.#options
+          )
+        );
 
-      const renderResult = new RenderResult(
-        this,
-        state,
-        result,
-        (updatedProps?: any) => {
-          if (updatedProps) {
-            result.rerender(
-              react.render(Component, { ...updatedProps, rerender: ++i })
-            );
-          } else {
-            result.rerender(
-              react.render(Component, { ...props, rerender: ++i })
-            );
+        const renderResult = new RenderResult(
+          this,
+          state,
+          result,
+          (updatedProps?: any) => {
+            if (updatedProps) {
+              result.rerender(
+                react.render(Component, { ...updatedProps, rerender: ++i })
+              );
+            } else {
+              result.rerender(
+                react.render(Component, { ...props, rerender: ++i })
+              );
+            }
           }
-        }
-      );
+        );
 
-      return renderResult;
-    }) as unknown as RenderResult<Props, T>;
+        return renderResult;
+      },
+      { internal: 1 }
+    ) as unknown as RenderResult<Props, T>;
 
-    entryPoint(() => {
-      SetupTestRender.assert(this, result);
-    });
+    entryPoint(
+      () => {
+        SetupTestRoot.assert(this, result);
+      },
+      { internal: 1 }
+    );
 
     return result;
   }
@@ -285,51 +291,44 @@ export class SetupTestRender<Props, T> {
 }
 
 type TestModes<Props, T> = (
-  mode: Mode,
-  render: SetupTestRender<Props, T>
+  root: SetupTestRoot<Props, T>,
+  mode: Mode
 ) => void | Promise<void>;
 
-export function testStrictAndLoose<Props, T>(
-  name: string,
-  modes: TestModes<Props, T>
-) {
-  testStrictAndLoose.strict(name, modes);
-  testStrictAndLoose.loose(name, modes);
+export function testReact<Props, T>(name: string, modes: TestModes<Props, T>) {
+  testReact.strict(name, modes);
+  testReact.loose(name, modes);
 }
 
-testStrictAndLoose.skip = <Props, T>(
-  name: string,
-  modes: TestModes<Props, T>
-) => {
-  testStrictAndLoose.strict(name, modes, test.skip as TestAPI);
-  testStrictAndLoose.loose(name, modes, test.skip as TestAPI);
+testReact.skip = <Props, T>(name: string, modes: TestModes<Props, T>) => {
+  testReact.strict(name, modes, test.skip as TestAPI);
+  testReact.loose(name, modes, test.skip as TestAPI);
 };
 
-testStrictAndLoose.strict = <Props, T>(
+testReact.strict = <Props, T>(
   name: string,
   modes: TestModes<Props, T>,
   testFn: TestAPI = test
 ): void => {
   testFn(`${name} (strict mode)`, async () => {
-    const setup = new SetupTestRender<Props, T>({ wrapper: StrictMode });
-    return modes(Mode.strict, setup);
+    const setup = new SetupTestRoot<Props, T>({ wrapper: StrictMode });
+    return modes(setup, Mode.strict);
   });
 };
 
-testStrictAndLoose.loose = <Props, T>(
+testReact.loose = <Props, T>(
   name: string,
   modes: TestModes<Props, T>,
   testFn: TestAPI = test
 ) => {
   testFn(`${name} (loose mode)`, async () => {
-    const setup = new SetupTestRender<Props, T>({});
-    return modes(Mode.loose, setup);
+    const setup = new SetupTestRoot<Props, T>({});
+    return modes(setup, Mode.loose);
   });
 };
 
 type BoundFireObject = {
   [P in keyof testing.FireObject]: testing.FireObject[P] extends (
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     element: any,
     ...args: infer Args
   ) => infer Return
@@ -405,7 +404,6 @@ export class TestElement<E extends Element> {
 
   readonly fire: {
     [P in keyof testing.FireObject]: testing.FireObject[P] extends (
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       element: any,
       ...args: infer Args
     ) => infer Return
@@ -419,7 +417,6 @@ export class TestElement<E extends Element> {
     const fire: Partial<BoundFireObject> = {};
 
     for (const [key, value] of Object.entries(testing.fireEvent)) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       fire[key as keyof BoundFireObject] = this.#bind(value);
     }
 
@@ -427,9 +424,7 @@ export class TestElement<E extends Element> {
   }
 
   #bind(method: testing.FireObject[keyof testing.FireObject]) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return async (...args: any) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       const result = act(() => method(this.#element, ...args));
       return result;
     };

@@ -1,7 +1,7 @@
 import "preact";
 
+import { isPresentArray, isSingleItemArray } from "@starbeam/core-utils";
 /** @jsxRuntime automatic @jsxImportSource preact */
-
 import type {
   DescriptionParts,
   DetailsPart,
@@ -35,7 +35,7 @@ export function Internal({
   options,
 }: {
   leaf: DescriptionParts;
-  label?: string;
+  label?: string | undefined;
   options: DevtoolsOptions;
 }): JSX.Element | null {
   if (leaf.internal) {
@@ -51,7 +51,7 @@ export function Internal({
 
             <p class={`message name ${leaf.type}`}>
               <span class="detail implementation reason">
-                {leaf.internal?.reason}
+                {leaf.internal.reason}
               </span>
             </p>
           </div>
@@ -159,7 +159,9 @@ export function Name({
     case "anonymous":
       return <span class="anonymous name ${classes}">anonymous</span>;
     case "detail": {
-      if (details.args?.length === 1) {
+      if (isSingleItemArray(details.args)) {
+        const [arg] = details.args;
+
         return (
           <>
             <Name
@@ -167,10 +169,10 @@ export function Name({
               more={true}
               options={options}
             />
-            <span class={`detail key name ${classes}`}>{details.args[0]}</span>
+            <span class={`detail key name ${classes}`}>{arg}</span>
           </>
         );
-      } else if ((details.args?.length ?? 0) === 0) {
+      } else if (isPresentArray(details.args)) {
         return (
           <>
             <Name

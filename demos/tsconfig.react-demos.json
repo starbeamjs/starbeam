@@ -4,12 +4,8 @@
     "composite": true,
     "outDir": "../../dist/packages"
   },
-  "include": ["./react*/**/*"],
-  "exclude": [
-    "../../packages/**/*",
-    "../../framework/**/*",
-    "../../demos/*/vite.config.ts"
-  ],
+  "exclude": ["vite.config.ts"],
+  "include": ["./react*/**/*", "./react*/**/*.tsx"],
   "references": [
     {
       "path": "../packages/tsconfig.packages.json"

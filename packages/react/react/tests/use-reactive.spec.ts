@@ -1,67 +1,67 @@
 // @vitest-environment jsdom
 
-import { Cell, FormulaFn, LIFETIME, PolledFormulaFn } from "@starbeam/core";
 import { useReactive, useReactiveSetup } from "@starbeam/react";
-import {
-  html,
-  react,
-  testStrictAndLoose,
-} from "@starbeam-workspace/react-test-utils";
+import { Cell, Formula, PolledFormulaFn } from "@starbeam/universal";
+import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
 import { useState } from "react";
 import { describe, expect } from "vitest";
 
-let id = 0;
+const INITIAL_ID = 0;
+const INITIAL_COUNT = 0;
+const INCREMENT = 1;
+
+let nextId = INITIAL_ID;
 
 describe("useReactive", () => {
-  testStrictAndLoose<void, number>(
-    "useReactiveSetup with useReactive",
-    async (mode, test) => {
-      const result = await test
-        .expectHTML((value) => `<p>${value}</p><button>++</button>`)
-        .render((test) => {
-          const { cell, increment } = useReactiveSetup(() => {
-            const cell = Cell(0, `#${++id}`);
+  testReact<void, number>("useReactiveSetup with useReactive", async (root) => {
+    const result = await root
+      .expectHTML((value) => `<p>${value}</p><button>++</button>`)
+      .render((state) => {
+        const { cell, increment } = useReactiveSetup(() => {
+          const count = Cell(INITIAL_COUNT, `#${++nextId}`);
 
-            function increment() {
-              cell.set(cell.current + 1);
-            }
+          function incrementCell(): void {
+            count.set(count.current + INCREMENT);
+          }
 
-            return () => ({ cell, increment });
-          }, "first useReactiveSetup");
+          return () => ({ cell: count, increment: incrementCell });
+        }, "first useReactiveSetup");
 
-          return useReactive(() => {
-            test.value(cell.current);
+        return useReactive(() => {
+          state.value(cell.current);
 
-            return react.fragment(
-              html.p(String(cell.current)),
-              html.button({ onClick: increment }, "++")
-            );
-          }, `JSX#${id}`);
-        });
+          return react.fragment(
+            html.p(String(cell.current)),
+            html.button({ onClick: increment }, "++")
+          );
+        }, `JSX#${nextId}`);
+      });
 
-      expect(result.value).toBe(0);
+    expect(result.value).toBe(INITIAL_COUNT);
 
-      await result.find("button").fire.click();
+    await result.find("button").fire.click();
 
-      expect(result.value).toBe(1);
-    }
-  );
+    expect(result.value).toBe(INITIAL_COUNT + INCREMENT);
+  });
 
-  testStrictAndLoose<void, { counter: number }>(
+  testReact<void, { counter: number }>(
     "useSetup with Formula + useReactive",
-    async (mode, test) => {
-      let id = 0;
+    async (test) => {
+      let testId = 0;
       const result = await test
         .expectHTML(({ counter }) => `<p>${counter}</p>`)
         .expectStable()
-        .render((test) => {
-          ++id;
+        .render((state) => {
+          ++testId;
           const counter = useReactiveSetup(() => {
-            const cell = Cell(0, `#${id}`);
-            return FormulaFn(() => ({ counter: cell.current }), `inner #${id}`);
-          }, `#${id}`);
+            const cell = Cell(INITIAL_COUNT, `#${testId}`);
+            return Formula(
+              () => ({ counter: cell.current }),
+              `inner #${testId}`
+            );
+          }, `#${testId}`);
 
-          test.value(counter);
+          state.value(counter);
 
           return react.fragment(html.p(String(counter.counter)));
         });
@@ -73,31 +73,31 @@ describe("useReactive", () => {
     }
   );
 
-  testStrictAndLoose<void, { counter: number }>(
+  testReact<void, { counter: number }>(
     "useSetup with Formula + useReactive",
-    async (mode, test) => {
-      id = 0;
-      const result = await test
+    async (root) => {
+      nextId = INITIAL_ID;
+      const result = await root
         .expectHTML(({ counter }) => `<p>${counter}</p><button>++</button>`)
         .expectStable()
-        .render((test) => {
-          ++id;
+        .render((state) => {
+          ++nextId;
           const { formula, increment } = useReactiveSetup(() => {
-            const cell = Cell(0, `#${id}`);
+            const cell = Cell(INITIAL_COUNT, `#${nextId}`);
             return () => ({
-              formula: FormulaFn(
+              formula: Formula(
                 () => ({ counter: cell.current }),
-                `inner #${id}`
+                `inner #${nextId}`
               ),
               increment: () => {
-                cell.update((count) => count + 1);
+                cell.update((count) => count + INCREMENT);
               },
             });
-          }, `#${id}`);
+          }, `#${nextId}`);
 
           const counter = useReactive(formula);
 
-          test.value(counter);
+          state.value(counter);
 
           return react.fragment(
             html.p(String(formula().counter)),
@@ -114,10 +114,10 @@ describe("useReactive", () => {
     }
   );
 
-  testStrictAndLoose<void, { starbeam: number; react: number }>(
+  testReact<void, { starbeam: number; react: number }>(
     "useReactive",
-    async (mode, test) => {
-      const result = await test
+    async (root) => {
+      const result = await root
         .expectStable()
         .expectHTML(
           (count) =>
@@ -126,24 +126,24 @@ describe("useReactive", () => {
             }</p><label><span>Increment</span><button>++Starbeam++</button><button>++React++</button></label>`
         )
 
-        .render((test) => {
-          const [reactCount, setReactCount] = useState(0);
+        .render((state) => {
+          const [reactCount, setReactCount] = useState(INITIAL_COUNT);
 
           const { count, increment } = useReactiveSetup(() => {
-            const cell = Cell(0);
+            const cell = Cell(INITIAL_COUNT);
 
-            function increment() {
-              cell.update((count) => count + 1);
+            function incrementCount(): void {
+              cell.update((i) => i + INCREMENT);
             }
 
             return () => ({
               count: cell,
-              increment,
+              increment: incrementCount,
             });
           });
 
           return useReactive(() => {
-            test.value({ starbeam: count.current, react: reactCount });
+            state.value({ starbeam: count.current, react: reactCount });
 
             return react.fragment(
               html.p(
@@ -157,7 +157,11 @@ describe("useReactive", () => {
                 html.span("Increment"),
                 html.button({ onClick: increment }, "++Starbeam++"),
                 html.button(
-                  { onClick: () => setReactCount((count) => count + 1) },
+                  {
+                    onClick: () => {
+                      setReactCount((i) => i + INCREMENT);
+                    },
+                  },
                   "++React++"
                 )
               )
@@ -175,10 +179,10 @@ describe("useReactive", () => {
     }
   );
 
-  testStrictAndLoose<void, { starbeam: number; react: number }>(
+  testReact<void, { starbeam: number; react: number }>(
     "everything in useSetup",
-    async (mode, test) => {
-      const result = await test
+    async (root) => {
+      const result = await root
         .expectStable()
         .expectHTML(
           (count) =>
@@ -187,18 +191,18 @@ describe("useReactive", () => {
             }</p><label><span>Increment</span><button>++Starbeam++</button><button>++React++</button></label>`
         )
 
-        .render((test) => {
+        .render((state) => {
           return useReactiveSetup(() => {
-            const cell = Cell(0);
+            const cell = Cell(INITIAL_COUNT);
 
-            function increment() {
-              cell.update((count) => count + 1);
+            function increment(): void {
+              cell.update((i) => i + INCREMENT);
             }
 
             return PolledFormulaFn(() => {
-              const [reactCount, setReactCount] = useState(0);
+              const [reactCount, setReactCount] = useState(INITIAL_COUNT);
 
-              test.value({ starbeam: cell.current, react: reactCount });
+              state.value({ starbeam: cell.current, react: reactCount });
 
               return react.fragment(
                 html.p(
@@ -212,7 +216,11 @@ describe("useReactive", () => {
                   html.span("Increment"),
                   html.button({ onClick: increment }, "++Starbeam++"),
                   html.button(
-                    { onClick: () => setReactCount((count) => count + 1) },
+                    {
+                      onClick: () => {
+                        setReactCount((count) => count + INCREMENT);
+                      },
+                    },
                     "++React++"
                   )
                 )
@@ -231,31 +239,3 @@ describe("useReactive", () => {
     }
   );
 });
-
-// eslint-disable-next-line unused-imports/no-unused-vars
-class TestResource {
-  static #nextId = 0;
-
-  static create() {
-    return new TestResource(TestResource.#nextId++);
-  }
-
-  #id: number;
-  #active = true;
-
-  constructor(id: number) {
-    this.#id = id;
-
-    LIFETIME.on.cleanup(this, () => {
-      this.#active = false;
-    });
-  }
-
-  get id() {
-    return this.#id;
-  }
-
-  get isActive() {
-    return this.#active;
-  }
-}

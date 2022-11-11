@@ -1,36 +1,36 @@
 {
   "name": "@starbeamx/vanilla",
-  "description": "A renderer for Starbeam using Vanilla JavaScript",
   "version": "0.7.4",
   "type": "module",
   "main": "index.ts",
-  "starbeam:type": "library",
-  "dependencies": {
-    "@starbeam/core": "workspace:^",
-    "@starbeam/debug": "workspace:^",
-    "@starbeam/timeline": "workspace:^"
+  "types": "index.ts",
+  "exports": {
+    "default": "./index.ts"
   },
   "publishConfig": {
-    "main": "dist/index.cjs",
-    "types": "dist/index.d.ts",
     "exports": {
       ".": {
         "types": "./dist/index.d.ts",
         "import": "./dist/index.js",
         "default": "./dist/index.cjs"
       }
-    }
+    },
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts"
   },
-  "exports": {
-    "default": "./index.ts"
+  "starbeam:type": "library:public",
+  "scripts": {
+    "test:lint": "eslint",
+    "test:specs": "vitest --run",
+    "test:types": "tsc -b"
+  },
+  "dependencies": {
+    "@starbeam/debug": "workspace:^",
+    "@starbeam/timeline": "workspace:^",
+    "@starbeam/universal": "workspace:^"
   },
   "devDependencies": {
     "@starbeam-workspace/build-support": "workspace:^"
   },
-  "scripts": {
-    "test:lint": "eslint",
-    "test:specs": "vitest --dir ./tests --run",
-    "test:build": "tsc -b",
-    "test:types": "tsc -b"
-  }
+  "description": "A renderer for Starbeam using Vanilla JavaScript"
 }

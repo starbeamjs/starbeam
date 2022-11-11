@@ -1,11 +1,13 @@
 import { assert } from "@starbeam-workspace/test-utils";
 
 const FRAME_START = "    at ";
+const INITIAL_INTERNAL = 0;
+const CALLER = 1;
 
 export function callerFrame({
-  extraFrames = 0,
+  internal = INITIAL_INTERNAL,
 }: {
-  extraFrames?: number;
+  internal?: number;
 } = {}): string {
   try {
     throw Error("callerFrame");
@@ -16,14 +18,17 @@ export function callerFrame({
     );
 
     const { stack } = parseStack(e.stack);
-    return stack[1 + extraFrames].trimStart();
+    const frame = stack[internal + CALLER] ?? "";
+    return frame.trimStart();
   }
 }
 
 /**
  * Get a stack trace from the current frame (**including** the current frame).
  */
-export function getMyStack({ extra = 0 }: { extra?: number } = {}): string {
+export function getMyStack({
+  internal = INITIAL_INTERNAL,
+}: { internal?: number } = {}): string {
   try {
     throw Error("callerFrame");
   } catch (e) {
@@ -32,24 +37,26 @@ export function getMyStack({ extra = 0 }: { extra?: number } = {}): string {
       `An Error instance thrown in the internals of callerFrame wasn't an Error instance when caught.`
     );
 
-    return removeCaller(e.stack, { extra });
+    return removeCaller(e.stack, { internal: internal });
   }
 }
 
 /**
  * Get a stack trace from the current frame (**excluding** the current frame).
  */
-export function callerStack({ extra = 0 }: { extra?: number } = {}): string {
-  return getMyStack({ extra: 1 + extra });
+export function callerStack({
+  internal = INITIAL_INTERNAL,
+}: { internal?: number } = {}): string {
+  return getMyStack({ internal: CALLER + internal });
 }
 
 export function removeCaller(
   errorStack: string,
-  { extra = 0 }: { extra?: number } = {}
+  { internal = INITIAL_INTERNAL }: { internal?: number } = {}
 ): string {
   const { header, stack } = parseStack(errorStack);
 
-  return `${header.join("\n")}\n${stack.slice(1 + extra).join("\n")}`;
+  return `${header.join("\n")}\n${stack.slice(CALLER + internal).join("\n")}`;
 }
 
 export function buildStack(header: string[], stack: string[]): string {

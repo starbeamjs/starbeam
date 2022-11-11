@@ -1,30 +1,29 @@
 {
-  "name": "@types/shell-escape-tag",
   "private": true,
+  "name": "@types/shell-escape-tag",
   "types": "index.d.ts",
-  "starbeam:type": "interfaces",
-  "devDependencies": {
-    "@types/node": "*"
-  },
   "exports": {
     ".": {
       "types": "./index.d.ts"
     }
   },
   "publishConfig": {
-    "main": "dist/index.cjs",
-    "types": "dist/index.d.ts",
     "exports": {
       ".": {
-        "types": "./dist/index.d.ts",
-        "import": "./dist/index.js",
-        "default": "./dist/index.cjs"
+        "types": "./dist/index.d.ts"
       }
-    }
+    },
+    "types": "dist/index.d.ts"
+  },
+  "starbeam": {
+    "source": "d.ts",
+    "type": "library:upstream-types"
   },
   "scripts": {
     "test:lint": "eslint",
-    "test:build": "tsc -b",
     "test:types": "tsc -b"
+  },
+  "devDependencies": {
+    "@types/node": "*"
   }
 }

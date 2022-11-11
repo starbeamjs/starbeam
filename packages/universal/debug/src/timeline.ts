@@ -12,7 +12,7 @@ import { REACTIVE } from "@starbeam/shared";
 import { exhaustive } from "@starbeam/verify";
 
 interface ReactiveProtocolStatics {
-  dependencies(reactive: ReactiveProtocol): Iterable<MutableInternals>;
+  dependencies: (reactive: ReactiveProtocol) => Iterable<MutableInternals>;
 }
 
 function reactiveInternals(reactive: ReactiveProtocol): ReactiveInternals {
@@ -41,12 +41,12 @@ export class LeafOperation<I extends ReactiveInternals> {
     return this.#data.at;
   }
 
-  get for(): I {
-    return this.#data.for;
-  }
-
   get caller(): Stack {
     return this.#data.caller;
+  }
+
+  get for(): I {
+    return this.#data.for;
   }
 }
 
@@ -64,9 +64,9 @@ interface FrameConsumeInfo extends OperationInfo<CompositeInternals> {
 }
 
 export class FrameConsumeOperation extends LeafOperation<CompositeInternals> {
-  readonly type = "frame:consume";
   readonly #diff: Diff<MutableInternals>;
   readonly #frame: Frame;
+  readonly type = "frame:consume";
 
   constructor(data: FrameConsumeInfo) {
     super(data);
@@ -90,7 +90,7 @@ export class MutationLog {
 
   readonly #at: Timestamp;
   #description: string;
-  #children: Set<DebugOperation> = new Set();
+  #children = new Set<DebugOperation>();
   #parent: MutationLog | null;
 
   constructor(at: Timestamp, description: string, parent: MutationLog | null) {
@@ -116,7 +116,7 @@ export type DebugOperation =
 
 export interface Flush {
   readonly history: DebugOperation[];
-  for(reactive: ReactiveProtocol): readonly DebugOperation[];
+  for: (reactive: ReactiveProtocol) => readonly DebugOperation[];
 }
 
 export type DebugListener = InstanceType<typeof DebugTimeline.DebugListener>;
@@ -157,13 +157,15 @@ function filterToPredicate(
   }
 }
 
+const INITIAL_OFFSET = 0;
+
 export class DebugTimeline {
-  static create(
-    timestamp: { now(): Timestamp },
-    statics: ReactiveProtocolStatics
-  ): DebugTimeline {
-    return new DebugTimeline(timestamp, statics);
-  }
+  #timestamp: { now: () => Timestamp };
+  #statics: ReactiveProtocolStatics;
+  #trimOffset = INITIAL_OFFSET;
+  #operationList: DebugOperation[] = [];
+  #currentMutation: MutationLog | null = null;
+  #listeners = new Set<DebugListener>();
 
   static Flush = class Flush {
     constructor(readonly history: DebugOperation[]) {}
@@ -175,16 +177,8 @@ export class DebugTimeline {
   };
 
   static DebugListener = class DebugListener {
-    static offset(this: void, listener: DebugListener): number {
-      return listener.#offset;
-    }
-
-    static notify(this: void, listener: DebugListener): void {
-      listener.#notify();
-    }
-
     #timeline: DebugTimeline;
-    #offset = 0;
+    #offset = INITIAL_OFFSET;
     #filter: DebugFilter;
     #notify: () => void;
 
@@ -196,6 +190,21 @@ export class DebugTimeline {
       this.#timeline = timeline;
       this.#notify = notify;
       this.#filter = filter;
+    }
+
+    static offset(this: void, listener: DebugListener): number {
+      return listener.#offset;
+    }
+
+    static create(
+      timestamp: { now: () => Timestamp },
+      statics: ReactiveProtocolStatics
+    ): DebugTimeline {
+      return new DebugTimeline(timestamp, statics);
+    }
+
+    static notify(this: void, listener: DebugListener): void {
+      listener.#notify();
     }
 
     update(filter: DebugFilter): void {
@@ -218,27 +227,27 @@ export class DebugTimeline {
     }
   };
 
-  #timestamp: { now(): Timestamp };
-  #statics: ReactiveProtocolStatics;
-  #trimOffset = 0;
-  #operationList: DebugOperation[] = [];
-  #currentMutation: MutationLog | null = null;
-  #listeners: Set<DebugListener> = new Set();
+  static create(
+    timestamp: { now: () => Timestamp },
+    statics: ReactiveProtocolStatics
+  ): DebugTimeline {
+    return new DebugTimeline(timestamp, statics);
+  }
 
   private constructor(
-    timestamp: { now(): Timestamp },
+    timestamp: { now: () => Timestamp },
     statics: ReactiveProtocolStatics
   ) {
     this.#timestamp = timestamp;
     this.#statics = statics;
   }
 
-  notify(): void {
-    this.#listeners.forEach(DebugTimeline.DebugListener.notify);
+  get #end(): number {
+    return this.#trimOffset + this.#operationList.length;
   }
 
-  get #end() {
-    return this.#trimOffset + this.#operationList.length;
+  notify(): void {
+    this.#listeners.forEach(DebugTimeline.DebugListener.notify);
   }
 
   attach(
@@ -269,7 +278,7 @@ export class DebugTimeline {
     return new DebugTimeline.Flush(list);
   }
 
-  #prune() {
+  #prune(): void {
     const minOffset = Math.min(
       ...[...this.#listeners].map(DebugTimeline.DebugListener.offset)
     );
@@ -279,12 +288,22 @@ export class DebugTimeline {
     this.#trimOffset = minOffset;
   }
 
-  #add(operation: DebugOperation) {
+  #add(operation: DebugOperation): void {
     if (this.#currentMutation) {
       this.#currentMutation.add(operation);
     } else {
       this.#operationList.push(operation);
     }
+  }
+
+  #consumeCell(cell: MutableInternals, caller: Stack): void {
+    this.#add(
+      new CellConsumeOperation({
+        at: this.#timestamp.now(),
+        for: cell,
+        caller,
+      })
+    );
   }
 
   consumeCell(internals: MutableInternals, caller: Stack): void {
@@ -299,16 +318,6 @@ export class DebugTimeline {
     this.#consumeFrame(frame, diff, caller);
   }
 
-  #consumeCell(cell: MutableInternals, caller: Stack) {
-    this.#add(
-      new CellConsumeOperation({
-        at: this.#timestamp.now(),
-        for: cell,
-        caller,
-      })
-    );
-  }
-
   updateCell(cell: MutableInternals, caller: Stack): void {
     this.#add(
       new CellUpdateOperation({
@@ -319,7 +328,11 @@ export class DebugTimeline {
     );
   }
 
-  #consumeFrame(frame: Frame, diff: Diff<MutableInternals>, caller: Stack) {
+  #consumeFrame(
+    frame: Frame,
+    diff: Diff<MutableInternals>,
+    caller: Stack
+  ): void {
     this.#add(
       new FrameConsumeOperation({
         at: this.#timestamp.now(),

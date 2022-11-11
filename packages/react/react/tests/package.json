@@ -1,32 +1,21 @@
 {
   "private": true,
-  "type": "module",
   "name": "@starbeam-tests/react",
   "version": "1.0.0",
-  "starbeam:type": "support:tests",
-  "dependencies": {
-    "@starbeam/react": "workspace:^",
-    "@starbeam/core": "workspace:^",
-    "@starbeam/debug": "workspace:^",
-    "@starbeam/timeline": "workspace:^",
-    "@starbeam-workspace/react-test-utils": "workspace:^",
-    "react": "^18",
-    "jsdom": "^20.0.0"
-  },
-  "publishConfig": {
-    "main": "dist/index.cjs",
-    "types": "dist/index.d.ts",
-    "exports": {
-      ".": {
-        "types": "./dist/index.d.ts",
-        "import": "./dist/index.js",
-        "default": "./dist/index.cjs"
-      }
-    }
-  },
+  "type": "module",
+  "starbeam:type": "tests",
   "scripts": {
     "test:lint": "eslint",
-    "test:build": "tsc -b",
     "test:types": "tsc -b"
+  },
+  "dependencies": {
+    "@starbeam/debug": "workspace:^",
+    "@starbeam/react": "workspace:^",
+    "@starbeam/timeline": "workspace:^",
+    "@starbeam/universal": "workspace:^",
+    "@starbeam-workspace/react-test-utils": "workspace:^",
+    "@starbeam-workspace/test-utils": "workspace:^",
+    "jsdom": "^20.0.0",
+    "react": "^18"
   }
 }

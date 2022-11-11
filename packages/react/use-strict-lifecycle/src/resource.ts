@@ -108,6 +108,7 @@ import {
   useState,
 } from "react";
 
+import { Overload } from "./overload.js";
 import { beginReadonly, endReadonly } from "./react.js";
 import { useLastRenderRef } from "./updating-ref.js";
 import { UNINITIALIZED } from "./utils.js";
@@ -129,20 +130,25 @@ export function useLifecycle<T, A>(
   const [, setNotify] = useState({});
   const state = useRef<State>("mounting");
 
-  const arg = options.length === 1 ? (undefined as unknown as A) : options[0];
-  const buildFn =
-    options.length === 1
-      ? (builder: ResourceBuilder<A>, _: A, prev?: T) =>
-          // eslint-disable-next-line
-          options[0](builder as any, prev)
-      : options[1];
+  const [arg, build] = Overload<
+    [A, (builder: ResourceBuilder<A>, args: A, prev?: T) => T]
+  >()
+    .of(options)
+    .match({
+      1: (callback) => [
+        undefined as A,
+        (builder, _, prev) =>
+          callback(builder as unknown as ResourceBuilder<void>, prev),
+      ],
+    })
+    .else((args, callback) => [args, callback]);
 
   const initialRef = useRef<UNINITIALIZED | ResourceInstance<T, A>>(
     UNINITIALIZED
   );
 
   if (initialRef.current === UNINITIALIZED) {
-    initialRef.current = ResourceBuilder.build(buildFn, arg);
+    initialRef.current = ResourceBuilder.build(build, arg);
   } else {
     // If we're remounting, we're effectively in the initial state, and the work already happened
     // in `useLayoutEffect`, so don't do anything here.
@@ -207,7 +213,7 @@ class ResourceInstance<T, A> {
     return ResourceBuilder.remount(this.#builder, args, this.#instance);
   }
 
-  run(event: "cleanup" | "layout" | "idle" | "update", args: A) {
+  run(event: "cleanup" | "layout" | "idle" | "update", args: A): void {
     ResourceBuilder.run(this.#builder, event, args);
   }
 }
@@ -249,17 +255,13 @@ class ResourceBuilder<A> {
     resource: ResourceBuilder<A>,
     event: "cleanup" | "layout" | "idle" | "update",
     args: A
-  ) {
+  ): void {
     for (const callback of resource.#on[event]) {
       callback(args);
     }
   }
 
   #build: (builder: ResourceBuilder<A>, args: A, prev: unknown) => unknown;
-
-  constructor(build: (builder: ResourceBuilder<A>, args: A) => unknown) {
-    this.#build = build;
-  }
 
   #on = {
     cleanup: new Set<(args: A) => void>(),
@@ -285,4 +287,8 @@ class ResourceBuilder<A> {
       this.#on.idle.add(onIdle);
     },
   };
+
+  constructor(build: (builder: ResourceBuilder<A>, args: A) => unknown) {
+    this.#build = build;
+  }
 }

@@ -1,5 +1,10 @@
-import { type Reactive, Cell, Resource } from "@starbeam/core";
 import { useProp, useReactiveSetup } from "@starbeam/react";
+import {
+  type Reactive,
+  type ResourceBlueprint,
+  Cell,
+  Resource,
+} from "@starbeam/universal";
 
 import {
   formatLocale,
@@ -18,11 +23,14 @@ export default function (props: { locale: string }): JSX.Element {
 
     return () => {
       const localeInfo = formatLocale(locale.read());
+      const formattedLocale = localeInfo.region
+        ? `${localeInfo.region} (${localeInfo.language})`
+        : localeInfo.language;
 
       return (
         <>
           <h2>A Date Formatter</h2>
-          <h3>{`for ${localeInfo.region} (${localeInfo.language})`}</h3>
+          <h3>{`for ${formattedLocale}`}</h3>
 
           <form>
             <label>
@@ -48,28 +56,37 @@ export default function (props: { locale: string }): JSX.Element {
   });
 }
 
-function Clock(timeZone: Reactive<string>, locale: Reactive<string>) {
+function Clock(
+  timeZone: Reactive<string>,
+  locale: Reactive<string>
+): ResourceBlueprint<{ formatted: string; refresh: () => void }> {
   const date = Cell(new Date(), "current time");
 
-  function refresh() {
+  function refresh(): void {
     date.current = new Date();
   }
 
   return Resource((resource) => {
-    resource.on.setup(() => {
-      const interval = setInterval(() => refresh(), 1000);
+    const interval = setInterval(() => {
+      refresh();
+    }, 1000);
 
-      return () => clearInterval(interval);
+    resource.on.cleanup(() => {
+      clearInterval(interval);
     });
 
-    return () => ({
+    return {
       formatted: formatDate(date.current, locale.read(), timeZone.read()),
       refresh,
-    });
+    };
   });
 }
 
-function formatDate(date: Date, locale = SYSTEM_LOCALE, timeZone = SYSTEM_TZ) {
+function formatDate(
+  date: Date,
+  locale = SYSTEM_LOCALE,
+  timeZone = SYSTEM_TZ
+): string {
   return new Intl.DateTimeFormat(locale, {
     hour: "numeric",
     minute: "numeric",

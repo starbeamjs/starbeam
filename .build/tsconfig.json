@@ -11,6 +11,7 @@
     "outDir": "../dist/packages",
     "allowJs": true,
     "checkJs": true,
+    "noImplicitAny": true,
     "allowSyntheticDefaultImports": false,
     "esModuleInterop": false,
     "types": [

@@ -1,5 +1,5 @@
 import type * as Debug from "@starbeam/debug";
-import { Tree } from "@starbeam/debug";
+import { Desc, Tree } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
 import { REACTIVE } from "@starbeam/shared";
 import { isPresent } from "@starbeam/verify";
@@ -7,15 +7,15 @@ import { isPresent } from "@starbeam/verify";
 import { Timestamp, zero } from "./timestamp.js";
 
 interface ExhaustiveMatcher<T> {
-  mutable(internals: interfaces.MutableInternals): T;
-  composite(internals: interfaces.CompositeInternals): T;
-  delegate(internals: interfaces.DelegateInternals): T;
-  static(internals: interfaces.StaticInternals): T;
+  mutable: (internals: interfaces.MutableInternals) => T;
+  composite: (internals: interfaces.CompositeInternals) => T;
+  delegate: (internals: interfaces.DelegateInternals) => T;
+  static: (internals: interfaces.StaticInternals) => T;
 }
 
-type DefaultMatcher<T> = Partial<ExhaustiveMatcher<T>> & {
-  default(internals: interfaces.ReactiveInternals): T;
-};
+interface DefaultMatcher<T> extends Partial<ExhaustiveMatcher<T>> {
+  default: (internals: interfaces.ReactiveInternals) => T;
+}
 
 type Matcher<T> = ExhaustiveMatcher<T> | DefaultMatcher<T>;
 
@@ -26,6 +26,10 @@ export type ReactiveProtocol<
 export const ReactiveProtocol = {
   description(this: void, reactive: ReactiveProtocol): Debug.Description {
     return ReactiveInternals.description(reactive[REACTIVE]);
+  },
+
+  id(this: void, reactive: ReactiveProtocol): interfaces.ReactiveId {
+    return ReactiveInternals.id(reactive[REACTIVE]);
   },
 
   is<T extends "mutable" | "composite" | "static" | "delegate">(
@@ -88,8 +92,8 @@ export const ReactiveProtocol = {
     this: void,
     reactive: ReactiveProtocol,
     options: { implementation?: boolean; source?: boolean } = {}
-  ) {
-    return ReactiveInternals.log(reactive[REACTIVE], options);
+  ): void {
+    ReactiveInternals.log(reactive[REACTIVE], options);
   },
 
   debug(
@@ -116,6 +120,13 @@ export const ReactiveInternals = {
     return internals.type === kind;
   },
 
+  id(
+    this: void,
+    internals: interfaces.ReactiveInternals
+  ): interfaces.ReactiveId {
+    return internals.description.id;
+  },
+
   *dependencies(
     internals: interfaces.ReactiveInternals
   ): Iterable<interfaces.MutableInternals> {
@@ -123,7 +134,7 @@ export const ReactiveInternals = {
       case "static":
         return;
       case "mutable":
-        if (internals.isFrozen && internals.isFrozen()) {
+        if (internals.isFrozen?.()) {
           break;
         }
 
@@ -155,9 +166,7 @@ export const ReactiveInternals = {
   ): interfaces.ReactiveInternals[] {
     if (internals.type === "delegate") {
       return internals.delegate.flatMap((protocol) =>
-        ReactiveProtocol.subscribesTo(protocol).map(
-          (protocol) => protocol[REACTIVE]
-        )
+        ReactiveProtocol.subscribesTo(protocol).map((p) => p[REACTIVE])
       );
     } else {
       return [internals];
@@ -217,14 +226,14 @@ export const ReactiveInternals = {
       dependencies.map((dependency) => {
         return implementation
           ? dependency.description
-          : dependency.description?.userFacing;
+          : dependency.description.userFacing;
       })
     );
 
     const nodes = [...descriptions]
       .map((d) => {
-        const description = implementation ? d : d?.userFacing;
-        return description?.describe({ source });
+        const description = implementation ? d : d.userFacing;
+        return description.describe({ source });
       })
       .filter(isPresent);
 
@@ -249,19 +258,12 @@ export const ReactiveInternals = {
   },
 
   match<T>(this: void, internals: ReactiveInternals, matcher: Matcher<T>): T {
-    return invoke(internals, matcher);
-
-    function invoke<T>(
-      internals: interfaces.ReactiveInternals,
-      matcher: Matcher<T>
-    ): T {
-      const fn = matcher[internals.type];
-      if (typeof fn === "function") {
-        return fn(internals as never);
-      }
-
-      return (matcher as DefaultMatcher<T>).default(internals);
+    const fn = matcher[internals.type];
+    if (typeof fn === "function") {
+      return fn(internals as never);
     }
+
+    return (matcher as DefaultMatcher<T>).default(internals);
   },
 };
 
@@ -271,10 +273,66 @@ export type Reactive<
   T,
   I extends ReactiveInternals = ReactiveInternals
 > = interfaces.Reactive<T, I>;
+
 export const Reactive = {
-  is<T>(
-    value: unknown | interfaces.Reactive<T>
-  ): value is interfaces.Reactive<T> {
-    return typeof value === "object" && value !== null && REACTIVE in value;
+  is<T>(this: void, value: unknown): value is interfaces.Reactive<T> {
+    return !!(
+      value &&
+      (typeof value === "object" || typeof value === "function") &&
+      REACTIVE in value
+    );
+  },
+
+  from<T>(
+    this: void,
+    value: T | Reactive<T>,
+    description?: string | Debug.Description
+  ): Reactive<T> {
+    if (Reactive.is(value)) {
+      return value;
+    } else {
+      return new Static(value, Desc("static", description));
+    }
   },
 };
+
+export type ReactiveCore<
+  T,
+  I extends ReactiveInternals = ReactiveInternals
+> = interfaces.ReactiveCore<T, I>;
+
+export const ReactiveCore = {
+  is<T>(value: unknown): value is interfaces.ReactiveCore<T> {
+    return !!(
+      value &&
+      (typeof value === "object" || typeof value === "function") &&
+      REACTIVE in value &&
+      hasRead(value)
+    );
+  },
+};
+
+function hasRead<T>(value: object): value is { read: () => T } {
+  return "read" in value && typeof value.read === "function";
+}
+
+class Static<T> {
+  readonly #value: T;
+  readonly [REACTIVE]: interfaces.StaticInternals;
+
+  constructor(value: T, description: Debug.Description) {
+    this.#value = value;
+    this[REACTIVE] = {
+      type: "static",
+      description,
+    };
+  }
+
+  get current(): T {
+    return this.#value;
+  }
+
+  read(): T {
+    return this.#value;
+  }
+}

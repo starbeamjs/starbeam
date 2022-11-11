@@ -1,12 +1,12 @@
-import { FormulaFn, LIFETIME } from "@starbeam/core";
 import type { Description } from "@starbeam/debug";
 import { descriptionFrom } from "@starbeam/debug";
 import type { Reactive } from "@starbeam/timeline";
+import { Formula, LIFETIME } from "@starbeam/universal";
 
 import { Cursor } from "./cursor.js";
 
 interface Rendered {
-  poll(): void;
+  poll: () => void;
 }
 
 interface OutputConstructor {
@@ -28,7 +28,7 @@ function Render<T extends Cursor | Element>(
       create({ owner }) {
         const { cleanup, update } = create({ into, owner });
 
-        const formula = FormulaFn(update, description);
+        const formula = Formula(update, description);
 
         LIFETIME.on.cleanup(owner, cleanup);
 
@@ -51,7 +51,9 @@ export function Text(
       const node = into.insert(into.document.createTextNode(text.read()));
 
       return {
-        cleanup: () => node.remove(),
+        cleanup: () => {
+          node.remove();
+        },
 
         update: () => {
           node.textContent = text.read();
@@ -70,7 +72,7 @@ export function Text(
 }
 
 class FragmentRange {
-  static create(start: ChildNode, end: ChildNode) {
+  static create(start: ChildNode, end: ChildNode): FragmentRange {
     return new FragmentRange(start, end);
   }
 
@@ -82,7 +84,7 @@ class FragmentRange {
     this.#end = end;
   }
 
-  clear() {
+  clear(): void {
     let current: ChildNode | null = this.#start;
     const end = this.#end;
 
@@ -102,8 +104,8 @@ class FragmentRange {
       return nodes;
     }
 
-    let start = this.#start.nextSibling as ChildNode;
-    const end = this.#end.previousSibling as ChildNode;
+    let start = this.#start.nextSibling;
+    const end = this.#end.previousSibling;
 
     while (start) {
       nodes.push(start);
@@ -112,7 +114,7 @@ class FragmentRange {
         break;
       }
 
-      start = start.nextSibling as ChildNode;
+      start = start.nextSibling;
     }
 
     return nodes;
@@ -148,10 +150,14 @@ export function Fragment(
     const range = FragmentRange.create(start, end);
 
     return {
-      cleanup: () => range.clear(),
+      cleanup: () => {
+        range.clear();
+      },
 
       update() {
-        renderedNodes.forEach((node) => node.poll());
+        renderedNodes.forEach((node) => {
+          node.poll();
+        });
       },
     };
   }, desc);
@@ -173,7 +179,9 @@ export function Attr<E extends Element>(
       }
 
       return {
-        cleanup: () => into.removeAttribute(name),
+        cleanup: () => {
+          into.removeAttribute(name);
+        },
         update: () => {
           const next = value.read();
 
@@ -228,7 +236,9 @@ export function Element(
       into.insert(element);
 
       return {
-        cleanup: () => element.remove(),
+        cleanup: () => {
+          element.remove();
+        },
 
         update: () => {
           for (const attr of renderAttributes) {
@@ -252,6 +262,6 @@ export function Element(
 
 Element.Attr = Attr;
 
-function placeholder(document: Document) {
+function placeholder(document: Document): Text {
   return document.createTextNode("");
 }

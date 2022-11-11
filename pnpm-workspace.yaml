@@ -1,5 +1,4 @@
 packages:
-  - "@types/@domtree/*"
   - "@types/*"
   - "@types/*/*"
   - packages/*/*
@@ -7,3 +6,6 @@ packages:
   - demos/*
   - scripts
   - .build
+  - .config/eslint
+  - workspace/*
+  - workspace/*/*

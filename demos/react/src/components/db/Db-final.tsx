@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
+ 
 import { reactive } from "@starbeam/js";
 import { useProp, useReactiveSetup } from "@starbeam/react";
 import type { FormEvent } from "react";
@@ -18,11 +18,11 @@ class Table<T> {
     return [...this.#rows.entries()];
   }
 
-  append(row: T) {
+  append(row: T): void {
     this.#rows.set(`${this.#id++}`, row);
   }
 
-  delete(id: string) {
+  delete(id: string): void {
     this.#rows.delete(id);
   }
 }
@@ -33,7 +33,7 @@ export default function Database(props: { locale: string }): JSX.Element {
   return useReactiveSetup(() => {
     const people = new Table<Person>(["name", "location"]);
 
-    function append(event: FormEvent<HTMLFormElement>) {
+    function append(event: FormEvent<HTMLFormElement>): void {
       const form = event.currentTarget;
       event.preventDefault();
       const data = Object.fromEntries(new FormData(form)) as {
@@ -45,7 +45,7 @@ export default function Database(props: { locale: string }): JSX.Element {
       form.reset();
     }
 
-    function sorted() {
+    function sorted(): [string, Person][] {
       return people.rows.sort((a, b) =>
         new Intl.Collator(locale.read()).compare(a[1].name, b[1].name)
       );
@@ -85,7 +85,13 @@ export default function Database(props: { locale: string }): JSX.Element {
                 <td>{person.name}</td>
                 <td>{person.location}</td>
                 <td className="actions">
-                  <button onClick={() => people.delete(id)}>✂️</button>
+                  <button
+                    onClick={() => {
+                      people.delete(id);
+                    }}
+                  >
+                    ✂️
+                  </button>
                 </td>
               </tr>
             ))}

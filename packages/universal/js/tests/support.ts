@@ -1,4 +1,4 @@
-import { FormulaFn } from "@starbeam/core";
+import { Formula } from "@starbeam/universal";
 
 export class Invalidation<T> {
   static trace<T>(formula: () => T): Invalidation<T> {
@@ -6,12 +6,12 @@ export class Invalidation<T> {
   }
 
   #bumped = 0;
-  #formula: FormulaFn<T>;
+  #formula: Formula<T>;
   #lastChecked = 0;
   #initialized = false;
 
   constructor(formula: () => T) {
-    this.#formula = FormulaFn(() => {
+    this.#formula = Formula(() => {
       this.#bumped++;
       return formula();
     });
@@ -22,13 +22,15 @@ export class Invalidation<T> {
 
     let state: "initialized" | "stable" | "invalidated";
 
-    if (this.#initialized === false) {
+    if (this.#initialized) {
+      if (this.#lastChecked === this.#bumped) {
+        state = "stable";
+      } else {
+        state = "invalidated";
+      }
+    } else {
       this.#initialized = true;
       state = "initialized";
-    } else if (this.#bumped > this.#lastChecked) {
-      state = "invalidated";
-    } else {
-      state = "stable";
     }
 
     this.#lastChecked = this.#bumped;

@@ -1,0 +1,17 @@
+{
+  "extends": "../.config/tsconfig/tsconfig.preact-demo.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "../../dist/packages"
+  },
+  "exclude": ["./*/vite.config.ts"],
+  "include": ["./preact*/**/*", "./preact*/**/*.tsx"],
+  "references": [
+    {
+      "path": "../packages/tsconfig.packages.json"
+    },
+    {
+      "path": "../packages/x/devtool/tsconfig.json"
+    }
+  ]
+}

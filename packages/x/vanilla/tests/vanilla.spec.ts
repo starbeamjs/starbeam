@@ -1,8 +1,10 @@
 // @vitest-environment happy-dom
 
-import { Cell, LIFETIME } from "@starbeam/core";
+import { Cell, LIFETIME } from "@starbeam/universal";
 import { Cursor, El, Fragment, Text } from "@starbeamx/vanilla";
 import { describe, expect, test } from "vitest";
+
+import { env } from "./env";
 
 describe("Vanilla Renderer", () => {
   test("it can render text", () => {
@@ -80,16 +82,7 @@ describe("Vanilla Renderer", () => {
   });
 });
 
-function env() {
-  return {
-    global: globalThis,
-    document: globalThis.document,
-    body: new Body(globalThis.document.body),
-    owner: {},
-  };
-}
-
-class Body {
+export class Body {
   #body: HTMLElement;
   #snapshot: ChildNode[];
 
@@ -98,11 +91,11 @@ class Body {
     this.#snapshot = [...body.childNodes];
   }
 
-  get cursor() {
+  get cursor(): Cursor {
     return Cursor.appendTo(this.#body);
   }
 
-  get innerHTML() {
+  get innerHTML(): string {
     return this.#body.innerHTML;
   }
 
@@ -110,7 +103,7 @@ class Body {
     this.#snapshot = [...this.#body.childNodes];
   }
 
-  expectStable() {
+  expectStable(): void {
     const snapshot = this.#snapshot;
 
     if (snapshot === null) {

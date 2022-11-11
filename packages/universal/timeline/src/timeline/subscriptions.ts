@@ -2,7 +2,7 @@ import type { MutableInternals, Timestamp } from "@starbeam/interfaces";
 
 import type { Unsubscribe } from "../lifetime/object-lifetime.js";
 import { ReactiveProtocol } from "./protocol.js";
-import { now } from "./timestamp.js";
+import { getNow } from "./timestamp.js";
 import { diff } from "./utils.js";
 
 export class Subscription {
@@ -59,7 +59,7 @@ export class Subscriptions {
 
     if (subscriptions) {
       for (const subscription of subscriptions) {
-        subscription.notify(now(), dependency);
+        subscription.notify(getNow(), dependency);
       }
     }
   }
@@ -71,7 +71,7 @@ export class Subscriptions {
     const subscribesTo = ReactiveProtocol.subscribesTo(reactive);
     const dependencies = new Set(ReactiveProtocol.dependencies(reactive));
 
-    const subscription = new Subscription(dependencies, now(), ready);
+    const subscription = new Subscription(dependencies, getNow(), ready);
 
     for (const dependency of dependencies) {
       this.#addDep(dependency, subscription);

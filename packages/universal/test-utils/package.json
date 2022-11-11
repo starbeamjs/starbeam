@@ -1,30 +1,34 @@
 {
-  "name": "@starbeam-workspace/test-utils",
   "private": true,
+  "name": "@starbeam-workspace/test-utils",
   "version": "1.0.0",
   "type": "module",
   "main": "index.ts",
-  "starbeam:type": "library",
   "exports": {
     "default": "./index.ts"
   },
   "publishConfig": {
-    "main": "dist/index.cjs",
-    "types": "dist/index.d.ts",
     "exports": {
       ".": {
         "types": "./dist/index.d.ts",
         "import": "./dist/index.js",
         "default": "./dist/index.cjs"
       }
-    }
+    },
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts"
+  },
+  "starbeam:type": "library:test-support",
+  "scripts": {
+    "test:lint": "eslint",
+    "test:types": "tsc -b"
+  },
+  "dependencies": {
+    "@starbeam/timeline": "workspace:^",
+    "@starbeam/universal": "workspace:^",
+    "@starbeam/verify": "workspace:^"
   },
   "devDependencies": {
     "@starbeam-workspace/build-support": "workspace:^"
-  },
-  "scripts": {
-    "test:lint": "eslint",
-    "test:build": "tsc -b",
-    "test:types": "tsc -b"
   }
 }

@@ -37,7 +37,7 @@ export class Fragment {
   }
 
   css(style: `${string}:${string}`): this {
-    const [property, value] = style.split(":");
+    const [property, value] = style.split(":") as [string, string];
     this.#styles.add(property.trim(), value.trim());
     return this;
   }
@@ -130,11 +130,11 @@ export function Message(
 }
 
 class Buffer {
-  static styled() {
+  static styled(): Buffer {
     return new Buffer(false);
   }
 
-  static plain() {
+  static plain(): Buffer {
     return new Buffer(true);
   }
 
@@ -147,7 +147,7 @@ class Buffer {
     this.#plain = plain;
   }
 
-  add(content: string, style?: string) {
+  add(content: string, style?: string): void {
     if (style && !this.#plain) {
       this.#current += `%c${content}`;
       this.#styles.push(style);
@@ -164,7 +164,7 @@ class Buffer {
     return [this.#message.join("\n"), ...this.#styles];
   }
 
-  break() {
+  break(): void {
     this.#message.push(this.#current);
     this.#current = "";
   }

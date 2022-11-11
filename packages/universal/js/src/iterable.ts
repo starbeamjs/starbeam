@@ -1,10 +1,17 @@
-import { type Equality, Cell, Marker } from "@starbeam/core";
-import { UNINITIALIZED } from "@starbeam/shared";
 import type { Stack } from "@starbeam/debug";
 import { type Description, callerStack } from "@starbeam/debug";
+import { UNINITIALIZED } from "@starbeam/shared";
+import { type Equality, Cell, Marker } from "@starbeam/universal";
 
 class Entry<V> {
-  static initialized<V>(value: V, desc: Description, equality: Equality<V>) {
+  readonly #initialized: Cell<boolean>;
+  readonly #value: Cell<V | UNINITIALIZED>;
+
+  static initialized<V>(
+    value: V,
+    desc: Description,
+    equality: Equality<V>
+  ): Entry<V> {
     return new Entry(
       Cell<UNINITIALIZED | V>(value, {
         description: desc,
@@ -18,7 +25,7 @@ class Entry<V> {
     );
   }
 
-  static uninitialized<V>(desc: Description, equality: Equality<V>) {
+  static uninitialized<V>(desc: Description, equality: Equality<V>): Entry<V> {
     return new Entry(
       Cell<UNINITIALIZED | V>(UNINITIALIZED, {
         description: desc,
@@ -32,16 +39,9 @@ class Entry<V> {
     );
   }
 
-  #initialized: Cell<boolean>;
-  #value: Cell<V | UNINITIALIZED>;
-
   constructor(value: Cell<V | UNINITIALIZED>, initialized: Cell<boolean>) {
     this.#value = value;
     this.#initialized = initialized;
-  }
-
-  isPresent(caller: Stack): boolean {
-    return this.#initialized.read(caller);
   }
 
   delete(caller: Stack): "deleted" | "unchanged" {
@@ -66,6 +66,10 @@ class Entry<V> {
     }
   }
 
+  isPresent(caller: Stack): boolean {
+    return this.#initialized.read(caller);
+  }
+
   set(value: V, caller: Stack): "initialized" | "updated" | "unchanged" {
     if (this.#value.read(caller) === UNINITIALIZED) {
       this.#value.set(value, caller);
@@ -87,19 +91,23 @@ function equals<T>(equality: Equality<T>): Equality<T | UNINITIALIZED> {
   };
 }
 
+const EMPTY_MAP_SIZE = 0;
+const EXTRA_CALLER_FRAME = 1;
+
 export class ReactiveMap<K, V> implements Map<K, V> {
+  readonly [Symbol.toStringTag] = "Map";
+  readonly #description: Description;
+  readonly #entries = new Map<K, Entry<V>>();
+  readonly #equality: Equality<V>;
+  readonly #keys: Marker;
+  readonly #values: Marker;
+
   static reactive<K, V>(
     equality: Equality<V>,
     description: Description
   ): ReactiveMap<K, V> {
     return new ReactiveMap(description, equality);
   }
-
-  #description: Description;
-  #entries: Map<K, Entry<V>> = new Map();
-  #equality: Equality<V>;
-  #keys: Marker;
-  #values: Marker;
 
   private constructor(description: Description, equality: Equality<V>) {
     this.#description = description;
@@ -108,9 +116,28 @@ export class ReactiveMap<K, V> implements Map<K, V> {
     this.#values = Marker(description.key("values"));
   }
 
+  get size(): number {
+    const caller = callerStack();
+    this.#keys.consume(caller);
+
+    let size = 0;
+
+    for (const [, entry] of this.#iterate(caller)) {
+      if (entry.isPresent(caller)) {
+        size++;
+      }
+    }
+
+    return size;
+  }
+
+  [Symbol.iterator](): IterableIterator<[K, V]> {
+    return this.entries();
+  }
+
   clear(): void {
     const caller = callerStack();
-    if (this.#entries.size > 0) {
+    if (this.#entries.size > EMPTY_MAP_SIZE) {
       this.#entries.clear();
       this.#keys.update(caller);
       this.#values.update(caller);
@@ -135,6 +162,34 @@ export class ReactiveMap<K, V> implements Map<K, V> {
     return false;
   }
 
+  *entries(): IterableIterator<[K, V]> {
+    const caller = callerStack();
+    this.#keys.consume(caller);
+    this.#values.consume(caller);
+
+    for (const [key, value] of this.#iterate(caller)) {
+      yield [key, value.get(caller) as V];
+    }
+  }
+
+  #entry(key: K): Entry<V> {
+    let entry = this.#entries.get(key);
+
+    if (entry === undefined) {
+      entry = Entry.uninitialized(
+        this.#description.key(
+          typeof key === "string" || typeof key === "number"
+            ? String(key)
+            : "entry"
+        ),
+        this.#equality
+      );
+      this.#entries.set(key, entry);
+    }
+
+    return entry;
+  }
+
   forEach(
     callbackfn: (value: V, key: K, map: Map<K, V>) => void,
     thisArg?: unknown
@@ -151,12 +206,29 @@ export class ReactiveMap<K, V> implements Map<K, V> {
   get(key: K): V | undefined {
     const caller = callerStack();
     const entry = this.#entry(key);
-    return entry?.get(caller);
+    return entry.get(caller);
   }
 
   has(key: K): boolean {
     const caller = callerStack();
     return this.#entry(key).isPresent(caller);
+  }
+
+  *#iterate(caller: Stack): IterableIterator<[K, Entry<V>]> {
+    for (const [key, entry] of this.#entries) {
+      if (entry.isPresent(caller)) {
+        yield [key, entry];
+      }
+    }
+  }
+
+  *keys(): IterableIterator<K> {
+    const caller = callerStack();
+    this.#keys.consume(caller);
+
+    for (const [key] of this.#iterate(caller)) {
+      yield key;
+    }
   }
 
   set(key: K, value: V): this {
@@ -176,51 +248,9 @@ export class ReactiveMap<K, V> implements Map<K, V> {
     return this;
   }
 
-  get size(): number {
-    const caller = callerStack();
-    this.#keys.consume(caller);
-
-    let size = 0;
-
-    for (const [, entry] of this.#iterate(caller)) {
-      if (entry.isPresent(caller)) {
-        size++;
-      }
-    }
-
-    return size;
-  }
-
-  *#iterate(caller: Stack): IterableIterator<[K, Entry<V>]> {
-    for (const [key, entry] of this.#entries) {
-      if (entry.isPresent(caller)) {
-        yield [key, entry];
-      }
-    }
-  }
-
-  *entries(): IterableIterator<[K, V]> {
-    const caller = callerStack();
-    this.#keys.consume(caller);
-    this.#values.consume(caller);
-
-    for (const [key, value] of this.#iterate(caller)) {
-      yield [key, value.get(caller) as V];
-    }
-  }
-
-  *keys(): IterableIterator<K> {
-    const caller = callerStack();
-    this.#keys.consume(caller);
-
-    for (const [key] of this.#iterate(caller)) {
-      yield key;
-    }
-  }
-
   *values(): IterableIterator<V> {
     // add an extra frame for the internal JS call to .next()
-    const caller = callerStack(1);
+    const caller = callerStack(EXTRA_CALLER_FRAME);
 
     this.#values.consume(caller);
 
@@ -228,33 +258,16 @@ export class ReactiveMap<K, V> implements Map<K, V> {
       yield value.get(caller) as V;
     }
   }
-
-  [Symbol.iterator](): IterableIterator<[K, V]> {
-    return this.entries();
-  }
-
-  [Symbol.toStringTag] = "Map";
-
-  #entry(key: K): Entry<V> {
-    let entry = this.#entries.get(key);
-
-    if (entry === undefined) {
-      entry = Entry.uninitialized(
-        this.#description.key(
-          typeof key === "string" || typeof key === "number"
-            ? String(key)
-            : "entry"
-        ),
-        this.#equality
-      );
-      this.#entries.set(key, entry);
-    }
-
-    return entry;
-  }
 }
 
 export class ReactiveSet<T> implements Set<T> {
+  readonly [Symbol.toStringTag] = "Set";
+
+  readonly #description: Description;
+  readonly #entries = new Map<T, Entry<T>>();
+  readonly #equality: Equality<T>;
+  readonly #values: Marker;
+
   static reactive<T>(
     equality: Equality<T>,
     description: Description
@@ -262,15 +275,28 @@ export class ReactiveSet<T> implements Set<T> {
     return new ReactiveSet(description, equality);
   }
 
-  #description: Description;
-  #entries: Map<T, Entry<T>> = new Map();
-  #equality: Equality<T>;
-  #values: Marker;
-
   private constructor(description: Description, equality: Equality<T>) {
     this.#description = description;
     this.#equality = equality;
     this.#values = Marker(description.key("values"));
+  }
+
+  get size(): number {
+    const caller = callerStack();
+
+    this.#values.consume(caller);
+
+    let size = 0;
+
+    for (const _ of this.#iterate(caller)) {
+      size++;
+    }
+
+    return size;
+  }
+
+  [Symbol.iterator](): IterableIterator<T> {
+    return this.keys();
   }
 
   add(value: T): this {
@@ -290,7 +316,7 @@ export class ReactiveSet<T> implements Set<T> {
   clear(): void {
     const caller = callerStack();
 
-    if (this.#entries.size > 0) {
+    if (this.#entries.size > EMPTY_MAP_SIZE) {
       this.#entries.clear();
       this.#values.update(caller);
     }
@@ -314,6 +340,16 @@ export class ReactiveSet<T> implements Set<T> {
     return false;
   }
 
+  *entries(): IterableIterator<[T, T]> {
+    const caller = callerStack();
+
+    this.#values.consume(caller);
+
+    for (const [value, entry] of this.#iterate(caller)) {
+      yield [value, entry.get(caller) as T];
+    }
+  }
+
   forEach(
     callbackfn: (value: T, value2: T, set: Set<T>) => void,
     thisArg?: unknown
@@ -333,35 +369,11 @@ export class ReactiveSet<T> implements Set<T> {
     return this.#entry(value).isPresent(caller);
   }
 
-  get size(): number {
-    const caller = callerStack();
-
-    this.#values.consume(caller);
-
-    let size = 0;
-
-    for (const _ of this.#iterate(caller)) {
-      size++;
-    }
-
-    return size;
-  }
-
   *#iterate(caller: Stack): IterableIterator<[T, Entry<T>]> {
     for (const [value, entry] of this.#entries) {
       if (entry.isPresent(caller)) {
         yield [value, entry];
       }
-    }
-  }
-
-  *entries(): IterableIterator<[T, T]> {
-    const caller = callerStack();
-
-    this.#values.consume(caller);
-
-    for (const [value, entry] of this.#iterate(caller)) {
-      yield [value, entry.get(caller) as T];
     }
   }
 
@@ -378,12 +390,6 @@ export class ReactiveSet<T> implements Set<T> {
   values(): IterableIterator<T> {
     return this.keys();
   }
-
-  [Symbol.iterator](): IterableIterator<T> {
-    return this.keys();
-  }
-
-  [Symbol.toStringTag] = "Set";
 
   #entry(value: T): Entry<T> {
     let entry = this.#entries.get(value);

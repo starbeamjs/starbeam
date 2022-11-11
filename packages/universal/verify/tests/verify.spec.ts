@@ -1,7 +1,7 @@
 import { expected, verify } from "@starbeam/verify";
 import { describe, expect, test } from "vitest";
 
-const isProd: boolean = import.meta.env.PROD;
+const isProd = !!import.meta.env.PROD;
 
 describe.skipIf(isProd)("verify", () => {
   test("default verify message", () => {
@@ -11,9 +11,9 @@ describe.skipIf(isProd)("verify", () => {
 
     const absent: string | null = null;
 
-    expect(() => verify(absent, isPresent)).toThrowError(
-      "Assumption was incorrect: isPresent"
-    );
+    expect(() => {
+      verify(absent, isPresent);
+    }).toThrowError("Assumption was incorrect: isPresent");
   });
 
   test("specified verify message", () => {
@@ -23,15 +23,15 @@ describe.skipIf(isProd)("verify", () => {
 
     const absent: string | null = null;
 
-    expect(() =>
+    expect(() => {
       verify(
         absent,
         isPresent,
         expected("absent")
           .toBe("present")
           .butGot(() => String(absent))
-      )
-    ).toThrowError("Expected absent to be present, but got null");
+      );
+    }).toThrowError("Expected absent to be present, but it was null");
   });
 
   test("merging verify message", () => {
@@ -43,13 +43,13 @@ describe.skipIf(isProd)("verify", () => {
 
     const absent: string | null = null;
 
-    expect(() =>
+    expect(() => {
       verify(
         absent,
         isPresent,
         expected("absent").butGot(() => String(absent))
-      )
-    ).toThrowError("Expected absent to be present, but got null");
+      );
+    }).toThrowError("Expected absent to be present, but it was null");
   });
 
   test("adding a scenario", () => {
@@ -61,14 +61,14 @@ describe.skipIf(isProd)("verify", () => {
 
     const absent: string | null = null;
 
-    expect(() =>
+    expect(() => {
       verify(
         absent,
         isPresent,
         expected.when("some scenario").butGot(() => String(absent))
-      )
-    ).toThrowError(
-      "When some scenario: Expected value to be present, but got null"
+      );
+    }).toThrowError(
+      "When some scenario: Expected value to be present, but it was null"
     );
   });
 });

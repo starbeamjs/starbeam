@@ -1,140 +1,139 @@
+import { callerStack } from "@starbeam/debug";
+import { LIFETIME, TIMELINE } from "@starbeam/timeline";
 import {
+  type IntoResource,
+  type Reactive,
   type ResourceBlueprint,
-  Cell,
-  PolledFormulaFn,
-  Resource,
-  TIMELINE,
-} from "@starbeam/core";
-import type { Description } from "@starbeam/debug";
-import { descriptionFrom } from "@starbeam/debug";
-import { LIFETIME } from "@starbeam/timeline";
+  Factory,
+  Formula,
+  Marker,
+} from "@starbeam/universal";
 import {
   unsafeTrackedElsewhere,
   useLifecycle,
 } from "@starbeam/use-strict-lifecycle";
-import { useState } from "react";
 
-function createReactiveResource<T>(
-  resource: () => ResourceBlueprint<T>,
-  deps: unknown[] | undefined,
-  description: string | Description | undefined
-): Resource<T> {
-  const desc = descriptionFrom({
-    type: "resource",
-    api: "useReactiveSetup",
-    fromUser: description,
-  });
+import { useNotify } from "./use-reactive.js";
+import { useComponent } from "./use-setup.js";
 
-  const [, setNotify] = useState({});
+export type UseFactory<T, D extends undefined> =
+  | ResourceBlueprint<T, D>
+  | (() => IntoResource<T>);
 
-  const instance = useLifecycle({ resource, deps }, (lifecycle) => {
-    let lastDeps = deps;
-    let setup = false;
+export function use<T>(
+  factory: ResourceBlueprint<T> | (() => ResourceBlueprint<T>),
+  dependencies?: unknown[]
+): T;
+// export function use<T>(
+//   factory: ResourceBlueprint<T, UNINITIALIZED>
+// ): T | undefined;
+// export function use<T>(
+//   factory: UseFactory<T, UNINITIALIZED>,
+//   dependencies: unknown[]
+// ): T | undefined;
+// export function use<T>(
+//   factory: UseFactory<T, never>,
+//   dependencies: unknown[]
+// ): T;
+// export function use<T>(
+//   factory: UseFactory<T, UNINITIALIZED> | UseFactory<T, never>,
+//   options: { initial: T },
+//   dependencies: unknown[]
+// ): T;
 
-    const owner = {};
+export function use<T>(
+  factory: UseFactory<T, undefined>,
+  options?: { initial: T } | unknown[],
+  dependencies?: unknown[]
+): T | undefined {
+  const value = createResource(factory, options, dependencies);
 
-    let currentResource = resource().create({
-      owner,
-    });
+  return unsafeTrackedElsewhere(() => value.current);
+}
 
-    const resourceCell = Cell(currentResource);
-
-    const value = PolledFormulaFn(() => {
-      return resourceCell.current.current;
-    }, desc);
-
-    lifecycle.on.cleanup(() => {
-      LIFETIME.finalize(owner);
-    });
-
-    lifecycle.on.update(({ deps: nextDeps, resource: nextResource }) => {
-      if (!sameDeps(lastDeps, nextDeps)) {
-        lastDeps = nextDeps;
-        LIFETIME.finalize(currentResource);
-        currentResource = nextResource().create({ owner });
-        resourceCell.set(currentResource);
-
-        if (setup) {
-          Resource.setup(currentResource);
-        }
-      }
-    });
-
-    lifecycle.on.layout(() => {
-      setup = true;
-      Resource.setup(resourceCell.current);
-
-      const renderer = TIMELINE.on.change(value, () => {
-        setNotify({});
-      });
-
-      lifecycle.on.cleanup(() => {
-        LIFETIME.finalize(renderer);
-      });
-    });
-
-    return value;
-  });
-
-  return instance;
+export function useResource<T>(factory: ResourceBlueprint<T>): T;
+export function useResource<T>(
+  factory: ResourceBlueprint<T, undefined>
+): T | undefined;
+export function useResource<T>(
+  factory: UseFactory<T, undefined>,
+  dependencies: unknown[]
+): Reactive<T | undefined>;
+export function useResource<T>(
+  factory: UseFactory<T, never>,
+  dependencies: unknown[]
+): Reactive<T>;
+export function useResource<T>(
+  factory: UseFactory<T, undefined>,
+  options?: { initial: T } | unknown[],
+  dependencies?: unknown[]
+): Reactive<T | undefined> {
+  return createResource(factory, options, dependencies);
 }
 
 function createResource<T>(
-  resource: () => ResourceBlueprint<T>,
-  deps: unknown[] | undefined,
-  description: string | Description | undefined
-): T {
-  const instance = useReactiveResource(resource, deps, description);
+  factory: UseFactory<T, undefined>,
+  options?: { initial: T } | unknown[],
+  dependencies?: unknown[]
+): Reactive<T | undefined> {
+  const owner = useComponent();
+  const notify = useNotify();
 
-  return unsafeTrackedElsewhere(() => instance.current);
-}
+  const deps = Array.isArray(options) ? options : dependencies ?? [];
+  const initialValue = Array.isArray(options) ? undefined : options?.initial;
+  let prev: unknown[] = deps;
 
-export function useResource<T>(
-  resource: ResourceBlueprint<T> | (() => ResourceBlueprint<T>),
-  deps?: unknown[] | string | Description,
-  description?: string | Description
-): T {
-  const constructor =
-    typeof resource === "function" ? resource : () => resource;
+  return useLifecycle(deps, ({ on }) => {
+    let lastResource: Reactive<T | undefined> | undefined = undefined;
+    const marker = Marker();
 
-  if (Array.isArray(deps)) {
-    return createResource(constructor, deps, description);
-  } else {
-    return createResource(constructor, undefined, deps);
-  }
-}
+    function create(): void {
+      if (lastResource) LIFETIME.finalize(lastResource);
 
-export function useReactiveResource<T>(
-  resource: () => ResourceBlueprint<T>,
-  deps?: unknown[] | string | Description,
-  description?: string | Description
-): Resource<T> {
-  if (Array.isArray(deps)) {
-    return createReactiveResource(resource, deps, description);
-  } else {
-    return createReactiveResource(resource, undefined, deps);
-  }
-}
+      const created: Reactive<T | undefined> =
+        typeof factory === "function"
+          ? Factory.resource(factory() as IntoResource<T | undefined>, owner)
+          : factory.create(owner);
 
-export function sameDeps(
-  deps: unknown[] | undefined,
-  nextDeps: unknown[] | undefined
-): boolean {
-  // make sure the items are equal according to Object.is
+      lastResource = created;
+      marker.update(callerStack());
 
-  if (Array.isArray(deps) && Array.isArray(nextDeps)) {
-    if (deps.length !== nextDeps.length) {
-      return false;
+      on.cleanup(() => {
+        LIFETIME.finalize(created);
+      });
     }
 
-    for (let i = 0; i < deps.length; i++) {
-      if (deps[i] !== nextDeps[i]) {
-        return false;
+    on.layout(create);
+
+    on.update((next = []) => {
+      if (!sameDeps(prev, next)) {
+        prev = next;
+        if (lastResource) LIFETIME.finalize(lastResource);
+        create();
       }
-    }
+    });
 
-    return true;
-  } else {
-    return deps === nextDeps;
+    const value = Formula(() => {
+      marker.consume();
+      return lastResource?.current ?? initialValue;
+    });
+
+    on.cleanup(TIMELINE.on.change(value, notify));
+
+    return value;
+  });
+}
+
+function sameDeps(
+  prev: unknown[] | undefined,
+  next: unknown[] | undefined
+): boolean {
+  if (prev === undefined || next === undefined) {
+    return prev === next;
   }
+
+  return (
+    prev.length === next.length &&
+    prev.every((value, index) => Object.is(value, next[index]))
+  );
 }

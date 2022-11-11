@@ -6,11 +6,12 @@
     "composite": true,
     "declarationMap": true,
     "declarationDir": "../../dist/types",
-    "types": ["../../packages/env"]
+    "types": ["../../packages/env", "react", "react-dom"]
   },
+  "exclude": ["dist/**/*"],
+  "include": ["index.ts", "src/**/*", "vite.config.ts"],
   "references": [
     { "path": "../../packages/tsconfig.packages.json" },
     { "path": "../../packages/x/devtool/tsconfig.json" }
-  ],
-  "exclude": ["dist/**/*"]
+  ]
 }

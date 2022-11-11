@@ -14,12 +14,12 @@ interface Internals {
 export interface MutableInternals extends Internals {
   readonly type: "mutable";
   readonly lastUpdated: Timestamp;
-  isFrozen?(): boolean;
+  isFrozen?: () => boolean;
 }
 
 export interface CompositeInternals extends Internals {
   readonly type: "composite";
-  children(): ReactiveProtocol[];
+  children: () => ReactiveProtocol[];
 }
 
 export interface DelegateInternals extends Internals {
@@ -43,7 +43,20 @@ export interface ReactiveProtocol<
   [REACTIVE]: I;
 }
 
-export interface Reactive<T, I extends ReactiveInternals = ReactiveInternals>
-  extends ReactiveProtocol<I> {
-  read(stack?: Stack): T;
+export interface ReactiveCore<
+  T = unknown,
+  I extends ReactiveInternals = ReactiveInternals
+> extends ReactiveProtocol<I> {
+  read: (stack?: Stack) => T;
+}
+
+export interface Reactive<
+  out T,
+  I extends ReactiveInternals = ReactiveInternals
+> extends ReactiveCore<T, I> {
+  readonly current: T;
+}
+
+export interface ReactiveCell<T> extends Reactive<T, MutableInternals> {
+  current: T;
 }

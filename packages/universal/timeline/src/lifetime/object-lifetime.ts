@@ -1,20 +1,13 @@
+import { inspector } from "@starbeam/debug";
+
 export type Unsubscribe = () => void;
 
 export class ObjectLifetime {
-  static create(): ObjectLifetime {
-    return new ObjectLifetime();
-  }
-
-  static finalize(
-    lifetime: ObjectLifetime,
-    finalizing?: (block: () => void) => void
-  ): void {
-    lifetime.#finalizeIn(finalizing);
-  }
-
-  #finalizers: Set<() => void> = new Set();
-  #children: Set<ObjectLifetime> = new Set();
+  #owner: WeakRef<object> | undefined;
+  readonly #object: WeakRef<object>;
+  readonly #children = new Set<ObjectLifetime>();
   #finalized = false;
+  readonly #finalizers = new Set<() => void>();
 
   readonly on = {
     finalize: (finalizer: () => void): Unsubscribe => {
@@ -23,28 +16,51 @@ export class ObjectLifetime {
     },
   };
 
-  link(child: ObjectLifetime): Unsubscribe {
-    this.#children.add(child);
-    return () => this.#children.delete(child);
+  static {
+    if (import.meta.env.DEV) {
+      inspector(this, "ObjectLifetime").define((lifetime, debug) =>
+        debug.struct({
+          finalizers: lifetime.#finalizers,
+          children: lifetime.#children,
+          finalized: lifetime.#finalized,
+        })
+      );
+    }
   }
 
-  #finalizeIn(finalizing?: (block: () => void) => void) {
+  static create(object: object): ObjectLifetime {
+    return new ObjectLifetime(undefined, object);
+  }
+
+  static finalize(lifetime: ObjectLifetime): void {
+    lifetime.#finalize();
+  }
+
+  constructor(owner: object | undefined, object: object) {
+    this.#owner = owner ? new WeakRef(owner) : undefined;
+    this.#object = new WeakRef(object);
+  }
+
+  get owner(): object | undefined {
+    return this.#owner?.deref();
+  }
+
+  get object(): object | undefined {
+    return this.#object.deref();
+  }
+
+  setOwnedBy(owner: object): { prev: object | undefined } {
+    this.#owner = new WeakRef(owner);
+    return { prev: this.#owner.deref() };
+  }
+
+  #finalize(): void {
     if (this.#finalized) {
       return;
     }
 
     this.#finalized = true;
 
-    if (finalizing) {
-      finalizing(() => {
-        this.#finalize();
-      });
-    } else {
-      this.#finalize();
-    }
-  }
-
-  #finalize() {
     for (const finalizer of this.#finalizers) {
       finalizer();
     }
@@ -52,5 +68,14 @@ export class ObjectLifetime {
     for (const child of this.#children) {
       child.#finalize();
     }
+  }
+
+  link(child: ObjectLifetime): Unsubscribe {
+    this.#children.add(child);
+    return () => this.#children.delete(child);
+  }
+
+  unlink(child: ObjectLifetime): void {
+    this.#children.delete(child);
   }
 }
