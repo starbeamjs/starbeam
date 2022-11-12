@@ -8,57 +8,32 @@ import { UpdatePackageFn } from "./updates.js";
 
 type ConfigOverride = NonNullable<ESLint.ConfigData["overrides"]>[number];
 
-export const updateDemoEslint = UpdatePackageFn((updater) => {
-  updater.ensureRemoved(".eslintrc.cjs");
+export const updateEslint = {
+  demo: UpdatePackageFn((updater) => {
+    updater.json(".eslintrc.json", () => {
+      return {
+        root: false,
 
-  updater.json(".eslintrc.json", () => {
-    return {
-      root: false,
+        overrides: [
+          localEslintConfig(updater),
+          localEslintConfig(updater, {
+            files: ["vite.config.ts"],
+            extend: "@starbeam/loose",
+          }),
+        ],
+      };
+    });
+  }),
 
-      overrides: [
-        localEslintConfig(updater, {
-          extend: "@starbeam/demos",
-        }),
-        localEslintConfig(updater, {
-          files: ["vite.config.ts"],
-          extend: "@starbeam/loose",
-        }),
-      ],
-    };
-  });
-});
-
-export const updateLibraryEslint = UpdatePackageFn((update) => {
-  update.ensureRemoved(".eslintrc.cjs");
-
-  update.json(".eslintrc.json", () => {
-    return {
-      root: false,
-
-      overrides: [
-        localEslintConfig(update, {
-          extend: eslintPlugin(update.pkg),
-        }),
-      ],
-    };
-  });
-});
-
-export const updateTestsEslint = UpdatePackageFn((update) => {
-  update.ensureRemoved(".eslintrc.cjs");
-
-  update.json(".eslintrc.json", () => {
-    return {
-      root: false,
-
-      overrides: [
-        localEslintConfig(update, {
-          extend: "@starbeam/loose",
-        }),
-      ],
-    };
-  });
-});
+  package: UpdatePackageFn((update) => {
+    update.json(".eslintrc.json", () => {
+      return {
+        root: false,
+        overrides: [localEslintConfig(update)],
+      };
+    });
+  }),
+} as const;
 
 function eslintPlugin(pkg: Package): `@starbeam/${string}` {
   if (pkg.moduleType === "cjs") {
@@ -67,6 +42,8 @@ function eslintPlugin(pkg: Package): `@starbeam/${string}` {
     return "@starbeam/esm";
   } else if (pkg.starbeam.type.is("tests")) {
     return "@starbeam/loose";
+  } else if (pkg.starbeam.type.isType("demo")) {
+    return "@starbeam/demos";
   } else {
     return "@starbeam/tight";
   }
@@ -94,20 +71,20 @@ function eslintFiles(pkg: Package): string[] {
 }
 
 function localEslintConfig(
-  update: LabelledUpdater,
+  { path, pkg }: LabelledUpdater,
   {
-    extend,
+    extend = eslintPlugin(pkg),
     tsconfig = "tsconfig.json",
-    files = eslintFiles(update.pkg),
+    files = eslintFiles(pkg),
   }: {
-    extend: `@starbeam/${string}`;
+    extend?: `@starbeam/${string}`;
     tsconfig?: string;
     files?: string | string[];
-  }
+  } = {}
 ): ConfigOverride & JsonObject {
   return {
     parserOptions: {
-      project: update.path(tsconfig).fromWorkspaceRoot,
+      project: path(pkg.root.file(tsconfig)).fromWorkspaceRoot(),
     },
     files,
     extends: [`plugin:${extend}`],

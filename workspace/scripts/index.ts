@@ -13,7 +13,7 @@ import { DemoCommand } from "./src/demo.js";
 import { LintCommand } from "./src/lint.js";
 import { ListCommand } from "./src/list.js";
 import { ReleaseCommand } from "./src/release.js";
-import { StarbeamCommands } from "./src/support/commands.js";
+import { StarbeamCommands } from "./src/support/commands/commands";
 import { TemplateCommand } from "./src/template.js";
 import { TestCommand } from "./src/test.js";
 import { UnusedCommand } from "./src/unused.js";

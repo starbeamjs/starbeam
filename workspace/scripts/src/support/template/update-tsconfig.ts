@@ -5,25 +5,23 @@ import type { Migrator } from "../json-editor/migration.js";
 import { UpdatePackageFn } from "./updates.js";
 
 export const updateTsconfig = UpdatePackageFn(
-  (updater, { workspace, paths }) => {
+  (updater, { workspace, root }) => {
     const { path, pkg } = updater;
     updater.json.migrate("tsconfig.json", (migrator: Migrator<TsConfig>) => {
-      migrator
-        .remove("compilerOptions.emitDeclarationOnly")
-        .array("compilerOptions.types", (update) =>
-          update.add(path(paths.packages.file("env")).fromPackageRoot, {
-            matches: (type) => type.endsWith("/env"),
-          })
-        );
+      migrator.array("compilerOptions.types", (update) =>
+        update.add(path(root.file("packages/env")).fromPackageRoot(), {
+          matches: (type) => type.endsWith("/env"),
+        })
+      );
 
       if (updater.pkg.type.isType("demo")) {
         const devtool = path(
-          workspace.paths.packages.x.dir("devtool").file("tsconfig.json")
-        ).fromPackageRoot;
+          root.file("packages/x/devtool/tsconfig.json")
+        ).fromPackageRoot();
 
         const packages = path(
-          paths.packages.file("tsconfig.packages.json")
-        ).fromPackageRoot;
+          root.file("packages/tsconfig.packages.json")
+        ).fromPackageRoot();
 
         migrator
           .array("references", (update) =>
@@ -38,37 +36,20 @@ export const updateTsconfig = UpdatePackageFn(
           );
       }
 
-      if (updater.pkg.tsconfig) {
+      if (updater.pkg.type.isType("library") || updater.pkg.type.is("tests")) {
         migrator.set(
           "extends",
-          path(workspace.root.file(`.config/tsconfig/${updater.pkg.tsconfig}`))
-            .fromPackageRoot,
-          "start"
-        );
-        migrator.set(
-          "extends",
-          path(workspace.root.file(`.config/tsconfig/${updater.pkg.tsconfig}`))
-            .fromPackageRoot,
-          "start"
-        );
-      } else if (
-        updater.pkg.type.isType("library") ||
-        updater.pkg.type.is("tests")
-      ) {
-        migrator.set(
-          "extends",
-          path(workspace.root.file(".config/tsconfig/tsconfig.shared.json"))
-            .fromPackageRoot,
+          path(
+            root.file(".config/tsconfig/tsconfig.shared.json")
+          ).fromPackageRoot(),
           "start"
         );
       } else if (pkg.type.isType("demo")) {
         migrator.set(
           "extends",
-          updater.path(
-            workspace.root.file(
-              `.config/tsconfig/tsconfig.${pkg.type.subtype}-demo.json`
-            )
-          ).fromPackageRoot,
+          path(
+            root.file(`.config/tsconfig/tsconfig.${pkg.type.subtype}-demo.json`)
+          ).fromPackageRoot(),
           "start"
         );
 
@@ -89,15 +70,15 @@ export const updateTsconfig = UpdatePackageFn(
         .set("compilerOptions.composite", true)
         .set(
           "compilerOptions.outDir",
-          path(workspace.root.dir(`dist/packages`)).fromPackageRoot
+          path(root.dir(`dist/packages`)).fromPackageRoot()
         )
         .set("compilerOptions.declaration", true)
         .set(
           "compilerOptions.declarationDir",
-          path(workspace.root.dir(`dist/types`)).fromPackageRoot
+          path(root.dir(`dist/types`)).fromPackageRoot()
         )
         .set("compilerOptions.declarationMap", true)
-        .addTo("exclude", "dist/**/*");
+        .array("exclude", (a) => a.add("dist/**/*"));
 
       return migrator.write();
     });

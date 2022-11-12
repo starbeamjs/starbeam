@@ -1,6 +1,6 @@
 import type { Command } from "commander";
 
-import type { StarbeamCommands } from "./commands.js";
+import type { StarbeamCommands } from "./commands/commands";
 
 export interface StarbeamCommandOptions {
   root: string;

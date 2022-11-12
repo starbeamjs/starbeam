@@ -14,7 +14,6 @@ export interface StarbeamTemplates {
 }
 
 export interface StarbeamInfo {
-  tsconfig: string | undefined;
   type: StarbeamType;
   source: StarbeamSources;
   used: Used[];

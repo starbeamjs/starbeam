@@ -20,7 +20,7 @@ type WorkspaceCmd = (
 
 type WorkspaceExec = (
   command: string,
-  options: {
+  options?: {
     cwd: string;
     label: string;
     output?: CommandOutputType;

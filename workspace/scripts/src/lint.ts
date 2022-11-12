@@ -1,7 +1,8 @@
 import { CheckDefinition } from "@starbeam-workspace/workspace";
 import sh from "shell-escape-tag";
 
-import { QueryCommand, StringOption } from "./support/commands.js";
+import { QueryCommand } from "./support/commands/query-command";
+import { StringOption } from "./support/commands/types";
 
 export const LintCommand = QueryCommand("lint")
   .option(

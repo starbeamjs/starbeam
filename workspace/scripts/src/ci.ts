@@ -1,7 +1,8 @@
 import type { Package } from "@starbeam-workspace/package";
 import { CheckDefinition } from "@starbeam-workspace/workspace";
 
-import { QueryCommand, StringOption } from "./support/commands.js";
+import { QueryCommand } from "./support/commands/query-command";
+import { StringOption } from "./support/commands/types";
 import scripts, { type Scripts, hydrateScript } from "./support/scripts.js";
 
 export const CiCommand = QueryCommand("ci")
@@ -29,21 +30,6 @@ export const CiCommand = QueryCommand("ci")
         });
       })
     );
-
-    // const results = await workspace.check(
-    //   ...packages.map((pkg) =>
-    //     CheckDefinition(
-    //       pkg.name,
-    //       sh`pnpm eslint --cache --max-warnings 0 -c ${eslintrc} ${workspace.root.relativeTo(
-    //         pkg.root
-    //       )}`,
-    //       {
-    //         cwd: workspace.root,
-    //         output: streamOutput ? "stream" : "when-error",
-    //       }
-    //     )
-    //   )
-    // );
 
     workspace.reporter.reportCheckResults(results, {
       success: "lint succeeded",

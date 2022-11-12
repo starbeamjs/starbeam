@@ -10,7 +10,8 @@ import { fatal } from "@starbeam-workspace/shared";
 import { CheckDefinition } from "@starbeam-workspace/workspace";
 import shell from "shelljs";
 
-import { QueryCommand, StringOption } from "./support/commands.js";
+import { QueryCommand } from "./support/commands/query-command";
+import { StringOption } from "./support/commands/types";
 
 export const TestCommand = QueryCommand("test", {
   description: "run the tests for the selected packages",

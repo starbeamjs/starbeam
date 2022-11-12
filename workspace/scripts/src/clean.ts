@@ -10,7 +10,8 @@ import { fatal } from "@starbeam-workspace/shared";
 import glob from "fast-glob";
 import shell from "shelljs";
 
-import { QueryCommand, StringOption } from "./support/commands.js";
+import { QueryCommand } from "./support/commands/query-command";
+import { StringOption } from "./support/commands/types";
 
 export const CleanCommand = QueryCommand("clean", {
   description: "clean up build artifacts",

@@ -1,6 +1,6 @@
 import { CheckDefinition } from "@starbeam-workspace/workspace";
 
-import { QueryCommand } from "./support/commands.js";
+import { QueryCommand } from "./support/commands/query-command";
 
 export const BuildCommand = QueryCommand("build", {
   description: "prepare the packages for publishing",

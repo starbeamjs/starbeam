@@ -1,4 +1,4 @@
-import { DevCommand } from "./support/commands.js";
+import { DevCommand } from "./support/commands/dev-command";
 
 export const CheckCommand = DevCommand("check", {
   description: "run all of the checks",

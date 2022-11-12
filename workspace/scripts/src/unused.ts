@@ -3,7 +3,7 @@ import type { Package } from "@starbeam-workspace/package";
 import { Fragment } from "@starbeam-workspace/reporter";
 import { FATAL_EXIT_CODE, PresentArray } from "@starbeam-workspace/shared";
 
-import { QueryCommand } from "./support/commands.js";
+import { QueryCommand } from "./support/commands/query-command";
 import { checkUnused } from "./support/unused.js";
 
 export const UnusedCommand = QueryCommand("unused").action(

@@ -1,14 +1,10 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { isAbsolute, relative } from "node:path";
+import { relative } from "node:path";
 
 import { isJSONObject, stringifyJSON } from "@starbeam/core-utils";
 import type { JsonObject, JsonValue } from "@starbeam-workspace/json";
 import type { Package } from "@starbeam-workspace/package";
-import {
-  type StarbeamType,
-  JsonTemplate,
-  Template,
-} from "@starbeam-workspace/package";
+import { JsonTemplate, Template } from "@starbeam-workspace/package";
 import type { Directory, Path, Paths } from "@starbeam-workspace/paths";
 import type { ChangeResult } from "@starbeam-workspace/reporter";
 import { Fragment, fragment } from "@starbeam-workspace/reporter";
@@ -22,8 +18,8 @@ import { EditJsonc } from "../jsonc.js";
 import type { UpdatePackageFn } from "./updates.js";
 
 export interface GetRelativePath {
-  readonly fromPackageRoot: string;
-  readonly fromWorkspaceRoot: string;
+  fromPackageRoot: () => string;
+  fromWorkspaceRoot: () => string;
 }
 
 export class UpdatePackage {
@@ -32,12 +28,13 @@ export class UpdatePackage {
     label: string,
     updater: (
       update: LabelledUpdater,
-      options: { workspace: Workspace; paths: Paths }
+      options: { workspace: Workspace; paths: Paths; root: Directory }
     ) => void
   ): void {
     updater(updatePackage.update(label), {
       workspace: updatePackage.#workspace,
       paths: updatePackage.#workspace.paths,
+      root: updatePackage.#workspace.root,
     });
   }
 
@@ -60,24 +57,8 @@ export class UpdatePackage {
     this.#workspace = workspace;
   }
 
-  get tsconfig(): string | undefined {
-    return this.#pkg.tsconfig;
-  }
-
-  get name(): string {
-    return this.#pkg.name;
-  }
-
-  get type(): StarbeamType | undefined {
-    return this.#pkg.type;
-  }
-
   get pkg(): Package {
     return this.#pkg;
-  }
-
-  hasTests(): boolean {
-    return this.#pkg.dir("tests").exists();
   }
 
   done(): void {
@@ -90,252 +71,262 @@ export class UpdatePackage {
     return this.#packages.template(name);
   }
 
-  isInside(relativeToRoot: string): boolean {
-    const absoluteDirectory = this.#workspace.root.join(relativeToRoot);
-    const relativePath = relative(
-      absoluteDirectory.absolute,
-      this.#pkg.root.absolute
-    );
-    return !!(
-      relativePath &&
-      !relativePath.startsWith("..") &&
-      !isAbsolute(relativePath)
-    );
-  }
-
   get root(): Directory {
     return this.#pkg.root;
   }
 
-  error(callback: (root: Directory) => void): void {
-    callback(this.#pkg.root);
-  }
-
   update(label: string): LabelledUpdater {
-    return new UpdatePackage.#UpdateFile(this, label);
+    return new UpdateFile(this, this.#workspace, label);
   }
+}
 
-  static #UpdateFile = class UpdateFileImpl implements LabelledUpdater {
-    readonly #label: string;
-    readonly #updatePackage: UpdatePackage;
-    readonly json: UpdateJsonField;
+class UpdateFile implements LabelledUpdater {
+  readonly #label: string;
+  readonly #updatePackage: UpdatePackage;
+  readonly #workspace: Workspace;
+  readonly json: UpdateJsonField;
 
-    constructor(updatePackage: UpdatePackage, label: string) {
-      this.#updatePackage = updatePackage;
-      this.#label = label;
+  constructor(
+    updatePackage: UpdatePackage,
+    workspace: Workspace,
+    label: string
+  ) {
+    this.#updatePackage = updatePackage;
+    this.#workspace = workspace;
+    this.#label = label;
 
-      const json: UpdateJsonFn & Partial<UpdateJsonField> = this.#json;
+    const json: UpdateJsonFn & Partial<UpdateJsonField> = this.#json;
 
-      json.migrate = <T extends object>(
-        relativePath: string,
-        callback: (migrator: Migrator<T>) => void
-      ) => {
-        const editor = EditJsonc.parse(
-          this.#updatePackage.root.file(relativePath)
-        );
-        const migrator = Migrator.create<T>(editor);
-        callback(migrator);
-        this.#reportChange({
-          result: migrator.write(),
-          label: this.#label,
-          description: relativePath,
-        });
-
-        return this;
-      };
-
-      json.template = (intoTemplate, update = ({ template }) => template) => {
-        const relativePath = String(intoTemplate);
-        const pkg = this.#updatePackage.pkg;
-        const template =
-          JsonTemplate.from(intoTemplate).read(
-            this.#updatePackage.#workspace.root,
-            {
-              type: pkg.type,
-              source: pkg.source,
-            }
-          ) ?? {};
-
-        return json(relativePath, (current) =>
-          update({ current: cloneJSON(current), template })
-        );
-      };
-
-      this.json = json as UpdateJsonField;
-    }
-
-    #json: UpdateJsonFn = (relativePath, updater): LabelledUpdater => {
-      const path = this.#updatePackage.root.file(relativePath);
-      const prev = existsSync(path) ? readFileSync(path, "utf-8") : undefined;
-
-      const prevJSON = JSON.parse(prev ?? "{}") as JsonValue | undefined;
-
-      if (!isJSONObject(prevJSON)) {
-        throw Error(
-          `Expected ${relativePath} to contain a json object, but got ${JSON.stringify(
-            prevJSON
-          )}`
-        );
-      }
-
-      const next = this.#updateJsonFn(updater)({
-        ...cloneJSON(prevJSON),
+    json.migrate = <T extends object>(
+      relativePath: string,
+      callback: (migrator: Migrator<T>) => void
+    ) => {
+      const editor = EditJsonc.parse(
+        this.#updatePackage.root.file(relativePath)
+      );
+      const migrator = Migrator.create<T>(editor);
+      callback(migrator);
+      reportChange({
+        workspace,
+        result: migrator.write(),
+        label: this.#label,
+        description: relativePath,
       });
 
-      const prevString = stringifyJSON(normalizeJSON(prevJSON));
-      const nextString = stringifyJSON(normalizeJSON(next));
-
-      if (prevString !== nextString) {
-        this.#reportChange({
-          result: prev === undefined ? "create" : "update",
-          description: relativePath,
-          label: this.#label,
-        });
-
-        writeFileSync(path, nextString + "\n");
-        this.#updatePackage.#workspace.cmd(sh`eslint --cache --fix ${path}`);
-      }
-
       return this;
     };
 
-    file(relativeFile: string, updater: FileUpdater): LabelledUpdater {
-      this.#update(relativeFile, this.#updateFn(updater));
+    json.template = (intoTemplate, update = ({ template }) => template) => {
+      const relativePath = String(intoTemplate);
+      const pkg = this.#updatePackage.pkg;
+      const template =
+        JsonTemplate.from(intoTemplate).read(this.#workspace.root, {
+          type: pkg.type,
+          source: pkg.source,
+        }) ?? {};
 
-      return this;
-    }
-
-    ensureRemoved(relativeFile: string): LabelledUpdater {
-      const path = this.#updatePackage.root.file(relativeFile);
-
-      if (path.exists()) {
-        this.#reportChange({
-          result: "remove",
-          description: relativeFile,
-          label: this.#label,
-        });
-        path.rmSync();
-      }
-
-      return this;
-    }
-
-    template(
-      intoTemplate: Into<Template>,
-      update: (options: {
-        current?: string | undefined;
-        template: string;
-      }) => string = ({ template }) => template
-    ): LabelledUpdater {
-      const templateName = Template.asString(intoTemplate);
-
-      this.#update(templateName, (current) =>
-        update({
-          current,
-          template: this.#updatePackage.template(templateName),
-        })
+      return json(relativePath, (current) =>
+        update({ current: cloneJSON(current), template })
       );
-
-      return this;
-    }
-
-    get pkg(): Package {
-      return this.#updatePackage.pkg;
-    }
-
-    path = (path: Path | string): GetRelativePath => {
-      const pkg = this.pkg;
-      const workspace = this.#updatePackage.#workspace;
-
-      return {
-        get fromPackageRoot(): string {
-          return relative(
-            pkg.root.absolute,
-            typeof path === "string"
-              ? pkg.root.join(path).absolute
-              : path.absolute
-          );
-        },
-        get fromWorkspaceRoot(): string {
-          return relative(
-            workspace.root.absolute,
-            typeof path === "string"
-              ? pkg.root.join(path).absolute
-              : path.absolute
-          );
-        },
-      };
     };
 
-    #updateJsonFn(updater: JsonUpdates): (prev: JsonObject) => JsonObject {
-      if (typeof updater === "function") {
-        return updater;
-      } else {
-        return (prev) => ({ ...prev, ...updater });
-      }
-    }
+    this.json = json as UpdateJsonField;
+  }
 
-    #updateFn(updater: FileUpdater): (prev: string | undefined) => string {
-      if (typeof updater === "function") {
-        return updater;
-      } else if (typeof updater === "string") {
-        return () => updater;
-      } else {
-        return () => this.#updatePackage.template(updater.template);
-      }
-    }
-
-    #update(
-      relativePath: string,
-      updater: (prev: string | undefined) => string
-    ): void {
-      const path = this.#updatePackage.root.file(relativePath);
-      const prev = existsSync(path) ? readFileSync(path, "utf-8") : undefined;
-      const next = updater(prev);
-      if (prev !== next) {
-        this.#reportChange({
-          result: prev === undefined ? "create" : "update",
-          description: relativePath,
-          label: this.#label,
-        });
-        writeFileSync(path, next);
-      }
-    }
-
-    #reportChange({
-      result: kind,
-      description,
-      label,
-    }: {
-      result: ChangeResult;
-      description: string;
-      label?: string;
-    }): void {
-      if (kind === false) {
-        return;
-      }
-
-      let flag: string;
-      switch (kind) {
-        case "create":
-          flag = "+";
-          break;
-        case "remove":
-          flag = "-";
-          break;
-        case "update":
-          flag = "~";
-          break;
-      }
-
-      let log = Fragment.comment(`${flag} ${description}`);
-      if (label) {
-        log = log.concat(` `).concat(Fragment.comment.dim(label));
-      }
-
-      this.#updatePackage.#workspace.reporter.log(log);
-    }
+  #json: UpdateJsonFn = (relativePath, update): LabelledUpdater => {
+    json({
+      label: this.#label,
+      relativePath,
+      update,
+      workspace: this.#workspace,
+      root: this.#updatePackage.root,
+    });
+    return this;
   };
+
+  ensureRemoved(relativeFile: string): LabelledUpdater {
+    const path = this.#updatePackage.root.file(relativeFile);
+
+    if (path.exists()) {
+      reportChange({
+        workspace: this.#workspace,
+        result: "remove",
+        description: relativeFile,
+        label: this.#label,
+      });
+      path.rmSync();
+    }
+
+    return this;
+  }
+
+  template(
+    intoTemplate: Into<Template>,
+    update: (options: {
+      current?: string | undefined;
+      template: string;
+    }) => string = ({ template }) => template
+  ): LabelledUpdater {
+    const templateName = Template.asString(intoTemplate);
+
+    this.#update(templateName, (current) =>
+      update({
+        current,
+        template: this.#updatePackage.template(templateName),
+      })
+    );
+
+    return this;
+  }
+
+  get pkg(): Package {
+    return this.#updatePackage.pkg;
+  }
+
+  readonly path = (path: Path | string): GetRelativePath => {
+    const pkg = this.pkg;
+    const workspace = this.#workspace;
+
+    const absolute =
+      typeof path === "string"
+        ? workspace.root.join(path).absolute
+        : path.absolute;
+
+    return {
+      fromPackageRoot: (): string => {
+        return relative(pkg.root.absolute, absolute);
+      },
+      fromWorkspaceRoot: (): string => {
+        return relative(workspace.root.absolute, absolute);
+      },
+    };
+  };
+
+  #updateJsonFn(updater: JsonUpdates): (prev: JsonObject) => JsonObject {
+    if (typeof updater === "function") {
+      return updater;
+    } else {
+      return (prev) => ({ ...prev, ...updater });
+    }
+  }
+
+  #updateFn(updater: FileUpdater): (prev: string | undefined) => string {
+    if (typeof updater === "function") {
+      return updater;
+    } else if (typeof updater === "string") {
+      return () => updater;
+    } else {
+      return () => this.#updatePackage.template(updater.template);
+    }
+  }
+
+  #update(
+    relativePath: string,
+    updater: (prev: string | undefined) => string
+  ): void {
+    const path = this.#updatePackage.root.file(relativePath);
+    const prev = existsSync(path) ? readFileSync(path, "utf-8") : undefined;
+    const next = updater(prev);
+    if (prev !== next) {
+      reportChange({
+        workspace: this.#workspace,
+        result: prev === undefined ? "create" : "update",
+        description: relativePath,
+        label: this.#label,
+      });
+      writeFileSync(path, next);
+    }
+  }
+}
+
+function json({
+  label,
+  root,
+  relativePath,
+  update,
+  workspace,
+}: {
+  root: Directory;
+  label: string;
+  relativePath: string;
+  update: JsonUpdates;
+  workspace: Workspace;
+}): void {
+  const path = root.file(relativePath);
+  const prev = existsSync(path) ? readFileSync(path, "utf-8") : undefined;
+
+  const prevJSON = JSON.parse(prev ?? "{}") as JsonValue | undefined;
+
+  if (!isJSONObject(prevJSON)) {
+    throw Error(
+      `Expected ${relativePath} to contain a json object, but got ${JSON.stringify(
+        prevJSON
+      )}`
+    );
+  }
+
+  const next = updateJsonFn(update)({
+    ...cloneJSON(prevJSON),
+  });
+
+  const prevString = stringifyJSON(normalizeJSON(prevJSON));
+  const nextString = stringifyJSON(normalizeJSON(next));
+
+  if (prevString !== nextString) {
+    reportChange({
+      workspace,
+      result: prev === undefined ? "create" : "update",
+      description: relativePath,
+      label,
+    });
+
+    writeFileSync(path, nextString + "\n");
+    workspace.cmd(sh`eslint --cache --fix ${path}`);
+  }
+}
+
+function reportChange({
+  workspace,
+  result: kind,
+  description,
+  label,
+}: {
+  workspace: Workspace;
+  result: ChangeResult;
+  description: string;
+  label?: string;
+}): void {
+  if (kind === false) {
+    return;
+  }
+
+  let flag: string;
+  switch (kind) {
+    case "create":
+      flag = "+";
+      break;
+    case "remove":
+      flag = "-";
+      break;
+    case "update":
+      flag = "~";
+      break;
+  }
+
+  let log = Fragment.comment(`${flag} ${description}`);
+  if (label) {
+    log = log.concat(` `).concat(Fragment.comment.dim(label));
+  }
+
+  workspace.reporter.log(log);
+}
+
+function updateJsonFn(updater: JsonUpdates): (json: JsonObject) => JsonObject {
+  if (typeof updater === "function") {
+    return updater;
+  } else {
+    return (prev) => ({ ...prev, ...updater });
+  }
 }
 
 export class UpdatePackages {
@@ -440,10 +431,6 @@ type UpdateJsonFn = (
 ) => LabelledUpdater;
 
 interface UpdateJsonField extends UpdateJsonFn {
-  migrator: <T extends object>(
-    relativePath: string,
-    callback: (migrator: Migrator<T>) => void
-  ) => LabelledUpdater;
   migrate: <T extends object>(
     relativePath: string,
     callback: (migrator: Migrator<T>) => void
@@ -460,19 +447,9 @@ interface UpdateJsonField extends UpdateJsonFn {
 }
 
 export interface LabelledUpdater {
-  path: (
-    this: void,
-    path: Path | string
-  ) => {
-    readonly fromPackageRoot: string;
-    readonly fromWorkspaceRoot: string;
-  };
-
+  readonly path: (this: void, path: Path | string) => GetRelativePath;
   readonly pkg: Package;
-
   readonly json: UpdateJsonField;
-
-  file: (relativeFile: string, updater: FileUpdater) => LabelledUpdater;
 
   ensureRemoved: (relativeFile: string) => LabelledUpdater;
 

@@ -8,10 +8,6 @@ export class Starbeam {
     this.#info = info;
   }
 
-  get tsconfig(): string | undefined {
-    return this.#info.tsconfig;
-  }
-
   get type(): StarbeamType {
     return this.#info.type;
   }

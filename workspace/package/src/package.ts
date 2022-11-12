@@ -77,9 +77,6 @@ export class Package {
       tests,
       dependencies: createDependencies(raw),
       starbeam: {
-        tsconfig: raw.get<string | undefined>("starbeam:tsconfig", {
-          default: undefined,
-        }),
         type,
         source,
         used: raw.get("starbeam:used", { default: [] }),
@@ -138,10 +135,6 @@ export class Package {
     return this.info.isTypescript;
   }
 
-  get tsconfig(): string | undefined {
-    return this.info.starbeam.tsconfig;
-  }
-
   get type(): StarbeamType {
     return this.info.starbeam.type;
   }
@@ -162,12 +155,16 @@ export class Package {
     return this.info.dependencies;
   }
 
-  tsconfigJSON(): TypeScriptConfig | undefined {
-    const tsconfigFile = this.tsconfig
-      ? this.#workspace.root.file(this.tsconfig)
-      : this.file("tsconfig.json");
+  tsconfigFile(): RegularFile | undefined {
+    if (this.source.isTS) {
+      return this.file("tsconfig.json");
+    }
+  }
 
-    if (tsconfigFile.exists()) {
+  tsconfigJSON(): TypeScriptConfig | undefined {
+    const tsconfigFile = this.tsconfigFile();
+
+    if (tsconfigFile?.exists()) {
       return new TypeScriptConfig(tsconfigFile.readSync({ as: "json" }));
     }
   }
