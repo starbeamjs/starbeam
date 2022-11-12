@@ -1,10 +1,9 @@
 import { stringify } from "@starbeam/core-utils";
+import type { Package } from "@starbeam-workspace/package";
+import { Fragment } from "@starbeam-workspace/reporter";
+import { FATAL_EXIT_CODE, PresentArray } from "@starbeam-workspace/shared";
 
 import { QueryCommand } from "./support/commands.js";
-import { FATAL_EXIT_CODE } from "./support/constants.js";
-import { Fragment } from "./support/log.js";
-import type { Package } from "./support/packages.js";
-import { PresentArray } from "./support/type-magic.js";
 import { checkUnused } from "./support/unused.js";
 
 export const UnusedCommand = QueryCommand("unused").action(

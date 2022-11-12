@@ -1,10 +1,10 @@
 import { isSingleItemArray } from "@starbeam/core-utils";
+import type { Package } from "@starbeam-workspace/package";
+import type { Paths } from "@starbeam-workspace/paths";
+import type { Workspace } from "@starbeam-workspace/reporter";
 import type { ESLint } from "eslint";
 
 import { type JsonObject, type JsonValue, isObject } from "../json.js";
-import type { Package } from "../packages.js";
-import type { Paths } from "../paths.js";
-import type { Workspace } from "../workspace.js";
 import type { LabelledUpdater } from "./update-package.js";
 
 export type UpdatePackageFn = (
@@ -82,6 +82,7 @@ export function updatePackageJSON(updater: LabelledUpdater): void {
         current["types"] = "index.ts";
       }
 
+      current["scripts"] ??= {};
       const scripts = current["scripts"] as Record<string, string>;
 
       if (pkg.file("tsconfig.json").exists()) {

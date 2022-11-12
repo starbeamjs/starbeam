@@ -2,18 +2,23 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { isAbsolute, relative } from "node:path";
 
 import { isJSONObject, stringifyJSON } from "@starbeam/core-utils";
+import type { Package } from "@starbeam-workspace/package";
+import {
+  type StarbeamType,
+  JsonTemplate,
+  Template,
+} from "@starbeam-workspace/package";
+import type { Directory, Path, Paths } from "@starbeam-workspace/paths";
+import type { ChangeResult } from "@starbeam-workspace/reporter";
+import { Fragment, fragment } from "@starbeam-workspace/reporter";
+import type { Into } from "@starbeam-workspace/shared";
+import type { AsString } from "@starbeam-workspace/shared";
+import type { Workspace } from "@starbeam-workspace/workspace";
 import sh from "shell-escape-tag";
 
 import type { JsonObject, JsonValue } from "../json";
 import { Migrator } from "../json-editor/migration.js";
 import { EditJsonc } from "../jsonc.js";
-import { Fragment, fragment } from "../log.js";
-import type { Package } from "../packages.js";
-import type { Directory, Path, Paths } from "../paths.js";
-import type { ChangeResult } from "../reporter/reporter.js";
-import type { AsString, Into } from "../type-magic.js";
-import { type StarbeamType, JsonTemplate, Template } from "../unions.js";
-import type { Workspace } from "../workspace.js";
 import type { UpdatePackageFn } from "./updates.js";
 
 export interface GetRelativePath {

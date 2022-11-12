@@ -1,11 +1,10 @@
 import { readFileSync, writeFileSync } from "node:fs";
 
+import type { RegularFile } from "@starbeam-workspace/paths";
+import { fatal } from "@starbeam-workspace/shared";
+import type { Workspace } from "@starbeam-workspace/workspace";
 import * as jsonc from "jsonc-parser";
 import { format } from "prettier";
-
-import type { RegularFile } from "./paths.js";
-import { fatal } from "./type-magic.js";
-import type { Workspace } from "./workspace.js";
 
 export async function parseJsonc(
   file: RegularFile,

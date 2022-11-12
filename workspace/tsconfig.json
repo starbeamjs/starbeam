@@ -6,9 +6,5 @@
     "outDir": "../dist/workspace"
   },
   "include": ["*/*/index.*", "*/*/src/**/*", "*/index.*", "*/src/**/*"],
-  "references": [
-    {
-      "path": "./scripts"
-    }
-  ]
+  "references": [{ "path": "./scripts/tsconfig.json" }]
 }

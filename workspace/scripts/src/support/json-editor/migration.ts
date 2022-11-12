@@ -1,8 +1,9 @@
 import { inspect } from "node:util";
 
+import type { ChangeResult } from "@starbeam-workspace/reporter";
+import { DisplayStruct } from "@starbeam-workspace/shared";
+
 import type { EditJsonc, JsoncPosition } from "../jsonc.js";
-import { DisplayStruct } from "../reporter/inspect.js";
-import type { ChangeResult } from "../reporter/reporter.js";
 
 const console = globalThis.console;
 

@@ -1,7 +1,8 @@
+import type { Package } from "@starbeam-workspace/package";
+import { CheckDefinition } from "@starbeam-workspace/workspace";
+
 import { QueryCommand, StringOption } from "./support/commands.js";
-import type { Package } from "./support/packages.js";
 import scripts, { type Scripts, hydrateScript } from "./support/scripts.js";
-import { CheckDefinition } from "./support/workspace.js";
 
 export const CiCommand = QueryCommand("ci")
   .flag(

@@ -1,7 +1,7 @@
+import { Fragment } from "@starbeam-workspace/reporter";
 import chalk from "chalk";
 
 import { QueryCommand } from "./support/commands";
-import { Fragment } from "./support/log.js";
 
 export const ListCommand = QueryCommand("list").action(
   ({ packages, query, workspace }) => {

@@ -1,20 +1,20 @@
 import { firstNItems } from "@starbeam/core-utils";
-import chalk from "chalk";
-import { type Command, program as CommanderProgram } from "commander";
-
-import { format, wrapIndented } from "./format.js";
-import type { Package } from "./packages.js";
-import { queryPackages } from "./packages.js";
-import type { ParseError } from "./query.js";
+import type { Package } from "@starbeam-workspace/package";
+import type { ParseError } from "@starbeam-workspace/package";
+import { queryPackages } from "@starbeam-workspace/package";
 import {
   type Filter,
   FILTER_KEYS,
   formatScope,
   parse,
   Query,
-} from "./query.js";
-import type { ReporterOptions } from "./reporter/reporter.js";
-import { Workspace } from "./workspace.js";
+} from "@starbeam-workspace/package";
+import type { ReporterOptions } from "@starbeam-workspace/reporter";
+import type { Workspace as IWorkspace } from "@starbeam-workspace/reporter";
+import { format, wrapIndented } from "@starbeam-workspace/reporter";
+import { Workspace } from "@starbeam-workspace/workspace";
+import chalk from "chalk";
+import { type Command, program as CommanderProgram } from "commander";
 
 interface BasicOptions {
   description?: string;
@@ -628,7 +628,7 @@ function getOption<T>(
   }
 }
 
-function createWorkspace(root: string, options: ReporterOptions): Workspace {
+function createWorkspace(root: string, options: ReporterOptions): IWorkspace {
   const reporterOptions: ReporterOptions = {
     verbose: options.verbose,
     stylish: options.stylish,

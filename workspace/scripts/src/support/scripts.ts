@@ -1,8 +1,9 @@
+import type { Package } from "@starbeam-workspace/package";
+import type { Directory } from "@starbeam-workspace/paths";
+import type { Path } from "@starbeam-workspace/paths";
+import type { Workspace } from "@starbeam-workspace/reporter";
+
 import scripts from "../scripts.json";
-import type { Package } from "./packages.js";
-import type { Directory } from "./paths.js";
-import type { Path } from "./paths.js";
-import type { Workspace } from "./workspace.js";
 
 interface Script {
   command: string;

@@ -2,6 +2,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { version } from "@starbeam-workspace/root/package.json";
+import { OK_EXIT_CODE } from "@starbeam-workspace/shared";
 import { program } from "commander";
 
 import { BuildCommand } from "./src/build.js";
@@ -13,7 +14,6 @@ import { LintCommand } from "./src/lint.js";
 import { ListCommand } from "./src/list.js";
 import { ReleaseCommand } from "./src/release.js";
 import { StarbeamCommands } from "./src/support/commands.js";
-import { OK_EXIT_CODE } from "./src/support/constants.js";
 import { TemplateCommand } from "./src/template.js";
 import { TestCommand } from "./src/test.js";
 import { UnusedCommand } from "./src/unused.js";
