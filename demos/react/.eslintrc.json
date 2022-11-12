@@ -3,7 +3,7 @@
   "overrides": [
     {
       "extends": ["plugin:@starbeam/demos"],
-      "files": ["index.ts", "index.tsx", "src/**/*.ts", "src/**/*.tsx"],
+      "files": ["index.tsx", "src/**/*.tsx", "index.ts", "src/**/*.ts"],
       "parserOptions": {
         "project": "demos/react/tsconfig.json"
       }

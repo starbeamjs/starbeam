@@ -2,6 +2,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { isAbsolute, relative } from "node:path";
 
 import { isJSONObject, stringifyJSON } from "@starbeam/core-utils";
+import type { JsonObject, JsonValue } from "@starbeam-workspace/json";
 import type { Package } from "@starbeam-workspace/package";
 import {
   type StarbeamType,
@@ -16,7 +17,6 @@ import type { AsString } from "@starbeam-workspace/shared";
 import type { Workspace } from "@starbeam-workspace/workspace";
 import sh from "shell-escape-tag";
 
-import type { JsonObject, JsonValue } from "../json";
 import { Migrator } from "../json-editor/migration.js";
 import { EditJsonc } from "../jsonc.js";
 import type { UpdatePackageFn } from "./updates.js";
@@ -77,7 +77,7 @@ export class UpdatePackage {
   }
 
   hasTests(): boolean {
-    return this.#pkg.root.dir("tests").exists();
+    return this.#pkg.dir("tests").exists();
   }
 
   done(): void {
@@ -490,7 +490,7 @@ export interface LabelledUpdater {
 function normalizeJSON(json: JsonObject): JsonObject {
   const keys = Object.keys(json).sort();
   return Object.fromEntries(
-    keys.map((k) => [k, normalizeJSONValue(json[k] as JsonObject)])
+    keys.map((k) => [k, normalizeJSONValue(json[k] as JsonValue)])
   );
 }
 

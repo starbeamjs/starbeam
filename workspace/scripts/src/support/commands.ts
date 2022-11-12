@@ -1,10 +1,9 @@
 import { firstNItems } from "@starbeam/core-utils";
-import type { Package } from "@starbeam-workspace/package";
 import type { ParseError } from "@starbeam-workspace/package";
+import { type Package, FILTER_KEYS } from "@starbeam-workspace/package";
 import { queryPackages } from "@starbeam-workspace/package";
 import {
   type Filter,
-  FILTER_KEYS,
   formatScope,
   parse,
   Query,

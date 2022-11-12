@@ -1,11 +1,11 @@
 import { QueryCommand } from "./support/commands";
+import { updateLibraryEslint } from "./support/template/update-eslint";
 import { UpdatePackages } from "./support/template/update-package.js";
+import { updatePackageJSON } from "./support/template/update-package-json.js";
 import { updateTsconfig } from "./support/template/update-tsconfig.js";
 import {
   updateDemo,
   updateLibrary,
-  updateLibraryEslint,
-  updatePackageJSON,
   updateReactDemo,
   updateTests,
 } from "./support/template/updates.js";
