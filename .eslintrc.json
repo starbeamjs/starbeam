@@ -18,11 +18,11 @@
     },
     {
       "extends": ["plugin:@starbeam/json:parser"],
-      "files": ["*.json", ".build/*.json"]
+      "files": ["*.json", "workspace/build/*.json"]
     },
     {
       "extends": ["plugin:@starbeam/json:default"],
-      "files": ["*.json", ".build/*.json"],
+      "files": ["*.json", "workspace/build/*.json"],
       "excludedFiles": [
         "tsconfig.*",
         ".eslintrc.json",

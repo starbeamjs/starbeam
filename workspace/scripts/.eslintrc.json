@@ -5,7 +5,7 @@
       "extends": ["plugin:@starbeam/tight"],
       "files": ["index.ts", "src/**/*.ts"],
       "parserOptions": {
-        "project": "scripts/tsconfig.json"
+        "project": "workspace/scripts/tsconfig.json"
       }
     }
   ]

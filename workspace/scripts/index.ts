@@ -20,8 +20,8 @@ import { UnusedCommand } from "./src/unused.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-new StarbeamCommands(
-  resolve(__dirname, ".."),
+await new StarbeamCommands(
+  resolve(__dirname, "..", ".."),
   program
     .name("pnpm dev")
     .description("CLI commands to run from package.json")

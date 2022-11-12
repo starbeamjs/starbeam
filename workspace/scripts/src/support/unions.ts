@@ -138,7 +138,7 @@ export class JsonTemplate extends Union(
 ) {
   read(root: Directory, filter?: JsonFilter): JsonObject | undefined {
     const json = root
-      .file(`scripts/templates/package/${String(this)}.template`)
+      .file(`workspace/scripts/templates/package/${String(this)}.template`)
       .readSync({ as: "json" });
 
     if (filter) {
@@ -224,7 +224,7 @@ export class Template extends Union(
 ) {
   read(root: Directory): string {
     return root
-      .file(stringify`scripts/templates/package/${this}.template`)
+      .file(stringify`workspace/scripts/templates/package/${this}.template`)
       .readSync();
   }
 }

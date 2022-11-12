@@ -9,6 +9,7 @@ import {
 type ToFragmentFn = ((message: Printable) => string) & {
   inverse: (message: Printable) => string;
 };
+
 type ParentToFragmentFn = ToFragmentFn & {
   [P in StyleName]: ToFragmentFn & {
     [Q in StylePartName]: ToFragmentFn;
