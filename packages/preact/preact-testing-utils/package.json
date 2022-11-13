@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "@starbeam/preact-testing-utils",
+  "name": "@starbeam-workspace/preact-testing-utils",
   "version": "0.7.4",
   "type": "module",
   "publishConfig": {
@@ -27,7 +27,7 @@
     "htm": "^3.1.1"
   },
   "devDependencies": {
-    "@starbeam-workspace/build-support": "workspace:^",
+    "@starbeam-dev/build-support": "workspace:*",
     "preact-render-to-string": "^5.2.6"
   },
   "peerDependencies": {

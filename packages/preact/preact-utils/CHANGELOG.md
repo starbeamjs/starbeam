@@ -1,4 +1,4 @@
-# @starbeam/core
+# @starbeam/preact-utils
 
 ## 0.8.0
 
@@ -9,4 +9,4 @@
 ### Patch Changes
 
 - Updated dependencies [1a553c5]
-  - @starbeam/universal@0.8.0
+  - @starbeam/core-utils@0.8.0

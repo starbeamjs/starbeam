@@ -1,6 +1,7 @@
 {
   "private": true,
-  "name": "@starbeam-private/scripts",
+  "name": "@starbeam-workspace/scripts",
+  "version": "1.0.0",
   "type": "module",
   "main": "index.ts",
   "types": "index.ts",
@@ -45,7 +46,6 @@
     "@starbeam-workspace/package": "workspace:^",
     "@starbeam-workspace/paths": "workspace:^",
     "@starbeam-workspace/reporter": "workspace:^",
-    "@starbeam-workspace/root": "workspace:^",
     "@starbeam-workspace/shared": "workspace:^",
     "@starbeam-workspace/workspace": "workspace:^",
     "ansicolor": "^1.1.100",
@@ -64,7 +64,7 @@
     "split2": "^4.1.0"
   },
   "devDependencies": {
-    "@starbeam-workspace/build-support": "workspace:^",
+    "@starbeam-dev/build-support": "workspace:*",
     "@types/prettier": "^2.7.1",
     "@types/shell-escape-tag": "workspace:^",
     "@types/shell-split": "workspace:^",

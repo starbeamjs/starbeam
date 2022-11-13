@@ -1,5 +1,11 @@
 # @starbeam/shared
 
+## 1.3.0
+
+### Minor Changes
+
+- 1a553c5: Prepare for 0.8
+
 ## 1.2.2
 
 ### Patch Changes

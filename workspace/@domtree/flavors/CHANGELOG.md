@@ -1,5 +1,15 @@
 # @domtree/flavors
 
+## 0.9.2
+
+### Patch Changes
+
+- 1a553c5: Prepare for 0.8
+- Updated dependencies [1a553c5]
+  - @domtree/any@0.9.2
+  - @domtree/browser@0.9.2
+  - @domtree/minimal@0.9.2
+
 ## 0.9.1
 
 ### Patch Changes

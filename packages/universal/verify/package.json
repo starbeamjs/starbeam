@@ -1,6 +1,6 @@
 {
   "name": "@starbeam/verify",
-  "version": "0.7.3",
+  "version": "0.8.0",
   "type": "module",
   "main": "index.ts",
   "types": "index.ts",
@@ -28,6 +28,6 @@
     "@starbeam/core-utils": "workspace:^"
   },
   "devDependencies": {
-    "@starbeam-workspace/build-support": "workspace:^"
+    "@starbeam-dev/build-support": "workspace:*"
   }
 }

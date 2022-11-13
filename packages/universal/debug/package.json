@@ -1,6 +1,6 @@
 {
   "name": "@starbeam/debug",
-  "version": "0.7.4",
+  "version": "0.8.0",
   "type": "module",
   "main": "index.ts",
   "types": "index.ts",
@@ -45,7 +45,7 @@
     "stacktracey": "^2.1.8"
   },
   "devDependencies": {
-    "@starbeam-workspace/build-support": "workspace:^",
+    "@starbeam-dev/build-support": "workspace:*",
     "@types/node": "^18.7.23",
     "chalk": "^5.0.1"
   },

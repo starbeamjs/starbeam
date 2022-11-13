@@ -1,8 +1,10 @@
 packages:
-  - "@types/*"
-  - "@types/*/*"
-  - packages/*/*
-  - packages/*/*/tests
-  - demos/*
-  - workspace/*
-  - workspace/*/*
+  [
+    "@types/@*/*",
+    "@types/*",
+    packages/*/*,
+    packages/*/*/tests,
+    demos/*,
+    "workspace/@*/*",
+    "workspace/*",
+  ]

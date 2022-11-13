@@ -33,7 +33,7 @@ export function updatePackageJSON(updater: LabelledUpdater): void {
       if (needsBuildSupport(pkg)) {
         current["devDependencies"] = {
           ...(current["devDependencies"] as object),
-          "@starbeam-workspace/build-support": "workspace:^",
+          "@starbeam-dev/build-support": "workspace:*",
         };
       } else if (current["devDependencies"]) {
         delete (current["devDependencies"] as Record<string, string>)[
