@@ -1,4 +1,5 @@
 {
+  "private": true,
   "name": "@starbeam/preact-testing-utils",
   "version": "0.7.4",
   "type": "module",

@@ -1,17 +1,13 @@
 {
-  "$schema": "https://unpkg.com/@changesets/config@2.1.1/schema.json",
-  "changelog": "@changesets/cli/changelog",
-  "commit": false,
-  "fixed": [],
-  "linked": [],
+  "$schema": "https://unpkg.com/@changesets/config@2.2.0/schema.json",
   "access": "public",
   "baseBranch": "main",
-  "updateInternalDependencies": "minor",
   "bumpVersionsWithWorkspaceProtocolOnly": true,
-  "ignore": [
-    "@starbeamx-draft/*",
-    "@starbeam-tests/*",
-    "@starbeam-demos/*",
-    "@starbeam-private/*"
-  ]
+  "changelog": "@changesets/cli/changelog",
+  "commit": false,
+  "privatePackages": {
+    "tag": false,
+    "version": false
+  },
+  "updateInternalDependencies": "patch"
 }

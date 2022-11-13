@@ -12,3 +12,4 @@ demos/*/vite.config.d.ts
 
 !.vscode
 !.config
+!.changeset

@@ -1,4 +1,5 @@
 {
+  "private": true,
   "name": "@types/rollup__plugin-commonjs",
   "version": "1.0.0",
   "types": "index.d.ts",
