@@ -42,12 +42,12 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "@starbeam-workspace/json": "workspace:^",
-    "@starbeam-workspace/package": "workspace:^",
-    "@starbeam-workspace/paths": "workspace:^",
-    "@starbeam-workspace/reporter": "workspace:^",
-    "@starbeam-workspace/shared": "workspace:^",
-    "@starbeam-workspace/workspace": "workspace:^",
+    "@starbeam-workspace/json": "workspace:*",
+    "@starbeam-workspace/package": "workspace:*",
+    "@starbeam-workspace/paths": "workspace:*",
+    "@starbeam-workspace/reporter": "workspace:*",
+    "@starbeam-workspace/shared": "workspace:*",
+    "@starbeam-workspace/workspace": "workspace:*",
     "ansicolor": "^1.1.100",
     "chalk": "^5.0.1",
     "commander": "^9.3.0",

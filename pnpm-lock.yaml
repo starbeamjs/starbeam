@@ -29,7 +29,7 @@ importers:
       '@babel/runtime': ^7.20.1
       '@changesets/cli': ^2.25.2
       '@changesets/config': ^2.2.0
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
       '@starbeam/core-utils': workspace:^
       '@starbeam/eslint-plugin': workspace:^
       '@types/eslint': ^8.4.10
@@ -70,7 +70,7 @@ importers:
       '@babel/runtime': 7.20.1
       '@changesets/cli': 2.25.2
       '@changesets/config': 2.2.0
-      '@starbeam-workspace/build-support': link:workspace/build
+      '@starbeam-dev/build-support': link:workspace/build
       '@starbeam/eslint-plugin': link:workspace/eslint
       '@types/eslint': 8.4.10
       '@types/node': 18.11.9
@@ -362,7 +362,7 @@ importers:
 
   packages/preact/preact:
     specifiers:
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
       '@starbeam/core-utils': workspace:^
       '@starbeam/debug': workspace:^
       '@starbeam/preact-utils': workspace:^
@@ -381,13 +381,13 @@ importers:
       '@starbeam/verify': link:../../universal/verify
       preact: 10.11.2
     devDependencies:
-      '@starbeam-workspace/build-support': link:../../../workspace/build
+      '@starbeam-dev/build-support': link:../../../workspace/build
       chalk: 5.1.2
       preact-render-to-string: 5.2.6_preact@10.11.2
 
   packages/preact/preact-testing-utils:
     specifiers:
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
       '@starbeam/verify': workspace:^
       '@testing-library/dom': ^8.19.0
       '@testing-library/preact': ^3.2.2
@@ -401,15 +401,15 @@ importers:
       htm: 3.1.1
       preact: 10.11.2
     devDependencies:
-      '@starbeam-workspace/build-support': link:../../../workspace/build
+      '@starbeam-dev/build-support': link:../../../workspace/build
       preact-render-to-string: 5.2.6_preact@10.11.2
 
   packages/preact/preact-testing-utils/tests:
     specifiers:
+      '@starbeam-workspace/preact-testing-utils': workspace:^
       '@starbeam-workspace/test-utils': workspace:^
       '@starbeam/debug': workspace:^
       '@starbeam/preact': workspace:^
-      '@starbeam/preact-testing-utils': workspace:^
       '@starbeam/timeline': workspace:^
       '@starbeam/universal': workspace:^
       '@testing-library/dom': ^8.19.0
@@ -419,10 +419,10 @@ importers:
       preact: '*'
       preact-render-to-string: ^5.2.5
     dependencies:
+      '@starbeam-workspace/preact-testing-utils': link:..
       '@starbeam-workspace/test-utils': link:../../../universal/test-utils
       '@starbeam/debug': link:../../../universal/debug
       '@starbeam/preact': link:../../preact
-      '@starbeam/preact-testing-utils': link:..
       '@starbeam/timeline': link:../../../universal/timeline
       '@starbeam/universal': link:../../../universal/universal
       '@testing-library/dom': 8.19.0
@@ -435,14 +435,14 @@ importers:
 
   packages/preact/preact-utils:
     specifiers:
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
       '@starbeam/core-utils': workspace:*
       preact: '>=10'
     dependencies:
       '@starbeam/core-utils': link:../../universal/core-utils
       preact: 10.11.2
     devDependencies:
-      '@starbeam-workspace/build-support': link:../../../workspace/build
+      '@starbeam-dev/build-support': link:../../../workspace/build
 
   packages/preact/preact-utils/tests:
     specifiers:
@@ -473,10 +473,10 @@ importers:
 
   packages/preact/preact/tests:
     specifiers:
+      '@starbeam-workspace/preact-testing-utils': workspace:^
       '@starbeam-workspace/test-utils': workspace:^
       '@starbeam/debug': workspace:^
       '@starbeam/preact': workspace:^
-      '@starbeam/preact-testing-utils': workspace:^
       '@starbeam/timeline': workspace:^
       '@starbeam/universal': workspace:^
       '@testing-library/dom': ^8.19.0
@@ -485,10 +485,10 @@ importers:
       preact: '*'
       preact-render-to-string: ^5.2.5
     dependencies:
+      '@starbeam-workspace/preact-testing-utils': link:../../preact-testing-utils
       '@starbeam-workspace/test-utils': link:../../../universal/test-utils
       '@starbeam/debug': link:../../../universal/debug
       '@starbeam/preact': link:..
-      '@starbeam/preact-testing-utils': link:../../preact-testing-utils
       '@starbeam/timeline': link:../../../universal/timeline
       '@starbeam/universal': link:../../../universal/universal
       '@testing-library/dom': 8.19.0
@@ -501,7 +501,7 @@ importers:
   packages/react/react:
     specifiers:
       '@domtree/flavors': workspace:^
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
       '@starbeam/core-utils': workspace:^
       '@starbeam/debug': workspace:^
       '@starbeam/js': workspace:^
@@ -528,7 +528,7 @@ importers:
       react-dom: 18.2.0_react@18.2.0
     devDependencies:
       '@domtree/flavors': link:../../../workspace/@domtree/flavors
-      '@starbeam-workspace/build-support': link:../../../workspace/build
+      '@starbeam-dev/build-support': link:../../../workspace/build
       '@types/react': 18.0.25
 
   packages/react/react/tests:
@@ -553,7 +553,7 @@ importers:
 
   packages/react/test-utils:
     specifiers:
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
       '@starbeam-workspace/test-utils': workspace:^
       '@starbeam/debug': workspace:^
       '@starbeam/shared': workspace:^
@@ -570,13 +570,13 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     devDependencies:
-      '@starbeam-workspace/build-support': link:../../../workspace/build
+      '@starbeam-dev/build-support': link:../../../workspace/build
       '@testing-library/react': 13.4.0_biqbaboplfbrettd7655fr4n2y
       '@types/react': 18.0.25
 
   packages/react/use-strict-lifecycle:
     specifiers:
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
       '@types/react': ^18.0.14
       react: '*'
       react-dom: '*'
@@ -584,7 +584,7 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     devDependencies:
-      '@starbeam-workspace/build-support': link:../../../workspace/build
+      '@starbeam-dev/build-support': link:../../../workspace/build
       '@types/react': 18.0.25
 
   packages/react/use-strict-lifecycle/tests:
@@ -606,18 +606,18 @@ importers:
 
   packages/universal/core:
     specifiers:
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
       '@starbeam/universal': workspace:^
     dependencies:
       '@starbeam/universal': link:../universal
     devDependencies:
-      '@starbeam-workspace/build-support': link:../../../workspace/build
+      '@starbeam-dev/build-support': link:../../../workspace/build
 
   packages/universal/core-utils:
     specifiers:
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
     devDependencies:
-      '@starbeam-workspace/build-support': link:../../../workspace/build
+      '@starbeam-dev/build-support': link:../../../workspace/build
 
   packages/universal/core-utils/tests:
     specifiers:
@@ -628,7 +628,7 @@ importers:
   packages/universal/debug:
     specifiers:
       '@domtree/flavors': workspace:^
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
       '@starbeam/core-utils': workspace:^
       '@starbeam/interfaces': workspace:^
       '@starbeam/shared': workspace:^
@@ -646,7 +646,7 @@ importers:
       buffer: 6.0.3
       stacktracey: 2.1.8
     devDependencies:
-      '@starbeam-workspace/build-support': link:../../../workspace/build
+      '@starbeam-dev/build-support': link:../../../workspace/build
       '@types/node': 18.11.9
       chalk: 5.1.2
 
@@ -659,17 +659,17 @@ importers:
   packages/universal/interfaces:
     specifiers:
       '@domtree/any': workspace:^
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
       '@starbeam/shared': workspace:^
     dependencies:
       '@domtree/any': link:../../../workspace/@domtree/any
       '@starbeam/shared': link:../shared
     devDependencies:
-      '@starbeam-workspace/build-support': link:../../../workspace/build
+      '@starbeam-dev/build-support': link:../../../workspace/build
 
   packages/universal/js:
     specifiers:
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
       '@starbeam/debug': workspace:^
       '@starbeam/interfaces': workspace:^
       '@starbeam/shared': workspace:^
@@ -684,7 +684,7 @@ importers:
       '@starbeam/universal': link:../universal
       '@starbeam/verify': link:../verify
     devDependencies:
-      '@starbeam-workspace/build-support': link:../../../workspace/build
+      '@starbeam-dev/build-support': link:../../../workspace/build
 
   packages/universal/js/tests:
     specifiers:
@@ -697,7 +697,7 @@ importers:
   packages/universal/modifier:
     specifiers:
       '@domtree/flavors': workspace:^
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
       '@starbeam/debug': workspace:^
       '@starbeam/interfaces': workspace:^
       '@starbeam/shared': workspace:^
@@ -711,13 +711,13 @@ importers:
       '@starbeam/verify': link:../verify
     devDependencies:
       '@domtree/flavors': link:../../../workspace/@domtree/flavors
-      '@starbeam-workspace/build-support': link:../../../workspace/build
+      '@starbeam-dev/build-support': link:../../../workspace/build
 
   packages/universal/shared:
     specifiers:
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
     devDependencies:
-      '@starbeam-workspace/build-support': link:../../../workspace/build
+      '@starbeam-dev/build-support': link:../../../workspace/build
 
   packages/universal/shared/tests:
     specifiers:
@@ -727,7 +727,7 @@ importers:
 
   packages/universal/test-utils:
     specifiers:
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
       '@starbeam/timeline': workspace:^
       '@starbeam/universal': workspace:^
       '@starbeam/verify': workspace:^
@@ -736,11 +736,11 @@ importers:
       '@starbeam/universal': link:../universal
       '@starbeam/verify': link:../verify
     devDependencies:
-      '@starbeam-workspace/build-support': link:../../../workspace/build
+      '@starbeam-dev/build-support': link:../../../workspace/build
 
   packages/universal/timeline:
     specifiers:
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
       '@starbeam/core-utils': workspace:^
       '@starbeam/debug': workspace:^
       '@starbeam/interfaces': workspace:^
@@ -753,7 +753,7 @@ importers:
       '@starbeam/shared': link:../shared
       '@starbeam/verify': link:../verify
     devDependencies:
-      '@starbeam-workspace/build-support': link:../../../workspace/build
+      '@starbeam-dev/build-support': link:../../../workspace/build
 
   packages/universal/timeline/tests:
     specifiers:
@@ -769,7 +769,7 @@ importers:
 
   packages/universal/universal:
     specifiers:
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
       '@starbeam/core-utils': workspace:^
       '@starbeam/debug': workspace:^
       '@starbeam/interfaces': workspace:^
@@ -784,7 +784,7 @@ importers:
       '@starbeam/timeline': link:../timeline
       '@starbeam/verify': link:../verify
     devDependencies:
-      '@starbeam-workspace/build-support': link:../../../workspace/build
+      '@starbeam-dev/build-support': link:../../../workspace/build
 
   packages/universal/universal/tests:
     specifiers:
@@ -803,12 +803,12 @@ importers:
 
   packages/universal/verify:
     specifiers:
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
       '@starbeam/core-utils': workspace:^
     dependencies:
       '@starbeam/core-utils': link:../core-utils
     devDependencies:
-      '@starbeam-workspace/build-support': link:../../../workspace/build
+      '@starbeam-dev/build-support': link:../../../workspace/build
 
   packages/universal/verify/tests:
     specifiers:
@@ -818,7 +818,7 @@ importers:
 
   packages/x/devtool:
     specifiers:
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
       '@starbeam/core-utils': workspace:^
       '@starbeam/debug': workspace:^
       '@starbeam/interfaces': workspace:^
@@ -833,7 +833,7 @@ importers:
       '@starbeam/verify': link:../../universal/verify
       preact: 10.11.2
     devDependencies:
-      '@starbeam-workspace/build-support': link:../../../workspace/build
+      '@starbeam-dev/build-support': link:../../../workspace/build
 
   packages/x/devtools-extension:
     specifiers:
@@ -853,14 +853,14 @@ importers:
 
   packages/x/store:
     specifiers:
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
       '@starbeam/debug': workspace:^
       '@starbeam/js': workspace:^
     dependencies:
       '@starbeam/debug': link:../../universal/debug
       '@starbeam/js': link:../../universal/js
     devDependencies:
-      '@starbeam-workspace/build-support': link:../../../workspace/build
+      '@starbeam-dev/build-support': link:../../../workspace/build
 
   packages/x/store/tests:
     specifiers:
@@ -876,7 +876,7 @@ importers:
 
   packages/x/vanilla:
     specifiers:
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
       '@starbeam/debug': workspace:^
       '@starbeam/timeline': workspace:^
       '@starbeam/universal': workspace:^
@@ -885,7 +885,7 @@ importers:
       '@starbeam/timeline': link:../../universal/timeline
       '@starbeam/universal': link:../../universal/universal
     devDependencies:
-      '@starbeam-workspace/build-support': link:../../../workspace/build
+      '@starbeam-dev/build-support': link:../../../workspace/build
 
   packages/x/vanilla/tests:
     specifiers:
@@ -900,50 +900,50 @@ importers:
       '@domtree/browser': workspace:^
       '@domtree/interface': workspace:^
       '@domtree/minimal': workspace:^
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
     dependencies:
       '@domtree/browser': link:../browser
       '@domtree/interface': link:../interface
       '@domtree/minimal': link:../minimal
     devDependencies:
-      '@starbeam-workspace/build-support': link:../../build
+      '@starbeam-dev/build-support': link:../../build
 
   workspace/@domtree/browser:
     specifiers:
       '@domtree/interface': workspace:^
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
     dependencies:
       '@domtree/interface': link:../interface
     devDependencies:
-      '@starbeam-workspace/build-support': link:../../build
+      '@starbeam-dev/build-support': link:../../build
 
   workspace/@domtree/flavors:
     specifiers:
       '@domtree/any': workspace:^
       '@domtree/browser': workspace:^
       '@domtree/minimal': workspace:^
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
     dependencies:
       '@domtree/any': link:../any
       '@domtree/browser': link:../browser
       '@domtree/minimal': link:../minimal
     devDependencies:
-      '@starbeam-workspace/build-support': link:../../build
+      '@starbeam-dev/build-support': link:../../build
 
   workspace/@domtree/interface:
     specifiers:
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
     devDependencies:
-      '@starbeam-workspace/build-support': link:../../build
+      '@starbeam-dev/build-support': link:../../build
 
   workspace/@domtree/minimal:
     specifiers:
       '@domtree/interface': workspace:^
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
     dependencies:
       '@domtree/interface': link:../interface
     devDependencies:
-      '@starbeam-workspace/build-support': link:../../build
+      '@starbeam-dev/build-support': link:../../build
 
   workspace/build:
     specifiers:
@@ -1035,18 +1035,18 @@ importers:
 
   workspace/json:
     specifiers:
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
       '@types/shell-escape-tag': workspace:^
       shell-escape-tag: ^2.0.2
     dependencies:
       shell-escape-tag: 2.0.2
     devDependencies:
-      '@starbeam-workspace/build-support': link:../build
+      '@starbeam-dev/build-support': link:../build
       '@types/shell-escape-tag': link:../../@types/shell-escape-tag
 
   workspace/package:
     specifiers:
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
       '@starbeam-workspace/json': workspace:^
       '@starbeam-workspace/paths': workspace:^
       '@starbeam-workspace/reporter': workspace:^
@@ -1060,12 +1060,12 @@ importers:
       '@starbeam-workspace/shared': link:../shared
       shell-escape-tag: 2.0.2
     devDependencies:
-      '@starbeam-workspace/build-support': link:../build
+      '@starbeam-dev/build-support': link:../build
       '@types/shell-escape-tag': link:../../@types/shell-escape-tag
 
   workspace/paths:
     specifiers:
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
       '@starbeam-workspace/json': workspace:*
       '@types/shell-escape-tag': workspace:^
       shell-escape-tag: ^2.0.2
@@ -1073,12 +1073,12 @@ importers:
       '@starbeam-workspace/json': link:../json
       shell-escape-tag: 2.0.2
     devDependencies:
-      '@starbeam-workspace/build-support': link:../build
+      '@starbeam-dev/build-support': link:../build
       '@types/shell-escape-tag': link:../../@types/shell-escape-tag
 
   workspace/reporter:
     specifiers:
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
       '@starbeam-workspace/paths': workspace:^
       '@starbeam-workspace/shared': workspace:^
       '@starbeam/core-utils': workspace:^
@@ -1110,7 +1110,7 @@ importers:
       split2: 4.1.0
       wrap-ansi: 8.0.1
     devDependencies:
-      '@starbeam-workspace/build-support': link:../build
+      '@starbeam-dev/build-support': link:../build
       '@types/node': 18.11.9
       '@types/shell-escape-tag': link:../../@types/shell-escape-tag
       '@types/shell-split': link:../../@types/shell-split
@@ -1119,14 +1119,13 @@ importers:
 
   workspace/scripts:
     specifiers:
-      '@starbeam-workspace/build-support': workspace:^
-      '@starbeam-workspace/json': workspace:^
-      '@starbeam-workspace/package': workspace:^
-      '@starbeam-workspace/paths': workspace:^
-      '@starbeam-workspace/reporter': workspace:^
-      '@starbeam-workspace/root': workspace:^
-      '@starbeam-workspace/shared': workspace:^
-      '@starbeam-workspace/workspace': workspace:^
+      '@starbeam-dev/build-support': workspace:*
+      '@starbeam-workspace/json': workspace:*
+      '@starbeam-workspace/package': workspace:*
+      '@starbeam-workspace/paths': workspace:*
+      '@starbeam-workspace/reporter': workspace:*
+      '@starbeam-workspace/shared': workspace:*
+      '@starbeam-workspace/workspace': workspace:*
       '@types/prettier': ^2.7.1
       '@types/shell-escape-tag': workspace:^
       '@types/shell-split': workspace:^
@@ -1157,7 +1156,6 @@ importers:
       '@starbeam-workspace/package': link:../package
       '@starbeam-workspace/paths': link:../paths
       '@starbeam-workspace/reporter': link:../reporter
-      '@starbeam-workspace/root': link:../..
       '@starbeam-workspace/shared': link:../shared
       '@starbeam-workspace/workspace': link:../workspace
       ansicolor: 1.1.100
@@ -1175,7 +1173,7 @@ importers:
       shelljs: 0.8.5
       split2: 4.1.0
     devDependencies:
-      '@starbeam-workspace/build-support': link:../build
+      '@starbeam-dev/build-support': link:../build
       '@types/prettier': 2.7.1
       '@types/shell-escape-tag': link:../../@types/shell-escape-tag
       '@types/shell-split': link:../../@types/shell-split
@@ -1190,7 +1188,7 @@ importers:
 
   workspace/shared:
     specifiers:
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
       '@starbeam-workspace/json': workspace:^
       '@types/shell-escape-tag': workspace:^
       shell-escape-tag: ^2.0.2
@@ -1200,12 +1198,12 @@ importers:
       shell-escape-tag: 2.0.2
       term-size: 3.0.2
     devDependencies:
-      '@starbeam-workspace/build-support': link:../build
+      '@starbeam-dev/build-support': link:../build
       '@types/shell-escape-tag': link:../../@types/shell-escape-tag
 
   workspace/workspace:
     specifiers:
-      '@starbeam-workspace/build-support': workspace:^
+      '@starbeam-dev/build-support': workspace:*
       '@starbeam-workspace/paths': workspace:^
       '@starbeam-workspace/reporter': workspace:^
       '@types/shell-escape-tag': workspace:^
@@ -1218,7 +1216,7 @@ importers:
       child_process: 1.0.2
       shell-escape-tag: 2.0.2
     devDependencies:
-      '@starbeam-workspace/build-support': link:../build
+      '@starbeam-dev/build-support': link:../build
 
 packages:
 

@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 
 import { create, setup } from "@starbeam/preact";
-import { html, rendering } from "@starbeam/preact-testing-utils";
 import { Cell } from "@starbeam/universal";
+import { html, rendering } from "@starbeam-workspace/preact-testing-utils";
 import { describe } from "@starbeam-workspace/test-utils";
 import { options } from "preact";
 import { beforeAll } from "vitest";
