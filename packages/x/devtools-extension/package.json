@@ -29,7 +29,7 @@
   "starbeam:type": "draft",
   "devDependencies": {
     "@crxjs/vite-plugin": "beta",
-    "chrome-types": "^0.1.114",
+    "chrome-types": "^0.1.148",
     "dirfilename": "^1.0.4",
     "preact": "^10.11.2",
     "vite": "*",

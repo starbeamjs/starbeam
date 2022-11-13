@@ -418,7 +418,7 @@ export class Package {
         file: resolve(root, "dist", `index.${ext}`),
         format,
         sourcemap: true,
-        exports: format === "cjs" ? "named" : "none",
+        exports: format === "cjs" ? "named" : "auto",
       },
       onwarn: (warning, warn) => {
         switch (warning.code) {

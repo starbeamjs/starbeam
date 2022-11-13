@@ -11,41 +11,13 @@
   "overrides": [
     {
       "extends": ["plugin:@starbeam/tight"],
-      "files": ["vitest.config.ts"],
+      "files": ["vitest.config.ts", "rollup.config.mjs"],
       "parserOptions": {
         "project": ["./tsconfig.root.json"]
       }
-    },
-    {
-      "extends": ["plugin:@starbeam/json:parser"],
-      "files": ["*.json", "workspace/build/*.json"]
-    },
-    {
-      "extends": ["plugin:@starbeam/json:default"],
-      "files": ["*.json", "workspace/build/*.json"],
-      "excludedFiles": [
-        "tsconfig.*",
-        ".eslintrc.json",
-        "package.json",
-        ".vscode/settings.json"
-      ]
-    },
-    {
-      "extends": ["plugin:@starbeam/json:vscode-settings"],
-      "files": [".vscode/settings.json"]
-    },
-    {
-      "extends": ["plugin:@starbeam/json:tsconfig"],
-      "files": ["**/tsconfig.*.json", "**/tsconfig.json"]
-    },
-    {
-      "extends": ["plugin:@starbeam/json:eslintrc"],
-      "files": "**/.eslintrc.json"
-    },
-    {
-      "extends": ["plugin:@starbeam/json:package"],
-      "files": ["**/package.json"]
     }
   ],
+
+  "extends": ["./.config/eslintrc.json"],
   "reportUnusedDisableDirectives": true
 }
