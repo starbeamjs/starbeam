@@ -5,11 +5,6 @@
     "types": ["../../packages/env"],
     "outDir": "../../dist/packages"
   },
-  "include": [
-    "../../packages/**/*",
-    "../../framework/*/**/*",
-    "../../@types/**/*"
-  ],
   "exclude": [
     "../../packages/x-devtool/**",
     "../../packages/x-devtools-extension/**",
@@ -17,6 +12,11 @@
     "../../framework/*/*.config.ts",
     "../../packages/*/*.config.mjs",
     "../../framework/*/*/*.config.mjs"
+  ],
+  "include": [
+    "../../packages/**/*",
+    "../../framework/*/**/*",
+    "../../@types/**/*"
   ],
   "references": [
     {

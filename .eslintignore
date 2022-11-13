@@ -11,3 +11,4 @@ scripts/**/*.d.ts
 demos/*/vite.config.d.ts
 
 !.vscode
+!.config
