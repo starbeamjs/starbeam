@@ -1,0 +1,36 @@
+{
+  "private": true,
+  "name": "@starbeam-workspace/json",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.ts",
+  "types": "index.ts",
+  "exports": {
+    "default": "./index.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts"
+  },
+  "starbeam": {
+    "source": "ts",
+    "type": "library:build-support"
+  },
+  "scripts": {
+    "test:types": "tsc -b"
+  },
+  "dependencies": {
+    "shell-escape-tag": "^2.0.2"
+  },
+  "devDependencies": {
+    "@starbeam-workspace/build-support": "workspace:^",
+    "@types/shell-escape-tag": "workspace:^"
+  }
+}

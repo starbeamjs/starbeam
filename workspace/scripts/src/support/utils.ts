@@ -9,3 +9,5 @@ export const logged = <T>(
 export function dir(value: unknown): void {
   console.dir(value, { depth: null, customInspect: true });
 }
+
+export type Indexable = Record<string, unknown>;

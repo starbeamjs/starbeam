@@ -1,14 +1,10 @@
-import { QueryCommand } from "./support/commands";
+import { QueryCommand } from "./support/commands/query-command";
+import { updateEslint } from "./support/template/update-eslint";
 import { UpdatePackages } from "./support/template/update-package.js";
+import { updatePackageJSON } from "./support/template/update-package-json.js";
+import { updateTests } from "./support/template/update-tests.js";
 import { updateTsconfig } from "./support/template/update-tsconfig.js";
-import {
-  updateDemo,
-  updateLibrary,
-  updateLibraryEslint,
-  updatePackageJSON,
-  updateReactDemo,
-  updateTests,
-} from "./support/template/updates.js";
+import { updateDemo, updateRollup } from "./support/template/updates.js";
 
 export const TemplateCommand = QueryCommand("template", {
   description: "template a package",
@@ -19,28 +15,15 @@ export const TemplateCommand = QueryCommand("template", {
 
   updater.update((when) => {
     when(() => true, "all packages").use(updatePackageJSON);
-    when((pkg) => pkg.type.is("tests"), "tests").use((updater) =>
-      updater.json("package.json", (prev) => {
-        delete prev["publishConfig"];
-        delete prev["private"];
-
-        return {
-          private: true,
-          ...prev,
-        };
-      })
-    );
+    when((pkg) => pkg.type.is("tests"), "tests").use(updateTests);
     when((pkg) => pkg.isTypescript, "typescript").use(updateTsconfig);
     when((pkg) => pkg.type.is("library:public"), "published libraries").use(
-      updateLibrary
+      updateRollup
     );
-    when((pkg) => pkg.type.isType("library"), "libraries").use(
-      updateLibraryEslint
-    );
-    when((pkg) => pkg.type.is("tests"), "tests").use(updateTests);
+    when(
+      (pkg) => pkg.type.isType("library") || pkg.type.is("tests"),
+      "libraries"
+    ).use(updateEslint.package);
     when((pkg) => pkg.type.isType("demo"), "demos").use(updateDemo);
-    when((pkg) => pkg.type.is("demo:react"), "react demos").use(
-      updateReactDemo
-    );
   });
 });

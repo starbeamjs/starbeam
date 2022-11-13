@@ -3,14 +3,15 @@ import {
   isSingleItemArray,
   stringify,
 } from "@starbeam/core-utils";
+import { Package } from "@starbeam-workspace/package";
+import { Fragment } from "@starbeam-workspace/reporter";
+import { FancyHeader } from "@starbeam-workspace/reporter";
+import { fatal } from "@starbeam-workspace/shared";
+import { CheckDefinition } from "@starbeam-workspace/workspace";
 import shell from "shelljs";
 
-import { QueryCommand, StringOption } from "./support/commands.js";
-import { Fragment } from "./support/log.js";
-import { Package } from "./support/packages.js";
-import { FancyHeader } from "./support/reporter/fancy-header.js";
-import { fatal } from "./support/type-magic.js";
-import { CheckDefinition } from "./support/workspace.js";
+import { QueryCommand } from "./support/commands/query-command";
+import { StringOption } from "./support/commands/types";
 
 export const TestCommand = QueryCommand("test", {
   description: "run the tests for the selected packages",

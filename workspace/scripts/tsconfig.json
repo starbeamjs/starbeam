@@ -9,5 +9,5 @@
     "types": ["../../packages/env"]
   },
   "exclude": ["dist/**/*"],
-  "include": ["**/*", "src/scripts.json"]
+  "include": ["**/*", "./src/scripts.json"]
 }

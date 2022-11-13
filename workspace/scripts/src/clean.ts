@@ -2,15 +2,16 @@ import { rmSync } from "node:fs";
 import { relative } from "node:path";
 
 import { isPresentArray } from "@starbeam/core-utils";
+import { Package } from "@starbeam-workspace/package";
+import type { Reporter } from "@starbeam-workspace/reporter";
+import type { Workspace } from "@starbeam-workspace/reporter";
+import { Fragment } from "@starbeam-workspace/reporter";
+import { fatal } from "@starbeam-workspace/shared";
 import glob from "fast-glob";
 import shell from "shelljs";
 
-import { QueryCommand, StringOption } from "./support/commands.js";
-import { Fragment } from "./support/log.js";
-import { Package } from "./support/packages.js";
-import type { Reporter } from "./support/reporter/reporter.js";
-import { fatal } from "./support/type-magic.js";
-import type { Workspace } from "./support/workspace.js";
+import { QueryCommand } from "./support/commands/query-command";
+import { StringOption } from "./support/commands/types";
 
 export const CleanCommand = QueryCommand("clean", {
   description: "clean up build artifacts",

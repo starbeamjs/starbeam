@@ -1,7 +1,9 @@
-import { QueryCommand, StringOption } from "./support/commands.js";
-import type { Package } from "./support/packages.js";
+import type { Package } from "@starbeam-workspace/package";
+import { CheckDefinition } from "@starbeam-workspace/workspace";
+
+import { QueryCommand } from "./support/commands/query-command";
+import { StringOption } from "./support/commands/types";
 import scripts, { type Scripts, hydrateScript } from "./support/scripts.js";
-import { CheckDefinition } from "./support/workspace.js";
 
 export const CiCommand = QueryCommand("ci")
   .flag(
@@ -29,21 +31,6 @@ export const CiCommand = QueryCommand("ci")
       })
     );
 
-    // const results = await workspace.check(
-    //   ...packages.map((pkg) =>
-    //     CheckDefinition(
-    //       pkg.name,
-    //       sh`pnpm eslint --cache --max-warnings 0 -c ${eslintrc} ${workspace.root.relativeTo(
-    //         pkg.root
-    //       )}`,
-    //       {
-    //         cwd: workspace.root,
-    //         output: streamOutput ? "stream" : "when-error",
-    //       }
-    //     )
-    //   )
-    // );
-
     workspace.reporter.reportCheckResults(results, {
       success: "lint succeeded",
       header: "package",
@@ -57,5 +44,5 @@ type Predicate = (pkg: Package) => boolean;
 const SHOULD_RUN: Record<keyof Scripts, Predicate> = {
   specs: (pkg: Package): boolean => pkg.testsDirectory.exists(),
   lint: (): boolean => true,
-  types: (pkg: Package): boolean => pkg.root.file("tsconfig.json").exists(),
+  types: (pkg: Package): boolean => pkg.file("tsconfig.json").exists(),
 };

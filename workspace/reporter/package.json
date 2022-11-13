@@ -1,0 +1,51 @@
+{
+  "private": true,
+  "name": "@starbeam-workspace/reporter",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.ts",
+  "types": "index.ts",
+  "exports": {
+    "default": "./index.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts"
+  },
+  "starbeam": {
+    "source": "ts",
+    "type": "library:build-support"
+  },
+  "scripts": {
+    "test:types": "tsc -b"
+  },
+  "dependencies": {
+    "@starbeam/core-utils": "workspace:^",
+    "@starbeam-workspace/paths": "workspace:^",
+    "@starbeam-workspace/shared": "workspace:^",
+    "ansicolor": "^1.1.100",
+    "chalk": "^5.1.2",
+    "cli-table3": "^0.6.3",
+    "emoji-regex": "^10.2.1",
+    "node-pty": "^0.10.1",
+    "shell-escape-tag": "^2.0.2",
+    "shell-split": "^1.0.0",
+    "split2": "^4.1.0",
+    "wrap-ansi": "^8.0.1"
+  },
+  "devDependencies": {
+    "@starbeam-workspace/build-support": "workspace:^",
+    "@types/node": "^18.11.9",
+    "@types/shell-escape-tag": "workspace:^",
+    "@types/shell-split": "workspace:^",
+    "@types/split2": "^3.2.1",
+    "@types/wrap-ansi": "^8.0.1"
+  }
+}

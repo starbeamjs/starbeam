@@ -4,14 +4,12 @@ import {
   objectHasKeys,
   stringify,
 } from "@starbeam/core-utils";
+import type { Package } from "@starbeam-workspace/package";
+import type { Glob, Globs, RegularFile } from "@starbeam-workspace/paths";
+import type { Reporter, Workspace } from "@starbeam-workspace/reporter";
+import { Fragment } from "@starbeam-workspace/reporter";
+import { PresentArray } from "@starbeam-workspace/shared";
 import depcheck from "depcheck";
-
-import { Fragment } from "./log.js";
-import type { Package } from "./packages.js";
-import type { Glob, Globs, RegularFile } from "./paths.js";
-import type { Reporter } from "./reporter/reporter.js";
-import { PresentArray } from "./type-magic.js";
-import type { Workspace } from "./workspace.js";
 
 /**
  * These types represent builtin APIs that don't require an implementation package.
