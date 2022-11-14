@@ -79,7 +79,6 @@ export class CommandStream {
 
     await this.#reporter.raw(async (writer) => {
       for await (const chunk of padded) {
-        writer.write(`${ESC}[${this.#nestingSize}G`);
         writer.writeln(chunk as string);
       }
     });
@@ -243,6 +242,7 @@ function addLinePrefix(chunk: string, state: LoggerState): string | void {
   } else {
     return (
       colorCode(DIM) +
+      state.leadingString +
       Fragment.comment("| ").stringify(state) +
       everythingDimmed +
       colorCode(RESET_DIM)
@@ -276,5 +276,7 @@ function transformDeprecated(chunk: string, state: LoggerState): string | void {
  * bit more time-consuming than I (@wycats) want to spend right now.
  */
 function removeResetColumn(chunk: string): string {
-  return chunk.replace(/([\u{001B}\u{009B}])[\\]?\[0?G/g, "");
+  return chunk
+    .replaceAll(/\x{1b}\[2K(\x{1b}\[1A)?/g, "")
+    .replaceAll(/[\u{001B}\u{009B}][\\]?\[0?[Gg]/g, "");
 }
