@@ -1,7 +1,6 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { version } from "@starbeam-workspace/root/package.json";
 import { OK_EXIT_CODE } from "@starbeam-workspace/shared";
 import { program } from "commander";
 
@@ -25,7 +24,6 @@ await new StarbeamCommands(
   program
     .name("pnpm dev")
     .description("CLI commands to run from package.json")
-    .version(version)
     .showHelpAfterError()
     .showSuggestionAfterError()
     .exitOverride(() => {

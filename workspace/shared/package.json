@@ -32,7 +32,7 @@
     "term-size": "^3.0.2"
   },
   "devDependencies": {
-    "@starbeam-workspace/build-support": "workspace:^",
+    "@starbeam-dev/build-support": "workspace:*",
     "@types/shell-escape-tag": "workspace:^"
   }
 }

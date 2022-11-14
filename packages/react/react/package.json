@@ -1,6 +1,6 @@
 {
   "name": "@starbeam/react",
-  "version": "0.7.4",
+  "version": "0.8.0",
   "type": "module",
   "main": "index.ts",
   "types": "index.ts",
@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "@domtree/flavors": "workspace:^",
-    "@starbeam-workspace/build-support": "workspace:^",
+    "@starbeam-dev/build-support": "workspace:*",
     "@types/react": "^18.0.9"
   },
   "peerDependencies": {

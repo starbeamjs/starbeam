@@ -41,7 +41,7 @@
     "wrap-ansi": "^8.0.1"
   },
   "devDependencies": {
-    "@starbeam-workspace/build-support": "workspace:^",
+    "@starbeam-dev/build-support": "workspace:*",
     "@types/node": "^18.11.9",
     "@types/shell-escape-tag": "workspace:^",
     "@types/shell-split": "workspace:^",

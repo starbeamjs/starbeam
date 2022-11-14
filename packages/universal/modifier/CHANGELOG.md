@@ -1,5 +1,20 @@
 # @starbeam/modifier
 
+## 0.8.0
+
+### Minor Changes
+
+- 1a553c5: Prepare for 0.8
+
+### Patch Changes
+
+- Updated dependencies [1a553c5]
+  - @starbeam/debug@0.8.0
+  - @starbeam/interfaces@0.8.0
+  - @starbeam/shared@1.3.0
+  - @starbeam/universal@0.8.0
+  - @starbeam/verify@0.8.0
+
 ## 0.7.4
 
 ### Patch Changes

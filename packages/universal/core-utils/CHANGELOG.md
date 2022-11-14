@@ -1,5 +1,11 @@
 # @starbeam/core-utils
 
+## 0.8.0
+
+### Minor Changes
+
+- 1a553c5: Prepare for 0.8
+
 ## 0.7.3
 
 ### Patch Changes
