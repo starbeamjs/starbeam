@@ -55,6 +55,7 @@ export function updatePackageJSON(updater: LabelledUpdater): void {
       if (pkg.type.isType("demo")) {
         current["devDependencies"] = {
           ...(current["devDependencies"] as object),
+          vitest: "*",
           "@vitest/ui": "*",
         };
       }

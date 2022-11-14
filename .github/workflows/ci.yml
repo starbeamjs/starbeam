@@ -58,6 +58,16 @@ jobs:
         uses: ./.github/actions/setup-node-and-install
       - run: pnpm ci:prod
 
+  test_build:
+    name: "Verify package build"
+    runs-on: "ubuntu-latest"
+    needs: ["install_dependencies"]
+    steps:
+      - uses: actions/checkout@v2
+      - name: "Setup node and install dependencies"
+        uses: ./.github/actions/setup-node-and-install
+      - run: pnpm ci:build
+
   typecheck:
     name: "Typecheck"
     runs-on: "ubuntu-latest"
