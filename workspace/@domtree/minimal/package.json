@@ -1,6 +1,6 @@
 {
   "name": "@domtree/minimal",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "type": "module",
   "types": "index.ts",
   "publishConfig": {
@@ -26,6 +26,6 @@
     "@domtree/interface": "workspace:^"
   },
   "devDependencies": {
-    "@starbeam-workspace/build-support": "workspace:^"
+    "@starbeam-dev/build-support": "workspace:*"
   }
 }

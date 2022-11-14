@@ -11,9 +11,9 @@
   "dependencies": {
     "@starbeam/debug": "workspace:^",
     "@starbeam/preact": "workspace:^",
-    "@starbeam/preact-testing-utils": "workspace:^",
     "@starbeam/timeline": "workspace:^",
     "@starbeam/universal": "workspace:^",
+    "@starbeam-workspace/preact-testing-utils": "workspace:^",
     "@starbeam-workspace/test-utils": "workspace:^",
     "@testing-library/dom": "^8.19.0",
     "@testing-library/preact": "^3.2.2",

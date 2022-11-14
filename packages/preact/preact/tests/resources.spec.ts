@@ -1,7 +1,11 @@
 // @vitest-environment jsdom
 
 import { setup, use } from "@starbeam/preact";
-import { html, rendering, Root } from "@starbeam/preact-testing-utils";
+import {
+  html,
+  rendering,
+  Root,
+} from "@starbeam-workspace/preact-testing-utils";
 import {
   beforeAll,
   describe,

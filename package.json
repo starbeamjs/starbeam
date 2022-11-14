@@ -118,7 +118,7 @@
     "@changesets/cli": "^2.25.2",
     "@changesets/config": "^2.2.0",
     "@starbeam/eslint-plugin": "workspace:^",
-    "@starbeam-workspace/build-support": "workspace:^",
+    "@starbeam-dev/build-support": "workspace:*",
     "@types/eslint": "*",
     "@types/node": "*",
     "@typescript-eslint/eslint-plugin": "*",

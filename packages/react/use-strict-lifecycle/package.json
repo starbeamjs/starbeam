@@ -1,6 +1,6 @@
 {
   "name": "@starbeam/use-strict-lifecycle",
-  "version": "0.7.3",
+  "version": "0.8.0",
   "type": "module",
   "main": "index.ts",
   "types": "index.ts",
@@ -29,7 +29,7 @@
     "test:types": "tsc -b"
   },
   "devDependencies": {
-    "@starbeam-workspace/build-support": "workspace:^",
+    "@starbeam-dev/build-support": "workspace:*",
     "@types/react": "^18.0.14"
   },
   "peerDependencies": {

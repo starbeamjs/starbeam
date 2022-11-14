@@ -5,6 +5,7 @@
   "bumpVersionsWithWorkspaceProtocolOnly": true,
   "changelog": "@changesets/cli/changelog",
   "commit": false,
+  "ignore": ["@starbeam-demos/*", "@starbeam-workspace/*", "@starbeam-tests/*"],
   "privatePackages": {
     "tag": false,
     "version": false

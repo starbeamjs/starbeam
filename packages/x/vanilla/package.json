@@ -1,6 +1,6 @@
 {
   "name": "@starbeamx/vanilla",
-  "version": "0.7.4",
+  "version": "0.8.0",
   "type": "module",
   "main": "index.ts",
   "types": "index.ts",
@@ -30,7 +30,7 @@
     "@starbeam/universal": "workspace:^"
   },
   "devDependencies": {
-    "@starbeam-workspace/build-support": "workspace:^"
+    "@starbeam-dev/build-support": "workspace:*"
   },
   "description": "A renderer for Starbeam using Vanilla JavaScript"
 }

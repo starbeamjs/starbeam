@@ -29,6 +29,6 @@
     "@starbeam/verify": "workspace:^"
   },
   "devDependencies": {
-    "@starbeam-workspace/build-support": "workspace:^"
+    "@starbeam-dev/build-support": "workspace:*"
   }
 }
