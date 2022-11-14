@@ -1,4 +1,5 @@
 import {
+  afterEach,
   beforeAll,
   beforeEach,
   describe,
@@ -8,7 +9,17 @@ import {
   test,
   vi,
 } from "vitest";
-export { beforeAll, beforeEach, describe, expect, it, suite, test, vi };
+export {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  suite,
+  test,
+  vi,
+};
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

@@ -128,6 +128,7 @@ importers:
       '@starbeam/js': workspace:^
       '@starbeam/preact': workspace:^
       '@starbeam/universal': workspace:^
+      '@vitest/ui': ^0.25.1
       preact: ^10.11.2
       purecss: ^3.0.0
       vite: 3.2.3
@@ -141,9 +142,10 @@ importers:
       purecss: 3.0.0
     devDependencies:
       '@esbuild-plugins/node-globals-polyfill': 0.1.1_esbuild@0.15.13
+      '@vitest/ui': 0.25.1
       vite: 3.2.3
       vite-plugin-fonts: 0.6.0_vite@3.2.3
-      vitest: 0.25.1
+      vitest: 0.25.1_@vitest+ui@0.25.1
 
   demos/preact-hello-world:
     specifiers:
@@ -152,6 +154,7 @@ importers:
       '@starbeam/preact': workspace:^
       '@starbeam/timeline': workspace:^
       '@starbeam/universal': workspace:^
+      '@vitest/ui': ^0.25.1
       preact: ^10.11.2
       purecss: 3.0.0
       vite: 3.2.3
@@ -166,9 +169,10 @@ importers:
       purecss: 3.0.0
     devDependencies:
       '@esbuild-plugins/node-globals-polyfill': 0.1.1_esbuild@0.15.13
+      '@vitest/ui': 0.25.1
       vite: 3.2.3
       vite-plugin-fonts: 0.6.0_vite@3.2.3
-      vitest: 0.25.1
+      vitest: 0.25.1_@vitest+ui@0.25.1
 
   demos/react:
     specifiers:
@@ -177,6 +181,7 @@ importers:
       '@starbeam/universal': workspace:^
       '@types/react': ^18
       '@types/react-dom': ^18
+      '@vitest/ui': ^0.25.1
       purecss: 3.0.0
       react: ^18.1.0
       react-dom: ^18.1.0
@@ -193,9 +198,10 @@ importers:
     devDependencies:
       '@types/react': 18.0.25
       '@types/react-dom': 18.0.8
+      '@vitest/ui': 0.25.1
       vite: 3.2.3
       vite-plugin-fonts: 0.6.0_vite@3.2.3
-      vitest: 0.25.1
+      vitest: 0.25.1_@vitest+ui@0.25.1
 
   demos/react-jsnation:
     specifiers:
@@ -203,7 +209,6 @@ importers:
       '@starbeam/js': workspace:^
       '@starbeam/react': workspace:^
       '@starbeam/universal': workspace:^
-      '@starbeamx/devtool': workspace:^
       '@types/react': ^18
       '@types/react-dom': ^18
       purecss: 3.0.0
@@ -211,13 +216,11 @@ importers:
       react-dom: ^18.1.0
       vite: 3.2.3
       vite-plugin-fonts: ^0.6.0
-      vitest: 0.25.1
     dependencies:
       '@starbeam/debug': link:../../packages/universal/debug
       '@starbeam/js': link:../../packages/universal/js
       '@starbeam/react': link:../../packages/react/react
       '@starbeam/universal': link:../../packages/universal/universal
-      '@starbeamx/devtool': link:../../packages/x/devtool
       purecss: 3.0.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -226,7 +229,27 @@ importers:
       '@types/react-dom': 18.0.8
       vite: 3.2.3
       vite-plugin-fonts: 0.6.0_vite@3.2.3
-      vitest: 0.25.1
+
+  demos/react-jsnation/tests:
+    specifiers:
+      '@starbeam-demos/react-jsnation': workspace:^
+      '@starbeam-workspace/react-test-utils': workspace:^
+      '@starbeam-workspace/test-utils': workspace:^
+      '@testing-library/react': ^13.4.0
+      '@types/react': ^18
+      react: '*'
+      react-dom: '*'
+      react-error-boundary: ^3.1.4
+    dependencies:
+      '@starbeam-demos/react-jsnation': link:..
+      '@starbeam-workspace/react-test-utils': link:../../../packages/react/test-utils
+      '@starbeam-workspace/test-utils': link:../../../packages/universal/test-utils
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      react-error-boundary: 3.1.4_react@18.2.0
+    devDependencies:
+      '@testing-library/react': 13.4.0_biqbaboplfbrettd7655fr4n2y
+      '@types/react': 18.0.25
 
   demos/react-lite-query:
     specifiers:
@@ -238,6 +261,7 @@ importers:
       '@starbeamx/devtool': workspace:^
       '@types/react': ^18.0.12
       '@types/react-dom': ^18.0.5
+      '@vitest/ui': ^0.25.1
       axios: ^1.1.3
       react: ^18.1.0
       react-dom: ^18.1.0
@@ -257,9 +281,10 @@ importers:
     devDependencies:
       '@types/react': 18.0.25
       '@types/react-dom': 18.0.8
+      '@vitest/ui': 0.25.1
       vite: 3.2.3
       vite-plugin-fonts: 0.6.0_vite@3.2.3
-      vitest: 0.25.1
+      vitest: 0.25.1_@vitest+ui@0.25.1
 
   demos/react-query:
     specifiers:
@@ -271,6 +296,7 @@ importers:
       '@types/react': ^18
       '@types/react-dom': ^18
       '@types/styled-components': ^5.1.25
+      '@vitest/ui': ^0.25.1
       axios: ^1.1.3
       purecss: 3.0.0
       react: ^18
@@ -292,11 +318,12 @@ importers:
       '@types/react': 18.0.25
       '@types/react-dom': 18.0.8
       '@types/styled-components': 5.1.26
+      '@vitest/ui': 0.25.1
       axios: 1.1.3
       styled-components: 5.3.6_7i5myeigehqah43i5u7wbekgba
       vite: 3.2.3
       vite-plugin-fonts: 0.6.0_vite@3.2.3
-      vitest: 0.25.1
+      vitest: 0.25.1_@vitest+ui@0.25.1
 
   demos/react-stock-ticker:
     specifiers:
@@ -307,6 +334,7 @@ importers:
       '@types/react': ^18.0.12
       '@types/react-dom': ^18.0.5
       '@types/react-portal': ^4.0.4
+      '@vitest/ui': ^0.25.1
       react: ^18.1.0
       react-dom: ^18.1.0
       react-portal: ^4.2.2
@@ -325,9 +353,10 @@ importers:
       '@types/react': 18.0.25
       '@types/react-dom': 18.0.8
       '@types/react-portal': 4.0.4
+      '@vitest/ui': 0.25.1
       vite: 3.2.3
       vite-plugin-fonts: 0.6.0_vite@3.2.3
-      vitest: 0.25.1
+      vitest: 0.25.1_@vitest+ui@0.25.1
 
   demos/react-store:
     specifiers:
@@ -338,6 +367,7 @@ importers:
       '@starbeamx/store': workspace:^
       '@types/react': ^18
       '@types/react-dom': ^18
+      '@vitest/ui': ^0.25.1
       purecss: 3.0.0
       react: ^18.1.0
       react-dom: ^18.1.0
@@ -356,9 +386,10 @@ importers:
     devDependencies:
       '@types/react': 18.0.25
       '@types/react-dom': 18.0.8
+      '@vitest/ui': 0.25.1
       vite: 3.2.3
       vite-plugin-fonts: 0.6.0_vite@3.2.3
-      vitest: 0.25.1
+      vitest: 0.25.1_@vitest+ui@0.25.1
 
   packages/preact/preact:
     specifiers:
@@ -844,7 +875,7 @@ importers:
       vite: 3.2.3
       vite-plugin-mpa: ^1.1.3
     devDependencies:
-      '@crxjs/vite-plugin': 2.0.0-beta.4
+      '@crxjs/vite-plugin': 2.0.0-beta.5
       chrome-types: 0.1.148
       dirfilename: 1.1.1
       preact: 10.11.2
@@ -2739,8 +2770,8 @@ packages:
     requiresBuild: true
     optional: true
 
-  /@crxjs/vite-plugin/2.0.0-beta.4:
-    resolution: {integrity: sha512-GpmHtkBR8bvoDo5Hco3mMZ624BpZ89y0eoc7tVrvuT70ntMj2C2vzuBldfSMyFg/ykkJMnYzSRZGnLFBwFj+Cw==}
+  /@crxjs/vite-plugin/2.0.0-beta.5:
+    resolution: {integrity: sha512-ZerpDdMpLd1bkKxwufbCr+gS2/U7q2x94y9vsJaUwKZcvijdDDRwOxYtsqqnlUAKvKQck9+swmRklnZySHtg2Q==}
     dependencies:
       '@rollup/pluginutils': 4.2.1
       '@webcomponents/custom-elements': 1.5.1
@@ -7452,6 +7483,16 @@ packages:
       react: 18.2.0
       scheduler: 0.23.0
 
+  /react-error-boundary/3.1.4_react@18.2.0:
+    resolution: {integrity: sha512-uM9uPzZJTF6wRQORmSrvOIgt4lJ9MC1sNgEOj2XGsDTRE4kmpWxg7ENK9EWNKJRMAOY9z0MuF4yIfl6gp4sotA==}
+    engines: {node: '>=10', npm: '>=6'}
+    peerDependencies:
+      react: '*'
+    dependencies:
+      '@babel/runtime': 7.20.1
+      react: 18.2.0
+    dev: false
+
   /react-fast-compare/3.2.0:
     resolution: {integrity: sha512-rtGImPZ0YyLrscKI9xTpV8psd6I8VAtjKCzQDlzyDvqJA8XOW78TXYQwNRNd8g8JZnDu8q9Fu/1v4HPAVwVdHA==}
     dev: true
@@ -8562,51 +8603,6 @@ packages:
     optionalDependencies:
       fsevents: 2.3.2
 
-  /vitest/0.25.1:
-    resolution: {integrity: sha512-eH74h6MkuEgsqR4mAQZeMK9O0PROiKY+i+1GMz/fBi5A3L2ml5U7JQs7LfPU7+uWUziZyLHagl+rkyfR8SLhlA==}
-    engines: {node: '>=v14.16.0'}
-    hasBin: true
-    peerDependencies:
-      '@edge-runtime/vm': '*'
-      '@vitest/browser': '*'
-      '@vitest/ui': '*'
-      happy-dom: '*'
-      jsdom: '*'
-    peerDependenciesMeta:
-      '@edge-runtime/vm':
-        optional: true
-      '@vitest/browser':
-        optional: true
-      '@vitest/ui':
-        optional: true
-      happy-dom:
-        optional: true
-      jsdom:
-        optional: true
-    dependencies:
-      '@types/chai': 4.3.4
-      '@types/chai-subset': 1.3.3
-      '@types/node': 18.11.9
-      acorn: 8.8.1
-      acorn-walk: 8.2.0
-      chai: 4.3.7
-      debug: 4.3.4
-      local-pkg: 0.4.2
-      source-map: 0.6.1
-      strip-literal: 0.4.2
-      tinybench: 2.3.1
-      tinypool: 0.3.0
-      tinyspy: 1.0.2
-      vite: 3.2.3_@types+node@18.11.9
-    transitivePeerDependencies:
-      - less
-      - sass
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-    dev: true
-
   /vitest/0.25.1_3h6rtisazrmn2zndkzio67gwxq:
     resolution: {integrity: sha512-eH74h6MkuEgsqR4mAQZeMK9O0PROiKY+i+1GMz/fBi5A3L2ml5U7JQs7LfPU7+uWUziZyLHagl+rkyfR8SLhlA==}
     engines: {node: '>=v14.16.0'}
@@ -8639,6 +8635,52 @@ packages:
       debug: 4.3.4
       happy-dom: 7.7.0
       jsdom: 20.0.2
+      local-pkg: 0.4.2
+      source-map: 0.6.1
+      strip-literal: 0.4.2
+      tinybench: 2.3.1
+      tinypool: 0.3.0
+      tinyspy: 1.0.2
+      vite: 3.2.3_@types+node@18.11.9
+    transitivePeerDependencies:
+      - less
+      - sass
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+    dev: true
+
+  /vitest/0.25.1_@vitest+ui@0.25.1:
+    resolution: {integrity: sha512-eH74h6MkuEgsqR4mAQZeMK9O0PROiKY+i+1GMz/fBi5A3L2ml5U7JQs7LfPU7+uWUziZyLHagl+rkyfR8SLhlA==}
+    engines: {node: '>=v14.16.0'}
+    hasBin: true
+    peerDependencies:
+      '@edge-runtime/vm': '*'
+      '@vitest/browser': '*'
+      '@vitest/ui': '*'
+      happy-dom: '*'
+      jsdom: '*'
+    peerDependenciesMeta:
+      '@edge-runtime/vm':
+        optional: true
+      '@vitest/browser':
+        optional: true
+      '@vitest/ui':
+        optional: true
+      happy-dom:
+        optional: true
+      jsdom:
+        optional: true
+    dependencies:
+      '@types/chai': 4.3.4
+      '@types/chai-subset': 1.3.3
+      '@types/node': 18.11.9
+      '@vitest/ui': 0.25.1
+      acorn: 8.8.1
+      acorn-walk: 8.2.0
+      chai: 4.3.7
+      debug: 4.3.4
       local-pkg: 0.4.2
       source-map: 0.6.1
       strip-literal: 0.4.2

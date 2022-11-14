@@ -41,7 +41,6 @@ export class ResourceState<T> {
         )(run);
       } catch (e) {
         if (e instanceof TypeError && /class constructor/i.exec(e.message)) {
-          console.error("Error in resource constructor", e);
           return new (constructorFn as Extract<
             ResourceFactory<T>,
             new (run: ResourceRun) => unknown

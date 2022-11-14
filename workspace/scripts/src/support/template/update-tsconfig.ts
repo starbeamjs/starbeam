@@ -14,6 +14,14 @@ export const updateTsconfig = UpdatePackageFn(
         })
       );
 
+      if (!updater.pkg.starbeam.jsx.is("none")) {
+        migrator.set("compilerOptions.jsx", "preserve");
+        migrator.set(
+          "compilerOptions.jsxImportSource",
+          String(updater.pkg.starbeam.jsx)
+        );
+      }
+
       if (updater.pkg.type.isType("demo")) {
         const devtool = path(
           root.file("packages/x/devtool/tsconfig.json")

@@ -77,11 +77,11 @@ if (import.meta.env.DEV) {
         console.groupCollapsed("Complete stack trace");
         console.log(stack.stack);
         console.groupEnd();
-
-        throw Error(
-          `You read from a reactive value, but you were not inside the \`useReactive\` hook.`
-        );
       }
+
+      throw Error(
+        `You read from a reactive value, but you were not inside the \`useReactive\` hook.`
+      );
     }
   });
 }

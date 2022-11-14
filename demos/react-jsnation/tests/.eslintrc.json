@@ -1,0 +1,12 @@
+{
+  "root": false,
+  "overrides": [
+    {
+      "extends": ["plugin:@starbeam/loose"],
+      "files": ["**/*.tsx", "**/*.ts"],
+      "parserOptions": {
+        "project": "demos/react-jsnation/tests/tsconfig.json"
+      }
+    }
+  ]
+}

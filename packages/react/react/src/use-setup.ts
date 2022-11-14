@@ -3,6 +3,7 @@ import { type Description, descriptionFrom } from "@starbeam/debug";
 import { LIFETIME, Reactive, TIMELINE } from "@starbeam/timeline";
 import { type IntoReactiveObject, Factory } from "@starbeam/universal";
 import {
+  setupFunction,
   unsafeTrackedElsewhere,
   useLifecycle,
 } from "@starbeam/use-strict-lifecycle";
@@ -44,7 +45,9 @@ export function useSetup<T>(
         : ReactiveElement.create(() => {
             setNotify({});
           }, desc);
-      const nextInstance = callback(element);
+
+      const nextInstance = setupFunction(() => callback(element));
+      // const nextInstance = callback(element);
 
       lifecycle.on.cleanup(() => {
         if (isObject(nextInstance)) {

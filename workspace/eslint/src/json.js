@@ -20,6 +20,7 @@ exports["package.json"] = json({
         "private",
         "name",
         "version",
+        "description",
         "type",
         "main",
         "module",

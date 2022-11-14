@@ -1,12 +1,18 @@
-import { isObject, stringify } from "@starbeam/core-utils";
+import {
+  isEmptyMatch,
+  isObject,
+  Pattern,
+  stringify,
+} from "@starbeam/core-utils";
 import type { JsonValue } from "@starbeam-workspace/json";
 import type { RegularFile } from "@starbeam-workspace/paths";
 import type { Directory } from "@starbeam-workspace/paths";
-import type { Workspace } from "@starbeam-workspace/reporter";
+import { type Workspace, fragment } from "@starbeam-workspace/reporter";
 
 import type { Dependencies } from "./dependencies.js";
 import { createDependencies } from "./dependencies.js";
-import type { PackageInfo, Used } from "./packages";
+import { StarbeamJsx, Test, TestName } from "./packages";
+import { type PackageInfo, type Used, AllTests } from "./packages";
 import { RawPackage } from "./raw-package";
 import { Starbeam } from "./starbeam";
 import { TypeScriptConfig } from "./typescript.js";
@@ -39,17 +45,28 @@ export class Package {
     const root = manifest.parent;
     const raw = new RawPackage(pkg, root.absolute);
 
-    const main = raw.get("main", { default: undefined as undefined | string });
+    const packageName: string = raw.get("name");
+    const main = raw.get("main", {
+      default: undefined as undefined | string,
+    });
 
     const scripts: Record<string, string> = raw.get("scripts", {
       default: {},
     });
 
-    const tests: Record<string, string> = {};
+    const tests: Test[] = [];
 
     for (const [name, script] of Object.entries(scripts)) {
       if (name.startsWith("test:")) {
-        tests[name.slice("test:".length)] = script;
+        const { testName, type, subtype } = normalizeTestName(
+          workspace,
+          { root, name: raw.get("name") },
+          name
+        );
+
+        tests.push(
+          new Test(type, subtype, TestName.fromString(testName), script)
+        );
       }
     }
 
@@ -65,19 +82,26 @@ export class Package {
       })
     );
 
+    const jsx = StarbeamJsx.fromString(
+      raw.get("starbeam:jsx", {
+        default: source.has("jsx") || source.has("tsx") ? "react" : "none",
+      })
+    );
+
     return new Package(workspace, {
       manifest,
-      name: raw.get("name"),
+      name: packageName,
       type: raw.get("type", { default: "commonjs" }),
       main,
       root: root.absolute,
       isPrivate: raw.get("private", { default: false }),
       isTypescript: root.file("tsconfig.json").exists(),
       scripts,
-      tests,
+      tests: AllTests.create(tests),
       dependencies: createDependencies(raw),
       starbeam: {
         type,
+        jsx,
         source,
         used: raw.get("starbeam:used", { default: [] }),
         templates: {
@@ -147,7 +171,7 @@ export class Package {
     return this.root.dir("tests");
   }
 
-  get tests(): Record<string, string> {
+  get tests(): AllTests {
     return this.info.tests;
   }
 
@@ -172,4 +196,36 @@ export class Package {
   isInput(kind: "d.ts" | "js"): boolean {
     return this.starbeam.isInput(kind);
   }
+}
+
+function normalizeTestName(
+  workspace: Workspace,
+  pkg: { root: Directory; name: string },
+  name: string
+): {
+  type: "run" | "watch";
+  subtype: "workspace" | undefined;
+  testName: string;
+} {
+  const pattern = Pattern<{
+    subtype: "workspace" | undefined;
+    type: "run" | "watch" | undefined;
+    name: string;
+  }>(
+    /^test:(?:(?<subtype>workspace):)?(?:(?<type>run|watch)?:)?(?<name>[^:]+)$/
+  );
+
+  const match = pattern.match(name);
+
+  if (isEmptyMatch(match)) {
+    workspace.reporter.fatal(
+      fragment`Invalid test name ${name} in ${pkg.name} (${pkg.root.relative})`
+    );
+  }
+
+  return {
+    type: match.type ?? "run",
+    subtype: match.subtype,
+    testName: match.name,
+  };
 }

@@ -7,7 +7,11 @@ import {
   parse,
   Query,
 } from "@starbeam-workspace/package";
-import type { Workspace as IWorkspace } from "@starbeam-workspace/reporter";
+import {
+  type Workspace as IWorkspace,
+  Fragment,
+  wrapIndented,
+} from "@starbeam-workspace/reporter";
 import { type ReporterOptions, format } from "@starbeam-workspace/reporter";
 import { Workspace } from "@starbeam-workspace/workspace";
 import chalk from "chalk";
@@ -234,14 +238,23 @@ export function queryable(command: Command): Command {
       "afterAll",
       String(format("\nFilters\n", chalk.yellowBright.bold.inverse)) +
         Object.entries(FILTER_KEYS)
-          .flatMap(([key, [kind, example]]) => [
-            format.entry([key, kind], {
-              key: chalk.yellowBright,
-              value: chalk.yellow,
-              indent: 2,
-            }),
-            format(`e.g. ${example}`, { style: "comment", indent: 4 }),
-          ])
+          .flatMap(([key, [kind, example, list]]) => {
+            return [
+              format.entry([key, kind], {
+                key: chalk.yellowBright,
+                value: chalk.yellow,
+                indent: 1,
+              }),
+              format(`e.g. ${example}`, { style: "comment", indent: 4 }),
+              ...(list
+                ? [
+                    wrapIndented(Fragment(chalk.yellow.dim, list.format()), {
+                      leading: { indents: 1 },
+                    }),
+                  ]
+                : []),
+            ];
+          })
           .join("\n")
     )
     .option("-p, --package <package-name>", "the package to test")

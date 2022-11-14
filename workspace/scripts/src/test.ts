@@ -3,7 +3,7 @@ import {
   isSingleItemArray,
   stringify,
 } from "@starbeam/core-utils";
-import { Package } from "@starbeam-workspace/package";
+import { type Test, Package, TestName } from "@starbeam-workspace/package";
 import { Fragment } from "@starbeam-workspace/reporter";
 import { FancyHeader } from "@starbeam-workspace/reporter";
 import { fatal } from "@starbeam-workspace/shared";
@@ -50,7 +50,13 @@ export const TestCommand = QueryCommand("test", {
         );
       }
 
-      const testType = watch ? "specs" : specs ? "specs" : type ?? "all";
+      const testType: TestName = watch
+        ? TestName.fromString("specs")
+        : specs
+        ? TestName.from("specs")
+        : type
+        ? TestName.fromString(type)
+        : TestName.from("all");
 
       shell.rm("-rf", workspace.root.dir("dist").absolute);
 
@@ -72,9 +78,9 @@ export const TestCommand = QueryCommand("test", {
           ...tests(rootPkg, {
             streamOutput,
             watch,
-            select: (name) => name.startsWith("workspace:"),
-            header: (name) => name.slice("workspace:".length),
+            header: (test) => String(test.name),
             type: testType,
+            subtype: "workspace",
           })
         );
 
@@ -86,13 +92,12 @@ export const TestCommand = QueryCommand("test", {
         return;
       }
 
-      const matches = packages
-        .filter((pkg) => !pkg.type.is("root"))
-        .filter((pkg) =>
-          Object.keys(pkg.tests).some((test) => testMatches(test, testType))
+      if (watch) {
+        const matches = packages.filter(
+          ({ type, tests: { watch } }) =>
+            !type.is("root") && watch.matches(testType).hasTests()
         );
 
-      if (watch) {
         if (isSingleItemArray(matches)) {
           const [firstMatch] = matches;
 
@@ -121,15 +126,29 @@ export const TestCommand = QueryCommand("test", {
         return;
       }
 
+      const matches = packages.flatMap((pkg) => {
+        const {
+          type,
+          tests: { run },
+        } = pkg;
+
+        if (type.is("root")) {
+          return [];
+        }
+
+        const matches = run.matches(testType);
+
+        return matches.hasTests() ? ([[pkg, matches]] as const) : [];
+      });
+
       const checks = new Map(
-        matches.map((pkg) => {
+        matches.map(([pkg]) => {
           return [
             pkg,
             tests(pkg, {
               streamOutput,
               watch,
-              select: () => true,
-              header: (name) => name,
+              header: (test) => String(test.name),
               type: testType,
             }),
           ] as [Package, CheckDefinition[]];
@@ -156,31 +175,30 @@ function tests(
   options: {
     streamOutput: boolean;
     watch: boolean;
-    select: (test: string) => boolean;
-    header: (test: string) => string;
-    type: string;
+    header: (test: Test) => string;
+    type: TestName | "all";
+    subtype?: "workspace";
   }
 ): CheckDefinition[] {
-  return Object.keys(pkg.tests)
-    .filter(options.select)
-    .filter((name) => testMatches(name, options.type))
+  const tests = options.watch ? pkg.tests.watch : pkg.tests.run;
+
+  return tests
+    .filter((test) => {
+      const matches = options.type === "all" || test.name.eq(options.type);
+      if (options.subtype === undefined) {
+        return matches;
+      } else {
+        return matches && test.hasSubtype(options.subtype);
+      }
+    })
     .map((test) => {
       return CheckDefinition(
         options.header(test),
-        `pnpm run test:${test}${
-          options.watch ? "" : test.endsWith(":specs") ? " --run" : ""
-        }`,
+        stringify`pnpm run test:${test.name}`,
         {
           cwd: pkg.root,
           output: options.streamOutput ? "stream" : "when-error",
         }
       );
     });
-}
-
-function testMatches(test: string, type: string): boolean {
-  if (type === "all") {
-    return true;
-  }
-  return test === type || test.endsWith(`:${type}`);
 }

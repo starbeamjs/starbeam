@@ -1,6 +1,7 @@
 {
   "name": "@starbeam/js",
   "version": "0.8.0",
+  "description": "An implementation of JavaScript builtins built on top of Starbeam reactivity",
   "type": "module",
   "main": "index.ts",
   "types": "index.ts",
@@ -34,6 +35,5 @@
   },
   "devDependencies": {
     "@starbeam-dev/build-support": "workspace:*"
-  },
-  "description": "An implementation of JavaScript builtins built on top of Starbeam reactivity"
+  }
 }

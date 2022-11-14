@@ -1,7 +1,6 @@
 import { LOGGER, LogLevel } from "@starbeam/debug";
-import { useProp, useReactiveSetup } from "@starbeam/react";
+import { useProp, useReactive, useSetup } from "@starbeam/react";
 import { Cell, Formula } from "@starbeam/universal";
-import { DevTools } from "@starbeamx/devtool";
 import type { FormEvent } from "react";
 
 import { type Person, People } from "../lib/people.js";
@@ -12,9 +11,7 @@ LOGGER.level = LogLevel.Debug;
 export default function (props: { locale: string }): JSX.Element {
   const locale = useProp(props.locale, "props.locale");
 
-  return useReactiveSetup((component) => {
-    component.attach(DevTools);
-
+  const { append, filter, total, rows, table, people } = useSetup(() => {
     const table = new Table<Person>(["name", "location"]);
 
     table.append({ name: "Tom Dale", location: "NYC" });
@@ -58,76 +55,78 @@ export default function (props: { locale: string }): JSX.Element {
       }
     }
 
-    return () => {
-      return (
-        <>
-          <details>
-            <summary>Create a new user</summary>
-            <form onSubmit={append}>
-              <label>
-                <span>Name*</span>
-                <input type="text" name="name" required />
-                <span data-field="name" />
-              </label>
-              <label>
-                <span>Location*</span>
-                <input type="text" name="location" required />
-                <span data-field="location" />
-              </label>
-              <label>
-                <button type="submit">append</button>
-              </label>
-            </form>
-          </details>
-          <label>
-            <span>Filter</span>
-            <input
-              type="text"
-              defaultValue={filter.current}
-              onInput={(e) => filter.set(e.currentTarget.value)}
-            />
-          </label>
-          <table>
-            <thead>
-              <tr>
-                {table.columns.map((p) => (
-                  <th key={p}>{p}</th>
-                ))}
-                <th className="action">
+    return { append, filter, total, rows, table, people };
+  });
+
+  return useReactive(() => {
+    return (
+      <>
+        <details>
+          <summary>Create a new user</summary>
+          <form onSubmit={append}>
+            <label>
+              <span>Name*</span>
+              <input type="text" name="name" required />
+              <span data-field="name" />
+            </label>
+            <label>
+              <span>Location*</span>
+              <input type="text" name="location" required />
+              <span data-field="location" />
+            </label>
+            <label>
+              <button type="submit">append</button>
+            </label>
+          </form>
+        </details>
+        <label>
+          <span>Filter</span>
+          <input
+            type="text"
+            defaultValue={filter.current}
+            onInput={(e) => filter.set(e.currentTarget.value)}
+          />
+        </label>
+        <table>
+          <thead>
+            <tr>
+              {table.columns.map((p) => (
+                <th key={p}>{p}</th>
+              ))}
+              <th className="action">
+                <button
+                  onClick={() => {
+                    table.clear();
+                  }}
+                >
+                  ✂️
+                </button>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows().map((person) => (
+              <tr key={person.id}>
+                <td>{person.name}</td>
+                <td>{person.location}</td>
+                <td className="actions">
                   <button
                     onClick={() => {
-                      table.clear();
+                      table.delete(person.id);
                     }}
                   >
                     ✂️
                   </button>
-                </th>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {rows().map((person) => (
-                <tr key={person.id}>
-                  <td>{person.name}</td>
-                  <td>{person.location}</td>
-                  <td className="actions">
-                    <button
-                      onClick={() => {
-                        table.delete(person.id);
-                      }}
-                    >
-                      ✂️
-                    </button>
-                  </td>
-                </tr>
-              ))}
+            ))}
 
-              <tr className="summary" data-items={people.rows.length}>
-                <td colSpan={3}>{total()}</td>
-              </tr>
-            </tbody>
-          </table>
-        </>
-      );
-    };
+            <tr className="summary" data-items={people.rows.length}>
+              <td colSpan={3}>{total()}</td>
+            </tr>
+          </tbody>
+        </table>
+      </>
+    );
   }, "DataTable");
 }

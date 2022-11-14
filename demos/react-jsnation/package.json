@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "@starbeam-demos/jsnation",
+  "name": "@starbeam-demos/react-jsnation",
   "version": "1.0.0",
   "type": "module",
   "main": "index.ts",
@@ -19,6 +19,7 @@
     "types": "dist/index.d.ts"
   },
   "starbeam": {
+    "jsx": "react",
     "source": "tsx",
     "type": "demo:react",
     "used": [
@@ -32,6 +33,7 @@
   },
   "scripts": {
     "test:lint": "eslint",
+    "test:specs": "vitest --run",
     "test:types": "tsc -b"
   },
   "dependencies": {
@@ -39,7 +41,6 @@
     "@starbeam/js": "workspace:^",
     "@starbeam/react": "workspace:^",
     "@starbeam/universal": "workspace:^",
-    "@starbeamx/devtool": "workspace:^",
     "purecss": "3.0.0",
     "react": "^18.1.0",
     "react-dom": "^18.1.0"
@@ -48,7 +49,6 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "vite": "*",
-    "vite-plugin-fonts": "^0.6.0",
-    "vitest": "*"
+    "vite-plugin-fonts": "^0.6.0"
   }
 }

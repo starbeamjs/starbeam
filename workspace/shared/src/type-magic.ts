@@ -40,7 +40,7 @@ export type Into<C extends UnionInstance<string>> = C["value"] | C;
 export type IntoUnionInstance = string | { readonly value: string };
 export type AsString<C extends UnionInstance<string>> = C["value"];
 
-export interface UnionClass<S extends string> {
+export interface UnionClass<S extends string = any> {
   readonly members: S[];
   from: <This extends UnionClass<S>>(
     this: This,
@@ -79,6 +79,7 @@ export declare class UnionInstance<S extends string> {
   readonly subtype: Subtype<S>;
 
   toString(): string;
+  eq(other: this): boolean;
   is(...values: S[]): boolean;
   isType<K extends Kind<S>>(...values: K[]): this is { subtype: Subtype<S, K> };
 }
@@ -149,6 +150,10 @@ export function Union<S extends string>(...members: S[]): UnionClass<S> {
 
     [Symbol.for("nodejs.util.inspect.custom")](): string {
       return `${this.constructor.name}(${this.#instance})`;
+    }
+
+    eq(other: this): boolean {
+      return this.#instance === other.#instance;
     }
 
     is(...values: S[]): boolean {

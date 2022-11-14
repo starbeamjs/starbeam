@@ -4,6 +4,7 @@ import {
   isSingleItemArray,
 } from "@starbeam/core-utils";
 import type { Reporter } from "@starbeam-workspace/reporter";
+import type { UnionClass } from "@starbeam-workspace/shared/src/type-magic.js";
 import util from "util";
 
 import type { Package } from "../package";
@@ -184,11 +185,14 @@ export type FilterKey =
   | "scope"
   | "none";
 
-export const FILTER_KEYS: Record<FilterKey, [kind: string, example: string]> = {
+export const FILTER_KEYS: Record<
+  FilterKey,
+  [kind: string, example: string, list?: UnionClass<string>]
+> = {
   typescript: ["package authored in TypeScript", "-a typescript"],
   private: ["is a private package", "-a private"],
   none: ["match nothing", "-a none"],
-  type: [`type of the package (${StarbeamType.format()})`, "-a type=library"],
+  type: [`type of the package`, "-a type=library", StarbeamType as UnionClass],
   name: ["package name", "-a name=@starbeam/universal"],
   scope: ["package scope", "-a scope=@starbeam"],
 };

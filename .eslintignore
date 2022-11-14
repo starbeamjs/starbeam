@@ -1,7 +1,7 @@
 dist
 coverage
-node_modules
-**/node_modules
+node_modules/**
+**/node_modules/**
 
 packages/x-devtools-extension
 

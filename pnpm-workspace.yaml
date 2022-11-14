@@ -5,6 +5,7 @@ packages:
     packages/*/*,
     packages/*/*/tests,
     demos/*,
+    demos/*/tests,
     "workspace/@*/*",
     "workspace/*",
   ]

@@ -1,3 +1,5 @@
+import { isEmptyArray } from "./array.js";
+
 type Matches = Record<string, string | undefined> | (string | undefined)[];
 const POSITIONAL_MATCHES_OFFSET = 1;
 
@@ -31,7 +33,6 @@ export function matchPattern<M extends Matches>(
     },
   };
 
-   
   return new Proxy(target, {
     ownKeys({ match }) {
       return Reflect.ownKeys(match.groups ?? {});
@@ -72,4 +73,8 @@ export function matchPattern<M extends Matches>(
       }
     },
   }) as unknown as M;
+}
+
+export function isEmptyMatch(match: Matches): boolean {
+  return isEmptyArray(match as unknown[]);
 }

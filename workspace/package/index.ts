@@ -1,5 +1,10 @@
 export { Package } from "./src/package.js";
-export { queryPackages } from "./src/packages.js";
+export {
+  type Test,
+  type Tests,
+  queryPackages,
+  TestName,
+} from "./src/packages.js";
 export type { Filter, FilterKey, FilterOperator } from "./src/query/filters.js";
 export { FILTER_KEYS } from "./src/query/filters.js";
 export type { ParsedFilter } from "./src/query/query.js";

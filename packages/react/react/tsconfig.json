@@ -1,6 +1,8 @@
 {
   "extends": "../../../.config/tsconfig/tsconfig.shared.json",
   "compilerOptions": {
+    "jsxImportSource": "react",
+    "jsx": "preserve",
     "composite": true,
     "declaration": true,
     "declarationDir": "../../../dist/types",
