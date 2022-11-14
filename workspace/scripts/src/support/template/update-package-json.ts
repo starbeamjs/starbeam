@@ -37,7 +37,7 @@ export function updatePackageJSON(updater: LabelledUpdater): void {
         };
       } else if (current["devDependencies"]) {
         delete (current["devDependencies"] as Record<string, string>)[
-          "@starbeam-workspace/build-support"
+          "@starbeam-dev/build-support"
         ];
       }
 
@@ -133,7 +133,7 @@ function consolidateStarbeam(json: JsonObject): JsonObject {
 
 function needsBuildSupport(pkg: Package): boolean {
   const hasBuild = pkg.type.isType("library") || pkg.type.is("root");
-  const isBuildSupport = pkg.name === "@starbeam-workspace/build-support";
+  const isBuildSupport = pkg.name === "@starbeam-dev/build-support";
 
   return hasBuild && !isBuildSupport && pkg.starbeam.source.isTS;
 }
