@@ -1,7 +1,7 @@
 import type * as interfaces from "@starbeam/interfaces";
 import { getID } from "@starbeam/shared";
 import { exhaustive, expected, isEqual, verify } from "@starbeam/verify";
-import chalk from "chalk";
+import ansicolor from "ansicolor";
 
 import { DisplayStruct } from "../inspect/display-struct.js";
 import { DisplayParts } from "../module.js";
@@ -148,11 +148,11 @@ if (import.meta.env.DEV) {
               }
 
             case "detail": {
-              const detail = chalk.dim(`->${this.#details.name}`);
+              const detail = ansicolor.dim(`->${this.#details.name}`);
 
               if (this.#details.args) {
                 return `${detail}(${this.#details.args
-                  .map((a) => chalk.magenta(a))
+                  .map((a) => ansicolor.magenta(a))
                   .join(", ")})`;
               } else {
                 return detail;
@@ -273,8 +273,8 @@ if (import.meta.env.DEV) {
 
       if (this.#internal) {
         const desc = this.#internal.reason
-          ? chalk.dim(`[${this.#internal.reason}]`)
-          : chalk.dim("[internals]");
+          ? ansicolor.dim(`[${this.#internal.reason}]`)
+          : ansicolor.dim("[internals]");
         return `${name} ${desc}`;
       } else {
         return name;

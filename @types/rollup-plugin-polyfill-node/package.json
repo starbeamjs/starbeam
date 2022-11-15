@@ -1,0 +1,31 @@
+{
+  "private": true,
+  "name": "@types/rollup-plugin-polyfill-node",
+  "version": "1.0.0",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts"
+    }
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts"
+      }
+    },
+    "types": "dist/index.d.ts"
+  },
+  "starbeam": {
+    "source": "d.ts",
+    "type": "library:upstream-types"
+  },
+  "scripts": {
+    "test:lint": "eslint",
+    "test:types": "tsc -b"
+  },
+  "dependencies": {
+    "rollup": "^3.3.0"
+  },
+  "devDependencies": {}
+}

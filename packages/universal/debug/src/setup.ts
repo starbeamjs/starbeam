@@ -12,8 +12,4 @@ if (
   }
 }
 
-if (typeof process === "undefined") {
-  (globalThis as { process: object }).process = {};
-}
-
 export {};

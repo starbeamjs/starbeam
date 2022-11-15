@@ -13,6 +13,7 @@ import inline from "./inline.js";
 const { default: commonjs } = await import("@rollup/plugin-commonjs");
 const { default: nodeResolve } = await import("@rollup/plugin-node-resolve");
 const { default: postcss } = await import("rollup-plugin-postcss");
+const { default: nodePolyfills } = await import("rollup-plugin-polyfill-node");
 
 const {
   ImportsNotUsedAsValues,
@@ -341,6 +342,7 @@ export class Package {
       external: this.#external,
       plugins: [
         inline(),
+        nodePolyfills(),
         commonjs(),
         nodeResolve(),
         importMeta,
@@ -361,6 +363,7 @@ export class Package {
       external: this.#external,
       plugins: [
         inline(),
+        nodePolyfills(),
         commonjs(),
         nodeResolve(),
         importMeta,

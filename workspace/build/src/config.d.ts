@@ -18,7 +18,7 @@ export type JsonValue =
   | number
   | boolean
   | null
-  | JsonValue[]
+  | JsonArray
   | Record<string, JsonValue>;
 
 // importing from typescript using a static import massively slows down eslint for some reason.

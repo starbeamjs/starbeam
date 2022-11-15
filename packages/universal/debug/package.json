@@ -41,13 +41,13 @@
     "@starbeam/interfaces": "workspace:^",
     "@starbeam/shared": "workspace:^",
     "@starbeam/verify": "workspace:^",
+    "ansicolor": "^1.1.100",
     "buffer": "^6.0.3",
     "stacktracey": "^2.1.8"
   },
   "devDependencies": {
     "@starbeam-dev/build-support": "workspace:*",
-    "@types/node": "^18.7.23",
-    "chalk": "^5.0.1"
+    "@types/node": "^18.7.23"
   },
   "pnpm": {
     "overrides": {

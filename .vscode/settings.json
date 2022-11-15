@@ -35,7 +35,7 @@
     "html"
   ],
 
-  "explorer.excludeGitIgnore": true,
+  "explorer.excludeGitIgnore": false,
   "explorer.fileNesting.patterns": {
     "*.cjs": "${capture}.cjs.map, ${capture}.min.cjs, ${capture}.d.cts, ${capture}.d.cts.map",
     "*.js": "${capture}.js.map, ${capture}.min.js, ${capture}.d.ts, ${capture}.d.ts.map",
