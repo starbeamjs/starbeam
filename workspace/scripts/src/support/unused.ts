@@ -78,7 +78,7 @@ export async function checkUnused({
       .add(pkg.root.glob("vite.config.ts", { match: ["files"] })),
     jsx: pkg.source.jsx(pkg.root),
     typescript: pkg.source.typescript(pkg.root),
-    sass: pkg.root.glob("**/*.css"),
+    sass: pkg.root.glob("**/*.css", { match: ["files"] }),
   };
 
   const parsers = Parsers(config);

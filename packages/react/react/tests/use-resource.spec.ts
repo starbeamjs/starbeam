@@ -70,7 +70,7 @@ describe("useResource", () => {
       });
       expect(result.value).toEqual("third message");
 
-      await result.unmount();
+      result.unmount();
       expect(channel?.isActive).toBe(false);
     }
   );
@@ -132,7 +132,7 @@ describe("useResource", () => {
       });
       expect(result.value).toEqual("third message");
 
-      await result.unmount();
+      result.unmount();
       expect(channel?.isActive).toBe(false);
       expect(Channel.latest()).toBe(undefined);
     }
@@ -199,7 +199,7 @@ describe("useResource", () => {
       });
       expect(result.value).toEqual("third message");
 
-      await result.unmount();
+      result.unmount();
       expect(channel?.isActive).toBe(false);
       expect(Channel.latest()).toBe(undefined);
     }

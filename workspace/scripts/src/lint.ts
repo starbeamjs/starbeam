@@ -24,18 +24,22 @@ export const LintCommand = QueryCommand("lint")
       );
     } else {
       const results = await workspace.check(
-        ...packages.map((pkg) =>
-          CheckDefinition(
-            pkg.name,
-            sh`pnpm eslint --cache --max-warnings 0 -c ${eslintrc} ${workspace.root.relativeTo(
-              pkg.root
-            )}`,
-            {
-              cwd: workspace.root,
-              output: streamOutput ? "stream" : "when-error",
-            }
-          )
-        )
+        ...packages
+          .filter((pkg) => !pkg.type.is("root"))
+          .map((pkg) => {
+            const files = pkg.inputGlobs.map((glob) =>
+              workspace.root.relativeTo(glob)
+            );
+
+            return CheckDefinition(
+              pkg.name,
+              sh`pnpm eslint --cache --max-warnings 0 -c ${eslintrc} ${files}`,
+              {
+                cwd: workspace.root,
+                output: streamOutput ? "stream" : "when-error",
+              }
+            );
+          })
       );
 
       workspace.reporter.reportCheckResults(results, {

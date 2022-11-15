@@ -1,11 +1,13 @@
 import {
+  getFirst,
   isEmptyMatch,
   isObject,
+  isSingleItemArray,
   Pattern,
   stringify,
 } from "@starbeam/core-utils";
 import type { JsonValue } from "@starbeam-workspace/json";
-import type { RegularFile } from "@starbeam-workspace/paths";
+import type { Glob, RegularFile } from "@starbeam-workspace/paths";
 import type { Directory } from "@starbeam-workspace/paths";
 import { type Workspace, fragment } from "@starbeam-workspace/reporter";
 
@@ -137,6 +139,30 @@ export class Package {
 
   dir(path: string): Directory {
     return this.root.dir(path);
+  }
+
+  get inputGlobs(): Glob<RegularFile>[] {
+    const exts = this.source.inputExtensions as string[];
+
+    const ext = isSingleItemArray(exts)
+      ? getFirst(exts)
+      : `{${exts.join(",")}}`;
+
+    if (this.type.isType("library")) {
+      const paths = [this.root.glob(`index.${ext}`, { match: ["files"] })];
+
+      if (this.root.dir("src").exists()) {
+        paths.push(this.root.glob(`src/**/*.${ext}`, { match: ["files"] }));
+      }
+
+      return paths;
+    } else {
+      return [
+        this.root.glob(`**/*.${ext}`, {
+          match: ["files"],
+        }),
+      ];
+    }
   }
 
   get moduleType(): "esm" | "cjs" {

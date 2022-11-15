@@ -15,6 +15,7 @@ import {
 import { pathToFileURL } from "node:url";
 
 import {
+  isPresentArray,
   objectHasKeys,
   stringify,
   stringifyJSON,
@@ -163,8 +164,8 @@ export abstract class Path extends URL {
     return new UnknownFile(this.#root, resolve(this.#absolutePath, path));
   }
 
-  glob(path: string, options?: GlobOptions<["files"]>): Glob<RegularFile>;
-  glob(path: string, options?: GlobOptions<["directories"]>): Glob<Directory>;
+  glob(path: string, options: GlobOptions<["files"]>): Glob<RegularFile>;
+  glob(path: string, options: GlobOptions<["directories"]>): Glob<Directory>;
   glob(path: string, options?: GlobOptions): Glob;
   glob(path: string, options?: GlobOptions): Glob {
     return Glob.create(
@@ -272,8 +273,8 @@ export class Directory extends DiskFile implements AsDirectory {
     return new Directory(root, path);
   }
 
-  globs(options?: GlobOptions<["files"]>): Globs<RegularFile>;
-  globs(options?: GlobOptions<["directories"]>): Globs<Directory>;
+  globs(options: GlobOptions<["files"]>): Globs<RegularFile>;
+  globs(options: GlobOptions<["directories"]>): Globs<Directory>;
   globs(options?: GlobOptions): Globs;
   globs(options?: GlobOptions): Globs {
     return Globs.root(this, options);
@@ -402,6 +403,10 @@ export class Glob<T extends Path = Path> extends Path {
     return Globs.root<T>(this.root, this.#options).add(this);
   }
 
+  exists(): boolean {
+    return isPresentArray(this.expand());
+  }
+
   expand(): T[] {
     const options = this.#options;
 
@@ -480,7 +485,7 @@ export class Globs<T extends Path = Path> implements Iterable<Glob<T>> {
   static root(root: Path, options: GlobOptions<["files"]>): Globs<RegularFile>;
   static root(
     root: Path,
-    options?: GlobOptions<["directories"]>
+    options: GlobOptions<["directories"]>
   ): Globs<Directory>;
   static root<T extends Path>(root: Path, options?: GlobOptions): Globs<T>;
   static root(root: Path, options?: GlobOptions): Globs {
