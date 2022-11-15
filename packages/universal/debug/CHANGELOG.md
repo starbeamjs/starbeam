@@ -1,5 +1,11 @@
 # @starbeam/debug
 
+## 0.8.2
+
+### Patch Changes
+
+- dd8ff3f: Remove chalk from @starbeam/debug
+
 ## 0.8.1
 
 ### Patch Changes
