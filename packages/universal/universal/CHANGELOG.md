@@ -1,5 +1,18 @@
 # @starbeam/core
 
+## 0.9.0
+
+### Minor Changes
+
+- e65fd4f: Fix interfaces
+
+### Patch Changes
+
+- Updated dependencies [e65fd4f]
+  - @starbeam/interfaces@0.9.0
+  - @starbeam/debug@0.8.4
+  - @starbeam/timeline@0.8.2
+
 ## 0.8.1
 
 ### Patch Changes

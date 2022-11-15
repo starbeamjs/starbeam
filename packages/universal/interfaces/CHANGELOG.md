@@ -1,5 +1,11 @@
 # @starbeam/interfaces
 
+## 0.9.0
+
+### Minor Changes
+
+- e65fd4f: Fix interfaces
+
 ## 0.8.0
 
 ### Minor Changes
