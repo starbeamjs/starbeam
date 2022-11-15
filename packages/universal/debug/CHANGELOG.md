@@ -1,5 +1,11 @@
 # @starbeam/debug
 
+## 0.8.3
+
+### Patch Changes
+
+- e737bff: Build
+
 ## 0.8.2
 
 ### Patch Changes
