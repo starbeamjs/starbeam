@@ -1,5 +1,13 @@
 # @starbeamx/store
 
+## 0.8.1
+
+### Patch Changes
+
+- Updated dependencies [a781c84]
+  - @starbeam/debug@0.8.1
+  - @starbeam/js@0.8.1
+
 ## 0.8.0
 
 ### Minor Changes
