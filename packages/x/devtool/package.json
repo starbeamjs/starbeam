@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@starbeamx/devtool",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "type": "module",
   "main": "index.tsx",
   "types": "index.ts",

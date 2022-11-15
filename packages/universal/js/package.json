@@ -1,6 +1,6 @@
 {
   "name": "@starbeam/js",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "An implementation of JavaScript builtins built on top of Starbeam reactivity",
   "type": "module",
   "main": "index.ts",

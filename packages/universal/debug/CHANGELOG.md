@@ -1,5 +1,11 @@
 # @starbeam/debug
 
+## 0.8.1
+
+### Patch Changes
+
+- a781c84: Make chalk work in the browser by setting globalThis.process = {}
+
 ## 0.8.0
 
 ### Minor Changes
