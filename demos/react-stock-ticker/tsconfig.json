@@ -1,6 +1,8 @@
 {
   "extends": "../../.config/tsconfig/tsconfig.react-demo.json",
   "compilerOptions": {
+    "jsxImportSource": "react",
+    "jsx": "preserve",
     "outDir": "../../dist/packages",
     "declaration": true,
     "composite": true,

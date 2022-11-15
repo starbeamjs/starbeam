@@ -93,20 +93,15 @@ class LifetimeAPI {
   }
 
   unlink(parent: object, child: object): void {
-    console.group({ unlinking: [parent, child] });
-
     const parentLifetime = this.#associations.get(parent);
 
     if (parentLifetime) {
       const childLifetime = this.#associations.get(child);
 
       if (childLifetime) {
-        console.log("found child lifetime", { parent, child });
         parentLifetime.unlink(childLifetime);
       }
     }
-
-    console.groupEnd();
   }
 }
 

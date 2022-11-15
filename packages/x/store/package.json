@@ -1,6 +1,7 @@
 {
   "name": "@starbeamx/store",
   "version": "0.8.0",
+  "description": "A Starbeam Store that's fun and easy to use",
   "type": "module",
   "main": "index.ts",
   "types": "index.ts",
@@ -30,6 +31,5 @@
   },
   "devDependencies": {
     "@starbeam-dev/build-support": "workspace:*"
-  },
-  "description": "A Starbeam Store that's fun and easy to use"
+  }
 }

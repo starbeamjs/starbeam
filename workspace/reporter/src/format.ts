@@ -1,10 +1,10 @@
-import { matchPattern } from "@starbeam/core-utils";
+import { matchPattern, stringify } from "@starbeam/core-utils";
 import { terminalWidth } from "@starbeam-workspace/shared";
 import chalk from "chalk";
 import wrap from "wrap-ansi";
 
 import { SPACES_PER_TAB } from "./constants.js";
-import { Fragment, Style } from "./log.js";
+import { type IntoFragment, Fragment, Style } from "./log.js";
 import type { InternalLogOptions, LeadingOption } from "./reporter.js";
 
 const INCREMENT_LEADING = 1;
@@ -154,9 +154,10 @@ function computeLeading(
 }
 
 export function wrapIndented(
-  string: string,
+  fragment: IntoFragment,
   options: InternalLogOptions
 ): string {
+  const string = String(Fragment.from(fragment));
   const wrapped = wrapLines(string, options);
 
   return wrapped.lines.join("\n");
@@ -212,26 +213,23 @@ type EntryStyle =
 export function format(value: string, style: FormatStyle): Fragment {
   return Fragment(
     getStyle(style),
-    getIndent(style) + wrapIndented(value, { leading: "auto" })
+    getIndentation(style) + wrapIndented(value, { leading: "auto" })
   );
 }
 
 format.entry = ([key, value]: [string, string], style?: EntryStyle): string => {
   const keyStyle = getStyle(style, "key");
   const valueStyle = getStyle(style, "value");
-  const indent = getIndent(style);
 
   return wrapIndented(
-    `${indent}${String(Fragment(keyStyle, key))}: ${String(
-      Fragment(valueStyle, value)
-    )}`,
+    stringify`${Fragment(keyStyle, key)}: ${Fragment(valueStyle, value)}`,
     {
-      leading: { spaces: key.length + ":   ".length },
+      leading: getLeading(style),
     }
   );
 };
 
-function getStyle(
+export function getStyle(
   style: EntryStyle | FormatStyle,
   part?: "key" | "value"
 ): Style {
@@ -250,7 +248,17 @@ function getStyle(
   }
 }
 
-function getIndent(style: EntryStyle | FormatStyle): string {
+function getLeading(style: EntryStyle | FormatStyle): LeadingOption {
+  if (style === undefined || Style.is(style)) {
+    return "auto";
+  } else if (style.indent) {
+    return { indents: style.indent };
+  } else {
+    return "auto";
+  }
+}
+
+function getIndentation(style: EntryStyle | FormatStyle): string {
   if (style === undefined || Style.is(style)) {
     return "";
   } else if (style.indent) {

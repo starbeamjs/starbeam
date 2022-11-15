@@ -1,4 +1,4 @@
-import "@starbeamx/devtool";
+// import "@starbeamx/devtool";
 
 import * as ReactDOM from "react-dom/client";
 

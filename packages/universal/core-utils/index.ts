@@ -27,7 +27,7 @@ export type {
 export { isJSONObject, stringifyJSON } from "./src/json.js";
 export { isObject, objectHasKeys } from "./src/object.js";
 export { type Matcher, type TypedOverload, Overload } from "./src/overload.js";
-export { matchPattern, Pattern } from "./src/regexp.js";
+export { isEmptyMatch, matchPattern, Pattern } from "./src/regexp.js";
 export {
   asIntIndex,
   isPresentString,

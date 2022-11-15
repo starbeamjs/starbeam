@@ -186,6 +186,7 @@ if (import.meta.env.DEV) {
 
   const REPLACED_ERRORS = new WeakSet<ErrorWithStack>();
   const INITIAL_INTERNAL_FRAMES = 0;
+  const INITIAL_ENTRY_POINT_FRAMES = 1;
   const CALLER = 1;
   const ABSTRACTION_CALLER = 2;
 
@@ -317,7 +318,7 @@ if (import.meta.env.DEV) {
     static entryPoint<T>(
       callback: () => T,
       {
-        internal = INITIAL_INTERNAL_FRAMES,
+        internal = INITIAL_ENTRY_POINT_FRAMES,
         stack = DebugStack.create(CALLER + internal),
       }: { internal?: number; stack?: StackProtocol } = {}
     ): T {
@@ -588,7 +589,8 @@ export const Desc = PickedStack.desc;
  */
 export const idFrom = PickedStack.id;
 
-export const callerStack = PickedStack.fromCaller;
+export const callerStack: (this: void, internal?: number) => StackProtocol =
+  PickedStack.fromCaller;
 
 export function isErrorWithStack(error: unknown): error is ErrorWithStack {
   return (

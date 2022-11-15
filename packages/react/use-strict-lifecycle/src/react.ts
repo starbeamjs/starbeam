@@ -36,6 +36,17 @@ export function unsafeTrackedElsewhere<T>(callback: () => T): T {
   }
 }
 
+export function setupFunction<T>(callback: () => T): T {
+  const current = IS_UNRESTRICTED;
+  IS_UNRESTRICTED = true;
+
+  try {
+    return callback();
+  } finally {
+    IS_UNRESTRICTED = current;
+  }
+}
+
 export function isRestrictedRead(): boolean {
   if (IS_UNRESTRICTED) {
     return false;

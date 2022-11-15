@@ -63,6 +63,7 @@
   "testing.automaticallyOpenPeekView": "never",
 
   "typescript.preferences.importModuleSpecifier": "project-relative",
+  "typescript.preferences.importModuleSpecifierEnding": "js",
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.tsserver.experimental.enableProjectDiagnostics": true,
 

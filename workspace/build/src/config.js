@@ -95,14 +95,19 @@ export function typescript(pkg, config) {
   /** @type {[string, object][]} */
   const presets = [["@babel/preset-typescript", { allowDeclareFields: true }]];
 
-  if (pkg.starbeam.jsx) {
+  const jsx = pkg.starbeam.jsx;
+  const source = pkg.starbeam.source;
+  const hasJSX = source === "jsx" || source === "tsx";
+
+  if (hasJSX) {
+    const importSource = jsx ?? "react";
     presets.push([
       "@babel/preset-react",
-      { runtime: "automatic", importSource: pkg.starbeam.jsx },
+      { runtime: "automatic", importSource },
     ]);
 
     typeScriptConfig.jsx = JsxEmit.ReactJSX;
-    typeScriptConfig.jsxImportSource = pkg.starbeam.jsx;
+    typeScriptConfig.jsxImportSource = importSource;
   }
 
   const ts = tsconfig(typeScriptConfig);
@@ -175,6 +180,15 @@ export class Package {
       jsx = json.starbeam.jsx;
     }
 
+    /** @type {string | undefined} */
+    let source;
+
+    if (json["starbeam:source"]) {
+      source = json["starbeam:source"];
+    } else {
+      source = json.starbeam?.source;
+    }
+
     if (json.main) {
       return new Package({
         name: json.name,
@@ -182,6 +196,7 @@ export class Package {
         root,
         starbeam: {
           external: starbeamExternal,
+          source,
           jsx,
           type,
         },
@@ -304,17 +319,11 @@ export class Package {
     const pkg = this.#package;
     const jsx = pkg.starbeam.jsx;
 
-    if (jsx) {
-      if (jsx === "automatic") {
-        return {
-          jsx: "automatic",
-        };
-      } else {
-        return {
-          jsx: "automatic",
-          jsxImportSource: pkg.starbeam.jsx,
-        };
-      }
+    if (jsx && jsx !== "none") {
+      return {
+        jsx: "automatic",
+        jsxImportSource: pkg.starbeam.jsx,
+      };
     } else {
       return false;
     }

@@ -111,7 +111,7 @@ describe("useResource", () => {
     await send({ username: "elwayman02", avatar: "jordan3.fake.png" });
 
     // services should be cleaned up when the root component is unmounted
-    await result.unmount();
+    result.unmount();
     expect(channel?.isActive).toBe(false);
   });
 });

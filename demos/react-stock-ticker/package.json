@@ -42,6 +42,7 @@
     "@types/react": "^18.0.12",
     "@types/react-dom": "^18.0.5",
     "@types/react-portal": "^4.0.4",
+    "@vitest/ui": "*",
     "vite": "*",
     "vite-plugin-fonts": "^0.6.0",
     "vitest": "*"

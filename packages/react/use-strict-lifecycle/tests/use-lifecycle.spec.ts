@@ -81,7 +81,7 @@ testReact<void, { test: TestResource; lastState: string; lastCount: number }>(
     await result.rerender();
     resource.assert("updated", 1);
 
-    await result.unmount();
+    result.unmount();
     resource.assert("unmounted", 1);
   }
 );

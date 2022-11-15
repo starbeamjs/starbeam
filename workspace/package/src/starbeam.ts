@@ -1,4 +1,9 @@
-import type { StarbeamInfo, StarbeamTemplates, Used } from "./packages";
+import type {
+  StarbeamInfo,
+  StarbeamJsx,
+  StarbeamTemplates,
+  Used,
+} from "./packages.js";
 import type { StarbeamSources, StarbeamType } from "./unions.js";
 
 export class Starbeam {
@@ -6,6 +11,10 @@ export class Starbeam {
 
   constructor(info: StarbeamInfo) {
     this.#info = info;
+  }
+
+  get jsx(): StarbeamJsx {
+    return this.#info.jsx;
   }
 
   get type(): StarbeamType {

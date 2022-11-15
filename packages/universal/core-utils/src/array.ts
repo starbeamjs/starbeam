@@ -101,10 +101,9 @@ export function firstNItems<T>(list: T[], n: number): T[] {
   return list.slice(FIRST_OFFSET, n);
 }
 
-export function getFirst<
-  A extends [I, ...unknown[]] | readonly [I, ...unknown[]],
-  I
->(list: A): I;
+export function getFirst<I>(
+  list: [I, ...unknown[]] | readonly [I, ...unknown[]]
+): I;
 export function getFirst<T>(list: PresentArray<T>): T;
 export function getFirst<T>(list: AnyArray<T>): T | undefined;
 export function getFirst<T>(list: AnyArray<T>): T | undefined {

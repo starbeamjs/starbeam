@@ -62,6 +62,22 @@ export class CommandStream {
     const PADDING = 2;
     const ptyCols = cols - (this.#reporter.leading + PADDING);
 
+    if (this.#reporter.isVerbose) {
+      const formattedArgs = args.map((arg) => {
+        if (arg.startsWith("-")) {
+          return arg;
+        } else if (/^[a-zA-Z][a-zA-Z0-9]*$/.exec(arg)) {
+          return arg;
+        } else {
+          return `"${arg}"`;
+        }
+      });
+
+      this.#reporter.log(
+        Fragment.comment(`$ ${cmd} ${formattedArgs.join(" ")}`)
+      );
+    }
+
     const pty = PtyStream(cmd, args, {
       cols: ptyCols,
       cwd,
@@ -84,14 +100,6 @@ export class CommandStream {
     });
 
     return this.#reportExecStatus(pty.code);
-  }
-
-  get #nestingSize(): number {
-    // 2 spaces per nesting level
-    const SPACES_PER_NESTING = 2;
-    // 1 space for the divider
-    const PAD = 1;
-    return this.#reporter.nesting * SPACES_PER_NESTING + PAD;
   }
 
   #reportExecStatus(code: number | void): "ok" | "err" {

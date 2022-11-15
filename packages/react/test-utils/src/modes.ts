@@ -1,20 +1,10 @@
-/* eslint-disable */
-
-import {
-  type Stack,
-  callerStack,
-  entryPoint,
-  entryPointFn,
-} from "@starbeam/debug";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { getLast, isPresentArray } from "@starbeam/core-utils";
+import { type Stack, callerStack, entryPoint } from "@starbeam/debug";
+import { type TestAPI, expect, test } from "@starbeam-workspace/test-utils";
 import * as testing from "@testing-library/react";
 import { getByRole, getByText } from "@testing-library/react";
-import {
-  createElement,
-  StrictMode,
-  type FunctionComponent,
-  type ReactElement,
-} from "react";
-import { expect, test, type TestAPI } from "vitest";
+import { type ReactElement, StrictMode } from "react";
 
 import { act } from "./act.js";
 import { react } from "./dom.js";
@@ -38,17 +28,19 @@ class Mode {
   }
 }
 
+const INITIAL_RENDER_COUNT = 0;
+
 export class RenderState<T> {
   static getValue<T>(state: RenderState<T>): T {
-    if (state.#values.length === 0) {
+    if (isPresentArray(state.#values)) {
+      const value = getLast(state.#values);
+      state.#lastChecked = value;
+      return value;
+    } else {
       throw new Error(
         "Attempted to get last render value, but no value was set"
       );
     }
-
-    const value = state.#values[state.#values.length - 1] as T;
-    state.#lastChecked = value;
-    return value;
   }
 
   static getLastChecked<T>(state: RenderState<T>): T | undefined {
@@ -57,13 +49,13 @@ export class RenderState<T> {
 
   #values: T[] = [];
   #lastChecked: T | undefined;
-  #renderCount = 0;
+  #renderCount = INITIAL_RENDER_COUNT;
 
-  readonly value = (value: T) => {
+  readonly value = (value: T): void => {
     this.#values.push(value);
   };
 
-  readonly rendered = () => {
+  readonly rendered = (): void => {
     this.#renderCount++;
   };
 
@@ -110,7 +102,9 @@ class RenderResult<Props, T> {
     props?: Props,
     caller: Stack = callerStack()
   ): Promise<RenderResult<Props, T>> {
-    await this.act(() => this.#rerender(props), caller);
+    await this.act(() => {
+      this.#rerender(props);
+    }, caller);
 
     return entryPoint(
       () => {
@@ -127,7 +121,9 @@ class RenderResult<Props, T> {
     caller: Stack = callerStack()
   ): Promise<void> {
     const prev = this.#state.renderCount;
-    act(() => entryPoint(behavior, { stack: caller }));
+    act(() => {
+      entryPoint(behavior, { stack: caller });
+    });
     await this.rendered(prev, caller);
   }
 
@@ -145,19 +141,24 @@ class RenderResult<Props, T> {
     });
   }
 
-  async unmount(): Promise<void> {
-    this.#result.unmount();
+  unmount(): void {
+    entryPoint(() => {
+      this.#result.unmount();
+    });
   }
 
-  find(role: testing.ByRoleMatcher, options?: testing.ByRoleOptions) {
-    return this.#element.find(role, options);
+  find(
+    role: testing.ByRoleMatcher,
+    options?: testing.ByRoleOptions
+  ): TestElement<HTMLElement> {
+    return entryPoint(() => this.#element.find(role, options));
   }
 
   findByText(
     id: testing.Matcher,
     options?: testing.SelectorMatcherOptions
   ): TestElement<HTMLElement> {
-    return this.#element.findByText(id, options);
+    return entryPoint(() => this.#element.findByText(id, options));
   }
 
   get innerHTML(): string {
@@ -165,7 +166,7 @@ class RenderResult<Props, T> {
   }
 
   get textContent(): string {
-    return this.#element.textContent ?? "";
+    return this.#element.textContent;
   }
 
   raw<T>(callback: (element: HTMLElement) => T): T {
@@ -228,6 +229,7 @@ export class SetupTestRoot<Props, T> {
   async render(
     this: SetupTestRoot<RenderState<any>, any>,
     render: (state: RenderState<any>, props?: any) => ReactElement,
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     props?: any
   ): Promise<RenderResult<any, T>> {
     const result = entryPoint(
@@ -276,7 +278,7 @@ export class SetupTestRoot<Props, T> {
       { internal: 1 }
     );
 
-    return result;
+    return Promise.resolve(result);
   }
 
   expectHTML(expectHtml: (value: T) => string): this {
@@ -295,7 +297,10 @@ type TestModes<Props, T> = (
   mode: Mode
 ) => void | Promise<void>;
 
-export function testReact<Props, T>(name: string, modes: TestModes<Props, T>) {
+export function testReact<Props, T>(
+  name: string,
+  modes: TestModes<Props, T>
+): void {
   testReact.strict(name, modes);
   testReact.loose(name, modes);
 }
@@ -309,10 +314,14 @@ testReact.strict = <Props, T>(
   name: string,
   modes: TestModes<Props, T>,
   testFn: TestAPI = test
-): void => {
+) => {
   testFn(`${name} (strict mode)`, async () => {
-    const setup = new SetupTestRoot<Props, T>({ wrapper: StrictMode });
-    return modes(setup, Mode.strict);
+    try {
+      const setup = new SetupTestRoot<Props, T>({ wrapper: StrictMode });
+      await modes(setup, Mode.strict);
+    } finally {
+      testing.cleanup();
+    }
   });
 };
 
@@ -322,8 +331,12 @@ testReact.loose = <Props, T>(
   testFn: TestAPI = test
 ) => {
   testFn(`${name} (loose mode)`, async () => {
-    const setup = new SetupTestRoot<Props, T>({});
-    return modes(setup, Mode.loose);
+    try {
+      const setup = new SetupTestRoot<Props, T>({});
+      await modes(setup, Mode.loose);
+    } finally {
+      testing.cleanup();
+    }
   });
 };
 
@@ -365,8 +378,8 @@ type BoundFireObject = {
 // // import { UNINITIALIZED } from "../../use-resource/src/utils.js/src/utils.js";
 // // import { entryPoint } from "../../use-resource/tests/support/entry-point.jsce/tests/support/entry-point.js";
 // // import { act } from "../../use-resource/tests/support/react.jsresource/tests/support/react.js";
-
 // interface RenderResultConfiguration<T> {
+
 //   readonly values: Values<T>;
 //   readonly rerender: { readonly current: () => void };
 //   readonly count: () => number;
@@ -417,6 +430,7 @@ export class TestElement<E extends Element> {
     const fire: Partial<BoundFireObject> = {};
 
     for (const [key, value] of Object.entries(testing.fireEvent)) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       fire[key as keyof BoundFireObject] = this.#bind(value);
     }
 
@@ -425,8 +439,9 @@ export class TestElement<E extends Element> {
 
   #bind(method: testing.FireObject[keyof testing.FireObject]) {
     return async (...args: any) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       const result = act(() => method(this.#element, ...args));
-      return result;
+      return Promise.resolve(result);
     };
   }
 
@@ -457,11 +472,4 @@ export class TestElement<E extends Element> {
   raw<T>(callback: (element: E) => T): T {
     return callback(this.#element);
   }
-}
-
-export function strictElement<Props extends object>(
-  component: FunctionComponent<Props>,
-  props?: Props
-) {
-  return createElement(StrictMode, null, createElement(component, props));
 }

@@ -1,6 +1,7 @@
 {
   "extends": "../../.config/tsconfig/tsconfig.preact-demo.json",
   "compilerOptions": {
+    "jsx": "preserve",
     "outDir": "../../dist/packages",
     "declaration": true,
     "composite": true,

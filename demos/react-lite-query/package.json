@@ -43,6 +43,7 @@
   "devDependencies": {
     "@types/react": "^18.0.12",
     "@types/react-dom": "^18.0.5",
+    "@vitest/ui": "*",
     "vite": "*",
     "vite-plugin-fonts": "^0.6.0",
     "vitest": "*"
