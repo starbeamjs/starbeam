@@ -3,7 +3,7 @@
   "overrides": [
     {
       "extends": ["plugin:@starbeam/tight"],
-      "files": ["index.ts", "src/**/*.ts"],
+      "files": ["index.d.ts", "src/**/*.d.ts"],
       "parserOptions": {
         "project": "packages/universal/interfaces/tsconfig.json"
       }

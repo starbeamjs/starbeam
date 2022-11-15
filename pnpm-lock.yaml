@@ -696,13 +696,10 @@ importers:
   packages/universal/interfaces:
     specifiers:
       '@domtree/any': workspace:^
-      '@starbeam-dev/build-support': workspace:*
       '@starbeam/shared': workspace:^
     dependencies:
       '@domtree/any': link:../../../workspace/@domtree/any
       '@starbeam/shared': link:../shared
-    devDependencies:
-      '@starbeam-dev/build-support': link:../../../workspace/build
 
   packages/universal/js:
     specifiers:

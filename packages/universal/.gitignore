@@ -5,3 +5,4 @@
 *.d.ts
 *.d.ts.map
 !env.d.ts
+!interfaces/**/*.d.ts
