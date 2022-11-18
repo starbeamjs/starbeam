@@ -1,5 +1,11 @@
 # @starbeam/shared
 
+## 1.3.1
+
+### Patch Changes
+
+- 3bf1221: Prepare for Starbeam 0.8.4
+
 ## 1.3.0
 
 ### Minor Changes

@@ -21,7 +21,9 @@ export const TemplateCommand = QueryCommand("template", {
       updateRollup
     );
     when(
-      (pkg) => pkg.type.isType("library") || pkg.type.is("tests"),
+      (pkg) =>
+        pkg.source.hasFiles() &&
+        (pkg.type.isType("library") || pkg.type.is("tests")),
       "libraries"
     ).use(updateEslint.package);
     when((pkg) => pkg.type.isType("demo"), "demos").use(updateDemo);

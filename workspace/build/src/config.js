@@ -284,7 +284,7 @@ export class Package {
    * @returns {import("rollup").RollupOptions[] | import("rollup").RollupOptions}
    */
   config() {
-    return [this.esm(), this.cjs()];
+    return [this.rollupESM(), this.rollupCJS()];
   }
 
   /**
@@ -333,7 +333,7 @@ export class Package {
   /**
    * @returns {RollupOptions}
    */
-  esm() {
+  rollupESM() {
     const pkg = this.#package;
 
     return defineConfig({
@@ -357,7 +357,7 @@ export class Package {
   /**
    * @returns {import("rollup").RollupOptions}
    */
-  cjs() {
+  rollupCJS() {
     return defineConfig({
       ...this.#shared("cjs"),
       external: this.#external,

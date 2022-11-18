@@ -1,5 +1,20 @@
 # @starbeam/interfaces
 
+## 0.8.4
+
+### Patch Changes
+
+- 3bf1221: Prepare for Starbeam 0.8.4
+- Updated dependencies [3bf1221]
+  - @starbeam/shared@1.3.1
+  - @domtree/any@0.9.3
+
+## 0.9.0
+
+### Minor Changes
+
+- e65fd4f: Fix interfaces
+
 ## 0.8.0
 
 ### Minor Changes

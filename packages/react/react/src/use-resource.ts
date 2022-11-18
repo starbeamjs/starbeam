@@ -51,18 +51,13 @@ export function use<T>(
   return unsafeTrackedElsewhere(() => value.current);
 }
 
-export function useResource<T>(factory: ResourceBlueprint<T>): T;
-export function useResource<T>(
-  factory: ResourceBlueprint<T, undefined>
-): T | undefined;
-export function useResource<T>(
-  factory: UseFactory<T, undefined>,
+export function useResource<T, D extends undefined>(
+  factory: () => ResourceBlueprint<T, D>,
   dependencies: unknown[]
-): Reactive<T | undefined>;
-export function useResource<T>(
-  factory: UseFactory<T, never>,
-  dependencies: unknown[]
-): Reactive<T>;
+): Reactive<T | D>;
+export function useResource<T, D extends undefined>(
+  factory: ResourceBlueprint<T, D>
+): T | D;
 export function useResource<T>(
   factory: UseFactory<T, undefined>,
   options?: { initial: T } | unknown[],

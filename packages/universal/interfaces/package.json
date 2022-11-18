@@ -1,25 +1,19 @@
 {
   "name": "@starbeam/interfaces",
-  "version": "0.8.0",
+  "version": "0.8.4",
   "type": "module",
-  "main": "index.ts",
-  "types": "index.ts",
+  "main": "index.d.ts",
+  "types": "index.d.ts",
   "exports": {
-    "default": "./index.ts"
+    "default": "./index.d.ts"
   },
   "publishConfig": {
     "exports": {
-      ".": {
-        "types": "./dist/index.d.ts",
-        "import": "./dist/index.js",
-        "default": "./dist/index.cjs"
-      }
-    },
-    "main": "dist/index.cjs",
-    "types": "dist/index.d.ts"
+      "default": "./index.d.ts"
+    }
   },
   "starbeam": {
-    "source": "ts",
+    "source": "d.ts",
     "template:package": "interfaces.package.json",
     "type": "library:interfaces"
   },
@@ -31,7 +25,5 @@
     "@domtree/any": "workspace:^",
     "@starbeam/shared": "workspace:^"
   },
-  "devDependencies": {
-    "@starbeam-dev/build-support": "workspace:*"
-  }
+  "devDependencies": {}
 }

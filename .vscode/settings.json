@@ -48,6 +48,16 @@
     "vite.config.ts": "rollup.config.*, .env.*"
   },
 
+  "files.exclude": {
+    "**/.DS_Store": true,
+    "**/.git": true,
+    "**/.hg": true,
+    "**/.svn": true,
+    "**/CVS": true,
+    "**/Thumbs.db": true,
+    "dist": false
+  },
+
   "json.schemas": [
     {
       "fileMatch": ["manifest.json"],
@@ -67,5 +77,8 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.tsserver.experimental.enableProjectDiagnostics": true,
 
-  "vitest.enable": false
+  "vitest.enable": false,
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

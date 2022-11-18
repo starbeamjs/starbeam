@@ -3,9 +3,18 @@
   "access": "public",
   "baseBranch": "main",
   "bumpVersionsWithWorkspaceProtocolOnly": true,
-  "changelog": "@changesets/cli/changelog",
+  "changelog": ["@changesets/changelog-git", {}],
   "commit": false,
-  "ignore": ["@starbeam-demos/*", "@starbeam-workspace/*", "@starbeam-tests/*"],
+  "ignore": [
+    "@starbeam-demos/*",
+    "@starbeam-workspace/*",
+    "@starbeam-tests/*",
+    "@starbeam/eslint-plugin"
+  ],
+  "linked": [
+    ["@starbeam{x,}/*", "!@starbeam/shared", "!@starbeam/eslint-plugin"],
+    ["@domtree/*"]
+  ],
   "privatePackages": {
     "tag": false,
     "version": false

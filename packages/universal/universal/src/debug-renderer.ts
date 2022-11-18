@@ -23,10 +23,19 @@ export const DEBUG_RENDERER = {
         fromUser: description,
       })
     );
+
+    debug(formula.read());
+
+    let dirty = false;
     return TIMELINE.on.change(formula, () => {
-      queueMicrotask(() => {
-        debug(formula.read());
-      });
+      if (!dirty) {
+        dirty = true;
+
+        queueMicrotask(() => {
+          dirty = false;
+          debug(formula.read());
+        });
+      }
     });
   },
 };

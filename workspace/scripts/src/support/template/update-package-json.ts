@@ -5,11 +5,14 @@ import {
   isObject,
 } from "@starbeam-workspace/json";
 import type { Package } from "@starbeam-workspace/package";
+import { Fragment, fragment } from "@starbeam-workspace/reporter";
+import { fatal } from "@starbeam-workspace/shared";
 
 import type { LabelledUpdater } from "./update-package.js";
 
 export function updatePackageJSON(updater: LabelledUpdater): void {
   const { pkg } = updater;
+  const workspace = pkg.workspace;
 
   updater
     .template(".npmrc")
@@ -64,8 +67,27 @@ export function updatePackageJSON(updater: LabelledUpdater): void {
       }
 
       if (pkg.type.is("library:interfaces")) {
-        current["types"] = "index.ts";
-        updateStarbeam("source", "ts");
+        if (current["main"] === "index.ts") {
+          current["types"] = "index.ts";
+          updateStarbeam("source", "ts");
+        } else if (current["main"] === "index.d.ts") {
+          current["types"] = "index.d.ts";
+          updateStarbeam("source", "d.ts");
+          current["publishConfig"] = {
+            exports: {
+              default: "./index.d.ts",
+            },
+          };
+        } else {
+          workspace.reporter.error(`Invalid main entry in package.json`);
+          fatal(
+            workspace.reporter.fatal(
+              fragment`Since the package type is library:interfaces, main must either be ${Fragment.header.inverse(
+                "index.ts"
+              )} or ${Fragment.header.inverse("index.d.ts")}`
+            )
+          );
+        }
       }
 
       if (pkg.type.is("library:upstream-types")) {
