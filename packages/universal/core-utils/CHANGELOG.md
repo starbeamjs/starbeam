@@ -1,5 +1,11 @@
 # @starbeam/core-utils
 
+## 0.8.4
+
+### Patch Changes
+
+- 3bf1221: Prepare for Starbeam 0.8.4
+
 ## 0.8.0
 
 ### Minor Changes

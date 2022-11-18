@@ -1,5 +1,18 @@
 # @starbeam/js
 
+## 0.8.4
+
+### Patch Changes
+
+- 3bf1221: Prepare for Starbeam 0.8.4
+- Updated dependencies [3bf1221]
+  - @starbeam/interfaces@0.8.4
+  - @starbeam/timeline@0.8.4
+  - @starbeam/universal@0.8.4
+  - @starbeam/debug@0.8.4
+  - @starbeam/shared@1.3.1
+  - @starbeam/verify@0.8.4
+
 ## 0.8.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @domtree/interface
 
+## 0.9.3
+
+### Patch Changes
+
+- 3bf1221: Prepare for Starbeam 0.8.4
+
 ## 0.9.2
 
 ### Patch Changes

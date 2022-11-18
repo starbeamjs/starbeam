@@ -9,3 +9,4 @@ coverage
 pack
 .pnpm-debug.log
 .eslintcache
+.ignore

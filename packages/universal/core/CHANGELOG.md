@@ -1,5 +1,13 @@
 # @starbeam/core
 
+## 0.8.4
+
+### Patch Changes
+
+- 3bf1221: Prepare for Starbeam 0.8.4
+- Updated dependencies [3bf1221]
+  - @starbeam/universal@0.8.4
+
 ## 0.8.1
 
 ### Patch Changes

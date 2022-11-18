@@ -34,7 +34,8 @@ export class StarbeamSources extends Union(
   "jsx:untyped",
   "ts",
   "tsx",
-  "d.ts"
+  "d.ts",
+  "none"
 ) {
   /**
    * Determine whether this source type includes the given extension.
@@ -49,6 +50,10 @@ export class StarbeamSources extends Union(
 
   get isTS(): boolean {
     return this.has("ts");
+  }
+
+  hasFiles(): boolean {
+    return this.value !== "none";
   }
 
   /**
@@ -70,6 +75,8 @@ export class StarbeamSources extends Union(
         return ["tsx", "ts"];
       case "d.ts":
         return ["d.ts"];
+      case "none":
+        return [];
     }
   }
 

@@ -67,8 +67,8 @@ export interface UnionClass<S extends string = any> {
 type Kind<S extends string> = S extends `${infer K}:${string}` ? K : never;
 type Subtype<
   S extends string,
-  Kind extends string = string
-> = S extends `${Kind}:${infer K}` ? K : never;
+  Kind extends string[] = string[]
+> = S extends `${Kind[number]}:${infer K}` ? K : never;
 
 export declare class UnionInstance<S extends string> {
   declare [TO_STRING]: true;
@@ -81,7 +81,7 @@ export declare class UnionInstance<S extends string> {
   toString(): string;
   eq(other: this): boolean;
   is(...values: S[]): boolean;
-  isType<K extends Kind<S>>(...values: K[]): this is { subtype: Subtype<S, K> };
+  isType<K extends Kind<S>[]>(...values: K): this is { subtype: Subtype<S, K> };
 }
 
 /**
