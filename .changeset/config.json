@@ -5,6 +5,7 @@
   "bumpVersionsWithWorkspaceProtocolOnly": true,
   "changelog": "@changesets/cli/changelog",
   "commit": false,
+  "fixed": [["@starbeam{x,}/*"], ["@domtree/*"]],
   "ignore": ["@starbeam-demos/*", "@starbeam-workspace/*", "@starbeam-tests/*"],
   "privatePackages": {
     "tag": false,
