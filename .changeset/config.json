@@ -6,6 +6,7 @@
   "changelog": "@changesets/cli/changelog",
   "commit": false,
   "ignore": ["@starbeam-demos/*", "@starbeam-workspace/*", "@starbeam-tests/*"],
+  "linked": [["@starbeam{x,}/*"], ["@domtree/*"]],
   "privatePackages": {
     "tag": false,
     "version": false
