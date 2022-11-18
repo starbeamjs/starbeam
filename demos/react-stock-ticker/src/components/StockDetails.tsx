@@ -22,7 +22,7 @@ export function StockDetails({
   async function follow(): Promise<void> {
     const state = query.current;
 
-    if (state === undefined || state.stock === null) {
+    if (state.stock === null) {
       return;
     }
 
@@ -41,7 +41,7 @@ export function StockDetails({
   return useReactive(() => {
     const state = query.current;
 
-    const { stock } = state ?? {};
+    const { stock } = state;
 
     return (
       <Portal>
