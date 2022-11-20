@@ -1,6 +1,6 @@
 {
   "name": "@starbeamx/store",
-  "version": "0.8.4",
+  "version": "0.8.5",
   "description": "A Starbeam Store that's fun and easy to use",
   "type": "module",
   "main": "index.ts",
