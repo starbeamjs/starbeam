@@ -8,7 +8,7 @@ export {
 export { Linkable } from "./src/reactive-core/formula/linkable.js";
 export {
   PolledFormula,
-  PolledFormulaFn,
+  PolledFormulaValidation,
 } from "./src/reactive-core/formula/polled-formula.js";
 export { Setup, Setups } from "./src/reactive-core/formula/setups.js";
 export { Freshness } from "./src/reactive-core/higher-level/freshness.js";

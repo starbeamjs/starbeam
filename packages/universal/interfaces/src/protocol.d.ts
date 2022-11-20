@@ -50,10 +50,8 @@ export interface ReactiveCore<
   read: (stack?: Stack) => T;
 }
 
-export interface Reactive<
-  out T,
-  I extends ReactiveInternals = ReactiveInternals
-> extends ReactiveCore<T, I> {
+export interface Reactive<T, I extends ReactiveInternals = ReactiveInternals>
+  extends ReactiveCore<T, I> {
   readonly current: T;
 }
 

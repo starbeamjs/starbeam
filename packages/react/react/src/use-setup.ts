@@ -110,13 +110,6 @@ export function useReactiveSetup<T>(
 
     const reactive = Factory.create(nextInstance);
 
-    // let reactive: Reactive<T>;
-    // if (Reactive.is(instance)) {
-    //   reactive = instance;
-    // } else {
-    //   reactive = PolledFormulaFn(instance, desc);
-    // }
-
     lifecycle.on.layout(() => {
       ReactiveElement.layout(element);
 
