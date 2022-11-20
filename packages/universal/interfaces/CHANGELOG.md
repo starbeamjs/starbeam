@@ -1,5 +1,13 @@
 # @starbeam/interfaces
 
+## 0.8.5
+
+### Patch Changes
+
+- de755c6: Improve type inference
+- Updated dependencies [de755c6]
+  - @starbeam/shared@1.3.2
+
 ## 0.8.4
 
 ### Patch Changes

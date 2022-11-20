@@ -6,13 +6,14 @@ import {
 import type { Stack } from "@starbeam/interfaces";
 import type { UNINITIALIZED } from "@starbeam/shared";
 import {
-  type Reactive,
   diff,
   Frame,
   REACTIVE,
   ReactiveProtocol,
   TIMELINE,
 } from "@starbeam/timeline";
+
+import type { Formula } from "./formula.js";
 
 /**
  * A {@linkcode PolledFormula} is like a {@linkcode Formula}, but it never attempts to avoid running the
@@ -26,7 +27,7 @@ import {
  * wants to mix in Starbeam's notification mechanism for Starbeam dependencies.
  */
 
-export function PolledFormula<T>(
+export function PolledFormulaValidation<T>(
   callback: () => T,
   description?: Description | string
 ): {
@@ -77,22 +78,17 @@ export function PolledFormula<T>(
   return { poll, update, frame };
 }
 
-interface FormulaFn<T> extends Reactive<T> {
-  (): T;
-  readonly current: T;
-}
-
-export function PolledFormulaFn<T>(
+export function PolledFormula<T>(
   callback: () => T,
   description?: Description | string
-): FormulaFn<T> {
-  const formula = PolledFormula(
+): Formula<T> {
+  const formula = PolledFormulaValidation(
     callback,
     descriptionFrom({
       type: "formula",
       api: {
         package: "@starbeam/universal",
-        name: "FormulaFn",
+        name: "PolledFormula",
       },
       fromUser: description,
     })
@@ -124,5 +120,5 @@ export function PolledFormulaFn<T>(
     },
   });
 
-  return fn as FormulaFn<T>;
+  return fn as Formula<T>;
 }

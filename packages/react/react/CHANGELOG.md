@@ -1,5 +1,21 @@
 # @starbeam/react
 
+## 0.8.5
+
+### Patch Changes
+
+- de755c6: Improve type inference
+- Updated dependencies [de755c6]
+  - @starbeam/universal@0.8.5
+  - @starbeam/use-strict-lifecycle@0.8.5
+  - @starbeam/core-utils@0.8.5
+  - @starbeam/debug@0.8.5
+  - @starbeam/js@0.8.5
+  - @starbeam/modifier@0.8.5
+  - @starbeam/shared@1.3.2
+  - @starbeam/timeline@0.8.5
+  - @starbeam/verify@0.8.5
+
 ## 0.8.4
 
 ### Patch Changes

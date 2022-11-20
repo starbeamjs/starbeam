@@ -1,5 +1,13 @@
 # @starbeam/core
 
+## 0.8.5
+
+### Patch Changes
+
+- de755c6: Improve type inference
+- Updated dependencies [de755c6]
+  - @starbeam/universal@0.8.5
+
 ## 0.8.4
 
 ### Patch Changes

@@ -3,16 +3,10 @@ import {
   callerStack,
   descriptionFrom,
 } from "@starbeam/debug";
-import type { Stack } from "@starbeam/interfaces";
+import type { Reactive, Stack } from "@starbeam/interfaces";
 import type { UNINITIALIZED } from "@starbeam/shared";
-import {
-  type Reactive,
-  diff,
-  Frame,
-  REACTIVE,
-  ReactiveProtocol,
-  TIMELINE,
-} from "@starbeam/timeline";
+import { ReactiveProtocol } from "@starbeam/timeline";
+import { diff, Frame, REACTIVE, TIMELINE } from "@starbeam/timeline";
 
 export interface FormulaValidation<T> {
   frame: Frame<T | UNINITIALIZED>;
@@ -86,7 +80,7 @@ export function Formula<T>(
     type: "formula",
     api: {
       package: "@starbeam/universal",
-      name: "FormulaFn",
+      name: "Formula",
     },
     fromUser: description,
   });

@@ -1,5 +1,11 @@
 # @starbeam/use-strict-lifecycle
 
+## 0.8.5
+
+### Patch Changes
+
+- de755c6: Improve type inference
+
 ## 0.8.4
 
 ### Patch Changes

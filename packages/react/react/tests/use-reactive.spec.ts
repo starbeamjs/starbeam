@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { useReactive, useReactiveSetup } from "@starbeam/react";
-import { Cell, Formula, PolledFormulaFn } from "@starbeam/universal";
+import { Cell, Formula, PolledFormula } from "@starbeam/universal";
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
 import { useState } from "react";
 import { describe, expect } from "vitest";
@@ -199,7 +199,7 @@ describe("useReactive", () => {
               cell.update((i) => i + INCREMENT);
             }
 
-            return PolledFormulaFn(() => {
+            return PolledFormula(() => {
               const [reactCount, setReactCount] = useState(INITIAL_COUNT);
 
               state.value({ starbeam: cell.current, react: reactCount });
