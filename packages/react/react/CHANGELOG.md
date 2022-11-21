@@ -1,5 +1,21 @@
 # @starbeam/react
 
+## 0.8.6
+
+### Patch Changes
+
+- 6502cc7: Remove errant import
+- Updated dependencies [6502cc7]
+  - @starbeam/use-strict-lifecycle@0.8.6
+  - @starbeam/core-utils@0.8.6
+  - @starbeam/debug@0.8.6
+  - @starbeam/js@0.8.6
+  - @starbeam/modifier@0.8.6
+  - @starbeam/shared@1.3.3
+  - @starbeam/timeline@0.8.6
+  - @starbeam/universal@0.8.6
+  - @starbeam/verify@0.8.6
+
 ## 0.8.5
 
 ### Patch Changes

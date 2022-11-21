@@ -1,5 +1,18 @@
 # @starbeam/preact
 
+## 0.8.6
+
+### Patch Changes
+
+- 6502cc7: Remove errant import
+- Updated dependencies [6502cc7]
+  - @starbeam/preact-utils@0.8.6
+  - @starbeam/core-utils@0.8.6
+  - @starbeam/debug@0.8.6
+  - @starbeam/timeline@0.8.6
+  - @starbeam/universal@0.8.6
+  - @starbeam/verify@0.8.6
+
 ## 0.8.5
 
 ### Patch Changes

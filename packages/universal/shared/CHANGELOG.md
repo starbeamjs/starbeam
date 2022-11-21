@@ -1,5 +1,11 @@
 # @starbeam/shared
 
+## 1.3.3
+
+### Patch Changes
+
+- 6502cc7: Remove errant import
+
 ## 1.3.2
 
 ### Patch Changes

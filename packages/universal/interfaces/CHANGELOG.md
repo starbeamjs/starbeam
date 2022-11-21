@@ -1,5 +1,13 @@
 # @starbeam/interfaces
 
+## 0.8.6
+
+### Patch Changes
+
+- 6502cc7: Remove errant import
+- Updated dependencies [6502cc7]
+  - @starbeam/shared@1.3.3
+
 ## 0.8.5
 
 ### Patch Changes
