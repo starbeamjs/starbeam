@@ -1,5 +1,4 @@
 import type { ComponentChild, ComponentChildren } from "preact";
-import {} from "util/types";
 
 import { isProbablyVNode } from "./internals.js";
 import { InternalComponent } from "./internals/component.js";
