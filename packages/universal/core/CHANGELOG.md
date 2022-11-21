@@ -1,5 +1,13 @@
 # @starbeam/core
 
+## 0.8.6
+
+### Patch Changes
+
+- 6502cc7: Remove errant import
+- Updated dependencies [6502cc7]
+  - @starbeam/universal@0.8.6
+
 ## 0.8.5
 
 ### Patch Changes

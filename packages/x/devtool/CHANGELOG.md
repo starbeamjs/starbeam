@@ -1,5 +1,16 @@
 # @starbeamx/devtool
 
+## 0.8.6
+
+### Patch Changes
+
+- Updated dependencies [6502cc7]
+  - @starbeam/core-utils@0.8.6
+  - @starbeam/debug@0.8.6
+  - @starbeam/interfaces@0.8.6
+  - @starbeam/timeline@0.8.6
+  - @starbeam/verify@0.8.6
+
 ## 0.8.5
 
 ### Patch Changes

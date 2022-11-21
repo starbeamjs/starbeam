@@ -1,6 +1,6 @@
 {
   "name": "@starbeam/react",
-  "version": "0.8.5",
+  "version": "0.8.6",
   "type": "module",
   "main": "index.ts",
   "types": "index.ts",

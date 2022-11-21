@@ -1,6 +1,6 @@
 {
   "name": "@starbeam/shared",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "A package that facilitates having multiple copies of Starbeam in a single process that interoperate with each other",
   "type": "module",
   "main": "index.ts",
