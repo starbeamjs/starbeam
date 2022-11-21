@@ -1,8 +1,9 @@
+// @ts-check
+
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { defineConfig } from "rollup";
 import rollupTS from "rollup-plugin-ts";
 import typescriptLibrary from "typescript";
 import { VitePluginFonts } from "vite-plugin-fonts";
@@ -190,6 +191,28 @@ export class Package {
       source = json.starbeam?.source;
     }
 
+    /** @type {Record<string, string> | string | undefined} */
+    let rawEntry;
+
+    if (json["starbeam:entry"]) {
+      rawEntry = json["starbeam:entry"];
+    } else if (json.starbeam?.entry) {
+      rawEntry = json.starbeam.entry;
+    } else {
+      rawEntry = undefined;
+    }
+
+    /** @type {Record<string, string>} */
+    let entry;
+
+    if (typeof rawEntry === "string") {
+      entry = { index: rawEntry };
+    } else if (typeof rawEntry === "object") {
+      entry = rawEntry;
+    } else {
+      entry = { index: json.main };
+    }
+
     if (json.main) {
       return new Package({
         name: json.name,
@@ -200,6 +223,7 @@ export class Package {
           source,
           jsx,
           type,
+          entry,
         },
       });
     } else if (
@@ -284,7 +308,7 @@ export class Package {
    * @returns {import("rollup").RollupOptions[] | import("rollup").RollupOptions}
    */
   config() {
-    return [this.rollupESM(), this.rollupCJS()];
+    return [...this.rollupESM(), ...this.rollupCJS()];
   }
 
   /**
@@ -331,14 +355,11 @@ export class Package {
   }
 
   /**
-   * @returns {RollupOptions}
+   * @returns {RollupOptions[]}
    */
   rollupESM() {
-    const pkg = this.#package;
-
-    return defineConfig({
-      ...this.#shared("esm"),
-      input: pkg.main,
+    return this.#shared("esm").map((options) => ({
+      ...options,
       external: this.#external,
       plugins: [
         inline(),
@@ -351,15 +372,15 @@ export class Package {
           target: ScriptTarget.ES2022,
         }),
       ],
-    });
+    }));
   }
 
   /**
-   * @returns {import("rollup").RollupOptions}
+   * @returns {import("rollup").RollupOptions[]}
    */
   rollupCJS() {
-    return defineConfig({
-      ...this.#shared("cjs"),
+    return this.#shared("esm").map((options) => ({
+      ...options,
       external: this.#external,
       plugins: [
         inline(),
@@ -374,7 +395,7 @@ export class Package {
           moduleResolution: ModuleResolutionKind.NodeJs,
         }),
       ],
-    });
+    }));
   }
 
   /**
@@ -418,30 +439,42 @@ export class Package {
 
   /**
    * @param {"esm" | "cjs"} format
-   * @returns {import("rollup").RollupOptions}
+   * @returns {import("rollup").RollupOptions[]}
    */
   #shared(format) {
-    const { root, main } = this.#package;
+    const {
+      root,
+      starbeam: { entry },
+    } = this.#package;
 
     const ext = format === "esm" ? "js" : "cjs";
-    return {
-      input: resolve(root, main),
-      output: {
-        file: resolve(root, "dist", `index.${ext}`),
-        format,
-        sourcemap: true,
-        exports: format === "cjs" ? "named" : "auto",
-      },
-      onwarn: (warning, warn) => {
-        switch (warning.code) {
-          case "CIRCULAR_DEPENDENCY":
-          case "EMPTY_BUNDLE":
-            return;
-          default:
-            warn(warning);
-        }
-      },
-    };
+
+    /**
+     * @param {[string, string]} entry
+     * @returns {import("rollup").RollupOptions}
+     */
+    function entryPoint([exportName, ts]) {
+      return {
+        input: resolve(root, ts),
+        output: {
+          file: resolve(root, "dist", `${exportName}.${ext}`),
+          format,
+          sourcemap: true,
+          exports: format === "cjs" ? "named" : "auto",
+        },
+        onwarn: (warning, warn) => {
+          switch (warning.code) {
+            case "CIRCULAR_DEPENDENCY":
+            case "EMPTY_BUNDLE":
+              return;
+            default:
+              warn(warning);
+          }
+        },
+      };
+    }
+
+    return Object.entries(entry).map(entryPoint);
   }
 }
 

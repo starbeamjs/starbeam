@@ -7,6 +7,7 @@ export interface PackageInfo {
     readonly source: string | undefined;
     readonly jsx: string | undefined;
     readonly type: string;
+    readonly entry: Record<string, string>;
   };
 }
 
@@ -42,12 +43,14 @@ export interface PackageJSON {
   readonly "starbeam:type"?: string | undefined;
   readonly "starbeam:jsx"?: string | undefined;
   readonly "starbeam:source"?: string | undefined;
+  readonly "starbeam:entry"?: string | Record<string, string> | undefined;
   readonly starbeam?:
     | {
         readonly inline?: PackageJsonInline[] | undefined;
         readonly source?: string | undefined;
         readonly type?: string | undefined;
         readonly jsx?: string | undefined;
+        readonly entry?: string | Record<string, string> | undefined;
       }
     | undefined;
 }
@@ -74,6 +77,8 @@ export class Package {
   static config(meta: ImportMeta | string): RollupExport;
   static viteConfig(meta: ImportMeta | string): ViteExport;
   static eslintConfig(meta: ImportMeta | string): ESLintExport;
+
+  readonly entry: Record<string, string>;
 
   config(): RollupExport;
 }
