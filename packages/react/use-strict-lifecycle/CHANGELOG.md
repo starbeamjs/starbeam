@@ -1,5 +1,11 @@
 # @starbeam/use-strict-lifecycle
 
+## 0.8.7
+
+### Patch Changes
+
+- ded6421: Add /setup to preact
+
 ## 0.8.6
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @starbeam/shared
 
+## 1.3.4
+
+### Patch Changes
+
+- ded6421: Add /setup to preact
+
 ## 1.3.3
 
 ### Patch Changes
