@@ -1,5 +1,13 @@
 # @starbeam/preact-utils
 
+## 0.8.7
+
+### Patch Changes
+
+- ded6421: Add /setup to preact
+- Updated dependencies [ded6421]
+  - @starbeam/core-utils@0.8.7
+
 ## 0.8.6
 
 ### Patch Changes
