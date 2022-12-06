@@ -39,6 +39,10 @@ export function useReactive<T>(
   }).current;
 }
 
+/**
+ * Returns a function that can be called to notify React that the current component should be
+ * re-rendered.
+ */
 export function useNotify(): () => void {
   const [, setNotify] = useState({});
   return () => {

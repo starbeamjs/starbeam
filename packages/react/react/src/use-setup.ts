@@ -11,6 +11,13 @@ import { useState } from "react";
 
 import { ReactiveElement } from "./element.js";
 
+/**
+ * Create a stable object that will automatically be cleaned up when the
+ * component is unmounted, **including** when the component is unmounted
+ * temporarily (i.e. when state is [reused] by React).
+ *
+ * [reused]: https://github.com/reactwg/react-18/discussions/19
+ */
 export function useComponent(): object {
   return useLifecycle(({ on }) => {
     const owner = Object.create(null) as object;
@@ -23,6 +30,21 @@ export function useComponent(): object {
   });
 }
 
+/**
+ * Run a callback when the component is mounted, and return the result.
+ *
+ * The callback will be run again if the component is unmounted and then remounted (i.e. when state
+ * is [reused] by React).
+ *
+ * When a component is unmounted (even temporarily), the object returned by `useSetup` will be
+ * finalized. You can therefore use the return value of `useSetup` as the owner of other resources.
+ *
+ * `useSetup` also supports `on.layout` and `on.idle` callbacks, which will be called when React
+ * schedules `useLayoutEffect` callbacks ("layout timing") or `useEffect` callbacks ("idle timing")
+ * respectively.
+ *
+ * [reused]: https://github.com/reactwg/react-18/discussions/19
+ */
 export function useSetup<T>(
   callback: (setup: ReactiveElement) => T,
   description?: string | Description
