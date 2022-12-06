@@ -212,7 +212,7 @@ describe("useResource", () => {
   );
 });
 
-describe.only("use", () => {
+describe("use", () => {
   testReact.strict<
     unknown,
     | { channel: ChannelInfo | undefined; increment: () => void }
