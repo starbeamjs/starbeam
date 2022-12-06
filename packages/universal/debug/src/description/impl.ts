@@ -432,10 +432,20 @@ if (import.meta.env.DEV) {
     }
 
     #name(options: interfaces.DescriptionDescribeOptions): string {
-      if ((this.isAnonymous || options.source) ?? false) {
-        return `${this.fullName} @ ${this.#caller(options)}`;
+      const getName = (): string => {
+        if ((this.isAnonymous || options.source) ?? false) {
+          return `${this.fullName} @ ${this.#caller(options)}`;
+        } else {
+          return this.fullName;
+        }
+      };
+
+      const name = getName();
+
+      if (!this.isAnonymous && options.id) {
+        return `${name} (${this.#idName})`;
       } else {
-        return this.fullName;
+        return name;
       }
     }
 

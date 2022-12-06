@@ -1,9 +1,15 @@
 // @vitest-environment jsdom
 
 import { entryPoint } from "@starbeam/debug";
-import { use, useProp } from "@starbeam/react";
+import reactive from "@starbeam/js";
+import { use, useProp, useReactive, useSetup } from "@starbeam/react";
 import { Reactive } from "@starbeam/timeline";
-import { type ResourceBlueprint, Cell, Resource } from "@starbeam/universal";
+import {
+  type ResourceBlueprint,
+  Cell,
+  Formula,
+  Resource,
+} from "@starbeam/universal";
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
 import { beforeEach, describe, expect } from "vitest";
 
@@ -205,6 +211,135 @@ describe("useResource", () => {
     }
   );
 });
+
+describe.only("use", () => {
+  testReact.strict<
+    unknown,
+    | { channel: ChannelInfo | undefined; increment: () => void }
+    | null
+    | undefined
+  >("using use()", async (root, mode) => {
+    ID = 0;
+
+    const result = await root
+      .expectHTML((state) =>
+        state?.channel?.message
+          ? `<span>${state?.channel.message}</span><button>++ ${state?.channel.id} ++</button>`
+          : `<span>loading</span>`
+      )
+      .render(
+        (state) => {
+          const { name, increment } = useSetup(() => {
+            const count = Cell(0, `count`);
+
+            const name = Formula(
+              () => `channel${count.current}`,
+              `channel-name`
+            );
+
+            return {
+              name,
+              increment: () => {
+                return count.update((i) => i + 1);
+              },
+            };
+          });
+
+          const channel = use(() => {
+            return SimpleChannel(name.current);
+          }, [name]);
+
+          state.value({ channel, increment });
+
+          return useReactive(
+            () =>
+              channel?.message
+                ? react.fragment(
+                    html.span(),
+                    html.button({ onClick: increment }, `++ ${channel.id} ++`)
+                  )
+                : html.span("loading"),
+            "jsx"
+          );
+        },
+        { name: "test" }
+      );
+
+    const channel = Channel.latest();
+    expect(channel).not.toBeUndefined();
+
+    const firstId = mode.match({ strict: () => 1, loose: () => 0 });
+
+    expect(result.value?.channel).not.toBeUndefined();
+
+    await result.act(() => {
+      send("first message");
+    });
+
+    expect(result.value?.channel).toEqual({
+      id: firstId,
+      message: "first message",
+    });
+
+    await result.act(() => {
+      send("second message");
+    });
+
+    expect(result.value?.channel).toEqual({
+      id: firstId,
+      message: "second message",
+    });
+
+    await result.act(() => {
+      result.value?.increment();
+    });
+  });
+});
+
+let ID = 0;
+
+interface ChannelInfo {
+  id: number;
+  message: string | undefined;
+}
+
+function SimpleChannel(
+  name: string
+): ResourceBlueprint<ChannelInfo, undefined> {
+  return Resource(({ on }) => {
+    const state = reactive.object(
+      {
+        id: ID++,
+        message: undefined as string | undefined,
+      },
+      "SimpleChannel->state"
+    );
+
+    const c = Channel.subscribe<string | undefined>(name);
+    c.onMessage((message) => {
+      state.message = message;
+    });
+
+    on.cleanup(() => {
+      c.cleanup();
+    });
+
+    return state;
+  }, "SimpleChannel");
+}
+
+function send(message: string): void {
+  entryPoint((): void => {
+    const latest = Channel.latest();
+
+    if (latest === undefined) {
+      expect(latest).not.toBeUndefined();
+      return;
+    }
+
+    Channel.sendMessage(latest, message);
+  });
+}
 
 function ChannelResource(
   name: Reactive<string> | string

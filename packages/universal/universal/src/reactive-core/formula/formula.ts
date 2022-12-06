@@ -36,6 +36,7 @@ export function FormulaValidation<T>(
         updating: frame,
         evaluate: callback,
       });
+
       TIMELINE.update(frame);
 
       const newDeps = new Set(ReactiveProtocol.dependencies(frame));

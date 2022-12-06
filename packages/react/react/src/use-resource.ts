@@ -1,3 +1,4 @@
+import type { Description } from "@starbeam/debug";
 import { callerStack } from "@starbeam/debug";
 import { LIFETIME, TIMELINE } from "@starbeam/timeline";
 import {
@@ -20,33 +21,32 @@ export type UseFactory<T, D extends undefined> =
   | ResourceBlueprint<T, D>
   | (() => IntoResource<T>);
 
+export function use<T, Initial extends undefined>(
+  factory:
+    | ResourceBlueprint<T, Initial>
+    | (() => ResourceBlueprint<T, Initial>),
+  dependencies?: unknown[]
+): T | Initial;
 export function use<T>(
   factory: ResourceBlueprint<T> | (() => ResourceBlueprint<T>),
-  dependencies?: unknown[]
+  options: { initial: T; description?: string | Description | undefined }
 ): T;
-// export function use<T>(
-//   factory: ResourceBlueprint<T, UNINITIALIZED>
-// ): T | undefined;
-// export function use<T>(
-//   factory: UseFactory<T, UNINITIALIZED>,
-//   dependencies: unknown[]
-// ): T | undefined;
-// export function use<T>(
-//   factory: UseFactory<T, never>,
-//   dependencies: unknown[]
-// ): T;
-// export function use<T>(
-//   factory: UseFactory<T, UNINITIALIZED> | UseFactory<T, never>,
-//   options: { initial: T },
-//   dependencies: unknown[]
-// ): T;
-
+export function use<T, Initial extends undefined>(
+  factory: ResourceBlueprint<T> | (() => ResourceBlueprint<T, Initial>),
+  options: { description?: string | Description | undefined }
+): T | Initial;
 export function use<T>(
-  factory: UseFactory<T, undefined>,
-  options?: { initial: T } | unknown[],
+  factory: IntoResource<T>,
+  options?:
+    | { initial?: T; description?: string | Description | undefined }
+    | unknown[],
   dependencies?: unknown[]
 ): T | undefined {
-  const value = createResource(factory, options, dependencies);
+  const value = createResource(
+    factory as IntoResource<T | undefined>,
+    options,
+    dependencies
+  );
 
   return unsafeTrackedElsewhere(() => value.current);
 }
@@ -59,7 +59,7 @@ export function useResource<T, D extends undefined>(
   factory: ResourceBlueprint<T, D>
 ): T | D;
 export function useResource<T>(
-  factory: UseFactory<T, undefined>,
+  factory: IntoResource<T>,
   options?: { initial: T } | unknown[],
   dependencies?: unknown[]
 ): Reactive<T | undefined> {
@@ -67,53 +67,74 @@ export function useResource<T>(
 }
 
 function createResource<T>(
-  factory: UseFactory<T, undefined>,
-  options?: { initial: T } | unknown[],
+  factory: IntoResource<T>,
+  options?:
+    | { initial?: T; description?: string | Description | undefined }
+    | unknown[],
   dependencies?: unknown[]
 ): Reactive<T | undefined> {
   const owner = useComponent();
   const notify = useNotify();
 
-  const deps = Array.isArray(options) ? options : dependencies ?? [];
+  const deps: unknown[] = Array.isArray(options) ? options : dependencies ?? [];
   const initialValue = Array.isArray(options) ? undefined : options?.initial;
   let prev: unknown[] = deps;
 
-  return useLifecycle(deps, ({ on }) => {
+  let stable = {};
+
+  return useLifecycle([deps, factory] as const, ({ on }) => {
+    on.cleanup(() => {
+      LIFETIME.finalize(stable);
+    });
+
     let lastResource: Reactive<T | undefined> | undefined = undefined;
     const marker = Marker();
 
-    function create(): void {
-      if (lastResource) LIFETIME.finalize(lastResource);
+    function create(factory: IntoResource<T>): void {
+      LIFETIME.finalize(stable);
+      stable = {};
 
-      const created: Reactive<T | undefined> =
-        typeof factory === "function"
-          ? Factory.resource(factory() as IntoResource<T | undefined>, owner)
-          : factory.create(owner);
+      const created: Reactive<T | undefined> = Factory.resource(factory, owner);
 
       lastResource = created;
+      LIFETIME.link(stable, lastResource);
       marker.update(callerStack());
 
-      on.cleanup(() => {
-        LIFETIME.finalize(created);
+      const unsubscribe = TIMELINE.on.change(value, () => {
+        notify();
       });
+
+      LIFETIME.link(stable, created);
+
+      LIFETIME.on.cleanup(stable, () => {
+        unsubscribe();
+
+        lastResource = undefined;
+        marker.update(callerStack());
+      });
+
+      notify();
     }
 
-    on.layout(create);
+    on.layout(([_, factory]) => {
+      create(factory);
+    });
 
-    on.update((next = []) => {
-      if (!sameDeps(prev, next)) {
-        prev = next;
-        if (lastResource) LIFETIME.finalize(lastResource);
-        create();
+    on.update(([nextDeps, factory]) => {
+      if (!sameDeps(prev, nextDeps) || lastResource === undefined) {
+        prev = nextDeps;
+
+        LIFETIME.finalize(stable);
+        stable = {};
+        create(factory);
       }
     });
 
     const value = Formula(() => {
       marker.consume();
+
       return lastResource?.current ?? initialValue;
     });
-
-    on.cleanup(TIMELINE.on.change(value, notify));
 
     return value;
   });

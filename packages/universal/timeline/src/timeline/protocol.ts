@@ -91,7 +91,7 @@ export const ReactiveProtocol = {
   log(
     this: void,
     reactive: ReactiveProtocol,
-    options: { implementation?: boolean; source?: boolean } = {}
+    options: { implementation?: boolean; source?: boolean; id?: boolean } = {}
   ): void {
     ReactiveInternals.log(reactive[REACTIVE], options);
   },
@@ -219,7 +219,8 @@ export const ReactiveInternals = {
     {
       implementation = false,
       source = false,
-    }: { implementation?: boolean; source?: boolean } = {}
+      id = false,
+    }: { implementation?: boolean; source?: boolean; id?: boolean } = {}
   ): string {
     const dependencies = [...ReactiveInternals.dependencies(internals)];
     const descriptions = new Set(
@@ -233,7 +234,7 @@ export const ReactiveInternals = {
     const nodes = [...descriptions]
       .map((d) => {
         const description = implementation ? d : d.userFacing;
-        return description.describe({ source });
+        return description.describe({ source, id });
       })
       .filter(isPresent);
 
@@ -243,12 +244,12 @@ export const ReactiveInternals = {
   log(
     this: void,
     internals: interfaces.ReactiveInternals,
-    options: { implementation?: boolean; source?: boolean } = {}
+    options: { implementation?: boolean; source?: boolean; id?: boolean } = {}
   ): void {
     const debug = ReactiveInternals.debug(internals, options);
 
     console.group(
-      ReactiveInternals.description(internals).describe(),
+      ReactiveInternals.description(internals).describe({ id: options.id }),
       `(updated at ${
         Timestamp.debug(ReactiveInternals.lastUpdated(internals)).at
       })`
