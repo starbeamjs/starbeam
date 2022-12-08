@@ -28,7 +28,8 @@ export function use<T, Initial extends undefined>(
 ): T | Initial;
 export function use<T>(
   factory: ResourceBlueprint<T> | (() => ResourceBlueprint<T>),
-  options: { initial: T; description?: string | Description | undefined }
+  options: { initial?: T; description?: string | Description | undefined },
+  dependencies?: unknown[]
 ): T;
 export function use<T, Initial extends undefined>(
   factory: ResourceBlueprint<T> | (() => ResourceBlueprint<T, Initial>),
@@ -47,7 +48,8 @@ export function use<T>(
     dependencies
   );
 
-  return unsafeTrackedElsewhere(() => value.current);
+  const result = unsafeTrackedElsewhere(() => value.current);
+  return result;
 }
 
 export function useResource<T, D extends undefined>(
@@ -138,7 +140,9 @@ function createResource<T>(
 
       // `value` is initialized below. It's a formula that returns the current value of the
       // resource (or its initial value). Whenever that value changes, we notify React.
-      const unsubscribe = TIMELINE.on.change(resource, notify);
+      const unsubscribe = TIMELINE.on.change(resource, () => {
+        notify();
+      });
 
       // When the resource is finalized (because the component is unmounted, even temporarily), we
       // unsubscribe from the resource's changes. This is largely for hygiene, but it also prevents
@@ -179,7 +183,7 @@ function createResource<T>(
   });
 }
 
-class MountedResource<T> {
+export class MountedResource<T> {
   static create<T>(
     initial: T,
     description: Description
@@ -236,6 +240,7 @@ class MountedResource<T> {
     const owner = this.#reset();
 
     const reactive = factory(owner);
+
     this.#cell.set(reactive);
     this.#value = reactive;
 

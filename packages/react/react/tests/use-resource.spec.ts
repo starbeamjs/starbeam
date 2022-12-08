@@ -213,12 +213,12 @@ describe("useResource", () => {
 });
 
 describe("use", () => {
-  testReact.strict<
+  testReact<
     unknown,
     | { channel: ChannelInfo | undefined; increment: () => void }
     | null
     | undefined
-  >("using use()", async (root, mode) => {
+  >("using use() with dependencies", async (root, mode) => {
     ID = 0;
 
     const result = await root
@@ -261,6 +261,84 @@ describe("use", () => {
                 : html.span("loading"),
             "jsx"
           );
+        },
+        { name: "test" }
+      );
+
+    const channel = Channel.latest();
+    expect(channel).not.toBeUndefined();
+
+    const firstId = mode.match({ strict: () => 1, loose: () => 0 });
+
+    expect(result.value?.channel).not.toBeUndefined();
+
+    await result.act(() => {
+      send("first message");
+    });
+
+    expect(result.value?.channel).toEqual({
+      id: firstId,
+      message: "first message",
+    });
+
+    await result.act(() => {
+      send("second message");
+    });
+
+    expect(result.value?.channel).toEqual({
+      id: firstId,
+      message: "second message",
+    });
+
+    await result.act(() => {
+      result.value?.increment();
+    });
+  });
+
+  testReact<
+    unknown,
+    | { channel: ChannelInfo | undefined; increment: () => void }
+    | null
+    | undefined
+  >("using resource() from useSetup()", async (root, mode) => {
+    ID = 0;
+
+    const result = await root
+      .expectHTML((state) =>
+        state?.channel?.message
+          ? `<span>${state?.channel.message}</span><button>++ ${state?.channel.id} ++</button>`
+          : `<span>loading</span>`
+      )
+      .render(
+        (state) => {
+          const { channel, increment } = useSetup(({ use }) => {
+            const count = Cell(0, `count`);
+
+            const name = Formula(
+              () => `channel${count.current}`,
+              `channel-name`
+            );
+
+            const channel = use(() => SimpleChannel(name.current));
+
+            return {
+              channel,
+              increment: () => {
+                return count.update((i) => i + 1);
+              },
+            };
+          });
+
+          return useReactive(() => {
+            state.value({ channel: channel.current, increment });
+            const current = channel.current;
+            return current && current.message
+              ? react.fragment(
+                  html.span(),
+                  html.button({ onClick: increment }, `++ ${current.id} ++`)
+                )
+              : html.span("loading");
+          }, "jsx");
         },
         { name: "test" }
       );
