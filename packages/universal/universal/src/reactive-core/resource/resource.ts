@@ -38,6 +38,8 @@ export type ResourceFactory<T> =
  * quite a bit, and even getting cleaned up and reinitialized behind the scenes.
  */
 
+// TODO: Pass the `initial` value into the resource constructor, if an `initial` value exists.
+
 export function Resource<T, D extends undefined>(
   create: ResourceBlueprint<T, D>,
   description?: string | Description

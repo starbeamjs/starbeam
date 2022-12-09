@@ -1,12 +1,13 @@
-import { callerStack } from "@starbeam/debug";
+import { type Description, Desc } from "@starbeam/debug";
 import { LIFETIME, TIMELINE } from "@starbeam/timeline";
 import {
   type IntoResource,
   type Reactive,
   type ResourceBlueprint,
+  Cell,
   Factory,
   Formula,
-  Marker,
+  Wrap,
 } from "@starbeam/universal";
 import {
   unsafeTrackedElsewhere,
@@ -14,41 +15,41 @@ import {
 } from "@starbeam/use-strict-lifecycle";
 
 import { useNotify } from "./use-reactive.js";
-import { useComponent } from "./use-setup.js";
 
 export type UseFactory<T, D extends undefined> =
   | ResourceBlueprint<T, D>
   | (() => IntoResource<T>);
 
+export function use<T, Initial extends undefined>(
+  factory:
+    | ResourceBlueprint<T, Initial>
+    | (() => ResourceBlueprint<T, Initial>),
+  dependencies?: unknown[]
+): T | Initial;
 export function use<T>(
   factory: ResourceBlueprint<T> | (() => ResourceBlueprint<T>),
+  options: { initial?: T; description?: string | Description | undefined },
   dependencies?: unknown[]
 ): T;
-// export function use<T>(
-//   factory: ResourceBlueprint<T, UNINITIALIZED>
-// ): T | undefined;
-// export function use<T>(
-//   factory: UseFactory<T, UNINITIALIZED>,
-//   dependencies: unknown[]
-// ): T | undefined;
-// export function use<T>(
-//   factory: UseFactory<T, never>,
-//   dependencies: unknown[]
-// ): T;
-// export function use<T>(
-//   factory: UseFactory<T, UNINITIALIZED> | UseFactory<T, never>,
-//   options: { initial: T },
-//   dependencies: unknown[]
-// ): T;
-
+export function use<T, Initial extends undefined>(
+  factory: ResourceBlueprint<T> | (() => ResourceBlueprint<T, Initial>),
+  options: { description?: string | Description | undefined }
+): T | Initial;
 export function use<T>(
-  factory: UseFactory<T, undefined>,
-  options?: { initial: T } | unknown[],
+  factory: IntoResource<T>,
+  options?:
+    | { initial?: T; description?: string | Description | undefined }
+    | unknown[],
   dependencies?: unknown[]
 ): T | undefined {
-  const value = createResource(factory, options, dependencies);
+  const value = createResource(
+    factory as IntoResource<T | undefined>,
+    options,
+    dependencies
+  );
 
-  return unsafeTrackedElsewhere(() => value.current);
+  const result = unsafeTrackedElsewhere(() => value.current);
+  return result;
 }
 
 export function useResource<T, D extends undefined>(
@@ -59,7 +60,7 @@ export function useResource<T, D extends undefined>(
   factory: ResourceBlueprint<T, D>
 ): T | D;
 export function useResource<T>(
-  factory: UseFactory<T, undefined>,
+  factory: IntoResource<T>,
   options?: { initial: T } | unknown[],
   dependencies?: unknown[]
 ): Reactive<T | undefined> {
@@ -67,68 +68,201 @@ export function useResource<T>(
 }
 
 function createResource<T>(
-  factory: UseFactory<T, undefined>,
-  options?: { initial: T } | unknown[],
+  factory: IntoResource<T>,
+  options?:
+    | { initial?: T; description?: string | Description | undefined }
+    | unknown[],
   dependencies?: unknown[]
 ): Reactive<T | undefined> {
-  const owner = useComponent();
   const notify = useNotify();
 
-  const deps = Array.isArray(options) ? options : dependencies ?? [];
-  const initialValue = Array.isArray(options) ? undefined : options?.initial;
+  function normalize(): {
+    deps: unknown[];
+    initialValue: T | undefined;
+    description: string | Description | undefined;
+  } {
+    if (Array.isArray(options)) {
+      return { deps: options, initialValue: undefined, description: undefined };
+    } else {
+      return {
+        deps: dependencies ?? [],
+        initialValue: options?.initial,
+        description: options?.description,
+      };
+    }
+  }
+
+  const { deps, initialValue, description } = normalize();
+  const desc = Desc("resource", description);
+
+  // const deps: unknown[] = Array.isArray(options) ? options : dependencies ?? [];
+  // const initialValue = Array.isArray(options) ? undefined : options?.initial;
   let prev: unknown[] = deps;
 
-  return useLifecycle(deps, ({ on }) => {
-    let lastResource: Reactive<T | undefined> | undefined = undefined;
-    const marker = Marker();
+  // We pass `deps` and `factory` as the `useLifecycle` arguments. This means that `useLifecycle`
+  // callbacks will receive up-to-date values for `deps` and `factory` when they're called. This
+  // is especially important for `update`, which runs on every render: if the deps have changed in a
+  // particular render, we need to use an up-to-date `factory` to create the resource.
+  return useLifecycle([deps, factory] as const, ({ on }) => {
+    // Create a new instance of `LastResource` for this mount. It will remain stable until the
+    // component is unmounted (even temporarily), at which point it will be finalized. This means
+    // that **re***-renders, which call the `update` callback, will share the same `LastResource`
+    // instance.
+    const resource = MountedResource.create<T>(initialValue as T, desc);
 
-    function create(): void {
-      if (lastResource) LIFETIME.finalize(lastResource);
+    // When React unmounts the component (even temporarily), we finalize the resource.
+    on.cleanup(() => {
+      LIFETIME.finalize(resource);
+    });
 
-      const created: Reactive<T | undefined> =
-        typeof factory === "function"
-          ? Factory.resource(factory() as IntoResource<T | undefined>, owner)
-          : factory.create(owner);
+    // This function is called to instantiate the resource. It's called in two circumstances:
+    //
+    // 1. When the factory is first created, and
+    // 2. When the dependencies change.
+    //
+    // React runs the render function twice in strict mode (without running effects or cleanup in
+    // between). This means that any state that requires cleanup must be created in a React effect,
+    // or it will leak.
+    //
+    // The resource is initially created in an effect (which guarantees that React will run its
+    // cleanup function when the component is unmounted). When the resource's dependencies change,
+    // we need to reset the resource. In that situation, we know that the component's
+    // effects have already run, so we clean up the previous resource and create a new one in the
+    // call to `use`.
+    //
+    // In practice, this means that `use` returns the initial value (which defaults to `undefined`)
+    // during the initial render, but always returns the current value of the resource after that.
+    function create(factory: IntoResource<T>): void {
+      // Create the resource. The resource is created with the `lastResource` as its owner. This
+      // means that the resource will be finalized when `lastResource` is finalized, which happens
+      // (above) when the component is unmounted.
+      resource.create((owner) => Factory.resource(factory, owner));
 
-      lastResource = created;
-      marker.update(callerStack());
-
-      on.cleanup(() => {
-        LIFETIME.finalize(created);
+      // `value` is initialized below. It's a formula that returns the current value of the
+      // resource (or its initial value). Whenever that value changes, we notify React.
+      const unsubscribe = TIMELINE.on.change(resource, () => {
+        notify();
       });
+
+      // When the resource is finalized (because the component is unmounted, even temporarily), we
+      // unsubscribe from the resource's changes. This is largely for hygiene, but it also prevents
+      // us from (unnecessarily) notifying React after the component has been unmounted.
+      //
+      // If the component is remounted, we'll get a whole new `useLifecycle` instance, which will
+      // create a new `lastResource` and a new `value` formula. TL;DR From the perspective of this
+      // code, "mounting" and "remounting" are the same thing.
+      LIFETIME.on.cleanup(resource, unsubscribe);
+
+      // Now that we've created the resource, we can notify React that the component has updated.
+      // Since we haven't yet consumed the `value` formula, it doesn't yet have any dependencies.
+      // Notifying React will cause React to run the component's render function again, which will
+      // consume the `value` formula (and keep it up to date).
+      notify();
     }
 
-    on.layout(create);
+    // When the component is first rendered, we wait until React commits the component to create the
+    // resource. This is because React can render the component and never run effects. So we defer
+    // the creation of the resource until React commits the component.
+    on.layout(([_, factory]) => {
+      create(factory);
+    });
 
-    on.update((next = []) => {
-      if (!sameDeps(prev, next)) {
-        prev = next;
-        if (lastResource) LIFETIME.finalize(lastResource);
-        create();
+    // When the component is re-rendered, we check to see if the dependencies have changed. If they
+    // have, we create a new resource. If they haven't, we do nothing.
+    //
+    // This is effectively equivalent to the resource constructor having a dependency on the deps
+    // array, but the deps array is a React stable value, not a Starbeam reactive value.
+    on.update(([nextDeps, factory]) => {
+      if (differentDeps(prev, nextDeps) || resource.isInactive()) {
+        prev = nextDeps;
+        create(factory);
       }
     });
 
-    const value = Formula(() => {
-      marker.consume();
-      return lastResource?.current ?? initialValue;
-    });
-
-    on.cleanup(TIMELINE.on.change(value, notify));
-
-    return value;
+    return resource;
   });
 }
 
-function sameDeps(
+export class MountedResource<T> {
+  static create<T>(
+    initial: T,
+    description: Description
+  ): MountedResource<T> & Reactive<T | undefined> {
+    const resource = new MountedResource(initial, description);
+    return Wrap(resource.formula, resource);
+  }
+
+  readonly formula: Formula<T | undefined>;
+  readonly #initial: T;
+  readonly #cell: Cell<Reactive<T | undefined> | undefined>;
+  #value: Reactive<T | undefined> | undefined;
+  #owner: object | undefined = undefined;
+
+  private constructor(initial: T, description: Description) {
+    this.#initial = initial;
+    this.#cell = Cell(undefined as Reactive<T | undefined> | undefined, {
+      description: description.implementation("target"),
+    });
+    this.#value = undefined;
+    this.formula = Formula(
+      () => this.#cell.current?.current ?? this.#initial,
+      description.implementation("formula")
+    );
+
+    LIFETIME.on.cleanup(this, () => {
+      this.#finalize();
+    });
+  }
+
+  #finalize(): void {
+    if (this.#owner) {
+      LIFETIME.finalize(this.#owner);
+      this.#owner = undefined;
+    }
+  }
+
+  #reset(): object {
+    this.#finalize();
+
+    this.#owner = {};
+    LIFETIME.link(this, this.#owner);
+    return this.#owner;
+  }
+
+  isInactive(): boolean {
+    return this.#value === undefined;
+  }
+
+  create(factory: (owner: object) => Reactive<T | undefined>): {
+    reactive: Reactive<T | undefined>;
+    owner: object;
+  } {
+    const owner = this.#reset();
+
+    const reactive = factory(owner);
+
+    this.#cell.set(reactive);
+    this.#value = reactive;
+
+    // If the `use`d resource is finalized, and the return value of the factory is a resource, we
+    // want to finalize that resource as well.
+    LIFETIME.link(this, reactive);
+
+    return { reactive, owner };
+  }
+}
+
+function differentDeps(
   prev: unknown[] | undefined,
   next: unknown[] | undefined
 ): boolean {
   if (prev === undefined || next === undefined) {
-    return prev === next;
+    return prev !== next;
   }
 
-  return (
-    prev.length === next.length &&
-    prev.every((value, index) => Object.is(value, next[index]))
-  );
+  if (prev.length !== next.length) {
+    return true;
+  }
+
+  return prev.some((value, index) => !Object.is(value, next[index]));
 }

@@ -1,31 +1,19 @@
 import type { browser } from "@domtree/flavors";
-import type { Stack } from "@starbeam/debug";
-import {
-  type DebugListener,
-  type Description,
-  callerStack,
-  descriptionFrom,
-} from "@starbeam/debug";
+import { type DebugListener, type Description, Desc } from "@starbeam/debug";
+import type { Reactive } from "@starbeam/interfaces";
 import {
   type CleanupTarget,
   type OnCleanup,
-  type Reactive,
-  type ReactiveInternals,
   type ReactiveProtocol,
   type Unsubscribe,
   LIFETIME,
-  REACTIVE,
   TIMELINE,
 } from "@starbeam/timeline";
-import {
-  type Cell,
-  type ResourceBlueprint,
-  DelegateInternals,
-  Resource,
-  Setups,
-} from "@starbeam/universal";
+import { type Cell, type IntoResource, Factory } from "@starbeam/universal";
+import { unsafeTrackedElsewhere } from "@starbeam/use-strict-lifecycle";
 
 import { type ElementRef, type ReactElementRef, ref } from "./ref.js";
+import { MountedResource } from "./use-resource.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyRecord = Record<PropertyKey, any>;
@@ -154,7 +142,7 @@ export type DebugLifecycle = (
  * {@link useReactiveElement} API (when a {@link useReactElement} definition is
  * instantiated, it is passed a {@link ReactiveElement}).
  */
-export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
+export class ReactiveElement implements CleanupTarget {
   static stack: ReactiveElement[] = [];
 
   static create(notify: () => void, description: Description): ReactiveElement {
@@ -176,13 +164,11 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
   }
 
   static layout(element: ReactiveElement): void {
-    element.#lifecycle.layout.read();
-    TIMELINE.update(element);
+    Lifecycle.layout(element.#lifecycle);
   }
 
   static idle(element: ReactiveElement): void {
-    element.#lifecycle.idle.read();
-    TIMELINE.update(element);
+    Lifecycle.idle(element.#lifecycle);
   }
 
   static cleanup(element: ReactiveElement): void {
@@ -194,7 +180,6 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
   #debugLifecycle: DebugLifecycle | null = null;
   #refs: Refs;
   readonly #description: Description;
-  readonly [REACTIVE]: ReactiveInternals;
 
   readonly on: OnLifecycle;
 
@@ -208,10 +193,6 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
     this.on = Lifecycle.on(lifecycle, this, description);
     this.#refs = refs;
     this.#description = description;
-
-    this[REACTIVE] = DelegateInternals([lifecycle.layout, lifecycle.idle], {
-      description,
-    });
   }
 
   link(child: object): Unsubscribe {
@@ -222,18 +203,53 @@ export class ReactiveElement implements CleanupTarget, ReactiveProtocol {
     this.#debugLifecycle = lifecycle;
   }
 
-  use<T>(
-    resource: ResourceBlueprint<T>,
-    _caller: Stack = callerStack()
-  ): Resource<T> {
-    const r = resource.create(this);
+  #use = <T, Initial extends undefined>(
+    factory: IntoResource<T, Initial>,
+    options?: { initial?: T; description: string | Description | undefined }
+  ): T | Initial => {
+    const resource = this.use(factory, options);
 
-    // @ts-expect-error FIXME
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
-    this.on.layout(() => Resource.setup(r));
+    return unsafeTrackedElsewhere(() => {
+      return resource.current;
+    });
+  };
 
-    return r;
-  }
+  use = <T, Initial extends undefined>(
+    factory: IntoResource<T, Initial>,
+    options?: { initial?: T; description: string | Description | undefined }
+  ): Reactive<T | Initial> => {
+    const desc = Desc("resource", options?.description);
+    const resource = MountedResource.create(options?.initial, desc);
+
+    LIFETIME.link(this, resource);
+
+    const create = (): void => {
+      resource.create((owner) => Factory.resource(factory, owner));
+
+      this.notify();
+    };
+
+    const unsubscribe = TIMELINE.on.change(resource, this.notify);
+
+    LIFETIME.on.cleanup(resource, unsubscribe);
+
+    this.on.layout(create);
+
+    return resource as Reactive<T | Initial>;
+  };
+
+  // use<T>(
+  //   resource: ResourceBlueprint<T>,
+  //   _caller: Stack = callerStack()
+  // ): Resource<T> {
+  //   const r = resource.create(this);
+
+  //   // @ts-expect-error FIXME
+  //   // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
+  //   this.on.layout(() => Resource.setup(r));
+
+  //   return r;
+  // }
 
   refs<R extends RefsTypes>(refs: R): RefsRecordFor<R> {
     const { refs: newRefs, record } = this.#refs.update(refs);
@@ -252,16 +268,31 @@ interface OnLifecycle extends OnCleanup {
     finalizer: Callback,
     description?: string | Description
   ) => Unsubscribe;
-  readonly idle: (ready: Callback, description?: string | Description) => void;
+  readonly idle: (
+    ready: Callback,
+    description?: string | Description
+  ) => Unsubscribe;
   readonly layout: (
     attached: Callback,
     description?: string | Description
-  ) => void;
+  ) => Unsubscribe;
 }
 
 class Lifecycle {
   static create(description: Description): Lifecycle {
-    return new Lifecycle(Setups(description), Setups(description), description);
+    return new Lifecycle(new Set(), new Set(), description);
+  }
+
+  static layout(lifecycle: Lifecycle): void {
+    for (const callback of lifecycle.#layout) {
+      callback();
+    }
+  }
+
+  static idle(lifecycle: Lifecycle): void {
+    for (const callback of lifecycle.#idle) {
+      callback();
+    }
   }
 
   static on<T extends object>(
@@ -274,59 +305,32 @@ class Lifecycle {
     return {
       cleanup: (finalizer: Callback) =>
         LIFETIME.on.cleanup(instance, finalizer),
-      idle: (idle: Callback, description?: string | Description) => {
-        const desc = descriptionFrom({
-          type: "resource",
-          api: {
-            package: "@starbeam/react",
-            name: "ReactiveElement",
-            method: {
-              name: "on.idle",
-              type: "instance",
-            },
-          },
-          fromUser: description ?? "on.idle",
-        });
-        return lifecycle.#idle.register(idle, desc);
+      idle: (idle: Callback) => {
+        lifecycle.#idle.add(idle);
+        return () => lifecycle.#idle.delete(idle);
       },
-      layout: (layout: Callback, description?: string | Description) => {
-        const desc = descriptionFrom({
-          type: "resource",
-          api: {
-            package: "@starbeam/react",
-            name: "ReactiveElement",
-            method: {
-              name: "on.layout",
-              type: "instance",
-            },
-          },
-          fromUser: description ?? "on.layout",
-        });
-
-        return lifecycle.#layout.register(layout, desc);
+      layout: (layout: Callback) => {
+        lifecycle.#layout.add(layout);
+        return () => lifecycle.#layout.delete(layout);
       },
     } as const;
   }
 
-  readonly #idle: Setups;
-  readonly #layout: Setups;
+  readonly #idle: Set<Callback>;
+  readonly #layout: Set<Callback>;
   readonly #description: Description;
 
-  private constructor(idle: Setups, layout: Setups, description: Description) {
+  private constructor(
+    idle: Set<Callback>,
+    layout: Set<Callback>,
+    description: Description
+  ) {
     this.#idle = idle;
     this.#layout = layout;
     this.#description = description;
 
     LIFETIME.link(this, idle);
     LIFETIME.link(this, layout);
-  }
-
-  get idle(): Reactive<void> {
-    return this.#idle.setups;
-  }
-
-  get layout(): Reactive<void> {
-    return this.#layout.setups;
   }
 }
 

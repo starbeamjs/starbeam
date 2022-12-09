@@ -6,8 +6,8 @@ import { type Blueprint, type ReactiveFactory, Reactive } from "./reactive.js";
 import { ResourceBlueprint } from "./resource/resource.js";
 import { type ResourceFactory, Resource } from "./resource/resource.js";
 
-export type IntoResource<T> =
-  | ResourceBlueprint<T, undefined>
+export type IntoResource<T, Initial extends undefined = undefined> =
+  | ResourceBlueprint<T, Initial>
   | ReactiveBlueprint<T>
   | ResourceFactory<T>;
 

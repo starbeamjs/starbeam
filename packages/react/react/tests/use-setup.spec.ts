@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { entryPoint } from "@starbeam/debug";
-import { useReactive, useReactiveSetup } from "@starbeam/react";
+import { useReactive, useSetup } from "@starbeam/react";
 import { Cell } from "@starbeam/universal";
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
 import { describe, expect } from "vitest";
@@ -36,7 +36,7 @@ describe("useSetup", () => {
           }`
       )
       .render((state) => {
-        const reactiveState = useReactiveSetup((setup) => {
+        const reactiveState = useSetup((setup) => {
           const renderState = Cell(
             { state: "rendering" } as State,
             "outer cell"
@@ -59,13 +59,12 @@ describe("useSetup", () => {
         });
 
         return useReactive(() => {
-          state.value(reactiveState);
+          const current = reactiveState.current;
+          state.value(current);
 
           return react.fragment(
-            html.span(reactiveState.state),
-            reactiveState.state === "message"
-              ? html.span(reactiveState.lastMessage)
-              : null
+            html.span(current.state),
+            current.state === "message" ? html.span(current.lastMessage) : null
           );
         });
       });

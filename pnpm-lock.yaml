@@ -543,6 +543,7 @@ importers:
       '@starbeam-dev/build-support': workspace:*
       '@starbeam/core-utils': workspace:^
       '@starbeam/debug': workspace:^
+      '@starbeam/interfaces': workspace:^
       '@starbeam/js': workspace:^
       '@starbeam/modifier': workspace:^
       '@starbeam/shared': workspace:^
@@ -556,6 +557,7 @@ importers:
     dependencies:
       '@starbeam/core-utils': link:../../universal/core-utils
       '@starbeam/debug': link:../../universal/debug
+      '@starbeam/interfaces': link:../../universal/interfaces
       '@starbeam/js': link:../../universal/js
       '@starbeam/modifier': link:../../universal/modifier
       '@starbeam/shared': link:../../universal/shared
@@ -880,7 +882,7 @@ importers:
       vite: 3.2.3
       vite-plugin-mpa: ^1.1.3
     devDependencies:
-      '@crxjs/vite-plugin': 2.0.0-beta.6
+      '@crxjs/vite-plugin': 2.0.0-beta.7
       chrome-types: 0.1.148
       dirfilename: 1.1.1
       preact: 10.11.2
@@ -2779,8 +2781,8 @@ packages:
     requiresBuild: true
     optional: true
 
-  /@crxjs/vite-plugin/2.0.0-beta.6:
-    resolution: {integrity: sha512-4U7JE0BvawWYx5ORKHaeHsk1745K59EhQBFu2YrWa0g2qzaiExXzsEITKav0JomLhGny1Kglc7hyUxFWnOxa8g==}
+  /@crxjs/vite-plugin/2.0.0-beta.7:
+    resolution: {integrity: sha512-5BLtVwg65Rj+KxhODP1RJ83UCgaCZno6Yl9c1FBCkoPQ2vy+NcBgUvUuI2U/7mePIl7xP5X7Xs57Xjd9Gcg58w==}
     dependencies:
       '@rollup/pluginutils': 4.2.1
       '@webcomponents/custom-elements': 1.5.1

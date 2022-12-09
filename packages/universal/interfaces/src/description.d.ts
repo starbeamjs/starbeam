@@ -40,7 +40,8 @@ export interface DescriptionArgs {
 }
 
 export interface DescriptionDescribeOptions extends StackFrameDisplayOptions {
-  source?: boolean;
+  source?: boolean | undefined;
+  id?: boolean | undefined;
 }
 
 export interface Description extends DescriptionArgs {

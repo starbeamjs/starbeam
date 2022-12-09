@@ -8,6 +8,10 @@
     "editor.codeActionsOnSave": ["source.fixAll.eslint"]
   },
 
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
   "[typescript][typescriptreact][javascript][javascriptreact]": {
     "editor.formatOnSave": false,
     "editor.codeActionsOnSave": [
@@ -77,8 +81,5 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.tsserver.experimental.enableProjectDiagnostics": true,
 
-  "vitest.enable": false,
-  "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  "vitest.enable": true
 }
