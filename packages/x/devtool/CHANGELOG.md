@@ -4,6 +4,17 @@
 
 ### Patch Changes
 
+- Updated dependencies [14f961b]
+  - @starbeam/core-utils@0.8.7
+  - @starbeam/debug@0.8.7
+  - @starbeam/interfaces@0.8.7
+  - @starbeam/timeline@0.8.7
+  - @starbeam/verify@0.8.7
+
+## 0.8.7
+
+### Patch Changes
+
 - Updated dependencies [ded6421]
   - @starbeam/core-utils@0.8.7
   - @starbeam/debug@0.8.7

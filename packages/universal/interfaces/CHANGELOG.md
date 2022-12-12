@@ -4,6 +4,14 @@
 
 ### Patch Changes
 
+- 14f961b: Fixes #75
+- Updated dependencies [14f961b]
+  - @starbeam/shared@1.3.5
+
+## 0.8.7
+
+### Patch Changes
+
 - ded6421: Add /setup to preact
 - Updated dependencies [ded6421]
   - @starbeam/shared@1.3.4

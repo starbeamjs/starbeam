@@ -4,6 +4,17 @@
 
 ### Patch Changes
 
+- 14f961b: Fixes #75
+- Updated dependencies [14f961b]
+  - @starbeam/core-utils@0.8.7
+  - @starbeam/interfaces@0.8.7
+  - @starbeam/shared@1.3.5
+  - @starbeam/verify@0.8.7
+
+## 0.8.7
+
+### Patch Changes
+
 - ded6421: Add /setup to preact
 - Updated dependencies [ded6421]
   - @starbeam/core-utils@0.8.7
