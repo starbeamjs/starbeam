@@ -1,6 +1,6 @@
 {
   "name": "@starbeam/verify",
-  "version": "0.8.7",
+  "version": "0.8.6",
   "type": "module",
   "main": "index.ts",
   "types": "index.ts",
