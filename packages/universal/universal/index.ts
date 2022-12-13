@@ -37,6 +37,8 @@ export {
 export type { ResourceRun } from "./src/reactive-core/resource/run.js";
 export {
   type ServiceBlueprint,
+  createService,
+  reactiveService,
   Service,
   service,
 } from "./src/reactive-core/service.js";

@@ -34,14 +34,22 @@ export class ServiceBlueprint<T> {
   }
 }
 
-function createService<T>(
+export function createService<T>(
   resource: IntoResource<T>,
   description: Description,
   app = CONTEXT.app
 ): Reactive<T> {
+  CONTEXT.app = app;
   return CONTEXT.create(resource, () =>
     Factory.resource(resource, app, description)
   );
+}
+
+export function reactiveService<T>(
+  factory: Blueprint<T> | ResourceFactory<T>,
+  description?: string | Description
+): Reactive<T> {
+  return createService(factory, Desc("service", description));
 }
 
 export function service<T>(

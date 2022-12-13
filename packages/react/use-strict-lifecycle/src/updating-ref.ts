@@ -49,7 +49,7 @@ export function useUpdatingVariable<T>(options: {
   initial: () => T;
   update: (value: T) => T | void;
 }): T {
-  return useUpdatingRef(options).current;
+  return useUpdatingRef(options).ref.current;
 }
 
 /**
@@ -72,8 +72,9 @@ export function useUpdatingRef<T>({
 }: {
   initial: () => T;
   update: (value: T) => T | void;
-}): Ref<T> {
+}): { ref: Ref<T>; prev: T | UNINITIALIZED } {
   const ref = useRef<T | UNINITIALIZED>(UNINITIALIZED);
+  const prev = ref.current;
 
   if (ref.current === UNINITIALIZED) {
     ref.current = initial();
@@ -85,7 +86,7 @@ export function useUpdatingRef<T>({
     }
   }
 
-  return ref as Ref<T>;
+  return { ref, prev } as { ref: Ref<T>; prev: T | UNINITIALIZED };
 }
 /**
  * This function takes a piece of state that is available as a per-render value
@@ -100,7 +101,10 @@ export function useUpdatingRef<T>({
  * useLayoutEffect callbacks without needing to worry about the possibility of
  * stale closures.
  */
-export function useLastRenderRef<S>(state: S): Ref<S> {
+export function useLastRenderRef<S>(state: S): {
+  ref: Ref<S>;
+  prev: S | UNINITIALIZED;
+} {
   return useUpdatingRef({
     initial: () => state,
     update: () => state,

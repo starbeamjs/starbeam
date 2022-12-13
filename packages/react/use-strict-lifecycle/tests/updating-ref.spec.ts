@@ -53,7 +53,7 @@ testReact<void, Ref<{ count: number }>>(
       .expectStable((value) => value)
       .expectHTML((ref) => `${ref.current.count}`)
       .render((test) => {
-        const ref = useUpdatingRef({
+        const { ref } = useUpdatingRef({
           initial: () => ({ count: 0 }),
           update: (counter) => {
             counter.count++;
