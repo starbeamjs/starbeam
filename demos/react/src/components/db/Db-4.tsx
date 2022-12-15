@@ -1,6 +1,5 @@
- 
 import { reactive } from "@starbeam/js";
-import { useReactiveSetup } from "@starbeam/react";
+import { Component } from "@starbeam/react";
 import type { FormEvent } from "react";
 
 interface Person {
@@ -28,7 +27,7 @@ class Table<T> {
 }
 
 export default function Database(): JSX.Element {
-  return useReactiveSetup(() => {
+  return Component(() => {
     const people = new Table<Person>(["name", "location"]);
 
     function append(event: FormEvent<HTMLFormElement>): void {

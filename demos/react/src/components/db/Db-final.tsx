@@ -1,6 +1,5 @@
- 
 import { reactive } from "@starbeam/js";
-import { useProp, useReactiveSetup } from "@starbeam/react";
+import { Component, useProp } from "@starbeam/react";
 import type { FormEvent } from "react";
 
 interface Person {
@@ -30,7 +29,7 @@ class Table<T> {
 export default function Database(props: { locale: string }): JSX.Element {
   const locale = useProp(props.locale, "locale");
 
-  return useReactiveSetup(() => {
+  return Component(() => {
     const people = new Table<Person>(["name", "location"]);
 
     function append(event: FormEvent<HTMLFormElement>): void {

@@ -1,4 +1,4 @@
-import { isObject } from "@starbeam/core-utils";
+import { isObject, Overload } from "@starbeam/core-utils";
 import { type Description, Desc } from "@starbeam/debug";
 import type { Reactive } from "@starbeam/interfaces";
 import { LIFETIME, TIMELINE } from "@starbeam/timeline";
@@ -110,14 +110,54 @@ export function component<T>(
   return useReactive(() => instance.read(), desc.implementation("current"));
 }
 
+export function Component<T>(
+  callback: (setup: ReactiveElement) => () => T,
+  description?: string | Description | undefined
+): T;
 export function Component<T, Args>(
   args: Args,
   callback: (setup: ReactiveElement) => (args: Args) => T,
-  description?: string | Description
+  description?: string | Description | undefined
+): T;
+export function Component<T, Args>(
+  ...options:
+    | [
+        args: Args,
+        callback: (setup: ReactiveElement) => (args: Args) => T,
+        description?: string | Description | undefined
+      ]
+    | [args: Args, callback: (setup: ReactiveElement) => (args: Args) => T]
+    | [
+        callback: (setup: ReactiveElement) => () => T,
+        description?: string | Description | undefined
+      ]
+    | [callback: (setup: ReactiveElement) => () => T]
 ): T {
   const starbeam = useStarbeamApp({
     feature: "useSetup()",
     allowMissing: true,
+  });
+
+  const [args, callback, description] = Overload<
+    [
+      args: Args,
+      callback: (setup: ReactiveElement) => (args: Args) => T,
+      description?: string | Description | undefined
+    ]
+  >().resolve(options, {
+    "1": (callback) => [undefined as unknown as Args, callback, undefined],
+    "2": (argOrCallback, callbackOrDescription) => {
+      if (typeof callbackOrDescription === "function") {
+        return [argOrCallback, callbackOrDescription, undefined];
+      } else {
+        return [
+          undefined as unknown as Args,
+          argOrCallback as (setup: ReactiveElement) => (args: Args) => T,
+          callbackOrDescription,
+        ];
+      }
+    },
+    "3": (args, callback, description) => [args, callback, description],
   });
 
   const desc = Desc("resource", description);
