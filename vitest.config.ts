@@ -5,7 +5,7 @@ const env = process.env["STARBEAM_TRACE"] ? { STARBEAM_TRACE: "true" } : {};
 
 export default defineConfig({
   test: {
-    exclude: ["**/node_modules/**", "demos/**"],
+    exclude: ["**/node_modules/**", "demos/**", "**/dist/**"],
     env,
   },
 });
