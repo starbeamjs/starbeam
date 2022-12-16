@@ -268,7 +268,7 @@ describe("use", () => {
     const channel = Channel.latest();
     expect(channel).not.toBeUndefined();
 
-    const firstId = mode.match({ strict: () => 1, loose: () => 0 });
+    const firstId = mode.match({ strict: () => 0, loose: () => 0 });
 
     expect(result.value?.channel).not.toBeUndefined();
 

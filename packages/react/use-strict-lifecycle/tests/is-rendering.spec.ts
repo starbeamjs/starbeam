@@ -39,7 +39,7 @@ testReact<void, boolean>("useResource", async (root) => {
         };
       });
 
-      useLifecycle((lifecycle) => {
+      useLifecycle(undefined).render((lifecycle) => {
         expect(isRendering()).toBe(true);
 
         lifecycle.on.update(() => {

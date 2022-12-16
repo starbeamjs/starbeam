@@ -3,7 +3,7 @@ import {
   callerStack,
   descriptionFrom,
 } from "@starbeam/debug";
-import { useReactiveSetup } from "@starbeam/react";
+import { Component } from "@starbeam/react";
 
 import type { AsyncData, Query } from "./fetch.js";
 import { QUERIES } from "./fetch.js";
@@ -22,8 +22,8 @@ export default function useQuery<T>(
     fromUser: description ?? "QUERIES",
   }).detail("query", [key]);
 
-  return useReactiveSetup((setup) => {
-    setup.on.idle(() => {
+  return Component(({ on }) => {
+    on.idle(() => {
       QUERIES.fetch(key).catch((e) => {
         console.error(e);
       });

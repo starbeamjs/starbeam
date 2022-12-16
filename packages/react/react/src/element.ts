@@ -9,9 +9,15 @@ import {
   LIFETIME,
   TIMELINE,
 } from "@starbeam/timeline";
-import { type Cell, type IntoResource, Factory } from "@starbeam/universal";
-import { unsafeTrackedElsewhere } from "@starbeam/use-strict-lifecycle";
+import {
+  type Cell,
+  type IntoResource,
+  createService,
+  Factory,
+} from "@starbeam/universal";
 
+import { ReactApp } from "./context-provider.js";
+import { missingApp } from "./context-provider.js";
 import { type ElementRef, type ReactElementRef, ref } from "./ref.js";
 import { MountedResource } from "./use-resource.js";
 
@@ -145,9 +151,14 @@ export type DebugLifecycle = (
 export class ReactiveElement implements CleanupTarget {
   static stack: ReactiveElement[] = [];
 
-  static create(notify: () => void, description: Description): ReactiveElement {
+  static create(
+    notify: () => void,
+    context: ReactApp | null,
+    description: Description
+  ): ReactiveElement {
     return new ReactiveElement(
       notify,
+      context,
       Lifecycle.create(description),
       Refs.None(),
       description
@@ -157,10 +168,24 @@ export class ReactiveElement implements CleanupTarget {
   static reactivate(prev: ReactiveElement): ReactiveElement {
     return new ReactiveElement(
       prev.notify,
+      prev.#context,
       Lifecycle.create(prev.#description),
       prev.#refs.fromPrev(),
       prev.#description
     );
+  }
+
+  static activate(
+    notify: () => void,
+    context: ReactApp | null,
+    description: Description,
+    prev: ReactiveElement | undefined
+  ): ReactiveElement {
+    if (prev) {
+      return ReactiveElement.reactivate(prev);
+    } else {
+      return ReactiveElement.create(notify, context, description);
+    }
   }
 
   static layout(element: ReactiveElement): void {
@@ -177,6 +202,7 @@ export class ReactiveElement implements CleanupTarget {
   }
 
   #lifecycle: Lifecycle;
+  #context: ReactApp | null;
   #debugLifecycle: DebugLifecycle | null = null;
   #refs: Refs;
   readonly #description: Description;
@@ -185,11 +211,13 @@ export class ReactiveElement implements CleanupTarget {
 
   private constructor(
     readonly notify: () => void,
+    context: ReactApp | null,
     lifecycle: Lifecycle,
     refs: Refs,
     description: Description
   ) {
     this.#lifecycle = lifecycle;
+    this.#context = context;
     this.on = Lifecycle.on(lifecycle, this, description);
     this.#refs = refs;
     this.#description = description;
@@ -203,15 +231,18 @@ export class ReactiveElement implements CleanupTarget {
     this.#debugLifecycle = lifecycle;
   }
 
-  #use = <T, Initial extends undefined>(
-    factory: IntoResource<T, Initial>,
-    options?: { initial?: T; description: string | Description | undefined }
-  ): T | Initial => {
-    const resource = this.use(factory, options);
+  service = <T>(
+    factory: IntoResource<T>,
+    description?: string | Description | undefined
+  ): Reactive<T> => {
+    const desc = Desc("service", description);
+    const context = this.#context;
 
-    return unsafeTrackedElsewhere(() => {
-      return resource.current;
-    });
+    if (context === null) {
+      missingApp(`service()`);
+    }
+
+    return createService(factory, desc, ReactApp.instance(context));
   };
 
   use = <T, Initial extends undefined>(
@@ -237,19 +268,6 @@ export class ReactiveElement implements CleanupTarget {
 
     return resource as Reactive<T | Initial>;
   };
-
-  // use<T>(
-  //   resource: ResourceBlueprint<T>,
-  //   _caller: Stack = callerStack()
-  // ): Resource<T> {
-  //   const r = resource.create(this);
-
-  //   // @ts-expect-error FIXME
-  //   // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
-  //   this.on.layout(() => Resource.setup(r));
-
-  //   return r;
-  // }
 
   refs<R extends RefsTypes>(refs: R): RefsRecordFor<R> {
     const { refs: newRefs, record } = this.#refs.update(refs);

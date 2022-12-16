@@ -52,21 +52,6 @@ export function use<T>(
   return result;
 }
 
-export function useResource<T, D extends undefined>(
-  factory: () => ResourceBlueprint<T, D>,
-  dependencies: unknown[]
-): Reactive<T | D>;
-export function useResource<T, D extends undefined>(
-  factory: ResourceBlueprint<T, D>
-): T | D;
-export function useResource<T>(
-  factory: IntoResource<T>,
-  options?: { initial: T } | unknown[],
-  dependencies?: unknown[]
-): Reactive<T | undefined> {
-  return createResource(factory, options, dependencies);
-}
-
 function createResource<T>(
   factory: IntoResource<T>,
   options?:
@@ -95,15 +80,15 @@ function createResource<T>(
   const { deps, initialValue, description } = normalize();
   const desc = Desc("resource", description);
 
-  // const deps: unknown[] = Array.isArray(options) ? options : dependencies ?? [];
-  // const initialValue = Array.isArray(options) ? undefined : options?.initial;
-  let prev: unknown[] = deps;
-
   // We pass `deps` and `factory` as the `useLifecycle` arguments. This means that `useLifecycle`
   // callbacks will receive up-to-date values for `deps` and `factory` when they're called. This
   // is especially important for `update`, which runs on every render: if the deps have changed in a
   // particular render, we need to use an up-to-date `factory` to create the resource.
-  return useLifecycle([deps, factory] as const, ({ on }) => {
+  const cell = useLifecycle({ props: factory, validate: deps }).render<
+    Cell<Reactive<T | undefined>>
+  >(({ on, validate }, _, prev) => {
+    const cell = prev ?? Cell(undefined as unknown);
+
     // Create a new instance of `LastResource` for this mount. It will remain stable until the
     // component is unmounted (even temporarily), at which point it will be finalized. This means
     // that **re***-renders, which call the `update` callback, will share the same `LastResource`
@@ -163,24 +148,17 @@ function createResource<T>(
     // When the component is first rendered, we wait until React commits the component to create the
     // resource. This is because React can render the component and never run effects. So we defer
     // the creation of the resource until React commits the component.
-    on.layout(([_, factory]) => {
+    on.layout((factory) => {
       create(factory);
     });
 
-    // When the component is re-rendered, we check to see if the dependencies have changed. If they
-    // have, we create a new resource. If they haven't, we do nothing.
-    //
-    // This is effectively equivalent to the resource constructor having a dependency on the deps
-    // array, but the deps array is a React stable value, not a Starbeam reactive value.
-    on.update(([nextDeps, factory]) => {
-      if (differentDeps(prev, nextDeps) || resource.isInactive()) {
-        prev = nextDeps;
-        create(factory);
-      }
-    });
+    validate(sameDeps);
 
-    return resource;
+    cell.set(resource);
+    return cell as Cell<Reactive<T | undefined>>;
   });
+
+  return unsafeTrackedElsewhere(() => cell.current);
 }
 
 export class MountedResource<T> {
@@ -252,17 +230,17 @@ export class MountedResource<T> {
   }
 }
 
-function differentDeps(
+export function sameDeps(
   prev: unknown[] | undefined,
   next: unknown[] | undefined
 ): boolean {
   if (prev === undefined || next === undefined) {
-    return prev !== next;
+    return prev === next;
   }
 
   if (prev.length !== next.length) {
-    return true;
+    return false;
   }
 
-  return prev.some((value, index) => !Object.is(value, next[index]));
+  return prev.every((value, index) => Object.is(value, next[index]));
 }

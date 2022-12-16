@@ -1,12 +1,18 @@
-import { isObject } from "@starbeam/core-utils";
-import { type Description, descriptionFrom } from "@starbeam/debug";
-import { LIFETIME } from "@starbeam/timeline";
-import { PolledFormula } from "@starbeam/universal";
-import { setupFunction, useLifecycle } from "@starbeam/use-strict-lifecycle";
-import { useState } from "react";
+import { isObject, Overload } from "@starbeam/core-utils";
+import { type Description, Desc } from "@starbeam/debug";
+import type { Reactive } from "@starbeam/interfaces";
+import { LIFETIME, TIMELINE } from "@starbeam/timeline";
+import { Formula, PolledFormula } from "@starbeam/universal";
+import {
+  setupFunction,
+  unsafeTrackedElsewhere,
+  useLifecycle,
+} from "@starbeam/use-strict-lifecycle";
 
+import { useStarbeamApp } from "./context-provider.js";
 import { ReactiveElement } from "./element.js";
-import { useReactive } from "./use-reactive.js";
+import { useNotify, useReactive } from "./use-reactive.js";
+import { useProp } from "./utils.js";
 
 /**
  * Create a stable object that will automatically be cleaned up when the
@@ -16,7 +22,7 @@ import { useReactive } from "./use-reactive.js";
  * [reused]: https://github.com/reactwg/react-18/discussions/19
  */
 export function useComponent(): object {
-  return useLifecycle(({ on }) => {
+  return useLifecycle().render(({ on }) => {
     const owner = Object.create(null) as object;
 
     on.cleanup(() => {
@@ -46,61 +52,157 @@ export function useSetup<T>(
   callback: (setup: ReactiveElement) => T,
   description?: string | Description
 ): T {
-  const [, setNotify] = useState({});
-
-  const desc = descriptionFrom({
-    type: "resource",
-    api: {
-      package: "@starbeam/react",
-      name: "useSetup",
-    },
-    fromUser: description,
+  const starbeam = useStarbeamApp({
+    feature: "useSetup()",
+    allowMissing: true,
   });
 
-  const { instance } = useLifecycle<{ element: ReactiveElement; instance: T }>(
-    (lifecycle, prev) => {
-      const element = prev?.element
-        ? ReactiveElement.reactivate(prev.element)
-        : ReactiveElement.create(() => {
-            setNotify({});
-          }, desc);
+  const desc = Desc("resource", description);
 
-      const nextInstance = setupFunction(() => callback(element));
+  const notify = useNotify();
 
-      lifecycle.on.cleanup(() => {
-        if (isObject(nextInstance)) {
-          LIFETIME.finalize(nextInstance);
-        }
-      });
+  return useLifecycle({
+    validate: starbeam,
+  }).render<{
+    element: ReactiveElement;
+    instance: T;
+  }>(({ on, validate }, _, prev) => {
+    const element = ReactiveElement.activate(
+      notify,
+      starbeam,
+      desc,
+      prev?.element
+    );
 
-      lifecycle.on.layout(() => {
-        ReactiveElement.layout(element);
-      });
+    const nextInstance = setupFunction(() => callback(element));
 
-      lifecycle.on.idle(() => {
-        ReactiveElement.idle(element);
-      });
+    validate((nextStarbeam, prevStarbeam) => nextStarbeam === prevStarbeam);
 
-      return { element, instance: nextInstance };
-    }
-  );
+    on.cleanup(() => {
+      if (isObject(nextInstance)) {
+        LIFETIME.finalize(nextInstance);
+      }
+    });
 
-  return instance;
+    on.layout(() => {
+      ReactiveElement.layout(element);
+    });
+
+    on.idle(() => {
+      ReactiveElement.idle(element);
+    });
+
+    return { element, instance: nextInstance };
+  }).instance;
 }
 
-export function useReactiveSetup<T>(
+export function component<T>(
   callback: (setup: ReactiveElement) => () => T,
   description?: string | Description
 ): T {
-  const desc = descriptionFrom({
-    type: "resource",
-    api: "useReactiveSetup",
-    fromUser: description,
+  const desc = Desc("resource", description);
+
+  const instance = useSetup(
+    (setup) => PolledFormula(callback(setup), desc),
+    desc.implementation("setup")
+  );
+
+  return useReactive(() => instance.read(), desc.implementation("current"));
+}
+
+export function Component<T>(
+  callback: (setup: ReactiveElement) => () => T,
+  description?: string | Description | undefined
+): T;
+export function Component<T, Args>(
+  args: Args,
+  callback: (setup: ReactiveElement) => (args: Args) => T,
+  description?: string | Description | undefined
+): T;
+export function Component<T, Args>(
+  ...options:
+    | [
+        args: Args,
+        callback: (setup: ReactiveElement) => (args: Args) => T,
+        description?: string | Description | undefined
+      ]
+    | [args: Args, callback: (setup: ReactiveElement) => (args: Args) => T]
+    | [
+        callback: (setup: ReactiveElement) => () => T,
+        description?: string | Description | undefined
+      ]
+    | [callback: (setup: ReactiveElement) => () => T]
+): T {
+  const starbeam = useStarbeamApp({
+    feature: "useSetup()",
+    allowMissing: true,
   });
 
-  const instance = useSetup((setup) => {
-    return PolledFormula(callback(setup), desc);
-  }, desc);
+  const [args, callback, description] = Overload<
+    [
+      args: Args,
+      callback: (setup: ReactiveElement) => (args: Args) => T,
+      description?: string | Description | undefined
+    ]
+  >().resolve(options, {
+    "1": (callback) => [undefined as unknown as Args, callback, undefined],
+    "2": (argOrCallback, callbackOrDescription) => {
+      if (typeof callbackOrDescription === "function") {
+        return [argOrCallback, callbackOrDescription, undefined];
+      } else {
+        return [
+          undefined as unknown as Args,
+          argOrCallback as (setup: ReactiveElement) => (args: Args) => T,
+          callbackOrDescription,
+        ];
+      }
+    },
+    "3": (args, callback, description) => [args, callback, description],
+  });
 
-  return useReactive(() => instance.read());
+  const desc = Desc("resource", description);
+
+  const notify = useNotify();
+  const reactiveArgs = useProp(args);
+
+  const instance = useLifecycle({
+    validate: starbeam,
+    props: args,
+  }).render<{
+    element: ReactiveElement;
+    instance: Reactive<T>;
+  }>(({ on, validate }, _, prev) => {
+    const element = ReactiveElement.activate(
+      notify,
+      starbeam,
+      desc,
+      prev?.element
+    );
+
+    const fn = setupFunction(() => callback(element));
+    const instance = Formula(
+      () => fn(reactiveArgs.current),
+      desc.implementation("instance")
+    );
+
+    validate((nextStarbeam, prevStarbeam) => nextStarbeam === prevStarbeam);
+
+    on.layout(() => {
+      const unsubscribe = TIMELINE.on.change(instance, notify);
+      on.cleanup(unsubscribe);
+
+      // Run the layout callback *after* subscribing to the instance, so that
+      // any changes to dependencies of the instance will cause us to notify
+      // React.
+      ReactiveElement.layout(element);
+    });
+
+    on.idle(() => {
+      ReactiveElement.idle(element);
+    });
+
+    return { element, instance };
+  }).instance;
+
+  return unsafeTrackedElsewhere(() => instance.current);
 }

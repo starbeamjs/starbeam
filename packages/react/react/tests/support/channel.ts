@@ -6,9 +6,8 @@ const FIRST_ID = 0;
 export class Channels<Message = string> {
   readonly reset = Channel.reset;
 
-  readonly subscribe = (name: string): Channel<Message> => {
-    return Channel.subscribe(name);
-  };
+  readonly subscribe = (name: string): Channel<Message> =>
+    Channel.subscribe(name);
 
   readonly latest = (): Channel<Message> | undefined => {
     return Channel.latest() as Channel<Message> | undefined;

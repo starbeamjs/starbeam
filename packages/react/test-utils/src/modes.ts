@@ -55,6 +55,18 @@ export class RenderState<T> {
     this.#values.push(value);
   };
 
+  readonly update = (callback: (value: T) => T): void => {
+    if (isPresentArray(this.#values)) {
+      const lastValue = getLast(this.#values);
+      const newValue = callback(lastValue);
+      this.#values.push(newValue);
+    } else {
+      throw new Error(
+        "Attempted to update last render value, but no value was set"
+      );
+    }
+  };
+
   readonly rendered = (): void => {
     this.#renderCount++;
   };

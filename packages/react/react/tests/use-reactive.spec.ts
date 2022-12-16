@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { useReactive, useReactiveSetup } from "@starbeam/react";
+import { component,useReactive } from "@starbeam/react";
 import { Cell, Formula } from "@starbeam/universal";
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
 import { useState } from "react";
@@ -17,7 +17,7 @@ describe("useReactive", () => {
     const result = await root
       .expectHTML((value) => `<p>${value}</p><button>++</button>`)
       .render((state) => {
-        const { cell, increment } = useReactiveSetup(() => {
+        const { cell, increment } = component(() => {
           const count = Cell(INITIAL_COUNT, `#${++nextId}`);
 
           function incrementCell(): void {
@@ -53,7 +53,7 @@ describe("useReactive", () => {
         .expectStable()
         .render((state) => {
           ++testId;
-          const counter = useReactiveSetup(() => {
+          const counter = component(() => {
             const cell = Cell(INITIAL_COUNT, `#${testId}`);
             return Formula(
               () => ({ counter: cell.current }),
@@ -82,7 +82,7 @@ describe("useReactive", () => {
         .expectStable()
         .render((state) => {
           ++nextId;
-          const { formula, increment } = useReactiveSetup(() => {
+          const { formula, increment } = component(() => {
             const cell = Cell(INITIAL_COUNT, `#${nextId}`);
             return () => ({
               formula: Formula(
@@ -129,7 +129,7 @@ describe("useReactive", () => {
         .render((state) => {
           const [reactCount, setReactCount] = useState(INITIAL_COUNT);
 
-          const { count, increment } = useReactiveSetup(() => {
+          const { count, increment } = component(() => {
             const cell = Cell(INITIAL_COUNT);
 
             function incrementCount(): void {
@@ -192,7 +192,7 @@ describe("useReactive", () => {
         )
 
         .render((state) => {
-          return useReactiveSetup(() => {
+          return component(() => {
             const cell = Cell(INITIAL_COUNT);
 
             function increment(): void {

@@ -1,13 +1,13 @@
 import * as js from "@starbeam/js";
-import { useReactiveSetup } from "@starbeam/react";
+import { Component } from "@starbeam/react";
 import type { ResourceBlueprint } from "@starbeam/universal";
 import { Resource } from "@starbeam/universal";
 
 import { formatLocale, SYSTEM_LOCALE, SYSTEM_TZ } from "../intl.js";
 
 export default function DateFormatterStarbeam(): JSX.Element {
-  return useReactiveSetup((component) => {
-    const date = component.use(Clock());
+  return Component(({ use }) => {
+    const date = use(Clock());
 
     return () => {
       const localeInfo = formatLocale(SYSTEM_LOCALE);

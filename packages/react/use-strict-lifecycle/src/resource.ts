@@ -108,99 +108,111 @@ import {
   useState,
 } from "react";
 
-import { Overload } from "./overload.js";
 import { beginReadonly, endReadonly } from "./react.js";
 import { useLastRenderRef } from "./updating-ref.js";
 import { UNINITIALIZED } from "./utils.js";
 
 type State = "mounting" | "mounted" | "remounting" | "unmounted";
 
-export function useLifecycle<T, A>(
+type UseLifecycleBuilder<T, V, A> = (
+  builder: ResourceBuilder<A, V>,
   args: A,
-  build: (builder: ResourceBuilder<A>, args: A, prev?: T) => T
-): T;
-export function useLifecycle<T>(
-  build: (builder: ResourceBuilder<void>, prev?: T) => T
-): T;
-export function useLifecycle<T, A>(
-  ...options:
-    | [args: A, build: (builder: ResourceBuilder<A>, args: A, prev?: T) => T]
-    | [build: (builder: ResourceBuilder<void>, prev?: T) => T]
-): T {
-  const [, setNotify] = useState({});
-  const state = useRef<State>("mounting");
+  prev?: T | undefined
+) => T;
+type Validator<A> = (args: A, prev: A) => boolean;
 
-  const [arg, build] = Overload<
-    [A, (builder: ResourceBuilder<A>, args: A, prev?: T) => T]
-  >()
-    .of(options)
-    .match({
-      1: (callback) => [
-        undefined as A,
-        (builder, _, prev) =>
-          callback(builder as unknown as ResourceBuilder<void>, prev),
-      ],
-    })
-    .else((args, callback) => [args, callback]);
+export function useLifecycle<A, V>({
+  props,
+  validate,
+}: {
+  props?: A;
+  validate?: V;
+} = {}): {
+  render: <T>(build: UseLifecycleBuilder<T, V, A>) => T;
+} {
+  return {
+    render: <T>(build: UseLifecycleBuilder<T, V, A>) => {
+      const [, setNotify] = useState({});
+      const state = useRef<State>("mounting");
 
-  const initialRef = useRef<UNINITIALIZED | ResourceInstance<T, A>>(
-    UNINITIALIZED
-  );
+      const initialRef = useRef<UNINITIALIZED | ResourceInstance<T, V, A>>(
+        UNINITIALIZED
+      );
 
-  if (initialRef.current === UNINITIALIZED) {
-    initialRef.current = ResourceBuilder.build(build, arg);
-  } else {
-    // If we're remounting, we're effectively in the initial state, and the work already happened
-    // in `useLayoutEffect`, so don't do anything here.
-
-    if (state.current === "mounted") {
-      initialRef.current.run("update", arg);
-    } else {
-      state.current = "mounted";
-    }
-  }
-
-  const ref = initialRef as MutableRefObject<ResourceInstance<T, A>>;
-
-  // The callback to useLayoutEffect is created once, but should see the most recent rendered args.
-  const renderedArgs = useLastRenderRef(arg);
-
-  useLayoutEffect(() => {
-    switch (state.current) {
-      case "unmounted": {
-        setNotify({});
-        ref.current = ref.current.remount(renderedArgs.current);
-
-        state.current = "remounting";
-        break;
+      if (initialRef.current === UNINITIALIZED) {
+        initialRef.current = ResourceBuilder.build<T, V, A>(build, props as A);
+      } else {
+        if (state.current === "mounted") {
+          // If we're already mounted, that means we're updating, so call the update callback.
+          initialRef.current.run("update", props as A);
+        } else {
+          // If we're remounting, we're effectively in the initial state, and the work already happened
+          // in `useLayoutEffect`, so don't do anything here.
+          state.current = "mounted";
+        }
       }
-      default: {
-        state.current = "mounted";
+
+      const ref = initialRef as MutableRefObject<ResourceInstance<T, V, A>>;
+
+      // The callback to useLayoutEffect is created once, but should see the most recent rendered args.
+      const { ref: renderedArgs } = useLastRenderRef(props as A);
+
+      const { ref: currentValidate, prev: prevValidate } = useLastRenderRef(
+        validate as V
+      );
+
+      if (prevValidate !== UNINITIALIZED) {
+        const isValid = ref.current.validate(
+          currentValidate.current,
+          prevValidate
+        );
+
+        if (!isValid) {
+          ref.current.run("cleanup", renderedArgs.current);
+
+          ref.current = ref.current.remount(renderedArgs.current);
+          ref.current.run("layout", renderedArgs.current);
+        }
       }
-    }
 
-    ref.current.run("layout", renderedArgs.current);
+      useLayoutEffect(() => {
+        switch (state.current) {
+          case "unmounted": {
+            setNotify({});
+            ref.current = ref.current.remount(renderedArgs.current);
 
-    return () => {
-      ref.current.run("cleanup", renderedArgs.current);
-      state.current = "unmounted";
-    };
-  }, []);
+            state.current = "remounting";
+            break;
+          }
+          default: {
+            state.current = "mounted";
+          }
+        }
 
-  useEffect(() => {
-    ref.current.run("idle", renderedArgs.current);
+        ref.current.run("layout", renderedArgs.current);
 
-    // we don't need to return a cleanup function since we already did that in useLayoutEffect
-  }, []);
+        return () => {
+          ref.current.run("cleanup", renderedArgs.current);
+          state.current = "unmounted";
+        };
+      }, []);
 
-  return ref.current.instance;
+      useEffect(() => {
+        ref.current.run("idle", renderedArgs.current);
+
+        // we don't need to return a cleanup function since we already did that in useLayoutEffect
+      }, []);
+
+      return ref.current.instance;
+    },
+  };
 }
 
-class ResourceInstance<T, A> {
-  #builder: ResourceBuilder<A>;
+class ResourceInstance<T, V, A> {
+  #builder: ResourceBuilder<A, V>;
   #instance: T;
 
-  constructor(builder: ResourceBuilder<A>, instance: T) {
+  constructor(builder: ResourceBuilder<A, V>, instance: T) {
     this.#builder = builder;
     this.#instance = instance;
   }
@@ -209,7 +221,11 @@ class ResourceInstance<T, A> {
     return this.#instance;
   }
 
-  remount(args: A): ResourceInstance<T, A> {
+  validate(current: V, prev: V): boolean {
+    return ResourceBuilder.validate(this.#builder, current, prev);
+  }
+
+  remount(args: A): ResourceInstance<T, V, A> {
     return ResourceBuilder.remount(this.#builder, args, this.#instance);
   }
 
@@ -218,13 +234,15 @@ class ResourceInstance<T, A> {
   }
 }
 
-class ResourceBuilder<A> {
-  static build<T, A>(
-    build: (builder: ResourceBuilder<A>, args: A, prev?: T) => T,
+class ResourceBuilder<A, V> {
+  static build<T, V, A>(
+    build: UseLifecycleBuilder<T, V, A>,
     args: A,
-    prev?: T
-  ): ResourceInstance<T, A> {
-    const builder = new ResourceBuilder(build);
+    prev?: T | undefined
+  ): ResourceInstance<T, V, A> {
+    const builder = new ResourceBuilder<A, V>(
+      build as UseLifecycleBuilder<unknown, V, A>
+    );
     beginReadonly();
     try {
       const instance = new ResourceInstance(
@@ -239,20 +257,20 @@ class ResourceBuilder<A> {
     }
   }
 
-  static remount<T, A>(
-    builder: ResourceBuilder<A>,
+  static remount<T, V, A>(
+    builder: ResourceBuilder<A, V>,
     args: A,
     prev: T
-  ): ResourceInstance<T, A> {
-    return ResourceBuilder.build(
-      builder.#build,
+  ): ResourceInstance<T, V, A> {
+    return ResourceBuilder.build<T, V, A>(
+      builder.#build as UseLifecycleBuilder<T, V, A>,
       args,
       prev
-    ) as ResourceInstance<T, A>;
+    );
   }
 
-  static run<A>(
-    resource: ResourceBuilder<A>,
+  static run<A, V>(
+    resource: ResourceBuilder<A, V>,
     event: "cleanup" | "layout" | "idle" | "update",
     args: A
   ): void {
@@ -261,13 +279,30 @@ class ResourceBuilder<A> {
     }
   }
 
-  #build: (builder: ResourceBuilder<A>, args: A, prev: unknown) => unknown;
+  static validate<A, V>(
+    resource: ResourceBuilder<A, V>,
+    current: V,
+    prev: V
+  ): boolean {
+    if (resource.#validator === undefined) {
+      return true;
+    }
+
+    return resource.#validator(current, prev);
+  }
+
+  #build: UseLifecycleBuilder<unknown, V, A>;
+  #validator: Validator<V> | undefined = undefined;
 
   #on = {
     cleanup: new Set<(args: A) => void>(),
     layout: new Set<(args: A) => void>(),
     idle: new Set<(args: A) => void>(),
     update: new Set<(args: A) => void>(),
+  };
+
+  validate = (validator: Validator<V>): void => {
+    this.#validator = validator;
   };
 
   on = {
@@ -288,7 +323,7 @@ class ResourceBuilder<A> {
     },
   };
 
-  constructor(build: (builder: ResourceBuilder<A>, args: A) => unknown) {
+  constructor(build: UseLifecycleBuilder<unknown, V, A>) {
     this.#build = build;
   }
 }
