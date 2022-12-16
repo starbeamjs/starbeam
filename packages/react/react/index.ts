@@ -5,5 +5,10 @@ export * from "./src/ref.js";
 export { useCell, useReactive } from "./src/use-reactive.js";
 export { use } from "./src/use-resource.js";
 export { useService } from "./src/use-service.js";
-export { Component, component, useSetup } from "./src/use-setup.js";
+export {
+  Component,
+  component,
+  Component as useReactiveSetup,
+  useSetup,
+} from "./src/use-setup.js";
 export { useDeps, useProp } from "./src/utils.js";
