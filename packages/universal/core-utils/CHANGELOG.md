@@ -1,5 +1,11 @@
 # @starbeam/core-utils
 
+## 0.8.8
+
+### Patch Changes
+
+- 2a1f728: Improve @starbeam/react
+
 ## 0.8.7
 
 ### Patch Changes

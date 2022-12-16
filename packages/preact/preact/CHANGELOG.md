@@ -1,5 +1,18 @@
 # @starbeam/preact
 
+## 0.8.8
+
+### Patch Changes
+
+- 2a1f728: Improve @starbeam/react
+- Updated dependencies [2a1f728]
+  - @starbeam/preact-utils@0.8.8
+  - @starbeam/core-utils@0.8.8
+  - @starbeam/debug@0.8.8
+  - @starbeam/timeline@0.8.8
+  - @starbeam/universal@0.8.8
+  - @starbeam/verify@0.8.8
+
 ## 0.8.7
 
 ### Patch Changes
