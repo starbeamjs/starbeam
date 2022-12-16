@@ -1,5 +1,22 @@
 # @starbeam/react
 
+## 0.8.8
+
+### Patch Changes
+
+- 2a1f728: Improve @starbeam/react
+- Updated dependencies [2a1f728]
+  - @starbeam/use-strict-lifecycle@0.8.8
+  - @starbeam/core-utils@0.8.8
+  - @starbeam/debug@0.8.8
+  - @starbeam/interfaces@0.8.8
+  - @starbeam/js@0.8.8
+  - @starbeam/modifier@0.8.8
+  - @starbeam/shared@1.3.6
+  - @starbeam/timeline@0.8.8
+  - @starbeam/universal@0.8.8
+  - @starbeam/verify@0.8.8
+
 ## 0.8.7
 
 ### Patch Changes

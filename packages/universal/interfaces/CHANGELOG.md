@@ -1,5 +1,13 @@
 # @starbeam/interfaces
 
+## 0.8.8
+
+### Patch Changes
+
+- 2a1f728: Improve @starbeam/react
+- Updated dependencies [2a1f728]
+  - @starbeam/shared@1.3.6
+
 ## 0.8.7
 
 ### Patch Changes

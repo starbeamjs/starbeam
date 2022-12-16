@@ -1,5 +1,11 @@
 # @starbeam/shared
 
+## 1.3.6
+
+### Patch Changes
+
+- 2a1f728: Improve @starbeam/react
+
 ## 1.3.5
 
 ### Patch Changes

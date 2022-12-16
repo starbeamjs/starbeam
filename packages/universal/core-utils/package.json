@@ -1,6 +1,6 @@
 {
   "name": "@starbeam/core-utils",
-  "version": "0.8.7",
+  "version": "0.8.8",
   "type": "module",
   "main": "index.ts",
   "types": "index.ts",
