@@ -379,7 +379,7 @@ export class Package {
    * @returns {import("rollup").RollupOptions[]}
    */
   rollupCJS() {
-    return this.#shared("esm").map((options) => ({
+    return this.#shared("cjs").map((options) => ({
       ...options,
       external: this.#external,
       plugins: [
