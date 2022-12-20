@@ -1,5 +1,13 @@
 # @starbeam/core
 
+## 0.8.9
+
+### Patch Changes
+
+- e459bf2: Fix CJS builds
+- Updated dependencies [e459bf2]
+  - @starbeam/universal@0.8.9
+
 ## 0.8.8
 
 ### Patch Changes
