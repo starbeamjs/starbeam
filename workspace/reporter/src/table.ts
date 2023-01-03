@@ -142,10 +142,10 @@ class Column {
   }
 
   // This allows Column.from to be used as a function passed to .map()
-  static from(from: IntoColumn): Column;
+  static from(this: void, from: IntoColumn): Column;
   // eslint-disable-next-line @typescript-eslint/unified-signatures
-  static from(from: IntoColumn, options?: ColumnOptions): Column;
-  static from(from: IntoColumn, options?: ColumnOptions): Column {
+  static from(this: void, from: IntoColumn, options?: ColumnOptions): Column;
+  static from(this: void, from: IntoColumn, options?: ColumnOptions): Column {
     if (Column.is(from)) {
       return from;
     } else {

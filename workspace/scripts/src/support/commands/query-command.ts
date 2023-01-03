@@ -1,12 +1,7 @@
 import type { Package } from "@starbeam-workspace/package";
 import { type ParseError, FILTER_KEYS } from "@starbeam-workspace/package";
 import { queryPackages } from "@starbeam-workspace/package";
-import {
-  type Filter,
-  formatScope,
-  parse,
-  Query,
-} from "@starbeam-workspace/package";
+import { Filter, formatScope, parse, Query } from "@starbeam-workspace/package";
 import {
   type Workspace as IWorkspace,
   Fragment,
@@ -123,6 +118,8 @@ export class BuildQueryCommand<
           } else {
             where.and("name", `${formatScope(scope)}/${packageName}`);
           }
+
+          where.and(Filter.notEquals("type", "root"));
         }
 
         let explicitDraft = false;
