@@ -73,7 +73,7 @@ export function useCell<T>(
 ): Cell<T> {
   const desc = Desc("cell", description);
 
-  return useSetup(() => Cell(value, { description: desc }));
+  return useSetup(() => ({ cell: Cell(value, { description: desc }) })).cell;
 }
 
 export class MountedReactive<T> {

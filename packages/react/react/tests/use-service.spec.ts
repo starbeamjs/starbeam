@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { callerStack, entryPoint } from "@starbeam/debug";
-import { Starbeam, useReactive, useService, useSetup } from "@starbeam/react";
+import { Starbeam, useService, useSetup } from "@starbeam/react";
 import { Cell, Resource } from "@starbeam/universal";
 import type { RenderState } from "@starbeam-workspace/react-test-utils";
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
@@ -140,17 +140,13 @@ describe("services", () => {
       function Avatar(): React.ReactElement | null {
         const user = useSetup(({ service }) => service(CurrentUser));
 
-        return useReactive(() =>
-          user.current ? html.img({ src: user.current.avatar }) : null
-        );
+        return user ? html.img({ src: user.avatar }) : null;
       }
 
       function Username(): React.ReactElement | null {
         const user = useSetup(({ service }) => service(CurrentUser));
 
-        return useReactive(() =>
-          user.current ? html.span(user.current.username) : null
-        );
+        return user ? html.span(user.username) : null;
       }
 
       function Profile({
@@ -161,15 +157,13 @@ describe("services", () => {
         testState.rendered();
         const user = useSetup(({ service }) => service(CurrentUser));
 
-        return useReactive(() => {
-          testState.value(user.current);
+        testState.value(user);
 
-          if (user.current) {
-            return react.fragment(react.render(Avatar), react.render(Username));
-          } else {
-            return html.p("loading");
-          }
-        });
+        if (user) {
+          return react.fragment(react.render(Avatar), react.render(Username));
+        } else {
+          return html.p("loading");
+        }
       }
 
       async function send(

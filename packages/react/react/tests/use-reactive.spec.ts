@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { component,useReactive } from "@starbeam/react";
+import { useReactive, useSetup } from "@starbeam/react";
 import { Cell, Formula } from "@starbeam/universal";
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
 import { useState } from "react";
@@ -17,14 +17,14 @@ describe("useReactive", () => {
     const result = await root
       .expectHTML((value) => `<p>${value}</p><button>++</button>`)
       .render((state) => {
-        const { cell, increment } = component(() => {
+        const { cell, increment } = useSetup(() => {
           const count = Cell(INITIAL_COUNT, `#${++nextId}`);
 
           function incrementCell(): void {
             count.set(count.current + INCREMENT);
           }
 
-          return () => ({ cell: count, increment: incrementCell });
+          return { cell: count, increment: incrementCell };
         }, "first useReactiveSetup");
 
         return useReactive(() => {
@@ -53,7 +53,7 @@ describe("useReactive", () => {
         .expectStable()
         .render((state) => {
           ++testId;
-          const counter = component(() => {
+          const { counter } = useSetup(() => {
             const cell = Cell(INITIAL_COUNT, `#${testId}`);
             return Formula(
               () => ({ counter: cell.current }),
@@ -61,9 +61,9 @@ describe("useReactive", () => {
             );
           }, `#${testId}`);
 
-          state.value(counter);
+          state.value({ counter });
 
-          return react.fragment(html.p(String(counter.counter)));
+          return react.fragment(html.p(String(counter)));
         });
 
       expect(result.value).toEqual({ counter: 0 });
@@ -82,9 +82,9 @@ describe("useReactive", () => {
         .expectStable()
         .render((state) => {
           ++nextId;
-          const { formula, increment } = component(() => {
+          const { formula, increment } = useSetup(() => {
             const cell = Cell(INITIAL_COUNT, `#${nextId}`);
-            return () => ({
+            return {
               formula: Formula(
                 () => ({ counter: cell.current }),
                 `inner #${nextId}`
@@ -92,7 +92,7 @@ describe("useReactive", () => {
               increment: () => {
                 cell.update((count) => count + INCREMENT);
               },
-            });
+            };
           }, `#${nextId}`);
 
           const counter = useReactive(formula);
@@ -129,17 +129,17 @@ describe("useReactive", () => {
         .render((state) => {
           const [reactCount, setReactCount] = useState(INITIAL_COUNT);
 
-          const { count, increment } = component(() => {
+          const { count, increment } = useSetup(() => {
             const cell = Cell(INITIAL_COUNT);
 
             function incrementCount(): void {
               cell.update((i) => i + INCREMENT);
             }
 
-            return () => ({
+            return {
               count: cell,
               increment: incrementCount,
-            });
+            };
           });
 
           return useReactive(() => {
@@ -192,7 +192,7 @@ describe("useReactive", () => {
         )
 
         .render((state) => {
-          return component(() => {
+          return useSetup(() => {
             const cell = Cell(INITIAL_COUNT);
 
             function increment(): void {
@@ -226,7 +226,7 @@ describe("useReactive", () => {
                 )
               );
             };
-          });
+          }).compute();
         });
 
       expect(result.value).toEqual({ starbeam: 0, react: 0 });
