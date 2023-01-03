@@ -1,5 +1,5 @@
 import { reactive } from "@starbeam/js";
-import { Component } from "@starbeam/react";
+import { useSetup } from "@starbeam/react";
 import type { FormEvent } from "react";
 
 interface Person {
@@ -23,7 +23,7 @@ class Table<T> {
 }
 
 export default function Database(): JSX.Element {
-  return Component(() => {
+  return useSetup(() => {
     const people = new Table<Person>(["name", "location"]);
 
     function append(event: FormEvent<HTMLFormElement>): void {
@@ -60,5 +60,5 @@ export default function Database(): JSX.Element {
         </table>
       </>
     );
-  });
+  }).compute();
 }

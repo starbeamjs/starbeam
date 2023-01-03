@@ -1,4 +1,4 @@
-import { Component, useProp } from "@starbeam/react";
+import { useProp, useSetup } from "@starbeam/react";
 import {
   type Reactive,
   type ResourceBlueprint,
@@ -17,7 +17,7 @@ import {
 export default function (props: { locale: string }): JSX.Element {
   const locale = useProp(props.locale);
 
-  return Component(({ use }) => {
+  return useSetup(({ use }) => {
     const timeZone = Cell(SYSTEM_TZ, "system time zone");
     const date = use(Clock(timeZone, locale));
 
@@ -54,7 +54,7 @@ export default function (props: { locale: string }): JSX.Element {
         </>
       );
     };
-  });
+  }).compute();
 }
 
 function Clock(

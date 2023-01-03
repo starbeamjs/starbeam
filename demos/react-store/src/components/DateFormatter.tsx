@@ -1,8 +1,8 @@
-import { Component, useProp } from "@starbeam/react";
+import { useSetup } from "@starbeam/react";
 import {
-  type Reactive,
   type ResourceBlueprint,
   Cell,
+  Reactive,
   Resource,
 } from "@starbeam/universal";
 
@@ -15,14 +15,15 @@ import {
 } from "./intl.js";
 
 export default function (props: { locale: string }): JSX.Element {
-  const locale = useProp(props.locale);
-
-  return Component(({ use }) => {
+  return useSetup(({ use }) => {
     const timeZone = Cell(SYSTEM_TZ, "system time zone");
-    const date = use(Clock(timeZone, locale));
+    // FIXME: The fact that this uses closure state will cause confusion relative to other places
+    // where we take props as an argument. TL;DR: useSetup should be able to take props as an
+    // argument.
+    const date = use(Clock(timeZone, props.locale));
 
-    return () => {
-      const localeInfo = formatLocale(locale.read());
+    return ({ locale }: { locale: string }) => {
+      const localeInfo = formatLocale(locale);
       const formattedLocale = localeInfo.region
         ? `${localeInfo.region} (${localeInfo.language})`
         : localeInfo.language;
@@ -42,7 +43,7 @@ export default function (props: { locale: string }): JSX.Element {
               >
                 {TIME_ZONES.map((tz) => (
                   <option key={tz} value={tz}>
-                    {timeZoneName(locale.read(), tz)}
+                    {timeZoneName(locale, tz)}
                   </option>
                 ))}
               </select>
@@ -53,18 +54,20 @@ export default function (props: { locale: string }): JSX.Element {
         </>
       );
     };
-  });
+  }).compute(props);
 }
 
 function Clock(
   timeZone: Reactive<string>,
-  locale: Reactive<string>
+  locale: Reactive<string> | string
 ): ResourceBlueprint<{ formatted: string; refresh: () => void }> {
   const date = Cell(new Date(), "current time");
 
   function refresh(): void {
     date.current = new Date();
   }
+
+  const reactiveLocale = Reactive.from(locale);
 
   return Resource((resource) => {
     const interval = setInterval(() => {
@@ -76,7 +79,11 @@ function Clock(
     });
 
     return {
-      formatted: formatDate(date.current, locale.read(), timeZone.read()),
+      formatted: formatDate(
+        date.current,
+        reactiveLocale.read(),
+        timeZone.read()
+      ),
       refresh,
     };
   });
