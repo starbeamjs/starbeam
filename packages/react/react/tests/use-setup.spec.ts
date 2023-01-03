@@ -1,10 +1,11 @@
 // @vitest-environment jsdom
 
 import { entryPoint } from "@starbeam/debug";
-import reactive from "@starbeam/js";
-import { Component, useReactive, useSetup } from "@starbeam/react";
+import type { ReactiveElement } from "@starbeam/react";
+import { useReactive, useSetup } from "@starbeam/react";
 import { Cell } from "@starbeam/universal";
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
+import type { ReactElement } from "react";
 import { describe, expect } from "vitest";
 
 import { Channels } from "./support/channel.js";
@@ -30,8 +31,12 @@ type State =
       name?: string | undefined;
     };
 
+interface TestProps {
+  greeting: string;
+}
+
 describe("useSetup", () => {
-  testReact<void, State>("useSetup phases", async (root) => {
+  testReact<void, State>("returning a render function", async (root) => {
     const result = await root
       .expectStable()
       .expectHTML(
@@ -41,37 +46,21 @@ describe("useSetup", () => {
           }`
       )
       .render((state) => {
-        const reactiveState = useSetup((setup) => {
-          const renderState = Cell(
-            { state: "rendering" } as State,
-            "outer cell"
-          );
+        return useSetup((element) => {
+          const renderState = subscribe(element);
 
-          setup.on.idle(() => {
-            const channel = CHANNELS.subscribe("test");
-            renderState.set({ state: "connected" });
+          return () => {
+            const current = renderState.current;
+            state.value(current);
 
-            channel.onMessage((message) => {
-              renderState.set({ state: "message", lastMessage: message });
-            });
-
-            return () => {
-              renderState.set({ state: "disconnected" });
-            };
-          });
-
-          return renderState;
-        });
-
-        return useReactive(() => {
-          const current = reactiveState.current;
-          state.value(current);
-
-          return react.fragment(
-            html.span(current.state),
-            current.state === "message" ? html.span(current.lastMessage) : null
-          );
-        });
+            return react.fragment(
+              html.span(current.state),
+              current.state === "message"
+                ? html.span(current.lastMessage)
+                : null
+            );
+          };
+        }).compute();
       });
 
     function send(message: string): void {
@@ -97,51 +86,177 @@ describe("useSetup", () => {
       lastMessage: "first message",
     });
   });
-});
 
-describe("Component", () => {
-  testReact<{ name: string }, State>("useSetup phases", async (root) => {
+  testReact<TestProps, State>(
+    "returning a render function that takes props",
+    async (root) => {
+      const result = await root
+        .expectStable()
+        .expectHTML(
+          (value, { greeting }) =>
+            `<span>${greeting}</span><span> </span><span>${value.state}</span>${
+              value.state === "message"
+                ? `<span>${value.lastMessage}</span>`
+                : ""
+            }`
+        )
+        .render(
+          (value, props) => {
+            return useSetup((element) => {
+              const renderState = subscribe(element);
+
+              return ({ greeting }: TestProps): ReactElement => {
+                const current = renderState.current;
+                value.value(current);
+
+                return react.fragment(
+                  html.span(greeting),
+                  html.span(" "),
+                  html.span(current.state),
+                  current.state === "message"
+                    ? html.span(current.lastMessage)
+                    : null
+                );
+              };
+            }).compute(props);
+          },
+          { greeting: "hello" }
+        );
+
+      function send(message: string): void {
+        entryPoint((): void => {
+          const latest = CHANNELS.latest();
+
+          if (latest === undefined) {
+            expect(latest).not.toBeUndefined();
+            return;
+          }
+
+          CHANNELS.sendMessage(latest, message);
+        });
+      }
+
+      await result.rerender();
+      await result.act(() => {
+        send("first message");
+      });
+
+      expect(result.value).toEqual({
+        state: "message",
+        lastMessage: "first message",
+      });
+    }
+  );
+
+  testReact<void, State>("returning a reactive value", async (root) => {
     const result = await root
       .expectStable()
       .expectHTML(
         (value) =>
-          `<span>name:</span><span>${value.name ?? "no-name"}</span><span>${
-            value.state
-          }</span>`
+          `<span>${value.state}</span>${
+            value.state === "message" ? `<span>${value.lastMessage}</span>` : ""
+          }`
       )
-      .render(
-        (state, props) => {
-          return Component(props, ({ on }) => {
-            const renderState = reactive.object(
-              {
-                state: "rendering",
-                name: props.name,
-              },
-              "renderState"
-            ) as State;
+      .render((state) => {
+        const reactiveState = useSetup((element) => subscribe(element));
 
-            on.layout(() => {
-              renderState.state = "connected";
-            });
+        state.value(reactiveState);
 
-            return (props) => {
-              renderState.name = props.name;
-              state.value(renderState);
+        return react.fragment(
+          html.span(reactiveState.state),
+          reactiveState.state === "message" ? html.span(reactiveState.lastMessage) : null
+        );
+      });
 
-              return react.fragment(
-                html.span("name:"),
-                html.span(props.name),
-                html.span(renderState.state)
-              );
-            };
-          });
-        },
-        { name: "test" }
-      );
+    function send(message: string): void {
+      entryPoint((): void => {
+        const latest = CHANNELS.latest();
+
+        if (latest === undefined) {
+          expect(latest).not.toBeUndefined();
+          return;
+        }
+
+        CHANNELS.sendMessage(latest, message);
+      });
+    }
+
+    await result.rerender();
+    await result.act(() => {
+      send("first message");
+    });
 
     expect(result.value).toEqual({
-      state: "connected",
-      name: "test",
+      state: "message",
+      lastMessage: "first message",
+    });
+  });
+
+  testReact<void, State>("returning a static value", async (root) => {
+    const result = await root
+      .expectStable()
+      .expectHTML(
+        (value) =>
+          `<span>${value.state}</span>${
+            value.state === "message" ? `<span>${value.lastMessage}</span>` : ""
+          }`
+      )
+      .render((state) => {
+        const { lastRender } = useSetup((element) => {
+          const renderState = subscribe(element);
+
+          return { lastRender: renderState };
+        });
+
+        return useReactive(() => {
+          const current = lastRender.current;
+          state.value(current);
+
+          return react.fragment(
+            html.span(current.state),
+            current.state === "message" ? html.span(current.lastMessage) : null
+          );
+        });
+      });
+
+    await result.rerender();
+    await result.act(() => {
+      send("first message");
+    });
+
+    expect(result.value).toEqual({
+      state: "message",
+      lastMessage: "first message",
     });
   });
 });
+
+function send(message: string): void {
+  entryPoint((): void => {
+    const latest = CHANNELS.latest();
+
+    if (latest === undefined) {
+      expect(latest).not.toBeUndefined();
+      return;
+    }
+
+    CHANNELS.sendMessage(latest, message);
+  });
+}
+
+function subscribe(element: ReactiveElement): Cell<State> {
+  const renderState = Cell({ state: "rendering" } as State, "outer cell");
+  element.on.idle(() => {
+    const channel = CHANNELS.subscribe("test");
+    renderState.set({ state: "connected" });
+
+    channel.onMessage((message) => {
+      renderState.set({ state: "message", lastMessage: message });
+    });
+
+    return () => {
+      renderState.set({ state: "disconnected" });
+    };
+  });
+  return renderState;
+}

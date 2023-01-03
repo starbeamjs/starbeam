@@ -88,17 +88,20 @@ class RenderResult<Props, T> {
   #setup: SetupTestRoot<Props, T>;
   #state: RenderState<T>;
   #result: testing.RenderResult;
+  #props: Props;
   #rerender: (props?: Props) => void;
 
   constructor(
     setup: SetupTestRoot<Props, T>,
     state: RenderState<T>,
     result: testing.RenderResult,
+    props: Props,
     rerender: (props?: Props) => void
   ) {
     this.#setup = setup;
     this.#state = state;
     this.#result = result;
+    this.#props = props;
     this.#rerender = rerender;
   }
 
@@ -120,7 +123,11 @@ class RenderResult<Props, T> {
 
     return entryPoint(
       () => {
-        SetupTestRoot.assert(this.#setup, this);
+        const newProps = props ?? this.#props;
+
+        this.#props = newProps;
+
+        SetupTestRoot.assert(this.#setup, this, newProps);
 
         return this;
       },
@@ -187,13 +194,14 @@ class RenderResult<Props, T> {
 }
 
 export class SetupTestRoot<Props, T> {
-  static assert<T>(
-    render: SetupTestRoot<any, T>,
-    result: RenderResult<any, T>
+  static assert<Props, T>(
+    render: SetupTestRoot<Props, T>,
+    result: RenderResult<Props, T>,
+    props: Props
   ): void {
     if (render.#expectHtml) {
       expect(result.innerHTML).toBe(
-        render.#expectHtml(RenderResult.getValue(result))
+        render.#expectHtml(RenderResult.getValue(result), props)
       );
     }
 
@@ -221,7 +229,7 @@ export class SetupTestRoot<Props, T> {
     }
   }
 
-  #expectHtml: undefined | ((value: T) => string);
+  #expectHtml: undefined | ((value: T, props: Props) => string);
   #expectStable: undefined | ((value: T) => unknown);
   #options: testing.RenderOptions;
 
@@ -265,6 +273,7 @@ export class SetupTestRoot<Props, T> {
           this,
           state,
           result,
+          props,
           (updatedProps?: any) => {
             if (updatedProps) {
               result.rerender(
@@ -285,7 +294,11 @@ export class SetupTestRoot<Props, T> {
 
     entryPoint(
       () => {
-        SetupTestRoot.assert(this, result);
+        SetupTestRoot.assert(
+          this as unknown as SetupTestRoot<Props, T>,
+          result,
+          props as Props
+        );
       },
       { internal: 1 }
     );
@@ -293,7 +306,7 @@ export class SetupTestRoot<Props, T> {
     return Promise.resolve(result);
   }
 
-  expectHTML(expectHtml: (value: T) => string): this {
+  expectHTML(expectHtml: (value: T, props: Props) => string): this {
     this.#expectHtml = expectHtml;
     return this;
   }

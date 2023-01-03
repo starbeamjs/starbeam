@@ -201,6 +201,11 @@ export class ReactiveElement implements CleanupTarget {
     element.#lifecycle = Lifecycle.create(element.#description);
   }
 
+  static subscribe(element: ReactiveElement, reactive: ReactiveProtocol): void {
+    const subscription = TIMELINE.on.change(reactive, element.notify);
+    element.on.cleanup(subscription);
+  }
+
   #lifecycle: Lifecycle;
   #context: ReactApp | null;
   #debugLifecycle: DebugLifecycle | null = null;
