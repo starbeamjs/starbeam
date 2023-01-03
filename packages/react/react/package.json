@@ -42,7 +42,7 @@
   "devDependencies": {
     "@domtree/flavors": "workspace:^",
     "@starbeam-dev/build-support": "workspace:*",
-    "@types/react": "^18.0.9"
+    "@types/react": "^18.0.26"
   },
   "peerDependencies": {
     "react": "^18.2.0",

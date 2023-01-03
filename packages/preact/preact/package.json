@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "@starbeam-dev/build-support": "workspace:*",
-    "chalk": "^5.1.2",
+    "chalk": "^5.2.0",
     "preact-render-to-string": "^5.2.5"
   },
   "peerDependencies": {

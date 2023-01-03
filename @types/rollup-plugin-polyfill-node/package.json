@@ -25,7 +25,7 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "rollup": "^3.3.0"
+    "rollup": "^3.9.1"
   },
   "devDependencies": {}
 }

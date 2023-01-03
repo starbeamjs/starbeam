@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@starbeam/verify": "workspace:^",
-    "@testing-library/dom": "^8.19.0",
+    "@testing-library/dom": "^8.19.1",
     "@testing-library/preact": "^3.2.2",
     "htm": "^3.1.1"
   },

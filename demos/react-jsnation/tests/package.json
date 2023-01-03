@@ -22,6 +22,6 @@
   },
   "devDependencies": {
     "@testing-library/react": "^13.4.0",
-    "@types/react": "^18"
+    "@types/react": "^18.0.26"
   }
 }
