@@ -1,5 +1,5 @@
 import js from "@starbeam/js";
-import { Component } from "@starbeam/react";
+import { useSetup } from "@starbeam/react";
 import type { Reactive } from "@starbeam/universal";
 import { Formula } from "@starbeam/universal";
 import type { JSXElementConstructor } from "react";
@@ -12,7 +12,7 @@ type JsxReturn = React.ReactElement<
 >;
 
 export default function DateFormatterStarbeam(): JsxReturn {
-  return Component(() => {
+  return useSetup(() => {
     const date = Clock();
 
     return () => {
@@ -38,7 +38,7 @@ export default function DateFormatterStarbeam(): JsxReturn {
         </>
       );
     };
-  });
+  }).compute();
 }
 
 function Clock(): Reactive<{ formatted: string; refresh: () => void }> {

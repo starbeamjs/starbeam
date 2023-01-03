@@ -1,4 +1,4 @@
-import { Component } from "@starbeam/react";
+import { useSetup } from "@starbeam/react";
 import { Cell } from "@starbeam/universal";
 import type { FormEvent } from "react";
 
@@ -7,7 +7,7 @@ import { Table } from "../lib/table.js";
 import { SYSTEM_LOCALE } from "./intl.js";
 
 export default function (): JSX.Element {
-  return Component(() => {
+  return useSetup(() => {
     const table = new Table<Person>(["name", "location"]);
 
     table.append({ name: "Tom Dale", location: "NYC" });
@@ -118,5 +118,5 @@ export default function (): JSX.Element {
         </>
       );
     };
-  });
+  }).compute();
 }

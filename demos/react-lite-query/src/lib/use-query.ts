@@ -3,7 +3,7 @@ import {
   callerStack,
   descriptionFrom,
 } from "@starbeam/debug";
-import { Component } from "@starbeam/react";
+import { useSetup } from "@starbeam/react";
 
 import type { AsyncData, Query } from "./fetch.js";
 import { QUERIES } from "./fetch.js";
@@ -22,7 +22,7 @@ export default function useQuery<T>(
     fromUser: description ?? "QUERIES",
   }).detail("query", [key]);
 
-  return Component(({ on }) => {
+  return useSetup(({ on }) => {
     on.idle(() => {
       QUERIES.fetch(key).catch((e) => {
         console.error(e);
@@ -32,5 +32,5 @@ export default function useQuery<T>(
     return () => {
       return QUERIES.query(key, query, desc).asData(callerStack());
     };
-  }, desc);
+  }, desc).compute();
 }

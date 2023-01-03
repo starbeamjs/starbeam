@@ -1,5 +1,5 @@
 import js from "@starbeam/js";
-import { Component } from "@starbeam/react";
+import { useSetup } from "@starbeam/react";
 import {
   type Reactive,
   type ResourceBlueprint,
@@ -16,7 +16,7 @@ import {
 } from "../intl.js";
 
 export default function DateFormatterStarbeam(): JSX.Element {
-  return Component(({ use }) => {
+  return useSetup(({ use }) => {
     const timeZone = Cell(SYSTEM_TZ, "timeZone");
     const date = use(Clock(timeZone));
 
@@ -56,7 +56,7 @@ export default function DateFormatterStarbeam(): JSX.Element {
         </>
       );
     };
-  });
+  }).compute();
 }
 
 function Clock(
