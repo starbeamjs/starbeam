@@ -81,7 +81,8 @@ export abstract class BuildCommand<Args extends unknown[], Options, Short> {
     name: string,
     description: string,
     value: Value<V>
-  ): this {
+  // eslint-disable-next-line @typescript-eslint/prefer-return-this-type
+  ): BuildCommand<Args, Options, Short> {
     const arg = dasherize(name);
 
     if (typeof value === "function") {
