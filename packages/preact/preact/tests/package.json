@@ -15,9 +15,9 @@
     "@starbeam/universal": "workspace:^",
     "@starbeam-workspace/preact-testing-utils": "workspace:^",
     "@starbeam-workspace/test-utils": "workspace:^",
-    "@testing-library/dom": "^8.19.0",
+    "@testing-library/dom": "^8.19.1",
     "@testing-library/preact": "^3.2.2",
-    "jsdom": "^20.0.0",
+    "jsdom": "^20.0.3",
     "preact": "*"
   },
   "devDependencies": {

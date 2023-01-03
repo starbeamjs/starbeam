@@ -40,14 +40,14 @@
     "@starbeam/preact": "workspace:^",
     "@starbeam/timeline": "workspace:^",
     "@starbeam/universal": "workspace:^",
-    "preact": "^10.11.2",
+    "preact": "^10.11.3",
     "purecss": "3.0.0"
   },
   "devDependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
     "@vitest/ui": "*",
     "vite": "*",
-    "vite-plugin-fonts": "^0.6.0",
+    "vite-plugin-fonts": "*",
     "vitest": "*"
   }
 }

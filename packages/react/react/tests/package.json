@@ -15,7 +15,7 @@
     "@starbeam/universal": "workspace:^",
     "@starbeam-workspace/react-test-utils": "workspace:^",
     "@starbeam-workspace/test-utils": "workspace:^",
-    "jsdom": "^20.0.0",
+    "jsdom": "^20.0.3",
     "react": "^18"
   }
 }

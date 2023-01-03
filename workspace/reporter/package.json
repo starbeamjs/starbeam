@@ -31,7 +31,7 @@
     "@starbeam-workspace/paths": "workspace:^",
     "@starbeam-workspace/shared": "workspace:^",
     "ansicolor": "^1.1.100",
-    "chalk": "^5.1.2",
+    "chalk": "^5.2.0",
     "cli-table3": "^0.6.3",
     "emoji-regex": "^10.2.1",
     "node-pty": "^0.10.1",
