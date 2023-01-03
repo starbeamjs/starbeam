@@ -50,6 +50,6 @@
     "preact-render-to-string": "^5.2.5"
   },
   "peerDependencies": {
-    "preact": "^10.11.2"
+    "preact": "^10.11.3"
   }
 }
