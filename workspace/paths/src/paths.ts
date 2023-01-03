@@ -462,7 +462,7 @@ export class Glob<T extends Path = Path> extends Path {
     }
   }
 
-  and(path: string): Globs<Path>;
+  and(path: string): Globs;
   and(path: Glob<T>): Globs<T>;
   and(path: string | Glob, options?: GlobOptions): Globs {
     const globs = Globs.root(this.root, this.#options);

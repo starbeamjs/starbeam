@@ -81,7 +81,7 @@ export abstract class BuildCommand<Args extends unknown[], Options, Short> {
     name: string,
     description: string,
     value: Value<V>
-  ): BuildCommand<Args, Options, Short> {
+  ): this {
     const arg = dasherize(name);
 
     if (typeof value === "function") {

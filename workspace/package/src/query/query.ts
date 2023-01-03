@@ -47,7 +47,7 @@ export class Query {
     }
   }
 
-  and(filter: Matchable | ParseError): Query;
+  and(filter: Filter | ParseError): Query;
   and(key: FilterKey, value?: string | boolean | undefined): Query;
   and(...args: FilterArgs): this {
     this.#all.add(this.#resolveArgs(args));
