@@ -1,5 +1,10 @@
 export { DEBUG_RENDERER } from "./src/debug-renderer.js";
 export { type Equality, Cell } from "./src/reactive-core/cell.js";
+export {
+  Custom,
+  CustomBlueprint,
+  CustomBuilder,
+} from "./src/reactive-core/custom.js";
 export { DelegateInternals, Wrap } from "./src/reactive-core/delegate.js";
 export {
   Formula,
@@ -24,6 +29,7 @@ export {
 export { Marker } from "./src/reactive-core/marker.js";
 export type {
   Blueprint,
+  IntoReactive,
   ReactiveBlueprint,
   ReactiveFactory,
 } from "./src/reactive-core/reactive.js";

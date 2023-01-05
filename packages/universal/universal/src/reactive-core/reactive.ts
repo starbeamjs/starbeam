@@ -22,10 +22,22 @@ export function Reactive<T>(
 Reactive.is = TimelineReactive.is;
 Reactive.from = TimelineReactive.from;
 
-export type Reactive<
+Reactive.read = <T>(value: IntoReactive<T>): T => {
+  if (Reactive.is(value)) {
+    return value.current;
+  } else {
+    return value;
+  }
+};
+
+export type IntoReactive<T> = Reactive<T> | T;
+
+export type TypedReactive<
   T,
   I extends ReactiveInternals = ReactiveInternals
 > = TimelineReactive<T, I>;
+
+export type Reactive<T> = TimelineReactive<T>;
 
 export class ReactiveBlueprint<T> {
   static is<T>(value: T | ReactiveBlueprint<T>): value is ReactiveBlueprint<T> {
