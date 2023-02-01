@@ -1,8 +1,18 @@
 import type { Reactive } from "./reactive.js";
 
-export function Custom<A>(this: void, create: () => A): CustomBlueprint<A> {
-  return { setup: create };
+export function Custom<A>(
+  this: void,
+  create: (builder: CustomBuilder) => A
+): CustomBlueprint<A> {
+  return {
+    setup: () => {
+      const builder = new CustomBuilder();
+      return create(builder);
+    },
+  };
 }
+
+Custom.create = Custom;
 
 Custom.class = <A extends readonly unknown[], R>(
   create: new (...args: A) => R
