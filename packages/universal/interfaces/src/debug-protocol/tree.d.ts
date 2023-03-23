@@ -1,7 +1,7 @@
 import type * as anydom from "@domtree/any";
 
 import type { Description } from "../description.js";
-import type { ReactiveProtocol } from "../protocol.js";
+import type { SubscriptionTarget } from "../protocol.js";
 
 export interface INode {
   readonly type: string;
@@ -52,7 +52,7 @@ export interface ComponentNode extends INode {
 export interface LifecyclePart extends INode {
   readonly type: "lifecycle";
   readonly timing: "layout" | "idle";
-  readonly setups: ReactiveProtocol[];
+  readonly setups: SubscriptionTarget[];
 }
 
 export interface RefPart extends INode {
@@ -69,12 +69,12 @@ export interface ModifierPart extends INode {
 export interface DomResourcePart extends INode {
   readonly type: "resource:dom";
   readonly timing: "layout" | "idle";
-  readonly reactive: ReactiveProtocol;
+  readonly reactive: SubscriptionTarget;
 }
 
 export interface ResourcePart extends INode {
   readonly type: "resource";
-  readonly reactive: ReactiveProtocol;
+  readonly reactive: SubscriptionTarget;
 }
 
 export type ComponentPart =

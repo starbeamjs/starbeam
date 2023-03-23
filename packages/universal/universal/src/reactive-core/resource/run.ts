@@ -1,5 +1,5 @@
 import { type Description, Desc } from "@starbeam/debug";
-import type { Reactive, ReactiveCore } from "@starbeam/interfaces";
+import type { Reactive, ReactiveValue } from "@starbeam/interfaces";
 import { type Unsubscribe, LIFETIME } from "@starbeam/timeline";
 
 import type { Handler, Resource, ResourceBlueprint } from "./resource";
@@ -42,7 +42,7 @@ export class ResourceRun {
   }
 
   readonly use = <T>(
-    resource: ResourceBlueprint<T> | ReactiveCore<T> | Resource<T> | T,
+    resource: ResourceBlueprint<T> | ReactiveValue<T> | Resource<T> | T,
     options?: { description?: string | Description | undefined }
   ): Reactive<T> => {
     return this.#state.assimilateResourceReturn({

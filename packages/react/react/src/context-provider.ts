@@ -2,9 +2,9 @@ import { LIFETIME } from "@starbeam/timeline";
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
 import type { FunctionComponent } from "react";
 import {
-  type PropsWithChildren,
   createContext,
   createElement,
+  type PropsWithChildren,
   useContext,
 } from "react";
 

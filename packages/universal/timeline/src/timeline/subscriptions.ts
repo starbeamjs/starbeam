@@ -1,170 +1,238 @@
-import type { MutableInternals, Timestamp } from "@starbeam/interfaces";
+import type { CellCore, Diff, FormulaCore } from "@starbeam/interfaces";
 
 import type { Unsubscribe } from "../lifetime/object-lifetime.js";
-import { ReactiveProtocol } from "./protocol.js";
-import { getNow } from "./timestamp.js";
+import { SubscriptionTarget } from "./protocol.js";
 import { diff } from "./utils.js";
 
-export class Subscription {
-  #dependencies: Set<MutableInternals>;
-  #lastNotified: undefined | Timestamp;
-  #ready: (internals: MutableInternals) => void;
+export type NotifyReady = (internals: CellCore) => void;
 
-  constructor(
-    dependencies: Set<MutableInternals>,
-    lastNotified: undefined | Timestamp,
-    ready: (internals: MutableInternals) => void
-  ) {
-    this.#dependencies = dependencies;
-    this.#lastNotified = lastNotified;
-    this.#ready = ready;
-  }
-
-  update(dependencies: Set<MutableInternals>): void {
-    this.#dependencies = dependencies;
-  }
-
-  get dependencies(): Set<MutableInternals> {
-    return this.#dependencies;
-  }
-
-  get lastNotified(): Timestamp | undefined {
-    return this.#lastNotified;
-  }
-
-  notify(timestamp: Timestamp, internals: MutableInternals): void {
-    this.#lastNotified = timestamp;
-    this.#ready(internals);
-  }
-}
-
+/**
+ * A subscription is a weak mapping from individual cells to the subscriptions that depend on them.
+ *
+ * This is an interesting problem because consumers can subscribe to reactive values whose cell
+ * depenencies change over time (such as formulas).
+ *
+ * We want:
+ *
+ * 1. A direct mapping from cells to subscribers. This means that we know (directly) what
+ *    subscribers are interested in a cell mutation, allowing us to do synchronous bookkeeping
+ *    related to subscribers as mutations occur.
+ * 2. A weak mapping from cells to subscribers. If a cell is GC'ed, then no additional mutations to
+ *    it can occur, and we don't need to maintain a hard reference to the cell or its subscribers.
+ *
+ * We accomplish this by keeping a weak mapping from formulas to subscriptions, and a second weak
+ * mapping from cells to subscriptions.
+ *
+ * When a cell is mutated, we have a direct mapping to the subscriber without additional
+ * computations.
+ *
+ * When a formula is recomputed, we:
+ *
+ * 1. get its subscriptions from the mapping.
+ * 2. remove the subscriptions from any cells that are no longer dependencies.
+ * 3. add the subscriptions to any cells that are now dependencies.
+ *
+ * This makes reading formulas a bit slower, but simplifies cell mutation. This is a good trade-off,
+ * since formula computation is typically scheduled, and happens in response to potentially many
+ * mutations.
+ *
+ * @see [A detailed description of the approach used here](./subscriptions.md)
+ */
 export class Subscriptions {
   static create(): Subscriptions {
-    return new Subscriptions(new WeakMap(), new WeakMap());
+    return new Subscriptions();
   }
 
-  #reactiveMap: WeakMap<ReactiveProtocol, Set<Subscription>>;
-  #depMap: WeakMap<MutableInternals, Set<Subscription>>;
+  readonly #formulaMap = FormulaMap.empty();
+  readonly #cellMap = CellMap.empty();
 
-  private constructor(
-    pollableMap: WeakMap<ReactiveProtocol, Set<Subscription>>,
-    readyMap: WeakMap<MutableInternals, Set<Subscription>>
-  ) {
-    this.#reactiveMap = pollableMap;
-    this.#depMap = readyMap;
-  }
+  /**
+   * Register a notification for a reactive value.
+   *
+   * - If the reactive value is a cell, the notification will fire whenever the cell is mutated.
+   * - If the reactive value is a formula, the notification will fire whenever any of the cell's
+   *   dependencies of the formula are mutated.
+   *
+   * ---
+   * TODO: Is it necessary to fire notifications when the formula is recomputed? What if a formula
+   * has two consumers, and they both read the formula, get dependencies A and B and register
+   * notifications. The first consumer reads the formula again, producing dependencies B and C, and
+   * then mutates A.
+   *
+   * Current thinking: Since the notifications never fired, that must mean that neither A nor B
+   * changed. Therefore, re-computing the formula should not have invalidated, so the whole scenario
+   * is impossible.
+   *
+   * However, it probably *is* possible with `PolledFormula`, which intentionally allows a formula
+   * to be recomputed even if its Starbeam deps haven't changed. One possibility is that we might
+   * want to restrict `PolledFormula` to its current use-case of a single consumer. Alternatively,
+   * we may want to fire notifications whenever a `PolledFormula` is recomputed and produces
+   * different dependencies.
+   */
+  register(target: SubscriptionTarget, ready: NotifyReady): Unsubscribe {
+    const subscriptionTargets = SubscriptionTarget.subscriptionTargets(target);
 
-  notify(dependency: MutableInternals): void {
-    const subscriptions = this.#depMap.get(dependency);
-
-    if (subscriptions) {
-      for (const subscription of subscriptions) {
-        subscription.notify(getNow(), dependency);
+    const unsubscribes = subscriptionTargets.map((t) => {
+      const entry = this.#formulaMap.register(t);
+      for (const dependency of SubscriptionTarget.dependencies(t)) {
+        this.#cellMap.register(dependency, entry);
       }
-    }
-  }
 
-  register(
-    reactive: ReactiveProtocol,
-    ready: (internals: MutableInternals) => void
-  ): Unsubscribe {
-    const subscribesTo = ReactiveProtocol.subscribesTo(reactive);
-    const dependencies = new Set(ReactiveProtocol.dependencies(reactive));
-
-    const subscription = new Subscription(dependencies, getNow(), ready);
-
-    for (const dependency of dependencies) {
-      this.#addDep(dependency, subscription);
-    }
-
-    for (const subscribeTo of subscribesTo) {
-      this.#addReactive(subscribeTo, subscription);
-    }
+      return entry.subscribe(ready);
+    });
 
     return () => {
-      for (const subscribeTo of subscribesTo) {
-        this.#removeReactive(subscribeTo, subscription);
+      for (const unsubscribe of unsubscribes) {
+        unsubscribe();
       }
     };
   }
 
-  update(reactive: ReactiveProtocol): void {
-    const pollables = this.#reactiveMap.get(reactive);
+  /**
+   * Notify the subscribers of a particular cell. This happens synchronously during mutation.
+   */
+  notify(mutable: CellCore): void {
+    this.#cellMap.notify(mutable);
+  }
 
-    if (!pollables) {
-      return;
-    }
+  /**
+   * Update the internal mappings for a formula. This happens after a formula was recomputed. It
+   * results in removing mappings from cells that are no longer dependencies and adding mappings for
+   * cells that have become dependencies.
+   */
+  update(frame: SubscriptionTarget<FormulaCore>): void {
+    const cellMap = this.#cellMap;
 
-    const next = new Set(ReactiveProtocol.dependencies(reactive));
-    const lastUpdatedNext = ReactiveProtocol.lastUpdated(reactive);
+    const { add, remove, entry } = this.#formulaMap.update(frame);
+    cellMap.remove(remove, entry);
+    cellMap.add(add, entry);
+  }
+}
 
-    for (const pollable of pollables) {
-      const prev = pollable.dependencies;
-      const lastNotified = pollable.lastNotified;
+/**
+ * A mapping from reactives (basically formulas) to their subscriptions.
+ */
+class FormulaMap {
+  static empty(): FormulaMap {
+    return new FormulaMap();
+  }
 
-      const delta = diff(prev, next);
-      const { add, remove } = delta;
+  readonly #mapping = new WeakMap<SubscriptionTarget, ReactiveSubscription>();
 
-      for (const dep of add) {
-        this.#addDep(dep, pollable);
-      }
+  update(
+    frame: SubscriptionTarget<FormulaCore>
+  ): Diff<CellCore> & { entry: ReactiveSubscription } {
+    const entry = this.#mapping.get(frame);
 
-      for (const dep of remove) {
-        this.#removeDep(dep, pollable);
-      }
-
-      pollable.update(next);
-
-      if (lastNotified === undefined || lastUpdatedNext.gt(lastNotified)) {
-        // pollable.notify(Timestamp.now());
-      }
+    if (entry) {
+      return { ...entry.update(frame), entry };
+    } else {
+      const entry = ReactiveSubscription.create(frame);
+      this.#mapping.set(frame, entry);
+      return {
+        add: new Set(SubscriptionTarget.dependencies(frame)),
+        remove: new Set(),
+        entry,
+      };
     }
   }
 
-  #addReactive(reactive: ReactiveProtocol, pollable: Subscription): void {
-    let pollableSet = this.#reactiveMap.get(reactive);
+  register(target: SubscriptionTarget): ReactiveSubscription {
+    let entry = this.#mapping.get(target);
 
-    if (!pollableSet) {
-      pollableSet = new Set();
-      this.#reactiveMap.set(reactive, pollableSet);
+    if (!entry) {
+      entry = ReactiveSubscription.create(target);
+      this.#mapping.set(target, entry);
     }
 
-    pollableSet.add(pollable);
+    return entry;
+  }
+}
+
+class ReactiveSubscription {
+  static create(target: SubscriptionTarget): ReactiveSubscription {
+    const deps = new Set(SubscriptionTarget.dependencies(target));
+    return new ReactiveSubscription(deps);
   }
 
-  #removeReactive(
-    reactive: ReactiveProtocol,
-    subscription: Subscription
-  ): void {
-    const pollableSet = this.#reactiveMap.get(reactive);
+  #deps: Set<CellCore>;
+  readonly #ready = new Set<NotifyReady>();
 
-    if (pollableSet) {
-      pollableSet.delete(subscription);
-    }
+  private constructor(deps: Set<CellCore>) {
+    this.#deps = deps;
+  }
 
-    const dependencies = subscription.dependencies;
+  subscribe(ready: NotifyReady): Unsubscribe {
+    this.#ready.add(ready);
+    return () => this.#ready.delete(ready);
+  }
 
-    for (const dependency of dependencies) {
-      this.#removeDep(dependency, subscription);
+  notify(internals: CellCore): void {
+    for (const ready of this.#ready) {
+      ready(internals);
     }
   }
 
-  #addDep(dependency: MutableInternals, subscription: Subscription): void {
-    let depSet = this.#depMap.get(dependency);
+  update(frame: SubscriptionTarget<FormulaCore>): Diff<CellCore> {
+    const prev = this.#deps;
+    const next = new Set(SubscriptionTarget.dependencies(frame));
+    this.#deps = next;
 
-    if (!depSet) {
-      depSet = new Set();
-      this.#depMap.set(dependency, depSet);
-    }
+    return diff(prev, next);
+  }
+}
 
-    depSet.add(subscription);
+/**
+ * CellMap keeps track of the current subscriptions for a specific cell.
+ *
+ * When a mutation occurs, the `CellMap` knows exactly which subscriptions it needs to notify,
+ * which keeps the mutation path simple.
+ */
+class CellMap {
+  static empty(): CellMap {
+    return new CellMap();
   }
 
-  #removeDep(dependency: MutableInternals, pollable: Subscription): void {
-    const readySet = this.#depMap.get(dependency);
+  readonly #entriesMap = new WeakMap<CellCore, Set<ReactiveSubscription>>();
 
-    if (readySet) {
-      readySet.delete(pollable);
+  remove(mutables: ReadonlySet<CellCore>, entry: ReactiveSubscription): void {
+    for (const mutable of mutables) {
+      this.#entriesMap.get(mutable)?.delete(entry);
     }
+  }
+
+  add(mutables: ReadonlySet<CellCore>, entry: ReactiveSubscription): void {
+    for (const mutable of mutables) {
+      this.#initialized(mutable).add(entry);
+    }
+  }
+
+  register(mutable: CellCore, entry: ReactiveSubscription): void {
+    this.#initialized(mutable).add(entry);
+  }
+
+  notify(mutable: CellCore): void {
+    for (const entry of this.#entries(mutable)) {
+      entry.notify(mutable);
+    }
+  }
+
+  *#entries(mutable: CellCore): IterableIterator<ReactiveSubscription> {
+    const entries = this.#entriesMap.get(mutable);
+
+    if (entries) {
+      yield* entries;
+    }
+  }
+
+  #initialized(mutable: CellCore): Set<ReactiveSubscription> {
+    let entries = this.#entriesMap.get(mutable);
+
+    if (!entries) {
+      entries = new Set();
+      this.#entriesMap.set(mutable, entries);
+    }
+
+    return entries;
   }
 }

@@ -1,5 +1,5 @@
 import { Message } from "@starbeam/debug";
-import { ReactiveProtocol, TIMELINE } from "@starbeam/timeline";
+import { SubscriptionTarget, TIMELINE } from "@starbeam/timeline";
 import { isRendering } from "@starbeam/use-strict-lifecycle";
 
 let WARNED = false;
@@ -10,7 +10,7 @@ if (import.meta.env.DEV) {
       if (!WARNED) {
         WARNED = true;
 
-        const description = ReactiveProtocol.description(reactive).userFacing;
+        const description = SubscriptionTarget.description(reactive).userFacing;
         const caller = stack.caller;
 
         const pad = Math.max(

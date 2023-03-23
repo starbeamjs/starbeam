@@ -1,25 +1,25 @@
 import type {
-  CompositeInternals,
+  CellCore,
   Diff,
+  FormulaCore,
   Frame,
-  MutableInternals,
-  ReactiveInternals,
-  ReactiveProtocol,
+  ReactiveCore,
   Stack,
+  SubscriptionTarget,
   Timestamp,
 } from "@starbeam/interfaces";
 import { REACTIVE } from "@starbeam/shared";
 import { exhaustive } from "@starbeam/verify";
 
-interface ReactiveProtocolStatics {
-  dependencies: (reactive: ReactiveProtocol) => Iterable<MutableInternals>;
+interface SubscriptionTargetStatics {
+  dependencies: (reactive: SubscriptionTarget) => Iterable<CellCore>;
 }
 
-function reactiveInternals(reactive: ReactiveProtocol): ReactiveInternals {
+function reactiveInternals(reactive: SubscriptionTarget): ReactiveCore {
   return reactive[REACTIVE];
 }
 
-interface OperationInfo<I extends ReactiveInternals> {
+interface OperationInfo<I extends ReactiveCore> {
   readonly at: Timestamp;
   readonly for: I;
   readonly caller: Stack;
@@ -30,7 +30,7 @@ export type DebugOperationOptions =
   | CellUpdateOperation
   | FrameConsumeOperation;
 
-export class LeafOperation<I extends ReactiveInternals> {
+export class LeafOperation<I extends ReactiveCore> {
   #data: OperationInfo<I>;
 
   constructor(data: OperationInfo<I>) {
@@ -50,21 +50,21 @@ export class LeafOperation<I extends ReactiveInternals> {
   }
 }
 
-export class CellConsumeOperation extends LeafOperation<MutableInternals> {
+export class CellConsumeOperation extends LeafOperation<CellCore> {
   readonly type = "cell:consume";
 }
 
-export class CellUpdateOperation extends LeafOperation<MutableInternals> {
+export class CellUpdateOperation extends LeafOperation<CellCore> {
   readonly type = "cell:update";
 }
 
-interface FrameConsumeInfo extends OperationInfo<CompositeInternals> {
-  readonly diff: Diff<MutableInternals>;
+interface FrameConsumeInfo extends OperationInfo<FormulaCore> {
+  readonly diff: Diff<CellCore>;
   readonly frame: Frame;
 }
 
-export class FrameConsumeOperation extends LeafOperation<CompositeInternals> {
-  readonly #diff: Diff<MutableInternals>;
+export class FrameConsumeOperation extends LeafOperation<FormulaCore> {
+  readonly #diff: Diff<CellCore>;
   readonly #frame: Frame;
   readonly type = "frame:consume";
 
@@ -74,7 +74,7 @@ export class FrameConsumeOperation extends LeafOperation<CompositeInternals> {
     this.#frame = data.frame;
   }
 
-  get diff(): Diff<MutableInternals> {
+  get diff(): Diff<CellCore> {
     return this.#diff;
   }
 
@@ -86,7 +86,7 @@ export class MutationLog {
   readonly type = "mutation";
   // This makes `DebugOperation.for` ==== `ReactiveInternals | undefined`, which makes it possible
   // to easily compare the `for` value without a lot of extra type shenanigans.
-  readonly for: ReactiveInternals | undefined = undefined;
+  readonly for: ReactiveCore | undefined = undefined;
 
   readonly #at: Timestamp;
   #description: string;
@@ -116,19 +116,19 @@ export type DebugOperation =
 
 export interface Flush {
   readonly history: DebugOperation[];
-  for: (reactive: ReactiveProtocol) => readonly DebugOperation[];
+  for: (reactive: SubscriptionTarget) => readonly DebugOperation[];
 }
 
 export type DebugListener = InstanceType<typeof DebugTimeline.DebugListener>;
 
 export type DebugFilter =
-  | { type: "by-reactive"; reactive: ReactiveProtocol }
+  | { type: "by-reactive"; reactive: SubscriptionTarget }
   | { type: "all" }
   | { type: "none" };
 
 function filterToPredicate(
   filter: DebugFilter,
-  reactive: ReactiveProtocolStatics
+  reactive: SubscriptionTargetStatics
 ): ((operation: DebugOperation) => boolean) | undefined {
   switch (filter.type) {
     case "by-reactive": {
@@ -161,7 +161,7 @@ const INITIAL_OFFSET = 0;
 
 export class DebugTimeline {
   #timestamp: { now: () => Timestamp };
-  #statics: ReactiveProtocolStatics;
+  #statics: SubscriptionTargetStatics;
   #trimOffset = INITIAL_OFFSET;
   #operationList: DebugOperation[] = [];
   #currentMutation: MutationLog | null = null;
@@ -170,7 +170,7 @@ export class DebugTimeline {
   static Flush = class Flush {
     constructor(readonly history: DebugOperation[]) {}
 
-    for(reactive: ReactiveProtocol): DebugOperation[] {
+    for(reactive: SubscriptionTarget): DebugOperation[] {
       const internals = reactiveInternals(reactive);
       return this.history.filter((item) => item.for === internals);
     }
@@ -198,7 +198,7 @@ export class DebugTimeline {
 
     static create(
       timestamp: { now: () => Timestamp },
-      statics: ReactiveProtocolStatics
+      statics: SubscriptionTargetStatics
     ): DebugTimeline {
       return new DebugTimeline(timestamp, statics);
     }
@@ -229,14 +229,14 @@ export class DebugTimeline {
 
   static create(
     timestamp: { now: () => Timestamp },
-    statics: ReactiveProtocolStatics
+    statics: SubscriptionTargetStatics
   ): DebugTimeline {
     return new DebugTimeline(timestamp, statics);
   }
 
   private constructor(
     timestamp: { now: () => Timestamp },
-    statics: ReactiveProtocolStatics
+    statics: SubscriptionTargetStatics
   ) {
     this.#timestamp = timestamp;
     this.#statics = statics;
@@ -296,7 +296,7 @@ export class DebugTimeline {
     }
   }
 
-  #consumeCell(cell: MutableInternals, caller: Stack): void {
+  #consumeCell(cell: CellCore, caller: Stack): void {
     this.#add(
       new CellConsumeOperation({
         at: this.#timestamp.now(),
@@ -306,19 +306,15 @@ export class DebugTimeline {
     );
   }
 
-  consumeCell(internals: MutableInternals, caller: Stack): void {
+  consumeCell(internals: CellCore, caller: Stack): void {
     this.#consumeCell(internals, caller);
   }
 
-  consumeFrame(
-    frame: Frame,
-    diff: Diff<MutableInternals>,
-    caller: Stack
-  ): void {
+  consumeFrame(frame: Frame, diff: Diff<CellCore>, caller: Stack): void {
     this.#consumeFrame(frame, diff, caller);
   }
 
-  updateCell(cell: MutableInternals, caller: Stack): void {
+  updateCell(cell: CellCore, caller: Stack): void {
     this.#add(
       new CellUpdateOperation({
         at: this.#timestamp.now(),
@@ -328,11 +324,7 @@ export class DebugTimeline {
     );
   }
 
-  #consumeFrame(
-    frame: Frame,
-    diff: Diff<MutableInternals>,
-    caller: Stack
-  ): void {
+  #consumeFrame(frame: Frame, diff: Diff<CellCore>, caller: Stack): void {
     this.#add(
       new FrameConsumeOperation({
         at: this.#timestamp.now(),

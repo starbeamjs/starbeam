@@ -1,56 +1,83 @@
 import type * as Debug from "@starbeam/debug";
 import { Desc, Tree } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
+import type {
+  CellCore,
+  DelegateCore,
+  FormulaCore,
+  StaticCore,
+} from "@starbeam/interfaces";
 import { REACTIVE } from "@starbeam/shared";
 import { isPresent } from "@starbeam/verify";
 
 import { Timestamp, zero } from "./timestamp.js";
 
+export type Reactive<T> = interfaces.Reactive<T>;
+
 interface ExhaustiveMatcher<T> {
-  mutable: (internals: interfaces.MutableInternals) => T;
-  composite: (internals: interfaces.CompositeInternals) => T;
-  delegate: (internals: interfaces.DelegateInternals) => T;
-  static: (internals: interfaces.StaticInternals) => T;
+  mutable: (internals: CellCore) => T;
+  composite: (internals: FormulaCore) => T;
+  delegate: (internals: DelegateCore) => T;
+  static: (internals: StaticCore) => T;
 }
 
+export type ReactiveCore = interfaces.ReactiveCore;
+
 interface DefaultMatcher<T> extends Partial<ExhaustiveMatcher<T>> {
-  default: (internals: interfaces.ReactiveInternals) => T;
+  default: (internals: ReactiveCore) => T;
 }
 
 type Matcher<T> = ExhaustiveMatcher<T> | DefaultMatcher<T>;
 
-export type ReactiveProtocol<
-  I extends interfaces.ReactiveInternals = interfaces.ReactiveInternals
-> = interfaces.ReactiveProtocol<I>;
+export type SubscriptionTarget<
+  I extends interfaces.ReactiveCore = interfaces.ReactiveCore
+> = interfaces.SubscriptionTarget<I>;
 
-export const ReactiveProtocol = {
-  description(this: void, reactive: ReactiveProtocol): Debug.Description {
-    return ReactiveInternals.description(reactive[REACTIVE]);
+export const SubscriptionTarget = {
+  description(this: void, reactive: SubscriptionTarget): Debug.Description {
+    return ReactiveCore.description(reactive[REACTIVE]);
   },
 
-  id(this: void, reactive: ReactiveProtocol): interfaces.ReactiveId {
-    return ReactiveInternals.id(reactive[REACTIVE]);
+  id(this: void, reactive: SubscriptionTarget): interfaces.ReactiveId {
+    return ReactiveCore.id(reactive[REACTIVE]);
   },
 
-  is<T extends "mutable" | "composite" | "static" | "delegate">(
+  is<T extends ReactiveCore["type"] = ReactiveCore["type"]>(
     this: void,
-    reactive: ReactiveProtocol,
+    reactive: SubscriptionTarget,
     kind: T
   ): reactive is {
-    [REACTIVE]: Extract<interfaces.ReactiveInternals, { type: T }>;
+    [REACTIVE]: Extract<interfaces.ReactiveCore, { type: T }>;
   } {
-    return ReactiveInternals.is(reactive[REACTIVE], kind);
+    return ReactiveCore.is(reactive[REACTIVE], kind);
   },
 
-  match<T>(this: void, reactive: ReactiveProtocol, matcher: Matcher<T>): T {
-    return ReactiveInternals.match(reactive[REACTIVE], matcher);
+  match<T>(this: void, reactive: SubscriptionTarget, matcher: Matcher<T>): T {
+    return ReactiveCore.match(reactive[REACTIVE], matcher);
   },
 
-  subscribesTo(this: void, reactive: ReactiveProtocol): ReactiveProtocol[] {
+  /**
+   * This method returns a list of reactives that subscribers to the original reactive should
+   * actually subscribe to.
+   *
+   * Normally, this is just the reactive itself. However, if a ReactiveProtocol is a delegate,
+   * subscribers can subscribe directly to the delegate's targets.
+   *
+   * This is because a delegate's targets can't change, so it's safe to subscribe directly to the
+   * targets.
+   *
+   * This makes it possible to create abstractions around reactive values that don't have to worry
+   * about manually updating their subscribers when their values change.
+   */
+  subscriptionTargets(
+    this: void,
+    reactive: SubscriptionTarget
+  ): SubscriptionTarget[] {
     const internals = reactive[REACTIVE];
 
+    console.log({ internals });
     if (internals.type === "delegate") {
-      return internals.delegate.flatMap(ReactiveProtocol.subscribesTo);
+      return internals.targets.flatMap(SubscriptionTarget.subscriptionTargets);
     } else {
       return [reactive];
     }
@@ -58,28 +85,28 @@ export const ReactiveProtocol = {
 
   dependencies(
     this: void,
-    reactive: ReactiveProtocol
-  ): Iterable<interfaces.MutableInternals> {
-    return ReactiveInternals.dependencies(reactive[REACTIVE]);
+    reactive: SubscriptionTarget
+  ): Iterable<interfaces.CellCore> {
+    return ReactiveCore.dependencies(reactive[REACTIVE]);
   },
 
   *dependenciesInList(
     this: void,
-    children: readonly ReactiveProtocol[]
-  ): Iterable<interfaces.MutableInternals> {
+    children: readonly SubscriptionTarget[]
+  ): Iterable<interfaces.CellCore> {
     for (const child of children) {
-      yield* ReactiveInternals.dependencies(child[REACTIVE]);
+      yield* ReactiveCore.dependencies(child[REACTIVE]);
     }
   },
 
-  lastUpdated(this: void, reactive: ReactiveProtocol): Timestamp {
-    return ReactiveInternals.lastUpdated(reactive[REACTIVE]);
+  lastUpdated(this: void, reactive: SubscriptionTarget): Timestamp {
+    return ReactiveCore.lastUpdated(reactive[REACTIVE]);
   },
 
-  lastUpdatedIn(this: void, reactives: ReactiveProtocol[]): Timestamp {
+  lastUpdatedIn(this: void, reactives: SubscriptionTarget[]): Timestamp {
     let lastUpdatedTimestamp = zero();
 
-    for (const child of ReactiveProtocol.dependenciesInList(reactives)) {
+    for (const child of SubscriptionTarget.dependenciesInList(reactives)) {
       if (child.lastUpdated.gt(lastUpdatedTimestamp)) {
         lastUpdatedTimestamp = child.lastUpdated;
       }
@@ -90,46 +117,49 @@ export const ReactiveProtocol = {
 
   log(
     this: void,
-    reactive: ReactiveProtocol,
+    reactive: SubscriptionTarget,
     options: { implementation?: boolean; source?: boolean; id?: boolean } = {}
   ): void {
-    ReactiveInternals.log(reactive[REACTIVE], options);
+    ReactiveCore.log(reactive[REACTIVE], options);
   },
 
   debug(
     this: void,
-    reactive: ReactiveProtocol,
+    reactive: SubscriptionTarget,
     {
       implementation = false,
       source = false,
     }: { implementation?: boolean; source?: boolean } = {}
   ): string {
-    return ReactiveInternals.debug(reactive[REACTIVE], {
+    return ReactiveCore.debug(reactive[REACTIVE], {
       implementation,
       source,
     });
   },
 } as const;
 
-export const ReactiveInternals = {
+export const ReactiveCore = {
   is<T extends "mutable" | "composite" | "static" | "delegate">(
     this: void,
-    internals: interfaces.ReactiveInternals,
+    internals: interfaces.ReactiveCore,
     kind: T
-  ): internals is Extract<interfaces.ReactiveInternals, { type: T }> {
+  ): internals is Extract<interfaces.ReactiveCore, { type: T }> {
     return internals.type === kind;
   },
 
-  id(
-    this: void,
-    internals: interfaces.ReactiveInternals
-  ): interfaces.ReactiveId {
+  id(this: void, internals: interfaces.ReactiveCore): interfaces.ReactiveId {
     return internals.description.id;
   },
 
+  /**
+   * Return a flat list of the mutable reactives that this reactive depends on.
+   *
+   * This list is only valid until the next time anyone reads from the reactive. It's intended to be
+   * used along with code that updates the dependencies whenever the reactive is read.
+   */
   *dependencies(
-    internals: interfaces.ReactiveInternals
-  ): Iterable<interfaces.MutableInternals> {
+    internals: interfaces.ReactiveCore
+  ): Iterable<interfaces.CellCore> {
     switch (internals.type) {
       case "static":
         return;
@@ -141,52 +171,52 @@ export const ReactiveInternals = {
         yield internals;
         break;
       case "delegate":
-        for (const target of ReactiveInternals.subscribesTo(internals)) {
-          yield* ReactiveInternals.dependencies(target);
+        for (const target of ReactiveCore.subscribesTo(internals)) {
+          yield* ReactiveCore.dependencies(target);
         }
         break;
       case "composite":
-        yield* ReactiveProtocol.dependenciesInList(internals.children());
+        yield* SubscriptionTarget.dependenciesInList(internals.children());
         break;
     }
   },
 
   *dependenciesInList(
     this: void,
-    children: readonly ReactiveInternals[]
-  ): Iterable<interfaces.MutableInternals> {
+    children: readonly interfaces.ReactiveCore[]
+  ): Iterable<interfaces.CellCore> {
     for (const child of children) {
-      yield* ReactiveInternals.dependencies(child);
+      yield* ReactiveCore.dependencies(child);
     }
   },
 
   subscribesTo(
     this: void,
-    internals: interfaces.ReactiveInternals
-  ): interfaces.ReactiveInternals[] {
+    internals: interfaces.ReactiveCore
+  ): interfaces.ReactiveCore[] {
     if (internals.type === "delegate") {
-      return internals.delegate.flatMap((protocol) =>
-        ReactiveProtocol.subscribesTo(protocol).map((p) => p[REACTIVE])
+      return internals.targets.flatMap((protocol) =>
+        SubscriptionTarget.subscriptionTargets(protocol).map((p) => p[REACTIVE])
       );
     } else {
       return [internals];
     }
   },
 
-  lastUpdated(this: void, internals: ReactiveInternals): Timestamp {
+  lastUpdated(this: void, internals: interfaces.ReactiveCore): Timestamp {
     switch (internals.type) {
       case "static":
         return zero();
       case "mutable":
         return internals.lastUpdated;
       case "delegate": {
-        const delegates = ReactiveInternals.subscribesTo(internals);
-        return ReactiveInternals.lastUpdatedIn(delegates);
+        const delegates = ReactiveCore.subscribesTo(internals);
+        return ReactiveCore.lastUpdatedIn(delegates);
       }
       case "composite": {
         let lastUpdatedTimestamp = zero();
 
-        for (const child of ReactiveInternals.dependencies(internals)) {
+        for (const child of ReactiveCore.dependencies(internals)) {
           if (child.lastUpdated.gt(lastUpdatedTimestamp)) {
             lastUpdatedTimestamp = child.lastUpdated;
           }
@@ -197,10 +227,10 @@ export const ReactiveInternals = {
     }
   },
 
-  lastUpdatedIn(this: void, internals: ReactiveInternals[]): Timestamp {
+  lastUpdatedIn(this: void, core: ReactiveCore[]): Timestamp {
     let lastUpdatedTimestamp = zero();
 
-    for (const child of ReactiveInternals.dependenciesInList(internals)) {
+    for (const child of ReactiveCore.dependenciesInList(core)) {
       if (child.lastUpdated.gt(lastUpdatedTimestamp)) {
         lastUpdatedTimestamp = child.lastUpdated;
       }
@@ -209,20 +239,20 @@ export const ReactiveInternals = {
     return lastUpdatedTimestamp;
   },
 
-  description(this: void, internals: ReactiveInternals): Debug.Description {
-    return internals.description;
+  description(this: void, core: ReactiveCore): Debug.Description {
+    return core.description;
   },
 
   debug(
     this: void,
-    internals: interfaces.ReactiveInternals,
+    internals: ReactiveCore,
     {
       implementation = false,
       source = false,
       id = false,
     }: { implementation?: boolean; source?: boolean; id?: boolean } = {}
   ): string {
-    const dependencies = [...ReactiveInternals.dependencies(internals)];
+    const dependencies = [...ReactiveCore.dependencies(internals)];
     const descriptions = new Set(
       dependencies.map((dependency) => {
         return implementation
@@ -243,22 +273,24 @@ export const ReactiveInternals = {
 
   log(
     this: void,
-    internals: interfaces.ReactiveInternals,
+    internals: interfaces.ReactiveCore,
     options: { implementation?: boolean; source?: boolean; id?: boolean } = {}
   ): void {
-    const debug = ReactiveInternals.debug(internals, options);
+    const debug = ReactiveCore.debug(internals, options);
 
     console.group(
-      ReactiveInternals.description(internals).describe({ id: options.id }),
-      `(updated at ${
-        Timestamp.debug(ReactiveInternals.lastUpdated(internals)).at
-      })`
+      ReactiveCore.description(internals).describe({ id: options.id }),
+      `(updated at ${Timestamp.debug(ReactiveCore.lastUpdated(internals)).at})`
     );
     console.log(debug);
     console.groupEnd();
   },
 
-  match<T>(this: void, internals: ReactiveInternals, matcher: Matcher<T>): T {
+  match<T>(
+    this: void,
+    internals: interfaces.ReactiveCore,
+    matcher: Matcher<T>
+  ): T {
     const fn = matcher[internals.type];
     if (typeof fn === "function") {
       return fn(internals as never);
@@ -268,20 +300,36 @@ export const ReactiveInternals = {
   },
 };
 
-export type ReactiveInternals = interfaces.ReactiveInternals;
+function is<T>(
+  this: void,
+  value: T | interfaces.Reactive<T>
+): value is interfaces.Reactive<T> {
+  return !!(
+    value &&
+    (typeof value === "object" || typeof value === "function") &&
+    REACTIVE in value
+  );
+}
 
-export type Reactive<
-  T,
-  I extends ReactiveInternals = ReactiveInternals
-> = interfaces.Reactive<T, I>;
+// export const SubscriptionTarget = {
+//   is,
+
+//   from<T>(
+//     this: void,
+//     value: T | Reactive<T>,
+//     description?: string | Debug.Description
+//   ): Reactive<T> {
+//     if (is(value)) {
+//       return value;
+//     } else {
+//       return new Static(value, Desc("static", description));
+//     }
+//   },
+// };
 
 export const Reactive = {
   is<T>(this: void, value: unknown): value is interfaces.Reactive<T> {
-    return !!(
-      value &&
-      (typeof value === "object" || typeof value === "function") &&
-      REACTIVE in value
-    );
+    return is(value) && hasRead(value);
   },
 
   from<T>(
@@ -297,29 +345,13 @@ export const Reactive = {
   },
 };
 
-export type ReactiveCore<
-  T,
-  I extends ReactiveInternals = ReactiveInternals
-> = interfaces.ReactiveCore<T, I>;
-
-export const ReactiveCore = {
-  is<T>(value: unknown): value is interfaces.ReactiveCore<T> {
-    return !!(
-      value &&
-      (typeof value === "object" || typeof value === "function") &&
-      REACTIVE in value &&
-      hasRead(value)
-    );
-  },
-};
-
 function hasRead<T>(value: object): value is { read: () => T } {
   return "read" in value && typeof value.read === "function";
 }
 
-class Static<T> {
+class Static<T> implements interfaces.ReactiveValue<T, interfaces.StaticCore> {
   readonly #value: T;
-  readonly [REACTIVE]: interfaces.StaticInternals;
+  readonly [REACTIVE]: interfaces.StaticCore;
 
   constructor(value: T, description: Debug.Description) {
     this.#value = value;

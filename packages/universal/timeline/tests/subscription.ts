@@ -1,4 +1,4 @@
-import { descriptionFrom } from "@starbeam/debug";
+import { Desc } from "@starbeam/debug";
 import { Frame, TIMELINE } from "@starbeam/timeline";
 import { describe, expect, test } from "vitest";
 
@@ -8,21 +8,17 @@ describe("frames", () => {
   test("subscription before first consumption", () => {
     const cell = Cell("Tom Dale");
 
-    const formula = TIMELINE.frame.create({
-      evaluate: () => cell.current,
-      description: descriptionFrom({
-        type: "formula",
-        api: "Formula",
-      }),
+    const frame = TIMELINE.frame.evaluate(() => cell.current, {
+      description: Desc("formula"),
     });
 
     let stale = false;
 
-    const unsubscribe = TIMELINE.on.change(formula, () => {
+    const unsubscribe = TIMELINE.on.change(frame, () => {
       stale = true;
     });
 
-    expect(Frame.value(formula)).toBe("Tom Dale");
+    expect(Frame.value(frame)).toBe("Tom Dale");
 
     // The pollable doesn't fire initially.
     expect(stale).toBe(false);
@@ -32,38 +28,34 @@ describe("frames", () => {
     expect(stale).toBe(true);
     stale = false;
 
-    TIMELINE.frame.update({ updating: formula, evaluate: () => cell.current });
+    frame.evaluate(() => cell.current, TIMELINE.frame);
 
-    expect(Frame.value(formula)).toBe("Jerry Seinfeld");
+    expect(Frame.value(frame)).toBe("Jerry Seinfeld");
 
     unsubscribe();
 
     cell.current = "J. Seinfeld";
     expect(stale).toBe(false);
 
-    TIMELINE.frame.update({ updating: formula, evaluate: () => cell.current });
+    frame.evaluate(() => cell.current, TIMELINE.frame);
     expect(stale).toBe(false);
 
     // The lack of a subscription doesn't make the value incorrect
-    expect(Frame.value(formula)).toBe("J. Seinfeld");
+    expect(Frame.value(frame)).toBe("J. Seinfeld");
   });
 
   test("subscription after first consumption", () => {
     const cell = Cell("Tom Dale");
 
-    const formula = TIMELINE.frame.create({
-      evaluate: () => cell.current,
-      description: descriptionFrom({
-        type: "formula",
-        api: "Formula",
-      }),
+    const frame = TIMELINE.frame.evaluate(() => cell.current, {
+      description: Desc("formula"),
     });
 
     let stale = false;
 
-    expect(Frame.value(formula)).toBe("Tom Dale");
+    expect(Frame.value(frame)).toBe("Tom Dale");
 
-    const unsubscribe = TIMELINE.on.change(formula, () => {
+    const unsubscribe = TIMELINE.on.change(frame, () => {
       stale = true;
     });
 
@@ -75,19 +67,18 @@ describe("frames", () => {
     expect(stale).toBe(true);
     stale = false;
 
-    TIMELINE.frame.update({ updating: formula, evaluate: () => cell.current });
-
-    expect(Frame.value(formula)).toBe("Jerry Seinfeld");
+    frame.evaluate(() => cell.current, TIMELINE.frame);
+    expect(Frame.value(frame)).toBe("Jerry Seinfeld");
 
     unsubscribe();
 
     cell.current = "J. Seinfeld";
     expect(stale).toBe(false);
 
-    TIMELINE.frame.update({ updating: formula, evaluate: () => cell.current });
+    frame.evaluate(() => cell.current, TIMELINE.frame);
     expect(stale).toBe(false);
 
     // The lack of a subscription doesn't make the value incorrect
-    expect(Frame.value(formula)).toBe("J. Seinfeld");
+    expect(Frame.value(frame)).toBe("J. Seinfeld");
   });
 });

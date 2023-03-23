@@ -1,17 +1,14 @@
 import type { Stack } from "@starbeam/debug";
 import {
-  type Description,
   callerStack,
+  type Description,
   descriptionFrom,
   DisplayStruct,
 } from "@starbeam/debug";
+import type { FormulaCore } from "@starbeam/interfaces";
 import { UNINITIALIZED } from "@starbeam/shared";
-import {
-  type ReactiveInternals,
-  type ReactiveProtocol,
-  REACTIVE,
-  TIMELINE,
-} from "@starbeam/timeline";
+import type { SubscriptionTarget } from "@starbeam/timeline";
+import { REACTIVE, TIMELINE } from "@starbeam/timeline";
 
 import { CompositeInternals } from "../storage.js";
 import { Cell } from "./cell.js";
@@ -120,7 +117,7 @@ export class VariantGroup {
   }
 }
 
-export class Variant<T> implements ReactiveProtocol {
+export class Variant<T> implements SubscriptionTarget<FormulaCore> {
   static selected<T>(
     type: string,
     typeMarker: Marker,
@@ -212,7 +209,7 @@ export class Variant<T> implements ReactiveProtocol {
     value: T | UNINITIALIZED;
   };
   readonly #value: Cell<T | UNINITIALIZED>;
-  readonly [REACTIVE]: ReactiveInternals;
+  readonly [REACTIVE]: FormulaCore;
 
   private constructor(
     type: string,
@@ -220,7 +217,7 @@ export class Variant<T> implements ReactiveProtocol {
     localTypeMarker: Marker,
     value: Cell<T | UNINITIALIZED>,
     debug: { value: T | UNINITIALIZED },
-    reactive: ReactiveInternals
+    reactive: FormulaCore
   ) {
     this.#type = type;
     this.#sharedTypeMarker = sharedTypeMarker;
@@ -292,7 +289,7 @@ export interface ReadonlyVariants<V extends VariantType, K extends keyof V> {
 }
 
 export interface Variants<V extends VariantType, Narrow = V>
-  extends ReactiveProtocol {
+  extends SubscriptionTarget {
   current: {
     [K in keyof Narrow]: K extends string
       ? Narrow[K] extends []
@@ -326,7 +323,7 @@ export interface Variants<V extends VariantType, Narrow = V>
       | undefined);
 }
 
-class VariantsImpl implements ReactiveProtocol {
+class VariantsImpl implements SubscriptionTarget<FormulaCore> {
   static create(
     value: InternalVariant,
     description: Description
@@ -364,7 +361,7 @@ class VariantsImpl implements ReactiveProtocol {
     this.#current = current;
   }
 
-  get [REACTIVE](): ReactiveInternals {
+  get [REACTIVE](): FormulaCore {
     return CompositeInternals([this.#current], this.#description);
   }
 

@@ -1,11 +1,11 @@
 import {
-  type Description,
   callerStack,
+  type Description,
   descriptionFrom,
 } from "@starbeam/debug";
 import type { Reactive, Stack } from "@starbeam/interfaces";
 import type { UNINITIALIZED } from "@starbeam/shared";
-import { ReactiveProtocol } from "@starbeam/timeline";
+import { SubscriptionTarget } from "@starbeam/timeline";
 import { diff, Frame, REACTIVE, TIMELINE } from "@starbeam/timeline";
 
 export interface FormulaValidation<T> {
@@ -26,27 +26,21 @@ export function FormulaValidation<T>(
     fromUser: description,
   });
 
-  const frame = Frame.uninitialized<T | UNINITIALIZED>(TIMELINE.now, desc);
+  const frame = Frame.uninitialized<T>(TIMELINE.now, desc);
 
   const update = (caller: Stack): void => {
     if (import.meta.env.DEV) {
-      const oldDeps = new Set(ReactiveProtocol.dependencies(frame));
+      const oldDeps = new Set(SubscriptionTarget.dependencies(frame));
 
-      TIMELINE.frame.update({
-        updating: frame,
-        evaluate: callback,
-      });
+      frame.evaluate(callback, TIMELINE.frame);
 
       TIMELINE.update(frame);
 
-      const newDeps = new Set(ReactiveProtocol.dependencies(frame));
+      const newDeps = new Set(SubscriptionTarget.dependencies(frame));
 
       TIMELINE.didConsumeFrame(frame, diff(oldDeps, newDeps), caller);
     } else {
-      TIMELINE.frame.update({
-        updating: frame,
-        evaluate: callback,
-      });
+      frame.evaluate(callback, TIMELINE.frame);
       TIMELINE.update(frame);
       TIMELINE.didConsumeFrame(frame, diff.empty(), caller);
     }
@@ -57,12 +51,12 @@ export function FormulaValidation<T>(
 
     if (validation.status === "valid") {
       TIMELINE.didConsumeFrame(frame, diff.empty(), caller);
-      return frame as Frame<T>;
+      return frame;
     } else {
       update(caller);
     }
 
-    return frame as Frame<T>;
+    return frame;
   }
 
   return { poll, frame };
@@ -110,7 +104,7 @@ export function Formula<T>(
     value: {
       type: "delegate",
       description: desc,
-      delegate: [formula.frame],
+      targets: [formula.frame],
     },
   });
 
