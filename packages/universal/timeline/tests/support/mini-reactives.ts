@@ -1,92 +1,103 @@
-import { type Stack, callerStack, descriptionFrom } from "@starbeam/debug";
-import type { MutableInternals, ReactiveCore } from "@starbeam/interfaces";
-import type { UNINITIALIZED } from "@starbeam/shared";
 import {
-  type ReactiveProtocol,
-  type Timestamp,
-  diff,
-  Frame,
-  REACTIVE,
-  TIMELINE,
-  zero,
-} from "@starbeam/timeline";
+  callerStack,
+  Desc,
+  descriptionFrom,
+  type Stack,
+} from "@starbeam/debug";
+import type {
+  CellCore,
+  ReactiveCell,
+  ReactiveValue,
+} from "@starbeam/interfaces";
+import { REACTIVE, type UNINITIALIZED } from "@starbeam/shared";
+import { type SubscriptionTarget } from "@starbeam/timeline";
+import { diff, Frame, TIMELINE, type Timestamp } from "@starbeam/timeline";
 
-export interface Cell<T> extends ReactiveProtocol<MutableInternals> {
-  current: T;
-  read: (stack: Stack) => T;
-}
-
-export interface FreezableCell<T> extends Cell<T> {
+export interface FreezableCell<T> extends ReactiveCell<T> {
   freeze: () => void;
 }
 
-export function Cell<T>(value: T): Cell<T> {
-  let lastUpdated = TIMELINE.next();
-  const internals: MutableInternals = {
-    type: "mutable",
-    description: descriptionFrom({
-      api: "Cell",
-      type: "cell",
-    }),
-    get lastUpdated(): Timestamp {
-      return lastUpdated;
-    },
-  };
+export type Cell<T> = ReactiveCell<T>;
 
-  return {
-    [REACTIVE]: internals,
-    read(caller: Stack) {
-      TIMELINE.didConsumeCell(this, caller);
-      return value;
-    },
-    get current() {
-      return this.read(callerStack());
-    },
-    set current(newValue: T) {
-      value = newValue;
+class CellImpl<T> implements ReactiveCell<T> {
+  readonly [REACTIVE]: CellCore;
+  #value: T;
+  #lastUpdated: Timestamp;
+  constructor(value: T, timestamp: Timestamp) {
+    const lastUpdated = (): Timestamp => this.#lastUpdated;
 
-      lastUpdated = TIMELINE.bump(internals, callerStack());
-    },
-  };
+    this[REACTIVE] = {
+      type: "mutable",
+      description: Desc("cell"),
+      get lastUpdated(): Timestamp {
+        return lastUpdated();
+      },
+    };
+    this.#value = value;
+    this.#lastUpdated = timestamp;
+  }
+
+  read(caller: Stack): T {
+    TIMELINE.didConsumeCell(this, caller);
+    return this.#value;
+  }
+  get current(): T {
+    return this.read(callerStack());
+  }
+  set current(newValue: T) {
+    this.#value = newValue;
+
+    this.#lastUpdated = TIMELINE.bump(this[REACTIVE], callerStack());
+  }
 }
 
-export function FreezableCell<T>(value: T): FreezableCell<T> {
-  let lastUpdated = zero();
-  let isFrozen = false;
-
-  const internals: MutableInternals = {
-    type: "mutable",
-    description: descriptionFrom({
-      api: "FreezableCell",
-      type: "cell",
-    }),
-    get lastUpdated(): Timestamp {
-      return lastUpdated;
-    },
-    isFrozen: () => isFrozen,
-  };
-
-  return {
-    [REACTIVE]: internals,
-    read(caller: Stack) {
-      TIMELINE.didConsumeCell(this, caller);
-      return value;
-    },
-    get current() {
-      return this.read(callerStack());
-    },
-    set current(newValue: T) {
-      value = newValue;
-
-      lastUpdated = TIMELINE.bump(internals, callerStack());
-    },
-    freeze() {
-      isFrozen = true;
-    },
-  };
+export function Cell<T>(value: T): CellImpl<T> {
+  return new CellImpl(value, TIMELINE.next());
 }
 
-export function Static<T>(value: T): ReactiveCore<T> {
+class FreezableCellImpl<T> implements ReactiveCell<T> {
+  readonly [REACTIVE]: CellCore;
+  #isFrozen = false;
+  #value: T;
+  #lastUpdated: Timestamp;
+  constructor(value: T, timestamp: Timestamp) {
+    const lastUpdated = (): Timestamp => this.#lastUpdated;
+
+    this[REACTIVE] = {
+      type: "mutable",
+      description: Desc("cell"),
+      get lastUpdated(): Timestamp {
+        return lastUpdated();
+      },
+      isFrozen: () => this.#isFrozen,
+    };
+    this.#value = value;
+    this.#lastUpdated = timestamp;
+  }
+
+  read(caller: Stack): T {
+    TIMELINE.didConsumeCell(this, caller);
+    return this.#value;
+  }
+  get current(): T {
+    return this.read(callerStack());
+  }
+  set current(newValue: T) {
+    this.#value = newValue;
+
+    this.#lastUpdated = TIMELINE.bump(this[REACTIVE], callerStack());
+  }
+
+  freeze(): void {
+    this.#isFrozen = true;
+  }
+}
+
+export function FreezableCell<T>(value: T): FreezableCellImpl<T> {
+  return new FreezableCellImpl(value, TIMELINE.next());
+}
+
+export function Static<T>(value: T): ReactiveValue<T> {
   return {
     [REACTIVE]: {
       type: "static",
@@ -125,12 +136,7 @@ export function Formula<T>(computation: () => T): {
       return validation.value;
     }
 
-    const result = Frame.value(
-      TIMELINE.frame.update({
-        updating: frame,
-        evaluate: computation,
-      })
-    );
+    const result = Frame.value(frame.evaluate(computation, TIMELINE.frame));
     TIMELINE.update(frame);
     TIMELINE.didConsumeFrame(frame, diff.empty(), caller);
     return result;
@@ -140,11 +146,11 @@ export function Formula<T>(computation: () => T): {
 }
 
 export function Marker(): {
-  instance: ReactiveProtocol<MutableInternals>;
+  instance: SubscriptionTarget<CellCore>;
   update: () => void;
 } {
   let lastUpdated = TIMELINE.next();
-  const internals: MutableInternals = {
+  const internals: CellCore = {
     type: "mutable",
     description: descriptionFrom({
       type: "cell",

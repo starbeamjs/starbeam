@@ -1,6 +1,6 @@
 import { isPresentArray } from "@starbeam/core-utils";
 import { descriptionFrom } from "@starbeam/debug";
-import type { ReactiveCore } from "@starbeam/interfaces";
+import type { ReactiveValue } from "@starbeam/interfaces";
 import { Frame, REACTIVE, TIMELINE } from "@starbeam/timeline";
 import { describe, expect, test } from "vitest";
 
@@ -42,12 +42,9 @@ describe("pollable", () => {
     // The subscription fires because we updated a dependency of an already-read reactive.
     expect(stale).toBe(true);
 
-    TIMELINE.update(sum);
-    expect(stale).toBe(true);
     expect(sum.read()).toBe(3);
     stale = false;
 
-    TIMELINE.update(sum);
     expect(stale).toBe(false);
 
     const current = satisfying(numbers.current, isPresentArray);
@@ -63,7 +60,7 @@ describe("pollable", () => {
   test("subscribing to a delegate", () => {
     const cell = Cell(0);
 
-    const delegate: ReactiveCore<number> = {
+    const delegate: ReactiveValue<number> = {
       read: () => cell.current,
       [REACTIVE]: {
         type: "delegate",
@@ -71,7 +68,7 @@ describe("pollable", () => {
           type: "delegate",
           api: "delegate",
         }),
-        delegate: [cell],
+        targets: [cell],
       },
     };
 
@@ -94,7 +91,7 @@ describe("pollable", () => {
   test("subscribing to a delegate with a composite", () => {
     const { sum, numbers } = Sum();
 
-    const delegate: ReactiveCore<number> = {
+    const delegate: ReactiveValue<number> = {
       read: () => sum.read(),
       [REACTIVE]: {
         type: "delegate",
@@ -102,7 +99,7 @@ describe("pollable", () => {
           type: "delegate",
           api: "delegate",
         }),
-        delegate: [sum],
+        targets: [sum],
       },
     };
 
@@ -130,12 +127,10 @@ describe("pollable", () => {
     unsubscribe();
 
     satisfying(numbers.current, isPresentArray)[0].current++;
-    TIMELINE.update(sum);
     expect(stale).toBe(false);
     expect(delegate.read()).toBe(5);
 
     numbers.current = [...numbers.current, Cell(3)];
-    TIMELINE.update(sum);
     expect(stale).toBe(false);
 
     expect(delegate.read()).toBe(8);
@@ -143,7 +138,7 @@ describe("pollable", () => {
 });
 
 function Sum(): {
-  sum: ReactiveCore<number>;
+  sum: ReactiveValue<number>;
   numbers: Cell<Cell<number>[]>;
 } {
   const numbers: Cell<Cell<number>[]> = Cell([]);
@@ -156,14 +151,13 @@ function Sum(): {
     })
   );
 
-  const sum: ReactiveCore<number> = {
+  const sum: ReactiveValue<number> = {
     read: () => {
       return Frame.value(
-        TIMELINE.frame.update({
-          updating: frame,
-          evaluate: () =>
-            numbers.current.reduce((acc, cell) => acc + cell.current, 0),
-        })
+        frame.evaluate(
+          () => numbers.current.reduce((acc, cell) => acc + cell.current, 0),
+          TIMELINE.frame
+        )
       );
     },
     [REACTIVE]: {
@@ -172,7 +166,7 @@ function Sum(): {
         type: "delegate",
         api: "delegate",
       }),
-      delegate: [frame],
+      targets: [frame],
     },
   };
 

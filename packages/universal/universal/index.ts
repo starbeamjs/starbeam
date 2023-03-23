@@ -1,5 +1,5 @@
 export { DEBUG_RENDERER } from "./src/debug-renderer.js";
-export { type Equality, Cell } from "./src/reactive-core/cell.js";
+export { Cell, type Equality } from "./src/reactive-core/cell.js";
 export {
   Custom,
   CustomBlueprint,
@@ -22,9 +22,9 @@ export {
   ResourceList,
 } from "./src/reactive-core/higher-level/resource-list.js";
 export {
+  Factory,
   type IntoReactiveObject,
   type IntoResource,
-  Factory,
 } from "./src/reactive-core/into.js";
 export { Marker } from "./src/reactive-core/marker.js";
 export type {
@@ -35,24 +35,24 @@ export type {
 } from "./src/reactive-core/reactive.js";
 export { Reactive } from "./src/reactive-core/reactive.js";
 export {
+  Resource,
   type ResourceBlueprint,
   type ResourceFactory,
   type ResourceReturn,
-  Resource,
 } from "./src/reactive-core/resource/resource.js";
 export type { ResourceRun } from "./src/reactive-core/resource/run.js";
 export {
-  type ServiceBlueprint,
   createService,
   reactiveService,
   Service,
   service,
+  type ServiceBlueprint,
 } from "./src/reactive-core/service.js";
 export { Static } from "./src/reactive-core/static.js";
 export {
   type Variant,
   type VariantEntry,
-  type VariantType,
   Variants,
+  type VariantType,
 } from "./src/reactive-core/variants.js";
 export { LIFETIME, REACTIVE, TIMELINE } from "@starbeam/timeline";

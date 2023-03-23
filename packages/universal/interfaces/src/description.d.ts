@@ -92,7 +92,7 @@ export interface Description extends DescriptionArgs {
    */
   detail: (
     name: string,
-    args?: string[] | { args?: string[]; note?: string; id?: string | number }
+    args?: string[] | { args?: string[]; note?: string; id?: ReactiveId }
   ) => Description;
   implementation: (
     id: ReactiveId | symbol,

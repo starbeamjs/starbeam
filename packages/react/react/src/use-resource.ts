@@ -1,12 +1,12 @@
-import { type Description, Desc } from "@starbeam/debug";
+import { Desc, type Description } from "@starbeam/debug";
 import { LIFETIME, TIMELINE } from "@starbeam/timeline";
 import {
-  type IntoResource,
-  type Reactive,
-  type ResourceBlueprint,
   Cell,
   Factory,
   Formula,
+  type IntoResource,
+  type Reactive,
+  type ResourceBlueprint,
   Wrap,
 } from "@starbeam/universal";
 import {

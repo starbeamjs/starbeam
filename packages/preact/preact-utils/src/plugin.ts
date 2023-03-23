@@ -2,10 +2,10 @@ import type { Options } from "preact";
 
 import type { AnyFn, RawPreactOptions } from "./interfaces.js";
 import {
+  isProbablyVNode,
   type MangledPreactOptionName,
   type PreactHook,
   type PreactOptionName,
-  isProbablyVNode,
 } from "./internals.js";
 import { InternalComponent } from "./internals/component.js";
 import { InternalElement } from "./internals/elements.js";

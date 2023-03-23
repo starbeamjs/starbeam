@@ -1,4 +1,4 @@
-import { ReactiveProtocol, TIMELINE } from "@starbeam/timeline";
+import { SubscriptionTarget, TIMELINE } from "@starbeam/timeline";
 import { Cell, Setup } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 
@@ -129,11 +129,11 @@ describe("Setup", () => {
       cleanupCounter: 0,
     });
 
-    expect(ReactiveProtocol.lastUpdated(setup)).toSatisfy(eq(ts));
+    expect(SubscriptionTarget.lastUpdated(setup)).toSatisfy(eq(ts));
 
     setup();
 
-    expect(ReactiveProtocol.lastUpdated(setup)).toSatisfy(eq(ts));
+    expect(SubscriptionTarget.lastUpdated(setup)).toSatisfy(eq(ts));
 
     expect(variable).toEqual({
       cell: 0,
@@ -143,11 +143,11 @@ describe("Setup", () => {
 
     // cellB is not used in the initial setup, so it doesn't invalidate the setup
     cellB.set(20);
-    expect(ReactiveProtocol.lastUpdated(setup)).toSatisfy(eq(ts));
+    expect(SubscriptionTarget.lastUpdated(setup)).toSatisfy(eq(ts));
 
     setup();
 
-    expect(ReactiveProtocol.lastUpdated(setup)).toSatisfy(eq(ts));
+    expect(SubscriptionTarget.lastUpdated(setup)).toSatisfy(eq(ts));
 
     expect(variable).toEqual({
       cell: 0,
@@ -157,8 +157,8 @@ describe("Setup", () => {
 
     cellA.set(1);
 
-    expect(ReactiveProtocol.lastUpdated(setup)).toSatisfy(gt(ts));
-    ts = ReactiveProtocol.lastUpdated(setup);
+    expect(SubscriptionTarget.lastUpdated(setup)).toSatisfy(gt(ts));
+    ts = SubscriptionTarget.lastUpdated(setup);
 
     expect(variable).toEqual({
       cell: 0,
@@ -168,7 +168,7 @@ describe("Setup", () => {
 
     setup();
 
-    expect(ReactiveProtocol.lastUpdated(setup)).toSatisfy(eq(ts));
+    expect(SubscriptionTarget.lastUpdated(setup)).toSatisfy(eq(ts));
 
     expect(variable).toEqual({
       cell: 20,
@@ -178,8 +178,8 @@ describe("Setup", () => {
 
     cellA.set(2);
 
-    expect(ReactiveProtocol.lastUpdated(setup)).toSatisfy(gt(ts));
-    ts = ReactiveProtocol.lastUpdated(setup);
+    expect(SubscriptionTarget.lastUpdated(setup)).toSatisfy(gt(ts));
+    ts = SubscriptionTarget.lastUpdated(setup);
 
     expect(variable).toEqual({
       cell: 20,
@@ -189,7 +189,7 @@ describe("Setup", () => {
 
     setup();
 
-    expect(ReactiveProtocol.lastUpdated(setup)).toSatisfy(eq(ts));
+    expect(SubscriptionTarget.lastUpdated(setup)).toSatisfy(eq(ts));
 
     expect(variable).toEqual({
       cell: 2,

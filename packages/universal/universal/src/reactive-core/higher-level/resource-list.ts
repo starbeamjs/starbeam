@@ -1,4 +1,4 @@
-import type { Reactive, ReactiveCore } from "@starbeam/interfaces";
+import type { Reactive, ReactiveValue } from "@starbeam/interfaces";
 
 import { Formula } from "../formula/formula.js";
 import type {
@@ -18,10 +18,10 @@ export function ResourceList<T, R extends ResourceReturn<unknown>>(
     map: (item: T) => R;
   }
 ): ResourceBlueprint<AssimilatedResourceReturn<R>[]> {
-  const prev = new Map<unknown, ReactiveCore>();
+  const prev = new Map<unknown, ReactiveValue>();
 
   return Resource(({ use }) => {
-    const result: ReactiveCore[] = [];
+    const result: ReactiveValue[] = [];
     for (const item of list) {
       const k = key(item);
       const r = prev.get(k);
@@ -48,7 +48,7 @@ export function FormulaList<T, U>(
     map: (item: T) => U;
   }
 ): Reactive<U[]> {
-  const prev = new Map<unknown, ReactiveCore<U>>();
+  const prev = new Map<unknown, ReactiveValue<U>>();
 
   return Formula(() => {
     const result: U[] = [];

@@ -1,4 +1,4 @@
-import { ReactiveProtocol } from "@starbeam/timeline";
+import { SubscriptionTarget } from "@starbeam/timeline";
 import { Formula, TIMELINE, Variants } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 
@@ -195,13 +195,15 @@ describe("Variants", () => {
 // eslint-disable-next-line @typescript-eslint/no-inferrable-types
 const debug: boolean = false;
 
-function Stability(reactive: ReactiveProtocol): { readonly changed: boolean } {
+function Stability(reactive: SubscriptionTarget): {
+  readonly changed: boolean;
+} {
   let changed = false;
 
   TIMELINE.on.change(reactive, (internals) => {
     if (debug) {
       console.group(
-        ReactiveProtocol.description(reactive).describe(),
+        SubscriptionTarget.description(reactive).describe(),
         "invalidated by"
       );
       console.log(internals.description.describe());

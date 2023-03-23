@@ -47,6 +47,7 @@
   },
   "devDependencies": {
     "@starbeam-dev/build-support": "workspace:*",
+    "@types/ansicolor": "workspace:^",
     "@types/node": "^18.7.23"
   },
   "pnpm": {

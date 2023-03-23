@@ -1,5 +1,5 @@
 import type { Description, Stack } from "@starbeam/debug";
-import { ReactiveProtocol } from "@starbeam/timeline";
+import { SubscriptionTarget } from "@starbeam/timeline";
 import { Cell, Marker } from "@starbeam/universal";
 import { expected, isPresent, verified } from "@starbeam/verify";
 
@@ -203,7 +203,7 @@ export class Collection<K> {
     }
 
     let item: Item;
-    const iteration = ReactiveProtocol.description(this.#iteration);
+    const iteration = SubscriptionTarget.description(this.#iteration);
 
     if (disposition === "miss") {
       item = Item.uninitialized(iteration, member, caller);

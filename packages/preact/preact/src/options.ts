@@ -1,7 +1,9 @@
 import { descriptionFrom } from "@starbeam/debug";
-import type { InternalComponent } from "@starbeam/preact-utils";
+import type {
+  InternalComponent,
+  InternalElement,
+} from "@starbeam/preact-utils";
 import { Plugin } from "@starbeam/preact-utils";
-import type { InternalElement } from "@starbeam/preact-utils/src/internals/elements.js";
 import { CONTEXT, LIFETIME, Reactive } from "@starbeam/timeline";
 import type { ComponentType } from "preact";
 

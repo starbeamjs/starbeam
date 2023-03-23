@@ -1,14 +1,11 @@
 import type { Description } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
-import {
-  type ReactiveProtocol,
-  type Timestamp,
-  TIMELINE,
-} from "@starbeam/timeline";
+import type { SubscriptionTarget } from "@starbeam/timeline";
+import { TIMELINE, type Timestamp } from "@starbeam/timeline";
 
 export function StaticInternals(
   description: Description
-): interfaces.StaticInternals {
+): interfaces.StaticCore {
   return {
     type: "static",
     description,
@@ -17,9 +14,9 @@ export function StaticInternals(
 
 export function CompositeInternals(
   this: void,
-  children: ReactiveProtocol[],
+  children: SubscriptionTarget[],
   description: Description
-): interfaces.CompositeInternals {
+): interfaces.FormulaCore {
   return {
     type: "composite",
     description,
@@ -31,17 +28,17 @@ export function CompositeInternals(
 
 export function DelegateInternals(
   this: void,
-  delegate: readonly ReactiveProtocol[],
+  delegate: readonly SubscriptionTarget[],
   description: Description
-): interfaces.DelegateInternals {
+): interfaces.DelegateCore {
   return {
     type: "delegate",
     description,
-    delegate: [...delegate],
+    targets: [...delegate],
   };
 }
 
-export class MutableInternalsImpl implements interfaces.MutableInternals {
+export class MutableInternalsImpl implements interfaces.CellCore {
   #frozen = false;
   #lastUpdated: Timestamp = TIMELINE.now;
   readonly type = "mutable";
@@ -76,4 +73,4 @@ export function MutableInternals(
   return new MutableInternalsImpl(description);
 }
 
-export type MutableInternals = interfaces.MutableInternals;
+export type MutableInternals = interfaces.CellCore;
