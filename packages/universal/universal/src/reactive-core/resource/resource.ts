@@ -13,9 +13,9 @@
  * worrying about its lifetime.
  */
 
-import { Desc, type Description } from "@starbeam/debug";
+import { type Description, Desc } from "@starbeam/debug";
 import { UNINITIALIZED } from "@starbeam/shared";
-import type { Reactive } from "@starbeam/timeline";
+import type { Reactive, ReactiveCore } from "@starbeam/timeline";
 import { LIFETIME } from "@starbeam/timeline";
 import { isWeakKey } from "@starbeam/verify";
 
@@ -167,7 +167,7 @@ export class ResourceBlueprint<T, _Default extends undefined = never> {
 
 export type ResourceReturn<T, D extends undefined = never> =
   | ResourceBlueprint<T, D>
-  | Reactive<T>
+  | ReactiveCore<T>
   | T;
 
 type ResourceReturnType<R extends ResourceReturn<unknown>> =
@@ -175,13 +175,13 @@ type ResourceReturnType<R extends ResourceReturn<unknown>> =
 
 export type AssimilatedResourceReturn<Ret extends ResourceReturn<unknown>> =
   Ret extends ResourceBlueprint<infer T>
-    ? Resource<T> & Reactive<ResourceReturnType<Ret>>
+    ? Resource<T> & ReactiveCore<ResourceReturnType<Ret>>
     : Ret extends Reactive<infer T>
-    ? Reactive<T> & Reactive<ResourceReturnType<Ret>>
-    : Ret extends Reactive<infer T>
-    ? Reactive<T & ResourceReturnType<Ret>>
+    ? Reactive<T> & ReactiveCore<ResourceReturnType<Ret>>
+    : Ret extends ReactiveCore<infer T>
+    ? ReactiveCore<T & ResourceReturnType<Ret>>
     : Ret extends ResourceReturn<infer V>
-    ? Reactive<V> & Reactive<V>
+    ? Reactive<V> & ReactiveCore<V>
     : never;
 
 declare const RESOURCE: unique symbol;
@@ -192,12 +192,14 @@ export function isResource<T>(value: ResourceReturn<T>): value is Resource<T> {
   return !!(isWeakKey(value) && RESOURCES.get(value)?.hasLifetime);
 }
 
-export function brandResource<T>(reactive: Reactive<T>): Resource<T> {
+export function brandResource<T>(reactive: ReactiveCore<T>): Resource<T> {
   RESOURCES.set(reactive, { hasLifetime: true });
   return reactive as unknown as Resource<T>;
 }
 
-export function brandReactiveResource<T>(reactive: Reactive<T>): Resource<T> {
+export function brandReactiveResource<T>(
+  reactive: ReactiveCore<T>
+): Resource<T> {
   RESOURCES.set(reactive, { hasLifetime: false });
   return reactive as unknown as Resource<T>;
 }

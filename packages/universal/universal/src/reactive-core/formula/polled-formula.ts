@@ -1,6 +1,6 @@
 import {
-  callerStack,
   type Description,
+  callerStack,
   descriptionFrom,
 } from "@starbeam/debug";
 import type { Stack } from "@starbeam/interfaces";
@@ -9,7 +9,7 @@ import {
   diff,
   Frame,
   REACTIVE,
-  SubscriptionTarget,
+  ReactiveProtocol,
   TIMELINE,
 } from "@starbeam/timeline";
 
@@ -48,16 +48,22 @@ export function PolledFormulaValidation<T>(
 
   const update = (caller: Stack = callerStack()): void => {
     if (import.meta.env.DEV) {
-      const oldDeps = new Set(SubscriptionTarget.dependencies(frame));
+      const oldDeps = new Set(ReactiveProtocol.dependencies(frame));
 
-      frame.evaluate(callback, TIMELINE.frame);
+      TIMELINE.frame.update({
+        updating: frame,
+        evaluate: callback,
+      });
       TIMELINE.update(frame);
 
-      const newDeps = new Set(SubscriptionTarget.dependencies(frame));
+      const newDeps = new Set(ReactiveProtocol.dependencies(frame));
 
       TIMELINE.didConsumeFrame(frame, diff(oldDeps, newDeps), caller);
     } else {
-      frame.evaluate(callback, TIMELINE.frame);
+      TIMELINE.frame.update({
+        updating: frame,
+        evaluate: callback,
+      });
       TIMELINE.update(frame);
       TIMELINE.didConsumeFrame(frame, diff.empty(), caller);
     }
@@ -110,7 +116,7 @@ export function PolledFormula<T>(
     value: {
       type: "delegate",
       description,
-      targets: [formula.frame],
+      delegate: [formula.frame],
     },
   });
 

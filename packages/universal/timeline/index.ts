@@ -1,31 +1,29 @@
 // FIXME: Move the core of this to @starbeam/shared
 export {
   type ComponentContext,
-  CONTEXT,
   type Context,
+  CONTEXT,
 } from "./src/context/context.js";
 export {
   type CleanupTarget,
-  LIFETIME,
   type Lifetime,
   type OnCleanup,
+  LIFETIME,
 } from "./src/lifetime/api.js";
 export type { Unsubscribe } from "./src/lifetime/object-lifetime.js";
 export { TIMELINE } from "./src/timeline/api.js";
 export {
+  type FrameValidation,
   ActiveFrame,
   Frame,
-  type FrameValidation,
 } from "./src/timeline/frame.js";
 export {
   Reactive,
-  ReactiveCore as ReactiveInternals,
-  SubscriptionTarget,
+  ReactiveCore,
+  ReactiveInternals,
+  ReactiveProtocol,
 } from "./src/timeline/protocol.js";
-export {
-  type NotifyReady,
-  Subscriptions,
-} from "./src/timeline/subscriptions.js";
+export { Subscription, Subscriptions } from "./src/timeline/subscriptions.js";
 export { INSPECT } from "./src/timeline/timestamp.js";
 export { max, getNow as now, zero } from "./src/timeline/timestamp.js";
 export { diff } from "./src/timeline/utils.js";

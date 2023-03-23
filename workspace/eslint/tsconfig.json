@@ -18,6 +18,7 @@
 
     "experimentalDecorators": true,
 
+    "isolatedModules": true,
     "module": "CommonJS",
     "moduleResolution": "Node",
     "noPropertyAccessFromIndexSignature": true,
@@ -31,7 +32,7 @@
 
     "strict": true,
 
-    "types": ["../../packages/env"],
+    "types": ["vite/client", "../../packages/env", "node"],
 
     "useDefineForClassFields": true
   },

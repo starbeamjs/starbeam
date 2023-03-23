@@ -1,15 +1,17 @@
 import type { Stack } from "@starbeam/debug";
-import { DebugTimeline } from "@starbeam/debug";
+import {
+  type DebugFilter,
+  type DebugListener,
+  DebugTimeline,
+} from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
-import type { CellCore } from "@starbeam/interfaces";
 
+import { LIFETIME } from "../lifetime/api.js";
 import type { Unsubscribe } from "../lifetime/object-lifetime.js";
 import { FrameStack } from "./frames.js";
-import { SubscriptionTarget } from "./protocol.js";
-import { type NotifyReady, Subscriptions } from "./subscriptions.js";
+import { ReactiveProtocol } from "./protocol.js";
+import { Subscriptions } from "./subscriptions.js";
 import { getNow, NOW } from "./timestamp.js";
-
-type TimelineOp = "consumed" | "bumped" | "evaluating" | "initial";
 
 /**
  * # How Subscriptions Work at the Lowest Level
@@ -28,7 +30,7 @@ type TimelineOp = "consumed" | "bumped" | "evaluating" | "initial";
  *
  * ## Delegates
  *
- * If an object implementing {@linkcode ReactiveCore} simply polls another reactive object, it
+ * If an object implementing {@linkcode ReactiveProtocol} simply polls another reactive object, it
  * can use a {@linkcode DelegateInternals} property to point to that object. In this case, the
  * object doesn't need to worry about `TIMELINE.update`.
  *
@@ -38,12 +40,31 @@ type TimelineOp = "consumed" | "bumped" | "evaluating" | "initial";
  * reactives that depend on that dependency.
  */
 export class Timeline {
+  readonly #afterRender: Set<() => void>;
+
+  declare attach: (
+    notify: () => void,
+    options?: { filter: DebugFilter }
+  ) => DebugListener;
+
   #debugTimeline: DebugTimeline | null = null;
   readonly #frame: FrameStack;
+  #lastOp: "consumed" | "bumped" | "evaluating" | "initial";
 
   on = {
-    change: (target: SubscriptionTarget, ready: NotifyReady): Unsubscribe => {
-      return this.#subscriptions.register(target, ready);
+    rendered: (callback: () => void): (() => void) => {
+      this.#afterRender.add(callback);
+
+      return () => {
+        this.#afterRender.delete(callback);
+      };
+    },
+
+    change: (
+      input: ReactiveProtocol,
+      ready: (internals: interfaces.MutableInternals) => void
+    ): Unsubscribe => {
+      return this.#subscriptions.register(input, ready);
     },
   } as const;
 
@@ -52,11 +73,10 @@ export class Timeline {
    * tracking frame, but which are used to produce rendered outputs.
    */
   #readAssertions = new Set<
-    (reactive: SubscriptionTarget, caller: Stack) => void
+    (reactive: ReactiveProtocol, caller: Stack) => void
   >();
 
   readonly #subscriptions: Subscriptions;
-  #lastOp: TimelineOp;
 
   /**
    * In debug mode, register a barrier for untracked reads. This allows you to throw an error if an
@@ -64,21 +84,39 @@ export class Timeline {
    * produce rendered content.
    */
   declare untrackedReadBarrier: (
-    assertion: (reactive: SubscriptionTarget, caller: Stack) => void
+    assertion: (reactive: ReactiveProtocol, caller: Stack) => void
   ) => void;
 
   static create(): Timeline {
-    return new Timeline(Subscriptions.create(), "initial");
+    return new Timeline(Subscriptions.create(), new Set(), "initial");
   }
 
-  private constructor(subscriptions: Subscriptions, lastOp: TimelineOp) {
+  private constructor(
+    subscriptions: Subscriptions,
+    onAdvance: Set<() => void>,
+    lastOp: "consumed" | "bumped" | "evaluating" | "initial"
+  ) {
     this.#subscriptions = subscriptions;
+    this.#afterRender = onAdvance;
     this.#frame = FrameStack.empty(this, subscriptions);
     this.#lastOp = lastOp;
 
     if (import.meta.env.DEV) {
+      this.attach = (
+        notify: () => void,
+        options: { filter: DebugFilter } = { filter: { type: "all" } }
+      ): DebugListener => {
+        const listener = this.#debug.attach(notify, options);
+
+        LIFETIME.on.cleanup(listener, () => {
+          listener.detach();
+        });
+
+        return listener;
+      };
+
       this.untrackedReadBarrier = (
-        assertion: (reactive: SubscriptionTarget, caller: Stack) => void
+        assertion: (reactive: ReactiveProtocol, caller: Stack) => void
       ): void => {
         this.#readAssertions.add(assertion);
       };
@@ -87,10 +125,13 @@ export class Timeline {
 
   get #debug(): DebugTimeline {
     if (!this.#debugTimeline) {
-      this.#debugTimeline = DebugTimeline.create(
+      const debugTimeline = (this.#debugTimeline = DebugTimeline.create(
         { now: getNow },
-        SubscriptionTarget
-      );
+        ReactiveProtocol
+      ));
+      this.on.rendered(() => {
+        debugTimeline.notify();
+      });
     }
 
     return this.#debugTimeline;
@@ -124,7 +165,10 @@ export class Timeline {
     }
   }
 
-  bump(mutable: interfaces.CellCore, caller: Stack): interfaces.Timestamp {
+  bump(
+    mutable: interfaces.MutableInternals,
+    caller: Stack
+  ): interfaces.Timestamp {
     const now = this.#adjustTimestamp("bumped");
 
     if (import.meta.env.DEV) {
@@ -135,14 +179,17 @@ export class Timeline {
     return now;
   }
 
-  didConsumeCell(cell: SubscriptionTarget<CellCore>, caller: Stack): void {
+  didConsumeCell(
+    cell: ReactiveProtocol<interfaces.MutableInternals>,
+    caller: Stack
+  ): void {
     this.#adjustTimestamp("consumed");
     FrameStack.didConsumeCell(this.#frame, cell, caller);
   }
 
   didConsumeFrame(
     frame: interfaces.Frame,
-    diff: interfaces.Diff<interfaces.CellCore>,
+    diff: interfaces.Diff<interfaces.MutableInternals>,
     caller: Stack
   ): void {
     this.#adjustTimestamp("consumed");
@@ -164,9 +211,7 @@ export class Timeline {
    * For example, Formulas call this method after recomputing their value, which results in a
    * possible change to their dependencies.
    */
-  update(
-    reactive: interfaces.SubscriptionTarget<interfaces.FormulaCore>
-  ): void {
+  update(reactive: ReactiveProtocol): void {
     this.#subscriptions.update(reactive);
   }
 
@@ -185,7 +230,7 @@ export class Timeline {
   /// DEBUG MODE ///
 
   /** @internal */
-  untrackedRead(cell: SubscriptionTarget<CellCore>, caller: Stack): void {
+  untrackedRead(cell: ReactiveProtocol, caller: Stack): void {
     for (const assertion of this.#readAssertions) {
       assertion(cell, caller);
     }

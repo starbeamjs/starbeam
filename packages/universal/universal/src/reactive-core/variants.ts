@@ -1,14 +1,17 @@
 import type { Stack } from "@starbeam/debug";
 import {
-  callerStack,
   type Description,
+  callerStack,
   descriptionFrom,
   DisplayStruct,
 } from "@starbeam/debug";
-import type { FormulaCore } from "@starbeam/interfaces";
 import { UNINITIALIZED } from "@starbeam/shared";
-import type { SubscriptionTarget } from "@starbeam/timeline";
-import { REACTIVE, TIMELINE } from "@starbeam/timeline";
+import {
+  type ReactiveInternals,
+  type ReactiveProtocol,
+  REACTIVE,
+  TIMELINE,
+} from "@starbeam/timeline";
 
 import { CompositeInternals } from "../storage.js";
 import { Cell } from "./cell.js";
@@ -117,7 +120,7 @@ export class VariantGroup {
   }
 }
 
-export class Variant<T> implements SubscriptionTarget<FormulaCore> {
+export class Variant<T> implements ReactiveProtocol {
   static selected<T>(
     type: string,
     typeMarker: Marker,
@@ -209,7 +212,7 @@ export class Variant<T> implements SubscriptionTarget<FormulaCore> {
     value: T | UNINITIALIZED;
   };
   readonly #value: Cell<T | UNINITIALIZED>;
-  readonly [REACTIVE]: FormulaCore;
+  readonly [REACTIVE]: ReactiveInternals;
 
   private constructor(
     type: string,
@@ -217,7 +220,7 @@ export class Variant<T> implements SubscriptionTarget<FormulaCore> {
     localTypeMarker: Marker,
     value: Cell<T | UNINITIALIZED>,
     debug: { value: T | UNINITIALIZED },
-    reactive: FormulaCore
+    reactive: ReactiveInternals
   ) {
     this.#type = type;
     this.#sharedTypeMarker = sharedTypeMarker;
@@ -289,7 +292,7 @@ export interface ReadonlyVariants<V extends VariantType, K extends keyof V> {
 }
 
 export interface Variants<V extends VariantType, Narrow = V>
-  extends SubscriptionTarget {
+  extends ReactiveProtocol {
   current: {
     [K in keyof Narrow]: K extends string
       ? Narrow[K] extends []
@@ -323,7 +326,7 @@ export interface Variants<V extends VariantType, Narrow = V>
       | undefined);
 }
 
-class VariantsImpl implements SubscriptionTarget<FormulaCore> {
+class VariantsImpl implements ReactiveProtocol {
   static create(
     value: InternalVariant,
     description: Description
@@ -361,7 +364,7 @@ class VariantsImpl implements SubscriptionTarget<FormulaCore> {
     this.#current = current;
   }
 
-  get [REACTIVE](): FormulaCore {
+  get [REACTIVE](): ReactiveInternals {
     return CompositeInternals([this.#current], this.#description);
   }
 

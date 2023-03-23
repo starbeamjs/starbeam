@@ -1,16 +1,11 @@
 import { callerStack, descriptionFrom } from "@starbeam/debug";
-import type { FormulaCore } from "@starbeam/interfaces";
-import {
-  REACTIVE,
-  SubscriptionTarget,
-  TIMELINE,
-  zero,
-} from "@starbeam/timeline";
+import type { CompositeInternals } from "@starbeam/interfaces";
+import { REACTIVE, ReactiveProtocol, TIMELINE, zero } from "@starbeam/timeline";
 import { beforeAll, describe, expect, it } from "vitest";
 
 import { Cell, FreezableCell, Static } from "./support/mini-reactives.js";
 
-describe("SubscriptionTarget", () => {
+describe("ReactiveProtocol", () => {
   beforeAll(() => {
     // make sure the timeline is not at 0, which would make a comparison with TIMELINE.now sometimes
     // equivalent to Timestamp.zero(), and we want to test the difference.
@@ -30,8 +25,8 @@ describe("SubscriptionTarget", () => {
     it("has the zero timestamp for lastUpdated", () => {
       const tom = Static("Tom Dale");
 
-      expect(String(SubscriptionTarget.lastUpdated(tom))).toBe(String(zero()));
-      expect(String(SubscriptionTarget.lastUpdatedIn([tom]))).toBe(
+      expect(String(ReactiveProtocol.lastUpdated(tom))).toBe(String(zero()));
+      expect(String(ReactiveProtocol.lastUpdatedIn([tom]))).toBe(
         String(zero())
       );
     });
@@ -39,8 +34,8 @@ describe("SubscriptionTarget", () => {
     it("has no dependencies", () => {
       const tom = Static("Tom Dale");
 
-      expect([...SubscriptionTarget.dependencies(tom)]).toEqual([]);
-      expect([...SubscriptionTarget.dependenciesInList([tom])]).toEqual([]);
+      expect([...ReactiveProtocol.dependencies(tom)]).toEqual([]);
+      expect([...ReactiveProtocol.dependenciesInList([tom])]).toEqual([]);
     });
   });
 
@@ -48,16 +43,16 @@ describe("SubscriptionTarget", () => {
     it("has the current timestamp for lastUpdated", () => {
       const original = TIMELINE.now;
       const tom = Cell("Tom");
-      expect(String(SubscriptionTarget.lastUpdated(tom))).toBe(
+      expect(String(ReactiveProtocol.lastUpdated(tom))).toBe(
         String(TIMELINE.now)
       );
       const nullvox = Cell("nullvox");
       const nullvoxTimestamp = TIMELINE.now;
 
-      expect(String(SubscriptionTarget.lastUpdated(nullvox))).toBe(
+      expect(String(ReactiveProtocol.lastUpdated(nullvox))).toBe(
         String(nullvoxTimestamp)
       );
-      expect(String(SubscriptionTarget.lastUpdatedIn([tom, nullvox]))).toBe(
+      expect(String(ReactiveProtocol.lastUpdatedIn([tom, nullvox]))).toBe(
         String(TIMELINE.now)
       );
 
@@ -65,13 +60,13 @@ describe("SubscriptionTarget", () => {
 
       tom.current = "Tom Dale";
       expect(String(TIMELINE.now)).not.toBe(String(original));
-      expect(String(SubscriptionTarget.lastUpdated(tom))).toBe(
+      expect(String(ReactiveProtocol.lastUpdated(tom))).toBe(
         String(TIMELINE.now)
       );
-      expect(String(SubscriptionTarget.lastUpdated(nullvox))).toBe(
+      expect(String(ReactiveProtocol.lastUpdated(nullvox))).toBe(
         String(nullvoxTimestamp)
       );
-      expect(String(SubscriptionTarget.lastUpdatedIn([tom, nullvox]))).toBe(
+      expect(String(ReactiveProtocol.lastUpdatedIn([tom, nullvox]))).toBe(
         String(TIMELINE.now)
       );
     });
@@ -80,12 +75,11 @@ describe("SubscriptionTarget", () => {
       const tom = Cell("Tom");
       const nullvox = Cell("nullvox");
 
-      expect([...SubscriptionTarget.dependencies(tom)]).toEqual([
+      expect([...ReactiveProtocol.dependencies(tom)]).toEqual([tom[REACTIVE]]);
+      expect([...ReactiveProtocol.dependenciesInList([tom, nullvox])]).toEqual([
         tom[REACTIVE],
+        nullvox[REACTIVE],
       ]);
-      expect([
-        ...SubscriptionTarget.dependenciesInList([tom, nullvox]),
-      ]).toEqual([tom[REACTIVE], nullvox[REACTIVE]]);
     });
 
     it("has no dependencies if it's frozen", () => {
@@ -95,10 +89,10 @@ describe("SubscriptionTarget", () => {
 
       nullvox.current = "@nullvoxpopuli";
 
-      expect([...SubscriptionTarget.dependencies(tom)]).toEqual([]);
-      expect([
-        ...SubscriptionTarget.dependenciesInList([tom, nullvox]),
-      ]).toEqual([nullvox[REACTIVE]]);
+      expect([...ReactiveProtocol.dependencies(tom)]).toEqual([]);
+      expect([...ReactiveProtocol.dependenciesInList([tom, nullvox])]).toEqual([
+        nullvox[REACTIVE],
+      ]);
     });
   });
 
@@ -107,7 +101,7 @@ describe("SubscriptionTarget", () => {
       const tom = Cell("Tom");
       const nullvox = Cell("nullvox");
 
-      const composite: FormulaCore = {
+      const composite: CompositeInternals = {
         type: "composite",
         description: descriptionFrom({
           type: "formula",
@@ -118,22 +112,22 @@ describe("SubscriptionTarget", () => {
         },
       };
 
-      const Both: SubscriptionTarget = {
+      const Both: ReactiveProtocol = {
         [REACTIVE]: composite,
       };
 
-      expect(String(SubscriptionTarget.lastUpdated(Both))).toBe(
+      expect(String(ReactiveProtocol.lastUpdated(Both))).toBe(
         String(TIMELINE.now)
       );
 
-      expect([...SubscriptionTarget.dependencies(Both)]).toEqual([
+      expect([...ReactiveProtocol.dependencies(Both)]).toEqual([
         tom[REACTIVE],
         nullvox[REACTIVE],
       ]);
 
       tom.current = "Tom Dale";
 
-      expect(String(SubscriptionTarget.lastUpdated(Both))).toBe(
+      expect(String(ReactiveProtocol.lastUpdated(Both))).toBe(
         String(TIMELINE.now)
       );
     });

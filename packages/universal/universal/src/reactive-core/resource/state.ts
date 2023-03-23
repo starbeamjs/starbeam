@@ -1,17 +1,18 @@
 import type { Description } from "@starbeam/debug";
+import type { Reactive } from "@starbeam/interfaces";
 import { UNINITIALIZED } from "@starbeam/shared";
-import { LIFETIME, Reactive } from "@starbeam/timeline";
+import { LIFETIME, ReactiveCore } from "@starbeam/timeline";
 
 import { Formula } from "../formula/formula.js";
 import { Static } from "../static.js";
 import {
   type AssimilatedResourceReturn,
-  brandResource,
-  isResource,
   type Resource,
-  ResourceBlueprint,
   type ResourceFactory,
   type ResourceReturn,
+  brandResource,
+  isResource,
+  ResourceBlueprint,
 } from "./resource";
 import { ResourceRun } from "./run";
 
@@ -59,8 +60,8 @@ export class ResourceState<T> {
   readonly #constructorFn: (resource: ResourceRun) => ResourceReturn<T>;
   readonly #owner: object;
   #currentRun: ResourceRun | undefined = undefined;
-  readonly reactiveConstructor: Reactive<Reactive<T>>;
-  readonly reactiveInstance: Reactive<Reactive<T>>;
+  readonly reactiveConstructor: Reactive<ReactiveCore<T>>;
+  readonly reactiveInstance: Reactive<ReactiveCore<T>>;
   readonly resource: Resource<T>;
 
   constructor(
@@ -78,7 +79,7 @@ export class ResourceState<T> {
       desc.detail("constructor")
     );
 
-    let instance: Reactive<T> | undefined = undefined;
+    let instance: ReactiveCore<T> | undefined = undefined;
     let finalized = false;
 
     LIFETIME.on.cleanup(owner, () => {
@@ -108,7 +109,7 @@ export class ResourceState<T> {
    * that were used in the previous constructor and are used in the new constructor will be adopted
    * by the new constructor and not finalized.
    */
-  next(): Reactive<T> {
+  next(): ReactiveCore<T> {
     return this.#startNextRun((nextRun) => {
       // Run the constructor function with the *new run*. We haven't yet finalized the previous run,
       // so the constructor function has an opportunity to use any resources that were used in the
@@ -127,11 +128,13 @@ export class ResourceState<T> {
         resource: returnValue,
         nextRun,
         desc: this.#desc,
-      }) as Reactive<T>;
+      }) as ReactiveCore<T>;
     });
   }
 
-  #startNextRun<T>(callback: (run: ResourceRun) => Reactive<T>): Reactive<T> {
+  #startNextRun<T>(
+    callback: (run: ResourceRun) => ReactiveCore<T>
+  ): ReactiveCore<T> {
     const prevRun = this.#currentRun;
 
     const nextRun = new ResourceRun(
@@ -164,7 +167,7 @@ export class ResourceState<T> {
     if (isResource(resource)) {
       LIFETIME.link(nextRun, resource, { root: this.#owner });
       return resource as AssimilatedResourceReturn<R>;
-    } else if (Reactive.is(resource)) {
+    } else if (ReactiveCore.is(resource)) {
       return resource as AssimilatedResourceReturn<R>;
     } else if (resource instanceof ResourceBlueprint) {
       return resource.use(nextRun, this) as AssimilatedResourceReturn<R>;

@@ -1,15 +1,14 @@
 import { isObject } from "@starbeam/core-utils";
 import {
-  callerStack,
   type Description,
+  type Stack,
+  callerStack,
   descriptionFrom,
   DisplayStruct,
-  type Stack,
 } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
-import type { ReactiveValue } from "@starbeam/interfaces";
 import { UNINITIALIZED } from "@starbeam/shared";
-import { INSPECT, REACTIVE, TIMELINE } from "@starbeam/timeline";
+import { type Reactive, INSPECT, REACTIVE, TIMELINE } from "@starbeam/timeline";
 
 import type { MutableInternalsImpl } from "../storage.js";
 import { MutableInternals } from "../storage.js";
@@ -21,7 +20,9 @@ export interface CellPolicy<T, U = T> {
 
 export type Equality<T> = (a: T, b: T) => boolean;
 
-export class ReactiveCell<T> implements ReactiveValue<T, interfaces.CellCore> {
+export class ReactiveCell<T>
+  implements Reactive<T, interfaces.MutableInternals>
+{
   static create<T>(
     value: T,
     internals: MutableInternalsImpl,

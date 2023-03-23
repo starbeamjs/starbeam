@@ -1,10 +1,9 @@
 import type { DebugTimeline, Stack } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
-import type { CellCore } from "@starbeam/interfaces";
-import { REACTIVE } from "@starbeam/shared";
+import { type UNINITIALIZED, REACTIVE } from "@starbeam/shared";
 
-import { ActiveFrame, type Frame } from "./frame.js";
-import { SubscriptionTarget } from "./protocol.js";
+import { type Frame, ActiveFrame } from "./frame.js";
+import { ReactiveProtocol } from "./protocol.js";
 import type { Subscriptions } from "./subscriptions.js";
 import type { Timeline } from "./timeline.js";
 
@@ -15,7 +14,7 @@ export class FrameStack {
 
   static didConsumeCell(
     frames: FrameStack,
-    reactive: SubscriptionTarget<CellCore>,
+    reactive: ReactiveProtocol<interfaces.MutableInternals>,
     caller: Stack
   ): void {
     frames.#debug.consumeCell(reactive[REACTIVE], caller);
@@ -25,7 +24,7 @@ export class FrameStack {
   static didConsumeFrame(
     frames: FrameStack,
     frame: interfaces.Frame,
-    diff: interfaces.Diff<interfaces.CellCore>,
+    diff: interfaces.Diff<interfaces.MutableInternals>,
     caller: Stack
   ): void {
     frames.#debug.consumeFrame(frame, diff, caller);
@@ -54,54 +53,49 @@ export class FrameStack {
     return this.#timeline.log;
   }
 
-  /**
-   * Evaluate a block of code, returning a new Frame.
-   */
-  evaluate<T>(
-    block: () => T,
-    {
-      description,
-    }: {
-      description: interfaces.Description;
-    }
-  ): Frame<T> {
-    const frame = this.#start(description) as ActiveFrame<T>;
+  create<T>(options: {
+    evaluate: () => T;
+    description: interfaces.Description;
+  }): Frame<T>;
+  // FIXME Overloads shouldn't trigger member-ordering
 
-    try {
-      const result = block();
-      return this.#end<T>(frame, result);
-    } catch (e) {
-      this.finally(frame);
-      throw e;
-    }
-  }
+  create<T>(options: { description: interfaces.Description }): ActiveFrame<T>;
+  // FIXME Overloads shouldn't trigger member-ordering
 
-  /**
-   * Open a new frame, returning an `ActiveFrame`.
-   *
-   * Any consumptions between a call to `open()` and the call to
-   * {@linkcode ActiveFrame.prototype.finalize ActiveFrame#finalize} are assigned to this frame.
-   */
-  open<T>({
+  create<T>({
+    evaluate,
     description,
   }: {
+    evaluate?: () => T;
     description: interfaces.Description;
-  }): ActiveFrame<T> {
-    return this.#start(description) as ActiveFrame<T>;
+  }): Frame<T> | ActiveFrame<T> {
+    const frame = this.#start(description) as ActiveFrame<T>;
+
+    if (evaluate) {
+      try {
+        const result = evaluate();
+        return this.#end<T>(frame, result);
+      } catch (e) {
+        this.finally(frame);
+        throw e;
+      }
+    } else {
+      return frame;
+    }
   }
 
-  #didConsumeReactive(reactive: SubscriptionTarget, caller: Stack): void {
+  #didConsumeReactive(reactive: ReactiveProtocol, caller: Stack): void {
     const frame = this.currentFrame;
     if (frame) {
       frame.add(reactive);
       return;
     } else {
-      const delegatesTo = SubscriptionTarget.subscriptionTargets(
-        reactive
-      ).filter((r) => SubscriptionTarget.is(r, "mutable"));
+      const delegatesTo = ReactiveProtocol.subscribesTo(reactive).filter((r) =>
+        ReactiveProtocol.is(r, "mutable")
+      );
 
       for (const target of delegatesTo) {
-        if (SubscriptionTarget.is(target, "mutable")) {
+        if (ReactiveProtocol.is(target, "mutable")) {
           this.#timeline.untrackedRead(target, caller);
         }
       }
@@ -118,26 +112,6 @@ export class FrameStack {
     this.#current = prev;
   }
 
-  /** @internal */
-  start<T>(frame: Frame<T>): ActiveFrame<T> {
-    return this.#start(frame.description, frame) as ActiveFrame<T>;
-  }
-
-  /** @internal */
-  willEvaluate(): void {
-    this.#timeline.willEvaluate();
-  }
-
-  /** @internal */
-  end<T>(frame: ActiveFrame<T>, value: T): Frame<T> {
-    return this.#end(frame, value);
-  }
-
-  /** @internal */
-  updateSubscriptions<T>(frame: Frame<T>): void {
-    this.#subscriptions.update(frame);
-  }
-
   #start<T>(
     description: interfaces.Description,
     frame?: Frame<T>
@@ -150,7 +124,44 @@ export class FrameStack {
     ));
   }
 
-  update<T>(frame: Frame<T>): ActiveFrame<T> {
-    return this.#start(frame.description, frame) as ActiveFrame<T>;
+  update<T>(options: {
+    updating: Frame<T | UNINITIALIZED>;
+    evaluate: () => T;
+  }): Frame<T>;
+  // FIXME Overloads shouldn't trigger member-ordering
+
+  update<T>({
+    updating,
+  }: {
+    updating: Frame<T | UNINITIALIZED>;
+  }): ActiveFrame<T>;
+  // FIXME Overloads shouldn't trigger member-ordering
+
+  update<T>({
+    updating,
+    evaluate: callback,
+  }: {
+    updating: Frame<T>;
+    evaluate?: () => T;
+  }): Frame<T> | ActiveFrame<T> {
+    const activeFrame = this.#start(
+      updating.description,
+      updating
+    ) as ActiveFrame<T>;
+
+    if (callback) {
+      try {
+        this.#timeline.willEvaluate();
+        const result = callback();
+        const frame = this.#end<T>(activeFrame, result);
+        this.#subscriptions.update(frame);
+        return frame;
+      } catch (e) {
+        this.finally(activeFrame);
+        throw e;
+      }
+    } else {
+      return activeFrame;
+    }
   }
 }

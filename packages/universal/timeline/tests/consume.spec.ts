@@ -12,18 +12,16 @@ describe("consumption", () => {
 
     const id = getID();
     const here = Stack.fromCaller(-1);
-    const frame = TIMELINE.frame.evaluate(
-      () => {
+    const frame = TIMELINE.frame.create({
+      evaluate: () => {
         TIMELINE.didConsumeCell(instance, here);
       },
-      {
-        description: descriptionFrom({
-          id,
-          type: "formula",
-          api: "Formula",
-        }),
-      }
-    );
+      description: descriptionFrom({
+        id,
+        type: "formula",
+        api: "Formula",
+      }),
+    });
 
     const stale = new Staleness();
     TIMELINE.on.change(frame, () => {

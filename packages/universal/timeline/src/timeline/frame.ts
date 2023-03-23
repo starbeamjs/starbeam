@@ -1,46 +1,44 @@
 import type {
-  CellCore,
+  CompositeInternals,
   Description,
-  FormulaCore,
   Frame as IFrame,
+  MutableInternals,
+  ReactiveId,
   Timestamp,
 } from "@starbeam/interfaces";
 import { REACTIVE, UNINITIALIZED } from "@starbeam/shared";
-import { isNotEqual, verified } from "@starbeam/verify";
 
-import type { FrameStack } from "./frames.js";
 import { getID } from "./id.js";
-import { SubscriptionTarget } from "./protocol.js";
+import { ReactiveProtocol } from "./protocol.js";
 import type { Timeline } from "./timeline.js";
 import { getNow } from "./timestamp.js";
 
 interface Marker {
-  [REACTIVE]: Omit<CellCore, "lastUpdated"> & {
+  [REACTIVE]: Omit<MutableInternals, "lastUpdated"> & {
     lastUpdated: Timestamp;
   };
 }
 
 export class Frame<T = unknown>
-  implements SubscriptionTarget<FormulaCore>, IFrame
+  implements ReactiveProtocol<CompositeInternals>, IFrame
 {
   static create<T>(
     this: void,
     value: T,
-    children: Set<SubscriptionTarget>,
+    children: Set<ReactiveProtocol>,
     finalized: Timestamp,
     description: Description
   ): Frame<T> {
     const id = getID();
 
     return new Frame(
+      id,
       value,
       {
         [REACTIVE]: {
           type: "mutable",
           lastUpdated: finalized,
-          description: description
-            .key("initialized?", { id })
-            .asImplementation(),
+          description: description.key("initialized?").asImplementation(),
         },
       },
       children,
@@ -52,16 +50,17 @@ export class Frame<T = unknown>
   static uninitialized<T>(
     finalized: Timestamp,
     description: Description
-  ): Frame<T> {
+  ): Frame<T | UNINITIALIZED> {
     const id = description.id;
 
-    return new Frame<T>(
+    return new Frame<T | UNINITIALIZED>(
+      id,
       UNINITIALIZED,
       {
         [REACTIVE]: {
           type: "mutable",
           lastUpdated: finalized,
-          description: description.detail("initialized?", { id }),
+          description: description.detail("initialized?"),
         },
       },
       new Set(),
@@ -71,7 +70,7 @@ export class Frame<T = unknown>
   }
 
   static value<T>(this: void, frame: Frame<T>): T {
-    return verified(frame.#value, isNotEqual(UNINITIALIZED));
+    return frame.#value;
   }
 
   static isInitialized(this: void, frame: Frame): boolean {
@@ -82,7 +81,7 @@ export class Frame<T = unknown>
     this: void,
     frame: Frame<T>,
     value: T,
-    children: Set<SubscriptionTarget>,
+    children: Set<ReactiveProtocol>,
     finalized: Timestamp
   ): Frame<T> {
     return frame.#update(value, children, finalized);
@@ -91,25 +90,26 @@ export class Frame<T = unknown>
   static updateChildren<T>(
     this: void,
     frame: Frame<T>,
-    children: Set<SubscriptionTarget>
+    children: Set<ReactiveProtocol>
   ): void {
     frame.#children = children;
   }
 
-  #value: T | UNINITIALIZED;
+  #value: T;
   readonly #initialized: Marker;
-  #children: ReadonlySet<SubscriptionTarget>;
+  #children: ReadonlySet<ReactiveProtocol>;
   #finalized: Timestamp;
   readonly #description: Description;
 
   constructor(
-    value: T | UNINITIALIZED,
+    id: ReactiveId,
+    value: T,
     initialized: {
-      [REACTIVE]: Omit<CellCore, "lastUpdated"> & {
+      [REACTIVE]: Omit<MutableInternals, "lastUpdated"> & {
         lastUpdated: Timestamp;
       };
     },
-    children: Set<SubscriptionTarget>,
+    children: Set<ReactiveProtocol>,
     finalized: Timestamp,
     description: Description
   ) {
@@ -120,11 +120,11 @@ export class Frame<T = unknown>
     this.#description = description;
   }
 
-  get [REACTIVE](): FormulaCore {
+  get [REACTIVE](): CompositeInternals {
     return {
       type: "composite",
       description: this.#description,
-      children: (): SubscriptionTarget[] => {
+      children: () => {
         return [this.#initialized, ...this.#children];
       },
     };
@@ -134,24 +134,20 @@ export class Frame<T = unknown>
     return this.#description;
   }
 
-  evaluate(block: () => T, stack: FrameStack): Frame<T> {
-    const activeFrame = stack.start(this);
-
-    try {
-      stack.willEvaluate();
-      const result = block();
-      const frame = stack.end(activeFrame, result);
-      stack.updateSubscriptions(frame);
-      return frame;
-    } catch (e) {
-      stack.finally(activeFrame);
-      throw e;
-    }
-  }
-
+  #update<U>(
+    this: Frame<U | UNINITIALIZED>,
+    value: U,
+    children: Set<ReactiveProtocol>,
+    finalized: Timestamp
+  ): Frame<U>;
   #update(
     value: T,
-    children: Set<SubscriptionTarget>,
+    children: Set<ReactiveProtocol>,
+    finalized: Timestamp
+  ): Frame<T>;
+  #update(
+    value: T,
+    children: Set<ReactiveProtocol>,
     finalized: Timestamp
   ): this {
     if (Object.is(this.#value, UNINITIALIZED)) {
@@ -167,7 +163,7 @@ export class Frame<T = unknown>
   validate(): FrameValidation<Exclude<T, UNINITIALIZED>> {
     if (
       this.#value === UNINITIALIZED ||
-      SubscriptionTarget.lastUpdatedIn([...this.#children]).gt(this.#finalized)
+      ReactiveProtocol.lastUpdatedIn([...this.#children]).gt(this.#finalized)
     ) {
       return { status: "invalid" };
     } else {
@@ -190,12 +186,12 @@ export class ActiveFrame<T> {
 
   readonly #updating: Frame<T> | null;
   readonly #prev: ActiveFrame<unknown> | null;
-  readonly #children: Set<SubscriptionTarget>;
+  readonly #children: Set<ReactiveProtocol>;
 
   private constructor(
     updating: Frame<T> | null,
     prev: ActiveFrame<T> | null,
-    children: Set<SubscriptionTarget>,
+    children: Set<ReactiveProtocol>,
     readonly description: Description
   ) {
     this.#updating = updating;
@@ -203,7 +199,7 @@ export class ActiveFrame<T> {
     this.#children = children;
   }
 
-  add(child: SubscriptionTarget): void {
+  add(child: ReactiveProtocol): void {
     this.#children.add(child);
   }
 

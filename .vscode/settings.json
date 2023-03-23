@@ -39,7 +39,7 @@
     "html"
   ],
 
-  "explorer.excludeGitIgnore": true,
+  "explorer.excludeGitIgnore": false,
   "explorer.fileNesting.patterns": {
     "*.cjs": "${capture}.cjs.map, ${capture}.min.cjs, ${capture}.d.cts, ${capture}.d.cts.map",
     "*.js": "${capture}.js.map, ${capture}.min.js, ${capture}.d.ts, ${capture}.d.ts.map",
@@ -68,7 +68,6 @@
       "url": "https://json.schemastore.org/chrome-manifest"
     }
   ],
-  "npm-scripts.showStartNotification": false,
 
   "search.exclude": {
     "**/CHANGELOG.md": true,
@@ -78,10 +77,9 @@
   "testing.automaticallyOpenPeekView": "never",
 
   "typescript.preferences.importModuleSpecifier": "project-relative",
-  "typescript.preferences.importModuleSpecifierEnding": "auto",
+  "typescript.preferences.importModuleSpecifierEnding": "js",
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.tsserver.experimental.enableProjectDiagnostics": true,
 
-  "vitest.enable": true,
-  "typescript.experimental.tsserver.web.enableProjectWideIntellisense": true
+  "vitest.enable": true
 }

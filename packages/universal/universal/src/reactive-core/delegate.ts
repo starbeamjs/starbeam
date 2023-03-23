@@ -1,35 +1,35 @@
-import { callerStack, Desc, type Description } from "@starbeam/debug";
+import { type Description, callerStack, Desc } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
-import { REACTIVE, SubscriptionTarget } from "@starbeam/timeline";
+import { REACTIVE, ReactiveProtocol } from "@starbeam/timeline";
 
-export class DelegateInternalsImpl implements interfaces.DelegateCore {
+export class DelegateInternalsImpl implements interfaces.DelegateInternals {
   readonly type = "delegate";
 
   constructor(
     readonly id: interfaces.ReactiveId,
-    readonly targets: readonly interfaces.SubscriptionTarget[],
+    readonly delegate: readonly interfaces.ReactiveProtocol[],
     readonly description: Description
   ) {}
 }
 
 export function DelegateInternals(
-  to: interfaces.SubscriptionTarget[] | interfaces.SubscriptionTarget,
+  to: interfaces.ReactiveProtocol[] | interfaces.ReactiveProtocol,
   options?: { description: string | Description }
-): interfaces.DelegateCore {
+): interfaces.DelegateInternals {
   const desc = Desc(
     "delegate",
     options?.description ??
-      (Array.isArray(to) ? undefined : SubscriptionTarget.description(to))
+      (Array.isArray(to) ? undefined : ReactiveProtocol.description(to))
   );
 
   return {
     type: "delegate",
     description: desc,
-    targets: Array.isArray(to) ? to : [to],
+    delegate: Array.isArray(to) ? to : [to],
   };
 }
 
-export function Wrap<T, U extends interfaces.ReactiveValue>(
+export function Wrap<T, U extends interfaces.ReactiveCore>(
   reactive: U,
   value: T,
   desc?: Description | string
@@ -59,15 +59,15 @@ export function Wrap<T, U extends interfaces.ReactiveValue>(
 }
 
 function delegateDesc(
-  to: interfaces.SubscriptionTarget | interfaces.SubscriptionTarget[],
+  to: interfaces.ReactiveProtocol | interfaces.ReactiveProtocol[],
   desc?: string | Description
 ): Description {
   if (Array.isArray(to)) {
     return desc as Description;
   } else if (typeof desc === "string") {
-    return SubscriptionTarget.description(to).detail(desc);
+    return ReactiveProtocol.description(to).detail(desc);
   } else if (desc === undefined) {
-    return SubscriptionTarget.description(to).detail("{delegate}");
+    return ReactiveProtocol.description(to).detail("{delegate}");
   } else {
     return desc;
   }

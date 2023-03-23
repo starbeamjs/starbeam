@@ -22,17 +22,17 @@ export interface Component {
   lifecycle: (timing: "layout" | "idle") => Lifecycle;
   ref: (description: interfaces.Description) => Ref;
   modifier: (timing: "layout" | "idle") => Modifier;
-  resource: (reactive: interfaces.SubscriptionTarget) => interfaces.Unsubscribe;
+  resource: (reactive: interfaces.ReactiveProtocol) => interfaces.Unsubscribe;
   domResource: (
     timing: "layout" | "idle",
-    reactive: interfaces.SubscriptionTarget
+    reactive: interfaces.ReactiveProtocol
   ) => interfaces.Unsubscribe;
 }
 
 export interface Lifecycle {
   setup: (
     timing: "layout" | "idle",
-    protocol: interfaces.SubscriptionTarget
+    protocol: interfaces.ReactiveProtocol
   ) => interfaces.Unsubscribe;
 }
 
@@ -108,7 +108,7 @@ if (import.meta.env.DEV) {
     }
     domResource(
       _timing: "layout" | "idle",
-      _reactive: interfaces.SubscriptionTarget
+      _reactive: interfaces.ReactiveProtocol
     ): interfaces.Unsubscribe {
       throw new Error("Method not implemented.");
     }
@@ -121,7 +121,7 @@ if (import.meta.env.DEV) {
     ref(_description: interfaces.Description): Ref {
       throw new Error("Method not implemented.");
     }
-    resource(_reactive: interfaces.SubscriptionTarget): interfaces.Unsubscribe {
+    resource(_reactive: interfaces.ReactiveProtocol): interfaces.Unsubscribe {
       throw new Error("Method not implemented.");
     }
   }

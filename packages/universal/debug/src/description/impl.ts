@@ -5,7 +5,7 @@ import ansicolor from "ansicolor";
 
 import { DisplayStruct } from "../inspect/display-struct.js";
 import { DisplayParts } from "../module.js";
-import { callerStack, type Stack } from "../stack.js";
+import { type Stack, callerStack } from "../stack.js";
 
 /**
  * This symbol is used in APIs that accept an ID to indicate that an existing ID should be reused.
@@ -284,9 +284,7 @@ if (import.meta.env.DEV) {
     detail(
       this: DebugDescription,
       name: string,
-      args?:
-        | string[]
-        | { args?: string[]; note?: string; id?: interfaces.ReactiveId }
+      args?: string[] | { args?: string[]; note?: string; id?: string | number }
     ): interfaces.Description {
       let detailArgs: string[] | undefined;
       let note: string | undefined;

@@ -1,19 +1,19 @@
 import type { browser } from "@domtree/flavors";
-import { type DebugListener, Desc, type Description } from "@starbeam/debug";
+import { type DebugListener, type Description, Desc } from "@starbeam/debug";
 import type { Reactive } from "@starbeam/interfaces";
-import type { SubscriptionTarget } from "@starbeam/timeline";
 import {
   type CleanupTarget,
-  LIFETIME,
   type OnCleanup,
-  TIMELINE,
+  type ReactiveProtocol,
   type Unsubscribe,
+  LIFETIME,
+  TIMELINE,
 } from "@starbeam/timeline";
 import {
   type Cell,
+  type IntoResource,
   createService,
   Factory,
-  type IntoResource,
 } from "@starbeam/universal";
 
 import { ReactApp } from "./context-provider.js";
@@ -128,7 +128,7 @@ class Refs {
 
 export type DebugLifecycle = (
   listener: DebugListener,
-  reactive: SubscriptionTarget
+  reactive: ReactiveProtocol
 ) => () => void;
 
 /**
@@ -201,10 +201,7 @@ export class ReactiveElement implements CleanupTarget {
     element.#lifecycle = Lifecycle.create(element.#description);
   }
 
-  static subscribe(
-    element: ReactiveElement,
-    reactive: SubscriptionTarget
-  ): void {
+  static subscribe(element: ReactiveElement, reactive: ReactiveProtocol): void {
     const subscription = TIMELINE.on.change(reactive, element.notify);
     element.on.cleanup(subscription);
   }

@@ -1,6 +1,6 @@
 import type { anydom } from "@domtree/flavors";
 import { type Description, REUSE_ID } from "@starbeam/debug";
-import type { SubscriptionTarget } from "@starbeam/interfaces";
+import type { ReactiveProtocol } from "@starbeam/interfaces";
 import { REACTIVE, UNINITIALIZED } from "@starbeam/shared";
 import { Cell, DelegateInternals } from "@starbeam/universal";
 import { expected, isPresent, verified, verify } from "@starbeam/verify";
@@ -14,7 +14,7 @@ export type ElementType<E extends anydom.Element> = abstract new <
 // export type Ref<E extends anydom.Element> = Initializable<E>;
 
 export interface ElementPlaceholder<E extends anydom.Element>
-  extends SubscriptionTarget {
+  extends ReactiveProtocol {
   readonly initialize: (value: E) => void;
   readonly current: E | null;
 }

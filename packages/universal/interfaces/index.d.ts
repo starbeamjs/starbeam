@@ -25,16 +25,16 @@ export type {
   ValidFrame,
 } from "./src/frame.js";
 export type {
-  CellCore,
-  DelegateCore,
-  FormulaCore,
+  CompositeInternals,
+  DelegateInternals,
+  MutableInternals,
   Reactive,
   ReactiveCell,
   ReactiveCore,
   ReactiveId,
-  ReactiveValue,
-  StaticCore,
-  SubscriptionTarget,
+  ReactiveInternals,
+  ReactiveProtocol,
+  StaticInternals,
 } from "./src/protocol.js";
 export type {
   DisplayParts,
@@ -43,4 +43,3 @@ export type {
   StackFrameDisplayOptions,
 } from "./src/stack.js";
 export type { Timestamp, TimestampStatics } from "./src/timestamp.js";
-export type { Expand } from "./src/utils.js";

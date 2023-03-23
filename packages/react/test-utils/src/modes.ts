@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getLast, isPresentArray } from "@starbeam/core-utils";
-import { callerStack, entryPoint, type Stack } from "@starbeam/debug";
-import { expect, test, type TestAPI } from "@starbeam-workspace/test-utils";
+import { type Stack, callerStack, entryPoint } from "@starbeam/debug";
+import { type TestAPI, expect, test } from "@starbeam-workspace/test-utils";
 import * as testing from "@testing-library/react";
 import { getByRole, getByText } from "@testing-library/react";
 import { type ReactElement, StrictMode } from "react";

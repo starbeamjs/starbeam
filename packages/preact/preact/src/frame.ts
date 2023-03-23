@@ -4,8 +4,8 @@ import type { InternalComponent } from "@starbeam/preact-utils";
 import {
   type ActiveFrame,
   type Frame,
-  TIMELINE,
   type Unsubscribe,
+  TIMELINE,
 } from "@starbeam/timeline";
 import { expected, isPresent, verify } from "@starbeam/verify";
 
@@ -79,9 +79,9 @@ export class ComponentFrame {
 
   #start(description: Description): void {
     if (this.#frame) {
-      this.#active = TIMELINE.frame.update(this.#frame);
+      this.#active = TIMELINE.frame.update({ updating: this.#frame });
     } else {
-      this.#active = TIMELINE.frame.open({
+      this.#active = TIMELINE.frame.create({
         description,
       });
     }

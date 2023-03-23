@@ -1,18 +1,14 @@
 import {
-  callerStack,
   type Description,
+  callerStack,
   descriptionFrom,
 } from "@starbeam/debug";
 import type { Stack } from "@starbeam/interfaces";
-import {
-  REACTIVE,
-  type SubscriptionTarget,
-  TIMELINE,
-} from "@starbeam/timeline";
+import { type ReactiveProtocol, REACTIVE, TIMELINE } from "@starbeam/timeline";
 
-import { MutableInternals, type MutableInternalsImpl } from "../storage.js";
+import { type MutableInternalsImpl, MutableInternals } from "../storage.js";
 
-export class ReactiveMarker implements SubscriptionTarget<MutableInternals> {
+export class ReactiveMarker implements ReactiveProtocol<MutableInternals> {
   static create(internals: MutableInternalsImpl): ReactiveMarker {
     return new ReactiveMarker(internals);
   }

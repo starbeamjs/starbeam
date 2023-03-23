@@ -1,5 +1,5 @@
 import { entryPointFn } from "@starbeam/debug";
-import { Frame, SubscriptionTarget } from "@starbeam/timeline";
+import { Frame, ReactiveProtocol } from "@starbeam/timeline";
 import { Cell, FormulaValidation, Reactive, Static } from "@starbeam/universal";
 import { describe, expect, test } from "@starbeam-workspace/test-utils";
 
@@ -36,7 +36,7 @@ describe("reactive Factory", () => {
       const counter = Counter.create();
 
       if (!import.meta.env.PROD) {
-        expect(SubscriptionTarget.description(counter).describe()).toBe(
+        expect(ReactiveProtocol.description(counter).describe()).toBe(
           "Counter 0"
         );
       }
