@@ -5,14 +5,14 @@ import {
 } from "@starbeam/debug";
 import type { Stack } from "@starbeam/interfaces";
 import {
-  REACTIVE,
-  type SubscriptionTarget,
+  TAG,
+  type Tagged,
   TIMELINE,
 } from "@starbeam/timeline";
 
 import { MutableInternals, type MutableInternalsImpl } from "../storage.js";
 
-export class ReactiveMarker implements SubscriptionTarget<MutableInternals> {
+export class ReactiveMarker implements Tagged<MutableInternals> {
   static create(internals: MutableInternalsImpl): ReactiveMarker {
     return new ReactiveMarker(internals);
   }
@@ -23,7 +23,7 @@ export class ReactiveMarker implements SubscriptionTarget<MutableInternals> {
     this.#internals = reactive;
   }
 
-  get [REACTIVE](): MutableInternals {
+  get [TAG](): MutableInternals {
     return this.#internals;
   }
 

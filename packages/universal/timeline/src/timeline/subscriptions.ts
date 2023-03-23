@@ -1,10 +1,10 @@
-import type { CellCore, Diff, FormulaCore } from "@starbeam/interfaces";
+import type { CellTag, Diff, FormulaTag } from "@starbeam/interfaces";
 
 import type { Unsubscribe } from "../lifetime/object-lifetime.js";
-import { SubscriptionTarget } from "./protocol.js";
+import { Tagged } from "./protocol.js";
 import { diff } from "./utils.js";
 
-export type NotifyReady = (internals: CellCore) => void;
+export type NotifyReady = (internals: CellTag) => void;
 
 /**
  * A subscription is a weak mapping from individual cells to the subscriptions that depend on them.
@@ -69,12 +69,12 @@ export class Subscriptions {
    * we may want to fire notifications whenever a `PolledFormula` is recomputed and produces
    * different dependencies.
    */
-  register(target: SubscriptionTarget, ready: NotifyReady): Unsubscribe {
-    const subscriptionTargets = SubscriptionTarget.subscriptionTargets(target);
+  register(target: Tagged, ready: NotifyReady): Unsubscribe {
+    const subscriptionTargets = Tagged.subscriptionTargets(target);
 
     const unsubscribes = subscriptionTargets.map((t) => {
       const entry = this.#formulaMap.register(t);
-      for (const dependency of SubscriptionTarget.dependencies(t)) {
+      for (const dependency of Tagged.dependencies(t)) {
         this.#cellMap.register(dependency, entry);
       }
 
@@ -91,7 +91,7 @@ export class Subscriptions {
   /**
    * Notify the subscribers of a particular cell. This happens synchronously during mutation.
    */
-  notify(mutable: CellCore): void {
+  notify(mutable: CellTag): void {
     this.#cellMap.notify(mutable);
   }
 
@@ -100,7 +100,7 @@ export class Subscriptions {
    * results in removing mappings from cells that are no longer dependencies and adding mappings for
    * cells that have become dependencies.
    */
-  update(frame: SubscriptionTarget<FormulaCore>): void {
+  update(frame: Tagged<FormulaTag>): void {
     const cellMap = this.#cellMap;
 
     const { add, remove, entry } = this.#formulaMap.update(frame);
@@ -117,11 +117,11 @@ class FormulaMap {
     return new FormulaMap();
   }
 
-  readonly #mapping = new WeakMap<SubscriptionTarget, ReactiveSubscription>();
+  readonly #mapping = new WeakMap<Tagged, ReactiveSubscription>();
 
   update(
-    frame: SubscriptionTarget<FormulaCore>
-  ): Diff<CellCore> & { entry: ReactiveSubscription } {
+    frame: Tagged<FormulaTag>
+  ): Diff<CellTag> & { entry: ReactiveSubscription } {
     const entry = this.#mapping.get(frame);
 
     if (entry) {
@@ -130,14 +130,14 @@ class FormulaMap {
       const entry = ReactiveSubscription.create(frame);
       this.#mapping.set(frame, entry);
       return {
-        add: new Set(SubscriptionTarget.dependencies(frame)),
+        add: new Set(Tagged.dependencies(frame)),
         remove: new Set(),
         entry,
       };
     }
   }
 
-  register(target: SubscriptionTarget): ReactiveSubscription {
+  register(target: Tagged): ReactiveSubscription {
     let entry = this.#mapping.get(target);
 
     if (!entry) {
@@ -150,15 +150,15 @@ class FormulaMap {
 }
 
 class ReactiveSubscription {
-  static create(target: SubscriptionTarget): ReactiveSubscription {
-    const deps = new Set(SubscriptionTarget.dependencies(target));
+  static create(target: Tagged): ReactiveSubscription {
+    const deps = new Set(Tagged.dependencies(target));
     return new ReactiveSubscription(deps);
   }
 
-  #deps: Set<CellCore>;
+  #deps: Set<CellTag>;
   readonly #ready = new Set<NotifyReady>();
 
-  private constructor(deps: Set<CellCore>) {
+  private constructor(deps: Set<CellTag>) {
     this.#deps = deps;
   }
 
@@ -167,15 +167,15 @@ class ReactiveSubscription {
     return () => this.#ready.delete(ready);
   }
 
-  notify(internals: CellCore): void {
+  notify(internals: CellTag): void {
     for (const ready of this.#ready) {
       ready(internals);
     }
   }
 
-  update(frame: SubscriptionTarget<FormulaCore>): Diff<CellCore> {
+  update(frame: Tagged<FormulaTag>): Diff<CellTag> {
     const prev = this.#deps;
-    const next = new Set(SubscriptionTarget.dependencies(frame));
+    const next = new Set(Tagged.dependencies(frame));
     this.#deps = next;
 
     return diff(prev, next);
@@ -193,31 +193,31 @@ class CellMap {
     return new CellMap();
   }
 
-  readonly #entriesMap = new WeakMap<CellCore, Set<ReactiveSubscription>>();
+  readonly #entriesMap = new WeakMap<CellTag, Set<ReactiveSubscription>>();
 
-  remove(mutables: ReadonlySet<CellCore>, entry: ReactiveSubscription): void {
+  remove(mutables: ReadonlySet<CellTag>, entry: ReactiveSubscription): void {
     for (const mutable of mutables) {
       this.#entriesMap.get(mutable)?.delete(entry);
     }
   }
 
-  add(mutables: ReadonlySet<CellCore>, entry: ReactiveSubscription): void {
+  add(mutables: ReadonlySet<CellTag>, entry: ReactiveSubscription): void {
     for (const mutable of mutables) {
       this.#initialized(mutable).add(entry);
     }
   }
 
-  register(mutable: CellCore, entry: ReactiveSubscription): void {
+  register(mutable: CellTag, entry: ReactiveSubscription): void {
     this.#initialized(mutable).add(entry);
   }
 
-  notify(mutable: CellCore): void {
+  notify(mutable: CellTag): void {
     for (const entry of this.#entries(mutable)) {
       entry.notify(mutable);
     }
   }
 
-  *#entries(mutable: CellCore): IterableIterator<ReactiveSubscription> {
+  *#entries(mutable: CellTag): IterableIterator<ReactiveSubscription> {
     const entries = this.#entriesMap.get(mutable);
 
     if (entries) {
@@ -225,7 +225,7 @@ class CellMap {
     }
   }
 
-  #initialized(mutable: CellCore): Set<ReactiveSubscription> {
+  #initialized(mutable: CellTag): Set<ReactiveSubscription> {
     let entries = this.#entriesMap.get(mutable);
 
     if (!entries) {

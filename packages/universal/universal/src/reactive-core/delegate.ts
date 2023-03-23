@@ -1,25 +1,25 @@
 import { callerStack, Desc, type Description } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
-import { REACTIVE, SubscriptionTarget } from "@starbeam/timeline";
+import { TAG, Tagged } from "@starbeam/timeline";
 
-export class DelegateInternalsImpl implements interfaces.DelegateCore {
+export class DelegateInternalsImpl implements interfaces.DelegateTag {
   readonly type = "delegate";
 
   constructor(
     readonly id: interfaces.ReactiveId,
-    readonly targets: readonly interfaces.SubscriptionTarget[],
+    readonly targets: readonly interfaces.Tagged[],
     readonly description: Description
   ) {}
 }
 
 export function DelegateInternals(
-  to: interfaces.SubscriptionTarget[] | interfaces.SubscriptionTarget,
+  to: interfaces.Tagged[] | interfaces.Tagged,
   options?: { description: string | Description }
-): interfaces.DelegateCore {
+): interfaces.DelegateTag {
   const desc = Desc(
     "delegate",
     options?.description ??
-      (Array.isArray(to) ? undefined : SubscriptionTarget.description(to))
+      (Array.isArray(to) ? undefined : Tagged.description(to))
   );
 
   return {
@@ -34,7 +34,7 @@ export function Wrap<T, U extends interfaces.ReactiveValue>(
   value: T,
   desc?: Description | string
 ): T & U {
-  Object.defineProperty(value, REACTIVE, {
+  Object.defineProperty(value, TAG, {
     configurable: true,
     writable: true,
     value: DelegateInternals(reactive, {
@@ -59,15 +59,15 @@ export function Wrap<T, U extends interfaces.ReactiveValue>(
 }
 
 function delegateDesc(
-  to: interfaces.SubscriptionTarget | interfaces.SubscriptionTarget[],
+  to: interfaces.Tagged | interfaces.Tagged[],
   desc?: string | Description
 ): Description {
   if (Array.isArray(to)) {
     return desc as Description;
   } else if (typeof desc === "string") {
-    return SubscriptionTarget.description(to).detail(desc);
+    return Tagged.description(to).detail(desc);
   } else if (desc === undefined) {
-    return SubscriptionTarget.description(to).detail("{delegate}");
+    return Tagged.description(to).detail("{delegate}");
   } else {
     return desc;
   }

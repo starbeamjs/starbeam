@@ -1,5 +1,5 @@
 import { Desc, type Description } from "@starbeam/debug";
-import type { ReactiveCore, ReactiveValue } from "@starbeam/interfaces";
+import type { ReactiveValue,Tag } from "@starbeam/interfaces";
 import { Reactive as TimelineReactive } from "@starbeam/timeline";
 import { isObject } from "@starbeam/verify";
 
@@ -34,7 +34,7 @@ export type IntoReactive<T> = Reactive<T> | T;
 
 export type TypedReactive<
   T,
-  I extends ReactiveCore = ReactiveCore
+  I extends Tag = Tag
 > = ReactiveValue<T, I>;
 
 export type Reactive<T> = TimelineReactive<T>;

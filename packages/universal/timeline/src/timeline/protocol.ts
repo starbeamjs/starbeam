@@ -1,59 +1,49 @@
 import type * as Debug from "@starbeam/debug";
 import { Desc, Tree } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
-import type {
-  CellCore,
-  DelegateCore,
-  FormulaCore,
-  StaticCore,
-} from "@starbeam/interfaces";
-import { REACTIVE } from "@starbeam/shared";
+import { TAG } from "@starbeam/shared";
 import { isPresent } from "@starbeam/verify";
 
 import { Timestamp, zero } from "./timestamp.js";
 
 export type Reactive<T> = interfaces.Reactive<T>;
 
-interface ExhaustiveMatcher<T> {
-  mutable: (internals: CellCore) => T;
-  composite: (internals: FormulaCore) => T;
-  delegate: (internals: DelegateCore) => T;
-  static: (internals: StaticCore) => T;
-}
+type ExhaustiveMatcher<T> = {
+  [P in interfaces.TagType]: (tag: Extract<interfaces.Tag, { type: P }>) => T;
+};
 
-export type ReactiveCore = interfaces.ReactiveCore;
+export type Tag = interfaces.Tag;
 
 interface DefaultMatcher<T> extends Partial<ExhaustiveMatcher<T>> {
-  default: (internals: ReactiveCore) => T;
+  default: (internals: Tag) => T;
 }
 
 type Matcher<T> = ExhaustiveMatcher<T> | DefaultMatcher<T>;
 
-export type SubscriptionTarget<
-  I extends interfaces.ReactiveCore = interfaces.ReactiveCore
-> = interfaces.SubscriptionTarget<I>;
+export type Tagged<I extends interfaces.Tag = interfaces.Tag> =
+  interfaces.Tagged<I>;
 
-export const SubscriptionTarget = {
-  description(this: void, reactive: SubscriptionTarget): Debug.Description {
-    return ReactiveCore.description(reactive[REACTIVE]);
+export const Tagged = {
+  description(this: void, reactive: Tagged): Debug.Description {
+    return Tag.description(reactive[TAG]);
   },
 
-  id(this: void, reactive: SubscriptionTarget): interfaces.ReactiveId {
-    return ReactiveCore.id(reactive[REACTIVE]);
+  id(this: void, reactive: Tagged): interfaces.ReactiveId {
+    return Tag.id(reactive[TAG]);
   },
 
-  is<T extends ReactiveCore["type"] = ReactiveCore["type"]>(
+  is<T extends Tag["type"] = Tag["type"]>(
     this: void,
-    reactive: SubscriptionTarget,
+    reactive: Tagged,
     kind: T
   ): reactive is {
-    [REACTIVE]: Extract<interfaces.ReactiveCore, { type: T }>;
+    [TAG]: Extract<interfaces.Tag, { type: T }>;
   } {
-    return ReactiveCore.is(reactive[REACTIVE], kind);
+    return Tag.is(reactive[TAG], kind);
   },
 
-  match<T>(this: void, reactive: SubscriptionTarget, matcher: Matcher<T>): T {
-    return ReactiveCore.match(reactive[REACTIVE], matcher);
+  match<T>(this: void, reactive: Tagged, matcher: Matcher<T>): T {
+    return Tag.match(reactive[TAG], matcher);
   },
 
   /**
@@ -69,44 +59,38 @@ export const SubscriptionTarget = {
    * This makes it possible to create abstractions around reactive values that don't have to worry
    * about manually updating their subscribers when their values change.
    */
-  subscriptionTargets(
-    this: void,
-    reactive: SubscriptionTarget
-  ): SubscriptionTarget[] {
-    const internals = reactive[REACTIVE];
+  subscriptionTargets(this: void, reactive: Tagged): Tagged[] {
+    const internals = reactive[TAG];
 
     console.log({ internals });
     if (internals.type === "delegate") {
-      return internals.targets.flatMap(SubscriptionTarget.subscriptionTargets);
+      return internals.targets.flatMap(Tagged.subscriptionTargets);
     } else {
       return [reactive];
     }
   },
 
-  dependencies(
-    this: void,
-    reactive: SubscriptionTarget
-  ): Iterable<interfaces.CellCore> {
-    return ReactiveCore.dependencies(reactive[REACTIVE]);
+  dependencies(this: void, reactive: Tagged): Iterable<interfaces.CellTag> {
+    return Tag.dependencies(reactive[TAG]);
   },
 
   *dependenciesInList(
     this: void,
-    children: readonly SubscriptionTarget[]
-  ): Iterable<interfaces.CellCore> {
+    children: readonly Tagged[]
+  ): Iterable<interfaces.CellTag> {
     for (const child of children) {
-      yield* ReactiveCore.dependencies(child[REACTIVE]);
+      yield* Tag.dependencies(child[TAG]);
     }
   },
 
-  lastUpdated(this: void, reactive: SubscriptionTarget): Timestamp {
-    return ReactiveCore.lastUpdated(reactive[REACTIVE]);
+  lastUpdated(this: void, reactive: Tagged): Timestamp {
+    return Tag.lastUpdated(reactive[TAG]);
   },
 
-  lastUpdatedIn(this: void, reactives: SubscriptionTarget[]): Timestamp {
+  lastUpdatedIn(this: void, reactives: Tagged[]): Timestamp {
     let lastUpdatedTimestamp = zero();
 
-    for (const child of SubscriptionTarget.dependenciesInList(reactives)) {
+    for (const child of Tagged.dependenciesInList(reactives)) {
       if (child.lastUpdated.gt(lastUpdatedTimestamp)) {
         lastUpdatedTimestamp = child.lastUpdated;
       }
@@ -117,37 +101,37 @@ export const SubscriptionTarget = {
 
   log(
     this: void,
-    reactive: SubscriptionTarget,
+    reactive: Tagged,
     options: { implementation?: boolean; source?: boolean; id?: boolean } = {}
   ): void {
-    ReactiveCore.log(reactive[REACTIVE], options);
+    Tag.log(reactive[TAG], options);
   },
 
   debug(
     this: void,
-    reactive: SubscriptionTarget,
+    reactive: Tagged,
     {
       implementation = false,
       source = false,
     }: { implementation?: boolean; source?: boolean } = {}
   ): string {
-    return ReactiveCore.debug(reactive[REACTIVE], {
+    return Tag.debug(reactive[TAG], {
       implementation,
       source,
     });
   },
 } as const;
 
-export const ReactiveCore = {
-  is<T extends "mutable" | "composite" | "static" | "delegate">(
+export const Tag = {
+  is<T extends interfaces.TagType>(
     this: void,
-    internals: interfaces.ReactiveCore,
+    internals: interfaces.Tag,
     kind: T
-  ): internals is Extract<interfaces.ReactiveCore, { type: T }> {
+  ): internals is Extract<interfaces.Tag, { type: T }> {
     return internals.type === kind;
   },
 
-  id(this: void, internals: interfaces.ReactiveCore): interfaces.ReactiveId {
+  id(this: void, internals: interfaces.Tag): interfaces.ReactiveId {
     return internals.description.id;
   },
 
@@ -157,9 +141,7 @@ export const ReactiveCore = {
    * This list is only valid until the next time anyone reads from the reactive. It's intended to be
    * used along with code that updates the dependencies whenever the reactive is read.
    */
-  *dependencies(
-    internals: interfaces.ReactiveCore
-  ): Iterable<interfaces.CellCore> {
+  *dependencies(internals: interfaces.Tag): Iterable<interfaces.CellTag> {
     switch (internals.type) {
       case "static":
         return;
@@ -171,52 +153,49 @@ export const ReactiveCore = {
         yield internals;
         break;
       case "delegate":
-        for (const target of ReactiveCore.subscribesTo(internals)) {
-          yield* ReactiveCore.dependencies(target);
+        for (const target of Tag.subscribesTo(internals)) {
+          yield* Tag.dependencies(target);
         }
         break;
-      case "composite":
-        yield* SubscriptionTarget.dependenciesInList(internals.children());
+      case "formula":
+        yield* Tagged.dependenciesInList(internals.children());
         break;
     }
   },
 
   *dependenciesInList(
     this: void,
-    children: readonly interfaces.ReactiveCore[]
-  ): Iterable<interfaces.CellCore> {
+    children: readonly interfaces.Tag[]
+  ): Iterable<interfaces.CellTag> {
     for (const child of children) {
-      yield* ReactiveCore.dependencies(child);
+      yield* Tag.dependencies(child);
     }
   },
 
-  subscribesTo(
-    this: void,
-    internals: interfaces.ReactiveCore
-  ): interfaces.ReactiveCore[] {
+  subscribesTo(this: void, internals: interfaces.Tag): interfaces.Tag[] {
     if (internals.type === "delegate") {
       return internals.targets.flatMap((protocol) =>
-        SubscriptionTarget.subscriptionTargets(protocol).map((p) => p[REACTIVE])
+        Tagged.subscriptionTargets(protocol).map((p) => p[TAG])
       );
     } else {
       return [internals];
     }
   },
 
-  lastUpdated(this: void, internals: interfaces.ReactiveCore): Timestamp {
+  lastUpdated(this: void, internals: interfaces.Tag): Timestamp {
     switch (internals.type) {
       case "static":
         return zero();
       case "mutable":
         return internals.lastUpdated;
       case "delegate": {
-        const delegates = ReactiveCore.subscribesTo(internals);
-        return ReactiveCore.lastUpdatedIn(delegates);
+        const delegates = Tag.subscribesTo(internals);
+        return Tag.lastUpdatedIn(delegates);
       }
-      case "composite": {
+      case "formula": {
         let lastUpdatedTimestamp = zero();
 
-        for (const child of ReactiveCore.dependencies(internals)) {
+        for (const child of Tag.dependencies(internals)) {
           if (child.lastUpdated.gt(lastUpdatedTimestamp)) {
             lastUpdatedTimestamp = child.lastUpdated;
           }
@@ -227,10 +206,10 @@ export const ReactiveCore = {
     }
   },
 
-  lastUpdatedIn(this: void, core: ReactiveCore[]): Timestamp {
+  lastUpdatedIn(this: void, core: Tag[]): Timestamp {
     let lastUpdatedTimestamp = zero();
 
-    for (const child of ReactiveCore.dependenciesInList(core)) {
+    for (const child of Tag.dependenciesInList(core)) {
       if (child.lastUpdated.gt(lastUpdatedTimestamp)) {
         lastUpdatedTimestamp = child.lastUpdated;
       }
@@ -239,20 +218,20 @@ export const ReactiveCore = {
     return lastUpdatedTimestamp;
   },
 
-  description(this: void, core: ReactiveCore): Debug.Description {
+  description(this: void, core: Tag): Debug.Description {
     return core.description;
   },
 
   debug(
     this: void,
-    internals: ReactiveCore,
+    internals: Tag,
     {
       implementation = false,
       source = false,
       id = false,
     }: { implementation?: boolean; source?: boolean; id?: boolean } = {}
   ): string {
-    const dependencies = [...ReactiveCore.dependencies(internals)];
+    const dependencies = [...Tag.dependencies(internals)];
     const descriptions = new Set(
       dependencies.map((dependency) => {
         return implementation
@@ -273,24 +252,20 @@ export const ReactiveCore = {
 
   log(
     this: void,
-    internals: interfaces.ReactiveCore,
+    internals: interfaces.Tag,
     options: { implementation?: boolean; source?: boolean; id?: boolean } = {}
   ): void {
-    const debug = ReactiveCore.debug(internals, options);
+    const debug = Tag.debug(internals, options);
 
     console.group(
-      ReactiveCore.description(internals).describe({ id: options.id }),
-      `(updated at ${Timestamp.debug(ReactiveCore.lastUpdated(internals)).at})`
+      Tag.description(internals).describe({ id: options.id }),
+      `(updated at ${Timestamp.debug(Tag.lastUpdated(internals)).at})`
     );
     console.log(debug);
     console.groupEnd();
   },
 
-  match<T>(
-    this: void,
-    internals: interfaces.ReactiveCore,
-    matcher: Matcher<T>
-  ): T {
+  match<T>(this: void, internals: interfaces.Tag, matcher: Matcher<T>): T {
     const fn = matcher[internals.type];
     if (typeof fn === "function") {
       return fn(internals as never);
@@ -307,25 +282,9 @@ function is<T>(
   return !!(
     value &&
     (typeof value === "object" || typeof value === "function") &&
-    REACTIVE in value
+    TAG in value
   );
 }
-
-// export const SubscriptionTarget = {
-//   is,
-
-//   from<T>(
-//     this: void,
-//     value: T | Reactive<T>,
-//     description?: string | Debug.Description
-//   ): Reactive<T> {
-//     if (is(value)) {
-//       return value;
-//     } else {
-//       return new Static(value, Desc("static", description));
-//     }
-//   },
-// };
 
 export const Reactive = {
   is<T>(this: void, value: unknown): value is interfaces.Reactive<T> {
@@ -349,13 +308,13 @@ function hasRead<T>(value: object): value is { read: () => T } {
   return "read" in value && typeof value.read === "function";
 }
 
-class Static<T> implements interfaces.ReactiveValue<T, interfaces.StaticCore> {
+class Static<T> implements interfaces.ReactiveValue<T, interfaces.StaticTag> {
   readonly #value: T;
-  readonly [REACTIVE]: interfaces.StaticCore;
+  readonly [TAG]: interfaces.StaticTag;
 
   constructor(value: T, description: Debug.Description) {
     this.#value = value;
-    this[REACTIVE] = {
+    this[TAG] = {
       type: "static",
       description,
     };

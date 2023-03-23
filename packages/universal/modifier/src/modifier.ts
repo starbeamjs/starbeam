@@ -1,7 +1,7 @@
 import type { anydom } from "@domtree/flavors";
 import { type Description, REUSE_ID } from "@starbeam/debug";
-import type { SubscriptionTarget } from "@starbeam/interfaces";
-import { REACTIVE, UNINITIALIZED } from "@starbeam/shared";
+import type { Tagged } from "@starbeam/interfaces";
+import { TAG, UNINITIALIZED } from "@starbeam/shared";
 import { Cell, DelegateInternals } from "@starbeam/universal";
 import { expected, isPresent, verified, verify } from "@starbeam/verify";
 
@@ -14,7 +14,7 @@ export type ElementType<E extends anydom.Element> = abstract new <
 // export type Ref<E extends anydom.Element> = Initializable<E>;
 
 export interface ElementPlaceholder<E extends anydom.Element>
-  extends SubscriptionTarget {
+  extends Tagged {
   readonly initialize: (value: E) => void;
   readonly current: E | null;
 }
@@ -35,7 +35,7 @@ export function ElementPlaceholder<E extends anydom.Element>(
   REFS.set(ref, elementCell);
 
   return {
-    [REACTIVE]: DelegateInternals([elementCell]),
+    [TAG]: DelegateInternals([elementCell]),
 
     initialize(value: anydom.Element): void {
       const element = verified(REFS.get(ref), isPresent);

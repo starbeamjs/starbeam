@@ -1,32 +1,30 @@
 import type {
-  CellCore,
+  CellTag,
   Description,
-  FormulaCore,
+  FormulaTag,
   Frame as IFrame,
   Timestamp,
 } from "@starbeam/interfaces";
-import { REACTIVE, UNINITIALIZED } from "@starbeam/shared";
+import { TAG, UNINITIALIZED } from "@starbeam/shared";
 import { isNotEqual, verified } from "@starbeam/verify";
 
 import type { FrameStack } from "./frames.js";
 import { getID } from "./id.js";
-import { SubscriptionTarget } from "./protocol.js";
+import { Tagged } from "./protocol.js";
 import type { Timeline } from "./timeline.js";
 import { getNow } from "./timestamp.js";
 
 interface Marker {
-  [REACTIVE]: Omit<CellCore, "lastUpdated"> & {
+  [TAG]: Omit<CellTag, "lastUpdated"> & {
     lastUpdated: Timestamp;
   };
 }
 
-export class Frame<T = unknown>
-  implements SubscriptionTarget<FormulaCore>, IFrame
-{
+export class Frame<T = unknown> implements Tagged<FormulaTag>, IFrame {
   static create<T>(
     this: void,
     value: T,
-    children: Set<SubscriptionTarget>,
+    children: Set<Tagged>,
     finalized: Timestamp,
     description: Description
   ): Frame<T> {
@@ -35,7 +33,7 @@ export class Frame<T = unknown>
     return new Frame(
       value,
       {
-        [REACTIVE]: {
+        [TAG]: {
           type: "mutable",
           lastUpdated: finalized,
           description: description
@@ -58,7 +56,7 @@ export class Frame<T = unknown>
     return new Frame<T>(
       UNINITIALIZED,
       {
-        [REACTIVE]: {
+        [TAG]: {
           type: "mutable",
           lastUpdated: finalized,
           description: description.detail("initialized?", { id }),
@@ -82,7 +80,7 @@ export class Frame<T = unknown>
     this: void,
     frame: Frame<T>,
     value: T,
-    children: Set<SubscriptionTarget>,
+    children: Set<Tagged>,
     finalized: Timestamp
   ): Frame<T> {
     return frame.#update(value, children, finalized);
@@ -91,25 +89,25 @@ export class Frame<T = unknown>
   static updateChildren<T>(
     this: void,
     frame: Frame<T>,
-    children: Set<SubscriptionTarget>
+    children: Set<Tagged>
   ): void {
     frame.#children = children;
   }
 
   #value: T | UNINITIALIZED;
   readonly #initialized: Marker;
-  #children: ReadonlySet<SubscriptionTarget>;
+  #children: ReadonlySet<Tagged>;
   #finalized: Timestamp;
   readonly #description: Description;
 
   constructor(
     value: T | UNINITIALIZED,
     initialized: {
-      [REACTIVE]: Omit<CellCore, "lastUpdated"> & {
+      [TAG]: Omit<CellTag, "lastUpdated"> & {
         lastUpdated: Timestamp;
       };
     },
-    children: Set<SubscriptionTarget>,
+    children: Set<Tagged>,
     finalized: Timestamp,
     description: Description
   ) {
@@ -120,11 +118,11 @@ export class Frame<T = unknown>
     this.#description = description;
   }
 
-  get [REACTIVE](): FormulaCore {
+  get [TAG](): FormulaTag {
     return {
-      type: "composite",
+      type: "formula",
       description: this.#description,
-      children: (): SubscriptionTarget[] => {
+      children: (): Tagged[] => {
         return [this.#initialized, ...this.#children];
       },
     };
@@ -149,13 +147,9 @@ export class Frame<T = unknown>
     }
   }
 
-  #update(
-    value: T,
-    children: Set<SubscriptionTarget>,
-    finalized: Timestamp
-  ): this {
+  #update(value: T, children: Set<Tagged>, finalized: Timestamp): this {
     if (Object.is(this.#value, UNINITIALIZED)) {
-      this.#initialized[REACTIVE].lastUpdated = finalized;
+      this.#initialized[TAG].lastUpdated = finalized;
     }
 
     this.#value = value;
@@ -167,7 +161,7 @@ export class Frame<T = unknown>
   validate(): FrameValidation<Exclude<T, UNINITIALIZED>> {
     if (
       this.#value === UNINITIALIZED ||
-      SubscriptionTarget.lastUpdatedIn([...this.#children]).gt(this.#finalized)
+      Tagged.lastUpdatedIn([...this.#children]).gt(this.#finalized)
     ) {
       return { status: "invalid" };
     } else {
@@ -190,12 +184,12 @@ export class ActiveFrame<T> {
 
   readonly #updating: Frame<T> | null;
   readonly #prev: ActiveFrame<unknown> | null;
-  readonly #children: Set<SubscriptionTarget>;
+  readonly #children: Set<Tagged>;
 
   private constructor(
     updating: Frame<T> | null,
     prev: ActiveFrame<T> | null,
-    children: Set<SubscriptionTarget>,
+    children: Set<Tagged>,
     readonly description: Description
   ) {
     this.#updating = updating;
@@ -203,7 +197,7 @@ export class ActiveFrame<T> {
     this.#children = children;
   }
 
-  add(child: SubscriptionTarget): void {
+  add(child: Tagged): void {
     this.#children.add(child);
   }
 

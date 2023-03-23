@@ -75,8 +75,6 @@
     "pnpm-lock.yaml": true
   },
 
-  "testing.automaticallyOpenPeekView": "never",
-
   "typescript.preferences.importModuleSpecifier": "project-relative",
   "typescript.preferences.importModuleSpecifierEnding": "auto",
   "typescript.tsdk": "node_modules/typescript/lib",

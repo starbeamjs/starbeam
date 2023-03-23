@@ -1,16 +1,11 @@
 import { callerStack, descriptionFrom } from "@starbeam/debug";
-import type { FormulaCore } from "@starbeam/interfaces";
-import {
-  REACTIVE,
-  SubscriptionTarget,
-  TIMELINE,
-  zero,
-} from "@starbeam/timeline";
+import type { FormulaTag } from "@starbeam/interfaces";
+import { TAG, Tagged, TIMELINE, zero } from "@starbeam/timeline";
 import { beforeAll, describe, expect, it } from "vitest";
 
 import { Cell, FreezableCell, Static } from "./support/mini-reactives.js";
 
-describe("SubscriptionTarget", () => {
+describe("Tagged", () => {
   beforeAll(() => {
     // make sure the timeline is not at 0, which would make a comparison with TIMELINE.now sometimes
     // equivalent to Timestamp.zero(), and we want to test the difference.
@@ -30,17 +25,15 @@ describe("SubscriptionTarget", () => {
     it("has the zero timestamp for lastUpdated", () => {
       const tom = Static("Tom Dale");
 
-      expect(String(SubscriptionTarget.lastUpdated(tom))).toBe(String(zero()));
-      expect(String(SubscriptionTarget.lastUpdatedIn([tom]))).toBe(
-        String(zero())
-      );
+      expect(String(Tagged.lastUpdated(tom))).toBe(String(zero()));
+      expect(String(Tagged.lastUpdatedIn([tom]))).toBe(String(zero()));
     });
 
     it("has no dependencies", () => {
       const tom = Static("Tom Dale");
 
-      expect([...SubscriptionTarget.dependencies(tom)]).toEqual([]);
-      expect([...SubscriptionTarget.dependenciesInList([tom])]).toEqual([]);
+      expect([...Tagged.dependencies(tom)]).toEqual([]);
+      expect([...Tagged.dependenciesInList([tom])]).toEqual([]);
     });
   });
 
@@ -48,16 +41,14 @@ describe("SubscriptionTarget", () => {
     it("has the current timestamp for lastUpdated", () => {
       const original = TIMELINE.now;
       const tom = Cell("Tom");
-      expect(String(SubscriptionTarget.lastUpdated(tom))).toBe(
-        String(TIMELINE.now)
-      );
+      expect(String(Tagged.lastUpdated(tom))).toBe(String(TIMELINE.now));
       const nullvox = Cell("nullvox");
       const nullvoxTimestamp = TIMELINE.now;
 
-      expect(String(SubscriptionTarget.lastUpdated(nullvox))).toBe(
+      expect(String(Tagged.lastUpdated(nullvox))).toBe(
         String(nullvoxTimestamp)
       );
-      expect(String(SubscriptionTarget.lastUpdatedIn([tom, nullvox]))).toBe(
+      expect(String(Tagged.lastUpdatedIn([tom, nullvox]))).toBe(
         String(TIMELINE.now)
       );
 
@@ -65,13 +56,11 @@ describe("SubscriptionTarget", () => {
 
       tom.current = "Tom Dale";
       expect(String(TIMELINE.now)).not.toBe(String(original));
-      expect(String(SubscriptionTarget.lastUpdated(tom))).toBe(
-        String(TIMELINE.now)
-      );
-      expect(String(SubscriptionTarget.lastUpdated(nullvox))).toBe(
+      expect(String(Tagged.lastUpdated(tom))).toBe(String(TIMELINE.now));
+      expect(String(Tagged.lastUpdated(nullvox))).toBe(
         String(nullvoxTimestamp)
       );
-      expect(String(SubscriptionTarget.lastUpdatedIn([tom, nullvox]))).toBe(
+      expect(String(Tagged.lastUpdatedIn([tom, nullvox]))).toBe(
         String(TIMELINE.now)
       );
     });
@@ -80,12 +69,11 @@ describe("SubscriptionTarget", () => {
       const tom = Cell("Tom");
       const nullvox = Cell("nullvox");
 
-      expect([...SubscriptionTarget.dependencies(tom)]).toEqual([
-        tom[REACTIVE],
+      expect([...Tagged.dependencies(tom)]).toEqual([tom[TAG]]);
+      expect([...Tagged.dependenciesInList([tom, nullvox])]).toEqual([
+        tom[TAG],
+        nullvox[TAG],
       ]);
-      expect([
-        ...SubscriptionTarget.dependenciesInList([tom, nullvox]),
-      ]).toEqual([tom[REACTIVE], nullvox[REACTIVE]]);
     });
 
     it("has no dependencies if it's frozen", () => {
@@ -95,10 +83,10 @@ describe("SubscriptionTarget", () => {
 
       nullvox.current = "@nullvoxpopuli";
 
-      expect([...SubscriptionTarget.dependencies(tom)]).toEqual([]);
-      expect([
-        ...SubscriptionTarget.dependenciesInList([tom, nullvox]),
-      ]).toEqual([nullvox[REACTIVE]]);
+      expect([...Tagged.dependencies(tom)]).toEqual([]);
+      expect([...Tagged.dependenciesInList([tom, nullvox])]).toEqual([
+        nullvox[TAG],
+      ]);
     });
   });
 
@@ -107,8 +95,8 @@ describe("SubscriptionTarget", () => {
       const tom = Cell("Tom");
       const nullvox = Cell("nullvox");
 
-      const composite: FormulaCore = {
-        type: "composite",
+      const composite: FormulaTag = {
+        type: "formula",
         description: descriptionFrom({
           type: "formula",
           api: "Composite",
@@ -118,24 +106,17 @@ describe("SubscriptionTarget", () => {
         },
       };
 
-      const Both: SubscriptionTarget = {
-        [REACTIVE]: composite,
+      const Both: Tagged = {
+        [TAG]: composite,
       };
 
-      expect(String(SubscriptionTarget.lastUpdated(Both))).toBe(
-        String(TIMELINE.now)
-      );
+      expect(String(Tagged.lastUpdated(Both))).toBe(String(TIMELINE.now));
 
-      expect([...SubscriptionTarget.dependencies(Both)]).toEqual([
-        tom[REACTIVE],
-        nullvox[REACTIVE],
-      ]);
+      expect([...Tagged.dependencies(Both)]).toEqual([tom[TAG], nullvox[TAG]]);
 
       tom.current = "Tom Dale";
 
-      expect(String(SubscriptionTarget.lastUpdated(Both))).toBe(
-        String(TIMELINE.now)
-      );
+      expect(String(Tagged.lastUpdated(Both))).toBe(String(TIMELINE.now));
     });
   });
 });

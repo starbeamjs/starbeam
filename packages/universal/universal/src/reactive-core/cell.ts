@@ -9,7 +9,7 @@ import {
 import type * as interfaces from "@starbeam/interfaces";
 import type { ReactiveValue } from "@starbeam/interfaces";
 import { UNINITIALIZED } from "@starbeam/shared";
-import { INSPECT, REACTIVE, TIMELINE } from "@starbeam/timeline";
+import { INSPECT, TAG, TIMELINE } from "@starbeam/timeline";
 
 import type { MutableInternalsImpl } from "../storage.js";
 import { MutableInternals } from "../storage.js";
@@ -21,7 +21,7 @@ export interface CellPolicy<T, U = T> {
 
 export type Equality<T> = (a: T, b: T) => boolean;
 
-export class ReactiveCell<T> implements ReactiveValue<T, interfaces.CellCore> {
+export class ReactiveCell<T> implements ReactiveValue<T, interfaces.CellTag> {
   static create<T>(
     value: T,
     internals: MutableInternalsImpl,
@@ -113,7 +113,7 @@ export class ReactiveCell<T> implements ReactiveValue<T, interfaces.CellCore> {
     return true;
   }
 
-  get [REACTIVE](): MutableInternals {
+  get [TAG](): MutableInternals {
     return this.#internals;
   }
 }

@@ -1,11 +1,11 @@
 import type { Description } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
-import type { SubscriptionTarget } from "@starbeam/timeline";
+import type { Tagged } from "@starbeam/timeline";
 import { TIMELINE, type Timestamp } from "@starbeam/timeline";
 
 export function StaticInternals(
   description: Description
-): interfaces.StaticCore {
+): interfaces.StaticTag {
   return {
     type: "static",
     description,
@@ -14,11 +14,11 @@ export function StaticInternals(
 
 export function CompositeInternals(
   this: void,
-  children: SubscriptionTarget[],
+  children: Tagged[],
   description: Description
-): interfaces.FormulaCore {
+): interfaces.FormulaTag {
   return {
-    type: "composite",
+    type: "formula",
     description,
     children: () => {
       return children;
@@ -28,9 +28,9 @@ export function CompositeInternals(
 
 export function DelegateInternals(
   this: void,
-  delegate: readonly SubscriptionTarget[],
+  delegate: readonly Tagged[],
   description: Description
-): interfaces.DelegateCore {
+): interfaces.DelegateTag {
   return {
     type: "delegate",
     description,
@@ -38,7 +38,7 @@ export function DelegateInternals(
   };
 }
 
-export class MutableInternalsImpl implements interfaces.CellCore {
+export class MutableInternalsImpl implements interfaces.CellTag {
   #frozen = false;
   #lastUpdated: Timestamp = TIMELINE.now;
   readonly type = "mutable";
@@ -73,4 +73,4 @@ export function MutableInternals(
   return new MutableInternalsImpl(description);
 }
 
-export type MutableInternals = interfaces.CellCore;
+export type MutableInternals = interfaces.CellTag;

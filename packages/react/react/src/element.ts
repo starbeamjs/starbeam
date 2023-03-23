@@ -1,7 +1,7 @@
 import type { browser } from "@domtree/flavors";
 import { type DebugListener, Desc, type Description } from "@starbeam/debug";
 import type { Reactive } from "@starbeam/interfaces";
-import type { SubscriptionTarget } from "@starbeam/timeline";
+import type { Tagged } from "@starbeam/timeline";
 import {
   type CleanupTarget,
   LIFETIME,
@@ -128,7 +128,7 @@ class Refs {
 
 export type DebugLifecycle = (
   listener: DebugListener,
-  reactive: SubscriptionTarget
+  reactive: Tagged
 ) => () => void;
 
 /**
@@ -203,7 +203,7 @@ export class ReactiveElement implements CleanupTarget {
 
   static subscribe(
     element: ReactiveElement,
-    reactive: SubscriptionTarget
+    reactive: Tagged
   ): void {
     const subscription = TIMELINE.on.change(reactive, element.notify);
     element.on.cleanup(subscription);

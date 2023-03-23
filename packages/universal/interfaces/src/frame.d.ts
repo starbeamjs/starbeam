@@ -1,7 +1,7 @@
 import type { UNINITIALIZED } from "@starbeam/shared";
 
 import type { Description } from "./description.js";
-import type { FormulaCore, SubscriptionTarget } from "./protocol.js";
+import type { FormulaTag, Tagged } from "./protocol.js";
 
 export interface ValidFrame<T> {
   readonly status: "valid";
@@ -15,7 +15,7 @@ export interface InvalidFrame {
 export type FrameValidation<T> = ValidFrame<T> | InvalidFrame;
 
 export interface Frame<_T = unknown>
-  extends SubscriptionTarget<FormulaCore> {
+  extends Tagged<FormulaTag> {
   readonly description: Description;
 
   validate: () => FrameValidation<Exclude<_T, UNINITIALIZED>>;

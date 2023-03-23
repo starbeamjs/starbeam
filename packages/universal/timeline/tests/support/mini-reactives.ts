@@ -5,12 +5,12 @@ import {
   type Stack,
 } from "@starbeam/debug";
 import type {
-  CellCore,
+  CellTag,
   ReactiveCell,
   ReactiveValue,
 } from "@starbeam/interfaces";
-import { REACTIVE, type UNINITIALIZED } from "@starbeam/shared";
-import { type SubscriptionTarget } from "@starbeam/timeline";
+import { TAG, type UNINITIALIZED } from "@starbeam/shared";
+import { type Tagged } from "@starbeam/timeline";
 import { diff, Frame, TIMELINE, type Timestamp } from "@starbeam/timeline";
 
 export interface FreezableCell<T> extends ReactiveCell<T> {
@@ -20,13 +20,13 @@ export interface FreezableCell<T> extends ReactiveCell<T> {
 export type Cell<T> = ReactiveCell<T>;
 
 class CellImpl<T> implements ReactiveCell<T> {
-  readonly [REACTIVE]: CellCore;
+  readonly [TAG]: CellTag;
   #value: T;
   #lastUpdated: Timestamp;
   constructor(value: T, timestamp: Timestamp) {
     const lastUpdated = (): Timestamp => this.#lastUpdated;
 
-    this[REACTIVE] = {
+    this[TAG] = {
       type: "mutable",
       description: Desc("cell"),
       get lastUpdated(): Timestamp {
@@ -47,7 +47,7 @@ class CellImpl<T> implements ReactiveCell<T> {
   set current(newValue: T) {
     this.#value = newValue;
 
-    this.#lastUpdated = TIMELINE.bump(this[REACTIVE], callerStack());
+    this.#lastUpdated = TIMELINE.bump(this[TAG], callerStack());
   }
 }
 
@@ -56,14 +56,14 @@ export function Cell<T>(value: T): CellImpl<T> {
 }
 
 class FreezableCellImpl<T> implements ReactiveCell<T> {
-  readonly [REACTIVE]: CellCore;
+  readonly [TAG]: CellTag;
   #isFrozen = false;
   #value: T;
   #lastUpdated: Timestamp;
   constructor(value: T, timestamp: Timestamp) {
     const lastUpdated = (): Timestamp => this.#lastUpdated;
 
-    this[REACTIVE] = {
+    this[TAG] = {
       type: "mutable",
       description: Desc("cell"),
       get lastUpdated(): Timestamp {
@@ -85,7 +85,7 @@ class FreezableCellImpl<T> implements ReactiveCell<T> {
   set current(newValue: T) {
     this.#value = newValue;
 
-    this.#lastUpdated = TIMELINE.bump(this[REACTIVE], callerStack());
+    this.#lastUpdated = TIMELINE.bump(this[TAG], callerStack());
   }
 
   freeze(): void {
@@ -99,7 +99,7 @@ export function FreezableCell<T>(value: T): FreezableCellImpl<T> {
 
 export function Static<T>(value: T): ReactiveValue<T> {
   return {
-    [REACTIVE]: {
+    [TAG]: {
       type: "static",
       description: descriptionFrom({
         api: "Static",
@@ -146,11 +146,11 @@ export function Formula<T>(computation: () => T): {
 }
 
 export function Marker(): {
-  instance: SubscriptionTarget<CellCore>;
+  instance: Tagged<CellTag>;
   update: () => void;
 } {
   let lastUpdated = TIMELINE.next();
-  const internals: CellCore = {
+  const internals: CellTag = {
     type: "mutable",
     description: descriptionFrom({
       type: "cell",
@@ -163,7 +163,7 @@ export function Marker(): {
 
   return {
     instance: {
-      [REACTIVE]: internals,
+      [TAG]: internals,
     },
     update: () => {
       lastUpdated = TIMELINE.bump(internals, callerStack());

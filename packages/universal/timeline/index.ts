@@ -19,8 +19,8 @@ export {
 } from "./src/timeline/frame.js";
 export {
   Reactive,
-  ReactiveCore as ReactiveInternals,
-  SubscriptionTarget,
+  Tag as ReactiveInternals,
+  Tagged as Tagged,
 } from "./src/timeline/protocol.js";
 export {
   type NotifyReady,
@@ -29,7 +29,7 @@ export {
 export { INSPECT } from "./src/timeline/timestamp.js";
 export { max, getNow as now, zero } from "./src/timeline/timestamp.js";
 export { diff } from "./src/timeline/utils.js";
-export { REACTIVE } from "@starbeam/shared";
+export { TAG } from "@starbeam/shared";
 
 import type * as interfaces from "@starbeam/interfaces";
 

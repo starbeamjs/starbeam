@@ -1,11 +1,11 @@
 import type { Stack } from "@starbeam/debug";
 import { DebugTimeline } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
-import type { CellCore } from "@starbeam/interfaces";
+import type { CellTag } from "@starbeam/interfaces";
 
 import type { Unsubscribe } from "../lifetime/object-lifetime.js";
 import { FrameStack } from "./frames.js";
-import { SubscriptionTarget } from "./protocol.js";
+import { Tagged } from "./protocol.js";
 import { type NotifyReady, Subscriptions } from "./subscriptions.js";
 import { getNow, NOW } from "./timestamp.js";
 
@@ -42,7 +42,7 @@ export class Timeline {
   readonly #frame: FrameStack;
 
   on = {
-    change: (target: SubscriptionTarget, ready: NotifyReady): Unsubscribe => {
+    change: (target: Tagged, ready: NotifyReady): Unsubscribe => {
       return this.#subscriptions.register(target, ready);
     },
   } as const;
@@ -51,9 +51,7 @@ export class Timeline {
    * Dynamic assertions that are used in development mode to detect reads that occur outside of a
    * tracking frame, but which are used to produce rendered outputs.
    */
-  #readAssertions = new Set<
-    (reactive: SubscriptionTarget, caller: Stack) => void
-  >();
+  #readAssertions = new Set<(reactive: Tagged, caller: Stack) => void>();
 
   readonly #subscriptions: Subscriptions;
   #lastOp: TimelineOp;
@@ -64,7 +62,7 @@ export class Timeline {
    * produce rendered content.
    */
   declare untrackedReadBarrier: (
-    assertion: (reactive: SubscriptionTarget, caller: Stack) => void
+    assertion: (reactive: Tagged, caller: Stack) => void
   ) => void;
 
   static create(): Timeline {
@@ -78,7 +76,7 @@ export class Timeline {
 
     if (import.meta.env.DEV) {
       this.untrackedReadBarrier = (
-        assertion: (reactive: SubscriptionTarget, caller: Stack) => void
+        assertion: (reactive: Tagged, caller: Stack) => void
       ): void => {
         this.#readAssertions.add(assertion);
       };
@@ -87,10 +85,7 @@ export class Timeline {
 
   get #debug(): DebugTimeline {
     if (!this.#debugTimeline) {
-      this.#debugTimeline = DebugTimeline.create(
-        { now: getNow },
-        SubscriptionTarget
-      );
+      this.#debugTimeline = DebugTimeline.create({ now: getNow }, Tagged);
     }
 
     return this.#debugTimeline;
@@ -124,7 +119,7 @@ export class Timeline {
     }
   }
 
-  bump(mutable: interfaces.CellCore, caller: Stack): interfaces.Timestamp {
+  bump(mutable: interfaces.CellTag, caller: Stack): interfaces.Timestamp {
     const now = this.#adjustTimestamp("bumped");
 
     if (import.meta.env.DEV) {
@@ -135,14 +130,14 @@ export class Timeline {
     return now;
   }
 
-  didConsumeCell(cell: SubscriptionTarget<CellCore>, caller: Stack): void {
+  didConsumeCell(cell: Tagged<CellTag>, caller: Stack): void {
     this.#adjustTimestamp("consumed");
     FrameStack.didConsumeCell(this.#frame, cell, caller);
   }
 
   didConsumeFrame(
     frame: interfaces.Frame,
-    diff: interfaces.Diff<interfaces.CellCore>,
+    diff: interfaces.Diff<interfaces.CellTag>,
     caller: Stack
   ): void {
     this.#adjustTimestamp("consumed");
@@ -164,9 +159,7 @@ export class Timeline {
    * For example, Formulas call this method after recomputing their value, which results in a
    * possible change to their dependencies.
    */
-  update(
-    reactive: interfaces.SubscriptionTarget<interfaces.FormulaCore>
-  ): void {
+  update(reactive: interfaces.Tagged<interfaces.FormulaTag>): void {
     this.#subscriptions.update(reactive);
   }
 
@@ -185,7 +178,7 @@ export class Timeline {
   /// DEBUG MODE ///
 
   /** @internal */
-  untrackedRead(cell: SubscriptionTarget<CellCore>, caller: Stack): void {
+  untrackedRead(cell: Tagged<CellTag>, caller: Stack): void {
     for (const assertion of this.#readAssertions) {
       assertion(cell, caller);
     }

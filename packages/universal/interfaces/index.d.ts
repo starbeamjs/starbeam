@@ -25,16 +25,17 @@ export type {
   ValidFrame,
 } from "./src/frame.js";
 export type {
-  CellCore,
-  DelegateCore,
-  FormulaCore,
+  CellTag,
+  DelegateTag,
+  FormulaTag,
   Reactive,
   ReactiveCell,
-  ReactiveCore,
   ReactiveId,
   ReactiveValue,
-  StaticCore,
-  SubscriptionTarget,
+  StaticTag,
+  Tag,
+  Tagged,
+  TagType,
 } from "./src/protocol.js";
 export type {
   DisplayParts,

@@ -1,10 +1,10 @@
 import type { DebugTimeline, Stack } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
-import type { CellCore } from "@starbeam/interfaces";
-import { REACTIVE } from "@starbeam/shared";
+import type { CellTag } from "@starbeam/interfaces";
+import { TAG } from "@starbeam/shared";
 
 import { ActiveFrame, type Frame } from "./frame.js";
-import { SubscriptionTarget } from "./protocol.js";
+import { Tagged } from "./protocol.js";
 import type { Subscriptions } from "./subscriptions.js";
 import type { Timeline } from "./timeline.js";
 
@@ -15,17 +15,17 @@ export class FrameStack {
 
   static didConsumeCell(
     frames: FrameStack,
-    reactive: SubscriptionTarget<CellCore>,
+    reactive: Tagged<CellTag>,
     caller: Stack
   ): void {
-    frames.#debug.consumeCell(reactive[REACTIVE], caller);
+    frames.#debug.consumeCell(reactive[TAG], caller);
     frames.#didConsumeReactive(reactive, caller);
   }
 
   static didConsumeFrame(
     frames: FrameStack,
     frame: interfaces.Frame,
-    diff: interfaces.Diff<interfaces.CellCore>,
+    diff: interfaces.Diff<interfaces.CellTag>,
     caller: Stack
   ): void {
     frames.#debug.consumeFrame(frame, diff, caller);
@@ -90,18 +90,18 @@ export class FrameStack {
     return this.#start(description) as ActiveFrame<T>;
   }
 
-  #didConsumeReactive(reactive: SubscriptionTarget, caller: Stack): void {
+  #didConsumeReactive(reactive: Tagged, caller: Stack): void {
     const frame = this.currentFrame;
     if (frame) {
       frame.add(reactive);
       return;
     } else {
-      const delegatesTo = SubscriptionTarget.subscriptionTargets(
-        reactive
-      ).filter((r) => SubscriptionTarget.is(r, "mutable"));
+      const delegatesTo = Tagged.subscriptionTargets(reactive).filter((r) =>
+        Tagged.is(r, "mutable")
+      );
 
       for (const target of delegatesTo) {
-        if (SubscriptionTarget.is(target, "mutable")) {
+        if (Tagged.is(target, "mutable")) {
           this.#timeline.untrackedRead(target, caller);
         }
       }

@@ -1,4 +1,4 @@
-import type { REACTIVE } from "@starbeam/shared";
+import type { TAG } from "@starbeam/shared";
 
 import type { Description } from "./description.js";
 import type { Stack } from "./stack.js";
@@ -6,7 +6,7 @@ import type { Timestamp } from "./timestamp.js";
 
 export type ReactiveId = number | string | ReactiveId[];
 
-interface Core {
+interface AbstractTag {
   readonly type: string;
   readonly description: Description;
 }
@@ -15,7 +15,7 @@ interface Core {
  * Cell is the fundamental mutable reactive value. All subscriptions in Starbeam are ultimately
  * subscriptions to cells, and all mutations in Starbeam are ultimately mutations to cells.
  */
-export interface CellCore extends Core {
+export interface CellTag extends AbstractTag {
   readonly type: "mutable";
   readonly lastUpdated: Timestamp;
   isFrozen?: () => boolean;
@@ -33,9 +33,9 @@ export interface CellCore extends Core {
  * notified of a change to the composite's children, it removes subscriptions from any stale
  * dependencies and adds subscriptions to any new dependencies.
  */
-export interface FormulaCore extends Core {
-  readonly type: "composite";
-  children: () => SubscriptionTarget[];
+export interface FormulaTag extends AbstractTag {
+  readonly type: "formula";
+  children: () => Tagged[];
 }
 
 /**
@@ -47,9 +47,9 @@ export interface FormulaCore extends Core {
  * targets. This means that delegates don't need to know when their value changes, and don't need to
  * notify the timeline when their targets change.
  */
-export interface DelegateCore extends Core {
+export interface DelegateTag extends AbstractTag {
   readonly type: "delegate";
-  readonly targets: readonly SubscriptionTarget[];
+  readonly targets: readonly Tagged[];
 }
 
 /**
@@ -64,20 +64,19 @@ export interface DelegateCore extends Core {
  * TODO: Do we need a separate fundamental type for pollable formulas, which can get new
  * dependencies even if they never invalidate?
  */
-export interface StaticCore extends Core {
+export interface StaticTag extends AbstractTag {
   readonly type: "static";
 }
 
-export type ReactiveCore = CellCore | FormulaCore | DelegateCore | StaticCore;
+export type Tag = CellTag | FormulaTag | DelegateTag | StaticTag;
+export type TagType = Tag["type"];
 
-export interface SubscriptionTarget<I extends ReactiveCore = ReactiveCore> {
-  [REACTIVE]: I;
+export interface Tagged<I extends Tag = Tag> {
+  [TAG]: I;
 }
 
-export interface ReactiveValue<
-  T = unknown,
-  I extends ReactiveCore = ReactiveCore
-> extends SubscriptionTarget<I> {
+export interface ReactiveValue<T = unknown, I extends Tag = Tag>
+  extends Tagged<I> {
   read: (stack?: Stack) => T;
 }
 
@@ -85,6 +84,6 @@ export interface Reactive<T> extends ReactiveValue<T> {
   readonly current: T;
 }
 
-export interface ReactiveCell<T> extends Reactive<T, CellCore> {
+export interface ReactiveCell<T> extends Reactive<T, CellTag> {
   current: T;
 }

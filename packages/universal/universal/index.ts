@@ -55,4 +55,4 @@ export {
   Variants,
   type VariantType,
 } from "./src/reactive-core/variants.js";
-export { LIFETIME, REACTIVE, TIMELINE } from "@starbeam/timeline";
+export { LIFETIME, TAG, TIMELINE } from "@starbeam/timeline";

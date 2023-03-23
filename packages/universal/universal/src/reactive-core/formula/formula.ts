@@ -5,8 +5,8 @@ import {
 } from "@starbeam/debug";
 import type { Reactive, Stack } from "@starbeam/interfaces";
 import type { UNINITIALIZED } from "@starbeam/shared";
-import { SubscriptionTarget } from "@starbeam/timeline";
-import { diff, Frame, REACTIVE, TIMELINE } from "@starbeam/timeline";
+import { Tagged } from "@starbeam/timeline";
+import { diff, Frame, TAG, TIMELINE } from "@starbeam/timeline";
 
 export interface FormulaValidation<T> {
   frame: Frame<T | UNINITIALIZED>;
@@ -30,13 +30,13 @@ export function FormulaValidation<T>(
 
   const update = (caller: Stack): void => {
     if (import.meta.env.DEV) {
-      const oldDeps = new Set(SubscriptionTarget.dependencies(frame));
+      const oldDeps = new Set(Tagged.dependencies(frame));
 
       frame.evaluate(callback, TIMELINE.frame);
 
       TIMELINE.update(frame);
 
-      const newDeps = new Set(SubscriptionTarget.dependencies(frame));
+      const newDeps = new Set(Tagged.dependencies(frame));
 
       TIMELINE.didConsumeFrame(frame, diff(oldDeps, newDeps), caller);
     } else {
@@ -97,7 +97,7 @@ export function Formula<T>(
     get: fn,
   });
 
-  Object.defineProperty(fn, REACTIVE, {
+  Object.defineProperty(fn, TAG, {
     enumerable: false,
     configurable: true,
     writable: true,

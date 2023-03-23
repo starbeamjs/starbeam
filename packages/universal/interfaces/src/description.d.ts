@@ -6,7 +6,7 @@ export interface DescriptionArgs {
    * An identifier for this description that is stable for the value that this description
    * describes.
    *
-   * For example, a `Cell` is allowed to return a new description each time its `[REACTIVE]` symbol
+   * For example, a `Cell` is allowed to return a new description each time its `[TAG]` symbol
    * is read, but the description must have the same `id` each time.
    */
   readonly id?: ReactiveId | undefined;

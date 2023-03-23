@@ -1,25 +1,25 @@
 import type {
-  CellCore,
+  CellTag,
   Diff,
-  FormulaCore,
+  FormulaTag,
   Frame,
-  ReactiveCore,
   Stack,
-  SubscriptionTarget,
+  Tagged,
+  Tag,
   Timestamp,
 } from "@starbeam/interfaces";
-import { REACTIVE } from "@starbeam/shared";
+import { TAG } from "@starbeam/shared";
 import { exhaustive } from "@starbeam/verify";
 
 interface SubscriptionTargetStatics {
-  dependencies: (reactive: SubscriptionTarget) => Iterable<CellCore>;
+  dependencies: (reactive: Tagged) => Iterable<CellTag>;
 }
 
-function reactiveInternals(reactive: SubscriptionTarget): ReactiveCore {
-  return reactive[REACTIVE];
+function reactiveInternals(reactive: Tagged): Tag {
+  return reactive[TAG];
 }
 
-interface OperationInfo<I extends ReactiveCore> {
+interface OperationInfo<I extends Tag> {
   readonly at: Timestamp;
   readonly for: I;
   readonly caller: Stack;
@@ -30,7 +30,7 @@ export type DebugOperationOptions =
   | CellUpdateOperation
   | FrameConsumeOperation;
 
-export class LeafOperation<I extends ReactiveCore> {
+export class LeafOperation<I extends Tag> {
   #data: OperationInfo<I>;
 
   constructor(data: OperationInfo<I>) {
@@ -50,21 +50,21 @@ export class LeafOperation<I extends ReactiveCore> {
   }
 }
 
-export class CellConsumeOperation extends LeafOperation<CellCore> {
+export class CellConsumeOperation extends LeafOperation<CellTag> {
   readonly type = "cell:consume";
 }
 
-export class CellUpdateOperation extends LeafOperation<CellCore> {
+export class CellUpdateOperation extends LeafOperation<CellTag> {
   readonly type = "cell:update";
 }
 
-interface FrameConsumeInfo extends OperationInfo<FormulaCore> {
-  readonly diff: Diff<CellCore>;
+interface FrameConsumeInfo extends OperationInfo<FormulaTag> {
+  readonly diff: Diff<CellTag>;
   readonly frame: Frame;
 }
 
-export class FrameConsumeOperation extends LeafOperation<FormulaCore> {
-  readonly #diff: Diff<CellCore>;
+export class FrameConsumeOperation extends LeafOperation<FormulaTag> {
+  readonly #diff: Diff<CellTag>;
   readonly #frame: Frame;
   readonly type = "frame:consume";
 
@@ -74,7 +74,7 @@ export class FrameConsumeOperation extends LeafOperation<FormulaCore> {
     this.#frame = data.frame;
   }
 
-  get diff(): Diff<CellCore> {
+  get diff(): Diff<CellTag> {
     return this.#diff;
   }
 
@@ -86,7 +86,7 @@ export class MutationLog {
   readonly type = "mutation";
   // This makes `DebugOperation.for` ==== `ReactiveInternals | undefined`, which makes it possible
   // to easily compare the `for` value without a lot of extra type shenanigans.
-  readonly for: ReactiveCore | undefined = undefined;
+  readonly for: Tag | undefined = undefined;
 
   readonly #at: Timestamp;
   #description: string;
@@ -116,13 +116,13 @@ export type DebugOperation =
 
 export interface Flush {
   readonly history: DebugOperation[];
-  for: (reactive: SubscriptionTarget) => readonly DebugOperation[];
+  for: (reactive: Tagged) => readonly DebugOperation[];
 }
 
 export type DebugListener = InstanceType<typeof DebugTimeline.DebugListener>;
 
 export type DebugFilter =
-  | { type: "by-reactive"; reactive: SubscriptionTarget }
+  | { type: "by-reactive"; reactive: Tagged }
   | { type: "all" }
   | { type: "none" };
 
@@ -170,7 +170,7 @@ export class DebugTimeline {
   static Flush = class Flush {
     constructor(readonly history: DebugOperation[]) {}
 
-    for(reactive: SubscriptionTarget): DebugOperation[] {
+    for(reactive: Tagged): DebugOperation[] {
       const internals = reactiveInternals(reactive);
       return this.history.filter((item) => item.for === internals);
     }
@@ -296,7 +296,7 @@ export class DebugTimeline {
     }
   }
 
-  #consumeCell(cell: CellCore, caller: Stack): void {
+  #consumeCell(cell: CellTag, caller: Stack): void {
     this.#add(
       new CellConsumeOperation({
         at: this.#timestamp.now(),
@@ -306,15 +306,15 @@ export class DebugTimeline {
     );
   }
 
-  consumeCell(internals: CellCore, caller: Stack): void {
+  consumeCell(internals: CellTag, caller: Stack): void {
     this.#consumeCell(internals, caller);
   }
 
-  consumeFrame(frame: Frame, diff: Diff<CellCore>, caller: Stack): void {
+  consumeFrame(frame: Frame, diff: Diff<CellTag>, caller: Stack): void {
     this.#consumeFrame(frame, diff, caller);
   }
 
-  updateCell(cell: CellCore, caller: Stack): void {
+  updateCell(cell: CellTag, caller: Stack): void {
     this.#add(
       new CellUpdateOperation({
         at: this.#timestamp.now(),
@@ -324,11 +324,11 @@ export class DebugTimeline {
     );
   }
 
-  #consumeFrame(frame: Frame, diff: Diff<CellCore>, caller: Stack): void {
+  #consumeFrame(frame: Frame, diff: Diff<CellTag>, caller: Stack): void {
     this.#add(
       new FrameConsumeOperation({
         at: this.#timestamp.now(),
-        for: frame[REACTIVE],
+        for: frame[TAG],
         diff,
         caller,
         frame,

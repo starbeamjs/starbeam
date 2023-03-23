@@ -1,4 +1,4 @@
-import { SubscriptionTarget } from "@starbeam/timeline";
+import { Tagged } from "@starbeam/timeline";
 import { Formula, TIMELINE, Variants } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 
@@ -195,7 +195,7 @@ describe("Variants", () => {
 // eslint-disable-next-line @typescript-eslint/no-inferrable-types
 const debug: boolean = false;
 
-function Stability(reactive: SubscriptionTarget): {
+function Stability(reactive: Tagged): {
   readonly changed: boolean;
 } {
   let changed = false;
@@ -203,7 +203,7 @@ function Stability(reactive: SubscriptionTarget): {
   TIMELINE.on.change(reactive, (internals) => {
     if (debug) {
       console.group(
-        SubscriptionTarget.description(reactive).describe(),
+        Tagged.description(reactive).describe(),
         "invalidated by"
       );
       console.log(internals.description.describe());

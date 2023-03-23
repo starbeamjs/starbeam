@@ -8,8 +8,8 @@ import type { UNINITIALIZED } from "@starbeam/shared";
 import {
   diff,
   Frame,
-  REACTIVE,
-  SubscriptionTarget,
+  TAG,
+  Tagged,
   TIMELINE,
 } from "@starbeam/timeline";
 
@@ -48,12 +48,12 @@ export function PolledFormulaValidation<T>(
 
   const update = (caller: Stack = callerStack()): void => {
     if (import.meta.env.DEV) {
-      const oldDeps = new Set(SubscriptionTarget.dependencies(frame));
+      const oldDeps = new Set(Tagged.dependencies(frame));
 
       frame.evaluate(callback, TIMELINE.frame);
       TIMELINE.update(frame);
 
-      const newDeps = new Set(SubscriptionTarget.dependencies(frame));
+      const newDeps = new Set(Tagged.dependencies(frame));
 
       TIMELINE.didConsumeFrame(frame, diff(oldDeps, newDeps), caller);
     } else {
@@ -103,7 +103,7 @@ export function PolledFormula<T>(
     get: fn,
   });
 
-  Object.defineProperty(fn, REACTIVE, {
+  Object.defineProperty(fn, TAG, {
     enumerable: false,
     configurable: true,
     writable: true,
