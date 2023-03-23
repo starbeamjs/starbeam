@@ -1,6 +1,7 @@
 import { isPresentArray } from "@starbeam/core-utils";
-import { descriptionFrom } from "@starbeam/debug";
+import { Desc, descriptionFrom } from "@starbeam/debug";
 import type { ReactiveValue } from "@starbeam/interfaces";
+import { DelegateTag } from "@starbeam/tags";
 import { Frame, TAG, TIMELINE } from "@starbeam/timeline";
 import { describe, expect, test } from "vitest";
 
@@ -62,14 +63,7 @@ describe("pollable", () => {
 
     const delegate: ReactiveValue<number> = {
       read: () => cell.current,
-      [TAG]: {
-        type: "delegate",
-        description: descriptionFrom({
-          type: "delegate",
-          api: "delegate",
-        }),
-        targets: [cell],
-      },
+      [TAG]: DelegateTag.create(Desc("delegate"), [cell]),
     };
 
     let stale = false;
@@ -93,14 +87,7 @@ describe("pollable", () => {
 
     const delegate: ReactiveValue<number> = {
       read: () => sum.read(),
-      [TAG]: {
-        type: "delegate",
-        description: descriptionFrom({
-          type: "delegate",
-          api: "delegate",
-        }),
-        targets: [sum],
-      },
+      [TAG]: DelegateTag.create(Desc("delegate"), [sum]),
     };
 
     let stale = false;
@@ -160,14 +147,7 @@ function Sum(): {
         )
       );
     },
-    [TAG]: {
-      type: "delegate",
-      description: descriptionFrom({
-        type: "delegate",
-        api: "delegate",
-      }),
-      targets: [frame],
-    },
+    [TAG]: DelegateTag.create(Desc("delegate"), [frame]),
   };
 
   return { sum, numbers };

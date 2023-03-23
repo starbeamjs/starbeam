@@ -5,12 +5,12 @@ import {
   descriptionFrom,
   DisplayStruct,
 } from "@starbeam/debug";
-import type { FormulaTag } from "@starbeam/interfaces";
 import { UNINITIALIZED } from "@starbeam/shared";
+import { FormulaTag } from "@starbeam/tags";
+import { DelegateTag } from "@starbeam/tags";
 import type { Tagged } from "@starbeam/timeline";
 import { TAG, TIMELINE } from "@starbeam/timeline";
 
-import { CompositeInternals } from "../storage.js";
 import { Cell } from "./cell.js";
 import { Marker } from "./marker.js";
 
@@ -117,7 +117,7 @@ export class VariantGroup {
   }
 }
 
-export class Variant<T> implements Tagged<FormulaTag> {
+export class Variant<T> implements Tagged<DelegateTag> {
   static selected<T>(
     type: string,
     typeMarker: Marker,
@@ -140,11 +140,11 @@ export class Variant<T> implements Tagged<FormulaTag> {
       localTypeMarker,
       val,
       { value },
-      CompositeInternals(
-        [val, localTypeMarker],
+      DelegateTag.create(
         description.implementation("selected", {
           reason: `selected`,
-        })
+        }),
+        [val, localTypeMarker]
       )
     );
   }
@@ -167,9 +167,9 @@ export class Variant<T> implements Tagged<FormulaTag> {
       val,
       { value: UNINITIALIZED },
 
-      CompositeInternals(
-        [val, localTypeMarker],
-        description.implementation("selected", { reason: "selected" })
+      DelegateTag.create(
+        description.implementation("selected", { reason: "selected" }),
+        [val, localTypeMarker]
       )
     ) as Variant<T>;
   }
@@ -209,7 +209,7 @@ export class Variant<T> implements Tagged<FormulaTag> {
     value: T | UNINITIALIZED;
   };
   readonly #value: Cell<T | UNINITIALIZED>;
-  readonly [TAG]: FormulaTag;
+  readonly [TAG]: DelegateTag;
 
   private constructor(
     type: string,
@@ -217,7 +217,7 @@ export class Variant<T> implements Tagged<FormulaTag> {
     localTypeMarker: Marker,
     value: Cell<T | UNINITIALIZED>,
     debug: { value: T | UNINITIALIZED },
-    reactive: FormulaTag
+    reactive: DelegateTag
   ) {
     this.#type = type;
     this.#sharedTypeMarker = sharedTypeMarker;
@@ -288,8 +288,7 @@ export interface ReadonlyVariants<V extends VariantType, K extends keyof V> {
   ) => this is Omit<this, "current"> & ReadonlyVariants<V, T>;
 }
 
-export interface Variants<V extends VariantType, Narrow = V>
-  extends Tagged {
+export interface Variants<V extends VariantType, Narrow = V> extends Tagged {
   current: {
     [K in keyof Narrow]: K extends string
       ? Narrow[K] extends []
@@ -346,6 +345,7 @@ class VariantsImpl implements Tagged<FormulaTag> {
   readonly #typeMarker: Marker;
   readonly #groups: VariantGroups;
   readonly #description: Description;
+  readonly [TAG]: FormulaTag;
   #current: Variant<unknown>;
 
   private constructor(
@@ -359,11 +359,12 @@ class VariantsImpl implements Tagged<FormulaTag> {
     this.#groups = VariantGroups.empty(description);
     this.#description = description;
     this.#current = current;
+    this[TAG] = FormulaTag.create(description, () => [this.#current]);
   }
 
-  get [TAG](): FormulaTag {
-    return CompositeInternals([this.#current], this.#description);
-  }
+  // get [TAG](): FormulaTag {
+  //   return CompositeInternals([this.#current], this.#description);
+  // }
 
   get current(): Variant<unknown> {
     return this.#current;

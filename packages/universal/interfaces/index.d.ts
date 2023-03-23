@@ -25,9 +25,14 @@ export type {
   ValidFrame,
 } from "./src/frame.js";
 export type {
+  AbstractTag,
   CellTag,
+  DefaultMatcher,
   DelegateTag,
+  ExhaustiveMatcher,
   FormulaTag,
+  List,
+  Matcher,
   Reactive,
   ReactiveCell,
   ReactiveId,
@@ -35,7 +40,9 @@ export type {
   StaticTag,
   Tag,
   Tagged,
+  TagMethods,
   TagType,
+  UpdateOptions,
 } from "./src/protocol.js";
 export type {
   DisplayParts,

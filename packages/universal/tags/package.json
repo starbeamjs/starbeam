@@ -1,12 +1,6 @@
 {
-  "name": "@starbeam/timeline",
-  "version": "0.8.9",
-  "type": "module",
-  "main": "index.ts",
+  "name": "@starbeam/tags",
   "types": "index.ts",
-  "exports": {
-    "default": "./index.ts"
-  },
   "publishConfig": {
     "exports": {
       ".": {
@@ -20,17 +14,12 @@
   },
   "starbeam:type": "library:public",
   "scripts": {
-    "test:lint": "eslint",
-    "test:specs": "vitest --run",
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "@starbeam/core-utils": "workspace:^",
     "@starbeam/debug": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
-    "@starbeam/shared": "workspace:^",
-    "@starbeam/tags": "workspace:^",
-    "@starbeam/verify": "workspace:^"
+    "@starbeam/shared": "workspace:^"
   },
   "devDependencies": {
     "@starbeam-dev/build-support": "workspace:*"

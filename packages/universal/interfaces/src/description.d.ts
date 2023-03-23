@@ -52,6 +52,12 @@ export interface Description extends DescriptionArgs {
   readonly userFacing: Description;
   readonly parts: DescriptionParts;
 
+  // TODO: Figure out how to reliably infer this in debug builds. Since people
+  // use a lot of different dev-time tools, it we may need to insert the
+  // information when we build the debug builds (it may not be possible to infer
+  // it from stack traces reliably).formula
+  forApi: (api: string | ApiDetails) => Description;
+
   method: (
     id: ReactiveId | symbol,
     name: string,

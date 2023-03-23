@@ -1,13 +1,13 @@
 import type { Stack } from "@starbeam/debug";
 import { DebugTimeline } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
-import type { CellTag } from "@starbeam/interfaces";
+import type { CellTag, Tagged } from "@starbeam/interfaces";
+import { getNow, NOW } from "@starbeam/tags";
 
 import type { Unsubscribe } from "../lifetime/object-lifetime.js";
+import { TaggedUtils } from "../utils/utils.js";
 import { FrameStack } from "./frames.js";
-import { Tagged } from "./protocol.js";
 import { type NotifyReady, Subscriptions } from "./subscriptions.js";
-import { getNow, NOW } from "./timestamp.js";
 
 type TimelineOp = "consumed" | "bumped" | "evaluating" | "initial";
 
@@ -85,7 +85,7 @@ export class Timeline {
 
   get #debug(): DebugTimeline {
     if (!this.#debugTimeline) {
-      this.#debugTimeline = DebugTimeline.create({ now: getNow }, Tagged);
+      this.#debugTimeline = DebugTimeline.create({ now: getNow }, TaggedUtils);
     }
 
     return this.#debugTimeline;

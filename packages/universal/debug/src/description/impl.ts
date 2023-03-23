@@ -258,6 +258,17 @@ if (import.meta.env.DEV) {
       );
     }
 
+    forApi(api: string | interfaces.ApiDetails): interfaces.Description {
+      return new DebugDescription(
+        this.#id,
+        this.#type,
+        api,
+        this.#details,
+        this.#internal,
+        this.#stack
+      );
+    }
+
     #caller(options?: interfaces.DescriptionDescribeOptions): string {
       const caller = this.#stack?.caller;
 
@@ -551,6 +562,10 @@ if (import.meta.env.DEV) {
 
     static is(description: unknown): description is interfaces.Description {
       return !!(description && description instanceof ProdDescription);
+    }
+
+    forApi(): interfaces.Description {
+      return this;
     }
 
     asImplementation(): interfaces.Description {

@@ -1,4 +1,4 @@
-import { Tagged, TIMELINE } from "@starbeam/timeline";
+import { TaggedUtils, TIMELINE } from "@starbeam/timeline";
 import { Cell, Setup } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 
@@ -129,11 +129,11 @@ describe("Setup", () => {
       cleanupCounter: 0,
     });
 
-    expect(Tagged.lastUpdated(setup)).toSatisfy(eq(ts));
+    expect(TaggedUtils.lastUpdated(setup)).toSatisfy(eq(ts));
 
     setup();
 
-    expect(Tagged.lastUpdated(setup)).toSatisfy(eq(ts));
+    expect(TaggedUtils.lastUpdated(setup)).toSatisfy(eq(ts));
 
     expect(variable).toEqual({
       cell: 0,
@@ -143,11 +143,11 @@ describe("Setup", () => {
 
     // cellB is not used in the initial setup, so it doesn't invalidate the setup
     cellB.set(20);
-    expect(Tagged.lastUpdated(setup)).toSatisfy(eq(ts));
+    expect(TaggedUtils.lastUpdated(setup)).toSatisfy(eq(ts));
 
     setup();
 
-    expect(Tagged.lastUpdated(setup)).toSatisfy(eq(ts));
+    expect(TaggedUtils.lastUpdated(setup)).toSatisfy(eq(ts));
 
     expect(variable).toEqual({
       cell: 0,
@@ -157,8 +157,8 @@ describe("Setup", () => {
 
     cellA.set(1);
 
-    expect(Tagged.lastUpdated(setup)).toSatisfy(gt(ts));
-    ts = Tagged.lastUpdated(setup);
+    expect(TaggedUtils.lastUpdated(setup)).toSatisfy(gt(ts));
+    ts = TaggedUtils.lastUpdated(setup);
 
     expect(variable).toEqual({
       cell: 0,
@@ -168,7 +168,7 @@ describe("Setup", () => {
 
     setup();
 
-    expect(Tagged.lastUpdated(setup)).toSatisfy(eq(ts));
+    expect(TaggedUtils.lastUpdated(setup)).toSatisfy(eq(ts));
 
     expect(variable).toEqual({
       cell: 20,
@@ -178,8 +178,8 @@ describe("Setup", () => {
 
     cellA.set(2);
 
-    expect(Tagged.lastUpdated(setup)).toSatisfy(gt(ts));
-    ts = Tagged.lastUpdated(setup);
+    expect(TaggedUtils.lastUpdated(setup)).toSatisfy(gt(ts));
+    ts = TaggedUtils.lastUpdated(setup);
 
     expect(variable).toEqual({
       cell: 20,
@@ -189,7 +189,7 @@ describe("Setup", () => {
 
     setup();
 
-    expect(Tagged.lastUpdated(setup)).toSatisfy(eq(ts));
+    expect(TaggedUtils.lastUpdated(setup)).toSatisfy(eq(ts));
 
     expect(variable).toEqual({
       cell: 2,

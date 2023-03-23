@@ -1,6 +1,6 @@
 /// <reference types="node" />
 
-import { type UnknownFn, getFirst } from "@starbeam/core-utils";
+import { getFirst, type UnknownFn } from "@starbeam/core-utils";
 import type {
   DescriptionArgs,
   DescriptionDetails,

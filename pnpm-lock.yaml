@@ -773,6 +773,19 @@ importers:
     dependencies:
       '@starbeam/shared': link:..
 
+  packages/universal/tags:
+    specifiers:
+      '@starbeam-dev/build-support': workspace:*
+      '@starbeam/debug': workspace:^
+      '@starbeam/interfaces': workspace:^
+      '@starbeam/shared': workspace:^
+    dependencies:
+      '@starbeam/debug': link:../debug
+      '@starbeam/interfaces': link:../interfaces
+      '@starbeam/shared': link:../shared
+    devDependencies:
+      '@starbeam-dev/build-support': link:../../../workspace/build
+
   packages/universal/test-utils:
     specifiers:
       '@starbeam-dev/build-support': workspace:*
@@ -793,12 +806,14 @@ importers:
       '@starbeam/debug': workspace:^
       '@starbeam/interfaces': workspace:^
       '@starbeam/shared': workspace:^
+      '@starbeam/tags': workspace:^
       '@starbeam/verify': workspace:^
     dependencies:
       '@starbeam/core-utils': link:../core-utils
       '@starbeam/debug': link:../debug
       '@starbeam/interfaces': link:../interfaces
       '@starbeam/shared': link:../shared
+      '@starbeam/tags': link:../tags
       '@starbeam/verify': link:../verify
     devDependencies:
       '@starbeam-dev/build-support': link:../../../workspace/build
@@ -822,6 +837,7 @@ importers:
       '@starbeam/debug': workspace:^
       '@starbeam/interfaces': workspace:^
       '@starbeam/shared': workspace:^
+      '@starbeam/tags': workspace:^
       '@starbeam/timeline': workspace:^
       '@starbeam/verify': workspace:^
     dependencies:
@@ -829,6 +845,7 @@ importers:
       '@starbeam/debug': link:../debug
       '@starbeam/interfaces': link:../interfaces
       '@starbeam/shared': link:../shared
+      '@starbeam/tags': link:../tags
       '@starbeam/timeline': link:../timeline
       '@starbeam/verify': link:../verify
     devDependencies:

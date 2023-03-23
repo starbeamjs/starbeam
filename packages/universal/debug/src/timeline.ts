@@ -4,8 +4,8 @@ import type {
   FormulaTag,
   Frame,
   Stack,
-  Tagged,
   Tag,
+  Tagged,
   Timestamp,
 } from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
@@ -139,7 +139,7 @@ function filterToPredicate(
       return (operation) => {
         if (operation.for === undefined) {
           return false;
-        } else if (operation.for.type === "mutable") {
+        } else if (operation.for.type === "cell") {
           // if the operation is for a dependency of the reactive we're
           // filtering by, then it's a match.
           return [...dependencies].includes(operation.for);

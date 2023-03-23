@@ -3,6 +3,8 @@ export interface Timestamp {
   eq: (other: Timestamp) => boolean;
 
   next: () => Timestamp;
+
+  toString: (options?: { format?: "timestamp" }) => string;
 }
 
 export interface TimestampStatics {

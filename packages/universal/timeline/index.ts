@@ -1,4 +1,3 @@
-// FIXME: Move the core of this to @starbeam/shared
 export {
   type ComponentContext,
   CONTEXT,
@@ -18,22 +17,15 @@ export {
   type FrameValidation,
 } from "./src/timeline/frame.js";
 export {
-  Reactive,
-  Tag as ReactiveInternals,
-  Tagged as Tagged,
-} from "./src/timeline/protocol.js";
-export {
   type NotifyReady,
   Subscriptions,
 } from "./src/timeline/subscriptions.js";
-export { INSPECT } from "./src/timeline/timestamp.js";
-export { max, getNow as now, zero } from "./src/timeline/timestamp.js";
 export { diff } from "./src/timeline/utils.js";
+export { Reactive, TaggedUtils } from "./src/utils/utils.js";
+export type { Tag, Tagged } from "@starbeam/interfaces";
 export { TAG } from "@starbeam/shared";
 
 import type * as interfaces from "@starbeam/interfaces";
+export type { interfaces };
 
-import * as timestamp from "./src/timeline/timestamp.js";
-
-export const Timestamp = timestamp.Timestamp;
-export type Timestamp = interfaces.Timestamp;
+export { Timestamp } from "@starbeam/tags";

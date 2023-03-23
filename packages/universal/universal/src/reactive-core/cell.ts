@@ -9,10 +9,8 @@ import {
 import type * as interfaces from "@starbeam/interfaces";
 import type { ReactiveValue } from "@starbeam/interfaces";
 import { UNINITIALIZED } from "@starbeam/shared";
-import { INSPECT, TAG, TIMELINE } from "@starbeam/timeline";
-
-import type { MutableInternalsImpl } from "../storage.js";
-import { MutableInternals } from "../storage.js";
+import { CellTag } from "@starbeam/tags";
+import { TAG, TIMELINE } from "@starbeam/timeline";
 
 export interface CellPolicy<T, U = T> {
   equals: (a: T, b: T) => boolean;
@@ -21,33 +19,31 @@ export interface CellPolicy<T, U = T> {
 
 export type Equality<T> = (a: T, b: T) => boolean;
 
+const INSPECT = Symbol.for("nodejs.util.inspect.custom");
+
 export class ReactiveCell<T> implements ReactiveValue<T, interfaces.CellTag> {
   static create<T>(
     value: T,
-    internals: MutableInternalsImpl,
+    tag: CellTag,
     equals: Equality<T> = Object.is
   ): ReactiveCell<T> {
-    return new ReactiveCell(value, equals, internals);
+    return new ReactiveCell(value, equals, tag);
   }
 
   #value: T;
-  readonly #internals: MutableInternalsImpl;
+  readonly #tag: CellTag;
   readonly #equals: Equality<T>;
 
   declare [INSPECT]: () => object;
 
-  private constructor(
-    value: T,
-    equals: Equality<T>,
-    reactive: MutableInternalsImpl
-  ) {
+  private constructor(value: T, equals: Equality<T>, tag: CellTag) {
     this.#value = value;
     this.#equals = equals;
-    this.#internals = reactive;
+    this.#tag = tag;
 
     if (import.meta.env.DEV) {
       this[INSPECT] = (): object => {
-        const { description, lastUpdated } = this.#internals;
+        const { description, lastUpdated } = this.#tag;
 
         const desc = ` (${description.describe()})`;
 
@@ -67,7 +63,7 @@ export class ReactiveCell<T> implements ReactiveValue<T, interfaces.CellTag> {
   }
 
   freeze(): void {
-    this.#internals.freeze();
+    this.#tag.freeze();
   }
 
   get current(): T {
@@ -109,12 +105,12 @@ export class ReactiveCell<T> implements ReactiveValue<T, interfaces.CellTag> {
     }
 
     this.#value = value;
-    this.#internals.update(caller);
+    this.#tag.update({ timeline: TIMELINE, stack: caller });
     return true;
   }
 
-  get [TAG](): MutableInternals {
-    return this.#internals;
+  get [TAG](): CellTag {
+    return this.#tag;
   }
 }
 
@@ -146,7 +142,7 @@ export function Cell<T>(
     equals = description.equals ?? Object.is;
   }
 
-  return ReactiveCell.create(value, MutableInternals(desc), equals);
+  return ReactiveCell.create(value, CellTag.create(desc), equals);
 }
 
 const CALLER_FRAME = 1;

@@ -1,7 +1,7 @@
-import type { CellTag, Diff, FormulaTag } from "@starbeam/interfaces";
+import type { CellTag, Diff, FormulaTag, Tagged } from "@starbeam/interfaces";
 
 import type { Unsubscribe } from "../lifetime/object-lifetime.js";
-import { Tagged } from "./protocol.js";
+import { TaggedUtils } from "../utils/utils.js";
 import { diff } from "./utils.js";
 
 export type NotifyReady = (internals: CellTag) => void;
@@ -43,7 +43,7 @@ export class Subscriptions {
     return new Subscriptions();
   }
 
-  readonly #formulaMap = FormulaMap.empty();
+  readonly #formulaMap = SubscriberMap.empty();
   readonly #cellMap = CellMap.empty();
 
   /**
@@ -70,11 +70,11 @@ export class Subscriptions {
    * different dependencies.
    */
   register(target: Tagged, ready: NotifyReady): Unsubscribe {
-    const subscriptionTargets = Tagged.subscriptionTargets(target);
+    const subscriptionTargets = TaggedUtils.subscriptionTargets(target);
 
     const unsubscribes = subscriptionTargets.map((t) => {
       const entry = this.#formulaMap.register(t);
-      for (const dependency of Tagged.dependencies(t)) {
+      for (const dependency of TaggedUtils.dependencies(t)) {
         this.#cellMap.register(dependency, entry);
       }
 
@@ -110,11 +110,11 @@ export class Subscriptions {
 }
 
 /**
- * A mapping from reactives (basically formulas) to their subscriptions.
+ * A mapping from tagged values to their subscriptions.
  */
-class FormulaMap {
-  static empty(): FormulaMap {
-    return new FormulaMap();
+class SubscriberMap {
+  static empty(): SubscriberMap {
+    return new SubscriberMap();
   }
 
   readonly #mapping = new WeakMap<Tagged, ReactiveSubscription>();
@@ -130,7 +130,7 @@ class FormulaMap {
       const entry = ReactiveSubscription.create(frame);
       this.#mapping.set(frame, entry);
       return {
-        add: new Set(Tagged.dependencies(frame)),
+        add: new Set(TaggedUtils.dependencies(frame)),
         remove: new Set(),
         entry,
       };
@@ -151,7 +151,7 @@ class FormulaMap {
 
 class ReactiveSubscription {
   static create(target: Tagged): ReactiveSubscription {
-    const deps = new Set(Tagged.dependencies(target));
+    const deps = new Set(TaggedUtils.dependencies(target));
     return new ReactiveSubscription(deps);
   }
 
@@ -175,7 +175,7 @@ class ReactiveSubscription {
 
   update(frame: Tagged<FormulaTag>): Diff<CellTag> {
     const prev = this.#deps;
-    const next = new Set(Tagged.dependencies(frame));
+    const next = new Set(TaggedUtils.dependencies(frame));
     this.#deps = next;
 
     return diff(prev, next);

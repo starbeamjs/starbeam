@@ -1,18 +1,18 @@
 import type {
-  CellTag,
   Description,
-  FormulaTag,
   Frame as IFrame,
+  Tagged,
   Timestamp,
 } from "@starbeam/interfaces";
+import type * as interfaces from "@starbeam/interfaces";
 import { TAG, UNINITIALIZED } from "@starbeam/shared";
+import { CellTag, FormulaTag, getNow } from "@starbeam/tags";
 import { isNotEqual, verified } from "@starbeam/verify";
 
+import { TaggedUtils } from "../utils/utils.js";
 import type { FrameStack } from "./frames.js";
 import { getID } from "./id.js";
-import { Tagged } from "./protocol.js";
 import type { Timeline } from "./timeline.js";
-import { getNow } from "./timestamp.js";
 
 interface Marker {
   [TAG]: Omit<CellTag, "lastUpdated"> & {
@@ -20,7 +20,9 @@ interface Marker {
   };
 }
 
-export class Frame<T = unknown> implements Tagged<FormulaTag>, IFrame {
+export class Frame<T = unknown>
+  implements Tagged<interfaces.FormulaTag>, IFrame
+{
   static create<T>(
     this: void,
     value: T,
@@ -33,13 +35,10 @@ export class Frame<T = unknown> implements Tagged<FormulaTag>, IFrame {
     return new Frame(
       value,
       {
-        [TAG]: {
-          type: "mutable",
-          lastUpdated: finalized,
-          description: description
-            .key("initialized?", { id })
-            .asImplementation(),
-        },
+        [TAG]: CellTag.create(
+          description.key("initialized?", { id }).asImplementation(),
+          finalized
+        ),
       },
       children,
       finalized,
@@ -56,11 +55,10 @@ export class Frame<T = unknown> implements Tagged<FormulaTag>, IFrame {
     return new Frame<T>(
       UNINITIALIZED,
       {
-        [TAG]: {
-          type: "mutable",
-          lastUpdated: finalized,
-          description: description.detail("initialized?", { id }),
-        },
+        [TAG]: CellTag.create(
+          description.detail("initialized?", { id }),
+          finalized
+        ),
       },
       new Set(),
       finalized,
@@ -119,13 +117,10 @@ export class Frame<T = unknown> implements Tagged<FormulaTag>, IFrame {
   }
 
   get [TAG](): FormulaTag {
-    return {
-      type: "formula",
-      description: this.#description,
-      children: (): Tagged[] => {
-        return [this.#initialized, ...this.#children];
-      },
-    };
+    return FormulaTag.create(this.#description, () => [
+      this.#initialized,
+      ...this.#children,
+    ]);
   }
 
   get description(): Description {
@@ -161,7 +156,7 @@ export class Frame<T = unknown> implements Tagged<FormulaTag>, IFrame {
   validate(): FrameValidation<Exclude<T, UNINITIALIZED>> {
     if (
       this.#value === UNINITIALIZED ||
-      Tagged.lastUpdatedIn([...this.#children]).gt(this.#finalized)
+      TaggedUtils.lastUpdatedIn([...this.#children]).gt(this.#finalized)
     ) {
       return { status: "invalid" };
     } else {

@@ -1,17 +1,13 @@
 import {
   callerStack,
+  Desc,
   type Description,
   descriptionFrom,
 } from "@starbeam/debug";
 import type { Stack } from "@starbeam/interfaces";
 import type { UNINITIALIZED } from "@starbeam/shared";
-import {
-  diff,
-  Frame,
-  TAG,
-  Tagged,
-  TIMELINE,
-} from "@starbeam/timeline";
+import { DelegateTag } from "@starbeam/tags";
+import { diff, Frame, TAG, TaggedUtils, TIMELINE } from "@starbeam/timeline";
 
 import type { Formula } from "./formula.js";
 
@@ -48,12 +44,12 @@ export function PolledFormulaValidation<T>(
 
   const update = (caller: Stack = callerStack()): void => {
     if (import.meta.env.DEV) {
-      const oldDeps = new Set(Tagged.dependencies(frame));
+      const oldDeps = new Set(TaggedUtils.dependencies(frame));
 
       frame.evaluate(callback, TIMELINE.frame);
       TIMELINE.update(frame);
 
-      const newDeps = new Set(Tagged.dependencies(frame));
+      const newDeps = new Set(TaggedUtils.dependencies(frame));
 
       TIMELINE.didConsumeFrame(frame, diff(oldDeps, newDeps), caller);
     } else {
@@ -76,17 +72,11 @@ export function PolledFormula<T>(
   callback: () => T,
   description?: Description | string
 ): Formula<T> {
-  const formula = PolledFormulaValidation(
-    callback,
-    descriptionFrom({
-      type: "formula",
-      api: {
-        package: "@starbeam/universal",
-        name: "PolledFormula",
-      },
-      fromUser: description,
-    })
-  );
+  const desc = Desc("formula", description).forApi({
+    package: "@starbeam/universal",
+    name: "PolledFormula",
+  });
+  const formula = PolledFormulaValidation(callback, desc);
 
   const fn = (): T => Frame.value(formula.poll());
 
@@ -107,11 +97,7 @@ export function PolledFormula<T>(
     enumerable: false,
     configurable: true,
     writable: true,
-    value: {
-      type: "delegate",
-      description,
-      targets: [formula.frame],
-    },
+  value: DelegateTag.create(desc, [formula.frame]),
   });
 
   return fn as Formula<T>;

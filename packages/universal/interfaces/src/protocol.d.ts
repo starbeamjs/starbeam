@@ -6,19 +6,46 @@ import type { Timestamp } from "./timestamp.js";
 
 export type ReactiveId = number | string | ReactiveId[];
 
-interface AbstractTag {
-  readonly type: string;
+export interface AbstractTag {
+  readonly type: TagType;
   readonly description: Description;
+}
+
+export type List<T> = Iterable<T> | readonly T[];
+
+export class TagMethods {
+  readonly id: ReactiveId;
+  readonly lastUpdated: Timestamp;
+  readonly dependencies: () => List<CellTag>;
+  readonly description: Description;
+  match(matcher: Matcher<T>): Tag;
+  subscriptionTargets(): List<Tag>;
+}
+
+export type ExhaustiveMatcher<T> = {
+  [P in TagType]: (tag: Extract<Tag, { type: P }>) => T;
+};
+
+export interface DefaultMatcher<T> extends Partial<ExhaustiveMatcher<T>> {
+  default: (internals: Tag) => T;
+}
+
+export type Matcher<T> = ExhaustiveMatcher<T> | DefaultMatcher<T>;
+
+export interface UpdateOptions {
+  readonly stack: Stack;
+  readonly timeline: { bump: (tag: CellTag, caller: Stack) => Timestamp };
 }
 
 /**
  * Cell is the fundamental mutable reactive value. All subscriptions in Starbeam are ultimately
  * subscriptions to cells, and all mutations in Starbeam are ultimately mutations to cells.
  */
-export interface CellTag extends AbstractTag {
-  readonly type: "mutable";
+export interface CellTag extends AbstractTag, TagMethods {
+  readonly type: "cell";
   readonly lastUpdated: Timestamp;
   isFrozen?: () => boolean;
+  update: (options: UpdateOptions) => void;
 }
 
 /**
@@ -33,9 +60,9 @@ export interface CellTag extends AbstractTag {
  * notified of a change to the composite's children, it removes subscriptions from any stale
  * dependencies and adds subscriptions to any new dependencies.
  */
-export interface FormulaTag extends AbstractTag {
+export interface FormulaTag extends AbstractTag, TagMethods {
   readonly type: "formula";
-  children: () => Tagged[];
+  children: () => readonly Tagged[];
 }
 
 /**
@@ -47,7 +74,7 @@ export interface FormulaTag extends AbstractTag {
  * targets. This means that delegates don't need to know when their value changes, and don't need to
  * notify the timeline when their targets change.
  */
-export interface DelegateTag extends AbstractTag {
+export interface DelegateTag extends AbstractTag, TagMethods {
   readonly type: "delegate";
   readonly targets: readonly Tagged[];
 }
@@ -64,10 +91,19 @@ export interface DelegateTag extends AbstractTag {
  * TODO: Do we need a separate fundamental type for pollable formulas, which can get new
  * dependencies even if they never invalidate?
  */
-export interface StaticTag extends AbstractTag {
+export interface StaticTag extends AbstractTag, TagMethods {
   readonly type: "static";
 }
 
+/**
+ * A tag validates a reactive value. The behavior of a tags is defined in relation to reads and
+ * writes of the reactive value they represent. Tags model **value composition** (and functional
+ * composition), not a more general algebra.
+ *
+ * In other words, it doesn't make sense to think about the composition of tags abstracted from the
+ * values they represent. Attempting to think about tags this way makes them seem more general than
+ * they are, and that generality breaks system invariants derived from value composition.
+ */
 export type Tag = CellTag | FormulaTag | DelegateTag | StaticTag;
 export type TagType = Tag["type"];
 

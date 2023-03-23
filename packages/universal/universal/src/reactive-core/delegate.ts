@@ -1,33 +1,7 @@
-import { callerStack, Desc, type Description } from "@starbeam/debug";
+import { callerStack, type Description } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
-import { TAG, Tagged } from "@starbeam/timeline";
-
-export class DelegateInternalsImpl implements interfaces.DelegateTag {
-  readonly type = "delegate";
-
-  constructor(
-    readonly id: interfaces.ReactiveId,
-    readonly targets: readonly interfaces.Tagged[],
-    readonly description: Description
-  ) {}
-}
-
-export function DelegateInternals(
-  to: interfaces.Tagged[] | interfaces.Tagged,
-  options?: { description: string | Description }
-): interfaces.DelegateTag {
-  const desc = Desc(
-    "delegate",
-    options?.description ??
-      (Array.isArray(to) ? undefined : Tagged.description(to))
-  );
-
-  return {
-    type: "delegate",
-    description: desc,
-    targets: Array.isArray(to) ? to : [to],
-  };
-}
+import { DelegateTag } from "@starbeam/tags";
+import { TAG, TaggedUtils } from "@starbeam/timeline";
 
 export function Wrap<T, U extends interfaces.ReactiveValue>(
   reactive: U,
@@ -37,9 +11,7 @@ export function Wrap<T, U extends interfaces.ReactiveValue>(
   Object.defineProperty(value, TAG, {
     configurable: true,
     writable: true,
-    value: DelegateInternals(reactive, {
-      description: delegateDesc(reactive, desc),
-    }),
+    value: DelegateTag.create(delegateDesc(reactive, desc), [reactive]),
   });
 
   Object.defineProperty(value, "read", {
@@ -65,9 +37,9 @@ function delegateDesc(
   if (Array.isArray(to)) {
     return desc as Description;
   } else if (typeof desc === "string") {
-    return Tagged.description(to).detail(desc);
+    return TaggedUtils.description(to).detail(desc);
   } else if (desc === undefined) {
-    return Tagged.description(to).detail("{delegate}");
+    return TaggedUtils.description(to).detail("{delegate}");
   } else {
     return desc;
   }

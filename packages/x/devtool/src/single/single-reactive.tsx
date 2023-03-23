@@ -23,7 +23,7 @@ export function DevtoolsFor(props: {
       .map((operation) => operation.for)
       .filter(
         (value): value is MutableInternals =>
-          value !== undefined && value.type === "mutable"
+          value !== undefined && value.type === "cell"
       );
   }
 

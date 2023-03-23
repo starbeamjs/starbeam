@@ -5,7 +5,7 @@ export {
   CustomBlueprint,
   CustomBuilder,
 } from "./src/reactive-core/custom.js";
-export { DelegateInternals, Wrap } from "./src/reactive-core/delegate.js";
+export { Wrap } from "./src/reactive-core/delegate.js";
 export {
   Formula,
   FormulaValidation,

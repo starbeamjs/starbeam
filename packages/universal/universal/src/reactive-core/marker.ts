@@ -1,34 +1,26 @@
-import {
-  callerStack,
-  type Description,
-  descriptionFrom,
-} from "@starbeam/debug";
-import type { Stack } from "@starbeam/interfaces";
-import {
-  TAG,
-  type Tagged,
-  TIMELINE,
-} from "@starbeam/timeline";
+import { callerStack, Desc, type Description } from "@starbeam/debug";
+import type { Stack, Tagged } from "@starbeam/interfaces";
+import type * as interfaces from "@starbeam/interfaces";
+import { CellTag } from "@starbeam/tags";
+import { TAG, TIMELINE } from "@starbeam/timeline";
 
-import { MutableInternals, type MutableInternalsImpl } from "../storage.js";
-
-export class ReactiveMarker implements Tagged<MutableInternals> {
-  static create(internals: MutableInternalsImpl): ReactiveMarker {
-    return new ReactiveMarker(internals);
+export class ReactiveMarker implements Tagged<interfaces.CellTag> {
+  static create(tag: CellTag): ReactiveMarker {
+    return new ReactiveMarker(tag);
   }
 
-  readonly #internals: MutableInternalsImpl;
+  readonly #tag: CellTag;
 
-  private constructor(reactive: MutableInternalsImpl) {
-    this.#internals = reactive;
+  private constructor(tag: CellTag) {
+    this.#tag = tag;
   }
 
-  get [TAG](): MutableInternals {
-    return this.#internals;
+  get [TAG](): CellTag {
+    return this.#tag;
   }
 
   freeze(): void {
-    this.#internals.freeze();
+    this.#tag.freeze();
   }
 
   consume(caller = callerStack()): void {
@@ -36,20 +28,16 @@ export class ReactiveMarker implements Tagged<MutableInternals> {
   }
 
   update(caller: Stack): void {
-    this.#internals.update(caller);
+    this.#tag.update({ timeline: TIMELINE, stack: caller });
   }
 }
 
 export function Marker(description?: string | Description): ReactiveMarker {
   return ReactiveMarker.create(
-    MutableInternals(
-      descriptionFrom({
-        type: "cell",
-        api: {
-          package: "@starbeam/universal",
-          name: "Marker",
-        },
-        fromUser: description,
+    CellTag.create(
+      Desc("cell", description).forApi({
+        package: "@starbeam/universal",
+        name: "Marker",
       })
     )
   );

@@ -30,7 +30,7 @@ export class TimestampImpl implements interfaces.Timestamp {
     }
   }
 
-  static debug(timestamp: interfaces.Timestamp): { at: number } {
+  static debug(this: void, timestamp: interfaces.Timestamp): { at: number } {
     TimestampImpl.assert(timestamp, "Timestamp.debug");
     return { at: timestamp.#timestamp };
   }
@@ -66,8 +66,12 @@ export class TimestampImpl implements interfaces.Timestamp {
     return new Timestamp(peerBump());
   }
 
-  toString = (): string => {
-    return `#<Timestamp ${this.#timestamp}>`;
+  toString = (options: { format?: "timestamp" } = {}): string => {
+    if (options?.format === "timestamp") {
+      return String(this.#timestamp);
+    } else {
+      return `#<Timestamp ${this.#timestamp}>`;
+    }
   };
 }
 
@@ -101,3 +105,4 @@ export class Now {
 }
 
 export const NOW = new Now();
+export const debug = Timestamp.debug;

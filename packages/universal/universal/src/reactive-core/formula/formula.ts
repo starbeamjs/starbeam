@@ -5,7 +5,8 @@ import {
 } from "@starbeam/debug";
 import type { Reactive, Stack } from "@starbeam/interfaces";
 import type { UNINITIALIZED } from "@starbeam/shared";
-import { Tagged } from "@starbeam/timeline";
+import { DelegateTag } from "@starbeam/tags";
+import { TaggedUtils } from "@starbeam/timeline";
 import { diff, Frame, TAG, TIMELINE } from "@starbeam/timeline";
 
 export interface FormulaValidation<T> {
@@ -30,13 +31,13 @@ export function FormulaValidation<T>(
 
   const update = (caller: Stack): void => {
     if (import.meta.env.DEV) {
-      const oldDeps = new Set(Tagged.dependencies(frame));
+      const oldDeps = new Set(TaggedUtils.dependencies(frame));
 
       frame.evaluate(callback, TIMELINE.frame);
 
       TIMELINE.update(frame);
 
-      const newDeps = new Set(Tagged.dependencies(frame));
+      const newDeps = new Set(TaggedUtils.dependencies(frame));
 
       TIMELINE.didConsumeFrame(frame, diff(oldDeps, newDeps), caller);
     } else {
@@ -101,11 +102,7 @@ export function Formula<T>(
     enumerable: false,
     configurable: true,
     writable: true,
-    value: {
-      type: "delegate",
-      description: desc,
-      targets: [formula.frame],
-    },
+    value: DelegateTag.create(desc, [formula.frame]),
   });
 
   Object.defineProperty(fn, Symbol.for("nodejs.util.inspect.custom"), {

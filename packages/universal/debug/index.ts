@@ -4,19 +4,19 @@ import { descriptionFrom } from "./src/stack.js";
 
 export { Description, REUSE_ID } from "./src/description/impl.js";
 export {
-  type DisplayStructOptions,
   DisplayStruct,
+  type DisplayStructOptions,
 } from "./src/inspect/display-struct.js";
 export {
-  type Inspect,
   DEBUG,
   DEBUG_NAME,
   INSPECT,
+  type Inspect,
   inspect,
   inspector,
 } from "./src/inspect/inspect-support.js";
 export { logged } from "./src/logged.js";
-export { type Logger, LOGGER, LogLevel } from "./src/logger.js";
+export { LOGGER, type Logger, LogLevel } from "./src/logger.js";
 export {
   Block,
   Fragment,
@@ -25,7 +25,7 @@ export {
   Styled,
   Styles,
 } from "./src/message.js";
-export { type DisplayParts, describeModule } from "./src/module.js";
+export { describeModule, type DisplayParts } from "./src/module.js";
 export {
   callerStack,
   Desc,
@@ -37,16 +37,17 @@ export {
   isErrorWithStack,
   Stack,
 } from "./src/stack.js";
+export { debugTag, logTag } from "./src/tag.js";
 export {
   type CellConsumeOperation,
   type CellUpdateOperation,
   type DebugFilter,
   type DebugListener,
   type DebugOperation,
+  DebugTimeline,
   type Flush,
   type FrameConsumeOperation,
   type MutationLog,
-  DebugTimeline,
 } from "./src/timeline.js";
 export { Tree } from "./src/tree.js";
 export type {
