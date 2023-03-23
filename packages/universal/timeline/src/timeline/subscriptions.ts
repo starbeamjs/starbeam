@@ -1,4 +1,11 @@
-import type { CellTag, Diff, FormulaTag, Tagged } from "@starbeam/interfaces";
+import type {
+  CellTag,
+  Diff,
+  FormulaTag,
+  Tag,
+  Tagged,
+} from "@starbeam/interfaces";
+import { getTag } from "@starbeam/tags";
 
 import type { Unsubscribe } from "../lifetime/object-lifetime.js";
 import { TaggedUtils } from "../utils/utils.js";
@@ -70,11 +77,11 @@ export class Subscriptions {
    * different dependencies.
    */
   register(target: Tagged, ready: NotifyReady): Unsubscribe {
-    const subscriptionTargets = TaggedUtils.subscriptionTargets(target);
+    const subscriptionTargets = getTag(target).subscriptionTargets();
 
-    const unsubscribes = subscriptionTargets.map((t) => {
+    const unsubscribes = [...subscriptionTargets].map((t) => {
       const entry = this.#formulaMap.register(t);
-      for (const dependency of TaggedUtils.dependencies(t)) {
+      for (const dependency of t.dependencies()) {
         this.#cellMap.register(dependency, entry);
       }
 
@@ -117,18 +124,18 @@ class SubscriberMap {
     return new SubscriberMap();
   }
 
-  readonly #mapping = new WeakMap<Tagged, ReactiveSubscription>();
+  readonly #mapping = new WeakMap<Tag, ReactiveSubscription>();
 
   update(
     frame: Tagged<FormulaTag>
   ): Diff<CellTag> & { entry: ReactiveSubscription } {
-    const entry = this.#mapping.get(frame);
+    const entry = this.#mapping.get(getTag(frame));
 
     if (entry) {
       return { ...entry.update(frame), entry };
     } else {
-      const entry = ReactiveSubscription.create(frame);
-      this.#mapping.set(frame, entry);
+      const entry = ReactiveSubscription.create(getTag(frame));
+      this.#mapping.set(getTag(frame), entry);
       return {
         add: new Set(TaggedUtils.dependencies(frame)),
         remove: new Set(),
@@ -137,7 +144,7 @@ class SubscriberMap {
     }
   }
 
-  register(target: Tagged): ReactiveSubscription {
+  register(target: Tag): ReactiveSubscription {
     let entry = this.#mapping.get(target);
 
     if (!entry) {
@@ -150,8 +157,8 @@ class SubscriberMap {
 }
 
 class ReactiveSubscription {
-  static create(target: Tagged): ReactiveSubscription {
-    const deps = new Set(TaggedUtils.dependencies(target));
+  static create(target: Tag): ReactiveSubscription {
+    const deps = new Set(target.dependencies());
     return new ReactiveSubscription(deps);
   }
 

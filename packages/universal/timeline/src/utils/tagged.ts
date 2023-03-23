@@ -1,8 +1,8 @@
 import type * as Debug from "@starbeam/debug";
 import { debugTag, logTag } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
-import type { Matcher, Tag } from "@starbeam/interfaces";
-import { TAG } from "@starbeam/shared";
+import type { Matcher, SpecificTag, TagType } from "@starbeam/interfaces";
+import { getTag, type Tag } from "@starbeam/tags";
 import { type Timestamp, zero } from "@starbeam/tags";
 
 export type Tagged<I extends interfaces.Tag = interfaces.Tag> =
@@ -10,65 +10,40 @@ export type Tagged<I extends interfaces.Tag = interfaces.Tag> =
 
 export const TaggedUtils = new (class {
   description(this: void, reactive: Tagged): Debug.Description {
-    return reactive[TAG].description;
+    return getTag(reactive).description;
   }
 
   id(this: void, reactive: Tagged): interfaces.ReactiveId {
-    return reactive[TAG].id;
+    return getTag(reactive).id;
   }
 
-  is<T extends Tag["type"] = Tag["type"]>(
+  is<T extends TagType>(
     this: void,
     reactive: Tagged,
     kind: T
-  ): reactive is {
-    [TAG]: Extract<interfaces.Tag, { type: T }>;
-  } {
-    return reactive[TAG].type === kind;
+  ): reactive is Tagged<SpecificTag<T>> {
+    return getTag(reactive).type === kind;
   }
 
   match<T extends Tag>(this: void, reactive: Tagged, matcher: Matcher<T>): T {
-    return reactive[TAG].match(matcher) as T;
-  }
-
-  /**
-   * This method returns a list of reactives that subscribers to the original reactive should
-   * actually subscribe to.
-   *
-   * Normally, this is just the reactive itself. However, if a ReactiveProtocol is a delegate,
-   * subscribers can subscribe directly to the delegate's targets.
-   *
-   * This is because a delegate's targets can't change, so it's safe to subscribe directly to the
-   * targets.
-   *
-   * This makes it possible to create abstractions around reactive values that don't have to worry
-   * about manually updating their subscribers when their values change.
-   */
-  subscriptionTargets(this: void, reactive: Tagged): Tagged[] {
-    const tag = reactive[TAG];
-
-    if (tag.type === "delegate") {
-      return tag.targets.flatMap(TaggedUtils.subscriptionTargets);
-    } else {
-      return [reactive];
-    }
+    return getTag(reactive).match(matcher) as T;
   }
 
   dependencies(this: void, reactive: Tagged): Iterable<interfaces.CellTag> {
-    return reactive[TAG].dependencies();
+    return getTag(reactive).dependencies();
   }
 
   *dependenciesInList(
     this: void,
     children: readonly Tagged[]
   ): Iterable<interfaces.CellTag> {
-    for (const child of children) {
-      yield* child[TAG].dependencies();
+    for (const child of children.map(getTag)) {
+      yield* child.dependencies();
     }
   }
 
   lastUpdated(this: void, reactive: Tagged): Timestamp {
-    return reactive[TAG].lastUpdated;
+    return getTag(reactive).lastUpdated;
   }
 
   lastUpdatedIn(this: void, reactives: Tagged[]): Timestamp {
@@ -88,7 +63,7 @@ export const TaggedUtils = new (class {
     reactive: Tagged,
     options: { implementation?: boolean; source?: boolean; id?: boolean } = {}
   ): void {
-    logTag(reactive[TAG], options);
+    logTag(getTag(reactive), options);
   }
 
   debug(
@@ -99,7 +74,7 @@ export const TaggedUtils = new (class {
       source = false,
     }: { implementation?: boolean; source?: boolean } = {}
   ): string {
-    return debugTag(reactive[TAG], {
+    return debugTag(getTag(reactive), {
       implementation,
       source,
     });

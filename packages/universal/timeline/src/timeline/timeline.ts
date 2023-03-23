@@ -51,7 +51,9 @@ export class Timeline {
    * Dynamic assertions that are used in development mode to detect reads that occur outside of a
    * tracking frame, but which are used to produce rendered outputs.
    */
-  #readAssertions = new Set<(reactive: Tagged, caller: Stack) => void>();
+  #readAssertions = new Set<
+    (reactive: interfaces.Tag, caller: Stack) => void
+  >();
 
   readonly #subscriptions: Subscriptions;
   #lastOp: TimelineOp;
@@ -62,7 +64,7 @@ export class Timeline {
    * produce rendered content.
    */
   declare untrackedReadBarrier: (
-    assertion: (reactive: Tagged, caller: Stack) => void
+    assertion: (reactive: interfaces.Tag, caller: Stack) => void
   ) => void;
 
   static create(): Timeline {
@@ -76,7 +78,7 @@ export class Timeline {
 
     if (import.meta.env.DEV) {
       this.untrackedReadBarrier = (
-        assertion: (reactive: Tagged, caller: Stack) => void
+        assertion: (reactive: interfaces.Tag, caller: Stack) => void
       ): void => {
         this.#readAssertions.add(assertion);
       };
@@ -178,7 +180,7 @@ export class Timeline {
   /// DEBUG MODE ///
 
   /** @internal */
-  untrackedRead(cell: Tagged<CellTag>, caller: Stack): void {
+  untrackedRead(cell: CellTag, caller: Stack): void {
     for (const assertion of this.#readAssertions) {
       assertion(cell, caller);
     }

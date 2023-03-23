@@ -37,6 +37,7 @@ export type {
   ReactiveCell,
   ReactiveId,
   ReactiveValue,
+  SpecificTag,
   StaticTag,
   Tag,
   Tagged,

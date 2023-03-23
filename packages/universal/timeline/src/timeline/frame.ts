@@ -97,6 +97,7 @@ export class Frame<T = unknown>
   #children: ReadonlySet<Tagged>;
   #finalized: Timestamp;
   readonly #description: Description;
+  readonly [TAG]: FormulaTag;
 
   constructor(
     value: T | UNINITIALIZED,
@@ -114,10 +115,7 @@ export class Frame<T = unknown>
     this.#children = children;
     this.#finalized = finalized;
     this.#description = description;
-  }
-
-  get [TAG](): FormulaTag {
-    return FormulaTag.create(this.#description, () => [
+    this[TAG] = FormulaTag.create(this.#description, () => [
       this.#initialized,
       ...this.#children,
     ]);

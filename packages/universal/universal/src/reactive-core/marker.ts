@@ -9,18 +9,20 @@ export class ReactiveMarker implements Tagged<interfaces.CellTag> {
     return new ReactiveMarker(tag);
   }
 
-  readonly #tag: CellTag;
+  readonly [TAG]: CellTag;
 
   private constructor(tag: CellTag) {
-    this.#tag = tag;
-  }
+    this[TAG] = tag;
 
-  get [TAG](): CellTag {
-    return this.#tag;
+    if (import.meta.env.DEV) {
+      Object.defineProperty(this, TAG, {
+        writable: false,
+      });
+    }
   }
 
   freeze(): void {
-    this.#tag.freeze();
+    this[TAG].freeze();
   }
 
   consume(caller = callerStack()): void {
@@ -28,7 +30,7 @@ export class ReactiveMarker implements Tagged<interfaces.CellTag> {
   }
 
   update(caller: Stack): void {
-    this.#tag.update({ timeline: TIMELINE, stack: caller });
+    this[TAG].update({ timeline: TIMELINE, stack: caller });
   }
 }
 

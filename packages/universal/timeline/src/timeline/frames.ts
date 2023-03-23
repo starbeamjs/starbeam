@@ -2,8 +2,8 @@ import type { DebugTimeline, Stack } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
 import type { CellTag, Tagged } from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
+import { getTag } from "@starbeam/tags";
 
-import { TaggedUtils } from "../utils/utils.js";
 import { ActiveFrame, type Frame } from "./frame.js";
 import type { Subscriptions } from "./subscriptions.js";
 import type { Timeline } from "./timeline.js";
@@ -96,12 +96,10 @@ export class FrameStack {
       frame.add(reactive);
       return;
     } else {
-      const delegatesTo = TaggedUtils.subscriptionTargets(reactive).filter(
-        (r) => TaggedUtils.is(r, "cell")
-      );
+      const delegatesTo = [...getTag(reactive).subscriptionTargets()];
 
       for (const target of delegatesTo) {
-        if (TaggedUtils.is(target, "cell")) {
+        if (target.type === "cell") {
           this.#timeline.untrackedRead(target, caller);
         }
       }

@@ -31,19 +31,20 @@ export class ReactiveCell<T> implements ReactiveValue<T, interfaces.CellTag> {
   }
 
   #value: T;
-  readonly #tag: CellTag;
   readonly #equals: Equality<T>;
+  readonly [TAG]: CellTag;
 
   declare [INSPECT]: () => object;
 
   private constructor(value: T, equals: Equality<T>, tag: CellTag) {
     this.#value = value;
     this.#equals = equals;
-    this.#tag = tag;
+
+    this[TAG] = tag;
 
     if (import.meta.env.DEV) {
       this[INSPECT] = (): object => {
-        const { description, lastUpdated } = this.#tag;
+        const { description, lastUpdated } = this[TAG];
 
         const desc = ` (${description.describe()})`;
 
@@ -52,6 +53,10 @@ export class ReactiveCell<T> implements ReactiveValue<T, interfaces.CellTag> {
           updated: lastUpdated,
         });
       };
+
+      Object.defineProperty(this, TAG, {
+        writable: false,
+      });
 
       Object.defineProperty(this, "toString", {
         enumerable: false,
@@ -63,7 +68,7 @@ export class ReactiveCell<T> implements ReactiveValue<T, interfaces.CellTag> {
   }
 
   freeze(): void {
-    this.#tag.freeze();
+    this[TAG].freeze();
   }
 
   get current(): T {
@@ -105,12 +110,8 @@ export class ReactiveCell<T> implements ReactiveValue<T, interfaces.CellTag> {
     }
 
     this.#value = value;
-    this.#tag.update({ timeline: TIMELINE, stack: caller });
+    this[TAG].update({ timeline: TIMELINE, stack: caller });
     return true;
-  }
-
-  get [TAG](): CellTag {
-    return this.#tag;
   }
 }
 
