@@ -4,7 +4,7 @@ import type {
   InternalElement,
 } from "@starbeam/preact-utils";
 import { Plugin } from "@starbeam/preact-utils";
-import { CONTEXT, LIFETIME, Reactive } from "@starbeam/timeline";
+import { CONTEXT, isReactive, LIFETIME } from "@starbeam/timeline";
 import type { ComponentType } from "preact";
 
 import { ComponentFrame } from "./frame.js";
@@ -22,7 +22,7 @@ export const setup = Plugin((on) => {
 
   on.vnode((vnode) => {
     vnode.processChildren((child) => {
-      if (Reactive.is(child)) {
+      if (isReactive(child)) {
         return String(child.read());
       } else {
         return child;

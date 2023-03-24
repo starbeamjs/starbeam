@@ -11,7 +11,7 @@ export interface AbstractTag {
   readonly description: Description;
 }
 
-export type List<T> = Iterable<T> | readonly T[];
+export type List<T> = Iterable<T>;
 
 export class TagMethods {
   readonly id: ReactiveId;

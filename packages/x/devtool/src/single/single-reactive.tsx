@@ -5,24 +5,26 @@ import type {
   DebugOperation,
   Description,
 } from "@starbeam/debug";
-import type { MutableInternals } from "@starbeam/interfaces";
-import { ReactiveProtocol, TIMELINE } from "@starbeam/timeline";
+import type { CellTag } from "@starbeam/interfaces";
+import { getTag } from "@starbeam/tags";
+import { taggedDescription } from "@starbeam/tags";
+import { type Tagged, TIMELINE } from "@starbeam/timeline";
 import { isPresent, verified } from "@starbeam/verify";
 import { type JSX, render } from "preact";
 
 export function DevtoolsFor(props: {
-  reactive: ReactiveProtocol;
+  reactive: Tagged;
   log: DebugOperation[];
 }): JSX.Element {
-  function computeDependencies(): Iterable<MutableInternals> {
-    return ReactiveProtocol.dependencies(props.reactive);
+  function computeDependencies(): Iterable<CellTag> {
+    return getTag(props.reactive).dependencies();
   }
 
-  function computeInvalidated(): MutableInternals[] {
+  function computeInvalidated(): CellTag[] {
     return props.log
       .map((operation) => operation.for)
       .filter(
-        (value): value is MutableInternals =>
+        (value): value is CellTag =>
           value !== undefined && value.type === "cell"
       );
   }
@@ -38,7 +40,7 @@ export function DevtoolsFor(props: {
             <li>
               <span class="specified">description</span>
               <span class="kind">
-                {ReactiveProtocol.description(props.reactive).fullName}
+                {taggedDescription(props.reactive).fullName}
               </span>
             </li>
             <li>
@@ -102,7 +104,7 @@ function Dependency({
   );
 }
 
-function unique(dependencies: MutableInternals[]): Description[] {
+function unique(dependencies: CellTag[]): Description[] {
   const descriptions = new Set(
     dependencies.map((d) => d.description.userFacing)
   );
@@ -111,16 +113,16 @@ function unique(dependencies: MutableInternals[]): Description[] {
 }
 
 export default function DevtoolsPane(
-  renderable: ReactiveProtocol,
+  renderable: Tagged,
   log: DebugOperation[],
   into: Element
-): { update: (reactive: ReactiveProtocol, log: DebugOperation[]) => void } {
+): { update: (reactive: Tagged, log: DebugOperation[]) => void } {
   const app = <DevtoolsFor reactive={renderable} log={log} />;
 
   render(app, into);
 
   return {
-    update: (reactive: ReactiveProtocol, log: DebugOperation[]) => {
+    update: (reactive: Tagged, log: DebugOperation[]) => {
       render(<DevtoolsFor reactive={reactive} log={log} />, into);
     },
   };
@@ -128,8 +130,7 @@ export default function DevtoolsPane(
 
 export function DevTools(
   listener: DebugListener,
-
-  reactive: ReactiveProtocol
+  reactive: Tagged
 ): () => void {
   const pane = DevtoolsPane(
     reactive,

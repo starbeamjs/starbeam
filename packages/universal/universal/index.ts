@@ -48,7 +48,6 @@ export {
   service,
   type ServiceBlueprint,
 } from "./src/reactive-core/service.js";
-export { Static } from "./src/reactive-core/static.js";
 export {
   type Variant,
   type VariantEntry,

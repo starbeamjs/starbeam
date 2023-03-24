@@ -14,15 +14,14 @@
  */
 
 import { Desc, type Description } from "@starbeam/debug";
+import type { Reactive } from "@starbeam/interfaces";
 import { UNINITIALIZED } from "@starbeam/shared";
-import type { Reactive } from "@starbeam/timeline";
-import { LIFETIME } from "@starbeam/timeline";
+import { LIFETIME, Static } from "@starbeam/timeline";
 import { isWeakKey } from "@starbeam/verify";
 
 import { Formula } from "../formula/formula.js";
 import type { IntoResource } from "../into.js";
 import { type Blueprint, ReactiveBlueprint } from "../reactive.js";
-import { Static } from "../static.js";
 import type { ResourceRun } from "./run.js";
 import { ResourceState } from "./state.js";
 

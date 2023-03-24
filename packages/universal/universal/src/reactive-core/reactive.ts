@@ -1,6 +1,6 @@
 import { Desc, type Description } from "@starbeam/debug";
-import type { ReactiveValue,Tag } from "@starbeam/interfaces";
-import { Reactive as TimelineReactive } from "@starbeam/timeline";
+import type { ReactiveValue, Tag } from "@starbeam/interfaces";
+import type * as interfaces from "@starbeam/interfaces";
 import { isObject } from "@starbeam/verify";
 
 import type { ResourceBlueprint } from "./resource/resource.js";
@@ -19,25 +19,11 @@ export function Reactive<T>(
   return new ReactiveBlueprint(constructor, desc);
 }
 
-Reactive.is = TimelineReactive.is;
-Reactive.from = TimelineReactive.from;
+export type IntoReactive<T> = interfaces.Reactive<T> | T;
 
-Reactive.read = <T>(value: IntoReactive<T>): T => {
-  if (Reactive.is(value)) {
-    return value.current;
-  } else {
-    return value;
-  }
-};
+export type TypedReactive<T, I extends Tag = Tag> = ReactiveValue<T, I>;
 
-export type IntoReactive<T> = Reactive<T> | T;
-
-export type TypedReactive<
-  T,
-  I extends Tag = Tag
-> = ReactiveValue<T, I>;
-
-export type Reactive<T> = TimelineReactive<T>;
+export type Reactive<T> = interfaces.Reactive<T>;
 
 export class ReactiveBlueprint<T> {
   static is<T>(value: T | ReactiveBlueprint<T>): value is ReactiveBlueprint<T> {

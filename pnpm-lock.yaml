@@ -891,6 +891,7 @@ importers:
       '@starbeam/core-utils': workspace:^
       '@starbeam/debug': workspace:^
       '@starbeam/interfaces': workspace:^
+      '@starbeam/tags': workspace:^
       '@starbeam/timeline': workspace:^
       '@starbeam/verify': workspace:^
       preact: ^10.11.3
@@ -898,6 +899,7 @@ importers:
       '@starbeam/core-utils': link:../../universal/core-utils
       '@starbeam/debug': link:../../universal/debug
       '@starbeam/interfaces': link:../../universal/interfaces
+      '@starbeam/tags': link:../../universal/tags
       '@starbeam/timeline': link:../../universal/timeline
       '@starbeam/verify': link:../../universal/verify
       preact: 10.11.3

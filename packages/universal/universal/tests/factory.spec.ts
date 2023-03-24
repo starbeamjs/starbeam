@@ -1,7 +1,7 @@
 import { entryPointFn } from "@starbeam/debug";
 import { describeTagged } from "@starbeam/tags";
-import { Frame } from "@starbeam/timeline";
-import { Cell, FormulaValidation, Reactive, Static } from "@starbeam/universal";
+import { Frame, Static } from "@starbeam/timeline";
+import { Cell, FormulaValidation, Reactive } from "@starbeam/universal";
 import { describe, expect, test } from "@starbeam-workspace/test-utils";
 
 describe("reactive Factory", () => {

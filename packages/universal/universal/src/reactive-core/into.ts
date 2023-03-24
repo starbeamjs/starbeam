@@ -1,10 +1,11 @@
 import type { Description } from "@starbeam/debug";
 import { Desc } from "@starbeam/debug";
+import { intoReactive, isReactive } from "@starbeam/timeline";
 
 import type { ReactiveBlueprint } from "./reactive.js";
-import { type Blueprint, type ReactiveFactory, Reactive } from "./reactive.js";
+import { type Blueprint, Reactive, type ReactiveFactory } from "./reactive.js";
 import { ResourceBlueprint } from "./resource/resource.js";
-import { type ResourceFactory, Resource } from "./resource/resource.js";
+import { Resource, type ResourceFactory } from "./resource/resource.js";
 
 export type IntoResource<T, Initial extends undefined = undefined> =
   | ResourceBlueprint<T, Initial>
@@ -50,7 +51,7 @@ function resource<T>(
   description?: Description | string
 ): Reactive<T> {
   const desc = Desc("resource", description);
-  return Reactive.from(
+  return intoReactive(
     IntoResource(create as IntoResource<unknown>, desc).create(owner)
   ) as Reactive<T>;
 }
@@ -65,7 +66,7 @@ function createReactiveObject<T extends Reactive<unknown>>(create: T): T;
 function createReactiveObject(
   create: IntoReactiveObject<unknown> | Reactive<unknown>
 ): unknown {
-  if (Reactive.is(create)) {
+  if (isReactive(create)) {
     return create;
   } else {
     return IntoReactiveObject(create).create();

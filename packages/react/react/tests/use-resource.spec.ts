@@ -3,12 +3,13 @@
 import { entryPoint } from "@starbeam/debug";
 import reactive from "@starbeam/js";
 import { use, useProp, useReactive, useSetup } from "@starbeam/react";
-import { Reactive } from "@starbeam/timeline";
+import { intoReactive } from "@starbeam/timeline";
 import {
-  type ResourceBlueprint,
   Cell,
   Formula,
+  type IntoReactive,
   Resource,
+  type ResourceBlueprint,
 } from "@starbeam/universal";
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
 import { beforeEach, describe, expect } from "vitest";
@@ -420,9 +421,9 @@ function send(message: string): void {
 }
 
 function ChannelResource(
-  name: Reactive<string> | string
+  name: IntoReactive<string>
 ): ResourceBlueprint<string | undefined> {
-  const reactive = Reactive.from(name);
+  const reactive = intoReactive(name);
 
   return Resource((r) => {
     const lastMessage = Cell<string | undefined>(undefined, "last message");

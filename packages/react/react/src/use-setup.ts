@@ -1,6 +1,8 @@
 import { callerStack, Desc } from "@starbeam/debug";
 import type { Description } from "@starbeam/interfaces";
-import { PolledFormula, Reactive } from "@starbeam/universal";
+import { isReactive } from "@starbeam/timeline";
+import type { Reactive } from "@starbeam/universal";
+import { PolledFormula } from "@starbeam/universal";
 import {
   setupFunction,
   unsafeTrackedElsewhere,
@@ -73,7 +75,7 @@ export function useSetup<
 
     let currentProps: unknown = undefined;
 
-    if (Reactive.is(instance)) {
+    if (isReactive(instance)) {
       ReactiveElement.subscribe(element, instance);
       return { element, instance: { type: "reactive", value: instance } };
     } else if (typeof instance === "function") {

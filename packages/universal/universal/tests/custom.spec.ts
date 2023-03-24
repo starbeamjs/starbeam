@@ -1,5 +1,6 @@
-import type { CustomBlueprint } from "@starbeam/universal";
-import { type IntoReactive, Reactive } from "@starbeam/universal";
+import { intoReactive, read } from "@starbeam/timeline";
+import type { CustomBlueprint, Reactive } from "@starbeam/universal";
+import { type IntoReactive } from "@starbeam/universal";
 import { Cell, Custom, Formula } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 
@@ -43,7 +44,7 @@ describe("Custom reactive objects", () => {
       return Custom(() => {
         const formatter = Formula(
           () =>
-            new Intl.DateTimeFormat(Reactive.read(locale), {
+            new Intl.DateTimeFormat(read(locale), {
               year: "numeric",
               month: "long",
               day: "numeric",
@@ -51,7 +52,7 @@ describe("Custom reactive objects", () => {
         );
 
         return Formula(() => {
-          return formatter().format(Reactive.read(date));
+          return formatter().format(read(date));
         });
       });
     }
@@ -77,7 +78,7 @@ describe("Custom reactive objects", () => {
       return Custom(() => {
         const age = Cell(0);
         return {
-          name: Reactive.from(name),
+          name: intoReactive(name),
 
           get age() {
             return age.current;
@@ -152,7 +153,7 @@ class GenericImpl<S extends string> {
   readonly #age = Cell(0);
 
   constructor(name: IntoReactive<S>) {
-    this.#name = Reactive.from(name);
+    this.#name = intoReactive(name);
   }
 
   get name(): S {

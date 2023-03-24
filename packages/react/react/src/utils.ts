@@ -1,6 +1,6 @@
-import { type Description, Desc } from "@starbeam/debug";
+import { Desc, type Description } from "@starbeam/debug";
+import type { Reactive } from "@starbeam/interfaces";
 import { UNINITIALIZED } from "@starbeam/shared";
-import type { Reactive } from "@starbeam/timeline";
 import { Cell } from "@starbeam/universal";
 import { useRef } from "react";
 

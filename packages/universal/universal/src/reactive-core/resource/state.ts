@@ -1,9 +1,9 @@
 import type { Description } from "@starbeam/debug";
+import type { Reactive } from "@starbeam/interfaces";
 import { UNINITIALIZED } from "@starbeam/shared";
-import { LIFETIME, Reactive } from "@starbeam/timeline";
+import { isReactive, LIFETIME, Static } from "@starbeam/timeline";
 
 import { Formula } from "../formula/formula.js";
-import { Static } from "../static.js";
 import {
   type AssimilatedResourceReturn,
   brandResource,
@@ -164,17 +164,19 @@ export class ResourceState<T> {
     if (isResource(resource)) {
       LIFETIME.link(nextRun, resource, { root: this.#owner });
       return resource as AssimilatedResourceReturn<R>;
-    } else if (Reactive.is(resource)) {
+    } else if (isReactive(resource)) {
       return resource as AssimilatedResourceReturn<R>;
     } else if (resource instanceof ResourceBlueprint) {
       return resource.use(nextRun, this) as AssimilatedResourceReturn<R>;
     } else if (resource === UNINITIALIZED) {
-      return Static(undefined) as AssimilatedResourceReturn<R>;
+      return Static(
+        undefined
+      ) as Reactive<undefined> as AssimilatedResourceReturn<R>;
     } else {
       return Static(
         resource,
         desc.detail("return")
-      ) as AssimilatedResourceReturn<R>;
+      ) as Reactive<undefined> as AssimilatedResourceReturn<R>;
     }
   }
 }
