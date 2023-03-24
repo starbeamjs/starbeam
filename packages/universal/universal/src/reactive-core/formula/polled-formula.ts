@@ -6,8 +6,8 @@ import {
 } from "@starbeam/debug";
 import type { Stack } from "@starbeam/interfaces";
 import type { UNINITIALIZED } from "@starbeam/shared";
-import { DelegateTag } from "@starbeam/tags";
-import { diff, Frame, TAG, TaggedUtils, TIMELINE } from "@starbeam/timeline";
+import { DelegateTag, getTag } from "@starbeam/tags";
+import { diff, Frame, TAG, TIMELINE } from "@starbeam/timeline";
 
 import type { Formula } from "./formula.js";
 
@@ -44,12 +44,12 @@ export function PolledFormulaValidation<T>(
 
   const update = (caller: Stack = callerStack()): void => {
     if (import.meta.env.DEV) {
-      const oldDeps = new Set(TaggedUtils.dependencies(frame));
+      const oldDeps = new Set(getTag(frame).dependencies());
 
       frame.evaluate(callback, TIMELINE.frame);
       TIMELINE.update(frame);
 
-      const newDeps = new Set(TaggedUtils.dependencies(frame));
+      const newDeps = new Set(getTag(frame).dependencies());
 
       TIMELINE.didConsumeFrame(frame, diff(oldDeps, newDeps), caller);
     } else {
@@ -97,7 +97,7 @@ export function PolledFormula<T>(
     enumerable: false,
     configurable: true,
     writable: true,
-  value: DelegateTag.create(desc, [formula.frame]),
+    value: DelegateTag.create(desc, [formula.frame]),
   });
 
   return fn as Formula<T>;

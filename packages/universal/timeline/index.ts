@@ -21,11 +21,11 @@ export {
   Subscriptions,
 } from "./src/timeline/subscriptions.js";
 export { diff } from "./src/timeline/utils.js";
-export { Reactive, TaggedUtils } from "./src/utils/utils.js";
+export { Reactive } from "./src/utils/utils.js";
 export type { Tag, Tagged } from "@starbeam/interfaces";
 export { TAG } from "@starbeam/shared";
 
 import type * as interfaces from "@starbeam/interfaces";
 export type { interfaces };
 
-export { Timestamp } from "@starbeam/tags";
+export { getTag, Timestamp } from "@starbeam/tags";

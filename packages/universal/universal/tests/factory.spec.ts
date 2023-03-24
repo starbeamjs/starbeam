@@ -1,5 +1,6 @@
 import { entryPointFn } from "@starbeam/debug";
-import { Frame, TaggedUtils } from "@starbeam/timeline";
+import { describeTagged } from "@starbeam/tags";
+import { Frame } from "@starbeam/timeline";
 import { Cell, FormulaValidation, Reactive, Static } from "@starbeam/universal";
 import { describe, expect, test } from "@starbeam-workspace/test-utils";
 
@@ -36,9 +37,7 @@ describe("reactive Factory", () => {
       const counter = Counter.create();
 
       if (!import.meta.env.PROD) {
-        expect(TaggedUtils.description(counter).describe()).toBe(
-          "Counter 0"
-        );
+        expect(describeTagged(counter)).toBe("Counter 0");
       }
 
       expect(counter.current).toBe(0);

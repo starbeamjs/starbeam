@@ -1,7 +1,14 @@
 import { callerStack, Desc } from "@starbeam/debug";
 import type { Tagged } from "@starbeam/interfaces";
-import { CellTag, FormulaTag, zero } from "@starbeam/tags";
-import { TAG, TaggedUtils, TIMELINE } from "@starbeam/timeline";
+import {
+  CellTag,
+  dependenciesInTaggedList,
+  FormulaTag,
+  getTag,
+  lastUpdatedInTaggedList,
+  zero,
+} from "@starbeam/tags";
+import { TAG, TIMELINE } from "@starbeam/timeline";
 import { beforeAll, describe, expect, it } from "vitest";
 
 import { Cell, FreezableCell, Static } from "./support/mini-reactives.js";
@@ -16,15 +23,15 @@ describe("Tagged", () => {
     it("has the zero timestamp for lastUpdated", () => {
       const tom = Static("Tom Dale");
 
-      expect(String(TaggedUtils.lastUpdated(tom))).toBe(String(zero()));
-      expect(String(TaggedUtils.lastUpdatedIn([tom]))).toBe(String(zero()));
+      expect(String(getTag(tom).lastUpdated)).toBe(String(zero()));
+      expect(String(lastUpdatedInTaggedList([tom]))).toBe(String(zero()));
     });
 
     it("has no dependencies", () => {
       const tom = Static("Tom Dale");
 
-      expect([...TaggedUtils.dependencies(tom)]).toEqual([]);
-      expect([...TaggedUtils.dependenciesInList([tom])]).toEqual([]);
+      expect([...getTag(tom).dependencies()]).toEqual([]);
+      expect([...dependenciesInTaggedList([tom])]).toEqual([]);
     });
   });
 
@@ -32,16 +39,15 @@ describe("Tagged", () => {
     it("has the current timestamp for lastUpdated", () => {
       const original = TIMELINE.now;
       const tom = Cell("Tom");
-      expect(String(TaggedUtils.lastUpdated(tom))).toBe(String(TIMELINE.now));
+      expect(String(getTag(tom).lastUpdated)).toBe(String(TIMELINE.now));
       const nullvox = Cell("nullvox");
       const nullvoxTimestamp = TIMELINE.now;
 
+      expect(String(getTag(nullvox).lastUpdated), "lastUpdated(nullvox)").toBe(
+        String(nullvoxTimestamp)
+      );
       expect(
-        String(TaggedUtils.lastUpdated(nullvox)),
-        "lastUpdated(nullvox)"
-      ).toBe(String(nullvoxTimestamp));
-      expect(
-        String(TaggedUtils.lastUpdatedIn([tom, nullvox])),
+        String(lastUpdatedInTaggedList([tom, nullvox])),
         "lastUpdatedIn([tom,nullvox])"
       ).toBe(String(TIMELINE.now));
 
@@ -53,13 +59,13 @@ describe("Tagged", () => {
       tom.current = "Tom Dale";
       console.log("wrote", TIMELINE.now);
       expect(String(TIMELINE.now), "TIMELINE.now").not.toBe(String(original));
-      expect(String(TaggedUtils.lastUpdated(tom)), "lastUpdated(tom)").toBe(
+      expect(String(getTag(tom).lastUpdated), "lastUpdated(tom)").toBe(
         String(TIMELINE.now)
       );
-      expect(String(TaggedUtils.lastUpdated(nullvox))).toBe(
+      expect(String(getTag(nullvox).lastUpdated)).toBe(
         String(nullvoxTimestamp)
       );
-      expect(String(TaggedUtils.lastUpdatedIn([tom, nullvox]))).toBe(
+      expect(String(lastUpdatedInTaggedList([tom, nullvox]))).toBe(
         String(TIMELINE.now)
       );
     });
@@ -68,8 +74,8 @@ describe("Tagged", () => {
       const tom = Cell("Tom");
       const nullvox = Cell("nullvox");
 
-      expect([...TaggedUtils.dependencies(tom)]).toEqual([tom[TAG]]);
-      expect([...TaggedUtils.dependenciesInList([tom, nullvox])]).toEqual([
+      expect([...getTag(tom).dependencies()]).toEqual([tom[TAG]]);
+      expect([...dependenciesInTaggedList([tom, nullvox])]).toEqual([
         tom[TAG],
         nullvox[TAG],
       ]);
@@ -82,8 +88,8 @@ describe("Tagged", () => {
 
       nullvox.current = "@nullvoxpopuli";
 
-      expect([...TaggedUtils.dependencies(tom)]).toEqual([]);
-      expect([...TaggedUtils.dependenciesInList([tom, nullvox])]).toEqual([
+      expect([...getTag(tom).dependencies()]).toEqual([]);
+      expect([...dependenciesInTaggedList([tom, nullvox])]).toEqual([
         nullvox[TAG],
       ]);
     });
@@ -100,16 +106,16 @@ describe("Tagged", () => {
         [TAG]: formula,
       };
 
-      expect(String(TaggedUtils.lastUpdated(Both))).toBe(String(TIMELINE.now));
+      expect(String(getTag(Both).lastUpdated)).toBe(String(TIMELINE.now));
 
-      expect([...TaggedUtils.dependencies(Both)]).toEqual([
+      expect([...getTag(Both).dependencies()]).toEqual([
         tom[TAG],
         nullvox[TAG],
       ]);
 
       tom.current = "Tom Dale";
 
-      expect(String(TaggedUtils.lastUpdated(Both))).toBe(String(TIMELINE.now));
+      expect(String(getTag(Both).lastUpdated)).toBe(String(TIMELINE.now));
     });
   });
 });

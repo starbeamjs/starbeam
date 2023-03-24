@@ -11,8 +11,8 @@ import type {
 import { TAG } from "@starbeam/shared";
 import { exhaustive } from "@starbeam/verify";
 
-interface SubscriptionTargetStatics {
-  dependencies: (reactive: Tagged) => Iterable<CellTag>;
+interface Runtime {
+  getTag: (reactive: Tagged) => Tag;
 }
 
 function reactiveInternals(reactive: Tagged): Tag {
@@ -128,11 +128,11 @@ export type DebugFilter =
 
 function filterToPredicate(
   filter: DebugFilter,
-  reactive: SubscriptionTargetStatics
+  reactive: Runtime
 ): ((operation: DebugOperation) => boolean) | undefined {
   switch (filter.type) {
     case "by-reactive": {
-      const dependencies = reactive.dependencies(filter.reactive);
+      const dependencies = reactive.getTag(filter.reactive).dependencies();
       // const dependencies = reactiveDependencies(filter.reactive).children()
       //   .dependencies;
 
@@ -161,7 +161,7 @@ const INITIAL_OFFSET = 0;
 
 export class DebugTimeline {
   #timestamp: { now: () => Timestamp };
-  #statics: SubscriptionTargetStatics;
+  #statics: Runtime;
   #trimOffset = INITIAL_OFFSET;
   #operationList: DebugOperation[] = [];
   #currentMutation: MutationLog | null = null;
@@ -198,7 +198,7 @@ export class DebugTimeline {
 
     static create(
       timestamp: { now: () => Timestamp },
-      statics: SubscriptionTargetStatics
+      statics: Runtime
     ): DebugTimeline {
       return new DebugTimeline(timestamp, statics);
     }
@@ -229,15 +229,12 @@ export class DebugTimeline {
 
   static create(
     timestamp: { now: () => Timestamp },
-    statics: SubscriptionTargetStatics
+    statics: Runtime
   ): DebugTimeline {
     return new DebugTimeline(timestamp, statics);
   }
 
-  private constructor(
-    timestamp: { now: () => Timestamp },
-    statics: SubscriptionTargetStatics
-  ) {
+  private constructor(timestamp: { now: () => Timestamp }, statics: Runtime) {
     this.#timestamp = timestamp;
     this.#statics = statics;
   }

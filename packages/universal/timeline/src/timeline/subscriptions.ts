@@ -8,7 +8,6 @@ import type {
 import { getTag } from "@starbeam/tags";
 
 import type { Unsubscribe } from "../lifetime/object-lifetime.js";
-import { TaggedUtils } from "../utils/utils.js";
 import { diff } from "./utils.js";
 
 export type NotifyReady = (internals: CellTag) => void;
@@ -137,7 +136,7 @@ class SubscriberMap {
       const entry = ReactiveSubscription.create(getTag(frame));
       this.#mapping.set(getTag(frame), entry);
       return {
-        add: new Set(TaggedUtils.dependencies(frame)),
+        add: new Set(getTag(frame).dependencies()),
         remove: new Set(),
         entry,
       };
@@ -182,7 +181,7 @@ class ReactiveSubscription {
 
   update(frame: Tagged<FormulaTag>): Diff<CellTag> {
     const prev = this.#deps;
-    const next = new Set(TaggedUtils.dependencies(frame));
+    const next = new Set(getTag(frame).dependencies());
     this.#deps = next;
 
     return diff(prev, next);

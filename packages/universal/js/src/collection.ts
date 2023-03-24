@@ -1,5 +1,5 @@
 import type { Description, Stack } from "@starbeam/debug";
-import { TaggedUtils } from "@starbeam/timeline";
+import { taggedDescription } from "@starbeam/tags";
 import { Cell, Marker } from "@starbeam/universal";
 import { expected, isPresent, verified } from "@starbeam/verify";
 
@@ -203,7 +203,7 @@ export class Collection<K> {
     }
 
     let item: Item;
-    const iteration = TaggedUtils.description(this.#iteration);
+    const iteration = taggedDescription(this.#iteration);
 
     if (disposition === "miss") {
       item = Item.uninitialized(iteration, member, caller);

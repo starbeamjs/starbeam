@@ -1,7 +1,7 @@
 import { callerStack, type Description } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
-import { DelegateTag } from "@starbeam/tags";
-import { TAG, TaggedUtils } from "@starbeam/timeline";
+import { DelegateTag, taggedDescription } from "@starbeam/tags";
+import { TAG } from "@starbeam/timeline";
 
 export function Wrap<T, U extends interfaces.ReactiveValue>(
   reactive: U,
@@ -37,9 +37,9 @@ function delegateDesc(
   if (Array.isArray(to)) {
     return desc as Description;
   } else if (typeof desc === "string") {
-    return TaggedUtils.description(to).detail(desc);
+    return taggedDescription(to).detail(desc);
   } else if (desc === undefined) {
-    return TaggedUtils.description(to).detail("{delegate}");
+    return taggedDescription(to).detail("{delegate}");
   } else {
     return desc;
   }

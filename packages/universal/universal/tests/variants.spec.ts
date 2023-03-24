@@ -1,4 +1,5 @@
-import { type Tagged, TaggedUtils } from "@starbeam/timeline";
+import { describeTagged } from "@starbeam/tags";
+import { type Tagged } from "@starbeam/timeline";
 import { Formula, TIMELINE, Variants } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 
@@ -202,10 +203,7 @@ function Stability(reactive: Tagged): {
 
   TIMELINE.on.change(reactive, (internals) => {
     if (debug) {
-      console.group(
-        TaggedUtils.description(reactive).describe(),
-        "invalidated by"
-      );
+      console.group(describeTagged(reactive), "invalidated by");
       console.log(internals.description.describe());
       console.groupEnd();
     }

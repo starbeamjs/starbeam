@@ -5,8 +5,7 @@ import {
 } from "@starbeam/debug";
 import type { Reactive, Stack } from "@starbeam/interfaces";
 import type { UNINITIALIZED } from "@starbeam/shared";
-import { DelegateTag } from "@starbeam/tags";
-import { TaggedUtils } from "@starbeam/timeline";
+import { DelegateTag, getTag } from "@starbeam/tags";
 import { diff, Frame, TAG, TIMELINE } from "@starbeam/timeline";
 
 export interface FormulaValidation<T> {
@@ -31,13 +30,13 @@ export function FormulaValidation<T>(
 
   const update = (caller: Stack): void => {
     if (import.meta.env.DEV) {
-      const oldDeps = new Set(TaggedUtils.dependencies(frame));
+      const oldDeps = new Set(getTag(frame).dependencies());
 
       frame.evaluate(callback, TIMELINE.frame);
 
       TIMELINE.update(frame);
 
-      const newDeps = new Set(TaggedUtils.dependencies(frame));
+      const newDeps = new Set(getTag(frame).dependencies());
 
       TIMELINE.didConsumeFrame(frame, diff(oldDeps, newDeps), caller);
     } else {

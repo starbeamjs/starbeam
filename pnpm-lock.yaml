@@ -721,6 +721,7 @@ importers:
       '@starbeam/debug': workspace:^
       '@starbeam/interfaces': workspace:^
       '@starbeam/shared': workspace:^
+      '@starbeam/tags': workspace:^
       '@starbeam/timeline': workspace:^
       '@starbeam/universal': workspace:^
       '@starbeam/verify': workspace:^
@@ -728,6 +729,7 @@ importers:
       '@starbeam/debug': link:../debug
       '@starbeam/interfaces': link:../interfaces
       '@starbeam/shared': link:../shared
+      '@starbeam/tags': link:../tags
       '@starbeam/timeline': link:../timeline
       '@starbeam/universal': link:../universal
       '@starbeam/verify': link:../verify
@@ -749,12 +751,14 @@ importers:
       '@starbeam/debug': workspace:^
       '@starbeam/interfaces': workspace:^
       '@starbeam/shared': workspace:^
+      '@starbeam/tags': workspace:^
       '@starbeam/universal': workspace:^
       '@starbeam/verify': workspace:^
     dependencies:
       '@starbeam/debug': link:../debug
       '@starbeam/interfaces': link:../interfaces
       '@starbeam/shared': link:../shared
+      '@starbeam/tags': link:../tags
       '@starbeam/universal': link:../universal
       '@starbeam/verify': link:../verify
     devDependencies:

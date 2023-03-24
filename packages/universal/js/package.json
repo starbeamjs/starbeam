@@ -29,6 +29,7 @@
     "@starbeam/debug": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
     "@starbeam/shared": "workspace:^",
+    "@starbeam/tags": "workspace:^",
     "@starbeam/timeline": "workspace:^",
     "@starbeam/universal": "workspace:^",
     "@starbeam/verify": "workspace:^"

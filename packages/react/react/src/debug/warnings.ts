@@ -1,16 +1,16 @@
 import { Message } from "@starbeam/debug";
-import { TaggedUtils, TIMELINE } from "@starbeam/timeline";
+import { TIMELINE } from "@starbeam/timeline";
 import { isRendering } from "@starbeam/use-strict-lifecycle";
 
 let WARNED = false;
 
 if (import.meta.env.DEV) {
-  TIMELINE.untrackedReadBarrier((reactive, stack) => {
+  TIMELINE.untrackedReadBarrier((tag, stack) => {
     if (isRendering()) {
       if (!WARNED) {
         WARNED = true;
 
-        const description = TaggedUtils.description(reactive).userFacing;
+        const description = tag.description.userFacing;
         const caller = stack.caller;
 
         const pad = Math.max(

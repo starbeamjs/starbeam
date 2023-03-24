@@ -7,9 +7,9 @@ import type {
 import type * as interfaces from "@starbeam/interfaces";
 import { TAG, UNINITIALIZED } from "@starbeam/shared";
 import { CellTag, FormulaTag, getNow } from "@starbeam/tags";
+import { lastUpdatedInTaggedList } from "@starbeam/tags/src/tagged.js";
 import { isNotEqual, verified } from "@starbeam/verify";
 
-import { TaggedUtils } from "../utils/utils.js";
 import type { FrameStack } from "./frames.js";
 import { getID } from "./id.js";
 import type { Timeline } from "./timeline.js";
@@ -154,7 +154,7 @@ export class Frame<T = unknown>
   validate(): FrameValidation<Exclude<T, UNINITIALIZED>> {
     if (
       this.#value === UNINITIALIZED ||
-      TaggedUtils.lastUpdatedIn([...this.#children]).gt(this.#finalized)
+      lastUpdatedInTaggedList([...this.#children]).gt(this.#finalized)
     ) {
       return { status: "invalid" };
     } else {
