@@ -11,6 +11,7 @@
   "dependencies": {
     "@starbeam/debug": "workspace:^",
     "@starbeam/react": "workspace:^",
+    "@starbeam/reactive": "workspace:^",
     "@starbeam/timeline": "workspace:^",
     "@starbeam/universal": "workspace:^",
     "@starbeam-workspace/react-test-utils": "workspace:^",

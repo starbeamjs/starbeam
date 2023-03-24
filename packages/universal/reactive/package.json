@@ -1,12 +1,6 @@
 {
-  "name": "@starbeam/universal",
-  "version": "0.8.9",
-  "type": "module",
-  "main": "index.ts",
+  "name": "@starbeam/reactive",
   "types": "index.ts",
-  "exports": {
-    "default": "./index.ts"
-  },
   "publishConfig": {
     "exports": {
       ".": {
@@ -20,19 +14,13 @@
   },
   "starbeam:type": "library:public",
   "scripts": {
-    "test:lint": "eslint",
-    "test:specs": "vitest --run",
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "@starbeam/core-utils": "workspace:^",
     "@starbeam/debug": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
-    "@starbeam/reactive": "workspace:^",
     "@starbeam/shared": "workspace:^",
-    "@starbeam/tags": "workspace:^",
-    "@starbeam/timeline": "workspace:^",
-    "@starbeam/verify": "workspace:^"
+    "@starbeam/tags": "workspace:^"
   },
   "devDependencies": {
     "@starbeam-dev/build-support": "workspace:*"

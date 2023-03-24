@@ -2,7 +2,8 @@ import type * as Debug from "@starbeam/debug";
 import { callerStack, Desc } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
-import { StaticTag } from "@starbeam/tags";
+
+import { Static } from "./primitives/static.js";
 
 export type Reactive<T> = interfaces.Reactive<T>;
 
@@ -44,40 +45,10 @@ export function intoReactive<T>(
   if (isReactive(value)) {
     return value;
   } else {
-    return Static(value, Desc("static", description));
+    return Static(value, { description: Desc("static", description) });
   }
 }
 
 function hasRead<T>(value: object): value is { read: () => T } {
   return "read" in value && typeof value.read === "function";
 }
-
-export class StaticImpl<T>
-  implements interfaces.ReactiveValue<T, interfaces.StaticTag>
-{
-  static create = <T>(
-    value: T,
-    description?: string | Debug.Description
-  ): StaticImpl<T> => {
-    return new StaticImpl(value, Desc("static", description));
-  };
-
-  readonly #value: T;
-  readonly [TAG]: interfaces.StaticTag;
-
-  private constructor(value: T, description: Debug.Description) {
-    this.#value = value;
-    this[TAG] = StaticTag.create(description);
-  }
-
-  get current(): T {
-    return this.#value;
-  }
-
-  read(): T {
-    return this.#value;
-  }
-}
-
-export const Static = StaticImpl.create;
-export type Static<T> = StaticImpl<T>;

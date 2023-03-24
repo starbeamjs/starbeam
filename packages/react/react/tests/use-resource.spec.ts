@@ -3,7 +3,7 @@
 import { entryPoint } from "@starbeam/debug";
 import reactive from "@starbeam/js";
 import { use, useProp, useReactive, useSetup } from "@starbeam/react";
-import { intoReactive } from "@starbeam/timeline";
+import { intoReactive } from "@starbeam/reactive";
 import {
   Cell,
   Formula,

@@ -1,7 +1,8 @@
 import type { Description } from "@starbeam/debug";
 import type { Reactive } from "@starbeam/interfaces";
+import { isReactive, Static } from "@starbeam/reactive";
 import { UNINITIALIZED } from "@starbeam/shared";
-import { isReactive, LIFETIME, Static } from "@starbeam/timeline";
+import { LIFETIME } from "@starbeam/timeline";
 
 import { Formula } from "../formula/formula.js";
 import {
@@ -173,10 +174,9 @@ export class ResourceState<T> {
         undefined
       ) as Reactive<undefined> as AssimilatedResourceReturn<R>;
     } else {
-      return Static(
-        resource,
-        desc.detail("return")
-      ) as Reactive<undefined> as AssimilatedResourceReturn<R>;
+      return Static(resource, {
+        description: desc.detail("return"),
+      }) as Reactive<undefined> as AssimilatedResourceReturn<R>;
     }
   }
 }

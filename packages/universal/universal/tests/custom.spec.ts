@@ -1,4 +1,4 @@
-import { intoReactive, read } from "@starbeam/timeline";
+import { intoReactive, read } from "@starbeam/reactive";
 import type { CustomBlueprint, Reactive } from "@starbeam/universal";
 import { type IntoReactive } from "@starbeam/universal";
 import { Cell, Custom, Formula } from "@starbeam/universal";

@@ -1,6 +1,6 @@
 import type { Description } from "@starbeam/debug";
 import { Desc } from "@starbeam/debug";
-import { intoReactive, isReactive } from "@starbeam/timeline";
+import { intoReactive, isReactive } from "@starbeam/reactive";
 
 import type { ReactiveBlueprint } from "./reactive.js";
 import { type Blueprint, Reactive, type ReactiveFactory } from "./reactive.js";

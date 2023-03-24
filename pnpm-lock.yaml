@@ -407,6 +407,7 @@ importers:
       '@starbeam/core-utils': workspace:^
       '@starbeam/debug': workspace:^
       '@starbeam/preact-utils': workspace:^
+      '@starbeam/reactive': workspace:^
       '@starbeam/timeline': workspace:^
       '@starbeam/universal': workspace:^
       '@starbeam/verify': workspace:^
@@ -417,6 +418,7 @@ importers:
       '@starbeam/core-utils': link:../../universal/core-utils
       '@starbeam/debug': link:../../universal/debug
       '@starbeam/preact-utils': link:../preact-utils
+      '@starbeam/reactive': link:../../universal/reactive
       '@starbeam/timeline': link:../../universal/timeline
       '@starbeam/universal': link:../../universal/universal
       '@starbeam/verify': link:../../universal/verify
@@ -548,6 +550,7 @@ importers:
       '@starbeam/interfaces': workspace:^
       '@starbeam/js': workspace:^
       '@starbeam/modifier': workspace:^
+      '@starbeam/reactive': workspace:^
       '@starbeam/shared': workspace:^
       '@starbeam/timeline': workspace:^
       '@starbeam/universal': workspace:^
@@ -563,6 +566,7 @@ importers:
       '@starbeam/interfaces': link:../../universal/interfaces
       '@starbeam/js': link:../../universal/js
       '@starbeam/modifier': link:../../universal/modifier
+      '@starbeam/reactive': link:../../universal/reactive
       '@starbeam/shared': link:../../universal/shared
       '@starbeam/timeline': link:../../universal/timeline
       '@starbeam/universal': link:../../universal/universal
@@ -582,6 +586,7 @@ importers:
       '@starbeam-workspace/test-utils': workspace:^
       '@starbeam/debug': workspace:^
       '@starbeam/react': workspace:^
+      '@starbeam/reactive': workspace:^
       '@starbeam/timeline': workspace:^
       '@starbeam/universal': workspace:^
       jsdom: ^21.1.1
@@ -592,6 +597,7 @@ importers:
       '@starbeam-workspace/test-utils': link:../../../universal/test-utils
       '@starbeam/debug': link:../../../universal/debug
       '@starbeam/react': link:..
+      '@starbeam/reactive': link:../../../universal/reactive
       '@starbeam/timeline': link:../../../universal/timeline
       '@starbeam/universal': link:../../../universal/universal
       jsdom: 21.1.1
@@ -765,6 +771,21 @@ importers:
       '@domtree/flavors': link:../../../workspace/@domtree/flavors
       '@starbeam-dev/build-support': link:../../../workspace/build
 
+  packages/universal/reactive:
+    specifiers:
+      '@starbeam-dev/build-support': workspace:*
+      '@starbeam/debug': workspace:^
+      '@starbeam/interfaces': workspace:^
+      '@starbeam/shared': workspace:^
+      '@starbeam/tags': workspace:^
+    dependencies:
+      '@starbeam/debug': link:../debug
+      '@starbeam/interfaces': link:../interfaces
+      '@starbeam/shared': link:../shared
+      '@starbeam/tags': link:../tags
+    devDependencies:
+      '@starbeam-dev/build-support': link:../../../workspace/build
+
   packages/universal/shared:
     specifiers:
       '@starbeam-dev/build-support': workspace:*
@@ -840,6 +861,7 @@ importers:
       '@starbeam/core-utils': workspace:^
       '@starbeam/debug': workspace:^
       '@starbeam/interfaces': workspace:^
+      '@starbeam/reactive': workspace:^
       '@starbeam/shared': workspace:^
       '@starbeam/tags': workspace:^
       '@starbeam/timeline': workspace:^
@@ -848,6 +870,7 @@ importers:
       '@starbeam/core-utils': link:../core-utils
       '@starbeam/debug': link:../debug
       '@starbeam/interfaces': link:../interfaces
+      '@starbeam/reactive': link:../reactive
       '@starbeam/shared': link:../shared
       '@starbeam/tags': link:../tags
       '@starbeam/timeline': link:../timeline

@@ -1,6 +1,6 @@
 import { callerStack, Desc } from "@starbeam/debug";
 import type { Description } from "@starbeam/interfaces";
-import { isReactive } from "@starbeam/timeline";
+import { isReactive } from "@starbeam/reactive";
 import type { Reactive } from "@starbeam/universal";
 import { PolledFormula } from "@starbeam/universal";
 import {

@@ -33,6 +33,7 @@
     "@starbeam/interfaces": "workspace:^",
     "@starbeam/js": "workspace:^",
     "@starbeam/modifier": "workspace:^",
+    "@starbeam/reactive": "workspace:^",
     "@starbeam/shared": "workspace:^",
     "@starbeam/timeline": "workspace:^",
     "@starbeam/universal": "workspace:^",
