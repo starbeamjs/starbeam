@@ -1,6 +1,5 @@
 import { type Description, descriptionFrom } from "@starbeam/debug";
-
-import { Cell } from "../cell.js";
+import { Cell } from "@starbeam/reactive";
 
 const INITIAL_COUNT = 0;
 const INCREMENT_COUNT = 1;

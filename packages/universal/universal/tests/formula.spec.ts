@@ -17,8 +17,8 @@ describe("A reactive formula", () => {
   });
 
   test("produces stable values if inputs don't change", () => {
-    const name = Cell("@tomdale", "name");
-    const location = Cell("New York", "location");
+    const name = Cell("@tomdale", { description: "name" });
+    const location = Cell("New York", { description: "location" });
 
     const card = Formula(
       () => ({

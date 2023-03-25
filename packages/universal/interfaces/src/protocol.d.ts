@@ -32,9 +32,26 @@ export interface DefaultMatcher<T> extends Partial<ExhaustiveMatcher<T>> {
 
 export type Matcher<T> = ExhaustiveMatcher<T> | DefaultMatcher<T>;
 
+export interface Runtime {
+  callerStack: () => Stack;
+  didConsumeCell: (cell: Tagged<CellTag>, caller: Stack) => void;
+  bumpCell: (cell: CellTag, caller: Stack) => Timestamp;
+  creatingFrame: (description: Description) => ActiveRuntimeFrame;
+  updatingFrame: (
+    description: Description,
+    frame: RuntimeFrame
+  ) => ActiveRuntimeFrame;
+}
+
+export interface ActiveRuntimeFrame {
+  done: () => RuntimeFrame;
+}
+
+export type RuntimeFrame = object;
+
 export interface UpdateOptions {
   readonly stack: Stack;
-  readonly timeline: { bump: (tag: CellTag, caller: Stack) => Timestamp };
+  readonly runtime: Runtime;
 }
 
 /**
@@ -45,6 +62,7 @@ export interface CellTag extends AbstractTag, TagMethods {
   readonly type: "cell";
   readonly lastUpdated: Timestamp;
   isFrozen?: () => boolean;
+  freeze: () => void;
   update: (options: UpdateOptions) => void;
 }
 

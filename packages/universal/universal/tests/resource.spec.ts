@@ -15,11 +15,11 @@ import {
 } from "@starbeam/debug";
 import type { Reactive } from "@starbeam/interfaces";
 import {
-  type ResourceBlueprint,
   Cell,
   Formula,
   LIFETIME,
   Resource,
+  type ResourceBlueprint,
   Wrap,
 } from "@starbeam/universal";
 import { exhaustive, verified } from "@starbeam/verify";
@@ -155,7 +155,7 @@ describe("use()", () => {
       return cell;
     }, "Inner");
 
-    const counter = Cell(INITIAL_COUNT, "i");
+    const counter = Cell(INITIAL_COUNT, { description: "i" });
     let run = 0;
     let currentInstance = undefined as Reactive<string> | undefined;
     let prevInner = undefined as Reactive<string> | undefined;
@@ -193,8 +193,8 @@ describe("use()", () => {
   test("transferring a resource prevents it from being cleaned up", () => {
     const { resource: inner } = TestResource("inner");
 
-    const outerDep = Cell(INITIAL_COUNT, "OuterDep");
-    const formulaDep = Cell(INITIAL_COUNT, "FormulaDep");
+    const outerDep = Cell(INITIAL_COUNT, { description: "OuterDep" });
+    const formulaDep = Cell(INITIAL_COUNT, { description: "FormulaDep" });
 
     const Outer = Resource(({ use, on }) => {
       const innerValue = use(inner);

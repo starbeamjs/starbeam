@@ -5,13 +5,13 @@ import {
   descriptionFrom,
   DisplayStruct,
 } from "@starbeam/debug";
+import { Cell } from "@starbeam/reactive";
 import { UNINITIALIZED } from "@starbeam/shared";
 import { FormulaTag } from "@starbeam/tags";
 import { DelegateTag } from "@starbeam/tags";
 import type { Tagged } from "@starbeam/timeline";
 import { TAG, TIMELINE } from "@starbeam/timeline";
 
-import { Cell } from "./cell.js";
 import { Marker } from "./marker.js";
 
 export class VariantGroups {

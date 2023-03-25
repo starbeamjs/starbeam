@@ -32,7 +32,7 @@ export const reactive = (
       let cell: Cell<any> | undefined = CELLS.get(this);
 
       if (!cell) {
-        cell = Cell(undefined, `@reactive ${String(key)}`);
+        cell = Cell(undefined, { description: `@reactive ${String(key)}` });
         CELLS.set(this, cell);
       }
 
@@ -43,7 +43,7 @@ export const reactive = (
       let cell: Cell<any> | undefined = CELLS.get(this);
 
       if (!cell) {
-        cell = Cell(undefined, `@reactive ${String(key)}`);
+        cell = Cell(undefined, { description: `@reactive ${String(key)}` });
         CELLS.set(this, cell);
       }
 

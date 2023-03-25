@@ -17,6 +17,7 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
+    "@starbeam/core-utils": "workspace:^",
     "@starbeam/debug": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
     "@starbeam/shared": "workspace:^",

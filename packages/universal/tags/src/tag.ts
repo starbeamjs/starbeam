@@ -105,12 +105,12 @@ export class CellTag extends Tag implements interfaces.CellTag {
     if (!this.#frozen) yield this;
   }
 
-  update({ timeline, stack }: UpdateOptions): void {
+  update({ runtime: timeline, stack }: UpdateOptions): void {
     if (this.#frozen) {
       throw TypeError("Cannot update frozen object");
     }
 
-    this.#lastUpdated = timeline.bump(this, stack);
+    this.#lastUpdated = timeline.bumpCell(this, stack);
   }
 }
 

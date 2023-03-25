@@ -1,19 +1,14 @@
-import type { CellTag, Stack, Tagged } from "@starbeam/interfaces";
-
-export interface ReactiveRuntime {
-  didConsumeCell: (cell: Tagged<CellTag>, caller?: Stack) => void;
-  callerStack: () => Stack;
-}
+import type { Runtime } from "@starbeam/interfaces";
 
 export const CONTEXT = {
-  runtime: null as null | ReactiveRuntime,
-};
+  runtime: null as null | Runtime,
+}; 
 
-export function defineRuntime(runtime: ReactiveRuntime): void {
+export function defineRuntime(runtime: Runtime): void {
   CONTEXT.runtime = runtime;
 }
 
-export function getRuntime(): ReactiveRuntime {
+export function getRuntime(): Runtime {
   if (import.meta.env.DEV) {
     if (CONTEXT.runtime === null) {
       throw Error(
@@ -22,5 +17,5 @@ export function getRuntime(): ReactiveRuntime {
     }
   }
 
-  return CONTEXT.runtime as ReactiveRuntime;
+  return CONTEXT.runtime as Runtime;
 }

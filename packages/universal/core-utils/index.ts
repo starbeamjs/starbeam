@@ -25,8 +25,8 @@ export type {
   JsonValue,
 } from "./src/json.js";
 export { isJSONObject, stringifyJSON } from "./src/json.js";
-export { isObject, objectHasKeys } from "./src/object.js";
-export { type Matcher, type TypedOverload, Overload } from "./src/overload.js";
+export { isObject, objectHasKeys, readonly } from "./src/object.js";
+export { type Matcher, Overload, type TypedOverload } from "./src/overload.js";
 export { isEmptyMatch, matchPattern, Pattern } from "./src/regexp.js";
 export {
   asIntIndex,

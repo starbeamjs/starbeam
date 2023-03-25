@@ -774,11 +774,13 @@ importers:
   packages/universal/reactive:
     specifiers:
       '@starbeam-dev/build-support': workspace:*
+      '@starbeam/core-utils': workspace:^
       '@starbeam/debug': workspace:^
       '@starbeam/interfaces': workspace:^
       '@starbeam/shared': workspace:^
       '@starbeam/tags': workspace:^
     dependencies:
+      '@starbeam/core-utils': link:../core-utils
       '@starbeam/debug': link:../debug
       '@starbeam/interfaces': link:../interfaces
       '@starbeam/shared': link:../shared

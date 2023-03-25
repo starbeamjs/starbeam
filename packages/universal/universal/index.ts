@@ -1,5 +1,4 @@
 export { DEBUG_RENDERER } from "./src/debug-renderer.js";
-export { Cell, type Equality } from "./src/reactive-core/cell.js";
 export {
   Custom,
   CustomBlueprint,
@@ -54,4 +53,5 @@ export {
   Variants,
   type VariantType,
 } from "./src/reactive-core/variants.js";
+export { Cell, type Equality, Static } from "@starbeam/reactive";
 export { LIFETIME, TAG, TIMELINE } from "@starbeam/timeline";

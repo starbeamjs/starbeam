@@ -4,6 +4,8 @@ import type * as interfaces from "@starbeam/interfaces";
 import { CellTag } from "@starbeam/tags";
 import { TAG, TIMELINE } from "@starbeam/timeline";
 
+import { RUNTIME } from "../runtime.js";
+
 export class ReactiveMarker implements Tagged<interfaces.CellTag> {
   static create(tag: CellTag): ReactiveMarker {
     return new ReactiveMarker(tag);
@@ -30,7 +32,7 @@ export class ReactiveMarker implements Tagged<interfaces.CellTag> {
   }
 
   update(caller: Stack): void {
-    this[TAG].update({ timeline: TIMELINE, stack: caller });
+    this[TAG].update({ runtime: RUNTIME, stack: caller });
   }
 }
 

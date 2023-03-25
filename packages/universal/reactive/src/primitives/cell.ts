@@ -1,3 +1,4 @@
+import { readonly } from "@starbeam/core-utils";
 import type * as Debug from "@starbeam/debug";
 import { Desc } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
@@ -12,34 +13,61 @@ export class CellImpl<T>
 {
   static create = <T>(
     value: T,
-    { description }: { description?: string | Debug.Description } = {}
+    { description, equals = Object.is }: CellOptions<T> = {}
   ): CellImpl<T> => {
-    return new CellImpl(value, Desc("static", description));
+    return new CellImpl(value, equals, Desc("static", description));
   };
 
-  readonly #value: T;
-  readonly [TAG]: interfaces.CellTag;
+  #value: T;
+  readonly #equals: Equality<T>;
+  declare readonly [TAG]: interfaces.CellTag;
 
-  private constructor(value: T, description: Debug.Description) {
+  private constructor(
+    value: T,
+    equality: Equality<T>,
+    description: Debug.Description
+  ) {
     this.#value = value;
-    this[TAG] = CellTag.create(description);
+    this.#equals = equality;
+    readonly(this, TAG, CellTag.create(description));
   }
 
   get current(): T {
-    return this.#value;
+    return this.read(getRuntime().callerStack());
+  }
+
+  set current(value: T) {
+    this.set(value, getRuntime().callerStack());
   }
 
   read(caller = getRuntime().callerStack()): T {
     getRuntime().didConsumeCell(this, caller);
     return this.#value;
   }
+
+  set(value: T, caller = getRuntime().callerStack()) {
+    if (this.#equals(value, this.#value)) {
+      return false;
+    }
+
+    this.#value = value;
+    this[TAG].update({ stack: caller, runtime: getRuntime() });
+  }
+
+  update(updater: (prev: T) => T, caller = getRuntime().callerStack()) {
+    this.set(updater(this.#value), caller);
+  }
+
+  freeze(): void {
+    this[TAG].freeze();
+  }
 }
 
 export const Cell = CellImpl.create;
-export type Cell<T> = CellImpl<T>;
+export type Cell<T = unknown> = CellImpl<T>;
 
 export type Equality<T> = (a: T, b: T) => boolean;
 
-export interface CellOptions extends PrimitiveOptions {
-  equals?: Equality<unknown>;
+export interface CellOptions<T> extends PrimitiveOptions {
+  equals?: Equality<T>;
 }
