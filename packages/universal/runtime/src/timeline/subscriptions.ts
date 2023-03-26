@@ -1,11 +1,4 @@
-import type {
-  CellTag,
-  Diff,
-  FormulaTag,
-  Tag,
-  Tagged,
-} from "@starbeam/interfaces";
-import { getTag } from "@starbeam/tags";
+import type { CellTag, Diff, FormulaTag, Tag } from "@starbeam/interfaces";
 
 import type { Unsubscribe } from "../lifetime/object-lifetime.js";
 import { diff } from "./utils.js";
@@ -75,8 +68,8 @@ export class Subscriptions {
    * we may want to fire notifications whenever a `PolledFormula` is recomputed and produces
    * different dependencies.
    */
-  register(target: Tagged, ready: NotifyReady): Unsubscribe {
-    const subscriptionTargets = getTag(target).subscriptionTargets();
+  register(target: Tag, ready: NotifyReady): Unsubscribe {
+    const subscriptionTargets = target.subscriptionTargets();
 
     const unsubscribes = [...subscriptionTargets].map((t) => {
       const entry = this.#formulaMap.register(t);
@@ -106,7 +99,7 @@ export class Subscriptions {
    * results in removing mappings from cells that are no longer dependencies and adding mappings for
    * cells that have become dependencies.
    */
-  update(frame: Tagged<FormulaTag>): void {
+  update(frame: FormulaTag): void {
     const cellMap = this.#cellMap;
 
     const { add, remove, entry } = this.#formulaMap.update(frame);
@@ -125,18 +118,16 @@ class SubscriberMap {
 
   readonly #mapping = new WeakMap<Tag, ReactiveSubscription>();
 
-  update(
-    frame: Tagged<FormulaTag>
-  ): Diff<CellTag> & { entry: ReactiveSubscription } {
-    const entry = this.#mapping.get(getTag(frame));
+  update(formula: FormulaTag): Diff<CellTag> & { entry: ReactiveSubscription } {
+    const entry = this.#mapping.get(formula);
 
     if (entry) {
-      return { ...entry.update(frame), entry };
+      return { ...entry.update(formula), entry };
     } else {
-      const entry = ReactiveSubscription.create(getTag(frame));
-      this.#mapping.set(getTag(frame), entry);
+      const entry = ReactiveSubscription.create(formula);
+      this.#mapping.set(formula, entry);
       return {
-        add: new Set(getTag(frame).dependencies()),
+        add: new Set(formula.dependencies()),
         remove: new Set(),
         entry,
       };
@@ -179,9 +170,9 @@ class ReactiveSubscription {
     }
   }
 
-  update(frame: Tagged<FormulaTag>): Diff<CellTag> {
+  update(frame: FormulaTag): Diff<CellTag> {
     const prev = this.#deps;
-    const next = new Set(getTag(frame).dependencies());
+    const next = new Set(frame.dependencies());
     this.#deps = next;
 
     return diff(prev, next);

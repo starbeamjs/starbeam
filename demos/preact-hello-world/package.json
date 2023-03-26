@@ -38,7 +38,7 @@
   "dependencies": {
     "@starbeam/js": "workspace:^",
     "@starbeam/preact": "workspace:^",
-    "@starbeam/timeline": "workspace:^",
+    "@starbeam/runtime": "workspace:^",
     "@starbeam/universal": "workspace:^",
     "preact": "^10.11.3",
     "purecss": "3.0.0"

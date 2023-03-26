@@ -1,5 +1,5 @@
 import { getTag } from "@starbeam/tags";
-import { TIMELINE } from "@starbeam/timeline";
+import { TIMELINE } from "../../runtime";
 import { Cell, Setup } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 

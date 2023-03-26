@@ -8,7 +8,7 @@ import {
   lastUpdatedInTaggedList,
   zero,
 } from "@starbeam/tags";
-import { TAG, TIMELINE } from "@starbeam/timeline";
+import { TAG, TIMELINE } from "@starbeam/runtime";
 import { beforeAll, describe, expect, it } from "vitest";
 
 import { Cell, FreezableCell, Static } from "./support/mini-reactives.js";

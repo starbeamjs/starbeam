@@ -54,4 +54,4 @@ export {
   type VariantType,
 } from "./src/reactive-core/variants.js";
 export { Cell, type Equality, Static } from "@starbeam/reactive";
-export { LIFETIME, TAG, TIMELINE } from "@starbeam/timeline";
+export { LIFETIME, TAG, TIMELINE } from "@starbeam/runtime";

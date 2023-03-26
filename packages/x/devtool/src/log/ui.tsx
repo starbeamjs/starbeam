@@ -1,7 +1,7 @@
 /** @jsxRuntime automatic @jsxImportSource preact */
 
 import type { DescriptionParts } from "@starbeam/debug";
-import { Timestamp } from "@starbeam/timeline";
+import { Timestamp } from "@starbeam/runtime";
 import type { ComponentChildren, JSX } from "preact";
 import { useState } from "preact/hooks";
 

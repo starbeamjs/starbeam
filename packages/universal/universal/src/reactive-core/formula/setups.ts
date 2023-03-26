@@ -1,6 +1,6 @@
 import { type Description, descriptionFrom } from "@starbeam/debug";
+import { LIFETIME, type Unsubscribe } from "@starbeam/runtime";
 import { getID } from "@starbeam/shared";
-import { type Unsubscribe, LIFETIME } from "@starbeam/timeline";
 
 import { Marker } from "../marker.js";
 import { Formula } from "./formula.js";

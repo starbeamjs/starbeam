@@ -24,7 +24,7 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "@starbeam/timeline": "workspace:^",
+    "@starbeam/runtime": "workspace:^",
     "@starbeam/universal": "workspace:^",
     "@starbeam/verify": "workspace:^"
   },

@@ -127,13 +127,13 @@ export class FrameStack {
   }
 
   /** @internal */
-   end<T>(frame: ActiveFrame<T>, value: T): Frame<T> {
+  end<T>(frame: ActiveFrame<T>, value: T): Frame<T> {
     return this.#end(frame, value);
   }
 
   /** @internal */
   updateSubscriptions<T>(frame: Frame<T>): void {
-    this.#subscriptions.update(frame);
+    this.#subscriptions.update(getTag(frame));
   }
 
   #start<T>(

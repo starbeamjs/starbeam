@@ -1,5 +1,5 @@
 import { Desc } from "@starbeam/debug";
-import { Frame, TIMELINE } from "@starbeam/timeline";
+import { Frame, TIMELINE } from "@starbeam/runtime";
 import { describe, expect, test } from "vitest";
 
 import { Cell } from "./support/mini-reactives.js";

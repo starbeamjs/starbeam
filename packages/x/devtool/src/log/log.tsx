@@ -3,7 +3,7 @@ import "preact";
 /** @jsxRuntime automatic @jsxImportSource preact */
 import type { DebugOperation } from "@starbeam/debug";
 import type { Timestamp } from "@starbeam/interfaces";
-import { TIMELINE } from "@starbeam/timeline";
+import { TIMELINE } from "@starbeam/runtime";
 import type { JSX } from "preact";
 import { useMemo, useState } from "preact/hooks";
 

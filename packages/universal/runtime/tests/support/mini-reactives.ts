@@ -7,7 +7,7 @@ import {
 import type { ReactiveCell, ReactiveValue, Tagged } from "@starbeam/interfaces";
 import { TAG, type UNINITIALIZED } from "@starbeam/shared";
 import { CellTag, StaticTag } from "@starbeam/tags";
-import { diff, Frame, TIMELINE } from "@starbeam/timeline";
+import { diff, Frame, TIMELINE } from "@starbeam/runtime";
 
 export interface FreezableCell<T> extends ReactiveCell<T> {
   freeze: () => void;

@@ -1,8 +1,8 @@
 import { callerStack, Desc, type Description } from "@starbeam/debug";
 import type { Stack, Tagged } from "@starbeam/interfaces";
 import type * as interfaces from "@starbeam/interfaces";
+import { TAG, TIMELINE } from "@starbeam/runtime";
 import { CellTag } from "@starbeam/tags";
-import { TAG, TIMELINE } from "@starbeam/timeline";
 
 import { RUNTIME } from "../runtime.js";
 

@@ -4,9 +4,9 @@ import {
   descriptionFrom,
 } from "@starbeam/debug";
 import type { Reactive, Stack } from "@starbeam/interfaces";
+import { diff, Frame, TAG, TIMELINE } from "@starbeam/runtime";
 import type { UNINITIALIZED } from "@starbeam/shared";
 import { DelegateTag, getTag } from "@starbeam/tags";
-import { diff, Frame, TAG, TIMELINE } from "@starbeam/timeline";
 
 export interface FormulaValidation<T> {
   frame: Frame<T | UNINITIALIZED>;

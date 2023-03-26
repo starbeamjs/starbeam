@@ -7,7 +7,7 @@ import type {
   Timestamp,
 } from "@starbeam/interfaces";
 import { defineRuntime } from "@starbeam/reactive";
-import { TIMELINE } from "@starbeam/timeline";
+import { TIMELINE } from "../../runtime";
 
 type Timeline = typeof TIMELINE;
 

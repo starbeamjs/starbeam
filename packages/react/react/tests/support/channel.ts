@@ -1,5 +1,5 @@
 import { getLast, removeItem } from "@starbeam/core-utils";
-import type { Unsubscribe } from "@starbeam/timeline";
+import type { Unsubscribe } from "@starbeam/runtime";
 
 const FIRST_ID = 0;
 

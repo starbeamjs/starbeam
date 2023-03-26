@@ -5,9 +5,9 @@ import {
   descriptionFrom,
 } from "@starbeam/debug";
 import type { Stack } from "@starbeam/interfaces";
+import { diff, Frame, TAG, TIMELINE } from "@starbeam/runtime";
 import type { UNINITIALIZED } from "@starbeam/shared";
 import { DelegateTag, getTag } from "@starbeam/tags";
-import { diff, Frame, TAG, TIMELINE } from "@starbeam/timeline";
 
 import type { Formula } from "./formula.js";
 

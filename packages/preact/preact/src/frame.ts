@@ -6,7 +6,7 @@ import {
   type Frame,
   TIMELINE,
   type Unsubscribe,
-} from "@starbeam/timeline";
+} from "@starbeam/runtime";
 import { expected, isPresent, verify } from "@starbeam/verify";
 
 export class ComponentFrame {

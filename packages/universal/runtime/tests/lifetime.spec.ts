@@ -1,4 +1,4 @@
-import { LIFETIME } from "@starbeam/timeline";
+import { LIFETIME } from "@starbeam/runtime";
 import { describe, expect, test } from "vitest";
 
 describe("lifetimes", () => {

@@ -1,5 +1,5 @@
 import { describeTagged } from "@starbeam/tags";
-import { type Tagged } from "@starbeam/timeline";
+import { type Tagged } from "../../runtime";
 import { Formula, TIMELINE, Variants } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 

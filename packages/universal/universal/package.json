@@ -31,7 +31,7 @@
     "@starbeam/reactive": "workspace:^",
     "@starbeam/shared": "workspace:^",
     "@starbeam/tags": "workspace:^",
-    "@starbeam/timeline": "workspace:^",
+    "@starbeam/runtime": "workspace:^",
     "@starbeam/verify": "workspace:^"
   },
   "devDependencies": {

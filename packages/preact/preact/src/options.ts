@@ -5,7 +5,7 @@ import type {
 } from "@starbeam/preact-utils";
 import { Plugin } from "@starbeam/preact-utils";
 import { isReactive } from "@starbeam/reactive";
-import { CONTEXT, LIFETIME } from "@starbeam/timeline";
+import { CONTEXT, LIFETIME } from "@starbeam/runtime";
 import type { ComponentType } from "preact";
 
 import { ComponentFrame } from "./frame.js";

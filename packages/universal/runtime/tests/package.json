@@ -12,6 +12,6 @@
     "@starbeam/debug": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
     "@starbeam/shared": "workspace:^",
-    "@starbeam/timeline": "workspace:^"
+    "@starbeam/runtime": "workspace:^"
   }
 }

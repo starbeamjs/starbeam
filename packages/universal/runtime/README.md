@@ -94,7 +94,7 @@ You can specify a custom `Coordinator` to use an alternative strategy. For examp
 Finally, you can also explicitly schedule a _Render_ phase, which will supersede the `Coordinator`'s policy and simply wait until you're ready to render.
 
 ```ts
-import { TIMELINE } from "@starbeam/timeline";
+import { TIMELINE } from "@starbeam/runtime";
 import { Cell } from "@starbeam/reactive";
 
 const person = reactive({

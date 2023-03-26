@@ -1,5 +1,5 @@
 import { Desc, type Description } from "@starbeam/debug";
-import { LIFETIME, TIMELINE } from "@starbeam/timeline";
+import { LIFETIME, TIMELINE } from "@starbeam/runtime";
 import {
   Cell,
   Factory,

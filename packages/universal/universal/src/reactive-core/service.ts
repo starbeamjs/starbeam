@@ -1,6 +1,6 @@
 import { Desc } from "@starbeam/debug";
 import type { Description, Reactive } from "@starbeam/interfaces";
-import { CONTEXT } from "@starbeam/timeline";
+import { CONTEXT } from "@starbeam/runtime";
 
 import { Factory, type IntoResource } from "./into.js";
 import type { Blueprint } from "./reactive.js";

@@ -32,28 +32,6 @@ export interface DefaultMatcher<T> extends Partial<ExhaustiveMatcher<T>> {
 
 export type Matcher<T> = ExhaustiveMatcher<T> | DefaultMatcher<T>;
 
-export interface Runtime {
-  callerStack: () => Stack;
-  didConsumeCell: (cell: Tagged<CellTag>, caller: Stack) => void;
-  bumpCell: (cell: CellTag, caller: Stack) => Timestamp;
-  creatingFrame: (description: Description) => ActiveRuntimeFrame;
-  updatingFrame: (
-    description: Description,
-    frame: RuntimeFrame
-  ) => ActiveRuntimeFrame;
-}
-
-export interface ActiveRuntimeFrame {
-  done: () => RuntimeFrame;
-}
-
-export type RuntimeFrame = object;
-
-export interface UpdateOptions {
-  readonly stack: Stack;
-  readonly runtime: Runtime;
-}
-
 /**
  * Cell is the fundamental mutable reactive value. All subscriptions in Starbeam are ultimately
  * subscriptions to cells, and all mutations in Starbeam are ultimately mutations to cells.
@@ -156,4 +134,8 @@ export interface Reactive<T> extends ReactiveValue<T> {
 
 export interface ReactiveCell<T> extends Reactive<T, CellTag> {
   current: T;
+}
+
+export interface ReactiveFormula<T> extends Reactive<T, FormulaTag> {
+  readonly current: T;
 }

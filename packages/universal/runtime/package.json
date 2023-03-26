@@ -1,5 +1,5 @@
 {
-  "name": "@starbeam/timeline",
+  "name": "@starbeam/runtime",
   "version": "0.8.9",
   "type": "module",
   "main": "index.ts",

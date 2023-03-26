@@ -1,6 +1,6 @@
 import { type Description, descriptionFrom } from "@starbeam/debug";
-import type { Unsubscribe } from "@starbeam/timeline";
-import { TIMELINE } from "@starbeam/timeline";
+import type { Unsubscribe } from "@starbeam/runtime";
+import { TIMELINE } from "@starbeam/runtime";
 
 import { Formula } from "./reactive-core/formula/formula.js";
 

@@ -1,7 +1,7 @@
 import { callerStack, type Description } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
 import { DelegateTag, taggedDescription } from "@starbeam/tags";
-import { TAG } from "@starbeam/timeline";
+import { TAG } from "../../../runtime";
 
 export function Wrap<T, U extends interfaces.ReactiveValue>(
   reactive: U,

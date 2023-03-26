@@ -35,6 +35,7 @@ export type {
   Matcher,
   Reactive,
   ReactiveCell,
+  ReactiveFormula,
   ReactiveId,
   ReactiveValue,
   Runtime,

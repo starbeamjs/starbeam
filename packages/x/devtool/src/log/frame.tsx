@@ -2,7 +2,7 @@
 
 import type { FrameConsumeOperation } from "@starbeam/debug";
 import type { MutableInternals, Timestamp } from "@starbeam/interfaces";
-import { ReactiveInternals } from "@starbeam/timeline";
+import { ReactiveInternals } from "@starbeam/runtime";
 import type { JSX } from "preact";
 
 import { DescribeLeaf } from "./describe.js";

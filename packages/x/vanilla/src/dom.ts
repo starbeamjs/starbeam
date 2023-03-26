@@ -1,6 +1,6 @@
 import type { Description } from "@starbeam/debug";
 import { descriptionFrom } from "@starbeam/debug";
-import type { Reactive } from "@starbeam/timeline";
+import type { Reactive } from "@starbeam/runtime";
 import { Formula, LIFETIME } from "@starbeam/universal";
 
 import { Cursor } from "./cursor.js";

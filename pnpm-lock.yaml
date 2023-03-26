@@ -162,7 +162,7 @@ importers:
       '@esbuild-plugins/node-globals-polyfill': ^0.1.1
       '@starbeam/js': workspace:^
       '@starbeam/preact': workspace:^
-      '@starbeam/timeline': workspace:^
+      '@starbeam/runtime': workspace:^
       '@starbeam/universal': workspace:^
       '@vitest/ui': '*'
       preact: ^10.11.3
@@ -173,7 +173,7 @@ importers:
     dependencies:
       '@starbeam/js': link:../../packages/universal/js
       '@starbeam/preact': link:../../packages/preact/preact
-      '@starbeam/timeline': link:../../packages/universal/timeline
+      '@starbeam/runtime': link:../../packages/universal/runtime
       '@starbeam/universal': link:../../packages/universal/universal
       preact: 10.11.3
       purecss: 3.0.0
@@ -408,7 +408,7 @@ importers:
       '@starbeam/debug': workspace:^
       '@starbeam/preact-utils': workspace:^
       '@starbeam/reactive': workspace:^
-      '@starbeam/timeline': workspace:^
+      '@starbeam/runtime': workspace:^
       '@starbeam/universal': workspace:^
       '@starbeam/verify': workspace:^
       chalk: ^5.2.0
@@ -419,7 +419,7 @@ importers:
       '@starbeam/debug': link:../../universal/debug
       '@starbeam/preact-utils': link:../preact-utils
       '@starbeam/reactive': link:../../universal/reactive
-      '@starbeam/timeline': link:../../universal/timeline
+      '@starbeam/runtime': link:../../universal/runtime
       '@starbeam/universal': link:../../universal/universal
       '@starbeam/verify': link:../../universal/verify
       preact: 10.11.3
@@ -453,7 +453,7 @@ importers:
       '@starbeam-workspace/test-utils': workspace:^
       '@starbeam/debug': workspace:^
       '@starbeam/preact': workspace:^
-      '@starbeam/timeline': workspace:^
+      '@starbeam/runtime': workspace:^
       '@starbeam/universal': workspace:^
       '@testing-library/dom': ^8.19.1
       '@testing-library/preact': ^3.2.2
@@ -466,7 +466,7 @@ importers:
       '@starbeam-workspace/test-utils': link:../../../universal/test-utils
       '@starbeam/debug': link:../../../universal/debug
       '@starbeam/preact': link:../../preact
-      '@starbeam/timeline': link:../../../universal/timeline
+      '@starbeam/runtime': link:../../../universal/runtime
       '@starbeam/universal': link:../../../universal/universal
       '@testing-library/dom': 8.19.1
       '@testing-library/preact': 3.2.2_preact@10.11.3
@@ -492,7 +492,7 @@ importers:
       '@starbeam-workspace/test-utils': workspace:^
       '@starbeam/debug': workspace:^
       '@starbeam/preact': workspace:^
-      '@starbeam/timeline': workspace:^
+      '@starbeam/runtime': workspace:^
       '@starbeam/universal': workspace:^
       '@testing-library/dom': ^8.19.1
       '@testing-library/preact': ^3.2.2
@@ -504,7 +504,7 @@ importers:
       '@starbeam-workspace/test-utils': link:../../../universal/test-utils
       '@starbeam/debug': link:../../../universal/debug
       '@starbeam/preact': link:../../preact
-      '@starbeam/timeline': link:../../../universal/timeline
+      '@starbeam/runtime': link:../../../universal/runtime
       '@starbeam/universal': link:../../../universal/universal
       '@testing-library/dom': 8.19.1
       '@testing-library/preact': 3.2.2_preact@10.11.3
@@ -520,7 +520,7 @@ importers:
       '@starbeam-workspace/test-utils': workspace:^
       '@starbeam/debug': workspace:^
       '@starbeam/preact': workspace:^
-      '@starbeam/timeline': workspace:^
+      '@starbeam/runtime': workspace:^
       '@starbeam/universal': workspace:^
       '@testing-library/dom': ^8.19.1
       '@testing-library/preact': ^3.2.2
@@ -532,7 +532,7 @@ importers:
       '@starbeam-workspace/test-utils': link:../../../universal/test-utils
       '@starbeam/debug': link:../../../universal/debug
       '@starbeam/preact': link:..
-      '@starbeam/timeline': link:../../../universal/timeline
+      '@starbeam/runtime': link:../../../universal/runtime
       '@starbeam/universal': link:../../../universal/universal
       '@testing-library/dom': 8.19.1
       '@testing-library/preact': 3.2.2_preact@10.11.3
@@ -551,8 +551,8 @@ importers:
       '@starbeam/js': workspace:^
       '@starbeam/modifier': workspace:^
       '@starbeam/reactive': workspace:^
+      '@starbeam/runtime': workspace:^
       '@starbeam/shared': workspace:^
-      '@starbeam/timeline': workspace:^
       '@starbeam/universal': workspace:^
       '@starbeam/use-strict-lifecycle': workspace:^
       '@starbeam/verify': workspace:^
@@ -567,8 +567,8 @@ importers:
       '@starbeam/js': link:../../universal/js
       '@starbeam/modifier': link:../../universal/modifier
       '@starbeam/reactive': link:../../universal/reactive
+      '@starbeam/runtime': link:../../universal/runtime
       '@starbeam/shared': link:../../universal/shared
-      '@starbeam/timeline': link:../../universal/timeline
       '@starbeam/universal': link:../../universal/universal
       '@starbeam/use-strict-lifecycle': link:../use-strict-lifecycle
       '@starbeam/verify': link:../../universal/verify
@@ -587,7 +587,7 @@ importers:
       '@starbeam/debug': workspace:^
       '@starbeam/react': workspace:^
       '@starbeam/reactive': workspace:^
-      '@starbeam/timeline': workspace:^
+      '@starbeam/runtime': workspace:^
       '@starbeam/universal': workspace:^
       jsdom: ^21.1.1
       react: ^18.2.0
@@ -598,7 +598,7 @@ importers:
       '@starbeam/debug': link:../../../universal/debug
       '@starbeam/react': link:..
       '@starbeam/reactive': link:../../../universal/reactive
-      '@starbeam/timeline': link:../../../universal/timeline
+      '@starbeam/runtime': link:../../../universal/runtime
       '@starbeam/universal': link:../../../universal/universal
       jsdom: 21.1.1
       react: 18.2.0
@@ -726,17 +726,17 @@ importers:
       '@starbeam-dev/build-support': workspace:*
       '@starbeam/debug': workspace:^
       '@starbeam/interfaces': workspace:^
+      '@starbeam/runtime': workspace:^
       '@starbeam/shared': workspace:^
       '@starbeam/tags': workspace:^
-      '@starbeam/timeline': workspace:^
       '@starbeam/universal': workspace:^
       '@starbeam/verify': workspace:^
     dependencies:
       '@starbeam/debug': link:../debug
       '@starbeam/interfaces': link:../interfaces
+      '@starbeam/runtime': link:../runtime
       '@starbeam/shared': link:../shared
       '@starbeam/tags': link:../tags
-      '@starbeam/timeline': link:../timeline
       '@starbeam/universal': link:../universal
       '@starbeam/verify': link:../verify
     devDependencies:
@@ -788,6 +788,37 @@ importers:
     devDependencies:
       '@starbeam-dev/build-support': link:../../../workspace/build
 
+  packages/universal/runtime:
+    specifiers:
+      '@starbeam-dev/build-support': workspace:*
+      '@starbeam/core-utils': workspace:^
+      '@starbeam/debug': workspace:^
+      '@starbeam/interfaces': workspace:^
+      '@starbeam/shared': workspace:^
+      '@starbeam/tags': workspace:^
+      '@starbeam/verify': workspace:^
+    dependencies:
+      '@starbeam/core-utils': link:../core-utils
+      '@starbeam/debug': link:../debug
+      '@starbeam/interfaces': link:../interfaces
+      '@starbeam/shared': link:../shared
+      '@starbeam/tags': link:../tags
+      '@starbeam/verify': link:../verify
+    devDependencies:
+      '@starbeam-dev/build-support': link:../../../workspace/build
+
+  packages/universal/runtime/tests:
+    specifiers:
+      '@starbeam/debug': workspace:^
+      '@starbeam/interfaces': workspace:^
+      '@starbeam/runtime': workspace:^
+      '@starbeam/shared': workspace:^
+    dependencies:
+      '@starbeam/debug': link:../../debug
+      '@starbeam/interfaces': link:../../interfaces
+      '@starbeam/runtime': link:..
+      '@starbeam/shared': link:../../shared
+
   packages/universal/shared:
     specifiers:
       '@starbeam-dev/build-support': workspace:*
@@ -816,46 +847,15 @@ importers:
   packages/universal/test-utils:
     specifiers:
       '@starbeam-dev/build-support': workspace:*
-      '@starbeam/timeline': workspace:^
+      '@starbeam/runtime': workspace:^
       '@starbeam/universal': workspace:^
       '@starbeam/verify': workspace:^
     dependencies:
-      '@starbeam/timeline': link:../timeline
+      '@starbeam/runtime': link:../runtime
       '@starbeam/universal': link:../universal
       '@starbeam/verify': link:../verify
     devDependencies:
       '@starbeam-dev/build-support': link:../../../workspace/build
-
-  packages/universal/timeline:
-    specifiers:
-      '@starbeam-dev/build-support': workspace:*
-      '@starbeam/core-utils': workspace:^
-      '@starbeam/debug': workspace:^
-      '@starbeam/interfaces': workspace:^
-      '@starbeam/shared': workspace:^
-      '@starbeam/tags': workspace:^
-      '@starbeam/verify': workspace:^
-    dependencies:
-      '@starbeam/core-utils': link:../core-utils
-      '@starbeam/debug': link:../debug
-      '@starbeam/interfaces': link:../interfaces
-      '@starbeam/shared': link:../shared
-      '@starbeam/tags': link:../tags
-      '@starbeam/verify': link:../verify
-    devDependencies:
-      '@starbeam-dev/build-support': link:../../../workspace/build
-
-  packages/universal/timeline/tests:
-    specifiers:
-      '@starbeam/debug': workspace:^
-      '@starbeam/interfaces': workspace:^
-      '@starbeam/shared': workspace:^
-      '@starbeam/timeline': workspace:^
-    dependencies:
-      '@starbeam/debug': link:../../debug
-      '@starbeam/interfaces': link:../../interfaces
-      '@starbeam/shared': link:../../shared
-      '@starbeam/timeline': link:..
 
   packages/universal/universal:
     specifiers:
@@ -864,18 +864,18 @@ importers:
       '@starbeam/debug': workspace:^
       '@starbeam/interfaces': workspace:^
       '@starbeam/reactive': workspace:^
+      '@starbeam/runtime': workspace:^
       '@starbeam/shared': workspace:^
       '@starbeam/tags': workspace:^
-      '@starbeam/timeline': workspace:^
       '@starbeam/verify': workspace:^
     dependencies:
       '@starbeam/core-utils': link:../core-utils
       '@starbeam/debug': link:../debug
       '@starbeam/interfaces': link:../interfaces
       '@starbeam/reactive': link:../reactive
+      '@starbeam/runtime': link:../runtime
       '@starbeam/shared': link:../shared
       '@starbeam/tags': link:../tags
-      '@starbeam/timeline': link:../timeline
       '@starbeam/verify': link:../verify
     devDependencies:
       '@starbeam-dev/build-support': link:../../../workspace/build
@@ -885,12 +885,12 @@ importers:
       '@starbeam-workspace/test-utils': workspace:^
       '@starbeam/debug': workspace:^
       '@starbeam/js': workspace:^
-      '@starbeam/timeline': workspace:^
+      '@starbeam/runtime': workspace:^
       '@starbeam/universal': workspace:^
     dependencies:
       '@starbeam/debug': link:../../debug
       '@starbeam/js': link:../../js
-      '@starbeam/timeline': link:../../timeline
+      '@starbeam/runtime': link:../../runtime
       '@starbeam/universal': link:..
     devDependencies:
       '@starbeam-workspace/test-utils': link:../../test-utils
@@ -916,16 +916,16 @@ importers:
       '@starbeam/core-utils': workspace:^
       '@starbeam/debug': workspace:^
       '@starbeam/interfaces': workspace:^
+      '@starbeam/runtime': workspace:^
       '@starbeam/tags': workspace:^
-      '@starbeam/timeline': workspace:^
       '@starbeam/verify': workspace:^
       preact: ^10.11.3
     dependencies:
       '@starbeam/core-utils': link:../../universal/core-utils
       '@starbeam/debug': link:../../universal/debug
       '@starbeam/interfaces': link:../../universal/interfaces
+      '@starbeam/runtime': link:../../universal/runtime
       '@starbeam/tags': link:../../universal/tags
-      '@starbeam/timeline': link:../../universal/timeline
       '@starbeam/verify': link:../../universal/verify
       preact: 10.11.3
     devDependencies:
@@ -974,11 +974,11 @@ importers:
     specifiers:
       '@starbeam-dev/build-support': workspace:*
       '@starbeam/debug': workspace:^
-      '@starbeam/timeline': workspace:^
+      '@starbeam/runtime': workspace:^
       '@starbeam/universal': workspace:^
     dependencies:
       '@starbeam/debug': link:../../universal/debug
-      '@starbeam/timeline': link:../../universal/timeline
+      '@starbeam/runtime': link:../../universal/runtime
       '@starbeam/universal': link:../../universal/universal
     devDependencies:
       '@starbeam-dev/build-support': link:../../../workspace/build

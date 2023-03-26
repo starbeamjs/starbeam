@@ -34,8 +34,8 @@
     "@starbeam/js": "workspace:^",
     "@starbeam/modifier": "workspace:^",
     "@starbeam/reactive": "workspace:^",
+    "@starbeam/runtime": "workspace:^",
     "@starbeam/shared": "workspace:^",
-    "@starbeam/timeline": "workspace:^",
     "@starbeam/universal": "workspace:^",
     "@starbeam/use-strict-lifecycle": "workspace:^",
     "@starbeam/verify": "workspace:^"

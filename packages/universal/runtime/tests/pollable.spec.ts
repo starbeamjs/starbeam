@@ -2,7 +2,7 @@ import { isPresentArray } from "@starbeam/core-utils";
 import { Desc, descriptionFrom } from "@starbeam/debug";
 import type { ReactiveValue } from "@starbeam/interfaces";
 import { DelegateTag } from "@starbeam/tags";
-import { Frame, TAG, TIMELINE } from "@starbeam/timeline";
+import { Frame, TAG, TIMELINE } from "@starbeam/runtime";
 import { describe, expect, test } from "vitest";
 
 import { Cell } from "./support/mini-reactives.js";

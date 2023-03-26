@@ -7,7 +7,7 @@ import {
   type OnCleanup,
   TIMELINE,
   type Unsubscribe,
-} from "@starbeam/timeline";
+} from "@starbeam/runtime";
 import {
   type Cell,
   createService,

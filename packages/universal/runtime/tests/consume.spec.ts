@@ -1,6 +1,6 @@
 import { descriptionFrom, Stack } from "@starbeam/debug";
 import { getID } from "@starbeam/shared";
-import { TIMELINE } from "@starbeam/timeline";
+import { TIMELINE } from "@starbeam/runtime";
 import { describe, expect, test } from "vitest";
 
 import { Cell, Formula, Marker } from "./support/mini-reactives.js";

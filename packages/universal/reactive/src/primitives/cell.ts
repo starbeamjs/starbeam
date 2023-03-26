@@ -1,16 +1,14 @@
 import { readonly } from "@starbeam/core-utils";
 import type * as Debug from "@starbeam/debug";
 import { Desc } from "@starbeam/debug";
-import type * as interfaces from "@starbeam/interfaces";
+import type { CellTag as ICellTag, ReactiveCell } from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
 import { CellTag } from "@starbeam/tags";
 
 import { getRuntime } from "../runtime.js";
 import type { PrimitiveOptions } from "./shared.js";
 
-export class CellImpl<T>
-  implements interfaces.ReactiveValue<T, interfaces.CellTag>
-{
+export class CellImpl<T> implements ReactiveCell<T> {
   static create = <T>(
     value: T,
     { description, equals = Object.is }: CellOptions<T> = {}
@@ -20,7 +18,7 @@ export class CellImpl<T>
 
   #value: T;
   readonly #equals: Equality<T>;
-  declare readonly [TAG]: interfaces.CellTag;
+  declare readonly [TAG]: ICellTag;
 
   private constructor(
     value: T,

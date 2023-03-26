@@ -1,4 +1,4 @@
-export {
+ export {
   firstNItems,
   getFirst,
   getLast,
@@ -17,7 +17,7 @@ export {
   zipArrays,
 } from "./src/array.js";
 export { type UnknownFn } from "./src/function.js";
-export { reverse } from "./src/iterable.js";
+export { iterableHasItems, reverse } from "./src/iterable.js";
 export type {
   JsonArray,
   JsonObject,

@@ -1,4 +1,4 @@
-import { CONTEXT } from "@starbeam/timeline";
+import { CONTEXT } from "@starbeam/runtime";
 import {
   type Blueprint,
   type ResourceFactory,

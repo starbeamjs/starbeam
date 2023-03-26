@@ -42,7 +42,7 @@ export class Timeline {
 
   on = {
     change: (target: Tagged, ready: NotifyReady): Unsubscribe => {
-      return this.#subscriptions.register(target, ready);
+      return this.#subscriptions.register(getTag(target), ready);
     },
   } as const;
 
@@ -161,7 +161,7 @@ export class Timeline {
    * possible change to their dependencies.
    */
   update(reactive: interfaces.Tagged<interfaces.FormulaTag>): void {
-    this.#subscriptions.update(reactive);
+    this.#subscriptions.update(getTag(reactive));
   }
 
   willEvaluate(): void {

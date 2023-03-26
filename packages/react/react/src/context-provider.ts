@@ -1,4 +1,4 @@
-import { LIFETIME } from "@starbeam/timeline";
+import { LIFETIME } from "@starbeam/runtime";
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
 import type { FunctionComponent } from "react";
 import {

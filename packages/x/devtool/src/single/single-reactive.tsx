@@ -8,7 +8,7 @@ import type {
 import type { CellTag } from "@starbeam/interfaces";
 import { getTag } from "@starbeam/tags";
 import { taggedDescription } from "@starbeam/tags";
-import { type Tagged, TIMELINE } from "@starbeam/timeline";
+import { type Tagged, TIMELINE } from "@starbeam/runtime";
 import { isPresent, verified } from "@starbeam/verify";
 import { type JSX, render } from "preact";
 

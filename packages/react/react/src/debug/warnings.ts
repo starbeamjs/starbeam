@@ -1,5 +1,5 @@
 import { Message } from "@starbeam/debug";
-import { TIMELINE } from "@starbeam/timeline";
+import { TIMELINE } from "@starbeam/runtime";
 import { isRendering } from "@starbeam/use-strict-lifecycle";
 
 let WARNED = false;

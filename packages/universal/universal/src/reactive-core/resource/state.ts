@@ -1,8 +1,8 @@
 import type { Description } from "@starbeam/debug";
 import type { Reactive } from "@starbeam/interfaces";
 import { isReactive, Static } from "@starbeam/reactive";
+import { LIFETIME } from "@starbeam/runtime";
 import { UNINITIALIZED } from "@starbeam/shared";
-import { LIFETIME } from "@starbeam/timeline";
 
 import { Formula } from "../formula/formula.js";
 import {
