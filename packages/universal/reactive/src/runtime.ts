@@ -2,7 +2,7 @@ import type { Runtime } from "@starbeam/interfaces";
 
 export const CONTEXT = {
   runtime: null as null | Runtime,
-}; 
+};
 
 export function defineRuntime(runtime: Runtime): void {
   CONTEXT.runtime = runtime;

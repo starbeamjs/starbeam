@@ -20,7 +20,13 @@ export {
   type NotifyReady,
   Subscriptions,
 } from "./src/timeline/subscriptions.js";
+export {
+  MUTATIONS,
+  PUBLIC_TIMELINE,
+  type PublicTimeline,
+} from "./src/timeline/tracker.js";
 export { diff } from "./src/timeline/utils.js";
+export { TRACKING_STACK } from "./src/tracking-stack.js";
 export type { Tag, Tagged } from "@starbeam/interfaces";
 export { TAG } from "@starbeam/shared";
 export { getTag, Timestamp } from "@starbeam/tags";

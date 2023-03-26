@@ -6,8 +6,7 @@ import type {
 } from "@starbeam/interfaces";
 import type * as interfaces from "@starbeam/interfaces";
 import { TAG, UNINITIALIZED } from "@starbeam/shared";
-import { CellTag, FormulaTag, getNow } from "@starbeam/tags";
-import { lastUpdatedInTaggedList } from "@starbeam/tags/src/tagged.js";
+import { CellTag, FormulaTag, getNow, getTag, Tag } from "@starbeam/tags";
 import { isNotEqual, verified } from "@starbeam/verify";
 
 import type { FrameStack } from "./frames.js";
@@ -26,7 +25,7 @@ export class Frame<T = unknown>
   static create<T>(
     this: void,
     value: T,
-    children: Set<Tagged>,
+    children: Set<interfaces.Tag>,
     finalized: Timestamp,
     description: Description
   ): Frame<T> {
@@ -78,7 +77,7 @@ export class Frame<T = unknown>
     this: void,
     frame: Frame<T>,
     value: T,
-    children: Set<Tagged>,
+    children: Set<interfaces.Tag>,
     finalized: Timestamp
   ): Frame<T> {
     return frame.#update(value, children, finalized);
@@ -87,14 +86,14 @@ export class Frame<T = unknown>
   static updateChildren<T>(
     this: void,
     frame: Frame<T>,
-    children: Set<Tagged>
+    children: Set<interfaces.Tag>
   ): void {
     frame.#children = children;
   }
 
   #value: T | UNINITIALIZED;
   readonly #initialized: Marker;
-  #children: ReadonlySet<Tagged>;
+  #children: ReadonlySet<interfaces.Tag>;
   #finalized: Timestamp;
   readonly #description: Description;
   readonly [TAG]: FormulaTag;
@@ -106,7 +105,7 @@ export class Frame<T = unknown>
         lastUpdated: Timestamp;
       };
     },
-    children: Set<Tagged>,
+    children: Set<interfaces.Tag>,
     finalized: Timestamp,
     description: Description
   ) {
@@ -116,7 +115,7 @@ export class Frame<T = unknown>
     this.#finalized = finalized;
     this.#description = description;
     this[TAG] = FormulaTag.create(this.#description, () => [
-      this.#initialized,
+      getTag(this.#initialized),
       ...this.#children,
     ]);
   }
@@ -140,7 +139,7 @@ export class Frame<T = unknown>
     }
   }
 
-  #update(value: T, children: Set<Tagged>, finalized: Timestamp): this {
+  #update(value: T, children: Set<interfaces.Tag>, finalized: Timestamp): this {
     if (Object.is(this.#value, UNINITIALIZED)) {
       this.#initialized[TAG].lastUpdated = finalized;
     }
@@ -154,7 +153,7 @@ export class Frame<T = unknown>
   validate(): FrameValidation<Exclude<T, UNINITIALIZED>> {
     if (
       this.#value === UNINITIALIZED ||
-      lastUpdatedInTaggedList([...this.#children]).gt(this.#finalized)
+      Tag.lastUpdatedIn(this.#children).gt(this.#finalized)
     ) {
       return { status: "invalid" };
     } else {
@@ -177,12 +176,12 @@ export class ActiveFrame<T> {
 
   readonly #updating: Frame<T> | null;
   readonly #prev: ActiveFrame<unknown> | null;
-  readonly #children: Set<Tagged>;
+  readonly #children: Set<interfaces.Tag>;
 
   private constructor(
     updating: Frame<T> | null,
     prev: ActiveFrame<T> | null,
-    children: Set<Tagged>,
+    children: Set<interfaces.Tag>,
     readonly description: Description
   ) {
     this.#updating = updating;
@@ -190,7 +189,7 @@ export class ActiveFrame<T> {
     this.#children = children;
   }
 
-  add(child: Tagged): void {
+  add(child: interfaces.Tag): void {
     this.#children.add(child);
   }
 

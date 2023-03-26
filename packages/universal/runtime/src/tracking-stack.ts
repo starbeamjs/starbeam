@@ -44,3 +44,5 @@ export class TrackingStack {
 export interface TrackingFrameData {
   readonly consumed: Set<Tag>;
 }
+
+export const TRACKING_STACK = TrackingStack.create();

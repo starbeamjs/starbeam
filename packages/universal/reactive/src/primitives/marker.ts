@@ -26,7 +26,7 @@ class MarkerImpl implements Tagged<ICellTag> {
     this[TAG].freeze();
   }
 
-  bump(caller = getRuntime().callerStack()): void {
+  mark(caller = getRuntime().callerStack()): void {
     this[TAG].update({ stack: caller, runtime: getRuntime() });
   }
 }

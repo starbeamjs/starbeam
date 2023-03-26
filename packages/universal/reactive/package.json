@@ -14,6 +14,7 @@
   },
   "starbeam:type": "library:public",
   "scripts": {
+    "test:specs": "vitest --run",
     "test:types": "tsc -b"
   },
   "dependencies": {

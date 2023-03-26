@@ -56,3 +56,5 @@ export class PublicTimeline {
     return NOW.now;
   }
 }
+
+export const PUBLIC_TIMELINE = new PublicTimeline();

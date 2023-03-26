@@ -1,6 +1,5 @@
 import type { Description, UpdateOptions } from "@starbeam/interfaces";
 import type * as interfaces from "@starbeam/interfaces";
-import { TAG } from "@starbeam/shared";
 
 import { type Timestamp, zero } from "./timestamp.js";
 import { NOW } from "./timestamp.js";
@@ -131,23 +130,23 @@ export class StaticTag extends Tag implements interfaces.StaticTag {
 export class FormulaTag extends Tag implements interfaces.FormulaTag {
   static create(
     description: Description,
-    children: () => interfaces.List<interfaces.Tagged>
+    children: () => interfaces.List<interfaces.Tag>
   ): FormulaTag {
     return new FormulaTag(description, children);
   }
 
   readonly type = "formula";
-  readonly #children: () => interfaces.List<interfaces.Tagged>;
+  readonly #children: () => interfaces.List<interfaces.Tag>;
 
   private constructor(
     description: Description,
-    children: () => interfaces.List<interfaces.Tagged>
+    children: () => interfaces.List<interfaces.Tag>
   ) {
     super(description);
     this.#children = children;
   }
 
-  children(): readonly interfaces.Tagged[] {
+  children(): readonly interfaces.Tag[] {
     return [...this.#children()];
   }
 
@@ -164,42 +163,42 @@ export class FormulaTag extends Tag implements interfaces.FormulaTag {
   }
 
   override *dependencies(): interfaces.List<interfaces.CellTag> {
-    yield* Tag.dependenciesInList(this.children().map((child) => child[TAG]));
+    yield* Tag.dependenciesInList(this.children());
   }
 }
 
 export class DelegateTag extends Tag implements interfaces.DelegateTag {
   static create(
     description: Description,
-    targets: readonly interfaces.Tagged[]
+    targets: readonly interfaces.Tag[]
   ): DelegateTag {
     return new DelegateTag(description, targets);
   }
 
   readonly type = "delegate";
-  readonly #targets: readonly interfaces.Tagged[];
+  readonly #targets: readonly interfaces.Tag[];
 
   private constructor(
     description: Description,
-    targets: readonly interfaces.Tagged[]
+    targets: readonly interfaces.Tag[]
   ) {
     super(description);
     this.#targets = targets;
   }
 
-  get targets(): readonly interfaces.Tagged[] {
+  get targets(): readonly interfaces.Tag[] {
     return this.#targets;
   }
 
   override *subscriptionTargets(): interfaces.List<interfaces.Tag> {
     for (const target of this.#targets) {
-      yield* target[TAG].subscriptionTargets();
+      yield* target.subscriptionTargets();
     }
   }
 
   override *dependencies(): interfaces.List<interfaces.CellTag> {
     for (const target of this.#targets) {
-      yield* target[TAG].dependencies();
+      yield* target.dependencies();
     }
   }
 

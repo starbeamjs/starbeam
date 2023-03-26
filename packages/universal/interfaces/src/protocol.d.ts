@@ -11,7 +11,7 @@ export interface AbstractTag {
   readonly description: Description;
 }
 
-export type List<T> = Iterable<T>;
+export type List<T> = Iterable<T> | T[] | readonly T[];
 
 export class TagMethods {
   readonly id: ReactiveId;
@@ -58,7 +58,7 @@ export interface CellTag extends AbstractTag, TagMethods {
  */
 export interface FormulaTag extends AbstractTag, TagMethods {
   readonly type: "formula";
-  children: () => readonly Tagged[];
+  children: () => readonly Tag[];
 }
 
 /**
@@ -72,7 +72,7 @@ export interface FormulaTag extends AbstractTag, TagMethods {
  */
 export interface DelegateTag extends AbstractTag, TagMethods {
   readonly type: "delegate";
-  readonly targets: readonly Tagged[];
+  readonly targets: readonly Tag[];
 }
 
 /**

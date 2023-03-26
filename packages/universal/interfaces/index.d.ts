@@ -38,7 +38,6 @@ export type {
   ReactiveFormula,
   ReactiveId,
   ReactiveValue,
-  Runtime,
   SpecificTag,
   StaticTag,
   Tag,
@@ -47,6 +46,7 @@ export type {
   TagType,
   UpdateOptions,
 } from "./src/protocol.js";
+export type { Runtime } from "./src/runtime.js";
 export type {
   DisplayParts,
   Stack,

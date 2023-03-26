@@ -1,5 +1,6 @@
+import type { Unsubscribe } from "./aliases.js";
 import type { Description } from "./description.js";
-import type { CellTag, Tagged } from "./protocol.js";
+import type { CellTag, Tag, Tagged } from "./protocol.js";
 import type { Stack as CallStack } from "./stack.js";
 import type { Timestamp } from "./timestamp.js";
 
@@ -12,6 +13,19 @@ export interface Runtime {
     description: Description,
     frame: RuntimeFrame
   ) => ActiveRuntimeFrame;
+  readonly subscriptions: SubscriptionRuntime;
+  readonly autotracking: AutotrackingRuntime;
+}
+
+export interface SubscriptionRuntime {
+  subscribe: (target: Tag, ready: NotifyReady) => Unsubscribe;
+  bump: (cell: CellTag) => Timestamp;
+  update: (formula: FormulaTag) => void;
+}
+
+export interface AutotrackingRuntime {
+  start: () => () => Set<Tag>;
+  consume: (tag: Tag) => void;
 }
 
 export interface ActiveRuntimeFrame {

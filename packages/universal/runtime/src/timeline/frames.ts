@@ -93,7 +93,7 @@ export class FrameStack {
   #didConsumeReactive(reactive: Tagged, caller: Stack): void {
     const frame = this.currentFrame;
     if (frame) {
-      frame.add(reactive);
+      frame.add(getTag(reactive));
       return;
     } else {
       const delegatesTo = [...getTag(reactive).subscriptionTargets()];

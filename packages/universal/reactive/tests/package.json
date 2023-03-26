@@ -1,16 +1,16 @@
 {
   "private": true,
-  "name": "@starbeam-tests/runtime",
+  "name": "@starbeam-tests/reactive",
   "version": "1.0.0",
   "type": "module",
   "starbeam:type": "tests",
   "scripts": {
-    "test:lint": "eslint",
-    "test:types": "tsc -b"
+    "test:lint": "eslint"
   },
   "dependencies": {
     "@starbeam/debug": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
+    "@starbeam/reactive": "workspace:^",
     "@starbeam/runtime": "workspace:^",
     "@starbeam/shared": "workspace:^"
   }
