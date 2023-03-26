@@ -148,6 +148,10 @@ class SubscriberMap {
 
 class ReactiveSubscription {
   static create(target: Tag): ReactiveSubscription {
+    if (typeof target.dependencies !== "function") {
+      console.log(target);
+      throw Error("Reactive subscriptions must be created with tags");
+    }
     const deps = new Set(target.dependencies());
     return new ReactiveSubscription(deps);
   }

@@ -5,10 +5,6 @@ export {
   CustomBuilder,
 } from "./src/reactive-core/custom.js";
 export { Wrap } from "./src/reactive-core/delegate.js";
-export {
-  Formula,
-  FormulaValidation,
-} from "./src/reactive-core/formula/formula.js";
 export { Linkable } from "./src/reactive-core/formula/linkable.js";
 export {
   PolledFormula,
@@ -25,7 +21,6 @@ export {
   type IntoReactiveObject,
   type IntoResource,
 } from "./src/reactive-core/into.js";
-export { Marker } from "./src/reactive-core/marker.js";
 export type {
   Blueprint,
   IntoReactive,
@@ -53,5 +48,5 @@ export {
   Variants,
   type VariantType,
 } from "./src/reactive-core/variants.js";
-export { Cell, type Equality, Static } from "@starbeam/reactive";
-export { LIFETIME, TAG, TIMELINE } from "@starbeam/runtime";
+export { Cell, type Equality, Formula, Static } from "@starbeam/reactive";
+export { LIFETIME, PUBLIC_TIMELINE, TAG } from "@starbeam/runtime";

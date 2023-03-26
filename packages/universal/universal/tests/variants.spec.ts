@@ -1,6 +1,6 @@
+import { PUBLIC_TIMELINE, type Tagged } from "@starbeam/runtime";
 import { describeTagged } from "@starbeam/tags";
-import { type Tagged } from "../../runtime";
-import { Formula, TIMELINE, Variants } from "@starbeam/universal";
+import { Formula, Variants } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 
 interface Bool {
@@ -71,14 +71,17 @@ describe("Variants", () => {
     const Lifecycle = Variants<Lifecycle<number>>("Lifecycle");
     const lifecycle = Lifecycle.idle();
 
-    const advance = Formula(() => {
-      // this is testing that only a transition from idle or to idle invalidates this formula, and
-      // not transitions between other variants. This formula will invalidate if the variant returns
-      // to `idle`, since the `lifecycle.is("idle")` check will have changed from `false` to `true`.
-      if (lifecycle.is("idle")) {
-        lifecycle.choose("loading");
-      }
-    }, "advance");
+    const advance = Formula(
+      () => {
+        // this is testing that only a transition from idle or to idle invalidates this formula, and
+        // not transitions between other variants. This formula will invalidate if the variant returns
+        // to `idle`, since the `lifecycle.is("idle")` check will have changed from `false` to `true`.
+        if (lifecycle.is("idle")) {
+          lifecycle.choose("loading");
+        }
+      },
+      { description: "advance" }
+    );
 
     const render = Formula((): number | Error | "idle" | "loading" => {
       advance();
@@ -94,13 +97,13 @@ describe("Variants", () => {
       } else {
         throw Error("unreachable");
       }
-    }, "render");
+    }, {description: "render"});
 
     const value = Formula(() => {
       return lifecycle.match({
         loaded: (v) => v,
       });
-    }, "value");
+    }, {description: "value"});
 
     const advanceStable = Stability(advance);
     const renderStable = Stability(render);
@@ -201,7 +204,7 @@ function Stability(reactive: Tagged): {
 } {
   let changed = false;
 
-  TIMELINE.on.change(reactive, (internals) => {
+  PUBLIC_TIMELINE.on.change(reactive, (internals) => {
     if (debug) {
       console.group(describeTagged(reactive), "invalidated by");
       console.log(internals.description.describe());

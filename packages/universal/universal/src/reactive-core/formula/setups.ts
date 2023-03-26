@@ -1,8 +1,8 @@
 import { type Description, descriptionFrom } from "@starbeam/debug";
+import { Marker } from "@starbeam/reactive";
 import { LIFETIME, type Unsubscribe } from "@starbeam/runtime";
 import { getID } from "@starbeam/shared";
 
-import { Marker } from "../marker.js";
 import { Formula } from "./formula.js";
 
 type SetupFunction = (() => void) | (() => () => void);
@@ -58,9 +58,11 @@ export interface Setups {
 
 export function Setups(description: Description): Setups {
   const setups = new Set<Setup>();
-  const marker = Marker(
-    description.implementation(getID(), { reason: "setups changed" })
-  );
+  const marker = Marker({
+    description: description.implementation(getID(), {
+      reason: "setups changed",
+    }),
+  });
 
   const register = (
     setupFn: SetupFunction,
@@ -77,7 +79,7 @@ export function Setups(description: Description): Setups {
   };
 
   const formula = Formula(() => {
-    marker.consume();
+    marker.read();
     for (const setup of setups) {
       setup();
     }

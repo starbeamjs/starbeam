@@ -1,7 +1,7 @@
 import { callerStack, type Description } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
-import { DelegateTag, taggedDescription } from "@starbeam/tags";
-import { TAG } from "../../../runtime";
+import { TAG } from "@starbeam/runtime";
+import { DelegateTag, getTag, taggedDescription } from "@starbeam/tags";
 
 export function Wrap<T, U extends interfaces.ReactiveValue>(
   reactive: U,
@@ -11,7 +11,7 @@ export function Wrap<T, U extends interfaces.ReactiveValue>(
   Object.defineProperty(value, TAG, {
     configurable: true,
     writable: true,
-    value: DelegateTag.create(delegateDesc(reactive, desc), [reactive]),
+    value: DelegateTag.create(delegateDesc(reactive, desc), [getTag(reactive)]),
   });
 
   Object.defineProperty(value, "read", {

@@ -2,7 +2,6 @@ import type {
   CellTag,
   Diff,
   FormulaTag,
-  Frame,
   Stack,
   Tag,
   Tagged,
@@ -60,26 +59,26 @@ export class CellUpdateOperation extends LeafOperation<CellTag> {
 
 interface FrameConsumeInfo extends OperationInfo<FormulaTag> {
   readonly diff: Diff<CellTag>;
-  readonly frame: Frame;
+  readonly formula: FormulaTag;
 }
 
 export class FrameConsumeOperation extends LeafOperation<FormulaTag> {
   readonly #diff: Diff<CellTag>;
-  readonly #frame: Frame;
+  readonly #formula: FormulaTag;
   readonly type = "frame:consume";
 
   constructor(data: FrameConsumeInfo) {
     super(data);
     this.#diff = data.diff;
-    this.#frame = data.frame;
+    this.#formula = data.formula;
   }
 
   get diff(): Diff<CellTag> {
     return this.#diff;
   }
 
-  get frame(): Frame {
-    return this.#frame;
+  get formula(): FormulaTag {
+    return this.#formula;
   }
 }
 export class MutationLog {
@@ -307,8 +306,8 @@ export class DebugTimeline {
     this.#consumeCell(internals, caller);
   }
 
-  consumeFrame(frame: Frame, diff: Diff<CellTag>, caller: Stack): void {
-    this.#consumeFrame(frame, diff, caller);
+  consumeFrame(formula: FormulaTag, diff: Diff<CellTag>, caller: Stack): void {
+    this.#consumeFrame(formula, diff, caller);
   }
 
   updateCell(cell: CellTag, caller: Stack): void {
@@ -321,14 +320,14 @@ export class DebugTimeline {
     );
   }
 
-  #consumeFrame(frame: Frame, diff: Diff<CellTag>, caller: Stack): void {
+  #consumeFrame(formula: FormulaTag, diff: Diff<CellTag>, caller: Stack): void {
     this.#add(
       new FrameConsumeOperation({
         at: this.#timestamp.now(),
-        for: frame[TAG],
+        for: formula,
         diff,
         caller,
-        frame,
+        formula,
       })
     );
   }

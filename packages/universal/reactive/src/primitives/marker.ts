@@ -8,7 +8,10 @@ import { getRuntime } from "../runtime.js";
 import type { PrimitiveOptions } from "./shared.js";
 
 class MarkerImpl implements Tagged<ICellTag> {
-  static create(this: void, { description }: PrimitiveOptions): MarkerImpl {
+  static create(
+    this: void,
+    { description }: PrimitiveOptions = {}
+  ): MarkerImpl {
     return new MarkerImpl(Desc("cell", description));
   }
 

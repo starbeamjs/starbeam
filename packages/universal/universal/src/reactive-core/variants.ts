@@ -5,14 +5,12 @@ import {
   descriptionFrom,
   DisplayStruct,
 } from "@starbeam/debug";
-import { Cell } from "@starbeam/reactive";
+import { Cell, getRuntime, Marker } from "@starbeam/reactive";
 import type { Tagged } from "@starbeam/runtime";
-import { TAG, TIMELINE } from "@starbeam/runtime";
+import { TAG } from "@starbeam/runtime";
 import { UNINITIALIZED } from "@starbeam/shared";
-import { FormulaTag } from "@starbeam/tags";
+import { FormulaTag, getTag, getTags } from "@starbeam/tags";
 import { DelegateTag } from "@starbeam/tags";
-
-import { Marker } from "./marker.js";
 
 export class VariantGroups {
   static empty(description: Description): VariantGroups {
@@ -87,7 +85,7 @@ export class VariantGroups {
 
 export class VariantGroup {
   static group(types: string[], description: Description): VariantGroup {
-    return new VariantGroup(Marker(description), new Set(types));
+    return new VariantGroup(Marker({ description }), new Set(types));
   }
 
   readonly #marker: Marker;
@@ -103,7 +101,7 @@ export class VariantGroup {
   }
 
   consume(): void {
-    this.#marker.consume();
+    this.#marker.read();
   }
 
   // Transition to or from another variant. If the variant is not present in this group, then this
@@ -113,7 +111,7 @@ export class VariantGroup {
       return;
     }
 
-    this.#marker.update(caller);
+    this.#marker.mark(caller);
   }
 }
 
@@ -130,9 +128,11 @@ export class Variant<T> implements Tagged<DelegateTag> {
       }),
     });
 
-    const localTypeMarker = Marker(
-      description.implementation("selected:local", { reason: "selected" })
-    );
+    const localTypeMarker = Marker({
+      description: description.implementation("selected:local", {
+        reason: "selected",
+      }),
+    });
 
     return new Variant(
       type,
@@ -144,7 +144,7 @@ export class Variant<T> implements Tagged<DelegateTag> {
         description.implementation("selected", {
           reason: `selected`,
         }),
-        [val, localTypeMarker]
+        getTags([val, localTypeMarker])
       )
     );
   }
@@ -156,9 +156,11 @@ export class Variant<T> implements Tagged<DelegateTag> {
   ): Variant<T> {
     const val = Cell(UNINITIALIZED as T | UNINITIALIZED);
 
-    const localTypeMarker = Marker(
-      description.implementation("selected:local", { reason: "selected" })
-    );
+    const localTypeMarker = Marker({
+      description: description.implementation("selected:local", {
+        reason: "selected",
+      }),
+    });
 
     return new Variant<T | UNINITIALIZED>(
       type,
@@ -169,7 +171,7 @@ export class Variant<T> implements Tagged<DelegateTag> {
 
       DelegateTag.create(
         description.implementation("selected", { reason: "selected" }),
-        [val, localTypeMarker]
+        getTags([val, localTypeMarker])
       )
     ) as Variant<T>;
   }
@@ -191,15 +193,15 @@ export class Variant<T> implements Tagged<DelegateTag> {
   }
 
   static select<T>(variant: Variant<T>, caller = callerStack()): void {
-    variant.#localTypeMarker.update(caller);
+    variant.#localTypeMarker.mark(caller);
   }
 
   static deselect<T>(variant: Variant<T>, caller = callerStack()): void {
-    variant.#localTypeMarker.update(caller);
+    variant.#localTypeMarker.mark(caller);
   }
 
   static consumeType(variant: Variant<unknown>): void {
-    variant.#localTypeMarker.consume();
+    variant.#localTypeMarker.read();
   }
 
   readonly #type: string;
@@ -228,7 +230,7 @@ export class Variant<T> implements Tagged<DelegateTag> {
   }
 
   get type(): string {
-    this.#sharedTypeMarker.consume();
+    this.#sharedTypeMarker.read();
     return this.#type;
   }
 
@@ -328,7 +330,7 @@ class VariantsImpl implements Tagged<FormulaTag> {
     description: Description
   ): VariantsImpl {
     const variants: Record<string, Variant<unknown>> = {};
-    const typeMarker = Marker(description.key("type"));
+    const typeMarker = Marker({ description: description.key("type") });
 
     const current = Variant.selected(
       value.type,
@@ -359,7 +361,7 @@ class VariantsImpl implements Tagged<FormulaTag> {
     this.#groups = VariantGroups.empty(description);
     this.#description = description;
     this.#current = current;
-    this[TAG] = FormulaTag.create(description, () => [this.#current]);
+    this[TAG] = FormulaTag.create(description, () => [getTag(this.#current)]);
   }
 
   // get [TAG](): FormulaTag {
@@ -435,8 +437,8 @@ class VariantsImpl implements Tagged<FormulaTag> {
       this.#current = this.#create(type, ["selected", value]);
     }
 
-    this.#typeMarker.update(caller);
-    TIMELINE.update(this);
+    this.#typeMarker.mark(caller);
+    getRuntime().subscriptions.update(this[TAG]);
   }
 
   #get(type: string): Variant<unknown> {

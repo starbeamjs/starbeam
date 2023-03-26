@@ -1,6 +1,13 @@
-import type { CellTag, Tag, Tagged, Unsubscribe } from "@starbeam/interfaces";
+import type {
+  CellTag,
+  FormulaTag,
+  SubscriptionRuntime,
+  Tag,
+  Tagged,
+  Unsubscribe,
+} from "@starbeam/interfaces";
 import { getTag, type Timestamp } from "@starbeam/tags";
-import { type FormulaTag, NOW } from "@starbeam/tags";
+import { NOW } from "@starbeam/tags";
 
 import { type NotifyReady, Subscriptions } from "./subscriptions.js";
 
@@ -16,7 +23,7 @@ enum Phase {
  * `Tagged` values. Reactive implementations that use `FormulaTag` are
  * responsible for notifying the timeline when their dependencies change.
  */
-class Mutations {
+class Mutations implements SubscriptionRuntime {
   readonly #subscriptions = Subscriptions.create();
   readonly #lastPhase: Phase = Phase.read;
 
@@ -43,12 +50,12 @@ class Mutations {
   }
 }
 
-export const MUTATIONS = new Mutations();
+export const SUBSCRIPTION_RUNTIME = new Mutations();
 
 export class PublicTimeline {
   readonly on = {
     change: (target: Tagged, ready: NotifyReady): Unsubscribe => {
-      return MUTATIONS.subscribe(getTag(target), ready);
+      return SUBSCRIPTION_RUNTIME.subscribe(getTag(target), ready);
     },
   };
 

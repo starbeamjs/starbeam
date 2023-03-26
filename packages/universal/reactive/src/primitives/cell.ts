@@ -13,7 +13,7 @@ export class CellImpl<T> implements ReactiveCell<T> {
     value: T,
     { description, equals = Object.is }: CellOptions<T> = {}
   ): CellImpl<T> => {
-    return new CellImpl(value, equals, Desc("static", description));
+    return new CellImpl(value, equals, Desc("cell", description));
   };
 
   #value: T;
@@ -38,8 +38,9 @@ export class CellImpl<T> implements ReactiveCell<T> {
     this.set(value, getRuntime().callerStack());
   }
 
-  read(caller = getRuntime().callerStack()): T {
-    getRuntime().didConsumeCell(this, caller);
+  read(_caller = getRuntime().callerStack()): T {
+    // getRuntime().timeline.didConsumeCell(this[TAG], caller);
+    getRuntime().autotracking.consume(this[TAG]);
     return this.#value;
   }
 

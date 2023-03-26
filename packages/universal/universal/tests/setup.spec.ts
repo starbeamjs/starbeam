@@ -1,6 +1,5 @@
 import { getTag } from "@starbeam/tags";
-import { TIMELINE } from "../../runtime";
-import { Cell, Setup } from "@starbeam/universal";
+import { Cell, PUBLIC_TIMELINE, Setup } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 
 describe("Setup", () => {
@@ -122,7 +121,7 @@ describe("Setup", () => {
       };
     });
 
-    let ts = TIMELINE.now;
+    let ts = PUBLIC_TIMELINE.now;
 
     expect(variable).toEqual({
       cell: 0,

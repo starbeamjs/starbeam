@@ -1,18 +1,20 @@
 import type { Unsubscribe } from "./aliases.js";
-import type { Description } from "./description.js";
-import type { CellTag, Tag, Tagged } from "./protocol.js";
+import type { CellTag, FormulaTag, Tag } from "./protocol.js";
 import type { Stack as CallStack } from "./stack.js";
 import type { Timestamp } from "./timestamp.js";
 
+/**
+ * @deprecated
+ */
+export interface DeprecatedTimeline {
+  bumpCell: (cell: CellTag, caller: CallStack) => Timestamp;
+  didConsumeCell: (cell: CellTag, caller: CallStack) => void;
+}
+
 export interface Runtime {
   callerStack: () => CallStack;
-  didConsumeCell: (cell: Tagged<CellTag>, caller: CallStack) => void;
-  bumpCell: (cell: CellTag, caller: CallStack) => Timestamp;
-  creatingFrame: (description: Description) => ActiveRuntimeFrame;
-  updatingFrame: (
-    description: Description,
-    frame: RuntimeFrame
-  ) => ActiveRuntimeFrame;
+  /** @deprecated */
+  readonly timeline: DeprecatedTimeline;
   readonly subscriptions: SubscriptionRuntime;
   readonly autotracking: AutotrackingRuntime;
 }

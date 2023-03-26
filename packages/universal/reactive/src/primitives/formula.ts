@@ -1,6 +1,11 @@
 import { readonly } from "@starbeam/core-utils";
 import { Desc, type Description } from "@starbeam/debug";
-import type { ReactiveFormula, Stack, Tag as ITag } from "@starbeam/interfaces";
+import type {
+  Reactive,
+  ReactiveFormula,
+  Stack,
+  Tag as ITag,
+} from "@starbeam/interfaces";
 import { TAG, UNINITIALIZED } from "@starbeam/shared";
 import { Tag, type Timestamp, zero } from "@starbeam/tags";
 import { FormulaTag, NOW } from "@starbeam/tags";
@@ -8,15 +13,37 @@ import { FormulaTag, NOW } from "@starbeam/tags";
 import { getRuntime } from "../runtime.js";
 import type { PrimitiveOptions } from "./shared.js";
 
+interface FormulaFn<T> extends Reactive<T> {
+  (): T;
+}
+
 class FormulaImpl<T> implements ReactiveFormula<T> {
   static create = <T>(
     compute: () => T,
-    { description }: PrimitiveOptions
-  ): FormulaImpl<T> => {
-    return new FormulaImpl(compute, Desc("formula", description));
+    { description }: PrimitiveOptions = {}
+  ): FormulaFn<T> => {
+    const formula = new FormulaImpl(compute, Desc("formula", description));
+
+    const fn = (): T => {
+      return formula.read(getRuntime().callerStack());
+    };
+
+    Object.defineProperties(fn, {
+      current: {
+        get: fn,
+      },
+      [TAG]: {
+        get: () => formula[TAG],
+      },
+      read: {
+        value: fn,
+      },
+    });
+
+    return fn as FormulaFn<T>;
   };
 
-  declare readonly [TAG]: ITag;
+  declare readonly [TAG]: FormulaTag;
   readonly #memo: Memo<T>;
   #children = new Set<ITag>();
   #lastValidated: Timestamp = zero();
@@ -35,8 +62,12 @@ class FormulaImpl<T> implements ReactiveFormula<T> {
   }
 
   read(_stack?: Stack | undefined): T {
+    const value = this.#value();
     getRuntime().autotracking.consume(this[TAG]);
+    return value;
+  }
 
+  #value(): T {
     const last = this.#memo.last;
 
     if (last === UNINITIALIZED || this.#isStale()) {
@@ -51,7 +82,7 @@ class FormulaImpl<T> implements ReactiveFormula<T> {
     const value = this.#memo.compute();
     this.#children = done();
     this.#lastValidated = NOW.now;
-    getRuntime().subscriptions.update(this);
+    getRuntime().subscriptions.update(this[TAG]);
     return value;
   }
 
@@ -79,4 +110,4 @@ class Memo<T> {
 }
 
 export const Formula = FormulaImpl.create;
-export type Formula<T> = FormulaImpl<T>;
+export type Formula<T> = FormulaFn<T>;

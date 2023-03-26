@@ -5,7 +5,7 @@ import {
   type CleanupTarget,
   LIFETIME,
   type OnCleanup,
-  TIMELINE,
+  PUBLIC_TIMELINE,
   type Unsubscribe,
 } from "@starbeam/runtime";
 import {
@@ -201,7 +201,7 @@ export class ReactiveElement implements CleanupTarget {
   }
 
   static subscribe(element: ReactiveElement, reactive: Tagged): void {
-    const subscription = TIMELINE.on.change(reactive, element.notify);
+    const subscription = PUBLIC_TIMELINE.on.change(reactive, element.notify);
     element.on.cleanup(subscription);
   }
 
@@ -264,7 +264,7 @@ export class ReactiveElement implements CleanupTarget {
       this.notify();
     };
 
-    const unsubscribe = TIMELINE.on.change(resource, this.notify);
+    const unsubscribe = PUBLIC_TIMELINE.on.change(resource, this.notify);
 
     LIFETIME.on.cleanup(resource, unsubscribe);
 

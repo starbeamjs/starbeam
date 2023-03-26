@@ -221,6 +221,7 @@ importers:
       '@starbeam/universal': workspace:^
       '@types/react': ^18.0.26
       '@types/react-dom': ^18.0.10
+      '@vitest/ui': '*'
       purecss: 3.0.0
       react: ^18.1.0
       react-dom: ^18.1.0
@@ -237,6 +238,7 @@ importers:
     devDependencies:
       '@types/react': 18.0.26
       '@types/react-dom': 18.0.10
+      '@vitest/ui': 0.29.7
       vite: 4.2.1
       vite-plugin-fonts: 0.7.0_vite@4.2.1
 
@@ -726,6 +728,7 @@ importers:
       '@starbeam-dev/build-support': workspace:*
       '@starbeam/debug': workspace:^
       '@starbeam/interfaces': workspace:^
+      '@starbeam/reactive': workspace:^
       '@starbeam/runtime': workspace:^
       '@starbeam/shared': workspace:^
       '@starbeam/tags': workspace:^
@@ -734,6 +737,7 @@ importers:
     dependencies:
       '@starbeam/debug': link:../debug
       '@starbeam/interfaces': link:../interfaces
+      '@starbeam/reactive': link:../reactive
       '@starbeam/runtime': link:../runtime
       '@starbeam/shared': link:../shared
       '@starbeam/tags': link:../tags
@@ -788,12 +792,27 @@ importers:
     devDependencies:
       '@starbeam-dev/build-support': link:../../../workspace/build
 
+  packages/universal/reactive/tests:
+    specifiers:
+      '@starbeam/debug': workspace:^
+      '@starbeam/interfaces': workspace:^
+      '@starbeam/reactive': workspace:^
+      '@starbeam/runtime': workspace:^
+      '@starbeam/shared': workspace:^
+    dependencies:
+      '@starbeam/debug': link:../../debug
+      '@starbeam/interfaces': link:../../interfaces
+      '@starbeam/reactive': link:..
+      '@starbeam/runtime': link:../../runtime
+      '@starbeam/shared': link:../../shared
+
   packages/universal/runtime:
     specifiers:
       '@starbeam-dev/build-support': workspace:*
       '@starbeam/core-utils': workspace:^
       '@starbeam/debug': workspace:^
       '@starbeam/interfaces': workspace:^
+      '@starbeam/reactive': workspace:^
       '@starbeam/shared': workspace:^
       '@starbeam/tags': workspace:^
       '@starbeam/verify': workspace:^
@@ -801,6 +820,7 @@ importers:
       '@starbeam/core-utils': link:../core-utils
       '@starbeam/debug': link:../debug
       '@starbeam/interfaces': link:../interfaces
+      '@starbeam/reactive': link:../reactive
       '@starbeam/shared': link:../shared
       '@starbeam/tags': link:../tags
       '@starbeam/verify': link:../verify
@@ -811,11 +831,13 @@ importers:
     specifiers:
       '@starbeam/debug': workspace:^
       '@starbeam/interfaces': workspace:^
+      '@starbeam/reactive': workspace:^
       '@starbeam/runtime': workspace:^
       '@starbeam/shared': workspace:^
     dependencies:
       '@starbeam/debug': link:../../debug
       '@starbeam/interfaces': link:../../interfaces
+      '@starbeam/reactive': link:../../reactive
       '@starbeam/runtime': link:..
       '@starbeam/shared': link:../../shared
 

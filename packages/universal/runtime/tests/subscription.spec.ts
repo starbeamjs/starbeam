@@ -1,24 +1,20 @@
-import { Desc } from "@starbeam/debug";
-import { Frame, TIMELINE } from "@starbeam/runtime";
+import { Cell, Formula } from "@starbeam/reactive";
+import { PUBLIC_TIMELINE } from "@starbeam/runtime";
 import { describe, expect, test } from "vitest";
-
-import { Cell } from "./support/mini-reactives.js";
 
 describe("frames", () => {
   test("subscription before first consumption", () => {
     const cell = Cell("Tom Dale");
 
-    const frame = TIMELINE.frame.evaluate(() => cell.current, {
-      description: Desc("formula"),
-    });
+    const formula = Formula(() => cell.current);
 
     let stale = false;
 
-    const unsubscribe = TIMELINE.on.change(frame, () => {
+    const unsubscribe = PUBLIC_TIMELINE.on.change(formula, () => {
       stale = true;
     });
 
-    expect(Frame.value(frame)).toBe("Tom Dale");
+    expect(formula.current).toBe("Tom Dale");
 
     // The pollable doesn't fire initially.
     expect(stale).toBe(false);
@@ -28,34 +24,28 @@ describe("frames", () => {
     expect(stale).toBe(true);
     stale = false;
 
-    frame.evaluate(() => cell.current, TIMELINE.frame);
-
-    expect(Frame.value(frame)).toBe("Jerry Seinfeld");
+    expect(formula.read()).toBe("Jerry Seinfeld");
 
     unsubscribe();
 
     cell.current = "J. Seinfeld";
-    expect(stale).toBe(false);
-
-    frame.evaluate(() => cell.current, TIMELINE.frame);
+    // the subscription doesn't fire after it was ubsubscribed
     expect(stale).toBe(false);
 
     // The lack of a subscription doesn't make the value incorrect
-    expect(Frame.value(frame)).toBe("J. Seinfeld");
+    expect(formula.current).toBe("J. Seinfeld");
   });
 
   test("subscription after first consumption", () => {
     const cell = Cell("Tom Dale");
 
-    const frame = TIMELINE.frame.evaluate(() => cell.current, {
-      description: Desc("formula"),
-    });
+    const formula = Formula(() => cell.current);
 
     let stale = false;
 
-    expect(Frame.value(frame)).toBe("Tom Dale");
+    expect(formula.read()).toBe("Tom Dale");
 
-    const unsubscribe = TIMELINE.on.change(frame, () => {
+    const unsubscribe = PUBLIC_TIMELINE.on.change(formula, () => {
       stale = true;
     });
 
@@ -67,18 +57,14 @@ describe("frames", () => {
     expect(stale).toBe(true);
     stale = false;
 
-    frame.evaluate(() => cell.current, TIMELINE.frame);
-    expect(Frame.value(frame)).toBe("Jerry Seinfeld");
+    expect(formula.current).toBe("Jerry Seinfeld");
 
     unsubscribe();
 
     cell.current = "J. Seinfeld";
     expect(stale).toBe(false);
 
-    frame.evaluate(() => cell.current, TIMELINE.frame);
-    expect(stale).toBe(false);
-
     // The lack of a subscription doesn't make the value incorrect
-    expect(Frame.value(frame)).toBe("J. Seinfeld");
+    expect(formula.current).toBe("J. Seinfeld");
   });
 });

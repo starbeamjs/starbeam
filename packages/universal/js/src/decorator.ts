@@ -33,7 +33,7 @@ export const cached = <T>(
         formula = Formula(
           // eslint-disable-next-line
           () => get.call(this),
-          `computing ${String(key)}`
+          { description: `computing ${String(key)}` }
         );
         CACHED.set(this, formula);
       }

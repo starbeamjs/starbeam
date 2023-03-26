@@ -14,6 +14,12 @@ export function getTag<T extends Tag>(tagged: Tagged<T>): T {
   return tagged[TAG];
 }
 
+export function getTags<T extends Tagged[]>(
+  tagged: T
+): { [P in keyof T]: T[P] extends Tagged<infer U> ? U : never } {
+  return tagged.map(getTag) as any;
+}
+
 export function describeTagged(
   tagged: Tagged,
   options?: DescriptionDescribeOptions

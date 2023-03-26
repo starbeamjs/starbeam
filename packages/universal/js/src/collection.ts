@@ -1,6 +1,6 @@
 import type { Description, Stack } from "@starbeam/debug";
+import { Cell, Marker } from "@starbeam/reactive";
 import { taggedDescription } from "@starbeam/tags";
-import { Cell, Marker } from "@starbeam/universal";
 import { expected, isPresent, verified } from "@starbeam/verify";
 
 class ItemState {
@@ -18,7 +18,7 @@ class ItemState {
           .key(member)
           .asImplementation({ reason: "initialization tracking" }),
       }),
-      Marker(description.key(member))
+      Marker({ description: description.key(member) })
     );
   }
 
@@ -49,12 +49,12 @@ class ItemState {
 
   read(caller: Stack): void {
     this.#present.read(caller);
-    this.#value.consume(caller);
+    this.#value.read(caller);
   }
 
   update(caller: Stack): void {
     this.#present.current = true;
-    this.#value.update(caller);
+    this.#value.mark(caller);
   }
 }
 
@@ -199,7 +199,7 @@ export class Collection<K> {
     caller: Stack
   ): Item {
     if (this.#iteration === undefined) {
-      this.#iteration = Marker(this.#description);
+      this.#iteration = Marker({ description: this.#description });
     }
 
     let item: Item;
@@ -217,12 +217,12 @@ export class Collection<K> {
 
   iterateKeys(caller: Stack): void {
     if (this.#iteration === undefined) {
-      this.#iteration = Marker(this.#description);
+      this.#iteration = Marker({ description: this.#description });
     }
 
     // remember that we iterated this collection so that consumers of the
     // iteration detect changes to the collection itself.
-    this.#iteration.consume(caller);
+    this.#iteration.read(caller);
   }
 
   set(
@@ -267,6 +267,6 @@ export class Collection<K> {
     // of Starbeam can used keyed collections, we should make sure the
     // bookkeeping would actually pay for itself before spending the time to
     // implement it.
-    this.#iteration.update(caller);
+    this.#iteration.mark(caller);
   }
 }

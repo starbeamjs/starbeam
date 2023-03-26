@@ -4,7 +4,7 @@ import type { InternalComponent } from "@starbeam/preact-utils";
 import {
   type ActiveFrame,
   type Frame,
-  TIMELINE,
+  PUBLIC_TIMELINE,
   type Unsubscribe,
 } from "@starbeam/runtime";
 import { expected, isPresent, verify } from "@starbeam/verify";
@@ -99,7 +99,7 @@ export class ComponentFrame {
     this.#active = null;
 
     if (subscription) {
-      this.#subscription = TIMELINE.on.change(frame, subscription);
+      this.#subscription = PUBLIC_TIMELINE.on.change(frame, subscription);
     }
 
     return frame;

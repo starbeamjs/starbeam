@@ -2,7 +2,7 @@ import type { anydom } from "@domtree/flavors";
 import { type Description, REUSE_ID } from "@starbeam/debug";
 import type { Tagged } from "@starbeam/interfaces";
 import { TAG, UNINITIALIZED } from "@starbeam/shared";
-import { DelegateTag } from "@starbeam/tags";
+import { DelegateTag, getTag } from "@starbeam/tags";
 import { Cell } from "@starbeam/universal";
 import { expected, isPresent, verified, verify } from "@starbeam/verify";
 
@@ -35,7 +35,7 @@ export function ElementPlaceholder<E extends anydom.Element>(
   REFS.set(ref, elementCell);
 
   return {
-    [TAG]: DelegateTag.create(description, [elementCell]),
+    [TAG]: DelegateTag.create(description, [getTag(elementCell)]),
 
     initialize(value: anydom.Element): void {
       const element = verified(REFS.get(ref), isPresent);

@@ -16,7 +16,7 @@ export type List<T> = Iterable<T> | T[] | readonly T[];
 export class TagMethods {
   readonly id: ReactiveId;
   readonly lastUpdated: Timestamp;
-  readonly dependencies: () => List<CellTag>;
+  readonly dependencies: () => readonly CellTag[];
   readonly description: Description;
   match(matcher: Matcher<T>): Tag;
   subscriptionTargets(): List<Tag>;

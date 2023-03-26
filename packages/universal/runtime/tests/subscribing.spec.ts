@@ -1,18 +1,17 @@
 import { isPresentArray } from "@starbeam/core-utils";
-import { Desc, descriptionFrom } from "@starbeam/debug";
+import { Desc } from "@starbeam/debug";
 import type { ReactiveValue } from "@starbeam/interfaces";
-import { DelegateTag } from "@starbeam/tags";
-import { Frame, TAG, TIMELINE } from "@starbeam/runtime";
+import { Cell, Formula } from "@starbeam/reactive";
+import { PUBLIC_TIMELINE, TAG } from "@starbeam/runtime";
+import { DelegateTag, getTag } from "@starbeam/tags";
 import { describe, expect, test } from "vitest";
 
-import { Cell } from "./support/mini-reactives.js";
-
-describe("pollable", () => {
+describe("Tagged", () => {
   test("subscribing to a cell", () => {
     const cell = Cell(0);
     let stale = false;
 
-    TIMELINE.on.change(cell, () => {
+    PUBLIC_TIMELINE.on.change(cell, () => {
       stale = true;
     });
 
@@ -26,12 +25,12 @@ describe("pollable", () => {
     expect(cell.current).toBe(1);
   });
 
-  test("subscribing to a composite", () => {
+  test("subscribing to a formula", () => {
     let stale = false;
 
     const { sum, numbers } = Sum();
 
-    TIMELINE.on.change(sum, () => {
+    PUBLIC_TIMELINE.on.change(sum, () => {
       stale = true;
     });
 
@@ -63,12 +62,12 @@ describe("pollable", () => {
 
     const delegate: ReactiveValue<number> = {
       read: () => cell.current,
-      [TAG]: DelegateTag.create(Desc("delegate"), [cell]),
+      [TAG]: DelegateTag.create(Desc("delegate"), [getTag(cell)]),
     };
 
     let stale = false;
 
-    TIMELINE.on.change(delegate, () => {
+    PUBLIC_TIMELINE.on.change(delegate, () => {
       stale = true;
     });
 
@@ -87,12 +86,12 @@ describe("pollable", () => {
 
     const delegate: ReactiveValue<number> = {
       read: () => sum.read(),
-      [TAG]: DelegateTag.create(Desc("delegate"), [sum]),
+      [TAG]: DelegateTag.create(Desc("delegate"), [getTag(sum)]),
     };
 
     let stale = false;
 
-    const unsubscribe = TIMELINE.on.change(delegate, () => {
+    const unsubscribe = PUBLIC_TIMELINE.on.change(delegate, () => {
       stale = true;
     });
 
@@ -128,27 +127,11 @@ function Sum(): {
   sum: ReactiveValue<number>;
   numbers: Cell<Cell<number>[]>;
 } {
-  const numbers: Cell<Cell<number>[]> = Cell([]);
+  const numbers = Cell([] as Cell<number>[]);
 
-  const frame = Frame.uninitialized<number>(
-    TIMELINE.now,
-    descriptionFrom({
-      type: "formula",
-      api: "Formula",
-    })
+  const sum = Formula(() =>
+    numbers.current.reduce((acc, cell) => acc + cell.current, 0)
   );
-
-  const sum: ReactiveValue<number> = {
-    read: () => {
-      return Frame.value(
-        frame.evaluate(
-          () => numbers.current.reduce((acc, cell) => acc + cell.current, 0),
-          TIMELINE.frame
-        )
-      );
-    },
-    [TAG]: DelegateTag.create(Desc("delegate"), [frame]),
-  };
 
   return { sum, numbers };
 }

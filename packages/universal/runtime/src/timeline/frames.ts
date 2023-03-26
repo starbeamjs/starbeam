@@ -1,7 +1,6 @@
 import type { DebugTimeline, Stack } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
-import type { CellTag, Tagged } from "@starbeam/interfaces";
-import { TAG } from "@starbeam/shared";
+import type { CellTag } from "@starbeam/interfaces";
 import { getTag } from "@starbeam/tags";
 
 import { ActiveFrame, type Frame } from "./frame.js";
@@ -13,18 +12,14 @@ export class FrameStack {
   #subscriptions: Subscriptions;
   #timeline: Timeline;
 
-  static didConsumeCell(
-    frames: FrameStack,
-    reactive: Tagged<CellTag>,
-    caller: Stack
-  ): void {
-    frames.#debug.consumeCell(reactive[TAG], caller);
-    frames.#didConsumeReactive(reactive, caller);
+  static didConsumeCell(frames: FrameStack, tag: CellTag, caller: Stack): void {
+    frames.#debug.consumeCell(tag, caller);
+    frames.#didConsumeReactive(tag, caller);
   }
 
   static didConsumeFrame(
     frames: FrameStack,
-    frame: interfaces.Frame,
+    frame: interfaces.FormulaTag,
     diff: interfaces.Diff<interfaces.CellTag>,
     caller: Stack
   ): void {
@@ -90,13 +85,13 @@ export class FrameStack {
     return this.#start(description) as ActiveFrame<T>;
   }
 
-  #didConsumeReactive(reactive: Tagged, caller: Stack): void {
+  #didConsumeReactive(tag: interfaces.Tag, caller: Stack): void {
     const frame = this.currentFrame;
     if (frame) {
-      frame.add(getTag(reactive));
+      frame.add(tag);
       return;
     } else {
-      const delegatesTo = [...getTag(reactive).subscriptionTargets()];
+      const delegatesTo = [...tag.subscriptionTargets()];
 
       for (const target of delegatesTo) {
         if (target.type === "cell") {

@@ -1,24 +1,17 @@
-import { callerStack, Desc } from "@starbeam/debug";
+import { Desc } from "@starbeam/debug";
 import type { Tagged } from "@starbeam/interfaces";
+import { Cell, Static } from "@starbeam/reactive";
+import { PUBLIC_TIMELINE, TAG } from "@starbeam/runtime";
 import {
-  CellTag,
   dependenciesInTaggedList,
   FormulaTag,
   getTag,
   lastUpdatedInTaggedList,
   zero,
 } from "@starbeam/tags";
-import { TAG, TIMELINE } from "@starbeam/runtime";
-import { beforeAll, describe, expect, it } from "vitest";
-
-import { Cell, FreezableCell, Static } from "./support/mini-reactives.js";
+import { describe, expect, it } from "vitest";
 
 describe("Tagged", () => {
-  beforeAll(() => {
-    // make sure the timeline is not at 0, which would make a comparison with TIMELINE.now sometimes
-    // equivalent to Timestamp.zero(), and we want to test the difference.
-    TIMELINE.bump(CellTag.create(Desc("cell"), zero()), callerStack(-1));
-  });
   describe("Static", () => {
     it("has the zero timestamp for lastUpdated", () => {
       const tom = Static("Tom Dale");
@@ -37,11 +30,11 @@ describe("Tagged", () => {
 
   describe("Cell", () => {
     it("has the current timestamp for lastUpdated", () => {
-      const original = TIMELINE.now;
+      const original = PUBLIC_TIMELINE.now;
       const tom = Cell("Tom");
-      expect(String(getTag(tom).lastUpdated)).toBe(String(TIMELINE.now));
+      expect(String(getTag(tom).lastUpdated)).toBe(String(PUBLIC_TIMELINE.now));
       const nullvox = Cell("nullvox");
-      const nullvoxTimestamp = TIMELINE.now;
+      const nullvoxTimestamp = PUBLIC_TIMELINE.now;
 
       expect(String(getTag(nullvox).lastUpdated), "lastUpdated(nullvox)").toBe(
         String(nullvoxTimestamp)
@@ -49,24 +42,26 @@ describe("Tagged", () => {
       expect(
         String(lastUpdatedInTaggedList([tom, nullvox])),
         "lastUpdatedIn([tom,nullvox])"
-      ).toBe(String(TIMELINE.now));
+      ).toBe(String(PUBLIC_TIMELINE.now));
 
-      expect(String(TIMELINE.now)).not.toBe(String(original));
+      expect(String(PUBLIC_TIMELINE.now)).not.toBe(String(original));
 
-      console.log("reading", TIMELINE.now);
+      console.log("reading", PUBLIC_TIMELINE.now);
       tom.read();
-      console.log("writing", TIMELINE.now);
+      console.log("writing", PUBLIC_TIMELINE.now);
       tom.current = "Tom Dale";
-      console.log("wrote", TIMELINE.now);
-      expect(String(TIMELINE.now), "TIMELINE.now").not.toBe(String(original));
+      console.log("wrote", PUBLIC_TIMELINE.now);
+      expect(String(PUBLIC_TIMELINE.now), "PUBLIC_TIMELINE.now").not.toBe(
+        String(original)
+      );
       expect(String(getTag(tom).lastUpdated), "lastUpdated(tom)").toBe(
-        String(TIMELINE.now)
+        String(PUBLIC_TIMELINE.now)
       );
       expect(String(getTag(nullvox).lastUpdated)).toBe(
         String(nullvoxTimestamp)
       );
       expect(String(lastUpdatedInTaggedList([tom, nullvox]))).toBe(
-        String(TIMELINE.now)
+        String(PUBLIC_TIMELINE.now)
       );
     });
 
@@ -82,8 +77,8 @@ describe("Tagged", () => {
     });
 
     it("has no dependencies if it's frozen", () => {
-      const tom = FreezableCell("tom");
-      const nullvox = FreezableCell("nullvox");
+      const tom = Cell("tom");
+      const nullvox = Cell("nullvox");
       tom.freeze();
 
       nullvox.current = "@nullvoxpopuli";
@@ -100,13 +95,18 @@ describe("Tagged", () => {
       const tom = Cell("Tom");
       const nullvox = Cell("nullvox");
 
-      const formula = FormulaTag.create(Desc("formula"), () => [tom, nullvox]);
+      const formula = FormulaTag.create(Desc("formula"), () => [
+        getTag(tom),
+        getTag(nullvox),
+      ]);
 
       const Both: Tagged = {
         [TAG]: formula,
       };
 
-      expect(String(getTag(Both).lastUpdated)).toBe(String(TIMELINE.now));
+      expect(String(getTag(Both).lastUpdated)).toBe(
+        String(PUBLIC_TIMELINE.now)
+      );
 
       expect([...getTag(Both).dependencies()]).toEqual([
         tom[TAG],
@@ -115,7 +115,9 @@ describe("Tagged", () => {
 
       tom.current = "Tom Dale";
 
-      expect(String(getTag(Both).lastUpdated)).toBe(String(TIMELINE.now));
+      expect(String(getTag(Both).lastUpdated)).toBe(
+        String(PUBLIC_TIMELINE.now)
+      );
     });
   });
 });

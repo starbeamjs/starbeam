@@ -170,7 +170,7 @@ describe("use()", () => {
 
       return Formula(
         () => `${next.current} (run = ${currentRun}, i = ${currentI})`,
-        "OuterFormula"
+        { description: "OuterFormula" }
       );
     }, "Outer");
 
@@ -210,7 +210,7 @@ describe("use()", () => {
       return Formula(
         () =>
           `${cell.current}, ${innerValue.current}, formula-dep: ${formulaDep.current}`,
-        "Outer Formula"
+        { description: "Outer Formula" }
       );
     }, "Outer");
 

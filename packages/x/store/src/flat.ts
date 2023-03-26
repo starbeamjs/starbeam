@@ -5,7 +5,7 @@ import type {
   AggregatorFor,
   AggregatorInstance,
 } from "./aggregate.js";
-import { type FilterInstance, Filter } from "./filter.js";
+import { Filter, type FilterInstance } from "./filter.js";
 import type {
   GroupTypeFor,
   TableTypes,

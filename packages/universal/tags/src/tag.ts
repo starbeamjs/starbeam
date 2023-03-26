@@ -54,7 +54,7 @@ export abstract class Tag
 
   abstract readonly lastUpdated: Timestamp;
 
-  abstract dependencies(): interfaces.List<interfaces.CellTag>;
+  abstract dependencies(): readonly interfaces.CellTag[];
 
   get description(): Description {
     return this.#description;
@@ -100,16 +100,16 @@ export class CellTag extends Tag implements interfaces.CellTag {
     this.#lastUpdated = timestamp;
   }
 
-  override *dependencies(): interfaces.List<interfaces.CellTag> {
-    if (!this.#frozen) yield this;
+  override dependencies(): interfaces.CellTag[] {
+    return this.#frozen ? [] : [this];
   }
 
-  update({ runtime: timeline, stack }: UpdateOptions): void {
+  update({ runtime }: UpdateOptions): void {
     if (this.#frozen) {
       throw TypeError("Cannot update frozen object");
     }
 
-    this.#lastUpdated = timeline.bumpCell(this, stack);
+    this.#lastUpdated = runtime.subscriptions.bump(this);
   }
 }
 
@@ -122,8 +122,8 @@ export class StaticTag extends Tag implements interfaces.StaticTag {
 
   override readonly lastUpdated = NOW.now;
 
-  override *dependencies(): interfaces.List<interfaces.CellTag> {
-    /** static tags have no dependencies */
+  override dependencies(): readonly interfaces.CellTag[] {
+    return [];
   }
 }
 
@@ -162,8 +162,8 @@ export class FormulaTag extends Tag implements interfaces.FormulaTag {
     return lastUpdatedTimestamp;
   }
 
-  override *dependencies(): interfaces.List<interfaces.CellTag> {
-    yield* Tag.dependenciesInList(this.children());
+  override dependencies(): interfaces.CellTag[] {
+    return this.children().flatMap((child) => child.dependencies());
   }
 }
 
@@ -196,10 +196,8 @@ export class DelegateTag extends Tag implements interfaces.DelegateTag {
     }
   }
 
-  override *dependencies(): interfaces.List<interfaces.CellTag> {
-    for (const target of this.#targets) {
-      yield* target.dependencies();
-    }
+  override dependencies(): readonly interfaces.CellTag[] {
+    return this.#targets.flatMap((target) => target.dependencies());
   }
 
   override get lastUpdated(): Timestamp {

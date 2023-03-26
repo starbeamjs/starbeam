@@ -25,7 +25,7 @@ describe("A reactive formula", () => {
         name: name.current,
         location: location.current,
       }),
-      "card"
+      { description: "card" }
     );
 
     let last = card.current;

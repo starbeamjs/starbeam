@@ -44,9 +44,15 @@ export type {
   Tagged,
   TagMethods,
   TagType,
-  UpdateOptions,
 } from "./src/protocol.js";
-export type { Runtime } from "./src/runtime.js";
+export type {
+  AutotrackingRuntime,
+  DeprecatedTimeline,
+  Runtime,
+  RuntimeFrame,
+  SubscriptionRuntime,
+  UpdateOptions,
+} from "./src/runtime.js";
 export type {
   DisplayParts,
   Stack,

@@ -4,7 +4,7 @@ import {
   descriptionFrom,
 } from "@starbeam/debug";
 import type { Reactive, Stack } from "@starbeam/interfaces";
-import { diff, Frame, TAG, TIMELINE } from "@starbeam/runtime";
+import { diff, Frame, TAG } from "@starbeam/runtime";
 import type { UNINITIALIZED } from "@starbeam/shared";
 import { DelegateTag, getTag } from "@starbeam/tags";
 
@@ -101,7 +101,7 @@ export function Formula<T>(
     enumerable: false,
     configurable: true,
     writable: true,
-    value: DelegateTag.create(desc, [formula.frame]),
+    value: DelegateTag.create(desc, [getTag(formula.frame)]),
   });
 
   Object.defineProperty(fn, Symbol.for("nodejs.util.inspect.custom"), {

@@ -14,7 +14,7 @@ let clock = coordination.now;
 
 if (!clock) {
   clock = coordination.now = {
-    timestamp: 0,
+    timestamp: 1,
   };
 }
 

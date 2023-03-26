@@ -5,7 +5,7 @@ import {
   descriptionFrom,
 } from "@starbeam/debug";
 import type { Stack } from "@starbeam/interfaces";
-import { diff, Frame, TAG, TIMELINE } from "@starbeam/runtime";
+import { diff, Frame, TAG } from "@starbeam/runtime";
 import type { UNINITIALIZED } from "@starbeam/shared";
 import { DelegateTag, getTag } from "@starbeam/tags";
 
@@ -97,7 +97,7 @@ export function PolledFormula<T>(
     enumerable: false,
     configurable: true,
     writable: true,
-    value: DelegateTag.create(desc, [formula.frame]),
+    value: DelegateTag.create(desc, [getTag(formula.frame)]),
   });
 
   return fn as Formula<T>;

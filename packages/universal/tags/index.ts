@@ -3,6 +3,7 @@ export {
   dependenciesInTaggedList,
   describeTagged,
   getTag,
+  getTags,
   lastUpdatedInTaggedList,
   taggedDescription,
 } from "./src/tagged.js";

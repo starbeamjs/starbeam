@@ -1,34 +1,21 @@
-import { iterableHasItems } from "@starbeam/core-utils";
-import type { Tag } from "@starbeam/interfaces";
+import type { AutotrackingRuntime, Tag } from "@starbeam/interfaces";
 
-export class TrackingStack {
+export class TrackingStack implements AutotrackingRuntime {
   static create(): TrackingStack {
     return new TrackingStack();
   }
 
   #current: TrackingFrameData | undefined;
 
-  start<T extends Tag>({
-    intoTag,
-  }: {
-    intoTag: (tags: Set<Tag>) => T;
-  }): () => T {
+  start(): () => Set<Tag> {
     const frame: TrackingFrameData = { consumed: new Set() };
     const parent = this.#current;
     this.#current = frame;
 
     return () => {
-      const tag = intoTag(frame.consumed);
-
-      if (parent) {
-        this.#current = parent;
-
-        if (iterableHasItems(tag.dependencies())) {
-          parent.consumed.add(tag);
-        }
-      }
-
-      return tag;
+      const consumed = frame.consumed;
+      this.#current = parent;
+      return consumed;
     };
   }
 
@@ -45,4 +32,4 @@ export interface TrackingFrameData {
   readonly consumed: Set<Tag>;
 }
 
-export const TRACKING_STACK = TrackingStack.create();
+export const AUTOTRACKING_RUNTIME = TrackingStack.create();

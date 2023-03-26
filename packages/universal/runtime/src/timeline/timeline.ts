@@ -36,7 +36,7 @@ type TimelineOp = "consumed" | "bumped" | "evaluating" | "initial";
  * Whenever a {@linkcode MutableInternals} is updated, the timeline will notify all subscribers of
  * reactives that depend on that dependency.
  */
-export class Timeline {
+export class Timeline implements interfaces.DeprecatedTimeline {
   #debugTimeline: DebugTimeline | null = null;
   readonly #frame: FrameStack;
 
@@ -120,6 +120,15 @@ export class Timeline {
     }
   }
 
+  bumpCell(mutable: interfaces.CellTag, caller: Stack): interfaces.Timestamp {
+    return this.bump(mutable, caller);
+  }
+
+  didConsumeCell(cell: interfaces.CellTag, caller: Stack): void {
+    this.#adjustTimestamp("consumed");
+    FrameStack.didConsumeCell(this.#frame, cell, caller);
+  }
+
   bump(mutable: interfaces.CellTag, caller: Stack): interfaces.Timestamp {
     const now = this.#adjustTimestamp("bumped");
 
@@ -131,18 +140,13 @@ export class Timeline {
     return now;
   }
 
-  didConsumeCell(cell: Tagged<CellTag>, caller: Stack): void {
-    this.#adjustTimestamp("consumed");
-    FrameStack.didConsumeCell(this.#frame, cell, caller);
-  }
-
   didConsumeFrame(
     frame: interfaces.Frame,
     diff: interfaces.Diff<interfaces.CellTag>,
     caller: Stack
   ): void {
     this.#adjustTimestamp("consumed");
-    FrameStack.didConsumeFrame(this.#frame, frame, diff, caller);
+    FrameStack.didConsumeFrame(this.#frame, getTag(frame), diff, caller);
   }
 
   next(): interfaces.Timestamp {
