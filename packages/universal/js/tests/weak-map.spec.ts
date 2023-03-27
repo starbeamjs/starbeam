@@ -1,4 +1,5 @@
 import { reactive } from "@starbeam/js";
+import { CachedFormula } from "@starbeam/reactive";
 import { describe, expect, test } from "vitest";
 
 import { Invalidation } from "./support.js";
@@ -9,6 +10,30 @@ describe("TrackedWeakMap", () => {
   const hotDogs = { name: "hot dogs" };
   const hamburgers = { name: "hamburgers" };
   const smashburgers = { name: "smashburgers" };
+
+  test("basics", () => {
+    const map = reactive.WeakMap();
+    const delicious = CachedFormula(() => {
+      return map.has(brie) || map.has(chevre);
+    });
+
+    expect(delicious.current).toEqual(false);
+
+    map.set(hotDogs, "sandwich");
+    expect(delicious.current).toEqual(false);
+
+    map.set(brie, "cheese");
+    expect(delicious.current).toEqual(true);
+
+    map.set(chevre, "cheese");
+    expect(delicious.current).toEqual(true);
+
+    map.delete(brie);
+    expect(delicious.current).toEqual(true);
+
+    map.delete(chevre);
+    expect(delicious.current).toEqual(false);
+  });
 
   test("checking a non-existent item invalidates if the item is added", () => {
     const map = reactive.WeakMap();

@@ -42,10 +42,12 @@ export type {
   StaticTag,
   Tag,
   Tagged,
+  TaggedReactive,
   TagMethods,
   TagType,
 } from "./src/protocol.js";
 export type {
+  ActiveFrame,
   AutotrackingRuntime,
   DeprecatedTimeline,
   Runtime,

@@ -1,6 +1,6 @@
 import type { Reactive, ReactiveValue } from "@starbeam/interfaces";
+import { CachedFormula, Formula } from "@starbeam/reactive";
 
-import { Formula } from "../formula/formula.js";
 import type {
   AssimilatedResourceReturn,
   ResourceBlueprint,
@@ -58,7 +58,7 @@ export function FormulaList<T, U>(
       if (r) {
         result.push(r.read());
       } else {
-        const newR = Formula(() => map(item));
+        const newR = CachedFormula(() => map(item));
         result.push(newR.current);
         prev.set(k, newR);
       }

@@ -408,9 +408,11 @@ importers:
       '@starbeam-dev/build-support': workspace:*
       '@starbeam/core-utils': workspace:^
       '@starbeam/debug': workspace:^
+      '@starbeam/interfaces': workspace:^
       '@starbeam/preact-utils': workspace:^
       '@starbeam/reactive': workspace:^
       '@starbeam/runtime': workspace:^
+      '@starbeam/tags': workspace:^
       '@starbeam/universal': workspace:^
       '@starbeam/verify': workspace:^
       chalk: ^5.2.0
@@ -419,9 +421,11 @@ importers:
     dependencies:
       '@starbeam/core-utils': link:../../universal/core-utils
       '@starbeam/debug': link:../../universal/debug
+      '@starbeam/interfaces': link:../../universal/interfaces
       '@starbeam/preact-utils': link:../preact-utils
       '@starbeam/reactive': link:../../universal/reactive
       '@starbeam/runtime': link:../../universal/runtime
+      '@starbeam/tags': link:../../universal/tags
       '@starbeam/universal': link:../../universal/universal
       '@starbeam/verify': link:../../universal/verify
       preact: 10.11.3

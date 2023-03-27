@@ -16,6 +16,12 @@ enum Phase {
   write = "write",
 }
 
+export class ReactiveError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+}
+
 /**
  * The Timeline is the core of the runtime.
  *
@@ -28,6 +34,14 @@ class Mutations implements SubscriptionRuntime {
   readonly #lastPhase: Phase = Phase.read;
 
   subscribe(target: Tag, ready: NotifyReady): Unsubscribe {
+    if (target.tdz) {
+      throw new ReactiveError(
+        `The tag ${target.description.describe({
+          color: false,
+        })} isn't initialized yet, so you can't subscribe to it. This is a bug in the implementation of a primitive or renderer.`
+      );
+    }
+
     return this.#subscriptions.register(target, ready);
   }
 

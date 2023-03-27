@@ -15,12 +15,11 @@
 
 import { Desc, type Description } from "@starbeam/debug";
 import type { Reactive } from "@starbeam/interfaces";
-import { Static } from "@starbeam/reactive";
+import { CachedFormula, Static } from "@starbeam/reactive";
 import { LIFETIME } from "@starbeam/runtime";
 import { UNINITIALIZED } from "@starbeam/shared";
 import { isWeakKey } from "@starbeam/verify";
 
-import { Formula } from "../formula/formula.js";
 import type { IntoResource } from "../into.js";
 import { type Blueprint, ReactiveBlueprint } from "../reactive.js";
 import type { ResourceRun } from "./run.js";
@@ -145,7 +144,7 @@ export class ResourceBlueprint<T, _Default extends undefined = never> {
   }
 
   initial(value: () => T): ResourceBlueprint<T> {
-    return new ResourceBlueprint(this.#create, this.#use, Formula(value));
+    return new ResourceBlueprint(this.#create, this.#use, CachedFormula(value));
   }
 
   #link({ state }: InternalBlueprintReturn<T>): Resource<T> {

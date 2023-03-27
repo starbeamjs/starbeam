@@ -1,6 +1,7 @@
 import type { TAG } from "@starbeam/shared";
 
 import type { Description } from "./description.js";
+import type { UpdateOptions } from "./runtime.js";
 import type { Stack } from "./stack.js";
 import type { Timestamp } from "./timestamp.js";
 
@@ -9,6 +10,13 @@ export type ReactiveId = number | string | ReactiveId[];
 export interface AbstractTag {
   readonly type: TagType;
   readonly description: Description;
+
+  /**
+   * This flag is false in formula tags, when the tag hasn't been computed yet.
+   * This avoids subscribing to a formula without computing its value, which is
+   * a violation of the tag contract.
+   */
+  readonly tdz: boolean;
 }
 
 export type List<T> = Iterable<T> | T[] | readonly T[];
@@ -39,7 +47,7 @@ export type Matcher<T> = ExhaustiveMatcher<T> | DefaultMatcher<T>;
 export interface CellTag extends AbstractTag, TagMethods {
   readonly type: "cell";
   readonly lastUpdated: Timestamp;
-  isFrozen?: () => boolean;
+  isFrozen: () => boolean;
   freeze: () => void;
   update: (options: UpdateOptions) => void;
 }
@@ -58,6 +66,15 @@ export interface CellTag extends AbstractTag, TagMethods {
  */
 export interface FormulaTag extends AbstractTag, TagMethods {
   readonly type: "formula";
+  /**
+   * The current children of this formula. Note that "no children" does not
+   * necessarily mean that the formula is static, because a formula has no
+   * children before it was first initialized.
+   *
+   * Data structures built on `FormulaTag` should always read the formula before
+   * attempting to read the children if they plan to rely on the absence of
+   * children as a strong indicator of staticness.
+   */
   children: () => readonly Tag[];
 }
 
@@ -129,6 +146,11 @@ export interface ReactiveValue<T = unknown, I extends Tag = Tag>
 }
 
 export interface Reactive<T> extends ReactiveValue<T> {
+  readonly current: T;
+}
+
+export interface TaggedReactive<I extends Tag, T = unknown>
+  extends ReactiveValue<T, I> {
   readonly current: T;
 }
 

@@ -1,9 +1,8 @@
 import { type Description, descriptionFrom } from "@starbeam/debug";
-import { Marker } from "@starbeam/reactive";
+import { Formula, Marker } from "@starbeam/reactive";
 import { LIFETIME, type Unsubscribe } from "@starbeam/runtime";
 import { getID } from "@starbeam/shared";
 
-import { Formula } from "./formula.js";
 
 type SetupFunction = (() => void) | (() => () => void);
 export type Setup = Formula<void>;

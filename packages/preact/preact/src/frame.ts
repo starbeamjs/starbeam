@@ -1,16 +1,19 @@
 import { getLast } from "@starbeam/core-utils";
 import type { Description } from "@starbeam/debug";
+import type { Tag } from "@starbeam/interfaces";
 import type { InternalComponent } from "@starbeam/preact-utils";
 import {
-  type ActiveFrame,
   type Frame,
   PUBLIC_TIMELINE,
+  RUNTIME,
   type Unsubscribe,
 } from "@starbeam/runtime";
 import { expected, isPresent, verify } from "@starbeam/verify";
 
+type ActiveFrame = (() => Set<Tag>) | null;
+
 export class ComponentFrame {
-  #active: ActiveFrame<unknown> | null;
+  #active: ActiveFrame;
   #frame: Frame | null;
   #subscription: Unsubscribe | null;
 
@@ -69,7 +72,7 @@ export class ComponentFrame {
 
   private constructor(
     frame: Frame | null,
-    active: ActiveFrame<unknown> | null,
+    active: ActiveFrame,
     subscribed: Unsubscribe | null
   ) {
     this.#frame = frame;
@@ -79,7 +82,8 @@ export class ComponentFrame {
 
   #start(description: Description): void {
     if (this.#frame) {
-      this.#active = TIMELINE.frame.update(this.#frame);
+      this.#active = RUNTIME.autotracking.start();
+      // this.#active = TIMELINE.frame.update(this.#frame);
     } else {
       this.#active = TIMELINE.frame.open({
         description,

@@ -25,8 +25,10 @@ export interface SubscriptionRuntime {
   update: (formula: FormulaTag) => void;
 }
 
+export type ActiveFrame = () => Set<Tag>;
+
 export interface AutotrackingRuntime {
-  start: () => () => Set<Tag>;
+  start: () => ActiveFrame;
   consume: (tag: Tag) => void;
 }
 

@@ -1,4 +1,12 @@
-export { CellTag, DelegateTag, FormulaTag, StaticTag, Tag } from "./src/tag.js";
+export {
+  CellTag,
+  DelegateTag,
+  FormulaTag,
+  StaticTag,
+  /** @deprecated */
+  Tag,
+  Tag as TagUtils,
+} from "./src/tag.js";
 export {
   dependenciesInTaggedList,
   describeTagged,

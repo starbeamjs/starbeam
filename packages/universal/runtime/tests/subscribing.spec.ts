@@ -1,8 +1,8 @@
 import { isPresentArray } from "@starbeam/core-utils";
-import { Desc } from "@starbeam/debug";
+import { Desc, logTag } from "@starbeam/debug";
 import type { ReactiveValue } from "@starbeam/interfaces";
-import { Cell, Formula } from "@starbeam/reactive";
-import { PUBLIC_TIMELINE, TAG } from "@starbeam/runtime";
+import { CachedFormula,Cell } from "@starbeam/reactive";
+import { PUBLIC_TIMELINE, ReactiveError, TAG } from "@starbeam/runtime";
 import { DelegateTag, getTag } from "@starbeam/tags";
 import { describe, expect, test } from "vitest";
 
@@ -25,17 +25,26 @@ describe("Tagged", () => {
     expect(cell.current).toBe(1);
   });
 
+  test("subscribing to a formula before reading it is an error", () => {
+    const cell = Cell(0);
+    const formula = CachedFormula(() => cell.current);
+
+    expect(() => PUBLIC_TIMELINE.on.change(formula, () => void 0)).toThrow(
+      ReactiveError
+    );
+  });
+
   test("subscribing to a formula", () => {
     let stale = false;
 
     const { sum, numbers } = Sum();
+    expect(sum.read()).toBe(0);
 
     PUBLIC_TIMELINE.on.change(sum, () => {
       stale = true;
     });
 
     expect(stale).toBe(false);
-    expect(sum.read()).toBe(0);
 
     numbers.current = [...numbers.current, Cell(1), Cell(2)];
 
@@ -81,15 +90,34 @@ describe("Tagged", () => {
     expect(cell.current).toBe(1);
   });
 
-  test("subscribing to a delegate with a composite", () => {
+  test("subscribing to a formula before reading one of its formula targets is an error", () => {
+    const cell = Cell(0);
+    const formula = CachedFormula(() => cell.current);
+
+    const delegate: ReactiveValue<number> = {
+      read: () => formula.current,
+      [TAG]: DelegateTag.create(Desc("delegate", "test delegate"), [
+        getTag(formula),
+      ]),
+    };
+
+    expect(() => PUBLIC_TIMELINE.on.change(delegate, () => void 0)).toThrow(
+      ReactiveError
+    );
+  });
+
+  test("subscribing to a formula delegate", () => {
     const { sum, numbers } = Sum();
 
     const delegate: ReactiveValue<number> = {
       read: () => sum.read(),
-      [TAG]: DelegateTag.create(Desc("delegate"), [getTag(sum)]),
+      [TAG]: DelegateTag.create(Desc("delegate", "test delegate"), [
+        getTag(sum),
+      ]),
     };
 
     let stale = false;
+    expect(delegate.read()).toBe(0);
 
     const unsubscribe = PUBLIC_TIMELINE.on.change(delegate, () => {
       stale = true;
@@ -97,14 +125,14 @@ describe("Tagged", () => {
 
     expect(stale).toBe(false);
 
-    numbers.current = [...numbers.current, Cell(1), Cell(2)];
-
-    // The pollable doesn't fire because we didn't update the reactive.
-    expect(stale).toBe(false);
+    numbers.current = [...numbers.current, Cell(1, "one"), Cell(2, "two")];
 
     expect(delegate.read()).toBe(3);
 
+    logTag(delegate[TAG]);
     satisfying(numbers.current, isPresentArray)[0].current++;
+    logTag(delegate[TAG]);
+
     expect(stale).toBe(true);
     stale = false;
 
@@ -127,10 +155,12 @@ function Sum(): {
   sum: ReactiveValue<number>;
   numbers: Cell<Cell<number>[]>;
 } {
-  const numbers = Cell([] as Cell<number>[]);
+  const description = Desc("formula", "Sum");
+  const numbers = Cell([] as Cell<number>[], "number list");
 
-  const sum = Formula(() =>
-    numbers.current.reduce((acc, cell) => acc + cell.current, 0)
+  const sum = CachedFormula(
+    () => numbers.current.reduce((acc, cell) => acc + cell.current, 0),
+    description
   );
 
   return { sum, numbers };

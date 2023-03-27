@@ -1,18 +1,27 @@
 import { readonly } from "@starbeam/core-utils";
 import type * as Debug from "@starbeam/debug";
 import { Desc } from "@starbeam/debug";
-import type { CellTag as ICellTag, ReactiveCell } from "@starbeam/interfaces";
+import type {
+  CellTag as ICellTag,
+  Expand,
+  ReactiveCell,
+} from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
 import { CellTag } from "@starbeam/tags";
 
 import { getRuntime } from "../runtime.js";
-import type { PrimitiveOptions } from "./shared.js";
+import {
+  type DescriptionOption,
+  isDescriptionOption,
+  type PrimitiveOptions,
+} from "./utils.js";
 
 export class CellImpl<T> implements ReactiveCell<T> {
   static create = <T>(
     value: T,
-    { description, equals = Object.is }: CellOptions<T> = {}
+    options?: CellOptions<T> | DescriptionOption
   ): CellImpl<T> => {
+    const { description, equals = Object.is } = toCellOptions(options);
     return new CellImpl(value, equals, Desc("cell", description));
   };
 
@@ -39,7 +48,6 @@ export class CellImpl<T> implements ReactiveCell<T> {
   }
 
   read(_caller = getRuntime().callerStack()): T {
-    // getRuntime().timeline.didConsumeCell(this[TAG], caller);
     getRuntime().autotracking.consume(this[TAG]);
     return this.#value;
   }
@@ -50,7 +58,7 @@ export class CellImpl<T> implements ReactiveCell<T> {
     }
 
     this.#value = value;
-    this[TAG].update({ stack: caller, runtime: getRuntime() });
+    this[TAG].update({ caller, runtime: getRuntime() });
   }
 
   update(updater: (prev: T) => T, caller = getRuntime().callerStack()) {
@@ -63,10 +71,16 @@ export class CellImpl<T> implements ReactiveCell<T> {
 }
 
 export const Cell = CellImpl.create;
-export type Cell<T = unknown> = CellImpl<T>;
+export type Cell<T = unknown> = Expand<CellImpl<T>>;
 
 export type Equality<T> = (a: T, b: T) => boolean;
 
 export interface CellOptions<T> extends PrimitiveOptions {
   equals?: Equality<T>;
+}
+
+export function toCellOptions<T>(
+  options: CellOptions<T> | DescriptionOption
+): CellOptions<T> {
+  return isDescriptionOption(options) ? { description: options } : options;
 }

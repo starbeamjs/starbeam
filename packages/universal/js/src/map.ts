@@ -1,7 +1,11 @@
+import type { Stack } from "@starbeam/debug";
 import { callerStack, type Description } from "@starbeam/debug";
-import type { Equality } from "@starbeam/universal";
+import { type Equality, Marker } from "@starbeam/reactive";
 
-import { Collection } from "./collection.js";
+interface Entry {
+  has: Marker;
+  get: Marker;
+}
 
 export class TrackedWeakMap<K extends object = object, V = unknown>
   implements WeakMap<K, V>
@@ -12,73 +16,111 @@ export class TrackedWeakMap<K extends object = object, V = unknown>
     return new TrackedWeakMap(description) as WeakMap<K, V>;
   }
 
-  readonly #collection: Collection<K>;
+  readonly #description: Description;
+  readonly #iteration: Marker;
+  readonly #storage: WeakMap<K, Entry>;
   readonly #vals: WeakMap<K, V>;
   readonly #equals: Equality<V> = Object.is;
 
   private constructor(description: Description) {
-    // TypeScript doesn't correctly resolve the overloads for calling the `Map`
-    // constructor for the no-value constructor. This resolves that.
     this.#vals = new WeakMap();
 
-    // FIXME: Avoid using a regular Map in Collection to avoid leaks. The best
-    // thing to do would probably be to have a non-iterable, object-keyed
-    // Collection that WeakMap and WeakSet can use.
-    this.#collection = Collection.create(description, this);
+    this.#iteration = Marker(description.detail("iterate"));
+    this.#storage = new WeakMap();
+
+    this.#description = description;
   }
 
-  get(key: K): V | undefined {
-    const has = this.#vals.has(key);
+  #entry(key: K): Entry {
+    let markers = this.#tryEntry(key);
 
-    this.#collection.get(key, has ? "hit" : "miss", " {entry}", callerStack());
+    if (markers === undefined) {
+      markers = {
+        get: Marker(this.#description.key(describeKey(key)).detail("get")),
+        has: Marker(this.#description.key(describeKey(key)).detail("has")),
+      };
+      this.#storage.set(key, markers);
+    }
+
+    return markers;
+  }
+
+  #tryEntry(key: K): Entry | undefined {
+    return this.#storage.get(key);
+  }
+
+  #get(key: K, caller: Stack, entry: Entry = this.#entry(key)): V | undefined {
+    entry.get.read(caller);
     return this.#vals.get(key);
   }
 
+  get(key: K): V | undefined {
+    const caller = callerStack();
+    const entry = this.#entry(key);
+    return this.#has(key, caller, entry)
+      ? this.#get(key, caller, entry)
+      : undefined;
+  }
+
+  #has(key: K, caller: Stack, entry: Entry = this.#entry(key)): boolean {
+    entry.has.read(caller);
+    return this.#vals.has(key);
+  }
+
   has(key: K): boolean {
-    const has = this.#vals.has(key);
-    this.#collection.check(
-      key,
-      has ? "hit" : "miss",
-      " {entry}",
-      callerStack()
-    );
-    return has;
+    return this.#has(key, callerStack());
+  }
+
+  #insert(key: K, caller: Stack): void {
+    const entry = this.#tryEntry(key);
+    if (entry) entry.has.mark(caller);
+
+    this.#iteration.mark(caller);
+  }
+
+  #update(key: K, caller: Stack): void {
+    const entry = this.#tryEntry(key);
+    if (entry) entry.get.mark(caller);
+
+    this.#iteration.mark(caller);
   }
 
   set(key: K, value: V): this {
     const caller = callerStack();
 
+    // intentionally avoid consuming the `has` or `get` markers while setting.
     const has = this.#vals.has(key);
 
     if (has) {
       const current = this.#vals.get(key) as V;
-
-      if (this.#equals(current, value)) {
-        return this;
-      }
+      if (!this.#equals(current, value)) this.#update(key, caller);
+    } else {
+      this.#insert(key, caller);
     }
 
-    this.#collection.set(
-      key,
-      has ? "key:stable" : "key:changes",
-      " {entry}",
-      caller
-    );
     this.#vals.set(key, value);
 
     return this;
   }
 
+  #delete(key: K, caller: Stack): void {
+    const entry = this.#tryEntry(key);
+
+    // if anyone checked the presence of this key before, invalidate the check.
+    if (entry) entry.has.mark(caller);
+
+    // either way, invalidate iteration of the map.
+    this.#iteration.mark(caller);
+  }
+
   delete(key: K): boolean {
     const caller = callerStack();
 
-    const has = this.#vals.has(key);
-
-    if (!has) {
-      return false;
+    // if the key is not in the map, then deleting it has no reactive effect.
+    if (this.#vals.has(key)) {
+      this.#delete(key, caller);
     }
 
-    this.#collection.delete(key, caller);
     return this.#vals.delete(key);
   }
 
@@ -89,3 +131,21 @@ export class TrackedWeakMap<K extends object = object, V = unknown>
 
 // So instanceof works
 Object.setPrototypeOf(TrackedWeakMap.prototype, WeakMap.prototype);
+
+function describeKey(key: unknown): string {
+  switch (typeof key) {
+    case "object":
+      return key === null ? "null" : "{key} ";
+    case "function":
+      return "{function} ";
+    case "undefined":
+    case "bigint":
+    case "symbol":
+    case "string":
+    case "number":
+    case "boolean":
+      return String(key);
+    default:
+      throw Error(`UNEXPECTED: typeof value=${typeof key}`);
+  }
+}

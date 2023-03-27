@@ -1,7 +1,7 @@
 import type * as interfaces from "@starbeam/interfaces";
 import { getID } from "@starbeam/shared";
 import { exhaustive, expected, isEqual, verify } from "@starbeam/verify";
-import ansicolor from "ansicolor";
+import ansicolor, { type Color } from "ansicolor";
 
 import { DisplayStruct } from "../inspect/display-struct.js";
 import { DisplayParts } from "../module.js";
@@ -29,6 +29,10 @@ export interface DescriptionStatics {
 }
 
 if (import.meta.env.DEV) {
+  function stylize(color: Color, text: string, shouldColor: boolean): string {
+    return shouldColor ? color(text) : text;
+  }
+
   class DebugDescription
     implements interfaces.Description, interfaces.DescriptionArgs
   {
@@ -130,7 +134,7 @@ if (import.meta.env.DEV) {
       return this.#stack?.caller;
     }
 
-    get fromUser(): string {
+    #fromUser(shouldColor: boolean): string {
       if (this.#details) {
         if (typeof this.#details === "string") {
           return this.#details;
@@ -148,11 +152,15 @@ if (import.meta.env.DEV) {
               }
 
             case "detail": {
-              const detail = ansicolor.dim(`->${this.#details.name}`);
+              const detail = stylize(
+                ansicolor.dim,
+                `->${this.#details.name}`,
+                shouldColor
+              );
 
               if (this.#details.args) {
                 return `${detail}(${this.#details.args
-                  .map((a) => ansicolor.magenta(a))
+                  .map((a) => stylize(ansicolor.magenta, a, shouldColor))
                   .join(", ")})`;
               } else {
                 return detail;
@@ -171,16 +179,38 @@ if (import.meta.env.DEV) {
       }
     }
 
-    get fullName(): string {
+    get fromUser(): string {
+      return this.#fromUser(true);
+    }
+
+    get name(): string {
       if (this.#details !== undefined) {
         if (typeof this.#details === "string") {
           return this.#details;
         } else {
-          return `${this.#details.parent.fullName}${this.fromUser}`;
+          return this.#fromUser(false);
         }
       } else {
         return `{${this.#idName}:anonymous ${this.type}}`;
       }
+    }
+
+    #fullName(shouldColor: boolean): string {
+      if (this.#details !== undefined) {
+        if (typeof this.#details === "string") {
+          return this.#details;
+        } else {
+          return `${this.#details.parent.#fullName(
+            shouldColor
+          )}${this.#fromUser(shouldColor)}`;
+        }
+      } else {
+        return `{${this.#idName}:anonymous ${this.type}}`;
+      }
+    }
+
+    get fullName(): string {
+      return this.#fullName(false);
     }
 
     get id(): interfaces.ReactiveId {
@@ -281,11 +311,14 @@ if (import.meta.env.DEV) {
 
     describe(options: interfaces.DescriptionDescribeOptions = {}): string {
       const name = this.#name(options);
+      const color = options.color ?? true;
 
       if (this.#internal) {
-        const desc = this.#internal.reason
-          ? ansicolor.dim(`[${this.#internal.reason}]`)
-          : ansicolor.dim("[internals]");
+        const desc = stylize(
+          ansicolor.dim,
+          this.#internal.reason ? `[${this.#internal.reason}]` : "[internals]",
+          color
+        );
         return `${name} ${desc}`;
       } else {
         return name;
@@ -445,9 +478,10 @@ if (import.meta.env.DEV) {
     }
 
     #name(options: interfaces.DescriptionDescribeOptions): string {
+      const color = options.color ?? true;
       const getName = (): string => {
         if ((this.isAnonymous || options.source) ?? false) {
-          return `${this.fullName} @ ${this.#caller(options)}`;
+          return `${this.#fullName(color)} @ ${this.#caller(options)}`;
         } else {
           return this.fullName;
         }

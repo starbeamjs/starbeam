@@ -1,8 +1,11 @@
+import { DisplayStruct } from "@starbeam/debug";
 import type { Description, UpdateOptions } from "@starbeam/interfaces";
 import type * as interfaces from "@starbeam/interfaces";
 
 import { type Timestamp, zero } from "./timestamp.js";
 import { NOW } from "./timestamp.js";
+
+const INSPECT = Symbol.for("nodejs.util.inspect.custom");
 
 export abstract class Tag
   implements interfaces.AbstractTag, interfaces.TagMethods
@@ -32,6 +35,8 @@ export abstract class Tag
   }
 
   abstract readonly type: interfaces.TagType;
+  abstract readonly tdz: boolean;
+
   readonly #description: Description;
   constructor(description: Description) {
     this.#description = description;
@@ -75,6 +80,7 @@ export class CellTag extends Tag implements interfaces.CellTag {
   }
 
   readonly type = "cell";
+  readonly tdz = false;
 
   #frozen = false;
   #lastUpdated: Timestamp;
@@ -82,6 +88,13 @@ export class CellTag extends Tag implements interfaces.CellTag {
   private constructor(description: Description, lastUpdated: Timestamp) {
     super(description);
     this.#lastUpdated = lastUpdated;
+  }
+
+  [INSPECT]() {
+    return DisplayStruct("Cell", {
+      id: this.description.id,
+      lastUpdated: this.lastUpdated,
+    });
   }
 
   isFrozen() {
@@ -119,6 +132,7 @@ export class StaticTag extends Tag implements interfaces.StaticTag {
   }
 
   readonly type = "static";
+  readonly tdz = false;
 
   override readonly lastUpdated = NOW.now;
 
@@ -132,18 +146,29 @@ export class FormulaTag extends Tag implements interfaces.FormulaTag {
     description: Description,
     children: () => interfaces.List<interfaces.Tag>
   ): FormulaTag {
-    return new FormulaTag(description, children);
+    return new FormulaTag(description, children, true);
   }
 
   readonly type = "formula";
   readonly #children: () => interfaces.List<interfaces.Tag>;
+  #tdz: boolean;
 
   private constructor(
     description: Description,
-    children: () => interfaces.List<interfaces.Tag>
+    children: () => interfaces.List<interfaces.Tag>,
+    tdz: boolean
   ) {
     super(description);
     this.#children = children;
+    this.#tdz = tdz;
+  }
+
+  get tdz(): boolean {
+    return this.#tdz;
+  }
+
+  unsetTdz(): void {
+    this.#tdz = false;
   }
 
   children(): readonly interfaces.Tag[] {
@@ -184,6 +209,10 @@ export class DelegateTag extends Tag implements interfaces.DelegateTag {
   ) {
     super(description);
     this.#targets = targets;
+  }
+
+  get tdz(): boolean {
+    return this.#targets.some((target) => target.tdz);
   }
 
   get targets(): readonly interfaces.Tag[] {

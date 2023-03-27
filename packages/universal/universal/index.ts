@@ -6,10 +6,6 @@ export {
 } from "./src/reactive-core/custom.js";
 export { Wrap } from "./src/reactive-core/delegate.js";
 export { Linkable } from "./src/reactive-core/formula/linkable.js";
-export {
-  PolledFormula,
-  PolledFormulaValidation,
-} from "./src/reactive-core/formula/polled-formula.js";
 export { Setup, Setups } from "./src/reactive-core/formula/setups.js";
 export { Freshness } from "./src/reactive-core/higher-level/freshness.js";
 export {
@@ -48,5 +44,12 @@ export {
   Variants,
   type VariantType,
 } from "./src/reactive-core/variants.js";
-export { Cell, type Equality, Formula, Static } from "@starbeam/reactive";
+export {
+  Cell,
+  type Equality,
+  // FIXME: Migrate these to their ultimate names
+  CachedFormula as Formula,
+  Formula as PolledFormula,
+  Static,
+} from "@starbeam/reactive";
 export { LIFETIME, PUBLIC_TIMELINE, TAG } from "@starbeam/runtime";

@@ -22,6 +22,7 @@ export {
 export {
   PUBLIC_TIMELINE,
   type PublicTimeline,
+  ReactiveError,
   SUBSCRIPTION_RUNTIME,
 } from "./src/timeline/tracker.js";
 export { diff } from "./src/timeline/utils.js";

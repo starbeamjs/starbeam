@@ -4,7 +4,7 @@ import type * as interfaces from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
 import { StaticTag } from "@starbeam/tags";
 
-import type { PrimitiveOptions } from "./shared.js";
+import type { PrimitiveOptions } from "./utils.js";
 
 export class StaticImpl<T>
   implements interfaces.ReactiveValue<T, interfaces.StaticTag>

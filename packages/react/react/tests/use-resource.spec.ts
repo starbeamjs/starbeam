@@ -231,17 +231,16 @@ describe("use", () => {
       .render(
         (state) => {
           const { name, increment } = useSetup(() => {
-            const count = Cell(0, `count`);
+            const count = Cell(0, { description: `count` });
 
-            const name = Formula(
-              () => `channel${count.current}`,
-              `channel-name`
-            );
+            const name = Formula(() => `channel${count.current}`, {
+              description: `channel-name`,
+            });
 
             return {
               name,
               increment: () => {
-                return count.update((i) => i + 1);
+                count.update((i) => i + 1);
               },
             };
           });
@@ -313,19 +312,18 @@ describe("use", () => {
       .render(
         (state) => {
           const { channel, increment } = useSetup(({ use }) => {
-            const count = Cell(0, `count`);
+            const count = Cell(0, { description: `count` });
 
-            const name = Formula(
-              () => `channel${count.current}`,
-              `channel-name`
-            );
+            const name = Formula(() => `channel${count.current}`, {
+              description: `channel-name`,
+            });
 
             const channel = use(() => SimpleChannel(name.current));
 
             return {
               channel,
               increment: () => {
-                return count.update((i) => i + 1);
+                count.update((i) => i + 1);
               },
             };
           });

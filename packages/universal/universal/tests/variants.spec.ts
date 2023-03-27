@@ -26,6 +26,8 @@ describe("Variants", () => {
     const bool = Bool.true();
 
     const type = Formula(() => bool.current.type);
+    expect(type.current).toBe("true");
+
     const typeStable = Stability(type);
 
     expect(type.current).toBe("true");
@@ -83,34 +85,41 @@ describe("Variants", () => {
       { description: "advance" }
     );
 
-    const render = Formula((): number | Error | "idle" | "loading" => {
-      advance();
+    const render = Formula(
+      (): number | Error | "idle" | "loading" => {
+        advance();
 
-      if (lifecycle.is("idle")) {
-        return "idle";
-      } else if (lifecycle.is("loading")) {
-        return "loading";
-      } else if (lifecycle.is("loaded")) {
-        return lifecycle.current.value;
-      } else if (lifecycle.is("error")) {
-        return lifecycle.current.value;
-      } else {
-        throw Error("unreachable");
-      }
-    }, {description: "render"});
+        if (lifecycle.is("idle")) {
+          return "idle";
+        } else if (lifecycle.is("loading")) {
+          return "loading";
+        } else if (lifecycle.is("loaded")) {
+          return lifecycle.current.value;
+        } else if (lifecycle.is("error")) {
+          return lifecycle.current.value;
+        } else {
+          throw Error("unreachable");
+        }
+      },
+      { description: "render" }
+    );
 
-    const value = Formula(() => {
-      return lifecycle.match({
-        loaded: (v) => v,
-      });
-    }, {description: "value"});
+    const value = Formula(
+      () => {
+        return lifecycle.match({
+          loaded: (v) => v,
+        });
+      },
+      { description: "value" }
+    );
+
+    expect(render()).toBe("loading");
+    expect(value()).toBe(undefined);
 
     const advanceStable = Stability(advance);
     const renderStable = Stability(render);
     const valueStable = Stability(value);
 
-    expect(render()).toBe("loading");
-    expect(value()).toBe(undefined);
     expect(advanceStable.changed).toBe(false);
     expect(renderStable.changed).toBe(false);
     expect(valueStable.changed).toBe(false);
@@ -174,9 +183,9 @@ describe("Variants", () => {
       return lifecycle.is("loaded", "error");
     });
 
+    expect(isResolved()).toBe(false);
     const isStable = Stability(isResolved);
 
-    expect(isResolved()).toBe(false);
     expect(isStable.changed).toBe(false);
 
     lifecycle.choose("loading");

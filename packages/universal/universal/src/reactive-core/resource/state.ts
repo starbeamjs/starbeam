@@ -1,10 +1,9 @@
 import type { Description } from "@starbeam/debug";
 import type { Reactive } from "@starbeam/interfaces";
-import { isReactive, Static } from "@starbeam/reactive";
+import { CachedFormula, isReactive, Static } from "@starbeam/reactive";
 import { LIFETIME } from "@starbeam/runtime";
 import { UNINITIALIZED } from "@starbeam/shared";
 
-import { Formula } from "../formula/formula.js";
 import {
   type AssimilatedResourceReturn,
   brandResource,
@@ -74,7 +73,7 @@ export class ResourceState<T> {
     this.#constructorFn = constructorFn;
     this.#owner = owner;
 
-    this.reactiveConstructor = Formula(
+    this.reactiveConstructor = CachedFormula(
       () => this.next(),
       desc.detail("constructor")
     );
@@ -86,7 +85,7 @@ export class ResourceState<T> {
       finalized = true;
     });
 
-    this.reactiveInstance = Formula(() => {
+    this.reactiveInstance = CachedFormula(() => {
       if (instance && finalized) return instance;
 
       instance = this.reactiveConstructor.read();
@@ -94,7 +93,7 @@ export class ResourceState<T> {
     }, desc.detail("instance"));
 
     this.resource = brandResource(
-      Formula(
+      CachedFormula(
         () => this.reactiveInstance.read().read(),
         desc.detail("instance")
       )

@@ -1,8 +1,7 @@
 import { type Description, descriptionFrom } from "@starbeam/debug";
 import type { Unsubscribe } from "@starbeam/interfaces";
+import { Formula } from "@starbeam/reactive";
 import { PUBLIC_TIMELINE } from "@starbeam/runtime";
-
-import { Formula } from "./reactive-core/formula/formula.js";
 
 export const DEBUG_RENDERER = {
   render<T>(

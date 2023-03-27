@@ -10,7 +10,7 @@ export function objectHasKeys(object: object): boolean {
   return isPresentArray(Object.keys(object));
 }
 
-type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never;
+  type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never;
 
 type WithReadonly<T, K extends keyof T> = Expand<
   Exclude<T, K> & {

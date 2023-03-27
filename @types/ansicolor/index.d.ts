@@ -38,7 +38,7 @@ type FgColor = Expand<{
   default: Color;
 }>;
 
-type Color = BgColor & FgColor & ((text: string) => string);
+export type Color = BgColor & FgColor & ((text: string) => string);
 
 const DEFAULT: Color;
 export default DEFAULT;

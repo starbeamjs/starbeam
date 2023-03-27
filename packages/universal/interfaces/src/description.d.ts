@@ -42,9 +42,11 @@ export interface DescriptionArgs {
 export interface DescriptionDescribeOptions extends StackFrameDisplayOptions {
   source?: boolean | undefined;
   id?: boolean | undefined;
+  color?: boolean | undefined;
 }
 
 export interface Description extends DescriptionArgs {
+  readonly name: string;
   readonly fullName: string;
   readonly id: ReactiveId;
   readonly type: DescriptionType;
