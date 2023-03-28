@@ -5,8 +5,8 @@ import type {
   AssimilatedResourceReturn,
   ResourceBlueprint,
   ResourceReturn,
-} from "../resource/resource.js";
-import { Resource } from "../resource/resource.js";
+} from "../resource/original-resource.js";
+import { Resource } from "../resource/original-resource.js";
 
 export function ResourceList<T, R extends ResourceReturn<unknown>>(
   list: Iterable<T>,

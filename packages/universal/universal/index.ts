@@ -29,7 +29,17 @@ export {
   type ResourceBlueprint,
   type ResourceFactory,
   type ResourceReturn,
-} from "./src/reactive-core/resource/resource.js";
+} from "./src/reactive-core/resource/original-resource.js";
+export {
+  assimilateResource,
+  CreateResourceRun,
+  getRunInstance,
+  ResourceConstructor,
+  ResourceInstance,
+  ResourceMetadata,
+  ResourceState,
+  updateResource,
+} from "./src/reactive-core/resource/resource-core.js";
 export type { ResourceRun } from "./src/reactive-core/resource/run.js";
 export {
   createService,

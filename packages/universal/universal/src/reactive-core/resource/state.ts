@@ -12,7 +12,7 @@ import {
   ResourceBlueprint,
   type ResourceFactory,
   type ResourceReturn,
-} from "./resource";
+} from "./original-resource";
 import { ResourceRun } from "./run";
 
 /**

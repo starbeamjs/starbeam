@@ -4,8 +4,8 @@ import { intoReactive, isReactive } from "@starbeam/reactive";
 
 import type { ReactiveBlueprint } from "./reactive.js";
 import { type Blueprint, Reactive, type ReactiveFactory } from "./reactive.js";
-import { ResourceBlueprint } from "./resource/resource.js";
-import { Resource, type ResourceFactory } from "./resource/resource.js";
+import { ResourceBlueprint } from "./resource/original-resource.js";
+import { Resource, type ResourceFactory } from "./resource/original-resource.js";
 
 export type IntoResource<T, Initial extends undefined = undefined> =
   | ResourceBlueprint<T, Initial>

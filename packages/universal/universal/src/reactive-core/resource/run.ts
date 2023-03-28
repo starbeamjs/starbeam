@@ -2,7 +2,7 @@ import { Desc, type Description } from "@starbeam/debug";
 import type { Reactive, ReactiveValue } from "@starbeam/interfaces";
 import { LIFETIME, type Unsubscribe } from "@starbeam/runtime";
 
-import type { Handler, Resource, ResourceBlueprint } from "./resource";
+import type { Handler, Resource, ResourceBlueprint } from "./original-resource";
 import type { ResourceState } from "./state.js";
 
 /**

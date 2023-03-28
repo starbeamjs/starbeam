@@ -3,7 +3,7 @@ import type { ReactiveValue, Tag } from "@starbeam/interfaces";
 import type * as interfaces from "@starbeam/interfaces";
 import { isObject } from "@starbeam/verify";
 
-import type { ResourceBlueprint } from "./resource/resource.js";
+import type { ResourceBlueprint } from "./resource/original-resource.js";
 
 export type ReactiveFactory<T> =
   | (() => T)

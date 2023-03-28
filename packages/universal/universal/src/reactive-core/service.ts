@@ -4,7 +4,7 @@ import { CONTEXT } from "@starbeam/runtime";
 
 import { Factory, type IntoResource } from "./into.js";
 import type { Blueprint } from "./reactive.js";
-import type { ResourceFactory } from "./resource/resource.js";
+import type { ResourceFactory } from "./resource/original-resource.js";
 
 export function Service<T>(
   create: Blueprint<T> | ResourceFactory<T>,

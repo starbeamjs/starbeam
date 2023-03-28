@@ -407,30 +407,6 @@ scenario("use(resource)", () => {
           verifyInvariants({ finalized: true });
         },
       ];
-
-      // expect(onTheFly1.current).toBe("on-the-fly-0: finalized");
-
-      // deps.counter.increment();
-      // expect(outer.current).toBe("inner: active (run: 0, counter: 1)");
-
-      // deps.run.increment();
-      // expect(outer.current).toBe("inner: active (run: 1, counter: 1)");
-
-      // deps.counter.increment();
-      // deps.run.increment();
-      // expect(outer.current).toBe("inner: active (run: 2, counter: 2)");
-
-      // // the inner resource is finalized regardless of how the outer resoruce is finalized.
-      // return [
-      //   () => {
-      //     LIFETIME.finalize(owner);
-      //     expect(outer.current).toBe("inner: finalized (run: 2, counter: 2)");
-      //   },
-      //   () => {
-      //     LIFETIME.finalize(outer);
-      //     expect(outer.current).toBe("inner: finalized (run: 2, counter: 2)");
-      //   },
-      // ];
     }
   );
 
