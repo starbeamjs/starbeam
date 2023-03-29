@@ -16,8 +16,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: NullVoxPopuli/action-setup-pnpm@v2
-      - name: "Setup node and install dependencies"
-        uses: ./.github/actions/setup-node-and-install
 
   test:
     name: "Tests"
