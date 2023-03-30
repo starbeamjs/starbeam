@@ -1,6 +1,6 @@
 import { expected, isEqual, verify } from "@starbeam/verify";
 
-import { type Unsubscribe, ObjectLifetime } from "./object-lifetime.js";
+import { ObjectLifetime, type Unsubscribe } from "./object-lifetime.js";
 
 /**
  * Implement this interface if you are building a new abstraction that wants to

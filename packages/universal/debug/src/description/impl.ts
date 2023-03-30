@@ -571,6 +571,7 @@ if (import.meta.env.DEV) {
 
     readonly fromUser = undefined;
     readonly fullName = "";
+    readonly name = "";
     readonly id: interfaces.ReactiveId = "@starbeam:erased";
     readonly internal = undefined;
     readonly parts: interfaces.DescriptionParts = {

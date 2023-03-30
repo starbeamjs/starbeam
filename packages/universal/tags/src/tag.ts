@@ -163,6 +163,14 @@ export class FormulaTag extends Tag implements interfaces.FormulaTag {
     this.#tdz = tdz;
   }
 
+  [INSPECT]() {
+    return DisplayStruct("Formula", {
+      id: this.description.id,
+      initialized: !this.#tdz,
+      children: [...this.#children()],
+    });
+  }
+
   get tdz(): boolean {
     return this.#tdz;
   }

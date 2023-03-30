@@ -1,6 +1,7 @@
 import type * as Debug from "@starbeam/debug";
 import { callerStack, Desc } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
+import type { TagType } from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
 
 import { Static } from "./primitives/static.js";
@@ -23,6 +24,14 @@ export function isReactive<T>(
   value: unknown
 ): value is Reactive<T> {
   return is(value) && hasRead(value);
+}
+
+export function isTaggedReactive<T, Type extends TagType>(
+  this: void,
+  value: unknown,
+  tag: Type
+): value is interfaces.TaggedReactive<interfaces.SpecificTag<Type>, T> {
+  return is(value) && value[TAG].type === tag && hasRead(value);
 }
 
 export function read<T>(

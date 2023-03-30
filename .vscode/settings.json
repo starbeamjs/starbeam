@@ -69,11 +69,15 @@
     }
   ],
   "npm-scripts.showStartNotification": false,
+  "rewrap.autoWrap.enabled": true,
+  "rewrap.reformat": true,
+  "rewrap.wrappingColumn": 80,
 
   "search.exclude": {
     "**/CHANGELOG.md": true,
     "pnpm-lock.yaml": true
   },
+  "typescript.experimental.tsserver.web.enableProjectWideIntellisense": true,
 
   "typescript.preferences.importModuleSpecifier": "project-relative",
   "typescript.preferences.importModuleSpecifierEnding": "js",
@@ -81,8 +85,5 @@
   "typescript.tsserver.experimental.enableProjectDiagnostics": true,
 
   "vitest.enable": true,
-  "typescript.experimental.tsserver.web.enableProjectWideIntellisense": true,
-  "rewrap.autoWrap.enabled": true,
-  "rewrap.reformat": true,
-  "rewrap.wrappingColumn": 80
+  "testing.automaticallyOpenPeekView": "never"
 }

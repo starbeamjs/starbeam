@@ -1,5 +1,5 @@
 import type { Description } from "@starbeam/debug";
-import type { ReactiveValue, TaggedReactive } from "@starbeam/interfaces";
+import type { ReactiveValue, Tag, TaggedReactive } from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
 import type { FormulaTag } from "@starbeam/tags";
 
@@ -34,6 +34,14 @@ export function toOptions(options: SugaryPrimitiveOptions): PrimitiveOptions {
 
 export interface FormulaFn<T> extends TaggedReactive<FormulaTag, T> {
   (): T;
+}
+
+export function isFormulaFn<T>(value: unknown): value is FormulaFn<T> {
+  return !!(
+    typeof value === "function" &&
+    TAG in value &&
+    (value[TAG] as Tag).type === "formula"
+  );
 }
 
 export function WrapFn<T>(formula: ReactiveValue<T, FormulaTag>): FormulaFn<T> {

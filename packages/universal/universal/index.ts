@@ -30,17 +30,23 @@ export {
   type ResourceFactory,
   type ResourceReturn,
 } from "./src/reactive-core/resource/original-resource.js";
+export type { ResourceRun } from "./src/reactive-core/resource/run.js";
 export {
   assimilateResource,
   CreateResourceRun,
   getRunInstance,
   ResourceConstructor,
   ResourceInstance,
-  ResourceMetadata,
   ResourceState,
   updateResource,
-} from "./src/reactive-core/resource/resource-core.js";
-export type { ResourceRun } from "./src/reactive-core/resource/run.js";
+} from "./src/reactive-core/resource/v2/index.js";
+export {
+  Resource as Resource3,
+  type ResourceBlueprint as ResourceBlueprint3,
+  type ResourceRun as ResourceRun2,
+  use,
+} from "./src/reactive-core/resource/v3/resource.js";
+export { ResourceList as ResourceList3 } from "./src/reactive-core/resource/v3/resource-list.js";
 export {
   createService,
   reactiveService,
