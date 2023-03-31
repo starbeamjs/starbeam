@@ -12,4 +12,5 @@ export {
   isReactive,
   isTaggedReactive,
   read,
+  type ReadValue,
 } from "./src/utils.js";

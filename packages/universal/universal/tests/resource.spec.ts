@@ -1,14 +1,5 @@
 import {
-  getLast,
-  getLastIndex,
-  isPresent,
-  isPresentArray,
-  withoutLast,
-} from "@starbeam/core-utils";
-import type { Description } from "@starbeam/debug";
-import {
   callerStack,
-  Desc,
   DisplayStruct,
   entryPointFn,
   entryPoints,
@@ -20,12 +11,11 @@ import {
   LIFETIME,
   Resource,
   type ResourceBlueprint,
+  use,
   Wrap,
 } from "@starbeam/universal";
-import { exhaustive, verified } from "@starbeam/verify";
+import { exhaustive } from "@starbeam/verify";
 import { describe, expect, test } from "vitest";
-
-import { scenario } from "./support/scenario.js";
 
 const INITIAL_ID = 0;
 
@@ -176,7 +166,7 @@ describe("use()", () => {
 
     const parent = {};
 
-    const instance = outer.create(parent);
+    const instance = use(outer, { lifetime: parent });
 
     expect(instance.current).toBe("active (run = 0, i = 0)");
     expect(prevInner?.current).toBe(undefined);
@@ -214,247 +204,27 @@ describe("use()", () => {
       );
     }, "Outer");
 
-    const outer = Outer.root();
+    const lifetime = {};
+    const outer = use(Outer, { lifetime });
 
-    expect(outer.resource.current).toBe(
+    expect(outer.current).toBe(
       "outer: active (0), inner: active, formula-dep: 0"
     );
 
     formulaDep.update((i) => i + INCREMENT);
 
-    expect(outer.resource.current).toBe(
+    expect(outer.current).toBe(
       "outer: active (0), inner: active, formula-dep: 1"
     );
     expect(inner.current).toBe("inner: active");
 
     outerDep.update((i) => i + INCREMENT);
 
-    expect(outer.resource.current).toBe(
+    expect(outer.current).toBe(
       "outer: active (1), inner: active, formula-dep: 1"
     );
   });
 });
-
-scenario("use(resource)", () => {
-  const { resource: inner } = TestResource("inner");
-
-  const outerDep = Counter("OuterDep");
-  const formulaDep = Counter("FormulaDep");
-
-  return {
-    inner,
-    deps: {
-      run: outerDep,
-      counter: formulaDep,
-    },
-  };
-})
-  .test(
-    "the return value of use() is the same as the value of the resource passed to use()",
-    ({ inner: Inner }) => {
-      const { resource: outer, owner } = Resource(({ use }) => {
-        const inner = use(Inner);
-        expect(inner).toBe(Inner);
-        return inner;
-      }, "Outer").root();
-
-      expect(outer.current).toBe("inner: active");
-
-      // the inner resource is finalized regardless of how the outer resoruce is finalized.
-      return [
-        () => {
-          LIFETIME.finalize(owner);
-          expect(outer.current).toBe("inner: finalized");
-        },
-        () => {
-          LIFETIME.finalize(outer);
-          expect(outer.current).toBe("inner: finalized");
-        },
-      ];
-    }
-  )
-  .test("a reused inner value is not finalized", ({ inner: Inner, deps }) => {
-    const { resource: outer, owner } = Resource(({ use }) => {
-      const run = deps.run.current;
-
-      const inner = use(Inner);
-      expect(inner).toBe(Inner);
-
-      return Formula(
-        () => `${inner.current} (run: ${run}, counter: ${deps.counter.current})`
-      );
-    }, "Outer").root();
-
-    expect(outer.current).toBe("inner: active (run: 0, counter: 0)");
-
-    deps.counter.increment();
-    expect(outer.current).toBe("inner: active (run: 0, counter: 1)");
-
-    deps.run.increment();
-    expect(outer.current).toBe("inner: active (run: 1, counter: 1)");
-
-    deps.counter.increment();
-    deps.run.increment();
-    expect(outer.current).toBe("inner: active (run: 2, counter: 2)");
-
-    // the inner resource is finalized regardless of how the outer resoruce is finalized.
-    return [
-      () => {
-        LIFETIME.finalize(owner);
-        expect(outer.current).toBe("inner: finalized (run: 2, counter: 2)");
-      },
-      () => {
-        LIFETIME.finalize(outer);
-        expect(outer.current).toBe("inner: finalized (run: 2, counter: 2)");
-      },
-    ];
-  })
-  .test(
-    "an inner value that wasn't reused is finalized",
-    ({ inner: Inner, deps }) => {
-      function OnTheFly(value: number): TestResourceState {
-        return TestResource(`on-the-fly-${value}`);
-      }
-
-      const items = new Items<TestResourceState>();
-
-      const verifyInvariants = entryPointFn(
-        ({ finalized = false }: { finalized?: boolean } = {}) => {
-          if (!finalized && items.active) {
-            const { item, index } = items.active;
-            expect(item?.resource.current).toBe(`on-the-fly-${index}: active`);
-          }
-
-          const inactive = finalized ? items.all : items.inactive;
-
-          inactive.forEach((item, i) => {
-            expect(item.resource.current).toBe(`on-the-fly-${i}: finalized`);
-          });
-        }
-      );
-
-      const { resource: outer, owner } = Resource(({ use }) => {
-        const run = deps.run.current;
-
-        const inner = use(Inner);
-        expect(inner).toBe(Inner);
-        const dynamicResource = OnTheFly(run);
-        const usedDynamicResource = use(dynamicResource.resource);
-        items.push(dynamicResource);
-
-        return Formula(() => ({
-          inner: inner.current,
-          run,
-          counter: deps.counter.current,
-          dynamic: usedDynamicResource.current,
-        }));
-      }, "Outer").root();
-
-      expect(outer.current).toStrictEqual({
-        inner: "inner: active",
-        run: 0,
-        counter: 0,
-        dynamic: "on-the-fly-0: active",
-      });
-
-      verifyInvariants();
-
-      deps.counter.increment();
-
-      expect(outer.current).toStrictEqual({
-        inner: "inner: active",
-        run: 0,
-        counter: 1,
-        dynamic: "on-the-fly-0: active",
-      });
-
-      verifyInvariants();
-
-      deps.run.increment();
-
-      expect(outer.current).toStrictEqual({
-        inner: "inner: active",
-        run: 1,
-        counter: 1,
-        dynamic: "on-the-fly-1: active",
-      });
-
-      verifyInvariants();
-
-      return [
-        () => {
-          LIFETIME.finalize(owner);
-          expect(Inner.current).toBe("inner: finalized");
-          expect(outer.current).toStrictEqual({
-            inner: "inner: finalized",
-            run: 1,
-            counter: 1,
-            dynamic: "on-the-fly-1: finalized",
-          });
-          verifyInvariants({ finalized: true });
-        },
-        () => {
-          const active = verified(items.active?.item?.resource, isPresent);
-          LIFETIME.finalize(Inner);
-
-          expect(Inner.current).toBe("inner: finalized");
-          verifyInvariants({ finalized: false });
-
-          LIFETIME.finalize(active);
-          expect(Inner.current).toBe("inner: finalized");
-          expect(active.current).toBe("on-the-fly-1: finalized");
-
-          verifyInvariants({ finalized: true });
-        },
-      ];
-    }
-  );
-
-class Items<T> {
-  readonly #items: T[] = [];
-
-  get all(): T[] {
-    return this.#items;
-  }
-
-  get inactive(): T[] {
-    return withoutLast(this.#items);
-  }
-
-  get activeIndex(): number | undefined {
-    return getLastIndex(this.#items);
-  }
-
-  get active(): { item: T | undefined; index: number } | undefined {
-    if (isPresentArray(this.#items)) {
-      const item = getLast(this.#items);
-      const index = getLastIndex(this.#items);
-
-      return { item, index };
-    }
-  }
-
-  push(item: T): void {
-    this.#items.push(item);
-  }
-}
-
-function Counter(
-  description?: Description | string
-): { increment: () => void } & Cell<number> {
-  const desc = Desc("cell", description);
-  const cell = Cell(INITIAL_COUNT, { description: desc });
-
-  return Wrap(
-    cell,
-    {
-      increment() {
-        cell.update((i) => i + INCREMENT);
-      },
-    },
-    desc
-  );
-}
 
 import { getID } from "@starbeam/shared";
 
@@ -478,7 +248,7 @@ const TestResource = entryPointFn((description: string): TestResourceState => {
     return Wrap(cell, { id }, "TestResource");
   }, description);
 
-  const resource = blueprint.create(parent);
+  const resource = use(blueprint, { lifetime: parent });
 
   return {
     resource,
@@ -686,7 +456,7 @@ class Steps {
   constructor(blueprint: ResourceBlueprint<ResourceState>) {
     this.#owner = {};
     this.blueprint = blueprint;
-    this.resource = blueprint.create(this.#owner);
+    this.resource = use(blueprint, { lifetime: this.#owner });
     this.#state = this.resource.current;
   }
 

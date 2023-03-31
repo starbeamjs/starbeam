@@ -1,9 +1,9 @@
-import { Cell, Marker } from "@starbeam/reactive";
-import { Resource, type ResourceBlueprint } from "@starbeam/resource";
+import { CachedFormula, Cell, Marker } from "@starbeam/reactive";
+import { Resource, type ResourceBlueprint, use } from "@starbeam/resource";
 import { LIFETIME } from "@starbeam/runtime";
 import { describe, expect, test } from "vitest";
 
-describe("v3::resources", () => {
+describe("resources", () => {
   test("the basics", () => {
     const testResource = new TestResource();
     const resource = testResource.instance;
@@ -41,6 +41,78 @@ describe("v3::resources", () => {
       init: 3,
       finalized: 3,
     });
+  });
+
+  test("if a resource constructor returns a reactive value, it is assimilated", () => {
+    const initial = Cell(0);
+    const plus = Cell(0);
+    const counts = { init: 0, finalized: 0 };
+    const Test = Resource(({ on }) => {
+      counts.init++;
+      const cell = Cell(initial.current);
+
+      on.cleanup(() => {
+        counts.finalized++;
+      });
+
+      return CachedFormula(() => cell.current + plus.current);
+    });
+
+    const lifetime = {};
+    const test = use(Test, { lifetime });
+
+    expect(test.current).toBe(0);
+    expect(counts).toEqual({ init: 1, finalized: 0 });
+
+    plus.current++;
+    expect(test.current).toBe(1);
+    expect(counts).toEqual({ init: 1, finalized: 0 });
+
+    initial.current++;
+    expect(test.current).toBe(2);
+    expect(counts).toEqual({ init: 2, finalized: 1 });
+  });
+
+  test("a counter that persists across cleanups", () => {
+    const counts = { init: 0, finalized: 0 };
+    const invalidate = Marker();
+    const Counter = Resource(
+      ({ on }, { metadata: count }: { metadata: Cell<number> }) => {
+        invalidate.read();
+        counts.init++;
+
+        on.cleanup(() => {
+          counts.finalized++;
+        });
+
+        return {
+          get count() {
+            return count.current;
+          },
+          increment() {
+            count.current++;
+          },
+        };
+      }
+    );
+
+    const lifetime = {};
+    const counter = use(Counter, { lifetime, metadata: Cell(0) });
+
+    expect(counter.current.count).toBe(0);
+    expect(counts).toEqual({ init: 1, finalized: 0 });
+
+    counter.current.increment();
+    expect(counter.current.count).toBe(1);
+    expect(counts).toEqual({ init: 1, finalized: 0 });
+
+    invalidate.mark();
+    expect(counter.current.count).toBe(1);
+    expect(counts).toEqual({ init: 2, finalized: 1 });
+
+    counter.current.increment();
+    expect(counter.current.count).toBe(2);
+    expect(counts).toEqual({ init: 2, finalized: 1 });
   });
 
   test("child resources", () => {
@@ -83,7 +155,7 @@ describe("v3::resources", () => {
     });
 
     const lifetime = {};
-    const channel = Channel.create({ lifetime });
+    const channel = use(Channel, { lifetime });
 
     expect(channel.current.description).toBe(
       "default (connected: 1, messages: 0)"
@@ -129,7 +201,7 @@ describe("v3::resources", () => {
     );
 
     const lifetime = {};
-    const parent = Parent.create({
+    const parent = use(Parent, {
       lifetime,
       metadata: {
         initHere: 0,
@@ -174,6 +246,57 @@ describe("v3::resources", () => {
         finalized: 0,
       },
     });
+  });
+
+  test("modifying a resource constructor's dependency after it was finalized doesn't cause it to run again", () => {
+    const counts = { init: 0, finalized: 0 };
+    const invalidate = Marker();
+
+    const Counter = Resource(
+      ({ on }, { metadata: count }: { metadata: Cell<number> }) => {
+        invalidate.read();
+        counts.init++;
+
+        on.cleanup(() => {
+          counts.finalized++;
+        });
+
+        return {
+          get count() {
+            return count.current;
+          },
+          increment() {
+            count.current++;
+          },
+        };
+      }
+    );
+
+    const lifetime = {};
+    const counter = use(Counter, { lifetime, metadata: Cell(0) });
+
+    expect(counter.current.count).toBe(0);
+    expect(counts).toEqual({ init: 1, finalized: 0 });
+
+    counter.current.increment();
+    expect(counter.current.count).toBe(1);
+    expect(counts).toEqual({ init: 1, finalized: 0 });
+
+    invalidate.mark();
+    expect(counter.current.count).toBe(1);
+    expect(counts).toEqual({ init: 2, finalized: 1 });
+
+    counter.current.increment();
+    expect(counter.current.count).toBe(2);
+    expect(counts).toEqual({ init: 2, finalized: 1 });
+
+    LIFETIME.finalize(lifetime);
+    expect(counts).toEqual({ init: 2, finalized: 2 });
+
+    // modifying the dependency after the resource was finalized should not
+    // cause it to run again
+    invalidate.mark();
+    expect(counts).toEqual({ init: 2, finalized: 2 });
   });
 });
 
@@ -224,7 +347,7 @@ class TestResource {
       };
     });
 
-    this.#instance = this.#blueprint.create({ lifetime: this.#lifetime });
+    this.#instance = use(this.#blueprint, { lifetime: this.#lifetime });
   }
 
   get instance(): Resource<TestInstance> {

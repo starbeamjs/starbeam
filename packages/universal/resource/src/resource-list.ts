@@ -1,8 +1,8 @@
 import type { Reactive, ReactiveValue } from "@starbeam/interfaces";
-import { CachedFormula, Formula } from "@starbeam/reactive";
+import { CachedFormula, Formula, type ReadValue } from "@starbeam/reactive";
 import { LIFETIME } from "@starbeam/runtime";
 
-import { Resource, type ResourceBlueprint } from "./resource.js";
+import { Resource, type ResourceBlueprint, use } from "./resource.js";
 
 export function ResourceList<T, R>(
   list: Iterable<T>,
@@ -13,11 +13,11 @@ export function ResourceList<T, R>(
     key: (item: T) => unknown;
     map: (item: T) => ResourceBlueprint<R>;
   }
-): ResourceBlueprint<Resource<R>[]> {
+): ResourceBlueprint<Resource<ReadValue<R>>[]> {
   const resources = new ResourceMap<R>();
 
   return Resource((_, { lifetime }) => {
-    const result: Resource<R>[] = [];
+    const result: Resource<ReadValue<R>>[] = [];
     const remaining = new Set();
     for (const item of list) {
       const k = key(item);
@@ -37,12 +37,15 @@ export function ResourceList<T, R>(
   });
 }
 
-type InternalMap<R> = Map<unknown, { resource: Resource<R>; lifetime: object }>;
+type InternalMap<R> = Map<
+  unknown,
+  { resource: Resource<ReadValue<R>>; lifetime: object }
+>;
 
 class ResourceMap<R> {
   readonly #map: InternalMap<R> = new Map();
 
-  get(key: unknown): Resource<R> | undefined {
+  get(key: unknown): Resource<ReadValue<R>> | undefined {
     return this.#map.get(key)?.resource;
   }
 
@@ -50,10 +53,10 @@ class ResourceMap<R> {
     key: unknown,
     resource: ResourceBlueprint<R>,
     parentLifetime: object
-  ): Resource<R> {
+  ): Resource<ReadValue<R>> {
     const lifetime = {};
     LIFETIME.link(parentLifetime, lifetime);
-    const newResource = resource.create({ lifetime });
+    const newResource = use(resource, { lifetime });
     this.#map.set(key, { resource: newResource, lifetime });
     return newResource;
   }

@@ -1,14 +1,20 @@
 import { DisplayStruct } from "@starbeam/debug";
 import type { Description } from "@starbeam/interfaces";
-import { CachedFormula, type FormulaFn, isFormulaFn } from "@starbeam/reactive";
+import {
+  CachedFormula,
+  type FormulaFn,
+  isFormulaFn,
+  read,
+  type ReadValue,
+} from "@starbeam/reactive";
 import { LIFETIME, TAG } from "@starbeam/runtime";
 
-export type UseResource<T, M> =
-  | ResourceBlueprint<T, M>
-  | (() => ResourceBlueprint<T, M>)
-  | Resource<T>;
-
-let id = 0;
+import type {
+  ResourceCleanup,
+  ResourceConstructor,
+  UseMethod,
+  UseResource,
+} from "./types.js";
 
 /**
  * `ResourceRun` is passed in to the user-specified `ResourceConstructor`
@@ -18,10 +24,12 @@ let id = 0;
  */
 export class ResourceRun<M> {
   readonly #state: ResourceState<M>;
-  readonly id = id++;
 
-  constructor(state: ResourceState<M>) {
-    this.#state = state;
+  constructor(state: ResourceOptions<M>) {
+    this.#state = {
+      metadata: undefined,
+      ...state,
+    } as ResourceState<M>;
   }
 
   on = {
@@ -50,36 +58,80 @@ export class ResourceRun<M> {
     resource: UseResource<unknown, unknown>,
     metadata?: unknown
   ): FormulaFn<unknown> => {
-    return use(resource, { metadata, root: this.#state.root, lifetime: this });
+    return use(resource, { metadata, lifetime: this });
   }) as UseMethod;
 }
 
-type UseMethod = (<T>(resource: UseResource<T, void>) => FormulaFn<T>) &
-  (<T, M>(resource: UseResource<T, M>, metadata: M) => FormulaFn<T>);
+/**
+ * A  blueprint is a reactive object that evaluates to the current
+ * resource run for a given resource constructor.
+ */
+export function use<T, M>(
+  resource: UseResource<T, M>,
+  state: ResourceOptions<M>
+): Resource<ReadValue<T>> {
+  if (isFormulaFn<T>(resource)) {
+    return resource as Resource<ReadValue<T>>;
+  } else if (typeof resource === "function") {
+    return Resource(resource).use(state);
+  } else {
+    return resource.use(state) as Resource<ReadValue<T>>;
+  }
+}
+
+type ResourceOptions<M> = M extends void
+  ? Omit<ResourceState<undefined>, "metadata">
+  : ResourceState<M>;
+
+interface ResourceState<M> {
+  /**
+   * A resource's metadata persists across runs of the resource.
+   */
+  readonly metadata: M;
+
+  /**
+   * A resource's lifetime is the direct parent of the resource. The direct
+   * parent is contained inside the root.
+   */
+  readonly lifetime: object;
+}
+
+export interface ResourceBlueprint<T, M = void> {
+  use: (options: ResourceOptions<M>) => Resource<T>;
+}
 
 export type Resource<T> = FormulaFn<T>;
 
-function useResource<T>(
-  resource: Resource<T>,
-  state: ResourceState<unknown>
-): Resource<T> {
-  LIFETIME.link(state.lifetime, resource, { root: state.root });
-  return resource;
+export function Resource<T, M = void>(
+  resource: ResourceConstructor<T, M>,
+  _description?: string | Description
+): ResourceBlueprint<ReadValue<T>, M> {
+  return {
+    use: (options: ResourceOptions<M>) => {
+      return useResourceConstructor(resource, options);
+    },
+  };
+}
+
+const RESOURCE_LIFETIMES = new WeakMap<Resource<unknown>, object>();
+
+export function lifetime(resource: Resource<unknown>): object {
+  return RESOURCE_LIFETIMES.get(resource) as object;
 }
 
 function useResourceConstructor<T, M>(
   resource: ResourceConstructor<T, M>,
-  state: ResourceState<M>
-): Resource<T> {
+  options: ResourceOptions<M>
+): Resource<ReadValue<T>> {
   let last: ResourceRun<M> | undefined;
   const formula = CachedFormula(() => {
-    const next = new ResourceRun(state);
+    const next = new ResourceRun(options);
 
-    LIFETIME.link(state.lifetime, next, { root: state.root });
+    LIFETIME.link(options.lifetime, next);
     const instance = resource(next, {
-      metadata: state.metadata,
-      lifetime: state.lifetime,
-    });
+      metadata: undefined,
+      ...options,
+    } as ResourceState<M>);
 
     // Finalize the previous run after running the new one to give the new one a
     // chance to adopt resources from the previous run.
@@ -100,102 +152,9 @@ function useResourceConstructor<T, M>(
     });
   }
 
-  return formula;
-}
+  const instance = CachedFormula(() => read(formula.current) as ReadValue<T>);
 
-/**
- * A  blueprint is a reactive object that evaluates to the current
- * resource run for a given resource constructor.
- */
-export function use<T, M>(
-  resource: UseResource<T, M>,
-  state: ResourceState<M>
-): Resource<T> {
-  if (isFormulaFn<T>(resource)) {
-    return useResource(resource, state);
-  } else if (typeof resource === "function") {
-    return resource().use(state);
-  } else {
-    return resource.use(state);
-  }
-}
+  RESOURCE_LIFETIMES.set(instance, options.lifetime);
 
-interface ResourceState<M> {
-  /**
-   * A resource's metadata persists across runs of the resource.
-   */
-  readonly metadata: M;
-  /**
-   * A resource's root is the root of the resource tree. It is used to adopt
-   * resources across runs.
-   */
-  readonly root: object;
-  /**
-   * A resource's lifetime is the direct parent of the resource. The direct
-   * parent is contained inside the root.
-   */
-  readonly lifetime: object;
+  return instance;
 }
-
-export interface ResourceBlueprint<T, M = void> {
-  create: ((
-    this: ResourceBlueprint<T>,
-    options: {
-      lifetime: object;
-      metadata?: undefined;
-    }
-  ) => Resource<T>) &
-    ((options: { lifetime: object; metadata: M }) => Resource<T>);
-  use: (options: {
-    lifetime: object;
-    metadata: M;
-    root: object;
-  }) => Resource<T>;
-}
-
-export function Resource<T, M = void>(
-  resource: ResourceConstructor<T, M>,
-  _description?: string | Description
-): ResourceBlueprint<T, M> {
-  return {
-    create: ({ lifetime, metadata }) => {
-      return useResourceConstructor(resource, {
-        lifetime,
-        root: lifetime,
-        metadata: metadata as M,
-      });
-    },
-    use: ({
-      lifetime,
-      metadata,
-      root,
-    }: {
-      lifetime: object;
-      metadata: M;
-      root: object;
-    }) => {
-      return useResourceConstructor(resource, {
-        lifetime,
-        metadata,
-        root,
-      });
-    },
-  };
-}
-
-/**
- * A resource constructor is a user-defined function that runs for each resource
- * run.
- */
-type ResourceConstructor<T, M> = (
-  run: ResourceRun<M>,
-  /**
-   * The `resource` parameter provides information about the entire resource
-   * that persists across runs. It is useful when reusing state across runs. The
-   * `lifetime` property makes it possible to link state to the entire lifetime
-   * of the resource, which ensures that it it will get cleaned up, at the
-   * latest, when the resource itself is finalized.
-   */
-  resource: { metadata: M; lifetime: object }
-) => T;
-type ResourceCleanup<M> = (metadata: M) => void;

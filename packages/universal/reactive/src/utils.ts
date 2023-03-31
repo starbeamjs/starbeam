@@ -34,15 +34,17 @@ export function isTaggedReactive<T, Type extends TagType>(
   return is(value) && value[TAG].type === tag && hasRead(value);
 }
 
+export type ReadValue<T> = T extends Reactive<infer R> ? R : T;
+
 export function read<T>(
   this: void,
-  value: T | Reactive<T>,
+  value: T,
   caller = callerStack()
-): T {
+): ReadValue<T> {
   if (is(value) && hasRead(value)) {
-    return value.read(caller);
+    return value.read(caller) as ReadValue<T>;
   } else {
-    return value;
+    return value as ReadValue<T>;
   }
 }
 

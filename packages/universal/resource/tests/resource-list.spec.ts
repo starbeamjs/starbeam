@@ -1,10 +1,11 @@
 import { DisplayStruct } from "@starbeam/debug";
 import { reactive } from "@starbeam/js";
-import { CachedFormula, Cell, type FormulaFn } from "@starbeam/reactive";
+import { CachedFormula, Cell } from "@starbeam/reactive";
 import {
   Resource,
   type ResourceBlueprint,
   ResourceList,
+  use,
 } from "@starbeam/resource";
 import { LIFETIME } from "@starbeam/runtime";
 import { describe, expect, test } from "@starbeam-workspace/test-utils";
@@ -44,7 +45,7 @@ class Subscription {
   }
 }
 
-describe("v3::ResourceList", () => {
+describe("ResourceList", () => {
   test("smoke test", () => {
     const list: Item[] = reactive.array([
       { id: 1, name: "Tom", location: "NYC" },
@@ -72,10 +73,13 @@ describe("v3::ResourceList", () => {
     };
 
     const lifetime = { lifetime: "root" };
-    const mapped = ResourceList(list, {
-      key: (item) => item.id,
-      map,
-    }).create({ lifetime });
+    const mapped = use(
+      ResourceList(list, {
+        key: (item) => item.id,
+        map,
+      }),
+      { lifetime }
+    );
 
     expect(mapped.current.map((r) => r.current)).toEqual([
       { active: true, desc: "Tom (NYC)" },
@@ -107,12 +111,10 @@ describe("v3::ResourceList", () => {
 
     const map = (
       item: Item
-    ): ResourceBlueprint<
-      FormulaFn<{
-        card: string;
-        subscription: Subscription;
-      }>
-    > =>
+    ): ResourceBlueprint<{
+      card: string;
+      subscription: Subscription;
+    }> =>
       Resource(({ on }) => {
         const subscription = new Subscription(item.name);
         subscription.connect();
@@ -135,10 +137,10 @@ describe("v3::ResourceList", () => {
       map,
     });
 
-    const resources = linkables.create({ lifetime });
+    const resources = use(linkables, { lifetime });
 
     function current(): { card: string; subscription: Subscription }[] {
-      return resources.current.map((r) => r.current.current);
+      return resources.current.map((r) => r.current);
     }
 
     expect(current()).toEqual([
@@ -190,7 +192,7 @@ describe("v3::ResourceList", () => {
       { id: 1, name: "Tom", location: "NYC" },
     ]);
 
-    currentResources = resources.current.map((r) => r.current.current);
+    currentResources = resources.current.map((r) => r.current);
 
     expect(currentResources[0]?.subscription).toBe(chirag);
     expect(currentResources[1]?.subscription).toBe(tom);

@@ -1,5 +1,6 @@
 {
   "name": "@starbeam/resource",
+  "main": "index.ts",
   "types": "index.ts",
   "publishConfig": {
     "exports": {
