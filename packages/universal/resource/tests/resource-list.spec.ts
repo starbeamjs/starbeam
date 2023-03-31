@@ -2,11 +2,11 @@ import { DisplayStruct } from "@starbeam/debug";
 import { reactive } from "@starbeam/js";
 import { CachedFormula, Cell, type FormulaFn } from "@starbeam/reactive";
 import {
-  LIFETIME,
-  Resource3 as Resource,
-  type ResourceBlueprint3 as ResourceBlueprint,
-  ResourceList3 as ResourceList,
-} from "@starbeam/universal";
+  Resource,
+  type ResourceBlueprint,
+  ResourceList,
+} from "@starbeam/resource";
+import { LIFETIME } from "@starbeam/runtime";
 import { describe, expect, test } from "@starbeam-workspace/test-utils";
 
 interface Item {

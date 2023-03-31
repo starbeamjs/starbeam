@@ -1,10 +1,6 @@
-import { Marker } from "@starbeam/reactive";
-import {
-  Cell,
-  LIFETIME,
-  Resource3 as Resource,
-  type ResourceBlueprint3,
-} from "@starbeam/universal";
+import { Cell, Marker } from "@starbeam/reactive";
+import { Resource, type ResourceBlueprint } from "@starbeam/resource";
+import { LIFETIME } from "@starbeam/runtime";
 import { describe, expect, test } from "vitest";
 
 describe("v3::resources", () => {
@@ -193,7 +189,7 @@ interface TestInstance {
 class TestResource {
   readonly #lifetime: object;
   readonly #marker: Marker;
-  readonly #blueprint: ResourceBlueprint3<TestInstance>;
+  readonly #blueprint: ResourceBlueprint<TestInstance>;
   readonly #instance: Resource<TestInstance>;
 
   constructor() {

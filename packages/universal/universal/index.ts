@@ -25,29 +25,6 @@ export type {
 } from "./src/reactive-core/reactive.js";
 export { Reactive } from "./src/reactive-core/reactive.js";
 export {
-  Resource,
-  type ResourceBlueprint,
-  type ResourceFactory,
-  type ResourceReturn,
-} from "./src/reactive-core/resource/original-resource.js";
-export type { ResourceRun } from "./src/reactive-core/resource/run.js";
-export {
-  assimilateResource,
-  CreateResourceRun,
-  getRunInstance,
-  ResourceConstructor,
-  ResourceInstance,
-  ResourceState,
-  updateResource,
-} from "./src/reactive-core/resource/v2/index.js";
-export {
-  Resource as Resource3,
-  type ResourceBlueprint as ResourceBlueprint3,
-  type ResourceRun as ResourceRun2,
-  use,
-} from "./src/reactive-core/resource/v3/resource.js";
-export { ResourceList as ResourceList3 } from "./src/reactive-core/resource/v3/resource-list.js";
-export {
   createService,
   reactiveService,
   Service,
@@ -68,4 +45,11 @@ export {
   Formula as PolledFormula,
   Static,
 } from "@starbeam/reactive";
+export {
+  Resource,
+  type ResourceBlueprint,
+  type ResourceRun,
+  use,
+} from "@starbeam/resource";
+export { ResourceList as ResourceList3 } from "@starbeam/resource/src/resource-list.js";
 export { LIFETIME, PUBLIC_TIMELINE, TAG } from "@starbeam/runtime";
