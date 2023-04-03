@@ -1,4 +1,4 @@
-import { DisplayStruct } from "@starbeam/debug";
+import { Desc, DisplayStruct } from "@starbeam/debug";
 import type { Description } from "@starbeam/interfaces";
 import {
   CachedFormula,
@@ -57,9 +57,8 @@ export class ResourceRun<M> {
   use = ((
     resource: UseResource<unknown, unknown>,
     metadata?: unknown
-  ): FormulaFn<unknown> => {
-    return use(resource, { metadata, lifetime: this });
-  }) as UseMethod;
+  ): FormulaFn<unknown> =>
+    use(resource, { metadata, lifetime: this })) as UseMethod;
 }
 
 /**
@@ -68,19 +67,24 @@ export class ResourceRun<M> {
  */
 export function use<T, M>(
   resource: UseResource<T, M>,
-  state: ResourceOptions<M>
+  options: ResourceOptions<M>
 ): Resource<ReadValue<T>> {
   if (isFormulaFn<T>(resource)) {
     return resource as Resource<ReadValue<T>>;
   } else if (typeof resource === "function") {
-    return Resource(resource).use(state);
+    return useResourceConstructor(resource, options);
   } else {
-    return resource.use(state) as Resource<ReadValue<T>>;
+    return useResourceConstructor(
+      ResourceBlueprint.Constructor(resource),
+      options
+    );
   }
 }
 
-type ResourceOptions<M> = M extends void
-  ? Omit<ResourceState<undefined>, "metadata">
+export type ResourceOptions<M> = M extends void
+  ? Omit<ResourceState<undefined>, "metadata"> & {
+      readonly metadata?: undefined;
+    }
   : ResourceState<M>;
 
 interface ResourceState<M> {
@@ -96,22 +100,46 @@ interface ResourceState<M> {
   readonly lifetime: object;
 }
 
-export interface ResourceBlueprint<T, M = void> {
-  use: (options: ResourceOptions<M>) => Resource<T>;
-}
+// export interface ResourceBlueprint<T, M = void> {
+//   metadata: (metadata: M) => ResourceBlueprint<T, void>;
+// }
 
 export type Resource<T> = FormulaFn<T>;
 
-export function Resource<T, M = void>(
-  resource: ResourceConstructor<T, M>,
-  _description?: string | Description
-): ResourceBlueprint<ReadValue<T>, M> {
-  return {
-    use: (options: ResourceOptions<M>) => {
-      return useResourceConstructor(resource, options);
-    },
-  };
+export class ResourceBlueprint<T, M = void> {
+  static create<T, M = void>(
+    this: void,
+    resource: ResourceConstructor<T, M>,
+    description?: string | Description
+  ): ResourceBlueprint<ReadValue<T>, M> {
+    return new ResourceBlueprint(
+      resource,
+      Desc("resource", description)
+    ) as ResourceBlueprint<ReadValue<T>, M>;
+  }
+
+  static Constructor<T, M>(
+    blueprint: ResourceBlueprint<T, M>
+  ): ResourceConstructor<T, M> {
+    return blueprint.#Constructor;
+  }
+
+  #Constructor: ResourceConstructor<T, M>;
+  #description: Description;
+
+  constructor(construct: ResourceConstructor<T, M>, description: Description) {
+    this.#Constructor = construct;
+    this.#description = description;
+  }
+
+  metadata(metadata: M): ResourceBlueprint<T, void> {
+    return Resource((run, _, lifetime) =>
+      this.#Constructor(run as ResourceRun<M>, metadata, lifetime)
+    ) as ResourceBlueprint<T, void>;
+  }
 }
+
+export const Resource = ResourceBlueprint.create;
 
 const RESOURCE_LIFETIMES = new WeakMap<Resource<unknown>, object>();
 
@@ -128,10 +156,7 @@ function useResourceConstructor<T, M>(
     const next = new ResourceRun(options);
 
     LIFETIME.link(options.lifetime, next);
-    const instance = resource(next, {
-      metadata: undefined,
-      ...options,
-    } as ResourceState<M>);
+    const instance = resource(next, options.metadata as M, options.lifetime);
 
     // Finalize the previous run after running the new one to give the new one a
     // chance to adopt resources from the previous run.

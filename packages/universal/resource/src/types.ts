@@ -23,7 +23,12 @@ export type ResourceConstructor<T, M> = (
    * of the resource, which ensures that it it will get cleaned up, at the
    * latest, when the resource itself is finalized.
    */
-  resource: { metadata: M; lifetime: object }
+  resource: M,
+
+  /**
+   * The `lifetime` parameter is the lifetime of the entire resource.
+   */
+  lifetime: object
 ) => T;
 
 export type ResourceCleanup<M> = (metadata: M) => void;

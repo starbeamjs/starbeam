@@ -76,25 +76,23 @@ describe("resources", () => {
   test("a counter that persists across cleanups", () => {
     const counts = { init: 0, finalized: 0 };
     const invalidate = Marker();
-    const Counter = Resource(
-      ({ on }, { metadata: count }: { metadata: Cell<number> }) => {
-        invalidate.read();
-        counts.init++;
+    const Counter = Resource(({ on }, count: Cell<number>) => {
+      invalidate.read();
+      counts.init++;
 
-        on.cleanup(() => {
-          counts.finalized++;
-        });
+      on.cleanup(() => {
+        counts.finalized++;
+      });
 
-        return {
-          get count() {
-            return count.current;
-          },
-          increment() {
-            count.current++;
-          },
-        };
-      }
-    );
+      return {
+        get count() {
+          return count.current;
+        },
+        increment() {
+          count.current++;
+        },
+      };
+    });
 
     const lifetime = {};
     const counter = use(Counter, { lifetime, metadata: Cell(0) });
@@ -178,27 +176,25 @@ describe("resources", () => {
 
     const invalidateParent = Marker();
 
-    const Parent = Resource(
-      ({ use }, { metadata: meta }: { metadata: { initHere: number } }) => {
-        const resource = use(child);
-        invalidateParent.read();
-        meta.initHere++;
+    const Parent = Resource(({ use }, meta: { initHere: number }) => {
+      const resource = use(child);
+      invalidateParent.read();
+      meta.initHere++;
 
-        return {
-          get state() {
-            return {
-              child: resource.current.state,
-              parent: {
-                init: meta.initHere,
-              },
-            };
-          },
-          increment() {
-            resource.current.increment();
-          },
-        };
-      }
-    );
+      return {
+        get state() {
+          return {
+            child: resource.current.state,
+            parent: {
+              init: meta.initHere,
+            },
+          };
+        },
+        increment() {
+          resource.current.increment();
+        },
+      };
+    });
 
     const lifetime = {};
     const parent = use(Parent, {
@@ -252,25 +248,23 @@ describe("resources", () => {
     const counts = { init: 0, finalized: 0 };
     const invalidate = Marker();
 
-    const Counter = Resource(
-      ({ on }, { metadata: count }: { metadata: Cell<number> }) => {
-        invalidate.read();
-        counts.init++;
+    const Counter = Resource(({ on }, count: Cell<number>) => {
+      invalidate.read();
+      counts.init++;
 
-        on.cleanup(() => {
-          counts.finalized++;
-        });
+      on.cleanup(() => {
+        counts.finalized++;
+      });
 
-        return {
-          get count() {
-            return count.current;
-          },
-          increment() {
-            count.current++;
-          },
-        };
-      }
-    );
+      return {
+        get count() {
+          return count.current;
+        },
+        increment() {
+          count.current++;
+        },
+      };
+    });
 
     const lifetime = {};
     const counter = use(Counter, { lifetime, metadata: Cell(0) });

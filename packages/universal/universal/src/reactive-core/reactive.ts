@@ -1,9 +1,8 @@
 import { Desc, type Description } from "@starbeam/debug";
 import type { ReactiveValue, Tag } from "@starbeam/interfaces";
 import type * as interfaces from "@starbeam/interfaces";
+import type { ResourceBlueprint } from "@starbeam/resource";
 import { isObject } from "@starbeam/verify";
-
-import type { ResourceBlueprint } from "./resource/original-resource.js";
 
 export type ReactiveFactory<T> =
   | (() => T)
@@ -61,6 +60,4 @@ function construct<T>(constructor: ReactiveFactory<T>): T | Reactive<T> {
   }
 }
 
-export type Blueprint<T, Default extends undefined = never> =
-  | ResourceBlueprint<T, Default>
-  | ReactiveBlueprint<T>;
+export type Blueprint<T> = ResourceBlueprint<T> | ReactiveBlueprint<T>;

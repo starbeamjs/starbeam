@@ -5,13 +5,8 @@ export {
   CustomBuilder,
 } from "./src/reactive-core/custom.js";
 export { Wrap } from "./src/reactive-core/delegate.js";
-export { Linkable } from "./src/reactive-core/formula/linkable.js";
-export { Setup, Setups } from "./src/reactive-core/formula/setups.js";
+export { FormulaList } from "./src/reactive-core/higher-level/formula-list.js";
 export { Freshness } from "./src/reactive-core/higher-level/freshness.js";
-export {
-  FormulaList,
-  ResourceList,
-} from "./src/reactive-core/higher-level/resource-list.js";
 export {
   Factory,
   type IntoReactiveObject,

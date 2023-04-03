@@ -78,6 +78,9 @@ const TYPED_RULES = Rules.build((rules) =>
     })
     .typed("explicit-function-return-type", {
       allowExpressions: true,
+      allowTypedFunctionExpressions: true,
+      allowDirectConstAssertionInArrowFunctions: true,
+      allowFunctionsWithoutTypeParameters: true,
       allowHigherOrderFunctions: true,
     })
     .typed("explicit-member-accessibility", {

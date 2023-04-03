@@ -1,24 +1,19 @@
 import type { Description } from "@starbeam/debug";
 import { Desc } from "@starbeam/debug";
 import { intoReactive, isReactive } from "@starbeam/reactive";
+import { Resource, type ResourceBlueprint } from "@starbeam/resource";
 
 import type { ReactiveBlueprint } from "./reactive.js";
 import { type Blueprint, Reactive, type ReactiveFactory } from "./reactive.js";
-import { ResourceBlueprint } from "./resource/original-resource.js";
-import { Resource, type ResourceFactory } from "./resource/original-resource.js";
 
-export type IntoResource<T, Initial extends undefined = undefined> =
-  | ResourceBlueprint<T, Initial>
-  | ReactiveBlueprint<T>
-  | ResourceFactory<T>;
+export type IntoResource<T> = ResourceBlueprint<T> | ReactiveBlueprint<T>;
 
-export type IntoResourceType<I extends IntoResource<unknown>> = I extends
-  | ResourceFactory<infer T>
-  | ResourceBlueprint<infer T, infer D>
-  ? ResourceBlueprint<T, D>
-  : I extends ReactiveBlueprint<infer T> | ReactiveFactory<infer T>
-  ? ReactiveBlueprint<T>
-  : never;
+export type IntoResourceType<I extends IntoResource<unknown>> =
+  I extends ResourceBlueprint<infer T, infer D>
+    ? ResourceBlueprint<T, D>
+    : I extends ReactiveBlueprint<infer T> | ReactiveFactory<infer T>
+    ? ReactiveBlueprint<T>
+    : never;
 
 export function IntoResource<I extends IntoResource<unknown>>(
   create: I,
@@ -51,9 +46,7 @@ function resource<T>(
   description?: Description | string
 ): Reactive<T> {
   const desc = Desc("resource", description);
-  return intoReactive(
-    IntoResource(create as IntoResource<unknown>, desc).create(owner)
-  ) as Reactive<T>;
+  return intoReactive(IntoResource(create, desc).create(owner)) as Reactive<T>;
 }
 
 export type IntoReactiveObject<T> = ReactiveBlueprint<T> | ReactiveFactory<T>;

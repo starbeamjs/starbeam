@@ -16,7 +16,7 @@ export function ResourceList<T, R>(
 ): ResourceBlueprint<Resource<ReadValue<R>>[]> {
   const resources = new ResourceMap<R>();
 
-  return Resource((_, { lifetime }) => {
+  return Resource((_run, _metadata, lifetime) => {
     const result: Resource<ReadValue<R>>[] = [];
     const remaining = new Set();
     for (const item of list) {
@@ -56,7 +56,9 @@ class ResourceMap<R> {
   ): Resource<ReadValue<R>> {
     const lifetime = {};
     LIFETIME.link(parentLifetime, lifetime);
-    const newResource = use(resource, { lifetime });
+    const newResource = use(resource, {
+      lifetime,
+    });
     this.#map.set(key, { resource: newResource, lifetime });
     return newResource;
   }

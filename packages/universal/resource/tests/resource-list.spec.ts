@@ -104,17 +104,12 @@ describe("ResourceList", () => {
   });
 
   test("should update resources", () => {
-    const list: Item[] = reactive.array([
+    const items: Item[] = reactive.array([
       { id: 1, name: "Tom", location: "NYC" },
       { id: 2, name: "Chirag", location: "NYC" },
     ]);
 
-    const map = (
-      item: Item
-    ): ResourceBlueprint<{
-      card: string;
-      subscription: Subscription;
-    }> =>
+    const map = (item: Item) =>
       Resource(({ on }) => {
         const subscription = new Subscription(item.name);
         subscription.connect();
@@ -132,15 +127,15 @@ describe("ResourceList", () => {
 
     const lifetime = { lifetime: "root" };
 
-    const linkables = ResourceList(list, {
+    const List = ResourceList(items, {
       key: (item) => item.id,
       map,
     });
 
-    const resources = use(linkables, { lifetime });
+    const list = use(List, { lifetime });
 
     function current(): { card: string; subscription: Subscription }[] {
-      return resources.current.map((r) => r.current);
+      return list.current.map((r) => r.current);
     }
 
     expect(current()).toEqual([
@@ -151,7 +146,7 @@ describe("ResourceList", () => {
       },
     ]);
 
-    list.push({ id: 3, name: "John", location: "NYC" });
+    items.push({ id: 3, name: "John", location: "NYC" });
 
     let currentResources = current();
 
@@ -168,9 +163,9 @@ describe("ResourceList", () => {
       { card: "John (NYC)", subscription: { name: "John", isActive: true } },
     ]);
 
-    list.pop();
+    items.pop();
 
-    expect(list).toEqual([
+    expect(items).toEqual([
       { id: 1, name: "Tom", location: "NYC" },
       { id: 2, name: "Chirag", location: "NYC" },
     ]);
@@ -185,14 +180,14 @@ describe("ResourceList", () => {
 
     expect(john?.isActive).toBe(false);
 
-    list.reverse();
+    items.reverse();
 
-    expect(list).toEqual([
+    expect(items).toEqual([
       { id: 2, name: "Chirag", location: "NYC" },
       { id: 1, name: "Tom", location: "NYC" },
     ]);
 
-    currentResources = resources.current.map((r) => r.current);
+    currentResources = list.current.map((r) => r.current);
 
     expect(currentResources[0]?.subscription).toBe(chirag);
     expect(currentResources[1]?.subscription).toBe(tom);
