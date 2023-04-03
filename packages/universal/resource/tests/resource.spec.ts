@@ -170,7 +170,64 @@ describe("resources", () => {
     );
   });
 
-  test.todo("inner use() returning a blueprint", () => {
+  test("inner use() consuming reactive state and returning a blueprint", () => {
+    const salutation = Cell("Mr.");
+    const invalidateOuter = Marker();
+    const counts = {
+      inner: 0,
+      outer: 0,
+    };
+
+    function Greeting(name: Cell<string>) {
+      return Resource(({ use }) => {
+        counts.outer++;
+        invalidateOuter.read();
+
+        const sal = use(() => {
+          counts.inner++;
+          return salutation.current;
+        });
+
+        return CachedFormula(() => `${sal.current} ${name.current}`);
+      });
+    }
+
+    const name = Cell("Person");
+
+    const lifetime = {};
+    const greeting = use(Greeting(name), { lifetime });
+
+    expect(greeting.current).toBe("Mr. Person");
+    expect(counts).toEqual({ inner: 1, outer: 1 });
+
+    name.current = "Persona";
+    expect(greeting.current).toBe("Mr. Persona");
+    expect(counts).toEqual({ inner: 1, outer: 1 });
+
+    salutation.current = "Mx.";
+    expect(greeting.current).toBe("Mx. Persona");
+    // The outer resource *constructor* does not have a dependency on the
+    // inner resource, since the outer resource doesn't read the value of the
+    // inner resource during construction. The outer resource *value*, on the
+    // other hand, does depend on the inner resource, so re-evaluating
+    // `greeting` causes the inner resource to be re-initialized.
+    //
+    // You can see that this is the correct behavior by observing that the only
+    // way to directly check whether the `salutation` cell was reflected
+    // correctly is by checking the value of the `greeting` resource, which is
+    // the exact check that caused the inner resource to be re-initialized.
+    expect(counts).toEqual({ inner: 2, outer: 1 });
+
+    invalidateOuter.mark();
+    expect(greeting.current).toBe("Mx. Persona");
+    expect(counts).toEqual({ inner: 3, outer: 2 });
+
+    name.current = "Persone";
+    expect(greeting.current).toBe("Mx. Persone");
+    expect(counts).toEqual({ inner: 3, outer: 2 });
+  });
+
+  test("inner use() returning a blueprint", () => {
     const name = Cell("default");
     let connectedCount = 0;
     function Socket(name: Cell<string>) {

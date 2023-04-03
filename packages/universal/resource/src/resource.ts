@@ -113,6 +113,21 @@ export class ResourceBlueprintImpl<T, M = void> {
       : ResourceBlueprintImpl.create(value);
   }
 
+  static run<T, M>(
+    this: void,
+    blueprint: ResourceBlueprint<T, void>,
+    run: ResourceRun<M>,
+    lifetime: object
+  ): Resource<T> {
+    let instance = blueprint.#Constructor(run, {}, lifetime);
+
+    while (isResourceBlueprint(instance)) {
+      instance = ResourceBlueprintImpl.evaluate(instance, {}, lifetime);
+    }
+
+    return instance as Resource<T>;
+  }
+
   static evaluate<T, M>(
     intoBlueprint: IntoResourceBlueprint<T, M>,
     options: {
@@ -195,6 +210,10 @@ export function evaluateResourceConstructor<T, M>(
 
     LIFETIME.link(lifetime, next);
     const instance = Constructor(next, metadata, lifetime);
+
+    if (isResourceBlueprint(instance)) {
+      return ResourceBlueprintImpl.run(instance, next, lifetime);
+    }
 
     // Finalize the previous run after running the new one to give the new one a
     // chance to adopt resources from the previous run.
