@@ -52,6 +52,10 @@ export class ReactiveBlueprint<T> {
   }
 }
 
+export function create<T>(blueprint: ReactiveBlueprint<T>): T {
+  return blueprint.create();
+}
+
 function construct<T>(constructor: ReactiveFactory<T>): T | Reactive<T> {
   try {
     return (constructor as () => T | Reactive<T>)();
@@ -60,4 +64,4 @@ function construct<T>(constructor: ReactiveFactory<T>): T | Reactive<T> {
   }
 }
 
-export type Blueprint<T> = ResourceBlueprint<T> | ReactiveBlueprint<T>;
+export type Blueprint<T> = ResourceBlueprint<T>;

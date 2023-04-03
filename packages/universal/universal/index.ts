@@ -4,9 +4,7 @@ export {
   CustomBlueprint,
   CustomBuilder,
 } from "./src/reactive-core/custom.js";
-export { Wrap } from "./src/reactive-core/delegate.js";
 export { FormulaList } from "./src/reactive-core/higher-level/formula-list.js";
-export { Freshness } from "./src/reactive-core/higher-level/freshness.js";
 export {
   Factory,
   type IntoReactiveObject,
@@ -40,6 +38,7 @@ export {
   Formula as PolledFormula,
   Static,
 } from "@starbeam/reactive";
+export { Wrap } from "@starbeam/reactive/src/primitives/delegate.js";
 export {
   Resource,
   type ResourceBlueprint,

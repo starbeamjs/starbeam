@@ -1,20 +1,16 @@
-import type { FormulaFn } from "@starbeam/reactive";
+import type { Reactive } from "@starbeam/interfaces";
 
-import type { Resource, ResourceBlueprint, ResourceRun } from "./resource.js";
+import type { ResourceRun } from "./resource.js";
 
-export type UseResource<T, M> =
-  | ResourceBlueprint<T, M>
-  | ResourceConstructor<T, M>
-  | Resource<T>;
-
-export type UseMethod = (<T>(resource: UseResource<T, void>) => FormulaFn<T>) &
-  (<T, M>(resource: UseResource<T, M>, metadata: M) => FormulaFn<T>);
+export type ResourceConstructor<T = unknown, M = unknown> =
+  | SpecificResourceConstructor<T, M>
+  | SpecificResourceConstructor<Reactive<T>, M>;
 
 /**
  * A resource constructor is a user-defined function that runs for each resource
  * run.
  */
-export type ResourceConstructor<T, M> = (
+export type SpecificResourceConstructor<T, M> = (
   run: ResourceRun<M>,
   /**
    * The `resource` parameter provides information about the entire resource

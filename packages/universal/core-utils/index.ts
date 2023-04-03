@@ -1,4 +1,4 @@
- export {
+export {
   firstNItems,
   getFirst,
   getLast,
@@ -25,7 +25,13 @@ export type {
   JsonValue,
 } from "./src/json.js";
 export { isJSONObject, stringifyJSON } from "./src/json.js";
-export { isObject, objectHasKeys, readonly } from "./src/object.js";
+export {
+  getter,
+  isObject,
+  method,
+  objectHasKeys,
+  readonly,
+} from "./src/object.js";
 export { type Matcher, Overload, type TypedOverload } from "./src/overload.js";
 export { isEmptyMatch, matchPattern, Pattern } from "./src/regexp.js";
 export {

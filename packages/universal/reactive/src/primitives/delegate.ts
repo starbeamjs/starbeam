@@ -1,6 +1,8 @@
+import { getter, method, readonly } from "@starbeam/core-utils";
+import type { Stack } from "@starbeam/debug";
 import { callerStack, type Description } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
-import { TAG } from "@starbeam/runtime";
+import { TAG } from "@starbeam/shared";
 import { DelegateTag, getTag, taggedDescription } from "@starbeam/tags";
 
 export function Wrap<T, U extends interfaces.ReactiveValue>(
@@ -8,24 +10,16 @@ export function Wrap<T, U extends interfaces.ReactiveValue>(
   value: T,
   desc?: Description | string
 ): T & U {
-  Object.defineProperty(value, TAG, {
-    configurable: true,
-    writable: true,
-    value: DelegateTag.create(delegateDesc(reactive, desc), [getTag(reactive)]),
-  });
+  readonly(
+    value,
+    TAG,
+    DelegateTag.create(delegateDesc(reactive, desc), [getTag(reactive)])
+  );
 
-  Object.defineProperty(value, "read", {
-    configurable: true,
-    writable: true,
-    enumerable: false,
-    value: (caller = callerStack()) => reactive.read(caller),
-  });
-
-  Object.defineProperty(value, "current", {
-    configurable: true,
-    enumerable: false,
-    get: (caller = callerStack()) => reactive.read(caller),
-  });
+  method(value, "read", (caller: Stack = callerStack()) =>
+    reactive.read(caller)
+  );
+  getter(value, "current", () => reactive.read(callerStack()));
 
   return value as T & U;
 }

@@ -1,8 +1,18 @@
-import { getLast, isPresentArray } from "@starbeam/core-utils";
-
-export class Context {
-  readonly component = new ComponentContext();
-
+/**
+ * An `AppContext` represents the context of a single "application" for a given
+ * renderer.
+ *
+ * An application is a user-space concept that represents a root component and
+ * the components that it renders. Its primary purpose is to facilitate
+ * services: resources whose lifetime is scoped to the application.
+ *
+ * Services avoid using module state for app-wide concerns, which makes it
+ * possible to have multiple instances of the same service in multiple apps on
+ * the same page. This supports efficient acceptance testing and server-side
+ * rendering, because it makes it possible to evaluate an app's *code* once and
+ * then *instantiate* it multiple times.
+ */
+export class AppContext {
   #app: object | undefined;
   #singletons = new WeakMap<object, SingletonContext>();
 
@@ -68,42 +78,4 @@ class SingletonContext {
   }
 }
 
-export class ComponentContext {
-  readonly #stack: object[] = [];
-  readonly #singleton = new SingletonContext();
-
-  get current(): object {
-    const current = this.#current;
-    if (current === undefined) {
-      throw Error(
-        "You are attempting to use a feature of Starbeam that depends on the current component, but no component is currently active."
-      );
-    }
-    return current;
-  }
-
-  get #current(): object | undefined {
-    return getLast(this.#stack);
-  }
-
-  push(component: object): void {
-    this.#stack.push(component);
-  }
-
-  pop(): void {
-    this.#stack.pop();
-  }
-
-  exists(): boolean {
-    return isPresentArray(this.#stack);
-  }
-
-  create<Args extends unknown[], Ret>(
-    constructor: (...args: Args) => Ret,
-    ...args: Args
-  ): Ret {
-    return this.#singleton.create(this.#current, constructor, ...args);
-  }
-}
-
-export const CONTEXT = new Context();
+export const CONTEXT = new AppContext();

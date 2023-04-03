@@ -1,8 +1,4 @@
-export {
-  type ComponentContext,
-  CONTEXT,
-  type Context,
-} from "./src/context/context.js";
+export { type AppContext, CONTEXT } from "./src/context/context.js";
 export {
   type CleanupTarget,
   LIFETIME,

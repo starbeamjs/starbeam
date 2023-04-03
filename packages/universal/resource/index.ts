@@ -1,4 +1,3 @@
-export type { ResourceBlueprint } from "./src/resource.js";
-export { lifetime, Resource, ResourceRun, use } from "./src/resource.js";
-export { FormulaList, ResourceList } from "./src/resource-list.js";
-export type { UseMethod, UseResource } from "./src/types.js";
+export * from "./src/api.js";
+export { lifetime, type ResourceRun } from "./src/resource.js";
+export { ResourceList } from "./src/resource-list.js";

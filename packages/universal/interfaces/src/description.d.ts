@@ -45,6 +45,8 @@ export interface DescriptionDescribeOptions extends StackFrameDisplayOptions {
   color?: boolean | undefined;
 }
 
+export type DescriptionKey = string | number;
+
 export interface Description extends DescriptionArgs {
   readonly name: string;
   readonly fullName: string;
@@ -66,37 +68,42 @@ export interface Description extends DescriptionArgs {
     args?: DescriptionArgument[]
   ) => Description;
   /**
-   * An index is an integer property access on an object. This access must refer to a stable
-   * cell for the lifetime of the object referred to by the parent description.
+   * An index is an integer property access on an object. This access must refer
+   * to a stable cell for the lifetime of the object referred to by the parent
+   * description.
    */
   index: (index: number) => Description;
   /**
-   * A property is a string property access on an object. This access must refer to a stable
-   * cell for the lifetime of the object referred to by the parent description.
+   * A property is a string property access on an object. This access must refer
+   * to a stable cell for the lifetime of the object referred to by the parent
+   * description.
    */
   property: (name: string) => Description;
   /**
-   * A `key` is like a property access, but the name is not a string property access. For example,
-   * the key passed to `.get` on a map is a key and not a property, because `.get` is not a property
-   * access. Unlike `detail`, a key refers to something that the user actually typed in their code.
+   * A `key` is like a property access, but the name is not a string property
+   * access. For example, the key passed to `.get` on a map is a key and not a
+   * property, because `.get` is not a property access. Unlike `detail`, a key
+   * refers to something that the user actually typed in their code.
    *
-   * If the key isn't a string, the code creating the description should convert it to a string for
-   * display purposes. If that process is lossy (i.e. multiple keys produce the same string), the
-   * code creating the description must pass an `id` option that so that the description refers to a
-   * stable cell backed by the key.
+   * If the key isn't a string or number, the code creating the description
+   * should convert it to a string for display purposes. If that process is
+   * lossy (i.e. multiple keys produce the same string), the code creating the
+   * description must pass an `id` option that so that the description refers to
+   * a stable cell backed by the key.
    */
   key: (
-    name: string,
-    options?: { id?: string | number; note?: string }
+    name: DescriptionKey,
+    options?: { id?: ReactiveId; note?: string }
   ) => Description;
   /**
-   * A detail is a representation of a *public* part of a value. Unlike `.property` or `.index`, the
-   * user will not have physically typed the name of the detail in the code. Unlike
-   * `.implementation`, a *detail* is a part of the public API of the value and can be understood by
-   * lay users.
+   * A detail is a representation of a *public* part of a value. Unlike
+   * `.property` or `.index`, the user will not have physically typed the name
+   * of the detail in the code. Unlike `.implementation`, a *detail* is a part
+   * of the public API of the value and can be understood by lay users.
    *
-   * If an explicit id is not passed to `.detail`, a detail's name must refer to a stable cell for
-   * the lifetime of the object referred to by the parent description.
+   * If an explicit id is not passed to `.detail`, a detail's name must refer to
+   * a stable cell for the lifetime of the object referred to by the parent
+   * description.
    */
   detail: (
     name: string,
@@ -141,6 +148,7 @@ export type ValueType =
   | "delegate"
   | "static"
   | "cell"
+  | "collection"
   | "formula"
   | "resource"
   | "service"

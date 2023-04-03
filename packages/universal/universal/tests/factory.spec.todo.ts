@@ -211,21 +211,21 @@ interface Context<T> {
   readonly value: Validation<T>;
 }
 
-function TrackingContext<T>(callback: () => T): Context<T> {
-  const formula = FormulaValidation(callback);
+// function TrackingContext<T>(callback: () => T): Context<T> {
+//   const formula = FormulaValidation(callback);
 
-  return {
-    get value(): Validation<T> {
-      const status = formula.frame.validate();
+//   return {
+//     get value(): Validation<T> {
+//       const status = formula.frame.validate();
 
-      if (status.status === "valid") {
-        return status;
-      } else {
-        return {
-          status: "stale",
-          value: Frame.value(formula.poll()),
-        };
-      }
-    },
-  };
-}
+//       if (status.status === "valid") {
+//         return status;
+//       } else {
+//         return {
+//           status: "stale",
+//           value: Frame.value(formula.poll()),
+//         };
+//       }
+//     },
+//   };
+// }

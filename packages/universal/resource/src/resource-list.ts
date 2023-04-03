@@ -1,23 +1,29 @@
-import type { Reactive, ReactiveValue } from "@starbeam/interfaces";
-import { CachedFormula, Formula, type ReadValue } from "@starbeam/reactive";
+import { Desc, type Description } from "@starbeam/debug";
 import { LIFETIME } from "@starbeam/runtime";
 
-import { Resource, type ResourceBlueprint, use } from "./resource.js";
+import {
+  Resource,
+  type ResourceBlueprint,
+  use,
+  type UseFnOptions,
+} from "./api.js";
 
-export function ResourceList<T, R>(
-  list: Iterable<T>,
+export function ResourceList<Item, T>(
+  list: Iterable<Item>,
   {
     key,
     map,
+    description,
   }: {
-    key: (item: T) => unknown;
-    map: (item: T) => ResourceBlueprint<R>;
+    key: (item: Item) => Key;
+    map: (item: Item) => ResourceBlueprint<T, void>;
+    description?: string | Description;
   }
-): ResourceBlueprint<Resource<ReadValue<R>>[]> {
-  const resources = new ResourceMap<R>();
+): ResourceBlueprint<Resource<T>[], void> {
+  const resources = new ResourceMap<T, void>(Desc("collection", description));
 
   return Resource((_run, _metadata, lifetime) => {
-    const result: Resource<ReadValue<R>>[] = [];
+    const result: Resource<T>[] = [];
     const remaining = new Set();
     for (const item of list) {
       const k = key(item);
@@ -27,37 +33,43 @@ export function ResourceList<T, R>(
       if (resource) {
         result.push(resource);
       } else {
-        result.push(resources.create(k, map(item), lifetime));
+        result.push(resources.create(k, map(item), { lifetime }));
       }
     }
 
     resources.update(remaining);
 
     return result;
-  });
+  }) as ResourceBlueprint<Resource<T>[]>;
 }
 
-type InternalMap<R> = Map<
-  unknown,
-  { resource: Resource<ReadValue<R>>; lifetime: object }
->;
+type Key = string | number | { key: unknown; description: string | number };
+type InternalMap<T> = Map<unknown, { resource: Resource<T>; lifetime: object }>;
 
-class ResourceMap<R> {
-  readonly #map: InternalMap<R> = new Map();
+class ResourceMap<T, M> {
+  readonly #map: InternalMap<T> = new Map();
+  readonly #description: Description;
 
-  get(key: unknown): Resource<ReadValue<R>> | undefined {
+  constructor(description: Description) {
+    this.#description = description;
+  }
+
+  get(key: unknown): Resource<T> | undefined {
     return this.#map.get(key)?.resource;
   }
 
   create(
-    key: unknown,
-    resource: ResourceBlueprint<R>,
-    parentLifetime: object
-  ): Resource<ReadValue<R>> {
+    key: Key,
+    resource: ResourceBlueprint<T>,
+    options: UseFnOptions<M>
+    // parentLifetime: object
+  ): Resource<T> {
     const lifetime = {};
-    LIFETIME.link(parentLifetime, lifetime);
+    LIFETIME.link(options.lifetime, lifetime);
     const newResource = use(resource, {
       lifetime,
+      metadata: options.metadata,
+      description: this.#description.key(String(key)),
     });
     this.#map.set(key, { resource: newResource, lifetime });
     return newResource;
@@ -75,33 +87,4 @@ class ResourceMap<R> {
       }
     }
   }
-}
-
-export function FormulaList<T, U>(
-  list: Iterable<T>,
-  {
-    key,
-    map,
-  }: {
-    key: (item: T) => unknown;
-    map: (item: T) => U;
-  }
-): Reactive<U[]> {
-  const prev = new Map<unknown, ReactiveValue<U>>();
-
-  return Formula(() => {
-    const result: U[] = [];
-    for (const item of list) {
-      const k = key(item);
-      const r = prev.get(k);
-      if (r) {
-        result.push(r.read());
-      } else {
-        const newR = CachedFormula(() => map(item));
-        result.push(newR.current);
-        prev.set(k, newR);
-      }
-    }
-    return result;
-  });
 }

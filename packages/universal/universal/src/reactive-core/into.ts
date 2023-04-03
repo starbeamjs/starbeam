@@ -26,6 +26,7 @@ export function IntoResource<I extends IntoResource<unknown>>(
 
 export type Factory<T> = Blueprint<T> | ReactiveFactory<T>;
 
+
 export const Factory = {
   create: createReactiveObject,
   initial,

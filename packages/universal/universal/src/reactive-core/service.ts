@@ -1,16 +1,20 @@
 import { Desc } from "@starbeam/debug";
 import type { Description, Reactive } from "@starbeam/interfaces";
-import type { ResourceBlueprint } from "@starbeam/resource";
+import { Resource, type ResourceBlueprint } from "@starbeam/resource";
 import { CONTEXT } from "@starbeam/runtime";
 
 import { Factory, type IntoResource } from "./into.js";
-import type { Blueprint } from "./reactive.js";
+import { type Blueprint } from "./reactive.js";
 
 export function Service<T>(
-  create: Blueprint<T>,
+  blueprint: Blueprint<T>,
   description?: string | Description
-): ServiceBlueprint<T> {
-  return new ServiceBlueprint(create, Desc("blueprint:service", description));
+): ResourceBlueprint<T> | ResourceBlueprint<Reactive<T>> {
+  return Resource(({ use }) => {
+    return CONTEXT.create(blueprint, () => {
+      return use(blueprint);
+    });
+  }, Desc("blueprint:service", description).detail("service"));
 }
 
 Service.create = <T>(

@@ -170,28 +170,142 @@ describe("resources", () => {
     );
   });
 
-  test("adopting resources", () => {
+  test.todo("inner use() returning a blueprint", () => {
+    const name = Cell("default");
+    let connectedCount = 0;
+    function Socket(name: Cell<string>) {
+      return Resource(({ on }) => {
+        const connected = {
+          socketName: name.current as string | null,
+          connected: ++connectedCount,
+        };
+
+        on.cleanup(() => {
+          connected.socketName = null;
+        });
+
+        return connected;
+      });
+    }
+
+    const Channel = Resource(({ use }) => {
+      const socket = use(() => Socket(name));
+      const messages = Cell(0);
+
+      return {
+        get description() {
+          const { connected, socketName } = socket.current;
+          return `${
+            socketName ?? "disconnected"
+          } (connected: ${connected}, messages: ${messages.current})`;
+        },
+        get socket() {
+          return socket.current;
+        },
+        get messages() {
+          return messages.current;
+        },
+        send() {
+          messages.current++;
+        },
+      };
+    });
+
+    const lifetime = {};
+    const channel = use(Channel, { lifetime });
+
+    expect(channel.current.description).toBe(
+      "default (connected: 1, messages: 0)"
+    );
+
+    channel.current.send();
+    expect(channel.current.description).toBe(
+      "default (connected: 1, messages: 1)"
+    );
+
+    name.set("socketa");
+    expect(channel.current.description).toBe(
+      "socketa (connected: 2, messages: 1)"
+    );
+  });
+
+  test("inline child resources", () => {
+    const name = Cell("default");
+    let connectedCount = 0;
+
+    const Channel = Resource(({ use }) => {
+      const socket = use(({ on }) => {
+        const connected = {
+          socketName: name.current as string | null,
+          connected: ++connectedCount,
+        };
+
+        on.cleanup(() => {
+          connected.socketName = null;
+        });
+
+        return connected;
+      });
+      const messages = Cell(0);
+
+      return {
+        get description() {
+          const { connected, socketName } = socket.current;
+          return `${
+            socketName ?? "disconnected"
+          } (connected: ${connected}, messages: ${messages.current})`;
+        },
+        get socket() {
+          return socket.current;
+        },
+        get messages() {
+          return messages.current;
+        },
+        send() {
+          messages.current++;
+        },
+      };
+    });
+
+    const lifetime = {};
+    const channel = use(Channel, { lifetime });
+
+    expect(channel.current.description).toBe(
+      "default (connected: 1, messages: 0)"
+    );
+
+    channel.current.send();
+    expect(channel.current.description).toBe(
+      "default (connected: 1, messages: 1)"
+    );
+
+    name.set("socketa");
+    expect(channel.current.description).toBe(
+      "socketa (connected: 2, messages: 1)"
+    );
+  });
+
+  test("external resources", () => {
     const childResource = new TestResource();
     const child = childResource.instance;
 
     const invalidateParent = Marker();
 
-    const Parent = Resource(({ use }, meta: { initHere: number }) => {
-      const resource = use(child);
+    const Parent = Resource((_, meta: { initHere: number }) => {
       invalidateParent.read();
       meta.initHere++;
 
       return {
         get state() {
           return {
-            child: resource.current.state,
+            child: child.current.state,
             parent: {
               init: meta.initHere,
             },
           };
         },
         increment() {
-          resource.current.increment();
+          child.current.increment();
         },
       };
     });
@@ -306,7 +420,7 @@ interface TestInstance {
 class TestResource {
   readonly #lifetime: object;
   readonly #marker: Marker;
-  readonly #blueprint: ResourceBlueprint<TestInstance>;
+  readonly #blueprint: ResourceBlueprint<TestInstance, void>;
   readonly #instance: Resource<TestInstance>;
 
   constructor() {

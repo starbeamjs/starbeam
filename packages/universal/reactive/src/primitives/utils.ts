@@ -45,6 +45,15 @@ export function isFormulaFn<T>(value: unknown): value is FormulaFn<T> {
 }
 
 export function WrapFn<T>(formula: ReactiveValue<T, FormulaTag>): FormulaFn<T> {
+  // If the formula is *already* a function, we just need a new identity for it,
+  // so we'll wrap it in a simple proxy.
+  //
+  // To keep an eye on: we could also just create a new `FormulaFn` here, and if
+  // it's faster and/or more ergonomic to do that, we should do that.
+  if (typeof formula === "function") {
+    return new Proxy(formula, {});
+  }
+
   const fn = (): T => {
     return formula.read(RUNTIME.callerStack());
   };
