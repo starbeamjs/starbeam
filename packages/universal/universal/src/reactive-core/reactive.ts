@@ -64,4 +64,4 @@ function construct<T>(constructor: ReactiveFactory<T>): T | Reactive<T> {
   }
 }
 
-export type Blueprint<T> = ResourceBlueprint<T>;
+export type Blueprint<T> = ResourceBlueprint<T, void>;

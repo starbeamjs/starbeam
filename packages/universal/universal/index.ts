@@ -18,13 +18,6 @@ export type {
 } from "./src/reactive-core/reactive.js";
 export { Reactive } from "./src/reactive-core/reactive.js";
 export {
-  createService,
-  reactiveService,
-  Service,
-  service,
-  type ServiceBlueprint,
-} from "./src/reactive-core/service.js";
-export {
   type Variant,
   type VariantEntry,
   Variants,
@@ -45,5 +38,4 @@ export {
   type ResourceRun,
   use,
 } from "@starbeam/resource";
-export { ResourceList as ResourceList3 } from "@starbeam/resource/src/resource-list.js";
 export { LIFETIME, PUBLIC_TIMELINE, TAG } from "@starbeam/runtime";

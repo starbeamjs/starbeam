@@ -1,5 +1,5 @@
 {
-  "name": "@starbeam/resource",
+  "name": "@starbeam/service",
   "main": "index.ts",
   "types": "index.ts",
   "exports": {
@@ -26,6 +26,7 @@
     "@starbeam/debug": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
     "@starbeam/reactive": "workspace:^",
+    "@starbeam/resource": "workspace:^",
     "@starbeam/runtime": "workspace:^",
     "@starbeam/shared": "workspace:^"
   },
