@@ -36,7 +36,9 @@
     "@starbeam/interfaces": "workspace:^",
     "@starbeam/preact-utils": "workspace:^",
     "@starbeam/reactive": "workspace:^",
+    "@starbeam/resource": "workspace:^",
     "@starbeam/runtime": "workspace:^",
+    "@starbeam/service": "workspace:^",
     "@starbeam/tags": "workspace:^",
     "@starbeam/universal": "workspace:^",
     "@starbeam/verify": "workspace:^"

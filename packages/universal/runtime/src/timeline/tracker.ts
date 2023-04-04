@@ -6,6 +6,7 @@ import type {
   Tagged,
   Unsubscribe,
 } from "@starbeam/interfaces";
+import { isTagged } from "@starbeam/reactive";
 import { getTag, type Timestamp } from "@starbeam/tags";
 import { NOW } from "@starbeam/tags";
 
@@ -59,9 +60,10 @@ export const SUBSCRIPTION_RUNTIME = new Mutations();
 
 export class PublicTimeline {
   readonly on = {
-    change: (tagged: Tagged, ready: NotifyReady): Unsubscribe => {
+    change: (tagged: Tagged | Tag, ready: NotifyReady): Unsubscribe => {
+      const tag = isTagged(tagged) ? getTag(tagged) : tagged;
       const unsubscribes = new Set<Unsubscribe>();
-      for (const target of getTag(tagged).subscriptionTargets) {
+      for (const target of tag.subscriptionTargets) {
         unsubscribes.add(SUBSCRIPTION_RUNTIME.subscribe(target, ready));
       }
 

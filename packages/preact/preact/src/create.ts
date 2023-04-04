@@ -1,4 +1,4 @@
-import { type Description, Desc } from "@starbeam/debug";
+import { Desc, type Description } from "@starbeam/debug";
 import { Cell } from "@starbeam/universal";
 import { useMemo } from "preact/hooks";
 

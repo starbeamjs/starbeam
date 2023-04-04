@@ -1,20 +1,16 @@
 import { getLast } from "@starbeam/core-utils";
-import type { Description } from "@starbeam/debug";
-import type { Tag } from "@starbeam/interfaces";
+import { Desc, type Description } from "@starbeam/debug";
 import type { InternalComponent } from "@starbeam/preact-utils";
-import {
-  type Frame,
-  PUBLIC_TIMELINE,
-  RUNTIME,
-  type Unsubscribe,
-} from "@starbeam/runtime";
+import type { FinalizedFormula, InitializingFormula } from "@starbeam/reactive";
+import { FormulaLifecycle } from "@starbeam/reactive";
+import { PUBLIC_TIMELINE, RUNTIME, type Unsubscribe } from "@starbeam/runtime";
+import { FormulaTag } from "@starbeam/tags";
 import { expected, isPresent, verify } from "@starbeam/verify";
 
-type ActiveFrame = (() => Set<Tag>) | null;
-
 export class ComponentFrame {
-  #active: ActiveFrame;
-  #frame: Frame | null;
+  #active: InitializingFormula | null;
+  #frame: FinalizedFormula | null;
+  #tag: FormulaTag;
   #subscription: Unsubscribe | null;
 
   static #frames = new WeakMap<InternalComponent, ComponentFrame>();
@@ -48,7 +44,10 @@ export class ComponentFrame {
     return current;
   }
 
-  static end(component: InternalComponent, subscription?: () => void): Frame {
+  static end(
+    component: InternalComponent,
+    subscription?: () => void
+  ): FinalizedFormula {
     const frame = ComponentFrame.#frames.get(component);
 
     verify(
@@ -71,39 +70,42 @@ export class ComponentFrame {
   }
 
   private constructor(
-    frame: Frame | null,
-    active: ActiveFrame,
+    frame: FinalizedFormula | null,
+    active: InitializingFormula | null,
     subscribed: Unsubscribe | null
   ) {
     this.#frame = frame;
     this.#active = active;
+    this.#tag = FormulaTag.create(
+      Desc("external", "preact:component"),
+      () => this.#frame?.children() ?? []
+    );
     this.#subscription = subscribed;
   }
 
   #start(description: Description): void {
     if (this.#frame) {
-      this.#active = RUNTIME.autotracking.start();
+      this.#active = this.#frame.update();
       // this.#active = TIMELINE.frame.update(this.#frame);
     } else {
-      this.#active = TIMELINE.frame.open({
-        description,
-      });
+      this.#active = FormulaLifecycle({ description });
     }
   }
 
-  #end(subscription: (() => void) | undefined): Frame {
+  #end(subscription: (() => void) | undefined) {
     verify(
       this.#active,
       isPresent,
       expected.when("in preact's _diff hook").as("an active tracking frame")
     );
 
-    const frame = (this.#frame = this.#active.finalize(null, TIMELINE).frame);
+    const frame = (this.#frame = this.#active.done());
+    RUNTIME.subscriptions.update(this.#tag);
 
     this.#active = null;
 
     if (subscription) {
-      this.#subscription = PUBLIC_TIMELINE.on.change(frame, subscription);
+      this.#subscription = PUBLIC_TIMELINE.on.change(this.#tag, subscription);
     }
 
     return frame;

@@ -58,7 +58,9 @@ export type {
   UpdateOptions,
 } from "./src/runtime.js";
 export type {
+  Stack as CallStack,
   DisplayParts,
+  /** @deprecated use {@linkcode CallStack} */
   Stack,
   StackFrame,
   StackFrameDisplayOptions,

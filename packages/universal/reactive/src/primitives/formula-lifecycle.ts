@@ -56,13 +56,14 @@ class FinalizedFormulaImpl {
     return this.#children;
   }
 
-  update(): { done: () => void } {
+  update(): InitializingFormula {
     const done = getRuntime().autotracking.start();
 
     return {
       done: () => {
         this.#children = done();
         this.#lastValidated = NOW.now;
+        return this;
       },
     };
   }

@@ -1,17 +1,25 @@
-import type { ResourceBlueprint } from "@starbeam/universal";
-import { Factory } from "@starbeam/universal";
+import type { ReadValue } from "@starbeam/reactive";
+import type { IntoResourceBlueprint } from "@starbeam/resource";
+import * as resource from "@starbeam/resource";
+import { service as createService } from "@starbeam/service";
 import { isPresent, verified } from "@starbeam/verify";
 import { useMemo } from "preact/hooks";
 
 import { getCurrentComponent } from "./options.js";
 
-export function use<T, Default extends undefined>(
-  blueprint:
-    | ResourceBlueprint<T, Default>
-    | (() => ResourceBlueprint<T, Default>)
-): T {
+export function use<T>(
+  blueprint: IntoResourceBlueprint<T, void>
+): ReadValue<T> {
   return useMemo(() => {
     const owner = verified(getCurrentComponent(), isPresent);
-    return Factory.resource(blueprint, owner);
+    return resource.use(blueprint, { lifetime: owner });
+  }, []).current;
+}
+
+export function service<T>(
+  blueprint: IntoResourceBlueprint<T, void>
+): ReadValue<T> {
+  return useMemo(() => {
+    return createService(blueprint);
   }, []).current;
 }

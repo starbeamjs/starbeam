@@ -11,7 +11,9 @@
   "dependencies": {
     "@starbeam/debug": "workspace:^",
     "@starbeam/preact": "workspace:^",
+    "@starbeam/resource": "workspace:^",
     "@starbeam/runtime": "workspace:^",
+    "@starbeam/service": "workspace:^",
     "@starbeam/universal": "workspace:^",
     "@starbeam-workspace/preact-testing-utils": "workspace:^",
     "@starbeam-workspace/test-utils": "workspace:^",

@@ -560,9 +560,15 @@ importers:
       '@starbeam/reactive':
         specifier: workspace:^
         version: link:../../universal/reactive
+      '@starbeam/resource':
+        specifier: workspace:^
+        version: link:../../universal/resource
       '@starbeam/runtime':
         specifier: workspace:^
         version: link:../../universal/runtime
+      '@starbeam/service':
+        specifier: workspace:^
+        version: link:../../universal/service
       '@starbeam/tags':
         specifier: workspace:^
         version: link:../../universal/tags
@@ -715,9 +721,15 @@ importers:
       '@starbeam/preact':
         specifier: workspace:^
         version: link:..
+      '@starbeam/resource':
+        specifier: workspace:^
+        version: link:../../../universal/resource
       '@starbeam/runtime':
         specifier: workspace:^
         version: link:../../../universal/runtime
+      '@starbeam/service':
+        specifier: workspace:^
+        version: link:../../../universal/service
       '@starbeam/universal':
         specifier: workspace:^
         version: link:../../../universal/universal

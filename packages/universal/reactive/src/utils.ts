@@ -8,16 +8,15 @@ import { Static } from "./primitives/static.js";
 
 export type Reactive<T> = interfaces.Reactive<T>;
 
-function is<T>(
-  this: void,
-  value: T | interfaces.Reactive<T>
-): value is interfaces.Reactive<T> {
+function is(this: void, value: unknown): value is interfaces.Tagged {
   return !!(
     value &&
     (typeof value === "object" || typeof value === "function") &&
     TAG in value
   );
 }
+
+export const isTagged = is;
 
 export function isReactive<T>(
   this: void,
@@ -60,6 +59,8 @@ export function intoReactive<T>(
   }
 }
 
-function hasRead<T>(value: object): value is { read: () => T } {
+function hasRead<T>(
+  value: object
+): value is { read: (caller?: interfaces.CallStack) => T } {
   return "read" in value && typeof value.read === "function";
 }
