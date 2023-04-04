@@ -12,7 +12,7 @@ import {
   type ResourceBlueprint,
 } from "@starbeam/universal";
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
-import { beforeEach, describe, expect } from "vitest";
+import { beforeEach, describe, expect } from "@starbeam-workspace/test-utils";
 
 import { Channel } from "./support/channel.js";
 
@@ -420,7 +420,7 @@ function send(message: string): void {
 
 function ChannelResource(
   name: IntoReactive<string>
-): ResourceBlueprint<string | undefined> {
+): ResourceBlueprint<string> {
   const reactive = intoReactive(name);
 
   return Resource((r) => {

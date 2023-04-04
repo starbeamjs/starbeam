@@ -33,7 +33,7 @@ describe("consumption", () => {
     const tag = FormulaTag.create(Desc("formula"), () => tags);
     // unset the tag's TDZ, which will allow subscriptions to the tag. Normally
     // this happens in the implementation of `Formula`, once the value was computed.
-    tag.unsetTdz();
+    tag.markInitialized();
 
     const stale = new Staleness();
     RUNTIME.subscriptions.subscribe(tag, () => {

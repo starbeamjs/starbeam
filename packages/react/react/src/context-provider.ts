@@ -18,6 +18,7 @@ export const Starbeam: FunctionComponent<EmptyProps> = ({ children }) => {
     const owner = prev ? ReactApp.reactivate(prev) : new ReactApp();
 
     on.cleanup(() => {
+      console.log({ finalizing: owner });
       owner.finalize();
     });
 
@@ -36,6 +37,7 @@ export class ReactApp {
   }
 
   static reactivate(owner: ReactApp): ReactApp {
+    owner.#instance = {};
     return owner;
   }
 

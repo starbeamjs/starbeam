@@ -1,8 +1,8 @@
 import { isPresentArray } from "@starbeam/core-utils";
 import { Desc, logTag } from "@starbeam/debug";
 import type { ReactiveValue } from "@starbeam/interfaces";
-import { CachedFormula,Cell } from "@starbeam/reactive";
-import { PUBLIC_TIMELINE, ReactiveError, TAG } from "@starbeam/runtime";
+import { CachedFormula, Cell } from "@starbeam/reactive";
+import { PUBLIC_TIMELINE, TAG } from "@starbeam/runtime";
 import { DelegateTag, getTag } from "@starbeam/tags";
 import { describe, expect, test } from "vitest";
 
@@ -25,13 +25,21 @@ describe("Tagged", () => {
     expect(cell.current).toBe(1);
   });
 
-  test("subscribing to a formula before reading it is an error", () => {
+  test("subscribing to a formula before reading it lazily subscribes once read", () => {
     const cell = Cell(0);
     const formula = CachedFormula(() => cell.current);
+    let stale = false;
 
-    expect(() => PUBLIC_TIMELINE.on.change(formula, () => void 0)).toThrow(
-      ReactiveError
-    );
+    PUBLIC_TIMELINE.on.change(formula, () => {
+      stale = true;
+    });
+
+    expect(formula.current).toBe(0);
+    expect(stale).toBe(false);
+
+    cell.current++;
+    expect(formula.current).toBe(1);
+    expect(stale).toBe(true);
   });
 
   test("subscribing to a formula", () => {
@@ -90,7 +98,7 @@ describe("Tagged", () => {
     expect(cell.current).toBe(1);
   });
 
-  test("subscribing to a formula before reading one of its formula targets is an error", () => {
+  test("subscribing to a delegate before reading one of its formula targets lazily subscribes once read", () => {
     const cell = Cell(0);
     const formula = CachedFormula(() => cell.current);
 
@@ -101,9 +109,19 @@ describe("Tagged", () => {
       ]),
     };
 
-    expect(() => PUBLIC_TIMELINE.on.change(delegate, () => void 0)).toThrow(
-      ReactiveError
-    );
+    let stale = false;
+
+    PUBLIC_TIMELINE.on.change(delegate, () => {
+      stale = true;
+    });
+
+    expect(formula.current).toBe(0);
+    expect(stale).toBe(false);
+
+    cell.current++;
+    expect(formula.current).toBe(1);
+
+    expect(stale).toBe(true);
   });
 
   test("subscribing to a formula delegate", () => {

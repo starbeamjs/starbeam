@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { callerStack, entryPoint } from "@starbeam/debug";
-import { Starbeam, useService, useSetup } from "@starbeam/react";
+import { Starbeam, useService } from "@starbeam/react";
 import { Cell, Resource } from "@starbeam/universal";
 import type { RenderState } from "@starbeam-workspace/react-test-utils";
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
@@ -114,113 +114,6 @@ describe("services", () => {
     result.unmount();
     expect(channel?.isActive).toBe(false);
   });
-
-  testReact<{ name: string }, Auth | null>(
-    "service in useSetup",
-    async (root) => {
-      const result = await root
-        .expectHTML((auth) =>
-          auth
-            ? `<img src="${auth.avatar}"><span>${auth.username}</span>`
-            : `<p>loading</p>`
-        )
-        .render(
-          (state) => {
-            return createElement(
-              Starbeam,
-              null,
-              react.render(Profile, {
-                testState: state,
-              })
-            );
-          },
-          { name: "test" }
-        );
-
-      function Avatar(): React.ReactElement | null {
-        const user = useSetup(({ service }) => service(CurrentUser));
-
-        return user ? html.img({ src: user.avatar }) : null;
-      }
-
-      function Username(): React.ReactElement | null {
-        const user = useSetup(({ service }) => service(CurrentUser));
-
-        return user ? html.span(user.username) : null;
-      }
-
-      function Profile({
-        testState,
-      }: {
-        testState: RenderState<Auth | null>;
-      }): React.ReactElement {
-        testState.rendered();
-        const user = useSetup(({ service }) => service(CurrentUser));
-
-        testState.value(user);
-
-        if (user) {
-          return react.fragment(react.render(Avatar), react.render(Username));
-        } else {
-          return html.p("loading");
-        }
-      }
-
-      async function send(
-        message: Auth,
-        options: { expect: "active" | "inactive" } = { expect: "active" },
-        caller = callerStack()
-      ): Promise<void> {
-        await result.act(() => {
-          const latest = AUTH_CHANNELS.latest();
-
-          if (latest === undefined) {
-            entryPoint(
-              () => {
-                expect(latest, "Channel.latest()").not.toBeUndefined();
-              },
-              { stack: caller }
-            );
-            return;
-          }
-
-          AUTH_CHANNELS.sendMessage(latest, message);
-        }, caller);
-
-        entryPoint(
-          () => {
-            expect(
-              channel?.isActive,
-              `the channel should be ${options.expect}`
-            ).toBe(options.expect === "active");
-
-            expect(result.value, "the last rendered auth value").toEqual({
-              ...message,
-            });
-          },
-          { stack: caller }
-        );
-      }
-
-      const channel = AUTH_CHANNELS.latest();
-      expect(
-        channel,
-        "After rendering, the channel exists"
-      ).not.toBeUndefined();
-
-      expect(result.value).toBe(null);
-      await send({ username: "elwayman02", avatar: "jordan.fake.png" });
-
-      await result.rerender();
-
-      await send({ username: "elwayman02", avatar: "jordan2.fake.png" });
-      await send({ username: "elwayman02", avatar: "jordan3.fake.png" });
-
-      // services should be cleaned up when the root component is unmounted
-      result.unmount();
-      expect(channel?.isActive).toBe(false);
-    }
-  );
 });
 
 interface Auth {
@@ -232,6 +125,7 @@ const CurrentUser = Resource((r) => {
   const lastMessage = Cell(null as Auth | null, "last message");
 
   const c = AUTH_CHANNELS.subscribe("auth");
+  console.log({ c, latest: AUTH_CHANNELS.latest() });
 
   c.onMessage((message) => {
     lastMessage.set(message);

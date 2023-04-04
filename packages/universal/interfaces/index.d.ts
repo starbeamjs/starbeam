@@ -40,6 +40,7 @@ export type {
   ReactiveValue,
   SpecificTag,
   StaticTag,
+  SubscriptionTarget,
   Tag,
   Tagged,
   TaggedReactive,
@@ -49,6 +50,7 @@ export type {
 export type {
   ActiveFrame,
   AutotrackingRuntime,
+  DebugRuntime,
   DeprecatedTimeline,
   Runtime,
   RuntimeFrame,

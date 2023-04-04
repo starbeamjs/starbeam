@@ -252,58 +252,49 @@ export class SetupTestRoot<Props, T> {
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     props?: any
   ): Promise<RenderResult<any, T>> {
-    const result = entryPoint(
-      () => {
-        const state = new RenderState<T>();
-        let i = 0;
+    const state = new RenderState<T>();
+    let i = 0;
 
-        const Component = (props: any): ReactElement => {
-          state.rendered();
-          return render(state, props);
-        };
+    const Component = (props: any): ReactElement => {
+      state.rendered();
+      return render(state, props);
+    };
 
-        const result = act(() =>
-          testing.render(
-            react.render(Component, { ...props, rerender: ++i }),
-            this.#options
-          )
-        );
+    const result = act(() =>
+      testing.render(
+        react.render(Component, { ...props, rerender: ++i }),
+        this.#options
+      )
+    );
 
-        const renderResult = new RenderResult(
-          this,
-          state,
-          result,
-          props,
-          (updatedProps?: any) => {
-            if (updatedProps) {
-              result.rerender(
-                react.render(Component, { ...updatedProps, rerender: ++i })
-              );
-            } else {
-              result.rerender(
-                react.render(Component, { ...props, rerender: ++i })
-              );
-            }
-          }
-        );
-
-        return renderResult;
-      },
-      { internal: 1 }
-    ) as unknown as RenderResult<Props, T>;
+    const renderResult = new RenderResult(
+      this,
+      state,
+      result,
+      props,
+      (updatedProps?: any) => {
+        if (updatedProps) {
+          result.rerender(
+            react.render(Component, { ...updatedProps, rerender: ++i })
+          );
+        } else {
+          result.rerender(react.render(Component, { ...props, rerender: ++i }));
+        }
+      }
+    );
 
     entryPoint(
       () => {
         SetupTestRoot.assert(
           this as unknown as SetupTestRoot<Props, T>,
-          result,
+          renderResult,
           props as Props
         );
       },
       { internal: 1 }
     );
 
-    return Promise.resolve(result);
+    return Promise.resolve(renderResult);
   }
 
   expectHTML(expectHtml: (value: T, props: Props) => string): this {

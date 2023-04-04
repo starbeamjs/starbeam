@@ -1,24 +1,22 @@
 import type { browser } from "@domtree/flavors";
 import { type DebugListener, Desc, type Description } from "@starbeam/debug";
 import type { Reactive, Tagged } from "@starbeam/interfaces";
+import type { IntoResourceBlueprint, Resource } from "@starbeam/resource";
+import * as resource from "@starbeam/resource";
 import {
   type CleanupTarget,
+  CONTEXT,
   LIFETIME,
   type OnCleanup,
   PUBLIC_TIMELINE,
   type Unsubscribe,
 } from "@starbeam/runtime";
-import {
-  type Cell,
-  createService,
-  Factory,
-  type IntoResource,
-} from "@starbeam/universal";
+import { service } from "@starbeam/service";
+import { Cell, PolledFormula } from "@starbeam/universal";
 
 import { ReactApp } from "./context-provider.js";
 import { missingApp } from "./context-provider.js";
 import { type ElementRef, type ReactElementRef, ref } from "./ref.js";
-import { MountedResource } from "./use-resource.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyRecord = Record<PropertyKey, any>;
@@ -236,9 +234,9 @@ export class ReactiveElement implements CleanupTarget {
   }
 
   service = <T>(
-    factory: IntoResource<T>,
+    blueprint: IntoResourceBlueprint<T, void>,
     description?: string | Description | undefined
-  ): Reactive<T> => {
+  ): Resource<T> => {
     const desc = Desc("service", description);
     const context = this.#context;
 
@@ -246,31 +244,29 @@ export class ReactiveElement implements CleanupTarget {
       missingApp(`service()`);
     }
 
-    return createService(factory, desc, ReactApp.instance(context));
+    CONTEXT.app = ReactApp.instance(context);
+
+    return service(blueprint, desc);
   };
 
-  use = <T, Initial extends undefined>(
-    factory: IntoResource<T, Initial>,
-    options?: { initial?: T; description: string | Description | undefined }
-  ): Reactive<T | Initial> => {
-    const desc = Desc("resource", options?.description);
-    const resource = MountedResource.create(options?.initial, desc);
-
-    LIFETIME.link(this, resource);
-
-    const create = (): void => {
-      resource.create((owner) => Factory.resource(factory, owner));
-
-      this.notify();
-    };
-
-    const unsubscribe = PUBLIC_TIMELINE.on.change(resource, this.notify);
-
-    LIFETIME.on.cleanup(resource, unsubscribe);
-
-    this.on.layout(create);
-
-    return resource as Reactive<T | Initial>;
+  use = <T>(
+    factory: IntoResourceBlueprint<T, void>,
+    options?: { initial?: T }
+  ): Reactive<T | undefined> => {
+    return internalUseResource(
+      this,
+      {
+        notify: this.notify,
+        on: {
+          layout: (callback) =>
+            this.on.layout(() => {
+              callback(factory);
+            }),
+          cleanup: this.on.cleanup,
+        },
+      },
+      options?.initial
+    );
   };
 
   refs<R extends RefsTypes>(refs: R): RefsRecordFor<R> {
@@ -279,6 +275,39 @@ export class ReactiveElement implements CleanupTarget {
     this.#refs = newRefs;
     return record;
   }
+}
+interface ResourceHost<T> {
+  readonly notify: () => void;
+  readonly on: {
+    layout: (callback: (value: T) => void) => Unsubscribe | void;
+    cleanup: (callback: () => void) => Unsubscribe | void;
+  };
+}
+
+export function internalUseResource<T>(
+  lifetime: object,
+  host: ResourceHost<IntoResourceBlueprint<T, void>>,
+  initial: T | undefined
+): Reactive<T | undefined> {
+  let unsubscribe: Unsubscribe | undefined = undefined;
+  const resourceCell = Cell(undefined as undefined | Resource<T>);
+
+  const create = (blueprint: IntoResourceBlueprint<T, void>): void => {
+    resourceCell.set(resource.use(blueprint, { lifetime }));
+
+    host.notify();
+  };
+
+  host.on.layout(create);
+
+  const formula = PolledFormula(() => {
+    return (resourceCell.current?.current as T | undefined) ?? initial;
+  });
+
+  unsubscribe = PUBLIC_TIMELINE.on.change(formula, host.notify);
+  host.on.cleanup(unsubscribe);
+
+  return formula;
 }
 
 type Callback<T = void> =

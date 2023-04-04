@@ -82,7 +82,9 @@ export function useSetup<
       const reactive = PolledFormula(() => {
         return (instance as (props: unknown) => unknown)(currentProps);
       }, desc);
+
       ReactiveElement.subscribe(element, reactive);
+
       function compute(props: unknown, caller = callerStack()): unknown {
         currentProps = props;
         return reactive.read(caller);

@@ -1,11 +1,11 @@
-import { type Description, Desc } from "@starbeam/debug";
+import { Desc, type Description } from "@starbeam/debug";
+import { PUBLIC_TIMELINE } from "@starbeam/runtime";
 import type { Reactive } from "@starbeam/universal";
 import {
   Cell,
   Formula,
   LIFETIME,
   PolledFormula,
-  TIMELINE,
   Wrap,
 } from "@starbeam/universal";
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
@@ -47,7 +47,7 @@ export function useReactive<T>(
       // We wait until the first layout to subscribe to the formula, because React will
       // only guarantee that the cleanup function is called after the first layout.
       on.layout(() => {
-        const unsubscribe = TIMELINE.on.change(formula, notify);
+        const unsubscribe = PUBLIC_TIMELINE.on.change(formula, notify);
         on.cleanup(unsubscribe);
       });
 

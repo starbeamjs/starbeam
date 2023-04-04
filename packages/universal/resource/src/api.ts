@@ -37,8 +37,8 @@ export const Resource = ResourceBlueprintImpl.create;
 export { isResource } from "./resource.js";
 
 export type ResourceBlueprint<T = unknown, M = unknown> =
-  | ResourceBlueprintImpl<T, M>
-  | ResourceBlueprintImpl<Reactive<T>, void>;
+  | ResourceBlueprintImpl<Reactive<T>, void>
+  | ResourceBlueprintImpl<T, M>;
 
 export type IntoResourceBlueprint<T, M> =
   | ResourceBlueprint<T, M>

@@ -1,11 +1,11 @@
 import { Message } from "@starbeam/debug";
-import { TIMELINE } from "@starbeam/runtime";
+import { RUNTIME } from "@starbeam/runtime";
 import { isRendering } from "@starbeam/use-strict-lifecycle";
 
 let WARNED = false;
 
 if (import.meta.env.DEV) {
-  TIMELINE.untrackedReadBarrier((tag, stack) => {
+  RUNTIME.debug.untrackedReadBarrier((tag, stack) => {
     if (isRendering()) {
       if (!WARNED) {
         WARNED = true;

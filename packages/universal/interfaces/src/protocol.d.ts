@@ -16,7 +16,7 @@ export interface AbstractTag {
    * This avoids subscribing to a formula without computing its value, which is
    * a violation of the tag contract.
    */
-  readonly tdz: boolean;
+  readonly initialized: boolean;
 }
 
 export type List<T> = Iterable<T> | T[] | readonly T[];
@@ -26,8 +26,8 @@ export class TagMethods {
   readonly lastUpdated: Timestamp;
   readonly dependencies: () => readonly CellTag[];
   readonly description: Description;
+  readonly subscriptionTargets: readonly SubscriptionTarget[];
   match(matcher: Matcher<T>): Tag;
-  subscriptionTargets(): List<Tag>;
 }
 
 export type ExhaustiveMatcher<T> = {
@@ -118,6 +118,7 @@ export interface StaticTag extends AbstractTag, TagMethods {
  * they are, and that generality breaks system invariants derived from value composition.
  */
 export type Tag = CellTag | FormulaTag | DelegateTag | StaticTag;
+export type SubscriptionTarget = CellTag | FormulaTag;
 export type TagType = Tag["type"];
 export type SpecificTag<T extends TagType> = Extract<Tag, { type: T }>;
 

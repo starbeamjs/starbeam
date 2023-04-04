@@ -1,18 +1,20 @@
+import type { ReadValue } from "@starbeam/reactive";
+import type { IntoResourceBlueprint } from "@starbeam/resource";
 import { CONTEXT } from "@starbeam/runtime";
-import {
-  type Blueprint,
-  type ResourceFactory,
-  service,
-} from "@starbeam/universal";
+import { service } from "@starbeam/service";
 
 import { ReactApp, useStarbeamApp } from "./context-provider.js";
 import { useReactive } from "./use-reactive.js";
 
-export function useService<T>(factory: Blueprint<T> | ResourceFactory<T>): T {
+export function useService<T>(
+  blueprint: IntoResourceBlueprint<T, void>
+): ReadValue<T> {
   CONTEXT.app = ReactApp.instance(useStarbeamApp({ feature: "useService()" }));
+
+  const instance = service(blueprint);
 
   // We don't want to instantiate the service as a resource, because that would
   // cause it to be cleaned up when the component unmounts. Instead, we want to
   // keep it alive for the lifetime of the app.
-  return useReactive(() => service(factory));
+  return useReactive(() => instance.current);
 }

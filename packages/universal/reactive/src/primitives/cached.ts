@@ -41,7 +41,7 @@ class FormulaImpl<T> implements ReactiveFormula<T> {
     this.#compute = compute;
     this[TAG] = FormulaTag.create(description, () => {
       if (this.#last === null) return [];
-      return this.#last.formula[TAG].children();
+      return this.#last.formula.children();
     });
   }
 
@@ -75,8 +75,8 @@ class FormulaImpl<T> implements ReactiveFormula<T> {
       value,
     };
 
-    // Allow the formula to be subscribed to.
-    this[TAG].unsetTdz();
+    this[TAG].markInitialized();
+    RUNTIME.subscriptions.update(this[TAG]);
 
     return value;
   }

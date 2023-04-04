@@ -1,57 +1,60 @@
 import { callerStack } from "@starbeam/debug";
 import type {
   AutotrackingRuntime,
+  DebugRuntime,
   Runtime as IRuntime,
   Stack,
   SubscriptionRuntime,
 } from "@starbeam/interfaces";
 import { defineRuntime } from "@starbeam/reactive";
 
-import { TIMELINE } from "./timeline/api.js";
+import { DEBUG_RUNTIME } from "./timeline/debug.js";
 import { SUBSCRIPTION_RUNTIME } from "./timeline/tracker.js";
 import { AUTOTRACKING_RUNTIME } from "./tracking-stack.js";
 
-type Timeline = typeof TIMELINE;
-
 class Runtime implements IRuntime {
   static default(): Runtime {
-    return new Runtime(TIMELINE, SUBSCRIPTION_RUNTIME, AUTOTRACKING_RUNTIME);
+    return new Runtime(
+      SUBSCRIPTION_RUNTIME,
+      AUTOTRACKING_RUNTIME,
+      DEBUG_RUNTIME
+    );
   }
 
   static single(
-    runtime: Timeline & SubscriptionRuntime & AutotrackingRuntime
+    runtime: SubscriptionRuntime & AutotrackingRuntime & DebugRuntime
   ): Runtime {
     return new Runtime(runtime, runtime, runtime);
   }
 
   static create({
-    timeline,
     subscriptions,
     autotracking,
+    debug,
   }: {
-    timeline: Timeline;
     subscriptions: SubscriptionRuntime;
     autotracking: AutotrackingRuntime;
+    debug: DebugRuntime;
   }): Runtime {
-    return new Runtime(timeline, subscriptions, autotracking);
+    return new Runtime(subscriptions, autotracking, debug);
   }
 
-  readonly #timeline: Timeline;
   readonly #subscriptions: SubscriptionRuntime;
   readonly #autotracking: AutotrackingRuntime;
+  readonly #debug: DebugRuntime;
 
   private constructor(
-    timeline: Timeline,
     subscription: SubscriptionRuntime,
-    autotracking: AutotrackingRuntime
+    autotracking: AutotrackingRuntime,
+    debug: DebugRuntime
   ) {
-    this.#timeline = timeline;
     this.#subscriptions = subscription;
     this.#autotracking = autotracking;
+    this.#debug = debug;
   }
 
-  get timeline(): Timeline {
-    return this.#timeline;
+  get debug(): DebugRuntime {
+    return this.#debug;
   }
 
   get subscriptions(): SubscriptionRuntime {

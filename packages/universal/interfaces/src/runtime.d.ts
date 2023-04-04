@@ -13,16 +13,21 @@ export interface DeprecatedTimeline {
 
 export interface Runtime {
   callerStack: () => CallStack;
-  /** @deprecated */
-  readonly timeline: DeprecatedTimeline;
   readonly subscriptions: SubscriptionRuntime;
   readonly autotracking: AutotrackingRuntime;
+  readonly debug: DebugRuntime;
 }
 
 export interface SubscriptionRuntime {
   subscribe: (target: Tag, ready: NotifyReady) => Unsubscribe;
-  bump: (cell: CellTag) => Timestamp;
+  bump: (cell: CellTag) => { revision: Timestamp; notify: () => void };
   update: (formula: FormulaTag) => void;
+}
+
+export interface DebugRuntime {
+  untrackedReadBarrier: (
+    barrier: (tag: Tag, stack: CallStack) => void | never
+  ) => void;
 }
 
 export type ActiveFrame = () => Set<Tag>;

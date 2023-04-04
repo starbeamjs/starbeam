@@ -20,7 +20,7 @@ export class CellImpl<T> implements ReactiveCell<T> {
   static create = <T>(
     value: T,
     options?: CellOptions<T> | DescriptionOption
-  ): CellImpl<T> => {
+  ): Cell<T> => {
     const { description, equals = Object.is } = toCellOptions(options);
     return new CellImpl(value, equals, Desc("cell", description));
   };
@@ -71,7 +71,7 @@ export class CellImpl<T> implements ReactiveCell<T> {
 }
 
 export const Cell = CellImpl.create;
-export type Cell<T = unknown> = Expand<CellImpl<T>>;
+export type Cell<T = unknown> = CellImpl<T>;
 
 export type Equality<T> = (a: T, b: T) => boolean;
 

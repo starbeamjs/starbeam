@@ -16,11 +16,7 @@ enum Phase {
   write = "write",
 }
 
-export class ReactiveError extends Error {
-  constructor(message: string) {
-    super(message);
-  }
-}
+export class ReactiveError extends Error {}
 
 /**
  * The Timeline is the core of the runtime.
@@ -34,21 +30,16 @@ class Mutations implements SubscriptionRuntime {
   readonly #lastPhase: Phase = Phase.read;
 
   subscribe(target: Tag, ready: NotifyReady): Unsubscribe {
-    if (target.tdz) {
-      throw new ReactiveError(
-        `The tag ${target.description.describe({
-          color: false,
-        })} isn't initialized yet, so you can't subscribe to it. This is a bug in the implementation of a primitive or renderer.`
-      );
-    }
-
     return this.#subscriptions.register(target, ready);
   }
 
-  bump(cell: CellTag): Timestamp {
-    const next = this.#updatePhase(Phase.write);
-    this.#subscriptions.notify(cell);
-    return next;
+  bump(cell: CellTag): { revision: Timestamp; notify: () => void } {
+    return {
+      revision: this.#updatePhase(Phase.write),
+      notify: () => {
+        this.#subscriptions.notify(cell);
+      },
+    };
   }
 
   update(formula: FormulaTag): void {
@@ -68,8 +59,17 @@ export const SUBSCRIPTION_RUNTIME = new Mutations();
 
 export class PublicTimeline {
   readonly on = {
-    change: (target: Tagged, ready: NotifyReady): Unsubscribe => {
-      return SUBSCRIPTION_RUNTIME.subscribe(getTag(target), ready);
+    change: (tagged: Tagged, ready: NotifyReady): Unsubscribe => {
+      const unsubscribes = new Set<Unsubscribe>();
+      for (const target of getTag(tagged).subscriptionTargets) {
+        unsubscribes.add(SUBSCRIPTION_RUNTIME.subscribe(target, ready));
+      }
+
+      return () => {
+        for (const unsubscribe of unsubscribes) {
+          unsubscribe();
+        }
+      };
     },
   };
 

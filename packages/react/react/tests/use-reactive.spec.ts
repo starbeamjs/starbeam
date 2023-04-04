@@ -3,8 +3,8 @@
 import { useReactive, useSetup } from "@starbeam/react";
 import { Cell, Formula } from "@starbeam/universal";
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
+import { describe, expect } from "@starbeam-workspace/test-utils";
 import { useState } from "react";
-import { describe, expect } from "vitest";
 
 const INITIAL_ID = 0;
 const INITIAL_COUNT = 0;
@@ -229,12 +229,17 @@ describe("useReactive", () => {
           }).compute();
         });
 
+      console.log("initial");
       expect(result.value).toEqual({ starbeam: 0, react: 0 });
+      console.log("clicking starbeam");
       await result.findByText("++Starbeam++").fire.click();
+      console.log("clicked starbeam");
 
       expect(result.value).toEqual({ starbeam: 1, react: 0 });
 
+      console.log("clicked react");
       await result.findByText("++React++").fire.click();
+      console.log("clicked react");
       expect(result.value).toEqual({ starbeam: 1, react: 1 });
     }
   );

@@ -1,9 +1,10 @@
 import { Desc } from "@starbeam/debug";
 import type { Description } from "@starbeam/interfaces";
+import type { IntoResourceBlueprint } from "@starbeam/resource";
 import { Resource, type ResourceBlueprint, use } from "@starbeam/resource";
 import { CONTEXT } from "@starbeam/runtime";
 
-type Blueprint<T> = ResourceBlueprint<T, void>;
+type Blueprint<T> = IntoResourceBlueprint<T, void>;
 
 export function Service<T>(
   blueprint: Blueprint<T>,

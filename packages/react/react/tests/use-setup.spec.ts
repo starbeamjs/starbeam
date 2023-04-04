@@ -5,8 +5,8 @@ import type { ReactiveElement } from "@starbeam/react";
 import { useReactive, useSetup } from "@starbeam/react";
 import { Cell } from "@starbeam/universal";
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
+import { describe, expect } from "@starbeam-workspace/test-utils";
 import type { ReactElement } from "react";
-import { describe, expect } from "vitest";
 
 import { Channels } from "./support/channel.js";
 
@@ -164,7 +164,9 @@ describe("useSetup", () => {
 
         return react.fragment(
           html.span(reactiveState.state),
-          reactiveState.state === "message" ? html.span(reactiveState.lastMessage) : null
+          reactiveState.state === "message"
+            ? html.span(reactiveState.lastMessage)
+            : null
         );
       });
 

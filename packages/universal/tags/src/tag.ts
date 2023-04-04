@@ -35,7 +35,8 @@ export abstract class Tag
   }
 
   abstract readonly type: interfaces.TagType;
-  abstract readonly tdz: boolean;
+  abstract readonly initialized: boolean;
+  abstract readonly subscriptionTargets: readonly interfaces.SubscriptionTarget[];
 
   readonly #description: Description;
   constructor(description: Description) {
@@ -64,14 +65,6 @@ export abstract class Tag
   get description(): Description {
     return this.#description;
   }
-
-  /**
-   * By default, a tag yields itself when asked for subsbcription target. The
-   * delegate tag overrides this behavior.
-   */
-  *subscriptionTargets(): interfaces.List<interfaces.Tag> {
-    yield this as interfaces.Tag;
-  }
 }
 
 export class CellTag extends Tag implements interfaces.CellTag {
@@ -80,7 +73,7 @@ export class CellTag extends Tag implements interfaces.CellTag {
   }
 
   readonly type = "cell";
-  readonly tdz = false;
+  readonly initialized = true;
 
   #frozen = false;
   #lastUpdated: Timestamp;
@@ -113,6 +106,10 @@ export class CellTag extends Tag implements interfaces.CellTag {
     this.#lastUpdated = timestamp;
   }
 
+  get subscriptionTargets(): readonly interfaces.SubscriptionTarget[] {
+    return [this as interfaces.SubscriptionTarget];
+  }
+
   override dependencies(): interfaces.CellTag[] {
     return this.#frozen ? [] : [this];
   }
@@ -122,7 +119,9 @@ export class CellTag extends Tag implements interfaces.CellTag {
       throw TypeError("Cannot update frozen object");
     }
 
-    this.#lastUpdated = runtime.subscriptions.bump(this);
+    const { notify, revision } = runtime.subscriptions.bump(this);
+    this.#lastUpdated = revision;
+    notify();
   }
 }
 
@@ -132,9 +131,13 @@ export class StaticTag extends Tag implements interfaces.StaticTag {
   }
 
   readonly type = "static";
-  readonly tdz = false;
+  readonly initialized = true;
 
   override readonly lastUpdated = NOW.now;
+
+  get subscriptionTargets(): readonly interfaces.SubscriptionTarget[] {
+    return [];
+  }
 
   override dependencies(): readonly interfaces.CellTag[] {
     return [];
@@ -146,37 +149,37 @@ export class FormulaTag extends Tag implements interfaces.FormulaTag {
     description: Description,
     children: () => interfaces.List<interfaces.Tag>
   ): FormulaTag {
-    return new FormulaTag(description, children, true);
+    return new FormulaTag(description, children, false);
   }
 
   readonly type = "formula";
   readonly #children: () => interfaces.List<interfaces.Tag>;
-  #tdz: boolean;
+  #initialized: boolean;
 
   private constructor(
     description: Description,
     children: () => interfaces.List<interfaces.Tag>,
-    tdz: boolean
+    initialized: boolean
   ) {
     super(description);
     this.#children = children;
-    this.#tdz = tdz;
+    this.#initialized = initialized;
   }
 
   [INSPECT]() {
     return DisplayStruct("Formula", {
       id: this.description.id,
-      initialized: !this.#tdz,
+      initialized: this.#initialized,
       children: [...this.#children()],
     });
   }
 
-  get tdz(): boolean {
-    return this.#tdz;
+  get initialized(): boolean {
+    return this.#initialized;
   }
 
-  unsetTdz(): void {
-    this.#tdz = false;
+  markInitialized(): void {
+    this.#initialized = true;
   }
 
   children(): readonly interfaces.Tag[] {
@@ -198,6 +201,10 @@ export class FormulaTag extends Tag implements interfaces.FormulaTag {
   override dependencies(): interfaces.CellTag[] {
     return this.children().flatMap((child) => child.dependencies());
   }
+
+  get subscriptionTargets(): readonly interfaces.SubscriptionTarget[] {
+    return [this];
+  }
 }
 
 export class DelegateTag extends Tag implements interfaces.DelegateTag {
@@ -210,6 +217,7 @@ export class DelegateTag extends Tag implements interfaces.DelegateTag {
 
   readonly type = "delegate";
   readonly #targets: readonly interfaces.Tag[];
+  readonly #subscriptionTargets: readonly interfaces.SubscriptionTarget[];
 
   private constructor(
     description: Description,
@@ -217,20 +225,21 @@ export class DelegateTag extends Tag implements interfaces.DelegateTag {
   ) {
     super(description);
     this.#targets = targets;
+    this.#subscriptionTargets = targets.flatMap(
+      (target) => target.subscriptionTargets
+    );
   }
 
-  get tdz(): boolean {
-    return this.#targets.some((target) => target.tdz);
+  get initialized(): boolean {
+    return this.#targets.every((target) => target.initialized);
   }
 
   get targets(): readonly interfaces.Tag[] {
     return this.#targets;
   }
 
-  override *subscriptionTargets(): interfaces.List<interfaces.Tag> {
-    for (const target of this.#targets) {
-      yield* target.subscriptionTargets();
-    }
+  get subscriptionTargets(): readonly interfaces.SubscriptionTarget[] {
+    return this.#subscriptionTargets;
   }
 
   override dependencies(): readonly interfaces.CellTag[] {
@@ -238,6 +247,6 @@ export class DelegateTag extends Tag implements interfaces.DelegateTag {
   }
 
   override get lastUpdated(): Timestamp {
-    return Tag.lastUpdatedIn(this.subscriptionTargets());
+    return Tag.lastUpdatedIn(this.subscriptionTargets);
   }
 }

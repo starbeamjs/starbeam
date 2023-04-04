@@ -40,11 +40,8 @@ export class FormulaImpl<T>
     const { value, tags } = RUNTIME.evaluate(this.#compute);
     this.#children = tags;
 
-    if (this[TAG].tdz) {
-      this[TAG].unsetTdz();
-    } else {
-      RUNTIME.subscriptions.update(this[TAG]);
-    }
+    this[TAG].markInitialized();
+    RUNTIME.subscriptions.update(this[TAG]);
 
     return value;
   }

@@ -3,12 +3,10 @@ import type {
   ActiveFrame,
   Description,
   Expand,
-  Tagged,
   Timestamp,
 } from "@starbeam/interfaces";
 import type { Tag } from "@starbeam/interfaces";
-import { TAG } from "@starbeam/shared";
-import { FormulaTag, NOW } from "@starbeam/tags";
+import { NOW, TagUtils } from "@starbeam/tags";
 
 import { getRuntime } from "../runtime.js";
 import { type SugaryPrimitiveOptions, toOptions } from "./utils.js";
@@ -29,7 +27,7 @@ export class InitializingFormulaImpl {
   }
 
   done(): FinalizedFormula {
-    return new FinalizedFormulaImpl(this.#active(), NOW.now, this.#description);
+    return new FinalizedFormulaImpl(this.#active(), NOW.now);
   }
 }
 
@@ -37,30 +35,25 @@ export const FormulaLifecycle = InitializingFormulaImpl.start;
 export type InitializingFormula = Expand<InitializingFormulaImpl>;
 export type FinalizedFormula = Expand<FinalizedFormulaImpl>;
 
-class FinalizedFormulaImpl implements Tagged<FormulaTag> {
-  static create = (
-    children: Set<Tag>,
-    description: Description
-  ): FinalizedFormula => {
-    return new FinalizedFormulaImpl(children, NOW.now, description);
+class FinalizedFormulaImpl {
+  static create = (children: Set<Tag>): FinalizedFormula => {
+    return new FinalizedFormulaImpl(children, NOW.now);
   };
 
   #children: Set<Tag>;
   #lastValidated: Timestamp;
-  declare readonly [TAG]: FormulaTag;
 
-  constructor(
-    children: Set<Tag>,
-    lastValidated: Timestamp,
-    description: Description
-  ) {
+  constructor(children: Set<Tag>, lastValidated: Timestamp) {
     this.#children = children;
     this.#lastValidated = lastValidated;
-    this[TAG] = FormulaTag.create(description, () => this.#children);
   }
 
   isStale(): boolean {
-    return this[TAG].lastUpdated.gt(this.#lastValidated);
+    return TagUtils.lastUpdatedIn(this.#children).gt(this.#lastValidated);
+  }
+
+  children(): Set<Tag> {
+    return this.#children;
   }
 
   update(): { done: () => void } {
@@ -70,7 +63,6 @@ class FinalizedFormulaImpl implements Tagged<FormulaTag> {
       done: () => {
         this.#children = done();
         this.#lastValidated = NOW.now;
-        getRuntime().subscriptions.update(this[TAG]);
       },
     };
   }

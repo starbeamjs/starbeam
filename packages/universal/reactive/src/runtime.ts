@@ -1,6 +1,6 @@
 import type {
   AutotrackingRuntime,
-  DeprecatedTimeline,
+  DebugRuntime,
   Runtime,
   Stack,
   SubscriptionRuntime,
@@ -32,10 +32,6 @@ class RuntimeImpl implements Runtime {
     return getRuntime().callerStack();
   }
 
-  get timeline(): DeprecatedTimeline {
-    return getRuntime().timeline;
-  }
-
   get subscriptions(): SubscriptionRuntime {
     return getRuntime().subscriptions;
   }
@@ -44,16 +40,16 @@ class RuntimeImpl implements Runtime {
     return getRuntime().autotracking;
   }
 
+  get debug(): DebugRuntime {
+    return getRuntime().debug;
+  }
+
   evaluate<T>(compute: () => T): { value: T; tags: Set<Tag> } {
     const done = this.autotracking.start();
     const value = compute();
     const tags = done();
     return { value, tags };
   }
-
-  // timeline: DeprecatedTimeline;
-  // subscriptions: SubscriptionRuntime;
-  // autotracking: AutotrackingRuntime;
 }
 
 export const RUNTIME = new RuntimeImpl();

@@ -5,11 +5,6 @@ export {
   CustomBuilder,
 } from "./src/reactive-core/custom.js";
 export { FormulaList } from "./src/reactive-core/higher-level/formula-list.js";
-export {
-  Factory,
-  type IntoReactiveObject,
-  type IntoResource,
-} from "./src/reactive-core/into.js";
 export type {
   Blueprint,
   IntoReactive,

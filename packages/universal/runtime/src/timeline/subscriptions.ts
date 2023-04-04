@@ -1,4 +1,10 @@
-import type { CellTag, Diff, FormulaTag, Tag } from "@starbeam/interfaces";
+import type {
+  CellTag,
+  Diff,
+  FormulaTag,
+  SubscriptionTarget,
+  Tag,
+} from "@starbeam/interfaces";
 
 import type { Unsubscribe } from "../lifetime/object-lifetime.js";
 import { diff } from "./utils.js";
@@ -42,8 +48,9 @@ export class Subscriptions {
     return new Subscriptions();
   }
 
-  readonly #formulaMap = SubscriberMap.empty();
+  readonly #subscriberMap = SubscriberMap.empty();
   readonly #cellMap = CellMap.empty();
+  readonly #tdzSubscriptionMap = new WeakMap<FormulaTag, Set<NotifyReady>>();
 
   /**
    * Register a notification for a reactive value.
@@ -69,22 +76,49 @@ export class Subscriptions {
    * different dependencies.
    */
   register(target: Tag, ready: NotifyReady): Unsubscribe {
-    const subscriptionTargets = target.subscriptionTargets();
+    const subscriptionTargets = target.subscriptionTargets;
 
-    const unsubscribes = [...subscriptionTargets].map((t) => {
-      const entry = this.#formulaMap.register(t);
-      for (const dependency of t.dependencies()) {
-        this.#cellMap.register(dependency, entry);
-      }
-
-      return entry.subscribe(ready);
-    });
+    const unsubscribes = subscriptionTargets.map((t) =>
+      this.#register(t, ready)
+    );
 
     return () => {
       for (const unsubscribe of unsubscribes) {
         unsubscribe();
       }
     };
+  }
+
+  #register(target: SubscriptionTarget, ready: NotifyReady): Unsubscribe {
+    if (target.type === "formula" && !target.initialized) {
+      const set = this.#upsertTdzSubscriptions(target, ready);
+
+      // FIXME: Support removal after upgrade
+      return () => {
+        set.delete(ready);
+      };
+    } else {
+      const entry = this.#subscriberMap.register(target);
+      for (const dependency of target.dependencies()) {
+        this.#cellMap.register(dependency, entry);
+      }
+      return entry.subscribe(ready);
+    }
+  }
+
+  #upsertTdzSubscriptions(
+    formula: FormulaTag,
+    ready: NotifyReady
+  ): Set<NotifyReady> {
+    let tdzSubscriptions = this.#tdzSubscriptionMap.get(formula);
+
+    if (!tdzSubscriptions) {
+      tdzSubscriptions = new Set();
+      this.#tdzSubscriptionMap.set(formula, tdzSubscriptions);
+    }
+
+    tdzSubscriptions.add(ready);
+    return tdzSubscriptions;
   }
 
   /**
@@ -99,10 +133,19 @@ export class Subscriptions {
    * results in removing mappings from cells that are no longer dependencies and adding mappings for
    * cells that have become dependencies.
    */
-  update(frame: FormulaTag): void {
+  update(formula: FormulaTag): void {
+    const tdzSubscriptions = this.#tdzSubscriptionMap.get(formula);
+
+    if (tdzSubscriptions) {
+      for (const ready of tdzSubscriptions) {
+        this.#register(formula, ready);
+      }
+      this.#tdzSubscriptionMap.delete(formula);
+    }
+
     const cellMap = this.#cellMap;
 
-    const { add, remove, entry } = this.#formulaMap.update(frame);
+    const { add, remove, entry } = this.#subscriberMap.update(formula);
     cellMap.remove(remove, entry);
     cellMap.add(add, entry);
   }
