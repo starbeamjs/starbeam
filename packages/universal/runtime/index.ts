@@ -1,4 +1,5 @@
 export { type AppContext, CONTEXT } from "./src/context/context.js";
+export { RUNTIME } from "./src/define.js";
 export {
   type CleanupTarget,
   LIFETIME,
@@ -18,6 +19,3 @@ export { AUTOTRACKING_RUNTIME } from "./src/tracking-stack.js";
 export type { Tag, Tagged } from "@starbeam/interfaces";
 export { TAG } from "@starbeam/shared";
 export { getTag, Timestamp } from "@starbeam/tags";
-export type { interfaces };
-import type * as interfaces from "@starbeam/interfaces";
-export { RUNTIME } from "./src/define.js";
