@@ -11,122 +11,81 @@ import { getTargets } from "@starbeam/tags";
 import type { Unsubscribe } from "../lifetime/object-lifetime.js";
 import { diff } from "./utils.js";
 
-export interface Subscriptions {
-  readonly register: (tag: Tag, ready: NotifyReady) => Unsubscribe;
-  readonly notify: (cel: CellTag) => void;
-  readonly update: (formula: FormulaTag) => void;
-}
+export class Subscriptions {
+  static create(): Subscriptions {
+    return new Subscriptions();
+  }
 
-export function Subscriptions(): Subscriptions {
-  const subscribers = SubscriberMap();
-  const cells = CellMap();
-  const tdzSubscriptions = new WeakMap<FormulaTag, Set<NotifyReady>>();
+  // A mappping from subscribed tags to their subscriptions
+  readonly #tagSubscriptions = new LazyWeakMap<Tag, Subscription>(Subscription);
+  // A mapping from the current dependencies of subscribed tags to their subscriptions
+  readonly #cellSubscriptions = new WeakSetMap<CellTag, Subscription>();
+  // A mapping from uninitialized formulas to notifications that should be
+  // turned into subscriptions when the formula is initialized
+  readonly #queuedSubscriptions = new WeakSetMap<FormulaTag, NotifyReady>();
 
-  function register(tag: Tag, ready: NotifyReady): Unsubscribe {
-    const unsubscribes = getTargets(tag).map((t) => registerTarget(t, ready));
+  register(tag: Tag, ready: NotifyReady): Unsubscribe {
+    const unsubscribes = getTargets(tag).map((t) => this.#subscribe(t, ready));
 
     return () => {
       for (const unsubscribe of unsubscribes) unsubscribe();
     };
   }
 
-  function registerTarget(target: SubscriptionTarget, ready: NotifyReady) {
+  notify(cell: CellTag): void {
+    for (const entry of this.#cellSubscriptions.get(cell)) {
+      entry.notify(cell);
+    }
+  }
+
+  update(formula: FormulaTag): void {
+    // if there are any queued subscriptions, subscribe them now
+    for (const ready of this.#queuedSubscriptions.drain(formula)) {
+      this.#subscribe(formula, ready);
+    }
+
+    const subscription = this.#tagSubscriptions.get(formula);
+    const diff = subscription.update(formula);
+
+    // add the subscriptions to any new dependencies
+    for (const cell of diff.add) {
+      this.#cellSubscriptions.add(cell, subscription);
+    }
+
+    // remove the subscriptions from any removed dependencies
+    for (const cell of diff.remove) {
+      this.#cellSubscriptions.delete(cell, subscription);
+    }
+  }
+
+  #subscribe(target: SubscriptionTarget, ready: NotifyReady) {
     if (target.type === "formula" && !target.initialized) {
-      const set = upsertTdzSubscriptions(target, ready);
+      const set = this.#queuedSubscriptions.add(target, ready);
 
       // FIXME: Support removal after upgrade
       return () => {
         set.delete(ready);
       };
     } else {
-      const entry = subscribers.register(target);
-      cells.update({ add: new Set(target.dependencies()) }, entry);
-      return entry.subscribe(ready);
-    }
-  }
+      const subscription = this.#tagSubscriptions.get(target);
 
-  function upsertTdzSubscriptions(
-    formula: FormulaTag,
-    ready: NotifyReady
-  ): Set<NotifyReady> {
-    let subscriptions = tdzSubscriptions.get(formula);
-
-    if (!subscriptions) {
-      subscriptions = new Set();
-      tdzSubscriptions.set(formula, subscriptions);
-    }
-
-    subscriptions.add(ready);
-    return subscriptions;
-  }
-
-  function notify(cell: CellTag): void {
-    cells.notify(cell);
-  }
-
-  function update(formula: FormulaTag): void {
-    const subscriptions = tdzSubscriptions.get(formula);
-
-    if (subscriptions) {
-      for (const ready of subscriptions) {
-        registerTarget(formula, ready);
+      // initialize the subscription with the current target's dependencies
+      for (const cell of target.dependencies()) {
+        this.#cellSubscriptions.add(cell, subscription);
       }
-      tdzSubscriptions.delete(formula);
+
+      return subscription.subscribe(ready);
     }
-
-    const { diff, entry } = subscribers.update(formula);
-    cells.update(diff, entry);
   }
-
-  return {
-    register,
-    notify,
-    update,
-  };
 }
 
-function SubscriberMap() {
-  const mapping = new WeakMap<Tag, Entry>();
-
-  function update(formula: FormulaTag): { diff: Diff<CellTag>; entry: Entry } {
-    const entry = mapping.get(formula);
-
-    if (entry) {
-      return { diff: entry.update(formula), entry };
-    } else {
-      const entry = Entry(formula);
-      mapping.set(formula, entry);
-      return {
-        diff: {
-          add: new Set(formula.dependencies()),
-          remove: new Set(),
-        },
-        entry,
-      };
-    }
-  }
-
-  function register(target: Tag) {
-    let entry = mapping.get(target);
-
-    if (!entry) {
-      entry = Entry(target);
-      mapping.set(target, entry);
-    }
-
-    return entry;
-  }
-
-  return { update, register };
-}
-
-interface Entry {
+interface Subscription {
   readonly subscribe: (ready: NotifyReady) => Unsubscribe;
   readonly notify: (cell: CellTag) => void;
   readonly update: (formula: FormulaTag) => Diff<CellTag>;
 }
 
-function Entry(tag: Tag): Entry {
+function Subscription(tag: Tag): Subscription {
   let deps = new Set(tag.dependencies());
   const readySet = new Set<NotifyReady>();
 
@@ -136,9 +95,7 @@ function Entry(tag: Tag): Entry {
   }
 
   function notify(cell: CellTag) {
-    for (const ready of readySet) {
-      ready(cell);
-    }
+    for (const ready of readySet) ready(cell);
   }
 
   function update(formula: FormulaTag) {
@@ -152,49 +109,69 @@ function Entry(tag: Tag): Entry {
   return { subscribe, notify, update };
 }
 
-/**
- * CellMap keeps track of the current subscriptions for a specific cell.
- *
- * When a mutation occurs, the `CellMap` knows exactly which subscriptions it needs to notify,
- * which keeps the mutation path simple.
- */
-function CellMap() {
-  const entriesMap = new WeakMap<CellTag, Set<Entry>>();
+const EMPTY_SET = new Set();
+const EMPTY_SIZE = 0;
 
-  function initialized(cell: CellTag): Set<Entry> {
-    let entries = entriesMap.get(cell);
+class LazyWeakMap<K extends object, V> {
+  readonly #create: (key: K) => V;
+  readonly #map = new WeakMap<K, V>();
 
-    if (!entries) {
-      entries = new Set();
-      entriesMap.set(cell, entries);
-    }
-
-    return entries;
+  constructor(create: (key: K) => V) {
+    this.#create = create;
   }
 
-  // function register(cell: CellTag, entry: Entry): void {
-  //   initialized(cell).add(entry);
-  // }
+  get(key: K): V {
+    let value = this.#map.get(key);
 
-  function update(diff: Partial<Diff<CellTag>>, entry: Entry): void {
-    for (const cell of diff.add ?? []) {
-      initialized(cell).add(entry);
+    if (!value) {
+      value = this.#create(key);
+      this.#map.set(key, value);
     }
 
-    for (const cell of diff.remove ?? []) {
-      entriesMap.get(cell)?.delete(entry);
+    return value;
+  }
+
+  delete(key: K): void {
+    this.#map.delete(key);
+  }
+}
+
+class WeakSetMap<K extends object, V> {
+  readonly #map = new WeakMap<K, Set<V>>();
+
+  add(key: K, value: V): Set<V> {
+    const set = this.#initialized(key);
+    set.add(value);
+    return set;
+  }
+
+  drain(key: K): Set<V> {
+    const set = this.#map.get(key);
+    this.#map.delete(key);
+    return set ?? (EMPTY_SET as Set<V>);
+  }
+
+  delete(key: K, value: V): void {
+    const set = this.#map.get(key);
+
+    if (set) {
+      set.delete(value);
+      if (set.size === EMPTY_SIZE) this.#map.delete(key);
     }
   }
 
-  function notify(cell: CellTag): void {
-    const entries = entriesMap.get(cell);
-
-    if (entries) {
-      for (const entry of entries) {
-        entry.notify(cell);
-      }
-    }
+  get(key: K): Set<V> {
+    return this.#map.get(key) ?? (EMPTY_SET as Set<V>);
   }
 
-  return { update, notify };
+  #initialized(key: K): Set<V> {
+    let set = this.#map.get(key);
+
+    if (!set) {
+      set = new Set();
+      this.#map.set(key, set);
+    }
+
+    return set;
+  }
 }

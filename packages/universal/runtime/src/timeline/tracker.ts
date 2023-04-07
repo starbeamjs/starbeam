@@ -28,7 +28,7 @@ export class ReactiveError extends Error {}
  * responsible for notifying the timeline when their dependencies change.
  */
 class Mutations implements SubscriptionRuntime {
-  readonly #subscriptions = Subscriptions();
+  readonly #subscriptions = Subscriptions.create();
   readonly #lastPhase: Phase = Phase.read;
 
   subscribe(target: Tag, ready: NotifyReady): Unsubscribe {
