@@ -1,6 +1,11 @@
-import { Desc, DisplayStruct } from "@starbeam/debug";
+import { DisplayStruct } from "@starbeam/core-utils";
 import type { Description } from "@starbeam/interfaces";
-import { CachedFormula, read, type ReadValue } from "@starbeam/reactive";
+import {
+  CachedFormula,
+  read,
+  type ReadValue,
+  RUNTIME,
+} from "@starbeam/reactive";
 import { LIFETIME, TAG } from "@starbeam/runtime";
 
 import type { IntoResourceBlueprint, Resource } from "./api.js";
@@ -83,13 +88,13 @@ export interface ResourceState<M> {
    */
   readonly lifetime: object;
 
-  readonly description: Description;
+  readonly description: Description | undefined;
 }
 
 export interface ResourceBlueprintParts<T, M> {
   readonly Constructor: ResourceConstructor<T, M>;
   readonly metadata: M;
-  readonly description: Description;
+  readonly description: Description | undefined;
 }
 
 export class ResourceBlueprintImpl<T, M = void> {
@@ -101,7 +106,7 @@ export class ResourceBlueprintImpl<T, M = void> {
     return new ResourceBlueprintImpl(
       resource as ResourceConstructor,
       undefined,
-      Desc("resource", description)
+      RUNTIME.Desc?.("resource", description)
     );
   }
 
@@ -157,12 +162,12 @@ export class ResourceBlueprintImpl<T, M = void> {
 
   #Constructor: ResourceConstructor;
   #metadata: unknown;
-  #description: Description;
+  #description: Description | undefined;
 
   constructor(
     Constructor: ResourceConstructor,
     metadata: unknown,
-    description: Description
+    description: Description | undefined
   ) {
     this.#Constructor = Constructor;
     this.#metadata = metadata;

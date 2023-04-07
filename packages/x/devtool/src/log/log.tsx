@@ -2,7 +2,7 @@ import "preact";
 
 /** @jsxRuntime automatic @jsxImportSource preact */
 import type { DebugOperation } from "@starbeam/debug";
-import type { Timestamp } from "@starbeam/interfaces";
+import type { Timestamp } from "@starbeam/interfaces/index.js";
 import { TIMELINE } from "@starbeam/runtime";
 import type { JSX } from "preact";
 import { useMemo, useState } from "preact/hooks";
@@ -10,12 +10,13 @@ import { useMemo, useState } from "preact/hooks";
 import { CellConsumeLine, CellUpdateLine } from "./cell.js";
 import css from "./css/log.css?inline";
 import { FrameConsumeLine } from "./frame.js";
-import { type UpdatePane, Pane, UiPane } from "./pane.js";
+import type {UpdatePane} from "./pane.js";
+import { Pane, UiPane } from "./pane.js";
 import type { DevtoolsOptions } from "./shared.js";
 import { LogLine } from "./ui.js";
 
 export function DevtoolsLog({
-  options = {},
+  options = {}
 }: {
   options?: DevtoolsOptions;
 }): JSX.Element {

@@ -1,4 +1,4 @@
-import js from "@starbeam/js";
+import js from "@starbeam/collections";
 import { create } from "@starbeam/preact";
 import { Formula } from "@starbeam/universal";
 import type { JSX } from "preact";

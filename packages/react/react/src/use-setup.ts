@@ -1,7 +1,5 @@
-import { callerStack, Desc } from "@starbeam/debug";
-import type { Description } from "@starbeam/interfaces";
-import { isReactive } from "@starbeam/reactive";
-import type { Reactive } from "@starbeam/universal";
+import type { Description, Reactive } from "@starbeam/interfaces";
+import { isReactive, RUNTIME } from "@starbeam/reactive";
 import { PolledFormula } from "@starbeam/universal";
 import {
   setupFunction,
@@ -47,7 +45,7 @@ export function useSetup<
     allowMissing: true,
   });
 
-  const desc = Desc("resource", description);
+  const desc = RUNTIME.Desc?.("resource", description);
 
   const notify = useNotify();
 
@@ -85,7 +83,10 @@ export function useSetup<
 
       ReactiveElement.subscribe(element, reactive);
 
-      function compute(props: unknown, caller = callerStack()): unknown {
+      function compute(
+        props: unknown,
+        caller = RUNTIME.callerStack?.()
+      ): unknown {
         currentProps = props;
         return reactive.read(caller);
       }

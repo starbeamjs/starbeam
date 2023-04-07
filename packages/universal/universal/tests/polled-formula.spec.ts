@@ -1,4 +1,4 @@
-import { cached, reactive } from "@starbeam/js";
+import { cached, reactive } from "@starbeam/collections";
 import { Cell, PolledFormula } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 

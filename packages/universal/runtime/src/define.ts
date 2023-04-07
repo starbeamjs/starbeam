@@ -1,14 +1,14 @@
-import { callerStack } from "@starbeam/debug";
+import { debugRuntime as DEBUG_RUNTIME } from "@starbeam/debug";
 import type {
   AutotrackingRuntime,
+  CallerStackFn,
   DebugRuntime,
+  DescriptionRuntime,
   Runtime as IRuntime,
-  Stack,
   SubscriptionRuntime,
 } from "@starbeam/interfaces";
 import { defineRuntime } from "@starbeam/reactive";
 
-import { DEBUG_RUNTIME } from "./timeline/debug.js";
 import { SUBSCRIPTION_RUNTIME } from "./timeline/tracker.js";
 import { AUTOTRACKING_RUNTIME } from "./tracking-stack.js";
 
@@ -41,19 +41,27 @@ class Runtime implements IRuntime {
 
   readonly #subscriptions: SubscriptionRuntime;
   readonly #autotracking: AutotrackingRuntime;
-  readonly #debug: DebugRuntime;
+  readonly #debug: DebugRuntime | undefined;
 
   private constructor(
     subscription: SubscriptionRuntime,
     autotracking: AutotrackingRuntime,
-    debug: DebugRuntime
+    debug: DebugRuntime | undefined
   ) {
     this.#subscriptions = subscription;
     this.#autotracking = autotracking;
     this.#debug = debug;
   }
 
-  get debug(): DebugRuntime {
+  get Desc(): DescriptionRuntime | undefined {
+    return this.debug?.desc;
+  }
+
+  get callerStack(): CallerStackFn | undefined {
+    return this.debug?.callerStack;
+  }
+
+  get debug(): DebugRuntime | undefined {
     return this.#debug;
   }
 
@@ -63,10 +71,6 @@ class Runtime implements IRuntime {
 
   get autotracking(): AutotrackingRuntime {
     return this.#autotracking;
-  }
-
-  callerStack(): Stack {
-    return callerStack();
   }
 }
 

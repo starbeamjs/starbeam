@@ -1,8 +1,6 @@
 // @vitest-environment jsdom
 
 import { service, setup } from "@starbeam/preact";
-import type { Resource } from "@starbeam/resource";
-import { getTag } from "@starbeam/tags";
 import {
   html,
   type HtmlNode,
@@ -68,7 +66,3 @@ describe("services", () => {
         })
   );
 });
-
-function id(service: Resource<unknown>): string {
-  return JSON.stringify(getTag(service).id);
-}

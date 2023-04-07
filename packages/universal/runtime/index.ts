@@ -6,10 +6,7 @@ export {
   type OnCleanup,
 } from "./src/lifetime/api.js";
 export type { Unsubscribe } from "./src/lifetime/object-lifetime.js";
-export {
-  type NotifyReady,
-  Subscriptions,
-} from "./src/timeline/subscriptions.js";
+export { Subscriptions } from "./src/timeline/subscriptions.js";
 export {
   PUBLIC_TIMELINE,
   type PublicTimeline,

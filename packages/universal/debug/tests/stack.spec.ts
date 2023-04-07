@@ -1,28 +1,26 @@
-import { callerStack } from "@starbeam/debug";
-import type { Stack } from "@starbeam/interfaces";
+import { debugRuntime } from "@starbeam/debug";
+import { type CallStack } from "@starbeam/interfaces";
 import { describe, expect, test } from "vitest";
 
 describe("Error stacks", () => {
   test.skipIf(() => import.meta.env.PROD)("getting the caller", () => {
     const anArrow = <T>(next: () => T): T => next();
 
-    function aFunction(): Stack {
-      return anOuterFunction();
+    function aFunction(): string | undefined {
+      return anOuterFunction()?.frames[0].action;
     }
 
-    expect(anArrow(aFunction).caller?.display()).toMatch(
-      /^aFunction \([^)]*\)/
-    );
-    expect(anArrow(callerStackInArgs)).toMatch(/^anArrow \([^)]*\)/);
+    expect(anArrow(aFunction)).toEqual("aFunction");
+    expect(anArrow(callerStackInArgs)).toEqual("anArrow");
   });
 });
 
-function anOuterFunction(): Stack {
-  return callerStack();
+function anOuterFunction(): CallStack | undefined {
+  return debugRuntime.callerStack();
 }
 
 function callerStackInArgs(
-  desc = callerStack().caller?.display()
+  desc = debugRuntime.callerStack()?.frames[0].action
 ): string | undefined {
   return desc;
 }

@@ -8,8 +8,13 @@ export {
   isEmptyArray,
   isPresentArray,
   isSingleItemArray,
-  mapOrNullifyEmpty,
+  mapArray,
+  mapIfPresent,
+  mapPresentArray,
+  type MutablePresentArray,
   nullifyEmptyArray,
+  type PresentArray,
+  type ReadonlyPresentArray,
   removeItem,
   removeItemAt,
   withoutFirst,
@@ -17,6 +22,18 @@ export {
   zipArrays,
 } from "./src/array.js";
 export { type UnknownFn } from "./src/function.js";
+export {
+  DisplayStruct,
+  type DisplayStructOptions,
+} from "./src/inspect/display-struct.js";
+export {
+  DEBUG,
+  DEBUG_NAME,
+  INSPECT,
+  type Inspect,
+  inspect,
+  inspector,
+} from "./src/inspect/inspect-support.js";
 export { iterableHasItems, reverse } from "./src/iterable.js";
 export type {
   JsonArray,
@@ -26,6 +43,10 @@ export type {
 } from "./src/json.js";
 export { isJSONObject, stringifyJSON } from "./src/json.js";
 export {
+  dataGetter,
+  def,
+  defineObject,
+  defMethod,
   getter,
   isObject,
   method,

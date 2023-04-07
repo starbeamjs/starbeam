@@ -1,7 +1,11 @@
-import type { Description } from "@starbeam/debug";
-import type { ReactiveValue, Tag, TaggedReactive } from "@starbeam/interfaces";
+import type {
+  Description,
+  ReactiveValue,
+  Tag,
+  TaggedReactive,
+} from "@starbeam/interfaces";
+import type { FormulaTag } from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
-import type { FormulaTag } from "@starbeam/tags";
 
 import { RUNTIME } from "../runtime.js";
 
@@ -55,7 +59,7 @@ export function WrapFn<T>(formula: ReactiveValue<T, FormulaTag>): FormulaFn<T> {
   }
 
   const fn = (): T => {
-    return formula.read(RUNTIME.callerStack());
+    return formula.read(RUNTIME.callerStack?.());
   };
 
   Object.defineProperties(fn, {

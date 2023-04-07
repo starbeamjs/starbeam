@@ -11,7 +11,7 @@
   "dependencies": {
     "@starbeam/debug": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
-    "@starbeam/js": "workspace:^",
+    "@starbeam/collections": "workspace:^",
     "@starbeam/reactive": "workspace:^",
     "@starbeam/resource": "workspace:^",
     "@starbeam/runtime": "workspace:^",

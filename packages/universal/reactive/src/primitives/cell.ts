@@ -1,15 +1,13 @@
 import { readonly } from "@starbeam/core-utils";
-import type * as Debug from "@starbeam/debug";
-import { Desc } from "@starbeam/debug";
 import type {
   CellTag as ICellTag,
-  Expand,
+  Description,
   ReactiveCell,
 } from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
-import { CellTag } from "@starbeam/tags";
+import { createCellTag } from "@starbeam/tags";
 
-import { getRuntime } from "../runtime.js";
+import { RUNTIME } from "../runtime.js";
 import {
   type DescriptionOption,
   isDescriptionOption,
@@ -22,7 +20,7 @@ export class CellImpl<T> implements ReactiveCell<T> {
     options?: CellOptions<T> | DescriptionOption
   ): Cell<T> => {
     const { description, equals = Object.is } = toCellOptions(options);
-    return new CellImpl(value, equals, Desc("cell", description));
+    return new CellImpl(value, equals, RUNTIME.Desc?.("cell", description));
   };
 
   #value: T;
@@ -32,36 +30,37 @@ export class CellImpl<T> implements ReactiveCell<T> {
   private constructor(
     value: T,
     equality: Equality<T>,
-    description: Debug.Description
+    description: Description | undefined
   ) {
     this.#value = value;
     this.#equals = equality;
-    readonly(this, TAG, CellTag.create(description));
+    readonly(this, TAG, createCellTag(description));
   }
 
   get current(): T {
-    return this.read(getRuntime().callerStack());
+    return this.read(RUNTIME.callerStack?.());
   }
 
   set current(value: T) {
-    this.set(value, getRuntime().callerStack());
+    this.set(value, RUNTIME.callerStack?.());
   }
 
-  read(_caller = getRuntime().callerStack()): T {
-    getRuntime().autotracking.consume(this[TAG]);
+  read(_caller = RUNTIME.callerStack?.()): T {
+    RUNTIME.autotracking.consume(this[TAG]);
     return this.#value;
   }
 
-  set(value: T, caller = getRuntime().callerStack()) {
+  set(value: T, caller = RUNTIME.callerStack?.()): boolean {
     if (this.#equals(value, this.#value)) {
       return false;
     }
 
     this.#value = value;
-    this[TAG].update({ caller, runtime: getRuntime() });
+    this[TAG].update({ caller, runtime: RUNTIME });
+    return true;
   }
 
-  update(updater: (prev: T) => T, caller = getRuntime().callerStack()) {
+  update(updater: (prev: T) => T, caller = RUNTIME.callerStack?.()) {
     this.set(updater(this.#value), caller);
   }
 

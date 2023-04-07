@@ -1,29 +1,28 @@
 import { isPresent } from "@starbeam/core-utils";
-import type { Tag } from "@starbeam/interfaces";
+import type { Description, Tag } from "@starbeam/interfaces";
+import { RUNTIME } from "@starbeam/reactive";
 
 import { Tree } from "./tree.js";
+
+RUNTIME;
 
 export const debugTag = (
   tag: Tag,
   {
     implementation = false,
-    source = false,
-    id = false,
   }: { implementation?: boolean; source?: boolean; id?: boolean } = {}
 ): string => {
   const dependencies = [...tag.dependencies()];
   const descriptions = new Set(
-    dependencies.map((dependency) => {
-      return implementation
-        ? dependency.description
-        : dependency.description.userFacing;
-    })
+    dependencies.map((dependency) =>
+      getDesc(dependency.description, implementation)
+    )
   );
 
   const nodes = [...descriptions]
     .map((d) => {
-      const description = implementation ? d : d.userFacing;
-      return description.describe({ source, id });
+      const description = getDesc(d, implementation);
+      return describe(description);
     })
     .filter(isPresent);
 
@@ -37,9 +36,34 @@ export const logTag = (
   const debug = debugTag(tag, options);
 
   console.group(
-    tag.description.describe({ id: options.id }),
+    describe(tag.description, { id: options.id }),
     `(updated at ${tag.lastUpdated.toString({ format: "timestamp" })})`
   );
   console.log(debug);
   console.groupEnd();
 };
+
+function describe(
+  description: Description | undefined,
+  options?: { id: boolean | undefined }
+): string {
+  if (description) {
+    return (
+      RUNTIME.debug?.describe(description, options) ??
+      "an unknown reactive value"
+    );
+  } else {
+    return "an unknown reactive value";
+  }
+}
+
+function getDesc(
+  description: Description | undefined,
+  showImplementation: boolean
+): Description | undefined {
+  if (showImplementation) {
+    return description;
+  } else {
+    return RUNTIME.debug?.getUserFacing(description);
+  }
+}

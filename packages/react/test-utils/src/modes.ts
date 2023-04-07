@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getLast, isPresentArray } from "@starbeam/core-utils";
-import { callerStack, entryPoint, type Stack } from "@starbeam/debug";
 import { expect, test, type TestAPI } from "@starbeam-workspace/test-utils";
 import * as testing from "@testing-library/react";
 import { getByRole, getByText } from "@testing-library/react";
@@ -113,71 +112,55 @@ class RenderResult<Props, T> {
     return RenderState.getValue(this.#state);
   }
 
-  async rerender(
-    props?: Props,
-    caller: Stack = callerStack()
-  ): Promise<RenderResult<Props, T>> {
+  async rerender(props?: Props): Promise<RenderResult<Props, T>> {
     await this.act(() => {
       this.#rerender(props);
-    }, caller);
+    });
 
-    return entryPoint(
-      () => {
-        const newProps = props ?? this.#props;
+    const newProps = props ?? this.#props;
 
-        this.#props = newProps;
+    this.#props = newProps;
 
-        SetupTestRoot.assert(this.#setup, this, newProps);
+    SetupTestRoot.assert(this.#setup, this, newProps);
 
-        return this;
-      },
-      { stack: caller }
-    );
+    return this;
   }
 
-  async act(
-    behavior: () => void,
-    caller: Stack = callerStack()
-  ): Promise<void> {
+  async act(behavior: () => void): Promise<void> {
     const prev = this.#state.renderCount;
     act(() => {
-      entryPoint(behavior, { stack: caller });
+      behavior();
     });
-    await this.rendered(prev, caller);
+    await this.rendered(prev);
   }
 
-  async rendered(prev: number, caller: Stack = callerStack()): Promise<void> {
+  async rendered(prev: number): Promise<void> {
     await testing.waitFor(() => {
-      entryPoint(
-        () => {
-          expect(
-            this.#state.renderCount,
-            "expected another render"
-          ).toBeGreaterThan(prev);
-        },
-        { stack: caller }
-      );
+      () => {
+        expect(
+          this.#state.renderCount,
+          "expected another render"
+        ).toBeGreaterThan(prev);
+      };
     });
   }
 
   unmount(): void {
-    entryPoint(() => {
-      this.#result.unmount();
-    });
+    this.#result.unmount();
   }
 
   find(
     role: testing.ByRoleMatcher,
     options?: testing.ByRoleOptions
   ): TestElement<HTMLElement> {
-    return entryPoint(() => this.#element.find(role, options));
+    return this.#element.find(role, options);
   }
 
   findByText(
     id: testing.Matcher,
     options?: testing.SelectorMatcherOptions
   ): TestElement<HTMLElement> {
-    return entryPoint(() => this.#element.findByText(id, options));
+    return this.#element.findByText(id, options);
   }
 
   get innerHTML(): string {
@@ -283,15 +266,10 @@ export class SetupTestRoot<Props, T> {
       }
     );
 
-    entryPoint(
-      () => {
-        SetupTestRoot.assert(
-          this as unknown as SetupTestRoot<Props, T>,
-          renderResult,
-          props as Props
-        );
-      },
-      { internal: 1 }
+    SetupTestRoot.assert(
+      this as unknown as SetupTestRoot<Props, T>,
+      renderResult,
+      props as Props
     );
 
     return Promise.resolve(renderResult);
@@ -364,65 +342,6 @@ type BoundFireObject = {
     ? (...args: Args) => Promise<Return>
     : never;
 };
-
-// #region commented1
-// import { entryPoint, UNINITIALIZED } from "@starbeam-workspace/test-utils";
-// import {
-//   type ByRoleMatcher,
-//   type ByRoleOptions,
-//   type FireObject,
-//   type Matcher,
-//   type RenderResult as UpstreamRenderResult,
-//   type SelectorMatcherOptions,
-//   fireEvent,
-//   getByRole,
-//   getByText,
-//   render,
-// } from "@testing-library/react";
-// import {
-//   type FunctionComponent,
-//   type ReactElement,
-//   createElement,
-//   StrictMode,
-//   useState,
-// } from "react";
-// import { expect, test } from "vitest";
-
-// import { TIMELINE } from "../../../../packages/bundle/index.js";
-// import { act } from "./react.js";
-
-// // import { UNINITIALIZED } from "../../use-resource/src/utils.js/src/utils.js";
-// // import { entryPoint } from "../../use-resource/tests/support/entry-point.jsce/tests/support/entry-point.js";
-// // import { act } from "../../use-resource/tests/support/react.jsresource/tests/support/react.js";
-// interface RenderResultConfiguration<T> {
-
-//   readonly values: Values<T>;
-//   readonly rerender: { readonly current: () => void };
-//   readonly count: () => number;
-// }
-
-// interface RenderResultOptions<Props, T> extends RenderResultConfiguration<T> {
-//   readonly props: Props;
-// }
-
-// interface RenderResultState<T> extends RenderResultConfiguration<T> {
-//   snapshot: RenderSnapshot;
-// }
-
-// interface HtmlTemplate<T> {
-//   (value: T): string;
-// }
-
-// type BoundFireObject = {
-//   [P in keyof FireObject]: FireObject[P] extends (
-//     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//     element: any,
-//     ...args: infer Args
-//   ) => infer Return
-//     ? (...args: Args) => Promise<Return>
-//     : never;
-// };
-// #endregion
 
 export class TestElement<E extends Element> {
   static create<E extends Element>(element: E): TestElement<E> {

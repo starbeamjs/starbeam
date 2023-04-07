@@ -252,9 +252,9 @@ export class Package {
 
   /**
    * @param {ImportMeta | string} meta
-   * @returns {ViteExport}
+   * @returns {Promise<ViteExport>}
    */
-  static viteConfig(meta) {
+  static async viteConfig(meta) {
     const pkg = Package.at(meta);
 
     if (pkg) return pkg.#viteConfig();
@@ -312,9 +312,9 @@ export class Package {
   }
 
   /**
-   * @returns {import("./config.js").ViteExport}
+   * @returns {Promise<import("./config.js").ViteExport>}
    */
-  #viteConfig() {
+  async #viteConfig() {
     return viteConfig({
       plugins: [
         VitePluginFonts({
@@ -493,7 +493,7 @@ function mapExternal(inline) {
 /**
  * @param {import("./config.js").ViteExport} config
  */
-function viteConfig(config) {
+async function viteConfig(config) {
   return config;
 }
 

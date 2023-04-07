@@ -1,13 +1,12 @@
 // @vitest-environment jsdom
 
-import { entryPoint } from "@starbeam/debug";
-import reactive from "@starbeam/js";
+import reactive from "@starbeam/collections";
+import type { Reactive } from "@starbeam/interfaces";
 import { use, useProp, useReactive, useSetup } from "@starbeam/react";
 import { intoReactive } from "@starbeam/reactive";
 import {
   Cell,
   Formula,
-  type IntoReactive,
   Resource,
   type ResourceBlueprint,
 } from "@starbeam/universal";
@@ -37,16 +36,14 @@ describe("useResource", () => {
         );
 
       function send(message: string): void {
-        entryPoint((): void => {
-          const latest = Channel.latest();
+        const latest = Channel.latest();
 
-          if (latest === undefined) {
-            expect(latest).not.toBeUndefined();
-            return;
-          }
+        if (latest === undefined) {
+          expect(latest).not.toBeUndefined();
+          return;
+        }
 
-          Channel.sendMessage(latest, message);
-        });
+        Channel.sendMessage(latest, message);
       }
 
       let channel = Channel.latest();
@@ -99,16 +96,14 @@ describe("useResource", () => {
         );
 
       function send(message: string): void {
-        entryPoint((): void => {
-          const latest = Channel.latest();
+        const latest = Channel.latest();
 
-          if (latest === undefined) {
-            expect(latest).not.toBeUndefined();
-            return;
-          }
+        if (latest === undefined) {
+          expect(latest).not.toBeUndefined();
+          return;
+        }
 
-          Channel.sendMessage(latest, message);
-        });
+        Channel.sendMessage(latest, message);
       }
 
       let channel = Channel.latest();
@@ -166,16 +161,14 @@ describe("useResource", () => {
         );
 
       function send(message: string): void {
-        entryPoint((): void => {
-          const latest = Channel.latest();
+        const latest = Channel.latest();
 
-          if (latest === undefined) {
-            expect(latest).not.toBeUndefined();
-            return;
-          }
+        if (latest === undefined) {
+          expect(latest).not.toBeUndefined();
+          return;
+        }
 
-          Channel.sendMessage(latest, message);
-        });
+        Channel.sendMessage(latest, message);
       }
 
       let channel = Channel.latest();
@@ -406,20 +399,18 @@ function SimpleChannel(
 }
 
 function send(message: string): void {
-  entryPoint((): void => {
-    const latest = Channel.latest();
+  const latest = Channel.latest();
 
-    if (latest === undefined) {
-      expect(latest).not.toBeUndefined();
-      return;
-    }
+  if (latest === undefined) {
+    expect(latest).not.toBeUndefined();
+    return;
+  }
 
-    Channel.sendMessage(latest, message);
-  });
+  Channel.sendMessage(latest, message);
 }
 
 function ChannelResource(
-  name: IntoReactive<string>
+  name: string | Reactive<string>
 ): ResourceBlueprint<string> {
   const reactive = intoReactive(name);
 

@@ -1,6 +1,6 @@
 import type { anydom } from "@domtree/flavors";
-import { type Description, REUSE_ID } from "@starbeam/debug";
-import type { Tagged } from "@starbeam/interfaces";
+import type { Description, Tagged } from "@starbeam/interfaces";
+import { RUNTIME } from "@starbeam/reactive";
 import { TAG, UNINITIALIZED } from "@starbeam/shared";
 import { DelegateTag, getTag } from "@starbeam/tags";
 import { Cell } from "@starbeam/universal";
@@ -27,9 +27,11 @@ export function ElementPlaceholder<E extends anydom.Element>(
 ): ElementPlaceholder<E> {
   const ref = Object.create(null) as object;
   const elementCell = Cell<anydom.Element | UNINITIALIZED>(UNINITIALIZED, {
-    description: description.implementation(REUSE_ID, {
-      reason: "element cell",
-    }),
+    description: description.implementation(
+      "cell",
+      "element",
+      "ref placeholder"
+    ),
   });
 
   REFS.set(ref, elementCell);
@@ -42,7 +44,7 @@ export function ElementPlaceholder<E extends anydom.Element>(
       verify(
         value,
         (anyElement): anyElement is E => anyElement instanceof type,
-        expected(`A ref (${description.describe()})`)
+        expected(`A ref (${RUNTIME.debug?.describe(description) ?? "unknown"})`)
           .toBe(`initialized with an instance of ${type.name}`)
           .butGot(() => `an instance of ${value.constructor.name}`)
       );

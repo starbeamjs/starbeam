@@ -6,7 +6,7 @@ import type {
   DescriptionParts,
   DetailsPart,
   StackFrameDisplayOptions,
-} from "@starbeam/interfaces";
+} from "@starbeam/interfaces/index.js";
 import type { ComponentChildren, JSX } from "preact";
 
 import type { DevtoolsOptions } from "./shared.js";

@@ -1,6 +1,7 @@
 import type { anydom, browser } from "@domtree/flavors";
-import { type Description, descriptionFrom } from "@starbeam/debug";
+import type { Description } from "@starbeam/interfaces";
 import { ElementPlaceholder } from "@starbeam/modifier";
+import { RUNTIME } from "@starbeam/reactive";
 import {
   expected,
   isEqual,
@@ -62,18 +63,11 @@ type ElementType<E extends anydom.Element> = abstract new (...args: any[]) => E;
 
 export function ref<E extends browser.Element>(
   kind: ElementType<E>,
-  description?: string | Description
+  description?: string | Description | undefined
 ): ReactElementRef<E> {
   const placeholder = ElementPlaceholder<E>(
     kind,
-    descriptionFrom({
-      type: "formula",
-      api: {
-        package: "@starbeam/react",
-        name: "ref",
-      },
-      fromUser: description,
-    })
+    RUNTIME.Desc?.("formula", description, "ref")
   );
   const verifier = ClassVerifier<E>(kind);
 

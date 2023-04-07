@@ -170,9 +170,9 @@ importers:
 
   demos/preact:
     dependencies:
-      '@starbeam/js':
+      '@starbeam/collections':
         specifier: workspace:^
-        version: link:../../packages/universal/js
+        version: link:../../packages/universal/collections
       '@starbeam/preact':
         specifier: workspace:^
         version: link:../../packages/preact/preact
@@ -204,9 +204,9 @@ importers:
 
   demos/preact-hello-world:
     dependencies:
-      '@starbeam/js':
+      '@starbeam/collections':
         specifier: workspace:^
-        version: link:../../packages/universal/js
+        version: link:../../packages/universal/collections
       '@starbeam/preact':
         specifier: workspace:^
         version: link:../../packages/preact/preact
@@ -241,9 +241,9 @@ importers:
 
   demos/react:
     dependencies:
-      '@starbeam/js':
+      '@starbeam/collections':
         specifier: workspace:^
-        version: link:../../packages/universal/js
+        version: link:../../packages/universal/collections
       '@starbeam/react':
         specifier: workspace:^
         version: link:../../packages/react/react
@@ -281,12 +281,12 @@ importers:
 
   demos/react-jsnation:
     dependencies:
+      '@starbeam/collections':
+        specifier: workspace:^
+        version: link:../../packages/universal/collections
       '@starbeam/debug':
         specifier: workspace:^
         version: link:../../packages/universal/debug
-      '@starbeam/js':
-        specifier: workspace:^
-        version: link:../../packages/universal/js
       '@starbeam/react':
         specifier: workspace:^
         version: link:../../packages/react/react
@@ -329,7 +329,7 @@ importers:
         version: link:../../../packages/react/test-utils
       '@starbeam-workspace/test-utils':
         specifier: workspace:^
-        version: link:../../../packages/universal/test-utils
+        version: link:../../../workspace/test-utils
       react:
         specifier: '*'
         version: 18.2.0
@@ -349,15 +349,21 @@ importers:
 
   demos/react-lite-query:
     dependencies:
+      '@starbeam/collections':
+        specifier: workspace:^
+        version: link:../../packages/universal/collections
       '@starbeam/debug':
         specifier: workspace:^
         version: link:../../packages/universal/debug
-      '@starbeam/js':
+      '@starbeam/interfaces':
         specifier: workspace:^
-        version: link:../../packages/universal/js
+        version: link:../../packages/universal/interfaces
       '@starbeam/react':
         specifier: workspace:^
         version: link:../../packages/react/react
+      '@starbeam/runtime':
+        specifier: workspace:^
+        version: link:../../packages/universal/runtime
       '@starbeam/universal':
         specifier: workspace:^
         version: link:../../packages/universal/universal
@@ -398,9 +404,9 @@ importers:
 
   demos/react-query:
     dependencies:
-      '@starbeam/js':
+      '@starbeam/collections':
         specifier: workspace:^
-        version: link:../../packages/universal/js
+        version: link:../../packages/universal/collections
       '@starbeam/react':
         specifier: workspace:^
         version: link:../../packages/react/react
@@ -453,9 +459,9 @@ importers:
 
   demos/react-stock-ticker:
     dependencies:
-      '@starbeam/js':
+      '@starbeam/collections':
         specifier: workspace:^
-        version: link:../../packages/universal/js
+        version: link:../../packages/universal/collections
       '@starbeam/react':
         specifier: workspace:^
         version: link:../../packages/react/react
@@ -624,7 +630,7 @@ importers:
         version: link:..
       '@starbeam-workspace/test-utils':
         specifier: workspace:^
-        version: link:../../../universal/test-utils
+        version: link:../../../../workspace/test-utils
       '@starbeam/debug':
         specifier: workspace:^
         version: link:../../../universal/debug
@@ -674,7 +680,7 @@ importers:
     dependencies:
       '@starbeam-workspace/test-utils':
         specifier: workspace:^
-        version: link:../../../universal/test-utils
+        version: link:../../../../workspace/test-utils
       '@starbeam/debug':
         specifier: workspace:^
         version: link:../../../universal/debug
@@ -714,7 +720,7 @@ importers:
         version: link:../../preact-testing-utils
       '@starbeam-workspace/test-utils':
         specifier: workspace:^
-        version: link:../../../universal/test-utils
+        version: link:../../../../workspace/test-utils
       '@starbeam/debug':
         specifier: workspace:^
         version: link:../../../universal/debug
@@ -752,6 +758,9 @@ importers:
 
   packages/react/react:
     dependencies:
+      '@starbeam/collections':
+        specifier: workspace:^
+        version: link:../../universal/collections
       '@starbeam/core-utils':
         specifier: workspace:^
         version: link:../../universal/core-utils
@@ -761,9 +770,6 @@ importers:
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../../universal/interfaces
-      '@starbeam/js':
-        specifier: workspace:^
-        version: link:../../universal/js
       '@starbeam/modifier':
         specifier: workspace:^
         version: link:../../universal/modifier
@@ -818,7 +824,7 @@ importers:
         version: link:../../test-utils
       '@starbeam-workspace/test-utils':
         specifier: workspace:^
-        version: link:../../../universal/test-utils
+        version: link:../../../../workspace/test-utils
       '@starbeam/debug':
         specifier: workspace:^
         version: link:../../../universal/debug
@@ -848,13 +854,19 @@ importers:
     dependencies:
       '@starbeam-workspace/test-utils':
         specifier: workspace:^
-        version: link:../../universal/test-utils
+        version: link:../../../workspace/test-utils
       '@starbeam/core-utils':
         specifier: workspace:^
         version: link:../../universal/core-utils
       '@starbeam/debug':
         specifier: workspace:^
         version: link:../../universal/debug
+      '@starbeam/interfaces':
+        specifier: workspace:^
+        version: link:../../universal/interfaces
+      '@starbeam/reactive':
+        specifier: workspace:^
+        version: link:../../universal/reactive
       '@starbeam/shared':
         specifier: workspace:^
         version: link:../../universal/shared
@@ -916,6 +928,46 @@ importers:
         specifier: ^20.0.3
         version: 20.0.3
 
+  packages/universal/collections:
+    dependencies:
+      '@starbeam/debug':
+        specifier: workspace:^
+        version: link:../debug
+      '@starbeam/interfaces':
+        specifier: workspace:^
+        version: link:../interfaces
+      '@starbeam/reactive':
+        specifier: workspace:^
+        version: link:../reactive
+      '@starbeam/runtime':
+        specifier: workspace:^
+        version: link:../runtime
+      '@starbeam/shared':
+        specifier: workspace:^
+        version: link:../shared
+      '@starbeam/tags':
+        specifier: workspace:^
+        version: link:../tags
+      '@starbeam/universal':
+        specifier: workspace:^
+        version: link:../universal
+      '@starbeam/verify':
+        specifier: workspace:^
+        version: link:../verify
+    devDependencies:
+      '@starbeam-dev/build-support':
+        specifier: workspace:*
+        version: link:../../../workspace/build
+
+  packages/universal/collections/tests:
+    dependencies:
+      '@starbeam/collections':
+        specifier: workspace:^
+        version: link:..
+      '@starbeam/universal':
+        specifier: workspace:^
+        version: link:../../universal
+
   packages/universal/core:
     dependencies:
       '@starbeam/universal':
@@ -949,9 +1001,15 @@ importers:
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../interfaces
+      '@starbeam/reactive':
+        specifier: workspace:^
+        version: link:../reactive
       '@starbeam/shared':
         specifier: workspace:^
         version: link:../shared
+      '@starbeam/tags':
+        specifier: workspace:^
+        version: link:../tags
       '@starbeam/verify':
         specifier: workspace:^
         version: link:../verify
@@ -977,6 +1035,9 @@ importers:
 
   packages/universal/debug/tests:
     dependencies:
+      '@starbeam-workspace/test-utils':
+        specifier: workspace:^
+        version: link:../../../../workspace/test-utils
       '@starbeam/debug':
         specifier: workspace:^
         version: link:..
@@ -990,7 +1051,7 @@ importers:
         specifier: workspace:^
         version: link:../shared
 
-  packages/universal/js:
+  packages/universal/modifier:
     dependencies:
       '@starbeam/debug':
         specifier: workspace:^
@@ -1001,43 +1062,6 @@ importers:
       '@starbeam/reactive':
         specifier: workspace:^
         version: link:../reactive
-      '@starbeam/runtime':
-        specifier: workspace:^
-        version: link:../runtime
-      '@starbeam/shared':
-        specifier: workspace:^
-        version: link:../shared
-      '@starbeam/tags':
-        specifier: workspace:^
-        version: link:../tags
-      '@starbeam/universal':
-        specifier: workspace:^
-        version: link:../universal
-      '@starbeam/verify':
-        specifier: workspace:^
-        version: link:../verify
-    devDependencies:
-      '@starbeam-dev/build-support':
-        specifier: workspace:*
-        version: link:../../../workspace/build
-
-  packages/universal/js/tests:
-    dependencies:
-      '@starbeam/js':
-        specifier: workspace:^
-        version: link:..
-      '@starbeam/universal':
-        specifier: workspace:^
-        version: link:../../universal
-
-  packages/universal/modifier:
-    dependencies:
-      '@starbeam/debug':
-        specifier: workspace:^
-        version: link:../debug
-      '@starbeam/interfaces':
-        specifier: workspace:^
-        version: link:../interfaces
       '@starbeam/shared':
         specifier: workspace:^
         version: link:../shared
@@ -1063,9 +1087,6 @@ importers:
       '@starbeam/core-utils':
         specifier: workspace:^
         version: link:../core-utils
-      '@starbeam/debug':
-        specifier: workspace:^
-        version: link:../debug
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../interfaces
@@ -1127,16 +1148,16 @@ importers:
     dependencies:
       '@starbeam-workspace/test-utils':
         specifier: workspace:^
-        version: link:../../test-utils
+        version: link:../../../../workspace/test-utils
+      '@starbeam/collections':
+        specifier: workspace:^
+        version: link:../../collections
       '@starbeam/debug':
         specifier: workspace:^
         version: link:../../debug
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../../interfaces
-      '@starbeam/js':
-        specifier: workspace:^
-        version: link:../../js
       '@starbeam/reactive':
         specifier: workspace:^
         version: link:../../reactive
@@ -1228,16 +1249,16 @@ importers:
     dependencies:
       '@starbeam-workspace/test-utils':
         specifier: workspace:^
-        version: link:../../test-utils
+        version: link:../../../../workspace/test-utils
+      '@starbeam/collections':
+        specifier: workspace:^
+        version: link:../../collections
       '@starbeam/debug':
         specifier: workspace:^
         version: link:../../debug
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../../interfaces
-      '@starbeam/js':
-        specifier: workspace:^
-        version: link:../../js
       '@starbeam/reactive':
         specifier: workspace:^
         version: link:../../reactive
@@ -1268,31 +1289,15 @@ importers:
 
   packages/universal/tags:
     dependencies:
-      '@starbeam/debug':
+      '@starbeam/core-utils':
         specifier: workspace:^
-        version: link:../debug
+        version: link:../core-utils
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../interfaces
       '@starbeam/shared':
         specifier: workspace:^
         version: link:../shared
-    devDependencies:
-      '@starbeam-dev/build-support':
-        specifier: workspace:*
-        version: link:../../../workspace/build
-
-  packages/universal/test-utils:
-    dependencies:
-      '@starbeam/runtime':
-        specifier: workspace:^
-        version: link:../runtime
-      '@starbeam/universal':
-        specifier: workspace:^
-        version: link:../universal
-      '@starbeam/verify':
-        specifier: workspace:^
-        version: link:../verify
     devDependencies:
       '@starbeam-dev/build-support':
         specifier: workspace:*
@@ -1337,12 +1342,12 @@ importers:
 
   packages/universal/universal/tests:
     dependencies:
+      '@starbeam/collections':
+        specifier: workspace:^
+        version: link:../../collections
       '@starbeam/debug':
         specifier: workspace:^
         version: link:../../debug
-      '@starbeam/js':
-        specifier: workspace:^
-        version: link:../../js
       '@starbeam/resource':
         specifier: workspace:^
         version: link:../../resource
@@ -1355,7 +1360,7 @@ importers:
     devDependencies:
       '@starbeam-workspace/test-utils':
         specifier: workspace:^
-        version: link:../../test-utils
+        version: link:../../../../workspace/test-utils
 
   packages/universal/verify:
     dependencies:
@@ -1424,12 +1429,18 @@ importers:
 
   packages/x/store:
     dependencies:
+      '@starbeam/collections':
+        specifier: workspace:^
+        version: link:../../universal/collections
       '@starbeam/debug':
         specifier: workspace:^
         version: link:../../universal/debug
-      '@starbeam/js':
+      '@starbeam/interfaces':
         specifier: workspace:^
-        version: link:../../universal/js
+        version: link:../../universal/interfaces
+      '@starbeam/reactive':
+        specifier: workspace:^
+        version: link:../../universal/reactive
     devDependencies:
       '@starbeam-dev/build-support':
         specifier: workspace:*
@@ -1455,6 +1466,9 @@ importers:
       '@starbeam/debug':
         specifier: workspace:^
         version: link:../../universal/debug
+      '@starbeam/interfaces':
+        specifier: workspace:^
+        version: link:../../universal/interfaces
       '@starbeam/runtime':
         specifier: workspace:^
         version: link:../../universal/runtime
@@ -1894,6 +1908,22 @@ importers:
       '@types/shell-escape-tag':
         specifier: workspace:^
         version: link:../../@types/shell-escape-tag
+
+  workspace/test-utils:
+    dependencies:
+      '@starbeam/runtime':
+        specifier: workspace:^
+        version: link:../../packages/universal/runtime
+      '@starbeam/universal':
+        specifier: workspace:^
+        version: link:../../packages/universal/universal
+      '@starbeam/verify':
+        specifier: workspace:^
+        version: link:../../packages/universal/verify
+    devDependencies:
+      '@starbeam-dev/build-support':
+        specifier: workspace:*
+        version: link:../build
 
   workspace/workspace:
     dependencies:

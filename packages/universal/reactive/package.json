@@ -19,7 +19,6 @@
   },
   "dependencies": {
     "@starbeam/core-utils": "workspace:^",
-    "@starbeam/debug": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
     "@starbeam/shared": "workspace:^",
     "@starbeam/tags": "workspace:^"

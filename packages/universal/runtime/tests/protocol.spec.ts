@@ -1,12 +1,11 @@
-import { Desc } from "@starbeam/debug";
 import type { Tagged } from "@starbeam/interfaces";
-import { Cell, Static } from "@starbeam/reactive";
+import { Cell, RUNTIME, Static } from "@starbeam/reactive";
 import { PUBLIC_TIMELINE, TAG } from "@starbeam/runtime";
 import {
-  dependenciesInTaggedList,
-  FormulaTag,
+  createFormulaTag,
+  getDependencies,
   getTag,
-  lastUpdatedInTaggedList,
+  lastUpdated,
   zero,
 } from "@starbeam/tags";
 import { describe, expect, it } from "vitest";
@@ -17,14 +16,14 @@ describe("Tagged", () => {
       const tom = Static("Tom Dale");
 
       expect(String(getTag(tom).lastUpdated)).toBe(String(zero()));
-      expect(String(lastUpdatedInTaggedList([tom]))).toBe(String(zero()));
+      expect(String(lastUpdated(getTag(tom)))).toBe(String(zero()));
     });
 
     it("has no dependencies", () => {
       const tom = Static("Tom Dale");
 
       expect([...getTag(tom).dependencies()]).toEqual([]);
-      expect([...dependenciesInTaggedList([tom])]).toEqual([]);
+      expect(getDependencies(tom)).toEqual([]);
     });
   });
 
@@ -40,8 +39,8 @@ describe("Tagged", () => {
         String(nullvoxTimestamp)
       );
       expect(
-        String(lastUpdatedInTaggedList([tom, nullvox])),
-        "lastUpdatedIn([tom,nullvox])"
+        String(lastUpdated(tom, nullvox)),
+        "lastUpdated(tom,nullvox)"
       ).toBe(String(PUBLIC_TIMELINE.now));
 
       expect(String(PUBLIC_TIMELINE.now)).not.toBe(String(original));
@@ -60,7 +59,7 @@ describe("Tagged", () => {
       expect(String(getTag(nullvox).lastUpdated)).toBe(
         String(nullvoxTimestamp)
       );
-      expect(String(lastUpdatedInTaggedList([tom, nullvox]))).toBe(
+      expect(String(lastUpdated(tom, nullvox))).toBe(
         String(PUBLIC_TIMELINE.now)
       );
     });
@@ -70,7 +69,7 @@ describe("Tagged", () => {
       const nullvox = Cell("nullvox");
 
       expect([...getTag(tom).dependencies()]).toEqual([tom[TAG]]);
-      expect([...dependenciesInTaggedList([tom, nullvox])]).toEqual([
+      expect([...getDependencies(tom, nullvox)]).toEqual([
         tom[TAG],
         nullvox[TAG],
       ]);
@@ -84,21 +83,19 @@ describe("Tagged", () => {
       nullvox.current = "@nullvoxpopuli";
 
       expect([...getTag(tom).dependencies()]).toEqual([]);
-      expect([...dependenciesInTaggedList([tom, nullvox])]).toEqual([
-        nullvox[TAG],
-      ]);
+      expect(getDependencies(tom, nullvox)).toEqual([nullvox[TAG]]);
     });
   });
 
-  describe("Composite", () => {
+  describe("FormulaTag", () => {
     it("has the maximum timestamp of its dependencies", () => {
       const tom = Cell("Tom");
       const nullvox = Cell("nullvox");
 
-      const formula = FormulaTag.create(Desc("formula"), () => [
-        getTag(tom),
-        getTag(nullvox),
-      ]);
+      const formula = createFormulaTag(
+        RUNTIME.Desc?.("formula"),
+        () => new Set([getTag(tom), getTag(nullvox)])
+      );
 
       const Both: Tagged = {
         [TAG]: formula,

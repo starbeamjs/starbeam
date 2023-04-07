@@ -1,7 +1,6 @@
 import type {
   CellTag,
   Description,
-  DescriptionDescribeOptions,
   Tag,
   Tagged,
   Timestamp,
@@ -10,41 +9,32 @@ import { TAG } from "@starbeam/shared";
 
 import { zero } from "./timestamp.js";
 
-export function getTag<T extends Tag>(tagged: Tagged<T>): T {
-  return tagged[TAG];
+type HasTag<T extends Tag = Tag> = T | Tagged<T>;
+
+export function getTag<T extends Tag>(tagged: HasTag<T>): T {
+  return TAG in tagged ? tagged[TAG] : tagged;
 }
 
-export function getTags<T extends Tagged[]>(
+export function getTags<T extends HasTag<Tag>[]>(
   tagged: T
-): { [P in keyof T]: T[P] extends Tagged<infer U> ? U : never } {
-  return tagged.map(getTag) as any;
+): { [P in keyof T]: T[P] extends HasTag<infer U> ? U : never } {
+  return tagged.map(getTag) as never;
 }
 
-export function describeTagged(
-  tagged: Tagged,
-  options?: DescriptionDescribeOptions
-): string {
-  return getTag(tagged).description.describe(options);
-}
-
-export function taggedDescription(tagged: Tagged): Description {
+export function getDescription(tagged: HasTag): Description | undefined {
   return getTag(tagged).description;
 }
 
-export function* dependenciesInTaggedList(
-  taggedList: readonly Tagged[]
-): Iterable<CellTag> {
-  for (const child of taggedList.map(getTag)) {
-    yield* child.dependencies();
-  }
+export function getDependencies(
+  ...taggedList: readonly HasTag[]
+): readonly CellTag[] {
+  return taggedList.flatMap((tagged) => getTag(tagged).dependencies());
 }
 
-export function lastUpdatedInTaggedList(
-  taggedList: readonly Tagged[]
-): Timestamp {
+export function lastUpdated(...taggedList: readonly HasTag[]): Timestamp {
   let lastUpdatedTimestamp = zero();
 
-  for (const child of dependenciesInTaggedList(taggedList)) {
+  for (const child of getDependencies(...taggedList)) {
     if (child.lastUpdated.gt(lastUpdatedTimestamp)) {
       lastUpdatedTimestamp = child.lastUpdated;
     }

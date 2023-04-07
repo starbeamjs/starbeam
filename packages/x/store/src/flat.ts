@@ -1,5 +1,3 @@
-import { entryPoint } from "@starbeam/debug";
-
 import type {
   AggregateRow,
   AggregatorFor,
@@ -39,7 +37,7 @@ export abstract class FlatRows<U extends UserTypes>
   }
 
   [Symbol.iterator](): IterableIterator<TableTypesFor<U>["Row"]> {
-    return entryPoint(() => this.rows[Symbol.iterator]());
+    return this.rows[Symbol.iterator]();
   }
 }
 
@@ -235,17 +233,15 @@ export class Query<U extends UserTypes> extends FlatRows<U> {
   }
 
   get rows(): TableTypesFor<U>["Row"][] {
-    return entryPoint(() => {
-      const table = this.#rows;
-      const rows = [...table.rows];
-      const filtered = rows.filter((row) => this.#filter.matches(row));
+    const table = this.#rows;
+    const rows = [...table.rows];
+    const filtered = rows.filter((row) => this.#filter.matches(row));
 
-      if (this.#sort) {
-        return filtered.sort(this.#sort);
-      } else {
-        return filtered;
-      }
-    });
+    if (this.#sort) {
+      return filtered.sort(this.#sort);
+    } else {
+      return filtered;
+    }
   }
 }
 

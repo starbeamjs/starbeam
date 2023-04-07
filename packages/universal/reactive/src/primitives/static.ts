@@ -1,9 +1,9 @@
-import type * as Debug from "@starbeam/debug";
-import { Desc } from "@starbeam/debug";
 import type * as interfaces from "@starbeam/interfaces";
+import type { Description } from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
-import { StaticTag } from "@starbeam/tags";
+import { createStaticTag } from "@starbeam/tags";
 
+import { RUNTIME } from "../runtime.js";
 import type { PrimitiveOptions } from "./utils.js";
 
 export class StaticImpl<T>
@@ -13,15 +13,15 @@ export class StaticImpl<T>
     value: T,
     { description }: PrimitiveOptions = {}
   ): StaticImpl<T> => {
-    return new StaticImpl(value, Desc("static", description));
+    return new StaticImpl(value, RUNTIME.Desc?.("static", description));
   };
 
   readonly #value: T;
   readonly [TAG]: interfaces.StaticTag;
 
-  private constructor(value: T, description: Debug.Description) {
+  private constructor(value: T, description: Description | undefined) {
     this.#value = value;
-    this[TAG] = StaticTag.create(description);
+    this[TAG] = createStaticTag(description);
   }
 
   get current(): T {

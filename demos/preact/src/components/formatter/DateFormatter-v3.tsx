@@ -1,4 +1,4 @@
-import js from "@starbeam/js";
+import js from "@starbeam/collections";
 import { create, use } from "@starbeam/preact";
 import type { Reactive, ResourceBlueprint } from "@starbeam/universal";
 import { Cell, Resource, Static } from "@starbeam/universal";

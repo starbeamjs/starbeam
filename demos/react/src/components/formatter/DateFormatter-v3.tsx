@@ -1,4 +1,4 @@
-import js from "@starbeam/js";
+import js from "@starbeam/collections";
 import { useSetup } from "@starbeam/react";
 import {
   type Reactive,

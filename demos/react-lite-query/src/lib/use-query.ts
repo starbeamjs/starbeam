@@ -1,9 +1,6 @@
-import {
-  type Description,
-  callerStack,
-  descriptionFrom,
-} from "@starbeam/debug";
+import type { Description } from "@starbeam/interfaces/index.js";
 import { useSetup } from "@starbeam/react";
+import { RUNTIME } from "@starbeam/runtime";
 
 import type { AsyncData, Query } from "./fetch.js";
 import { QUERIES } from "./fetch.js";
@@ -13,14 +10,9 @@ export default function useQuery<T>(
   query: Query<T>,
   description?: string | Description
 ): AsyncData<T> {
-  const desc = descriptionFrom({
-    type: "resource",
-    api: {
-      package: "@starbeam-demos/react-lite-query",
-      name: "useQuery",
-    },
-    fromUser: description ?? "QUERIES",
-  }).detail("query", [key]);
+  const desc = RUNTIME.debug
+    .desc("resource", description, "useQuery")
+    ?.detail("formula", "query", [key]);
 
   return useSetup(({ on }) => {
     on.idle(() => {

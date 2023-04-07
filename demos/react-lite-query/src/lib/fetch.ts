@@ -1,5 +1,5 @@
 import { type Description, type Stack, callerStack } from "@starbeam/debug";
-import { reactive } from "@starbeam/js";
+import { reactive } from "@starbeam/collections";
 import { Cell } from "@starbeam/universal";
 import { isPresent, verified } from "@starbeam/verify";
 

@@ -1,6 +1,7 @@
 import type { browser } from "@domtree/flavors";
-import { type DebugListener, Desc, type Description } from "@starbeam/debug";
-import type { Reactive, Tagged } from "@starbeam/interfaces";
+import type { DebugListener } from "@starbeam/debug";
+import type { Description, Reactive, Tagged } from "@starbeam/interfaces";
+import { RUNTIME } from "@starbeam/reactive";
 import type { IntoResourceBlueprint, Resource } from "@starbeam/resource";
 import * as resource from "@starbeam/resource";
 import {
@@ -151,7 +152,7 @@ export class ReactiveElement implements CleanupTarget {
   static create(
     notify: () => void,
     context: ReactApp | null,
-    description: Description
+    description: Description | undefined
   ): ReactiveElement {
     return new ReactiveElement(
       notify,
@@ -175,7 +176,7 @@ export class ReactiveElement implements CleanupTarget {
   static activate(
     notify: () => void,
     context: ReactApp | null,
-    description: Description,
+    description: Description | undefined,
     prev: ReactiveElement | undefined
   ): ReactiveElement {
     if (prev) {
@@ -207,7 +208,7 @@ export class ReactiveElement implements CleanupTarget {
   #context: ReactApp | null;
   #debugLifecycle: DebugLifecycle | null = null;
   #refs: Refs;
-  readonly #description: Description;
+  readonly #description: Description | undefined;
 
   readonly on: OnLifecycle;
 
@@ -216,7 +217,7 @@ export class ReactiveElement implements CleanupTarget {
     context: ReactApp | null,
     lifecycle: Lifecycle,
     refs: Refs,
-    description: Description
+    description: Description | undefined
   ) {
     this.#lifecycle = lifecycle;
     this.#context = context;
@@ -237,7 +238,7 @@ export class ReactiveElement implements CleanupTarget {
     blueprint: IntoResourceBlueprint<T, void>,
     description?: string | Description | undefined
   ): Resource<T> => {
-    const desc = Desc("service", description);
+    const desc = RUNTIME.Desc?.("service", description, "UseSetup.service");
     const context = this.#context;
 
     if (context === null) {
@@ -330,7 +331,7 @@ interface OnLifecycle extends OnCleanup {
 }
 
 class Lifecycle {
-  static create(description: Description): Lifecycle {
+  static create(description: Description | undefined): Lifecycle {
     return new Lifecycle(new Set(), new Set(), description);
   }
 
@@ -349,7 +350,7 @@ class Lifecycle {
   static on<T extends object>(
     lifecycle: Lifecycle,
     instance: T,
-    _elementDescription: Description
+    _elementDescription: Description | undefined
   ): OnLifecycle {
     LIFETIME.link(instance, lifecycle);
 
@@ -369,12 +370,12 @@ class Lifecycle {
 
   readonly #idle: Set<Callback>;
   readonly #layout: Set<Callback>;
-  readonly #description: Description;
+  readonly #description: Description | undefined;
 
   private constructor(
     idle: Set<Callback>,
     layout: Set<Callback>,
-    description: Description
+    description: Description | undefined
   ) {
     this.#idle = idle;
     this.#layout = layout;

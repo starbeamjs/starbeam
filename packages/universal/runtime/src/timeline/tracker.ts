@@ -1,16 +1,17 @@
 import type {
   CellTag,
   FormulaTag,
+  NotifyReady,
   SubscriptionRuntime,
   Tag,
   Tagged,
   Unsubscribe,
 } from "@starbeam/interfaces";
 import { isTagged } from "@starbeam/reactive";
-import { getTag, type Timestamp } from "@starbeam/tags";
+import { getTag, getTargets, type Timestamp } from "@starbeam/tags";
 import { NOW } from "@starbeam/tags";
 
-import { type NotifyReady, Subscriptions } from "./subscriptions.js";
+import { Subscriptions } from "./subscriptions.js";
 
 enum Phase {
   read = "read",
@@ -34,13 +35,10 @@ class Mutations implements SubscriptionRuntime {
     return this.#subscriptions.register(target, ready);
   }
 
-  bump(cell: CellTag): { revision: Timestamp; notify: () => void } {
-    return {
-      revision: this.#updatePhase(Phase.write),
-      notify: () => {
-        this.#subscriptions.notify(cell);
-      },
-    };
+  bump(cell: CellTag, update: (revision: Timestamp) => void): void {
+    const revision = this.#updatePhase(Phase.write);
+    update(revision);
+    this.#subscriptions.notify(cell);
   }
 
   update(formula: FormulaTag): void {
@@ -63,7 +61,7 @@ export class PublicTimeline {
     change: (tagged: Tagged | Tag, ready: NotifyReady): Unsubscribe => {
       const tag = isTagged(tagged) ? getTag(tagged) : tagged;
       const unsubscribes = new Set<Unsubscribe>();
-      for (const target of tag.subscriptionTargets) {
+      for (const target of getTargets(tag)) {
         unsubscribes.add(SUBSCRIPTION_RUNTIME.subscribe(target, ready));
       }
 

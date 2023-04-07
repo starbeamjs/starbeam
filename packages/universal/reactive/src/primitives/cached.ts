@@ -1,7 +1,10 @@
-import { callerStack, Desc, type Description } from "@starbeam/debug";
-import type { ReactiveFormula } from "@starbeam/interfaces";
+import type {
+  Description,
+  FormulaTag,
+  ReactiveFormula,
+} from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
-import { FormulaTag } from "@starbeam/tags";
+import { createFormulaTag } from "@starbeam/tags";
 
 import { RUNTIME } from "../runtime.js";
 import type { Formula } from "./formula.js";
@@ -27,7 +30,10 @@ class FormulaImpl<T> implements ReactiveFormula<T> {
     options?: SugaryPrimitiveOptions
   ): FormulaFn<T> => {
     const { description } = toOptions(options);
-    const formula = new FormulaImpl(compute, Desc("formula", description));
+    const formula = new FormulaImpl(
+      compute,
+      RUNTIME.debug?.desc("formula", description)
+    );
 
     return WrapFn(formula);
   };
@@ -36,20 +42,20 @@ class FormulaImpl<T> implements ReactiveFormula<T> {
   readonly #compute: () => T;
   #last: Last<T> | null;
 
-  private constructor(compute: () => T, description: Description) {
+  private constructor(compute: () => T, description: Description | undefined) {
     this.#last = null;
     this.#compute = compute;
-    this[TAG] = FormulaTag.create(description, () => {
-      if (this.#last === null) return [];
+    this[TAG] = createFormulaTag(description, () => {
+      if (this.#last === null) return new Set();
       return this.#last.formula.children();
     });
   }
 
   get current(): T {
-    return this.read(callerStack());
+    return this.read(RUNTIME.callerStack?.());
   }
 
-  read(_caller = callerStack()): T {
+  read(_caller = RUNTIME.callerStack?.()): T {
     const value = this.#evaluate();
     RUNTIME.autotracking.consume(this[TAG]);
     return value;

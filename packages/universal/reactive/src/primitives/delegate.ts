@@ -1,25 +1,29 @@
-import { getter, method, readonly } from "@starbeam/core-utils";
-import type { Stack } from "@starbeam/debug";
-import { callerStack, type Description } from "@starbeam/debug";
+import { defMethod, getter, readonly } from "@starbeam/core-utils";
+import type { CallStack, Description } from "@starbeam/interfaces";
 import type * as interfaces from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
-import { DelegateTag, getTag, taggedDescription } from "@starbeam/tags";
+import { createDelegateTag, getDescription, getTag } from "@starbeam/tags";
+
+import { RUNTIME } from "../runtime.js";
 
 export function Wrap<T, U extends interfaces.ReactiveValue>(
   reactive: U,
   value: T,
-  desc?: Description | string
+  desc?: Description | string | undefined
 ): T & U {
   readonly(
     value,
     TAG,
-    DelegateTag.create(delegateDesc(reactive, desc), [getTag(reactive)])
+    createDelegateTag(delegateDesc(reactive, desc), [getTag(reactive)])
   );
 
-  method(value, "read", (caller: Stack = callerStack()) =>
-    reactive.read(caller)
+  defMethod(
+    value,
+    "read",
+    (caller: CallStack | undefined = RUNTIME.callerStack?.()) =>
+      reactive.read(caller)
   );
-  getter(value, "current", () => reactive.read(callerStack()));
+  getter(value, "current", () => reactive.read(RUNTIME.callerStack?.()));
 
   return value as T & U;
 }
@@ -27,13 +31,13 @@ export function Wrap<T, U extends interfaces.ReactiveValue>(
 function delegateDesc(
   to: interfaces.Tagged | interfaces.Tagged[],
   desc?: string | Description
-): Description {
+): Description | undefined {
   if (Array.isArray(to)) {
     return desc as Description;
   } else if (typeof desc === "string") {
-    return taggedDescription(to).detail(desc);
+    return getDescription(to)?.detail("delegate", desc);
   } else if (desc === undefined) {
-    return taggedDescription(to).detail("{delegate}");
+    return getDescription(to)?.detail("delegate", "anonymous");
   } else {
     return desc;
   }

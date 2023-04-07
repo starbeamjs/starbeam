@@ -2,14 +2,14 @@ import type {
   CellTag,
   Diff,
   FormulaTag,
+  NotifyReady,
   SubscriptionTarget,
   Tag,
 } from "@starbeam/interfaces";
 
 import type { Unsubscribe } from "../lifetime/object-lifetime.js";
 import { diff } from "./utils.js";
-
-export type NotifyReady = (internals: CellTag) => void;
+import { getTargets } from "@starbeam/tags";
 
 /**
  * A subscription is a weak mapping from individual cells to the subscriptions that depend on them.
@@ -75,17 +75,11 @@ export class Subscriptions {
    * we may want to fire notifications whenever a `PolledFormula` is recomputed and produces
    * different dependencies.
    */
-  register(target: Tag, ready: NotifyReady): Unsubscribe {
-    const subscriptionTargets = target.subscriptionTargets;
-
-    const unsubscribes = subscriptionTargets.map((t) =>
-      this.#register(t, ready)
-    );
+  register(tag: Tag, ready: NotifyReady): Unsubscribe {
+    const unsubscribes = getTargets(tag).map((t) => this.#register(t, ready));
 
     return () => {
-      for (const unsubscribe of unsubscribes) {
-        unsubscribe();
-      }
+      for (const unsubscribe of unsubscribes) unsubscribe();
     };
   }
 

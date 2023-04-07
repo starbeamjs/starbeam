@@ -1,4 +1,5 @@
-import { Desc, type Description } from "@starbeam/debug";
+import type { Description } from "@starbeam/interfaces";
+import { RUNTIME } from "@starbeam/reactive";
 import { LIFETIME } from "@starbeam/runtime";
 
 import {
@@ -20,7 +21,9 @@ export function ResourceList<Item, T>(
     description?: string | Description;
   }
 ): ResourceBlueprint<Resource<T>[], void> {
-  const resources = new ResourceMap<T, void>(Desc("collection", description));
+  const resources = new ResourceMap<T, void>(
+    RUNTIME.Desc?.("collection", description)
+  );
 
   return Resource((_run, _metadata, lifetime) => {
     const result: Resource<T>[] = [];
@@ -48,9 +51,9 @@ type InternalMap<T> = Map<unknown, { resource: Resource<T>; lifetime: object }>;
 
 class ResourceMap<T, M> {
   readonly #map: InternalMap<T> = new Map();
-  readonly #description: Description;
+  readonly #description: Description | undefined;
 
-  constructor(description: Description) {
+  constructor(description: Description | undefined) {
     this.#description = description;
   }
 
@@ -69,7 +72,11 @@ class ResourceMap<T, M> {
     const newResource = use(resource, {
       lifetime,
       metadata: options.metadata,
-      description: this.#description.key(String(key)),
+      description: this.#description?.key(
+        typeof key === "object"
+          ? { key: key.key, name: String(key.description) }
+          : key
+      ),
     });
     this.#map.set(key, { resource: newResource, lifetime });
     return newResource;

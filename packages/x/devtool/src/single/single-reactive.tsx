@@ -6,11 +6,12 @@ import type {
   Description,
 } from "@starbeam/debug";
 import type { CellTag } from "@starbeam/interfaces";
+import type { Tagged } from "@starbeam/runtime";
+import { TIMELINE } from "@starbeam/runtime";
 import { getTag } from "@starbeam/tags";
-import { taggedDescription } from "@starbeam/tags";
-import { type Tagged, TIMELINE } from "@starbeam/runtime";
 import { isPresent, verified } from "@starbeam/verify";
-import { type JSX, render } from "preact";
+import type { JSX } from "preact";
+import { render } from "preact";
 
 export function DevtoolsFor(props: {
   reactive: Tagged;

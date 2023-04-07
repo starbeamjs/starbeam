@@ -1,5 +1,5 @@
-import { DisplayStruct } from "@starbeam/debug";
-import { reactive } from "@starbeam/js";
+import { reactive } from "@starbeam/collections";
+import { DisplayStruct } from "@starbeam/core-utils";
 import { CachedFormula, Cell } from "@starbeam/reactive";
 import {
   Resource,

@@ -5,7 +5,7 @@ import type {
   CellConsumeOperation,
   CellUpdateOperation,
 } from "@starbeam/debug";
-import type { Timestamp } from "@starbeam/interfaces";
+import type { Timestamp } from "@starbeam/interfaces/index.js";
 import type { JSX } from "preact";
 
 import type { DevtoolsOptions } from "./shared.js";

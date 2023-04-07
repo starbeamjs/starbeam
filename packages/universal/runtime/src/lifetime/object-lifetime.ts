@@ -1,4 +1,4 @@
-import { inspector } from "@starbeam/debug";
+import { inspector } from "@starbeam/core-utils";
 
 export type Unsubscribe = () => void;
 

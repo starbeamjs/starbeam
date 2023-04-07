@@ -1,12 +1,9 @@
-import { Desc } from "@starbeam/debug";
-import { CachedFormula, Cell, getRuntime, Marker } from "@starbeam/reactive";
+import { CachedFormula, Cell, Marker, RUNTIME } from "@starbeam/reactive";
 import { getTag } from "@starbeam/runtime";
-import { FormulaTag } from "@starbeam/tags";
+import { createFormulaTag } from "@starbeam/tags";
 import { describe, expect, test } from "vitest";
 
 import { Staleness } from "./support/testing.js";
-
-const RUNTIME = getRuntime();
 
 describe("consumption", () => {
   test("the basics", () => {
@@ -30,7 +27,7 @@ describe("consumption", () => {
     // finalize the frame, which should give us back the marker's tag
     const tags = done();
     // create a formula tag with the marker's tags
-    const tag = FormulaTag.create(Desc("formula"), () => tags);
+    const tag = createFormulaTag(RUNTIME.Desc?.("formula"), () => tags);
     // unset the tag's TDZ, which will allow subscriptions to the tag. Normally
     // this happens in the implementation of `Formula`, once the value was computed.
     tag.markInitialized();

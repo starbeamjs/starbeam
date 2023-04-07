@@ -1,5 +1,5 @@
+import { RUNTIME } from "@starbeam/reactive";
 import { PUBLIC_TIMELINE, type Tagged } from "@starbeam/runtime";
-import { describeTagged } from "@starbeam/tags";
 import { Formula, Variants } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 
@@ -215,8 +215,11 @@ function Stability(reactive: Tagged): {
 
   PUBLIC_TIMELINE.on.change(reactive, (internals) => {
     if (debug) {
-      console.group(describeTagged(reactive), "invalidated by");
-      console.log(internals.description.describe());
+      console.group(
+        RUNTIME.debug?.describeTagged(reactive) ?? "{unknown reactive value}",
+        "invalidated by"
+      );
+      console.log(internals.description);
       console.groupEnd();
     }
     changed = true;

@@ -1,4 +1,4 @@
-import js from "@starbeam/js";
+import js from "@starbeam/collections";
 import { use } from "@starbeam/preact";
 import { type ResourceBlueprint, Resource, Static } from "@starbeam/universal";
 import type { JSX } from "preact";

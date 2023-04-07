@@ -1,4 +1,4 @@
-import * as js from "@starbeam/js";
+import * as js from "@starbeam/collections";
 import { useSetup } from "@starbeam/react";
 import type { ResourceBlueprint } from "@starbeam/universal";
 import { Resource } from "@starbeam/universal";

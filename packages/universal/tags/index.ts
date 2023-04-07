@@ -1,19 +1,16 @@
 export {
-  CellTag,
-  DelegateTag,
-  FormulaTag,
-  StaticTag,
-  /** @deprecated */
-  Tag,
-  Tag as TagUtils,
+  createCellTag,
+  createDelegateTag,
+  createFormulaTag,
+  createStaticTag,
+  getTargets,
 } from "./src/tag.js";
 export {
-  dependenciesInTaggedList,
-  describeTagged,
+  getDependencies,
+  getDescription,
   getTag,
   getTags,
-  lastUpdatedInTaggedList,
-  taggedDescription,
+  lastUpdated,
 } from "./src/tagged.js";
 export {
   debug as debugTimestamp,
@@ -24,3 +21,9 @@ export {
   Timestamp,
   zero,
 } from "./src/timestamp.js";
+export type {
+  CellTag,
+  DelegateTag,
+  FormulaTag,
+  StaticTag,
+} from "@starbeam/interfaces";

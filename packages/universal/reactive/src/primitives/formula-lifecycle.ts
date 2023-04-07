@@ -1,27 +1,32 @@
-import { Desc } from "@starbeam/debug";
 import type {
   ActiveFrame,
   Description,
   Expand,
+  Tag,
   Timestamp,
 } from "@starbeam/interfaces";
-import type { Tag } from "@starbeam/interfaces";
-import { NOW, TagUtils } from "@starbeam/tags";
+import { lastUpdated, NOW } from "@starbeam/tags";
 
-import { getRuntime } from "../runtime.js";
+import { RUNTIME } from "../runtime.js";
 import { type SugaryPrimitiveOptions, toOptions } from "./utils.js";
 
 export class InitializingFormulaImpl {
   static start = (options?: SugaryPrimitiveOptions): InitializingFormula => {
     const { description } = toOptions(options);
-    const active = getRuntime().autotracking.start();
-    return new InitializingFormulaImpl(active, Desc("formula", description));
+    const active = RUNTIME.autotracking.start();
+    return new InitializingFormulaImpl(
+      active,
+      RUNTIME.Desc?.("formula", description)
+    );
   };
 
   readonly #active: ActiveFrame;
-  readonly #description: Description;
+  readonly #description: Description | undefined;
 
-  private constructor(active: () => Set<Tag>, description: Description) {
+  private constructor(
+    active: () => Set<Tag>,
+    description: Description | undefined
+  ) {
     this.#active = active;
     this.#description = description;
   }
@@ -49,7 +54,7 @@ class FinalizedFormulaImpl {
   }
 
   isStale(): boolean {
-    return TagUtils.lastUpdatedIn(this.#children).gt(this.#lastValidated);
+    return lastUpdated(...this.#children).gt(this.#lastValidated);
   }
 
   children(): Set<Tag> {
@@ -57,7 +62,7 @@ class FinalizedFormulaImpl {
   }
 
   update(): InitializingFormula {
-    const done = getRuntime().autotracking.start();
+    const done = RUNTIME.autotracking.start();
 
     return {
       done: () => {

@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "@starbeam/debug": "workspace:^",
-    "@starbeam/js": "workspace:^",
+    "@starbeam/collections": "workspace:^",
     "@starbeam/react": "workspace:^",
     "@starbeam/universal": "workspace:^",
     "purecss": "3.0.0",

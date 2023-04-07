@@ -1,10 +1,10 @@
 import { getLast } from "@starbeam/core-utils";
-import { Desc, type Description } from "@starbeam/debug";
+import type { Description } from "@starbeam/interfaces";
 import type { InternalComponent } from "@starbeam/preact-utils";
 import type { FinalizedFormula, InitializingFormula } from "@starbeam/reactive";
 import { FormulaLifecycle } from "@starbeam/reactive";
 import { PUBLIC_TIMELINE, RUNTIME, type Unsubscribe } from "@starbeam/runtime";
-import { FormulaTag } from "@starbeam/tags";
+import { createFormulaTag, type FormulaTag } from "@starbeam/tags";
 import { expected, isPresent, verify } from "@starbeam/verify";
 
 export class ComponentFrame {
@@ -16,11 +16,14 @@ export class ComponentFrame {
   static #frames = new WeakMap<InternalComponent, ComponentFrame>();
   static #stack: InternalComponent[] = [];
 
-  static start(component: InternalComponent, description: Description): void {
+  static start(
+    component: InternalComponent,
+    description: Description | undefined
+  ): void {
     let frame = ComponentFrame.#frames.get(component);
 
     if (!frame) {
-      frame = new ComponentFrame(null, null, null);
+      frame = new ComponentFrame(null, null, null, description);
       ComponentFrame.#frames.set(component, frame);
     }
 
@@ -72,18 +75,19 @@ export class ComponentFrame {
   private constructor(
     frame: FinalizedFormula | null,
     active: InitializingFormula | null,
-    subscribed: Unsubscribe | null
+    subscribed: Unsubscribe | null,
+    description: Description | undefined
   ) {
     this.#frame = frame;
     this.#active = active;
-    this.#tag = FormulaTag.create(
-      Desc("external", "preact:component"),
-      () => this.#frame?.children() ?? []
+    this.#tag = createFormulaTag(
+      RUNTIME.Desc?.("formula", description),
+      () => this.#frame?.children() ?? new Set()
     );
     this.#subscription = subscribed;
   }
 
-  #start(description: Description): void {
+  #start(description: Description | undefined): void {
     if (this.#frame) {
       this.#active = this.#frame.update();
       // this.#active = TIMELINE.frame.update(this.#frame);

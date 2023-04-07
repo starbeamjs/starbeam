@@ -1,7 +1,6 @@
-import { type Description } from "@starbeam/debug";
+import type { Description, Reactive } from "@starbeam/interfaces";
 import type { IntoResourceBlueprint } from "@starbeam/resource";
 import { LIFETIME } from "@starbeam/runtime";
-import { type Reactive } from "@starbeam/universal";
 import {
   unsafeTrackedElsewhere,
   useLifecycle,

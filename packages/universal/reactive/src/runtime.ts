@@ -1,8 +1,9 @@
 import type {
   AutotrackingRuntime,
+  CallerStackFn,
   DebugRuntime,
+  DescriptionRuntime,
   Runtime,
-  Stack,
   SubscriptionRuntime,
   Tag,
 } from "@starbeam/interfaces";
@@ -15,11 +16,11 @@ export function defineRuntime(runtime: Runtime): void {
   CONTEXT.runtime = runtime;
 }
 
-export function getRuntime(): Runtime {
+function getRuntime(): Runtime {
   if (import.meta.env.DEV) {
     if (CONTEXT.runtime === null) {
       throw Error(
-        "@starbeam/reactive requires a reactive runtime, but no runtime was registered (did you try to use @starbeam/reactive without @starbeam/universal?)"
+        "@starbeam/reactive requires a reactive runtime, but no runtime was registered (did you try to use @starbeam/reactive without @starbeam/runtime or @starbeam/universal?)"
       );
     }
   }
@@ -28,8 +29,12 @@ export function getRuntime(): Runtime {
 }
 
 class RuntimeImpl implements Runtime {
-  callerStack(): Stack {
-    return getRuntime().callerStack();
+  get Desc(): DescriptionRuntime | undefined {
+    return getRuntime().debug?.desc ?? undefined;
+  }
+
+  get callerStack(): CallerStackFn | undefined {
+    return getRuntime().debug?.callerStack;
   }
 
   get subscriptions(): SubscriptionRuntime {
@@ -40,7 +45,7 @@ class RuntimeImpl implements Runtime {
     return getRuntime().autotracking;
   }
 
-  get debug(): DebugRuntime {
+  get debug(): DebugRuntime | undefined {
     return getRuntime().debug;
   }
 

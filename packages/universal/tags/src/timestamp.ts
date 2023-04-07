@@ -1,4 +1,4 @@
-import { DisplayStruct } from "@starbeam/debug";
+import { DisplayStruct } from "@starbeam/core-utils";
 import type * as interfaces from "@starbeam/interfaces";
 import { bump as peerBump, now as peerNow } from "@starbeam/shared";
 

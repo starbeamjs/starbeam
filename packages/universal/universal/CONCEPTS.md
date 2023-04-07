@@ -283,7 +283,7 @@ const UserSession = Resource(({ on }) => {
   <summary>As a Class</summary>
 
 ```ts
-import { reactive } from "@starbeam/js";
+import { reactive } from "@starbeam/collections";
 
 class UserSession {
   @reactive #user: User | null = null;

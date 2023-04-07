@@ -1,6 +1,5 @@
 // @vitest-environment jsdom
 
-import { entryPoint } from "@starbeam/debug";
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
 import { useState } from "react";
@@ -609,13 +608,11 @@ class TestResource {
   }
 
   assert(state: string, count: number, id?: number): void {
-    entryPoint(() => {
-      expect(this.#state).toBe(state);
-      expect(this.#count).toBe(count);
+    expect(this.#state).toBe(state);
+    expect(this.#count).toBe(count);
 
-      if (id) {
-        expect({ id: this.#id }).toMatchObject({ id });
-      }
-    });
+    if (id) {
+      expect({ id: this.#id }).toMatchObject({ id });
+    }
   }
 }

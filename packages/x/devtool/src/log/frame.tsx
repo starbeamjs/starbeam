@@ -1,7 +1,7 @@
 /** @jsxRuntime automatic @jsxImportSource preact */
 
 import type { FrameConsumeOperation } from "@starbeam/debug";
-import type { MutableInternals, Timestamp } from "@starbeam/interfaces";
+import type { MutableInternals, Timestamp } from "@starbeam/interfaces/index.js";
 import { ReactiveInternals } from "@starbeam/runtime";
 import type { JSX } from "preact";
 

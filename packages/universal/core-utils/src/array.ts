@@ -17,12 +17,34 @@ export function isPresentArray<
   return list && list.length > EMPTY_LENGTH;
 }
 
-export function mapOrNullifyEmpty<T, U>(
+export function mapArray<T, U>(
+  list: PresentArray<T>,
+  mapper: (item: T, index: number) => U
+): MutablePresentArray<U>;
+export function mapArray<T, U>(
+  list: T[] | readonly T[],
+  mapper: (item: T, index: number) => U
+): U[];
+export function mapArray<T, U>(
+  list: T[] | readonly T[] | PresentArray<T>,
+  mapper: (item: T, index: number) => U
+): U[] | PresentArray<U> {
+  return list.map(mapper);
+}
+
+export function mapPresentArray<T, U>(
+  list: PresentArray<T>,
+  mapper: (item: T, index: number) => U
+): PresentArray<U> {
+  return list.map(mapper) as PresentArray<U>;
+}
+
+export function mapIfPresent<T, U>(
   list: T[] | readonly T[] | undefined | null,
   mapper: (item: T, index: number) => U
-): U[] | undefined {
+): PresentArray<U> | undefined {
   if (list && isPresentArray(list)) {
-    return list.map(mapper);
+    return mapPresentArray(list, mapper);
   } else {
     return;
   }

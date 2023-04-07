@@ -1,4 +1,4 @@
-import { reactive } from "@starbeam/js";
+import { reactive } from "@starbeam/collections";
 import { FormulaList } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 

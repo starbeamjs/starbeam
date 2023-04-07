@@ -1,9 +1,9 @@
 import { isPresentArray } from "@starbeam/core-utils";
-import { Desc, logTag } from "@starbeam/debug";
+import { logTag } from "@starbeam/debug";
 import type { ReactiveValue } from "@starbeam/interfaces";
-import { CachedFormula, Cell } from "@starbeam/reactive";
+import { CachedFormula, Cell, RUNTIME } from "@starbeam/reactive";
 import { PUBLIC_TIMELINE, TAG } from "@starbeam/runtime";
-import { DelegateTag, getTag } from "@starbeam/tags";
+import { createDelegateTag, getTag } from "@starbeam/tags";
 import { describe, expect, test } from "vitest";
 
 describe("Tagged", () => {
@@ -79,7 +79,7 @@ describe("Tagged", () => {
 
     const delegate: ReactiveValue<number> = {
       read: () => cell.current,
-      [TAG]: DelegateTag.create(Desc("delegate"), [getTag(cell)]),
+      [TAG]: createDelegateTag(RUNTIME.Desc?.("delegate"), [getTag(cell)]),
     };
 
     let stale = false;
@@ -104,7 +104,7 @@ describe("Tagged", () => {
 
     const delegate: ReactiveValue<number> = {
       read: () => formula.current,
-      [TAG]: DelegateTag.create(Desc("delegate", "test delegate"), [
+      [TAG]: createDelegateTag(RUNTIME.Desc?.("delegate", "test delegate"), [
         getTag(formula),
       ]),
     };
@@ -129,7 +129,7 @@ describe("Tagged", () => {
 
     const delegate: ReactiveValue<number> = {
       read: () => sum.read(),
-      [TAG]: DelegateTag.create(Desc("delegate", "test delegate"), [
+      [TAG]: createDelegateTag(RUNTIME.Desc?.("delegate", "test delegate"), [
         getTag(sum),
       ]),
     };
@@ -173,7 +173,7 @@ function Sum(): {
   sum: ReactiveValue<number>;
   numbers: Cell<Cell<number>[]>;
 } {
-  const description = Desc("formula", "Sum");
+  const description = RUNTIME.Desc?.("formula", "Sum");
   const numbers = Cell([] as Cell<number>[], "number list");
 
   const sum = CachedFormula(

@@ -2,15 +2,10 @@
   "name": "@starbeam/interfaces",
   "version": "0.8.9",
   "type": "module",
-  "main": "index.d.ts",
-  "types": "index.d.ts",
+  "main": "index.ts",
+  "types": "index.ts",
   "exports": {
-    "default": "./index.d.ts"
-  },
-  "publishConfig": {
-    "exports": {
-      "default": "./index.d.ts"
-    }
+    "default": "./index.ts"
   },
   "starbeam": {
     "source": "d.ts",

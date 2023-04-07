@@ -1,8 +1,8 @@
 import { readonly } from "@starbeam/core-utils";
-import type { Stack, Tag } from "@starbeam/interfaces";
+import type { CallStack, Tag } from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
 
-import { getRuntime } from "../runtime.js";
+import { RUNTIME } from "../runtime.js";
 
 export abstract class ReactivePrimitive<V, T extends Tag> {
   declare readonly [TAG]: T;
@@ -11,9 +11,9 @@ export abstract class ReactivePrimitive<V, T extends Tag> {
     readonly(this, TAG, tag);
   }
 
-  abstract read(caller: Stack): V;
+  abstract read(caller?: CallStack): V;
 
   get current(): V {
-    return this.read(getRuntime().callerStack());
+    return this.read(RUNTIME.callerStack?.());
   }
 }

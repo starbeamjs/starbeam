@@ -1,10 +1,9 @@
-import { descriptionFrom } from "@starbeam/debug";
 import type {
   InternalComponent,
   InternalElement,
 } from "@starbeam/preact-utils";
 import { Plugin } from "@starbeam/preact-utils";
-import { isReactive } from "@starbeam/reactive";
+import { isReactive, RUNTIME } from "@starbeam/reactive";
 import { CONTEXT, LIFETIME } from "@starbeam/runtime";
 import type { ComponentType } from "preact";
 
@@ -41,11 +40,11 @@ export const setup = Plugin((on) => {
 
     ComponentFrame.start(
       component,
-      descriptionFrom({
-        api: "preact",
-        type: "implementation",
-        fromUser: componentName(component.fn),
-      })
+      RUNTIME.Desc?.(
+        "formula",
+        componentName(component.fn),
+        "preact.componentWillRender"
+      )
     );
   });
 

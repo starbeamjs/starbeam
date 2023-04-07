@@ -5,13 +5,15 @@ import { isRendering } from "@starbeam/use-strict-lifecycle";
 let WARNED = false;
 
 if (import.meta.env.DEV) {
-  RUNTIME.debug.untrackedReadBarrier((tag, stack) => {
+  RUNTIME.debug?.untrackedReadBarrier((tag, _caller) => {
     if (isRendering()) {
       if (!WARNED) {
         WARNED = true;
 
-        const description = tag.description.userFacing;
-        const caller = stack.caller;
+        const description = RUNTIME.debug?.getUserFacing(tag.description);
+        const fullName = description
+          ? RUNTIME.debug?.describe(description) ?? "an unknown reactive value"
+          : "an unknown reactive value";
 
         const pad = Math.max(
           ...["Created: ", "Accessed: "].map((s) => s.length)
@@ -30,18 +32,19 @@ if (import.meta.env.DEV) {
           [
             ["Created: ".padEnd(pad, "…"), "color:#666"],
             " ",
-            [description.fullName, "color:#6a6"],
+            [fullName, "color:#6a6"],
           ],
-          [
-            [" ".repeat(pad), "color:#666"],
-            " ",
-            [description.frame?.link() ?? "<unknown>", "color:#6a6"],
-          ],
-          [
-            ["Accessed: ".padEnd(pad, "…"), "color:#666"],
-            " ",
-            [caller?.link() ?? "<unknown>", "color:#6a6"],
-          ],
+          // FIXME: frame.link()
+          // [
+          //   [" ".repeat(pad), "color:#666"],
+          //   " ",
+          //   [description.frame?.link() ?? "<unknown>", "color:#6a6"],
+          // ],
+          // [
+          //   ["Accessed: ".padEnd(pad, "…"), "color:#666"],
+          //   " ",
+          //   [caller?.link() ?? "<unknown>", "color:#6a6"],
+          // ],
           "",
           [
             [
@@ -74,9 +77,12 @@ if (import.meta.env.DEV) {
 
         console.warn(...message);
 
-        console.groupCollapsed("Complete stack trace");
-        console.log(stack.stack);
-        console.groupEnd();
+        // FIXME: caller.stack
+        // if (caller) {
+        //   console.groupCollapsed("Complete stack trace");
+        //   console.log(caller.stack);
+        //   console.groupEnd();
+        // }
       }
 
       throw Error(

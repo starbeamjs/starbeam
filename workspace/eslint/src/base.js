@@ -140,4 +140,7 @@ exports.rules = {
     },
   ],
   "import/no-relative-packages": "error",
+  "import/first": "error",
+  "import/newline-after-import": "error",
+  "import/no-duplicates": "error",
 };

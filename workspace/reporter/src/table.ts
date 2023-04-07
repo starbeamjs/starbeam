@@ -1,6 +1,6 @@
 import {
   isPresent,
-  mapOrNullifyEmpty,
+  mapIfPresent,
   objectHasKeys,
 } from "@starbeam/core-utils";
 import { DisplayStruct } from "@starbeam-workspace/shared";
@@ -106,20 +106,20 @@ class Columns {
   }
 
   headers(state: LoggerState): string[] | undefined {
-    return mapOrNullifyEmpty(
+    return mapIfPresent(
       this.#columns,
       (column) => column.header(state) ?? ""
     );
   }
 
   columnWidths(rows: Cell[][], state: LoggerState): number[] | undefined {
-    return mapOrNullifyEmpty(this.#columns, (column, index) =>
+    return mapIfPresent(this.#columns, (column, index) =>
       column.maxWidth(rows.map((row) => row[index]).filter(isPresent), state)
     );
   }
 
   get justifications(): Table.HorizontalAlignment[] | undefined {
-    return mapOrNullifyEmpty(this.#columns, (column) => column.justification);
+    return mapIfPresent(this.#columns, (column) => column.justification);
   }
 }
 

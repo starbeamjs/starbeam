@@ -1,6 +1,5 @@
 // @vitest-environment jsdom
 
-import { callerStack, entryPoint } from "@starbeam/debug";
 import { Starbeam, useService } from "@starbeam/react";
 import { Cell, Resource } from "@starbeam/universal";
 import type { RenderState } from "@starbeam-workspace/react-test-utils";
@@ -65,38 +64,26 @@ describe("services", () => {
 
     async function send(
       message: Auth,
-      options: { expect: "active" | "inactive" } = { expect: "active" },
-      caller = callerStack()
+      options: { expect: "active" | "inactive" } = { expect: "active" }
     ): Promise<void> {
       await result.act(() => {
         const latest = AUTH_CHANNELS.latest();
 
         if (latest === undefined) {
-          entryPoint(
-            () => {
-              expect(latest, "Channel.latest()").not.toBeUndefined();
-            },
-            { stack: caller }
-          );
+          expect(latest, "Channel.latest()").not.toBeUndefined();
           return;
         }
 
         AUTH_CHANNELS.sendMessage(latest, message);
-      }, caller);
+      });
 
-      entryPoint(
-        () => {
-          expect(
-            channel?.isActive,
-            `the channel should be ${options.expect}`
-          ).toBe(options.expect === "active");
-
-          expect(result.value, "the last rendered auth value").toEqual({
-            ...message,
-          });
-        },
-        { stack: caller }
+      expect(channel?.isActive, `the channel should be ${options.expect}`).toBe(
+        options.expect === "active"
       );
+
+      expect(result.value, "the last rendered auth value").toEqual({
+        ...message,
+      });
     }
 
     const channel = AUTH_CHANNELS.latest();

@@ -1,5 +1,4 @@
-import type { Description } from "@starbeam/debug";
-import type { Reactive } from "@starbeam/interfaces";
+import type { Description, Reactive } from "@starbeam/interfaces";
 import type { FormulaFn, ReadValue } from "@starbeam/reactive";
 
 import { ResourceBlueprintImpl, type UseOptions } from "./resource.js";

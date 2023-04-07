@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "name": "@starbeam-tests/collections",
+  "version": "1.0.0",
+  "type": "module",
+  "starbeam:type": "tests",
+  "scripts": {
+    "test:lint": "eslint",
+    "test:types": "tsc -b"
+  },
+  "dependencies": {
+    "@starbeam/collections": "workspace:^",
+    "@starbeam/universal": "workspace:^"
+  }
+}

@@ -1,6 +1,5 @@
 // @vitest-environment jsdom
 
-import { entryPoint } from "@starbeam/debug";
 import type { ReactiveElement } from "@starbeam/react";
 import { useReactive, useSetup } from "@starbeam/react";
 import { Cell } from "@starbeam/universal";
@@ -64,16 +63,14 @@ describe("useSetup", () => {
       });
 
     function send(message: string): void {
-      entryPoint((): void => {
-        const latest = CHANNELS.latest();
+      const latest = CHANNELS.latest();
 
-        if (latest === undefined) {
-          expect(latest).not.toBeUndefined();
-          return;
-        }
+      if (latest === undefined) {
+        expect(latest).not.toBeUndefined();
+        return;
+      }
 
-        CHANNELS.sendMessage(latest, message);
-      });
+      CHANNELS.sendMessage(latest, message);
     }
 
     await result.rerender();
@@ -124,16 +121,14 @@ describe("useSetup", () => {
         );
 
       function send(message: string): void {
-        entryPoint((): void => {
-          const latest = CHANNELS.latest();
+        const latest = CHANNELS.latest();
 
-          if (latest === undefined) {
-            expect(latest).not.toBeUndefined();
-            return;
-          }
+        if (latest === undefined) {
+          expect(latest).not.toBeUndefined();
+          return;
+        }
 
-          CHANNELS.sendMessage(latest, message);
-        });
+        CHANNELS.sendMessage(latest, message);
       }
 
       await result.rerender();
@@ -171,16 +166,14 @@ describe("useSetup", () => {
       });
 
     function send(message: string): void {
-      entryPoint((): void => {
-        const latest = CHANNELS.latest();
+      const latest = CHANNELS.latest();
 
-        if (latest === undefined) {
-          expect(latest).not.toBeUndefined();
-          return;
-        }
+      if (latest === undefined) {
+        expect(latest).not.toBeUndefined();
+        return;
+      }
 
-        CHANNELS.sendMessage(latest, message);
-      });
+      CHANNELS.sendMessage(latest, message);
     }
 
     await result.rerender();
@@ -234,16 +227,14 @@ describe("useSetup", () => {
 });
 
 function send(message: string): void {
-  entryPoint((): void => {
-    const latest = CHANNELS.latest();
+  const latest = CHANNELS.latest();
 
-    if (latest === undefined) {
-      expect(latest).not.toBeUndefined();
-      return;
-    }
+  if (latest === undefined) {
+    expect(latest).not.toBeUndefined();
+    return;
+  }
 
-    CHANNELS.sendMessage(latest, message);
-  });
+  CHANNELS.sendMessage(latest, message);
 }
 
 function subscribe(element: ReactiveElement): Cell<State> {
