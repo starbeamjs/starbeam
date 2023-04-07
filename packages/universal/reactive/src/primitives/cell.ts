@@ -1,76 +1,56 @@
-import { readonly } from "@starbeam/core-utils";
-import type {
-  CellTag as ICellTag,
-  Description,
-  ReactiveCell,
-} from "@starbeam/interfaces";
+import type { Description, ReactiveCell } from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
 import { createCellTag } from "@starbeam/tags";
 
 import { RUNTIME } from "../runtime.js";
-import {
-  type DescriptionOption,
-  isDescriptionOption,
-  type PrimitiveOptions,
-} from "./utils.js";
+import { isDescriptionOption, type PrimitiveOptions } from "./utils.js";
 
-export class CellImpl<T> implements ReactiveCell<T> {
-  static create = <T>(
-    value: T,
-    options?: CellOptions<T> | DescriptionOption
-  ): Cell<T> => {
-    const { description, equals = Object.is } = toCellOptions(options);
-    return new CellImpl(value, equals, RUNTIME.Desc?.("cell", description));
-  };
+export type Cell<T> = ReactiveCell<T>;
 
-  #value: T;
-  readonly #equals: Equality<T>;
-  declare readonly [TAG]: ICellTag;
+export function Cell<T>(
+  value: T,
+  options?: CellOptions<T> | string | Description | undefined
+): ReactiveCell<T> {
+  const { description, equals = Object.is } = toCellOptions(options);
+  const desc = RUNTIME.Desc?.("cell", description);
+  const tag = createCellTag(desc);
 
-  private constructor(
-    value: T,
-    equality: Equality<T>,
-    description: Description | undefined
-  ) {
-    this.#value = value;
-    this.#equals = equality;
-    readonly(this, TAG, createCellTag(description));
-  }
-
-  get current(): T {
-    return this.read(RUNTIME.callerStack?.());
-  }
-
-  set current(value: T) {
-    this.set(value, RUNTIME.callerStack?.());
-  }
-
-  read(_caller = RUNTIME.callerStack?.()): T {
-    RUNTIME.autotracking.consume(this[TAG]);
-    return this.#value;
-  }
-
-  set(value: T, caller = RUNTIME.callerStack?.()): boolean {
-    if (this.#equals(value, this.#value)) {
+  const set = (newValue: T, caller = RUNTIME.callerStack?.()): boolean => {
+    if (equals(value, newValue)) {
       return false;
     }
 
-    this.#value = value;
-    this[TAG].update({ caller, runtime: RUNTIME });
+    value = newValue;
+    tag.update({ caller, runtime: RUNTIME });
     return true;
-  }
+  };
 
-  update(updater: (prev: T) => T, caller = RUNTIME.callerStack?.()) {
-    this.set(updater(this.#value), caller);
-  }
+  const update = (updater: (prev: T) => T, caller = RUNTIME.callerStack?.()) =>
+    set(updater(value), caller);
 
-  freeze(): void {
-    this[TAG].freeze();
-  }
+  const read = (_caller = RUNTIME.callerStack?.()): T => {
+    RUNTIME.autotracking.consume(tag);
+    return value;
+  };
+
+  const freeze = () => {
+    tag.freeze();
+  };
+
+  return {
+    [TAG]: tag,
+    get current(): T {
+      return read(RUNTIME.callerStack?.());
+    },
+    set current(value: T) {
+      set(value, RUNTIME.callerStack?.());
+    },
+    read,
+    set,
+    update,
+    freeze,
+  };
 }
-
-export const Cell = CellImpl.create;
-export type Cell<T = unknown> = CellImpl<T>;
 
 export type Equality<T> = (a: T, b: T) => boolean;
 
@@ -79,7 +59,7 @@ export interface CellOptions<T> extends PrimitiveOptions {
 }
 
 export function toCellOptions<T>(
-  options: CellOptions<T> | DescriptionOption
+  options: CellOptions<T> | Description | string | undefined
 ): CellOptions<T> {
   return isDescriptionOption(options) ? { description: options } : options;
 }

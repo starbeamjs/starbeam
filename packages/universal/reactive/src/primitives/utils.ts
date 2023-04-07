@@ -1,28 +1,22 @@
-import type {
-  Description,
-  ReactiveValue,
-  Tag,
-  TaggedReactive,
-} from "@starbeam/interfaces";
+import type { Description, Tag, TaggedReactive } from "@starbeam/interfaces";
 import type { FormulaTag } from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
 
 import { RUNTIME } from "../runtime.js";
 
 export interface PrimitiveOptions {
-  description?: DescriptionOption;
+  description?: string | Description | undefined;
 }
 
-/**
- * If a string is passed as options to a primitive, it's the description.
- */
-export type DescriptionOption = string | Description | undefined;
-
-export type SugaryPrimitiveOptions = PrimitiveOptions | DescriptionOption;
+export type SugaryPrimitiveOptions =
+  | PrimitiveOptions
+  | string
+  | Description
+  | undefined;
 
 export function isDescriptionOption(
   options: SugaryPrimitiveOptions
-): options is DescriptionOption {
+): options is string | Description | undefined {
   return (
     options === undefined || typeof options === "string" || "id" in options
   );
@@ -48,7 +42,9 @@ export function isFormulaFn<T>(value: unknown): value is FormulaFn<T> {
   );
 }
 
-export function WrapFn<T>(formula: ReactiveValue<T, FormulaTag>): FormulaFn<T> {
+export function WrapFn<T>(
+  formula: TaggedReactive<FormulaTag, T>
+): FormulaFn<T> {
   // If the formula is *already* a function, we just need a new identity for it,
   // so we'll wrap it in a simple proxy.
   //

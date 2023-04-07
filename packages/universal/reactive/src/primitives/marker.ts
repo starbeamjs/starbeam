@@ -1,40 +1,30 @@
-import { readonly } from "@starbeam/core-utils";
-import {
-  type CellTag as ICellTag,
-  type Description,
-  type Expand,
-  type Tagged,
-} from "@starbeam/interfaces";
+import type { CallStack, CellTag, Tagged } from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
 import { createCellTag } from "@starbeam/tags";
 
 import { RUNTIME } from "../runtime.js";
 import { type SugaryPrimitiveOptions, toOptions } from "./utils.js";
 
-class MarkerImpl implements Tagged<ICellTag> {
-  static create(this: void, options?: SugaryPrimitiveOptions): MarkerImpl {
-    const { description } = toOptions(options);
-    return new MarkerImpl(RUNTIME.Desc?.("cell", description));
-  }
-
-  declare readonly [TAG]: ICellTag;
-
-  private constructor(description: Description | undefined) {
-    readonly(this, TAG, createCellTag(description));
-  }
-
-  read(_caller = RUNTIME.callerStack?.()): void {
-    RUNTIME.autotracking.consume(this[TAG]);
-  }
-
-  freeze(): void {
-    this[TAG].freeze();
-  }
-
-  mark(caller = RUNTIME.callerStack?.()): void {
-    this[TAG].update({ caller, runtime: RUNTIME });
-  }
+export interface Marker extends Tagged<CellTag> {
+  read: (caller?: CallStack) => void;
+  mark: (caller?: CallStack) => void;
+  freeze: () => void;
 }
 
-export const Marker = MarkerImpl.create;
-export type Marker = Expand<MarkerImpl>;
+export function Marker(options?: SugaryPrimitiveOptions): Marker {
+  const { description } = toOptions(options);
+  const desc = RUNTIME.Desc?.("cell", description);
+  const tag = createCellTag(desc);
+
+  const mark = (caller = RUNTIME.callerStack?.()) => {
+    tag.update({ caller, runtime: RUNTIME });
+  };
+
+  const read = (_caller = RUNTIME.callerStack?.()): void => {
+    RUNTIME.autotracking.consume(tag);
+  };
+
+  const freeze = tag.freeze;
+
+  return { [TAG]: tag, read, mark, freeze };
+}

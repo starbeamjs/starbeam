@@ -1,15 +1,8 @@
-import type {
-  Description,
-  Expand,
-  ReactiveFormula,
-  TagSet,
-} from "@starbeam/interfaces";
-import type { FormulaTag } from "@starbeam/interfaces";
+import type { ReactiveFormula, TagSet } from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
 import { createFormulaTag } from "@starbeam/tags";
 
 import { RUNTIME } from "../runtime.js";
-import { ReactivePrimitive } from "./base.js";
 import {
   type FormulaFn,
   type SugaryPrimitiveOptions,
@@ -17,38 +10,32 @@ import {
   WrapFn,
 } from "./utils.js";
 
-export class FormulaImpl<T>
-  extends ReactivePrimitive<T, FormulaTag>
-  implements ReactiveFormula<T>
-{
-  static create = <T>(compute: () => T, options?: SugaryPrimitiveOptions) => {
-    const { description } = toOptions(options);
-    const formula = new FormulaImpl(
-      compute,
-      RUNTIME.Desc?.("formula", description)
-    );
+export type Formula<T> = ReactiveFormula<T>;
 
-    return WrapFn(formula);
-  };
+export function Formula<T>(
+  compute: () => T,
+  options?: SugaryPrimitiveOptions
+): FormulaFn<T> {
+  const { description } = toOptions(options);
+  const desc = RUNTIME.Desc?.("formula", description);
+  let children: TagSet = new Set();
+  const tag = createFormulaTag(desc, () => children);
 
-  #compute: () => T;
-  #children: TagSet = new Set();
+  function read(_caller = RUNTIME.callerStack?.()): T {
+    const { value, tags } = RUNTIME.evaluate(compute);
+    children = tags;
 
-  private constructor(compute: () => T, description: Description | undefined) {
-    super(createFormulaTag(description, () => this.#children));
-    this.#compute = compute;
-  }
-
-  read(_caller = RUNTIME.callerStack?.()): T {
-    const { value, tags } = RUNTIME.evaluate(this.#compute);
-    this.#children = tags;
-
-    this[TAG].markInitialized();
-    RUNTIME.subscriptions.update(this[TAG]);
+    tag.markInitialized();
+    RUNTIME.subscriptions.update(tag);
 
     return value;
   }
-}
 
-export const Formula = FormulaImpl.create;
-export type Formula<T> = Expand<FormulaFn<T>> & (() => T);
+  return WrapFn({
+    [TAG]: tag,
+    read,
+    get current(): T {
+      return read(RUNTIME.callerStack?.());
+    },
+  });
+}

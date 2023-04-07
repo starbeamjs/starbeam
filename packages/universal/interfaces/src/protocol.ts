@@ -155,8 +155,12 @@ export interface TaggedReactive<I extends Tag, T = unknown>
 
 export interface ReactiveCell<T> extends ReactiveValue<T, CellTag> {
   current: T;
+  set: (value: T, caller?: CallStack) => void;
+  update: (fn: (value: T) => T, caller?: CallStack) => void;
+  freeze: () => void;
 }
 
 export interface ReactiveFormula<T> extends ReactiveValue<T, FormulaTag> {
+  (): T;
   readonly current: T;
 }
