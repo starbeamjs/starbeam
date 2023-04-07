@@ -1,4 +1,4 @@
-import { Formula } from "@starbeam/universal";
+import { Formula } from "@starbeam/reactive";
 import { expected, isPresent, verify } from "@starbeam/verify";
 
 export const cached = <T>(

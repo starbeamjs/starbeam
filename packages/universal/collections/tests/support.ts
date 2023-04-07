@@ -1,4 +1,5 @@
-import { Formula } from "@starbeam/universal";
+import type { Formula } from "@starbeam/reactive";
+import { CachedFormula } from "@starbeam/reactive";
 
 export class Invalidation<T> {
   static trace<T>(formula: () => T): Invalidation<T> {
@@ -11,7 +12,7 @@ export class Invalidation<T> {
   #initialized = false;
 
   constructor(formula: () => T) {
-    this.#formula = Formula(() => {
+    this.#formula = CachedFormula(() => {
       this.#bumped++;
       return formula();
     });

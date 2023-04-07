@@ -3,13 +3,8 @@
 import reactive from "@starbeam/collections";
 import type { Reactive } from "@starbeam/interfaces";
 import { use, useProp, useReactive, useSetup } from "@starbeam/react";
-import { intoReactive } from "@starbeam/reactive";
-import {
-  Cell,
-  Formula,
-  Resource,
-  type ResourceBlueprint,
-} from "@starbeam/universal";
+import { CachedFormula, intoReactive } from "@starbeam/reactive";
+import { Cell, Resource, type ResourceBlueprint } from "@starbeam/universal";
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
 import { beforeEach, describe, expect } from "@starbeam-workspace/test-utils";
 
@@ -226,7 +221,7 @@ describe("use", () => {
           const { name, increment } = useSetup(() => {
             const count = Cell(0, { description: `count` });
 
-            const name = Formula(() => `channel${count.current}`, {
+            const name = CachedFormula(() => `channel${count.current}`, {
               description: `channel-name`,
             });
 
@@ -307,7 +302,7 @@ describe("use", () => {
           const { channel, increment } = useSetup(({ use }) => {
             const count = Cell(0, { description: `count` });
 
-            const name = Formula(() => `channel${count.current}`, {
+            const name = CachedFormula(() => `channel${count.current}`, {
               description: `channel-name`,
             });
 

@@ -17,13 +17,23 @@ export type DescriptionRuntime = (
   api?: Api | string | undefined
 ) => Description | undefined;
 
-export interface Description {
+export interface DescriptionDetails {
   readonly id: ReactiveId;
-  readonly details: DescriptionDetails;
   readonly type: ReactiveType;
+  readonly api?: Api | undefined;
   readonly caller: CallStack | undefined;
+  readonly nesting?: Nesting | undefined;
+  /**
+   * The user-specified description, if specified.
+   */
+  readonly specified?: string | undefined;
+}
+
+export interface Description extends DescriptionDetails {
   readonly frame: StackFrame | undefined;
   readonly isAnonymous: boolean;
+  readonly api: Api | undefined;
+  readonly nesting: Nesting | undefined;
 
   index: (index: number, caller?: CallStack | undefined) => Description;
   property: (name: string, caller?: CallStack | undefined) => Description;
@@ -43,18 +53,6 @@ export interface Description {
     reason: string,
     caller?: CallStack | undefined
   ) => Description;
-}
-
-export interface DescriptionDetails {
-  readonly id: ReactiveId;
-  readonly type: ReactiveType;
-  readonly api?: Api | undefined;
-  readonly caller: CallStack | undefined;
-  readonly nesting?: Nesting | undefined;
-  /**
-   * The user-specified description, if specified.
-   */
-  readonly specified?: string | undefined;
 }
 
 export type Api = FunctionApi | MethodApi | SimpleFunctionApi;

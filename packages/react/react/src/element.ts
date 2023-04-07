@@ -1,7 +1,6 @@
 import type { browser } from "@domtree/flavors";
-import type { DebugListener } from "@starbeam/debug";
 import type { Description, Reactive, Tagged } from "@starbeam/interfaces";
-import { RUNTIME } from "@starbeam/reactive";
+import { RUNTIME, Formula } from "@starbeam/reactive";
 import type { IntoResourceBlueprint, Resource } from "@starbeam/resource";
 import * as resource from "@starbeam/resource";
 import {
@@ -13,10 +12,9 @@ import {
   type Unsubscribe,
 } from "@starbeam/runtime";
 import { service } from "@starbeam/service";
-import { Cell, PolledFormula } from "@starbeam/universal";
+import { Cell } from "@starbeam/universal";
 
-import { ReactApp } from "./context-provider.js";
-import { missingApp } from "./context-provider.js";
+import { missingApp, ReactApp } from "./context-provider.js";
 import { type ElementRef, type ReactElementRef, ref } from "./ref.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -123,6 +121,8 @@ class Refs {
     return this.#refs.type === "FromConstructor";
   }
 }
+
+type DebugListener = unknown;
 
 export type DebugLifecycle = (
   listener: DebugListener,
@@ -301,7 +301,7 @@ export function internalUseResource<T>(
 
   host.on.layout(create);
 
-  const formula = PolledFormula(() => {
+  const formula = Formula(() => {
     return (resourceCell.current?.current as T | undefined) ?? initial;
   });
 

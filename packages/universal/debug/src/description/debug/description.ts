@@ -2,25 +2,33 @@ import { getFirst, isObject } from "@starbeam/core-utils";
 import type {
   Api,
   CallStack,
+  Description as IDescription,
+  DescriptionDetails,
   DescriptionRuntime,
+  Nesting,
   ReactiveId,
+  ReactiveType,
+  StackFrame,
 } from "@starbeam/interfaces";
-import type * as interfaces from "@starbeam/interfaces";
 import { RUNTIME } from "@starbeam/reactive";
 import { getID } from "@starbeam/shared";
 
-export class Description implements interfaces.Description {
-  readonly #details: interfaces.DescriptionDetails;
+export class Description implements IDescription {
+  readonly #details: DescriptionDetails;
 
-  constructor(desc: interfaces.DescriptionDetails) {
+  constructor(desc: DescriptionDetails) {
     this.#details = desc;
   }
 
-  get details(): interfaces.DescriptionDetails {
-    return this.#details;
+  get api(): Api | undefined {
+    return this.#details.api;
   }
 
-  get type(): interfaces.ReactiveType {
+  get nesting(): Nesting | undefined {
+    return this.#details.nesting;
+  }
+
+  get type(): ReactiveType {
     return this.#details.type;
   }
 
@@ -28,7 +36,7 @@ export class Description implements interfaces.Description {
     return this.#details.caller;
   }
 
-  get frame(): interfaces.StackFrame | undefined {
+  get frame(): StackFrame | undefined {
     return getFirst(this.caller?.frames ?? []);
   }
 
@@ -40,7 +48,7 @@ export class Description implements interfaces.Description {
     return this.#details.specified === undefined;
   }
 
-  index(index: number, caller?: CallStack | undefined): interfaces.Description {
+  index(index: number, caller?: CallStack | undefined): IDescription {
     return new Description({
       type: "collection:item",
       id: this.#extendId(index),
@@ -49,10 +57,7 @@ export class Description implements interfaces.Description {
     });
   }
 
-  property(
-    name: string,
-    caller?: CallStack | undefined
-  ): interfaces.Description {
+  property(name: string, caller?: CallStack | undefined): IDescription {
     return new Description({
       type: "collection:item",
       id: this.#extendId(name),
@@ -64,7 +69,7 @@ export class Description implements interfaces.Description {
   key(
     key: { name: string; key: unknown } | string | number,
     caller?: CallStack | undefined
-  ): interfaces.Description {
+  ): IDescription {
     const value: { name: string; key: unknown } = isObject(key)
       ? { name: key.name, key: key.key }
       : { name: String(key), key };
@@ -78,11 +83,11 @@ export class Description implements interfaces.Description {
   }
 
   detail(
-    type: interfaces.ReactiveType,
+    type: ReactiveType,
     name: string,
     args: string[] | CallStack = [],
     caller?: CallStack | undefined
-  ): interfaces.Description {
+  ): IDescription {
     const info = Array.isArray(args)
       ? { args, caller }
       : { args: [], caller: args };
@@ -100,11 +105,11 @@ export class Description implements interfaces.Description {
   }
 
   implementation(
-    type: interfaces.ReactiveType,
+    type: ReactiveType,
     name: string,
     reason: string,
     caller?: CallStack | undefined
-  ): interfaces.Description {
+  ): IDescription {
     return new Description({
       type,
       id: this.#extendId(name),
@@ -125,21 +130,23 @@ export class Description implements interfaces.Description {
 const DESC_FRAME = 1;
 
 export const Desc = ((
-  type: interfaces.ReactiveType,
-  specified: string | interfaces.Description | undefined,
-  api: string | Api | undefined
-): interfaces.Description => {
+  type: ReactiveType,
+  specified?: string | IDescription | undefined,
+  api?: string | Api | undefined
+): IDescription => {
   if (isObject(specified)) return specified;
 
   const caller = RUNTIME.callerStack?.(DESC_FRAME);
-  api = api ?? caller?.frames[0].action;
+  api = api ?? getFirst(caller?.frames)?.action;
   const id = getID();
 
-  return new Description({
+  const desc = new Description({
     type,
     id,
     api: typeof api === "string" ? { type: "simple", name: api, caller } : api,
     specified,
     caller,
   });
+  console.log({ desc: { ...desc } });
+  return desc;
 }) satisfies DescriptionRuntime;

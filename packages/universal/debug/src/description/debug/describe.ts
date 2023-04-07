@@ -8,14 +8,15 @@ import type {
   ReactiveType,
   Tagged,
 } from "@starbeam/interfaces";
+import { UNKNOWN_REACTIVE_VALUE } from "@starbeam/reactive";
 import { getID } from "@starbeam/shared";
 import { getDescription } from "@starbeam/tags";
 
 export type FullName = Flat | [Flat, ...ChildType[]];
 
 export function describeTagged(tagged: Tagged): string {
-  const description = getDescription(tagged)?.details;
-  return description ? describe(description) : `{unknown reactive value}`;
+  const description = getDescription(tagged);
+  return description ? describe(description) : UNKNOWN_REACTIVE_VALUE;
 }
 
 export function describe(description: DescriptionDetails): string {

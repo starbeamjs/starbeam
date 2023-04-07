@@ -37,19 +37,19 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "@starbeam/debug": "workspace:^",
     "@starbeam/collections": "workspace:^",
+    "@starbeam/debug": "workspace:^",
     "@starbeam/react": "workspace:^",
     "@starbeam/universal": "workspace:^",
     "purecss": "3.0.0",
-    "react": "^18.1.0",
-    "react-dom": "^18.1.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@types/react": "^18.0.26",
-    "@types/react-dom": "^18.0.10",
+    "@types/react": "^18.0.33",
+    "@types/react-dom": "^18.0.11",
     "@vitest/ui": "*",
     "vite": "*",
-    "vite-plugin-fonts": "^0.6.0"
+    "vite-plugin-fonts": "^0.7.0"
   }
 }

@@ -10,7 +10,11 @@ export {
 export { Marker } from "./src/primitives/marker.js";
 export { Static } from "./src/primitives/static.js";
 export { type FormulaFn, isFormulaFn } from "./src/primitives/utils.js";
-export { defineRuntime, RUNTIME } from "./src/runtime.js";
+export {
+  defineRuntime,
+  RUNTIME,
+  UNKNOWN_REACTIVE_VALUE,
+} from "./src/runtime.js";
 export {
   intoReactive,
   isReactive,

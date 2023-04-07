@@ -6,14 +6,7 @@ export {
   Variants,
   type VariantType,
 } from "./src/reactive-core/variants.js";
-export {
-  Cell,
-  type Equality,
-  // FIXME: Migrate these to their ultimate names
-  CachedFormula as Formula,
-  Formula as PolledFormula,
-  Static,
-} from "@starbeam/reactive";
+export { Cell, type Equality, Static } from "@starbeam/reactive";
 export { Wrap } from "@starbeam/reactive/src/primitives/delegate.js";
 export {
   Resource,

@@ -18,5 +18,6 @@ export interface DebugRuntime {
     barrier: (tag: Tag, stack: CallStack | undefined) => void | never
   ) => void;
   readonly callerStack: CallerStackFn;
+
   readonly desc: DescriptionRuntime;
 }

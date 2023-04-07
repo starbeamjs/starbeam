@@ -1,6 +1,5 @@
 import type { Description, Reactive } from "@starbeam/interfaces";
-import { isReactive, RUNTIME } from "@starbeam/reactive";
-import { PolledFormula } from "@starbeam/universal";
+import { isReactive, RUNTIME, Formula  } from "@starbeam/reactive";
 import {
   setupFunction,
   unsafeTrackedElsewhere,
@@ -77,7 +76,7 @@ export function useSetup<
       ReactiveElement.subscribe(element, instance);
       return { element, instance: { type: "reactive", value: instance } };
     } else if (typeof instance === "function") {
-      const reactive = PolledFormula(() => {
+      const reactive = Formula(() => {
         return (instance as (props: unknown) => unknown)(currentProps);
       }, desc);
 

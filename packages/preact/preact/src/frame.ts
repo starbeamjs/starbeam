@@ -28,7 +28,7 @@ export class ComponentFrame {
     }
 
     ComponentFrame.#stack.push(component);
-    frame.#start(description);
+    frame.#start();
   }
 
   static isRenderingComponent(component: InternalComponent): boolean {
@@ -87,12 +87,12 @@ export class ComponentFrame {
     this.#subscription = subscribed;
   }
 
-  #start(description: Description | undefined): void {
+  #start(): void {
     if (this.#frame) {
       this.#active = this.#frame.update();
       // this.#active = TIMELINE.frame.update(this.#frame);
     } else {
-      this.#active = FormulaLifecycle({ description });
+      this.#active = FormulaLifecycle();
     }
   }
 

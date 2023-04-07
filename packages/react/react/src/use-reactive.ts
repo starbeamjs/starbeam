@@ -1,11 +1,9 @@
 import type { Description, Reactive } from "@starbeam/interfaces";
-import { RUNTIME } from "@starbeam/reactive";
+import { RUNTIME, Formula as Formula, CachedFormula  } from "@starbeam/reactive";
 import { PUBLIC_TIMELINE } from "@starbeam/runtime";
 import {
   Cell,
-  Formula,
   LIFETIME,
-  PolledFormula,
   Wrap,
 } from "@starbeam/universal";
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
@@ -38,7 +36,7 @@ export function useReactive<T>(
 
       // compute can change, so the `PolledFormula` doesn't close over the original value, but
       // rather invokes the **current** value (which can change in `on.update`).
-      const formula = PolledFormula(() => compute(), desc);
+      const formula = Formula(() => compute(), desc);
 
       on.update((newCompute) => {
         compute = newCompute;
@@ -101,7 +99,7 @@ export class MountedReactive<T> {
       ),
     });
     this.#value = undefined;
-    this.formula = Formula(
+    this.formula = CachedFormula(
       () => this.#cell.current?.current ?? this.#initial,
       description?.implementation(
         "formula",

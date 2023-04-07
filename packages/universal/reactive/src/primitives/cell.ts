@@ -5,7 +5,7 @@ import { createCellTag } from "@starbeam/tags";
 import { RUNTIME } from "../runtime.js";
 import { isDescriptionOption, type PrimitiveOptions } from "./utils.js";
 
-export type Cell<T> = ReactiveCell<T>;
+export type Cell<T = unknown> = ReactiveCell<T>;
 
 export function Cell<T>(
   value: T,

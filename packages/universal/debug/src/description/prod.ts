@@ -1,3 +1,3 @@
-import type { DescriptionRuntime } from "./interface.js";
+import type { DescriptionRuntime } from "@starbeam/interfaces";
 
 export default (() => undefined) satisfies DescriptionRuntime;

@@ -1,12 +1,7 @@
 import { LIFETIME } from "@starbeam/runtime";
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
-import type { FunctionComponent } from "react";
-import {
-  createContext,
-  createElement,
-  type PropsWithChildren,
-  useContext,
-} from "react";
+import type { FunctionComponent, PropsWithChildren } from "react";
+import { createContext, createElement, useContext } from "react";
 
 const StarbeamContext = createContext(null as null | ReactApp);
 

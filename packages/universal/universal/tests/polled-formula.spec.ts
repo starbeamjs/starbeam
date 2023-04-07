@@ -1,5 +1,6 @@
 import { cached, reactive } from "@starbeam/collections";
-import { Cell, PolledFormula } from "@starbeam/universal";
+import { Formula } from "@starbeam/reactive";
+import { Cell } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 
 describe("A polled reactive formula", () => {
@@ -7,7 +8,7 @@ describe("A polled reactive formula", () => {
     const name = Cell("@tomdale");
     const location = Cell("New York");
 
-    const card = PolledFormula(() => `${name.current} (${location.current})`);
+    const card = Formula(() => `${name.current} (${location.current})`);
 
     expect(card.current).toBe("@tomdale (New York)");
 
@@ -20,7 +21,7 @@ describe("A polled reactive formula", () => {
     const name = Cell("@tomdale");
     const location = Cell("New York");
 
-    const card = PolledFormula(() => ({
+    const card = Formula(() => ({
       name: name.current,
       location: location.current,
     }));
@@ -64,7 +65,7 @@ describe("A polled reactive formula", () => {
     const name = Cell("@tomdale");
     const location = Cell("New York");
 
-    const card = PolledFormula(() => ({
+    const card = Formula(() => ({
       name: name.current,
       location: location.current,
     }));
@@ -106,7 +107,7 @@ describe("A polled reactive formula", () => {
       { equals: (a, b) => a.name === b.name && a.location === b.location }
     );
 
-    const card = PolledFormula(() => ({
+    const card = Formula(() => ({
       name: person.current.name,
       location: person.current.location,
     }));
@@ -156,8 +157,8 @@ describe("A polled reactive formula", () => {
     const location = Cell("New York");
     const organization = Cell("LinkedIn");
 
-    const card = PolledFormula(() => `${name.current} (${location.current})`);
-    const complete = PolledFormula(
+    const card = Formula(() => `${name.current} (${location.current})`);
+    const complete = Formula(
       () => `${card.current} at ${organization.current}`
     );
 
@@ -195,7 +196,7 @@ test("Formula", () => {
   const person = new Person("Tom", "USA");
   let counter = 0;
 
-  const formatted = PolledFormula(() => {
+  const formatted = Formula(() => {
     counter++;
     return person.formatted(false);
   });

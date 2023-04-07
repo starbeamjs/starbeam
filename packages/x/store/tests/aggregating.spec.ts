@@ -1,4 +1,4 @@
-import { Cell, Formula } from "@starbeam/universal";
+import { CachedFormula, Cell } from "@starbeam/reactive";
 import { isPresent, verified } from "@starbeam/verify";
 import { type Aggregator, Average, Sum, Table } from "@starbeamx/store";
 import { describe, expect, test } from "vitest";
@@ -86,7 +86,7 @@ describe("aggregating tables", () => {
 
     people.append(...data);
 
-    const averageAge = Formula(() => {
+    const averageAge = CachedFormula(() => {
       const average = people.aggregateBy({
         age: Average,
       });
@@ -94,7 +94,7 @@ describe("aggregating tables", () => {
       return average.row.age;
     });
 
-    const totalVisits = Formula(() => {
+    const totalVisits = CachedFormula(() => {
       const total = people.aggregateBy({
         visits: Sum,
       });
@@ -160,7 +160,7 @@ describe("aggregating tables", () => {
 
     const aggregate = Cell(Sum as Aggregator<number>);
 
-    const activeVisits = Formula(() => {
+    const activeVisits = CachedFormula(() => {
       const byStatus = people.groupBy((row) => ({ bucket: row.status }));
 
       const active = verified(byStatus.groups.get("active"), isPresent);

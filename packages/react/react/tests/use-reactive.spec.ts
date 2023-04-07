@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
 
 import { useReactive, useSetup } from "@starbeam/react";
-import { Cell, Formula } from "@starbeam/universal";
+import { CachedFormula } from "@starbeam/reactive";
+import { Cell } from "@starbeam/universal";
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
 import { describe, expect } from "@starbeam-workspace/test-utils";
 import { useState } from "react";
@@ -55,7 +56,7 @@ describe("useReactive", () => {
           ++testId;
           const { counter } = useSetup(() => {
             const cell = Cell(INITIAL_COUNT, `#${testId}`);
-            return Formula(
+            return CachedFormula(
               () => ({ counter: cell.current }),
               `inner #${testId}`
             );
@@ -85,7 +86,7 @@ describe("useReactive", () => {
           const { formula, increment } = useSetup(() => {
             const cell = Cell(INITIAL_COUNT, `#${nextId}`);
             return {
-              formula: Formula(
+              formula: CachedFormula(
                 () => ({ counter: cell.current }),
                 `inner #${nextId}`
               ),

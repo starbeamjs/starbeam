@@ -24,10 +24,10 @@
 
   "eslint.codeActionsOnSave.mode": "all",
   "eslint.enable": true,
-  "eslint.format.enable": true,
   "eslint.lintTask.enable": true,
   "eslint.lintTask.options": "--cache -c ./.eslintrc.json --max-warnings=0 \"**/*.ts\" \"**/*.tsx\" \"**/*.json\"",
   "eslint.onIgnoredFiles": "warn",
+  "eslint.problems.shortenToSingleLine": true,
   "eslint.quiet": false,
   "eslint.validate": [
     "javascript",
@@ -77,13 +77,13 @@
     "**/CHANGELOG.md": true,
     "pnpm-lock.yaml": true
   },
-  "typescript.experimental.tsserver.web.enableProjectWideIntellisense": true,
+  "testing.automaticallyOpenPeekView": "never",
+  "typescript.experimental.tsserver.web.enableProjectWideIntellisense": false,
 
   "typescript.preferences.importModuleSpecifier": "project-relative",
   "typescript.preferences.importModuleSpecifierEnding": "js",
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.tsserver.experimental.enableProjectDiagnostics": true,
 
-  "vitest.enable": true,
-  "testing.automaticallyOpenPeekView": "never"
+  "vitest.enable": true
 }

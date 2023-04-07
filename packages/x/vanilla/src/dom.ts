@@ -1,6 +1,6 @@
 import type { Description, Reactive } from "@starbeam/interfaces";
-import { RUNTIME } from "@starbeam/runtime";
-import { Formula, LIFETIME } from "@starbeam/universal";
+import { CachedFormula } from "@starbeam/reactive";
+import { LIFETIME, RUNTIME } from "@starbeam/runtime";
 
 import { Cursor } from "./cursor.js";
 
@@ -27,7 +27,7 @@ function Render<T extends Cursor | Element>(
       create({ owner }) {
         const { cleanup, update } = create({ into, owner });
 
-        const formula = Formula(update, description);
+        const formula = CachedFormula(update, description);
 
         LIFETIME.on.cleanup(owner, cleanup);
 

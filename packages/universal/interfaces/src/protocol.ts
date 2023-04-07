@@ -155,7 +155,11 @@ export interface TaggedReactive<I extends Tag, T = unknown>
 
 export interface ReactiveCell<T> extends ReactiveValue<T, CellTag> {
   current: T;
-  set: (value: T, caller?: CallStack) => void;
+  /**
+   * Set the value of the cell. Returns true if the value was changed, false if
+   * the current value was equivalent to the new value.
+   */
+  set: (value: T, caller?: CallStack) => boolean;
   update: (fn: (value: T) => T, caller?: CallStack) => void;
   freeze: () => void;
 }

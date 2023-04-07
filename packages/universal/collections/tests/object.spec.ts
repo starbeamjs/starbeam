@@ -1,5 +1,5 @@
 import { reactive } from "@starbeam/collections";
-import { Formula } from "@starbeam/universal";
+import { CachedFormula } from "@starbeam/reactive";
 import { describe, expect, test } from "vitest";
 
 import { Invalidation } from "./support.js";
@@ -8,9 +8,11 @@ describe("TrackedObject", () => {
   test("adding and deleting items updates the size", () => {
     const object = reactive.object<Record<string, string>>({});
 
-    const size = Formula(() => Object.keys(object).length);
-    const described = Formula(() => `The object has ${size.current} items`);
-    const isEmpty = Formula(() => size.current === 0);
+    const size = CachedFormula(() => Object.keys(object).length);
+    const described = CachedFormula(
+      () => `The object has ${size.current} items`
+    );
+    const isEmpty = CachedFormula(() => size.current === 0);
 
     expect(size.current).toBe(0);
     expect(described.current).toBe("The object has 0 items");

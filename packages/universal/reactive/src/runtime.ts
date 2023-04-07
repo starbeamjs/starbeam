@@ -2,7 +2,7 @@ import type {
   AutotrackingRuntime,
   CallerStackFn,
   DebugRuntime,
-  DescriptionRuntime,
+  DescriptionDetails,
   Runtime,
   SubscriptionRuntime,
   Tag,
@@ -28,9 +28,14 @@ function getRuntime(): Runtime {
   return CONTEXT.runtime as Runtime;
 }
 
+export const UNKNOWN_REACTIVE_VALUE = "{unknown reactive value}";
+
+type DescFn =
+  typeof import("../../debug/src/description/debug/description.js")["Desc"];
+
 class RuntimeImpl implements Runtime {
-  get Desc(): DescriptionRuntime | undefined {
-    return getRuntime().debug?.desc ?? undefined;
+  get Desc(): DescFn | undefined {
+    return (getRuntime().debug?.desc as DescFn) ?? undefined;
   }
 
   get callerStack(): CallerStackFn | undefined {
@@ -47,6 +52,16 @@ class RuntimeImpl implements Runtime {
 
   get debug(): DebugRuntime | undefined {
     return getRuntime().debug;
+  }
+
+  describe(description: DescriptionDetails | undefined): string {
+    if (description) {
+      return (
+        getRuntime().debug?.describe?.(description) ?? UNKNOWN_REACTIVE_VALUE
+      );
+    } else {
+      return UNKNOWN_REACTIVE_VALUE;
+    }
   }
 
   evaluate<T>(compute: () => T): { value: T; tags: Set<Tag> } {

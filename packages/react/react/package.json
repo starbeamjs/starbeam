@@ -28,10 +28,10 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
+    "@starbeam/collections": "workspace:^",
     "@starbeam/core-utils": "workspace:^",
     "@starbeam/debug": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
-    "@starbeam/collections": "workspace:^",
     "@starbeam/modifier": "workspace:^",
     "@starbeam/reactive": "workspace:^",
     "@starbeam/resource": "workspace:^",
@@ -45,8 +45,8 @@
   "devDependencies": {
     "@domtree/flavors": "workspace:^",
     "@starbeam-dev/build-support": "workspace:*",
-    "@types/node": "^18.15.5",
-    "@types/react": "^18.0.28"
+    "@types/node": "^18.15.11",
+    "@types/react": "^18.0.33"
   },
   "peerDependencies": {
     "react": "^18.2.0",
