@@ -1,4 +1,5 @@
-import { LIFETIME, Resource } from "@starbeam/universal";
+import { Resource } from "@starbeam/resource";
+import { LIFETIME } from "@starbeam/runtime";
 import { isPresent, verified } from "@starbeam/verify";
 
 export const TestResource = Resource((r) => {

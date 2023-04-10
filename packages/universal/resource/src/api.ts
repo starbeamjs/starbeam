@@ -1,5 +1,5 @@
 import type { Description } from "@starbeam/interfaces";
-import type { FormulaFn, ReadValue } from "@starbeam/reactive";
+import type { FormulaFn } from "@starbeam/reactive";
 
 import { ResourceBlueprintImpl, type UseOptions } from "./resource.js";
 import type { ResourceConstructor } from "./types.js";
@@ -27,17 +27,18 @@ export function use<T, M>(
   return ResourceBlueprintImpl.evaluate(blueprint, options, options.lifetime);
 }
 
-declare const ResourceBrand: unique symbol;
-export type Resource<T = unknown> = FormulaFn<ReadValue<T>> & {
+export declare const ResourceBrand: unique symbol;
+export type Resource<T = unknown> = FormulaFn<T> & {
   [ResourceBrand]: true;
 };
 export const Resource = ResourceBlueprintImpl.create;
 
 export { isResource } from "./resource.js";
 
-export type ResourceBlueprint<T = unknown, M = unknown> =
-  | ResourceBlueprintImpl<T, void>
-  | ResourceBlueprintImpl<T, M>;
+export type ResourceBlueprint<T = unknown, M = unknown> = ResourceBlueprintImpl<
+  T,
+  M
+>;
 
 export type IntoResourceBlueprint<T, M = void> =
   | ResourceBlueprint<T, M>
@@ -49,12 +50,12 @@ export function IntoResourceBlueprint<T, M>(
   if (isResourceBlueprint(value)) {
     return value;
   } else {
-    return Resource(value);
+    return Resource(value) as ResourceBlueprint<T, M>;
   }
 }
 
 export function isResourceBlueprint(
   value: unknown
-): value is ResourceBlueprint<unknown> {
+): value is ResourceBlueprint<unknown, unknown> {
   return value instanceof ResourceBlueprintImpl;
 }

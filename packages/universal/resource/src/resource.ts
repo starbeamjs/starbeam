@@ -115,7 +115,7 @@ export class ResourceBlueprintImpl<T, M = void> {
   ): ResourceBlueprint<T, M> {
     return isResourceBlueprint(value)
       ? value
-      : ResourceBlueprintImpl.create(value);
+      : (ResourceBlueprintImpl.create(value) as ResourceBlueprint<T, M>);
   }
 
   static run<T, M>(

@@ -1917,6 +1917,9 @@ importers:
 
   workspace/test-utils:
     dependencies:
+      '@starbeam/resource':
+        specifier: workspace:^
+        version: link:../../packages/universal/resource
       '@starbeam/runtime':
         specifier: workspace:^
         version: link:../../packages/universal/runtime
