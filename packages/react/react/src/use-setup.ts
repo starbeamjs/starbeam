@@ -1,5 +1,5 @@
 import type { Description, Reactive } from "@starbeam/interfaces";
-import { isReactive, RUNTIME, Formula  } from "@starbeam/reactive";
+import { Formula, isReactive, RUNTIME } from "@starbeam/reactive";
 import {
   setupFunction,
   unsafeTrackedElsewhere,
@@ -50,7 +50,7 @@ export function useSetup<
 
   const { instance } = useLifecycle({
     validate: starbeam,
-  }).render<UseSetupState>(({ on, validate }, _, prev) => {
+  }).render<UseSetupState>(({ on }, _, prev) => {
     const element = ReactiveElement.activate(
       notify,
       starbeam,
@@ -59,8 +59,6 @@ export function useSetup<
     );
 
     const instance = setupFunction(() => callback(element));
-
-    validate((nextStarbeam, prevStarbeam) => nextStarbeam === prevStarbeam);
 
     on.layout(() => {
       ReactiveElement.layout(element);

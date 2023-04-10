@@ -10,14 +10,14 @@ import { internalUseResource } from "./element.js";
 import { useNotify } from "./use-reactive.js";
 
 export function use<T>(
-  factory: IntoResourceBlueprint<T, void>,
+  factory: IntoResourceBlueprint<T>,
   options?:
     | { initial?: T; description?: string | Description | undefined }
     | unknown[],
   dependencies?: unknown[]
 ): T | undefined {
   const value = createResource(
-    factory as IntoResourceBlueprint<T | undefined, void>,
+    factory as IntoResourceBlueprint<T | undefined>,
     options,
     dependencies
   );
@@ -26,7 +26,7 @@ export function use<T>(
 }
 
 function createResource<T>(
-  factory: IntoResourceBlueprint<T, void>,
+  factory: IntoResourceBlueprint<T>,
   options?: { initial?: T } | unknown[],
   dependencies?: unknown[]
 ): Reactive<T | undefined> {
@@ -48,11 +48,11 @@ function createResource<T>(
 
   const { deps, initialValue } = normalize();
 
-  return useLifecycle({ props: factory, validate: deps }).render<
-    Reactive<T | undefined>
-  >(({ on, validate }, _) => {
-    validate(sameDeps);
-
+  return useLifecycle({
+    props: factory,
+    validate: deps,
+    with: sameDeps,
+  }).render<Reactive<T | undefined>>(({ on }, _) => {
     const lifetime = {};
     const resource = internalUseResource(
       lifetime,
@@ -69,8 +69,8 @@ function createResource<T>(
 }
 
 export function sameDeps(
-  prev: unknown[] | undefined,
-  next: unknown[] | undefined
+  next: unknown[] | undefined,
+  prev: unknown[] | undefined
 ): boolean {
   if (prev === undefined || next === undefined) {
     return prev === next;

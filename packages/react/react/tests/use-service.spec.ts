@@ -112,7 +112,6 @@ const CurrentUser = Resource((r) => {
   const lastMessage = Cell(null as Auth | null, "last message");
 
   const c = AUTH_CHANNELS.subscribe("auth");
-  console.log({ c, latest: AUTH_CHANNELS.latest() });
 
   c.onMessage((message) => {
     lastMessage.set(message);

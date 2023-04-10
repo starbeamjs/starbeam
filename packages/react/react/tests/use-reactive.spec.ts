@@ -230,17 +230,12 @@ describe("useReactive", () => {
           }).compute();
         });
 
-      console.log("initial");
       expect(result.value).toEqual({ starbeam: 0, react: 0 });
-      console.log("clicking starbeam");
       await result.findByText("++Starbeam++").fire.click();
-      console.log("clicked starbeam");
 
       expect(result.value).toEqual({ starbeam: 1, react: 0 });
 
-      console.log("clicked react");
       await result.findByText("++React++").fire.click();
-      console.log("clicked react");
       expect(result.value).toEqual({ starbeam: 1, react: 1 });
     }
   );

@@ -1,6 +1,6 @@
 import type { browser } from "@domtree/flavors";
 import type { Description, Reactive, Tagged } from "@starbeam/interfaces";
-import { RUNTIME, Formula } from "@starbeam/reactive";
+import { Formula, RUNTIME } from "@starbeam/reactive";
 import type { IntoResourceBlueprint, Resource } from "@starbeam/resource";
 import * as resource from "@starbeam/resource";
 import {
@@ -235,7 +235,7 @@ export class ReactiveElement implements CleanupTarget {
   }
 
   service = <T>(
-    blueprint: IntoResourceBlueprint<T, void>,
+    blueprint: IntoResourceBlueprint<T>,
     description?: string | Description | undefined
   ): Resource<T> => {
     const desc = RUNTIME.Desc?.("service", description, "UseSetup.service");
@@ -247,11 +247,11 @@ export class ReactiveElement implements CleanupTarget {
 
     CONTEXT.app = ReactApp.instance(context);
 
-    return service(blueprint, desc);
+    return service(blueprint, { description: desc });
   };
 
   use = <T>(
-    factory: IntoResourceBlueprint<T, void>,
+    factory: IntoResourceBlueprint<T>,
     options?: { initial?: T }
   ): Reactive<T | undefined> => {
     return internalUseResource(
@@ -287,13 +287,12 @@ interface ResourceHost<T> {
 
 export function internalUseResource<T>(
   lifetime: object,
-  host: ResourceHost<IntoResourceBlueprint<T, void>>,
+  host: ResourceHost<IntoResourceBlueprint<T>>,
   initial: T | undefined
 ): Reactive<T | undefined> {
-  let unsubscribe: Unsubscribe | undefined = undefined;
   const resourceCell = Cell(undefined as undefined | Resource<T>);
 
-  const create = (blueprint: IntoResourceBlueprint<T, void>): void => {
+  const create = (blueprint: IntoResourceBlueprint<T>): void => {
     resourceCell.set(resource.use(blueprint, { lifetime }));
 
     host.notify();
@@ -305,8 +304,7 @@ export function internalUseResource<T>(
     return (resourceCell.current?.current as T | undefined) ?? initial;
   });
 
-  unsubscribe = PUBLIC_TIMELINE.on.change(formula, host.notify);
-  host.on.cleanup(unsubscribe);
+  host.on.cleanup(PUBLIC_TIMELINE.on.change(formula, host.notify));
 
   return formula;
 }

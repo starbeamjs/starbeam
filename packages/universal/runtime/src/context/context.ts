@@ -34,16 +34,19 @@ export class AppContext {
     return this.#app !== undefined;
   }
 
-  create<Args extends unknown[], Ret>(
+  create<Ret>(
     key: object,
-    constructor: (...args: Args) => Ret,
-    ...args: Args
+    constructor: () => Ret,
+    {
+      app,
+    }: {
+      app?: object | undefined;
+    } = {}
   ): Ret {
-    return this.#appSingletons.create(key, constructor, ...args);
+    return this.#appSingletons(app).create(key, constructor);
   }
 
-  get #appSingletons(): SingletonContext {
-    const app = this.app;
+  #appSingletons(app: object | undefined = this.app): SingletonContext {
     let singletons = this.#singletons.get(app);
 
     if (singletons === undefined) {
@@ -58,19 +61,15 @@ export class AppContext {
 class SingletonContext {
   #instances = new WeakMap<object, object>();
 
-  create<Args extends unknown[], Ret>(
-    key: object | undefined,
-    constructor: (...args: Args) => Ret,
-    ...args: Args
-  ): Ret {
+  create<Ret>(key: object | undefined, constructor: () => Ret): Ret {
     if (key === undefined) {
-      return constructor(...args);
+      return constructor();
     }
 
     let existing = this.#instances.get(key) as Ret | undefined;
 
     if (existing === undefined) {
-      existing = constructor(...args);
+      existing = constructor();
       this.#instances.set(key, existing as object);
     }
 

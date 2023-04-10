@@ -1,4 +1,4 @@
-import type { Description, Reactive } from "@starbeam/interfaces";
+import type { Description } from "@starbeam/interfaces";
 import type { FormulaFn, ReadValue } from "@starbeam/reactive";
 
 import { ResourceBlueprintImpl, type UseOptions } from "./resource.js";
@@ -36,10 +36,10 @@ export const Resource = ResourceBlueprintImpl.create;
 export { isResource } from "./resource.js";
 
 export type ResourceBlueprint<T = unknown, M = unknown> =
-  | ResourceBlueprintImpl<Reactive<T>, void>
+  | ResourceBlueprintImpl<T, void>
   | ResourceBlueprintImpl<T, M>;
 
-export type IntoResourceBlueprint<T, M> =
+export type IntoResourceBlueprint<T, M = void> =
   | ResourceBlueprint<T, M>
   | ResourceConstructor<T, void>;
 

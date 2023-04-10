@@ -45,11 +45,8 @@ describe("Tagged", () => {
 
       expect(String(PUBLIC_TIMELINE.now)).not.toBe(String(original));
 
-      console.log("reading", PUBLIC_TIMELINE.now);
       tom.read();
-      console.log("writing", PUBLIC_TIMELINE.now);
       tom.current = "Tom Dale";
-      console.log("wrote", PUBLIC_TIMELINE.now);
       expect(String(PUBLIC_TIMELINE.now), "PUBLIC_TIMELINE.now").not.toBe(
         String(original)
       );

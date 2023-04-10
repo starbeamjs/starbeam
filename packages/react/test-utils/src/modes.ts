@@ -276,6 +276,7 @@ export class SetupTestRoot<Props, T> {
   }
 
   expectHTML(expectHtml: (value: T, props: Props) => string): this {
+    if (this.#expectStable === undefined) this.#expectStable = (value) => value;
     this.#expectHtml = expectHtml;
     return this;
   }

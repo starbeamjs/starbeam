@@ -147,6 +147,5 @@ export const Desc = ((
     specified,
     caller,
   });
-  console.log({ desc: { ...desc } });
   return desc;
 }) satisfies DescriptionRuntime;

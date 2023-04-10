@@ -39,7 +39,6 @@ export function normalizeModule(
 
   if (codebase) {
     const { prefix, suffix } = pivotPath(codebase, path);
-    console.log({ codebase, path, prefix, suffix });
     return {
       root: prefix,
       path: stripLeadingSlash(suffix),

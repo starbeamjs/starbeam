@@ -277,28 +277,23 @@ testReact<void, { count: number }>(
         const lifecycle = useLifecycle({
           props: count,
           validate: cleanup,
-        }).render(
-          ({ on, validate }, count, prev?: State | undefined): State => {
-            const object = { count, cleanup: prev?.cleanup ?? 0 };
+          with: Object.is,
+        }).render(({ on }, count, prev?: State | undefined): State => {
+          const object = { count, cleanup: prev?.cleanup ?? 0 };
 
-            on.cleanup((newCount) => {
-              object.count = newCount;
-              object.cleanup++;
-            });
+          on.cleanup((newCount) => {
+            object.count = newCount;
+            object.cleanup++;
+          });
 
-            on.update((newCount) => {
-              object.count = newCount;
-            });
+          on.update((newCount) => {
+            object.count = newCount;
+          });
 
-            validate((newCleanup, oldCleanup) => {
-              return newCleanup === oldCleanup;
-            });
+          setup.value(object);
 
-            setup.value(object);
-
-            return object;
-          }
-        );
+          return object;
+        });
 
         return react.fragment(
           html.div(lifecycle.count),

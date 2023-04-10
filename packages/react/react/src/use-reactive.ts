@@ -1,11 +1,12 @@
 import type { Description, Reactive } from "@starbeam/interfaces";
-import { RUNTIME, Formula as Formula, CachedFormula  } from "@starbeam/reactive";
-import { PUBLIC_TIMELINE } from "@starbeam/runtime";
 import {
-  Cell,
-  LIFETIME,
-  Wrap,
-} from "@starbeam/universal";
+  CachedFormula,
+  Formula as Formula,
+  isReactive,
+  RUNTIME,
+} from "@starbeam/reactive";
+import { PUBLIC_TIMELINE } from "@starbeam/runtime";
+import { Cell, LIFETIME, Wrap } from "@starbeam/universal";
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
 import { useState } from "react";
 
@@ -23,7 +24,7 @@ import { useSetup } from "./use-setup.js";
  */
 
 export function useReactive<T>(
-  computeFn: () => T,
+  computeFn: Reactive<T> | (() => T),
   description?: string | Description | undefined
 ): T {
   const desc = RUNTIME.Desc?.("formula", description);
@@ -32,11 +33,18 @@ export function useReactive<T>(
 
   return useLifecycle({ props: computeFn }).render(
     ({ on }, originalCompute) => {
+      if (
+        !isReactive(originalCompute) &&
+        typeof originalCompute !== "function"
+      ) {
+        console.trace();
+      }
+
       let compute = originalCompute;
 
       // compute can change, so the `PolledFormula` doesn't close over the original value, but
       // rather invokes the **current** value (which can change in `on.update`).
-      const formula = Formula(() => compute(), desc);
+      const formula = Formula(() => read(compute), desc);
 
       on.update((newCompute) => {
         compute = newCompute;
@@ -52,6 +60,10 @@ export function useReactive<T>(
       return formula;
     }
   ).current;
+}
+
+function read<T>(value: Reactive<T> | (() => T)): T {
+  return isReactive(value) ? value.read() : value();
 }
 
 /**

@@ -6,11 +6,20 @@ import { CONTEXT } from "@starbeam/runtime";
 
 type Blueprint<T> = IntoResourceBlueprint<T, void>;
 
+/**
+ * The `Service` function takes a resource blueprint and turns it into a
+ * service: a resource that is created once and then shared across all
+ * components rendered within a given app instance.s
+ */
 export function Service<T>(
   blueprint: Blueprint<T>,
-  description?: string | Description
+  {
+    description,
+    app = CONTEXT.app,
+  }: { description?: string | Description | undefined; app?: object } = {}
 ): ResourceBlueprint<T, void> {
   return Resource(({ use }) => {
+    CONTEXT.app = app;
     return CONTEXT.create(blueprint, () => {
       return use(blueprint);
     });
@@ -19,9 +28,16 @@ export function Service<T>(
 
 export function service<T>(
   resource: Blueprint<T>,
-  description?: string | Description
+  {
+    description,
+    app = CONTEXT.app,
+  }: { description?: string | Description | undefined; app?: object } = {}
 ): Resource<T> {
-  return use(Service(resource, RUNTIME.Desc?.("service", description)), {
-    lifetime: CONTEXT.app,
-  });
+  return use(
+    Service(resource, {
+      description: RUNTIME.Desc?.("service", description),
+      app,
+    }),
+    { lifetime: app }
+  );
 }

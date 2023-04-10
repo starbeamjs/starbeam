@@ -119,32 +119,51 @@ type UseLifecycleBuilder<T, V, A> = (
   args: A,
   prev?: T | undefined
 ) => T;
-type Validator<A> = (args: A, prev: A) => boolean;
+type Validator<V> = (args: V, prev: V) => boolean;
 
-export function useLifecycle<A, V>({
-  props,
-  validate,
-}: {
-  props?: A;
-  validate?: V;
-} = {}): {
+interface Options<V, A> {
+  readonly props?: A | undefined;
+  readonly validate?: V;
+  readonly with?: Validator<V>;
+}
+
+export function useLifecycle<V, A>(
+  options: Options<V, A> = {}
+): {
   render: <T>(build: UseLifecycleBuilder<T, V, A>) => T;
 } {
+  const { props } = options;
+  let validateWith: Validator<V> | undefined;
+  let validate: V | undefined;
+
+  if ("validate" in options) {
+    validate = options.validate;
+    validateWith = options.with ?? Object.is;
+  }
+
   return {
-    render: <T>(build: UseLifecycleBuilder<T, V, A>) => {
+    render: (<T>(build: UseLifecycleBuilder<T, never, unknown>) => {
       const [, setNotify] = useState({});
+      const notify = () => {
+        setNotify({});
+      };
       const state = useRef<State>("mounting");
 
-      const initialRef = useRef<UNINITIALIZED | ResourceInstance<T, V, A>>(
-        UNINITIALIZED
-      );
+      const initialRef = useRef<
+        UNINITIALIZED | ResourceInstance<T, never, unknown>
+      >(UNINITIALIZED);
 
       if (initialRef.current === UNINITIALIZED) {
-        initialRef.current = ResourceBuilder.build<T, V, A>(build, props as A);
+        initialRef.current = ResourceBuilder.build<T, never, unknown>({
+          build,
+          notify,
+          validateWith,
+          args: props,
+        });
       } else {
         if (state.current === "mounted") {
           // If we're already mounted, that means we're updating, so call the update callback.
-          initialRef.current.run("update", props as A);
+          initialRef.current.run("update", props);
         } else {
           // If we're remounting, we're effectively in the initial state, and the work already happened
           // in `useLayoutEffect`, so don't do anything here.
@@ -152,19 +171,20 @@ export function useLifecycle<A, V>({
         }
       }
 
-      const ref = initialRef as MutableRefObject<ResourceInstance<T, V, A>>;
+      const ref = initialRef as MutableRefObject<
+        ResourceInstance<T, never, unknown>
+      >;
 
       // The callback to useLayoutEffect is created once, but should see the most recent rendered args.
-      const { ref: renderedArgs } = useLastRenderRef(props as A);
+      const { ref: renderedArgs } = useLastRenderRef(props);
 
-      const { ref: currentValidate, prev: prevValidate } = useLastRenderRef(
-        validate as V
-      );
+      const { ref: currentValidate, prev: prevValidate } =
+        useLastRenderRef(validate);
 
       if (prevValidate !== UNINITIALIZED) {
         const isValid = ref.current.validate(
-          currentValidate.current,
-          prevValidate
+          currentValidate.current as never,
+          prevValidate as never
         );
 
         if (!isValid) {
@@ -178,7 +198,7 @@ export function useLifecycle<A, V>({
       useLayoutEffect(() => {
         switch (state.current) {
           case "unmounted": {
-            setNotify({});
+            notify();
             ref.current = ref.current.remount(renderedArgs.current);
 
             state.current = "remounting";
@@ -204,7 +224,7 @@ export function useLifecycle<A, V>({
       }, []);
 
       return ref.current.instance;
-    },
+    }) as <T>(build: unknown) => T,
   };
 }
 
@@ -234,14 +254,31 @@ class ResourceInstance<T, V, A> {
   }
 }
 
+export interface RegisterLifecycleHandlers<A> {
+  cleanup: (cleanup: (args: A) => void) => void;
+  update: (update: (args: A) => void) => void;
+  layout: (onLayout: (args: A) => void) => void;
+  idle: (onIdle: (args: A) => void) => void;
+}
+
 class ResourceBuilder<A, V> {
-  static build<T, V, A>(
-    build: UseLifecycleBuilder<T, V, A>,
-    args: A,
-    prev?: T | undefined
-  ): ResourceInstance<T, V, A> {
+  static build<T, V, A>({
+    build,
+    notify,
+    args,
+    validateWith,
+    prev,
+  }: {
+    build: UseLifecycleBuilder<T, V, A>;
+    notify: () => void;
+    args: A;
+    validateWith: Validator<V> | undefined;
+    prev?: T | undefined;
+  }): ResourceInstance<T, V, A> {
     const builder = new ResourceBuilder<A, V>(
-      build as UseLifecycleBuilder<unknown, V, A>
+      build as UseLifecycleBuilder<unknown, V, A>,
+      validateWith,
+      notify
     );
     beginReadonly();
     try {
@@ -262,11 +299,13 @@ class ResourceBuilder<A, V> {
     args: A,
     prev: T
   ): ResourceInstance<T, V, A> {
-    return ResourceBuilder.build<T, V, A>(
-      builder.#build as UseLifecycleBuilder<T, V, A>,
+    return ResourceBuilder.build<T, V, A>({
+      build: builder.#build as UseLifecycleBuilder<T, V, A>,
+      validateWith: builder.#validateWith,
+      notify: builder.notify,
       args,
-      prev
-    );
+      prev,
+    });
   }
 
   static run<A, V>(
@@ -284,15 +323,15 @@ class ResourceBuilder<A, V> {
     current: V,
     prev: V
   ): boolean {
-    if (resource.#validator === undefined) {
+    if (resource.#validateWith === undefined) {
       return true;
     }
 
-    return resource.#validator(current, prev);
+    return resource.#validateWith(current, prev);
   }
 
-  #build: UseLifecycleBuilder<unknown, V, A>;
-  #validator: Validator<V> | undefined = undefined;
+  readonly #build: UseLifecycleBuilder<unknown, V, A>;
+  readonly #validateWith: Validator<V> | undefined;
 
   #on = {
     cleanup: new Set<(args: A) => void>(),
@@ -301,11 +340,9 @@ class ResourceBuilder<A, V> {
     update: new Set<(args: A) => void>(),
   };
 
-  validate = (validator: Validator<V>): void => {
-    this.#validator = validator;
-  };
+  readonly notify: () => void;
 
-  on = {
+  readonly on: RegisterLifecycleHandlers<A> = {
     cleanup: (cleanup: (args: A) => void): void => {
       this.#on.cleanup.add(cleanup);
     },
@@ -323,7 +360,13 @@ class ResourceBuilder<A, V> {
     },
   };
 
-  constructor(build: UseLifecycleBuilder<unknown, V, A>) {
+  constructor(
+    build: UseLifecycleBuilder<unknown, V, A>,
+    validator: Validator<V> | undefined,
+    notify: () => void
+  ) {
     this.#build = build;
+    this.#validateWith = validator;
+    this.notify = notify;
   }
 }
