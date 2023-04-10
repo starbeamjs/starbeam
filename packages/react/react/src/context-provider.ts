@@ -66,6 +66,11 @@ export function useStarbeamApp({
   return app;
 }
 
+export function verifiedApp(app: ReactApp | null, feature: string): ReactApp {
+  if (!app) missingApp(feature);
+  return app;
+}
+
 export function missingApp(feature: string): never {
   throw Error(
     `You are attempting to use a feature of Starbeam (${feature}) that depends on the current app, but you didn't wrap your application in the \`Starbeam\` component.`

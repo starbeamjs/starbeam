@@ -7,7 +7,7 @@ import { service as starbeamService } from "@starbeam/service";
 import type { RegisterLifecycleHandlers } from "@starbeam/use-strict-lifecycle";
 import { isPresent, verified } from "@starbeam/verify";
 
-import { missingApp, type ReactApp } from "../context-provider.js";
+import { type ReactApp, verifiedApp } from "../context-provider.js";
 import {
   type Callback,
   Handlers,
@@ -24,9 +24,13 @@ export interface StarbeamInstance {
 
 export interface InternalStarbeamInstance extends StarbeamInstance {
   readonly deactivate: () => void;
-  readonly reactivate: (lifecycle: Handlers) => InternalStarbeamInstance;
+  readonly reactivate: (lifecycle: Handlers) => void;
 }
 
+/**
+ * Activates this Starbeam instance: creates a new one if it doesn't exist, or
+ * reactivates an existing one if the component is being remounted.
+ */
 export function activate({
   starbeam,
   on,
@@ -35,20 +39,23 @@ export function activate({
 }: {
   starbeam: InternalStarbeamInstance | undefined;
   on: RegisterLifecycleHandlers<unknown>;
-
   app: ReactApp | null;
   notify: Callback;
 }): InternalStarbeamInstance {
   const handlers = Handlers();
-  const instance = starbeam
-    ? starbeam.reactivate(handlers)
-    : StarbeamInstance(handlers, app, notify);
+  if (starbeam) starbeam.reactivate(handlers);
+  const instance = starbeam ?? StarbeamInstance(handlers, app, notify);
 
   setup({ on, handlers, instance });
 
   return instance;
 }
 
+/**
+ * Sets up the lifecycle handlers for this Starbeam instance. If the component is
+ * being remounted, the previous handlers were already cleaned up, so we need to
+ * set up new ones.
+ */
 function setup({
   on,
   handlers,
@@ -76,12 +83,29 @@ export function StarbeamInstance(
 ): InternalStarbeamInstance {
   let handlers: Handlers | null = lifecycle;
 
-  function service<T>(resource: IntoResourceBlueprint<T>): Resource<T> {
-    if (!app) missingApp("useStarbeam");
-    return starbeamService(resource, { app });
-  }
+  function use<T, O extends { initial?: T } | undefined>(
+    resource: IntoResourceBlueprint<T>,
+    options?: O
+  ): Reactive<T | PropagateUndefined<O>> {
+    const resourceCell = Cell(undefined as Resource<T> | undefined);
 
-  const use = useFn(() => verified(handlers, isPresent), notify);
+    verified(handlers, isPresent).layout.add(() => {
+      resourceCell.set(
+        starbeamUse(resource, { lifetime: verified(handlers, isPresent) })
+      );
+      notify();
+    });
+
+    const formula = CachedFormula(
+      () => resourceCell.current?.current ?? options?.initial
+    );
+
+    verified(handlers, isPresent).cleanup.add(() => {
+      PUBLIC_TIMELINE.on.change(formula, notify);
+    });
+
+    return formula as Reactive<T>;
+  }
 
   function deactivate() {
     if (handlers) {
@@ -91,20 +115,14 @@ export function StarbeamInstance(
     handlers = null;
   }
 
-  function reactivate(lifecycle: Handlers): InternalStarbeamInstance {
-    handlers = lifecycle;
-    return instance;
-  }
-
-  const instance = {
+  return {
     on: onHandlers(() => verified(handlers, isPresent)),
     use,
-    service,
+    service: <T>(resource: IntoResourceBlueprint<T>): Resource<T> =>
+      starbeamService(resource, { app: verifiedApp(app, "service") }),
     deactivate,
-    reactivate,
-  } satisfies InternalStarbeamInstance;
-
-  return instance;
+    reactivate: (newHandlers) => (handlers = newHandlers),
+  };
 }
 
 type PropagateUndefined<O> = O extends undefined ? undefined : never;
@@ -113,29 +131,3 @@ type UseFn = <T, O extends { initial?: T } | undefined>(
   resource: IntoResourceBlueprint<T>,
   options?: O
 ) => Reactive<T | PropagateUndefined<O>>;
-
-function useFn(handlers: () => Handlers, notify: Callback): UseFn {
-  function use<T, O extends { initial?: T } | undefined>(
-    resource: IntoResourceBlueprint<T>,
-    options?: O
-  ): Reactive<T | PropagateUndefined<O>> {
-    const resourceCell = Cell(undefined as Resource<T> | undefined);
-
-    handlers().layout.add(() => {
-      resourceCell.set(starbeamUse(resource, { lifetime: handlers }));
-      notify();
-    });
-
-    const formula = CachedFormula(
-      () => resourceCell.current?.current ?? options?.initial
-    );
-
-    handlers().cleanup.add(() => {
-      PUBLIC_TIMELINE.on.change(formula, notify);
-    });
-
-    return formula as Reactive<T>;
-  }
-
-  return use;
-}
