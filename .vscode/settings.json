@@ -13,7 +13,7 @@
   },
 
   "[typescript][typescriptreact][javascript][javascriptreact]": {
-    "editor.formatOnSave": false,
+    // "editor.formatOnSave": true
     "editor.codeActionsOnSave": [
       "source.fixAll.eslint",
       "source.formatDocument"

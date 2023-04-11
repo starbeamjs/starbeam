@@ -174,13 +174,6 @@ export class Package {
     });
 
     /** @type {string | undefined} */
-    let jsx;
-
-    if (json["starbeam:jsx"]) {
-      jsx = json["starbeam:jsx"];
-    } else if (json.starbeam?.jsx) {
-      jsx = json.starbeam.jsx;
-    }
 
     /** @type {string | undefined} */
     let source;
@@ -189,6 +182,16 @@ export class Package {
       source = json["starbeam:source"];
     } else {
       source = json.starbeam?.source;
+    }
+
+    let jsx;
+
+    if (json["starbeam:jsx"]) {
+      jsx = json["starbeam:jsx"];
+    } else if (json.starbeam?.jsx) {
+      jsx = json.starbeam.jsx;
+    } else if (source === "jsx" || source === "tsx") {
+      jsx = "react";
     }
 
     /** @type {Record<string, string> | string | undefined} */

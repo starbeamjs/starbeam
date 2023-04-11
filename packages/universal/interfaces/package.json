@@ -7,8 +7,16 @@
   "exports": {
     "default": "./index.ts"
   },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts"
+      }
+    },
+    "types": "dist/index.d.ts"
+  },
   "starbeam": {
-    "source": "d.ts",
+    "source": "ts",
     "template:package": "interfaces.package.json",
     "type": "library:interfaces"
   },
