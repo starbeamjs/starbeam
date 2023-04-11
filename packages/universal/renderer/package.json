@@ -20,6 +20,8 @@
   "dependencies": {
     "@starbeam/core-utils": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
+    "@starbeam/reactive": "workspace:^",
+    "@starbeam/runtime": "workspace:^",
     "@starbeam/shared": "workspace:^",
     "@starbeam/tags": "workspace:^"
   },

@@ -1,4 +1,3 @@
-export { DEBUG_RENDERER } from "./src/debug-renderer.js";
 export { FormulaList } from "./src/reactive-core/higher-level/formula-list.js";
 export {
   type Variant,
