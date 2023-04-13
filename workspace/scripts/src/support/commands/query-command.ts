@@ -1,4 +1,4 @@
-import type { Package, type ParseError } from "@starbeam-workspace/package";
+import type { Package, ParseError } from "@starbeam-workspace/package";
 import {
   Filter,
   FILTER_KEYS,

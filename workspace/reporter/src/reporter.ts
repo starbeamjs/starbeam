@@ -1,7 +1,7 @@
 import { inspect } from "node:util";
 
 import { stringify } from "@starbeam/core-utils";
-import type { type IntoPresentArray, Result } from "@starbeam-workspace/shared";
+import type { IntoPresentArray, Result } from "@starbeam-workspace/shared";
 import { FATAL_EXIT_CODE, PresentArray } from "@starbeam-workspace/shared";
 import chalk from "chalk";
 
