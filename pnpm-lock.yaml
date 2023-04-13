@@ -1109,6 +1109,9 @@ importers:
 
   packages/universal/reactive/tests:
     dependencies:
+      '@starbeam-workspace/test-utils':
+        specifier: workspace:^
+        version: link:../../../../workspace/test-utils
       '@starbeam/debug':
         specifier: workspace:^
         version: link:../../debug
