@@ -12,8 +12,6 @@ export type ReactiveType =
 export type DescFn = (
   type: ReactiveType,
   specified?: string | Description | undefined,
-  // FIXME: speculative inference strategy: if you have a call stack, use the
-  // action from the caller frame as the default API name
   api?: Api | string | undefined
 ) => Description | undefined;
 

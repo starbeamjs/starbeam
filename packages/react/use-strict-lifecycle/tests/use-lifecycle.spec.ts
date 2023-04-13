@@ -10,7 +10,7 @@ testReact<void, { test: TestResource; lastState: string; lastCount: number }>(
   async (root, mode) => {
     TestResource.resetId();
 
-    const result = await root
+    const result = root
       .expectStable()
       .expectHTML(({ lastState, lastCount }) => {
         return `<p>${lastState}</p><p>${lastCount}</p><label><span>Increment</span><button>++</button></label>`;
@@ -87,8 +87,8 @@ testReact<void, { test: TestResource; lastState: string; lastCount: number }>(
   }
 );
 
-testReact<void, { count: number }>("most basic useLifecycle", async (root) => {
-  await root
+testReact<void, { count: number }>("most basic useLifecycle", (root) => {
+  root
     .expectStable()
     .expectHTML(({ count }) => `<div>${count}</div>`)
     .render((setup) => {
@@ -107,7 +107,7 @@ testReact<void, { count: number }>("most basic useLifecycle", async (root) => {
 });
 
 testReact<void, { count: number }>("useLifecycle with update", async (root) => {
-  const result = await root
+  const result = root
     .expectStable()
     .expectHTML(({ count }) => `<div>${count}</div><button>++</button>`)
     .render((setup) => {
@@ -147,7 +147,7 @@ testReact<void, { count: number }>("useLifecycle with update", async (root) => {
 testReact<void, { count: number }>(
   "useLifecycle with cleanup",
   async (root) => {
-    const result = await root
+    const result = root
       .expectStable()
       .expectHTML(({ count }) => `<div>${count}</div><button>++</button>`)
       .render((setup) => {
@@ -196,7 +196,7 @@ testReact<void, { count: number }>(
 testReact<void, { count: number }>(
   "useLifecycle with cleanup and prev",
   async (root, mode) => {
-    const result = await root
+    const result = root
       .expectStable()
       .expectHTML(({ count }) => `<div>${count}</div><button>++</button>`)
       .render((setup) => {
@@ -259,7 +259,7 @@ testReact<void, { count: number }>(
 testReact<void, { count: number }>(
   "useLifecycle with invalidation",
   async (root, mode) => {
-    const result = await root
+    const result = root
       .expectStable()
       .expectHTML(
         ({ count }) =>
