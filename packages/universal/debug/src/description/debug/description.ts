@@ -4,7 +4,7 @@ import type {
   CallStack,
   Description as IDescription,
   DescriptionDetails,
-  DescriptionRuntime,
+  DescFn,
   Nesting,
   ReactiveId,
   ReactiveType,
@@ -148,4 +148,4 @@ export const Desc = ((
     caller,
   });
   return desc;
-}) satisfies DescriptionRuntime;
+}) satisfies DescFn;

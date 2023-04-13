@@ -2,6 +2,7 @@ import type {
   AutotrackingRuntime,
   CallerStackFn,
   DebugRuntime,
+  DescFn,
   DescriptionDetails,
   Runtime,
   SubscriptionRuntime,
@@ -29,9 +30,6 @@ function getRuntime(): Runtime {
 }
 
 export const UNKNOWN_REACTIVE_VALUE = "{unknown reactive value}";
-
-type DescFn =
-  typeof import("../../debug/src/description/debug/description.js")["Desc"];
 
 class RuntimeImpl implements Runtime {
   get Desc(): DescFn | undefined {

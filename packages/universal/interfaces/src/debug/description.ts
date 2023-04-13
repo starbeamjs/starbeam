@@ -9,7 +9,7 @@ export type ReactiveType =
   | "collection"
   | "collection:item";
 
-export type DescriptionRuntime = (
+export type DescFn = (
   type: ReactiveType,
   specified?: string | Description | undefined,
   // FIXME: speculative inference strategy: if you have a call stack, use the

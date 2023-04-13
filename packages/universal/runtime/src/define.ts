@@ -3,7 +3,7 @@ import type {
   AutotrackingRuntime,
   CallerStackFn,
   DebugRuntime,
-  DescriptionRuntime,
+  DescFn,
   Runtime as IRuntime,
   SubscriptionRuntime,
 } from "@starbeam/interfaces";
@@ -53,7 +53,7 @@ class Runtime implements IRuntime {
     this.#debug = debug;
   }
 
-  get Desc(): DescriptionRuntime | undefined {
+  get Desc(): DescFn | undefined {
     return this.debug?.desc;
   }
 

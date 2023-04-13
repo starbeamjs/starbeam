@@ -33,7 +33,7 @@ const {
 /** @typedef {import("rollup").RollupOptions} RollupOptions */
 /**
  * @typedef {import("./config.js").ESLintExport} ESLintExport
- * @typedef {import("./config.js").ViteExport} ViteExport
+ * @typedef {import("./config.js").ViteConfig} ViteConfig
  * @typedef {import("./config.js").StarbeamKey} StarbeamKey
  * @typedef {import("./config.js").JsonValue} JsonValue
  * @typedef {import("./config.js").JsonObject} JsonObject
@@ -252,7 +252,7 @@ export class Package {
 
   /**
    * @param {ImportMeta | string} meta
-   * @returns {Promise<ViteExport>}
+   * @returns {Promise<ViteConfig>}
    */
   static async viteConfig(meta) {
     const pkg = Package.at(meta);
@@ -312,7 +312,7 @@ export class Package {
   }
 
   /**
-   * @returns {Promise<import("./config.js").ViteExport>}
+   * @returns {Promise<import("./config.js").ViteConfig>}
    */
   async #viteConfig() {
     return viteConfig({
@@ -491,7 +491,7 @@ function mapExternal(inline) {
 }
 
 /**
- * @param {import("./config.js").ViteExport} config
+ * @param {import("./config.js").ViteConfig} config
  */
 async function viteConfig(config) {
   return config;
