@@ -1,4 +1,4 @@
-import type { Description } from "@starbeam/interfaces/index.js";
+import type { Description } from "@starbeam/interfaces";
 import { useSetup } from "@starbeam/react";
 import { RUNTIME } from "@starbeam/runtime";
 
@@ -11,7 +11,7 @@ export default function useQuery<T>(
   description?: string | Description
 ): AsyncData<T> {
   const desc = RUNTIME.debug
-    .desc("resource", description, "useQuery")
+    ?.desc("resource", description, "useQuery")
     ?.detail("formula", "query", [key]);
 
   return useSetup(({ on }) => {
@@ -19,10 +19,10 @@ export default function useQuery<T>(
       QUERIES.fetch(key).catch((e) => {
         console.error(e);
       });
-    }, desc.implementation("on.idle", { reason: "on.idle" }));
+    }, desc?.implementation("resource", "on.idle", "on idle callback"));
 
     return () => {
-      return QUERIES.query(key, query, desc).asData(callerStack());
+      return QUERIES.query(key, query, desc).asData(RUNTIME.callerStack?.());
     };
   }, desc).compute();
 }

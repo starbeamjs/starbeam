@@ -40,9 +40,17 @@ export function mapPresentArray<T, U>(
 }
 
 export function mapIfPresent<T, U>(
+  list: T[] | undefined | null,
+  mapper: (item: T, index: number) => U
+): MutablePresentArray<U> | undefined;
+export function mapIfPresent<T, U>(
+  list: readonly T[] | undefined | null,
+  mapper: (item: T, index: number) => U
+): ReadonlyPresentArray<U> | undefined;
+export function mapIfPresent<T, U>(
   list: T[] | readonly T[] | undefined | null,
   mapper: (item: T, index: number) => U
-): PresentArray<U> | undefined {
+): MutablePresentArray<U> | ReadonlyPresentArray<U> | undefined {
   if (list && isPresentArray(list)) {
     return mapPresentArray(list, mapper);
   } else {

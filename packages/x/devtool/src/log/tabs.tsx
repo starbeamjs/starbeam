@@ -4,7 +4,9 @@ import type { JSX } from "preact";
 
 import css from "./css/pane.css?inline";
 import { type UpdatePane, Pane, UiPane } from "./pane.js";
-import type { DevtoolsOptions } from "./shared.js";
+
+type FIXME = any;
+type DevtoolsOptions = FIXME;
 
 export function TabsPane(
   into: Element,

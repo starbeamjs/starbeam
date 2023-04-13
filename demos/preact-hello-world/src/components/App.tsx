@@ -1,13 +1,13 @@
-import { create, createCell, use } from "@starbeam/preact";
-import type { Factory, ResourceBlueprint } from "@starbeam/universal";
-import { Cell, Resource, service } from "@starbeam/universal";
+import { create, createCell, service, use } from "@starbeam/preact";
+import type { ResourceBlueprint } from "@starbeam/universal";
+import { Cell, Resource } from "@starbeam/universal";
 import type { JSX } from "preact";
 import { useState } from "preact/hooks";
 
 import Card from "./Card.jsx";
 
 export default function App(): JSX.Element {
-  const counter = create(Count);
+  const counter = use(Count);
 
   const [showChild, setShowChild] = useState(true);
   const cell = createCell(0, "cell");
@@ -112,7 +112,7 @@ function UsingCounterService({
   Service,
 }: {
   name: string;
-  Service: Factory<CounterData>;
+  Service: ResourceBlueprint<CounterData>;
 }): JSX.Element {
   const counter = service(Service);
 
@@ -157,7 +157,7 @@ interface CounterData {
   increment: () => void;
 }
 
-function Count(): CounterData {
+const Count = Resource(() => {
   const count = Cell(0, "data count");
 
   return {
@@ -168,7 +168,7 @@ function Count(): CounterData {
       count.current++;
     },
   };
-}
+});
 
 function CounterWithCleanup(
   status: Cell<string> = Cell("new")

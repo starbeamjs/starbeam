@@ -1,10 +1,4 @@
 import { useProp, useSetup } from "@starbeam/react";
-import {
-  type Reactive,
-  type ResourceBlueprint,
-  Cell,
-  Resource,
-} from "@starbeam/universal";
 
 import {
   formatLocale,
@@ -13,6 +7,9 @@ import {
   TIME_ZONES,
   timeZoneName,
 } from "./intl.js";
+import type { Reactive } from "@starbeam/interfaces";
+import { Resource, type ResourceBlueprint } from "@starbeam/resource";
+import { Cell } from "@starbeam/reactive";
 
 export default function (props: { locale: string }): JSX.Element {
   const locale = useProp(props.locale);
@@ -50,7 +47,7 @@ export default function (props: { locale: string }): JSX.Element {
             </label>
           </form>
 
-          <p className="output">{date.current.formatted}</p>
+          <p className="output">{date.current?.formatted}</p>
         </>
       );
     };

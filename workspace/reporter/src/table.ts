@@ -1,8 +1,4 @@
-import {
-  isPresent,
-  mapIfPresent,
-  objectHasKeys,
-} from "@starbeam/core-utils";
+import { isPresent, mapIfPresent, objectHasKeys } from "@starbeam/core-utils";
 import { DisplayStruct } from "@starbeam-workspace/shared";
 import Table from "cli-table3";
 
@@ -106,13 +102,13 @@ class Columns {
   }
 
   headers(state: LoggerState): string[] | undefined {
-    return mapIfPresent(
-      this.#columns,
-      (column) => column.header(state) ?? ""
-    );
+    return mapIfPresent(this.#columns, (column) => column.header(state) ?? "");
   }
 
-  columnWidths(rows: Cell[][], state: LoggerState): number[] | undefined {
+  columnWidths(
+    rows: Cell[][],
+    state: LoggerState
+  ): readonly number[] | undefined {
     return mapIfPresent(this.#columns, (column, index) =>
       column.maxWidth(rows.map((row) => row[index]).filter(isPresent), state)
     );

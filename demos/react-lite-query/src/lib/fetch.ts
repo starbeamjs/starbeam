@@ -1,5 +1,6 @@
-import { type Description, type Stack, callerStack } from "@starbeam/debug";
 import { reactive } from "@starbeam/collections";
+import type { CallStack, Description } from "@starbeam/interfaces";
+import { RUNTIME } from "@starbeam/runtime";
 import { Cell } from "@starbeam/universal";
 import { isPresent, verified } from "@starbeam/verify";
 
@@ -11,7 +12,7 @@ export class Queries {
   query<T>(
     key: string,
     query: () => Promise<T>,
-    description: Description
+    description?: Description | undefined
   ): Async<T> {
     let result = this.#queries.get(key);
 
@@ -53,13 +54,18 @@ interface Variant<T> {
   readonly value: Cell<T | null>;
 }
 
-function selected<T extends void>(description: Description): Variant<T>;
-function selected<T>(value: T, description: Description): Variant<T>;
+function selected<T extends void>(
+  description: Description | undefined
+): Variant<T>;
+function selected<T>(
+  value: T,
+  description: Description | undefined
+): Variant<T>;
 function selected(
-  ...args: [Description] | [unknown, Description]
+  ...args: [Description | undefined] | [unknown, Description | undefined]
 ): Variant<unknown> {
   let value: unknown;
-  let description: Description;
+  let description: Description | undefined;
 
   if (args.length === 1) {
     value = undefined;
@@ -71,29 +77,35 @@ function selected(
 
   return {
     selected: Cell(true, {
-      description: description.implementation("selected?", {
-        reason: "selected?",
-      }),
+      description: description?.implementation(
+        "cell",
+        "selected?",
+        "cell is selected"
+      ),
     }),
     value: Cell(value, {
-      description: description.implementation("value", {
-        reason: "value",
-        stack: callerStack(),
-      }),
+      description: description?.implementation(
+        "cell",
+        "value",
+        "cell value",
+        RUNTIME.callerStack?.()
+      ),
     }),
   };
 }
 
-function deselected<T>(description: Description): Variant<T>;
-function deselected(description: Description): Variant<unknown> {
+function deselected<T>(description: Description | undefined): Variant<T>;
+function deselected(description: Description | undefined): Variant<unknown> {
   return {
     selected: Cell(false, {
-      description: description.implementation("selected?", {
-        reason: "selected?",
-      }),
+      description: description?.implementation(
+        "cell",
+        "selected?",
+        "cell is selected"
+      ),
     }),
     value: Cell(null as unknown, {
-      description: description.implementation("value", { reason: "value" }),
+      description: description?.implementation("cell", "value", "cell value"),
     }),
   };
 }
@@ -127,13 +139,21 @@ export type AsyncData<T> =
     };
 
 export class Async<T = unknown> {
-  static idle<T>(description: Description): Async<T> {
+  static idle<T>(description: Description | undefined): Async<T> {
     return new Async<T>(
       {
-        idle: Variant.selected(description.detail("variant", ["idle"])),
-        loading: Variant.deselected(description.detail("variant", ["loading"])),
-        loaded: Variant.deselected(description.detail("variant", ["loaded"])),
-        error: Variant.deselected(description.detail("variant", ["error"])),
+        idle: Variant.selected(
+          description?.detail("cell", "variant", ["idle"])
+        ),
+        loading: Variant.deselected(
+          description?.detail("cell", "variant", ["loading"])
+        ),
+        loaded: Variant.deselected(
+          description?.detail("cell", "variant", ["loaded"])
+        ),
+        error: Variant.deselected(
+          description?.detail("cell", "variant", ["error"])
+        ),
       },
       "idle"
     );
@@ -147,7 +167,7 @@ export class Async<T = unknown> {
     this.#currentType = current;
   }
 
-  asData(caller: Stack): AsyncData<T> {
+  asData(caller = RUNTIME.callerStack?.()): AsyncData<T> {
     switch (this.#currentType) {
       case "idle":
         return { state: "idle" };
@@ -187,13 +207,13 @@ export class Async<T = unknown> {
 
   is<K extends keyof AsyncStates<T>>(
     type: K,
-    caller: Stack = callerStack()
+    caller = RUNTIME.callerStack?.()
   ): this is K extends "loaded" ? { data: T } : this {
     return this.#states[type].selected.read(caller);
   }
 
   get data(): T | null {
-    return this.#states.loaded.value.read(callerStack());
+    return this.#states.loaded.value.read(RUNTIME.callerStack?.());
   }
 
   idle(): this {

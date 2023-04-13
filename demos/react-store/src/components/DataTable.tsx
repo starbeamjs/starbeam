@@ -1,20 +1,16 @@
-import { LOGGER, LogLevel } from "@starbeam/debug";
 import { useProp, useReactive, useSetup } from "@starbeam/react";
 import { Cell } from "@starbeam/universal";
-import { DevTools } from "@starbeamx/devtool";
 import { Table } from "@starbeamx/store";
 import type { FormEvent } from "react";
 
 import { type Person, People } from "../lib/people.js";
-
-LOGGER.level = LogLevel.Debug;
 
 export default function (props: { locale: string }): JSX.Element {
   const locale = useProp(props.locale, "props.locale");
 
   const { people, append, filter, total, rows, table } = useSetup(
     (component) => {
-      component.attach(DevTools);
+      // component.attach(DevTools);
 
       const table = Table.create<Person>({
         columns: ["name", "location"],

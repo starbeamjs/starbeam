@@ -12,5 +12,6 @@ export type {
   OkRecord,
   OkResult,
   UnionInstance,
+  UnionClass,
 } from "./src/type-magic.js";
 export { PresentArray, Result, Union } from "./src/type-magic.js";

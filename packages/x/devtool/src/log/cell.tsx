@@ -1,15 +1,20 @@
 import "preact";
 
 /** @jsxRuntime automatic @jsxImportSource preact */
-import type {
-  CellConsumeOperation,
-  CellUpdateOperation,
-} from "@starbeam/debug";
-import type { Timestamp } from "@starbeam/interfaces/index.js";
+// import type {
+//   CellConsumeOperation,
+//   CellUpdateOperation,
+// } from "@starbeam/debug";
+import type { Timestamp } from "@starbeam/interfaces";
 import type { JSX } from "preact";
 
-import type { DevtoolsOptions } from "./shared.js";
+// import type { DevtoolsOptions } from "./shared.js";
 import { LogLineFor } from "./ui.js";
+
+type FIXME = any;
+type CellConsumeOperation = FIXME;
+type DevtoolsOptions = FIXME;
+type CellUpdateOperation = FIXME;
 
 export function CellConsumeLine({
   line,

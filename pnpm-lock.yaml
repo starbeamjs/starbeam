@@ -173,9 +173,18 @@ importers:
       '@starbeam/collections':
         specifier: workspace:^
         version: link:../../packages/universal/collections
+      '@starbeam/interfaces':
+        specifier: workspace:^
+        version: link:../../packages/universal/interfaces
       '@starbeam/preact':
         specifier: workspace:^
         version: link:../../packages/preact/preact
+      '@starbeam/reactive':
+        specifier: workspace:^
+        version: link:../../packages/universal/reactive
+      '@starbeam/resource':
+        specifier: workspace:^
+        version: link:../../packages/universal/resource
       '@starbeam/universal':
         specifier: workspace:^
         version: link:../../packages/universal/universal
@@ -287,12 +296,18 @@ importers:
       '@starbeam/debug':
         specifier: workspace:^
         version: link:../../packages/universal/debug
+      '@starbeam/interfaces':
+        specifier: workspace:^
+        version: link:../../packages/universal/interfaces
       '@starbeam/react':
         specifier: workspace:^
         version: link:../../packages/react/react
       '@starbeam/reactive':
         specifier: workspace:^
         version: link:../../packages/universal/reactive
+      '@starbeam/resource':
+        specifier: workspace:^
+        version: link:../../packages/universal/resource
       '@starbeam/universal':
         specifier: workspace:^
         version: link:../../packages/universal/universal
@@ -1789,6 +1804,9 @@ importers:
       '@starbeam-dev/build-support':
         specifier: workspace:*
         version: link:../build
+      '@types/ansicolor':
+        specifier: workspace:^
+        version: link:../../@types/ansicolor
       '@types/node':
         specifier: 18.15.11
         version: 18.15.11

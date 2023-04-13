@@ -38,7 +38,11 @@ type FgColor = Expand<{
   default: Color;
 }>;
 
-export type Color = BgColor & FgColor & ((text: string) => string);
+interface Methods {
+  strip: Color;
+}
+
+export type Color = Methods & BgColor & FgColor & ((text: string) => string);
 
 const DEFAULT: Color;
 export default DEFAULT;

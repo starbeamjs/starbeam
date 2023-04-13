@@ -1,12 +1,14 @@
 /** @jsxRuntime automatic @jsxImportSource preact */
 
-import type { DescriptionParts } from "@starbeam/debug";
 import { Timestamp } from "@starbeam/runtime";
 import type { ComponentChildren, JSX } from "preact";
 import { useState } from "preact/hooks";
 
 import { DescribeLeaf, Frame, Internal } from "./describe.js";
-import type { DevtoolsOptions } from "./shared.js";
+
+type FIXME = any;
+type DevtoolsOptions = FIXME;
+type DescriptionParts = FIXME;
 
 function Line({
   timestamp,

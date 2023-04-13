@@ -20,7 +20,7 @@ export function StockDetails({
   const state = use(() => getStock(ticker), [ticker]);
 
   async function follow(): Promise<void> {
-    if (state.stock === null) {
+    if (state === undefined || state.stock === null) {
       return;
     }
 
@@ -37,6 +37,10 @@ export function StockDetails({
   }
 
   return useReactive(() => {
+    if (state === undefined) {
+      return <></>;
+    }
+
     const { stock } = state;
 
     return (

@@ -4,12 +4,12 @@ import {
   isSingleItemArray,
 } from "@starbeam/core-utils";
 import type { Reporter } from "@starbeam-workspace/reporter";
-import type { UnionClass } from "@starbeam-workspace/shared/src/type-magic.js";
 import util from "util";
 
 import type { Package } from "../package";
 import { StarbeamType } from "../unions.js";
 import { ParseError } from "./query";
+import type { UnionClass } from "@starbeam-workspace/shared";
 
 export class SingleFilter implements Filter {
   readonly type = "ok";

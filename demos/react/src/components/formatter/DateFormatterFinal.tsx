@@ -47,7 +47,7 @@ export default function DateFormatterStarbeam(props: {
           </select>
         </label>
       </form>
-      <p className="output">{date.formatted}</p>
+      <p className="output">{date?.formatted}</p>
     </>
   );
 }
@@ -78,15 +78,16 @@ function Clock(
       }),
       refresh,
     };
-  }).initial(() => {
-    return {
-      formatted: formatTime(date.now, {
-        timeZone: typeof timeZone === "string" ? timeZone : timeZone.read(),
-        locale: typeof locale === "string" ? locale : locale.read(),
-      }),
-      refresh,
-    };
   });
+  // .initial(() => {
+  //   return {
+  //     formatted: formatTime(date.now, {
+  //       timeZone: typeof timeZone === "string" ? timeZone : timeZone.read(),
+  //       locale: typeof locale === "string" ? locale : locale.read(),
+  //     }),
+  //     refresh,
+  //   };
+  // });
 }
 
 function formatTime(

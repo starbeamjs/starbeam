@@ -7,18 +7,14 @@ import { useMemo } from "preact/hooks";
 
 import { getCurrentComponent } from "./options.js";
 
-export function use<T>(
-  blueprint: IntoResourceBlueprint<T, void>
-): ReadValue<T> {
+export function use<T>(blueprint: IntoResourceBlueprint<T, void>): T {
   return useMemo(() => {
     const owner = verified(getCurrentComponent(), isPresent);
     return resource.use(blueprint, { lifetime: owner });
   }, []).current;
 }
 
-export function service<T>(
-  blueprint: IntoResourceBlueprint<T, void>
-): ReadValue<T> {
+export function service<T>(blueprint: IntoResourceBlueprint<T, void>): T {
   return useMemo(() => {
     return createService(blueprint);
   }, []).current;

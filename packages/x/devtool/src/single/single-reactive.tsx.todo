@@ -1,17 +1,14 @@
 import "./devtool.css";
 
-import type {
-  DebugListener,
-  DebugOperation,
-  Description,
-} from "@starbeam/debug";
-import type { CellTag } from "@starbeam/interfaces";
-import type { Tagged } from "@starbeam/runtime";
-import { TIMELINE } from "@starbeam/runtime";
+import type { CellTag, Description } from "@starbeam/interfaces";
+import { PUBLIC_TIMELINE, RUNTIME, type Tagged } from "@starbeam/runtime";
 import { getTag } from "@starbeam/tags";
 import { isPresent, verified } from "@starbeam/verify";
 import type { JSX } from "preact";
 import { render } from "preact";
+
+type FIXME = any;
+type DebugOperation = FIXME;
 
 export function DevtoolsFor(props: {
   reactive: Tagged;
@@ -41,12 +38,12 @@ export function DevtoolsFor(props: {
             <li>
               <span class="specified">description</span>
               <span class="kind">
-                {taggedDescription(props.reactive).fullName}
+                {RUNTIME.debug?.describeTagged(props.reactive)}
               </span>
             </li>
             <li>
               <span class="specified">last updated</span>
-              <span class="kind">{String(TIMELINE.now)}</span>
+              <span class="kind">{String(PUBLIC_TIMELINE.now)}</span>
             </li>
           </ul>
           <h1>Dependencies</h1>
@@ -83,7 +80,7 @@ function Dependency({
   const specified = <span class="specified">{description.fullName}</span>;
 
   function displayLink(): void {
-    if (description.fullName) {
+    if ( description) {
       console.log(
         "%c%s @ %s",
         "color:red",

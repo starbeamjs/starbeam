@@ -1,15 +1,13 @@
 import "preact";
 
 import { isPresentArray, isSingleItemArray } from "@starbeam/core-utils";
-/** @jsxRuntime automatic @jsxImportSource preact */
-import type {
-  DescriptionParts,
-  DetailsPart,
-  StackFrameDisplayOptions,
-} from "@starbeam/interfaces/index.js";
 import type { ComponentChildren, JSX } from "preact";
-
-import type { DevtoolsOptions } from "./shared.js";
+/** @jsxRuntime automatic @jsxImportSource preact */
+type FIXME = any;
+type DevtoolsOptions = FIXME;
+type DescriptionParts = FIXME;
+type StackFrameDisplayOptions = FIXME;
+type DetailsPart = FIXME;
 
 export function DescribeLeaf({
   leaf,
@@ -200,7 +198,7 @@ export function Name({
       }
     }
     default:
-      exhaustive(details);
+      exhaustive(details as never);
   }
 }
 

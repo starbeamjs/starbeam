@@ -1,7 +1,5 @@
 import js from "@starbeam/collections";
 import { create, use } from "@starbeam/preact";
-import type { ResourceBlueprint } from "@starbeam/universal";
-import { type Reactive, Cell, Resource } from "@starbeam/universal";
 import type { JSX } from "preact/jsx-runtime";
 
 import {
@@ -11,6 +9,9 @@ import {
   TIME_ZONES,
   timeZoneName,
 } from "../intl.js";
+import { Cell } from "@starbeam/reactive";
+import type { Reactive } from "@starbeam/interfaces";
+import { Resource, type ResourceBlueprint } from "@starbeam/resource";
 
 export default function DateFormatterStarbeam(props: {
   locale: string;
