@@ -5,7 +5,7 @@ import { html, testReact } from "@starbeam-workspace/react-test-utils";
 import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { expect } from "vitest";
 
-testReact<void, boolean>("useResource", async (root) => {
+testReact<void, boolean>("useResource", (root) => {
   const result = root
     .expectHTML((value) => `<p>isRendering = ${String(value)}</p>`)
     .render((state) => {
