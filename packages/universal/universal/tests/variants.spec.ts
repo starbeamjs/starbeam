@@ -220,7 +220,7 @@ function Stability(reactive: Tagged): {
         RUNTIME.debug?.describeTagged(reactive) ?? "{unknown reactive value}",
         "invalidated by"
       );
-      console.log(internals.description);
+      console.info(internals.description);
       console.groupEnd();
     }
     changed = true;

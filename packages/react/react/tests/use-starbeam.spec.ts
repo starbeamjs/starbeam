@@ -41,7 +41,6 @@ describe("useStarbeam", () => {
           const resource = use(testResource);
 
           return Formula(() => {
-            console.log({ resource, current: resource.current });
             state.value(resource.current);
             return html.span(resource.current?.count ?? "uninitialized");
           });
@@ -56,19 +55,15 @@ describe("useStarbeam", () => {
   });
 
   testReact<void, TestState | undefined>("using a service", async (root) => {
-    const result = await root
+    const result = root
       .expectHTML((value) => `<span>${value?.count ?? "uninitialized"}</span>`)
-      .render((state) => {
-        console.log("inside Starbeam frame");
-        return createElement(Starbeam, null, react.render(App, { state }));
-      });
+      .render((state) => createElement(Starbeam, null, react.render(App, { state })));
 
     function App({ state }: { state: RenderState<TestState | undefined> }) {
       return useStarbeam(({ service }) => {
         const resource = service(testResource);
 
         return Formula(() => {
-          console.log({ resource: resource.current?.count });
           state.value(resource.current);
           return html.span(resource.current?.count ?? "uninitialized");
         });

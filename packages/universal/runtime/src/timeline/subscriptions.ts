@@ -25,10 +25,15 @@ export class Subscriptions {
   readonly #queuedSubscriptions = new WeakSetMap<FormulaTag, NotifyReady>();
 
   register(tag: Tag, ready: NotifyReady): Unsubscribe {
-    const unsubscribes = getTargets(tag).map((t) => this.#subscribe(t, ready));
+    const targets = getTargets(tag);
+    targets.forEach((t) => {
+      this.#subscribe(t, ready);
+    });
 
     return () => {
-      for (const unsubscribe of unsubscribes) unsubscribe();
+      for (const target of targets) {
+        this.#unsubscribe(target, ready);
+      }
     };
   }
 
@@ -58,14 +63,18 @@ export class Subscriptions {
     }
   }
 
-  #subscribe(target: SubscriptionTarget, ready: NotifyReady) {
+  #unsubscribe(target: SubscriptionTarget, ready: NotifyReady) {
     if (target.type === "formula" && !target.initialized) {
-      const set = this.#queuedSubscriptions.add(target, ready);
+      this.#queuedSubscriptions.delete(target, ready);
+    } else {
+      const subscription = this.#tagSubscriptions.get(target);
+      subscription.unsubscribe(ready);
+    }
+  }
 
-      // FIXME: Support removal after upgrade
-      return () => {
-        set.delete(ready);
-      };
+  #subscribe(target: SubscriptionTarget, ready: NotifyReady): void {
+    if (target.type === "formula" && !target.initialized) {
+      this.#queuedSubscriptions.add(target, ready);
     } else {
       const subscription = this.#tagSubscriptions.get(target);
 
@@ -74,13 +83,15 @@ export class Subscriptions {
         this.#cellSubscriptions.add(cell, subscription);
       }
 
-      return subscription.subscribe(ready);
+      subscription.subscribe(ready);
+      return;
     }
   }
 }
 
 interface Subscription {
-  readonly subscribe: (ready: NotifyReady) => Unsubscribe;
+  readonly subscribe: (ready: NotifyReady) => void;
+  readonly unsubscribe: (ready: NotifyReady) => void;
   readonly notify: (cell: CellTag) => void;
   readonly update: (formula: FormulaTag) => Diff<CellTag>;
 }
@@ -92,6 +103,10 @@ function Subscription(tag: Tag): Subscription {
   function subscribe(ready: NotifyReady): Unsubscribe {
     readySet.add(ready);
     return () => readySet.delete(ready);
+  }
+
+  function unsubscribe(ready: NotifyReady): void {
+    readySet.delete(ready);
   }
 
   function notify(cell: CellTag) {
@@ -106,7 +121,7 @@ function Subscription(tag: Tag): Subscription {
     return diff(prev, next);
   }
 
-  return { subscribe, notify, update };
+  return { subscribe, unsubscribe, notify, update };
 }
 
 const EMPTY_SET = new Set();

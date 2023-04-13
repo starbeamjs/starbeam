@@ -115,7 +115,6 @@ describe("ResourceList", () => {
         subscription.connect();
 
         on.cleanup(() => {
-          console.trace({ disconnecting: item.id });
           subscription.disconnect();
         });
 

@@ -1,5 +1,4 @@
 import { isPresentArray } from "@starbeam/core-utils";
-import { logTag } from "@starbeam/debug";
 import type { ReactiveValue } from "@starbeam/interfaces";
 import { CachedFormula, Cell, RUNTIME } from "@starbeam/reactive";
 import { PUBLIC_TIMELINE, TAG } from "@starbeam/runtime";
@@ -147,9 +146,7 @@ describe("Tagged", () => {
 
     expect(delegate.read()).toBe(3);
 
-    logTag(delegate[TAG]);
     satisfying(numbers.current, isPresentArray)[0].current++;
-    logTag(delegate[TAG]);
 
     expect(stale).toBe(true);
     stale = false;
@@ -166,6 +163,138 @@ describe("Tagged", () => {
     expect(stale).toBe(false);
 
     expect(delegate.read()).toBe(8);
+  });
+
+  describe("unsubscribing", () => {
+    test("unsubscribing from a cell", () => {
+      const cell = Cell(0);
+      let stale = false;
+
+      const unsubscribe = PUBLIC_TIMELINE.on.change(cell, () => {
+        stale = true;
+      });
+
+      expect(stale).toBe(false);
+
+      cell.current++;
+
+      expect(stale).toBe(true);
+      stale = false;
+
+      unsubscribe();
+
+      cell.current++;
+
+      expect(stale).toBe(false);
+    });
+
+    test("unsubscribing from a formula", () => {
+      const { sum, numbers } = Sum();
+      let stale = false;
+
+      expect(sum.read()).toBe(0);
+      const unsubscribe = PUBLIC_TIMELINE.on.change(sum, () => {
+        stale = true;
+      });
+
+      expect(stale).toBe(false);
+
+      numbers.current = [...numbers.current, Cell(1), Cell(2)];
+
+      expect(stale).toBe(true);
+      stale = false;
+
+      unsubscribe();
+
+      numbers.current = [...numbers.current, Cell(3)];
+
+      expect(stale).toBe(false);
+    });
+
+    test("unsubscribing from a delegate", () => {
+      const cell = Cell(0);
+
+      const delegate: ReactiveValue<number> = {
+        read: () => cell.current,
+        [TAG]: createDelegateTag(RUNTIME.Desc?.("delegate"), [getTag(cell)]),
+      };
+
+      let stale = false;
+
+      const unsubscribe = PUBLIC_TIMELINE.on.change(delegate, () => {
+        stale = true;
+      });
+
+      expect(stale).toBe(false);
+
+      cell.current++;
+
+      expect(stale).toBe(true);
+      stale = false;
+
+      unsubscribe();
+
+      cell.current++;
+
+      expect(stale).toBe(false);
+    });
+
+    test("unsubscribe from a subcription to an uninitialized formula before it was initialized", () => {
+      const { sum, numbers } = Sum();
+      let stale = false;
+
+      const unsubscribe = PUBLIC_TIMELINE.on.change(sum, () => {
+        stale = true;
+      });
+
+      expect(stale).toBe(false);
+
+      // unsubscribing before the formula is initialized
+      unsubscribe();
+
+      expect(sum.read()).toBe(0);
+      expect(stale).toBe(false);
+
+      numbers.current = [...numbers.current, Cell(1), Cell(2)];
+      expect(sum.read()).toBe(3);
+      expect(stale).toBe(false);
+    });
+
+    test("unsubscribing from a subscription to an uninitialized formula after it was initialized", () => {
+      const { sum, numbers } = Sum();
+      let stale = false;
+
+      const unsubscribe = PUBLIC_TIMELINE.on.change(sum, () => {
+        stale = true;
+      });
+
+      expect(stale).toBe(false);
+
+      numbers.current = [...numbers.current, Cell(1), Cell(2)];
+
+      // the subscription is queued. It will be called when the formula is
+      // initialized, but not before.
+      expect(stale).toBe(false);
+
+      // the formula is initialized
+      expect(sum.read()).toBe(3);
+
+      // the subscription is still not called, because the subscriptions are
+      // only called when the value they represent is updated.
+      expect(stale).toBe(false);
+
+      numbers.current = [...numbers.current, Cell(3)];
+
+      // the subscription is called, because the formula is updated
+      expect(stale).toBe(true);
+      stale = false;
+
+      unsubscribe();
+
+      numbers.current = [...numbers.current, Cell(4)];
+
+      expect(stale).toBe(false);
+    });
   });
 });
 

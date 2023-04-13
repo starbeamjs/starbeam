@@ -39,7 +39,7 @@ export const logTag = (
     describe(tag.description, { id: options.id }),
     `(updated at ${tag.lastUpdated.toString({ format: "timestamp" })})`
   );
-  console.log(debug);
+  console.info(debug);
   console.groupEnd();
 };
 

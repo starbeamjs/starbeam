@@ -146,10 +146,6 @@ export class ResourceBlueprintImpl<T, M = void> {
     const metadata = options.metadata ?? (blueprint.#metadata as M);
     const description = options.description ?? blueprint.#description;
 
-    if (lifetime === undefined) {
-      console.trace({ blueprint, options, lifetime });
-    }
-
     return evaluateResourceConstructor(
       {
         Constructor,

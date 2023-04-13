@@ -59,7 +59,7 @@ export const Style = {
 } as const;
 
 export function log(message: string, style: Style = Style.default): void {
-  console.log(Fragment(style, message));
+  console.info(Fragment(style, message));
 }
 
 log.newline = () => {
