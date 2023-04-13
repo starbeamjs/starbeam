@@ -15,28 +15,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: "Setup node and install dependencies"
-        uses: ./.github/actions/setup-node-and-install
-        # currently not used - as tests, lints, etc are all top-level commands / projects
-        # if we were to make each workspace isolated, we'd first need to copy tsc/eslint/vitest
-        # configs into each package -- but that would be slower than what today's setup is.
-      - id: set-matrix
-        name: "Find workspaces"
-        # generates a list of root-relative paths to each workspace
-        #
-        # the pipes line-by-line:
-        #   Remove version information
-        #   Remove the current directory
-        #   Remove empty lines
-        #   Remove leading slashes
-        run: |
-          root_of_repo=$(git rev-parse --show-toplevel)
-          workspaces=$(pnpm ls -r --depth -1 --long --parseable \
-            | cut -f1 -d':' \
-            | sed "s~$root_of_repo~~g" \
-            | sed '/^[[:space:]]*$/d' \
-            | sed 's~^/~~g')
-          echo "::set-output name=matrix::$(echo $workspaces)"
+      - uses: NullVoxPopuli/action-setup-pnpm@v2
 
   test:
     name: "Tests"
@@ -44,8 +23,7 @@ jobs:
     needs: ["install_dependencies"]
     steps:
       - uses: actions/checkout@v2
-      - name: "Setup node and install dependencies"
-        uses: ./.github/actions/setup-node-and-install
+      - uses: NullVoxPopuli/action-setup-pnpm@v2
       - run: pnpm ci:specs
 
   test_prod:
@@ -54,8 +32,7 @@ jobs:
     needs: ["install_dependencies"]
     steps:
       - uses: actions/checkout@v2
-      - name: "Setup node and install dependencies"
-        uses: ./.github/actions/setup-node-and-install
+      - uses: NullVoxPopuli/action-setup-pnpm@v2
       - run: pnpm ci:prod
 
   typecheck:
@@ -64,8 +41,7 @@ jobs:
     needs: ["install_dependencies"]
     steps:
       - uses: actions/checkout@v2
-      - name: "Setup node and install dependencies"
-        uses: ./.github/actions/setup-node-and-install
+      - uses: NullVoxPopuli/action-setup-pnpm@v2
       - run: pnpm ci:types
 
   lint:
@@ -74,8 +50,7 @@ jobs:
     needs: ["install_dependencies"]
     steps:
       - uses: actions/checkout@v2
-      - name: "Setup node and install dependencies"
-        uses: ./.github/actions/setup-node-and-install
+      - uses: NullVoxPopuli/action-setup-pnpm@v2
       - run: pnpm ci:lint
 
   release:
@@ -85,5 +60,4 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: "Setup node and install dependencies"
-        uses: ./.github/actions/setup-node-and-install
+      - uses: NullVoxPopuli/action-setup-pnpm@v2
