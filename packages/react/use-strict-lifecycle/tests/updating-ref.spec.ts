@@ -6,7 +6,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 testReact<void, { count: number; state: string }>(
   "testReact (testing the test infra)",
   async (root) => {
-    await root
+    root
       .expectHTML(
         ({ count, state }) => `<p>count = ${count}</p><p>state = ${state}</p>`
       )

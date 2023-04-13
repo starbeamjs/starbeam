@@ -36,7 +36,7 @@ interface TestProps {
 
 describe("useSetup", () => {
   testReact<void, State>("returning a render function", async (root) => {
-    const result = await root
+    const result = root
       .expectStable()
       .expectHTML(
         (value) =>
@@ -87,7 +87,7 @@ describe("useSetup", () => {
   testReact<TestProps, State>(
     "returning a render function that takes props",
     async (root) => {
-      const result = await root
+      const result = root
         .expectStable()
         .expectHTML(
           (value, { greeting }) =>
@@ -144,7 +144,7 @@ describe("useSetup", () => {
   );
 
   testReact<void, State>("returning a reactive value", async (root) => {
-    const result = await root
+    const result = root
       .expectStable()
       .expectHTML(
         (value) =>
@@ -188,7 +188,7 @@ describe("useSetup", () => {
   });
 
   testReact<void, State>("returning a static value", async (root) => {
-    const result = await root
+    const result = root
       .expectStable()
       .expectHTML(
         (value) =>

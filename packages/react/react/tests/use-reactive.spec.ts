@@ -15,7 +15,7 @@ let nextId = INITIAL_ID;
 
 describe("useReactive", () => {
   testReact<void, number>("useReactiveSetup with useReactive", async (root) => {
-    const result = await root
+    const result = root
       .expectHTML((value) => `<p>${value}</p><button>++</button>`)
       .render((state) => {
         const { cell, increment } = useSetup(() => {
@@ -49,7 +49,7 @@ describe("useReactive", () => {
     "useSetup with Formula + useReactive",
     async (test) => {
       let testId = 0;
-      const result = await test
+      const result = test
         .expectHTML(({ counter }) => `<p>${counter}</p>`)
         .expectStable()
         .render((state) => {
@@ -78,7 +78,7 @@ describe("useReactive", () => {
     "useSetup with Formula + useReactive",
     async (root) => {
       nextId = INITIAL_ID;
-      const result = await root
+      const result = root
         .expectHTML(({ counter }) => `<p>${counter}</p><button>++</button>`)
         .expectStable()
         .render((state) => {
@@ -118,7 +118,7 @@ describe("useReactive", () => {
   testReact<void, { starbeam: number; react: number }>(
     "useReactive",
     async (root) => {
-      const result = await root
+      const result = root
         .expectStable()
         .expectHTML(
           (count) =>
@@ -183,7 +183,7 @@ describe("useReactive", () => {
   testReact<void, { starbeam: number; react: number }>(
     "useReactiveSetup",
     async (root) => {
-      const result = await root
+      const result = root
         .expectStable()
         .expectHTML(
           (count) =>

@@ -16,7 +16,7 @@ describe("useStarbeamApp", () => {
     async (root) => {
       let currentApp: ReactApp | null = null;
 
-      const result = await root
+      const result = root
         .expectStable()
         .expectHTML((counter) => `<button>${counter}</button>`)
         .render((state) => {

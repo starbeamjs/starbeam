@@ -15,7 +15,7 @@ describe("services", () => {
   beforeEach(AUTH_CHANNELS.reset);
 
   testReact<{ name: string }, Auth | null>("useService", async (root) => {
-    const result = await root
+    const result = root
       .expectHTML((auth) =>
         auth
           ? `<img src="${auth.avatar}"><span>${auth.username}</span>`

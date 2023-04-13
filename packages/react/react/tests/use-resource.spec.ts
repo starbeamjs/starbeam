@@ -16,7 +16,7 @@ describe("useResource", () => {
   testReact<{ name: string }, string | null | undefined>(
     "using useProp",
     async (root) => {
-      const result = await root
+      const result = root
         .expectHTML((message) => `<span>${message ?? "loading"}</span>`)
         .render(
           (state, props) => {
@@ -77,7 +77,7 @@ describe("useResource", () => {
   testReact<{ name: string }, string | null | undefined>(
     "using a dependency array",
     async (root) => {
-      const result = await root
+      const result = root
         .expectHTML((message) => `<span>${message ?? "loading"}</span>`)
         .render(
           (state, { name }) => {
@@ -138,7 +138,7 @@ describe("useResource", () => {
   testReact<{ name: string }, string | null | undefined>(
     "the resource is created when the component is mounted, and effects run",
     async (root) => {
-      const result = await root
+      const result = root
         .expectHTML((message) => `<span>${message ?? "loading"}</span>`)
         .render(
           (state, { name }) => {
@@ -210,7 +210,7 @@ describe("use", () => {
   >("using use() with dependencies", async (root, mode) => {
     ID = 0;
 
-    const result = await root
+    const result = root
       .expectHTML((state) =>
         state?.channel?.message
           ? `<span>${state?.channel.message}</span><button>++ ${state?.channel.id} ++</button>`
@@ -291,7 +291,7 @@ describe("use", () => {
   >("using resource() from useSetup()", async (root, mode) => {
     ID = 0;
 
-    const result = await root
+    const result = root
       .expectHTML((state) =>
         state?.channel?.message
           ? `<span>${state?.channel.message}</span><button>++ ${state?.channel.id} ++</button>`
