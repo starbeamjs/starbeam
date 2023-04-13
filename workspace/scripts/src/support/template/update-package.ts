@@ -8,8 +8,7 @@ import { JsonTemplate, Template } from "@starbeam-workspace/package";
 import type { Directory, Path, Paths } from "@starbeam-workspace/paths";
 import type { ChangeResult } from "@starbeam-workspace/reporter";
 import { Fragment, fragment } from "@starbeam-workspace/reporter";
-import type { Into } from "@starbeam-workspace/shared";
-import type { AsString } from "@starbeam-workspace/shared";
+import type { AsString, Into } from "@starbeam-workspace/shared";
 import type { Workspace } from "@starbeam-workspace/workspace";
 import sh from "shell-escape-tag";
 

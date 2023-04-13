@@ -7,10 +7,10 @@ import {
   type Attributes,
   type ComponentChildren,
   type ComponentType,
-  type VNode,
   createElement,
   Fragment,
   h,
+  type VNode,
 } from "preact";
 import { act } from "preact/test-utils";
 import { renderToString } from "preact-render-to-string";
@@ -95,7 +95,7 @@ class Expect<T extends RenderProps> {
   }
 
   check(args: T): void {
-    if (this.#expectations && this.#expectations.html) {
+    if (this.#expectations?.html) {
       const expected = this.#expectations.html(...args);
 
       const string = renderToString(

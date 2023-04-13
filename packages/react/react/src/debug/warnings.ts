@@ -10,11 +10,11 @@ if (import.meta.env.DEV) {
         WARNED = true;
 
         const description = RUNTIME.debug?.getUserFacing(tag.description);
-        const fullName = description
+        const _fullName = description
           ? RUNTIME.debug?.describe(description) ?? "an unknown reactive value"
           : "an unknown reactive value";
 
-        const pad = Math.max(
+        const _pad = Math.max(
           ...["Created: ", "Accessed: "].map((s) => s.length)
         );
 

@@ -1,5 +1,5 @@
 import { reactive } from "@starbeam/collections";
-import type { CallStack, Description } from "@starbeam/interfaces";
+import type { Description } from "@starbeam/interfaces";
 import { RUNTIME } from "@starbeam/runtime";
 import { Cell } from "@starbeam/universal";
 import { isPresent, verified } from "@starbeam/verify";

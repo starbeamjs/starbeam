@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "@testing-library/react": "^13.4.0",
-    "jsdom": "^21.1.1",
-    "@types/react": "^18.0.26"
+    "@types/react": "^18.0.26",
+    "jsdom": "^21.1.1"
   }
 }

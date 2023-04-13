@@ -3,9 +3,9 @@ import { DisplayStruct } from "@starbeam-workspace/shared";
 import Table from "cli-table3";
 
 import {
-  type IntoFragment,
   EMPTY_WIDTH,
   Fragment,
+  type IntoFragment,
   isIntoFragment,
 } from "./log.js";
 import type { LoggerState } from "./logger.js";

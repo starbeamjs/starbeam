@@ -3,9 +3,8 @@ import {
   isSingleItemArray,
   stringify,
 } from "@starbeam/core-utils";
-import { type Test, Package, TestName } from "@starbeam-workspace/package";
-import { Fragment } from "@starbeam-workspace/reporter";
-import { FancyHeader } from "@starbeam-workspace/reporter";
+import { Package, type Test, TestName } from "@starbeam-workspace/package";
+import { FancyHeader, Fragment } from "@starbeam-workspace/reporter";
 import { fatal } from "@starbeam-workspace/shared";
 import { CheckDefinition } from "@starbeam-workspace/workspace";
 import shell from "shelljs";

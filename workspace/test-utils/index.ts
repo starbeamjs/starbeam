@@ -1,7 +1,7 @@
 export {
-  type TestResourceImpl,
   resources,
   TestResource,
+  type TestResourceImpl,
 } from "./src/test-resource.js";
 export { assert, UNINITIALIZED } from "./src/utils.js";
 export {

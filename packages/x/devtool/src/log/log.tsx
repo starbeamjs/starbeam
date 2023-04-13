@@ -1,5 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import "preact";
 
+import type { Timestamp } from "@starbeam/interfaces";
 /** @jsxRuntime automatic @jsxImportSource preact */
 import type { JSX } from "preact";
 import { useMemo, useState } from "preact/hooks";
@@ -10,7 +17,6 @@ import { FrameConsumeLine } from "./frame.js";
 import type { UpdatePane } from "./pane.js";
 import { Pane, UiPane } from "./pane.js";
 import { LogLine } from "./ui.js";
-import type { Timestamp } from "@starbeam/interfaces";
 
 type FIXME = any;
 type DevtoolsOptions = FIXME;

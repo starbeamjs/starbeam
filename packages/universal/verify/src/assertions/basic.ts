@@ -1,3 +1,5 @@
+import { isPresentArray } from "@starbeam/core-utils";
+
 import { expected, toKind } from "../verify.js";
 import { format } from "./describe.js";
 import type { FixedArray, ReadonlyFixedArray } from "./type-utils.js";
@@ -98,8 +100,6 @@ export function hasLength<L extends number>(length: L): HasLength<L> {
 
   return expected.associate(has, expected.toHave(`${length} items`));
 }
-
-import { isPresentArray } from "@starbeam/core-utils";
 
 export const hasItems = isPresentArray;
 

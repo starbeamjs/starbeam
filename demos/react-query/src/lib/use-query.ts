@@ -1,7 +1,7 @@
 import { useSetup } from "@starbeam/react";
 
 import type { Serializable } from "./key.js";
-import { type QueryFunction, type QueryResult, QUERY_CACHE } from "./query.js";
+import { QUERY_CACHE, type QueryFunction, type QueryResult } from "./query.js";
 
 export function useQuery<T>(
   key: Serializable,

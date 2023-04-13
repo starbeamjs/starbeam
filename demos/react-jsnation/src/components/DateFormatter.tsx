@@ -1,4 +1,7 @@
+import type { Reactive } from "@starbeam/interfaces";
 import { useProp, useSetup } from "@starbeam/react";
+import { Cell } from "@starbeam/reactive";
+import { Resource, type ResourceBlueprint } from "@starbeam/resource";
 
 import {
   formatLocale,
@@ -7,9 +10,6 @@ import {
   TIME_ZONES,
   timeZoneName,
 } from "./intl.js";
-import type { Reactive } from "@starbeam/interfaces";
-import { Resource, type ResourceBlueprint } from "@starbeam/resource";
-import { Cell } from "@starbeam/reactive";
 
 export default function (props: { locale: string }): JSX.Element {
   const locale = useProp(props.locale);

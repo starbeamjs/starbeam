@@ -3,7 +3,7 @@ import { CheckDefinition } from "@starbeam-workspace/workspace";
 
 import { QueryCommand } from "./support/commands/query-command";
 import { StringOption } from "./support/commands/types";
-import scripts, { type Scripts, hydrateScript } from "./support/scripts.js";
+import scripts, { hydrateScript, type Scripts } from "./support/scripts.js";
 
 export const CiCommand = QueryCommand("ci")
   .flag(

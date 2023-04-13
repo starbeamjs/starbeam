@@ -2,9 +2,9 @@ import { getFirst, isObject } from "@starbeam/core-utils";
 import type {
   Api,
   CallStack,
+  DescFn,
   Description as IDescription,
   DescriptionDetails,
-  DescFn,
   Nesting,
   ReactiveId,
   ReactiveType,

@@ -7,11 +7,11 @@ import {
   type CamelizedOptions,
   type CheckOption,
   type CommandOptions,
-  type LongFlag,
-  type ShortFlag,
   dasherize,
+  type LongFlag,
   normalize,
   normalizeFlag,
+  type ShortFlag,
 } from "./options";
 import type { CommandValue, Value } from "./types";
 
@@ -81,7 +81,7 @@ export abstract class BuildCommand<Args extends unknown[], Options, Short> {
     name: string,
     description: string,
     value: Value<V>
-  // eslint-disable-next-line @typescript-eslint/prefer-return-this-type
+    // eslint-disable-next-line @typescript-eslint/prefer-return-this-type
   ): BuildCommand<Args, Options, Short> {
     const arg = dasherize(name);
 

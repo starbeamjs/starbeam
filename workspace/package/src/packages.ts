@@ -1,5 +1,5 @@
 import { isPresentArray } from "@starbeam/core-utils";
-import { type Path, Directory } from "@starbeam-workspace/paths";
+import { Directory, type Path } from "@starbeam-workspace/paths";
 import type { Workspace } from "@starbeam-workspace/reporter";
 import { DisplayStruct, Union } from "@starbeam-workspace/shared";
 import sh from "shell-escape-tag";

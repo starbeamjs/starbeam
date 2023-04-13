@@ -1,5 +1,6 @@
 import { DisplayStruct } from "../inspect.js";
 import { type InternalPreactVNode, InternalVNode } from "./vnode.js";
+
 const INITIAL_ID = 0;
 const ELEMENTS = new WeakMap<InternalPreactElement, InternalElement>();
 

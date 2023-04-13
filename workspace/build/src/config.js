@@ -257,7 +257,7 @@ export class Package {
   static async viteConfig(meta) {
     const pkg = Package.at(meta);
 
-    if (pkg) return pkg.#viteConfig();
+    if (pkg) return await pkg.#viteConfig();
 
     throw Error(
       `No package found at ${
@@ -494,7 +494,7 @@ function mapExternal(inline) {
  * @param {import("./config.js").ViteConfig} config
  */
 async function viteConfig(config) {
-  return config;
+  return Promise.resolve(config);
 }
 
 /**

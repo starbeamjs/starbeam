@@ -1,5 +1,5 @@
 import { reactive } from "@starbeam/collections";
-import { Cell, Freshness, Marker } from "@starbeam/universal";
+import { Cell, Freshness } from "@starbeam/universal";
 import { CanceledError } from "axios";
 
 import { type Serializable, serialize } from "./key.js";

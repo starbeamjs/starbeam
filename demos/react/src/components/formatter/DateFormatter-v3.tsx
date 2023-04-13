@@ -1,10 +1,10 @@
 import js from "@starbeam/collections";
 import { useSetup } from "@starbeam/react";
 import {
-  type Reactive,
-  type ResourceBlueprint,
   Cell,
+  type Reactive,
   Resource,
+  type ResourceBlueprint,
 } from "@starbeam/universal";
 
 import {

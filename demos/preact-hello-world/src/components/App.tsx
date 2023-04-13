@@ -1,4 +1,4 @@
-import { create, createCell, service, use } from "@starbeam/preact";
+import { createCell, service, use } from "@starbeam/preact";
 import type { ResourceBlueprint } from "@starbeam/universal";
 import { Cell, Resource } from "@starbeam/universal";
 import type { JSX } from "preact";

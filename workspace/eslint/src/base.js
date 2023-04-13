@@ -1,6 +1,5 @@
-// eslint-disable-next-line unused-imports/no-unused-vars, @typescript-eslint/no-unsafe-call
+// eslint-disable-next-line unused-imports/no-unused-vars
 const { Linter, ESLint } = require("eslint");
-// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 const Rules = require("./rules.js");
 
 /** @type {ESLint.ConfigData} */

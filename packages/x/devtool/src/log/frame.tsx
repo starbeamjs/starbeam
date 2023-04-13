@@ -1,12 +1,15 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /** @jsxRuntime automatic @jsxImportSource preact */
 
+import { logTag } from "@starbeam/debug";
+import type { CellTag, Timestamp } from "@starbeam/interfaces";
 import type { JSX } from "preact";
 
 import { DescribeLeaf } from "./describe.js";
-
 import { LogLineFor } from "./ui.js";
-import type { CellTag, Timestamp } from "@starbeam/interfaces";
-import { logTag } from "@starbeam/debug";
 
 type FIXME = any;
 type FrameConsumeOperation = FIXME;

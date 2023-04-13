@@ -1,7 +1,7 @@
 import { stringify } from "@starbeam/core-utils";
 import type { JsonObject, JsonValue } from "@starbeam-workspace/json";
-import type { RegularFile } from "@starbeam-workspace/paths";
-import { type Directory, Globs } from "@starbeam-workspace/paths";
+import type { Directory, RegularFile } from "@starbeam-workspace/paths";
+import { Globs } from "@starbeam-workspace/paths";
 import { type IntoUnionInstance, Union } from "@starbeam-workspace/shared";
 
 export class StarbeamType extends Union(

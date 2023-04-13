@@ -1,5 +1,5 @@
 import type * as interfaces from "@starbeam/interfaces";
-import type { Description, Tag, TaggedReactive } from "@starbeam/interfaces";
+import type { Description } from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
 
 import { Static } from "./primitives/static.js";

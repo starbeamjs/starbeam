@@ -224,17 +224,17 @@ export class SetupTestRoot<Props, T> {
     this: SetupTestRoot<RenderState<void>, T>,
     render: (state: RenderState<T>, props?: void) => ReactElement,
     props?: void
-  ): Promise<RenderResult<void, T>>;
+  ): RenderResult<void, T>;
   render(
     render: (state: RenderState<T>, props: Props) => ReactElement,
     props: Props
-  ): Promise<RenderResult<Props, T>>;
-  async render(
+  ): RenderResult<Props, T>;
+  render(
     this: SetupTestRoot<RenderState<any>, any>,
     render: (state: RenderState<any>, props?: any) => ReactElement,
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     props?: any
-  ): Promise<RenderResult<any, T>> {
+  ): RenderResult<any, T> {
     const state = new RenderState<T>();
     let i = 0;
 
@@ -272,7 +272,7 @@ export class SetupTestRoot<Props, T> {
       props as Props
     );
 
-    return Promise.resolve(renderResult);
+    return renderResult as RenderResult<Props, T>;
   }
 
   expectHTML(expectHtml: (value: T, props: Props) => string): this {

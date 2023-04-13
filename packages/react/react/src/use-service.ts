@@ -1,4 +1,3 @@
-import type { ReadValue } from "@starbeam/reactive";
 import type { IntoResourceBlueprint } from "@starbeam/resource";
 import { CONTEXT } from "@starbeam/runtime";
 import { service } from "@starbeam/service";
@@ -6,7 +5,7 @@ import { service } from "@starbeam/service";
 import { ReactApp, useStarbeamApp } from "./context-provider.js";
 import { useReactive } from "./use-reactive.js";
 
-export function useService<T>(blueprint: IntoResourceBlueprint<T, void>): T {
+export function useService<T>(blueprint: IntoResourceBlueprint<T>): T {
   CONTEXT.app = ReactApp.instance(useStarbeamApp({ feature: "useService()" }));
 
   const instance = service(blueprint);

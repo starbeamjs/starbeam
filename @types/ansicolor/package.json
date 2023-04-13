@@ -1,8 +1,8 @@
 {
   "private": true,
   "name": "@types/ansicolor",
-  "type":"module",
   "version": "1.0.0",
+  "type": "module",
   "types": "index.d.ts",
   "exports": {
     ".": {

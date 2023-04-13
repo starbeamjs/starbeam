@@ -1,6 +1,5 @@
 import type { Package } from "@starbeam-workspace/package";
-import type { Directory } from "@starbeam-workspace/paths";
-import type { Path } from "@starbeam-workspace/paths";
+import type { Directory, Path } from "@starbeam-workspace/paths";
 import type { Workspace } from "@starbeam-workspace/reporter";
 
 import scripts from "../scripts.json";

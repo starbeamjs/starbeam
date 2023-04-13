@@ -301,7 +301,7 @@ export function internalUseResource<T>(
   host.on.layout(create);
 
   const formula = Formula(() => {
-    return (resourceCell.current?.current as T | undefined) ?? initial;
+    return resourceCell.current?.current ?? initial;
   });
 
   host.on.cleanup(PUBLIC_TIMELINE.on.change(formula, host.notify));

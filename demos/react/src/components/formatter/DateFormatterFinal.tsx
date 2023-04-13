@@ -2,8 +2,8 @@ import js from "@starbeam/collections";
 import { use, useCell, useReactive } from "@starbeam/react";
 import {
   type Reactive,
-  type ResourceBlueprint,
   Resource,
+  type ResourceBlueprint,
 } from "@starbeam/universal";
 
 import {

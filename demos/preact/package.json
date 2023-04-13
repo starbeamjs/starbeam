@@ -40,8 +40,8 @@
     "@starbeam/interfaces": "workspace:^",
     "@starbeam/preact": "workspace:^",
     "@starbeam/reactive": "workspace:^",
+    "@starbeam/resource": "workspace:^",
     "@starbeam/universal": "workspace:^",
-    "@starbeam/resource":"workspace:^",
     "preact": "^10.11.3",
     "purecss": "^3.0.0"
   },

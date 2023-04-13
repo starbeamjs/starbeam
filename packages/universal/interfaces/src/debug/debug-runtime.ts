@@ -1,6 +1,6 @@
 import type { Tag, Tagged } from "../protocol.js";
 import type { CallerStackFn, CallStack } from "./call-stack.js";
-import type { DescriptionDetails, DescFn } from "./description.js";
+import type { DescFn, DescriptionDetails } from "./description.js";
 
 export interface DebugRuntime {
   getUserFacing: <D extends DescriptionDetails | undefined>(

@@ -1,5 +1,5 @@
 import type { Directory } from "@starbeam-workspace/paths";
-import { type CheckResult, Check } from "@starbeam-workspace/reporter";
+import { Check, type CheckResult } from "@starbeam-workspace/reporter";
 import { CheckResults } from "@starbeam-workspace/reporter";
 
 import type { CommandOutputType, Workspace } from "./workspace.js";

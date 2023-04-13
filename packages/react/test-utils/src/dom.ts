@@ -1,13 +1,13 @@
 // @vitest-environment jsdom
 
 import {
+  createElement,
+  Fragment,
   type FunctionComponent,
+  isValidElement,
   type ReactElement,
   type ReactHTML,
   type ReactNode,
-  createElement,
-  Fragment,
-  isValidElement,
 } from "react";
 
 type ReactProxyFunction<E extends keyof ReactHTML> = ReactHTML[E];
