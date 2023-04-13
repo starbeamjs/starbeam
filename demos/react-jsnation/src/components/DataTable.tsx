@@ -1,6 +1,6 @@
 import { useProp, useReactive, useSetup } from "@starbeam/react";
-import { Cell, Formula } from "@starbeam/universal";
 import type { FormEvent } from "react";
+import { Cell, CachedFormula as Formula } from "@starbeam/reactive";
 
 import { People, type Person } from "../lib/people.js";
 import { type Row, Table } from "../lib/table.js";
