@@ -161,10 +161,16 @@
       "@typescript-eslint/parser": "$@typescript-eslint/parser",
       "eslint": "$eslint",
       "preact": "^10.11.3",
+      "rollup": "^3.20.2",
       "typescript": "$typescript",
       "vite": "$vite",
       "vite-plugin-fonts": "0.7.0",
       "vue": "^3.2.39"
+    },
+    "notes": {
+      "overrides": {
+        "rollup": "postcss plugin brings in an old version of rollup, so we need to override it here, otherwise type checking fails"
+      }
     },
     "peerDependencyRules": {
       "allowAny": [
