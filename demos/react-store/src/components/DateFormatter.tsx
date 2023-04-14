@@ -51,7 +51,7 @@ export default function (props: { locale: string }): JSX.Element {
             </label>
           </form>
 
-          <p className="output">{date.current.formatted}</p>
+          <p className="output">{date.current?.formatted}</p>
         </>
       );
     };

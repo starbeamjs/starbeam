@@ -4,7 +4,7 @@
       "extends": ["plugin:@starbeam/tight"],
       "files": ["vitest.config.ts", "rollup.config.mjs"],
       "parserOptions": {
-        "project": ["tsconfig.json"]
+        "project": ["tsconfig.root.json"]
       }
     }
   ],

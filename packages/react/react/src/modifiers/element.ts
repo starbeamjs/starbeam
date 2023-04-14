@@ -1,5 +1,5 @@
 import type { browser } from "@domtree/flavors";
-import type { Description, Reactive, Tagged } from "@starbeam/interfaces";
+import type { Description, HasTag, Reactive, Tagged } from "@starbeam/interfaces";
 import { DEBUG, Formula } from "@starbeam/reactive";
 import type { IntoResourceBlueprint, Resource } from "@starbeam/resource";
 import * as resource from "@starbeam/resource";
@@ -7,8 +7,8 @@ import { CONTEXT, render, RUNTIME, type Unsubscribe } from "@starbeam/runtime";
 import { service } from "@starbeam/service";
 import { Cell } from "@starbeam/universal";
 
-import { missingApp, ReactApp } from "../app.js";
 import { type ElementRef, type ReactElementRef, ref } from "./ref.js";
+import { missingApp, ReactApp } from "../app.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyRecord = Record<PropertyKey, any>;
@@ -192,8 +192,9 @@ export class ReactiveElement {
     element.#lifecycle = Lifecycle.create(element.#description);
   }
 
-  static subscribe(element: ReactiveElement, reactive: Tagged): void {
-    element.#render(reactive);
+  static subscribe(element: ReactiveElement, reactive: HasTag): void {
+    const subscription = RUNTIME.subscribe(reactive, element.notify);
+    element.on.cleanup(subscription);
   }
 
   #lifecycle: Lifecycle;
@@ -233,8 +234,8 @@ export class ReactiveElement {
   service = <T>(
     blueprint: IntoResourceBlueprint<T>,
     description?: string | Description | undefined
-  ): Resource<T> => {
-    const desc = DEBUG?.Desc("service", description, "UseSetup.service");
+  ): Reactive<T> => {
+    const desc = DEBUG?.Desc("service", description);
     const context = this.#context;
 
     if (context === null) {
@@ -246,25 +247,28 @@ export class ReactiveElement {
     return service(blueprint, { description: desc });
   };
 
-  readonly use = <T>(
-    factory: IntoResourceBlueprint<T>,
-    options?: { initial?: T }
-  ): Reactive<T | undefined> => {
-    return internalUseResource(
-      this,
-      {
-        notify: this.notify,
-        render: (reactive) => this.on.cleanup(render(reactive, this.notify)),
-        on: {
-          layout: (callback) => {
-            if (!callback) return;
-            return this.on.layout(() => void callback(factory));
-          },
-          cleanup: this.on.cleanup,
-        },
-      },
-      options?.initial
-    );
+  use = <T, Initial extends undefined>(
+    factory: IntoResourceBlueprint<T, Initial>,
+    options?: { initial?: T; description: string | Description | undefined }
+  ): Reactive<T | Initial> => {
+    const desc = DEBUG?.Desc("resource", options?.description);
+    const resource = MountedResource.create(options?.initial, desc);
+
+    RUNTIME.link(this, resource);
+
+    const create = (): void => {
+      resource.create((owner) => Factory.resource(factory, owner));
+
+      this.notify();
+    };
+
+    const unsubscribe = RUNTIME.subscribe(resource, this.notify);
+
+    RUNTIME.onFinalize(resource, unsubscribe);
+
+    this.on.layout(create);
+
+    return resource as Reactive<T | Initial>;
   };
 
   refs<R extends RefsTypes>(refs: R): RefsRecordFor<R> {
@@ -274,6 +278,15 @@ export class ReactiveElement {
     return record;
   }
 }
+interface ResourceHost<T> {
+  readonly notify: () => void;
+  readonly on: {
+    layout: (callback: (value: T) => void) => Unsubscribe | void;
+    cleanup: (callback: Unsubscribe) => Unsubscribe | void;
+  };
+}
+
+
 
 interface ResourceHost<T> {
   readonly notify: () => void;

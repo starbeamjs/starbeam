@@ -4,6 +4,9 @@ import { Axios } from "axios";
 
 import useQuery from "./lib/use-query.js";
 
+type FIXME = never;
+type DevtoolsOptions = FIXME;
+
 export default function App(): JSX.Element {
   return <Queried />;
 }

@@ -52,6 +52,6 @@
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.1",
     "@vitest/ui": "*",
-    "vite": "4.3.3"
+    "vite": "4.3.9"
   }
 }

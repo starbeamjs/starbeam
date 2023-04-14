@@ -22,12 +22,14 @@ class ItemState {
     );
   }
 
+
   static initialized(
     description: Description | undefined,
     member: string
   ): ItemState {
     return ItemState.create(true, description, member);
   }
+
 
   static uninitialized(
     description: Description | undefined,
@@ -66,6 +68,7 @@ class ItemState {
 
 class Item {
   #value: ItemState;
+
 
   static initialized(
     description: Description | undefined,
@@ -117,6 +120,7 @@ export class Collection<K> {
   #iteration: Marker | undefined;
 
   static #objects = new WeakMap<object, Collection<unknown>>();
+
 
   static create<K>(
     description: Description | undefined,
@@ -200,6 +204,7 @@ export class Collection<K> {
   #initialize(key: K, disposition: "hit" | "miss", member: string): Item {
     if (this.#iteration === undefined) {
       this.#iteration = Marker({ description: this.#description });
+      this.#iteration = Marker({ description: this.#description });
     }
 
     let item: Item;
@@ -217,6 +222,7 @@ export class Collection<K> {
 
   iterateKeys(): void {
     if (this.#iteration === undefined) {
+      this.#iteration = Marker({ description: this.#description });
       this.#iteration = Marker({ description: this.#description });
     }
 

@@ -53,7 +53,7 @@ export default function DateFormatterStarbeam(): JSX.Element {
           </h3>
 
           {selectBox}
-          <p className="output">{date.current.formatted}</p>
+          <p className="output">{date.current?.formatted}</p>
         </>
       );
     });

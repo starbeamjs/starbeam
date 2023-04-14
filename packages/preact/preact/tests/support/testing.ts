@@ -5,6 +5,7 @@ import {
   type ComponentChildren,
   createElement,
   Fragment,
+  type FunctionComponent,
   h,
   type VNode,
 } from "preact";

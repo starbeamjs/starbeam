@@ -1,7 +1,7 @@
 import type { CallStack } from "./debug/call-stack.js";
 import type { CellTag, FormulaTag, Tag, TagSnapshot } from "./tag.js";
 import type { HasTag } from "./tagged.js";
-import type { CoreTimestamp } from "./timestamp.js";
+import type { Timestamp } from "./timestamp.js";
 import type { Unsubscribe } from "./utils.js";
 
 /**
@@ -38,7 +38,7 @@ export interface Runtime {
    */
   readonly mark: (
     cell: CellTag,
-    mark: (revision: CoreTimestamp) => void
+    mark: (revision: Timestamp) => void
   ) => void;
   /**
    * Indicate that the value associated with the given tag has been consumed.
@@ -87,7 +87,7 @@ export interface Runtime {
    * finalization handler is removed before the object is finalized, it will
    * not be called.
    */
-  readonly onFinalize: (object: object, callback: () => void) => Unsubscribe;
+  readonly onFinalize: (object: object, callback: Unsubscribe) => Unsubscribe;
 
   /**
    * Link two objects together. When the parent object is finalized, the child

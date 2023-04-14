@@ -20,7 +20,7 @@ export default function DateFormatterStarbeam(): JSX.Element {
             </>
           </h3>
 
-          <p className="output">{date.current.formatted}</p>
+          <p className="output">{date.current?.formatted}</p>
         </>
       );
     });

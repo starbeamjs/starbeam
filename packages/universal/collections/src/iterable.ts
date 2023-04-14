@@ -1,11 +1,8 @@
-import type { Description, EntryPoint } from "@starbeam/interfaces";
+import type { CallStack, Description } from "@starbeam/interfaces";
+import { Cell, type Equality, Marker } from "@starbeam/reactive";
 import { UNINITIALIZED } from "@starbeam/shared";
-import { Cell, DEBUG, type Equality, Marker } from "@starbeam/universal";
 
 class Entry<V> {
-  readonly #initialized: Cell<boolean>;
-  readonly #value: Cell<V | UNINITIALIZED>;
-
   static initialized<V>(
     value: V,
     desc: Description | undefined,
@@ -45,6 +42,9 @@ class Entry<V> {
     );
   }
 
+  readonly #initialized: Cell<boolean>;
+  readonly #value: Cell<V | UNINITIALIZED>;
+
   constructor(value: Cell<V | UNINITIALIZED>, initialized: Cell<boolean>) {
     this.#value = value;
     this.#initialized = initialized;
@@ -76,7 +76,9 @@ class Entry<V> {
     return this.#initialized.read();
   }
 
-  set(value: V): "initialized" | "updated" | "unchanged" {
+  set(
+    value: V,
+  ): "initialized" | "updated" | "unchanged" {
     if (this.#value.read() === UNINITIALIZED) {
       this.#value.set(value);
       this.#initialized.set(true);
@@ -98,6 +100,7 @@ function equals<T>(equality: Equality<T>): Equality<T | UNINITIALIZED> {
 }
 
 const EMPTY_MAP_SIZE = 0;
+const EXTRA_CALLER_FRAME = 1;
 
 export class ReactiveMap<K, V> implements Map<K, V> {
   readonly [Symbol.toStringTag] = "Map";
@@ -125,17 +128,14 @@ export class ReactiveMap<K, V> implements Map<K, V> {
   }
 
   get size(): number {
-    const entryPoint = DEBUG?.markEntryPoint([
-      "object:get",
-      "ReactiveMap",
-      "size",
-    ]);
     this.#keys.read();
 
     let size = 0;
 
-    for (const [, entry] of this.#iterate(entryPoint)) {
-      if (entry.isPresent()) size++;
+    for (const [, entry] of this.#iterate()) {
+      if (entry.isPresent()) {
+        size++;
+      }
     }
 
     return size;
@@ -147,8 +147,6 @@ export class ReactiveMap<K, V> implements Map<K, V> {
 
   clear(): void {
     if (this.#entries.size > EMPTY_MAP_SIZE) {
-      DEBUG?.markEntryPoint(["object:call", "ReactiveMap", "clear"]);
-
       this.#entries.clear();
       this.#keys.mark();
       this.#values.mark();
@@ -159,8 +157,6 @@ export class ReactiveMap<K, V> implements Map<K, V> {
     const entry = this.#entries.get(key);
 
     if (entry) {
-      DEBUG?.markEntryPoint(["collection:delete", "ReactiveMap", key]);
-
       const disposition = entry.delete();
 
       if (disposition === "deleted") {
@@ -175,15 +171,10 @@ export class ReactiveMap<K, V> implements Map<K, V> {
   }
 
   *entries(): IterableIterator<[K, V]> {
-    const entryPoint = DEBUG?.markEntryPoint([
-      "object:call",
-      "ReactiveMap",
-      "entries",
-    ]);
     this.#keys.read();
     this.#values.read();
 
-    for (const [key, value] of this.#iterate(entryPoint)) {
+    for (const [key, value] of this.#iterate()) {
       yield [key, value.get() as V];
     }
   }
@@ -210,7 +201,6 @@ export class ReactiveMap<K, V> implements Map<K, V> {
     callbackfn: (value: V, key: K, map: Map<K, V>) => void,
     thisArg?: unknown
   ): void {
-    DEBUG?.markEntryPoint(["object:call", "ReactiveMap", "forEach"]);
     this.#keys.read();
     this.#values.read();
 
@@ -220,47 +210,31 @@ export class ReactiveMap<K, V> implements Map<K, V> {
   }
 
   get(key: K): V | undefined {
-    DEBUG?.markEntryPoint(["collection:get", "ReactiveMap", key]);
     const entry = this.#entry(key);
     return entry.get();
   }
 
   has(key: K): boolean {
-    DEBUG?.markEntryPoint(["collection:has", "ReactiveMap", key]);
     return this.#entry(key).isPresent();
   }
 
-  *#iterate(
-    entryPoint: EntryPoint | undefined
-  ): IterableIterator<[K, Entry<V>]> {
+  *#iterate(): IterableIterator<[K, Entry<V>]> {
     for (const [key, entry] of this.#entries) {
       if (entry.isPresent()) {
-        // restore the entry point since the iteration isn't necessarily
-        // synchronous.
-        DEBUG?.markEntryPoint(entryPoint);
-
         yield [key, entry];
       }
     }
   }
 
   *keys(): IterableIterator<K> {
-    const entryPoint = DEBUG?.markEntryPoint([
-      "object:call",
-      "ReactiveMap",
-      "keys",
-    ]);
     this.#keys.read();
 
-    for (const [key] of this.#iterate(entryPoint)) {
-      DEBUG?.markEntryPoint(["object:call", "ReactiveMap", "keys"]);
-
+    for (const [key] of this.#iterate()) {
       yield key;
     }
   }
 
   set(key: K, value: V): this {
-    DEBUG?.markEntryPoint(["collection:insert", "ReactiveMap", key]);
 
     const entry = this.#entry(key);
     const disposition = entry.set(value);
@@ -277,17 +251,11 @@ export class ReactiveMap<K, V> implements Map<K, V> {
   }
 
   *values(): IterableIterator<V> {
-    // TODO: previously we thought that we needed an extra frame for the
-    // internal JS call to .next(). Is this true?
-    const entryPoint = DEBUG?.markEntryPoint([
-      "object:call",
-      "ReactiveMap",
-      "values",
-    ]);
+    // add an extra frame for the internal JS call to .next()
 
     this.#values.read();
 
-    for (const [, value] of this.#iterate(entryPoint)) {
+    for (const [, value] of this.#iterate()) {
       yield value.get() as V;
     }
   }
@@ -318,42 +286,36 @@ export class ReactiveSet<T> implements Set<T> {
   }
 
   get size(): number {
-    const entryPoint = DEBUG?.markEntryPoint([
-      "object:get",
-      "ReactiveSet",
-      "size",
-    ]);
-
+    console.log(this.#values);
     this.#values.read();
 
     let size = 0;
 
-    for (const _ of this.#iterate(entryPoint)) size++;
+    for (const _ of this.#iterate()) {
+      size++;
+    }
 
     return size;
   }
 
   [Symbol.iterator](): IterableIterator<T> {
-    DEBUG?.markEntryPoint(["object:call", "ReactiveSet", Symbol.iterator]);
     return this.keys();
   }
 
   add(value: T): this {
-    DEBUG?.markEntryPoint(["collection:insert", "ReactiveSet", value]);
 
     const entry = this.#entry(value);
 
     if (!entry.isPresent()) {
       this.#entries.set(value, entry);
       this.#values.mark();
-      entry.set(value);
+      entry.set(value, );
     }
 
     return this;
   }
 
   clear(): void {
-    DEBUG?.markEntryPoint(["object:call", "ReactiveSet", "clear"]);
 
     if (this.#entries.size > EMPTY_MAP_SIZE) {
       this.#entries.clear();
@@ -362,7 +324,6 @@ export class ReactiveSet<T> implements Set<T> {
   }
 
   delete(value: T): boolean {
-    DEBUG?.markEntryPoint(["collection:delete", "ReactiveSet", value]);
 
     const entry = this.#entries.get(value);
 
@@ -380,15 +341,10 @@ export class ReactiveSet<T> implements Set<T> {
   }
 
   *entries(): IterableIterator<[T, T]> {
-    const entryPoint = DEBUG?.markEntryPoint([
-      "object:call",
-      "ReactiveSet",
-      "entries",
-    ]);
 
     this.#values.read();
 
-    for (const [value, entry] of this.#iterate(entryPoint)) {
+    for (const [value, entry] of this.#iterate()) {
       yield [value, entry.get() as T];
     }
   }
@@ -397,48 +353,32 @@ export class ReactiveSet<T> implements Set<T> {
     callbackfn: (value: T, value2: T, set: Set<T>) => void,
     thisArg?: unknown
   ): void {
-    const entryPoint = DEBUG?.markEntryPoint([
-      "object:call",
-      "ReactiveSet",
-      "forEach",
-    ]);
 
     this.#values.read();
 
-    for (const [value] of this.#iterate(entryPoint)) {
+    for (const [value] of this.#iterate()) {
       callbackfn.call(thisArg, value, value, this);
     }
   }
 
   has(value: T): boolean {
-    DEBUG?.markEntryPoint(["collection:has", "ReactiveSet", value]);
 
     return this.#entry(value).isPresent();
   }
 
-  *#iterate(
-    entryPoint: EntryPoint | undefined
-  ): IterableIterator<[T, Entry<T>]> {
+  *#iterate(): IterableIterator<[T, Entry<T>]> {
     for (const [value, entry] of this.#entries) {
       if (entry.isPresent()) {
-        // restore the entry point since the iteration isn't necessarily
-        // synchronous.
-        DEBUG?.markEntryPoint(entryPoint);
         yield [value, entry];
       }
     }
   }
 
   *keys(): IterableIterator<T> {
-    const entryPoint = DEBUG?.markEntryPoint([
-      "object:call",
-      "ReactiveSet",
-      "keys",
-    ]);
 
     this.#values.read();
 
-    for (const [value] of this.#iterate(entryPoint)) {
+    for (const [value] of this.#iterate()) {
       yield value;
     }
   }
