@@ -3,7 +3,7 @@ if (
   typeof require === "function"
 ) {
   try {
-    const buffer = await import("buffer");
+    const buffer = require("buffer");
     globalThis.Buffer = buffer.Buffer;
   } catch {
     // ignore
