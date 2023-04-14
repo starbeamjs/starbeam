@@ -15,12 +15,17 @@ export const LintCommand = QueryCommand("lint")
     "do not stream the lint output (but display it when the command fails)",
     { default: true }
   )
-  .action(async ({ workspace, packages, files, streamOutput }) => {
+  .flag(
+    "--fix",
+    "pass --fix to eslint to automatically fix any linting errors",
+    { default: false }
+  )
+  .action(async ({ workspace, packages, files, streamOutput, fix }) => {
     const eslintrc = workspace.root.file(".eslintrc.json");
 
     if (files) {
       await workspace.exec(
-        sh`pnpm eslint --cache --max-warnings 0 -c ${eslintrc} ${files}`
+        sh`pnpm eslint --cache --max-warnings 0 -c ${eslintrc} ${files} ${fix ? '--fix' : ''}`
       );
     } else {
       const results = await workspace.check(
@@ -33,7 +38,7 @@ export const LintCommand = QueryCommand("lint")
 
             return CheckDefinition(
               pkg.name,
-              sh`pnpm eslint --cache --max-warnings 0 -c ${eslintrc} ${files}`,
+              sh`pnpm eslint --cache --max-warnings 0 -c ${eslintrc} ${files} ${fix ? '--fix' : ''}`,
               {
                 cwd: workspace.root,
                 output: streamOutput ? "stream" : "when-error",
