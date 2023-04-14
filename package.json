@@ -91,6 +91,7 @@
     "ci:types": "esno ./workspace/scripts/index.ts ci --type types -v",
     "demo": "esno ./workspace/scripts/index.ts demo",
     "dev": "esno ./workspace/scripts/index.ts",
+    "lint:fix": "pnpm dev lint --fix",
     "prepack": "pnpm run build",
     "release": "esno ./workspace/scripts/index.ts release",
     "test": "esno ./workspace/scripts/index.ts test -v",
