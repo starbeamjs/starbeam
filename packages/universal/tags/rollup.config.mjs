@@ -1,3 +1,5 @@
 import { Package } from "@starbeam-dev/build-support";
 
-export default Package.config(import.meta);
+const config = Package.config(import.meta);
+
+export default config;
