@@ -1,32 +1,34 @@
 import { getLast } from "@starbeam/core-utils";
-import type { Description } from "@starbeam/debug";
+import type { Description } from "@starbeam/interfaces";
 import type { InternalComponent } from "@starbeam/preact-utils";
-import {
-  type ActiveFrame,
-  type Frame,
-  type Unsubscribe,
-  TIMELINE,
-} from "@starbeam/timeline";
+import type { FinalizedFormula, InitializingFormula } from "@starbeam/reactive";
+import { FormulaLifecycle } from "@starbeam/reactive";
+import { PUBLIC_TIMELINE, RUNTIME, type Unsubscribe } from "@starbeam/runtime";
+import { createFormulaTag, type FormulaTag } from "@starbeam/tags";
 import { expected, isPresent, verify } from "@starbeam/verify";
 
 export class ComponentFrame {
-  #active: ActiveFrame<unknown> | null;
-  #frame: Frame | null;
+  #active: InitializingFormula | null;
+  #frame: FinalizedFormula | null;
+  #tag: FormulaTag;
   #subscription: Unsubscribe | null;
 
   static #frames = new WeakMap<InternalComponent, ComponentFrame>();
   static #stack: InternalComponent[] = [];
 
-  static start(component: InternalComponent, description: Description): void {
+  static start(
+    component: InternalComponent,
+    description: Description | undefined
+  ): void {
     let frame = ComponentFrame.#frames.get(component);
 
     if (!frame) {
-      frame = new ComponentFrame(null, null, null);
+      frame = new ComponentFrame(null, null, null, description);
       ComponentFrame.#frames.set(component, frame);
     }
 
     ComponentFrame.#stack.push(component);
-    frame.#start(description);
+    frame.#start();
   }
 
   static isRenderingComponent(component: InternalComponent): boolean {
@@ -45,7 +47,10 @@ export class ComponentFrame {
     return current;
   }
 
-  static end(component: InternalComponent, subscription?: () => void): Frame {
+  static end(
+    component: InternalComponent,
+    subscription?: () => void
+  ): FinalizedFormula {
     const frame = ComponentFrame.#frames.get(component);
 
     verify(
@@ -68,38 +73,43 @@ export class ComponentFrame {
   }
 
   private constructor(
-    frame: Frame | null,
-    active: ActiveFrame<unknown> | null,
-    subscribed: Unsubscribe | null
+    frame: FinalizedFormula | null,
+    active: InitializingFormula | null,
+    subscribed: Unsubscribe | null,
+    description: Description | undefined
   ) {
     this.#frame = frame;
     this.#active = active;
+    this.#tag = createFormulaTag(
+      RUNTIME.Desc?.("formula", description),
+      () => this.#frame?.children() ?? new Set()
+    );
     this.#subscription = subscribed;
   }
 
-  #start(description: Description): void {
+  #start(): void {
     if (this.#frame) {
-      this.#active = TIMELINE.frame.update({ updating: this.#frame });
+      this.#active = this.#frame.update();
+      // this.#active = TIMELINE.frame.update(this.#frame);
     } else {
-      this.#active = TIMELINE.frame.create({
-        description,
-      });
+      this.#active = FormulaLifecycle();
     }
   }
 
-  #end(subscription: (() => void) | undefined): Frame {
+  #end(subscription: (() => void) | undefined) {
     verify(
       this.#active,
       isPresent,
       expected.when("in preact's _diff hook").as("an active tracking frame")
     );
 
-    const frame = (this.#frame = this.#active.finalize(null, TIMELINE).frame);
+    const frame = (this.#frame = this.#active.done());
+    RUNTIME.subscriptions.update(this.#tag);
 
     this.#active = null;
 
     if (subscription) {
-      this.#subscription = TIMELINE.on.change(frame, subscription);
+      this.#subscription = PUBLIC_TIMELINE.on.change(this.#tag, subscription);
     }
 
     return frame;

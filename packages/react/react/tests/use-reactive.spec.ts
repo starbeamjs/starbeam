@@ -1,10 +1,11 @@
 // @vitest-environment jsdom
 
 import { useReactive, useSetup } from "@starbeam/react";
-import { Cell, Formula } from "@starbeam/universal";
+import { CachedFormula } from "@starbeam/reactive";
+import { Cell } from "@starbeam/universal";
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
+import { describe, expect } from "@starbeam-workspace/test-utils";
 import { useState } from "react";
-import { describe, expect } from "vitest";
 
 const INITIAL_ID = 0;
 const INITIAL_COUNT = 0;
@@ -14,7 +15,7 @@ let nextId = INITIAL_ID;
 
 describe("useReactive", () => {
   testReact<void, number>("useReactiveSetup with useReactive", async (root) => {
-    const result = await root
+    const result = root
       .expectHTML((value) => `<p>${value}</p><button>++</button>`)
       .render((state) => {
         const { cell, increment } = useSetup(() => {
@@ -48,14 +49,14 @@ describe("useReactive", () => {
     "useSetup with Formula + useReactive",
     async (test) => {
       let testId = 0;
-      const result = await test
+      const result = test
         .expectHTML(({ counter }) => `<p>${counter}</p>`)
         .expectStable()
         .render((state) => {
           ++testId;
           const { counter } = useSetup(() => {
             const cell = Cell(INITIAL_COUNT, `#${testId}`);
-            return Formula(
+            return CachedFormula(
               () => ({ counter: cell.current }),
               `inner #${testId}`
             );
@@ -77,7 +78,7 @@ describe("useReactive", () => {
     "useSetup with Formula + useReactive",
     async (root) => {
       nextId = INITIAL_ID;
-      const result = await root
+      const result = root
         .expectHTML(({ counter }) => `<p>${counter}</p><button>++</button>`)
         .expectStable()
         .render((state) => {
@@ -85,7 +86,7 @@ describe("useReactive", () => {
           const { formula, increment } = useSetup(() => {
             const cell = Cell(INITIAL_COUNT, `#${nextId}`);
             return {
-              formula: Formula(
+              formula: CachedFormula(
                 () => ({ counter: cell.current }),
                 `inner #${nextId}`
               ),
@@ -117,7 +118,7 @@ describe("useReactive", () => {
   testReact<void, { starbeam: number; react: number }>(
     "useReactive",
     async (root) => {
-      const result = await root
+      const result = root
         .expectStable()
         .expectHTML(
           (count) =>
@@ -182,7 +183,7 @@ describe("useReactive", () => {
   testReact<void, { starbeam: number; react: number }>(
     "useReactiveSetup",
     async (root) => {
-      const result = await root
+      const result = root
         .expectStable()
         .expectHTML(
           (count) =>

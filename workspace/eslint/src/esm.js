@@ -7,7 +7,6 @@ exports.config = {
   parser: "@typescript-eslint/parser",
   parserOptions: {
     EXPERIMENTAL_useSourceOfProjectReferenceRedirect: false,
-    warnOnUnsupportedTypeScriptVersion: false,
     ecmaVersion: "latest",
   },
   settings: {

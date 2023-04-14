@@ -27,7 +27,9 @@
   },
   "dependencies": {
     "@starbeam/debug": "workspace:^",
-    "@starbeam/timeline": "workspace:^",
+    "@starbeam/interfaces": "workspace:^",
+    "@starbeam/reactive": "workspace:^",
+    "@starbeam/runtime": "workspace:^",
     "@starbeam/universal": "workspace:^"
   },
   "devDependencies": {

@@ -1,13 +1,19 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /** @jsxRuntime automatic @jsxImportSource preact */
 
-import type { FrameConsumeOperation } from "@starbeam/debug";
-import type { MutableInternals, Timestamp } from "@starbeam/interfaces";
-import { ReactiveInternals } from "@starbeam/timeline";
+import { logTag } from "@starbeam/debug";
+import type { CellTag, Timestamp } from "@starbeam/interfaces";
 import type { JSX } from "preact";
 
 import { DescribeLeaf } from "./describe.js";
-import type { DevtoolsOptions } from "./shared.js";
 import { LogLineFor } from "./ui.js";
+
+type FIXME = any;
+type FrameConsumeOperation = FIXME;
+type DevtoolsOptions = FIXME;
 
 export function FrameConsumeLine({
   line,
@@ -21,7 +27,7 @@ export function FrameConsumeLine({
   const at = line.at;
   const frame = line.for;
   console.log(line.diff);
-  ReactiveInternals.log(frame);
+  logTag(frame);
 
   const description = frame.description.parts;
 
@@ -52,7 +58,7 @@ function List({
   cells,
   change,
 }: {
-  cells: Set<MutableInternals>;
+  cells: Set<CellTag>;
   change: "add" | "remove";
 }): JSX.Element | null {
   if (cells.size === EMPTY_SET) {
@@ -63,7 +69,7 @@ function List({
         <div class={`change ${change}`}>
           <h3>{change}</h3>
           {[...cells].map((cell) => (
-            <DescribeLeaf leaf={cell.description.parts} options={{}} />
+            <DescribeLeaf leaf={cell.description as FIXME} options={{}} />
           ))}
         </div>
       </>

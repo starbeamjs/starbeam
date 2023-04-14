@@ -1,76 +1,70 @@
-import { LOGGER, LogLevel } from "@starbeam/debug";
 import { useProp, useReactive, useSetup } from "@starbeam/react";
 import { Cell } from "@starbeam/universal";
-import { DevTools } from "@starbeamx/devtool";
 import { Table } from "@starbeamx/store";
 import type { FormEvent } from "react";
 
-import { type Person, People } from "../lib/people.js";
-
-LOGGER.level = LogLevel.Debug;
+import { People, type Person } from "../lib/people.js";
 
 export default function (props: { locale: string }): JSX.Element {
   const locale = useProp(props.locale, "props.locale");
 
-  const { people, append, filter, total, rows, table } = useSetup(
-    (component) => {
-      component.attach(DevTools);
+  const { people, append, filter, total, rows, table } = useSetup(() => {
+    // component.attach(DevTools);
 
-      const table = Table.create<Person>({
-        columns: ["name", "location"],
-        name: "people",
-      });
+    const table = Table.create<Person>({
+      columns: ["name", "location"],
+      name: "people",
+    });
 
-      table.append({ name: "Tom Dale", location: "NYC" });
-      table.append({ name: "Chirag Patel", location: "NYC" });
-      table.append({ name: "Yehuda Katz", location: "Portland" });
-      table.append({ name: "Ärne Ärni", location: "Germany" });
+    table.append({ name: "Tom Dale", location: "NYC" });
+    table.append({ name: "Chirag Patel", location: "NYC" });
+    table.append({ name: "Yehuda Katz", location: "Portland" });
+    table.append({ name: "Ärne Ärni", location: "Germany" });
 
-      const people = new People(table);
+    const people = new People(table);
 
-      function append(e: FormEvent<HTMLFormElement>): void {
-        e.preventDefault();
+    function append(e: FormEvent<HTMLFormElement>): void {
+      e.preventDefault();
 
-        const form = e.currentTarget;
-        const data = Object.fromEntries(new FormData(form)) as {
-          name: string;
-          location: string;
-        };
-
-        table.append(data);
-        form.reset();
-      }
-
-      const filter = Cell("", "filter");
-
-      const query = (): People =>
-        people.filter(filter.current).sort("name", locale.read());
-
-      function rows(): (Person & { id: string })[] {
-        return query().rows;
-      }
-
-      function total(): string {
-        const filteredCount = rows().length;
-        const totalCount = table.rows.length;
-
-        if (filteredCount === totalCount) {
-          return `items: ${totalCount}`;
-        } else {
-          return `items: ${filteredCount} filtered / ${totalCount} total`;
-        }
-      }
-
-      return {
-        append,
-        filter,
-        total,
-        rows,
-        people,
-        table,
+      const form = e.currentTarget;
+      const data = Object.fromEntries(new FormData(form)) as {
+        name: string;
+        location: string;
       };
+
+      table.append(data);
+      form.reset();
     }
-  );
+
+    const filter = Cell("", "filter");
+
+    const query = (): People =>
+      people.filter(filter.current).sort("name", locale.read());
+
+    function rows(): (Person & { id: string })[] {
+      return query().rows;
+    }
+
+    function total(): string {
+      const filteredCount = rows().length;
+      const totalCount = table.rows.length;
+
+      if (filteredCount === totalCount) {
+        return `items: ${totalCount}`;
+      } else {
+        return `items: ${filteredCount} filtered / ${totalCount} total`;
+      }
+    }
+
+    return {
+      append,
+      filter,
+      total,
+      rows,
+      people,
+      table,
+    };
+  });
 
   return (
     <>

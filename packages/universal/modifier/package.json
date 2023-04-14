@@ -26,7 +26,9 @@
   "dependencies": {
     "@starbeam/debug": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
+    "@starbeam/reactive": "workspace:^",
     "@starbeam/shared": "workspace:^",
+    "@starbeam/tags": "workspace:^",
     "@starbeam/universal": "workspace:^",
     "@starbeam/verify": "workspace:^"
   },

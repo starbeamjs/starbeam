@@ -1,13 +1,19 @@
-import type { Package } from "@starbeam-workspace/package";
-import { type ParseError, FILTER_KEYS } from "@starbeam-workspace/package";
-import { queryPackages } from "@starbeam-workspace/package";
-import { Filter, formatScope, parse, Query } from "@starbeam-workspace/package";
+import type { Package, ParseError } from "@starbeam-workspace/package";
 import {
-  type Workspace as IWorkspace,
+  Filter,
+  FILTER_KEYS,
+  formatScope,
+  parse,
+  Query,
+  queryPackages,
+} from "@starbeam-workspace/package";
+import {
+  format,
   Fragment,
+  type ReporterOptions,
+  type Workspace as IWorkspace,
   wrapIndented,
 } from "@starbeam-workspace/reporter";
-import { type ReporterOptions, format } from "@starbeam-workspace/reporter";
 import { Workspace } from "@starbeam-workspace/workspace";
 import chalk from "chalk";
 import type { Command } from "commander";

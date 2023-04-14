@@ -1,0 +1,12 @@
+{
+  "root": false,
+  "overrides": [
+    {
+      "extends": ["plugin:@starbeam/loose"],
+      "files": ["**/*.ts"],
+      "parserOptions": {
+        "project": "packages/universal/reactive/tests/tsconfig.json"
+      }
+    }
+  ]
+}

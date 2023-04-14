@@ -13,8 +13,8 @@ export { Fragment, fragment } from "./src/log.js";
 export { LoggerState } from "./src/logger.js";
 export {
   type ChangeResult,
-  type ReporterOptions,
   Reporter,
+  type ReporterOptions,
 } from "./src/reporter.js";
 export type {
   AnyStyleName,

@@ -1,4 +1,4 @@
-import { reactive } from "@starbeam/js";
+import { reactive } from "@starbeam/collections";
 import { useProp, useSetup } from "@starbeam/react";
 import type { FormEvent } from "react";
 

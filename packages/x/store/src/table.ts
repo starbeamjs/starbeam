@@ -1,5 +1,6 @@
-import { type Description, descriptionFrom, entryPoint } from "@starbeam/debug";
-import { reactive } from "@starbeam/js";
+import { reactive } from "@starbeam/collections";
+import type { Description } from "@starbeam/interfaces";
+import { RUNTIME } from "@starbeam/reactive";
 
 import type { Groups } from "./flat.js";
 import { FlatRows } from "./flat.js";
@@ -30,14 +31,11 @@ export class Table<U extends UserTypes> extends FlatRows<U> {
       name?: string;
     }
   ): Table<TableTypes> {
-    const description = descriptionFrom({
-      type: "formula",
-      api: {
-        package: "internal",
-        name: "Table",
-      },
-      fromUser: definition.name ?? definition.model?.name ?? "table",
-    });
+    const description = RUNTIME.Desc?.(
+      "collection",
+      definition.name ?? definition.model?.name,
+      "Table.create"
+    );
 
     return new Table<TableTypes>(
       {
@@ -52,11 +50,11 @@ export class Table<U extends UserTypes> extends FlatRows<U> {
   #id = INITIAL_ID;
   readonly #definition: TableDefinition<TableTypesFor<U>>;
   readonly #rows: Map<string, TableTypesFor<U>["Row"]>;
-  readonly #description: Description;
+  readonly #description: Description | undefined;
 
   private constructor(
     definition: TableDefinition<TableTypesFor<U>>,
-    description: Description
+    description: Description | undefined
   ) {
     super();
     this.#rows = reactive.Map(description);
@@ -69,7 +67,7 @@ export class Table<U extends UserTypes> extends FlatRows<U> {
   }
 
   get rows(): TableTypesFor<U>["Row"][] {
-    return entryPoint(() => [...this.#rows.values()]);
+    return [...this.#rows.values()];
   }
 
   append(
@@ -98,17 +96,6 @@ export class Table<U extends UserTypes> extends FlatRows<U> {
     this.#rows.delete(id);
   }
 }
-
-// export type Table<T extends TableTypes | object> = T extends TableTypes
-//   ? TableImpl<T>
-//   : TableImpl<{
-//       Columns: T;
-//       Row: { id: string } & T;
-//     }>;
-
-// export const Table = {
-//   create: TableImpl.create,
-// };
 
 type ColumnName<C> = keyof C;
 

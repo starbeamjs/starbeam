@@ -1,4 +1,4 @@
-import { object } from "@starbeam/js";
+import { object } from "@starbeam/collections";
 
 export class Table<T> {
   #rows: Record<string, T> = object({}, "rows");

@@ -1,5 +1,6 @@
-import { cached, reactive } from "@starbeam/js";
-import { Cell, Formula } from "@starbeam/universal";
+import { cached, reactive } from "@starbeam/collections";
+import { CachedFormula } from "@starbeam/reactive";
+import { Cell } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 
 describe("A reactive formula", () => {
@@ -7,7 +8,7 @@ describe("A reactive formula", () => {
     const name = Cell("@tomdale");
     const location = Cell("New York");
 
-    const card = Formula(() => `${name.current} (${location.current})`);
+    const card = CachedFormula(() => `${name.current} (${location.current})`);
 
     expect(card()).toBe("@tomdale (New York)");
 
@@ -17,15 +18,15 @@ describe("A reactive formula", () => {
   });
 
   test("produces stable values if inputs don't change", () => {
-    const name = Cell("@tomdale", "name");
-    const location = Cell("New York", "location");
+    const name = Cell("@tomdale", { description: "name" });
+    const location = Cell("New York", { description: "location" });
 
-    const card = Formula(
+    const card = CachedFormula(
       () => ({
         name: name.current,
         location: location.current,
       }),
-      "card"
+      { description: "card" }
     );
 
     let last = card.current;
@@ -67,7 +68,7 @@ describe("A reactive formula", () => {
     const name = Cell("@tomdale");
     const location = Cell("New York");
 
-    const card = Formula(() => ({
+    const card = CachedFormula(() => ({
       name: name.current,
       location: location.current,
     }));
@@ -103,7 +104,7 @@ describe("A reactive formula", () => {
       { equals: (a, b) => a.name === b.name && a.location === b.location }
     );
 
-    const card = Formula(() => ({
+    const card = CachedFormula(() => ({
       name: person.current.name,
       location: person.current.location,
     }));
@@ -151,8 +152,8 @@ describe("A reactive formula", () => {
     const location = Cell("New York");
     const organization = Cell("LinkedIn");
 
-    const card = Formula(() => `${name.current} (${location.current})`);
-    const complete = Formula(
+    const card = CachedFormula(() => `${name.current} (${location.current})`);
+    const complete = CachedFormula(
       () => `${card.current} at ${organization.current}`
     );
 
@@ -205,7 +206,7 @@ test("Formula using cells", () => {
   const person = new Person("Tom", "USA");
   let counter = 0;
 
-  const formatted = Formula(() => {
+  const formatted = CachedFormula(() => {
     counter++;
     return person.formatted(false);
   });
@@ -244,7 +245,7 @@ test("Formula using the @reactive decorator", () => {
   const person = new Person("Tom", "USA");
   let counter = 0;
 
-  const formatted = Formula(() => {
+  const formatted = CachedFormula(() => {
     counter++;
     return person.formatted(false);
   });

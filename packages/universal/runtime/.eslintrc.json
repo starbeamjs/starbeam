@@ -1,0 +1,12 @@
+{
+  "root": false,
+  "overrides": [
+    {
+      "extends": ["plugin:@starbeam/tight"],
+      "files": ["index.ts", "src/**/*.ts"],
+      "parserOptions": {
+        "project": "packages/universal/runtime/tsconfig.json"
+      }
+    }
+  ]
+}

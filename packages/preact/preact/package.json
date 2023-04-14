@@ -5,8 +5,7 @@
   "main": "index.ts",
   "types": "index.ts",
   "exports": {
-    ".": "./index.ts",
-    "./setup": "./src/setup.ts"
+    "default": "./index.ts"
   },
   "publishConfig": {
     "exports": {
@@ -14,11 +13,6 @@
         "types": "./dist/index.d.ts",
         "import": "./dist/index.js",
         "default": "./dist/index.cjs"
-      },
-      "./setup": {
-        "types": "./dist/setup.d.ts",
-        "import": "./dist/setup.js",
-        "default": "./dist/setup.cjs"
       }
     },
     "main": "dist/index.cjs",
@@ -39,8 +33,13 @@
   "dependencies": {
     "@starbeam/core-utils": "workspace:^",
     "@starbeam/debug": "workspace:^",
+    "@starbeam/interfaces": "workspace:^",
     "@starbeam/preact-utils": "workspace:^",
-    "@starbeam/timeline": "workspace:^",
+    "@starbeam/reactive": "workspace:^",
+    "@starbeam/resource": "workspace:^",
+    "@starbeam/runtime": "workspace:^",
+    "@starbeam/service": "workspace:^",
+    "@starbeam/tags": "workspace:^",
     "@starbeam/universal": "workspace:^",
     "@starbeam/verify": "workspace:^"
   },

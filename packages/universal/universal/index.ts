@@ -1,58 +1,27 @@
 export { DEBUG_RENDERER } from "./src/debug-renderer.js";
-export { type Equality, Cell } from "./src/reactive-core/cell.js";
-export {
-  Custom,
-  CustomBlueprint,
-  CustomBuilder,
-} from "./src/reactive-core/custom.js";
-export { DelegateInternals, Wrap } from "./src/reactive-core/delegate.js";
-export {
-  Formula,
-  FormulaValidation,
-} from "./src/reactive-core/formula/formula.js";
-export { Linkable } from "./src/reactive-core/formula/linkable.js";
-export {
-  PolledFormula,
-  PolledFormulaValidation,
-} from "./src/reactive-core/formula/polled-formula.js";
-export { Setup, Setups } from "./src/reactive-core/formula/setups.js";
+export { FormulaList } from "./src/reactive-core/higher-level/formula-list.js";
 export { Freshness } from "./src/reactive-core/higher-level/freshness.js";
-export {
-  FormulaList,
-  ResourceList,
-} from "./src/reactive-core/higher-level/resource-list.js";
-export {
-  type IntoReactiveObject,
-  type IntoResource,
-  Factory,
-} from "./src/reactive-core/into.js";
-export { Marker } from "./src/reactive-core/marker.js";
-export type {
-  Blueprint,
-  IntoReactive,
-  ReactiveBlueprint,
-  ReactiveFactory,
-} from "./src/reactive-core/reactive.js";
-export { Reactive } from "./src/reactive-core/reactive.js";
-export {
-  type ResourceBlueprint,
-  type ResourceFactory,
-  type ResourceReturn,
-  Resource,
-} from "./src/reactive-core/resource/resource.js";
-export type { ResourceRun } from "./src/reactive-core/resource/run.js";
-export {
-  type ServiceBlueprint,
-  createService,
-  reactiveService,
-  Service,
-  service,
-} from "./src/reactive-core/service.js";
-export { Static } from "./src/reactive-core/static.js";
 export {
   type Variant,
   type VariantEntry,
-  type VariantType,
   Variants,
+  type VariantType,
 } from "./src/reactive-core/variants.js";
-export { LIFETIME, REACTIVE, TIMELINE } from "@starbeam/timeline";
+export type { Reactive } from "@starbeam/interfaces";
+export {
+  Cell,
+  type Equality,
+  CachedFormula as Formula,
+  Marker,
+  Formula as PolledFormula,
+  read as readReactive,
+  Static,
+} from "@starbeam/reactive";
+export { Wrap } from "@starbeam/reactive/src/primitives/delegate.js";
+export {
+  Resource,
+  type ResourceBlueprint,
+  type ResourceRun,
+  use,
+} from "@starbeam/resource";
+export { LIFETIME, PUBLIC_TIMELINE, TAG } from "@starbeam/runtime";

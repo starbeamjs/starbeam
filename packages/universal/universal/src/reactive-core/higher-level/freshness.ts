@@ -1,6 +1,5 @@
-import { type Description, descriptionFrom } from "@starbeam/debug";
-
-import { Cell } from "../cell.js";
+import type { Description } from "@starbeam/interfaces";
+import { Cell, RUNTIME } from "@starbeam/reactive";
 
 const INITIAL_COUNT = 0;
 const INCREMENT_COUNT = 1;
@@ -9,7 +8,7 @@ export class ReactiveFreshness {
   #lastChecked: number | undefined;
   #cell: Cell<number>;
 
-  constructor(description: Description) {
+  constructor(description: Description | undefined) {
     this.#cell = Cell(INITIAL_COUNT, { description });
   }
 
@@ -37,13 +36,7 @@ export class ReactiveFreshness {
 export function Freshness(
   description?: string | Description
 ): ReactiveFreshness {
-  return new ReactiveFreshness(
-    descriptionFrom({
-      type: "cell",
-      api: { package: "@starbeam/universal", name: "Freshness" },
-      fromUser: description,
-    })
-  );
+  return new ReactiveFreshness(RUNTIME.Desc?.("cell", description));
 }
 
 export type Freshness = ReactiveFreshness;

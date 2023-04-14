@@ -4,7 +4,7 @@ import chalk from "chalk";
 import wrap from "wrap-ansi";
 
 import { SPACES_PER_TAB } from "./constants.js";
-import { type IntoFragment, Fragment, Style } from "./log.js";
+import { Fragment, type IntoFragment, Style } from "./log.js";
 import type { InternalLogOptions, LeadingOption } from "./reporter.js";
 
 const INCREMENT_LEADING = 1;

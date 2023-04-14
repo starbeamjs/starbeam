@@ -1,4 +1,4 @@
-import { inspector } from "@starbeam/debug";
+import { inspector } from "@starbeam/core-utils";
 import { describe, expect, test } from "vitest";
 
 class Person {

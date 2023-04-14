@@ -1,9 +1,9 @@
 export { Package } from "./src/package.js";
 export {
-  type Test,
-  type Tests,
   queryPackages,
+  type Test,
   TestName,
+  type Tests,
 } from "./src/packages.js";
 export type { FilterKey, FilterOperator } from "./src/query/filters.js";
 export { Filter } from "./src/query/filters.js";

@@ -9,9 +9,10 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
+    "@starbeam/collections": "workspace:^",
     "@starbeam/debug": "workspace:^",
-    "@starbeam/js": "workspace:^",
-    "@starbeam/timeline": "workspace:^",
+    "@starbeam/resource": "workspace:^",
+    "@starbeam/runtime": "workspace:^",
     "@starbeam/universal": "workspace:^"
   },
   "devDependencies": {

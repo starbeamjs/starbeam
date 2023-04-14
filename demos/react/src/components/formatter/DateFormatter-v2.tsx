@@ -1,4 +1,4 @@
-import * as js from "@starbeam/js";
+import * as js from "@starbeam/collections";
 import { useSetup } from "@starbeam/react";
 import type { ResourceBlueprint } from "@starbeam/universal";
 import { Resource } from "@starbeam/universal";
@@ -20,7 +20,7 @@ export default function DateFormatterStarbeam(): JSX.Element {
             </>
           </h3>
 
-          <p className="output">{date.current.formatted}</p>
+          <p className="output">{date.current?.formatted}</p>
         </>
       );
     };

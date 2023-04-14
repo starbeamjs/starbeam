@@ -1,15 +1,11 @@
-import {
-  isPresent,
-  mapOrNullifyEmpty,
-  objectHasKeys,
-} from "@starbeam/core-utils";
+import { isPresent, mapIfPresent, objectHasKeys } from "@starbeam/core-utils";
 import { DisplayStruct } from "@starbeam-workspace/shared";
 import Table from "cli-table3";
 
 import {
-  type IntoFragment,
   EMPTY_WIDTH,
   Fragment,
+  type IntoFragment,
   isIntoFragment,
 } from "./log.js";
 import type { LoggerState } from "./logger.js";
@@ -106,20 +102,20 @@ class Columns {
   }
 
   headers(state: LoggerState): string[] | undefined {
-    return mapOrNullifyEmpty(
-      this.#columns,
-      (column) => column.header(state) ?? ""
-    );
+    return mapIfPresent(this.#columns, (column) => column.header(state) ?? "");
   }
 
-  columnWidths(rows: Cell[][], state: LoggerState): number[] | undefined {
-    return mapOrNullifyEmpty(this.#columns, (column, index) =>
+  columnWidths(
+    rows: Cell[][],
+    state: LoggerState
+  ): readonly number[] | undefined {
+    return mapIfPresent(this.#columns, (column, index) =>
       column.maxWidth(rows.map((row) => row[index]).filter(isPresent), state)
     );
   }
 
   get justifications(): Table.HorizontalAlignment[] | undefined {
-    return mapOrNullifyEmpty(this.#columns, (column) => column.justification);
+    return mapIfPresent(this.#columns, (column) => column.justification);
   }
 }
 

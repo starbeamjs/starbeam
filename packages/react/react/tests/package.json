@@ -11,11 +11,13 @@
   "dependencies": {
     "@starbeam/debug": "workspace:^",
     "@starbeam/react": "workspace:^",
-    "@starbeam/timeline": "workspace:^",
+    "@starbeam/reactive": "workspace:^",
+    "@starbeam/runtime": "workspace:^",
     "@starbeam/universal": "workspace:^",
     "@starbeam-workspace/react-test-utils": "workspace:^",
     "@starbeam-workspace/test-utils": "workspace:^",
-    "jsdom": "^20.0.3",
-    "react": "^18"
+    "jsdom": "^21.1.1",
+    "react": "^18.2.0",
+    "vitest": "*"
   }
 }

@@ -1,7 +1,7 @@
 import { type AsString, type Into, Union } from "@starbeam-workspace/shared";
 import chalk from "chalk";
 
-import { type DetailedStyle, type StyleInstance, isDetailed } from "./log.js";
+import { type DetailedStyle, isDetailed, type StyleInstance } from "./log.js";
 
 export const STYLE = Symbol("STYLE");
 export type STYLE = typeof STYLE;

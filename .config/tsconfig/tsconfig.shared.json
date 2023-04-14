@@ -4,7 +4,7 @@
 
     "target": "ESNext",
     "module": "ESNext",
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
 
     "declaration": true,
     "declarationMap": true,
@@ -17,7 +17,6 @@
     "noImplicitOverride": true,
 
     "isolatedModules": true,
-    "preserveValueImports": true,
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
 
@@ -25,7 +24,7 @@
     "allowSyntheticDefaultImports": true,
 
     "useDefineForClassFields": true,
-    "importsNotUsedAsValues": "error",
+    "verbatimModuleSyntax": true,
 
     "resolveJsonModule": true,
 

@@ -1,6 +1,6 @@
-import js from "@starbeam/js";
+import js from "@starbeam/collections";
 import { use } from "@starbeam/preact";
-import { type ResourceBlueprint, Resource, Static } from "@starbeam/universal";
+import { Resource, type ResourceBlueprint, Static } from "@starbeam/universal";
 import type { JSX } from "preact";
 
 import { formatLocale, SYSTEM_LOCALE, SYSTEM_TZ } from "../intl.js";

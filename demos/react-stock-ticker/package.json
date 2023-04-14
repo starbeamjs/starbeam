@@ -30,7 +30,7 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "@starbeam/js": "workspace:^",
+    "@starbeam/collections": "workspace:^",
     "@starbeam/react": "workspace:^",
     "@starbeam/universal": "workspace:^",
     "@starbeamx/devtool": "workspace:*",

@@ -1,21 +1,27 @@
 import { stringify } from "@starbeam/core-utils";
-import type { Directory, Glob, Path } from "@starbeam-workspace/paths";
-import { type GlobOptions, Paths } from "@starbeam-workspace/paths";
+import type {
+  Directory,
+  Glob,
+  GlobOptions,
+  Path,
+} from "@starbeam-workspace/paths";
+import { Paths } from "@starbeam-workspace/paths";
 import type {
   CheckResults,
+  IntoFragment,
+  ReporterOptions,
   Workspace as IWorkspace,
 } from "@starbeam-workspace/reporter";
 import {
-  type IntoFragment,
+  CommandStream,
   Fragment,
   fragment,
   GroupedCheckResults,
+  Reporter,
 } from "@starbeam-workspace/reporter";
-import { CommandStream } from "@starbeam-workspace/reporter";
-import { type ReporterOptions, Reporter } from "@starbeam-workspace/reporter";
 import {
-  type ExecSyncOptionsWithStringEncoding,
   execSync,
+  type ExecSyncOptionsWithStringEncoding,
 } from "child_process";
 
 import { Checks } from "./checks.js";

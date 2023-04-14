@@ -9,11 +9,11 @@ const UNINITIALIZED = Symbol.for("starbeam.UNINITIALIZED");
 type UNINITIALIZED = typeof UNINITIALIZED;
 
 /**
- * The `REACTIVE` symbol is the protocol entry point for reactive values. Implementations of
- * the `ReactiveProtocol` interface specify their reactive behavior under this symbol.
+ * The `TAG` symbol is the protocol entry point for reactive values. Implementations of the `Tagged`
+ * interface specify their reactive behavior under this symbol.
  */
-const REACTIVE: unique symbol = Symbol.for("starbeam.REACTIVE");
-type REACTIVE = typeof REACTIVE;
+const TAG: unique symbol = Symbol.for("starbeam.TAG");
+type TAG = typeof TAG;
 
 /**
  * The `NOW` symbol is the name on `globalThis` that is used to store the current timestamp.
@@ -21,4 +21,4 @@ type REACTIVE = typeof REACTIVE;
 const COORDINATION: unique symbol = Symbol.for("starbeam.COORDINATION");
 type COORDINATION = typeof COORDINATION;
 
-export { COORDINATION, REACTIVE, UNINITIALIZED };
+export { COORDINATION, TAG, UNINITIALIZED };

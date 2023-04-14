@@ -1,25 +1,21 @@
 import type { browser } from "@domtree/flavors";
-import { type DebugListener, type Description, Desc } from "@starbeam/debug";
-import type { Reactive } from "@starbeam/interfaces";
+import type { Description, Reactive, Tagged } from "@starbeam/interfaces";
+import { Formula, RUNTIME } from "@starbeam/reactive";
+import type { IntoResourceBlueprint, Resource } from "@starbeam/resource";
+import * as resource from "@starbeam/resource";
 import {
   type CleanupTarget,
-  type OnCleanup,
-  type ReactiveProtocol,
-  type Unsubscribe,
+  CONTEXT,
   LIFETIME,
-  TIMELINE,
-} from "@starbeam/timeline";
-import {
-  type Cell,
-  type IntoResource,
-  createService,
-  Factory,
-} from "@starbeam/universal";
+  type OnCleanup,
+  PUBLIC_TIMELINE,
+  type Unsubscribe,
+} from "@starbeam/runtime";
+import { service } from "@starbeam/service";
+import { Cell } from "@starbeam/universal";
 
-import { ReactApp } from "./context-provider.js";
-import { missingApp } from "./context-provider.js";
+import { missingApp, ReactApp } from "./context-provider.js";
 import { type ElementRef, type ReactElementRef, ref } from "./ref.js";
-import { MountedResource } from "./use-resource.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyRecord = Record<PropertyKey, any>;
@@ -126,9 +122,11 @@ class Refs {
   }
 }
 
+type DebugListener = unknown;
+
 export type DebugLifecycle = (
   listener: DebugListener,
-  reactive: ReactiveProtocol
+  reactive: Tagged
 ) => () => void;
 
 /**
@@ -154,7 +152,7 @@ export class ReactiveElement implements CleanupTarget {
   static create(
     notify: () => void,
     context: ReactApp | null,
-    description: Description
+    description: Description | undefined
   ): ReactiveElement {
     return new ReactiveElement(
       notify,
@@ -178,7 +176,7 @@ export class ReactiveElement implements CleanupTarget {
   static activate(
     notify: () => void,
     context: ReactApp | null,
-    description: Description,
+    description: Description | undefined,
     prev: ReactiveElement | undefined
   ): ReactiveElement {
     if (prev) {
@@ -201,8 +199,8 @@ export class ReactiveElement implements CleanupTarget {
     element.#lifecycle = Lifecycle.create(element.#description);
   }
 
-  static subscribe(element: ReactiveElement, reactive: ReactiveProtocol): void {
-    const subscription = TIMELINE.on.change(reactive, element.notify);
+  static subscribe(element: ReactiveElement, reactive: Tagged): void {
+    const subscription = PUBLIC_TIMELINE.on.change(reactive, element.notify);
     element.on.cleanup(subscription);
   }
 
@@ -210,7 +208,7 @@ export class ReactiveElement implements CleanupTarget {
   #context: ReactApp | null;
   #debugLifecycle: DebugLifecycle | null = null;
   #refs: Refs;
-  readonly #description: Description;
+  readonly #description: Description | undefined;
 
   readonly on: OnLifecycle;
 
@@ -219,7 +217,7 @@ export class ReactiveElement implements CleanupTarget {
     context: ReactApp | null,
     lifecycle: Lifecycle,
     refs: Refs,
-    description: Description
+    description: Description | undefined
   ) {
     this.#lifecycle = lifecycle;
     this.#context = context;
@@ -237,41 +235,39 @@ export class ReactiveElement implements CleanupTarget {
   }
 
   service = <T>(
-    factory: IntoResource<T>,
+    blueprint: IntoResourceBlueprint<T>,
     description?: string | Description | undefined
-  ): Reactive<T> => {
-    const desc = Desc("service", description);
+  ): Resource<T> => {
+    const desc = RUNTIME.Desc?.("service", description, "UseSetup.service");
     const context = this.#context;
 
     if (context === null) {
       missingApp(`service()`);
     }
 
-    return createService(factory, desc, ReactApp.instance(context));
+    CONTEXT.app = ReactApp.instance(context);
+
+    return service(blueprint, { description: desc });
   };
 
-  use = <T, Initial extends undefined>(
-    factory: IntoResource<T, Initial>,
-    options?: { initial?: T; description: string | Description | undefined }
-  ): Reactive<T | Initial> => {
-    const desc = Desc("resource", options?.description);
-    const resource = MountedResource.create(options?.initial, desc);
-
-    LIFETIME.link(this, resource);
-
-    const create = (): void => {
-      resource.create((owner) => Factory.resource(factory, owner));
-
-      this.notify();
-    };
-
-    const unsubscribe = TIMELINE.on.change(resource, this.notify);
-
-    LIFETIME.on.cleanup(resource, unsubscribe);
-
-    this.on.layout(create);
-
-    return resource as Reactive<T | Initial>;
+  use = <T>(
+    factory: IntoResourceBlueprint<T>,
+    options?: { initial?: T }
+  ): Reactive<T | undefined> => {
+    return internalUseResource(
+      this,
+      {
+        notify: this.notify,
+        on: {
+          layout: (callback) =>
+            this.on.layout(() => {
+              callback(factory);
+            }),
+          cleanup: this.on.cleanup,
+        },
+      },
+      options?.initial
+    );
   };
 
   refs<R extends RefsTypes>(refs: R): RefsRecordFor<R> {
@@ -280,6 +276,37 @@ export class ReactiveElement implements CleanupTarget {
     this.#refs = newRefs;
     return record;
   }
+}
+interface ResourceHost<T> {
+  readonly notify: () => void;
+  readonly on: {
+    layout: (callback: (value: T) => void) => Unsubscribe | void;
+    cleanup: (callback: () => void) => Unsubscribe | void;
+  };
+}
+
+export function internalUseResource<T>(
+  lifetime: object,
+  host: ResourceHost<IntoResourceBlueprint<T>>,
+  initial: T | undefined
+): Reactive<T | undefined> {
+  const resourceCell = Cell(undefined as undefined | Resource<T>);
+
+  const create = (blueprint: IntoResourceBlueprint<T>): void => {
+    resourceCell.set(resource.use(blueprint, { lifetime }));
+
+    host.notify();
+  };
+
+  host.on.layout(create);
+
+  const formula = Formula(() => {
+    return resourceCell.current?.current ?? initial;
+  });
+
+  host.on.cleanup(PUBLIC_TIMELINE.on.change(formula, host.notify));
+
+  return formula;
 }
 
 type Callback<T = void> =
@@ -302,7 +329,7 @@ interface OnLifecycle extends OnCleanup {
 }
 
 class Lifecycle {
-  static create(description: Description): Lifecycle {
+  static create(description: Description | undefined): Lifecycle {
     return new Lifecycle(new Set(), new Set(), description);
   }
 
@@ -321,7 +348,7 @@ class Lifecycle {
   static on<T extends object>(
     lifecycle: Lifecycle,
     instance: T,
-    _elementDescription: Description
+    _elementDescription: Description | undefined
   ): OnLifecycle {
     LIFETIME.link(instance, lifecycle);
 
@@ -341,12 +368,12 @@ class Lifecycle {
 
   readonly #idle: Set<Callback>;
   readonly #layout: Set<Callback>;
-  readonly #description: Description;
+  readonly #description: Description | undefined;
 
   private constructor(
     idle: Set<Callback>,
     layout: Set<Callback>,
-    description: Description
+    description: Description | undefined
   ) {
     this.#idle = idle;
     this.#layout = layout;

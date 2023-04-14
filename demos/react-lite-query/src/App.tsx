@@ -1,14 +1,13 @@
 import "./App.css";
 
-import {
-  type DevtoolsOptions,
-  type UpdatePane,
-  TabsPane,
-} from "@starbeamx/devtool";
+import { TabsPane, type UpdatePane } from "@starbeamx/devtool";
 import { Axios } from "axios";
 import { useEffect, useRef } from "react";
 
 import useQuery from "./lib/use-query.js";
+
+type FIXME = never;
+type DevtoolsOptions = FIXME;
 
 export default function App(): JSX.Element {
   const ref = useRef<HTMLDivElement>(null);

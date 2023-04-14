@@ -8,8 +8,13 @@ export {
   isEmptyArray,
   isPresentArray,
   isSingleItemArray,
-  mapOrNullifyEmpty,
+  mapArray,
+  mapIfPresent,
+  mapPresentArray,
+  type MutablePresentArray,
   nullifyEmptyArray,
+  type PresentArray,
+  type ReadonlyPresentArray,
   removeItem,
   removeItemAt,
   withoutFirst,
@@ -17,7 +22,19 @@ export {
   zipArrays,
 } from "./src/array.js";
 export { type UnknownFn } from "./src/function.js";
-export { reverse } from "./src/iterable.js";
+export {
+  DisplayStruct,
+  type DisplayStructOptions,
+} from "./src/inspect/display-struct.js";
+export {
+  DEBUG,
+  DEBUG_NAME,
+  INSPECT,
+  type Inspect,
+  inspect,
+  inspector,
+} from "./src/inspect/inspect-support.js";
+export { iterableHasItems, reverse } from "./src/iterable.js";
 export type {
   JsonArray,
   JsonObject,
@@ -25,8 +42,18 @@ export type {
   JsonValue,
 } from "./src/json.js";
 export { isJSONObject, stringifyJSON } from "./src/json.js";
-export { isObject, objectHasKeys } from "./src/object.js";
-export { type Matcher, type TypedOverload, Overload } from "./src/overload.js";
+export {
+  dataGetter,
+  def,
+  defineObject,
+  defMethod,
+  getter,
+  isObject,
+  method,
+  objectHasKeys,
+  readonly,
+} from "./src/object.js";
+export { type Matcher, Overload, type TypedOverload } from "./src/overload.js";
 export { isEmptyMatch, matchPattern, Pattern } from "./src/regexp.js";
 export {
   asIntIndex,

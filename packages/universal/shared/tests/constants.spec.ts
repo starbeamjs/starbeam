@@ -1,9 +1,9 @@
-import { COORDINATION, REACTIVE, UNINITIALIZED } from "@starbeam/shared";
+import { COORDINATION, TAG, UNINITIALIZED } from "@starbeam/shared";
 import { describe, expect, test } from "vitest";
 
 describe("symbols", () => {
   testSymbol(UNINITIALIZED, "UNINITIALIZED");
-  testSymbol(REACTIVE, "REACTIVE");
+  testSymbol(TAG, "TAG");
   testSymbol(COORDINATION, "COORDINATION");
 });
 

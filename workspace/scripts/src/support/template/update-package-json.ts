@@ -1,8 +1,8 @@
 import { isSingleItemArray } from "@starbeam/core-utils";
 import {
+  isObject,
   type JsonObject,
   type JsonValue,
-  isObject,
 } from "@starbeam-workspace/json";
 import type { Package } from "@starbeam-workspace/package";
 import { Fragment, fragment } from "@starbeam-workspace/reporter";

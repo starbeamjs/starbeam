@@ -7,7 +7,6 @@ exports.config = {
   parser: "@typescript-eslint/parser",
   parserOptions: {
     EXPERIMENTAL_useSourceOfProjectReferenceRedirect: true,
-    warnOnUnsupportedTypeScriptVersion: false,
     ecmaVersion: "latest",
   },
   settings: {
@@ -78,6 +77,9 @@ const TYPED_RULES = Rules.build((rules) =>
     })
     .typed("explicit-function-return-type", {
       allowExpressions: true,
+      allowTypedFunctionExpressions: true,
+      allowDirectConstAssertionInArrowFunctions: true,
+      allowFunctionsWithoutTypeParameters: true,
       allowHigherOrderFunctions: true,
     })
     .typed("explicit-member-accessibility", {
@@ -137,4 +139,7 @@ exports.rules = {
     },
   ],
   "import/no-relative-packages": "error",
+  "import/first": "error",
+  "import/newline-after-import": "error",
+  "import/no-duplicates": "error",
 };

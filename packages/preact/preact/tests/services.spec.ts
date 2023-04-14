@@ -1,10 +1,9 @@
 // @vitest-environment jsdom
 
-import { setup } from "@starbeam/preact";
-import { service } from "@starbeam/universal";
+import { service, setup } from "@starbeam/preact";
 import {
-  type HtmlNode,
   html,
+  type HtmlNode,
   rendering,
 } from "@starbeam-workspace/preact-testing-utils";
 import {

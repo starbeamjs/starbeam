@@ -32,9 +32,10 @@
     "@starbeam/core-utils": "workspace:^",
     "@starbeam/debug": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
-    "@starbeam/timeline": "workspace:^",
+    "@starbeam/runtime": "workspace:^",
+    "@starbeam/tags": "workspace:^",
     "@starbeam/verify": "workspace:^",
-    "preact": "^10.11.3"
+    "preact": "^10.13.2"
   },
   "devDependencies": {
     "@starbeam-dev/build-support": "workspace:*"

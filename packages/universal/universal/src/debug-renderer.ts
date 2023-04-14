@@ -1,8 +1,6 @@
-import { type Description, descriptionFrom } from "@starbeam/debug";
-import type { Unsubscribe } from "@starbeam/timeline";
-import { TIMELINE } from "@starbeam/timeline";
-
-import { Formula } from "./reactive-core/formula/formula.js";
+import type { Description, Unsubscribe } from "@starbeam/interfaces";
+import { Formula, RUNTIME } from "@starbeam/reactive";
+import { PUBLIC_TIMELINE } from "@starbeam/runtime";
 
 export const DEBUG_RENDERER = {
   render<T>(
@@ -17,17 +15,13 @@ export const DEBUG_RENDERER = {
   ): Unsubscribe {
     const formula = Formula(
       render,
-      descriptionFrom({
-        type: "renderer",
-        api: "DEBUG_RENDERER",
-        fromUser: description,
-      })
+      RUNTIME.Desc?.("formula", description ?? "DEBUG_RENDERER")
     );
 
     debug(formula.read());
 
     let dirty = false;
-    return TIMELINE.on.change(formula, () => {
+    return PUBLIC_TIMELINE.on.change(formula, () => {
       if (!dirty) {
         dirty = true;
 

@@ -65,7 +65,9 @@ const INITIAL_COUNT = 0;
 const INCREMENT = 1;
 
 function ReactiveObject(): { cell: Cell<number>; increment: () => void } {
-  const cell = Cell(INITIAL_COUNT, `ReactiveObject #${++nextId}`);
+  const cell = Cell(INITIAL_COUNT, {
+    description: `ReactiveObject #${++nextId}`,
+  });
 
   function increment(): void {
     cell.set(cell.current + INCREMENT);

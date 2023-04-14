@@ -8,14 +8,14 @@ import type { LoggerState } from "./logger.js";
 import type { ReporterOptions } from "./reporter.js";
 import {
   type AnyStyleName,
-  type IntoStylePart,
-  type StyleName,
-  type StylePartName,
   getStyle,
   hasPart,
+  type IntoStylePart,
   isAnyStyleName,
   STYLE,
+  type StyleName,
   StylePart,
+  type StylePartName,
   STYLES,
 } from "./styles.js";
 
@@ -59,7 +59,7 @@ export const Style = {
 } as const;
 
 export function log(message: string, style: Style = Style.default): void {
-  console.log(Fragment(style, message));
+  console.info(Fragment(style, message));
 }
 
 log.newline = () => {

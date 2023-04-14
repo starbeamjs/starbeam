@@ -1,8 +1,8 @@
 import { type Printable, Style, StyleInstance } from "./log.js";
 import {
   type StyleName,
-  type StylePartName,
   StylePart,
+  type StylePartName,
   STYLES,
 } from "./styles.js";
 

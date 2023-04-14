@@ -1,0 +1,12 @@
+{
+  "root": false,
+  "overrides": [
+    {
+      "extends": ["plugin:@starbeam/commonjs"],
+      "files": ["index.ts", "src/**/*.ts"],
+      "parserOptions": {
+        "project": "packages/universal/resource/tsconfig.json"
+      }
+    }
+  ]
+}

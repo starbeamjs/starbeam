@@ -1,12 +1,9 @@
-import { LOGGER, LogLevel } from "@starbeam/debug";
 import { useProp, useReactive, useSetup } from "@starbeam/react";
-import { Cell, Formula } from "@starbeam/universal";
+import { CachedFormula as Formula, Cell } from "@starbeam/reactive";
 import type { FormEvent } from "react";
 
-import { type Person, People } from "../lib/people.js";
+import { People, type Person } from "../lib/people.js";
 import { type Row, Table } from "../lib/table.js";
-
-LOGGER.level = LogLevel.Debug;
 
 export default function (props: { locale: string }): JSX.Element {
   const locale = useProp(props.locale, "props.locale");

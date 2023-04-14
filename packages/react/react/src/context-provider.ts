@@ -1,12 +1,7 @@
-import { LIFETIME } from "@starbeam/timeline";
+import { LIFETIME } from "@starbeam/runtime";
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
-import type { FunctionComponent } from "react";
-import {
-  type PropsWithChildren,
-  createContext,
-  createElement,
-  useContext,
-} from "react";
+import type { FunctionComponent, PropsWithChildren } from "react";
+import { createContext, createElement, useContext } from "react";
 
 const StarbeamContext = createContext(null as null | ReactApp);
 
@@ -36,6 +31,7 @@ export class ReactApp {
   }
 
   static reactivate(owner: ReactApp): ReactApp {
+    owner.#instance = {};
     return owner;
   }
 
@@ -67,6 +63,11 @@ export function useStarbeamApp({
     missingApp(feature);
   }
 
+  return app;
+}
+
+export function verifiedApp(app: ReactApp | null, feature: string): ReactApp {
+  if (!app) missingApp(feature);
   return app;
 }
 

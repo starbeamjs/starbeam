@@ -1,24 +1,23 @@
-import type { Stack } from "@starbeam/debug";
-import {
-  type Description,
-  callerStack,
-  descriptionFrom,
-  DisplayStruct,
-} from "@starbeam/debug";
+import { DisplayStruct } from "@starbeam/core-utils";
+import type {
+  CallStack,
+  DelegateTag,
+  Description,
+  FormulaTag,
+} from "@starbeam/interfaces";
+import { Cell, Marker, RUNTIME } from "@starbeam/reactive";
+import type { Tagged } from "@starbeam/runtime";
+import { TAG } from "@starbeam/runtime";
 import { UNINITIALIZED } from "@starbeam/shared";
 import {
-  type ReactiveInternals,
-  type ReactiveProtocol,
-  REACTIVE,
-  TIMELINE,
-} from "@starbeam/timeline";
-
-import { CompositeInternals } from "../storage.js";
-import { Cell } from "./cell.js";
-import { Marker } from "./marker.js";
+  createDelegateTag,
+  createFormulaTag,
+  getTag,
+  getTags,
+} from "@starbeam/tags";
 
 export class VariantGroups {
-  static empty(description: Description): VariantGroups {
+  static empty(description: Description | undefined): VariantGroups {
     return new VariantGroups(description);
   }
 
@@ -27,9 +26,9 @@ export class VariantGroups {
   // an index of all variant groups, indexed by each of their members
   readonly #groupsByType = new Map<string, Set<VariantGroup>>();
 
-  readonly #description: Description;
+  readonly #description: Description | undefined;
 
-  constructor(description: Description) {
+  constructor(description: Description | undefined) {
     this.#description = description;
   }
 
@@ -49,7 +48,7 @@ export class VariantGroups {
     return group;
   }
 
-  transition(from: string, to: string, caller: Stack): void {
+  transition(from: string, to: string, caller: CallStack | undefined): void {
     const fromGroups = this.#groupsByType.get(from);
     const toGroups = this.#groupsByType.get(to);
 
@@ -69,7 +68,7 @@ export class VariantGroups {
   #create(types: string[], joined: string): VariantGroup {
     const group = VariantGroup.group(
       types,
-      this.#description.detail("is", [types.join(" | ")])
+      this.#description?.detail("formula", "is", [types.join(" | ")])
     );
 
     for (const type of types) {
@@ -89,8 +88,11 @@ export class VariantGroups {
 }
 
 export class VariantGroup {
-  static group(types: string[], description: Description): VariantGroup {
-    return new VariantGroup(Marker(description), new Set(types));
+  static group(
+    types: string[],
+    description: Description | undefined
+  ): VariantGroup {
+    return new VariantGroup(Marker({ description }), new Set(types));
   }
 
   readonly #marker: Marker;
@@ -106,36 +108,38 @@ export class VariantGroup {
   }
 
   consume(): void {
-    this.#marker.consume();
+    this.#marker.read();
   }
 
   // Transition to or from another variant. If the variant is not present in this group, then this
   // group is invalidated.
-  transition(type: string, caller: Stack): void {
+  transition(type: string, caller: CallStack | undefined): void {
     if (this.#types.has(type)) {
       return;
     }
 
-    this.#marker.update(caller);
+    this.#marker.mark(caller);
   }
 }
 
-export class Variant<T> implements ReactiveProtocol {
+export class Variant<T> implements Tagged<DelegateTag> {
   static selected<T>(
     type: string,
     typeMarker: Marker,
     value: T,
-    description: Description
+    description: Description | undefined
   ): Variant<T> {
     const val = Cell(value as T | UNINITIALIZED, {
-      description: description.implementation(type, {
-        reason: `${type} cell`,
-      }),
+      description: description?.implementation("cell", type, `${type} cell`),
     });
 
-    const localTypeMarker = Marker(
-      description.implementation("selected:local", { reason: "selected" })
-    );
+    const localTypeMarker = Marker({
+      description: description?.implementation(
+        "cell",
+        "selected:local",
+        "selected"
+      ),
+    });
 
     return new Variant(
       type,
@@ -143,11 +147,9 @@ export class Variant<T> implements ReactiveProtocol {
       localTypeMarker,
       val,
       { value },
-      CompositeInternals(
-        [val, localTypeMarker],
-        description.implementation("selected", {
-          reason: `selected`,
-        })
+      createDelegateTag(
+        description?.implementation("formula", "selected", "selected"),
+        getTags([val, localTypeMarker])
       )
     );
   }
@@ -155,13 +157,17 @@ export class Variant<T> implements ReactiveProtocol {
   static deselected<T>(
     type: string,
     typeMarker: Marker,
-    description: Description
+    description: Description | undefined
   ): Variant<T> {
     const val = Cell(UNINITIALIZED as T | UNINITIALIZED);
 
-    const localTypeMarker = Marker(
-      description.implementation("selected:local", { reason: "selected" })
-    );
+    const localTypeMarker = Marker({
+      description: description?.implementation(
+        "cell",
+        "selected:local",
+        "selected"
+      ),
+    });
 
     return new Variant<T | UNINITIALIZED>(
       type,
@@ -170,9 +176,9 @@ export class Variant<T> implements ReactiveProtocol {
       val,
       { value: UNINITIALIZED },
 
-      CompositeInternals(
-        [val, localTypeMarker],
-        description.implementation("selected", { reason: "selected" })
+      createDelegateTag(
+        description?.implementation("formula", "selected", "selected"),
+        getTags([val, localTypeMarker])
       )
     ) as Variant<T>;
   }
@@ -189,20 +195,30 @@ export class Variant<T> implements ReactiveProtocol {
     };
   }
 
-  static set<T>(variant: Variant<T>, value: T, caller = callerStack()): void {
+  static set<T>(
+    variant: Variant<T>,
+    value: T,
+    caller = RUNTIME.callerStack?.()
+  ): void {
     variant.#value.set(value, caller);
   }
 
-  static select<T>(variant: Variant<T>, caller = callerStack()): void {
-    variant.#localTypeMarker.update(caller);
+  static select<T>(
+    variant: Variant<T>,
+    caller = RUNTIME.callerStack?.()
+  ): void {
+    variant.#localTypeMarker.mark(caller);
   }
 
-  static deselect<T>(variant: Variant<T>, caller = callerStack()): void {
-    variant.#localTypeMarker.update(caller);
+  static deselect<T>(
+    variant: Variant<T>,
+    caller = RUNTIME.callerStack?.()
+  ): void {
+    variant.#localTypeMarker.mark(caller);
   }
 
   static consumeType(variant: Variant<unknown>): void {
-    variant.#localTypeMarker.consume();
+    variant.#localTypeMarker.read();
   }
 
   readonly #type: string;
@@ -212,7 +228,7 @@ export class Variant<T> implements ReactiveProtocol {
     value: T | UNINITIALIZED;
   };
   readonly #value: Cell<T | UNINITIALIZED>;
-  readonly [REACTIVE]: ReactiveInternals;
+  readonly [TAG]: DelegateTag;
 
   private constructor(
     type: string,
@@ -220,18 +236,18 @@ export class Variant<T> implements ReactiveProtocol {
     localTypeMarker: Marker,
     value: Cell<T | UNINITIALIZED>,
     debug: { value: T | UNINITIALIZED },
-    reactive: ReactiveInternals
+    reactive: DelegateTag
   ) {
     this.#type = type;
     this.#sharedTypeMarker = sharedTypeMarker;
     this.#localTypeMarker = localTypeMarker;
     this.#debug = debug;
     this.#value = value;
-    this[REACTIVE] = reactive;
+    this[TAG] = reactive;
   }
 
   get type(): string {
-    this.#sharedTypeMarker.consume();
+    this.#sharedTypeMarker.read();
     return this.#type;
   }
 
@@ -291,8 +307,7 @@ export interface ReadonlyVariants<V extends VariantType, K extends keyof V> {
   ) => this is Omit<this, "current"> & ReadonlyVariants<V, T>;
 }
 
-export interface Variants<V extends VariantType, Narrow = V>
-  extends ReactiveProtocol {
+export interface Variants<V extends VariantType, Narrow = V> extends Tagged {
   current: {
     [K in keyof Narrow]: K extends string
       ? Narrow[K] extends []
@@ -326,19 +341,19 @@ export interface Variants<V extends VariantType, Narrow = V>
       | undefined);
 }
 
-class VariantsImpl implements ReactiveProtocol {
+class VariantsImpl implements Tagged<FormulaTag> {
   static create(
     value: InternalVariant,
-    description: Description
+    description: Description | undefined
   ): VariantsImpl {
     const variants: Record<string, Variant<unknown>> = {};
-    const typeMarker = Marker(description.key("type"));
+    const typeMarker = Marker({ description: description?.key("type") });
 
     const current = Variant.selected(
       value.type,
       typeMarker,
       value.value,
-      description.key(value.type)
+      description?.key(value.type)
     );
     variants[value.type] = current;
 
@@ -348,13 +363,14 @@ class VariantsImpl implements ReactiveProtocol {
   readonly #variants: Record<string, Variant<unknown>>;
   readonly #typeMarker: Marker;
   readonly #groups: VariantGroups;
-  readonly #description: Description;
+  readonly #description: Description | undefined;
+  readonly [TAG]: FormulaTag;
   #current: Variant<unknown>;
 
   private constructor(
     variants: Record<string, Variant<unknown>>,
     type: Marker,
-    description: Description,
+    description: Description | undefined,
     current: Variant<unknown>
   ) {
     this.#variants = variants;
@@ -362,10 +378,10 @@ class VariantsImpl implements ReactiveProtocol {
     this.#groups = VariantGroups.empty(description);
     this.#description = description;
     this.#current = current;
-  }
-
-  get [REACTIVE](): ReactiveInternals {
-    return CompositeInternals([this.#current], this.#description);
+    this[TAG] = createFormulaTag(
+      description,
+      () => new Set([getTag(this.#current)])
+    );
   }
 
   get current(): Variant<unknown> {
@@ -415,7 +431,7 @@ class VariantsImpl implements ReactiveProtocol {
   }
 
   choose(type: string, value?: unknown): void {
-    const caller = callerStack();
+    const caller = RUNTIME.callerStack?.();
     const current = this.#current;
     const from = Variant.type(current);
 
@@ -437,8 +453,8 @@ class VariantsImpl implements ReactiveProtocol {
       this.#current = this.#create(type, ["selected", value]);
     }
 
-    this.#typeMarker.update(caller);
-    TIMELINE.update(this);
+    this.#typeMarker.mark(caller);
+    RUNTIME.subscriptions.update(this[TAG]);
   }
 
   #get(type: string): Variant<unknown> {
@@ -459,7 +475,7 @@ class VariantsImpl implements ReactiveProtocol {
       return (this.#variants[type] = Variant.deselected(
         type,
         this.#typeMarker,
-        this.#description.key(type)
+        this.#description?.key(type)
       ));
     } else {
       const [, value] = create;
@@ -467,7 +483,7 @@ class VariantsImpl implements ReactiveProtocol {
         type,
         this.#typeMarker,
         value,
-        this.#description.key(type)
+        this.#description?.key(type)
       ));
     }
   }
@@ -484,14 +500,7 @@ for (const name of Object.keys(
 export function Variants<V extends VariantType>(
   description?: string | Description
 ): VariantConstructors<V> {
-  const desc = descriptionFrom({
-    type: "variants",
-    api: {
-      package: "@starbeam/universal",
-      name: "Variants",
-    },
-    fromUser: description,
-  });
+  const desc = RUNTIME.Desc?.("collection", description, "Variants");
   const target: Record<string, (value: unknown) => VariantsImpl> = {};
   return new Proxy(target, {
     get(getTarget, name) {

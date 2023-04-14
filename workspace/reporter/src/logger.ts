@@ -6,9 +6,9 @@ import { SPACES_PER_TAB } from "./constants.js";
 import { wrapIndented, wrapLines } from "./format.js";
 import {
   type DensityChoice,
+  Fragment,
   type FragmentImpl,
   type IntoFragment,
-  Fragment,
 } from "./log.js";
 import type { LoggerEndWith, LogOptions, ReporterOptions } from "./reporter.js";
 

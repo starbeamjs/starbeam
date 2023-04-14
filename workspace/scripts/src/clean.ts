@@ -3,8 +3,7 @@ import { relative } from "node:path";
 
 import { isPresentArray } from "@starbeam/core-utils";
 import { Package } from "@starbeam-workspace/package";
-import type { Reporter } from "@starbeam-workspace/reporter";
-import type { Workspace } from "@starbeam-workspace/reporter";
+import type { Reporter, Workspace } from "@starbeam-workspace/reporter";
 import { Fragment } from "@starbeam-workspace/reporter";
 import { fatal } from "@starbeam-workspace/shared";
 import glob from "fast-glob";

@@ -1,18 +1,28 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import "preact";
 
-/** @jsxRuntime automatic @jsxImportSource preact */
-import type { DebugOperation } from "@starbeam/debug";
 import type { Timestamp } from "@starbeam/interfaces";
-import { TIMELINE } from "@starbeam/timeline";
+/** @jsxRuntime automatic @jsxImportSource preact */
 import type { JSX } from "preact";
 import { useMemo, useState } from "preact/hooks";
 
 import { CellConsumeLine, CellUpdateLine } from "./cell.js";
 import css from "./css/log.css?inline";
 import { FrameConsumeLine } from "./frame.js";
-import { type UpdatePane, Pane, UiPane } from "./pane.js";
-import type { DevtoolsOptions } from "./shared.js";
+import type { UpdatePane } from "./pane.js";
+import { Pane, UiPane } from "./pane.js";
 import { LogLine } from "./ui.js";
+
+type FIXME = any;
+type DevtoolsOptions = FIXME;
+type DebugOperation = FIXME;
+type ATTACH = FIXME;
+declare const ATTACH: ATTACH;
 
 export function DevtoolsLog({
   options = {},
@@ -22,7 +32,7 @@ export function DevtoolsLog({
   const { filter = { type: "all" } } = options;
 
   const listener = useMemo(() => {
-    const listener = TIMELINE.attach(
+    const listener = ATTACH.attach(
       () => {
         setLogs((prev) => [...listener.flush().reverse(), ...prev]);
       },
@@ -79,6 +89,9 @@ function LogOperation({
 
     case "mutation":
       return <LogLine>Unimplemented mutation log</LogLine>;
+
+    default:
+      throw Error(`Unimplemented: this switch should be exhaustive`);
   }
 }
 

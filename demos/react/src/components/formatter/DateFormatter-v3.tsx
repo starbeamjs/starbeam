@@ -1,10 +1,10 @@
-import js from "@starbeam/js";
+import js from "@starbeam/collections";
 import { useSetup } from "@starbeam/react";
 import {
-  type Reactive,
-  type ResourceBlueprint,
   Cell,
+  type Reactive,
   Resource,
+  type ResourceBlueprint,
 } from "@starbeam/universal";
 
 import {
@@ -52,7 +52,7 @@ export default function DateFormatterStarbeam(): JSX.Element {
           </h3>
 
           {selectBox}
-          <p className="output">{date.current.formatted}</p>
+          <p className="output">{date.current?.formatted}</p>
         </>
       );
     };
