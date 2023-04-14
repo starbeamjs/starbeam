@@ -1,6 +1,8 @@
 {
   "name": "@starbeam/tags",
   "types": "index.ts",
+  "main": "index.ts",
+  "type": "module",
   "publishConfig": {
     "exports": {
       ".": {
