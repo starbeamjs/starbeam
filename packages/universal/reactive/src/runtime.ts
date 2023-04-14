@@ -8,6 +8,7 @@ import type {
   SubscriptionRuntime,
   Tag,
 } from "@starbeam/interfaces";
+import { isPresent, verified } from "@starbeam/verify";
 
 export const CONTEXT = {
   runtime: null as null | Runtime,
@@ -26,14 +27,14 @@ function getRuntime(): Runtime {
     }
   }
 
-  return CONTEXT.runtime as Runtime;
+  return verified(CONTEXT.runtime, isPresent);
 }
 
 export const UNKNOWN_REACTIVE_VALUE = "{unknown reactive value}";
 
 class RuntimeImpl implements Runtime {
   get Desc(): DescFn | undefined {
-    return (getRuntime().debug?.desc as DescFn) ?? undefined;
+    return getRuntime().debug?.desc;
   }
 
   get callerStack(): CallerStackFn | undefined {
@@ -55,7 +56,7 @@ class RuntimeImpl implements Runtime {
   describe(description: DescriptionDetails | undefined): string {
     if (description) {
       return (
-        getRuntime().debug?.describe?.(description) ?? UNKNOWN_REACTIVE_VALUE
+        getRuntime().debug?.describe(description) ?? UNKNOWN_REACTIVE_VALUE
       );
     } else {
       return UNKNOWN_REACTIVE_VALUE;

@@ -114,6 +114,10 @@ export function updatePackageJSON(updater: LabelledUpdater): void {
         delete scripts["test:specs"];
       }
 
+      scripts["test:lint"] = `eslint ${pkg.inputGlobs
+        .map((g) => `"${g.relative}"`)
+        .join(" ")}`;
+
       return consolidateStarbeam(current);
     });
 }

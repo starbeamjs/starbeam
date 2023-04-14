@@ -5,7 +5,7 @@
       "extends": ["plugin:@starbeam/commonjs"],
       "files": ["index.d.ts", "src/**/*.d.ts"],
       "parserOptions": {
-        "project": "@types/@rollup/plugin-node-resolve/tsconfig.json"
+        "project": "tsconfig.json"
       }
     }
   ]

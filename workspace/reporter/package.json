@@ -24,6 +24,7 @@
     "type": "library:build-support"
   },
   "scripts": {
+    "test:lint": "eslint \"index.ts\" \"src/**/*.ts\"",
     "test:types": "tsc -b"
   },
   "dependencies": {
@@ -37,14 +38,14 @@
     "node-pty": "^0.10.1",
     "shell-escape-tag": "^2.0.2",
     "shell-split": "^1.0.0",
-    "split2": "^4.1.0",
-    "wrap-ansi": "^8.0.1"
+    "split2": "^4.2.0",
+    "wrap-ansi": "^8.1.0"
   },
   "devDependencies": {
     "@starbeam-dev/build-support": "workspace:*",
     "@starbeam-workspace/shared": "workspace:*",
     "@types/ansicolor": "workspace:^",
-    "@types/node": "^18.11.9",
+    "@types/node": "^18.15.11",
     "@types/shell-escape-tag": "workspace:^",
     "@types/shell-split": "workspace:^",
     "@types/split2": "^3.2.1",

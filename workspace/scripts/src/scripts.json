@@ -1,7 +1,7 @@
 {
   "lint": {
-    "command": "eslint --cache --max-warnings 0 ${package.root}",
-    "cwd": "${workspace.root}"
+    "command": "turbo lint --output-logs errors-only",
+    "cwd": "${package.root}"
   },
   "specs": {
     "command": "vitest --run",

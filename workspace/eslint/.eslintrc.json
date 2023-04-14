@@ -5,7 +5,7 @@
       "extends": ["plugin:@starbeam/commonjs"],
       "files": ["index.js", "src/**/*.js", "index.d.ts", "src/**/*.d.ts"],
       "parserOptions": {
-        "project": "workspace/eslint/tsconfig.json"
+        "project": "tsconfig.json"
       }
     }
   ]

@@ -35,6 +35,5 @@
 
     "useDefineForClassFields": true
   },
-  "exclude": ["dist/**/*"],
-  "include": ["./index.js", "./src/**/*.js", "./src/node-ext.d.ts"]
+  "exclude": ["dist/**/*"]
 }

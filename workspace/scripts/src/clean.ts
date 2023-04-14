@@ -120,7 +120,7 @@ async function cleanFiles({
   }
 
   reporter
-    .group([Fragment("comment", "✔️ "), Fragment("header", pkg.name)])
+    .group([Fragment("comment", "✓ "), Fragment("header", pkg.name)])
     .try((r) => {
       r.verbose((r) => {
         r.log(

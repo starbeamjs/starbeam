@@ -1,6 +1,7 @@
 export { CachedFormula } from "./src/primitives/cached.js";
 export type { CellOptions, Equality } from "./src/primitives/cell.js";
 export { Cell } from "./src/primitives/cell.js";
+export { Wrap } from "./src/primitives/delegate.js";
 export { Formula } from "./src/primitives/formula.js";
 export {
   type FinalizedFormula,

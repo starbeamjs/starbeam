@@ -7,18 +7,31 @@
   "exports": {
     "default": "./index.ts"
   },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts"
+  },
   "starbeam": {
-    "source": "d.ts",
+    "source": "ts",
     "template:package": "interfaces.package.json",
     "type": "library:interfaces"
   },
   "scripts": {
-    "test:lint": "eslint",
+    "test:lint": "eslint \"index.ts\" \"src/**/*.ts\"",
     "test:types": "tsc -b"
   },
   "dependencies": {
     "@domtree/any": "workspace:^",
     "@starbeam/shared": "workspace:^"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@starbeam-dev/build-support": "workspace:*"
+  }
 }

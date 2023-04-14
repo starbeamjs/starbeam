@@ -5,7 +5,8 @@
   "type": "module",
   "starbeam:type": "tests",
   "scripts": {
-    "test:lint": "eslint"
+    "test:lint": "eslint ",
+    "test:types": "tsc -b"
   },
   "dependencies": {
     "@starbeam/debug": "workspace:^",

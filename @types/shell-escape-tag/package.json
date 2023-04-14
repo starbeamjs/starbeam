@@ -20,7 +20,7 @@
     "type": "library:upstream-types"
   },
   "scripts": {
-    "test:lint": "eslint",
+    "test:lint": "eslint \"index.d.ts\"",
     "test:types": "tsc -b"
   },
   "devDependencies": {

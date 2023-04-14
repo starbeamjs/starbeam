@@ -5,14 +5,14 @@
       "extends": ["plugin:@starbeam/demos"],
       "files": ["index.tsx", "src/**/*.tsx", "index.ts", "src/**/*.ts"],
       "parserOptions": {
-        "project": "demos/preact/tsconfig.json"
+        "project": "tsconfig.json"
       }
     },
     {
       "extends": ["plugin:@starbeam/loose"],
       "files": ["vite.config.ts"],
       "parserOptions": {
-        "project": "demos/preact/tsconfig.json"
+        "project": "tsconfig.json"
       }
     }
   ]

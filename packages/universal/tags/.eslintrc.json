@@ -2,10 +2,10 @@
   "root": false,
   "overrides": [
     {
-      "extends": ["plugin:@starbeam/commonjs"],
+      "extends": ["plugin:@starbeam/tight"],
       "files": ["index.ts", "src/**/*.ts"],
       "parserOptions": {
-        "project": "packages/universal/tags/tsconfig.json"
+        "project": "tsconfig.json"
       }
     }
   ]

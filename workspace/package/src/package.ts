@@ -147,21 +147,17 @@ export class Package {
       ? getFirst(exts)
       : `{${exts.join(",")}}`;
 
-    if (this.type.isType("library")) {
-      const paths = [this.root.glob(`index.${ext}`, { match: ["files"] })];
+    const paths: Glob<RegularFile>[] = [];
 
-      if (this.root.dir("src").exists()) {
-        paths.push(this.root.glob(`src/**/*.${ext}`, { match: ["files"] }));
-      }
-
-      return paths;
-    } else {
-      return [
-        this.root.glob(`**/*.${ext}`, {
-          match: ["files"],
-        }),
-      ];
+    if (this.root.file(`index.${ext}`).exists()) {
+      paths.push(this.root.glob(`index.${ext}`, { match: ["files"] }));
     }
+
+    if (this.root.dir("src").exists()) {
+      paths.push(this.root.glob(`src/**/*.${ext}`, { match: ["files"] }));
+    }
+
+    return paths;
   }
 
   get moduleType(): "esm" | "cjs" {

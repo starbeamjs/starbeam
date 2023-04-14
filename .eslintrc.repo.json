@@ -1,0 +1,12 @@
+{
+  "overrides": [
+    {
+      "extends": ["plugin:@starbeam/tight"],
+      "files": ["./vitest.config.ts", "./rollup.config.mjs"],
+      "parserOptions": {
+        "project": ["./tsconfig.root.json"]
+      }
+    }
+  ],
+  "root": false
+}

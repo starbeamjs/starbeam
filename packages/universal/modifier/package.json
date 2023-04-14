@@ -20,7 +20,7 @@
   },
   "starbeam:type": "library:public",
   "scripts": {
-    "test:lint": "eslint",
+    "test:lint": "eslint \"index.ts\" \"src/**/*.ts\"",
     "test:types": "tsc -b"
   },
   "dependencies": {

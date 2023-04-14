@@ -21,7 +21,7 @@
     },
     {
       "extends": ["plugin:@starbeam/json:tsconfig"],
-      "files": ["**/tsconfig.*.json", "**/tsconfig.json"]
+      "files": ["tsconfig.*.json", "tsconfig.json"]
     },
     {
       "extends": ["plugin:@starbeam/json:eslintrc"],

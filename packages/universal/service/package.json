@@ -18,6 +18,7 @@
   },
   "starbeam:type": "library:public",
   "scripts": {
+    "test:lint": "eslint \"index.ts\" \"src/**/*.ts\"",
     "test:specs": "vitest --run",
     "test:types": "tsc -b"
   },

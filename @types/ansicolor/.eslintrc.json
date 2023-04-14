@@ -2,10 +2,10 @@
   "root": false,
   "overrides": [
     {
-      "extends": ["plugin:@starbeam/commonjs"],
+      "extends": ["plugin:@starbeam/tight"],
       "files": ["index.d.ts", "src/**/*.d.ts"],
       "parserOptions": {
-        "project": "@types/ansicolor/tsconfig.json"
+        "project": "tsconfig.json"
       }
     }
   ]

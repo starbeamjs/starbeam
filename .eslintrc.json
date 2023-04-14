@@ -8,16 +8,6 @@
 
   "plugins": ["@starbeam"],
 
-  "overrides": [
-    {
-      "extends": ["plugin:@starbeam/tight"],
-      "files": ["vitest.config.ts", "rollup.config.mjs"],
-      "parserOptions": {
-        "project": ["./tsconfig.root.json"]
-      }
-    }
-  ],
-
-  "extends": ["./.config/eslintrc.json"],
+  "extends": ["./.config/eslintrc.json", "./.eslintrc.repo.json"],
   "reportUnusedDisableDirectives": true
 }

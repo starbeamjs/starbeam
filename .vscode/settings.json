@@ -1,17 +1,19 @@
 {
+  // format gitignores and other dotfiles using the shell-format extension
   "[ignore][dotenv][shellscript]": {
     "editor.defaultFormatter": "foxundermoon.shell-format"
   },
 
+  // format json and jsonc files using eslint, which is configured to sort keys
+  // and other config-specific things.
   "[json][jsonc]": {
     "editor.formatOnSave": false,
     "editor.codeActionsOnSave": ["source.fixAll.eslint"]
   },
 
-  "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-
+  // format JavaScript and TypeScript using `eslint` first and then follow up
+  // with prettier. The `eslint` pass fixes imports, but otherwise should not be
+  // trying to format the code.
   "[typescript][typescriptreact][javascript][javascriptreact]": {
     "editor.formatOnSave": false,
     "editor.codeActionsOnSave": [
@@ -38,8 +40,12 @@
     "jsonc",
     "html"
   ],
+  "eslint.workingDirectories": [{ "mode": "auto" }],
 
+  // exclude .gitignore files from the file explorer
   "explorer.excludeGitIgnore": true,
+
+  // set up vscode file nesting (groups related files with each other)
   "explorer.fileNesting.patterns": {
     "*.cjs": "${capture}.cjs.map, ${capture}.min.cjs, ${capture}.d.cts, ${capture}.d.cts.map",
     "*.js": "${capture}.js.map, ${capture}.min.js, ${capture}.d.ts, ${capture}.d.ts.map",
@@ -52,38 +58,26 @@
     "vite.config.ts": "rollup.config.*, .env.*"
   },
 
-  "files.exclude": {
-    "**/.DS_Store": true,
-    "**/.git": true,
-    "**/.hg": true,
-    "**/.svn": true,
-    "**/CVS": true,
-    "**/Thumbs.db": true,
-    "dist": false
-  },
-
-  "json.schemas": [
-    {
-      "fileMatch": ["manifest.json"],
-      "url": "https://json.schemastore.org/chrome-manifest"
-    }
-  ],
-  "npm-scripts.showStartNotification": false,
+  // rewrap provides a quick keyboard shortcut (alt-q) to reformat comments to
+  // a specific column width. It also automatically rewraps comments when you
+  // type.
   "rewrap.autoWrap.enabled": true,
   "rewrap.reformat": true,
   "rewrap.wrappingColumn": 80,
 
+  // CHANGELOG.md and pnpm-lock.yaml create a lot of search noise
   "search.exclude": {
     "**/CHANGELOG.md": true,
     "pnpm-lock.yaml": true
   },
-  "testing.automaticallyOpenPeekView": "never",
-  "typescript.experimental.tsserver.web.enableProjectWideIntellisense": false,
 
+  // Try to avoid auto-importing other packages in the mono-repo as relative
+  // paths. Instead, use the packaage name.
   "typescript.preferences.importModuleSpecifier": "project-relative",
+  // For compatibility with node, we use .js extensions in our imports.
   "typescript.preferences.importModuleSpecifierEnding": "js",
   "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
-
-  "vitest.enable": true
+  // This can sometimes be flaky, but generally it's a good idea to have
+  // project-wide checks if possible.
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true
 }
