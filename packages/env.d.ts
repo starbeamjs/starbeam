@@ -1,3 +1,6 @@
+import "vitest/importMeta.js";
+import "vite/client";
+
 interface ImportMeta {
   env: {
     PROD: boolean | "";

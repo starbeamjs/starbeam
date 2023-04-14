@@ -1,17 +1,12 @@
 // @vitest-environment jsdom
 
-import { entryPoint } from "@starbeam/debug";
-import reactive from "@starbeam/js";
+import reactive from "@starbeam/collections";
+import type { Reactive } from "@starbeam/interfaces";
 import { use, useProp, useReactive, useSetup } from "@starbeam/react";
-import { Reactive } from "@starbeam/timeline";
-import {
-  type ResourceBlueprint,
-  Cell,
-  Formula,
-  Resource,
-} from "@starbeam/universal";
+import { CachedFormula, intoReactive } from "@starbeam/reactive";
+import { Cell, Resource, type ResourceBlueprint } from "@starbeam/universal";
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
-import { beforeEach, describe, expect } from "vitest";
+import { beforeEach, describe, expect } from "@starbeam-workspace/test-utils";
 
 import { Channel } from "./support/channel.js";
 
@@ -21,7 +16,7 @@ describe("useResource", () => {
   testReact<{ name: string }, string | null | undefined>(
     "using useProp",
     async (root) => {
-      const result = await root
+      const result = root
         .expectHTML((message) => `<span>${message ?? "loading"}</span>`)
         .render(
           (state, props) => {
@@ -36,16 +31,14 @@ describe("useResource", () => {
         );
 
       function send(message: string): void {
-        entryPoint((): void => {
-          const latest = Channel.latest();
+        const latest = Channel.latest();
 
-          if (latest === undefined) {
-            expect(latest).not.toBeUndefined();
-            return;
-          }
+        if (latest === undefined) {
+          expect(latest).not.toBeUndefined();
+          return;
+        }
 
-          Channel.sendMessage(latest, message);
-        });
+        Channel.sendMessage(latest, message);
       }
 
       let channel = Channel.latest();
@@ -84,7 +77,7 @@ describe("useResource", () => {
   testReact<{ name: string }, string | null | undefined>(
     "using a dependency array",
     async (root) => {
-      const result = await root
+      const result = root
         .expectHTML((message) => `<span>${message ?? "loading"}</span>`)
         .render(
           (state, { name }) => {
@@ -98,16 +91,14 @@ describe("useResource", () => {
         );
 
       function send(message: string): void {
-        entryPoint((): void => {
-          const latest = Channel.latest();
+        const latest = Channel.latest();
 
-          if (latest === undefined) {
-            expect(latest).not.toBeUndefined();
-            return;
-          }
+        if (latest === undefined) {
+          expect(latest).not.toBeUndefined();
+          return;
+        }
 
-          Channel.sendMessage(latest, message);
-        });
+        Channel.sendMessage(latest, message);
       }
 
       let channel = Channel.latest();
@@ -147,7 +138,7 @@ describe("useResource", () => {
   testReact<{ name: string }, string | null | undefined>(
     "the resource is created when the component is mounted, and effects run",
     async (root) => {
-      const result = await root
+      const result = root
         .expectHTML((message) => `<span>${message ?? "loading"}</span>`)
         .render(
           (state, { name }) => {
@@ -165,16 +156,14 @@ describe("useResource", () => {
         );
 
       function send(message: string): void {
-        entryPoint((): void => {
-          const latest = Channel.latest();
+        const latest = Channel.latest();
 
-          if (latest === undefined) {
-            expect(latest).not.toBeUndefined();
-            return;
-          }
+        if (latest === undefined) {
+          expect(latest).not.toBeUndefined();
+          return;
+        }
 
-          Channel.sendMessage(latest, message);
-        });
+        Channel.sendMessage(latest, message);
       }
 
       let channel = Channel.latest();
@@ -221,7 +210,7 @@ describe("use", () => {
   >("using use() with dependencies", async (root, mode) => {
     ID = 0;
 
-    const result = await root
+    const result = root
       .expectHTML((state) =>
         state?.channel?.message
           ? `<span>${state?.channel.message}</span><button>++ ${state?.channel.id} ++</button>`
@@ -230,17 +219,16 @@ describe("use", () => {
       .render(
         (state) => {
           const { name, increment } = useSetup(() => {
-            const count = Cell(0, `count`);
+            const count = Cell(0, { description: `count` });
 
-            const name = Formula(
-              () => `channel${count.current}`,
-              `channel-name`
-            );
+            const name = CachedFormula(() => `channel${count.current}`, {
+              description: `channel-name`,
+            });
 
             return {
               name,
               increment: () => {
-                return count.update((i) => i + 1);
+                count.update((i) => i + 1);
               },
             };
           });
@@ -303,7 +291,7 @@ describe("use", () => {
   >("using resource() from useSetup()", async (root, mode) => {
     ID = 0;
 
-    const result = await root
+    const result = root
       .expectHTML((state) =>
         state?.channel?.message
           ? `<span>${state?.channel.message}</span><button>++ ${state?.channel.id} ++</button>`
@@ -312,19 +300,18 @@ describe("use", () => {
       .render(
         (state) => {
           const { channel, increment } = useSetup(({ use }) => {
-            const count = Cell(0, `count`);
+            const count = Cell(0, { description: `count` });
 
-            const name = Formula(
-              () => `channel${count.current}`,
-              `channel-name`
-            );
+            const name = CachedFormula(() => `channel${count.current}`, {
+              description: `channel-name`,
+            });
 
             const channel = use(() => SimpleChannel(name.current));
 
             return {
               channel,
               increment: () => {
-                return count.update((i) => i + 1);
+                count.update((i) => i + 1);
               },
             };
           });
@@ -407,22 +394,20 @@ function SimpleChannel(
 }
 
 function send(message: string): void {
-  entryPoint((): void => {
-    const latest = Channel.latest();
+  const latest = Channel.latest();
 
-    if (latest === undefined) {
-      expect(latest).not.toBeUndefined();
-      return;
-    }
+  if (latest === undefined) {
+    expect(latest).not.toBeUndefined();
+    return;
+  }
 
-    Channel.sendMessage(latest, message);
-  });
+  Channel.sendMessage(latest, message);
 }
 
 function ChannelResource(
-  name: Reactive<string> | string
-): ResourceBlueprint<string | undefined> {
-  const reactive = Reactive.from(name);
+  name: string | Reactive<string>
+): ResourceBlueprint<string> {
+  const reactive = intoReactive(name);
 
   return Resource((r) => {
     const lastMessage = Cell<string | undefined>(undefined, "last message");

@@ -1,5 +1,4 @@
-import { entryPoint } from "@starbeam/debug";
-import { reactive } from "@starbeam/js";
+import { reactive } from "@starbeam/collections";
 
 export type Row<T> = {
   id: string;
@@ -58,16 +57,14 @@ export class Query<T> {
   }
 
   get rows(): Row<T>[] {
-    return entryPoint(() => {
-      const filtered = this.#table.rows.filter((row) =>
-        this.#filters.every((filter) => filter(row))
-      );
+    const filtered = this.#table.rows.filter((row) =>
+      this.#filters.every((filter) => filter(row))
+    );
 
-      if (this.#sort) {
-        return filtered.sort(this.#sort);
-      } else {
-        return filtered;
-      }
-    });
+    if (this.#sort) {
+      return filtered.sort(this.#sort);
+    } else {
+      return filtered;
+    }
   }
 }

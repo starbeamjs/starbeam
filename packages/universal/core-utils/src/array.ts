@@ -17,12 +17,42 @@ export function isPresentArray<
   return list && list.length > EMPTY_LENGTH;
 }
 
-export function mapOrNullifyEmpty<T, U>(
+export function mapArray<T, U>(
+  list: PresentArray<T>,
+  mapper: (item: T, index: number) => U
+): MutablePresentArray<U>;
+export function mapArray<T, U>(
+  list: T[] | readonly T[],
+  mapper: (item: T, index: number) => U
+): U[];
+export function mapArray<T, U>(
+  list: T[] | readonly T[] | PresentArray<T>,
+  mapper: (item: T, index: number) => U
+): U[] | PresentArray<U> {
+  return list.map(mapper);
+}
+
+export function mapPresentArray<T, U>(
+  list: PresentArray<T>,
+  mapper: (item: T, index: number) => U
+): PresentArray<U> {
+  return list.map(mapper) as PresentArray<U>;
+}
+
+export function mapIfPresent<T, U>(
+  list: T[] | undefined | null,
+  mapper: (item: T, index: number) => U
+): MutablePresentArray<U> | undefined;
+export function mapIfPresent<T, U>(
+  list: readonly T[] | undefined | null,
+  mapper: (item: T, index: number) => U
+): ReadonlyPresentArray<U> | undefined;
+export function mapIfPresent<T, U>(
   list: T[] | readonly T[] | undefined | null,
   mapper: (item: T, index: number) => U
-): U[] | undefined {
+): MutablePresentArray<U> | ReadonlyPresentArray<U> | undefined {
   if (list && isPresentArray(list)) {
-    return list.map(mapper);
+    return mapPresentArray(list, mapper);
   } else {
     return;
   }
@@ -105,19 +135,17 @@ export function getFirst<I>(
   list: [I, ...unknown[]] | readonly [I, ...unknown[]]
 ): I;
 export function getFirst<T>(list: PresentArray<T>): T;
-export function getFirst<T>(list: AnyArray<T>): T | undefined;
-export function getFirst<T>(list: AnyArray<T>): T | undefined {
-  return list[FIRST_OFFSET];
+export function getFirst<T>(list: AnyArray<T> | undefined): T | undefined;
+export function getFirst<T>(list: AnyArray<T> | undefined): T | undefined {
+  return list?.[FIRST_OFFSET];
 }
 
 export function getLast<T>(list: PresentArray<T>): T;
-export function getLast<T>(list: T[] | readonly T[]): T | undefined;
-export function getLast<T>(list: readonly T[] | T[]): T | undefined {
-  if (isPresentArray(list)) {
-    return list[getLastIndex(list)];
-  } else {
-    return undefined;
-  }
+export function getLast<T>(list: T[] | readonly T[] | undefined): T | undefined;
+export function getLast<T>(
+  list: readonly T[] | T[] | undefined
+): T | undefined {
+  return isPresentArray(list) ? list[getLastIndex(list)] : undefined;
 }
 
 export function getLastIndex(list: PresentArray<unknown>): number;

@@ -4,6 +4,7 @@ import { program as CommanderProgram } from "commander";
 import { BuildCommand } from "./build-command";
 import type {
   Arg,
+  BasicOptions,
   CamelizedOptions,
   CheckOption,
   CommandOptions,
@@ -11,7 +12,6 @@ import type {
   ShortCommandOptions,
   ShortFlag,
 } from "./options";
-import type { BasicOptions } from "./options";
 import { applyBasicOptions } from "./options";
 import { createWorkspace } from "./query-command.js";
 import type { CommandValue, Value } from "./types";
@@ -65,7 +65,7 @@ export class BuildDevCommand<
     ) => void | Promise<void>
   ): (options: { root: string }) => Command {
     return ({ root }) =>
-      this.command.action((...args) => {
+      this.command.action(async (...args) => {
         const { options } = this.extractOptions(args);
         return action(
           ...(this.parseOptions(args, {

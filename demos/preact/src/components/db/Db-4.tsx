@@ -1,5 +1,5 @@
  
-import { reactive } from "@starbeam/js";
+import { reactive } from "@starbeam/collections";
 import { create } from "@starbeam/preact";
 import type { JSX } from "preact";
 

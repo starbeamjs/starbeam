@@ -4,7 +4,7 @@ import {
   isSingleItemArray,
 } from "@starbeam/core-utils";
 import type { Reporter } from "@starbeam-workspace/reporter";
-import type { UnionClass } from "@starbeam-workspace/shared/src/type-magic.js";
+import type { UnionClass } from "@starbeam-workspace/shared";
 import util from "util";
 
 import type { Package } from "../package";

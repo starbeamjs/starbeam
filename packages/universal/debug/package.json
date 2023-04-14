@@ -39,7 +39,9 @@
     "@domtree/flavors": "workspace:^",
     "@starbeam/core-utils": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
+    "@starbeam/reactive": "workspace:^",
     "@starbeam/shared": "workspace:^",
+    "@starbeam/tags": "workspace:^",
     "@starbeam/verify": "workspace:^",
     "ansicolor": "^1.1.100",
     "buffer": "^6.0.3",
@@ -47,6 +49,7 @@
   },
   "devDependencies": {
     "@starbeam-dev/build-support": "workspace:*",
+    "@types/ansicolor": "workspace:^",
     "@types/node": "^18.7.23"
   },
   "pnpm": {

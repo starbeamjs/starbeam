@@ -5,11 +5,11 @@ import {
   type ComponentChildren,
   type ComponentClass,
   type ComponentType,
-  type FunctionComponent,
-  type VNode,
   createElement,
   Fragment,
+  type FunctionComponent,
   h,
+  type VNode,
 } from "preact";
 import { act } from "preact/test-utils";
 import { renderToString } from "preact-render-to-string";

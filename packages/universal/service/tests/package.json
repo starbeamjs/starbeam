@@ -1,0 +1,22 @@
+{
+  "private": true,
+  "name": "@starbeam-tests/service",
+  "version": "1.0.0",
+  "type": "module",
+  "starbeam:type": "tests",
+  "scripts": {
+    "test:lint": "eslint",
+    "test:types": "tsc -b"
+  },
+  "dependencies": {
+    "@starbeam/collections": "workspace:^",
+    "@starbeam/debug": "workspace:^",
+    "@starbeam/interfaces": "workspace:^",
+    "@starbeam/reactive": "workspace:^",
+    "@starbeam/resource": "workspace:^",
+    "@starbeam/runtime": "workspace:^",
+    "@starbeam/service": "workspace:^",
+    "@starbeam/shared": "workspace:^",
+    "@starbeam-workspace/test-utils": "workspace:^"
+  }
+}

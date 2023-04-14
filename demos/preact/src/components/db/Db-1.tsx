@@ -1,4 +1,4 @@
-import { object } from "@starbeam/js";
+import { object } from "@starbeam/collections";
 import { create } from "@starbeam/preact";
 import type { JSX } from "preact/jsx-runtime";
 

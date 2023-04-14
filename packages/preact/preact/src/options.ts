@@ -1,8 +1,10 @@
-import { descriptionFrom } from "@starbeam/debug";
-import type { InternalComponent } from "@starbeam/preact-utils";
+import type {
+  InternalComponent,
+  InternalElement,
+} from "@starbeam/preact-utils";
 import { Plugin } from "@starbeam/preact-utils";
-import type { InternalElement } from "@starbeam/preact-utils/src/internals/elements.js";
-import { CONTEXT, LIFETIME, Reactive } from "@starbeam/timeline";
+import { isReactive, RUNTIME } from "@starbeam/reactive";
+import { CONTEXT, LIFETIME } from "@starbeam/runtime";
 import type { ComponentType } from "preact";
 
 import { ComponentFrame } from "./frame.js";
@@ -20,7 +22,7 @@ export const setup = Plugin((on) => {
 
   on.vnode((vnode) => {
     vnode.processChildren((child) => {
-      if (Reactive.is(child)) {
+      if (isReactive(child)) {
         return String(child.read());
       } else {
         return child;
@@ -38,11 +40,11 @@ export const setup = Plugin((on) => {
 
     ComponentFrame.start(
       component,
-      descriptionFrom({
-        api: "preact",
-        type: "implementation",
-        fromUser: componentName(component.fn),
-      })
+      RUNTIME.Desc?.(
+        "formula",
+        componentName(component.fn),
+        "preact.componentWillRender"
+      )
     );
   });
 

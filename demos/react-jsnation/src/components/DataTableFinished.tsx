@@ -2,7 +2,7 @@ import { useSetup } from "@starbeam/react";
 import { Cell } from "@starbeam/universal";
 import type { FormEvent } from "react";
 
-import { type Person, People } from "../lib/people.js";
+import { People, type Person } from "../lib/people.js";
 import { Table } from "../lib/table.js";
 import { SYSTEM_LOCALE } from "./intl.js";
 

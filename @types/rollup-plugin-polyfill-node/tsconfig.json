@@ -2,9 +2,9 @@
   "extends": "../../.config/tsconfig/tsconfig.shared.json",
   "compilerOptions": {
     "declarationMap": true,
-    "declarationDir": "../../../dist/types",
+    "declarationDir": "../../dist/types",
     "declaration": true,
-    "outDir": "../../../dist/packages",
+    "outDir": "../../dist/packages",
     "composite": true,
     "types": ["../../packages/env"]
   },

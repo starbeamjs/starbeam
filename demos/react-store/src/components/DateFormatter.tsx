@@ -1,9 +1,10 @@
 import { useSetup } from "@starbeam/react";
 import {
-  type ResourceBlueprint,
   Cell,
-  Reactive,
+  type Reactive,
+  readReactive,
   Resource,
+  type ResourceBlueprint,
 } from "@starbeam/universal";
 
 import {
@@ -50,7 +51,7 @@ export default function (props: { locale: string }): JSX.Element {
             </label>
           </form>
 
-          <p className="output">{date.current.formatted}</p>
+          <p className="output">{date.current?.formatted}</p>
         </>
       );
     };
@@ -67,8 +68,6 @@ function Clock(
     date.current = new Date();
   }
 
-  const reactiveLocale = Reactive.from(locale);
-
   return Resource((resource) => {
     const interval = setInterval(() => {
       refresh();
@@ -81,7 +80,7 @@ function Clock(
     return {
       formatted: formatDate(
         date.current,
-        reactiveLocale.read(),
+        readReactive(locale),
         timeZone.read()
       ),
       refresh,

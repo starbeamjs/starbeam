@@ -42,6 +42,8 @@
   },
   "devDependencies": {
     "@starbeam-dev/build-support": "workspace:*",
+    "@starbeam-workspace/shared": "workspace:*",
+    "@types/ansicolor": "workspace:^",
     "@types/node": "^18.11.9",
     "@types/shell-escape-tag": "workspace:^",
     "@types/shell-split": "workspace:^",

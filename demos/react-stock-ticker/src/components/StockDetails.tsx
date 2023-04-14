@@ -1,5 +1,5 @@
 import { use, useReactive } from "@starbeam/react";
-import { type ResourceBlueprint, Cell, Resource } from "@starbeam/universal";
+import { Cell, Resource, type ResourceBlueprint } from "@starbeam/universal";
 import { Portal } from "react-portal";
 
 import { getDailyValues, getTickerDetails } from "../lib/api/api.js";
@@ -20,7 +20,7 @@ export function StockDetails({
   const state = use(() => getStock(ticker), [ticker]);
 
   async function follow(): Promise<void> {
-    if (state.stock === null) {
+    if (state === undefined || state.stock === null) {
       return;
     }
 
@@ -37,6 +37,10 @@ export function StockDetails({
   }
 
   return useReactive(() => {
+    if (state === undefined) {
+      return <></>;
+    }
+
     const { stock } = state;
 
     return (

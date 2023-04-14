@@ -1,10 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /** @jsxRuntime automatic @jsxImportSource preact */
 
 import type { JSX } from "preact";
 
 import css from "./css/pane.css?inline";
-import { type UpdatePane, Pane, UiPane } from "./pane.js";
-import type { DevtoolsOptions } from "./shared.js";
+import { Pane, UiPane, type UpdatePane } from "./pane.js";
+
+type FIXME = any;
+type DevtoolsOptions = FIXME;
 
 export function TabsPane(
   into: Element,

@@ -1,13 +1,12 @@
-import { type Description, Desc } from "@starbeam/debug";
-import type { Reactive } from "@starbeam/universal";
+import type { Description, Reactive } from "@starbeam/interfaces";
 import {
-  Cell,
-  Formula,
-  LIFETIME,
-  PolledFormula,
-  TIMELINE,
-  Wrap,
-} from "@starbeam/universal";
+  CachedFormula,
+  Formula as Formula,
+  isReactive,
+  RUNTIME,
+} from "@starbeam/reactive";
+import { PUBLIC_TIMELINE } from "@starbeam/runtime";
+import { Cell, LIFETIME, Wrap } from "@starbeam/universal";
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
 import { useState } from "react";
 
@@ -25,20 +24,27 @@ import { useSetup } from "./use-setup.js";
  */
 
 export function useReactive<T>(
-  computeFn: () => T,
+  computeFn: Reactive<T> | (() => T),
   description?: string | Description | undefined
 ): T {
-  const desc = Desc("formula", description);
+  const desc = RUNTIME.Desc?.("formula", description);
 
   const notify = useNotify();
 
   return useLifecycle({ props: computeFn }).render(
     ({ on }, originalCompute) => {
+      if (
+        !isReactive(originalCompute) &&
+        typeof originalCompute !== "function"
+      ) {
+        console.trace();
+      }
+
       let compute = originalCompute;
 
       // compute can change, so the `PolledFormula` doesn't close over the original value, but
       // rather invokes the **current** value (which can change in `on.update`).
-      const formula = PolledFormula(() => compute(), desc);
+      const formula = Formula(() => read(compute), desc);
 
       on.update((newCompute) => {
         compute = newCompute;
@@ -47,13 +53,17 @@ export function useReactive<T>(
       // We wait until the first layout to subscribe to the formula, because React will
       // only guarantee that the cleanup function is called after the first layout.
       on.layout(() => {
-        const unsubscribe = TIMELINE.on.change(formula, notify);
+        const unsubscribe = PUBLIC_TIMELINE.on.change(formula, notify);
         on.cleanup(unsubscribe);
       });
 
       return formula;
     }
   ).current;
+}
+
+function read<T>(value: Reactive<T> | (() => T)): T {
+  return isReactive(value) ? value.read() : value();
 }
 
 /**
@@ -71,7 +81,7 @@ export function useCell<T>(
   value: T,
   description?: Description | string
 ): Cell<T> {
-  const desc = Desc("cell", description);
+  const desc = RUNTIME.Desc?.("cell", description);
 
   return useSetup(() => ({ cell: Cell(value, { description: desc }) })).cell;
 }
@@ -91,15 +101,23 @@ export class MountedReactive<T> {
   #value: Reactive<T | undefined> | undefined;
   #owner: object | undefined = undefined;
 
-  private constructor(initial: T, description: Description) {
+  private constructor(initial: T, description: Description | undefined) {
     this.#initial = initial;
     this.#cell = Cell(undefined as Reactive<T | undefined> | undefined, {
-      description: description.implementation("target"),
+      description: description?.implementation(
+        "cell",
+        "target",
+        "the storage a mounted reactive"
+      ),
     });
     this.#value = undefined;
-    this.formula = Formula(
+    this.formula = CachedFormula(
       () => this.#cell.current?.current ?? this.#initial,
-      description.implementation("formula")
+      description?.implementation(
+        "formula",
+        "current",
+        "the current value of the reactive"
+      )
     );
 
     LIFETIME.on.cleanup(this, () => {

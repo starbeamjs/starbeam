@@ -63,9 +63,11 @@ export type ExternalOption =
   | [ExternalOperator, SimpleExternal];
 
 export type RollupExport = rollup.RollupOptions | rollup.RollupOptions[];
-export type ViteExport =
-  | Pick<vite.UserConfig, "plugins" | "esbuild" | "optimizeDeps" | "build">
-  | Promise<ViteExport>;
+export type ViteConfig = Pick<
+  vite.UserConfig,
+  "plugins" | "esbuild" | "optimizeDeps" | "build"
+>;
+export type ViteExport = ViteConfig | Promise<ViteConfig>;
 
 import type { FlatConfigItem } from "./eslint-flat.js.js.js";
 
@@ -75,7 +77,7 @@ export class Package {
   static root(meta: ImportMeta): string;
   static at(meta: ImportMeta | string): Package | undefined;
   static config(meta: ImportMeta | string): RollupExport;
-  static viteConfig(meta: ImportMeta | string): ViteExport;
+  static viteConfig(meta: ImportMeta | string): ViteConfig;
   static eslintConfig(meta: ImportMeta | string): ESLintExport;
 
   readonly entry: Record<string, string>;

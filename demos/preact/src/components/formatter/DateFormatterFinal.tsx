@@ -1,7 +1,8 @@
-import js from "@starbeam/js";
+import js from "@starbeam/collections";
+import type { Reactive } from "@starbeam/interfaces";
 import { create, use } from "@starbeam/preact";
-import type { ResourceBlueprint } from "@starbeam/universal";
-import { type Reactive, Cell, Resource } from "@starbeam/universal";
+import { Cell } from "@starbeam/reactive";
+import { Resource, type ResourceBlueprint } from "@starbeam/resource";
 import type { JSX } from "preact/jsx-runtime";
 
 import {

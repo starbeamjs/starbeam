@@ -24,13 +24,16 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
+    "@starbeam/core-utils": "workspace:^",
     "@starbeam/debug": "workspace:^",
+    "@starbeam/interfaces": "workspace:^",
+    "@starbeam/reactive": "workspace:^",
     "@starbeam/verify": "workspace:^",
     "@starbeam-workspace/test-utils": "workspace:^"
   },
   "devDependencies": {
     "@starbeam-dev/build-support": "workspace:*",
-    "@testing-library/react": "latest",
+    "@testing-library/react": "^14.0.0",
     "@types/react": "^18.0.26"
   },
   "peerDependencies": {

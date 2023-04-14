@@ -1,3 +1,7 @@
+> This document is outdaated but reflects some early thinking about the
+> description architecture. It's still useful as a way to drive future design
+> work, and should be updated as the design evolves.
+
 # The Description Architecture
 
 The goal of the description architecture is to provide a way to describe reactive operations in a way that is both human readable and easy to use in a debug tool.

@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getLast, isPresentArray } from "@starbeam/core-utils";
-import { type Stack, callerStack, entryPoint } from "@starbeam/debug";
-import { type TestAPI, expect, test } from "@starbeam-workspace/test-utils";
+import { expect, test, type TestAPI } from "@starbeam-workspace/test-utils";
 import * as testing from "@testing-library/react";
 import { getByRole, getByText } from "@testing-library/react";
 import { type ReactElement, StrictMode } from "react";
@@ -113,71 +112,55 @@ class RenderResult<Props, T> {
     return RenderState.getValue(this.#state);
   }
 
-  async rerender(
-    props?: Props,
-    caller: Stack = callerStack()
-  ): Promise<RenderResult<Props, T>> {
+  async rerender(props?: Props): Promise<RenderResult<Props, T>> {
     await this.act(() => {
       this.#rerender(props);
-    }, caller);
+    });
 
-    return entryPoint(
-      () => {
-        const newProps = props ?? this.#props;
+    const newProps = props ?? this.#props;
 
-        this.#props = newProps;
+    this.#props = newProps;
 
-        SetupTestRoot.assert(this.#setup, this, newProps);
+    SetupTestRoot.assert(this.#setup, this, newProps);
 
-        return this;
-      },
-      { stack: caller }
-    );
+    return this;
   }
 
-  async act(
-    behavior: () => void,
-    caller: Stack = callerStack()
-  ): Promise<void> {
+  async act(behavior: () => void): Promise<void> {
     const prev = this.#state.renderCount;
     act(() => {
-      entryPoint(behavior, { stack: caller });
+      behavior();
     });
-    await this.rendered(prev, caller);
+    await this.rendered(prev);
   }
 
-  async rendered(prev: number, caller: Stack = callerStack()): Promise<void> {
+  async rendered(prev: number): Promise<void> {
     await testing.waitFor(() => {
-      entryPoint(
-        () => {
-          expect(
-            this.#state.renderCount,
-            "expected another render"
-          ).toBeGreaterThan(prev);
-        },
-        { stack: caller }
-      );
+      () => {
+        expect(
+          this.#state.renderCount,
+          "expected another render"
+        ).toBeGreaterThan(prev);
+      };
     });
   }
 
   unmount(): void {
-    entryPoint(() => {
-      this.#result.unmount();
-    });
+    this.#result.unmount();
   }
 
   find(
     role: testing.ByRoleMatcher,
     options?: testing.ByRoleOptions
   ): TestElement<HTMLElement> {
-    return entryPoint(() => this.#element.find(role, options));
+    return this.#element.find(role, options);
   }
 
   findByText(
     id: testing.Matcher,
     options?: testing.SelectorMatcherOptions
   ): TestElement<HTMLElement> {
-    return entryPoint(() => this.#element.findByText(id, options));
+    return this.#element.findByText(id, options);
   }
 
   get innerHTML(): string {
@@ -241,72 +224,59 @@ export class SetupTestRoot<Props, T> {
     this: SetupTestRoot<RenderState<void>, T>,
     render: (state: RenderState<T>, props?: void) => ReactElement,
     props?: void
-  ): Promise<RenderResult<void, T>>;
+  ): RenderResult<void, T>;
   render(
     render: (state: RenderState<T>, props: Props) => ReactElement,
     props: Props
-  ): Promise<RenderResult<Props, T>>;
-  async render(
+  ): RenderResult<Props, T>;
+  render(
     this: SetupTestRoot<RenderState<any>, any>,
     render: (state: RenderState<any>, props?: any) => ReactElement,
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     props?: any
-  ): Promise<RenderResult<any, T>> {
-    const result = entryPoint(
-      () => {
-        const state = new RenderState<T>();
-        let i = 0;
+  ): RenderResult<any, T> {
+    const state = new RenderState<T>();
+    let i = 0;
 
-        const Component = (props: any): ReactElement => {
-          state.rendered();
-          return render(state, props);
-        };
+    const Component = (props: any): ReactElement => {
+      state.rendered();
+      return render(state, props);
+    };
 
-        const result = act(() =>
-          testing.render(
-            react.render(Component, { ...props, rerender: ++i }),
-            this.#options
-          )
-        );
-
-        const renderResult = new RenderResult(
-          this,
-          state,
-          result,
-          props,
-          (updatedProps?: any) => {
-            if (updatedProps) {
-              result.rerender(
-                react.render(Component, { ...updatedProps, rerender: ++i })
-              );
-            } else {
-              result.rerender(
-                react.render(Component, { ...props, rerender: ++i })
-              );
-            }
-          }
-        );
-
-        return renderResult;
-      },
-      { internal: 1 }
-    ) as unknown as RenderResult<Props, T>;
-
-    entryPoint(
-      () => {
-        SetupTestRoot.assert(
-          this as unknown as SetupTestRoot<Props, T>,
-          result,
-          props as Props
-        );
-      },
-      { internal: 1 }
+    const result = act(() =>
+      testing.render(
+        react.render(Component, { ...props, rerender: ++i }),
+        this.#options
+      )
     );
 
-    return Promise.resolve(result);
+    const renderResult = new RenderResult(
+      this,
+      state,
+      result,
+      props,
+      (updatedProps?: any) => {
+        if (updatedProps) {
+          result.rerender(
+            react.render(Component, { ...updatedProps, rerender: ++i })
+          );
+        } else {
+          result.rerender(react.render(Component, { ...props, rerender: ++i }));
+        }
+      }
+    );
+
+    SetupTestRoot.assert(
+      this as unknown as SetupTestRoot<Props, T>,
+      renderResult,
+      props as Props
+    );
+
+    return renderResult as RenderResult<Props, T>;
   }
 
   expectHTML(expectHtml: (value: T, props: Props) => string): this {
+    if (this.#expectStable === undefined) this.#expectStable = (value) => value;
     this.#expectHtml = expectHtml;
     return this;
   }
@@ -373,65 +343,6 @@ type BoundFireObject = {
     ? (...args: Args) => Promise<Return>
     : never;
 };
-
-// #region commented1
-// import { entryPoint, UNINITIALIZED } from "@starbeam-workspace/test-utils";
-// import {
-//   type ByRoleMatcher,
-//   type ByRoleOptions,
-//   type FireObject,
-//   type Matcher,
-//   type RenderResult as UpstreamRenderResult,
-//   type SelectorMatcherOptions,
-//   fireEvent,
-//   getByRole,
-//   getByText,
-//   render,
-// } from "@testing-library/react";
-// import {
-//   type FunctionComponent,
-//   type ReactElement,
-//   createElement,
-//   StrictMode,
-//   useState,
-// } from "react";
-// import { expect, test } from "vitest";
-
-// import { TIMELINE } from "../../../../packages/bundle/index.js";
-// import { act } from "./react.js";
-
-// // import { UNINITIALIZED } from "../../use-resource/src/utils.js/src/utils.js";
-// // import { entryPoint } from "../../use-resource/tests/support/entry-point.jsce/tests/support/entry-point.js";
-// // import { act } from "../../use-resource/tests/support/react.jsresource/tests/support/react.js";
-// interface RenderResultConfiguration<T> {
-
-//   readonly values: Values<T>;
-//   readonly rerender: { readonly current: () => void };
-//   readonly count: () => number;
-// }
-
-// interface RenderResultOptions<Props, T> extends RenderResultConfiguration<T> {
-//   readonly props: Props;
-// }
-
-// interface RenderResultState<T> extends RenderResultConfiguration<T> {
-//   snapshot: RenderSnapshot;
-// }
-
-// interface HtmlTemplate<T> {
-//   (value: T): string;
-// }
-
-// type BoundFireObject = {
-//   [P in keyof FireObject]: FireObject[P] extends (
-//     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//     element: any,
-//     ...args: infer Args
-//   ) => infer Return
-//     ? (...args: Args) => Promise<Return>
-//     : never;
-// };
-// #endregion
 
 export class TestElement<E extends Element> {
   static create<E extends Element>(element: E): TestElement<E> {

@@ -2,16 +2,16 @@ import {
   type ComponentChild,
   type ComponentChildren,
   type ComponentType,
-  type VNode,
   Fragment,
+  type VNode,
 } from "preact";
 
 import { DisplayStruct } from "../inspect.js";
 import type { InternalPreactElement, InternalSource } from "../interfaces.js";
 import { isProbablyVNode } from "../internals.js";
 import {
-  type InternalPreactComponent,
   InternalComponent,
+  type InternalPreactComponent,
 } from "./component.js";
 
 const BUILTINS = new Set<ComponentType>([Fragment]);
@@ -21,12 +21,10 @@ const INITIAL_ID = 0;
 export class InternalVNode {
   #delete = {
     parent: (): void => {
-       
       delete this.#vnode[KEYS._parent];
     },
 
     depth: (): void => {
-       
       delete this.#vnode[KEYS._depth];
     },
   } as const;

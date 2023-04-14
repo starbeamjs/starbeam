@@ -1,32 +1,28 @@
 import { inspect } from "node:util";
 
 import { stringify } from "@starbeam/core-utils";
-import type { Result } from "@starbeam-workspace/shared";
-import {
-  type IntoPresentArray,
-  FATAL_EXIT_CODE,
-  PresentArray,
-} from "@starbeam-workspace/shared";
+import type { IntoPresentArray, Result } from "@starbeam-workspace/shared";
+import { FATAL_EXIT_CODE, PresentArray } from "@starbeam-workspace/shared";
 import chalk from "chalk";
 
-import { type GroupedCheckResults, CheckResults } from "./checks.js";
+import { CheckResults, type GroupedCheckResults } from "./checks.js";
 import { SPACES_PER_TAB } from "./constants.js";
 import type { Workspace } from "./interfaces.js";
 import {
-  type IntoFallibleFragment,
-  type IntoFragment,
-  type IntoFragmentMap,
   Fragment,
   fragment,
   FragmentImpl,
   FragmentMap,
+  type IntoFallibleFragment,
+  type IntoFragment,
+  type IntoFragmentMap,
   isIntoFragment,
   LogResult,
   Style,
 } from "./log.js";
-import { type LoggerName, type LoggerState, Logger } from "./logger.js";
+import { Logger, type LoggerName, type LoggerState } from "./logger.js";
 import { STYLES } from "./styles.js";
-import { type TableWithRows, Cell, LoggedTable } from "./table.js";
+import { Cell, LoggedTable, type TableWithRows } from "./table.js";
 
 export interface ReporterOptions {
   readonly verbose: boolean;

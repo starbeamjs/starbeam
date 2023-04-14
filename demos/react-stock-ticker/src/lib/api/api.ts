@@ -1,6 +1,7 @@
 import { STOCK_API_TOKEN } from "../env.js";
 import { yesterday } from "../formatting.js";
 import type { Stock } from "./interfaces.js";
+
 export const STOCK_API_PATH = "https://api.polygon.io";
 
 const SearchTickerPath = `${STOCK_API_PATH}/v3/reference/tickers`;

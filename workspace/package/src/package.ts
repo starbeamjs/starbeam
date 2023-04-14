@@ -7,14 +7,13 @@ import {
   stringify,
 } from "@starbeam/core-utils";
 import type { JsonValue } from "@starbeam-workspace/json";
-import type { Glob, RegularFile } from "@starbeam-workspace/paths";
-import type { Directory } from "@starbeam-workspace/paths";
-import { type Workspace, fragment } from "@starbeam-workspace/reporter";
+import type { Directory, Glob, RegularFile } from "@starbeam-workspace/paths";
+import { fragment, type Workspace } from "@starbeam-workspace/reporter";
 
 import type { Dependencies } from "./dependencies.js";
 import { createDependencies } from "./dependencies.js";
 import { StarbeamJsx, Test, TestName } from "./packages";
-import { type PackageInfo, type Used, AllTests } from "./packages";
+import { AllTests, type PackageInfo, type Used } from "./packages";
 import { RawPackage } from "./raw-package";
 import { Starbeam } from "./starbeam";
 import { TypeScriptConfig } from "./typescript.js";

@@ -1,12 +1,11 @@
 // @vitest-environment jsdom
 
-import { entryPoint } from "@starbeam/debug";
 import type { ReactiveElement } from "@starbeam/react";
 import { useReactive, useSetup } from "@starbeam/react";
 import { Cell } from "@starbeam/universal";
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
+import { describe, expect } from "@starbeam-workspace/test-utils";
 import type { ReactElement } from "react";
-import { describe, expect } from "vitest";
 
 import { Channels } from "./support/channel.js";
 
@@ -37,7 +36,7 @@ interface TestProps {
 
 describe("useSetup", () => {
   testReact<void, State>("returning a render function", async (root) => {
-    const result = await root
+    const result = root
       .expectStable()
       .expectHTML(
         (value) =>
@@ -64,16 +63,14 @@ describe("useSetup", () => {
       });
 
     function send(message: string): void {
-      entryPoint((): void => {
-        const latest = CHANNELS.latest();
+      const latest = CHANNELS.latest();
 
-        if (latest === undefined) {
-          expect(latest).not.toBeUndefined();
-          return;
-        }
+      if (latest === undefined) {
+        expect(latest).not.toBeUndefined();
+        return;
+      }
 
-        CHANNELS.sendMessage(latest, message);
-      });
+      CHANNELS.sendMessage(latest, message);
     }
 
     await result.rerender();
@@ -90,7 +87,7 @@ describe("useSetup", () => {
   testReact<TestProps, State>(
     "returning a render function that takes props",
     async (root) => {
-      const result = await root
+      const result = root
         .expectStable()
         .expectHTML(
           (value, { greeting }) =>
@@ -124,16 +121,14 @@ describe("useSetup", () => {
         );
 
       function send(message: string): void {
-        entryPoint((): void => {
-          const latest = CHANNELS.latest();
+        const latest = CHANNELS.latest();
 
-          if (latest === undefined) {
-            expect(latest).not.toBeUndefined();
-            return;
-          }
+        if (latest === undefined) {
+          expect(latest).not.toBeUndefined();
+          return;
+        }
 
-          CHANNELS.sendMessage(latest, message);
-        });
+        CHANNELS.sendMessage(latest, message);
       }
 
       await result.rerender();
@@ -149,7 +144,7 @@ describe("useSetup", () => {
   );
 
   testReact<void, State>("returning a reactive value", async (root) => {
-    const result = await root
+    const result = root
       .expectStable()
       .expectHTML(
         (value) =>
@@ -164,21 +159,21 @@ describe("useSetup", () => {
 
         return react.fragment(
           html.span(reactiveState.state),
-          reactiveState.state === "message" ? html.span(reactiveState.lastMessage) : null
+          reactiveState.state === "message"
+            ? html.span(reactiveState.lastMessage)
+            : null
         );
       });
 
     function send(message: string): void {
-      entryPoint((): void => {
-        const latest = CHANNELS.latest();
+      const latest = CHANNELS.latest();
 
-        if (latest === undefined) {
-          expect(latest).not.toBeUndefined();
-          return;
-        }
+      if (latest === undefined) {
+        expect(latest).not.toBeUndefined();
+        return;
+      }
 
-        CHANNELS.sendMessage(latest, message);
-      });
+      CHANNELS.sendMessage(latest, message);
     }
 
     await result.rerender();
@@ -193,7 +188,7 @@ describe("useSetup", () => {
   });
 
   testReact<void, State>("returning a static value", async (root) => {
-    const result = await root
+    const result = root
       .expectStable()
       .expectHTML(
         (value) =>
@@ -232,16 +227,14 @@ describe("useSetup", () => {
 });
 
 function send(message: string): void {
-  entryPoint((): void => {
-    const latest = CHANNELS.latest();
+  const latest = CHANNELS.latest();
 
-    if (latest === undefined) {
-      expect(latest).not.toBeUndefined();
-      return;
-    }
+  if (latest === undefined) {
+    expect(latest).not.toBeUndefined();
+    return;
+  }
 
-    CHANNELS.sendMessage(latest, message);
-  });
+  CHANNELS.sendMessage(latest, message);
 }
 
 function subscribe(element: ReactiveElement): Cell<State> {

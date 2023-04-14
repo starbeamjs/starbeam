@@ -1,10 +1,7 @@
+import type { Reactive } from "@starbeam/interfaces";
 import { useProp, useSetup } from "@starbeam/react";
-import {
-  type Reactive,
-  type ResourceBlueprint,
-  Cell,
-  Resource,
-} from "@starbeam/universal";
+import { Cell } from "@starbeam/reactive";
+import { Resource, type ResourceBlueprint } from "@starbeam/resource";
 
 import {
   formatLocale,
@@ -50,7 +47,7 @@ export default function (props: { locale: string }): JSX.Element {
             </label>
           </form>
 
-          <p className="output">{date.current.formatted}</p>
+          <p className="output">{date.current?.formatted}</p>
         </>
       );
     };

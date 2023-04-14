@@ -1,5 +1,7 @@
-import { ReactiveProtocol } from "@starbeam/timeline";
-import { Formula, TIMELINE, Variants } from "@starbeam/universal";
+import type { Formula } from "@starbeam/reactive";
+import { CachedFormula, RUNTIME } from "@starbeam/reactive";
+import { PUBLIC_TIMELINE, type Tagged } from "@starbeam/runtime";
+import { Variants } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 
 interface Bool {
@@ -24,7 +26,9 @@ describe("Variants", () => {
     const Bool = Variants<Bool>();
     const bool = Bool.true();
 
-    const type = Formula(() => bool.current.type);
+    const type = CachedFormula(() => bool.current.type);
+    expect(type.current).toBe("true");
+
     const typeStable = Stability(type);
 
     expect(type.current).toBe("true");
@@ -70,43 +74,53 @@ describe("Variants", () => {
     const Lifecycle = Variants<Lifecycle<number>>("Lifecycle");
     const lifecycle = Lifecycle.idle();
 
-    const advance = Formula(() => {
-      // this is testing that only a transition from idle or to idle invalidates this formula, and
-      // not transitions between other variants. This formula will invalidate if the variant returns
-      // to `idle`, since the `lifecycle.is("idle")` check will have changed from `false` to `true`.
-      if (lifecycle.is("idle")) {
-        lifecycle.choose("loading");
-      }
-    }, "advance");
+    const advance = CachedFormula(
+      () => {
+        // this is testing that only a transition from idle or to idle invalidates this formula, and
+        // not transitions between other variants. This formula will invalidate if the variant returns
+        // to `idle`, since the `lifecycle.is("idle")` check will have changed from `false` to `true`.
+        if (lifecycle.is("idle")) {
+          lifecycle.choose("loading");
+        }
+      },
+      { description: "advance" }
+    );
 
-    const render = Formula((): number | Error | "idle" | "loading" => {
-      advance();
+    const render = CachedFormula(
+      (): number | Error | "idle" | "loading" => {
+        advance();
 
-      if (lifecycle.is("idle")) {
-        return "idle";
-      } else if (lifecycle.is("loading")) {
-        return "loading";
-      } else if (lifecycle.is("loaded")) {
-        return lifecycle.current.value;
-      } else if (lifecycle.is("error")) {
-        return lifecycle.current.value;
-      } else {
-        throw Error("unreachable");
-      }
-    }, "render");
+        if (lifecycle.is("idle")) {
+          return "idle";
+        } else if (lifecycle.is("loading")) {
+          return "loading";
+        } else if (lifecycle.is("loaded")) {
+          return lifecycle.current.value;
+        } else if (lifecycle.is("error")) {
+          return lifecycle.current.value;
+        } else {
+          throw Error("unreachable");
+        }
+      },
+      { description: "render" }
+    );
 
-    const value = Formula(() => {
-      return lifecycle.match({
-        loaded: (v) => v,
-      });
-    }, "value");
+    const value = CachedFormula(
+      () => {
+        return lifecycle.match({
+          loaded: (v) => v,
+        });
+      },
+      { description: "value" }
+    );
+
+    expect(render()).toBe("loading");
+    expect(value()).toBe(undefined);
 
     const advanceStable = Stability(advance);
     const renderStable = Stability(render);
     const valueStable = Stability(value);
 
-    expect(render()).toBe("loading");
-    expect(value()).toBe(undefined);
     expect(advanceStable.changed).toBe(false);
     expect(renderStable.changed).toBe(false);
     expect(valueStable.changed).toBe(false);
@@ -166,13 +180,13 @@ describe("Variants", () => {
     const Lifecycle = Variants<Lifecycle<number>>("Lifecycle");
     const lifecycle = Lifecycle.idle();
 
-    const isResolved = Formula(() => {
+    const isResolved = CachedFormula(() => {
       return lifecycle.is("loaded", "error");
     });
 
+    expect(isResolved()).toBe(false);
     const isStable = Stability(isResolved);
 
-    expect(isResolved()).toBe(false);
     expect(isStable.changed).toBe(false);
 
     lifecycle.choose("loading");
@@ -195,16 +209,18 @@ describe("Variants", () => {
 // eslint-disable-next-line @typescript-eslint/no-inferrable-types
 const debug: boolean = false;
 
-function Stability(reactive: ReactiveProtocol): { readonly changed: boolean } {
+function Stability(reactive: Tagged): {
+  readonly changed: boolean;
+} {
   let changed = false;
 
-  TIMELINE.on.change(reactive, (internals) => {
+  PUBLIC_TIMELINE.on.change(reactive, (internals) => {
     if (debug) {
       console.group(
-        ReactiveProtocol.description(reactive).describe(),
+        RUNTIME.debug?.describeTagged(reactive) ?? "{unknown reactive value}",
         "invalidated by"
       );
-      console.log(internals.description.describe());
+      console.info(internals.description);
       console.groupEnd();
     }
     changed = true;
@@ -233,7 +249,7 @@ function Instrument<T>(
 }) => T | Formula<T> {
   let status: "initial" | "initialized" | "changed" | "stable" = "initial";
 
-  const formula = Formula(() => {
+  const formula = CachedFormula(() => {
     if (status === "initial") {
       status = "initialized";
     } else {

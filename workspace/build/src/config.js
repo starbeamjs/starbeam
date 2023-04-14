@@ -33,7 +33,7 @@ const {
 /** @typedef {import("rollup").RollupOptions} RollupOptions */
 /**
  * @typedef {import("./config.js").ESLintExport} ESLintExport
- * @typedef {import("./config.js").ViteExport} ViteExport
+ * @typedef {import("./config.js").ViteConfig} ViteConfig
  * @typedef {import("./config.js").StarbeamKey} StarbeamKey
  * @typedef {import("./config.js").JsonValue} JsonValue
  * @typedef {import("./config.js").JsonObject} JsonObject
@@ -252,12 +252,12 @@ export class Package {
 
   /**
    * @param {ImportMeta | string} meta
-   * @returns {ViteExport}
+   * @returns {Promise<ViteConfig>}
    */
-  static viteConfig(meta) {
+  static async viteConfig(meta) {
     const pkg = Package.at(meta);
 
-    if (pkg) return pkg.#viteConfig();
+    if (pkg) return await pkg.#viteConfig();
 
     throw Error(
       `No package found at ${
@@ -312,9 +312,9 @@ export class Package {
   }
 
   /**
-   * @returns {import("./config.js").ViteExport}
+   * @returns {Promise<import("./config.js").ViteConfig>}
    */
-  #viteConfig() {
+  async #viteConfig() {
     return viteConfig({
       plugins: [
         VitePluginFonts({
@@ -491,10 +491,10 @@ function mapExternal(inline) {
 }
 
 /**
- * @param {import("./config.js").ViteExport} config
+ * @param {import("./config.js").ViteConfig} config
  */
-function viteConfig(config) {
-  return config;
+async function viteConfig(config) {
+  return Promise.resolve(config);
 }
 
 /**

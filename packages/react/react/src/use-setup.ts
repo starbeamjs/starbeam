@@ -1,6 +1,5 @@
-import { callerStack, Desc } from "@starbeam/debug";
-import type { Description } from "@starbeam/interfaces";
-import { PolledFormula, Reactive } from "@starbeam/universal";
+import type { Description, Reactive } from "@starbeam/interfaces";
+import { Formula, isReactive, RUNTIME } from "@starbeam/reactive";
 import {
   setupFunction,
   unsafeTrackedElsewhere,
@@ -45,13 +44,13 @@ export function useSetup<
     allowMissing: true,
   });
 
-  const desc = Desc("resource", description);
+  const desc = RUNTIME.Desc?.("resource", description);
 
   const notify = useNotify();
 
   const { instance } = useLifecycle({
     validate: starbeam,
-  }).render<UseSetupState>(({ on, validate }, _, prev) => {
+  }).render<UseSetupState>(({ on }, _, prev) => {
     const element = ReactiveElement.activate(
       notify,
       starbeam,
@@ -60,8 +59,6 @@ export function useSetup<
     );
 
     const instance = setupFunction(() => callback(element));
-
-    validate((nextStarbeam, prevStarbeam) => nextStarbeam === prevStarbeam);
 
     on.layout(() => {
       ReactiveElement.layout(element);
@@ -73,15 +70,20 @@ export function useSetup<
 
     let currentProps: unknown = undefined;
 
-    if (Reactive.is(instance)) {
+    if (isReactive(instance)) {
       ReactiveElement.subscribe(element, instance);
       return { element, instance: { type: "reactive", value: instance } };
     } else if (typeof instance === "function") {
-      const reactive = PolledFormula(() => {
+      const reactive = Formula(() => {
         return (instance as (props: unknown) => unknown)(currentProps);
       }, desc);
+
       ReactiveElement.subscribe(element, reactive);
-      function compute(props: unknown, caller = callerStack()): unknown {
+
+      function compute(
+        props: unknown,
+        caller = RUNTIME.callerStack?.()
+      ): unknown {
         currentProps = props;
         return reactive.read(caller);
       }
