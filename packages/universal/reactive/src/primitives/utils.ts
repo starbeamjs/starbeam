@@ -1,5 +1,9 @@
-import type { Description, Tag, TaggedReactive } from "@starbeam/interfaces";
-import type { FormulaTag } from "@starbeam/interfaces";
+import type {
+  Description,
+  FormulaTag,
+  Tag,
+  TaggedReactive,
+} from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
 
 import { RUNTIME } from "../runtime.js";

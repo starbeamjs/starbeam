@@ -32,7 +32,7 @@
     ]
   },
   "scripts": {
-    "test:lint": "eslint",
+    "test:lint": "eslint \"src/**/*.{tsx,ts}\"",
     "test:types": "tsc -b"
   },
   "dependencies": {

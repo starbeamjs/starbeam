@@ -84,7 +84,7 @@ function localEslintConfig(
 ): ConfigOverride & JsonObject {
   return {
     parserOptions: {
-      project: path(pkg.root.file(tsconfig)).fromWorkspaceRoot(),
+      project: path(pkg.root.file(tsconfig)).fromPackageRoot(),
     },
     files,
     extends: [`plugin:${extend}`],

@@ -23,7 +23,7 @@
     "type": "library:interfaces"
   },
   "scripts": {
-    "test:lint": "eslint",
+    "test:lint": "eslint \"index.ts\"",
     "test:types": "tsc -b"
   },
   "dependencies": {

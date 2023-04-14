@@ -17,7 +17,7 @@ export {
   read as readReactive,
   Static,
 } from "@starbeam/reactive";
-export { Wrap } from "@starbeam/reactive/src/primitives/delegate.js";
+export { Wrap } from "@starbeam/reactive";
 export {
   Resource,
   type ResourceBlueprint,

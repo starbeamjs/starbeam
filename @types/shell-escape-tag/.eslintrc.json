@@ -5,7 +5,7 @@
       "extends": ["plugin:@starbeam/commonjs"],
       "files": ["index.d.ts", "src/**/*.d.ts"],
       "parserOptions": {
-        "project": "@types/shell-escape-tag/tsconfig.json"
+        "project": "tsconfig.json"
       }
     }
   ]

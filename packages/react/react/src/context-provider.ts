@@ -1,3 +1,4 @@
+import {} from "@starbeam/reactive";
 import { LIFETIME } from "@starbeam/runtime";
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
 import type { FunctionComponent, PropsWithChildren } from "react";

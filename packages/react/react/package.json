@@ -23,7 +23,7 @@
     "type": "library:public"
   },
   "scripts": {
-    "test:lint": "eslint",
+    "test:lint": "eslint \"src/**/*.{tsx,ts}\"",
     "test:specs": "vitest --run",
     "test:types": "tsc -b"
   },

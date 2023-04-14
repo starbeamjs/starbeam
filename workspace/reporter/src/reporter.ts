@@ -442,7 +442,7 @@ export class Reporter {
       return;
     } else if (results.isOk) {
       this.#workspace.reporter.ensureBreak();
-      this.#workspace.reporter.success(`✔️ ${options.success}`);
+      this.#workspace.reporter.success(`✓ ${options.success}`);
     } else {
       this.table((t) =>
         t.rows(
@@ -456,7 +456,7 @@ export class Reporter {
   }
 
   statusIcon(isOk: boolean): string {
-    return isOk ? "✔️" : "❌";
+    return isOk ? "✓" : "𐄂";
   }
 
   static Group = class Group<Catch> implements IGroup<Catch> {
@@ -749,7 +749,7 @@ export function reportCheckResults(
   }
 ): void {
   if (results.isOk && !reporter.isVerbose) {
-    reporter.success(`✔️ ${options.success}`);
+    reporter.success(`✓ ${options.success}`);
     return;
   }
 
@@ -765,9 +765,9 @@ export function reportCheckResults(
     return table.rows(
       printedResults.map(([label, result]) => {
         if (result.isOk) {
-          return [Fragment("ok", "✔️"), Fragment("ok", label)];
+          return [Fragment("ok", "✓"), Fragment("ok", label)];
         } else {
-          return [Fragment("problem", "❌"), Fragment("problem", label)];
+          return [Fragment("problem", "𐄂"), Fragment("problem", label)];
         }
       })
     );

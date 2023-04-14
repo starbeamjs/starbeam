@@ -5,7 +5,7 @@
       "extends": ["plugin:@starbeam/loose"],
       "files": ["**/*.ts"],
       "parserOptions": {
-        "project": "packages/x/vanilla/tests/tsconfig.json"
+        "project": "tsconfig.json"
       }
     }
   ]

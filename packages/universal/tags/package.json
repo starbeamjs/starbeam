@@ -1,8 +1,11 @@
 {
   "name": "@starbeam/tags",
-  "types": "index.ts",
-  "main": "index.ts",
   "type": "module",
+  "main": "index.ts",
+  "types": "index.ts",
+  "exports": {
+    "default": "./index.ts"
+  },
   "publishConfig": {
     "exports": {
       ".": {
@@ -16,6 +19,7 @@
   },
   "starbeam:type": "library:public",
   "scripts": {
+    "test:lint": "eslint \"index.ts\" \"src/**/*.ts\"",
     "test:types": "tsc -b"
   },
   "dependencies": {

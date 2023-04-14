@@ -25,22 +25,26 @@ export const LintCommand = QueryCommand("lint")
 
     if (files) {
       await workspace.exec(
-        sh`pnpm eslint --cache --max-warnings 0 -c ${eslintrc} ${files} ${fix ? '--fix' : ''}`
+        sh`pnpm eslint --cache --max-warnings 0 -c ${eslintrc} ${files} ${
+          fix ? "--fix" : ""
+        }`
       );
     } else {
       const results = await workspace.check(
         ...packages
           .filter((pkg) => !pkg.type.is("root"))
           .map((pkg) => {
-            const files = pkg.inputGlobs.map((glob) =>
-              workspace.root.relativeTo(glob)
-            );
+            // const files = pkg.inputGlobs.map((glob) =>
+            //   workspace.root.relativeTo(glob)
+            // );
 
             return CheckDefinition(
               pkg.name,
-              sh`pnpm eslint --cache --max-warnings 0 -c ${eslintrc} ${files} ${fix ? '--fix' : ''}`,
+              sh`pnpm eslint --cache --max-warnings 0 -c ${eslintrc} ${files} ${
+                fix ? "--fix" : ""
+              }`,
               {
-                cwd: workspace.root,
+                cwd: pkg.root,
                 output: streamOutput ? "stream" : "when-error",
               }
             );

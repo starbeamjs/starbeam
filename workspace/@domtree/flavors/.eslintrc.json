@@ -5,7 +5,7 @@
       "extends": ["plugin:@starbeam/tight"],
       "files": ["index.ts", "src/**/*.ts"],
       "parserOptions": {
-        "project": "workspace/@domtree/flavors/tsconfig.json"
+        "project": "tsconfig.json"
       }
     }
   ]

@@ -5,7 +5,7 @@
       "extends": ["plugin:@starbeam/tight"],
       "files": ["index.ts", "src/**/*.ts"],
       "parserOptions": {
-        "project": "packages/preact/preact/tsconfig.json"
+        "project": "tsconfig.json"
       }
     }
   ]

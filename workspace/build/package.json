@@ -24,7 +24,7 @@
     "type": "library:build-support"
   },
   "scripts": {
-    "test:lint": "eslint",
+    "test:lint": "eslint \"src/**/*.{js,d.ts}\"",
     "test:types": "tsc -b"
   },
   "dependencies": {
@@ -32,9 +32,9 @@
     "@eslint/eslintrc": "^1.4.1",
     "@rollup/plugin-commonjs": "*",
     "@rollup/plugin-node-resolve": "*",
-    "@types/rollup-plugin-polyfill-node": "workspace:*",
     "@types/rollup__plugin-commonjs": "workspace:^",
     "@types/rollup__plugin-node-resolve": "workspace:^",
+    "@types/rollup-plugin-polyfill-node": "workspace:*",
     "@typescript-eslint/parser": "^5.56.0",
     "eslint": "*",
     "eslint-config-prettier": "^8.8.0",

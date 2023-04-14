@@ -26,7 +26,7 @@
     "build": "tsc && vite build",
     "dev": "vite",
     "preview": "vite preview",
-    "test:lint": "eslint",
+    "test:lint": "eslint \"src/**/*.{tsx,ts}\"",
     "test:types": "tsc -b"
   },
   "dependencies": {

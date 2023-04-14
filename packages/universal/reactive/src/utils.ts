@@ -1,13 +1,15 @@
-import type * as interfaces from "@starbeam/interfaces";
-import type { Description } from "@starbeam/interfaces";
+import type {
+  CallStack,
+  Description,
+  Reactive,
+  Tagged,
+} from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
 
 import { Static } from "./primitives/static.js";
 import { RUNTIME } from "./runtime.js";
 
-export type Reactive<T> = interfaces.Reactive<T>;
-
-function is(this: void, value: unknown): value is interfaces.Tagged {
+function is(this: void, value: unknown): value is Tagged {
   return !!(
     value &&
     (typeof value === "object" || typeof value === "function") &&
@@ -54,6 +56,6 @@ export function intoReactive<T>(
 
 function hasRead<T>(
   value: object
-): value is { read: (caller?: interfaces.CallStack) => T } {
+): value is { read: (caller?: CallStack) => T } {
   return "read" in value && typeof value.read === "function";
 }
