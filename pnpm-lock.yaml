@@ -9,7 +9,6 @@ overrides:
   '@typescript-eslint/parser': ^5.57.1
   eslint: ^8.37.0
   preact: ^10.11.3
-  rollup: ^3.9.1
   typescript: ^5.0.3
   vite: 4.2.1
   vite-plugin-fonts: 0.7.0
@@ -119,6 +118,9 @@ importers:
       prettier:
         specifier: ^2.8.7
         version: 2.8.7
+      rollup:
+        specifier: ^3.20.2
+        version: 3.20.2
       tslib:
         specifier: ^2.5.0
         version: 2.5.0
@@ -136,13 +138,13 @@ importers:
     dependencies:
       '@rollup/plugin-commonjs':
         specifier: ^24.0.0
-        version: 24.0.0(rollup@3.9.1)
+        version: 24.0.0(rollup@3.20.2)
 
   '@types/@rollup/plugin-node-resolve':
     dependencies:
       '@rollup/plugin-node-resolve':
         specifier: ^15.0.1
-        version: 15.0.1(rollup@3.9.1)
+        version: 15.0.1(rollup@3.20.2)
 
   '@types/ansicolor':
     devDependencies:
@@ -618,6 +620,9 @@ importers:
       preact-render-to-string:
         specifier: ^5.2.5
         version: 5.2.6(preact@10.11.3)
+      rollup:
+        specifier: ^3.20.2
+        version: 3.20.2
 
   packages/preact/preact-testing-utils:
     dependencies:
@@ -643,6 +648,9 @@ importers:
       preact-render-to-string:
         specifier: ^5.2.6
         version: 5.2.6(preact@10.11.3)
+      rollup:
+        specifier: ^3.20.2
+        version: 3.20.2
 
   packages/preact/preact-testing-utils/tests:
     dependencies:
@@ -696,6 +704,9 @@ importers:
       '@starbeam-dev/build-support':
         specifier: workspace:*
         version: link:../../../workspace/build
+      rollup:
+        specifier: ^3.20.2
+        version: 3.20.2
 
   packages/preact/preact-utils/tests:
     dependencies:
@@ -837,6 +848,9 @@ importers:
       '@types/react':
         specifier: ^18.0.33
         version: 18.0.33
+      rollup:
+        specifier: ^3.20.2
+        version: 3.20.2
 
   packages/react/react/tests:
     dependencies:
@@ -910,6 +924,9 @@ importers:
       '@types/react':
         specifier: ^18.0.26
         version: 18.0.26
+      rollup:
+        specifier: ^3.20.2
+        version: 3.20.2
 
   packages/react/use-strict-lifecycle:
     dependencies:
@@ -926,6 +943,9 @@ importers:
       '@types/react':
         specifier: ^18.0.26
         version: 18.0.26
+      rollup:
+        specifier: ^3.20.2
+        version: 3.20.2
 
   packages/react/use-strict-lifecycle/tests:
     dependencies:
@@ -979,6 +999,9 @@ importers:
       '@starbeam-dev/build-support':
         specifier: workspace:*
         version: link:../../../workspace/build
+      rollup:
+        specifier: ^3.20.2
+        version: 3.20.2
 
   packages/universal/collections/tests:
     dependencies:
@@ -998,12 +1021,18 @@ importers:
       '@starbeam-dev/build-support':
         specifier: workspace:*
         version: link:../../../workspace/build
+      rollup:
+        specifier: ^3.20.2
+        version: 3.20.2
 
   packages/universal/core-utils:
     devDependencies:
       '@starbeam-dev/build-support':
         specifier: workspace:*
         version: link:../../../workspace/build
+      rollup:
+        specifier: ^3.20.2
+        version: 3.20.2
 
   packages/universal/core-utils/tests:
     dependencies:
@@ -1053,6 +1082,9 @@ importers:
       '@types/node':
         specifier: 18.15.11
         version: 18.15.11
+      rollup:
+        specifier: ^3.20.2
+        version: 3.20.2
 
   packages/universal/debug/tests:
     dependencies:
@@ -1102,6 +1134,9 @@ importers:
       '@starbeam-dev/build-support':
         specifier: workspace:*
         version: link:../../../workspace/build
+      rollup:
+        specifier: ^3.20.2
+        version: 3.20.2
 
   packages/universal/reactive:
     dependencies:
@@ -1121,6 +1156,9 @@ importers:
       '@starbeam-dev/build-support':
         specifier: workspace:*
         version: link:../../../workspace/build
+      rollup:
+        specifier: ^3.20.2
+        version: 3.20.2
 
   packages/universal/reactive/tests:
     dependencies:
@@ -1167,6 +1205,9 @@ importers:
       '@starbeam-dev/build-support':
         specifier: workspace:*
         version: link:../../../workspace/build
+      rollup:
+        specifier: ^3.20.2
+        version: 3.20.2
 
   packages/universal/resource/tests:
     dependencies:
@@ -1222,6 +1263,9 @@ importers:
       '@starbeam-dev/build-support':
         specifier: workspace:*
         version: link:../../../workspace/build
+      rollup:
+        specifier: ^3.20.2
+        version: 3.20.2
 
   packages/universal/runtime/tests:
     dependencies:
@@ -1271,6 +1315,9 @@ importers:
       '@starbeam-dev/build-support':
         specifier: workspace:*
         version: link:../../../workspace/build
+      rollup:
+        specifier: ^3.20.2
+        version: 3.20.2
 
   packages/universal/service/tests:
     dependencies:
@@ -1307,6 +1354,9 @@ importers:
       '@starbeam-dev/build-support':
         specifier: workspace:*
         version: link:../../../workspace/build
+      rollup:
+        specifier: ^3.20.2
+        version: 3.20.2
 
   packages/universal/shared/tests:
     dependencies:
@@ -1329,6 +1379,9 @@ importers:
       '@starbeam-dev/build-support':
         specifier: workspace:*
         version: link:../../../workspace/build
+      rollup:
+        specifier: ^3.20.2
+        version: 3.20.2
 
   packages/universal/universal:
     dependencies:
@@ -1366,6 +1419,9 @@ importers:
       '@starbeam-dev/build-support':
         specifier: workspace:*
         version: link:../../../workspace/build
+      rollup:
+        specifier: ^3.20.2
+        version: 3.20.2
 
   packages/universal/universal/tests:
     dependencies:
@@ -1398,6 +1454,9 @@ importers:
       '@starbeam-dev/build-support':
         specifier: workspace:*
         version: link:../../../workspace/build
+      rollup:
+        specifier: ^3.20.2
+        version: 3.20.2
 
   packages/universal/verify/tests:
     dependencies:
@@ -1432,6 +1491,9 @@ importers:
       '@starbeam-dev/build-support':
         specifier: workspace:*
         version: link:../../../workspace/build
+      rollup:
+        specifier: ^3.20.2
+        version: 3.20.2
 
   packages/x/devtools-extension:
     devDependencies:
@@ -1472,6 +1534,9 @@ importers:
       '@starbeam-dev/build-support':
         specifier: workspace:*
         version: link:../../../workspace/build
+      rollup:
+        specifier: ^3.20.2
+        version: 3.20.2
 
   packages/x/store/tests:
     dependencies:
@@ -1509,6 +1574,9 @@ importers:
       '@starbeam-dev/build-support':
         specifier: workspace:*
         version: link:../../../workspace/build
+      rollup:
+        specifier: ^3.20.2
+        version: 3.20.2
 
   packages/x/vanilla/tests:
     dependencies:
@@ -1960,6 +2028,9 @@ importers:
       '@starbeam-dev/build-support':
         specifier: workspace:*
         version: link:../build
+      rollup:
+        specifier: ^3.20.2
+        version: 3.20.2
 
   workspace/workspace:
     dependencies:
@@ -3475,7 +3546,7 @@ packages:
       magic-string: 0.26.7
       picocolors: 1.0.0
       react-refresh: 0.13.0
-      rollup: 3.9.1
+      rollup: 3.20.2
       rxjs: 7.5.7
     transitivePeerDependencies:
       - supports-color
@@ -3916,6 +3987,24 @@ packages:
   /@polka/url@1.0.0-next.21:
     resolution: {integrity: sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==}
 
+  /@rollup/plugin-commonjs@24.0.0(rollup@3.20.2):
+    resolution: {integrity: sha512-0w0wyykzdyRRPHOb0cQt14mIBLujfAv6GgP6g8nvg/iBxEm112t3YPPq+Buqe2+imvElTka+bjNlJ/gB56TD8g==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^2.68.0||^3.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+    dependencies:
+      '@rollup/pluginutils': 5.0.2(rollup@3.20.2)
+      commondir: 1.0.1
+      estree-walker: 2.0.2
+      glob: 8.0.3
+      is-reference: 1.2.1
+      magic-string: 0.27.0
+      rollup: 3.20.2
+    dev: false
+
   /@rollup/plugin-commonjs@24.0.0(rollup@3.9.1):
     resolution: {integrity: sha512-0w0wyykzdyRRPHOb0cQt14mIBLujfAv6GgP6g8nvg/iBxEm112t3YPPq+Buqe2+imvElTka+bjNlJ/gB56TD8g==}
     engines: {node: '>=14.0.0'}
@@ -3949,6 +4038,24 @@ packages:
       rollup: 3.9.1
     dev: false
 
+  /@rollup/plugin-node-resolve@15.0.1(rollup@3.20.2):
+    resolution: {integrity: sha512-ReY88T7JhJjeRVbfCyNj+NXAG3IIsVMsX9b5/9jC98dRP8/yxlZdz7mHZbHk5zHr24wZZICS5AcXsFZAXYUQEg==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^2.78.0||^3.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+    dependencies:
+      '@rollup/pluginutils': 5.0.2(rollup@3.20.2)
+      '@types/resolve': 1.20.2
+      deepmerge: 4.2.2
+      is-builtin-module: 3.2.0
+      is-module: 1.0.0
+      resolve: 1.22.1
+      rollup: 3.20.2
+    dev: false
+
   /@rollup/plugin-node-resolve@15.0.1(rollup@3.9.1):
     resolution: {integrity: sha512-ReY88T7JhJjeRVbfCyNj+NXAG3IIsVMsX9b5/9jC98dRP8/yxlZdz7mHZbHk5zHr24wZZICS5AcXsFZAXYUQEg==}
     engines: {node: '>=14.0.0'}
@@ -3973,6 +4080,21 @@ packages:
     dependencies:
       estree-walker: 2.0.2
       picomatch: 2.3.1
+
+  /@rollup/pluginutils@5.0.2(rollup@3.20.2):
+    resolution: {integrity: sha512-pTd9rIsP92h+B6wWwFbW8RkZv4hiR/xKsqre4SIuAOaOEQRxi0lqLke9k2/7WegC85GgUs9pjmOjCUi3In4vwA==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^1.20.0||^2.0.0||^3.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+    dependencies:
+      '@types/estree': 1.0.0
+      estree-walker: 2.0.2
+      picomatch: 2.3.1
+      rollup: 3.20.2
+    dev: false
 
   /@rollup/pluginutils@5.0.2(rollup@3.9.1):
     resolution: {integrity: sha512-pTd9rIsP92h+B6wWwFbW8RkZv4hiR/xKsqre4SIuAOaOEQRxi0lqLke9k2/7WegC85GgUs9pjmOjCUi3In4vwA==}
@@ -9019,12 +9141,20 @@ packages:
       estree-walker: 0.6.1
     dev: false
 
+  /rollup@3.20.2:
+    resolution: {integrity: sha512-3zwkBQl7Ai7MFYQE0y1MeQ15+9jsi7XxfrqwTb/9EK8D9C9+//EBR4M+CuA1KODRaNbFez/lWxA5vhEGZp4MUg==}
+    engines: {node: '>=14.18.0', npm: '>=8.0.0'}
+    hasBin: true
+    optionalDependencies:
+      fsevents: 2.3.2
+
   /rollup@3.9.1:
     resolution: {integrity: sha512-GswCYHXftN8ZKGVgQhTFUJB/NBXxrRGgO2NCy6E8s1rwEJ4Q9/VttNqcYfEvx4dTo4j58YqdC3OVztPzlKSX8w==}
     engines: {node: '>=14.18.0', npm: '>=8.0.0'}
     hasBin: true
     optionalDependencies:
       fsevents: 2.3.2
+    dev: false
 
   /rrweb-cssom@0.6.0:
     resolution: {integrity: sha512-APM0Gt1KoXBz0iIkkdB/kfvGOwC4UuJFeG/c+yV7wSc7q96cG/kJ0HiYCnzivD9SB53cLV1MlHFNfOuPaadYSw==}
@@ -9827,7 +9957,7 @@ packages:
       esbuild: 0.17.12
       postcss: 8.4.21
       resolve: 1.22.1
-      rollup: 3.9.1
+      rollup: 3.20.2
     optionalDependencies:
       fsevents: 2.3.2
 
