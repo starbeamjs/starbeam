@@ -1,9 +1,9 @@
 import { DisplayStruct } from "@starbeam/core-utils";
 import type {
   CallStack,
-  DelegateTag,
+  CoreDelegateTag,
+  CoreFormulaTag,
   Description,
-  FormulaTag,
 } from "@starbeam/interfaces";
 import { Cell, Marker, RUNTIME } from "@starbeam/reactive";
 import type { Tagged } from "@starbeam/runtime";
@@ -122,7 +122,7 @@ export class VariantGroup {
   }
 }
 
-export class Variant<T> implements Tagged<DelegateTag> {
+export class Variant<T> implements Tagged<CoreDelegateTag> {
   static selected<T>(
     type: string,
     typeMarker: Marker,
@@ -228,7 +228,7 @@ export class Variant<T> implements Tagged<DelegateTag> {
     value: T | UNINITIALIZED;
   };
   readonly #value: Cell<T | UNINITIALIZED>;
-  readonly [TAG]: DelegateTag;
+  readonly [TAG]: CoreDelegateTag;
 
   private constructor(
     type: string,
@@ -236,7 +236,7 @@ export class Variant<T> implements Tagged<DelegateTag> {
     localTypeMarker: Marker,
     value: Cell<T | UNINITIALIZED>,
     debug: { value: T | UNINITIALIZED },
-    reactive: DelegateTag
+    reactive: CoreDelegateTag
   ) {
     this.#type = type;
     this.#sharedTypeMarker = sharedTypeMarker;
@@ -341,7 +341,7 @@ export interface Variants<V extends VariantType, Narrow = V> extends Tagged {
       | undefined);
 }
 
-class VariantsImpl implements Tagged<FormulaTag> {
+class VariantsImpl implements Tagged<CoreFormulaTag> {
   static create(
     value: InternalVariant,
     description: Description | undefined
@@ -364,7 +364,7 @@ class VariantsImpl implements Tagged<FormulaTag> {
   readonly #typeMarker: Marker;
   readonly #groups: VariantGroups;
   readonly #description: Description | undefined;
-  readonly [TAG]: FormulaTag;
+  readonly [TAG]: CoreFormulaTag;
   #current: Variant<unknown>;
 
   private constructor(

@@ -8,7 +8,7 @@
     "cwd": "${package.root}"
   },
   "types": {
-    "command": "tsc -b",
+    "command": "turbo run typecheck --output-logs errors-only",
     "cwd": "${package.root}"
   }
 }
