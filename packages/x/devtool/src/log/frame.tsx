@@ -5,7 +5,7 @@
 /** @jsxRuntime automatic @jsxImportSource preact */
 
 import { logTag } from "@starbeam/debug";
-import type { CellTag, Timestamp } from "@starbeam/interfaces";
+import type { CoreCellTag, Timestamp } from "@starbeam/interfaces";
 import type { JSX } from "preact";
 
 import { DescribeLeaf } from "./describe.js";
@@ -58,7 +58,7 @@ function List({
   cells,
   change,
 }: {
-  cells: Set<CellTag>;
+  cells: Set<CoreCellTag>;
   change: "add" | "remove";
 }): JSX.Element | null {
   if (cells.size === EMPTY_SET) {

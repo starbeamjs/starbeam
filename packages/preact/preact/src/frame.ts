@@ -1,16 +1,16 @@
 import { getLast } from "@starbeam/core-utils";
-import type { Description } from "@starbeam/interfaces";
+import type { CoreFormulaTag, Description } from "@starbeam/interfaces";
 import type { InternalComponent } from "@starbeam/preact-utils";
 import type { FinalizedFormula, InitializingFormula } from "@starbeam/reactive";
 import { FormulaLifecycle } from "@starbeam/reactive";
 import { PUBLIC_TIMELINE, RUNTIME, type Unsubscribe } from "@starbeam/runtime";
-import { createFormulaTag, type FormulaTag } from "@starbeam/tags";
+import { createFormulaTag } from "@starbeam/tags";
 import { expected, isPresent, verify } from "@starbeam/verify";
 
 export class ComponentFrame {
   #active: InitializingFormula | null;
   #frame: FinalizedFormula | null;
-  #tag: FormulaTag;
+  #tag: CoreFormulaTag;
   #subscription: Unsubscribe | null;
 
   static #frames = new WeakMap<InternalComponent, ComponentFrame>();
