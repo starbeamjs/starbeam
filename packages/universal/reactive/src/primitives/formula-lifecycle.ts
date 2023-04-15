@@ -1,4 +1,4 @@
-import type { Tag } from "@starbeam/interfaces";
+import type { CoreTag } from "@starbeam/interfaces";
 import { lastUpdated, NOW } from "@starbeam/tags";
 
 import { RUNTIME } from "../runtime.js";
@@ -11,7 +11,7 @@ export function FormulaLifecycle(): InitializingFormula {
   };
 }
 
-function FinalizedFormula(children: Set<Tag>): FinalizedFormula {
+function FinalizedFormula(children: Set<CoreTag>): FinalizedFormula {
   let lastValidated = NOW.now;
 
   const isStale = () => lastUpdated(...children).gt(lastValidated);
@@ -43,6 +43,6 @@ export interface InitializingFormula {
 
 export interface FinalizedFormula {
   readonly isStale: () => boolean;
-  readonly children: () => Set<Tag>;
+  readonly children: () => Set<CoreTag>;
   readonly update: () => InitializingFormula;
 }

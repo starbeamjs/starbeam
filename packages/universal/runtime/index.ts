@@ -16,6 +16,6 @@ export {
 } from "./src/timeline/tracker.js";
 export { diff } from "./src/timeline/utils.js";
 export { AUTOTRACKING_RUNTIME } from "./src/tracking-stack.js";
-export type { Tag, Tagged } from "@starbeam/interfaces";
+export type { Tagged } from "@starbeam/interfaces";
 export { TAG } from "@starbeam/shared";
 export { getTag, Timestamp } from "@starbeam/tags";

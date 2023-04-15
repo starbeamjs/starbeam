@@ -128,9 +128,10 @@ describe("Tagged", () => {
 
     const delegate: ReactiveValue<number> = {
       read: () => sum.read(),
-      [TAG]: createDelegateTag(RUNTIME.Desc?.("delegate", "test delegate"), [
-        getTag(sum),
-      ]),
+      [TAG]: createDelegateTag(
+        RUNTIME.Desc?.("delegate", "test delegate"),
+        getTag(sum).targets
+      ),
     };
 
     let stale = false;

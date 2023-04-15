@@ -18,7 +18,7 @@ export function Wrap<T, U extends ReactiveValue>(
   readonly(
     value,
     TAG,
-    createDelegateTag(delegateDesc(reactive, desc), [getTag(reactive)])
+    createDelegateTag(delegateDesc(reactive, desc), getTag(reactive).targets)
   );
 
   defMethod(

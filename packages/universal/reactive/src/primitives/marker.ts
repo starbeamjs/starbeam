@@ -1,11 +1,11 @@
-import type { CallStack, CellTag, Tagged } from "@starbeam/interfaces";
+import type { CallStack, CoreCellTag, Tagged } from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
 import { createCellTag } from "@starbeam/tags";
 
 import { RUNTIME } from "../runtime.js";
 import { type SugaryPrimitiveOptions, toOptions } from "./utils.js";
 
-export interface Marker extends Tagged<CellTag> {
+export interface Marker extends Tagged<CoreCellTag> {
   read: (caller?: CallStack) => void;
   mark: (caller?: CallStack) => void;
   freeze: () => void;

@@ -1,4 +1,4 @@
-import type { AutotrackingRuntime, Tag } from "@starbeam/interfaces";
+import type { AutotrackingRuntime, CoreTag } from "@starbeam/interfaces";
 
 export class TrackingStack implements AutotrackingRuntime {
   static create(): TrackingStack {
@@ -7,7 +7,7 @@ export class TrackingStack implements AutotrackingRuntime {
 
   #current: TrackingFrameData | undefined;
 
-  start(): () => Set<Tag> {
+  start(): () => Set<CoreTag> {
     const frame: TrackingFrameData = { consumed: new Set() };
     const parent = this.#current;
     this.#current = frame;
@@ -19,7 +19,7 @@ export class TrackingStack implements AutotrackingRuntime {
     };
   }
 
-  consume(tag: Tag): void {
+  consume(tag: CoreTag): void {
     const current = this.#current;
 
     if (current) {
@@ -29,7 +29,7 @@ export class TrackingStack implements AutotrackingRuntime {
 }
 
 export interface TrackingFrameData {
-  readonly consumed: Set<Tag>;
+  readonly consumed: Set<CoreTag>;
 }
 
 export const AUTOTRACKING_RUNTIME = TrackingStack.create();

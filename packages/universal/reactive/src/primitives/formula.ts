@@ -1,4 +1,8 @@
-import type { ReactiveFormula, TagSet } from "@starbeam/interfaces";
+import type {
+  CoreFormulaTag,
+  CoreTag,
+  ReactiveValue,
+} from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
 import { createFormulaTag } from "@starbeam/tags";
 
@@ -10,7 +14,10 @@ import {
   WrapFn,
 } from "./utils.js";
 
-export type Formula<T> = ReactiveFormula<T>;
+export interface Formula<T = unknown> extends ReactiveValue<T, CoreFormulaTag> {
+  (): T;
+  readonly current: T;
+}
 
 export function Formula<T>(
   compute: () => T,
@@ -18,7 +25,7 @@ export function Formula<T>(
 ): FormulaFn<T> {
   const { description } = toOptions(options);
   const desc = RUNTIME.Desc?.("formula", description);
-  let children: TagSet = new Set();
+  let children = new Set<CoreTag>();
   const tag = createFormulaTag(desc, () => children);
 
   function read(_caller = RUNTIME.callerStack?.()): T {
