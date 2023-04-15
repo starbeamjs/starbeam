@@ -1,14 +1,14 @@
 import type {
-  CellTag,
-  FormulaTag,
+  CoreCellTag,
+  CoreFormulaTag,
+  CoreTag,
   NotifyReady,
   SubscriptionRuntime,
-  Tag,
   Tagged,
   Unsubscribe,
 } from "@starbeam/interfaces";
 import { isTagged } from "@starbeam/reactive";
-import { getTag, getTargets, type Timestamp } from "@starbeam/tags";
+import { getTag, type Timestamp } from "@starbeam/tags";
 import { NOW } from "@starbeam/tags";
 
 import { Subscriptions } from "./subscriptions.js";
@@ -31,17 +31,17 @@ class Mutations implements SubscriptionRuntime {
   readonly #subscriptions = Subscriptions.create();
   readonly #lastPhase: Phase = Phase.read;
 
-  subscribe(target: Tag, ready: NotifyReady): Unsubscribe {
+  subscribe(target: CoreTag, ready: NotifyReady): Unsubscribe {
     return this.#subscriptions.register(target, ready);
   }
 
-  bump(cell: CellTag, update: (revision: Timestamp) => void): void {
+  bump(cell: CoreCellTag, update: (revision: Timestamp) => void): void {
     const revision = this.#updatePhase(Phase.write);
     update(revision);
     this.#subscriptions.notify(cell);
   }
 
-  update(formula: FormulaTag): void {
+  update(formula: CoreFormulaTag): void {
     this.#subscriptions.update(formula);
   }
 
@@ -58,10 +58,10 @@ export const SUBSCRIPTION_RUNTIME = new Mutations();
 
 export class PublicTimeline {
   readonly on = {
-    change: (tagged: Tagged | Tag, ready: NotifyReady): Unsubscribe => {
+    change: (tagged: Tagged | CoreTag, ready: NotifyReady): Unsubscribe => {
       const tag = isTagged(tagged) ? getTag(tagged) : tagged;
       const unsubscribes = new Set<Unsubscribe>();
-      for (const target of getTargets(tag)) {
+      for (const target of tag.targets) {
         unsubscribes.add(SUBSCRIPTION_RUNTIME.subscribe(target, ready));
       }
 

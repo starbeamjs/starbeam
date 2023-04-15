@@ -1,12 +1,12 @@
 import type {
   AutotrackingRuntime,
   CallerStackFn,
+  CoreTag,
   DebugRuntime,
   DescFn,
   DescriptionDetails,
   Runtime,
   SubscriptionRuntime,
-  Tag,
 } from "@starbeam/interfaces";
 import { isPresent, verified } from "@starbeam/verify";
 
@@ -63,7 +63,7 @@ class RuntimeImpl implements Runtime {
     }
   }
 
-  evaluate<T>(compute: () => T): { value: T; tags: Set<Tag> } {
+  evaluate<T>(compute: () => T): { value: T; tags: Set<CoreTag> } {
     const done = this.autotracking.start();
     const value = compute();
     const tags = done();

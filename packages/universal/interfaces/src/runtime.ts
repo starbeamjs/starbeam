@@ -1,6 +1,6 @@
+import type { CoreCellTag, CoreFormulaTag, CoreTag } from "./core.js";
 import type { CallStack } from "./debug/call-stack.js";
 import type { DebugRuntime } from "./debug/debug-runtime.js";
-import type { CellTag, FormulaTag, Tag } from "./protocol.js";
 import type { Timestamp } from "./timestamp.js";
 import type { Unsubscribe } from "./utils.js";
 
@@ -10,19 +10,19 @@ export interface Runtime {
   readonly debug: DebugRuntime | undefined;
 }
 
-export type NotifyReady = (internals: CellTag) => void;
+export type NotifyReady = (internals: CoreCellTag) => void;
 
 export interface SubscriptionRuntime {
-  subscribe: (target: Tag, ready: NotifyReady) => Unsubscribe;
-  bump: (cell: CellTag, update: (revision: Timestamp) => void) => void;
-  update: (formula: FormulaTag) => void;
+  subscribe: (target: CoreTag, ready: NotifyReady) => Unsubscribe;
+  bump: (cell: CoreCellTag, update: (revision: Timestamp) => void) => void;
+  update: (formula: CoreFormulaTag) => void;
 }
 
-export type ActiveFrame = () => Set<Tag>;
+export type ActiveFrame = () => Set<CoreTag>;
 
 export interface AutotrackingRuntime {
   start: () => ActiveFrame;
-  consume: (tag: Tag) => void;
+  consume: (tag: CoreTag) => void;
 }
 
 export interface ActiveRuntimeFrame {
@@ -41,5 +41,5 @@ export interface TrackingStack {
 }
 
 export interface TrackingFrame {
-  done: () => Set<Tag>;
+  done: () => Set<CoreTag>;
 }

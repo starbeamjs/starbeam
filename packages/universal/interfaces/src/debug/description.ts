@@ -1,9 +1,9 @@
-import type { ReactiveId, Tag } from "../protocol.js";
-import type { Expand } from "../utils.js";
+import type { CoreTag } from "../core.js";
+import type { ReactiveId } from "../protocol.js";
 import type { CallStack, StackFrame } from "./call-stack.js";
 
 export type ReactiveType =
-  | Expand<Tag["type"]>
+  | CoreTag["type"]
   | "resource"
   | "service"
   | "collection"

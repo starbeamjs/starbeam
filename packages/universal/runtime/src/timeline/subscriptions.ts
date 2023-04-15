@@ -1,12 +1,11 @@
 import type {
-  CellTag,
+  CoreCellTag,
+  CoreFormulaTag,
+  CoreTag,
+  CoreTarget,
   Diff,
-  FormulaTag,
   NotifyReady,
-  SubscriptionTarget,
-  Tag,
 } from "@starbeam/interfaces";
-import { getTargets } from "@starbeam/tags";
 
 import type { Unsubscribe } from "../lifetime/object-lifetime.js";
 import { diff } from "./utils.js";
@@ -17,15 +16,17 @@ export class Subscriptions {
   }
 
   // A mappping from subscribed tags to their subscriptions
-  readonly #tagSubscriptions = new LazyWeakMap<Tag, Subscription>(Subscription);
+  readonly #tagSubscriptions = new LazyWeakMap<CoreTag, Subscription>(
+    Subscription
+  );
   // A mapping from the current dependencies of subscribed tags to their subscriptions
-  readonly #cellSubscriptions = new WeakSetMap<CellTag, Subscription>();
+  readonly #cellSubscriptions = new WeakSetMap<CoreCellTag, Subscription>();
   // A mapping from uninitialized formulas to notifications that should be
   // turned into subscriptions when the formula is initialized
-  readonly #queuedSubscriptions = new WeakSetMap<FormulaTag, NotifyReady>();
+  readonly #queuedSubscriptions = new WeakSetMap<CoreFormulaTag, NotifyReady>();
 
-  register(tag: Tag, ready: NotifyReady): Unsubscribe {
-    const targets = getTargets(tag);
+  register(tag: CoreTag, ready: NotifyReady): Unsubscribe {
+    const targets = tag.targets;
     targets.forEach((t) => {
       this.#subscribe(t, ready);
     });
@@ -37,13 +38,13 @@ export class Subscriptions {
     };
   }
 
-  notify(cell: CellTag): void {
+  notify(cell: CoreCellTag): void {
     for (const entry of this.#cellSubscriptions.get(cell)) {
       entry.notify(cell);
     }
   }
 
-  update(formula: FormulaTag): void {
+  update(formula: CoreFormulaTag): void {
     // if there are any queued subscriptions, subscribe them now
     for (const ready of this.#queuedSubscriptions.drain(formula)) {
       this.#subscribe(formula, ready);
@@ -63,7 +64,7 @@ export class Subscriptions {
     }
   }
 
-  #unsubscribe(target: SubscriptionTarget, ready: NotifyReady) {
+  #unsubscribe(target: CoreTarget, ready: NotifyReady) {
     if (target.type === "formula" && !target.initialized) {
       this.#queuedSubscriptions.delete(target, ready);
     } else {
@@ -72,7 +73,7 @@ export class Subscriptions {
     }
   }
 
-  #subscribe(target: SubscriptionTarget, ready: NotifyReady): void {
+  #subscribe(target: CoreTarget, ready: NotifyReady): void {
     if (target.type === "formula" && !target.initialized) {
       this.#queuedSubscriptions.add(target, ready);
     } else {
@@ -92,11 +93,11 @@ export class Subscriptions {
 interface Subscription {
   readonly subscribe: (ready: NotifyReady) => void;
   readonly unsubscribe: (ready: NotifyReady) => void;
-  readonly notify: (cell: CellTag) => void;
-  readonly update: (formula: FormulaTag) => Diff<CellTag>;
+  readonly notify: (cell: CoreCellTag) => void;
+  readonly update: (formula: CoreFormulaTag) => Diff<CoreCellTag>;
 }
 
-function Subscription(tag: Tag): Subscription {
+function Subscription(tag: CoreTag): Subscription {
   let deps = new Set(tag.dependencies());
   const readySet = new Set<NotifyReady>();
 
@@ -109,11 +110,11 @@ function Subscription(tag: Tag): Subscription {
     readySet.delete(ready);
   }
 
-  function notify(cell: CellTag) {
+  function notify(cell: CoreCellTag) {
     for (const ready of readySet) ready(cell);
   }
 
-  function update(formula: FormulaTag) {
+  function update(formula: CoreFormulaTag) {
     const prev = deps;
     const next = new Set(formula.dependencies());
     deps = next;

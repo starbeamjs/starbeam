@@ -3,7 +3,6 @@ export {
   createDelegateTag,
   createFormulaTag,
   createStaticTag,
-  getTargets,
 } from "./src/tag.js";
 export {
   getDependencies,
@@ -21,9 +20,3 @@ export {
   Timestamp,
   zero,
 } from "./src/timestamp.js";
-export type {
-  CellTag,
-  DelegateTag,
-  FormulaTag,
-  StaticTag,
-} from "@starbeam/interfaces";

@@ -1,7 +1,7 @@
 import type {
+  CoreFormulaTag,
+  CoreTag,
   Description,
-  FormulaTag,
-  Tag,
   TaggedReactive,
 } from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
@@ -34,7 +34,7 @@ export function toOptions(options: SugaryPrimitiveOptions): PrimitiveOptions {
   }
 }
 
-export interface FormulaFn<T> extends TaggedReactive<FormulaTag, T> {
+export interface FormulaFn<T> extends TaggedReactive<CoreFormulaTag, T> {
   (): T;
 }
 
@@ -42,12 +42,12 @@ export function isFormulaFn<T>(value: unknown): value is FormulaFn<T> {
   return !!(
     typeof value === "function" &&
     TAG in value &&
-    (value[TAG] as Tag).type === "formula"
+    (value[TAG] as CoreTag).type === "formula"
   );
 }
 
 export function WrapFn<T>(
-  formula: TaggedReactive<FormulaTag, T>
+  formula: TaggedReactive<CoreFormulaTag, T>
 ): FormulaFn<T> {
   // If the formula is *already* a function, we just need a new identity for it,
   // so we'll wrap it in a simple proxy.

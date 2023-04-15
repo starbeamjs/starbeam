@@ -1,5 +1,5 @@
 import { isPresent } from "@starbeam/core-utils";
-import type { Description, Tag } from "@starbeam/interfaces";
+import type { CoreTag, Description } from "@starbeam/interfaces";
 import { RUNTIME } from "@starbeam/reactive";
 
 import { Tree } from "./tree.js";
@@ -7,7 +7,7 @@ import { Tree } from "./tree.js";
 RUNTIME;
 
 export const debugTag = (
-  tag: Tag,
+  tag: CoreTag,
   {
     implementation = false,
   }: { implementation?: boolean; source?: boolean; id?: boolean } = {}
@@ -30,7 +30,7 @@ export const debugTag = (
 };
 
 export const logTag = (
-  tag: Tag,
+  tag: CoreTag,
   options: { implementation?: boolean; source?: boolean; id?: boolean } = {}
 ): void => {
   const debug = debugTag(tag, options);

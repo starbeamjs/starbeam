@@ -1,16 +1,30 @@
-import type { Description, ReactiveCell } from "@starbeam/interfaces";
+import type {
+  CallStack,
+  CoreCellTag,
+  Description,
+  ReactiveValue,
+} from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
 import { createCellTag } from "@starbeam/tags";
 
 import { RUNTIME } from "../runtime.js";
 import { isDescriptionOption, type PrimitiveOptions } from "./utils.js";
 
-export type Cell<T = unknown> = ReactiveCell<T>;
+export interface Cell<T = unknown> extends ReactiveValue<T, CoreCellTag> {
+  current: T;
+  /**
+   * Set the value of the cell. Returns true if the value was changed, false if
+   * the current value was equivalent to the new value.
+   */
+  set: (value: T, caller?: CallStack) => boolean;
+  update: (fn: (value: T) => T, caller?: CallStack) => void;
+  freeze: () => void;
+}
 
 export function Cell<T>(
   value: T,
   options?: CellOptions<T> | string | Description | undefined
-): ReactiveCell<T> {
+): Cell<T> {
   const { description, equals = Object.is } = toCellOptions(options);
   const desc = RUNTIME.Desc?.("cell", description);
   const tag = createCellTag(desc);
