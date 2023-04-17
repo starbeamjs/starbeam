@@ -1,79 +1,26 @@
 import { debugRuntime as DEBUG_RUNTIME } from "@starbeam/debug";
-import type {
-  AutotrackingRuntime,
-  CallerStackFn,
-  DebugRuntime,
-  DescFn,
-  Runtime as IRuntime,
-  SubscriptionRuntime,
-} from "@starbeam/interfaces";
+import type { Runtime as IRuntime, TagSnapshot } from "@starbeam/interfaces";
 import { defineRuntime } from "@starbeam/reactive";
+import { consume, start } from "@starbeam/shared";
 
-import { SUBSCRIPTION_RUNTIME } from "./timeline/tracker.js";
-import { AUTOTRACKING_RUNTIME } from "./tracking-stack.js";
+import { LIFETIME } from "./lifetime/api.js";
+import { SUBSCRIPTION_RUNTIME } from "./timeline/render.js";
 
-class Runtime implements IRuntime {
-  static default(): Runtime {
-    return new Runtime(
-      SUBSCRIPTION_RUNTIME,
-      AUTOTRACKING_RUNTIME,
-      DEBUG_RUNTIME
-    );
-  }
+export const RUNTIME: IRuntime = {
+  debug: DEBUG_RUNTIME,
+  start: (): (() => TagSnapshot) => {
+    const done = start();
 
-  static single(
-    runtime: SubscriptionRuntime & AutotrackingRuntime & DebugRuntime
-  ): Runtime {
-    return new Runtime(runtime, runtime, runtime);
-  }
+    return () => new Set(done()) as TagSnapshot;
+  },
 
-  static create({
-    subscriptions,
-    autotracking,
-    debug,
-  }: {
-    subscriptions: SubscriptionRuntime;
-    autotracking: AutotrackingRuntime;
-    debug: DebugRuntime;
-  }): Runtime {
-    return new Runtime(subscriptions, autotracking, debug);
-  }
+  consume: (tag): void => void consume(tag),
 
-  readonly #subscriptions: SubscriptionRuntime;
-  readonly #autotracking: AutotrackingRuntime;
-  readonly #debug: DebugRuntime | undefined;
+  link: (parent, child) => LIFETIME.link(parent, child),
+  finalize: (object) => void LIFETIME.finalize(object),
+  onFinalize: (object, callback) => LIFETIME.on.cleanup(object, callback),
 
-  private constructor(
-    subscription: SubscriptionRuntime,
-    autotracking: AutotrackingRuntime,
-    debug: DebugRuntime | undefined
-  ) {
-    this.#subscriptions = subscription;
-    this.#autotracking = autotracking;
-    this.#debug = debug;
-  }
-
-  get Desc(): DescFn | undefined {
-    return this.debug?.desc;
-  }
-
-  get callerStack(): CallerStackFn | undefined {
-    return this.debug?.callerStack;
-  }
-
-  get debug(): DebugRuntime | undefined {
-    return this.#debug;
-  }
-
-  get subscriptions(): SubscriptionRuntime {
-    return this.#subscriptions;
-  }
-
-  get autotracking(): AutotrackingRuntime {
-    return this.#autotracking;
-  }
-}
-
-export const RUNTIME = Runtime.default();
+  ...SUBSCRIPTION_RUNTIME,
+};
 
 defineRuntime(RUNTIME);

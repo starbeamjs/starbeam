@@ -1,11 +1,11 @@
 import type { Description, Unsubscribe } from "@starbeam/interfaces";
-import { Formula, RUNTIME } from "@starbeam/reactive";
-import { PUBLIC_TIMELINE } from "@starbeam/runtime";
+import { DEBUG, Formula } from "@starbeam/reactive";
+import { render } from "@starbeam/runtime";
 
 export const DEBUG_RENDERER = {
   render<T>(
     {
-      render,
+      render: evaluate,
       debug,
     }: {
       render: () => T;
@@ -14,14 +14,14 @@ export const DEBUG_RENDERER = {
     description?: Description | string
   ): Unsubscribe {
     const formula = Formula(
-      render,
-      RUNTIME.Desc?.("formula", description ?? "DEBUG_RENDERER")
+      evaluate,
+      DEBUG.Desc?.("formula", description ?? "DEBUG_RENDERER")
     );
 
     debug(formula.read());
 
     let dirty = false;
-    return PUBLIC_TIMELINE.on.change(formula, () => {
+    return render(formula, () => {
       if (!dirty) {
         dirty = true;
 

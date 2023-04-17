@@ -1,11 +1,12 @@
 import type {
-  CoreCellTag,
-  CoreFormulaTag,
-  CoreTag,
-  CoreTarget,
+  CellTag,
   Diff,
+  FormulaTag,
   NotifyReady,
+  Tag,
 } from "@starbeam/interfaces";
+import { UNINITIALIZED } from "@starbeam/shared";
+import { getDependencies, hasDependencies } from "@starbeam/tags";
 
 import type { Unsubscribe } from "../lifetime/object-lifetime.js";
 import { diff } from "./utils.js";
@@ -16,35 +17,28 @@ export class Subscriptions {
   }
 
   // A mappping from subscribed tags to their subscriptions
-  readonly #tagSubscriptions = new LazyWeakMap<CoreTag, Subscription>(
-    Subscription
-  );
+  readonly #tagSubscriptions = new LazyWeakMap<Tag, Subscription>(Subscription);
   // A mapping from the current dependencies of subscribed tags to their subscriptions
-  readonly #cellSubscriptions = new WeakSetMap<CoreCellTag, Subscription>();
+  readonly #cellSubscriptions = new WeakSetMap<CellTag, Subscription>();
   // A mapping from uninitialized formulas to notifications that should be
   // turned into subscriptions when the formula is initialized
-  readonly #queuedSubscriptions = new WeakSetMap<CoreFormulaTag, NotifyReady>();
+  readonly #queuedSubscriptions = new WeakSetMap<FormulaTag, NotifyReady>();
 
-  register(tag: CoreTag, ready: NotifyReady): Unsubscribe {
-    const targets = tag.targets;
-    targets.forEach((t) => {
-      this.#subscribe(t, ready);
-    });
+  register(tag: Tag, ready: NotifyReady): Unsubscribe {
+    this.#subscribe(tag, ready);
 
     return () => {
-      for (const target of targets) {
-        this.#unsubscribe(target, ready);
-      }
+      this.#unsubscribe(tag, ready);
     };
   }
 
-  notify(cell: CoreCellTag): void {
+  notify(cell: CellTag): void {
     for (const entry of this.#cellSubscriptions.get(cell)) {
       entry.notify(cell);
     }
   }
 
-  update(formula: CoreFormulaTag): void {
+  update(formula: FormulaTag): void {
     // if there are any queued subscriptions, subscribe them now
     for (const ready of this.#queuedSubscriptions.drain(formula)) {
       this.#subscribe(formula, ready);
@@ -64,8 +58,8 @@ export class Subscriptions {
     }
   }
 
-  #unsubscribe(target: CoreTarget, ready: NotifyReady) {
-    if (target.type === "formula" && !target.initialized) {
+  #unsubscribe(target: Tag, ready: NotifyReady) {
+    if (isUninitialized(target)) {
       this.#queuedSubscriptions.delete(target, ready);
     } else {
       const subscription = this.#tagSubscriptions.get(target);
@@ -73,10 +67,10 @@ export class Subscriptions {
     }
   }
 
-  #subscribe(target: CoreTarget, ready: NotifyReady): void {
-    if (target.type === "formula" && !target.initialized) {
+  #subscribe(target: Tag, ready: NotifyReady): void {
+    if (isUninitialized(target)) {
       this.#queuedSubscriptions.add(target, ready);
-    } else {
+    } else if (hasDependencies(target)) {
       const subscription = this.#tagSubscriptions.get(target);
 
       // initialize the subscription with the current target's dependencies
@@ -85,20 +79,25 @@ export class Subscriptions {
       }
 
       subscription.subscribe(ready);
-      return;
     }
   }
+}
+
+function isUninitialized(
+  tag: Tag
+): tag is FormulaTag & { dependencies: UNINITIALIZED } {
+  return tag.dependencies === UNINITIALIZED;
 }
 
 interface Subscription {
   readonly subscribe: (ready: NotifyReady) => void;
   readonly unsubscribe: (ready: NotifyReady) => void;
-  readonly notify: (cell: CoreCellTag) => void;
-  readonly update: (formula: CoreFormulaTag) => Diff<CoreCellTag>;
+  readonly notify: (cell: CellTag) => void;
+  readonly update: (formula: FormulaTag) => Diff<CellTag>;
 }
 
-function Subscription(tag: CoreTag): Subscription {
-  let deps = new Set(tag.dependencies());
+function Subscription(tag: Tag): Subscription {
+  let deps = new Set(getDependencies(tag));
   const readySet = new Set<NotifyReady>();
 
   function subscribe(ready: NotifyReady): Unsubscribe {
@@ -110,13 +109,13 @@ function Subscription(tag: CoreTag): Subscription {
     readySet.delete(ready);
   }
 
-  function notify(cell: CoreCellTag) {
+  function notify(cell: CellTag) {
     for (const ready of readySet) ready(cell);
   }
 
-  function update(formula: CoreFormulaTag) {
+  function update(formula: FormulaTag) {
     const prev = deps;
-    const next = new Set(formula.dependencies());
+    const next = new Set(getDependencies(formula));
     deps = next;
 
     return diff(prev, next);

@@ -1,5 +1,5 @@
 import type { Description, Reactive } from "@starbeam/interfaces";
-import { Formula, isReactive, RUNTIME } from "@starbeam/reactive";
+import { DEBUG, Formula, isReactive } from "@starbeam/reactive";
 import {
   setupFunction,
   unsafeTrackedElsewhere,
@@ -44,7 +44,7 @@ export function useSetup<
     allowMissing: true,
   });
 
-  const desc = RUNTIME.Desc?.("resource", description);
+  const desc = DEBUG.Desc?.("resource", description);
 
   const notify = useNotify();
 
@@ -82,7 +82,7 @@ export function useSetup<
 
       function compute(
         props: unknown,
-        caller = RUNTIME.callerStack?.()
+        caller = DEBUG.callerStack?.()
       ): unknown {
         currentProps = props;
         return reactive.read(caller);

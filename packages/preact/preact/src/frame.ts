@@ -1,16 +1,20 @@
 import { getLast } from "@starbeam/core-utils";
-import type { CoreFormulaTag, Description } from "@starbeam/interfaces";
+import type { Description, FormulaTag } from "@starbeam/interfaces";
 import type { InternalComponent } from "@starbeam/preact-utils";
-import type { FinalizedFormula, InitializingFormula } from "@starbeam/reactive";
+import {
+  DEBUG,
+  type FinalizedFormula,
+  type InitializingFormula,
+} from "@starbeam/reactive";
 import { FormulaLifecycle } from "@starbeam/reactive";
-import { PUBLIC_TIMELINE, RUNTIME, type Unsubscribe } from "@starbeam/runtime";
-import { createFormulaTag } from "@starbeam/tags";
+import { render, RUNTIME, type Unsubscribe } from "@starbeam/runtime";
+import { initializeFormulaTag } from "@starbeam/tags";
 import { expected, isPresent, verify } from "@starbeam/verify";
 
 export class ComponentFrame {
   #active: InitializingFormula | null;
   #frame: FinalizedFormula | null;
-  #tag: CoreFormulaTag;
+  #tag: FormulaTag;
   #subscription: Unsubscribe | null;
 
   static #frames = new WeakMap<InternalComponent, ComponentFrame>();
@@ -80,10 +84,11 @@ export class ComponentFrame {
   ) {
     this.#frame = frame;
     this.#active = active;
-    this.#tag = createFormulaTag(
-      RUNTIME.Desc?.("formula", description),
+    const tag = initializeFormulaTag(
+      DEBUG.Desc?.("formula", description),
       () => this.#frame?.children() ?? new Set()
     );
+    this.#tag = tag;
     this.#subscription = subscribed;
   }
 
@@ -104,12 +109,12 @@ export class ComponentFrame {
     );
 
     const frame = (this.#frame = this.#active.done());
-    RUNTIME.subscriptions.update(this.#tag);
+    RUNTIME.update(this.#tag);
 
     this.#active = null;
 
     if (subscription) {
-      this.#subscription = PUBLIC_TIMELINE.on.change(this.#tag, subscription);
+      this.#subscription = render(this.#tag, subscription);
     }
 
     return frame;

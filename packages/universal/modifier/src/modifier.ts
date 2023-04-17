@@ -1,8 +1,8 @@
 import type { anydom } from "@domtree/flavors";
 import type { Description, Tagged } from "@starbeam/interfaces";
-import { RUNTIME } from "@starbeam/reactive";
+import { DEBUG } from "@starbeam/reactive";
 import { TAG, UNINITIALIZED } from "@starbeam/shared";
-import { createDelegateTag, getTag } from "@starbeam/tags";
+import { getTag, initializeFormulaTag } from "@starbeam/tags";
 import { Cell } from "@starbeam/universal";
 import { expected, isPresent, verified, verify } from "@starbeam/verify";
 
@@ -37,14 +37,17 @@ export function ElementPlaceholder<E extends anydom.Element>(
   REFS.set(ref, elementCell);
 
   return {
-    [TAG]: createDelegateTag(description, [getTag(elementCell)]),
+    [TAG]: initializeFormulaTag(
+      description,
+      () => new Set([getTag(elementCell)])
+    ),
 
     initialize(value: anydom.Element): void {
       const element = verified(REFS.get(ref), isPresent);
       verify(
         value,
         (anyElement): anyElement is E => anyElement instanceof type,
-        expected(`A ref (${RUNTIME.describe(description)})`)
+        expected(`A ref (${DEBUG.describe(description)})`)
           .toBe(`initialized with an instance of ${type.name}`)
           .butGot(() => `an instance of ${value.constructor.name}`)
       );

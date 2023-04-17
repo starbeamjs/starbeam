@@ -1,23 +1,23 @@
-import type { CoreTag } from "@starbeam/interfaces";
+import type { TagSnapshot } from "@starbeam/interfaces";
 import { lastUpdated, NOW } from "@starbeam/tags";
 
 import { RUNTIME } from "../runtime.js";
 
 export function FormulaLifecycle(): InitializingFormula {
-  const done = RUNTIME.autotracking.start();
+  const done = RUNTIME.start();
 
   return {
     done: () => FinalizedFormula(done()),
   };
 }
 
-function FinalizedFormula(children: Set<CoreTag>): FinalizedFormula {
+function FinalizedFormula(children: TagSnapshot): FinalizedFormula {
   let lastValidated = NOW.now;
 
   const isStale = () => lastUpdated(...children).gt(lastValidated);
 
   function update() {
-    const done = RUNTIME.autotracking.start();
+    const done = RUNTIME.start();
 
     return {
       done: () => {
@@ -43,6 +43,6 @@ export interface InitializingFormula {
 
 export interface FinalizedFormula {
   readonly isStale: () => boolean;
-  readonly children: () => Set<CoreTag>;
+  readonly children: () => TagSnapshot;
   readonly update: () => InitializingFormula;
 }

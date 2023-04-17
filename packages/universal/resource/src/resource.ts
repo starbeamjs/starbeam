@@ -1,12 +1,7 @@
 import { DisplayStruct } from "@starbeam/core-utils";
 import type { Description } from "@starbeam/interfaces";
-import {
-  CachedFormula,
-  read,
-  type ReadValue,
-  RUNTIME,
-} from "@starbeam/reactive";
-import { LIFETIME, TAG } from "@starbeam/runtime";
+import { CachedFormula, DEBUG, read, type ReadValue } from "@starbeam/reactive";
+import { RUNTIME, TAG } from "@starbeam/runtime";
 
 import type { IntoResourceBlueprint, Resource } from "./api.js";
 import { isResourceBlueprint, type ResourceBlueprint } from "./api.js";
@@ -30,7 +25,7 @@ export class ResourceRun<M> {
      * on.cleanup happens once for each run of the resource.
      */
     cleanup: (cleanup: ResourceCleanup<M>): void => {
-      LIFETIME.on.cleanup(this, () => {
+      RUNTIME.onFinalize(this, () => {
         cleanup(this.#state.metadata);
       });
     },
@@ -41,7 +36,7 @@ export class ResourceRun<M> {
      * as in ResourceList).
      */
     finalize: (cleanup: ResourceCleanup<M>): void => {
-      LIFETIME.on.cleanup(this.#state.lifetime, () => {
+      RUNTIME.onFinalize(this.#state.lifetime, () => {
         cleanup(this.#state.metadata);
       });
     },
@@ -106,7 +101,7 @@ export class ResourceBlueprintImpl<T, M = void> {
     return new ResourceBlueprintImpl(
       resource as ResourceConstructor,
       undefined,
-      RUNTIME.Desc?.("resource", description)
+      DEBUG.Desc?.("resource", description)
     );
   }
 
@@ -209,7 +204,7 @@ export function evaluateResourceConstructor<T, M>(
     };
     const next = new ResourceRun(state);
 
-    LIFETIME.link(lifetime, next);
+    RUNTIME.link(lifetime, next);
     const instance = Constructor(next, metadata, lifetime);
 
     if (isResourceBlueprint(instance)) {
@@ -218,7 +213,7 @@ export function evaluateResourceConstructor<T, M>(
 
     // Finalize the previous run after running the new one to give the new one a
     // chance to adopt resources from the previous run.
-    if (last !== undefined) LIFETIME.finalize(last);
+    if (last !== undefined) RUNTIME.finalize(last);
     last = next;
 
     return instance;

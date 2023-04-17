@@ -1,7 +1,7 @@
 import type { anydom, browser } from "@domtree/flavors";
 import type { Description } from "@starbeam/interfaces";
 import { ElementPlaceholder } from "@starbeam/modifier";
-import { RUNTIME } from "@starbeam/reactive";
+import { DEBUG } from "@starbeam/reactive";
 import {
   expected,
   isEqual,
@@ -67,7 +67,7 @@ export function ref<E extends browser.Element>(
 ): ReactElementRef<E> {
   const placeholder = ElementPlaceholder<E>(
     kind,
-    RUNTIME.Desc?.("formula", description, "ref")
+    DEBUG.Desc?.("formula", description, "ref")
   );
   const verifier = ClassVerifier<E>(kind);
 

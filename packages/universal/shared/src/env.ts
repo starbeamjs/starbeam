@@ -11,6 +11,10 @@ export interface StarbeamCoordination {
   id: {
     get: () => string | number;
   };
+  stack: {
+    start: () => () => unknown[];
+    consume: (tag: unknown) => void;
+  };
 }
 
 export interface GlobalWithStarbeam {

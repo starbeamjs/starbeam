@@ -1,15 +1,15 @@
 import { CachedFormula, Cell } from "@starbeam/reactive";
-import { PUBLIC_TIMELINE } from "@starbeam/runtime";
+import { render } from "@starbeam/runtime";
 import { describe, expect, test } from "vitest";
 
-describe("formula subscription", () => {
-  test("subscription before first consumption", () => {
+describe("formula rendering", () => {
+  test("rendering before first consumption", () => {
     const cell = Cell("Tom Dale");
 
     const formula = CachedFormula(() => cell.current);
 
     let stale = false;
-    PUBLIC_TIMELINE.on.change(formula, () => {
+    render(formula, () => {
       stale = true;
     });
 
@@ -31,7 +31,7 @@ describe("formula subscription", () => {
 
     expect(formula.read()).toBe("Tom Dale");
 
-    const unsubscribe = PUBLIC_TIMELINE.on.change(formula, () => {
+    const unsubscribe = render(formula, () => {
       stale = true;
     });
 

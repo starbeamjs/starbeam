@@ -1,5 +1,5 @@
 import type { Description } from "@starbeam/interfaces";
-import { RUNTIME } from "@starbeam/reactive";
+import { DEBUG } from "@starbeam/reactive";
 import { Cell } from "@starbeam/universal";
 
 import TrackedArray from "./src/array.js";
@@ -56,29 +56,27 @@ export const reactive = (
 reactive.Map = <K, V>(description?: string | Description): Map<K, V> => {
   return ReactiveMap.reactive(
     Object.is,
-    RUNTIME.Desc?.("collection", description)
+    DEBUG.Desc?.("collection", description)
   );
 };
 
 reactive.WeakMap = <K extends object, V>(
   description?: string | Description
 ): WeakMap<K, V> => {
-  return TrackedWeakMap.reactive<K, V>(
-    RUNTIME.Desc?.("collection", description)
-  );
+  return TrackedWeakMap.reactive<K, V>(DEBUG.Desc?.("collection", description));
 };
 
 reactive.Set = <T>(description?: string | Description): Set<T> => {
   return ReactiveSet.reactive(
     Object.is,
-    RUNTIME.Desc?.("collection", description)
+    DEBUG.Desc?.("collection", description)
   );
 };
 
 reactive.WeakSet = <T extends object>(
   description?: string | Description
 ): WeakSet<T> => {
-  return TrackedWeakSet.reactive(RUNTIME.Desc?.("collection", description));
+  return TrackedWeakSet.reactive(DEBUG.Desc?.("collection", description));
 };
 
 export function object<T extends Record<string, unknown>>(
@@ -87,7 +85,7 @@ export function object<T extends Record<string, unknown>>(
   description?: string | Description
 ): T {
   return TrackedObject.reactive(
-    RUNTIME.Desc?.("collection", description),
+    DEBUG.Desc?.("collection", description),
     values
   );
 }
@@ -96,7 +94,7 @@ reactive.object = object;
 
 reactive.array = <T>(values: T[], description?: string | Description): T[] => {
   return new TrackedArray(
-    RUNTIME.Desc?.("collection", description),
+    DEBUG.Desc?.("collection", description),
     values
   ) as T[];
 };

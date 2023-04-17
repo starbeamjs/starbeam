@@ -1,18 +1,27 @@
+import { isPresentArray } from "@starbeam/core-utils";
 import type {
-  CoreCellTag,
-  CoreTag,
+  CellTag,
+  CoreTimestamp,
   Description,
+  Tag,
   Tagged,
   Timestamp,
 } from "@starbeam/interfaces";
-import { TAG } from "@starbeam/shared";
+import { TAG, UNINITIALIZED } from "@starbeam/shared";
 
 import { zero } from "./timestamp.js";
 
-type HasTag<T extends CoreTag = CoreTag> = T | Tagged<T>;
+type HasTag<T extends Tag = Tag> = T | Tagged<T>;
 
-export function getTag<T extends CoreTag>(tagged: HasTag<T>): T {
+export function getTag<T extends Tag>(tagged: HasTag<T>): T {
   return TAG in tagged ? tagged[TAG] : tagged;
+}
+
+export function hasDependencies(
+  tagged: Tag
+): tagged is Tag & { readonly dependencies: () => readonly CellTag[] } {
+  const deps = getTag(tagged).dependencies;
+  return deps !== UNINITIALIZED && isPresentArray(deps());
 }
 
 export function getTags<T extends HasTag[]>(
@@ -27,18 +36,21 @@ export function getDescription(tagged: HasTag): Description | undefined {
 
 export function getDependencies(
   ...taggedList: readonly HasTag[]
-): readonly CoreCellTag[] {
-  return taggedList.flatMap((tagged) => getTag(tagged).dependencies());
+): readonly CellTag[] {
+  return taggedList.flatMap((tagged) => {
+    const dependencies = getTag(tagged).dependencies;
+    return typeof dependencies === "function" ? dependencies() : [];
+  });
 }
 
 export function lastUpdated(...taggedList: readonly HasTag[]): Timestamp {
-  let lastUpdatedTimestamp = zero();
+  let lastUpdatedTimestamp: CoreTimestamp = zero();
 
   for (const child of getDependencies(...taggedList)) {
-    if (child.lastUpdated.gt(lastUpdatedTimestamp)) {
+    if (child.lastUpdated.at > lastUpdatedTimestamp.at) {
       lastUpdatedTimestamp = child.lastUpdated;
     }
   }
 
-  return lastUpdatedTimestamp;
+  return lastUpdatedTimestamp as Timestamp;
 }

@@ -1,9 +1,8 @@
-import type { CoreTag } from "../core.js";
-import type { ReactiveId } from "../protocol.js";
+import type { Tag } from "../tag.js";
 import type { CallStack, StackFrame } from "./call-stack.js";
 
 export type ReactiveType =
-  | CoreTag["type"]
+  | Tag["type"]
   | "resource"
   | "service"
   | "collection"
@@ -14,6 +13,8 @@ export type DescFn = (
   specified?: string | Description | undefined,
   api?: Api | string | undefined
 ) => Description | undefined;
+
+export type ReactiveId = number | string | ReactiveId[];
 
 export interface DescriptionDetails {
   readonly id: ReactiveId;

@@ -1,5 +1,5 @@
 import type { Description } from "@starbeam/interfaces";
-import { RUNTIME } from "@starbeam/reactive";
+import { DEBUG } from "@starbeam/reactive";
 import { Cell } from "@starbeam/universal";
 import { useMemo } from "preact/hooks";
 
@@ -11,6 +11,6 @@ export function createCell<T>(
   value: T,
   description?: string | Description | undefined
 ): Cell<T> {
-  const desc = RUNTIME.Desc?.("cell", description, "createCell");
+  const desc = DEBUG.Desc?.("cell", description, "createCell");
   return create(() => Cell(value, { description: desc }));
 }

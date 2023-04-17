@@ -1,5 +1,5 @@
 import type { CallStack, Description } from "@starbeam/interfaces";
-import { RUNTIME } from "@starbeam/reactive";
+import { DEBUG } from "@starbeam/reactive";
 
 import { Collection } from "./collection.js";
 
@@ -25,7 +25,7 @@ export default class TrackedObject {
 
     const proxy = new Proxy(target, {
       defineProperty(_, key, descriptor) {
-        const caller = RUNTIME.callerStack?.();
+        const caller = DEBUG.callerStack?.();
 
         define(key, descriptor, caller);
         return true;
@@ -33,7 +33,7 @@ export default class TrackedObject {
 
       deleteProperty(_, prop) {
         if (Reflect.has(target, prop)) {
-          const caller = RUNTIME.callerStack?.();
+          const caller = DEBUG.callerStack?.();
 
           collection.delete(prop, caller);
           Reflect.deleteProperty(target, prop);
@@ -43,7 +43,7 @@ export default class TrackedObject {
       },
 
       get(_, prop, _receiver) {
-        const caller = RUNTIME.callerStack?.();
+        const caller = DEBUG.callerStack?.();
 
         collection.get(
           prop,
@@ -55,7 +55,7 @@ export default class TrackedObject {
       },
 
       getOwnPropertyDescriptor(_, prop) {
-        const caller = RUNTIME.callerStack?.();
+        const caller = DEBUG.callerStack?.();
 
         collection.get(
           prop,
@@ -71,7 +71,7 @@ export default class TrackedObject {
       },
 
       has(_, prop) {
-        const caller = RUNTIME.callerStack?.();
+        const caller = DEBUG.callerStack?.();
 
         const has = Reflect.has(target, prop);
         collection.check(prop, has ? "hit" : "miss", member(prop), caller);
@@ -83,7 +83,7 @@ export default class TrackedObject {
       },
 
       ownKeys() {
-        const caller = RUNTIME.callerStack?.();
+        const caller = DEBUG.callerStack?.();
 
         collection.iterateKeys(caller);
         return Reflect.ownKeys(target);
@@ -94,7 +94,7 @@ export default class TrackedObject {
       },
 
       set(_: object, prop: PropertyKey, value: unknown, _receiver) {
-        const caller = RUNTIME.callerStack?.();
+        const caller = DEBUG.callerStack?.();
 
         const descriptor = Reflect.getOwnPropertyDescriptor(target, prop);
 

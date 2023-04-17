@@ -1,6 +1,6 @@
 import type { Description, Reactive } from "@starbeam/interfaces";
 import type { IntoResourceBlueprint } from "@starbeam/resource";
-import { LIFETIME } from "@starbeam/runtime";
+import { render, RUNTIME } from "@starbeam/runtime";
 import {
   unsafeTrackedElsewhere,
   useLifecycle,
@@ -56,12 +56,16 @@ function createResource<T>(
     const lifetime = {};
     const resource = internalUseResource(
       lifetime,
-      { on, notify },
+      {
+        on,
+        notify,
+        render: (reactive) => void on.cleanup(render(reactive, notify)),
+      },
       initialValue
     );
 
     on.cleanup(() => {
-      LIFETIME.finalize(lifetime);
+      RUNTIME.finalize(lifetime);
     });
 
     return resource;

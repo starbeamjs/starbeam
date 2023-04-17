@@ -1,5 +1,5 @@
 import type { Description } from "@starbeam/interfaces";
-import { RUNTIME } from "@starbeam/reactive";
+import { DEBUG } from "@starbeam/reactive";
 import type { IntoResourceBlueprint } from "@starbeam/resource";
 import { Resource, type ResourceBlueprint, use } from "@starbeam/resource";
 import { CONTEXT } from "@starbeam/runtime";
@@ -23,7 +23,7 @@ export function Service<T>(
     return CONTEXT.create(blueprint, () => {
       return use(blueprint);
     });
-  }, RUNTIME.Desc?.("service", description));
+  }, DEBUG.Desc?.("service", description));
 }
 
 export function service<T>(
@@ -35,7 +35,7 @@ export function service<T>(
 ): Resource<T> {
   return use(
     Service(resource, {
-      description: RUNTIME.Desc?.("service", description),
+      description: DEBUG.Desc?.("service", description),
       app,
     }),
     { lifetime: app }

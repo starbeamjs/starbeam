@@ -1,16 +1,16 @@
 import { isPresentArray } from "@starbeam/core-utils";
 import type { ReactiveValue } from "@starbeam/interfaces";
-import { CachedFormula, Cell, RUNTIME } from "@starbeam/reactive";
-import { PUBLIC_TIMELINE, TAG } from "@starbeam/runtime";
-import { createDelegateTag, getTag } from "@starbeam/tags";
+import { CachedFormula, Cell, DEBUG, Formula } from "@starbeam/reactive";
+import { render, TAG } from "@starbeam/runtime";
+import { getTag } from "@starbeam/tags";
 import { describe, expect, test } from "vitest";
 
 describe("Tagged", () => {
-  test("subscribing to a cell", () => {
+  test("rendering a cell", () => {
     const cell = Cell(0);
     let stale = false;
 
-    PUBLIC_TIMELINE.on.change(cell, () => {
+    render(cell, () => {
       stale = true;
     });
 
@@ -24,12 +24,12 @@ describe("Tagged", () => {
     expect(cell.current).toBe(1);
   });
 
-  test("subscribing to a formula before reading it lazily subscribes once read", () => {
+  test("rendering a formula before reading it lazily subscribes once read", () => {
     const cell = Cell(0);
     const formula = CachedFormula(() => cell.current);
     let stale = false;
 
-    PUBLIC_TIMELINE.on.change(formula, () => {
+    render(formula, () => {
       stale = true;
     });
 
@@ -41,13 +41,13 @@ describe("Tagged", () => {
     expect(stale).toBe(true);
   });
 
-  test("subscribing to a formula", () => {
+  test("rendering a formula", () => {
     let stale = false;
 
     const { sum, numbers } = Sum();
     expect(sum.read()).toBe(0);
 
-    PUBLIC_TIMELINE.on.change(sum, () => {
+    render(sum, () => {
       stale = true;
     });
 
@@ -73,17 +73,16 @@ describe("Tagged", () => {
     expect(sum.read()).toBe(4);
   });
 
-  test("subscribing to a delegate", () => {
+  test("rendering a simple formula", () => {
     const cell = Cell(0);
 
-    const delegate: ReactiveValue<number> = {
-      read: () => cell.current,
-      [TAG]: createDelegateTag(RUNTIME.Desc?.("delegate"), [getTag(cell)]),
-    };
+    const formula = Formula(() => cell.current);
 
     let stale = false;
 
-    PUBLIC_TIMELINE.on.change(delegate, () => {
+    expect(formula.read()).toBe(0);
+
+    render(formula, () => {
       stale = true;
     });
 
@@ -91,26 +90,20 @@ describe("Tagged", () => {
 
     cell.current++;
 
+    expect(formula.read()).toBe(1);
     expect(stale).toBe(true);
     stale = false;
 
     expect(cell.current).toBe(1);
   });
 
-  test("subscribing to a delegate before reading one of its formula targets lazily subscribes once read", () => {
+  test("rendering a formula before initialization lazily subscribes once read", () => {
     const cell = Cell(0);
     const formula = CachedFormula(() => cell.current);
 
-    const delegate: ReactiveValue<number> = {
-      read: () => formula.current,
-      [TAG]: createDelegateTag(RUNTIME.Desc?.("delegate", "test delegate"), [
-        getTag(formula),
-      ]),
-    };
-
     let stale = false;
 
-    PUBLIC_TIMELINE.on.change(delegate, () => {
+    render(formula, () => {
       stale = true;
     });
 
@@ -123,21 +116,18 @@ describe("Tagged", () => {
     expect(stale).toBe(true);
   });
 
-  test("subscribing to a formula delegate", () => {
+  test("rendering a formula delegate", () => {
     const { sum, numbers } = Sum();
 
     const delegate: ReactiveValue<number> = {
       read: () => sum.read(),
-      [TAG]: createDelegateTag(
-        RUNTIME.Desc?.("delegate", "test delegate"),
-        getTag(sum).targets
-      ),
+      [TAG]: sum[TAG],
     };
 
     let stale = false;
     expect(delegate.read()).toBe(0);
 
-    const unsubscribe = PUBLIC_TIMELINE.on.change(delegate, () => {
+    const unsubscribe = render(delegate, () => {
       stale = true;
     });
 
@@ -171,7 +161,7 @@ describe("Tagged", () => {
       const cell = Cell(0);
       let stale = false;
 
-      const unsubscribe = PUBLIC_TIMELINE.on.change(cell, () => {
+      const unsubscribe = render(cell, () => {
         stale = true;
       });
 
@@ -194,7 +184,7 @@ describe("Tagged", () => {
       let stale = false;
 
       expect(sum.read()).toBe(0);
-      const unsubscribe = PUBLIC_TIMELINE.on.change(sum, () => {
+      const unsubscribe = render(sum, () => {
         stale = true;
       });
 
@@ -217,12 +207,12 @@ describe("Tagged", () => {
 
       const delegate: ReactiveValue<number> = {
         read: () => cell.current,
-        [TAG]: createDelegateTag(RUNTIME.Desc?.("delegate"), [getTag(cell)]),
+        [TAG]: getTag(cell),
       };
 
       let stale = false;
 
-      const unsubscribe = PUBLIC_TIMELINE.on.change(delegate, () => {
+      const unsubscribe = render(delegate, () => {
         stale = true;
       });
 
@@ -244,7 +234,7 @@ describe("Tagged", () => {
       const { sum, numbers } = Sum();
       let stale = false;
 
-      const unsubscribe = PUBLIC_TIMELINE.on.change(sum, () => {
+      const unsubscribe = render(sum, () => {
         stale = true;
       });
 
@@ -265,7 +255,7 @@ describe("Tagged", () => {
       const { sum, numbers } = Sum();
       let stale = false;
 
-      const unsubscribe = PUBLIC_TIMELINE.on.change(sum, () => {
+      const unsubscribe = render(sum, () => {
         stale = true;
       });
 
@@ -303,7 +293,7 @@ function Sum(): {
   sum: ReactiveValue<number>;
   numbers: Cell<Cell<number>[]>;
 } {
-  const description = RUNTIME.Desc?.("formula", "Sum");
+  const description = DEBUG.Desc?.("formula", "Sum");
   const numbers = Cell([] as Cell<number>[], "number list");
 
   const sum = CachedFormula(

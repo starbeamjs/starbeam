@@ -1,5 +1,5 @@
-import type { CoreCellTag } from "../core.js";
-import type { Tagged } from "../protocol.js";
+import type { CellTag } from "../tag.js";
+import type { Tagged } from "../tagged.js";
 import type { CallerStackFn, CallStack } from "./call-stack.js";
 import type { DescFn, DescriptionDetails } from "./description.js";
 
@@ -16,7 +16,7 @@ export interface DebugRuntime {
     options?: { id: boolean | undefined } | undefined
   ) => string;
   readonly untrackedReadBarrier: (
-    barrier: (tag: CoreCellTag, stack: CallStack | undefined) => void | never
+    barrier: (tag: CellTag, stack: CallStack | undefined) => void | never
   ) => void;
   readonly callerStack: CallerStackFn;
 

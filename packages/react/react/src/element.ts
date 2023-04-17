@@ -1,14 +1,14 @@
 import type { browser } from "@domtree/flavors";
 import type { Description, Reactive, Tagged } from "@starbeam/interfaces";
-import { Formula, RUNTIME } from "@starbeam/reactive";
+import { DEBUG, Formula } from "@starbeam/reactive";
 import type { IntoResourceBlueprint, Resource } from "@starbeam/resource";
 import * as resource from "@starbeam/resource";
 import {
   type CleanupTarget,
   CONTEXT,
-  LIFETIME,
   type OnCleanup,
-  PUBLIC_TIMELINE,
+  render,
+  RUNTIME,
   type Unsubscribe,
 } from "@starbeam/runtime";
 import { service } from "@starbeam/service";
@@ -195,13 +195,12 @@ export class ReactiveElement implements CleanupTarget {
   }
 
   static cleanup(element: ReactiveElement): void {
-    LIFETIME.finalize(element.#lifecycle);
+    RUNTIME.finalize(element.#lifecycle);
     element.#lifecycle = Lifecycle.create(element.#description);
   }
 
   static subscribe(element: ReactiveElement, reactive: Tagged): void {
-    const subscription = PUBLIC_TIMELINE.on.change(reactive, element.notify);
-    element.on.cleanup(subscription);
+    element.#render(reactive);
   }
 
   #lifecycle: Lifecycle;
@@ -226,8 +225,12 @@ export class ReactiveElement implements CleanupTarget {
     this.#description = description;
   }
 
+  #render(reactive: Tagged): void {
+    this.on.cleanup(render(reactive, this.notify));
+  }
+
   link(child: object): Unsubscribe {
-    return LIFETIME.link(this, child);
+    return RUNTIME.link(this, child);
   }
 
   attach(lifecycle: DebugLifecycle): void {
@@ -238,7 +241,7 @@ export class ReactiveElement implements CleanupTarget {
     blueprint: IntoResourceBlueprint<T>,
     description?: string | Description | undefined
   ): Resource<T> => {
-    const desc = RUNTIME.Desc?.("service", description, "UseSetup.service");
+    const desc = DEBUG.Desc?.("service", description, "UseSetup.service");
     const context = this.#context;
 
     if (context === null) {
@@ -258,6 +261,7 @@ export class ReactiveElement implements CleanupTarget {
       this,
       {
         notify: this.notify,
+        render: (reactive) => this.on.cleanup(render(reactive, this.notify)),
         on: {
           layout: (callback) =>
             this.on.layout(() => {
@@ -279,6 +283,7 @@ export class ReactiveElement implements CleanupTarget {
 }
 interface ResourceHost<T> {
   readonly notify: () => void;
+  readonly render: (reactive: Tagged) => void;
   readonly on: {
     layout: (callback: (value: T) => void) => Unsubscribe | void;
     cleanup: (callback: () => void) => Unsubscribe | void;
@@ -304,7 +309,7 @@ export function internalUseResource<T>(
     return resourceCell.current?.current ?? initial;
   });
 
-  host.on.cleanup(PUBLIC_TIMELINE.on.change(formula, host.notify));
+  host.on.cleanup(render(formula, host.notify));
 
   return formula;
 }
@@ -350,11 +355,10 @@ class Lifecycle {
     instance: T,
     _elementDescription: Description | undefined
   ): OnLifecycle {
-    LIFETIME.link(instance, lifecycle);
+    RUNTIME.link(instance, lifecycle);
 
     return {
-      cleanup: (finalizer: Callback) =>
-        LIFETIME.on.cleanup(instance, finalizer),
+      cleanup: (finalizer: Callback) => RUNTIME.onFinalize(instance, finalizer),
       idle: (idle: Callback) => {
         lifecycle.#idle.add(idle);
         return () => lifecycle.#idle.delete(idle);
@@ -379,8 +383,8 @@ class Lifecycle {
     this.#layout = layout;
     this.#description = description;
 
-    LIFETIME.link(this, idle);
-    LIFETIME.link(this, layout);
+    RUNTIME.link(this, idle);
+    RUNTIME.link(this, layout);
   }
 }
 

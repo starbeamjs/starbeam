@@ -7,7 +7,7 @@
 // that properties within the getter have the correct type in TS.
 
 import type { CallStack, Description } from "@starbeam/interfaces";
-import { RUNTIME } from "@starbeam/reactive";
+import { DEBUG } from "@starbeam/reactive";
 
 import { Collection } from "./collection.js";
 
@@ -116,7 +116,7 @@ class Shadow<T> {
 
     if (!fn) {
       fn = (...args: unknown[]) => {
-        this.#collection.iterateKeys(RUNTIME.callerStack?.());
+        this.#collection.iterateKeys(DEBUG.callerStack?.());
         // eslint-disable-next-line
         return (this.#target as any)[prop](...args);
       };
@@ -132,7 +132,7 @@ class Shadow<T> {
 
     if (!fn) {
       fn = (...args: unknown[]) => {
-        const caller = RUNTIME.callerStack?.();
+        const caller = DEBUG.callerStack?.();
         const prev = this.#target.length;
 
         // eslint-disable-next-line
@@ -210,7 +210,7 @@ export default class TrackedArray<T = unknown> {
     const proxy: T[] = new Proxy(target, {
       get(getterTarget, prop /*, _receiver */) {
         if (prop === "length") {
-          collection.iterateKeys(RUNTIME.callerStack?.());
+          collection.iterateKeys(DEBUG.callerStack?.());
           return getterTarget.length;
         }
 
@@ -219,13 +219,13 @@ export default class TrackedArray<T = unknown> {
         if (index === null) {
           return shadow.get(prop);
         } else {
-          return shadow.at(index, RUNTIME.callerStack?.());
+          return shadow.at(index, DEBUG.callerStack?.());
         }
       },
 
       set(setterTarget, prop, value /*, _receiver */) {
         const index = convertToInt(prop);
-        const caller = RUNTIME.callerStack?.();
+        const caller = DEBUG.callerStack?.();
 
         if (prop === "length") {
           shadow.updateLength(value as number, caller);

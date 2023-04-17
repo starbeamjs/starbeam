@@ -1,6 +1,6 @@
 import type { Formula } from "@starbeam/reactive";
 import { CachedFormula, RUNTIME } from "@starbeam/reactive";
-import { PUBLIC_TIMELINE, type Tagged } from "@starbeam/runtime";
+import { render, type Tagged } from "@starbeam/runtime";
 import { Variants } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 
@@ -214,7 +214,7 @@ function Stability(reactive: Tagged): {
 } {
   let changed = false;
 
-  PUBLIC_TIMELINE.on.change(reactive, (internals) => {
+  render(reactive, (internals) => {
     if (debug) {
       console.group(
         RUNTIME.debug?.describeTagged(reactive) ?? "{unknown reactive value}",

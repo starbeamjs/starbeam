@@ -1,20 +1,10 @@
 import { DisplayStruct } from "@starbeam/core-utils";
-import type {
-  CallStack,
-  CoreDelegateTag,
-  CoreFormulaTag,
-  Description,
-} from "@starbeam/interfaces";
-import { Cell, Marker, RUNTIME } from "@starbeam/reactive";
+import type { CallStack, Description, FormulaTag } from "@starbeam/interfaces";
+import { Cell, DEBUG, Marker, RUNTIME } from "@starbeam/reactive";
 import type { Tagged } from "@starbeam/runtime";
 import { TAG } from "@starbeam/runtime";
 import { UNINITIALIZED } from "@starbeam/shared";
-import {
-  createDelegateTag,
-  createFormulaTag,
-  getTag,
-  getTags,
-} from "@starbeam/tags";
+import { getTag, getTags, initializeFormulaTag } from "@starbeam/tags";
 
 export class VariantGroups {
   static empty(description: Description | undefined): VariantGroups {
@@ -122,7 +112,7 @@ export class VariantGroup {
   }
 }
 
-export class Variant<T> implements Tagged<CoreDelegateTag> {
+export class Variant<T> implements Tagged<FormulaTag> {
   static selected<T>(
     type: string,
     typeMarker: Marker,
@@ -147,9 +137,9 @@ export class Variant<T> implements Tagged<CoreDelegateTag> {
       localTypeMarker,
       val,
       { value },
-      createDelegateTag(
+      initializeFormulaTag(
         description?.implementation("formula", "selected", "selected"),
-        getTags([val, localTypeMarker])
+        () => new Set(getTags([val, localTypeMarker]))
       )
     );
   }
@@ -176,9 +166,9 @@ export class Variant<T> implements Tagged<CoreDelegateTag> {
       val,
       { value: UNINITIALIZED },
 
-      createDelegateTag(
+      initializeFormulaTag(
         description?.implementation("formula", "selected", "selected"),
-        getTags([val, localTypeMarker])
+        () => new Set(getTags([val, localTypeMarker]))
       )
     ) as Variant<T>;
   }
@@ -198,21 +188,18 @@ export class Variant<T> implements Tagged<CoreDelegateTag> {
   static set<T>(
     variant: Variant<T>,
     value: T,
-    caller = RUNTIME.callerStack?.()
+    caller = DEBUG.callerStack?.()
   ): void {
     variant.#value.set(value, caller);
   }
 
-  static select<T>(
-    variant: Variant<T>,
-    caller = RUNTIME.callerStack?.()
-  ): void {
+  static select<T>(variant: Variant<T>, caller = DEBUG.callerStack?.()): void {
     variant.#localTypeMarker.mark(caller);
   }
 
   static deselect<T>(
     variant: Variant<T>,
-    caller = RUNTIME.callerStack?.()
+    caller = DEBUG.callerStack?.()
   ): void {
     variant.#localTypeMarker.mark(caller);
   }
@@ -228,7 +215,7 @@ export class Variant<T> implements Tagged<CoreDelegateTag> {
     value: T | UNINITIALIZED;
   };
   readonly #value: Cell<T | UNINITIALIZED>;
-  readonly [TAG]: CoreDelegateTag;
+  readonly [TAG]: FormulaTag;
 
   private constructor(
     type: string,
@@ -236,7 +223,7 @@ export class Variant<T> implements Tagged<CoreDelegateTag> {
     localTypeMarker: Marker,
     value: Cell<T | UNINITIALIZED>,
     debug: { value: T | UNINITIALIZED },
-    reactive: CoreDelegateTag
+    reactive: FormulaTag
   ) {
     this.#type = type;
     this.#sharedTypeMarker = sharedTypeMarker;
@@ -341,7 +328,7 @@ export interface Variants<V extends VariantType, Narrow = V> extends Tagged {
       | undefined);
 }
 
-class VariantsImpl implements Tagged<CoreFormulaTag> {
+class VariantsImpl implements Tagged<FormulaTag> {
   static create(
     value: InternalVariant,
     description: Description | undefined
@@ -364,7 +351,7 @@ class VariantsImpl implements Tagged<CoreFormulaTag> {
   readonly #typeMarker: Marker;
   readonly #groups: VariantGroups;
   readonly #description: Description | undefined;
-  readonly [TAG]: CoreFormulaTag;
+  readonly [TAG]: FormulaTag;
   #current: Variant<unknown>;
 
   private constructor(
@@ -378,7 +365,7 @@ class VariantsImpl implements Tagged<CoreFormulaTag> {
     this.#groups = VariantGroups.empty(description);
     this.#description = description;
     this.#current = current;
-    this[TAG] = createFormulaTag(
+    this[TAG] = initializeFormulaTag(
       description,
       () => new Set([getTag(this.#current)])
     );
@@ -431,7 +418,7 @@ class VariantsImpl implements Tagged<CoreFormulaTag> {
   }
 
   choose(type: string, value?: unknown): void {
-    const caller = RUNTIME.callerStack?.();
+    const caller = DEBUG.callerStack?.();
     const current = this.#current;
     const from = Variant.type(current);
 
@@ -454,7 +441,7 @@ class VariantsImpl implements Tagged<CoreFormulaTag> {
     }
 
     this.#typeMarker.mark(caller);
-    RUNTIME.subscriptions.update(this[TAG]);
+    RUNTIME.update(this[TAG]);
   }
 
   #get(type: string): Variant<unknown> {
@@ -500,7 +487,7 @@ for (const name of Object.keys(
 export function Variants<V extends VariantType>(
   description?: string | Description
 ): VariantConstructors<V> {
-  const desc = RUNTIME.Desc?.("collection", description, "Variants");
+  const desc = DEBUG.Desc?.("collection", description, "Variants");
   const target: Record<string, (value: unknown) => VariantsImpl> = {};
   return new Proxy(target, {
     get(getTarget, name) {

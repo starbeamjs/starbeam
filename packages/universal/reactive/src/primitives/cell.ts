@@ -1,16 +1,22 @@
 import type {
   CallStack,
-  CoreCellTag,
+  CellTag,
   Description,
   ReactiveValue,
+  TaggedReactive,
 } from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
-import { createCellTag } from "@starbeam/tags";
+import { createCellTag, zero } from "@starbeam/tags";
 
-import { RUNTIME } from "../runtime.js";
-import { isDescriptionOption, type PrimitiveOptions } from "./utils.js";
+import { DEBUG, RUNTIME } from "../runtime.js";
+import {
+  isDescriptionOption,
+  type PrimitiveOptions,
+  type SugaryPrimitiveOptions,
+  toOptions,
+} from "./utils.js";
 
-export interface Cell<T = unknown> extends ReactiveValue<T, CoreCellTag> {
+export interface Cell<T = unknown> extends ReactiveValue<T, CellTag> {
   current: T;
   /**
    * Set the value of the cell. Returns true if the value was changed, false if
@@ -21,43 +27,56 @@ export interface Cell<T = unknown> extends ReactiveValue<T, CoreCellTag> {
   freeze: () => void;
 }
 
+export function Static<T>(
+  value: T,
+  options?: SugaryPrimitiveOptions
+): TaggedReactive<CellTag, T> {
+  const { description } = toOptions(options);
+  const desc = RUNTIME.debug?.desc("formula", description);
+
+  return {
+    read: () => value,
+    current: value,
+    [TAG]: {
+      type: "cell",
+      description: desc,
+      dependencies: () => [],
+      lastUpdated: zero(),
+    } satisfies CellTag,
+  };
+}
+
 export function Cell<T>(
   value: T,
   options?: CellOptions<T> | string | Description | undefined
 ): Cell<T> {
   const { description, equals = Object.is } = toCellOptions(options);
-  const desc = RUNTIME.Desc?.("cell", description);
-  const tag = createCellTag(desc);
+  const desc = DEBUG.Desc?.("cell", description);
+  const { tag, mark, freeze } = createCellTag(desc);
 
-  const set = (newValue: T, caller = RUNTIME.callerStack?.()): boolean => {
-    if (equals(value, newValue)) {
-      return false;
-    }
+  const set = (newValue: T, _caller = DEBUG.callerStack?.()): boolean => {
+    if (equals(value, newValue)) return false;
 
     value = newValue;
-    tag.update({ caller, runtime: RUNTIME });
+    RUNTIME.mark(tag, mark);
     return true;
   };
 
-  const update = (updater: (prev: T) => T, caller = RUNTIME.callerStack?.()) =>
+  const update = (updater: (prev: T) => T, caller = DEBUG.callerStack?.()) =>
     set(updater(value), caller);
 
-  const read = (_caller = RUNTIME.callerStack?.()): T => {
-    RUNTIME.autotracking.consume(tag);
+  const read = (_caller = DEBUG.callerStack?.()): T => {
+    RUNTIME.consume(tag);
     return value;
-  };
-
-  const freeze = () => {
-    tag.freeze();
   };
 
   return {
     [TAG]: tag,
     get current(): T {
-      return read(RUNTIME.callerStack?.());
+      return read(DEBUG.callerStack?.());
     },
     set current(value: T) {
-      set(value, RUNTIME.callerStack?.());
+      set(value, DEBUG.callerStack?.());
     },
     read,
     set,
@@ -72,7 +91,7 @@ export interface CellOptions<T> extends PrimitiveOptions {
   equals?: Equality<T>;
 }
 
-export function toCellOptions<T>(
+function toCellOptions<T>(
   options: CellOptions<T> | Description | string | undefined
 ): CellOptions<T> {
   return isDescriptionOption(options) ? { description: options } : options;

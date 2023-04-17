@@ -2,7 +2,7 @@ import type { Reactive } from "@starbeam/interfaces";
 import { CachedFormula, Cell } from "@starbeam/reactive";
 import type { IntoResourceBlueprint, Resource } from "@starbeam/resource";
 import { use as starbeamUse } from "@starbeam/resource";
-import { LIFETIME, PUBLIC_TIMELINE } from "@starbeam/runtime";
+import {  render,RUNTIME } from "@starbeam/runtime";
 import { service as starbeamService } from "@starbeam/service";
 import type { RegisterLifecycleHandlers } from "@starbeam/use-strict-lifecycle";
 import { isPresent, verified } from "@starbeam/verify";
@@ -100,9 +100,7 @@ export function StarbeamInstance(
       () => resourceCell.current?.current ?? options?.initial
     );
 
-    verified(handlers, isPresent).cleanup.add(() => {
-      PUBLIC_TIMELINE.on.change(formula, notify);
-    });
+    verified(handlers, isPresent).cleanup.add(() => render(formula, notify));
 
     return formula as Reactive<T>;
   }
@@ -110,7 +108,7 @@ export function StarbeamInstance(
   function deactivate() {
     if (handlers) {
       for (const callback of handlers.cleanup) callback();
-      LIFETIME.finalize(handlers);
+      RUNTIME.finalize(handlers);
     }
     handlers = null;
   }

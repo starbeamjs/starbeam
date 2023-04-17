@@ -1,12 +1,12 @@
 import { Resource } from "@starbeam/resource";
-import { LIFETIME } from "@starbeam/runtime";
+import { RUNTIME } from "@starbeam/runtime";
 import { isPresent, verified } from "@starbeam/verify";
 
 export const TestResource = Resource((r) => {
   const impl = TestResourceImpl.create();
 
   r.on.cleanup(() => {
-    LIFETIME.finalize(impl);
+    RUNTIME.finalize(impl);
   });
 
   return impl;
@@ -51,7 +51,7 @@ export class TestResourceImpl {
     this.#id = id;
     TestResourceImpl.#last = this;
 
-    LIFETIME.on.cleanup(this, () => {
+    RUNTIME.onFinalize(this, () => {
       this.#active = false;
     });
   }
