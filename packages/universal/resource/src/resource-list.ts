@@ -1,6 +1,5 @@
 import type { Description } from "@starbeam/interfaces";
-import { RUNTIME } from "@starbeam/reactive";
-import { LIFETIME } from "@starbeam/runtime";
+import { DEBUG, RUNTIME } from "@starbeam/reactive";
 
 import {
   Resource,
@@ -22,7 +21,7 @@ export function ResourceList<Item, T>(
   }
 ): ResourceBlueprint<Resource<T>[], void> {
   const resources = new ResourceMap<T, void>(
-    RUNTIME.Desc?.("collection", description)
+    DEBUG.Desc?.("collection", description)
   );
 
   return Resource((_run, _metadata, lifetime) => {
@@ -68,7 +67,7 @@ class ResourceMap<T, M> {
     // parentLifetime: object
   ): Resource<T> {
     const lifetime = {};
-    LIFETIME.link(options.lifetime, lifetime);
+    RUNTIME.link(options.lifetime, lifetime);
     const newResource = use(resource, {
       lifetime,
       metadata: options.metadata,
@@ -89,7 +88,7 @@ class ResourceMap<T, M> {
   update(remaining: Set<unknown>): void {
     for (const [key, { lifetime }] of this.#map) {
       if (!remaining.has(key)) {
-        LIFETIME.finalize(lifetime);
+        RUNTIME.finalize(lifetime);
         this.#map.delete(key);
       }
     }

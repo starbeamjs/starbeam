@@ -3,8 +3,8 @@ import type {
   InternalElement,
 } from "@starbeam/preact-utils";
 import { Plugin } from "@starbeam/preact-utils";
-import { isReactive, RUNTIME } from "@starbeam/reactive";
-import { CONTEXT, LIFETIME } from "@starbeam/runtime";
+import { DEBUG, isReactive } from "@starbeam/reactive";
+import { CONTEXT, RUNTIME } from "@starbeam/runtime";
 import type { ComponentType } from "preact";
 
 import { ComponentFrame } from "./frame.js";
@@ -40,7 +40,7 @@ export const setup = Plugin((on) => {
 
     ComponentFrame.start(
       component,
-      RUNTIME.Desc?.(
+      DEBUG.Desc?.(
         "formula",
         componentName(component.fn),
         "preact.componentWillRender"
@@ -58,7 +58,7 @@ export const setup = Plugin((on) => {
 
   on.component.unmount((component) => {
     ComponentFrame.unmount(component);
-    LIFETIME.finalize(component);
+    RUNTIME.finalize(component);
   });
 });
 

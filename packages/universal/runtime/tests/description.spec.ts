@@ -1,4 +1,4 @@
-import { RUNTIME } from "@starbeam/reactive";
+import { DEBUG } from "@starbeam/reactive";
 import { expect, test } from "@starbeam-workspace/test-utils";
 
 test("inferred api", () => {
@@ -14,7 +14,7 @@ test("inferred api", () => {
 });
 
 function SomeAPI() {
-  return RUNTIME.Desc?.("cell");
+  return DEBUG.Desc?.("cell");
 }
 
-const ArrowFn = () => RUNTIME.Desc?.("cell");
+const ArrowFn = () => DEBUG.Desc?.("cell");

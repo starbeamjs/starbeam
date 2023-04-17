@@ -1,6 +1,5 @@
-import { CachedFormula, Cell, Marker } from "@starbeam/reactive";
+import { CachedFormula, Cell, Marker, RUNTIME } from "@starbeam/reactive";
 import { Resource, type ResourceBlueprint, use } from "@starbeam/resource";
-import { LIFETIME } from "@starbeam/runtime";
 import { describe, expect, test } from "vitest";
 
 describe("resources", () => {
@@ -455,7 +454,7 @@ describe("resources", () => {
     expect(counter.current.count).toBe(2);
     expect(counts).toEqual({ init: 2, finalized: 1 });
 
-    LIFETIME.finalize(lifetime);
+    RUNTIME.finalize(lifetime);
     expect(counts).toEqual({ init: 2, finalized: 2 });
 
     // modifying the dependency after the resource was finalized should not
@@ -524,6 +523,6 @@ class TestResource {
   }
 
   finalize(): void {
-    LIFETIME.finalize(this.#lifetime);
+    RUNTIME.finalize(this.#lifetime);
   }
 }

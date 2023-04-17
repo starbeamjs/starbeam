@@ -1,12 +1,12 @@
 import type {
-  CoreFormulaTag,
-  CoreTag,
   Description,
+  FormulaTag,
+  Tag,
   TaggedReactive,
 } from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
 
-import { RUNTIME } from "../runtime.js";
+import { DEBUG } from "../runtime.js";
 
 export interface PrimitiveOptions {
   description?: string | Description | undefined;
@@ -34,7 +34,7 @@ export function toOptions(options: SugaryPrimitiveOptions): PrimitiveOptions {
   }
 }
 
-export interface FormulaFn<T> extends TaggedReactive<CoreFormulaTag, T> {
+export interface FormulaFn<T> extends TaggedReactive<FormulaTag, T> {
   (): T;
 }
 
@@ -42,12 +42,12 @@ export function isFormulaFn<T>(value: unknown): value is FormulaFn<T> {
   return !!(
     typeof value === "function" &&
     TAG in value &&
-    (value[TAG] as CoreTag).type === "formula"
+    (value[TAG] as Tag).type === "formula"
   );
 }
 
 export function WrapFn<T>(
-  formula: TaggedReactive<CoreFormulaTag, T>
+  formula: TaggedReactive<FormulaTag, T>
 ): FormulaFn<T> {
   // If the formula is *already* a function, we just need a new identity for it,
   // so we'll wrap it in a simple proxy.
@@ -59,7 +59,7 @@ export function WrapFn<T>(
   }
 
   const fn = (): T => {
-    return formula.read(RUNTIME.callerStack?.());
+    return formula.read(DEBUG.callerStack?.());
   };
 
   Object.defineProperties(fn, {
@@ -76,5 +76,3 @@ export function WrapFn<T>(
 
   return fn as FormulaFn<T>;
 }
-
-export type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never;

@@ -1,5 +1,5 @@
 import type { CallStack, Description } from "@starbeam/interfaces";
-import { type Equality, Marker, RUNTIME } from "@starbeam/reactive";
+import { DEBUG, type Equality, Marker } from "@starbeam/reactive";
 
 interface Entry {
   has: Marker;
@@ -62,7 +62,7 @@ export class TrackedWeakMap<K extends object = object, V = unknown>
   }
 
   get(key: K): V | undefined {
-    const caller = RUNTIME.callerStack?.();
+    const caller = DEBUG.callerStack?.();
     const entry = this.#entry(key);
     return this.#has(key, caller, entry)
       ? this.#get(key, caller, entry)
@@ -79,7 +79,7 @@ export class TrackedWeakMap<K extends object = object, V = unknown>
   }
 
   has(key: K): boolean {
-    return this.#has(key, RUNTIME.callerStack?.());
+    return this.#has(key, DEBUG.callerStack?.());
   }
 
   #insert(key: K, caller: CallStack | undefined): void {
@@ -97,7 +97,7 @@ export class TrackedWeakMap<K extends object = object, V = unknown>
   }
 
   set(key: K, value: V): this {
-    const caller = RUNTIME.callerStack?.();
+    const caller = DEBUG.callerStack?.();
 
     // intentionally avoid consuming the `has` or `get` markers while setting.
     const has = this.#vals.has(key);
@@ -125,7 +125,7 @@ export class TrackedWeakMap<K extends object = object, V = unknown>
   }
 
   delete(key: K): boolean {
-    const caller = RUNTIME.callerStack?.();
+    const caller = DEBUG.callerStack?.();
 
     // if the key is not in the map, then deleting it has no reactive effect.
     if (this.#vals.has(key)) {

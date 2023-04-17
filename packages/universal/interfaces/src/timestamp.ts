@@ -1,4 +1,8 @@
-export interface Timestamp {
+export interface CoreTimestamp {
+  readonly at: number;
+}
+
+export interface Timestamp extends CoreTimestamp {
   gt: (other: Timestamp) => boolean;
   eq: (other: Timestamp) => boolean;
 

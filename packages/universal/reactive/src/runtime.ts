@@ -1,12 +1,9 @@
 import type {
-  AutotrackingRuntime,
   CallerStackFn,
-  CoreTag,
-  DebugRuntime,
   DescFn,
   DescriptionDetails,
   Runtime,
-  SubscriptionRuntime,
+  TagSnapshot,
 } from "@starbeam/interfaces";
 import { isPresent, verified } from "@starbeam/verify";
 
@@ -32,7 +29,22 @@ function getRuntime(): Runtime {
 
 export const UNKNOWN_REACTIVE_VALUE = "{unknown reactive value}";
 
-class RuntimeImpl implements Runtime {
+export const RUNTIME = {
+  mark: (...args) => void getRuntime().mark(...args),
+  update: (...args) => void getRuntime().update(...args),
+  start: (...args) => getRuntime().start(...args),
+  consume: (...args) => void getRuntime().consume(...args),
+  subscribe: (...args) => getRuntime().subscribe(...args),
+  link: (...args) => getRuntime().link(...args),
+  finalize: (...args) => void getRuntime().finalize(...args),
+  onFinalize: (...args) => getRuntime().onFinalize(...args),
+
+  get debug() {
+    return getRuntime().debug;
+  },
+} satisfies Runtime;
+
+export const DEBUG = new (class DebugImpl {
   get Desc(): DescFn | undefined {
     return getRuntime().debug?.desc;
   }
@@ -41,19 +53,7 @@ class RuntimeImpl implements Runtime {
     return getRuntime().debug?.callerStack;
   }
 
-  get subscriptions(): SubscriptionRuntime {
-    return getRuntime().subscriptions;
-  }
-
-  get autotracking(): AutotrackingRuntime {
-    return getRuntime().autotracking;
-  }
-
-  get debug(): DebugRuntime | undefined {
-    return getRuntime().debug;
-  }
-
-  describe(description: DescriptionDetails | undefined): string {
+  readonly describe = (description: DescriptionDetails | undefined): string => {
     if (description) {
       return (
         getRuntime().debug?.describe(description) ?? UNKNOWN_REACTIVE_VALUE
@@ -61,14 +61,12 @@ class RuntimeImpl implements Runtime {
     } else {
       return UNKNOWN_REACTIVE_VALUE;
     }
-  }
+  };
+})();
 
-  evaluate<T>(compute: () => T): { value: T; tags: Set<CoreTag> } {
-    const done = this.autotracking.start();
-    const value = compute();
-    const tags = done();
-    return { value, tags };
-  }
+export function evaluate<T>(compute: () => T): { value: T; tags: TagSnapshot } {
+  const done = RUNTIME.start();
+  const value = compute();
+  const tags = done();
+  return { value, tags };
 }
-
-export const RUNTIME = new RuntimeImpl();

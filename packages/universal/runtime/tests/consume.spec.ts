@@ -1,6 +1,12 @@
-import { CachedFormula, Cell, Marker, RUNTIME } from "@starbeam/reactive";
+import {
+  CachedFormula,
+  Cell,
+  DEBUG,
+  Marker,
+  RUNTIME,
+} from "@starbeam/reactive";
 import { getTag } from "@starbeam/runtime";
-import { createFormulaTag } from "@starbeam/tags";
+import { initializeFormulaTag } from "@starbeam/tags";
 import { describe, expect, test } from "vitest";
 
 import { Staleness } from "./support/testing.js";
@@ -21,21 +27,16 @@ describe("consumption", () => {
     const instance = Marker();
 
     // start an autotracking frame
-    const done = RUNTIME.autotracking.start();
+    const done = RUNTIME.start();
     // consume the marker's tag in the autotracking frame
-    RUNTIME.autotracking.consume(getTag(instance));
+    RUNTIME.consume(getTag(instance));
     // finalize the frame, which should give us back the marker's tag
     const tags = done();
     // create a formula tag with the marker's tags
-    const tag = createFormulaTag(RUNTIME.Desc?.("formula"), () => tags);
-    // unset the tag's TDZ, which will allow subscriptions to the tag. Normally
-    // this happens in the implementation of `Formula`, once the value was computed.
-    tag.markInitialized();
+    const tag = initializeFormulaTag(DEBUG.Desc?.("formula"), () => tags);
 
     const stale = new Staleness();
-    RUNTIME.subscriptions.subscribe(tag, () => {
-      stale.invalidate();
-    });
+    RUNTIME.subscribe(tag, () =>  void stale.invalidate());
 
     stale.expect("fresh");
     stale.expect(() => {
@@ -65,7 +66,7 @@ describe("consumption", () => {
     const stale = new Staleness();
     expect(sum.current).toBe(6);
 
-    const unsubscribe = RUNTIME.subscriptions.subscribe(getTag(sum), () => {
+    const unsubscribe = RUNTIME.subscribe(getTag(sum), () => {
       stale.invalidate();
     });
 

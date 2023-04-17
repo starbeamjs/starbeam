@@ -1,5 +1,4 @@
-import {} from "@starbeam/reactive";
-import { LIFETIME } from "@starbeam/runtime";
+import { RUNTIME } from "@starbeam/runtime";
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
 import type { FunctionComponent, PropsWithChildren } from "react";
 import { createContext, createElement, useContext } from "react";
@@ -38,7 +37,7 @@ export class ReactApp {
 
   #instance = {};
   finalize(): void {
-    LIFETIME.finalize(this.#instance);
+    RUNTIME.finalize(this.#instance);
     this.#instance = {};
   }
 }

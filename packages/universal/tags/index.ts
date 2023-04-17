@@ -1,14 +1,14 @@
 export {
   createCellTag,
-  createDelegateTag,
   createFormulaTag,
-  createStaticTag,
+  initializeFormulaTag,
 } from "./src/tag.js";
 export {
   getDependencies,
   getDescription,
   getTag,
   getTags,
+  hasDependencies,
   lastUpdated,
 } from "./src/tagged.js";
 export {

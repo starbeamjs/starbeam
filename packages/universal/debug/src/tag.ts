@@ -1,18 +1,17 @@
 import { isPresent } from "@starbeam/core-utils";
-import type { CoreTag, Description } from "@starbeam/interfaces";
+import type { Description, Tag } from "@starbeam/interfaces";
 import { RUNTIME } from "@starbeam/reactive";
+import { getDependencies, lastUpdated } from "@starbeam/tags";
 
 import { Tree } from "./tree.js";
 
-RUNTIME;
-
 export const debugTag = (
-  tag: CoreTag,
+  tag: Tag,
   {
     implementation = false,
   }: { implementation?: boolean; source?: boolean; id?: boolean } = {}
 ): string => {
-  const dependencies = [...tag.dependencies()];
+  const dependencies = getDependencies(tag);
   const descriptions = new Set(
     dependencies.map((dependency) =>
       getDesc(dependency.description, implementation)
@@ -30,14 +29,14 @@ export const debugTag = (
 };
 
 export const logTag = (
-  tag: CoreTag,
+  tag: Tag,
   options: { implementation?: boolean; source?: boolean; id?: boolean } = {}
 ): void => {
   const debug = debugTag(tag, options);
 
   console.group(
     describe(tag.description, { id: options.id }),
-    `(updated at ${tag.lastUpdated.toString({ format: "timestamp" })})`
+    `(updated at ${lastUpdated(tag).toString({ format: "timestamp" })})`
   );
   console.info(debug);
   console.groupEnd();

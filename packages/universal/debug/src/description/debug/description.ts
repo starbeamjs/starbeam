@@ -10,7 +10,7 @@ import type {
   ReactiveType,
   StackFrame,
 } from "@starbeam/interfaces";
-import { RUNTIME } from "@starbeam/reactive";
+import { DEBUG } from "@starbeam/reactive";
 import { getID } from "@starbeam/shared";
 
 export class Description implements IDescription {
@@ -136,7 +136,7 @@ export const Desc = ((
 ): IDescription => {
   if (isObject(specified)) return specified;
 
-  const caller = RUNTIME.callerStack?.(DESC_FRAME);
+  const caller = DEBUG.callerStack?.(DESC_FRAME);
   api = api ?? getFirst(caller?.frames)?.action;
   const id = getID();
 

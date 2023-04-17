@@ -1,5 +1,5 @@
 import type { Description, Reactive } from "@starbeam/interfaces";
-import { RUNTIME } from "@starbeam/reactive";
+import { DEBUG } from "@starbeam/reactive";
 import { UNINITIALIZED } from "@starbeam/shared";
 import { Cell } from "@starbeam/universal";
 import { useRef } from "react";
@@ -16,7 +16,7 @@ export function useDeps<T extends unknown[] | undefined>(
   deps: T,
   description?: string | Description | undefined
 ): Deps | undefined {
-  const desc = RUNTIME.Desc?.("cell", description, "useDeps");
+  const desc = DEBUG.Desc?.("cell", description, "useDeps");
 
   if (deps?.length) {
     const dependencies = deps.map((dep, i) => useProp(dep, desc?.index(i)));
@@ -37,7 +37,7 @@ export function useProp<T>(
 
   if (ref.current === UNINITIALIZED) {
     ref.current = Cell(variable, {
-      description: RUNTIME.Desc?.("cell", description, "useProp"),
+      description: DEBUG.Desc?.("cell", description, "useProp"),
     });
   } else {
     ref.current.set(variable);

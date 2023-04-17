@@ -1,5 +1,5 @@
 import type { CallStack, Description } from "@starbeam/interfaces";
-import { Cell, type Equality, Marker, RUNTIME } from "@starbeam/reactive";
+import { Cell, DEBUG, type Equality, Marker } from "@starbeam/reactive";
 import { UNINITIALIZED } from "@starbeam/shared";
 
 class Entry<V> {
@@ -129,7 +129,7 @@ export class ReactiveMap<K, V> implements Map<K, V> {
   }
 
   get size(): number {
-    const caller = RUNTIME.callerStack?.();
+    const caller = DEBUG.callerStack?.();
     this.#keys.read(caller);
 
     let size = 0;
@@ -148,7 +148,7 @@ export class ReactiveMap<K, V> implements Map<K, V> {
   }
 
   clear(): void {
-    const caller = RUNTIME.callerStack?.();
+    const caller = DEBUG.callerStack?.();
     if (this.#entries.size > EMPTY_MAP_SIZE) {
       this.#entries.clear();
       this.#keys.mark(caller);
@@ -157,7 +157,7 @@ export class ReactiveMap<K, V> implements Map<K, V> {
   }
 
   delete(key: K): boolean {
-    const caller = RUNTIME.callerStack?.();
+    const caller = DEBUG.callerStack?.();
     const entry = this.#entries.get(key);
 
     if (entry) {
@@ -175,7 +175,7 @@ export class ReactiveMap<K, V> implements Map<K, V> {
   }
 
   *entries(): IterableIterator<[K, V]> {
-    const caller = RUNTIME.callerStack?.();
+    const caller = DEBUG.callerStack?.();
     this.#keys.read(caller);
     this.#values.read(caller);
 
@@ -206,7 +206,7 @@ export class ReactiveMap<K, V> implements Map<K, V> {
     callbackfn: (value: V, key: K, map: Map<K, V>) => void,
     thisArg?: unknown
   ): void {
-    const caller = RUNTIME.callerStack?.();
+    const caller = DEBUG.callerStack?.();
     this.#keys.read(caller);
     this.#values.read(caller);
 
@@ -216,13 +216,13 @@ export class ReactiveMap<K, V> implements Map<K, V> {
   }
 
   get(key: K): V | undefined {
-    const caller = RUNTIME.callerStack?.();
+    const caller = DEBUG.callerStack?.();
     const entry = this.#entry(key);
     return entry.get(caller);
   }
 
   has(key: K): boolean {
-    const caller = RUNTIME.callerStack?.();
+    const caller = DEBUG.callerStack?.();
     return this.#entry(key).isPresent(caller);
   }
 
@@ -235,7 +235,7 @@ export class ReactiveMap<K, V> implements Map<K, V> {
   }
 
   *keys(): IterableIterator<K> {
-    const caller = RUNTIME.callerStack?.();
+    const caller = DEBUG.callerStack?.();
     this.#keys.read(caller);
 
     for (const [key] of this.#iterate(caller)) {
@@ -244,7 +244,7 @@ export class ReactiveMap<K, V> implements Map<K, V> {
   }
 
   set(key: K, value: V): this {
-    const caller = RUNTIME.callerStack?.();
+    const caller = DEBUG.callerStack?.();
 
     const entry = this.#entry(key);
     const disposition = entry.set(value, caller);
@@ -262,7 +262,7 @@ export class ReactiveMap<K, V> implements Map<K, V> {
 
   *values(): IterableIterator<V> {
     // add an extra frame for the internal JS call to .next()
-    const caller = RUNTIME.callerStack?.(EXTRA_CALLER_FRAME);
+    const caller = DEBUG.callerStack?.(EXTRA_CALLER_FRAME);
 
     this.#values.read(caller);
 
@@ -297,7 +297,7 @@ export class ReactiveSet<T> implements Set<T> {
   }
 
   get size(): number {
-    const caller = RUNTIME.callerStack?.();
+    const caller = DEBUG.callerStack?.();
 
     this.#values.read(caller);
 
@@ -315,7 +315,7 @@ export class ReactiveSet<T> implements Set<T> {
   }
 
   add(value: T): this {
-    const caller = RUNTIME.callerStack?.();
+    const caller = DEBUG.callerStack?.();
 
     const entry = this.#entry(value);
 
@@ -329,7 +329,7 @@ export class ReactiveSet<T> implements Set<T> {
   }
 
   clear(): void {
-    const caller = RUNTIME.callerStack?.();
+    const caller = DEBUG.callerStack?.();
 
     if (this.#entries.size > EMPTY_MAP_SIZE) {
       this.#entries.clear();
@@ -338,7 +338,7 @@ export class ReactiveSet<T> implements Set<T> {
   }
 
   delete(value: T): boolean {
-    const caller = RUNTIME.callerStack?.();
+    const caller = DEBUG.callerStack?.();
 
     const entry = this.#entries.get(value);
 
@@ -356,7 +356,7 @@ export class ReactiveSet<T> implements Set<T> {
   }
 
   *entries(): IterableIterator<[T, T]> {
-    const caller = RUNTIME.callerStack?.();
+    const caller = DEBUG.callerStack?.();
 
     this.#values.read(caller);
 
@@ -369,7 +369,7 @@ export class ReactiveSet<T> implements Set<T> {
     callbackfn: (value: T, value2: T, set: Set<T>) => void,
     thisArg?: unknown
   ): void {
-    const caller = RUNTIME.callerStack?.();
+    const caller = DEBUG.callerStack?.();
 
     this.#values.read(caller);
 
@@ -379,7 +379,7 @@ export class ReactiveSet<T> implements Set<T> {
   }
 
   has(value: T): boolean {
-    const caller = RUNTIME.callerStack?.();
+    const caller = DEBUG.callerStack?.();
 
     return this.#entry(value).isPresent(caller);
   }
@@ -393,7 +393,7 @@ export class ReactiveSet<T> implements Set<T> {
   }
 
   *keys(): IterableIterator<T> {
-    const caller = RUNTIME.callerStack?.();
+    const caller = DEBUG.callerStack?.();
 
     this.#values.read(caller);
 

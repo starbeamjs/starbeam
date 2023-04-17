@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 
-import { Cell, LIFETIME } from "@starbeam/universal";
+import { RUNTIME } from "@starbeam/reactive";
+import { Cell } from "@starbeam/universal";
 import { Cursor, El, Fragment, Text } from "@starbeamx/vanilla";
 import { describe, expect, test } from "vitest";
 
@@ -20,7 +21,7 @@ describe("Vanilla Renderer", () => {
 
     expect(body.innerHTML).toBe("Goodbye world");
 
-    LIFETIME.finalize(owner);
+    RUNTIME.finalize(owner);
     render.poll();
 
     expect(body.innerHTML).toBe("");
@@ -54,7 +55,7 @@ describe("Vanilla Renderer", () => {
     expect(body.innerHTML).toBe("Hola World ::: Goodbye World");
     body.expectStable();
 
-    LIFETIME.finalize(owner);
+    RUNTIME.finalize(owner);
 
     expect(body.innerHTML).toBe("");
   });

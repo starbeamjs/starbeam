@@ -1,12 +1,8 @@
-import type {
-  CoreFormulaTag,
-  CoreTag,
-  ReactiveValue,
-} from "@starbeam/interfaces";
+import type { FormulaTag, ReactiveValue, Tag } from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
 import { createFormulaTag } from "@starbeam/tags";
 
-import { RUNTIME } from "../runtime.js";
+import { DEBUG, evaluate, RUNTIME } from "../runtime.js";
 import {
   type FormulaFn,
   type SugaryPrimitiveOptions,
@@ -14,7 +10,7 @@ import {
   WrapFn,
 } from "./utils.js";
 
-export interface Formula<T = unknown> extends ReactiveValue<T, CoreFormulaTag> {
+export interface Formula<T = unknown> extends ReactiveValue<T, FormulaTag> {
   (): T;
   readonly current: T;
 }
@@ -24,16 +20,16 @@ export function Formula<T>(
   options?: SugaryPrimitiveOptions
 ): FormulaFn<T> {
   const { description } = toOptions(options);
-  const desc = RUNTIME.Desc?.("formula", description);
-  let children = new Set<CoreTag>();
-  const tag = createFormulaTag(desc, () => children);
+  const desc = DEBUG.Desc?.("formula", description);
+  let children = new Set<Tag>();
+  const { tag, markInitialized } = createFormulaTag(desc, () => children);
 
-  function read(_caller = RUNTIME.callerStack?.()): T {
-    const { value, tags } = RUNTIME.evaluate(compute);
-    children = tags;
+  function read(_caller = DEBUG.callerStack?.()): T {
+    const { value, tags } = evaluate(compute);
+    children = tags as Set<Tag>;
 
-    tag.markInitialized();
-    RUNTIME.subscriptions.update(tag);
+    markInitialized();
+    RUNTIME.update(tag);
 
     return value;
   }
@@ -42,7 +38,7 @@ export function Formula<T>(
     [TAG]: tag,
     read,
     get current(): T {
-      return read(RUNTIME.callerStack?.());
+      return read(DEBUG.callerStack?.());
     },
   });
 }

@@ -1,11 +1,7 @@
 import type { TAG } from "@starbeam/shared";
 
-import type { CoreTag } from "./core.js";
 import type { CallStack } from "./debug/call-stack.js";
-
-export type ReactiveId = number | string | ReactiveId[];
-
-export type TagSet = ReadonlySet<CoreTag>;
+import type { Tag } from "./tag.js";
 
 /**
  * A `Tagged` object is a reactive object that has a `Tag` (which is used to
@@ -22,11 +18,11 @@ export type TagSet = ReadonlySet<CoreTag>;
  * allows you to keep the tag stable while varying the children (which *are*
  * allowed to change, since that's the point of `FormulaTag`).
  */
-export interface Tagged<I extends CoreTag = CoreTag> {
+export interface Tagged<I extends Tag = Tag> {
   readonly [TAG]: I;
 }
 
-export interface ReactiveValue<T = unknown, I extends CoreTag = CoreTag>
+export interface ReactiveValue<T = unknown, I extends Tag = Tag>
   extends Tagged<I> {
   read: (stack?: CallStack) => T;
 }
@@ -35,7 +31,7 @@ export interface Reactive<T> extends ReactiveValue<T> {
   readonly current: T;
 }
 
-export interface TaggedReactive<I extends CoreTag, T = unknown>
+export interface TaggedReactive<I extends Tag, T = unknown>
   extends ReactiveValue<T, I> {
   readonly current: T;
 }

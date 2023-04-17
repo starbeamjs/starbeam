@@ -1,7 +1,7 @@
 import { TAG } from "@starbeam/shared";
 import { createFormulaTag } from "@starbeam/tags";
 
-import { RUNTIME } from "../runtime.js";
+import { DEBUG, RUNTIME } from "../runtime.js";
 import {
   type FinalizedFormula,
   FormulaLifecycle,
@@ -22,7 +22,7 @@ export function CachedFormula<T>(
 
   let last: Last<T> | null = null;
 
-  const tag = createFormulaTag(desc, () =>
+  const { tag, markInitialized } = createFormulaTag(desc, () =>
     last === null ? new Set() : last.formula.children()
   );
 
@@ -34,26 +34,21 @@ export function CachedFormula<T>(
 
       last = { formula, value };
 
-      tag.markInitialized();
-      RUNTIME.subscriptions.update(tag);
-
-      return value;
+      markInitialized();
+      RUNTIME.update(tag);
     } else if (last.formula.isStale()) {
       const lifecycle = last.formula.update();
-      const value = (last.value = compute());
+      last.value = compute();
       lifecycle.done();
-      RUNTIME.subscriptions.update(tag);
-
-      // last.value = value;
-      return value;
-    } else {
-      return last.value;
+      RUNTIME.update(tag);
     }
+
+    return last.value;
   }
 
-  function read(_caller = RUNTIME.callerStack?.()): T {
+  function read(_caller = DEBUG.callerStack?.()): T {
     const value = evaluate();
-    RUNTIME.autotracking.consume(tag);
+    RUNTIME.consume(tag);
     return value;
   }
 
@@ -61,7 +56,7 @@ export function CachedFormula<T>(
     [TAG]: tag,
     read,
     get current(): T {
-      return read(RUNTIME.callerStack?.());
+      return read(DEBUG.callerStack?.());
     },
   });
 }

@@ -1,6 +1,6 @@
 import type { Description, Reactive } from "@starbeam/interfaces";
-import { CachedFormula } from "@starbeam/reactive";
-import { LIFETIME, RUNTIME } from "@starbeam/runtime";
+import { CachedFormula, DEBUG } from "@starbeam/reactive";
+import { RUNTIME } from "@starbeam/runtime";
 
 import { Cursor } from "./cursor.js";
 
@@ -29,7 +29,7 @@ function Render<T extends Cursor | Element>(
 
         const formula = CachedFormula(update, description);
 
-        LIFETIME.on.cleanup(owner, cleanup);
+        RUNTIME.onFinalize(owner, cleanup);
 
         return {
           poll() {
@@ -57,7 +57,7 @@ export function Text(
         node.textContent = text.read();
       },
     };
-  }, RUNTIME.Desc?.("resource", description, "Text"));
+  }, DEBUG.Desc?.("resource", description, "Text"));
 }
 
 class FragmentRange {
@@ -114,7 +114,7 @@ export function Fragment(
   nodes: ContentNode[],
   description?: string | Description
 ): ContentNode {
-  const desc = RUNTIME.Desc?.("resource", description, "Fragment");
+  const desc = DEBUG.Desc?.("resource", description, "Fragment");
 
   return Render(({ into, owner }) => {
     const start = placeholder(into.document);
@@ -175,7 +175,7 @@ export function Attr<E extends Element>(
         }
       },
     };
-  }, RUNTIME.Desc?.("resource", description, "Attr"));
+  }, DEBUG.Desc?.("resource", description, "Attr"));
 }
 
 export function Element(
@@ -219,7 +219,7 @@ export function Element(
         renderBody.poll();
       },
     };
-  }, RUNTIME.Desc?.("resource", description, "Element"));
+  }, DEBUG.Desc?.("resource", description, "Element"));
 }
 
 Element.Attr = Attr;

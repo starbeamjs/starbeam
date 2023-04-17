@@ -17,11 +17,10 @@ export {
   read as readReactive,
   Static,
 } from "@starbeam/reactive";
-export { Wrap } from "@starbeam/reactive";
 export {
   Resource,
   type ResourceBlueprint,
   type ResourceRun,
   use,
 } from "@starbeam/resource";
-export { LIFETIME, PUBLIC_TIMELINE, TAG } from "@starbeam/runtime";
+export { TAG } from "@starbeam/runtime";

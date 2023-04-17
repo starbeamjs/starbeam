@@ -1,13 +1,12 @@
 import { reactive } from "@starbeam/collections";
 import { DisplayStruct } from "@starbeam/core-utils";
-import { CachedFormula, Cell } from "@starbeam/reactive";
+import { CachedFormula, Cell, RUNTIME } from "@starbeam/reactive";
 import {
   Resource,
   type ResourceBlueprint,
   ResourceList,
   use,
 } from "@starbeam/resource";
-import { LIFETIME } from "@starbeam/runtime";
 import { describe, expect, test } from "@starbeam-workspace/test-utils";
 
 interface Item {
@@ -94,7 +93,7 @@ describe("ResourceList", () => {
       { active: true, desc: "John (LA)" },
     ]);
 
-    LIFETIME.finalize(lifetime);
+    RUNTIME.finalize(lifetime);
 
     expect(mapped.current.map((r) => r.current)).toEqual([
       { active: false, desc: "Tom (NYC)" },

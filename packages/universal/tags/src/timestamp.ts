@@ -1,28 +1,28 @@
 import { DisplayStruct } from "@starbeam/core-utils";
-import type * as interfaces from "@starbeam/interfaces";
+import type { Timestamp as ITimestamp } from "@starbeam/interfaces";
 import { bump as peerBump, now as peerNow } from "@starbeam/shared";
 
 export const INSPECT = Symbol.for("nodejs.util.inspect.custom");
 
-export class TimestampImpl implements interfaces.Timestamp {
+export class TimestampImpl implements ITimestamp {
   static #initial = peerNow();
 
   /**
    * Returns the current `Timestamp` according to @starbeam/shared
    */
-  static now(): interfaces.Timestamp {
+  static now(): ITimestamp {
     return new TimestampImpl(peerNow());
   }
 
   /**
    * The earliest timestamp from @starbeam/shared that was visible to this @starbeam/timeline.
    */
-  static zero(): interfaces.Timestamp {
+  static zero(): ITimestamp {
     return new TimestampImpl(TimestampImpl.#initial);
   }
 
   static assert(
-    timestamp: interfaces.Timestamp,
+    timestamp: ITimestamp,
     what: string
   ): asserts timestamp is TimestampImpl {
     if (!(#timestamp in timestamp)) {
@@ -30,7 +30,7 @@ export class TimestampImpl implements interfaces.Timestamp {
     }
   }
 
-  static debug(this: void, timestamp: interfaces.Timestamp): { at: number } {
+  static debug(this: void, timestamp: ITimestamp): { at: number } {
     TimestampImpl.assert(timestamp, "Timestamp.debug");
     return { at: timestamp.#timestamp };
   }
@@ -45,6 +45,10 @@ export class TimestampImpl implements interfaces.Timestamp {
       this[INSPECT] = (): object =>
         DisplayStruct("Timestamp", { at: this.#timestamp });
     }
+  }
+
+  get at(): number {
+    return this.#timestamp;
   }
 
   gt(other: Timestamp): boolean {
@@ -67,7 +71,7 @@ export class TimestampImpl implements interfaces.Timestamp {
   }
 
   toString = (options: { format?: "timestamp" } = {}): string => {
-    if (options?.format === "timestamp") {
+    if (options.format === "timestamp") {
       return String(this.#timestamp);
     } else {
       return `#<Timestamp ${this.#timestamp}>`;
@@ -75,31 +79,29 @@ export class TimestampImpl implements interfaces.Timestamp {
   };
 }
 
-export function zero(): interfaces.Timestamp {
+export function zero(): ITimestamp {
   return Timestamp.zero();
 }
 
-export function getNow(): interfaces.Timestamp {
+export function getNow(): ITimestamp {
   return Timestamp.now();
 }
 
-export type Timestamp = interfaces.Timestamp;
+export type Timestamp = ITimestamp;
 export const Timestamp = TimestampImpl;
 
-export function max(
-  ...timestamps: interfaces.Timestamp[]
-): interfaces.Timestamp {
+export function max(...timestamps: ITimestamp[]): ITimestamp {
   return timestamps.reduce((a, b) => (a.gt(b) ? a : b), zero());
 }
 
 export class Now {
   #now = Timestamp.now();
 
-  get now(): interfaces.Timestamp {
+  get now(): ITimestamp {
     return this.#now;
   }
 
-  bump(): interfaces.Timestamp {
+  bump(): ITimestamp {
     return (this.#now = this.#now.next());
   }
 }

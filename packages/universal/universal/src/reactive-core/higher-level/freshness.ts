@@ -1,5 +1,5 @@
 import type { Description } from "@starbeam/interfaces";
-import { Cell, RUNTIME } from "@starbeam/reactive";
+import { Cell, DEBUG } from "@starbeam/reactive";
 
 const INITIAL_COUNT = 0;
 const INCREMENT_COUNT = 1;
@@ -36,7 +36,7 @@ export class ReactiveFreshness {
 export function Freshness(
   description?: string | Description
 ): ReactiveFreshness {
-  return new ReactiveFreshness(RUNTIME.Desc?.("cell", description));
+  return new ReactiveFreshness(DEBUG.Desc?.("cell", description));
 }
 
 export type Freshness = ReactiveFreshness;

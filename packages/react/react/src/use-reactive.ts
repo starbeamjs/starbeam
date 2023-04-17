@@ -1,12 +1,7 @@
 import type { Description, Reactive } from "@starbeam/interfaces";
-import {
-  CachedFormula,
-  Formula as Formula,
-  isReactive,
-  RUNTIME,
-} from "@starbeam/reactive";
-import { PUBLIC_TIMELINE } from "@starbeam/runtime";
-import { Cell, LIFETIME, Wrap } from "@starbeam/universal";
+import { DEBUG, Formula as Formula, isReactive } from "@starbeam/reactive";
+import { render } from "@starbeam/runtime";
+import { Cell } from "@starbeam/universal";
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
 import { useState } from "react";
 
@@ -27,7 +22,7 @@ export function useReactive<T>(
   computeFn: Reactive<T> | (() => T),
   description?: string | Description | undefined
 ): T {
-  const desc = RUNTIME.Desc?.("formula", description);
+  const desc = DEBUG.Desc?.("formula", description);
 
   const notify = useNotify();
 
@@ -53,7 +48,7 @@ export function useReactive<T>(
       // We wait until the first layout to subscribe to the formula, because React will
       // only guarantee that the cleanup function is called after the first layout.
       on.layout(() => {
-        const unsubscribe = PUBLIC_TIMELINE.on.change(formula, notify);
+        const unsubscribe = render(formula, notify);
         on.cleanup(unsubscribe);
       });
 
@@ -81,84 +76,7 @@ export function useCell<T>(
   value: T,
   description?: Description | string
 ): Cell<T> {
-  const desc = RUNTIME.Desc?.("cell", description);
+  const desc = DEBUG.Desc?.("cell", description);
 
   return useSetup(() => ({ cell: Cell(value, { description: desc }) })).cell;
-}
-
-export class MountedReactive<T> {
-  static create<T>(
-    initial: T,
-    description: Description
-  ): MountedReactive<T> & Reactive<T | undefined> {
-    const resource = new MountedReactive(initial, description);
-    return Wrap(resource.formula, resource);
-  }
-
-  readonly formula: Formula<T | undefined>;
-  readonly #initial: T;
-  readonly #cell: Cell<Reactive<T | undefined> | undefined>;
-  #value: Reactive<T | undefined> | undefined;
-  #owner: object | undefined = undefined;
-
-  private constructor(initial: T, description: Description | undefined) {
-    this.#initial = initial;
-    this.#cell = Cell(undefined as Reactive<T | undefined> | undefined, {
-      description: description?.implementation(
-        "cell",
-        "target",
-        "the storage a mounted reactive"
-      ),
-    });
-    this.#value = undefined;
-    this.formula = CachedFormula(
-      () => this.#cell.current?.current ?? this.#initial,
-      description?.implementation(
-        "formula",
-        "current",
-        "the current value of the reactive"
-      )
-    );
-
-    LIFETIME.on.cleanup(this, () => {
-      this.#finalize();
-    });
-  }
-
-  #finalize(): void {
-    if (this.#owner) {
-      LIFETIME.finalize(this.#owner);
-      this.#owner = undefined;
-    }
-  }
-
-  #reset(): object {
-    this.#finalize();
-
-    this.#owner = {};
-    LIFETIME.link(this, this.#owner);
-    return this.#owner;
-  }
-
-  isInactive(): boolean {
-    return this.#value === undefined;
-  }
-
-  create(factory: (owner: object) => Reactive<T | undefined>): {
-    reactive: Reactive<T | undefined>;
-    owner: object;
-  } {
-    const owner = this.#reset();
-
-    const reactive = factory(owner);
-
-    this.#cell.set(reactive);
-    this.#value = reactive;
-
-    // If the `use`d resource is finalized, and the return value of the factory is a resource, we
-    // want to finalize that resource as well.
-    LIFETIME.link(this, reactive);
-
-    return { reactive, owner };
-  }
 }
