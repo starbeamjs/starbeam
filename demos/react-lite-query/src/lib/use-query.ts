@@ -1,6 +1,6 @@
 import type { Description } from "@starbeam/interfaces";
 import { useSetup } from "@starbeam/react";
-import { RUNTIME } from "@starbeam/runtime";
+import { DEBUG, RUNTIME } from "@starbeam/universal";
 
 import type { AsyncData, Query } from "./fetch.js";
 import { QUERIES } from "./fetch.js";
@@ -22,7 +22,7 @@ export default function useQuery<T>(
     }, desc?.implementation("resource", "on.idle", "on idle callback"));
 
     return () => {
-      return QUERIES.query(key, query, desc).asData(RUNTIME.callerStack?.());
+      return QUERIES.query(key, query, desc).asData(DEBUG.callerStack?.());
     };
   }, desc).compute();
 }
