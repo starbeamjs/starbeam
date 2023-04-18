@@ -10,11 +10,13 @@ export {
 export type { Reactive } from "@starbeam/interfaces";
 export {
   Cell,
+  DEBUG,
   type Equality,
   CachedFormula as Formula,
   Marker,
   Formula as PolledFormula,
   read as readReactive,
+  RUNTIME,
   Static,
 } from "@starbeam/reactive";
 export {

@@ -1,6 +1,6 @@
 import { reactive } from "@starbeam/collections";
 import type { Description } from "@starbeam/interfaces";
-import { RUNTIME } from "@starbeam/reactive";
+import { DEBUG } from "@starbeam/reactive";
 
 import type { Groups } from "./flat.js";
 import { FlatRows } from "./flat.js";
@@ -31,7 +31,7 @@ export class Table<U extends UserTypes> extends FlatRows<U> {
       name?: string;
     }
   ): Table<TableTypes> {
-    const description = RUNTIME.Desc?.(
+    const description = DEBUG.Desc?.(
       "collection",
       definition.name ?? definition.model?.name,
       "Table.create"

@@ -1,7 +1,6 @@
 import { reactive } from "@starbeam/collections";
 import type { Description } from "@starbeam/interfaces";
-import { RUNTIME } from "@starbeam/runtime";
-import { Cell } from "@starbeam/universal";
+import { Cell, DEBUG } from "@starbeam/universal";
 import { isPresent, verified } from "@starbeam/verify";
 
 export class Queries {
@@ -88,7 +87,7 @@ function selected(
         "cell",
         "value",
         "cell value",
-        RUNTIME.callerStack?.()
+        DEBUG.callerStack?.()
       ),
     }),
   };
@@ -167,7 +166,7 @@ export class Async<T = unknown> {
     this.#currentType = current;
   }
 
-  asData(caller = RUNTIME.callerStack?.()): AsyncData<T> {
+  asData(caller = DEBUG.callerStack?.()): AsyncData<T> {
     switch (this.#currentType) {
       case "idle":
         return { state: "idle" };
@@ -207,13 +206,13 @@ export class Async<T = unknown> {
 
   is<K extends keyof AsyncStates<T>>(
     type: K,
-    caller = RUNTIME.callerStack?.()
+    caller = DEBUG.callerStack?.()
   ): this is K extends "loaded" ? { data: T } : this {
     return this.#states[type].selected.read(caller);
   }
 
   get data(): T | null {
-    return this.#states.loaded.value.read(RUNTIME.callerStack?.());
+    return this.#states.loaded.value.read(DEBUG.callerStack?.());
   }
 
   idle(): this {
