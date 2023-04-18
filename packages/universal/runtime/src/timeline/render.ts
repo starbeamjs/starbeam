@@ -7,8 +7,7 @@ import type {
   Unsubscribe,
 } from "@starbeam/interfaces";
 import { isTagged } from "@starbeam/reactive";
-import { UNINITIALIZED } from "@starbeam/shared";
-import { getTag, hasDependencies, type Timestamp } from "@starbeam/tags";
+import { getTag, type Timestamp } from "@starbeam/tags";
 import { NOW } from "@starbeam/tags";
 
 import { RUNTIME } from "../define.js";
@@ -25,11 +24,7 @@ function SubscriptionRuntime(): {
 
   return {
     subscribe: (target: Tag, ready: NotifyReady): Unsubscribe => {
-      if (target.dependencies === UNINITIALIZED || hasDependencies(target)) {
-        return subscriptions.register(target, ready);
-      } else {
-        return () => void null;
-      }
+      return subscriptions.register(target, ready);
     },
 
     mark: (cell: CellTag, update: (revision: Timestamp) => void): void => {

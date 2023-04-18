@@ -87,7 +87,7 @@ function selected(
         "cell",
         "value",
         "cell value",
-        DEBUG.callerStack?.()
+        DEBUG?.callerStack()
       ),
     }),
   };
@@ -166,7 +166,7 @@ export class Async<T = unknown> {
     this.#currentType = current;
   }
 
-  asData(caller = DEBUG.callerStack?.()): AsyncData<T> {
+  asData(caller = DEBUG?.callerStack()): AsyncData<T> {
     switch (this.#currentType) {
       case "idle":
         return { state: "idle" };
@@ -206,13 +206,13 @@ export class Async<T = unknown> {
 
   is<K extends keyof AsyncStates<T>>(
     type: K,
-    caller = DEBUG.callerStack?.()
+    caller = DEBUG?.callerStack()
   ): this is K extends "loaded" ? { data: T } : this {
     return this.#states[type].selected.read(caller);
   }
 
   get data(): T | null {
-    return this.#states.loaded.value.read(DEBUG.callerStack?.());
+    return this.#states.loaded.value.read(DEBUG?.callerStack());
   }
 
   idle(): this {

@@ -1,4 +1,4 @@
-import { Formula } from "@starbeam/reactive";
+import { DEBUG, Formula, type FormulaFn } from "@starbeam/reactive";
 import { expected, isPresent, verify } from "@starbeam/verify";
 
 export const cached = <T>(
@@ -21,7 +21,7 @@ export const cached = <T>(
       )
   );
 
-  const CACHED = new WeakMap<object, Formula<T>>();
+  const CACHED = new WeakMap<object, FormulaFn<T>>();
 
   Object.defineProperty(target, key, {
     enumerable: descriptor.enumerable ?? true,
@@ -38,7 +38,7 @@ export const cached = <T>(
         CACHED.set(this, formula);
       }
 
-      return formula.current;
+      return formula.read(DEBUG?.callerStack());
     },
   });
 };

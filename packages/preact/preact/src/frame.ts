@@ -85,7 +85,7 @@ export class ComponentFrame {
     this.#frame = frame;
     this.#active = active;
     const tag = initializeFormulaTag(
-      DEBUG.Desc?.("formula", description),
+      DEBUG?.Desc("formula", description),
       () => this.#frame?.children() ?? new Set()
     );
     this.#tag = tag;

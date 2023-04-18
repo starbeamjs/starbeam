@@ -1,3 +1,7 @@
+import { defineDebug } from "@starbeam/reactive";
+
+import debug from "./debug.js";
+
 if (
   (globalThis.Buffer as BufferConstructor | undefined) === undefined &&
   typeof require === "function"
@@ -12,4 +16,4 @@ if (
   }
 }
 
-export {};
+defineDebug(debug);

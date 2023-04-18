@@ -1,7 +1,6 @@
 // @vitest-environment happy-dom
 
-import { RUNTIME } from "@starbeam/reactive";
-import { Cell } from "@starbeam/universal";
+import { Cell, RUNTIME } from "@starbeam/universal";
 import { Cursor, El, Fragment, Text } from "@starbeamx/vanilla";
 import { describe, expect, test } from "vitest";
 

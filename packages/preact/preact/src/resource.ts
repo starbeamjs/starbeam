@@ -1,3 +1,4 @@
+import { DEBUG } from "@starbeam/reactive";
 import type { IntoResourceBlueprint } from "@starbeam/resource";
 import * as resource from "@starbeam/resource";
 import { service as createService } from "@starbeam/service";
@@ -10,11 +11,11 @@ export function use<T>(blueprint: IntoResourceBlueprint<T>): T {
   return useMemo(() => {
     const owner = verified(getCurrentComponent(), isPresent);
     return resource.use(blueprint, { lifetime: owner });
-  }, []).current;
+  }, []).read(DEBUG?.callerStack());
 }
 
 export function service<T>(blueprint: IntoResourceBlueprint<T>): T {
   return useMemo(() => {
     return createService(blueprint);
-  }, []).current;
+  }, []).read(DEBUG?.callerStack());
 }

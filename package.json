@@ -165,7 +165,7 @@
       "@typescript-eslint/parser": "$@typescript-eslint/parser",
       "eslint": "$eslint",
       "preact": "^10.11.3",
-      "rollup": "^3.20.2",
+      "rollup": "^3.20.6",
       "typescript": "$typescript",
       "vite": "$vite",
       "vite-plugin-fonts": "0.7.0",

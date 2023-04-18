@@ -4,11 +4,11 @@ import type {
   Description,
   FormulaTag,
   TagSnapshot,
-  Timestamp,
 } from "@starbeam/interfaces";
 import { UNINITIALIZED } from "@starbeam/shared";
 
 import { getDependencies } from "./tagged.js";
+import type { Timestamp } from "./timestamp.js";
 import { NOW } from "./timestamp.js";
 
 /**

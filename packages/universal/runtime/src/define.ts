@@ -1,4 +1,3 @@
-import { debugRuntime as DEBUG_RUNTIME } from "@starbeam/debug";
 import type { Runtime as IRuntime, TagSnapshot } from "@starbeam/interfaces";
 import { defineRuntime } from "@starbeam/reactive";
 import { consume, start } from "@starbeam/shared";
@@ -7,7 +6,6 @@ import { LIFETIME } from "./lifetime/api.js";
 import { SUBSCRIPTION_RUNTIME } from "./timeline/render.js";
 
 export const RUNTIME: IRuntime = {
-  debug: DEBUG_RUNTIME,
   start: (): (() => TagSnapshot) => {
     const done = start();
 

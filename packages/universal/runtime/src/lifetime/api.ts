@@ -2,23 +2,6 @@ import { expected, isEqual, verify } from "@starbeam/verify";
 
 import { ObjectLifetime, type Unsubscribe } from "./object-lifetime.js";
 
-/**
- * Implement this interface if you are building a new abstraction that wants to
- * expose cleanup in an idiomatic way.
- *
- * Note that users could always use `LIFETIME.on.cleanup(object, handler)` and
- * `LIFETIME.link(parent, child)` directly, but {@link CleanupTarget} is a way
- * to add cleanup support to objects consistently and idiomatically.
- */
-export interface CleanupTarget {
-  readonly link: (child: object) => Unsubscribe;
-  readonly on: OnCleanup;
-}
-
-export interface OnCleanup {
-  readonly cleanup: (finalizer: () => void) => Unsubscribe;
-}
-
 class LifetimeAPI {
   readonly #associations = new WeakMap<object, ObjectLifetime>();
   readonly #roots = new WeakMap<

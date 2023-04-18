@@ -1,10 +1,9 @@
 export { type AppContext, CONTEXT } from "./src/context/context.js";
 export { RUNTIME } from "./src/define.js";
-export { type CleanupTarget, type OnCleanup } from "./src/lifetime/api.js";
 export type { Unsubscribe } from "./src/lifetime/object-lifetime.js";
 export { ReactiveError, render } from "./src/timeline/render.js";
 export { Subscriptions } from "./src/timeline/subscriptions.js";
 export { diff } from "./src/timeline/utils.js";
 export type { Tagged } from "@starbeam/interfaces";
 export { TAG } from "@starbeam/shared";
-export { getTag, Timestamp } from "@starbeam/tags";
+export { getTag } from "@starbeam/tags";

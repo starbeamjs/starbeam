@@ -5,7 +5,8 @@
 /** @jsxRuntime automatic @jsxImportSource preact */
 
 import { logTag } from "@starbeam/debug";
-import type { CellTag, Timestamp } from "@starbeam/interfaces";
+import type { CellTag } from "@starbeam/interfaces";
+import type { Timestamp } from "@starbeam/tags";
 import type { JSX } from "preact";
 
 import { DescribeLeaf } from "./describe.js";

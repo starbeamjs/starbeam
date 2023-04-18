@@ -1,5 +1,4 @@
 import type { CallStack } from "./debug/call-stack.js";
-import type { DebugRuntime } from "./debug/debug-runtime.js";
 import type { CellTag, FormulaTag, Tag, TagSnapshot } from "./tag.js";
 import type { CoreTimestamp } from "./timestamp.js";
 import type { Unsubscribe } from "./utils.js";
@@ -108,8 +107,6 @@ export interface Runtime {
    * before replacing a finalized object with a new object.
    */
   readonly finalize: (object: object) => void;
-
-  readonly debug: DebugRuntime | undefined;
 }
 
 export type NotifyReady = (internals: CellTag) => void;

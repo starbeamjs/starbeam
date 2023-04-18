@@ -37,7 +37,7 @@ export const reactive = (
         CELLS.set(this, cell);
       }
 
-      return cell.current as unknown;
+      return cell.read(DEBUG?.callerStack()) as unknown;
     },
     set: function (this: object, value: unknown) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -56,27 +56,27 @@ export const reactive = (
 reactive.Map = <K, V>(description?: string | Description): Map<K, V> => {
   return ReactiveMap.reactive(
     Object.is,
-    DEBUG.Desc?.("collection", description)
+    DEBUG?.Desc("collection", description)
   );
 };
 
 reactive.WeakMap = <K extends object, V>(
   description?: string | Description
 ): WeakMap<K, V> => {
-  return TrackedWeakMap.reactive<K, V>(DEBUG.Desc?.("collection", description));
+  return TrackedWeakMap.reactive<K, V>(DEBUG?.Desc("collection", description));
 };
 
 reactive.Set = <T>(description?: string | Description): Set<T> => {
   return ReactiveSet.reactive(
     Object.is,
-    DEBUG.Desc?.("collection", description)
+    DEBUG?.Desc("collection", description)
   );
 };
 
 reactive.WeakSet = <T extends object>(
   description?: string | Description
 ): WeakSet<T> => {
-  return TrackedWeakSet.reactive(DEBUG.Desc?.("collection", description));
+  return TrackedWeakSet.reactive(DEBUG?.Desc("collection", description));
 };
 
 export function object<T extends Record<string, unknown>>(
@@ -85,7 +85,7 @@ export function object<T extends Record<string, unknown>>(
   description?: string | Description
 ): T {
   return TrackedObject.reactive(
-    DEBUG.Desc?.("collection", description),
+    DEBUG?.Desc("collection", description),
     values
   );
 }
@@ -94,7 +94,7 @@ reactive.object = object;
 
 reactive.array = <T>(values: T[], description?: string | Description): T[] => {
   return new TrackedArray(
-    DEBUG.Desc?.("collection", description),
+    DEBUG?.Desc("collection", description),
     values
   ) as T[];
 };

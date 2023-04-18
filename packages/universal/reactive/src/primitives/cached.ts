@@ -1,7 +1,7 @@
 import { TAG } from "@starbeam/shared";
 import { createFormulaTag } from "@starbeam/tags";
 
-import { DEBUG, RUNTIME } from "../runtime.js";
+import { DEBUG, getRuntime } from "../runtime.js";
 import {
   type FinalizedFormula,
   FormulaLifecycle,
@@ -18,7 +18,7 @@ export function CachedFormula<T>(
   options?: SugaryPrimitiveOptions
 ): FormulaFn<T> {
   const { description } = toOptions(options);
-  const desc = RUNTIME.debug?.desc("formula", description);
+  const desc = DEBUG?.Desc("formula", description);
 
   let last: Last<T> | null = null;
 
@@ -35,20 +35,20 @@ export function CachedFormula<T>(
       last = { formula, value };
 
       markInitialized();
-      RUNTIME.update(tag);
+      getRuntime().update(tag);
     } else if (last.formula.isStale()) {
       const lifecycle = last.formula.update();
       last.value = compute();
       lifecycle.done();
-      RUNTIME.update(tag);
+      getRuntime().update(tag);
     }
 
     return last.value;
   }
 
-  function read(_caller = DEBUG.callerStack?.()): T {
+  function read(_caller = DEBUG?.callerStack()): T {
     const value = evaluate();
-    RUNTIME.consume(tag);
+    getRuntime().consume(tag);
     return value;
   }
 
@@ -56,7 +56,7 @@ export function CachedFormula<T>(
     [TAG]: tag,
     read,
     get current(): T {
-      return read(DEBUG.callerStack?.());
+      return read(DEBUG?.callerStack());
     },
   });
 }

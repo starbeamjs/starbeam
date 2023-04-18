@@ -35,6 +35,6 @@
   "devDependencies": {
     "@domtree/flavors": "workspace:^",
     "@starbeam-dev/build-support": "workspace:*",
-    "rollup": "^3.20.2"
+    "rollup": "^3.20.6"
   }
 }

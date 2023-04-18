@@ -1,4 +1,4 @@
-import type { Reactive, ReactiveValue } from "@starbeam/interfaces";
+import type { Reactive } from "@starbeam/interfaces";
 import { CachedFormula, Formula } from "@starbeam/reactive";
 
 export function FormulaList<T, U>(
@@ -11,7 +11,7 @@ export function FormulaList<T, U>(
     map: (item: T) => U;
   }
 ): Reactive<readonly U[]> {
-  const prev = new Map<unknown, ReactiveValue<U>>();
+  const prev = new Map<unknown, Reactive<U>>();
 
   return Formula(() => {
     const result: U[] = [];
@@ -22,7 +22,7 @@ export function FormulaList<T, U>(
         result.push(r.read());
       } else {
         const newR = CachedFormula(() => map(item));
-        result.push(newR.current);
+        result.push(newR.read());
         prev.set(k, newR);
       }
     }

@@ -1,5 +1,5 @@
 import { isPresentArray } from "@starbeam/core-utils";
-import type { ReactiveValue } from "@starbeam/interfaces";
+import type { TaggedReactive } from "@starbeam/interfaces";
 import { CachedFormula, Cell, DEBUG, Formula } from "@starbeam/reactive";
 import { render, TAG } from "@starbeam/runtime";
 import { getTag } from "@starbeam/tags";
@@ -119,8 +119,11 @@ describe("Tagged", () => {
   test("rendering a formula delegate", () => {
     const { sum, numbers } = Sum();
 
-    const delegate: ReactiveValue<number> = {
+    const delegate: TaggedReactive<number> = {
       read: () => sum.read(),
+      get current() {
+        return sum.current;
+      },
       [TAG]: sum[TAG],
     };
 
@@ -205,8 +208,11 @@ describe("Tagged", () => {
     test("unsubscribing from a delegate", () => {
       const cell = Cell(0);
 
-      const delegate: ReactiveValue<number> = {
+      const delegate: TaggedReactive<number> = {
         read: () => cell.current,
+        get current() {
+          return cell.current;
+        },
         [TAG]: getTag(cell),
       };
 
@@ -290,10 +296,10 @@ describe("Tagged", () => {
 });
 
 function Sum(): {
-  sum: ReactiveValue<number>;
+  sum: TaggedReactive<number>;
   numbers: Cell<Cell<number>[]>;
 } {
-  const description = DEBUG.Desc?.("formula", "Sum");
+  const description = DEBUG?.Desc("formula", "Sum");
   const numbers = Cell([] as Cell<number>[], "number list");
 
   const sum = CachedFormula(

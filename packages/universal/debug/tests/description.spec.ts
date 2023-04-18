@@ -1,4 +1,4 @@
-import { DEBUG } from "@starbeam/reactive";
+import { DEBUG } from "@starbeam/debug";
 import { expect, test } from "@starbeam-workspace/test-utils";
 
 test("inferred api", () => {
@@ -14,7 +14,7 @@ test("inferred api", () => {
 });
 
 function SomeAPI() {
-  return DEBUG.Desc?.("cell");
+  return DEBUG.Desc("cell");
 }
 
-const ArrowFn = () => DEBUG.Desc?.("cell");
+const ArrowFn = () => DEBUG.Desc("cell");

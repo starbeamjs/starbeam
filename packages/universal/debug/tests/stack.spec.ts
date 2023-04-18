@@ -1,4 +1,4 @@
-import { debugRuntime } from "@starbeam/debug";
+import { DEBUG } from "@starbeam/debug";
 import { type CallStack } from "@starbeam/interfaces";
 import { describe, expect, test } from "vitest";
 
@@ -16,11 +16,11 @@ describe("Error stacks", () => {
 });
 
 function anOuterFunction(): CallStack | undefined {
-  return debugRuntime.callerStack();
+  return DEBUG.callerStack();
 }
 
 function callerStackInArgs(
-  desc = debugRuntime.callerStack()?.frames[0].action
+  desc = DEBUG.callerStack()?.frames[0].action
 ): string | undefined {
   return desc;
 }

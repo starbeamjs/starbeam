@@ -7,7 +7,7 @@ import type {
 import { TAG } from "@starbeam/shared";
 
 import { Static } from "./primitives/cell.js";
-import { DEBUG } from "./runtime.js";
+import { getDebug } from "./runtime.js";
 
 function is(this: void, value: unknown): value is Tagged {
   return !!(
@@ -31,7 +31,7 @@ export type ReadValue<T> = T extends Reactive<infer R> ? R : T;
 export function read<T>(
   this: void,
   value: T,
-  caller = DEBUG.callerStack?.()
+  caller = getDebug()?.callerStack()
 ): ReadValue<T> {
   if (is(value) && hasRead(value)) {
     return value.read(caller) as ReadValue<T>;
@@ -49,7 +49,7 @@ export function intoReactive<T>(
     return value;
   } else {
     return Static(value, {
-      description: DEBUG.Desc?.("cell", description),
+      description: getDebug()?.Desc("cell", description),
     });
   }
 }

@@ -3,8 +3,11 @@ import type { UNINITIALIZED } from "@starbeam/shared";
 import type { Description } from "./debug/description.js";
 import type { CoreTimestamp } from "./timestamp.js";
 
+/**
+ * A snapshot of a set of tags. This represents the current dependencies of a
+ * formula immediately after it was last evaluated.
+ */
 export type TagSnapshot = ReadonlySet<Tag>;
-export type TagSet = Set<Tag>;
 
 /**
  * Cell is the fundamental mutable reactive value. All subscriptions in Starbeam

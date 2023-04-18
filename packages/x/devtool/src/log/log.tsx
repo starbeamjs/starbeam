@@ -6,7 +6,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import "preact";
 
-import type { Timestamp } from "@starbeam/interfaces";
+import type { Timestamp } from "@starbeam/tags";
 /** @jsxRuntime automatic @jsxImportSource preact */
 import type { JSX } from "preact";
 import { useMemo, useState } from "preact/hooks";

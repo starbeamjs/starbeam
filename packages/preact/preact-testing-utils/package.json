@@ -29,7 +29,7 @@
   "devDependencies": {
     "@starbeam-dev/build-support": "workspace:*",
     "preact-render-to-string": "^5.2.6",
-    "rollup": "^3.20.2"
+    "rollup": "^3.20.6"
   },
   "peerDependencies": {
     "preact": "*"

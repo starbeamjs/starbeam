@@ -1,11 +1,5 @@
-import {
-  CachedFormula,
-  Cell,
-  DEBUG,
-  Marker,
-  RUNTIME,
-} from "@starbeam/reactive";
-import { getTag } from "@starbeam/runtime";
+import { CachedFormula, Cell, DEBUG, Marker } from "@starbeam/reactive";
+import { getTag, RUNTIME } from "@starbeam/runtime";
 import { initializeFormulaTag } from "@starbeam/tags";
 import { describe, expect, test } from "vitest";
 
@@ -33,10 +27,10 @@ describe("consumption", () => {
     // finalize the frame, which should give us back the marker's tag
     const tags = done();
     // create a formula tag with the marker's tags
-    const tag = initializeFormulaTag(DEBUG.Desc?.("formula"), () => tags);
+    const tag = initializeFormulaTag(DEBUG?.Desc("formula"), () => tags);
 
     const stale = new Staleness();
-    RUNTIME.subscribe(tag, () =>  void stale.invalidate());
+    RUNTIME.subscribe(tag, () => void stale.invalidate());
 
     stale.expect("fresh");
     stale.expect(() => {

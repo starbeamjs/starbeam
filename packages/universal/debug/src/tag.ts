@@ -1,6 +1,6 @@
 import { isPresent } from "@starbeam/core-utils";
 import type { Description, Tag } from "@starbeam/interfaces";
-import { RUNTIME } from "@starbeam/reactive";
+import { DEBUG, UNKNOWN_REACTIVE_VALUE } from "@starbeam/reactive";
 import { getDependencies, lastUpdated } from "@starbeam/tags";
 
 import { Tree } from "./tree.js";
@@ -36,7 +36,7 @@ export const logTag = (
 
   console.group(
     describe(tag.description, { id: options.id }),
-    `(updated at ${lastUpdated(tag).toString({ format: "timestamp" })})`
+    `(updated at ${lastUpdated(tag).at}`
   );
   console.info(debug);
   console.groupEnd();
@@ -46,23 +46,14 @@ function describe(
   description: Description | undefined,
   options?: { id: boolean | undefined }
 ): string {
-  if (description) {
-    return (
-      RUNTIME.debug?.describe(description, options) ??
-      "an unknown reactive value"
-    );
-  } else {
-    return "an unknown reactive value";
-  }
+  return description && DEBUG
+    ? DEBUG.describe(description, options)
+    : UNKNOWN_REACTIVE_VALUE;
 }
 
 function getDesc(
   description: Description | undefined,
   showImplementation: boolean
 ): Description | undefined {
-  if (showImplementation) {
-    return description;
-  } else {
-    return RUNTIME.debug?.getUserFacing(description);
-  }
+  return showImplementation ? description : DEBUG?.getUserFacing(description);
 }

@@ -87,7 +87,7 @@ describe("Tagged", () => {
       const nullvox = Cell("nullvox");
 
       const { tag, markInitialized } = createFormulaTag(
-        DEBUG.Desc?.("formula"),
+        DEBUG?.Desc("formula"),
         () => new Set([getTag(tom), getTag(nullvox)])
       );
 

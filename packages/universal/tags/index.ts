@@ -3,18 +3,9 @@ export {
   createFormulaTag,
   initializeFormulaTag,
 } from "./src/tag.js";
-export {
-  getDependencies,
-  getDescription,
-  getTag,
-  getTags,
-  hasDependencies,
-  lastUpdated,
-} from "./src/tagged.js";
+export { getDependencies, getTag, lastUpdated } from "./src/tagged.js";
 export {
   debug as debugTimestamp,
-  getNow,
-  max,
   NOW,
   type Now,
   Timestamp,

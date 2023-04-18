@@ -11,8 +11,8 @@ export { Marker } from "./src/primitives/marker.js";
 export { type FormulaFn, isFormulaFn } from "./src/primitives/utils.js";
 export {
   DEBUG,
+  defineDebug,
   defineRuntime,
-  RUNTIME,
   UNKNOWN_REACTIVE_VALUE,
 } from "./src/runtime.js";
 export {

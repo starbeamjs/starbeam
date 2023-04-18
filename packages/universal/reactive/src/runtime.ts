@@ -1,21 +1,20 @@
-import type {
-  CallerStackFn,
-  DescFn,
-  DescriptionDetails,
-  Runtime,
-  TagSnapshot,
-} from "@starbeam/interfaces";
+import type { DebugRuntime, Runtime, TagSnapshot } from "@starbeam/interfaces";
 import { isPresent, verified } from "@starbeam/verify";
 
 export const CONTEXT = {
   runtime: null as null | Runtime,
+  debug: null as null | DebugRuntime,
 };
 
 export function defineRuntime(runtime: Runtime): void {
   CONTEXT.runtime = runtime;
 }
 
-function getRuntime(): Runtime {
+export let defineDebug = (debug: DebugRuntime): void => {
+  CONTEXT.debug = debug;
+};
+
+export function getRuntime(): Runtime {
   if (import.meta.env.DEV) {
     if (CONTEXT.runtime === null) {
       throw Error(
@@ -27,45 +26,23 @@ function getRuntime(): Runtime {
   return verified(CONTEXT.runtime, isPresent);
 }
 
+export const getDebug = (): DebugRuntime | undefined => {
+  return CONTEXT.debug ?? undefined;
+};
+
 export const UNKNOWN_REACTIVE_VALUE = "{unknown reactive value}";
 
-export const RUNTIME = {
-  mark: (...args) => void getRuntime().mark(...args),
-  update: (...args) => void getRuntime().update(...args),
-  start: (...args) => getRuntime().start(...args),
-  consume: (...args) => void getRuntime().consume(...args),
-  subscribe: (...args) => getRuntime().subscribe(...args),
-  link: (...args) => getRuntime().link(...args),
-  finalize: (...args) => void getRuntime().finalize(...args),
-  onFinalize: (...args) => getRuntime().onFinalize(...args),
+export let DEBUG: DebugRuntime | undefined;
 
-  get debug() {
-    return getRuntime().debug;
-  },
-} satisfies Runtime;
-
-export const DEBUG = new (class DebugImpl {
-  get Desc(): DescFn | undefined {
-    return getRuntime().debug?.desc;
-  }
-
-  get callerStack(): CallerStackFn | undefined {
-    return getRuntime().debug?.callerStack;
-  }
-
-  readonly describe = (description: DescriptionDetails | undefined): string => {
-    if (description) {
-      return (
-        getRuntime().debug?.describe(description) ?? UNKNOWN_REACTIVE_VALUE
-      );
-    } else {
-      return UNKNOWN_REACTIVE_VALUE;
-    }
+if (import.meta.env.DEV) {
+  defineDebug = (debug) => {
+    CONTEXT.debug = debug;
+    DEBUG = debug;
   };
-})();
+}
 
 export function evaluate<T>(compute: () => T): { value: T; tags: TagSnapshot } {
-  const done = RUNTIME.start();
+  const done = getRuntime().start();
   const value = compute();
   const tags = done();
   return { value, tags };

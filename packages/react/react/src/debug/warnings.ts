@@ -1,18 +1,19 @@
-import { RUNTIME } from "@starbeam/runtime";
+import { isPresent } from "@starbeam/core-utils";
+import { DEBUG } from "@starbeam/universal";
 import { isRendering } from "@starbeam/use-strict-lifecycle";
+import { verified } from "@starbeam/verify";
 
 let WARNED = false;
 
 if (import.meta.env.DEV) {
-  RUNTIME.debug?.untrackedReadBarrier((tag, _caller) => {
+  const debug = verified(DEBUG, isPresent);
+  debug.untrackedReadBarrier((tag, _caller) => {
     if (isRendering()) {
       if (!WARNED) {
         WARNED = true;
 
-        const description = RUNTIME.debug?.getUserFacing(tag.description);
-        const _fullName = description
-          ? RUNTIME.debug?.describe(description) ?? "an unknown reactive value"
-          : "an unknown reactive value";
+        const description = debug.getUserFacing(tag.description);
+        const _fullName = description && debug.describe(description);
 
         const _pad = Math.max(
           ...["Created: ", "Accessed: "].map((s) => s.length)

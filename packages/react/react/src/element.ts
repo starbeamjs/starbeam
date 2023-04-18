@@ -3,14 +3,7 @@ import type { Description, Reactive, Tagged } from "@starbeam/interfaces";
 import { DEBUG, Formula } from "@starbeam/reactive";
 import type { IntoResourceBlueprint, Resource } from "@starbeam/resource";
 import * as resource from "@starbeam/resource";
-import {
-  type CleanupTarget,
-  CONTEXT,
-  type OnCleanup,
-  render,
-  RUNTIME,
-  type Unsubscribe,
-} from "@starbeam/runtime";
+import { CONTEXT, render, RUNTIME, type Unsubscribe } from "@starbeam/runtime";
 import { service } from "@starbeam/service";
 import { Cell } from "@starbeam/universal";
 
@@ -146,7 +139,7 @@ export type DebugLifecycle = (
  * {@link useReactiveElement} API (when a {@link useReactElement} definition is
  * instantiated, it is passed a {@link ReactiveElement}).
  */
-export class ReactiveElement implements CleanupTarget {
+export class ReactiveElement {
   static stack: ReactiveElement[] = [];
 
   static create(
@@ -241,7 +234,7 @@ export class ReactiveElement implements CleanupTarget {
     blueprint: IntoResourceBlueprint<T>,
     description?: string | Description | undefined
   ): Resource<T> => {
-    const desc = DEBUG.Desc?.("service", description, "UseSetup.service");
+    const desc = DEBUG?.Desc("service", description, "UseSetup.service");
     const context = this.#context;
 
     if (context === null) {
@@ -253,7 +246,7 @@ export class ReactiveElement implements CleanupTarget {
     return service(blueprint, { description: desc });
   };
 
-  use = <T>(
+  readonly use = <T>(
     factory: IntoResourceBlueprint<T>,
     options?: { initial?: T }
   ): Reactive<T | undefined> => {
@@ -281,6 +274,7 @@ export class ReactiveElement implements CleanupTarget {
     return record;
   }
 }
+
 interface ResourceHost<T> {
   readonly notify: () => void;
   readonly render: (reactive: Tagged) => void;
@@ -306,7 +300,7 @@ export function internalUseResource<T>(
   host.on.layout(create);
 
   const formula = Formula(() => {
-    return resourceCell.current?.current ?? initial;
+    return resourceCell.current?.read() ?? initial;
   });
 
   host.on.cleanup(render(formula, host.notify));
@@ -318,7 +312,7 @@ type Callback<T = void> =
   | ((instance: T) => void)
   | ((instance: T) => () => void);
 
-interface OnLifecycle extends OnCleanup {
+interface OnLifecycle {
   readonly cleanup: (
     finalizer: Callback,
     description?: string | Description
