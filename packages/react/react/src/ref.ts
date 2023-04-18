@@ -67,7 +67,7 @@ export function ref<E extends browser.Element>(
 ): ReactElementRef<E> {
   const placeholder = ElementPlaceholder<E>(
     kind,
-    DEBUG.Desc?.("formula", description, "ref")
+    DEBUG?.Desc("formula", description, "ref")
   );
   const verifier = ClassVerifier<E>(kind);
 

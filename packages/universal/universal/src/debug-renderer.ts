@@ -15,7 +15,7 @@ export const DEBUG_RENDERER = {
   ): Unsubscribe {
     const formula = Formula(
       evaluate,
-      DEBUG.Desc?.("formula", description ?? "DEBUG_RENDERER")
+      DEBUG?.Desc("formula", description ?? "DEBUG_RENDERER")
     );
 
     debug(formula.read());

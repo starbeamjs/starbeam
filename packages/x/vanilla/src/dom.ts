@@ -32,8 +32,8 @@ function Render<T extends Cursor | Element>(
         RUNTIME.onFinalize(owner, cleanup);
 
         return {
-          poll() {
-            formula.current;
+          poll(caller = DEBUG?.callerStack()) {
+            formula.read(caller);
           },
         };
       },
@@ -57,7 +57,7 @@ export function Text(
         node.textContent = text.read();
       },
     };
-  }, DEBUG.Desc?.("resource", description, "Text"));
+  }, DEBUG?.Desc("resource", description, "Text"));
 }
 
 class FragmentRange {
@@ -114,7 +114,7 @@ export function Fragment(
   nodes: ContentNode[],
   description?: string | Description
 ): ContentNode {
-  const desc = DEBUG.Desc?.("resource", description, "Fragment");
+  const desc = DEBUG?.Desc("resource", description, "Fragment");
 
   return Render(({ into, owner }) => {
     const start = placeholder(into.document);
@@ -175,7 +175,7 @@ export function Attr<E extends Element>(
         }
       },
     };
-  }, DEBUG.Desc?.("resource", description, "Attr"));
+  }, DEBUG?.Desc("resource", description, "Attr"));
 }
 
 export function Element(
@@ -219,7 +219,7 @@ export function Element(
         renderBody.poll();
       },
     };
-  }, DEBUG.Desc?.("resource", description, "Element"));
+  }, DEBUG?.Desc("resource", description, "Element"));
 }
 
 Element.Attr = Attr;

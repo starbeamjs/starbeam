@@ -17,7 +17,7 @@ export class TrackedWeakSet<T extends object = object> implements WeakSet<T> {
   }
 
   has(value: T): boolean {
-    const caller = DEBUG.callerStack?.();
+    const caller = DEBUG?.callerStack();
 
     const has = this.#vals.has(value);
 
@@ -33,7 +33,7 @@ export class TrackedWeakSet<T extends object = object> implements WeakSet<T> {
       return this;
     }
 
-    const caller = DEBUG.callerStack?.();
+    const caller = DEBUG?.callerStack();
 
     this.#vals.add(value);
     this.#collection.set(value, "key:changes", " {value}", caller);
@@ -49,7 +49,7 @@ export class TrackedWeakSet<T extends object = object> implements WeakSet<T> {
       return false;
     }
 
-    const caller = DEBUG.callerStack?.();
+    const caller = DEBUG?.callerStack();
 
     this.#collection.delete(value, caller);
     return this.#vals.delete(value);

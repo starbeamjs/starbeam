@@ -44,7 +44,7 @@ export function useSetup<
     allowMissing: true,
   });
 
-  const desc = DEBUG.Desc?.("resource", description);
+  const desc = DEBUG?.Desc("resource", description);
 
   const notify = useNotify();
 
@@ -82,7 +82,7 @@ export function useSetup<
 
       function compute(
         props: unknown,
-        caller = DEBUG.callerStack?.()
+        caller = DEBUG?.callerStack()
       ): unknown {
         currentProps = props;
         return reactive.read(caller);

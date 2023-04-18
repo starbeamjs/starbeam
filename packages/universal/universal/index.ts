@@ -1,3 +1,5 @@
+import "@starbeam/debug";
+
 export { DEBUG_RENDERER } from "./src/debug-renderer.js";
 export { FormulaList } from "./src/reactive-core/higher-level/formula-list.js";
 export { Freshness } from "./src/reactive-core/higher-level/freshness.js";
@@ -16,7 +18,6 @@ export {
   Marker,
   Formula as PolledFormula,
   read as readReactive,
-  RUNTIME,
   Static,
 } from "@starbeam/reactive";
 export {
@@ -25,4 +26,4 @@ export {
   type ResourceRun,
   use,
 } from "@starbeam/resource";
-export { TAG } from "@starbeam/runtime";
+export { RUNTIME, TAG } from "@starbeam/runtime";

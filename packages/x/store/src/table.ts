@@ -31,7 +31,7 @@ export class Table<U extends UserTypes> extends FlatRows<U> {
       name?: string;
     }
   ): Table<TableTypes> {
-    const description = DEBUG.Desc?.(
+    const description = DEBUG?.Desc(
       "collection",
       definition.name ?? definition.model?.name,
       "Table.create"

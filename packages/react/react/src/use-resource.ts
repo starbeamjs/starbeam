@@ -22,7 +22,7 @@ export function use<T>(
     dependencies
   );
 
-  return unsafeTrackedElsewhere(() => value.current);
+  return unsafeTrackedElsewhere(() => value.read());
 }
 
 function createResource<T>(

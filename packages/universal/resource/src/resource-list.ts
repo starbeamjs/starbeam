@@ -1,5 +1,6 @@
 import type { Description } from "@starbeam/interfaces";
-import { DEBUG, RUNTIME } from "@starbeam/reactive";
+import { DEBUG } from "@starbeam/reactive";
+import { RUNTIME } from "@starbeam/runtime";
 
 import {
   Resource,
@@ -21,7 +22,7 @@ export function ResourceList<Item, T>(
   }
 ): ResourceBlueprint<Resource<T>[], void> {
   const resources = new ResourceMap<T, void>(
-    DEBUG.Desc?.("collection", description)
+    DEBUG?.Desc("collection", description)
   );
 
   return Resource((_run, _metadata, lifetime) => {

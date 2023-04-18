@@ -136,7 +136,7 @@ export const Desc = ((
 ): IDescription => {
   if (isObject(specified)) return specified;
 
-  const caller = DEBUG.callerStack?.(DESC_FRAME);
+  const caller = DEBUG?.callerStack(DESC_FRAME);
   api = api ?? getFirst(caller?.frames)?.action;
   const id = getID();
 

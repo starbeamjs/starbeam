@@ -11,6 +11,6 @@ export function createCell<T>(
   value: T,
   description?: string | Description | undefined
 ): Cell<T> {
-  const desc = DEBUG.Desc?.("cell", description, "createCell");
+  const desc = DEBUG?.Desc("cell", description, "createCell");
   return create(() => Cell(value, { description: desc }));
 }

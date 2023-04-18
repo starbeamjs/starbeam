@@ -101,7 +101,7 @@ export class ResourceBlueprintImpl<T, M = void> {
     return new ResourceBlueprintImpl(
       resource as ResourceConstructor,
       undefined,
-      DEBUG.Desc?.("resource", description)
+      DEBUG?.Desc("resource", description)
     );
   }
 
@@ -233,7 +233,7 @@ export function evaluateResourceConstructor<T, M>(
   // Declare that this formula is a `Resource`, which gives it a non-existent
   // symbol key.
   const resource = CachedFormula(
-    () => read(formula.current) as ReadValue<T>
+    () => read(formula.read()) as ReadValue<T>
   ) as Resource<T>;
 
   // Associate the resource with its lifetime in a WeakMap. _Dynamic_ checks for

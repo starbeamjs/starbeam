@@ -1,12 +1,13 @@
 import { reactive } from "@starbeam/collections";
 import { DisplayStruct } from "@starbeam/core-utils";
-import { CachedFormula, Cell, RUNTIME } from "@starbeam/reactive";
+import { CachedFormula, Cell } from "@starbeam/reactive";
 import {
   Resource,
   type ResourceBlueprint,
   ResourceList,
   use,
 } from "@starbeam/resource";
+import { RUNTIME } from "@starbeam/runtime";
 import { describe, expect, test } from "@starbeam-workspace/test-utils";
 
 interface Item {

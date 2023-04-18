@@ -40,7 +40,7 @@ export const setup = Plugin((on) => {
 
     ComponentFrame.start(
       component,
-      DEBUG.Desc?.(
+      DEBUG?.Desc(
         "formula",
         componentName(component.fn),
         "preact.componentWillRender"

@@ -1,5 +1,5 @@
-import type { Formula } from "@starbeam/reactive";
-import { CachedFormula, RUNTIME } from "@starbeam/reactive";
+import { type Formula } from "@starbeam/reactive";
+import { CachedFormula } from "@starbeam/reactive";
 import { render, type Tagged } from "@starbeam/runtime";
 import { Variants } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
@@ -206,23 +206,12 @@ describe("Variants", () => {
   });
 });
 
-// eslint-disable-next-line @typescript-eslint/no-inferrable-types
-const debug: boolean = false;
-
 function Stability(reactive: Tagged): {
   readonly changed: boolean;
 } {
   let changed = false;
 
-  render(reactive, (internals) => {
-    if (debug) {
-      console.group(
-        RUNTIME.debug?.describeTagged(reactive) ?? "{unknown reactive value}",
-        "invalidated by"
-      );
-      console.info(internals.description);
-      console.groupEnd();
-    }
+  render(reactive, () => {
     changed = true;
   });
 

@@ -1,3 +1,4 @@
+import { isPresentArray } from "@starbeam/core-utils";
 import type {
   CellTag,
   Diff,
@@ -6,7 +7,7 @@ import type {
   Tag,
 } from "@starbeam/interfaces";
 import { UNINITIALIZED } from "@starbeam/shared";
-import { getDependencies, hasDependencies } from "@starbeam/tags";
+import { getDependencies, getTag } from "@starbeam/tags";
 
 import type { Unsubscribe } from "../lifetime/object-lifetime.js";
 import { diff } from "./utils.js";
@@ -87,6 +88,18 @@ function isUninitialized(
   tag: Tag
 ): tag is FormulaTag & { dependencies: UNINITIALIZED } {
   return tag.dependencies === UNINITIALIZED;
+}
+
+/**
+ * Returns true if the given tagged object has dependencies.
+ *
+ * An uninitialized formula doesn't have dependencies yet.
+ */
+function hasDependencies(
+  tagged: Tag
+): tagged is Tag & { readonly dependencies: () => readonly CellTag[] } {
+  const deps = getTag(tagged).dependencies;
+  return deps !== UNINITIALIZED && isPresentArray(deps());
 }
 
 interface Subscription {

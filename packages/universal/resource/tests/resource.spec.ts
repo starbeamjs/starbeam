@@ -1,5 +1,6 @@
-import { CachedFormula, Cell, Marker, RUNTIME } from "@starbeam/reactive";
+import { CachedFormula, Cell, Marker } from "@starbeam/reactive";
 import { Resource, type ResourceBlueprint, use } from "@starbeam/resource";
+import { RUNTIME } from "@starbeam/runtime";
 import { describe, expect, test } from "vitest";
 
 describe("resources", () => {

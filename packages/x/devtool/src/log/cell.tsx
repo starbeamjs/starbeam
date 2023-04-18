@@ -3,12 +3,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import "preact";
 
+import type { Timestamp } from "@starbeam/tags";
 /** @jsxRuntime automatic @jsxImportSource preact */
 // import type {
 //   CellConsumeOperation,
 //   CellUpdateOperation,
 // } from "@starbeam/debug";
-import type { Timestamp } from "@starbeam/interfaces";
 import type { JSX } from "preact";
 
 // import type { DevtoolsOptions } from "./shared.js";

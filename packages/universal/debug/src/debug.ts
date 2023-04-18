@@ -6,14 +6,14 @@ import {
   describeTagged,
   getUserFacing,
 } from "./description/debug/describe.js";
-import desc from "./description/debug/index.js";
+import Desc from "./description/debug/index.js";
 
 const untrackedReadBarrier = (() => {
   /* FIXME: do nothing for now */
 }) satisfies DebugRuntime["untrackedReadBarrier"];
 
 export default {
-  desc,
+  Desc,
   callerStack,
   getUserFacing,
   untrackedReadBarrier,

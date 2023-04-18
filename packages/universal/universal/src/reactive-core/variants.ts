@@ -1,10 +1,10 @@
 import { DisplayStruct } from "@starbeam/core-utils";
 import type { CallStack, Description, FormulaTag } from "@starbeam/interfaces";
-import { Cell, DEBUG, Marker, RUNTIME } from "@starbeam/reactive";
-import type { Tagged } from "@starbeam/runtime";
+import { Cell, DEBUG, Marker } from "@starbeam/reactive";
+import { RUNTIME, type Tagged } from "@starbeam/runtime";
 import { TAG } from "@starbeam/runtime";
 import { UNINITIALIZED } from "@starbeam/shared";
-import { getTag, getTags, initializeFormulaTag } from "@starbeam/tags";
+import { getTag, initializeFormulaTag } from "@starbeam/tags";
 
 export class VariantGroups {
   static empty(description: Description | undefined): VariantGroups {
@@ -139,7 +139,7 @@ export class Variant<T> implements Tagged<FormulaTag> {
       { value },
       initializeFormulaTag(
         description?.implementation("formula", "selected", "selected"),
-        () => new Set(getTags([val, localTypeMarker]))
+        () => new Set([getTag(val), getTag(localTypeMarker)])
       )
     );
   }
@@ -168,7 +168,7 @@ export class Variant<T> implements Tagged<FormulaTag> {
 
       initializeFormulaTag(
         description?.implementation("formula", "selected", "selected"),
-        () => new Set(getTags([val, localTypeMarker]))
+        () => new Set([getTag(val), getTag(localTypeMarker)])
       )
     ) as Variant<T>;
   }
@@ -181,26 +181,23 @@ export class Variant<T> implements Tagged<FormulaTag> {
   static value(variant: Variant<unknown>): { type: string; value: unknown } {
     return {
       type: variant.type,
-      value: variant.#value.current,
+      value: variant.#value.read(),
     };
   }
 
   static set<T>(
     variant: Variant<T>,
     value: T,
-    caller = DEBUG.callerStack?.()
+    caller = DEBUG?.callerStack()
   ): void {
     variant.#value.set(value, caller);
   }
 
-  static select<T>(variant: Variant<T>, caller = DEBUG.callerStack?.()): void {
+  static select<T>(variant: Variant<T>, caller = DEBUG?.callerStack()): void {
     variant.#localTypeMarker.mark(caller);
   }
 
-  static deselect<T>(
-    variant: Variant<T>,
-    caller = DEBUG.callerStack?.()
-  ): void {
+  static deselect<T>(variant: Variant<T>, caller = DEBUG?.callerStack()): void {
     variant.#localTypeMarker.mark(caller);
   }
 
@@ -239,7 +236,7 @@ export class Variant<T> implements Tagged<FormulaTag> {
   }
 
   get value(): T {
-    return this.#value.current as T;
+    return this.#value.read() as T;
   }
 
   [Symbol.for("nodejs.util.inspect.custom")](): object {
@@ -418,7 +415,7 @@ class VariantsImpl implements Tagged<FormulaTag> {
   }
 
   choose(type: string, value?: unknown): void {
-    const caller = DEBUG.callerStack?.();
+    const caller = DEBUG?.callerStack();
     const current = this.#current;
     const from = Variant.type(current);
 
@@ -487,7 +484,7 @@ for (const name of Object.keys(
 export function Variants<V extends VariantType>(
   description?: string | Description
 ): VariantConstructors<V> {
-  const desc = DEBUG.Desc?.("collection", description, "Variants");
+  const desc = DEBUG?.Desc("collection", description, "Variants");
   const target: Record<string, (value: unknown) => VariantsImpl> = {};
   return new Proxy(target, {
     get(getTarget, name) {

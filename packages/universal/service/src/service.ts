@@ -23,7 +23,7 @@ export function Service<T>(
     return CONTEXT.create(blueprint, () => {
       return use(blueprint);
     });
-  }, DEBUG.Desc?.("service", description));
+  }, DEBUG?.Desc("service", description));
 }
 
 export function service<T>(
@@ -35,7 +35,7 @@ export function service<T>(
 ): Resource<T> {
   return use(
     Service(resource, {
-      description: DEBUG.Desc?.("service", description),
+      description: DEBUG?.Desc("service", description),
       app,
     }),
     { lifetime: app }

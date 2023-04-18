@@ -1,6 +1,6 @@
 import type { CallStack, Description } from "@starbeam/interfaces";
 import { Cell, Marker } from "@starbeam/reactive";
-import { getDescription } from "@starbeam/tags";
+import { getTag } from "@starbeam/tags";
 import { expected, isPresent, verified } from "@starbeam/verify";
 
 class ItemState {
@@ -50,7 +50,7 @@ class ItemState {
   }
 
   initialize(): void {
-    this.#present.current = true;
+    this.#present.set(true);
   }
 
   read(caller: CallStack | undefined): void {
@@ -59,7 +59,7 @@ class ItemState {
   }
 
   update(caller: CallStack | undefined): void {
-    this.#present.current = true;
+    this.#present.set(true, caller);
     this.#value.mark(caller);
   }
 }
@@ -215,7 +215,7 @@ export class Collection<K> {
     }
 
     let item: Item;
-    const iteration = getDescription(this.#iteration);
+    const iteration = getTag(this.#iteration).description;
 
     if (disposition === "miss") {
       item = Item.uninitialized(iteration, member, caller);

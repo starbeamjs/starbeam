@@ -1,6 +1,6 @@
 import type { anydom } from "@domtree/flavors";
 import type { Description, Tagged } from "@starbeam/interfaces";
-import { DEBUG } from "@starbeam/reactive";
+import { DEBUG, UNKNOWN_REACTIVE_VALUE } from "@starbeam/reactive";
 import { TAG, UNINITIALIZED } from "@starbeam/shared";
 import { getTag, initializeFormulaTag } from "@starbeam/tags";
 import { Cell } from "@starbeam/universal";
@@ -47,20 +47,26 @@ export function ElementPlaceholder<E extends anydom.Element>(
       verify(
         value,
         (anyElement): anyElement is E => anyElement instanceof type,
-        expected(`A ref (${DEBUG.describe(description)})`)
+        expected(`A ref (${describe(description)})`)
           .toBe(`initialized with an instance of ${type.name}`)
           .butGot(() => `an instance of ${value.constructor.name}`)
       );
-      element.current = value;
+      element.set(value);
       element.freeze();
     },
 
     get current(): E | null {
-      const current = verified(REFS.get(ref), isPresent).current as
-        | E
-        | UNINITIALIZED;
+      const current = verified(REFS.get(ref), isPresent).read(
+        DEBUG?.callerStack()
+      ) as E | UNINITIALIZED;
 
       return current === UNINITIALIZED ? null : current;
     },
   };
+}
+
+function describe(description: Description | undefined): string {
+  return description && DEBUG
+    ? DEBUG.describe(description)
+    : UNKNOWN_REACTIVE_VALUE;
 }

@@ -22,12 +22,12 @@ export function useReactive<T>(
   computeFn: Reactive<T> | (() => T),
   description?: string | Description | undefined
 ): T {
-  const desc = DEBUG.Desc?.("formula", description);
+  const desc = DEBUG?.Desc("formula", description);
 
   const notify = useNotify();
 
-  return useLifecycle({ props: computeFn }).render(
-    ({ on }, originalCompute) => {
+  return useLifecycle({ props: computeFn })
+    .render(({ on }, originalCompute) => {
       if (
         !isReactive(originalCompute) &&
         typeof originalCompute !== "function"
@@ -53,8 +53,8 @@ export function useReactive<T>(
       });
 
       return formula;
-    }
-  ).current;
+    })
+    .read(DEBUG?.callerStack());
 }
 
 function read<T>(value: Reactive<T> | (() => T)): T {
@@ -76,7 +76,7 @@ export function useCell<T>(
   value: T,
   description?: Description | string
 ): Cell<T> {
-  const desc = DEBUG.Desc?.("cell", description);
+  const desc = DEBUG?.Desc("cell", description);
 
   return useSetup(() => ({ cell: Cell(value, { description: desc }) })).cell;
 }

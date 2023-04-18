@@ -14,7 +14,7 @@ export class ReactiveFreshness {
 
   get isStale(): boolean {
     const lastChecked = this.#lastChecked;
-    const current = (this.#lastChecked = this.#cell.current);
+    const current = (this.#lastChecked = this.#cell.read());
 
     return lastChecked !== current;
   }
@@ -36,7 +36,7 @@ export class ReactiveFreshness {
 export function Freshness(
   description?: string | Description
 ): ReactiveFreshness {
-  return new ReactiveFreshness(DEBUG.Desc?.("cell", description));
+  return new ReactiveFreshness(DEBUG?.Desc("cell", description));
 }
 
 export type Freshness = ReactiveFreshness;

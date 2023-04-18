@@ -1,10 +1,10 @@
 import type { TagSnapshot } from "@starbeam/interfaces";
 import { lastUpdated, NOW } from "@starbeam/tags";
 
-import { RUNTIME } from "../runtime.js";
+import { getRuntime } from "../runtime.js";
 
 export function FormulaLifecycle(): InitializingFormula {
-  const done = RUNTIME.start();
+  const done = getRuntime().start();
 
   return {
     done: () => FinalizedFormula(done()),
@@ -14,10 +14,10 @@ export function FormulaLifecycle(): InitializingFormula {
 function FinalizedFormula(children: TagSnapshot): FinalizedFormula {
   let lastValidated = NOW.now;
 
-  const isStale = () => lastUpdated(...children).gt(lastValidated);
+  const isStale = () => lastUpdated(...children).at > lastValidated.at;
 
   function update() {
-    const done = RUNTIME.start();
+    const done = getRuntime().start();
 
     return {
       done: () => {
