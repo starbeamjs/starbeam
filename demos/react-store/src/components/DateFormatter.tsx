@@ -2,7 +2,7 @@ import { useSetup } from "@starbeam/react";
 import {
   Cell,
   type Reactive,
-  readReactive,
+  read,
   Resource,
   type ResourceBlueprint,
 } from "@starbeam/universal";
@@ -78,11 +78,7 @@ function Clock(
     });
 
     return {
-      formatted: formatDate(
-        date.current,
-        readReactive(locale),
-        timeZone.read()
-      ),
+      formatted: formatDate(date.current, read(locale), timeZone.read()),
       refresh,
     };
   });
