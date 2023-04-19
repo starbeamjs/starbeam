@@ -1,5 +1,3 @@
-import type { UNINITIALIZED } from "@starbeam/shared";
-
 import type { Description } from "./debug/description.js";
 import type { Timestamp } from "./timestamp.js";
 
@@ -46,7 +44,7 @@ export interface CellTag {
 export interface FormulaTag {
   readonly type: "formula";
   readonly description?: Description | undefined;
-  readonly dependencies: UNINITIALIZED | (() => readonly CellTag[]);
+  readonly dependencies: undefined | (() => readonly CellTag[]);
 }
 
 /**

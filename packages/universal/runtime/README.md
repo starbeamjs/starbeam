@@ -1,10 +1,12 @@
 # Purpose
 
-`@starbeam/timeline` is part of Starbeam, a library for building and using reactive objects in any framework.
+**This document is outdated, but still contains relevant philosophical information.**
+
+`@starbeam/runtime` is part of Starbeam, a library for building and using reactive objects in any framework.
 
 ## Primitive
 
-`@starbeam/timeline` is stable, with the same [semver policy as Starbeam][starbeam semver policy].
+`@starbeam/runtime` is stable, with the same [semver policy as Starbeam][starbeam semver policy].
 
 That said, it is not intended to be used directly by application code. Rather, it is one of the core parts of the Starbeam composition story. You can use it to better understand how Starbeam works, or to build your own Starbeam libraries.
 
@@ -79,7 +81,7 @@ These steps allow you to implement _framework-agnostic_ [resources] that can cor
 
 ## Timeline
 
-The `Timeline` in `@starbeam/timeline` coordinates these phases.
+The `Timeline` in `@starbeam/runtime` coordinates these phases.
 
 It starts out in the _Actions_ phase, which allows free access to the _data universe_. As soon as a _data cell_ in the _data universe_ is mutated, the `Timeline` schedules a _Render_ phase using the configured scheduler. By default, this will schedule a _Render_ phase during a microtask checkpoint, which occurs asynchronously, but before the next paint.
 

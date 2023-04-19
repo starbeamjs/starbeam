@@ -1,4 +1,4 @@
-import type { DebugRuntime, Runtime, TagSnapshot } from "@starbeam/interfaces";
+import type { DebugRuntime, Runtime } from "@starbeam/interfaces";
 import { isPresent, verified } from "@starbeam/verify";
 
 export const CONTEXT = {
@@ -39,11 +39,4 @@ if (import.meta.env.DEV) {
     CONTEXT.debug = debug;
     DEBUG = debug;
   };
-}
-
-export function evaluate<T>(compute: () => T): { value: T; tags: TagSnapshot } {
-  const done = getRuntime().start();
-  const value = compute();
-  const tags = done();
-  return { value, tags };
 }

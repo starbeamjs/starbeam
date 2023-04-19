@@ -30,13 +30,10 @@
   // trying to format the code.
   "editor.formatOnSave": false,
 
-  "eslint.codeActionsOnSave.mode": "all",
+  "eslint.codeActionsOnSave.mode": "problems",
   "eslint.enable": true,
   "eslint.lintTask.enable": true,
   "eslint.lintTask.options": "--cache -c ./.eslintrc.json --max-warnings=0 \"**/*.ts\" \"**/*.tsx\" \"**/*.json\"",
-  "eslint.onIgnoredFiles": "warn",
-  "eslint.problems.shortenToSingleLine": true,
-  "eslint.quiet": false,
   "eslint.validate": [
     "javascript",
     "javascriptreact",
@@ -81,6 +78,7 @@
   "inline-bookmarks.view.exclude.gitIgnore": true,
 
   "inline-bookmarks.view.showVisibleFilesOnly": false,
+  "markdown.validate.enabled": true,
   "npm-outdated.decorations": "fancy",
   // rewrap provides a quick keyboard shortcut (alt-q) to reformat comments to
   // a specific column width. It also automatically rewraps comments when you
