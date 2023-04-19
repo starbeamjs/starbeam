@@ -1,6 +1,5 @@
 import type { Description } from "@starbeam/interfaces";
-import { DEBUG } from "@starbeam/reactive";
-import { Cell } from "@starbeam/universal";
+import { Cell, DEBUG } from "@starbeam/universal";
 
 import TrackedArray from "./src/array.js";
 import { ReactiveMap, ReactiveSet } from "./src/iterable.js";
@@ -84,10 +83,7 @@ export function object<T extends Record<string, unknown>>(
   values: T,
   description?: string | Description
 ): T {
-  return TrackedObject.reactive(
-    DEBUG?.Desc("collection", description),
-    values
-  );
+  return TrackedObject.reactive(DEBUG?.Desc("collection", description), values);
 }
 
 reactive.object = object;

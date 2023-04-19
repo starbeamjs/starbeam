@@ -11,13 +11,14 @@ export {
 } from "./src/reactive-core/variants.js";
 export type { Reactive } from "@starbeam/interfaces";
 export {
+  CachedFormula,
   Cell,
   DEBUG,
   type Equality,
-  CachedFormula as Formula,
+  Formula,
+  type FormulaFn,
   Marker,
-  Formula as PolledFormula,
-  read as readReactive,
+  read,
   Static,
 } from "@starbeam/reactive";
 export {

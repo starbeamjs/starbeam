@@ -3,7 +3,8 @@
   "ignorePatterns": [
     "*.cjs",
     "packages/x/devtools-extension",
-    "packages/env.d.ts"
+    "packages/env.d.ts",
+    "!.npmcheckrc.json"
   ],
 
   "plugins": ["@starbeam"],

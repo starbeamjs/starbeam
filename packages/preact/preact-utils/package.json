@@ -25,10 +25,10 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "@starbeam/core-utils": "workspace:*"
+    "@starbeam/core-utils": "workspace:^"
   },
   "devDependencies": {
-    "@starbeam-dev/build-support": "workspace:*",
+    "@starbeam-dev/build-support": "workspace:^",
     "rollup": "^3.20.6"
   },
   "peerDependencies": {

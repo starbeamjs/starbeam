@@ -43,13 +43,11 @@
     "@starbeam/shared": "workspace:^",
     "@starbeam/tags": "workspace:^",
     "@starbeam/verify": "workspace:^",
-    "ansicolor": "^1.1.100",
     "buffer": "^6.0.3",
     "stacktracey": "^2.1.8"
   },
   "devDependencies": {
     "@starbeam-dev/build-support": "workspace:*",
-    "@types/ansicolor": "workspace:^",
     "@types/node": "^18.7.23",
     "rollup": "^3.20.6"
   },

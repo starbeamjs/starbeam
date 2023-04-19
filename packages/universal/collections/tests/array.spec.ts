@@ -1,5 +1,5 @@
 import { reactive } from "@starbeam/collections";
-import { CachedFormula } from "@starbeam/reactive";
+import { CachedFormula } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 
 import { Invalidation } from "./support.js";

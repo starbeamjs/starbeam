@@ -9,15 +9,15 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
+    "@starbeam-workspace/react-test-utils": "workspace:^",
+    "@starbeam-workspace/test-utils": "workspace:^",
     "@starbeam/debug": "workspace:^",
     "@starbeam/react": "workspace:^",
     "@starbeam/reactive": "workspace:^",
     "@starbeam/runtime": "workspace:^",
     "@starbeam/universal": "workspace:^",
-    "@starbeam-workspace/react-test-utils": "workspace:^",
-    "@starbeam-workspace/test-utils": "workspace:^",
     "jsdom": "^21.1.1",
     "react": "^18.2.0",
-    "vitest": "*"
+    "vitest": "^0.30.1"
   }
 }

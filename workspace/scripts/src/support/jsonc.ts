@@ -203,7 +203,7 @@ function hasOneItem<T>(array: T[] | undefined): array is [T] {
  *
  * The bug is in [edit.ts](https://github.com/microsoft/node-jsonc-parser/blame/main/src/impl/edit.ts#L113)
  */
-function bugfix(source: string, edits: jsonc.EditResult): jsonc.EditResult {
+function bugfix(source: string, edits: jsonc.Edit[]): jsonc.Edit[] {
   if (hasOneItem(edits)) {
     const [edit] = edits;
     const end = edit.offset + edit.length;

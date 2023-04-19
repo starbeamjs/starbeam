@@ -9,5 +9,5 @@
     "types": ["../../env"]
   },
   "exclude": ["dist/**/*"],
-  "include": ["index.ts", "src/**/*.ts"]
+  "include": ["index.ts", "src/**/*.ts", "rollup.config.mjs"]
 }

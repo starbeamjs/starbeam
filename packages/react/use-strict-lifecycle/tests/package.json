@@ -9,13 +9,13 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
+    "@starbeam-workspace/react-test-utils": "workspace:^",
     "@starbeam/debug": "workspace:^",
     "@starbeam/use-strict-lifecycle": "workspace:^",
-    "@starbeam-workspace/react-test-utils": "workspace:^",
     "react": "18.2.0"
   },
   "devDependencies": {
-    "@types/react": "^18.0.26",
-    "jsdom": "^20.0.3"
+    "@types/react": "^18.0.37",
+    "jsdom": "^21.1.1"
   }
 }

@@ -1,6 +1,6 @@
 import type { CallStack, Description } from "@starbeam/interfaces";
-import { Cell, DEBUG, type Equality, Marker } from "@starbeam/reactive";
 import { UNINITIALIZED } from "@starbeam/shared";
+import { Cell, DEBUG, type Equality, Marker } from "@starbeam/universal";
 
 class Entry<V> {
   readonly #initialized: Cell<boolean>;

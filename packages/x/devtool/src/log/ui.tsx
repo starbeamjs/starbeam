@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /** @jsxRuntime automatic @jsxImportSource preact */
 
-import { Timestamp } from "@starbeam/tags";
+import type { Timestamp } from "@starbeam/tags";
 import type { ComponentChildren, JSX } from "preact";
 import { useState } from "preact/hooks";
 
@@ -119,7 +119,7 @@ function timestamp(
 ): string {
   if (current) {
     if (prev?.at !== current.at) {
-      return String(Timestamp.debug(current).at);
+      return String(current.at);
     } else {
       return "";
     }

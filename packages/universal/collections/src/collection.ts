@@ -1,6 +1,6 @@
 import type { CallStack, Description } from "@starbeam/interfaces";
-import { Cell, Marker } from "@starbeam/reactive";
 import { getTag } from "@starbeam/tags";
+import { Cell, Marker } from "@starbeam/universal";
 import { expected, isPresent, verified } from "@starbeam/verify";
 
 class ItemState {

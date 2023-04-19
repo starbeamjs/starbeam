@@ -45,4 +45,5 @@ const SHOULD_RUN: Record<keyof Scripts, Predicate> = {
   specs: (pkg: Package): boolean => pkg.testsDirectory.exists(),
   lint: (): boolean => true,
   types: (pkg: Package): boolean => pkg.file("tsconfig.json").exists(),
+  "npm-check": (): boolean => true,
 };

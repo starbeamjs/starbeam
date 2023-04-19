@@ -13,6 +13,7 @@ export interface Scripts {
   lint: Script;
   specs: Script;
   types: Script;
+  "npm-check": Script;
 }
 
 export default scripts as Scripts;
