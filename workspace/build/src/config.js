@@ -6,7 +6,6 @@ import { fileURLToPath } from "node:url";
 
 import rollupTS from "rollup-plugin-ts";
 import typescriptLibrary from "typescript";
-import VitePluginFonts from "unplugin-fonts/vite";
 
 import importMeta from "./import-meta.js";
 import inline from "./inline.js";
@@ -15,6 +14,7 @@ const { default: commonjs } = await import("@rollup/plugin-commonjs");
 const { default: nodeResolve } = await import("@rollup/plugin-node-resolve");
 const { default: postcss } = await import("rollup-plugin-postcss");
 const { default: nodePolyfills } = await import("rollup-plugin-polyfill-node");
+const { default: fonts } = await import("unplugin-fonts/vite");
 
 const {
   ImportsNotUsedAsValues,
@@ -317,7 +317,7 @@ export class Package {
   async #viteConfig() {
     return viteConfig({
       plugins: [
-        VitePluginFonts.default({
+        fonts({
           google: {
             families: ["Roboto:wght@300;400;500;700"],
             display: "swap",
