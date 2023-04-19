@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 
 import rollupTS from "rollup-plugin-ts";
 import typescriptLibrary from "typescript";
-import { VitePluginFonts } from "vite-plugin-fonts";
+import VitePluginFonts from "unplugin-fonts/vite";
 
 import importMeta from "./import-meta.js";
 import inline from "./inline.js";
@@ -317,7 +317,7 @@ export class Package {
   async #viteConfig() {
     return viteConfig({
       plugins: [
-        VitePluginFonts({
+        VitePluginFonts.default({
           google: {
             families: ["Roboto:wght@300;400;500;700"],
             display: "swap",

@@ -22,7 +22,10 @@ import {
 } from "./log.js";
 import { Logger, type LoggerName, type LoggerState } from "./logger.js";
 import { STYLES } from "./styles.js";
-import { Cell, LoggedTable, type TableWithRows } from "./table.js";
+import { Cell, Col, LoggedTable, type TableWithRows } from "./table.js";
+
+const OK = Fragment(STYLES.ok, "😀");
+const ERR = Fragment(STYLES.problem, "⛔");
 
 export interface ReporterOptions {
   readonly verbose: boolean;
@@ -336,7 +339,7 @@ export class Reporter {
     options: LogOptions & { repeat: IntoFragment }
   ): void {
     const fill = Fragment.from(options.repeat);
-    const fillSize = fill.width(this.loggerState);
+    const fillSize = fill.physicalWidth(this.loggerState);
     const availableWidth = this.#logger.availableWidth;
 
     const repeatFill = Math.floor(availableWidth / fillSize);
@@ -442,7 +445,7 @@ export class Reporter {
       return;
     } else if (results.isOk) {
       this.#workspace.reporter.ensureBreak();
-      this.#workspace.reporter.success(`✓ ${options.success}`);
+      this.#workspace.reporter.log(fragment`${OK} ${options.success}`);
     } else {
       this.table((t) =>
         t.rows(
@@ -455,8 +458,8 @@ export class Reporter {
     }
   }
 
-  statusIcon(isOk: boolean): string {
-    return isOk ? "✓" : "𐄂";
+  statusIcon(isOk: boolean): Fragment {
+    return isOk ? OK : ERR;
   }
 
   static Group = class Group<Catch> implements IGroup<Catch> {
@@ -749,7 +752,7 @@ export function reportCheckResults(
   }
 ): void {
   if (results.isOk && !reporter.isVerbose) {
-    reporter.success(`✓ ${options.success}`);
+    reporter.log(fragment`${OK} ${options.success}`);
     return;
   }
 
@@ -760,14 +763,17 @@ export function reportCheckResults(
   reporter.ensureBreak();
 
   reporter.table((t) => {
-    const table = t.headers(["", Fragment("comment:header", options.header)]);
+    const table = t.columns([
+      Col("", { width: 5 }),
+      Col(Fragment("comment:header", options.header), { width: "auto" }),
+    ]);
 
     return table.rows(
       printedResults.map(([label, result]) => {
         if (result.isOk) {
-          return [Fragment("ok", "✓"), Fragment("ok", label)];
+          return [OK, Fragment("ok", label)];
         } else {
-          return [Fragment("problem", "𐄂"), Fragment("problem", label)];
+          return [ERR, Fragment("problem", label)];
         }
       })
     );

@@ -1,4 +1,4 @@
-import { getByRole, getByText } from "@testing-library/dom";
+import { type ByRoleMatcher, getByRole, getByText } from "@testing-library/dom";
 import * as testing from "@testing-library/preact";
 import {
   type Attributes,
@@ -204,7 +204,7 @@ class RenderResult<P, T> {
   }
 
   find(
-    role: testing.ByRoleMatcher,
+    role: ByRoleMatcher,
     options?: testing.ByRoleOptions
   ): TestElement<HTMLElement, T> {
     return this.element.find(role, options);
@@ -295,7 +295,7 @@ export class TestElement<E extends Element, T> {
 
   find(
     this: TestElement<HTMLElement, T>,
-    role: testing.ByRoleMatcher,
+    role: ByRoleMatcher,
     options?: testing.ByRoleOptions
   ): TestElement<HTMLElement, T> {
     return TestElement.create(

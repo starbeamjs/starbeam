@@ -1,5 +1,5 @@
 import type { CallStack, Description } from "@starbeam/interfaces";
-import { DEBUG, type Equality, Marker } from "@starbeam/reactive";
+import { DEBUG, type Equality, Marker } from "@starbeam/universal";
 
 interface Entry {
   has: Marker;

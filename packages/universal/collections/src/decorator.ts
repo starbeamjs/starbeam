@@ -1,4 +1,4 @@
-import { DEBUG, Formula, type FormulaFn } from "@starbeam/reactive";
+import { CachedFormula, DEBUG, type FormulaFn } from "@starbeam/universal";
 import { expected, isPresent, verify } from "@starbeam/verify";
 
 export const cached = <T>(
@@ -30,7 +30,7 @@ export const cached = <T>(
       let formula = CACHED.get(this);
 
       if (!formula) {
-        formula = Formula(
+        formula = CachedFormula(
           // eslint-disable-next-line
           () => get.call(this),
           { description: `computing ${String(key)}` }

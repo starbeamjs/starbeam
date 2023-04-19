@@ -25,7 +25,6 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "@rollup/plugin-commonjs": "*"
-  },
-  "devDependencies": {}
+    "@rollup/plugin-commonjs": "^24.1.0"
+  }
 }

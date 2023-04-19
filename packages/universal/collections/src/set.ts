@@ -1,5 +1,5 @@
 import type { Description } from "@starbeam/interfaces";
-import { DEBUG } from "@starbeam/reactive";
+import { DEBUG } from "@starbeam/universal";
 
 import { Collection } from "./collection.js";
 

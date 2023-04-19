@@ -7,7 +7,7 @@
 // that properties within the getter have the correct type in TS.
 
 import type { CallStack, Description } from "@starbeam/interfaces";
-import { DEBUG } from "@starbeam/reactive";
+import { DEBUG } from "@starbeam/universal";
 
 import { Collection } from "./collection.js";
 

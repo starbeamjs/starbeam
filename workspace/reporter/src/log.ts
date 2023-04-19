@@ -203,7 +203,7 @@ export abstract class FragmentImpl {
     if (typeof fragment === "string") {
       return /^\s*$/.test(ansicolor.strip(fragment));
     } else {
-      return Fragment.from(fragment).width(options) === EMPTY_WIDTH;
+      return Fragment.from(fragment).physicalWidth(options) === EMPTY_WIDTH;
     }
   }
 
@@ -235,7 +235,8 @@ export abstract class FragmentImpl {
 
   abstract concatFragment(other: FragmentImpl): FragmentImpl;
 
-  abstract width(options: LoggerState): number;
+  abstract byteWidth(options: LoggerState): number;
+  abstract physicalWidth(options: LoggerState): number;
   abstract stringify(options: LoggerState): string;
 
   toString(): string {
@@ -269,9 +270,16 @@ class FragmentGroup extends FragmentImpl {
     return new FragmentGroup([...this.#fragments, other]);
   }
 
-  width(options: LoggerState): number {
+  byteWidth(options: LoggerState): number {
     return this.#fragments.reduce(
-      (total, f) => total + f.width(options),
+      (total, f) => total + f.byteWidth(options),
+      EMPTY_WIDTH
+    );
+  }
+
+  physicalWidth(options: LoggerState): number {
+    return this.#fragments.reduce(
+      (total, f) => total + f.physicalWidth(options),
       EMPTY_WIDTH
     );
   }
@@ -339,9 +347,12 @@ class LeafFragment extends FragmentImpl {
     return this.#style(this.#message);
   }
 
-  width(): number {
-    const emoji = [...this.#message.matchAll(emojiRegex())];
-    return this.#message.length + emoji.length;
+  byteWidth(): number {
+    return this.#message.length;
+  }
+
+  physicalWidth(): number {
+    return lengthAdjustedForEmoji(this.#message);
   }
 
   get style(): StyleInstance {
@@ -426,8 +437,12 @@ export class DensityChoosingFragment extends FragmentImpl {
     return new DensityChoosingFragment(choices);
   }
 
-  width(options: LoggerState): number {
-    return this.#choices[options.density].width(options);
+  physicalWidth(options: LoggerState): number {
+    return this.#choices[options.density].physicalWidth(options);
+  }
+
+  byteWidth(options: LoggerState): number {
+    return this.#choices[options.density].byteWidth(options);
   }
 }
 
@@ -442,7 +457,7 @@ export type Style = StyleInstance | DetailedStyle | AnyStyleName;
 
 export type Printable = string | number | boolean;
 
-export function FragmentFn(style: Style, message: Printable): FragmentImpl {
+export function FragmentFn(style: Style, message: Printable): LeafFragment {
   const resolved = StyleInstance.resolve(style);
   return LeafFragment.create(resolved, String(message));
 }
@@ -528,6 +543,17 @@ export const Fragment = FragmentFn as typeof FragmentFn & ParentToFragmentFn;
 
 export function isDetailed(value: unknown): value is DetailedStyle {
   return !!(value && typeof value === "object" && STYLE in value);
+}
+
+function lengthAdjustedForEmoji(source: string) {
+  let length = source.length;
+
+  for (const match of source.matchAll(emojiRegex())) {
+    length -= match[0].length;
+    length += 2;
+  }
+
+  return length;
 }
 
 export const StyleInstance = {

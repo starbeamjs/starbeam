@@ -15,13 +15,13 @@
     "@starbeam/universal": "workspace:^",
     "@starbeam-workspace/preact-testing-utils": "workspace:^",
     "@starbeam-workspace/test-utils": "workspace:^",
-    "@testing-library/dom": "^8.19.1",
-    "@testing-library/preact": "^3.2.2",
+    "@testing-library/dom": "^9.2.0",
+    "@testing-library/preact": "^3.2.3",
     "htm": "^3.1.1",
-    "jsdom": "^20.0.3",
+    "jsdom": "^21.1.1",
     "preact": "*"
   },
   "devDependencies": {
-    "preact-render-to-string": "^5.2.5"
+    "preact-render-to-string": "^6.0.2"
   }
 }

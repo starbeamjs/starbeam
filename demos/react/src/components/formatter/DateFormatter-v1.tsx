@@ -1,7 +1,7 @@
 import js from "@starbeam/collections";
 import { useSetup } from "@starbeam/react";
 import type { Reactive } from "@starbeam/universal";
-import { Formula } from "@starbeam/universal";
+import { CachedFormula } from "@starbeam/universal";
 import type { JSXElementConstructor } from "react";
 
 import { formatLocale, SYSTEM_LOCALE, SYSTEM_TZ } from "../intl.js";
@@ -48,7 +48,7 @@ function Clock(): Reactive<{ formatted: string; refresh: () => void }> {
     date.now = new Date();
   }
 
-  return Formula(() => {
+  return CachedFormula(() => {
     return {
       formatted: formatTime(date.now, {
         timeZone: SYSTEM_TZ,

@@ -1,5 +1,6 @@
 import { getFirst, isPresent, isPresentArray } from "@starbeam/core-utils";
 import { expected, verified } from "@starbeam/verify";
+import type { ByRoleMatcher } from "@testing-library/dom";
 import { getByRole, getByText } from "@testing-library/dom";
 import * as testing from "@testing-library/preact";
 import htm from "htm";
@@ -387,7 +388,7 @@ class RenderResult<Args extends RenderProps, T extends Args> {
   }
 
   find(
-    role: testing.ByRoleMatcher,
+    role: ByRoleMatcher,
     options?: testing.ByRoleOptions
   ): TestElement<HTMLElement, T> {
     return this.element.find(role, options);
@@ -477,7 +478,7 @@ export class TestElement<E extends Element, T extends RenderProps> {
 
   find(
     this: TestElement<HTMLElement, T>,
-    role: testing.ByRoleMatcher,
+    role: ByRoleMatcher,
     options?: testing.ByRoleOptions
   ): TestElement<HTMLElement, T> {
     return TestElement.create(

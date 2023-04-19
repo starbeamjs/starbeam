@@ -101,6 +101,12 @@ class Columns {
     this.#columns = columns;
   }
 
+  [Symbol.for("nodejs.util.inspect.custom")](): object {
+    return DisplayStruct("Columns", {
+      columns: this.#columns,
+    });
+  }
+
   headers(state: LoggerState): string[] | undefined {
     return mapIfPresent(this.#columns, (column) => column.header(state) ?? "");
   }
@@ -110,7 +116,10 @@ class Columns {
     state: LoggerState
   ): readonly number[] | undefined {
     return mapIfPresent(this.#columns, (column, index) =>
-      column.maxWidth(rows.map((row) => row[index]).filter(isPresent), state)
+      column.maxPhysicalWidth(
+        rows.map((row) => row[index]).filter(isPresent),
+        state
+      )
     );
   }
 
@@ -161,15 +170,33 @@ class Column {
     this.#options = options;
   }
 
+  [Symbol.for("nodejs.util.inspect.custom")](): object {
+    return DisplayStruct("Column", {
+      headers: this.#header,
+      options: this.#options,
+    });
+  }
+
   header(state: LoggerState): string | undefined {
     return this.#header?.stringify(state);
   }
 
-  maxWidth(rows: Cell[], state: LoggerState): number {
+  maxPhysicalWidth(rows: Cell[], state: LoggerState): number {
     if (this.#options.width === "auto" || this.#options.width === undefined) {
       return Math.max(
-        this.#header?.width(state) ?? EMPTY_WIDTH,
-        ...rows.map((row) => row.width(state))
+        this.#header?.physicalWidth(state) ?? EMPTY_WIDTH,
+        ...rows.map((row) => row.physicalWidth(state))
+      );
+    } else {
+      return this.#options.width;
+    }
+  }
+
+  maxByteWidth(rows: Cell[], state: LoggerState): number {
+    if (this.#options.width === "auto" || this.#options.width === undefined) {
+      return Math.max(
+        this.#header?.byteWidth(state) ?? EMPTY_WIDTH,
+        ...rows.map((row) => row.byteWidth(state))
       );
     } else {
       return this.#options.width;
@@ -188,6 +215,12 @@ export class TableWithHeaders<T> {
   constructor(mappers: Mappers<T>, headers: Columns | undefined) {
     this.#mappers = mappers;
     this.#headers = headers;
+  }
+
+  [Symbol.for("nodejs.util.inspect.custom")](): object {
+    return DisplayStruct("TableWithHeaders", {
+      headers: this.#headers,
+    });
   }
 
   rows(rows?: IntoRows<T>): TableWithRows<T> {
@@ -282,8 +315,12 @@ export class Cell {
     return this.#fragment(state).stringify(state);
   }
 
-  width(options: LoggerState): number {
-    return this.#fragment(options).width(options);
+  byteWidth(options: LoggerState): number {
+    return this.#fragment(options).byteWidth(options);
+  }
+
+  physicalWidth(options: LoggerState): number {
+    return this.#fragment(options).physicalWidth(options);
   }
 
   #fragment(state: LoggerState): Fragment {
