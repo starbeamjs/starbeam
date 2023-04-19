@@ -1,8 +1,13 @@
-import type { FormulaTag, Tag, TaggedReactive } from "@starbeam/interfaces";
+import type {
+  FormulaTag,
+  Tag,
+  TaggedReactive,
+  TagSnapshot,
+} from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
 import { createFormulaTag } from "@starbeam/tags";
 
-import { evaluate, getDebug, getRuntime } from "../runtime.js";
+import { getDebug, getRuntime } from "../runtime.js";
 import type { FormulaFn, SugaryPrimitiveOptions } from "./utils.js";
 import { toOptions, WrapFn } from "./utils.js";
 
@@ -38,4 +43,11 @@ export function Formula<T>(
       return read(getDebug()?.callerStack());
     },
   });
+}
+
+function evaluate<T>(compute: () => T): { value: T; tags: TagSnapshot } {
+  const done = getRuntime().start();
+  const value = compute();
+  const tags = done();
+  return { value, tags };
 }

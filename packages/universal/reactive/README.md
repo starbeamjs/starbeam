@@ -1,7 +1,10 @@
 This package contains the implementations of the reactive primitives.
 
 Reactive primitives must be used with an implementation of `Runtime`, which
-basically means that they must be used together with `@reactive/runtime`.
+basically means that they must be used together with `@starbeam/runtime`.
+
+Higher-level packages, such as `@starbeam/universal`, `@starbeam/resource` and
+the renderers include `@starbeam/runtime` as a dependency.
 
 > The primitives themselves, and higher-level concepts built on the primitives are
 > agnostic to the runtime, primarily to clearly mark the runtime interface and
@@ -53,6 +56,8 @@ stored elsewhere. For example, reactive collections store their values in the
 JavaScript collections they represent, and use markers to represent each
 discrete piece of storage in the collection.
 
+> You can think of a marker as a kind of cell without a value.
+
 A marker has these fundamental operations:
 
 - `mark()`: mark the external storage as being dirty.
@@ -64,3 +69,76 @@ A marker has these fundamental operations:
 > `get` for each entry in the map. This means that if a formula used a `has`
 > check to check for a key's presence and it returns `true`, updating the value
 > of that key will not invalidate the formula.
+
+### Formula
+
+A formula is a function that computes a reactive value. A formula's dependencies
+is the set of cells that were accessed during its last computation.
+
+A formula is a [reactive value](#the-reactive-protocol). Whenever the formula
+is `read()`, it recomputes its value. It is also a function. Calling the formula
+has the same behavior as calling the formula's `read()` method.
+
+#### Cached Formula
+
+A cached formula behaves like a formula, but it only recomputes its value when
+one of its dependencies changes.
+
+## Formula vs. CachedFormula
+
+Both formulas and cached formulas are reactive values. You can render either one
+(see `@starbeam/runtime` for more information). In either case, when the formula
+is recomputed, its dependencies are updated, and the formula's renderers will
+receive readiness notifications when any of the new dependencies change.
+
+The difference is that a cached formula will only recompute when one of its
+dependencies changes.
+
+Normal formulas are suitable for **mixed-reactive environments**, where a
+Starbeam formula uses both Starbeam reactive values **and** a framework's native
+reactive values.
+
+For example, consider this situation when using the React renderer:
+
+```ts
+function Counter() {
+  const [reactCount, setReactCount] = useState(0);
+
+  const starbeamCount = useSetup(() => {
+    const count = Cell(0);
+
+    return {
+      increment: () => {
+        count.current++;
+      },
+      get count() {
+        return count.read();
+      },
+    };
+  });
+
+  return useReactive(() => {
+    <p>
+      React count: {reactCount}
+      <button onClick={() => setReactCount(reactCount + 1)}>Increment</button>
+    </p>;
+    <p>
+      Starbeam count: {starbeamCount.count}
+      <button onClick={starbeamCount.increment}>Increment</button>
+    </p>;
+  });
+}
+```
+
+Under the hood, `useReactive` uses a normal formula, which will result in an
+updated output whenever either `reactCount` or `starbeamCount.count` changes.
+
+- If `reactCount` changes, React will re-render the component, and the formula
+  will be recomputed.
+- If `starbeamCount.count` changes, the formula will be recomputed, and React
+  will re-render the component.
+
+In practice, this makes `Formula` a good default choice for mixed-reactive
+environments. You can always use `CachedFormula` if you are confident that your
+formula doesn't use any reactive values external to Starbeam to optimize your
+code further.
