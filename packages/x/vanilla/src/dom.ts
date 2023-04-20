@@ -1,148 +1,58 @@
 import type { Description, Reactive } from "@starbeam/interfaces";
-import { CachedFormula, DEBUG } from "@starbeam/reactive";
+import { CachedFormula, DEBUG, type FormulaFn } from "@starbeam/reactive";
 import { RUNTIME } from "@starbeam/runtime";
 
 import { Cursor } from "./cursor.js";
-
-interface Rendered {
-  poll: () => void;
-}
-
-interface OutputConstructor {
-  create: (options: { owner: object }) => Rendered;
-}
-
-type ContentNode = (into: Cursor) => OutputConstructor;
-type AttrNode<E extends Element = Element> = (into: E) => OutputConstructor;
-
-function Render<T extends Cursor | Element>(
-  create: (options: { into: T; owner: object }) => {
-    cleanup: () => void;
-    update: () => void;
-  },
-  description: Description | undefined
-): (into: T) => OutputConstructor {
-  return (into: T) => {
-    return {
-      create({ owner }) {
-        const { cleanup, update } = create({ into, owner });
-
-        const formula = CachedFormula(update, description);
-
-        RUNTIME.onFinalize(owner, cleanup);
-
-        return {
-          poll(caller = DEBUG?.callerStack()) {
-            formula.read(caller);
-          },
-        };
-      },
-    };
-  };
-}
 
 export function Text(
   text: Reactive<string>,
   description?: string | Description
 ): ContentNode {
-  return Render(({ into }) => {
+  return ContentNode(({ into }) => {
     const node = into.insert(into.document.createTextNode(text.read()));
 
     return {
-      cleanup: () => {
-        node.remove();
-      },
-
-      update: () => {
-        node.textContent = text.read();
-      },
+      cleanup: () => void node.remove(),
+      update: () => (node.textContent = text.read()),
     };
   }, DEBUG?.Desc("resource", description, "Text"));
 }
 
-class FragmentRange {
-  static create(start: ChildNode, end: ChildNode): FragmentRange {
-    return new FragmentRange(start, end);
-  }
+export function Comment(
+  text: Reactive<string>,
+  description?: string | Description
+): ContentNode {
+  return ContentNode(({ into }) => {
+    const node = into.insert(into.document.createComment(text.read()));
 
-  #start: ChildNode;
-  #end: ChildNode;
-
-  private constructor(start: ChildNode, end: ChildNode) {
-    this.#start = start;
-    this.#end = end;
-  }
-
-  clear(): void {
-    let current: ChildNode | null = this.#start;
-    const end = this.#end;
-
-    while (current !== null && current !== end) {
-      const next: ChildNode | null = current.nextSibling;
-      current.remove();
-      current = next;
-    }
-
-    end.remove();
-  }
-
-  get nodes(): Node[] {
-    const nodes: Node[] = [];
-
-    if (this.#start.nextSibling === this.#end) {
-      return nodes;
-    }
-
-    let start = this.#start.nextSibling;
-    const end = this.#end.previousSibling;
-
-    while (start) {
-      nodes.push(start);
-
-      if (start === end) {
-        break;
-      }
-
-      start = start.nextSibling;
-    }
-
-    return nodes;
-  }
+    return {
+      cleanup: () => void node.remove(),
+      update: () => (node.textContent = text.read()),
+    };
+  }, DEBUG?.Desc("resource", description, "Comment"));
 }
 
 export function Fragment(
   nodes: ContentNode[],
   description?: string | Description
 ): ContentNode {
-  const desc = DEBUG?.Desc("resource", description, "Fragment");
-
-  return Render(({ into, owner }) => {
+  return ContentNode(({ into, owner }) => {
     const start = placeholder(into.document);
     into.insert(start);
 
-    const renderedNodes: Rendered[] = [];
-
-    for (const nodeConstructor of nodes) {
-      const node = nodeConstructor(into).create({ owner });
-      renderedNodes.push(node);
-    }
+    const renderedNodes = nodes.map((nodeConstructor) =>
+      nodeConstructor(into).create({ owner })
+    );
 
     const end = placeholder(into.document);
     into.insert(end);
     const range = FragmentRange.create(start, end);
 
     return {
-      cleanup: () => {
-        range.clear();
-      },
-
-      update() {
-        renderedNodes.forEach((node) => {
-          node.poll();
-        });
-      },
+      cleanup: () => void range.clear(),
+      update: () => void poll(renderedNodes),
     };
-  }, desc);
+  }, DEBUG?.Desc("resource", description, "Fragment"));
 }
 
 export function Attr<E extends Element>(
@@ -150,7 +60,7 @@ export function Attr<E extends Element>(
   value: Reactive<string | null | boolean>,
   description?: string | Description
 ): AttrNode<E> {
-  return Render(({ into }) => {
+  return ContentNode(({ into }) => {
     const current = value.read();
 
     if (typeof current === "string") {
@@ -178,28 +88,25 @@ export function Attr<E extends Element>(
   }, DEBUG?.Desc("resource", description, "Attr"));
 }
 
-export function Element(
+export function Element<N extends string>(
   {
     tag,
     attributes,
     body,
   }: {
-    tag: string;
+    tag: N;
     attributes: AttrNode[];
     body: ContentNode | ContentNode[];
   },
   description?: Description | string
 ): ContentNode {
-  return Render(({ into, owner }) => {
+  return ContentNode(({ into, owner }) => {
     const element = into.document.createElement(tag);
     const elementCursor = Cursor.appendTo(element);
 
-    const renderAttributes: Rendered[] = [];
-
-    for (const attrConstructor of attributes) {
-      const attr = attrConstructor(element).create({ owner });
-      renderAttributes.push(attr);
-    }
+    const renderAttributes = attributes.map((attrConstructor) =>
+      attrConstructor(element).create({ owner })
+    );
 
     const fragment = Array.isArray(body) ? Fragment(body) : body;
     const renderBody = fragment(elementCursor).create({ owner });
@@ -207,16 +114,10 @@ export function Element(
     into.insert(element);
 
     return {
-      cleanup: () => {
-        element.remove();
-      },
-
+      cleanup: () => void element.remove(),
       update: () => {
-        for (const attr of renderAttributes) {
-          attr.poll();
-        }
-
-        renderBody.poll();
+        poll(renderAttributes);
+        poll(renderBody);
       },
     };
   }, DEBUG?.Desc("resource", description, "Element"));
@@ -226,4 +127,70 @@ Element.Attr = Attr;
 
 function placeholder(document: Document): Text {
   return document.createTextNode("");
+}
+
+type Rendered = FormulaFn<void>;
+
+interface OutputConstructor {
+  create: (options: { owner: object }) => Rendered;
+}
+
+type ContentNode = (into: Cursor) => OutputConstructor;
+type AttrNode<E extends Element = Element> = (into: E) => OutputConstructor;
+
+function poll(rendered: Rendered[] | Rendered): void {
+  if (Array.isArray(rendered)) {
+    rendered.forEach((node) => void node.read());
+  } else {
+    rendered.read();
+  }
+}
+
+function ContentNode<T extends Cursor | Element>(
+  create: (options: { into: T; owner: object }) => {
+    cleanup: () => void;
+    update: () => void;
+  },
+  description: Description | undefined
+): (into: T) => OutputConstructor {
+  return (into: T) => {
+    return {
+      create({ owner }) {
+        const { cleanup, update } = create({ into, owner });
+
+        const formula = CachedFormula(update, description);
+
+        RUNTIME.onFinalize(owner, cleanup);
+
+        return formula;
+      },
+    };
+  };
+}
+
+class FragmentRange {
+  static create(start: ChildNode, end: ChildNode): FragmentRange {
+    return new FragmentRange(start, end);
+  }
+
+  #start: ChildNode;
+  #end: ChildNode;
+
+  private constructor(start: ChildNode, end: ChildNode) {
+    this.#start = start;
+    this.#end = end;
+  }
+
+  clear(): void {
+    let current: ChildNode | null = this.#start;
+    const end = this.#end;
+
+    while (current !== null && current !== end) {
+      const next: ChildNode | null = current.nextSibling;
+      current.remove();
+      current = next;
+    }
+
+    end.remove();
+  }
 }
