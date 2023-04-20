@@ -16,12 +16,12 @@ describe("Vanilla Renderer", () => {
     expect(body.innerHTML).toBe("Hello World");
 
     cell.set("Goodbye world");
-    render.poll();
+    render.read();
 
     expect(body.innerHTML).toBe("Goodbye world");
 
     RUNTIME.finalize(owner);
-    render.poll();
+    render.read();
 
     expect(body.innerHTML).toBe("");
   });
@@ -43,13 +43,13 @@ describe("Vanilla Renderer", () => {
     expect(body.innerHTML).toBe("Hello World - Goodbye World");
 
     b.set(" ::: ");
-    range.poll();
+    range.read();
 
     expect(body.innerHTML).toBe("Hello World ::: Goodbye World");
     body.expectStable();
 
     a.set("Hola World");
-    range.poll();
+    range.read();
 
     expect(body.innerHTML).toBe("Hola World ::: Goodbye World");
     body.expectStable();
