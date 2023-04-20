@@ -38,14 +38,10 @@ maximum is greater than the old maximum, then the computation is stale.
 Tags have these fundamental properties:
 
 - A `description` property. This is a rich object that enables the logging and
-  debugging features of Starbeam.
-- A `lastUpdated` property. In composite tags, this is the latest revision of
-  the tag's children.
-- An `id` property. This is a unique identifier for the tag that does not change
-  over its lifetime. It can be a string, a number or an array of IDs (recursive).
-- A `dependencies()` method. This returns a list of [cell tags] that the tag
-  currently depends on. This list can change over time, so it must not be
-  cached.
+  debugging features of Starbeam. _This property is undefined in production_
+- A `dependencies` property. This is a function that, when called, returns a
+  list of the cell tags that the current tag depends on. If the value that the
+  tag represents is an uninitialized formula, this property is `UNINITIALIZED`.
 
 ## The Tags
 
@@ -53,68 +49,46 @@ Tags have these fundamental properties:
 
 Cell tags represent the most granular changes to reactive values.
 
-In addition to the fundamental properties, they have the following additional
-properties:
+When a cell tag represents a _frozen value_, its `dependencies` method returns
+an empty list. A frozen value will not change in the future.
 
-- An `isFrozen()` method. This method may return `true` if the value the tag
-  represents will not change in the future. Once a cell tag becomes frozen,
-  subscribers to the tag are free to unsubscribe.
-- A `freeze()` method. This method marks the tag as frozen (which means that
-  `isFrozen()` will return true after this point). Freezing a tag does not
-  increment its revision counter: if a consumer of the tag is up-to-date,
-  freezing the tag does not require the consumer to handle changes to its value.
-- An `update()` method. This method indicates that the tag's underlying storage
-  has changed. Calling this method updates the `lastUpdated` property to the
-  current timestamp.
+When a cell tag represents a _mutable value_, its `dependencies` method returns
+a list containing the cell tag itself.
+
+In addition to the fundamental properties, they have the following additional
+property:
+
+- A `lastUpdated` property. This property is the revision of the cell tag. It
+  is updated whenever the cell tag is updated.
 
 A cell tag's `dependencies()` are:
 
-- empty when the cell is frozen
-- the cell itself when the cell is not frozen
+- empty when the cell tag represents a _frozen value_. A frozen value will not
+  change in the future.
+- an array containing the cell tag itself when the cell tag represents a
+  _mutable value_.
 
-### Static Tags
-
-A static tag represents a value that can never change. Unlike a frozen cell tag,
-which represents data that may have changed in the past, a static tag represents
-data that has always been the same.
-
-There is never any reason to subscribe to a static tag, and they are never
-included in a tag's `dependendencies()` list.
-
-They primarily exist to model parameters that could either be `T` or
-`Reactive<T>`, where a `T` parameter is coerced into `Static<T>` with a static
-tag.
+A static value (i.e. a value that will never change during its entire lifetime)
+is modelled as a frozen cell (its dependencies will always be empty).
 
 ### Formula Tags
 
 A formula tag represents a reactive computation whose component tags can change
 when the value is recomputed.
 
-Its `lastUpdated` property is the latest revision of its current children.
-
 Its `dependencies()` method returns a list of the cells that its current children
 depend on. This is a recursive process that returns a flattened list of the cell
 tags that the formula tag transitively depends on.
 
-In addition to the fundamental properties, a formula tag has the following
-additional properties:
+When the formula tag represents an _uninitialized formula_, its `dependencies`
+property is `undefined` (and not a function).
 
-- A `tdz` ("temporal dead zone") property. This property is true when the
-  computation that this tag represents has not yet been evaluated. Subscribing
-  to a formula tag in the `tdz` state is semantically invalid. Attempting to do
-  so indicates a mistake in the implementation.
-- An `unsetTDZ()` method, which sets the `tdz` property to `false`.
-
-### Delegate Tags
-
-A delegate tag represents a reactive computation whose component tags _will not
-change_ over the lifetime of the tag.
-
-It exists to make it possible to create abstractions around underlying reactive
-values, but allow subscribers to those abstractions to subscribe directly to the
-component tags.
-
-Semantically, you can think of a delegate tag as a special kind of formula tag.
+> It is possible to render an uninitialized formula. In this situation, the
+> renderer will receive a readiness notification. This may make sense under
+> certain circumstances (and is used in practice in Starbeam renderers).
+>
+> However, rendering an uninitialized formula bears some thought about what it
+> means to render an uninitialized value.
 
 ## Tag Composition
 

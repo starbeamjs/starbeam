@@ -5,7 +5,6 @@ import type {
   FormulaTag,
   TagSnapshot,
 } from "@starbeam/interfaces";
-import { UNINITIALIZED } from "@starbeam/shared";
 
 import { getDependencies } from "./tagged.js";
 import type { Timestamp } from "./timestamp.js";
@@ -83,11 +82,15 @@ export function createFormulaTag(
   const tag = {
     type: "formula",
     description,
-    dependencies: UNINITIALIZED as UNINITIALIZED | typeof dependencies,
-  };
+    dependencies: undefined as undefined | typeof dependencies,
+  } satisfies Mutable<FormulaTag>;
 
   return {
     tag: tag as FormulaTag,
     markInitialized: () => (tag.dependencies = dependencies),
   };
 }
+
+type Mutable<T> = {
+  -readonly [P in keyof T]: T[P];
+};

@@ -8,17 +8,27 @@ Starbeam is a new kind of reactive library. It makes reactive programming simple
 
 </center>
 
+---
+
 [docs]: https://starbeamjs.com
 [discord]: https://discord.gg/HXq3PMmj8A
 
-It interoperates natively with React state management patterns, Svelte stores,
-the Vue composition API, and Ember's auto-tracking system.
+The core concepts of Starbeam are documented in the [docs] for users of Starbeam.
 
-## The Big Picture
+The package READMEs have additional implementor-focused documentation:
 
-- **Use normal JavaScript APIs and access patterns.** Build reactive data structures using reactive versions of JavaScript built-ins like objects, arrays, maps, and sets, and update them exactly as you would with normal JavaScript.
-- **No delays.** Updates to reactive values take effect immediately. Your reactive data and computations are always coherent, just like normal JavaScript.
-- **Works everywhere.** You don't need to learn a new framework to take advantage of Starbeam's cutting edge reactive system. You can render Starbeam data using renderers designed for your framework of choice, or even build your own renderer.
-- **TypeScript types are a first-class consideration.** Every part of Starbeam's API was designed from the ground up using TypeScript types with careful attention to the details. And if you're not a TypeScript user, you can still get the benefit in normal JavaScript code through inline suggestions, documentation and tab completion in your editor, no configuration needed.
+- [@starbeam/shared]: Primitive Starbeam fundamentals. This package enables multiple
+  copies of Starbeam to interoperate, including across major versions of Starbeam.
+- [@starbeam/tags]: The core of Starbeam's demand-driven validation system.
+- [@starbeam/reactive]: The implementation of Starbeam's fundamental reactive
+  values (cells and formulas).
+- [@starbeam/collections]: Starbeam's reactive collections: reactive
+  implementations of JavaScript's built-in collections (object, array,
+  `Map`, `Set`, `WeakMap`, and `WeakSet`).
 
-Get started with Starbeam and learn more at the [docs website](https://starbeamjs.com).
+More READMEs are coming.
+
+[@starbeam/shared]: ./packages/universal/shared/README.md
+[@starbeam/tags]: ./packages/universal/tags/README.md
+[@starbeam/reactive]: ./packages/universal/reactive/README.md
+[@starbeam/collections]: ./packages/universal/collections/README.md

@@ -10,6 +10,9 @@
     "editor.formatOnSave": false,
     "editor.codeActionsOnSave": ["source.fixAll.eslint"]
   },
+  "[properties]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+  },
 
   // format JavaScript and TypeScript using `eslint` first and then follow up
   // with prettier. The `eslint` pass fixes imports, but otherwise should not be
@@ -24,13 +27,10 @@
 
   "editor.defaultFormatter": "esbenp.prettier-vscode",
 
-  "eslint.codeActionsOnSave.mode": "all",
+  "eslint.codeActionsOnSave.mode": "problems",
   "eslint.enable": true,
   "eslint.lintTask.enable": true,
   "eslint.lintTask.options": "--cache -c ./.eslintrc.json --max-warnings=0 \"**/*.ts\" \"**/*.tsx\" \"**/*.json\"",
-  "eslint.onIgnoredFiles": "warn",
-  "eslint.problems.shortenToSingleLine": true,
-  "eslint.quiet": false,
   "eslint.validate": [
     "javascript",
     "javascriptreact",
@@ -57,6 +57,7 @@
     "tsconfig.json": "tsconfig.*.json, tsconfig-*.json, *.tsbuildinfo",
     "vite.config.ts": "rollup.config.*, .env.*"
   },
+  "markdown.validate.enabled": true,
 
   // rewrap provides a quick keyboard shortcut (alt-q) to reformat comments to
   // a specific column width. It also automatically rewraps comments when you

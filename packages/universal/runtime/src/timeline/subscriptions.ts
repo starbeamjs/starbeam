@@ -6,7 +6,6 @@ import type {
   NotifyReady,
   Tag,
 } from "@starbeam/interfaces";
-import { UNINITIALIZED } from "@starbeam/shared";
 import { getDependencies, getTag } from "@starbeam/tags";
 
 import type { Unsubscribe } from "../lifetime/object-lifetime.js";
@@ -86,8 +85,8 @@ export class Subscriptions {
 
 function isUninitialized(
   tag: Tag
-): tag is FormulaTag & { dependencies: UNINITIALIZED } {
-  return tag.dependencies === UNINITIALIZED;
+): tag is FormulaTag & { dependencies: undefined } {
+  return tag.dependencies === undefined;
 }
 
 /**
@@ -99,7 +98,7 @@ function hasDependencies(
   tagged: Tag
 ): tagged is Tag & { readonly dependencies: () => readonly CellTag[] } {
   const deps = getTag(tagged).dependencies;
-  return deps !== UNINITIALIZED && isPresentArray(deps());
+  return deps !== undefined && isPresentArray(deps());
 }
 
 interface Subscription {
