@@ -28,6 +28,7 @@ export class Cursor {
     return node;
   }
 
+
   get document(): Document {
     return this.#document;
   }
