@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 
 import { Cell, RUNTIME } from "@starbeam/universal";
-import { Cursor, El, Fragment, Text } from "@starbeamx/vanilla";
+import { Comment, Cursor, El, Fragment, Text } from "@starbeamx/vanilla";
 import { describe, expect, test } from "vitest";
 
 import { env } from "./env";
@@ -11,7 +11,9 @@ describe("Vanilla Renderer", () => {
     const { body, owner } = env();
 
     const cell = Cell("Hello World");
-    const render = Text(cell)(body.cursor).create({ owner });
+    const text = Text(cell);
+    const renderer = text(body.cursor);
+    const render = renderer.create({ owner });
 
     expect(body.innerHTML).toBe("Hello World");
 
@@ -19,6 +21,27 @@ describe("Vanilla Renderer", () => {
     render.read();
 
     expect(body.innerHTML).toBe("Goodbye world");
+
+    RUNTIME.finalize(owner);
+    render.read();
+
+    expect(body.innerHTML).toBe("");
+  });
+
+  test("it can render a comment", () => {
+    const { body, owner } = env();
+
+    const cell = Cell("Hello World");
+    const text = Comment(cell);
+    const renderer = text(body.cursor);
+    const render = renderer.create({ owner });
+
+    expect(body.innerHTML).toBe("<!--Hello World-->");
+
+    cell.set("Goodbye world");
+    render.read();
+
+    expect(body.innerHTML).toBe("<!--Goodbye world-->");
 
     RUNTIME.finalize(owner);
     render.read();

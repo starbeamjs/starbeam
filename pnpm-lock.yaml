@@ -1542,6 +1542,10 @@ importers:
       '@starbeamx/vanilla':
         specifier: workspace:^
         version: link:..
+    devDependencies:
+      vitest:
+        specifier: ^0.30.1
+        version: 0.30.1(@vitest/ui@0.30.1)(happy-dom@9.8.1)(jsdom@21.1.1)
 
   workspace/@domtree/any:
     dependencies:

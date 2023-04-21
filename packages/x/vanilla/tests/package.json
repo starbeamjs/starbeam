@@ -11,5 +11,8 @@
   "dependencies": {
     "@starbeam/universal": "workspace:^",
     "@starbeamx/vanilla": "workspace:^"
+  },
+  "devDependencies": {
+    "vitest": "^0.30.1"
   }
 }
