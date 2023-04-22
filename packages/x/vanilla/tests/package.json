@@ -13,6 +13,7 @@
     "@starbeamx/vanilla": "workspace:^"
   },
   "devDependencies": {
+    "typescript": "^5.0.4",
     "vitest": "^0.30.1"
   }
 }

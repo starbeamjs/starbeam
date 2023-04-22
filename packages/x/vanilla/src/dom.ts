@@ -1,7 +1,6 @@
 /**
   * TODO:
   *  - DynamicFragment
-  *  - Comment
   *  - Namespaces
   *  - SVG
   *  - Modifier
@@ -16,8 +15,8 @@
   *   - other compilers (html``)
   */
 import type { Description, Reactive } from "@starbeam/interfaces";
-import { CachedFormula, DEBUG } from "@starbeam/reactive";
-import { Resource, type ResourceBlueprint,RUNTIME,use } from "@starbeam/universal";
+import { CachedFormula, DEBUG, type FormulaFn } from "@starbeam/reactive";
+import { Resource,type ResourceBlueprint,RUNTIME,use } from "@starbeam/universal";
 
 import { Cursor } from "./cursor.js";
 
@@ -149,16 +148,13 @@ function placeholder(document: Document): Text {
   return document.createTextNode("");
 }
 
-type Rendered = Resource;
+type Rendered = FormulaFn<unknown>;
 
 interface OutputConstructor {
-  create: (options: { owner: object }) => { 
-    read: () => void; 
-    update: () => void 
-  }; 
+  create: (options: { owner: object }) => FormulaFn<unknown>;
 }
 type ContentNode = (into: Cursor) => OutputConstructor;
-type AttrNode<E extends Element = Element> = (into: E) => Resource;
+type AttrNode<E extends Element = Element> = (into: E) => OutputConstructor;
 
 function poll(rendered: Rendered[] | Rendered): void {
   if (Array.isArray(rendered)) {
@@ -168,10 +164,7 @@ function poll(rendered: Rendered[] | Rendered): void {
   }
 }
 
-type ContentConstructor<T extends Cursor | Element> = (options: { into: T, owner: object }) => ResourceBlueprint<{
-    read: () => void, 
-    update: () => void
-  }>;
+type ContentConstructor<T extends Cursor | Element> = (options: { into: T, owner: object }) => ResourceBlueprint;
 
 function Content<T extends Cursor | Element>(
   create: ContentConstructor<T>, 
@@ -181,7 +174,7 @@ function Content<T extends Cursor | Element>(
     return {
       create({ owner }) {
         const blueprint = create({ into, owner });
-        const formula = CachedFormula(() => (use(blueprint, { lifetime: owner })).current, description);
+        const formula = CachedFormula(() => (use(blueprint, { lifetime: owner, metadata: { owner } })).current, description);
 
         RUNTIME.onFinalize(owner, () => void RUNTIME.finalize(formula));
 
