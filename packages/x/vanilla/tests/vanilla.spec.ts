@@ -125,7 +125,9 @@ describe("Vanilla Renderer", () => {
       fragments.push(el);
     }
 
+    console.time('render');
     Fragment(fragments)(cursor).create({ owner });
+    console.timeEnd('render');
 
     expect(body.snapshot().length).toBe(fragments.length);
   });
