@@ -82,7 +82,7 @@ describe("Vanilla Renderer", () => {
     expect(body.innerHTML).toBe("");
   });
 
-  test("it can render elements", () => {
+  test('it can render elements', () => {
     const { body, owner } = env();
     const cursor = body.cursor;
 
@@ -103,6 +103,32 @@ describe("Vanilla Renderer", () => {
       `<div title="Hello World">Hello World - Goodbye World</div>`
     );
   });
+
+  // This is currently *very* slow
+  test("it can render many elements", () => {
+    const { body, owner } = env();
+    const cursor = body.cursor;
+    const fragments = [];
+
+    for (let i = 0; i < 1000; i++) {
+      const a = Cell("Hello World");
+      const b = Cell(" - ");
+      const c = Cell("Goodbye World");
+
+      const title = El.Attr("title", a);
+
+      const el = El({
+        tag: "div",
+        attributes: [title],
+        body: [Text(a), Text(b), Text(c)],
+      });
+      fragments.push(el);
+    }
+
+    Fragment(fragments)(cursor).create({ owner });
+
+    expect(body.snapshot().length).toBe(fragments.length);
+  });
 });
 
 export class Body {
@@ -122,8 +148,8 @@ export class Body {
     return this.#body.innerHTML;
   }
 
-  snapshot(): void {
-    this.#snapshot = [...this.#body.childNodes];
+  snapshot() : ChildNode[] {
+    return this.#snapshot = [...this.#body.childNodes];
   }
 
   expectStable(): void {
