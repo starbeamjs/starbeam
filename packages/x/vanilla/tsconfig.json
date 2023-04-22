@@ -8,5 +8,5 @@
     "outDir": "../../../dist/packages",
     "types": ["../../env"]
   },
-  "exclude": ["dist/**/*"]
+  "exclude": ["dist/**/*", "bench/**/*"]
 }

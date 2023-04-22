@@ -1,3 +1,3 @@
 declare const DEFAULT: import("rollup").Plugin;
 
-export default DEFAULT;
+export default (_?: { cjs?: boolean }) => DEFAULT;

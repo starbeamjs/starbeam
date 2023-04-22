@@ -1,13 +1,20 @@
 import "vitest/importMeta.js";
 import "vite/client";
 
-interface ImportMeta {
-  env: {
-    PROD: boolean | "";
-    DEV: boolean | "";
-    STARBEAM_TRACE: boolean;
-  };
-  assert: (condition: unknown, message: string) => asserts condition;
+declare global {
+  // https://vitejs.dev/guide/env-and-mode.html#intellisense-for-typescript
+  interface ImportMetaEnv {
+    readonly CJS: boolean;
+    readonly ESM: boolean;
+    readonly PROD: boolean | "";
+    readonly DEV: boolean | "";
+    readonly STARBEAM_TRACE: boolean;
+  }
+
+  interface ImportMeta {
+    env: ImportMetaEnv;
+    assert: (condition: unknown, message: string) => asserts condition;
+  }
 }
 
 declare module "*.scss" {

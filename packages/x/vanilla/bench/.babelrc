@@ -1,0 +1,6 @@
+{
+  "presets": [
+    ["@glimmer/babel-preset", { "isDebug": true }],
+    ["@babel/preset-react", {}]
+  ]
+}
