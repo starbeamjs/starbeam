@@ -1,6 +1,7 @@
 import type {
   CellTag,
   FormulaTag,
+  HasTag,
   NotifyReady,
   Tag,
   Tagged,
@@ -15,15 +16,15 @@ import { Subscriptions } from "./subscriptions.js";
 export class ReactiveError extends Error {}
 
 function SubscriptionRuntime(): {
-  subscribe: (target: Tag, ready: NotifyReady) => Unsubscribe;
+  subscribe: (target: HasTag, ready: NotifyReady) => Unsubscribe;
   mark: (cell: CellTag, update: (revision: Timestamp) => void) => void;
   update: (formula: FormulaTag) => void;
 } {
   const subscriptions = Subscriptions.create();
 
   return {
-    subscribe: (target: Tag, ready: NotifyReady): Unsubscribe => {
-      return subscriptions.register(target, ready);
+    subscribe: (target: HasTag, ready: NotifyReady): Unsubscribe => {
+      return subscriptions.register(getTag(target), ready);
     },
 
     mark: (cell: CellTag, update: (revision: Timestamp) => void): void => {

@@ -36,7 +36,7 @@ export const logTag = (
 
   console.group(
     describe(tag.description, { id: options.id }),
-    `(updated at ${lastUpdated(tag).at}`
+    `(updated at ${lastUpdated(tag).at})`
   );
   console.info(debug);
   console.groupEnd();
