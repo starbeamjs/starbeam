@@ -1,5 +1,6 @@
 import type { CallStack } from "./debug/call-stack.js";
 import type { CellTag, FormulaTag, Tag, TagSnapshot } from "./tag.js";
+import type { HasTag } from "./tagged.js";
 import type { CoreTimestamp } from "./timestamp.js";
 import type { Unsubscribe } from "./utils.js";
 
@@ -62,7 +63,7 @@ export interface Runtime {
    * should efficiently update the output to reflect the new value of the
    * reactive state.
    */
-  readonly subscribe: (target: Tag, ready: NotifyReady) => Unsubscribe;
+  readonly subscribe: (target: HasTag, ready: NotifyReady) => Unsubscribe;
 
   /**
    * Start a new tracking frame. This should be called at the start of a

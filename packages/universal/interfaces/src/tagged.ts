@@ -3,6 +3,8 @@ import type { TAG } from "@starbeam/shared";
 import type { CallStack } from "../index.js";
 import type { Tag } from "./tag.js";
 
+export type HasTag<T extends Tag = Tag> = T | Tagged<T>;
+
 /**
  * A `Tagged` object is a reactive object that has a `Tag` (which is used to
  * validate it).

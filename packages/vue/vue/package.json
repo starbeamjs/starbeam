@@ -1,9 +1,9 @@
 {
-  "private": true,
-  "name": "@starbeam-demos/react-jsnation",
-  "version": "1.0.0",
+  "name": "@starbeam/vue",
+  "version": "0.8.9",
   "type": "module",
   "main": "index.ts",
+  "types": "index.ts",
   "exports": {
     "default": "./index.ts"
   },
@@ -19,39 +19,34 @@
     "types": "dist/index.d.ts"
   },
   "starbeam": {
-    "jsx": "react",
-    "source": "tsx",
-    "type": "demo:react",
-    "used": [
-      {
-        "packages": [
-          "purecss"
-        ],
-        "reason": "css"
-      }
-    ]
+    "entry": {
+      "index": "./index.ts",
+      "setup": "./src/setup.ts"
+    },
+    "type": "library:public"
   },
   "scripts": {
-    "test:lint": "eslint \"src/**/*.{tsx,ts}\"",
+    "test:lint": "eslint \"index.ts\" \"src/**/*.ts\"",
     "test:specs": "vitest --run",
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "@starbeam/collections": "workspace:^",
+    "@starbeam/core-utils": "workspace:^",
     "@starbeam/debug": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
-    "@starbeam/react": "workspace:^",
     "@starbeam/reactive": "workspace:^",
     "@starbeam/resource": "workspace:^",
+    "@starbeam/runtime": "workspace:^",
+    "@starbeam/service": "workspace:^",
+    "@starbeam/tags": "workspace:^",
     "@starbeam/universal": "workspace:^",
-    "purecss": "3.0.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "@starbeam/verify": "workspace:^"
   },
   "devDependencies": {
-    "@types/react": "^18.0.37",
-    "@types/react-dom": "^18.0.11",
-    "@vitest/ui": "*",
-    "vite": "*"
+    "@starbeam-dev/build-support": "workspace:*",
+    "rollup": "^3.20.6"
+  },
+  "peerDependencies": {
+    "vue": "^3.2.47"
   }
 }
