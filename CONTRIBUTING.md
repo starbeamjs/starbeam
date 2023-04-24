@@ -52,7 +52,7 @@ testing and building. They are not published to npm.
 
 ## Development utilities
 
-These are aliased via `pnpm dev` at the monorepo root and is an alias for for the scripts located at `<repo-root>/workspace/scripts/*`.
+These are aliased via `pnpm dev` at the monorepo root and is an alias for the scripts located at `<repo-root>/workspace/scripts/*`.
 
 Common monorepo tasks can be added to `<repo-root>/workspace/scripts/*` and then invoke with `pnpm dev <command name>`
 
