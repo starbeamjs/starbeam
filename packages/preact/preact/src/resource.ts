@@ -7,7 +7,7 @@ import { useMemo } from "preact/hooks";
 
 import { getCurrentComponent } from "./options.js";
 
-export function use<T>(blueprint: IntoResourceBlueprint<T>): T {
+export function setup<T>(blueprint: IntoResourceBlueprint<T>): T {
   return useMemo(() => {
     const owner = verified(getCurrentComponent(), isPresent);
     return resource.use(blueprint, { lifetime: owner });

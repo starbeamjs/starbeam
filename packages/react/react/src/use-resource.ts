@@ -9,18 +9,28 @@ import {
 import { internalUseResource } from "./element.js";
 import { useNotify } from "./use-reactive.js";
 
-export function use<T>(
+export function setupResource<T>(
+  factory: IntoResourceBlueprint<T>,
+  options?:
+    | { initial?: T; description?: string | Description | undefined }
+    | unknown[],
+  dependencies?: unknown[]
+): Reactive<T | undefined> {
+  return createResource(
+    factory as IntoResourceBlueprint<T | undefined>,
+    options,
+    dependencies
+  );
+}
+
+export function useResource<T>(
   factory: IntoResourceBlueprint<T>,
   options?:
     | { initial?: T; description?: string | Description | undefined }
     | unknown[],
   dependencies?: unknown[]
 ): T | undefined {
-  const value = createResource(
-    factory as IntoResourceBlueprint<T | undefined>,
-    options,
-    dependencies
-  );
+  const value = setupResource(factory, options, dependencies);
 
   return unsafeTrackedElsewhere(() => value.read());
 }

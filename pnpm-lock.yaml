@@ -1143,6 +1143,21 @@ importers:
         specifier: workspace:^
         version: link:../../shared
 
+  packages/universal/renderer:
+    devDependencies:
+      '@starbeam-dev/build-support':
+        specifier: workspace:*
+        version: link:../../../workspace/build
+      rollup:
+        specifier: ^3.20.6
+        version: 3.20.6
+
+  packages/universal/renderer/tests:
+    dependencies:
+      '@starbeam/renderer':
+        specifier: workspace:^
+        version: link:..
+
   packages/universal/resource:
     dependencies:
       '@starbeam/core-utils':

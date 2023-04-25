@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { create, setup } from "@starbeam/preact";
+import { install, setup } from "@starbeam/preact";
 import { Cell } from "@starbeam/universal";
 import { html, rendering } from "@starbeam-workspace/preact-testing-utils";
 import { describe } from "@starbeam-workspace/test-utils";
@@ -11,7 +11,7 @@ let nextId = 0;
 
 describe("create", () => {
   beforeAll(() => {
-    setup(options);
+    install(options);
   });
 
   rendering.test(
@@ -28,7 +28,7 @@ describe("create", () => {
   rendering.test(
     "reactive values render",
     function App() {
-      const { cell } = create(ReactiveObject);
+      const { cell } = setup(ReactiveObject);
 
       return html`<p>${cell.current}</p>`;
     },
@@ -41,7 +41,7 @@ describe("create", () => {
   rendering.test(
     "reactive values update",
     function App() {
-      const { cell, increment } = create(ReactiveObject);
+      const { cell, increment } = setup(ReactiveObject);
 
       return html`<p>${cell}</p>
         <button onClick=${increment}>++</button>`;

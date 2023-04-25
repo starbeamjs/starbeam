@@ -35,14 +35,14 @@ export function CachedFormula<T>(
       last = { formula, value };
 
       markInitialized();
-      getRuntime().update(tag);
     } else if (last.formula.isStale()) {
       const lifecycle = last.formula.update();
       last.value = compute();
       lifecycle.done();
-      getRuntime().update(tag);
     }
 
+    getRuntime().update(tag);
+    getRuntime().consume(tag);
     return last.value;
   }
 

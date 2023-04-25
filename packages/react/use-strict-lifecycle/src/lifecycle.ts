@@ -103,11 +103,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { beginReadonly, endReadonly } from "./react.js";
-import {
-  type Ref,
-  useInitializedRef,
-  useLastRenderRef,
-} from "./updating-ref.js";
+import { type Ref, useInitializedRef, useLastRenderRef } from "./refs.js";
 import { checked, isInitialized, mapEntries, UNINITIALIZED } from "./utils.js";
 
 enum State {
@@ -133,7 +129,7 @@ enum State {
   remounting = "remounting",
 }
 
-type UseLifecycleBuilder<T, A> = (
+export type UseLifecycleBuilder<T, A> = (
   builder: Builder<A>,
   args: A,
   prev?: T | undefined

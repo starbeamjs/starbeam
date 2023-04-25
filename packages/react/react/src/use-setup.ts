@@ -24,18 +24,18 @@ interface UseSetupState {
     | { type: "static"; value: unknown };
 }
 
-export function useSetup<
+export function setupComponent<
   C extends (setup: ReactiveElement) => Reactive<unknown>
 >(callback: C, description?: string | Description): ReturnType<C>["current"];
-export function useSetup<
+export function setupComponent<
   C extends (setup: ReactiveElement) => RenderFn,
   RenderFn extends (props: never) => unknown
 >(callback: C, description?: string | Description): { compute: ReturnType<C> };
-export function useSetup<C extends (setup: ReactiveElement) => unknown>(
+export function setupComponent<C extends (setup: ReactiveElement) => unknown>(
   callback: C,
   description?: string | Description
 ): ReturnType<C>;
-export function useSetup<
+export function setupComponent<
   C extends (setup: ReactiveElement) => RenderFn,
   RenderFn
 >(callback: C, description?: string | Description): unknown {
@@ -80,10 +80,7 @@ export function useSetup<
 
       ReactiveElement.subscribe(element, reactive);
 
-      function compute(
-        props: unknown,
-        caller = DEBUG?.callerStack()
-      ): unknown {
+      function compute(props: unknown, caller = DEBUG?.callerStack()): unknown {
         currentProps = props;
         return reactive.read(caller);
       }
