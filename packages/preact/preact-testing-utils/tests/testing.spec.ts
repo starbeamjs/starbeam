@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { setup } from "@starbeam/preact";
+import { install } from "@starbeam/preact";
 import { html, rendering } from "@starbeam-workspace/preact-testing-utils";
 import { describe } from "@starbeam-workspace/test-utils";
 import { options } from "preact";
@@ -8,7 +8,7 @@ import { beforeAll } from "vitest";
 
 describe("useReactive", () => {
   beforeAll(() => {
-    setup(options);
+    install(options);
   });
 
   rendering.test(

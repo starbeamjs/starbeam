@@ -2,7 +2,7 @@
 
 import reactive from "@starbeam/collections";
 import type { Reactive } from "@starbeam/interfaces";
-import { use, useProp, useReactive, useSetup } from "@starbeam/react";
+import { setup, useProp, useReactive, useResource } from "@starbeam/react";
 import { CachedFormula, intoReactive } from "@starbeam/reactive";
 import { Cell, Resource, type ResourceBlueprint } from "@starbeam/universal";
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
@@ -10,7 +10,7 @@ import { beforeEach, describe, expect } from "@starbeam-workspace/test-utils";
 
 import { Channel } from "./support/channel.js";
 
-describe("useResource", () => {
+describe("setup", () => {
   beforeEach(Channel.reset);
 
   testReact<{ name: string }, string | null | undefined>(
@@ -21,7 +21,7 @@ describe("useResource", () => {
         .render(
           (state, props) => {
             const name = useProp(props.name);
-            const message = use(ChannelResource(name));
+            const message = useResource(ChannelResource(name));
 
             state.value(message);
 
@@ -81,7 +81,7 @@ describe("useResource", () => {
         .expectHTML((message) => `<span>${message ?? "loading"}</span>`)
         .render(
           (state, { name }) => {
-            const message = use(() => ChannelResource(name), [name]);
+            const message = useResource(() => ChannelResource(name), [name]);
 
             state.value(message);
 
@@ -142,7 +142,7 @@ describe("useResource", () => {
         .expectHTML((message) => `<span>${message ?? "loading"}</span>`)
         .render(
           (state, { name }) => {
-            const message = use(() => ChannelResource(name), [name]);
+            const message = useResource(() => ChannelResource(name), [name]);
 
             if (state.renderCount === 0) {
               expect(Channel.latest()).toBe(undefined);
@@ -218,7 +218,7 @@ describe("use", () => {
       )
       .render(
         (state) => {
-          const { name, increment } = useSetup(() => {
+          const { name, increment } = setup(() => {
             const count = Cell(0, { description: `count` });
 
             const name = CachedFormula(() => `channel${count.current}`, {
@@ -233,9 +233,10 @@ describe("use", () => {
             };
           });
 
-          const channel = use(() => {
-            return SimpleChannel(name.current);
-          }, [name]);
+          const channel = useResource(
+            () => SimpleChannel(name.current),
+            [name]
+          );
 
           state.value({ channel, increment });
 
@@ -247,7 +248,7 @@ describe("use", () => {
                     html.button({ onClick: increment }, `++ ${channel.id} ++`)
                   )
                 : html.span("loading"),
-            "jsx"
+            []
           );
         },
         { name: "test" }
@@ -299,7 +300,7 @@ describe("use", () => {
       )
       .render(
         (state) => {
-          const { channel, increment } = useSetup(({ use }) => {
+          const { channel, increment } = setup(({ use }) => {
             const count = Cell(0, { description: `count` });
 
             const name = CachedFormula(() => `channel${count.current}`, {
@@ -325,7 +326,7 @@ describe("use", () => {
                   html.button({ onClick: increment }, `++ ${current.id} ++`)
                 )
               : html.span("loading");
-          }, "jsx");
+          }, []);
         },
         { name: "test" }
       );

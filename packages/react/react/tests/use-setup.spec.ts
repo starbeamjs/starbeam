@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
-import type { ReactiveElement } from "@starbeam/react";
-import { useReactive, useSetup } from "@starbeam/react";
+import type { Lifecycle } from "@starbeam/react";
+import { setup, useReactive } from "@starbeam/react";
 import { Cell } from "@starbeam/universal";
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
 import { describe, expect } from "@starbeam-workspace/test-utils";
@@ -45,7 +45,7 @@ describe("useSetup", () => {
           }`
       )
       .render((state) => {
-        return useSetup((element) => {
+        const formula = setup((element) => {
           const renderState = subscribe(element);
 
           return () => {
@@ -59,7 +59,9 @@ describe("useSetup", () => {
                 : null
             );
           };
-        }).compute();
+        });
+
+        return useReactive(formula, []);
       });
 
     function send(message: string): void {
@@ -99,7 +101,7 @@ describe("useSetup", () => {
         )
         .render(
           (value, props) => {
-            return useSetup((element) => {
+            const instance = setup((element) => {
               const renderState = subscribe(element);
 
               return ({ greeting }: TestProps): ReactElement => {
@@ -115,7 +117,9 @@ describe("useSetup", () => {
                     : null
                 );
               };
-            }).compute(props);
+            });
+
+            return useReactive(() => instance(props), [props]);
           },
           { greeting: "hello" }
         );
@@ -153,7 +157,8 @@ describe("useSetup", () => {
           }`
       )
       .render((state) => {
-        const reactiveState = useSetup((element) => subscribe(element));
+        const a = setup((element) => subscribe(element));
+        const reactiveState = useReactive(a);
 
         state.value(reactiveState);
 
@@ -197,7 +202,7 @@ describe("useSetup", () => {
           }`
       )
       .render((state) => {
-        const { lastRender } = useSetup((element) => {
+        const { lastRender } = setup((element) => {
           const renderState = subscribe(element);
 
           return { lastRender: renderState };
@@ -211,7 +216,7 @@ describe("useSetup", () => {
             html.span(current.state),
             current.state === "message" ? html.span(current.lastMessage) : null
           );
-        });
+        }, []);
       });
 
     await result.rerender();
@@ -237,7 +242,7 @@ function send(message: string): void {
   CHANNELS.sendMessage(latest, message);
 }
 
-function subscribe(element: ReactiveElement): Cell<State> {
+function subscribe(element: Lifecycle): Cell<State> {
   const renderState = Cell({ state: "rendering" } as State, "outer cell");
   element.on.idle(() => {
     const channel = CHANNELS.subscribe("test");

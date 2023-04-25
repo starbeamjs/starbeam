@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { service, setup } from "@starbeam/preact";
+import { install,service } from "@starbeam/preact";
 import {
   html,
   type HtmlNode,
@@ -16,7 +16,7 @@ import { beforeAll, expect } from "vitest";
 
 describe("services", () => {
   beforeAll(() => {
-    setup(options);
+    install(options);
   });
 
   rendering.test(

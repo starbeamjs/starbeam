@@ -1,8 +1,7 @@
 // @vitest-environment jsdom
 
-import { useReactive, useSetup } from "@starbeam/react";
-import { CachedFormula } from "@starbeam/reactive";
-import { Cell } from "@starbeam/universal";
+import { setup, setupReactive, useReactive } from "@starbeam/react";
+import { CachedFormula, Cell, Formula } from "@starbeam/universal";
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
 import { describe, expect } from "@starbeam-workspace/test-utils";
 import { useState } from "react";
@@ -14,19 +13,20 @@ const INCREMENT = 1;
 let nextId = INITIAL_ID;
 
 describe("useReactive", () => {
-  testReact<void, number>("useReactiveSetup with useReactive", async (root) => {
+  testReact<void, number>("useSetup with useReactive", async (root) => {
     const result = root
       .expectHTML((value) => `<p>${value}</p><button>++</button>`)
       .render((state) => {
-        const { cell, increment } = useSetup(() => {
+        const { cell, increment } = setup(() => {
           const count = Cell(INITIAL_COUNT, `#${++nextId}`);
 
           function incrementCell(): void {
+            console.log("incrementing");
             count.set(count.current + INCREMENT);
           }
 
           return { cell: count, increment: incrementCell };
-        }, "first useReactiveSetup");
+        });
 
         return useReactive(() => {
           state.value(cell.current);
@@ -35,7 +35,7 @@ describe("useReactive", () => {
             html.p(String(cell.current)),
             html.button({ onClick: increment }, "++")
           );
-        }, `JSX#${nextId}`);
+        }, [cell]);
       });
 
     expect(result.value).toBe(INITIAL_COUNT);
@@ -45,8 +45,31 @@ describe("useReactive", () => {
     expect(result.value).toBe(INITIAL_COUNT + INCREMENT);
   });
 
+  // testReact<void, number>("useCell with useReactive", async (root) => {
+  //   const result = root
+  //     .expectHTML((value) => `<p>${value}</p><button>++</button>`)
+  //     .render((state) => {
+  //       const counter = setupCell(0);
+
+  //       return useReactive(() => {
+  //         state.value(counter.current);
+
+  //         return react.fragment(
+  //           html.p(String(counter.current)),
+  //           html.button({ onClick: () => counter.current++ }, "++")
+  //         );
+  //       }, []);
+  //     });
+
+  //   expect(result.value).toBe(INITIAL_COUNT);
+
+  //   await result.find("button").fire.click();
+
+  //   expect(result.value).toBe(INITIAL_COUNT + INCREMENT);
+  // });
+
   testReact<void, { counter: number }>(
-    "useSetup with Formula + useReactive",
+    "setup with Formula + useReactive",
     async (test) => {
       let testId = 0;
       const result = test
@@ -54,13 +77,13 @@ describe("useReactive", () => {
         .expectStable()
         .render((state) => {
           ++testId;
-          const { counter } = useSetup(() => {
+          const { counter } = useReactive(() => {
             const cell = Cell(INITIAL_COUNT, `#${testId}`);
             return CachedFormula(
               () => ({ counter: cell.current }),
               `inner #${testId}`
             );
-          }, `#${testId}`);
+          }, []);
 
           state.value({ counter });
 
@@ -75,7 +98,7 @@ describe("useReactive", () => {
   );
 
   testReact<void, { counter: number }>(
-    "useSetup with Formula + useReactive",
+    "useSetup returning a custom reactive object + useReactive",
     async (root) => {
       nextId = INITIAL_ID;
       const result = root
@@ -83,7 +106,7 @@ describe("useReactive", () => {
         .expectStable()
         .render((state) => {
           ++nextId;
-          const { formula, increment } = useSetup(() => {
+          const { formula, increment } = setup(() => {
             const cell = Cell(INITIAL_COUNT, `#${nextId}`);
             return {
               formula: CachedFormula(
@@ -94,16 +117,16 @@ describe("useReactive", () => {
                 cell.update((count) => count + INCREMENT);
               },
             };
-          }, `#${nextId}`);
+          });
 
-          const counter = useReactive(formula);
+          return useReactive(() => {
+            state.value(formula());
 
-          state.value(counter);
-
-          return react.fragment(
-            html.p(String(formula().counter)),
-            html.button({ onClick: increment }, "++")
-          );
+            return react.fragment(
+              html.p(String(formula().counter)),
+              html.button({ onClick: increment }, "++")
+            );
+          }, []);
         });
 
       await result.find("button").fire.click();
@@ -130,7 +153,7 @@ describe("useReactive", () => {
         .render((state) => {
           const [reactCount, setReactCount] = useState(INITIAL_COUNT);
 
-          const { count, increment } = useSetup(() => {
+          const { count, increment } = setup(() => {
             const cell = Cell(INITIAL_COUNT);
 
             function incrementCount(): void {
@@ -167,7 +190,7 @@ describe("useReactive", () => {
                 )
               )
             );
-          });
+          }, [count]);
         });
 
       expect(result.value).toEqual({ starbeam: 0, react: 0 });
@@ -193,15 +216,16 @@ describe("useReactive", () => {
         )
 
         .render((state) => {
-          return useSetup(() => {
+          const formula = setupReactive(() => {
             const cell = Cell(INITIAL_COUNT);
 
             function increment(): void {
               cell.update((i) => i + INCREMENT);
             }
 
-            return () => {
+            return Formula(() => {
               const [reactCount, setReactCount] = useState(INITIAL_COUNT);
+              console.log("rendering");
 
               state.value({ starbeam: cell.current, react: reactCount });
 
@@ -226,8 +250,10 @@ describe("useReactive", () => {
                   )
                 )
               );
-            };
-          }).compute();
+            });
+          });
+
+          return useReactive(() => formula.read(), []);
         });
 
       expect(result.value).toEqual({ starbeam: 0, react: 0 });

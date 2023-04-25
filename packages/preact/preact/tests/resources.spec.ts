@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { setup, use } from "@starbeam/preact";
+import { install, setup } from "@starbeam/preact";
 import {
   html,
   rendering,
@@ -17,13 +17,13 @@ import { options } from "preact";
 
 describe("resources", () => {
   beforeAll(() => {
-    setup(options);
+    install(options);
   });
 
   rendering.test(
     "resources are cleaned up correctly",
     function App() {
-      const test = use(TestResource);
+      const test = setup(TestResource);
       return html`<p>${test.id}</p>`;
     },
     (root) =>
@@ -40,7 +40,7 @@ describe("resources", () => {
   rendering.test(
     "resources can be passed as a callback",
     function App() {
-      const test = use(() => TestResource);
+      const test = setup(() => TestResource);
       return html`<p>${test.id}</p>`;
     },
     expectResource

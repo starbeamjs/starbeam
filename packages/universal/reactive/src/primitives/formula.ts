@@ -30,6 +30,7 @@ export function Formula<T>(
 
     markInitialized();
     getRuntime().update(tag);
+    getRuntime().consume(tag);
 
     return value;
   }

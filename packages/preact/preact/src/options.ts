@@ -15,7 +15,7 @@ export function getCurrentComponent(): InternalComponent {
   return ComponentFrame.current;
 }
 
-export const setup = Plugin((on) => {
+export const install = Plugin((on) => {
   on.root((_, parent) => {
     ROOTS.current = parent;
   });

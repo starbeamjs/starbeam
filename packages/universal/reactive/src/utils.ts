@@ -30,13 +30,13 @@ export type ReadValue<T> = T extends Reactive<infer R> ? R : T;
 
 export function read<T>(
   this: void,
-  value: T,
+  value: T | Reactive<T>,
   caller = getDebug()?.callerStack()
-): ReadValue<T> {
+): T {
   if (is(value) && hasRead(value)) {
-    return value.read(caller) as ReadValue<T>;
+    return value.read(caller);
   } else {
-    return value as ReadValue<T>;
+    return value;
   }
 }
 

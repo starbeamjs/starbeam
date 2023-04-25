@@ -1,5 +1,6 @@
 import { type MutableRefObject, useRef } from "react";
 
+import { useLifecycle } from "./lifecycle.js";
 import { UNINITIALIZED } from "./utils.js";
 
 /**
@@ -52,4 +53,8 @@ export function useLastRenderRef<S>(
 
   ref.current = state;
   return [ref as Ref<S>, prev];
+}
+
+export function useInstance<T>(blueprint: () => T): T {
+  return useLifecycle().render(blueprint);
 }

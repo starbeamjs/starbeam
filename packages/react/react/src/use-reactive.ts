@@ -1,11 +1,20 @@
 import type { Description, Reactive } from "@starbeam/interfaces";
-import { DEBUG, Formula as Formula, isReactive } from "@starbeam/reactive";
+import {
+  DEBUG,
+  Formula as Formula,
+  isReactive,
+  read,
+} from "@starbeam/reactive";
 import { render } from "@starbeam/runtime";
 import { Cell } from "@starbeam/universal";
-import { useLifecycle } from "@starbeam/use-strict-lifecycle";
+import {
+  unsafeTrackedElsewhere,
+  useInstance,
+  useLifecycle,
+} from "@starbeam/use-strict-lifecycle";
 import { useState } from "react";
 
-import { useSetup } from "./use-setup.js";
+import { sameDeps } from "./use-resource.js";
 
 /**
  * {@linkcode useReactive} is a Starbeam renderer that computes a value from reactive values and
@@ -39,7 +48,10 @@ export function useReactive<T>(
 
       // compute can change, so the `PolledFormula` doesn't close over the original value, but
       // rather invokes the **current** value (which can change in `on.update`).
-      const formula = Formula(() => read(compute), desc);
+      const formula = Formula(
+        () => (isReactive(compute) ? read(compute) : compute()),
+        desc
+      );
 
       on.update((newCompute) => {
         compute = newCompute;
@@ -57,10 +69,6 @@ export function useReactive<T>(
     .read(DEBUG?.callerStack());
 }
 
-function read<T>(value: Reactive<T> | (() => T)): T {
-  return isReactive(value) ? value.read() : value();
-}
-
 /**
  * Returns a function that can be called to notify React that the current component should be
  * re-rendered.
@@ -72,11 +80,27 @@ export function useNotify(): () => void {
   };
 }
 
-export function useCell<T>(
+export function setupCell<T>(
   value: T,
   description?: Description | string
 ): Cell<T> {
   const desc = DEBUG?.Desc("cell", description);
 
-  return useSetup(() => ({ cell: Cell(value, { description: desc }) })).cell;
+  return setup(() => Cell(value, { description: desc }));
+}
+
+export function setup<T>(blueprint: () => T): T {
+  return useInstance(blueprint);
+}
+
+export function useSetup<T>(
+  blueprint: () => T | Reactive<T>,
+  deps: unknown[]
+): T {
+  const instance = useLifecycle({
+    validate: deps,
+    with: sameDeps,
+  }).render(blueprint);
+
+  return unsafeTrackedElsewhere(() => read(instance));
 }
