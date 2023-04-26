@@ -256,10 +256,10 @@ export class ReactiveElement {
         notify: this.notify,
         render: (reactive) => this.on.cleanup(render(reactive, this.notify)),
         on: {
-          layout: (callback) =>
-            this.on.layout(() => {
-              callback(factory);
-            }),
+          layout: (callback) => {
+            if (!callback) return;
+            return this.on.layout(() => void callback(factory));
+          },
           cleanup: this.on.cleanup,
         },
       },
@@ -279,8 +279,8 @@ interface ResourceHost<T> {
   readonly notify: () => void;
   readonly render: (reactive: Tagged) => void;
   readonly on: {
-    layout: (callback: (value: T) => void) => Unsubscribe | void;
-    cleanup: (callback: () => void) => Unsubscribe | void;
+    layout: (callback: undefined | ((value: T) => void)) => Unsubscribe;
+    cleanup: (callback: undefined | (() => void)) => Unsubscribe;
   };
 }
 
@@ -314,17 +314,17 @@ type Callback<T = void> =
 
 interface OnLifecycle {
   readonly cleanup: (
-    finalizer: Callback,
+    finalizer: Callback | undefined,
     description?: string | Description
-  ) => Unsubscribe;
+  ) => Unsubscribe | undefined;
   readonly idle: (
-    ready: Callback,
+    ready: Callback | undefined,
     description?: string | Description
-  ) => Unsubscribe;
+  ) => Unsubscribe | undefined;
   readonly layout: (
-    attached: Callback,
+    attached: Callback | undefined,
     description?: string | Description
-  ) => Unsubscribe;
+  ) => Unsubscribe | undefined;
 }
 
 class Lifecycle {
@@ -352,12 +352,17 @@ class Lifecycle {
     RUNTIME.link(instance, lifecycle);
 
     return {
-      cleanup: (finalizer: Callback) => RUNTIME.onFinalize(instance, finalizer),
-      idle: (idle: Callback) => {
+      cleanup: (finalizer: Callback | undefined) => {
+        if (!finalizer) return;
+        return RUNTIME.onFinalize(instance, finalizer);
+      },
+      idle: (idle: Callback | undefined) => {
+        if (!idle) return;
         lifecycle.#idle.add(idle);
         return () => lifecycle.#idle.delete(idle);
       },
-      layout: (layout: Callback) => {
+      layout: (layout: Callback | undefined) => {
+        if (!layout) return;
         lifecycle.#layout.add(layout);
         return () => lifecycle.#layout.delete(layout);
       },

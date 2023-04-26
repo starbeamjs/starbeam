@@ -254,7 +254,9 @@ type HandlerSets<A> = {
 };
 
 export type RegisterLifecycleHandlers<A> = {
-  readonly [K in LifecycleEvent]: (handler: (args: A) => void) => void;
+  readonly [K in LifecycleEvent]: (
+    handler: undefined | ((args: A) => void)
+  ) => void;
 };
 
 interface LifecycleOptions<T, V, A> {
@@ -328,5 +330,7 @@ const Builder = <T, V, A>(state: LifecycleState<T, V, A>): Builder<A> => {
 
 const registerFn =
   <A>(state: { handlers: HandlerSets<A> }, handler: LifecycleEvent) =>
-  (callback: (args: A) => void) =>
-    state.handlers[handler].add(callback);
+  (callback: undefined | ((args: A) => void)) => {
+    if (!callback) return;
+    return state.handlers[handler].add(callback);
+  };

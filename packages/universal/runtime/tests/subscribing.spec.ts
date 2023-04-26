@@ -147,7 +147,7 @@ describe("Tagged", () => {
 
     expect(delegate.read()).toBe(4);
 
-    unsubscribe();
+    unsubscribe?.();
 
     satisfying(numbers.current, isPresentArray)[0].current++;
     expect(stale).toBe(false);
@@ -175,7 +175,7 @@ describe("Tagged", () => {
       expect(stale).toBe(true);
       stale = false;
 
-      unsubscribe();
+      unsubscribe?.();
 
       cell.current++;
 
@@ -198,7 +198,7 @@ describe("Tagged", () => {
       expect(stale).toBe(true);
       stale = false;
 
-      unsubscribe();
+      unsubscribe?.();
 
       numbers.current = [...numbers.current, Cell(3)];
 
@@ -229,7 +229,7 @@ describe("Tagged", () => {
       expect(stale).toBe(true);
       stale = false;
 
-      unsubscribe();
+      unsubscribe?.();
 
       cell.current++;
 
@@ -247,7 +247,7 @@ describe("Tagged", () => {
       expect(stale).toBe(false);
 
       // unsubscribing before the formula is initialized
-      unsubscribe();
+      unsubscribe?.();
 
       expect(sum.read()).toBe(0);
       expect(stale).toBe(false);
@@ -286,7 +286,7 @@ describe("Tagged", () => {
       expect(stale).toBe(true);
       stale = false;
 
-      unsubscribe();
+      unsubscribe?.();
 
       numbers.current = [...numbers.current, Cell(4)];
 

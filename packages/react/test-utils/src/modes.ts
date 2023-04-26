@@ -1,6 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { getLast, isPresentArray } from "@starbeam/core-utils";
-import { expect, test, type TestAPI } from "@starbeam-workspace/test-utils";
+import {
+  describe,
+  expect,
+  test,
+  type TestAPI,
+} from "@starbeam-workspace/test-utils";
 import * as testing from "@testing-library/react";
 import { getByRole, getByText } from "@testing-library/react";
 import { type ReactElement, StrictMode } from "react";
@@ -75,7 +81,7 @@ export class RenderState<T> {
   }
 }
 
-class RenderResult<Props, T> {
+export class RenderResult<Props, T> {
   static getValue<T>(result: RenderResult<any, T>): T {
     return RenderState.getValue(result.#state);
   }
@@ -296,21 +302,24 @@ export function testReact<Props, T>(
   name: string,
   modes: TestModes<Props, T>
 ): void {
-  testReact.strict(name, modes);
-  testReact.loose(name, modes);
+  describe(name, () => {
+    testReact.strict(modes);
+    testReact.loose(modes);
+  });
 }
 
 testReact.skip = <Props, T>(name: string, modes: TestModes<Props, T>) => {
-  testReact.strict(name, modes, test.skip as TestAPI);
-  testReact.loose(name, modes, test.skip as TestAPI);
+  describe.skip(name, () => {
+    testReact.strict(modes);
+    testReact.loose(modes);
+  });
 };
 
 testReact.strict = <Props, T>(
-  name: string,
   modes: TestModes<Props, T>,
   testFn: TestAPI = test
 ) => {
-  testFn(`${name} (strict mode)`, async () => {
+  testFn(`strict mode`, async () => {
     try {
       const setup = new SetupTestRoot<Props, T>({ wrapper: StrictMode });
       await modes(setup, Mode.strict);
@@ -321,11 +330,10 @@ testReact.strict = <Props, T>(
 };
 
 testReact.loose = <Props, T>(
-  name: string,
   modes: TestModes<Props, T>,
   testFn: TestAPI = test
 ) => {
-  testFn(`${name} (loose mode)`, async () => {
+  testFn(`loose mode`, async () => {
     try {
       const setup = new SetupTestRoot<Props, T>({});
       await modes(setup, Mode.loose);

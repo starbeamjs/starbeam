@@ -1,6 +1,6 @@
 import { inspector } from "@starbeam/core-utils";
 
-export type Unsubscribe = () => void;
+export type Unsubscribe = undefined | (() => void);
 
 export class ObjectLifetime {
   #owner: WeakRef<object> | undefined;

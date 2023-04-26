@@ -43,8 +43,9 @@ export const SUBSCRIPTION_RUNTIME = SubscriptionRuntime();
 
 export function render(tagged: Tagged | Tag, ready: NotifyReady): Unsubscribe {
   const tag = isTagged(tagged) ? getTag(tagged) : tagged;
-  const unsubscribes = new Set<Unsubscribe>();
-  unsubscribes.add(RUNTIME.subscribe(tag, ready));
+  const unsubscribes = new Set<NonNullable<Unsubscribe>>();
+  const unsubscribe = RUNTIME.subscribe(tag, ready);
+  if (unsubscribe) unsubscribes.add(unsubscribe);
 
   return () => {
     for (const unsubscribe of unsubscribes) {

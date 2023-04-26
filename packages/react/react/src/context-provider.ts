@@ -43,7 +43,7 @@ export class ReactApp {
 }
 
 export function useStarbeamApp(options: {
-  feature: string;
+  feature?: string;
   allowMissing: true;
 }): ReactApp | null;
 export function useStarbeamApp(options: {
@@ -54,12 +54,12 @@ export function useStarbeamApp({
   feature,
   allowMissing = false,
 }: {
-  feature: string;
+  feature?: string;
   allowMissing?: boolean | undefined;
 }): ReactApp | null {
   const app = useContext(StarbeamContext);
 
-  if (app === null && !allowMissing) {
+  if (app === null && !allowMissing && feature) {
     missingApp(feature);
   }
 

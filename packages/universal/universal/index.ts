@@ -22,6 +22,7 @@ export {
   Static,
 } from "@starbeam/reactive";
 export {
+  type IntoResourceBlueprint,
   Resource,
   type ResourceBlueprint,
   type ResourceRun,
