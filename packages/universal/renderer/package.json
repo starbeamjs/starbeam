@@ -24,7 +24,10 @@
     "test:specs": "vitest --run",
     "test:types": "tsc -b"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@starbeam/interfaces": "workspace:^",
+    "@starbeam/resource": "workspace:^"
+  },
   "devDependencies": {
     "@starbeam-dev/build-support": "workspace:*",
     "rollup": "^3.20.6"

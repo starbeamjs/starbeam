@@ -778,6 +778,9 @@ importers:
       '@starbeam/reactive':
         specifier: workspace:^
         version: link:../../universal/reactive
+      '@starbeam/renderer':
+        specifier: workspace:^
+        version: link:../../universal/renderer
       '@starbeam/resource':
         specifier: workspace:^
         version: link:../../universal/resource
@@ -1144,6 +1147,13 @@ importers:
         version: link:../../shared
 
   packages/universal/renderer:
+    dependencies:
+      '@starbeam/interfaces':
+        specifier: workspace:^
+        version: link:../interfaces
+      '@starbeam/resource':
+        specifier: workspace:^
+        version: link:../resource
     devDependencies:
       '@starbeam-dev/build-support':
         specifier: workspace:*

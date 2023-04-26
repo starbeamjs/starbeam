@@ -1,7 +1,6 @@
 import "./src/debug/warnings.js";
 
 export { type ReactApp, Starbeam, useStarbeamApp } from "./src/app.js";
-export type { Lifecycle } from "./src/hooks/lifecycle.js";
 export {
   setup,
   setupReactive,

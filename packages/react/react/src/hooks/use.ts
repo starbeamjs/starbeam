@@ -1,11 +1,12 @@
 import type { Reactive } from "@starbeam/interfaces";
+import type { ReactiveBlueprint } from "@starbeam/renderer";
 import type { IntoResourceBlueprint } from "@starbeam/resource";
 import {
   unsafeTrackedElsewhere,
   useLastRenderRef,
 } from "@starbeam/use-strict-lifecycle";
 
-import { createReactive, type ReactiveBlueprint } from "./setup.js";
+import { createReactive } from "./setup.js";
 
 /**
  * The `useReactive` hook takes a reactive value or {@linkcode ReactiveBlueprint}.
