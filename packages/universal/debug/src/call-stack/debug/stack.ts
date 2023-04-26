@@ -17,6 +17,8 @@ import { parseModule } from "./module.js";
 const INITIAL_INTERNAL_FRAMES = 1;
 const CALLER = 1;
 
+export const ABSTRACTION_FRAME = 1;
+
 export function callerStack(
   internal = INITIAL_INTERNAL_FRAMES
 ): CallStack | undefined {
@@ -139,7 +141,7 @@ if (import.meta.vitest) {
   }
 
   const ERROR_LOC = {
-    line: 138,
+    line: 140,
     column: 11,
   };
 

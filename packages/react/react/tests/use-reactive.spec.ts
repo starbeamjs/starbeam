@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { setup, setupReactive, useReactive } from "@starbeam/react";
+import { setup, useReactive } from "@starbeam/react";
 import { CachedFormula, Cell, Formula } from "@starbeam/universal";
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
 import { describe, expect } from "@starbeam-workspace/test-utils";
@@ -21,7 +21,6 @@ describe("useReactive", () => {
           const count = Cell(INITIAL_COUNT, `#${++nextId}`);
 
           function incrementCell(): void {
-            console.log("incrementing");
             count.set(count.current + INCREMENT);
           }
 
@@ -190,7 +189,7 @@ describe("useReactive", () => {
                 )
               )
             );
-          }, [count]);
+          }, [count, reactCount]);
         });
 
       expect(result.value).toEqual({ starbeam: 0, react: 0 });
@@ -216,7 +215,7 @@ describe("useReactive", () => {
         )
 
         .render((state) => {
-          const formula = setupReactive(() => {
+          return useReactive(() => {
             const cell = Cell(INITIAL_COUNT);
 
             function increment(): void {
@@ -225,7 +224,6 @@ describe("useReactive", () => {
 
             return Formula(() => {
               const [reactCount, setReactCount] = useState(INITIAL_COUNT);
-              console.log("rendering");
 
               state.value({ starbeam: cell.current, react: reactCount });
 
@@ -251,9 +249,7 @@ describe("useReactive", () => {
                 )
               );
             });
-          });
-
-          return useReactive(() => formula.read(), []);
+          }, []);
         });
 
       expect(result.value).toEqual({ starbeam: 0, react: 0 });

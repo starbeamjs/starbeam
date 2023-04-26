@@ -7,7 +7,7 @@ import { CONTEXT, render, RUNTIME, type Unsubscribe } from "@starbeam/runtime";
 import { service } from "@starbeam/service";
 import { Cell } from "@starbeam/universal";
 
-import { missingApp, ReactApp } from "./context-provider.js";
+import { missingApp, ReactApp } from "../app.js";
 import { type ElementRef, type ReactElementRef, ref } from "./ref.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

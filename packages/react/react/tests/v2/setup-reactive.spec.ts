@@ -29,7 +29,9 @@ describe("setupReactive", () => {
 
       return {
         current: count,
-        increment: () => cell.current++,
+        increment: () => {
+          return cell.current++;
+        },
       };
     });
   });

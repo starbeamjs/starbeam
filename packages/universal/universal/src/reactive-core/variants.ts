@@ -1,5 +1,5 @@
 import { DisplayStruct } from "@starbeam/core-utils";
-import type { CallStack, Description, FormulaTag } from "@starbeam/interfaces";
+import type { Description, FormulaTag } from "@starbeam/interfaces";
 import { Cell, DEBUG, Marker } from "@starbeam/reactive";
 import { RUNTIME, type Tagged } from "@starbeam/runtime";
 import { TAG } from "@starbeam/runtime";
@@ -38,19 +38,19 @@ export class VariantGroups {
     return group;
   }
 
-  transition(from: string, to: string, caller: CallStack | undefined): void {
+  transition(from: string, to: string): void {
     const fromGroups = this.#groupsByType.get(from);
     const toGroups = this.#groupsByType.get(to);
 
     if (fromGroups) {
       for (const group of fromGroups) {
-        group.transition(to, caller);
+        group.transition(to);
       }
     }
 
     if (toGroups) {
       for (const group of toGroups) {
-        group.transition(from, caller);
+        group.transition(from);
       }
     }
   }
@@ -103,12 +103,12 @@ export class VariantGroup {
 
   // Transition to or from another variant. If the variant is not present in this group, then this
   // group is invalidated.
-  transition(type: string, caller: CallStack | undefined): void {
+  transition(type: string): void {
     if (this.#types.has(type)) {
       return;
     }
 
-    this.#marker.mark(caller);
+    this.#marker.mark();
   }
 }
 
@@ -185,20 +185,16 @@ export class Variant<T> implements Tagged<FormulaTag> {
     };
   }
 
-  static set<T>(
-    variant: Variant<T>,
-    value: T,
-    caller = DEBUG?.callerStack()
-  ): void {
-    variant.#value.set(value, caller);
+  static set<T>(variant: Variant<T>, value: T): void {
+    variant.#value.set(value);
   }
 
-  static select<T>(variant: Variant<T>, caller = DEBUG?.callerStack()): void {
-    variant.#localTypeMarker.mark(caller);
+  static select<T>(variant: Variant<T>): void {
+    variant.#localTypeMarker.mark();
   }
 
-  static deselect<T>(variant: Variant<T>, caller = DEBUG?.callerStack()): void {
-    variant.#localTypeMarker.mark(caller);
+  static deselect<T>(variant: Variant<T>): void {
+    variant.#localTypeMarker.mark();
   }
 
   static consumeType(variant: Variant<unknown>): void {
@@ -415,7 +411,12 @@ class VariantsImpl implements Tagged<FormulaTag> {
   }
 
   choose(type: string, value?: unknown): void {
-    const caller = DEBUG?.callerStack();
+    DEBUG?.markEntryPoint([
+      "object:call",
+      this.#description ?? "Variants",
+      "choose",
+    ]);
+
     const current = this.#current;
     const from = Variant.type(current);
 
@@ -425,7 +426,7 @@ class VariantsImpl implements Tagged<FormulaTag> {
     }
 
     Variant.deselect(current);
-    this.#groups.transition(from, type, caller);
+    this.#groups.transition(from, type);
 
     const existing = this.#variants[type];
 
@@ -437,7 +438,7 @@ class VariantsImpl implements Tagged<FormulaTag> {
       this.#current = this.#create(type, ["selected", value]);
     }
 
-    this.#typeMarker.mark(caller);
+    this.#typeMarker.mark();
     RUNTIME.update(this[TAG]);
   }
 

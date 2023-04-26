@@ -4,7 +4,7 @@ import { RUNTIME } from "@starbeam/runtime";
 import { service } from "@starbeam/service";
 import { type Builder } from "@starbeam/use-strict-lifecycle";
 
-import { missingApp, ReactApp } from "../context-provider.js";
+import { missingApp, ReactApp } from "../app.js";
 
 export type Handler = () => void;
 

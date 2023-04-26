@@ -9,7 +9,7 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "@faker-js/faker": "^7.5.0",
+    "@faker-js/faker": "^7.6.0",
     "@starbeam/universal": "workspace:^",
     "@starbeam/verify": "workspace:^",
     "@starbeamx/store": "workspace:^"

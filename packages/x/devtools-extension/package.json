@@ -29,10 +29,10 @@
   "starbeam:type": "draft",
   "devDependencies": {
     "@crxjs/vite-plugin": "beta",
-    "chrome-types": "^0.1.185",
-    "dirfilename": "^1.0.4",
+    "chrome-types": "^0.1.188",
+    "dirfilename": "^1.1.1",
     "preact": "^10.13.2",
-    "vite": "*",
-    "vite-plugin-mpa": "^1.1.3"
+    "vite": "4.3.3",
+    "vite-plugin-mpa": "^1.1.4"
   }
 }

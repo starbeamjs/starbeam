@@ -59,7 +59,7 @@ describe("services", () => {
               html.span(instance.current),
               html.button({ onClick: () => instance.increment() }, "++")
             );
-          });
+          }, []);
         });
       });
 

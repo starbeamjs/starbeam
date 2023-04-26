@@ -1,6 +1,6 @@
 import type { Description } from "@starbeam/interfaces";
-import { useSetup } from "@starbeam/react";
-import { DEBUG } from "@starbeam/universal";
+import { useReactive } from "@starbeam/react";
+import { CachedFormula, DEBUG } from "@starbeam/universal";
 
 import type { AsyncData, Query } from "./fetch.js";
 import { QUERIES } from "./fetch.js";
@@ -16,15 +16,24 @@ export default function useQuery<T>(
     [key]
   );
 
-  return useSetup(({ on }) => {
+  return useReactive(({ on }) => {
     on.idle(() => {
       QUERIES.fetch(key).catch((e) => {
         console.error(e);
       });
-    }, desc?.implementation("resource", "on.idle", "on idle callback"));
+    });
 
-    return () => {
-      return QUERIES.query(key, query, desc).asData(DEBUG?.callerStack());
-    };
-  }, desc).compute();
+    return CachedFormula(() => {
+      DEBUG?.markEntryPoint({
+        caller: desc?.caller,
+        description: desc
+          ? {
+              description: desc,
+              operation: "current",
+            }
+          : "useQuery->current",
+      });
+      return QUERIES.query(key, query, desc).asData();
+    });
+  }, []);
 }

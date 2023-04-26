@@ -1,4 +1,4 @@
-import type { CallStack, Description } from "@starbeam/interfaces";
+import type { Description } from "@starbeam/interfaces";
 import { DEBUG } from "@starbeam/universal";
 
 import { Collection } from "./collection.js";
@@ -25,17 +25,25 @@ export default class TrackedObject {
 
     const proxy = new Proxy(target, {
       defineProperty(_, key, descriptor) {
-        const caller = DEBUG?.callerStack();
+        DEBUG?.markEntryPoint([
+          "object:define",
+          description ?? "TrackedObject",
+          key,
+        ]);
 
-        define(key, descriptor, caller);
+        define(key, descriptor);
         return true;
       },
 
       deleteProperty(_, prop) {
         if (Reflect.has(target, prop)) {
-          const caller = DEBUG?.callerStack();
+          DEBUG?.markEntryPoint([
+            "object:delete",
+            description ?? "TrackedObject",
+            prop,
+          ]);
 
-          collection.delete(prop, caller);
+          collection.delete(prop);
           Reflect.deleteProperty(target, prop);
         }
 
@@ -43,25 +51,31 @@ export default class TrackedObject {
       },
 
       get(_, prop, _receiver) {
-        const caller = DEBUG?.callerStack();
+        DEBUG?.markEntryPoint([
+          "object:get",
+          description ?? "TrackedObject",
+          prop,
+        ]);
 
         collection.get(
           prop,
           Reflect.has(target, prop) ? "hit" : "miss",
-          member(prop),
-          caller
+          member(prop)
         );
         return Reflect.get(target, prop) as unknown;
       },
 
       getOwnPropertyDescriptor(_, prop) {
-        const caller = DEBUG?.callerStack();
+        DEBUG?.markEntryPoint([
+          "object:meta:get",
+          description ?? "TrackedObject",
+          prop,
+        ]);
 
         collection.get(
           prop,
           Reflect.has(target, prop) ? "hit" : "miss",
-          member(prop),
-          caller
+          member(prop)
         );
         return Reflect.getOwnPropertyDescriptor(target, prop);
       },
@@ -71,10 +85,14 @@ export default class TrackedObject {
       },
 
       has(_, prop) {
-        const caller = DEBUG?.callerStack();
+        DEBUG?.markEntryPoint([
+          "object:has",
+          description ?? "TrackedObject",
+          prop,
+        ]);
 
         const has = Reflect.has(target, prop);
-        collection.check(prop, has ? "hit" : "miss", member(prop), caller);
+        collection.check(prop, has ? "hit" : "miss", member(prop));
         return has;
       },
 
@@ -83,9 +101,12 @@ export default class TrackedObject {
       },
 
       ownKeys() {
-        const caller = DEBUG?.callerStack();
+        DEBUG?.markEntryPoint([
+          "object:meta:keys",
+          description ?? "TrackedObject",
+        ]);
 
-        collection.iterateKeys(caller);
+        collection.iterateKeys();
         return Reflect.ownKeys(target);
       },
 
@@ -94,7 +115,11 @@ export default class TrackedObject {
       },
 
       set(_: object, prop: PropertyKey, value: unknown, _receiver) {
-        const caller = DEBUG?.callerStack();
+        DEBUG?.markEntryPoint([
+          "object:set",
+          description ?? "TrackedObject",
+          prop,
+        ]);
 
         const descriptor = Reflect.getOwnPropertyDescriptor(target, prop);
 
@@ -107,7 +132,7 @@ export default class TrackedObject {
             return true;
           }
 
-          collection.set(prop, updates.disposition, member(prop), caller);
+          collection.set(prop, updates.disposition, member(prop));
         }
 
         Reflect.set(target, prop, value);
@@ -123,18 +148,14 @@ export default class TrackedObject {
 
     return proxy;
 
-    function define(
-      key: PropertyKey,
-      descriptor: PropertyDescriptor,
-      caller: CallStack | undefined
-    ): boolean {
+    function define(key: PropertyKey, descriptor: PropertyDescriptor): boolean {
       const updates = Descriptor.updates(target, key, descriptor);
 
       if (updates.isNoop) {
         return true;
       }
 
-      collection.set(key, updates.disposition, String(key), caller);
+      collection.set(key, updates.disposition, String(key));
 
       return true;
     }

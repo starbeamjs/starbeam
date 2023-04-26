@@ -1,6 +1,6 @@
-// @vitest-environment jsdom
+// @vitest-environment happy-dom
 
-import { Starbeam, useStarbeam } from "@starbeam/react";
+import { Starbeam, useReactive } from "@starbeam/react";
 import { Cell, Formula } from "@starbeam/reactive";
 import { Resource } from "@starbeam/resource";
 import type { RenderState } from "@starbeam-workspace/react-test-utils";
@@ -37,14 +37,17 @@ describe("useStarbeam", () => {
     const result = root
       .expectHTML((value) => `<span>${value?.count ?? "uninitialized"}</span>`)
       .render((state) => {
-        return useStarbeam(({ use }) => {
+        const reactive = useReactive(({ use }) => {
           const resource = use(testResource);
 
           return Formula(() => {
             state.value(resource.current);
             return html.span(resource.current?.count ?? "uninitialized");
           });
-        });
+        }, []);
+
+        return reactive;
+        // return useReactive(reactive);
       });
 
     await result.rerender();
@@ -62,14 +65,14 @@ describe("useStarbeam", () => {
       );
 
     function App({ state }: { state: RenderState<TestState | undefined> }) {
-      return useStarbeam(({ service }) => {
+      return useReactive(({ service }) => {
         const resource = service(testResource);
 
         return Formula(() => {
           state.value(resource.current);
           return html.span(resource.current?.count ?? "uninitialized");
         });
-      });
+      }, []);
     }
 
     await result.rerender();

@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "@starbeam-dev/build-support": "workspace:*",
-    "@types/react": "^18.0.37",
+    "@types/react": "^18.2.0",
     "rollup": "^3.20.6"
   },
   "peerDependencies": {
