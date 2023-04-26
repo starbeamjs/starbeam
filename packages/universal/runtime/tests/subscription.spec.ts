@@ -45,7 +45,7 @@ describe("formula rendering", () => {
 
     expect(formula.current).toBe("Jerry Seinfeld");
 
-    unsubscribe();
+    unsubscribe?.();
 
     cell.current = "J. Seinfeld";
     expect(stale).toBe(false);

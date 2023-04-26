@@ -60,9 +60,10 @@ describe("consumption", () => {
     const stale = new Staleness();
     expect(sum.current).toBe(6);
 
-    const unsubscribe = RUNTIME.subscribe(getTag(sum), () => {
-      stale.invalidate();
-    });
+    const unsubscribe = RUNTIME.subscribe(
+      getTag(sum),
+      () => void stale.invalidate()
+    );
 
     stale.expect("fresh");
     stale.expect(() => (cellA.current += 2), "stale");
@@ -77,7 +78,7 @@ describe("consumption", () => {
     stale.expect("stale");
     expect(sum.current).toBe(14 + 4 /* cellA increase */ + 6 /* cellC * 2 */);
 
-    unsubscribe();
+    unsubscribe?.();
 
     stale.expect(() => (cellA.current += 2), "fresh");
 

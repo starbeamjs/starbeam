@@ -5,7 +5,7 @@ import { getDependencies, getTag, lastUpdated } from "@starbeam/tags";
 
 import { Tree } from "./tree.js";
 
-export const debugTag = (
+export const debugReactive = (
   tag: HasTag,
   {
     implementation = false,
@@ -28,7 +28,7 @@ export const debugTag = (
   return Tree(...nodes).format();
 };
 
-export const logTag = (
+export const logReactive = (
   tag: HasTag,
   options: {
     label?: string;
@@ -37,7 +37,7 @@ export const logTag = (
     id?: boolean;
   } = {}
 ): void => {
-  const debug = debugTag(tag, options);
+  const debug = debugReactive(tag, options);
 
   if (options.label) {
     console.group(options.label);

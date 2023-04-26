@@ -1,11 +1,17 @@
 // @vitest-environment jsdom
 
-import type { Lifecycle } from "@starbeam/react";
+import { type Lifecycle, Starbeam } from "@starbeam/react";
 import { setup, useReactive } from "@starbeam/react";
 import { Cell } from "@starbeam/universal";
+import type { RenderState } from "@starbeam-workspace/react-test-utils";
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
-import { describe, expect } from "@starbeam-workspace/test-utils";
-import type { ReactElement } from "react";
+import type { TestResourceImpl } from "@starbeam-workspace/test-utils";
+import { describe, expect, TestResource } from "@starbeam-workspace/test-utils";
+import {
+  createElement,
+  type FunctionComponent,
+  type ReactElement,
+} from "react";
 
 import { Channels } from "./support/channel.js";
 
@@ -34,7 +40,7 @@ interface TestProps {
   greeting: string;
 }
 
-describe("useSetup", () => {
+describe("setup", () => {
   testReact<void, State>("returning a render function", async (root) => {
     const result = root
       .expectStable()
@@ -229,7 +235,46 @@ describe("useSetup", () => {
       lastMessage: "first message",
     });
   });
+
+  testReact<void, TestResourceImpl>(
+    "using a service from the lifecycle passed to a reactive blueprint",
+    async (root) => {
+      const result = root
+        .expectStable()
+        .expectHTML(
+          (state) => `id:${state.id} active:${state.isActive ? "yes" : "no"}`
+        )
+        .render((state) => {
+          return usingStarbeam(
+            BuildApp(() =>
+              useReactive(({ service }) => service(TestResource), [])
+            ),
+            { state }
+          );
+        });
+
+      await result.rerender();
+    }
+  );
 });
+
+function BuildApp(callback: () => TestResourceImpl) {
+  return function Profile({
+    state,
+  }: {
+    state: RenderState<TestResourceImpl>;
+  }): React.ReactElement {
+    const instance = callback();
+    state.value(instance);
+
+    return react.fragment(
+      "id:",
+      instance.id,
+      " active:",
+      instance.isActive ? "yes" : "no"
+    );
+  };
+}
 
 function send(message: string): void {
   const latest = CHANNELS.latest();
@@ -257,4 +302,16 @@ function subscribe(element: Lifecycle): Cell<State> {
     };
   });
   return renderState;
+}
+
+export function usingStarbeam(component: FunctionComponent<void>): ReactElement;
+export function usingStarbeam<P>(
+  component: FunctionComponent<P>,
+  props: P
+): ReactElement;
+export function usingStarbeam(
+  component: FunctionComponent<any>,
+  props?: unknown
+): ReactElement {
+  return createElement(Starbeam, null, react.render(component, props));
 }

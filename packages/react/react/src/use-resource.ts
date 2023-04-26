@@ -67,7 +67,16 @@ function createResource<T>(
     const resource = internalUseResource(
       lifetime,
       {
-        on,
+        on: {
+          layout: (callback) => {
+            if (!callback) return;
+            return void on.layout(() => void callback(factory));
+          },
+          cleanup: (callback) => {
+            if (!callback) return;
+            return void on.cleanup(() => void callback());
+          },
+        },
         notify,
         render: (reactive) => void on.cleanup(render(reactive, notify)),
       },

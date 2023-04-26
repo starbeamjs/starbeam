@@ -26,6 +26,8 @@ export interface Cell<T = unknown> extends TaggedReactive<T, CellTag> {
   freeze: () => void;
 }
 
+export type Static<T> = TaggedReactive<T, CellTag & { dependencies: () => [] }>;
+
 export function Static<T>(
   value: T,
   options?: SugaryPrimitiveOptions
