@@ -114,7 +114,8 @@ export class VueInstance {
   }
 
   #render(tagged: HasTag, callback: () => void): void {
-    RUNTIME.onFinalize(this, RUNTIME.subscribe(tagged, callback));
+    const unsubscribe = RUNTIME.subscribe(tagged, callback);
+    if (unsubscribe) RUNTIME.onFinalize(this, unsubscribe);
     this.#renderedTags.add(getTag(tagged));
   }
 }

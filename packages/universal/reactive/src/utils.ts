@@ -9,7 +9,7 @@ import { TAG } from "@starbeam/shared";
 import { getDependencies } from "@starbeam/tags";
 
 import { Static } from "./primitives/cell.js";
-import { getDebug } from "./runtime.js";
+import { DEBUG, getDebug } from "./runtime.js";
 
 function is(this: void, value: unknown): value is Tagged {
   return !!(
@@ -33,13 +33,10 @@ export const isStatic = <T>(value: Reactive<T>): value is Static<T> =>
 
 export type ReadValue<T> = T extends Reactive<infer R> ? R : T;
 
-export function read<T>(
-  this: void,
-  value: T | Reactive<T>,
-  caller = getDebug()?.callerStack()
-): T {
+export function read<T>(this: void, value: T | Reactive<T>): T {
   if (is(value) && hasRead(value)) {
-    return value.read(caller);
+    DEBUG?.markEntryPoint(`read ${DEBUG.describeTagged(value)}`);
+    return value.read();
   } else {
     return value;
   }

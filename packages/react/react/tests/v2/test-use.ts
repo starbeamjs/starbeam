@@ -161,24 +161,18 @@ async function expectValidReactive(
     const instance = define();
 
     return useReactive(() => {
-      const { current: count, increment } = instance;
-
-      state.value(count);
-
-      console.log("increment", { count, increment });
+      state.value(instance.current);
 
       return react.fragment(
-        html.p(String(count)),
-        html.button({ onClick: increment }, "++")
+        html.p(String(instance.current)),
+        html.button({ onClick: instance.increment }, "++")
       );
     }, [instance]);
   }
 
   expect(result.value).toBe(INITIAL_COUNT);
 
-  console.log("firing");
   await result.find("button").fire.click();
-  console.log("fired");
 
   expect(result.value).toBe(INITIAL_COUNT + INCREMENT);
 }

@@ -56,9 +56,10 @@ export function ElementPlaceholder<E extends anydom.Element>(
     },
 
     get current(): E | null {
-      const current = verified(REFS.get(ref), isPresent).read(
-        DEBUG?.callerStack()
-      ) as E | UNINITIALIZED;
+      DEBUG?.markEntryPoint(`ref.current`);
+      const current = verified(REFS.get(ref), isPresent).read() as
+        | E
+        | UNINITIALIZED;
 
       return current === UNINITIALIZED ? null : current;
     },

@@ -1,4 +1,4 @@
-import type { CallStack, Description } from "@starbeam/interfaces";
+import type { Description } from "@starbeam/interfaces";
 import { getTag } from "@starbeam/tags";
 import { Cell, Marker } from "@starbeam/universal";
 import { expected, isPresent, verified } from "@starbeam/verify";
@@ -41,26 +41,26 @@ class ItemState {
     this.#value = value;
   }
 
-  check(caller: CallStack | undefined): void {
-    this.#present.read(caller);
+  check(): void {
+    this.#present.read();
   }
 
-  delete(caller: CallStack | undefined): void {
-    this.#present.set(false, caller);
+  delete(): void {
+    this.#present.set(false);
   }
 
   initialize(): void {
     this.#present.set(true);
   }
 
-  read(caller: CallStack | undefined): void {
-    this.#present.read(caller);
-    this.#value.read(caller);
+  read(): void {
+    this.#present.read();
+    this.#value.read();
   }
 
-  update(caller: CallStack | undefined): void {
-    this.#present.set(true, caller);
-    this.#value.mark(caller);
+  update(): void {
+    this.#present.set(true);
+    this.#value.mark();
   }
 }
 
@@ -79,14 +79,13 @@ class Item {
 
   static uninitialized(
     description: Description | undefined,
-    member: string,
-    caller: CallStack | undefined
+    member: string
   ): Item {
     const item = new Item(ItemState.uninitialized(description, member));
 
     // check the item so that subsequent writes to the item will invalidate the
     // read that caused this item to be created
-    item.#value.check(caller);
+    item.#value.check();
 
     return item;
   }
@@ -95,20 +94,20 @@ class Item {
     this.#value = value;
   }
 
-  check(caller: CallStack | undefined): void {
-    this.#value.check(caller);
+  check(): void {
+    this.#value.check();
   }
 
-  delete(caller: CallStack | undefined): void {
-    this.#value.delete(caller);
+  delete(): void {
+    this.#value.delete();
   }
 
-  read(caller: CallStack | undefined): void {
-    this.#value.read(caller);
+  read(): void {
+    this.#value.read();
   }
 
-  set(caller: CallStack | undefined): void {
-    this.#value.update(caller);
+  set(): void {
+    this.#value.update();
   }
 }
 
@@ -152,26 +151,25 @@ export class Collection<K> {
     this.#items = items;
   }
 
-  check(
-    key: K,
-    disposition: "hit" | "miss",
-    description: string,
-    caller: CallStack | undefined
-  ): void {
+  get description(): Description | undefined {
+    return this.#description;
+  }
+
+  check(key: K, disposition: "hit" | "miss", description: string): void {
     let item = this.#items.get(key);
 
     // If we're checking this key for the first time, we need to initialize the
     // item so that this consumer will be invalidated by subsequent writes.
     if (item === undefined) {
-      item = this.#initialize(key, disposition, description, caller);
+      item = this.#initialize(key, disposition, description);
     }
 
     // otherwise, read the presence of the key so that this consumer will be
     // invalidated by deletes.
-    item.check(caller);
+    item.check();
   }
 
-  delete(key: K, caller: CallStack | undefined): void {
+  delete(key: K): void {
     const item = this.#items.get(key);
 
     // if there's no item with that key, that means that no consumer read from
@@ -180,8 +178,8 @@ export class Collection<K> {
       return;
     }
 
-    item.delete(caller);
-    this.splice(caller);
+    item.delete();
+    this.splice();
   }
 
   /**
@@ -189,27 +187,17 @@ export class Collection<K> {
    *
    * If the key is not present, that means that this is the first read from the key.
    */
-  get(
-    key: K,
-    disposition: "hit" | "miss",
-    description: string,
-    caller: CallStack | undefined
-  ): void {
+  get(key: K, disposition: "hit" | "miss", description: string): void {
     let item = this.#items.get(key);
 
     if (item === undefined) {
-      item = this.#initialize(key, disposition, description, caller);
+      item = this.#initialize(key, disposition, description);
     }
 
-    item.read(caller);
+    item.read();
   }
 
-  #initialize(
-    key: K,
-    disposition: "hit" | "miss",
-    member: string,
-    caller: CallStack | undefined
-  ): Item {
+  #initialize(key: K, disposition: "hit" | "miss", member: string): Item {
     if (this.#iteration === undefined) {
       this.#iteration = Marker({ description: this.#description });
     }
@@ -218,7 +206,7 @@ export class Collection<K> {
     const iteration = getTag(this.#iteration).description;
 
     if (disposition === "miss") {
-      item = Item.uninitialized(iteration, member, caller);
+      item = Item.uninitialized(iteration, member);
     } else {
       item = Item.initialized(iteration, member);
     }
@@ -227,41 +215,40 @@ export class Collection<K> {
     return item;
   }
 
-  iterateKeys(caller: CallStack | undefined): void {
+  iterateKeys(): void {
     if (this.#iteration === undefined) {
       this.#iteration = Marker({ description: this.#description });
     }
 
     // remember that we iterated this collection so that consumers of the
     // iteration detect changes to the collection itself.
-    this.#iteration.read(caller);
+    this.#iteration.read();
   }
 
   set(
     key: K,
     disposition: "key:stable" | "key:changes",
-    description: string,
-    caller: CallStack | undefined
+    description: string
   ): void {
     if (disposition === "key:changes") {
-      this.splice(caller);
+      this.splice();
     }
 
     let item = this.#items.get(key);
 
     if (item === undefined) {
-      item = this.#initialize(key, "hit", description, caller);
+      item = this.#initialize(key, "hit", description);
       return;
     }
 
-    item.set(caller);
+    item.set();
 
     if (disposition === "key:changes") {
-      this.splice(caller);
+      this.splice();
     }
   }
 
-  splice(caller: CallStack | undefined): void {
+  splice(): void {
     if (this.#iteration === undefined) {
       // if nobody has iterated this collection, nobody will care that it was modified
       return;
@@ -279,6 +266,6 @@ export class Collection<K> {
     // of Starbeam can used keyed collections, we should make sure the
     // bookkeeping would actually pay for itself before spending the time to
     // implement it.
-    this.#iteration.mark(caller);
+    this.#iteration.mark();
   }
 }

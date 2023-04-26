@@ -34,23 +34,14 @@ export interface Description extends DescriptionDetails {
   readonly api: Api | undefined;
   readonly nesting: Nesting | undefined;
 
-  index: (index: number, caller?: CallStack | undefined) => Description;
-  property: (name: string, caller?: CallStack | undefined) => Description;
-  key: (
-    key: { name: string; key: unknown } | string | number,
-    caller?: CallStack | undefined
-  ) => Description;
-  detail: (
-    type: ReactiveType,
-    name: string,
-    args?: string[] | CallStack,
-    caller?: CallStack | undefined
-  ) => Description;
+  index: (index: number) => Description;
+  property: (name: string) => Description;
+  key: (key: { name: string; key: unknown } | string | number) => Description;
+  detail: (type: ReactiveType, name: string, args?: string[]) => Description;
   implementation: (
     type: ReactiveType,
     name: string,
-    reason: string,
-    caller?: CallStack | undefined
+    reason: string
   ) => Description;
 }
 

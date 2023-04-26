@@ -17,11 +17,15 @@ export class TrackedWeakSet<T extends object = object> implements WeakSet<T> {
   }
 
   has(value: T): boolean {
-    const caller = DEBUG?.callerStack();
+    DEBUG?.markEntryPoint([
+      "collection:has",
+      this.#collection.description ?? "reactive.WeakSet",
+      value,
+    ]);
 
     const has = this.#vals.has(value);
 
-    this.#collection.check(value, has ? "hit" : "miss", " {value}", caller);
+    this.#collection.check(value, has ? "hit" : "miss", " {value}");
 
     return has;
   }
@@ -33,10 +37,14 @@ export class TrackedWeakSet<T extends object = object> implements WeakSet<T> {
       return this;
     }
 
-    const caller = DEBUG?.callerStack();
+    DEBUG?.markEntryPoint([
+      "collection:insert",
+      this.#collection.description ?? "reactive.WeakSet",
+      value,
+    ]);
 
     this.#vals.add(value);
-    this.#collection.set(value, "key:changes", " {value}", caller);
+    this.#collection.set(value, "key:changes", " {value}");
 
     return this;
   }
@@ -49,9 +57,13 @@ export class TrackedWeakSet<T extends object = object> implements WeakSet<T> {
       return false;
     }
 
-    const caller = DEBUG?.callerStack();
+    DEBUG?.markEntryPoint([
+      "collection:delete",
+      this.#collection.description ?? "reactive.WeakSet",
+      value,
+    ]);
 
-    this.#collection.delete(value, caller);
+    this.#collection.delete(value);
     return this.#vals.delete(value);
   }
 

@@ -2,7 +2,7 @@ import type { Description, Reactive } from "@starbeam/interfaces";
 import { DEBUG } from "@starbeam/reactive";
 import { UNINITIALIZED } from "@starbeam/shared";
 import { Cell } from "@starbeam/universal";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 export interface Deps {
   consume: () => void;
@@ -44,4 +44,28 @@ export function useProp<T>(
   }
 
   return ref.current;
+}
+
+export function sameDeps(
+  next: unknown[] | undefined,
+  prev: unknown[] | undefined
+): boolean {
+  if (prev === undefined || next === undefined) {
+    return prev === next;
+  }
+
+  if (prev.length !== next.length) {
+    return false;
+  }
+
+  return prev.every((value, index) => Object.is(value, next[index]));
+}
+
+/**
+ * Returns a function that can be called to notify React that the current component should be
+ * re-rendered.
+ */
+export function useNotify(): () => void {
+  const [, setNotify] = useState({});
+  return () => void setNotify({});
 }

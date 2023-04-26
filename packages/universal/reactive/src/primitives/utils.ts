@@ -6,7 +6,7 @@ import type {
 } from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
 
-import { getDebug } from "../runtime.js";
+import { DEBUG } from "../runtime.js";
 
 export interface PrimitiveOptions {
   description?: string | Description | undefined;
@@ -59,7 +59,8 @@ export function WrapFn<T>(
   }
 
   const fn = (): T => {
-    return formula.read(getDebug()?.callerStack());
+    DEBUG?.markEntryPoint(DEBUG.describeTagged(formula));
+    return formula.read();
   };
 
   Object.defineProperties(fn, {

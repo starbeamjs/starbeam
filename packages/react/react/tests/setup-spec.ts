@@ -21,7 +21,7 @@ describe("setup", () => {
         .render(
           (state, props) => {
             const name = useProp(props.name);
-            const message = useResource(ChannelResource(name));
+            const message = useResource(ChannelResource(name), []);
 
             state.value(message);
 

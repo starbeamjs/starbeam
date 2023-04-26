@@ -107,8 +107,8 @@ export function zipArrays<T, U, V>(
 
 export function nullifyEmptyArray<U extends unknown[] | readonly unknown[]>(
   list: U
-): U | null {
-  return isEmptyArray(list) ? null : list;
+): PresentArrayFor<U> | null {
+  return isEmptyArray(list) ? null : (list as unknown as PresentArrayFor<U>);
 }
 
 const FIRST_OFFSET = 0;

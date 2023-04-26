@@ -16,8 +16,8 @@ import {
   useLifecycle,
 } from "@starbeam/use-strict-lifecycle";
 
-import { useStarbeamApp } from "../context-provider.js";
-import { sameDeps } from "../use-resource.js";
+import { useStarbeamApp } from "../app.js";
+import { sameDeps } from "../utils.js";
 import { buildLifecycle, type Lifecycle } from "./lifecycle.js";
 
 /**
@@ -32,7 +32,7 @@ import { buildLifecycle, type Lifecycle } from "./lifecycle.js";
  * You can also make use of the {@linkcode Lifecycle} to use resources, get
  * services or register code to run during the _idle_ or _layout_ phase.
  */
-type SetupBlueprint<T> = (lifecycle: Lifecycle) => T;
+export type SetupBlueprint<T> = (lifecycle: Lifecycle) => T;
 
 /**
  * `ReactiveBlueprint` is a function that takes a {@linkcode Lifecycle} and
@@ -45,13 +45,13 @@ type SetupBlueprint<T> = (lifecycle: Lifecycle) => T;
  * dependencies to {@linkcode useReactive}. If the dependencies change, the
  * blueprint will re-evaluate, returning a new value.
  */
-type ReactiveBlueprint<T> = (lifecycle: Lifecycle) => T | Reactive<T>;
+export type ReactiveBlueprint<T> = (lifecycle: Lifecycle) => T | Reactive<T>;
 
 /**
  * `UseReactive` describes the parameter that you can pass to {@linkcode setupReactive}
  * or {@linkcode useReactive}.
  */
-type UseReactive<T> = ReactiveBlueprint<T> | Reactive<T>;
+export type UseReactive<T> = ReactiveBlueprint<T> | Reactive<T>;
 
 /**
  * The `setup` function takes a setup function and runs it during the setup
@@ -96,6 +96,11 @@ export function setupReactive<T>(blueprint: UseReactive<T>): Reactive<T> {
  */
 
 export function useReactive<T>(
+  blueprint: ReactiveBlueprint<T>,
+  deps: unknown[]
+): T;
+export function useReactive<T>(blueprint: Reactive<T>): T;
+export function useReactive<T>(
   ...args:
     | [blueprint: Reactive<T>]
     | [blueprint: ReactiveBlueprint<T>, deps: unknown[]]
@@ -103,29 +108,12 @@ export function useReactive<T>(
   const [blueprint, deps] = args;
 
   const [currentBlueprint] = useLastRenderRef(blueprint);
-  const app = useStarbeamApp({ allowMissing: true });
+  const reactive = createReactive(currentBlueprint, deps);
 
-  const reactive = useLifecycle({
-    validate: deps,
-    with: sameDeps,
-  }).render((builder) => {
-    const lifecycle = buildLifecycle(builder, app);
-    // since we're in a use-style API, make the callback reactive: if the
-    // callback consumes reactive state, we'll re-run it.
-    const formula = Formula(() => {
-      const current = currentBlueprint.current;
-      return isReactive(current) ? read(current) : read(current(lifecycle));
-    });
-
-    builder.on.layout(
-      () => void builder.on.cleanup(RUNTIME.subscribe(formula, builder.notify))
-    );
-    return formula;
-  });
   return unsafeTrackedElsewhere(() => reactive.read());
 }
 
-function createReactive<T>(
+export function createReactive<T>(
   blueprint: Ref<UseReactive<T>>,
   deps?: unknown[]
 ): Reactive<T> {
@@ -166,16 +154,8 @@ export function setupService<T>(
   return setupReactive(({ service }) => service(blueprint));
 }
 
-export function useService<T>(blueprint: IntoResourceBlueprint<T>): T {
-  return useReactive(({ service }) => service(blueprint), []);
-}
-
 export function setupResource<T>(
   blueprint: IntoResourceBlueprint<T>
 ): Reactive<T> {
   return setupReactive(({ use }) => use(blueprint));
-}
-
-export function useResource<T>(blueprint: IntoResourceBlueprint<T>): T {
-  return useReactive(({ use }) => use(blueprint), []);
 }

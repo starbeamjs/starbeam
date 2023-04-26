@@ -28,6 +28,7 @@ export const reactive = (
     enumerable: true,
     configurable: true,
     get: function (this: object) {
+      DEBUG?.markEntryPoint({ description: "WeakMap.get" });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let cell: Cell<any> | undefined = CELLS.get(this);
 
@@ -36,7 +37,7 @@ export const reactive = (
         CELLS.set(this, cell);
       }
 
-      return cell.read(DEBUG?.callerStack()) as unknown;
+      return cell.read() as unknown;
     },
     set: function (this: object, value: unknown) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -75,7 +76,9 @@ reactive.Set = <T>(description?: string | Description): Set<T> => {
 reactive.WeakSet = <T extends object>(
   description?: string | Description
 ): WeakSet<T> => {
-  return TrackedWeakSet.reactive(DEBUG?.Desc("collection", description));
+  return TrackedWeakSet.reactive(
+    DEBUG?.Desc("collection", description, "reactive.WeakSet")
+  );
 };
 
 export function object<T extends Record<string, unknown>>(

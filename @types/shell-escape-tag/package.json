@@ -24,6 +24,6 @@
     "test:types": "tsc -b"
   },
   "devDependencies": {
-    "@types/node": "*"
+    "@types/node": "18.16.1"
   }
 }
