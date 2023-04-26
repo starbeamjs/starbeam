@@ -1,24 +1,10 @@
-import type { IntoResourceBlueprint, Resource } from "@starbeam/resource";
+import type { Lifecycle } from "@starbeam/renderer";
 import { use } from "@starbeam/resource";
 import { RUNTIME } from "@starbeam/runtime";
 import { service } from "@starbeam/service";
 import { type Builder } from "@starbeam/use-strict-lifecycle";
 
 import { missingApp, ReactApp } from "../app.js";
-
-export type Handler = () => void;
-
-/**
- *
- */
-export interface Lifecycle {
-  readonly use: <T>(blueprint: IntoResourceBlueprint<T>) => Resource<T>;
-  readonly service: <T>(blueprint: IntoResourceBlueprint<T>) => Resource<T>;
-  readonly on: {
-    readonly idle: (handler: Handler) => void;
-    readonly layout: (handler: Handler) => void;
-  };
-}
 
 /**
  * @internal

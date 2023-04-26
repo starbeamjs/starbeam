@@ -8,6 +8,14 @@ import { type Ref, shallowRef } from "vue";
 
 import { useReactive } from "./setup.js";
 
+// | API             | Parameter               | Returns                 |
+// | --------------- | ----------------------- | ----------------------- |
+// | `setupReactive` | `() => Reactive<T>`     | [`Native<T>`]           |
+// | `setupResource` | `IntoResourceBlueprint` | [`Native<T>`] React[^1] |
+// | `getService`    | `IntoResourceBlueprint` | [`Native<T>`]           |
+
+// export function setupReactive()
+
 export function create<T>(resource: ResourceBlueprint<T, void>): Ref<T> {
   const vueInstance = useReactive();
 

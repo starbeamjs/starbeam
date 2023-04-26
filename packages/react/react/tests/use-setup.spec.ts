@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
-import { type Lifecycle, Starbeam } from "@starbeam/react";
-import { setup, useReactive } from "@starbeam/react";
+import { setup, Starbeam, useReactive } from "@starbeam/react";
+import type { Lifecycle } from "@starbeam/renderer";
 import { Cell } from "@starbeam/universal";
 import type { RenderState } from "@starbeam-workspace/react-test-utils";
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
@@ -310,6 +310,7 @@ export function usingStarbeam<P>(
   props: P
 ): ReactElement;
 export function usingStarbeam(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   component: FunctionComponent<any>,
   props?: unknown
 ): ReactElement {
