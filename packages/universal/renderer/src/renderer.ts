@@ -1,5 +1,11 @@
 import type { Reactive } from "@starbeam/interfaces";
-import { intoReactive } from "@starbeam/reactive";
+import {
+  CachedFormula,
+  Formula,
+  type FormulaFn,
+  isReactive,
+  read,
+} from "@starbeam/reactive";
 import { type Resource, use } from "@starbeam/resource";
 import { CONTEXT } from "@starbeam/runtime";
 import { service } from "@starbeam/service";
@@ -39,11 +45,14 @@ export type ReactiveBlueprint<T> = (lifecycle: Lifecycle) => T | Reactive<T>;
  */
 export type UseReactive<T> = ReactiveBlueprint<T> | Reactive<T>;
 
-export interface RendererManager<C extends object> {
-  readonly toNative: <T>(reactive: Reactive<T>) => unknown;
+type ToNative = <T>(value: Reactive<T>) => unknown;
+
+export interface RendererManager<C extends object, T extends ToNative> {
+  readonly toNative: T;
   readonly getComponent: () => C;
   readonly getApp?: (instance: C) => object | undefined;
-  readonly createInstance: <T>(instance: C, create: () => T) => T;
+  readonly setupValue: <T>(instance: C, create: () => T) => T;
+  readonly setupRef: <T>(instance: C, value: T) => { readonly current: T };
 
   readonly on: {
     readonly idle: (instance: C, handler: Handler) => void;
@@ -52,7 +61,7 @@ export interface RendererManager<C extends object> {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type SomeRendererManager = RendererManager<any>;
+type SomeRendererManager = RendererManager<any, any>;
 
 export interface Lifecycle {
   readonly on: {
@@ -87,15 +96,28 @@ class LifecycleImpl implements Lifecycle {
     managerSetupService(this.#manager, blueprint);
 }
 
-export function managerSetupReactive<T>(
-  manager: SomeRendererManager,
-  blueprint: ReactiveBlueprint<T>
+export function managerSetupReactive<T, M extends SomeRendererManager>(
+  manager: M,
+  blueprint: UseReactive<T>
 ): Reactive<T> {
   const component = manager.getComponent() as object;
   const lifecycle = new LifecycleImpl(manager, component);
-  return manager.createInstance(component, () =>
-    intoReactive(blueprint(lifecycle))
+  const currentBlueprint = manager.setupRef(component, blueprint);
+  return manager.setupValue(component, () =>
+    setupFormula(currentBlueprint, lifecycle)
   );
+}
+
+export function setupFormula<T>(
+  blueprint: { current: UseReactive<T> },
+  lifecycle: Lifecycle
+): FormulaFn<T> {
+  const constructed = CachedFormula(() =>
+    isReactive(blueprint.current)
+      ? blueprint.current
+      : blueprint.current(lifecycle)
+  );
+  return Formula(() => read(constructed()));
 }
 
 export function managerSetupResource<T>(
@@ -104,7 +126,7 @@ export function managerSetupResource<T>(
 ): Resource<T> {
   const component = manager.getComponent() as object;
 
-  return manager.createInstance(component, () =>
+  return manager.setupValue(component, () =>
     use(blueprint, { lifetime: component })
   );
 }
@@ -115,7 +137,7 @@ export function managerSetupService<T>(
 ): Resource<T> {
   const component = manager.getComponent() as object;
   const app = manager.getApp?.(component) ?? CONTEXT;
-  return manager.createInstance(component, () => service(blueprint, { app }));
+  return manager.setupValue(component, () => service(blueprint, { app }));
 }
 
 export type Handler = () => void;

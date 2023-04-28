@@ -1,15 +1,24 @@
 // @vitest-environment jsdom
 
 import { install, setupReactive, useReactive } from "@starbeam/preact";
-import { Cell } from "@starbeam/universal";
-import { html, rendering } from "@starbeam-workspace/preact-testing-utils";
-import { describe } from "@starbeam-workspace/test-utils";
-import { options } from "preact";
-import { beforeAll } from "vitest";
+import type { UseReactive } from "@starbeam/renderer";
+import { Cell, Formula } from "@starbeam/universal";
+import {
+  html,
+  render,
+  rendering,
+} from "@starbeam-workspace/preact-testing-utils";
+import {
+  beforeAll,
+  describe,
+  expect,
+  test,
+} from "@starbeam-workspace/test-utils";
+import { options, type VNode } from "preact";
 
 let nextId = 0;
 
-describe("useReactive", () => {
+describe("reactive", () => {
   beforeAll(() => {
     install(options);
   });
@@ -25,53 +34,84 @@ describe("useReactive", () => {
         .render({ name: "world" })
   );
 
-  rendering.test(
-    "passing a resource to useReactive",
-    function App() {
-      const { cell } = useReactive(({ use }) => use(ReactiveObject));
-
-      return html`<p>${cell.current}</p>`;
+  const USE_REACTIVE = {
+    name: "useReactive",
+    setup: (setup: (cell: Cell<number>) => UseReactive<number>) => {
+      const cell = Cell(0);
+      return {
+        increment: () => cell.current++,
+        setup: () => {
+          const reactive = useReactive(setup(cell));
+          return {
+            read: () => reactive,
+          };
+        },
+      };
     },
-    (render) =>
-      render
-        .expect(({ count }: { count: number }) => html`<p>${count}</p>`)
-        .render({ count: 0 })
+  };
+
+  const SETUP_REACTIVE = {
+    name: "setupReactive",
+    setup: (setup: (cell: Cell<number>) => UseReactive<number>) => {
+      const cell = Cell(0);
+      return {
+        increment: () => cell.current++,
+        setup: () => {
+          const reactive = setupReactive(setup(cell));
+          return {
+            read: () => reactive,
+          };
+        },
+      };
+    },
+  };
+
+  describe.each([USE_REACTIVE, SETUP_REACTIVE])(
+    "passing a reactive value to $name",
+    ({ setup }) => {
+      test.each([
+        { name: "a cell", fn: (cell: Cell<number>) => cell },
+        {
+          name: "a function returning a cell",
+          fn: (cell: Cell<number>) => () => cell,
+        },
+        {
+          name: "a function returning a formula",
+          fn: (cell: Cell<number>) => Formula(() => cell.current),
+        },
+      ])("passing $name", async ({ fn }) => {
+        const use = setup(fn);
+
+        function App() {
+          const cell = use.setup();
+
+          return html`<p>${cell.read()}</p>
+            <button onClick=${use.increment}>++</button>`;
+        }
+
+        await expectReactive(App);
+      });
+    }
   );
 
-  rendering.test(
-    "reactive values render",
+  test("reactive values render and update", async () => {
+    const counter = Cell(0);
+
     function App() {
-      const { cell } = useReactive(ReactiveObject);
+      return html`<p>${counter}</p>
+        <button onClick=${() => counter.current++}>++</button>`;
+    }
 
-      return html`<p>${cell.current}</p>`;
-    },
-    (render) =>
-      render
-        .expect(({ count }: { count: number }) => html`<p>${count}</p>`)
-        .render({ count: 0 })
-  );
+    await expectReactive(App);
+  });
 
-  rendering.test(
-    "reactive values update",
-    function App() {
-      const { cell, increment } = useReactive(ReactiveObject);
+  async function expectReactive(app: () => VNode | VNode[]) {
+    const result = render(app);
+    expect(result.innerHTML).toBe("<p>0</p><button>++</button>");
 
-      return html`<p>${cell}</p>
-        <button onClick=${increment}>++</button>`;
-    },
-    (render) =>
-      render
-        .expect(
-          ({ count }: { count: number }) =>
-            html`<p>${count}</p>
-              <button>++</button>`
-        )
-        .render({ count: 0 })
-        .update(
-          { count: 1 },
-          { before: async (prev) => prev.find("button").fire.click() }
-        )
-  );
+    await result.find("button").click();
+    expect(result.innerHTML).toBe("<p>1</p><button>++</button>");
+  }
 });
 
 describe("setupReactive", () => {
@@ -103,28 +143,6 @@ describe("setupReactive", () => {
       render
         .expect(({ count }: { count: number }) => html`<p>${count}</p>`)
         .render({ count: 0 })
-  );
-
-  rendering.test(
-    "reactive values update",
-    function App() {
-      const { cell, increment } = setupReactive(ReactiveObject).read();
-
-      return html`<p>${cell}</p>
-        <button onClick=${increment}>++</button>`;
-    },
-    (render) =>
-      render
-        .expect(
-          ({ count }: { count: number }) =>
-            html`<p>${count}</p>
-              <button>++</button>`
-        )
-        .render({ count: 0 })
-        .update(
-          { count: 1 },
-          { before: async (prev) => prev.find("button").fire.click() }
-        )
   );
 });
 

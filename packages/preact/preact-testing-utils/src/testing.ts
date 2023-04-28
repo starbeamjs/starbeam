@@ -1,6 +1,7 @@
 import { getFirst, isPresent, isPresentArray } from "@starbeam/core-utils";
 import { expected, verified } from "@starbeam/verify";
-import type { ByRoleMatcher } from "@testing-library/dom";
+import { expect, test } from "@starbeam-workspace/test-utils";
+import { type ByRoleMatcher, fireEvent } from "@testing-library/dom";
 import { getByRole, getByText } from "@testing-library/dom";
 import * as testing from "@testing-library/preact";
 import htm from "htm";
@@ -15,7 +16,6 @@ import {
 } from "preact";
 import { act } from "preact/test-utils";
 import { renderToString } from "preact-render-to-string";
-import { expect, test } from "vitest";
 
 export const html = htm.bind(h) as (
   strings: TemplateStringsArray,
@@ -138,6 +138,48 @@ export function Root<R extends Root<T, T>, T extends RenderProps, U extends T>(
   test: (root: R) => Root<T, U>
 ): (root: R) => Render<T, U> {
   return test;
+}
+
+export function render(app: () => VNode | VNode[]): RenderingResult {
+  const container = document.createElement("div");
+  const component = createElement(app);
+  return new RenderingResult(
+    testing.render(component, { container }),
+    container
+  );
+}
+
+class RenderingResult {
+  readonly #result: testing.RenderResult;
+  readonly #container: HTMLElement;
+
+  constructor(result: testing.RenderResult, container: HTMLElement) {
+    this.#result = result;
+    this.#container = container;
+  }
+
+  get innerHTML(): string {
+    console.log(this.#container);
+    return this.#container.innerHTML;
+  }
+
+  find(matcher: testing.ByRoleMatcher): FoundElement {
+    return new FoundElement(
+      testing.findByRole(this.#result.container as HTMLElement, matcher)
+    );
+  }
+}
+
+class FoundElement {
+  readonly #element: Promise<HTMLElement>;
+
+  constructor(element: Promise<HTMLElement>) {
+    this.#element = element;
+  }
+
+  async click() {
+    fireEvent.click(await this.#element);
+  }
 }
 
 class Render<Args extends RenderProps, T extends Args> {
@@ -287,7 +329,10 @@ class Render<Args extends RenderProps, T extends Args> {
       if (update.before) {
         await update.before(renderResult);
       }
+      console.log({ updating: update.Args });
       await renderResult.render(...update.Args);
+      this.#expect.check(update.Args);
+
       if (update.after) {
         await update.after();
       }
@@ -372,8 +417,18 @@ class RenderResult<Args extends RenderProps, T extends Args> {
     if (isPresentArray(args)) {
       this.#args = args;
     }
+    const props = getFirst(this.#args);
+    console.log(
+      createElement(
+        this.#component as ComponentType<Args[0]>,
+        props as ComponentType<Args[1]>
+      )
+    );
     this.#result.rerender(
-      createElement(this.#component as ComponentType<Args[0]>, this.#args)
+      createElement(
+        this.#component as ComponentType<Args[0]>,
+        props as ComponentType<Args[1]>
+      )
     );
 
     if (this.#next) {

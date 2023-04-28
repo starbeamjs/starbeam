@@ -1,4 +1,4 @@
-import type { Reactive } from "@starbeam/interfaces";
+import { getFirst } from "@starbeam/core-utils";
 import type { Lifecycle, RendererManager } from "@starbeam/renderer";
 import { use } from "@starbeam/resource";
 import { RUNTIME } from "@starbeam/runtime";
@@ -6,6 +6,7 @@ import { service } from "@starbeam/service";
 import {
   type Builder,
   useInstance,
+  useLastRenderRef,
   useLifecycle,
 } from "@starbeam/use-strict-lifecycle";
 
@@ -46,11 +47,9 @@ export const MANAGER: RendererManager<Builder<unknown>> = {
   getComponent: () => {
     return useLifecycle().render((builder) => builder);
   },
-  createInstance: (_, create) => useInstance(create),
+  setupValue: (_, create) => useInstance(create),
+  setupRef: (_, prop) => getFirst(useLastRenderRef(prop)),
 
-  toNative: function <T>(reactive: Reactive<T>): Reactive<T> {
-    return reactive;
-  },
   on: {
     idle: (builder, handler): void => void builder.on.idle(handler),
     layout: (builder, handler): void => void builder.on.layout(handler),

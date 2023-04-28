@@ -5,9 +5,10 @@ import { type Ref, shallowRef } from "vue";
 import { useReactive } from "./setup.js";
 import type { VueInstance } from "./vue-instance.js";
 
-interface VueRendererManager extends RendererManager<VueInstance> {
-  toNative: <T>(reactive: Reactive<T>) => Ref<T>;
-}
+type VueRendererManager = RendererManager<
+  VueInstance,
+  <T>(reactive: Reactive<T>) => Ref<T>
+>;
 
 export const MANAGER: VueRendererManager = {
   getComponent: () => useReactive(),
@@ -18,7 +19,8 @@ export const MANAGER: VueRendererManager = {
     vueInstance.render(reactive, () => (ref.value = reactive.current));
     return ref;
   },
-  createInstance: (_, create) => create(),
+  setupValue: (_, create) => create(),
+  setupRef: (_, value) => ({ current: value }),
 
   on: {
     idle: (component, handler) => void component.onMounted(handler),
