@@ -22,7 +22,10 @@ describe("useReactive", () => {
 
   rendering.test(
     "rerendering",
-    ({ name }: { name: string }) => html`<div>hello ${name}</div>`,
+    ({ name }: { name: string }) => {
+      console.log({ rendering: name });
+      return html`<div>hello ${name}</div>`;
+    },
     (render) =>
       render
         .expect(({ name }) => html`<div>hello ${name}</div>`)

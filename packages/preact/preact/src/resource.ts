@@ -3,7 +3,7 @@ import {
   managerSetupReactive,
   managerSetupResource,
   managerSetupService,
-  type ReactiveBlueprint,
+  type UseReactive,
 } from "@starbeam/renderer";
 import type { IntoResourceBlueprint, Resource } from "@starbeam/resource";
 import { use } from "@starbeam/resource";
@@ -15,13 +15,12 @@ import { useMemo } from "preact/hooks";
 import { getCurrentComponent } from "./options.js";
 import { MANAGER } from "./renderer.js";
 
-export function setupReactive<T>(blueprint: ReactiveBlueprint<T>): Reactive<T> {
+export function setupReactive<T>(blueprint: UseReactive<T>): Reactive<T> {
   DEBUG?.markEntryPoint(["function:call", "setupReactive"]);
-  const result = managerSetupReactive(MANAGER, blueprint);
-  return result;
+  return managerSetupReactive(MANAGER, blueprint);
 }
 
-export function useReactive<T>(blueprint: ReactiveBlueprint<T>): T {
+export function useReactive<T>(blueprint: UseReactive<T>): T {
   DEBUG?.markEntryPoint(["function:call", "useReactive"]);
   return setupReactive(blueprint).read();
 }
