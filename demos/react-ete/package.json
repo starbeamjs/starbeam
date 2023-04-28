@@ -1,0 +1,55 @@
+{
+  "private": true,
+  "name": "@starbeam-demos/react-ete",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.ts",
+  "exports": {
+    "default": "./index.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts"
+  },
+  "starbeam": {
+    "source": "tsx",
+    "type": "demo:react",
+    "used": [
+      {
+        "packages": [
+          "purecss"
+        ],
+        "reason": "css"
+      }
+    ]
+  },
+  "scripts": {
+    "test:lint": "eslint",
+    "test:types": "tsc -b"
+  },
+  "dependencies": {
+    "@starbeam/collections": "workspace:^",
+    "@starbeam/interfaces": "workspace:^",
+    "@starbeam/react": "workspace:^",
+    "@starbeam/reactive": "workspace:^",
+    "@starbeam/universal": "workspace:^",
+    "purecss": "3.0.0",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.26",
+    "@types/react-dom": "^18.0.10",
+    "@vitest/ui": "*",
+    "vite": "*",
+    "vite-plugin-fonts": "*",
+    "vitest": "*"
+  }
+}

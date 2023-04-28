@@ -1,0 +1,19 @@
+{
+  "extends": "../../.config/tsconfig/tsconfig.react-demo.json",
+  "compilerOptions": {
+    "jsxImportSource": "react",
+    "jsx": "preserve",
+    "outDir": "../../dist/packages",
+    "declaration": true,
+    "composite": true,
+    "declarationMap": true,
+    "declarationDir": "../../dist/types",
+    "types": ["../../packages/env", "react", "react-dom"]
+  },
+  "exclude": ["dist/**/*"],
+  "include": ["index.ts", "src/**/*", "vite.config.ts"],
+  "references": [
+    { "path": "../../packages/tsconfig.packages.json" },
+    { "path": "../../packages/x/devtool/tsconfig.json" }
+  ]
+}

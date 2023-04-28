@@ -6,6 +6,80 @@ interface Entry {
   get: Marker;
 }
 
+interface MapState<K, V> {
+  readonly description: Description | undefined;
+  readonly iteration: Marker;
+  readonly storage: WeakMap<K & object, Entry> | Map<K, Entry>;
+  readonly vals: WeakMap<K & object, V> | Map<K, V>;
+  readonly equals: Equality<V>;
+}
+
+class TrackedMapLike<K, V> {
+  readonly #state: MapState<K, V>;
+
+  constructor(state: MapState<K, V>) {
+    this.#state = state;
+  }
+
+  #entry(key: K): Entry {
+    let markers = this.#tryEntry(key);
+
+    if (markers === undefined) {
+      markers = {
+        get: Marker(
+          this.#state.description?.key(describeKey(key)).detail("cell", "get")
+        ),
+        has: Marker(
+          this.#state.description?.key(describeKey(key)).detail("cell", "has")
+        ),
+      };
+      this.#state.storage.set(key, markers);
+    }
+
+    return markers;
+  }
+
+  #tryEntry(key: K): Entry | undefined {
+    return this.#state.storage.get(key);
+  }
+
+  #get(
+    key: K,
+    caller: CallStack | undefined,
+    entry: Entry = this.#entry(key)
+  ): V | undefined {
+    entry.get.read(caller);
+    return this.#state.vals.get(key);
+  }
+
+  #has(
+    key: K,
+    caller: CallStack | undefined,
+    entry: Entry = this.#entry(key)
+  ): boolean {
+    entry.has.read(caller);
+    return this.#state.vals.has(key);
+  }
+
+  has(key: K): boolean {
+    return this.#has(key, RUNTIME.callerStack?.());
+  }
+
+  #insert(key: K, caller: CallStack | undefined): void {
+    const entry = this.#tryEntry(key);
+    if (entry) entry.has.mark(caller);
+
+    this.#state.iteration.mark(caller);
+  }
+
+  #update(key: K, caller: CallStack | undefined): void {
+    const entry = this.#tryEntry(key);
+    if (entry) entry.get.mark(caller);
+
+    this.#state.iteration.mark(caller);
+  }
+}
+
 export class TrackedWeakMap<K extends object = object, V = unknown>
   implements WeakMap<K, V>
 {
@@ -15,19 +89,21 @@ export class TrackedWeakMap<K extends object = object, V = unknown>
     return new TrackedWeakMap(description) as WeakMap<K, V>;
   }
 
-  readonly #description: Description | undefined;
-  readonly #iteration: Marker;
-  readonly #storage: WeakMap<K, Entry>;
-  readonly #vals: WeakMap<K, V>;
-  readonly #equals: Equality<V> = Object.is;
+  readonly #state: MapState<K, V>;
+  // readonly #description: Description | undefined;
+  // readonly #iteration: Marker;
+  // readonly #storage: WeakMap<K, Entry>;
+  // readonly #vals: WeakMap<K, V>;
+  // readonly #equals: Equality<V> = Object.is;
 
   private constructor(description: Description | undefined) {
-    this.#vals = new WeakMap();
-
-    this.#iteration = Marker(description?.detail("collection", "iterate"));
-    this.#storage = new WeakMap();
-
-    this.#description = description;
+    this.#state = {
+      description,
+      vals: new WeakMap(),
+      iteration: Marker(description?.detail("collection", "iterate")),
+      storage: new WeakMap(),
+      equals: Object.is,
+    };
   }
 
   #entry(key: K): Entry {
@@ -36,20 +112,20 @@ export class TrackedWeakMap<K extends object = object, V = unknown>
     if (markers === undefined) {
       markers = {
         get: Marker(
-          this.#description?.key(describeKey(key)).detail("cell", "get")
+          this.#state.description?.key(describeKey(key)).detail("cell", "get")
         ),
         has: Marker(
-          this.#description?.key(describeKey(key)).detail("cell", "has")
+          this.#state.description?.key(describeKey(key)).detail("cell", "has")
         ),
       };
-      this.#storage.set(key, markers);
+      this.#state.storage.set(key, markers);
     }
 
     return markers;
   }
 
   #tryEntry(key: K): Entry | undefined {
-    return this.#storage.get(key);
+    return this.#state.storage.get(key);
   }
 
   #get(
@@ -58,7 +134,7 @@ export class TrackedWeakMap<K extends object = object, V = unknown>
     entry: Entry = this.#entry(key)
   ): V | undefined {
     entry.get.read(caller);
-    return this.#vals.get(key);
+    return this.#state.vals.get(key);
   }
 
   get(key: K): V | undefined {
@@ -75,7 +151,7 @@ export class TrackedWeakMap<K extends object = object, V = unknown>
     entry: Entry = this.#entry(key)
   ): boolean {
     entry.has.read(caller);
-    return this.#vals.has(key);
+    return this.#state.vals.has(key);
   }
 
   has(key: K): boolean {
@@ -86,30 +162,30 @@ export class TrackedWeakMap<K extends object = object, V = unknown>
     const entry = this.#tryEntry(key);
     if (entry) entry.has.mark(caller);
 
-    this.#iteration.mark(caller);
+    this.#state.iteration.mark(caller);
   }
 
   #update(key: K, caller: CallStack | undefined): void {
     const entry = this.#tryEntry(key);
     if (entry) entry.get.mark(caller);
 
-    this.#iteration.mark(caller);
+    this.#state.iteration.mark(caller);
   }
 
   set(key: K, value: V): this {
     const caller = RUNTIME.callerStack?.();
 
     // intentionally avoid consuming the `has` or `get` markers while setting.
-    const has = this.#vals.has(key);
+    const has = this.#state.vals.has(key);
 
     if (has) {
-      const current = this.#vals.get(key) as V;
-      if (!this.#equals(current, value)) this.#update(key, caller);
+      const current = this.#state.vals.get(key) as V;
+      if (!this.#state.equals(current, value)) this.#update(key, caller);
     } else {
       this.#insert(key, caller);
     }
 
-    this.#vals.set(key, value);
+    this.#state.vals.set(key, value);
 
     return this;
   }
@@ -121,22 +197,22 @@ export class TrackedWeakMap<K extends object = object, V = unknown>
     if (entry) entry.has.mark(caller);
 
     // either way, invalidate iteration of the map.
-    this.#iteration.mark(caller);
+    this.#state.iteration.mark(caller);
   }
 
   delete(key: K): boolean {
     const caller = RUNTIME.callerStack?.();
 
     // if the key is not in the map, then deleting it has no reactive effect.
-    if (this.#vals.has(key)) {
+    if (this.#state.vals.has(key)) {
       this.#delete(key, caller);
     }
 
-    return this.#vals.delete(key);
+    return this.#state.vals.delete(key);
   }
 
   get [Symbol.toStringTag](): string {
-    return this.#vals[Symbol.toStringTag];
+    return this.#state.vals[Symbol.toStringTag];
   }
 }
 

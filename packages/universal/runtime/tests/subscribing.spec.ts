@@ -1,5 +1,4 @@
 import { isPresentArray } from "@starbeam/core-utils";
-import { logTag } from "@starbeam/debug";
 import type { ReactiveValue } from "@starbeam/interfaces";
 import { CachedFormula, Cell, RUNTIME } from "@starbeam/reactive";
 import { PUBLIC_TIMELINE, TAG } from "@starbeam/runtime";
@@ -147,9 +146,7 @@ describe("Tagged", () => {
 
     expect(delegate.read()).toBe(3);
 
-    logTag(delegate[TAG]);
     satisfying(numbers.current, isPresentArray)[0].current++;
-    logTag(delegate[TAG]);
 
     expect(stale).toBe(true);
     stale = false;
