@@ -35,6 +35,7 @@
     "@starbeam/debug": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
     "@starbeam/reactive": "workspace:^",
+    "@starbeam/renderer": "workspace:^",
     "@starbeam/resource": "workspace:^",
     "@starbeam/runtime": "workspace:^",
     "@starbeam/service": "workspace:^",

@@ -31,7 +31,10 @@ export function service<T>(
   {
     description,
     app = CONTEXT.app,
-  }: { description?: string | Description | undefined; app?: object } = {}
+  }: {
+    description?: string | Description | undefined;
+    app?: object | undefined;
+  } = {}
 ): Resource<T> {
   return use(
     Service(resource, {

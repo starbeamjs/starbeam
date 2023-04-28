@@ -550,6 +550,9 @@ importers:
 
   packages/preact/preact:
     dependencies:
+      '@preact/signals':
+        specifier: ^1.1.3
+        version: 1.1.3(preact@10.13.2)
       '@starbeam/core-utils':
         specifier: workspace:^
         version: link:../../universal/core-utils
@@ -565,6 +568,9 @@ importers:
       '@starbeam/reactive':
         specifier: workspace:^
         version: link:../../universal/reactive
+      '@starbeam/renderer':
+        specifier: workspace:^
+        version: link:../../universal/renderer
       '@starbeam/resource':
         specifier: workspace:^
         version: link:../../universal/resource
@@ -1151,9 +1157,18 @@ importers:
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../interfaces
+      '@starbeam/reactive':
+        specifier: workspace:^
+        version: link:../reactive
       '@starbeam/resource':
         specifier: workspace:^
         version: link:../resource
+      '@starbeam/runtime':
+        specifier: workspace:^
+        version: link:../runtime
+      '@starbeam/service':
+        specifier: workspace:^
+        version: link:../service
     devDependencies:
       '@starbeam-dev/build-support':
         specifier: workspace:*
@@ -1459,6 +1474,9 @@ importers:
       '@starbeam/reactive':
         specifier: workspace:^
         version: link:../../universal/reactive
+      '@starbeam/renderer':
+        specifier: workspace:^
+        version: link:../../universal/renderer
       '@starbeam/resource':
         specifier: workspace:^
         version: link:../../universal/resource
@@ -4009,6 +4027,19 @@ packages:
 
   /@polka/url@1.0.0-next.21:
     resolution: {integrity: sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==}
+
+  /@preact/signals-core@1.3.0:
+    resolution: {integrity: sha512-M+M3ZOtd1dtV/uasyk4SZu1vbfEJ4NeENv0F7F12nijZYedB5wSgbtZcuACyssnTznhF4ctUyrR0dZHuHfyWKA==}
+    dev: false
+
+  /@preact/signals@1.1.3(preact@10.13.2):
+    resolution: {integrity: sha512-N09DuAVvc90bBZVRwD+aFhtGyHAmJLhS3IFoawO/bYJRcil4k83nBOchpCEoS0s5+BXBpahgp0Mjf+IOqP57Og==}
+    peerDependencies:
+      preact: 10.x
+    dependencies:
+      '@preact/signals-core': 1.3.0
+      preact: 10.13.2
+    dev: false
 
   /@rollup/plugin-commonjs@24.1.0(rollup@3.20.6):
     resolution: {integrity: sha512-eSL45hjhCWI0jCCXcNtLVqM5N1JlBGvlFfY0m6oOYnLCJ6N0qEXoZql4sY2MOUArzhH4SA/qBpTxvvZp2Sc+DQ==}

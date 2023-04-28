@@ -70,7 +70,7 @@ export type EntryPointDescriptionArg =
   | [
       operation: "reactive:read" | "reactive:write" | "reactive:call",
       entity: DescriptionDetails | string | undefined,
-      api: ["object:get" | "object:set" | "object:call", PropertyKey]
+      api?: PropertyKey
     ]
   | [
       operation:

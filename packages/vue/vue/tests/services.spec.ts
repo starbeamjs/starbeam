@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { service, Starbeam } from "@starbeam/vue";
+import { setupService, Starbeam } from "@starbeam/vue";
 import {
   describe,
   expect,
@@ -14,7 +14,7 @@ import { defineComponent, h, type VNode } from "vue";
 describe("services", () => {
   test("services are like resources", () => {
     function App() {
-      const test = service(TestResource);
+      const test = setupService(TestResource);
       return () => h("p", [test.value.id]);
     }
 
@@ -31,14 +31,14 @@ describe("services", () => {
 
   const Inner = defineComponent({
     setup: () => {
-      const test = service(TestResource);
+      const test = setupService(TestResource);
       return () => h("p", ["inner: ", test.value.id]);
     },
   });
 
   test("a service is only instantiated once", async () => {
     function App(props: { id: number }): () => VNode[] {
-      const test = service(TestResource);
+      const test = setupService(TestResource);
       return () => [
         h("p", [`id prop: ${props.id}`]),
         h("p", [`outer: ${test.value.id}`]),

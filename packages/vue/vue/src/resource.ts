@@ -1,45 +1,27 @@
+import {
+  managerSetupReactive,
+  managerSetupResource,
+  managerSetupService,
+  type ReactiveBlueprint,
+} from "@starbeam/renderer";
 import type {
   IntoResourceBlueprint,
   ResourceBlueprint,
 } from "@starbeam/resource";
-import { use } from "@starbeam/resource";
-import { CONTEXT } from "@starbeam/runtime";
-import { type Ref, shallowRef } from "vue";
+import { type Ref } from "vue";
 
-import { useReactive } from "./setup.js";
+import { MANAGER } from "./renderer.js";
 
-// | API             | Parameter               | Returns                 |
-// | --------------- | ----------------------- | ----------------------- |
-// | `setupReactive` | `() => Reactive<T>`     | [`Native<T>`]           |
-// | `setupResource` | `IntoResourceBlueprint` | [`Native<T>`] React[^1] |
-// | `getService`    | `IntoResourceBlueprint` | [`Native<T>`]           |
-
-// export function setupReactive()
-
-export function create<T>(resource: ResourceBlueprint<T, void>): Ref<T> {
-  const vueInstance = useReactive();
-
-  const reactive = use(resource, { lifetime: vueInstance });
-  const ref = shallowRef(reactive.current);
-  vueInstance.render(reactive, () => (ref.value = reactive.current));
-
-  return ref;
+export function setupReactive<T>(blueprint: ReactiveBlueprint<T>): Ref<T> {
+  return MANAGER.toNative(managerSetupReactive(MANAGER, blueprint));
 }
 
-export function service<T>(blueprint: IntoResourceBlueprint<T>): Ref<T> {
-  const vueInstance = useReactive();
-  const app = vueInstance.app;
+export function setupResource<T>(
+  blueprint: ResourceBlueprint<T, void>
+): Ref<T> {
+  return MANAGER.toNative(managerSetupResource(MANAGER, blueprint));
+}
 
-  const reactive = CONTEXT.create(
-    blueprint,
-    () => use(blueprint, { lifetime: app }),
-    {
-      app,
-    }
-  );
-
-  const ref = shallowRef(reactive.current);
-  vueInstance.render(reactive, () => (ref.value = reactive.current));
-
-  return ref;
+export function setupService<T>(blueprint: IntoResourceBlueprint<T>): Ref<T> {
+  return MANAGER.toNative(managerSetupService(MANAGER, blueprint));
 }

@@ -216,17 +216,17 @@ function reactiveOp(
   arg: [
     operation: "reactive:read" | "reactive:write" | "reactive:call",
     entity: DescriptionDetails | string | undefined,
-    api: ["object:get" | "object:set" | "object:call", PropertyKey]
+    api?: PropertyKey
   ]
 ): string {
-  const [fullOp, entity, [apiType, key]] = arg;
-  switch (apiType) {
-    case "object:get":
-    case "object:set":
-      return `${fullOpDesc(fullOp)} ${describeEntity(entity)}${indexTail(key)}`;
-    case "object:call":
+  const [fullOp, entity, api] = arg;
+  switch (fullOp) {
+    case "reactive:read":
+    case "reactive:write":
+      return `${fullOpDesc(fullOp)} ${describeEntity(entity)}${indexTail(api)}`;
+    case "reactive:call":
       return `${fullOpDesc(fullOp)} ${describeEntity(entity)}${indexTail(
-        key
+        api
       )}()`;
   }
 }
@@ -244,7 +244,8 @@ function fullOpDesc(
   }
 }
 
-function indexTail(key: PropertyKey) {
+function indexTail(key: PropertyKey | undefined) {
+  if (key === undefined) return "";
   if (typeof key === "string") {
     return `.${key}`;
   } else {

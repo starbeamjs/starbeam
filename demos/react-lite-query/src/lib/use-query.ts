@@ -26,12 +26,7 @@ export default function useQuery<T>(
     return CachedFormula(() => {
       DEBUG?.markEntryPoint({
         caller: desc?.caller,
-        description: desc
-          ? {
-              description: desc,
-              operation: "current",
-            }
-          : "useQuery->current",
+        description: desc ? ["reactive:read", desc] : "useQuery->current",
       });
       return QUERIES.query(key, query, desc).asData();
     });

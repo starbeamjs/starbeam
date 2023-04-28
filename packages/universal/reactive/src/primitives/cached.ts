@@ -47,7 +47,7 @@ export function CachedFormula<T>(
   }
 
   function read(): T {
-    DEBUG?.markEntryPoint(["reactive:read", desc, ["object:call", "read"]]);
+    DEBUG?.markEntryPoint(["reactive:read", desc]);
     const value = evaluate();
     getRuntime().consume(tag);
     return value;
@@ -57,7 +57,7 @@ export function CachedFormula<T>(
     [TAG]: tag,
     read,
     get current(): T {
-      DEBUG?.markEntryPoint(["reactive:read", desc, ["object:get", "current"]]);
+      DEBUG?.markEntryPoint(["reactive:read", desc, "current"]);
       return read();
     },
   });

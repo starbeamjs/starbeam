@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { create } from "@starbeam/vue";
+import { setupResource } from "@starbeam/vue";
 import {
   describe,
   expect,
@@ -15,7 +15,7 @@ describe("resources", () => {
   test("resources are cleaned up correctly", () => {
     const result = define({
       setup: () => {
-        const test = create(TestResource);
+        const test = setupResource(TestResource);
         return () => h("p", ["hello ", test.value.id]);
       },
     })

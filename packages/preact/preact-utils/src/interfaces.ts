@@ -20,9 +20,12 @@ export interface RawPreactOptions extends Options {
   __b?: Hook;
   _render?: Hook;
   __r?: Hook;
+
+  _commit?: Hook;
+  __c?: Hook;
 }
 
-export type MangledHookNames = typeof HOOK_NAMES[keyof typeof HOOK_NAMES];
+export type MangledHookNames = (typeof HOOK_NAMES)[keyof typeof HOOK_NAMES];
 export type PrivateHookNames = keyof typeof HOOK_NAMES;
 
 type Hook<Args extends unknown[] = [vnode: InternalPreactVNode]> = (

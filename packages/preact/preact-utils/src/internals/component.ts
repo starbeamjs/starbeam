@@ -8,6 +8,11 @@ import { type InternalPreactVNode, InternalVNode } from "./vnode.js";
 const COMPONENTS = new WeakMap<InternalPreactComponent, InternalComponent>();
 const INITIAL_ID = 0;
 
+interface Handlers {
+  prePaint: Set<() => void>;
+  postPaint: Set<() => void>;
+}
+
 export class InternalComponent {
   readonly #component: InternalPreactComponent;
   readonly id: number;
@@ -45,9 +50,23 @@ export class InternalComponent {
     return wrapper;
   }
 
+  readonly #handlers: Handlers = {
+    prePaint: new Set(),
+    postPaint: new Set(),
+  };
+
   private constructor(component: InternalPreactComponent) {
     this.#component = component;
     this.id = InternalComponent.#nextId++;
+  }
+
+  readonly on = {
+    idle: (fn: () => void): void => void this.#handlers.postPaint.add(fn),
+    layout: (fn: () => void): void => void this.#handlers.prePaint.add(fn),
+  };
+
+  run(phase: keyof Handlers): void {
+    this.#handlers[phase].forEach((fn) => void fn());
   }
 
   get fn(): ComponentType<unknown> | string {

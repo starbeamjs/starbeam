@@ -56,6 +56,14 @@ export const install = Plugin((on) => {
     }
   });
 
+  on.component.beforePaint((component) => {
+    component.run("prePaint");
+  });
+
+  on.component.afterPaint((component) => {
+    component.run("postPaint");
+  });
+
   on.component.unmount((component) => {
     ComponentFrame.unmount(component);
     RUNTIME.finalize(component);

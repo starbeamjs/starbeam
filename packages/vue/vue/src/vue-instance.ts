@@ -5,6 +5,7 @@ import {
   FormulaLifecycle,
   type InitializingFormula,
 } from "@starbeam/reactive";
+import type { Handler } from "@starbeam/renderer";
 import { RUNTIME } from "@starbeam/runtime";
 import { getTag, initializeFormulaTag } from "@starbeam/tags";
 import { isPresent, verified } from "@starbeam/verify";
@@ -23,7 +24,7 @@ import { type StarbeamApp, useApp } from "./app.js";
 const INSTANCES = new WeakMap<ComponentInternalInstance, VueInstance>();
 
 export class VueInstance {
-  static current(): VueInstance {
+  static ensure(): VueInstance {
     return VueInstance.for(verified(getCurrentInstance(), isPresent));
   }
 
@@ -31,8 +32,13 @@ export class VueInstance {
     let vueInstance = INSTANCES.get(instance);
 
     if (!vueInstance) {
+      const mountedHandlers = new Set<Handler>();
       const tags = new Set<FormulaTag>();
-      const newInstance = (vueInstance = new VueInstance(instance, tags));
+      const newInstance = (vueInstance = new VueInstance(
+        instance,
+        tags,
+        mountedHandlers
+      ));
       INSTANCES.set(instance, vueInstance);
       VueInstance.#setup(newInstance);
     }
@@ -65,6 +71,10 @@ export class VueInstance {
         () => void instance.#publicInstance.$forceUpdate()
       );
 
+      for (const handler of instance.#onMounted) {
+        handler();
+      }
+
       initializing = undefined;
     });
 
@@ -84,6 +94,7 @@ export class VueInstance {
   }
 
   readonly #instance: ComponentInternalInstance;
+  readonly #onMounted: Set<Handler>;
   readonly #queued = new Set<UpdateTask>();
 
   /**
@@ -93,9 +104,14 @@ export class VueInstance {
    */
   readonly #renderedTags: Set<Tag>;
 
-  constructor(instance: ComponentInternalInstance, tags: Set<FormulaTag>) {
+  constructor(
+    instance: ComponentInternalInstance,
+    tags: Set<FormulaTag>,
+    onMounted: Set<Handler>
+  ) {
     this.#instance = instance;
     this.#renderedTags = tags;
+    this.#onMounted = onMounted;
   }
 
   get app(): StarbeamApp {
@@ -104,6 +120,10 @@ export class VueInstance {
 
   get #publicInstance() {
     return verified(this.#instance.proxy, isPresent);
+  }
+
+  onMounted(handler: Handler): void {
+    this.#onMounted.add(handler);
   }
 
   render<T>(reactive: Reactive<T>, task: UpdateTask): void {
