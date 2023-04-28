@@ -28,4 +28,4 @@ export {
   type ResourceRun,
   use,
 } from "@starbeam/resource";
-export { RUNTIME, TAG } from "@starbeam/runtime";
+export { CONTEXT, RUNTIME, TAG } from "@starbeam/runtime";

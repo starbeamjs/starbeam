@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { install,service } from "@starbeam/preact";
+import { install, service, useService } from "@starbeam/preact";
 import {
   html,
   type HtmlNode,
@@ -14,7 +14,7 @@ import {
 import { options } from "preact";
 import { beforeAll, expect } from "vitest";
 
-describe("services", () => {
+describe("useService", () => {
   beforeAll(() => {
     install(options);
   });
@@ -22,7 +22,7 @@ describe("services", () => {
   rendering.test(
     "services are like resources",
     function App() {
-      const test = service(TestResource);
+      const test = useService(TestResource);
       return html`<p>${test.id}</p>`;
     },
     (root) =>

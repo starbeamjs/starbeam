@@ -1,5 +1,8 @@
 import type { Reactive } from "@starbeam/interfaces";
-import type { Resource } from "@starbeam/resource";
+import { intoReactive } from "@starbeam/reactive";
+import { type Resource, use } from "@starbeam/resource";
+import { CONTEXT } from "@starbeam/runtime";
+import { service } from "@starbeam/service";
 
 import type { IntoResourceBlueprint } from "./resource.js";
 
@@ -36,13 +39,87 @@ export type ReactiveBlueprint<T> = (lifecycle: Lifecycle) => T | Reactive<T>;
  */
 export type UseReactive<T> = ReactiveBlueprint<T> | Reactive<T>;
 
-export interface Lifecycle {
-  readonly use: <T>(blueprint: IntoResourceBlueprint<T>) => Resource<T>;
-  readonly service: <T>(blueprint: IntoResourceBlueprint<T>) => Resource<T>;
+export interface RendererManager<C extends object> {
+  readonly toNative: <T>(reactive: Reactive<T>) => unknown;
+  readonly getComponent: () => C;
+  readonly getApp?: (instance: C) => object | undefined;
+  readonly createInstance: <T>(instance: C, create: () => T) => T;
+
   readonly on: {
-    readonly idle: (handler: Handler) => void;
-    readonly layout: (handler: Handler) => void;
+    readonly idle: (instance: C, handler: Handler) => void;
+    readonly layout: (instance: C, handler: Handler) => void;
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SomeRendererManager = RendererManager<any>;
+
+export interface Lifecycle {
+  readonly on: {
+    idle: (handler: Handler) => void;
+    layout: (handler: Handler) => void;
+  };
+
+  readonly use: <T>(blueprint: IntoResourceBlueprint<T>) => Resource<T>;
+  readonly service: <T>(blueprint: IntoResourceBlueprint<T>) => Resource<T>;
+}
+
+class LifecycleImpl implements Lifecycle {
+  readonly #manager: SomeRendererManager;
+  readonly #component: object;
+
+  constructor(manager: SomeRendererManager, component: object) {
+    this.#manager = manager;
+    this.#component = component;
+  }
+
+  on = {
+    idle: (handler: Handler): void =>
+      void this.#manager.on.idle(this.#component, handler),
+    layout: (handler: Handler): void =>
+      void this.#manager.on.layout(this.#component, handler),
+  };
+
+  use = <T>(blueprint: IntoResourceBlueprint<T>): Resource<T> =>
+    managerSetupResource(this.#manager, blueprint);
+
+  service = <T>(blueprint: IntoResourceBlueprint<T>): Resource<T> =>
+    managerSetupService(this.#manager, blueprint);
+}
+
+export function managerSetupReactive<T>(
+  manager: SomeRendererManager,
+  blueprint: ReactiveBlueprint<T>
+): Reactive<T> {
+  const component = manager.getComponent() as object;
+  const lifecycle = new LifecycleImpl(manager, component);
+  return manager.createInstance(component, () =>
+    intoReactive(blueprint(lifecycle))
+  );
+}
+
+export function managerSetupResource<T>(
+  manager: SomeRendererManager,
+  blueprint: IntoResourceBlueprint<T>
+): Resource<T> {
+  const component = manager.getComponent() as object;
+
+  return manager.createInstance(component, () =>
+    use(blueprint, { lifetime: component })
+  );
+}
+
+export function managerSetupService<T>(
+  manager: SomeRendererManager,
+  blueprint: IntoResourceBlueprint<T>
+): Resource<T> {
+  const component = manager.getComponent() as object;
+  const app = manager.getApp?.(component) ?? CONTEXT;
+  return manager.createInstance(component, () => service(blueprint, { app }));
+}
+
 export type Handler = () => void;
+
+export function runHandlers(handlers: Set<() => void>): void {
+  handlers.forEach((handler) => void handler());
+}

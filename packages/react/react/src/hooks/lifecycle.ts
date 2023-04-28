@@ -1,8 +1,13 @@
-import type { Lifecycle } from "@starbeam/renderer";
+import type { Reactive } from "@starbeam/interfaces";
+import type { Lifecycle, RendererManager } from "@starbeam/renderer";
 import { use } from "@starbeam/resource";
 import { RUNTIME } from "@starbeam/runtime";
 import { service } from "@starbeam/service";
-import { type Builder } from "@starbeam/use-strict-lifecycle";
+import {
+  type Builder,
+  useInstance,
+  useLifecycle,
+} from "@starbeam/use-strict-lifecycle";
 
 import { missingApp, ReactApp } from "../app.js";
 
@@ -36,3 +41,18 @@ export function buildLifecycle(
     },
   };
 }
+
+export const MANAGER: RendererManager<Builder<unknown>> = {
+  getComponent: () => {
+    return useLifecycle().render((builder) => builder);
+  },
+  createInstance: (_, create) => useInstance(create),
+
+  toNative: function <T>(reactive: Reactive<T>): Reactive<T> {
+    return reactive;
+  },
+  on: {
+    idle: (builder, handler): void => void builder.on.idle(handler),
+    layout: (builder, handler): void => void builder.on.layout(handler),
+  },
+};

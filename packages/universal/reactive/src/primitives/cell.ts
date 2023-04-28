@@ -57,7 +57,7 @@ export function Cell<T>(
   const set = (newValue: T): boolean => {
     if (equals(value, newValue)) return false;
 
-    DEBUG?.markEntryPoint(["reactive:write", desc, ["object:call", "set"]]);
+    DEBUG?.markEntryPoint(["reactive:write", desc, "set"]);
 
     value = newValue;
     getRuntime().mark(tag, mark);
@@ -65,12 +65,12 @@ export function Cell<T>(
   };
 
   const update = (updater: (prev: T) => T) => {
-    DEBUG?.markEntryPoint(["reactive:write", desc, ["object:call", "update"]]);
+    DEBUG?.markEntryPoint(["reactive:write", desc, "update"]);
     return set(updater(value));
   };
 
   const read = (): T => {
-    DEBUG?.markEntryPoint(["reactive:read", desc, ["object:call", "read"]]);
+    DEBUG?.markEntryPoint(["reactive:read", desc, "read"]);
     getRuntime().consume(tag);
     return value;
   };
@@ -78,15 +78,11 @@ export function Cell<T>(
   return {
     [TAG]: tag,
     get current(): T {
-      DEBUG?.markEntryPoint(["reactive:read", desc, ["object:get", "current"]]);
+      DEBUG?.markEntryPoint(["reactive:read", desc, "current"]);
       return read();
     },
     set current(value: T) {
-      DEBUG?.markEntryPoint([
-        "reactive:write",
-        desc,
-        ["object:set", "current"],
-      ]);
+      DEBUG?.markEntryPoint(["reactive:write", desc, "current"]);
       set(value);
     },
     read,

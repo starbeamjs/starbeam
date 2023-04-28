@@ -26,7 +26,10 @@
   },
   "dependencies": {
     "@starbeam/interfaces": "workspace:^",
-    "@starbeam/resource": "workspace:^"
+    "@starbeam/reactive": "workspace:^",
+    "@starbeam/resource": "workspace:^",
+    "@starbeam/runtime": "workspace:^",
+    "@starbeam/service": "workspace:^"
   },
   "devDependencies": {
     "@starbeam-dev/build-support": "workspace:*",

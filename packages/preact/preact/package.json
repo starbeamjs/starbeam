@@ -31,11 +31,13 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
+    "@preact/signals": "^1.1.3",
     "@starbeam/core-utils": "workspace:^",
     "@starbeam/debug": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
     "@starbeam/preact-utils": "workspace:^",
     "@starbeam/reactive": "workspace:^",
+    "@starbeam/renderer": "workspace:^",
     "@starbeam/resource": "workspace:^",
     "@starbeam/runtime": "workspace:^",
     "@starbeam/service": "workspace:^",

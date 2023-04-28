@@ -4,7 +4,7 @@ import { useApp } from "./app.js";
 import { VueInstance } from "./vue-instance.js";
 
 export function useReactive(): VueInstance {
-  return VueInstance.current();
+  return VueInstance.ensure();
 }
 
 export const Starbeam = {

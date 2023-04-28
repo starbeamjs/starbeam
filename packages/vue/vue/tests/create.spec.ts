@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
-import { Cell, Resource } from "@starbeam/universal";
-import { create, useReactive } from "@starbeam/vue";
+import { Cell } from "@starbeam/universal";
+import { setupReactive, useReactive } from "@starbeam/vue";
 import { describe, test } from "@starbeam-workspace/test-utils";
 import { define, testing } from "@starbeam-workspace/vue-testing-utils";
 import { defineComponent, h, type Ref } from "vue";
@@ -28,7 +28,7 @@ describe("create", () => {
     });
 
     function App() {
-      const counter = create(ReactiveObject);
+      const counter = setupReactive(ReactiveObject);
 
       return () => [
         h(Counter, { counter }),
@@ -62,7 +62,7 @@ interface Counter {
   readonly increment: () => void;
 }
 
-const ReactiveObject = Resource((): Counter => {
+function ReactiveObject() {
   const cell = Cell(INITIAL_COUNT);
 
   const increment = () => {
@@ -76,7 +76,23 @@ const ReactiveObject = Resource((): Counter => {
 
     increment,
   };
-});
+}
+
+// const ReactiveObject = Resource((): Counter => {
+//   const cell = Cell(INITIAL_COUNT);
+
+//   const increment = () => {
+//     return cell.set(cell.current + INCREMENT);
+//   };
+
+//   return {
+//     get count() {
+//       return cell.current;
+//     },
+
+//     increment,
+//   };
+// });
 
 // function ReactiveObject(): { cell: Cell<number>; increment: () => void } {
 //   const cell = Cell(INITIAL_COUNT, {
