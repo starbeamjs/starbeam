@@ -9,6 +9,7 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "@starbeam/renderer": "workspace:^"
+    "@starbeam/renderer": "workspace:^",
+    "@starbeam-workspace/test-utils": "workspace:^"
   }
 }
