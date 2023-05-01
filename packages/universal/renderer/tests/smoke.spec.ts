@@ -1,7 +1,7 @@
-import { describe, expect, test } from "@starbeam-workspace/test-utils";
 import type { Reactive } from "@starbeam/interfaces";
 import { Cell } from "@starbeam/reactive";
 import { managerSetupReactive, type RendererManager } from "@starbeam/renderer";
+import { describe, expect, test } from "@starbeam-workspace/test-utils";
 
 describe("RendererManager", () => {
   test("smoke test", () => {
@@ -14,10 +14,10 @@ describe("RendererManager", () => {
       setupValue: (_, create) => create(),
       setupRef: (_, value) => ({ current: value }),
       on: {
-        idle: (_, handler) => {
+        idle: () => {
           // do nothing
         },
-        layout: (_, handler) => {
+        layout: () => {
           // do nothing
         },
       },
@@ -25,6 +25,6 @@ describe("RendererManager", () => {
 
     const cell = Cell(0);
     const reactive = managerSetupReactive(manager, () => cell);
-    expect(cell.current).toBe(0);
+    expect(reactive.current).toBe(0);
   });
 });

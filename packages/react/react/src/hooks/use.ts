@@ -47,6 +47,6 @@ export function useService<T>(blueprint: IntoResourceBlueprint<T>): T {
 export function useResource<T>(
   blueprint: IntoResourceBlueprint<T>,
   deps: unknown[]
-): T {
+): T | undefined {
   return useReactive(({ use }) => use(blueprint), deps);
 }

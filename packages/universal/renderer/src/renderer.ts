@@ -46,8 +46,12 @@ export type ReactiveBlueprint<T> = (lifecycle: Lifecycle) => T | Reactive<T>;
 export type UseReactive<T> = ReactiveBlueprint<T> | Reactive<T>;
 
 type ToNative = <T>(value: Reactive<T>) => unknown;
+type DefaultToNative = <T>(value: Reactive<T>) => Reactive<T>;
 
-export interface RendererManager<C extends object, T extends ToNative> {
+export interface RendererManager<
+  C extends object,
+  T extends ToNative = DefaultToNative
+> {
   readonly toNative: T;
   readonly getComponent: () => C;
   readonly getApp?: (instance: C) => object | undefined;
