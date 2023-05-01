@@ -159,7 +159,6 @@ class RenderingResult {
   }
 
   get innerHTML(): string {
-    console.log(this.#container);
     return this.#container.innerHTML;
   }
 
@@ -417,12 +416,7 @@ class RenderResult<Args extends RenderProps, T extends Args> {
       this.#args = args;
     }
     const props = getFirst(this.#args);
-    console.log(
-      createElement(
-        this.#component as ComponentType<Args[0]>,
-        props as ComponentType<Args[1]>
-      )
-    );
+
     this.#result.rerender(
       createElement(
         this.#component as ComponentType<Args[0]>,
