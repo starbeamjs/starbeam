@@ -68,6 +68,12 @@ function matchEq(
     }
     case "type": {
       const type = pkg.type;
+
+      if (typeof value !== "string") return false;
+
+      const [prefix, suffix] = value.split(":") as [string, string | undefined];
+
+      if (suffix === "*") return type.value.startsWith(`${prefix}:`);
       return type.value === value ? true : false;
     }
     case "none":
@@ -124,7 +130,11 @@ abstract class ListFilter implements Matchable {
 
   filtersExactly(key: FilterKey): boolean {
     const filters = this.#filters.filter(
-      (f) => f instanceof SingleFilter && f.key === key && f.operator === "="
+      (f) =>
+        f instanceof SingleFilter &&
+        f.key === key &&
+        f.operator === "=" &&
+        !isGlobFilter(f.value)
     );
 
     return isSingleItemArray(filters);
@@ -153,6 +163,10 @@ abstract class ListFilter implements Matchable {
 
     return this.#match(this.#filters as Filter[], pkg, reporter);
   }
+}
+
+function isGlobFilter(value: string | boolean): boolean {
+  return typeof value === "string" ? value.endsWith(":*") : false;
 }
 
 export class AllFilter extends ListFilter {

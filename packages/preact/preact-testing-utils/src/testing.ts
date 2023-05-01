@@ -17,20 +17,22 @@ import {
 import { act } from "preact/test-utils";
 import { renderToString } from "preact-render-to-string";
 
-export const html = htm.bind(h) as (
+export type Component<Props = void> = import("preact").ComponentType<Props>;
+
+export function html(
+  strings: TemplateStringsArray,
+  ...values: unknown[]
+): VNode {
+  const root = boundHTML(strings, ...values);
+  return Array.isArray(root) ? createElement(Fragment, null, root) : root;
+}
+
+const boundHTML = htm.bind(h) as (
   strings: TemplateStringsArray,
   ...values: unknown[]
 ) => VNode<unknown> | VNode<unknown>[];
 
 export type HtmlNode = ReturnType<typeof html>;
-
-// eslint-disable-next-line @typescript-eslint/ban-types
-export type TestComponentType<Props = {}> =
-  | PropsComponentType<Props>
-  | VoidComponentType;
-
-type PropsComponentType<Props> = (props: Props) => VNode | VNode[] | null;
-type VoidComponentType = () => VNode | VNode[] | null;
 
 interface RenderExpectations<T extends RenderProps> {
   html?: (...value: T) => ComponentChildren;
@@ -38,20 +40,21 @@ interface RenderExpectations<T extends RenderProps> {
 
 function renderTest(
   name: string,
-  component: VoidComponentType,
+  component: Component,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   callback: (render: Root<[], any>) => Root<any> | Promise<Root<any>>
 ): void;
 function renderTest<Props>(
   name: string,
-  component: PropsComponentType<Props>,
+  component: Component<Props>,
   callback: (
     render: Root<[Props], [Props]>
   ) => Root<[Props]> | Promise<Root<[Props]>>
 ): void;
 function renderTest(
   name: string,
-  component: TestComponentType,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  component: Component<any>,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   callback: (render: Root<any>) => Root<any> | Promise<Root<any>>
 ): void {
@@ -65,8 +68,8 @@ function renderTest(
       });
     }
 
-    const render: Root<[RenderProps]> = Render.create(
-      component as TestComponentType<unknown>,
+    const render: Root<[unknown?]> = Render.create(
+      component,
       into,
       Expect.from(into)
     );
@@ -182,7 +185,7 @@ class FoundElement {
 }
 
 class Render<Args extends RenderProps, T extends Args> {
-  readonly #component: TestComponentType;
+  readonly #component: Component<T[0]>;
   readonly #expect: Expect<T>;
   readonly #into: HTMLElement;
   readonly #render: RenderStep<T> | undefined;
@@ -190,7 +193,7 @@ class Render<Args extends RenderProps, T extends Args> {
   readonly #update: UpdateStep<Args, T>[];
 
   static create<Args extends RenderProps, T extends Args>(
-    component: TestComponentType<Args[0]>,
+    component: Component<Args[0]>,
     into: HTMLElement,
     expectation: Expect<T>
   ): Render<Args, T> {
@@ -198,7 +201,7 @@ class Render<Args extends RenderProps, T extends Args> {
   }
 
   private constructor(
-    component: TestComponentType,
+    component: Component<Args[0]>,
     into: HTMLElement,
     expectation: Expect<T>,
     render: RenderStep<T> | undefined,
@@ -317,7 +320,9 @@ class Render<Args extends RenderProps, T extends Args> {
     this.#expect.check(args);
 
     const renderResult = RenderResult.create<Args, T>({
-      component: this.#component,
+      // FIXME
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
+      component: this.#component as any,
       container: this.#into,
       expectation: this.#expect,
       args,
@@ -359,7 +364,7 @@ class RenderResult<Args extends RenderProps, T extends Args> {
     args,
     result,
   }: {
-    component: TestComponentType;
+    component: Component;
     container: HTMLElement;
     expectation: Expect<T>;
     args: T;
@@ -376,7 +381,7 @@ class RenderResult<Args extends RenderProps, T extends Args> {
     );
   }
 
-  readonly #component: TestComponentType;
+  readonly #component: Component;
   readonly #container: HTMLElement;
   readonly #expect: Expect<T>;
   readonly #next: T | undefined;
@@ -384,7 +389,7 @@ class RenderResult<Args extends RenderProps, T extends Args> {
   #result: testing.RenderResult;
 
   constructor(
-    component: TestComponentType,
+    component: Component,
     container: HTMLElement,
     expectation: Expect<T>,
     next: T | undefined,

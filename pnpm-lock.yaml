@@ -381,9 +381,6 @@ importers:
       '@starbeam/verify':
         specifier: workspace:^
         version: link:../../packages/universal/verify
-      '@starbeamx/devtool':
-        specifier: workspace:^
-        version: link:../../packages/x/devtool
       axios:
         specifier: ^1.3.6
         version: 1.3.6
@@ -421,9 +418,6 @@ importers:
       '@starbeam/universal':
         specifier: workspace:^
         version: link:../../packages/universal/universal
-      '@starbeamx/devtool':
-        specifier: workspace:^
-        version: link:../../packages/x/devtool
       purecss:
         specifier: 3.0.0
         version: 3.0.0
@@ -473,9 +467,6 @@ importers:
       '@starbeam/universal':
         specifier: workspace:^
         version: link:../../packages/universal/universal
-      '@starbeamx/devtool':
-        specifier: workspace:*
-        version: link:../../packages/x/devtool
       react:
         specifier: ^18.1.0
         version: 18.2.0
@@ -516,9 +507,6 @@ importers:
       '@starbeam/universal':
         specifier: workspace:^
         version: link:../../packages/universal/universal
-      '@starbeamx/devtool':
-        specifier: workspace:^
-        version: link:../../packages/x/devtool
       '@starbeamx/store':
         specifier: workspace:^
         version: link:../../packages/x/store

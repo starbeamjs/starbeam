@@ -3,11 +3,8 @@ import * as testing from "@testing-library/preact";
 import {
   type Attributes,
   type ComponentChildren,
-  type ComponentClass,
-  type ComponentType,
   createElement,
   Fragment,
-  type FunctionComponent,
   h,
   type VNode,
 } from "preact";
@@ -15,28 +12,24 @@ import { act } from "preact/test-utils";
 import { renderToString } from "preact-render-to-string";
 import { expect } from "vitest";
 
-type TestComponentType<P> =
-  | ComponentClass<P>
-  | (FunctionComponent<P> extends (...args: infer A) => infer R
-      ? (...args: A) => R | VNode[]
-      : never);
+export type Component<Props = void> = import("preact").ComponentType<Props>;
 
 interface RenderExpectations<T> {
   html?: (value: T) => ComponentChildren;
 }
 
 export function RenderTest(
-  component: TestComponentType<void>,
+  component: Component,
   props?: Attributes,
   options?: { into?: HTMLElement }
 ): Render<void, void>;
 export function RenderTest<P>(
-  component: TestComponentType<P>,
+  component: Component<P>,
   props: Attributes & P,
   options?: { into?: HTMLElement }
 ): Render<P, void>;
 export function RenderTest<P>(
-  component: TestComponentType<P>,
+  component: Component<P>,
   props: Attributes & P,
   { into = document.createElement("div") }: { into?: HTMLElement } = {}
 ): Render<P, void> {
@@ -72,13 +65,13 @@ class Expect<T> {
 }
 
 class Render<P, T> {
-  readonly #component: TestComponentType<P>;
+  readonly #component: Component<P>;
   #props: Attributes & P;
   readonly #into: HTMLElement;
   readonly #expect: Expect<T>;
 
   constructor(
-    component: TestComponentType<P>,
+    component: Component<P>,
     props: Attributes & P,
     into: HTMLElement,
     expectation: Expect<T>
@@ -90,12 +83,9 @@ class Render<P, T> {
   }
 
   render(value?: T): RenderResult<P, T> {
-    const result = testing.render(
-      createElement(this.#component as ComponentType<P>, this.#props),
-      {
-        container: this.#into as Element,
-      }
-    );
+    const result = testing.render(createElement(this.#component, this.#props), {
+      container: this.#into as Element,
+    });
 
     if (value) {
       this.#expect.check(value);
@@ -141,7 +131,7 @@ class RenderResult<P, T> {
     props,
     result,
   }: {
-    component: TestComponentType<P>;
+    component: Component<P>;
     container: HTMLElement;
     expectation: Expect<T>;
     props: Attributes & P;
@@ -158,7 +148,7 @@ class RenderResult<P, T> {
     );
   }
 
-  readonly #component: TestComponentType<P>;
+  readonly #component: Component<P>;
   readonly #container: HTMLElement;
   readonly #expect: Expect<T>;
   readonly #next: { value: T } | undefined;
@@ -166,7 +156,7 @@ class RenderResult<P, T> {
   #result: testing.RenderResult;
 
   constructor(
-    component: TestComponentType<P>,
+    component: Component<P>,
     container: HTMLElement,
     expectation: Expect<T>,
     next: { value: T } | undefined,
@@ -197,9 +187,7 @@ class RenderResult<P, T> {
     if (props) {
       this.#props = props;
     }
-    this.#result.rerender(
-      createElement(this.#component as ComponentType<P>, this.#props)
-    );
+    this.#result.rerender(createElement(this.#component, this.#props));
     return this;
   }
 

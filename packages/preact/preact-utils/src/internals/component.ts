@@ -69,6 +69,10 @@ export class InternalComponent {
     this.#handlers[phase].forEach((fn) => void fn());
   }
 
+  get lifetime(): InternalPreactComponent {
+    return this.#component;
+  }
+
   get fn(): ComponentType<unknown> | string {
     return this.vnode.type as ComponentType<unknown> | string;
   }
@@ -139,14 +143,13 @@ export class InternalComponent {
     );
   }
 
-  notify(): void {
-    this.#component.forceUpdate();
-  }
+  notify = (): void => void this.#component.forceUpdate();
 }
 
 const KEYS = {
   _vnode: "__v",
   _parentDom: "__P",
+  _parent: "__",
   "signals._updater": "__$u",
   "signals._updateFlags": "__$f",
 } as const;
@@ -156,6 +159,7 @@ export interface InternalPreactComponent extends Component<unknown, unknown> {
   __v: InternalPreactVNode;
   /** the parent DOM */
   __P?: InternalPreactElement | null;
+  __?: InternalPreactComponent;
   __$u?: InternalEffect;
   __$f: number;
   __c?: boolean;

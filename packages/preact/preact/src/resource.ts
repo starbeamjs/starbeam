@@ -1,18 +1,21 @@
 import { DEBUG } from "@starbeam/reactive";
 import {
+  type Lifecycle,
+  managerCreateLifecycle,
   managerSetupReactive,
   managerSetupResource,
   managerSetupService,
   type UseReactive,
 } from "@starbeam/renderer";
-import type { IntoResourceBlueprint, Resource } from "@starbeam/resource";
-import { use } from "@starbeam/resource";
-import { service as createService } from "@starbeam/service";
-import type { Reactive } from "@starbeam/universal";
-import { isPresent, verified } from "@starbeam/verify";
+import type {
+  IntoResourceBlueprint,
+  Resource,
+  ResourceBlueprint,
+  ResourceConstructor,
+} from "@starbeam/resource";
+import { type Reactive } from "@starbeam/universal";
 import { useMemo } from "preact/hooks";
 
-import { getCurrentComponent } from "./options.js";
 import { MANAGER } from "./renderer.js";
 
 export function setupReactive<T>(blueprint: UseReactive<T>): Reactive<T> {
@@ -20,7 +23,15 @@ export function setupReactive<T>(blueprint: UseReactive<T>): Reactive<T> {
   return managerSetupReactive(MANAGER, blueprint);
 }
 
-export function useReactive<T>(blueprint: UseReactive<T>): T {
+export function useReactive<T>(
+  blueprint: UseReactive<T>,
+
+  /**
+   * Preact currently doesn't support deps, but when we support deps, you will
+   * need to pass `[]` when there are no dependencies.
+   */
+  _deps: []
+): T {
   DEBUG?.markEntryPoint(["function:call", "useReactive"]);
   return setupReactive(blueprint).read();
 }
@@ -32,7 +43,16 @@ export function setupResource<T>(
   return managerSetupResource(MANAGER, blueprint);
 }
 
-export function useResource<T>(blueprint: IntoResourceBlueprint<T>): T {
+export function useResource<T>(blueprint: ResourceBlueprint<T>): T;
+export function useResource<T>(setup: ResourceConstructor<T>, deps: []): T;
+export function useResource<T>(
+  blueprint: IntoResourceBlueprint<T>,
+  /**
+   * Preact currently doesn't support deps, but when we support deps, you will
+   * need to pass `[]` when there are no dependencies.
+   */
+  _deps?: []
+): T {
   DEBUG?.markEntryPoint(["function:call", "useResource"]);
   return setupResource(blueprint).read();
 }
@@ -46,21 +66,11 @@ export function setupService<T>(
 
 export function useService<T>(blueprint: IntoResourceBlueprint<T>): T {
   DEBUG?.markEntryPoint(["function:call", "useResource"]);
-  return setupResource(blueprint).read();
+  return setupService(blueprint).read();
 }
 
-export function setup<T>(blueprint: IntoResourceBlueprint<T>): T {
+export function setup<T>(blueprint: (lifecycle: Lifecycle) => T): T {
   DEBUG?.markEntryPoint(["function:call", "setup"]);
-  const result = useMemo(() => {
-    const owner = verified(getCurrentComponent(), isPresent);
-    return use(blueprint, { lifetime: owner });
-  }, []);
-  return result();
-}
-
-export function service<T>(blueprint: IntoResourceBlueprint<T>): T {
-  DEBUG?.markEntryPoint(["function:call", "service"]);
-  return useMemo(() => {
-    return createService(blueprint);
-  }, []).read();
+  const lifecycle = managerCreateLifecycle(MANAGER);
+  return useMemo(() => blueprint(lifecycle), []);
 }

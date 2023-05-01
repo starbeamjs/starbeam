@@ -34,7 +34,7 @@
   "scripts": {
     "test:lint": "eslint \"src/**/*.{tsx,ts}\"",
     "test:specs": "vitest --run",
-    "test:types": "tsc -b"
+    "test:types": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "@starbeam/collections": "workspace:^",

@@ -103,7 +103,9 @@ export function updatePackageJSON(updater: LabelledUpdater): void {
       const scripts = current["scripts"] as Record<string, string>;
 
       if (pkg.file("tsconfig.json").exists()) {
-        scripts["test:types"] = "tsc -b";
+        scripts["test:types"] = pkg.starbeam.type.hasCategory("demo")
+          ? "tsc --noEmit -p tsconfig.json"
+          : "tsc -b";
       } else {
         delete scripts["test:types"];
       }

@@ -14,8 +14,6 @@
     { "path": "./packages/tsconfig.packages.json" },
     { "path": "./packages/tsconfig.rollup.json" },
     { "path": "./packages/x/devtool/tsconfig.json" },
-    { "path": "./demos/tsconfig.react-demos.json" },
-    { "path": "./demos/tsconfig.preact-demos.json" },
     { "path": "./tsconfig.root.json" },
     { "path": "./workspace/tsconfig.json" }
   ]

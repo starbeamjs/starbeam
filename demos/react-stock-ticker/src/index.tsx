@@ -1,4 +1,3 @@
-import "@starbeamx/devtool";
 import "./index.scss";
 
 import * as ReactDOM from "react-dom/client";

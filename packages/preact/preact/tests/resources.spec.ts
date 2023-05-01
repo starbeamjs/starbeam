@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { install, setup, setupResource, useResource } from "@starbeam/preact";
+import { install, setupResource, useResource } from "@starbeam/preact";
 import {
   html,
   rendering,
@@ -40,7 +40,7 @@ describe("useResource", () => {
   rendering.test(
     "resources can be passed as a callback",
     function App() {
-      const test = setup(() => TestResource);
+      const test = useResource(TestResource);
       return html`<p>${test.id}</p>`;
     },
     expectResource

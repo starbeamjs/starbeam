@@ -9,7 +9,7 @@ import type { ComponentType } from "preact";
 
 import { ComponentFrame } from "./frame.js";
 
-const STARBEAM = Symbol("STARBEAM");
+export const STARBEAM = Symbol("STARBEAM");
 
 export function getCurrentComponent(): InternalComponent {
   return ComponentFrame.current;
@@ -36,7 +36,7 @@ export const install = Plugin((on) => {
       component.context[STARBEAM] = component;
     }
 
-    CONTEXT.app = component.context[STARBEAM] as InternalComponent;
+    CONTEXT.app = getRoot(component);
 
     ComponentFrame.start(
       component,
@@ -76,6 +76,10 @@ function componentName(component: ComponentType<unknown> | string): string {
   } else {
     return component.name;
   }
+}
+
+export function getRoot(component: InternalComponent): InternalComponent {
+  return component.context[STARBEAM] as InternalComponent;
 }
 
 class Roots {

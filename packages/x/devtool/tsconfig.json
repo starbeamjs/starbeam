@@ -5,7 +5,7 @@
     "declaration": true,
     "declarationDir": "../../../dist/types",
     "declarationMap": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "jsxImportSource": "preact",
     "lib": ["esnext", "DOM", "DOM.Iterable"],
     "outDir": "../../../dist/packages",

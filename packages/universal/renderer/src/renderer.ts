@@ -112,6 +112,10 @@ export function managerSetupReactive<T, M extends SomeRendererManager>(
   );
 }
 
+export const managerCreateLifecycle = <M extends SomeRendererManager>(
+  manager: M
+): Lifecycle => new LifecycleImpl(manager, manager.getComponent() as object);
+
 export function setupFormula<T>(
   blueprint: { current: UseReactive<T> },
   lifecycle: Lifecycle
@@ -140,7 +144,7 @@ export function managerSetupService<T>(
   blueprint: IntoResourceBlueprint<T>
 ): Resource<T> {
   const component = manager.getComponent() as object;
-  const app = manager.getApp?.(component) ?? CONTEXT;
+  const app = manager.getApp?.(component) ?? CONTEXT.app;
   return manager.setupValue(component, () => service(blueprint, { app }));
 }
 

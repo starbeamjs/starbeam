@@ -1,8 +1,9 @@
 import js from "@starbeam/collections";
 import type { Reactive } from "@starbeam/interfaces";
-import { create, use } from "@starbeam/preact";
+import { setup, useResource } from "@starbeam/preact";
 import {
   Cell,
+  read,
   Resource,
   type ResourceBlueprint,
   Static,
@@ -18,8 +19,8 @@ import {
 } from "../intl.js";
 
 export default function DateFormatterStarbeam(): JSX.Element {
-  const timeZone = create(() => Cell(SYSTEM_TZ, "timeZone"));
-  const date = use(Clock(timeZone));
+  const timeZone = setup(() => Cell(SYSTEM_TZ, "timeZone"));
+  const date = useResource(() => Clock(timeZone), []);
 
   const localeInfo = formatLocale(SYSTEM_LOCALE);
 
@@ -58,7 +59,7 @@ export default function DateFormatterStarbeam(): JSX.Element {
 }
 
 function Clock(
-  timeZone: Reactive<string>
+  timeZone: Reactive<string> | string
 ): ResourceBlueprint<{ formatted: string; refresh: () => void }> {
   const date = js.object({ now: new Date() });
 
@@ -77,7 +78,7 @@ function Clock(
 
     return Static({
       formatted: formatTime(date.now, {
-        timeZone: timeZone.read(),
+        timeZone: read(timeZone),
         locale: SYSTEM_LOCALE,
       }),
       refresh,
