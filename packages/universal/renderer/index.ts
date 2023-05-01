@@ -7,6 +7,7 @@ export type {
   UseReactive,
 } from "./src/renderer.js";
 export {
+  managerCreateLifecycle,
   managerSetupReactive,
   managerSetupResource,
   managerSetupService,

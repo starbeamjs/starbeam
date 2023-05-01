@@ -1,12 +1,12 @@
 import js from "@starbeam/collections";
-import { use } from "@starbeam/preact";
+import { useResource } from "@starbeam/preact";
 import { Resource, type ResourceBlueprint, Static } from "@starbeam/universal";
 import type { JSX } from "preact";
 
 import { formatLocale, SYSTEM_LOCALE, SYSTEM_TZ } from "../intl.js";
 
 export default function DateFormatterStarbeam(): JSX.Element {
-  const date = use(Clock());
+  const date = useResource(Clock, []);
 
   const localeInfo = formatLocale(SYSTEM_LOCALE);
   return (

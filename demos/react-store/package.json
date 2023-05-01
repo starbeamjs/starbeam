@@ -32,13 +32,12 @@
   },
   "scripts": {
     "test:lint": "eslint \"src/**/*.{tsx,ts}\"",
-    "test:types": "tsc -b"
+    "test:types": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "@starbeam/debug": "workspace:^",
     "@starbeam/react": "workspace:^",
     "@starbeam/universal": "workspace:^",
-    "@starbeamx/devtool": "workspace:^",
     "@starbeamx/store": "workspace:^",
     "purecss": "3.0.0",
     "react": "^18.1.0",

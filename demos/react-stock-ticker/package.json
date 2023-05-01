@@ -27,13 +27,12 @@
     "dev": "vite",
     "preview": "vite preview",
     "test:lint": "eslint \"src/**/*.{tsx,ts}\"",
-    "test:types": "tsc -b"
+    "test:types": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "@starbeam/collections": "workspace:^",
     "@starbeam/react": "workspace:^",
     "@starbeam/universal": "workspace:^",
-    "@starbeamx/devtool": "workspace:*",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "react-portal": "^4.2.2"

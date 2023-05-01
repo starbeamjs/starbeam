@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { install, service, useService } from "@starbeam/preact";
+import { install, useService } from "@starbeam/preact";
 import {
   html,
   type HtmlNode,
@@ -37,14 +37,14 @@ describe("useService", () => {
   );
 
   function Inner(): HtmlNode {
-    const test = service(TestResource);
+    const test = useService(TestResource);
     return html`<p>inner: ${test.id}</p>`;
   }
 
   rendering.test(
     "a service is only instantiated once",
     function App({ id }: { id: number }): HtmlNode {
-      const test = service(TestResource);
+      const test = useService(TestResource);
       return html`<p>id prop: ${id}</p>
         <p>outer: ${test.id}</p>
         <${Inner} />`;

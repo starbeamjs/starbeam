@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /** @jsxRuntime automatic @jsxImportSource preact */
 
-import { logTag } from "@starbeam/debug";
+import { logReactive } from "@starbeam/debug";
 import type { CellTag } from "@starbeam/interfaces";
 import type { Timestamp } from "@starbeam/tags";
 import type { JSX } from "preact";
@@ -28,7 +27,8 @@ export function FrameConsumeLine({
   const at = line.at;
   const frame = line.for;
   console.log(line.diff);
-  logTag(frame);
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+  logReactive(frame);
 
   const description = frame.description.parts;
 

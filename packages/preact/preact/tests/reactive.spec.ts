@@ -14,7 +14,9 @@ import {
   expect,
   test,
 } from "@starbeam-workspace/test-utils";
-import { options, type VNode } from "preact";
+import { options } from "preact";
+
+import type { Component } from "./support/testing.js";
 
 let nextId = 0;
 
@@ -41,7 +43,7 @@ describe("reactive", () => {
       return {
         increment: () => cell.current++,
         setup: () => {
-          const reactive = useReactive(setup(cell));
+          const reactive = useReactive(setup(cell), []);
           return {
             read: () => reactive,
           };
@@ -105,7 +107,7 @@ describe("reactive", () => {
     await expectReactive(App);
   });
 
-  async function expectReactive(app: () => VNode | VNode[]) {
+  async function expectReactive(app: Component) {
     const result = render(app);
     expect(result.innerHTML).toBe("<p>0</p><button>++</button>");
 
