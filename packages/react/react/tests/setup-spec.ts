@@ -289,7 +289,7 @@ describe("use", () => {
     | { channel: ChannelInfo | undefined; increment: () => void }
     | null
     | undefined
-  >("using resource() from useSetup()", async (root, mode) => {
+  >("use(resource) from setup()", async (root, mode) => {
     ID = 0;
 
     const result = root

@@ -1,5 +1,6 @@
 import { reactive } from "@starbeam/collections";
-import { useSetup } from "@starbeam/react";
+import { useReactive } from "@starbeam/react";
+import { Formula } from "@starbeam/universal";
 import type { FormEvent } from "react";
 
 interface Person {
@@ -27,7 +28,7 @@ class Table<T> {
 }
 
 export default function Database(): JSX.Element {
-  return useSetup(() => {
+  return useReactive(() => {
     const people = new Table<Person>(["name", "location"]);
 
     function append(event: FormEvent<HTMLFormElement>): void {
@@ -35,7 +36,7 @@ export default function Database(): JSX.Element {
       people.append({ name: "Lorem Ipsum", location: "NYC" });
     }
 
-    return () => (
+    return Formula(() => (
       <>
         <form onSubmit={append}>
           <label>
@@ -77,6 +78,6 @@ export default function Database(): JSX.Element {
           </tbody>
         </table>
       </>
-    );
-  }).compute();
+    ));
+  }, []);
 }

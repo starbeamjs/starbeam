@@ -17,6 +17,9 @@ import { createReactive } from "./setup.js";
  *
  * This hook behaves like {@linkcode setupReactive}, except that it returns a
  * regular value rather than a reactive value.
+ *
+ * FIXME: The overload is causing the type error from missing `[]` to be very
+ * confusing (i.e. function is not reactive).
  */
 
 export function useReactive<T>(

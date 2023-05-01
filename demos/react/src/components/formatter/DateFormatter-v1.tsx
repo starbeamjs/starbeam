@@ -1,6 +1,6 @@
 import js from "@starbeam/collections";
-import { useSetup } from "@starbeam/react";
-import type { Reactive } from "@starbeam/universal";
+import { useReactive } from "@starbeam/react";
+import { Formula, type Reactive } from "@starbeam/universal";
 import { CachedFormula } from "@starbeam/universal";
 import type { JSXElementConstructor } from "react";
 
@@ -12,10 +12,10 @@ type JsxReturn = React.ReactElement<
 >;
 
 export default function DateFormatterStarbeam(): JsxReturn {
-  return useSetup(() => {
+  return useReactive(() => {
     const date = Clock();
 
-    return () => {
+    return Formula(() => {
       const localeInfo = formatLocale(SYSTEM_LOCALE);
       return (
         <>
@@ -37,8 +37,8 @@ export default function DateFormatterStarbeam(): JsxReturn {
           <p className="output">{date.current.formatted}</p>
         </>
       );
-    };
-  }).compute();
+    });
+  }, []);
 }
 
 function Clock(): Reactive<{ formatted: string; refresh: () => void }> {

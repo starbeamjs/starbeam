@@ -1,6 +1,7 @@
 import js from "@starbeam/collections";
-import { use, useCell, useReactive } from "@starbeam/react";
+import { setup, useReactive } from "@starbeam/react";
 import {
+  Cell,
   type Reactive,
   Resource,
   type ResourceBlueprint,
@@ -17,9 +18,11 @@ import {
 export default function DateFormatterStarbeam(props: {
   locale: string;
 }): JSX.Element {
-  const timeZone = useCell(SYSTEM_TZ, "time zone");
-
-  const date = use(() => Clock(timeZone, props.locale), [props.locale]);
+  const timeZone = setup(() => Cell(SYSTEM_TZ));
+  const date = useReactive(
+    ({ use }) => use(Clock(timeZone, props.locale)),
+    [props.locale]
+  );
 
   const localeInfo = formatLocale(props.locale);
   return (
@@ -36,7 +39,7 @@ export default function DateFormatterStarbeam(props: {
           <span>Time Zone</span>
           <select
             size={5}
-            value={useReactive(() => timeZone.current)}
+            value={useReactive(timeZone)}
             onInput={(e) => (timeZone.current = e.currentTarget.value)}
           >
             {TIME_ZONES.map((tz) => (
@@ -47,7 +50,7 @@ export default function DateFormatterStarbeam(props: {
           </select>
         </label>
       </form>
-      <p className="output">{date?.formatted}</p>
+      <p className="output">{date.formatted}</p>
     </>
   );
 }

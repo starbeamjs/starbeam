@@ -10,7 +10,7 @@ export function When<T>({
   else?: () => JSX.Element | null;
 }): JSX.Element | null {
   if (value) {
-    return useReactive(() => render(value));
+    return useReactive(() => render(value), []);
   } else {
     return otherwise();
   }
@@ -23,5 +23,5 @@ export function For<T>({
   each: T[];
   render: (item: T, index: number) => JSX.Element;
 }): JSX.Element {
-  return useReactive(() => <>{each.map(render)}</>);
+  return useReactive(() => <>{each.map(render)}</>, []);
 }

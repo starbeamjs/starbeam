@@ -1,15 +1,15 @@
 import * as js from "@starbeam/collections";
-import { useSetup } from "@starbeam/react";
-import type { ResourceBlueprint } from "@starbeam/universal";
+import { useReactive } from "@starbeam/react";
+import { Formula, type ResourceBlueprint } from "@starbeam/universal";
 import { Resource } from "@starbeam/universal";
 
 import { formatLocale, SYSTEM_LOCALE, SYSTEM_TZ } from "../intl.js";
 
 export default function DateFormatterStarbeam(): JSX.Element {
-  return useSetup(({ use }) => {
+  return useReactive(({ use }) => {
     const date = use(Clock());
 
-    return () => {
+    return Formula(() => {
       const localeInfo = formatLocale(SYSTEM_LOCALE);
       return (
         <>
@@ -20,11 +20,11 @@ export default function DateFormatterStarbeam(): JSX.Element {
             </>
           </h3>
 
-          <p className="output">{date.current?.formatted}</p>
+          <p className="output">{date.current.formatted}</p>
         </>
       );
-    };
-  }).compute();
+    });
+  }, []);
 }
 
 function Clock(): ResourceBlueprint<{
