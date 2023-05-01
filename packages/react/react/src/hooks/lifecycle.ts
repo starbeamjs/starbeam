@@ -44,6 +44,7 @@ export function buildLifecycle(
 }
 
 export const MANAGER: RendererManager<Builder<unknown>> = {
+  toNative: (reactive) => reactive,
   getComponent: () => {
     return useLifecycle().render((builder) => builder);
   },
