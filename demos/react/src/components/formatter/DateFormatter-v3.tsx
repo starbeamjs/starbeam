@@ -1,7 +1,8 @@
 import js from "@starbeam/collections";
-import { useSetup } from "@starbeam/react";
+import { useReactive } from "@starbeam/react";
 import {
   Cell,
+  Formula,
   type Reactive,
   Resource,
   type ResourceBlueprint,
@@ -16,11 +17,11 @@ import {
 } from "../intl.js";
 
 export default function DateFormatterStarbeam(): JSX.Element {
-  return useSetup(({ use }) => {
+  return useReactive(({ use }) => {
     const timeZone = Cell(SYSTEM_TZ, "timeZone");
     const date = use(Clock(timeZone));
 
-    return () => {
+    return Formula(() => {
       const localeInfo = formatLocale(SYSTEM_LOCALE);
 
       const selectBox = (
@@ -52,11 +53,11 @@ export default function DateFormatterStarbeam(): JSX.Element {
           </h3>
 
           {selectBox}
-          <p className="output">{date.current?.formatted}</p>
+          <p className="output">{date.current.formatted}</p>
         </>
       );
-    };
-  }).compute();
+    });
+  }, []);
 }
 
 function Clock(

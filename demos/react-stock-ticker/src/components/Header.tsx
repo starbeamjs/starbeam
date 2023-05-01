@@ -1,4 +1,4 @@
-import { useReactive, useSetup } from "@starbeam/react";
+import { setup, useReactive } from "@starbeam/react";
 import { Cell } from "@starbeam/universal";
 import type { FormEvent } from "react";
 
@@ -14,7 +14,7 @@ const styles = STYLES as {
 };
 
 export default function Header(): JSX.Element {
-  const stocks = useSetup(() => {
+  const stocks = setup(() => {
     const tickers = Cell([] as Stock[]);
 
     async function search(event: FormEvent<HTMLFormElement>): Promise<void> {
@@ -53,36 +53,39 @@ export default function Header(): JSX.Element {
     };
   });
 
-  return useReactive(() => (
-    <header className={styles.main}>
-      <div className={styles.dropdown}>
-        <form onInput={stocks.search} onSubmit={stocks.search}>
-          <input name="search" type="search" placeholder="Search..." />
-        </form>
+  return useReactive(
+    () => (
+      <header className={styles.main}>
+        <div className={styles.dropdown}>
+          <form onInput={stocks.search} onSubmit={stocks.search}>
+            <input name="search" type="search" placeholder="Search..." />
+          </form>
 
-        <When
-          value={stocks.hasResults()}
-          render={() => (
-            <ul>
-              <For
-                each={stocks.tickers.current}
-                render={(ticker) => (
-                  <li key={ticker.name}>
-                    <button
-                      onClick={() => {
-                        stocks.onTickerClick(ticker);
-                      }}
-                    >
-                      <h3>{ticker.ticker}</h3>
-                      <p>{ticker.name}</p>
-                    </button>
-                  </li>
-                )}
-              />
-            </ul>
-          )}
-        />
-      </div>
-    </header>
-  ));
+          <When
+            value={stocks.hasResults()}
+            render={() => (
+              <ul>
+                <For
+                  each={stocks.tickers.current}
+                  render={(ticker) => (
+                    <li key={ticker.name}>
+                      <button
+                        onClick={() => {
+                          stocks.onTickerClick(ticker);
+                        }}
+                      >
+                        <h3>{ticker.ticker}</h3>
+                        <p>{ticker.name}</p>
+                      </button>
+                    </li>
+                  )}
+                />
+              </ul>
+            )}
+          />
+        </div>
+      </header>
+    ),
+    []
+  );
 }

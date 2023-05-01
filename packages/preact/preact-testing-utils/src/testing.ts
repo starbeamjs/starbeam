@@ -140,9 +140,9 @@ export function Root<R extends Root<T, T>, T extends RenderProps, U extends T>(
   return test;
 }
 
-export function render(app: () => VNode | VNode[]): RenderingResult {
+export function render(app: ComponentType<void>): RenderingResult {
   const container = document.createElement("div");
-  const component = createElement(app);
+  const component = createElement(app, null);
   return new RenderingResult(
     testing.render(component, { container }),
     container
@@ -329,7 +329,6 @@ class Render<Args extends RenderProps, T extends Args> {
       if (update.before) {
         await update.before(renderResult);
       }
-      console.log({ updating: update.Args });
       await renderResult.render(...update.Args);
       this.#expect.check(update.Args);
 

@@ -1,4 +1,4 @@
-import { useSetup } from "@starbeam/react";
+import { setup } from "@starbeam/react";
 import {
   Cell,
   type Reactive,
@@ -16,7 +16,7 @@ import {
 } from "./intl.js";
 
 export default function (props: { locale: string }): JSX.Element {
-  return useSetup(({ use }) => {
+  return setup(({ use }) => {
     const timeZone = Cell(SYSTEM_TZ, "system time zone");
     // FIXME: The fact that this uses closure state will cause confusion relative to other places
     // where we take props as an argument. TL;DR: useSetup should be able to take props as an
@@ -55,7 +55,7 @@ export default function (props: { locale: string }): JSX.Element {
         </>
       );
     };
-  }).compute(props);
+  })(props);
 }
 
 function Clock(

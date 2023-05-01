@@ -97,7 +97,7 @@ describe("useReactive", () => {
   );
 
   testReact<void, { counter: number }>(
-    "useSetup returning a custom reactive object + useReactive",
+    "setup returning a custom reactive object + useReactive",
     async (root) => {
       nextId = INITIAL_ID;
       const result = root

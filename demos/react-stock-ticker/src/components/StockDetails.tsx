@@ -1,4 +1,4 @@
-import { use, useReactive } from "@starbeam/react";
+import { useReactive, useResource } from "@starbeam/react";
 import { Cell, Resource, type ResourceBlueprint } from "@starbeam/universal";
 import { Portal } from "react-portal";
 
@@ -17,7 +17,7 @@ export function StockDetails({
   ticker: string;
   onClose: () => void;
 }): JSX.Element {
-  const state = use(() => getStock(ticker), [ticker]);
+  const state = useResource(() => getStock(ticker), [ticker]);
 
   async function follow(): Promise<void> {
     if (state === undefined || state.stock === null) {
@@ -108,7 +108,7 @@ export function StockDetails({
         </button>
       </Portal>
     );
-  });
+  }, []);
 }
 
 function getStock(ticker: string): ResourceBlueprint<{
