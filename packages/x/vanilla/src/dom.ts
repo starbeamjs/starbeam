@@ -1,6 +1,22 @@
+/**
+  * TODO:
+  *  - DynamicFragment
+  *  - Namespaces
+  *  - SVG
+  *  - Modifier
+  *  - Portal
+  *  - SSR
+  *
+  *  Goals:
+  *   - Implement Glimmer compatibility
+  *   - Write compiler Glimmer -> whatever this DSL ends up being
+  *
+  * Stretch Goals:
+  *   - other compilers (html``)
+  */
 import type { Description, Reactive } from "@starbeam/interfaces";
 import { CachedFormula, DEBUG, type FormulaFn } from "@starbeam/reactive";
-import { RUNTIME } from "@starbeam/runtime";
+import { Resource,type ResourceBlueprint,RUNTIME,use } from "@starbeam/universal";
 
 import { Cursor } from "./cursor.js";
 
@@ -8,27 +24,30 @@ export function Text(
   text: Reactive<string>,
   description?: string | Description
 ): ContentNode {
-  return ContentNode(({ into }) => {
-    const node = into.insert(into.document.createTextNode(text.read()));
+  return Content(
+    ({ into, owner }) => {
+      const node = into.insert(into.document.createTextNode(text.read()));
+      
+      return Resource(({ on }) => {
+        on.cleanup(() =>  void node.remove());
+        node.textContent = text.read();
+    })
+  }
 
-    return {
-      cleanup: () => void node.remove(),
-      update: () => (node.textContent = text.read()),
-    };
-  }, DEBUG?.Desc("resource", description, "Text"));
+  , DEBUG?.Desc('resource', description, 'Text'));
 }
 
 export function Comment(
   text: Reactive<string>,
   description?: string | Description
 ): ContentNode {
-  return ContentNode(({ into }) => {
+  return Content(({ into }) => {
     const node = into.insert(into.document.createComment(text.read()));
 
-    return {
-      cleanup: () => void node.remove(),
-      update: () => (node.textContent = text.read()),
-    };
+    return Resource(({ on }) => {
+      on.cleanup(() => void node.remove());
+      node.textContent = text.read();
+    });
   }, DEBUG?.Desc("resource", description, "Comment"));
 }
 
@@ -36,22 +55,23 @@ export function Fragment(
   nodes: ContentNode[],
   description?: string | Description
 ): ContentNode {
-  return ContentNode(({ into, owner }) => {
+  return Content(({ into, owner }) => {
     const start = placeholder(into.document);
     into.insert(start);
 
-    const renderedNodes = nodes.map((nodeConstructor) =>
-      nodeConstructor(into).create({ owner })
+    const renderedNodes = 
+      nodes.map(
+        (nodeConstructor) => nodeConstructor(into).create({ owner })
     );
 
     const end = placeholder(into.document);
     into.insert(end);
     const range = FragmentRange.create(start, end);
 
-    return {
-      cleanup: () => void range.clear(),
-      update: () => void poll(renderedNodes),
-    };
+    return Resource(({ on }) => {
+      on.cleanup(() => void range.clear());
+      poll(renderedNodes);
+    })
   }, DEBUG?.Desc("resource", description, "Fragment"));
 }
 
@@ -60,7 +80,7 @@ export function Attr<E extends Element>(
   value: Reactive<string | null | boolean>,
   description?: string | Description
 ): AttrNode<E> {
-  return ContentNode(({ into }) => {
+  return Content(({ into }) => {
     const current = value.read();
 
     if (typeof current === "string") {
@@ -69,22 +89,18 @@ export function Attr<E extends Element>(
       into.setAttribute(name, "");
     }
 
-    return {
-      cleanup: () => {
-        into.removeAttribute(name);
-      },
-      update: () => {
-        const next = value.read();
+    return Resource(({ on }) => {
+      on.cleanup(() => void into.removeAttribute(name));
+      const next = value.read();
 
-        if (typeof next === "string") {
-          into.setAttribute(name, next);
-        } else if (next === true) {
-          into.setAttribute(name, "");
-        } else if (next === false) {
-          into.removeAttribute(name);
-        }
-      },
-    };
+      if (typeof next === "string") {
+        into.setAttribute(name, next);
+      } else if (next === true) {
+        into.setAttribute(name, "");
+      } else if (next === false) {
+        into.removeAttribute(name);
+      }
+    });
   }, DEBUG?.Desc("resource", description, "Attr"));
 }
 
@@ -100,7 +116,7 @@ export function Element<N extends string>(
   },
   description?: Description | string
 ): ContentNode {
-  return ContentNode(({ into, owner }) => {
+  return Content(({ into, owner }) => {
     const element = into.document.createElement(tag);
     const elementCursor = Cursor.appendTo(element);
 
@@ -113,13 +129,16 @@ export function Element<N extends string>(
 
     into.insert(element);
 
-    return {
-      cleanup: () => void element.remove(),
-      update: () => {
-        poll(renderAttributes);
-        poll(renderBody);
-      },
-    };
+    return Resource(({on}, meta) => {
+      on.cleanup(() => void element.remove());
+
+      return {
+        update: () => {
+          renderAttributes.forEach(a => a.read());
+          poll(renderBody);
+        },
+      }
+    });
   }, DEBUG?.Desc("resource", description, "Element"));
 }
 
@@ -129,12 +148,11 @@ function placeholder(document: Document): Text {
   return document.createTextNode("");
 }
 
-type Rendered = FormulaFn<void>;
+type Rendered = FormulaFn<unknown>;
 
 interface OutputConstructor {
-  create: (options: { owner: object }) => Rendered;
+  create: (options: { owner: object }) => FormulaFn<unknown>;
 }
-
 type ContentNode = (into: Cursor) => OutputConstructor;
 type AttrNode<E extends Element = Element> = (into: E) => OutputConstructor;
 
@@ -146,21 +164,19 @@ function poll(rendered: Rendered[] | Rendered): void {
   }
 }
 
-function ContentNode<T extends Cursor | Element>(
-  create: (options: { into: T; owner: object }) => {
-    cleanup: () => void;
-    update: () => void;
-  },
+type ContentConstructor<T extends Cursor | Element> = (options: { into: T, owner: object }) => ResourceBlueprint;
+
+function Content<T extends Cursor | Element>(
+  create: ContentConstructor<T>, 
   description: Description | undefined
 ): (into: T) => OutputConstructor {
   return (into: T) => {
     return {
       create({ owner }) {
-        const { cleanup, update } = create({ into, owner });
+        const blueprint = create({ into, owner });
+        const formula = CachedFormula(() => (use(blueprint, { lifetime: owner, metadata: { owner } })).current, description);
 
-        const formula = CachedFormula(update, description);
-
-        RUNTIME.onFinalize(owner, cleanup);
+        RUNTIME.onFinalize(owner, () => void RUNTIME.finalize(formula));
 
         return formula;
       },

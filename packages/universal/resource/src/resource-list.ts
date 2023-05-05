@@ -9,6 +9,9 @@ import {
   type UseFnOptions,
 } from "./api.js";
 
+/**
+  * TODO: handle static
+  */
 export function ResourceList<Item, T>(
   list: Iterable<Item>,
   {

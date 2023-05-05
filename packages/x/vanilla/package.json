@@ -34,6 +34,7 @@
   },
   "devDependencies": {
     "@starbeam-dev/build-support": "workspace:*",
-    "rollup": "^3.20.6"
+    "rollup": "^3.20.6",
+    "typescript": "^5.0.4"
   }
 }
