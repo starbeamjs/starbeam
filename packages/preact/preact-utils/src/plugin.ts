@@ -164,8 +164,6 @@ function createHook<
   const [originalFn, mangled] = getOriginal(originalOptions, hookName);
 
   originalOptions[mangled] = ((...args: HookParams<K>) => {
-    console.log(hookName, mangled);
-
     const handler = AugmentHandler.create(
       hookName,
       originalFn && (() => originalFn(...args))

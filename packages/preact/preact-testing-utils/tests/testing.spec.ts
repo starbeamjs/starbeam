@@ -1,34 +1,31 @@
 // @vitest-environment jsdom
 
 import { install } from "@starbeam/preact";
-import { html, rendering } from "@starbeam-workspace/preact-testing-utils";
-import { describe } from "@starbeam-workspace/test-utils";
+import { html, render } from "@starbeam-workspace/preact-testing-utils";
+import { describe, test } from "@starbeam-workspace/test-utils";
 import { options } from "preact";
 import { beforeAll } from "vitest";
 
-describe("useReactive", () => {
+describe("preact-testing-utils", () => {
   beforeAll(() => {
     install(options);
   });
 
-  rendering.test(
-    "baseline",
-    ({ name }: { name: string }) => html`<div>hello ${name}</div>`,
-    (render) =>
-      render
-        .expect(({ name }) => html`<div>hello ${name}</div>`)
-        .render({ name: "world" })
-  );
+  function App({ name }: { name: string }) {
+    return html`<div>hello ${name}</div>`;
+  }
 
-  rendering.test(
-    "rerendering",
-    ({ name }: { name: string }) => {
-      return html`<div>hello ${name}</div>`;
-    },
-    (render) =>
-      render
-        .expect(({ name }) => html`<div>hello ${name}</div>`)
-        .render({ name: "world" })
-        .update({ name: "cruel world" })
-  );
+  test("render", () => {
+    render(App, { name: "world" }).expect(
+      ({ name }) => html`<div>hello ${name}</div>`
+    );
+  });
+
+  test("rerender", () => {
+    const result = render(App, { name: "world" }).expect(
+      ({ name }) => html`<div>hello ${name}</div>`
+    );
+
+    result.rerender({ name: "cruel world" });
+  });
 });

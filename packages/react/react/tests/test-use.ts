@@ -8,7 +8,7 @@ import type {
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
 import { describe, expect } from "@starbeam-workspace/test-utils";
 
-import { usingStarbeam } from "../use-setup.spec.js";
+import { usingStarbeam } from "./support/render.js";
 
 const INITIAL_COUNT = 0;
 const INCREMENT = 1;

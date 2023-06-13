@@ -2,12 +2,12 @@ import type { Reactive } from "@starbeam/interfaces";
 import { CachedFormula, Cell } from "@starbeam/reactive";
 import type { IntoResourceBlueprint, Resource } from "@starbeam/resource";
 import { use as starbeamUse } from "@starbeam/resource";
-import { LIFETIME, PUBLIC_TIMELINE } from "@starbeam/runtime";
 import { service as starbeamService } from "@starbeam/service";
+import { RUNTIME } from "@starbeam/universal";
 import type { RegisterLifecycleHandlers } from "@starbeam/use-strict-lifecycle";
 import { isPresent, verified } from "@starbeam/verify";
 
-import { type ReactApp, verifiedApp } from "../context-provider.js";
+import { type ReactApp, verifiedApp } from "../app.js";
 import {
   type Callback,
   Handlers,
@@ -101,7 +101,7 @@ export function StarbeamInstance(
     );
 
     verified(handlers, isPresent).cleanup.add(() => {
-      PUBLIC_TIMELINE.on.change(formula, notify);
+      RUNTIME.subscribe(formula, notify);
     });
 
     return formula as Reactive<T>;
@@ -110,7 +110,7 @@ export function StarbeamInstance(
   function deactivate() {
     if (handlers) {
       for (const callback of handlers.cleanup) callback();
-      LIFETIME.finalize(handlers);
+      RUNTIME.finalize(handlers);
     }
     handlers = null;
   }

@@ -15,6 +15,10 @@ export const TestResource = Resource((r) => {
 const INITIAL_ID = 0;
 
 export const resources = {
+  get currentId(): number {
+    return TestResourceImpl.currentId;
+  },
+
   get nextId(): number {
     return TestResourceImpl.nextId;
   },
@@ -34,6 +38,16 @@ export class TestResourceImpl {
 
   static get nextId(): number {
     return TestResourceImpl.#nextId;
+  }
+
+  static get currentId(): number {
+    if (TestResourceImpl.#last === undefined) {
+      throw Error(
+        `You are attempting to get the current resource ID in testing, but no resource is active.`
+      );
+    }
+
+    return TestResourceImpl.#last.#id;
   }
 
   static getLast(): TestResourceImpl {

@@ -2,63 +2,50 @@
 
 import { install, setup } from "@starbeam/preact";
 import { Cell } from "@starbeam/universal";
-import { html, rendering } from "@starbeam-workspace/preact-testing-utils";
-import { describe } from "@starbeam-workspace/test-utils";
+import { html, render } from "@starbeam-workspace/preact-testing-utils";
+import {
+  beforeAll,
+  describe,
+  expect,
+  test,
+} from "@starbeam-workspace/test-utils";
 import { options } from "preact";
-import { beforeAll } from "vitest";
 
 let nextId = 0;
 
 describe("create", () => {
-  beforeAll(() => {
-    install(options);
-  });
+  beforeAll(() => void install(options));
 
-  rendering.test(
-    "baseline",
+  test("baseline", () => {
     function App({ name }: { name: string }) {
       return html`<div>hello ${name}</div>`;
-    },
-    (render) =>
-      render
-        .expect(({ name }) => html`<div>hello ${name}</div>`)
-        .render({ name: "world" })
-  );
+    }
 
-  rendering.test(
-    "reactive values render",
-    function App() {
-      const { cell } = setup(ReactiveObject);
+    const result = render(() => App({ name: "world" }));
+    expect(result.innerHTML).toBe(`<div>hello world</div>`);
+  });
 
-      return html`<p>${cell.current}</p>`;
-    },
-    (render) =>
-      render
-        .expect(({ count }: { count: number }) => html`<p>${count}</p>`)
-        .render({ count: 0 })
-  );
-
-  rendering.test(
-    "reactive values update",
+  test("reactive values update", async () => {
     function App() {
       const { cell, increment } = setup(ReactiveObject);
 
-      return html`<p>${cell}</p>
-        <button onClick=${increment}>++</button>`;
-    },
-    (render) =>
-      render
-        .expect(
-          ({ count }: { count: number }) =>
-            html`<p>${count}</p>
-              <button>++</button>`
-        )
-        .render({ count: 0 })
-        .update(
-          { count: 1 },
-          { before: async (prev) => prev.find("button").fire.click() }
-        )
-  );
+      return html`<p>${cell.current}</p>
+        <button
+          onClick=${() => {
+            console.log(increment);
+            increment();
+          }}
+        >
+          ++
+        </button>`;
+    }
+
+    const result = render(App);
+    expect(result.innerHTML).toBe(`<p>0</p><button>++</button>`);
+
+    await result.find("button").click();
+    expect(result.innerHTML).toBe(`<p>1</p><button>++</button>`);
+  });
 });
 
 const INITIAL_COUNT = 0;
@@ -70,6 +57,7 @@ function ReactiveObject(): { cell: Cell<number>; increment: () => void } {
   });
 
   function increment(): void {
+    console.log("updating to", cell.current + INCREMENT);
     cell.set(cell.current + INCREMENT);
   }
 

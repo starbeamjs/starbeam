@@ -4,7 +4,9 @@ class LifetimeAPI {
   readonly #associations = new WeakMap<object, ObjectLifetime>();
 
   readonly on = {
-    cleanup: (object: object, handler: () => void): Unsubscribe => {
+    cleanup: (object: object, handler: Unsubscribe): Unsubscribe => {
+      if (!handler) return;
+
       let lifetime = this.#associations.get(object);
 
       if (!lifetime) {

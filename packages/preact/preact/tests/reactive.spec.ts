@@ -3,11 +3,7 @@
 import { install, setupReactive, useReactive } from "@starbeam/preact";
 import type { UseReactive } from "@starbeam/renderer";
 import { Cell, Formula } from "@starbeam/universal";
-import {
-  html,
-  render,
-  rendering,
-} from "@starbeam-workspace/preact-testing-utils";
+import { html, render } from "@starbeam-workspace/preact-testing-utils";
 import {
   beforeAll,
   describe,
@@ -24,17 +20,6 @@ describe("reactive", () => {
   beforeAll(() => {
     install(options);
   });
-
-  rendering.test(
-    "baseline",
-    function App({ name }: { name: string }) {
-      return html`<div>hello ${name}</div>`;
-    },
-    (render) =>
-      render
-        .expect(({ name }) => html`<div>hello ${name}</div>`)
-        .render({ name: "world" })
-  );
 
   const USE_REACTIVE = {
     name: "useReactive",
@@ -117,35 +102,31 @@ describe("reactive", () => {
 });
 
 describe("setupReactive", () => {
-  beforeAll(() => {
-    install(options);
-  });
+  beforeAll(() => void install(options));
 
-  rendering.test(
-    "passing a resource",
+  test("passing a resource", () => {
     function App() {
       const { cell } = setupReactive(({ use }) => use(ReactiveObject)).read();
-
       return html`<p>${cell.current}</p>`;
-    },
-    (render) =>
-      render
-        .expect(({ count }: { count: number }) => html`<p>${count}</p>`)
-        .render({ count: 0 })
-  );
+    }
 
-  rendering.test(
-    "reactive values render",
+    render(App).expect(
+      ({ count }: { count: number }) => html`<p>${count}</p>`,
+      { count: 0 }
+    );
+  });
+
+  test("reactive values render", () => {
     function App() {
       const { cell } = setupReactive(ReactiveObject).read();
+      return html`<p>${cell}</p>`;
+    }
 
-      return html`<p>${cell.current}</p>`;
-    },
-    (render) =>
-      render
-        .expect(({ count }: { count: number }) => html`<p>${count}</p>`)
-        .render({ count: 0 })
-  );
+    render(App).expect(
+      ({ count }: { count: number }) => html`<p>${count}</p>`,
+      { count: 0 }
+    );
+  });
 });
 
 const INITIAL_COUNT = 0;

@@ -36,8 +36,6 @@ export const install = Plugin((on) => {
       component.context[STARBEAM] = component;
     }
 
-    console.log("willRender", componentName(component.fn));
-
     CONTEXT.app = getRoot(component);
 
     ComponentFrame.start(
