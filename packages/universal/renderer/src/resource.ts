@@ -3,6 +3,6 @@ import type {
   ResourceConstructor,
 } from "@starbeam/resource";
 
-export type IntoResourceBlueprint<T, M = void> =
-  | ResourceBlueprint<T, M>
-  | ResourceConstructor<T, void>;
+export type IntoResourceBlueprint<T> =
+  | ResourceBlueprint<T>
+  | ResourceConstructor<T>;

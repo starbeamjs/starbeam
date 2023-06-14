@@ -28,7 +28,8 @@
     "@starbeam/interfaces": "workspace:^",
     "@starbeam/reactive": "workspace:^",
     "@starbeam/runtime": "workspace:^",
-    "@starbeam/shared": "workspace:^"
+    "@starbeam/shared": "workspace:^",
+    "@starbeam/verify": "workspace:^"
   },
   "devDependencies": {
     "@starbeam-dev/build-support": "workspace:*",

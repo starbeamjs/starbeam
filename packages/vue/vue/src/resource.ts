@@ -16,9 +16,7 @@ export function setupReactive<T>(blueprint: ReactiveBlueprint<T>): Ref<T> {
   return MANAGER.toNative(managerSetupReactive(MANAGER, blueprint));
 }
 
-export function setupResource<T>(
-  blueprint: ResourceBlueprint<T, void>
-): Ref<T> {
+export function setupResource<T>(blueprint: ResourceBlueprint<T>): Ref<T> {
   return MANAGER.toNative(managerSetupResource(MANAGER, blueprint));
 }
 

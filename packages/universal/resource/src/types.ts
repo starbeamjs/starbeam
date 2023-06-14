@@ -3,25 +3,17 @@ import type { Reactive } from "@starbeam/interfaces";
 import type { ResourceBlueprint } from "./api.js";
 import type { ResourceRun } from "./resource.js";
 
-export type ResourceConstructor<T = unknown, M = unknown> =
-  | SpecificResourceConstructor<ResourceBlueprint<T, void>, M>
-  | SpecificResourceConstructor<Reactive<T>, M>
-  | SpecificResourceConstructor<T, M>;
+export type ResourceConstructor<T = unknown> =
+  | ((run: ResourceRun, lifetime: object) => ResourceBlueprint<T>)
+  | ((run: ResourceRun, lifetime: object) => Reactive<T>)
+  | ((run: ResourceRun, lifetime: object) => T);
 
 /**
  * A resource constructor is a user-defined function that runs for each resource
  * run.
  */
-export type SpecificResourceConstructor<T, M> = (
-  run: ResourceRun<M>,
-  /**
-   * The `metadata` parameter provides information about the entire resource
-   * that persists across runs. It is useful when reusing state across runs. The
-   * `lifetime` property makes it possible to link state to the entire lifetime
-   * of the resource, which ensures that it it will get cleaned up, at the
-   * latest, when the resource itself is finalized.
-   */
-  metadata: M,
+export type SpecificResourceConstructor<T> = (
+  run: ResourceRun,
 
   /**
    * The `lifetime` parameter is the lifetime of the entire resource.
@@ -29,4 +21,4 @@ export type SpecificResourceConstructor<T, M> = (
   lifetime: object
 ) => T;
 
-export type ResourceCleanup<M> = (metadata: M) => void;
+export type ResourceCleanup = () => void;

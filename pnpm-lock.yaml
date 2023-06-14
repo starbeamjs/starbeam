@@ -1247,6 +1247,9 @@ importers:
       '@starbeam/shared':
         specifier: workspace:^
         version: link:../shared
+      '@starbeam/verify':
+        specifier: workspace:^
+        version: link:../verify
     devDependencies:
       '@starbeam-dev/build-support':
         specifier: workspace:*

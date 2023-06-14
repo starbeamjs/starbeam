@@ -1,7 +1,12 @@
 import { CachedFormula, Cell, Marker } from "@starbeam/reactive";
-import { Resource, type ResourceBlueprint, use } from "@starbeam/resource";
+import {
+  Resource,
+  type ResourceBlueprint,
+  setup,
+  use,
+} from "@starbeam/resource";
 import { RUNTIME } from "@starbeam/runtime";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "@starbeam-workspace/test-utils";
 
 describe("resources", () => {
   test("the basics", () => {
@@ -59,7 +64,7 @@ describe("resources", () => {
     });
 
     const lifetime = {};
-    const test = use(Test, { lifetime });
+    const test = setup(Test, { lifetime });
 
     expect(test.current).toBe(0);
     expect(counts).toEqual({ init: 1, finalized: 0 });
@@ -74,11 +79,27 @@ describe("resources", () => {
   });
 
   test("a counter that persists across cleanups", () => {
-    const counts = { init: 0, finalized: 0 };
-    const invalidate = Marker();
-    const Counter = Resource(({ on }, count: Cell<number>) => {
-      invalidate.read();
+    const counts = { init: 0, setup: 0, cleanup: 0, finalized: 0 };
+    const invalidateSetup = Marker();
+    const invalidateConstructor = Marker();
+
+    const Counter = Resource(({ on }) => {
       counts.init++;
+
+      const count = Cell(0);
+
+      invalidateConstructor.read();
+
+      on.setup(() => {
+        console.log("running setup");
+        counts.setup++;
+        invalidateSetup.read();
+
+        return () => {
+          console.log("running cleanup");
+          return counts.cleanup++;
+        };
+      });
 
       on.cleanup(() => {
         counts.finalized++;
@@ -95,22 +116,61 @@ describe("resources", () => {
     });
 
     const lifetime = {};
-    const counter = use(Counter, { lifetime, metadata: Cell(0) });
+    const counter = use(Counter, { lifetime });
 
     expect(counter.current.count).toBe(0);
-    expect(counts).toEqual({ init: 1, finalized: 0 });
+    expect(counts).toEqual({ init: 1, finalized: 0, setup: 0, cleanup: 0 });
+
+    setup(counter);
+    // read the resource again
+    expect(counter.current.count).toBe(0);
+    // now it's set up
+    expect(counts).toEqual({ init: 1, finalized: 0, setup: 1, cleanup: 0 });
 
     counter.current.increment();
     expect(counter.current.count).toBe(1);
-    expect(counts).toEqual({ init: 1, finalized: 0 });
+    // incrementing the counter doesn't invalidate the setups
+    expect(counts).toEqual({ init: 1, finalized: 0, setup: 1, cleanup: 0 });
 
-    invalidate.mark();
+    invalidateSetup.mark();
     expect(counter.current.count).toBe(1);
-    expect(counts).toEqual({ init: 2, finalized: 1 });
+    // invalidating the setups doesn't reset the cell, but it does run the
+    // cleanup function and then run the setup again
+    expect(counts).toEqual({ init: 1, finalized: 0, setup: 2, cleanup: 1 });
 
     counter.current.increment();
     expect(counter.current.count).toBe(2);
-    expect(counts).toEqual({ init: 2, finalized: 1 });
+    // incrementing the counter again behaves like the last time we incremented
+    // it (increments the counter but doesn't invalidate the setups).
+    expect(counts).toEqual({ init: 1, finalized: 0, setup: 2, cleanup: 1 });
+
+    invalidateConstructor.mark();
+    // invalidating the constructor *does* reset the cell
+    expect(counter.current.count).toBe(0);
+    expect(counts).toEqual({ init: 2, finalized: 1, setup: 3, cleanup: 2 });
+
+    counter.current.increment();
+    expect(counter.current.count).toBe(1);
+    // incrementing the counter still doesn't invalidate the setups
+    expect(counts).toEqual({ init: 2, finalized: 1, setup: 3, cleanup: 2 });
+
+    RUNTIME.finalize(lifetime);
+    const finalCount = 1;
+    const finalCounts = { init: 2, finalized: 2, setup: 3, cleanup: 3 };
+
+    expect(counter.current.count).toBe(finalCount);
+    expect(counts).toEqual(finalCounts);
+
+    invalidateConstructor.mark();
+    // The counter is frozen in place
+    expect(counter.current.count).toBe(finalCount);
+    // None of the lifecycle functions are called
+    expect(counts).toEqual(finalCounts);
+
+    invalidateSetup.mark();
+    // Same deal
+    expect(counter.current.count).toBe(finalCount);
+    expect(counts).toEqual(finalCounts);
   });
 
   test("child resources", () => {
@@ -347,19 +407,19 @@ describe("resources", () => {
     const child = childResource.instance;
 
     const invalidateParent = Marker();
+    const parentCounts = { init: 0, cleanup: 0 };
 
-    const Parent = Resource((_, meta: { initHere: number }) => {
+    const Parent = Resource(({ on }) => {
       invalidateParent.read();
-      meta.initHere++;
+      parentCounts.init++;
+
+      on.cleanup(() => {
+        parentCounts.cleanup++;
+      });
 
       return {
-        get state() {
-          return {
-            child: child.current.state,
-            parent: {
-              init: meta.initHere,
-            },
-          };
+        get child() {
+          return child.current.state;
         },
         increment() {
           child.current.increment();
@@ -370,15 +430,23 @@ describe("resources", () => {
     const lifetime = {};
     const parent = use(Parent, {
       lifetime,
-      metadata: {
-        initHere: 0,
-      },
     });
 
-    expect(parent.current.state).toEqual({
+    function getState() {
+      return {
+        child: parent.current.child,
+        parent: {
+          ...parentCounts,
+        },
+      };
+    }
+
+    expect(getState()).toEqual({
       parent: {
         init: 1,
+        cleanup: 0,
       },
+
       child: {
         count: 0,
         init: 1,
@@ -390,9 +458,10 @@ describe("resources", () => {
     // by the new run).
     invalidateParent.mark();
 
-    expect(parent.current.state).toEqual({
+    expect(getState()).toEqual({
       parent: {
         init: 2,
+        cleanup: 1,
       },
       child: {
         count: 0,
@@ -403,9 +472,10 @@ describe("resources", () => {
 
     parent.current.increment();
 
-    expect(parent.current.state).toEqual({
+    expect(getState()).toEqual({
       parent: {
         init: 2,
+        cleanup: 1,
       },
       child: {
         count: 1,
@@ -419,26 +489,30 @@ describe("resources", () => {
     const counts = { init: 0, finalized: 0 };
     const invalidate = Marker();
 
-    const Counter = Resource(({ on }, count: Cell<number>) => {
-      invalidate.read();
-      counts.init++;
+    const Counter = Resource(({ on }) => {
+      const counter = Cell(0);
 
-      on.cleanup(() => {
-        counts.finalized++;
+      on.setup(() => {
+        invalidate.read();
+        counts.init++;
+
+        return () => {
+          counts.finalized++;
+        };
       });
 
       return {
         get count() {
-          return count.current;
+          return counter.current;
         },
         increment() {
-          count.current++;
+          counter.current++;
         },
       };
     });
 
     const lifetime = {};
-    const counter = use(Counter, { lifetime, metadata: Cell(0) });
+    const counter = setup(Counter, { lifetime });
 
     expect(counter.current.count).toBe(0);
     expect(counts).toEqual({ init: 1, finalized: 0 });
@@ -477,7 +551,7 @@ interface TestInstance {
 class TestResource {
   readonly #lifetime: object;
   readonly #marker: Marker;
-  readonly #blueprint: ResourceBlueprint<TestInstance, void>;
+  readonly #blueprint: ResourceBlueprint<TestInstance>;
   readonly #instance: Resource<TestInstance>;
 
   constructor() {
