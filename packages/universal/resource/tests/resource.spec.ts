@@ -14,7 +14,7 @@ describe("resources", () => {
       finalized: 0,
     });
 
-    testResource.invalidateConstructor();
+    testResource.invalidateSetup();
     expect(resource.current.state).toEqual({
       count: 0,
       init: 2,
@@ -28,7 +28,7 @@ describe("resources", () => {
       finalized: 1,
     });
 
-    testResource.invalidateConstructor();
+    testResource.invalidateSetup();
     expect(resource.current.state).toEqual({
       count: 0,
       init: 3,
@@ -494,6 +494,7 @@ class TestResource {
       state.counts.init++;
 
       const cell = Cell(0);
+
       marker.read();
       on.cleanup(() => {
         state.counts.finalized++;
@@ -519,7 +520,7 @@ class TestResource {
     return this.#instance;
   }
 
-  invalidateConstructor(): void {
+  invalidateSetup(): void {
     this.#marker.mark();
   }
 

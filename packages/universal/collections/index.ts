@@ -2,7 +2,7 @@ import type { Description } from "@starbeam/interfaces";
 import { Cell, DEBUG } from "@starbeam/universal";
 
 import TrackedArray from "./src/array.js";
-import { ReactiveMap, ReactiveSet } from "./src/iterable.js";
+import { ReactiveMap as ReactiveMapImpl, ReactiveSet } from "./src/iterable.js";
 import { TrackedWeakMap } from "./src/map.js";
 import TrackedObject from "./src/object.js";
 import { TrackedWeakSet } from "./src/set.js";
@@ -53,12 +53,16 @@ export const reactive = (
   });
 };
 
-reactive.Map = <K, V>(description?: string | Description): Map<K, V> => {
-  return ReactiveMap.reactive(
+export function ReactiveMap<K, V>(
+  description?: string | Description
+): Map<K, V> {
+  return ReactiveMapImpl.reactive(
     Object.is,
     DEBUG?.Desc("collection", description)
   );
-};
+}
+
+reactive.Map = ReactiveMap;
 
 reactive.WeakMap = <K extends object, V>(
   description?: string | Description
