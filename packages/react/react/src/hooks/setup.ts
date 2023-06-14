@@ -13,7 +13,8 @@ import {
   type SetupBlueprint,
   type UseReactive,
 } from "@starbeam/renderer";
-import type { IntoResourceBlueprint } from "@starbeam/resource";
+import type { IntoResourceBlueprint, Resource } from "@starbeam/resource";
+import { setup as starbeamSetup, use as starbeamUse } from "@starbeam/resource";
 import { RUNTIME } from "@starbeam/runtime";
 import {
   type Ref,
@@ -111,7 +112,7 @@ export function createReactive<T>(
   });
 }
 
-function setupFormula<T>(
+export function setupFormula<T>(
   blueprint: Ref<UseReactive<T>>,
   lifecycle: Lifecycle
 ): FormulaFn<T> {
@@ -131,6 +132,32 @@ export function setupService<T>(
 
 export function setupResource<T>(
   blueprint: IntoResourceBlueprint<T>
-): Reactive<T> {
-  return setupReactive(({ use }) => use(blueprint));
+): Resource<T> {
+  return createResource(blueprint);
+}
+
+export function createResource<T>(
+  blueprint: IntoResourceBlueprint<T>,
+  deps?: unknown[]
+): Resource<T> {
+  const [lastBlueprint] = useLastRenderRef(blueprint);
+
+  return useLifecycle({
+    validate: deps,
+    with: sameDeps,
+  }).render((builder) => {
+    const resource = starbeamUse(lastBlueprint.current);
+
+    builder.on.layout(() => {
+      const unsubscribe = RUNTIME.subscribe(resource, builder.notify);
+      builder.on.cleanup(unsubscribe);
+
+      console.log({ setup: true });
+
+      starbeamSetup(resource, { lifetime: builder });
+      builder.on.cleanup(() => void RUNTIME.finalize(builder));
+    });
+
+    return resource;
+  });
 }

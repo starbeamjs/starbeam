@@ -1,7 +1,6 @@
 import { getFirst } from "@starbeam/core-utils";
 import type { Lifecycle, RendererManager } from "@starbeam/renderer";
-import { use } from "@starbeam/resource";
-import { RUNTIME } from "@starbeam/runtime";
+import { setup, use } from "@starbeam/resource";
 import { service } from "@starbeam/service";
 import {
   type Builder,
@@ -24,6 +23,10 @@ export function buildLifecycle(
   app: ReactApp | null
 ): Lifecycle {
   return {
+    get lifetime() {
+      return builder;
+    },
+
     service: (blueprint) => {
       if (app === null) missingApp("service()");
 
@@ -32,9 +35,13 @@ export function buildLifecycle(
       });
     },
     use: (blueprint) => {
-      const lifetime = {};
-      builder.on.cleanup(() => void RUNTIME.finalize(lifetime));
-      return use(blueprint, { lifetime });
+      const resource = use(blueprint);
+
+      builder.on.idle(() => {
+        setup(resource, { lifetime: builder });
+      });
+
+      return resource;
     },
     on: {
       idle: builder.on.idle,

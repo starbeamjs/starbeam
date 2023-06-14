@@ -5,8 +5,9 @@ import { RUNTIME } from "@starbeam/runtime";
 import {
   Resource,
   type ResourceBlueprint,
+  setup,
+  type SetupFnOptions,
   use,
-  type UseFnOptions,
 } from "./api.js";
 
 export function ResourceList<Item, T>(
@@ -22,8 +23,17 @@ export function ResourceList<Item, T>(
   }
 ): ResourceBlueprint<Resource<T>[]> {
   const resources = new ResourceMap<T>(DEBUG?.Desc("collection", description));
+  const lifetime = {};
 
-  return Resource((_run, lifetime) => {
+  return Resource(({ on }) => {
+    on.finalize(() => {
+      RUNTIME.finalize(lifetime);
+    });
+
+    on.setup(() => {
+      resources.setup();
+    });
+
     const result: Resource<T>[] = [];
     const remaining = new Set();
     for (const item of list) {
@@ -45,7 +55,10 @@ export function ResourceList<Item, T>(
 }
 
 type Key = string | number | { key: unknown; description: string | number };
-type InternalMap<T> = Map<unknown, { resource: Resource<T>; lifetime: object }>;
+type InternalMap<T> = Map<
+  unknown,
+  { resource: Resource<T>; lifetime: object; isSetup: boolean }
+>;
 
 class ResourceMap<T> {
   readonly #map: InternalMap<T> = new Map();
@@ -62,21 +75,29 @@ class ResourceMap<T> {
   create(
     key: Key,
     resource: ResourceBlueprint<T>,
-    options: UseFnOptions
+    options: SetupFnOptions
     // parentLifetime: object
   ): Resource<T> {
     const lifetime = {};
     RUNTIME.link(options.lifetime, lifetime);
     const newResource = use(resource, {
-      lifetime,
       description: this.#description?.key(
         typeof key === "object"
           ? { key: key.key, name: String(key.description) }
           : key
       ),
     });
-    this.#map.set(key, { resource: newResource, lifetime });
+    this.#map.set(key, { resource: newResource, lifetime, isSetup: false });
     return newResource;
+  }
+
+  setup() {
+    for (const state of this.#map.values()) {
+      if (state.isSetup) continue;
+
+      setup(state.resource, { lifetime: state.lifetime });
+      state.isSetup = true;
+    }
   }
 
   /**

@@ -58,7 +58,11 @@ export class ResourceRun {
     resource: IntoResourceBlueprint<T>,
     options?: { description?: Description | undefined }
   ): Resource<T> => {
-    return ResourceBlueprintImpl.evaluate(resource, options ?? {}, this);
+    const instance = ResourceBlueprintImpl.evaluate(resource, options ?? {});
+    this.#state.setups.add(() => {
+      setupResource(instance, this);
+    });
+    return instance;
   };
 }
 
@@ -111,13 +115,12 @@ export class ResourceBlueprintImpl<T> {
   static run<T>(
     this: void,
     blueprint: ResourceBlueprint<T>,
-    run: ResourceRun,
-    lifetime: object
+    run: ResourceRun
   ): Resource<T> {
-    let instance = blueprint.#Constructor(run, lifetime);
+    let instance = blueprint.#Constructor(run);
 
     while (isResourceBlueprint(instance)) {
-      instance = ResourceBlueprintImpl.evaluate(instance, {}, lifetime);
+      instance = ResourceBlueprintImpl.evaluate(instance, {});
     }
 
     return instance as Resource<T>;
@@ -125,11 +128,10 @@ export class ResourceBlueprintImpl<T> {
 
   static evaluate<T>(
     intoBlueprint: IntoResourceBlueprint<T>,
-    options: { description?: Description | undefined },
-    lifetime: object
+    options: { description?: Description | undefined } = {}
   ): Resource<T> {
     const blueprint = ResourceBlueprintImpl.from(intoBlueprint);
-    return blueprint.#evaluate(options, lifetime);
+    return blueprint.#evaluate(options);
   }
 
   #Constructor: ResourceConstructor;
@@ -143,14 +145,11 @@ export class ResourceBlueprintImpl<T> {
     this.#description = description;
   }
 
-  #evaluate(
-    options: { description?: Description | undefined },
-    lifetime: object
-  ): Resource<T> {
+  #evaluate(options: { description?: Description | undefined }): Resource<T> {
     const Constructor = this.#Constructor as ResourceConstructor<T>;
     const description = options.description ?? this.#description;
 
-    return evaluateResourceConstructor({ Constructor, description }, lifetime);
+    return evaluateResourceConstructor({ Constructor, description });
   }
 }
 
@@ -170,21 +169,21 @@ export function isResource<T>(value: unknown): value is Resource<T> {
  * finalizing previous runs, and linking lifetimes.
  */
 export function evaluateResourceConstructor<T>(
-  blueprint: ResourceBlueprintParts<T>,
-  lifetime: object
+  blueprint: ResourceBlueprintParts<T>
 ): Resource<T> {
   let finalized = false;
+  const lifetime = {};
   RUNTIME.onFinalize(lifetime, () => (finalized = true));
 
   let lastValue: ReadValue<T> | undefined;
 
   let last: ResourceRun | undefined;
-  const isSetup = Cell(
+  const isSetup = Cell<boolean>(
     false,
     blueprint.description?.implementation(
       "cell",
       "setup?",
-      "has the resource been set up?"
+      "is the resource set up yet?"
     )
   );
 
@@ -206,10 +205,10 @@ export function evaluateResourceConstructor<T>(
     RUNTIME.link(lifetime, next);
     RUNTIME.link(next, setups);
 
-    const instance = Constructor(next, lifetime);
+    const instance = Constructor(next);
 
     if (isResourceBlueprint(instance)) {
-      return ResourceBlueprintImpl.run(instance, next, lifetime);
+      return ResourceBlueprintImpl.run(instance, next);
     }
 
     // Finalize the previous run after running the new one to give the new one a
@@ -220,6 +219,8 @@ export function evaluateResourceConstructor<T>(
     return Formula(() => {
       // freeze the last value in place once the resource is finalized
       if (finalized) return lastValue;
+
+      console.log({ isSetup: isSetup.current });
 
       // wait for the resource to be set up before polling the setups
       if (isSetup.current) setups.poll();
@@ -249,15 +250,28 @@ export function evaluateResourceConstructor<T>(
   // whether a value is a resource will use this WeakMap.
   RESOURCE_LIFETIMES.set(resource, lifetime);
 
-  SETUP_RESOURCE.set(resource, isSetup);
+  SETUP_RESOURCE.set(resource, {
+    isSetup,
+    resourceLifetime: lifetime,
+  });
 
   return resource;
 }
 
-const SETUP_RESOURCE = new WeakMap<Resource<unknown>, Cell<boolean>>();
+const SETUP_RESOURCE = new WeakMap<
+  Resource<unknown>,
+  { resourceLifetime: object; isSetup: Cell<boolean> }
+>();
 
-export function setupResource(resource: Resource<unknown>): void {
-  const cell = verified(SETUP_RESOURCE.get(resource), isPresent);
+export function setupResource(
+  resource: Resource<unknown>,
+  lifetime: object
+): void {
+  const { resourceLifetime, isSetup } = verified(
+    SETUP_RESOURCE.get(resource),
+    isPresent
+  );
 
-  cell.set(true);
+  RUNTIME.link(lifetime, resourceLifetime);
+  isSetup.set(true);
 }

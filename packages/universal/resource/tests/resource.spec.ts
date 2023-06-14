@@ -116,12 +116,12 @@ describe("resources", () => {
     });
 
     const lifetime = {};
-    const counter = use(Counter, { lifetime });
+    const counter = use(Counter);
 
     expect(counter.current.count).toBe(0);
     expect(counts).toEqual({ init: 1, finalized: 0, setup: 0, cleanup: 0 });
 
-    setup(counter);
+    setup(counter, { lifetime });
     // read the resource again
     expect(counter.current.count).toBe(0);
     // now it's set up
@@ -213,7 +213,7 @@ describe("resources", () => {
     });
 
     const lifetime = {};
-    const channel = use(Channel, { lifetime });
+    const channel = setup(Channel, { lifetime });
 
     expect(channel.current.description).toBe(
       "default (connected: 1, messages: 0)"
@@ -255,7 +255,7 @@ describe("resources", () => {
     const name = Cell("Person");
 
     const lifetime = {};
-    const greeting = use(Greeting(name), { lifetime });
+    const greeting = setup(Greeting(name), { lifetime });
 
     expect(greeting.current).toBe("Mr. Person");
     expect(counts).toEqual({ inner: 1, outer: 1 });
@@ -329,7 +329,7 @@ describe("resources", () => {
     });
 
     const lifetime = {};
-    const channel = use(Channel, { lifetime });
+    const channel = setup(Channel, { lifetime });
 
     expect(channel.current.description).toBe(
       "default (connected: 1, messages: 0)"
@@ -385,7 +385,7 @@ describe("resources", () => {
     });
 
     const lifetime = {};
-    const channel = use(Channel, { lifetime });
+    const channel = setup(Channel, { lifetime });
 
     expect(channel.current.description).toBe(
       "default (connected: 1, messages: 0)"
@@ -428,7 +428,7 @@ describe("resources", () => {
     });
 
     const lifetime = {};
-    const parent = use(Parent, {
+    const parent = setup(Parent, {
       lifetime,
     });
 
@@ -587,7 +587,7 @@ class TestResource {
       };
     });
 
-    this.#instance = use(this.#blueprint, { lifetime: this.#lifetime });
+    this.#instance = setup(this.#blueprint, { lifetime: this.#lifetime });
   }
 
   get instance(): Resource<TestInstance> {

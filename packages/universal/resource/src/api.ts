@@ -1,6 +1,5 @@
 import type { Description } from "@starbeam/interfaces";
 import type { FormulaFn } from "@starbeam/reactive";
-import { isPresent, verified } from "@starbeam/verify";
 
 import {
   isResource,
@@ -11,6 +10,9 @@ import type { ResourceConstructor } from "./types.js";
 
 export interface UseFnOptions {
   readonly description?: Description | undefined;
+}
+
+export interface SetupFnOptions extends UseFnOptions {
   readonly lifetime: object;
 }
 
@@ -24,29 +26,20 @@ export interface UseFnOptions {
  */
 export function use<T>(
   blueprint: IntoResourceBlueprint<T>,
-  options: UseFnOptions
+  options?: UseFnOptions
 ): Resource<T> {
-  return ResourceBlueprintImpl.evaluate(blueprint, options, options.lifetime);
+  return ResourceBlueprintImpl.evaluate(blueprint, options);
 }
 
-export function setup<T>(blueprint: Resource<T>): Resource<T>;
-export function setup<T>(
-  blueprint: IntoResourceBlueprint<T>,
-  options: UseFnOptions
-): Resource<T>;
 export function setup<T>(
   blueprint: IntoResourceBlueprint<T> | Resource<T>,
-  options?: UseFnOptions
+  options: SetupFnOptions
 ): Resource<T> {
   const resource = isResource(blueprint)
     ? blueprint
-    : ResourceBlueprintImpl.evaluate(
-        blueprint,
-        verified(options, isPresent),
-        verified(options, isPresent).lifetime
-      );
+    : ResourceBlueprintImpl.evaluate(blueprint, options);
 
-  setupResource(resource);
+  setupResource(resource, options.lifetime);
 
   return resource;
 }

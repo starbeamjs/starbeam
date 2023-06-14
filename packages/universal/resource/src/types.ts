@@ -4,9 +4,9 @@ import type { ResourceBlueprint } from "./api.js";
 import type { ResourceRun } from "./resource.js";
 
 export type ResourceConstructor<T = unknown> =
-  | ((run: ResourceRun, lifetime: object) => ResourceBlueprint<T>)
-  | ((run: ResourceRun, lifetime: object) => Reactive<T>)
-  | ((run: ResourceRun, lifetime: object) => T);
+  | ((run: ResourceRun) => ResourceBlueprint<T>)
+  | ((run: ResourceRun) => Reactive<T>)
+  | ((run: ResourceRun) => T);
 
 /**
  * A resource constructor is a user-defined function that runs for each resource

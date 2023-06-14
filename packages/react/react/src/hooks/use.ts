@@ -1,12 +1,17 @@
 import type { Reactive } from "@starbeam/interfaces";
+import { read } from "@starbeam/reactive";
 import type { ReactiveBlueprint } from "@starbeam/renderer";
-import type { IntoResourceBlueprint } from "@starbeam/resource";
+import {
+  type IntoResourceBlueprint,
+  type ResourceBlueprint,
+  type ResourceConstructor,
+} from "@starbeam/resource";
 import {
   unsafeTrackedElsewhere,
   useLastRenderRef,
 } from "@starbeam/use-strict-lifecycle";
 
-import { createReactive } from "./setup.js";
+import { createReactive, createResource } from "./setup.js";
 
 /**
  * The `useReactive` hook takes a reactive value or {@linkcode ReactiveBlueprint}.
@@ -44,9 +49,15 @@ export function useService<T>(blueprint: IntoResourceBlueprint<T>): T {
   return useReactive(({ service }) => service(blueprint), []);
 }
 
+export function useResource<T>(blueprint: ResourceBlueprint<T>): T;
+export function useResource<T>(
+  blueprint: ResourceConstructor<T>,
+  deps: unknown[]
+): T;
 export function useResource<T>(
   blueprint: IntoResourceBlueprint<T>,
-  deps: unknown[]
-): T | undefined {
-  return useReactive(({ use }) => use(blueprint), deps);
+  deps?: unknown[]
+): T {
+  const instance = createResource(blueprint, deps);
+  return unsafeTrackedElsewhere(() => read(instance));
 }

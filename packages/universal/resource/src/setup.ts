@@ -1,7 +1,7 @@
 import { CachedFormula, type FormulaFn, Marker } from "@starbeam/reactive";
 import { RUNTIME } from "@starbeam/runtime";
 
-export type SetupBlock = () => () => void;
+export type SetupBlock = (lifetime: object) => undefined | void | (() => void);
 export type Setup = FormulaFn<void>;
 
 export function Setup(parent: object, block: SetupBlock): Setup {
@@ -17,10 +17,9 @@ export function Setup(parent: object, block: SetupBlock): Setup {
       RUNTIME.finalize(lastCleanup);
     }
 
-    console.log("running");
     lastCleanup = {};
-    const cleanup = block();
-    RUNTIME.onFinalize(lastCleanup, cleanup);
+    const cleanup = block(lastCleanup);
+    RUNTIME.onFinalize(lastCleanup, cleanup ?? undefined);
     RUNTIME.link(parent, lastCleanup);
   });
 }

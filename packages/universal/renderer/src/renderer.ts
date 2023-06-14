@@ -6,7 +6,7 @@ import {
   isReactive,
   read,
 } from "@starbeam/reactive";
-import { type Resource, use } from "@starbeam/resource";
+import { type Resource, setup, use } from "@starbeam/resource";
 import { CONTEXT } from "@starbeam/runtime";
 import { service } from "@starbeam/service";
 
@@ -73,6 +73,7 @@ export interface Lifecycle {
     layout: (handler: Handler) => void;
   };
 
+  readonly lifetime: object;
   readonly use: <T>(blueprint: IntoResourceBlueprint<T>) => Resource<T>;
   readonly service: <T>(blueprint: IntoResourceBlueprint<T>) => Resource<T>;
 }
@@ -92,6 +93,10 @@ class LifecycleImpl implements Lifecycle {
     layout: (handler: Handler): void =>
       void this.#manager.on.layout(this.#component, handler),
   };
+
+  get lifetime(): object {
+    return this.#manager.getComponent() as object;
+  }
 
   use = <T>(blueprint: IntoResourceBlueprint<T>): Resource<T> =>
     managerSetupResource(this.#manager, blueprint);
@@ -134,9 +139,13 @@ export function managerSetupResource<T>(
 ): Resource<T> {
   const component = manager.getComponent() as object;
 
-  return manager.setupValue(component, () =>
-    use(blueprint, { lifetime: component })
-  );
+  const resource = manager.setupValue(component, () => use(blueprint));
+
+  manager.on.idle(component, () => {
+    setup(resource, { lifetime: component });
+  });
+
+  return resource;
 }
 
 export function managerSetupService<T>(
