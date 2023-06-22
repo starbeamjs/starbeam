@@ -10,7 +10,7 @@ testReact<void, { test: TestResource; lastState: string; lastCount: number }>(
   async (root, mode) => {
     TestResource.resetId();
 
-    const result = root
+    const result = await root
       .expectStable()
       .expectHTML(({ lastState, lastCount }) => {
         return `<p>${lastState}</p><p>${lastCount}</p><label><span>Increment</span><button>++</button></label>`;
@@ -82,13 +82,13 @@ testReact<void, { test: TestResource; lastState: string; lastCount: number }>(
     await result.rerender();
     resource.assert("updated", 1);
 
-    result.unmount();
+    await result.unmount();
     resource.assert("unmounted", 1);
   }
 );
 
-testReact<void, { count: number }>("most basic useLifecycle", (root) => {
-  root
+testReact<void, { count: number }>("most basic useLifecycle", async (root) => {
+  await root
     .expectStable()
     .expectHTML(({ count }) => `<div>${count}</div>`)
     .render((setup) => {
@@ -107,7 +107,7 @@ testReact<void, { count: number }>("most basic useLifecycle", (root) => {
 });
 
 testReact<void, { count: number }>("useLifecycle with update", async (root) => {
-  const result = root
+  const result = await root
     .expectStable()
     .expectHTML(({ count }) => `<div>${count}</div><button>++</button>`)
     .render((setup) => {
@@ -147,7 +147,7 @@ testReact<void, { count: number }>("useLifecycle with update", async (root) => {
 testReact<void, { count: number }>(
   "useLifecycle with cleanup",
   async (root) => {
-    const result = root
+    const result = await root
       .expectStable()
       .expectHTML(({ count }) => `<div>${count}</div><button>++</button>`)
       .render((setup) => {
@@ -187,7 +187,7 @@ testReact<void, { count: number }>(
 
     expect(result.value).toEqual({ count: 1, cleanup: 0 });
 
-    result.unmount();
+    await result.unmount();
 
     expect(result.value).toEqual({ count: 1, cleanup: 1 });
   }
@@ -196,7 +196,7 @@ testReact<void, { count: number }>(
 testReact<void, { count: number }>(
   "useLifecycle with cleanup and prev",
   async (root, mode) => {
-    const result = root
+    const result = await root
       .expectStable()
       .expectHTML(({ count }) => `<div>${count}</div><button>++</button>`)
       .render((setup) => {
@@ -250,7 +250,7 @@ testReact<void, { count: number }>(
 
     expect(result.value).toEqual({ count: 1, cleanup: initialCleanup });
 
-    result.unmount();
+    await result.unmount();
 
     expect(result.value).toEqual({ count: 1, cleanup: initialCleanup + 1 });
   }
@@ -259,7 +259,7 @@ testReact<void, { count: number }>(
 testReact<void, { count: number }>(
   "useLifecycle with invalidation",
   async (root, mode) => {
-    const result = root
+    const result = await root
       .expectStable()
       .expectHTML(
         ({ count }) =>
@@ -336,7 +336,7 @@ testReact<void, { count: number }>(
     await result.find("button", { name: "++" }).fire.click();
     expect(result.value).toEqual({ count: 2, cleanup: initialCleanup + 1 });
 
-    result.unmount();
+    await result.unmount();
 
     expect(result.value).toEqual({ count: 2, cleanup: initialCleanup + 2 });
   }

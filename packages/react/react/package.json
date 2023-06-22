@@ -13,7 +13,8 @@
     "@starbeam/shared": "workspace:^",
     "@starbeam/universal": "workspace:^",
     "@starbeam/use-strict-lifecycle": "workspace:^",
-    "@starbeam/verify": "workspace:^"
+    "@starbeam/verify": "workspace:^",
+    "scheduler": "^0.23.0"
   },
   "devDependencies": {
     "@domtree/flavors": "workspace:^",
@@ -21,6 +22,7 @@
     "@starbeam/eslint-plugin": "workspace:^",
     "@types/node": "18.16.1",
     "@types/react": "^18.2.0",
+    "@types/scheduler": "^0.16.3",
     "rollup": "^3.20.6"
   },
   "exports": {

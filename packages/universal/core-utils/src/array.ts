@@ -85,6 +85,14 @@ export function isSingleItemArray<T>(
   return list?.length === SINGLE_ITEM;
 }
 
+export function isEmptyCollection(collection: { size: number }): boolean {
+  return collection.size === EMPTY_LENGTH;
+}
+
+export function isPresentCollection(collection: { size: number }): boolean {
+  return collection.size > EMPTY_LENGTH;
+}
+
 export function isEmptyArray<T extends unknown[] | readonly unknown[]>(
   list: T
 ): list is T & [] {

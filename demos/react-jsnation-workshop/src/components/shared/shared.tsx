@@ -8,30 +8,16 @@ export function Jsonify({ value }: { value: unknown }): JSX.Element {
   return <>{JSON.stringify(value, null, 2)}</>;
 }
 
-export type Async<T> =
-  | {
-      status: "loading";
-    }
-  | {
-      status: "reloading";
-    }
-  | {
-      status: "success";
-      value: T;
-    }
-  | {
-      status: "error";
-      error: unknown;
-    };
-
 interface FieldAttributes extends InputHTMLAttributes<HTMLInputElement> {
   type: HTMLInputTypeAttribute;
   onUpdate: (value: string) => void;
   value: string | number;
+  label: string;
 }
 
 export function Field({
   type = "text",
+  label,
   onUpdate,
   value,
   ...attrs
@@ -42,23 +28,34 @@ export function Field({
       field: string;
     };
 
-    if (data.field) {
-      onUpdate(data.field);
-    }
+    onUpdate(data.field);
   }
 
   return (
     <form onSubmit={updateForm} onInput={updateForm}>
-      <label>User ID</label>
+      <label>{label}</label>
       <input
         data-1p-ignore
-        required
         {...attrs}
         type={type}
         name="field"
-        value={value}
-        onChange={() => void 0}
+        defaultValue={value}
       />
     </form>
+  );
+}
+
+export function Chip({
+  title,
+  value,
+}: {
+  title: string;
+  value: number;
+}): JSX.Element {
+  return (
+    <span className="p-chip">
+      <span className="p-chip__value">{title}</span>
+      <span className="p-badge">{value}</span>
+    </span>
   );
 }

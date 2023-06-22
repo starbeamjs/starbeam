@@ -1,6 +1,7 @@
 import { getFirst } from "@starbeam/core-utils";
 import type { Lifecycle, RendererManager } from "@starbeam/renderer";
 import { setup, use } from "@starbeam/resource";
+import { RUNTIME } from "@starbeam/runtime";
 import { service } from "@starbeam/service";
 import {
   type Builder,
@@ -37,8 +38,12 @@ export function buildLifecycle(
     use: (blueprint) => {
       const resource = use(blueprint);
 
-      builder.on.idle(() => {
+      builder.on.layout(() => {
+        const unsubscribe = RUNTIME.subscribe(resource, builder.notify);
+        builder.on.cleanup(unsubscribe);
+
         setup(resource, { lifetime: builder });
+        builder.on.cleanup(() => void RUNTIME.finalize(builder));
       });
 
       return resource;

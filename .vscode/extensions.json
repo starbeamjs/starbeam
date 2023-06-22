@@ -1,6 +1,8 @@
 {
   "recommendations": [
     "foxundermoon.shell-format",
-    "rohit-gohri.format-code-action"
+    "rohit-gohri.format-code-action",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint"
   ]
 }

@@ -14,7 +14,10 @@ export function Setup(parent: object, block: SetupBlock): Setup {
     if (finalized) return;
 
     if (lastCleanup) {
-      RUNTIME.finalize(lastCleanup);
+      const cleanup = lastCleanup;
+      queueMicrotask(() => {
+        RUNTIME.finalize(cleanup);
+      });
     }
 
     lastCleanup = {};
