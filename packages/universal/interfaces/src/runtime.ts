@@ -36,10 +36,7 @@ export interface Runtime {
    * with the current revision of the cell. This callback is returned by the
    * `createCellTag` function.
    */
-  readonly mark: (
-    cell: CellTag,
-    mark: (revision: Timestamp) => void
-  ) => void;
+  readonly mark: (cell: CellTag, mark: (revision: Timestamp) => void) => void;
   /**
    * Indicate that the value associated with the given tag has been consumed.
    */
@@ -64,6 +61,8 @@ export interface Runtime {
    * reactive state.
    */
   readonly subscribe: (target: HasTag, ready: NotifyReady) => Unsubscribe;
+
+  readonly next: () => Promise<void>;
 
   /**
    * Start a new tracking frame. This should be called at the start of a

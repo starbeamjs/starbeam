@@ -26,10 +26,10 @@
 
   "eslint.codeActionsOnSave.mode": "all",
   "eslint.enable": true,
-
   "eslint.lintTask.enable": true,
   "eslint.lintTask.options": "--cache -c ./.eslintrc.json --max-warnings=0 \"**/*.ts\" \"**/*.tsx\" \"**/*.json\"",
   "eslint.onIgnoredFiles": "warn",
+  "eslint.packageManager": "npm",
   "eslint.problems.shortenToSingleLine": true,
   "eslint.quiet": false,
   "eslint.validate": [

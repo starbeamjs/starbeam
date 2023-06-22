@@ -5,29 +5,29 @@ const coordination = getCoordination();
 let stack = coordination.stack;
 
 if (!stack) {
-  let current: null | unknown[] = null;
+  let current = new Set<object>();
 
   stack = coordination.stack = {
     start: () => {
       const prev = current;
-      current = [];
+      current = new Set();
 
       return () => {
         const result = current;
         current = prev;
-        return result ?? [];
+        return result;
       };
     },
-    consume: (tag: unknown) => void current?.push(tag),
+    consume: (tag: object) => void current.add(tag),
   };
 }
 
 const STACK = stack;
 
-export function start(): () => unknown[] {
+export function start(): () => Set<object> {
   return STACK.start();
 }
 
-export function consume(tag: unknown): void {
+export function consume(tag: object): void {
   STACK.consume(tag);
 }

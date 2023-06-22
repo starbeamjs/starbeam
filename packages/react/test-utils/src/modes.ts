@@ -134,7 +134,7 @@ export class RenderResult<Props, T> {
 
   async act(behavior: () => void): Promise<void> {
     const prev = this.#state.renderCount;
-    act(() => {
+    await act(() => {
       behavior();
     });
     await this.rendered(prev);
@@ -151,8 +151,10 @@ export class RenderResult<Props, T> {
     });
   }
 
-  unmount(): void {
-    this.#result.unmount();
+  async unmount(): Promise<void> {
+    return act(() => {
+      this.#result.unmount();
+    });
   }
 
   find(
@@ -226,21 +228,21 @@ export class SetupTestRoot<Props, T> {
     this.#options = options;
   }
 
-  render(
+  async render(
     this: SetupTestRoot<RenderState<void>, T>,
     render: (state: RenderState<T>, props?: void) => ReactElement,
     props?: void
-  ): RenderResult<void, T>;
-  render(
+  ): Promise<RenderResult<void, T>>;
+  async render(
     render: (state: RenderState<T>, props: Props) => ReactElement,
     props: Props
-  ): RenderResult<Props, T>;
-  render(
+  ): Promise<RenderResult<Props, T>>;
+  async render(
     this: SetupTestRoot<RenderState<any>, any>,
     render: (state: RenderState<any>, props?: any) => ReactElement,
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     props?: any
-  ): RenderResult<any, T> {
+  ): Promise<RenderResult<any, T>> {
     const state = new RenderState<T>();
     let i = 0;
 
@@ -249,7 +251,7 @@ export class SetupTestRoot<Props, T> {
       return render(state, props);
     };
 
-    const result = act(() =>
+    const result = await act(() =>
       testing.render(
         react.render(Component, { ...props, rerender: ++i }),
         this.#options

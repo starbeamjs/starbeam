@@ -19,6 +19,7 @@ function SubscriptionRuntime(): {
   subscribe: (target: HasTag, ready: NotifyReady) => Unsubscribe;
   mark: (cell: CellTag, update: (revision: Timestamp) => void) => void;
   update: (formula: FormulaTag) => void;
+  next: () => Promise<void>;
 } {
   const subscriptions = Subscriptions.create();
 
@@ -35,6 +36,10 @@ function SubscriptionRuntime(): {
 
     update: (formula: FormulaTag): void => {
       subscriptions.update(formula);
+    },
+
+    next: async (): Promise<void> => {
+      return subscriptions.next();
     },
   };
 }

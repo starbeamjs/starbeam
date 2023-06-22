@@ -31,7 +31,7 @@ describe("resources running in stages", () => {
       }, []);
     }
 
-    const result = root
+    const result = await root
       .expectHTML((value) => `<div>${value}</div><button>increment</button>`)
       .render(App);
 
@@ -109,7 +109,6 @@ function testResource(
     const extra = Cell(0);
 
     on.setup(() => {
-      console.log({ running: "setup" });
       markers.setup.read();
       extra.set(1);
       counts.setup++;

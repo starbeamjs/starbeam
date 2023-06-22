@@ -141,7 +141,7 @@ export function managerSetupResource<T>(
 
   const resource = manager.setupValue(component, () => use(blueprint));
 
-  manager.on.idle(component, () => {
+  manager.on.layout(component, () => {
     setup(resource, { lifetime: component });
   });
 

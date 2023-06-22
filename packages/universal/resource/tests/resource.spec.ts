@@ -95,6 +95,7 @@ describe("resources", () => {
         counts.setup++;
         invalidateSetup.read();
 
+        
         return () => {
           console.log("running cleanup");
           return counts.cleanup++;
@@ -147,7 +148,12 @@ describe("resources", () => {
     invalidateConstructor.mark();
     // invalidating the constructor *does* reset the cell
     expect(counter.current.count).toBe(0);
-    expect(counts).toEqual({ init: 2, finalized: 1, setup: 3, cleanup: 2 });
+    expect(counts, "after invalidating the constructor").toEqual({
+      init: 2,
+      finalized: 1,
+      setup: 3,
+      cleanup: 2,
+    });
 
     counter.current.increment();
     expect(counter.current.count).toBe(1);

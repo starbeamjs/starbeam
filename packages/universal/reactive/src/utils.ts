@@ -33,12 +33,12 @@ export const isStatic = <T>(value: Reactive<T>): value is Static<T> =>
 
 export type ReadValue<T> = T extends Reactive<infer R> ? R : T;
 
-export function read<T>(this: void, value: T | Reactive<T>): T {
+export function read<T>(this: void, value: T): ReadValue<T> {
   if (is(value) && hasRead(value)) {
     DEBUG?.markEntryPoint(`read ${DEBUG.describeTagged(value)}`);
-    return value.read();
+    return value.read() as ReadValue<T>;
   } else {
-    return value;
+    return value as ReadValue<T>;
   }
 }
 
