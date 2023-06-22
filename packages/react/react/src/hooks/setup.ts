@@ -152,8 +152,6 @@ export function createResource<T>(
       const unsubscribe = RUNTIME.subscribe(resource, builder.notify);
       builder.on.cleanup(unsubscribe);
 
-      console.log({ setup: true });
-
       starbeamSetup(resource, { lifetime: builder });
       builder.on.cleanup(() => void RUNTIME.finalize(builder));
     });

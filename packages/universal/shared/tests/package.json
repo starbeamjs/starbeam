@@ -9,6 +9,12 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "@starbeam/shared": "workspace:^"
+    "@starbeam/shared": "workspace:^",
+    "@starbeam-workspace/test-utils": "workspace:^",
+    "@types/stack-utils": "^2.0.1",
+    "@types/strip-ansi": "^5.2.1",
+    "@vitest/utils": "^0.32.2",
+    "stack-utils": "^2.0.6",
+    "strip-ansi": "^7.1.0"
   }
 }

@@ -4,7 +4,6 @@ import {
   CachedFormula,
   Cell,
   DEBUG,
-  Formula,
   read,
   type ReadValue,
 } from "@starbeam/reactive";
@@ -24,6 +23,10 @@ import { type ResourceCleanup, type ResourceConstructor } from "./types.js";
  * its context (as long as it wasn't adopted by another run).
  */
 export class ResourceRun {
+  static poll(run: ResourceRun) {
+    run.#state.setups.poll();
+  }
+
   readonly #state: ResourceState;
 
   constructor(state: ResourceState) {
@@ -97,9 +100,24 @@ export interface ResourceBlueprintParts<T> {
 export class ResourceBlueprintImpl<T> {
   static create<T>(
     this: void,
-    resource: ResourceConstructor<T>,
+    resource: (run: ResourceRun) => ResourceBlueprint<T>,
     description?: string | Description
-  ): ResourceBlueprint<T> {
+  ): ResourceBlueprint<T>;
+  static create<T>(
+    this: void,
+    resource: (run: ResourceRun) => ResourceConstructor<T>,
+    description?: string | Description
+  ): ResourceBlueprint<T>;
+  static create<T>(
+    this: void,
+    resource: (run: ResourceRun) => T,
+    description?: string | Description
+  ): ResourceBlueprint<T>;
+  static create(
+    this: void,
+    resource: ResourceConstructor<unknown>,
+    description?: string | Description
+  ): ResourceBlueprint<unknown> {
     return new ResourceBlueprintImpl(
       resource as ResourceConstructor,
       DEBUG?.Desc("resource", description)
@@ -205,28 +223,18 @@ export function evaluateResourceConstructor<T>(
     RUNTIME.link(lifetime, next);
     RUNTIME.link(next, setups);
 
-    const instance = Constructor(next);
-
-    if (isResourceBlueprint(instance)) {
-      return ResourceBlueprintImpl.run(instance, next);
-    }
-
     // Finalize the previous run after running the new one to give the new one a
     // chance to adopt resources from the previous run.
     if (last !== undefined) RUNTIME.finalize(last);
     last = next;
 
-    return Formula(() => {
-      // freeze the last value in place once the resource is finalized
-      if (finalized) return lastValue;
+    let instance = Constructor(next);
 
-      console.log({ isSetup: isSetup.current });
+    if (isResourceBlueprint(instance)) {
+      instance = ResourceBlueprintImpl.run(instance, next);
+    }
 
-      // wait for the resource to be set up before polling the setups
-      if (isSetup.current) setups.poll();
-
-      return read(instance);
-    });
+    return instance;
   });
 
   if (import.meta.env.DEV) {
@@ -243,7 +251,15 @@ export function evaluateResourceConstructor<T>(
   // Declare that this formula is a `Resource`, which gives it a non-existent
   // symbol key.
   const resource = CachedFormula(() => {
-    return (lastValue = read(formula.read()) as ReadValue<T>);
+    // freeze the last value in place once the resource is finalized
+    if (finalized) return lastValue;
+
+    lastValue = read(formula.read()) as ReadValue<T>;
+
+    // wait for the resource to be set up before polling the setups
+    if (last && isSetup.current) ResourceRun.poll(last);
+
+    return lastValue;
   }) as Resource<T>;
 
   // Associate the resource with its lifetime in a WeakMap. _Dynamic_ checks for

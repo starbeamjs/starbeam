@@ -5,8 +5,8 @@ import { html, testReact } from "@starbeam-workspace/react-test-utils";
 import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { expect } from "vitest";
 
-testReact<void, boolean>("useResource", (root) => {
-  const result = root
+testReact<void, boolean>("useResource", async (root) => {
+  const result = await root
     .expectHTML((value) => `<p>isRendering = ${String(value)}</p>`)
     .render((state) => {
       expect(isRendering(), "isRendering at the top level").toBe(true);

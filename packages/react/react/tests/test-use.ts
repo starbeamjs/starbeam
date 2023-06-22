@@ -153,7 +153,7 @@ async function expectValidReactive(
   root: SetupTestRender<void, number>,
   define: () => SetupReactiveComponentDefinition
 ): Promise<void> {
-  const result = root
+  const result = await root
     .expectHTML((value) => `<p>${value}</p><button>++</button>`)
     .render((state) => usingStarbeam(App, { state }));
 
