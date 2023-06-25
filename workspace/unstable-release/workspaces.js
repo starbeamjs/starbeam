@@ -8,7 +8,7 @@ import fse from "fs-extra";
  * We could read package.json#workspaces, but then we'd have more to filter out.
  */
 export async function listPublicWorkspaces() {
-  let filePaths = await globby(["packages/*/package.json"]);
+  let filePaths = await globby(["packages/**/package.json"]);
 
   let result = [];
 
