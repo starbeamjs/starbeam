@@ -6,8 +6,10 @@ import { listPublicWorkspaces, currentSHA } from "./workspaces.js";
  */
 async function updateVersions() {
   let sha = await currentSHA();
+  console.log("sha", sha);
 
   let publicWorkspaces = await listPublicWorkspaces();
+  console.log("# workspaces", publicWorkspaces.length);
 
   // Pick new versions for each package
   for (let workspace of publicWorkspaces) {
@@ -30,6 +32,11 @@ const NEW_VERSIONS = {};
 
 async function setVersion(sha, filePath) {
   let json = await fse.readJSON(filePath);
+
+  if (!json.version) {
+    console.info(`Skipping ${json.name} as it has no version`);
+    return;
+  }
 
   // we need to at the very least bump the patch version of the unstable packages so
   // that ^ dependenies won't pick up the stable versions

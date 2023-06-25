@@ -1,4 +1,4 @@
-import globby from "globby";
+import { globby } from "globby";
 import { execaCommand } from "execa";
 import fse from "fs-extra";
 
@@ -8,7 +8,12 @@ import fse from "fs-extra";
  * We could read package.json#workspaces, but then we'd have more to filter out.
  */
 export async function listPublicWorkspaces() {
-  let filePaths = await globby(["packages/**/package.json"]);
+  let filePaths = await globby(["packages/**/package.json"], {
+    gitignore: true,
+    ignore: ["**/tests/**", "**/node_modules/**"],
+  });
+
+  console.log("filePaths", filePaths.length);
 
   let result = [];
 
