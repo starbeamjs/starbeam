@@ -1,5 +1,6 @@
 {
   "name": "@starbeam/service",
+  "version": "0.0.0",
   "main": "index.ts",
   "types": "index.ts",
   "exports": {
