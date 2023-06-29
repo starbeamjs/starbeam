@@ -1,5 +1,11 @@
 export { type AppContext, CONTEXT } from "./src/context/context.js";
-export { RUNTIME } from "./src/define.js";
+export {
+  createScope,
+  type FinalizationScope,
+  link,
+  RUNTIME,
+  scoped,
+} from "./src/define.js";
 export type { Unsubscribe } from "./src/lifetime/object-lifetime.js";
 export { ReactiveError, render } from "./src/timeline/render.js";
 export { Subscriptions } from "./src/timeline/subscriptions.js";

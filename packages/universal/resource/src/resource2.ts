@@ -1,298 +1,115 @@
 import type { Reactive } from "@starbeam/interfaces";
+import { CachedFormula, Cell } from "@starbeam/reactive";
+import { createScope, link, scoped } from "@starbeam/runtime";
 import {
-  CachedFormula,
-  Formula,
-  read,
-  type ReadValue,
-} from "@starbeam/reactive";
-import { RUNTIME } from "@starbeam/runtime";
-import { expect } from "vitest";
+  finalize,
+  linkToFinalizationScope,
+  onFinalize,
+} from "@starbeam/shared";
 
-interface ResourceManager<Definition, Instance> {
-  create: (definition: Definition, run: ResourceRun) => Instance;
-  update: (
-    definition: Definition,
-    prev: Instance,
-    next: ResourceRun
-  ) => Instance;
+type FinalizationScope = object;
+
+export function Resource2<T>(constructor: (run: ResourceRun) => T) {
+  function construct() {
+    const lastRun = new ResourceRun();
+    linkToFinalizationScope(lastRun);
+
+    const instance = constructor(lastRun);
+    const isSetupCell = Cell(false);
+
+    return {
+      instance,
+      run: lastRun,
+      get isSetup() {
+        return isSetupCell.current;
+      },
+      setup: () => {
+        isSetupCell.set(true);
+      },
+      cleanup: () => {
+        isSetupCell.set(false);
+      },
+    };
+  }
+
+  function instantiate() {
+    let lastScope: FinalizationScope | undefined;
+    const parent = createScope();
+    const instance = construct();
+
+    const setup = CachedFormula(() => {
+      if (!instance.isSetup) return;
+      if (lastScope && !finalize(lastScope)) return;
+
+      [lastScope] = scoped(() => {
+        ResourceRun.setup(instance.run);
+      });
+
+      link(parent, lastScope);
+
+      onFinalize(lastScope, () => {
+        ResourceRun.cleanup(instance.run);
+      });
+    });
+
+    const value = CachedFormula(() => {
+      if (instance.isSetup) setup();
+      return instance.instance;
+    });
+
+    SETUPS.set(value, instance.setup);
+
+    return value;
+  }
+
+  return instantiate;
 }
+
+const SETUPS = new WeakMap<object, () => void>();
+
+export function setupResource<T>(resource: Reactive<T>) {
+  const setupFn = SETUPS.get(resource);
+  if (setupFn) setupFn();
+}
+
+interface ResourceState<T> {
+  instance: T;
+  setup: () => void;
+}
+
+type ResourceBlueprint<T> = () => ResourceState<T>;
 
 class ResourceRun {
-  static lifetime(lifetime: object) {
-    const run = new ResourceRun();
-    RUNTIME.link(lifetime, run);
-    return run;
+  static setup(run: ResourceRun) {
+    run.#setup();
   }
-}
 
-interface ResourceState<Definition = object, Instance = object> {
-  readonly definition: Definition;
-  instance: Instance;
-  run: ResourceRun;
-  lifetime: object;
-}
+  static cleanup(run: ResourceRun) {
+    run.#cleanup();
+  }
 
-export function useResourceManager<
-  Definition extends object,
-  Instance extends object
->(
-  definition: Definition,
-  manager: ResourceManager<Definition, Instance>,
-  lifetime: object
-): Reactive<ReadValue<Instance>> {
-  let prev: ResourceState<Definition, Instance>;
-  let finalized = false;
+  #onSetup: undefined | (() => void | (() => void));
+  readonly #onCleanup = new Set<() => void>();
 
-  RUNTIME.onFinalize(lifetime, () => {
-    finalized = true;
-  });
+  readonly on = {
+    setup: (handler: () => () => void) => {
+      this.#onSetup = handler;
+    },
+  };
 
-  const formula = CachedFormula(() => {
-    if (finalized) return prev.instance;
-
-    if (prev) {
-      RUNTIME.finalize(prev.run);
-      prev.run = ResourceRun.lifetime(lifetime);
-      prev.instance = manager.update(definition, prev.instance, prev.run);
-    } else {
-      const run = ResourceRun.lifetime(lifetime);
-      const instance = manager.create(definition, run);
-      RUNTIME.link(run, instance);
-      prev = {
-        definition,
-        instance,
-        run,
-        lifetime,
-      };
+  #cleanup() {
+    for (const handler of this.#onCleanup) {
+      handler();
     }
-
-    return prev.instance;
-  });
-
-  const resource = CachedFormula(() => read(formula()));
-
-  return resource;
-}
-
-if (import.meta.vitest) {
-  const { describe, it, expect } = import.meta.vitest;
-
-  const { Cell, Marker } = await import("@starbeam/reactive");
-  type Marker = import("@starbeam/reactive").Marker;
-  await import("@starbeam/runtime");
-
-  abstract class TestManager<Definition extends object, Instance extends object> implements ResourceManager<Definition, Instance> {
-    create: (definition: Definition, run: ResourceRun) => Instance;
-    update: (definition: Definition, prev: Instance, next: ResourceRun) => Instance;
-    
+    this.#onCleanup.clear();
   }
 
-  describe("ResourceManager", () => {
-    describe("using a simple manager", () => {
-      class SimpleTestManager<T extends object>
-        implements ResourceManager<() => T, T>
-      {
-        create(definition: () => T): T {
-          return definition();
-        }
-
-        update(definition: () => T) {
-          return definition();
-        }
-      }
-
-      it("can be instantiated", () => {
-        function Counter() {
-          const cell = Cell(0);
-
-          return {
-            get count() {
-              return cell.current;
-            },
-
-            increment: () => {
-              cell.update((prev) => prev + 1);
-            },
-          };
-        }
-
-        const counter = useResourceManager(
-          Counter,
-          new SimpleTestManager(),
-          {}
-        );
-
-        expect(counter.current.count).toBe(0);
-
-        counter.current.increment();
-        expect(counter.current.count).toBe(1);
-      });
-
-      it("invalidates when the definition changes", () => {
-        function Counter(marker: Marker) {
-          marker.read();
-          const cell = Cell(0);
-
-          return {
-            get count() {
-              return cell.current;
-            },
-
-            increment: () => {
-              cell.update((prev) => prev + 1);
-            },
-          };
-        }
-
-        const invalidate = Marker();
-        const counter = useResourceManager(
-          () => Counter(invalidate),
-          new SimpleTestManager(),
-          {}
-        );
-
-        expect(counter.current.count).toBe(0);
-
-        counter.current.increment();
-        expect(counter.current.count).toBe(1);
-
-        invalidate.mark();
-        expect(counter.current.count).toBe(0);
-      });
-
-      it("doesn't require double .current", () => {
-        function Counter(marker: Marker) {
-          marker.read();
-          const cell = Cell(0);
-
-          return Formula(() => ({
-            count: cell.current,
-            increment: () => {
-              cell.update((prev) => prev + 1);
-            },
-          }));
-        }
-
-        const invalidate = Marker();
-        const counter = useResourceManager(
-          () => Counter(invalidate),
-          new SimpleTestManager(),
-          {}
-        );
-
-        expect(counter.current.count).toBe(0);
-        counter.current.increment();
-        expect(counter.current.count).toBe(1);
-        counter.current.increment();
-        expect(counter.current.count).toBe(2);
-
-        invalidate.mark();
-        expect(counter.current.count).toBe(0);
-      });
-    });
-  });
-
-  describe("a manager that supports destruction", () => {
-    class DestroyableTestManager<T extends object>
-      implements ResourceManager<() => T, T>
-    {
-      create(definition: () => T, run: ResourceRun): T {
-        const instance = definition();
-        RUNTIME.link(run, instance);
-        return instance;
-      }
-
-      update(definition: () => T, prev: T, run: ResourceRun) {
-        return this.create(definition, run);
-      }
+  #setup() {
+    if (this.#onSetup) {
+      const cleanup = this.#onSetup();
+      if (cleanup) this.#onCleanup.add(cleanup);
     }
-
-    it("invalidates the instance when the definition changes", () => {
-      const actions = new Actions();
-      let id = 0;
-
-      function Counter(marker: Marker) {
-        marker.read();
-        const cell = Cell(0);
-        id++;
-
-        const instance = {
-          get count() {
-            return cell.current;
-          },
-
-          increment: () => {
-            cell.update((prev) => prev + 1);
-          },
-        };
-
-        RUNTIME.onFinalize(instance, () => {
-          actions.record(`destroyed ${id}`);
-        });
-
-        return instance;
-      }
-
-      const invalidate = Marker();
-      const lifetime = {};
-      const counter = useResourceManager(
-        () => Counter(invalidate),
-        new DestroyableTestManager(),
-        lifetime
-      );
-
-      expect(counter.current.count).toBe(0);
-      counter.current.increment();
-      expect(counter.current.count).toBe(1);
-
-      invalidate.mark();
-      expect(counter.current.count).toBe(0);
-      actions.expect("destroyed 1");
-
-      counter.current.increment();
-      expect(counter.current.count).toBe(1);
-
-      RUNTIME.finalize(lifetime);
-      actions.expect("destroyed 2");
-
-      expect(counter.current.count).toBe(1);
-      RUNTIME.finalize(lifetime);
-      actions.expect();
-
-      invalidate.mark();
-      expect(counter.current.count).toBe(1);
-      actions.expect();
-    });
-  });
-
-  describe("nested resources", () => {
-    class NestableTestManager<T extends object>
-      implements ResourceManager<() => T, T>
-    {
-      create(definition: () => T, run: ResourceRun): T {
-        const instance = definition();
-        RUNTIME.link(run, instance);
-        return instance;
-      }
-
-      update(definition: () => T, prev: T, run: ResourceRun) {
-        return this.create(definition, run);
-      }
-    }
-  });
-}
-
-class Actions {
-  #actions: string[] = [];
-
-  record(action: string) {
-    this.#actions.push(action);
-  }
-
-  expect(...expected: string[]) {
-    const actual = this.#actions;
-    this.#actions = [];
-
-    expect(actual, "recorded actions").toEqual(expected);
   }
 }
+
+type Resource<T> = Reactive<T>;
