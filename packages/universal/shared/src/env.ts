@@ -18,9 +18,28 @@ export interface Stack {
   consume: (tag: object) => void;
 }
 
+export type FinalizationScope = object;
+
 export interface Lifetime {
-  createFinalizationScope: () => () => object;
-  linkToFinalizationScope: (child: object) => Unregister;
+  /**
+   * Push a finalization scope to the stack. When the block completes, the
+   * finalization scope is popped from the stack and added to the original
+   * parent scope.
+   */
+  pushFinalizationScope: (child?: object) => () => FinalizationScope;
+
+  /**
+   * Like {@linkcode pushFinalizationScope}, but does not add the scope to the
+   * parent scope when complete. This is useful for scopes that represent
+   * long-lived stacks, such as async functions or reactive resources (which can
+   * have nested scopes that evolve over time).
+   */
+  mountFinalizationScope: (child?: object) => () => FinalizationScope;
+
+  linkToFinalizationScope: (
+    child: object,
+    parent?: FinalizationScope
+  ) => Unregister;
   /**
    * Specify a finalizer that will be called when the object is finalized.
    *
@@ -28,8 +47,14 @@ export interface Lifetime {
    * (i.e. when the object is finalized, the finalizer will no longer be
    * called).
    */
-  onFinalize: (object: object, handler: () => void) => Unregister;
-  finalize: (lifetime: object) => void;
+  onFinalize: ((handler: () => void) => Unregister) &
+    ((object: object, handler: () => void) => Unregister);
+  /**
+   * `finalize` returns true if the object was finalized, and false if the
+   * object was already finalized.
+   */
+  finalize: (lifetime: object) => boolean;
+  isFinalized: (lifetime: object) => boolean;
 }
 
 export interface Testing {

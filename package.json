@@ -118,7 +118,7 @@
     "@starbeam/eslint-plugin": "workspace:^",
     "@starbeam-dev/build-support": "workspace:*",
     "@types/eslint": "^8.40.2",
-    "@types/node": "18.16.18",
+    "@types/node": "20.3.1",
     "@typescript-eslint/eslint-plugin": "^6.7.0",
     "@typescript-eslint/parser": "^6.7.0",
     "@vitest/ui": "^0.32.2",
@@ -136,13 +136,13 @@
     "happy-dom": "^9.20.3",
     "jsdom": "^22.1.0",
     "prettier": "^2.8.8",
-    "rollup": "^3.25.1",
+    "rollup": "^3.25.3",
     "tslib": "^2.5.3",
     "turbo": "^1.10.13",
     "typescript": "^5.1.3",
     "vite": "4.3.9",
     "vite-plugin-babel": "^1.1.3",
-    "vitest": "0.32.2"
+    "vitest": "^0.32.2"
   },
   "license": "MIT",
   "nodemonConfig": {

@@ -1,39 +1,20 @@
 {
-  "dependencies": {
-    "@starbeam/collections": "workspace:^",
-    "@starbeam/preact": "workspace:^",
-    "@starbeam/runtime": "workspace:^",
-    "@starbeam/universal": "workspace:^",
-    "preact": "*",
-    "purecss": "3.0.0"
-  },
-  "devDependencies": {
-    "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
-    "@starbeam/eslint-plugin": "workspace:^",
-    "@vitest/ui": "*",
-    "vite": "4.3.3",
-    "vitest": "^0.30.1"
-  },
+  "private": true,
+  "name": "@starbeam-demos/preact-hello-world",
+  "main": "index.ts",
   "exports": {
     "default": "./index.ts"
   },
-  "main": "index.ts",
-  "name": "@starbeam-demos/preact-hello-world",
-  "private": true,
   "publishConfig": {
     "exports": {
       ".": {
-        "default": "./dist/index.cjs",
+        "types": "./dist/index.d.ts",
         "import": "./dist/index.js",
-        "types": "./dist/index.d.ts"
+        "default": "./dist/index.cjs"
       }
     },
     "main": "dist/index.cjs",
     "types": "dist/index.d.ts"
-  },
-  "scripts": {
-    "test:lint": "eslint \"src/**/*.{tsx,ts}\" --max-warnings 0",
-    "test:types": "tsc --noEmit -p tsconfig.json"
   },
   "starbeam": {
     "jsx": "preact",
@@ -48,6 +29,23 @@
       }
     ]
   },
-  "type": "module",
-  "version": "1.0.0"
+  "scripts": {
+    "test:lint": "eslint \"src/**/*.{tsx,ts}\" --max-warnings 0",
+    "test:types": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@starbeam/collections": "workspace:^",
+    "@starbeam/preact": "workspace:^",
+    "@starbeam/runtime": "workspace:^",
+    "@starbeam/universal": "workspace:^",
+    "preact": "*",
+    "purecss": "3.0.0"
+  },
+  "devDependencies": {
+    "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
+    "@starbeam/eslint-plugin": "workspace:^",
+    "@vitest/ui": "*",
+    "vite": "4.3.9",
+    "vitest": "^0.32.2"
+  }
 }

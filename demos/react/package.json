@@ -1,40 +1,20 @@
 {
-  "dependencies": {
-    "@starbeam/collections": "workspace:^",
-    "@starbeam/react": "workspace:^",
-    "@starbeam/universal": "workspace:^",
-    "purecss": "3.0.0",
-    "react": "^18.1.0",
-    "react-dom": "^18.1.0"
-  },
-  "devDependencies": {
-    "@starbeam/eslint-plugin": "workspace:^",
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.1",
-    "@vitest/ui": "*",
-    "vite": "4.3.3",
-    "vitest": "^0.30.1"
-  },
+  "private": true,
+  "name": "@starbeam-demos/react",
+  "main": "index.ts",
   "exports": {
     "default": "./index.ts"
   },
-  "main": "index.ts",
-  "name": "@starbeam-demos/react",
-  "private": true,
   "publishConfig": {
     "exports": {
       ".": {
-        "default": "./dist/index.cjs",
+        "types": "./dist/index.d.ts",
         "import": "./dist/index.js",
-        "types": "./dist/index.d.ts"
+        "default": "./dist/index.cjs"
       }
     },
     "main": "dist/index.cjs",
     "types": "dist/index.d.ts"
-  },
-  "scripts": {
-    "test:lint": "eslint \"src/**/*.{tsx,ts}\" --max-warnings 0",
-    "test:types": "tsc --noEmit -p tsconfig.json"
   },
   "starbeam": {
     "source": "tsx",
@@ -48,6 +28,24 @@
       }
     ]
   },
-  "type": "module",
-  "version": "1.0.0"
+  "scripts": {
+    "test:lint": "eslint \"src/**/*.{tsx,ts}\" --max-warnings 0",
+    "test:types": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@starbeam/collections": "workspace:^",
+    "@starbeam/react": "workspace:^",
+    "@starbeam/universal": "workspace:^",
+    "purecss": "3.0.0",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0"
+  },
+  "devDependencies": {
+    "@starbeam/eslint-plugin": "workspace:^",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.1",
+    "@vitest/ui": "*",
+    "vite": "4.3.9",
+    "vitest": "^0.32.2"
+  }
 }

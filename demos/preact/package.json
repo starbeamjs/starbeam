@@ -50,6 +50,23 @@
       }
     ]
   },
-  "type": "module",
-  "version": "1.0.0"
+  "scripts": {
+    "test:lint": "eslint \"src/**/*.{tsx,ts}\"",
+    "test:types": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@starbeam/collections": "workspace:^",
+    "@starbeam/interfaces": "workspace:^",
+    "@starbeam/preact": "workspace:^",
+    "@starbeam/reactive": "workspace:^",
+    "@starbeam/resource": "workspace:^",
+    "@starbeam/universal": "workspace:^",
+    "preact": "*",
+    "purecss": "^3.0.0"
+  },
+  "devDependencies": {
+    "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
+    "vite": "4.3.9",
+    "vitest": "^0.32.2"
+  }
 }
