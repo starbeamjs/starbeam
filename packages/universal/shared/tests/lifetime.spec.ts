@@ -1,8 +1,8 @@
 import {
-  createFinalizationScope,
   finalize,
   linkToFinalizationScope,
   onFinalize,
+  pushFinalizationScope,
   testing,
 } from "@starbeam/shared";
 import { beforeEach, describe, expect, test as vitestTest } from "vitest";
@@ -90,7 +90,7 @@ describe("lifetime stack", () => {
 
   describe("finalization scopes", () => {
     test("linking to a scope", ({ actions, object }) => {
-      const done = createFinalizationScope();
+      const done = pushFinalizationScope();
       linkToFinalizationScope(object);
       const scope = done();
 
@@ -112,7 +112,7 @@ describe("lifetime stack", () => {
       object,
       object2,
     }) => {
-      const done = createFinalizationScope();
+      const done = pushFinalizationScope();
       linkToFinalizationScope(object);
       linkToFinalizationScope(object2);
       const scope = done();
@@ -138,11 +138,11 @@ describe("lifetime stack", () => {
 
     describe("nested finalization scopes", () => {
       function setupScopes({ object, object2, actions }: LifetimeContext) {
-        const outerDone = createFinalizationScope();
+        const outerDone = pushFinalizationScope();
         // object is added first
         linkToFinalizationScope(object);
         // the child scope is added next
-        const nestedDone = createFinalizationScope();
+        const nestedDone = pushFinalizationScope();
         // then object2 is added to the child scope
         linkToFinalizationScope(object2);
         const nestedScope = nestedDone();
@@ -219,6 +219,125 @@ describe("lifetime stack", () => {
           finalize(toFinalize);
         }
         actions.expect([]);
+      });
+    });
+
+    describe("explicitly linking a child to a scope", () => {
+      test("purely dynamically", ({ actions, object, object2 }) => {
+        const scope = pushFinalizationScope()();
+
+        onFinalize(scope, () => {
+          actions.record("finalize:scope");
+        });
+
+        linkToFinalizationScope(object, scope);
+        linkToFinalizationScope(object2, scope);
+
+        actions.expect([]);
+
+        finalize(scope);
+        actions.expect("finalize:object", "finalize:object2", "finalize:scope");
+      });
+    });
+
+    describe("pushing an existing finalization scope", () => {
+      test("the basics", ({ actions, object, object2 }) => {
+        const scope = pushFinalizationScope()();
+
+        {
+          const done = pushFinalizationScope(scope);
+          linkToFinalizationScope(object);
+          done();
+        }
+
+        {
+          const done = pushFinalizationScope(scope);
+          linkToFinalizationScope(object2);
+          done();
+        }
+
+        actions.expect([]);
+
+        finalize(scope);
+        actions.expect("finalize:object", "finalize:object2");
+      });
+
+      test("nesting an existing scope in a new one", ({
+        actions,
+        object,
+        object2,
+      }) => {
+        const scope = pushFinalizationScope()();
+
+        const doneOuterScope = pushFinalizationScope();
+        {
+          const done = pushFinalizationScope(scope);
+          linkToFinalizationScope(object);
+          done();
+        }
+        const outerScope = doneOuterScope();
+
+        {
+          const done = pushFinalizationScope(scope);
+          linkToFinalizationScope(object2);
+          done();
+        }
+
+        onFinalize(outerScope, () => {
+          actions.record("finalize:scope:outer");
+        });
+
+        onFinalize(scope, () => {
+          actions.record("finalize:scope:nested");
+        });
+
+        actions.expect([]);
+
+        finalize(outerScope);
+        actions.expect(
+          "finalize:object",
+          "finalize:object2",
+          "finalize:scope:nested",
+          "finalize:scope:outer"
+        );
+      });
+
+      test("nesting a new scope in an existing scope", ({
+        actions,
+        object,
+        object2,
+      }) => {
+        const outerScope = pushFinalizationScope()();
+
+        const doneOuterScope = pushFinalizationScope(outerScope);
+        const doneInnerScope = pushFinalizationScope();
+        linkToFinalizationScope(object);
+        const innerScope = doneInnerScope();
+        doneOuterScope();
+
+        {
+          const done = pushFinalizationScope(outerScope);
+          linkToFinalizationScope(object2);
+          done();
+        }
+
+        onFinalize(innerScope, () => {
+          actions.record("finalize:scope:inner");
+        });
+
+        onFinalize(outerScope, () => {
+          actions.record("finalize:scope:outer");
+        });
+
+        actions.expect([]);
+
+        finalize(outerScope);
+        actions.expect(
+          "finalize:object",
+          "finalize:scope:inner",
+          "finalize:object2",
+          "finalize:scope:outer"
+        );
       });
     });
   });

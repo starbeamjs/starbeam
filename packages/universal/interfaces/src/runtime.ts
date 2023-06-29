@@ -107,6 +107,7 @@ export interface Runtime {
    * before replacing a finalized object with a new object.
    */
   readonly finalize: (object: object) => void;
+
 }
 
 export type NotifyReady = (internals: CellTag) => void;

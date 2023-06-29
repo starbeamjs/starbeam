@@ -1,4 +1,8 @@
-import { getCoordination, type Lifetime } from "./env.js";
+import {
+  type FinalizationScope,
+  getCoordination,
+  type Lifetime,
+} from "./env.js";
 import type { Unregister } from "./types.js";
 
 const coordination = getCoordination();
@@ -33,13 +37,18 @@ if (!lifetime) {
       this.#finalizers.delete(finalizer);
     }
 
-    finalize() {
-      if (this.#finalized) return;
+    finalize(): boolean {
+      if (this.#finalized) return false;
       this.#finalized = true;
 
       for (const child of this.children) child.finalize();
       for (const finalizer of this.#finalizers) finalizer();
       this.#finalizers.clear();
+      return true;
+    }
+
+    isFinalized(): boolean {
+      return this.#finalized;
     }
   }
 
@@ -56,14 +65,78 @@ if (!lifetime) {
       };
     }
 
-    readonly createFinalizationScope = () => {
-      const parentScopeState = this.#currentScopeState;
+    readonly mountFinalizationScope = (
+      child: object = { id: id++ }
+    ): (() => FinalizationScope) => {
+      return this.#addFinalizationScope(child, false);
+    };
 
-      const childScope = { id: id++ };
-      const childScopeState = this.#upsertState(childScope);
+    readonly pushFinalizationScope = (
+      child: object = { id: id++ }
+    ): (() => FinalizationScope) => {
+      return this.#addFinalizationScope(child, true);
+    };
+
+    readonly linkToFinalizationScope = (child: object, parent?: object) => {
+      if (!this.#currentScopeState && !parent) return () => void null;
+
+      const childState = this.#upsertState(child);
+
+      if (parent) {
+        const parentState = this.#upsertState(parent);
+
+        parentState.children.add(childState);
+        return () => void parentState.children.delete(childState);
+      }
+
+      if (!this.#currentScopeState) return () => void null;
+      const currentSnapshot = this.#currentScopeState;
+
+      currentSnapshot.children.add(childState);
+      return () => void currentSnapshot.children.delete(childState);
+    };
+
+    readonly onFinalize = (
+      parentOrHandler?: object | (() => void),
+      maybeHandler?: undefined | (() => void)
+    ) => {
+      // const handler = args.length === 1 ? args[0] : args[1];
+      // const parent = args[1] === undefined ? undefined : args[0];
+
+      const parent = maybeHandler && parentOrHandler;
+      const handler = maybeHandler ?? (parentOrHandler as () => void);
+
+      if (parent) {
+        const parentState = this.#upsertState(parent);
+        parentState.add(handler);
+        return () => void parentState.delete(handler);
+      }
+
+      if (!this.#currentScopeState) return () => void null;
+      const currentSnapshot = this.#currentScopeState;
+
+      currentSnapshot.add(handler);
+      return () => void currentSnapshot.delete(handler);
+    };
+
+    readonly finalize = (object: object | undefined): boolean => {
+      if (!object) return false;
+      return this.#lifetimes.get(object)?.finalize() ?? false;
+    };
+
+    readonly isFinalized = (object: object): boolean => {
+      return this.#lifetimes.get(object)?.isFinalized() ?? false;
+    };
+
+    #addFinalizationScope = (
+      child: object,
+      linkToParent: boolean
+    ): (() => FinalizationScope) => {
+      const parentScopeState = this.#currentScopeState;
+      const childScopeState = this.#upsertState(child);
       this.#currentScopeState = childScopeState;
 
-      parentScopeState?.children.add(childScopeState);
+      if (linkToParent) parentScopeState?.children.add(childScopeState);
 
       return () => {
         if (
@@ -76,30 +149,8 @@ if (!lifetime) {
         }
 
         this.#currentScopeState = parentScopeState;
-        return childScope;
+        return child;
       };
-    };
-
-    readonly linkToFinalizationScope = (child: object) => {
-      if (!this.#currentScopeState) return () => void null;
-      const currentSnapshot = this.#currentScopeState;
-
-      const childState = this.#upsertState(child);
-      currentSnapshot.children.add(childState);
-      return () => void currentSnapshot.children.delete(childState);
-    };
-
-    readonly onFinalize = (object: object, finalizer: () => void) => {
-      const state = this.#upsertState(object);
-      state.add(finalizer);
-
-      return () => void state.delete(finalizer);
-    };
-
-    readonly finalize = (object: object | undefined): void => {
-      if (!object) return;
-      const state = this.#lifetimes.get(object);
-      if (state) state.finalize();
     };
 
     get #registry() {
@@ -133,18 +184,42 @@ if (!lifetime) {
 
 const LIFETIME = lifetime;
 
-export function createFinalizationScope(): () => object {
-  return LIFETIME.createFinalizationScope();
+export function mountFinalizationScope(
+  scope?: object
+): () => FinalizationScope {
+  return LIFETIME.mountFinalizationScope(scope);
 }
 
-export function linkToFinalizationScope(child: object): Unregister {
-  return LIFETIME.linkToFinalizationScope(child);
+export function pushFinalizationScope(
+  scope?: FinalizationScope
+): () => FinalizationScope {
+  return LIFETIME.pushFinalizationScope(scope);
 }
 
-export function finalize(object: object): void {
-  LIFETIME.finalize(object);
+export function linkToFinalizationScope(
+  child: object,
+  parent?: object
+): Unregister {
+  return LIFETIME.linkToFinalizationScope(child, parent);
 }
 
-export function onFinalize(object: object, handler: () => void): void {
-  LIFETIME.onFinalize(object, handler);
+/**
+ * Attempt to finalize the given object.
+ *
+ * If the object is not finalizable, return false.
+ * If the object was already finalized, return false.
+ * Otherwise, finalize the object and return true.
+ */
+export function finalize(object: object): boolean {
+  return LIFETIME.finalize(object);
+}
+
+export function onFinalize(object: object, handler: () => void): void;
+export function onFinalize(handler: () => void): void;
+export function onFinalize(...args: any[]): void {
+  LIFETIME.onFinalize(...args);
+}
+
+export function isFinalized(object: object): boolean {
+  return LIFETIME.isFinalized(object);
 }

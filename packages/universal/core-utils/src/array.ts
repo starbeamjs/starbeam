@@ -3,6 +3,7 @@ const EMPTY_LENGTH = 0;
 export type ReadonlyPresentArray<T> = readonly [T, ...T[]];
 export type MutablePresentArray<T> = [T, ...T[]];
 export type PresentArray<T> = MutablePresentArray<T> | ReadonlyPresentArray<T>;
+export type ArrayItem<T> = T extends (infer U)[] ? U : never;
 
 export type AnyArray<T> = T[] | readonly T[];
 
@@ -79,10 +80,8 @@ export function ifPresentArray<T extends unknown[] | readonly unknown[], U>(
 
 const SINGLE_ITEM = 1;
 
-export function isSingleItemArray<T>(
-  list: T[] | readonly T[] | undefined | null
-): list is [T] {
-  return list?.length === SINGLE_ITEM;
+export function isSingleItemArray<T>(list: T): list is T & [ArrayItem<T>] {
+  return Array.isArray(list) && list.length === SINGLE_ITEM;
 }
 
 export function isEmptyCollection(collection: { size: number }): boolean {
@@ -139,9 +138,13 @@ export function firstNItems<T>(list: T[], n: number): T[] {
   return list.slice(FIRST_OFFSET, n);
 }
 
-export function getFirst<I>(
-  list: [I, ...unknown[]] | readonly [I, ...unknown[]]
-): I;
+export function getFirst<
+  const T extends
+    | [unknown, ...unknown[]]
+    | readonly [unknown, ...unknown[]]
+    | unknown[]
+    | readonly unknown[]
+>(list: T): ArrayItem<T>;
 export function getFirst<T>(list: PresentArray<T>): T;
 export function getFirst<T>(list: AnyArray<T> | undefined): T | undefined;
 export function getFirst<T>(list: AnyArray<T> | undefined): T | undefined {
