@@ -1,12 +1,12 @@
 import { Resource } from "@starbeam/resource";
-import { RUNTIME } from "@starbeam/runtime";
+import { finalize, onFinalize } from "@starbeam/shared";
 import { isPresent, verified } from "@starbeam/verify";
 
 export const TestResource = Resource((r) => {
   const impl = TestResourceImpl.create();
 
-  r.on.cleanup(() => {
-    RUNTIME.finalize(impl);
+  r.on.finalize(() => {
+    finalize(impl);
   });
 
   return impl;
@@ -43,7 +43,7 @@ export class TestResourceImpl {
   static get currentId(): number {
     if (TestResourceImpl.#last === undefined) {
       throw Error(
-        `You are attempting to get the current resource ID in testing, but no resource is active.`
+        `You are attempting to get the current resource ID in testing, but no resource is active.`,
       );
     }
 
@@ -65,7 +65,7 @@ export class TestResourceImpl {
     this.#id = id;
     TestResourceImpl.#last = this;
 
-    RUNTIME.onFinalize(this, () => {
+    onFinalize(this, () => {
       this.#active = false;
     });
   }

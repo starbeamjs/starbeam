@@ -62,8 +62,6 @@ export interface Runtime {
    */
   readonly subscribe: (target: HasTag, ready: NotifyReady) => Unsubscribe;
 
-  readonly next: () => Promise<void>;
-
   /**
    * Start a new tracking frame. This should be called at the start of a
    * computation that will read from reactive state.
@@ -73,41 +71,6 @@ export interface Runtime {
    * during the computation.
    */
   readonly start: () => () => TagSnapshot;
-
-  /**
-   * Register a finalization handler for the given object. The finalization
-   * handler will be called when the object is explicitly finalized, or when
-   * a linked parent object is finalized.
-   *
-   * The return value of `onFinalize` is a function that can be called to
-   * remove the finalization handler.
-   *
-   * A finalization handler will only ever be called at most once. If the
-   * finalization handler is removed before the object is finalized, it will
-   * not be called.
-   */
-  readonly onFinalize: (object: object, callback: Unsubscribe) => Unsubscribe;
-
-  /**
-   * Link two objects together. When the parent object is finalized, the child
-   * object will also be finalized.
-   *
-   * The return value of `link` is a function that can be called to remove the
-   * link. This is useful for objects that can move between parents, but should
-   * still be automatically finalized when the final parent is finalized.
-   */
-  readonly link: (parent: object, child: object) => Unsubscribe;
-
-  /**
-   * Explicitly finalize the given object. This will call any finalization
-   * handlers that have been registered for the object, and will also finalize
-   * any linked children (recursively).
-   *
-   * Finalization handlers run synchronously, so you can rely on them to run
-   * before replacing a finalized object with a new object.
-   */
-  readonly finalize: (object: object) => void;
-
 }
 
 export type NotifyReady = (internals: CellTag) => void;

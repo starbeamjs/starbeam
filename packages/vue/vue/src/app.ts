@@ -1,4 +1,4 @@
-import { RUNTIME } from "@starbeam/runtime";
+import { finalize } from "@starbeam/shared";
 import { isPresent, verified } from "@starbeam/verify";
 import { type App, getCurrentInstance } from "vue";
 
@@ -18,11 +18,10 @@ export class StarbeamApp {
   }
 
   static #setup(app: StarbeamApp): void {
-    // eslint-disable-next-line @typescript-eslint/unbound-method
     const prevUnmount = app.#vue.unmount;
 
     app.#vue.unmount = () => {
-      RUNTIME.finalize(app);
+      finalize(app);
       prevUnmount();
     };
   }
@@ -35,7 +34,7 @@ export class StarbeamApp {
 }
 
 export function useApp(
-  app = verified(getCurrentInstance(), isPresent).appContext.app
+  app = verified(getCurrentInstance(), isPresent).appContext.app,
 ): StarbeamApp {
   return StarbeamApp.initialized(app);
 }

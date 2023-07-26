@@ -2,6 +2,7 @@ import type { Reactive } from "@starbeam/interfaces";
 import type { IntoResourceBlueprint, Resource } from "@starbeam/resource";
 import { setup as starbeamSetup, use as starbeamUse } from "@starbeam/resource";
 import { service as starbeamService } from "@starbeam/service";
+import { finalize } from "@starbeam/shared";
 import { RUNTIME } from "@starbeam/universal";
 import type { RegisterLifecycleHandlers } from "@starbeam/use-strict-lifecycle";
 import { isPresent, verified } from "@starbeam/verify";
@@ -78,12 +79,12 @@ function setup({
 export function StarbeamInstance(
   lifecycle: Handlers,
   app: ReactApp | null,
-  notify: Callback
+  notify: Callback,
 ): InternalStarbeamInstance {
   let handlers: Handlers | null = lifecycle;
 
   function use<T, O extends { initial?: T } | undefined>(
-    blueprint: IntoResourceBlueprint<T>
+    blueprint: IntoResourceBlueprint<T>,
   ): Reactive<T | PropagateUndefined<O>> {
     const resource = starbeamUse(blueprint);
 
@@ -102,7 +103,7 @@ export function StarbeamInstance(
   function deactivate() {
     if (handlers) {
       for (const callback of handlers.cleanup) callback();
-      RUNTIME.finalize(handlers);
+      finalize(handlers);
     }
     handlers = null;
   }
@@ -121,5 +122,5 @@ type PropagateUndefined<O> = O extends undefined ? undefined : never;
 
 type UseFn = <T, O extends { initial?: T } | undefined>(
   resource: IntoResourceBlueprint<T>,
-  options?: O
+  options?: O,
 ) => Reactive<T | PropagateUndefined<O>>;

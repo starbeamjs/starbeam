@@ -31,7 +31,7 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "@preact/signals": "^1.1.3",
+    "@preact/signals": "^1.1.5",
     "@starbeam/core-utils": "workspace:^",
     "@starbeam/debug": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
@@ -41,6 +41,7 @@
     "@starbeam/resource": "workspace:^",
     "@starbeam/runtime": "workspace:^",
     "@starbeam/service": "workspace:^",
+    "@starbeam/shared": "workspace:^",
     "@starbeam/tags": "workspace:^",
     "@starbeam/universal": "workspace:^",
     "@starbeam/verify": "workspace:^"

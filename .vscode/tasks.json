@@ -1,6 +1,23 @@
 {
   "tasks": [
     {
+      "label": "versionlens npm install",
+      "command": "pnpm",
+      "type": "shell",
+      "args": ["install"],
+      "options": {
+        // sets the cwd to the current file dir
+        "cwd": "${fileDirname}"
+      },
+      // customizable settings
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true,
+      },
+    },    
+    {
       "args": ["test:workspace:types"],
       "command": "pnpm",
       "label": "test:workspace:types",
