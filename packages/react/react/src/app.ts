@@ -1,4 +1,4 @@
-import { RUNTIME } from "@starbeam/runtime";
+import { finalize } from "@starbeam/shared";
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
 import type { FunctionComponent, PropsWithChildren } from "react";
 import { createContext, createElement, useContext } from "react";
@@ -37,7 +37,7 @@ export class ReactApp {
 
   #instance = {};
   finalize(): void {
-    RUNTIME.finalize(this.#instance);
+    finalize(this.#instance);
     this.#instance = {};
   }
 }
@@ -73,6 +73,6 @@ export function verifiedApp(app: ReactApp | null, feature: string): ReactApp {
 
 export function missingApp(feature: string): never {
   throw Error(
-    `You are attempting to use a feature of Starbeam (${feature}) that depends on the current app, but you didn't wrap your application in the \`Starbeam\` component.`
+    `You are attempting to use a feature of Starbeam (${feature}) that depends on the current app, but you didn't wrap your application in the \`Starbeam\` component.`,
   );
 }

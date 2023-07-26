@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@starbeam/shared": "workspace:^",
     "@starbeam/universal": "workspace:^",
     "@starbeamx/vanilla": "workspace:^"
   },

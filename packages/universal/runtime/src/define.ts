@@ -7,7 +7,6 @@ import {
   start,
 } from "@starbeam/shared";
 
-import { LIFETIME } from "./lifetime/api.js";
 import { SUBSCRIPTION_RUNTIME } from "./timeline/render.js";
 
 export const RUNTIME: IRuntime = {
@@ -18,10 +17,6 @@ export const RUNTIME: IRuntime = {
   },
 
   consume: (tag): void => void consume(tag),
-
-  link: (parent, child) => LIFETIME.link(parent, child),
-  finalize: (object) => void LIFETIME.finalize(object),
-  onFinalize: (object, callback) => LIFETIME.on.cleanup(object, callback),
 
   ...SUBSCRIPTION_RUNTIME,
 };
@@ -41,11 +36,11 @@ export function link(parent: FinalizationScope, child: object): () => void {
 export function scoped<T>(block: () => T): [object, T];
 export function scoped<T>(
   block: (childScope: object) => T,
-  childScope: object
+  childScope: object,
 ): T;
 export function scoped(
   block: (childScope: object) => unknown,
-  childScope?: object
+  childScope?: object,
 ): unknown {
   const doneScope = pushFinalizationScope(childScope);
   let isDone = false;

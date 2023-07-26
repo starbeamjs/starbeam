@@ -26,12 +26,13 @@
   "dependencies": {
     "@starbeam/resource": "workspace:^",
     "@starbeam/runtime": "workspace:^",
+    "@starbeam/shared": "workspace:^",
     "@starbeam/universal": "workspace:^",
     "@starbeam/verify": "workspace:^"
   },
   "devDependencies": {
     "@starbeam/eslint-plugin": "workspace:^",
     "@starbeam-dev/build-support": "workspace:^",
-    "rollup": "^3.20.6"
+    "rollup": "^3.26.3"
   }
 }

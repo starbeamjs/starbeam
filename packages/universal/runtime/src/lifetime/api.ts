@@ -1,3 +1,9 @@
+import {
+  finalize,
+  linkToFinalizationScope,
+  onFinalize,
+} from "@starbeam/shared";
+
 import { ObjectLifetime, type Unsubscribe } from "./object-lifetime.js";
 
 class LifetimeAPI {
@@ -7,14 +13,16 @@ class LifetimeAPI {
     cleanup: (object: object, handler: Unsubscribe): Unsubscribe => {
       if (!handler) return;
 
-      let lifetime = this.#associations.get(object);
+      onFinalize(object, handler);
 
-      if (!lifetime) {
-        lifetime = ObjectLifetime.create(object);
-        this.#associations.set(object, lifetime);
-      }
+      // let lifetime = this.#associations.get(object);
 
-      return lifetime.on.finalize(handler);
+      // if (!lifetime) {
+      //   lifetime = ObjectLifetime.create(object);
+      //   this.#associations.set(object, lifetime);
+      // }
+
+      // return lifetime.on.finalize(handler);
     },
   };
 
@@ -23,11 +31,7 @@ class LifetimeAPI {
    * object, then finalize all associated children.
    */
   finalize(object: object): void {
-    const lifetime = this.#associations.get(object);
-
-    if (lifetime) {
-      ObjectLifetime.finalize(lifetime);
-    }
+    finalize(object);
   }
 
   #initialize(object: object): ObjectLifetime {
@@ -42,10 +46,7 @@ class LifetimeAPI {
   }
 
   link(parent: object, child: object): Unsubscribe {
-    const parentLifetime = this.#initialize(parent);
-    const childLifetime = this.#initialize(child);
-
-    return parentLifetime.link(childLifetime);
+    return linkToFinalizationScope(child, parent);
   }
 
   unlink(parent: object, child: object): void {

@@ -1,4 +1,5 @@
-import { RUNTIME } from "@starbeam/runtime";
+import { link } from "@starbeam/runtime";
+import { finalize, onFinalize } from "@starbeam/shared";
 import { describe, expect, test } from "vitest";
 
 describe("lifetimes", () => {
@@ -6,17 +7,17 @@ describe("lifetimes", () => {
     const object = {};
     const [tracer, finalizer] = InstrumentedCallback.create();
 
-    RUNTIME.onFinalize(object, finalizer);
+    onFinalize(object, finalizer);
 
     // The finalizer isn't initially called
     expect(tracer.calls).toBe(0);
 
-    RUNTIME.finalize(object);
+    finalize(object);
 
     // It's called once when the object is finalized
     expect(tracer.calls).toBe(1);
 
-    RUNTIME.finalize(object);
+    finalize(object);
 
     // Finalizing a second time is a noop
     expect(tracer.calls).toBe(1);
@@ -27,20 +28,20 @@ describe("lifetimes", () => {
     const [tracer1, finalizer1] = InstrumentedCallback.create();
     const [tracer2, finalizer2] = InstrumentedCallback.create();
 
-    RUNTIME.onFinalize(object, finalizer1);
-    RUNTIME.onFinalize(object, finalizer2);
+    onFinalize(object, finalizer1);
+    onFinalize(object, finalizer2);
 
     // The finalizers aren't initially called
     expect(tracer1.calls).toBe(0);
     expect(tracer2.calls).toBe(0);
 
-    RUNTIME.finalize(object);
+    finalize(object);
 
     // They're called once when the object is finalized
     expect(tracer1.calls).toBe(1);
     expect(tracer2.calls).toBe(1);
 
-    RUNTIME.finalize(object);
+    finalize(object);
 
     // Finalizing a second time is a noop
     expect(tracer1.calls).toBe(1);
@@ -51,12 +52,12 @@ describe("lifetimes", () => {
     const object = {};
     const [tracer, finalizer] = InstrumentedCallback.create();
 
-    RUNTIME.finalize(object);
+    finalize(object);
 
     // The finalizer isn't called
     expect(tracer.calls).toBe(0);
 
-    RUNTIME.onFinalize(object, finalizer);
+    onFinalize(object, finalizer);
 
     // The finalizer isn't called
     expect(tracer.calls).toBe(0);
@@ -67,14 +68,14 @@ describe("lifetimes", () => {
     const [tracer1, finalizer1] = InstrumentedCallback.create();
     const [tracer2, finalizer2] = InstrumentedCallback.create();
 
-    RUNTIME.finalize(object);
+    finalize(object);
 
     // The finalizers aren't called
     expect(tracer1.calls).toBe(0);
     expect(tracer2.calls).toBe(0);
 
-    RUNTIME.onFinalize(object, finalizer1);
-    RUNTIME.onFinalize(object, finalizer2);
+    onFinalize(object, finalizer1);
+    onFinalize(object, finalizer2);
 
     // The finalizers aren't called
     expect(tracer1.calls).toBe(0);
@@ -85,18 +86,18 @@ describe("lifetimes", () => {
     const object = {};
     const [tracer, finalizer] = InstrumentedCallback.create();
 
-    RUNTIME.onFinalize(object, finalizer);
-    RUNTIME.onFinalize(object, finalizer);
+    onFinalize(object, finalizer);
+    onFinalize(object, finalizer);
 
     // The finalizer isn't called
     expect(tracer.calls).toBe(0);
 
-    RUNTIME.finalize(object);
+    finalize(object);
 
     // It's called once when the object is finalized
     expect(tracer.calls).toBe(1);
 
-    RUNTIME.finalize(object);
+    finalize(object);
 
     // Finalizing a second time is a noop
     expect(tracer.calls).toBe(1);
@@ -107,22 +108,22 @@ describe("lifetimes", () => {
     const object2 = {};
     const [tracer, finalizer] = InstrumentedCallback.create();
 
-    RUNTIME.onFinalize(object1, finalizer);
+    onFinalize(object1, finalizer);
 
     // The finalizer isn't called
     expect(tracer.calls).toBe(0);
 
-    RUNTIME.finalize(object2);
+    finalize(object2);
 
     // The finalizer isn't called
     expect(tracer.calls).toBe(0);
 
-    RUNTIME.finalize(object1);
+    finalize(object1);
 
     // It's called once when the object is finalized
     expect(tracer.calls).toBe(1);
 
-    RUNTIME.finalize(object1);
+    finalize(object1);
 
     // Finalizing a second time is a noop
     expect(tracer.calls).toBe(1);
@@ -132,7 +133,7 @@ describe("lifetimes", () => {
     const object = {};
     const [tracer, finalizer] = InstrumentedCallback.create();
 
-    const unsubscribe = RUNTIME.onFinalize(object, finalizer);
+    const unsubscribe = onFinalize(object, finalizer);
 
     // The finalizer isn't called
     expect(tracer.calls).toBe(0);
@@ -142,19 +143,19 @@ describe("lifetimes", () => {
     // The finalizer isn't called
     expect(tracer.calls).toBe(0);
 
-    RUNTIME.finalize(object);
+    finalize(object);
 
     // The finalizer isn't called
     expect(tracer.calls).toBe(0);
 
     // Adding it back does nothing
-    RUNTIME.onFinalize(object, finalizer);
+    onFinalize(object, finalizer);
 
     // The finalizer isn't called
     expect(tracer.calls).toBe(0);
 
     // Finalizing again does nothing
-    RUNTIME.finalize(object);
+    finalize(object);
 
     // The finalizer isn't called
     expect(tracer.calls).toBe(0);
@@ -166,16 +167,16 @@ describe("lifetimes", () => {
     const [tracer1, finalizer1] = InstrumentedCallback.create();
     const [tracer2, finalizer2] = InstrumentedCallback.create();
 
-    RUNTIME.onFinalize(object1, finalizer1);
-    RUNTIME.onFinalize(object2, finalizer2);
+    onFinalize(object1, finalizer1);
+    onFinalize(object2, finalizer2);
 
-    RUNTIME.link(object1, object2);
+    link(object1, object2);
 
     // The finalizers aren't called
     expect(tracer1.calls).toBe(0);
     expect(tracer2.calls).toBe(0);
 
-    RUNTIME.finalize(object1);
+    finalize(object1);
 
     // The finalizers are called once when the object is finalized
     expect(tracer1.calls).toBe(1);
@@ -183,7 +184,7 @@ describe("lifetimes", () => {
 
     // explicitly finalizing the child doesn't do anything
 
-    RUNTIME.finalize(object2);
+    finalize(object2);
 
     // The finalizers are still called once when the object is finalized, but aren't called again
     expect(tracer1.calls).toBe(1);
@@ -191,9 +192,9 @@ describe("lifetimes", () => {
     // Linking the child to a new parent doesn't cause it to get called again
     const object3 = {};
 
-    RUNTIME.link(object3, object2);
+    link(object3, object2);
 
-    RUNTIME.finalize(object3);
+    finalize(object3);
 
     // The finalizers are still called once when the object is finalized, but aren't called again
     expect(tracer1.calls).toBe(1);

@@ -4,7 +4,8 @@ import type {
 } from "@starbeam/preact-utils";
 import { Plugin } from "@starbeam/preact-utils";
 import { DEBUG, isReactive } from "@starbeam/reactive";
-import { CONTEXT, RUNTIME } from "@starbeam/runtime";
+import { CONTEXT } from "@starbeam/runtime";
+import { finalize } from "@starbeam/shared";
 import type { ComponentType } from "preact";
 
 import { ComponentFrame } from "./frame.js";
@@ -43,8 +44,8 @@ export const install = Plugin((on) => {
       DEBUG?.Desc(
         "formula",
         componentName(component.fn),
-        "preact.componentWillRender"
-      )
+        "preact.componentWillRender",
+      ),
     );
   });
 
@@ -66,7 +67,7 @@ export const install = Plugin((on) => {
 
   on.component.unmount((component) => {
     ComponentFrame.unmount(component);
-    RUNTIME.finalize(component);
+    finalize(component);
   });
 });
 

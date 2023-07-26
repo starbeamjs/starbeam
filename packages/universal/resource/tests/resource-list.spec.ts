@@ -8,7 +8,7 @@ import {
   setup,
   use,
 } from "@starbeam/resource";
-import { RUNTIME } from "@starbeam/runtime";
+import { finalize } from "@starbeam/shared";
 import { describe, expect, test } from "@starbeam-workspace/test-utils";
 
 interface Item {
@@ -54,11 +54,11 @@ describe("ResourceList", () => {
     ]);
 
     const map = (
-      item: Item
+      item: Item,
     ): ResourceBlueprint<{ active: boolean; desc: string }> => {
       const active = Cell(false);
       return Resource(({ on }) => {
-        on.cleanup(() => {
+        on.finalize(() => {
           active.set(false);
         });
 
@@ -83,7 +83,7 @@ describe("ResourceList", () => {
         key: (item) => item.id,
         map,
       }),
-      { lifetime }
+      { lifetime },
     );
 
     expect(mapped.current.map((r) => r.current)).toEqual([
@@ -99,7 +99,7 @@ describe("ResourceList", () => {
       { active: true, desc: "John (LA)" },
     ]);
 
-    RUNTIME.finalize(lifetime);
+    finalize(lifetime);
 
     expect(mapped.current.map((r) => r.current)).toEqual([
       { active: false, desc: "Tom (NYC)" },
@@ -115,11 +115,11 @@ describe("ResourceList", () => {
     ]);
 
     const map = (
-      item: Item
+      item: Item,
     ): ResourceBlueprint<{ active: boolean; desc: string }> => {
       const active = Cell(false);
       return Resource(({ on }) => {
-        on.cleanup(() => {
+        on.finalize(() => {
           active.set(false);
         });
 
@@ -143,7 +143,7 @@ describe("ResourceList", () => {
       ResourceList(list, {
         key: (item) => item.id,
         map,
-      })
+      }),
     );
 
     expect(mapped.current.map((r) => r.current)).toEqual([
@@ -161,7 +161,7 @@ describe("ResourceList", () => {
       { active: true, desc: "John (LA)" },
     ]);
 
-    RUNTIME.finalize(lifetime);
+    finalize(lifetime);
 
     expect(mapped.current.map((r) => r.current)).toEqual([
       { active: false, desc: "Tom (NYC)" },
@@ -180,7 +180,7 @@ describe("ResourceList", () => {
         const subscription = new Subscription(item.name);
         subscription.connect();
 
-        on.cleanup(() => {
+        on.finalize(() => {
           subscription.disconnect();
         });
 

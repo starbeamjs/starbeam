@@ -1,12 +1,12 @@
 import type { Description } from "@starbeam/interfaces";
-import type { FormulaFn } from "@starbeam/reactive";
 
+import type { ResourceConstructor } from "./resource.js";
 import {
-  isResource,
-  ResourceBlueprintImpl,
-  setupResource,
+  isResourceBlueprint,
+  Resource,
+  type ResourceBlueprint,
+  type ResourceInstance,
 } from "./resource.js";
-import type { ResourceConstructor } from "./types.js";
 
 export interface UseFnOptions {
   readonly description?: Description | undefined;
@@ -25,51 +25,29 @@ export interface SetupFnOptions extends UseFnOptions {
  * was called with a blueprint created from the constructor.
  */
 export function use<T>(
-  blueprint: IntoResourceBlueprint<T>,
-  options?: UseFnOptions
-): Resource<T> {
-  return ResourceBlueprintImpl.evaluate(blueprint, options);
-}
-
-export function setup<T>(
-  blueprint: IntoResourceBlueprint<T> | Resource<T>,
-  options: SetupFnOptions
-): Resource<T> {
-  const resource = isResource(blueprint)
-    ? blueprint
-    : ResourceBlueprintImpl.evaluate(blueprint, options);
-
-  setupResource(resource, options.lifetime);
-
-  return resource;
+  intoBlueprint: IntoResourceBlueprint<T>,
+  options?: UseFnOptions,
+): ResourceInstance<T> {
+  if (isResourceBlueprint(intoBlueprint)) {
+    return intoBlueprint();
+  } else {
+    const blueprint = Resource(intoBlueprint);
+    return blueprint();
+  }
 }
 
 export declare const ResourceBrand: unique symbol;
-export type Resource<T = unknown> = FormulaFn<T> & {
-  [ResourceBrand]: true;
-};
-export const Resource = ResourceBlueprintImpl.create;
-
-export { isResource } from "./resource.js";
-
-export type ResourceBlueprint<T = unknown> = ResourceBlueprintImpl<T>;
 
 export type IntoResourceBlueprint<T> =
   | ResourceBlueprint<T>
   | ResourceConstructor<T>;
 
 export function IntoResourceBlueprint<T>(
-  value: IntoResourceBlueprint<T>
+  value: IntoResourceBlueprint<T>,
 ): ResourceBlueprint<T> {
   if (isResourceBlueprint(value)) {
     return value;
   } else {
     return Resource(value);
   }
-}
-
-export function isResourceBlueprint(
-  value: unknown
-): value is ResourceBlueprint<unknown> {
-  return value instanceof ResourceBlueprintImpl;
 }
