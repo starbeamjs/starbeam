@@ -16,6 +16,7 @@ import {
 import type { IntoResourceBlueprint, Resource } from "@starbeam/resource";
 import { setup as starbeamSetup, use as starbeamUse } from "@starbeam/resource";
 import { RUNTIME } from "@starbeam/runtime";
+import { finalize } from "@starbeam/shared";
 import {
   type Ref,
   unsafeTrackedElsewhere,
@@ -73,7 +74,7 @@ export function setupReactive<T>(blueprint: UseReactive<T>): Reactive<T> {
 
 export function useReactive<T>(
   blueprint: ReactiveBlueprint<T>,
-  deps: unknown[]
+  deps: unknown[],
 ): T;
 export function useReactive<T>(blueprint: Reactive<T>): T;
 export function useReactive<T>(
@@ -91,7 +92,7 @@ export function useReactive<T>(
 
 export function createReactive<T>(
   blueprint: Ref<UseReactive<T>>,
-  deps?: unknown[]
+  deps?: unknown[],
 ): Reactive<T> {
   const app = useStarbeamApp({ allowMissing: true });
 
@@ -114,31 +115,31 @@ export function createReactive<T>(
 
 export function setupFormula<T>(
   blueprint: Ref<UseReactive<T>>,
-  lifecycle: Lifecycle
+  lifecycle: Lifecycle,
 ): FormulaFn<T> {
   const constructed = CachedFormula(() =>
     isReactive(blueprint.current)
       ? blueprint.current
-      : blueprint.current(lifecycle)
+      : blueprint.current(lifecycle),
   );
   return Formula(() => read(constructed()));
 }
 
 export function setupService<T>(
-  blueprint: IntoResourceBlueprint<T>
+  blueprint: IntoResourceBlueprint<T>,
 ): Reactive<T> {
   return setupReactive(({ service }) => service(blueprint));
 }
 
 export function setupResource<T>(
-  blueprint: IntoResourceBlueprint<T>
+  blueprint: IntoResourceBlueprint<T>,
 ): Resource<T> {
   return createResource(blueprint);
 }
 
 export function createResource<T>(
   blueprint: IntoResourceBlueprint<T>,
-  deps?: unknown[]
+  deps?: unknown[],
 ): Resource<T> {
   const [lastBlueprint] = useLastRenderRef(blueprint);
 
@@ -153,7 +154,7 @@ export function createResource<T>(
       builder.on.cleanup(unsubscribe);
 
       starbeamSetup(resource, { lifetime: builder });
-      builder.on.cleanup(() => void RUNTIME.finalize(builder));
+      builder.on.cleanup(() => void finalize(builder));
     });
 
     return resource;

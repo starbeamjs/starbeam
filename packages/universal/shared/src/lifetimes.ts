@@ -66,13 +66,13 @@ if (!lifetime) {
     }
 
     readonly mountFinalizationScope = (
-      child: object = { id: id++ }
+      child: object = { id: id++ },
     ): (() => FinalizationScope) => {
       return this.#addFinalizationScope(child, false);
     };
 
     readonly pushFinalizationScope = (
-      child: object = { id: id++ }
+      child: object = { id: id++ },
     ): (() => FinalizationScope) => {
       return this.#addFinalizationScope(child, true);
     };
@@ -98,7 +98,7 @@ if (!lifetime) {
 
     readonly onFinalize = (
       parentOrHandler?: object | (() => void),
-      maybeHandler?: undefined | (() => void)
+      maybeHandler?: undefined | (() => void),
     ) => {
       // const handler = args.length === 1 ? args[0] : args[1];
       // const parent = args[1] === undefined ? undefined : args[0];
@@ -130,7 +130,7 @@ if (!lifetime) {
 
     #addFinalizationScope = (
       child: object,
-      linkToParent: boolean
+      linkToParent: boolean,
     ): (() => FinalizationScope) => {
       const parentScopeState = this.#currentScopeState;
       const childScopeState = this.#upsertState(child);
@@ -144,7 +144,7 @@ if (!lifetime) {
           this.#currentScopeState !== childScopeState
         ) {
           throw new Error(
-            "a finalization scope must be finalized in the same order as it was created"
+            "a finalization scope must be finalized in the same order as it was created",
           );
         }
 
@@ -185,20 +185,20 @@ if (!lifetime) {
 const LIFETIME = lifetime;
 
 export function mountFinalizationScope(
-  scope?: object
+  scope?: object,
 ): () => FinalizationScope {
   return LIFETIME.mountFinalizationScope(scope);
 }
 
 export function pushFinalizationScope(
-  scope?: FinalizationScope
+  scope?: FinalizationScope,
 ): () => FinalizationScope {
   return LIFETIME.pushFinalizationScope(scope);
 }
 
 export function linkToFinalizationScope(
   child: object,
-  parent?: object
+  parent?: object,
 ): Unregister {
   return LIFETIME.linkToFinalizationScope(child, parent);
 }
@@ -214,10 +214,13 @@ export function finalize(object: object): boolean {
   return LIFETIME.finalize(object);
 }
 
-export function onFinalize(object: object, handler: () => void): void;
-export function onFinalize(handler: () => void): void;
-export function onFinalize(...args: any[]): void {
-  LIFETIME.onFinalize(...args);
+export function onFinalize(object: object, handler: () => void): Unregister;
+export function onFinalize(handler: () => void): Unregister;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function onFinalize(...args: any[]): Unregister {
+  return LIFETIME.onFinalize(
+    ...(args as Parameters<typeof LIFETIME.onFinalize>),
+  );
 }
 
 export function isFinalized(object: object): boolean {

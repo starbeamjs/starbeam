@@ -2,8 +2,8 @@
   "recommendations": [
     "foxundermoon.shell-format",
     "rohit-gohri.format-code-action",
-    "ghmcadams.lintlens",
-    "wayou.vscode-todo-highlight",
-    "gruntfuggly.todo-tree"
+    "gruntfuggly.todo-tree",
+    "esbenp.prettier-vscode",
+    "mskelton.npm-outdated"
   ]
 }

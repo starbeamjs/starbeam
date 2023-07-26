@@ -9,3 +9,4 @@ export {
   useResource,
   useService,
 } from "./src/resource.js";
+export { setupSync } from "./src/sync.js";

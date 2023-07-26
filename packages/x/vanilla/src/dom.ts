@@ -1,91 +1,103 @@
 import type { Description, Reactive } from "@starbeam/interfaces";
 import { CachedFormula, DEBUG, type FormulaFn } from "@starbeam/reactive";
-import { RUNTIME } from "@starbeam/runtime";
+import { onFinalize } from "@starbeam/shared";
 
 import { Cursor } from "./cursor.js";
 
 export function Text(
   text: Reactive<string>,
-  description?: string | Description
+  description?: string | Description,
 ): ContentNode {
-  return ContentNode(({ into }) => {
-    const node = into.insert(into.document.createTextNode(text.read()));
+  return ContentNode(
+    ({ into }) => {
+      const node = into.insert(into.document.createTextNode(text.read()));
 
-    return {
-      cleanup: () => void node.remove(),
-      update: () => (node.textContent = text.read()),
-    };
-  }, DEBUG?.Desc("resource", description, "Text"));
+      return {
+        cleanup: () => void node.remove(),
+        update: () => (node.textContent = text.read()),
+      };
+    },
+    DEBUG?.Desc("resource", description, "Text"),
+  );
 }
 
 export function Comment(
   text: Reactive<string>,
-  description?: string | Description
+  description?: string | Description,
 ): ContentNode {
-  return ContentNode(({ into }) => {
-    const node = into.insert(into.document.createComment(text.read()));
+  return ContentNode(
+    ({ into }) => {
+      const node = into.insert(into.document.createComment(text.read()));
 
-    return {
-      cleanup: () => void node.remove(),
-      update: () => (node.textContent = text.read()),
-    };
-  }, DEBUG?.Desc("resource", description, "Comment"));
+      return {
+        cleanup: () => void node.remove(),
+        update: () => (node.textContent = text.read()),
+      };
+    },
+    DEBUG?.Desc("resource", description, "Comment"),
+  );
 }
 
 export function Fragment(
   nodes: ContentNode[],
-  description?: string | Description
+  description?: string | Description,
 ): ContentNode {
-  return ContentNode(({ into, owner }) => {
-    const start = placeholder(into.document);
-    into.insert(start);
+  return ContentNode(
+    ({ into, owner }) => {
+      const start = placeholder(into.document);
+      into.insert(start);
 
-    const renderedNodes = nodes.map((nodeConstructor) =>
-      nodeConstructor(into).create({ owner })
-    );
+      const renderedNodes = nodes.map((nodeConstructor) =>
+        nodeConstructor(into).create({ owner }),
+      );
 
-    const end = placeholder(into.document);
-    into.insert(end);
-    const range = FragmentRange.create(start, end);
+      const end = placeholder(into.document);
+      into.insert(end);
+      const range = FragmentRange.create(start, end);
 
-    return {
-      cleanup: () => void range.clear(),
-      update: () => void poll(renderedNodes),
-    };
-  }, DEBUG?.Desc("resource", description, "Fragment"));
+      return {
+        cleanup: () => void range.clear(),
+        update: () => void poll(renderedNodes),
+      };
+    },
+    DEBUG?.Desc("resource", description, "Fragment"),
+  );
 }
 
 export function Attr<E extends Element>(
   name: string,
   value: Reactive<string | null | boolean>,
-  description?: string | Description
+  description?: string | Description,
 ): AttrNode<E> {
-  return ContentNode(({ into }) => {
-    const current = value.read();
+  return ContentNode(
+    ({ into }) => {
+      const current = value.read();
 
-    if (typeof current === "string") {
-      into.setAttribute(name, current);
-    } else if (current === true) {
-      into.setAttribute(name, "");
-    }
+      if (typeof current === "string") {
+        into.setAttribute(name, current);
+      } else if (current === true) {
+        into.setAttribute(name, "");
+      }
 
-    return {
-      cleanup: () => {
-        into.removeAttribute(name);
-      },
-      update: () => {
-        const next = value.read();
-
-        if (typeof next === "string") {
-          into.setAttribute(name, next);
-        } else if (next === true) {
-          into.setAttribute(name, "");
-        } else if (next === false) {
+      return {
+        cleanup: () => {
           into.removeAttribute(name);
-        }
-      },
-    };
-  }, DEBUG?.Desc("resource", description, "Attr"));
+        },
+        update: () => {
+          const next = value.read();
+
+          if (typeof next === "string") {
+            into.setAttribute(name, next);
+          } else if (next === true) {
+            into.setAttribute(name, "");
+          } else if (next === false) {
+            into.removeAttribute(name);
+          }
+        },
+      };
+    },
+    DEBUG?.Desc("resource", description, "Attr"),
+  );
 }
 
 export function Element<N extends string>(
@@ -98,29 +110,32 @@ export function Element<N extends string>(
     attributes: AttrNode[];
     body: ContentNode | ContentNode[];
   },
-  description?: Description | string
+  description?: Description | string,
 ): ContentNode {
-  return ContentNode(({ into, owner }) => {
-    const element = into.document.createElement(tag);
-    const elementCursor = Cursor.appendTo(element);
+  return ContentNode(
+    ({ into, owner }) => {
+      const element = into.document.createElement(tag);
+      const elementCursor = Cursor.appendTo(element);
 
-    const renderAttributes = attributes.map((attrConstructor) =>
-      attrConstructor(element).create({ owner })
-    );
+      const renderAttributes = attributes.map((attrConstructor) =>
+        attrConstructor(element).create({ owner }),
+      );
 
-    const fragment = Array.isArray(body) ? Fragment(body) : body;
-    const renderBody = fragment(elementCursor).create({ owner });
+      const fragment = Array.isArray(body) ? Fragment(body) : body;
+      const renderBody = fragment(elementCursor).create({ owner });
 
-    into.insert(element);
+      into.insert(element);
 
-    return {
-      cleanup: () => void element.remove(),
-      update: () => {
-        poll(renderAttributes);
-        poll(renderBody);
-      },
-    };
-  }, DEBUG?.Desc("resource", description, "Element"));
+      return {
+        cleanup: () => void element.remove(),
+        update: () => {
+          poll(renderAttributes);
+          poll(renderBody);
+        },
+      };
+    },
+    DEBUG?.Desc("resource", description, "Element"),
+  );
 }
 
 Element.Attr = Attr;
@@ -151,7 +166,7 @@ function ContentNode<T extends Cursor | Element>(
     cleanup: () => void;
     update: () => void;
   },
-  description: Description | undefined
+  description: Description | undefined,
 ): (into: T) => OutputConstructor {
   return (into: T) => {
     return {
@@ -160,7 +175,7 @@ function ContentNode<T extends Cursor | Element>(
 
         const formula = CachedFormula(update, description);
 
-        RUNTIME.onFinalize(owner, cleanup);
+        onFinalize(owner, cleanup);
 
         return formula;
       },

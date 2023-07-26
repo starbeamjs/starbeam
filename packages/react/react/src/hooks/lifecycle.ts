@@ -3,6 +3,7 @@ import type { Lifecycle, RendererManager } from "@starbeam/renderer";
 import { setup, use } from "@starbeam/resource";
 import { RUNTIME } from "@starbeam/runtime";
 import { service } from "@starbeam/service";
+import { finalize } from "@starbeam/shared";
 import {
   type Builder,
   useInstance,
@@ -21,7 +22,7 @@ import { missingApp, ReactApp } from "../app.js";
  */
 export function buildLifecycle(
   builder: Builder<unknown>,
-  app: ReactApp | null
+  app: ReactApp | null,
 ): Lifecycle {
   return {
     get lifetime() {
@@ -43,7 +44,7 @@ export function buildLifecycle(
         builder.on.cleanup(unsubscribe);
 
         setup(resource, { lifetime: builder });
-        builder.on.cleanup(() => void RUNTIME.finalize(builder));
+        builder.on.cleanup(() => void finalize(builder));
       });
 
       return resource;

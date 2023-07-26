@@ -155,7 +155,7 @@ describe("a simplified resource (manual)", () => {
     // finalizing multiple times does nothing.
     finalize(parent);
     expect(counter().count).toBe(3);
-    actions.expect();
+    actions.expect();    
   });
 
   test("3. Nested resources", () => {

@@ -39,6 +39,7 @@
     "@starbeam/resource": "workspace:^",
     "@starbeam/runtime": "workspace:^",
     "@starbeam/service": "workspace:^",
+    "@starbeam/shared": "workspace:^",
     "@starbeam/tags": "workspace:^",
     "@starbeam/universal": "workspace:^",
     "@starbeam/verify": "workspace:^"

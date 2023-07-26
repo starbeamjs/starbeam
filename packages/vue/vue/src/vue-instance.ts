@@ -7,6 +7,7 @@ import {
 } from "@starbeam/reactive";
 import type { Handler } from "@starbeam/renderer";
 import { RUNTIME } from "@starbeam/runtime";
+import { finalize, onFinalize } from "@starbeam/shared";
 import { getTag, initializeFormulaTag } from "@starbeam/tags";
 import { isPresent, verified } from "@starbeam/verify";
 import {
@@ -37,7 +38,7 @@ export class VueInstance {
       const newInstance = (vueInstance = new VueInstance(
         instance,
         tags,
-        mountedHandlers
+        mountedHandlers,
       ));
       INSTANCES.set(instance, vueInstance);
       VueInstance.#setup(newInstance);
@@ -49,7 +50,7 @@ export class VueInstance {
   static #setup(instance: VueInstance): void {
     let tag: FormulaTag | undefined;
 
-    onUnmounted(() => void RUNTIME.finalize(instance));
+    onUnmounted(() => void finalize(instance));
     let initializing: InitializingFormula | undefined;
     onBeforeMount(() => {
       initializing = FormulaLifecycle();
@@ -64,11 +65,11 @@ export class VueInstance {
 
       const frame = (finalized = verified(initializing, isPresent).done());
       tag = initializeFormulaTag(DEBUG?.Desc("formula", "rendered"), () =>
-        frame.children()
+        frame.children(),
       );
       RUNTIME.subscribe(
         tag,
-        () => void instance.#publicInstance.$forceUpdate()
+        () => void instance.#publicInstance.$forceUpdate(),
       );
 
       for (const handler of instance.#onMounted) {
@@ -107,7 +108,7 @@ export class VueInstance {
   constructor(
     instance: ComponentInternalInstance,
     tags: Set<FormulaTag>,
-    onMounted: Set<Handler>
+    onMounted: Set<Handler>,
   ) {
     this.#instance = instance;
     this.#renderedTags = tags;
@@ -135,7 +136,7 @@ export class VueInstance {
 
   #render(tagged: HasTag, callback: () => void): void {
     const unsubscribe = RUNTIME.subscribe(tagged, callback);
-    if (unsubscribe) RUNTIME.onFinalize(this, unsubscribe);
+    if (unsubscribe) onFinalize(this, unsubscribe);
     this.#renderedTags.add(getTag(tagged));
   }
 }

@@ -1,14 +1,10 @@
 import type { Description } from "@starbeam/interfaces";
 import { DEBUG } from "@starbeam/reactive";
-import { RUNTIME } from "@starbeam/runtime";
+import { link } from "@starbeam/runtime";
+import { finalize } from "@starbeam/shared";
 
-import {
-  Resource,
-  type ResourceBlueprint,
-  setup,
-  type SetupFnOptions,
-  use,
-} from "./api.js";
+import { type SetupFnOptions, use } from "./api.js";
+import { Resource, type ResourceBlueprint } from "./resource.js";
 
 export function ResourceList<Item, T>(
   list: Iterable<Item>,
@@ -20,14 +16,14 @@ export function ResourceList<Item, T>(
     key: (item: Item) => Key;
     map: (item: Item) => ResourceBlueprint<T>;
     description?: string | Description;
-  }
+  },
 ): ResourceBlueprint<Resource<T>[]> {
   const resources = new ResourceMap<T>(DEBUG?.Desc("collection", description));
   const lifetime = {};
 
   return Resource(({ on }) => {
     on.finalize(() => {
-      RUNTIME.finalize(lifetime);
+      finalize(lifetime);
     });
 
     on.setup(() => {
@@ -75,16 +71,16 @@ class ResourceMap<T> {
   create(
     key: Key,
     resource: ResourceBlueprint<T>,
-    options: SetupFnOptions
+    options: SetupFnOptions,
     // parentLifetime: object
   ): Resource<T> {
     const lifetime = {};
-    RUNTIME.link(options.lifetime, lifetime);
+    link(options.lifetime, lifetime);
     const newResource = use(resource, {
       description: this.#description?.key(
         typeof key === "object"
           ? { key: key.key, name: String(key.description) }
-          : key
+          : key,
       ),
     });
     this.#map.set(key, { resource: newResource, lifetime, isSetup: false });
@@ -107,7 +103,7 @@ class ResourceMap<T> {
   update(remaining: Set<unknown>): void {
     for (const [key, { lifetime }] of this.#map) {
       if (!remaining.has(key)) {
-        RUNTIME.finalize(lifetime);
+        finalize(lifetime);
         this.#map.delete(key);
       }
     }

@@ -74,6 +74,7 @@
     "pnpm-lock.yaml": true
   },
 
+  "testing.automaticallyOpenPeekView": "never",
   // Try to avoid auto-importing other packages in the mono-repo as relative
   // paths. Instead, use the packaage name.
   "typescript.preferences.importModuleSpecifier": "project-relative",
