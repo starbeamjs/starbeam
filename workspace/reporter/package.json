@@ -28,9 +28,9 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "@starbeam/core-utils": "workspace:^",
     "@starbeam-workspace/paths": "workspace:^",
     "@starbeam-workspace/shared": "workspace:^",
+    "@starbeam/core-utils": "workspace:^",
     "ansicolor": "^1.1.100",
     "chalk": "^5.2.0",
     "cli-table3": "^0.6.3",
@@ -45,10 +45,10 @@
     "@starbeam-dev/build-support": "workspace:*",
     "@starbeam-workspace/shared": "workspace:*",
     "@types/ansicolor": "workspace:^",
-    "@types/node": "^18.15.11",
+    "@types/node": "18.16.1",
     "@types/shell-escape-tag": "workspace:^",
     "@types/shell-split": "workspace:^",
-    "@types/split2": "^3.2.1",
+    "@types/split2": "^4.2.0",
     "@types/wrap-ansi": "^8.0.1"
   }
 }

@@ -1,12 +1,12 @@
 import { isPresent } from "@starbeam/core-utils";
-import type { Description, Tag } from "@starbeam/interfaces";
+import type { Description, HasTag } from "@starbeam/interfaces";
 import { DEBUG, UNKNOWN_REACTIVE_VALUE } from "@starbeam/reactive";
-import { getDependencies, lastUpdated } from "@starbeam/tags";
+import { getDependencies, getTag, lastUpdated } from "@starbeam/tags";
 
 import { Tree } from "./tree.js";
 
-export const debugTag = (
-  tag: Tag,
+export const debugReactive = (
+  tag: HasTag,
   {
     implementation = false,
   }: { implementation?: boolean; source?: boolean; id?: boolean } = {}
@@ -28,18 +28,31 @@ export const debugTag = (
   return Tree(...nodes).format();
 };
 
-export const logTag = (
-  tag: Tag,
-  options: { implementation?: boolean; source?: boolean; id?: boolean } = {}
+export const logReactive = (
+  tag: HasTag,
+  options: {
+    label?: string;
+    implementation?: boolean;
+    source?: boolean;
+    id?: boolean;
+  } = {}
 ): void => {
-  const debug = debugTag(tag, options);
+  const debug = debugReactive(tag, options);
+
+  if (options.label) {
+    console.group(options.label);
+  }
 
   console.group(
-    describe(tag.description, { id: options.id }),
-    `(updated at ${lastUpdated(tag).at}`
+    describe(getTag(tag).description, { id: options.id }),
+    `(updated at ${lastUpdated(tag).at})`
   );
   console.info(debug);
   console.groupEnd();
+
+  if (options.label) {
+    console.groupEnd();
+  }
 };
 
 function describe(

@@ -1,5 +1,5 @@
 import { object } from "@starbeam/collections";
-import { create } from "@starbeam/preact";
+import { setup } from "@starbeam/preact";
 import type { JSX } from "preact/jsx-runtime";
 
 import type { EventHandler } from "../../utils.js";
@@ -25,7 +25,7 @@ class Table<T> {
 }
 
 export default function Database(): JSX.Element {
-  const people = create(() => new Table<Person>(["name", "location"]));
+  const people = setup(() => new Table<Person>(["name", "location"]));
 
   const append: EventHandler<HTMLFormElement, "onSubmit"> = (event) => {
     event.preventDefault();

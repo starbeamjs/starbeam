@@ -1,0 +1,23 @@
+{
+  "root": false,
+  "ignorePatterns": ["index.html"],
+  "overrides": [
+    {
+      "extends": ["plugin:@starbeam/tight"],
+      "files": ["index.tsx", "src/**/*.tsx", "index.ts", "src/**/*.ts"],
+      "parserOptions": {
+        "project": "tsconfig.json"
+      },
+      "rules": {
+        "@typescript-eslint/no-magic-numbers": "off"
+      }
+    },
+    {
+      "extends": ["plugin:@starbeam/loose"],
+      "files": ["vite.config.ts"],
+      "parserOptions": {
+        "project": "tsconfig.json"
+      }
+    }
+  ]
+}

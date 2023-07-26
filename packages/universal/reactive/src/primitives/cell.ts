@@ -1,5 +1,4 @@
 import type {
-  CallStack,
   CellTag,
   Description,
   TaggedReactive,
@@ -7,7 +6,7 @@ import type {
 import { TAG } from "@starbeam/shared";
 import { createCellTag, zero } from "@starbeam/tags";
 
-import { getDebug, getRuntime } from "../runtime.js";
+import { DEBUG, getDebug, getRuntime } from "../runtime.js";
 import {
   isDescriptionOption,
   type PrimitiveOptions,
@@ -21,10 +20,12 @@ export interface Cell<T = unknown> extends TaggedReactive<T, CellTag> {
    * Set the value of the cell. Returns true if the value was changed, false if
    * the current value was equivalent to the new value.
    */
-  set: (value: T, caller?: CallStack) => boolean;
-  update: (fn: (value: T) => T, caller?: CallStack) => void;
+  set: (value: T) => boolean;
+  update: (fn: (value: T) => T) => void;
   freeze: () => void;
 }
+
+export type Static<T> = TaggedReactive<T, CellTag & { dependencies: () => [] }>;
 
 export function Static<T>(
   value: T,
@@ -53,20 +54,23 @@ export function Cell<T>(
   const desc = getDebug()?.Desc("cell", description);
   const { tag, mark, freeze } = createCellTag(desc);
 
-  const set = (newValue: T, _caller = getDebug()?.callerStack()): boolean => {
+  const set = (newValue: T): boolean => {
     if (equals(value, newValue)) return false;
+
+    DEBUG?.markEntryPoint(["reactive:write", desc, "set"]);
 
     value = newValue;
     getRuntime().mark(tag, mark);
     return true;
   };
 
-  const update = (
-    updater: (prev: T) => T,
-    caller = getDebug()?.callerStack()
-  ) => set(updater(value), caller);
+  const update = (updater: (prev: T) => T) => {
+    DEBUG?.markEntryPoint(["reactive:write", desc, "update"]);
+    return set(updater(value));
+  };
 
-  const read = (_caller = getDebug()?.callerStack()): T => {
+  const read = (): T => {
+    DEBUG?.markEntryPoint(["reactive:read", desc, "read"]);
     getRuntime().consume(tag);
     return value;
   };
@@ -74,10 +78,12 @@ export function Cell<T>(
   return {
     [TAG]: tag,
     get current(): T {
-      return read(getDebug()?.callerStack());
+      DEBUG?.markEntryPoint(["reactive:read", desc, "current"]);
+      return read();
     },
     set current(value: T) {
-      set(value, getDebug()?.callerStack());
+      DEBUG?.markEntryPoint(["reactive:write", desc, "current"]);
+      set(value);
     },
     read,
     set,

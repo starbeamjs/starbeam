@@ -1,0 +1,52 @@
+$font-heading-family: "Comfortaa";
+
+@import "vanilla-framework";
+
+@include vanilla;
+@include vf-p-icons-common;
+@include vf-p-icon-change-version;
+@include vf-p-icon-stop;
+@include vf-p-icon-task-outstanding;
+
+.user-grid {
+  display: grid;
+  column-gap: 1rem;
+  grid-template:
+    "list detail" auto /
+    2fr 4fr;
+  align-items: start;
+
+  .profile {
+    grid-area: detail;
+    height: 100%;
+  }
+
+  .user-list {
+    grid-area: list;
+    display: grid;
+    column-gap: 1rem;
+    row-gap: 1rem;
+    grid-template-columns: max-content max-content 1fr;
+    align-items: center;
+
+    button.select {
+      grid-column: 1;
+    }
+
+    button.invalidate {
+      grid-column: 2;
+    }
+
+    form {
+      grid-column: 1 / -1;
+    }
+
+    .user-item {
+      display: contents;
+    }
+
+    h3 {
+      margin: 0;
+    }
+  }
+}

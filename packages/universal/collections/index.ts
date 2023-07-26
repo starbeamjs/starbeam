@@ -2,7 +2,7 @@ import type { Description } from "@starbeam/interfaces";
 import { Cell, DEBUG } from "@starbeam/universal";
 
 import TrackedArray from "./src/array.js";
-import { ReactiveMap, ReactiveSet } from "./src/iterable.js";
+import { ReactiveMap as ReactiveMapImpl, ReactiveSet } from "./src/iterable.js";
 import { TrackedWeakMap } from "./src/map.js";
 import TrackedObject from "./src/object.js";
 import { TrackedWeakSet } from "./src/set.js";
@@ -28,6 +28,7 @@ export const reactive = (
     enumerable: true,
     configurable: true,
     get: function (this: object) {
+      DEBUG?.markEntryPoint({ description: "WeakMap.get" });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let cell: Cell<any> | undefined = CELLS.get(this);
 
@@ -36,7 +37,7 @@ export const reactive = (
         CELLS.set(this, cell);
       }
 
-      return cell.read(DEBUG?.callerStack()) as unknown;
+      return cell.read() as unknown;
     },
     set: function (this: object, value: unknown) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -52,12 +53,16 @@ export const reactive = (
   });
 };
 
-reactive.Map = <K, V>(description?: string | Description): Map<K, V> => {
-  return ReactiveMap.reactive(
+export function ReactiveMap<K, V>(
+  description?: string | Description
+): Map<K, V> {
+  return ReactiveMapImpl.reactive(
     Object.is,
     DEBUG?.Desc("collection", description)
   );
-};
+}
+
+reactive.Map = ReactiveMap;
 
 reactive.WeakMap = <K extends object, V>(
   description?: string | Description
@@ -75,7 +80,9 @@ reactive.Set = <T>(description?: string | Description): Set<T> => {
 reactive.WeakSet = <T extends object>(
   description?: string | Description
 ): WeakSet<T> => {
-  return TrackedWeakSet.reactive(DEBUG?.Desc("collection", description));
+  return TrackedWeakSet.reactive(
+    DEBUG?.Desc("collection", description, "reactive.WeakSet")
+  );
 };
 
 export function object<T extends Record<string, unknown>>(

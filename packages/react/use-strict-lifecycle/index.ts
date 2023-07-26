@@ -1,4 +1,8 @@
-export type { RegisterLifecycleHandlers } from "./src/lifecycle.js";
+export type {
+  Builder,
+  RegisterLifecycleHandlers,
+  UseLifecycleBuilder,
+} from "./src/lifecycle.js";
 export { useLifecycle } from "./src/lifecycle.js";
 export { isRestrictedRead as isRendering } from "./src/react.js";
 export {
@@ -7,4 +11,4 @@ export {
   endReadonly as unmaskRendering,
   unsafeTrackedElsewhere,
 } from "./src/react.js";
-export { type Ref, useLastRenderRef } from "./src/updating-ref.js";
+export { type Ref, useInstance, useLastRenderRef } from "./src/refs.js";

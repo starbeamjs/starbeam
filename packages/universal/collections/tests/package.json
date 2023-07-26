@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@starbeam/collections": "workspace:^",
-    "@starbeam/universal": "workspace:^"
+    "@starbeam/universal": "workspace:^",
+    "@starbeam-workspace/test-utils": "workspace:^"
   }
 }

@@ -5,7 +5,7 @@
     "declarationMap": true,
     "declarationDir": "../../../dist/types",
     "declaration": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "outDir": "../../../dist/packages",
     "composite": true,
     "types": ["../../../packages/env"]

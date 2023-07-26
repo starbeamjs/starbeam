@@ -35,18 +35,19 @@ export function CachedFormula<T>(
       last = { formula, value };
 
       markInitialized();
-      getRuntime().update(tag);
     } else if (last.formula.isStale()) {
       const lifecycle = last.formula.update();
       last.value = compute();
       lifecycle.done();
-      getRuntime().update(tag);
     }
 
+    getRuntime().update(tag);
+    getRuntime().consume(tag);
     return last.value;
   }
 
-  function read(_caller = DEBUG?.callerStack()): T {
+  function read(): T {
+    DEBUG?.markEntryPoint(["reactive:read", desc]);
     const value = evaluate();
     getRuntime().consume(tag);
     return value;
@@ -56,7 +57,8 @@ export function CachedFormula<T>(
     [TAG]: tag,
     read,
     get current(): T {
-      return read(DEBUG?.callerStack());
+      DEBUG?.markEntryPoint(["reactive:read", desc, "current"]);
+      return read();
     },
   });
 }

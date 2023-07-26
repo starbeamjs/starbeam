@@ -22,9 +22,10 @@ export {
   Static,
 } from "@starbeam/reactive";
 export {
+  type IntoResourceBlueprint,
   Resource,
   type ResourceBlueprint,
   type ResourceRun,
   use,
 } from "@starbeam/resource";
-export { RUNTIME, TAG } from "@starbeam/runtime";
+export { CONTEXT, RUNTIME, TAG } from "@starbeam/runtime";

@@ -1,16 +1,20 @@
 import type { Description } from "@starbeam/interfaces";
 import type { FormulaFn } from "@starbeam/reactive";
 
-import { ResourceBlueprintImpl, type UseOptions } from "./resource.js";
+import {
+  isResource,
+  ResourceBlueprintImpl,
+  setupResource,
+} from "./resource.js";
 import type { ResourceConstructor } from "./types.js";
 
-export type UseFnOptions<M> = UseOptions<
-  M,
-  {
-    readonly description?: Description | undefined;
-    readonly lifetime: object;
-  }
->;
+export interface UseFnOptions {
+  readonly description?: Description | undefined;
+}
+
+export interface SetupFnOptions extends UseFnOptions {
+  readonly lifetime: object;
+}
 
 /**
  * The `use` function instantiates resources (it's like `new`, but for
@@ -20,11 +24,24 @@ export type UseFnOptions<M> = UseOptions<
  * When it receives a resource constructor, it behaves as if the `use` function
  * was called with a blueprint created from the constructor.
  */
-export function use<T, M>(
-  blueprint: IntoResourceBlueprint<T, M>,
-  options: UseFnOptions<M>
+export function use<T>(
+  blueprint: IntoResourceBlueprint<T>,
+  options?: UseFnOptions
 ): Resource<T> {
-  return ResourceBlueprintImpl.evaluate(blueprint, options, options.lifetime);
+  return ResourceBlueprintImpl.evaluate(blueprint, options);
+}
+
+export function setup<T>(
+  blueprint: IntoResourceBlueprint<T> | Resource<T>,
+  options: SetupFnOptions
+): Resource<T> {
+  const resource = isResource(blueprint)
+    ? blueprint
+    : ResourceBlueprintImpl.evaluate(blueprint, options);
+
+  setupResource(resource, options.lifetime);
+
+  return resource;
 }
 
 export declare const ResourceBrand: unique symbol;
@@ -35,27 +52,24 @@ export const Resource = ResourceBlueprintImpl.create;
 
 export { isResource } from "./resource.js";
 
-export type ResourceBlueprint<T = unknown, M = unknown> = ResourceBlueprintImpl<
-  T,
-  M
->;
+export type ResourceBlueprint<T = unknown> = ResourceBlueprintImpl<T>;
 
-export type IntoResourceBlueprint<T, M = void> =
-  | ResourceBlueprint<T, M>
-  | ResourceConstructor<T, void>;
+export type IntoResourceBlueprint<T> =
+  | ResourceBlueprint<T>
+  | ResourceConstructor<T>;
 
-export function IntoResourceBlueprint<T, M>(
-  value: IntoResourceBlueprint<T, M>
-): ResourceBlueprint<T, M> {
+export function IntoResourceBlueprint<T>(
+  value: IntoResourceBlueprint<T>
+): ResourceBlueprint<T> {
   if (isResourceBlueprint(value)) {
     return value;
   } else {
-    return Resource(value) as ResourceBlueprint<T, M>;
+    return Resource(value);
   }
 }
 
 export function isResourceBlueprint(
   value: unknown
-): value is ResourceBlueprint<unknown, unknown> {
+): value is ResourceBlueprint<unknown> {
   return value instanceof ResourceBlueprintImpl;
 }

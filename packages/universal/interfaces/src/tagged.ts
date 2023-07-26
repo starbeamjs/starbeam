@@ -1,7 +1,8 @@
 import type { TAG } from "@starbeam/shared";
 
-import type { CallStack } from "../index.js";
 import type { Tag } from "./tag.js";
+
+export type HasTag<T extends Tag = Tag> = T | Tagged<T>;
 
 /**
  * A `Tagged` object is a reactive object that has a `Tag` (which is used to
@@ -28,7 +29,7 @@ export interface Tagged<I extends Tag = Tag> {
  */
 export interface TaggedReactive<T = unknown, I extends Tag = Tag>
   extends Tagged<I> {
-  readonly read: (caller?: CallStack) => T;
+  readonly read: () => T;
   readonly current: T;
 }
 

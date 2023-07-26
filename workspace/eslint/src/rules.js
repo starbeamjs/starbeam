@@ -16,6 +16,8 @@ module.exports = class Rules {
   #rules = {};
 
   /**
+   * Replace a namespace-less eslint rule with the equivalent `@typescript-eslint/${rule}`
+   *
    * @param {string | string[]} rule
    * @param {Linter.RuleLevel | Record<string, unknown> | [Linter.RuleLevel, Record<string, unknown>] } [entry]
    * @returns {Rules}

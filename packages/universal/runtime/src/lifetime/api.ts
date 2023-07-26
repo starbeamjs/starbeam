@@ -1,16 +1,12 @@
-import { expected, isEqual, verify } from "@starbeam/verify";
-
 import { ObjectLifetime, type Unsubscribe } from "./object-lifetime.js";
 
 class LifetimeAPI {
   readonly #associations = new WeakMap<object, ObjectLifetime>();
-  readonly #roots = new WeakMap<
-    object,
-    { root: object; unlink: Unsubscribe }
-  >();
 
   readonly on = {
-    cleanup: (object: object, handler: () => void): Unsubscribe => {
+    cleanup: (object: object, handler: Unsubscribe): Unsubscribe => {
+      if (!handler) return;
+
       let lifetime = this.#associations.get(object);
 
       if (!lifetime) {
@@ -45,34 +41,11 @@ class LifetimeAPI {
     return lifetime;
   }
 
-  link(parent: object, child: object, options?: { root: object }): Unsubscribe {
+  link(parent: object, child: object): Unsubscribe {
     const parentLifetime = this.#initialize(parent);
     const childLifetime = this.#initialize(child);
 
-    if (options?.root) {
-      const existingRoot = this.#roots.get(child);
-
-      if (existingRoot) {
-        verify(
-          existingRoot.root,
-          isEqual(options.root),
-          expected("a root passed to link")
-            .toBe("the same as the previous root")
-            .butGot("a different root")
-        );
-
-        existingRoot.unlink();
-      }
-
-      const unlink = parentLifetime.link(childLifetime);
-      this.#roots.set(child, {
-        root: options.root,
-        unlink,
-      });
-      return unlink;
-    } else {
-      return parentLifetime.link(childLifetime);
-    }
+    return parentLifetime.link(childLifetime);
   }
 
   unlink(parent: object, child: object): void {

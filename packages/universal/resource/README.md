@@ -9,12 +9,14 @@ import { LIFETIME } from "@starbeam/runtime";
 const Stopwatch = Resource(({ on }) => {
   const now = Cell(Date.now());
 
-  const timer = setInterval(() => {
-    now.set(Date.now());
-  }, 1000);
+  on.setup(() => {
+    const timer = setInterval(() => {
+      now.set(Date.now());
+    }, 1000);
 
-  on.cleanup(() => {
-    clearInterval(timer);
+    on.cleanup(() => {
+      clearInterval(timer);
+    });
   });
 
   return Formula(() => {

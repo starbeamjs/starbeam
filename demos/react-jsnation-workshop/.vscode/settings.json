@@ -1,0 +1,86 @@
+{
+  // format gitignores and other dotfiles using the shell-format extension
+  "[ignore][dotenv][shellscript]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+  },
+
+  // format json and jsonc files using eslint, which is configured to sort keys
+  // and other config-specific things.
+  "[json][jsonc]": {
+    "editor.formatOnSave": false,
+    "editor.codeActionsOnSave": ["source.fixAll.eslint"]
+  },
+
+  // format JavaScript and TypeScript using `eslint` first and then follow up
+  // with prettier. The `eslint` pass fixes imports, but otherwise should not be
+  // trying to format the code.
+  "[typescript][typescriptreact][javascript][javascriptreact]": {
+    "editor.formatOnSave": false,
+    "editor.codeActionsOnSave": [
+      "source.fixAll.eslint",
+      "source.formatDocument"
+    ]
+  },
+
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  "eslint.codeActionsOnSave.mode": "all",
+  "eslint.enable": true,
+
+  "eslint.lintTask.enable": true,
+  "eslint.lintTask.options": "--cache -c ./.eslintrc.json --max-warnings=0 \"**/*.ts\" \"**/*.tsx\" \"**/*.json\"",
+  "eslint.onIgnoredFiles": "warn",
+  "eslint.problems.shortenToSingleLine": true,
+  "eslint.quiet": false,
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "json",
+    "jsonc",
+    "html"
+  ],
+  "eslint.workingDirectories": [{ "mode": "auto" }],
+
+  // exclude .gitignore files from the file explorer
+  "explorer.excludeGitIgnore": true,
+
+  // set up vscode file nesting (groups related files with each other)
+  "explorer.fileNesting.patterns": {
+    "*.cjs": "${capture}.cjs.map, ${capture}.min.cjs, ${capture}.d.cts, ${capture}.d.cts.map",
+    "*.js": "${capture}.js.map, ${capture}.min.js, ${capture}.d.ts, ${capture}.d.ts.map",
+    "*.jsx": "${capture}.js",
+    "*.ts": "${capture}.js",
+    "*.tsx": "${capture}.jsx, ${capture}.js",
+    ".eslintrc.cjs": ".eslint*, eslintrc*, .eslintignore, .eslintcache",
+    "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, .pnpm-debug.log, .editorconfig, .gitignore, .npmrc, .quokka, pnpm-workspace.yaml",
+    "tsconfig.json": "tsconfig.*.json, tsconfig-*.json, *.tsbuildinfo",
+    "vite.config.ts": "rollup.config.*, .env.*"
+  },
+
+  "prettier.prettierPath": "../../node_modules/prettier",
+
+  // rewrap provides a quick keyboard shortcut (alt-q) to reformat comments to
+  // a specific column width. It also automatically rewraps comments when you
+  // type.
+  "rewrap.autoWrap.enabled": true,
+  "rewrap.reformat": true,
+  "rewrap.wrappingColumn": 80,
+
+  // CHANGELOG.md and pnpm-lock.yaml create a lot of search noise
+  "search.exclude": {
+    "**/CHANGELOG.md": true,
+    "pnpm-lock.yaml": true
+  },
+
+  // Try to avoid auto-importing other packages in the mono-repo as relative
+  // paths. Instead, use the packaage name.
+  "typescript.preferences.importModuleSpecifier": "project-relative",
+  // For compatibility with node, we use .js extensions in our imports.
+  "typescript.preferences.importModuleSpecifierEnding": "js",
+  "typescript.tsdk": "../../node_modules/typescript/lib",
+  // This can sometimes be flaky, but generally it's a good idea to have
+  // project-wide checks if possible.
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true
+}

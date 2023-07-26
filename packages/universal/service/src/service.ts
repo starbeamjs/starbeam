@@ -1,10 +1,10 @@
 import type { Description } from "@starbeam/interfaces";
 import { DEBUG } from "@starbeam/reactive";
 import type { IntoResourceBlueprint } from "@starbeam/resource";
-import { Resource, type ResourceBlueprint, use } from "@starbeam/resource";
+import { Resource, type ResourceBlueprint, setup } from "@starbeam/resource";
 import { CONTEXT } from "@starbeam/runtime";
 
-type Blueprint<T> = IntoResourceBlueprint<T, void>;
+type Blueprint<T> = IntoResourceBlueprint<T>;
 
 /**
  * The `Service` function takes a resource blueprint and turns it into a
@@ -17,12 +17,15 @@ export function Service<T>(
     description,
     app = CONTEXT.app,
   }: { description?: string | Description | undefined; app?: object } = {}
-): ResourceBlueprint<T, void> {
+): ResourceBlueprint<T> {
   return Resource(({ use }) => {
-    CONTEXT.app = app;
-    return CONTEXT.create(blueprint, () => {
-      return use(blueprint);
-    });
+    return CONTEXT.create(
+      blueprint,
+      () => {
+        return use(blueprint);
+      },
+      { app }
+    );
   }, DEBUG?.Desc("service", description));
 }
 
@@ -31,9 +34,12 @@ export function service<T>(
   {
     description,
     app = CONTEXT.app,
-  }: { description?: string | Description | undefined; app?: object } = {}
+  }: {
+    description?: string | Description | undefined;
+    app?: object | undefined;
+  } = {}
 ): Resource<T> {
-  return use(
+  return setup(
     Service(resource, {
       description: DEBUG?.Desc("service", description),
       app,

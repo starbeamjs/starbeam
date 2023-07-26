@@ -27,6 +27,8 @@ export const cached = <T>(
     enumerable: descriptor.enumerable ?? true,
     configurable: descriptor.configurable ?? true,
     get: function (this: object) {
+      DEBUG?.markEntryPoint(["object:get", this.constructor.name, key]);
+
       let formula = CACHED.get(this);
 
       if (!formula) {
@@ -38,7 +40,7 @@ export const cached = <T>(
         CACHED.set(this, formula);
       }
 
-      return formula.read(DEBUG?.callerStack());
+      return formula.read();
     },
   });
 };

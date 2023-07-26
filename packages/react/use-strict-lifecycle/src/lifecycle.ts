@@ -103,11 +103,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { beginReadonly, endReadonly } from "./react.js";
-import {
-  type Ref,
-  useInitializedRef,
-  useLastRenderRef,
-} from "./updating-ref.js";
+import { type Ref, useInitializedRef, useLastRenderRef } from "./refs.js";
 import { checked, isInitialized, mapEntries, UNINITIALIZED } from "./utils.js";
 
 enum State {
@@ -133,7 +129,7 @@ enum State {
   remounting = "remounting",
 }
 
-type UseLifecycleBuilder<T, A> = (
+export type UseLifecycleBuilder<T, A> = (
   builder: Builder<A>,
   args: A,
   prev?: T | undefined
@@ -258,7 +254,9 @@ type HandlerSets<A> = {
 };
 
 export type RegisterLifecycleHandlers<A> = {
-  readonly [K in LifecycleEvent]: (handler: (args: A) => void) => void;
+  readonly [K in LifecycleEvent]: (
+    handler: undefined | ((args: A) => void)
+  ) => void;
 };
 
 interface LifecycleOptions<T, V, A> {
@@ -332,5 +330,7 @@ const Builder = <T, V, A>(state: LifecycleState<T, V, A>): Builder<A> => {
 
 const registerFn =
   <A>(state: { handlers: HandlerSets<A> }, handler: LifecycleEvent) =>
-  (callback: (args: A) => void) =>
-    state.handlers[handler].add(callback);
+  (callback: undefined | ((args: A) => void)) => {
+    if (!callback) return;
+    return state.handlers[handler].add(callback);
+  };

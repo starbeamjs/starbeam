@@ -3,7 +3,7 @@ import { TAG } from "@starbeam/shared";
 
 import { zero } from "./timestamp.js";
 
-type HasTag<T extends Tag = Tag> = T | Tagged<T>;
+export type HasTag<T extends Tag = Tag> = T | Tagged<T>;
 
 export function getTag<T extends Tag>(tagged: HasTag<T>): T {
   return TAG in tagged ? tagged[TAG] : tagged;

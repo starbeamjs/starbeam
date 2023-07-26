@@ -1,0 +1,38 @@
+{
+  "name": "@starbeam/renderer",
+  "version": "0.8.9",
+  "type": "module",
+  "main": "index.ts",
+  "types": "index.ts",
+  "exports": {
+    "default": "./index.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts"
+  },
+  "starbeam:type": "library:public",
+  "scripts": {
+    "test:lint": "eslint \"index.ts\" \"src/**/*.ts\"",
+    "test:specs": "vitest --run",
+    "test:types": "tsc -b"
+  },
+  "dependencies": {
+    "@starbeam/interfaces": "workspace:^",
+    "@starbeam/reactive": "workspace:^",
+    "@starbeam/resource": "workspace:^",
+    "@starbeam/runtime": "workspace:^",
+    "@starbeam/service": "workspace:^"
+  },
+  "devDependencies": {
+    "@starbeam-dev/build-support": "workspace:*",
+    "rollup": "^3.20.6"
+  }
+}

@@ -9,13 +9,13 @@ import type { ComponentType } from "preact";
 
 import { ComponentFrame } from "./frame.js";
 
-const STARBEAM = Symbol("STARBEAM");
+export const STARBEAM = Symbol("STARBEAM");
 
 export function getCurrentComponent(): InternalComponent {
   return ComponentFrame.current;
 }
 
-export const setup = Plugin((on) => {
+export const install = Plugin((on) => {
   on.root((_, parent) => {
     ROOTS.current = parent;
   });
@@ -36,7 +36,7 @@ export const setup = Plugin((on) => {
       component.context[STARBEAM] = component;
     }
 
-    CONTEXT.app = component.context[STARBEAM] as InternalComponent;
+    CONTEXT.app = getRoot(component);
 
     ComponentFrame.start(
       component,
@@ -56,6 +56,14 @@ export const setup = Plugin((on) => {
     }
   });
 
+  on.component.beforePaint((component) => {
+    component.run("prePaint");
+  });
+
+  on.component.afterPaint((component) => {
+    component.run("postPaint");
+  });
+
   on.component.unmount((component) => {
     ComponentFrame.unmount(component);
     RUNTIME.finalize(component);
@@ -68,6 +76,10 @@ function componentName(component: ComponentType<unknown> | string): string {
   } else {
     return component.name;
   }
+}
+
+export function getRoot(component: InternalComponent): InternalComponent {
+  return component.context[STARBEAM] as InternalComponent;
 }
 
 class Roots {

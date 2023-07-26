@@ -5,6 +5,7 @@ import {
   Resource,
   type ResourceBlueprint,
   ResourceList,
+  setup,
   use,
 } from "@starbeam/resource";
 import { RUNTIME } from "@starbeam/runtime";
@@ -55,10 +56,14 @@ describe("ResourceList", () => {
     const map = (
       item: Item
     ): ResourceBlueprint<{ active: boolean; desc: string }> => {
-      const active = Cell(true);
+      const active = Cell(false);
       return Resource(({ on }) => {
         on.cleanup(() => {
           active.set(false);
+        });
+
+        on.setup(() => {
+          active.set(true);
         });
 
         return {
@@ -73,7 +78,7 @@ describe("ResourceList", () => {
     };
 
     const lifetime = { lifetime: "root" };
-    const mapped = use(
+    const mapped = setup(
       ResourceList(list, {
         key: (item) => item.id,
         map,
@@ -103,6 +108,67 @@ describe("ResourceList", () => {
     ]);
   });
 
+  test("resources can be used but not set up", () => {
+    const list: Item[] = reactive.array([
+      { id: 1, name: "Tom", location: "NYC" },
+      { id: 2, name: "Chirag", location: "NYC" },
+    ]);
+
+    const map = (
+      item: Item
+    ): ResourceBlueprint<{ active: boolean; desc: string }> => {
+      const active = Cell(false);
+      return Resource(({ on }) => {
+        on.cleanup(() => {
+          active.set(false);
+        });
+
+        on.setup(() => {
+          active.set(true);
+        });
+
+        return {
+          get active() {
+            return active.current;
+          },
+          get desc() {
+            return `${item.name} (${item.location})`;
+          },
+        };
+      });
+    };
+
+    const lifetime = { lifetime: "root" };
+    const mapped = use(
+      ResourceList(list, {
+        key: (item) => item.id,
+        map,
+      })
+    );
+
+    expect(mapped.current.map((r) => r.current)).toEqual([
+      { active: false, desc: "Tom (NYC)" },
+      { active: false, desc: "Chirag (NYC)" },
+    ]);
+
+    setup(mapped, { lifetime });
+
+    list.push({ id: 3, name: "John", location: "LA" });
+
+    expect(mapped.current.map((r) => r.current)).toEqual([
+      { active: true, desc: "Tom (NYC)" },
+      { active: true, desc: "Chirag (NYC)" },
+      { active: true, desc: "John (LA)" },
+    ]);
+
+    RUNTIME.finalize(lifetime);
+
+    expect(mapped.current.map((r) => r.current)).toEqual([
+      { active: false, desc: "Tom (NYC)" },
+      { active: false, desc: "Chirag (NYC)" },
+      { active: false, desc: "John (LA)" },
+    ]);
+  });
   test("should update resources", () => {
     const items: Item[] = reactive.array([
       { id: 1, name: "Tom", location: "NYC" },
@@ -131,7 +197,7 @@ describe("ResourceList", () => {
       map,
     });
 
-    const list = use(List, { lifetime });
+    const list = setup(List, { lifetime });
 
     function current(): { card: string; subscription: Subscription }[] {
       return list.current.map((r) => r.current);

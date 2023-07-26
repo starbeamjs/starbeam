@@ -8,6 +8,11 @@ import { type InternalPreactVNode, InternalVNode } from "./vnode.js";
 const COMPONENTS = new WeakMap<InternalPreactComponent, InternalComponent>();
 const INITIAL_ID = 0;
 
+interface Handlers {
+  prePaint: Set<() => void>;
+  postPaint: Set<() => void>;
+}
+
 export class InternalComponent {
   readonly #component: InternalPreactComponent;
   readonly id: number;
@@ -45,9 +50,27 @@ export class InternalComponent {
     return wrapper;
   }
 
+  readonly #handlers: Handlers = {
+    prePaint: new Set(),
+    postPaint: new Set(),
+  };
+
   private constructor(component: InternalPreactComponent) {
     this.#component = component;
     this.id = InternalComponent.#nextId++;
+  }
+
+  readonly on = {
+    idle: (fn: () => void): void => void this.#handlers.postPaint.add(fn),
+    layout: (fn: () => void): void => void this.#handlers.prePaint.add(fn),
+  };
+
+  run(phase: keyof Handlers): void {
+    this.#handlers[phase].forEach((fn) => void fn());
+  }
+
+  get lifetime(): InternalPreactComponent {
+    return this.#component;
   }
 
   get fn(): ComponentType<unknown> | string {
@@ -120,14 +143,13 @@ export class InternalComponent {
     );
   }
 
-  notify(): void {
-    this.#component.forceUpdate();
-  }
+  notify = (): void => void this.#component.forceUpdate();
 }
 
 const KEYS = {
   _vnode: "__v",
   _parentDom: "__P",
+  _parent: "__",
   "signals._updater": "__$u",
   "signals._updateFlags": "__$f",
 } as const;
@@ -137,6 +159,7 @@ export interface InternalPreactComponent extends Component<unknown, unknown> {
   __v: InternalPreactVNode;
   /** the parent DOM */
   __P?: InternalPreactElement | null;
+  __?: InternalPreactComponent;
   __$u?: InternalEffect;
   __$f: number;
   __c?: boolean;

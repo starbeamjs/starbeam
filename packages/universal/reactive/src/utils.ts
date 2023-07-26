@@ -1,3 +1,4 @@
+import { isEmptyArray } from "@starbeam/core-utils";
 import type {
   CallStack,
   Description,
@@ -5,9 +6,10 @@ import type {
   Tagged,
 } from "@starbeam/interfaces";
 import { TAG } from "@starbeam/shared";
+import { getDependencies } from "@starbeam/tags";
 
 import { Static } from "./primitives/cell.js";
-import { getDebug } from "./runtime.js";
+import { DEBUG, getDebug } from "./runtime.js";
 
 function is(this: void, value: unknown): value is Tagged {
   return !!(
@@ -26,17 +28,17 @@ export function isReactive<T>(
   return is(value) && hasRead(value);
 }
 
+export const isStatic = <T>(value: Reactive<T>): value is Static<T> =>
+  isEmptyArray(getDependencies(value));
+
 export type ReadValue<T> = T extends Reactive<infer R> ? R : T;
 
-export function read<T>(
-  this: void,
-  value: T,
-  caller = getDebug()?.callerStack()
-): ReadValue<T> {
+export function read<T>(this: void, value: T | Reactive<T>): T {
   if (is(value) && hasRead(value)) {
-    return value.read(caller) as ReadValue<T>;
+    DEBUG?.markEntryPoint(`read ${DEBUG.describeTagged(value)}`);
+    return value.read();
   } else {
-    return value as ReadValue<T>;
+    return value;
   }
 }
 

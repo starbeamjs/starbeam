@@ -1,6 +1,7 @@
 import type { DebugRuntime } from "@starbeam/interfaces";
 
 import callerStack from "./call-stack/debug/index.js";
+import { getEntryPoint, markEntryPoint } from "./call-stack/entry.js";
 import {
   describe,
   describeTagged,
@@ -19,4 +20,6 @@ export default {
   untrackedReadBarrier,
   describe,
   describeTagged,
+  markEntryPoint,
+  getEntryPoint,
 } satisfies DebugRuntime;

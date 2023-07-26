@@ -1,9 +1,25 @@
-import type { CallStack, Description } from "@starbeam/interfaces";
+import type { Description } from "@starbeam/interfaces";
 import { DEBUG, type Equality, Marker } from "@starbeam/universal";
 
 interface Entry {
   has: Marker;
   get: Marker;
+}
+
+interface MapState<K, V> {
+  readonly description: Description | undefined;
+  readonly iteration: Marker;
+  readonly storage: WeakMap<K & object, Entry> | Map<K, Entry>;
+  readonly vals: WeakMap<K & object, V> | Map<K, V>;
+  readonly equals: Equality<V>;
+}
+
+interface MapState<K, V> {
+  readonly description: Description | undefined;
+  readonly iteration: Marker;
+  readonly storage: WeakMap<K & object, Entry> | Map<K, Entry>;
+  readonly vals: WeakMap<K & object, V> | Map<K, V>;
+  readonly equals: Equality<V>;
 }
 
 export class TrackedWeakMap<K extends object = object, V = unknown>
@@ -15,19 +31,16 @@ export class TrackedWeakMap<K extends object = object, V = unknown>
     return new TrackedWeakMap(description) as WeakMap<K, V>;
   }
 
-  readonly #description: Description | undefined;
-  readonly #iteration: Marker;
-  readonly #storage: WeakMap<K, Entry>;
-  readonly #vals: WeakMap<K, V>;
-  readonly #equals: Equality<V> = Object.is;
+  readonly #state: MapState<K, V>;
 
   private constructor(description: Description | undefined) {
-    this.#vals = new WeakMap();
-
-    this.#iteration = Marker(description?.detail("collection", "iterate"));
-    this.#storage = new WeakMap();
-
-    this.#description = description;
+    this.#state = {
+      description,
+      vals: new WeakMap(),
+      iteration: Marker(description?.detail("collection", "iterate")),
+      storage: new WeakMap(),
+      equals: Object.is,
+    };
   }
 
   #entry(key: K): Entry {
@@ -36,107 +49,96 @@ export class TrackedWeakMap<K extends object = object, V = unknown>
     if (markers === undefined) {
       markers = {
         get: Marker(
-          this.#description?.key(describeKey(key)).detail("cell", "get")
+          this.#state.description?.key(describeKey(key)).detail("cell", "get")
         ),
         has: Marker(
-          this.#description?.key(describeKey(key)).detail("cell", "has")
+          this.#state.description?.key(describeKey(key)).detail("cell", "has")
         ),
       };
-      this.#storage.set(key, markers);
+      this.#state.storage.set(key, markers);
     }
 
     return markers;
   }
 
   #tryEntry(key: K): Entry | undefined {
-    return this.#storage.get(key);
+    return this.#state.storage.get(key);
   }
 
-  #get(
-    key: K,
-    caller: CallStack | undefined,
-    entry: Entry = this.#entry(key)
-  ): V | undefined {
-    entry.get.read(caller);
-    return this.#vals.get(key);
+  #get(key: K, entry: Entry = this.#entry(key)): V | undefined {
+    entry.get.read();
+    return this.#state.vals.get(key);
   }
 
   get(key: K): V | undefined {
-    const caller = DEBUG?.callerStack();
+    DEBUG?.markEntryPoint(["collection:get", "TrackedWeakMap", key]);
     const entry = this.#entry(key);
-    return this.#has(key, caller, entry)
-      ? this.#get(key, caller, entry)
-      : undefined;
+    return this.#has(key, entry) ? this.#get(key, entry) : undefined;
   }
 
-  #has(
-    key: K,
-    caller: CallStack | undefined,
-    entry: Entry = this.#entry(key)
-  ): boolean {
-    entry.has.read(caller);
-    return this.#vals.has(key);
+  #has(key: K, entry: Entry = this.#entry(key)): boolean {
+    entry.has.read();
+    return this.#state.vals.has(key);
   }
 
   has(key: K): boolean {
-    return this.#has(key, DEBUG?.callerStack());
+    DEBUG?.markEntryPoint(["collection:has", "TrackedWeakMap", key]);
+    return this.#has(key);
   }
 
-  #insert(key: K, caller: CallStack | undefined): void {
+  #insert(key: K): void {
     const entry = this.#tryEntry(key);
-    if (entry) entry.has.mark(caller);
+    if (entry) entry.has.mark();
 
-    this.#iteration.mark(caller);
+    this.#state.iteration.mark();
   }
 
-  #update(key: K, caller: CallStack | undefined): void {
+  #update(key: K): void {
     const entry = this.#tryEntry(key);
-    if (entry) entry.get.mark(caller);
+    if (entry) entry.get.mark();
 
-    this.#iteration.mark(caller);
+    this.#state.iteration.mark();
   }
 
   set(key: K, value: V): this {
-    const caller = DEBUG?.callerStack();
+    DEBUG?.markEntryPoint(["collection:insert", "TrackedWeakMap", key]);
 
     // intentionally avoid consuming the `has` or `get` markers while setting.
-    const has = this.#vals.has(key);
+    const shouldInsert = !this.#state.vals.has(key);
 
-    if (has) {
-      const current = this.#vals.get(key) as V;
-      if (!this.#equals(current, value)) this.#update(key, caller);
+    if (shouldInsert) {
+      this.#insert(key);
     } else {
-      this.#insert(key, caller);
+      const current = this.#state.vals.get(key) as V;
+      if (!this.#state.equals(current, value)) this.#update(key);
     }
 
-    this.#vals.set(key, value);
+    this.#state.vals.set(key, value);
 
     return this;
   }
 
-  #delete(key: K, caller: CallStack | undefined): void {
+  #delete(key: K): void {
     const entry = this.#tryEntry(key);
 
     // if anyone checked the presence of this key before, invalidate the check.
-    if (entry) entry.has.mark(caller);
+    if (entry) entry.has.mark();
 
     // either way, invalidate iteration of the map.
-    this.#iteration.mark(caller);
+    this.#state.iteration.mark();
   }
 
   delete(key: K): boolean {
-    const caller = DEBUG?.callerStack();
+    DEBUG?.markEntryPoint(["collection:delete", "TrackedWeakMap", key]);
 
     // if the key is not in the map, then deleting it has no reactive effect.
-    if (this.#vals.has(key)) {
-      this.#delete(key, caller);
-    }
+    if (this.#state.vals.has(key)) this.#delete(key);
 
-    return this.#vals.delete(key);
+    return this.#state.vals.delete(key);
   }
 
   get [Symbol.toStringTag](): string {
-    return this.#vals[Symbol.toStringTag];
+    return this.#state.vals[Symbol.toStringTag];
   }
 }
 

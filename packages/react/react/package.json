@@ -34,6 +34,7 @@
     "@starbeam/interfaces": "workspace:^",
     "@starbeam/modifier": "workspace:^",
     "@starbeam/reactive": "workspace:^",
+    "@starbeam/renderer": "workspace:^",
     "@starbeam/resource": "workspace:^",
     "@starbeam/runtime": "workspace:^",
     "@starbeam/service": "workspace:^",
@@ -45,8 +46,8 @@
   "devDependencies": {
     "@domtree/flavors": "workspace:^",
     "@starbeam-dev/build-support": "workspace:*",
-    "@types/node": "^18.15.11",
-    "@types/react": "^18.0.37",
+    "@types/node": "18.16.1",
+    "@types/react": "^18.2.0",
     "rollup": "^3.20.6"
   },
   "peerDependencies": {

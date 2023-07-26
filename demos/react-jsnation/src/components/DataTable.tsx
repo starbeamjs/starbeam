@@ -1,4 +1,4 @@
-import { useProp, useReactive, useSetup } from "@starbeam/react";
+import { setup, useProp, useReactive } from "@starbeam/react";
 import { CachedFormula as Formula, Cell } from "@starbeam/reactive";
 import type { FormEvent } from "react";
 
@@ -8,7 +8,7 @@ import { type Row, Table } from "../lib/table.js";
 export default function (props: { locale: string }): JSX.Element {
   const locale = useProp(props.locale, "props.locale");
 
-  const { append, filter, total, rows, table, people } = useSetup(() => {
+  const { append, filter, total, rows, table, people } = setup(() => {
     const table = new Table<Person>(["name", "location"]);
 
     table.append({ name: "Tom Dale", location: "NYC" });
@@ -55,8 +55,8 @@ export default function (props: { locale: string }): JSX.Element {
     return { append, filter, total, rows, table, people };
   });
 
-  return useReactive(() => {
-    return (
+  return useReactive(
+    () => (
       <>
         <details>
           <summary>Create a new user</summary>
@@ -124,6 +124,7 @@ export default function (props: { locale: string }): JSX.Element {
           </tbody>
         </table>
       </>
-    );
-  }, "DataTable");
+    ),
+    []
+  );
 }

@@ -1,7 +1,7 @@
 import type { UNINITIALIZED } from "@starbeam/shared";
 
 import type { Description } from "./debug/description.js";
-import type { CoreTimestamp } from "./timestamp.js";
+import type { Timestamp } from "./timestamp.js";
 
 /**
  * A snapshot of a set of tags. This represents the current dependencies of a
@@ -21,7 +21,7 @@ export type TagSnapshot = ReadonlySet<Tag>;
 export interface CellTag {
   readonly type: "cell";
   readonly description?: Description | undefined;
-  readonly lastUpdated: CoreTimestamp;
+  readonly lastUpdated: Timestamp;
   readonly dependencies: () => readonly CellTag[];
 }
 

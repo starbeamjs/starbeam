@@ -1,4 +1,5 @@
-import { useSetup } from "@starbeam/react";
+import { useReactive } from "@starbeam/react";
+import { Formula } from "@starbeam/universal";
 
 import type { Serializable } from "./key.js";
 import { QUERY_CACHE, type QueryFunction, type QueryResult } from "./query.js";
@@ -7,7 +8,7 @@ export function useQuery<T>(
   key: Serializable,
   query: QueryFunction<T>
 ): QueryResult<T> {
-  return useSetup(({ on }) => {
+  return useReactive(({ on }) => {
     const entry = QUERY_CACHE.initialize(key, query);
 
     on.layout(() => {
@@ -18,8 +19,8 @@ export function useQuery<T>(
       };
     });
 
-    return () => {
+    return Formula(() => {
       return entry.result;
-    };
-  }).compute();
+    });
+  }, []);
 }

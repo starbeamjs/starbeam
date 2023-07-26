@@ -1,11 +1,13 @@
 import { getFirst, isPresent, isPresentArray } from "@starbeam/core-utils";
 import { expected, verified } from "@starbeam/verify";
-import type { ByRoleMatcher } from "@testing-library/dom";
+import { expect } from "@starbeam-workspace/test-utils";
+import { type ByRoleMatcher, fireEvent } from "@testing-library/dom";
 import { getByRole, getByText } from "@testing-library/dom";
 import * as testing from "@testing-library/preact";
 import htm from "htm";
 import {
   type Attributes,
+  type ComponentChild,
   type ComponentChildren,
   type ComponentType,
   createElement,
@@ -15,69 +17,28 @@ import {
 } from "preact";
 import { act } from "preact/test-utils";
 import { renderToString } from "preact-render-to-string";
-import { expect, test } from "vitest";
 
-export const html = htm.bind(h) as (
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type Component<Props = {}> = import("preact").ComponentType<Props>;
+
+export function html(
+  strings: TemplateStringsArray,
+  ...values: unknown[]
+): VNode {
+  const root = boundHTML(strings, ...values);
+  return Array.isArray(root) ? createElement(Fragment, null, root) : root;
+}
+
+const boundHTML = htm.bind(h) as (
   strings: TemplateStringsArray,
   ...values: unknown[]
 ) => VNode<unknown> | VNode<unknown>[];
 
 export type HtmlNode = ReturnType<typeof html>;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-export type TestComponentType<Props = {}> =
-  | PropsComponentType<Props>
-  | VoidComponentType;
-
-type PropsComponentType<Props> = (props: Props) => VNode | VNode[] | null;
-type VoidComponentType = () => VNode | VNode[] | null;
-
 interface RenderExpectations<T extends RenderProps> {
   html?: (...value: T) => ComponentChildren;
 }
-
-function renderTest(
-  name: string,
-  component: VoidComponentType,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  callback: (render: Root<[], any>) => Root<any> | Promise<Root<any>>
-): void;
-function renderTest<Props>(
-  name: string,
-  component: PropsComponentType<Props>,
-  callback: (
-    render: Root<[Props], [Props]>
-  ) => Root<[Props]> | Promise<Root<[Props]>>
-): void;
-function renderTest(
-  name: string,
-  component: TestComponentType,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  callback: (render: Root<any>) => Root<any> | Promise<Root<any>>
-): void {
-  test(name, async () => {
-    const into = document.createElement("div");
-
-    if (typeof component === "function" && !component.name) {
-      Object.defineProperty(component, "name", {
-        configurable: true,
-        value: "TestApp",
-      });
-    }
-
-    const render: Root<[RenderProps]> = Render.create(
-      component as TestComponentType<unknown>,
-      into,
-      Expect.from(into)
-    );
-    const built = await callback(render);
-    return built.start();
-  });
-}
-
-export const rendering = {
-  test: renderTest,
-};
 
 class Expect<T extends RenderProps> {
   readonly #container: HTMLElement;
@@ -140,8 +101,130 @@ export function Root<R extends Root<T, T>, T extends RenderProps, U extends T>(
   return test;
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function render(app: ComponentType<void>): RenderingResult<{}>;
+export function render<T>(app: ComponentType<T>, args: T): RenderingResult<T>;
+export function render<T>(app: ComponentType<T>, args?: T): RenderingResult<T> {
+  const container = document.createElement("div");
+  const component = (args: T) => createElement(app, args ?? null);
+  return new RenderingResult(
+    component,
+    testing.render(component(args as T), { container }),
+    container,
+    args as T
+  );
+}
+
+type RootComponent<T> = (args: T) => ComponentChild;
+
+type VerifyFn<T, U extends T> = T extends U
+  ? void
+  : {
+      verify: (args: VerifyArgs<T, U>) => void;
+    };
+
+type VerifyArgs<T, U extends T> = {
+  [P in Exclude<keyof U, keyof T>]: U[P];
+};
+
+class RenderingResult<T, U extends T = T> {
+  readonly #result: testing.RenderResult;
+  readonly #component: RootComponent<T>;
+  readonly #container: HTMLElement;
+  #verify: undefined | ((args: U) => VNode);
+
+  #extraVerifyArgs = false;
+  #lastArgs: T;
+
+  constructor(
+    component: RootComponent<T>,
+    result: testing.RenderResult,
+    container: HTMLElement,
+    lastArgs: T
+  ) {
+    this.#component = component;
+    this.#result = result;
+    this.#container = container;
+    this.#lastArgs = lastArgs;
+  }
+
+  get innerHTML(): string {
+    return this.#container.innerHTML;
+  }
+
+  find(matcher: testing.ByRoleMatcher): FoundElement {
+    return new FoundElement(
+      testing.findByRole(this.#result.container as HTMLElement, matcher)
+    );
+  }
+
+  unmount(): void {
+    this.#result.unmount();
+  }
+
+  rerender(args: T): VerifyFn<T, U> {
+    this.#lastArgs = args;
+    this.#result.rerender(this.#component(args));
+
+    if (this.#extraVerifyArgs) {
+      return {
+        verify: (args: U) => {
+          this.#verifyResult(args);
+        },
+      } as VerifyFn<T, U>;
+    } else {
+      this.#verifyResult();
+      this.#verify?.(this.#lastArgs as U);
+      return undefined as VerifyFn<T, U>;
+    }
+  }
+
+  expect<V extends T = T>(
+    template: (args: V) => VNode,
+    ...rest: T extends V ? [] : [VerifyArgs<T, V>]
+  ): RenderingResult<T, V> {
+    const [args] = rest as [VerifyArgs<T, V> | undefined];
+    this.#extraVerifyArgs = args !== undefined;
+    this.#verify = template as (args: unknown) => VNode;
+
+    this.#verifyResult(args as unknown as VerifyArgs<T, U>);
+
+    const expected = renderToString(
+      h(
+        Fragment,
+        {},
+        template({ ...this.#lastArgs, ...args } as V)
+      ) as VNode<unknown>
+    );
+    const actual = this.innerHTML;
+    expect(actual).toBe(expected);
+    return this as unknown as RenderingResult<T, V>;
+  }
+
+  #verifyResult(args?: VerifyArgs<T, U>): void {
+    if (!this.#verify) return;
+
+    const vnode = this.#verify({ ...this.#lastArgs, ...args } as U);
+    const expected = renderToString(h(Fragment, {}, vnode) as VNode<unknown>);
+    const actual = this.innerHTML;
+    expect(actual).toBe(expected);
+  }
+}
+
+class FoundElement {
+  readonly #element: Promise<HTMLElement>;
+
+  constructor(element: Promise<HTMLElement>) {
+    this.#element = element;
+  }
+
+  async click() {
+    fireEvent.click(await this.#element);
+  }
+}
+
 class Render<Args extends RenderProps, T extends Args> {
-  readonly #component: TestComponentType;
+  readonly #component: Component<T[0]>;
   readonly #expect: Expect<T>;
   readonly #into: HTMLElement;
   readonly #render: RenderStep<T> | undefined;
@@ -149,7 +232,7 @@ class Render<Args extends RenderProps, T extends Args> {
   readonly #update: UpdateStep<Args, T>[];
 
   static create<Args extends RenderProps, T extends Args>(
-    component: TestComponentType<Args[0]>,
+    component: Component<Args[0]>,
     into: HTMLElement,
     expectation: Expect<T>
   ): Render<Args, T> {
@@ -157,7 +240,7 @@ class Render<Args extends RenderProps, T extends Args> {
   }
 
   private constructor(
-    component: TestComponentType,
+    component: Component<Args[0]>,
     into: HTMLElement,
     expectation: Expect<T>,
     render: RenderStep<T> | undefined,
@@ -276,7 +359,9 @@ class Render<Args extends RenderProps, T extends Args> {
     this.#expect.check(args);
 
     const renderResult = RenderResult.create<Args, T>({
-      component: this.#component,
+      // FIXME
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
+      component: this.#component as any,
       container: this.#into,
       expectation: this.#expect,
       args,
@@ -288,6 +373,8 @@ class Render<Args extends RenderProps, T extends Args> {
         await update.before(renderResult);
       }
       await renderResult.render(...update.Args);
+      this.#expect.check(update.Args);
+
       if (update.after) {
         await update.after();
       }
@@ -316,7 +403,7 @@ class RenderResult<Args extends RenderProps, T extends Args> {
     args,
     result,
   }: {
-    component: TestComponentType;
+    component: Component;
     container: HTMLElement;
     expectation: Expect<T>;
     args: T;
@@ -333,7 +420,7 @@ class RenderResult<Args extends RenderProps, T extends Args> {
     );
   }
 
-  readonly #component: TestComponentType;
+  readonly #component: Component;
   readonly #container: HTMLElement;
   readonly #expect: Expect<T>;
   readonly #next: T | undefined;
@@ -341,7 +428,7 @@ class RenderResult<Args extends RenderProps, T extends Args> {
   #result: testing.RenderResult;
 
   constructor(
-    component: TestComponentType,
+    component: Component,
     container: HTMLElement,
     expectation: Expect<T>,
     next: T | undefined,
@@ -372,8 +459,13 @@ class RenderResult<Args extends RenderProps, T extends Args> {
     if (isPresentArray(args)) {
       this.#args = args;
     }
+    const props = getFirst(this.#args);
+
     this.#result.rerender(
-      createElement(this.#component as ComponentType<Args[0]>, this.#args)
+      createElement(
+        this.#component as ComponentType<Args[0]>,
+        props as ComponentType<Args[1]>
+      )
     );
 
     if (this.#next) {

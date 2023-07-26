@@ -1,12 +1,12 @@
 import js from "@starbeam/collections";
-import { create } from "@starbeam/preact";
+import { useResource } from "@starbeam/preact";
 import { Formula } from "@starbeam/reactive";
 import type { JSX } from "preact";
 
 import { formatLocale, SYSTEM_LOCALE, SYSTEM_TZ } from "../intl.js";
 
 export default function DateFormatterStarbeam(): JSX.Element {
-  const date = create(Clock);
+  const date = useResource(Clock, []);
 
   const localeInfo = formatLocale(SYSTEM_LOCALE);
   return (
@@ -18,15 +18,10 @@ export default function DateFormatterStarbeam(): JSX.Element {
         </>
       </h3>
 
-      <button
-        className="pure-button"
-        onClick={() => {
-          date.read().refresh();
-        }}
-      >
+      <button className="pure-button" onClick={date.refresh}>
         🔃
       </button>
-      <p className="output">{date.current.formatted}</p>
+      <p className="output">{date.formatted}</p>
     </>
   );
 }

@@ -1,9 +1,9 @@
-import { setup } from "@starbeam/preact";
+import { install } from "@starbeam/preact";
 import { options, render } from "preact";
 
 import App from "./components/App.jsx";
 
-setup(options);
+install(options);
 
 const container = document.querySelector("#root");
 

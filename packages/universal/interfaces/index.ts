@@ -8,6 +8,6 @@ export type {
   UpdateOptions,
 } from "./src/runtime.js";
 export type { CellTag, FormulaTag, Tag, TagSnapshot } from "./src/tag.js";
-export type { Reactive, Tagged, TaggedReactive } from "./src/tagged.js";
-export type { CoreTimestamp } from "./src/timestamp.js";
+export type { HasTag, Reactive, Tagged, TaggedReactive } from "./src/tagged.js";
+export type { Timestamp as CoreTimestamp, Timestamp } from "./src/timestamp.js";
 export type { Diff, Expand, Unsubscribe } from "./src/utils.js";

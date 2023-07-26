@@ -107,8 +107,7 @@ export class Description implements IDescription {
   implementation(
     type: ReactiveType,
     name: string,
-    reason: string,
-    caller?: CallStack | undefined
+    reason: string
   ): IDescription {
     return new Description({
       type,
@@ -118,7 +117,7 @@ export class Description implements IDescription {
         parent: this,
         value: { name, reason },
       },
-      caller: caller ?? this.#details.caller,
+      caller: DEBUG?.getEntryPoint()?.caller ?? this.#details.caller,
     });
   }
 

@@ -137,7 +137,7 @@ describe("lifetimes", () => {
     // The finalizer isn't called
     expect(tracer.calls).toBe(0);
 
-    unsubscribe();
+    unsubscribe?.();
 
     // The finalizer isn't called
     expect(tracer.calls).toBe(0);

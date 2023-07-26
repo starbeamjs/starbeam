@@ -1,5 +1,6 @@
 {
   "name": "@starbeam/reactive",
+  "version": "0.8.9",
   "type": "module",
   "main": "index.ts",
   "types": "index.ts",
@@ -26,6 +27,7 @@
   "dependencies": {
     "@starbeam/core-utils": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
+    "@starbeam/reactive": "workspace:^",
     "@starbeam/shared": "workspace:^",
     "@starbeam/tags": "workspace:^",
     "@starbeam/verify": "workspace:^"

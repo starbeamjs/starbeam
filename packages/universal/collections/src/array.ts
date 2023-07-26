@@ -6,7 +6,7 @@
 // and it will blow up in JS in exactly the same way, so it is safe to assume
 // that properties within the getter have the correct type in TS.
 
-import type { CallStack, Description } from "@starbeam/interfaces";
+import type { Description } from "@starbeam/interfaces";
 import { DEBUG } from "@starbeam/universal";
 
 import { Collection } from "./collection.js";
@@ -21,7 +21,7 @@ type ArrayMethodName = keyof {
 
 type UnsafeIndex = any;
 
-const ARRAY_GETTER_METHODS = new Set<ArrayMethodName>([
+const ARRAY_READONLY_METHODS = new Set<ArrayMethodName>([
   Symbol.iterator,
   "concat",
   "entries",
@@ -46,7 +46,7 @@ const ARRAY_GETTER_METHODS = new Set<ArrayMethodName>([
   "values",
 ]);
 
-const ARRAY_SETTER_METHODS = new Set<ArrayMethodName>([
+const ARRAY_MUTATOR_METHODS = new Set<ArrayMethodName>([
   "copyWithin",
   "fill",
   "pop",
@@ -58,12 +58,12 @@ const ARRAY_SETTER_METHODS = new Set<ArrayMethodName>([
   "unshift",
 ]);
 
-function isGetterMethod(prop: PropertyKey): prop is ArrayMethodName {
-  return ARRAY_GETTER_METHODS.has(prop as ArrayMethodName);
+function isReadonlyMethod(prop: PropertyKey): prop is ArrayMethodName {
+  return ARRAY_READONLY_METHODS.has(prop as ArrayMethodName);
 }
 
-function isSetterMethod(prop: PropertyKey): prop is ArrayMethodName {
-  return ARRAY_SETTER_METHODS.has(prop as ArrayMethodName);
+function isMutatorMethod(prop: PropertyKey): prop is ArrayMethodName {
+  return ARRAY_MUTATOR_METHODS.has(prop as ArrayMethodName);
 }
 
 const EMPTY_SIZE = 0;
@@ -99,49 +99,61 @@ class Shadow<T> {
     this.#collection = collection;
   }
 
-  at(index: number, caller: CallStack | undefined): T | undefined {
+  at(index: number): T | undefined {
     this.#collection.get(
       index,
       index in this.#target ? "hit" : "miss",
-      member(index),
-      caller
+      member(index)
     );
-    this.#collection.iterateKeys(caller);
+    this.#collection.iterateKeys();
 
     return this.#target[index];
   }
 
-  #createGetterMethod(prop: ArrayMethodName): Fn | undefined {
-    let fn = this.#fns.get(prop);
+  #createGetterMethod(methodName: ArrayMethodName): Fn | undefined {
+    let fn = this.#fns.get(methodName);
 
     if (!fn) {
       fn = (...args: unknown[]) => {
-        this.#collection.iterateKeys(DEBUG?.callerStack());
+        DEBUG?.markEntryPoint({
+          description: `Array${
+            typeof methodName === "string"
+              ? `.${methodName}`
+              : `[${methodName.description ?? "{unknown symbol}"}]`
+          }`,
+        });
+        this.#collection.iterateKeys();
         // eslint-disable-next-line
-        return (this.#target as any)[prop](...args);
+        return (this.#target as any)[methodName](...args);
       };
 
-      this.#fns.set(prop, fn);
+      this.#fns.set(methodName, fn);
     }
 
     return fn;
   }
 
-  #createSetterMethod(name: ArrayMethodName): Fn {
-    let fn = this.#fns.get(name);
+  #createMutatorMethod(methodName: ArrayMethodName): Fn {
+    let fn = this.#fns.get(methodName);
 
     if (!fn) {
       fn = (...args: unknown[]) => {
-        const caller = DEBUG?.callerStack();
+        DEBUG?.markEntryPoint({
+          description: `Array${
+            typeof methodName === "string"
+              ? `.${methodName}`
+              : `[${methodName.description ?? "{unknown symbol}"}]`
+          }`,
+        });
         const prev = this.#target.length;
 
         // eslint-disable-next-line
-        const result = (this.#target as any)[name](...args);
+        const result = (this.#target as any)[methodName](...args);
 
         const next = this.#target.length;
 
         if (prev !== EMPTY_SIZE || next !== EMPTY_SIZE) {
-          this.#collection.splice(caller);
+          this.#collection.splice();
         }
 
         // eslint-disable-next-line
@@ -153,10 +165,10 @@ class Shadow<T> {
   }
 
   get(prop: PropertyKey): unknown {
-    if (isGetterMethod(prop)) {
+    if (isReadonlyMethod(prop)) {
       return this.getterMethod(prop);
-    } else if (isSetterMethod(prop)) {
-      return this.setterMethod(prop);
+    } else if (isMutatorMethod(prop)) {
+      return this.mutatorMethod(prop);
     } else {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       return (this.#target as UnsafeIndex)[prop];
@@ -167,35 +179,36 @@ class Shadow<T> {
     return this.#createGetterMethod(name);
   }
 
-  set(prop: PropertyKey, value: unknown, caller: CallStack | undefined): void {
-    this.#collection.splice(caller);
+  set(prop: PropertyKey, value: unknown): void {
+    this.#collection.splice();
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     (this.#target as UnsafeIndex)[prop] = value;
   }
 
-  setterMethod(name: ArrayMethodName): Fn {
-    return this.#createSetterMethod(name);
+  mutatorMethod(name: ArrayMethodName): Fn {
+    return this.#createMutatorMethod(name);
   }
 
-  updateAt(index: number, value: T, caller: CallStack | undefined): void {
+  updateAt(index: number, value: T): boolean {
     const current = this.#target[index];
 
     if (Object.is(current, value)) {
-      return;
+      return false;
     }
 
-    this.#collection.splice(caller);
-    this.#collection.set(index, "key:changes", member(index), caller);
+    this.#collection.splice();
+    this.#collection.set(index, "key:changes", member(index));
 
     this.#target[index] = value;
+    return true;
   }
 
-  updateLength(to: number, caller: CallStack | undefined): void {
+  updateLength(to: number): void {
     // This happens when popping an empty array, for example.
     if (this.#target.length === to) {
       return;
     } else {
-      this.#collection.splice(caller);
+      this.#collection.splice();
     }
   }
 }
@@ -210,37 +223,32 @@ export default class TrackedArray<T = unknown> {
     const proxy: T[] = new Proxy(target, {
       get(getterTarget, prop /*, _receiver */) {
         if (prop === "length") {
-          collection.iterateKeys(DEBUG?.callerStack());
+          DEBUG?.markEntryPoint(`Array.${prop}`);
+          collection.iterateKeys();
           return getterTarget.length;
         }
 
         const index = convertToInt(prop);
+        DEBUG?.markEntryPoint(["object:get", "TrackedArray", index ?? prop]);
 
         if (index === null) {
           return shadow.get(prop);
         } else {
-          return shadow.at(index, DEBUG?.callerStack());
+          return shadow.at(index);
         }
       },
 
       set(setterTarget, prop, value /*, _receiver */) {
         const index = convertToInt(prop);
-        const caller = DEBUG?.callerStack();
 
-        if (prop === "length") {
-          shadow.updateLength(value as number, caller);
+        DEBUG?.markEntryPoint(["object:set", `Array`, index ?? prop]);
 
-          if (value === setterTarget.length) {
-            return true;
-          }
-        }
-
-        if (index === null) {
-          shadow.set(prop, value, caller);
-        } else if (index in setterTarget) {
-          shadow.updateAt(index, value as T, caller);
+        if (index !== null && index in setterTarget) {
+          // mutating a numeric array property only invalidates the
+          // corresponding index.
+          shadow.updateAt(index, value as T);
         } else {
-          shadow.set(prop, value, caller);
+          shadow.set(prop, value);
         }
 
         return true;

@@ -1,7 +1,7 @@
 import type { Reactive } from "@starbeam/interfaces";
-import { useProp, useSetup } from "@starbeam/react";
-import { Cell } from "@starbeam/reactive";
+import { useProp, useReactive } from "@starbeam/react";
 import { Resource, type ResourceBlueprint } from "@starbeam/resource";
+import { Cell, Formula } from "@starbeam/universal";
 
 import {
   formatLocale,
@@ -14,11 +14,11 @@ import {
 export default function (props: { locale: string }): JSX.Element {
   const locale = useProp(props.locale);
 
-  return useSetup(({ use }) => {
+  return useReactive(({ use }) => {
     const timeZone = Cell(SYSTEM_TZ, "system time zone");
     const date = use(Clock(timeZone, locale));
 
-    return () => {
+    return Formula(() => {
       const localeInfo = formatLocale(locale.read());
 
       return (
@@ -50,8 +50,8 @@ export default function (props: { locale: string }): JSX.Element {
           <p className="output">{date.current?.formatted}</p>
         </>
       );
-    };
-  }).compute();
+    });
+  }, []);
 }
 
 function Clock(

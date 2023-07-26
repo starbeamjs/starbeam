@@ -14,6 +14,9 @@ if (
   } catch {
     // ignore
   }
+} else {
+  const buffer = await import("buffer");
+  globalThis.Buffer = buffer.Buffer;
 }
 
 defineDebug(debug);

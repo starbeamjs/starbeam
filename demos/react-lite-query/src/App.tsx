@@ -1,8 +1,6 @@
 import "./App.css";
 
-import { TabsPane, type UpdatePane } from "@starbeamx/devtool";
 import { Axios } from "axios";
-import { useEffect, useRef } from "react";
 
 import useQuery from "./lib/use-query.js";
 
@@ -10,33 +8,7 @@ type FIXME = never;
 type DevtoolsOptions = FIXME;
 
 export default function App(): JSX.Element {
-  const ref = useRef<HTMLDivElement>(null);
-  const devtools = useRef<UpdatePane<{ options: DevtoolsOptions }>>();
-
-  useEffect(() => {
-    if (ref.current !== null) {
-      const currentDevtools = devtools.current;
-
-      if (currentDevtools === undefined) {
-        devtools.current = TabsPane(ref.current, {
-          root: "http://localhost:3001/home/wycats/Code/Starbeam/starbeam/demos/react-lite-query/",
-          roots: {
-            workspace:
-              "http://localhost:3001/home/wycats/Code/Starbeam/starbeam/",
-          },
-        });
-      } else {
-        currentDevtools.update();
-      }
-    }
-  }, [ref.current]);
-
-  return (
-    <>
-      <Queried />
-      <div ref={ref} />
-    </>
-  );
+  return <Queried />;
 }
 
 const axios = new Axios();

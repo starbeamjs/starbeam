@@ -26,6 +26,7 @@
 
   "eslint.codeActionsOnSave.mode": "all",
   "eslint.enable": true,
+
   "eslint.lintTask.enable": true,
   "eslint.lintTask.options": "--cache -c ./.eslintrc.json --max-warnings=0 \"**/*.ts\" \"**/*.tsx\" \"**/*.json\"",
   "eslint.onIgnoredFiles": "warn",
@@ -57,6 +58,8 @@
     "tsconfig.json": "tsconfig.*.json, tsconfig-*.json, *.tsbuildinfo",
     "vite.config.ts": "rollup.config.*, .env.*"
   },
+
+  "prettier.prettierPath": "./node_modules/prettier",
 
   // rewrap provides a quick keyboard shortcut (alt-q) to reformat comments to
   // a specific column width. It also automatically rewraps comments when you

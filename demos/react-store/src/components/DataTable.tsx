@@ -1,4 +1,4 @@
-import { useProp, useReactive, useSetup } from "@starbeam/react";
+import { setup, useProp, useReactive } from "@starbeam/react";
 import { Cell } from "@starbeam/universal";
 import { Table } from "@starbeamx/store";
 import type { FormEvent } from "react";
@@ -8,7 +8,7 @@ import { People, type Person } from "../lib/people.js";
 export default function (props: { locale: string }): JSX.Element {
   const locale = useProp(props.locale, "props.locale");
 
-  const { people, append, filter, total, rows, table } = useSetup(() => {
+  const { people, append, filter, total, rows, table } = setup(() => {
     // component.attach(DevTools);
 
     const table = Table.create<Person>({
@@ -90,14 +90,14 @@ export default function (props: { locale: string }): JSX.Element {
         <span>Filter</span>
         <input
           type="text"
-          defaultValue={useReactive(() => filter.current)}
+          defaultValue={useReactive(filter)}
           onInput={(e) => filter.set(e.currentTarget.value)}
         />
       </label>
       <table>
         <thead>
           <tr>
-            {useReactive(() => table.columns).map((p) => (
+            {useReactive(() => table.columns, [table]).map((p) => (
               <th key={p}>{p}</th>
             ))}
             <th className="action">
@@ -112,7 +112,7 @@ export default function (props: { locale: string }): JSX.Element {
           </tr>
         </thead>
         <tbody>
-          {useReactive(rows).map((person) => (
+          {useReactive(rows, []).map((person) => (
             <tr key={person.id}>
               <td>{person.name}</td>
               <td>{person.location}</td>
@@ -129,7 +129,7 @@ export default function (props: { locale: string }): JSX.Element {
           ))}
 
           <tr className="summary" data-items={people.rows.length}>
-            <td colSpan={3}>{useReactive(total)}</td>
+            <td colSpan={3}>{useReactive(total, [])}</td>
           </tr>
         </tbody>
       </table>

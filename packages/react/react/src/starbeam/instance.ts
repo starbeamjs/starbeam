@@ -1,13 +1,12 @@
 import type { Reactive } from "@starbeam/interfaces";
-import { CachedFormula, Cell } from "@starbeam/reactive";
 import type { IntoResourceBlueprint, Resource } from "@starbeam/resource";
-import { use as starbeamUse } from "@starbeam/resource";
-import { render, RUNTIME } from "@starbeam/runtime";
+import { setup as starbeamSetup, use as starbeamUse } from "@starbeam/resource";
 import { service as starbeamService } from "@starbeam/service";
+import { RUNTIME } from "@starbeam/universal";
 import type { RegisterLifecycleHandlers } from "@starbeam/use-strict-lifecycle";
 import { isPresent, verified } from "@starbeam/verify";
 
-import { type ReactApp, verifiedApp } from "../context-provider.js";
+import { type ReactApp, verifiedApp } from "../app.js";
 import {
   type Callback,
   Handlers,
@@ -84,25 +83,20 @@ export function StarbeamInstance(
   let handlers: Handlers | null = lifecycle;
 
   function use<T, O extends { initial?: T } | undefined>(
-    resource: IntoResourceBlueprint<T>,
-    options?: O
+    blueprint: IntoResourceBlueprint<T>
   ): Reactive<T | PropagateUndefined<O>> {
-    const resourceCell = Cell(undefined as Resource<T> | undefined);
+    const resource = starbeamUse(blueprint);
 
     verified(handlers, isPresent).layout.add(() => {
-      resourceCell.set(
-        starbeamUse(resource, { lifetime: verified(handlers, isPresent) })
-      );
+      starbeamSetup(resource, { lifetime: verified(handlers, isPresent) });
       notify();
     });
 
-    const formula = CachedFormula(
-      () => resourceCell.current?.read() ?? options?.initial
-    );
+    verified(handlers, isPresent).cleanup.add(() => {
+      RUNTIME.subscribe(resource, notify);
+    });
 
-    verified(handlers, isPresent).cleanup.add(() => render(formula, notify));
-
-    return formula as Reactive<T>;
+    return resource;
   }
 
   function deactivate() {

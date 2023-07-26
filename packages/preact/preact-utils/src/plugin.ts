@@ -190,6 +190,7 @@ function getOriginal(
 export const HOOK_NAMES = {
   _hook: "__h",
   _diff: "__b",
+  _commit: "__c",
   _render: "__r",
   _catchError: "__e",
   _root: "__",
@@ -301,6 +302,24 @@ export class AugmentPreactAsComponent {
 
   diff(hook: (vnode: InternalComponent, handler: Handler) => void): void {
     createHook(this.#original, "_diff", (vnode, handler) => {
+      if (isUserspaceComponent(vnode)) {
+        hook(InternalComponent.of(getVNodeComponent(vnode)), handler);
+      }
+    });
+  }
+
+  afterPaint(hook: (vnode: InternalComponent, handler: Handler) => void): void {
+    createHook(this.#original, "diffed", (vnode, handler) => {
+      if (isUserspaceComponent(vnode)) {
+        hook(InternalComponent.of(getVNodeComponent(vnode)), handler);
+      }
+    });
+  }
+
+  beforePaint(
+    hook: (vnode: InternalComponent, handler: Handler) => void
+  ): void {
+    createHook(this.#original, "_commit", (vnode, handler) => {
       if (isUserspaceComponent(vnode)) {
         hook(InternalComponent.of(getVNodeComponent(vnode)), handler);
       }

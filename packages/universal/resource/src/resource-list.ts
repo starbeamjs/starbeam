@@ -5,8 +5,9 @@ import { RUNTIME } from "@starbeam/runtime";
 import {
   Resource,
   type ResourceBlueprint,
+  setup,
+  type SetupFnOptions,
   use,
-  type UseFnOptions,
 } from "./api.js";
 
 export function ResourceList<Item, T>(
@@ -17,15 +18,22 @@ export function ResourceList<Item, T>(
     description,
   }: {
     key: (item: Item) => Key;
-    map: (item: Item) => ResourceBlueprint<T, void>;
+    map: (item: Item) => ResourceBlueprint<T>;
     description?: string | Description;
   }
-): ResourceBlueprint<Resource<T>[], void> {
-  const resources = new ResourceMap<T, void>(
-    DEBUG?.Desc("collection", description)
-  );
+): ResourceBlueprint<Resource<T>[]> {
+  const resources = new ResourceMap<T>(DEBUG?.Desc("collection", description));
+  const lifetime = {};
 
-  return Resource((_run, _metadata, lifetime) => {
+  return Resource(({ on }) => {
+    on.finalize(() => {
+      RUNTIME.finalize(lifetime);
+    });
+
+    on.setup(() => {
+      resources.setup();
+    });
+
     const result: Resource<T>[] = [];
     const remaining = new Set();
     for (const item of list) {
@@ -43,13 +51,16 @@ export function ResourceList<Item, T>(
     resources.update(remaining);
 
     return result;
-  }) as ResourceBlueprint<Resource<T>[]>;
+  });
 }
 
 type Key = string | number | { key: unknown; description: string | number };
-type InternalMap<T> = Map<unknown, { resource: Resource<T>; lifetime: object }>;
+type InternalMap<T> = Map<
+  unknown,
+  { resource: Resource<T>; lifetime: object; isSetup: boolean }
+>;
 
-class ResourceMap<T, M> {
+class ResourceMap<T> {
   readonly #map: InternalMap<T> = new Map();
   readonly #description: Description | undefined;
 
@@ -64,22 +75,29 @@ class ResourceMap<T, M> {
   create(
     key: Key,
     resource: ResourceBlueprint<T>,
-    options: UseFnOptions<M>
+    options: SetupFnOptions
     // parentLifetime: object
   ): Resource<T> {
     const lifetime = {};
     RUNTIME.link(options.lifetime, lifetime);
     const newResource = use(resource, {
-      lifetime,
-      metadata: options.metadata,
       description: this.#description?.key(
         typeof key === "object"
           ? { key: key.key, name: String(key.description) }
           : key
       ),
     });
-    this.#map.set(key, { resource: newResource, lifetime });
+    this.#map.set(key, { resource: newResource, lifetime, isSetup: false });
     return newResource;
+  }
+
+  setup() {
+    for (const state of this.#map.values()) {
+      if (state.isSetup) continue;
+
+      setup(state.resource, { lifetime: state.lifetime });
+      state.isSetup = true;
+    }
   }
 
   /**
