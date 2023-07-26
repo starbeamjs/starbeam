@@ -1152,9 +1152,6 @@ importers:
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../interfaces
-      '@starbeam/reactive':
-        specifier: workspace:^
-        version: 'link:'
       '@starbeam/shared':
         specifier: workspace:^
         version: link:../shared
