@@ -8,7 +8,7 @@
     "skipLibCheck": true,
     "types": ["packages/env"]
   },
-  "exclude": ["dist/**/*"],
+  "exclude": ["dist/**/*", "node_modules/**"],
   "files": [],
   "references": [
     { "path": "./packages/tsconfig.packages.json" },

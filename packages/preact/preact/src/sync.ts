@@ -17,7 +17,6 @@ export function setupSync(sync: Sync): void {
   useEffect(() => {
     if (unsubscribe.current === null) {
       onFinalize(component, () => {
-        console.log("HI");
       });
 
       const activeSync = sync(component);
