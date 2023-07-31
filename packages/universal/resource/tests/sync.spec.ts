@@ -1,7 +1,6 @@
-import "@starbeam/runtime";
-
 import { CachedFormula, Cell, Marker } from "@starbeam/reactive";
-import { Sync } from "@starbeam/resource";
+import { SyncTo } from "@starbeam/resource";
+import { pushingScope } from "@starbeam/runtime";
 import {
   finalize,
   linkToFinalizationScope,
@@ -112,38 +111,48 @@ describe("Sync", () => {
 
     const counter = Cell(0);
     const invalidate = Marker();
-    let isSetup = false;
+    let isConnected = false;
 
     function increment() {
-      if (isSetup) {
+      if (isConnected) {
         actions.record("increment");
         counter.current++;
       }
     }
 
-    const scope = pushFinalizationScope()();
+    const TestSync = SyncTo(({ on }) => {
+      // this should be called the setup phase
+      actions.record("init");
 
-    const sync = Sync(() => {
-      actions.record("setup");
-      isSetup = true;
-      invalidate.read();
+      on.sync(() => {
+        actions.record("sync");
+        isConnected = true;
+        invalidate.read();
 
-      return () => {
-        actions.record("cleanup");
-        isSetup = false;
-      };
-    })(scope);
+        return () => {
+          actions.record("cleanup");
+          isConnected = false;
+        };
+      });
+
+      on.finalize(() => {
+        actions.record("finalize");
+      });
+    });
+
+    const [scope, sync] = pushingScope(() => TestSync());
 
     expect(counter.current).toBe(0);
-    actions.expect([]);
+    actions.expect("init");
 
     increment();
     expect(counter.current).toBe(0);
     actions.expect([]);
 
+    // this is where the framework is going to call sync (e.g. in useEffect in React).
     sync();
     expect(counter.current).toBe(0);
-    actions.expect("setup");
+    actions.expect("sync");
 
     sync();
     expect(counter.current).toBe(0);
@@ -161,13 +170,15 @@ describe("Sync", () => {
     expect(counter.current).toBe(2);
     actions.expect("increment");
 
+    // this invalidates and schedules a new sync.
     invalidate.mark();
     expect(counter.current).toBe(2);
     actions.expect([]); // the sync formula wasn't read yet
 
+    // this is when the framework actually runs the scheduled sync.
     sync();
     expect(counter.current).toBe(2);
-    actions.expect("cleanup", "setup");
+    actions.expect("cleanup", "sync");
 
     increment();
     expect(counter.current).toBe(3);
@@ -179,7 +190,7 @@ describe("Sync", () => {
 
     finalize(scope);
     expect(counter.current).toBe(3);
-    actions.expect("cleanup");
+    actions.expect("cleanup", "finalize");
 
     increment();
     expect(counter.current).toBe(3);

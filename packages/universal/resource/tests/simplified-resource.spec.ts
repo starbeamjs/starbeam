@@ -4,7 +4,7 @@ import {
   type FormulaFn,
   Marker,
 } from "@starbeam/reactive";
-import { scoped } from "@starbeam/runtime";
+import { pushingScope } from "@starbeam/runtime";
 import {
   finalize,
   mountFinalizationScope,
@@ -98,7 +98,7 @@ describe("a simplified resource (manual)", () => {
     actions.expect("construct:counter");
 
     const parent = {};
-    const counter = scoped(() => initial(parent), parent);
+    const counter = pushingScope(() => initial(parent), parent);
 
     expect(counter().count).toBe(0);
     actions.expect([]);

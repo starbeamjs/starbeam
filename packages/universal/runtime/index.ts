@@ -3,8 +3,8 @@ export {
   createScope,
   type FinalizationScope,
   link,
+  pushingScope,
   RUNTIME,
-  scoped,
 } from "./src/define.js";
 export type { Unsubscribe } from "./src/lifetime/object-lifetime.js";
 export { ReactiveError, render } from "./src/timeline/render.js";
