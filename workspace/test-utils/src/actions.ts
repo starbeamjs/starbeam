@@ -13,7 +13,7 @@ export class Actions {
     const actual = this.#actions;
     this.#actions = [];
 
-    expect(expectedActions, message).toStrictEqual(actual);
+    expect(actual, message).toStrictEqual(expectedActions);
   }
 
   expect(...expected: string[] | [[]]): void {
@@ -25,7 +25,7 @@ export class Actions {
       () => {
         this.expectActions(expectedActions);
       },
-      { entryFn: this.expect }
+      { entryFn: this.expect },
     );
   }
 }
@@ -43,7 +43,7 @@ export type AnyFunction = (...args: never[]) => unknown;
 
 export function removeAbstraction(
   error: AssertionError,
-  caller: AnyFunction
+  caller: AnyFunction,
 ): void {
   if (Reflect.has(Error, "captureStackTrace")) {
     Error.captureStackTrace(error, caller);
@@ -52,7 +52,7 @@ export function removeAbstraction(
 
 export function entryPoint<T>(
   block: () => T,
-  { entryFn: caller }: { entryFn: AnyFunction }
+  { entryFn: caller }: { entryFn: AnyFunction },
 ): T {
   try {
     return block();

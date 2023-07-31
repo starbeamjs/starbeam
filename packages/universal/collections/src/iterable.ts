@@ -1,4 +1,4 @@
-import type { CallStack, Description } from "@starbeam/interfaces";
+import type { Description } from "@starbeam/interfaces";
 import { Cell, type Equality, Marker } from "@starbeam/reactive";
 import { UNINITIALIZED } from "@starbeam/shared";
 
@@ -286,7 +286,6 @@ export class ReactiveSet<T> implements Set<T> {
   }
 
   get size(): number {
-    console.log(this.#values);
     this.#values.read();
 
     let size = 0;

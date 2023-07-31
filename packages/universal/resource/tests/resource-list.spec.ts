@@ -5,7 +5,6 @@ import {
   Resource,
   type ResourceBlueprint,
   ResourceList,
-  setup,
   use,
 } from "@starbeam/resource";
 import { finalize } from "@starbeam/shared";

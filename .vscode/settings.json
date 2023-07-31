@@ -29,7 +29,6 @@
   "eslint.lintTask.enable": true,
   "eslint.lintTask.options": "--cache -c ./.eslintrc.json --max-warnings=0 \"**/*.ts\" \"**/*.tsx\" \"**/*.json\"",
   "eslint.onIgnoredFiles": "warn",
-  "eslint.packageManager": "npm",
   "eslint.problems.shortenToSingleLine": true,
   "eslint.quiet": false,
   "eslint.validate": [
@@ -83,5 +82,11 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   // This can sometimes be flaky, but generally it's a good idea to have
   // project-wide checks if possible.
-  "typescript.tsserver.experimental.enableProjectDiagnostics": true
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+
+  "vitest.changeBackgroundColor": true,
+  "vitest.debugExclude": ["<node_internals>/**", "**/node_modules/**"],
+  "vitest.disabledWorkspaceFolders": ["demos", "@types", "workspace"],
+  "vitest.enable": true,
+  "vitest.showFailMessages": true
 }

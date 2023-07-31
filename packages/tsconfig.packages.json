@@ -5,6 +5,11 @@
     "outDir": "../dist/packages",
     "types": ["./env"]
   },
-  "exclude": ["x/devtool/**/*", "x/devtools-extension/**/*", "**/dist/**/*"],
+  "exclude": [
+    "x/devtool/**/*",
+    "x/devtools-extension/**/*",
+    "**/dist/**/*",
+    "**/node_modules/**"
+  ],
   "include": ["*/*/index.ts", "*/*/src/**/*"]
 }

@@ -33,12 +33,12 @@ export function link(parent: FinalizationScope, child: object): () => void {
   return linkToFinalizationScope(child, parent);
 }
 
-export function scoped<T>(block: () => T): [object, T];
-export function scoped<T>(
+export function pushingScope<T>(block: () => T): [FinalizationScope, T];
+export function pushingScope<T>(
   block: (childScope: object) => T,
   childScope: object,
 ): T;
-export function scoped(
+export function pushingScope(
   block: (childScope: object) => unknown,
   childScope?: object,
 ): unknown {

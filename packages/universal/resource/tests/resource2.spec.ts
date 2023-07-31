@@ -1,6 +1,6 @@
 import { Cell, Marker } from "@starbeam/reactive";
 import { Resource2, setupResource } from "@starbeam/resource";
-import { scoped } from "@starbeam/runtime";
+import { pushingScope } from "@starbeam/runtime";
 import { finalize } from "@starbeam/shared";
 import { Actions } from "@starbeam-workspace/test-utils";
 import { describe, expect, test } from "vitest";
@@ -44,7 +44,7 @@ describe("new resources", () => {
       };
     });
 
-    const [scope, clock] = scoped(() => resource());
+    const [scope, clock] = pushingScope(() => resource());
 
     actions.expect("construct");
     expect(clock().now).toStrictEqual(INITIAL_DATE);
