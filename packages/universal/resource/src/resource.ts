@@ -1,5 +1,6 @@
 import type { Description } from "@starbeam/interfaces";
 import { link, pushingScope } from "@starbeam/runtime";
+import { mountFinalizationScope } from "@starbeam/shared";
 
 import { ResourceSyncTo, type Sync, SyncDefinition } from "./sync.js";
 
@@ -44,6 +45,18 @@ class ResourceDefinition {
 
     link(this, this.#definition);
   }
+
+  readonly use = <T>(blueprint: IntoResourceBlueprint<T>): T => {
+    const done = mountFinalizationScope(this);
+    const resource = use(blueprint);
+    done();
+
+    this.on.sync(() => {
+      resource.sync();
+    });
+
+    return resource.value;
+  };
 }
 
 const getSyncTo = ResourceDefinition.getSyncTo;
