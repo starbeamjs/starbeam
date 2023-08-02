@@ -11,12 +11,12 @@ import {
   onFinalize,
   pushFinalizationScope,
 } from "@starbeam/shared";
-import { Actions } from "@starbeam-workspace/test-utils";
+import { RecordedEvents } from "@starbeam-workspace/test-utils";
 import { describe, expect, test } from "vitest";
 
 describe("a simplified resource (manual)", () => {
   function setup() {
-    const actions = new Actions();
+    const actions = new RecordedEvents();
     const invalidate = Marker();
     const isSetup = Cell(false);
 
@@ -77,7 +77,7 @@ describe("a simplified resource (manual)", () => {
 
   test("2. Setup", () => {
     const invalidate = Marker();
-    const actions = new Actions();
+    const actions = new RecordedEvents();
 
     const { resource } = createTestResource(actions, {
       label: "counter",
@@ -162,7 +162,7 @@ describe("a simplified resource (manual)", () => {
     const invalidateParent = Marker();
     const invalidateChild = Marker();
 
-    const actions = new Actions();
+    const actions = new RecordedEvents();
 
     const child = createTestResource(actions, {
       label: "child",
@@ -227,7 +227,7 @@ class Counter {
 }
 
 function createTestResource<const T, const U = T>(
-  actions: Actions,
+  actions: RecordedEvents,
   {
     label,
     createInstance,

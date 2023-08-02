@@ -7,12 +7,12 @@ import {
   onFinalize,
   pushFinalizationScope,
 } from "@starbeam/shared";
-import { Actions } from "@starbeam-workspace/test-utils";
+import { RecordedEvents } from "@starbeam-workspace/test-utils";
 import { describe, expect, test } from "vitest";
 
 describe("Sync", () => {
   test("a manual sync formula", () => {
-    const actions = new Actions();
+    const actions = new RecordedEvents();
 
     const counter = Cell(0);
     const invalidate = Marker();
@@ -107,7 +107,7 @@ describe("Sync", () => {
   });
 
   test("using the Sync API", () => {
-    const actions = new Actions();
+    const actions = new RecordedEvents();
 
     const counter = Cell(0);
     const invalidate = Marker();
