@@ -1,4 +1,4 @@
-export { Actions, entryPoint } from "./src/actions.js";
+export { entryPoint, RecordedEvents } from "./src/actions.js";
 export {
   resources,
   TestResource,

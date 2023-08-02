@@ -1,39 +1,43 @@
-import { Cell, type FormulaFn, Marker } from "@starbeam/reactive";
-import type { ResourceBlueprint, Sync } from "@starbeam/resource";
+import { Cell, Marker } from "@starbeam/reactive";
+import type {
+  ResourceBlueprint,
+  ResourceInstance,
+  Sync,
+} from "@starbeam/resource";
 import { Resource, SyncTo, use } from "@starbeam/resource";
 import { type FinalizationScope, pushingScope } from "@starbeam/runtime";
-import { finalize, mountFinalizationScope } from "@starbeam/shared";
+import { finalize, UNINITIALIZED } from "@starbeam/shared";
 import {
-  Actions,
   describe,
   entryPoint,
   expect,
+  RecordedEvents,
   test,
 } from "@starbeam-workspace/test-utils";
 
 describe("resources", () => {
   test("a manual resource built on Sync", () => {
-    const actions = new Actions();
+    const events = new RecordedEvents();
     const invalidate = Marker();
 
     function Counter() {
-      actions.record("resource:setup");
+      events.record("resource:setup");
       const counter = Cell(0);
 
       const sync = SyncTo(({ on }) => {
-        actions.record("sync:setup");
+        events.record("sync:setup");
 
         on.sync(() => {
-          actions.record("sync:sync");
+          events.record("sync:sync");
           invalidate.read();
 
           return () => {
-            actions.record("sync:cleanup");
+            events.record("sync:cleanup");
           };
         });
 
         on.finalize(() => {
-          actions.record("sync:finalize");
+          events.record("sync:finalize");
         });
       })();
 
@@ -44,97 +48,97 @@ describe("resources", () => {
             return counter.current;
           },
           increment() {
-            actions.record("increment");
+            events.record("increment");
             counter.update((i) => i + 1);
           },
         },
       };
     }
 
-    actions.expect([]);
+    events.expect([]);
 
     const [scope, { sync, counter }] = pushingScope(() => Counter());
-    actions.expect("resource:setup", "sync:setup");
+    events.expect("resource:setup", "sync:setup");
     expect(counter.count).toBe(0);
 
     counter.increment();
-    actions.expect("increment");
+    events.expect("increment");
     expect(counter.count).toBe(1);
 
     counter.increment();
-    actions.expect("increment");
+    events.expect("increment");
     expect(counter.count).toBe(2);
 
     sync();
-    actions.expect("sync:sync");
+    events.expect("sync:sync");
     expect(counter.count).toBe(2);
 
     sync();
-    actions.expect([]);
+    events.expect([]);
     expect(counter.count).toBe(2);
 
     counter.increment();
-    actions.expect("increment");
+    events.expect("increment");
     expect(counter.count).toBe(3);
 
     counter.increment();
-    actions.expect("increment");
+    events.expect("increment");
     expect(counter.count).toBe(4);
 
     // invalidate the sync formula but don't synchronize yet
     invalidate.mark();
-    actions.expect([]);
+    events.expect([]);
     expect(counter.count, "the count before synchronization").toBe(4);
 
     sync();
-    actions.expect("sync:cleanup", "sync:sync");
+    events.expect("sync:cleanup", "sync:sync");
     // synchronization shouldn't have replaced the cell
     expect(counter.count).toBe(4);
 
     sync();
-    actions.expect([]);
+    events.expect([]);
     expect(counter.count).toBe(4);
 
     finalize(scope);
-    actions.expect("sync:cleanup", "sync:finalize");
+    events.expect("sync:cleanup", "sync:finalize");
     expect(counter.count).toBe(4);
 
     finalize(scope);
-    actions.expect([]);
+    events.expect([]);
     expect(counter.count).toBe(4);
 
     invalidate.mark();
-    actions.expect([]);
+    events.expect([]);
     expect(counter.count).toBe(4);
 
     sync();
-    actions.expect([]);
+    events.expect([]);
     expect(counter.count).toBe(4);
 
     finalize(scope);
-    actions.expect([]);
+    events.expect([]);
     expect(counter.count).toBe(4);
   });
 
   test("A simple Resource", () => {
-    const actions = new Actions();
-    const invalidate = Marker();
+    const events = new RecordedEvents();
+    const invalidateSync = Marker();
 
     const Counter = Resource(({ on }) => {
-      actions.record("resource:setup");
+      events.record("resource:setup");
       const counter = Cell(0);
 
       on.sync(() => {
-        actions.record("sync:sync");
-        invalidate.read();
+        events.record("sync:sync");
+        invalidateSync.read();
 
         return () => {
-          actions.record("sync:cleanup");
+          events.record("sync:cleanup");
         };
       });
 
       on.finalize(() => {
-        actions.record("sync:finalize");
+        events.record("sync:finalize");
       });
 
       return {
@@ -142,83 +146,56 @@ describe("resources", () => {
           return counter.current;
         },
         increment() {
-          actions.record("increment");
+          events.record("increment");
           counter.update((i) => i + 1);
         },
       };
     });
 
-    actions.expect([]);
-    const [scope, { sync, value: counter }] = pushingScope(() => use(Counter));
+    const {
+      finalize,
+      value: counter,
+      act,
+      defineAction,
+    } = ResourceWrapper.use(Counter, {
+      events,
+      subject: (counter) => counter.count,
+    }).expect({
+      events: ["resource:setup"],
+      value: 0,
+    });
 
-    actions.expect("resource:setup");
-    expect(counter.count).toBe(0);
+    const increment = defineAction(counter.increment).expect({
+      events: ["increment"],
+      change: (i) => i + 1,
+      sync: UNCHANGED,
+    });
 
-    counter.increment();
-    actions.expect("increment");
-    expect(counter.count).toBe(1);
+    const invalidate = defineAction(invalidateSync.mark, "invalidate").expect({
+      sync: {
+        events: ["sync:cleanup", "sync:sync"],
+      },
+    });
 
-    counter.increment();
-    actions.expect("increment");
-    expect(counter.count).toBe(2);
+    act(increment, {
+      sync: {
+        events: ["sync:sync"],
+      },
+    });
 
-    sync();
-    actions.expect("sync:sync");
-    expect(counter.count).toBe(2);
+    act(invalidate);
 
-    sync();
-    actions.expect([]);
-    expect(counter.count).toBe(2);
-
-    counter.increment();
-    actions.expect("increment");
-    expect(counter.count).toBe(3);
-
-    counter.increment();
-    actions.expect("increment");
-    expect(counter.count).toBe(4);
-
-    // invalidate the sync formula but don't synchronize yet
-    invalidate.mark();
-    actions.expect([]);
-    expect(counter.count, "the count before synchronization").toBe(4);
-
-    sync();
-    actions.expect("sync:cleanup", "sync:sync");
-    // synchronization shouldn't have replaced the cell
-    expect(counter.count).toBe(4);
-
-    sync();
-    actions.expect([]);
-    expect(counter.count).toBe(4);
-
-    finalize(scope);
-    actions.expect("sync:cleanup", "sync:finalize");
-    expect(counter.count).toBe(4);
-
-    finalize(scope);
-    actions.expect([]);
-    expect(counter.count).toBe(4);
-
-    invalidate.mark();
-    actions.expect([]);
-    expect(counter.count).toBe(4);
-
-    sync();
-    actions.expect([]);
-    expect(counter.count).toBe(4);
-
-    finalize(scope);
-    actions.expect([]);
-    expect(counter.count).toBe(4);
+    finalize({
+      events: ["sync:cleanup", "sync:finalize"],
+    });
   });
 
   // test("the basics", () => {
-  //   const actions = new Actions();
-  //   const testResource = new TestResource(actions);
-  //   actions.expect("init");
+  //   const events = new Actions();
+  //   const testResource = new TestResource(events);
+  //   events.expect("init");
 
-  //   actions.expect([]);
+  //   events.expect([]);
   //   testResource.sync().expect("setup");
 
   //   testResource.invalidateSetup();
@@ -226,7 +203,7 @@ describe("resources", () => {
   //   expect(testResource.count).toBe(0);
 
   //   testResource.value.increment();
-  //   actions.expect([]);
+  //   events.expect([]);
   //   expect(testResource.count).toBe(1);
 
   //   testResource.invalidateSetup();
@@ -235,7 +212,7 @@ describe("resources", () => {
   //   expect(testResource.count).toBe(1);
 
   //   testResource.value.increment();
-  //   actions.expect([]);
+  //   events.expect([]);
   //   expect(testResource.count).toBe(2);
 
   //   testResource.finalize();
@@ -247,41 +224,41 @@ describe("resources", () => {
   //   // this won't do anything because the `increment` method emulates a resource
   //   // whose updates are happening via the process set up in `setup`.
   //   testResource.value.increment();
-  //   actions.expect([]);
+  //   events.expect([]);
   //   expect(testResource.count).toBe(2);
 
   //   testResource.finalize({ expect: "noop" });
   //   expect(testResource.count).toBe(2);
-  //   actions.expect([]);
+  //   events.expect([]);
   // });
 
   // test("on.cleanup only runs when the resource is finally cleaned up", () => {
-  //   const actions = new Actions();
+  //   const events = new Actions();
   //   const invalidate = Marker();
 
   //   const TestResource = Resource(({ on }) => {
-  //     actions.record("init");
+  //     events.record("init");
   //     const cell = Cell(0);
 
   //     on.finalize(() => {
-  //       actions.record("finalize");
+  //       events.record("finalize");
   //     });
 
   //     on.setup(() => {
-  //       actions.record("setup");
+  //       events.record("setup");
   //       invalidate.read();
   //       cell.current++;
 
   //       return () => {
-  //         actions.record("cleanup");
+  //         events.record("cleanup");
   //       };
   //     });
 
   //     return cell;
   //   });
 
-  //   const resource = ResourceWrapper.use(TestResource, actions);
-  //   actions.expect("init");
+  //   const resource = ResourceWrapper.use(TestResource, events);
+  //   events.expect("init");
 
   //   const { value, sync, finalize } = resource;
   //   expect(value.current).toBe(0);
@@ -293,12 +270,12 @@ describe("resources", () => {
   //   expect(value.current).toBe(1);
 
   //   invalidate.mark();
-  //   actions.expect([]);
+  //   events.expect([]);
   //   expect(value.current, "the value before sync has occurred").toBe(1);
   //   sync().expect("cleanup", "setup");
 
   //   invalidate.mark();
-  //   actions.expect([]);
+  //   events.expect([]);
   //   expect(value.current, "the value after sync has occurred").toBe(2);
   //   sync().expect("cleanup", "setup");
 
@@ -306,31 +283,31 @@ describe("resources", () => {
   // });
 
   // test("if a resource constructor returns a reactive value, it is assimilated", () => {
-  //   const actions = new Actions();
+  //   const events = new Actions();
   //   const initial = Cell(0);
   //   const plus = Cell(0);
   //   const Test = Resource(({ on }) => {
-  //     actions.record("init");
+  //     events.record("init");
   //     const cell = Cell(initial.current);
 
   //     on.setup(() => {
-  //       actions.record("setup");
+  //       events.record("setup");
   //       cell.current = initial.current;
 
-  //       return () => void actions.record("cleanup");
+  //       return () => void events.record("cleanup");
   //     });
 
   //     return CachedFormula(() => cell.current + plus.current);
   //   });
 
-  //   const resource = ResourceWrapper.use(Test, actions);
+  //   const resource = ResourceWrapper.use(Test, events);
   //   const { value, sync, finalize } = resource;
 
-  //   actions.expect("init");
+  //   events.expect("init");
 
   //   plus.current++;
   //   expect(value.current).toBe(1);
-  //   actions.expect([]);
+  //   events.expect([]);
 
   //   sync().expect("setup");
 
@@ -350,167 +327,198 @@ describe("resources", () => {
   //   finalize({ expect: "noop" });
   // });
 
-  // test("a counter that persists across cleanups", () => {
-  //   const actions = new Actions();
-  //   const invalidateSetup = Marker();
+  test("a counter that persists across cleanups", () => {
+    const events = new RecordedEvents();
+    const invalidateSync = Marker();
 
-  //   const Counter = Resource(({ on }) => {
-  //     actions.record("init");
+    const Counter = Resource(({ on }) => {
+      events.record("init");
 
-  //     const count = Cell(0);
+      const count = Cell(0);
 
-  //     on.setup(() => {
-  //       actions.record("setup");
-  //       invalidateSetup.read();
+      on.sync(() => {
+        events.record("setup");
+        invalidateSync.read();
 
-  //       return () => {
-  //         actions.record("cleanup");
-  //       };
-  //     });
+        return () => {
+          events.record("cleanup");
+        };
+      });
 
-  //     on.finalize(() => {
-  //       actions.record("finalize");
-  //     });
+      on.finalize(() => {
+        events.record("finalize");
+      });
 
-  //     return {
-  //       get count() {
-  //         return count.current;
-  //       },
-  //       increment() {
-  //         count.current++;
-  //       },
-  //     };
-  //   });
+      return {
+        get count() {
+          return count.current;
+        },
+        increment() {
+          count.current++;
+        },
+      };
+    });
 
-  //   const resource = ResourceWrapper.use(Counter, actions);
-  //   const { value: counter, finalize, sync } = resource;
+    /// SETUP RESOURCE ///
 
-  //   expect(counter.count).toBe(0);
-  //   actions.expect("init");
+    const resource = ResourceWrapper.use(Counter, {
+      events: events,
+      subject: (counter) => counter.count,
+    }).expect({ events: ["init"], value: 0 });
 
-  //   sync().expect("setup");
-  //   sync().expect([]);
+    const { sync, finalize, value: counter, act, defineAction } = resource;
 
-  //   counter.increment();
-  //   expect(counter.count).toBe(1);
+    /// DEFINE ACTIONS ///
 
-  //   sync().expect([]);
+    // incrementing the counter increments the value, but doesn't
+    // invalidate the synchronization.
+    const increment = defineAction(counter.increment).expect({
+      change: (v) => v + 1,
+      sync: UNCHANGED,
+    });
 
-  //   // incrementing the counter doesn't invalidate the setups
-  //   counter.increment();
-  //   expect(counter.count).toBe(2);
+    // invalidating the sync doesn't change the counter, and doesn't
+    // immediately synchronize. When the resource is synchronized,
+    // the cleanup and setup events are run.
+    const invalidate = defineAction(invalidateSync.mark).expect({
+      sync: {
+        events: ["cleanup", "setup"],
+        value: UNCHANGED,
+      },
+    });
 
-  //   invalidateSetup.mark();
-  //   // invalidating the setups doesn't reset the constructor
-  //   expect(counter.count).toBe(2);
-  //   sync().expect("cleanup", "setup");
-  //   expect(counter.count).toBe(2);
+    /// RUN THE TESTS ///
 
-  //   counter.increment();
-  //   expect(counter.count).toBe(3);
-  //   sync().expect([]);
+    // sync does four things:
+    // 1. validates that the event list is empty before syncing
+    // 2. syncs
+    // 3. validates the provided events and value after syncing
+    // 4. validates that syncing again retains the same value and
+    //    doesn't record any events.
+    sync().expect({ events: ["setup"], value: 0 });
 
-  //   invalidateSetup.mark();
-  //   // invalidating the setups doesn't reset the constructor
-  //   expect(counter.count).toBe(3);
-  //   sync().expect("cleanup", "setup");
-  //   expect(counter.count).toBe(3);
+    act(increment);
+    act(invalidate);
 
-  //   finalize({ afterActions: ["finalize"] });
-  //   expect(counter.count).toBe(3);
+    act(increment);
+    act(invalidate);
 
-  //   finalize({ expect: "noop" });
+    // after finalization, no further events are expected, even
+    // those specified by `Action`s).
+    finalize({ events: ["cleanup", "finalize"] });
+    finalize();
 
-  //   invalidateSetup.mark();
-  //   sync().expect([]);
+    act(invalidate);
 
-  //   finalize({ expect: "noop" });
-  //   sync().expect([]);
-  //   expect(counter.count).toBe(3);
-  // });
+    // finalizing again does nothing.
+    finalize();
+  });
 
-  // test("child resources", () => {
-  //   const actions = new Actions();
-  //   const invalidateChild = Marker();
-  //   const invalidateParent = Marker();
+  test("child resources", () => {
+    const events = new RecordedEvents();
+    const invalidateChildSync = Marker();
+    const invalidateParentSync = Marker();
 
-  //   const Child = Resource(({ on }) => {
-  //     actions.record("child:init");
-  //     const count = Cell(0);
+    const Child = Resource(({ on }) => {
+      events.record("child:init");
+      const count = Cell(0);
 
-  //     on.setup(() => {
-  //       actions.record("child:setup");
-  //       invalidateChild.read();
+      on.sync(() => {
+        events.record("child:setup");
+        invalidateChildSync.read();
 
-  //       return () => {
-  //         actions.record("child:cleanup");
-  //       };
-  //     });
+        return () => {
+          events.record("child:cleanup");
+        };
+      });
 
-  //     on.finalize(() => {
-  //       actions.record("child:finalize");
-  //     });
+      on.finalize(() => {
+        events.record("child:finalize");
+      });
 
-  //     return {
-  //       get count() {
-  //         return count.current;
-  //       },
-  //       increment() {
-  //         count.current++;
-  //       },
-  //     };
-  //   });
+      return {
+        get count() {
+          return count.current;
+        },
+        increment() {
+          count.current++;
+        },
+      };
+    });
 
-  //   const Parent = Resource(({ use, on }) => {
-  //     actions.record("parent:init");
-  //     const child = use(Child);
+    const Parent = Resource(({ use, on }) => {
+      events.record("parent:init");
+      const child = use(Child);
 
-  //     on.setup(() => {
-  //       actions.record("parent:setup");
-  //       invalidateParent.read();
+      on.sync(() => {
+        events.record("parent:setup");
+        invalidateParentSync.read();
 
-  //       return () => {
-  //         actions.record("parent:cleanup");
-  //       };
-  //     });
+        return () => {
+          events.record("parent:cleanup");
+        };
+      });
 
-  //     on.finalize(() => {
-  //       actions.record("parent:finalize");
-  //     });
+      on.finalize(() => {
+        events.record("parent:finalize");
+      });
 
-  //     return {
-  //       get childCount() {
-  //         return child.count;
-  //       },
-  //       incrementChild() {
-  //         child.increment();
-  //       },
-  //     };
-  //   });
+      return {
+        get childCount() {
+          return child.count;
+        },
+        incrementChild() {
+          child.increment();
+        },
+      };
+    });
 
-  //   const resource = ResourceWrapper.use(Parent, actions);
+    const {
+      sync,
+      value: parent,
+      defineAction,
+      act,
+    } = ResourceWrapper.use(Parent, {
+      events,
+      subject: (parent) => parent.childCount,
+    }).expect({ events: ["parent:init", "child:init"], value: 0 });
 
-  //   const { value: parent, sync, finalize } = resource;
+    const increment = defineAction(parent.incrementChild).expect({
+      change: (prev) => prev + 1,
+      sync: UNCHANGED,
+    });
 
-  //   // initialization happens in source order
-  //   actions.expect("parent:init", "child:init");
-  //   expect(parent.childCount).toBe(0);
+    const invalidateChild = defineAction(invalidateChildSync.mark).expect({
+      sync: {
+        events: ["child:cleanup", "child:setup"],
+      },
+    });
 
-  //   // child setup happens before parent setup
-  //   sync().expect("child:setup", "parent:setup");
+    sync().expect({ events: ["child:setup", "parent:setup"], value: 0 });
+    act(increment);
+    act(invalidateChild);
 
-  //   // incrementing the child doesn't affect any of the setups.
-  //   parent.incrementChild();
-  //   expect(parent.childCount).toBe(1);
-  //   sync().expect([]);
+    // const { value: parent, sync, finalize } = resource;
 
-  //   invalidateChild.mark();
+    // // initialization happens in source order
+    // events.expect("parent:init", "child:init");
+    // expect(parent.childCount).toBe(0);
 
-  //   // nothing happens until synchronization
-  //   actions.expect([]);
+    // // child setup happens before parent setup
+    // sync().expect("child:setup", "parent:setup");
 
-  //   sync().expect("child:cleanup", "child:setup");
-  // });
+    // // incrementing the child doesn't affect any of the setups.
+    // parent.incrementChild();
+    // expect(parent.childCount).toBe(1);
+    // sync().expect([]);
+
+    // invalidateChild.mark();
+
+    // // nothing happens until synchronization
+    // events.expect([]);
+
+    // sync().expect("child:cleanup", "child:setup");
+  });
 
   // test("child resources", () => {
   //   const name = Cell("default");
@@ -878,201 +886,386 @@ describe("resources", () => {
   // });
 });
 
-class ResourceWrapper<T> {
-  static use<T>(
+const UNCHANGED = Symbol("LATEST");
+type UNCHANGED = typeof UNCHANGED;
+
+interface NormalizedExpectations<U> {
+  events: string[];
+  value: U | UNCHANGED;
+}
+
+export type ActionExpectations<U> =
+  | UNCHANGED
+  | {
+      events?: string[];
+      change?: UNCHANGED | ((value: U) => U);
+      sync?: Expectations<U> | undefined;
+    };
+
+type Expectations<U> = Partial<NormalizedExpectations<U>> | UNCHANGED;
+
+interface PostAssertion<U, V = void> {
+  expect: (options: Expectations<U>, label?: string) => V;
+}
+
+interface Action<U> {
+  label: string;
+  step: () => void;
+  /**
+   * All events are assumed to be ignored after finalization.
+   *
+   * (If we find that we want to allow specific events to survive finalization,
+   * we should allow that to be configured when the {@linkcode ResourceWrapper} is
+   * created.)
+   */
+  events: string[];
+  change: (prev: U) => U;
+  sync: Expectations<U> | undefined;
+  cause: Error | undefined;
+}
+
+class ResourceWrapper<T, U> {
+  static use<T, U>(
     blueprint: ResourceBlueprint<T>,
-    actions: Actions,
-  ): ResourceWrapper<T> {
-    entryPoint(
+    {
+      events,
+      subject,
+      label,
+    }: { events: RecordedEvents; subject: (value: T) => U; label?: string },
+  ): PostAssertion<U, ResourceWrapper<T, U>> {
+    const [lifetime, instance] = entryPoint(
       () => {
-        actions.expect([]);
+        events.expect([]);
+        return pushingScope(() => use(blueprint));
       },
       {
         entryFn: ResourceWrapper.use,
       },
     );
 
-    return new ResourceWrapper(blueprint, actions);
+    const processedLabel = label
+      ? label
+      : blueprint.name
+      ? blueprint.name
+      : undefined;
+
+    const wrapper = new ResourceWrapper(
+      processedLabel ?? "{anonymous resource}",
+      lifetime,
+      instance,
+      events,
+      subject,
+    );
+
+    const expectFn = (expected: Expectations<U>) => {
+      wrapper.#expect(
+        expected,
+        processedLabel ? `use ${processedLabel}` : "use",
+      );
+      return wrapper;
+    };
+
+    return { expect: expectFn };
   }
 
+  readonly #label: string;
   readonly #value: T;
+  readonly #extractSubject: (value: T) => U;
   readonly #sync: Sync;
   readonly #lifetime: FinalizationScope;
-  readonly #actions: Actions;
+  readonly #events: RecordedEvents;
+  #lastSubject: UNINITIALIZED | U = UNINITIALIZED;
+  #isFinalized = false;
 
-  constructor(blueprint: ResourceBlueprint<T>, actions: Actions) {
-    const [lifetime, instance] = pushingScope(() => use(blueprint));
-
-    this.#value = getValue(instance);
-    this.#sync = getSync(instance)();
+  constructor(
+    label: string,
+    lifetime: FinalizationScope,
+    instance: ResourceInstance<T>,
+    events: RecordedEvents,
+    subject: (value: T) => U,
+  ) {
+    this.#label = label;
+    this.#value = instance.value;
+    this.#extractSubject = subject;
+    this.#sync = instance.sync;
     this.#lifetime = lifetime;
-    this.#actions = actions;
+    this.#events = events;
   }
 
   get value(): T {
     return this.#value;
   }
 
-  sync = (): { expect: (...args: [[]] | string[]) => void } => {
-    entryPoint(
-      () => {
-        this.#actions.expect([]);
-        this.#sync();
-      },
-      { entryFn: this.sync },
-    );
+  get #subject(): U {
+    return this.#extractSubject(this.#value);
+  }
 
-    const expect = (...args: [[]] | string[]) => {
-      entryPoint(
-        () => {
-          this.#actions.expect(...args);
-        },
-        { entryFn: expect },
-      );
-    };
+  /**
+   * Define an action for the resource.
+   *
+   * @example
+   *
+   * ```ts
+   * const increment = defineAction(() => cell.increment())
+   *   .expect({ events: ["incremented"], change: (prev) => prev + 1 });
+   * ```
+   *
+   * The parameters to the expect method are:
+   *
+   * - `events`: The events expected to be recorded when the action runs. (default: `[]`)
+   * - `change`: A function that takes the previous value and returns the
+   *   expected new value. (default: {@linkcode UNCHANGED})
+   * - `sync`: Optionally, the parameter to the {@linkcode sync} method. This parameter
+   *   will be passed to the call to the {@linkcode sync} method that occurs after the
+   *   action is run. If no `sync` parameter is provided, the {@linkcode act} call will
+   *   assert {@linkcode UNCHANGED}.
+   */
+  defineAction = (
+    step: () => void,
+    label?: string,
+  ): {
+    expect: (expectations: ActionExpectations<U>) => Action<U>;
+  } => {
+    const source: { stack?: string } = {};
 
-    return { expect };
-  };
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(source, this.defineAction);
+    }
 
-  finalize = (
-    options?: { expect: "noop" } | { afterActions: string[] },
-  ): void => {
-    finalize(this.#lifetime);
-
-    entryPoint(
-      () => {
-        if (options === undefined) {
-          this.#actions.expect("cleanup");
-        } else if ("expect" in options) {
-          this.#actions.expect([]);
-        } else {
-          this.#actions.expect("cleanup", ...options.afterActions);
-        }
-      },
-      {
-        entryFn: this.finalize,
-      },
-    );
-  };
-}
-
-interface TestInstance {
-  readonly state: {
-    readonly count: number;
-  };
-  increment: () => void;
-}
-
-class TestResource {
-  readonly #actions: Actions;
-  readonly #lifetime: object;
-  readonly #marker: Marker;
-  readonly #blueprint: ResourceBlueprint<TestInstance>;
-  readonly #resource: Resource<TestInstance>;
-  readonly #sync: FormulaFn<void>;
-
-  constructor(actions: Actions) {
-    this.#actions = actions;
-    this.#lifetime = {};
-    const marker = (this.#marker = Marker());
-    const state = {
-      counts: {
-        init: 0,
-        finalized: 0,
-      },
-    };
-
-    this.#blueprint = Resource(({ on }) => {
-      const cell = Cell(0);
-      let finalized = false;
-      actions.record("init");
-
-      on.setup(() => {
-        finalized = false;
-        actions.record("setup");
-        marker.read();
-
-        return () => {
-          finalized = true;
-          actions.record("cleanup");
-        };
-      });
-
-      return {
-        get state() {
+    return {
+      expect: (expectations): Action<U> => {
+        function normalize(): Omit<Action<U>, "step" | "cause"> {
+          const e = expectations === UNCHANGED ? undefined : expectations;
+          const change =
+            e?.change && e?.change !== UNCHANGED
+              ? e.change
+              : (value: U) => value;
           return {
-            ...state.counts,
-            count: cell.current,
+            label: label ? label : step.name || `action`,
+            events: e?.events ?? [],
+            change,
+            sync: e?.sync ?? undefined,
           };
-        },
-        increment() {
-          // emulate the count coming from the resource's setup (like an active channel)
-          if (finalized) return;
-          cell.current++;
-        },
-      };
-    });
+        }
 
-    const done = mountFinalizationScope(this.#lifetime);
-    this.#resource = use(this.#blueprint);
-    this.#sync = getSync(this.#resource)(this.#lifetime);
-    done();
-  }
+        function buildCause() {
+          if (source.stack) {
+            const error = new Error("Action was defined here");
+            error.stack = source.stack;
+            return error;
+          }
+        }
 
-  sync(): { expect: (...args: [[]] | string[]) => void } {
+        return {
+          step,
+          cause: buildCause(),
+          ...normalize(),
+        };
+      },
+    };
+  };
+
+  /**
+   * The `act` method takes an action definition and thoroughly tests the action
+   * by performing this sequence of steps **twice**:
+   *
+   * 1. Verify that the event list is empty.
+   * 2. Run the action.
+   * 3. Verify that the action has the expected value.
+   * 4. Verify that the specified events were recorded.
+   * 5. Synchronize.
+   * 6. Verify the expected sync behavior (specified in the action definition
+   *    under `action.sync`).
+   *
+   * After finalization, all of these steps are expected to record zero events.
+   *
+   * ## Overrides
+   *
+   * A second parameter to `act` allows a caller to override the expected
+   * `events`, `change`, and `sync` parameters.
+   *
+   * These overrides apply to the first execution of the action (since the
+   * second execution is expected to produce no changes to the value and no
+   * events).
+   *
+   * If overrides are specified, the above sequence of steps is run three times
+   * instead of twice (since the first action is a special case, and we want to
+   * verify that there isn't a bug that makes the first non-special action
+   * behave differently).
+   */
+  act = (
+    action: Action<U>,
+    overrides?: Partial<Omit<Action<U>, "step" | "cause">>,
+  ) => {
     entryPoint(
       () => {
-        this.#actions.expect([]);
+        this.#expect(UNCHANGED, `${action.label}: before act`);
+
+        const firstAction = { ...action, ...overrides };
+        const runs = overrides ? 3 : 2;
+
+        // run the action twice
+        for (let i = 0; i < runs; i++) {
+          const currentAction = i === 0 ? firstAction : action;
+
+          const expectedValue = currentAction.change(this.#subject);
+
+          action.step();
+
+          this.#expect(
+            {
+              events: this.#isFinalized ? [] : currentAction.events ?? [],
+              value: expectedValue,
+            },
+            `${action.label} (${i + 1}/${runs}): after`,
+          );
+
+          if (currentAction.sync) {
+            this.sync().expect(
+              currentAction.sync,
+              `${action.label} (${i + 1}/${runs}): after sync`,
+            );
+          }
+        }
+      },
+      {
+        entryFn: this.act,
+        cause: action.cause,
+      },
+    );
+  };
+
+  /**
+   * Sync performs these steps:
+   *
+   * 1. Assert {@linkcode UNCHANGED}.
+   * 2. Synchronize.
+   * 3. Assert specified {@linkcode Expectations}.
+   * 5. Synchronize again.
+   * 6. Assert {@linkcode UNCHANGED}.
+   */
+  sync = (): PostAssertion<U> => {
+    entryPoint(
+      () => {
+        this.#expect(UNCHANGED, `${this.#label}: before sync`);
         this.#sync();
       },
-      { entryFn: this.sync },
+      {
+        entryFn: this.sync,
+      },
     );
 
-    const expect = (...args: [[]] | string[]) => {
+    const expectFn = (options: Expectations<U>, label?: string) => {
       entryPoint(
         () => {
-          this.#actions.expect(...args);
+          this.#expect(
+            {
+              ...this.#normalizeExpectations(options),
+            },
+            `${this.#label}: after sync`,
+          );
+
+          // repeat the synchronization in order to assert that the second sync
+          // doesn't do anything.
+          this.#sync();
+
+          this.#expect(
+            {
+              events: [],
+              value: UNCHANGED,
+            },
+            `${this.#label}: second sync`,
+          );
         },
-        { entryFn: expect },
+        { entryFn: expectFn },
       );
     };
 
-    return { expect };
-  }
+    return { expect: expectFn };
+  };
 
-  get value(): TestInstance {
-    return getValue(this.#resource);
-  }
-
-  get count(): number {
-    return this.value.state.count;
-  }
-
-  invalidateSetup(): void {
-    this.#marker.mark();
-
+  /**
+   * Finalize performs these steps:
+   *
+   * 1. Assert {@linkcode UNCHANGED}.
+   * 2. {@linkcode finalize} the resource (by finalizing the finalization scope
+   *    that was used when the resource was created).
+   * 3. Assert specified {@linkcode Expectations} (defaults: empty events,
+   *    unchanged value).
+   * 5. Synchronize.
+   * 6. Assert {@linkcode UNCHANGED}.
+   * 7. {@linkcode finalize} again.
+   * 8. Assert {@linkcode UNCHANGED}.
+   */
+  finalize = (options?: Expectations<U>): void => {
     entryPoint(
       () => {
-        this.#actions.expect([]);
-      },
-      { entryFn: this.invalidateSetup },
-    );
-  }
+        const { events, value } = this.#normalizeExpectations(
+          options ?? UNCHANGED,
+        );
 
-  finalize(options?: { expect: "noop" }): void {
-    finalize(this.#lifetime);
+        this.#expect(UNCHANGED, `${this.#label}: before finalize`);
 
-    entryPoint(
-      () => {
-        if (options?.expect === "noop") {
-          this.#actions.expect([]);
-        } else {
-          this.#actions.expect("cleanup");
-        }
+        finalize(this.#lifetime);
+
+        this.#expect(
+          {
+            events,
+            value,
+          },
+          `${this.#label}: after finalize`,
+        );
+
+        this.#isFinalized = true;
+
+        this.sync().expect(UNCHANGED, `${this.#label}: sync after finalize`);
+
+        finalize(this.#lifetime);
+        this.#expect(UNCHANGED, `${this.#label}: after second finalize`);
       },
       {
         entryFn: this.finalize,
       },
     );
-  }
+  };
+
+  #expect = (expectations: Expectations<U>, label: string) => {
+    const { events: events, value } = this.#normalizeExpectations(expectations);
+
+    let expectedSubject: U;
+
+    if (value !== UNCHANGED) {
+      expectedSubject = value;
+    } else {
+      if (this.#lastSubject === UNINITIALIZED) {
+        expect(
+          this.#lastSubject,
+          `${label}: expects an initialized value`,
+        ).not.toBe(UNINITIALIZED);
+        throw new Error("BUG: unreachable");
+      }
+      expectedSubject = this.#lastSubject;
+    }
+
+    this.#events.expectEvents(events, label);
+    expect(this.#subject, label).toStrictEqual(expectedSubject);
+
+    this.#lastSubject = expectedSubject;
+  };
+
+  readonly #normalizeExpectations = <U>(
+    options: Expectations<U>,
+  ): NormalizedExpectations<U> => {
+    if (options === UNCHANGED) {
+      return {
+        events: [],
+        value: UNCHANGED,
+      };
+    } else {
+      return {
+        events: this.#isFinalized ? [] : options.events ?? [],
+        value: options.value ?? UNCHANGED,
+      };
+    }
+  };
 }

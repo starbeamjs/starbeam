@@ -2,14 +2,14 @@ import { Cell, Marker } from "@starbeam/reactive";
 import { Resource2, setupResource } from "@starbeam/resource";
 import { pushingScope } from "@starbeam/runtime";
 import { finalize } from "@starbeam/shared";
-import { Actions } from "@starbeam-workspace/test-utils";
+import { RecordedEvents } from "@starbeam-workspace/test-utils";
 import { describe, expect, test } from "vitest";
 
 const INITIAL_DATE = new Date("2022-01-01");
 
 describe("new resources", () => {
   test("a basic resource", () => {
-    const actions = new Actions();
+    const actions = new RecordedEvents();
     const invalidate = Marker();
 
     const resource = Resource2(({ on }) => {
