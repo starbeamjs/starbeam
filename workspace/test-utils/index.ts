@@ -1,4 +1,13 @@
-export { entryPoint, RecordedEvents } from "./src/actions.js";
+export type { AssertionError } from "./src/actions.js";
+export {
+  buildCause,
+  entryPoint,
+  isAssertionError,
+  RecordedEvents,
+  removeAbstraction,
+  withCause,
+  wrapAssertion,
+} from "./src/actions.js";
 export {
   resources,
   TestResource,

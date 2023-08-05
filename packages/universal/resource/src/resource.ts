@@ -2,7 +2,7 @@ import type { Description } from "@starbeam/interfaces";
 import { link, pushingScope } from "@starbeam/runtime";
 import { mountFinalizationScope } from "@starbeam/shared";
 
-import { ResourceSyncTo, type Sync, SyncDefinition } from "./sync.js";
+import { ResourceSyncTo, type Sync, SyncDefinition } from "./sync/primitive.js";
 
 const BLUEPRINTS = new WeakSet<IntoResourceBlueprint<unknown>>();
 
@@ -51,7 +51,7 @@ class ResourceDefinition {
     const resource = use(blueprint);
     done();
 
-    this.on.sync(() => {
+    this.use(() => {
       resource.sync();
     });
 
