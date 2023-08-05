@@ -9,13 +9,6 @@ const coordination = getCoordination();
 
 let lifetime = coordination.lifetime;
 
-interface LifetimeState {
-  readonly object: WeakRef<object>;
-  readonly finalizers: Set<() => void>;
-  readonly children: Set<LifetimeState>;
-  finalized: boolean;
-}
-
 let id = 0;
 
 if (!lifetime) {
@@ -68,16 +61,19 @@ if (!lifetime) {
     readonly mountFinalizationScope = (
       child: object = { id: id++ },
     ): (() => FinalizationScope) => {
-      return this.#addFinalizationScope(child, false);
+      return this.#addFinalizationScope(child);
     };
 
     readonly pushFinalizationScope = (
       child: object = { id: id++ },
     ): (() => FinalizationScope) => {
-      return this.#addFinalizationScope(child, true);
+      return this.#addFinalizationScope(child, { to: "parent" });
     };
 
-    readonly linkToFinalizationScope = (child: object, parent?: object) => {
+    readonly linkToFinalizationScope = (
+      child: object,
+      { parent }: { parent?: object } = {},
+    ) => {
       if (!this.#currentScopeState && !parent) return () => void null;
 
       const childState = this.#upsertState(child);
@@ -100,9 +96,6 @@ if (!lifetime) {
       parentOrHandler?: object | (() => void),
       maybeHandler?: undefined | (() => void),
     ) => {
-      // const handler = args.length === 1 ? args[0] : args[1];
-      // const parent = args[1] === undefined ? undefined : args[0];
-
       const parent = maybeHandler && parentOrHandler;
       const handler = maybeHandler ?? (parentOrHandler as () => void);
 
@@ -130,13 +123,14 @@ if (!lifetime) {
 
     #addFinalizationScope = (
       child: object,
-      linkToParent: boolean,
+      link?: { to: "parent" } | undefined,
     ): (() => FinalizationScope) => {
       const parentScopeState = this.#currentScopeState;
       const childScopeState = this.#upsertState(child);
       this.#currentScopeState = childScopeState;
 
-      if (linkToParent) parentScopeState?.children.add(childScopeState);
+      if (link?.to === "parent")
+        parentScopeState?.children.add(childScopeState);
 
       return () => {
         if (
@@ -191,9 +185,10 @@ export function mountFinalizationScope(
 }
 
 export function pushFinalizationScope(
-  scope?: FinalizationScope,
+  scope?: FinalizationScope | undefined,
+  priority?: number,
 ): () => FinalizationScope {
-  return LIFETIME.pushFinalizationScope(scope);
+  return LIFETIME.pushFinalizationScope(scope, priority);
 }
 
 export function linkToFinalizationScope(

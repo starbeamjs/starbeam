@@ -26,7 +26,10 @@ export interface Lifetime {
    * finalization scope is popped from the stack and added to the original
    * parent scope.
    */
-  pushFinalizationScope: (child?: object) => () => FinalizationScope;
+  pushFinalizationScope: (
+    child?: object | undefined,
+    priority?: number,
+  ) => () => FinalizationScope;
 
   /**
    * Like {@linkcode pushFinalizationScope}, but does not add the scope to the
@@ -38,7 +41,7 @@ export interface Lifetime {
 
   linkToFinalizationScope: (
     child: object,
-    parent?: FinalizationScope
+    parent?: FinalizationScope,
   ) => Unregister;
   /**
    * Specify a finalizer that will be called when the object is finalized.
