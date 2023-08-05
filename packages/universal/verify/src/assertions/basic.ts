@@ -5,7 +5,7 @@ import { format } from "./describe.js";
 import type { FixedArray, ReadonlyFixedArray } from "./type-utils.js";
 
 export function isPresent<T>(
-  value: T | null | undefined
+  value: T | null | undefined,
 ): value is Exclude<T, null | undefined> {
   return value !== null && value !== undefined;
 }
@@ -36,7 +36,7 @@ export function isEqual<T>(value: T): (other: unknown) => other is T {
 
   return expected.associate(
     verify,
-    expected.toBe(inspect(value)).butGot(format)
+    expected.toBe(inspect(value)).butGot(format),
   );
 }
 
@@ -44,7 +44,7 @@ function inspect(value: unknown): string {
   if (isObject(value) && Symbol.for("nodejs.util.inspect.custom") in value) {
     return JSON.stringify(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-      (value as any)[Symbol.for("nodejs.util.inspect.custom")]()
+      (value as any)[Symbol.for("nodejs.util.inspect.custom")](),
     );
   } else {
     return JSON.stringify(value);
@@ -52,7 +52,7 @@ function inspect(value: unknown): string {
 }
 
 export function isNotEqual<T>(
-  value: T
+  value: T,
 ): <U>(other: U) => other is Exclude<U, T> {
   function verify<U>(input: U): input is Exclude<U, T> {
     return !Object.is(input, value);
@@ -60,7 +60,7 @@ export function isNotEqual<T>(
 
   return expected.associate(
     verify,
-    expected.toBe(`not ${String(value)}`).butGot(format)
+    expected.toBe(`not ${String(value)}`).butGot(format),
   );
 }
 
@@ -72,7 +72,7 @@ expected.associate(
   isObject,
   expected
     .toBe("an object")
-    .butGot((value) => (value === null ? "null" : typeof value))
+    .butGot((value) => (value === null ? "null" : typeof value)),
 );
 
 export function isWeakKey(value: unknown): value is Record<string, unknown> {
@@ -85,7 +85,7 @@ expected.associate(
   isWeakKey,
   expected
     .toBe("an object or function")
-    .butGot((value) => (value === null ? "null" : typeof value))
+    .butGot((value) => (value === null ? "null" : typeof value)),
 );
 
 interface HasLength<L extends number> {
@@ -112,7 +112,7 @@ export const hasItems = isPresentArray;
 expected.associate(hasItems, expected.toHave(`at least one item`));
 
 export function isNullable<In, Out extends In>(
-  verifier: (value: In) => value is Out
+  verifier: (value: In) => value is Out,
 ): (value: In | null) => value is Out | null {
   function verify(input: In | null): input is Out | null {
     if (input === null) {

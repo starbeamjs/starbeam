@@ -1,10 +1,6 @@
 import { Cell, Marker } from "@starbeam/reactive";
-import type {
-  ResourceBlueprint,
-  ResourceInstance,
-  Sync,
-} from "@starbeam/resource";
-import { Resource, SyncTo, use } from "@starbeam/resource";
+import type { ResourceBlueprint, ResourceInstance } from "@starbeam/resource";
+import { PrimitiveSyncTo, Resource, use } from "@starbeam/resource";
 import { type FinalizationScope, pushingScope } from "@starbeam/runtime";
 import { finalize, UNINITIALIZED } from "@starbeam/shared";
 import {
@@ -24,7 +20,7 @@ describe("resources", () => {
       events.record("resource:setup");
       const counter = Cell(0);
 
-      const sync = SyncTo(({ on }) => {
+      const sync = PrimitiveSyncTo(({ on }) => {
         events.record("sync:setup");
 
         on.sync(() => {

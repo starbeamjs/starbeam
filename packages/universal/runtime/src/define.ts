@@ -3,6 +3,7 @@ import { defineRuntime } from "@starbeam/reactive";
 import {
   consume,
   linkToFinalizationScope,
+  mountFinalizationScope,
   pushFinalizationScope,
   start,
 } from "@starbeam/shared";
@@ -25,24 +26,47 @@ defineRuntime(RUNTIME);
 
 export type FinalizationScope = object;
 
-export function createScope(): FinalizationScope {
-  return pushFinalizationScope()();
+export function createPushScope(
+  options?:
+    | {
+        priority?: number | undefined;
+      }
+    | undefined,
+): FinalizationScope {
+  return pushFinalizationScope(undefined, options?.priority)();
+}
+
+export function createMountScope(): FinalizationScope {
+  return mountFinalizationScope()();
 }
 
 export function link(parent: FinalizationScope, child: object): () => void {
   return linkToFinalizationScope(child, parent);
 }
 
-export function pushingScope<T>(block: () => T): [FinalizationScope, T];
 export function pushingScope<T>(
   block: (childScope: object) => T,
-  childScope: object,
+  options: {
+    childScope: object | undefined;
+    priority?: number | undefined;
+  },
 ): T;
-export function pushingScope(
-  block: (childScope: object) => unknown,
-  childScope?: object,
+export function pushingScope<T>(
+  block: (childScope: object) => T,
+  options?: {
+    priority?: number | undefined;
+  },
+): [object, T];
+export function pushingScope<T>(
+  block: (childScope: object) => T,
+  options?: {
+    childScope?: object | undefined;
+    priority?: number | undefined;
+  },
 ): unknown {
-  const doneScope = pushFinalizationScope(childScope);
+  const childScope = options?.childScope;
+
+  const doneScope = pushFinalizationScope(childScope, options?.priority);
   let isDone = false;
 
   try {
