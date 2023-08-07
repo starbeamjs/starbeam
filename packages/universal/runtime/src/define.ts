@@ -26,14 +26,8 @@ defineRuntime(RUNTIME);
 
 export type FinalizationScope = object;
 
-export function createPushScope(
-  options?:
-    | {
-        priority?: number | undefined;
-      }
-    | undefined,
-): FinalizationScope {
-  return pushFinalizationScope(undefined, options?.priority)();
+export function createPushScope(): FinalizationScope {
+  return pushFinalizationScope()();
 }
 
 export function createMountScope(): FinalizationScope {
@@ -41,7 +35,7 @@ export function createMountScope(): FinalizationScope {
 }
 
 export function link(parent: FinalizationScope, child: object): () => void {
-  return linkToFinalizationScope(child, parent);
+  return linkToFinalizationScope(child, { parent });
 }
 
 export function pushingScope<T>(

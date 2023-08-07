@@ -72,8 +72,6 @@
     "**/CHANGELOG.md": true,
     "pnpm-lock.yaml": true
   },
-
-  "testing.automaticallyOpenPeekView": "never",
   // Try to avoid auto-importing other packages in the mono-repo as relative
   // paths. Instead, use the packaage name.
   "typescript.preferences.importModuleSpecifier": "project-relative",
@@ -88,5 +86,9 @@
   "vitest.debugExclude": ["<node_internals>/**", "**/node_modules/**"],
   "vitest.disabledWorkspaceFolders": ["demos", "@types", "workspace"],
   "vitest.enable": true,
-  "vitest.showFailMessages": true
+  "vitest.showFailMessages": true,
+  "testing.automaticallyOpenPeekView": "never",
+  "vitest.commandLine": "pnpm vitest --ui --no-open --api.port 8080 --api.host 0.0.0.0 --api.strictPort",
+  "npm-outdated.cacheLifetime": 1,
+  "npm-outdated.decorations": "simple"
 }
