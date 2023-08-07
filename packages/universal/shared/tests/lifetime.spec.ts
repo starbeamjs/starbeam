@@ -173,7 +173,7 @@ describe("lifetime stack", () => {
           "finalize:object",
           "finalize:object2",
           "finalize:scope:nested",
-          "finalize:scope:outer"
+          "finalize:scope:outer",
         );
 
         finalize(nestedScope);
@@ -230,8 +230,8 @@ describe("lifetime stack", () => {
           actions.record("finalize:scope");
         });
 
-        linkToFinalizationScope(object, scope);
-        linkToFinalizationScope(object2, scope);
+        linkToFinalizationScope(object, { parent: scope });
+        linkToFinalizationScope(object2, { parent: scope });
 
         actions.expect([]);
 
@@ -298,7 +298,7 @@ describe("lifetime stack", () => {
           "finalize:object",
           "finalize:object2",
           "finalize:scope:nested",
-          "finalize:scope:outer"
+          "finalize:scope:outer",
         );
       });
 
@@ -336,7 +336,7 @@ describe("lifetime stack", () => {
           "finalize:object",
           "finalize:scope:inner",
           "finalize:object2",
-          "finalize:scope:outer"
+          "finalize:scope:outer",
         );
       });
     });
@@ -368,7 +368,7 @@ class MockFinalizationRegistry<T> implements FinalizationRegistry<T> {
   register(
     target: object,
     heldValue: T,
-    unregisterToken?: UnregisterToken | undefined
+    unregisterToken?: UnregisterToken | undefined,
   ): void {
     this.#targets.push({
       target,
@@ -379,7 +379,7 @@ class MockFinalizationRegistry<T> implements FinalizationRegistry<T> {
 
   unregister(unregisterToken: object): void {
     this.#targets = this.#targets.filter(
-      (target) => target.unregisterToken !== unregisterToken
+      (target) => target.unregisterToken !== unregisterToken,
     );
   }
 
