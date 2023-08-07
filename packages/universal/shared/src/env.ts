@@ -28,7 +28,6 @@ export interface Lifetime {
    */
   pushFinalizationScope: (
     child?: object | undefined,
-    priority?: number,
   ) => () => FinalizationScope;
 
   /**

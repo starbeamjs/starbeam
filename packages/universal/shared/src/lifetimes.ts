@@ -186,9 +186,8 @@ export function mountFinalizationScope(
 
 export function pushFinalizationScope(
   scope?: FinalizationScope | undefined,
-  priority?: number,
 ): () => FinalizationScope {
-  return LIFETIME.pushFinalizationScope(scope, priority);
+  return LIFETIME.pushFinalizationScope(scope);
 }
 
 export function linkToFinalizationScope(
