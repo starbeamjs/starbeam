@@ -4,24 +4,25 @@ import { isPresent, verify } from "@starbeam/verify";
 import {
   type Cleanup,
   PrimitiveSyncTo,
-  type SyncFn,
+  type Sync,
   type SyncHandler,
 } from "./primitive.js";
 
-export type SyncConstructor = (define: DefineSync) => void;
+export type SyncConstructor<T> = (define: DefineSync) => T;
 
-class DefineSync {
-  static define = (constructor: SyncConstructor): (() => SyncFn) => {
+export class DefineSync {
+  static define = <T>(constructor: SyncConstructor<T>): Sync<T> => {
     const scope = createPushScope();
 
     return PrimitiveSyncTo(() => {
       const defineSync = new DefineSync();
-      constructor(defineSync);
+      const value = constructor(defineSync);
       link(scope, defineSync);
 
       verify(defineSync.#sync, isPresent);
 
       return {
+        value,
         sync: defineSync.#sync,
         finalize: defineSync.#finalize,
       };
@@ -40,11 +41,6 @@ class DefineSync {
       this.#finalize = handler;
     },
   };
-
-  use<const Child extends (...args: unknown[]) => void>(child: Child, ...args: Parameters<Child>): void {
-    
-    
-  }
 }
 
 export const SyncTo = DefineSync.define;

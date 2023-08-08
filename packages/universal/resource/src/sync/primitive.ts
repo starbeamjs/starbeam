@@ -20,52 +20,70 @@ export interface SyncOptions {
   label?: string | undefined;
 }
 
-export type SyncFn = FormulaFn<void>;
+export type SyncFn<T> = FormulaFn<T>;
+export type Sync<T> = {
+  setup: () => SyncResult<T>;
+};
 
-export function PrimitiveSyncTo(
-  define: () => {
-    sync: SyncHandler;
-    finalize?: Cleanup | undefined;
-  },
-  options?: SyncOptions,
-): () => SyncFn {
-  return () => {
-    const label = options?.label;
-    const scope = label ? { label } : createPushScope();
+/** @internal */
+export type SyncResult<T> = {
+  sync: SyncFn<void>;
+  value: T;
+};
 
-    return pushingScope(
-      (scope) => {
-        let last: FinalizationScope | null = null;
-
-        const { sync, finalize: finalizeFn } = define();
-
-        if (finalizeFn) {
-          onFinalize(scope, finalizeFn);
-        }
-
-        const formula = CachedFormula(() => {
-          if (isFinalized(scope)) return;
-          if (last) {
-            finalize(last);
-          }
-
-          const done = mountFinalizationScope(scope);
-          const doneRun = pushFinalizationScope();
-          const cleanupScope = createPushScope();
-          const cleanup = sync();
-          if (cleanup) {
-            onFinalize(cleanupScope, cleanup);
-          }
-
-          last = doneRun();
-
-          done();
-        });
-
-        link(formula, scope);
-        return formula;
+export function PrimitiveSyncTo<T = undefined>(
+  define: () =>
+    | {
+        sync: SyncHandler;
+        finalize?: Cleanup | undefined;
+        value: T;
+      }
+    | {
+        sync: SyncHandler;
+        finalize?: Cleanup | undefined;
+        value?: undefined;
       },
-      { childScope: scope },
-    );
+  options?: SyncOptions,
+): Sync<T> {
+  return {
+    setup: () => {
+      const label = options?.label;
+      const scope = label ? { label } : createPushScope();
+
+      return pushingScope(
+        (scope) => {
+          let last: FinalizationScope | null = null;
+
+          const { sync, finalize: finalizeFn, value } = define();
+
+          if (finalizeFn) {
+            onFinalize(scope, finalizeFn);
+          }
+
+          const formula = CachedFormula(() => {
+            if (isFinalized(scope)) return;
+            if (last) {
+              finalize(last);
+            }
+
+            const done = mountFinalizationScope(scope);
+            const doneRun = pushFinalizationScope();
+            const cleanupScope = createPushScope();
+            const cleanup = sync();
+            if (cleanup) {
+              onFinalize(cleanupScope, cleanup);
+            }
+
+            last = doneRun();
+
+            done();
+          });
+
+          link(formula, scope);
+          return { sync: formula, value } as SyncResult<T>;
+        },
+        { childScope: scope },
+      );
+    },
   };
 }
