@@ -1,9 +1,10 @@
 import { Cell, Marker } from "@starbeam/reactive";
-import type { ResourceBlueprint, ResourceInstance } from "@starbeam/resource";
-import { PrimitiveSyncTo, Resource, use } from "@starbeam/resource";
+import type { ResourceBlueprint, SyncFn, SyncResult } from "@starbeam/resource";
+import { Resource, SyncTo } from "@starbeam/resource";
 import { type FinalizationScope, pushingScope } from "@starbeam/runtime";
 import { finalize, UNINITIALIZED } from "@starbeam/shared";
 import {
+  buildCause,
   describe,
   entryPoint,
   expect,
@@ -20,7 +21,7 @@ describe("resources", () => {
       events.record("resource:setup");
       const counter = Cell(0);
 
-      const sync = PrimitiveSyncTo(({ on }) => {
+      const { sync } = SyncTo(({ on }) => {
         events.record("sync:setup");
 
         on.sync(() => {
@@ -35,7 +36,7 @@ describe("resources", () => {
         on.finalize(() => {
           events.record("sync:finalize");
         });
-      })();
+      }).setup();
 
       return {
         sync,
@@ -164,17 +165,17 @@ describe("resources", () => {
     const increment = defineAction(counter.increment).expect({
       events: ["increment"],
       change: (i) => i + 1,
-      sync: UNCHANGED,
+      afterSync: UNCHANGED,
     });
 
     const invalidate = defineAction(invalidateSync.mark, "invalidate").expect({
-      sync: {
+      afterSync: {
         events: ["sync:cleanup", "sync:sync"],
       },
     });
 
     act(increment, {
-      sync: {
+      afterSync: {
         events: ["sync:sync"],
       },
     });
@@ -370,14 +371,14 @@ describe("resources", () => {
     // invalidate the synchronization.
     const increment = defineAction(counter.increment).expect({
       change: (v) => v + 1,
-      sync: UNCHANGED,
+      afterSync: UNCHANGED,
     });
 
     // invalidating the sync doesn't change the counter, and doesn't
     // immediately synchronize. When the resource is synchronized,
     // the cleanup and setup events are run.
     const invalidate = defineAction(invalidateSync.mark).expect({
-      sync: {
+      afterSync: {
         events: ["cleanup", "setup"],
         value: UNCHANGED,
       },
@@ -416,11 +417,11 @@ describe("resources", () => {
     const invalidateParentSync = Marker();
 
     const Child = Resource(({ on }) => {
-      events.record("child:init");
+      events.record("child:setup");
       const count = Cell(0);
 
       on.sync(() => {
-        events.record("child:setup");
+        events.record("child:sync");
         invalidateChildSync.read();
 
         return () => {
@@ -443,11 +444,11 @@ describe("resources", () => {
     });
 
     const Parent = Resource(({ use, on }) => {
-      events.record("parent:init");
+      events.record("parent:setup");
       const child = use(Child);
 
       on.sync(() => {
-        events.record("parent:setup");
+        events.record("parent:sync");
         invalidateParentSync.read();
 
         return () => {
@@ -461,10 +462,10 @@ describe("resources", () => {
 
       return {
         get childCount() {
-          return child.count;
+          return child().count;
         },
         incrementChild() {
-          child.increment();
+          child().increment();
         },
       };
     });
@@ -474,46 +475,63 @@ describe("resources", () => {
       value: parent,
       defineAction,
       act,
+      finalize,
     } = ResourceWrapper.use(Parent, {
       events,
       subject: (parent) => parent.childCount,
-    }).expect({ events: ["parent:init", "child:init"], value: 0 });
+    }).expect({ events: ["parent:setup", "child:setup"], value: 0 });
 
     const increment = defineAction(parent.incrementChild).expect({
       change: (prev) => prev + 1,
-      sync: UNCHANGED,
     });
 
     const invalidateChild = defineAction(invalidateChildSync.mark).expect({
-      sync: {
-        events: ["child:cleanup", "child:setup"],
+      // since the child sync is used in the `childCount` getter, the
+      // synchronization occurs the next time the getter is called.
+      //
+      // In practice, the getter will also be invoked during a synchronization
+      // step, but we're testing the difference here to be thorough.
+      afterAction: {
+        events: ["child:cleanup", "child:sync"],
       },
     });
 
-    sync().expect({ events: ["child:setup", "parent:setup"], value: 0 });
+    // since the parent sync is not used in the getter we're testing, we don't
+    // expect the sync to occur until the next time synchronization occurs.
+    const invalidateParent = defineAction(invalidateParentSync.mark).expect({
+      afterSync: { events: ["parent:cleanup", "parent:sync"] },
+    });
+
+    sync({
+      before: {
+        events: ["child:sync"],
+      },
+    }).expect({
+      events: ["parent:sync"],
+    });
+
     act(increment);
     act(invalidateChild);
 
-    // const { value: parent, sync, finalize } = resource;
+    act(invalidateParent);
 
-    // // initialization happens in source order
-    // events.expect("parent:init", "child:init");
-    // expect(parent.childCount).toBe(0);
+    act(increment);
+    act(invalidateChild);
 
-    // // child setup happens before parent setup
-    // sync().expect("child:setup", "parent:setup");
+    finalize({
+      events: [
+        "child:cleanup",
+        "child:finalize",
+        "parent:cleanup",
+        "parent:finalize",
+      ],
+    });
 
-    // // incrementing the child doesn't affect any of the setups.
-    // parent.incrementChild();
-    // expect(parent.childCount).toBe(1);
-    // sync().expect([]);
+    act(increment, { events: [] });
+    act(invalidateChild, { events: [] });
+    act(invalidateParent, { events: [] });
 
-    // invalidateChild.mark();
-
-    // // nothing happens until synchronization
-    // events.expect([]);
-
-    // sync().expect("child:cleanup", "child:setup");
+    finalize({ events: [] });
   });
 
   // test("child resources", () => {
@@ -895,7 +913,8 @@ export type ActionExpectations<U> =
   | {
       events?: string[];
       change?: UNCHANGED | ((value: U) => U);
-      sync?: Expectations<U> | undefined;
+      afterAction?: Expectations<U> | undefined;
+      afterSync?: Expectations<U> | undefined;
     };
 
 type Expectations<U> = Partial<NormalizedExpectations<U>> | UNCHANGED;
@@ -916,7 +935,8 @@ interface Action<U> {
    */
   events: string[];
   change: (prev: U) => U;
-  sync: Expectations<U> | undefined;
+  afterAction: Expectations<U> | undefined;
+  afterSync: Expectations<U> | undefined;
   cause: Error | undefined;
 }
 
@@ -929,13 +949,16 @@ class ResourceWrapper<T, U> {
       label,
     }: { events: RecordedEvents; subject: (value: T) => U; label?: string },
   ): PostAssertion<U, ResourceWrapper<T, U>> {
+    const cause = buildCause(ResourceWrapper.use);
+
     const [lifetime, instance] = entryPoint(
       () => {
         events.expect([]);
-        return pushingScope(() => use(blueprint));
+        return pushingScope(blueprint);
       },
       {
         entryFn: ResourceWrapper.use,
+        cause,
       },
     );
 
@@ -967,7 +990,7 @@ class ResourceWrapper<T, U> {
   readonly #label: string;
   readonly #value: T;
   readonly #extractSubject: (value: T) => U;
-  readonly #sync: Sync;
+  readonly #sync: SyncFn<void>;
   readonly #lifetime: FinalizationScope;
   readonly #events: RecordedEvents;
   #lastSubject: UNINITIALIZED | U = UNINITIALIZED;
@@ -976,7 +999,7 @@ class ResourceWrapper<T, U> {
   constructor(
     label: string,
     lifetime: FinalizationScope,
-    instance: ResourceInstance<T>,
+    instance: SyncResult<T>,
     events: RecordedEvents,
     subject: (value: T) => U,
   ) {
@@ -1040,7 +1063,8 @@ class ResourceWrapper<T, U> {
             label: label ? label : step.name || `action`,
             events: e?.events ?? [],
             change,
-            sync: e?.sync ?? undefined,
+            afterAction: e?.afterAction ?? undefined,
+            afterSync: e?.afterSync ?? undefined,
           };
         }
 
@@ -1116,12 +1140,13 @@ class ResourceWrapper<T, U> {
             `${action.label} (${i + 1}/${runs}): after`,
           );
 
-          if (currentAction.sync) {
-            this.sync().expect(
-              currentAction.sync,
-              `${action.label} (${i + 1}/${runs}): after sync`,
-            );
-          }
+          this.sync({
+            before: currentAction.afterAction ?? UNCHANGED,
+            label: `(${i + 1}/${runs}): after action`,
+          }).expect(
+            currentAction.afterSync ?? UNCHANGED,
+            `${action.label} (${i + 1}/${runs}): after sync`,
+          );
         }
       },
       {
@@ -1140,10 +1165,19 @@ class ResourceWrapper<T, U> {
    * 5. Synchronize again.
    * 6. Assert {@linkcode UNCHANGED}.
    */
-  sync = (): PostAssertion<U> => {
+  sync = ({
+    before = UNCHANGED,
+    label,
+  }: {
+    label?: string;
+    before?: Expectations<U>;
+  } = {}): PostAssertion<U> => {
     entryPoint(
       () => {
-        this.#expect(UNCHANGED, `${this.#label}: before sync`);
+        const fullLabel = label
+          ? `${this.#label} ${label}`
+          : `${this.#label}: before sync`;
+        this.#expect(before, fullLabel);
         this.#sync();
       },
       {
