@@ -1,4 +1,4 @@
-import { createPushScope, link } from "@starbeam/runtime";
+import { linkToFinalizationScope } from "@starbeam/shared";
 import { isPresent, verify } from "@starbeam/verify";
 
 import {
@@ -12,12 +12,10 @@ export type SyncConstructor<T> = (define: DefineSync) => T;
 
 export class DefineSync {
   static define = <T>(constructor: SyncConstructor<T>): Sync<T> => {
-    const scope = createPushScope();
-
     return PrimitiveSyncTo(() => {
       const defineSync = new DefineSync();
       const value = constructor(defineSync);
-      link(scope, defineSync);
+      linkToFinalizationScope(defineSync);
 
       verify(defineSync.#sync, isPresent);
 

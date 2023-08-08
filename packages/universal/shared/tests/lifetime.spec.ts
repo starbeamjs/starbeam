@@ -3,11 +3,11 @@ import {
   linkToFinalizationScope,
   onFinalize,
   pushFinalizationScope,
-  testing,
 } from "@starbeam/shared";
-import { beforeEach, describe, expect, test as vitestTest } from "vitest";
+import { beforeEach, describe, test as vitestTest } from "vitest";
 
 import { Actions } from "./support/actions.js";
+import { gc } from "./support/gc.js";
 
 interface LifetimeContext {
   actions: Actions;
@@ -342,60 +342,3 @@ describe("lifetime stack", () => {
     });
   });
 });
-
-type UnregisterToken = object;
-
-interface MockTarget<T> {
-  readonly target: object;
-  readonly heldValue: T;
-  readonly unregisterToken: UnregisterToken | undefined;
-}
-
-let lastRegistry: MockFinalizationRegistry<string> | undefined;
-
-class MockFinalizationRegistry<T> implements FinalizationRegistry<T> {
-  #targets: MockTarget<T>[] = [];
-  #callback: (heldValue: T) => void;
-
-  readonly [Symbol.toStringTag] = "FinalizationRegistry";
-
-  constructor(callback: (heldValue: T) => void) {
-    this.#callback = callback;
-
-    lastRegistry = this as unknown as MockFinalizationRegistry<string>;
-  }
-
-  register(
-    target: object,
-    heldValue: T,
-    unregisterToken?: UnregisterToken | undefined,
-  ): void {
-    this.#targets.push({
-      target,
-      heldValue,
-      unregisterToken,
-    });
-  }
-
-  unregister(unregisterToken: object): void {
-    this.#targets = this.#targets.filter(
-      (target) => target.unregisterToken !== unregisterToken,
-    );
-  }
-
-  gc(): void {
-    const targets = this.#targets;
-    this.#targets = [];
-
-    for (const target of targets) {
-      this.#callback(target.heldValue);
-    }
-  }
-}
-
-function gc() {
-  expect(lastRegistry).toBeDefined();
-  lastRegistry?.gc();
-}
-
-testing({ registry: MockFinalizationRegistry });
