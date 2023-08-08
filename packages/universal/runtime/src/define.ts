@@ -45,7 +45,7 @@ export function pushingScope<T>(
     priority?: number | undefined;
   },
 ): T;
-export function pushingScope<T>(
+export function pushingScope<const T>(
   block: (childScope: object) => T,
   options?: {
     priority?: number | undefined;

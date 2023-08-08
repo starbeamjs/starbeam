@@ -109,40 +109,75 @@ export function withCause<T>(block: () => T, caller: AnyFunction): T {
 
 export function wrapAssertion<T>(
   block: () => T,
-  then: (error: AssertionError) => AssertionError,
-  { entryFn = wrapAssertion }: { entryFn?: AnyFunction | undefined } = {},
+  {
+    entryFn = wrapAssertion,
+    mapAssertion = (e) => e,
+    mapAnyErr = (e) => e,
+    cause,
+  }: {
+    entryFn?: AnyFunction | undefined;
+    mapAssertion?: (error: AssertionError) => AssertionError;
+    mapAnyErr?: <E extends Error>(error: E) => E;
+    cause?: Error;
+  },
 ): T {
   try {
     return block();
   } catch (e: unknown) {
+    const buildCause = () => {
+      if (e instanceof Error) {
+        class Cause extends Error {}
+
+        // We only need to get enough of a copy for the "cause" printing
+        // in vitest, while also avoiding creating a circular reference.
+        Object.defineProperty(Cause, "name", {
+          configurable: true,
+          value: e.name,
+        });
+
+        const cause = new Cause(e.message);
+
+        if (e.stack !== undefined) {
+          cause.stack = e.stack;
+        }
+
+        return cause;
+      } else {
+        return;
+      }
+    };
+
+    const cause = buildCause();
+
     let error;
-    if (isAssertionError(e)) {
-      error = then(removeAbstraction(e, entryFn));
-    } else if (e instanceof Error) {
-      error = removeAbstraction(e, entryFn);
+    if (isAssertionError(e) && mapAssertion) {
+      error = removeAbstraction(mapAssertion(e), entryFn);
+    } else if (e instanceof Error && mapAnyErr) {
+      error = removeAbstraction(mapAnyErr(e), entryFn);
     } else {
-      error = e;
+      throw e;
     }
+
+    error.cause = cause;
 
     throw error;
   }
 }
 
-export function entryPoint<T>(
+export function entryPoint<const T>(
   block: () => T,
   { entryFn, cause }: { entryFn: AnyFunction; cause?: Error | undefined },
 ): T {
-  return wrapAssertion(
-    block,
-    (error) => {
+  return wrapAssertion(block, {
+    mapAnyErr: (error) => {
       if (cause) {
         error.cause = cause;
       }
 
       return error;
     },
-    { entryFn },
-  );
+    entryFn,
+  });
 }
 
 export function isAssertionError(error: unknown): error is AssertionError {

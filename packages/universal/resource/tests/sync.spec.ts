@@ -4,7 +4,7 @@ import {
   type FormulaFn,
   Marker,
 } from "@starbeam/reactive";
-import type { SyncFn } from "@starbeam/resource";
+import type { Sync, SyncFn } from "@starbeam/resource";
 import { PrimitiveSyncTo, SyncTo } from "@starbeam/resource";
 import { createPushScope, pushingScope } from "@starbeam/runtime";
 import {
@@ -64,11 +64,11 @@ describe("Sync", () => {
         events.record("finalize");
       });
 
-      return sync;
+      return { sync, value: undefined };
     }
 
     assertSyncLifecycle({
-      Sync: TestSync,
+      Sync: { setup: TestSync },
       state,
     });
   });
@@ -124,7 +124,7 @@ describe("Sync", () => {
       const ParentSync = PrimitiveSyncTo(() => {
         const localEvents = allEvents.prefixed("parent");
 
-        const child = ChildSync();
+        const child = ChildSync.setup();
 
         localEvents.record("setup");
 
@@ -133,7 +133,7 @@ describe("Sync", () => {
             localEvents.record("sync");
             invalidateParent.read();
 
-            child();
+            child.sync();
 
             return () => {
               localEvents.record("cleanup");
@@ -203,8 +203,8 @@ describe("Sync", () => {
         prefix: "parent",
         invalidate: invalidateParent,
         test: {
-          setup: ChildSync,
-          sync: (child) => void child(),
+          setup: () => ChildSync.setup(),
+          sync: (child) => child.sync(),
         },
       });
 
@@ -243,9 +243,9 @@ describe("Sync", () => {
         invalidate: invalidateParent,
         test: {
           setup: () => {
-            return childStates.map((child) => child.sync());
+            return childStates.map((child) => child.sync.setup());
           },
-          sync: (children) => void children.forEach((child) => void child()),
+          sync: (children) => void children.forEach((child) => child.sync()),
         },
       });
 
@@ -256,7 +256,7 @@ describe("Sync", () => {
         childStates,
         (child) => child.state.counter.current,
       );
-      const [scope, sync] = pushingScope(() => ParentSync());
+      const [scope, { sync }] = pushingScope(() => ParentSync.setup());
 
       children.expect({
         initialized: children.map(() => 0),
@@ -665,13 +665,13 @@ function assertSyncLifecycle({
   Sync,
   state: { counter, events, increment, invalidate },
 }: {
-  Sync: () => FormulaFn<void>;
+  Sync: Sync<void>;
   state: SyncTestState;
 }) {
   const cause = buildCause(assertSyncLifecycle);
 
   try {
-    const [scope, sync] = pushingScope(() => Sync());
+    const [scope, { sync }] = pushingScope(() => Sync.setup());
 
     expect(counter.current).toBe(0);
     events.expect("setup");
@@ -754,7 +754,7 @@ function assertNestedSyncLifecycle({
   allEvents,
   invalidateParent,
 }: {
-  ParentSync: () => FormulaFn<void>;
+  ParentSync: Sync<void>;
   state: SyncTestState;
   allEvents: RecordedEvents;
   invalidateParent: Marker;
@@ -762,7 +762,7 @@ function assertNestedSyncLifecycle({
   const cause = buildCause(assertNestedSyncLifecycle);
 
   try {
-    const [scope, sync] = pushingScope(() => ParentSync());
+    const [scope, { sync }] = pushingScope(() => ParentSync.setup());
     const { counter, increment, invalidate: invalidateChild } = state;
     const events = allEvents;
 
@@ -891,7 +891,7 @@ function buildTestSync<Setup extends undefined | (() => unknown)>(
       finalize?: () => void;
     };
   },
-): () => SyncFn {
+): Sync<void> {
   return SyncTo(({ on }) => {
     const localEvents = prefix ? events.prefixed(prefix) : events;
 
