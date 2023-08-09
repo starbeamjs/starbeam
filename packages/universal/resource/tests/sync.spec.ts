@@ -97,12 +97,14 @@ describe("Sync", () => {
       const { events: allEvents } = state;
 
       const ChildSync = PrimitiveSyncTo(() => {
+        // the setup phase of ChildSync
         const localEvents = allEvents.prefixed("child");
 
         localEvents.record("setup");
 
         return {
           sync: () => {
+            // the sync phase of ChildSync
             localEvents.record("sync");
             state.invalidate.read();
 
@@ -122,6 +124,7 @@ describe("Sync", () => {
       const invalidateParent = Marker();
 
       const ParentSync = PrimitiveSyncTo(() => {
+        // the setup phase of ParentSync
         const localEvents = allEvents.prefixed("parent");
 
         const child = ChildSync.setup();
@@ -130,6 +133,7 @@ describe("Sync", () => {
 
         return {
           sync: () => {
+            // the sync phase of ChildSync
             localEvents.record("sync");
             invalidateParent.read();
 

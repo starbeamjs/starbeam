@@ -58,6 +58,7 @@
     "vite.config.ts": "rollup.config.*, .env.*"
   },
 
+  "npm-outdated.cacheLifetime": 1,
   "prettier.prettierPath": "./node_modules/prettier",
 
   // rewrap provides a quick keyboard shortcut (alt-q) to reformat comments to
@@ -72,6 +73,7 @@
     "**/CHANGELOG.md": true,
     "pnpm-lock.yaml": true
   },
+  "testing.automaticallyOpenPeekView": "never",
   // Try to avoid auto-importing other packages in the mono-repo as relative
   // paths. Instead, use the packaage name.
   "typescript.preferences.importModuleSpecifier": "project-relative",
@@ -83,12 +85,9 @@
   "typescript.tsserver.experimental.enableProjectDiagnostics": true,
 
   "vitest.changeBackgroundColor": true,
+  "vitest.commandLine": "pnpm vitest --ui --no-open --api.port 8080 --api.host 0.0.0.0 --api.strictPort",
   "vitest.debugExclude": ["<node_internals>/**", "**/node_modules/**"],
   "vitest.disabledWorkspaceFolders": ["demos", "@types", "workspace"],
   "vitest.enable": true,
-  "vitest.showFailMessages": true,
-  "testing.automaticallyOpenPeekView": "never",
-  "vitest.commandLine": "pnpm vitest --ui --no-open --api.port 8080 --api.host 0.0.0.0 --api.strictPort",
-  "npm-outdated.cacheLifetime": 1,
-  "npm-outdated.decorations": "simple"
+  "vitest.showFailMessages": true
 }
