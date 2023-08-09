@@ -42,35 +42,24 @@ export function pushingScope<T>(
   block: (childScope: object) => T,
   options: {
     childScope: object | undefined;
-    priority?: number | undefined;
   },
 ): T;
 export function pushingScope<const T>(
   block: (childScope: object) => T,
-  options?: {
-    priority?: number | undefined;
-  },
 ): [object, T];
 export function pushingScope<T>(
   block: (childScope: object) => T,
   options?: {
     childScope?: object | undefined;
-    priority?: number | undefined;
   },
 ): unknown {
   const childScope = options?.childScope;
 
-  const doneScope = pushFinalizationScope(childScope, options?.priority);
-  let isDone = false;
+  const doneScope = pushFinalizationScope(childScope);
 
-  try {
-    const result = (block as (childScope?: object) => unknown)(childScope);
-    const scope = doneScope();
-    isDone = true;
+  const result = (block as (childScope?: object) => unknown)(childScope);
+  // FIXME: Error handling
+  const scope = doneScope();
 
-    return childScope === undefined ? [scope, result] : result;
-  } catch (e) {
-    if (!isDone) doneScope();
-    throw e;
-  }
+  return childScope === undefined ? [scope, result] : result;
 }

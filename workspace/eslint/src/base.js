@@ -110,7 +110,7 @@ const TYPED_RULES = Rules.build((rules) =>
       allow: ["readonly"],
     })
     .typed("no-type-alias", [
-      "warn",
+      "error",
       {
         allowAliases: "always",
         allowCallbacks: "always",
@@ -127,7 +127,7 @@ const TYPED_RULES = Rules.build((rules) =>
     .typed("no-unsafe-call", "warn")
     .typed("no-unsafe-declaration-merging", "warn")
     .typed("no-unsafe-member-access", "warn")
-    .typed("no-unsafe-return", "warn")
+    .typed("no-unsafe-return", "warn"),
 );
 
 /** @type {Linter.RulesRecord} */

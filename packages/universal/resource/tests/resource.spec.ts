@@ -462,10 +462,10 @@ describe("resources", () => {
 
       return {
         get childCount() {
-          return child().count;
+          return child.count;
         },
         incrementChild() {
-          child().increment();
+          child.increment();
         },
       };
     });
@@ -486,28 +486,17 @@ describe("resources", () => {
     });
 
     const invalidateChild = defineAction(invalidateChildSync.mark).expect({
-      // since the child sync is used in the `childCount` getter, the
-      // synchronization occurs the next time the getter is called.
-      //
-      // In practice, the getter will also be invoked during a synchronization
-      // step, but we're testing the difference here to be thorough.
-      afterAction: {
+      afterSync: {
         events: ["child:cleanup", "child:sync"],
       },
     });
 
-    // since the parent sync is not used in the getter we're testing, we don't
-    // expect the sync to occur until the next time synchronization occurs.
     const invalidateParent = defineAction(invalidateParentSync.mark).expect({
       afterSync: { events: ["parent:cleanup", "parent:sync"] },
     });
 
-    sync({
-      before: {
-        events: ["child:sync"],
-      },
-    }).expect({
-      events: ["parent:sync"],
+    sync().expect({
+      events: ["parent:sync", "child:sync"],
     });
 
     act(increment);
@@ -533,371 +522,6 @@ describe("resources", () => {
 
     finalize({ events: [] });
   });
-
-  // test("child resources", () => {
-  //   const name = Cell("default");
-  //   let connectedCount = 0;
-  //   const Socket = Resource(({ on }) => {
-  //     const connected = {
-  //       socketName: name.current as string | null,
-  //       connected: ++connectedCount,
-  //     };
-
-  //     on.cleanup(() => {
-  //       connected.socketName = null;
-  //     });
-
-  //     return connected;
-  //   });
-
-  //   const Channel = Resource(({ use }) => {
-  //     const socket = use(Socket);
-  //     const messages = Cell(0);
-
-  //     return {
-  //       get description() {
-  //         const { connected, socketName } = socket.current;
-  //         return `${
-  //           socketName ?? "disconnected"
-  //         } (connected: ${connected}, messages: ${messages.current})`;
-  //       },
-  //       get socket() {
-  //         return socket.current;
-  //       },
-  //       get messages() {
-  //         return messages.current;
-  //       },
-  //       send() {
-  //         messages.current++;
-  //       },
-  //     };
-  //   });
-
-  //   const lifetime = {};
-  //   const channel = setup(Channel, { lifetime });
-
-  //   expect(channel.current.description).toBe(
-  //     "default (connected: 1, messages: 0)",
-  //   );
-
-  //   channel.current.send();
-  //   expect(channel.current.description).toBe(
-  //     "default (connected: 1, messages: 1)",
-  //   );
-
-  //   name.set("socketa");
-  //   expect(channel.current.description).toBe(
-  //     "socketa (connected: 2, messages: 1)",
-  //   );
-  // });
-
-  // test("inner use() consuming reactive state and returning a blueprint", () => {
-  //   const salutation = Cell("Mr.");
-  //   const invalidateOuter = Marker();
-  //   const counts = {
-  //     inner: 0,
-  //     outer: 0,
-  //   };
-
-  //   function Greeting(name: Cell<string>) {
-  //     return Resource(({ use }) => {
-  //       counts.outer++;
-  //       invalidateOuter.read();
-
-  //       const sal = use(() => {
-  //         counts.inner++;
-  //         return salutation.current;
-  //       });
-
-  //       return CachedFormula(() => `${sal.current} ${name.current}`);
-  //     });
-  //   }
-
-  //   const name = Cell("Person");
-
-  //   const lifetime = {};
-  //   const greeting = setup(Greeting(name), { lifetime });
-
-  //   expect(greeting.current).toBe("Mr. Person");
-  //   expect(counts).toEqual({ inner: 1, outer: 1 });
-
-  //   name.current = "Persona";
-  //   expect(greeting.current).toBe("Mr. Persona");
-  //   expect(counts).toEqual({ inner: 1, outer: 1 });
-
-  //   salutation.current = "Mx.";
-  //   expect(greeting.current).toBe("Mx. Persona");
-  //   // The outer resource *constructor* does not have a dependency on the
-  //   // inner resource, since the outer resource doesn't read the value of the
-  //   // inner resource during construction. The outer resource *value*, on the
-  //   // other hand, does depend on the inner resource, so re-evaluating
-  //   // `greeting` causes the inner resource to be re-initialized.
-  //   //
-  //   // You can see that this is the correct behavior by observing that the only
-  //   // way to directly check whether the `salutation` cell was reflected
-  //   // correctly is by checking the value of the `greeting` resource, which is
-  //   // the exact check that caused the inner resource to be re-initialized.
-  //   expect(counts).toEqual({ inner: 2, outer: 1 });
-
-  //   invalidateOuter.mark();
-  //   expect(greeting.current).toBe("Mx. Persona");
-  //   expect(counts).toEqual({ inner: 3, outer: 2 });
-
-  //   name.current = "Persone";
-  //   expect(greeting.current).toBe("Mx. Persone");
-  //   expect(counts).toEqual({ inner: 3, outer: 2 });
-  // });
-
-  // test("inner use() returning a blueprint", () => {
-  //   const name = Cell("default");
-  //   let connectedCount = 0;
-  //   function Socket(name: Cell<string>) {
-  //     return Resource(({ on }) => {
-  //       const connected = {
-  //         socketName: name.current as string | null,
-  //         connected: ++connectedCount,
-  //       };
-
-  //       on.cleanup(() => {
-  //         connected.socketName = null;
-  //       });
-
-  //       return connected;
-  //     });
-  //   }
-
-  //   const Channel = Resource(({ use }) => {
-  //     const socket = use(() => Socket(name));
-  //     const messages = Cell(0);
-
-  //     return {
-  //       get description() {
-  //         const { connected, socketName } = socket.current;
-  //         return `${
-  //           socketName ?? "disconnected"
-  //         } (connected: ${connected}, messages: ${messages.current})`;
-  //       },
-  //       get socket() {
-  //         return socket.current;
-  //       },
-  //       get messages() {
-  //         return messages.current;
-  //       },
-  //       send() {
-  //         messages.current++;
-  //       },
-  //     };
-  //   });
-
-  //   const lifetime = {};
-  //   const channel = setup(Channel, { lifetime });
-
-  //   expect(channel.current.description).toBe(
-  //     "default (connected: 1, messages: 0)",
-  //   );
-
-  //   channel.current.send();
-  //   expect(channel.current.description).toBe(
-  //     "default (connected: 1, messages: 1)",
-  //   );
-
-  //   name.set("socketa");
-  //   expect(channel.current.description).toBe(
-  //     "socketa (connected: 2, messages: 1)",
-  //   );
-  // });
-
-  // test("inline child resources", () => {
-  //   const name = Cell("default");
-  //   let connectedCount = 0;
-
-  //   const Channel = Resource(({ use }) => {
-  //     const socket = use(({ on }) => {
-  //       const connected = {
-  //         socketName: name.current as string | null,
-  //         connected: ++connectedCount,
-  //       };
-
-  //       on.cleanup(() => {
-  //         connected.socketName = null;
-  //       });
-
-  //       return connected;
-  //     });
-  //     const messages = Cell(0);
-
-  //     return {
-  //       get description() {
-  //         const { connected, socketName } = socket.current;
-  //         return `${
-  //           socketName ?? "disconnected"
-  //         } (connected: ${connected}, messages: ${messages.current})`;
-  //       },
-  //       get socket() {
-  //         return socket.current;
-  //       },
-  //       get messages() {
-  //         return messages.current;
-  //       },
-  //       send() {
-  //         messages.current++;
-  //       },
-  //     };
-  //   });
-
-  //   const lifetime = {};
-  //   const channel = setup(Channel, { lifetime });
-
-  //   expect(channel.current.description).toBe(
-  //     "default (connected: 1, messages: 0)",
-  //   );
-
-  //   channel.current.send();
-  //   expect(channel.current.description).toBe(
-  //     "default (connected: 1, messages: 1)",
-  //   );
-
-  //   name.set("socketa");
-  //   expect(channel.current.description).toBe(
-  //     "socketa (connected: 2, messages: 1)",
-  //   );
-  // });
-
-  // test("external resources", () => {
-  //   const childResource = new TestResource();
-  //   const child = childResource.instance;
-
-  //   const invalidateParent = Marker();
-  //   const parentCounts = { init: 0, cleanup: 0 };
-
-  //   const Parent = Resource(({ on }) => {
-  //     invalidateParent.read();
-  //     parentCounts.init++;
-
-  //     on.cleanup(() => {
-  //       parentCounts.cleanup++;
-  //     });
-
-  //     return {
-  //       get child() {
-  //         return child.current.state;
-  //       },
-  //       increment() {
-  //         child.current.increment();
-  //       },
-  //     };
-  //   });
-
-  //   const lifetime = {};
-  //   const parent = setup(Parent, {
-  //     lifetime,
-  //   });
-
-  //   function getState() {
-  //     return {
-  //       child: parent.current.child,
-  //       parent: {
-  //         ...parentCounts,
-  //       },
-  //     };
-  //   }
-
-  //   expect(getState()).toEqual({
-  //     parent: {
-  //       init: 1,
-  //       cleanup: 0,
-  //     },
-
-  //     child: {
-  //       count: 0,
-  //       init: 1,
-  //       finalized: 0,
-  //     },
-  //   });
-
-  //   // invalidating the parent should not invalidate the child (it gets adopted
-  //   // by the new run).
-  //   invalidateParent.mark();
-
-  //   expect(getState()).toEqual({
-  //     parent: {
-  //       init: 2,
-  //       cleanup: 1,
-  //     },
-  //     child: {
-  //       count: 0,
-  //       init: 1,
-  //       finalized: 0,
-  //     },
-  //   });
-
-  //   parent.current.increment();
-
-  //   expect(getState()).toEqual({
-  //     parent: {
-  //       init: 2,
-  //       cleanup: 1,
-  //     },
-  //     child: {
-  //       count: 1,
-  //       init: 1,
-  //       finalized: 0,
-  //     },
-  //   });
-  // });
-
-  // test("modifying a resource constructor's dependency after it was finalized doesn't cause it to run again", () => {
-  //   const counts = { init: 0, finalized: 0 };
-  //   const invalidate = Marker();
-
-  //   const Counter = Resource(({ on }) => {
-  //     const counter = Cell(0);
-
-  //     on.setup(() => {
-  //       invalidate.read();
-  //       counts.init++;
-
-  //       return () => {
-  //         counts.finalized++;
-  //       };
-  //     });
-
-  //     return {
-  //       get count() {
-  //         return counter.current;
-  //       },
-  //       increment() {
-  //         counter.current++;
-  //       },
-  //     };
-  //   });
-
-  //   const lifetime = {};
-  //   const counter = setup(Counter, { lifetime });
-
-  //   expect(counter.current.count).toBe(0);
-  //   expect(counts).toEqual({ init: 1, finalized: 0 });
-
-  //   counter.current.increment();
-  //   expect(counter.current.count).toBe(1);
-  //   expect(counts).toEqual({ init: 1, finalized: 0 });
-
-  //   invalidate.mark();
-  //   expect(counter.current.count).toBe(1);
-  //   expect(counts).toEqual({ init: 2, finalized: 1 });
-
-  //   counter.current.increment();
-  //   expect(counter.current.count).toBe(2);
-  //   expect(counts).toEqual({ init: 2, finalized: 1 });
-
-  //   finalize(lifetime);
-  //   expect(counts).toEqual({ init: 2, finalized: 2 });
-
-  //   // modifying the dependency after the resource was finalized should not
-  //   // cause it to run again
-  //   invalidate.mark();
-  //   expect(counts).toEqual({ init: 2, finalized: 2 });
-  // });
 });
 
 const UNCHANGED = Symbol("LATEST");
@@ -954,7 +578,7 @@ class ResourceWrapper<T, U> {
     const [lifetime, instance] = entryPoint(
       () => {
         events.expect([]);
-        return pushingScope(blueprint);
+        return pushingScope(() => blueprint.setup());
       },
       {
         entryFn: ResourceWrapper.use,
@@ -962,14 +586,8 @@ class ResourceWrapper<T, U> {
       },
     );
 
-    const processedLabel = label
-      ? label
-      : blueprint.name
-      ? blueprint.name
-      : undefined;
-
     const wrapper = new ResourceWrapper(
-      processedLabel ?? "{anonymous resource}",
+      label ?? "{anonymous resource}",
       lifetime,
       instance,
       events,
@@ -977,10 +595,7 @@ class ResourceWrapper<T, U> {
     );
 
     const expectFn = (expected: Expectations<U>) => {
-      wrapper.#expect(
-        expected,
-        processedLabel ? `use ${processedLabel}` : "use",
-      );
+      wrapper.#expect(expected, label ? `use ${label}` : "use");
       return wrapper;
     };
 
