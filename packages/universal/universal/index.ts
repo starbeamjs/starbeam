@@ -25,7 +25,5 @@ export {
   type IntoResourceBlueprint,
   Resource,
   type ResourceBlueprint,
-  type ResourceRun,
-  use,
 } from "@starbeam/resource";
 export { CONTEXT, RUNTIME, TAG } from "@starbeam/runtime";

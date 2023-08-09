@@ -1,5 +1,4 @@
 import { linkToFinalizationScope } from "@starbeam/shared";
-import { isPresent, verify } from "@starbeam/verify";
 
 import {
   type Cleanup,
@@ -17,14 +16,16 @@ export class DefineSync {
       const value = constructor(defineSync);
       linkToFinalizationScope(defineSync);
 
-      verify(defineSync.#sync, isPresent);
-
       return {
         value,
-        sync: defineSync.#sync,
+        sync: defineSync.#sync ?? (() => void 0),
         finalize: defineSync.#finalize,
       };
     });
+  };
+
+  static getSync = (define: DefineSync): SyncHandler | undefined => {
+    return define.#sync;
   };
 
   #sync: SyncHandler | undefined;

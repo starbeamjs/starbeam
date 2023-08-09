@@ -1,49 +1,73 @@
+import type { Description } from "@starbeam/interfaces";
 import { CachedFormula } from "@starbeam/reactive";
+import {
+  linkToFinalizationScope,
+  mountFinalizationScope,
+} from "@starbeam/shared";
 
-import { type DefineSync, SyncTo } from "./sync/high-level.js";
-import type { SyncFn, SyncResult } from "./sync/primitive.js";
-
-export function Resource<const T>(
-  setup: SetupResource<T>,
-): ResourceBlueprint<T> {
-  const setupSync = SyncTo((define) => {
-    const defineResource = new DefineResource(define);
-
-    const result = setup(defineResource);
-
-    return result;
-  });
-
-  return () => {
-    return setupSync.setup();
-  };
-}
+import type { DefineSync } from "./sync/high-level.js";
+import { SyncTo } from "./sync/high-level.js";
+import { type Sync, type SyncFn, type SyncResult } from "./sync/primitive.js";
 
 export type SetupResource<T> = (define: DefineResource) => T;
 
-export type ResourceBlueprint<T> = () => SyncResult<T>;
-
+export type ResourceBlueprint<T> = Sync<T>;
 export class DefineResource {
-  static getSync(resource: DefineResource) {
-    return resource.#define;
-  }
+  static define = <T>(
+    constructor: SetupResource<T>,
+    _description?: Description | string,
+  ): ResourceBlueprint<T> => {
+    const setupSync = SyncTo((define) => {
+      const defineResource = new DefineResource(define);
+      const value = constructor(defineResource);
+      linkToFinalizationScope(defineResource);
 
+      return {
+        value,
+        syncChildren: () => {
+          for (const child of defineResource.#children) {
+            child();
+          }
+        },
+      };
+    });
+
+    return {
+      setup: () => {
+        const {
+          sync,
+          value: { value, syncChildren },
+        } = setupSync.setup();
+
+        return {
+          value,
+          sync: CachedFormula(() => {
+            sync();
+            syncChildren();
+          }),
+        };
+      },
+    };
+  };
+
+  readonly #children = new Set<SyncFn<unknown>>();
   readonly on;
-  readonly #define: DefineSync;
 
   constructor(define: DefineSync) {
     this.on = define.on;
-    this.#define = define;
   }
 
-  use = <U>(resource: ResourceBlueprint<U>): SyncFn<U> => {
-    const { sync, value } = resource();
+  readonly use = <T>(blueprint: ResourceBlueprint<T>): T => {
+    const done = mountFinalizationScope(this);
+    const { sync, value } = blueprint.setup();
 
-    // this.#define.on.sync(sync);
+    this.#children.add(sync);
 
-    return CachedFormula(() => {
-      sync();
-      return value;
-    });
+    done();
+
+    return value;
   };
 }
+
+export const Resource = DefineResource.define;
+export type Resource<T> = SyncResult<T>;

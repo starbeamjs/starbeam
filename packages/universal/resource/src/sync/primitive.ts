@@ -21,15 +21,15 @@ export interface SyncOptions {
 }
 
 export type SyncFn<T> = FormulaFn<T>;
-export type Sync<T> = {
-  setup: () => SyncResult<T>;
-};
+export interface Sync<T> {
+  readonly setup: () => SyncResult<T>;
+}
 
 /** @internal */
-export type SyncResult<T> = {
-  sync: SyncFn<void>;
-  value: T;
-};
+export interface SyncResult<T> {
+  readonly sync: SyncFn<void>;
+  readonly value: T;
+}
 
 export function PrimitiveSyncTo<T = undefined>(
   define: () =>
@@ -51,36 +51,38 @@ export function PrimitiveSyncTo<T = undefined>(
       const scope = label ? { label } : createPushScope();
 
       return pushingScope(
-        (scope) => {
+        (syncScope) => {
           let last: FinalizationScope | null = null;
 
           const { sync, finalize: finalizeFn, value } = define();
 
           if (finalizeFn) {
-            onFinalize(scope, finalizeFn);
+            onFinalize(finalizeFn);
           }
 
-          const formula = CachedFormula(() => {
-            if (isFinalized(scope)) return;
-            if (last) {
-              finalize(last);
+          // This formula is polled inside of the sync phase.
+          const syncPhaseFormula = CachedFormula(() => {
+            if (isFinalized(syncScope)) return;
+            if (last) finalize(last);
+
+            const done = mountFinalizationScope(syncScope);
+
+            try {
+              const done = pushFinalizationScope();
+
+              try {
+                const cleanup = sync();
+                if (cleanup) onFinalize(cleanup);
+              } finally {
+                last = done();
+              }
+            } finally {
+              done();
             }
-
-            const done = mountFinalizationScope(scope);
-            const doneRun = pushFinalizationScope();
-            const cleanupScope = createPushScope();
-            const cleanup = sync();
-            if (cleanup) {
-              onFinalize(cleanupScope, cleanup);
-            }
-
-            last = doneRun();
-
-            done();
           });
 
-          link(formula, scope);
-          return { sync: formula, value } as SyncResult<T>;
+          link(syncPhaseFormula, syncScope);
+          return { sync: syncPhaseFormula, value } as SyncResult<T>;
         },
         { childScope: scope },
       );

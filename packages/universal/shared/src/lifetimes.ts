@@ -53,8 +53,6 @@ if (!lifetime) {
 
     constructor() {
       this.#createRegistry = () => {
-        console.trace();
-
         const Registry = coordination.testing?.registry ?? FinalizationRegistry;
         return new Registry((state) => void state.finalize());
       };

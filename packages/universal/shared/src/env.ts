@@ -40,7 +40,7 @@ export interface Lifetime {
 
   linkToFinalizationScope: (
     child: object,
-    parent?: FinalizationScope,
+    options?: { parent?: FinalizationScope },
   ) => Unregister;
   /**
    * Specify a finalizer that will be called when the object is finalized.

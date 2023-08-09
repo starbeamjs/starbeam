@@ -5,8 +5,8 @@ import {
   Resource,
   type ResourceBlueprint,
   ResourceList,
-  use,
 } from "@starbeam/resource";
+import { pushingScope } from "@starbeam/runtime";
 import { finalize } from "@starbeam/shared";
 import { describe, expect, test } from "@starbeam-workspace/test-utils";
 
@@ -61,7 +61,7 @@ describe("ResourceList", () => {
           active.set(false);
         });
 
-        on.setup(() => {
+        on.sync(() => {
           active.set(true);
         });
 
@@ -76,23 +76,27 @@ describe("ResourceList", () => {
       });
     };
 
-    const lifetime = { lifetime: "root" };
-    const mapped = setup(
-      ResourceList(list, {
-        key: (item) => item.id,
-        map,
-      }),
-      { lifetime },
+    const Mapped = ResourceList(list, {
+      key: (item) => item.id,
+      map,
+    });
+
+    const [lifetime, { sync, value: mapped }] = pushingScope(() =>
+      Mapped.setup(),
     );
 
-    expect(mapped.current.map((r) => r.current)).toEqual([
+    sync();
+
+    expect(mapped.current).toEqual([
       { active: true, desc: "Tom (NYC)" },
       { active: true, desc: "Chirag (NYC)" },
     ]);
 
     list.push({ id: 3, name: "John", location: "LA" });
 
-    expect(mapped.current.map((r) => r.current)).toEqual([
+    sync();
+
+    expect(mapped.current).toEqual([
       { active: true, desc: "Tom (NYC)" },
       { active: true, desc: "Chirag (NYC)" },
       { active: true, desc: "John (LA)" },
@@ -100,7 +104,7 @@ describe("ResourceList", () => {
 
     finalize(lifetime);
 
-    expect(mapped.current.map((r) => r.current)).toEqual([
+    expect(mapped.current).toEqual([
       { active: false, desc: "Tom (NYC)" },
       { active: false, desc: "Chirag (NYC)" },
       { active: false, desc: "John (LA)" },
@@ -122,7 +126,7 @@ describe("ResourceList", () => {
           active.set(false);
         });
 
-        on.setup(() => {
+        on.sync(() => {
           active.set(true);
         });
 
@@ -137,24 +141,25 @@ describe("ResourceList", () => {
       });
     };
 
-    const lifetime = { lifetime: "root" };
-    const mapped = use(
-      ResourceList(list, {
-        key: (item) => item.id,
-        map,
-      }),
+    const Mapped = ResourceList(list, {
+      key: (item) => item.id,
+      map,
+    });
+
+    const [lifetime, { sync, value: mapped }] = pushingScope(() =>
+      Mapped.setup(),
     );
 
-    expect(mapped.current.map((r) => r.current)).toEqual([
+    expect(mapped.current).toEqual([
       { active: false, desc: "Tom (NYC)" },
       { active: false, desc: "Chirag (NYC)" },
     ]);
 
-    setup(mapped, { lifetime });
-
     list.push({ id: 3, name: "John", location: "LA" });
 
-    expect(mapped.current.map((r) => r.current)).toEqual([
+    sync();
+
+    expect(mapped.current).toEqual([
       { active: true, desc: "Tom (NYC)" },
       { active: true, desc: "Chirag (NYC)" },
       { active: true, desc: "John (LA)" },
@@ -162,7 +167,7 @@ describe("ResourceList", () => {
 
     finalize(lifetime);
 
-    expect(mapped.current.map((r) => r.current)).toEqual([
+    expect(mapped.current).toEqual([
       { active: false, desc: "Tom (NYC)" },
       { active: false, desc: "Chirag (NYC)" },
       { active: false, desc: "John (LA)" },
@@ -189,16 +194,15 @@ describe("ResourceList", () => {
         }));
       }, `subscription for '${item.name}' (${item.id})`);
 
-    const lifetime = { lifetime: "root" };
-
     const List = ResourceList(items, {
       key: (item) => item.id,
       map,
     });
 
-    const list = setup(List, { lifetime });
+    const [lifetime, { sync, value: list }] = pushingScope(() => List.setup());
 
     function current(): { card: string; subscription: Subscription }[] {
+      sync();
       return list.current.map((r) => r.current);
     }
 
@@ -245,6 +249,8 @@ describe("ResourceList", () => {
     expect(john?.isActive).toBe(false);
 
     items.reverse();
+
+    sync();
 
     expect(items).toEqual([
       { id: 2, name: "Chirag", location: "NYC" },
