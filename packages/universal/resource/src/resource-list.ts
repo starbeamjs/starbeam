@@ -3,7 +3,9 @@ import { CachedFormula, Cell, DEBUG, type FormulaFn } from "@starbeam/reactive";
 import type { FinalizationScope } from "@starbeam/runtime";
 import { finalize, pushFinalizationScope } from "@starbeam/shared";
 
-import { Resource, type ResourceBlueprint } from "./resource.js";
+import type { Resource } from "./resource.js";
+import { type ResourceBlueprint } from "./resource.js";
+import { SyncTo } from "./sync/high-level.js";
 
 export function ResourceList<Item, T>(
   list: Iterable<Item>,
@@ -17,58 +19,51 @@ export function ResourceList<Item, T>(
     description?: string | Description;
   },
 ): ResourceBlueprint<FormulaFn<T[]>> {
-  // FIXME: This API feels like it should use the low-level sync API, not the
-  // high-level resource API.
   return {
     setup: () => {
-      let synced = false;
-
-      const List = Resource(({ on }) => {
+      const List = SyncTo(({ on }) => {
         const resources = new ResourceMap<T>(
           DEBUG?.Desc("collection", description),
         );
 
-        const result: Resource<T>[] = [];
-        for (const item of list) {
-          const k = key(item);
-
-          result.push(resources.create(k, map(item)));
-        }
-
-        const array = Cell(result);
+        // initialize the array eagerly by mapping the existing items over the
+        // mapper, running their setup functions (but not syncing yet).
+        const array = Cell(
+          [...list].map((item) => resources.setup(key(item), map(item))),
+        );
 
         on.sync(() => {
-          synced = true;
-          const result: Resource<T>[] = [];
           const remaining = new Set();
-          for (const item of list) {
+
+          const result = [...list].map((item) => {
             const k = key(item);
             remaining.add(k);
-            const resource = resources.get(k);
+            return resources.upsert(k, () => map(item));
+          });
 
-            if (resource) {
-              resource.sync();
-              result.push(resource);
-            } else {
-              const created = resources.create(k, map(item));
-              created.sync();
-              result.push(created);
-            }
-          }
-
-          resources.update(remaining);
           array.set(result);
         });
 
         return array;
       });
 
-      const { sync, value: instance } = List.setup();
+      const { sync: syncArrays, value: resourceArray } = List.setup();
       return {
-        sync,
+        // getting the value of a resource list eagerly syncs the arrays but
+        // doesn't eagerly run the setup function.
         value: CachedFormula(() => {
-          if (synced) sync();
-          return instance.current.map((r) => r.value);
+          syncArrays();
+          return resourceArray.current.map((r) => r.value);
+        }),
+        // The sync formula of a resource list syncs the arrays and *also*
+        // syncs the elements of the array. Renderers subscribe to this formula
+        // in order to sync inside of the framework-appropriate synchronizer
+        // (e.g. useEffect in React).
+        sync: CachedFormula(() => {
+          syncArrays();
+          resourceArray.current.forEach((r) => {
+            r.sync();
+          });
         }),
       };
     },
@@ -89,11 +84,19 @@ class ResourceMap<T> {
     this.#description = description;
   }
 
+  upsert(key: Key, insert: () => ResourceBlueprint<T>) {
+    let resource = this.get(key);
+
+    if (!resource) resource = this.setup(key, insert());
+
+    return resource;
+  }
+
   get(key: unknown): Resource<T> | undefined {
     return this.#map.get(key)?.resource;
   }
 
-  create(key: Key, resource: ResourceBlueprint<T>): Resource<T> {
+  setup(key: Key, resource: ResourceBlueprint<T>): Resource<T> {
     const done = pushFinalizationScope();
     const newResource = resource.setup();
     const scope = done();
