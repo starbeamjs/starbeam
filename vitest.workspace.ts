@@ -14,8 +14,8 @@ const packages = glob
       extends: "./vitest.config.ts",
       test: {
         name: basename(path),
-        include: [resolve(path, "tests/**/*.{test,spec}.{js,ts}")],
-        includeSource: [resolve(path, "src/**/*.{test,spec}.{js,ts}")],
+        include: [resolve(path, "tests/**/*.spec.ts")],
+        includeSource: [resolve(path, "src/**/*.ts")],
         exclude: [resolve(path, "tests/node_modules/**")],
         environment: "node",
       },
