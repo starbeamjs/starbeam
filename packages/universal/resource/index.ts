@@ -1,5 +1,3 @@
-export type { ResourceBrand } from "./src/api.js";
-export * from "./src/api.js";
 export type { ResourceBlueprint } from "./src/resource.js";
 export { Resource } from "./src/resource.js";
 export { ResourceList } from "./src/resource-list.js";
