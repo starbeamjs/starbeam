@@ -366,7 +366,7 @@ export class Package {
         nodePolyfills(),
         commonjs(),
         nodeResolve(),
-        importMeta,
+        importMeta(),
         postcss(),
         typescript(this.#package, {
           target: ScriptTarget.ES2022,
@@ -387,7 +387,7 @@ export class Package {
         nodePolyfills(),
         commonjs(),
         nodeResolve(),
-        importMeta,
+        importMeta({ cjs: true }),
         postcss(),
         typescript(this.#package, {
           target: ScriptTarget.ES2021,
