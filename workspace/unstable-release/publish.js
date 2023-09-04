@@ -10,7 +10,7 @@ async function publish() {
   for (let workspace of publicWorkspaces) {
     console.info(`Publishing ${workspace}`);
     try {
-      await execaCommand("npm publish --tag=unstable --verbose", {
+      await execaCommand("npm publish --tag=unstable --verbose --access=public", {
         cwd: dirname(workspace),
       });
     } catch (err) {
