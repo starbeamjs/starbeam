@@ -12,6 +12,10 @@ import { type Sync, type SyncFn, type SyncResult } from "./sync/primitive.js";
 export type SetupResource<T> = (define: DefineResource) => T;
 
 export type ResourceBlueprint<T> = Sync<T>;
+export type IntoResourceBlueprint<T> =
+  | ResourceBlueprint<T>
+  | (() => ResourceBlueprint<T>);
+
 export class DefineResource {
   static define = <T>(
     constructor: SetupResource<T>,

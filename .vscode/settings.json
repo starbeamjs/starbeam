@@ -22,6 +22,10 @@
     ]
   },
 
+  "codeium.aggressiveShutdown": true,
+  "codeium.enableSearch": false,
+  // "codeium"
+
   "editor.defaultFormatter": "esbenp.prettier-vscode",
 
   "eslint.codeActionsOnSave.mode": "all",
@@ -58,7 +62,20 @@
     "vite.config.ts": "rollup.config.*, .env.*"
   },
 
-  "npm-outdated.cacheLifetime": 1,
+  "files.exclude": {
+    "**/.DS_Store": true,
+    "**/.git": true,
+    "**/.hg": true,
+    "**/.svn": true,
+    "**/CVS": true,
+    "**/Thumbs.db": true,
+    "**/dist/**": true,
+    "**/node_modules/**": true,
+    ".turbo/**": true
+  },
+  "inline-bookmarks.view.exclude.gitIgnore": true,
+
+  "npm-outdated.decorations": "fancy",
   "prettier.prettierPath": "./node_modules/prettier",
 
   // rewrap provides a quick keyboard shortcut (alt-q) to reformat comments to
@@ -67,7 +84,6 @@
   "rewrap.autoWrap.enabled": true,
   "rewrap.reformat": true,
   "rewrap.wrappingColumn": 80,
-
   // CHANGELOG.md and pnpm-lock.yaml create a lot of search noise
   "search.exclude": {
     "**/CHANGELOG.md": true,
