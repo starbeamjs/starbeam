@@ -6,7 +6,7 @@ settings:
 
 overrides:
   '@types/eslint': ^8.44.2
-  '@types/node': 20.4.9
+  '@types/node': 20.5.0
   '@typescript-eslint/eslint-plugin': ^6.3.0
   '@typescript-eslint/parser': ^6.3.0
   eslint: ^8.46.0
@@ -74,8 +74,8 @@ importers:
         specifier: ^8.44.2
         version: 8.44.2
       '@types/node':
-        specifier: 20.4.9
-        version: 20.4.9
+        specifier: 20.5.0
+        version: 20.5.0
       '@typescript-eslint/eslint-plugin':
         specifier: ^6.3.0
         version: 6.3.0(@typescript-eslint/parser@6.3.0)(eslint@8.46.0)(typescript@5.1.6)
@@ -141,7 +141,7 @@ importers:
         version: 5.1.6
       vite:
         specifier: 4.4.9
-        version: 4.4.9(@types/node@20.4.9)
+        version: 4.4.9(@types/node@20.5.0)
       vite-plugin-babel:
         specifier: ^1.1.3
         version: 1.1.3(@babel/core@7.22.5)(vite@4.4.9)
@@ -164,8 +164,8 @@ importers:
   '@types/ansicolor':
     devDependencies:
       '@types/node':
-        specifier: 20.4.9
-        version: 20.4.9
+        specifier: 20.5.0
+        version: 20.5.0
 
   '@types/rollup-plugin-polyfill-node':
     dependencies:
@@ -176,14 +176,14 @@ importers:
   '@types/shell-escape-tag':
     devDependencies:
       '@types/node':
-        specifier: 20.4.9
-        version: 20.4.9
+        specifier: 20.5.0
+        version: 20.5.0
 
   '@types/shell-split':
     devDependencies:
       '@types/node':
-        specifier: 20.4.9
-        version: 20.4.9
+        specifier: 20.5.0
+        version: 20.5.0
 
   demos/preact:
     dependencies:
@@ -217,7 +217,7 @@ importers:
         version: 0.2.3(esbuild@0.18.11)
       vite:
         specifier: 4.4.9
-        version: 4.4.9(@types/node@20.4.9)
+        version: 4.4.9(@types/node@20.5.0)
       vitest:
         specifier: ^0.32.2
         version: 0.32.2(@vitest/ui@0.34.1)(happy-dom@10.5.2)(jsdom@22.1.0)
@@ -251,7 +251,7 @@ importers:
         version: 0.30.1
       vite:
         specifier: 4.4.9
-        version: 4.4.9(@types/node@20.4.9)
+        version: 4.4.9(@types/node@20.5.0)
       vitest:
         specifier: ^0.32.2
         version: 0.32.2(@vitest/ui@0.30.1)(happy-dom@10.5.2)(jsdom@22.1.0)
@@ -288,7 +288,7 @@ importers:
         version: 0.30.1
       vite:
         specifier: 4.4.9
-        version: 4.4.9(@types/node@20.4.9)
+        version: 4.4.9(@types/node@20.5.0)
       vitest:
         specifier: ^0.32.2
         version: 0.32.2(@vitest/ui@0.30.1)(happy-dom@10.5.2)(jsdom@22.1.0)
@@ -337,7 +337,7 @@ importers:
         version: 0.30.1
       vite:
         specifier: 4.4.9
-        version: 4.4.9(@types/node@20.4.9)
+        version: 4.4.9(@types/node@20.5.0)
 
   demos/react-jsnation-workshop:
     dependencies:
@@ -368,7 +368,7 @@ importers:
         version: 18.2.5
       vite:
         specifier: 4.4.9
-        version: 4.4.9(@types/node@20.4.9)
+        version: 4.4.9(@types/node@20.5.0)
 
   demos/react-jsnation/tests:
     dependencies:
@@ -442,7 +442,7 @@ importers:
         version: 18.2.1
       vite:
         specifier: 4.4.9
-        version: 4.4.9(@types/node@20.4.9)
+        version: 4.4.9(@types/node@20.5.0)
       vitest:
         specifier: ^0.32.2
         version: 0.32.2(@vitest/ui@0.34.1)(happy-dom@10.5.2)(jsdom@22.1.0)
@@ -488,7 +488,7 @@ importers:
         version: 5.3.10(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)
       vite:
         specifier: 4.4.9
-        version: 4.4.9(@types/node@20.4.9)
+        version: 4.4.9(@types/node@20.5.0)
       vitest:
         specifier: ^0.32.2
         version: 0.32.2(@vitest/ui@0.34.1)(happy-dom@10.5.2)(jsdom@22.1.0)
@@ -528,7 +528,7 @@ importers:
         version: 0.32.2(vitest@0.32.2)
       vite:
         specifier: 4.4.9
-        version: 4.4.9(@types/node@20.4.9)
+        version: 4.4.9(@types/node@20.5.0)
       vitest:
         specifier: ^0.32.2
         version: 0.32.2(@vitest/ui@0.32.2)(happy-dom@10.5.2)(jsdom@22.1.0)
@@ -568,7 +568,7 @@ importers:
         version: 0.30.1
       vite:
         specifier: 4.4.9
-        version: 4.4.9(@types/node@20.4.9)
+        version: 4.4.9(@types/node@20.5.0)
       vitest:
         specifier: ^0.32.2
         version: 0.32.2(@vitest/ui@0.30.1)(happy-dom@10.5.2)(jsdom@22.1.0)
@@ -856,8 +856,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/build
       '@types/node':
-        specifier: 20.4.9
-        version: 20.4.9
+        specifier: 20.5.0
+        version: 20.5.0
       '@types/react':
         specifier: ^18.2.0
         version: 18.2.0
@@ -1105,8 +1105,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/build
       '@types/node':
-        specifier: 20.4.9
-        version: 20.4.9
+        specifier: 20.5.0
+        version: 20.5.0
       rollup:
         specifier: ^3.27.2
         version: 3.27.2
@@ -1757,7 +1757,7 @@ importers:
         version: 10.13.2
       vite:
         specifier: 4.4.9
-        version: 4.4.9(@types/node@20.4.9)
+        version: 4.4.9(@types/node@20.5.0)
       vite-plugin-mpa:
         specifier: ^1.1.4
         version: 1.1.4
@@ -1967,11 +1967,11 @@ importers:
         version: 1.0.3(vite@4.4.9)
       vite:
         specifier: 4.4.9
-        version: 4.4.9(@types/node@20.4.9)
+        version: 4.4.9(@types/node@20.5.0)
     devDependencies:
       '@types/node':
-        specifier: 20.4.9
-        version: 20.4.9
+        specifier: 20.5.0
+        version: 20.5.0
       typescript:
         specifier: ^5.1.6
         version: 5.1.6
@@ -2025,8 +2025,8 @@ importers:
         version: 5.0.4
     devDependencies:
       '@types/node':
-        specifier: 20.4.9
-        version: 20.4.9
+        specifier: 20.5.0
+        version: 20.5.0
 
   workspace/json:
     dependencies:
@@ -2128,8 +2128,8 @@ importers:
         specifier: workspace:^
         version: link:../../@types/ansicolor
       '@types/node':
-        specifier: 20.4.9
-        version: 20.4.9
+        specifier: 20.5.0
+        version: 20.5.0
       '@types/shell-escape-tag':
         specifier: workspace:^
         version: link:../../@types/shell-escape-tag
@@ -4432,7 +4432,7 @@ packages:
     resolution: {integrity: sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA==}
     dependencies:
       '@babel/runtime': 7.22.10
-      '@types/node': 20.4.9
+      '@types/node': 20.5.0
       find-up: 4.1.0
       fs-extra: 8.1.0
     dev: true
@@ -4939,7 +4939,7 @@ packages:
     resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 20.4.9
+      '@types/node': 20.5.0
     dev: true
 
   /@types/hoist-non-react-statics@3.3.1:
@@ -4973,8 +4973,8 @@ packages:
     resolution: {integrity: sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==}
     dev: true
 
-  /@types/node@20.4.9:
-    resolution: {integrity: sha512-8e2HYcg7ohnTUbHk8focoklEQYvemQmu9M/f43DZVx43kHn0tE3BY/6gSDxS7k0SprtS0NHvj+L80cGLnoOUcQ==}
+  /@types/node@20.5.0:
+    resolution: {integrity: sha512-Mgq7eCtoTjT89FqNoTzzXg2XvCi5VMhRV6+I2aYanc6kQCBImeNaAYRs/DyoVqk1YEUJK5gN9VO7HRIdz4Wo3Q==}
 
   /@types/normalize-package-data@2.4.1:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}
@@ -5051,13 +5051,13 @@ packages:
     resolution: {integrity: sha512-ZA8U81/gldY+rR5zl/7HSHrG2KDfEb3lzG6uCUDhW1DTQE9yC/VBQ45fXnXq8f3CgInfhZmjtdu/WOUlrXRQUg==}
     dependencies:
       '@types/glob': 7.2.0
-      '@types/node': 20.4.9
+      '@types/node': 20.5.0
     dev: true
 
   /@types/split2@4.2.0:
     resolution: {integrity: sha512-rwV0tC3XGQvQ8zdeYDZ+dLn4CJLKnYPBrSU8dRXvzMVLUPMsYTsy3/ZbE4OlejsT2D7MTGP8ePk05C98xl2seQ==}
     dependencies:
-      '@types/node': 20.4.9
+      '@types/node': 20.5.0
     dev: true
 
   /@types/stack-utils@2.0.1:
@@ -6342,7 +6342,7 @@ packages:
     resolution: {integrity: sha512-ju88BYCQ2uvjO2bR+SsgLSTwTSctU+6Vp2ePbKPgSCZyy4MWZxYsT738DlKVRE5utUjobjPRm1MkTYKJxCmpTA==}
     engines: {node: '>=14.9.0'}
     dependencies:
-      '@types/node': 20.4.9
+      '@types/node': 20.5.0
     dev: false
 
   /css-color-keywords@1.0.0:
@@ -10928,7 +10928,7 @@ packages:
     dependencies:
       fast-glob: 3.3.1
       unplugin: 1.3.1
-      vite: 4.4.9(@types/node@20.4.9)
+      vite: 4.4.9(@types/node@20.5.0)
     dev: false
 
   /unplugin@1.3.1:
@@ -10986,7 +10986,7 @@ packages:
     resolution: {integrity: sha512-0pspKu/DeOv9cqpsSH8jfTcu4N7AHflUNXYnGudEL9NMIwxpVsi5Rq6OsmaiUjPilJ/WH1GHNoi77EX6aoMF/Q==}
     dev: false
 
-  /vite-node@0.32.2(@types/node@20.4.9):
+  /vite-node@0.32.2(@types/node@20.5.0):
     resolution: {integrity: sha512-dTQ1DCLwl2aEseov7cfQ+kDMNJpM1ebpyMMMwWzBvLbis8Nla/6c9WQcqpPssTwS6Rp/+U6KwlIj8Eapw4bLdA==}
     engines: {node: '>=v14.18.0'}
     hasBin: true
@@ -10996,7 +10996,7 @@ packages:
       mlly: 1.4.0
       pathe: 1.1.1
       picocolors: 1.0.0
-      vite: 4.4.9(@types/node@20.4.9)
+      vite: 4.4.9(@types/node@20.5.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -11007,7 +11007,7 @@ packages:
       - supports-color
       - terser
 
-  /vite-node@0.34.1(@types/node@20.4.9):
+  /vite-node@0.34.1(@types/node@20.5.0):
     resolution: {integrity: sha512-odAZAL9xFMuAg8aWd7nSPT+hU8u2r9gU3LRm9QKjxBEF2rRdWpMuqkrkjvyVQEdNFiBctqr2Gg4uJYizm5Le6w==}
     engines: {node: '>=v14.18.0'}
     hasBin: true
@@ -11017,7 +11017,7 @@ packages:
       mlly: 1.4.0
       pathe: 1.1.1
       picocolors: 1.0.0
-      vite: 4.4.9(@types/node@20.4.9)
+      vite: 4.4.9(@types/node@20.5.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -11035,7 +11035,7 @@ packages:
       vite: ^2.7.0 || ^3.0.0 || ^4.0.0
     dependencies:
       '@babel/core': 7.22.5
-      vite: 4.4.9(@types/node@20.4.9)
+      vite: 4.4.9(@types/node@20.5.0)
     dev: true
 
   /vite-plugin-mpa@1.1.4:
@@ -11046,7 +11046,7 @@ packages:
       yargs: 16.2.0
     dev: true
 
-  /vite@4.4.9(@types/node@20.4.9):
+  /vite@4.4.9(@types/node@20.5.0):
     resolution: {integrity: sha512-2mbUn2LlUmNASWwSCNSJ/EG2HuSRTnVNaydp6vMCm5VIqJsjMfbIWtbH2kDuwUVW5mMUKKZvGPX/rqeqVvv1XA==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -11074,7 +11074,7 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 20.4.9
+      '@types/node': 20.5.0
       esbuild: 0.18.11
       postcss: 8.4.27
       rollup: 3.27.2
@@ -11114,7 +11114,7 @@ packages:
     dependencies:
       '@types/chai': 4.3.5
       '@types/chai-subset': 1.3.3
-      '@types/node': 20.4.9
+      '@types/node': 20.5.0
       '@vitest/expect': 0.32.2
       '@vitest/runner': 0.32.2
       '@vitest/snapshot': 0.32.2
@@ -11137,8 +11137,8 @@ packages:
       strip-literal: 1.0.1
       tinybench: 2.5.0
       tinypool: 0.5.0
-      vite: 4.4.9(@types/node@20.4.9)
-      vite-node: 0.32.2(@types/node@20.4.9)
+      vite: 4.4.9(@types/node@20.5.0)
+      vite-node: 0.32.2(@types/node@20.5.0)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
       - less
@@ -11183,7 +11183,7 @@ packages:
     dependencies:
       '@types/chai': 4.3.5
       '@types/chai-subset': 1.3.3
-      '@types/node': 20.4.9
+      '@types/node': 20.5.0
       '@vitest/expect': 0.32.2
       '@vitest/runner': 0.32.2
       '@vitest/snapshot': 0.32.2
@@ -11206,8 +11206,8 @@ packages:
       strip-literal: 1.0.1
       tinybench: 2.5.0
       tinypool: 0.5.0
-      vite: 4.4.9(@types/node@20.4.9)
-      vite-node: 0.32.2(@types/node@20.4.9)
+      vite: 4.4.9(@types/node@20.5.0)
+      vite-node: 0.32.2(@types/node@20.5.0)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
       - less
@@ -11252,7 +11252,7 @@ packages:
     dependencies:
       '@types/chai': 4.3.5
       '@types/chai-subset': 1.3.3
-      '@types/node': 20.4.9
+      '@types/node': 20.5.0
       '@vitest/expect': 0.32.2
       '@vitest/runner': 0.32.2
       '@vitest/snapshot': 0.32.2
@@ -11275,8 +11275,8 @@ packages:
       strip-literal: 1.0.1
       tinybench: 2.5.0
       tinypool: 0.5.0
-      vite: 4.4.9(@types/node@20.4.9)
-      vite-node: 0.32.2(@types/node@20.4.9)
+      vite: 4.4.9(@types/node@20.5.0)
+      vite-node: 0.32.2(@types/node@20.5.0)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
       - less
@@ -11320,7 +11320,7 @@ packages:
     dependencies:
       '@types/chai': 4.3.5
       '@types/chai-subset': 1.3.3
-      '@types/node': 20.4.9
+      '@types/node': 20.5.0
       '@vitest/expect': 0.34.1
       '@vitest/runner': 0.34.1
       '@vitest/snapshot': 0.34.1
@@ -11342,8 +11342,8 @@ packages:
       strip-literal: 1.0.1
       tinybench: 2.5.0
       tinypool: 0.7.0
-      vite: 4.4.9(@types/node@20.4.9)
-      vite-node: 0.34.1(@types/node@20.4.9)
+      vite: 4.4.9(@types/node@20.5.0)
+      vite-node: 0.34.1(@types/node@20.5.0)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
       - less
