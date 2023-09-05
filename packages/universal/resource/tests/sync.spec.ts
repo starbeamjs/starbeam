@@ -672,7 +672,7 @@ function assertSyncLifecycle({
   Sync: Sync<void>;
   state: SyncTestState;
 }) {
-  const cause = buildCause(assertSyncLifecycle);
+  const cause = buildCause(assertSyncLifecycle, "test was definde here");
 
   try {
     const [scope, { sync }] = pushingScope(() => Sync.setup());
@@ -763,7 +763,7 @@ function assertNestedSyncLifecycle({
   allEvents: RecordedEvents;
   invalidateParent: Marker;
 }) {
-  const cause = buildCause(assertNestedSyncLifecycle);
+  const cause = buildCause(assertNestedSyncLifecycle, "test was defined here");
 
   try {
     const [scope, { sync }] = pushingScope(() => ParentSync.setup());

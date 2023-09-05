@@ -1,6 +1,11 @@
-import { getFirst, isPresent, isPresentArray } from "@starbeam/core-utils";
+import {
+  getFirst,
+  isPresent,
+  isPresentArray,
+  isSingleItemArray,
+} from "@starbeam/core-utils";
 import { expected, verified } from "@starbeam/verify";
-import { expect } from "@starbeam-workspace/test-utils";
+import { entryPoint, expect } from "@starbeam-workspace/test-utils";
 import { type ByRoleMatcher, fireEvent } from "@testing-library/dom";
 import { getByRole, getByText } from "@testing-library/dom";
 import * as testing from "@testing-library/preact";
@@ -50,7 +55,7 @@ class Expect<T extends RenderProps> {
 
   constructor(
     container: HTMLElement,
-    expectations: RenderExpectations<T> | undefined
+    expectations: RenderExpectations<T> | undefined,
   ) {
     this.#container = container;
     this.#expectations = expectations;
@@ -61,7 +66,7 @@ class Expect<T extends RenderProps> {
       const expected = this.#expectations.html(...args);
 
       const string = renderToString(
-        h(Fragment, {}, expected) as VNode<unknown>
+        h(Fragment, {}, expected) as VNode<unknown>,
       );
 
       expect(this.#container.innerHTML).toBe(string);
@@ -96,7 +101,7 @@ export type Root<Props extends RenderProps, T extends Props = Props> = Render<
 >;
 
 export function Root<R extends Root<T, T>, T extends RenderProps, U extends T>(
-  test: (root: R) => Root<T, U>
+  test: (root: R) => Root<T, U>,
 ): (root: R) => Render<T, U> {
   return test;
 }
@@ -111,7 +116,7 @@ export function render<T>(app: ComponentType<T>, args?: T): RenderingResult<T> {
     component,
     testing.render(component(args as T), { container }),
     container,
-    args as T
+    args as T,
   );
 }
 
@@ -140,7 +145,7 @@ class RenderingResult<T, U extends T = T> {
     component: RootComponent<T>,
     result: testing.RenderResult,
     container: HTMLElement,
-    lastArgs: T
+    lastArgs: T,
   ) {
     this.#component = component;
     this.#result = result;
@@ -154,7 +159,8 @@ class RenderingResult<T, U extends T = T> {
 
   find(matcher: testing.ByRoleMatcher): FoundElement {
     return new FoundElement(
-      testing.findByRole(this.#result.container as HTMLElement, matcher)
+      testing.findByRole(this.#result.container as HTMLElement, matcher),
+      () => void this.rerender(this.#lastArgs),
     );
   }
 
@@ -180,28 +186,43 @@ class RenderingResult<T, U extends T = T> {
   }
 
   expect<V extends T = T>(
+    args: V,
     template: (args: V) => VNode,
-    ...rest: T extends V ? [] : [VerifyArgs<T, V>]
-  ): RenderingResult<T, V> {
-    const [args] = rest as [VerifyArgs<T, V> | undefined];
-    this.#extraVerifyArgs = args !== undefined;
-    this.#verify = template as (args: unknown) => VNode;
+  ): RenderingResult<T, V>;
+  expect(template: (args: T) => VNode): RenderingResult<T, T>;
+  expect(
+    ...allArgs: [T, (args: T) => VNode] | [(args: T) => VNode]
+  ): RenderingResult<T, T> {
+    const [args, template] = isSingleItemArray(allArgs)
+      ? [undefined, getFirst(allArgs)]
+      : allArgs;
 
-    this.#verifyResult(args as unknown as VerifyArgs<T, U>);
+    return entryPoint(
+      () => {
+        this.#extraVerifyArgs = args !== undefined;
+        this.#verify = template as (args: unknown) => VNode;
 
-    const expected = renderToString(
-      h(
-        Fragment,
-        {},
-        template({ ...this.#lastArgs, ...args } as V)
-      ) as VNode<unknown>
+        this.#verifyResult(args);
+
+        const expected = renderToString(
+          h(
+            Fragment,
+            {},
+            template({ ...this.#lastArgs, ...args } as T),
+          ) as VNode<unknown>,
+        );
+        const actual = this.innerHTML;
+        expect(actual).toBe(expected);
+        return this as unknown as RenderingResult<T, T>;
+      },
+      {
+        entryFn: this.expect,
+        cause: "expect was called here",
+      },
     );
-    const actual = this.innerHTML;
-    expect(actual).toBe(expected);
-    return this as unknown as RenderingResult<T, V>;
   }
 
-  #verifyResult(args?: VerifyArgs<T, U>): void {
+  #verifyResult(args?: T | undefined): void {
     if (!this.#verify) return;
 
     const vnode = this.#verify({ ...this.#lastArgs, ...args } as U);
@@ -213,13 +234,19 @@ class RenderingResult<T, U extends T = T> {
 
 class FoundElement {
   readonly #element: Promise<HTMLElement>;
+  readonly #rerender: () => void | Promise<void>;
 
-  constructor(element: Promise<HTMLElement>) {
+  constructor(
+    element: Promise<HTMLElement>,
+    rerender: () => void | Promise<void>,
+  ) {
     this.#element = element;
+    this.#rerender = rerender;
   }
 
-  async click() {
+  async click(): Promise<void> {
     fireEvent.click(await this.#element);
+    await this.#rerender();
   }
 }
 
@@ -234,7 +261,7 @@ class Render<Args extends RenderProps, T extends Args> {
   static create<Args extends RenderProps, T extends Args>(
     component: Component<Args[0]>,
     into: HTMLElement,
-    expectation: Expect<T>
+    expectation: Expect<T>,
   ): Render<Args, T> {
     return new Render(component, into, expectation, undefined, [], undefined);
   }
@@ -245,7 +272,7 @@ class Render<Args extends RenderProps, T extends Args> {
     expectation: Expect<T>,
     render: RenderStep<T> | undefined,
     update: UpdateStep<Args, T>[],
-    unmount: UnmountStep<Args, T> | undefined
+    unmount: UnmountStep<Args, T> | undefined,
   ) {
     this.#component = component;
     this.#into = into;
@@ -256,7 +283,7 @@ class Render<Args extends RenderProps, T extends Args> {
   }
 
   expect<U extends T>(
-    check: (...args: U) => ComponentChildren
+    check: (...args: U) => ComponentChildren,
   ): Render<Args, U>;
   expect(check: (...args: T) => ComponentChildren): Render<Args, T>;
 
@@ -270,7 +297,7 @@ class Render<Args extends RenderProps, T extends Args> {
       }),
       this.#render,
       this.#update,
-      this.#unmount
+      this.#unmount,
     );
   }
 
@@ -281,7 +308,7 @@ class Render<Args extends RenderProps, T extends Args> {
       this.#expect,
       { args: args },
       this.#update,
-      this.#unmount
+      this.#unmount,
     );
   }
 
@@ -295,7 +322,7 @@ class Render<Args extends RenderProps, T extends Args> {
         expected
           .when(`calling update() in a render test`)
           .as(`the render method`)
-          .toHave(`already been called`)
+          .toHave(`already been called`),
       );
 
       if (propsOrCustom && custom) {
@@ -318,7 +345,7 @@ class Render<Args extends RenderProps, T extends Args> {
       this.#expect,
       this.#render,
       [...this.#update, normalize()],
-      this.#unmount
+      this.#unmount,
     );
   }
 
@@ -329,7 +356,7 @@ class Render<Args extends RenderProps, T extends Args> {
       this.#expect,
       this.#render,
       this.#update,
-      options
+      options,
     );
   }
 
@@ -342,7 +369,7 @@ class Render<Args extends RenderProps, T extends Args> {
 
     if (render === undefined) {
       throw Error(
-        `render() must be called before in the callback to rendering.test()`
+        `render() must be called before in the callback to rendering.test()`,
       );
     }
 
@@ -353,7 +380,7 @@ class Render<Args extends RenderProps, T extends Args> {
       createElement(this.#component as ComponentType, props as Attributes),
       {
         container: this.#into as Element,
-      }
+      },
     );
 
     this.#expect.check(args);
@@ -416,7 +443,7 @@ class RenderResult<Args extends RenderProps, T extends Args> {
       expectation,
       next,
       args,
-      result
+      result,
     );
   }
 
@@ -433,7 +460,7 @@ class RenderResult<Args extends RenderProps, T extends Args> {
     expectation: Expect<T>,
     next: T | undefined,
     args: T,
-    result: testing.RenderResult
+    result: testing.RenderResult,
   ) {
     this.#component = component;
     this.#container = container;
@@ -464,8 +491,8 @@ class RenderResult<Args extends RenderProps, T extends Args> {
     this.#result.rerender(
       createElement(
         this.#component as ComponentType<Args[0]>,
-        props as ComponentType<Args[1]>
-      )
+        props as ComponentType<Args[1]>,
+      ),
     );
 
     if (this.#next) {
@@ -481,7 +508,7 @@ class RenderResult<Args extends RenderProps, T extends Args> {
 
   find(
     role: ByRoleMatcher,
-    options?: testing.ByRoleOptions
+    options?: testing.ByRoleOptions,
   ): TestElement<HTMLElement, T> {
     return this.element.find(role, options);
   }
@@ -512,7 +539,7 @@ export class TestElement<E extends Element, T extends RenderProps> {
   static create<E extends Element, T extends RenderProps>(
     element: E,
     expectation: Expect<T>,
-    next: T | undefined
+    next: T | undefined,
   ): TestElement<E, T> {
     return new TestElement(element, expectation, next);
   }
@@ -571,24 +598,24 @@ export class TestElement<E extends Element, T extends RenderProps> {
   find(
     this: TestElement<HTMLElement, T>,
     role: ByRoleMatcher,
-    options?: testing.ByRoleOptions
+    options?: testing.ByRoleOptions,
   ): TestElement<HTMLElement, T> {
     return TestElement.create(
       getByRole(this.#element, role, options),
       this.#expect,
-      this.#next
+      this.#next,
     );
   }
 
   findByText(
     this: TestElement<HTMLElement, T>,
     id: testing.Matcher,
-    options?: testing.SelectorMatcherOptions
+    options?: testing.SelectorMatcherOptions,
   ): TestElement<HTMLElement, T> {
     return TestElement.create(
       getByText(this.#element, id, options),
       this.#expect,
-      this.#next
+      this.#next,
     );
   }
 

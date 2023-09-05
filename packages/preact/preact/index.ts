@@ -5,8 +5,8 @@ export {
   setupReactive,
   setupResource,
   setupService,
+  setupSync,
   useReactive,
   useResource,
   useService,
 } from "./src/resource.js";
-export { setupSync } from "./src/sync.js";

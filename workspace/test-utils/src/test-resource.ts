@@ -2,10 +2,12 @@ import { Resource } from "@starbeam/resource";
 import { finalize, onFinalize } from "@starbeam/shared";
 import { isPresent, verified } from "@starbeam/verify";
 
-export const TestResource = Resource((r) => {
+import { type AnyFunction, entryPoint } from "./actions.js";
+
+export const TestResource = Resource(({ on }) => {
   const impl = TestResourceImpl.create();
 
-  r.on.finalize(() => {
+  on.finalize(() => {
     finalize(impl);
   });
 
@@ -24,7 +26,11 @@ export const resources = {
   },
 
   get last(): TestResourceImpl {
-    return TestResourceImpl.getLast();
+    return entryPoint(() => TestResourceImpl.getLast(), {
+      entryFn: Reflect.getOwnPropertyDescriptor(resources, "last")
+        ?.get as AnyFunction,
+      cause: `caller to 'last' was here`,
+    });
   },
 
   get isActive(): boolean {

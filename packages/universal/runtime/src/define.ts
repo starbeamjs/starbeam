@@ -63,3 +63,16 @@ export function pushingScope<T>(
 
   return childScope === undefined ? [scope, result] : result;
 }
+
+export function withinScope<T>(
+  scopeToMount: FinalizationScope | undefined,
+  block: (childScope: object) => T,
+): unknown {
+  const doneScope = mountFinalizationScope(scopeToMount);
+
+  const result = (block as (childScope?: object) => unknown)(scopeToMount);
+  // FIXME: Error handling
+  const scope = doneScope();
+
+  return scopeToMount === undefined ? [scope, result] : result;
+}

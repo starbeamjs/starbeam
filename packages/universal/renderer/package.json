@@ -4,7 +4,8 @@
     "@starbeam/reactive": "workspace:^",
     "@starbeam/resource": "workspace:^",
     "@starbeam/runtime": "workspace:^",
-    "@starbeam/service": "workspace:^"
+    "@starbeam/service": "workspace:^",
+    "@starbeam/shared": "workspace:^"
   },
   "devDependencies": {
     "@starbeam-dev/build-support": "workspace:^",

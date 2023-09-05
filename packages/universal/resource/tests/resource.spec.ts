@@ -4,7 +4,6 @@ import { Resource, SyncTo } from "@starbeam/resource";
 import { type FinalizationScope, pushingScope } from "@starbeam/runtime";
 import { finalize, UNINITIALIZED } from "@starbeam/shared";
 import {
-  buildCause,
   describe,
   entryPoint,
   expect,
@@ -573,8 +572,6 @@ class ResourceWrapper<T, U> {
       label,
     }: { events: RecordedEvents; subject: (value: T) => U; label?: string },
   ): PostAssertion<U, ResourceWrapper<T, U>> {
-    const cause = buildCause(ResourceWrapper.use);
-
     const [lifetime, instance] = entryPoint(
       () => {
         events.expect([]);
@@ -582,7 +579,7 @@ class ResourceWrapper<T, U> {
       },
       {
         entryFn: ResourceWrapper.use,
-        cause,
+        cause: "use was called here",
       },
     );
 
@@ -766,7 +763,7 @@ class ResourceWrapper<T, U> {
       },
       {
         entryFn: this.act,
-        cause: action.cause,
+        cause: "act was called here",
       },
     );
   };
@@ -800,7 +797,7 @@ class ResourceWrapper<T, U> {
       },
     );
 
-    const expectFn = (options: Expectations<U>, label?: string) => {
+    const expectFn = (options: Expectations<U>) => {
       entryPoint(
         () => {
           this.#expect(

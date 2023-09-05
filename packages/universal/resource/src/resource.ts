@@ -11,10 +11,12 @@ import { type Sync, type SyncFn, type SyncResult } from "./sync/primitive.js";
 
 export type SetupResource<T> = (define: DefineResource) => T;
 
+export type ResourceConstructor<T> = () => ResourceBlueprint<T>;
+
 export type ResourceBlueprint<T> = Sync<T>;
 export type IntoResourceBlueprint<T> =
   | ResourceBlueprint<T>
-  | (() => ResourceBlueprint<T>);
+  | ResourceConstructor<T>;
 
 export class DefineResource {
   static define = <T>(
@@ -71,6 +73,13 @@ export class DefineResource {
 
     return value;
   };
+}
+
+export function use<T>(intoBlueprint: IntoResourceBlueprint<T>): Resource<T> {
+  const blueprint =
+    typeof intoBlueprint === "function" ? intoBlueprint() : intoBlueprint;
+
+  return blueprint.setup();
 }
 
 export const Resource = DefineResource.define;

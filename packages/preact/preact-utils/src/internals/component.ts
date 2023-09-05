@@ -28,7 +28,7 @@ export class InternalComponent {
   }
 
   static from(
-    component: InternalPreactComponent | InternalComponent | null | undefined
+    component: InternalPreactComponent | InternalComponent | null | undefined,
   ): InternalComponent | null | undefined {
     if (InternalComponent.is(component)) {
       return component;
@@ -92,7 +92,7 @@ export class InternalComponent {
       throw Error(
         `UNEXPECTED: Expected context to be an object, got ${
           context === null ? "null" : typeof context
-        }`
+        }`,
       );
     }
 
@@ -139,7 +139,7 @@ export class InternalComponent {
         ...propsFields,
         ...stateFields,
       },
-      { description: String(this.id) }
+      { description: String(this.id) },
     );
   }
 
