@@ -5,9 +5,10 @@ import {
   type FormulaFn,
   isReactive,
   read,
+  type ReadValue,
 } from "@starbeam/reactive";
-import { type Resource, setup, use } from "@starbeam/resource";
-import { CONTEXT } from "@starbeam/runtime";
+import { setupResource } from "@starbeam/resource";
+import { CONTEXT, withinScope } from "@starbeam/runtime";
 import { service } from "@starbeam/service";
 
 import type { IntoResourceBlueprint } from "./resource.js";
@@ -50,7 +51,7 @@ type DefaultToNative = <T>(value: Reactive<T>) => Reactive<T>;
 
 export interface RendererManager<
   C extends object,
-  T extends ToNative = DefaultToNative
+  T extends ToNative = DefaultToNative,
 > {
   readonly toNative: T;
   readonly getComponent: () => C;
@@ -74,8 +75,8 @@ export interface Lifecycle {
   };
 
   readonly lifetime: object;
-  readonly use: <T>(blueprint: IntoResourceBlueprint<T>) => Resource<T>;
-  readonly service: <T>(blueprint: IntoResourceBlueprint<T>) => Resource<T>;
+  readonly use: <T>(blueprint: IntoResourceBlueprint<T>) => T;
+  readonly service: <T>(blueprint: IntoResourceBlueprint<T>) => T;
 }
 
 class LifecycleImpl implements Lifecycle {
@@ -98,63 +99,81 @@ class LifecycleImpl implements Lifecycle {
     return this.#manager.getComponent() as object;
   }
 
-  use = <T>(blueprint: IntoResourceBlueprint<T>): Resource<T> =>
+  use = <T>(blueprint: IntoResourceBlueprint<T>): T =>
     managerSetupResource(this.#manager, blueprint);
 
-  service = <T>(blueprint: IntoResourceBlueprint<T>): Resource<T> =>
+  service = <T>(blueprint: IntoResourceBlueprint<T>): T =>
     managerSetupService(this.#manager, blueprint);
+}
+
+interface UniversalRef<T> {
+  readonly current: T;
 }
 
 export function managerSetupReactive<T, M extends SomeRendererManager>(
   manager: M,
-  blueprint: UseReactive<T>
-): Reactive<T> {
+  blueprint: UseReactive<T>,
+): Reactive<ReadValue<T>> {
   const component = manager.getComponent() as object;
   const lifecycle = new LifecycleImpl(manager, component);
   const currentBlueprint = manager.setupRef(component, blueprint);
   return manager.setupValue(component, () =>
-    setupFormula(currentBlueprint, lifecycle)
+    setupFormula(currentBlueprint, lifecycle),
   );
 }
 
 export const managerCreateLifecycle = <M extends SomeRendererManager>(
-  manager: M
+  manager: M,
 ): Lifecycle => new LifecycleImpl(manager, manager.getComponent() as object);
 
 export function setupFormula<T>(
-  blueprint: { current: UseReactive<T> },
-  lifecycle: Lifecycle
-): FormulaFn<T> {
+  blueprint: UniversalRef<UseReactive<T>>,
+  lifecycle: Lifecycle,
+): FormulaFn<ReadValue<T>> {
   const constructed = CachedFormula(() =>
     isReactive(blueprint.current)
       ? blueprint.current
-      : blueprint.current(lifecycle)
+      : blueprint.current(lifecycle),
   );
-  return Formula(() => read(constructed()));
+  return Formula(() => read(constructed())) as FormulaFn<ReadValue<T>>;
+}
+
+function setupValue<T>(
+  manager: SomeRendererManager,
+  create: () => T,
+): [component: object, value: T] {
+  const component = manager.getComponent() as object;
+  return [
+    component,
+    withinScope(component, () => manager.setupValue(component, create)) as T,
+  ];
 }
 
 export function managerSetupResource<T>(
   manager: SomeRendererManager,
-  blueprint: IntoResourceBlueprint<T>
-): Resource<T> {
-  const component = manager.getComponent() as object;
+  blueprint: IntoResourceBlueprint<T>,
+): T {
+  const [component, { sync, value }] = setupValue(manager, () =>
+    setupResource(blueprint),
+  );
 
-  const resource = manager.setupValue(component, () => use(blueprint));
+  manager.on.layout(component, () => void withinScope(component, sync));
 
-  manager.on.layout(component, () => {
-    setup(resource, { lifetime: component });
-  });
-
-  return resource;
+  return value;
 }
 
 export function managerSetupService<T>(
   manager: SomeRendererManager,
-  blueprint: IntoResourceBlueprint<T>
-): Resource<T> {
+  intoBlueprint: IntoResourceBlueprint<T>,
+): T {
   const component = manager.getComponent() as object;
   const app = manager.getApp?.(component) ?? CONTEXT.app;
-  return manager.setupValue(component, () => service(blueprint, { app }));
+  return manager.setupValue(component, () => {
+    const blueprint =
+      typeof intoBlueprint === "function" ? intoBlueprint() : intoBlueprint;
+
+    return service(blueprint, { app });
+  });
 }
 
 export type Handler = () => void;

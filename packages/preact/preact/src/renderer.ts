@@ -1,7 +1,7 @@
 import type { Reactive } from "@starbeam/interfaces";
 import type { InternalComponent } from "@starbeam/preact-utils";
 import type { RendererManager } from "@starbeam/renderer";
-import { useMemo, useRef } from "preact/hooks";
+import { useEffect, useLayoutEffect, useMemo, useRef } from "preact/hooks";
 
 import { getCurrentComponent } from "./options.js";
 
@@ -15,8 +15,8 @@ export const MANAGER = {
     return ref;
   },
   on: {
-    layout: (component, handler) => void component.on.layout(handler),
-    idle: (component, handler) => void component.on.idle(handler),
+    layout: (component, handler) => void useLayoutEffect(handler),
+    idle: (component, handler) => void useEffect(handler),
   },
 } satisfies RendererManager<
   InternalComponent,

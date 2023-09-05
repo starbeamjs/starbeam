@@ -74,31 +74,50 @@ export function removeAbstraction<E extends Error>(
   return error;
 }
 
-export function buildCause(caller: AnyFunction): Error | undefined {
+export function buildCause(
+  caller: AnyFunction,
+  message: string,
+): (original?: Error | undefined) => Error | undefined {
   const source: { stack?: string } = {};
 
   if (Error.captureStackTrace) {
     Error.captureStackTrace(source, caller);
   }
 
-  if (source.stack) {
-    const error = new Error("Test function was defined here");
-    error.stack = source.stack;
-    return error;
-  }
+  return (original) => {
+    if (source.stack) {
+      const error = new Error(message);
+      error.stack = source.stack;
+
+      if (!error.cause && original) error.cause = cloneError(original);
+      return error;
+    }
+  };
 }
 
-export function withCause<T>(block: () => T, caller: AnyFunction): T {
-  const cause = buildCause(caller);
+export function withCause<T>(
+  block: () => T,
+  message: string,
+  {
+    entryFn,
+  }: {
+    entryFn: AnyFunction;
+  },
+): T {
+  const cause = buildCause(entryFn, message);
 
   try {
     return block();
   } catch (e: unknown) {
+    console.warn(e);
     let error;
     if (isAssertionError(e)) {
-      error = removeAbstraction(e, withCause);
+      error = e;
       console.log(error.stack);
-      error.cause = cause;
+      error.cause = cause();
+    } else if (e instanceof Error) {
+      error = e;
+      error.cause = cause(error);
     } else {
       error = e;
     }
@@ -107,18 +126,23 @@ export function withCause<T>(block: () => T, caller: AnyFunction): T {
   }
 }
 
-export function wrapAssertion<T>(
+function cloneError(error: Error): Error {
+  const clone = new Error(error.message);
+  if (error.stack) clone.stack = error.stack;
+  if (error.cause) clone.cause = error.cause;
+  return clone;
+}
+
+function wrapAssertion<T>(
   block: () => T,
   {
     entryFn = wrapAssertion,
     mapAssertion = (e) => e,
     mapAnyErr = (e) => e,
-    cause,
   }: {
     entryFn?: AnyFunction | undefined;
     mapAssertion?: (error: AssertionError) => AssertionError;
     mapAnyErr?: <E extends Error>(error: E) => E;
-    cause?: Error;
   },
 ): T {
   try {
@@ -166,12 +190,19 @@ export function wrapAssertion<T>(
 
 export function entryPoint<const T>(
   block: () => T,
-  { entryFn, cause }: { entryFn: AnyFunction; cause?: Error | undefined },
+  {
+    entryFn,
+    cause: causeMessage,
+  }: { entryFn: AnyFunction; cause?: string | undefined | null },
 ): T {
+  const cause = causeMessage ? buildCause(entryFn, causeMessage) : undefined;
+
   return wrapAssertion(block, {
     mapAnyErr: (error) => {
-      if (cause) {
-        error.cause = cause;
+      if (cause === null) {
+        error.cause = undefined;
+      } else if (cause) {
+        error.cause = cause(error);
       }
 
       return error;

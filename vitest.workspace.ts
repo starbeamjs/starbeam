@@ -7,7 +7,10 @@ import { defineWorkspace, type UserWorkspaceConfig } from "vitest/config";
 const root = Package.root(import.meta);
 
 const packages = glob
-  .sync([resolve(root, "packages/universal/*/package.json")])
+  .sync([
+    resolve(root, "packages/universal/*/package.json"),
+    resolve(root, "packages/preact/*/package.json"),
+  ])
   .map((manifest) => {
     const path = dirname(manifest);
     return {

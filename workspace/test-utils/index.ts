@@ -6,7 +6,6 @@ export {
   RecordedEvents,
   removeAbstraction,
   withCause,
-  wrapAssertion,
 } from "./src/actions.js";
 export {
   resources,

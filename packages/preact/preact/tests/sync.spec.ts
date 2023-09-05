@@ -2,13 +2,13 @@
 
 import { install, setupSync } from "@starbeam/preact";
 import { Marker } from "@starbeam/reactive";
-import { Sync } from "@starbeam/resource";
+import { Resource } from "@starbeam/resource";
 import { html, render } from "@starbeam-workspace/preact-testing-utils";
 import {
-  Actions,
   beforeAll,
   describe,
   expect,
+  RecordedEvents,
   test,
 } from "@starbeam-workspace/test-utils";
 import { options } from "preact";
@@ -19,19 +19,22 @@ describe("setupSync", () => {
   });
 
   test("setupSync", () => {
-    const actions = new Actions();
-    let isSetup = false;
+    const actions = new RecordedEvents();
     const invalidate = Marker();
 
-    const sync = Sync(() => {
+    const sync = Resource(({ on }) => {
       actions.record("setup");
-      isSetup = true;
-      invalidate.read();
 
-      return () => {
-        actions.record("cleanup");
-        isSetup = false;
-      };
+      on.sync(() => {
+        actions.record("sync");
+        invalidate.read();
+
+        return () => void actions.record("cleanup");
+      });
+
+      on.finalize(() => {
+        actions.record("finalize");
+      });
     });
 
     function App() {
@@ -41,10 +44,14 @@ describe("setupSync", () => {
     }
 
     const result = render(App);
-    actions.expect("setup");
+    actions.expect("setup", "sync");
     expect(result.innerHTML).toBe(`<p>hello world</p>`);
 
+    invalidate.mark();
+    result.rerender({});
+    actions.expect("cleanup", "sync");
+
     result.unmount();
-    actions.expect("cleanup");
+    actions.expect("cleanup", "finalize");
   });
 });

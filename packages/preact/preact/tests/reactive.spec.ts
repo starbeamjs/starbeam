@@ -12,6 +12,7 @@ import {
 } from "@starbeam-workspace/test-utils";
 import { options } from "preact";
 
+import { TestResource } from "./resources.spec.js";
 import type { Component } from "./support/testing.js";
 
 let nextId = 0;
@@ -78,7 +79,7 @@ describe("reactive", () => {
 
         await expectReactive(App);
       });
-    }
+    },
   );
 
   test("reactive values render and update", async () => {
@@ -86,7 +87,13 @@ describe("reactive", () => {
 
     function App() {
       return html`<p>${counter}</p>
-        <button onClick=${() => counter.current++}>++</button>`;
+        <button
+          onClick=${() => {
+            return counter.current++;
+          }}
+        >
+          ++
+        </button>`;
     }
 
     await expectReactive(App);
@@ -97,6 +104,7 @@ describe("reactive", () => {
     expect(result.innerHTML).toBe("<p>0</p><button>++</button>");
 
     await result.find("button").click();
+
     expect(result.innerHTML).toBe("<p>1</p><button>++</button>");
   }
 });
@@ -105,15 +113,13 @@ describe("setupReactive", () => {
   beforeAll(() => void install(options));
 
   test("passing a resource", () => {
+    const { resource, id } = TestResource();
     function App() {
-      const { cell } = setupReactive(({ use }) => use(ReactiveObject)).read();
-      return html`<p>${cell.current}</p>`;
+      const { id } = setupReactive(({ use }) => use(resource)).read();
+      return html`<p>${id}</p>`;
     }
 
-    render(App).expect(
-      ({ count }: { count: number }) => html`<p>${count}</p>`,
-      { count: 0 }
-    );
+    render(App).expect({ id }, ({ id }) => html`<p>${id}</p>`);
   });
 
   test("reactive values render", () => {
@@ -123,8 +129,8 @@ describe("setupReactive", () => {
     }
 
     render(App).expect(
+      { count: 0 },
       ({ count }: { count: number }) => html`<p>${count}</p>`,
-      { count: 0 }
     );
   });
 });
