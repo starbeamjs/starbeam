@@ -83,11 +83,13 @@
     ]
   },
   "scripts": {
+    "__ci:prod": "PROD=1 DEV= esno ./workspace/scripts/index.ts ci --type specs -v",
+    "__ci:specs": "esno ./workspace/scripts/index.ts ci --type specs -v",
     "build": "esno ./workspace/scripts/index.ts build",
     "check:unused": "esno ./workspace/scripts/index.ts unused",
     "ci:lint": "esno ./workspace/scripts/index.ts ci --type lint -v",
-    "ci:prod": "PROD=1 DEV= esno ./workspace/scripts/index.ts ci --type specs -v",
-    "ci:specs": "esno ./workspace/scripts/index.ts ci --type specs -v",
+    "ci:prod": "PROD=1 DEV= vitest",
+    "ci:specs": "vitest",
     "ci:types": "esno ./workspace/scripts/index.ts ci --type types -v",
     "demo": "esno ./workspace/scripts/index.ts demo",
     "dev": "esno ./workspace/scripts/index.ts",

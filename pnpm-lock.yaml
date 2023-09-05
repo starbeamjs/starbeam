@@ -5089,7 +5089,7 @@ packages:
       typescript:
         optional: true
     dependencies:
-      '@eslint-community/regexpp': 4.6.2
+      '@eslint-community/regexpp': 4.5.1
       '@typescript-eslint/parser': 6.3.0(eslint@8.46.0)(typescript@5.0.4)
       '@typescript-eslint/scope-manager': 6.3.0
       '@typescript-eslint/type-utils': 6.3.0(eslint@8.46.0)(typescript@5.0.4)
