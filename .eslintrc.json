@@ -4,7 +4,8 @@
     "*.cjs",
     "packages/x/devtools-extension",
     "packages/env.d.ts",
-    "!.npmcheckrc.json"
+    "!.npmcheckrc.json",
+    "**/node_modules"
   ],
 
   "plugins": ["@starbeam"],

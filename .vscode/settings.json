@@ -73,6 +73,9 @@
     "**/node_modules/**": true,
     ".turbo/**": true
   },
+  "inline-bookmarks.expert.custom.words.mapping": {
+    "red": ["@fixme(?=\\s|$)"]
+  },
   "inline-bookmarks.view.exclude.gitIgnore": true,
 
   "npm-outdated.decorations": "fancy",

@@ -27,16 +27,16 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "@types/eslint": "^8.44.2",
-    "eslint-config-prettier": "^8.10.0",
-    "eslint-import-resolver-typescript": "^3.5.5",
-    "eslint-plugin-import": "^2.28.0",
-    "eslint-plugin-json": "^3.1.0",
-    "eslint-plugin-jsonc": "^2.9.0",
-    "eslint-plugin-prettier": "^5.0.0",
-    "eslint-plugin-simple-import-sort": "^10.0.0",
-    "eslint-plugin-unused-imports": "^3.0.0",
-    "prettier": "^3.0.1"
+    "@types/eslint": "*",
+    "eslint-config-prettier": "*",
+    "eslint-import-resolver-typescript": "*",
+    "eslint-plugin-import": "*",
+    "eslint-plugin-json": "*",
+    "eslint-plugin-jsonc": "*",
+    "eslint-plugin-prettier": "*",
+    "eslint-plugin-simple-import-sort": "*",
+    "eslint-plugin-unused-imports": "*",
+    "prettier": "*"
   },
   "devDependencies": {
     "@types/node": "18.17.4"

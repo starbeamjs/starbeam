@@ -1,14 +1,13 @@
 // @vitest-environment jsdom
 
 import { install, setupResource, useResource } from "@starbeam/preact";
-import { Marker } from "@starbeam/reactive";
-import { Resource, type ResourceBlueprint } from "@starbeam/resource";
+import { type ResourceBlueprint } from "@starbeam/resource";
 import { html, render } from "@starbeam-workspace/preact-testing-utils";
 import {
   beforeAll,
   describe,
-  RecordedEvents,
   test,
+  TestResource,
   withCause,
 } from "@starbeam-workspace/test-utils";
 import { options } from "preact";
@@ -36,13 +35,6 @@ describe("setupResource", () => {
     expectResource((blueprint) => setupResource(() => blueprint));
   });
 });
-
-interface TestResourceState {
-  readonly id: number;
-  readonly events: RecordedEvents;
-  readonly invalidate: () => void;
-  readonly resource: ResourceBlueprint<{ id: number }>;
-}
 
 function expectResource(
   appFn: (resource: ResourceBlueprint<{ id: number }>) => { id: number },
@@ -74,36 +66,4 @@ function expectResource(
     "test function was defined here",
     { entryFn: expectResource },
   );
-}
-
-let NEXT_ID = 0;
-
-export function TestResource(
-  events?: RecordedEvents | undefined,
-): TestResourceState {
-  const localEvents = events ? events : new RecordedEvents();
-  const invalidate = Marker();
-  const id = NEXT_ID++;
-
-  return {
-    id,
-    events: localEvents,
-    invalidate: () => void invalidate.mark(),
-    resource: Resource(({ on }) => {
-      localEvents.record("setup");
-
-      on.sync(() => {
-        localEvents.record("sync");
-        invalidate.read();
-
-        return () => void localEvents.record("cleanup");
-      });
-
-      on.finalize(() => {
-        localEvents.record("finalize");
-      });
-
-      return { id };
-    }),
-  };
 }

@@ -9,10 +9,10 @@ import {
   describe,
   expect,
   test,
+  TestResource,
 } from "@starbeam-workspace/test-utils";
 import { options } from "preact";
 
-import { TestResource } from "./resources.spec.js";
 import type { Component } from "./support/testing.js";
 
 let nextId = 0;

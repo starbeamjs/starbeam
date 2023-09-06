@@ -15,6 +15,10 @@ export class RecordedEvents {
     this.#format = format ?? ((event) => event);
   }
 
+  reset(): void {
+    this.#events = [];
+  }
+
   namedEvent(name: string): string {
     return this.#format(name);
   }
