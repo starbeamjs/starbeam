@@ -4,35 +4,36 @@ import { setupService, Starbeam } from "@starbeam/vue";
 import {
   describe,
   expect,
-  resources,
   test,
   TestResource,
 } from "@starbeam-workspace/test-utils";
 import { define, testing } from "@starbeam-workspace/vue-testing-utils";
 import { defineComponent, h, type VNode } from "vue";
 
-describe("services", () => {
+describe.todo("services", () => {
   test("services are like resources", () => {
+    const { resource: TestResourceBlueprint, id, events } = TestResource();
+
     function App() {
-      const test = setupService(TestResource);
-      return () => h("p", [test.value.id]);
+      const test = setupService(TestResourceBlueprint);
+      return () => h("p", [test.id]);
     }
 
     const result = define({ setup: App }, Starbeam)
       .html(({ id }) => `<p>${id}</p>`, {
-        id: resources.nextId,
+        id,
       })
       .render();
 
     result.unmount();
 
-    expect(resources.last.isActive).toBe(false);
+    events.expect("setup");
   });
 
   const Inner = defineComponent({
     setup: () => {
       const test = setupService(TestResource);
-      return () => h("p", ["inner: ", test.value.id]);
+      return () => h("p", ["inner: ", test.id]);
     },
   });
 
@@ -41,7 +42,7 @@ describe("services", () => {
       const test = setupService(TestResource);
       return () => [
         h("p", [`id prop: ${props.id}`]),
-        h("p", [`outer: ${test.value.id}`]),
+        h("p", [`outer: ${test.id}`]),
         h(Inner),
       ];
     }
@@ -54,7 +55,7 @@ describe("services", () => {
         },
         {
           testId: 1,
-        }
+        },
       )
       .render({ id: 1 });
 

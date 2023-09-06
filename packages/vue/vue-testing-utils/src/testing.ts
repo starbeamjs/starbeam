@@ -20,7 +20,7 @@ import {
 type ExpectHTML<T extends PropTypes | void> = T extends void
   ? (<U>(
       callback: (value: U) => string,
-      initial: U
+      initial: U,
     ) => {
       render: (props: PropsFor<void>) => StarbeamRenderResult<void, U>;
     }) &
@@ -29,7 +29,7 @@ type ExpectHTML<T extends PropTypes | void> = T extends void
       })
   : (<U>(
       callback: (props: PropsFor<T>, value: U) => string,
-      initial: U
+      initial: U,
     ) => {
       render: (props: PropsFor<T>) => StarbeamRenderResult<T, U>;
     }) &
@@ -46,7 +46,7 @@ type ExpectHTML<T extends PropTypes | void> = T extends void
 interface Define<T extends PropTypes | void> {
   define: (
     options: { setup: Setup<T> } | ((props: PropsFor<T>) => VNode | VNode[]),
-    plugin?: Plugin
+    plugin?: Plugin,
   ) => {
     html: ExpectHTML<T>;
   };
@@ -78,14 +78,14 @@ export function testing(props?: PropTypes): Define<PropTypes | void> {
       return {
         html: ((
           expectHTML: (props: unknown, value?: unknown) => string,
-          initial?: unknown
+          initial?: unknown,
         ) => {
           function checkHTML(props: unknown, value?: unknown) {
             if (hasProps) {
               return (
                 expectHTML as (
                   props: PropsFor<PropTypes>,
-                  value: unknown
+                  value: unknown,
                 ) => string
               )(props as PropsFor<PropTypes>, value);
             } else {
@@ -107,11 +107,11 @@ export function testing(props?: PropTypes): Define<PropTypes | void> {
                 {
                   html: checkHTML,
                 },
-                lastProps as { props: PropsFor<PropTypes> }
+                lastProps as { props: PropsFor<PropTypes> },
               );
 
               vitestExpect(starbeamResult.innerHTML).toBe(
-                checkHTML(props, initial)
+                checkHTML(props, initial),
               );
               return starbeamResult;
             },
@@ -136,7 +136,7 @@ export class StarbeamRenderResult<Props extends PropTypes | void, U> {
     expectations: {
       html: (props: PropsFor<Props>, value: U) => string;
     },
-    lastProps: { props: PropsFor<Props> }
+    lastProps: { props: PropsFor<Props> },
   ) {
     this.#result = result;
     this.#container = container;
@@ -151,28 +151,27 @@ export class StarbeamRenderResult<Props extends PropTypes | void, U> {
   async rerender(props: PropsFor<Props>, value: U): Promise<void>;
   async rerender(
     this: StarbeamRenderResult<Props, void>,
-    props: PropsFor<Props>
+    props: PropsFor<Props>,
   ): Promise<void>;
   async rerender(props: PropsFor<Props>, value?: U): Promise<void> {
-    console.log("rerendering");
     await this.#result.rerender(props as object);
     this.#lastProps.props = props;
 
     expect(this.#container.innerHTML).toBe(
-      this.#expectations.html(props, value as U)
+      this.#expectations.html(props, value as U),
     );
   }
 
   async update(callback: () => void | Promise<void>, value: U): Promise<void>;
   async update(
     this: StarbeamRenderResult<Props, void>,
-    callback: () => void | Promise<void>
+    callback: () => void | Promise<void>,
   ): Promise<void>;
   async update(callback: () => void | Promise<void>, value?: U): Promise<void> {
     await callback();
 
     expect(this.#container.innerHTML).toBe(
-      this.#expectations.html(this.#lastProps.props, value as U)
+      this.#expectations.html(this.#lastProps.props, value as U),
     );
   }
 
@@ -216,12 +215,12 @@ export class ReturnElement<H extends HTMLElement> {
             value: async (...args: unknown[]) => {
               return fireEvent[key as keyof typeof fireEvent](
                 await this.#element,
-                ...(args as never[])
+                ...(args as never[]),
               );
             },
           },
         ];
-      })
+      }),
     ) as PropertyDescriptorMap;
 
     return Object.defineProperties({}, descs) as EventMap;
@@ -230,7 +229,7 @@ export class ReturnElement<H extends HTMLElement> {
 
 export type EventMap = Expand<{
   [P in keyof VueFireEventObject]: VueFireEventObject[P] extends <
-    N extends Document | Element | Window
+    N extends Document | Element | Window,
   >(
     element: N,
     ...args: infer Args
@@ -249,7 +248,7 @@ declare type InferPropType<T> = [T] extends [null]
   : [T] extends [
       {
         type: null | true;
-      }
+      },
     ]
   ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
     any
@@ -257,7 +256,7 @@ declare type InferPropType<T> = [T] extends [null]
       | ObjectConstructor
       | {
           type: ObjectConstructor;
-        }
+        },
     ]
   ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
     Record<string, any>
@@ -265,28 +264,28 @@ declare type InferPropType<T> = [T] extends [null]
       | BooleanConstructor
       | {
           type: BooleanConstructor;
-        }
+        },
     ]
   ? boolean
   : [T] extends [
       | NumberConstructor
       | {
           type: NumberConstructor;
-        }
+        },
     ]
   ? number
   : [T] extends [
       | DateConstructor
       | {
           type: DateConstructor;
-        }
+        },
     ]
   ? Date
   : [T] extends [
       | (infer U)[]
       | {
           type: (infer U)[];
-        }
+        },
     ]
   ? U extends DateConstructor
     ? Date | InferPropType<U>

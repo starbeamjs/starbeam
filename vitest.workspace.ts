@@ -10,6 +10,7 @@ const packages = glob
   .sync([
     resolve(root, "packages/universal/*/package.json"),
     resolve(root, "packages/preact/*/package.json"),
+    resolve(root, "packages/vue/*/package.json"),
   ])
   .map((manifest) => {
     const path = dirname(manifest);
