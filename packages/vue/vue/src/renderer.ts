@@ -24,6 +24,10 @@ export const MANAGER: VueRendererManager = {
 
   on: {
     idle: (component, handler) => void component.onMounted(handler),
-    layout: (component, handler) => void component.onMounted(handler),
+    layout: (component, handler) => {
+      component.onMounted(() => {
+        const cleanup = handler();
+      });
+    },
   },
 };

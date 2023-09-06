@@ -40,7 +40,7 @@ interface ServiceState {
 
 const SERVICES = new WeakMap<object, ServiceState>();
 
-function initializeServices(app: object) {
+function initializeServices(app: object): ServiceState {
   let services = SERVICES.get(app);
 
   if (!services) {
@@ -66,6 +66,8 @@ function addService(app: object, service: SyncFn<void>) {
 }
 
 /**
+ * The formula returned by `getServiceFormula` can be subscribed to. The
+ * subscription is notified when any of the app's services have updates.
  *
  * @category primitive
  */

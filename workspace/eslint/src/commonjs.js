@@ -44,6 +44,7 @@ const TYPED_RULES = Rules.build((rules) =>
         "no-dupe-class-members",
         "no-constant-condition",
         "no-inner-declarations",
+        "import/namespace",
       ],
       typed: [
         "no-invalid-void-type",
@@ -119,7 +120,7 @@ const TYPED_RULES = Rules.build((rules) =>
     .typed("no-unsafe-call", "warn")
     .typed("no-unsafe-declaration-merging", "warn")
     .typed("no-unsafe-member-access", "warn")
-    .typed("no-unsafe-return", "warn")
+    .typed("no-unsafe-return", "warn"),
 );
 
 /** @type {Linter.RulesRecord} */

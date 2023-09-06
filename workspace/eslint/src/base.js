@@ -43,6 +43,7 @@ const TYPED_RULES = Rules.build((rules) =>
         "no-dupe-class-members",
         "no-constant-condition",
         "no-inner-declarations",
+        "import/namespace",
       ],
       typed: [
         "no-invalid-void-type",
