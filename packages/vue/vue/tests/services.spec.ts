@@ -1,68 +1,100 @@
 // @vitest-environment jsdom
 
-import { setupService, Starbeam } from "@starbeam/vue";
+import { setupService } from "@starbeam/vue";
 import {
   describe,
   expect,
   test,
   TestResource,
 } from "@starbeam-workspace/test-utils";
-import { define, testing } from "@starbeam-workspace/vue-testing-utils";
-import { defineComponent, h, type VNode } from "vue";
+import { App, Define, renderApp } from "@starbeam-workspace/vue-testing-utils";
+import { Fragment, h, nextTick, shallowRef } from "vue";
 
-describe.todo("services", () => {
-  test("services are like resources", () => {
-    const { resource: TestResourceBlueprint, id, events } = TestResource();
+describe("services", () => {
+  test.only("services are like resources", async () => {
+    const {
+      resource: TestResourceBlueprint,
+      id,
+      events,
+      invalidate,
+    } = TestResource();
 
-    function App() {
+    const app = App(() => {
       const test = setupService(TestResourceBlueprint);
-      return () => h("p", [test.id]);
+      const show = shallowRef(true);
+
+      return () =>
+        h(Fragment, [
+          h("p", ["hello id=", test.id, ", count=", test.count]),
+          h("button", { onClick: test.increment }, "++"),
+          h(
+            "button",
+            { onClick: () => (show.value = !show.value) },
+            show.value ? "hide" : "show",
+          ),
+          show.value ? h(Inner) : false,
+        ]);
+    });
+
+    const Inner = Define(() => {
+      const test = setupService(TestResourceBlueprint);
+      return () => h("p", ["inner count: ", test.count]);
+    });
+
+    function html({ count, show }: { count: number; show: boolean }) {
+      if (show) {
+        return `<p>hello id=${id}, count=${count}</p><button>++</button><button>hide</button><p>inner count: ${count}</p>`;
+      } else {
+        return `<p>hello id=${id}, count=${count}</p><button>++</button><button>show</button><!---->`;
+      }
     }
 
-    const result = define({ setup: App }, Starbeam)
-      .html(({ id }) => `<p>${id}</p>`, {
-        id,
-      })
-      .render();
+    const result = renderApp(app);
+    expect(result.container.innerHTML).toBe(html({ count: 0, show: true }));
+    events.expect("setup", "sync");
+
+    await result.rerender({});
+    expect(result.container.innerHTML).toBe(html({ count: 0, show: true }));
+    events.expect([]);
+
+    invalidate();
+    expect(result.container.innerHTML).toBe(html({ count: 0, show: true }));
+    events.expect([]);
+
+    await nextTick();
+    expect(result.container.innerHTML).toBe(html({ count: 0, show: true }));
+    events.expect("cleanup", "sync");
+
+    await result.rerender({});
+    expect(result.container.innerHTML).toBe(html({ count: 0, show: true }));
+    events.expect([]);
+
+    (await result.findByRole("button", { name: "++" })).click();
+    await result.rerender({});
+    expect(result.container.innerHTML).toBe(html({ count: 1, show: true }));
+    events.expect([]);
+
+    invalidate();
+    expect(result.container.innerHTML).toBe(html({ count: 1, show: true }));
+    events.expect([]);
+
+    await nextTick();
+    expect(result.container.innerHTML).toBe(html({ count: 1, show: true }));
+    events.expect("cleanup", "sync");
+
+    // removing a component that uses the resource doesn't clean it up
+    (await result.findByRole("button", { name: "hide" })).click();
+    await result.rerender({});
+    expect(result.container.innerHTML).toBe(html({ count: 1, show: false }));
+    events.expect([]);
+
+    // bringing it back doesn't set it up again
+    (await result.findByRole("button", { name: "show" })).click();
+    await result.rerender({});
+    expect(result.container.innerHTML).toBe(html({ count: 1, show: true }));
+    events.expect([]);
 
     result.unmount();
-
-    events.expect("setup");
-  });
-
-  const Inner = defineComponent({
-    setup: () => {
-      const test = setupService(TestResource);
-      return () => h("p", ["inner: ", test.id]);
-    },
-  });
-
-  test("a service is only instantiated once", async () => {
-    function App(props: { id: number }): () => VNode[] {
-      const test = setupService(TestResource);
-      return () => [
-        h("p", [`id prop: ${props.id}`]),
-        h("p", [`outer: ${test.id}`]),
-        h(Inner),
-      ];
-    }
-
-    const result = testing({ id: Number })
-      .define({ setup: App }, Starbeam)
-      .html(
-        ({ id }, { testId }) => {
-          return `<p>id prop: ${id}</p><p>outer: ${testId}</p><p>inner: ${testId}</p>`;
-        },
-        {
-          testId: 1,
-        },
-      )
-      .render({ id: 1 });
-
-    await result.rerender({ id: 2 }, { testId: 1 });
-
-    result.unmount();
-
-    expect(resources.last.isActive).toBe(false);
+    events.expect("cleanup", "finalize");
   });
 });

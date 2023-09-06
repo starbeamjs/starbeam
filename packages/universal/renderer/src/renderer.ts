@@ -8,8 +8,9 @@ import {
   type ReadValue,
 } from "@starbeam/reactive";
 import { setupResource } from "@starbeam/resource";
-import { CONTEXT, withinScope } from "@starbeam/runtime";
+import { CONTEXT, RUNTIME, withinScope } from "@starbeam/runtime";
 import { service } from "@starbeam/service";
+import { shallowRef } from "vue";
 
 import type { IntoResourceBlueprint } from "./resource.js";
 
@@ -157,7 +158,15 @@ export function managerSetupResource<T>(
     setupResource(blueprint),
   );
 
-  manager.on.layout(component, () => void withinScope(component, sync));
+  const syncRef = shallowRef(0);
+
+  component;
+
+  manager.on.layout(component, () => {
+    RUNTIME.subscribe(sync, () => void syncRef.value++);
+
+    withinScope(component, sync);
+  });
 
   return value;
 }

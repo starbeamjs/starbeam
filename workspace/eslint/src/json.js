@@ -206,7 +206,6 @@ function anyJson(extend, rules) {
     parser: "jsonc-eslint-parser",
 
     rules: {
-      "prettier/prettier": "error",
       ...rules,
     },
   };

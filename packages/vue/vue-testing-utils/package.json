@@ -34,5 +34,19 @@
   },
   "starbeam:type": "library:test-support",
   "type": "module",
-  "version": "0.7.4"
+  "version": "0.7.4",
+  "dependencies": {
+    "@starbeam/interfaces": "workspace:^",
+    "@starbeam/verify": "workspace:^",
+    "@starbeam-workspace/test-utils": "workspace:^",
+    "@testing-library/dom": "^9.3.1",
+    "@testing-library/vue": "^7.0.0"
+  },
+  "devDependencies": {
+    "@starbeam-dev/build-support": "workspace:*",
+    "rollup": "^3.29.0"
+  },
+  "peerDependencies": {
+    "vue": ">=3.3.4"
+  }
 }

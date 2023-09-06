@@ -4,4 +4,4 @@ export type {
   ReturnElement,
   StarbeamRenderResult,
 } from "./src/testing.js";
-export { define, testing } from "./src/testing.js";
+export { App, Define, define, renderApp, testing } from "./src/testing.js";

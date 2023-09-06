@@ -1,13 +1,19 @@
 import { Resource, type ResourceBlueprint } from "@starbeam/resource";
-import { Marker } from "@starbeam/universal";
+import { Cell, Marker } from "@starbeam/universal";
 
 import { RecordedEvents } from "./actions.js";
+
+interface TestResourceInstance {
+  readonly id: number;
+  readonly count: number;
+  readonly increment: () => void;
+}
 
 interface TestResourceState {
   readonly id: number;
   readonly events: RecordedEvents;
   readonly invalidate: () => void;
-  readonly resource: ResourceBlueprint<{ id: number }>;
+  readonly resource: ResourceBlueprint<TestResourceInstance>;
 }
 
 let NEXT_ID = 0;
@@ -32,6 +38,7 @@ export function TestResource(
     events: allEvents,
     invalidate: () => void invalidate.mark(),
     resource: Resource(({ on }) => {
+      const cell = Cell(0);
       localEvents.record("setup");
 
       on.sync(() => {
@@ -45,7 +52,15 @@ export function TestResource(
         localEvents.record("finalize");
       });
 
-      return { id };
+      return {
+        id,
+        get count() {
+          return cell.current;
+        },
+        increment() {
+          cell.update((n) => n + 1);
+        },
+      };
     }),
   };
 }

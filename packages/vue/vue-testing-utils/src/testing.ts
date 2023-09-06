@@ -9,33 +9,32 @@ import {
 } from "@testing-library/vue";
 import { render } from "@testing-library/vue";
 import {
+  type Component,
   defineComponent,
   type Plugin,
   type Prop,
   type PropType,
   type RenderFunction,
   type VNode,
+  type VNodeChild,
 } from "vue";
 
-type ExpectHTML<T extends PropTypes | void> = T extends void
-  ? (<U>(
-      callback: (value: U) => string,
-      initial: U,
-    ) => {
-      render: (props: PropsFor<void>) => StarbeamRenderResult<void, U>;
-    }) &
-      ((callback: (props: PropsFor<T>) => string) => {
-        render: (props: PropsFor<T>) => StarbeamRenderResult<T, void>;
-      })
-  : (<U>(
-      callback: (props: PropsFor<T>, value: U) => string,
-      initial: U,
-    ) => {
-      render: (props: PropsFor<T>) => StarbeamRenderResult<T, U>;
-    }) &
-      ((callback: (props: PropsFor<T>) => string) => {
-        render: (props: PropsFor<T>) => StarbeamRenderResult<T, void>;
-      });
+type ExpectAppHtml = <T>(
+  callback: (value: T) => string,
+  initial: T,
+) => {
+  render: (props: PropsFor<T>) => StarbeamRenderResult<T, T>;
+};
+
+type ExpectHTML<T extends PropTypes> = (<U>(
+  callback: (props: PropsFor<T>, value: U) => string,
+  initial: U,
+) => {
+  render: (props: PropsFor<T>) => StarbeamRenderResult<T, U>;
+}) &
+  ((callback: (props: PropsFor<T>) => string) => {
+    render: (props: PropsFor<T>) => StarbeamRenderResult<T, void>;
+  });
 
 // interface RenderOptions {
 //   plugin?: Plugin;
@@ -50,6 +49,41 @@ interface Define<T extends PropTypes | void> {
   ) => {
     html: ExpectHTML<T>;
   };
+}
+
+export const App = (
+  options: (() => () => VNodeChild) | { setup: () => () => VNodeChild },
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+) =>
+  defineComponent({
+    props: [],
+    setup: (): RenderFunction => {
+      if (typeof options === "function") {
+        return options();
+      } else {
+        return options.setup();
+      }
+    },
+  });
+
+export const Define = <T>(
+  options:
+    | ((props: T) => () => VNodeChild)
+    | { setup: (props: T) => () => VNodeChild },
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/explicit-function-return-type
+) =>
+  defineComponent<T>({
+    setup: (props: T): RenderFunction => {
+      if (typeof options === "function") {
+        return options(props);
+      } else {
+        return options.setup(props);
+      }
+    },
+  });
+
+export function renderApp(app: Component<void>): RenderResult {
+  return render(app, { container: document.createElement("div") });
 }
 
 export const define: Define<void>["define"] = testing().define;
@@ -122,7 +156,17 @@ export function testing(props?: PropTypes): Define<PropTypes | void> {
   };
 }
 
-export class StarbeamRenderResult<Props extends PropTypes | void, U> {
+export interface SimplestStarbeamRenderResult {
+  rerender: () => Promise<void>;
+}
+
+export interface SimpleStarbeamRenderResult<Props> {
+  rerender: (props: Props) => Promise<void>;
+}
+
+export class StarbeamRenderResult<Props extends PropTypes | void, U>
+  implements SimpleStarbeamRenderResult<U>
+{
   readonly #result: RenderResult;
   readonly #container: Element;
   readonly #expectations: {
