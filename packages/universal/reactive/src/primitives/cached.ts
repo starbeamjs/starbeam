@@ -2,10 +2,7 @@ import { TAG } from "@starbeam/shared";
 import { createFormulaTag } from "@starbeam/tags";
 
 import { DEBUG, getRuntime } from "../runtime.js";
-import {
-  type FinalizedFormula,
-  FormulaLifecycle,
-} from "./formula-lifecycle.js";
+import { FinalizedFormula } from "./formula-lifecycle.js";
 import {
   type FormulaFn,
   type SugaryPrimitiveOptions,
@@ -15,7 +12,7 @@ import {
 
 export function CachedFormula<T>(
   compute: () => T,
-  options?: SugaryPrimitiveOptions
+  options?: SugaryPrimitiveOptions,
 ): FormulaFn<T> {
   const { description } = toOptions(options);
   const desc = DEBUG?.Desc("formula", description);
@@ -23,14 +20,14 @@ export function CachedFormula<T>(
   let last: Last<T> | null = null;
 
   const { tag, markInitialized } = createFormulaTag(desc, () =>
-    last === null ? new Set() : last.formula.children()
+    last === null ? new Set() : last.formula.children(),
   );
 
   function evaluate(): T {
     if (last === null) {
-      const lifecycle = FormulaLifecycle();
+      const done = getRuntime().start();
       const value = compute();
-      const formula = lifecycle.done();
+      const formula = FinalizedFormula(done());
 
       last = { formula, value };
 

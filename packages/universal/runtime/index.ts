@@ -6,6 +6,7 @@ export {
   link,
   pushingScope,
   RUNTIME,
+  scoped,
   withinScope,
 } from "./src/define.js";
 export type { Unsubscribe } from "./src/lifetime/object-lifetime.js";

@@ -1608,6 +1608,9 @@ importers:
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../../universal/interfaces
+      '@starbeam/shared':
+        specifier: workspace:^
+        version: link:../../universal/shared
       '@starbeam/verify':
         specifier: workspace:^
         version: link:../../universal/verify
@@ -1624,6 +1627,9 @@ importers:
       '@starbeam-dev/build-support':
         specifier: workspace:*
         version: link:../../../workspace/build
+      '@vue/shared':
+        specifier: ^3.3.4
+        version: 3.3.4
       rollup:
         specifier: ^3.29.0
         version: 3.29.0
@@ -1648,6 +1654,9 @@ importers:
       '@starbeam/runtime':
         specifier: workspace:^
         version: link:../../../universal/runtime
+      '@starbeam/shared':
+        specifier: workspace:^
+        version: link:../../../universal/shared
       '@starbeam/universal':
         specifier: workspace:^
         version: link:../../../universal/universal
@@ -1670,6 +1679,9 @@ importers:
         specifier: '>=3.0.0'
         version: 3.2.47
     devDependencies:
+      '@vue/shared':
+        specifier: ^3.3.4
+        version: 3.3.4
       preact-render-to-string:
         specifier: ^6.0.2
         version: 6.0.2(preact@10.13.2)
@@ -5251,7 +5263,6 @@ packages:
 
   /@vue/shared@3.3.4:
     resolution: {integrity: sha512-7OjdcV8vQ74eiz1TZLzZP4JwqM5fA94K6yntPS5Z25r9HDuGNzaGdgvwKYq6S+MxwF0TFRwe50fIR/MYnakdkQ==}
-    dev: false
 
   /@vue/test-utils@2.3.2(vue@3.2.47):
     resolution: {integrity: sha512-hJnVaYhbrIm0yBS0+e1Y0Sj85cMyAi+PAbK4JHqMRUZ6S622Goa+G7QzkRSyvCteG8wop7tipuEbHoZo26wsSA==}

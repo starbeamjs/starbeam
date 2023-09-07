@@ -13,6 +13,7 @@
     "@starbeam/interfaces": "workspace:^",
     "@starbeam/preact": "workspace:^",
     "@starbeam/runtime": "workspace:^",
+    "@starbeam/shared": "workspace:^",
     "@starbeam/universal": "workspace:^",
     "@starbeam/vue": "workspace:^",
     "@starbeam-workspace/test-utils": "workspace:^",
@@ -24,6 +25,7 @@
     "vue": ">=3.0.0"
   },
   "devDependencies": {
+    "@vue/shared": "^3.3.4",
     "preact-render-to-string": "^6.0.2"
   }
 }

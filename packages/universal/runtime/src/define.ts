@@ -64,6 +64,13 @@ export function pushingScope<T>(
   return childScope === undefined ? [scope, result] : result;
 }
 
+export function scoped<const T>(block: (childScope: object) => T): [object, T] {
+  const childScope = mountFinalizationScope()();
+  const result = block(childScope);
+
+  return [childScope, result];
+}
+
 export function withinScope<T>(
   scopeToMount: FinalizationScope | undefined,
   block: (childScope: object) => T,

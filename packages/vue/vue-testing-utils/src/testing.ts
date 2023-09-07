@@ -1,56 +1,32 @@
 import type { Expand } from "@starbeam/interfaces";
-import { expect, expect as vitestExpect } from "@starbeam-workspace/test-utils";
 import {
-  type BoundFunction,
-  fireEvent,
-  type queries,
-  type RenderResult,
-  type VueFireEventObject,
-} from "@testing-library/vue";
+  entryPoint,
+  expect,
+  RecordedEvents,
+} from "@starbeam-workspace/test-utils";
+import { type VueFireEventObject } from "@testing-library/vue";
 import { render } from "@testing-library/vue";
+import type { LooseRequired } from "@vue/shared";
 import {
   type Component,
   defineComponent,
-  type Plugin,
-  type Prop,
+  type ExtractPropTypes,
   type PropType,
   type RenderFunction,
-  type VNode,
   type VNodeChild,
 } from "vue";
 
-type ExpectAppHtml = <T>(
-  callback: (value: T) => string,
-  initial: T,
-) => {
-  render: (props: PropsFor<T>) => StarbeamRenderResult<T, T>;
-};
+import { RenderedApp } from "./rendered-app";
 
-type ExpectHTML<T extends PropTypes> = (<U>(
-  callback: (props: PropsFor<T>, value: U) => string,
-  initial: U,
-) => {
-  render: (props: PropsFor<T>) => StarbeamRenderResult<T, U>;
-}) &
-  ((callback: (props: PropsFor<T>) => string) => {
-    render: (props: PropsFor<T>) => StarbeamRenderResult<T, void>;
-  });
-
-// interface RenderOptions {
-//   plugin?: Plugin;
-// }
-
-// type VueRenderOptions = Partial<Parameters<typeof render>[1]>;
-
-interface Define<T extends PropTypes | void> {
-  define: (
-    options: { setup: Setup<T> } | ((props: PropsFor<T>) => VNode | VNode[]),
-    plugin?: Plugin,
-  ) => {
-    html: ExpectHTML<T>;
-  };
-}
-
+/**
+ * Define a top-level application component (with no props).
+ *
+ * {@linkcode App} takes a setup function that returns a render function. The
+ * setup function may either be specified as a plain function, or it may be
+ * specified as:
+ *
+ * `{ setup: () => () => VNodeChild }`
+ */
 export const App = (
   options: (() => () => VNodeChild) | { setup: () => () => VNodeChild },
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -66,94 +42,157 @@ export const App = (
     },
   });
 
-export const Define = <T>(
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+function defComponent<Props extends PropTypes>(
+  props: Props,
   options:
-    | ((props: T) => () => VNodeChild)
-    | { setup: (props: T) => () => VNodeChild },
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/explicit-function-return-type
-) =>
-  defineComponent<T>({
-    setup: (props: T): RenderFunction => {
-      if (typeof options === "function") {
-        return options(props);
-      } else {
-        return options.setup(props);
-      }
-    },
-  });
+    | ((props: PropsFor<Props>) => () => VNodeChild)
+    | { setup: (props: PropsFor<Props>) => () => VNodeChild },
+) {
+  function setup(props: PropsFor<Props>): () => VNodeChild {
+    return entryPoint(
+      () => {
+        if (typeof options === "function") {
+          return options(props);
+        } else {
+          return options.setup(props);
+        }
+      },
+      { entryFn: setup },
+    );
+  }
 
-export function renderApp(app: Component<void>): RenderResult {
-  return render(app, { container: document.createElement("div") });
+  return defineComponent({
+    props,
+    setup,
+  });
 }
 
-export const define: Define<void>["define"] = testing().define;
+/**
+ * Define a Vue component for testing with specified props.
+ *
+ * This component should not be rendered directly in testing. Instead, it should
+ * be invoked from the app (specified via {@linkcode App}) or a descendant of
+ * the app.
+ *
+ * @param props The props of the component, as passed to
+ * {@linkcode defineComponent} in Vue.
+ * @param definition The setup function of the component.
+ *
+ * The `definition` parameter may be may either be specified as a plain function
+ * that takes props as specified by the `props` parameter, or it may be
+ * specified as:
+ *
+ * `{ setup: (props) => () => VNodeChild }`
+ */
+export function Define<Props extends PropTypes>(
+  props: Props,
+  definition:
+    | ((props: PropsFor<Props>) => () => VNodeChild)
+    | { setup: (props: PropsFor<Props>) => () => VNodeChild },
+): ComponentType<Props> {
+  return defComponent<Props>(props, definition);
+}
 
-export function testing(): Define<void>;
-export function testing<T extends PropTypes>(props: T): Define<T>;
-export function testing(props?: PropTypes): Define<PropTypes | void> {
-  const lastProps = { props: undefined as undefined | PropsFor<PropTypes> };
-  const hasProps = props !== undefined;
+type ComponentType<Props extends PropTypes> = ReturnType<
+  typeof defComponent<Props>
+>;
 
+interface RenderOptions<T = void> {
+  readonly events?: RecordedEvents | undefined;
+  readonly output?: ExpectedHTML<T> | ((args: T) => string) | undefined;
+}
+
+interface NormalizedRenderOptions<T> {
+  readonly events: RecordedEvents;
+  readonly output: ExpectedHTML<T> | undefined;
+}
+
+export function renderApp<T = void>(
+  app: Component<void>,
+  options: RenderOptions<T> = {},
+): AndExpect<T> {
+  const { events, output } = normalize(options);
+
+  const result = render(app, { container: document.createElement("div") });
+  return RenderedApp.create(result, events, output);
+}
+
+function normalize<T>(options: RenderOptions<T>): NormalizedRenderOptions<T> {
   return {
-    define: (options, plugin) => {
-      const component = defineComponent({
-        props: props ?? [],
-        setup: (props): RenderFunction => {
-          const typedProps = props;
-          lastProps.props = typedProps;
-          if (typeof options === "function") {
-            return () => options(typedProps);
-          } else {
-            return options.setup(typedProps);
-          }
-        },
-      });
-
-      return {
-        html: ((
-          expectHTML: (props: unknown, value?: unknown) => string,
-          initial?: unknown,
-        ) => {
-          function checkHTML(props: unknown, value?: unknown) {
-            if (hasProps) {
-              return (
-                expectHTML as (
-                  props: PropsFor<PropTypes>,
-                  value: unknown,
-                ) => string
-              )(props as PropsFor<PropTypes>, value);
-            } else {
-              return (expectHTML as (value: unknown) => string)(value);
-            }
-          }
-
-          return {
-            render: (props: PropsFor<PropTypes>) => {
-              const global = plugin ? { global: { plugins: [plugin] } } : {};
-
-              const result = render(component, {
-                props,
-                ...global,
-              });
-              const starbeamResult = new StarbeamRenderResult(
-                result,
-                result.container,
-                {
-                  html: checkHTML,
-                },
-                lastProps as { props: PropsFor<PropTypes> },
-              );
-
-              vitestExpect(starbeamResult.innerHTML).toBe(
-                checkHTML(props, initial),
-              );
-              return starbeamResult;
-            },
-          };
-        }) as ExpectHTML<PropTypes>,
-      };
-    },
+    events: options.events ?? new RecordedEvents(),
+    output:
+      typeof options.output === "function"
+        ? HTML(options.output)
+        : options.output,
   };
+}
+
+export class ExpectedHTML<T> {
+  static create<T>(
+    this: void,
+    template: (props: T) => string,
+  ): ExpectedHTML<T> {
+    return new ExpectedHTML(template);
+  }
+
+  #template: (props: T) => string;
+
+  constructor(template: (props: T) => string) {
+    this.#template = template;
+  }
+
+  expect(container: Element, props: T): void {
+    expect(container.innerHTML).toBe(this.#template(props));
+  }
+}
+
+export const HTML = ExpectedHTML.create;
+
+export const EMPTY = Symbol("EMPTY");
+export type EMPTY = typeof EMPTY;
+
+export type ExpectOptions<T> =
+  | "unchanged"
+  | (T extends void
+      ? { events?: string[]; output: string }
+      : { events?: string[]; output?: T | EMPTY });
+
+export interface AndExpect<T> {
+  /**
+   * All operations on {@linkcode RenderedApp} return an object with an
+   * `andExpect` method on it.
+   *
+   * This method is always asynchronous (it returns a promise).
+   *
+   * It takes expectations:
+   *
+   * - `"unchanged"`: assert that the rendered HTML is unchanged and no events
+   *   were recorded.
+   * - an object with an `events` property: assert that the specified events
+   *   were recorded in the specified order. Once events are verified, they are
+   *   reset to `[]`, so you don't need to keep track of events from previous
+   *   expectations.
+   * - an object with an `output` property:
+   *   - if you passed an output expectation function to {@linkcode renderApp},
+   *     the `output` property is an argument to pass to that function. The
+   *     app's `innerHTML` will be verified against the return value of the
+   *     function.
+   *   - otherwise, the `output` property is the expected HTML.
+   */
+  andExpect: (args: ExpectOptions<T>) => Promise<RenderedApp<T>>;
+
+  /**
+   * A version of {@linkcode andExpect} that asserts the default behavior of
+   * the operation that returned this object.
+   *
+   * Normally, the default expectation is to assert that the rendered HTML is
+   * unchanged and no events were recorded.
+   *
+   * The {@linkcode unmount} method defaults to asserting that the rendered
+   * HTML is empty and no events were recorded.
+   */
+  andAssert: () => Promise<RenderedApp<T>>;
 }
 
 export interface SimplestStarbeamRenderResult {
@@ -164,112 +203,7 @@ export interface SimpleStarbeamRenderResult<Props> {
   rerender: (props: Props) => Promise<void>;
 }
 
-export class StarbeamRenderResult<Props extends PropTypes | void, U>
-  implements SimpleStarbeamRenderResult<U>
-{
-  readonly #result: RenderResult;
-  readonly #container: Element;
-  readonly #expectations: {
-    html: (props: PropsFor<Props>, value: U) => string;
-  };
-  readonly #lastProps: { props: PropsFor<Props> };
-
-  constructor(
-    result: RenderResult,
-    container: Element,
-    expectations: {
-      html: (props: PropsFor<Props>, value: U) => string;
-    },
-    lastProps: { props: PropsFor<Props> },
-  ) {
-    this.#result = result;
-    this.#container = container;
-    this.#expectations = expectations;
-    this.#lastProps = lastProps;
-  }
-
-  get innerHTML(): string {
-    return this.#container.innerHTML;
-  }
-
-  async rerender(props: PropsFor<Props>, value: U): Promise<void>;
-  async rerender(
-    this: StarbeamRenderResult<Props, void>,
-    props: PropsFor<Props>,
-  ): Promise<void>;
-  async rerender(props: PropsFor<Props>, value?: U): Promise<void> {
-    await this.#result.rerender(props as object);
-    this.#lastProps.props = props;
-
-    expect(this.#container.innerHTML).toBe(
-      this.#expectations.html(props, value as U),
-    );
-  }
-
-  async update(callback: () => void | Promise<void>, value: U): Promise<void>;
-  async update(
-    this: StarbeamRenderResult<Props, void>,
-    callback: () => void | Promise<void>,
-  ): Promise<void>;
-  async update(callback: () => void | Promise<void>, value?: U): Promise<void> {
-    await callback();
-
-    expect(this.#container.innerHTML).toBe(
-      this.#expectations.html(this.#lastProps.props, value as U),
-    );
-  }
-
-  unmount(): void {
-    this.#result.unmount();
-  }
-
-  find<H extends HTMLElement>(
-    ...args: Parameters<BoundFunction<queries.FindByRole<H>>>
-  ): ReturnElement<
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    queries.FindByRole<H> extends (...args: any) => Promise<infer T> | infer T
-      ? T
-      : never
-  > {
-    return new ReturnElement(this.#result.findByRole(...args));
-  }
-}
-
 Error.stackTraceLimit = Infinity;
-
-export class ReturnElement<H extends HTMLElement> {
-  readonly #element: Promise<H>;
-
-  constructor(element: Promise<H>) {
-    this.#element = element;
-  }
-
-  get fire(): EventMap {
-    const keys = new Set(Reflect.ownKeys(fireEvent));
-    for (const key of Reflect.ownKeys(Function.prototype)) {
-      keys.delete(key);
-    }
-
-    const descs = Object.fromEntries(
-      [...keys].map((key) => {
-        return [
-          key,
-          {
-            configurable: true,
-            value: async (...args: unknown[]) => {
-              return fireEvent[key as keyof typeof fireEvent](
-                await this.#element,
-                ...(args as never[]),
-              );
-            },
-          },
-        ];
-      }),
-    ) as PropertyDescriptorMap;
-
-    return Object.defineProperties({}, descs) as EventMap;
-  }
-}
 
 export type EventMap = Expand<{
   [P in keyof VueFireEventObject]: VueFireEventObject[P] extends <
@@ -286,69 +220,8 @@ type ZERO = 0;
 type ONE = 1;
 export declare type IfAny<T, Y, N> = ZERO extends ONE & T ? Y : N;
 
-declare type InferPropType<T> = [T] extends [null]
-  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    any
-  : [T] extends [
-      {
-        type: null | true;
-      },
-    ]
-  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    any
-  : [T] extends [
-      | ObjectConstructor
-      | {
-          type: ObjectConstructor;
-        },
-    ]
-  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    Record<string, any>
-  : [T] extends [
-      | BooleanConstructor
-      | {
-          type: BooleanConstructor;
-        },
-    ]
-  ? boolean
-  : [T] extends [
-      | NumberConstructor
-      | {
-          type: NumberConstructor;
-        },
-    ]
-  ? number
-  : [T] extends [
-      | DateConstructor
-      | {
-          type: DateConstructor;
-        },
-    ]
-  ? Date
-  : [T] extends [
-      | (infer U)[]
-      | {
-          type: (infer U)[];
-        },
-    ]
-  ? U extends DateConstructor
-    ? Date | InferPropType<U>
-    : InferPropType<U>
-  : [T] extends [Prop<infer V, infer D>]
-  ? unknown extends V
-    ? IfAny<V, V, D>
-    : V
-  : T;
-
 type PropTypes = Readonly<Record<string, PropType<unknown>>>;
-type PropsFor<Props extends PropTypes | void> = Expand<
-  Props extends void
-    ? void
-    : {
-        [P in keyof Props]: InferPropType<Props[P]>;
-      }
->;
 
-type Setup<T extends PropTypes | void> =
-  | ((props: PropsFor<T>) => () => VNode)
-  | ((props: PropsFor<T>) => () => VNode[]);
+type PropsFor<Props> = Readonly<
+  LooseRequired<Readonly<ExtractPropTypes<Props>> & object>
+>;

@@ -27,7 +27,7 @@ export interface Tagged<I extends Tag = Tag> {
  * to validate it) and a `read` function that can be used to read the current
  * value of the object.
  */
-export interface TaggedReactive<T = unknown, I extends Tag = Tag>
+export interface TaggedReactive<out T = unknown, I extends Tag = Tag>
   extends Tagged<I> {
   readonly read: () => T;
   readonly current: T;

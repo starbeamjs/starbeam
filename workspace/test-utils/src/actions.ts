@@ -42,7 +42,7 @@ export class RecordedEvents {
     expect(actual, message).toStrictEqual(expectedEvents.map(this.#format));
   }
 
-  expect(...expected: string[] | [[]]): void {
+  expect = (...expected: string[] | [[]]): void => {
     const expectedEvents =
       typeof getFirst(expected) === "string"
         ? (expected as string[])
@@ -53,7 +53,7 @@ export class RecordedEvents {
       },
       { entryFn: this.expect },
     );
-  }
+  };
 }
 
 export interface AssertionOptions {

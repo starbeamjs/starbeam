@@ -1,6 +1,9 @@
 import { getFirst } from "@starbeam/core-utils";
-import type { Lifecycle, RendererManager } from "@starbeam/renderer";
-import { setup, use } from "@starbeam/resource";
+import {
+  intoResourceBlueprint,
+  type Lifecycle,
+  type RendererManager,
+} from "@starbeam/renderer";
 import { RUNTIME } from "@starbeam/runtime";
 import { service } from "@starbeam/service";
 import { finalize } from "@starbeam/shared";
@@ -12,6 +15,7 @@ import {
 } from "@starbeam/use-strict-lifecycle";
 
 import { missingApp, ReactApp } from "../app.js";
+import { setupResource } from "./setup.js";
 
 /**
  * @internal
@@ -32,12 +36,12 @@ export function buildLifecycle(
     service: (blueprint) => {
       if (app === null) missingApp("service()");
 
-      return service(blueprint, {
+      return service(intoResourceBlueprint(blueprint), {
         app: ReactApp.instance(app),
       });
     },
     use: (blueprint) => {
-      const resource = use(blueprint);
+      const resource = setupResource(() => intoResourceBlueprint(blueprint));
 
       builder.on.layout(() => {
         const unsubscribe = RUNTIME.subscribe(resource, builder.notify);

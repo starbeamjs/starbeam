@@ -3,7 +3,7 @@ import { lastUpdated, NOW } from "@starbeam/tags";
 
 import { getRuntime } from "../runtime.js";
 
-export function FormulaLifecycle(): InitializingFormula {
+export function StartTrackingFrame(): InitializingTrackingFrame {
   const done = getRuntime().start();
 
   return {
@@ -11,7 +11,17 @@ export function FormulaLifecycle(): InitializingFormula {
   };
 }
 
-function FinalizedFormula(children: TagSnapshot): FinalizedFormula {
+export interface FinalizedFormula {
+  readonly isStale: () => boolean;
+  readonly children: () => TagSnapshot;
+  readonly update: () => InitializingTrackingFrame;
+}
+
+export interface InitializingTrackingFrame {
+  readonly done: () => FinalizedFormula;
+}
+
+export function FinalizedFormula(children: TagSnapshot): FinalizedFormula {
   let lastValidated = NOW.now;
 
   const isStale = () => lastUpdated(...children).at > lastValidated.at;
@@ -25,24 +35,14 @@ function FinalizedFormula(children: TagSnapshot): FinalizedFormula {
         lastValidated = NOW.now;
         return formula;
       },
-    };
+    } satisfies InitializingTrackingFrame;
   }
 
   const formula = {
     isStale,
     children: () => children,
     update,
-  };
+  } satisfies FinalizedFormula;
 
   return formula;
-}
-
-export interface InitializingFormula {
-  readonly done: () => FinalizedFormula;
-}
-
-export interface FinalizedFormula {
-  readonly isStale: () => boolean;
-  readonly children: () => TagSnapshot;
-  readonly update: () => InitializingFormula;
 }

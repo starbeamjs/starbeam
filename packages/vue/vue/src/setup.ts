@@ -1,10 +1,10 @@
 import { type App, type Plugin } from "vue";
 
 import { useApp } from "./app.js";
-import { VueInstance } from "./vue-instance.js";
+import { VueComponent } from "./component.js";
 
-export function useReactive(): VueInstance {
-  return VueInstance.ensure();
+export function useReactive(): VueComponent {
+  return VueComponent.current();
 }
 
 export const Starbeam = {

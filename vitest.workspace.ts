@@ -11,6 +11,7 @@ const packages = glob
     resolve(root, "packages/universal/*/package.json"),
     resolve(root, "packages/preact/*/package.json"),
     resolve(root, "packages/vue/*/package.json"),
+    resolve(root, "packages/react/*/package.json"),
   ])
   .map((manifest) => {
     const path = dirname(manifest);

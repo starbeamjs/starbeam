@@ -1,12 +1,11 @@
 import { getLast } from "@starbeam/core-utils";
 import type { Description, FormulaTag } from "@starbeam/interfaces";
 import type { InternalComponent } from "@starbeam/preact-utils";
-import {
-  DEBUG,
-  type FinalizedFormula,
-  type InitializingFormula,
+import type {
+  FinalizedFormula,
+  InitializingTrackingFrame,
 } from "@starbeam/reactive";
-import { FormulaLifecycle } from "@starbeam/reactive";
+import { DEBUG, StartTrackingFrame } from "@starbeam/reactive";
 import { render, RUNTIME, type Unsubscribe } from "@starbeam/runtime";
 import { initializeFormulaTag } from "@starbeam/tags";
 import { expected, isPresent, verify } from "@starbeam/verify";
@@ -71,14 +70,14 @@ export class ComponentFrame {
     }
   }
 
-  #active: InitializingFormula | null;
+  #active: InitializingTrackingFrame | null;
   #frame: FinalizedFormula | null;
   #tag: FormulaTag;
   #subscription: Unsubscribe | null;
 
   private constructor(
     frame: FinalizedFormula | null,
-    active: InitializingFormula | null,
+    active: InitializingTrackingFrame | null,
     subscribed: Unsubscribe | null,
     description: Description | undefined,
   ) {
@@ -95,9 +94,8 @@ export class ComponentFrame {
   #start(): void {
     if (this.#frame) {
       this.#active = this.#frame.update();
-      // this.#active = TIMELINE.frame.update(this.#frame);
     } else {
-      this.#active = FormulaLifecycle();
+      this.#active = StartTrackingFrame();
     }
   }
 
