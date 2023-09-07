@@ -2,20 +2,15 @@
 
 import { Cell } from "@starbeam/universal";
 import { setupReactive, useReactive } from "@starbeam/vue";
-import { describe, test } from "@starbeam-workspace/test-utils";
-import { define, testing } from "@starbeam-workspace/vue-testing-utils";
+import { describe, RecordedEvents, test } from "@starbeam-workspace/test-utils";
+import { App, renderApp } from "@starbeam-workspace/vue-testing-utils";
 import { defineComponent, h, type Ref } from "vue";
 
 describe("create", () => {
-  test("baseline", () => {
-    function App({ name }: { name: string }) {
-      return h("div", ["hello ", name]);
-    }
+  test("baseline", async () => {
+    const app = App(() => () => h("div", ["hello ", "world"]));
 
-    testing({ name: String })
-      .define(App)
-      .html((props) => `<div>hello ${props.name}</div>`)
-      .render({ name: "world" });
+    await renderApp(app).andExpect({ output: "<div>hello world</div>" });
   });
 
   test("reactive values render", async () => {
@@ -27,30 +22,37 @@ describe("create", () => {
       },
     });
 
-    function App() {
-      const counter = setupReactive(ReactiveObject);
+    const events = new RecordedEvents();
+
+    const obj = ReactiveObject(events);
+
+    const app = App(() => {
+      const counter = setupReactive(obj);
 
       return () => [
         h(Counter, { counter }),
         h(
           "button",
           { onClick: () => void counter.value.increment() },
-          "increment"
+          "increment",
         ),
       ];
-    }
-
-    const result = define({
-      setup: App,
-    })
-      .html(({ count }) => `<p>count: ${count}</p><button>increment</button>`, {
-        count: 0,
-      })
-      .render();
-
-    await result.update(async () => result.find("button").fire.click(), {
-      count: 1,
     });
+
+    const result = await renderApp(app, {
+      output: (count: number) =>
+        `<p>count: ${count}</p><button>increment</button>`,
+      events,
+    }).andExpect({ output: 0, events: ["setup", "get count"] });
+
+    await result.rerender().andExpect("unchanged");
+
+    await result
+      .click()
+      .andExpect({ output: 1, events: ["increment", "get count"] });
+
+    await result.rerender().andExpect("unchanged");
+    await result.unmount().andAssert();
   });
 });
 
@@ -62,19 +64,25 @@ interface Counter {
   readonly increment: () => void;
 }
 
-function ReactiveObject() {
-  const cell = Cell(INITIAL_COUNT);
+function ReactiveObject(events: RecordedEvents): () => Counter {
+  return (): Counter => {
+    const cell = Cell(INITIAL_COUNT);
 
-  const increment = () => {
-    return cell.set(cell.current + INCREMENT);
-  };
+    events.record("setup");
 
-  return {
-    get count() {
-      return cell.current;
-    },
+    const increment = () => {
+      events.record("increment");
+      return cell.set(cell.current + INCREMENT);
+    };
 
-    increment,
+    return {
+      get count() {
+        events.record("get count");
+        return cell.current;
+      },
+
+      increment,
+    };
   };
 }
 

@@ -1,5 +1,6 @@
 export type { AssertionError } from "./src/actions.js";
 export {
+  type AnyFunction,
   buildCause,
   entryPoint,
   isAssertionError,

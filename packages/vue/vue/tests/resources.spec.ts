@@ -1,14 +1,9 @@
 // @vitest-environment jsdom
 
 import { setupResource } from "@starbeam/vue";
-import {
-  describe,
-  expect,
-  test,
-  TestResource,
-} from "@starbeam-workspace/test-utils";
-import { App, renderApp } from "@starbeam-workspace/vue-testing-utils";
-import { Fragment, h, nextTick } from "vue";
+import { describe, test, TestResource } from "@starbeam-workspace/test-utils";
+import { App, HTML, renderApp } from "@starbeam-workspace/vue-testing-utils";
+import { Fragment, h } from "vue";
 
 describe("resources", () => {
   test("resources are cleaned up correctly", async () => {
@@ -28,43 +23,27 @@ describe("resources", () => {
         ]);
     });
 
-    function html({ count }: { count: number }) {
-      return `<p>hello id=${id}, count=${count}</p><button>+</button>`;
-    }
+    const result = await renderApp(app, {
+      output: HTML(
+        (count: number) =>
+          `<p>hello id=${id}, count=${count}</p><button>+</button>`,
+      ),
+      events,
+    }).andExpect({ output: 0, events: ["setup", "sync"] });
 
-    const result = renderApp(app);
-    expect(result.container.innerHTML).toBe(html({ count: 0 }));
-    events.expect("setup", "sync");
-
-    await result.rerender({});
-    expect(result.container.innerHTML).toBe(html({ count: 0 }));
-    events.expect([]);
+    await result.rerender().andExpect("unchanged");
 
     invalidate();
-    expect(result.container.innerHTML).toBe(html({ count: 0 }));
-    events.expect([]);
+    result.expect("unchanged");
 
-    await nextTick();
-    expect(result.container.innerHTML).toBe(html({ count: 0 }));
-    events.expect("cleanup", "sync");
-
-    await result.rerender({});
-    expect(result.container.innerHTML).toBe(html({ count: 0 }));
-    events.expect([]);
-
-    (await result.findByRole("button")).click();
-    await result.rerender({});
-    expect(result.container.innerHTML).toBe(html({ count: 1 }));
+    await result.flush().andExpect({ events: ["cleanup", "sync"] });
+    await result.rerender().andExpect("unchanged");
+    await result.click().andExpect({ output: 1 });
 
     invalidate();
-    expect(result.container.innerHTML).toBe(html({ count: 1 }));
-    events.expect([]);
+    result.expect("unchanged");
 
-    await nextTick();
-    expect(result.container.innerHTML).toBe(html({ count: 1 }));
-    events.expect("cleanup", "sync");
-
-    result.unmount();
-    events.expect("cleanup", "finalize");
+    await result.flush().andExpect({ events: ["cleanup", "sync"] });
+    await result.unmount().andExpect({ events: ["cleanup", "finalize"] });
   });
 });

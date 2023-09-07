@@ -26,6 +26,7 @@
   },
 
   "codeium.aggressiveShutdown": true,
+  "codeium.enableCodeLens": false,
   "codeium.enableSearch": false,
   // "codeium"
 

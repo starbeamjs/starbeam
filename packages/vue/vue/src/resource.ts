@@ -1,55 +1,27 @@
 import type { ReadValue } from "@starbeam/reactive";
 import {
   managerSetupReactive,
+  managerSetupResource,
   managerSetupService,
   type UseReactive,
 } from "@starbeam/renderer";
 import type { IntoResourceBlueprint } from "@starbeam/resource";
-import { pushingScope, RUNTIME } from "@starbeam/runtime";
-import { finalize } from "@starbeam/shared";
-import {
-  effectScope,
-  onMounted,
-  onScopeDispose,
-  type Ref,
-  shallowRef,
-  triggerRef,
-  watch,
-} from "vue";
+import { type Ref } from "vue";
 
 import { MANAGER } from "./renderer.js";
 import { useReactive } from "./setup.js";
 
 export function setupReactive<T>(blueprint: UseReactive<T>): Ref<ReadValue<T>> {
-  return MANAGER.toNative(managerSetupReactive(MANAGER, blueprint));
+  const vueInstance = useReactive();
+  const reactive = managerSetupReactive(MANAGER, blueprint);
+
+  // whenever the component is about to render, update the Vue ref from the
+  // current value of the reactive.
+  return vueInstance.copiedRef(reactive);
 }
 
 export function setupResource<T>(intoBlueprint: IntoResourceBlueprint<T>): T {
-  useReactive();
-
-  const ref = shallowRef();
-
-  const blueprint =
-    typeof intoBlueprint === "function" ? intoBlueprint() : intoBlueprint;
-
-  return effectScope().run(() => {
-    const [scope, { sync, value }] = pushingScope(() => blueprint.setup());
-
-    onMounted(() => {
-      watch(ref, sync, { immediate: true });
-
-      const unsubscribe = RUNTIME.subscribe(sync, () => void triggerRef(ref));
-
-      onScopeDispose(() => {
-        unsubscribe?.();
-        finalize(scope);
-      });
-    });
-
-    return value;
-  }) as T;
-
-  // return managerSetupResource(MANAGER, blueprint);
+  return managerSetupResource(MANAGER, intoBlueprint);
 }
 
 export function setupService<T>(blueprint: IntoResourceBlueprint<T>): T {

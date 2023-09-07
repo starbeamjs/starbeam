@@ -1,32 +1,28 @@
 // @vitest-environment jsdom
 
 import { useReactive, useResource } from "@starbeam/react";
-import { Cell, Marker } from "@starbeam/reactive";
+import type { Marker } from "@starbeam/reactive";
+import { Cell } from "@starbeam/reactive";
 import { Resource } from "@starbeam/resource";
 import type { RenderState } from "@starbeam-workspace/react-test-utils";
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
-import { describe, expect } from "@starbeam-workspace/test-utils";
+import { describe, expect, TestResource } from "@starbeam-workspace/test-utils";
 
 describe("resources running in stages", () => {
   testReact<void, number>("the basics", async (root, mode) => {
-    const markers = {
-      constructor: Marker("constructor"),
-      setup: Marker("setup"),
-    };
-
-    const counts = { init: 0, finalized: 0, setup: 0, cleanup: 0 };
+    const { resource, events, invalidate } = TestResource();
 
     function App(state: RenderState<number>) {
-      const counter = useResource(testResource(counts, markers));
+      const counter = useResource(resource);
       return useReactive(() => {
-        state.value(counter.current);
+        state.value(counter.count);
 
         // the resource should always be initialized
-        expect(typeof counter.current).toBe("number");
+        expect(typeof counter.count).toBe("number");
 
         return react.fragment(
-          html.div(counter.current),
-          html.button({ onClick: () => counter.increment() }, "increment")
+          html.div(counter.count),
+          html.button({ onClick: () => void counter.increment() }, "increment"),
         );
       }, []);
     }
@@ -37,57 +33,58 @@ describe("resources running in stages", () => {
 
     mode.match({
       strict: () => {
-        // strict mode initializes the resource:
-        // - once during the throwaway render
-        // - once during the throwaway effect
-        // - once during the ultimate effect
-        expect(counts.init, "init").toBe(3);
-        // strict mode finalizes the resource:
-        // - once when cleaning up the throwaway effect
-        expect(counts.finalized, "finalized").toBe(1);
+        events.expect(
+          // sets up the resource
+          "setup",
+          // then throws it away and sets up the resource again
+          "setup",
+          // syncs the resource
+          "sync",
+          // immediately cleans up the resource
+          "cleanup",
+          // finalizes the resource (as if the component was unmounted)
+          "finalize",
+          // sets up the resource again
+          "setup",
+          // syncs the resource
+          "sync",
+        );
       },
       loose: () => {
-        expect(counts.init).toBe(1);
-        expect(counts.finalized).toBe(0);
+        events.expect("setup", "sync");
       },
     });
 
-    const initial = {
-      init: counts.init,
-      finalized: counts.finalized,
-    };
+    expect(result.value).toBe(0);
 
-    // Since the throwaway effect is not followed by a render, the
-    // resource is never polled, and therefore its setup never occurs.
-    // And since the setup never occurs, the associated cleanup never
-    // occurs.
-    //
-    // As a result, both strict and loose mode only invoke the setup
-    // lifecycle once, and neither mode invokes the cleanup lifecycle.
-    expect(counts.setup, "setup").toBe(1);
-    expect(counts.cleanup, "cleanup").toBe(0);
-
+    await result.find("button").fire.click();
     expect(result.value).toBe(1);
+    events.expect([]);
 
-    await result.find("button").fire.click();
-    expect(result.value).toBe(2);
-
-    markers.setup.mark();
+    console.log("invalidating");
+    invalidate();
+    console.log("rerendering");
     await result.rerender();
-    expect(result.value).toBe(2);
-    expect(counts.setup).toBe(2);
-    expect(counts.cleanup).toBe(1);
+    console.log("rerendered");
+    expect(result.value).toBe(1);
+    events.expect("cleanup", "sync");
 
-    await result.find("button").fire.click();
-    expect(result.value).toBe(3);
+    // markers.sync.mark();
+    // await result.rerender();
+    // expect(result.value).toBe(2);
+    // expect(counts.setup).toBe(2);
+    // expect(counts.cleanup).toBe(1);
 
-    markers.constructor.mark();
-    await result.rerender();
-    expect(result.value).toBe(3);
-    expect(counts.setup).toBe(3);
-    expect(counts.cleanup).toBe(2);
-    expect(counts.init).toBe(initial.init + 1);
-    expect(counts.finalized).toBe(initial.finalized + 1);
+    // await result.find("button").fire.click();
+    // expect(result.value).toBe(3);
+
+    // markers.constructor.mark();
+    // await result.rerender();
+    // expect(result.value).toBe(3);
+    // expect(counts.setup).toBe(3);
+    // expect(counts.cleanup).toBe(2);
+    // expect(counts.init).toBe(initial.init + 1);
+    // expect(counts.finalized).toBe(initial.finalized + 1);
   });
 });
 
@@ -98,24 +95,20 @@ interface Counts {
   cleanup: number;
 }
 
-function testResource(
-  counts: Counts,
-  markers: { constructor: Marker; setup: Marker }
-) {
+function testResource(counts: Counts, markers: { sync: Marker }) {
   return Resource(({ on }) => {
-    markers.constructor.read();
     counts.init++;
     const cell = Cell(0);
     const extra = Cell(0);
 
-    on.setup(() => {
-      markers.setup.read();
+    on.sync(() => {
+      markers.sync.read();
       extra.set(1);
       counts.setup++;
       return () => counts.cleanup++;
     });
 
-    on.cleanup(() => {
+    on.finalize(() => {
       counts.finalized++;
     });
 

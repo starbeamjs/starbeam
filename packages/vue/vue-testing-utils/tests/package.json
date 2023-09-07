@@ -6,6 +6,7 @@
     "@starbeam/interfaces": "workspace:^",
     "@starbeam/preact": "workspace:^",
     "@starbeam/runtime": "workspace:^",
+    "@starbeam/shared": "workspace:^",
     "@starbeam/universal": "workspace:^",
     "@starbeam/vue": "workspace:^",
     "@testing-library/dom": "^9.2.0",
@@ -15,6 +16,7 @@
     "vue": ">=3.0.0"
   },
   "devDependencies": {
+    "@vue/shared": "^3.3.4",
     "@starbeam/eslint-plugin": "workspace:^",
     "preact-render-to-string": "^6.0.2"
   },

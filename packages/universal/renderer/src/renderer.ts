@@ -8,9 +8,9 @@ import {
   type ReadValue,
 } from "@starbeam/reactive";
 import { setupResource } from "@starbeam/resource";
-import { CONTEXT, RUNTIME, withinScope } from "@starbeam/runtime";
+import { CONTEXT, pushingScope, RUNTIME, withinScope } from "@starbeam/runtime";
 import { service } from "@starbeam/service";
-import { shallowRef } from "vue";
+import { onFinalize } from "@starbeam/shared";
 
 import type { IntoResourceBlueprint } from "./resource.js";
 
@@ -47,27 +47,27 @@ export type ReactiveBlueprint<T> = (lifecycle: Lifecycle) => T | Reactive<T>;
  */
 export type UseReactive<T> = ReactiveBlueprint<T> | Reactive<T>;
 
-type ToNative = <T>(value: Reactive<T>) => unknown;
-type DefaultToNative = <T>(value: Reactive<T>) => Reactive<T>;
-
-export interface RendererManager<
-  C extends object,
-  T extends ToNative = DefaultToNative,
-> {
-  readonly toNative: T;
+export interface RendererManager<C extends object> {
   readonly getComponent: () => C;
   readonly getApp?: (instance: C) => object | undefined;
   readonly setupValue: <T>(instance: C, create: () => T) => T;
   readonly setupRef: <T>(instance: C, value: T) => { readonly current: T };
-
+  readonly createNotifier: (instance: C) => () => void;
+  readonly createScheduler: (instance: C) => Scheduler;
   readonly on: {
+    readonly mounted: (instance: C, handler: Handler) => void;
     readonly idle: (instance: C, handler: Handler) => void;
     readonly layout: (instance: C, handler: Handler) => void;
   };
 }
 
+export interface Scheduler {
+  readonly onSchedule: (this: void, handler: Handler) => void;
+  readonly schedule: (this: void) => void;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type SomeRendererManager = RendererManager<any, any>;
+type SomeRendererManager = RendererManager<any>;
 
 export interface Lifecycle {
   readonly on: {
@@ -141,31 +141,32 @@ export function setupFormula<T>(
 
 function setupValue<T>(
   manager: SomeRendererManager,
+  component: object,
   create: () => T,
-): [component: object, value: T] {
-  const component = manager.getComponent() as object;
-  return [
-    component,
-    withinScope(component, () => manager.setupValue(component, create)) as T,
-  ];
+): T {
+  return withinScope(component, () =>
+    manager.setupValue(component, create),
+  ) as T;
 }
 
 export function managerSetupResource<T>(
   manager: SomeRendererManager,
-  blueprint: IntoResourceBlueprint<T>,
+  intoBlueprint: IntoResourceBlueprint<T>,
 ): T {
-  const [component, { sync, value }] = setupValue(manager, () =>
-    setupResource(blueprint),
+  const component = manager.getComponent() as object;
+  const { sync, value } = pushingScope(
+    () => setupValue(manager, component, () => setupResource(intoBlueprint)),
+    { childScope: component },
   );
 
-  const syncRef = shallowRef(0);
+  const scheduler = manager.createScheduler(component);
 
-  component;
+  manager.on.mounted(component, () => {
+    scheduler.onSchedule(sync);
+    sync();
 
-  manager.on.layout(component, () => {
-    RUNTIME.subscribe(sync, () => void syncRef.value++);
-
-    withinScope(component, sync);
+    const unsubscribe = RUNTIME.subscribe(sync, scheduler.schedule);
+    if (unsubscribe) onFinalize(component, unsubscribe);
   });
 
   return value;

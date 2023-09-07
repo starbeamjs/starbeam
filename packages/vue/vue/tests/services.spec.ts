@@ -1,14 +1,9 @@
 // @vitest-environment jsdom
 
 import { setupService } from "@starbeam/vue";
-import {
-  describe,
-  expect,
-  test,
-  TestResource,
-} from "@starbeam-workspace/test-utils";
+import { describe, test, TestResource } from "@starbeam-workspace/test-utils";
 import { App, Define, renderApp } from "@starbeam-workspace/vue-testing-utils";
-import { Fragment, h, nextTick, shallowRef } from "vue";
+import { Fragment, h, shallowRef } from "vue";
 
 describe("services", () => {
   test.only("services are like resources", async () => {
@@ -36,65 +31,48 @@ describe("services", () => {
         ]);
     });
 
-    const Inner = Define(() => {
+    const Inner = Define({}, () => {
       const test = setupService(TestResourceBlueprint);
       return () => h("p", ["inner count: ", test.count]);
     });
 
-    function html({ count, show }: { count: number; show: boolean }) {
-      if (show) {
-        return `<p>hello id=${id}, count=${count}</p><button>++</button><button>hide</button><p>inner count: ${count}</p>`;
-      } else {
-        return `<p>hello id=${id}, count=${count}</p><button>++</button><button>show</button><!---->`;
-      }
-    }
+    const result = await renderApp(app, {
+      events,
+      output: ({ count, show }: { count: number; show: boolean }) => {
+        if (show) {
+          return `<p>hello id=${id}, count=${count}</p><button>++</button><button>hide</button><p>inner count: ${count}</p>`;
+        } else {
+          return `<p>hello id=${id}, count=${count}</p><button>++</button><button>show</button><!---->`;
+        }
+      },
+    }).andExpect({
+      output: { count: 0, show: true },
+      events: ["setup", "sync"],
+    });
 
-    const result = renderApp(app);
-    expect(result.container.innerHTML).toBe(html({ count: 0, show: true }));
-    events.expect("setup", "sync");
-
-    await result.rerender({});
-    expect(result.container.innerHTML).toBe(html({ count: 0, show: true }));
-    events.expect([]);
-
-    invalidate();
-    expect(result.container.innerHTML).toBe(html({ count: 0, show: true }));
-    events.expect([]);
-
-    await nextTick();
-    expect(result.container.innerHTML).toBe(html({ count: 0, show: true }));
-    events.expect("cleanup", "sync");
-
-    await result.rerender({});
-    expect(result.container.innerHTML).toBe(html({ count: 0, show: true }));
-    events.expect([]);
-
-    (await result.findByRole("button", { name: "++" })).click();
-    await result.rerender({});
-    expect(result.container.innerHTML).toBe(html({ count: 1, show: true }));
-    events.expect([]);
+    await result.rerender().andExpect("unchanged");
 
     invalidate();
-    expect(result.container.innerHTML).toBe(html({ count: 1, show: true }));
-    events.expect([]);
+    result.expect("unchanged");
 
-    await nextTick();
-    expect(result.container.innerHTML).toBe(html({ count: 1, show: true }));
-    events.expect("cleanup", "sync");
+    await result.flush().andExpect({ events: ["cleanup", "sync"] });
 
-    // removing a component that uses the resource doesn't clean it up
-    (await result.findByRole("button", { name: "hide" })).click();
-    await result.rerender({});
-    expect(result.container.innerHTML).toBe(html({ count: 1, show: false }));
-    events.expect([]);
+    await result.rerender().andExpect("unchanged");
+
+    await result.click("++").andExpect({ output: { count: 1, show: true } });
+
+    invalidate();
+    result.expect("unchanged");
+    await result.flush().andExpect({ events: ["cleanup", "sync"] });
+
+    // removing a component that uses the service doesn't clean it up
+    await result.click("hide").andExpect({ output: { count: 1, show: false } });
 
     // bringing it back doesn't set it up again
-    (await result.findByRole("button", { name: "show" })).click();
-    await result.rerender({});
-    expect(result.container.innerHTML).toBe(html({ count: 1, show: true }));
-    events.expect([]);
+    await result.click("show").andExpect({ output: { count: 1, show: true } });
 
-    result.unmount();
-    events.expect("cleanup", "finalize");
+    await result.unmount().andExpect({
+      events: ["cleanup", "finalize"],
+    });
   });
 });

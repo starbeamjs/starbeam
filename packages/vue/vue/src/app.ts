@@ -14,6 +14,11 @@ import {
 
 const APPS = new WeakMap<App, StarbeamApp>();
 
+/**
+ * An object that uniquely represents a Vue {@linkcode App}.
+ *
+ * It is finalized when the app's root component is unmounted.
+ */
 export class StarbeamApp {
   /**
    *
@@ -38,6 +43,7 @@ export class StarbeamApp {
   }
 
   static #setup(app: StarbeamApp): void {
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     const prevUnmount = app.#vue.unmount;
 
     app.#vue.unmount = () => {
