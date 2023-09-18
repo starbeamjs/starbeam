@@ -12,7 +12,7 @@
     "@testing-library/dom": "^9.2.0",
     "@testing-library/vue": "^7.0.0",
     "htm": "^3.1.1",
-    "jsdom": "^21.1.1",
+    "jsdom": "^22.1.0",
     "vue": ">=3.0.0"
   },
   "devDependencies": {

@@ -30,7 +30,7 @@
   "dependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@eslint/eslintrc": "^2.0.3",
-    "@rollup/plugin-commonjs": "^25.0.1",
+    "@rollup/plugin-commonjs": "^25.0.4",
     "@rollup/plugin-node-resolve": "^15.1.0",
     "@types/rollup__plugin-commonjs": "workspace:^",
     "@types/rollup__plugin-node-resolve": "workspace:^",
@@ -43,7 +43,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "eslint-plugin-unused-imports": "^2.0.0",
-    "magic-string": "^0.30.0",
+    "magic-string": "^0.30.3",
     "postcss": "^8.4.24",
     "rollup": "^3.25.1",
     "rollup-plugin-polyfill-node": "^0.12.0",

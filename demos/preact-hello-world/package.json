@@ -46,6 +46,6 @@
     "@starbeam/eslint-plugin": "workspace:^",
     "@vitest/ui": "*",
     "vite": "4.3.9",
-    "vitest": "^0.32.2"
+    "vitest": "^0.34.4"
   }
 }

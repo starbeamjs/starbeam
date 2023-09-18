@@ -18,7 +18,7 @@
     "@starbeam-workspace/test-utils": "workspace:^",
     "jsdom": "^22.1.0",
     "react": "^18.2.0",
-    "vitest": "^0.32.2"
+    "vitest": "^0.34.4"
   },
   "devDependencies": {
     "@starbeam/eslint-plugin": "workspace:^"

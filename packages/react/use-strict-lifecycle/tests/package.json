@@ -7,8 +7,8 @@
   },
   "devDependencies": {
     "@starbeam/eslint-plugin": "workspace:^",
-    "@types/react": "^18.2.0",
-    "jsdom": "^21.1.1"
+    "@types/react": "^18.2.22",
+    "jsdom": "^22.1.0"
   },
   "name": "@starbeam-tests/react-use-strict-lifecycle",
   "private": true,

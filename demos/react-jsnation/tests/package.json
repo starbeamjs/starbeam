@@ -10,8 +10,8 @@
   "devDependencies": {
     "@starbeam/eslint-plugin": "workspace:^",
     "@testing-library/react": "^14.0.0",
-    "@types/react": "^18.2.0",
-    "jsdom": "^21.1.1"
+    "@types/react": "^18.2.22",
+    "jsdom": "^22.1.0"
   },
   "name": "@starbeam-tests/demos-react-jsnation",
   "private": true,

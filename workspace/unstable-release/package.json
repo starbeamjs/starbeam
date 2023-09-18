@@ -22,9 +22,9 @@
     "test:lint": "eslint  --max-warnings 0"
   },
   "dependencies": {
-    "execa": "^7.1.1",
+    "execa": "^8.0.1",
     "fs-extra": "^11.1.1",
-    "globby": "^13.2.0"
+    "globby": "^13.2.2"
   },
   "devDependencies": {
     "@starbeam/eslint-plugin": "workspace:^"

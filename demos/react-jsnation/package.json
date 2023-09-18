@@ -1,44 +1,22 @@
 {
-  "dependencies": {
-    "@starbeam/collections": "workspace:^",
-    "@starbeam/debug": "workspace:^",
-    "@starbeam/interfaces": "workspace:^",
-    "@starbeam/react": "workspace:^",
-    "@starbeam/reactive": "workspace:^",
-    "@starbeam/resource": "workspace:^",
-    "@starbeam/universal": "workspace:^",
-    "purecss": "3.0.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  },
-  "devDependencies": {
-    "@starbeam/eslint-plugin": "workspace:^",
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.1",
-    "@vitest/ui": "*",
-    "vite": "4.3.9"
-  },
+  "private": true,
+  "name": "@starbeam-demos/react-jsnation",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.ts",
   "exports": {
     "default": "./index.ts"
   },
-  "main": "index.ts",
-  "name": "@starbeam-demos/react-jsnation",
-  "private": true,
   "publishConfig": {
     "exports": {
       ".": {
-        "default": "./dist/index.cjs",
+        "types": "./dist/index.d.ts",
         "import": "./dist/index.js",
-        "types": "./dist/index.d.ts"
+        "default": "./dist/index.cjs"
       }
     },
     "main": "dist/index.cjs",
     "types": "dist/index.d.ts"
-  },
-  "scripts": {
-    "test:lint": "eslint \"src/**/*.{tsx,ts}\" --max-warnings 0",
-    "test:specs": "vitest --run",
-    "test:types": "tsc --noEmit -p tsconfig.json"
   },
   "starbeam": {
     "jsx": "react",
@@ -53,6 +31,28 @@
       }
     ]
   },
-  "type": "module",
-  "version": "1.0.0"
+  "scripts": {
+    "test:lint": "eslint \"src/**/*.{tsx,ts}\" --max-warnings 0",
+    "test:specs": "vitest --run",
+    "test:types": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@starbeam/collections": "workspace:^",
+    "@starbeam/debug": "workspace:^",
+    "@starbeam/interfaces": "workspace:^",
+    "@starbeam/react": "workspace:^",
+    "@starbeam/reactive": "workspace:^",
+    "@starbeam/resource": "workspace:^",
+    "@starbeam/universal": "workspace:^",
+    "purecss": "3.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@starbeam/eslint-plugin": "workspace:^",
+    "@types/react": "^18.2.22",
+    "@types/react-dom": "^18.2.7",
+    "@vitest/ui": "*",
+    "vite": "4.3.9"
+  }
 }
