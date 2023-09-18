@@ -15,7 +15,7 @@ const CountResource = Resource(({ on }) => {
   const counter = Cell(0);
   let isActive = true;
 
-  on.cleanup(() => (isActive = false));
+  on.sync(() => () => (isActive = false));
 
   return {
     get isActive() {

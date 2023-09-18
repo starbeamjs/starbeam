@@ -1,18 +1,18 @@
 import { getFirst } from "@starbeam/core-utils";
 import {
+  type Handler,
   intoResourceBlueprint,
   type Lifecycle,
   type RendererManager,
 } from "@starbeam/renderer";
-import { RUNTIME } from "@starbeam/runtime";
 import { service } from "@starbeam/service";
-import { finalize } from "@starbeam/shared";
 import {
   type Builder,
   useInstance,
   useLastRenderRef,
   useLifecycle,
 } from "@starbeam/use-strict-lifecycle";
+import { useEffect, useRef, useState } from "react";
 
 import { missingApp, ReactApp } from "../app.js";
 import { setupResource } from "./setup.js";
@@ -41,17 +41,7 @@ export function buildLifecycle(
       });
     },
     use: (blueprint) => {
-      const resource = setupResource(() => intoResourceBlueprint(blueprint));
-
-      builder.on.layout(() => {
-        const unsubscribe = RUNTIME.subscribe(resource, builder.notify);
-        builder.on.cleanup(unsubscribe);
-
-        setup(resource, { lifetime: builder });
-        builder.on.cleanup(() => void finalize(builder));
-      });
-
-      return resource;
+      return setupResource(() => intoResourceBlueprint(blueprint));
     },
     on: {
       idle: builder.on.idle,
@@ -61,14 +51,42 @@ export function buildLifecycle(
 }
 
 export const MANAGER: RendererManager<Builder<unknown>> = {
-  toNative: (reactive) => reactive,
   getComponent: () => {
     return useLifecycle().render((builder) => builder);
   },
   setupValue: (_, create) => useInstance(create),
   setupRef: (_, prop) => getFirst(useLastRenderRef(prop)),
 
+  createNotifier: (builder) => {
+    return builder.notify;
+  },
+
+  createScheduler: (builder) => {
+    const [shouldNotify, setShouldNotify] = useState({});
+    const handlers = useRef(new Set<Handler>());
+
+    useEffect(() => {
+      for (const handler of handlers.current) {
+        handler();
+      }
+    }, [shouldNotify]);
+
+    builder.on.cleanup(() => {
+      handlers.current.clear();
+    });
+
+    return {
+      onSchedule: (handler) => {
+        handlers.current.add(handler);
+      },
+      schedule: () => {
+        setShouldNotify({});
+      },
+    };
+  },
+
   on: {
+    mounted: (builder, handler): void => void builder.on.idle(handler),
     idle: (builder, handler): void => void builder.on.idle(handler),
     layout: (builder, handler): void => void builder.on.layout(handler),
   },
