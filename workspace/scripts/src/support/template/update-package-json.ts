@@ -33,15 +33,17 @@ export function updatePackageJSON(updater: LabelledUpdater): void {
         delete current["publishConfig"];
       }
 
+      const devDependencies = (current["devDependencies"] ??= {}) as Record<
+        string,
+        string
+      >;
+
+      if (pkg.name !== "@starbeam/eslint-plugin") {
+        devDependencies["@starbeam/eslint-plugin"] = "workspace:^";
+      }
+
       if (needsBuildSupport(pkg)) {
-        current["devDependencies"] = {
-          ...(current["devDependencies"] as object),
-          "@starbeam-dev/build-support": "workspace:*",
-        };
-      } else if (current["devDependencies"]) {
-        delete (current["devDependencies"] as Record<string, string>)[
-          "@starbeam-dev/build-support"
-        ];
+        devDependencies["@starbeam-dev/build-support"] = "workspace:^";
       }
 
       function updateStarbeam(key: string, value: JsonValue): void {
@@ -118,7 +120,7 @@ export function updatePackageJSON(updater: LabelledUpdater): void {
 
       scripts["test:lint"] = `eslint ${pkg.inputGlobs
         .map((g) => `"${g.relative}"`)
-        .join(" ")}`;
+        .join(" ")} --max-warnings 0`;
 
       return consolidateStarbeam(current);
     });

@@ -43,5 +43,6 @@ module.exports = {
     "json:default": json["json:default"],
     "jsonc:default": json["jsonc:default"],
     "json:parser": json.parser,
+    "json:recommended": json.recommended,
   },
 };

@@ -12,7 +12,9 @@ export const updateEslint = {
   demo: UpdatePackageFn((updater) => {
     updater.json(".eslintrc.json", () => {
       return {
-        root: false,
+        root: true,
+        plugins: ["@starbeam"],
+        extends: ["plugin:@starbeam/json:recommended"],
 
         overrides: [
           localEslintConfig(updater),
@@ -28,7 +30,9 @@ export const updateEslint = {
   package: UpdatePackageFn((update) => {
     update.json(".eslintrc.json", () => {
       return {
-        root: false,
+        root: true,
+        plugins: ["@starbeam"],
+        extends: ["plugin:@starbeam/json:recommended"],
         overrides: [localEslintConfig(update)],
       };
     });
@@ -83,10 +87,10 @@ function localEslintConfig(
   } = {}
 ): ConfigOverride & JsonObject {
   return {
+    files,
+    extends: [`plugin:${extend}`],
     parserOptions: {
       project: path(pkg.root.file(tsconfig)).fromPackageRoot(),
     },
-    files,
-    extends: [`plugin:${extend}`],
   };
 }

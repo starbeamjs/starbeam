@@ -1,5 +1,6 @@
 {
-  "root": false,
+  "root": true,
+  "plugins": ["@starbeam"],
   "overrides": [
     {
       "extends": ["plugin:@starbeam/tight"],
@@ -8,5 +9,6 @@
         "project": "tsconfig.json"
       }
     }
-  ]
+  ],
+  "extends": ["plugin:@starbeam/json:recommended"]
 }

@@ -47,7 +47,7 @@ export class TimestampImpl implements interfaces.Timestamp {
     }
   }
 
-  get at() {
+  get at(): number {
     return this.#timestamp;
   }
 

@@ -25,11 +25,11 @@
     },
     {
       "extends": ["plugin:@starbeam/json:eslintrc"],
-      "files": ["**/.eslintrc.json", "**/eslintrc.json"]
+      "files": [".eslintrc.json", "**/eslintrc.json"]
     },
     {
       "extends": ["plugin:@starbeam/json:package"],
-      "files": ["**/package.json"]
+      "files": ["package.json"]
     }
   ]
 }

@@ -23,10 +23,11 @@
     "type": "library:interfaces"
   },
   "scripts": {
-    "test:lint": "eslint \"index.ts\"",
+    "test:lint": "eslint \"index.ts\" --max-warnings 0",
     "test:types": "tsc -b"
   },
   "devDependencies": {
-    "@starbeam-dev/build-support": "workspace:*"
+    "@starbeam/eslint-plugin": "workspace:^",
+    "@starbeam-dev/build-support": "workspace:^"
   }
 }

@@ -1,22 +1,39 @@
 {
-  "private": true,
-  "name": "@starbeam-demos/react-jsnation-workshop",
-  "version": "1.0.0",
-  "type": "module",
-  "main": "index.ts",
+  "dependencies": {
+    "@starbeam/collections": "workspace:^",
+    "@starbeam/react": "workspace:^",
+    "@starbeam/universal": "workspace:^",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "vanilla-framework": "^3.15.0"
+  },
+  "devDependencies": {
+    "@starbeam/eslint-plugin": "workspace:^",
+    "@types/react": "^18.2.12",
+    "@types/react-dom": "^18.2.5",
+    "@vitest/ui": "*",
+    "vite": "4.3.9"
+  },
   "exports": {
     "default": "./index.ts"
   },
+  "main": "index.ts",
+  "name": "@starbeam-demos/react-jsnation-workshop",
+  "private": true,
   "publishConfig": {
     "exports": {
       ".": {
-        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs",
         "import": "./dist/index.js",
-        "default": "./dist/index.cjs"
+        "types": "./dist/index.d.ts"
       }
     },
     "main": "dist/index.cjs",
     "types": "dist/index.d.ts"
+  },
+  "scripts": {
+    "test:lint": "eslint \"src/**/*.{tsx,ts}\" --max-warnings 0",
+    "test:types": "tsc --noEmit -p tsconfig.json"
   },
   "starbeam": {
     "jsx": "react",
@@ -31,21 +48,6 @@
       }
     ]
   },
-  "scripts": {
-    "test:lint": "eslint \"src/**/*.{tsx,ts}\"",
-    "test:types": "tsc --noEmit -p tsconfig.json"
-  },
-  "dependencies": {
-    "@starbeam/collections": "workspace:^",
-    "@starbeam/react": "workspace:^",
-    "@starbeam/universal": "workspace:^",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "vanilla-framework": "^3.15.0"
-  },
-  "devDependencies": {
-    "@types/react": "^18.2.12",
-    "@types/react-dom": "^18.2.5",
-    "vite": "4.3.9"
-  }
+  "type": "module",
+  "version": "1.0.0"
 }

@@ -545,12 +545,15 @@ export function isDetailed(value: unknown): value is DetailedStyle {
   return !!(value && typeof value === "object" && STYLE in value);
 }
 
+const EMOJI_SIZE = 2;
+const FIRST = 0;
+
 function lengthAdjustedForEmoji(source: string) {
   let length = source.length;
 
   for (const match of source.matchAll(emojiRegex())) {
-    length -= match[0].length;
-    length += 2;
+    length -= match[FIRST].length;
+    length += EMOJI_SIZE;
   }
 
   return length;

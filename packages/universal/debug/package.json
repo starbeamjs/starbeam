@@ -1,22 +1,41 @@
 {
-  "name": "@starbeam/debug",
-  "version": "0.8.9",
-  "type": "module",
-  "main": "index.ts",
-  "types": "index.ts",
+  "dependencies": {
+    "@domtree/flavors": "workspace:^",
+    "@starbeam/core-utils": "workspace:^",
+    "@starbeam/interfaces": "workspace:^",
+    "@starbeam/reactive": "workspace:^",
+    "@starbeam/shared": "workspace:^",
+    "@starbeam/tags": "workspace:^",
+    "@starbeam/verify": "workspace:^",
+    "buffer": "^6.0.3",
+    "stacktracey": "^2.1.8"
+  },
+  "devDependencies": {
+    "@starbeam-dev/build-support": "workspace:^",
+    "@starbeam/eslint-plugin": "workspace:^",
+    "@types/node": "18.16.1",
+    "rollup": "^3.20.6"
+  },
   "exports": {
     "default": "./index.ts"
   },
+  "main": "index.ts",
+  "name": "@starbeam/debug",
   "publishConfig": {
     "exports": {
       ".": {
-        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs",
         "import": "./dist/index.js",
-        "default": "./dist/index.cjs"
+        "types": "./dist/index.d.ts"
       }
     },
     "main": "dist/index.cjs",
     "types": "dist/index.d.ts"
+  },
+  "scripts": {
+    "test:lint": "eslint \"index.ts\" \"src/**/*.ts\" --max-warnings 0",
+    "test:specs": "vitest --run",
+    "test:types": "tsc -b"
   },
   "starbeam": {
     "inline": [
@@ -30,30 +49,7 @@
     ],
     "type": "library:public"
   },
-  "scripts": {
-    "test:lint": "eslint \"index.ts\" \"src/**/*.ts\"",
-    "test:specs": "vitest --run",
-    "test:types": "tsc -b"
-  },
-  "dependencies": {
-    "@domtree/flavors": "workspace:^",
-    "@starbeam/core-utils": "workspace:^",
-    "@starbeam/interfaces": "workspace:^",
-    "@starbeam/reactive": "workspace:^",
-    "@starbeam/shared": "workspace:^",
-    "@starbeam/tags": "workspace:^",
-    "@starbeam/verify": "workspace:^",
-    "buffer": "^6.0.3",
-    "stacktracey": "^2.1.8"
-  },
-  "devDependencies": {
-    "@starbeam-dev/build-support": "workspace:*",
-    "@types/node": "18.16.1",
-    "rollup": "^3.20.6"
-  },
-  "pnpm": {
-    "overrides": {
-      "stacktracey": "file:./stacktracey.tgz"
-    }
-  }
+  "type": "module",
+  "types": "index.ts",
+  "version": "0.8.9"
 }

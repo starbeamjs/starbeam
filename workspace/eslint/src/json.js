@@ -2,6 +2,42 @@
 const { ESLint, Linter } = require("eslint");
 
 /** @type {ESLint.ConfigData} */
+exports.recommended = {
+  overrides: [
+    {
+      extends: ["plugin:@starbeam/json:parser"],
+      files: ["*.json", "workspace/build/*.json"],
+    },
+    {
+      extends: ["plugin:@starbeam/json:default"],
+      files: ["*.json", "workspace/build/*.json"],
+      excludedFiles: [
+        "tsconfig.*",
+        ".eslintrc.json",
+        "package.json",
+        ".vscode/settings.json",
+      ],
+    },
+    {
+      extends: ["plugin:@starbeam/json:vscode-settings"],
+      files: [".vscode/settings.json"],
+    },
+    {
+      extends: ["plugin:@starbeam/json:tsconfig"],
+      files: ["tsconfig.*.json", "tsconfig.json"],
+    },
+    {
+      extends: ["plugin:@starbeam/json:eslintrc"],
+      files: [".eslintrc.json", "**/eslintrc.json"],
+    },
+    {
+      extends: ["plugin:@starbeam/json:package"],
+      files: ["package.json"],
+    },
+  ],
+};
+
+/** @type {ESLint.ConfigData} */
 exports.parser = {
   parser: "jsonc-eslint-parser",
 };

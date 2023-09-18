@@ -23,7 +23,7 @@
     "type": "library:build-support"
   },
   "scripts": {
-    "test:lint": "eslint \"src/**/*.{js,d.ts}\"",
+    "test:lint": "eslint \"src/**/*.{js,d.ts}\" --max-warnings 0",
     "test:types": "tsc -b"
   },
   "dependencies": {
@@ -42,8 +42,8 @@
     "@types/node": "18.16.18"
   },
   "peerDependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.59.11",
-    "@typescript-eslint/parser": "^5.59.11",
+    "@typescript-eslint/eslint-plugin": "^6.7.0",
+    "@typescript-eslint/parser": "^6.7.0",
     "eslint": "^8.42.0",
     "jsonc-eslint-parser": "^2.1.0",
     "typescript": "*"

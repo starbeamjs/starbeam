@@ -25,12 +25,13 @@
     "doc:all": "node ./scripts/docs.js",
     "doc:readme": "node ./scripts/doc.js README",
     "doc:theory": "node ./scripts/doc.js THEORY",
-    "test:lint": "eslint \"index.ts\" \"src/**/*.ts\"",
+    "test:lint": "eslint \"index.ts\" \"src/**/*.ts\" --max-warnings 0",
     "test:specs": "vitest --run",
     "test:types": "tsc -b"
   },
   "devDependencies": {
-    "@starbeam-dev/build-support": "workspace:*",
+    "@starbeam/eslint-plugin": "workspace:^",
+    "@starbeam-dev/build-support": "workspace:^",
     "@types/react": "^18.2.0",
     "rollup": "^3.20.6"
   },

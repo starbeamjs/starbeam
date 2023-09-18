@@ -1,13 +1,4 @@
 {
-  "private": true,
-  "name": "@starbeam-tests/react-use-strict-lifecycle",
-  "version": "1.0.0",
-  "type": "module",
-  "starbeam:type": "tests",
-  "scripts": {
-    "test:lint": "eslint ",
-    "test:types": "tsc -b"
-  },
   "dependencies": {
     "@starbeam-workspace/react-test-utils": "workspace:^",
     "@starbeam/debug": "workspace:^",
@@ -15,7 +6,17 @@
     "react": "18.2.0"
   },
   "devDependencies": {
+    "@starbeam/eslint-plugin": "workspace:^",
     "@types/react": "^18.2.0",
     "jsdom": "^21.1.1"
-  }
+  },
+  "name": "@starbeam-tests/react-use-strict-lifecycle",
+  "private": true,
+  "scripts": {
+    "test:lint": "eslint  --max-warnings 0",
+    "test:types": "tsc -b"
+  },
+  "starbeam:type": "tests",
+  "type": "module",
+  "version": "1.0.0"
 }

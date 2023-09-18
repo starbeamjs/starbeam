@@ -280,7 +280,7 @@ function json({
     });
 
     writeFileSync(path, nextString + "\n");
-    workspace.cmd(sh`eslint --cache --fix ${path}`);
+    workspace.cmd(sh`prettier --print-width 100 -w ${path}`);
   }
 }
 

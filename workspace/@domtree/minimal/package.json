@@ -1,35 +1,36 @@
 {
-  "name": "@domtree/minimal",
-  "version": "0.9.3",
-  "type": "module",
-  "main": "index.ts",
-  "types": "index.ts",
+  "dependencies": {
+    "@domtree/interface": "workspace:^"
+  },
+  "devDependencies": {
+    "@starbeam-dev/build-support": "workspace:^",
+    "@starbeam/eslint-plugin": "workspace:^"
+  },
   "exports": {
     "default": "./index.ts"
   },
+  "main": "index.ts",
+  "name": "@domtree/minimal",
   "publishConfig": {
     "exports": {
       ".": {
-        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs",
         "import": "./dist/index.js",
-        "default": "./dist/index.cjs"
+        "types": "./dist/index.d.ts"
       }
     },
     "main": "dist/index.cjs",
     "types": "dist/index.d.ts"
   },
+  "scripts": {
+    "test:lint": "eslint \"index.ts\" --max-warnings 0",
+    "test:types": "tsc -b"
+  },
   "starbeam": {
     "source": "ts",
     "type": "library:interfaces"
   },
-  "scripts": {
-    "test:lint": "eslint \"index.ts\"",
-    "test:types": "tsc -b"
-  },
-  "dependencies": {
-    "@domtree/interface": "workspace:^"
-  },
-  "devDependencies": {
-    "@starbeam-dev/build-support": "workspace:*"
-  }
+  "type": "module",
+  "types": "index.ts",
+  "version": "0.9.3"
 }

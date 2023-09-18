@@ -50,7 +50,7 @@ export default function DateFormatterStarbeam(props: {
           </select>
         </label>
       </form>
-      <p className="output">{date?.formatted}</p>
+      <p className="output">{date.formatted}</p>
     </>
   );
 }

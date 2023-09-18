@@ -1,15 +1,18 @@
 {
-  "private": true,
+  "dependencies": {
+    "@starbeam-workspace/test-utils": "workspace:^",
+    "@starbeam/renderer": "workspace:^"
+  },
+  "devDependencies": {
+    "@starbeam/eslint-plugin": "workspace:^"
+  },
   "name": "@starbeam-tests/renderer",
-  "version": "1.0.0",
-  "type": "module",
-  "starbeam:type": "tests",
+  "private": true,
   "scripts": {
-    "test:lint": "eslint ",
+    "test:lint": "eslint  --max-warnings 0",
     "test:types": "tsc -b"
   },
-  "dependencies": {
-    "@starbeam/renderer": "workspace:^",
-    "@starbeam-workspace/test-utils": "workspace:^"
-  }
+  "starbeam:type": "tests",
+  "type": "module",
+  "version": "1.0.0"
 }

@@ -1,4 +1,4 @@
-import type { CallStack, Description } from "@starbeam/interfaces";
+import type { Description } from "@starbeam/interfaces";
 import { Cell, type Equality, Marker } from "@starbeam/reactive";
 import { UNINITIALIZED } from "@starbeam/shared";
 
@@ -76,9 +76,7 @@ class Entry<V> {
     return this.#initialized.read();
   }
 
-  set(
-    value: V,
-  ): "initialized" | "updated" | "unchanged" {
+  set(value: V): "initialized" | "updated" | "unchanged" {
     if (this.#value.read() === UNINITIALIZED) {
       this.#value.set(value);
       this.#initialized.set(true);
@@ -100,7 +98,6 @@ function equals<T>(equality: Equality<T>): Equality<T | UNINITIALIZED> {
 }
 
 const EMPTY_MAP_SIZE = 0;
-const EXTRA_CALLER_FRAME = 1;
 
 export class ReactiveMap<K, V> implements Map<K, V> {
   readonly [Symbol.toStringTag] = "Map";
@@ -235,7 +232,6 @@ export class ReactiveMap<K, V> implements Map<K, V> {
   }
 
   set(key: K, value: V): this {
-
     const entry = this.#entry(key);
     const disposition = entry.set(value);
 
@@ -303,20 +299,18 @@ export class ReactiveSet<T> implements Set<T> {
   }
 
   add(value: T): this {
-
     const entry = this.#entry(value);
 
     if (!entry.isPresent()) {
       this.#entries.set(value, entry);
       this.#values.mark();
-      entry.set(value, );
+      entry.set(value);
     }
 
     return this;
   }
 
   clear(): void {
-
     if (this.#entries.size > EMPTY_MAP_SIZE) {
       this.#entries.clear();
       this.#values.mark();
@@ -324,7 +318,6 @@ export class ReactiveSet<T> implements Set<T> {
   }
 
   delete(value: T): boolean {
-
     const entry = this.#entries.get(value);
 
     if (entry) {
@@ -341,7 +334,6 @@ export class ReactiveSet<T> implements Set<T> {
   }
 
   *entries(): IterableIterator<[T, T]> {
-
     this.#values.read();
 
     for (const [value, entry] of this.#iterate()) {
@@ -353,7 +345,6 @@ export class ReactiveSet<T> implements Set<T> {
     callbackfn: (value: T, value2: T, set: Set<T>) => void,
     thisArg?: unknown
   ): void {
-
     this.#values.read();
 
     for (const [value] of this.#iterate()) {
@@ -362,7 +353,6 @@ export class ReactiveSet<T> implements Set<T> {
   }
 
   has(value: T): boolean {
-
     return this.#entry(value).isPresent();
   }
 
@@ -375,7 +365,6 @@ export class ReactiveSet<T> implements Set<T> {
   }
 
   *keys(): IterableIterator<T> {
-
     this.#values.read();
 
     for (const [value] of this.#iterate()) {

@@ -9,6 +9,9 @@
 
   "plugins": ["@starbeam"],
 
-  "extends": ["./.config/eslintrc.json", "./.eslintrc.repo.json"],
+  "extends": [
+    "plugin:@starbeam/json:recommended",
+    "./.eslintrc.repo.json"
+  ],
   "reportUnusedDisableDirectives": true
 }

@@ -1,22 +1,44 @@
 {
-  "private": true,
-  "name": "@starbeam-demos/react-jsnation",
-  "version": "1.0.0",
-  "type": "module",
-  "main": "index.ts",
+  "dependencies": {
+    "@starbeam/collections": "workspace:^",
+    "@starbeam/debug": "workspace:^",
+    "@starbeam/interfaces": "workspace:^",
+    "@starbeam/react": "workspace:^",
+    "@starbeam/reactive": "workspace:^",
+    "@starbeam/resource": "workspace:^",
+    "@starbeam/universal": "workspace:^",
+    "purecss": "3.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@starbeam/eslint-plugin": "workspace:^",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.1",
+    "@vitest/ui": "*",
+    "vite": "4.3.9"
+  },
   "exports": {
     "default": "./index.ts"
   },
+  "main": "index.ts",
+  "name": "@starbeam-demos/react-jsnation",
+  "private": true,
   "publishConfig": {
     "exports": {
       ".": {
-        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs",
         "import": "./dist/index.js",
-        "default": "./dist/index.cjs"
+        "types": "./dist/index.d.ts"
       }
     },
     "main": "dist/index.cjs",
     "types": "dist/index.d.ts"
+  },
+  "scripts": {
+    "test:lint": "eslint \"src/**/*.{tsx,ts}\" --max-warnings 0",
+    "test:specs": "vitest --run",
+    "test:types": "tsc --noEmit -p tsconfig.json"
   },
   "starbeam": {
     "jsx": "react",
@@ -31,27 +53,6 @@
       }
     ]
   },
-  "scripts": {
-    "test:lint": "eslint \"src/**/*.{tsx,ts}\"",
-    "test:specs": "vitest --run",
-    "test:types": "tsc --noEmit -p tsconfig.json"
-  },
-  "dependencies": {
-    "@starbeam/collections": "workspace:^",
-    "@starbeam/debug": "workspace:^",
-    "@starbeam/interfaces": "workspace:^",
-    "@starbeam/react": "workspace:^",
-    "@starbeam/reactive": "workspace:^",
-    "@starbeam/resource": "workspace:^",
-    "@starbeam/universal": "workspace:^",
-    "purecss": "3.0.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  },
-  "devDependencies": {
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.1",
-    "@vitest/ui": "*",
-    "vite": "4.3.9"
-  }
+  "type": "module",
+  "version": "1.0.0"
 }

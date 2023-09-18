@@ -24,7 +24,7 @@
     "type": "library:build-support"
   },
   "scripts": {
-    "test:lint": "eslint \"src/**/*.{js,d.ts}\"",
+    "test:lint": "eslint \"src/**/*.{js,d.ts}\" --max-warnings 0",
     "test:types": "tsc -b"
   },
   "dependencies": {
@@ -32,10 +32,10 @@
     "@eslint/eslintrc": "^2.0.3",
     "@rollup/plugin-commonjs": "^25.0.1",
     "@rollup/plugin-node-resolve": "^15.1.0",
-    "@types/rollup-plugin-polyfill-node": "workspace:*",
     "@types/rollup__plugin-commonjs": "workspace:^",
     "@types/rollup__plugin-node-resolve": "workspace:^",
-    "@typescript-eslint/parser": "^5.59.11",
+    "@types/rollup-plugin-polyfill-node": "workspace:*",
+    "@typescript-eslint/parser": "^6.7.0",
     "eslint": "^8.42.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-import": "^2.27.5",
@@ -53,6 +53,7 @@
     "vite": "4.3.9"
   },
   "devDependencies": {
+    "@starbeam/eslint-plugin": "workspace:^",
     "@types/node": "18.16.18",
     "typescript": "*"
   }

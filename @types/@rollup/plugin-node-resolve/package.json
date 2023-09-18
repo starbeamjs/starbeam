@@ -21,10 +21,13 @@
     "type": "library:upstream-types"
   },
   "scripts": {
-    "test:lint": "eslint \"index.d.ts\"",
+    "test:lint": "eslint \"index.d.ts\" --max-warnings 0",
     "test:types": "tsc -b"
   },
   "dependencies": {
     "@rollup/plugin-node-resolve": "^15.0.2"
+  },
+  "devDependencies": {
+    "@starbeam/eslint-plugin": "workspace:^"
   }
 }

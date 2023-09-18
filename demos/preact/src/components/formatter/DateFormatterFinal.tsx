@@ -54,7 +54,7 @@ export default function DateFormatterStarbeam(props: {
 function Clock(
   timeZone: Reactive<string> | string,
   locale: Reactive<string> | string
-): ResourceBlueprint<{ formatted: string; refresh: () => void }, undefined> {
+): ResourceBlueprint<{ formatted: string; refresh: () => void }> {
   const date = js.object({ now: new Date() });
 
   function refresh(): void {
