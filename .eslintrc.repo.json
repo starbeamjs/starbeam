@@ -1,4 +1,14 @@
 {
+  "root": true,
+  "ignorePatterns": [
+    "*",
+    "!package.json",
+    "!.eslintrc.json",
+    "!.eslintrc.repo.json",
+    "**/node_modules"
+  ],
+
+  "plugins": ["@starbeam"],
   "overrides": [
     {
       "extends": ["plugin:@starbeam/tight"],
@@ -6,7 +16,16 @@
       "parserOptions": {
         "project": ["tsconfig.root.json"]
       }
+    },
+    {
+      "extends": ["plugin:@starbeam/json:recommended"],
+      "files": [
+        ".eslintrc.json",
+        ".eslintrc.*.json",
+        "package.json",
+        "packages/*/*/{package,.eslintrc}.json",
+        "packages/*/*/tests/{package,.eslintrc}.json"
+      ]
     }
-  ],
-  "root": false
+  ]
 }

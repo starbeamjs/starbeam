@@ -1,38 +1,38 @@
 {
-  "dependencies": {
-    "@domtree/any": "workspace:^",
-    "@starbeam/shared": "workspace:^"
-  },
-  "devDependencies": {
-    "@starbeam-dev/build-support": "workspace:^",
-    "@starbeam/eslint-plugin": "workspace:^"
-  },
+  "name": "@starbeam/interfaces",
+  "version": "0.8.9",
+  "type": "module",
+  "main": "index.ts",
+  "types": "index.ts",
   "exports": {
     "default": "./index.ts"
   },
-  "main": "index.ts",
-  "name": "@starbeam/interfaces",
   "publishConfig": {
     "exports": {
       ".": {
-        "default": "./dist/index.cjs",
+        "types": "./dist/index.d.ts",
         "import": "./dist/index.js",
-        "types": "./dist/index.d.ts"
+        "default": "./dist/index.cjs"
       }
     },
     "main": "dist/index.cjs",
     "types": "dist/index.d.ts"
-  },
-  "scripts": {
-    "test:lint": "eslint \"index.ts\" \"src/**/*.ts\" --max-warnings 0",
-    "test:types": "tsc -b"
   },
   "starbeam": {
     "source": "ts",
     "template:package": "interfaces.package.json",
     "type": "library:interfaces"
   },
-  "type": "module",
-  "types": "index.ts",
-  "version": "0.8.9"
+  "scripts": {
+    "test:lint": "eslint \"index.ts\" \"src/**/*.ts\" *.json --max-warnings 0",
+    "test:types": "tsc -b"
+  },
+  "dependencies": {
+    "@domtree/any": "workspace:^",
+    "@starbeam/shared": "workspace:^"
+  },
+  "devDependencies": {
+    "@starbeam/eslint-plugin": "workspace:^",
+    "@starbeam-dev/build-support": "workspace:^"
+  }
 }

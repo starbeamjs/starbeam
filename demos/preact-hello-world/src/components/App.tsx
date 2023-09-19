@@ -171,7 +171,7 @@ const Count = Resource(() => {
 });
 
 function CounterWithCleanup(
-  status: Cell<string> = Cell("new")
+  status: Cell<string> = Cell("new"),
 ): ResourceBlueprint<{
   readonly count: number;
   increment: () => void;
@@ -179,9 +179,7 @@ function CounterWithCleanup(
   return Resource(({ on }) => {
     const count = Cell(0, "resource count");
 
-    on.cleanup(() => {
-      status.set("cleaned up");
-    });
+    on.sync(() => () => status.set("cleaned up"));
 
     return {
       get count() {

@@ -22,15 +22,15 @@ export interface GetRelativePath {
 }
 
 export class UpdatePackage {
-  static update(
+  static async update(
     updatePackage: UpdatePackage,
     label: string,
     updater: (
       update: LabelledUpdater,
-      options: { workspace: Workspace; paths: Paths; root: Directory }
-    ) => void
-  ): void {
-    updater(updatePackage.update(label), {
+      options: { workspace: Workspace; paths: Paths; root: Directory },
+    ) => void | Promise<void>,
+  ): Promise<void> {
+    await updater(updatePackage.update(label), {
       workspace: updatePackage.#workspace,
       paths: updatePackage.#workspace.paths,
       root: updatePackage.#workspace.root,
@@ -88,7 +88,7 @@ class UpdateFile implements LabelledUpdater {
   constructor(
     updatePackage: UpdatePackage,
     workspace: Workspace,
-    label: string
+    label: string,
   ) {
     this.#updatePackage = updatePackage;
     this.#workspace = workspace;
@@ -96,23 +96,21 @@ class UpdateFile implements LabelledUpdater {
 
     const json: UpdateJsonFn & Partial<UpdateJsonField> = this.#json;
 
-    json.migrate = <T extends object>(
+    json.migrate = async <T extends object>(
       relativePath: string,
-      callback: (migrator: Migrator<T>) => void
-    ) => {
+      callback: (migrator: Migrator<T>) => void,
+    ): Promise<void> => {
       const editor = EditJsonc.parse(
-        this.#updatePackage.root.file(relativePath)
+        this.#updatePackage.root.file(relativePath),
       );
       const migrator = Migrator.create<T>(editor);
       callback(migrator);
       reportChange({
         workspace,
-        result: migrator.write(),
+        result: await migrator.write(),
         label: this.#label,
         description: relativePath,
       });
-
-      return this;
     };
 
     json.template = (intoTemplate, update = ({ template }) => template) => {
@@ -125,7 +123,7 @@ class UpdateFile implements LabelledUpdater {
         }) ?? {};
 
       return json(relativePath, (current) =>
-        update({ current: cloneJSON(current), template })
+        update({ current: cloneJSON(current), template }),
       );
     };
 
@@ -164,7 +162,7 @@ class UpdateFile implements LabelledUpdater {
     update: (options: {
       current?: string | undefined;
       template: string;
-    }) => string = ({ template }) => template
+    }) => string = ({ template }) => template,
   ): LabelledUpdater {
     const templateName = Template.asString(intoTemplate);
 
@@ -172,7 +170,7 @@ class UpdateFile implements LabelledUpdater {
       update({
         current,
         template: this.#updatePackage.template(templateName),
-      })
+      }),
     );
 
     return this;
@@ -221,7 +219,7 @@ class UpdateFile implements LabelledUpdater {
 
   #update(
     relativePath: string,
-    updater: (prev: string | undefined) => string
+    updater: (prev: string | undefined) => string,
   ): void {
     const path = this.#updatePackage.root.file(relativePath);
     const prev = existsSync(path) ? readFileSync(path, "utf-8") : undefined;
@@ -259,8 +257,8 @@ function json({
   if (!isJSONObject(prevJSON)) {
     throw Error(
       `Expected ${relativePath} to contain a json object, but got ${JSON.stringify(
-        prevJSON
-      )}`
+        prevJSON,
+      )}`,
     );
   }
 
@@ -363,11 +361,11 @@ export class UpdatePackages {
     };
   };
 
-  update(prepare: (updatePackages: UpdatePackagesFn) => void): void {
+  async update(prepare: (when: UpdatePackagesFn) => void): Promise<void> {
     prepare(this.when);
 
     for (const pkg of this.#packages) {
-      this.#workspace.reporter
+      await this.#workspace.reporter
         .group(pkg.name)
         .empty((r) => {
           if (r.isVerbose) {
@@ -375,19 +373,19 @@ export class UpdatePackages {
               compact: {
                 fragment: fragment`${Fragment(
                   "header:sub",
-                  pkg.name
+                  pkg.name,
                 )}${Fragment("comment", ": no changes")}`,
                 replace: true,
               },
             });
           }
         })
-        .try(() => {
+        .tryAsync(async () => {
           const updatePackage = this.pkg(pkg);
 
           for (const { condition, updateFn, label } of this.#updates) {
             if (condition(pkg)) {
-              UpdatePackage.update(updatePackage, label, updateFn);
+              await UpdatePackage.update(updatePackage, label, updateFn);
             }
           }
 
@@ -418,7 +416,7 @@ export interface Update {
 
 export type UpdatePackagesFn = (
   condition: (pkg: Package) => boolean,
-  label: string
+  label: string,
 ) => {
   use: (updater: UpdatePackageFn) => UpdatePackages;
 };
@@ -426,14 +424,14 @@ export type UpdatePackagesFn = (
 type UpdateJsonFn = (
   this: void,
   relativePath: string,
-  updater: JsonUpdates
+  updater: JsonUpdates,
 ) => LabelledUpdater;
 
 interface UpdateJsonField extends UpdateJsonFn {
   migrate: <T extends object>(
     relativePath: string,
-    callback: (migrator: Migrator<T>) => void
-  ) => void;
+    callback: (migrator: Migrator<T>) => void | Promise<void>,
+  ) => Promise<void>;
   template: (
     template: Into<JsonTemplate>,
     update?:
@@ -441,7 +439,7 @@ interface UpdateJsonField extends UpdateJsonFn {
           current?: JsonObject | undefined;
           template: JsonObject;
         }) => JsonObject)
-      | undefined
+      | undefined,
   ) => LabelledUpdater;
 }
 
@@ -459,14 +457,14 @@ export interface LabelledUpdater {
           current?: string | undefined;
           template: string;
         }) => string)
-      | undefined
+      | undefined,
   ) => LabelledUpdater;
 }
 
 function normalizeJSON(json: JsonObject): JsonObject {
   const keys = Object.keys(json).sort();
   return Object.fromEntries(
-    keys.map((k) => [k, normalizeJSONValue(json[k] as JsonValue)])
+    keys.map((k) => [k, normalizeJSONValue(json[k] as JsonValue)]),
   );
 }
 

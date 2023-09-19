@@ -14,7 +14,6 @@ export const updateEslint = {
       return {
         root: true,
         plugins: ["@starbeam"],
-        extends: ["plugin:@starbeam/json:recommended"],
 
         overrides: [
           localEslintConfig(updater),
@@ -22,6 +21,7 @@ export const updateEslint = {
             files: ["vite.config.ts"],
             extend: "@starbeam/loose",
           }),
+          JSON_ESLINT_CONFIG,
         ],
       };
     });
@@ -31,9 +31,9 @@ export const updateEslint = {
     update.json(".eslintrc.json", () => {
       return {
         root: true,
+        ignorePatterns: ["node_modules"],
         plugins: ["@starbeam"],
-        extends: ["plugin:@starbeam/json:recommended"],
-        overrides: [localEslintConfig(update)],
+        overrides: [localEslintConfig(update), JSON_ESLINT_CONFIG],
       };
     });
   }),
@@ -74,6 +74,11 @@ function eslintFiles(pkg: Package): string[] {
   }
 }
 
+const JSON_ESLINT_CONFIG = {
+  extends: ["plugin:@starbeam/json:recommended"],
+  files: ["*.json"],
+};
+
 function localEslintConfig(
   { path, pkg }: LabelledUpdater,
   {
@@ -84,7 +89,7 @@ function localEslintConfig(
     extend?: `@starbeam/${string}`;
     tsconfig?: string;
     files?: string | string[];
-  } = {}
+  } = {},
 ): ConfigOverride & JsonObject {
   return {
     files,

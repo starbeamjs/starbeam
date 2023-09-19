@@ -1,5 +1,6 @@
 {
   "root": true,
+  "ignorePatterns": ["node_modules"],
   "plugins": ["@starbeam"],
   "overrides": [
     {
@@ -8,7 +9,10 @@
       "parserOptions": {
         "project": "tsconfig.json"
       }
+    },
+    {
+      "extends": ["plugin:@starbeam/json:recommended"],
+      "files": ["*.json"]
     }
-  ],
-  "extends": ["plugin:@starbeam/json:recommended"]
+  ]
 }

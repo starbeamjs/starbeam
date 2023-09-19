@@ -216,6 +216,8 @@ class RenderingResult<T, U extends T = T> {
         return this as unknown as RenderingResult<T, T>;
       },
       {
+        // we just need the function's identity here
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         entryFn: this.expect,
         cause: "expect was called here",
       },

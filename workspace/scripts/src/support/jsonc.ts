@@ -8,7 +8,7 @@ import { format } from "prettier";
 
 export async function parseJsonc(
   file: RegularFile,
-  workspace: Workspace
+  workspace: Workspace,
 ): Promise<Record<string, unknown>> {
   const source = await file.read();
   const node = jsonc.parseTree(source);
@@ -16,8 +16,8 @@ export async function parseJsonc(
   if (node === undefined) {
     fatal(
       workspace.reporter.fatal(
-        `Failed to parse tsconfig at '${file.relativeFrom(workspace.root)}'`
-      )
+        `Failed to parse tsconfig at '${file.relativeFrom(workspace.root)}'`,
+      ),
     );
   }
 
@@ -26,8 +26,8 @@ export async function parseJsonc(
   if (value == undefined || typeof value !== "object") {
     fatal(
       workspace.reporter.fatal(
-        `Failed to parse tsconfig at '${file.relativeFrom(workspace.root)}'`
-      )
+        `Failed to parse tsconfig at '${file.relativeFrom(workspace.root)}'`,
+      ),
     );
   } else {
     return value as Record<string, unknown>;
@@ -71,7 +71,7 @@ export class EditJsonc {
 
   removeUnique(
     path: string,
-    value: string | number | boolean | ((json: unknown) => boolean)
+    value: string | number | boolean | ((json: unknown) => boolean),
   ): void {
     const jsonPath = this.#path(path);
     const node = jsonc.findNodeAtLocation(this.#json, jsonPath);
@@ -88,7 +88,7 @@ export class EditJsonc {
         if (index !== MISSING_INDEX) {
           const edits = bugfix(
             this.#source,
-            jsonc.modify(this.#source, [...jsonPath, index], undefined, {})
+            jsonc.modify(this.#source, [...jsonPath, index], undefined, {}),
           );
 
           this.#source = jsonc.applyEdits(this.#source, edits);
@@ -103,12 +103,12 @@ export class EditJsonc {
   addUnique(
     path: string,
     value: unknown,
-    check: (json: unknown) => boolean
+    check: (json: unknown) => boolean,
   ): void;
   addUnique(
     path: string,
     value: unknown,
-    check: (json: unknown) => boolean = (json) => json === value
+    check: (json: unknown) => boolean = (json) => json === value,
   ): void {
     const jsonPath = this.#path(path);
     const node = jsonc.findNodeAtLocation(this.#json, jsonPath);
@@ -134,7 +134,7 @@ export class EditJsonc {
   set(
     path: string,
     value: unknown,
-    { position = MISSING_INDEX }: JsoncPosition = { position: MISSING_INDEX }
+    { position = MISSING_INDEX }: JsoncPosition = { position: MISSING_INDEX },
   ): void {
     const edit = jsonc.modify(this.#source, this.#path(path), value, {
       getInsertionIndex:
@@ -150,8 +150,8 @@ export class EditJsonc {
    * written, and false is returned. If the JSON is changed, the file is
    * written, and true is returned.
    */
-  write(): "create" | "update" | "remove" | false {
-    const formatted = format(this.#source, { parser: "json" });
+  async write(): Promise<"create" | "update" | "remove" | false> {
+    const formatted = await format(this.#source, { parser: "json" });
 
     if (formatted !== this.#original) {
       writeFileSync(this.#filename, formatted);

@@ -1,29 +1,29 @@
 {
+  "private": true,
+  "name": "@starbeam-tests/demos-react-jsnation",
+  "version": "1.0.0",
+  "type": "module",
+  "starbeam": {
+    "jsx": "react",
+    "source": "tsx",
+    "type": "tests"
+  },
+  "scripts": {
+    "test:lint": "eslint  *.json --max-warnings 0",
+    "test:types": "tsc -b"
+  },
   "dependencies": {
     "@starbeam-demos/react-jsnation": "workspace:^",
     "@starbeam-workspace/react-test-utils": "workspace:^",
     "@starbeam-workspace/test-utils": "workspace:^",
     "react": "*",
     "react-dom": "*",
-    "react-error-boundary": "^4.0.4"
+    "react-error-boundary": "^4.0.11"
   },
   "devDependencies": {
     "@starbeam/eslint-plugin": "workspace:^",
     "@testing-library/react": "^14.0.0",
     "@types/react": "^18.2.22",
     "jsdom": "^22.1.0"
-  },
-  "name": "@starbeam-tests/demos-react-jsnation",
-  "private": true,
-  "scripts": {
-    "test:lint": "eslint  --max-warnings 0",
-    "test:types": "tsc -b"
-  },
-  "starbeam": {
-    "jsx": "react",
-    "source": "tsx",
-    "type": "tests"
-  },
-  "type": "module",
-  "version": "1.0.0"
+  }
 }

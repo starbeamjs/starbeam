@@ -26,7 +26,7 @@
     "build": "tsc && vite build",
     "dev": "vite",
     "preview": "vite preview",
-    "test:lint": "eslint \"src/**/*.{tsx,ts}\" --max-warnings 0",
+    "test:lint": "eslint \"src/**/*.{tsx,ts}\" *.json --max-warnings 0",
     "test:types": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
@@ -37,7 +37,7 @@
     "@starbeam/runtime": "workspace:^",
     "@starbeam/universal": "workspace:^",
     "@starbeam/verify": "workspace:^",
-    "axios": "^1.3.6",
+    "axios": "^1.5.0",
     "react": "^18.1.0",
     "react-dom": "^18.1.0"
   },
@@ -45,6 +45,7 @@
     "@starbeam/eslint-plugin": "workspace:^",
     "@types/react": "^18.2.22",
     "@types/react-dom": "^18.2.7",
+    "@vitest/ui": "*",
     "vite": "4.3.9",
     "vitest": "^0.34.4"
   }

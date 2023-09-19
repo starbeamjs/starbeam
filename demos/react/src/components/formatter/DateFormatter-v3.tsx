@@ -53,7 +53,7 @@ export default function DateFormatterStarbeam(): JSX.Element {
           </h3>
 
           {selectBox}
-          <p className="output">{date.current?.formatted}</p>
+          <p className="output">{date.formatted}</p>
         </>
       );
     });
@@ -61,23 +61,22 @@ export default function DateFormatterStarbeam(): JSX.Element {
 }
 
 function Clock(
-  timeZone: Reactive<string>
+  timeZone: Reactive<string>,
 ): ResourceBlueprint<{ formatted: string; refresh: () => void }> {
-  const date = js.object({ now: new Date() });
+  return Resource(({ on }) => {
+    const date = js.object({ now: new Date() });
 
-  function refresh(): void {
-    date.now = new Date();
-  }
+    function refresh(): void {
+      date.now = new Date();
+    }
 
-  return Resource((resource) => {
-    const interval = setInterval(() => {
-      refresh();
-    }, 1000);
+    on.sync(() => {
+      const interval = setInterval(() => {
+        refresh();
+      }, 1000);
 
-    resource.on.cleanup(() => {
-      clearInterval(interval);
+      return () => void clearInterval(interval);
     });
-
     return {
       formatted: formatTime(date.now, {
         timeZone: timeZone.read(),
@@ -93,7 +92,7 @@ function formatTime(
   {
     locale = SYSTEM_LOCALE,
     timeZone = SYSTEM_TZ,
-  }: { locale?: string; timeZone?: string } = {}
+  }: { locale?: string; timeZone?: string } = {},
 ): string {
   return new Intl.DateTimeFormat(locale, {
     hour: "numeric",

@@ -40,7 +40,7 @@ export default function App(): JSX.Element {
               ([, user]) =>
                 user.status !== "success" ||
                 user.matches(filter) ||
-                filter === ""
+                filter === "",
             )
             .map(([id, user]) => (
               <UserItem
@@ -174,14 +174,10 @@ function Profile({ user }: { user: LocalUser | undefined }): JSX.Element {
 
 class LocalUser {
   #id: number;
-  #resource: Resource<InvalidatableAsync<ApiUser>>;
+  #resource: InvalidatableAsync<ApiUser>;
   #invalidate: Marker;
 
-  constructor(
-    id: number,
-    data: Resource<InvalidatableAsync<ApiUser>>,
-    marker: Marker
-  ) {
+  constructor(id: number, data: InvalidatableAsync<ApiUser>, marker: Marker) {
     this.#id = id;
     this.#resource = data;
     this.#invalidate = marker;
@@ -201,11 +197,11 @@ class LocalUser {
   }
 
   get isReloading() {
-    return this.#resource.current.status === "reloading";
+    return this.#resource.status === "reloading";
   }
 
   get data() {
-    return getAsync(this.#resource.current);
+    return getAsync(this.#resource);
   }
 
   invalidate() {
@@ -243,6 +239,6 @@ const Users = Resource(({ use }) => {
 function User(id: number, marker: Marker) {
   return RemoteData<ApiUser>(
     `https://jsonplaceholder.typicode.com/users/${id}`,
-    { invalidate: marker, errorRate: 0.25 }
+    { invalidate: marker, errorRate: 0.25 },
   );
 }

@@ -43,7 +43,7 @@ const Counter = Resource(() => {
       return cell.current;
     },
 
-    increment() {
+    increment: () => {
       cell.current++;
     },
   };

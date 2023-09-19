@@ -21,7 +21,7 @@
   },
   "starbeam:type": "library:public",
   "scripts": {
-    "test:lint": "eslint \"index.ts\" \"src/**/*.ts\" --max-warnings 0",
+    "test:lint": "eslint \"index.ts\" \"src/**/*.ts\" *.json --max-warnings 0",
     "test:specs": "vitest --run",
     "test:types": "tsc -b"
   },

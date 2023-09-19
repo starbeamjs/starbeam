@@ -17,6 +17,8 @@ interface TestResourceState {
 }
 
 let NEXT_ID = 0;
+const INITIAL_COUNT = 0;
+const INCREMENT = 1;
 
 export function TestResource(
   options?:
@@ -38,7 +40,7 @@ export function TestResource(
     events: allEvents,
     invalidate: () => void invalidate.mark(),
     resource: Resource(({ on }) => {
-      const cell = Cell(0);
+      const cell = Cell(INITIAL_COUNT);
       localEvents.record("setup");
 
       on.sync(() => {
@@ -58,7 +60,7 @@ export function TestResource(
           return cell.current;
         },
         increment() {
-          cell.update((n) => n + 1);
+          cell.update((n) => n + INCREMENT);
         },
       };
     }),

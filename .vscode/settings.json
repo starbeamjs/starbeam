@@ -8,10 +8,7 @@
   // and other config-specific things.
   "[json][jsonc]": {
     "editor.formatOnSave": false,
-    "editor.codeActionsOnSave": [
-      "source.fixAll.eslint",
-      "source.formatDocument"
-    ]
+    "editor.codeActionsOnSave": ["source.fixAll.eslint"]
   },
 
   // format JavaScript and TypeScript using `eslint` first and then follow up

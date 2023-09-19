@@ -24,7 +24,7 @@
     "type": "library:build-support"
   },
   "scripts": {
-    "test:lint": "eslint \"index.ts\" \"src/**/*.ts\" --max-warnings 0",
+    "test:lint": "eslint \"index.ts\" \"src/**/*.ts\" *.json --max-warnings 0",
     "test:types": "tsc -b"
   },
   "dependencies": {
@@ -32,7 +32,7 @@
     "@starbeam-workspace/paths": "workspace:^",
     "@starbeam-workspace/shared": "workspace:^",
     "ansicolor": "^1.1.100",
-    "chalk": "^5.2.0",
+    "chalk": "^5.3.0",
     "cli-table3": "^0.6.3",
     "emoji-regex": "^10.2.1",
     "node-pty": "^1.0.0",

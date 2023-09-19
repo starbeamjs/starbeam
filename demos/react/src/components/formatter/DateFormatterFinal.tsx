@@ -21,7 +21,7 @@ export default function DateFormatterStarbeam(props: {
   const timeZone = setup(() => Cell(SYSTEM_TZ));
   const date = useReactive(
     ({ use }) => use(Clock(timeZone, props.locale)),
-    [props.locale]
+    [props.locale],
   );
 
   const localeInfo = formatLocale(props.locale);
@@ -57,21 +57,21 @@ export default function DateFormatterStarbeam(props: {
 
 function Clock(
   timeZone: Reactive<string> | string,
-  locale: Reactive<string> | string
+  locale: Reactive<string> | string,
 ): ResourceBlueprint<{ formatted: string; refresh: () => void }> {
-  const date = js.object({ now: new Date() });
-
-  function refresh(): void {
-    date.now = new Date();
-  }
-
   return Resource(({ on }) => {
-    const interval = setInterval(() => {
-      refresh();
-    }, 1000);
+    const date = js.object({ now: new Date() });
 
-    on.cleanup(() => {
-      clearInterval(interval);
+    function refresh(): void {
+      date.now = new Date();
+    }
+
+    on.sync(() => {
+      const interval = setInterval(() => {
+        refresh();
+      }, 1000);
+
+      return () => void clearInterval(interval);
     });
 
     return {
@@ -98,7 +98,7 @@ function formatTime(
   {
     locale = SYSTEM_LOCALE,
     timeZone = SYSTEM_TZ,
-  }: { locale?: string; timeZone?: string } = {}
+  }: { locale?: string; timeZone?: string } = {},
 ): string {
   return new Intl.DateTimeFormat(locale, {
     hour: "numeric",

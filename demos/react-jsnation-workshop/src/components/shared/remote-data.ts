@@ -8,15 +8,15 @@ let errorCount = 0;
 
 export function RemoteData<T>(
   url: string,
-  options: { invalidate: Marker; errorRate?: number }
+  options: { invalidate: Marker; errorRate?: number },
 ): ResourceBlueprint<InvalidatableAsync<T>>;
 export function RemoteData<T>(
   url: string,
-  options?: { errorRate?: number }
+  options?: { errorRate?: number },
 ): ResourceBlueprint<Async<T>>;
 export function RemoteData<T>(
   url: string,
-  options?: { invalidate?: Marker; errorRate?: number }
+  options?: { invalidate?: Marker; errorRate?: number },
 ): ResourceBlueprint<Async<T>> {
   return Resource(({ on }) => {
     const data = reactive.object({ status: "loading", value: null as unknown });
@@ -49,7 +49,7 @@ export function RemoteData<T>(
       }
     }
 
-    on.setup(() => {
+    on.sync(() => {
       options?.invalidate?.read();
       const controller = new AbortController();
 

@@ -78,14 +78,14 @@ function HelloClock({
         </p>
       </div>
     ),
-    [timeFormat, dateFormat]
+    [timeFormat, dateFormat],
   );
 }
 
 const Clock = Resource(({ on }) => {
   const now = Cell(new Date());
 
-  on.setup(() => {
+  on.sync(() => {
     const timer = setInterval(() => {
       now.set(new Date());
     }, 1000);

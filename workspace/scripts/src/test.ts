@@ -18,9 +18,10 @@ export const TestCommand = QueryCommand("test", {
   .flag(
     ["-O", "--stream-output"],
     "do not stream the lint output (but display it when the command fails)",
-    { default: true }
+    { default: true },
   )
   .option("--type", "the type of tests to run", StringOption.optional)
+  .flag(["-l", "--lint"], "run the lints (equivalent to --type lint)")
   .flag(["-s", "--specs"], "run the specs")
   .flag("--watch", "run the quick tests")
   .action(
@@ -31,6 +32,7 @@ export const TestCommand = QueryCommand("test", {
       workspaceOnly,
       type,
       specs,
+      lint,
       watch,
     }) => {
       workspace.reporter.verbose((r) => {
@@ -39,13 +41,19 @@ export const TestCommand = QueryCommand("test", {
 
       if (specs && type !== undefined && type !== "specs") {
         workspace.reporter.fatal(
-          `You cannot specify both --specs and --type=${type}`
+          `You cannot specify both --specs and --type=${type}`,
         );
       }
 
       if (watch && type !== undefined && type !== "specs") {
         workspace.reporter.fatal(
-          `The --watch flag can only be used with the "specs" test type. You passed --type ${type}.`
+          `The --watch flag can only be used with the "specs" test type. You passed --type ${type}.`,
+        );
+      }
+
+      if (lint && type !== undefined && type !== "lint") {
+        workspace.reporter.fatal(
+          `The --lint flag can only be used with the "lint" test type. You passed --type ${type}.`,
         );
       }
 
@@ -53,6 +61,8 @@ export const TestCommand = QueryCommand("test", {
         ? TestName.fromString("specs")
         : specs
         ? TestName.from("specs")
+        : lint
+        ? TestName.from("lint")
         : type
         ? TestName.fromString(type)
         : TestName.from("all");
@@ -62,7 +72,7 @@ export const TestCommand = QueryCommand("test", {
       if (workspaceOnly) {
         const rootPkg = Package.from(
           workspace,
-          workspace.root.file("package.json")
+          workspace.root.file("package.json"),
         );
 
         if (watch) {
@@ -80,7 +90,7 @@ export const TestCommand = QueryCommand("test", {
             header: (test) => String(test.name),
             type: testType,
             subtype: "workspace",
-          })
+          }),
         );
 
         workspace.reporter.reportCheckResults(results, {
@@ -94,7 +104,7 @@ export const TestCommand = QueryCommand("test", {
       if (watch) {
         const matches = packages.filter(
           ({ type, tests: { watch } }) =>
-            !type.is("root") && watch.matches(testType).hasTests()
+            !type.is("root") && watch.matches(testType).hasTests(),
         );
 
         if (isSingleItemArray(matches)) {
@@ -107,18 +117,18 @@ export const TestCommand = QueryCommand("test", {
         } else {
           const found = isEmptyArray(matches)
             ? stringify` There were ${Fragment.problem.inverse(
-                "no"
+                "no",
               )} matching packages.`
             : stringify`\n\nFound ${Fragment.problem.inverse(
-                matches.length
+                matches.length,
               )} matching packages: ${matches
                 .map((pkg) => `- ${pkg.name}`)
                 .join(", ")}`;
 
           fatal(
             workspace.reporter.fatal(
-              `The --watch flag can only be used when a single package is selected.${found}\n`
-            )
+              `The --watch flag can only be used when a single package is selected.${found}\n`,
+            ),
           );
         }
 
@@ -151,7 +161,7 @@ export const TestCommand = QueryCommand("test", {
               type: testType,
             }),
           ] as [Package, CheckDefinition[]];
-        })
+        }),
       );
 
       const results = await workspace.checks(checks, {
@@ -166,7 +176,7 @@ export const TestCommand = QueryCommand("test", {
       if (!results.isOk) {
         workspace.reporter.fail();
       }
-    }
+    },
   );
 
 function tests(
@@ -177,7 +187,7 @@ function tests(
     header: (test: Test) => string;
     type: TestName | "all";
     subtype?: "workspace";
-  }
+  },
 ): CheckDefinition[] {
   const tests = options.watch ? pkg.tests.watch : pkg.tests.run;
 
@@ -197,7 +207,7 @@ function tests(
         {
           cwd: pkg.root,
           output: options.streamOutput ? "stream" : "when-error",
-        }
+        },
       );
     });
 }

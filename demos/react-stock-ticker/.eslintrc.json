@@ -1,6 +1,4 @@
 {
-  "root": true,
-  "plugins": ["@starbeam"],
   "overrides": [
     {
       "extends": ["plugin:@starbeam/demos"],
@@ -15,7 +13,12 @@
       "parserOptions": {
         "project": "tsconfig.json"
       }
+    },
+    {
+      "extends": ["plugin:@starbeam/json:recommended"],
+      "files": ["*.json"]
     }
   ],
-  "extends": ["plugin:@starbeam/json:recommended"]
+  "plugins": ["@starbeam"],
+  "root": true
 }

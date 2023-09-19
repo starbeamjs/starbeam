@@ -30,22 +30,8 @@
     ]
   },
   "scripts": {
-    "test:lint": "eslint \"src/**/*.{tsx,ts}\" --max-warnings 0",
+    "test:lint": "eslint \"src/**/*.{tsx,ts}\" *.json --max-warnings 0",
     "test:types": "tsc --noEmit -p tsconfig.json"
-  },
-  "scripts": {
-    "test:lint": "eslint \"src/**/*.{tsx,ts}\"",
-    "test:types": "tsc --noEmit -p tsconfig.json"
-  },
-  "dependencies": {
-    "@starbeam/collections": "workspace:^",
-    "@starbeam/interfaces": "workspace:^",
-    "@starbeam/preact": "workspace:^",
-    "@starbeam/reactive": "workspace:^",
-    "@starbeam/resource": "workspace:^",
-    "@starbeam/universal": "workspace:^",
-    "preact": "*",
-    "purecss": "^3.0.0"
   },
   "dependencies": {
     "@starbeam/collections": "workspace:^",
@@ -61,11 +47,6 @@
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@starbeam/eslint-plugin": "workspace:^",
     "@vitest/ui": "*",
-    "vite": "4.3.3",
-    "vitest": "^0.34.4"
-  },
-  "devDependencies": {
-    "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "vite": "4.3.9",
     "vitest": "^0.34.4"
   }

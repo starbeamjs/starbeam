@@ -70,7 +70,6 @@ const TYPED_RULES = Rules.build((rules) =>
       "consistent-indexed-object-style",
       "consistent-generic-constructors",
       "method-signature-style",
-      "no-confusing-void-expression",
       "no-redundant-type-constituents",
       "no-unnecessary-qualifier",
       "no-useless-empty-export",
@@ -78,6 +77,9 @@ const TYPED_RULES = Rules.build((rules) =>
       "prefer-regexp-exec",
       "promise-function-async",
     ])
+    .typed("no-confusing-void-expression", {
+      ignoreVoidOperator: true,
+    })
     .typed("require-array-sort-compare", {
       ignoreStringArrays: true,
     })

@@ -32,7 +32,7 @@ export function RemoteData<T>(url: string): ResourceBlueprint<Async<T>> {
       }
     }
 
-    on.setup(() => {
+    on.sync(() => {
       const controller = new AbortController();
 
       fetchData(controller.signal).catch((error) => {

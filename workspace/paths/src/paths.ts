@@ -1,10 +1,5 @@
-import {
-  type Dirent,
-  existsSync,
-  readFileSync,
-  unlinkSync,
-  writeFileSync,
-} from "node:fs";
+import type { Dirent } from "node:fs";
+import { existsSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { readFile, unlink, writeFile } from "node:fs/promises";
 import {
   dirname,
@@ -54,7 +49,7 @@ export class Paths {
   get packages(): Packages {
     return new Packages(
       this.#root.absolute,
-      this.#root.dir("packages").absolute
+      this.#root.dir("packages").absolute,
     );
   }
 }
@@ -123,7 +118,7 @@ export abstract class Path extends URL {
 
   relativeFrom(
     path: Path | string,
-    options: { dotPrefix: boolean } = { dotPrefix: false }
+    options: { dotPrefix: boolean } = { dotPrefix: false },
   ): string {
     const absolutePath = typeof path === "string" ? path : path.absolute;
     const relativePath = relative(absolutePath, this.#absolutePath);
@@ -137,7 +132,7 @@ export abstract class Path extends URL {
 
   relativeTo(
     path: Path | string,
-    options: { dotPrefix: boolean } = { dotPrefix: false }
+    options: { dotPrefix: boolean } = { dotPrefix: false },
   ): string {
     const absolutePath = typeof path === "string" ? path : path.absolute;
     const relativePath = relative(this.#absolutePath, absolutePath);
@@ -156,7 +151,7 @@ export abstract class Path extends URL {
   file(path: string): RegularFile | Glob<RegularFile> {
     return new RegularFile(
       this.#absolutePath,
-      resolve(this.#absolutePath, path)
+      resolve(this.#absolutePath, path),
     );
   }
 
@@ -171,7 +166,7 @@ export abstract class Path extends URL {
     return Glob.create(
       this.#absolutePath,
       resolve(this.#absolutePath, path),
-      options
+      options,
     );
   }
 }
@@ -224,7 +219,7 @@ export class RegularFile extends DiskFile implements AsRegularFile {
   async write(value: JsonObject, options: { as: "json" }): Promise<void>;
   async write(
     value: string | object,
-    { as }: { as?: "json" } = {}
+    { as }: { as?: "json" } = {},
   ): Promise<void> {
     if (as === "json") {
       await writeFile(this.absolute, stringifyJSON(value));
@@ -232,7 +227,7 @@ export class RegularFile extends DiskFile implements AsRegularFile {
       await writeFile(this.absolute, value);
     } else {
       throw Error(
-        `Cannot write an object to file without specifying { as: "json" }`
+        `Cannot write an object to file without specifying { as: "json" }`,
       );
     }
   }
@@ -246,7 +241,7 @@ export class RegularFile extends DiskFile implements AsRegularFile {
       writeFileSync(this.absolute, value);
     } else {
       throw Error(
-        `Cannot write an object to file without specifying { as: "json" }`
+        `Cannot write an object to file without specifying { as: "json" }`,
       );
     }
   }
@@ -320,12 +315,12 @@ export class Glob<T extends Path = Path> extends Path {
   static create(
     root: string,
     path: string,
-    options: GlobOptions<["files"]>
+    options: GlobOptions<["files"]>,
   ): Glob<RegularFile>;
   static create(
     root: string,
     path: string,
-    options: GlobOptions<["directories"]>
+    options: GlobOptions<["directories"]>,
   ): Glob<Directory>;
   static create(root: string, path: string, options?: GlobOptions): Glob;
   static create(root: string, path: string, options?: GlobOptions): Glob {
@@ -338,7 +333,7 @@ export class Glob<T extends Path = Path> extends Path {
 
   static isMatch<G extends GlobOptions>(
     glob: Glob,
-    options?: G | undefined
+    options?: G | undefined,
   ): boolean {
     const globMatches = glob.#options.match;
     const expectedMatches = options?.match;
@@ -366,7 +361,7 @@ export class Glob<T extends Path = Path> extends Path {
   private constructor(
     root: string,
     path: string,
-    options: GlobOptions | undefined
+    options: GlobOptions | undefined,
   ) {
     super(root, path);
     this.#options = options ?? {};
@@ -423,21 +418,21 @@ export class Glob<T extends Path = Path> extends Path {
           return this.#ifIncluded(
             entry,
             (entry) =>
-              new Directory(this.root.absolute, entry.path) as unknown as T
+              new Directory(this.root.absolute, entry.path) as unknown as T,
           );
         } else if (dirent.isFile()) {
           return this.#ifIncluded(
             entry,
             (entry) =>
-              new RegularFile(this.root.absolute, entry.path) as unknown as T
+              new RegularFile(this.root.absolute, entry.path) as unknown as T,
           );
         } else if (dirent.isSymbolicLink()) {
           // TODO
         } else {
           console.warn(
             stringify`glob pattern ${this} unexpectedly matched the ${classify(
-              dirent
-            )} ${entry.path}`
+              dirent,
+            )} ${entry.path}`,
           );
         }
 
@@ -471,7 +466,7 @@ export class Glob<T extends Path = Path> extends Path {
 
     if (typeof path === "string") {
       globs.add(
-        new Glob(this.root.absolute, resolve(this.absolute, path), options)
+        new Glob(this.root.absolute, resolve(this.absolute, path), options),
       );
     } else {
       globs.add(path);
@@ -485,7 +480,7 @@ export class Globs<T extends Path = Path> implements Iterable<Glob<T>> {
   static root(root: Path, options: GlobOptions<["files"]>): Globs<RegularFile>;
   static root(
     root: Path,
-    options: GlobOptions<["directories"]>
+    options: GlobOptions<["directories"]>,
   ): Globs<Directory>;
   static root<T extends Path>(root: Path, options?: GlobOptions): Globs<T>;
   static root(root: Path, options?: GlobOptions): Globs {
@@ -499,7 +494,7 @@ export class Globs<T extends Path = Path> implements Iterable<Glob<T>> {
   private constructor(
     root: Path,
     globs: Glob[],
-    options: GlobOptions | undefined
+    options: GlobOptions | undefined,
   ) {
     this.#root = root;
     this.#globs = globs;
@@ -527,7 +522,7 @@ export class Globs<T extends Path = Path> implements Iterable<Glob<T>> {
   }
 
   add(
-    globs: Glob<T> | readonly Glob<T>[] | string | readonly string[]
+    globs: Glob<T> | readonly Glob<T>[] | string | readonly string[],
   ): Globs<T>;
   add(globs: readonly Glob[] | Glob | string | readonly string[]): Globs {
     if (isArray(globs)) {
@@ -546,7 +541,7 @@ export class Globs<T extends Path = Path> implements Iterable<Glob<T>> {
       return Glob.create(
         this.#root.absolute,
         resolve(this.#root.absolute, glob),
-        this.#options
+        this.#options,
       );
     } else {
       if (glob.root.absolute !== this.#root.absolute) {
@@ -556,10 +551,10 @@ export class Globs<T extends Path = Path> implements Iterable<Glob<T>> {
       if (!Glob.isMatch(glob, this.#options)) {
         throw Error(
           `Attempting to add a glob to a collection with options ${JSON.stringify(
-            this.#options
+            this.#options,
           )}, but the glob had the options ${JSON.stringify(
-            Glob.options(glob)
-          )}`
+            Glob.options(glob),
+          )}`,
         );
       }
 
@@ -604,7 +599,18 @@ export function resolve(root: string, path: string): string {
   return nodeResolve(root, ...parts(path));
 }
 
-function classify(entry: Dirent): string {
+type DirEntry = Pick<
+  Dirent,
+  | "isBlockDevice"
+  | "isCharacterDevice"
+  | "isDirectory"
+  | "isFIFO"
+  | "isFile"
+  | "isSocket"
+  | "isSymbolicLink"
+>;
+
+function classify(entry: DirEntry): string {
   if (entry.isBlockDevice()) {
     return "block device";
   } else if (entry.isCharacterDevice()) {

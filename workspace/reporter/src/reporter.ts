@@ -65,7 +65,7 @@ export class Reporter {
   private constructor(
     workspace: Workspace,
     options: ReporterOptions,
-    parent: Reporter | null
+    parent: Reporter | null,
   ) {
     this.#workspace = workspace;
     this.#options = options;
@@ -155,7 +155,7 @@ export class Reporter {
 
   verbose(
     log: (reporter: Reporter) => void,
-    options?: { also: unknown }
+    options?: { also: unknown },
   ): void {
     if (this.#options.verbose || options?.also) {
       log(this);
@@ -165,7 +165,7 @@ export class Reporter {
   #log(
     logger: LoggerName,
     message: IntoFallibleFragment,
-    options: LogOptions
+    options: LogOptions,
   ): void {
     this.#logResult(message, (string) => {
       if (options.lines) {
@@ -178,7 +178,7 @@ export class Reporter {
 
   #logResult(
     message: IntoFallibleFragment,
-    fn: (message: string) => void
+    fn: (message: string) => void,
   ): void {
     const fragment = FragmentImpl.fallibleFrom(message);
 
@@ -206,11 +206,11 @@ export class Reporter {
         .rows(
           FragmentMap.from(items, (value) =>
             PresentArray.from(value).map((nested) =>
-              PresentArray.from(nested).map(Fragment.from)
-            )
+              PresentArray.from(nested).map(Fragment.from),
+            ),
           ).flatMap((nestedHeader, fragments) => {
             return [[Cell.spanned(nestedHeader, FULL_WIDTH_SPAN)], fragments];
-          })
+          }),
         );
     });
   }
@@ -239,7 +239,7 @@ export class Reporter {
 
     if (header) {
       const fragment = FragmentImpl.fallibleFrom(header).map((f) =>
-        f.update(() => STYLES.header)
+        f.update(() => STYLES.header),
       );
 
       this.group(fragment).try(() => {
@@ -262,7 +262,7 @@ export class Reporter {
         this.#log(
           "log",
           stringify`${Fragment.decoration(markerStyle, "•")} ${listItem}`,
-          { lines: false }
+          { lines: false },
         );
       }
     });
@@ -270,7 +270,7 @@ export class Reporter {
 
   li(
     item: string,
-    style: Style | { li: Style; marker?: Style } = Style.default
+    style: Style | { li: Style; marker?: Style } = Style.default,
   ): void {
     if (Style.is(style)) {
       this.#li(Fragment(style, item), style);
@@ -285,7 +285,7 @@ export class Reporter {
    */
   endWith(ending: Ending): void {
     function normalize<P extends "nested" | "compact">(
-      partName: P
+      partName: P,
     ): LoggerEndWith[P] {
       if (isIntoFragment(ending)) {
         return { fragment: Fragment.from(ending) } as LoggerEndWith[P];
@@ -315,7 +315,7 @@ export class Reporter {
   }
 
   table(
-    builder: (table: LoggedTable<IntoFragment>) => TableWithRows<IntoFragment>
+    builder: (table: LoggedTable<IntoFragment>) => TableWithRows<IntoFragment>,
   ): void {
     const table = new LoggedTable<IntoFragment>({
       header: (h) => Fragment.from(h),
@@ -329,14 +329,14 @@ export class Reporter {
   raw(callback: (writer: RawWriter) => void): void;
   // eslint-disable-next-line @typescript-eslint/promise-function-async
   raw(
-    callback: (writer: RawWriter) => void | Promise<void>
+    callback: (writer: RawWriter) => void | Promise<void>,
   ): void | Promise<void> {
     return this.#logger.raw(callback);
   }
 
   fill(
     prefix: IntoFragment,
-    options: LogOptions & { repeat: IntoFragment }
+    options: LogOptions & { repeat: IntoFragment },
   ): void {
     const fill = Fragment.from(options.repeat);
     const fillSize = fill.physicalWidth(this.loggerState);
@@ -347,7 +347,7 @@ export class Reporter {
     this.#log(
       "log",
       fragment`${prefix}${String(fill).repeat(repeatFill)}`,
-      options
+      options,
     );
   }
 
@@ -368,17 +368,17 @@ export class Reporter {
       .map((f) => {
         this.#logger.logln(
           `${chalk.redBright.inverse("FATAL")} ${chalk.red(f)}`,
-          "error"
+          "error",
         );
       })
       .mapErr((err) => {
         this.#logger.logln(
           `${chalk.redBright.inverse(
-            "FATAL"
+            "FATAL",
           )} Something went wrong when processing the fatal error message:\n\n${chalk.red(
-            String(err)
+            String(err),
           )}`,
-          "error"
+          "error",
         );
       });
 
@@ -403,22 +403,22 @@ export class Reporter {
 
   success(
     message: string,
-    options: { lines: boolean } = { lines: false }
+    options: { lines: boolean } = { lines: false },
   ): void {
     this.#log("log", chalk.greenBright(message), options);
   }
 
   reportCheckResults(
     results: CheckResults,
-    options: { success: string; header: string }
+    options: { success: string; header: string },
   ): void;
   reportCheckResults(
     results: GroupedCheckResults,
-    options: { success: string }
+    options: { success: string },
   ): void;
   reportCheckResults(
     results: CheckResults | GroupedCheckResults,
-    options: { success: string; header: string }
+    options: { success: string; header: string },
   ): void {
     if (CheckResults.is(results)) {
       reportCheckResults(this, results, options);
@@ -439,8 +439,8 @@ export class Reporter {
                 groupName,
               ]),
             ];
-          })
-        )
+          }),
+        ),
       );
       return;
     } else if (results.isOk) {
@@ -452,8 +452,8 @@ export class Reporter {
           [...results.errors].map(([name, nestedResults]) => [
             this.statusIcon(nestedResults.isOk),
             name,
-          ])
-        )
+          ]),
+        ),
       );
     }
   }
@@ -465,7 +465,7 @@ export class Reporter {
   static Group = class Group<Catch> implements IGroup<Catch> {
     static create(
       reporter: Reporter,
-      message?: LogResult<Fragment>
+      message?: LogResult<Fragment>,
     ): Group<void> {
       return new Group(reporter, message ?? LogResult.ok(undefined), false, {
         verbose: "none:verbose",
@@ -504,7 +504,7 @@ export class Reporter {
         fatal: (reporter: Reporter) => never;
         finally: (reporter: Reporter) => void;
         empty: (reporter: Reporter) => void;
-      }
+      },
     ) {
       this.#reporter = reporter;
       this.#header = header;
@@ -539,13 +539,13 @@ export class Reporter {
     }
 
     try<HandleTry>(
-      callback: (reporter: Reporter) => HandleTry
+      callback: (reporter: Reporter) => HandleTry,
     ): HandleTry | Catch {
       return this.#run(callback);
     }
 
     async tryAsync<HandleTry>(
-      callback: (reporter: Reporter) => HandleTry | Promise<HandleTry>
+      callback: (reporter: Reporter) => HandleTry | Promise<HandleTry>,
     ): Promise<Catch | HandleTry> {
       return this.#runAsync(callback);
     }
@@ -563,7 +563,7 @@ export class Reporter {
     }
 
     catch<HandleCatch>(
-      callback: (reporter: Reporter, log: () => void) => HandleCatch
+      callback: (reporter: Reporter, log: () => void) => HandleCatch,
     ): IGroup<HandleCatch> {
       this.#catchHandler = callback;
       return this as unknown as IGroup<HandleCatch>;
@@ -657,7 +657,7 @@ export class Reporter {
     }
 
     async #runAsync<T>(
-      callback: (reporter: Reporter) => T | Promise<T>
+      callback: (reporter: Reporter) => T | Promise<T>,
     ): Promise<T | Catch> {
       const reporter = this.#reporter;
 
@@ -718,7 +718,7 @@ export interface IGroup<Catch = void> {
   /// EXECUTION OPTIONS ///
 
   catch: <HandleCatch>(
-    callback: (reporter: Reporter, log: () => void) => HandleCatch
+    callback: (reporter: Reporter, log: () => void) => HandleCatch,
   ) => IGroup<HandleCatch>;
 
   finally: (callback: (reporter: Reporter) => void) => IGroup<Catch>;
@@ -729,11 +729,11 @@ export interface IGroup<Catch = void> {
    */
 
   try: <HandleTry>(
-    callback: (reporter: Reporter) => HandleTry
+    callback: (reporter: Reporter) => HandleTry,
   ) => HandleTry | Catch;
 
   tryAsync: <HandleTry>(
-    callback: (reporter: Reporter) => HandleTry | Promise<HandleTry>
+    callback: (reporter: Reporter) => HandleTry | Promise<HandleTry>,
   ) => Promise<HandleTry | Catch>;
 }
 
@@ -749,7 +749,7 @@ export function reportCheckResults(
   options: {
     success: string;
     header: string;
-  }
+  },
 ): void {
   if (results.isOk && !reporter.isVerbose) {
     reporter.log(fragment`${OK} ${options.success}`);
@@ -775,7 +775,7 @@ export function reportCheckResults(
         } else {
           return [ERR, Fragment("problem", label)];
         }
-      })
+      }),
     );
   });
 }

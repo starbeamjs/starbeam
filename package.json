@@ -165,10 +165,11 @@
       "@typescript-eslint/eslint-plugin": "$@typescript-eslint/eslint-plugin",
       "@typescript-eslint/parser": "$@typescript-eslint/parser",
       "eslint": "$eslint",
-      "preact": "10.13.2",
+      "preact": "10.17.1",
       "rollup": "$rollup",
       "typescript": "$typescript",
-      "vite": "$vite"
+      "vite": "$vite",
+      "vue": "3.3.4"
     },
     "patchedDependencies": {
       "@nrr/pnpm-duplicate-cli@0.0.1": "patches/@nrr__pnpm-duplicate-cli@0.0.1.patch"

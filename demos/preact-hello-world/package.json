@@ -30,7 +30,7 @@
     ]
   },
   "scripts": {
-    "test:lint": "eslint \"src/**/*.{tsx,ts}\" --max-warnings 0",
+    "test:lint": "eslint \"src/**/*.{tsx,ts}\" *.json --max-warnings 0",
     "test:types": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {

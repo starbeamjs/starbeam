@@ -85,17 +85,15 @@ function HelloClock({
         </p>
       </div>
     ),
-    []
+    [],
   );
 }
 
 function Clock(speed: { updateMS: number }) {
   return Resource(({ on }) => {
-    console.log("creating resource");
     const now = Cell(new Date());
 
-    on.setup(() => {
-      console.log("setting up");
+    on.sync(() => {
       const timer = setInterval(() => {
         now.set(new Date());
       }, speed.updateMS);

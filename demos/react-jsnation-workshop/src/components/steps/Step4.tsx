@@ -38,9 +38,7 @@ export default function App(): JSX.Element {
             ))}
           </div>
         </div>
-        <pre className="profile">
-          {user?.current ? <Profile user={user.current} /> : null}
-        </pre>
+        <pre className="profile">{user ? <Profile user={user} /> : null}</pre>
       </section>
     );
   }, [currentId]);
@@ -53,7 +51,7 @@ function UserItem({
   select,
 }: {
   id: number;
-  user: Resource<Async<ApiUser>>;
+  user: Async<ApiUser>;
   current: number;
   select: (id: number) => void;
 }): JSX.Element {
@@ -72,7 +70,7 @@ function UserItem({
           />
           <span>Select</span>
         </button>
-        <UserName user={user.current} />
+        <UserName user={user} />
       </div>
     );
   }, [id, current]);
@@ -109,7 +107,7 @@ function Profile({ user }: { user: Async<ApiUser> }): JSX.Element {
 }
 
 const Users = Resource(({ use }) => {
-  const map = ReactiveMap<number, Resource<Async<ApiUser>>>("Users");
+  const map = ReactiveMap<number, Async<ApiUser>>("Users");
 
   return {
     map,
