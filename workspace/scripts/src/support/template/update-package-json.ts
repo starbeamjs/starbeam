@@ -68,6 +68,10 @@ export function updatePackageJSON(updater: LabelledUpdater): void {
         updateStarbeam("source", "tsx");
       }
 
+      if (pkg.type.is("tests")) {
+        updateStarbeam("source", "ts");
+      }
+
       if (pkg.type.is("library:interfaces")) {
         if (current["main"] === "index.ts") {
           current["types"] = "index.ts";
@@ -100,6 +104,8 @@ export function updatePackageJSON(updater: LabelledUpdater): void {
       if (pkg.type.is("library:public")) {
         current["types"] = "index.ts";
       }
+
+      // if (pkg.type.is("tests")) {}
 
       current["scripts"] ??= {};
       const scripts = current["scripts"] as Record<string, string>;

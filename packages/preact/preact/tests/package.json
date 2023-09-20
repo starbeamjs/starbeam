@@ -3,7 +3,10 @@
   "name": "@starbeam-tests/preact",
   "version": "1.0.0",
   "type": "module",
-  "starbeam:type": "tests",
+  "starbeam": {
+    "source": "ts",
+    "type": "tests"
+  },
   "scripts": {
     "test:lint": "eslint  *.json --max-warnings 0",
     "test:types": "tsc -b"

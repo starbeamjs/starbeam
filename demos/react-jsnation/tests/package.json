@@ -5,7 +5,7 @@
   "type": "module",
   "starbeam": {
     "jsx": "react",
-    "source": "tsx",
+    "source": "ts",
     "type": "tests"
   },
   "scripts": {
