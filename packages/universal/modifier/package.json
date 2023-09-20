@@ -36,6 +36,6 @@
     "@domtree/flavors": "workspace:^",
     "@starbeam/eslint-plugin": "workspace:^",
     "@starbeam-dev/build-support": "workspace:^",
-    "rollup": "^3.20.6"
+    "rollup": "^3.29.2"
   }
 }

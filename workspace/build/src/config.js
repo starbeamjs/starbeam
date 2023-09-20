@@ -115,7 +115,7 @@ export function typescript(pkg, config) {
   const ts = tsconfig(typeScriptConfig);
 
   return rollupTS({
-    transpiler: "babel",
+    transpiler: "swc",
     transpileOnly: true,
     babelConfig: { presets },
 
@@ -262,7 +262,7 @@ export class Package {
     throw Error(
       `No package found at ${
         typeof meta === "string" ? meta : Package.root(meta)
-      }`
+      }`,
     );
   }
 
