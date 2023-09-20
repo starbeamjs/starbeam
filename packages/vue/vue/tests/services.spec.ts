@@ -6,7 +6,7 @@ import { App, Define, renderApp } from "@starbeam-workspace/vue-testing-utils";
 import { Fragment, h, shallowRef } from "vue";
 
 describe("services", () => {
-  test.only("services are like resources", async () => {
+  test("services are like resources", async () => {
     const {
       resource: TestResourceBlueprint,
       id,
