@@ -23,7 +23,7 @@
     "type": "library:interfaces"
   },
   "scripts": {
-    "test:lint": "eslint \"index.ts\" *.json --max-warnings 0",
+    "test:lint": "eslint . --max-warnings 0",
     "test:types": "tsc -b"
   },
   "devDependencies": {

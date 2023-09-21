@@ -1,4 +1,3 @@
-import { isSingleItemArray } from "@starbeam/core-utils";
 import type { JsonObject } from "@starbeam-workspace/json";
 import type { Package } from "@starbeam-workspace/package";
 import type { ESLint } from "eslint";
@@ -31,7 +30,7 @@ export const updateEslint = {
     update.json(".eslintrc.json", () => {
       return {
         root: true,
-        ignorePatterns: ["node_modules"],
+        ignorePatterns: ["node_modules", "dist"],
         plugins: ["@starbeam"],
         overrides: [localEslintConfig(update), JSON_ESLINT_CONFIG],
       };
@@ -42,7 +41,7 @@ export const updateEslint = {
 function eslintPlugin(pkg: Package): `@starbeam/${string}` {
   if (pkg.moduleType === "cjs") {
     return "@starbeam/commonjs";
-  } else if (pkg.starbeam.source.isJS) {
+  } else if (pkg.starbeam.source.isOnlyJS) {
     return "@starbeam/esm";
   } else if (pkg.starbeam.type.is("tests")) {
     return "@starbeam/loose";
@@ -54,24 +53,7 @@ function eslintPlugin(pkg: Package): `@starbeam/${string}` {
 }
 
 function eslintFiles(pkg: Package): string[] {
-  const tsconfig = pkg.tsconfigJSON();
-  const tsconfigIncludes = tsconfig?.includes;
-
-  if (isSingleItemArray(tsconfigIncludes)) {
-    const [includes] = tsconfigIncludes;
-
-    if (includes !== "**/*") {
-      return [includes];
-    }
-  }
-
-  const ext = pkg.source.inputExtensions;
-
-  if (pkg.type.isType("library") || pkg.type.isType("demo")) {
-    return ext.flatMap((e) => [`index.${e}`, `src/**/*.${e}`]);
-  } else {
-    return ext.flatMap((e) => [`**/*.${e}`]);
-  }
+  return [...pkg.sourceFiles].map((glob) => glob.toGlobString("relative"));
 }
 
 const JSON_ESLINT_CONFIG = {

@@ -19,7 +19,7 @@
     "type": "library:build-support"
   },
   "scripts": {
-    "test:lint": "eslint  *.json --max-warnings 0"
+    "test:lint": "eslint . --max-warnings 0"
   },
   "dependencies": {
     "execa": "^8.0.1",

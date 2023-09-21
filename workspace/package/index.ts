@@ -14,7 +14,7 @@ export type { TsConfig } from "./src/typescript.js";
 export { TypeScriptConfig } from "./src/typescript.js";
 export {
   JsonTemplate,
-  StarbeamSources,
+  StarbeamSource as StarbeamSources,
   StarbeamType,
   Template,
 } from "./src/unions.js";

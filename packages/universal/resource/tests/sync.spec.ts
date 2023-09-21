@@ -1,27 +1,19 @@
 import {
   CachedFormula,
   Cell,
-  type FormulaFn,
   Marker,
 } from "@starbeam/reactive";
-import type { Sync, SyncFn } from "@starbeam/resource";
+import type { Sync } from "@starbeam/resource";
 import { PrimitiveSyncTo, SyncTo } from "@starbeam/resource";
 import { createPushScope, pushingScope } from "@starbeam/runtime";
 import {
-  UNINITIALIZED,
   finalize,
   isFinalized,
   mountFinalizationScope,
   onFinalize,
   pushFinalizationScope,
+  UNINITIALIZED,
 } from "@starbeam/shared";
-import {
-  buildCause,
-  entryPoint,
-  isAssertionError,
-  RecordedEvents,
-} from "@starbeam-workspace/test-utils";
-import { describe, expect, test } from "vitest";
 import {
   isEqual,
   isNotEqual,
@@ -29,6 +21,13 @@ import {
   verified,
   verify,
 } from "@starbeam/verify";
+import {
+  buildCause,
+  entryPoint,
+  isAssertionError,
+  RecordedEvents,
+} from "@starbeam-workspace/test-utils";
+import { describe, expect, test } from "vitest";
 
 describe("Sync", () => {
   test("a manual sync formula", () => {
@@ -208,7 +207,7 @@ describe("Sync", () => {
         invalidate: invalidateParent,
         test: {
           setup: () => ChildSync.setup(),
-          sync: (child) => child.sync(),
+          sync: (child) => void child.sync(),
         },
       });
 
@@ -249,7 +248,7 @@ describe("Sync", () => {
           setup: () => {
             return childStates.map((child) => child.sync.setup());
           },
-          sync: (children) => void children.forEach((child) => child.sync()),
+          sync: (children) => void children.forEach((child) => void child.sync()),
         },
       });
 
@@ -610,7 +609,7 @@ class Children<T, U> implements Iterable<Child<T, U>> {
   }
 
   forEach(mapper: (value: T, child: Child<T, U>) => void) {
-    this.#children.forEach((child, i) => mapper(child.value, child));
+    this.#children.forEach((child, i) => void mapper(child.value, child));
   }
 
   map<V>(mapper: (value: T, index: number) => V): V[] {
@@ -638,7 +637,7 @@ function setupSyncTest(options?: {
   events?: RecordedEvents;
   prefix?: string;
 }): SyncTestState {
-  let events: RecordedEvents = options?.events ?? new RecordedEvents();
+  const events: RecordedEvents = options?.events ?? new RecordedEvents();
   const record = options?.prefix
     ? events.prefixed(options.prefix).record
     : events.record;

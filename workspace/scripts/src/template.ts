@@ -22,7 +22,7 @@ export const TemplateCommand = QueryCommand("template", {
     );
     when(
       (pkg) =>
-        pkg.source.hasFiles() &&
+        pkg.sources.some((s) => s.hasFiles()) &&
         (pkg.type.isType("library") || pkg.type.is("tests")),
       "libraries",
     ).use(updateEslint.package);

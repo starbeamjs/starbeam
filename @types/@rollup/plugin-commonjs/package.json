@@ -21,7 +21,7 @@
     "type": "library:upstream-types"
   },
   "scripts": {
-    "test:lint": "eslint \"index.d.ts\" *.json --max-warnings 0",
+    "test:lint": "eslint . --max-warnings 0",
     "test:types": "tsc -b"
   },
   "dependencies": {

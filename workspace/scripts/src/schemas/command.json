@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "Flag": {
+      "anyOf": [
+        {
+          "pattern": "^--.*$",
+          "type": "string"
+        },
+        {
+          "items": [
+            {
+              "pattern": "^-.*$",
+              "type": "string"
+            },
+            {
+              "pattern": "^--.*$",
+              "type": "string"
+            }
+          ],
+          "maxItems": 2,
+          "minItems": 2,
+          "type": "array"
+        },
+        {
+          "properties": {
+            "long": {
+              "pattern": "^--.*$",
+              "type": "string"
+            },
+            "short": {
+              "pattern": "^-.*$",
+              "type": "string"
+            }
+          },
+          "required": ["long", "short"],
+          "type": "object"
+        }
+      ]
+    }
+  },
+  "properties": {
+    "flags": {
+      "items": {
+        "$ref": "#/definitions/Flag"
+      },
+      "type": "array"
+    },
+    "name": {
+      "type": "string"
+    }
+  },
+  "required": ["flags", "name"],
+  "type": "object"
+}

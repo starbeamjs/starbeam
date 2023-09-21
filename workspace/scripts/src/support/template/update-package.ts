@@ -119,7 +119,7 @@ class UpdateFile implements LabelledUpdater {
       const template =
         JsonTemplate.from(intoTemplate).read(this.#workspace.root, {
           type: pkg.type,
-          source: pkg.source,
+          source: pkg.sources,
         }) ?? {};
 
       return json(relativePath, (current) =>

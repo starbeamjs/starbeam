@@ -289,6 +289,13 @@ export interface GlobOptions<M extends GlobMatch[] = GlobMatch[]> {
   match?: M;
 }
 
+export type GlobFormat<T extends Path> =
+  | "absolute"
+  | "absolute:quoted"
+  | "relative"
+  | "relative:quoted"
+  | ((input: Glob<T>) => string);
+
 export type GlobMatch = "files" | "directories";
 export type GlobAllow = "symlink";
 
@@ -377,6 +384,25 @@ export class Glob<T extends Path = Path> extends Path {
 
   create(root: string, path: string): Glob {
     return new Glob(root, path, this.#options);
+  }
+
+  toGlobString(format: GlobFormat<T>): string {
+    function normalizeFn(): (glob: Glob<T>) => string {
+      switch (format) {
+        case "absolute":
+          return (g: Glob<T>) => g.absolute;
+        case "absolute:quoted":
+          return (g: Glob<T>) => `"${g.absolute}"`;
+        case "relative":
+          return (g: Glob<T>) => g.relative;
+        case "relative:quoted":
+          return (g: Glob<T>) => `"${g.relative}"`;
+        default:
+          return format;
+      }
+    }
+
+    return normalizeFn()(this);
   }
 
   override join(path: string, options?: GlobOptions): Glob {
@@ -521,11 +547,19 @@ export class Globs<T extends Path = Path> implements Iterable<Glob<T>> {
     return this;
   }
 
+  toGlobString(format: GlobFormat<T>, separator: string): string {
+    return [...this].map((glob) => glob.toGlobString(format)).join(separator);
+  }
+
   add(
-    globs: Glob<T> | readonly Glob<T>[] | string | readonly string[],
+    globs: Glob<T> | Globs<T> | readonly Glob<T>[] | string | readonly string[],
   ): Globs<T>;
-  add(globs: readonly Glob[] | Glob | string | readonly string[]): Globs {
-    if (isArray(globs)) {
+  add(
+    globs: readonly Glob[] | Globs | Glob | string | readonly string[],
+  ): Globs {
+    if (globs instanceof Globs) {
+      return this.add(globs.#globs as readonly Glob<T>[]);
+    } else if (isArray(globs)) {
       const addedGlobs = globs.map((glob) => this.#added(glob));
       const allGlobs = [...this.#globs, ...addedGlobs];
       return new Globs(this.#root, allGlobs, this.#options);

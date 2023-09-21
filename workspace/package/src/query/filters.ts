@@ -4,7 +4,7 @@ import {
   isSingleItemArray,
 } from "@starbeam/core-utils";
 import type { Reporter } from "@starbeam-workspace/reporter";
-import type { UnionClass } from "@starbeam-workspace/shared";
+import type { AnyUnionClass, UnionClass } from "@starbeam-workspace/shared";
 import util from "util";
 
 import type { Package } from "../package";
@@ -19,7 +19,7 @@ export class SingleFilter implements Filter {
   constructor(
     readonly key: FilterKey,
     readonly value: string | boolean,
-    operator: "=" | "!="
+    operator: "=" | "!=",
   ) {
     this.operator = operator;
   }
@@ -43,7 +43,7 @@ function match(
   pkg: Package,
   key: FilterKey,
   value: string | boolean,
-  operator: "=" | "!="
+  operator: "=" | "!=",
 ): boolean {
   const equals = matchEq(pkg, key, value);
 
@@ -53,7 +53,7 @@ function match(
 function matchEq(
   pkg: Package,
   key: FilterKey,
-  value: string | boolean
+  value: string | boolean,
 ): boolean {
   switch (key) {
     case "typescript":
@@ -83,14 +83,14 @@ function matchEq(
 
 abstract class ListFilter implements Matchable {
   static empty<This extends new (filters: (Filter | ParseError)[]) => T, T>(
-    this: This
+    this: This,
   ): T {
     return new this([]);
   }
 
   static of<This extends new (filters: (Filter | ParseError)[]) => T, T>(
     this: This,
-    filter: Filter
+    filter: Filter,
   ): T {
     return new this([filter]);
   }
@@ -103,12 +103,12 @@ abstract class ListFilter implements Matchable {
   readonly #match: (
     filters: Matchable[],
     pkg: Package,
-    reporter: Reporter
+    reporter: Reporter,
   ) => boolean;
 
   constructor(
     filters: (Matchable | ParseError)[],
-    match: (filters: Matchable[], pkg: Package, reporter: Reporter) => boolean
+    match: (filters: Matchable[], pkg: Package, reporter: Reporter) => boolean,
   ) {
     this.#filters = filters;
     this.#match = match;
@@ -134,7 +134,7 @@ abstract class ListFilter implements Matchable {
         f instanceof SingleFilter &&
         f.key === key &&
         f.operator === "=" &&
-        !isGlobFilter(f.value)
+        !isGlobFilter(f.value),
     );
 
     return isSingleItemArray(filters);
@@ -175,7 +175,7 @@ export class AllFilter extends ListFilter {
 
   constructor(filters: (Matchable | ParseError)[]) {
     super(filters, (filters, pkg, reporter) =>
-      filters.every((f) => f.match(pkg, reporter))
+      filters.every((f) => f.match(pkg, reporter)),
     );
   }
 }
@@ -186,7 +186,7 @@ export class AnyFilter extends ListFilter {
 
   constructor(filters: (Matchable | ParseError)[]) {
     super(filters, (filters, pkg, reporter) =>
-      filters.some((f) => f.match(pkg, reporter))
+      filters.some((f) => f.match(pkg, reporter)),
     );
   }
 }
@@ -201,7 +201,7 @@ export type FilterKey =
 
 export const FILTER_KEYS: Record<
   FilterKey,
-  [kind: string, example: string, list?: UnionClass<string>]
+  [kind: string, example: string, list?: AnyUnionClass]
 > = {
   typescript: ["package authored in TypeScript", "-a typescript"],
   private: ["is a private package", "-a private"],
@@ -232,7 +232,7 @@ export const Filter = {
 
   notEquals: (
     key: FilterKey,
-    matches: string | boolean = true
+    matches: string | boolean = true,
   ): SingleFilter => {
     return new SingleFilter(key, matches, "!=");
   },

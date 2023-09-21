@@ -25,7 +25,7 @@
     "type": "library:public"
   },
   "scripts": {
-    "test:lint": "eslint \"src/**/*.{tsx,ts}\" *.json --max-warnings 0",
+    "test:lint": "eslint . --max-warnings 0",
     "test:types": "tsc -b"
   },
   "dependencies": {

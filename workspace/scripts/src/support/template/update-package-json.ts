@@ -124,9 +124,7 @@ export function updatePackageJSON(updater: LabelledUpdater): void {
         delete scripts["test:specs"];
       }
 
-      scripts["test:lint"] = `eslint ${pkg.inputGlobs
-        .map((g) => `"${g.relative}"`)
-        .join(" ")} *.json --max-warnings 0`;
+      scripts["test:lint"] = `eslint . --max-warnings 0`;
 
       return consolidateStarbeam(current);
     });
@@ -178,5 +176,5 @@ function needsBuildSupport(pkg: Package): boolean {
   const hasBuild = pkg.type.isType("library") || pkg.type.is("root");
   const isBuildSupport = pkg.name === "@starbeam-dev/build-support";
 
-  return hasBuild && !isBuildSupport && pkg.starbeam.source.isTS;
+  return hasBuild && !isBuildSupport && pkg.starbeam.source.hasTS;
 }

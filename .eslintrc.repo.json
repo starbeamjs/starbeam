@@ -5,6 +5,7 @@
     "!package.json",
     "!.eslintrc.json",
     "!.eslintrc.repo.json",
+    "!.vscode/*.json",
     "**/node_modules"
   ],
 

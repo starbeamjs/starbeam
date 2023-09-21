@@ -8,7 +8,7 @@
     "type": "tests"
   },
   "scripts": {
-    "test:lint": "eslint  *.json --max-warnings 0",
+    "test:lint": "eslint . --max-warnings 0",
     "test:types": "tsc -b"
   },
   "dependencies": {

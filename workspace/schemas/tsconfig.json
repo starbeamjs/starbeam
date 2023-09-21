@@ -1,0 +1,20 @@
+{
+  "extends": "../../.config/tsconfig/tsconfig.shared.json",
+  "compilerOptions": {
+    "declarationMap": true,
+    "declaration": true,
+    "composite": true,
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "declarationDir": "../../dist/types",
+    "outDir": "../../dist/packages",
+    "allowJs": true,
+    "checkJs": true,
+    "noImplicitAny": true,
+    "allowSyntheticDefaultImports": false,
+    "esModuleInterop": false,
+    "types": ["../../packages/env"]
+  },
+  "exclude": ["dist/**/*"]
+}

@@ -25,7 +25,7 @@ const ok = createStyle(chalk.green);
 
 function createStyle<S>(
   style: StyleInstance,
-  styles?: S & Omit<DetailedStyle, STYLE>
+  styles?: S & Omit<DetailedStyle, STYLE>,
 ): S & DetailedStyle {
   return { [STYLE]: style, ...styles } as S & DetailedStyle;
 }
@@ -78,7 +78,7 @@ function resolve(style: StyleInstance | DetailedStyle): StyleInstance {
 
 export function getSpecificStyle(
   name: StyleName | FullStyleName,
-  specific: StylePartName
+  specific: StylePartName,
 ): StyleInstance {
   if (isStyleName(name)) {
     return getStyle(`${name}:${specific}`);
@@ -89,7 +89,7 @@ export function getSpecificStyle(
 
 export function hasPart<K extends StylePartName>(
   style: DetailedStyle,
-  part: K
+  part: K,
 ): style is DetailedStyle & { [P in K]: DetailedStyle } {
   return part in style;
 }
@@ -112,6 +112,8 @@ export function isAnyStyleName(value: unknown): value is AnyStyleName {
   return isStyleName(styleName) && isPartName(part);
 }
 
-export function isPartName(value: unknown): value is StylePart {
-  return StylePart.isMember(value);
+export function isPartName(
+  value: string | undefined,
+): value is StylePart["value"] {
+  return value === undefined ? false : StylePart.isMember(value);
 }

@@ -12,16 +12,28 @@ export class RawPackage {
     this.#root = root;
   }
 
-  get<T>(key: string | string[], options?: { default: T } | undefined): T;
-  get<T>(
+  getArray<T>(key: string | string[], options?: { default: T | T[] }): T[] {
+    return this.get(key, { ...options, map: wrap });
+  }
+
+  get<T, U>(
     key: string | string[],
-    options?: { default: T | undefined } | undefined
-  ): T | undefined {
+    options: { default?: T; map: (value: T) => U },
+  ): U;
+  get<T>(key: string | string[], options?: { default: T } | undefined): T;
+  get<T, U>(
+    key: string | string[],
+    options?: { default?: T; map?: undefined | ((value: T) => U) } | undefined,
+  ): T | U | undefined {
+    function map(value: T): T | U {
+      return options?.map ? options.map(value) : value;
+    }
+
     const keys = this.#key(key);
 
     if (typeof key === "string" && key.includes(":")) {
       if (key in this.#pkg) {
-        return this.#pkg[key] as T;
+        return map(this.#pkg[key] as T);
       }
     }
 
@@ -36,7 +48,7 @@ export class RawPackage {
     }
   }
 
-  #get<T>({
+  #get<T, U = T>({
     object = this.#pkg,
     key,
     soFar,
@@ -45,13 +57,17 @@ export class RawPackage {
     object?: Record<string, JsonValue> | undefined;
     key: string[];
     soFar: string[];
-    options?: { default: T } | undefined;
-  }): T | undefined {
+    options?: { default?: T; map?: undefined | ((value: T) => U) } | undefined;
+  }): T | U | undefined {
+    function map(value: T): T | U {
+      return options?.map ? options.map(value) : value;
+    }
+
     if (isPresentArray(key)) {
       const shorthand = key.join(":");
 
       if (shorthand in object) {
-        return object[shorthand] as T;
+        return map(object[shorthand] as T);
       }
 
       const [first, ...rest] = key;
@@ -68,23 +84,27 @@ export class RawPackage {
               options,
             });
           } else if (options && "default" in options) {
-            return options.default;
+            return map(options.default);
           }
         } else {
-          return object[first] as T;
+          return map(object[first] as T);
         }
       } else if (options && "default" in options) {
-        return options.default;
+        return map(options.default);
       }
 
       throw Error(
         `invalid package.json: missing ${formatKey(
           soFar,
-          first
-        )} in package.json (at ${this.#root})`
+          first,
+        )} in package.json (at ${this.#root})`,
       );
     } else {
       return undefined;
     }
   }
+}
+
+function wrap<T>(value: T | T[]): T[] {
+  return Array.isArray(value) ? value : [value];
 }

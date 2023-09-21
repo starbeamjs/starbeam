@@ -58,13 +58,13 @@ export const TestCommand = QueryCommand("test", {
       }
 
       const testType: TestName = watch
-        ? TestName.fromString("specs")
+        ? TestName.parse("specs")
         : specs
         ? TestName.from("specs")
         : lint
         ? TestName.from("lint")
         : type
-        ? TestName.fromString(type)
+        ? TestName.parse(type)
         : TestName.from("all");
 
       shell.rm("-rf", workspace.root.dir("dist").absolute);

@@ -20,7 +20,7 @@ if ("stackTraceLimit" in Error) {
 type Push<T extends any[], V> = [...T, V];
 
 type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
-  k: infer I
+  k: infer I,
 ) => void
   ? I
   : never;
@@ -33,55 +33,84 @@ type LastOf<T> = UnionToIntersection<
 export type EveryUnionMember<
   T,
   L = LastOf<T>,
-  N = [T] extends [never] ? true : false
+  N = [T] extends [never] ? true : false,
 > = true extends N ? [] : Push<EveryUnionMember<Exclude<T, L>>, L>;
 
-export type Into<C extends UnionInstance<string>> = C["value"] | C;
-export type IntoUnionInstance = string | { readonly value: string };
-export type AsString<C extends UnionInstance<string>> = C["value"];
+export type Into<C extends UnionInstance<any>> = C["value"] | C;
 
-export interface UnionClass<S extends string = any> {
-  readonly members: S[];
-  from: <This extends UnionClass<S>>(
+interface UnionInstanceLike {
+  readonly value: string;
+}
+
+export type IntoUnionInstance =
+  | string
+  | UnionInstanceLike
+  | Iterable<UnionInstanceLike>;
+export type AsString<C extends UnionInstance<any>> = C["value"];
+
+type UnionClassMember<U extends UnionClass> = U extends UnionClass<infer S>
+  ? S[number] | InstanceType<U>
+  : never;
+
+export type AnyUnionClass = UnionClass<readonly string[]>;
+
+export interface UnionClass<S extends readonly string[] = any> {
+  readonly members: S;
+
+  getMember: (<S extends string[]>(
+    value: string,
+  ) => { type: "member"; value: S[number] }) &
+    (<const This extends UnionClass<S>, S extends string[]>(
+      value: UnionClassMember<This>,
+    ) => MemberResult<This, S>);
+
+  from: <const This extends UnionClass<S>>(
     this: This,
-    value: S | InstanceType<This>
+    value: UnionClassMember<This>,
   ) => InstanceType<This>;
 
-  asString: <This extends UnionClass<S>>(
+  asString: <const This extends UnionClass<S>>(
     this: This,
-    value: S | InstanceType<This>
-  ) => S;
+    value: UnionClassMember<This>,
+  ) => S[number];
 
-  fromString: <This extends UnionClass<S>>(
+  parse: <const This extends UnionClass<S>>(
     this: This,
-    value: string
+    value: string,
   ) => InstanceType<This>;
-  isMember: (value: unknown) => value is S;
+  isMember: (this: void, value: string) => value is S[number];
   format: () => string;
 
-  new (value: S): UnionInstance<S>;
+  new (value: S[number]): UnionInstance<S>;
 
   toString: () => string;
 }
 
-type Kind<S extends string> = S extends `${infer K}:${string}` ? K : never;
-type Subtype<
-  S extends string,
-  Kind extends string[] = string[]
-> = S extends `${Kind[number]}:${infer K}` ? K : never;
+type Kind<S extends readonly string[]> = S[number] extends infer Whole extends
+  string
+  ? Whole extends `${infer K}:${string}`
+    ? K
+    : Whole
+  : never;
+type Subtype<S extends readonly string[]> = S extends `${Kind<S>}:${infer L}`
+  ? L
+  : never;
 
-export declare class UnionInstance<S extends string> {
+export declare class UnionInstance<S extends readonly string[]> {
   declare [TO_STRING]: true;
 
   constructor(value: S);
 
-  readonly value: S;
-  readonly subtype: Subtype<S>;
+  readonly value: S[number];
+  readonly type: Kind<S>;
 
   toString(): string;
-  eq(other: this): boolean;
-  is(...values: S[]): boolean;
-  isType<K extends Kind<S>[]>(...values: K): this is { subtype: Subtype<S, K> };
+  eq(other: UnionInstance<S>): boolean;
+  is<const T extends S[number]>(...values: T[]): this is { value: T };
+  isType<const T extends Kind<S>>(...values: T[]): this is { type: T };
+
+  as<const T extends S>(...values: T): T[number] | undefined;
+  asType<const T extends Kind<S>>(...values: T[]): T | undefined;
 }
 
 /**
@@ -90,43 +119,73 @@ export declare class UnionInstance<S extends string> {
  */
 const MAX_INLINE_LIST_WIDTH = 50;
 
-export function Union<S extends string>(...members: S[]): UnionClass<S> {
+type MemberResult<C extends UnionClass<S>, S extends readonly string[]> =
+  | {
+      type: "member";
+      value: S[number];
+    }
+  | {
+      type: "instance";
+      value: InstanceType<C>;
+    };
+
+export function Union<const S extends readonly string[]>(
+  ...members: S
+): UnionClass<S> {
+  function assertMember(this: void, value: string): asserts value is S[number] {
+    if (!members.includes(value)) {
+      throw new Error(`Expected one of ${members.join(", ")}, got ${value}`);
+    }
+  }
+
   return class Union {
-    static readonly members: S[] = members;
+    static readonly members: S = members;
 
     declare static Into: S;
 
-    static from<This extends UnionClass<S>>(
-      this: This,
-      value: S | InstanceType<This>
-    ): InstanceType<This> {
+    static getMember(value: S[number]): { type: "member"; value: S[number] };
+    static getMember(value: string): { type: "member"; value: S[number] };
+    static getMember<const This extends UnionClass<S>>(
+      value: UnionClassMember<This>,
+    ): MemberResult<This, S>;
+    static getMember<const This extends UnionClass<S>>(
+      value: UnionClassMember<This>,
+    ): MemberResult<This, S> {
       if (typeof value === "string") {
-        return this.fromString(value);
+        assertMember(value);
+        return { type: "member", value: value as S[number] };
       } else {
-        return value;
+        return { type: "instance", value: value as InstanceType<This> };
       }
+    }
+
+    static from<const This extends UnionClass<S>>(
+      this: This,
+      value: UnionClassMember<This>,
+    ): InstanceType<This> {
+      return typeof value === "string"
+        ? this.parse(value)
+        : (value as InstanceType<This>);
     }
 
     static asString<This extends UnionClass<S>>(
       this: This,
-      value: S | InstanceType<This>
-    ): S {
+      value: UnionClassMember<This>,
+    ): S[number] {
       return this.from(value).value;
     }
 
-    static fromString<This extends UnionClass<S>>(
+    static parse<const This extends UnionClass<S>>(
       this: This,
-      value: string
+      value: string,
     ): InstanceType<This> {
-      if (members.includes(value as S)) {
-        return new this(value as S) as InstanceType<This>;
-      } else {
-        throw new Error(`Expected one of ${members.join(", ")}, got ${value}`);
-      }
+      const member = this.getMember(value);
+
+      return new this(member.value) as InstanceType<This>;
     }
 
-    static isMember(this: void, value: unknown): value is S {
-      return members.includes(value as S);
+    static isMember(this: void, value: string): value is S[number] {
+      return members.includes(value);
     }
 
     static format(): string {
@@ -142,9 +201,9 @@ export function Union<S extends string>(...members: S[]): UnionClass<S> {
     declare [TO_STRING]: true;
     declare Into: S;
 
-    #instance: S;
+    #instance: S[number];
 
-    constructor(value: S) {
+    constructor(value: S[number]) {
       this.#instance = value;
     }
 
@@ -152,20 +211,45 @@ export function Union<S extends string>(...members: S[]): UnionClass<S> {
       return `${this.constructor.name}(${this.#instance})`;
     }
 
-    eq(other: this): boolean {
-      return this.#instance === other.#instance;
+    eq(other: UnionInstance<S>): boolean {
+      return this.#instance === other.value;
     }
 
-    is(...values: S[]): boolean {
-      return values.includes(this.#instance);
+    is<T extends S[number]>(...values: T[]): boolean {
+      return values.includes(this.#instance as T);
+    }
+
+    as<const T extends S>(...values: T): T[number] | undefined {
+      if (values.includes(this.#instance)) {
+        return this.#instance as T[number];
+      }
+    }
+
+    asType<const T extends Kind<S>>(...values: T[]): T | undefined {
+      if ((values as Kind<S>[]).includes(this.type)) {
+        return this.type as T;
+      }
     }
 
     isType(...values: Kind<S>[]): boolean {
-      return values.some((v) => this.#instance.startsWith(`${v}:`));
+      if (this.#instance.includes(":")) {
+        return values.some((v) => this.#instance.startsWith(`${v}:`));
+      } else {
+        return values.includes(this.#instance as Kind<S>);
+      }
     }
 
-    get value(): S {
+    get value(): S[number] {
       return this.#instance;
+    }
+
+    get type(): Kind<S> {
+      if (this.#instance.includes(":")) {
+        const [type] = this.#instance.split(":") as [Kind<S>, Subtype<S>];
+        return type;
+      } else {
+        return this.#instance as Kind<S>;
+      }
     }
 
     get subtype(): Subtype<S> {
@@ -186,7 +270,7 @@ export type IntoPresentArray<T> =
 
 export class PresentArray<T> extends Array<T> {
   static override from<T>(
-    array: PresentArray<T> | readonly T[] | T[]
+    array: PresentArray<T> | readonly T[] | T[],
   ): PresentArray<T> {
     if (array instanceof PresentArray) {
       return array;
@@ -207,7 +291,7 @@ export class PresentArray<T> extends Array<T> {
   }
 
   ifPresent<U>(
-    then: (array: PresentArray<T> & [T, ...T[]]) => U
+    then: (array: PresentArray<T> & [T, ...T[]]) => U,
   ): U | undefined {
     return this.andThen({
       present: then,
@@ -228,7 +312,7 @@ export class PresentArray<T> extends Array<T> {
           present: (array: PresentArray<T> & [T, ...T[]]) => U;
           empty?: () => U;
         }
-      | ((array: PresentArray<T> & [T, ...T[]]) => U)
+      | ((array: PresentArray<T> & [T, ...T[]]) => U),
   ): U | undefined {
     const ifPresent = typeof options === "function" ? options : options.present;
     const ifEmpty =
@@ -247,7 +331,7 @@ export class PresentArray<T> extends Array<T> {
   }
 
   override map<U>(
-    mapper: (value: T, index: number, collection: PresentArray<T>) => U
+    mapper: (value: T, index: number, collection: PresentArray<T>) => U,
   ): PresentArray<U> {
     return new PresentArray(this.#array.map((e, i) => mapper(e, i, this)));
   }
@@ -298,20 +382,20 @@ export class Result<T, E = unknown> {
 
   static map<T, U, E>(
     items: T[],
-    mapper: (value: T) => IntoResult<U, E>
+    mapper: (value: T) => IntoResult<U, E>,
   ): Result<U[], E> {
     return Result.list(items.map(mapper));
   }
 
   static flatMap<T, U, E>(
     items: T[],
-    mapper: (value: T) => IntoResult<U, E>[]
+    mapper: (value: T) => IntoResult<U, E>[],
   ): Result<U[], E> {
     return Result.list(items.flatMap(mapper));
   }
 
   static record<T extends ResultRecord>(
-    items: T
+    items: T,
   ): Result<OkRecord<T>, RecordError<T>> {
     const result: Record<string, unknown> = {};
 

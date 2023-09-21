@@ -14,4 +14,5 @@ export type {
   UnionClass,
   UnionInstance,
 } from "./src/type-magic.js";
+export type { AnyUnionClass } from "./src/type-magic.js";
 export { PresentArray, Result, Union } from "./src/type-magic.js";
