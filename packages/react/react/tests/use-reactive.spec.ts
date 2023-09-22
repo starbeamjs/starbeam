@@ -2,11 +2,11 @@
 
 import { setup, setupReactive } from "@starbeam/react";
 import { Cell, Formula } from "@starbeam/universal";
-import { describe } from "@starbeam-workspace/test-utils";
+import { describeInDev } from "@starbeam-workspace/test-utils";
 
 import { testUseReactive } from "./test-use.js";
 
-describe("useReactive", () => {
+describeInDev("useReactive", () => {
   testUseReactive("with an external cell", async (test) => {
     const externalCell = Cell(0);
 
@@ -53,7 +53,7 @@ describe("useReactive", () => {
 
       return component((use) => {
         const formula = setupReactive(() =>
-          Formula(() => externalCell.current)
+          Formula(() => externalCell.current),
         );
         const count = use(formula);
 
@@ -62,6 +62,6 @@ describe("useReactive", () => {
           increment: () => externalCell.current++,
         };
       });
-    }
+    },
   );
 });

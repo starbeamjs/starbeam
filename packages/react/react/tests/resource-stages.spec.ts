@@ -6,9 +6,13 @@ import { Cell } from "@starbeam/reactive";
 import { Resource } from "@starbeam/resource";
 import type { RenderState } from "@starbeam-workspace/react-test-utils";
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
-import { describe, expect, TestResource } from "@starbeam-workspace/test-utils";
+import {
+  describeInDev,
+  expect,
+  TestResource,
+} from "@starbeam-workspace/test-utils";
 
-describe("resources running in stages", () => {
+describeInDev("resources running in stages", () => {
   testReact<void, number>("the basics", async (root, mode) => {
     const { resource, events, invalidate } = TestResource();
 

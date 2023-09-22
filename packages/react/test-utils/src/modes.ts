@@ -2,7 +2,7 @@
 
 import { getLast, isPresentArray } from "@starbeam/core-utils";
 import {
-  describe,
+  describeInDev,
   expect,
   test,
   type TestAPI,
@@ -43,7 +43,7 @@ export class RenderState<T> {
       return value;
     } else {
       throw new Error(
-        "Attempted to get last render value, but no value was set"
+        "Attempted to get last render value, but no value was set",
       );
     }
   }
@@ -67,7 +67,7 @@ export class RenderState<T> {
       this.#values.push(newValue);
     } else {
       throw new Error(
-        "Attempted to update last render value, but no value was set"
+        "Attempted to update last render value, but no value was set",
       );
     }
   };
@@ -101,7 +101,7 @@ export class RenderResult<Props, T> {
     state: RenderState<T>,
     result: testing.RenderResult,
     props: Props,
-    rerender: (props?: Props) => void
+    rerender: (props?: Props) => void,
   ) {
     this.#setup = setup;
     this.#state = state;
@@ -145,7 +145,7 @@ export class RenderResult<Props, T> {
       () => {
         expect(
           this.#state.renderCount,
-          "expected another render"
+          "expected another render",
         ).toBeGreaterThan(prev);
       };
     });
@@ -159,14 +159,14 @@ export class RenderResult<Props, T> {
 
   find(
     role: testing.ByRoleMatcher,
-    options?: testing.ByRoleOptions
+    options?: testing.ByRoleOptions,
   ): TestElement<HTMLElement> {
     return this.#element.find(role, options);
   }
 
   findByText(
     id: testing.Matcher,
-    options?: testing.SelectorMatcherOptions
+    options?: testing.SelectorMatcherOptions,
   ): TestElement<HTMLElement> {
     return this.#element.findByText(id, options);
   }
@@ -188,11 +188,11 @@ export class SetupTestRoot<Props, T> {
   static assert<Props, T>(
     render: SetupTestRoot<Props, T>,
     result: RenderResult<Props, T>,
-    props: Props
+    props: Props,
   ): void {
     if (render.#expectHtml) {
       expect(result.innerHTML).toBe(
-        render.#expectHtml(RenderResult.getValue(result), props)
+        render.#expectHtml(RenderResult.getValue(result), props),
       );
     }
 
@@ -207,7 +207,7 @@ export class SetupTestRoot<Props, T> {
             current,
           });
           throw new Error(
-            "Expected stable value to be equal to last checked value"
+            "Expected stable value to be equal to last checked value",
           );
         }
 
@@ -215,7 +215,7 @@ export class SetupTestRoot<Props, T> {
       }
 
       expect(render.#expectStable(current)).toBe(
-        render.#expectStable(lastChecked)
+        render.#expectStable(lastChecked),
       );
     }
   }
@@ -231,17 +231,17 @@ export class SetupTestRoot<Props, T> {
   async render(
     this: SetupTestRoot<RenderState<void>, T>,
     render: (state: RenderState<T>, props?: void) => ReactElement,
-    props?: void
+    props?: void,
   ): Promise<RenderResult<void, T>>;
   async render(
     render: (state: RenderState<T>, props: Props) => ReactElement,
-    props: Props
+    props: Props,
   ): Promise<RenderResult<Props, T>>;
   async render(
     this: SetupTestRoot<RenderState<any>, any>,
     render: (state: RenderState<any>, props?: any) => ReactElement,
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    props?: any
+    props?: any,
   ): Promise<RenderResult<any, T>> {
     const state = new RenderState<T>();
     let i = 0;
@@ -254,8 +254,8 @@ export class SetupTestRoot<Props, T> {
     const result = await act(() =>
       testing.render(
         react.render(Component, { ...props, rerender: ++i }),
-        this.#options
-      )
+        this.#options,
+      ),
     );
 
     const renderResult = new RenderResult(
@@ -266,18 +266,18 @@ export class SetupTestRoot<Props, T> {
       (updatedProps?: any) => {
         if (updatedProps) {
           result.rerender(
-            react.render(Component, { ...updatedProps, rerender: ++i })
+            react.render(Component, { ...updatedProps, rerender: ++i }),
           );
         } else {
           result.rerender(react.render(Component, { ...props, rerender: ++i }));
         }
-      }
+      },
     );
 
     SetupTestRoot.assert(
       this as unknown as SetupTestRoot<Props, T>,
       renderResult,
-      props as Props
+      props as Props,
     );
 
     return renderResult as RenderResult<Props, T>;
@@ -297,21 +297,21 @@ export class SetupTestRoot<Props, T> {
 
 type TestModes<Props, T> = (
   root: SetupTestRoot<Props, T>,
-  mode: Mode
+  mode: Mode,
 ) => void | Promise<void>;
 
 export function testReact<Props, T>(
   name: string,
-  modes: TestModes<Props, T>
+  modes: TestModes<Props, T>,
 ): void {
-  describe(name, () => {
+  describeInDev(name, () => {
     testReact.strict(modes);
     testReact.loose(modes);
   });
 }
 
 testReact.skip = <Props, T>(name: string, modes: TestModes<Props, T>) => {
-  describe.skip(name, () => {
+  describeInDev.skip(name, () => {
     testReact.strict(modes);
     testReact.loose(modes);
   });
@@ -319,7 +319,7 @@ testReact.skip = <Props, T>(name: string, modes: TestModes<Props, T>) => {
 
 testReact.strict = <Props, T>(
   modes: TestModes<Props, T>,
-  testFn: TestAPI = test
+  testFn: TestAPI = test,
 ) => {
   testFn(`strict mode`, async () => {
     try {
@@ -333,7 +333,7 @@ testReact.strict = <Props, T>(
 
 testReact.loose = <Props, T>(
   modes: TestModes<Props, T>,
-  testFn: TestAPI = test
+  testFn: TestAPI = test,
 ) => {
   testFn(`loose mode`, async () => {
     try {
@@ -394,7 +394,7 @@ export class TestElement<E extends Element> {
   find(
     this: TestElement<HTMLElement>,
     role: testing.ByRoleMatcher,
-    options?: testing.ByRoleOptions
+    options?: testing.ByRoleOptions,
   ): TestElement<HTMLElement> {
     return TestElement.create(getByRole(this.#element, role, options));
   }
@@ -402,7 +402,7 @@ export class TestElement<E extends Element> {
   findByText(
     this: TestElement<HTMLElement>,
     id: testing.Matcher,
-    options?: testing.SelectorMatcherOptions
+    options?: testing.SelectorMatcherOptions,
   ): TestElement<HTMLElement> {
     return TestElement.create(getByText(this.#element, id, options));
   }

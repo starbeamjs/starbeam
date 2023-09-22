@@ -30,7 +30,7 @@ export const updateEslint = {
     update.json(".eslintrc.json", () => {
       return {
         root: true,
-        ignorePatterns: ["node_modules", "dist"],
+        ignorePatterns: ["node_modules", "dist", "html"],
         plugins: ["@starbeam"],
         overrides: [localEslintConfig(update), JSON_ESLINT_CONFIG],
       };
