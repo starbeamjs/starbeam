@@ -15,7 +15,7 @@ describe("a tree", () => {
     const tree = Tree(
       "package.json",
       ["app", ["components", "tab.js", "tab.hbs"], ["routes", "index.js"]],
-      "pnpm-lock.yaml"
+      "pnpm-lock.yaml",
     );
 
     expect(tree.format()).toBe(strip`
@@ -70,7 +70,7 @@ function minIndent(lines: string[]): number {
   return Math.min(
     ...lines
       .filter((line) => line.trim() !== "")
-      .map((line) => line.search(/\S/))
+      .map((line) => line.search(/\S/)),
   );
 }
 
@@ -80,7 +80,7 @@ function template(strings: TemplateStringsArray, ...values: unknown[]): string {
   for (let i = 0; i < strings.length; i++) {
     result += strings[i];
     if (i < values.length) {
-      result += values[i];
+      result += String(values[i]);
     }
   }
   return result;

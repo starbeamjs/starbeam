@@ -19,7 +19,8 @@
     "type": "library:build-support"
   },
   "scripts": {
-    "test:lint": "eslint . --max-warnings 0"
+    "test:lint": "eslint . --max-warnings 0",
+    "test:types": "tsc -b"
   },
   "dependencies": {
     "execa": "^8.0.1",
@@ -27,7 +28,8 @@
     "globby": "^13.2.2"
   },
   "devDependencies": {
-    "@starbeam/eslint-plugin": "workspace:^"
+    "@starbeam/eslint-plugin": "workspace:^",
+    "@types/fs-extra": "^11.0.2"
   },
   "volta": {
     "extends": "../../package.json"

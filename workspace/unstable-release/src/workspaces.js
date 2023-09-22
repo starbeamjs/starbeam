@@ -1,6 +1,7 @@
-import { globby } from "globby";
 import { execaCommand } from "execa";
-import fse from "fs-extra";
+import { globby } from "globby";
+
+import { readPackageJson } from "./read-package-json";
 
 /**
  * All publishable packages are in packages/*
@@ -18,7 +19,7 @@ export async function listPublicWorkspaces() {
   let result = [];
 
   for (let filePath of filePaths) {
-    let packageJson = await fse.readJSON(filePath);
+    let packageJson = await readPackageJson(filePath);
 
     if (packageJson.private) continue;
 

@@ -141,7 +141,7 @@ describe("resources", () => {
         get count() {
           return counter.current;
         },
-        increment() {
+        increment: () => {
           events.record("increment");
           counter.update((i) => i + 1);
         },
@@ -349,7 +349,7 @@ describe("resources", () => {
         get count() {
           return count.current;
         },
-        increment() {
+        increment: () => {
           count.current++;
         },
       };
@@ -463,7 +463,7 @@ describe("resources", () => {
         get childCount() {
           return child.count;
         },
-        incrementChild() {
+        incrementChild: () => {
           child.increment();
         },
       };
@@ -564,14 +564,14 @@ interface Action<U> {
 }
 
 class ResourceWrapper<T, U> {
-  static use<T, U>(
+  static use = <T, U>(
     blueprint: ResourceBlueprint<T>,
     {
       events,
       subject,
       label,
     }: { events: RecordedEvents; subject: (value: T) => U; label?: string },
-  ): PostAssertion<U, ResourceWrapper<T, U>> {
+  ): PostAssertion<U, ResourceWrapper<T, U>> => {
     const [lifetime, instance] = entryPoint(
       () => {
         events.expect([]);
@@ -597,7 +597,7 @@ class ResourceWrapper<T, U> {
     };
 
     return { expect: expectFn };
-  }
+  };
 
   readonly #label: string;
   readonly #value: T;

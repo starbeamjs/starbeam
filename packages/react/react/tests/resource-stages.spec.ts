@@ -1,9 +1,6 @@
 // @vitest-environment jsdom
 
 import { useReactive, useResource } from "@starbeam/react";
-import type { Marker } from "@starbeam/reactive";
-import { Cell } from "@starbeam/reactive";
-import { Resource } from "@starbeam/resource";
 import type { RenderState } from "@starbeam-workspace/react-test-utils";
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
 import {
@@ -65,11 +62,8 @@ describeInDev("resources running in stages", () => {
     expect(result.value).toBe(1);
     events.expect([]);
 
-    console.log("invalidating");
     invalidate();
-    console.log("rerendering");
     await result.rerender();
-    console.log("rerendered");
     expect(result.value).toBe(1);
     events.expect("cleanup", "sync");
 
@@ -91,36 +85,3 @@ describeInDev("resources running in stages", () => {
     // expect(counts.finalized).toBe(initial.finalized + 1);
   });
 });
-
-interface Counts {
-  init: number;
-  finalized: number;
-  setup: number;
-  cleanup: number;
-}
-
-function testResource(counts: Counts, markers: { sync: Marker }) {
-  return Resource(({ on }) => {
-    counts.init++;
-    const cell = Cell(0);
-    const extra = Cell(0);
-
-    on.sync(() => {
-      markers.sync.read();
-      extra.set(1);
-      counts.setup++;
-      return () => counts.cleanup++;
-    });
-
-    on.finalize(() => {
-      counts.finalized++;
-    });
-
-    return {
-      get current() {
-        return cell.current + extra.current;
-      },
-      increment: () => cell.current++,
-    };
-  });
-}

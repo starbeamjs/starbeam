@@ -199,7 +199,7 @@ describe("ResourceList", () => {
       map,
     });
 
-    const [lifetime, { sync, value: list }] = pushingScope(() => List.setup());
+    const [, { sync, value: list }] = pushingScope(() => List.setup());
 
     function current(): { card: string; subscription: Subscription }[] {
       sync();

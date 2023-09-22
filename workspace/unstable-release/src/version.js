@@ -1,5 +1,5 @@
-import fse from "fs-extra";
-import { listPublicWorkspaces, currentSHA } from "./workspaces.js";
+import { readPackageJson, writePackageJson } from "./read-package-json.js";
+import { currentSHA, listPublicWorkspaces } from "./workspaces.js";
 
 /**
  * This is an I/O heavy way to do this, but hopefully it reads easy
@@ -24,17 +24,31 @@ async function updateVersions() {
   }
 }
 
-updateVersions();
+await updateVersions();
 
 ////////////////////////////////////////////
 
+/**
+ * @type {Record<string, string>}
+ */
 const NEW_VERSIONS = {};
 
+/**
+ *
+ * @param {string} sha
+ * @param {string} filePath
+ * @returns {Promise<void>}
+ */
 async function setVersion(sha, filePath) {
-  let json = await fse.readJSON(filePath);
+  let json = await readPackageJson(filePath);
+
+  if (!json.name) {
+    console.info(`Skipping package at ${filePath} as it has no name`);
+    return;
+  }
 
   if (!json.version) {
-    console.info(`Skipping ${json.name} as it has no version`);
+    console.info(`Skipping ${json.name} at ${filePath} as it has no version`);
     return;
   }
 
@@ -42,29 +56,37 @@ async function setVersion(sha, filePath) {
   // that ^ dependenies won't pick up the stable versions
   const [major, minor, patch] = json.version.split(".");
 
-  json.version = `${major}.${minor}.${parseInt(patch) + 1}-unstable.${sha}`;
+  json.version = `${major}.${minor}.${
+    patch ? parseInt(patch) + 1 : 0
+  }-unstable.${sha}`;
 
   NEW_VERSIONS[json.name] = json.version;
 
-  await fse.writeJSON(filePath, json, { spaces: 2 });
+  await writePackageJson(filePath, json);
 }
 
+/**
+ * @param {string} filePath
+ */
 async function updateDependencies(filePath) {
-  let json = await fse.readJSON(filePath);
+  let json = await readPackageJson(filePath);
 
   for (let [dep, version] of Object.entries(NEW_VERSIONS)) {
-    if ((json.dependencies || {})[dep]) {
-      json.dependencies[dep] = version;
+    const deps = json.dependencies || {};
+    if (deps[dep]) {
+      json.dependencies = { ...deps, [dep]: version };
     }
 
-    if ((json.devDependencies || {})[dep]) {
-      json.devDependencies[dep] = version;
+    const devDeps = json.devDependencies || {};
+    if (devDeps[dep]) {
+      json.devDependencies = { ...devDeps, [dep]: version };
     }
 
-    if ((json.peerDependencies || {})[dep]) {
-      json.peerDependencies[dep] = version;
+    const peerDeps = json.peerDependencies || {};
+    if (peerDeps[dep]) {
+      json.peerDependencies = { ...peerDeps, [dep]: version };
     }
   }
 
-  await fse.writeJSON(filePath, json, { spaces: 2 });
+  await writePackageJson(filePath, json);
 }

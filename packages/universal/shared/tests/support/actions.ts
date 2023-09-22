@@ -19,6 +19,7 @@ export class Actions {
       expect(expected).toStrictEqual(actual);
     } catch (e: unknown) {
       if (isAssertionError(e)) {
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         removeAbstraction(e, this.expect);
       }
 

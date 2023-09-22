@@ -1,8 +1,4 @@
-import {
-  CachedFormula,
-  Cell,
-  Marker,
-} from "@starbeam/reactive";
+import { CachedFormula, Cell, Marker } from "@starbeam/reactive";
 import type { Sync } from "@starbeam/resource";
 import { PrimitiveSyncTo, SyncTo } from "@starbeam/resource";
 import { createPushScope, pushingScope } from "@starbeam/runtime";
@@ -22,6 +18,7 @@ import {
   verify,
 } from "@starbeam/verify";
 import {
+  type AnyFunction,
   buildCause,
   entryPoint,
   isAssertionError,
@@ -248,7 +245,8 @@ describe("Sync", () => {
           setup: () => {
             return childStates.map((child) => child.sync.setup());
           },
-          sync: (children) => void children.forEach((child) => void child.sync()),
+          sync: (children) =>
+            void children.forEach((child) => void child.sync()),
         },
       });
 
@@ -266,7 +264,7 @@ describe("Sync", () => {
         events: [...children.namedEvents("setup"), "parent:setup"],
       });
 
-      children.forEach((child, i) => {
+      children.forEach((child) => {
         child.state.increment();
 
         // nothing happens before the first sync because `increment` is
@@ -600,6 +598,7 @@ class Children<T, U> implements Iterable<Child<T, U>> {
 
         this.#events.expectEvents(expectedEvents);
       },
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       { entryFn: this.expect },
     );
   }
@@ -609,7 +608,7 @@ class Children<T, U> implements Iterable<Child<T, U>> {
   }
 
   forEach(mapper: (value: T, child: Child<T, U>) => void) {
-    this.#children.forEach((child, i) => void mapper(child.value, child));
+    this.#children.forEach((child) => void mapper(child.value, child));
   }
 
   map<V>(mapper: (value: T, index: number) => V): V[] {
@@ -889,7 +888,9 @@ function buildTestSync<Setup extends undefined | (() => unknown)>(
     invalidate: Marker;
     test?: {
       setup?: Setup;
-      sync?: (state: Setup extends Function ? ReturnType<Setup> : void) => void;
+      sync?: (
+        state: Setup extends AnyFunction ? ReturnType<Setup> : void,
+      ) => void;
       cleanup?: () => void;
       finalize?: () => void;
     };
@@ -906,7 +907,9 @@ function buildTestSync<Setup extends undefined | (() => unknown)>(
       localEvents.record("sync");
       invalidate.read();
 
-      test?.sync?.(state as Setup extends Function ? ReturnType<Setup> : void);
+      test?.sync?.(
+        state as Setup extends AnyFunction ? ReturnType<Setup> : void,
+      );
 
       return () => {
         localEvents.record("cleanup");
