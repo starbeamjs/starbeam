@@ -5,7 +5,7 @@ import {
   stringify,
 } from "@starbeam/core-utils";
 import type { JsonValue } from "@starbeam-workspace/json";
-import type { type Directory, RegularFile } from "@starbeam-workspace/paths";
+import type { Directory, RegularFile } from "@starbeam-workspace/paths";
 import { Globs } from "@starbeam-workspace/paths";
 import { fragment, type Workspace } from "@starbeam-workspace/reporter";
 
