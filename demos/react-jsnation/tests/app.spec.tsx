@@ -5,8 +5,8 @@ import { describe, expect } from "@starbeam-workspace/test-utils";
 import { ErrorBoundary } from "react-error-boundary";
 
 describe("react-jsnation", () => {
-  testReact<void, void>("App loads DataTable", (root) => {
-    const result = root.render((state) => {
+  testReact<void, void>("App loads DataTable", async (root) => {
+    const result = await root.render((state) => {
       state.value(undefined);
       return (
         <ErrorBoundary fallbackRender={() => <p>Error</p>}>
@@ -17,13 +17,13 @@ describe("react-jsnation", () => {
 
     expect(
       () => result.findByText("Error"),
-      "getting the error element"
+      "getting the error element",
     ).toThrow();
     expect(result.findByText("Create a new user").innerHTML).toBeDefined();
   });
 
-  testReact<void, void>("App loads locale selector", (root) => {
-    const result = root.render((state) => {
+  testReact<void, void>("App loads locale selector", async (root) => {
+    const result = await root.render((state) => {
       state.value(undefined);
       return (
         <ErrorBoundary fallbackRender={() => <p>Error</p>}>
@@ -34,7 +34,7 @@ describe("react-jsnation", () => {
 
     expect(
       () => result.findByText("Error"),
-      "getting the error element"
+      "getting the error element",
     ).toThrow();
     expect(result.findByText("My Locale").innerHTML).toBeDefined();
   });

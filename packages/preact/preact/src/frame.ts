@@ -1,28 +1,22 @@
 import { getLast } from "@starbeam/core-utils";
 import type { Description, FormulaTag } from "@starbeam/interfaces";
 import type { InternalComponent } from "@starbeam/preact-utils";
-import {
-  DEBUG,
-  type FinalizedFormula,
-  type InitializingFormula,
+import type {
+  FinalizedFormula,
+  InitializingTrackingFrame,
 } from "@starbeam/reactive";
-import { FormulaLifecycle } from "@starbeam/reactive";
+import { DEBUG, StartTrackingFrame } from "@starbeam/reactive";
 import { render, RUNTIME, type Unsubscribe } from "@starbeam/runtime";
 import { initializeFormulaTag } from "@starbeam/tags";
 import { expected, isPresent, verify } from "@starbeam/verify";
 
 export class ComponentFrame {
-  #active: InitializingFormula | null;
-  #frame: FinalizedFormula | null;
-  #tag: FormulaTag;
-  #subscription: Unsubscribe | null;
-
   static #frames = new WeakMap<InternalComponent, ComponentFrame>();
   static #stack: InternalComponent[] = [];
 
   static start(
     component: InternalComponent,
-    description: Description | undefined
+    description: Description | undefined,
   ): void {
     let frame = ComponentFrame.#frames.get(component);
 
@@ -45,7 +39,7 @@ export class ComponentFrame {
     const current = getLast(ComponentFrame.#stack);
     if (!current) {
       throw Error(
-        "You are attempting to use a feature of Starbeam that depends on the current component, but no component is currently active."
+        "You are attempting to use a feature of Starbeam that depends on the current component, but no component is currently active.",
       );
     }
     return current;
@@ -53,14 +47,14 @@ export class ComponentFrame {
 
   static end(
     component: InternalComponent,
-    subscription?: () => void
+    subscription?: () => void,
   ): FinalizedFormula {
     const frame = ComponentFrame.#frames.get(component);
 
     verify(
       frame,
       isPresent,
-      expected.when("in Preact's _diff hook").as("a tracking frame")
+      expected.when("in Preact's _diff hook").as("a tracking frame"),
     );
 
     const end = frame.#end(subscription);
@@ -76,17 +70,22 @@ export class ComponentFrame {
     }
   }
 
+  #active: InitializingTrackingFrame | null;
+  #frame: FinalizedFormula | null;
+  #tag: FormulaTag;
+  #subscription: Unsubscribe | null;
+
   private constructor(
     frame: FinalizedFormula | null,
-    active: InitializingFormula | null,
+    active: InitializingTrackingFrame | null,
     subscribed: Unsubscribe | null,
-    description: Description | undefined
+    description: Description | undefined,
   ) {
     this.#frame = frame;
     this.#active = active;
     const tag = initializeFormulaTag(
       DEBUG?.Desc("formula", description),
-      () => this.#frame?.children() ?? new Set()
+      () => this.#frame?.children() ?? new Set(),
     );
     this.#tag = tag;
     this.#subscription = subscribed;
@@ -95,9 +94,8 @@ export class ComponentFrame {
   #start(): void {
     if (this.#frame) {
       this.#active = this.#frame.update();
-      // this.#active = TIMELINE.frame.update(this.#frame);
     } else {
-      this.#active = FormulaLifecycle();
+      this.#active = StartTrackingFrame();
     }
   }
 
@@ -105,7 +103,7 @@ export class ComponentFrame {
     verify(
       this.#active,
       isPresent,
-      expected.when("in preact's _diff hook").as("an active tracking frame")
+      expected.when("in preact's _diff hook").as("an active tracking frame"),
     );
 
     const frame = (this.#frame = this.#active.done());

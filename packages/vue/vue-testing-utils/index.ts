@@ -1,7 +1,2 @@
-export type {
-  EventMap,
-  IfAny,
-  ReturnElement,
-  StarbeamRenderResult,
-} from "./src/testing.js";
-export { define, testing } from "./src/testing.js";
+export type { EventMap, IfAny } from "./src/testing.js";
+export { App, Define, HTML as HTML, renderApp } from "./src/testing.js";

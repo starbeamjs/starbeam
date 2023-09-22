@@ -23,28 +23,28 @@
     "type": "library:build-support"
   },
   "scripts": {
-    "test:lint": "eslint \"src/**/*.{js,d.ts}\" --max-warnings 0",
+    "test:lint": "eslint . --max-warnings 0",
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "@types/eslint": "^8.40.2",
-    "eslint-config-prettier": "^8.8.0",
-    "eslint-import-resolver-typescript": "^3.5.5",
-    "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-json": "^3.1.0",
-    "eslint-plugin-jsonc": "^2.9.0",
-    "eslint-plugin-prettier": "^4.2.1",
-    "eslint-plugin-simple-import-sort": "^10.0.0",
-    "eslint-plugin-unused-imports": "^2.0.0",
-    "prettier": "^2.8.8"
+    "@types/eslint": "*",
+    "eslint-config-prettier": "*",
+    "eslint-import-resolver-typescript": "*",
+    "eslint-plugin-import": "*",
+    "eslint-plugin-json": "*",
+    "eslint-plugin-jsonc": "*",
+    "eslint-plugin-prettier": "*",
+    "eslint-plugin-simple-import-sort": "*",
+    "eslint-plugin-unused-imports": "*",
+    "prettier": "*"
   },
   "devDependencies": {
-    "@types/node": "18.16.18"
+    "@types/node": "18.17.4"
   },
   "peerDependencies": {
     "@typescript-eslint/eslint-plugin": "^6.7.0",
     "@typescript-eslint/parser": "^6.7.0",
-    "eslint": "^8.42.0",
+    "eslint": "^8.45.0",
     "jsonc-eslint-parser": "^2.1.0",
     "typescript": "*"
   }

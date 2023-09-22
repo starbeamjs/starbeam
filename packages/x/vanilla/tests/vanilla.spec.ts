@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 
-import { Cell, RUNTIME } from "@starbeam/universal";
+import { finalize } from "@starbeam/shared";
+import { Cell } from "@starbeam/universal";
 import { Cursor, El, Fragment, Text } from "@starbeamx/vanilla";
 import { describe, expect, test } from "vitest";
 
@@ -20,7 +21,7 @@ describe("Vanilla Renderer", () => {
 
     expect(body.innerHTML).toBe("Goodbye world");
 
-    RUNTIME.finalize(owner);
+    finalize(owner);
     render.read();
 
     expect(body.innerHTML).toBe("");
@@ -54,7 +55,7 @@ describe("Vanilla Renderer", () => {
     expect(body.innerHTML).toBe("Hola World ::: Goodbye World");
     body.expectStable();
 
-    RUNTIME.finalize(owner);
+    finalize(owner);
 
     expect(body.innerHTML).toBe("");
   });
@@ -77,7 +78,7 @@ describe("Vanilla Renderer", () => {
 
     body.snapshot();
     expect(body.innerHTML).toBe(
-      `<div title="Hello World">Hello World - Goodbye World</div>`
+      `<div title="Hello World">Hello World - Goodbye World</div>`,
     );
   });
 });

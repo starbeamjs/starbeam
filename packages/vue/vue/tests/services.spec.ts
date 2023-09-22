@@ -1,67 +1,78 @@
 // @vitest-environment jsdom
 
-import { setupService, Starbeam } from "@starbeam/vue";
-import {
-  describe,
-  expect,
-  resources,
-  test,
-  TestResource,
-} from "@starbeam-workspace/test-utils";
-import { define, testing } from "@starbeam-workspace/vue-testing-utils";
-import { defineComponent, h, type VNode } from "vue";
+import { setupService } from "@starbeam/vue";
+import { describe, test, TestResource } from "@starbeam-workspace/test-utils";
+import { App, Define, renderApp } from "@starbeam-workspace/vue-testing-utils";
+import { Fragment, h, shallowRef } from "vue";
 
 describe("services", () => {
-  test("services are like resources", () => {
-    function App() {
-      const test = setupService(TestResource);
-      return () => h("p", [test.value.id]);
-    }
+  test("services are like resources", async () => {
+    const {
+      resource: TestResourceBlueprint,
+      id,
+      events,
+      invalidate,
+    } = TestResource();
 
-    const result = define({ setup: App }, Starbeam)
-      .html(({ id }) => `<p>${id}</p>`, {
-        id: resources.nextId,
-      })
-      .render();
+    const app = App(() => {
+      const test = setupService(TestResourceBlueprint);
+      const show = shallowRef(true);
 
-    result.unmount();
+      return () =>
+        h(Fragment, [
+          h("p", ["hello id=", test.id, ", count=", test.count]),
+          h("button", { onClick: test.increment }, "++"),
+          h(
+            "button",
+            { onClick: () => (show.value = !show.value) },
+            show.value ? "hide" : "show",
+          ),
+          show.value ? h(Inner) : false,
+        ]);
+    });
 
-    expect(resources.last.isActive).toBe(false);
-  });
+    const Inner = Define({}, () => {
+      const test = setupService(TestResourceBlueprint);
+      return () => h("p", ["inner count: ", test.count]);
+    });
 
-  const Inner = defineComponent({
-    setup: () => {
-      const test = setupService(TestResource);
-      return () => h("p", ["inner: ", test.value.id]);
-    },
-  });
-
-  test("a service is only instantiated once", async () => {
-    function App(props: { id: number }): () => VNode[] {
-      const test = setupService(TestResource);
-      return () => [
-        h("p", [`id prop: ${props.id}`]),
-        h("p", [`outer: ${test.value.id}`]),
-        h(Inner),
-      ];
-    }
-
-    const result = testing({ id: Number })
-      .define({ setup: App }, Starbeam)
-      .html(
-        ({ id }, { testId }) => {
-          return `<p>id prop: ${id}</p><p>outer: ${testId}</p><p>inner: ${testId}</p>`;
-        },
-        {
-          testId: 1,
+    const result = await renderApp(app, {
+      events,
+      output: ({ count, show }: { count: number; show: boolean }) => {
+        if (show) {
+          return `<p>hello id=${id}, count=${count}</p><button>++</button><button>hide</button><p>inner count: ${count}</p>`;
+        } else {
+          return `<p>hello id=${id}, count=${count}</p><button>++</button><button>show</button><!---->`;
         }
-      )
-      .render({ id: 1 });
+      },
+    }).andExpect({
+      output: { count: 0, show: true },
+      events: ["setup", "sync"],
+    });
 
-    await result.rerender({ id: 2 }, { testId: 1 });
+    await result.rerender().andExpect("unchanged");
 
-    result.unmount();
+    invalidate();
+    result.expect("unchanged");
 
-    expect(resources.last.isActive).toBe(false);
+    await result.flush().andExpect({ events: ["cleanup", "sync"] });
+
+    await result.rerender().andExpect("unchanged");
+
+    await result.click("++").andExpect({ output: { count: 1, show: true } });
+
+    invalidate();
+    result.expect("unchanged");
+    await result.flush().andExpect({ events: ["cleanup", "sync"] });
+
+    // removing a component that uses the service doesn't clean it up
+    await result.click("hide").andExpect({ output: { count: 1, show: false } });
+
+    // bringing it back doesn't set it up again
+    await result.click("show").andExpect({ output: { count: 1, show: true } });
+
+    await result.unmount().andExpect({
+      events: ["cleanup", "finalize"],
+    });
   });
 });

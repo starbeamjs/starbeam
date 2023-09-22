@@ -70,7 +70,7 @@ export class Test {
     type: "watch" | "run",
     subtype: "workspace" | undefined,
     name: TestName,
-    script: string
+    script: string,
   ) {
     this.#type = type;
     this.#subtype = subtype;
@@ -105,13 +105,13 @@ export class Tests {
   [Symbol.for("nodejs.util.inspect.custom")](): object {
     return DisplayStruct(
       "Tests",
-      Object.fromEntries([this.#tests].map(([k, v]) => [String(k), v]))
+      Object.fromEntries([this.#tests].map(([k, v]) => [String(k), v])),
     );
   }
 
   get #record(): Record<TestName["value"], string> {
     return Object.fromEntries(
-      [...this.#tests].map((test) => [String(test.name), test.script])
+      [...this.#tests].map((test) => [String(test.name), test.script]),
     ) as Record<TestName["value"], string>;
   }
 
@@ -155,7 +155,7 @@ export interface Used {
 
 export function queryPackages(
   workspace: Workspace,
-  query: Query = Query.all
+  query: Query = Query.all,
 ): Package[] {
   const packageList = workspace.cmd(sh`pnpm ls -r --depth -1 --json`);
 
@@ -167,7 +167,7 @@ export function queryPackages(
 
   return packages
     .map((p) =>
-      new Directory(workspace.root.absolute, p.path).file("package.json")
+      new Directory(workspace.root.absolute, p.path).file("package.json"),
     )
     .map((manifest) => Package.from(workspace, manifest))
     .filter((pkg) => query.match(pkg, workspace.reporter));

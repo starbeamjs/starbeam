@@ -23,7 +23,7 @@ export const isTagged = is;
 
 export function isReactive<T>(
   this: void,
-  value: unknown
+  value: unknown,
 ): value is Reactive<T> {
   return is(value) && hasRead(value);
 }
@@ -33,6 +33,7 @@ export const isStatic = <T>(value: Reactive<T>): value is Static<T> =>
 
 export type ReadValue<T> = T extends Reactive<infer R> ? R : T;
 
+export function read<T>(this: void, value: T | Reactive<T>): T;
 export function read<T>(this: void, value: T | Reactive<T>): T {
   if (is(value) && hasRead(value)) {
     DEBUG?.markEntryPoint(`read ${DEBUG.describeTagged(value)}`);
@@ -45,7 +46,7 @@ export function read<T>(this: void, value: T | Reactive<T>): T {
 export function intoReactive<T>(
   this: void,
   value: T | Reactive<T>,
-  description?: string | Description | undefined
+  description?: string | Description | undefined,
 ): Reactive<T> {
   if (isReactive(value)) {
     return value;
@@ -57,7 +58,7 @@ export function intoReactive<T>(
 }
 
 function hasRead<T>(
-  value: object
+  value: object,
 ): value is { read: (caller?: CallStack) => T } {
   return "read" in value && typeof value.read === "function";
 }

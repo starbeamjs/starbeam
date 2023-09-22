@@ -1,0 +1,4 @@
+#:schema ./command.json
+
+name = "build"
+flags = 1

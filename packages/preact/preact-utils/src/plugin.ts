@@ -17,7 +17,7 @@ import {
 } from "./internals/vnode.js";
 
 export function Plugin(
-  updater: (callback: AugmentPreact) => void
+  updater: (callback: AugmentPreact) => void,
 ): (options: RawPreactOptions) => void {
   return (options) => {
     updater(new AugmentPreact(options));
@@ -69,8 +69,8 @@ export class AugmentPreact {
         index: number;
         type: HookType;
       },
-      handler: Handler
-    ) => void
+      handler: Handler,
+    ) => void,
   ): void {
     createHook(this.#original, "_hook", (component, index, type, handler) => {
       hook(
@@ -79,7 +79,7 @@ export class AugmentPreact {
           index,
           type: HookType.of(type),
         },
-        handler
+        handler,
       );
     });
   }
@@ -132,8 +132,8 @@ export class AugmentPreact {
         oldVNode: InternalVNode;
         errorInfo: Record<PropertyKey, unknown>;
       },
-      handler: Handler
-    ) => void
+      handler: Handler,
+    ) => void,
   ): void {
     createHook(
       this.#original,
@@ -146,27 +146,27 @@ export class AugmentPreact {
             oldVNode: InternalVNode.of(oldVNode),
             errorInfo,
           },
-          handler
+          handler,
         );
-      }
+      },
     );
   }
 }
 
 function createHook<
   K extends PreactOptionName,
-  V extends AnyFn = PreactHook<K>
+  V extends AnyFn = PreactHook<K>,
 >(
   originalOptions: RawPreactOptions,
   hookName: K,
-  hook: (...args: [...args: Parameters<V>, handler: Handler]) => void
+  hook: (...args: [...args: Parameters<V>, handler: Handler]) => void,
 ): void {
   const [originalFn, mangled] = getOriginal(originalOptions, hookName);
 
   originalOptions[mangled] = ((...args: HookParams<K>) => {
     const handler = AugmentHandler.create(
       hookName,
-      originalFn && (() => originalFn(...args))
+      originalFn && (() => originalFn(...args)),
     );
 
     hook(...args, handler);
@@ -177,10 +177,10 @@ function createHook<
 
 function getOriginal(
   original: RawPreactOptions,
-  name: PreactOptionName
+  name: PreactOptionName,
 ): [
   fn: ((...args: unknown[]) => unknown) | undefined,
-  mangled: MangledPreactOptionName
+  mangled: MangledPreactOptionName,
 ] {
   const mangled = getHookName(name);
 
@@ -241,7 +241,7 @@ export const HOOK_SUPER = {
 export class AugmentHandler<F extends AnyFn> implements Handler {
   static create<F extends AnyFn>(
     name: string,
-    original: F | undefined
+    original: F | undefined,
   ): AugmentHandler<F> | Noop {
     if (original === undefined) {
       return new Noop(name);
@@ -317,9 +317,9 @@ export class AugmentPreactAsComponent {
   }
 
   beforePaint(
-    hook: (vnode: InternalComponent, handler: Handler) => void
+    hook: (vnode: InternalComponent, handler: Handler) => void,
   ): void {
-    createHook(this.#original, "_commit", (vnode, handler) => {
+    createHook(this.#original, "diffed", (vnode, handler) => {
       if (isUserspaceComponent(vnode)) {
         hook(InternalComponent.of(getVNodeComponent(vnode)), handler);
       }
@@ -327,7 +327,7 @@ export class AugmentPreactAsComponent {
   }
 
   didRender(hook: (vnode: InternalComponent, handler: Handler) => void): void {
-    createHook(this.#original, "diffed", (vnode, handler) => {
+    createHook(this.#original, "_commit", (vnode, handler) => {
       if (isUserspaceComponent(vnode)) {
         hook(InternalComponent.of(getVNodeComponent(vnode)), handler);
       }

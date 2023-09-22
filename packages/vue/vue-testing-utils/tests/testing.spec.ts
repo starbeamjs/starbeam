@@ -1,29 +1,45 @@
 // @vitest-environment jsdom
 
 import { describe, test } from "@starbeam-workspace/test-utils";
-import { testing } from "@starbeam-workspace/vue-testing-utils/src/testing.js";
+import { App, Define, renderApp } from "@starbeam-workspace/vue-testing-utils";
 import { h, ref } from "vue";
 
 describe("useReactive", () => {
-  test("baseline", () => {
-    testing({ name: String })
-      .define((props) => h("div", ["hello ", props.name]))
-      .html((props) => `<div>hello ${props.name}</div>`)
-      .render({ name: "world" });
+  test("baseline", async () => {
+    const component = Define(
+      { name: String },
+      (props) => () => h("div", ["hello ", props.name]),
+    );
+
+    const app = App(() => () => h(component, { name: "world" }));
+
+    await renderApp(app, {
+      output: (name: string) => `<div>hello ${name}</div>`,
+    }).andExpect({ output: "world" });
   });
 
   test("rerendering", async () => {
-    const result = testing({ name: String })
-      .define((props) => h("div", ["hello ", props.name]))
-      .html((props) => `<div>hello ${props.name}</div>`)
-      .render({ name: "world" });
+    const name = ref("world");
 
-    await result.update(async () => result.rerender({ name: "cruel world" }));
+    const component = Define({}, () => () => h("div", ["hello ", name.value]));
+
+    const app = App(() => () => h(component));
+
+    const result = await renderApp(app, {
+      output: (name: string) => `<div>hello ${name}</div>`,
+    }).andExpect({
+      output: "world",
+    });
+
+    name.value = "cruel world";
+    await result.rerender().andExpect({ output: "cruel world" });
+    await result.unmount().andAssert();
   });
 
   test("firing events", async () => {
-    const result = testing({ name: String })
-      .define({
+    const component = Define(
+      { name: String },
+      {
         setup: (props) => {
           const counter = ref(0);
 
@@ -34,18 +50,18 @@ describe("useReactive", () => {
               h("p", String(counter.value)),
             ]);
         },
-      })
-      .html(
-        (_, { counter }) =>
-          `<div>Hello world<button>increment</button><p>${String(
-            counter
-          )}</p></div>`,
-        { counter: 0 }
-      )
-      .render({ name: "Hello world" });
+      },
+    );
 
-    await result.update(async () => result.find("button").fire.click(), {
-      counter: 1,
-    });
+    const app = App(() => () => h(component, { name: "Hello world" }));
+
+    const result = await renderApp(app, {
+      output: ({ name, counter }: { name: string; counter: number }) =>
+        `<div>Hello ${name}<button>increment</button><p>${String(
+          counter,
+        )}</p></div>`,
+    }).andExpect({ output: { name: "world", counter: 0 } });
+
+    await result.click().andExpect({ output: { name: "world", counter: 1 } });
   });
 });

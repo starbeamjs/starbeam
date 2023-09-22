@@ -1,4 +1,5 @@
 export type {
+  Scheduler as ComponentScheduler,
   Handler,
   Lifecycle,
   ReactiveBlueprint,
@@ -14,3 +15,4 @@ export {
   runHandlers,
 } from "./src/renderer.js";
 export type { IntoResourceBlueprint } from "./src/resource.js";
+export { intoResourceBlueprint } from "./src/resource.js";

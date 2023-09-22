@@ -1,4 +1,34 @@
 {
+  "private": true,
+  "name": "@starbeam-demos/stock-ticker",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.ts",
+  "exports": {
+    "default": "./index.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts"
+  },
+  "starbeam": {
+    "source": "tsx",
+    "type": "demo:react"
+  },
+  "scripts": {
+    "build": "tsc && vite build",
+    "dev": "vite",
+    "preview": "vite preview",
+    "test:lint": "eslint . --max-warnings 0",
+    "test:types": "tsc --noEmit -p tsconfig.json"
+  },
   "dependencies": {
     "@starbeam/collections": "workspace:^",
     "@starbeam/react": "workspace:^",
@@ -9,41 +39,11 @@
   },
   "devDependencies": {
     "@starbeam/eslint-plugin": "workspace:^",
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.1",
+    "@types/react": "^18.2.22",
+    "@types/react-dom": "^18.2.7",
     "@types/react-portal": "^4.0.4",
-    "@vitest/ui": "*",
-    "vite": "4.3.3",
-    "vitest": "^0.30.1"
-  },
-  "exports": {
-    "default": "./index.ts"
-  },
-  "main": "index.ts",
-  "name": "@starbeam-demos/stock-ticker",
-  "private": true,
-  "publishConfig": {
-    "exports": {
-      ".": {
-        "default": "./dist/index.cjs",
-        "import": "./dist/index.js",
-        "types": "./dist/index.d.ts"
-      }
-    },
-    "main": "dist/index.cjs",
-    "types": "dist/index.d.ts"
-  },
-  "scripts": {
-    "build": "tsc && vite build",
-    "dev": "vite",
-    "preview": "vite preview",
-    "test:lint": "eslint \"src/**/*.{tsx,ts}\" --max-warnings 0",
-    "test:types": "tsc --noEmit -p tsconfig.json"
-  },
-  "starbeam": {
-    "source": "tsx",
-    "type": "demo:react"
-  },
-  "type": "module",
-  "version": "1.0.0"
+    "@vitest/ui": "^0.34.4",
+    "vite": "4.3.9",
+    "vitest": "^0.34.4"
+  }
 }

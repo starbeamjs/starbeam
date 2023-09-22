@@ -4,14 +4,10 @@
     "*.cjs",
     "packages/x/devtools-extension",
     "packages/env.d.ts",
-    "!.npmcheckrc.json"
+    "!.npmcheckrc.json",
+    "**/node_modules"
   ],
-
   "plugins": ["@starbeam"],
-
-  "extends": [
-    "plugin:@starbeam/json:recommended",
-    "./.eslintrc.repo.json"
-  ],
+  "extends": ["./.eslintrc.repo.json"],
   "reportUnusedDisableDirectives": true
 }

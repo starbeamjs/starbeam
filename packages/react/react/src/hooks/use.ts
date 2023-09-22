@@ -1,5 +1,4 @@
 import type { Reactive } from "@starbeam/interfaces";
-import { read } from "@starbeam/reactive";
 import type { ReactiveBlueprint } from "@starbeam/renderer";
 import {
   type IntoResourceBlueprint,
@@ -29,7 +28,7 @@ import { createReactive, createResource } from "./setup.js";
 
 export function useReactive<T>(
   blueprint: ReactiveBlueprint<T>,
-  deps: unknown[]
+  deps: unknown[],
 ): T;
 export function useReactive<T>(blueprint: Reactive<T>): T;
 export function useReactive<T>(
@@ -52,12 +51,11 @@ export function useService<T>(blueprint: IntoResourceBlueprint<T>): T {
 export function useResource<T>(blueprint: ResourceBlueprint<T>): T;
 export function useResource<T>(
   blueprint: ResourceConstructor<T>,
-  deps: unknown[]
+  deps: unknown[],
 ): T;
 export function useResource<T>(
   blueprint: IntoResourceBlueprint<T>,
-  deps?: unknown[]
+  deps?: unknown[],
 ): T {
-  const instance = createResource(blueprint, deps);
-  return unsafeTrackedElsewhere(() => read(instance));
+  return createResource(blueprint, deps);
 }

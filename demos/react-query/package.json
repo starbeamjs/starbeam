@@ -1,44 +1,20 @@
 {
-  "dependencies": {
-    "@starbeam/collections": "workspace:^",
-    "@starbeam/react": "workspace:^",
-    "@starbeam/universal": "workspace:^",
-    "purecss": "3.0.0",
-    "react": "^18",
-    "react-dom": "^18"
-  },
-  "devDependencies": {
-    "@shopify/polaris": "^10.48.0",
-    "@starbeam/eslint-plugin": "workspace:^",
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.1",
-    "@types/styled-components": "^5.1.26",
-    "@vitest/ui": "*",
-    "axios": "^1.3.6",
-    "styled-components": "^5.3.10",
-    "vite": "4.3.3",
-    "vitest": "^0.30.1"
-  },
+  "private": true,
+  "name": "@starbeam-demos/react-query",
+  "main": "index.ts",
   "exports": {
     "default": "./index.ts"
   },
-  "main": "index.ts",
-  "name": "@starbeam-demos/react-query",
-  "private": true,
   "publishConfig": {
     "exports": {
       ".": {
-        "default": "./dist/index.cjs",
+        "types": "./dist/index.d.ts",
         "import": "./dist/index.js",
-        "types": "./dist/index.d.ts"
+        "default": "./dist/index.cjs"
       }
     },
     "main": "dist/index.cjs",
     "types": "dist/index.d.ts"
-  },
-  "scripts": {
-    "test:lint": "eslint \"src/**/*.{tsx,ts}\" --max-warnings 0",
-    "test:types": "tsc --noEmit -p tsconfig.json"
   },
   "starbeam": {
     "source": "tsx",
@@ -52,6 +28,28 @@
       }
     ]
   },
-  "type": "module",
-  "version": "1.0.0"
+  "scripts": {
+    "test:lint": "eslint . --max-warnings 0",
+    "test:types": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@starbeam/collections": "workspace:^",
+    "@starbeam/react": "workspace:^",
+    "@starbeam/universal": "workspace:^",
+    "purecss": "3.0.0",
+    "react": "^18",
+    "react-dom": "^18"
+  },
+  "devDependencies": {
+    "@shopify/polaris": "^11.19.0",
+    "@starbeam/eslint-plugin": "workspace:^",
+    "@types/react": "^18.2.22",
+    "@types/react-dom": "^18.2.7",
+    "@types/styled-components": "^5.1.27",
+    "@vitest/ui": "^0.34.4",
+    "axios": "^1.5.0",
+    "styled-components": "^6.0.8",
+    "vite": "4.3.9",
+    "vitest": "^0.34.4"
+  }
 }

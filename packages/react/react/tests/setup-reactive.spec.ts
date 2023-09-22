@@ -2,11 +2,11 @@
 
 import { setup, useReactive } from "@starbeam/react";
 import { Cell, Formula } from "@starbeam/universal";
-import { describe } from "@starbeam-workspace/test-utils";
+import { describeInDev } from "@starbeam-workspace/test-utils";
 
 import { testSetupReactive } from "./test-use.js";
 
-describe("setupReactive", () => {
+describeInDev("setupReactive", () => {
   testSetupReactive("with an external cell", async (test) => {
     const externalCell = Cell(0);
 

@@ -1,29 +1,49 @@
 // @vitest-environment jsdom
 
 import { setupResource } from "@starbeam/vue";
-import {
-  describe,
-  expect,
-  resources,
-  test,
-  TestResource,
-} from "@starbeam-workspace/test-utils";
-import { define } from "@starbeam-workspace/vue-testing-utils";
-import { h } from "vue";
+import { describe, test, TestResource } from "@starbeam-workspace/test-utils";
+import { App, HTML, renderApp } from "@starbeam-workspace/vue-testing-utils";
+import { Fragment, h } from "vue";
 
 describe("resources", () => {
-  test("resources are cleaned up correctly", () => {
-    const result = define({
-      setup: () => {
-        const test = setupResource(TestResource);
-        return () => h("p", ["hello ", test.value.id]);
-      },
-    })
-      .html(({ id }) => `<p>hello ${id}</p>`, { id: resources.nextId })
-      .render();
+  test("resources are cleaned up correctly", async () => {
+    const {
+      resource: TestResourceBlueprint,
+      id,
+      events,
+      invalidate,
+    } = TestResource();
 
-    result.unmount();
+    const app = App(() => {
+      const test = setupResource(TestResourceBlueprint);
+      return () =>
+        h(Fragment, [
+          h("p", ["hello id=", test.id, ", count=", test.count]),
+          h("button", { onClick: test.increment }, "+"),
+        ]);
+    });
 
-    expect(resources.last.isActive).toBe(false);
+    const result = await renderApp(app, {
+      output: HTML(
+        (count: number) =>
+          `<p>hello id=${id}, count=${count}</p><button>+</button>`,
+      ),
+      events,
+    }).andExpect({ output: 0, events: ["setup", "sync"] });
+
+    await result.rerender().andExpect("unchanged");
+
+    invalidate();
+    result.expect("unchanged");
+
+    await result.flush().andExpect({ events: ["cleanup", "sync"] });
+    await result.rerender().andExpect("unchanged");
+    await result.click().andExpect({ output: 1 });
+
+    invalidate();
+    result.expect("unchanged");
+
+    await result.flush().andExpect({ events: ["cleanup", "sync"] });
+    await result.unmount().andExpect({ events: ["cleanup", "finalize"] });
   });
 });

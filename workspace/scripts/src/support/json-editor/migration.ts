@@ -54,7 +54,7 @@ export class Migrator<R extends object> {
   set<K extends DeepKeyOf<R>>(
     path: K,
     value: DeepIndex<R, K>,
-    position?: EditPosition
+    position?: EditPosition,
   ): this {
     this.#migrations.push({ type: "set", path, value, position });
     return this;
@@ -63,7 +63,7 @@ export class Migrator<R extends object> {
   removeFrom<K extends DeepKeyOf<R>>(
     path: K,
     value: DeepArrayAdd<R, K> & (string | number | boolean),
-    options?: { matches: (prev: DeepArrayAdd<R, K>) => boolean } | undefined
+    options?: { matches: (prev: DeepArrayAdd<R, K>) => boolean } | undefined,
   ): this {
     const check = options?.matches ?? ((prev) => prev === value);
     this.#migrations.push({
@@ -77,7 +77,7 @@ export class Migrator<R extends object> {
 
   array<K extends DeepKeyOf<R>>(
     path: K,
-    update: (updater: UpdatePath<R, K>) => void
+    update: (updater: UpdatePath<R, K>) => void,
   ): this {
     update(new UpdatePath(this.#migrations, path));
     return this;
@@ -85,17 +85,17 @@ export class Migrator<R extends object> {
 
   addTo<K extends DeepKeyOf<R>>(
     path: K,
-    value: DeepArrayAdd<R, K> & (string | number | boolean)
+    value: DeepArrayAdd<R, K> & (string | number | boolean),
   ): this;
   addTo<K extends DeepKeyOf<R>>(
     path: K,
     value: DeepArrayAdd<R, K>,
-    options: { matches: (prev: DeepArrayAdd<R, K>) => boolean } | undefined
+    options: { matches: (prev: DeepArrayAdd<R, K>) => boolean } | undefined,
   ): this;
   addTo<K extends DeepKeyOf<R>>(
     path: K,
     value: DeepArrayAdd<R, K> & (string | number | boolean),
-    options?: { matches: (prev: DeepArrayAdd<R, K>) => boolean } | undefined
+    options?: { matches: (prev: DeepArrayAdd<R, K>) => boolean } | undefined,
   ): this {
     const check = options?.matches ?? ((prev) => prev === value);
     this.#migrations.push({
@@ -114,7 +114,7 @@ export class Migrator<R extends object> {
           this.#editor.set(
             migration.path,
             migration.value,
-            positionOption(migration.position)
+            positionOption(migration.position),
           );
           break;
         }
@@ -129,7 +129,7 @@ export class Migrator<R extends object> {
               console.error(
                 `Error while checking migration value at \`${
                   migration.path
-                }\`: ${inspect(value)}\n\n${String(e)}`
+                }\`: ${inspect(value)}\n\n${String(e)}`,
               );
               throw e;
             }
@@ -142,7 +142,7 @@ export class Migrator<R extends object> {
     }
   }
 
-  write(): ChangeResult {
+  async write(): Promise<ChangeResult> {
     this.migrate();
     return this.#editor.write();
   }
@@ -213,11 +213,11 @@ class UpdatePath<R extends object, K extends DeepKeyOf<R>> {
   remove(value: DeepArrayAdd<R, K> & (string | number | boolean)): this;
   remove(
     value: DeepArrayAdd<R, K>,
-    options: { matches: (prev: DeepArrayAdd<R, K>) => boolean } | undefined
+    options: { matches: (prev: DeepArrayAdd<R, K>) => boolean } | undefined,
   ): this;
   remove(
     value: DeepArrayAdd<R, K> & (string | number | boolean),
-    options?: { matches: (prev: DeepArrayAdd<R, K>) => boolean } | undefined
+    options?: { matches: (prev: DeepArrayAdd<R, K>) => boolean } | undefined,
   ): this {
     const check = options?.matches ?? ((prev) => prev === value);
     this.#migrations.push({
@@ -231,11 +231,11 @@ class UpdatePath<R extends object, K extends DeepKeyOf<R>> {
   add(value: DeepArrayAdd<R, K> & (string | number | boolean)): this;
   add(
     value: DeepArrayAdd<R, K>,
-    options: { matches: (prev: DeepArrayAdd<R, K>) => boolean } | undefined
+    options: { matches: (prev: DeepArrayAdd<R, K>) => boolean } | undefined,
   ): this;
   add(
     value: DeepArrayAdd<R, K> & (string | number | boolean),
-    options?: { matches: (prev: DeepArrayAdd<R, K>) => boolean } | undefined
+    options?: { matches: (prev: DeepArrayAdd<R, K>) => boolean } | undefined,
   ): this {
     const check = options?.matches ?? ((prev) => prev === value);
     this.#migrations.push({

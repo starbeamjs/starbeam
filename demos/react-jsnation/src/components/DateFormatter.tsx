@@ -47,7 +47,7 @@ export default function (props: { locale: string }): JSX.Element {
             </label>
           </form>
 
-          <p className="output">{date.current?.formatted}</p>
+          <p className="output">{date.formatted}</p>
         </>
       );
     });
@@ -56,21 +56,21 @@ export default function (props: { locale: string }): JSX.Element {
 
 function Clock(
   timeZone: Reactive<string>,
-  locale: Reactive<string>
+  locale: Reactive<string>,
 ): ResourceBlueprint<{ formatted: string; refresh: () => void }> {
-  const date = Cell(new Date(), "current time");
+  return Resource(({ on }) => {
+    const date = Cell(new Date(), "current time");
 
-  function refresh(): void {
-    date.current = new Date();
-  }
+    function refresh(): void {
+      date.current = new Date();
+    }
 
-  return Resource((resource) => {
-    const interval = setInterval(() => {
-      refresh();
-    }, 1000);
+    on.sync(() => {
+      const interval = setInterval(() => {
+        refresh();
+      }, 1000);
 
-    resource.on.cleanup(() => {
-      clearInterval(interval);
+      return () => void clearInterval(interval);
     });
 
     return {
@@ -83,7 +83,7 @@ function Clock(
 function formatDate(
   date: Date,
   locale = SYSTEM_LOCALE,
-  timeZone = SYSTEM_TZ
+  timeZone = SYSTEM_TZ,
 ): string {
   return new Intl.DateTimeFormat(locale, {
     hour: "numeric",

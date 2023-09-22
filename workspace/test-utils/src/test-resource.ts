@@ -1,80 +1,68 @@
-import { Resource } from "@starbeam/resource";
-import { RUNTIME } from "@starbeam/runtime";
-import { isPresent, verified } from "@starbeam/verify";
+import { Resource, type ResourceBlueprint } from "@starbeam/resource";
+import { Cell, Marker } from "@starbeam/universal";
 
-export const TestResource = Resource((r) => {
-  const impl = TestResourceImpl.create();
+import { RecordedEvents } from "./actions.js";
 
-  r.on.cleanup(() => {
-    RUNTIME.finalize(impl);
-  });
+interface TestResourceInstance {
+  readonly id: number;
+  readonly count: number;
+  readonly increment: () => void;
+}
 
-  return impl;
-});
+interface TestResourceState {
+  readonly id: number;
+  readonly events: RecordedEvents;
+  readonly invalidate: () => void;
+  readonly resource: ResourceBlueprint<TestResourceInstance>;
+}
 
-const INITIAL_ID = 0;
+let NEXT_ID = 0;
+const INITIAL_COUNT = 0;
+const INCREMENT = 1;
 
-export const resources = {
-  get currentId(): number {
-    return TestResourceImpl.currentId;
-  },
+export function TestResource(
+  options?:
+    | {
+        events: RecordedEvents;
+        prefix: string;
+      }
+    | undefined,
+): TestResourceState {
+  const allEvents = options?.events ?? new RecordedEvents();
+  const localEvents = options
+    ? options.events.prefixed(options.prefix)
+    : allEvents;
+  const invalidate = Marker();
+  const id = NEXT_ID++;
 
-  get nextId(): number {
-    return TestResourceImpl.nextId;
-  },
+  return {
+    id,
+    events: allEvents,
+    invalidate: () => void invalidate.mark(),
+    resource: Resource(({ on }) => {
+      const cell = Cell(INITIAL_COUNT);
+      localEvents.record("setup");
 
-  get last(): TestResourceImpl {
-    return TestResourceImpl.getLast();
-  },
+      on.sync(() => {
+        localEvents.record("sync");
+        invalidate.read();
 
-  get isActive(): boolean {
-    return resources.last.isActive;
-  },
-};
+        return () => void localEvents.record("cleanup");
+      });
 
-export class TestResourceImpl {
-  static #nextId = INITIAL_ID;
-  static #last: TestResourceImpl | undefined;
+      on.finalize(() => {
+        localEvents.record("finalize");
+      });
 
-  static get nextId(): number {
-    return TestResourceImpl.#nextId;
-  }
-
-  static get currentId(): number {
-    if (TestResourceImpl.#last === undefined) {
-      throw Error(
-        `You are attempting to get the current resource ID in testing, but no resource is active.`
-      );
-    }
-
-    return TestResourceImpl.#last.#id;
-  }
-
-  static getLast(): TestResourceImpl {
-    return verified(TestResourceImpl.#last, isPresent);
-  }
-
-  static create(): TestResourceImpl {
-    return new TestResourceImpl(TestResourceImpl.#nextId++);
-  }
-
-  #id: number;
-  #active = true;
-
-  constructor(id: number) {
-    this.#id = id;
-    TestResourceImpl.#last = this;
-
-    RUNTIME.onFinalize(this, () => {
-      this.#active = false;
-    });
-  }
-
-  get id(): number {
-    return this.#id;
-  }
-
-  get isActive(): boolean {
-    return this.#active;
-  }
+      return {
+        id,
+        get count() {
+          return cell.current;
+        },
+        increment() {
+          cell.update((n) => n + INCREMENT);
+        },
+      };
+    }),
+  };
 }

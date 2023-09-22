@@ -18,14 +18,18 @@ const ALLOW_TYPE_ONLY = ["@types/node"];
 
 type ParserName = keyof typeof depcheck.parser;
 
-function Parsers(options: {
-  [P in ParserName]?: Globs<RegularFile> | Glob<RegularFile>;
-}): Record<string, depcheck.Parser> {
+export type ParserConfig = Globs<RegularFile> | Glob<RegularFile> | undefined;
+
+export type ParsersConfig = {
+  [P in ParserName]?: ParserConfig;
+};
+
+function Parsers(options: ParsersConfig): Record<string, depcheck.Parser> {
   const parsers: Record<string, depcheck.Parser> = {};
 
   for (const [parser, globs] of Object.entries(options) as [
     ParserName,
-    Glob | Globs
+    Glob | Globs,
   ][]) {
     for (const glob of globs.asGlobs()) {
       add(glob, parser);
@@ -72,14 +76,15 @@ export async function checkUnused({
   const workspace = pkg.workspace;
 
   const config = {
-    es6: pkg.source
+    es6: pkg.sources
       .javascript(pkg.root)
       .add(pkg.root.glob("rollup.config.mjs", { match: ["files"] }))
       .add(pkg.root.glob("vite.config.ts", { match: ["files"] })),
-    jsx: pkg.source.jsx(pkg.root),
-    typescript: pkg.source.typescript(pkg.root),
+
+    jsx: pkg.sources.jsx(pkg.root),
+    typescript: pkg.sources.typescript(pkg.root),
     sass: pkg.root.glob("**/*.css", { match: ["files"] }),
-  };
+  } satisfies ParsersConfig;
 
   const parsers = Parsers(config);
 
@@ -172,10 +177,10 @@ class UnusedReporter {
           PresentArray.from(files).ifPresent((present) => {
             r.ul({
               header: stringify`${Fragment.problem(
-                listDep(dep)
+                listDep(dep),
               )} ${Fragment.comment.header("is used by:")}`,
               items: present.map((file) =>
-                this.#workspace.root.relativeTo(file)
+                this.#workspace.root.relativeTo(file),
               ),
               style: "problem",
             });

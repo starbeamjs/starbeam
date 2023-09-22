@@ -32,7 +32,6 @@ describe("create", () => {
       return html`<p>${cell.current}</p>
         <button
           onClick=${() => {
-            console.log(increment);
             increment();
           }}
         >
@@ -57,7 +56,6 @@ function ReactiveObject(): { cell: Cell<number>; increment: () => void } {
   });
 
   function increment(): void {
-    console.log("updating to", cell.current + INCREMENT);
     cell.set(cell.current + INCREMENT);
   }
 

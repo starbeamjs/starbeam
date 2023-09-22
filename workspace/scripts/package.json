@@ -1,61 +1,23 @@
 {
-  "dependencies": {
-    "@starbeam-workspace/json": "workspace:*",
-    "@starbeam-workspace/package": "workspace:*",
-    "@starbeam-workspace/paths": "workspace:*",
-    "@starbeam-workspace/reporter": "workspace:*",
-    "@starbeam-workspace/shared": "workspace:*",
-    "@starbeam-workspace/workspace": "workspace:*",
-    "ansicolor": "^1.1.100",
-    "chalk": "^5.2.0",
-    "commander": "^10.0.1",
-    "depcheck": "^1.4.3",
-    "dirfilename": "^1.1.1",
-    "emoji-regex": "^10.2.1",
-    "eslint": "^8.39.0",
-    "fast-glob": "^3.2.11",
-    "node-pty": "^0.10.1",
-    "prettier": "^2.8.8",
-    "shell-escape-tag": "^2.0.2",
-    "shell-split": "^1.0.0",
-    "shelljs": "^0.8.5",
-    "split2": "^4.2.0"
-  },
-  "devDependencies": {
-    "@starbeam-dev/build-support": "workspace:^",
-    "@starbeam/eslint-plugin": "workspace:^",
-    "@types/prettier": "^2.7.2",
-    "@types/shell-escape-tag": "workspace:^",
-    "@types/shell-split": "workspace:^",
-    "@types/shelljs": "^0.8.12",
-    "@types/split2": "^4.2.0",
-    "@types/wrap-ansi": "^8.0.1",
-    "cli-table3": "^0.6.3",
-    "esno": "^0.16.3",
-    "jsonc-parser": "^3.2.0",
-    "term-size": "^3.0.2",
-    "wrap-ansi": "^8.1.0"
-  },
+  "private": true,
+  "name": "@starbeam-workspace/scripts",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.ts",
+  "types": "index.ts",
   "exports": {
     "default": "./index.ts"
   },
-  "main": "index.ts",
-  "name": "@starbeam-workspace/scripts",
-  "private": true,
   "publishConfig": {
     "exports": {
       ".": {
-        "default": "./dist/index.cjs",
+        "types": "./dist/index.d.ts",
         "import": "./dist/index.js",
-        "types": "./dist/index.d.ts"
+        "default": "./dist/index.cjs"
       }
     },
     "main": "dist/index.cjs",
     "types": "dist/index.d.ts"
-  },
-  "scripts": {
-    "test:lint": "eslint \"index.ts\" \"src/**/*.ts\" --max-warnings 0",
-    "test:types": "tsc -b"
   },
   "starbeam": {
     "source": "ts",
@@ -75,7 +37,44 @@
       }
     ]
   },
-  "type": "module",
-  "types": "index.ts",
-  "version": "1.0.0"
+  "scripts": {
+    "test:lint": "eslint . --max-warnings 0",
+    "test:types": "tsc -b"
+  },
+  "dependencies": {
+    "@starbeam-workspace/json": "workspace:*",
+    "@starbeam-workspace/package": "workspace:*",
+    "@starbeam-workspace/paths": "workspace:*",
+    "@starbeam-workspace/reporter": "workspace:*",
+    "@starbeam-workspace/shared": "workspace:*",
+    "@starbeam-workspace/workspace": "workspace:*",
+    "ansicolor": "^1.1.100",
+    "chalk": "^5.3.0",
+    "commander": "^11.0.0",
+    "depcheck": "^1.4.6",
+    "dirfilename": "^1.1.1",
+    "emoji-regex": "^10.2.1",
+    "eslint": "^8.39.0",
+    "fast-glob": "^3.2.11",
+    "node-pty": "^1.0.0",
+    "prettier": "^3.0.3",
+    "shell-escape-tag": "^2.0.2",
+    "shell-split": "^1.0.0",
+    "shelljs": "^0.8.5",
+    "split2": "^4.2.0"
+  },
+  "devDependencies": {
+    "@starbeam/eslint-plugin": "workspace:^",
+    "@starbeam-dev/build-support": "workspace:^",
+    "@types/shell-escape-tag": "workspace:^",
+    "@types/shell-split": "workspace:^",
+    "@types/shelljs": "^0.8.12",
+    "@types/split2": "^4.2.0",
+    "@types/wrap-ansi": "^8.0.1",
+    "cli-table3": "^0.6.3",
+    "esno": "^0.17.0",
+    "jsonc-parser": "^3.2.0",
+    "term-size": "^3.0.2",
+    "wrap-ansi": "^8.1.0"
+  }
 }

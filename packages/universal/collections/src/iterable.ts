@@ -282,7 +282,6 @@ export class ReactiveSet<T> implements Set<T> {
   }
 
   get size(): number {
-    console.log(this.#values);
     this.#values.read();
 
     let size = 0;

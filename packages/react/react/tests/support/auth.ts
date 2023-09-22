@@ -16,11 +16,11 @@ import { Channels } from "./channel.js";
 
 type SendFn = (
   message: Auth,
-  options?: { expect: "active" | "inactive" }
+  options?: { expect: "active" | "inactive" },
 ) => Promise<void>;
 
 export function testAuth(
-  getService: <T>(blueprint: IntoResourceBlueprint<T>) => T
+  getService: <T>(blueprint: IntoResourceBlueprint<T>) => T,
 ): {
   Avatar: () => React.ReactElement | null;
   Username: () => React.ReactElement | null;
@@ -42,7 +42,7 @@ export function testAuth(
 
       async function send(
         message: Auth,
-        options: { expect: "active" | "inactive" } = { expect: "active" }
+        options: { expect: "active" | "inactive" } = { expect: "active" },
       ): Promise<void> {
         await result.act(() => {
           const latest = AUTH_CHANNELS.latest();
@@ -57,7 +57,7 @@ export function testAuth(
 
         expect(
           channel?.isActive,
-          `the channel should be ${options.expect}`
+          `the channel should be ${options.expect}`,
         ).toBe(options.expect === "active");
 
         expect(result.value, "the last rendered auth value").toEqual({
@@ -68,13 +68,13 @@ export function testAuth(
   };
 
   function Avatar(): React.ReactElement | null {
-    const user = getService(CurrentUser);
+    const user = getService(CurrentUser).current;
 
     return user ? html.img({ src: user.avatar }) : null;
   }
 
   function Username(): React.ReactElement | null {
-    const user = getService(CurrentUser);
+    const user = getService(CurrentUser).current;
 
     return user ? html.span(user.username) : null;
   }
@@ -85,7 +85,7 @@ export function testAuth(
     testState: RenderState<Auth | null>;
   }): React.ReactElement {
     testState.rendered();
-    const user = getService(CurrentUser);
+    const user = getService(CurrentUser).current;
     testState.value(user);
 
     if (user) {
@@ -106,14 +106,12 @@ const AUTH_CHANNELS = new Channels<Auth>();
 const CurrentUser = Resource((r) => {
   const lastMessage = Cell(null as Auth | null, "last message");
 
-  const c = AUTH_CHANNELS.subscribe("auth");
+  r.on.sync(() => {
+    const c = AUTH_CHANNELS.subscribe("auth");
 
-  c.onMessage((message) => {
-    lastMessage.set(message);
-  });
+    c.onMessage((message) => lastMessage.set(message));
 
-  r.on.cleanup(() => {
-    c.cleanup();
+    return () => void c.cleanup();
   });
 
   return lastMessage;

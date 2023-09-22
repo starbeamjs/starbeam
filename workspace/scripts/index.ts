@@ -9,6 +9,7 @@ import { CheckCommand } from "./src/check.js";
 import { CiCommand } from "./src/ci.js";
 import { CleanCommand } from "./src/clean.js";
 import { DemoCommand } from "./src/demo.js";
+import { FmtCommand } from "./src/fmt.js";
 import { LintCommand } from "./src/lint.js";
 import { ListCommand } from "./src/list.js";
 import { ReleaseCommand } from "./src/release.js";
@@ -29,7 +30,7 @@ await new StarbeamCommands(
     .exitOverride(() => {
       // we're calling this from an npm script, so the noisy exit 1 is not useful
       process.exit(OK_EXIT_CODE);
-    })
+    }),
 )
   .add(ListCommand)
   .add(BuildCommand)
@@ -42,4 +43,5 @@ await new StarbeamCommands(
   .add(CheckCommand)
   .add(ReleaseCommand)
   .add(LintCommand)
+  .add(FmtCommand)
   .run();

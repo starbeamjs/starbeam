@@ -1,6 +1,10 @@
-export type { ResourceBlueprint, ResourceBrand } from "./src/api.js";
-export * from "./src/api.js";
-export { lifetime, type ResourceRun } from "./src/resource.js";
+export type {
+  IntoResourceBlueprint,
+  ResourceBlueprint,
+  ResourceConstructor,
+} from "./src/resource.js";
+export { Resource, use as setupResource } from "./src/resource.js";
 export { ResourceList } from "./src/resource-list.js";
-export { Setup, Setups } from "./src/setup.js";
-export type { ResourceConstructor } from "./src/types.js";
+export { SyncTo } from "./src/sync/high-level.js";
+export type { Sync, SyncFn, SyncResult } from "./src/sync/primitive.js";
+export { PrimitiveSyncTo } from "./src/sync/primitive.js";

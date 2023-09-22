@@ -8,7 +8,10 @@
   // and other config-specific things.
   "[json][jsonc]": {
     "editor.formatOnSave": false,
-    "editor.codeActionsOnSave": ["source.fixAll.eslint"]
+    "editor.codeActionsOnSave": [
+      "source.fixAll.eslint",
+      "source.formatDocument"
+    ]
   },
 
   // format JavaScript and TypeScript using `eslint` first and then follow up
@@ -22,11 +25,15 @@
     ]
   },
 
+  "codeium.aggressiveShutdown": true,
+  "codeium.enableCodeLens": false,
+  "codeium.enableSearch": false,
+  // "codeium"
+
   "editor.defaultFormatter": "esbenp.prettier-vscode",
 
   "eslint.codeActionsOnSave.mode": "all",
   "eslint.enable": true,
-
   "eslint.lintTask.enable": true,
   "eslint.lintTask.options": "--cache -c ./.eslintrc.json --max-warnings=0 \"**/*.ts\" \"**/*.tsx\" \"**/*.json\"",
   "eslint.onIgnoredFiles": "warn",
@@ -42,6 +49,8 @@
     "html"
   ],
   "eslint.workingDirectories": [{ "mode": "auto" }],
+
+  "evenBetterToml.schema.associations": {},
 
   // exclude .gitignore files from the file explorer
   "explorer.excludeGitIgnore": true,
@@ -59,6 +68,23 @@
     "vite.config.ts": "rollup.config.*, .env.*"
   },
 
+  "files.exclude": {
+    "**/.DS_Store": true,
+    "**/.git": true,
+    "**/.hg": true,
+    "**/.svn": true,
+    "**/CVS": true,
+    "**/Thumbs.db": true,
+    "**/dist/**": true,
+    "**/node_modules/**": true,
+    ".turbo/**": true
+  },
+  "inline-bookmarks.expert.custom.words.mapping": {
+    "red": ["@fixme(?=\\s|$)"]
+  },
+  "inline-bookmarks.view.exclude.gitIgnore": true,
+
+  "npm-outdated.decorations": "fancy",
   "prettier.prettierPath": "./node_modules/prettier",
 
   // rewrap provides a quick keyboard shortcut (alt-q) to reformat comments to
@@ -67,13 +93,12 @@
   "rewrap.autoWrap.enabled": true,
   "rewrap.reformat": true,
   "rewrap.wrappingColumn": 80,
-
   // CHANGELOG.md and pnpm-lock.yaml create a lot of search noise
   "search.exclude": {
     "**/CHANGELOG.md": true,
     "pnpm-lock.yaml": true
   },
-
+  "testing.automaticallyOpenPeekView": "never",
   // Try to avoid auto-importing other packages in the mono-repo as relative
   // paths. Instead, use the packaage name.
   "typescript.preferences.importModuleSpecifier": "project-relative",
@@ -82,5 +107,12 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   // This can sometimes be flaky, but generally it's a good idea to have
   // project-wide checks if possible.
-  "typescript.tsserver.experimental.enableProjectDiagnostics": true
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+
+  "vitest.changeBackgroundColor": true,
+  "vitest.commandLine": "pnpm vitest --ui --no-open --api.port 8080 --api.host 0.0.0.0 --api.strictPort",
+  "vitest.debugExclude": ["<node_internals>/**", "**/node_modules/**"],
+  "vitest.disabledWorkspaceFolders": ["demos", "@types", "workspace"],
+  "vitest.enable": true,
+  "vitest.showFailMessages": true
 }

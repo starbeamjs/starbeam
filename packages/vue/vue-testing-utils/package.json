@@ -1,38 +1,40 @@
 {
-  "dependencies": {
-    "@starbeam-workspace/test-utils": "workspace:^",
-    "@starbeam/interfaces": "workspace:^",
-    "@starbeam/verify": "workspace:^",
-    "@testing-library/dom": "^9.2.0",
-    "@testing-library/vue": "^7.0.0"
-  },
-  "devDependencies": {
-    "@starbeam-dev/build-support": "workspace:^",
-    "@starbeam/eslint-plugin": "workspace:^",
-    "rollup": "^3.20.6"
-  },
-  "name": "@starbeam-workspace/vue-testing-utils",
-  "peerDependencies": {
-    "vue": ">=3.0.0"
-  },
   "private": true,
+  "name": "@starbeam-workspace/vue-testing-utils",
+  "version": "0.7.4",
+  "type": "module",
   "publishConfig": {
     "exports": {
       ".": {
-        "default": "./dist/index.cjs",
+        "types": "./dist/index.d.ts",
         "import": "./dist/index.js",
-        "types": "./dist/index.d.ts"
+        "default": "./dist/index.cjs"
       }
     },
     "main": "dist/index.cjs",
     "types": "dist/index.d.ts"
   },
+  "starbeam:type": "library:test-support",
   "scripts": {
-    "test:lint": "eslint \"index.ts\" \"src/**/*.ts\" --max-warnings 0",
+    "test:lint": "eslint . --max-warnings 0",
     "test:specs": "vitest --run",
     "test:types": "tsc -b"
   },
-  "starbeam:type": "library:test-support",
-  "type": "module",
-  "version": "0.7.4"
+  "dependencies": {
+    "@starbeam/interfaces": "workspace:^",
+    "@starbeam/shared": "workspace:^",
+    "@starbeam/verify": "workspace:^",
+    "@starbeam-workspace/test-utils": "workspace:^",
+    "@testing-library/dom": "^9.3.1",
+    "@testing-library/vue": "^7.0.0"
+  },
+  "devDependencies": {
+    "@starbeam/eslint-plugin": "workspace:^",
+    "@starbeam-dev/build-support": "workspace:^",
+    "@vue/shared": "^3.3.4",
+    "rollup": "^3.29.0"
+  },
+  "peerDependencies": {
+    "vue": ">=3.0.0"
+  }
 }

@@ -1,4 +1,4 @@
-import { stringify } from "@starbeam/core-utils";
+import { getFirst, isSingleItemArray, stringify } from "@starbeam/core-utils";
 import type { JsonObject, JsonValue } from "@starbeam-workspace/json";
 import type { Directory, RegularFile } from "@starbeam-workspace/paths";
 import { Globs } from "@starbeam-workspace/paths";
@@ -16,7 +16,7 @@ export class StarbeamType extends Union(
   "unknown",
   "draft",
   "root",
-  "none"
+  "none",
 ) {
   hasCategory(kind: "demo" | "support"): boolean {
     return this.value.startsWith(`${kind}:`);
@@ -27,7 +27,109 @@ type Ext = "d.ts" | "js" | "jsx" | "ts" | "tsx";
 
 const EXTS = ["d.ts", "js", "jsx", "ts", "tsx"] as const;
 
-export class StarbeamSources extends Union(
+export class StarbeamSources implements Iterable<StarbeamSource> {
+  static of(sources: Iterable<StarbeamSource>): StarbeamSources {
+    return new StarbeamSources([...sources]);
+  }
+
+  #sources: StarbeamSource[];
+
+  private constructor(sources: StarbeamSource[]) {
+    this.#sources = sources;
+  }
+
+  [Symbol.iterator](): Iterator<StarbeamSource> {
+    return this.#sources[Symbol.iterator]();
+  }
+
+  some(matcher: (source: StarbeamSource) => boolean): boolean {
+    return this.#sources.some(matcher);
+  }
+
+  /**
+   * Determine whether this source type includes the given extension.
+   */
+  has(...exts: Ext[]): boolean {
+    return this.some((source) => source.has(...exts));
+  }
+
+  get hasJS(): boolean {
+    return this.some((source) => source.isJS);
+  }
+
+  get isOnlyJS(): boolean {
+    return this.some((source) => source.isJS);
+  }
+
+  get hasTS(): boolean {
+    return this.some((source) => source.isTS);
+  }
+
+  get hasBin(): boolean {
+    return this.some((source) => source.isType("bin"));
+  }
+
+  get bin(): StarbeamSource | undefined {
+    return this.#sources.find((source) => source.isType("bin"));
+  }
+
+  hasFiles(): boolean {
+    return this.some((source) => source.hasFiles());
+  }
+
+  /**
+   * The list of extensions that are included in this source type.
+   */
+  get inputExtensions(): Extensions {
+    return Extensions.from(
+      this.#sources.map((source) => source.inputExtensions),
+    );
+  }
+
+  typescript(root: Directory): Globs<RegularFile> {
+    return this.select(root, ["ts", "tsx", "d.ts"]);
+  }
+
+  javascript(root: Directory): Globs<RegularFile> {
+    return this.select(root, ["js"]);
+  }
+
+  jsx(root: Directory): Globs<RegularFile> {
+    return this.select(root, ["jsx"]);
+  }
+
+  select(root: Directory, exts: Ext[]): Globs<RegularFile> {
+    let globs = Globs.root(root, { match: ["files"] });
+
+    for (const source of this.#sources) {
+      globs = source.select(root, exts, globs);
+    }
+
+    return globs;
+  }
+
+  exclude(root: Directory, excluded: Ext[]): Globs<RegularFile> {
+    const selected = new Set(EXTS);
+
+    for (const ext of excluded) {
+      selected.delete(ext);
+    }
+
+    return this.select(root, [...selected]);
+  }
+
+  outputs(root: Directory): Globs<RegularFile> {
+    let globs = Globs.root(root, { match: ["files"] });
+
+    for (const source of this.#sources) {
+      globs = StarbeamSource.addOutputs(source, globs);
+    }
+
+    return globs;
+  }
+}
+
+export class StarbeamSource extends Union(
   "js:untyped",
   "js:typed",
   "jsx:typed",
@@ -35,13 +137,27 @@ export class StarbeamSources extends Union(
   "ts",
   "tsx",
   "d.ts",
-  "none"
+  // bins are always JS
+  "bin:typed",
+  "bin:untyped",
+  "none",
 ) {
+  static addOutputs(
+    source: StarbeamSource,
+    globs: Globs<RegularFile>,
+  ): Globs<RegularFile> {
+    for (const ext of EXTS) {
+      globs = source.#output(globs, ext);
+    }
+
+    return globs;
+  }
+
   /**
    * Determine whether this source type includes the given extension.
    */
-  has(ext: Ext): boolean {
-    return this.inputExtensions.includes(ext);
+  has(...exts: Ext[]): boolean {
+    return exts.some((e) => this.inputExtensions.includes(e));
   }
 
   get isJS(): boolean {
@@ -56,14 +172,20 @@ export class StarbeamSources extends Union(
     return this.value !== "none";
   }
 
+  get inputExtensions(): Extensions {
+    return Extensions.of(this.#inputExtensions);
+  }
+
   /**
    * The list of extensions that are included in this source type.
    */
-  get inputExtensions(): Ext[] {
+  get #inputExtensions(): Ext[] {
     switch (this.value) {
       case "js:untyped":
+      case "bin:untyped":
         return ["js"];
       case "js:typed":
+      case "bin:typed":
         return ["js", "d.ts"];
       case "jsx:untyped":
         return ["jsx", "js"];
@@ -78,13 +200,6 @@ export class StarbeamSources extends Union(
       case "none":
         return [];
     }
-  }
-
-  #add(globs: Globs<RegularFile>, ext: Ext): Globs<RegularFile> {
-    if (this.has(ext)) {
-      globs = globs.add(`**/*.${ext}`);
-    }
-    return globs;
   }
 
   #output(globs: Globs<RegularFile>, ext: Ext): Globs<RegularFile> {
@@ -106,11 +221,15 @@ export class StarbeamSources extends Union(
     return this.select(root, ["jsx"]);
   }
 
-  select(root: Directory, exts: Ext[]): Globs<RegularFile> {
-    let globs = Globs.root(root, { match: ["files"] });
-
+  select(
+    root: Directory,
+    exts: Ext[],
+    globs: Globs<RegularFile> = Globs.root(root, { match: ["files"] }),
+  ): Globs<RegularFile> {
     for (const ext of exts) {
-      globs = this.#add(globs, ext);
+      if (this.has(ext)) {
+        globs = globs.add(`**/*.${ext}`);
+      }
     }
 
     return globs;
@@ -127,20 +246,59 @@ export class StarbeamSources extends Union(
   }
 
   outputs(root: Directory): Globs<RegularFile> {
-    let globs = Globs.root(root, { match: ["files"] });
+    return StarbeamSource.addOutputs(
+      this,
+      Globs.root(root, { match: ["files"] }),
+    );
+  }
+}
 
-    for (const ext of EXTS) {
-      globs = this.#output(globs, ext);
+export class Extensions implements Iterable<Ext> {
+  static of(extensions: Iterable<Ext>): Extensions {
+    return new Extensions([...extensions]);
+  }
+
+  static from(extensions: (Extensions | Ext[])[]): Extensions {
+    const exts: Ext[] = [];
+
+    for (const ext of extensions) {
+      if (Array.isArray(ext)) {
+        exts.push(...ext);
+      } else {
+        exts.push(...ext.#extensions);
+      }
     }
 
-    return globs;
+    return new Extensions(exts);
+  }
+
+  #extensions: Ext[];
+
+  private constructor(extensions: Ext[]) {
+    this.#extensions = extensions;
+  }
+
+  [Symbol.iterator](): IterableIterator<Ext> {
+    return this.#extensions[Symbol.iterator]();
+  }
+
+  get glob(): string {
+    if (isSingleItemArray(this.#extensions)) {
+      return getFirst(this.#extensions);
+    } else {
+      return `{${this.#extensions.join(",")}}`;
+    }
+  }
+
+  includes(ext: Ext): boolean {
+    return this.#extensions.includes(ext);
   }
 }
 
 export class JsonTemplate extends Union(
   "interfaces.package.json",
   "package.json",
-  "tsconfig.json"
+  "tsconfig.json",
 ) {
   read(root: Directory, filter?: JsonFilter): JsonObject | undefined {
     const json = root
@@ -181,10 +339,22 @@ class JsonEntries {
     const { type, choices } = switchType;
 
     if (type in filter) {
-      const actual = String(filter[type]);
+      function normalize(into: IntoUnionInstance): string[] {
+        if (typeof into === "string") {
+          return [into];
+        } else if (Symbol.iterator in into) {
+          return [...into].map((into) => String(into));
+        } else {
+          return [String(into)];
+        }
+      }
 
-      if (actual in choices) {
-        return choices[actual];
+      const actual = normalize(filter[type]);
+
+      for (const item of actual) {
+        if (item in choices) {
+          return choices[item];
+        }
       }
     }
 
@@ -194,7 +364,7 @@ class JsonEntries {
       throw Error(
         `No default in switch:${type} (for ${
           this.#path
-        }) and the given filter (${JSON.stringify(filter)}) had no matches.`
+        }) and the given filter (${JSON.stringify(filter)}) had no matches.`,
       );
     }
   }
@@ -203,7 +373,7 @@ class JsonEntries {
     | { type: JsonFilterType; choices: Record<string, JsonObject> }
     | undefined {
     const switchNode = this.#entries.find(
-      ([key]) => key.startsWith("switch:") && key !== "switch:default"
+      ([key]) => key.startsWith("switch:") && key !== "switch:default",
     );
 
     if (!switchNode) {
@@ -226,7 +396,7 @@ export class Template extends Union(
   "package.json",
   "rollup.config.mjs",
   "tsconfig.json",
-  "vite.config.ts"
+  "vite.config.ts",
 ) {
   read(root: Directory): string {
     return root

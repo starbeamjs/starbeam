@@ -21,11 +21,11 @@
     "type": "library:upstream-types"
   },
   "scripts": {
-    "test:lint": "eslint \"index.d.ts\" --max-warnings 0",
+    "test:lint": "eslint . --max-warnings 0",
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "rollup": "^3.20.6"
+    "rollup": "^3.29.2"
   },
   "devDependencies": {
     "@starbeam/eslint-plugin": "workspace:^"

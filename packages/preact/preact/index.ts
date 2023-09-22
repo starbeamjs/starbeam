@@ -5,6 +5,7 @@ export {
   setupReactive,
   setupResource,
   setupService,
+  setupSync,
   useReactive,
   useResource,
   useService,

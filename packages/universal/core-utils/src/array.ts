@@ -3,6 +3,7 @@ const EMPTY_LENGTH = 0;
 export type ReadonlyPresentArray<T> = readonly [T, ...T[]];
 export type MutablePresentArray<T> = [T, ...T[]];
 export type PresentArray<T> = MutablePresentArray<T> | ReadonlyPresentArray<T>;
+export type ArrayItem<T> = T extends unknown[] ? T[number] : never;
 
 export type AnyArray<T> = T[] | readonly T[];
 
@@ -12,44 +13,44 @@ type PresentArrayFor<T extends unknown[] | readonly unknown[] | undefined> =
     : never;
 
 export function isPresentArray<
-  T extends unknown[] | readonly unknown[] | undefined
+  T extends unknown[] | readonly unknown[] | undefined,
 >(list: T): list is T & PresentArrayFor<T> {
   return list && list.length > EMPTY_LENGTH;
 }
 
 export function mapArray<T, U>(
   list: PresentArray<T>,
-  mapper: (item: T, index: number) => U
+  mapper: (item: T, index: number) => U,
 ): MutablePresentArray<U>;
 export function mapArray<T, U>(
   list: T[] | readonly T[],
-  mapper: (item: T, index: number) => U
+  mapper: (item: T, index: number) => U,
 ): U[];
 export function mapArray<T, U>(
   list: T[] | readonly T[] | PresentArray<T>,
-  mapper: (item: T, index: number) => U
+  mapper: (item: T, index: number) => U,
 ): U[] | PresentArray<U> {
   return list.map(mapper);
 }
 
 export function mapPresentArray<T, U>(
   list: PresentArray<T>,
-  mapper: (item: T, index: number) => U
+  mapper: (item: T, index: number) => U,
 ): PresentArray<U> {
   return list.map(mapper) as PresentArray<U>;
 }
 
 export function mapIfPresent<T, U>(
   list: T[] | undefined | null,
-  mapper: (item: T, index: number) => U
+  mapper: (item: T, index: number) => U,
 ): MutablePresentArray<U> | undefined;
 export function mapIfPresent<T, U>(
   list: readonly T[] | undefined | null,
-  mapper: (item: T, index: number) => U
+  mapper: (item: T, index: number) => U,
 ): ReadonlyPresentArray<U> | undefined;
 export function mapIfPresent<T, U>(
   list: T[] | readonly T[] | undefined | null,
-  mapper: (item: T, index: number) => U
+  mapper: (item: T, index: number) => U,
 ): MutablePresentArray<U> | ReadonlyPresentArray<U> | undefined {
   if (list && isPresentArray(list)) {
     return mapPresentArray(list, mapper);
@@ -60,15 +61,15 @@ export function mapIfPresent<T, U>(
 
 export function ifPresentArray<
   T extends [unknown, ...unknown[]] | readonly [unknown, ...unknown[]],
-  U
+  U,
 >(list: T, callback: (value: PresentArrayFor<T>) => U): U;
 export function ifPresentArray<T extends unknown[] | readonly unknown[], U>(
   list: T | undefined | null,
-  callback: (value: PresentArrayFor<T>) => U
+  callback: (value: PresentArrayFor<T>) => U,
 ): U | undefined;
 export function ifPresentArray<T extends unknown[] | readonly unknown[], U>(
   list: T | undefined | null,
-  callback: (value: PresentArrayFor<T>) => U
+  callback: (value: PresentArrayFor<T>) => U,
 ): U | undefined {
   if (list && isPresentArray(list)) {
     return callback(list);
@@ -79,14 +80,20 @@ export function ifPresentArray<T extends unknown[] | readonly unknown[], U>(
 
 const SINGLE_ITEM = 1;
 
-export function isSingleItemArray<T>(
-  list: T[] | readonly T[] | undefined | null
-): list is [T] {
-  return list?.length === SINGLE_ITEM;
+export function isSingleItemArray<T>(list: T): list is T & [ArrayItem<T>] {
+  return Array.isArray(list) && list.length === SINGLE_ITEM;
+}
+
+export function isEmptyCollection(collection: { size: number }): boolean {
+  return collection.size === EMPTY_LENGTH;
+}
+
+export function isPresentCollection(collection: { size: number }): boolean {
+  return collection.size > EMPTY_LENGTH;
 }
 
 export function isEmptyArray<T extends unknown[] | readonly unknown[]>(
-  list: T
+  list: T,
 ): list is T & [] {
   return list.length === EMPTY_LENGTH;
 }
@@ -94,7 +101,7 @@ export function isEmptyArray<T extends unknown[] | readonly unknown[]>(
 export function zipArrays<T, U, V>(
   a: T[] | readonly T[],
   b: U[] | readonly U[],
-  zipper: (a: T, b: U) => V
+  zipper: (a: T, b: U) => V,
 ): readonly V[] {
   const result: V[] = [];
   const length = Math.min(a.length, b.length);
@@ -106,7 +113,7 @@ export function zipArrays<T, U, V>(
 }
 
 export function nullifyEmptyArray<U extends unknown[] | readonly unknown[]>(
-  list: U
+  list: U,
 ): PresentArrayFor<U> | null {
   return isEmptyArray(list) ? null : (list as unknown as PresentArrayFor<U>);
 }
@@ -116,7 +123,7 @@ const TAIL_OFFSET = 1;
 const LAST_OFFSET = -1;
 
 export function withoutFirst<T, U extends unknown[]>(
-  list: [T, ...U] | readonly [T, ...U]
+  list: [T, ...U] | readonly [T, ...U],
 ): U;
 export function withoutFirst<T>(list: T[] | readonly T[]): T[];
 export function withoutFirst<T>(list: T[] | readonly T[]): T[] {
@@ -131,10 +138,9 @@ export function firstNItems<T>(list: T[], n: number): T[] {
   return list.slice(FIRST_OFFSET, n);
 }
 
-export function getFirst<I>(
-  list: [I, ...unknown[]] | readonly [I, ...unknown[]]
-): I;
-export function getFirst<T>(list: PresentArray<T>): T;
+export function getFirst<const T extends unknown[] | readonly unknown[]>(
+  list: T,
+): T[0];
 export function getFirst<T>(list: AnyArray<T> | undefined): T | undefined;
 export function getFirst<T>(list: AnyArray<T> | undefined): T | undefined {
   return list?.[FIRST_OFFSET];
@@ -143,17 +149,17 @@ export function getFirst<T>(list: AnyArray<T> | undefined): T | undefined {
 export function getLast<T>(list: PresentArray<T>): T;
 export function getLast<T>(list: T[] | readonly T[] | undefined): T | undefined;
 export function getLast<T>(
-  list: readonly T[] | T[] | undefined
+  list: readonly T[] | T[] | undefined,
 ): T | undefined {
   return isPresentArray(list) ? list[getLastIndex(list)] : undefined;
 }
 
 export function getLastIndex(list: PresentArray<unknown>): number;
 export function getLastIndex(
-  list: unknown[] | readonly unknown[]
+  list: unknown[] | readonly unknown[],
 ): number | undefined;
 export function getLastIndex(
-  list: unknown[] | readonly unknown[]
+  list: unknown[] | readonly unknown[],
 ): number | undefined {
   if (isPresentArray(list)) {
     return list.length + LAST_OFFSET;
@@ -177,7 +183,7 @@ export function removeItem<T>(list: T[], item: T): void {
 
 export function isArray<T>(
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-  value: unknown | readonly T[]
+  value: unknown | readonly T[],
 ): value is readonly T[];
 // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 export function isArray<T>(value: unknown | T[]): value is T[];

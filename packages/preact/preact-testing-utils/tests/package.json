@@ -1,28 +1,31 @@
 {
+  "private": true,
+  "name": "@starbeam-tests/preact-testing-utils",
+  "version": "1.0.0",
+  "type": "module",
+  "starbeam": {
+    "source": "ts",
+    "type": "tests"
+  },
+  "scripts": {
+    "test:lint": "eslint . --max-warnings 0",
+    "test:types": "tsc -b"
+  },
   "dependencies": {
-    "@starbeam-workspace/preact-testing-utils": "workspace:^",
-    "@starbeam-workspace/test-utils": "workspace:^",
     "@starbeam/debug": "workspace:^",
     "@starbeam/preact": "workspace:^",
     "@starbeam/runtime": "workspace:^",
     "@starbeam/universal": "workspace:^",
+    "@starbeam-workspace/preact-testing-utils": "workspace:^",
+    "@starbeam-workspace/test-utils": "workspace:^",
     "@testing-library/dom": "^9.2.0",
     "@testing-library/preact": "^3.2.3",
     "htm": "^3.1.1",
-    "jsdom": "^21.1.1",
+    "jsdom": "^22.1.0",
     "preact": "*"
   },
   "devDependencies": {
     "@starbeam/eslint-plugin": "workspace:^",
-    "preact-render-to-string": "^6.0.2"
-  },
-  "name": "@starbeam-tests/preact-testing-utils",
-  "private": true,
-  "scripts": {
-    "test:lint": "eslint  --max-warnings 0",
-    "test:types": "tsc -b"
-  },
-  "starbeam:type": "tests",
-  "type": "module",
-  "version": "1.0.0"
+    "preact-render-to-string": "^6.2.1"
+  }
 }

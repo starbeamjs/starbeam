@@ -30,12 +30,12 @@ export const CleanCommand = QueryCommand("clean", {
           const pkg = Package.from(
             workspace,
             workspace.root.dir(options.dir).file("package.json"),
-            { allow: "missing" }
+            { allow: "missing" },
           );
 
           if (pkg === undefined) {
             fatal(
-              workspace.reporter.fatal(`No package found at ${options.dir}`)
+              workspace.reporter.fatal(`No package found at ${options.dir}`),
             );
           }
 
@@ -84,7 +84,7 @@ async function cleanFiles({
   const cwd = pkg.root.absolute;
 
   if (!pkg.type.is("root")) {
-    const outputs = pkg.source.outputs(pkg.root);
+    const outputs = pkg.sources.outputs(pkg.root);
 
     for (const output of outputs) {
       patterns.push(output.absolute);
@@ -124,7 +124,7 @@ async function cleanFiles({
     .try((r) => {
       r.verbose((r) => {
         r.log(
-          Fragment("comment", ` in ${pkg.root.relativeFrom(workspace.root)}`)
+          Fragment("comment", ` in ${pkg.root.relativeFrom(workspace.root)}`),
         );
       });
 

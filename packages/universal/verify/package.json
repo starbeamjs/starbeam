@@ -1,35 +1,35 @@
 {
-  "dependencies": {
-    "@starbeam/core-utils": "workspace:^"
-  },
-  "devDependencies": {
-    "@starbeam-dev/build-support": "workspace:^",
-    "@starbeam/eslint-plugin": "workspace:^",
-    "rollup": "^3.20.6"
-  },
+  "name": "@starbeam/verify",
+  "version": "0.8.9",
+  "type": "module",
+  "main": "index.ts",
+  "types": "index.ts",
   "exports": {
     "default": "./index.ts"
   },
-  "main": "index.ts",
-  "name": "@starbeam/verify",
   "publishConfig": {
     "exports": {
       ".": {
-        "default": "./dist/index.cjs",
+        "types": "./dist/index.d.ts",
         "import": "./dist/index.js",
-        "types": "./dist/index.d.ts"
+        "default": "./dist/index.cjs"
       }
     },
     "main": "dist/index.cjs",
     "types": "dist/index.d.ts"
   },
+  "starbeam:type": "library:public",
   "scripts": {
-    "test:lint": "eslint \"index.ts\" \"src/**/*.ts\" --max-warnings 0",
+    "test:lint": "eslint . --max-warnings 0",
     "test:specs": "vitest --run",
     "test:types": "tsc -b"
   },
-  "starbeam:type": "library:public",
-  "type": "module",
-  "types": "index.ts",
-  "version": "0.8.9"
+  "dependencies": {
+    "@starbeam/core-utils": "workspace:^"
+  },
+  "devDependencies": {
+    "@starbeam/eslint-plugin": "workspace:^",
+    "@starbeam-dev/build-support": "workspace:^",
+    "rollup": "^3.29.2"
+  }
 }

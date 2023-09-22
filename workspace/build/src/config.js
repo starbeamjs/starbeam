@@ -115,7 +115,7 @@ export function typescript(pkg, config) {
   const ts = tsconfig(typeScriptConfig);
 
   return rollupTS({
-    transpiler: "babel",
+    transpiler: "swc",
     transpileOnly: true,
     babelConfig: { presets },
 
@@ -262,7 +262,7 @@ export class Package {
     throw Error(
       `No package found at ${
         typeof meta === "string" ? meta : Package.root(meta)
-      }`
+      }`,
     );
   }
 
@@ -308,7 +308,7 @@ export class Package {
    * @returns {import("rollup").RollupOptions[] | import("rollup").RollupOptions}
    */
   config() {
-    return [...this.rollupESM(), ...this.rollupCJS()];
+    return [...this.rollupESM()];
   }
 
   /**
@@ -370,29 +370,6 @@ export class Package {
         postcss(),
         typescript(this.#package, {
           target: ScriptTarget.ES2022,
-        }),
-      ],
-    }));
-  }
-
-  /**
-   * @returns {import("rollup").RollupOptions[]}
-   */
-  rollupCJS() {
-    return this.#shared("cjs").map((options) => ({
-      ...options,
-      external: this.#external,
-      plugins: [
-        inline(),
-        nodePolyfills(),
-        commonjs(),
-        nodeResolve(),
-        importMeta,
-        postcss(),
-        typescript(this.#package, {
-          target: ScriptTarget.ES2021,
-          module: ModuleKind.CommonJS,
-          moduleResolution: ModuleResolutionKind.NodeJs,
         }),
       ],
     }));

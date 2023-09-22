@@ -1,6 +1,6 @@
 import js from "@starbeam/collections";
 import { useResource } from "@starbeam/preact";
-import { Formula } from "@starbeam/reactive";
+import { Resource, type ResourceBlueprint } from "@starbeam/resource";
 import type { JSX } from "preact";
 
 import { formatLocale, SYSTEM_LOCALE, SYSTEM_TZ } from "../intl.js";
@@ -26,14 +26,17 @@ export default function DateFormatterStarbeam(): JSX.Element {
   );
 }
 
-function Clock(): Formula<{ formatted: string; refresh: () => void }> {
-  const date = js.object({ now: new Date() });
+function Clock(): ResourceBlueprint<{
+  formatted: string;
+  refresh: () => void;
+}> {
+  return Resource(() => {
+    const date = js.object({ now: new Date() });
 
-  function refresh(): void {
-    date.now = new Date();
-  }
+    function refresh(): void {
+      date.now = new Date();
+    }
 
-  return Formula(() => {
     return {
       formatted: formatTime(date.now, {
         timeZone: SYSTEM_TZ,
@@ -49,7 +52,7 @@ function formatTime(
   {
     locale = SYSTEM_LOCALE,
     timeZone = SYSTEM_TZ,
-  }: { locale?: string; timeZone?: string } = {}
+  }: { locale?: string; timeZone?: string } = {},
 ): string {
   return new Intl.DateTimeFormat(locale, {
     hour: "numeric",

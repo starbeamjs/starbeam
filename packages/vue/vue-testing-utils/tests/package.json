@@ -1,30 +1,36 @@
 {
+  "private": true,
+  "name": "@starbeam-tests/vue-testing-utils",
+  "version": "1.0.0",
+  "type": "module",
+  "starbeam": {
+    "source": "ts",
+    "type": "tests"
+  },
+  "scripts": {
+    "test:lint": "eslint . --max-warnings 0",
+    "test:types": "tsc -b"
+  },
   "dependencies": {
-    "@starbeam-workspace/test-utils": "workspace:^",
-    "@starbeam-workspace/vue-testing-utils": "workspace:^",
     "@starbeam/debug": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
     "@starbeam/preact": "workspace:^",
     "@starbeam/runtime": "workspace:^",
+    "@starbeam/shared": "workspace:^",
     "@starbeam/universal": "workspace:^",
     "@starbeam/vue": "workspace:^",
+    "@starbeam-workspace/test-utils": "workspace:^",
+    "@starbeam-workspace/vue-testing-utils": "workspace:^",
     "@testing-library/dom": "^9.2.0",
     "@testing-library/vue": "^7.0.0",
     "htm": "^3.1.1",
-    "jsdom": "^21.1.1",
+    "jsdom": "^22.1.0",
     "vue": ">=3.0.0"
   },
   "devDependencies": {
     "@starbeam/eslint-plugin": "workspace:^",
-    "preact-render-to-string": "^6.0.2"
-  },
-  "name": "@starbeam-tests/vue-testing-utils",
-  "private": true,
-  "scripts": {
-    "test:lint": "eslint  --max-warnings 0",
-    "test:types": "tsc -b"
-  },
-  "starbeam:type": "tests",
-  "type": "module",
-  "version": "1.0.0"
+    "@vue/shared": "^3.3.4",
+    "preact-render-to-string": "^6.2.1",
+    "vue": "^3.3.4"
+  }
 }

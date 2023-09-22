@@ -1,12 +1,20 @@
-import type { Reactive } from "@starbeam/interfaces";
 import type { InternalComponent } from "@starbeam/preact-utils";
-import type { RendererManager } from "@starbeam/renderer";
-import { useMemo, useRef } from "preact/hooks";
+import type {
+  ComponentScheduler,
+  Handler,
+  RendererManager,
+} from "@starbeam/renderer";
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "preact/hooks";
 
 import { getCurrentComponent } from "./options.js";
 
 export const MANAGER = {
-  toNative: (reactive) => reactive,
   getComponent: () => getCurrentComponent(),
   setupValue: (_, create) => useMemo(create, []),
   setupRef: (_, value) => {
@@ -14,11 +22,30 @@ export const MANAGER = {
     ref.current = value;
     return ref;
   },
-  on: {
-    layout: (component, handler) => void component.on.layout(handler),
-    idle: (component, handler) => void component.on.idle(handler),
+  createNotifier: () => {
+    const [, setState] = useState({});
+    return () => void setState({});
   },
-} satisfies RendererManager<
-  InternalComponent,
-  <T>(reactive: Reactive<T>) => Reactive<T>
->;
+
+  createScheduler: () => {
+    const [state, setState] = useState({});
+
+    const handlers = new Set<Handler>();
+
+    useEffect(() => {
+      for (const handler of handlers) {
+        handler();
+      }
+    }, [state]);
+
+    return {
+      schedule: () => void setState({}),
+      onSchedule: (handler) => void handlers.add(handler),
+    } satisfies ComponentScheduler;
+  },
+  on: {
+    layout: (component, handler) => void useLayoutEffect(handler),
+    idle: (component, handler) => void useEffect(handler),
+    mounted: (component, handler) => void useEffect(handler),
+  },
+} satisfies RendererManager<InternalComponent>;

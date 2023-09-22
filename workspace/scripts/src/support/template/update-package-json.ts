@@ -60,12 +60,16 @@ export function updatePackageJSON(updater: LabelledUpdater): void {
       if (pkg.type.isType("demo")) {
         current["devDependencies"] = {
           ...(current["devDependencies"] as object),
-          "@vitest/ui": "*",
+          "@vitest/ui": "^0.34.4",
         };
       }
 
       if (pkg.type.is("demo:react")) {
         updateStarbeam("source", "tsx");
+      }
+
+      if (pkg.type.is("tests")) {
+        updateStarbeam("source", "ts");
       }
 
       if (pkg.type.is("library:interfaces")) {
@@ -85,9 +89,9 @@ export function updatePackageJSON(updater: LabelledUpdater): void {
           fatal(
             workspace.reporter.fatal(
               fragment`Since the package type is library:interfaces, main must either be ${Fragment.header.inverse(
-                "index.ts"
-              )} or ${Fragment.header.inverse("index.d.ts")}`
-            )
+                "index.ts",
+              )} or ${Fragment.header.inverse("index.d.ts")}`,
+            ),
           );
         }
       }
@@ -100,6 +104,8 @@ export function updatePackageJSON(updater: LabelledUpdater): void {
       if (pkg.type.is("library:public")) {
         current["types"] = "index.ts";
       }
+
+      // if (pkg.type.is("tests")) {}
 
       current["scripts"] ??= {};
       const scripts = current["scripts"] as Record<string, string>;
@@ -118,9 +124,7 @@ export function updatePackageJSON(updater: LabelledUpdater): void {
         delete scripts["test:specs"];
       }
 
-      scripts["test:lint"] = `eslint ${pkg.inputGlobs
-        .map((g) => `"${g.relative}"`)
-        .join(" ")} --max-warnings 0`;
+      scripts["test:lint"] = `eslint . --max-warnings 0`;
 
       return consolidateStarbeam(current);
     });
@@ -128,11 +132,11 @@ export function updatePackageJSON(updater: LabelledUpdater): void {
 
 function consolidateStarbeam(json: JsonObject): JsonObject {
   const starbeamEntries = Object.entries(json).filter(([key]) =>
-    key.startsWith("starbeam:")
+    key.startsWith("starbeam:"),
   );
 
   const otherEntries = Object.entries(json).filter(
-    ([key]) => !key.startsWith("starbeam")
+    ([key]) => !key.startsWith("starbeam"),
   );
 
   const rootStarbeamValue = json["starbeam"];
@@ -140,8 +144,8 @@ function consolidateStarbeam(json: JsonObject): JsonObject {
   if (rootStarbeamValue !== undefined && !isObject(rootStarbeamValue)) {
     throw Error(
       `Invalid starbeam entry in package.json (the "starbeam" entry in package.json must be an object): ${String(
-        rootStarbeamValue
-      )}`
+        rootStarbeamValue,
+      )}`,
     );
   }
 
@@ -156,7 +160,7 @@ function consolidateStarbeam(json: JsonObject): JsonObject {
     starbeamEntries.map(([key, value]) => [
       key.slice("starbeam:".length),
       value,
-    ])
+    ]),
   );
   const rootStarbeam = rootStarbeamValue
     ? { ...starbeamObject, ...rootStarbeamValue }
@@ -172,5 +176,5 @@ function needsBuildSupport(pkg: Package): boolean {
   const hasBuild = pkg.type.isType("library") || pkg.type.is("root");
   const isBuildSupport = pkg.name === "@starbeam-dev/build-support";
 
-  return hasBuild && !isBuildSupport && pkg.starbeam.source.isTS;
+  return hasBuild && !isBuildSupport && pkg.starbeam.source.hasTS;
 }

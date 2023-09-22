@@ -5,10 +5,12 @@ import {
   type FormulaFn,
   isReactive,
   read,
+  type ReadValue,
 } from "@starbeam/reactive";
-import { type Resource, setup, use } from "@starbeam/resource";
-import { CONTEXT } from "@starbeam/runtime";
+import { setupResource } from "@starbeam/resource";
+import { CONTEXT, pushingScope, RUNTIME, withinScope } from "@starbeam/runtime";
 import { service } from "@starbeam/service";
+import { onFinalize } from "@starbeam/shared";
 
 import type { IntoResourceBlueprint } from "./resource.js";
 
@@ -45,27 +47,27 @@ export type ReactiveBlueprint<T> = (lifecycle: Lifecycle) => T | Reactive<T>;
  */
 export type UseReactive<T> = ReactiveBlueprint<T> | Reactive<T>;
 
-type ToNative = <T>(value: Reactive<T>) => unknown;
-type DefaultToNative = <T>(value: Reactive<T>) => Reactive<T>;
-
-export interface RendererManager<
-  C extends object,
-  T extends ToNative = DefaultToNative
-> {
-  readonly toNative: T;
+export interface RendererManager<C extends object> {
   readonly getComponent: () => C;
   readonly getApp?: (instance: C) => object | undefined;
   readonly setupValue: <T>(instance: C, create: () => T) => T;
   readonly setupRef: <T>(instance: C, value: T) => { readonly current: T };
-
+  readonly createNotifier: (instance: C) => () => void;
+  readonly createScheduler: (instance: C) => Scheduler;
   readonly on: {
+    readonly mounted: (instance: C, handler: Handler) => void;
     readonly idle: (instance: C, handler: Handler) => void;
     readonly layout: (instance: C, handler: Handler) => void;
   };
 }
 
+export interface Scheduler {
+  readonly onSchedule: (this: void, handler: Handler) => void;
+  readonly schedule: (this: void) => void;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type SomeRendererManager = RendererManager<any, any>;
+type SomeRendererManager = RendererManager<any>;
 
 export interface Lifecycle {
   readonly on: {
@@ -74,8 +76,8 @@ export interface Lifecycle {
   };
 
   readonly lifetime: object;
-  readonly use: <T>(blueprint: IntoResourceBlueprint<T>) => Resource<T>;
-  readonly service: <T>(blueprint: IntoResourceBlueprint<T>) => Resource<T>;
+  readonly use: <T>(blueprint: IntoResourceBlueprint<T>) => T;
+  readonly service: <T>(blueprint: IntoResourceBlueprint<T>) => T;
 }
 
 class LifecycleImpl implements Lifecycle {
@@ -98,63 +100,90 @@ class LifecycleImpl implements Lifecycle {
     return this.#manager.getComponent() as object;
   }
 
-  use = <T>(blueprint: IntoResourceBlueprint<T>): Resource<T> =>
+  use = <T>(blueprint: IntoResourceBlueprint<T>): T =>
     managerSetupResource(this.#manager, blueprint);
 
-  service = <T>(blueprint: IntoResourceBlueprint<T>): Resource<T> =>
+  service = <T>(blueprint: IntoResourceBlueprint<T>): T =>
     managerSetupService(this.#manager, blueprint);
+}
+
+interface UniversalRef<T> {
+  readonly current: T;
 }
 
 export function managerSetupReactive<T, M extends SomeRendererManager>(
   manager: M,
-  blueprint: UseReactive<T>
-): Reactive<T> {
+  blueprint: UseReactive<T>,
+): Reactive<ReadValue<T>> {
   const component = manager.getComponent() as object;
   const lifecycle = new LifecycleImpl(manager, component);
   const currentBlueprint = manager.setupRef(component, blueprint);
   return manager.setupValue(component, () =>
-    setupFormula(currentBlueprint, lifecycle)
+    setupFormula(currentBlueprint, lifecycle),
   );
 }
 
 export const managerCreateLifecycle = <M extends SomeRendererManager>(
-  manager: M
+  manager: M,
 ): Lifecycle => new LifecycleImpl(manager, manager.getComponent() as object);
 
 export function setupFormula<T>(
-  blueprint: { current: UseReactive<T> },
-  lifecycle: Lifecycle
-): FormulaFn<T> {
+  blueprint: UniversalRef<UseReactive<T>>,
+  lifecycle: Lifecycle,
+): FormulaFn<ReadValue<T>> {
   const constructed = CachedFormula(() =>
     isReactive(blueprint.current)
       ? blueprint.current
-      : blueprint.current(lifecycle)
+      : blueprint.current(lifecycle),
   );
-  return Formula(() => read(constructed()));
+  return Formula(() => read(constructed())) as FormulaFn<ReadValue<T>>;
+}
+
+function setupValue<T>(
+  manager: SomeRendererManager,
+  component: object,
+  create: () => T,
+): T {
+  return withinScope(component, () =>
+    manager.setupValue(component, create),
+  ) as T;
 }
 
 export function managerSetupResource<T>(
   manager: SomeRendererManager,
-  blueprint: IntoResourceBlueprint<T>
-): Resource<T> {
+  intoBlueprint: IntoResourceBlueprint<T>,
+): T {
   const component = manager.getComponent() as object;
+  const { sync, value } = pushingScope(
+    () => setupValue(manager, component, () => setupResource(intoBlueprint)),
+    { childScope: component },
+  );
 
-  const resource = manager.setupValue(component, () => use(blueprint));
+  const scheduler = manager.createScheduler(component);
 
-  manager.on.idle(component, () => {
-    setup(resource, { lifetime: component });
+  manager.on.mounted(component, () => {
+    scheduler.onSchedule(sync);
+    sync();
+
+    const unsubscribe = RUNTIME.subscribe(sync, scheduler.schedule);
+    if (unsubscribe) onFinalize(component, unsubscribe);
   });
 
-  return resource;
+  return value;
 }
 
 export function managerSetupService<T>(
   manager: SomeRendererManager,
-  blueprint: IntoResourceBlueprint<T>
-): Resource<T> {
+  intoBlueprint: IntoResourceBlueprint<T>,
+): T {
   const component = manager.getComponent() as object;
   const app = manager.getApp?.(component) ?? CONTEXT.app;
-  return manager.setupValue(component, () => service(blueprint, { app }));
+  return manager.setupValue(component, () => {
+    const blueprint =
+      typeof intoBlueprint === "function" ? intoBlueprint() : intoBlueprint;
+
+    return service(blueprint, { app });
+  });
 }
 
 export type Handler = () => void;

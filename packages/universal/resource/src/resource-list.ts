@@ -1,14 +1,11 @@
 import type { Description } from "@starbeam/interfaces";
-import { DEBUG } from "@starbeam/reactive";
-import { RUNTIME } from "@starbeam/runtime";
+import { CachedFormula, Cell, DEBUG, type FormulaFn } from "@starbeam/reactive";
+import type { FinalizationScope } from "@starbeam/runtime";
+import { finalize, pushFinalizationScope } from "@starbeam/shared";
 
-import {
-  Resource,
-  type ResourceBlueprint,
-  setup,
-  type SetupFnOptions,
-  use,
-} from "./api.js";
+import type { Resource } from "./resource.js";
+import { type ResourceBlueprint } from "./resource.js";
+import { SyncTo } from "./sync/high-level.js";
 
 export function ResourceList<Item, T>(
   list: Iterable<Item>,
@@ -20,44 +17,63 @@ export function ResourceList<Item, T>(
     key: (item: Item) => Key;
     map: (item: Item) => ResourceBlueprint<T>;
     description?: string | Description;
-  }
-): ResourceBlueprint<Resource<T>[]> {
-  const resources = new ResourceMap<T>(DEBUG?.Desc("collection", description));
-  const lifetime = {};
+  },
+): ResourceBlueprint<FormulaFn<T[]>> {
+  return {
+    setup: () => {
+      const List = SyncTo(({ on }) => {
+        const resources = new ResourceMap<T>(
+          DEBUG?.Desc("collection", description),
+        );
 
-  return Resource(({ on }) => {
-    on.finalize(() => {
-      RUNTIME.finalize(lifetime);
-    });
+        // initialize the array eagerly by mapping the existing items over the
+        // mapper, running their setup functions (but not syncing yet).
+        const array = Cell(
+          [...list].map((item) => resources.setup(key(item), map(item))),
+        );
 
-    on.setup(() => {
-      resources.setup();
-    });
+        on.sync(() => {
+          const remaining = new Set();
 
-    const result: Resource<T>[] = [];
-    const remaining = new Set();
-    for (const item of list) {
-      const k = key(item);
-      remaining.add(k);
-      const resource = resources.get(k);
+          const result = [...list].map((item) => {
+            const k = key(item);
+            remaining.add(k);
+            return resources.upsert(k, () => map(item));
+          });
 
-      if (resource) {
-        result.push(resource);
-      } else {
-        result.push(resources.create(k, map(item), { lifetime }));
-      }
-    }
+          array.set(result);
+        });
 
-    resources.update(remaining);
+        return array;
+      });
 
-    return result;
-  });
+      const { sync: syncArrays, value: resourceArray } = List.setup();
+      return {
+        // getting the value of a resource list eagerly syncs the arrays but
+        // doesn't eagerly run the setup function.
+        value: CachedFormula(() => {
+          syncArrays();
+          return resourceArray.current.map((r) => r.value);
+        }),
+        // The sync formula of a resource list syncs the arrays and *also*
+        // syncs the elements of the array. Renderers subscribe to this formula
+        // in order to sync inside of the framework-appropriate synchronizer
+        // (e.g. useEffect in React).
+        sync: CachedFormula(() => {
+          syncArrays();
+          resourceArray.current.forEach((r) => {
+            r.sync();
+          });
+        }),
+      };
+    },
+  };
 }
 
 type Key = string | number | { key: unknown; description: string | number };
 type InternalMap<T> = Map<
   unknown,
-  { resource: Resource<T>; lifetime: object; isSetup: boolean }
+  { resource: Resource<T>; scope: FinalizationScope }
 >;
 
 class ResourceMap<T> {
@@ -68,36 +84,25 @@ class ResourceMap<T> {
     this.#description = description;
   }
 
+  upsert(key: Key, insert: () => ResourceBlueprint<T>) {
+    let resource = this.get(key);
+
+    if (!resource) resource = this.setup(key, insert());
+
+    return resource;
+  }
+
   get(key: unknown): Resource<T> | undefined {
     return this.#map.get(key)?.resource;
   }
 
-  create(
-    key: Key,
-    resource: ResourceBlueprint<T>,
-    options: SetupFnOptions
-    // parentLifetime: object
-  ): Resource<T> {
-    const lifetime = {};
-    RUNTIME.link(options.lifetime, lifetime);
-    const newResource = use(resource, {
-      description: this.#description?.key(
-        typeof key === "object"
-          ? { key: key.key, name: String(key.description) }
-          : key
-      ),
-    });
-    this.#map.set(key, { resource: newResource, lifetime, isSetup: false });
+  setup(key: Key, resource: ResourceBlueprint<T>): Resource<T> {
+    const done = pushFinalizationScope();
+    const newResource = resource.setup();
+    const scope = done();
+
+    this.#map.set(key, { resource: newResource, scope });
     return newResource;
-  }
-
-  setup() {
-    for (const state of this.#map.values()) {
-      if (state.isSetup) continue;
-
-      setup(state.resource, { lifetime: state.lifetime });
-      state.isSetup = true;
-    }
   }
 
   /**
@@ -105,9 +110,9 @@ class ResourceMap<T> {
    * list anymore (based on their keys).
    */
   update(remaining: Set<unknown>): void {
-    for (const [key, { lifetime }] of this.#map) {
+    for (const [key, { scope }] of this.#map) {
       if (!remaining.has(key)) {
-        RUNTIME.finalize(lifetime);
+        finalize(scope);
         this.#map.delete(key);
       }
     }

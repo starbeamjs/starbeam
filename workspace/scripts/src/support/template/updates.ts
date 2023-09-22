@@ -4,11 +4,24 @@ import type { Workspace } from "@starbeam-workspace/reporter";
 import { updateEslint } from "./update-eslint.js";
 import type { LabelledUpdater } from "./update-package.js";
 
-export type UpdatePackageFn = (
+export type SyncUpdatePackageFn = (
   updater: LabelledUpdater,
-  options: { workspace: Workspace; paths: Paths; root: Directory }
+  options: { workspace: Workspace; paths: Paths; root: Directory },
 ) => void;
 
+export type AsyncUpdatePackageFn = (
+  updater: LabelledUpdater,
+  options: { workspace: Workspace; paths: Paths; root: Directory },
+) => Promise<void>;
+
+export type UpdatePackageFn = SyncUpdatePackageFn | AsyncUpdatePackageFn;
+
+export function UpdatePackageFn(
+  updater: SyncUpdatePackageFn,
+): SyncUpdatePackageFn;
+export function UpdatePackageFn(
+  updater: AsyncUpdatePackageFn,
+): AsyncUpdatePackageFn;
 export function UpdatePackageFn(updater: UpdatePackageFn): UpdatePackageFn {
   return updater;
 }

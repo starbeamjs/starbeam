@@ -4,7 +4,7 @@
   "overrides": [
     {
       "extends": ["plugin:@starbeam/demos"],
-      "files": ["index.tsx", "src/**/*.tsx", "index.ts", "src/**/*.ts"],
+      "files": ["index.{tsx,ts}", "src/**/*.{tsx,ts}"],
       "parserOptions": {
         "project": "tsconfig.json"
       }
@@ -15,7 +15,10 @@
       "parserOptions": {
         "project": "tsconfig.json"
       }
+    },
+    {
+      "extends": ["plugin:@starbeam/json:recommended"],
+      "files": ["*.json"]
     }
-  ],
-  "extends": ["plugin:@starbeam/json:recommended"]
+  ]
 }

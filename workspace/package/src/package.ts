@@ -1,13 +1,12 @@
 import {
-  getFirst,
   isEmptyMatch,
   isObject,
-  isSingleItemArray,
   Pattern,
   stringify,
 } from "@starbeam/core-utils";
 import type { JsonValue } from "@starbeam-workspace/json";
-import type { Directory, Glob, RegularFile } from "@starbeam-workspace/paths";
+import type { Directory, RegularFile } from "@starbeam-workspace/paths";
+import { Globs } from "@starbeam-workspace/paths";
 import { fragment, type Workspace } from "@starbeam-workspace/reporter";
 
 import type { Dependencies } from "./dependencies.js";
@@ -17,7 +16,7 @@ import { AllTests, type PackageInfo, type Used } from "./packages";
 import { RawPackage } from "./raw-package";
 import { Starbeam } from "./starbeam";
 import { TypeScriptConfig } from "./typescript.js";
-import { StarbeamSources, StarbeamType } from "./unions.js";
+import { StarbeamSource, StarbeamSources, StarbeamType } from "./unions.js";
 
 export class Package {
   static from(this: void, workspace: Workspace, manifest: RegularFile): Package;
@@ -25,13 +24,13 @@ export class Package {
     this: void,
     workspace: Workspace,
     manifest: RegularFile,
-    options: { allow: "missing" }
+    options: { allow: "missing" },
   ): Package | undefined;
   static from(
     this: void,
     workspace: Workspace,
     manifest: RegularFile,
-    options?: { allow: "missing" }
+    options?: { allow: "missing" },
   ): Package | undefined {
     const pkg = manifest.readSync<Record<string, JsonValue>>({ as: "json" });
 
@@ -62,31 +61,31 @@ export class Package {
         const { testName, type, subtype } = normalizeTestName(
           workspace,
           { root, name: raw.get("name") },
-          name
+          name,
         );
 
-        tests.push(
-          new Test(type, subtype, TestName.fromString(testName), script)
-        );
+        tests.push(new Test(type, subtype, TestName.parse(testName), script));
       }
     }
 
-    const type = StarbeamType.from(
+    const type = StarbeamType.parse(
       raw.get("starbeam:type", {
         default: main ? "none" : "unknown",
-      })
+      }),
     );
 
-    const source = StarbeamSources.from(
-      raw.get("starbeam:source", {
-        default: "ts",
-      })
+    const source = StarbeamSources.of(
+      raw
+        .getArray("starbeam:source", {
+          default: "ts",
+        })
+        .map((source) => StarbeamSource.parse(source)),
     );
 
-    const jsx = StarbeamJsx.fromString(
+    const jsx = StarbeamJsx.parse(
       raw.get("starbeam:jsx", {
-        default: source.has("jsx") || source.has("tsx") ? "react" : "none",
-      })
+        default: source.has("jsx", "tsx") ? "react" : "none",
+      }),
     );
 
     return new Package(workspace, {
@@ -116,7 +115,10 @@ export class Package {
 
   readonly #workspace: Workspace;
 
-  constructor(workspace: Workspace, readonly info: PackageInfo) {
+  constructor(
+    workspace: Workspace,
+    readonly info: PackageInfo,
+  ) {
     this.#workspace = workspace;
   }
 
@@ -132,6 +134,27 @@ export class Package {
     return this.info.manifest.parent;
   }
 
+  get sourceFiles(): Globs<RegularFile> {
+    let globs = Globs.root(this.root, { match: ["files"] });
+
+    for (const source of this.sources) {
+      if (source.hasFiles()) {
+        const exts = source.inputExtensions;
+
+        if (source.isType("bin")) {
+          globs = globs.add(`bin/**/*.${exts.glob}`);
+        } else if (this.type.isType("library", "demo")) {
+          globs = globs.add(`index.${exts.glob}`);
+          globs = globs.add(`src/**/*.${exts.glob}`);
+        } else {
+          globs = globs.add(`**/*.${exts.glob}`);
+        }
+      }
+    }
+
+    return globs;
+  }
+
   file(path: string): RegularFile {
     return this.root.file(path);
   }
@@ -140,31 +163,11 @@ export class Package {
     return this.root.dir(path);
   }
 
-  get inputGlobs(): Glob<RegularFile>[] {
-    const exts = this.source.inputExtensions as string[];
-
-    const ext = isSingleItemArray(exts)
-      ? getFirst(exts)
-      : `{${exts.join(",")}}`;
-
-    const paths: Glob<RegularFile>[] = [];
-
-    if (this.root.file(`index.${ext}`).exists()) {
-      paths.push(this.root.glob(`index.${ext}`, { match: ["files"] }));
-    }
-
-    if (this.root.dir("src").exists()) {
-      paths.push(this.root.glob(`src/**/*.${ext}`, { match: ["files"] }));
-    }
-
-    return paths;
-  }
-
   get moduleType(): "esm" | "cjs" {
     return this.info.type === "module" ? "esm" : "cjs";
   }
 
-  get source(): StarbeamSources {
+  get sources(): StarbeamSources {
     return this.info.starbeam.source;
   }
 
@@ -201,7 +204,7 @@ export class Package {
   }
 
   tsconfigFile(): RegularFile | undefined {
-    if (this.source.isTS) {
+    if (this.sources.hasTS) {
       return this.file("tsconfig.json");
     }
   }
@@ -222,7 +225,7 @@ export class Package {
 function normalizeTestName(
   workspace: Workspace,
   pkg: { root: Directory; name: string },
-  name: string
+  name: string,
 ): {
   type: "run" | "watch";
   subtype: "workspace" | undefined;
@@ -233,14 +236,14 @@ function normalizeTestName(
     type: "run" | "watch" | undefined;
     name: string;
   }>(
-    /^test:(?:(?<subtype>workspace):)?(?:(?<type>run|watch)?:)?(?<name>[^:]+)$/
+    /^test:(?:(?<subtype>workspace):)?(?:(?<type>run|watch)?:)?(?<name>[^:]+)$/,
   );
 
   const match = pattern.match(name);
 
   if (isEmptyMatch(match)) {
     workspace.reporter.fatal(
-      fragment`Invalid test name ${name} in ${pkg.name} (${pkg.root.relative})`
+      fragment`Invalid test name ${name} in ${pkg.name} (${pkg.root.relative})`,
     );
   }
 

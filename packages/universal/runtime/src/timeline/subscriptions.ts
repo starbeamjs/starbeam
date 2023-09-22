@@ -85,7 +85,7 @@ export class Subscriptions {
 }
 
 function isUninitialized(
-  tag: Tag
+  tag: Tag,
 ): tag is FormulaTag & { dependencies: UNINITIALIZED } {
   return tag.dependencies === UNINITIALIZED;
 }
@@ -96,9 +96,10 @@ function isUninitialized(
  * An uninitialized formula doesn't have dependencies yet.
  */
 function hasDependencies(
-  tagged: Tag
+  tagged: Tag,
 ): tagged is Tag & { readonly dependencies: () => readonly CellTag[] } {
   const deps = getTag(tagged).dependencies;
+
   return deps !== UNINITIALIZED && isPresentArray(deps());
 }
 

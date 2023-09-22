@@ -1,20 +1,23 @@
 {
+  "private": true,
+  "name": "@starbeam-tests/x-store",
+  "version": "1.0.0",
+  "type": "module",
+  "starbeam": {
+    "source": "ts",
+    "type": "tests"
+  },
+  "scripts": {
+    "test:lint": "eslint . --max-warnings 0",
+    "test:types": "tsc -b"
+  },
   "dependencies": {
-    "@faker-js/faker": "^7.6.0",
+    "@faker-js/faker": "^8.0.2",
     "@starbeam/universal": "workspace:^",
     "@starbeam/verify": "workspace:^",
     "@starbeamx/store": "workspace:^"
   },
   "devDependencies": {
     "@starbeam/eslint-plugin": "workspace:^"
-  },
-  "name": "@starbeam-tests/x-store",
-  "private": true,
-  "scripts": {
-    "test:lint": "eslint  --max-warnings 0",
-    "test:types": "tsc -b"
-  },
-  "starbeam:type": "tests",
-  "type": "module",
-  "version": "1.0.0"
+  }
 }
