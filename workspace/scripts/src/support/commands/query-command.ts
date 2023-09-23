@@ -1,3 +1,4 @@
+import type { CommandInfo } from "@starbeam-dev/schemas";
 import type { Package, ParseError } from "@starbeam-workspace/package";
 import {
   Filter,
@@ -16,73 +17,77 @@ import {
 } from "@starbeam-workspace/reporter";
 import { Workspace } from "@starbeam-workspace/workspace";
 import chalk from "chalk";
-import type { Command } from "commander";
+import type { Command as CommanderCommand } from "commander";
 import { program as CommanderProgram } from "commander";
 
 import type { Indexable } from "../utils.js";
 import { BuildCommand } from "./build-command";
 import type {
-  Arg,
   BasicOptions,
-  CamelizedOptions,
-  CheckOption,
   CommandOptions,
-  LongFlag,
   ShortCommandOptions,
-  ShortFlag,
 } from "./options";
 import { applyBasicOptions } from "./options";
-import type { CommandValue, Value } from "./types";
+import { type ActionArgs, createCommand } from "./shared.js";
 import { BooleanOption } from "./types.js";
 
-export function QueryCommand<T extends QueryCommandOptions>(
-  name: string,
-  options?: BasicOptions
-): BuildQueryCommand<[], T, ShortQueryCommandOptions> {
+function create(name: string, options?: BasicOptions): BuildQueryCommand {
   const command = applyBasicOptions(
     CommanderProgram.createCommand(name),
-    options
+    options,
   );
 
   return new BuildQueryCommand(queryable(command));
 }
 
-export class BuildQueryCommand<
-  Args extends unknown[],
-  Options extends QueryCommandOptions,
-  Short
-> extends BuildCommand<Args, Options, Short> {
-  declare flag: <A extends Arg>(
-    name: CheckOption<A, Options, Short>,
-    description: string,
-    options?: { default?: boolean }
-  ) => BuildQueryCommand<
-    Args,
-    Options & Record<LongFlag<A>, boolean>,
-    Short & Record<ShortFlag<A>, LongFlag<A>>
-  >;
+export const QueryCommand = createCommand(create);
 
-  declare option: <A extends Arg, V extends CommandValue>(
-    name: CheckOption<A, Options, Short>,
-    description: string,
-    value: Value<V>
-  ) => BuildQueryCommand<
-    Args,
-    Options & Record<LongFlag<A>, V>,
-    Short & Record<ShortFlag<A>, LongFlag<A>>
-  >;
+// export function QueryCommand(
+//   name: string,
+//   description: string,
+// ): BuildQueryCommand<[], QueryCommandOptions>;
+// export function QueryCommand<C extends CommandInfo>(
+//   name: string,
+//   description: string,
+//   command: C,
+// ): BuildQueryCommand<ArgValues<C["args"]>, QueryCommandOptions & FlagValues<C>>;
+// export function QueryCommand(
+//   name: string,
+//   description: string,
+//   info?: CommandInfo,
+// ): BuildQueryCommand<unknown[], QueryCommandOptions> {
+//   let command = create(name, {
+//     description: description,
+//     notes: info?.notes,
+//   });
 
-  declare argument: <V extends CommandValue>(
-    name: string,
-    description: string,
-    value: Value<V>
-  ) => BuildQueryCommand<[...Args, V], Options, Short>;
+//   const flags = info?.flags;
+//   if (flags) {
+//     for (const [long, info] of Object.entries(flags) as [
+//       LongFlagString,
+//       FlagOption,
+//     ][]) {
+//       const defaultValue = long.startsWith("--no-") ? true : undefined;
 
-  action(
+//       if (typeof info === "string") {
+//         const { flag: short, description } = extractShortFlag(info);
+//         command = command.raw({ short, long }, description, defaultValue);
+//       } else {
+//         const { short, description } = info;
+//         command = command.raw({ long, short }, description, defaultValue);
+//       }
+//     }
+//   }
+
+//   return command;
+// }
+
+export class BuildQueryCommand extends BuildCommand<QueryCommandOptions> {
+  readonly action = <C extends CommandInfo>(
     action: (
-      ...args: [...Args, CamelizedOptions<Options>]
-    ) => Promise<void | number> | void | number
-  ): (options: { root: string }) => Command {
+      ...args: ActionArgs<C, QueryCommandOptions>
+    ) => Promise<void | number> | void | number,
+  ): ((options: { root: string }) => CommanderCommand) => {
     return ({ root }) =>
       this.command.action(async (...allArgs) => {
         const {
@@ -96,7 +101,7 @@ export class BuildQueryCommand<
             ...options
           },
         } = this.extractOptions<
-          Args,
+          C["args"],
           {
             package: string | undefined;
             scope: string | undefined;
@@ -162,22 +167,32 @@ export class BuildQueryCommand<
 
         const packages = queryPackages(workspace, where);
 
-        const { args } = this.extractOptions<Args, Options>(allArgs);
+        const { args = [] } = this.extractOptions<
+          C["args"],
+          QueryCommandOptions
+        >(allArgs);
 
-        const result = await action(...args, {
+        const actionOptions = {
           packages,
           query: where,
           workspace,
           workspaceOnly,
           ...options,
-        } as CamelizedOptions<Options & QueryCommandOptions>);
+        };
+
+        const actionArgs = [...args, actionOptions] as ActionArgs<
+          C,
+          QueryCommandOptions
+        >;
+
+        const result = await action(...actionArgs);
 
         if (typeof result === "number") {
           await Promise.resolve();
           process.exit(result);
         }
       });
-  }
+  };
 }
 
 export interface QueryCommandOptions extends CommandOptions {
@@ -196,7 +211,7 @@ export interface ShortQueryCommandOptions extends ShortCommandOptions {
 
 export function createWorkspace(
   root: string,
-  options: ReporterOptions
+  options: ReporterOptions,
 ): IWorkspace {
   const reporterOptions: ReporterOptions = {
     verbose: options.verbose,
@@ -211,7 +226,7 @@ export function createWorkspace(
 function getOption<T>(
   options: object,
   key: string,
-  check: (value: unknown) => value is T
+  check: (value: unknown) => value is T,
 ): T | undefined {
   const value = (options as Indexable)[key];
 
@@ -229,13 +244,13 @@ function isExplicitDraft(filter: Filter | ParseError): boolean {
   );
 }
 
-export function queryable(command: Command): Command {
+export function queryable(command: CommanderCommand): CommanderCommand {
   return command
     .addHelpText(
       "afterAll",
       chalk.yellow(
-        "\nPackages are only included if they include a `main` field in their package.json"
-      )
+        "\nPackages are only included if they include a `main` field in their package.json",
+      ),
     )
     .addHelpText(
       "afterAll",
@@ -258,7 +273,7 @@ export function queryable(command: Command): Command {
                 : []),
             ];
           })
-          .join("\n")
+          .join("\n"),
     )
     .option("-p, --package <package-name>", "the package to test")
     .option<(Filter | ParseError)[]>(
@@ -266,14 +281,14 @@ export function queryable(command: Command): Command {
       "a package query",
       (query: string, queries: (Filter | ParseError)[] = []) => {
         return [...queries, parse(query)];
-      }
+      },
     )
     .option(
       "-o, --or <query...>",
       "a package query",
       (query: string, queries: (Filter | ParseError)[] = []) => {
         return [...queries, parse(query)];
-      }
+      },
     )
     .option("--allow-draft", "allow draft packages", false)
     .option("-w, --workspace-only", "select the workspace package only", false);

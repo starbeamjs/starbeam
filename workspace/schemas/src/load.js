@@ -2,7 +2,6 @@
 import { readFileSync } from "node:fs";
 
 import { default as Ajv } from "ajv";
-import { parse } from "smol-toml";
 
 const ajv = new Ajv(); // options can be passed, e.g. {allErrors: true}
 
@@ -14,17 +13,6 @@ const ajv = new Ajv(); // options can be passed, e.g. {allErrors: true}
  */
 export function loadJSON(file, schema) {
   const object = /** @type {object} */ (JSON.parse(readFileSync(file, "utf8")));
-  return validate(object, schema);
-}
-
-/**
- * @template T
- * @param {string} file
- * @param {string} schema
- * @returns {T}
- */
-export function loadToml(file, schema) {
-  const object = parse(readFileSync(file, "utf8"));
   return validate(object, schema);
 }
 

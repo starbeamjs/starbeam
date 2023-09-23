@@ -1,23 +1,24 @@
 import { firstNItems } from "@starbeam/core-utils";
+import type { CommandInfo } from "@starbeam-dev/schemas";
 import type { ReporterOptions } from "@starbeam-workspace/reporter";
 import type { Command } from "commander";
 
-import {
-  type Arg,
-  type CamelizedOptions,
-  type CheckOption,
-  type CommandOptions,
-  dasherize,
-  type LongFlag,
-  normalize,
-  normalizeFlag,
-  type ShortFlag,
-} from "./options";
-import type { CommandValue, Value } from "./types";
+import { type CamelizedOptions, type CommandOptions } from "./options";
+import type { BuildAction } from "./shared.js";
 
 export const INITIAL_ARGUMENTS = 0;
 
-export abstract class BuildCommand<Args extends unknown[], Options, Short> {
+interface FlagName {
+  long: string;
+  short?: string | undefined;
+}
+
+export type BuildCommandBase<C extends BuildCommand<unknown>> =
+  C extends BuildCommand<infer Base> ? Base : never;
+
+export abstract class BuildCommand<Base>
+  implements BuildAction<CommandInfo, Base>
+{
   #command: Command;
   #arguments = INITIAL_ARGUMENTS;
 
@@ -25,79 +26,43 @@ export abstract class BuildCommand<Args extends unknown[], Options, Short> {
     this.#command = command;
   }
 
+  abstract action: BuildAction<CommandInfo, Base>["action"];
+
   define(build: (command: Command) => Command): this {
     this.#command = build(this.#command);
     return this;
   }
 
-  flag<A extends Arg>(
-    name: CheckOption<A, Options, Short>,
+  raw(
+    flags: FlagName,
     description: string,
-    options: { default?: boolean } = {}
-  ): BuildCommand<
-    Args,
-    Options & Record<LongFlag<A>, boolean>,
-    Short & Record<ShortFlag<A>, LongFlag<A>>
-  > {
-    const defaultValue = options.default ?? false;
-    const flags = normalizeFlag(name, defaultValue);
+    defaultValue: string | boolean | string[] | undefined,
+  ): this {
+    const { long, short } = flags;
 
-    this.#command = this.#command.option(flags, description, defaultValue);
-
-    return this as BuildCommand<
-      Args,
-      Options & Record<LongFlag<A>, boolean>,
-      Short & Record<ShortFlag<A>, boolean>
-    >;
-  }
-
-  option<A extends Arg, V extends CommandValue>(
-    name: CheckOption<A, Options, Short>,
-    description: string,
-    value: Value<V>
-  ): BuildCommand<
-    Args,
-    Options & Record<LongFlag<A>, V>,
-    Short & Record<ShortFlag<A>, LongFlag<A>>
-  > {
-    const flags = normalize(name);
-
-    if (typeof value === "function") {
-      this.#command = this.#command.option(flags, description);
-    } else {
-      const [, options] = value;
-
-      this.#command = this.#command.option(flags, description, options.default);
+    if (!long.startsWith("--")) {
+      throw new Error(`BUG: Invalid flag name: ${long}`);
     }
 
-    return this as BuildCommand<
-      Args,
-      Options & Record<LongFlag<A>, V>,
-      Short & Record<ShortFlag<A>, LongFlag<A>>
-    >;
-  }
-
-  argument<V extends CommandValue>(
-    name: string,
-    description: string,
-    value: Value<V>
-    // eslint-disable-next-line @typescript-eslint/prefer-return-this-type
-  ): BuildCommand<Args, Options, Short> {
-    const arg = dasherize(name);
-
-    if (typeof value === "function") {
-      this.#command = this.#command.argument(`<${arg}>`, description);
-    } else {
-      const [, options] = value;
-
-      this.#command = this.#command.argument(
-        `<${arg}>`,
-        description,
-        options.default
-      );
+    if (long.startsWith("---")) {
+      throw new Error(`BUG: Invalid long flag name (extra dashes): ${long}`);
     }
 
-    this.#arguments++;
+    if (short !== undefined) {
+      if (!short.startsWith("-")) {
+        throw new Error(`BUG: Invalid short flag name: ${short}`);
+      }
+
+      if (short.startsWith("--")) {
+        throw new Error(
+          `BUG: Invalid short flag name (extra dashes): ${short}`,
+        );
+      }
+    }
+
+    const flagString = short ? `${short}, ${long}` : long;
+
+    this.#command = this.#command.option(flagString, description, defaultValue);
     return this;
   }
 
@@ -105,8 +70,11 @@ export abstract class BuildCommand<Args extends unknown[], Options, Short> {
     return this.#command;
   }
 
-  protected extractOptions<ExtractArgs extends unknown[], ExtractOptions>(
-    options: unknown[]
+  protected extractOptions<
+    ExtractArgs extends readonly unknown[] | undefined,
+    ExtractOptions,
+  >(
+    options: unknown[],
   ): {
     args: ExtractArgs;
     options: CamelizedOptions<ExtractOptions & ReporterOptions>;
@@ -123,11 +91,11 @@ export abstract class BuildCommand<Args extends unknown[], Options, Short> {
   }
 
   protected parseOptions<
-    ParseArgs extends unknown[],
-    ParseOptions extends CommandOptions
+    ParseArgs extends readonly unknown[],
+    ParseOptions extends CommandOptions,
   >(allArgs: unknown[], extra: Record<string, unknown>): unknown[] {
     const { args, options } = this.extractOptions<ParseArgs, ParseOptions>(
-      allArgs
+      allArgs,
     );
 
     return [...args, { ...options, ...extra }];

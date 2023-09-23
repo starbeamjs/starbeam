@@ -1,5 +1,0 @@
-include = ["./workspace/scripts/src/*.toml"]
-
-[schema]
-path = "./workspace/scripts/src/command.json"
-enabled = true

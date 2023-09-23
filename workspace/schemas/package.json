@@ -46,11 +46,11 @@
     "rollup-plugin-polyfill-node": "^0.12.0",
     "rollup-plugin-postcss": "^4.0.2",
     "rollup-plugin-ts": "^3.4.5",
-    "smol-toml": "^1.1.2",
     "unplugin-fonts": "^1.0.3",
     "vite": "^4.3.9"
   },
   "devDependencies": {
+    "@starbeam/core-utils": "workspace:^",
     "@starbeam/eslint-plugin": "workspace:^",
     "@types/node": "18.16.18",
     "typescript": "*",

@@ -42,6 +42,7 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
+    "@starbeam-dev/schemas": "workspace:*",
     "@starbeam-workspace/json": "workspace:*",
     "@starbeam-workspace/package": "workspace:*",
     "@starbeam-workspace/paths": "workspace:*",

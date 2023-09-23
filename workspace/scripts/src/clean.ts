@@ -12,61 +12,61 @@ import shell from "shelljs";
 import { QueryCommand } from "./support/commands/query-command";
 import { StringOption } from "./support/commands/types";
 
-export const CleanCommand = QueryCommand("clean", {
-  description: "clean up build artifacts",
-})
-  .flag("--dry-run", "don't actually delete anything")
-  .option("--dir", "the directory to clean", StringOption)
-  .action(async ({ workspace, packages, ...options }) => {
-    const reporter = workspace.reporter;
+export const CleanCommand = QueryCommand("clean", "clean up build artifacts", {
+  flags: {
+    "--dry-run": "don't actually delete anything",
+  },
+  options: {
+    "--dir": ["the directory to clean", StringOption],
+  },
+}).action(async ({ workspace, packages, ...options }) => {
+  const reporter = workspace.reporter;
 
-    await reporter
-      .group()
-      .empty((r) => {
-        r.log(Fragment("ok", "👍 Nothing to clean"));
-      })
-      .tryAsync(async (r) => {
-        if (options.dir) {
-          const pkg = Package.from(
-            workspace,
-            workspace.root.dir(options.dir).file("package.json"),
-            { allow: "missing" },
-          );
+  await reporter
+    .group()
+    .empty((r) => {
+      r.log(Fragment("ok", "👍 Nothing to clean"));
+    })
+    .tryAsync(async (r) => {
+      if (options.dir) {
+        const pkg = Package.from(
+          workspace,
+          workspace.root.dir(options.dir).file("package.json"),
+          { allow: "missing" },
+        );
 
-          if (pkg === undefined) {
-            fatal(
-              workspace.reporter.fatal(`No package found at ${options.dir}`),
-            );
-          }
+        if (pkg === undefined) {
+          fatal(workspace.reporter.fatal(`No package found at ${options.dir}`));
+        }
 
-          return cleanFiles({
-            description: options.dir,
+        return cleanFiles({
+          description: options.dir,
+          pkg,
+          workspace,
+          reporter,
+          options,
+        });
+      }
+
+      for (const pkg of packages) {
+        if (pkg.isTypescript) {
+          await cleanFiles({
+            description: pkg.name,
             pkg,
             workspace,
             reporter,
             options,
           });
+        } else {
+          r.ul({
+            header: pkg.name,
+            items: [`skipping ${pkg.name} (not a typescript package)`],
+            item: "comment",
+          });
         }
-
-        for (const pkg of packages) {
-          if (pkg.isTypescript) {
-            await cleanFiles({
-              description: pkg.name,
-              pkg,
-              workspace,
-              reporter,
-              options,
-            });
-          } else {
-            r.ul({
-              header: pkg.name,
-              items: [`skipping ${pkg.name} (not a typescript package)`],
-              item: "comment",
-            });
-          }
-        }
-      });
-  });
+      }
+    });
+});
 
 async function cleanFiles({
   pkg,

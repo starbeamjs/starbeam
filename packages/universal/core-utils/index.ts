@@ -49,6 +49,7 @@ export {
   def,
   defineObject,
   defMethod,
+  type Expand,
   getter,
   isObject,
   method,
