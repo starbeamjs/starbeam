@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Vanilla Beanch</title>
+    <script type="module" src="./index.js"></script>
+    <style>
+      pre { max-height: 400px; resize: both; overflow: auto }
+    </style>
+  </head>
+  <body>
+    Open the console to see the results.
+    NOTE: this is slow atm. Also high iteration counts can indicate an error ocurred.
+
+    <header>
+      <button id="clear">Clear</button>
+      <br><br>
+      <button id="vanilla-starbeam">Run Vanilla w/ Starbeam</button>
+      <button id="glimmer-tracked">Run Glimmer w/ @tracked</button>
+      <button id="glimmer-static">Run Glimmer (static)</button>
+      <button id="react-starbeam">Run React w/ Starbeam</button>
+      <button id="react-static">Run React (static)</button>
+    </header>
+    <pre><code id="output"></code></pre>
+
+    <div id="bench-container"></div>
+  </body>
+</html>
