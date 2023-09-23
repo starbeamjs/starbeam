@@ -1,7 +1,7 @@
 import { execaCommand } from "execa";
 import { globby } from "globby";
 
-import { readPackageJson } from "./read-package-json";
+import { readPackageJson } from "./read-package-json.js";
 
 /**
  * All publishable packages are in packages/*
