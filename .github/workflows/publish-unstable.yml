@@ -26,7 +26,7 @@ jobs:
           node-registry-url: 'https://registry.npmjs.org'
 
       - name: set versions
-        run: node ./workspace/unstable-release/version.js
+        run: node ./workspace/unstable-release/src/version.js
 
       - name: npm publish
         run: node ./workspace/unstable-release/publish.js
