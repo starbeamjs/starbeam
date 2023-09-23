@@ -16,11 +16,14 @@ export interface Scripts {
   "npm-check": Script;
 }
 
+type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never;
+export type ScriptName = Expand<keyof Scripts>;
+
 export default scripts as Scripts;
 
 export function hydrateScript(
   script: Script,
-  options: { workspace: Workspace; pkg: Package }
+  options: { workspace: Workspace; pkg: Package },
 ): { command: string; cwd: Directory } {
   const { command, cwd } = script;
 
@@ -37,7 +40,7 @@ export function hydrateScript(
 
 function replace(
   value: string,
-  replacements: Record<string, string | Path>
+  replacements: Record<string, string | Path>,
 ): string {
   for (const [key, replacement] of Object.entries(replacements)) {
     value = value.replaceAll(key, String(replacement));

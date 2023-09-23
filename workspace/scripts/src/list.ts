@@ -3,7 +3,7 @@ import chalk from "chalk";
 
 import { QueryCommand } from "./support/commands/query-command";
 
-export const ListCommand = QueryCommand("list").action(
+export const ListCommand = QueryCommand("list", "list the packages").action(
   ({ packages, query, workspace }) => {
     for (const pkg of packages) {
       const flags = [];
@@ -36,5 +36,5 @@ export const ListCommand = QueryCommand("list").action(
         workspace.reporter.log("");
       }
     }
-  }
+  },
 );

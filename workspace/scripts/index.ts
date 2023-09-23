@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { OK_EXIT_CODE } from "@starbeam-workspace/shared";
 import { program } from "commander";
 
-import { BuildCommand } from "./src/build.js";
+import BuildCommand from "./src/build.js";
 import { CheckCommand } from "./src/check.js";
 import { CiCommand } from "./src/ci.js";
 import { CleanCommand } from "./src/clean.js";

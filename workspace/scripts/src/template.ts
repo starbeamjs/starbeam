@@ -6,8 +6,7 @@ import { updateTests } from "./support/template/update-tests.js";
 import { updateTsconfig } from "./support/template/update-tsconfig.js";
 import { updateDemo, updateRollup } from "./support/template/updates.js";
 
-export const TemplateCommand = QueryCommand("template", {
-  description: "template a package",
+export const TemplateCommand = QueryCommand("template", "template a package", {
   notes:
     "Packages are only included if they include a `main` field in their package.json",
 }).action(async ({ packages, workspace }) => {

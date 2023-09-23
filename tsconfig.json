@@ -6,7 +6,8 @@
     "declarationMap": true,
     "outDir": "dist/packages",
     "skipLibCheck": true,
-    "types": ["packages/env"]
+    "types": ["packages/env"],
+
   },
   "exclude": ["dist/**/*", "node_modules/**"],
   "files": [],

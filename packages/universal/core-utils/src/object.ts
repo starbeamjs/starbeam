@@ -8,7 +8,7 @@ export function objectHasKeys(object: object): boolean {
   return isPresentArray(Object.keys(object));
 }
 
-type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never;
+export type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never;
 
 type WithReadonly<T, K extends keyof T> = Expand<
   Exclude<T, K> & {
@@ -36,7 +36,7 @@ type Define<T, R> = Expand<
 
 export function method<T, K extends keyof T>(fn: T[K] & AnyFunction): T;
 export function method<T, K extends AnyKey, V extends AnyFunction>(
-  fn: V
+  fn: V,
 ): Define<T, { [P in K]: V }>;
 export function method(fn: AnyFunction): TypedPropertyDescriptor<AnyFunction> {
   return {
@@ -49,17 +49,17 @@ export function method(fn: AnyFunction): TypedPropertyDescriptor<AnyFunction> {
 export function defMethod<T, K extends keyof T>(
   object: T,
   key: K,
-  fn: T[K] & AnyFunction
+  fn: T[K] & AnyFunction,
 ): T;
 export function defMethod<T, K extends AnyKey, V extends AnyFunction>(
   object: T,
   key: K,
-  fn: V
+  fn: V,
 ): Define<T, { [P in K]: V }>;
 export function defMethod(
   object: object,
   key: AnyKey,
-  fn: AnyFunction
+  fn: AnyFunction,
 ): object {
   Object.defineProperty(object, key, {
     enumerable: false,
@@ -74,17 +74,17 @@ export function defMethod(
 export function getter<T, K extends keyof T>(
   object: T,
   key: K,
-  fn: (object: T) => T[K]
+  fn: (object: T) => T[K],
 ): T;
 export function getter<T, K extends AnyKey, V>(
   object: T,
   key: K,
-  fn: (object: T) => V
+  fn: (object: T) => V,
 ): Define<T, { readonly [P in K]: V }>;
 export function getter(
   object: object,
   key: AnyKey,
-  fn: (object: object) => unknown
+  fn: (object: object) => unknown,
 ): object {
   Object.defineProperty(object, key, {
     enumerable: false,
@@ -104,7 +104,7 @@ type DefinedObject<R extends Record<string, TypedPropertyDescriptor<unknown>>> =
 
 export function defineObject<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  R extends Record<string, TypedPropertyDescriptor<any>>
+  R extends Record<string, TypedPropertyDescriptor<any>>,
 >(properties: R): DefinedObject<R> {
   return Object.defineProperties({}, properties) as DefinedObject<R>;
 }
@@ -119,7 +119,7 @@ export function dataGetter<T>(getter: () => T): TypedPropertyDescriptor<T> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function def<T, R extends Record<string, TypedPropertyDescriptor<any>>>(
   object: T,
-  properties: R
+  properties: R,
 ): T & DefinedObject<R> {
   return Object.defineProperties(object, properties) as T & DefinedObject<R>;
 }
@@ -132,7 +132,7 @@ export function readonly<T, K extends keyof T>(
 export function readonly<T, K extends AnyKey, V>(
   object: T,
   key: K,
-  value: V
+  value: V,
 ): DefineReadonly<T, K, V>;
 export function readonly(
   object: object,

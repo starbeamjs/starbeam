@@ -50,7 +50,6 @@
   ],
   "eslint.workingDirectories": [{ "mode": "auto" }],
 
-  "evenBetterToml.schema.associations": {},
 
   // exclude .gitignore files from the file explorer
   "explorer.excludeGitIgnore": true,
@@ -114,5 +113,6 @@
   "vitest.debugExclude": ["<node_internals>/**", "**/node_modules/**"],
   "vitest.disabledWorkspaceFolders": ["demos", "@types", "workspace"],
   "vitest.enable": true,
-  "vitest.showFailMessages": true
+  "vitest.showFailMessages": true,
+  "inline-bookmarks.view.showVisibleFilesOnly": false
 }

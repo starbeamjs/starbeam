@@ -11,13 +11,13 @@ export declare class CompileError<_S extends string = string, In = unknown> {
 }
 
 export interface BasicOptions {
-  description?: string;
-  notes?: string;
+  description?: string | undefined;
+  notes?: string | undefined;
 }
 
 export function applyBasicOptions(
   command: Command,
-  options?: BasicOptions
+  options?: BasicOptions,
 ): Command {
   if (options?.description) {
     command = command.description(options.description);
@@ -26,22 +26,22 @@ export function applyBasicOptions(
   if (options?.notes) {
     command = command.addHelpText(
       "afterAll",
-      wrapIndented(chalk.yellow(`\n${options.notes}`), { leading: "auto" })
+      wrapIndented(chalk.yellow(`\n${options.notes}`), { leading: "auto" }),
     );
   }
 
   return withOptions(command);
 }
 
-export type Arg = `--${string}` | [`-${string}`, `--${string}`];
+export type Arg = `--${string}` | readonly [`-${string}`, `--${string}`];
 
 export type LongFlag<A extends Arg> = A extends string ? A : A[1];
 export type ShortFlag<A extends Arg> = A extends string ? never : A[0];
 
 export type CheckOption<
-  CheckArg extends string | [short: string, long: string],
+  CheckArg extends string | readonly [short: string, long: string],
   Options,
-  Short
+  Short,
 > = CheckArg extends [short: keyof Short & string, long: keyof Options & string]
   ? [
       short: CompileError<
@@ -55,7 +55,7 @@ export type CheckOption<
         {
           [P in CheckArg[1]]: Options[CheckArg[1]];
         }
-      >
+      >,
     ]
   : CheckArg extends [short: string, long: keyof Options & string]
   ? [
@@ -65,7 +65,7 @@ export type CheckOption<
         {
           [P in CheckArg[1]]: Options[CheckArg[1]];
         }
-      >
+      >,
     ]
   : CheckArg extends [short: keyof Short & string, long: string]
   ? [
@@ -75,7 +75,7 @@ export type CheckOption<
           [P in CheckArg[0]]: Short[CheckArg[0]];
         }
       >,
-      long: CheckArg[1]
+      long: CheckArg[1],
     ]
   : CheckArg extends keyof Options & string
   ? CompileError<
@@ -90,7 +90,7 @@ export type CamelizedOptions<O> = {
   [P in keyof O as CamelizedOption<P>]: O[P];
 };
 
-type CamelizedOption<N extends PropertyKey> = N extends `--no-${infer K}`
+export type CamelizedOption<N extends PropertyKey> = N extends `--no-${infer K}`
   ? CamelizedKey<K>
   : N extends `--${infer K}`
   ? CamelizedKey<K>
@@ -111,7 +111,7 @@ export function withOptions(command: Command): Command {
     .option(
       "-d, --density <density>",
       "the density of the output ('compact' or 'comfortable')",
-      "comfortable"
+      "comfortable",
     );
 }
 
@@ -129,8 +129,11 @@ export interface ShortCommandOptions {
 }
 
 export function normalizeFlag(
-  name: string | CompileError | [string | CompileError, string | CompileError],
-  defaultValue: boolean
+  name:
+    | string
+    | CompileError
+    | readonly [string | CompileError, string | CompileError],
+  defaultValue: boolean,
 ): string {
   // if defaultValue is true, then the flag is a --no-<name> flag
   if (typeof name === "string") {
@@ -153,7 +156,10 @@ function normalizeLong(name: string | CompileError): string {
 }
 
 export function normalize(
-  name: string | CompileError | [string | CompileError, string | CompileError]
+  name:
+    | string
+    | CompileError
+    | readonly [string | CompileError, string | CompileError],
 ): string {
   if (typeof name === "string") {
     const strippedName = normalizeLong(name);

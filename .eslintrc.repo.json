@@ -6,6 +6,7 @@
     "!.eslintrc.json",
     "!.eslintrc.repo.json",
     "!.vscode/*.json",
+    "!tsconfig.json",
     "**/node_modules"
   ],
 
@@ -23,6 +24,7 @@
       "files": [
         ".eslintrc.json",
         ".eslintrc.*.json",
+        "tsconfig.json",
         "package.json",
         "packages/*/*/{package,.eslintrc}.json",
         "packages/*/*/tests/{package,.eslintrc}.json"

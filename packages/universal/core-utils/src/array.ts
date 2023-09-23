@@ -134,7 +134,12 @@ export function withoutLast<T>(list: T[] | readonly T[]): T[] {
   return list.slice(FIRST_OFFSET, LAST_OFFSET);
 }
 
-export function firstNItems<T>(list: T[], n: number): T[] {
+export function firstNItems<T>(list: readonly T[], n: number): readonly T[];
+export function firstNItems<T>(list: T[], n: number): T[];
+export function firstNItems<T>(
+  list: T[] | readonly T[],
+  n: number,
+): T[] | readonly T[] {
   return list.slice(FIRST_OFFSET, n);
 }
 
