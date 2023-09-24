@@ -1,6 +1,12 @@
 import { readPackageJson, writePackageJson } from "./read-package-json.js";
 import { currentSHA, listPublicWorkspaces } from "./workspaces.js";
 
+
+/**
+ * @type {Record<string, string>}
+ */
+const NEW_VERSIONS = {};
+
 /**
  * This is an I/O heavy way to do this, but hopefully it reads easy
  */
@@ -27,11 +33,6 @@ async function updateVersions() {
 await updateVersions();
 
 ////////////////////////////////////////////
-
-/**
- * @type {Record<string, string>}
- */
-const NEW_VERSIONS = {};
 
 /**
  *

@@ -29,6 +29,6 @@ jobs:
         run: node ./workspace/unstable-release/src/version.js
 
       - name: npm publish
-        run: node ./workspace/unstable-release/publish.js
+        run: node ./workspace/unstable-release/src/publish.js
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
