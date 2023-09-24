@@ -36,8 +36,16 @@ async function publish() {
         continue;
       }
     } catch (e) {
+      // This'll happen for packages that haven't been published yet.
+      // We don't want to log too much -- we can just move to publishing
       // @ts-ignore
-      console.error(e.message || e);
+      let isIgnored = e.constructor?.name?.includes('VersionNotFoundError');
+
+      if (!isIgnored) {
+        // @ts-ignore
+        let errorText = e.message || e;
+        console.error(errorText);
+      }
     }
 
     console.info(`Publishing ${workspace}`);
