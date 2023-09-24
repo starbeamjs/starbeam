@@ -22,10 +22,20 @@
       "outputs": []
     },
     "test:lint": {
-      "outputs": []
+      "outputs": [],
+      // We manually manage inputs
+      // because we have nested workspaces.
+      // We want to omit the tests workspace
+      // for example.
+      "inputs": ["src/**", "*.{ts,js,mjs,json,mts,cjs,cts"]
     },
     "test:types": {
-      "outputs": []
+      "outputs": [],
+      // We manually manage inputs
+      // because we have nested workspaces.
+      // We want to omit the tests workspace
+      // for example.
+      "inputs": ["src/**", "*.{ts,js,mjs,json,mts,cjs,cts"]
     },
     "typecheck": {
       "dependsOn": ["test:types"],
