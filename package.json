@@ -92,7 +92,7 @@
     "lint:fix": "pnpm dev lint --fix",
     "prepack": "pnpm run build",
     "release": "esno ./workspace/scripts/index.ts release",
-    "test:workspace:lint": "turbo run lint --output-logs errors-only --log-prefix none",
+    "test:workspace:lint": "turbo run test:lint --output-logs errors-only --log-prefix none",
     "test:workspace:prod": "PROD=1 DEV= vitest --run",
     "test:workspace:specs": "vitest --run",
     "test:workspace:types": "turbo run test:types --output-logs errors-only --log-prefix none"
