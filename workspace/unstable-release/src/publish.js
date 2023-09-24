@@ -21,6 +21,8 @@ async function publish() {
 
   /** @type {string[]} */
   const errors = [];
+  /** @type {string[]} */
+  const erroredPackages = [];
 
   for (let workspace of publicWorkspaces) {
     // @ts-ignore
@@ -63,6 +65,7 @@ async function publish() {
 
       if (isErr(err)) {
         errors.push(err.stderr);
+        erroredPackages.push(name);
       }
       continue;
     }
@@ -73,6 +76,14 @@ async function publish() {
   if (errors.length) {
     console.error("Errors were encountered while publishing these packages");
     errors.forEach((error) => void console.log(error));
+
+    console.info(
+      '------------------------------------------\n' 
+      + '   Packages that failed to publish\n' 
+      + '------------------------------------------\n'
+    );
+
+    erroredPackages.forEach((error) => void console.log(error));
     process.exit(1);
   }
 }
