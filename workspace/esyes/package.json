@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "name": "@starbeam-workspace/esyes",
+  "version": "1.0.0",
+  "bin": {
+    "esyes": "bin.sh"
+  },
+  "dependencies": {
+    "@esbuild-kit/esm-loader": "^2.6.5"
+  }
+}
