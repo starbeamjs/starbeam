@@ -62,7 +62,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: NullVoxPopuli/action-setup-pnpm@v2
-      - run: pnpm ci:lint
+      - run: pnpm test:workspace:lint --continue 
 
   release:
     name: Release
