@@ -27,11 +27,17 @@ async function publish() {
     let manifest = fse.readJsonSync(workspace); 
     let current = manifest['version'];
     let name = manifest['name'];
-    let latest = await latestVersion(name, { version: 'unstable' }); 
 
-    if (latest === current) {
-      console.info(`${name} is already published`);
-      continue;
+    try {
+      let latest = await latestVersion(name, { version: 'unstable' }); 
+
+      if (latest === current) {
+        console.info(`${name} is already published`);
+        continue;
+      }
+    } catch (e) {
+      // @ts-ignore
+      console.error(e.message || e);
     }
 
     console.info(`Publishing ${workspace}`);
