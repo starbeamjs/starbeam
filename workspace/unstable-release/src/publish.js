@@ -1,5 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/dot-notation */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { execaCommand } from "execa";
-import { dirname } from "path";
+import fse from 'fs-extra';
+import latestVersion from 'latest-version';
+import { dirname,join } from "path";
 
 import { listPublicWorkspaces } from "./workspaces.js";
 
@@ -12,6 +20,17 @@ async function publish() {
   const errors = [];
 
   for (let workspace of publicWorkspaces) {
+    // @ts-ignore
+    let manifest = fse.readJsonSync(join(workspace, 'package.json')); 
+    let current = manifest['version'];
+    let name = manifest['name'];
+    let latest = await latestVersion(name, { version: 'unstable' }); 
+
+    if (latest === current) {
+      console.info(`${name} is already published`);
+      continue;
+    }
+
     console.info(`Publishing ${workspace}`);
     try {
       await execaCommand(
