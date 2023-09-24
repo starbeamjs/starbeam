@@ -27,11 +27,25 @@ async function publish() {
     let manifest = fse.readJsonSync(workspace); 
     let current = manifest['version'];
     let name = manifest['name'];
-    let latest = await latestVersion(name, { version: 'unstable' }); 
 
-    if (latest === current) {
-      console.info(`${name} is already published`);
-      continue;
+    try {
+      let latest = await latestVersion(name, { version: 'unstable' }); 
+
+      if (latest === current) {
+        console.info(`${name} is already published`);
+        continue;
+      }
+    } catch (e) {
+      // This'll happen for packages that haven't been published yet.
+      // We don't want to log too much -- we can just move to publishing
+      // @ts-ignore
+      let isIgnored = e.constructor?.name?.includes('VersionNotFoundError');
+
+      if (!isIgnored) {
+        // @ts-ignore
+        let errorText = e.message || e;
+        console.error(errorText);
+      }
     }
 
     console.info(`Publishing ${workspace}`);
