@@ -87,7 +87,6 @@
     "check:unused": "esno ./workspace/scripts/index.ts unused",
     "ci:prod": "vitest --run --mode production",
     "ci:specs": "vitest --run",
-    "ci:types": "esno ./workspace/scripts/index.ts ci --type types -v",
     "demo": "esno ./workspace/scripts/index.ts demo",
     "dev": "esno ./workspace/scripts/index.ts",
     "lint:fix": "pnpm dev lint --fix",
@@ -96,7 +95,7 @@
     "test:workspace:lint": "turbo run lint --output-logs errors-only --log-prefix none",
     "test:workspace:prod": "PROD=1 DEV= vitest --run",
     "test:workspace:specs": "vitest --run",
-    "test:workspace:types": "tsc -b"
+    "test:workspace:types": "turbo run test:types --output-logs errors-only --log-prefix none"
   },
   "dependencies": {
     "@starbeam/core-utils": "workspace:^"

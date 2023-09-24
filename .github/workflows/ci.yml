@@ -56,9 +56,14 @@ jobs:
     runs-on: "ubuntu-latest"
     needs: ["install_dependencies"]
     steps:
-      - uses: actions/checkout@v2
-      - uses: NullVoxPopuli/action-setup-pnpm@v2
-      - run: pnpm ci:types
+      - uses: wyvox/action@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      # --continue will keep running test:types 
+      # even if dependencies of packages have failed
+      # (which means we'll have a lot of extra errors
+      #  if something core doesn't pass type checking)
+      - run: pnpm test:workspace:types --continue 
 
   lint:
     name: "Lint"
