@@ -1,3 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/dot-notation */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { execaCommand } from "execa";
 import fse from 'fs-extra';
 import latestVersion from 'latest-version';
@@ -14,12 +19,14 @@ async function publish() {
   const errors = [];
 
   for (let workspace of publicWorkspaces) {
-    let manifest = fse.readJsonSync(join(workspace, 'package.json'));
-    let current = manifest.version;
-    let latest = await latestVersion(manifest.name, { version: 'unstable' }); 
+    // @ts-ignore
+    let manifest = fse.readJsonSync(join(workspace, 'package.json')); 
+    let current = manifest['version'];
+    let name = manifest['name'];
+    let latest = await latestVersion(name, { version: 'unstable' }); 
 
     if (latest === current) {
-      console.info(`${manifest.name} is already published`);
+      console.info(`${name} is already published`);
       continue;
     }
 
