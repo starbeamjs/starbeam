@@ -7,7 +7,7 @@
 import { execaCommand } from "execa";
 import fse from 'fs-extra';
 import latestVersion from 'latest-version';
-import { dirname,join } from "path";
+import { dirname } from "path";
 
 import { listPublicWorkspaces } from "./workspaces.js";
 
@@ -16,12 +16,15 @@ import { listPublicWorkspaces } from "./workspaces.js";
 async function publish() {
   let publicWorkspaces = await listPublicWorkspaces();
 
+  console.info(`The public workspaces to be published`);
+  console.info(publicWorkspaces);
+
   /** @type {string[]} */
   const errors = [];
 
   for (let workspace of publicWorkspaces) {
     // @ts-ignore
-    let manifest = fse.readJsonSync(join(workspace, 'package.json')); 
+    let manifest = fse.readJsonSync(workspace); 
     let current = manifest['version'];
     let name = manifest['name'];
     let latest = await latestVersion(name, { version: 'unstable' }); 
