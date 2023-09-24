@@ -16,6 +16,9 @@ import { listPublicWorkspaces } from "./workspaces.js";
 async function publish() {
   let publicWorkspaces = await listPublicWorkspaces();
 
+  console.info(`The public workspaces to be published`);
+  console.info(publicWorkspaces);
+
   /** @type {string[]} */
   const errors = [];
 
