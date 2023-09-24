@@ -63,7 +63,7 @@ jobs:
       # even if dependencies of packages have failed
       # (which means we'll have a lot of extra errors
       #  if something core doesn't pass type checking)
-      - run: pnpm test:workspace:types --continue 
+      - run: ./node_modules/.bin/turbo run test:types --continue 
 
   lint:
     name: "Lint"
@@ -73,7 +73,7 @@ jobs:
       - uses: wyvox/action@v1
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - run: pnpm test:workspace:lint --continue 
+      - run: ./node_modules/.bin/turbo run test:lint --continue 
 
   # Release automation is not active at this time
   # ------------------
