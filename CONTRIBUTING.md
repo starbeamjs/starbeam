@@ -56,6 +56,41 @@ These are aliased via `pnpm dev` at the monorepo root and is an alias for the sc
 
 Common monorepo tasks can be added to `<repo-root>/workspace/scripts/*` and then invoke with `pnpm dev <command name>`
 
+### Using turborepo
+
+If you're ever unsure about the cache status of each package, 
+you can inspect what turbo thinks is going to happen with
+```bash
+pnpm turbo run list of tasks --dry-run=json \
+| jq 'reduce .tasks[] as {$package,$task,$cache} ({};
+        .[$package][$task] |= $cache
+      )
+      ' 
+```
+
+For example
+```bash
+pnpm turbo run test:lint test:types --dry-run=json \
+| jq 'reduce .tasks[] as {$package,$task,$cache} ({};
+        .[$package][$task] |= $cache
+      )
+      '
+```
+
+
+To use this information with other scripts, pipe it to `jq -c`
+
+To see what _inputs_ turbo is expecting for a package, use:
+```bash
+pnpm turbo run test:lint --dry-run=json \
+| jq 'reduce .tasks[] as {$package,$task,$inputs} ({};
+      .[$package][$task] |= $inputs
+     )' \
+| jq '."@starbeam/universal"'
+```
+
+This can be useful when debugging either unexpected cache misses, or unexpected cache hits.
+
 ## The `starbeam` key in `package.json`
 
 The tooling in this repository is driven by a number of keys in `package.json` under the `starbeam`
