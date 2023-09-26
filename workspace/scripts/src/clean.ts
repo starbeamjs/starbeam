@@ -13,12 +13,8 @@ import { QueryCommand } from "./support/commands/query-command";
 import { StringOption } from "./support/commands/types";
 
 export const CleanCommand = QueryCommand("clean", "clean up build artifacts", {
-  flags: {
-    "--dry-run": "don't actually delete anything",
-  },
-  options: {
-    "--dir": ["the directory to clean", StringOption],
-  },
+  flags: [["--dry-run", "don't actually delete anything"]],
+  options: [["--dir [dir]", "-d: the directory to clean", StringOption]],
 }).action(async ({ workspace, packages, ...options }) => {
   const reporter = workspace.reporter;
 

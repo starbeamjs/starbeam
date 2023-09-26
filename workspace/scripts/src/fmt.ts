@@ -8,12 +8,14 @@ import { QueryCommand } from "./support/commands/query-command";
 
 export const FmtCommand = QueryCommand(
   "fmt",
-  "run the tests for the selected packages",
+  "format the code in the selected packages",
   {
-    flags: {
-      "--no-stream-output":
+    flags: [
+      [
+        "--no-stream-output",
         "-O: do not stream the lint output (but display it when the command fails)",
-    },
+      ],
+    ],
   },
 ).action(async ({ packages, workspace, streamOutput, workspaceOnly }) => {
   workspace.reporter.verbose((r) => {

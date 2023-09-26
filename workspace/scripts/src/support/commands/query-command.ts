@@ -12,187 +12,143 @@ import {
   format,
   Fragment,
   type ReporterOptions,
-  type Workspace as IWorkspace,
   wrapIndented,
 } from "@starbeam-workspace/reporter";
 import { Workspace } from "@starbeam-workspace/workspace";
 import chalk from "chalk";
 import type { Command as CommanderCommand } from "commander";
-import { program as CommanderProgram } from "commander";
 
 import type { Indexable } from "../utils.js";
-import { BuildCommand } from "./build-command";
-import type {
-  BasicOptions,
-  CommandOptions,
-  ShortCommandOptions,
+import {
+  type CommandOptions,
+  type ShortCommandOptions,
+  withOptions,
 } from "./options";
-import { applyBasicOptions } from "./options";
-import { type ActionArgs, createCommand } from "./shared.js";
+import {
+  type ActionArgs,
+  type ActionResult,
+  prepareCommand,
+} from "./shared.js";
 import { BooleanOption } from "./types.js";
 
-function create(name: string, options?: BasicOptions): BuildQueryCommand {
-  const command = applyBasicOptions(
-    CommanderProgram.createCommand(name),
-    options,
-  );
+/*
+  eslint-disable 
+  @typescript-eslint/explicit-function-return-type,
+  @typescript-eslint/explicit-module-boundary-types -- 
+  we really want TypeScript to infer the return type here.
+*/
+export function QueryCommand<const C extends CommandInfo = CommandInfo>(
+  name: string,
+  description: string,
+  info?: C,
+) {
+  const prepared = prepareCommand({
+    name,
+    description,
+    spec: info ?? {},
+    prepare: [withOptions, queryable],
+  });
 
-  return new BuildQueryCommand(queryable(command));
+  return {
+    action: (
+      action: (...args: ActionArgs<C, QueryCommandOptions>) => ActionResult,
+    ): ((options: { root: string }) => CommanderCommand) => {
+      return ({ root }) => {
+        return prepared.action(async (positional, named) => {
+          const workspace = Workspace.root(root, named as ReporterOptions);
+          const query = buildQuery(workspace, named as QueryOptions);
+          const packages = queryPackages(workspace, query);
+
+          const actionArgs = [
+            ...positional,
+            {
+              ...named,
+              packages,
+              query,
+              workspace,
+            },
+          ] as Parameters<typeof action>;
+
+          return action(...actionArgs);
+        });
+      };
+    },
+  };
+}
+/*eslint-enable @typescript-eslint/explicit-function-return-type*/
+/*eslint-enable @typescript-eslint/explicit-module-boundary-types*/
+
+export interface QueryOptions {
+  workspaceOnly: boolean;
+  package: string;
+  scope: string;
+  and: Filter[];
+  or: Filter[];
+  allowDraft: boolean;
 }
 
-export const QueryCommand = createCommand(create);
+function buildQuery(
+  workspace: Workspace,
+  {
+    workspaceOnly,
+    package: packageName,
+    scope,
+    and: andFilters,
+    or: orFilters,
+    allowDraft,
+  }: QueryOptions,
+) {
+  const where = Query.empty();
 
-// export function QueryCommand(
-//   name: string,
-//   description: string,
-// ): BuildQueryCommand<[], QueryCommandOptions>;
-// export function QueryCommand<C extends CommandInfo>(
-//   name: string,
-//   description: string,
-//   command: C,
-// ): BuildQueryCommand<ArgValues<C["args"]>, QueryCommandOptions & FlagValues<C>>;
-// export function QueryCommand(
-//   name: string,
-//   description: string,
-//   info?: CommandInfo,
-// ): BuildQueryCommand<unknown[], QueryCommandOptions> {
-//   let command = create(name, {
-//     description: description,
-//     notes: info?.notes,
-//   });
+  if (workspaceOnly) {
+    where.and("type", "root");
+  } else if (packageName === "none") {
+    where.and("none");
+  } else {
+    if (packageName === "any" || packageName === undefined) {
+      if (scope !== undefined) {
+        where.and("scope", formatScope(scope));
+      }
+    } else if (scope === undefined) {
+      where.and("name", packageName);
+    } else {
+      where.and("name", `${formatScope(scope)}/${packageName}`);
+    }
 
-//   const flags = info?.flags;
-//   if (flags) {
-//     for (const [long, info] of Object.entries(flags) as [
-//       LongFlagString,
-//       FlagOption,
-//     ][]) {
-//       const defaultValue = long.startsWith("--no-") ? true : undefined;
+    where.and(Filter.notEquals("type", "root"));
+  }
 
-//       if (typeof info === "string") {
-//         const { flag: short, description } = extractShortFlag(info);
-//         command = command.raw({ short, long }, description, defaultValue);
-//       } else {
-//         const { short, description } = info;
-//         command = command.raw({ long, short }, description, defaultValue);
-//       }
-//     }
-//   }
+  let explicitDraft = false;
 
-//   return command;
-// }
+  if (andFilters) {
+    for (const filter of andFilters) {
+      where.and(filter);
+      explicitDraft ||= isExplicitDraft(filter);
+    }
+  }
 
-export class BuildQueryCommand extends BuildCommand<QueryCommandOptions> {
-  readonly action = <C extends CommandInfo>(
-    action: (
-      ...args: ActionArgs<C, QueryCommandOptions>
-    ) => Promise<void | number> | void | number,
-  ): ((options: { root: string }) => CommanderCommand) => {
-    return ({ root }) =>
-      this.command.action(async (...allArgs) => {
-        const {
-          options: {
-            package: packageName,
-            scope,
-            and: andFilters,
-            or: orFilters,
-            allowDraft,
-            workspaceOnly,
-            ...options
-          },
-        } = this.extractOptions<
-          C["args"],
-          {
-            package: string | undefined;
-            scope: string | undefined;
-            and: (Filter | ParseError)[] | undefined;
-            or: (Filter | ParseError)[] | undefined;
-            allowDraft: boolean;
-            workspaceOnly: boolean;
-            [key: string]: unknown;
-          }
-        >(allArgs);
+  if (orFilters) {
+    for (const filter of orFilters) {
+      where.or(filter);
+      explicitDraft ||= isExplicitDraft(filter);
+    }
+  }
 
-        const where = Query.empty();
+  if (!allowDraft && !explicitDraft) {
+    where.and(parse("type!=draft"));
+  }
 
-        if (workspaceOnly) {
-          where.and("type", "root");
-        } else if (packageName === "none") {
-          where.and("none");
-        } else {
-          if (packageName === "any" || packageName === undefined) {
-            if (scope !== undefined) {
-              where.and("scope", formatScope(scope));
-            }
-          } else if (scope === undefined) {
-            where.and("name", packageName);
-          } else {
-            where.and("name", `${formatScope(scope)}/${packageName}`);
-          }
+  if (where.errors) {
+    for (const err of where.errors) {
+      err.log(workspace.reporter);
+    }
+    workspace.reporter.log("");
 
-          where.and(Filter.notEquals("type", "root"));
-        }
+    const ERROR_STATUS = 1;
+    process.exit(ERROR_STATUS);
+  }
 
-        let explicitDraft = false;
-
-        if (andFilters) {
-          for (const filter of andFilters) {
-            where.and(filter);
-            explicitDraft ||= isExplicitDraft(filter);
-          }
-        }
-
-        if (orFilters) {
-          for (const filter of orFilters) {
-            where.or(filter);
-            explicitDraft ||= isExplicitDraft(filter);
-          }
-        }
-
-        if (!allowDraft && !explicitDraft) {
-          where.and(parse("type!=draft"));
-        }
-
-        const workspace = createWorkspace(root, options);
-
-        if (where.errors) {
-          for (const err of where.errors) {
-            err.log(workspace.reporter);
-          }
-          workspace.reporter.log("");
-
-          const ERROR_STATUS = 1;
-          process.exit(ERROR_STATUS);
-        }
-
-        const packages = queryPackages(workspace, where);
-
-        const { args = [] } = this.extractOptions<
-          C["args"],
-          QueryCommandOptions
-        >(allArgs);
-
-        const actionOptions = {
-          packages,
-          query: where,
-          workspace,
-          workspaceOnly,
-          ...options,
-        };
-
-        const actionArgs = [...args, actionOptions] as ActionArgs<
-          C,
-          QueryCommandOptions
-        >;
-
-        const result = await action(...actionArgs);
-
-        if (typeof result === "number") {
-          await Promise.resolve();
-          process.exit(result);
-        }
-      });
-  };
+  return where;
 }
 
 export interface QueryCommandOptions extends CommandOptions {
@@ -212,7 +168,7 @@ export interface ShortQueryCommandOptions extends ShortCommandOptions {
 export function createWorkspace(
   root: string,
   options: ReporterOptions,
-): IWorkspace {
+): Workspace {
   const reporterOptions: ReporterOptions = {
     verbose: options.verbose,
     stylish: options.stylish,
@@ -277,14 +233,14 @@ export function queryable(command: CommanderCommand): CommanderCommand {
     )
     .option("-p, --package <package-name>", "the package to test")
     .option<(Filter | ParseError)[]>(
-      "-a, --and <query...>",
+      "-a, --and [query...]",
       "a package query",
       (query: string, queries: (Filter | ParseError)[] = []) => {
         return [...queries, parse(query)];
       },
     )
     .option(
-      "-o, --or <query...>",
+      "-o, --or [query...]",
       "a package query",
       (query: string, queries: (Filter | ParseError)[] = []) => {
         return [...queries, parse(query)];

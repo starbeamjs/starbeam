@@ -5,6 +5,17 @@ import { DisplayStruct } from "@starbeam-workspace/shared";
 
 import type { EditJsonc, JsoncPosition } from "../jsonc.js";
 
+/*
+  eslint-disable
+  unused-imports/no-unused-vars
+  -- Documentation to be used in `@see` references.
+*/
+type RESERVED_FOR_PUBLIC_PACKAGE = `
+This API is not currently used in this workspace, but it may be useful
+if we extract this into a public package in the future.
+`;
+/* eslint-enable unused-imports/no-unused-vars */
+
 const console = globalThis.console;
 
 type Migration =
@@ -42,6 +53,9 @@ export class Migrator<R extends object> {
     this.#editor = editor;
   }
 
+  /**
+   * @public
+   */
   [Symbol.for("nodejs.util.inspect.custom")](): object {
     return DisplayStruct("Migrator", { migrations: this.#migrations });
   }
@@ -60,6 +74,10 @@ export class Migrator<R extends object> {
     return this;
   }
 
+  /**
+   * @public
+   * @see {RESERVED_FOR_PUBLIC_PACKAGE}
+   */
   removeFrom<K extends DeepKeyOf<R>>(
     path: K,
     value: DeepArrayAdd<R, K> & (string | number | boolean),
@@ -83,6 +101,10 @@ export class Migrator<R extends object> {
     return this;
   }
 
+  /**
+   * @public
+   * @see {RESERVED_FOR_PUBLIC_PACKAGE}
+   */
   addTo<K extends DeepKeyOf<R>>(
     path: K,
     value: DeepArrayAdd<R, K> & (string | number | boolean),

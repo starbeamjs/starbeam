@@ -2,19 +2,10 @@
   "root": true,
   "ignorePatterns": ["node_modules", "dist", "html", "tests"],
   "plugins": ["@starbeam"],
-  // FIXME: Generate the correct sub-overrides when multiple extensions
-  // are in play
   "overrides": [
     {
       "extends": ["plugin:@starbeam/tight"],
-      "files": ["index.d.ts", "src/**/*.d.ts"],
-      "parserOptions": {
-        "project": "tsconfig.json"
-      }
-    },
-    {
-      "extends": ["plugin:@starbeam/esm"],
-      "files": ["index.js", "src/**/*.js", "bin/**/*.js"],
+      "files": ["index.ts", "src/**/*.ts"],
       "parserOptions": {
         "project": "tsconfig.json"
       }

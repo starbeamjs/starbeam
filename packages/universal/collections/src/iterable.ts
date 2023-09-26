@@ -6,7 +6,7 @@ class Entry<V> {
   static initialized<V>(
     value: V,
     desc: Description | undefined,
-    equality: Equality<V>
+    equality: Equality<V>,
   ): Entry<V> {
     return new Entry(
       Cell<UNINITIALIZED | V>(value, {
@@ -17,15 +17,15 @@ class Entry<V> {
         description: desc?.implementation(
           "cell",
           "initialized?",
-          "the entry was initialized"
+          "the entry was initialized",
         ),
-      })
+      }),
     );
   }
 
   static uninitialized<V>(
     desc: Description | undefined,
-    equality: Equality<V>
+    equality: Equality<V>,
   ): Entry<V> {
     return new Entry(
       Cell<UNINITIALIZED | V>(UNINITIALIZED, {
@@ -36,9 +36,9 @@ class Entry<V> {
         description: desc?.implementation(
           "cell",
           "initialized?",
-          "the entry was initialized"
+          "the entry was initialized",
         ),
-      })
+      }),
     );
   }
 
@@ -100,6 +100,7 @@ function equals<T>(equality: Equality<T>): Equality<T | UNINITIALIZED> {
 const EMPTY_MAP_SIZE = 0;
 
 export class ReactiveMap<K, V> implements Map<K, V> {
+  /** @public */
   readonly [Symbol.toStringTag] = "Map";
   readonly #description: Description | undefined;
   readonly #entries = new Map<K, Entry<V>>();
@@ -109,14 +110,14 @@ export class ReactiveMap<K, V> implements Map<K, V> {
 
   static reactive<K, V>(
     equality: Equality<V>,
-    description: Description | undefined
+    description: Description | undefined,
   ): ReactiveMap<K, V> {
     return new ReactiveMap(description, equality);
   }
 
   private constructor(
     description: Description | undefined,
-    equality: Equality<V>
+    equality: Equality<V>,
   ) {
     this.#description = description;
     this.#equality = equality;
@@ -138,6 +139,7 @@ export class ReactiveMap<K, V> implements Map<K, V> {
     return size;
   }
 
+  /** @public */
   [Symbol.iterator](): IterableIterator<[K, V]> {
     return this.entries();
   }
@@ -184,9 +186,9 @@ export class ReactiveMap<K, V> implements Map<K, V> {
         this.#description?.key(
           typeof key === "string" || typeof key === "number"
             ? String(key)
-            : "entry"
+            : "entry",
         ),
-        this.#equality
+        this.#equality,
       );
       this.#entries.set(key, entry);
     }
@@ -196,7 +198,7 @@ export class ReactiveMap<K, V> implements Map<K, V> {
 
   forEach(
     callbackfn: (value: V, key: K, map: Map<K, V>) => void,
-    thisArg?: unknown
+    thisArg?: unknown,
   ): void {
     this.#keys.read();
     this.#values.read();
@@ -267,14 +269,14 @@ export class ReactiveSet<T> implements Set<T> {
 
   static reactive<T>(
     equality: Equality<T>,
-    description: Description | undefined
+    description: Description | undefined,
   ): ReactiveSet<T> {
     return new ReactiveSet(description, equality);
   }
 
   private constructor(
     description: Description | undefined,
-    equality: Equality<T>
+    equality: Equality<T>,
   ) {
     this.#description = description;
     this.#equality = equality;
@@ -293,6 +295,7 @@ export class ReactiveSet<T> implements Set<T> {
     return size;
   }
 
+  /** @public */
   [Symbol.iterator](): IterableIterator<T> {
     return this.keys();
   }
@@ -342,7 +345,7 @@ export class ReactiveSet<T> implements Set<T> {
 
   forEach(
     callbackfn: (value: T, value2: T, set: Set<T>) => void,
-    thisArg?: unknown
+    thisArg?: unknown,
   ): void {
     this.#values.read();
 

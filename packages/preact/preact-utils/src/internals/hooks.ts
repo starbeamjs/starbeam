@@ -15,10 +15,7 @@ export enum HookTypes {
 
 export type HookName = keyof HookTypes;
 
-/**
- * Intentionally use a sparse array here so that the 0th entry isn't enumerated via `map`.
- */
-// eslint-disable-next-line no-sparse-arrays
+// eslint-disable-next-line no-sparse-arrays -- Intentionally use a sparse array here so that the 0th entry isn't enumerated via `map`.
 export const HOOK_NAMES = [
   ,
   "useState",
@@ -49,9 +46,5 @@ export class HookType {
         value: HOOK_NAMES[type],
       });
     }
-  }
-
-  is(name: HookName): boolean {
-    return HOOK_NAMES[this.#type] === name;
   }
 }

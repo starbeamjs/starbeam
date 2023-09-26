@@ -6,16 +6,14 @@ export type JSONValue =
   | JSONValue[]
   | { [key: string]: JSONValue };
 
-export interface DisplayStructOptions {
+interface DisplayStructOptions {
   readonly description: JSONValue;
 }
-
-export type Fields = Record<PropertyKey, unknown>;
 
 export function DisplayStruct(
   name: string,
   fields: Record<PropertyKey, unknown>,
-  options?: DisplayStructOptions
+  options?: DisplayStructOptions,
 ): object {
   let displayName = name;
 

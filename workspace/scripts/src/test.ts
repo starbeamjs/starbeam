@@ -16,16 +16,16 @@ export const TestCommand = QueryCommand(
   "test",
   "run the tests for the selected packages",
   {
-    flags: {
-      "--no-stream-output":
+    flags: [
+      [
+        "--no-stream-output",
         "-O: do not stream the lint output (but display it when the command fails)",
-      "--lint": "-l: run the lints (equivalent to --type lint)",
-      "--specs": "-s: run the specs (equivalent to --type specs)",
-      "--watch": "run the quick tests",
-    },
-    options: {
-      "--type": ["the type of tests to run", StringOption.optional],
-    },
+      ],
+      ["--lint", "-l: run the lints (equivalent to --type lint)"],
+      ["--specs", "-s: run the specs (equivalent to --type specs)"],
+      ["--watch", "run the quick tests"],
+    ],
+    options: [["--type [type]", "the type of tests to run", StringOption]],
   },
 ).action(
   async ({

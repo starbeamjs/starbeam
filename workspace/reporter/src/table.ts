@@ -10,6 +10,17 @@ import {
 } from "./log.js";
 import type { LoggerState } from "./logger.js";
 
+/*
+  eslint-disable
+  unused-imports/no-unused-vars
+  -- Documentation to be used in `@see` references.
+*/
+type RESERVED_FOR_PUBLIC_PACKAGE = `
+This API is not currently used in this workspace, but it may be useful
+if we extract this into a public package in the future.
+`;
+/* eslint-enable unused-imports/no-unused-vars */
+
 interface Mappers<T> {
   header: (item: T) => IntoFragment;
   cell: (item: T) => IntoFragment;
@@ -32,7 +43,7 @@ export class LoggedTable<T> implements CreateRows<T> {
   columns(columns: IntoColumn[]): TableWithHeaders<T> {
     return new TableWithHeaders(
       this.#mappers,
-      Columns.from(columns.map((c) => Column.from(c)))
+      Columns.from(columns.map((c) => Column.from(c))),
     );
   }
 
@@ -40,7 +51,7 @@ export class LoggedTable<T> implements CreateRows<T> {
     if (headers) {
       return new TableWithHeaders(
         this.#mappers,
-        Columns.from(headers.map((h) => Cell.from(h, this.#mappers.header)))
+        Columns.from(headers.map((h) => Cell.from(h, this.#mappers.header))),
       );
     } else {
       return this;
@@ -70,7 +81,7 @@ export class LoggedTable<T> implements CreateRows<T> {
             }
           });
         }
-      })
+      }),
     );
 
     return TableWithRows.create({
@@ -113,13 +124,13 @@ class Columns {
 
   columnWidths(
     rows: Cell[][],
-    state: LoggerState
+    state: LoggerState,
   ): readonly number[] | undefined {
     return mapIfPresent(this.#columns, (column, index) =>
       column.maxPhysicalWidth(
         rows.map((row) => row[index]).filter(isPresent),
-        state
-      )
+        state,
+      ),
     );
   }
 
@@ -132,7 +143,7 @@ export type IntoColumn = IntoCell<IntoFragment> | Column;
 
 export function Col(
   from: Cell | IntoFragment,
-  options?: ColumnOptions
+  options?: ColumnOptions,
 ): Column {
   return Column.from(from, options);
 }
@@ -148,7 +159,11 @@ class Column {
 
   // This allows Column.from to be used as a function passed to .map()
   static from(this: void, from: IntoColumn): Column;
-  // eslint-disable-next-line @typescript-eslint/unified-signatures
+  /*
+    eslint-disable-next-line
+    @typescript-eslint/unified-signatures
+    -- This allows Column.from to be used as a function passed to .map()
+   */
   static from(this: void, from: IntoColumn, options?: ColumnOptions): Column;
   static from(this: void, from: IntoColumn, options?: ColumnOptions): Column {
     if (Column.is(from)) {
@@ -185,7 +200,7 @@ class Column {
     if (this.#options.width === "auto" || this.#options.width === undefined) {
       return Math.max(
         this.#header?.physicalWidth(state) ?? EMPTY_WIDTH,
-        ...rows.map((row) => row.physicalWidth(state))
+        ...rows.map((row) => row.physicalWidth(state)),
       );
     } else {
       return this.#options.width;
@@ -196,7 +211,7 @@ class Column {
     if (this.#options.width === "auto" || this.#options.width === undefined) {
       return Math.max(
         this.#header?.byteWidth(state) ?? EMPTY_WIDTH,
-        ...rows.map((row) => row.byteWidth(state))
+        ...rows.map((row) => row.byteWidth(state)),
       );
     } else {
       return this.#options.width;
@@ -229,7 +244,7 @@ export class TableWithHeaders<T> {
       headers: this.#headers,
       rows:
         rows?.map((cells) =>
-          cells.map((cell) => Cell.from(cell, this.#mappers.cell))
+          cells.map((cell) => Cell.from(cell, this.#mappers.cell)),
         ) ?? [],
     });
   }
@@ -237,7 +252,7 @@ export class TableWithHeaders<T> {
 
 type CellMapper<T> = (
   value: Exclude<T, Cell>,
-  state: LoggerState
+  state: LoggerState,
 ) => Fragment | Cell;
 
 export class Cell {
@@ -262,13 +277,13 @@ export class Cell {
     return new Cell(
       value,
       mapper as CellMapper<unknown>,
-      Table3Options.default()
+      Table3Options.default(),
     );
   }
 
   static spanned(value: IntoFragment, span: number): Cell {
     return Cell.create(value, Fragment.from).options((o) =>
-      o.add({ colSpan: span })
+      o.add({ colSpan: span }),
     );
   }
 
@@ -279,13 +294,16 @@ export class Cell {
   private constructor(
     value: unknown,
     mapper: CellMapper<unknown>,
-    options: Table3Options<Table.CellOptions>
+    options: Table3Options<Table.CellOptions>,
   ) {
     this.#value = value;
     this.#mapper = mapper;
     this.#options = options;
   }
 
+  /**
+   * @public
+   */
   [Symbol.for("nodejs.util.inspect.custom")](): object {
     return DisplayStruct("Cell", {
       value: this.#value,
@@ -295,8 +313,8 @@ export class Cell {
 
   options(
     updater: (
-      options: Table3Options<Table.CellOptions>
-    ) => Table3Options<Table.CellOptions>
+      options: Table3Options<Table.CellOptions>,
+    ) => Table3Options<Table.CellOptions>,
   ): Cell {
     return new Cell(this.#value, this.#mapper, updater(this.#options));
   }
@@ -381,7 +399,7 @@ class Table3Options<O extends AnyTable3Options> {
 
   padding(
     amount: number,
-    side?: "left" | "right" | undefined
+    side?: "left" | "right" | undefined,
   ): Table3Options<O> {
     const leftPadding = side !== "right" ? amount : undefined;
     const rightPadding = side !== "left" ? amount : undefined;
@@ -401,7 +419,7 @@ class Table3Options<O extends AnyTable3Options> {
 
   justify(
     this: Table3Options<Table.CellOptions>,
-    alignment: Table.HorizontalAlignment
+    alignment: Table.HorizontalAlignment,
   ): Table3Options<O> {
     return new Table3Options({
       ...this.#options,
@@ -411,7 +429,7 @@ class Table3Options<O extends AnyTable3Options> {
 
   align(
     this: Table3Options<Table.CellOptions>,
-    alignment: Table.VerticalAlignment
+    alignment: Table.VerticalAlignment,
   ): Table3Options<O> {
     return new Table3Options({
       ...this.#options,
@@ -443,9 +461,13 @@ const TABLE_CHARS = {
 } as const;
 
 export class TableWithRows<T> {
+  /**
+   * @public
+   * @see {RESERVED_FOR_PUBLIC_PACKAGE}
+   */
   static headers<T>(
     headers: Columns | undefined,
-    mappers: Mappers<T>
+    mappers: Mappers<T>,
   ): TableWithRows<T> {
     return new TableWithRows({
       headers,
@@ -468,7 +490,7 @@ export class TableWithRows<T> {
       mappers,
       headers,
       rows: rows.map((cells) =>
-        cells.map((cell) => Cell.from(cell, mappers.cell))
+        cells.map((cell) => Cell.from(cell, mappers.cell)),
       ),
       options: Table3Options.default(),
     });
@@ -496,6 +518,15 @@ export class TableWithRows<T> {
     this.#options = options;
   }
 
+  /**
+   * Reserved if this package becomes public.
+   *
+   * If that happens and it's still not used in our workspace scripts, revisit
+   * whether we want it.
+   *
+   * @public
+   * @see {RESERVED_FOR_PUBLIC_PACKAGE}
+   */
   add(items: (T | Cell)[]): TableWithRows<T> {
     return new TableWithRows({
       mappers: this.#mappers,
@@ -508,10 +539,14 @@ export class TableWithRows<T> {
     });
   }
 
+  /**
+   * @public
+   * @see {RESERVED_FOR_PUBLIC_PACKAGE}
+   */
   options(
     updater: (
-      options: Table3Options<Table.TableConstructorOptions>
-    ) => Table3Options<Table.TableConstructorOptions>
+      options: Table3Options<Table.TableConstructorOptions>,
+    ) => Table3Options<Table.TableConstructorOptions>,
   ): TableWithRows<T> {
     return new TableWithRows({
       mappers: this.#mappers,
@@ -557,7 +592,7 @@ export class TableWithRows<T> {
     const table = new Table(table3Options);
 
     table.push(
-      ...rows.map((cells) => cells.map((cell) => cell.toTable3(state)))
+      ...rows.map((cells) => cells.map((cell) => cell.toTable3(state))),
     );
 
     return table;

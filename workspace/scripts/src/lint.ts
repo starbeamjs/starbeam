@@ -5,17 +5,20 @@ import { QueryCommand } from "./support/commands/query-command";
 import { StringOption } from "./support/commands/types";
 
 export const LintCommand = QueryCommand("lint", "run eslint", {
-  flags: {
-    "--no-stream-output":
+  flags: [
+    [
+      "--no-stream-output",
       "-O: do not stream the lint output (but display it when the command fails)",
-    "--fix": "pass --fix to eslint to automatically fix any linting errors",
-  },
-  options: {
-    "--files": [
-      "-f: a glob representing a list of files to lint",
-      StringOption.optional,
     ],
-  },
+    ["--fix", "pass --fix to eslint to automatically fix any linting errors"],
+  ],
+  options: [
+    [
+      "--files [files]",
+      "-f: a glob representing a list of files to lint",
+      StringOption,
+    ],
+  ],
 }).action(async ({ workspace, packages, files, streamOutput, fix }) => {
   const eslintrc = workspace.root.file(".eslintrc.json");
 

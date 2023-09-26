@@ -1,37 +1,54 @@
 import type { CommandInfo } from "@starbeam-dev/schemas";
+import type { ReporterOptions } from "@starbeam-workspace/reporter";
+import { Workspace } from "@starbeam-workspace/workspace";
 import type { Command as CommanderCommand } from "commander";
-import { program as CommanderProgram } from "commander";
 
-import { BuildCommand } from "./build-command";
-import type { BasicOptions, CommandOptions } from "./options";
-import { applyBasicOptions } from "./options";
-import { createWorkspace } from "./query-command.js";
-import { type ActionArgs, createCommand } from "./shared.js";
+import { type CommandOptions, withOptions } from "./options";
+import {
+  type ActionArgs,
+  type ActionResult,
+  prepareCommand,
+} from "./shared.js";
 
-export function create(name: string, options?: BasicOptions): BuildDevCommand {
-  const command = applyBasicOptions(
-    CommanderProgram.createCommand(name),
-    options,
-  );
+/*
+  eslint-disable 
+  @typescript-eslint/explicit-module-boundary-types,
+  @typescript-eslint/explicit-function-return-type --
+  we really want TypeScript to infer the return type here.  
+ */
+export function DevCommand<const C extends CommandInfo = CommandInfo>(
+  name: string,
+  description: string,
+  info?: C,
+) {
+  const prepared = prepareCommand({
+    name,
+    description,
+    spec: info ?? {},
+    prepare: [withOptions],
+  });
 
-  return new BuildDevCommand(command);
-}
-
-export const DevCommand = createCommand(create);
-
-export class BuildDevCommand extends BuildCommand<CommandOptions> {
-  readonly action = <C extends CommandInfo>(
+  return {
     action: (
-      ...args: ActionArgs<C, CommandOptions>
-    ) => Promise<void | number> | void | number,
-  ): ((options: { root: string }) => CommanderCommand) => {
-    return ({ root }) =>
-      this.command.action(async (...args) => {
-        const { options } = this.extractOptions(args);
-        const actionArgs = this.parseOptions(args, {
-          workspace: createWorkspace(root, options),
+      action: (...args: ActionArgs<C, CommandOptions>) => ActionResult,
+    ): ((options: { root: string }) => CommanderCommand) => {
+      return ({ root }) => {
+        return prepared.action(async (positional, named) => {
+          const workspace = Workspace.root(root, named as ReporterOptions);
+
+          const actionArgs = [
+            ...positional,
+            { ...named, workspace },
+          ] as Parameters<typeof action>;
+
+          return action(...actionArgs);
         });
-        await action(...(actionArgs as ActionArgs<C, CommandOptions>));
-      });
+      };
+    },
   };
 }
+/*
+  eslint-enable
+  @typescript-eslint/explicit-module-boundary-types,
+  @typescript-eslint/explicit-function-return-type
+ */

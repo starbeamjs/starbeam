@@ -13,7 +13,6 @@ import {
   type ExpectedHTML,
   type ExpectOptions,
 } from "./testing";
-import { HTML } from "./testing";
 
 export class RenderedApp<T = void> {
   static create = <T>(
@@ -140,24 +139,5 @@ export class RenderedApp<T = void> {
     } else {
       expect(this.#result.container.innerHTML).toBe(options.output);
     }
-  }
-
-  expectEvents(...events: string[] | [[]]): void {
-    this.#events.expect(...events);
-  }
-
-  expectHTML<T>(html: ExpectedHTML<T>, args: T): void;
-  expectHTML(html: string): void;
-  expectHTML(html: ExpectedHTML<unknown> | string, args?: unknown): void {
-    entryPoint(
-      () => {
-        if (typeof html === "string") {
-          HTML(() => html).expect(this.#result.container, args);
-        } else {
-          html.expect(this.#result.container, args);
-        }
-      },
-      { entryFn: expect },
-    );
   }
 }
