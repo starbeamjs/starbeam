@@ -39,7 +39,7 @@ type CatchErrorHook = Hook<
     error: Error,
     vnode: InternalPreactVNode,
     oldVNode: InternalPreactVNode,
-    errorInfo: Record<PropertyKey, unknown>
+    errorInfo: Record<PropertyKey, unknown>,
   ]
 >;
 
@@ -56,8 +56,6 @@ export const DIFF = "_diff";
 export const RENDER = "_render";
 export const CATCH_ERROR = "_catchError";
 export const ROOT = "_root";
-
-export type PREACT_HOOK_NAMES = typeof PREACT_HOOK_NAMES;
 
 export interface InternalPreactElement extends HTMLElement {
   /** children */
@@ -85,5 +83,11 @@ export interface InternalSource {
   lineNumber: number;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+/*
+  eslint-disable-next-line @typescript-eslint/no-explicit-any --
+  this is the most general type of function and is at least
+  a little bit better than `Function`. We can keep refining
+  it if we come up with better ideas, but this lint is intended
+  to absorb many other lints.
+*/
 export type AnyFn = (...args: any[]) => any;

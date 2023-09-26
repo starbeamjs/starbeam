@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers -- this file absorbs magic
+numbers for the rest of the codebase */
 const EMPTY_LENGTH = 0;
 
 export type ReadonlyPresentArray<T> = readonly [T, ...T[]];
@@ -118,9 +120,9 @@ export function nullifyEmptyArray<U extends unknown[] | readonly unknown[]>(
   return isEmptyArray(list) ? null : (list as unknown as PresentArrayFor<U>);
 }
 
-const FIRST_OFFSET = 0;
+export const FIRST_OFFSET = 0;
 const TAIL_OFFSET = 1;
-const LAST_OFFSET = -1;
+export const LAST_OFFSET = -1;
 
 export function withoutFirst<T, U extends unknown[]>(
   list: [T, ...U] | readonly [T, ...U],
@@ -151,8 +153,88 @@ export function getFirst<T>(list: AnyArray<T> | undefined): T | undefined {
   return list?.[FIRST_OFFSET];
 }
 
+// Borrowed from SimplyTyped:
+type Prev<T extends number> = [
+  -1,
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19,
+  20,
+  21,
+  22,
+  23,
+  24,
+  25,
+  26,
+  27,
+  28,
+  29,
+  30,
+  31,
+  32,
+  33,
+  34,
+  35,
+  36,
+  37,
+  38,
+  39,
+  40,
+  41,
+  42,
+  43,
+  44,
+  45,
+  46,
+  47,
+  48,
+  49,
+  50,
+  51,
+  52,
+  53,
+  54,
+  55,
+  56,
+  57,
+  58,
+  59,
+  60,
+  61,
+  62,
+][T];
+
+// Actual, legit sorcery
+// Borrowed from pelotom/hkts:
+type GetLength<original extends unknown[] | readonly unknown[]> =
+  original extends {
+    length: infer L;
+  }
+    ? L
+    : never;
+type GetLast<original extends unknown[] | readonly unknown[]> = original[Prev<
+  GetLength<original>
+>];
+
+export function getLast<T extends AnyArray<unknown>>(list: T): GetLast<T>;
 export function getLast<T>(list: PresentArray<T>): T;
-export function getLast<T>(list: T[] | readonly T[] | undefined): T | undefined;
 export function getLast<T>(
   list: readonly T[] | T[] | undefined,
 ): T | undefined {
@@ -186,10 +268,10 @@ export function removeItem<T>(list: T[], item: T): void {
   removeItemAt(list, list.indexOf(item));
 }
 
-export function isArray<T>(
+export function isArray<T extends AnyArray<unknown>>(
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-  value: unknown | readonly T[],
-): value is readonly T[];
+  value: unknown | T,
+): value is T;
 // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 export function isArray<T>(value: unknown | T[]): value is T[];
 export function isArray(value: unknown): value is unknown[];

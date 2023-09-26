@@ -1,4 +1,5 @@
 export {
+  FIRST_OFFSET,
   firstNItems,
   getFirst,
   getLast,
@@ -10,6 +11,7 @@ export {
   isPresentArray,
   isPresentCollection,
   isSingleItemArray,
+  LAST_OFFSET,
   mapArray,
   mapIfPresent,
   mapPresentArray,

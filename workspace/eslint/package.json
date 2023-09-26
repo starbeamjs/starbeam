@@ -30,6 +30,7 @@
     "@types/eslint": "*",
     "eslint-config-prettier": "*",
     "eslint-import-resolver-typescript": "*",
+    "eslint-plugin-eslint-comments": "*",
     "eslint-plugin-import": "*",
     "eslint-plugin-json": "*",
     "eslint-plugin-jsonc": "*",

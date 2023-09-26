@@ -23,8 +23,12 @@ import {
 import { act } from "preact/test-utils";
 import { renderToString } from "preact-render-to-string";
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-export type Component<Props = {}> = import("preact").ComponentType<Props>;
+/*
+  eslint-disable-next-line
+  @typescript-eslint/ban-types 
+  -- This is the type Preact uses
+*/
+type Component<Props = {}> = import("preact").ComponentType<Props>;
 
 export function html(
   strings: TemplateStringsArray,
@@ -106,7 +110,11 @@ export function Root<R extends Root<T, T>, T extends RenderProps, U extends T>(
   return test;
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-types
+/*
+  eslint-disable-next-line
+  @typescript-eslint/ban-types 
+  -- This is the type Preact uses
+*/
 export function render(app: ComponentType<void>): RenderingResult<{}>;
 export function render<T>(app: ComponentType<T>, args: T): RenderingResult<T>;
 export function render<T>(app: ComponentType<T>, args?: T): RenderingResult<T> {
@@ -216,8 +224,11 @@ class RenderingResult<T, U extends T = T> {
         return this as unknown as RenderingResult<T, T>;
       },
       {
-        // we just need the function's identity here
-        // eslint-disable-next-line @typescript-eslint/unbound-method
+        /*
+          eslint-disable-next-line
+          @typescript-eslint/unbound-method
+          -- we just need the function's identity here
+        */
         entryFn: this.expect,
         cause: "expect was called here",
       },
@@ -388,8 +399,12 @@ class Render<Args extends RenderProps, T extends Args> {
     this.#expect.check(args);
 
     const renderResult = RenderResult.create<Args, T>({
-      // FIXME
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
+      /*
+        eslint-disable-next-line
+        @typescript-eslint/no-explicit-any,
+        @typescript-eslint/no-unsafe-assignment
+        -- FIXME
+      */
       component: this.#component as any,
       container: this.#into,
       expectation: this.#expect,
@@ -529,7 +544,12 @@ class RenderResult<Args extends RenderProps, T extends Args> {
 
 type Fire = {
   [P in keyof testing.FireObject]: testing.FireObject[P] extends (
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    /*
+      eslint-disable-next-line
+      @typescript-eslint/no-explicit-any
+      -- This needs to be broad enough to infer properly.
+      TODO: investigate alternatives. 
+    */
     element: any,
     ...args: infer Args
   ) => infer Return

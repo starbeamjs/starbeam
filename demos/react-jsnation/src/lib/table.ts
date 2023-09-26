@@ -34,8 +34,8 @@ export class Table<T> {
   }
 }
 
-export type Filter<T> = (row: Row<T>) => boolean;
-export type Sort<T> = (rowA: Row<T>, rowB: Row<T>) => number;
+type Filter<T> = (row: Row<T>) => boolean;
+type Sort<T> = (rowA: Row<T>, rowB: Row<T>) => number;
 
 export class Query<T> {
   #table: Table<T>;
@@ -58,7 +58,7 @@ export class Query<T> {
 
   get rows(): Row<T>[] {
     const filtered = this.#table.rows.filter((row) =>
-      this.#filters.every((filter) => filter(row))
+      this.#filters.every((filter) => filter(row)),
     );
 
     if (this.#sort) {

@@ -2,12 +2,18 @@ import { CheckDefinition } from "@starbeam-workspace/workspace";
 
 import { QueryCommand } from "./support/commands/query-command.js";
 
-export default QueryCommand("build", "prepare the packages for publishing", {
-  flags: {
-    "--no-stream-output":
-      "-O: do not stream the lint output (but display it when the command fails)",
+export const BuildCommand = QueryCommand(
+  "build",
+  "prepare the packages for publishing",
+  {
+    flags: [
+      [
+        "--no-stream-output",
+        "-O: do not stream the lint output (but display it when the command fails)",
+      ],
+    ],
   },
-}).action(async ({ workspace, packages, streamOutput }) => {
+).action(async ({ workspace, packages, streamOutput }) => {
   const results = await workspace.check(
     ...packages
       .filter((pkg) => pkg.type.is("library:public"))

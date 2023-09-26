@@ -1,3 +1,12 @@
 {
-  "extends": "../../tsconfig.package.json"
+  "extends": "../../../.config/tsconfig/tsconfig.shared.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "declarationDir": "../../../dist/types",
+    "declarationMap": true,
+    "outDir": "../../../dist/packages",
+    "types": ["../../env"]
+  },
+  "exclude": ["dist/**/*"]
 }

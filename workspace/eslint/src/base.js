@@ -31,6 +31,7 @@ exports.extends = [
   "plugin:@typescript-eslint/recommended-requiring-type-checking",
   "plugin:import/errors",
   "plugin:json/recommended",
+  "plugin:eslint-comments/recommended",
   "prettier",
 ];
 
@@ -53,6 +54,7 @@ const TYPED_RULES = Rules.build((rules) =>
       ],
       both: ["init-declarations", "no-undef"],
     })
+
     .replace([
       "default-param-last",
       "no-dupe-class-members",
@@ -134,6 +136,12 @@ const TYPED_RULES = Rules.build((rules) =>
 /** @type {Linter.RulesRecord} */
 exports.rules = {
   ...TYPED_RULES,
+  "eslint-comments/no-unused-disable": "error",
+  "eslint-comments/require-description": [
+    "error",
+    { ignore: ["eslint-enable"] },
+  ],
+  "eslint-comments/disable-enable-pair": ["error", { allowWholeFile: true }],
   "unused-imports/no-unused-imports": "error",
   "simple-import-sort/imports": "error",
   "simple-import-sort/exports": "error",

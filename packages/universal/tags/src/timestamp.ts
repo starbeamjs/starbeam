@@ -4,7 +4,7 @@ import { bump as peerBump, now as peerNow } from "@starbeam/shared";
 
 export const INSPECT = Symbol.for("nodejs.util.inspect.custom");
 
-export class TimestampImpl implements interfaces.Timestamp {
+class TimestampImpl implements interfaces.Timestamp {
   static #initial = peerNow();
 
   /**
@@ -23,7 +23,7 @@ export class TimestampImpl implements interfaces.Timestamp {
 
   static assert(
     timestamp: interfaces.Timestamp,
-    what: string
+    what: string,
   ): asserts timestamp is TimestampImpl {
     if (!(#timestamp in timestamp)) {
       throw Error(`Value passed to ${what} was unexpectedly not a timestamp`);

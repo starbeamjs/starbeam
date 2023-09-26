@@ -1,3 +1,8 @@
+export type LongFlag = `--${string}`;
+export type RequiredLabel = `<${string}>`;
+export type OptionalLabel = `[${string}]`;
+export type Label = RequiredLabel | OptionalLabel;
+
 export interface CommandInfo {
   /**
    * A command's notes are printed after the command's description and usage
@@ -12,7 +17,7 @@ export interface CommandInfo {
    * the action).
    */
 
-  readonly args?: readonly OptionType[] | undefined;
+  readonly args?: readonly ArgSpec[] | undefined;
 
   /**
    * The options of the command. An option has an optional short name and a
@@ -36,13 +41,13 @@ export interface CommandInfo {
    * a flag, and if you want the flag to be on by default, use a flag whose name
    * starts with `--no-`.
    */
-  readonly options?: Record<`--${string}`, OptionType> | undefined;
+  readonly options?: readonly ValuedOptionSpec[] | undefined;
 
   /**
    * A flag is an option whose value is a boolean. Its default value is
    * `true` if the flag name starts with `--no-` and false otherwise.
    */
-  readonly flags?: Record<`--${string}`, FlagOption> | undefined;
+  readonly flags?: readonly FlagSpec[] | undefined;
 }
 
 export interface Command extends CommandInfo {
@@ -78,7 +83,12 @@ export type RestArgumentValue = ArgumentValue[];
  */
 export type OptionValue = string | string[] | undefined;
 
-export type SimpleType<T extends OptionValue> = (input: unknown) => input is T;
+export interface SimpleType<T extends OptionValue> {
+  (input: unknown): input is T;
+  readonly required: (value: unknown) => value is NonNullable<T>;
+  readonly optional: (value: unknown) => value is T | undefined;
+}
+
 export type TypeWithDefault<T extends OptionValue> = [
   SimpleType<T>,
   { default: T },
@@ -109,21 +119,47 @@ export type DynamicType<T extends OptionValue> =
  * - a TypeScript type predicate (`(input: unknown) => input is T`)
  * - a TypeScript type predicate with a default value (a tuple of the type
  *   predicate and `{ default: T }`)
-
+ */
+export type OptionSpec<T extends OptionValue = OptionValue> = readonly [
+  /*
+    eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents --
+    leave this redundant type for documentation    
   */
-export type OptionType = readonly [
-  description: string,
-  type: DynamicType<OptionValue> | OptionValue,
+  description: `-${string}: ${string}` | string,
+  type?: OptionType<T>,
 ];
 
-export type OptionTypeFor<O extends OptionType> = O extends readonly [
+export type FlagSpec = readonly [
+  long: `--no-${string}` | `--${string}`,
+  /*
+    eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents --
+    leave this redundant type for documentation    
+  */
+  description: `-${string}: ${string}` | string,
+];
+
+export type ArgSpec<T extends OptionValue = OptionValue> = readonly [
+  description: `[${string}] ${string}` | `<${string}> ${string}`,
+  type: OptionType<T>,
+];
+
+export type ArgDesc = ArgSpec[0];
+
+export type ValuedOptionSpec = readonly [
+  `${LongFlag} ${RequiredLabel}` | `${LongFlag} ${OptionalLabel}`,
+  ...OptionSpec,
+];
+
+export type OptionType<T extends OptionValue = OptionValue> = DynamicType<T>;
+
+export type OptionTypeFor<O extends OptionSpec> = O extends readonly [
   description: string,
-  type: FullValue<infer S>,
+  type: DynamicType<infer S>,
 ]
   ? S
   : O extends readonly [description: string, type: infer S]
   ? S
-  : O extends [description: string, type: FullValue<infer S>]
+  : O extends [description: string, type: DynamicType<infer S>]
   ? S
   : O extends [description: string, type: infer S]
   ? S

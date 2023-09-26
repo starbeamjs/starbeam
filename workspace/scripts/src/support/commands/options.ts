@@ -10,7 +10,8 @@ export declare class CompileError<_S extends string = string, In = unknown> {
   #in: In;
 }
 
-export interface BasicOptions {
+export interface BasicOptions extends ReporterOptions {
+  name: string;
   description?: string | undefined;
   notes?: string | undefined;
 }
@@ -90,11 +91,29 @@ export type CamelizedOptions<O> = {
   [P in keyof O as CamelizedOption<P>]: O[P];
 };
 
-export type CamelizedOption<N extends PropertyKey> = N extends `--no-${infer K}`
+export type CamelizedFlags<O> = {
+  [P in keyof O as CamelizedFlag<P>]: O[P];
+};
+
+export type CamelizedOption<N> = N extends `--no-${infer K}`
+  ? CamelizedKey<K>
+  : N extends `--${infer K} [${string}]`
+  ? CamelizedKey<K>
+  : N extends `--${infer K} <${string}>`
+  ? CamelizedKey<K>
+  : never;
+
+export type CamelizedFlag<N extends PropertyKey> = N extends `--no-${infer K}`
+  ? CamelizedKey<K>
+  : N extends `--${infer K} [${string}]`
+  ? CamelizedKey<K>
+  : N extends `--${infer K} <${string}>`
+  ? CamelizedKey<K>
+  : N extends `--no-${infer K}`
   ? CamelizedKey<K>
   : N extends `--${infer K}`
   ? CamelizedKey<K>
-  : N;
+  : never;
 
 type CamelizedKey<N extends PropertyKey> = N extends string
   ? N extends `${infer A}-${infer B}${infer C}`

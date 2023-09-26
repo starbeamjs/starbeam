@@ -1,7 +1,6 @@
 import type { Description } from "@starbeam/interfaces";
 import { getTag } from "@starbeam/tags";
 import { Cell, Marker } from "@starbeam/universal";
-import { expected, isPresent, verified } from "@starbeam/verify";
 
 class ItemState {
   #present: Cell<boolean>;
@@ -10,7 +9,7 @@ class ItemState {
   static create(
     initialized: boolean,
     description: Description | undefined,
-    member: string
+    member: string,
   ): ItemState {
     return new ItemState(
       Cell(initialized, {
@@ -18,22 +17,20 @@ class ItemState {
           ?.implementation("cell", "initialization", "initialization tracking")
           .key(member),
       }),
-      Marker({ description: description?.key(member) })
+      Marker({ description: description?.key(member) }),
     );
   }
 
-
   static initialized(
     description: Description | undefined,
-    member: string
+    member: string,
   ): ItemState {
     return ItemState.create(true, description, member);
   }
 
-
   static uninitialized(
     description: Description | undefined,
-    member: string
+    member: string,
   ): ItemState {
     return ItemState.create(false, description, member);
   }
@@ -69,10 +66,9 @@ class ItemState {
 class Item {
   #value: ItemState;
 
-
   static initialized(
     description: Description | undefined,
-    member: string
+    member: string,
   ): Item {
     // If an item is initialized for the first time with a value, that means
     // that no consumer attempted to read the value before, so there's nothing
@@ -82,7 +78,7 @@ class Item {
 
   static uninitialized(
     description: Description | undefined,
-    member: string
+    member: string,
   ): Item {
     const item = new Item(ItemState.uninitialized(description, member));
 
@@ -121,34 +117,23 @@ export class Collection<K> {
 
   static #objects = new WeakMap<object, Collection<unknown>>();
 
-
   static create<K>(
     description: Description | undefined,
-    object: object
+    object: object,
   ): Collection<K> {
     const collection = new Collection<K>(
       undefined,
       new Map(),
-      description?.key("entries")
+      description?.key("entries"),
     );
     Collection.#objects.set(object, collection);
     return collection;
   }
 
-  static for(object: object): Collection<unknown> {
-    return verified(
-      Collection.#objects.get(object),
-      isPresent,
-      expected("an reactive ecmascript collection").toHave(
-        "an associated internal collection"
-      )
-    );
-  }
-
   constructor(
     iteration: undefined,
     items: Map<K, Item>,
-    description: Description | undefined
+    description: Description | undefined,
   ) {
     this.#description = description;
     this.#iteration = iteration;
@@ -234,7 +219,7 @@ export class Collection<K> {
   set(
     key: K,
     disposition: "key:stable" | "key:changes",
-    description: string
+    description: string,
   ): void {
     if (disposition === "key:changes") {
       this.splice();

@@ -2,7 +2,7 @@ import { basename, dirname, resolve } from "node:path";
 
 import { Package } from "@starbeam-dev/build-support";
 import glob from "fast-glob";
-import { defineWorkspace, type UserWorkspaceConfig } from "vitest/config";
+import { defineWorkspace } from "vitest/config";
 
 const root = Package.root(import.meta);
 
@@ -16,6 +16,9 @@ const packages = glob
   ])
   .map((manifest) => {
     const path = dirname(manifest);
+    /**
+     * @satisfies {import("vitest/config").UserWorkspaceConfig & { extends: string }}
+     */
     return {
       extends: "./vitest.config.ts",
       test: {
@@ -25,7 +28,7 @@ const packages = glob
         exclude: [resolve(path, "tests/node_modules/**")],
         environment: "node",
       },
-    } satisfies UserWorkspaceConfig & { extends: string };
+    };
   });
 
 export default defineWorkspace(packages);

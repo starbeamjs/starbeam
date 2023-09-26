@@ -1,0 +1,22 @@
+{
+  "$schema": "https://unpkg.com/knip@2.29/schema.json",
+  "ignoreExportsUsedInFile": {
+    "type": true
+  },
+  "vite": false,
+  "workspaces": {
+    ".": {
+      "entry": []
+    },
+    "demos/*": {
+      "entry": [],
+      "vite": false
+    },
+    "packages/*/*": {
+      "entry": ["index.{js,ts,tsx}"]
+    },
+    "packages/*/*/tests": {
+      "entry": ["*.spec.{js,ts,tsx}"]
+    }
+  }
+}
