@@ -138,7 +138,7 @@ exports.rules = {
   ...TYPED_RULES,
   "eslint-comments/no-unused-disable": "error",
   "eslint-comments/require-description": [
-    "error",
+    "off", // enable in a subsequent PR
     { ignore: ["eslint-enable"] },
   ],
   "eslint-comments/disable-enable-pair": ["error", { allowWholeFile: true }],

@@ -12,7 +12,11 @@ export type XmlnsNamespace = "http://www.w3.org/2000/xmlns/";
 
 export type AttributeNamespace = XlinkNamespace | XmlNamespace | XmlnsNamespace;
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
+/*
+  eslint-disable-next-line @typescript-eslint/no-namespace
+  -- using a namespace to map onto the `Node.*` JavaScript API (so that
+  you can use `Node.TEXT_NODE` as a type and not `Node["TEXT_NODE"]`)
+*/
 export namespace Node {
   export type ELEMENT_NODE = 1;
   export type ATTRIBUTE_NODE = 2;
@@ -76,7 +80,7 @@ export interface Document extends ReadonlyParent {
   createElementNS: (
     ns: ElementNamespace,
     qualifiedName: string,
-    options?: { is: string }
+    options?: { is: string },
   ) => Element;
 
   createRange: () => LiveRange;
@@ -114,7 +118,7 @@ interface MutableElement extends Element, MutableParent, MutableChild {
   setAttributeNS: (
     namespace: AttributeNamespace | null,
     qualifiedName: string,
-    value: string
+    value: string,
   ) => void;
 
   set innerHTML(html: string);
