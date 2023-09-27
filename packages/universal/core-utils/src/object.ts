@@ -16,11 +16,16 @@ type WithReadonly<T, K extends keyof T> = Expand<
   }
 >;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+/*
+ eslint-disable @typescript-eslint/no-explicit-any -- These `any`s are necessary
+ because they express the full generalization of the key, function and
+ descriptor types. These `any`s avoid unchecked `any`s in other part of this
+ file.
+ */
 type AnyKey = keyof any;
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyFunction = (...args: any[]) => any;
+type AnyTypedDescriptorMap = Record<string, TypedPropertyDescriptor<any>>;
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 type DefineReadonly<T, K extends AnyKey, V> = Expand<
   Exclude<T, K> & {
@@ -102,10 +107,9 @@ type DefinedObject<R extends Record<string, TypedPropertyDescriptor<unknown>>> =
     [P in keyof R]: R[P] extends TypedPropertyDescriptor<infer V> ? V : unknown;
   }>;
 
-export function defineObject<
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  R extends Record<string, TypedPropertyDescriptor<any>>,
->(properties: R): DefinedObject<R> {
+export function defineObject<R extends AnyTypedDescriptorMap>(
+  properties: R,
+): DefinedObject<R> {
   return Object.defineProperties({}, properties) as DefinedObject<R>;
 }
 
@@ -116,8 +120,7 @@ export function dataGetter<T>(getter: () => T): TypedPropertyDescriptor<T> {
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function def<T, R extends Record<string, TypedPropertyDescriptor<any>>>(
+export function def<T, R extends AnyTypedDescriptorMap>(
   object: T,
   properties: R,
 ): T & DefinedObject<R> {

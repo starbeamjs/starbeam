@@ -48,7 +48,7 @@ export class InternalElement {
         element: `${this.#element.tagName.toLowerCase()}`,
         ...optionalFields,
       },
-      { description: `#${this.#id}` }
+      { description: `#${this.#id}` },
     );
   }
 

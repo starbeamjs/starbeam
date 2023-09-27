@@ -479,6 +479,12 @@ function normalizeJSONValue(value: JsonValue): JsonValue {
 }
 
 function cloneJSON<T extends JsonValue>(value: T): T {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  /* eslint-disable-next-line @typescript-eslint/no-unsafe-return 
+     -- the whole point of this function is to return a clone
+     of an arbitrary JSON value by passing it through JSON.stringify
+     and JSON.parse. In the general case, this is an unsafe operation,
+     but since we know that the input is a JSON object, we can
+     safely assume that the output is a type-equivalent JSON object.
+  */
   return JSON.parse(JSON.stringify(value));
 }

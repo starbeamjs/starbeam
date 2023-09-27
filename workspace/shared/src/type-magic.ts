@@ -345,10 +345,6 @@ export class PresentArray<T> extends Array<T> {
   }
 }
 
-export function map<T>(items: [T, ...T[]] | readonly [T, ...T[]]): T[] {
-  return items.map((item) => item);
-}
-
 export type IntoResult<T, E = unknown> = T | Result<T, E>;
 
 export type ResultRecord<E = unknown> = Record<string, IntoResult<unknown, E>>;

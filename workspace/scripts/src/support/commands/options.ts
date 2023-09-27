@@ -6,7 +6,7 @@ import type { Workspace } from "@starbeam-workspace/workspace";
 import chalk from "chalk";
 import type { Command } from "commander";
 
-export declare class CompileError<_S extends string = string, In = unknown> {
+declare class CompileError<_S extends string = string, In = unknown> {
   #in: In;
 }
 

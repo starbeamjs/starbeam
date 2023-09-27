@@ -1,22 +1,5 @@
-export enum HookTypes {
-  useState = 1,
-  useReducer = 2,
-  useEffect = 3,
-  useLayoutEffect = 4,
-  useRef = 5,
-  useImperativeHandle = 6,
-  useMemo = 7,
-  useCallback = 8,
-  useContext = 9,
-  useErrorBoundary = 10,
-  // Not a real hook, but the devtools treat is as such
-  useDebugValue = 11,
-}
-
-export type HookName = keyof HookTypes;
-
 // eslint-disable-next-line no-sparse-arrays -- Intentionally use a sparse array here so that the 0th entry isn't enumerated via `map`.
-export const HOOK_NAMES = [
+const HOOK_NAMES = [
   ,
   "useState",
   "useReducer",
@@ -29,7 +12,9 @@ export const HOOK_NAMES = [
   "useContext",
   "useErrorBoundary",
   "useDebugvalue",
-];
+] as const;
+
+type HookName = NonNullable<(typeof HOOK_NAMES)[number]>;
 
 export class HookType {
   readonly #type: number;
@@ -40,11 +25,19 @@ export class HookType {
 
   private constructor(type: number) {
     this.#type = type;
+  }
 
-    if (import.meta.env.DEV) {
-      Object.defineProperty(this, "name", {
-        value: HOOK_NAMES[type],
-      });
-    }
+  /**
+   * This is not currently used in the Starbeam codebase, because
+   * the Starbeam codebase doesn't use the `hook` option.
+   *
+   * However, it is part of the complete enumeration of Preact
+   * features and will be important once this library is announced
+   * for general use.
+   *
+   * @public
+   */
+  is(name: HookName): boolean {
+    return HOOK_NAMES[this.#type] === name;
   }
 }

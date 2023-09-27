@@ -20,7 +20,7 @@ const packages = glob
      * @satisfies {import("vitest/config").UserWorkspaceConfig & { extends: string }}
      */
     return {
-      extends: "./vitest.config.ts",
+      extends: "./vitest.config.mts",
       test: {
         name: basename(path),
         include: [resolve(path, "tests/**/*.spec.ts")],

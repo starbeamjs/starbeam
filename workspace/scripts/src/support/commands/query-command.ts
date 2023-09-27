@@ -18,7 +18,6 @@ import { Workspace } from "@starbeam-workspace/workspace";
 import chalk from "chalk";
 import type { Command as CommanderCommand } from "commander";
 
-import type { Indexable } from "../utils.js";
 import {
   type CommandOptions,
   type ShortCommandOptions,
@@ -30,6 +29,8 @@ import {
   prepareCommand,
 } from "./shared.js";
 import { BooleanOption } from "./types.js";
+
+type Indexable = Record<string, unknown>;
 
 /*
   eslint-disable 

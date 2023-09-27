@@ -25,8 +25,12 @@ import {
 } from "child_process";
 
 import { Checks } from "./checks.js";
-import { FATAL_EXIT_CODE } from "./constants.js";
 import { fatal } from "./utils.js";
+
+/**
+ * A fatal error reports with exit code 1.
+ */
+const FATAL_EXIT_CODE = 1;
 
 export class Workspace implements IWorkspace {
   static root(root: string, options: ReporterOptions): Workspace {
@@ -67,16 +71,18 @@ export class Workspace implements IWorkspace {
 
   cmd(
     command: string,
-    options?: Partial<ExecSyncOptionsWithStringEncoding & { failFast: boolean }>
+    options?: Partial<
+      ExecSyncOptionsWithStringEncoding & { failFast: boolean }
+    >,
   ): string | void {
     return this.#reporter.handle
       .fatal((r): never => {
         fatal(
           r.fatal(
             stringify`> ${Fragment.problem.header.inverse(
-              "failed"
-            )} ${Fragment.problem.header(command)}`
-          )
+              "failed",
+            )} ${Fragment.problem.header(command)}`,
+          ),
         );
       })
       .try((r) => {
@@ -103,8 +109,8 @@ export class Workspace implements IWorkspace {
                   writer.write("\x1b[0G");
                   writer.write(
                     stringify`${Fragment.comment(
-                      "CTRL-C..."
-                    )} ${Fragment.problem("exiting")}`
+                      "CTRL-C...",
+                    )} ${Fragment.problem("exiting")}`,
                   );
                 });
                 process.exit(FATAL_EXIT_CODE);
@@ -112,10 +118,12 @@ export class Workspace implements IWorkspace {
             }
 
             r.group(
-              Fragment.problem("An error occurred while executing the command:")
+              Fragment.problem(
+                "An error occurred while executing the command:",
+              ),
             ).try((r) => {
               r.log(
-                fragment`${Fragment.comment("$")} ${Fragment.comment(command)}`
+                fragment`${Fragment.comment("$")} ${Fragment.comment(command)}`,
               );
 
               if ("output" in error) {
@@ -163,7 +171,7 @@ export class Workspace implements IWorkspace {
     options: {
       label: (value: T) => string;
       header: (value: T) => IntoFragment;
-    }
+    },
   ): Promise<GroupedCheckResults> {
     const grouped = GroupedCheckResults.empty();
     const reporter = this.reporter;
@@ -180,7 +188,7 @@ export class Workspace implements IWorkspace {
             r.log(
               grouped.isOk
                 ? Fragment.ok.inverse("ok")
-                : Fragment.problem.inverse("err")
+                : Fragment.problem.inverse("err"),
             );
           }
         });
@@ -215,7 +223,7 @@ export class Workspace implements IWorkspace {
       cwd: this.root.absolute,
       output: "stream",
       breakBefore: false,
-    }
+    },
   ): Promise<"ok" | "err"> {
     const header = label
       ? Fragment.header(label)
@@ -238,9 +246,9 @@ export class Workspace implements IWorkspace {
         fatal(
           r.fatal(
             stringify`> ${Fragment.problem("failed")} ${Fragment.comment(
-              command
-            )}`
-          )
+              command,
+            )}`,
+          ),
         );
       })
       .catch((_, log) => {
@@ -275,13 +283,13 @@ export interface ExecOptions {
 export type CheckDefinition = [
   label: string,
   command: string,
-  options?: ExecOptions
+  options?: ExecOptions,
 ];
 
 export function CheckDefinition(
   label: string,
   command: string,
-  options?: { cwd: Directory; output: CommandOutputType }
+  options?: { cwd: Directory; output: CommandOutputType },
 ): CheckDefinition {
   return [label, command, options] as CheckDefinition;
 }

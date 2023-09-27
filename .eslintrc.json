@@ -1,20 +1,23 @@
 {
   "root": true,
   "ignorePatterns": [
-    "*",
-    "!package.json",
-    "!.eslintrc.json",
-    "!.eslintrc.repo.json",
-    "!.vscode/*.json",
-    "!tsconfig.json",
-    "!vitest.workspace.mjs",
-    "!rollup.config.mjs",
-    "!.knip.json",
-    "**/node_modules"
+    "packages/*/*",
+    "@types",
+    "demos",
+    "html",
+    "workspace",
+    "unused.js"
   ],
 
   "plugins": ["@starbeam"],
   "overrides": [
+    {
+      "extends": ["plugin:@starbeam/tight"],
+      "files": ["*.ts", "*.d.ts"],
+      "parserOptions": {
+        "project": ["tsconfig.json"]
+      }
+    },
     {
       "extends": ["plugin:@starbeam/tight"],
       "files": ["vitest.*.{mts,ts}"],

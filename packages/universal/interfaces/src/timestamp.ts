@@ -8,9 +8,3 @@ export interface Timestamp {
 
   toString: (options?: { format?: "timestamp" }) => string;
 }
-
-export interface TimestampStatics {
-  now: () => Timestamp;
-  max: (...timestamps: Timestamp[]) => Timestamp;
-  debug: (timestamp: Timestamp) => { at: number };
-}
