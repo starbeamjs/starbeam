@@ -1,5 +1,8 @@
 export class VerificationError<T = unknown> extends Error {
-  constructor(message: string, readonly expectation: Expectation<T>) {
+  constructor(
+    message: string,
+    readonly expectation: Expectation<T>,
+  ) {
     super(message);
   }
 }
@@ -9,17 +12,17 @@ export type VerifyFn = typeof verify;
 export function verify<Value, Input extends Value, Output extends Input>(
   value: Value,
   check: (input: Input) => input is Output,
-  error?: Expectation<Value>
+  error?: Expectation<Value>,
 ): asserts value is Output & Value;
 export function verify<Value, Narrow extends Value>(
   value: Value,
   check: (input: Value) => input is Narrow,
-  error?: Expectation<Value>
+  error?: Expectation<Value>,
 ): asserts value is Narrow;
 export function verify(
   value: unknown,
   check: (input: unknown) => boolean,
-  error?: Expectation<unknown>
+  error?: Expectation<unknown>,
 ): void {
   if (!check(value)) {
     const associated = ASSOCIATED.get(check);
@@ -29,7 +32,7 @@ export function verify(
       const name = check.name;
       throw new VerificationError(
         `Assumption was incorrect: ${name}`,
-        expected()
+        expected(),
       );
     } else {
       throw new VerificationError(expectation.message(value), expectation);
@@ -50,7 +53,7 @@ verify.noop = noop as unknown as VerifyFn;
 export function verified<T, U extends T>(
   value: T,
   check: (input: T) => input is U,
-  error?: Expectation<T>
+  error?: Expectation<T>,
 ): U {
   verify(value, check, error);
   return value;
@@ -59,7 +62,7 @@ export function verified<T, U extends T>(
 verified.noop = <T, U extends T>(
   value: T,
   _check: (input: T) => input is U,
-  _error?: Expectation<T>
+  _error?: Expectation<T>,
 ): U => {
   return value as U;
 };
@@ -72,7 +75,7 @@ export class Expectation<In = any> {
 
   static merge<In>(
     associated: Expectation<In> | undefined,
-    specified: Expectation<In> | undefined
+    specified: Expectation<In> | undefined,
   ): Expectation<In> | undefined {
     if (!associated && !specified) {
       return undefined;
@@ -90,7 +93,7 @@ export class Expectation<In = any> {
       specified.#description,
       specified.#to ?? associated.#to,
       specified.#actual ?? associated.#actual,
-      specified.#when ?? associated.#when
+      specified.#when ?? associated.#when,
     );
   }
 
@@ -103,7 +106,7 @@ export class Expectation<In = any> {
     description: string | undefined,
     to: To | undefined,
     got: ((input: In) => string | undefined) | undefined,
-    when: string | undefined
+    when: string | undefined,
   ) {
     this.#description = description;
     this.#to = to;
@@ -132,7 +135,7 @@ export class Expectation<In = any> {
       description,
       to,
       actual,
-      updater.when ? updater.when(this.#when) : this.#when
+      updater.when ? updater.when(this.#when) : this.#when,
     );
   }
 
@@ -141,7 +144,7 @@ export class Expectation<In = any> {
       this.#description,
       ["to be", kind],
       this.#actual,
-      this.#when
+      this.#when,
     );
   }
 
@@ -150,18 +153,18 @@ export class Expectation<In = any> {
       this.#description,
       ["to have", items],
       this.#actual,
-      this.#when
+      this.#when,
     );
   }
 
   butGot<NewIn extends In>(
-    kind: string | ((value: NewIn) => string)
+    kind: string | ((value: NewIn) => string),
   ): Expectation<NewIn> {
     return new Expectation(
       this.#description,
       this.#to,
       typeof kind === "string" ? () => kind : kind,
-      this.#when
+      this.#when,
     );
   }
 
@@ -170,7 +173,7 @@ export class Expectation<In = any> {
       this.#description,
       this.#to,
       this.#actual,
-      situation
+      situation,
     );
   }
 
@@ -223,16 +226,19 @@ expected.toBe = (kind: string): Expectation => expected().toBe(kind);
 expected.toHave = (items: string): Expectation => expected().toHave(items);
 expected.when = (situation: string): Expectation => expected().when(situation);
 expected.butGot = <In>(
-  kind: string | ((input: In) => string)
+  kind: string | ((input: In) => string),
 ): Expectation<In> => expected().butGot(kind);
 
-// eslint-disable-next-line
-const ASSOCIATED: WeakMap<Function, Expectation<any>> = new WeakMap();
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyFn = (...args: any[]) => any;
+
+// eslint-disable-next-line @typescript-eslint/consistent-generic-constructors
+const ASSOCIATED: WeakMap<AnyFn, Expectation> = new WeakMap();
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 expected.associate = <Check extends (input: In) => any, In>(
   check: Check,
-  expectation: Expectation<In>
+  expectation: Expectation<In>,
 ): Check extends infer C ? C : never => {
   ASSOCIATED.set(check, expectation);
   return check as Check extends infer C ? C : never;
@@ -242,14 +248,14 @@ interface Updater<In, NewIn = In> {
   description?: (description: string | undefined) => string | undefined;
   to?: (to: To | undefined) => string | To | undefined;
   actual?: (
-    actual: ((input: In) => string | undefined) | undefined
+    actual: ((input: In) => string | undefined) | undefined,
   ) => ((input: NewIn) => string | undefined) | undefined;
   when?: (when: string | undefined) => string | undefined;
 }
 
 expected.updated = <In, NewIn = In>(
   check: (input: In) => boolean,
-  updater: Updater<In, NewIn>
+  updater: Updater<In, NewIn>,
 ): Expectation<NewIn> => {
   const expectation = ASSOCIATED.get(check) ?? expected();
 

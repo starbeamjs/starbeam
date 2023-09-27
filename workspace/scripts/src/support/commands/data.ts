@@ -257,6 +257,7 @@ function validateLong(rawFlag: string): LongFlagString {
 }
 
 const NOT_INCLUDED = -1;
+const STRING_START = 0;
 
 function tryExtractDelimited(
   source: string,
@@ -269,7 +270,7 @@ function tryExtractDelimited(
   if (endIndex === NOT_INCLUDED) return;
 
   return {
-    prefix: source.slice(0, startIndex),
+    prefix: source.slice(STRING_START, startIndex),
     suffix: source.slice(endIndex + endDelimiter.length),
     contents: source.slice(startIndex + startDelimiter.length, endIndex),
   };

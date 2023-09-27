@@ -92,7 +92,7 @@ class Shadow<T> {
   private constructor(
     fns: Map<string, Fn>,
     target: T[],
-    collection: Collection<number>
+    collection: Collection<number>,
   ) {
     this.#fns = fns;
     this.#target = target;
@@ -103,7 +103,7 @@ class Shadow<T> {
     this.#collection.get(
       index,
       index in this.#target ? "hit" : "miss",
-      member(index)
+      member(index),
     );
     this.#collection.iterateKeys();
 
@@ -123,7 +123,7 @@ class Shadow<T> {
           }`,
         });
         this.#collection.iterateKeys();
-        // eslint-disable-next-line
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
         return (this.#target as any)[methodName](...args);
       };
 
@@ -147,7 +147,7 @@ class Shadow<T> {
         });
         const prev = this.#target.length;
 
-        // eslint-disable-next-line
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
         const result = (this.#target as any)[methodName](...args);
 
         const next = this.#target.length;
@@ -156,7 +156,7 @@ class Shadow<T> {
           this.#collection.splice();
         }
 
-        // eslint-disable-next-line
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return result;
       };
     }

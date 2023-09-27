@@ -62,15 +62,17 @@ export const react = {
   render,
 } as const;
 
-/* eslint-disable */
 export const html: HtmlProxy = new Proxy(() => {}, {
-  get: (target, property, receiver) => {
+  get: (target, property, _receiver) => {
     if (typeof property === "symbol") {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return Reflect.get(target, property);
     }
 
-    return (...args: any[]) => {
-      if (isReactNode(args[0])) {
+    return (...args: never[]) => {
+      const [node] = args;
+
+      if (isReactNode(node)) {
         return createElement(property, null, ...args);
       } else {
         const [props, ...children] = args;
@@ -79,13 +81,12 @@ export const html: HtmlProxy = new Proxy(() => {}, {
     };
   },
 
-  apply: (target, receiver, args) => {},
+  apply: (_target, _receiver, _args) => {},
 }) as unknown as HtmlProxy;
-/* eslint-enable */
 
 export function el(
   tag: string | FunctionComponent,
-  children: ReactNode[]
+  children: ReactNode[],
 ): JSX.Element {
   return createElement(tag, null, ...children);
 }

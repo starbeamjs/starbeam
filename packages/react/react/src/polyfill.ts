@@ -1,6 +1,5 @@
 if (typeof process === "undefined") {
-  // eslint-disable-next-line
-  globalThis.process = {} as any;
+  globalThis.process = {} as never;
 }
 
 export {};
