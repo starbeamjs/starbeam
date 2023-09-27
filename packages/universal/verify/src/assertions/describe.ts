@@ -1,5 +1,4 @@
 export function format(value: unknown): string {
-  /* eslint-disable */
   switch (typeof value) {
     case "boolean":
     case "number":
@@ -15,9 +14,9 @@ export function format(value: unknown): string {
       // if it's an ES6 class; detect by using F.p.toString and looking for class
       if (fn.startsWith("class")) {
         return `{class ${value.name}}`;
-      } else if (fn.match(/^function\s*[*]/)) {
+      } else if (/^function\s*[*]/.exec(fn)) {
         return `{function* ${value.name}}`;
-      } else if (fn.match(/^async\s+function/)) {
+      } else if (/^async\s+function/.exec(fn)) {
         return `{async function ${value.name}}`;
       } else if (value.name) {
         return `{${value.name}`;
@@ -30,6 +29,7 @@ export function format(value: unknown): string {
         return `null`;
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const proto = Object.getPrototypeOf(value);
 
       if (proto === null || proto === Object.prototype) {
@@ -44,5 +44,4 @@ export function format(value: unknown): string {
       }
     }
   }
-  /* eslint-enable */
 }

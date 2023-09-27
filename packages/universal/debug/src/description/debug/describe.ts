@@ -33,7 +33,6 @@ export function getFullName(description: DescriptionDetails): FullName {
   let parent = base.parent;
   const path: Nesting[] = [base];
 
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   while (true) {
     const next = getBase(parent);
 
@@ -151,7 +150,7 @@ function getIdString(id: ReactiveId, accum = "", nested = false): string {
 }
 
 export const getUserFacing = (<D extends DescriptionDetails | undefined>(
-  description: D
+  description: D,
 ): D => {
   if (description?.nesting?.type === "implementation") {
     return getUserFacing(description.nesting.parent) as D;
@@ -170,23 +169,23 @@ if (import.meta.vitest) {
     expect(getIdString(["a", "b", "c"])).toEqual("a/b/c");
     expect(getIdString(["a", ["b", "c"], "d"])).toEqual("a->(b/c)->d");
     expect(getIdString(["a", ["b", "c"], ["d", "e"]])).toEqual(
-      "a->(b/c)->(d/e)"
+      "a->(b/c)->(d/e)",
     );
     expect(
       getIdString([
         ["a", "b"],
         ["c", "d"],
-      ])
+      ]),
     ).toEqual("(a/b)->(c/d)");
     expect(getIdString(["a", ["b", "c"], ["d", "e"], "f"])).toEqual(
-      "a->(b/c)->(d/e)->f"
+      "a->(b/c)->(d/e)->f",
     );
     expect(getIdString(["a", ["b", "c"], ["d", "e"], ["f", "g"]])).toEqual(
-      "a->(b/c)->(d/e)->(f/g)"
+      "a->(b/c)->(d/e)->(f/g)",
     );
     // multiple levels of nesting
     expect(getIdString(["a", ["b", ["c", "d"], "e"], "f"])).toEqual(
-      "a->(b->(c/d)->e)->f"
+      "a->(b->(c/d)->e)->f",
     );
   });
 
@@ -218,7 +217,7 @@ if (import.meta.vitest) {
 
   test("describeFlat", () => {
     expect(describeFlat({ type: "specified", value: "mycell" })).toEqual(
-      "mycell"
+      "mycell",
     );
     const id = getID();
     expect(
@@ -226,13 +225,13 @@ if (import.meta.vitest) {
         type: "anonymous",
         kind: "cell",
         id,
-      })
+      }),
     ).toEqual(`{anonymous cell:${id}}`);
   });
 
   test("describeFullName", () => {
     expect(describeFullName({ type: "specified", value: "mycell" })).toEqual(
-      "mycell"
+      "mycell",
     );
     const id = getID();
     expect(
@@ -240,7 +239,7 @@ if (import.meta.vitest) {
         type: "anonymous",
         kind: "cell",
         id,
-      })
+      }),
     ).toEqual(`{anonymous cell:${id}}`);
 
     const parentId = getID();
@@ -268,13 +267,13 @@ if (import.meta.vitest) {
     } satisfies DescriptionDetails;
 
     expect(describeFullName(getFullName(child))).toEqual(
-      "mycell->{impl: initialized?}"
+      "mycell->{impl: initialized?}",
     );
     expect(
       describeFullName([
         { type: "specified", value: "mycell" },
         { type: "implementation", value: { name: "initialized?", reason: "" } },
-      ])
+      ]),
     ).toEqual("mycell->{impl: initialized?}");
 
     const specified = {
@@ -289,32 +288,32 @@ if (import.meta.vitest) {
     } satisfies Anonymous;
 
     expect(describeFullName([anonymous, { type: "index", value: 2 }])).toEqual(
-      "{anonymous cell:1}[2]"
+      "{anonymous cell:1}[2]",
     );
     expect(describeFullName([specified, { type: "index", value: 2 }])).toEqual(
-      "mycell[2]"
+      "mycell[2]",
     );
 
     expect(
       describeFullName([
         anonymous,
         { type: "key", value: { name: "foo", key: {} } },
-      ])
+      ]),
     ).toEqual("{anonymous cell:1}.get(foo)");
 
     expect(
       describeFullName([
         specified,
         { type: "key", value: { name: "foo", key: {} } },
-      ])
+      ]),
     ).toEqual("mycell.get(foo)");
 
     expect(
-      describeFullName([anonymous, { type: "property", value: "foo" }])
+      describeFullName([anonymous, { type: "property", value: "foo" }]),
     ).toEqual("{anonymous cell:1}.foo");
 
     expect(
-      describeFullName([specified, { type: "property", value: "foo" }])
+      describeFullName([specified, { type: "property", value: "foo" }]),
     ).toEqual("mycell.foo");
   });
 

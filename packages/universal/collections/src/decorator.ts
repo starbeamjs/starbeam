@@ -5,7 +5,7 @@ export const cached = <T>(
   target: object,
   key: symbol | string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  descriptor: TypedPropertyDescriptor<any>
+  descriptor: TypedPropertyDescriptor<any>,
 ): void => {
   // const { get, enumerable = true, configurable = true } = descriptor;
 
@@ -17,8 +17,8 @@ export const cached = <T>(
     expected(`the target of @cached`)
       .toBe(`a getter`)
       .butGot(() =>
-        typeof descriptor.value === "function" ? `a method` : `a field`
-      )
+        typeof descriptor.value === "function" ? `a method` : `a field`,
+      ),
   );
 
   const CACHED = new WeakMap<object, FormulaFn<T>>();
@@ -33,9 +33,9 @@ export const cached = <T>(
 
       if (!formula) {
         formula = CachedFormula(
-          // eslint-disable-next-line
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-return
           () => get.call(this),
-          { description: `computing ${String(key)}` }
+          { description: `computing ${String(key)}` },
         );
         CACHED.set(this, formula);
       }
