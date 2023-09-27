@@ -29,7 +29,11 @@ import { RenderedApp } from "./rendered-app";
  */
 export const App = (
   options: (() => () => VNodeChild) | { setup: () => () => VNodeChild },
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  /*
+   eslint-disable-next-line
+   @typescript-eslint/explicit-module-boundary-types
+   -- see defComponent
+   */
 ) =>
   defineComponent({
     props: [],
@@ -42,7 +46,12 @@ export const App = (
     },
   });
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+/* 
+  eslint-disable-next-line 
+  @typescript-eslint/explicit-function-return-type 
+  -- The return type of this function is complicated and not really exposed by
+  Vue, so we just want to infer it.
+*/
 function defComponent<Props extends PropTypes>(
   props: Props,
   options:
@@ -193,14 +202,6 @@ export interface AndExpect<T> {
    * HTML is empty and no events were recorded.
    */
   andAssert: () => Promise<RenderedApp<T>>;
-}
-
-export interface SimplestStarbeamRenderResult {
-  rerender: () => Promise<void>;
-}
-
-export interface SimpleStarbeamRenderResult<Props> {
-  rerender: (props: Props) => Promise<void>;
 }
 
 Error.stackTraceLimit = Infinity;

@@ -238,7 +238,7 @@ export const HOOK_SUPER = {
   unmount: "before",
 } as const;
 
-export class AugmentHandler<F extends AnyFn> implements Handler {
+class AugmentHandler<F extends AnyFn> implements Handler {
   static create<F extends AnyFn>(
     name: string,
     original: F | undefined,

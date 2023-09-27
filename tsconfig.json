@@ -30,7 +30,8 @@
     "vitest.*.mts",
     "vite.config.ts",
     "vitest.workspace.mjs",
-    "vitest.config.mts"
+    "vitest.config.mts",
+    "packages/env.d.ts"
   ],
   "references": [
     { "path": "./packages/tsconfig.packages.json" },

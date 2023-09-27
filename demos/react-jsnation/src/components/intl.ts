@@ -1,3 +1,9 @@
+/**
+ * Keeping this around for posterity since this is a demo and this code could
+ * be helpful.
+ *
+ * @public
+ */
 export const TIME_ZONES = [
   "America/Los_Angeles",
   "America/New_York",
@@ -28,6 +34,13 @@ export const LOCALES = [
 ];
 
 export const SYSTEM_LOCALE = Intl.DateTimeFormat().resolvedOptions().locale;
+
+/**
+ * Keeping this around for posterity since this is a demo and this code could
+ * be helpful.
+ *
+ * @public
+ */
 export const SYSTEM_TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 export function formatLocale(localeName: string): {
@@ -47,23 +60,29 @@ export function formatLocale(localeName: string): {
 function localeInfo(
   locale: Intl.Locale,
   code: string,
-  type: Intl.DisplayNamesType
+  type: Intl.DisplayNamesType,
 ): string;
 function localeInfo(
   locale: Intl.Locale,
   code: string | undefined,
-  type: Intl.DisplayNamesType
+  type: Intl.DisplayNamesType,
 ): string | void;
 function localeInfo(
   locale: Intl.Locale,
   code: string | undefined,
-  type: Intl.DisplayNamesType
+  type: Intl.DisplayNamesType,
 ): string | void {
   if (code) {
     return new Intl.DisplayNames([locale.language], { type }).of(code);
   }
 }
 
+/**
+ * Keeping this around for posterity since this is a demo and this code could
+ * be helpful.
+ *
+ * @public
+ */
 export function timeZoneName(locale: string, timeZone: string): string {
   const tz = new Intl.DateTimeFormat(locale, {
     timeZone,
@@ -74,7 +93,7 @@ export function timeZoneName(locale: string, timeZone: string): string {
 
   if (tz === undefined) {
     throw Error(
-      `Could not find time zone name for specified time zone: ${timeZone}`
+      `Could not find time zone name for specified time zone: ${timeZone}`,
     );
   }
 
