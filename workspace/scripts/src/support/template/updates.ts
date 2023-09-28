@@ -2,7 +2,7 @@ import type { Directory, Paths } from "@starbeam-workspace/paths";
 import type { Workspace } from "@starbeam-workspace/reporter";
 
 import { updateEslint } from "./update-eslint.js";
-import type { LabelledUpdater } from "./update-package.js";
+import type { LabelledUpdater } from "../updating/update-file.js";
 
 export type SyncUpdatePackageFn = (
   updater: LabelledUpdater,

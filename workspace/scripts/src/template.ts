@@ -1,6 +1,6 @@
 import { QueryCommand } from "./support/commands/query-command";
 import { updateEslint } from "./support/template/update-eslint";
-import { UpdatePackages } from "./support/template/update-package.js";
+import { UpdatePackages } from "./support/updating/update-file.js";
 import { updatePackageJSON } from "./support/template/update-package-json.js";
 import { updateTests } from "./support/template/update-tests.js";
 import { updateTsconfig } from "./support/template/update-tsconfig.js";
@@ -22,9 +22,9 @@ export const TemplateCommand = QueryCommand("template", "template a package", {
     when(
       (pkg) =>
         pkg.sources.some((s) => s.hasFiles()) &&
-        (pkg.type.isType("library") || pkg.type.is("tests")),
+        (pkg.type.hasCategory("library") || pkg.type.is("tests")),
       "libraries",
     ).use(updateEslint.package);
-    when((pkg) => pkg.type.isType("demo"), "demos").use(updateDemo);
+    when((pkg) => pkg.type.hasCategory("demo"), "demos").use(updateDemo);
   });
 });

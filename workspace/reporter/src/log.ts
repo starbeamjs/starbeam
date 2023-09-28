@@ -1,4 +1,9 @@
-import { getFirst, isSingleItemArray, TO_STRING } from "@starbeam/core-utils";
+import {
+  getFirst,
+  getLastIndex,
+  isSingleItemArray,
+  TO_STRING,
+} from "@starbeam/core-utils";
 import { Result } from "@starbeam-workspace/shared";
 import ansicolor from "ansicolor";
 import chalk, { type ChalkInstance } from "chalk";
@@ -103,12 +108,12 @@ export type IntoFragmentMap<T> =
 export class FragmentMap<T> implements Iterable<[Fragment, T]> {
   static from<T, U>(
     from: IntoFragmentMap<T>,
-    mapItem: (value: T) => U
+    mapItem: (value: T) => U,
   ): FragmentMap<U>;
   static from<T>(from: IntoFragmentMap<T>): FragmentMap<T>;
   static from(
     from: IntoFragmentMap<unknown>,
-    mapItem: (value: unknown) => unknown = (value) => value
+    mapItem: (value: unknown) => unknown = (value) => value,
   ): FragmentMap<unknown> {
     const map = new Map<Fragment, unknown>();
     for (const [key, value] of Object.entries(from)) {
@@ -133,7 +138,7 @@ export class FragmentMap<T> implements Iterable<[Fragment, T]> {
 
   flatMap<U>(mapper: (key: Fragment, value: T) => U[]): U[] {
     return [...this.#map.entries()].flatMap(([key, value]) =>
-      mapper(key, value)
+      mapper(key, value),
     );
   }
 }
@@ -160,33 +165,19 @@ export const LogResult = {
 export const EMPTY_WIDTH = 0;
 
 export abstract class FragmentImpl {
-  static fallibleFrom(
-    this: void,
-    from: IntoFallibleFragment
-  ): FallibleFragment {
-    return Result.from(from)
-      .map((f) => FragmentImpl.from(f))
-      .mapErr((f) => FragmentImpl.from(f));
-  }
+  static group = (
+    list: IntoFragment[],
+    separator?: IntoFragment,
+  ): FragmentImpl => {
+    const group = FragmentGroup.from(list);
 
-  static from(this: void, from: IntoFragment): FragmentImpl {
-    if (Array.isArray(from)) {
-      if (isSingleItemArray(from)) {
-        return FragmentImpl.from(getFirst(from));
-      } else {
-        return new FragmentGroup(from.map(FragmentImpl.from));
-      }
-    } else if (typeof from === "string") {
-      return LeafFragment.from(from);
-    } else {
-      return from;
-    }
-  }
+    return separator === undefined ? group : group.interleave(separator);
+  };
 
   static stringify(
     this: void,
     from: IntoFragment,
-    options: LoggerState
+    options: LoggerState,
   ): string {
     if (typeof from === "string") {
       return from;
@@ -198,7 +189,7 @@ export abstract class FragmentImpl {
   static isEmpty(
     this: void,
     fragment: IntoFragment,
-    options: LoggerState
+    options: LoggerState,
   ): boolean {
     if (typeof fragment === "string") {
       return /^\s*$/.test(ansicolor.strip(fragment));
@@ -214,18 +205,27 @@ export abstract class FragmentImpl {
   }
 
   abstract updateStyle(
-    updater: (prev: StyleInstance) => StyleInstance
+    updater: (prev: StyleInstance) => StyleInstance,
   ): FragmentImpl;
+
+  /**
+   * Apply a default style to this fragment. For each sub-fragment in this
+   * fragment, the default style is applied to any sub-fragment that still has
+   * the default style (i.e. it was originally created from plain text).
+   */
+  defaultStyle(style: IntoStyleInstance): FragmentImpl {
+    return this.updateStyle((prev) => {
+      return prev === Style.default ? IntoStyleInstance(style) : Style.default;
+    });
+  }
 
   concat(other: LogResult<IntoFragment>): FallibleFragment;
   concat(other: IntoFragment): Fragment;
   concat(other: IntoFallibleFragment): FallibleFragment | Fragment {
     if (other && other instanceof Result) {
-      return FragmentImpl.fallibleFrom(other).map((f) =>
-        this.concatFragment(f)
-      );
+      return intoFallibleFragment(other).map((f) => this.concatFragment(f));
     } else {
-      return this.concatFragment(FragmentImpl.from(other));
+      return this.concatFragment(intoFragment(other));
     }
   }
 
@@ -244,7 +244,31 @@ export abstract class FragmentImpl {
   }
 }
 
+function intoFallibleFragment(from: IntoFallibleFragment): FallibleFragment {
+  return Result.from(from)
+    .map((f) => intoFragment(f))
+    .mapErr((f) => intoFragment(f));
+}
+
+function intoFragment(from: IntoFragment): FragmentImpl {
+  if (Array.isArray(from)) {
+    if (isSingleItemArray(from)) {
+      return intoFragment(getFirst(from));
+    } else {
+      return new FragmentGroup(from.map(intoFragment));
+    }
+  } else if (typeof from === "string") {
+    return LeafFragment.from(from);
+  } else {
+    return from;
+  }
+}
+
 class FragmentGroup extends FragmentImpl {
+  static from(fragments: IntoFragment[]): FragmentGroup {
+    return new FragmentGroup(fragments.map(intoFragment));
+  }
+
   readonly #fragments: Fragment[];
 
   constructor(fragments: Fragment[]) {
@@ -260,10 +284,27 @@ class FragmentGroup extends FragmentImpl {
     return this.#fragments.map(String).join("");
   }
 
-  updateStyle(updater: (prev: StyleInstance) => StyleInstance): FragmentImpl {
+  override updateStyle(
+    updater: (prev: StyleInstance) => StyleInstance,
+  ): FragmentImpl {
     return new FragmentGroup(
-      this.#fragments.map((f) => f.updateStyle(updater))
+      this.#fragments.map((f) => f.updateStyle(updater)),
     );
+  }
+
+  interleave(separator: IntoFragment): FragmentImpl {
+    const last = getLastIndex(this.#fragments);
+    const separatorFragment = fragment`${separator}`;
+
+    const fragments = this.#fragments.flatMap((f, i) => {
+      if (i === last) {
+        return [f];
+      } else {
+        return [f, separatorFragment];
+      }
+    });
+
+    return new FragmentGroup(fragments);
   }
 
   concatFragment(other: FragmentImpl): FragmentImpl {
@@ -273,20 +314,20 @@ class FragmentGroup extends FragmentImpl {
   byteWidth(options: LoggerState): number {
     return this.#fragments.reduce(
       (total, f) => total + f.byteWidth(options),
-      EMPTY_WIDTH
+      EMPTY_WIDTH,
     );
   }
 
   physicalWidth(options: LoggerState): number {
     return this.#fragments.reduce(
       (total, f) => total + f.physicalWidth(options),
-      EMPTY_WIDTH
+      EMPTY_WIDTH,
     );
   }
 }
 
 class LeafFragment extends FragmentImpl {
-  static override from(from: IntoLeafFragment): LeafFragment {
+  static from(from: IntoLeafFragment): LeafFragment {
     if (from instanceof LeafFragment) {
       return from;
     } else {
@@ -325,7 +366,7 @@ class LeafFragment extends FragmentImpl {
     return new LeafFragment(
       updater(this.#style),
       this.#message,
-      this.#verbosity
+      this.#verbosity,
     );
   }
 
@@ -380,7 +421,7 @@ export class DensityChoosingFragment extends FragmentImpl {
   constructor(
     choices: DensityChoices,
     defaultChoice: DensityChoice = "comfortable",
-    updates: ((prev: StyleInstance) => StyleInstance)[] = []
+    updates: ((prev: StyleInstance) => StyleInstance)[] = [],
   ) {
     super();
     this.#choices = choices;
@@ -431,7 +472,7 @@ export class DensityChoosingFragment extends FragmentImpl {
       Object.entries(this.#choices).map(([density, fragment]) => [
         density,
         fragment.concatFragment(other),
-      ])
+      ]),
     ) as DensityChoices;
 
     return new DensityChoosingFragment(choices);
@@ -462,8 +503,11 @@ export function FragmentFn(style: Style, message: Printable): LeafFragment {
   return LeafFragment.create(resolved, String(message));
 }
 
-FragmentFn.fallibleFrom = FragmentImpl.fallibleFrom;
-FragmentFn.from = FragmentImpl.from;
+FragmentFn.fallibleFrom = intoFallibleFragment;
+FragmentFn.from = intoFragment;
+FragmentFn.group = FragmentImpl.group;
+FragmentFn.lines = (fragments: IntoFragment[]): FragmentImpl =>
+  FragmentImpl.group(fragments, "\n");
 FragmentFn.stringify = FragmentImpl.stringify;
 FragmentFn.isEmpty = FragmentImpl.isEmpty;
 
@@ -576,3 +620,13 @@ export type DensityChoice = ReporterOptions["density"];
 export type DensityChoices = {
   [P in DensityChoice]: Fragment;
 };
+
+if (import.meta.vitest) {
+  const { test, expect } = import.meta.vitest;
+
+  test("interleaving", () => {
+    const group = FragmentImpl.group(["hello", "world"], " ");
+
+    expect(group.toString()).toBe("hello world");
+  });
+}

@@ -141,9 +141,9 @@ export class Package {
       if (source.hasFiles()) {
         const exts = source.inputExtensions;
 
-        if (source.isType("bin")) {
+        if (source.hasCategory("bin")) {
           globs = globs.add(`bin/**/*.${exts.glob}`);
-        } else if (this.type.isType("library", "demo")) {
+        } else if (this.type.hasCategory("library", "demo")) {
           globs = globs.add(`index.${exts.glob}`);
           globs = globs.add(`src/**/*.${exts.glob}`);
         } else {
@@ -161,6 +161,10 @@ export class Package {
 
   dir(path: string): Directory {
     return this.root.dir(path);
+  }
+
+  get main(): RegularFile | undefined {
+    return this.info.main ? this.file(this.info.main) : undefined;
   }
 
   get moduleType(): "esm" | "cjs" {

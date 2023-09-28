@@ -21,7 +21,7 @@ export class CommandStream {
   static async exec(
     workspace: Workspace,
     command: string,
-    options: { cols?: number; cwd?: string; output: CommandOutputType }
+    options: { cols?: number; cwd?: string; output: CommandOutputType },
   ): Promise<"ok" | "err"> {
     const parsed: string[] = shellSplit(command);
     const [cmd, ...args] = parsed;
@@ -29,8 +29,8 @@ export class CommandStream {
     if (cmd === undefined) {
       fatal(
         workspace.reporter.fatal(
-          `a command passed to workspace.exec is unexpectedly empty`
-        )
+          `a command passed to workspace.exec is unexpectedly empty`,
+        ),
       );
     }
 
@@ -56,7 +56,7 @@ export class CommandStream {
       cols = terminalWidth(),
       cwd = this.#defaultCwd,
       output,
-    }: { cols?: number; cwd?: string; output: CommandOutputType }
+    }: { cols?: number; cwd?: string; output: CommandOutputType },
   ): Promise<"ok" | "err"> {
     // Extra padding for the divider
     const PADDING = 2;
@@ -74,7 +74,7 @@ export class CommandStream {
       });
 
       this.#reporter.log(
-        Fragment.comment(`$ ${cmd} ${formattedArgs.join(" ")}`)
+        Fragment.comment(`$ ${cmd} ${formattedArgs.join(" ")}`),
       );
     }
 
@@ -136,7 +136,7 @@ function PtyStream(
     state: LoggerState;
     env?: Record<string, string>;
     transform?: Transformer;
-  }
+  },
 ): { readonly stream: Readable; readonly code: number | undefined } {
   const stream = new Readable({
     read() {
@@ -193,7 +193,7 @@ function PtyStream(
 
 type Transformer = (
   chunk: string,
-  state: LoggerState
+  state: LoggerState,
 ) => string | string[] | void;
 
 const Transformer = {
@@ -242,7 +242,7 @@ function normalizeNewlines(chunk: string): string[] {
 function addLinePrefix(chunk: string, state: LoggerState): string | void {
   const everythingDimmed = chunk.replaceAll(
     /\u{001B}\[22m/g,
-    (m) => `${ESC}${m}${colorCode(DIM)}`
+    (m) => `${ESC}${m}${colorCode(DIM)}`,
   );
 
   if (ansicolor.strip(everythingDimmed).trim() === "") {
@@ -263,7 +263,7 @@ function transformDeprecated(chunk: string, state: LoggerState): string | void {
     if (state.verbose) {
       return chunk.replaceAll(
         /^\s*DeprecationWarning:.*$/g,
-        Fragment.comment(`  > ${chunk}`).stringify(state)
+        Fragment.comment(`  > ${chunk}`).stringify(state),
       );
     } else {
       return;

@@ -17,6 +17,12 @@ const problem = createStyle(chalk.red, {
   dim: chalk.red.dim,
 });
 
+const warning = createStyle(chalk.yellow, {
+  header: chalk.yellowBright,
+  decoration: chalk.yellowBright,
+  dim: chalk.yellow.dim,
+});
+
 const comment = createStyle(chalk.gray, {
   dim: chalk.gray.dim,
 });
@@ -37,6 +43,7 @@ function createStyles<S extends Record<string, DetailedStyle>>(styles: S): S {
 export const STYLES = createStyles({
   ok,
   problem,
+  warning,
   comment,
   header,
 });

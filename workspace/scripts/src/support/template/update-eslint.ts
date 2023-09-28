@@ -2,7 +2,7 @@ import type { JsonObject } from "@starbeam-workspace/json";
 import type { Package } from "@starbeam-workspace/package";
 import type { ESLint } from "eslint";
 
-import type { LabelledUpdater } from "./update-package.js";
+import type { LabelledUpdater } from "../updating/update-file.js";
 import { UpdatePackageFn } from "./updates.js";
 
 type ConfigOverride = NonNullable<ESLint.ConfigData["overrides"]>[number];
@@ -45,7 +45,7 @@ function eslintPlugin(pkg: Package): `@starbeam/${string}` {
     return "@starbeam/esm";
   } else if (pkg.starbeam.type.is("tests")) {
     return "@starbeam/loose";
-  } else if (pkg.starbeam.type.isType("demo")) {
+  } else if (pkg.starbeam.type.hasCategory("demo")) {
     return "@starbeam/demos";
   } else {
     return "@starbeam/tight";
