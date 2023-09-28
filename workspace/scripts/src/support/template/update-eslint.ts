@@ -7,36 +7,46 @@ import { UpdatePackageFn } from "./updates.js";
 
 type ConfigOverride = NonNullable<ESLint.ConfigData["overrides"]>[number];
 
-export const updateEslint = {
-  demo: UpdatePackageFn((updater) => {
-    updater.json(".eslintrc.json", () => {
-      return {
-        root: true,
-        plugins: ["@starbeam"],
+const BASE = {
+  root: true,
+  ignorePatterns: ["node_modules", "dist", "html", "tests"],
+  plugins: ["@starbeam"],
+};
 
-        overrides: [
-          localEslintConfig(updater),
-          localEslintConfig(updater, {
-            files: ["vite.config.ts"],
-            extend: "@starbeam/loose",
-          }),
-          JSON_ESLINT_CONFIG,
-        ],
-      };
-    });
-  }),
+export const updateEslintrc = UpdatePackageFn((updater, options) => {
+  const pkg = updater.pkg;
 
-  package: UpdatePackageFn((update) => {
-    update.json(".eslintrc.json", () => {
-      return {
-        root: true,
-        ignorePatterns: ["node_modules", "dist", "html", "tests"],
-        plugins: ["@starbeam"],
-        overrides: [localEslintConfig(update), JSON_ESLINT_CONFIG],
-      };
-    });
-  }),
-} as const;
+  if (pkg.type.hasCategory("demo")) {
+    DEMO(updater, options);
+  } else {
+    PACKAGE(updater, options);
+  }
+});
+
+const DEMO = UpdatePackageFn((updater) => {
+  updater.json(".eslintrc.json", () => {
+    return {
+      ...BASE,
+      overrides: [
+        localEslintConfig(updater),
+        localEslintConfig(updater, {
+          files: ["vite.config.ts"],
+          extend: "@starbeam/loose",
+        }),
+        JSON_ESLINT_CONFIG,
+      ],
+    };
+  });
+});
+
+const PACKAGE = UpdatePackageFn((update) => {
+  update.json(".eslintrc.json", () => {
+    return {
+      ...BASE,
+      overrides: [localEslintConfig(update), JSON_ESLINT_CONFIG],
+    };
+  });
+});
 
 function eslintPlugin(pkg: Package): `@starbeam/${string}` {
   if (pkg.moduleType === "cjs") {

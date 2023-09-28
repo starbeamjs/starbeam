@@ -37,15 +37,11 @@ export class Workspace implements IWorkspace {
     return new Workspace(Paths.root(root), options);
   }
 
-  readonly #verbose: boolean;
-  readonly #stylish: boolean;
   readonly #paths: Paths;
   readonly #reporter: Reporter;
 
   constructor(paths: Paths, options: ReporterOptions) {
     this.#paths = paths;
-    this.#verbose = options.verbose;
-    this.#stylish = options.stylish;
     this.#reporter = Reporter.root(this, options);
   }
 

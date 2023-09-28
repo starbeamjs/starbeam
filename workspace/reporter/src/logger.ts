@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { getLast, withoutLast } from "@starbeam/core-utils";
 import { DisplayStruct, terminalWidth } from "@starbeam-workspace/shared";
 
@@ -170,10 +171,6 @@ abstract class InternalLoggerState {
     });
   }
 
-  get #leadingString(): string {
-    return " ".repeat(this.leading * SPACES_PER_TAB);
-  }
-
   begin(
     message: Fragment | undefined,
     options: { breakBefore: boolean },
@@ -205,7 +202,6 @@ abstract class InternalLoggerState {
 
 class InternalLoggerGroupState extends InternalLoggerState {
   readonly #state: GroupState;
-  readonly #options: ReporterOptions;
   readonly #parent: InternalLoggerState;
 
   constructor(
@@ -215,7 +211,6 @@ class InternalLoggerGroupState extends InternalLoggerState {
   ) {
     super(options);
     this.#state = state;
-    this.#options = options;
     this.#parent = parent;
   }
 
@@ -292,14 +287,7 @@ class InternalLoggerGroupState extends InternalLoggerState {
 }
 
 class InternalLoggerTopState extends InternalLoggerState {
-  readonly #options: ReporterOptions;
-
   readonly leading = 0;
-
-  constructor(options: ReporterOptions) {
-    super(options);
-    this.#options = options;
-  }
 
   get didPrint(): never {
     throw Error("Cannot get didPrint in top state");

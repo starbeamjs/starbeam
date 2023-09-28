@@ -2,4 +2,6 @@
 const { Linter } = require("eslint");
 
 /** @type {Linter.RulesRecord} */
-exports.rules = {};
+exports.rules = {
+  "no-console": "off",
+};

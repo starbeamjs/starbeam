@@ -70,6 +70,7 @@ export class UpdatePackage {
 
   done(): void {
     if (this.#emittedHeader) {
+      // eslint-disable-next-line no-console -- @fixme
       console.groupEnd();
     }
   }
@@ -348,12 +349,15 @@ export class UpdatePackages {
 
   when: UpdatePackagesFn = (condition, label) => {
     return {
-      use: (updater) => {
-        this.#updates.push({
-          condition,
-          updateFn: updater,
-          label,
-        });
+      use: (...updaters) => {
+        for (const updater of updaters) {
+          this.#updates.push({
+            condition,
+            updateFn: updater,
+            label,
+          });
+        }
+
         return this;
       },
     };
@@ -418,7 +422,7 @@ export type UpdatePackagesFn = (
   condition: (pkg: Package) => boolean,
   label: string,
 ) => {
-  use: (updater: UpdatePackageFn) => UpdatePackages;
+  use: (...updaters: UpdatePackageFn[]) => UpdatePackages;
 };
 
 type UpdateJsonFn = <U extends JsonUpdates>(

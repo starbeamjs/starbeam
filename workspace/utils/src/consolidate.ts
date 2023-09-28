@@ -1,9 +1,5 @@
 import type { JsonObject } from "@starbeam-workspace/json";
-import {
-  type AbstractReporter,
-  fragment,
-  type IntoFragment,
-} from "@starbeam-workspace/reporter";
+import { fragment } from "@starbeam-workspace/reporter";
 import { Result } from "@starbeam-workspace/shared";
 
 import { fallible } from "./fallible.js";
@@ -42,18 +38,7 @@ export const consolidate = fallible((object: JsonObject, parent: string) => {
 if (import.meta.vitest) {
   const { test, expect } = import.meta.vitest;
 
-  type ReportedError = Error | IntoFragment;
-
-  class TestReporter implements AbstractReporter {
-    constructor(readonly errors: ReportedError[] = []) {}
-    readonly reportError = (error: ReportedError): void => {
-      this.errors.push(error);
-    };
-  }
-
   test("consolidate flat keys", () => {
-    const reporter = new TestReporter();
-
     expect(
       consolidate(
         {
@@ -74,13 +59,9 @@ if (import.meta.vitest) {
         },
       }),
     );
-
-    expect(reporter.errors).toEqual([]);
   });
 
   test("consolidate mixed keys", () => {
-    const reporter = new TestReporter();
-
     expect(
       consolidate(
         {
@@ -101,13 +82,9 @@ if (import.meta.vitest) {
         },
       }),
     );
-
-    expect(reporter.errors).toEqual([]);
   });
 
   test("consolidate non-object keys is an error", () => {
-    const reporter = new TestReporter();
-
     expect(
       consolidate(
         {

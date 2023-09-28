@@ -27,7 +27,7 @@ export abstract class FlatRows<U extends UserTypes>
   }
 
   groupBy<Bucket, Description>(
-    groupBy: Grouping<U, Bucket, Description>
+    groupBy: Grouping<U, Bucket, Description>,
   ): GroupBy<U, Bucket, Description> {
     return GroupBy.create<U, Bucket, Description>(this, groupBy);
   }
@@ -46,13 +46,13 @@ export abstract class FlatRows<U extends UserTypes>
  */
 
 type Grouping<U extends UserTypes, Bucket, Description> = (
-  row: TableTypesFor<U>["Row"]
+  row: TableTypesFor<U>["Row"],
 ) => { bucket: Bucket; as?: Description };
 
 export class Group<T extends TableTypes> extends FlatRows<T> {
   static empty<T extends TableTypes>(
     grouping: unknown,
-    description: unknown
+    description: unknown,
   ): Group<T> {
     return new Group(grouping, description, []);
   }
@@ -61,15 +61,11 @@ export class Group<T extends TableTypes> extends FlatRows<T> {
     group.#rows.push(row);
   }
 
-  readonly #grouping: unknown;
-  readonly #description: unknown;
   readonly #rows: T["Row"][];
 
   constructor(grouping: unknown, description: unknown, rows: T["Row"][]) {
     super();
     this.#rows = rows;
-    this.#grouping = grouping;
-    this.#description = description;
   }
 
   get rows(): readonly T["Row"][] {
@@ -86,7 +82,7 @@ export class Groups<T extends TableTypes, Description> {
     groups: Groups<T, Description>,
     bucket: Bucket,
     description: Description,
-    row: T["Row"]
+    row: T["Row"],
   ): void {
     let group = groups.#map.get(description);
 
@@ -116,7 +112,7 @@ export class Groups<T extends TableTypes, Description> {
 export class GroupBy<U extends UserTypes, Bucket, Description> {
   static create<U extends UserTypes, Bucket, Description>(
     rows: FlatRows<U>,
-    groupBy: Grouping<TableTypesFor<U>, Bucket, Description>
+    groupBy: Grouping<TableTypesFor<U>, Bucket, Description>,
   ): GroupBy<U, Bucket, Description> {
     return new GroupBy(rows, groupBy);
   }
@@ -126,7 +122,7 @@ export class GroupBy<U extends UserTypes, Bucket, Description> {
 
   constructor(
     rows: FlatRows<U>,
-    groupBy: Grouping<TableTypesFor<U>, Bucket, Description>
+    groupBy: Grouping<TableTypesFor<U>, Bucket, Description>,
   ) {
     this.#rows = rows;
     this.#groupBy = groupBy;
@@ -152,11 +148,11 @@ type Dict = Record<string, unknown>;
 
 export class AggregateBy<
   U extends UserTypes,
-  A extends AggregatorFor<TableTypesFor<U>>
+  A extends AggregatorFor<TableTypesFor<U>>,
 > {
   static create<U extends UserTypes, A extends AggregatorFor<TableTypesFor<U>>>(
     rows: FlatRows<U>,
-    aggregateBy: A
+    aggregateBy: A,
   ): AggregateBy<U, A> {
     return new AggregateBy(rows, aggregateBy);
   }
@@ -174,10 +170,10 @@ export class AggregateBy<
       Object.entries(this.#aggregateBy).map((entry) => {
         const [key, aggregator] = entry as [
           string,
-          { initialize: () => AggregatorInstance<unknown, unknown> }
+          { initialize: () => AggregatorInstance<unknown, unknown> },
         ];
         return [key, aggregator.initialize()];
-      })
+      }),
     ) as Record<string, AggregatorInstance<unknown, unknown>>;
 
     for (const row of this.#rows.rows) {
@@ -190,7 +186,7 @@ export class AggregateBy<
       Object.entries(aggregators).map(([key, aggregator]) => [
         key,
         aggregator.value(),
-      ])
+      ]),
     ) as unknown as AggregateRow<TableTypesFor<U>, A>[];
 
     return {
@@ -212,7 +208,7 @@ export class Query<U extends UserTypes> extends FlatRows<U> {
   constructor(
     rows: FlatRows<U>,
     filter: FilterInstance<U>,
-    sort: SortFn<U> | undefined
+    sort: SortFn<U> | undefined,
   ) {
     super();
     this.#rows = rows;
@@ -254,5 +250,5 @@ export interface Sort<T extends TableTypes> {
 
 export type SortFn<U extends UserTypes> = (
   a: TableTypesFor<U>["Row"],
-  b: TableTypesFor<U>["Row"]
+  b: TableTypesFor<U>["Row"],
 ) => number;

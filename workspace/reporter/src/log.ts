@@ -64,6 +64,7 @@ export const Style = {
 } as const;
 
 export function log(message: string, style: Style = Style.default): void {
+  // eslint-disable-next-line no-console
   console.info(Fragment(style, message));
 }
 

@@ -1,5 +1,6 @@
 {
   "root": true,
+  "ignorePatterns": ["node_modules", "dist", "html", "tests"],
   "plugins": ["@starbeam"],
   "overrides": [
     {

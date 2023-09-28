@@ -4,7 +4,7 @@ import {
   onFinalize,
 } from "@starbeam/shared";
 
-import { ObjectLifetime, type Unsubscribe } from "./object-lifetime.js";
+import type { ObjectLifetime, Unsubscribe } from "./object-lifetime.js";
 
 class LifetimeAPI {
   readonly #associations = new WeakMap<object, ObjectLifetime>();
@@ -14,15 +14,6 @@ class LifetimeAPI {
       if (!handler) return;
 
       onFinalize(object, handler);
-
-      // let lifetime = this.#associations.get(object);
-
-      // if (!lifetime) {
-      //   lifetime = ObjectLifetime.create(object);
-      //   this.#associations.set(object, lifetime);
-      // }
-
-      // return lifetime.on.finalize(handler);
     },
   };
 
@@ -32,17 +23,6 @@ class LifetimeAPI {
    */
   finalize(object: object): void {
     finalize(object);
-  }
-
-  #initialize(object: object): ObjectLifetime {
-    let lifetime = this.#associations.get(object);
-
-    if (!lifetime) {
-      lifetime = ObjectLifetime.create(object);
-      this.#associations.set(object, lifetime);
-    }
-
-    return lifetime;
   }
 
   link(parent: object, child: object): Unsubscribe {

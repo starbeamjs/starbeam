@@ -1,4 +1,9 @@
-import { getFirst, isSingleItemArray, stringify } from "@starbeam/core-utils";
+import {
+  DisplayStruct,
+  getFirst,
+  isSingleItemArray,
+  stringify,
+} from "@starbeam/core-utils";
 import type { JsonObject, JsonValue } from "@starbeam-workspace/json";
 import type { Directory, RegularFile } from "@starbeam-workspace/paths";
 import { Globs } from "@starbeam-workspace/paths";
@@ -272,6 +277,12 @@ export class Extensions implements Iterable<Ext> {
 
   private constructor(extensions: Ext[]) {
     this.#extensions = extensions;
+  }
+
+  [Symbol.for("nodejs.util.inspect.custom")](): object {
+    return DisplayStruct("Extensions", {
+      extensions: this.#extensions,
+    });
   }
 
   [Symbol.iterator](): IterableIterator<Ext> {

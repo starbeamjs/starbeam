@@ -63,7 +63,6 @@ export class Reporter implements AbstractReporter {
 
   readonly #workspace: Workspace;
   readonly #options: ReporterOptions;
-  readonly #parent: Reporter | null;
   readonly #logger: Logger;
 
   private constructor(
@@ -73,7 +72,6 @@ export class Reporter implements AbstractReporter {
   ) {
     this.#workspace = workspace;
     this.#options = options;
-    this.#parent = parent;
 
     if (parent) {
       this.#logger = parent.#logger;

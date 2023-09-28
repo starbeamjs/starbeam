@@ -24,8 +24,6 @@ export const CiCommand = QueryCommand("ci", "run CI checks", {
   const script = scripts[type];
   const shouldRun = SHOULD_RUN[type];
 
-  console.log({ packages, shouldRun });
-
   const results = await workspace.check(
     ...packages.filter(shouldRun).map((pkg) => {
       const { command, cwd } = hydrateScript(script, { workspace, pkg });

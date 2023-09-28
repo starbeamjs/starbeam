@@ -5,7 +5,7 @@
   "overrides": [
     {
       "extends": ["plugin:@starbeam/loose"],
-      "files": ["**/*.ts"],
+      "files": ["**/*.{tsx,ts}"],
       "parserOptions": {
         "project": "tsconfig.json"
       }

@@ -202,6 +202,7 @@ export class SetupTestRoot<Props, T> {
 
       if (lastChecked === undefined || current === undefined) {
         if (lastChecked !== current) {
+          // eslint-disable-next-line no-console
           console.error("Expected current value to equal last checked value", {
             lastChecked,
             current,
