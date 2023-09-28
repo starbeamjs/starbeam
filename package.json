@@ -104,13 +104,13 @@
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.22.15",
-    "@babel/plugin-proposal-decorators": "^7.22.15",
+    "@babel/plugin-proposal-decorators": "^7.23.0",
     "@babel/plugin-syntax-dynamic-import": "^7.8.3",
     "@babel/plugin-transform-runtime": "^7.22.15",
     "@babel/preset-env": "^7.22.20",
     "@babel/preset-react": "^7.22.15",
-    "@babel/preset-typescript": "^7.22.15",
-    "@babel/runtime": "^7.22.15",
+    "@babel/preset-typescript": "^7.23.0",
+    "@babel/runtime": "^7.23.1",
     "@changesets/changelog-git": "^0.1.14",
     "@changesets/cli": "^2.26.2",
     "@changesets/config": "^2.3.1",
@@ -119,10 +119,10 @@
     "@starbeam/eslint-plugin": "workspace:^",
     "@starbeam-dev/build-support": "workspace:*",
     "@starbeam-dev/schemas": "workspace:^",
-    "@types/eslint": "^8.44.2",
-    "@types/node": "20.6.3",
-    "@typescript-eslint/eslint-plugin": "^6.7.2",
-    "@typescript-eslint/parser": "^6.7.2",
+    "@types/eslint": "^8.44.3",
+    "@types/node": "^20.7.0",
+    "@typescript-eslint/eslint-plugin": "^6.7.3",
+    "@typescript-eslint/parser": "^6.7.3",
     "@vitest/ui": "^0.34.5",
     "eslint": "^8.50.0",
     "eslint-config-airbnb": "^19.0.4",
@@ -136,11 +136,11 @@
     "eslint-plugin-unused-imports": "^3.0.0",
     "esno": "^0.17.0",
     "fast-glob": "^3.3.1",
-    "happy-dom": "^12.1.6",
+    "happy-dom": "^12.2.1",
     "jsdom": "^22.1.0",
     "knip": "^2.29.0",
     "prettier": "^3.0.3",
-    "rollup": "^3.29.2",
+    "rollup": "^3.29.3",
     "tslib": "^2.6.2",
     "turbo": "^1.10.14",
     "typescript": "^5.2.2",
@@ -190,8 +190,9 @@
       }
     }
   },
+  "prettier": {},
   "volta": {
-    "node": "20.6.1",
+    "node": "18.18.0",
     "pnpm": "8.7.6"
   }
 }

@@ -6,15 +6,23 @@ import type { JsonObject, JsonValue } from "@starbeam-workspace/json";
 import type { Package } from "@starbeam-workspace/package";
 import { JsonTemplate, Template } from "@starbeam-workspace/package";
 import type { Directory, Path, Paths } from "@starbeam-workspace/paths";
-import type { ChangeResult } from "@starbeam-workspace/reporter";
+import type {
+  ChangeResult,
+  ReportableError,
+} from "@starbeam-workspace/reporter";
 import { Fragment, fragment } from "@starbeam-workspace/reporter";
-import type { AsString, Into } from "@starbeam-workspace/shared";
+import {
+  type AsString,
+  type Into,
+  type IntoResult,
+  Result,
+} from "@starbeam-workspace/shared";
 import type { Workspace } from "@starbeam-workspace/workspace";
 import sh from "shell-escape-tag";
 
-import { Migrator } from "../json-editor/migration.js";
 import { EditJsonc } from "../jsonc.js";
-import type { UpdatePackageFn } from "./updates.js";
+import type { UpdatePackageFn } from "../template/updates.js";
+import { Migrator } from "./migration.js";
 
 export interface GetRelativePath {
   fromPackageRoot: () => string;
@@ -131,13 +139,17 @@ class UpdateFile implements LabelledUpdater {
   }
 
   #json: UpdateJsonFn = (relativePath, update): LabelledUpdater => {
-    json({
-      label: this.#label,
-      relativePath,
-      update,
-      workspace: this.#workspace,
-      root: this.#updatePackage.root,
-    });
+    // @todo handle fail fast by unwinding back to the most recent isolated
+    // group after reporting the error.
+    this.#workspace.reporter.getOkValue(
+      json({
+        label: this.#label,
+        relativePath,
+        update,
+        workspace: this.#workspace,
+        root: this.#updatePackage.root,
+      }),
+    );
     return this;
   };
 
@@ -199,24 +211,6 @@ class UpdateFile implements LabelledUpdater {
     };
   };
 
-  #updateJsonFn(updater: JsonUpdates): (prev: JsonObject) => JsonObject {
-    if (typeof updater === "function") {
-      return updater;
-    } else {
-      return (prev) => ({ ...prev, ...updater });
-    }
-  }
-
-  #updateFn(updater: FileUpdater): (prev: string | undefined) => string {
-    if (typeof updater === "function") {
-      return updater;
-    } else if (typeof updater === "string") {
-      return () => updater;
-    } else {
-      return () => this.#updatePackage.template(updater.template);
-    }
-  }
-
   #update(
     relativePath: string,
     updater: (prev: string | undefined) => string,
@@ -248,38 +242,42 @@ function json({
   relativePath: string;
   update: JsonUpdates;
   workspace: Workspace;
-}): void {
+}): Result<void, ReportableError> | void {
   const path = root.file(relativePath);
   const prev = existsSync(path) ? readFileSync(path, "utf-8") : undefined;
 
-  const prevJSON = JSON.parse(prev ?? "{}") as JsonValue | undefined;
+  return Result.do((take) => {
+    const prevJSON = take(JSON.parse(prev ?? "{}") as JsonValue | undefined);
 
-  if (!isJSONObject(prevJSON)) {
-    throw Error(
-      `Expected ${relativePath} to contain a json object, but got ${JSON.stringify(
-        prevJSON,
-      )}`,
+    if (!isJSONObject(prevJSON)) {
+      return take.err(
+        fragment`Expected ${relativePath} to contain a json object, but got ${JSON.stringify(
+          prevJSON,
+        )}` as ReportableError,
+      );
+    }
+
+    const next = take(
+      updateJsonFn(update)({
+        ...cloneJSON(prevJSON),
+      }),
     );
-  }
 
-  const next = updateJsonFn(update)({
-    ...cloneJSON(prevJSON),
+    const prevString = stringifyJSON(normalizeJSON(prevJSON));
+    const nextString = stringifyJSON(normalizeJSON(next));
+
+    if (prevString !== nextString) {
+      reportChange({
+        workspace,
+        result: prev === undefined ? "create" : "update",
+        description: relativePath,
+        label,
+      });
+
+      writeFileSync(path, nextString + "\n");
+      workspace.cmd(sh`prettier --print-width 100 -w ${path}`);
+    }
   });
-
-  const prevString = stringifyJSON(normalizeJSON(prevJSON));
-  const nextString = stringifyJSON(normalizeJSON(next));
-
-  if (prevString !== nextString) {
-    reportChange({
-      workspace,
-      result: prev === undefined ? "create" : "update",
-      description: relativePath,
-      label,
-    });
-
-    writeFileSync(path, nextString + "\n");
-    workspace.cmd(sh`prettier --print-width 100 -w ${path}`);
-  }
 }
 
 function reportChange({
@@ -318,7 +316,7 @@ function reportChange({
   workspace.reporter.log(log);
 }
 
-function updateJsonFn(updater: JsonUpdates): (json: JsonObject) => JsonObject {
+function updateJsonFn(updater: JsonUpdates): JsonUpdateFn {
   if (typeof updater === "function") {
     return updater;
   } else {
@@ -395,9 +393,11 @@ export class UpdatePackages {
   }
 }
 
-export type JsonUpdates =
-  | Record<string, JsonValue>
-  | ((json: JsonObject) => JsonObject);
+type JsonUpdateFn = (
+  json: JsonObject,
+) => IntoResult<JsonObject, ReportableError>;
+
+export type JsonUpdates = Record<string, JsonValue> | JsonUpdateFn;
 
 export interface TemplateFileUpdater {
   template: AsString<Template>;
@@ -421,10 +421,10 @@ export type UpdatePackagesFn = (
   use: (updater: UpdatePackageFn) => UpdatePackages;
 };
 
-type UpdateJsonFn = (
+type UpdateJsonFn = <U extends JsonUpdates>(
   this: void,
   relativePath: string,
-  updater: JsonUpdates,
+  updater: U,
 ) => LabelledUpdater;
 
 interface UpdateJsonField extends UpdateJsonFn {
@@ -438,7 +438,7 @@ interface UpdateJsonField extends UpdateJsonFn {
       | ((options: {
           current?: JsonObject | undefined;
           template: JsonObject;
-        }) => JsonObject)
+        }) => IntoResult<JsonObject, ReportableError>)
       | undefined,
   ) => LabelledUpdater;
 }

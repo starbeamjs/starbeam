@@ -1,179 +1,387 @@
-import { isSingleItemArray } from "@starbeam/core-utils";
 import {
-  isObject,
+  getFirst,
+  isPresentArray,
   type JsonObject,
-  type JsonValue,
-} from "@starbeam-workspace/json";
-import type { Package } from "@starbeam-workspace/package";
-import { Fragment, fragment } from "@starbeam-workspace/reporter";
-import { fatal } from "@starbeam-workspace/shared";
+} from "@starbeam/core-utils";
+import { type JsonValue } from "@starbeam-workspace/json";
+import type { Package, StarbeamType } from "@starbeam-workspace/package";
+import type { RegularFile } from "@starbeam-workspace/paths";
+import {
+  Fragment,
+  fragment,
+  type ReportableError,
+} from "@starbeam-workspace/reporter";
+import { Result, type TakeFn } from "@starbeam-workspace/shared";
+import { consolidate } from "@starbeam-workspace/utils";
 
-import type { LabelledUpdater } from "./update-package.js";
+import type { LabelledUpdater } from "../updating/update-file.js";
+
+// @todo get these from package.json (or another single source of truth)
+const CURRENT_DEPS = {
+  "@vitest/ui": "^0.34.4",
+} as const;
 
 export function updatePackageJSON(updater: LabelledUpdater): void {
   const { pkg } = updater;
-  const workspace = pkg.workspace;
 
   updater
     .template(".npmrc")
     .json.template("package.json", ({ current = {}, template }) => {
-      Object.assign(current, template);
-
-      if (
-        current["main"] &&
-        typeof current["main"] === "string" &&
-        !pkg.type.is("root")
-      ) {
-        current["exports"] = {
-          default: `./${current["main"]}`,
-        };
-      }
-
-      if (pkg.type.is("tests")) {
-        delete current["publishConfig"];
-      }
-
-      const devDependencies = (current["devDependencies"] ??= {}) as Record<
-        string,
-        string
-      >;
-
-      if (pkg.name !== "@starbeam/eslint-plugin") {
-        devDependencies["@starbeam/eslint-plugin"] = "workspace:^";
-      }
-
-      if (needsBuildSupport(pkg)) {
-        devDependencies["@starbeam-dev/build-support"] = "workspace:^";
-      }
-
-      function updateStarbeam(key: string, value: JsonValue): void {
-        if (current["starbeam"]) {
-          current["starbeam"] = {
-            ...(current["starbeam"] as object),
-            [key]: value,
-          };
-        } else {
-          current[`starbeam:${key}`] = value;
-        }
-      }
-
-      if (pkg.type.isType("demo")) {
-        current["devDependencies"] = {
-          ...(current["devDependencies"] as object),
-          "@vitest/ui": "^0.34.4",
-        };
-      }
-
-      if (pkg.type.is("demo:react")) {
-        updateStarbeam("source", "tsx");
-      }
-
-      if (pkg.type.is("tests")) {
-        updateStarbeam("source", "ts");
-      }
-
-      if (pkg.type.is("library:interfaces")) {
-        if (current["main"] === "index.ts") {
-          current["types"] = "index.ts";
-          updateStarbeam("source", "ts");
-        } else if (current["main"] === "index.d.ts") {
-          current["types"] = "index.d.ts";
-          updateStarbeam("source", "d.ts");
-          current["publishConfig"] = {
-            exports: {
-              default: "./index.d.ts",
-            },
-          };
-        } else {
-          workspace.reporter.error(`Invalid main entry in package.json`);
-          fatal(
-            workspace.reporter.fatal(
-              fragment`Since the package type is library:interfaces, main must either be ${Fragment.header.inverse(
-                "index.ts",
-              )} or ${Fragment.header.inverse("index.d.ts")}`,
+      return Result.do((take) => {
+        return take(ManifestBuilder.create({ ...current, ...template }, pkg))
+          .do(
+            IfLet(getMain, (main) =>
+              insert({ "exports:default": `./${main.relative}` }),
             ),
-          );
-        }
-      }
-
-      if (pkg.type.is("library:upstream-types")) {
-        current["types"] = "index.d.ts";
-        updateStarbeam("source", "d.ts");
-      }
-
-      if (pkg.type.is("library:public")) {
-        current["types"] = "index.ts";
-      }
-
-      // if (pkg.type.is("tests")) {}
-
-      current["scripts"] ??= {};
-      const scripts = current["scripts"] as Record<string, string>;
-
-      if (pkg.file("tsconfig.json").exists()) {
-        scripts["test:types"] = pkg.starbeam.type.hasCategory("demo")
-          ? "tsc --noEmit -p tsconfig.json"
-          : "tsc -b";
-      } else {
-        delete scripts["test:types"];
-      }
-
-      if (pkg.dir("tests").exists()) {
-        scripts["test:specs"] = "vitest --run";
-      } else {
-        delete scripts["test:specs"];
-      }
-
-      scripts["test:lint"] = `eslint . --max-warnings 0`;
-
-      return consolidateStarbeam(current);
+            If(
+              Not(nameIs("@starbeam/eslint-plugin")),
+              addDevDep("@starbeam/eslint-plugin"),
+            ),
+            If(needsBuildSupport, addDevDep("@starbeam-dev/build-support")),
+          )
+          .if(categoryIs("demo"), addDevDep("@vitest/ui"))
+          .if(typeIs("demo:react"), insert({ "starbeam:source": "tsx" }))
+          .if(typeIs("tests"), insert({ "starbeam:source": "tsx" }))
+          .if(typeIs("library:interfaces"), (m) => {
+            switch (m.main) {
+              case "index.ts":
+                return m.insert({ types: "index.ts", "starbeam:source": "ts" });
+              case "index.d.ts":
+                return m.insert({
+                  types: "index.d.ts",
+                  "starbeam:source": "d.ts",
+                  "publishConfig:exports": { default: "./index.d.ts" },
+                });
+              default:
+                return m.report(
+                  fragment`Since the package type is library:interfaces, main must either be ${Fragment.header.inverse(
+                    "index.ts",
+                  )} or ${Fragment.header.inverse("index.d.ts")}`,
+                );
+            }
+          })
+          .if(typeIs("tests"), insert({ "starbeam:source": "ts" }))
+          .if(
+            typeIs("library:upstream-types"),
+            insert({ types: "index.d.ts", "starbeam:source": "d.ts" }),
+          )
+          .if(typeIs("library:public"), insert({ types: "index.ts" }))
+          .if(
+            hasFile("tsconfig.json"),
+            If(
+              categoryIs("demo"),
+              scripts({ "test:types": "tsc --noEmit -p tsconfig.json" }),
+              scripts({ "test:types": "tsc -b" }),
+            ),
+          )
+          .if(hasDir("tests"), { scripts: { "test:specs": "vitest --run" } })
+          .scripts({ "test:lint": "eslint . --max-warnings 0" })
+          .done();
+      });
     });
 }
 
-function consolidateStarbeam(json: JsonObject): JsonObject {
-  const starbeamEntries = Object.entries(json).filter(([key]) =>
-    key.startsWith("starbeam:"),
-  );
+type Test = (pkg: Package) => boolean;
+type ExtractFromPackage<T> = (pkg: Package) => T | undefined;
+type Action = (manifest: ManifestBuilder) => ManifestBuilder;
 
-  const otherEntries = Object.entries(json).filter(
-    ([key]) => !key.startsWith("starbeam"),
-  );
+const getMain: ExtractFromPackage<RegularFile> = (pkg: Package) =>
+  pkg.root ? undefined : pkg.main;
 
-  const rootStarbeamValue = json["starbeam"];
+const Not =
+  (test: Test): Test =>
+  (pkg) =>
+    !test(pkg);
 
-  if (rootStarbeamValue !== undefined && !isObject(rootStarbeamValue)) {
-    throw Error(
-      `Invalid starbeam entry in package.json (the "starbeam" entry in package.json must be an object): ${String(
-        rootStarbeamValue,
-      )}`,
-    );
+const nameIs =
+  (name: string): Test =>
+  (pkg) =>
+    pkg.name === name;
+const typeIs =
+  (type: StarbeamType["value"]): Test =>
+  (pkg) =>
+    pkg.type.is(type);
+const categoryIs =
+  (category: StarbeamType["category"]): Test =>
+  (pkg) =>
+    pkg.type.hasCategory(category);
+const hasFile =
+  (file: string): Test =>
+  (pkg) =>
+    pkg.file(file).exists();
+const hasDir =
+  (dir: string): Test =>
+  (pkg) =>
+    pkg.dir(dir).exists();
+
+const addDevDep =
+  (name: string): Action =>
+  (manifest: ManifestBuilder) =>
+    manifest.addDevDep(name);
+
+/**
+ * Add an entry to the manifest.
+ *
+ * If the entry is specified using a colon-separated path as its key, it is
+ * normalized to a nested JSON path when inserted.
+ *
+ * For example, `addNested({ "starbeam:source": "ts" })` will add (or merge `{
+ * "starbeam": { "source": "ts" } }`) to the manifest.
+ *
+ * If you *need* to add a literal colon-separated path, use `addExact` instead.
+ */
+const insert =
+  (entries: Record<string, JsonValue>): Action =>
+  (manifest) =>
+    manifest.insert(entries);
+
+const scripts =
+  (scripts: Record<string, string>): Action =>
+  (manifest) =>
+    manifest.scripts(scripts);
+
+const If =
+  (...args: Parameters<ManifestBuilder["if"]>): Action =>
+  (manifest) =>
+    manifest.if(...args);
+
+const IfLet =
+  <T>(
+    extract: ExtractFromPackage<T>,
+    then: (value: T) => Action,
+    otherwise?: Action,
+  ): Action =>
+  (manifest) =>
+    manifest.ifLet(extract, then, otherwise);
+
+class ManifestBuilder {
+  static create(
+    current: JsonObject,
+    pkg: Package,
+  ): Result<ManifestBuilder, ReportableError> {
+    return Result.do((take: TakeFn<ReportableError>) => {
+      const builder = take(consolidate(current, "starbeam"));
+      return new ManifestBuilder(builder, pkg);
+    });
   }
 
-  if (isSingleItemArray(starbeamEntries) && rootStarbeamValue === undefined) {
-    return {
-      ...Object.fromEntries(otherEntries),
-      ...Object.fromEntries(starbeamEntries),
-    };
+  #current: JsonObject;
+  #pkg: Package;
+  #errors: ReportableError[] = [];
+
+  constructor(current: JsonObject, pkg: Package) {
+    this.#current = current;
+    this.#pkg = pkg;
   }
 
-  const starbeamObject = Object.fromEntries(
-    starbeamEntries.map(([key, value]) => [
-      key.slice("starbeam:".length),
-      value,
-    ]),
-  );
-  const rootStarbeam = rootStarbeamValue
-    ? { ...starbeamObject, ...rootStarbeamValue }
-    : starbeamObject;
+  get main(): string | undefined {
+    const { main } = this.#current;
 
-  return {
-    ...Object.fromEntries(otherEntries),
-    starbeam: rootStarbeam,
-  };
+    if (typeof main === "string") return main;
+
+    if (main === undefined) {
+      this.#errors.push(
+        fragment`Missing main entry in package.json (expected string): ${
+          this.#pkg.root.relative
+        }`,
+      );
+    } else {
+      this.#errors.push(
+        fragment`Invalid main entry in package.json (expected string): ${
+          this.#pkg.root.relative
+        }`,
+      );
+    }
+  }
+
+  report(error: ReportableError): ManifestBuilder {
+    this.#errors.push(error);
+    return this;
+  }
+
+  ifMain(
+    then: (main: string, current: JsonObject) => JsonObject | void,
+  ): ManifestBuilder {
+    if (this.#pkg.root) return this;
+
+    const { main } = this.#current;
+
+    if (main && typeof main === "string") {
+      this.#current = then(main, this.#current) ?? this.#current;
+    }
+
+    return this;
+  }
+
+  addEntry(key: string, value: JsonValue): ManifestBuilder {
+    this.#current[key] = value;
+    return this;
+  }
+
+  /**
+   * @see {insert}
+   */
+  insert(entries: Record<string, JsonValue>): ManifestBuilder {
+    for (const [key, value] of Object.entries(entries)) {
+      const [parentKey, childKey] = key.split(":");
+
+      if (parentKey && childKey) {
+        this.addNested([parentKey, childKey], value);
+      } else {
+        this.addEntry(key, value);
+      }
+    }
+
+    return this;
+  }
+
+  addNested(
+    [parentKey, key]: [string, string],
+    value: JsonValue,
+  ): ManifestBuilder {
+    let child = this.#current[parentKey];
+
+    if (!child) {
+      child = this.#current[parentKey] = {
+        [key]: value,
+      };
+    } else if (typeof child === "object" && !Array.isArray(child)) {
+      child[key] = value;
+    } else {
+      this.#errors.push(
+        fragment`Invalid ${JSON.stringify(
+          String(key),
+        )} in package.json (expected object): ${this.#pkg.name}`,
+      );
+    }
+
+    return this;
+  }
+
+  ifLet<T>(
+    extract: (pkg: Package) => T | undefined,
+    then: (value: T) => (builder: ManifestBuilder) => ManifestBuilder,
+    otherwise?: (builder: ManifestBuilder) => ManifestBuilder,
+  ): ManifestBuilder {
+    const value = extract(this.#pkg);
+    if (value) {
+      return then(value)(this);
+    } else if (otherwise) {
+      return otherwise(this);
+    }
+
+    return this;
+  }
+
+  do(...actions: Action[]): ManifestBuilder {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    let builder: ManifestBuilder = this;
+
+    for (const action of actions) {
+      builder = action(builder);
+    }
+
+    return builder;
+  }
+
+  if(
+    test: (pkg: Package) => boolean,
+    then:
+      | { scripts: Record<string, string> }
+      | ((builder: ManifestBuilder) => ManifestBuilder | void),
+    otherwise?: (builder: ManifestBuilder) => ManifestBuilder | void,
+  ): ManifestBuilder {
+    function normalize(): {
+      then: (m: ManifestBuilder) => ManifestBuilder | void;
+      otherwise?:
+        | undefined
+        | ((m: ManifestBuilder) => ManifestBuilder | void)
+        | void;
+    } {
+      if (typeof then === "function") {
+        return {
+          then,
+          otherwise,
+        };
+      } else {
+        return {
+          then: (m) => m.scripts(then.scripts),
+          otherwise: (m) => m.deleteScripts(Object.keys(then.scripts)),
+        };
+      }
+    }
+
+    const n = normalize();
+
+    if (test(this.#pkg)) {
+      return n.then(this) ?? this;
+    } else {
+      return n.otherwise ? n.otherwise(this) ?? this : this;
+    }
+  }
+
+  deleteScript(key: string): ManifestBuilder {
+    if (this.#current && "scripts" in this.#current) {
+      const scripts = this.#current["scripts"];
+
+      if (scripts) delete scripts[key as keyof typeof scripts];
+    }
+
+    return this;
+  }
+
+  deleteScripts(scripts: string[]): ManifestBuilder {
+    for (const key of scripts) {
+      this.deleteScript(key);
+    }
+
+    return this;
+  }
+
+  scripts(scripts: Record<string, string>): ManifestBuilder {
+    for (const [key, value] of Object.entries(scripts)) {
+      this.#addScript(key, value);
+    }
+
+    return this;
+  }
+
+  #addScript(key: string, value: string): ManifestBuilder {
+    this.addNested(["scripts", key], value);
+    return this;
+  }
+
+  addDevDep(dep: string, version = this.#versionFor(dep)): ManifestBuilder {
+    if (!version) return this;
+
+    this.addNested(["devDependencies", dep], version);
+
+    return this;
+  }
+
+  done(): Result<JsonObject, ReportableError> {
+    if (isPresentArray(this.#errors)) {
+      return Result.err(getFirst(this.#errors));
+    } else {
+      return Result.ok(this.#current);
+    }
+  }
+
+  #versionFor(dep: string): string | undefined {
+    if (dep in CURRENT_DEPS) {
+      return CURRENT_DEPS[dep as keyof typeof CURRENT_DEPS] as string;
+    } else if (dep.startsWith("@")) {
+      return "workspace:^";
+    } else {
+      this.#errors.push(
+        fragment`Attempting to add an external dependency without a specified version: ${dep}`,
+      );
+    }
+  }
 }
 
 function needsBuildSupport(pkg: Package): boolean {
-  const hasBuild = pkg.type.isType("library") || pkg.type.is("root");
+  const hasBuild = pkg.type.hasCategory("library") || pkg.type.is("root");
   const isBuildSupport = pkg.name === "@starbeam-dev/build-support";
 
   return hasBuild && !isBuildSupport && pkg.starbeam.source.hasTS;

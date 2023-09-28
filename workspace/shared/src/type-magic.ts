@@ -86,15 +86,15 @@ export interface UnionClass<S extends readonly string[] = any> {
   toString: () => string;
 }
 
-type Kind<S extends readonly string[]> = S[number] extends infer Whole extends
-  string
-  ? Whole extends `${infer K}:${string}`
-    ? K
-    : Whole
-  : never;
-type Subtype<S extends readonly string[]> = S extends `${Kind<S>}:${infer L}`
-  ? L
-  : never;
+export type Category<S extends readonly string[]> =
+  S[number] extends infer Whole extends string
+    ? Whole extends `${infer K}:${string}`
+      ? K
+      : Whole
+    : never;
+
+type Subtype<S extends readonly string[]> =
+  S extends `${Category<S>}:${infer L}` ? L : never;
 
 export declare class UnionInstance<S extends readonly string[]> {
   declare [TO_STRING]: true;
@@ -102,15 +102,15 @@ export declare class UnionInstance<S extends readonly string[]> {
   constructor(value: S);
 
   readonly value: S[number];
-  readonly type: Kind<S>;
+  readonly category: Category<S>;
 
   toString(): string;
   eq(other: UnionInstance<S>): boolean;
   is<const T extends S[number]>(...values: T[]): this is { value: T };
-  isType<const T extends Kind<S>>(...values: T[]): this is { type: T };
+  hasCategory<const T extends Category<S>>(...values: T[]): this is { type: T };
 
   as<const T extends S>(...values: T): T[number] | undefined;
-  asType<const T extends Kind<S>>(...values: T[]): T | undefined;
+  asCategory<const T extends Category<S>>(...values: T[]): T | undefined;
 }
 
 /**
@@ -225,17 +225,17 @@ export function Union<const S extends readonly string[]>(
       }
     }
 
-    asType<const T extends Kind<S>>(...values: T[]): T | undefined {
-      if ((values as Kind<S>[]).includes(this.type)) {
-        return this.type as T;
+    asCategory<const T extends Category<S>>(...values: T[]): T | undefined {
+      if ((values as Category<S>[]).includes(this.category)) {
+        return this.category as T;
       }
     }
 
-    isType(...values: Kind<S>[]): boolean {
+    hasCategory(...values: Category<S>[]): boolean {
       if (this.#instance.includes(":")) {
         return values.some((v) => this.#instance.startsWith(`${v}:`));
       } else {
-        return values.includes(this.#instance as Kind<S>);
+        return values.includes(this.#instance as Category<S>);
       }
     }
 
@@ -243,12 +243,12 @@ export function Union<const S extends readonly string[]>(
       return this.#instance;
     }
 
-    get type(): Kind<S> {
+    get category(): Category<S> {
       if (this.#instance.includes(":")) {
-        const [type] = this.#instance.split(":") as [Kind<S>, Subtype<S>];
+        const [type] = this.#instance.split(":") as [Category<S>, Subtype<S>];
         return type;
       } else {
-        return this.#instance as Kind<S>;
+        return this.#instance as Category<S>;
       }
     }
 
@@ -346,6 +346,12 @@ export class PresentArray<T> extends Array<T> {
 }
 
 export type IntoResult<T, E = unknown> = T | Result<T, E>;
+export type LiftResult<I extends IntoResult<any, any>> = I extends IntoResult<
+  infer T,
+  infer E
+>
+  ? Result<T, E>
+  : never;
 
 export type ResultRecord<E = unknown> = Record<string, IntoResult<unknown, E>>;
 
@@ -356,6 +362,17 @@ export type OkRecord<T extends ResultRecord> = {
 export type RecordError<T extends ResultRecord> = {
   [P in keyof T]: T[P] extends Result<any, infer E> ? E : never;
 }[keyof T];
+
+export interface TakeFn<E> {
+  <const T>(value: IntoResult<T, E>): T;
+  err: <T = void>(reason: E) => Result<T, E>;
+}
+
+class JumpTake<E> extends Error {
+  constructor(readonly inner: E) {
+    super();
+  }
+}
 
 export class Result<T, E = unknown> {
   static list<T, E>(items: IntoResult<T, E>[]): Result<T[], E> {
@@ -369,11 +386,17 @@ export class Result<T, E = unknown> {
           list.push(result.value);
           break;
         case "err":
-          return Result.err<T[], E>(result.reason);
+          return Result.err<E, T[]>(result.reason);
       }
     }
 
     return Result.ok(list);
+  }
+
+  static do<const T, const E>(
+    callback: (take: TakeFn<E>) => IntoResult<T, E>,
+  ): Result<T, E> {
+    return Result.ok<void, E>(undefined).#mapp(callback) as Result<T, E>;
   }
 
   static map<T, U, E>(
@@ -410,7 +433,7 @@ export class Result<T, E = unknown> {
     return Result.ok(result as OkRecord<T>);
   }
 
-  static from<T, E>(value: IntoResult<T, E>): Result<T, E> {
+  static from<const T, const E>(value: IntoResult<T, E>): Result<T, E> {
     if (value && value instanceof Result) {
       return value;
     } else {
@@ -422,7 +445,7 @@ export class Result<T, E = unknown> {
     return new Result({ status: "ok", value });
   }
 
-  static err<T, E>(reason: E): Result<T, E> {
+  static err<E, T = never>(reason: E): Result<T, E> {
     return new Result({ status: "err", reason });
   }
 
@@ -457,13 +480,60 @@ export class Result<T, E = unknown> {
     }
   }
 
-  map<T2, E2>(callback: (value: T) => Result<T2, E2>): Result<T2, E2>;
-  map<T2>(callback: (value: T) => T2): Result<T2, E>;
-  map(callback: (value: T) => IntoResult<unknown>): Result<unknown> {
-    return this.match({
-      ifOk: (value) => callback(value),
-      ifError: (reason) => reason,
-    });
+  /**
+   * Extract the Ok value from a Result, treating an Err as a fatal error.
+   *
+   * The error is passed to the `error` callback, which is expected to return
+   * a `never` value (e.g. `process.exit`).
+   */
+  mapWithFatalError(error: (reason: E) => never): T {
+    switch (this.#variant.status) {
+      case "ok":
+        return this.#variant.value;
+      case "err":
+        return error(this.#variant.reason);
+    }
+  }
+
+  #mapp<const I extends IntoResult<any, E>, const E>(
+    callback: (take: TakeFn<E>) => I,
+  ): LiftResult<I> {
+    try {
+      const take: TakeFn<E> = <T>(value: IntoResult<T, E>): T => {
+        const result = Result.from(value);
+        const variant = result.#variant;
+
+        switch (variant.status) {
+          case "ok":
+            return variant.value;
+          case "err":
+            throw new JumpTake(variant.reason);
+        }
+      };
+
+      take.err = (reason) => {
+        return Result.err(reason);
+      };
+
+      return Result.from(callback(take)) as LiftResult<I>;
+    } catch (e) {
+      if (e && e instanceof JumpTake) {
+        return Result.err(e.inner) as LiftResult<I>;
+      }
+
+      throw e;
+    }
+  }
+
+  map<const R extends IntoResult<any, any>>(
+    callback: (value: T) => R,
+  ): LiftResult<R> {
+    switch (this.#variant.status) {
+      case "ok":
+        return Result.ok(callback(this.#variant.value)) as LiftResult<R>;
+      case "err":
+        return Result.err(this.#variant.reason) as LiftResult<R>;
+    }
   }
 
   mapErr<T2, E2>(callback: (error: E) => Result<T2, E2>): Result<T2, E2>;
@@ -476,19 +546,22 @@ export class Result<T, E = unknown> {
     });
   }
 
-  match<T2, E2>(options: {
-    ifOk: (value: T) => T2 | Result<T2, E>;
-    ifError: (value: E) => E2 | Result<T, E2>;
-  }): Result<T | T2, E | E2> {
+  match<
+    const IfOk extends IntoResult<unknown, E>,
+    const IfErr extends IntoResult<T, unknown>,
+  >(options: {
+    ifOk: (value: T) => IfOk;
+    ifError: (value: E) => IfErr;
+  }): LiftResult<IfOk> | LiftResult<IfErr> {
     if (this.#variant.status === "ok") {
-      return Result.from(options.ifOk(this.#variant.value));
+      return Result.from(options.ifOk(this.#variant.value)) as LiftResult<IfOk>;
     } else {
       const result = options.ifError(this.#variant.reason);
 
       if (result instanceof Result) {
-        return result;
+        return result as LiftResult<IfErr>;
       } else {
-        return Result.err(result);
+        return Result.err(result) as LiftResult<IfErr>;
       }
     }
   }

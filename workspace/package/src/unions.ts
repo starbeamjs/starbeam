@@ -17,11 +17,7 @@ export class StarbeamType extends Union(
   "draft",
   "root",
   "none",
-) {
-  hasCategory(kind: "demo" | "support"): boolean {
-    return this.value.startsWith(`${kind}:`);
-  }
-}
+) {}
 
 type Ext = "d.ts" | "js" | "jsx" | "ts" | "tsx";
 
@@ -66,11 +62,11 @@ export class StarbeamSources implements Iterable<StarbeamSource> {
   }
 
   get hasBin(): boolean {
-    return this.some((source) => source.isType("bin"));
+    return this.some((source) => source.hasCategory("bin"));
   }
 
   get bin(): StarbeamSource | undefined {
-    return this.#sources.find((source) => source.isType("bin"));
+    return this.#sources.find((source) => source.hasCategory("bin"));
   }
 
   hasFiles(): boolean {

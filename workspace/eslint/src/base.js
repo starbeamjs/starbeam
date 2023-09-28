@@ -145,6 +145,7 @@ exports.rules = {
   "unused-imports/no-unused-imports": "error",
   "simple-import-sort/imports": "error",
   "simple-import-sort/exports": "error",
+  "no-unused-private-class-members": "error",
   "unused-imports/no-unused-vars": [
     "warn",
     {

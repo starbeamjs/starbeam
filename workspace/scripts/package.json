@@ -48,6 +48,7 @@
     "@starbeam-workspace/paths": "workspace:*",
     "@starbeam-workspace/reporter": "workspace:*",
     "@starbeam-workspace/shared": "workspace:*",
+    "@starbeam-workspace/utils": "workspace:*",
     "@starbeam-workspace/workspace": "workspace:*",
     "ansicolor": "^1.1.100",
     "chalk": "^5.3.0",

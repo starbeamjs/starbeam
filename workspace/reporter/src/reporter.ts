@@ -1,17 +1,21 @@
 import { inspect } from "node:util";
 
 import { stringify } from "@starbeam/core-utils";
-import type { IntoPresentArray, Result } from "@starbeam-workspace/shared";
+import {
+  type IntoPresentArray,
+  type IntoResult,
+  Result,
+} from "@starbeam-workspace/shared";
 import { FATAL_EXIT_CODE, PresentArray } from "@starbeam-workspace/shared";
 import chalk from "chalk";
 
 import { CheckResults, type GroupedCheckResults } from "./checks.js";
 import { SPACES_PER_TAB } from "./constants.js";
+import type { AbstractReporter, ReportableError } from "./error.js";
 import type { Workspace } from "./interfaces.js";
 import {
   Fragment,
   fragment,
-  FragmentImpl,
   FragmentMap,
   type IntoFallibleFragment,
   type IntoFragment,
@@ -52,7 +56,7 @@ export interface InternalLogOptions {
   leading: LeadingOption;
 }
 
-export class Reporter {
+export class Reporter implements AbstractReporter {
   static root(workspace: Workspace, options: ReporterOptions): Reporter {
     return new Reporter(workspace, options, null);
   }
@@ -180,12 +184,12 @@ export class Reporter {
     message: IntoFallibleFragment,
     fn: (message: string) => void,
   ): void {
-    const fragment = FragmentImpl.fallibleFrom(message);
+    const fragment = Fragment.fallibleFrom(message);
 
     fragment
       .map((f) => f.stringify(this.#workspace.reporter.loggerState))
       .mapErr((err) => {
-        this.#logger.reportError(FragmentImpl.fallibleFrom(err).getValue());
+        this.#logger.reportError(Fragment.fallibleFrom(err).getValue());
       })
       .map((f) => {
         fn(f);
@@ -238,7 +242,7 @@ export class Reporter {
     }
 
     if (header) {
-      const fragment = FragmentImpl.fallibleFrom(header).map((f) =>
+      const fragment = Fragment.fallibleFrom(header).map((f) =>
         f.update(() => STYLES.header),
       );
 
@@ -359,12 +363,25 @@ export class Reporter {
     this.#log("error", fragment, options);
   }
 
-  reportError(error: Error | IntoFragment): void {
+  reportError(error: ReportableError): void {
     this.#logger.reportError(error);
   }
 
+  getOkValue<T>(intoResult: IntoResult<T, ReportableError>): T {
+    return Result.from(intoResult).mapWithFatalError((err) => {
+      this.#logger.reportError(err);
+      this.#logger.exit(FATAL_EXIT_CODE);
+    });
+  }
+
+  fatalError(error: ReportableError): never {
+    this.log(`${chalk.redBright.inverse("FATAL")}`);
+    this.#logger.reportError(error);
+    this.#logger.exit(FATAL_EXIT_CODE);
+  }
+
   fatal(fragment: IntoFallibleFragment): never {
-    FragmentImpl.fallibleFrom(fragment)
+    Fragment.fallibleFrom(fragment)
       .map((f) => {
         this.#logger.logln(
           `${chalk.redBright.inverse("FATAL")} ${chalk.red(f)}`,

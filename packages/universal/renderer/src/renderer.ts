@@ -115,9 +115,13 @@ export function managerSetupReactive<T, M extends SomeRendererManager>(
   manager: M,
   blueprint: UseReactive<T>,
 ): Reactive<ReadValue<T>> {
+  console.log(1);
   const component = manager.getComponent() as object;
+  console.log(2);
   const lifecycle = new LifecycleImpl(manager, component);
+  console.log(3);
   const currentBlueprint = manager.setupRef(component, blueprint);
+  console.log(4);
   return manager.setupValue(component, () =>
     setupFormula(currentBlueprint, lifecycle),
   );

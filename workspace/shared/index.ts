@@ -11,6 +11,7 @@ export type {
   IntoUnionInstance,
   OkRecord,
   OkResult,
+  TakeFn,
   UnionClass,
   UnionInstance,
 } from "./src/type-magic.js";

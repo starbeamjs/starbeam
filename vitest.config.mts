@@ -6,6 +6,7 @@ export default defineConfig({
   root: "./",
   test: {
     name: "Starbeam",
+
     typecheck: {
       checker: "tsc",
     },

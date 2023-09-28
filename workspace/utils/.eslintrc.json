@@ -4,8 +4,8 @@
   "plugins": ["@starbeam"],
   "overrides": [
     {
-      "extends": ["plugin:@starbeam/esm"],
-      "files": ["index.{js,d.ts}", "src/**/*.{js,d.ts}", "bin/**/*.js"],
+      "extends": ["plugin:@starbeam/tight"],
+      "files": ["index.ts", "src/**/*.ts"],
       "parserOptions": {
         "project": "tsconfig.json"
       }

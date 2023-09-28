@@ -1,7 +1,7 @@
 import type { TsConfig } from "@starbeam-workspace/package";
 import { StarbeamType } from "@starbeam-workspace/package";
 
-import type { Migrator } from "../json-editor/migration.js";
+import type { Migrator } from "../updating/migration.js";
 import { UpdatePackageFn } from "./updates.js";
 
 export const updateTsconfig = UpdatePackageFn(
@@ -25,7 +25,7 @@ export const updateTsconfig = UpdatePackageFn(
         }
 
         if (
-          updater.pkg.type.isType("library") ||
+          updater.pkg.type.hasCategory("library") ||
           updater.pkg.type.is("tests")
         ) {
           migrator.set(
@@ -35,7 +35,7 @@ export const updateTsconfig = UpdatePackageFn(
             ).fromPackageRoot(),
             "start",
           );
-        } else if (pkg.type.isType("demo")) {
+        } else if (pkg.type.hasCategory("demo")) {
           migrator.remove("references");
           migrator.set(
             "extends",
@@ -53,7 +53,7 @@ export const updateTsconfig = UpdatePackageFn(
           );
         }
 
-        if (pkg.type.isType("demo")) {
+        if (pkg.type.hasCategory("demo")) {
           migrator.remove("compilerOptions.composite");
           migrator.remove("compilerOptions.declaration");
           migrator.remove("compilerOptions.declarationMap");

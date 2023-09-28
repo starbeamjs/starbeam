@@ -5,6 +5,12 @@ export {
   GroupedCheckResults,
 } from "./src/checks.js";
 export { type CommandOutputType, CommandStream } from "./src/command-stream.js";
+export type {
+  AbstractReporter,
+  ReportableError,
+  ReportErrorOptions,
+} from "./src/error.js";
+export { Try } from "./src/error.js";
 export { FancyHeader } from "./src/fancy-header.js";
 export { format, wrapIndented } from "./src/format.js";
 export type { Workspace } from "./src/interfaces.js";

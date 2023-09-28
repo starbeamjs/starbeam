@@ -1,8 +1,8 @@
 import { getLast, withoutLast } from "@starbeam/core-utils";
 import { DisplayStruct, terminalWidth } from "@starbeam-workspace/shared";
-import chalk from "chalk";
 
 import { SPACES_PER_TAB } from "./constants.js";
+import type { ReportErrorOptions } from "./error.js";
 import { wrapIndented, wrapLines } from "./format.js";
 import {
   type DensityChoice,
@@ -10,6 +10,7 @@ import {
   type FragmentImpl,
   type IntoFragment,
 } from "./log.js";
+import { ReportError } from "./report-error.js";
 import type { LoggerEndWith, LogOptions, ReporterOptions } from "./reporter.js";
 
 export interface Header {
@@ -175,7 +176,7 @@ abstract class InternalLoggerState {
 
   begin(
     message: Fragment | undefined,
-    options: { breakBefore: boolean }
+    options: { breakBefore: boolean },
   ): InternalLoggerState {
     return new InternalLoggerGroupState(
       {
@@ -188,7 +189,7 @@ abstract class InternalLoggerState {
         printed: false,
       },
       this.#options,
-      this
+      this,
     );
   }
 
@@ -198,7 +199,7 @@ abstract class InternalLoggerState {
       logln: (this: void, message: string) => void;
       ensureNewline: (this: void) => void;
       flush: (this: void) => void;
-    }
+    },
   ): void;
 }
 
@@ -210,7 +211,7 @@ class InternalLoggerGroupState extends InternalLoggerState {
   constructor(
     state: GroupState,
     options: ReporterOptions,
-    parent: InternalLoggerState
+    parent: InternalLoggerState,
   ) {
     super(options);
     this.#state = state;
@@ -232,7 +233,7 @@ class InternalLoggerGroupState extends InternalLoggerState {
 
   override endWith(
     { nested, compact }: LoggerEndWith,
-    actions: { logln: (message: string) => void; ensureNewline: () => void }
+    actions: { logln: (message: string) => void; ensureNewline: () => void },
   ): void {
     const state = this.#state;
 
@@ -306,14 +307,14 @@ class InternalLoggerTopState extends InternalLoggerState {
 
   override endWith(): void {
     throw Error(
-      "Unexpected: You can only update a header when in a group. Unless you are calling methods on Logger directly, this is a bug."
+      "Unexpected: You can only update a header when in a group. Unless you are calling methods on Logger directly, this is a bug.",
     );
   }
 
   override needsFlush({ expect }: { expect: "group" | "any" }): boolean {
     if (expect === "group") {
       throw Error(
-        "Unexpected: You can only flush a group when in a group. Unless you are calling methods on Logger directly, this is a bug."
+        "Unexpected: You can only flush a group when in a group. Unless you are calling methods on Logger directly, this is a bug.",
       );
     }
 
@@ -337,7 +338,7 @@ interface LoggerActions {
   wrote: (this: void, results: WriteResults) => void;
 }
 
-class States {
+export class States {
   static create(options: ReporterOptions, actions: LoggerActions): States {
     return new States([InternalLoggerState.top(options)], actions);
   }
@@ -404,7 +405,7 @@ class States {
     this.#actions.wrote(
       Fragment.isEmpty(message, this.#current.loggerState)
         ? { wrote: "empty" }
-        : { wrote: "contents" }
+        : { wrote: "contents" },
     );
   }
 
@@ -416,7 +417,7 @@ class States {
     }: {
       logger?: LoggerName | LogFunction | undefined;
       indented?: boolean | undefined;
-    } = {}
+    } = {},
   ): void {
     const loggerFn = typeof logger === "string" ? LOGGERS[logger] : logger;
 
@@ -429,7 +430,7 @@ class States {
 
   begin(
     message: Fragment | undefined,
-    options: { breakBefore: boolean }
+    options: { breakBefore: boolean },
   ): void {
     this.#states.push(this.#current.begin(message, options));
   }
@@ -453,7 +454,7 @@ class States {
         this.#actions.wrote(
           Fragment.isEmpty(message, this.#current.loggerState)
             ? { wrote: "empty" }
-            : { wrote: "contents" }
+            : { wrote: "contents" },
         );
       },
       flush: () => {
@@ -485,7 +486,7 @@ class States {
         group: () => {
           this.#flushHeader(state);
         },
-      })
+      }),
     );
 
     this.#states = [...parents, this.#current];
@@ -567,7 +568,7 @@ export class Logger {
 
   begin(
     message: FragmentImpl | undefined,
-    options: { breakBefore: boolean } = { breakBefore: false }
+    options: { breakBefore: boolean } = { breakBefore: false },
   ): void {
     this.#states.begin(message, options);
   }
@@ -584,7 +585,7 @@ export class Logger {
    */
   endWith(
     logger: LoggerName | LogFunction,
-    { nested, compact }: LoggerEndWith
+    { nested, compact }: LoggerEndWith,
   ): void {
     this.#states.endWith(logger, { nested, compact });
   }
@@ -593,7 +594,7 @@ export class Logger {
     callback: (options: {
       write: (message: string) => void;
       writeln: (message: string) => void;
-    }) => void | Promise<void>
+    }) => void | Promise<void>,
   ): Promise<void> {
     await callback({
       write: (message) => {
@@ -621,7 +622,7 @@ export class Logger {
     message: string,
     options: { logger?: LoggerName | LogFunction } & LogOptions = {
       leading: { indents: this.leading },
-    }
+    },
   ): void {
     this.#states.ensureOpen({ expect: "any" });
 
@@ -632,34 +633,9 @@ export class Logger {
     }
   }
 
-  reportError(e: Error | IntoFragment): void {
+  reportError(e: Error | IntoFragment, options: ReportErrorOptions = {}): void {
     this.#states.ensureOpen({ expect: "any" });
-
-    this.#states.logln(chalk.red("An unexpected error occurred:"));
-
-    if (e && e instanceof Error) {
-      this.#states.logln(
-        chalk.redBright(
-          wrapIndented(e.message, { leading: { indents: this.leading } })
-        )
-      );
-      this.#states.logln("");
-      this.#states.logln(chalk.redBright.inverse("Stack trace"), {
-        logger: console.group,
-      });
-      this.#states.logln(
-        chalk.grey.dim(
-          wrapIndented(e.stack ?? "", { leading: { indents: this.leading } })
-        )
-      );
-      console.groupEnd(); // intentionally manual
-    } else {
-      this.#states.logln(chalk.redBright("An unexpected error occurred:"), {
-        logger: console.group,
-      });
-      this.#states.logln(Fragment.from(e).stringify(this.state));
-      console.groupEnd(); // intentionally manual
-    }
+    ReportError.create(e, options).log(this.#states);
   }
 
   ensureOpen({ expect }: { expect: "any" | "group" }): void {
