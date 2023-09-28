@@ -455,6 +455,7 @@ export class Glob<T extends Path = Path> extends Path {
         } else if (dirent.isSymbolicLink()) {
           // TODO
         } else {
+          // eslint-disable-next-line no-console
           console.warn(
             stringify`glob pattern ${this} unexpectedly matched the ${classify(
               dirent,

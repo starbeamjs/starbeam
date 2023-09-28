@@ -525,14 +525,14 @@ export class Result<T, E = unknown> {
     }
   }
 
-  map<const R extends IntoResult<any, any>>(
-    callback: (value: T) => R,
-  ): LiftResult<R> {
+  map<const T2, const E2 = E>(
+    callback: (value: T) => IntoResult<T2, E2>,
+  ): Result<T2, E | E2> {
     switch (this.#variant.status) {
       case "ok":
-        return Result.ok(callback(this.#variant.value)) as LiftResult<R>;
+        return Result.ok(callback(this.#variant.value)) as Result<T2, E | E2>;
       case "err":
-        return Result.err(this.#variant.reason) as LiftResult<R>;
+        return Result.err(this.#variant.reason) as Result<T2, E | E2>;
     }
   }
 

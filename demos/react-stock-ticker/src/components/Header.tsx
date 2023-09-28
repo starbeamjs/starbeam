@@ -21,7 +21,7 @@ export default function Header(): JSX.Element {
       event.preventDefault();
 
       const { search } = Object.fromEntries(
-        new FormData(event.currentTarget)
+        new FormData(event.currentTarget),
       ) as {
         search: string;
       };
@@ -86,6 +86,6 @@ export default function Header(): JSX.Element {
         </div>
       </header>
     ),
-    []
+    [],
   );
 }

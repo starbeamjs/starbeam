@@ -136,6 +136,7 @@ const TYPED_RULES = Rules.build((rules) =>
 /** @type {Linter.RulesRecord} */
 exports.rules = {
   ...TYPED_RULES,
+  "no-console": "error",
   "eslint-comments/no-unused-disable": "error",
   "eslint-comments/require-description": [
     "off", // enable in a subsequent PR

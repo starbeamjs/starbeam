@@ -3,19 +3,20 @@ import type { Description, HasTag } from "@starbeam/interfaces";
 import { DEBUG, UNKNOWN_REACTIVE_VALUE } from "@starbeam/reactive";
 import { getDependencies, getTag, lastUpdated } from "@starbeam/tags";
 
+import { LOGGER } from "./logger.js";
 import { Tree } from "./tree.js";
 
 export const debugReactive = (
   tag: HasTag,
   {
     implementation = false,
-  }: { implementation?: boolean; source?: boolean; id?: boolean } = {}
+  }: { implementation?: boolean; source?: boolean; id?: boolean } = {},
 ): string => {
   const dependencies = getDependencies(tag);
   const descriptions = new Set(
     dependencies.map((dependency) =>
-      getDesc(dependency.description, implementation)
-    )
+      getDesc(dependency.description, implementation),
+    ),
   );
 
   const nodes = [...descriptions]
@@ -35,29 +36,31 @@ export const logReactive = (
     implementation?: boolean;
     source?: boolean;
     id?: boolean;
-  } = {}
+  } = {},
 ): void => {
   const debug = debugReactive(tag, options);
 
   if (options.label) {
-    console.group(options.label);
+    LOGGER.group(options.label);
   }
 
-  console.group(
-    describe(getTag(tag).description, { id: options.id }),
-    `(updated at ${lastUpdated(tag).at})`
-  );
-  console.info(debug);
-  console.groupEnd();
+  {
+    LOGGER.group(
+      describe(getTag(tag).description, { id: options.id }),
+      `(updated at ${lastUpdated(tag).at})`,
+    );
+    LOGGER.info(debug);
+    LOGGER.groupEnd();
+  }
 
   if (options.label) {
-    console.groupEnd();
+    LOGGER.groupEnd();
   }
 };
 
 function describe(
   description: Description | undefined,
-  options?: { id: boolean | undefined }
+  options?: { id: boolean | undefined },
 ): string {
   return description && DEBUG
     ? DEBUG.describe(description, options)
@@ -66,7 +69,7 @@ function describe(
 
 function getDesc(
   description: Description | undefined,
-  showImplementation: boolean
+  showImplementation: boolean,
 ): Description | undefined {
   return showImplementation ? description : DEBUG?.getUserFacing(description);
 }

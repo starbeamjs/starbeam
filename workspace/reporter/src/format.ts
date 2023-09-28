@@ -10,16 +10,10 @@ import type { InternalLogOptions, LeadingOption } from "./reporter.js";
 const INCREMENT_LEADING = 1;
 
 class Leading {
-  #leading: number | undefined;
   #spaces: number;
   #prefix: string | undefined;
 
-  constructor(
-    leading: number | undefined,
-    spaces: number,
-    prefix: string | undefined
-  ) {
-    this.#leading = leading;
+  constructor(spaces: number, prefix: string | undefined) {
     this.#spaces = spaces;
     this.#prefix = prefix;
   }
@@ -45,21 +39,17 @@ class Leading {
 
 class WrappedLines {
   readonly #leading: Leading;
-  readonly #prefix: string | undefined;
   readonly #lines: readonly WrappedLine[];
 
   constructor(
     lines: readonly WrappedLine[],
     {
       leading,
-      prefix,
     }: {
       leading: Leading;
-      prefix: string | undefined;
-    }
+    },
   ) {
     this.#leading = leading;
-    this.#prefix = prefix;
     this.#lines = lines;
   }
 
@@ -90,7 +80,7 @@ class WrappedLine {
 
     const first = `${leading.asString()}${this.#first}`;
     const rest = this.#rest.map(
-      (line) => `${leading.asString({ extra: INCREMENT_LEADING })}${line}`
+      (line) => `${leading.asString({ extra: INCREMENT_LEADING })}${line}`,
     );
 
     return [first, ...rest];
@@ -101,7 +91,7 @@ export const NO_LEADING = 0;
 
 export function wrapLines(
   string: string,
-  options: InternalLogOptions
+  options: InternalLogOptions,
 ): WrappedLines {
   const lines = string.split("\n");
   const width = terminalWidth();
@@ -119,21 +109,16 @@ export function wrapLines(
     return new WrappedLine({ first, rest });
   });
 
-  return new WrappedLines(wrapped, { leading, prefix: options.prefix });
+  return new WrappedLines(wrapped, { leading });
 }
 
 const EMPTY_PREFIX_SIZE = 0;
 
 function computeColumns(string: string, options: InternalLogOptions): Leading {
-  const { leading, columns } = computeLeading(string, options.leading);
-
-  return new Leading(leading, columns, options.prefix);
+  return new Leading(computeLeading(string, options.leading), options.prefix);
 }
 
-function computeLeading(
-  string: string,
-  leading: LeadingOption
-): { leading: number | undefined; columns: number } {
+function computeLeading(string: string, leading: LeadingOption): number {
   if (leading === "auto") {
     const leadingWS = string.split("\n").map((line) => {
       const match = matchPattern<[string]>(/^(\s*)/, line);
@@ -141,21 +126,17 @@ function computeLeading(
       return leading.length;
     });
 
-    const leading = Math.max(...leadingWS);
-    return { leading, columns: leading * SPACES_PER_TAB };
+    return Math.max(...leadingWS) * SPACES_PER_TAB;
   } else if ("indents" in leading) {
-    return {
-      leading: leading.indents,
-      columns: leading.indents * SPACES_PER_TAB,
-    };
+    return leading.indents * SPACES_PER_TAB;
   } else {
-    return { leading: undefined, columns: leading.spaces };
+    return leading.spaces;
   }
 }
 
 export function wrapIndented(
   fragment: IntoFragment,
-  options: InternalLogOptions
+  options: InternalLogOptions,
 ): string {
   const string = String(Fragment.from(fragment));
   const wrapped = wrapLines(string, options);
@@ -213,7 +194,7 @@ type EntryStyle =
 export function format(value: string, style: FormatStyle): Fragment {
   return Fragment(
     getStyle(style),
-    getIndentation(style) + wrapIndented(value, { leading: "auto" })
+    getIndentation(style) + wrapIndented(value, { leading: "auto" }),
   );
 }
 
@@ -225,13 +206,13 @@ format.entry = ([key, value]: [string, string], style?: EntryStyle): string => {
     stringify`${Fragment(keyStyle, key)}: ${Fragment(valueStyle, value)}`,
     {
       leading: getLeading(style),
-    }
+    },
   );
 };
 
 export function getStyle(
   style: EntryStyle | FormatStyle,
-  part?: "key" | "value"
+  part?: "key" | "value",
 ): Style {
   if (style === undefined) {
     return chalk.visible;

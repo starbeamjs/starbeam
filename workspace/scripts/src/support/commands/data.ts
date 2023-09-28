@@ -18,13 +18,10 @@ export class BooleanFlag implements CommandParameter {
     return new BooleanFlag(spec);
   };
 
-  readonly #spec: command.FlagSpec;
   readonly #name: BooleanFlagName;
   readonly #desc: Desc;
 
   private constructor(spec: command.FlagSpec) {
-    this.#spec = spec;
-
     const [long, desc] = spec;
     this.#name = BooleanFlagName.of(long);
     this.#desc = Desc.of(desc);
@@ -47,14 +44,11 @@ export class ValuedOption implements CommandParameter {
     return new ValuedOption(spec);
   };
 
-  readonly #spec: command.ValuedOptionSpec;
   readonly #long: LongFlag;
   readonly #desc: Desc;
   readonly #type: Type<command.OptionValue> | undefined;
 
   private constructor(spec: command.ValuedOptionSpec) {
-    this.#spec = spec;
-
     const [rawLong, rawDesc, rawType] = spec;
 
     this.#long = LongFlag.of(rawLong);
@@ -76,13 +70,11 @@ export class Arg implements CommandParameter {
     return new Arg(spec);
   };
 
-  readonly #spec: command.ArgSpec;
   readonly #desc: ArgDesc;
+  // eslint-disable-next-line no-unused-private-class-members -- @todo
   readonly #type: Type;
 
   private constructor(spec: command.ArgSpec) {
-    this.#spec = spec;
-
     const [desc, type] = spec;
     this.#desc = ArgDesc.of(desc);
     this.#type = Type.of(type);
@@ -160,11 +152,9 @@ class Desc {
     return new Desc(spec);
   }
 
-  readonly #spec: string;
   readonly #unpacked: UnpackedDescSpec;
 
   private constructor(spec: string) {
-    this.#spec = spec;
     this.#unpacked = unpackDescSpec(spec);
   }
 
@@ -182,7 +172,6 @@ class LongFlag {
     return new LongFlag(spec);
   }
 
-  readonly #spec: command.ValuedOptionSpec[0];
   readonly #unpacked: {
     long: LongFlagString;
     label: string;
@@ -190,7 +179,6 @@ class LongFlag {
   };
 
   private constructor(spec: command.ValuedOptionSpec[0]) {
-    this.#spec = spec;
     this.#unpacked = unpackLongFlagSpec(spec);
   }
 
@@ -281,14 +269,11 @@ class ArgDesc {
     return new ArgDesc(spec);
   }
 
-  readonly #spec: command.ArgDesc;
   readonly #label: string;
   readonly #required: boolean;
   readonly #description: string;
 
   private constructor(spec: command.ArgDesc) {
-    this.#spec = spec;
-
     const { label, required, description } = unpackArgDesc(spec);
 
     this.#label = label;

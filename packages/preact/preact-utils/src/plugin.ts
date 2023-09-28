@@ -266,12 +266,10 @@ class AugmentHandler<F extends AnyFn> implements Handler {
     }
   }
 
-  #name: string;
   #handled = false;
   #original: F;
 
-  private constructor(name: string, original: F) {
-    this.#name = name;
+  private constructor(_name: string, original: F) {
     this.#original = original;
   }
 

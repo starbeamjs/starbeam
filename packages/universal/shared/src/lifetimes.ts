@@ -13,14 +13,9 @@ let id = 0;
 
 if (!lifetime) {
   class LifetimeState {
-    readonly #object: WeakRef<object>;
     readonly #finalizers = new Set<() => void>();
     readonly children = new Set<LifetimeState>();
     #finalized = false;
-
-    constructor(object: object) {
-      this.#object = new WeakRef(object);
-    }
 
     add(finalizer: () => void) {
       this.#finalizers.add(finalizer);
@@ -164,7 +159,7 @@ if (!lifetime) {
       let state = this.#lifetimes.get(object);
 
       if (!state) {
-        state = new LifetimeState(object);
+        state = new LifetimeState();
         this.#lifetimes.set(object, state);
         registry.register(object, state);
       }

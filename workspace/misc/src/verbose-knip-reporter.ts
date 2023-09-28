@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { ReporterOptions } from "knip";
 
 type Reporter = (options: ReporterOptions) => Promise<void>;

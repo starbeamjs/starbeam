@@ -18,7 +18,9 @@
     "main": "dist/index.cjs",
     "types": "dist/index.d.ts"
   },
-  "starbeam:type": "library:public",
+  "starbeam": {
+    "type": "library:public"
+  },
   "scripts": {
     "test:lint": "eslint . --max-warnings 0",
     "test:types": "tsc -b"

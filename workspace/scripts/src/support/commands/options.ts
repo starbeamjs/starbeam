@@ -7,6 +7,7 @@ import chalk from "chalk";
 import type { Command } from "commander";
 
 declare class CompileError<_S extends string = string, In = unknown> {
+  // eslint-disable-next-line no-unused-private-class-members
   #in: In;
 }
 

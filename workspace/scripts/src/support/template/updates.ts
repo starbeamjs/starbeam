@@ -1,7 +1,6 @@
 import type { Directory, Paths } from "@starbeam-workspace/paths";
 import type { Workspace } from "@starbeam-workspace/reporter";
 
-import { updateEslint } from "./update-eslint.js";
 import type { LabelledUpdater } from "../updating/update-file.js";
 
 export type SyncUpdatePackageFn = (
@@ -30,7 +29,6 @@ export const updateRollup = UpdatePackageFn((update) => {
   update.template("rollup.config.mjs");
 });
 
-export const updateDemo = UpdatePackageFn((update, options) => {
+export const updateDemo = UpdatePackageFn((update) => {
   update.template("vite.config.ts");
-  updateEslint.demo(update, options);
 });

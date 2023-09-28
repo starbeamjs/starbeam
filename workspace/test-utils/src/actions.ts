@@ -113,10 +113,12 @@ export function withCause<T>(
   try {
     return block();
   } catch (e: unknown) {
+    // eslint-disable-next-line no-console
     console.warn(e);
     let error;
     if (isAssertionError(e)) {
       error = e;
+      // eslint-disable-next-line no-console
       console.log(error.stack);
       error.cause = cause();
     } else if (e instanceof Error) {

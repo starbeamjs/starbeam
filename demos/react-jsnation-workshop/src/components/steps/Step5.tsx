@@ -158,12 +158,12 @@ function Profile({ user }: { user: LocalUser | undefined }): JSX.Element {
 }
 
 class LocalUser {
-  #id: number;
+  readonly id: number;
   #resource: InvalidatableAsync<ApiUser>;
   #invalidate: Marker;
 
   constructor(id: number, data: InvalidatableAsync<ApiUser>, marker: Marker) {
-    this.#id = id;
+    this.id = id;
     this.#resource = data;
     this.#invalidate = marker;
   }

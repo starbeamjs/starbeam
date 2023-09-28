@@ -11,7 +11,7 @@ const SINGLE_ELEMENT = 1;
 export class Table<U extends UserTypes> extends FlatRows<U> {
   static create<S extends SpecifiedTableDefinition>(
     this: void,
-    definition: S
+    definition: S,
   ): Table<{
     Columns: ReturnType<S["model"]>["row"];
     Row: ReturnType<S["model"]>;
@@ -21,7 +21,7 @@ export class Table<U extends UserTypes> extends FlatRows<U> {
     definition: {
       columns: (keyof C)[];
       name?: string;
-    }
+    },
   ): Table<C>;
   static create(
     this: void,
@@ -29,12 +29,12 @@ export class Table<U extends UserTypes> extends FlatRows<U> {
       columns: (keyof object)[];
       model?: Model<TableTypes>;
       name?: string;
-    }
+    },
   ): Table<TableTypes> {
     const description = DEBUG?.Desc(
       "collection",
       definition.name ?? definition.model?.name,
-      "Table.create"
+      "Table.create",
     );
 
     return new Table<TableTypes>(
@@ -43,23 +43,21 @@ export class Table<U extends UserTypes> extends FlatRows<U> {
         model:
           definition.model ?? ((id: string, data: object) => ({ id, ...data })),
       },
-      description
+      description,
     );
   }
 
   #id = INITIAL_ID;
   readonly #definition: TableDefinition<TableTypesFor<U>>;
   readonly #rows: Map<string, TableTypesFor<U>["Row"]>;
-  readonly #description: Description | undefined;
 
   private constructor(
     definition: TableDefinition<TableTypesFor<U>>,
-    description: Description | undefined
+    description: Description | undefined,
   ) {
     super();
     this.#rows = reactive.Map(description);
     this.#definition = definition;
-    this.#description = description;
   }
 
   get columns(): ColumnName<TableTypesFor<U>["Columns"]>[] {
@@ -71,7 +69,7 @@ export class Table<U extends UserTypes> extends FlatRows<U> {
   }
 
   append(
-    row: TableTypesFor<U>["Columns"] & { id?: string }
+    row: TableTypesFor<U>["Columns"] & { id?: string },
   ): TableTypesFor<U>["Row"];
   append(...rows: (TableTypesFor<U>["Columns"] & { id?: string })[]): void;
   append(
@@ -101,7 +99,7 @@ type ColumnName<C> = keyof C;
 
 export type Model<T extends TableTypes> = (
   id: string,
-  columns: T["Columns"]
+  columns: T["Columns"],
 ) => T["Row"];
 
 export type UserTypes = object | TableTypes;

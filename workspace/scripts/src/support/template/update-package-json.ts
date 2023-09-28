@@ -41,17 +41,22 @@ export function updatePackageJSON(updater: LabelledUpdater): void {
           )
           .if(categoryIs("demo"), addDevDep("@vitest/ui"))
           .if(typeIs("demo:react"), insert({ "starbeam:source": "tsx" }))
-          .if(typeIs("tests"), insert({ "starbeam:source": "tsx" }))
+          .if(typeIs("tests"), insert.defaults({ "starbeam:source": "tsx" }))
           .if(typeIs("library:interfaces"), (m) => {
             switch (m.main) {
               case "index.ts":
-                return m.insert({ types: "index.ts", "starbeam:source": "ts" });
+                return m
+                  .insert({ types: "index.ts" })
+                  .insertDefaults({ "starbeam:source": "ts" });
               case "index.d.ts":
-                return m.insert({
-                  types: "index.d.ts",
-                  "starbeam:source": "d.ts",
-                  "publishConfig:exports": { default: "./index.d.ts" },
-                });
+                return m
+                  .insert({
+                    types: "index.d.ts",
+                    "publishConfig:exports": { default: "./index.d.ts" },
+                  })
+                  .insertDefaults({
+                    "starbeam:source": "d.ts",
+                  });
               default:
                 return m.report(
                   fragment`Since the package type is library:interfaces, main must either be ${Fragment.header.inverse(
@@ -60,7 +65,10 @@ export function updatePackageJSON(updater: LabelledUpdater): void {
                 );
             }
           })
-          .if(typeIs("tests"), insert({ "starbeam:source": "ts" }))
+          .ifLet(
+            (pkg) => (pkg.type.is("tests") ? pkg.starbeam.jsx : undefined),
+            (jsx) => insert({ "starbeam:source": jsx ? "tsx" : "ts" }),
+          )
           .if(
             typeIs("library:upstream-types"),
             insert({ types: "index.d.ts", "starbeam:source": "d.ts" }),
@@ -120,7 +128,7 @@ const addDevDep =
     manifest.addDevDep(name);
 
 /**
- * Add an entry to the manifest.
+ * Insert entries into the manifest. If the entries already exist, update them.
  *
  * If the entry is specified using a colon-separated path as its key, it is
  * normalized to a nested JSON path when inserted.
@@ -134,6 +142,17 @@ const insert =
   (entries: Record<string, JsonValue>): Action =>
   (manifest) =>
     manifest.insert(entries);
+
+/**
+ * Initialize the manifest with the given entries. If the entry already exists,
+ * leave it alone.
+ *
+ * The behavior of the specified entries is the same as {@linkcode insert}.
+ */
+insert.defaults =
+  (entries: Record<string, JsonValue>): Action =>
+  (manifest) =>
+    manifest.insertDefaults(entries);
 
 const scripts =
   (scripts: Record<string, string>): Action =>
@@ -213,8 +232,27 @@ class ManifestBuilder {
     return this;
   }
 
+  #initializeEntry(key: string, value: JsonValue): ManifestBuilder {
+    if (key in this.#current) return this;
+    return this.addEntry(key, value);
+  }
+
   addEntry(key: string, value: JsonValue): ManifestBuilder {
     this.#current[key] = value;
+    return this;
+  }
+
+  insertDefaults(entries: Record<string, JsonValue>): ManifestBuilder {
+    for (const [key, value] of Object.entries(entries)) {
+      const [parentKey, childKey] = key.split(":");
+
+      if (parentKey && childKey) {
+        this.#initializeNested([parentKey, childKey], value);
+      } else {
+        this.#initializeEntry(key, value);
+      }
+    }
+
     return this;
   }
 
@@ -230,6 +268,29 @@ class ManifestBuilder {
       } else {
         this.addEntry(key, value);
       }
+    }
+
+    return this;
+  }
+
+  #initializeNested(
+    [parentKey, key]: [string, string],
+    value: JsonValue,
+  ): ManifestBuilder {
+    let child = this.#current[parentKey];
+
+    if (!child) {
+      child = this.#current[parentKey] = {
+        [key]: value,
+      };
+    } else if (typeof child === "object" && !Array.isArray(child)) {
+      if (!child[key]) child[key] = value;
+    } else {
+      this.#errors.push(
+        fragment`Invalid ${JSON.stringify(
+          String(key),
+        )} in package.json (expected object): ${this.#pkg.name}`,
+      );
     }
 
     return this;

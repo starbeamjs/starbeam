@@ -457,19 +457,12 @@ const isInitialized = isNotEqual(UNINITIALIZED);
 type Change<U> = (prev: U) => U;
 
 class Child<T, U> {
-  readonly #events: RecordedEvents;
   readonly #sequence: number;
   readonly #value: T;
   #lastValue: U | UNINITIALIZED = UNINITIALIZED;
   #extract: (value: T) => U;
 
-  constructor(
-    events: RecordedEvents,
-    sequence: number,
-    value: T,
-    extract: (value: T) => U,
-  ) {
-    this.#events = events;
+  constructor(sequence: number, value: T, extract: (value: T) => U) {
     this.#sequence = sequence;
     this.#value = value;
     this.#extract = extract;
@@ -531,9 +524,7 @@ class Children<T, U> implements Iterable<Child<T, U>> {
 
   constructor(events: RecordedEvents, children: T[], extract: (value: T) => U) {
     this.#events = events;
-    this.#children = children.map(
-      (child, i) => new Child(events, i, child, extract),
-    );
+    this.#children = children.map((child, i) => new Child(i, child, extract));
   }
 
   expect(
