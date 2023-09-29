@@ -26,6 +26,7 @@
   },
   "devDependencies": {
     "@starbeam/eslint-plugin": "workspace:^",
-    "@types/node": "18.16.1"
+    "@types/node": "18.16.1",
+    "eslint": "^8.49.0"
   }
 }

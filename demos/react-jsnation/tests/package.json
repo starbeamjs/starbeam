@@ -24,6 +24,7 @@
     "@starbeam/eslint-plugin": "workspace:^",
     "@testing-library/react": "^14.0.0",
     "@types/react": "^18.2.22",
+    "eslint": "^8.49.0",
     "jsdom": "^22.1.0"
   }
 }

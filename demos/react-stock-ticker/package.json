@@ -43,6 +43,7 @@
     "@types/react-dom": "^18.2.7",
     "@types/react-portal": "^4.0.4",
     "@vitest/ui": "^0.34.4",
+    "eslint": "^8.49.0",
     "vite": "4.3.9",
     "vitest": "^0.34.4"
   }

@@ -28,8 +28,9 @@
     "@starbeam/core-utils": "workspace:^"
   },
   "devDependencies": {
-    "@starbeam/eslint-plugin": "workspace:^",
     "@starbeam-dev/build-support": "workspace:^",
+    "@starbeam/eslint-plugin": "workspace:^",
+    "eslint": "^8.49.0",
     "rollup": "^3.29.2"
   },
   "peerDependencies": {
