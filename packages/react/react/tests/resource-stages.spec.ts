@@ -66,22 +66,5 @@ describeInDev("resources running in stages", () => {
     await result.rerender();
     expect(result.value).toBe(1);
     events.expect("cleanup", "sync");
-
-    // markers.sync.mark();
-    // await result.rerender();
-    // expect(result.value).toBe(2);
-    // expect(counts.setup).toBe(2);
-    // expect(counts.cleanup).toBe(1);
-
-    // await result.find("button").fire.click();
-    // expect(result.value).toBe(3);
-
-    // markers.constructor.mark();
-    // await result.rerender();
-    // expect(result.value).toBe(3);
-    // expect(counts.setup).toBe(3);
-    // expect(counts.cleanup).toBe(2);
-    // expect(counts.init).toBe(initial.init + 1);
-    // expect(counts.finalized).toBe(initial.finalized + 1);
   });
 });

@@ -1,6 +1,8 @@
 {
   "extends": "../../.config/tsconfig/tsconfig.demo.json",
   "compilerOptions": {
+
+    "allowJs": true,
     "jsx": "react-jsx",
     "jsxImportSource": "preact",
     "types": [
@@ -11,9 +13,7 @@
       "../../packages/env.d.ts",
       "../../packages/env.d.ts",
       "../../packages/env.d.ts"
-    ],
-
-    "allowJs": true
+    ]
   },
   "exclude": ["dist/**/*"]
 }

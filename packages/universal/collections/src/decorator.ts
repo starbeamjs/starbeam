@@ -7,8 +7,6 @@ export const cached = <T>(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   descriptor: TypedPropertyDescriptor<any>,
 ): void => {
-  // const { get, enumerable = true, configurable = true } = descriptor;
-
   const get = descriptor.get;
 
   verify(

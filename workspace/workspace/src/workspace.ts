@@ -152,8 +152,6 @@ export class Workspace implements IWorkspace {
                 });
               }
             });
-            // r.log(Fragment.problem(e.message));
-            // r.reportError(e);
             return;
           }
 

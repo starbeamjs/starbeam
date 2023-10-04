@@ -1,7 +1,6 @@
 import { QueryCommand } from "./support/commands/query-command";
 import { updateEslintrc } from "./support/template/update-eslint";
 import { updatePackageJSON } from "./support/template/update-package-json.js";
-import { updateTests } from "./support/template/update-tests.js";
 import { updateTsconfig } from "./support/template/update-tsconfig.js";
 import { updateRollup } from "./support/template/updates.js";
 import { UpdatePackages } from "./support/updating/update-file.js";

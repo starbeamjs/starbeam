@@ -13,6 +13,6 @@
       "../../packages/env.d.ts"
     ]
   },
-  "exclude": ["dist/**/*"],
-  "include": ["index.ts", "src/**/*", "src/**/*.tsx", "vite.config.ts"]
+  "include": ["index.ts", "src/**/*", "src/**/*.tsx", "vite.config.ts"],
+  "exclude": ["dist/**/*"]
 }

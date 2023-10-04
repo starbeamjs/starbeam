@@ -1,12 +1,12 @@
 {
   "extends": "../../../../.config/tsconfig/tsconfig.shared.json",
   "compilerOptions": {
-    "jsxImportSource": "react",
-    "jsx": "react-jsx",
     "composite": true,
     "declaration": true,
     "declarationDir": "../../../../dist/types",
     "declarationMap": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
     "outDir": "../../../../dist/packages",
     "types": [
       "../../../env.d.ts",
@@ -17,6 +17,6 @@
       "../../../env.d.ts"
     ]
   },
-  "exclude": ["dist/**/*"],
-  "include": ["**/*.ts"]
+  "include": ["**/*.ts"],
+  "exclude": ["dist/**/*"]
 }

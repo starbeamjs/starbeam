@@ -448,23 +448,6 @@ export class States {
         this.#flushParents();
       },
     });
-
-    // this.#current.endWith({
-    //   nested,
-    //   compact,
-    // });
-
-    // } else {
-    //   if (nested.breakBefore) {
-    //     this.#actions.ensureNewline();
-    //   }
-
-    //   this.#actions.wrote(
-    //     this.#current.writeln(
-    //       nested.fragment.stringify(this.#current.loggerState)
-    //     )
-    //   );
-    // }
   }
 
   #flushParents = (): void => {
@@ -639,16 +622,6 @@ export class Logger {
    *
    * Once a header is flushed, it is marked as printed (and `didPrint` will return true).
    */
-}
-
-function format({
-  message,
-  indents,
-}: {
-  message: string;
-  indents: number;
-}): string {
-  return wrapIndented(message, { leading: { indents } });
 }
 
 interface WriteResults {

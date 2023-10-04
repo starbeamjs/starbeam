@@ -15,6 +15,6 @@
       "../../env.d.ts"
     ]
   },
-  "exclude": ["dist/**/*"],
-  "include": ["index.ts", "src/**/*.ts", "rollup.config.mjs"]
+  "include": ["index.ts", "src/**/*.ts", "rollup.config.mjs"],
+  "exclude": ["dist/**/*"]
 }

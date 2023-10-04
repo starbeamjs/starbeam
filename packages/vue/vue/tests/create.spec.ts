@@ -88,31 +88,3 @@ function ReactiveObject(events: RecordedEvents): () => Counter {
     };
   };
 }
-
-// const ReactiveObject = Resource((): Counter => {
-//   const cell = Cell(INITIAL_COUNT);
-
-//   const increment = () => {
-//     return cell.set(cell.current + INCREMENT);
-//   };
-
-//   return {
-//     get count() {
-//       return cell.current;
-//     },
-
-//     increment,
-//   };
-// });
-
-// function ReactiveObject(): { cell: Cell<number>; increment: () => void } {
-//   const cell = Cell(INITIAL_COUNT, {
-//     description: `ReactiveObject #${++nextId}`,
-//   });
-
-//   function increment(): void {
-//     cell.set(cell.current + INCREMENT);
-//   }
-
-//   return { cell, increment };
-// }

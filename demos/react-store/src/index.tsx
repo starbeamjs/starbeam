@@ -2,8 +2,6 @@ import * as ReactDOM from "react-dom/client";
 
 import App from "./components/App.jsx";
 
-// const dev = devtool();
-
 const container = document.querySelector("#root");
 
 if (!container) {

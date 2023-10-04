@@ -264,6 +264,7 @@ function json({
 
     writeFileSync(path, stringifyJSON(next) + "\n");
     workspace.cmd(sh`eslint --fix ${path}`, { cwd: root });
+    workspace.cmd(sh`prettier -w ${path}`, { cwd: root });
 
     const file = path.readSync();
 
