@@ -2,17 +2,16 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { relative } from "node:path";
 
 import { isJSONObject, stringifyJSON } from "@starbeam/core-utils";
+import { SourceRoot } from "@starbeam-workspace/edit-json";
 import type { JsonObject, JsonValue } from "@starbeam-workspace/json";
 import type { Package } from "@starbeam-workspace/package";
 import { JsonTemplate, Template } from "@starbeam-workspace/package";
 import type { Directory, Path, Paths } from "@starbeam-workspace/paths";
-import type {
-  ChangeResult,
-  ReportableError,
-} from "@starbeam-workspace/reporter";
+import type { ReportableError } from "@starbeam-workspace/reporter";
 import { Fragment, fragment } from "@starbeam-workspace/reporter";
 import {
   type AsString,
+  type ChangeResult,
   type Into,
   type IntoResult,
   Result,
@@ -20,9 +19,8 @@ import {
 import type { Workspace } from "@starbeam-workspace/workspace";
 import sh from "shell-escape-tag";
 
-import { EditJsonc } from "../jsonc.js";
+import { Migrator } from "../jsonc/migration.js";
 import type { UpdatePackageFn } from "../template/updates.js";
-import { Migrator } from "./migration.js";
 
 export interface GetRelativePath {
   fromPackageRoot: () => string;
@@ -109,14 +107,14 @@ class UpdateFile implements LabelledUpdater {
       relativePath: string,
       callback: (migrator: Migrator<T>) => void,
     ): Promise<void> => {
-      const editor = EditJsonc.parse(
-        this.#updatePackage.root.file(relativePath),
-      );
-      const migrator = Migrator.create<T>(editor);
+      const file = this.#updatePackage.root.file(relativePath);
+
+      const root = SourceRoot.parse(relativePath, await file.read());
+      const migrator = Migrator.create<T>(root);
       callback(migrator);
       reportChange({
         workspace,
-        result: await migrator.write(),
+        result: await migrator.write(async (source) => file.write(source)),
         label: this.#label,
         description: relativePath,
       });

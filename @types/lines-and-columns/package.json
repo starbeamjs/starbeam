@@ -1,0 +1,30 @@
+{
+  "private": true,
+  "name": "@types/lines-and-columns",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts"
+    }
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts"
+      }
+    },
+    "types": "dist/index.d.ts"
+  },
+  "starbeam": {
+    "source": "d.ts",
+    "type": "library:upstream-types"
+  },
+  "scripts": {
+    "test:lint": "eslint . --max-warnings 0",
+    "test:types": "tsc -b"
+  },
+  "devDependencies": {
+    "@starbeam/eslint-plugin": "workspace:^",
+    "@types/node": "18.16.1"
+  }
+}

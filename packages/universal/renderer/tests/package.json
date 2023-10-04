@@ -1,21 +1,21 @@
 {
-  "private": true,
-  "name": "@starbeam-tests/renderer",
-  "version": "1.0.0",
-  "type": "module",
-  "starbeam": {
-    "source": "tsx",
-    "type": "tests"
+  "dependencies": {
+    "@starbeam-workspace/test-utils": "workspace:^",
+    "@starbeam/renderer": "workspace:^"
   },
+  "devDependencies": {
+    "@starbeam/eslint-plugin": "workspace:^"
+  },
+  "name": "@starbeam-tests/renderer",
+  "private": true,
   "scripts": {
     "test:lint": "eslint . --max-warnings 0",
     "test:types": "tsc -b"
   },
-  "dependencies": {
-    "@starbeam/renderer": "workspace:^",
-    "@starbeam-workspace/test-utils": "workspace:^"
+  "starbeam": {
+    "source": "tsx",
+    "type": "tests"
   },
-  "devDependencies": {
-    "@starbeam/eslint-plugin": "workspace:^"
-  }
+  "type": "module",
+  "version": "1.0.0"
 }

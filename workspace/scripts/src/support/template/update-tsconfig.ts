@@ -1,7 +1,8 @@
 import type { TsConfig } from "@starbeam-workspace/package";
 import { StarbeamType } from "@starbeam-workspace/package";
+import { writeFileSync } from "fs";
 
-import type { Migrator } from "../updating/migration.js";
+import type { Migrator } from "../jsonc/migration.js";
 import { UpdatePackageFn } from "./updates.js";
 
 export const updateTsconfig = UpdatePackageFn(
@@ -11,8 +12,9 @@ export const updateTsconfig = UpdatePackageFn(
       "tsconfig.json",
       async (migrator: Migrator<TsConfig>) => {
         migrator.array("compilerOptions.types", (update) =>
-          update.add(path(root.file("packages/env")).fromPackageRoot(), {
-            matches: (type) => type.endsWith("/env"),
+          update.add(path(root.file("packages/env.d.ts")).fromPackageRoot(), {
+            matches: (type) =>
+              type.endsWith("/env") || type.endsWith("/env.d.ts"),
           }),
         );
 
@@ -76,7 +78,12 @@ export const updateTsconfig = UpdatePackageFn(
 
         migrator.array("exclude", (a) => a.add("dist/**/*"));
 
-        await migrator.write();
+        await migrator.write((source) => {
+          writeFileSync(
+            updater.pkg.root.file("tsconfig.json").absolute,
+            source,
+          );
+        });
       },
     );
   },

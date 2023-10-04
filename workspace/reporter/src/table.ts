@@ -223,7 +223,7 @@ class Column {
   }
 }
 
-export class TableWithHeaders<T> {
+class TableWithHeaders<T> {
   readonly #mappers: Mappers<T>;
   readonly #headers: Columns | undefined;
 

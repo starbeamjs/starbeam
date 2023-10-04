@@ -8,5 +8,7 @@ packages:
     demos/*,
     demos/*/tests,
     "workspace/@*/*",
+    "workspace/@*/*/tests",
     "workspace/*",
+    "workspace/*/tests"
   ]

@@ -16,7 +16,7 @@ export const ListCommand = QueryCommand("list", "list the packages").action(
         }
       }
 
-      if (!query.unifies("type")) {
+      if (!query.unifies("type")) { 
         flags.push(chalk.bgGray.black(pkg.type.value));
       }
 

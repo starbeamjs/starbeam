@@ -42,6 +42,9 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
+    "@finnair/path": "^4.0.0",
+    "@finnair/path-parser": "^4.0.0",
+    "@starbeam/core-utils": "workspace:^",
     "@starbeam-dev/schemas": "workspace:*",
     "@starbeam-workspace/json": "workspace:*",
     "@starbeam-workspace/package": "workspace:*",
@@ -52,12 +55,14 @@
     "@starbeam-workspace/workspace": "workspace:*",
     "ansicolor": "^1.1.100",
     "chalk": "^5.3.0",
+    "codespan-wasm": "^0.4.0",
     "commander": "^11.0.0",
     "depcheck": "^1.4.6",
     "dirfilename": "^1.1.1",
     "emoji-regex": "^10.2.1",
     "eslint": "^8.39.0",
     "fast-glob": "^3.2.11",
+    "lines-and-columns": "^2.0.3",
     "node-pty": "^1.0.0",
     "prettier": "^3.0.3",
     "shell-escape-tag": "^2.0.2",
@@ -68,6 +73,8 @@
   "devDependencies": {
     "@starbeam/eslint-plugin": "workspace:^",
     "@starbeam-dev/build-support": "workspace:^",
+    "@starbeam-workspace/edit-json": "workspace:^",
+    "@types/lines-and-columns": "workspace:^",
     "@types/shell-escape-tag": "workspace:^",
     "@types/shell-split": "workspace:^",
     "@types/shelljs": "^0.8.12",

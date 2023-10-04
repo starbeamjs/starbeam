@@ -1,6 +1,5 @@
 {
-  "root": true,
-  "plugins": ["@starbeam"],
+  "ignorePatterns": ["node_modules", "dist", "html", "tests"],
   "overrides": [
     {
       "extends": ["plugin:@starbeam/commonjs"],
@@ -20,5 +19,7 @@
       "extends": ["plugin:@starbeam/json:recommended"],
       "files": ["*.json"]
     }
-  ]
+  ],
+  "plugins": ["@starbeam"],
+  "root": true
 }

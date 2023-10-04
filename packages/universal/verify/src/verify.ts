@@ -59,7 +59,7 @@ export function verified<T, U extends T>(
   return value;
 }
 
-verified.noop = <T, U extends T>(
+verified.noop = <const T, const U extends T>(
   value: T,
   _check: (input: T) => input is U,
   _error?: Expectation<T>,

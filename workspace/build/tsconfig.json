@@ -19,7 +19,12 @@
       "magic-string",
       "@rollup/plugin-commonjs",
       "@rollup/plugin-node-resolve",
-      "../../packages/env"
+      "../../packages/env.d.ts",
+      "../../packages/env.d.ts",
+      "../../packages/env.d.ts",
+      "../../packages/env.d.ts",
+      "../../packages/env.d.ts",
+      "../../packages/env.d.ts"
     ]
   },
   "exclude": ["dist/**/*"]
