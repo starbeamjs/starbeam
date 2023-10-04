@@ -14,7 +14,6 @@ export const TemplateCommand = QueryCommand("template", "template a package", {
 
   await updater.update((when) => {
     when(() => true, "all packages").use(updatePackageJSON, updateEslintrc);
-    when((pkg) => pkg.type.is("tests"), "tests").use(updateTests);
     when((pkg) => pkg.isTypescript, "typescript").use(updateTsconfig);
     when((pkg) => pkg.type.is("library:public"), "published libraries").use(
       updateRollup,

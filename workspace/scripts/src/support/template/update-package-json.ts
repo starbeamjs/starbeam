@@ -41,7 +41,26 @@ export function updatePackageJSON(updater: LabelledUpdater): void {
           )
           .if(categoryIs("demo"), addDevDep("@vitest/ui"))
           .if(typeIs("demo:react"), insert({ "starbeam:source": "tsx" }))
-          .if(typeIs("tests"), insert.defaults({ "starbeam:source": "tsx" }))
+          .if(
+            typeIs("tests"),
+            insert.defaults({ "starbeam:source": "tsx" }),
+            If(
+              (pkg) => pkg.sources.has("d.ts"),
+              insert({
+                "publishConfig:types": "dist/index.d.ts",
+                "publishConfig:exports:.:types": "./dist/index.d.ts",
+              }),
+              insert({
+                "publishConfig:main": "dist/index.cjs",
+                "publishConfig:types": "dist/index.d.ts",
+                "publishConfig:exports:.": {
+                  types: "./dist/index.d.ts",
+                  import: "./dist/index.js",
+                  default: "./dist/index.cjs",
+                },
+              }),
+            ),
+          )
           .if(typeIs("library:interfaces"), (m) => {
             switch (m.main) {
               case "index.ts":
