@@ -27,8 +27,11 @@ export {
 } from "./src/array.js";
 export { type UnknownFn } from "./src/function.js";
 export {
+  Display,
+  DisplayNewtype,
   DisplayStruct,
   type DisplayStructOptions,
+  StyleName,
 } from "./src/inspect/display-struct.js";
 export {
   DEBUG,

@@ -2,6 +2,7 @@ import type { Dirent } from "node:fs";
 import { existsSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { readFile, unlink, writeFile } from "node:fs/promises";
 import {
+  basename,
   dirname,
   isAbsolute,
   relative,
@@ -10,28 +11,54 @@ import {
 import { pathToFileURL } from "node:url";
 
 import {
+  Display,
+  DisplayNewtype,
   isPresentArray,
-  objectHasKeys,
   stringify,
   stringifyJSON,
+  StyleName,
   TO_STRING,
 } from "@starbeam/core-utils";
 import type { JsonObject } from "@starbeam-workspace/json";
 import glob, { type Entry, type Options } from "fast-glob";
 
 export class Paths {
-  static root(root: string): Paths {
+  static workspaceRoot(root: string): Paths {
     if (isAbsolute(root)) {
-      return new Paths(new Directory(root, root));
+      const workspaceRoot = Directory.workspaceRoot(root);
+
+      return new Paths(workspaceRoot, workspaceRoot);
     } else {
       throw Error(`Root path must be absolute: ${root}`);
     }
   }
 
+  /**
+   * The workspace root is the directory that all path display is relative to,
+   * unless an absolute path is explicitly requested.
+   */
+  readonly #workspaceRoot: Directory;
+
+  /**
+   * The path root is the current directory that `relative` paths are relative to.
+   *
+   * For example, if you are using this library to model an npm workspace, the
+   * workspace root is the root of the entire repository, and the path root is
+   * the root of the package.
+   *
+   * If you are using this library to model a monorepo, the workspace root is
+   * the root of the monorepo and the path root is the root of the directory
+   * that the path is referencing.
+   */
   readonly #root: Directory;
 
-  private constructor(root: Directory) {
+  private constructor(root: Directory, workspaceRoot: Directory) {
     this.#root = root;
+    this.#workspaceRoot = workspaceRoot;
+  }
+
+  get workspaceRoot(): Directory {
+    return this.#workspaceRoot;
   }
 
   get demos(): Directory {
@@ -47,10 +74,23 @@ export class Paths {
   }
 
   get packages(): Packages {
-    return new Packages(
+    return Packages.create(
       this.#root.absolute,
       this.#root.dir("packages").absolute,
+      this.#workspaceRoot,
     );
+  }
+
+  rootDir(name: string): Directory {
+    if (isAbsolute(name)) {
+      // if the path is not contained in the root, error
+      if (isAbsolute(relative(this.#root.absolute, name))) {
+        throw new Error("Path is not contained in the root");
+      }
+      return Directory.root(name, this.#workspaceRoot);
+    } else {
+      return Directory.root(this.#root.dir(name).absolute, this.#workspaceRoot);
+    }
   }
 }
 
@@ -59,13 +99,24 @@ export abstract class Path extends URL {
     return path.#absolutePath === path.#root;
   }
 
-  declare [TO_STRING]: true;
+  static getWorkspaceRoot(path: Path): Directory {
+    return path.#workspaceRoot;
+  }
 
+  declare [TO_STRING]: true;
+  abstract readonly [Symbol.toStringTag]: string;
+
+  readonly #workspaceRoot: Directory;
   readonly #root: string;
   readonly #absolutePath: string;
 
-  constructor(root: string, absolutePath: string) {
+  constructor(
+    root: string,
+    absolutePath: string,
+    workspaceRoot?: Directory | undefined,
+  ) {
     super(pathToFileURL(absolutePath));
+    this.#workspaceRoot = workspaceRoot ?? (this as unknown as Directory);
     this.#root = root;
     this.#absolutePath = absolutePath;
   }
@@ -75,6 +126,22 @@ export abstract class Path extends URL {
   // make interpolation do the expected thing
   override toString(): string {
     return this.absolute;
+  }
+
+  [Symbol.for("nodejs.util.inspect.custom")](): object {
+    if (this.#root === this.#absolutePath) {
+      return Display({
+        name: this[Symbol.toStringTag],
+        format: (stylize) =>
+          stylize(this.relativeToWorkspace, StyleName["id:module"]),
+      });
+    } else {
+      return Display({
+        name: this[Symbol.toStringTag],
+        format: (stylize) => stylize(this.relative, StyleName["id:module"]),
+        annotation: `from ${this.#workspaceRoot.relativeTo(this.#root)}`,
+      });
+    }
   }
 
   rootTo(path: Path): ReturnType<this["create"]> {
@@ -97,23 +164,35 @@ export abstract class Path extends URL {
     return relative(this.#root, this.#absolutePath);
   }
 
+  get relativeToWorkspace(): string {
+    return relative(this.#workspaceRoot.absolute, this.#absolutePath);
+  }
+
   get absolute(): string {
     return this.#absolutePath;
+  }
+
+  get workspaceRoot(): Directory {
+    return this.#workspaceRoot;
   }
 
   /**
    * The root is a directory that its files are relative to.
    */
   get root(): Directory {
-    return new Directory(this.#root, this.#root);
+    return Directory.create(this.#root, this.#root, this.#workspaceRoot);
   }
 
   get dirname(): string {
     return dirname(this.#absolutePath);
   }
 
+  get basename(): string {
+    return basename(this.#absolutePath);
+  }
+
   get parent(): Directory {
-    return new Directory(this.#root, this.dirname);
+    return Directory.create(this.#root, this.dirname, this.#workspaceRoot);
   }
 
   relativeFrom(
@@ -145,18 +224,27 @@ export abstract class Path extends URL {
   }
 
   dir(path: string): Directory | Glob<Directory> {
-    return new Directory(this.#absolutePath, resolve(this.#absolutePath, path));
+    return Directory.create(
+      this.#absolutePath,
+      resolve(this.#absolutePath, path),
+      this.#workspaceRoot,
+    );
   }
 
   file(path: string): RegularFile | Glob<RegularFile> {
     return new RegularFile(
       this.#absolutePath,
       resolve(this.#absolutePath, path),
+      this.#workspaceRoot,
     );
   }
 
   join(path: string): Path {
-    return new UnknownFile(this.#root, resolve(this.#absolutePath, path));
+    return new UnknownFile(
+      this.#root,
+      resolve(this.#absolutePath, path),
+      this.#workspaceRoot,
+    );
   }
 
   glob(path: string, options: GlobOptions<["files"]>): Glob<RegularFile>;
@@ -181,8 +269,10 @@ export abstract class DiskFile extends Path {
 }
 
 export class UnknownFile extends DiskFile {
+  readonly [Symbol.toStringTag] = "UnknownFile";
+
   create(root: string, absolutePath: string): UnknownFile {
-    return new UnknownFile(root, absolutePath);
+    return new UnknownFile(root, absolutePath, Path.getWorkspaceRoot(this));
   }
 }
 
@@ -191,6 +281,8 @@ export interface AsRegularFile {
 }
 
 export class RegularFile extends DiskFile implements AsRegularFile {
+  readonly [Symbol.toStringTag] = "RegularFile";
+
   create(root: string, path: string): RegularFile {
     return new RegularFile(root, path);
   }
@@ -264,8 +356,30 @@ export interface AsDirectory {
 }
 
 export class Directory extends DiskFile implements AsDirectory {
+  static create(
+    root: string,
+    path: string,
+    workspaceRoot: Directory,
+  ): Directory {
+    return new Directory(root, path, workspaceRoot);
+  }
+
+  static root(path: string, workspaceRoot: Directory): Directory {
+    return new Directory(path, path, workspaceRoot);
+  }
+
+  static workspaceRoot(path: string): Directory {
+    return new Directory(path, path);
+  }
+
+  protected constructor(root: string, path: string, workspaceRoot?: Directory) {
+    super(root, path, workspaceRoot);
+  }
+
+  readonly [Symbol.toStringTag] = "Directory";
+
   create(root: string, path: string): Directory {
-    return new Directory(root, path);
+    return new Directory(root, path, Path.getWorkspaceRoot(this));
   }
 
   globs(options: GlobOptions<["files"]>): Globs<RegularFile>;
@@ -374,12 +488,12 @@ export class Glob<T extends Path = Path> extends Path {
     this.#options = options ?? {};
   }
 
-  [Symbol.for("nodejs.util.inspect.custom")](): string {
-    if (objectHasKeys(this.#options)) {
-      return stringify`Glob(${this}) ${JSON.stringify(this.#options)}`;
-    } else {
-      return stringify`Glob(${this})`;
-    }
+  readonly [Symbol.toStringTag] = "Glob";
+
+  [Symbol.for("nodejs.util.inspect.custom")](): object {
+    return DisplayNewtype("Glob", String(this), {
+      annotation: this.#options as Record<string, string>,
+    });
   }
 
   create(root: string, path: string): Glob {
@@ -444,7 +558,11 @@ export class Glob<T extends Path = Path> extends Path {
           return this.#ifIncluded(
             entry,
             (entry) =>
-              new Directory(this.root.absolute, entry.path) as unknown as T,
+              Directory.create(
+                this.root.absolute,
+                entry.path,
+                Path.getWorkspaceRoot(this),
+              ) as unknown as T,
           );
         } else if (dirent.isFile()) {
           return this.#ifIncluded(
@@ -603,6 +721,14 @@ export class Globs<T extends Path = Path> implements Iterable<Glob<T>> {
 }
 
 class Packages extends Directory {
+  static override create(
+    root: string,
+    path: string,
+    workspaceRoot: Directory,
+  ): Packages {
+    return new Packages(root, path, workspaceRoot);
+  }
+
   readonly react = this.file("react");
   readonly universal = this.file("universal");
   readonly x = this.file("x");

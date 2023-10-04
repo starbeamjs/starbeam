@@ -165,9 +165,8 @@ abstract class InternalLoggerState {
   }
 
   #format(message: IntoFragment, options: { leading: number }): string {
-    return format({
-      message: Fragment.stringify(message, this.loggerState),
-      indents: options.leading,
+    return wrapIndented(Fragment.stringify(message, this.loggerState), {
+      leading: { indents: options.leading },
     });
   }
 
@@ -642,7 +641,7 @@ export class Logger {
    */
 }
 
-export function format({
+function format({
   message,
   indents,
 }: {

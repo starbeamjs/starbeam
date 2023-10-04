@@ -19,12 +19,5 @@ export const TemplateCommand = QueryCommand("template", "template a package", {
     when((pkg) => pkg.type.is("library:public"), "published libraries").use(
       updateRollup,
     );
-    // when(
-    //   (pkg) =>
-    //     pkg.sources.some((s) => s.hasFiles()) &&
-    //     (pkg.type.hasCategory("library") || pkg.type.is("tests")),
-    //   "lintable",
-    // ).use(updateEslint.package);
-    // when((pkg) => pkg.type.hasCategory("demo"), "demos").use(updateDemo);
   });
 });

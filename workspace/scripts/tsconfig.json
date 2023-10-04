@@ -6,7 +6,7 @@
     "declaration": true,
     "composite": true,
     "outDir": "../../dist/packages",
-    "types": ["../../packages/env"]
+    "types": ["../../packages/env.d.ts"]
   },
   "exclude": ["dist/**/*"],
   "include": ["**/*", "./src/scripts.json"]

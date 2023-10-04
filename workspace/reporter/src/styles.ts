@@ -83,26 +83,11 @@ function resolve(style: StyleInstance | DetailedStyle): StyleInstance {
   }
 }
 
-export function getSpecificStyle(
-  name: StyleName | FullStyleName,
-  specific: StylePartName,
-): StyleInstance {
-  if (isStyleName(name)) {
-    return getStyle(`${name}:${specific}`);
-  } else {
-    return getStyle(name);
-  }
-}
-
 export function hasPart<K extends StylePartName>(
   style: DetailedStyle,
   part: K,
 ): style is DetailedStyle & { [P in K]: DetailedStyle } {
   return part in style;
-}
-
-export function isStyleName(value: unknown): value is StyleName {
-  return typeof value === "string" && value in STYLES;
 }
 
 export function isAnyStyleName(value: unknown): value is AnyStyleName {
@@ -119,8 +104,10 @@ export function isAnyStyleName(value: unknown): value is AnyStyleName {
   return isStyleName(styleName) && isPartName(part);
 }
 
-export function isPartName(
-  value: string | undefined,
-): value is StylePart["value"] {
+function isStyleName(value: unknown): value is StyleName {
+  return typeof value === "string" && value in STYLES;
+}
+
+function isPartName(value: string | undefined): value is StylePart["value"] {
   return value === undefined ? false : StylePart.isMember(value);
 }

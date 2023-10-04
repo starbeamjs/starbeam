@@ -31,6 +31,7 @@
     "eslint-config-prettier": "*",
     "eslint-import-resolver-typescript": "*",
     "eslint-plugin-eslint-comments": "*",
+    "eslint-plugin-etc": "^2.0.3",
     "eslint-plugin-import": "*",
     "eslint-plugin-json": "*",
     "eslint-plugin-jsonc": "*",

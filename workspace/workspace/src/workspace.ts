@@ -34,7 +34,7 @@ const FATAL_EXIT_CODE = 1;
 
 export class Workspace implements IWorkspace {
   static root(root: string, options: ReporterOptions): Workspace {
-    return new Workspace(Paths.root(root), options);
+    return new Workspace(Paths.workspaceRoot(root), options);
   }
 
   readonly #paths: Paths;

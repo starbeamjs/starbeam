@@ -17,11 +17,7 @@ export type { Workspace } from "./src/interfaces.js";
 export type { IntoFragment } from "./src/log.js";
 export { Fragment, fragment } from "./src/log.js";
 export { LoggerState } from "./src/logger.js";
-export {
-  type ChangeResult,
-  Reporter,
-  type ReporterOptions,
-} from "./src/reporter.js";
+export { Reporter, type ReporterOptions } from "./src/reporter.js";
 export type {
   AnyStyleName,
   IntoStylePart,

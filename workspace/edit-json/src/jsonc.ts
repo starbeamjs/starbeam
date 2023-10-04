@@ -1,40 +1,33 @@
 import { readFileSync, writeFileSync } from "node:fs";
 
+import type { JsonValue } from "@starbeam-workspace/json";
 import type { RegularFile } from "@starbeam-workspace/paths";
-import { fatal } from "@starbeam-workspace/shared";
-import type { Workspace } from "@starbeam-workspace/workspace";
+import type { ErrorReporter } from "@starbeam-workspace/shared";
 import * as jsonc from "jsonc-parser";
 import { format } from "prettier";
 
 export async function parseJsonc(
+  reporter: ErrorReporter,
   file: RegularFile,
-  workspace: Workspace,
+  error: (message: string) => never,
 ): Promise<Record<string, unknown>> {
   const source = await file.read();
   const node = jsonc.parseTree(source);
 
   if (node === undefined) {
-    fatal(
-      workspace.reporter.fatal(
-        `Failed to parse tsconfig at '${file.relativeFrom(workspace.root)}'`,
-      ),
-    );
+    throw error(`Failed to parse ${file.basename}`);
   }
 
   const value = jsonc.getNodeValue(node) as unknown;
 
   if (value == undefined || typeof value !== "object") {
-    fatal(
-      workspace.reporter.fatal(
-        `Failed to parse tsconfig at '${file.relativeFrom(workspace.root)}'`,
-      ),
-    );
+    throw error(`Failed to parse ${file.basename}`);
   } else {
     return value as Record<string, unknown>;
   }
 }
 
-const MISSING_INDEX = -1;
+export const MISSING_INDEX = -1;
 
 export class EditJsonc {
   static parse(filename: RegularFile): EditJsonc {
@@ -58,8 +51,34 @@ export class EditJsonc {
     this.#json = json;
   }
 
+  #modify(
+    path: string,
+    callback: (options: {
+      path: jsonc.Segment[];
+      json: jsonc.Node | undefined;
+      source: string;
+    }) => AbstractModification[],
+  ): void {
+    const jsonPath = parsePath(path);
+    const node = jsonc.findNodeAtLocation(this.#json, jsonPath);
+    let source = this.#source;
+
+    const modifications = callback({
+      path: jsonPath,
+      json: node,
+      source,
+    });
+
+    for (const modification of modifications) {
+      source = applyModification(source, modification);
+    }
+
+    this.#source = source;
+    this.#json = parse(source);
+  }
+
   remove(path: string): void {
-    const jsonPath = this.#path(path);
+    const jsonPath = parsePath(path);
     const node = jsonc.findNodeAtLocation(this.#json, jsonPath);
 
     if (node) {
@@ -73,7 +92,7 @@ export class EditJsonc {
     path: string,
     value: string | number | boolean | ((json: unknown) => boolean),
   ): void {
-    const jsonPath = this.#path(path);
+    const jsonPath = parsePath(path);
     const node = jsonc.findNodeAtLocation(this.#json, jsonPath);
 
     const check =
@@ -102,33 +121,36 @@ export class EditJsonc {
   addUnique(path: string, value: string | number | boolean): void;
   addUnique(
     path: string,
-    value: unknown,
+    value: JsonValue,
     check: (json: unknown) => boolean,
   ): void;
   addUnique(
     path: string,
-    value: unknown,
+    value: JsonValue,
     check: (json: unknown) => boolean = (json) => json === value,
   ): void {
-    const jsonPath = this.#path(path);
-    const node = jsonc.findNodeAtLocation(this.#json, jsonPath);
-    let oldValue: unknown[] | undefined;
+    this.#modify(path, ({ json: node, path: jsonPath }) => {
+      if (node && node.type === "array") {
+        const oldValue = jsonc.getNodeValue(node) as jsonc.Node[] | undefined;
 
-    if (
-      node &&
-      node.type === "array" &&
-      (oldValue = jsonc.getNodeValue(node) as unknown[] | undefined)
-    ) {
-      const index = oldValue.findIndex(check);
+        if (oldValue) {
+          const [index, ...rest] = findIndexes(oldValue, check);
 
-      const edit = jsonc.modify(this.#source, [...jsonPath, index], value, {});
-      this.#source = jsonc.applyEdits(this.#source, edit);
-      this.#json = parse(this.#source);
-    } else {
-      const edit = jsonc.modify(this.#source, jsonPath, [value], {});
-      this.#source = jsonc.applyEdits(this.#source, edit);
-      this.#json = parse(this.#source);
-    }
+          if (index === undefined) {
+            return [{ path: [...jsonPath, oldValue.length], value }];
+          } else {
+            return [
+              { path: [...jsonPath, index], value },
+              ...computeRemovals(rest).map((index) => ({
+                path: [...jsonPath, index],
+              })),
+            ];
+          }
+        }
+      }
+
+      return [{ path: jsonPath, value: [value] }];
+    });
   }
 
   set(
@@ -136,7 +158,7 @@ export class EditJsonc {
     value: unknown,
     { position = MISSING_INDEX }: JsoncPosition = { position: MISSING_INDEX },
   ): void {
-    const edit = jsonc.modify(this.#source, this.#path(path), value, {
+    const edit = jsonc.modify(this.#source, parsePath(path), value, {
       getInsertionIndex:
         typeof position === "function" ? position : () => position,
     });
@@ -160,32 +182,45 @@ export class EditJsonc {
       return false;
     }
   }
+}
 
-  #path(source: string): (string | number)[] {
-    return source.split(".").map((p) => {
-      if (/^\d+$/.test(p)) {
-        return Number(p);
-      } else {
-        return p;
-      }
-    });
-  }
+function parsePath(source: string): jsonc.Segment[] {
+  return source.split(".").map((p) => {
+    if (/^\d+$/.test(p)) {
+      return Number(p);
+    } else {
+      return p;
+    }
+  });
+}
+
+function applyModification(
+  source: string,
+  modification: AbstractModification,
+): string {
+  const { path, value = undefined } = modification;
+
+  const node = jsonc.findNodeAtLocation(parse(source), path);
+  // eslint-disable-next-line no-console
+  console.log({ node });
+
+  const edit = jsonc.modify(source, path, value, {});
+  // eslint-disable-next-line no-console
+  console.group("applying", { modification, edit, source: typeof source });
+  // eslint-disable-next-line no-console
+  console.log("before", source);
+  const after = jsonc.applyEdits(source, edit);
+  // eslint-disable-next-line no-console
+  console.log("after", after);
+  // eslint-disable-next-line no-console
+  console.groupEnd();
+  return after;
 }
 
 export type JsoncPosition =
   | { position: number }
   | { position: (siblings: string[]) => number }
   | undefined;
-
-function parse(source: string): jsonc.Node {
-  const parsed = jsonc.parseTree(source);
-
-  if (parsed === undefined) {
-    throw Error(`Unable to parse JSON (${JSON.stringify(source)})`);
-  }
-
-  return parsed;
-}
 
 const SINGLE_ITEM = 1;
 const NEXT_CHAR = 1;
@@ -220,4 +255,38 @@ function bugfix(source: string, edits: jsonc.Edit[]): jsonc.Edit[] {
   }
 
   return edits;
+}
+
+function findIndexes(
+  array: unknown[],
+  predicate: (value: unknown) => boolean,
+): number[] {
+  return array.flatMap((value, index) => (predicate(value) ? [index] : []));
+}
+
+function computeRemovals(offsets: number[]): number[] {
+  // as we remove an offset, subsequent offsets are shifted
+
+  let removed = 0;
+  const shiftedOffsets: number[] = [];
+
+  for (const offset of offsets) {
+    shiftedOffsets.push(offset - removed++);
+  }
+
+  return shiftedOffsets;
+}
+
+interface AbstractModification {
+  readonly path: jsonc.Segment[];
+  readonly value?: JsonValue;
+}
+export function parse(source: string): jsonc.Node {
+  const parsed = jsonc.parseTree(source);
+
+  if (parsed === undefined) {
+    throw Error(`Unable to parse JSON (${JSON.stringify(source)})`);
+  }
+
+  return parsed;
 }

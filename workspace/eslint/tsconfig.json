@@ -31,7 +31,14 @@
 
     "strict": true,
 
-    "types": ["../../packages/env"],
+    "types": [
+      "../../packages/env.d.ts",
+      "../../packages/env.d.ts",
+      "../../packages/env.d.ts",
+      "../../packages/env.d.ts",
+      "../../packages/env.d.ts",
+      "../../packages/env.d.ts"
+    ],
 
     "useDefineForClassFields": true
   },

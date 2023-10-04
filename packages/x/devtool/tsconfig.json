@@ -9,7 +9,14 @@
     "jsxImportSource": "preact",
     "lib": ["esnext", "DOM", "DOM.Iterable"],
     "outDir": "../../../dist/packages",
-    "types": ["../../env"]
+    "types": [
+      "../../env.d.ts",
+      "../../env.d.ts",
+      "../../env.d.ts",
+      "../../env.d.ts",
+      "../../env.d.ts",
+      "../../env.d.ts"
+    ]
   },
   "exclude": ["dist/**/*", "node_modules/**"]
 }

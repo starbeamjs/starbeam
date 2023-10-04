@@ -3,7 +3,14 @@
   "compilerOptions": {
     "jsxImportSource": "react",
     "jsx": "react-jsx",
-    "types": ["../../packages/env"]
+    "types": [
+      "../../packages/env.d.ts",
+      "../../packages/env.d.ts",
+      "../../packages/env.d.ts",
+      "../../packages/env.d.ts",
+      "../../packages/env.d.ts",
+      "../../packages/env.d.ts"
+    ]
   },
   "exclude": ["dist/**/*"],
   "include": ["index.ts", "src/**/*", "vite.config.ts"]

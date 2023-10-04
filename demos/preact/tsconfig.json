@@ -3,7 +3,15 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "jsxImportSource": "preact",
-    "types": ["../../packages/env", "preact"]
+    "types": [
+      "../../packages/env.d.ts",
+      "preact",
+      "../../packages/env.d.ts",
+      "../../packages/env.d.ts",
+      "../../packages/env.d.ts",
+      "../../packages/env.d.ts",
+      "../../packages/env.d.ts"
+    ]
   },
   "exclude": ["dist/**/*"],
   "include": ["index.ts", "src/**/*", "src/**/*.tsx", "vite.config.ts"]

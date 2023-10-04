@@ -1,5 +1,5 @@
 import { isPresentArray } from "@starbeam/core-utils";
-import { Directory, type Path } from "@starbeam-workspace/paths";
+import { type Path } from "@starbeam-workspace/paths";
 import type { Workspace } from "@starbeam-workspace/reporter";
 import { DisplayStruct, Union } from "@starbeam-workspace/shared";
 import sh from "shell-escape-tag";
@@ -166,9 +166,7 @@ export function queryPackages(
   const packages = JSON.parse(packageList) as PnpmPackage[];
 
   return packages
-    .map((p) =>
-      new Directory(workspace.root.absolute, p.path).file("package.json"),
-    )
+    .map((p) => workspace.paths.rootDir(p.path).file("package.json"))
     .map((manifest) => Package.from(workspace, manifest))
     .filter((pkg) => query.match(pkg, workspace.reporter));
 }

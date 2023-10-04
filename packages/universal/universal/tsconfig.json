@@ -7,7 +7,14 @@
     "declarationMap": true,
     "experimentalDecorators": true,
     "outDir": "../../../dist/packages",
-    "types": ["../../env"]
+    "types": [
+      "../../env.d.ts",
+      "../../env.d.ts",
+      "../../env.d.ts",
+      "../../env.d.ts",
+      "../../env.d.ts",
+      "../../env.d.ts"
+    ]
   },
   "exclude": ["dist/**/*"]
 }

@@ -22,6 +22,7 @@ exports.config = {
     "prettier",
     "@typescript-eslint",
     "json",
+    "etc",
   ],
 };
 
@@ -160,4 +161,5 @@ exports.rules = {
   "import/first": "error",
   "import/newline-after-import": "error",
   "import/no-duplicates": "error",
+  "etc/no-commented-out-code": "warn",
 };

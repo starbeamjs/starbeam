@@ -93,7 +93,7 @@ export class CheckResults implements Iterable<[string, CheckResult]> {
 
   get errors(): CheckResults {
     return new CheckResults(
-      new Map([...this.#results.entries()].filter(([, r]) => !r.isOk))
+      new Map([...this.#results.entries()].filter(([, r]) => !r.isOk)),
     );
   }
 

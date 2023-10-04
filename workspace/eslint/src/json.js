@@ -129,20 +129,25 @@ exports[".eslintrc.json"] = jsonc({
 exports["tsconfig.json"] = jsonc({
   "jsonc/sort-keys": [
     "error",
+
     {
+      pathPattern: "^$",
       order: [
         "extends",
         "compilerOptions",
-        {
-          keyPattern: ".*",
-          order: { type: "asc", natural: true },
-        },
         "files",
         "include",
         "exclude",
         "references",
       ],
-      pathPattern: "^$",
+    },
+
+    {
+      pathPattern: ".*",
+      order: {
+        type: "asc",
+        natural: true,
+      },
     },
   ],
 });

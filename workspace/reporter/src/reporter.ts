@@ -758,7 +758,7 @@ type MessageVerbosity =
   | "all:verbose"
   | "none:verbose";
 
-export function reportCheckResults(
+function reportCheckResults(
   reporter: Reporter,
   results: CheckResults,
   options: {
@@ -806,11 +806,6 @@ export interface CompactEndWith {
   replace?: boolean;
 }
 
-export interface EndWith {
-  nested: IntoFragment | NestedEndWith;
-  compact: IntoFragment | CompactEndWith;
-}
-
 export interface LoggerEndWith {
   nested?:
     | { fragment: Fragment; breakBefore?: boolean | undefined }
@@ -830,6 +825,3 @@ export type Ending =
       nested?: IntoFragment | NestedEndWith;
       compact?: IntoFragment | CompactEndWith;
     };
-
-export type ChangeType = "create" | "remove" | "update";
-export type ChangeResult = ChangeType | false;

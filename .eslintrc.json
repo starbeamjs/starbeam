@@ -1,13 +1,6 @@
 {
   "root": true,
-  "ignorePatterns": [
-    "packages/*/*",
-    "@types",
-    "demos",
-    "html",
-    "workspace",
-    "unused.js"
-  ],
+  "ignorePatterns": ["*", "!.eslintrc.json", "!tsconfig.json", "!package.json"],
 
   "plugins": ["@starbeam"],
   "overrides": [

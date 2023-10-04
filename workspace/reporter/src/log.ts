@@ -63,7 +63,7 @@ export const Style = {
   },
 } as const;
 
-export function log(message: string, style: Style = Style.default): void {
+function log(message: string, style: Style = Style.default): void {
   // eslint-disable-next-line no-console
   console.info(Fragment(style, message));
 }
@@ -74,9 +74,7 @@ log.newline = () => {
 
 export type StyleInstance = ChalkInstance;
 
-export type IntoStyleInstance = Style;
-
-export function IntoDetailedStyle(from: IntoStyleInstance): DetailedStyle {
+function IntoDetailedStyle(from: Style): DetailedStyle {
   if (isDetailed(from)) {
     return from;
   } else {
@@ -86,7 +84,7 @@ export function IntoDetailedStyle(from: IntoStyleInstance): DetailedStyle {
   }
 }
 
-export function IntoStyleInstance(from: IntoStyleInstance): StyleInstance {
+function IntoStyleInstance(from: Style): StyleInstance {
   if (isDetailed(from)) {
     return from[STYLE];
   } else {
@@ -152,11 +150,10 @@ export function isIntoFragment(value: unknown): value is IntoFragment {
   );
 }
 
-export type FallibleFragment = Result<FragmentImpl, FragmentImpl>;
+export type FallibleFragment = Result<Fragment, Fragment>;
 export type IntoFallibleFragment = IntoFragment | LogResult<IntoFragment>;
 
 export type LogResult<T> = Result<T, IntoFragment>;
-export type IntoLogResult<T> = T | LogResult<T>;
 
 export const LogResult = {
   ok: <T>(value: T): LogResult<T> => Result.ok(value),
@@ -201,7 +198,7 @@ export abstract class FragmentImpl {
 
   declare [TO_STRING]: true;
 
-  update(updater: (prev: StyleInstance) => IntoStyleInstance): Fragment {
+  update(updater: (prev: StyleInstance) => Style): Fragment {
     return this.updateStyle((prev) => IntoStyleInstance(updater(prev)));
   }
 
@@ -214,7 +211,7 @@ export abstract class FragmentImpl {
    * fragment, the default style is applied to any sub-fragment that still has
    * the default style (i.e. it was originally created from plain text).
    */
-  defaultStyle(style: IntoStyleInstance): FragmentImpl {
+  defaultStyle(style: Style): FragmentImpl {
     return this.updateStyle((prev) => {
       return prev === Style.default ? IntoStyleInstance(style) : Style.default;
     });
@@ -414,80 +411,6 @@ class LeafFragment extends FragmentImpl {
   }
 }
 
-export class DensityChoosingFragment extends FragmentImpl {
-  readonly #choices: DensityChoices;
-  readonly #defaultChoice: DensityChoice;
-  readonly #updates: ((prev: StyleInstance) => StyleInstance)[];
-
-  constructor(
-    choices: DensityChoices,
-    defaultChoice: DensityChoice = "comfortable",
-    updates: ((prev: StyleInstance) => StyleInstance)[] = [],
-  ) {
-    super();
-    this.#choices = choices;
-    this.#defaultChoice = defaultChoice;
-    this.#updates = updates;
-  }
-
-  #stringify({
-    options,
-    selection = this.#defaultChoice,
-  }: {
-    options: LoggerState | undefined;
-    selection?: DensityChoice;
-  }): string {
-    let fragment = this.#choices[selection];
-
-    for (const update of this.#updates) {
-      fragment = fragment.updateStyle(update);
-    }
-
-    if (options) {
-      return fragment.stringify(options);
-    } else {
-      return String(fragment);
-    }
-  }
-
-  stringify(options: LoggerState): string {
-    return this.#stringify({ options, selection: options.density });
-  }
-
-  override toString(): string {
-    return this.#stringify({
-      options: undefined,
-      selection: this.#defaultChoice,
-    });
-  }
-
-  updateStyle(updater: (prev: StyleInstance) => StyleInstance): FragmentImpl {
-    return new DensityChoosingFragment(this.#choices, this.#defaultChoice, [
-      ...this.#updates,
-      updater,
-    ]);
-  }
-
-  concatFragment(other: FragmentImpl): FragmentImpl {
-    const choices = Object.fromEntries(
-      Object.entries(this.#choices).map(([density, fragment]) => [
-        density,
-        fragment.concatFragment(other),
-      ]),
-    ) as DensityChoices;
-
-    return new DensityChoosingFragment(choices);
-  }
-
-  physicalWidth(options: LoggerState): number {
-    return this.#choices[options.density].physicalWidth(options);
-  }
-
-  byteWidth(options: LoggerState): number {
-    return this.#choices[options.density].byteWidth(options);
-  }
-}
-
 export interface DetailedStyle {
   readonly [STYLE]: StyleInstance;
   readonly header?: StyleInstance;
@@ -499,7 +422,7 @@ export type Style = StyleInstance | DetailedStyle | AnyStyleName;
 
 export type Printable = string | number | boolean;
 
-export function FragmentFn(style: Style, message: Printable): LeafFragment {
+function FragmentFn(style: Style, message: Printable): LeafFragment {
   const resolved = StyleInstance.resolve(style);
   return LeafFragment.create(resolved, String(message));
 }
@@ -617,10 +540,6 @@ export const StyleInstance = {
 };
 
 export type DensityChoice = ReporterOptions["density"];
-
-export type DensityChoices = {
-  [P in DensityChoice]: Fragment;
-};
 
 if (import.meta.vitest) {
   const { test, expect } = import.meta.vitest;

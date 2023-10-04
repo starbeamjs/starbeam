@@ -15,7 +15,14 @@
     "noImplicitAny": true,
     "allowSyntheticDefaultImports": false,
     "esModuleInterop": false,
-    "types": ["../../packages/env"]
+    "types": [
+      "../../packages/env.d.ts",
+      "../../packages/env.d.ts",
+      "../../packages/env.d.ts",
+      "../../packages/env.d.ts",
+      "../../packages/env.d.ts",
+      "../../packages/env.d.ts"
+    ]
   },
   "exclude": ["dist/**/*"]
 }

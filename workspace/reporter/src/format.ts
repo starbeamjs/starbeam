@@ -87,8 +87,6 @@ class WrappedLine {
   }
 }
 
-export const NO_LEADING = 0;
-
 export function wrapLines(
   string: string,
   options: InternalLogOptions,
@@ -210,7 +208,7 @@ format.entry = ([key, value]: [string, string], style?: EntryStyle): string => {
   );
 };
 
-export function getStyle(
+function getStyle(
   style: EntryStyle | FormatStyle,
   part?: "key" | "value",
 ): Style {
