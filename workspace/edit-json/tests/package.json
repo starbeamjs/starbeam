@@ -1,22 +1,22 @@
 {
-  "private": true,
-  "name": "@starbeam-workspace-tests/edit-jsonc",
-  "version": "1.0.0",
-  "type": "module",
-  "starbeam": {
-    "source": "tsx",
-    "type": "tests"
+  "dependencies": {
+    "@starbeam-workspace/edit-json": "workspace:^",
+    "@starbeam/verify": "workspace:^"
   },
+  "devDependencies": {
+    "@starbeam-workspace/test-utils": "workspace:^",
+    "@starbeam/eslint-plugin": "workspace:^"
+  },
+  "name": "@starbeam-workspace-tests/edit-jsonc",
+  "private": true,
   "scripts": {
     "test:lint": "eslint . --max-warnings 0",
     "test:types": "tsc -b"
   },
-  "dependencies": {
-    "@starbeam/verify": "workspace:^",
-    "@starbeam-workspace/edit-json": "workspace:^"
+  "starbeam": {
+    "source": "tsx",
+    "type": "tests"
   },
-  "devDependencies": {
-    "@starbeam/eslint-plugin": "workspace:^",
-    "@starbeam-workspace/test-utils": "workspace:^"
-  }
+  "type": "module",
+  "version": "1.0.0"
 }
