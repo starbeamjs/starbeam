@@ -262,19 +262,18 @@ function json({
       }),
     );
 
-    const prevString = stringifyJSON(normalizeJSON(prevJSON));
-    const nextString = stringifyJSON(normalizeJSON(next));
+    writeFileSync(path, stringifyJSON(next) + "\n");
+    workspace.cmd(sh`eslint --fix ${path}`, { cwd: root });
 
-    if (prevString !== nextString) {
+    const file = path.readSync();
+
+    if (file !== prev) {
       reportChange({
         workspace,
         result: prev === undefined ? "create" : "update",
         description: relativePath,
         label,
       });
-
-      writeFileSync(path, nextString + "\n");
-      workspace.cmd(sh`prettier --print-width 100 -w ${path}`);
     }
   });
 }
