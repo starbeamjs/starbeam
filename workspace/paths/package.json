@@ -23,15 +23,16 @@
   },
   "scripts": {
     "test:lint": "eslint . --max-warnings 0",
+    "test:specs": "vitest --run",
     "test:types": "tsc -b"
   },
   "dependencies": {
+    "@starbeam/core-utils": "workspace:^",
     "@starbeam-workspace/json": "workspace:*",
-    "shell-escape-tag": "^2.0.2"
+    "fast-glob": "^3.3.1"
   },
   "devDependencies": {
     "@starbeam/eslint-plugin": "workspace:^",
-    "@starbeam-dev/build-support": "workspace:^",
-    "@types/shell-escape-tag": "workspace:^"
+    "@starbeam-dev/build-support": "workspace:^"
   }
 }

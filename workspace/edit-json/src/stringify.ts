@@ -47,32 +47,36 @@ if (import.meta.vitest) {
 
   describe("stringify", () => {
     test("string", () => {
-      expect(stringify("foo")).toEqual('"foo"');
+      expect(stringify("foo")).toEqual(chalk.cyan('"foo"'));
     });
 
     test("number", () => {
       // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-      expect(stringify(1)).toEqual("1");
+      expect(stringify(1)).toEqual(chalk.cyan("1"));
     });
 
     test("boolean", () => {
-      expect(stringify(true)).toEqual("true");
-      expect(stringify(false)).toEqual("false");
+      expect(stringify(true)).toEqual(chalk.cyan("true"));
+      expect(stringify(false)).toEqual(chalk.cyan("false"));
     });
 
     test("null", () => {
-      expect(stringify(null)).toEqual("null");
+      expect(stringify(null)).toEqual(chalk.cyan("null"));
     });
 
     test("array", () => {
       // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-      expect(stringify([1, 2, 3])).toEqual("[ 1, 2, 3 ]");
+      expect(stringify([1, 2, 3])).toEqual(
+        `[ ${chalk.cyan(1)}, ${chalk.cyan(2)}, ${chalk.cyan(3)} ]`,
+      );
     });
 
     test("object", () => {
-      expect(stringify({ one: "1" })).toEqual(`{ "one": "1" }`);
+      expect(stringify({ one: "1" })).toEqual(
+        `{ "one": ${chalk.cyan('"1"')} }`,
+      );
       expect(stringify({ one: "1", two: "2" })).toEqual(
-        `{ "one": "1", "two": "2" }`,
+        `{ "one": ${chalk.cyan('"1"')}, "two": ${chalk.cyan('"2"')} }`,
       );
     });
   });

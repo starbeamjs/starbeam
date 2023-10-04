@@ -2,7 +2,6 @@ export type {
   AsDirectory,
   AsRegularFile,
   GlobAllow,
-  GlobMatch,
   GlobOptions,
   Path,
 } from "./src/paths.js";
@@ -11,10 +10,9 @@ export {
   DiskFile,
   Glob,
   Globs,
-  join,
-  parts,
   Paths,
   RegularFile,
-  resolve,
   UnknownFile,
 } from "./src/paths.js";
+export type { GlobMatch } from "./src/utils.js";
+export { join, parts, resolve } from "./src/utils.js";

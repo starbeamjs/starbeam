@@ -103,12 +103,6 @@ export interface EmittableDiagnostic {
   color: codespan.ColorSpec | codespan.Color;
 }
 
-export function intoColorSpec(
-  spec: codespan.Color | IntoColor,
-): codespan.ColorSpec {
-  return typeof spec === "string" ? Color({ fgColor: spec }) : Color(spec);
-}
-
 export function isCollapsed(label: codespan.Label): boolean {
   return label.rangeStart === label.rangeEnd;
 }

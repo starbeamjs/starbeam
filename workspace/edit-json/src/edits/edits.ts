@@ -185,7 +185,7 @@ export function Color(options: IntoColor): codespan.ColorSpec {
   }
 }
 
-export function PrimaryColor(
+function PrimaryColor(
   colorSpec: codespan.ColorSpec | codespan.Color,
 ): codespan.Styles {
   const color =

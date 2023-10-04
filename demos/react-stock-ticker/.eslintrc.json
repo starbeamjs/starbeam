@@ -1,45 +1,25 @@
 {
   "root": true,
-  "ignorePatterns": [
-    "node_modules",
-    "dist",
-    "html",
-    "tests"
-  ],
-  "plugins": [
-    "@starbeam"
-  ],
+  "ignorePatterns": ["node_modules", "dist", "html", "tests"],
+  "plugins": ["@starbeam"],
   "overrides": [
     {
-      "extends": [
-        "plugin:@starbeam/demos"
-      ],
-      "files": [
-        "index.{tsx,ts}",
-        "src/**/*.{tsx,ts}"
-      ],
+      "extends": ["plugin:@starbeam/demos"],
+      "files": ["index.{tsx,ts}", "src/**/*.{tsx,ts}"],
       "parserOptions": {
         "project": "tsconfig.json"
       }
     },
     {
-      "extends": [
-        "plugin:@starbeam/loose"
-      ],
-      "files": [
-        "vite.config.ts"
-      ],
+      "extends": ["plugin:@starbeam/loose"],
+      "files": ["vite.config.ts"],
       "parserOptions": {
         "project": "tsconfig.json"
       }
     },
     {
-      "extends": [
-        "plugin:@starbeam/json:recommended"
-      ],
-      "files": [
-        "*.json"
-      ]
+      "extends": ["plugin:@starbeam/json:recommended"],
+      "files": ["*.json"]
     }
   ]
 }
