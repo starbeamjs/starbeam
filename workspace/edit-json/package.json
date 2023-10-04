@@ -25,6 +25,7 @@
   },
   "scripts": {
     "test:lint": "eslint . --max-warnings 0",
+    "test:specs": "vitest --run",
     "test:types": "tsc -b"
   },
   "dependencies": {
