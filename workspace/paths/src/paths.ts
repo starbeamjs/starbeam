@@ -1,13 +1,7 @@
 import type { Dirent } from "node:fs";
 import { existsSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { readFile, unlink, writeFile } from "node:fs/promises";
-import {
-  basename,
-  dirname,
-  isAbsolute,
-  relative,
-  resolve as nodeResolve,
-} from "node:path";
+import { basename, dirname, isAbsolute, relative } from "node:path";
 import { pathToFileURL } from "node:url";
 
 import {
@@ -20,7 +14,9 @@ import {
   TO_STRING,
 } from "@starbeam/core-utils";
 import type { JsonObject } from "@starbeam-workspace/json";
-import glob, { type Entry, type Options } from "fast-glob";
+import glob, { type Entry } from "fast-glob";
+
+import { type GlobMatch, includeOptions, resolve } from "./utils.js";
 
 export class Paths {
   static workspaceRoot(root: string): Paths {
@@ -410,27 +406,7 @@ export type GlobFormat<T extends Path> =
   | "relative:quoted"
   | ((input: Glob<T>) => string);
 
-export type GlobMatch = "files" | "directories";
 export type GlobAllow = "symlink";
-
-function includeOptions(include?: GlobMatch[]): Options {
-  if (include === undefined) {
-    return { onlyDirectories: false, onlyFiles: false };
-  }
-
-  const options: Options = {};
-
-  if (include.includes("files") && include.includes("directories")) {
-    options.onlyDirectories = false;
-    options.onlyFiles = false;
-  } else if (include.includes("files")) {
-    options.onlyFiles = true;
-  } else if (include.includes("directories")) {
-    options.onlyDirectories = true;
-  }
-
-  return options;
-}
 
 export class Glob<T extends Path = Path> extends Path {
   static create(
@@ -740,24 +716,6 @@ class Packages extends Directory {
   override create(root: string, path: string): this {
     return new Packages(root, path) as this;
   }
-}
-
-/**
- * Convert a path separated with `/` (the API for this package) to a list of path segments.
- *
- * This means that `\` will be treated as a normal character (even on Windows), which means that
- * this API doesn't support verbatim paths (paths starting with `\\?\`).
- */
-export function parts(path: string): string[] {
-  return path.split("/");
-}
-
-export function join(...parts: string[]): string {
-  return parts.join("/");
-}
-
-export function resolve(root: string, path: string): string {
-  return nodeResolve(root, ...parts(path));
 }
 
 type DirEntry = Pick<

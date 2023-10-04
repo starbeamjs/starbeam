@@ -12,6 +12,9 @@ export {
   getRange,
   getValueAt as getValue,
 } from "./src/representation/nodes/abstract.js";
+export type { JsonArrayNode } from "./src/representation/nodes/array.js";
+export type { JsonObjectNode } from "./src/representation/nodes/object.js";
+export type { JsonPrimitiveNode } from "./src/representation/nodes/primitive.js";
 export {
   type ModifiableSourceRoot,
   SourceCursor,

@@ -1,33 +1,18 @@
 {
   "root": true,
-  "ignorePatterns": [
-    "node_modules",
-    "dist",
-    "html",
-    "tests"
-  ],
-  "plugins": [
-    "@starbeam"
-  ],
+  "ignorePatterns": ["node_modules", "dist", "html", "tests"],
+  "plugins": ["@starbeam"],
   "overrides": [
     {
-      "extends": [
-        "plugin:@starbeam/loose"
-      ],
-      "files": [
-        "**/*.{tsx,ts}"
-      ],
+      "extends": ["plugin:@starbeam/loose"],
+      "files": ["**/*.{tsx,ts}"],
       "parserOptions": {
         "project": "tsconfig.json"
       }
     },
     {
-      "extends": [
-        "plugin:@starbeam/json:recommended"
-      ],
-      "files": [
-        "*.json"
-      ]
+      "extends": ["plugin:@starbeam/json:recommended"],
+      "files": ["*.json"]
     }
   ]
 }

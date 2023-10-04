@@ -1,10 +1,6 @@
 import type * as jsonc from "jsonc-parser";
 
-import type { JsoncValueNode, JsonValueNode } from "../node.js";
-import type { RawJsonEntry } from "../raw.js";
-import type { SourceRoot } from "../source.js";
-import { intoValueNode } from "./convert.js";
-import { JsonEntryNode } from "./object.js";
+import type { JsoncValueNode } from "../node.js";
 
 export function assertValueNode(
   node: jsonc.Node,
@@ -27,16 +23,4 @@ export function isArrayNode(node: jsonc.Node): node is JsoncValueNode {
 
 export function isObjectNode(node: jsonc.Node): node is JsoncValueNode {
   return node.type === "object";
-}
-
-export function intoJsonNode(
-  source: SourceRoot,
-  node: jsonc.Node,
-  path: jsonc.JSONPath,
-): JsonValueNode | JsonEntryNode {
-  if (node.type === "property") {
-    return new JsonEntryNode(source, node as RawJsonEntry, path);
-  } else {
-    return intoValueNode(source, node as JsoncValueNode, path);
-  }
 }

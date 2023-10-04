@@ -45,11 +45,3 @@ export function intoValueNode(
       return new JsonObjectNode(source, node as RawJsonObject, path);
   }
 }
-
-export function isValueNode(node: jsonc.Node): node is JsoncValueNode {
-  return node.type !== "property";
-}
-
-export function isArrayNode(node: jsonc.Node): node is JsoncValueNode {
-  return node.type === "array";
-}

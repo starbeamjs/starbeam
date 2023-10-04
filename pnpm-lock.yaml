@@ -2390,18 +2390,9 @@ importers:
       '@starbeam-workspace/json':
         specifier: workspace:^
         version: link:../json
-      '@starbeam-workspace/paths':
-        specifier: workspace:^
-        version: link:../paths
       '@starbeam-workspace/shared':
         specifier: workspace:^
         version: link:../shared
-      '@starbeam/core-utils':
-        specifier: workspace:^
-        version: link:../../packages/universal/core-utils
-      '@starbeam/verify':
-        specifier: workspace:^
-        version: link:../../packages/universal/verify
       chalk:
         specifier: ^5.3.0
         version: 5.3.0
@@ -2586,9 +2577,12 @@ importers:
       '@starbeam-workspace/json':
         specifier: workspace:*
         version: link:../json
-      shell-escape-tag:
-        specifier: ^2.0.2
-        version: 2.0.2
+      '@starbeam/core-utils':
+        specifier: workspace:^
+        version: link:../../packages/universal/core-utils
+      fast-glob:
+        specifier: ^3.3.1
+        version: 3.3.1
     devDependencies:
       '@starbeam-dev/build-support':
         specifier: workspace:^
@@ -2596,9 +2590,19 @@ importers:
       '@starbeam/eslint-plugin':
         specifier: workspace:^
         version: link:../eslint
-      '@types/shell-escape-tag':
+
+  workspace/paths/tests:
+    dependencies:
+      '@starbeam-workspace/paths':
         specifier: workspace:^
-        version: link:../../@types/shell-escape-tag
+        version: link:..
+    devDependencies:
+      '@starbeam-workspace/test-utils':
+        specifier: workspace:^
+        version: link:../../test-utils
+      '@starbeam/eslint-plugin':
+        specifier: workspace:^
+        version: link:../../eslint
 
   workspace/reporter:
     dependencies:
