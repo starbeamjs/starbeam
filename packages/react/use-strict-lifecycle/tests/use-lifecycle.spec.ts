@@ -36,7 +36,7 @@ testReact<void, { test: TestResource; lastState: string; lastCount: number }>(
             });
 
             return resource;
-          }
+          },
         );
 
         setup.value({
@@ -56,9 +56,9 @@ testReact<void, { test: TestResource; lastState: string; lastCount: number }>(
                   setCount(count + 1);
                 },
               },
-              "++"
-            )
-          )
+              "++",
+            ),
+          ),
         );
       });
 
@@ -70,7 +70,7 @@ testReact<void, { test: TestResource; lastState: string; lastCount: number }>(
         strict: () => "updated",
         loose: () => "idle",
       }),
-      0
+      0,
     );
 
     await result.rerender();
@@ -84,7 +84,7 @@ testReact<void, { test: TestResource; lastState: string; lastCount: number }>(
 
     await result.unmount();
     resource.assert("unmounted", 1);
-  }
+  },
 );
 
 testReact<void, { count: number }>("most basic useLifecycle", async (root) => {
@@ -134,8 +134,8 @@ testReact<void, { count: number }>("useLifecycle with update", async (root) => {
               setCount((i) => i + 1);
             },
           },
-          "++"
-        )
+          "++",
+        ),
       );
     });
 
@@ -178,8 +178,8 @@ testReact<void, { count: number }>(
                 setCount((i) => i + 1);
               },
             },
-            "++"
-          )
+            "++",
+          ),
         );
       });
 
@@ -190,7 +190,7 @@ testReact<void, { count: number }>(
     await result.unmount();
 
     expect(result.value).toEqual({ count: 1, cleanup: 1 });
-  }
+  },
 );
 
 testReact<void, { count: number }>(
@@ -223,7 +223,7 @@ testReact<void, { count: number }>(
             setup.value(object);
 
             return object;
-          }
+          },
         );
 
         return react.fragment(
@@ -234,8 +234,8 @@ testReact<void, { count: number }>(
                 setCount((i) => i + 1);
               },
             },
-            "++"
-          )
+            "++",
+          ),
         );
       });
 
@@ -253,7 +253,7 @@ testReact<void, { count: number }>(
     await result.unmount();
 
     expect(result.value).toEqual({ count: 1, cleanup: initialCleanup + 1 });
-  }
+  },
 );
 
 testReact<void, { count: number }>(
@@ -263,7 +263,7 @@ testReact<void, { count: number }>(
       .expectStable()
       .expectHTML(
         ({ count }) =>
-          `<div>${count}</div><button>++</button><button>cleanup</button>`
+          `<div>${count}</div><button>++</button><button>cleanup</button>`,
       )
       .render((setup) => {
         const [count, setCount] = useState(0);
@@ -303,7 +303,7 @@ testReact<void, { count: number }>(
                 setCount((i) => i + 1);
               },
             },
-            "++"
+            "++",
           ),
           html.button(
             {
@@ -311,8 +311,8 @@ testReact<void, { count: number }>(
                 setCleanup({});
               },
             },
-            "cleanup"
-          )
+            "cleanup",
+          ),
         );
       });
 
@@ -339,227 +339,8 @@ testReact<void, { count: number }>(
     await result.unmount();
 
     expect(result.value).toEqual({ count: 2, cleanup: initialCleanup + 2 });
-  }
+  },
 );
-
-// testReact("useResource (no argument)", async (mode) => {
-//   TestResource.resetId();
-
-//   const result = mode
-//     .test(() => {
-//       const [, setNotify] = useState({});
-
-//       const test = useLifecycle((resource) => {
-//         const test = TestResource.initial(0);
-
-//         resource.on.update(() => test.transition("updated"));
-//         resource.on.layout(() => test.transition("layout"));
-//         resource.on.idle(() => test.transition("idle"));
-//         resource.on.cleanup(() => test.transition("unmounted"));
-
-//         return test;
-//       });
-
-//       return {
-//         value: test,
-//         dom: react.fragment(
-//           html.p(test.state),
-//           html.p(test.id),
-//           html.label(
-//             html.span("Notify"),
-//             html.button({ onClick: () => setNotify({}) }, "setNotify({})")
-//           )
-//         ),
-//       };
-//     })
-//     .expectStableValue()
-//     .expectHTML(
-//       (value) =>
-//         `<p>${value.state}</p><p>${String(
-//           value.id
-//         )}</p><label><span>Notify</span><button>setNotify({})</button></label>`
-//     );
-
-//   const resource = result.value;
-
-//   // strict mode runs initial render twice and *then* unmounts and remounts the component, which
-//   // results in the resource getting create three times.
-//   const expectedId = mode.match({
-//     strict: () => 3,
-//     loose: () => 1,
-//   });
-
-//   expect(resource.id).toBe(expectedId);
-
-//   resource.assert(
-//     mode.match({
-//       // strict mode runs initial render twice
-//       strict: () => "updated",
-//       loose: () => "idle",
-//     }),
-//     0
-//   );
-
-//   result.rerender();
-//   resource.assert("updated", 0, expectedId);
-
-//   await result.find("button").fire.click();
-//   resource.assert("updated", 0, expectedId);
-
-//   result.rerender();
-//   resource.assert("updated", 0, expectedId);
-
-//   result.unmount();
-//   resource.assert("unmounted", 0, expectedId);
-// });
-
-// testReact("useResource (nested)", async (mode) => {
-//   TestResource.resetId();
-
-//   const result = mode
-//     .test(() => {
-//       const [count, setCount] = useState(0);
-
-//       const test = useLifecycle(count, (resource, count) => {
-//         const test = TestResource.initial(count);
-
-//         resource.on.update((count) => test.transition("updated", count));
-//         resource.on.layout(() => test.transition("layout"));
-//         resource.on.idle(() => test.transition("idle"));
-//         resource.on.cleanup(() => test.transition("unmounted"));
-
-//         return test;
-//       });
-
-//       return {
-//         value: test,
-//         dom: react.fragment(
-//           react.render(ChildComponent, { count: test }),
-//           html.p(count),
-//           html.label(
-//             html.span("Increment"),
-//             html.button({ onClick: () => setCount(count + 1) }, "++")
-//           )
-//         ),
-//       };
-//     })
-//     .expectStableValue()
-//     .expectHTML(
-//       ({ state, count }) =>
-//         `<p>${state}</p><p>${count}</p><label><span>Increment</span><button>++</button></label>`
-//     );
-
-//   function ChildComponent({ count }: { count: TestResource }) {
-//     return html.p(count.state);
-//   }
-
-//   const resource = result.value;
-
-//   resource.assert(
-//     mode.match({
-//       strict: () => "updated",
-//       loose: () => "idle",
-//     }),
-//     0
-//   );
-
-//   result.rerender();
-//   resource.assert("updated", 0);
-
-//   await result.find("button").fire.click();
-//   resource.assert("updated", 1);
-
-//   result.rerender();
-//   resource.assert("updated", 1);
-
-//   result.unmount();
-//   resource.assert("unmounted", 1);
-// });
-
-// testReact(
-//   "useResource (nested, stability across remounting)",
-//   async (mode) => {
-//     TestResource.resetId();
-
-//     const result = mode
-//       .test(() => {
-//         const [count, setCount] = useState(0);
-
-//         const test = useLifecycle(count, (resource, count) => {
-//           const test = TestResource.initial(count);
-
-//           resource.on.update((count) => test.transition("updated", count));
-//           resource.on.layout(() => test.transition("layout"));
-//           resource.on.idle(() => test.transition("idle"));
-//           resource.on.cleanup(() => test.transition("unmounted"));
-
-//           return test;
-//         });
-
-//         return {
-//           value: test,
-//           dom: react.fragment(
-//             html.p(test.state),
-//             html.p("parent:", count),
-//             react.render(ChildComponent, {
-//               count: test,
-//               increment: () => setCount(count + 1),
-//             })
-//           ),
-//         };
-//       })
-//       .expectStableValue()
-//       .expectStable((value) => value)
-//       .expectHTML(
-//         ({ state, count, id }) =>
-//           `<p>${state}</p><p>parent:${count}</p><p>child:${count} id:${String(
-//             id
-//           )}</p><label><span>Increment</span><button>++</button></label>`
-//       );
-
-//     function ChildComponent({
-//       count,
-//       increment,
-//     }: {
-//       count: TestResource;
-//       increment: () => void;
-//     }) {
-//       return react.fragment(
-//         // verify that the child sees the same TestResource as the parent
-//         html.p("child:", count.count, " ", "id:", count.id),
-
-//         html.label(
-//           html.span("Increment"),
-//           html.button({ onClick: () => increment() }, "++")
-//         )
-//       );
-//     }
-
-//     // const resource = result.value;
-
-//     // const stableId = mode.match({ strict: () => 3, loose: () => 1 });
-
-//     // resource.assert(
-//     //   mode.match({
-//     //     strict: () => "updated",
-//     //     loose: () => "idle",
-//     //   }),
-//     //   0
-//     // );
-
-//     // result.rerender();
-//     // resource.assert("updated", 0, stableId);
-
-//     // await result.find("button").fire.click();
-//     // resource.assert("updated", 1, stableId);
-
-//     // result.rerender();
-//     // resource.assert("updated", 1, stableId);
-
-//     // result.unmount();
-//     // resource.assert("unmounted", 1, stableId);
-//   }
-// );
 
 let nextId = 0;
 

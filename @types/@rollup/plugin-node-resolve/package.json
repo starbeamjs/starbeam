@@ -9,11 +9,7 @@
     }
   },
   "publishConfig": {
-    "exports": {
-      ".": {
-        "types": "./dist/index.d.ts"
-      }
-    },
+    "exports": "./dist/index.d.ts",
     "types": "dist/index.d.ts"
   },
   "starbeam": {

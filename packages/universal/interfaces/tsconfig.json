@@ -15,6 +15,6 @@
       "../../env.d.ts"
     ]
   },
-  "exclude": ["dist/**/*"],
-  "include": ["index.ts", "./src/**/*.ts", "./src/**/*.d.ts"]
+  "include": ["index.ts", "./src/**/*.ts", "./src/**/*.d.ts"],
+  "exclude": ["dist/**/*"]
 }

@@ -4,8 +4,6 @@ import { describe, expect, test } from "vitest";
 
 import { Invalidation } from "./support.js";
 
-// import { Invalidation } from "./support.js";
-
 describe("TrackedArray", () => {
   test("adding and deleting items updates the size", () => {
     const array = reactive.array<string>([]);

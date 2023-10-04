@@ -1,4 +1,6 @@
-// format as YYYY-MM-DD
+/**
+ * format a date as YYYY-MM-DD
+ */
 const DateTimeFormat = new Intl.DateTimeFormat("fr-CA", {
   year: "numeric",
   month: "2-digit",

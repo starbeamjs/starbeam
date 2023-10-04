@@ -65,7 +65,6 @@ function expectResource(
 
       result.unmount();
       events.expect("cleanup", "finalize");
-      // expect(resources.last.isActive).toBe(false);
     },
     "test function was defined here",
     { entryFn: expectResource },

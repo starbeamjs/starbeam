@@ -9,8 +9,6 @@ export default function (props: { locale: string }): JSX.Element {
   const locale = useProp(props.locale, "props.locale");
 
   const { people, append, filter, total, rows, table } = setup(() => {
-    // component.attach(DevTools);
-
     const table = Table.create<Person>({
       columns: ["name", "location"],
       name: "people",

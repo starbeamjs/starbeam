@@ -1,10 +1,7 @@
 // eslint-disable-next-line unused-imports/no-unused-vars
 const { Linter } = require("eslint");
 
-exports.extends = [
-  "plugin:@typescript-eslint/strict",
-  "plugin:etc/recommended",
-];
+exports.extends = ["plugin:@typescript-eslint/strict"];
 
 /** @type {Linter.RulesRecord} */
 const MAGIC_NUMBERS = {

@@ -1,8 +1,6 @@
 {
   "extends": "../../.config/tsconfig/tsconfig.shared.json",
   "compilerOptions": {
-    "target": "ESNext",
-
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "checkJs": true,
@@ -30,15 +28,9 @@
     "skipLibCheck": true,
 
     "strict": true,
+    "target": "ESNext",
 
-    "types": [
-      "../../packages/env.d.ts",
-      "../../packages/env.d.ts",
-      "../../packages/env.d.ts",
-      "../../packages/env.d.ts",
-      "../../packages/env.d.ts",
-      "../../packages/env.d.ts"
-    ],
+    "types": ["../../packages/env.d.ts"],
 
     "useDefineForClassFields": true
   },

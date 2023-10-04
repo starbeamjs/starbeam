@@ -10,7 +10,7 @@ describe("TrackedObject", () => {
 
     const size = CachedFormula(() => Object.keys(object).length);
     const described = CachedFormula(
-      () => `The object has ${size.current} items`
+      () => `The object has ${size.current} items`,
     );
     const isEmpty = CachedFormula(() => size.current === 0);
 
@@ -43,7 +43,7 @@ describe("TrackedObject", () => {
     const object = reactive.object<Record<string, string>>({});
 
     const delicious = Invalidation.trace(
-      () => "brie" in object || "chevre" in object
+      () => "brie" in object || "chevre" in object,
     );
 
     expect(delicious.state).toEqual([false, "initialized"]);
@@ -136,7 +136,7 @@ describe("TrackedObject", () => {
     const object = reactive.object<Record<string, string>>({});
 
     const delicious = Invalidation.trace(
-      () => "brie" in object || "chevre" in object
+      () => "brie" in object || "chevre" in object,
     );
 
     expect(delicious.state).toEqual([false, "initialized"]);
@@ -148,25 +148,5 @@ describe("TrackedObject", () => {
     object["chevre"] = "chevre";
     expect(object).toEqual({ "hot dogs": "hot dogs", chevre: "chevre" });
     expect(delicious.state).toEqual([true, "invalidated"]);
-
-    //   object["chevre"] = "chevre";
-    //   expect(object).toEqual({
-    //     "hot dogs": "hot dogs",
-    //     brie: "brie",
-    //     chevre: "chevre",
-    //   });
-    //   expect(delicious.state).toEqual([true, "stable"]);
-
-    //   delete object["brie"];
-    //   expect(object).toEqual({ "hot dogs": "hot dogs", chevre: "chevre" });
-    //   expect(delicious.state).toEqual([true, "invalidated"]);
-
-    //   delete object["chevre"];
-    //   expect(object).toEqual({ "hot dogs": "hot dogs" });
-    //   expect(delicious.state).toEqual([false, "invalidated"]);
-
-    //   delete object["hot dogs"];
-    //   expect(object).toEqual({});
-    //   expect(delicious.state).toEqual([false, "stable"]);
   });
 });

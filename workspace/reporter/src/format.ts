@@ -140,34 +140,6 @@ export function wrapIndented(
   const wrapped = wrapLines(string, options);
 
   return wrapped.lines.join("\n");
-
-  // const lines = string.split("\n");
-  // const width = terminalWidth();
-
-  // const formatted = lines.flatMap((line) => {
-  //   if (line.trim() === "") {
-  //     return [line];
-  //   }
-
-  //   // determine the number of spaces at the beginning of the line
-  //   let spaces: number;
-
-  //   if (columns) {
-  //     spaces = columns;
-  //   } else {
-  //     const match = matchPattern<[string]>(/^(\s*)/, line);
-  //     const [leading] = match;
-
-  //     spaces = leading.length + SPACES_PER_TAB;
-  //   }
-
-  //   const wrapped = wrap(line, width - spaces, { trim: false });
-  //   const [first, ...rest] = wrapped.split("\n");
-
-  //   return [first, ...rest.map((l) => " ".repeat(spaces) + l.trim())];
-  // });
-
-  // return formatted.join("\n");
 }
 
 type FormatStyle =

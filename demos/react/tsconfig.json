@@ -1,8 +1,8 @@
 {
   "extends": "../../.config/tsconfig/tsconfig.demo.json",
   "compilerOptions": {
-    "jsxImportSource": "react",
     "jsx": "react-jsx",
+    "jsxImportSource": "react",
     "types": [
       "../../packages/env.d.ts",
       "react",
@@ -14,6 +14,6 @@
       "../../packages/env.d.ts"
     ]
   },
-  "exclude": ["dist/**/*"],
-  "include": ["index.ts", "src/**/*", "vite.config.ts"]
+  "include": ["index.ts", "src/**/*", "vite.config.ts"],
+  "exclude": ["dist/**/*"]
 }

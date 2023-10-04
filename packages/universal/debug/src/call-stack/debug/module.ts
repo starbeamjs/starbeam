@@ -7,23 +7,6 @@ const _RELATIVE_MODULE = /^\.{1,2}\//;
 
 export function parseModule(filename: string, codebase?: string): ParsedModule {
   return normalizeModule(filename, codebase);
-
-  // FIXME:: Do we want/need to support package inference? If so, how should it work?
-
-  // if (RELATIVE_MODULE.exec(filename))
-
-  // const groups = SOURCE_PARTS.exec(filename)?.groups;
-
-  // if (groups === undefined) return normalizeModule(filename, codebase);
-
-  // return {
-  //   root: {
-  //     type: "package",
-  //     scope: groups["scope"],
-  //     name: verified(groups["name"], isPresent),
-  //   },
-  //   path: verified(groups["path"], isPresent),
-  // };
 }
 
 export interface ParsedModule {
@@ -33,7 +16,7 @@ export interface ParsedModule {
 
 export function normalizeModule(
   filename: string,
-  codebase?: string | undefined
+  codebase?: string | undefined,
 ): ParsedModule {
   const path = normalizePath(filename);
 
@@ -73,7 +56,7 @@ function normalizePath(...pathParts: (string | null | undefined)[]): string {
  */
 export function pivotPath(
   source: string,
-  target: string
+  target: string,
 ): { prefix: string; suffix: string } {
   const sourceParts = source.split("/");
   const targetParts = target.split("/");
@@ -102,13 +85,13 @@ if (import.meta.vitest) {
 
   test("should find the pivot path", () => {
     expect(
-      normalizeModule("/src/app/index.ts", "/src/app/some/nested/file.ts")
+      normalizeModule("/src/app/index.ts", "/src/app/some/nested/file.ts"),
     ).toStrictEqual({
       root: "/src/app/",
       path: "index.ts",
     });
     expect(
-      parseModule("/src/app/index.ts", "/src/app/some/nested/file.ts")
+      parseModule("/src/app/index.ts", "/src/app/some/nested/file.ts"),
     ).toStrictEqual({
       root: "/src/app/",
       path: "index.ts",

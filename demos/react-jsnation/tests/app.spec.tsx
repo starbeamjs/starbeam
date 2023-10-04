@@ -38,18 +38,4 @@ describe("react-jsnation", () => {
     ).toThrow();
     expect(result.findByText("My Locale").innerHTML).toBeDefined();
   });
-
-  //   afterEach(cleanup);
-
-  //   test("App loads DataTable", () => {
-  //     const result = render(<App />, { legacyRoot: true });
-
-  //     expect(result.getByText("Create a new user")).toBeDefined();
-  //   });
-
-  //   test("App loads LocaleSelector", () => {
-  //     render(<App />);
-
-  //     expect(screen.getByText("My Locale")).toBeDefined();
-  //   });
 });

@@ -57,8 +57,6 @@ export function setup<T>(blueprint: SetupBlueprint<T>): T {
  * whenever the blueprint's dependencies change.
  */
 export function setupReactive<T>(blueprint: UseReactive<T>): Reactive<T> {
-  // return managerSetupReactive(MANAGER, blueprint);
-
   const [blueprintRef] = useLastRenderRef(blueprint);
   return createReactive(blueprintRef, undefined);
 }
