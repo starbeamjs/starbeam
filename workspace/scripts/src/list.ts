@@ -24,7 +24,7 @@ export const ListCommand = QueryCommand("list", "list the packages").action(
         flags.push(chalk.bgGreen.black("typescript"));
       }
 
-      const pkgRoot = pkg.root.relativeFrom(workspace.root);
+      const pkgRoot = pkg.root.navigateFrom(workspace.root);
 
       workspace.reporter.ul({
         header: Fragment.comment.header(pkg.name).concat(" " + flags.join(" ")),

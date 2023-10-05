@@ -1,6 +1,6 @@
 import type { ExecSyncOptionsWithStringEncoding } from "node:child_process";
 
-import type { Directory, Paths } from "@starbeam-workspace/paths";
+import type { Directory, WorkspaceRoot } from "@starbeam-workspace/paths";
 
 import type { CommandOutputType } from "./command-stream.js";
 import type { Reporter } from "./reporter.js";
@@ -10,7 +10,7 @@ export interface Workspace {
   root: Directory;
   exec: WorkspaceExec;
   cmd: WorkspaceCmd;
-  paths: Paths;
+  paths: WorkspaceRoot;
 }
 
 type WorkspaceCmd = (

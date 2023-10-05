@@ -5,7 +5,7 @@ import type {
   GlobOptions,
   Path,
 } from "@starbeam-workspace/paths";
-import { Paths } from "@starbeam-workspace/paths";
+import { WorkspaceRoot } from "@starbeam-workspace/paths";
 import type {
   CheckResults,
   IntoFragment,
@@ -34,22 +34,22 @@ const FATAL_EXIT_CODE = 1;
 
 export class Workspace implements IWorkspace {
   static root(root: string, options: ReporterOptions): Workspace {
-    return new Workspace(Paths.workspaceRoot(root), options);
+    return new Workspace(WorkspaceRoot.at(root), options);
   }
 
-  readonly #paths: Paths;
+  readonly #paths: WorkspaceRoot;
   readonly #reporter: Reporter;
 
-  constructor(paths: Paths, options: ReporterOptions) {
+  constructor(paths: WorkspaceRoot, options: ReporterOptions) {
     this.#paths = paths;
     this.#reporter = Reporter.root(this, options);
   }
 
   get root(): Directory {
-    return this.#paths.root;
+    return this.#paths.workspaceRoot;
   }
 
-  get paths(): Paths {
+  get paths(): WorkspaceRoot {
     return this.#paths;
   }
 
@@ -192,7 +192,7 @@ export class Workspace implements IWorkspace {
   }
 
   async check(...checks: CheckDefinition[]): Promise<CheckResults> {
-    const runner = new Checks(this, this.#paths.root);
+    const runner = new Checks(this, this.#paths.workspaceRoot);
 
     for (const check of checks) {
       await runner.exec(...check);
@@ -255,14 +255,14 @@ export class Workspace implements IWorkspace {
   }
 
   dir(path: string): Directory {
-    return this.#paths.root.dir(path);
+    return this.#paths.dir(path);
   }
 
   relative(path: string | Path): string {
     if (typeof path === "string") {
-      return this.dir(path).relativeFrom(this.root);
+      return this.root.navigateTo(this.dir(path));
     } else {
-      return path.relativeFrom(this.root);
+      return this.root.navigateTo(path);
     }
   }
 }

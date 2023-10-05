@@ -166,7 +166,7 @@ export function queryPackages(
   const packages = JSON.parse(packageList) as PnpmPackage[];
 
   return packages
-    .map((p) => workspace.paths.rootDir(p.path).file("package.json"))
+    .map((p) => workspace.paths.dir(p.path).file("package.json"))
     .map((manifest) => Package.from(workspace, manifest))
     .filter((pkg) => query.match(pkg, workspace.reporter));
 }
