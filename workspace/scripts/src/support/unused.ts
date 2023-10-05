@@ -180,7 +180,7 @@ class UnusedReporter {
                 listDep(dep),
               )} ${Fragment.comment.header("is used by:")}`,
               items: present.map((file) =>
-                this.#workspace.root.relativeTo(file),
+                this.#workspace.root.navigateTo(file),
               ),
               style: "problem",
             });
@@ -199,7 +199,7 @@ class UnusedReporter {
       this.#reporter.group(name).try((r) => {
         for (const [file, error] of entries) {
           r.ul({
-            header: Fragment.problem(this.#workspace.root.relativeTo(file)),
+            header: Fragment.problem(this.#workspace.root.navigateTo(file)),
             items: [String(error)],
             item: "comment",
           });

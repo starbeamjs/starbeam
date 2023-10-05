@@ -8,10 +8,10 @@
   // and other config-specific things.
   "[json][jsonc]": {
     "editor.formatOnSave": false,
-    "editor.codeActionsOnSave": [
-      "source.fixAll.eslint",
-      "source.formatDocument"
-    ]
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "always",
+      "source.formatDocument": "always"
+    }
   },
 
   // format JavaScript and TypeScript using `eslint` first and then follow up
@@ -19,10 +19,10 @@
   // trying to format the code.
   "[typescript][typescriptreact][javascript][javascriptreact]": {
     "editor.formatOnSave": false,
-    "editor.codeActionsOnSave": [
-      "source.fixAll.eslint",
-      "source.formatDocument"
-    ]
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "always",
+      "source.formatDocument": "always"
+    }
   },
 
   "codeium.aggressiveShutdown": true,
@@ -49,7 +49,6 @@
     "html"
   ],
   "eslint.workingDirectories": [{ "mode": "auto" }],
-
 
   // exclude .gitignore files from the file explorer
   "explorer.excludeGitIgnore": true,

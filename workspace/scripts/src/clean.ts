@@ -66,7 +66,6 @@ export const CleanCommand = QueryCommand("clean", "clean up build artifacts", {
 
 async function cleanFiles({
   pkg,
-  workspace,
   reporter,
   options,
 }: {
@@ -119,9 +118,7 @@ async function cleanFiles({
     .group([Fragment("comment", "✓ "), Fragment("header", pkg.name)])
     .try((r) => {
       r.verbose((r) => {
-        r.log(
-          Fragment("comment", ` in ${pkg.root.relativeFrom(workspace.root)}`),
-        );
+        r.log(Fragment("comment", ` in ${pkg.root.relativeFromWorkspace}`));
       });
 
       const REMOVING = options.dryRun ? `Would remove` : `Removing`;

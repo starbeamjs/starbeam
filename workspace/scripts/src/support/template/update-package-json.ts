@@ -220,13 +220,13 @@ class ManifestBuilder {
     if (main === undefined) {
       this.#errors.push(
         fragment`Missing main entry in package.json (expected string): ${
-          this.#pkg.root.relative
+          this.#pkg.root.relativeFromWorkspace
         }`,
       );
     } else {
       this.#errors.push(
         fragment`Invalid main entry in package.json (expected string): ${
-          this.#pkg.root.relative
+          this.#pkg.root.relativeFromWorkspace
         }`,
       );
     }

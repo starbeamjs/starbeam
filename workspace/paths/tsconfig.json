@@ -6,14 +6,7 @@
     "declarationDir": "../../dist/types",
     "declarationMap": true,
     "outDir": "../../dist/packages",
-    "types": [
-      "../../packages/env.d.ts",
-      "../../packages/env.d.ts",
-      "../../packages/env.d.ts",
-      "../../packages/env.d.ts",
-      "../../packages/env.d.ts",
-      "../../packages/env.d.ts"
-    ]
+    "types": ["../../packages/env.d.ts"]
   },
   "exclude": ["dist/**/*"]
 }
