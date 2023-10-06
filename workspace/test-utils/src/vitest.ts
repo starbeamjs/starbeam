@@ -1,4 +1,5 @@
 import {
+  afterAll,
   afterEach,
   beforeAll,
   beforeEach,
@@ -11,6 +12,7 @@ import {
 } from "vitest";
 
 export {
+  afterAll,
   afterEach,
   beforeAll,
   beforeEach,
@@ -30,7 +32,7 @@ declare global {
       // eslint-disable-next-line @typescript-eslint/method-signature-style
       toSatisfy<E extends T>(
         matcher: (value: E) => boolean,
-        message?: string
+        message?: string,
       ): void;
     }
   }

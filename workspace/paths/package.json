@@ -29,10 +29,12 @@
   "dependencies": {
     "@starbeam/core-utils": "workspace:^",
     "@starbeam-workspace/json": "workspace:*",
-    "fast-glob": "^3.3.1"
+    "fast-glob": "^3.3.1",
+    "fsify": "^5.0.0"
   },
   "devDependencies": {
     "@starbeam/eslint-plugin": "workspace:^",
-    "@starbeam-dev/build-support": "workspace:^"
+    "@starbeam-dev/build-support": "workspace:^",
+    "@types/fsify": "workspace:^"
   }
 }

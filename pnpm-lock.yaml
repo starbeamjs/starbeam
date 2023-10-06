@@ -220,6 +220,15 @@ importers:
         specifier: ^20.8.2
         version: 20.8.2
 
+  '@types/fsify':
+    devDependencies:
+      '@starbeam/eslint-plugin':
+        specifier: workspace:^
+        version: link:../../workspace/eslint
+      '@types/node':
+        specifier: ^20.8.2
+        version: 20.8.2
+
   '@types/lines-and-columns':
     devDependencies:
       '@starbeam/eslint-plugin':
@@ -2390,6 +2399,9 @@ importers:
       '@starbeam-workspace/json':
         specifier: workspace:^
         version: link:../json
+      '@starbeam-workspace/paths':
+        specifier: workspace:^
+        version: link:../paths
       '@starbeam-workspace/shared':
         specifier: workspace:^
         version: link:../shared
@@ -2583,6 +2595,9 @@ importers:
       fast-glob:
         specifier: ^3.3.1
         version: 3.3.1
+      fsify:
+        specifier: ^5.0.0
+        version: 5.0.0
     devDependencies:
       '@starbeam-dev/build-support':
         specifier: workspace:^
@@ -2590,6 +2605,9 @@ importers:
       '@starbeam/eslint-plugin':
         specifier: workspace:^
         version: link:../eslint
+      '@types/fsify':
+        specifier: workspace:^
+        version: link:../../@types/fsify
 
   workspace/paths/tests:
     dependencies:
@@ -9079,6 +9097,20 @@ packages:
       has-property-descriptors: 1.0.0
       object-keys: 1.1.1
 
+  /del@6.1.1:
+    resolution: {integrity: sha512-ua8BhapfP0JUJKC/zV9yHHDW/rDoDxP4Zhn3AkA6/xT6gY7jYXJiaeyBZznYVujhZZET+UgcbZiQ7sN3WqcImg==}
+    engines: {node: '>=10'}
+    dependencies:
+      globby: 11.1.0
+      graceful-fs: 4.2.11
+      is-glob: 4.0.3
+      is-path-cwd: 2.2.0
+      is-path-inside: 3.0.3
+      p-map: 4.0.0
+      rimraf: 3.0.2
+      slash: 3.0.0
+    dev: false
+
   /delayed-stream@1.0.0:
     resolution: {integrity: sha512-ZySD7Nf91aLB0RxL4KGrKHBXl7Eds1DAmEdcoVawXnLD7SDhpNgtuII2aAkg7a7QS41jxPSZ17p4VdGnMHk3MQ==}
     engines: {node: '>=0.4.0'}
@@ -10168,6 +10200,15 @@ packages:
     os: [darwin]
     optional: true
 
+  /fsify@5.0.0:
+    resolution: {integrity: sha512-WJK4m8G9KlwQifc9OEEOMb0d6JKJh9YpNDLfOWzcXm4Bat4+Lb1CZiJ5QPPLRqwVSwbX81tIy6+iHGmCWHVyww==}
+    dependencies:
+      del: 6.1.1
+      is-path-inside: 3.0.3
+      is-plain-obj: 3.0.0
+      slash: 3.0.0
+    dev: false
+
   /function-bind@1.1.1:
     resolution: {integrity: sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A==}
 
@@ -10804,6 +10845,11 @@ packages:
     resolution: {integrity: sha512-41Cifkg6e8TylSpdtTpeLVMqvSBEVzTttHvERD741+pnZ8ANv0004MRL43QKPDlK9cGvNp6NZWZUBlbGXYxxng==}
     engines: {node: '>=0.12.0'}
 
+  /is-path-cwd@2.2.0:
+    resolution: {integrity: sha512-w942bTcih8fdJPJmQHFzkS76NEP8Kzzvmw92cXsazb8intwLqPibPPdXf4ANdKV3rYMuuQYGIWtvz9JilB3NFQ==}
+    engines: {node: '>=6'}
+    dev: false
+
   /is-path-inside@3.0.3:
     resolution: {integrity: sha512-Fd4gABb+ycGAmKou8eMftCupSir5lRxqf4aD/vd0cD2qc4HL07OjCeuHMr8Ro4CoMaeCKDB0/ECBOVWjTwUvPQ==}
     engines: {node: '>=8'}
@@ -10817,6 +10863,11 @@ packages:
     resolution: {integrity: sha512-YWnfyRwxL/+SsrWYfOpUtz5b3YD+nyfkHvjbcanzk8zgyO4ASD67uVMRt8k5bM4lLMDnXfriRhOpemw+NfT1eA==}
     engines: {node: '>=8'}
     dev: true
+
+  /is-plain-obj@3.0.0:
+    resolution: {integrity: sha512-gwsOE28k+23GP1B6vFl1oVh/WOzmawBrKwo5Ev6wMKzPkaXaCDIQKzLnvsA42DRlbVTWorkgTKIviAKCWkfUwA==}
+    engines: {node: '>=10'}
+    dev: false
 
   /is-potential-custom-element-name@1.0.1:
     resolution: {integrity: sha512-bCYeRA2rVibKZd+s2625gGnGF/t7DSqDs4dP7CrLA1m7jKWz6pps0LpYLJN8Q64HtmPKJ1hrN3nzPNKFEKOUiQ==}

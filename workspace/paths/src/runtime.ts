@@ -12,7 +12,7 @@ import { Directory } from "./paths/directory.js";
 import { Glob } from "./paths/glob.js";
 import { RegularFile } from "./paths/regular.js";
 import { UnknownFile } from "./paths/unknown.js";
-import { WorkspacePath,type WorkspacePathData } from "./workspace.js";
+import { WorkspacePath, type WorkspacePathData } from "./workspace.js";
 
 const FILE_TYPES = {
   RegularFile,

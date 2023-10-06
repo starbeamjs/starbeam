@@ -187,7 +187,7 @@ export class Glob<T extends Path = Path> extends Path {
           return this.#ifIncluded(
             entry,
             (entry) =>
-              this.build(this.workspace.runtime.RegularFile, {
+              this.build("RegularFile", {
                 root: this.root.absolute,
                 absolute: entry.path,
               }) as unknown as T,
