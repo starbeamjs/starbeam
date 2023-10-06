@@ -15,6 +15,7 @@ export {
 export { TestResource } from "./src/test-resource.js";
 export { assert, UNINITIALIZED } from "./src/utils.js";
 export {
+  afterAll,
   afterEach,
   beforeAll,
   beforeEach,

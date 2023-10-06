@@ -1,8 +1,9 @@
 import { isAbsolute, relative } from "node:path";
 
-import type { RegularFile } from "../index.js";
 import type { Path, PathLike } from "./paths/abstract.js";
 import { Directory } from "./paths/directory.js";
+import type { Glob, GlobOptions, Globs } from "./paths/glob.js";
+import type { RegularFile } from "./paths/regular.js";
 import {
   type FILE_TYPES,
   type FileType,
@@ -130,6 +131,20 @@ export class WorkspacePath implements PathLike {
 
   file(path: string): RegularFile {
     return this.workspaceRoot.file(path);
+  }
+
+  globs(options: GlobOptions<["files"]>): Globs<RegularFile>;
+  globs(options: GlobOptions<["directories"]>): Globs<Directory>;
+  globs(options?: GlobOptions): Globs;
+  globs(options?: GlobOptions): Globs {
+    return this.root.globs(options);
+  }
+
+  glob(path: string, options: GlobOptions<["files"]>): Glob<RegularFile>;
+  glob(path: string, options: GlobOptions<["directories"]>): Glob<Directory>;
+  glob(path: string, options?: GlobOptions): Glob;
+  glob(path: string, options?: GlobOptions): Glob {
+    return this.root.glob(path, options);
   }
 
   get demos(): Directory {
