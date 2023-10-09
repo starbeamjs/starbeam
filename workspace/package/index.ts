@@ -13,6 +13,7 @@ export { formatScope, parse, ParseError, Query } from "./src/query/query.js";
 export type { TsConfig } from "./src/typescript.js";
 export { TypeScriptConfig } from "./src/typescript.js";
 export {
+  DependencyType,
   JsonTemplate,
   StarbeamSource as StarbeamSources,
   StarbeamType,

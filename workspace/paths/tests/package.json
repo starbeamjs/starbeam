@@ -16,6 +16,8 @@
   },
   "devDependencies": {
     "@starbeam/eslint-plugin": "workspace:^",
-    "@starbeam-workspace/test-utils": "workspace:^"
+    "@starbeam-workspace/test-utils": "workspace:^",
+    "@vitest/expect": "^1.0.0-beta.1",
+    "vitest": "^1.0.0-beta.1"
   }
 }

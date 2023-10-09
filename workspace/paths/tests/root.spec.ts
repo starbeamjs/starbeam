@@ -1,8 +1,8 @@
-import { WorkspaceRoot } from "@starbeam-workspace/paths";
+import { WorkspacePath } from "@starbeam-workspace/paths";
 import { describe, expect, test } from "@starbeam-workspace/test-utils";
 
 describe("Paths", () => {
-  const paths = WorkspaceRoot.at("/tmp/workspace");
+  const paths = WorkspacePath.at("/tmp/workspace");
 
   describe("rootDir", () => {
     test("isRoot", () => {

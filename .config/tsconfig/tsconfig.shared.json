@@ -32,6 +32,6 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": false,
 
-    "types": ["vite/client"]
+    "types": ["vite/client", "vitest/importMeta"]
   }
 }

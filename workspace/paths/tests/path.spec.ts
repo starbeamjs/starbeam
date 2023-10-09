@@ -2,7 +2,7 @@ import {
   type Directory,
   type Path,
   StrictNavigationError,
-  WorkspaceRoot,
+  WorkspacePath,
 } from "@starbeam-workspace/paths";
 import { describe, expect, test } from "@starbeam-workspace/test-utils";
 import { basename, dirname, join } from "path";
@@ -27,7 +27,7 @@ import { inspect } from "util";
 //   create: (root, name) => root.file(name),
 // });
 
-const WORKSPACE = WorkspaceRoot.at("/tmp/diskfile");
+const WORKSPACE = WorkspacePath.at("/tmp/diskfile");
 const pkgDir = WORKSPACE.dir("packages/core", { as: "root" });
 const srcDir = pkgDir.dir("src");
 
@@ -252,10 +252,10 @@ class SuiteContext<P extends Path> {
     relative: string | undefined;
   };
 
-  #workspace: WorkspaceRoot;
+  #workspace: WorkspacePath;
 
   constructor(
-    workspace: WorkspaceRoot,
+    workspace: WorkspacePath,
     { path, label, parts }: SuiteOptions<P>,
   ) {
     this.#workspace = workspace;
@@ -270,7 +270,7 @@ class SuiteContext<P extends Path> {
     },
 
     workspace: () => {
-      return WorkspaceRoot.system.dir(dirname(this.path.workspace.absolute));
+      return WorkspacePath.system.dir(dirname(this.path.workspace.absolute));
     },
   };
 

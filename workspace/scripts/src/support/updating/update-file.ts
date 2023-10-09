@@ -6,7 +6,7 @@ import { SourceRoot } from "@starbeam-workspace/edit-json";
 import type { JsonObject, JsonValue } from "@starbeam-workspace/json";
 import type { Package } from "@starbeam-workspace/package";
 import { JsonTemplate, Template } from "@starbeam-workspace/package";
-import type { Directory, Path, WorkspaceRoot } from "@starbeam-workspace/paths";
+import type { Directory, Path, WorkspacePath } from "@starbeam-workspace/paths";
 import type { ReportableError } from "@starbeam-workspace/reporter";
 import { Fragment, fragment } from "@starbeam-workspace/reporter";
 import {
@@ -33,7 +33,7 @@ export class UpdatePackage {
     label: string,
     updater: (
       update: LabelledUpdater,
-      options: { workspace: Workspace; paths: WorkspaceRoot; root: Directory },
+      options: { workspace: Workspace; paths: WorkspacePath; root: Directory },
     ) => void | Promise<void>,
   ): Promise<void> {
     await updater(updatePackage.update(label), {

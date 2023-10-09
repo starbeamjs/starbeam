@@ -12,14 +12,19 @@ import {
   isArray,
   resolve,
 } from "../utils.js";
-import type { PathData, WorkspacePath } from "../workspace.js";
+import type {
+  IntoPathConstructor,
+  PathData,
+  WorkspacePath,
+} from "../workspace.js";
 import { Path } from "./abstract.js";
 import type { Directory } from "./directory.js";
 import type { RegularFile } from "./regular.js";
 
 export interface GlobOptions<M extends GlobMatch[] = GlobMatch[]> {
-  allow?: GlobAllow;
+  allow?: GlobAllow[];
   match?: M;
+  as?: "root";
 }
 
 export type FileForGlobOptions<O extends GlobOptions> = O extends GlobOptions<
@@ -38,7 +43,7 @@ export type GlobFormat<T extends Path> =
   | "relative:quoted"
   | ((input: Glob<T>) => string);
 
-export type GlobAllow = "symlink";
+export type GlobAllow = "symlink" | "hidden";
 
 export class Glob<T extends Path = Path> extends Path {
   static files(workspace: WorkspacePath, data: PathData): Glob<RegularFile> {
@@ -167,7 +172,7 @@ export class Glob<T extends Path = Path> extends Path {
 
     return glob
       .sync(this.absolute, {
-        ...includeOptions(options.match),
+        ...includeOptions(options),
         objectMode: true,
         absolute: true,
       })
@@ -175,23 +180,9 @@ export class Glob<T extends Path = Path> extends Path {
         const dirent = entry.dirent;
 
         if (dirent.isDirectory()) {
-          return this.#ifIncluded(
-            entry,
-            (entry) =>
-              this.build(this.workspace.runtime.Directory, {
-                root: this.root.absolute,
-                absolute: entry.path,
-              }) as unknown as T,
-          );
+          return this.#ifIncluded(entry, "Directory");
         } else if (dirent.isFile()) {
-          return this.#ifIncluded(
-            entry,
-            (entry) =>
-              this.build("RegularFile", {
-                root: this.root.absolute,
-                absolute: entry.path,
-              }) as unknown as T,
-          );
+          return this.#ifIncluded(entry, "RegularFile");
         } else if (dirent.isSymbolicLink()) {
           // TODO
         } else {
@@ -207,18 +198,25 @@ export class Glob<T extends Path = Path> extends Path {
       });
   }
 
-  #ifIncluded<P extends Path>(entry: Entry, create: (entry: Entry) => P): P[] {
+  #entryData(path: string): PathData {
+    return this.#options.as === "root"
+      ? { root: path, absolute: path }
+      : { root: this.root.absolute, absolute: path };
+  }
+
+  #ifIncluded<P extends Path>(entry: Entry, create: IntoPathConstructor): P[] {
     const options = this.#options;
+    const data = this.#entryData(entry.path);
 
     if (options.match === undefined) {
-      return [create(entry)];
+      return [this.build(create, data) as P];
     } else if (options.match.includes("files") && entry.dirent.isFile()) {
-      return [create(entry)];
+      return [this.build(create, data) as P];
     } else if (
       options.match.includes("directories") &&
       entry.dirent.isDirectory()
     ) {
-      return [create(entry)];
+      return [this.build(create, data) as P];
     } else {
       return [];
     }

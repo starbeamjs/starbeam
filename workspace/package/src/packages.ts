@@ -4,7 +4,7 @@ import type { Workspace } from "@starbeam-workspace/reporter";
 import { DisplayStruct, Union } from "@starbeam-workspace/shared";
 import sh from "shell-escape-tag";
 
-import type { Dependencies } from "./dependencies";
+import type { PackageDependencies } from "./dependencies";
 import { Package } from "./package";
 import { Query } from "./query/query.js";
 import type { StarbeamSources, StarbeamType } from "./unions.js";
@@ -35,7 +35,7 @@ export interface PackageInfo {
   starbeam: StarbeamInfo;
   scripts: Record<string, string>;
   tests: AllTests;
-  dependencies: Dependencies;
+  dependencies: PackageDependencies;
 }
 
 export class TestName extends Union("specs", "lint", "types", "prod", "all") {}

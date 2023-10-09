@@ -5,7 +5,7 @@ import type {
   GlobOptions,
   Path,
 } from "@starbeam-workspace/paths";
-import { WorkspaceRoot } from "@starbeam-workspace/paths";
+import { WorkspacePath } from "@starbeam-workspace/paths";
 import type {
   CheckResults,
   IntoFragment,
@@ -34,13 +34,13 @@ const FATAL_EXIT_CODE = 1;
 
 export class Workspace implements IWorkspace {
   static root(root: string, options: ReporterOptions): Workspace {
-    return new Workspace(WorkspaceRoot.at(root), options);
+    return new Workspace(WorkspacePath.at(root), options);
   }
 
-  readonly #paths: WorkspaceRoot;
+  readonly #paths: WorkspacePath;
   readonly #reporter: Reporter;
 
-  constructor(paths: WorkspaceRoot, options: ReporterOptions) {
+  constructor(paths: WorkspacePath, options: ReporterOptions) {
     this.#paths = paths;
     this.#reporter = Reporter.root(this, options);
   }
@@ -49,7 +49,7 @@ export class Workspace implements IWorkspace {
     return this.#paths.workspaceRoot;
   }
 
-  get paths(): WorkspaceRoot {
+  get paths(): WorkspacePath {
     return this.#paths;
   }
 

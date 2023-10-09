@@ -5,8 +5,7 @@ import {
   stringify,
 } from "@starbeam/core-utils";
 import type { JsonObject, JsonValue } from "@starbeam-workspace/json";
-import type { Directory, RegularFile } from "@starbeam-workspace/paths";
-import { Globs } from "@starbeam-workspace/paths";
+import type { Directory, Globs, RegularFile } from "@starbeam-workspace/paths";
 import { type IntoUnionInstance, Union } from "@starbeam-workspace/shared";
 
 export class StarbeamType extends Union(
@@ -27,6 +26,18 @@ export class StarbeamType extends Union(
 type Ext = "d.ts" | "js" | "jsx" | "ts" | "tsx";
 
 const EXTS = ["d.ts", "js", "jsx", "ts", "tsx"] as const;
+
+export class DependencyType extends Union(
+  "development",
+  "optional",
+  "peer",
+  "runtime",
+) {
+  static development = DependencyType.of("development");
+  static optional = DependencyType.of("optional");
+  static peer = DependencyType.of("peer");
+  static runtime = DependencyType.of("runtime");
+}
 
 export class StarbeamSources implements Iterable<StarbeamSource> {
   static of(sources: Iterable<StarbeamSource>): StarbeamSources {
@@ -100,7 +111,7 @@ export class StarbeamSources implements Iterable<StarbeamSource> {
   }
 
   select(root: Directory, exts: Ext[]): Globs<RegularFile> {
-    let globs = Globs.root(root, { match: ["files"] });
+    let globs = root.globs({ match: ["files"] });
 
     for (const source of this.#sources) {
       globs = source.select(root, exts, globs);
@@ -120,7 +131,7 @@ export class StarbeamSources implements Iterable<StarbeamSource> {
   }
 
   outputs(root: Directory): Globs<RegularFile> {
-    let globs = Globs.root(root, { match: ["files"] });
+    let globs = root.globs({ match: ["files"] });
 
     for (const source of this.#sources) {
       globs = StarbeamSource.addOutputs(source, globs);
@@ -225,7 +236,7 @@ export class StarbeamSource extends Union(
   select(
     root: Directory,
     exts: Ext[],
-    globs: Globs<RegularFile> = Globs.root(root, { match: ["files"] }),
+    globs: Globs<RegularFile> = root.globs({ match: ["files"] }),
   ): Globs<RegularFile> {
     for (const ext of exts) {
       if (this.has(ext)) {
@@ -247,10 +258,7 @@ export class StarbeamSource extends Union(
   }
 
   outputs(root: Directory): Globs<RegularFile> {
-    return StarbeamSource.addOutputs(
-      this,
-      Globs.root(root, { match: ["files"] }),
-    );
+    return StarbeamSource.addOutputs(this, root.globs({ match: ["files"] }));
   }
 }
 

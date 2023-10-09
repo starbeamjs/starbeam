@@ -82,6 +82,7 @@
   },
   "inline-bookmarks.view.exclude.gitIgnore": true,
 
+  "inline-bookmarks.view.showVisibleFilesOnly": false,
   "npm-outdated.decorations": "fancy",
 
   // rewrap provides a quick keyboard shortcut (alt-q) to reformat comments to
@@ -104,13 +105,12 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   // This can sometimes be flaky, but generally it's a good idea to have
   // project-wide checks if possible.
-  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": false,
 
   "vitest.changeBackgroundColor": true,
   "vitest.commandLine": "pnpm vitest --ui --no-open --api.port 8080 --api.host 0.0.0.0 --api.strictPort",
   "vitest.debugExclude": ["<node_internals>/**", "**/node_modules/**"],
   "vitest.disabledWorkspaceFolders": ["demos", "@types", "workspace"],
   "vitest.enable": true,
-  "vitest.showFailMessages": true,
-  "inline-bookmarks.view.showVisibleFilesOnly": false
+  "vitest.showFailMessages": true
 }

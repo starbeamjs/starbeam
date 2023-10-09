@@ -1,0 +1,10 @@
+/packages/
+/workspace/
+/@types/
+/demos/
+/patches/
+!.eslintrc.json
+!tsconfig.json
+!package.json
+!.vscode/settings.json
+!vitest.*.mts

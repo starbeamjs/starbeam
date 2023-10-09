@@ -20,11 +20,13 @@ import {
 import {
   type AnyFunction,
   buildCause,
+  describe,
   entryPoint,
+  expect,
   isAssertionError,
   RecordedEvents,
+  test,
 } from "@starbeam-workspace/test-utils";
-import { describe, expect, test } from "vitest";
 
 describe("Sync", () => {
   test("a manual sync formula", () => {

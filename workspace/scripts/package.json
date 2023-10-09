@@ -62,6 +62,7 @@
     "fast-glob": "^3.2.11",
     "lines-and-columns": "^2.0.3",
     "node-pty": "^1.0.0",
+    "package-json": "^8.1.1",
     "prettier": "^3.0.3",
     "shell-escape-tag": "^2.0.2",
     "shell-split": "^1.0.0",

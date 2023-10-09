@@ -28,7 +28,10 @@
     "@starbeam/runtime": "workspace:^",
     "@starbeam/shared": "workspace:^",
     "@starbeam/universal": "workspace:^",
-    "@starbeam/verify": "workspace:^"
+    "@starbeam/verify": "workspace:^",
+    "@vitest/expect": "^1.0.0-beta.1",
+    "@vitest/runner": "^1.0.0-beta.1",
+    "vitest": "^1.0.0-beta.1"
   },
   "devDependencies": {
     "@starbeam/eslint-plugin": "workspace:^",

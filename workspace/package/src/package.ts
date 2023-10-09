@@ -5,17 +5,18 @@ import {
   stringify,
 } from "@starbeam/core-utils";
 import type { JsonValue } from "@starbeam-workspace/json";
-import type { Directory, RegularFile } from "@starbeam-workspace/paths";
-import { Globs } from "@starbeam-workspace/paths";
+import type { Directory, Globs, RegularFile } from "@starbeam-workspace/paths";
 import { fragment, type Workspace } from "@starbeam-workspace/reporter";
+import type { IntoUnion } from "@starbeam-workspace/shared";
 
-import type { Dependencies } from "./dependencies.js";
+import type { PackageDependencies } from "./dependencies.js";
 import { createDependencies } from "./dependencies.js";
 import { StarbeamJsx, Test, TestName } from "./packages";
 import { AllTests, type PackageInfo, type Used } from "./packages";
 import { RawPackage } from "./raw-package";
 import { Starbeam } from "./starbeam";
 import { TypeScriptConfig } from "./typescript.js";
+import type { DependencyType } from "./unions.js";
 import { StarbeamSource, StarbeamSources, StarbeamType } from "./unions.js";
 
 export class Package {
@@ -135,7 +136,7 @@ export class Package {
   }
 
   get sourceFiles(): Globs<RegularFile> {
-    let globs = Globs.root(this.root, { match: ["files"] });
+    let globs = this.#workspace.paths.globs({ match: ["files"] });
 
     for (const source of this.sources) {
       if (source.hasFiles()) {
@@ -203,8 +204,17 @@ export class Package {
     return this.info.tests;
   }
 
-  get dependencies(): Dependencies {
+  get dependencies(): PackageDependencies {
     return this.info.dependencies;
+  }
+
+  hasDependency(
+    name: string,
+    kind: IntoUnion<DependencyType> | "*" = "*",
+  ): boolean {
+    if (kind === "*") return this.dependencies.has(name);
+
+    return this.dependencies.has(name, kind);
   }
 
   tsconfigFile(): RegularFile | undefined {
@@ -247,7 +257,7 @@ function normalizeTestName(
 
   if (isEmptyMatch(match)) {
     workspace.reporter.fatal(
-      fragment`Invalid test name ${name} in ${pkg.name} (${pkg.root.relative})`,
+      fragment`Invalid test name ${name} in ${pkg.name} (${pkg.root.relativeFromWorkspace})`,
     );
   }
 

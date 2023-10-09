@@ -3,9 +3,25 @@ import { isAbsolute, relative, resolve as nodeResolve } from "node:path";
 
 import type { Options as FastGlobOptions } from "fast-glob";
 
+import type { GlobAllow, GlobOptions } from "../index.js";
+
 export type GlobMatch = "files" | "directories";
 
-export function includeOptions(include?: GlobMatch[]): FastGlobOptions {
+export function includeOptions(options?: GlobOptions): FastGlobOptions {
+  const matches = includeMatches(options?.match);
+  const allows = includeAllows(options?.allow);
+
+  return {
+    ...matches,
+    ...allows,
+  };
+}
+
+function includeAllows(include?: GlobAllow[]): FastGlobOptions {
+  return { dot: include?.includes("hidden") ?? false };
+}
+
+function includeMatches(include?: GlobMatch[]): FastGlobOptions {
   if (include === undefined) {
     return { onlyDirectories: false, onlyFiles: false };
   }

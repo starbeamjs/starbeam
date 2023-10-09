@@ -404,20 +404,29 @@ export class Reporter implements AbstractReporter {
     this.#logger.exit(FATAL_EXIT_CODE);
   }
 
-  info(message: string, options: { lines: boolean } = { lines: false }): void {
+  info(
+    message: IntoFallibleFragment,
+    options: { lines: boolean } = { lines: false },
+  ): void {
     this.#log("info", message, options);
   }
 
-  warn(message: string, options: { lines: boolean } = { lines: false }): void {
+  warn(
+    message: IntoFallibleFragment,
+    options: { lines: boolean } = { lines: false },
+  ): void {
     this.#log("warn", message, options);
   }
 
-  debug(message: string, options: { lines: boolean } = { lines: false }): void {
+  debug(
+    message: IntoFallibleFragment,
+    options: { lines: boolean } = { lines: false },
+  ): void {
     this.#log("debug", message, options);
   }
 
   success(
-    message: string,
+    message: IntoFallibleFragment,
     options: { lines: boolean } = { lines: false },
   ): void {
     this.#log("log", chalk.greenBright(message), options);

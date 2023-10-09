@@ -17,6 +17,7 @@ import { StarbeamCommands } from "./src/support/commands/commands";
 import { TemplateCommand } from "./src/template.js";
 import { TestCommand } from "./src/test.js";
 import { UnusedCommand } from "./src/unused.js";
+import { UpdateCommand } from "./src/update.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -44,4 +45,5 @@ await new StarbeamCommands(
   .add(ReleaseCommand)
   .add(LintCommand)
   .add(FmtCommand)
+  .add(UpdateCommand)
   .run();
