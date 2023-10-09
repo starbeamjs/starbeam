@@ -1,8 +1,11 @@
 import {
+  Display,
+  DisplayNewtype,
   getFirst,
   getLast,
   isArray,
   isSingleItemArray,
+  StyleName,
 } from "@starbeam/core-utils";
 import type { command } from "@starbeam-dev/schemas";
 import type { Command as CommanderCommand } from "commander";
@@ -56,6 +59,30 @@ export class ValuedOption implements CommandParameter {
     this.#type = rawType ? Type.of(rawType) : undefined;
   }
 
+  [Symbol.for("nodejs.util.inspect.custom")](): object {
+    const long = this.#long;
+    const { description, short } = this.#desc;
+    const type = this.#type;
+
+    return Display({
+      name: "ValuedOption",
+      format: ({ stylize, inspect }) => [
+        inspect(long),
+        ...(short
+          ? [
+              stylize(", ", StyleName.punctuation),
+              stylize(short, StyleName.literal),
+            ]
+          : []),
+        stylize(": ", StyleName.punctuation),
+        inspect(type),
+      ],
+      annotation: description
+        ? ({ stylize }) => [stylize(description, StyleName.annotation)]
+        : undefined,
+    });
+  }
+
   applyTo(command: CommanderCommand): CommanderCommand {
     return command.option(
       this.#long.asCommanderOptionFlags(this.#desc.short),
@@ -99,6 +126,27 @@ export class Type<T extends command.OptionValue = command.OptionValue> {
 
   private constructor(spec: command.DynamicType<T>) {
     this.#spec = spec;
+  }
+
+  [Symbol.for("nodejs.util.inspect.custom")](): object {
+    const type = this.type;
+    const defaultValue = this.asCommanderDefault();
+
+    if (defaultValue === undefined) {
+      return Display({
+        name: { compact: "Type" },
+        format: ({ stylize }) => stylize(type.name, StyleName.type),
+      });
+    } else {
+      return Display({
+        name: { compact: "Type" },
+        format: ({ stylize }) => stylize(type.name, StyleName.type),
+        annotation: ({ stylize, inspect }) => [
+          stylize("default=", StyleName.punctuation),
+          inspect(defaultValue),
+        ],
+      });
+    }
   }
 
   get type(): command.SimpleType<T> {
@@ -158,6 +206,26 @@ class Desc {
     this.#unpacked = unpackDescSpec(spec);
   }
 
+  [Symbol.for("nodejs.util.inspect.custom")](): object {
+    const { short, description } = this.#unpacked;
+
+    if (short) {
+      return Display({
+        name: "Desc",
+        format: ({ stylize }) => stylize(description, StyleName.literal),
+        annotation: short
+          ? ({ stylize }) => [
+              stylize("short", StyleName.label),
+              stylize("=", StyleName.punctuation),
+              stylize(short, StyleName.literal),
+            ]
+          : undefined,
+      });
+    } else {
+      return DisplayNewtype("Desc", this.#unpacked.description);
+    }
+  }
+
   get description(): string {
     return this.#unpacked.description;
   }
@@ -182,6 +250,16 @@ class LongFlag {
     this.#unpacked = unpackLongFlagSpec(spec);
   }
 
+  [Symbol.for("nodejs.util.inspect.custom")](): object {
+    const { long, label, required } = this.#unpacked;
+
+    return Display({
+      name: { compact: "LongFlag" },
+      format: ({ stylize }) => stylize(long, StyleName.literal),
+      annotation: required ? `<${label}>` : `[${label}]`,
+    });
+  }
+
   get flag(): string {
     return this.#unpacked.long.trim();
   }
@@ -195,7 +273,9 @@ class LongFlag {
   }
 
   asCommanderOptionFlags(short: ShortFlagString | undefined): string {
-    const longFlag = `${this.flag} ${this.label}`;
+    const label = this.required ? `<${this.label}>` : `[${this.label}]`;
+
+    const longFlag = `${this.flag} ${label}`;
     return short ? `${short}, ${longFlag}` : longFlag;
   }
 }
@@ -279,6 +359,12 @@ class ArgDesc {
     this.#label = label;
     this.#required = required;
     this.#description = description;
+  }
+
+  [Symbol.for("nodejs.util.inspect.custom")](): object {
+    return DisplayNewtype("ArgDesc", this.#description, {
+      annotation: this.asCommanderLabel(),
+    });
   }
 
   get description(): string {

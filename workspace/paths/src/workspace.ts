@@ -1,9 +1,10 @@
 import { isAbsolute, relative } from "node:path";
 
-import type { Path, PathLike } from "./paths/abstract.js";
+import type { DirLike, Path } from "./paths/abstract.js";
 import { Directory } from "./paths/directory.js";
 import type { Glob, GlobOptions, Globs } from "./paths/glob.js";
 import type { RegularFile } from "./paths/regular.js";
+import type { UnknownFile } from "./paths/unknown.js";
 import {
   type FILE_TYPES,
   type FileType,
@@ -77,7 +78,7 @@ export type PathConstructorFor<I extends IntoPathConstructor> =
 export type PathFor<I extends IntoPathConstructor> =
   PathConstructorFor<I> extends PathConstructor<infer P> ? P : never;
 
-export class WorkspacePath implements PathLike {
+export class WorkspacePath implements DirLike {
   static at(root: string): WorkspacePath {
     return new WorkspacePath({ runtime: RUNTIME, root });
   }
@@ -87,6 +88,8 @@ export class WorkspacePath implements PathLike {
   }
 
   readonly #workspace: WorkspacePathData;
+
+  [Symbol.toStringTag] = "WorkspacePath";
 
   private constructor(workspace: WorkspacePathData) {
     this.#workspace = workspace;
@@ -131,6 +134,10 @@ export class WorkspacePath implements PathLike {
 
   file(path: string): RegularFile {
     return this.workspaceRoot.file(path);
+  }
+
+  join(path: string): UnknownFile {
+    return this.workspaceRoot.join(path);
   }
 
   globs(options: GlobOptions<["files"]>): Globs<RegularFile>;

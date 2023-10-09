@@ -1,6 +1,12 @@
 {
   "root": true,
-  "ignorePatterns": ["*", "!.eslintrc.json", "!tsconfig.json", "!package.json"],
+  "ignorePatterns": [
+    "*",
+    "!.eslintrc.json",
+    "!tsconfig.json",
+    "!package.json",
+    "!.vscode"
+  ],
 
   "plugins": ["@starbeam"],
   "overrides": [
@@ -31,10 +37,9 @@
         ".eslintrc.json",
         ".eslintrc.*.json",
         ".knip.json",
+        ".vscode/*.json",
         "tsconfig.json",
-        "package.json",
-        "packages/*/*/{package,.eslintrc}.json",
-        "packages/*/*/tests/{package,.eslintrc}.json"
+        "package.json"
       ]
     }
   ]

@@ -21,7 +21,7 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "@rollup/plugin-node-resolve": "^15.2.1"
+    "@rollup/plugin-node-resolve": "^15.2.3"
   },
   "devDependencies": {
     "@starbeam/eslint-plugin": "workspace:^"

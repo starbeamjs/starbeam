@@ -26,6 +26,7 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
+    "@starbeam/core-utils": "workspace:^",
     "@starbeam-workspace/json": "workspace:^",
     "@starbeam-workspace/paths": "workspace:^",
     "@starbeam-workspace/reporter": "workspace:^",

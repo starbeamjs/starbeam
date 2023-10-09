@@ -12,7 +12,7 @@ const packages = glob
     resolve(root, "packages/preact/*/package.json"),
     resolve(root, "packages/vue/*/package.json"),
     resolve(root, "packages/react/*/package.json"),
-    resolve(root, "workspace/*/package.json"),  
+    resolve(root, "workspace/*/package.json"),
     resolve(root, "demos/react-jsnation/package.json"),
   ])
   .map((manifest) => {
@@ -26,7 +26,10 @@ const packages = glob
         name: projectName(path),
         include: [resolve(path, "tests/**/*.spec.ts")],
         includeSource: [resolve(path, "src/**/*.ts")],
-        exclude: [resolve(path, "tests/node_modules/**")],
+        exclude: [
+          resolve(path, "tests/node_modules/**"),
+          resolve(path, "tests/.fixtures/**"),
+        ],
         environment: "node",
       },
     };
@@ -38,7 +41,7 @@ function projectName(manifest: string): string {
   const base = basename(manifest);
   const parent = basename(dirname(manifest));
 
-  if (parent === 'workspace') {
+  if (parent === "workspace") {
     return `workspace:${base}`;
   } else {
     return base;

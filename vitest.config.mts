@@ -7,12 +7,6 @@ export default defineConfig({
   test: {
     name: "Starbeam",
 
-    typecheck: {
-      checker: "tsc",
-    },
-    threads: false,
-    reporters: ["html", "default"],
-
     env,
   },
 });

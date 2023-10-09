@@ -52,6 +52,8 @@ type UnionClassMember<U extends UnionClass> = U extends UnionClass<infer S>
   ? S[number] | InstanceType<U>
   : never;
 
+export type IntoUnion<U extends UnionInstanceLike> = U | U["value"];
+
 export type AnyUnionClass = UnionClass<readonly string[]>;
 
 export interface UnionClass<S extends readonly string[] = any> {
@@ -63,6 +65,11 @@ export interface UnionClass<S extends readonly string[] = any> {
     (<const This extends UnionClass<S>, S extends string[]>(
       value: UnionClassMember<This>,
     ) => MemberResult<This, S>);
+
+  of: <const This extends UnionClass<S>>(
+    this: This,
+    value: S[number],
+  ) => InstanceType<This>;
 
   from: <const This extends UnionClass<S>>(
     this: This,
@@ -105,12 +112,14 @@ export declare class UnionInstance<S extends readonly string[]> {
   readonly category: Category<S>;
 
   toString(): string;
-  eq(other: UnionInstance<S>): boolean;
+  eq(other: IntoUnion<this>): boolean;
   is<const T extends S[number]>(...values: T[]): this is { value: T };
   hasCategory<const T extends Category<S>>(...values: T[]): this is { type: T };
 
   as<const T extends S>(...values: T): T[number] | undefined;
   asCategory<const T extends Category<S>>(...values: T[]): T | undefined;
+
+  match<U>(matches: { [P in S[number]]: () => U }): U;
 }
 
 /**
@@ -157,6 +166,13 @@ export function Union<const S extends readonly string[]>(
       } else {
         return { type: "instance", value: value as InstanceType<This> };
       }
+    }
+
+    static of<const This extends UnionClass<S>>(
+      this: This,
+      value: S[number],
+    ): InstanceType<This> {
+      return this.parse(value);
     }
 
     static from<const This extends UnionClass<S>>(
@@ -211,8 +227,14 @@ export function Union<const S extends readonly string[]>(
       return `${this.constructor.name}(${this.#instance})`;
     }
 
-    eq(other: UnionInstance<S>): boolean {
-      return this.#instance === other.value;
+    match<U>(matches: { [P in S[number]]: () => U }): U {
+      return matches[this.#instance]();
+    }
+
+    eq(other: IntoUnion<this>): boolean {
+      const otherValue = typeof other === "string" ? other : other.#instance;
+
+      return this.#instance === otherValue;
     }
 
     is<T extends S[number]>(...values: T[]): boolean {

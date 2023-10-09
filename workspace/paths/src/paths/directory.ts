@@ -2,17 +2,18 @@ import { isAbsolute } from "path/posix";
 
 import { join } from "../utils.js";
 import type { PathData, WorkspacePath } from "../workspace";
-import { Path } from "./abstract.js";
+import { type DirLike, Path } from "./abstract.js";
 import type { GlobOptions } from "./glob";
 import { Globs } from "./glob";
 import type { RegularFile } from "./regular.js";
 import { DiskFile } from "./regular.js";
+import type { UnknownFile } from "./unknown.js";
 
 export interface AsDirectory {
   expand: () => Directory;
 }
 
-export class Directory extends DiskFile implements AsDirectory {
+export class Directory extends DiskFile implements AsDirectory, DirLike {
   static rooted(workspace: WorkspacePath, path: string): Directory {
     const absolute = isAbsolute(path) ? path : join(workspace.absolute, path);
     return new Directory(workspace, {
@@ -35,6 +36,8 @@ export class Directory extends DiskFile implements AsDirectory {
   }
 
   declare [Symbol.toStringTag]: "Directory";
+
+  declare join: (path: string) => UnknownFile;
 
   create(data: PathData): Directory {
     return new Directory(this.workspace, data);

@@ -215,7 +215,7 @@ function isTypePkgForPresentPkg(dep: string, pkg: Package): boolean {
   if (dep.startsWith("@types/")) {
     const name = formatPkgForTypePkg(dep);
 
-    if (pkg.dependencies.has(name)) {
+    if (pkg.hasDependency(name)) {
       return false;
     }
   }

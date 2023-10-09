@@ -69,4 +69,5 @@ export {
   stringify,
   TO_STRING,
 } from "./src/string.js";
+export { exhaustive } from "./src/types.js";
 export { isPresent } from "./src/value.js";

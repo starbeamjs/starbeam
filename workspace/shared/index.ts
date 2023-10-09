@@ -8,6 +8,7 @@ export type {
   Into,
   IntoPresentArray,
   IntoResult,
+  IntoUnion,
   IntoUnionInstance,
   OkRecord,
   OkResult,

@@ -1,6 +1,14 @@
-import type { InspectOptionsStylized, Style as NodeStyleName } from "util";
+import type {
+  inspect as NodeInspectImport,
+  InspectOptions,
+  InspectOptionsStylized,
+  Style as NodeStyleName,
+} from "node:util";
 
 import type { JSONValue } from "./json-value.js";
+
+type NodeInspect = typeof NodeInspectImport;
+type NodeStylizeFn = InspectOptionsStylized["stylize"];
 
 export enum StyleName {
   /**
@@ -24,12 +32,32 @@ export enum StyleName {
    * wrapper and the inner value is a number or boolean.
    */
   primitive = "number",
+
   /**
    * Same as "undefined" in node, defaults to gray.
    *
-   * Represents annotations or descriptions.
+   * Represents labels for values (i.e. `default=` in `default=1`)
    */
-  dim = "undefined",
+  label = "undefined",
+
+  /**
+   * Same as "undefined" in node, defaults to gray.
+   *
+   * Represents annotations that are intended to be represented in a more subtle
+   * way that the value that the annotation is attached to.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
+  annotation = "undefined",
+
+  /**
+   * Same as "undefined" in node, defaults to gray.
+   *
+   * Represents punctuation that should be represented in a subtle way to avoid
+   * visual noise.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
+  punctuation = "undefined",
+
   /**
    * Same as "null" in node, defaults to white.
    */
@@ -55,6 +83,15 @@ export enum StyleName {
    * JavaScript value like a date.
    */
   builtin = "date",
+
+  /**
+   * Same as "date" in node, defaults to magenta.
+   *
+   * Represents TypeScript type names (as distinct from class or function names,
+   * which are represented by `id:name` and represent JavaScript values).
+   */
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
+  type = "date",
 }
 
 export interface DisplayStructOptions {
@@ -99,7 +136,11 @@ export interface DisplayStructOptions {
    * Stringy("hello" short)
    * ```
    */
-  readonly annotation?: string | FormatFn | { [key in string]: string };
+  readonly annotation?:
+    | string
+    | FormatFn
+    | { [key in string]: string }
+    | undefined;
 }
 
 export type Fields = Record<PropertyKey, unknown>;
@@ -112,19 +153,27 @@ export function DisplayStruct(
   const constructor = class {
     constructor() {
       for (const [key, value] of entries(fields)) {
-        Object.defineProperty(this, key, {
-          value,
-          enumerable: true,
-        });
+        if (value !== undefined) {
+          Object.defineProperty(this, key, {
+            value,
+            enumerable: true,
+          });
+        }
       }
     }
 
     [Symbol.for("nodejs.util.inspect.custom")](
       _: unknown,
       { stylize, ...rest }: InspectOptionsStylized,
-      inspect: typeof import("node:util").inspect,
+      inspect: NodeInspect,
     ): string {
-      const displayName = computeDisplayName(stylize, name, options);
+      const displayName = computeDisplayName(
+        stylize,
+        name,
+        options,
+        inspect,
+        rest,
+      );
 
       return [
         formatDisplayName(displayName),
@@ -138,81 +187,102 @@ export function DisplayStruct(
 
 type StylizeFn = (string: string, style: NodeStyleName) => string;
 
-type FormatFn = (stylize: StylizeFn) => string;
-
-function createStylizeFn(
-  stylize: InspectOptionsStylized["stylize"],
-): StylizeFn {
-  return (text: string, style: NodeStyleName) => stylize(text, style);
+interface FormatFnOptions {
+  stylize: StylizeFn;
+  inspect: (value: unknown) => string;
+  isNested: boolean;
 }
 
+type FormatFn = (options: FormatFnOptions) => string | string[];
+
+let NESTED = false;
+
 export function Display(options: {
-  name?: string;
+  name?: NameOption;
   format: FormatFn;
   description?: string | FormatFn;
-  annotation?: string | FormatFn | Record<string, string>;
+  annotation?: string | FormatFn | Record<string, string> | undefined;
 }): object {
   return new (class {
     [Symbol.for("nodejs.util.inspect.custom")](
       _: unknown,
       { stylize, ...rest }: InspectOptionsStylized,
-      inspect: typeof import("node:util").inspect,
+      inspect: NodeInspect,
     ): string {
-      const displayName = options.name
-        ? computeDisplayName(stylize, options.name, options)
-        : undefined;
+      const prevNested = NESTED;
 
-      const body = options.format(createStylizeFn(stylize));
+      try {
+        const displayName = options.name
+          ? computeDisplayName(stylize, options.name, options, inspect, rest)
+          : undefined;
 
-      const annotation = options.annotation
-        ? formatAnnotation(options.annotation, stylize)
-        : [];
+        NESTED = true;
+        const body = callFormatFn(options.format, stylize, inspect, rest);
 
-      if (displayName) {
-        return [
-          formatDisplayName(displayName),
-          stylize("(", "undefined"),
-          body,
-          ...annotation,
-          stylize(")", "undefined"),
-        ].join("");
-      } else {
-        return inspect(body, { ...rest });
+        const annotation = options.annotation
+          ? formatAnnotation(options.annotation, stylize, inspect, rest)
+          : [];
+
+        if (displayName) {
+          return [
+            formatDisplayName(displayName),
+            stylize("(", "undefined"),
+            body,
+            ...annotation,
+            stylize(")", "undefined"),
+          ].join("");
+        } else {
+          return body;
+        }
+      } finally {
+        NESTED = prevNested;
       }
     }
   })();
 }
 
-export function DisplayNewtype<S extends DisplayStructOptions>(
+export function DisplayNewtype(
   name: string,
   inner: unknown,
-  options?: S,
+  options?: DisplayStructOptions,
 ): object {
   const constructor = class {
     [Symbol.for("nodejs.util.inspect.custom")](
       _: unknown,
       { stylize, breakLength, ...rest }: InspectOptionsStylized,
-      inspect: typeof import("node:util").inspect,
+      inspect: NodeInspect,
     ): string {
       const body = inspect(inner, { breakLength, ...rest });
 
-      const displayName = computeDisplayName(stylize, name, options);
-      const breaks = breakLength
-        ? body.length + displayName.length > breakLength
-        : false;
+      const displayName = computeDisplayName(
+        stylize,
+        name,
+        options,
+        inspect,
+        rest,
+      );
+      const breaks =
+        displayName && breakLength
+          ? body.length + displayName.length > breakLength
+          : false;
 
-      const inspected = [
-        formatDisplayName(displayName),
-        stylize("(", "undefined"),
-      ];
+      const inspected = [];
+      if (displayName) {
+        inspected.push(
+          formatDisplayName(displayName),
+          stylize("(", "undefined"),
+        );
+      }
       if (breaks) inspected.push("\n  ");
       inspected.push(body);
       if (options?.annotation) {
-        inspected.push(...formatAnnotation(options.annotation, stylize));
+        inspected.push(
+          ...formatAnnotation(options.annotation, stylize, inspect, rest),
+        );
       }
       if (breaks) inspected.push("\n");
       inspected.push(stylize(")", "undefined"));
-      if (displayName.desc) inspected.push(displayName.desc);
+      if (displayName?.desc) inspected.push(displayName.desc);
 
       return inspected.join("");
     }
@@ -224,19 +294,36 @@ export function DisplayNewtype<S extends DisplayStructOptions>(
 function formatAnnotation(
   annotation: string | FormatFn | Record<string, string>,
   stylize: InspectOptionsStylized["stylize"],
+  inspect: NodeInspect,
+  options: InspectOptions,
 ): string[] {
   if (typeof annotation === "string") {
-    return [" ", stylize(annotation, "undefined")];
+    return [" ", stylize(annotation, StyleName.annotation)];
   } else if (typeof annotation === "function") {
-    return [" ", annotation(createStylizeFn(stylize))];
+    return [" ", callFormatFn(annotation, stylize, inspect, options)];
   } else {
     return entries(annotation).flatMap(([key, value]) => [
       " ",
-      stylize(key, "undefined"),
+      stylize(key, StyleName.label),
       "=",
       value,
     ]);
   }
+}
+
+function callFormatFn(
+  fn: FormatFn,
+  stylize: NodeStylizeFn,
+  inspect: NodeInspect,
+  options: InspectOptions,
+): string {
+  const result = fn({
+    inspect: (value) => inspect(value, options),
+    stylize: (text, style) => stylize(text, style),
+    isNested: NESTED,
+  });
+
+  return typeof result === "string" ? result : result.join("");
 }
 
 type Entry<R extends object> = R extends Record<PropertyKey, unknown>
@@ -253,20 +340,72 @@ interface DisplayName {
   length: number;
 }
 
+/**
+ * When the name is compact, then it is only displayed in a nested context if it
+ * has a description.
+ *
+ * Conceptually, a compact name is a name whose presence is not required in
+ * order for the user to understand the body of the value's "display".
+ *
+ * For this reason, compact names can be left out in nested contexts to
+ * streamline the output.
+ *
+ * Note that the presence of an annotation does not force a compact name to be
+ * displayed.
+ *
+ * Consider this representation of `Type` with an annotation:
+ *
+ * ```
+ * Type(StringOption default="hello")
+ * ```
+ *
+ * And this representation of `Type` with a description:
+ *
+ * ```
+ * Type[StringOption](default="hello")
+ * ```
+ *
+ * In the case of an annotation, it is just fine to omit `Type` and end up with:
+ *
+ * ```
+ * StringOption default="hello"
+ * ```
+ *
+ * However, if you left out `Type` in the description situation, you'd end up with:
+ *
+ * ```
+ * [StringOption](default="hello")
+ * ```
+ *
+ * And this is not what you want.
+ */
+type NameOption = string | { compact: string };
+
+/**
+ * If the inspection is nested, then:
+ * - If the name is compact and there is no description, return undefined.
+ */
 function computeDisplayName(
   stylize: InspectOptionsStylized["stylize"],
-  name: string,
-  options: DisplayStructOptions | undefined,
-): DisplayName {
-  const desc = options?.description;
-  const displayName = stylize(name, "special");
+  name: NameOption,
+  displayOptions: DisplayStructOptions | undefined,
+  inspect: NodeInspect,
+  inspectOptions: InspectOptions,
+): DisplayName | undefined {
+  const nameString = typeof name === "string" ? name : name.compact;
+  const isCompact = typeof name !== "string";
+
+  const desc = displayOptions?.description;
+  const displayName = stylize(nameString, "special");
 
   let computedDesc: string = "";
 
   if (typeof desc === "function") {
-    computedDesc = desc(createStylizeFn(stylize));
+    computedDesc = callFormatFn(desc, stylize, inspect, inspectOptions);
   } else if (typeof desc === "string") {
     computedDesc = stylize(`[${formatDescription(desc)}]`, "undefined");
+  } else if (isCompact && NESTED) {
+    return undefined;
   }
 
   return {
@@ -282,6 +421,8 @@ function formatDescription(description: unknown) {
     : JSON.stringify(description);
 }
 
-function formatDisplayName({ label, desc }: DisplayName) {
-  return `${label}${desc}`;
+function formatDisplayName(name: DisplayName | undefined): string[] {
+  if (!name) return [];
+
+  return [`${name.label}${name.desc}`];
 }

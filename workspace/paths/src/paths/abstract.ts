@@ -3,7 +3,12 @@ import { pathToFileURL } from "node:url";
 
 import { Display, StyleName, TO_STRING } from "@starbeam/core-utils";
 
-import { Navigation, StrictNavigationError } from "../error.js";
+import {
+  Navigation,
+  NavigationError,
+  ProblemSegment,
+  StrictNavigationError,
+} from "../error.js";
 import type { FileType, Runtime } from "../runtime.js";
 import { isContained, nullifyEmpty, resolve } from "../utils.js";
 import type {
@@ -14,11 +19,30 @@ import type {
   WorkspacePath,
 } from "../workspace.js";
 import type { Directory } from "./directory.js";
-import type { Glob, GlobOptions } from "./glob.js";
+import type { Glob, GlobOptions, Globs } from "./glob.js";
 import type { RegularFile } from "./regular.js";
+import type { UnknownFile } from "./unknown.js";
 
 export interface PathLike {
+  readonly root: Directory;
   readonly absolute: string;
+}
+
+export interface DirLike extends PathLike {
+  readonly dir: (path: string, options?: { as: "root" }) => Directory;
+  readonly file: (path: string) => RegularFile;
+  readonly join: (path: string) => UnknownFile;
+
+  readonly globs: ((options: GlobOptions<["files"]>) => Globs<RegularFile>) &
+    ((options: GlobOptions<["directories"]>) => Globs<Directory>) &
+    ((options?: GlobOptions) => Globs);
+
+  readonly glob: ((
+    path: string,
+    options: GlobOptions<["files"]>,
+  ) => Glob<RegularFile>) &
+    ((path: string, options: GlobOptions<["directories"]>) => Glob<Directory>) &
+    ((path: string, options?: GlobOptions) => Glob);
 }
 
 export type IntoPathLike = PathLike | string;
@@ -54,17 +78,72 @@ export abstract class Path extends URL implements PathLike {
     this.#data = path;
   }
 
-  // make interpolation do the expected thing
-  override toString(): string {
-    return this.absolute;
-  }
-
   get #root(): string {
     return this.#data.root;
   }
 
   get #absolutePath(): string {
     return this.#data.absolute;
+  }
+
+  /**
+   * By default, a path's `toString` method returns the absolute path.
+   *
+   * If `{ display: true }` is passed, the path's `toString` method returns
+   * a human-readable representation of the path. It looks similar to the output
+   * of `util.inspect`, but is never styled.
+   */
+  override toString(
+    options?:
+      | undefined
+      | { as: "display" }
+      | { as: "description"; verbose?: boolean },
+  ): string {
+    if (options === undefined) {
+      return this.absolute;
+    }
+
+    switch (options.as) {
+      case "display":
+        return this.#display();
+
+      case "description":
+        return this.#describe(options.verbose);
+    }
+  }
+
+  #display(): string {
+    const relative = this.relative;
+
+    if (relative === undefined) {
+      return `${this[Symbol.toStringTag]}[root](${this.relativeFromWorkspace})`;
+    } else {
+      return `${
+        this[Symbol.toStringTag]
+      }(${relative} from ${this.#workspaceRoot.navigateTo(this.#root)})`;
+    }
+  }
+
+  #describe(verbose: boolean | undefined): string {
+    const relative = this.relative;
+    const fromWorkspace = this.relativeFromWorkspace;
+
+    if (relative) {
+      const rootFromWorkspace = this.root.relativeFromWorkspace;
+      return rootFromWorkspace
+        ? `${relative} in ${this.root.relativeFromWorkspace}`
+        : relative;
+    } else if (fromWorkspace) {
+      return verbose
+        ? `${fromWorkspace} in ${this.#absolutePath}`
+        : fromWorkspace;
+    } else {
+      const workspaceDesc = "the workspace root";
+
+      return verbose
+        ? `${workspaceDesc} (${this.#absolutePath})`
+        : workspaceDesc;
+    }
   }
 
   [Symbol.for("nodejs.util.inspect.custom")](): object {
@@ -164,10 +243,23 @@ export abstract class Path extends URL implements PathLike {
     }) as ReturnType<this["create"]>;
   }
 
+  /**
+   * Returns this path, relative to the current root.
+   *
+   * If this path is the same as the current root, `relative` returns
+   * `undefined`.
+   */
   get relative(): string | undefined {
     return nullifyEmpty(relative(this.#root, this.#absolutePath));
   }
 
+  /**
+   * The path relative to the workspace root.
+   *
+   * If this path is the same as the workspace root, `relativeFromWorkspace`
+   * returns `undefined` (like {@linkcode Path.relative}).
+   *
+   */
   get relativeFromWorkspace(): string {
     return relative(this.#workspaceRoot.absolute, this.#absolutePath);
   }
@@ -231,7 +323,7 @@ export abstract class Path extends URL implements PathLike {
   dir(path: string, options?: { as: "root" }): Directory | Glob<Directory> {
     const absolute = resolve(
       this.#absolutePath,
-      this.#validateDescendant(path, "dir", "A child directory"),
+      this.#validateDescendant(path, Navigation.Dir),
     );
 
     return this.build("Directory", {
@@ -242,10 +334,10 @@ export abstract class Path extends URL implements PathLike {
 
   file(path: string): RegularFile | Glob<RegularFile> {
     return this.build("RegularFile", {
-      root: this.#absolutePath,
+      root: this.#root,
       absolute: resolve(
         this.#absolutePath,
-        this.#validateDescendant(path, "file", "A child file"),
+        this.#validateDescendant(path, Navigation.File),
       ),
     });
   }
@@ -261,24 +353,29 @@ export abstract class Path extends URL implements PathLike {
   glob(path: string, options: GlobOptions<["directories"]>): Glob<Directory>;
   glob(path: string, options?: GlobOptions): Glob;
   glob(path: string, options?: GlobOptions): Glob {
+    const relative = this.#validateDescendant(path, Navigation.Glob);
+
     return this.#runtime.Glob.matching(
       this.#workspace,
       {
-        root: this.#absolutePath,
-        absolute: resolve(this.#absolutePath, path),
+        root: this.#root,
+        absolute: resolve(this.#absolutePath, relative),
       },
       options,
     );
   }
 
-  #validateDescendant(
-    path: string,
-    method: string,
-    description: string,
-  ): string {
+  #validateDescendant(path: string, navigation: Navigation): string {
     if (path.includes("..")) {
-      throw Error(
-        `${description} (\`${method}()\`) cannot navigate to a parent directory using \`..\` segments.`,
+      throw new NavigationError(
+        {
+          navigation: Navigation.Glob,
+          problem: path.startsWith("..")
+            ? ProblemSegment.LeadingAncestor
+            : ProblemSegment.InteriorAncestor,
+        },
+        this,
+        path,
       );
     }
 
@@ -286,8 +383,13 @@ export abstract class Path extends URL implements PathLike {
       if (isContained(this.absolute, path)) return this.navigateTo(path);
 
       if (!isContained(this.absolute, path)) {
-        throw Error(
-          `${description} (\`${method}()\`) cannot navigate to a parent path (if it starts with a \`/\` segment, the absolute path must be a descendant of the current path).`,
+        throw new NavigationError(
+          {
+            navigation,
+            problem: ProblemSegment.Absolute,
+          },
+          this,
+          path,
         );
       }
     }
