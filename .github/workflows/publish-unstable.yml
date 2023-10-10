@@ -28,6 +28,9 @@ jobs:
       - name: set versions
         run: node ./workspace/unstable-release/src/version.js
 
+      - name: build
+        run: pnpm build
+
       - name: npm publish
         run: node ./workspace/unstable-release/src/publish.js
         env:

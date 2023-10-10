@@ -18,6 +18,12 @@
     "main": "dist/index.cjs",
     "types": "dist/index.d.ts"
   },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE.md"
+  ],
   "starbeam": {
     "type": "library:public"
   },

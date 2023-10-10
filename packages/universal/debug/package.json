@@ -51,5 +51,11 @@
     "@starbeam-dev/build-support": "workspace:^",
     "@types/node": "18.16.1",
     "rollup": "^3.29.2"
-  }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE.md"
+  ]
 }
