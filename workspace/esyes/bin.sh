@@ -14,6 +14,10 @@ set -e
 #         because both esno and tsx compile to commonjs by default,
 #         which adds a tooonnn of overhead.
 here=$(dirname "$0")
+
+# Bun is not ready.
+FORCE_NODE="true"
+
 if [ "$FORCE_NODE" == "true" ]; then
   NODE_NO_WARNINGS=1 node --loader @esbuild-kit/esm-loader "$@"
 	# set -e will exit with proper exit code if the above fails
