@@ -10,8 +10,7 @@ import { readPackageJson } from "./read-package-json.js";
  */
 export async function listPublicWorkspaces() {
   let filePaths = await globby([
-    "packages/**/package.json", 
-    "workspace/@domtree/**/package.json"
+    "packages/**/package.json"
   ], {
     gitignore: true,
     ignore: ["**/tests/**", "**/node_modules/**"],
@@ -24,6 +23,7 @@ export async function listPublicWorkspaces() {
   for (let filePath of filePaths) {
     let packageJson = await readPackageJson(filePath);
 
+    if (!packageJson.name?.startsWith('@starbeam/')) continue;
     if (packageJson.private) continue;
 
     result.push(filePath);
