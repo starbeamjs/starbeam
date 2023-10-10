@@ -62,12 +62,6 @@
       },
       {
         "packages": [
-          "esno"
-        ],
-        "reason": "package.json scripts"
-      },
-      {
-        "packages": [
           "typescript",
           "tslib",
           "@babel/runtime"
@@ -83,17 +77,17 @@
     ]
   },
   "scripts": {
-    "build": "esno ./workspace/scripts/index.ts build",
-    "check:unused": "esno ./workspace/scripts/index.ts unused",
-    "ci:lint": "esno ./workspace/scripts/index.ts ci --type lint -v",
+    "build": "esyes ./workspace/scripts/index.ts build",
+    "check:unused": "esyes ./workspace/scripts/index.ts unused",
+    "ci:lint": "esyes ./workspace/scripts/index.ts ci --type lint -v",
     "ci:prod": "vitest --run --mode production",
     "ci:specs": "vitest --run",
-    "ci:types": "esno ./workspace/scripts/index.ts ci --type types -v",
-    "demo": "esno ./workspace/scripts/index.ts demo",
-    "dev": "esno ./workspace/scripts/index.ts",
-    "lint:fix": "pnpm dev lint --fix",
+    "ci:types": "esyes ./workspace/scripts/index.ts ci --type types -v",
+    "demo": "esyes ./workspace/scripts/index.ts demo",
+    "dev": "esyes ./workspace/scripts/index.ts",
+    "local:postinstall": "pnpm rebuild node-pty -r",
     "prepack": "pnpm run build",
-    "release": "esno ./workspace/scripts/index.ts release",
+    "release": "esyes ./workspace/scripts/index.ts release",
     "test:workspace:lint": "turbo run lint --output-logs errors-only --log-prefix none",
     "test:workspace:prod": "PROD=1 DEV= vitest --run",
     "test:workspace:specs": "vitest --run",
@@ -115,10 +109,12 @@
     "@changesets/cli": "^2.26.2",
     "@changesets/config": "^2.3.1",
     "@edge-runtime/vm": "^3.1.3",
+    "@esbuild-kit/esm-loader": "^2.6.5",
     "@nrr/pnpm-duplicate-cli": "^0.0.1",
     "@starbeam/eslint-plugin": "workspace:^",
     "@starbeam-dev/build-support": "workspace:*",
     "@starbeam-dev/schemas": "workspace:^",
+    "@starbeam-workspace/esyes": "workspace:^",
     "@types/eslint": "^8.44.3",
     "@types/node": "^20.7.0",
     "@typescript-eslint/eslint-plugin": "^6.7.3",
@@ -134,11 +130,11 @@
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "eslint-plugin-unused-imports": "^3.0.0",
-    "esno": "^0.17.0",
     "fast-glob": "^3.3.1",
     "happy-dom": "^12.2.1",
     "jsdom": "^22.1.0",
     "knip": "^2.29.0",
+    "node-gyp": "^9.4.0",
     "prettier": "^3.0.3",
     "rollup": "^3.29.3",
     "tslib": "^2.6.2",
