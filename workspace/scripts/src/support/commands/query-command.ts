@@ -27,6 +27,7 @@ import {
   type ActionArgs,
   type ActionResult,
   prepareCommand,
+  StarbeamCommand,
 } from "./shared.js";
 import { BooleanOption } from "./types.js";
 
@@ -47,32 +48,39 @@ export function QueryCommand<const C extends CommandInfo = CommandInfo>(
     name,
     description,
     spec: info ?? {},
-    prepare: [withOptions, queryable],
+    prepare: [queryable, withOptions],
   });
 
   return {
     action: (
       action: (...args: ActionArgs<C, QueryCommandOptions>) => ActionResult,
-    ): ((options: { root: string }) => CommanderCommand) => {
-      return ({ root }) => {
-        return prepared.action(async (positional, named) => {
-          const workspace = Workspace.root(root, named as ReporterOptions);
-          const query = buildQuery(workspace, named as QueryOptions);
-          const packages = queryPackages(workspace, query);
-
-          const actionArgs = [
-            ...positional,
-            {
+    ): StarbeamCommand => {
+      return new StarbeamCommand({
+        name,
+        command: ({ root, scripted }) => {
+          return prepared.action(async (positional, named) => {
+            const workspace = Workspace.root(root, {
               ...named,
-              packages,
-              query,
-              workspace,
-            },
-          ] as Parameters<typeof action>;
+              scripted,
+            } as ReporterOptions);
+            const query = buildQuery(workspace, named as QueryOptions);
+            const packages = queryPackages(workspace, query);
 
-          return action(...actionArgs);
-        });
-      };
+            const actionArgs = [
+              ...positional,
+              {
+                ...named,
+                packages,
+                query,
+                workspace,
+              },
+            ] as Parameters<typeof action>;
+
+            return action(...actionArgs);
+          });
+        },
+        defaults: info?.defaults,
+      });
     },
   };
 }
@@ -173,8 +181,8 @@ export function createWorkspace(
   const reporterOptions: ReporterOptions = {
     verbose: options.verbose,
     stylish: options.stylish,
-    density: options.density,
     failFast: getOption(options, "failFast", BooleanOption) ?? false,
+    scripted: options.scripted,
   };
 
   return Workspace.root(root, reporterOptions);
@@ -232,21 +240,25 @@ export function queryable(command: CommanderCommand): CommanderCommand {
           })
           .join("\n"),
     )
-    .option("-p, --package <package-name>", "the package to test")
+    .option("-p, --package <package-name>", chalk.cyan("the package to test"))
     .option<(Filter | ParseError)[]>(
       "-a, --and [query...]",
-      "a package query",
+      chalk.cyan("a package query"),
       (query: string, queries: (Filter | ParseError)[] = []) => {
         return [...queries, parse(query)];
       },
     )
     .option(
       "-o, --or [query...]",
-      "a package query",
+      chalk.cyan("a package query"),
       (query: string, queries: (Filter | ParseError)[] = []) => {
         return [...queries, parse(query)];
       },
     )
-    .option("--allow-draft", "allow draft packages", false)
-    .option("-w, --workspace-only", "select the workspace package only", false);
+    .option("--allow-draft", chalk.cyan("allow draft packages"), false)
+    .option(
+      "-w, --workspace-only",
+      chalk.cyan("select the workspace package only"),
+      false,
+    );
 }

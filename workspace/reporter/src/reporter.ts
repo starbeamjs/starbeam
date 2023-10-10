@@ -34,8 +34,8 @@ const ERR = Fragment(STYLES.problem, "⛔");
 export interface ReporterOptions {
   readonly verbose: boolean;
   readonly stylish: boolean;
-  readonly density: "comfortable" | "compact";
   readonly failFast: boolean;
+  readonly scripted: boolean;
 }
 
 export interface RawWriter {
@@ -423,6 +423,13 @@ export class Reporter implements AbstractReporter {
     options: { lines: boolean } = { lines: false },
   ): void {
     this.#log("debug", message, options);
+  }
+
+  ok(
+    message: IntoFallibleFragment,
+    options: { lines: boolean } = { lines: false },
+  ): void {
+    this.#log("log", fragment`${OK} ${chalk.greenBright(message)}`, options);
   }
 
   success(

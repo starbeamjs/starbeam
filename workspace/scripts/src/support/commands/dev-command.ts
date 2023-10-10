@@ -1,13 +1,13 @@
 import type { CommandInfo } from "@starbeam-dev/schemas";
 import type { ReporterOptions } from "@starbeam-workspace/reporter";
 import { Workspace } from "@starbeam-workspace/workspace";
-import type { Command as CommanderCommand } from "commander";
 
 import { type CommandOptions, withOptions } from "./options";
 import {
   type ActionArgs,
   type ActionResult,
   prepareCommand,
+  StarbeamCommand,
 } from "./shared.js";
 
 /*
@@ -31,19 +31,26 @@ export function DevCommand<const C extends CommandInfo = CommandInfo>(
   return {
     action: (
       action: (...args: ActionArgs<C, CommandOptions>) => ActionResult,
-    ): ((options: { root: string }) => CommanderCommand) => {
-      return ({ root }) => {
-        return prepared.action(async (positional, named) => {
-          const workspace = Workspace.root(root, named as ReporterOptions);
+    ): StarbeamCommand => {
+      return new StarbeamCommand({
+        name,
+        command: ({ root, scripted }) => {
+          return prepared.action(async (positional, named) => {
+            const workspace = Workspace.root(root, {
+              ...named,
+              scripted,
+            } as ReporterOptions);
 
-          const actionArgs = [
-            ...positional,
-            { ...named, workspace },
-          ] as Parameters<typeof action>;
+            const actionArgs = [
+              ...positional,
+              { ...named, workspace },
+            ] as Parameters<typeof action>;
 
-          return action(...actionArgs);
-        });
-      };
+            return action(...actionArgs);
+          });
+        },
+        defaults: info?.defaults,
+      });
     },
   };
 }

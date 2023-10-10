@@ -1,16 +1,15 @@
 /* eslint-disable no-console */
 import { getLast, withoutLast } from "@starbeam/core-utils";
-import { DisplayStruct, terminalWidth } from "@starbeam-workspace/shared";
+import {
+  DisplayStruct,
+  OK_EXIT_CODE,
+  terminalWidth,
+} from "@starbeam-workspace/shared";
 
 import { SPACES_PER_TAB } from "./constants.js";
 import type { ReportErrorOptions } from "./error.js";
 import { wrapIndented, wrapLines } from "./format.js";
-import {
-  type DensityChoice,
-  Fragment,
-  type FragmentImpl,
-  type IntoFragment,
-} from "./log.js";
+import { Fragment, type FragmentImpl, type IntoFragment } from "./log.js";
 import { ReportError } from "./report-error.js";
 import type { LoggerEndWith, LogOptions, ReporterOptions } from "./reporter.js";
 
@@ -39,20 +38,10 @@ export type LoggerName = keyof LOGGERS;
  */
 export class LoggerState {
   readonly #leading: number;
-  readonly #density: DensityChoice;
   readonly #verbose: boolean;
 
-  constructor({
-    leading,
-    density,
-    verbose,
-  }: {
-    leading: number;
-    density: DensityChoice;
-    verbose: boolean;
-  }) {
+  constructor({ leading, verbose }: { leading: number; verbose: boolean }) {
     this.#leading = leading;
-    this.#density = density;
     this.#verbose = verbose;
   }
 
@@ -60,7 +49,6 @@ export class LoggerState {
     return DisplayStruct("LoggerState", {
       leading: this.#leading,
       verbose: this.#verbose,
-      density: this.#density,
     });
   }
 
@@ -78,10 +66,6 @@ export class LoggerState {
 
   get verbose(): boolean {
     return this.#verbose;
-  }
-
-  get density(): DensityChoice {
-    return this.#density;
   }
 }
 
@@ -118,10 +102,17 @@ abstract class InternalLoggerState {
 
   get loggerState(): LoggerState {
     return new LoggerState({
-      density: this.#options.density,
       leading: this.leading,
       verbose: this.#options.verbose,
     });
+  }
+
+  exit(code: number): never {
+    if (this.#options.scripted) {
+      process.exit(code);
+    } else {
+      process.exit(OK_EXIT_CODE);
+    }
   }
 
   /**
@@ -360,6 +351,10 @@ export class States {
     return this.#current.didPrint;
   }
 
+  exit(code: number): never {
+    return this.#current.exit(code);
+  }
+
   write(message: string): void {
     this.#current.write(message);
   }
@@ -533,7 +528,7 @@ export class Logger {
   };
 
   exit(code: number): never {
-    process.exit(code);
+    return this.#states.exit(code);
   }
 
   begin(

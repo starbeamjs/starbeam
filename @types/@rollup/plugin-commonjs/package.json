@@ -21,7 +21,7 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "@rollup/plugin-commonjs": "^25.0.4"
+    "@rollup/plugin-commonjs": "25.0.5"
   },
   "devDependencies": {
     "@starbeam/eslint-plugin": "workspace:^"

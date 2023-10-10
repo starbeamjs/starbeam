@@ -1,14 +1,20 @@
+/* eslint-disable no-console */
 import { FIRST_OFFSET, firstNItems } from "@starbeam/core-utils";
 import type { command, CommandInfo, FlagOption } from "@starbeam-dev/schemas";
 import type { ReporterOptions } from "@starbeam-workspace/reporter";
+import { OK_EXIT_CODE } from "@starbeam-workspace/shared";
+import chalk from "chalk";
+import type { CommanderError } from "commander";
 import { Command as CommanderCommand } from "commander";
 
 import {
   Arg,
   BooleanFlag,
   type CommandParameter,
+  type FormatDescFn,
   ValuedOption,
 } from "./data.js";
+import { defaultCommandSettings } from "./format-help.js";
 import {
   type BasicOptions,
   type CamelizedFlag,
@@ -197,19 +203,32 @@ export function createCommand(
 ): { command: CommanderCommand; namedPosition: number } {
   let command = new CommanderCommand(name).description(description);
 
+  command = applyParameters(
+    command,
+    info?.args?.map((a) => Arg.of(a, formatCommandOption)),
+  );
+  command = applyParameters(
+    command,
+    info?.flags?.map((f) => BooleanFlag.of(f, formatCommandOption)),
+  );
+  command = applyParameters(
+    command,
+    info?.options?.map((o) => ValuedOption.of(o, formatCommandOption)),
+  );
+
   for (const fn of prepare) {
     command = fn(command);
   }
-
-  command = applyParameters(command, info?.args?.map(Arg.of));
-  command = applyParameters(command, info?.flags?.map(BooleanFlag.of));
-  command = applyParameters(command, info?.options?.map(ValuedOption.of));
 
   return {
     command,
     namedPosition: info?.args?.length ?? FIRST_OFFSET,
   };
 }
+
+const formatCommandOption: FormatDescFn = (option) => {
+  return chalk.green(option);
+};
 
 function applyParameters(
   command: CommanderCommand,
@@ -269,3 +288,119 @@ export class PreparedCommand {
 
 export const prepareCommand: typeof PreparedCommand.prepare =
   PreparedCommand.prepare;
+
+interface StarbeamCommandOptions {
+  readonly scripted?: boolean | undefined;
+}
+
+export type BuildStarbeamCommand = ({
+  root,
+  scripted,
+}: {
+  root: string;
+  /**
+   * true or false means that the user specified `--scripted` or `--no-scripted`
+   * on the command-line, which overrides the command's default behavior.
+   *
+   * `undefined` means that the user did not specify the flag, and the default
+   * behavior of the command will be used.
+   */
+  scripted: boolean;
+}) => CommanderCommand;
+
+export interface ToCommanderOptions {
+  readonly root: string;
+  readonly scripted: boolean | undefined;
+}
+
+export class StarbeamCommand {
+  readonly #name: string;
+  readonly #defaults: StarbeamCommandOptions | undefined;
+  readonly #command: BuildStarbeamCommand;
+
+  constructor({
+    name,
+    defaults,
+    command,
+  }: {
+    name: string;
+    defaults: StarbeamCommandOptions | undefined;
+    command: BuildStarbeamCommand;
+  }) {
+    this.#name = name;
+    this.#defaults = defaults;
+    this.#command = command;
+  }
+
+  get name(): string {
+    return this.#name;
+  }
+
+  get defaults(): StarbeamCommandOptions {
+    return this.#defaults ?? {};
+  }
+
+  #addScriptedFlag(command: CommanderCommand): CommanderCommand {
+    const defaultScripted = this.#defaults?.scripted;
+
+    if (defaultScripted === false || defaultScripted === undefined) {
+      return command.option(
+        "--scripted",
+        `If you pass --scripted, the command will exit with a non-zero status if there's an error. By default, this command always exits with a 0 status.`,
+      );
+    } else {
+      return command.option(
+        "--no-scripted",
+        `If you pass --no-scritped, the command will exit with a non-zero status if there's an error.`,
+        true,
+      );
+    }
+  }
+
+  toCommander({
+    root,
+    scripted = this.#defaults?.scripted ?? false,
+  }: ToCommanderOptions): CommanderCommand {
+    const command = this.#command({ root, scripted });
+
+    // command = command.configureOutput({
+    //   writeErr: (msg) => {
+    //     console.log({ writeErr: msg });
+    //   },
+    //   outputError: (msg, write) => {
+    //     console.log({ outputErr: { msg, write } });
+    //   },
+    // });
+
+    return defaultCommandSettings(this.#addScriptedFlag(command)).exitOverride(
+      handleExit(scripted, command),
+    );
+  }
+}
+
+function handleExit(
+  scripted: boolean,
+  command: CommanderCommand,
+): (err: CommanderError) => never | void {
+  return (err: CommanderError) => {
+    if (err.code === "commander.helpDisplayed") {
+      return;
+    }
+
+    console.error(command.helpInformation({ error: true }));
+
+    const message = err.message.replace(/^error:\s*/, "");
+    console.error("");
+
+    if (scripted) {
+      console.error(chalk.red(`Usage Error: ${message}`));
+      console.error("");
+
+      process.exit(err.exitCode);
+    } else {
+      console.error(chalk.red.inverse("Usage Error"), chalk.red(message));
+
+      process.exit(OK_EXIT_CODE);
+    }
+  };
+}
