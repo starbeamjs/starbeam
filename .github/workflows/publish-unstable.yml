@@ -25,11 +25,11 @@ jobs:
           # This creates an .npmrc that reads the NODE_AUTH_TOKEN environment variable
           node-registry-url: 'https://registry.npmjs.org'
 
-      - name: set versions
-        run: node ./workspace/unstable-release/src/version.js
-
       - name: build
         run: pnpm build
+
+      - name: set versions
+        run: node ./workspace/unstable-release/src/version.js
 
       - name: npm publish
         run: node ./workspace/unstable-release/src/publish.js
