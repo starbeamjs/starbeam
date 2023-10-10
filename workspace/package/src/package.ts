@@ -9,7 +9,7 @@ import type { Directory, Globs, RegularFile } from "@starbeam-workspace/paths";
 import { fragment, type Workspace } from "@starbeam-workspace/reporter";
 import type { IntoUnion } from "@starbeam-workspace/shared";
 
-import type { PackageDependencies } from "./dependencies.js";
+import type { Dependency, PackageDependencies } from "./dependencies.js";
 import { createDependencies } from "./dependencies.js";
 import { StarbeamJsx, Test, TestName } from "./packages";
 import { AllTests, type PackageInfo, type Used } from "./packages";
@@ -215,6 +215,17 @@ export class Package {
     if (kind === "*") return this.dependencies.has(name);
 
     return this.dependencies.has(name, kind);
+  }
+
+  getDependencies(name: string): Dependency[] | undefined {
+    return this.dependencies.getAll(name);
+  }
+
+  getDependency(
+    name: string,
+    kind: IntoUnion<DependencyType>,
+  ): Dependency | undefined {
+    return this.dependencies.get(name, kind);
   }
 
   tsconfigFile(): RegularFile | undefined {

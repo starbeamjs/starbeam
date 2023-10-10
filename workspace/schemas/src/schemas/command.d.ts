@@ -48,6 +48,21 @@ export interface CommandInfo {
    * `true` if the flag name starts with `--no-` and false otherwise.
    */
   readonly flags?: readonly FlagSpec[] | undefined;
+
+  /**
+   * The default behavior of the command.
+   */
+  readonly defaults?: {
+    /**
+     * If the user doesn't specify the `--scripted` or `--no-scripted` flag on
+     * the command-line, this is the default behavior.
+     *
+     * Unscripted behavior always exits with exit status 0 to avoid npm
+     * lifecycle script noise. Scripted behavior exits with the appropriate exit
+     * status so that the exit status can be used in scripts.
+     */
+    readonly scripted?: boolean;
+  };
 }
 
 export interface Command extends CommandInfo {

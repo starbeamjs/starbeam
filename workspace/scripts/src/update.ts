@@ -1,3 +1,4 @@
+import { isEmptyArray } from "@starbeam/core-utils";
 import type { JsonObject } from "@starbeam-workspace/json";
 import { Fragment, fragment } from "@starbeam-workspace/reporter";
 import packageJson from "package-json";
@@ -13,35 +14,92 @@ export const UpdateCommand = QueryCommand(
   {
     args: [["<package-name> The name of the package to update", StringOption]],
     options: [
-      ["--version <version>", "-v: the version of the package", StringOption],
+      ["--version <version>", "the version of the package", StringOption],
     ],
+    flags: [["--dry-run", "-d: only print what would be updated"]],
   },
 ).action(
-  async (packageName, { workspace, packages, version: versionOption }) => {
+  async (
+    packageName,
+    { workspace, packages, version: versionOption, dryRun },
+  ) => {
     const updater = new UpdatePackages(workspace, packages);
     const version = versionOption ?? (await latestVersion(packageName));
 
-    const updateDep = UpdatePackageFn((updater) => {
-      updater.json("package.json", (packageJson: PackageJson) => {
-        updateCurrent(packageJson, packageName, version);
-        return packageJson;
-      });
-    });
+    if (dryRun) {
+      const todo = packages.flatMap((pkg) => {
+        const deps = pkg.getDependencies(packageName);
 
-    await workspace.reporter
-      .group(
-        fragment`Updating ${Fragment.ok(packageName)} to ${Fragment.header(
-          version,
-        )}`,
-      )
-      .verbose("header")
-      .tryAsync(async () => {
-        await updater.update((when) =>
-          when((pkg) => pkg.hasDependency(packageName), "package").use(
-            updateDep,
+        if (deps) {
+          return deps.flatMap((dep) => {
+            return dep.version !== version
+              ? [[pkg.name, String(dep.kind), dep.version]]
+              : [];
+          });
+        } else {
+          return [];
+        }
+      });
+
+      if (isEmptyArray(todo)) {
+        workspace.reporter.ok(
+          fragment`No packages with an outdated version of ${Fragment(
+            "ok:header",
+            packageName,
+          )}`,
+        );
+        return;
+      }
+
+      workspace.reporter.verbose(
+        (r) =>
+          void r.info(
+            fragment`Updating ${Fragment.ok(packageName)} to ${Fragment.header(
+              version,
+            )}`,
           ),
+      );
+
+      workspace.reporter.table((t) => {
+        return t.headers(["Package", "Type", "Dependencies"]).rows(
+          packages.flatMap((pkg) => {
+            const deps = pkg.getDependencies(packageName);
+
+            if (deps) {
+              return deps.flatMap((dep) => {
+                return dep.version !== version
+                  ? [[pkg.name, String(dep.kind), dep.version]]
+                  : [];
+              });
+            } else {
+              return [];
+            }
+          }),
         );
       });
+    } else {
+      const updateDep = UpdatePackageFn((updater) => {
+        updater.json("package.json", (packageJson: PackageJson) => {
+          updateCurrent(packageJson, packageName, version);
+          return packageJson;
+        });
+      });
+
+      await workspace.reporter
+        .group(
+          fragment`Updating ${Fragment.ok(packageName)} to ${Fragment.header(
+            version,
+          )}`,
+        )
+        .verbose("header")
+        .tryAsync(async () => {
+          await updater.update((when) =>
+            when((pkg) => pkg.hasDependency(packageName), "package").use(
+              updateDep,
+            ),
+          );
+        });
+    }
   },
 );
 

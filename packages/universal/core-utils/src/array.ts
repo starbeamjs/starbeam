@@ -10,7 +10,9 @@ export type ArrayItem<T> = T extends unknown[] ? T[number] : never;
 export type AnyArray<T> = T[] | readonly T[];
 
 type PresentArrayFor<T extends unknown[] | readonly unknown[] | undefined> =
-  T extends readonly (infer Item)[] | (infer Item)[]
+  T extends (infer Item)[]
+    ? [Item, ...Item[]]
+    : T extends readonly (infer Item)[]
     ? readonly [Item, ...Item[]]
     : never;
 

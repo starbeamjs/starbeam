@@ -26,6 +26,7 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
+    "@pnpm/find-workspace-dir": "^6.0.2",
     "@starbeam-workspace/paths": "workspace:^",
     "@starbeam-workspace/reporter": "workspace:^",
     "@types/shell-escape-tag": "workspace:^",

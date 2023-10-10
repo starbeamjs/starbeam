@@ -1,3 +1,4 @@
+import { nullifyEmptyArray } from "@starbeam/core-utils";
 import type { IntoUnion } from "@starbeam-workspace/shared";
 
 import type { RawPackage } from "./raw-package";
@@ -63,6 +64,30 @@ export class PackageDependencies {
     }
 
     return this.#deps[DependencyType.asString(type)].has(name);
+  }
+
+  getAll(name: string): Dependency[] | null {
+    return nullifyEmptyArray(
+      (["runtime", "development", "optional", "peer"] as const).flatMap(
+        (type) => {
+          const dep = this.get(name, DependencyType.of(type));
+          return dep ? [dep] : [];
+        },
+      ),
+    );
+  }
+
+  get(name: string, type?: IntoUnion<DependencyType>): Dependency | undefined {
+    if (type === undefined) {
+      return (
+        this.get(name, DependencyType.runtime) ||
+        this.get(name, DependencyType.development) ||
+        this.get(name, DependencyType.optional) ||
+        this.get(name, DependencyType.peer)
+      );
+    }
+
+    return this.#deps[DependencyType.asString(type)].get(name);
   }
 
   get development(): Dependencies {

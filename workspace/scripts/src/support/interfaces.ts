@@ -1,9 +1,9 @@
 import type { Command } from "commander";
 
-import type { StarbeamCommands } from "./commands/commands";
+import type { StarbeamProgram } from "./commands/program";
 
 export interface StarbeamCommandOptions {
   root: string;
 }
 
-export type StarbeamCommandSetup = (commands: StarbeamCommands) => Command;
+export type StarbeamCommandSetup = (commands: StarbeamProgram) => Command;

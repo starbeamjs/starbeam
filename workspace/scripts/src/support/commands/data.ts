@@ -17,17 +17,17 @@ export interface CommandParameter {
 }
 
 export class BooleanFlag implements CommandParameter {
-  static of = (spec: command.FlagSpec): BooleanFlag => {
-    return new BooleanFlag(spec);
+  static of = (spec: command.FlagSpec, format: FormatDescFn): BooleanFlag => {
+    return new BooleanFlag(spec, format);
   };
 
   readonly #name: BooleanFlagName;
   readonly #desc: Desc;
 
-  private constructor(spec: command.FlagSpec) {
+  private constructor(spec: command.FlagSpec, format: FormatDescFn) {
     const [long, desc] = spec;
     this.#name = BooleanFlagName.of(long);
-    this.#desc = Desc.of(desc);
+    this.#desc = Desc.of(desc, format);
   }
 
   get flag(): string {
@@ -43,19 +43,22 @@ export class BooleanFlag implements CommandParameter {
 }
 
 export class ValuedOption implements CommandParameter {
-  static of = (spec: command.ValuedOptionSpec): ValuedOption => {
-    return new ValuedOption(spec);
+  static of = (
+    spec: command.ValuedOptionSpec,
+    format: FormatDescFn,
+  ): ValuedOption => {
+    return new ValuedOption(spec, format);
   };
 
   readonly #long: LongFlag;
   readonly #desc: Desc;
   readonly #type: Type<command.OptionValue> | undefined;
 
-  private constructor(spec: command.ValuedOptionSpec) {
+  private constructor(spec: command.ValuedOptionSpec, format: FormatDescFn) {
     const [rawLong, rawDesc, rawType] = spec;
 
     this.#long = LongFlag.of(rawLong);
-    this.#desc = Desc.of(rawDesc);
+    this.#desc = Desc.of(rawDesc, format);
     this.#type = rawType ? Type.of(rawType) : undefined;
   }
 
@@ -93,17 +96,17 @@ export class ValuedOption implements CommandParameter {
 }
 
 export class Arg implements CommandParameter {
-  static of = (spec: command.ArgSpec): Arg => {
-    return new Arg(spec);
+  static of = (spec: command.ArgSpec, format: FormatDescFn): Arg => {
+    return new Arg(spec, format);
   };
 
   readonly #desc: ArgDesc;
   // eslint-disable-next-line no-unused-private-class-members -- @todo
   readonly #type: Type;
 
-  private constructor(spec: command.ArgSpec) {
+  private constructor(spec: command.ArgSpec, format: FormatDescFn) {
     const [desc, type] = spec;
-    this.#desc = ArgDesc.of(desc);
+    this.#desc = ArgDesc.of(desc, format);
     this.#type = Type.of(type);
   }
 
@@ -195,15 +198,19 @@ class BooleanFlagName {
   }
 }
 
+export type FormatDescFn = (desc: string) => string;
+
 class Desc {
-  static of(spec: string): Desc {
-    return new Desc(spec);
+  static of(spec: string, format: FormatDescFn): Desc {
+    return new Desc(spec, format);
   }
 
   readonly #unpacked: UnpackedDescSpec;
+  readonly #format: FormatDescFn;
 
-  private constructor(spec: string) {
+  private constructor(spec: string, format: FormatDescFn) {
     this.#unpacked = unpackDescSpec(spec);
+    this.#format = format;
   }
 
   [Symbol.for("nodejs.util.inspect.custom")](): object {
@@ -227,7 +234,7 @@ class Desc {
   }
 
   get description(): string {
-    return this.#unpacked.description;
+    return this.#format(this.#unpacked.description);
   }
 
   get short(): ShortFlagString | undefined {
@@ -345,20 +352,22 @@ function tryExtractDelimited(
 }
 
 class ArgDesc {
-  static of(spec: command.ArgDesc): ArgDesc {
-    return new ArgDesc(spec);
+  static of(spec: command.ArgDesc, format: FormatDescFn): ArgDesc {
+    return new ArgDesc(spec, format);
   }
 
   readonly #label: string;
   readonly #required: boolean;
   readonly #description: string;
+  readonly #format: FormatDescFn;
 
-  private constructor(spec: command.ArgDesc) {
+  private constructor(spec: command.ArgDesc, format: FormatDescFn) {
     const { label, required, description } = unpackArgDesc(spec);
 
     this.#label = label;
     this.#required = required;
     this.#description = description;
+    this.#format = format;
   }
 
   [Symbol.for("nodejs.util.inspect.custom")](): object {
@@ -368,7 +377,7 @@ class ArgDesc {
   }
 
   get description(): string {
-    return this.#description;
+    return this.#format(this.#description);
   }
 
   asCommanderLabel(): string {

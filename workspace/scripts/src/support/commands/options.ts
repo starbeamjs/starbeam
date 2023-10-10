@@ -126,12 +126,11 @@ type CamelizedKey<N extends PropertyKey> = N extends string
 
 export function withOptions(command: Command): Command {
   return command
-    .option("-v, --verbose", "print verbose output", false)
-    .option("-S, --no-stylish", "print less compact output", true)
+    .option("-v, --verbose", chalk.yellow("print verbose output"), false)
     .option(
-      "-d, --density <density>",
-      "the density of the output ('compact' or 'comfortable')",
-      "comfortable",
+      "-S, --no-stylish",
+      chalk.yellowBright("print less compact output"),
+      true,
     );
 }
 
@@ -139,13 +138,11 @@ export interface CommandOptions extends ReporterOptions {
   workspace: Workspace;
   verbose: boolean;
   stylish: boolean;
-  density: "compact" | "comfortable";
 }
 
 export interface ShortCommandOptions {
   "-v": "verbose";
   "-S": "no-stylish";
-  "-d": "density";
 }
 
 export function normalizeFlag(
