@@ -13,14 +13,14 @@ interface DefaultExport extends PropertyDecorator {
   map: <K, V>(description?: string | Description) => Map<K, V>;
   object: <T extends object>(
     values: T,
-    description?: string | Description
+    description?: string | Description,
   ) => T;
 }
 
 export const reactive = (
   target: unknown,
   key: PropertyKey,
-  _descriptor?: object
+  _descriptor?: object,
 ): void => {
   const CELLS = new WeakMap<object, Cell>();
 
@@ -54,18 +54,18 @@ export const reactive = (
 };
 
 export function ReactiveMap<K, V>(
-  description?: string | Description
+  description?: string | Description,
 ): Map<K, V> {
   return ReactiveMapImpl.reactive(
     Object.is,
-    DEBUG?.Desc("collection", description)
+    DEBUG?.Desc("collection", description),
   );
 }
 
 reactive.Map = ReactiveMap;
 
 reactive.WeakMap = <K extends object, V>(
-  description?: string | Description
+  description?: string | Description,
 ): WeakMap<K, V> => {
   return TrackedWeakMap.reactive<K, V>(DEBUG?.Desc("collection", description));
 };
@@ -73,22 +73,22 @@ reactive.WeakMap = <K extends object, V>(
 reactive.Set = <T>(description?: string | Description): Set<T> => {
   return ReactiveSet.reactive(
     Object.is,
-    DEBUG?.Desc("collection", description)
+    DEBUG?.Desc("collection", description),
   );
 };
 
 reactive.WeakSet = <T extends object>(
-  description?: string | Description
+  description?: string | Description,
 ): WeakSet<T> => {
   return TrackedWeakSet.reactive(
-    DEBUG?.Desc("collection", description, "reactive.WeakSet")
+    DEBUG?.Desc("collection", description, "reactive.WeakSet"),
   );
 };
 
 export function object<T extends Record<string, unknown>>(
   this: void,
   values: T,
-  description?: string | Description
+  description?: string | Description,
 ): T {
   return TrackedObject.reactive(DEBUG?.Desc("collection", description), values);
 }
@@ -98,7 +98,7 @@ reactive.object = object;
 reactive.array = <T>(values: T[], description?: string | Description): T[] => {
   return new TrackedArray(
     DEBUG?.Desc("collection", description),
-    values
+    values,
   ) as T[];
 };
 

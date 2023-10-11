@@ -1,0 +1,39 @@
+{
+  "name": "typed-json-utils",
+  "version": "1.0.0",
+  "description": "Utilities for working with JSON values in a typesafe way",
+  "type": "module",
+  "main": "index.ts",
+  "types": "index.ts",
+  "exports": {
+    "default": "./index.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts"
+  },
+  "scripts": {
+    "ci:lint": "eslint . --max-warnings 0",
+    "ci:readme": "standard-readme",
+    "ci:specs": "vitest --root tests --run",
+    "ci:typecheck": "vitest typecheck --root tests --run",
+    "prepack": "rollup -c rollup.config.mjs",
+    "test:specs": "vitest --root tests --ui",
+    "test:typecheck": "vitest typecheck --root tests --ui"
+  },
+  "dependencies": {
+    "vite-env": "workspace:^"
+  },
+  "devDependencies": {
+    "@starbeam-dev/build-support": "workspace:^",
+    "@starbeam-dev/eslint-plugin": "^1.0.4",
+    "@vitest/ui": "^1.0.0-beta.1",
+    "rollup": "^4.0.2",
+    "typescript": "^5.2.2",
+    "vitest": "^1.0.0-beta.1"
+  }
+}

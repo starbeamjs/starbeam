@@ -5,11 +5,11 @@ import {
   stringify,
 } from "@starbeam/core-utils";
 import type { Package } from "@starbeam-workspace/package";
-import type { Glob, Globs, RegularFile } from "@starbeam-workspace/paths";
 import type { Reporter, Workspace } from "@starbeam-workspace/reporter";
 import { Fragment } from "@starbeam-workspace/reporter";
 import { PresentArray } from "@starbeam-workspace/shared";
 import depcheck from "depcheck";
+import type { Glob, Globs, RegularFile } from "trailway";
 
 /**
  * These types represent builtin APIs that don't require an implementation package.

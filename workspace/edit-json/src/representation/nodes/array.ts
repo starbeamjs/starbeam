@@ -4,7 +4,7 @@ import {
   isEmptyArray,
   LAST_OFFSET,
 } from "@starbeam/core-utils";
-import type { JsonValue } from "@starbeam-workspace/json";
+import type { JsonValue } from "typed-json-utils";
 
 import { modifications } from "../../edits/api.js";
 import type { UniqueInsertOption } from "../../edits/array/insert.js";

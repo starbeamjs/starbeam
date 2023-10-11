@@ -1,5 +1,5 @@
-import type { JsonValue } from "@starbeam-workspace/json";
 import type * as jsonc from "jsonc-parser";
+import type { JsonValue } from "typed-json-utils";
 
 import { getRange } from "../../representation/nodes/abstract.js";
 import type { JsonArrayNode } from "../../representation/nodes/array.js";

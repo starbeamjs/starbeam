@@ -42,7 +42,7 @@
     "react-dom": "^18.1.0"
   },
   "devDependencies": {
-    "@starbeam/eslint-plugin": "workspace:^",
+    "@starbeam-dev/eslint-plugin": "^1.0.4",
     "@types/react": "^18.2.22",
     "@types/react-dom": "^18.2.7",
     "@vitest/ui": "^0.34.4",

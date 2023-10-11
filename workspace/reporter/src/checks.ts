@@ -1,5 +1,5 @@
-import type { Directory } from "@starbeam-workspace/paths";
 import { FATAL_EXIT_CODE, OK_EXIT_CODE } from "@starbeam-workspace/shared";
+import type { Directory } from "trailway";
 
 import type { Workspace } from "./interfaces.js";
 

@@ -1,6 +1,6 @@
 import type { ExecSyncOptionsWithStringEncoding } from "node:child_process";
 
-import type { Directory, WorkspacePath } from "@starbeam-workspace/paths";
+import type { Directory, WorkspacePath } from "trailway";
 
 import type { CommandOutputType } from "./command-stream.js";
 import type { Reporter } from "./reporter.js";

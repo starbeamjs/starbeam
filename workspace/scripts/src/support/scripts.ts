@@ -1,6 +1,6 @@
 import type { Package } from "@starbeam-workspace/package";
-import type { Directory, Path } from "@starbeam-workspace/paths";
 import type { Workspace } from "@starbeam-workspace/reporter";
+import type { Directory, Path } from "trailway";
 
 import scripts from "../scripts.json";
 

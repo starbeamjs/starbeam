@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "@shopify/polaris": "^11.19.0",
-    "@starbeam/eslint-plugin": "workspace:^",
+    "@starbeam-dev/eslint-plugin": "^1.0.4",
     "@types/react": "^18.2.22",
     "@types/react-dom": "^18.2.7",
     "@types/styled-components": "^5.1.27",

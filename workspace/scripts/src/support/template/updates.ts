@@ -1,5 +1,5 @@
-import type { Directory, WorkspacePath } from "@starbeam-workspace/paths";
 import type { Workspace } from "@starbeam-workspace/reporter";
+import type { Directory, WorkspacePath } from "trailway";
 
 import type { LabelledUpdater } from "../updating/update-file.js";
 

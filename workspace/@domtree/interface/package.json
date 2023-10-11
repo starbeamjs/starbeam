@@ -25,7 +25,7 @@
     "test:types": "tsc -b"
   },
   "devDependencies": {
-    "@starbeam/eslint-plugin": "workspace:^",
-    "@starbeam-dev/build-support": "workspace:^"
+    "@starbeam-dev/build-support": "workspace:^",
+    "@starbeam-dev/eslint-plugin": "^1.0.4"
   }
 }

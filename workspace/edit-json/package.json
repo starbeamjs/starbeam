@@ -27,17 +27,17 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "@starbeam-workspace/json": "workspace:^",
-    "@starbeam-workspace/paths": "workspace:^",
     "@starbeam-workspace/shared": "workspace:^",
     "chalk": "^5.3.0",
     "codespan-wasm": "^0.4.0",
     "jsonc-parser": "^3.2.0",
-    "lines-and-columns": "^2.0.3"
+    "lines-and-columns": "^2.0.3",
+    "trailway": "workspace:^",
+    "typed-json-utils": "workspace:^"
   },
   "devDependencies": {
-    "@starbeam/eslint-plugin": "workspace:^",
     "@starbeam-dev/build-support": "workspace:^",
+    "@starbeam-dev/eslint-plugin": "^1.0.4",
     "@types/lines-and-columns": "workspace:^"
   }
 }

@@ -1,0 +1,22 @@
+{
+  "private": true,
+  "name": "@tests/typed-json-utils",
+  "version": "1.0.0",
+  "type": "module",
+  "starbeam": {
+    "source": "ts",
+    "type": "tests"
+  },
+  "scripts": {
+    "test:lint": "eslint . --max-warnings 0",
+    "test:types": "tsc -b"
+  },
+  "dependencies": {
+    "typed-json-utils": "workspace:^",
+    "vite-env": "workspace:^"
+  },
+  "devDependencies": {
+    "@starbeam-dev/eslint-plugin": "^1.0.4",
+    "vitest": "^1.0.0-beta.1"
+  }
+}

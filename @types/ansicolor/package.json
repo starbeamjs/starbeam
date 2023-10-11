@@ -22,7 +22,7 @@
     "test:types": "tsc -b"
   },
   "devDependencies": {
-    "@starbeam/eslint-plugin": "workspace:^",
+    "@starbeam-dev/eslint-plugin": "^1.0.4",
     "@types/node": "18.16.18"
   }
 }

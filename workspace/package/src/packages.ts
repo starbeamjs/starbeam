@@ -1,8 +1,8 @@
 import { isPresentArray } from "@starbeam/core-utils";
-import { type Path } from "@starbeam-workspace/paths";
 import type { Workspace } from "@starbeam-workspace/reporter";
 import { DisplayStruct, Union } from "@starbeam-workspace/shared";
 import sh from "shell-escape-tag";
+import { type Path } from "trailway";
 
 import type { PackageDependencies } from "./dependencies";
 import { Package } from "./package";

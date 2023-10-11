@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import chalk, { type ColorSupportLevel } from "chalk";
 import type { Command, Help, Option as CommanderOption } from "commander";
 
@@ -171,20 +172,17 @@ function isPresentArray<T>(array: T[]): boolean {
 }
 
 export function defaultCommandSettings(command: Command): Command {
-  return (
-    command
-      // .showHelpAfterError()
-      .showSuggestionAfterError()
-      .exitOverride((err) => {
-        console.error(command.helpInformation());
-        console.error(err);
-      })
-      .configureHelp({
-        formatHelp: (cmd, helper) => {
-          return formatHelp(helper, cmd, helper);
-        },
-      })
-  );
+  return command
+    .showSuggestionAfterError()
+    .exitOverride((err) => {
+      console.error(command.helpInformation());
+      console.error(err);
+    })
+    .configureHelp({
+      formatHelp: (cmd, helper) => {
+        return formatHelp(helper, cmd, helper);
+      },
+    });
 }
 
 function styleFor(kind: OptionKind) {

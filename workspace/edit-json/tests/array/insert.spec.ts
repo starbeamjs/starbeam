@@ -1,7 +1,7 @@
 import { isPresent, verified } from "@starbeam/verify";
 import { getArrayAt } from "@starbeam-workspace/edit-json";
-import type { JsonValue } from "@starbeam-workspace/json";
 import { describe, expect, test } from "@starbeam-workspace/test-utils";
+import type { JsonValue } from "typed-json-utils";
 
 import { testSource } from "../support/source.js";
 import { strippedJSON } from "../support/stripped.js";

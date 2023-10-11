@@ -24,6 +24,6 @@
     "vitest": "^0.34.4"
   },
   "devDependencies": {
-    "@starbeam/eslint-plugin": "workspace:^"
+    "@starbeam-dev/eslint-plugin": "^1.0.4"
   }
 }

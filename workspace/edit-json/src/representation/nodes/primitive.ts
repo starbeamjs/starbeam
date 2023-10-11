@@ -1,5 +1,5 @@
 import { DisplayNewtype } from "@starbeam/core-utils";
-import type { JsonPrimitive } from "@starbeam-workspace/json";
+import type { JsonPrimitive } from "typed-json-utils";
 
 import type { RawJsonPrimitive } from "../raw.js";
 import type { SourceRange } from "../source.js";

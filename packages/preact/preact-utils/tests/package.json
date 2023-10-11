@@ -24,7 +24,7 @@
     "preact": "*"
   },
   "devDependencies": {
-    "@starbeam/eslint-plugin": "workspace:^",
+    "@starbeam-dev/eslint-plugin": "^1.0.4",
     "preact-render-to-string": "^6.2.1"
   }
 }

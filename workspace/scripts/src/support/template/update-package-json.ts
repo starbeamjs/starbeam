@@ -3,9 +3,7 @@ import {
   isPresentArray,
   type JsonObject,
 } from "@starbeam/core-utils";
-import { type JsonValue } from "@starbeam-workspace/json";
 import type { Package, StarbeamType } from "@starbeam-workspace/package";
-import type { RegularFile } from "@starbeam-workspace/paths";
 import {
   Fragment,
   fragment,
@@ -13,6 +11,8 @@ import {
 } from "@starbeam-workspace/reporter";
 import { Result, type TakeFn } from "@starbeam-workspace/shared";
 import { consolidate } from "@starbeam-workspace/utils";
+import type { RegularFile } from "trailway";
+import { type JsonValue } from "typed-json-utils";
 
 import type { LabelledUpdater } from "../updating/update-file.js";
 
@@ -34,8 +34,8 @@ export function updatePackageJSON(updater: LabelledUpdater): void {
               insert({ "exports:default": `./${main.relative}` }),
             ),
             If(
-              Not(nameIs("@starbeam/eslint-plugin")),
-              addDevDep("@starbeam/eslint-plugin"),
+              Not(nameIs("@starbeam-dev/eslint-plugin")),
+              addDevDep("@starbeam-dev/eslint-plugin"),
             ),
             If(needsBuildSupport, addDevDep("@starbeam-dev/build-support")),
           )

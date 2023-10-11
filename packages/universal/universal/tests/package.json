@@ -19,7 +19,7 @@
     "@starbeam/universal": "workspace:^"
   },
   "devDependencies": {
-    "@starbeam/eslint-plugin": "workspace:^",
+    "@starbeam-dev/eslint-plugin": "^1.0.4",
     "@starbeam-workspace/test-utils": "workspace:^"
   }
 }

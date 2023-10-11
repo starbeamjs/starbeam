@@ -26,14 +26,8 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@starbeam/eslint-plugin": "workspace:^",
     "@starbeam-dev/build-support": "workspace:^",
-    "rollup": "^3.29.2"
-  },
-  "files": [
-    "dist",
-    "README.md",
-    "CHANGELOG.md",
-    "LICENSE.md"
-  ]
+    "@starbeam-dev/eslint-plugin": "^1.0.4",
+    "rollup": "^4.0.2"
+  }
 }

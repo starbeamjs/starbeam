@@ -26,13 +26,13 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "@starbeam-workspace/json": "workspace:^",
     "shell-escape-tag": "^2.0.2",
-    "term-size": "^3.0.2"
+    "term-size": "^3.0.2",
+    "typed-json-utils": "workspace:^"
   },
   "devDependencies": {
-    "@starbeam/eslint-plugin": "workspace:^",
     "@starbeam-dev/build-support": "workspace:^",
+    "@starbeam-dev/eslint-plugin": "^1.0.4",
     "@types/shell-escape-tag": "workspace:^"
   }
 }
