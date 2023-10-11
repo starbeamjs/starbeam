@@ -11,7 +11,6 @@ import { readPackageJson } from "./read-package-json.js";
 export async function listPublicWorkspaces() {
   let filePaths = await globby([
     "packages/**/package.json", 
-    "workspace/@domtree/**/package.json"
   ], {
     gitignore: true,
     ignore: ["**/tests/**", "**/node_modules/**"],

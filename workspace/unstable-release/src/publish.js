@@ -53,7 +53,7 @@ async function publish() {
     console.info(`Publishing ${workspace}`);
     try {
       await execaCommand(
-        "pnpm publish --tag=unstable --verbose --access=public",
+        "pnpm publish --tag unstable --access public --no-git-checks",
         {
           cwd: dirname(workspace),
         },
@@ -64,7 +64,9 @@ async function publish() {
       );
 
       if (isErr(err)) {
-        errors.push(err.stderr);
+        /** @type {any} */
+        let out = err; 
+        errors.push(`${out.stdout ?? ''} ${err.stderr}`);
         erroredPackages.push(name);
       }
       continue;
@@ -75,7 +77,10 @@ async function publish() {
 
   if (errors.length) {
     console.error("Errors were encountered while publishing these packages");
-    errors.forEach((error) => void console.log(error));
+    errors
+      .map(e => e.trim())
+      .filter(Boolean)
+      .forEach((error) => void console.log(error));
 
     console.info(
       '------------------------------------------\n' 
