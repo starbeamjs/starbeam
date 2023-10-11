@@ -53,7 +53,7 @@ async function publish() {
     console.info(`Publishing ${workspace}`);
     try {
       await execaCommand(
-        "npm publish --tag=unstable --verbose --access=public",
+        "pnpm publish --tag=unstable --verbose --access=public",
         {
           cwd: dirname(workspace),
         },

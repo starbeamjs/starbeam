@@ -51,5 +51,11 @@
   },
   "peerDependencies": {
     "vue": "^3.3.4"
-  }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE.md"
+  ]
 }

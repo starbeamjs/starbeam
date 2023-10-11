@@ -36,5 +36,11 @@
   },
   "peerDependencies": {
     "preact": ">=10"
-  }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE.md"
+  ]
 }
