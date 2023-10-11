@@ -1,7 +1,7 @@
 import { isEmptyArray } from "@starbeam/core-utils";
-import type { JsonObject } from "@starbeam-workspace/json";
 import { Fragment, fragment } from "@starbeam-workspace/reporter";
 import packageJson from "package-json";
+import type { JsonObject } from "typed-json-utils";
 
 import { QueryCommand } from "./support/commands/query-command.js";
 import { StringOption } from "./support/commands/types.js";
@@ -32,7 +32,7 @@ export const UpdateCommand = QueryCommand(
 
         if (deps) {
           return deps.flatMap((dep) => {
-            return dep.version !== version
+            return isStaleVersion(dep.version, version)
               ? [[pkg.name, String(dep.kind), dep.version]]
               : [];
           });
@@ -67,7 +67,7 @@ export const UpdateCommand = QueryCommand(
 
             if (deps) {
               return deps.flatMap((dep) => {
-                return dep.version !== version
+                return isStaleVersion(dep.version, version)
                   ? [[pkg.name, String(dep.kind), dep.version]]
                   : [];
               });
@@ -118,8 +118,12 @@ function updateCurrentIn(
   if (deps === undefined) return;
 
   if (name in deps) {
-    deps[name] = version;
+    deps[name] = `^${version}`;
   }
+}
+
+function isStaleVersion(pkg: string, expected: string) {
+  return pkg !== `^${expected}`;
 }
 
 interface PackageJson extends JsonObject {

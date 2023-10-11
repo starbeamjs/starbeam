@@ -55,9 +55,9 @@
     "@starbeam-tests/vue-testing-utils",
     "@starbeam-tests/x-store",
     "@starbeam-tests/x-vanilla",
-    "@starbeam-workspace/json",
+    "typed-json-utils",
     "@starbeam-workspace/package",
-    "@starbeam-workspace/paths",
+    "trailway",
     "@starbeam-workspace/preact-testing-utils",
     "@starbeam-workspace/react-test-utils",
     "@starbeam-workspace/reporter",
@@ -70,7 +70,7 @@
     "@starbeam/core",
     "@starbeam/core-utils",
     "@starbeam/debug",
-    "@starbeam/eslint-plugin",
+    "@starbeam-dev/eslint-plugin",
     "@starbeam/interfaces",
     "@starbeam/modifier",
     "@starbeam/preact",
@@ -4500,9 +4500,9 @@
       "dotEnv": null
     },
     {
-      "taskId": "@starbeam-workspace/json#lint",
+      "taskId": "typed-json-utils#lint",
       "task": "lint",
-      "package": "@starbeam-workspace/json",
+      "package": "typed-json-utils",
       "hash": "d20f7f8f47e018d7",
       "inputs": {
         ".eslintrc.json": "1ea96989293aa19dda962a32e98ed6836c5c5abd",
@@ -4526,7 +4526,7 @@
       "logFile": "workspace/json/.turbo/turbo-lint.log",
       "directory": "workspace/json",
       "dependencies": [
-        "@starbeam-workspace/json#test:lint"
+        "typed-json-utils#test:lint"
       ],
       "dependents": [],
       "resolvedTaskDefinition": {
@@ -4557,9 +4557,9 @@
       "dotEnv": null
     },
     {
-      "taskId": "@starbeam-workspace/json#test:lint",
+      "taskId": "typed-json-utils#test:lint",
       "task": "test:lint",
-      "package": "@starbeam-workspace/json",
+      "package": "typed-json-utils",
       "hash": "b429a920294c3639",
       "inputs": {
         ".eslintrc.json": "1ea96989293aa19dda962a32e98ed6836c5c5abd",
@@ -4584,7 +4584,7 @@
       "directory": "workspace/json",
       "dependencies": [],
       "dependents": [
-        "@starbeam-workspace/json#lint"
+        "typed-json-utils#lint"
       ],
       "resolvedTaskDefinition": {
         "outputs": [],
@@ -4742,9 +4742,9 @@
       "dotEnv": null
     },
     {
-      "taskId": "@starbeam-workspace/paths#lint",
+      "taskId": "trailway#lint",
       "task": "lint",
-      "package": "@starbeam-workspace/paths",
+      "package": "trailway",
       "hash": "31646ae17da70fec",
       "inputs": {
         ".eslintrc.json": "1ea96989293aa19dda962a32e98ed6836c5c5abd",
@@ -4768,7 +4768,7 @@
       "logFile": "workspace/paths/.turbo/turbo-lint.log",
       "directory": "workspace/paths",
       "dependencies": [
-        "@starbeam-workspace/paths#test:lint"
+        "trailway#test:lint"
       ],
       "dependents": [],
       "resolvedTaskDefinition": {
@@ -4799,9 +4799,9 @@
       "dotEnv": null
     },
     {
-      "taskId": "@starbeam-workspace/paths#test:lint",
+      "taskId": "trailway#test:lint",
       "task": "test:lint",
-      "package": "@starbeam-workspace/paths",
+      "package": "trailway",
       "hash": "adf8f7d264155328",
       "inputs": {
         ".eslintrc.json": "1ea96989293aa19dda962a32e98ed6836c5c5abd",
@@ -4826,7 +4826,7 @@
       "directory": "workspace/paths",
       "dependencies": [],
       "dependents": [
-        "@starbeam-workspace/paths#lint"
+        "trailway#lint"
       ],
       "resolvedTaskDefinition": {
         "outputs": [],
@@ -6484,9 +6484,9 @@
       "dotEnv": null
     },
     {
-      "taskId": "@starbeam/eslint-plugin#lint",
+      "taskId": "@starbeam-dev/eslint-plugin#lint",
       "task": "lint",
-      "package": "@starbeam/eslint-plugin",
+      "package": "@starbeam-dev/eslint-plugin",
       "hash": "dcd72cc66afc43a7",
       "inputs": {
         ".eslintrc.json": "5f45649143b3a075f484028f1828bd1448389116",
@@ -6517,7 +6517,7 @@
       "logFile": "workspace/eslint/.turbo/turbo-lint.log",
       "directory": "workspace/eslint",
       "dependencies": [
-        "@starbeam/eslint-plugin#test:lint"
+        "@starbeam-dev/eslint-plugin#test:lint"
       ],
       "dependents": [],
       "resolvedTaskDefinition": {
@@ -6548,9 +6548,9 @@
       "dotEnv": null
     },
     {
-      "taskId": "@starbeam/eslint-plugin#test:lint",
+      "taskId": "@starbeam-dev/eslint-plugin#test:lint",
       "task": "test:lint",
-      "package": "@starbeam/eslint-plugin",
+      "package": "@starbeam-dev/eslint-plugin",
       "hash": "3e43ea6fa72a6fbc",
       "inputs": {
         ".eslintrc.json": "5f45649143b3a075f484028f1828bd1448389116",
@@ -6582,7 +6582,7 @@
       "directory": "workspace/eslint",
       "dependencies": [],
       "dependents": [
-        "@starbeam/eslint-plugin#lint"
+        "@starbeam-dev/eslint-plugin#lint"
       ],
       "resolvedTaskDefinition": {
         "outputs": [],

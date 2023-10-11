@@ -1,6 +1,6 @@
 import { DisplayStruct, isEmptyArray } from "@starbeam/core-utils";
-import type { JsonObject, JsonValue } from "@starbeam-workspace/json";
 import * as jsonc from "jsonc-parser";
+import type { JsonObject, JsonValue } from "typed-json-utils";
 
 import { modifications } from "../../edits/api.js";
 import type { JsonModification } from "../../edits/edits.js";

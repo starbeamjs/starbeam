@@ -8,31 +8,24 @@
     "!.vscode"
   ],
 
-  "plugins": ["@starbeam"],
+  "plugins": ["@starbeam-dev"],
   "overrides": [
     {
-      "extends": ["plugin:@starbeam/tight"],
-      "files": ["*.ts", "*.d.ts"],
-      "parserOptions": {
-        "project": ["tsconfig.json"]
-      }
-    },
-    {
-      "extends": ["plugin:@starbeam/tight"],
+      "extends": ["plugin:@starbeam-dev/tight"],
       "files": ["vitest.*.{mts,ts}"],
       "parserOptions": {
         "project": ["tsconfig.json"]
       }
     },
     {
-      "extends": ["plugin:@starbeam/esm"],
+      "extends": ["plugin:@starbeam-dev/esm"],
       "files": ["rollup.config.{mjs,js}"],
       "parserOptions": {
         "project": ["tsconfig.json"]
       }
     },
     {
-      "extends": ["plugin:@starbeam/json:recommended"],
+      "extends": ["plugin:@starbeam-dev/json:recommended"],
       "files": [
         ".eslintrc.json",
         ".eslintrc.*.json",

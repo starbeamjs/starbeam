@@ -1,7 +1,7 @@
 import { getFirst, getLast, isEmptyArray } from "@starbeam/core-utils";
-import type { JsonValue } from "@starbeam-workspace/json";
 import chalk from "chalk";
 import type * as jsonc from "jsonc-parser";
+import type { JsonValue } from "typed-json-utils";
 
 import { getRange } from "../../representation/nodes/abstract.js";
 import type { JsonObjectNode } from "../../representation/nodes/object.js";

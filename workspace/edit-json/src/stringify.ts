@@ -1,5 +1,5 @@
-import type { JsonValue } from "@starbeam-workspace/json";
 import chalk from "chalk";
+import type { JsonValue } from "typed-json-utils";
 
 import { exhaustive } from "./utils.js";
 

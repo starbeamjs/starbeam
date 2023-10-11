@@ -1,5 +1,5 @@
 import { isPresentArray } from "@starbeam/core-utils";
-import type { JsonValue } from "@starbeam-workspace/json";
+import type { JsonValue } from "typed-json-utils";
 
 import { formatKey } from "./packages";
 

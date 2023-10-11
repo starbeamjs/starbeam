@@ -27,7 +27,6 @@
   },
   "dependencies": {
     "@starbeam/core-utils": "workspace:^",
-    "@starbeam-workspace/paths": "workspace:^",
     "@starbeam-workspace/shared": "workspace:^",
     "ansicolor": "^1.1.100",
     "chalk": "^5.3.0",
@@ -37,11 +36,12 @@
     "shell-escape-tag": "^2.0.2",
     "shell-split": "^1.0.0",
     "split2": "^4.2.0",
+    "trailway": "workspace:^",
     "wrap-ansi": "^8.1.0"
   },
   "devDependencies": {
-    "@starbeam/eslint-plugin": "workspace:^",
     "@starbeam-dev/build-support": "workspace:^",
+    "@starbeam-dev/eslint-plugin": "^1.0.4",
     "@starbeam-workspace/shared": "workspace:*",
     "@types/ansicolor": "workspace:^",
     "@types/node": "18.16.1",

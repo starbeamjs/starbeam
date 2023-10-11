@@ -1,12 +1,5 @@
 import { stringify } from "@starbeam/core-utils";
 import type {
-  Directory,
-  Glob,
-  GlobOptions,
-  Path,
-} from "@starbeam-workspace/paths";
-import { WorkspacePath } from "@starbeam-workspace/paths";
-import type {
   CheckResults,
   IntoFragment,
   ReporterOptions,
@@ -23,6 +16,13 @@ import {
   execSync,
   type ExecSyncOptionsWithStringEncoding,
 } from "child_process";
+import type {
+  Directory,
+  Glob,
+  GlobOptions,
+  Path,
+} from "trailway";
+import { WorkspacePath } from "trailway";
 
 import { Checks } from "./checks.js";
 import { fatal } from "./utils.js";

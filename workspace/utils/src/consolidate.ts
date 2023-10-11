@@ -1,6 +1,6 @@
-import type { JsonObject } from "@starbeam-workspace/json";
 import { fragment } from "@starbeam-workspace/reporter";
 import { Result } from "@starbeam-workspace/shared";
+import type { JsonObject } from "typed-json-utils";
 
 import { fallible } from "./fallible.js";
 

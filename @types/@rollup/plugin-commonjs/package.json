@@ -24,6 +24,6 @@
     "@rollup/plugin-commonjs": "25.0.5"
   },
   "devDependencies": {
-    "@starbeam/eslint-plugin": "workspace:^"
+    "@starbeam-dev/eslint-plugin": "^1.0.4"
   }
 }

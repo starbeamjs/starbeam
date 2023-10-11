@@ -3,10 +3,8 @@ import { relative } from "node:path";
 
 import { isJSONObject, stringifyJSON } from "@starbeam/core-utils";
 import { SourceRoot } from "@starbeam-workspace/edit-json";
-import type { JsonObject, JsonValue } from "@starbeam-workspace/json";
 import type { Package } from "@starbeam-workspace/package";
 import { JsonTemplate, Template } from "@starbeam-workspace/package";
-import type { Directory, Path, WorkspacePath } from "@starbeam-workspace/paths";
 import type { ReportableError } from "@starbeam-workspace/reporter";
 import { Fragment, fragment } from "@starbeam-workspace/reporter";
 import {
@@ -18,6 +16,8 @@ import {
 } from "@starbeam-workspace/shared";
 import type { Workspace } from "@starbeam-workspace/workspace";
 import sh from "shell-escape-tag";
+import type { Directory, Path, WorkspacePath } from "trailway";
+import type { JsonObject, JsonValue } from "typed-json-utils";
 
 import { Migrator } from "../jsonc/migration.js";
 import type { UpdatePackageFn } from "../template/updates.js";
@@ -246,7 +246,7 @@ function json({
   const prev = existsSync(path) ? readFileSync(path, "utf-8") : undefined;
 
   return Result.do((take) => {
-    const prevJSON = take(JSON.parse(prev ?? "{}") as JsonValue | undefined);
+    const prevJSON = take(JSON.parse(prev ?? "{}") );
 
     if (!isJSONObject(prevJSON)) {
       return take.err(

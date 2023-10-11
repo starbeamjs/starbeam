@@ -1,5 +1,5 @@
-import type { JsonValue } from "@starbeam-workspace/json";
 import * as jsonc from "jsonc-parser";
+import type { JsonValue } from "typed-json-utils";
 
 import type { JsonNode } from "../node.js";
 import type { RawNode } from "../raw.js";

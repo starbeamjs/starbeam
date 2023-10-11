@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
-    "@starbeam/eslint-plugin": "workspace:^",
+    "@starbeam-dev/eslint-plugin": "^1.0.4",
     "@vitest/ui": "^0.34.4",
     "vite": "4.3.9",
     "vitest": "^0.34.4"

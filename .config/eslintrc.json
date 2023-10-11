@@ -2,11 +2,11 @@
   "root": false,
   "overrides": [
     {
-      "extends": ["plugin:@starbeam/json:parser"],
+      "extends": ["plugin:@starbeam-dev/json:parser"],
       "files": ["*.json", "workspace/build/*.json"]
     },
     {
-      "extends": ["plugin:@starbeam/json:default"],
+      "extends": ["plugin:@starbeam-dev/json:default"],
       "files": ["*.json", "workspace/build/*.json"],
       "excludedFiles": [
         "tsconfig.*",
@@ -16,19 +16,19 @@
       ]
     },
     {
-      "extends": ["plugin:@starbeam/json:vscode-settings"],
+      "extends": ["plugin:@starbeam-dev/json:vscode-settings"],
       "files": [".vscode/settings.json"]
     },
     {
-      "extends": ["plugin:@starbeam/json:tsconfig"],
+      "extends": ["plugin:@starbeam-dev/json:tsconfig"],
       "files": ["tsconfig.*.json", "tsconfig.json"]
     },
     {
-      "extends": ["plugin:@starbeam/json:eslintrc"],
+      "extends": ["plugin:@starbeam-dev/json:eslintrc"],
       "files": [".eslintrc.json", "**/eslintrc.json"]
     },
     {
-      "extends": ["plugin:@starbeam/json:package"],
+      "extends": ["plugin:@starbeam-dev/json:package"],
       "files": ["package.json"]
     }
   ]

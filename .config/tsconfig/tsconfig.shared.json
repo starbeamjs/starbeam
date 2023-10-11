@@ -3,8 +3,8 @@
     "rootDir": "../..",
     "allowJs": true,
 
-    "target": "ESNext",
-    "module": "ESNext",
+    "target": "esnext",
+    "module": "esnext",
     "moduleResolution": "bundler",
 
     "declaration": true,

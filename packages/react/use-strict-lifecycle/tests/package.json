@@ -18,7 +18,7 @@
     "react": "18.2.0"
   },
   "devDependencies": {
-    "@starbeam/eslint-plugin": "workspace:^",
+    "@starbeam-dev/eslint-plugin": "^1.0.4",
     "@types/react": "^18.2.22",
     "jsdom": "^22.1.0"
   }

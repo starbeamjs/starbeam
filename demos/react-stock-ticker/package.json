@@ -36,7 +36,7 @@
     "react-portal": "^4.2.2"
   },
   "devDependencies": {
-    "@starbeam/eslint-plugin": "workspace:^",
+    "@starbeam-dev/eslint-plugin": "^1.0.4",
     "@types/react": "^18.2.22",
     "@types/react-dom": "^18.2.7",
     "@types/react-portal": "^4.0.4",

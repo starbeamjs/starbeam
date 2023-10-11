@@ -1,4 +1,4 @@
-import type { JsonValue } from "@starbeam-workspace/json";
+import type { JsonValue } from "typed-json-utils";
 
 export interface DisplayStructOptions {
   readonly description: JsonValue;

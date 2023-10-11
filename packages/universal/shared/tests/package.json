@@ -20,6 +20,6 @@
     "strip-ansi": "^7.1.0"
   },
   "devDependencies": {
-    "@starbeam/eslint-plugin": "workspace:^"
+    "@starbeam-dev/eslint-plugin": "^1.0.4"
   }
 }

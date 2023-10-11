@@ -24,6 +24,6 @@
     "@rollup/plugin-node-resolve": "^15.2.3"
   },
   "devDependencies": {
-    "@starbeam/eslint-plugin": "workspace:^"
+    "@starbeam-dev/eslint-plugin": "^1.0.4"
   }
 }

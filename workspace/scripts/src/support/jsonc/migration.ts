@@ -8,8 +8,8 @@ import type {
   ModifiableSourceRoot,
   SourceRoot,
 } from "@starbeam-workspace/edit-json";
-import type { JsonValue } from "@starbeam-workspace/json";
 import type { ChangeResult } from "@starbeam-workspace/shared";
+import type { JsonValue } from "typed-json-utils";
 
 /*
   eslint-disable

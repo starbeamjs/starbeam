@@ -1,42 +1,4 @@
 {
-  "tasks": [
-    {
-      "args": ["test:workspace:types"],
-      "command": "pnpm",
-      "label": "test:workspace:types",
-      "problemMatcher": ["$tsc"],
-      "type": "shell"
-    },
-    {
-      "args": ["test:workspace:types", "-w"],
-      "command": "pnpm",
-      "label": "test:workspace:types (watch)",
-      "problemMatcher": ["$tsc-watch"],
-      "type": "shell"
-    },
-    {
-      "args": ["test:workspace:lint"],
-      "command": "pnpm",
-      "label": "Lint",
-      "problemMatcher": ["$eslint-stylish"],
-      "type": "shell"
-    },
-    {
-      "args": ["install"],
-      "command": "pnpm",
-      "group": "build",
-      "label": "npm: install",
-      "presentation": {
-        "clear": true,
-        "echo": true,
-        "focus": false,
-        "panel": "shared",
-        "reveal": "silent",
-        "showReuseMessage": true
-      },
-      "problemMatcher": [],
-      "type": "shell"
-    }
-  ],
+  "tasks": [],
   "version": "2.0.0"
 }

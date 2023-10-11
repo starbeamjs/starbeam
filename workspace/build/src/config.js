@@ -1,5 +1,3 @@
-// @ts-check
-
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -7,14 +5,13 @@ import { fileURLToPath } from "node:url";
 import rollupTS from "rollup-plugin-ts";
 import typescriptLibrary from "typescript";
 
-import importMeta from "./import-meta.js";
 import inline from "./inline.js";
+import importMeta from "./rollup/plugins/import-meta.js";
 
 const { default: commonjs } = await import("@rollup/plugin-commonjs");
 const { default: nodeResolve } = await import("@rollup/plugin-node-resolve");
 const { default: postcss } = await import("rollup-plugin-postcss");
 const { default: nodePolyfills } = await import("rollup-plugin-polyfill-node");
-const { default: fonts } = await import("unplugin-fonts/vite");
 
 const {
   ImportsNotUsedAsValues,
@@ -32,7 +29,6 @@ const {
 /** @typedef {import("rollup").Plugin} RollupPlugin */
 /** @typedef {import("rollup").RollupOptions} RollupOptions */
 /**
- * @typedef {import("./config.js").ESLintExport} ESLintExport
  * @typedef {import("./config.js").ViteConfig} ViteConfig
  * @typedef {import("./config.js").StarbeamKey} StarbeamKey
  * @typedef {import("./config.js").JsonValue} JsonValue
@@ -40,23 +36,6 @@ const {
  * @typedef {import("./config.js").JsonArray} JsonArray
  * @typedef {import("./config.js").PackageJSON} PackageJson
  */
-
-/**
- * The package should be inlined into the output. In this situation, the `external` function should
- * return `false`. This is the default behavior.
- */
-const INLINE = false;
-
-/**
- * The package should be treated as an external dependency. In this situation, the `external` function
- * should return `true`. This is unusual and should be used when:
- *
- * - The package is a "helper library" (such as tslib) that we don't want to make a real dependency
- *   of the published package.
- * - (for now) The package doesn't have good support for ESM (i.e. `type: module` in package.json)
- *   but rollup will handle it for us.
- */
-const EXTERNAL = true;
 
 /**
  * @param {CompilerOptions} updates
@@ -131,6 +110,11 @@ const DEFAULT_EXTERNAL_OPTIONS = [
   ["startsWith", { "@domtree/": "inline" }],
   ["startsWith", { "@starbeam/": "external" }],
 ];
+
+export class Config {
+  /** @type {Package} */
+  #package;
+}
 
 /**
  * @implements {PackageInfo}
@@ -316,15 +300,6 @@ export class Package {
    */
   async #viteConfig() {
     return viteConfig({
-      plugins: [
-        fonts({
-          google: {
-            families: ["Roboto:wght@300;400;500;700"],
-            display: "swap",
-            preconnect: true,
-          },
-        }),
-      ],
       esbuild: this.#esbuild(),
       optimizeDeps: {
         esbuildOptions: {
@@ -481,7 +456,7 @@ async function viteConfig(config) {
  * @param {(value: JsonValue) => T} [map]
  * @returns {T}
  */
-// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+
 function getStarbeam(packageJSON, path, map = (value) => value) {
   const inline = packageJSON[`starbeam:${path}`];
 

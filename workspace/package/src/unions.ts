@@ -4,9 +4,9 @@ import {
   isSingleItemArray,
   stringify,
 } from "@starbeam/core-utils";
-import type { JsonObject, JsonValue } from "@starbeam-workspace/json";
-import type { Directory, Globs, RegularFile } from "@starbeam-workspace/paths";
 import { type IntoUnionInstance, Union } from "@starbeam-workspace/shared";
+import type { Directory, Globs, RegularFile } from "trailway";
+import type { JsonObject, JsonValue } from "typed-json-utils";
 
 export class StarbeamType extends Union(
   "library:interfaces",

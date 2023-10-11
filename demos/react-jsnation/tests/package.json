@@ -21,7 +21,7 @@
     "react-error-boundary": "^4.0.11"
   },
   "devDependencies": {
-    "@starbeam/eslint-plugin": "workspace:^",
+    "@starbeam-dev/eslint-plugin": "^1.0.4",
     "@testing-library/react": "^14.0.0",
     "@types/react": "^18.2.22",
     "jsdom": "^22.1.0"

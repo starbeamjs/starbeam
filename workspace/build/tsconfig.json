@@ -1,31 +1,28 @@
 {
-  "extends": "../../.config/tsconfig/tsconfig.shared.json",
   "compilerOptions": {
     "allowJs": true,
-    "allowSyntheticDefaultImports": false,
     "checkJs": true,
-    "composite": true,
-    "declaration": true,
-    "declarationDir": "../../dist/types",
-    "declarationMap": true,
-    "esModuleInterop": false,
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "ES2022",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
     "noImplicitAny": true,
-    "outDir": "../../dist/packages",
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
+    "paths": {
+      "#/*": ["./src/*"]
+    },
+    "skipDefaultLibCheck": true,
+    "strict": true,
     "target": "ESNext",
     "types": [
       "node",
       "magic-string",
       "@rollup/plugin-commonjs",
-      "@rollup/plugin-node-resolve",
-      "../../packages/env.d.ts",
-      "../../packages/env.d.ts",
-      "../../packages/env.d.ts",
-      "../../packages/env.d.ts",
-      "../../packages/env.d.ts",
-      "../../packages/env.d.ts"
-    ]
+      "@rollup/plugin-node-resolve"
+    ],
+    "verbatimModuleSyntax": true
   },
+  "files": ["index.js", "index.d.ts"],
+  "include": ["src/**/*.d.ts", "src/**/*.js"],
   "exclude": ["dist/**/*"]
 }

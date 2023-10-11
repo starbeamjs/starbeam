@@ -30,11 +30,11 @@
     "test:types": "tsc -b"
   },
   "devDependencies": {
-    "@starbeam/eslint-plugin": "workspace:^",
     "@starbeam-dev/build-support": "workspace:^",
+    "@starbeam-dev/eslint-plugin": "^1.0.4",
     "@types/react": "^18.2.22",
     "@types/scheduler": "^0.16.3",
-    "rollup": "^3.29.2"
+    "rollup": "^4.0.2"
   },
   "peerDependencies": {
     "react": "^18.2.0",

@@ -1,7 +1,7 @@
 import type { JsonPrimitive } from "@starbeam/core-utils";
-import type { JsonObject, JsonValue } from "@starbeam-workspace/json";
 import chalk from "chalk";
 import type * as jsonc from "jsonc-parser";
+import type { JsonObject, JsonValue } from "typed-json-utils";
 
 import type { SourceRange } from "../representation/source.js";
 import { JsoncModification } from "./edits.js";
@@ -85,7 +85,7 @@ export function isEquivalent(
 function isEquivalentArray(a: JsonValue[], b: JsonValue[]): boolean {
   return (
     a.length === b.length &&
-    a.every((v, i) => isEquivalent(v, b[i] as JsonValue | undefined))
+    a.every((v, i) => isEquivalent(v, b[i] ))
   );
 }
 

@@ -4,10 +4,10 @@ import {
   Pattern,
   stringify,
 } from "@starbeam/core-utils";
-import type { JsonValue } from "@starbeam-workspace/json";
-import type { Directory, Globs, RegularFile } from "@starbeam-workspace/paths";
 import { fragment, type Workspace } from "@starbeam-workspace/reporter";
 import type { IntoUnion } from "@starbeam-workspace/shared";
+import type { Directory, Globs, RegularFile } from "trailway";
+import type { JsonValue } from "typed-json-utils";
 
 import type { Dependency, PackageDependencies } from "./dependencies.js";
 import { createDependencies } from "./dependencies.js";
@@ -217,7 +217,7 @@ export class Package {
     return this.dependencies.has(name, kind);
   }
 
-  getDependencies(name: string): Dependency[] | undefined {
+  getDependencies(name: string): Dependency[] | null {
     return this.dependencies.getAll(name);
   }
 

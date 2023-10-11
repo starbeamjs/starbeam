@@ -1,6 +1,6 @@
-import type { JsonObject } from "@starbeam-workspace/json";
 import type { Package } from "@starbeam-workspace/package";
 import type { ESLint } from "eslint";
+import type { JsonObject } from "typed-json-utils";
 
 import type { LabelledUpdater } from "../updating/update-file.js";
 import { UpdatePackageFn } from "./updates.js";
@@ -67,7 +67,7 @@ function eslintFiles(pkg: Package): string[] {
 }
 
 const JSON_ESLINT_CONFIG = {
-  extends: ["plugin:@starbeam/json:recommended"],
+  extends: ["plugin:@starbeam-dev/json:recommended"],
   files: ["*.json"],
 };
 

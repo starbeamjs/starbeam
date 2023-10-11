@@ -1,10 +1,10 @@
 import { readFileSync, writeFileSync } from "node:fs";
 
-import type { JsonValue } from "@starbeam-workspace/json";
-import type { RegularFile } from "@starbeam-workspace/paths";
 import type { ErrorReporter } from "@starbeam-workspace/shared";
 import * as jsonc from "jsonc-parser";
 import { format } from "prettier";
+import type { RegularFile } from "trailway";
+import type { JsonValue } from "typed-json-utils";
 
 export async function parseJsonc(
   reporter: ErrorReporter,
