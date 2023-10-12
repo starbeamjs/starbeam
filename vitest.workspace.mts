@@ -1,10 +1,10 @@
 import { basename, dirname, resolve } from "node:path";
 
-import { Package } from "@starbeam-dev/compile";
+import { rootAt } from "@starbeam-dev/core";
 import glob from "fast-glob";
 import { defineWorkspace } from "vitest/config";
 
-const root = Package.root(import.meta);
+const root = rootAt(import.meta);
 
 const packages = glob
   .sync([
