@@ -9,9 +9,37 @@ const { default: MagicString } = await import("magic-string");
 /** @typedef {import("rollup").Plugin} RollupPlugin */
 
 /**
+ * Replace literal strings in code with specified replacements with sourcemap
+ * support.
+ *
+ * Example rollup config:
+ *
+ * ```js
+ * import { replace } from "@starbeam-dev/compile";
+ *
+ * export default {
+ *   // ...
+ *   plugins: [
+ *     replace({ "import.meta.hello": `"world"` })
+ *   ]
+ * };
+ * ```
+ *
+ * This will replace any instances of `import.meta.hello` in source modules with
+ * the content `"world"`.
+ *
+ * The main purpose of this plugin is to replace dynamic variables with
+ * build-time constant values, which can then be further processed by a
+ * minification pass.
+ *
+ * For example, the `importMeta` plugin replaces `import.meta.env.DEV` with
+ * `true` in development mode and `false` in production mode. In production,
+ * source code guarded with `if (import.meta.env.DEV)` will be emitted as `if
+ * (false)`. The subsequent minification pass will remove the entire `if` block,
+ * including its contents.
+ *
  * @param {(id: string) => boolean} test
- * @param {Record<string, string>} replacements
- * @param {boolean} sourcemap
+ * @param {Record<string, string>} replacements @param {boolean} sourcemap
  *
  * @returns {RollupPlugin}
  */
@@ -24,7 +52,7 @@ export function createReplacePlugin(test, replacements, sourcemap) {
         })
         .join("|") +
       ")\\b",
-    "g"
+    "g",
   );
 
   return {
@@ -57,8 +85,8 @@ export function createReplacePlugin(test, replacements, sourcemap) {
               `Unexpected missing replacement for "${partialMatch}".\n\nReplacements were ${JSON.stringify(
                 replacements,
                 null,
-                2
-              )}`
+                2,
+              )}`,
             );
           }
 

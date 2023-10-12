@@ -33,7 +33,7 @@
     "@starbeam-demos/react-query",
     "@starbeam-demos/react-store",
     "@starbeam-demos/stock-ticker",
-    "@starbeam-dev/build-support",
+    "@starbeam-dev/compile",
     "@starbeam-tests/collections",
     "@starbeam-tests/core-utils",
     "@starbeam-tests/debug",
@@ -1932,9 +1932,9 @@
       "dotEnv": null
     },
     {
-      "taskId": "@starbeam-dev/build-support#lint",
+      "taskId": "@starbeam-dev/compile#lint",
       "task": "lint",
-      "package": "@starbeam-dev/build-support",
+      "package": "@starbeam-dev/compile",
       "hash": "6e5b3e623897da6f",
       "inputs": {
         ".eslintrc.json": "8e816b5dc4631be933fe3ad180d2d4bb9e07f808",
@@ -1968,7 +1968,7 @@
       "logFile": "workspace/build/.turbo/turbo-lint.log",
       "directory": "workspace/build",
       "dependencies": [
-        "@starbeam-dev/build-support#test:lint"
+        "@starbeam-dev/compile#test:lint"
       ],
       "dependents": [],
       "resolvedTaskDefinition": {
@@ -1999,9 +1999,9 @@
       "dotEnv": null
     },
     {
-      "taskId": "@starbeam-dev/build-support#test:lint",
+      "taskId": "@starbeam-dev/compile#test:lint",
       "task": "test:lint",
-      "package": "@starbeam-dev/build-support",
+      "package": "@starbeam-dev/compile",
       "hash": "3012a5b09b2cade6",
       "inputs": {
         ".eslintrc.json": "8e816b5dc4631be933fe3ad180d2d4bb9e07f808",
@@ -2036,7 +2036,7 @@
       "directory": "workspace/build",
       "dependencies": [],
       "dependents": [
-        "@starbeam-dev/build-support#lint"
+        "@starbeam-dev/compile#lint"
       ],
       "resolvedTaskDefinition": {
         "outputs": [],

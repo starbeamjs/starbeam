@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "@domtree/flavors": "workspace:^",
-    "@starbeam-dev/build-support": "workspace:^",
+    "@starbeam-dev/compile": "workspace:^",
     "@starbeam-dev/eslint-plugin": "^1.0.4",
     "rollup": "^4.0.2"
   },

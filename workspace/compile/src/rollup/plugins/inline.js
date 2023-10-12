@@ -3,9 +3,14 @@ import { readFileSync } from "node:fs";
 const INLINE_PREFIX = "\0inline:";
 
 /**
+ * Inlines any imports that end in `?inline` into the importing module as a
+ * string.
+ *
+ * This adds Vite's `?inline` feature to standalone rollup builds.
+ *
  * @returns {import("rollup").Plugin}
  */
-export const inline = () => {
+export default () => {
   return {
     name: "inline",
 
@@ -33,5 +38,3 @@ export const inline = () => {
     },
   };
 };
-
-export default inline;

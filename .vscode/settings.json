@@ -28,7 +28,6 @@
   "codeium.aggressiveShutdown": true,
   "codeium.enableCodeLens": false,
   "codeium.enableSearch": false,
-  // "codeium"
 
   "editor.defaultFormatter": "esbenp.prettier-vscode",
 
@@ -84,7 +83,6 @@
 
   "inline-bookmarks.view.showVisibleFilesOnly": false,
   "npm-outdated.decorations": "fancy",
-
   // rewrap provides a quick keyboard shortcut (alt-q) to reformat comments to
   // a specific column width. It also automatically rewraps comments when you
   // type.

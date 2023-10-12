@@ -40,7 +40,7 @@
     "wrap-ansi": "^8.1.0"
   },
   "devDependencies": {
-    "@starbeam-dev/build-support": "workspace:^",
+    "@starbeam-dev/compile": "workspace:^",
     "@starbeam-dev/eslint-plugin": "^1.0.4",
     "@starbeam-workspace/shared": "workspace:*",
     "@types/ansicolor": "workspace:^",

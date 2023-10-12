@@ -9,8 +9,7 @@ type ConfigOverride = NonNullable<ESLint.ConfigData["overrides"]>[number];
 
 const BASE = {
   root: true,
-  ignorePatterns: ["node_modules", "dist", "html", "tests"],
-  plugins: ["@starbeam"],
+  extends: ["plugin:@starbeam-dev/library:recommended"],
 };
 
 export const updateEslintrc = UpdatePackageFn((updater, options) => {

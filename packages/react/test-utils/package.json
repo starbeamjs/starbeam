@@ -32,7 +32,7 @@
     "@starbeam-workspace/test-utils": "workspace:^"
   },
   "devDependencies": {
-    "@starbeam-dev/build-support": "workspace:^",
+    "@starbeam-dev/compile": "workspace:^",
     "@starbeam-dev/eslint-plugin": "^1.0.4",
     "@testing-library/react": "^14.0.0",
     "@types/react": "^18.2.22",

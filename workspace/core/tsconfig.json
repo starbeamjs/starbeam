@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "allowImportingTsExtensions": true,
     "allowJs": true,
     "checkJs": true,
     "module": "ES2022",
@@ -15,12 +14,7 @@
     "skipDefaultLibCheck": true,
     "strict": true,
     "target": "ESNext",
-    "types": [
-      "node",
-      "magic-string",
-      "@rollup/plugin-commonjs",
-      "@rollup/plugin-node-resolve"
-    ],
+    "types": ["node"],
     "verbatimModuleSyntax": true
   },
   "files": ["index.js", "index.d.ts"],

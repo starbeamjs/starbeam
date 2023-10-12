@@ -39,9 +39,9 @@ importers:
       '@nrr/pnpm-duplicate-cli':
         specifier: ^0.0.1
         version: 0.0.1(patch_hash=32uogezcghlbp3md352jsfusda)(@pnpm/logger@5.0.0)
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:*
-        version: link:workspace/build
+        version: link:workspace/compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -133,8 +133,8 @@ importers:
   '@types/@rollup/plugin-commonjs':
     dependencies:
       '@rollup/plugin-commonjs':
-        specifier: 25.0.5
-        version: 25.0.5(rollup@4.4.1)
+        specifier: ^25.0.7
+        version: 25.0.7(rollup@4.4.1)
     devDependencies:
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
@@ -696,9 +696,9 @@ importers:
         specifier: 10.17.1
         version: 10.17.1
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../../workspace/build
+        version: link:../../../workspace/compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -727,9 +727,9 @@ importers:
         specifier: 10.17.1
         version: 10.17.1
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../../workspace/build
+        version: link:../../../workspace/compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -792,9 +792,9 @@ importers:
         specifier: 10.17.1
         version: 10.17.1
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../../workspace/build
+        version: link:../../../workspace/compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -942,9 +942,9 @@ importers:
         specifier: ^0.23.0
         version: 0.23.0
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../../workspace/build
+        version: link:../../../workspace/compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -1031,9 +1031,9 @@ importers:
         specifier: ^0.23.0
         version: 0.23.0
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../../workspace/build
+        version: link:../../../workspace/compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -1062,9 +1062,9 @@ importers:
         specifier: ^0.23.0
         version: 0.23.0
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../../workspace/build
+        version: link:../../../workspace/compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -1133,9 +1133,9 @@ importers:
         specifier: ^0.5.3
         version: 0.5.3
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../../workspace/build
+        version: link:../../../workspace/compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -1165,9 +1165,9 @@ importers:
         specifier: workspace:^
         version: link:../universal
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../../workspace/build
+        version: link:../../../workspace/compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -1177,9 +1177,9 @@ importers:
 
   packages/universal/core-utils:
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../../workspace/build
+        version: link:../../../workspace/compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -1224,9 +1224,9 @@ importers:
         specifier: ^2.1.8
         version: 2.1.8
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../../workspace/build
+        version: link:../../../workspace/compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -1259,9 +1259,9 @@ importers:
         specifier: workspace:^
         version: link:../shared
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../../workspace/build
+        version: link:../../../workspace/compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -1293,9 +1293,9 @@ importers:
       '@domtree/flavors':
         specifier: workspace:^
         version: link:../../../workspace/@domtree/flavors
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../../workspace/build
+        version: link:../../../workspace/compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -1321,9 +1321,9 @@ importers:
         specifier: workspace:^
         version: link:../verify
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../../workspace/build
+        version: link:../../../workspace/compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -1377,9 +1377,9 @@ importers:
         specifier: workspace:^
         version: link:../shared
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../../workspace/build
+        version: link:../../../workspace/compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -1424,9 +1424,9 @@ importers:
         specifier: workspace:^
         version: link:../verify
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../../workspace/build
+        version: link:../../../workspace/compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -1486,9 +1486,9 @@ importers:
         specifier: workspace:^
         version: link:../verify
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../../workspace/build
+        version: link:../../../workspace/compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -1545,9 +1545,9 @@ importers:
         specifier: workspace:^
         version: link:../shared
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../../workspace/build
+        version: link:../../../workspace/compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -1591,9 +1591,9 @@ importers:
 
   packages/universal/shared:
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../../workspace/build
+        version: link:../../../workspace/compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -1638,9 +1638,9 @@ importers:
         specifier: workspace:^
         version: link:../shared
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../../workspace/build
+        version: link:../../../workspace/compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -1678,9 +1678,9 @@ importers:
         specifier: workspace:^
         version: link:../verify
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../../workspace/build
+        version: link:../../../workspace/compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -1719,9 +1719,9 @@ importers:
         specifier: workspace:^
         version: link:../core-utils
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../../workspace/build
+        version: link:../../../workspace/compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -1781,9 +1781,9 @@ importers:
         specifier: '*'
         version: 3.3.4
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../../workspace/build
+        version: link:../../../workspace/compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -1815,9 +1815,9 @@ importers:
         specifier: '*'
         version: 3.3.4
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../../workspace/build
+        version: link:../../../workspace/compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -1953,9 +1953,9 @@ importers:
         specifier: 10.17.1
         version: 10.17.1
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../../workspace/build
+        version: link:../../../workspace/compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -1978,9 +1978,9 @@ importers:
         specifier: workspace:^
         version: link:../../universal/reactive
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../../workspace/build
+        version: link:../../../workspace/compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -2003,9 +2003,9 @@ importers:
         specifier: workspace:^
         version: link:../../universal/reactive
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../../workspace/build
+        version: link:../../../workspace/compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -2053,9 +2053,9 @@ importers:
         specifier: workspace:^
         version: link:../../universal/universal
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../../workspace/build
+        version: link:../../../workspace/compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -2077,9 +2077,9 @@ importers:
       '@glimmer/tracking':
         specifier: 2.0.0-beta.21
         version: 2.0.0-beta.21
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:*
-        version: link:../../../../workspace/build
+        version: link:../../../../workspace/compile
       '@starbeam/react':
         specifier: workspace:^
         version: link:../../../react/react
@@ -2145,9 +2145,9 @@ importers:
         specifier: workspace:^
         version: link:../minimal
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../build
+        version: link:../../compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -2158,9 +2158,9 @@ importers:
         specifier: workspace:^
         version: link:../interface
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../build
+        version: link:../../compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -2177,18 +2177,18 @@ importers:
         specifier: workspace:^
         version: link:../minimal
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../build
+        version: link:../../compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
 
   workspace/@domtree/interface:
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../build
+        version: link:../../compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -2199,24 +2199,21 @@ importers:
         specifier: workspace:^
         version: link:../interface
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../../build
+        version: link:../../compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
 
-  workspace/build:
+  workspace/compile:
     dependencies:
       '@rollup/plugin-commonjs':
-        specifier: 25.0.5
-        version: 25.0.5(rollup@4.4.1)
+        specifier: ^25.0.7
+        version: 25.0.7(rollup@4.4.1)
       '@rollup/plugin-node-resolve':
         specifier: ^15.2.3
         version: 15.2.3(rollup@4.4.1)
-      '@rollup/plugin-swc':
-        specifier: ^0.2.1
-        version: 0.2.1(@swc/core@1.3.92)(rollup@4.4.1)
       '@starbeam-dev/core':
         specifier: workspace:^
         version: link:../core
@@ -2241,12 +2238,6 @@ importers:
       rollup-plugin-ts:
         specifier: ^3.4.5
         version: 3.4.5(@swc/core@1.3.92)(rollup@4.4.1)(typescript@5.2.2)
-      unplugin-swc:
-        specifier: ^1.4.3
-        version: 1.4.3(@swc/core@1.3.92)(rollup@4.4.1)
-      vite:
-        specifier: ^4.4.11
-        version: 4.5.0(@types/node@20.9.0)
     devDependencies:
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
@@ -2288,9 +2279,9 @@ importers:
         specifier: workspace:^
         version: link:../typed-json-utils
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../build
+        version: link:../compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -2340,6 +2331,9 @@ importers:
       eslint-plugin-etc:
         specifier: ^2.0.3
         version: 2.0.3(eslint@8.53.0)(typescript@5.2.2)
+      eslint-plugin-file-extension-in-import-ts:
+        specifier: ^1.0.2
+        version: 1.0.2
       eslint-plugin-import:
         specifier: ^2.28.1
         version: 2.29.0(@typescript-eslint/parser@6.9.1)(eslint-import-resolver-typescript@3.6.1)(eslint@8.53.0)
@@ -2384,9 +2378,9 @@ importers:
         specifier: ^2.29.0
         version: 2.41.2
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../build
+        version: link:../compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -2415,9 +2409,9 @@ importers:
         specifier: workspace:^
         version: link:../typed-json-utils
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../build
+        version: link:../compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -2464,9 +2458,9 @@ importers:
         specifier: ^8.1.0
         version: 8.1.0
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../build
+        version: link:../compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -2495,8 +2489,8 @@ importers:
         specifier: ^0.2.3
         version: 0.2.3(esbuild@0.18.20)
       '@rollup/plugin-commonjs':
-        specifier: 25.0.5
-        version: 25.0.5(rollup@4.4.1)
+        specifier: ^25.0.7
+        version: 25.0.7(rollup@4.4.1)
       '@rollup/plugin-node-resolve':
         specifier: ^15.2.3
         version: 15.2.3(rollup@4.4.1)
@@ -2640,9 +2634,9 @@ importers:
         specifier: workspace:*
         version: link:../typed-json-utils
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../build
+        version: link:../compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -2695,9 +2689,9 @@ importers:
         specifier: workspace:^
         version: link:../typed-json-utils
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../build
+        version: link:../compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -2732,9 +2726,9 @@ importers:
         specifier: ^1.0.0-beta.1
         version: 1.0.0-beta.4(@edge-runtime/vm@3.1.7)(@types/node@20.9.0)(@vitest/ui@1.0.0-beta.4)(happy-dom@12.10.3)(jsdom@22.1.0)
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../build
+        version: link:../compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -2757,9 +2751,9 @@ importers:
         specifier: workspace:*
         version: 'link:'
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../build
+        version: link:../compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -2795,9 +2789,9 @@ importers:
         specifier: workspace:^
         version: link:../../@types/vite-env
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../build
+        version: link:../compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -2864,9 +2858,9 @@ importers:
         specifier: workspace:^
         version: link:../typed-json-utils
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../build
+        version: link:../compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -2895,9 +2889,9 @@ importers:
         specifier: workspace:^
         version: link:../trailway
     devDependencies:
-      '@starbeam-dev/build-support':
+      '@starbeam-dev/compile':
         specifier: workspace:^
-        version: link:../build
+        version: link:../compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)(typescript@5.2.2)
@@ -4268,8 +4262,8 @@ packages:
       preact: 10.17.1
     dev: false
 
-  /@rollup/plugin-commonjs@25.0.5(rollup@4.4.1):
-    resolution: {integrity: sha512-xY8r/A9oisSeSuLCTfhssyDjo9Vp/eDiRLXkg1MXCcEEgEjPmLU+ZyDB20OOD0NlyDa/8SGbK5uIggF5XTx77w==}
+  /@rollup/plugin-commonjs@25.0.7(rollup@4.4.1):
+    resolution: {integrity: sha512-nEvcR+LRjEjsaSsc4x3XZfCCvZIaSMenZu/OiwOKGN2UhQpAYI7ru7czFvyWbErlpoGjnSX3D5Ch5FcMA3kRWQ==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       rollup: ^2.68.0||^3.0.0||^4.0.0
@@ -4282,7 +4276,7 @@ packages:
       estree-walker: 2.0.2
       glob: 8.1.0
       is-reference: 1.2.1
-      magic-string: 0.27.0
+      magic-string: 0.30.5
       rollup: 4.4.1
     dev: false
 
@@ -4302,22 +4296,6 @@ packages:
       is-module: 1.0.0
       resolve: 1.22.8
       rollup: 4.4.1
-    dev: false
-
-  /@rollup/plugin-swc@0.2.1(@swc/core@1.3.92)(rollup@4.4.1):
-    resolution: {integrity: sha512-VioOZNQ72+EIR7zyDBM/2woQ8nGkQ5PlmnK1yArt1oJpf/eapYihWcybfyfZ9bCHMTadAMnaHGoy186nCQ5Mng==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      '@swc/core': ^1.3.0
-      rollup: ^3.0.0||^4.0.0
-    peerDependenciesMeta:
-      rollup:
-        optional: true
-    dependencies:
-      '@rollup/pluginutils': 5.0.5(rollup@4.4.1)
-      '@swc/core': 1.3.92
-      rollup: 4.4.1
-      smob: 1.4.1
     dev: false
 
   /@rollup/pluginutils@5.0.5(rollup@4.4.1):
@@ -6899,7 +6877,6 @@ packages:
     dependencies:
       is-core-module: 2.13.1
       resolve: 1.22.8
-    dev: true
 
   /eslint-plugin-import@2.29.0(@typescript-eslint/parser@6.9.1)(eslint-import-resolver-typescript@3.6.1)(eslint@8.53.0):
     resolution: {integrity: sha512-QPOO5NO6Odv5lpoTkddtutccQjysJuFxoPS7fAHO+9m9udNHvTCPSAMW9zGAYj8lAIdr40I8yPCdUYrncXtrwg==}
@@ -8404,11 +8381,6 @@ packages:
       strip-bom: 4.0.0
       type-fest: 0.6.0
 
-  /load-tsconfig@0.2.5:
-    resolution: {integrity: sha512-IXO6OCs9yg8tMKzfPZ1YmheJbZCiEsnBdcB03l0OcfK9prKnJb96siuHCr5Fl37/yo9DnKU+TLpxzTUspw9shg==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
-    dev: false
-
   /loader-utils@3.2.1:
     resolution: {integrity: sha512-ZvFw1KWS3GVyYBYb7qkmRM/WwL2TQQBxgCK62rlvm4WpVQ23Nb4tYjApUlfjrEGvOs7KHEsmyUn75OHZrJMWPw==}
     engines: {node: '>= 12.13.0'}
@@ -8508,13 +8480,6 @@ packages:
     dependencies:
       sourcemap-codec: 1.4.8
     dev: true
-
-  /magic-string@0.27.0:
-    resolution: {integrity: sha512-8UnnX2PeRAPZuN12svgR9j7M1uWMovg/CEnIwIG0LFkXSJJe4PdfUGiTGl8V9bsBHFUtfVINcSyYxd7q+kx9fA==}
-    engines: {node: '>=12'}
-    dependencies:
-      '@jridgewell/sourcemap-codec': 1.4.15
-    dev: false
 
   /magic-string@0.30.5:
     resolution: {integrity: sha512-7xlpfBaQaP/T6Vh8MO/EqXSW5En6INHEvEXQiuff7Gku0PWjU3uf6w/j9o7O+SpB5fOAkrI5HeoNgwjEO0pFsA==}
@@ -10334,10 +10299,6 @@ packages:
     engines: {node: '>= 6.0.0', npm: '>= 3.0.0'}
     dev: true
 
-  /smob@1.4.1:
-    resolution: {integrity: sha512-9LK+E7Hv5R9u4g4C3p+jjLstaLe11MDsL21UpYaCNmapvMkYhqCV4A/f/3gyH8QjMyh6l68q9xC85vihY9ahMQ==}
-    dev: false
-
   /socks-proxy-agent@7.0.0:
     resolution: {integrity: sha512-Fgl0YPZ902wEsAyiQ+idGd1A7rSFx/ayC1CQVMw5P+EQx2V0SgpGtf6OKFhVjPflPUl9YMmEOnmfjCdMUsygww==}
     engines: {node: '>= 10'}
@@ -11063,19 +11024,6 @@ packages:
       fast-glob: 3.3.2
       unplugin: 1.5.0
       vite: 4.5.0(@types/node@20.9.0)
-    dev: false
-
-  /unplugin-swc@1.4.3(@swc/core@1.3.92)(rollup@4.4.1):
-    resolution: {integrity: sha512-diQ2C7cpQcnAiKYnI6HTw8IlPPl6jAo/3Y59W133ZkdO1t0dDFiPDEmqtfhv5Y/odzS7sT3oEcy2iFwlcajYAg==}
-    peerDependencies:
-      '@swc/core': ^1.2.108
-    dependencies:
-      '@rollup/pluginutils': 5.0.5(rollup@4.4.1)
-      '@swc/core': 1.3.92
-      load-tsconfig: 0.2.5
-      unplugin: 1.5.0
-    transitivePeerDependencies:
-      - rollup
     dev: false
 
   /unplugin@1.5.0:

@@ -11,7 +11,7 @@ exports.config = {
   },
   settings: {
     "import/resolver": {
-      typescript: {},
+      typescript: { alwaysTryTypes: true },
     },
     "import/ignore": ["\\.js\\?script"],
   },
@@ -19,6 +19,7 @@ exports.config = {
     "import",
     "unused-imports",
     "simple-import-sort",
+    "file-extension-in-import-ts",
     "prettier",
     "@typescript-eslint",
     "json",
@@ -107,8 +108,10 @@ const TYPED_RULES = Rules.build((rules) =>
     .typed("no-extraneous-class", {
       allowEmpty: true,
     })
+    .typed("no-import-type-side-effects")
     .typed("consistent-type-imports", {
       disallowTypeAnnotations: false,
+      fixStyle: "separate-type-imports",
     })
     .typed("parameter-properties", {
       allow: ["readonly"],
@@ -157,6 +160,12 @@ exports.rules = {
       argsIgnorePattern: "^_",
     },
   ],
+  "file-extension-in-import-ts/file-extension-in-import-ts": [
+    "error",
+    "always",
+    { extMapping: { ".ts": ".js", forceIndexFileImport: true } },
+  ],
+  "import/no-unresolved": "error",
   "import/no-relative-packages": "error",
   "import/first": "error",
   "import/newline-after-import": "error",
