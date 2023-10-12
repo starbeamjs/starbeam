@@ -12,16 +12,27 @@ export class StarbeamType extends Union(
   "library:interfaces",
   "library:upstream-types",
   "library:public",
-  "tests",
+  "library:tests",
   "library:test-support",
   "library:build-support",
   "demo:react",
   "demo:preact",
-  "unknown",
+  "extracting:library",
+  "extracting:tests",
   "draft",
-  "root",
   "none",
-) {}
+  "root",
+  "tests",
+  "unknown",
+) {
+  get isTypes(): boolean {
+    return this.is("library:interfaces") || this.is("library:upstream-types");
+  }
+
+  get isTests(): boolean {
+    return this.hasCategory("tests") || this.is("extracting:tests");
+  }
+}
 
 type Ext = "d.ts" | "js" | "jsx" | "ts" | "tsx";
 

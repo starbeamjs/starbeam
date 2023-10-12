@@ -13,7 +13,7 @@
   },
   "starbeam": {
     "source": "d.ts",
-    "type": "interfaces"
+    "type": "extracting:library"
   },
   "scripts": {
     "test:lint": "eslint . --max-warnings 0",

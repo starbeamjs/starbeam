@@ -1,4 +1,5 @@
 {
+  "extends": "../../.config/tsconfig/tsconfig.shared.json",
   "compilerOptions": {
     "allowJs": true,
     "checkJs": true,
@@ -15,7 +16,12 @@
     "strict": true,
     "target": "ESNext",
     "types": ["node"],
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "composite": true,
+    "declaration": true,
+    "declarationDir": "../../dist/types",
+    "declarationMap": true,
+    "emitDeclarationOnly": true
   },
   "files": ["index.js", "index.d.ts"],
   "include": ["src/**/*.d.ts", "src/**/*.js"],

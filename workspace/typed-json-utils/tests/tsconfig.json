@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "composite": true,
     "declaration": true,
+    "declarationDir": "../dist/types/tests",
     "declarationMap": true,
     "emitDeclarationOnly": true,
     "exactOptionalPropertyTypes": true,
@@ -12,7 +12,6 @@
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
     "noUncheckedIndexedAccess": true,
-    "outDir": "../dist/tests",
     "skipDefaultLibCheck": true,
     "skipLibCheck": true,
     "strict": true,

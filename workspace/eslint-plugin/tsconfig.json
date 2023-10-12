@@ -20,7 +20,6 @@
     "moduleResolution": "Node",
     "noPropertyAccessFromIndexSignature": true,
     "noUncheckedIndexedAccess": true,
-    "outDir": "../../dist/packages",
     "preserveValueImports": false,
 
     "skipDefaultLibCheck": true,
@@ -31,7 +30,8 @@
 
     "types": ["../../packages/env.d.ts"],
 
-    "useDefineForClassFields": true
+    "useDefineForClassFields": true,
+    "emitDeclarationOnly": true
   },
   "exclude": ["dist/**/*"]
 }

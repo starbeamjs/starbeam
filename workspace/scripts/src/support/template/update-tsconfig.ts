@@ -1,6 +1,7 @@
-import type { TsConfig } from "@starbeam-workspace/package";
+import type { Package, TsConfig } from "@starbeam-workspace/package";
 import { StarbeamType } from "@starbeam-workspace/package";
 import { writeFileSync } from "fs";
+import type { Directory } from "trailway";
 
 import type { Migrator } from "../jsonc/migration.js";
 import { UpdatePackageFn } from "./updates.js";
@@ -45,7 +46,7 @@ export const updateTsconfig = UpdatePackageFn(
               root.file(".config/tsconfig/tsconfig.demo.json"),
             ).fromPackageRoot(),
           );
-        } else if (pkg.type.is("root")) {
+        } else if (pkg.type.is("root") || pkg.type.hasCategory("extracting")) {
           // do nothing
         } else {
           workspace.reporter.fatal(
@@ -55,25 +56,33 @@ export const updateTsconfig = UpdatePackageFn(
           );
         }
 
+        migrator.remove("compilerOptions.outDir");
+
         if (pkg.type.hasCategory("demo")) {
-          migrator.remove("compilerOptions.composite");
-          migrator.remove("compilerOptions.declaration");
-          migrator.remove("compilerOptions.declarationMap");
-          migrator.remove("compilerOptions.declarationDir");
-          migrator.remove("compilerOptions.outDir");
+          migrator
+            .remove("compilerOptions.composite")
+            .remove("compilerOptions.declaration")
+            .remove("compilerOptions.declarationMap")
+            .remove("compilerOptions.declarationDir")
+            .remove("compilerOptions.emitDeclarationOnly")
+            .set("compilerOptions.noEmit", true);
         } else {
           migrator
-            .set("compilerOptions.composite", true)
-            .set(
-              "compilerOptions.outDir",
-              path(root.dir(`dist/packages`)).fromPackageRoot(),
-            )
             .set("compilerOptions.declaration", true)
+            .set("compilerOptions.emitDeclarationOnly", true)
             .set(
               "compilerOptions.declarationDir",
-              path(root.dir(`dist/types`)).fromPackageRoot(),
+              path(distRoot(pkg)).fromPackageRoot(),
             )
             .set("compilerOptions.declarationMap", true);
+
+          if (pkg.type.hasCategory("extracting")) {
+            migrator.remove("compilerOptions.composite");
+          } else {
+            // @todo composite should be controlled by metadata
+            // that explicitly declares the package to be a reference
+            migrator.set("compilerOptions.declaration", true);
+          }
         }
 
         migrator.array("exclude", (a) => a.add("dist/**/*"));
@@ -88,3 +97,13 @@ export const updateTsconfig = UpdatePackageFn(
     );
   },
 );
+
+function distRoot(pkg: Package): Directory {
+  if (pkg.type.is("extracting:library")) {
+    return pkg.root.dir("dist/types");
+  } else if (pkg.type.is("extracting:tests")) {
+    return pkg.root.parent.dir("dist/types/tests");
+  } else {
+    return pkg.workspace.root.dir("dist/types");
+  }
+}

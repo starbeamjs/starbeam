@@ -117,6 +117,8 @@ export class Migrator<R extends object> {
     });
   }
 
+  // @todo conditional set/remove in a single declarative line.
+
   remove<K extends DeepKeyOf<R>>(path: K): this {
     const { parent, tail } = parseEntryJsonPath(path);
 

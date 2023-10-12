@@ -13,7 +13,8 @@
       "../../packages/env.d.ts",
       "../../packages/env.d.ts",
       "../../packages/env.d.ts"
-    ]
+    ],
+    "noEmit": true
   },
   "exclude": ["dist/**/*"]
 }

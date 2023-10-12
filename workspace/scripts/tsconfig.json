@@ -5,8 +5,8 @@
     "declaration": true,
     "declarationDir": "../../dist/types",
     "declarationMap": true,
-    "outDir": "../../dist/packages",
-    "types": ["../../packages/env.d.ts"]
+    "types": ["../../packages/env.d.ts"],
+    "emitDeclarationOnly": true
   },
   "include": ["**/*", "./src/scripts.json"],
   "exclude": ["dist/**/*"]

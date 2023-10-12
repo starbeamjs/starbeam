@@ -7,7 +7,7 @@
     "declarationMap": true,
     "jsx": "react-jsx",
     "jsxImportSource": "react",
-    "outDir": "../../../dist/packages"
+    "emitDeclarationOnly": true
   },
   "exclude": ["dist/**/*"]
 }

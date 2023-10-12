@@ -11,10 +11,14 @@
   "publishConfig": {
     "exports": {
       "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+      "import": "./dist/index.js",
+      "default": "./dist/index.cjs"
     },
-    "main": "dist/index.js",
+    "main": "dist/index.cjs",
     "types": "dist/index.d.ts"
+  },
+  "starbeam": {
+    "type": "extracting:library"
   },
   "scripts": {
     "ci:lint": "eslint . --max-warnings 0",
@@ -22,8 +26,10 @@
     "ci:specs": "vitest --root tests --run",
     "ci:typecheck": "vitest typecheck --root tests --run",
     "prepack": "rollup -c rollup.config.mjs",
-    "test:specs": "vitest --root tests --ui",
-    "test:typecheck": "vitest typecheck --root tests --ui"
+    "test:lint": "eslint . --max-warnings 0",
+    "test:specs": "vitest --run",
+    "test:typecheck": "vitest typecheck --root tests --ui",
+    "test:types": "tsc -b"
   },
   "dependencies": {
     "vite-env": "workspace:^"

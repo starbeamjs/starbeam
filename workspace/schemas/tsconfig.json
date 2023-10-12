@@ -13,7 +13,6 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "noImplicitAny": true,
-    "outDir": "../../dist/packages",
     "target": "ESNext",
     "types": [
       "../../packages/env.d.ts",
@@ -22,7 +21,8 @@
       "../../packages/env.d.ts",
       "../../packages/env.d.ts",
       "../../packages/env.d.ts"
-    ]
+    ],
+    "emitDeclarationOnly": true
   },
   "exclude": ["dist/**/*"]
 }

@@ -12,7 +12,7 @@ import {
 import { Result, type TakeFn } from "@starbeam-workspace/shared";
 import { consolidate } from "@starbeam-workspace/utils";
 import type { RegularFile } from "trailway";
-import { type JsonValue } from "typed-json-utils";
+import type { JsonValue } from "typed-json-utils";
 
 import type { LabelledUpdater } from "../updating/update-file.js";
 
@@ -213,13 +213,21 @@ class ManifestBuilder {
   }
 
   get main(): string | undefined {
-    const { main } = this.#current;
+    const { main, types } = this.#current;
 
     if (typeof main === "string") return main;
 
     if (main === undefined) {
+      const missingEntries: string[] = ["main"];
+      if (this.#pkg.type.isTypes) {
+        if (typeof types === "string") return types;
+        missingEntries.push("types");
+      }
+
       this.#errors.push(
-        fragment`Missing main entry in package.json (expected string): ${
+        fragment`Missing ${missingEntries.join(
+          " or ",
+        )} entry in package.json (expected string): ${
           this.#pkg.root.relativeFromWorkspace
         }`,
       );

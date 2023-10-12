@@ -1,18 +1,4 @@
 {
   "root": true,
-  "ignorePatterns": ["node_modules", "dist", "html", "tests"],
-  "plugins": ["@starbeam-dev"],
-  "overrides": [
-    {
-      "extends": ["plugin:@starbeam-dev/commonjs"],
-      "files": ["index.ts", "src/**/*.ts"],
-      "parserOptions": {
-        "project": "tsconfig.json"
-      }
-    },
-    {
-      "extends": ["plugin:@starbeam-dev/json:recommended"],
-      "files": ["*.json"]
-    }
-  ]
+  "extends": ["plugin:@starbeam-dev/library:recommended"]
 }

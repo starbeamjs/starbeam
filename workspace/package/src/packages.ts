@@ -2,10 +2,10 @@ import { isPresentArray } from "@starbeam/core-utils";
 import type { Workspace } from "@starbeam-workspace/reporter";
 import { DisplayStruct, Union } from "@starbeam-workspace/shared";
 import sh from "shell-escape-tag";
-import { type Path } from "trailway";
+import type { Path } from "trailway";
 
-import type { PackageDependencies } from "./dependencies";
-import { Package } from "./package";
+import type { PackageDependencies } from "./dependencies.js";
+import { Package } from "./package.js";
 import { Query } from "./query/query.js";
 import type { StarbeamSources, StarbeamType } from "./unions.js";
 import { fatal } from "./utils.js";
