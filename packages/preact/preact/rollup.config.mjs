@@ -1,3 +1,3 @@
-import { compile } from "@starbeam-dev/compile";
+import { Package } from "@starbeam-dev/compile";
 
-export default compile(import.meta);
+export default Package.config(import.meta);

@@ -3,9 +3,18 @@
   "name": "@tests/typed-json-utils",
   "version": "1.0.0",
   "type": "module",
+  "publishConfig": {
+    "exports": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.cjs"
+    },
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.ts"
+  },
   "starbeam": {
     "source": "ts",
-    "type": "tests"
+    "type": "extracting:tests"
   },
   "scripts": {
     "test:lint": "eslint . --max-warnings 0",

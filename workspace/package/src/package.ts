@@ -11,10 +11,10 @@ import type { JsonValue } from "typed-json-utils";
 
 import type { Dependency, PackageDependencies } from "./dependencies.js";
 import { createDependencies } from "./dependencies.js";
-import { StarbeamJsx, Test, TestName } from "./packages";
-import { AllTests, type PackageInfo, type Used } from "./packages";
-import { RawPackage } from "./raw-package";
-import { Starbeam } from "./starbeam";
+import { StarbeamJsx, Test, TestName } from "./packages.js";
+import { AllTests, type PackageInfo, type Used } from "./packages.js";
+import { RawPackage } from "./raw-package.js";
+import { Starbeam } from "./starbeam.js";
 import { TypeScriptConfig } from "./typescript.js";
 import type { DependencyType } from "./unions.js";
 import { StarbeamSource, StarbeamSources, StarbeamType } from "./unions.js";
@@ -65,7 +65,9 @@ export class Package {
           name,
         );
 
-        tests.push(new Test(type, subtype, TestName.parse(testName), script));
+        if (TestName.isMember(testName)) {
+          tests.push(new Test(type, subtype, TestName.parse(testName), script));
+        }
       }
     }
 

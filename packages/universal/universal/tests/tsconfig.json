@@ -7,7 +7,6 @@
     "declarationMap": true,
     "jsx": "react-jsx",
     "jsxImportSource": "react",
-    "outDir": "../../../../dist/packages",
     "types": [
       "../../../env.d.ts",
       "../../../env.d.ts",
@@ -15,7 +14,8 @@
       "../../../env.d.ts",
       "../../../env.d.ts",
       "../../../env.d.ts"
-    ]
+    ],
+    "emitDeclarationOnly": true
   },
   "include": ["**/*.ts"],
   "exclude": ["dist/**/*"]

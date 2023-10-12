@@ -12,7 +12,8 @@
       "../../packages/env.d.ts",
       "../../packages/env.d.ts",
       "../../packages/env.d.ts"
-    ]
+    ],
+    "noEmit": true
   },
   "include": ["index.ts", "src/**/*", "vite.config.ts"],
   "exclude": ["dist/**/*"]

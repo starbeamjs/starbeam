@@ -5,7 +5,6 @@
     "declaration": true,
     "declarationDir": "../../../dist/types",
     "declarationMap": true,
-    "outDir": "../../../dist/packages",
     "types": [
       "../../env.d.ts",
       "../../env.d.ts",
@@ -13,7 +12,8 @@
       "../../env.d.ts",
       "../../env.d.ts",
       "../../env.d.ts"
-    ]
+    ],
+    "emitDeclarationOnly": true
   },
   "include": ["index.ts", "./src/**/*.ts", "./src/**/*.d.ts"],
   "exclude": ["dist/**/*"]

@@ -1,4 +1,4 @@
 {
   "root": true,
-  "extends": ["plugin:@starbeam-dev/tests:recommended"]
+  "extends": ["plugin:@starbeam-dev/library:recommended"]
 }

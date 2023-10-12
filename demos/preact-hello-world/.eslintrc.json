@@ -1,7 +1,6 @@
 {
   "root": true,
-  "ignorePatterns": ["node_modules", "dist", "html", "tests"],
-  "plugins": ["@starbeam-dev"],
+  "extends": ["plugin:@starbeam-dev/library:recommended"],
   "overrides": [
     {
       "extends": ["plugin:@starbeam-dev/commonjs"],

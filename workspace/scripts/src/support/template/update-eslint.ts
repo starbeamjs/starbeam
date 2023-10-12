@@ -30,7 +30,7 @@ const DEMO = UpdatePackageFn((updater) => {
         localEslintConfig(updater),
         localEslintConfig(updater, {
           files: ["vite.config.ts"],
-          extend: "@starbeam/loose",
+          extend: "@starbeam-dev/loose",
         }),
         JSON_ESLINT_CONFIG,
       ],
@@ -40,24 +40,21 @@ const DEMO = UpdatePackageFn((updater) => {
 
 const PACKAGE = UpdatePackageFn((update) => {
   update.json(".eslintrc.json", () => {
-    return {
-      ...BASE,
-      overrides: [localEslintConfig(update), JSON_ESLINT_CONFIG],
-    };
+    return BASE;
   });
 });
 
-function eslintPlugin(pkg: Package): `@starbeam/${string}` {
+function eslintPlugin(pkg: Package): `@starbeam-dev/${string}` {
   if (pkg.moduleType === "cjs") {
-    return "@starbeam/commonjs";
+    return "@starbeam-dev/commonjs";
   } else if (pkg.starbeam.source.isOnlyJS) {
-    return "@starbeam/esm";
+    return "@starbeam-dev/esm";
   } else if (pkg.starbeam.type.is("tests")) {
-    return "@starbeam/loose";
+    return "@starbeam-dev/loose";
   } else if (pkg.starbeam.type.hasCategory("demo")) {
-    return "@starbeam/demos";
+    return "@starbeam-dev/demos";
   } else {
-    return "@starbeam/tight";
+    return "@starbeam-dev/tight";
   }
 }
 
@@ -77,7 +74,7 @@ function localEslintConfig(
     tsconfig = "tsconfig.json",
     files = eslintFiles(pkg),
   }: {
-    extend?: `@starbeam/${string}`;
+    extend?: `@starbeam-dev/${string}`;
     tsconfig?: string;
     files?: string | string[];
   } = {},
