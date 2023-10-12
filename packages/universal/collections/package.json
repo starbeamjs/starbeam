@@ -18,6 +18,9 @@
     "types": "dist/index.d.ts"
   },
   "starbeam": {
+    "strict": {
+      "all.v1": "error"
+    },
     "type": "library:public"
   },
   "scripts": {
@@ -37,7 +40,7 @@
     "@swc/helpers": "^0.5.3"
   },
   "devDependencies": {
-    "@starbeam-dev/build-support": "workspace:^",
+    "@starbeam-dev/compile": "workspace:^",
     "@starbeam-dev/eslint-plugin": "^1.0.4",
     "rollup": "^4.0.2"
   },

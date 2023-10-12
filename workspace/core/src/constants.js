@@ -1,13 +1,4 @@
 /**
- * @type {import("./package.js").ExternalOption[]}
- */
-export const DEFAULT_EXTERNAL_OPTIONS = [
-  ["startsWith", { "@babel/runtime/": "inline" }],
-  ["startsWith", { "@domtree/": "inline" }],
-  ["startsWith", { "@starbeam/": "external" }],
-];
-
-/**
  * The package should be inlined into the output. In this situation, the `external` function should
  * return `false`. This is the default behavior.
  *

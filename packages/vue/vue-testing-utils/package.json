@@ -29,7 +29,7 @@
     "@testing-library/vue": "^7.0.0"
   },
   "devDependencies": {
-    "@starbeam-dev/build-support": "workspace:^",
+    "@starbeam-dev/compile": "workspace:^",
     "@starbeam-dev/eslint-plugin": "^1.0.4",
     "@vue/shared": "^3.3.4",
     "rollup": "^4.0.2"

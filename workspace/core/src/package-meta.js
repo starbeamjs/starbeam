@@ -1,14 +1,14 @@
 /**
- * @template T
- * @param {import("./manifest").PackageJSON} packageJSON
+ * @param {string} root
+ * @param {import("./package").PackageJSON} packageJSON
  * @param {import("./manifest").StarbeamKey} path
- * @param {(value: import("./json").JsonValue) => T} [map]
- * @returns {T}
+ * @param {(value: unknown) => unknown} map?
  */
 export function getPackageMeta(
+  root,
   packageJSON,
   path,
-  map = (value) => /** @type {T} */ (value),
+  map = (value) => value,
 ) {
   const inline = packageJSON[`starbeam:${path}`];
 
@@ -18,13 +18,32 @@ export function getPackageMeta(
 
   const starbeam = packageJSON.starbeam;
 
-  if (starbeam && typeof starbeam === "object" && !Array.isArray(starbeam)) {
-    const value = starbeam[path];
-
-    if (value) {
-      return map(value);
-    }
+  if (!starbeam) {
+    return map(undefined);
   }
 
-  throw Error(`missing starbeam:${path}`);
+  if (typeof starbeam === "object") {
+    const value = starbeam[path];
+    return map(value);
+  }
+
+  invalidKey(root, starbeam);
+}
+
+/**
+ * @param {string} root
+ * @param {import("#/json").JsonValue} value
+ */
+function invalidKey(root, value) {
+  const message = [`Invalid value for the starbeam key (expected an object`];
+
+  if (Array.isArray(value)) {
+    message.push(`, got an array`);
+  } else {
+    message.push(`, got ${JSON.stringify(value)}`);
+  }
+
+  message.push(`) at ${root}`);
+
+  throw Error(message.join(""));
 }

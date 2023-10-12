@@ -37,7 +37,7 @@ export function updatePackageJSON(updater: LabelledUpdater): void {
               Not(nameIs("@starbeam-dev/eslint-plugin")),
               addDevDep("@starbeam-dev/eslint-plugin"),
             ),
-            If(needsBuildSupport, addDevDep("@starbeam-dev/build-support")),
+            If(needsBuildSupport, addDevDep("@starbeam-dev/compile")),
           )
           .if(categoryIs("demo"), addDevDep("@vitest/ui"))
           .if(typeIs("demo:react"), insert({ "starbeam:source": "tsx" }))
@@ -462,7 +462,7 @@ class ManifestBuilder {
 
 function needsBuildSupport(pkg: Package): boolean {
   const hasBuild = pkg.type.hasCategory("library") || pkg.type.is("root");
-  const isBuildSupport = pkg.name === "@starbeam-dev/build-support";
+  const isBuildSupport = pkg.name === "@starbeam-dev/compile";
 
   return hasBuild && !isBuildSupport && pkg.starbeam.source.hasTS;
 }

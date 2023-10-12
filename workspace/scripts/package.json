@@ -70,7 +70,7 @@
     "typed-json-utils": "workspace:*"
   },
   "devDependencies": {
-    "@starbeam-dev/build-support": "workspace:^",
+    "@starbeam-dev/compile": "workspace:^",
     "@starbeam-dev/eslint-plugin": "^1.0.4",
     "@starbeam-workspace/edit-json": "workspace:^",
     "@types/lines-and-columns": "workspace:^",

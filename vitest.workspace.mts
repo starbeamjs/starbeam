@@ -1,6 +1,6 @@
 import { basename, dirname, resolve } from "node:path";
 
-import { Package } from "@starbeam-dev/build-support";
+import { Package } from "@starbeam-dev/compile";
 import glob from "fast-glob";
 import { defineWorkspace } from "vitest/config";
 

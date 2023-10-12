@@ -1,8 +1,9 @@
 {
   "private": true,
   "name": "@starbeam-workspace/root",
-  "version": "1.0.0",
   "type": "module",
+  "version": "1.0.0",
+  "license": "MIT",
   "main": "src/index.ts",
   "types": "src/index.ts",
   "exports": {
@@ -107,12 +108,16 @@
     "@edge-runtime/vm": "^3.1.4",
     "@esbuild-kit/esm-loader": "^2.6.5",
     "@nrr/pnpm-duplicate-cli": "^0.0.1",
-    "@starbeam-dev/build-support": "workspace:*",
+    "@starbeam-dev/compile": "workspace:*",
     "@starbeam-dev/eslint-plugin": "^1.0.4",
     "@starbeam-dev/schemas": "workspace:^",
     "@starbeam-workspace/esyes": "workspace:^",
+    "@types/eslint": "^8.44.4",
+    "@types/node": "^20.8.4",
     "@typescript-eslint/eslint-plugin": "^6.7.4",
     "@typescript-eslint/parser": "^6.7.4",
+    "@vitest/ui": "^1.0.0-beta.1",
+    "eslint": "^8.51.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^9.0.0",
     "eslint-import-resolver-typescript": "^3.6.1",
@@ -122,10 +127,6 @@
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "eslint-plugin-unused-imports": "^3.0.0",
-    "@types/eslint": "^8.44.4",
-    "@types/node": "^20.8.4",
-    "@vitest/ui": "^1.0.0-beta.1",
-    "eslint": "^8.51.0",
     "esno": "^0.17.0",
     "fast-glob": "^3.3.1",
     "happy-dom": "^12.9.1",
@@ -138,7 +139,6 @@
     "vite": "^4.4.11",
     "vitest": "^1.0.0-beta.1"
   },
-  "license": "MIT",
   "nodemonConfig": {
     "watch": [
       "package.json",

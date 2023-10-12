@@ -1,16 +1,32 @@
 import { resolve } from "node:path";
 
-import { typescript } from "./plugin-ts.js";
+import { Package, rootAt } from "@starbeam-dev/core";
+
 import externals from "./plugins/external.js";
 import importMeta from "./plugins/import-meta.js";
+import typescript from "./plugins/typescript.js";
 
 const MODES = /** @type const */ (["development", "production", undefined]);
 
 /**
- * @param {import("../package.js").PackageInfo} pkg
+ * @param {ImportMeta | string} here
  * @returns {import("rollup").RollupOptions[]}
  */
-export function build(pkg) {
+export function compile(here) {
+  const pkg = Package.at(here);
+
+  if (pkg === undefined) {
+    throw new Error(`Package not found at ${rootAt(here)}`);
+  }
+
+  return compilePackage(pkg);
+}
+
+/**
+ * @param {import("@starbeam-dev/core").PackageInfo} pkg
+ * @returns {import("rollup").RollupOptions[]}
+ */
+function compilePackage(pkg) {
   return MODES.flatMap((mode) => {
     /** @type {import("rollup").Plugin[]} */
     const PLUGINS = [];
@@ -19,7 +35,7 @@ export function build(pkg) {
       PLUGINS.push(importMeta(mode));
     }
 
-    return entryPoints("esm", pkg, mode).map((options) => ({
+    return entryPoints(pkg, mode).map((options) => ({
       ...options,
       plugins: [
         ...PLUGINS,
@@ -37,18 +53,15 @@ export function build(pkg) {
 }
 
 /**
- * @param {"esm" | "cjs"} format
- * @param {import("../package.js").PackageInfo} pkg
+ * @param {import("@starbeam-dev/core").PackageInfo} pkg
  * @param {"development" | "production" | undefined} mode
  * @returns {import("rollup").RollupOptions[]}
  */
-export function entryPoints(format, pkg, mode) {
+function entryPoints(pkg, mode) {
   const {
     root,
     starbeam: { entry },
   } = pkg;
-
-  const ext = format === "esm" ? "js" : "cjs";
 
   /**
    * @param {[string, string]} entry
@@ -58,8 +71,8 @@ export function entryPoints(format, pkg, mode) {
     return {
       input: resolve(root, ts),
       output: {
-        file: filename({ root, name: exportName, mode, ext }),
-        format,
+        file: filename({ root, name: exportName, mode, ext: "js" }),
+        format: "esm",
         sourcemap: true,
         exports: "auto",
       },

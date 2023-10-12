@@ -29,7 +29,7 @@
     "vite-env": "workspace:^"
   },
   "devDependencies": {
-    "@starbeam-dev/build-support": "workspace:^",
+    "@starbeam-dev/compile": "workspace:^",
     "@starbeam-dev/eslint-plugin": "^1.0.4",
     "@vitest/ui": "^1.0.0-beta.1",
     "rollup": "^4.0.2",

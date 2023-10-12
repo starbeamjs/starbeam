@@ -1,22 +1,10 @@
-/**
- * @type {import("./package.js").ExternalOption[]}
- */
 import typescriptLibrary from "typescript";
-
-/**
- * @type {import("./package.js").ExternalOption[]}
- */
-export const DEFAULT_EXTERNAL_OPTIONS = [
-  ["startsWith", { "@babel/runtime/": "inline" }],
-  ["startsWith", { "@domtree/": "inline" }],
-  ["startsWith", { "@starbeam/": "external" }],
-];
 
 /**
  * The package should be inlined into the output. In this situation, the `external` function should
  * return `false`. This is the default behavior.
  *
- * @satisfies {import("./types.js").RollupExternal}
+ * @satisfies {import("#core").RollupExternal}
  */
 export const INLINE = false;
 
@@ -29,7 +17,7 @@ export const INLINE = false;
  * - (for now) The package doesn't have good support for ESM (i.e. `type: module` in package.json)
  *   but rollup will handle it for us.
  *
- * @satisfies {import("./types.js").RollupExternal}
+ * @satisfies {import("#core").RollupExternal}
  */
 export const EXTERNAL = true;
 
