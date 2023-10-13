@@ -1,21 +1,21 @@
 {
-  "name": "@starbeamx/vanilla-bench",
   "private": true,
+  "name": "@starbeamx/vanilla-bench",
   "type": "module",
   "scripts": {
     "start": "mkdir -p dist && concurrently 'npm:watch:prod' 'npm:start:prod' --restart-tries -1 --restart-after 3000 --names 'build,serve' --prefix-colors cyan,yellow",
     "start:dev": "vite",
-    "watch:prod": "NODE_ENV=production vite build --watch",
-    "start:prod": "vite preview"
+    "start:prod": "vite preview",
+    "watch:prod": "NODE_ENV=production vite build --watch"
   },
   "devDependencies": {
     "@babel/preset-react": "^7.18.6",
     "@glimmer/babel-preset": "2.0.0-beta.21",
     "@glimmer/core": "2.0.0-beta.21",
     "@glimmer/tracking": "2.0.0-beta.21",
-    "@starbeam-dev/build-support": "workspace:*",
     "@starbeam/react": "workspace:^",
     "@starbeam/universal": "workspace:^",
+    "@starbeam-dev/build-support": "workspace:*",
     "@starbeamx/vanilla": "workspace:^",
     "concurrently": "^8.0.1",
     "eslint": "^8.38.0",
