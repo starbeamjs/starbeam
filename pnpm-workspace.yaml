@@ -10,5 +10,7 @@ packages:
     "workspace/@*/*",
     "workspace/@*/*/tests",
     "workspace/*",
-    "workspace/*/tests"
+    "workspace/*/tests",
+    ".yalc/*",
+    ".yalc/@*/*"
   ]

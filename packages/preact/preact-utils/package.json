@@ -1,7 +1,7 @@
 {
   "name": "@starbeam/preact-utils",
-  "version": "0.8.9",
   "type": "module",
+  "version": "0.8.9",
   "main": "index.ts",
   "types": "index.ts",
   "exports": {
