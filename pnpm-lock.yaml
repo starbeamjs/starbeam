@@ -2436,12 +2436,6 @@ importers:
       '@swc/core':
         specifier: 1.3.92
         version: 1.3.92
-      '@types/rollup__plugin-commonjs':
-        specifier: workspace:^
-        version: link:../../@types/@rollup/plugin-commonjs
-      '@types/rollup__plugin-node-resolve':
-        specifier: workspace:^
-        version: link:../../@types/@rollup/plugin-node-resolve
       ajv:
         specifier: ^8.12.0
         version: 8.12.0
