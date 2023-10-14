@@ -4,6 +4,7 @@ packages:
     "@types/*",
     packages/*/*,
     packages/*/*/tests,
+    packages/*/*/bench,
     demos/*,
     demos/*/tests,
     "workspace/@*/*",
