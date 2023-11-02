@@ -5,8 +5,8 @@
     "declaration": true,
     "declarationDir": "../../../dist/types",
     "declarationMap": true,
-    "types": ["../../env.d.ts"],
-    "emitDeclarationOnly": true
+    "emitDeclarationOnly": true,
+    "types": ["../../env.d.ts"]
   },
   "exclude": ["dist/**/*"]
 }

@@ -1,8 +1,0 @@
-{
-  "extends": "../.config/tsconfig/tsconfig.vite.json",
-  "compilerOptions": {
-    "composite": true,
-    "outDir": "../../dist/packages"
-  },
-  "include": ["./*/vite.config.ts"]
-}

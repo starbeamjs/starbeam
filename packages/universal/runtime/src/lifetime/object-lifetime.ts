@@ -1,4 +1,4 @@
-import { inspector } from "@starbeam/core-utils";
+import { DisplayStruct, inspector } from "inspect-utils";
 
 export type Unsubscribe = undefined | (() => void);
 
@@ -18,12 +18,12 @@ export class ObjectLifetime {
 
   static {
     if (import.meta.env.DEV) {
-      inspector(this, "ObjectLifetime").define((lifetime, debug) =>
-        debug.struct({
+      inspector(this, (lifetime) =>
+        DisplayStruct("ObjectLifetime", {
           finalizers: lifetime.#finalizers,
           children: lifetime.#children,
           finalized: lifetime.#finalized,
-        })
+        }),
       );
     }
   }

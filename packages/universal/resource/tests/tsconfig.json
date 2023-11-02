@@ -5,17 +5,10 @@
     "declaration": true,
     "declarationDir": "../../../../dist/types",
     "declarationMap": true,
+    "emitDeclarationOnly": true,
     "jsx": "react-jsx",
     "jsxImportSource": "react",
-    "types": [
-      "../../../env.d.ts",
-      "../../../env.d.ts",
-      "../../../env.d.ts",
-      "../../../env.d.ts",
-      "../../../env.d.ts",
-      "../../../env.d.ts"
-    ],
-    "emitDeclarationOnly": true
+    "types": ["../../../env.d.ts"]
   },
   "include": ["**/*.ts"],
   "exclude": ["dist/**/*"]

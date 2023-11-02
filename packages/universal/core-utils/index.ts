@@ -26,21 +26,6 @@ export {
   zipArrays,
 } from "./src/array.js";
 export { type UnknownFn } from "./src/function.js";
-export {
-  Display,
-  DisplayNewtype,
-  DisplayStruct,
-  type DisplayStructOptions,
-  StyleName,
-} from "./src/inspect/display-struct.js";
-export {
-  DEBUG,
-  DEBUG_NAME,
-  INSPECT,
-  type Inspect,
-  inspect,
-  inspector,
-} from "./src/inspect/inspect-support.js";
 export { iterableHasItems, reverse } from "./src/iterable.js";
 export type {
   JsonArray,

@@ -33,7 +33,8 @@
     "@starbeam/runtime": "workspace:^",
     "@starbeam/shared": "workspace:^",
     "@starbeam/tags": "workspace:^",
-    "@starbeam/verify": "workspace:^"
+    "@starbeam/verify": "workspace:^",
+    "inspect-utils": "^1.0.1"
   },
   "devDependencies": {
     "@starbeam-dev/compile": "workspace:^",

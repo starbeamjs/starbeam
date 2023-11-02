@@ -4,7 +4,7 @@ import type {
   RecordedEvents,
 } from "@starbeam-workspace/test-utils";
 import { entryPoint, expect } from "@starbeam-workspace/test-utils";
-import { type RenderResult } from "@testing-library/vue";
+import type { RenderResult } from "@testing-library/vue";
 import { nextTick } from "vue";
 
 import {
@@ -12,7 +12,7 @@ import {
   EMPTY,
   type ExpectedHTML,
   type ExpectOptions,
-} from "./testing";
+} from "./testing.js";
 
 export class RenderedApp<T = void> {
   static create = <T>(

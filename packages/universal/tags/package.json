@@ -26,7 +26,8 @@
   "dependencies": {
     "@starbeam/core-utils": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
-    "@starbeam/shared": "workspace:^"
+    "@starbeam/shared": "workspace:^",
+    "inspect-utils": "^1.0.1"
   },
   "devDependencies": {
     "@starbeam-dev/compile": "workspace:^",
