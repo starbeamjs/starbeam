@@ -1,8 +1,8 @@
 import type { SuiteAPI } from "@vitest/runner";
 
-import { describe } from "./src/vitest.js";
+import { describe } from "./vitest.js";
 
-export type { AssertionError } from "./src/actions.js";
+export type { AssertionError } from "./actions.js";
 export {
   type AnyFunction,
   buildCause,
@@ -11,10 +11,10 @@ export {
   RecordedEvents,
   removeAbstraction,
   withCause,
-} from "./src/actions.js";
-export { TestResource } from "./src/test-resource.js";
-export { assert, UNINITIALIZED } from "./src/utils.js";
-export type { Assertion } from "./src/vitest.js";
+} from "./actions.js";
+export { TestResource } from "./test-resource.js";
+export { assert, UNINITIALIZED } from "./utils.js";
+export type { Assertion } from "./vitest.js";
 export {
   afterAll,
   afterEach,
@@ -27,7 +27,7 @@ export {
   suite,
   test,
   vi,
-} from "./src/vitest.js";
+} from "./vitest.js";
 export type { TestAPI } from "@vitest/runner";
 
 export const describeInDev: ReturnType<SuiteAPI["skipIf"]> = describe.skipIf(

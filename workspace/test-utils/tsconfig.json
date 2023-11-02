@@ -1,19 +1,21 @@
 {
-  "extends": "../../.config/tsconfig/tsconfig.shared.json",
   "compilerOptions": {
     "composite": true,
     "declaration": true,
     "declarationDir": "../../dist/types",
     "declarationMap": true,
-    "types": [
-      "../../packages/env.d.ts",
-      "../../packages/env.d.ts",
-      "../../packages/env.d.ts",
-      "../../packages/env.d.ts",
-      "../../packages/env.d.ts",
-      "../../packages/env.d.ts"
-    ],
-    "emitDeclarationOnly": true
+    "emitDeclarationOnly": true,
+    "exactOptionalPropertyTypes": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
+    "strict": true,
+    "target": "esnext",
+    "types": ["vite-env"],
+    "verbatimModuleSyntax": true
   },
   "exclude": ["dist/**/*"]
 }

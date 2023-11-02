@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { reactive } from "@starbeam/collections";
 import { CachedFormula, Cell, Marker } from "@starbeam/reactive";
 import { Resource, ResourceList } from "@starbeam/resource";
 import { pushingScope } from "@starbeam/runtime";
 import { finalize } from "@starbeam/shared";
+import { hasLength, verified } from "@starbeam/verify";
 import {
   describe,
   entryPoint,
@@ -44,7 +46,7 @@ describe("a ResourceList's children sync", () => {
     const children = reactive.array([
       { id: "child1", value: Cell(0), invalidateSync: Marker() },
       { id: "child2", value: Cell(0), invalidateSync: Marker() },
-    ] satisfies ChildState[]);
+    ] satisfies [ChildState, ChildState]);
 
     const List = ResourceList(children, {
       key: (item) => item.id,
@@ -111,9 +113,9 @@ describe("a ResourceList's children sync", () => {
     events.expect("child3:cleanup", "child3:finalize");
     current.expect(UNCHANGED);
 
-    const [first, second] = children;
-    children[0] = second!;
-    children[1] = first!;
+    const [first, second] = verified(children, hasLength(2)<ChildState>);
+    children[0] = second;
+    children[1] = first;
 
     current.expect(() => ["child2:0", "child1:1"]);
     events.expect([]);

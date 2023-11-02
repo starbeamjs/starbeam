@@ -32,11 +32,11 @@ export class DefineSync {
   #finalize: Cleanup | undefined;
 
   readonly on = {
-    sync: (handler: SyncHandler) => {
+    sync: (handler: SyncHandler): void => {
       this.#sync = handler;
     },
 
-    finalize: (handler: SyncHandler) => {
+    finalize: (handler: SyncHandler): void => {
       this.#finalize = handler;
     },
   };

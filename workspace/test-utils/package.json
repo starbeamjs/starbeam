@@ -5,7 +5,7 @@
   "type": "module",
   "main": "index.ts",
   "exports": {
-    "default": "./index.ts"
+    "default": "./src/index.ts"
   },
   "publishConfig": {
     "exports": {
@@ -29,9 +29,10 @@
     "@starbeam/shared": "workspace:^",
     "@starbeam/universal": "workspace:^",
     "@starbeam/verify": "workspace:^",
-    "@vitest/expect": "^1.0.0-beta.1",
-    "@vitest/runner": "^1.0.0-beta.1",
-    "vitest": "^1.0.0-beta.1"
+    "@vitest/expect": "^1.0.0-beta.2",
+    "@vitest/runner": "^1.0.0-beta.2",
+    "vite-env": "^1.0.0",
+    "vitest": "^1.0.0-beta.2"
   },
   "devDependencies": {
     "@starbeam-dev/compile": "workspace:^",

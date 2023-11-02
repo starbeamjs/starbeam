@@ -90,7 +90,7 @@ expected.associate(
 
 interface HasLength<L extends number> {
   <T>(value: T[]): value is FixedArray<T, L>;
-  <T>(value: readonly T[]): value is ReadonlyFixedArray<T, L>;
+  <T>(value: T[] | readonly T[]): value is ReadonlyFixedArray<T, L>;
 }
 
 export function hasLength<L extends number>(length: L): HasLength<L> {

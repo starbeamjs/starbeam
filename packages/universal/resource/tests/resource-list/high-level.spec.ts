@@ -1,5 +1,5 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { reactive } from "@starbeam/collections";
-import { DisplayStruct } from "@starbeam/core-utils";
 import { CachedFormula, Cell } from "@starbeam/reactive";
 import {
   Resource,
@@ -9,6 +9,7 @@ import {
 import { pushingScope } from "@starbeam/runtime";
 import { finalize } from "@starbeam/shared";
 import { describe, expect, test } from "@starbeam-workspace/test-utils";
+import { DisplayStruct } from "inspect-utils";
 
 interface Item {
   id: number;
