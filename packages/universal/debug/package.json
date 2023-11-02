@@ -41,6 +41,7 @@
     "@starbeam/tags": "workspace:^",
     "@starbeam/verify": "workspace:^",
     "buffer": "^6.0.3",
+    "inspect-utils": "^1.0.1",
     "stacktracey": "^2.1.8"
   },
   "devDependencies": {

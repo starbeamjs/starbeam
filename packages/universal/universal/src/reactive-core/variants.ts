@@ -1,10 +1,10 @@
-import { DisplayStruct } from "@starbeam/core-utils";
 import type { Description, FormulaTag } from "@starbeam/interfaces";
 import { Cell, DEBUG, Marker } from "@starbeam/reactive";
 import { RUNTIME, type Tagged } from "@starbeam/runtime";
 import { TAG } from "@starbeam/runtime";
 import { UNINITIALIZED } from "@starbeam/shared";
 import { getTag, initializeFormulaTag } from "@starbeam/tags";
+import { DisplayStruct } from "inspect-utils";
 
 export class VariantGroups {
   static empty(description: Description | undefined): VariantGroups {
@@ -58,7 +58,7 @@ export class VariantGroups {
   #create(types: string[], joined: string): VariantGroup {
     const group = VariantGroup.group(
       types,
-      this.#description?.detail("formula", "is", [types.join(" | ")])
+      this.#description?.detail("formula", "is", [types.join(" | ")]),
     );
 
     for (const type of types) {
@@ -80,7 +80,7 @@ export class VariantGroups {
 export class VariantGroup {
   static group(
     types: string[],
-    description: Description | undefined
+    description: Description | undefined,
   ): VariantGroup {
     return new VariantGroup(Marker({ description }), new Set(types));
   }
@@ -117,7 +117,7 @@ export class Variant<T> implements Tagged<FormulaTag> {
     type: string,
     typeMarker: Marker,
     value: T,
-    description: Description | undefined
+    description: Description | undefined,
   ): Variant<T> {
     const val = Cell(value as T | UNINITIALIZED, {
       description: description?.implementation("cell", type, `${type} cell`),
@@ -127,7 +127,7 @@ export class Variant<T> implements Tagged<FormulaTag> {
       description: description?.implementation(
         "cell",
         "selected:local",
-        "selected"
+        "selected",
       ),
     });
 
@@ -139,15 +139,15 @@ export class Variant<T> implements Tagged<FormulaTag> {
       { value },
       initializeFormulaTag(
         description?.implementation("formula", "selected", "selected"),
-        () => new Set([getTag(val), getTag(localTypeMarker)])
-      )
+        () => new Set([getTag(val), getTag(localTypeMarker)]),
+      ),
     );
   }
 
   static deselected<T>(
     type: string,
     typeMarker: Marker,
-    description: Description | undefined
+    description: Description | undefined,
   ): Variant<T> {
     const val = Cell(UNINITIALIZED as T | UNINITIALIZED);
 
@@ -155,7 +155,7 @@ export class Variant<T> implements Tagged<FormulaTag> {
       description: description?.implementation(
         "cell",
         "selected:local",
-        "selected"
+        "selected",
       ),
     });
 
@@ -168,8 +168,8 @@ export class Variant<T> implements Tagged<FormulaTag> {
 
       initializeFormulaTag(
         description?.implementation("formula", "selected", "selected"),
-        () => new Set([getTag(val), getTag(localTypeMarker)])
-      )
+        () => new Set([getTag(val), getTag(localTypeMarker)]),
+      ),
     ) as Variant<T>;
   }
 
@@ -216,7 +216,7 @@ export class Variant<T> implements Tagged<FormulaTag> {
     localTypeMarker: Marker,
     value: Cell<T | UNINITIALIZED>,
     debug: { value: T | UNINITIALIZED },
-    reactive: FormulaTag
+    reactive: FormulaTag,
   ) {
     this.#type = type;
     this.#sharedTypeMarker = sharedTypeMarker;
@@ -308,11 +308,11 @@ export interface Variants<V extends VariantType, Narrow = V> extends Tagged {
   ) => this is Variants<V, Pick<Narrow, K[number] & keyof Narrow>>;
 
   match: (<M extends Matcher<V, unknown>>(
-    matcher: M
+    matcher: M,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ) => M[keyof M] extends (...args: any[]) => infer R ? R : M[keyof M]) &
     (<M extends Partial<Matcher<V, unknown>>>(
-      matcher: M
+      matcher: M,
     ) =>
       | {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -324,7 +324,7 @@ export interface Variants<V extends VariantType, Narrow = V> extends Tagged {
 class VariantsImpl implements Tagged<FormulaTag> {
   static create(
     value: InternalVariant,
-    description: Description | undefined
+    description: Description | undefined,
   ): VariantsImpl {
     const variants: Record<string, Variant<unknown>> = {};
     const typeMarker = Marker({ description: description?.key("type") });
@@ -333,7 +333,7 @@ class VariantsImpl implements Tagged<FormulaTag> {
       value.type,
       typeMarker,
       value.value,
-      description?.key(value.type)
+      description?.key(value.type),
     );
     variants[value.type] = current;
 
@@ -351,7 +351,7 @@ class VariantsImpl implements Tagged<FormulaTag> {
     variants: Record<string, Variant<unknown>>,
     type: Marker,
     description: Description | undefined,
-    current: Variant<unknown>
+    current: Variant<unknown>,
   ) {
     this.#variants = variants;
     this.#typeMarker = type;
@@ -360,7 +360,7 @@ class VariantsImpl implements Tagged<FormulaTag> {
     this.#current = current;
     this[TAG] = initializeFormulaTag(
       description,
-      () => new Set([getTag(this.#current)])
+      () => new Set([getTag(this.#current)]),
     );
   }
 
@@ -393,7 +393,7 @@ class VariantsImpl implements Tagged<FormulaTag> {
 
       if (typeof value === "function") {
         return (value as (value: Variant<unknown>["value"]) => T)(
-          this.#current.value
+          this.#current.value,
         );
       } else {
         return value;
@@ -454,13 +454,13 @@ class VariantsImpl implements Tagged<FormulaTag> {
 
   #create(
     type: string,
-    create: "deselected" | ["selected", unknown]
+    create: "deselected" | ["selected", unknown],
   ): Variant<unknown> {
     if (create === "deselected") {
       return (this.#variants[type] = Variant.deselected(
         type,
         this.#typeMarker,
-        this.#description?.key(type)
+        this.#description?.key(type),
       ));
     } else {
       const [, value] = create;
@@ -468,7 +468,7 @@ class VariantsImpl implements Tagged<FormulaTag> {
         type,
         this.#typeMarker,
         value,
-        this.#description?.key(type)
+        this.#description?.key(type),
       ));
     }
   }
@@ -477,13 +477,13 @@ class VariantsImpl implements Tagged<FormulaTag> {
 const RESERVED = new Set(["toJSON", "inspect"]);
 // properties on Object.prototype
 for (const name of Object.keys(
-  Object.getOwnPropertyDescriptors(Object.prototype)
+  Object.getOwnPropertyDescriptors(Object.prototype),
 )) {
   RESERVED.add(name);
 }
 
 export function Variants<V extends VariantType>(
-  description?: string | Description
+  description?: string | Description,
 ): VariantConstructors<V> {
   const desc = DEBUG?.Desc("collection", description, "Variants");
   const target: Record<string, (value: unknown) => VariantsImpl> = {};

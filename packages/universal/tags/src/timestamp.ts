@@ -1,6 +1,6 @@
-import { DisplayStruct } from "@starbeam/core-utils";
 import type * as interfaces from "@starbeam/interfaces";
 import { bump as peerBump, now as peerNow } from "@starbeam/shared";
+import { DisplayStruct } from "inspect-utils";
 
 export const INSPECT = Symbol.for("nodejs.util.inspect.custom");
 

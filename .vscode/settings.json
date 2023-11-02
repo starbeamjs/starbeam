@@ -14,22 +14,21 @@
     }
   },
 
-  // format JavaScript and TypeScript using `eslint` first and then follow up
-  // with prettier. The `eslint` pass fixes imports, but otherwise should not be
-  // trying to format the code.
-  "[typescript][typescriptreact][javascript][javascriptreact]": {
-    "editor.formatOnSave": false,
-    "editor.codeActionsOnSave": {
-      "source.fixAll": "always",
-      "source.formatDocument": "always"
-    }
-  },
-
   "codeium.aggressiveShutdown": true,
   "codeium.enableCodeLens": false,
   "codeium.enableSearch": false,
 
+  // Instead of using `formatOnSave`
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "always",
+    "source.formatDocument": "always"
+  },
+
   "editor.defaultFormatter": "esbenp.prettier-vscode",
+  // format JavaScript and TypeScript using `eslint` first and then follow up
+  // with prettier. The `eslint` pass fixes imports, but otherwise should not be
+  // trying to format the code.
+  "editor.formatOnSave": false,
 
   "eslint.codeActionsOnSave.mode": "all",
   "eslint.enable": true,

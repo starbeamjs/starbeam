@@ -1,4 +1,4 @@
-import { inspector } from "@starbeam/core-utils";
+import { inspector } from "inspect-utils";
 import { describe, expect, test } from "vitest";
 
 class Person {
@@ -13,14 +13,15 @@ class Person {
   }
 
   static {
-    inspector(this).define((person, debug) =>
-      debug.struct(
+    inspector(this, (person) =>
+      DisplayStruct(
+        "Person",
         {
           name: person.#name,
           location: person.#location,
         },
-        person.#tag === undefined ? undefined : { description: person.#tag }
-      )
+        person.#tag === undefined ? undefined : { description: person.#tag },
+      ),
     );
   }
 }
@@ -30,16 +31,16 @@ describe.skipIf(() => !!import.meta.env.PROD)("inspect utilities", () => {
     const util = await import("node:util");
 
     expect(util.inspect(new Person("Tom Dale", "New York"))).toBe(
-      `Person ${util.inspect({ name: "Tom Dale", location: "New York" })}`
+      `Person ${util.inspect({ name: "Tom Dale", location: "New York" })}`,
     );
 
     expect(
-      util.inspect(new Person("Tom Dale", "New York", "starbeam-core"))
+      util.inspect(new Person("Tom Dale", "New York", "starbeam-core")),
     ).toBe(
       `Person [starbeam-core] ${util.inspect({
         name: "Tom Dale",
         location: "New York",
-      })}`
+      })}`,
     );
   });
 });
