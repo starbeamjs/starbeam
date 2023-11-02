@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Cell, Marker } from "@starbeam/reactive";
 import type { ResourceBlueprint, SyncFn, SyncResult } from "@starbeam/resource";
 import { Resource, SyncTo } from "@starbeam/resource";

@@ -1,7 +1,7 @@
 {
   "name": "@starbeam/runtime",
-  "version": "0.8.9",
   "type": "module",
+  "version": "0.8.9",
   "main": "index.ts",
   "types": "index.ts",
   "exports": {
@@ -21,7 +21,7 @@
   },
   "scripts": {
     "test:lint": "eslint . --max-warnings 0",
-    "test:specs": "vitest --run",
+    "test:specs": "vitest --run --pool forks",
     "test:types": "tsc -b"
   },
   "dependencies": {
@@ -34,9 +34,10 @@
     "inspect-utils": "^1.0.1"
   },
   "devDependencies": {
-    "@starbeam-dev/compile": "workspace:^",
-    "@starbeam-dev/eslint-plugin": "^1.0.4",
-    "rollup": "^4.0.2"
+    "@starbeam-dev/compile": "^1.0.0",
+    "@starbeam-dev/eslint-plugin": "^1.0.0",
+    "rollup": "^4.0.2",
+    "vite-env": "^1.0.0"
   },
   "files": [
     "dist",

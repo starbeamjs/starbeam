@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { link } from "@starbeam/runtime";
 import { finalize, onFinalize } from "@starbeam/shared";
 import { describe, expect, test } from "vitest";
