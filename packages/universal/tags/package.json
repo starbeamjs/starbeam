@@ -1,7 +1,7 @@
 {
   "name": "@starbeam/tags",
-  "version": "0.0.0",
   "type": "module",
+  "version": "0.0.0",
   "main": "index.ts",
   "types": "index.ts",
   "exports": {
@@ -30,7 +30,7 @@
     "inspect-utils": "^1.0.1"
   },
   "devDependencies": {
-    "@starbeam-dev/compile": "workspace:^",
+    "@starbeam-dev/compile": "^1.0.2",
     "@starbeam-dev/eslint-plugin": "^1.0.4",
     "rollup": "^4.0.2"
   },

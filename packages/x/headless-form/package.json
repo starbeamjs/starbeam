@@ -1,9 +1,9 @@
 {
   "private": true,
   "name": "@starbeamx/headless-form",
+  "type": "module",
   "version": "0.8.9",
   "description": "A placeholder for a headless form library",
-  "type": "module",
   "main": "index.ts",
   "types": "index.ts",
   "exports": {
@@ -32,7 +32,7 @@
     "@starbeam/reactive": "workspace:^"
   },
   "devDependencies": {
-    "@starbeam-dev/compile": "workspace:^",
+    "@starbeam-dev/compile": "^1.0.2",
     "@starbeam-dev/eslint-plugin": "^1.0.4",
     "rollup": "^4.0.2"
   }

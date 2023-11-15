@@ -1,8 +1,8 @@
 {
   "name": "@starbeam/shared",
+  "type": "module",
   "version": "1.3.7",
   "description": "A package that facilitates having multiple copies of Starbeam in a single process that interoperate with each other",
-  "type": "module",
   "main": "index.ts",
   "types": "index.ts",
   "exports": {
@@ -26,7 +26,7 @@
     "test:types": "tsc -b"
   },
   "devDependencies": {
-    "@starbeam-dev/compile": "workspace:^",
+    "@starbeam-dev/compile": "^1.0.2",
     "@starbeam-dev/eslint-plugin": "^1.0.4",
     "rollup": "^4.0.2"
   },

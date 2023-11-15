@@ -1,8 +1,8 @@
 {
   "private": true,
   "name": "@starbeam-workspace/react-test-utils",
-  "version": "1.0.0",
   "type": "module",
+  "version": "1.0.0",
   "main": "index.ts",
   "exports": {
     "default": "./index.ts"
@@ -32,7 +32,7 @@
     "@starbeam-workspace/test-utils": "workspace:^"
   },
   "devDependencies": {
-    "@starbeam-dev/compile": "workspace:^",
+    "@starbeam-dev/compile": "^1.0.2",
     "@starbeam-dev/eslint-plugin": "^1.0.4",
     "@testing-library/react": "^14.0.0",
     "@types/react": "^18.2.22",
