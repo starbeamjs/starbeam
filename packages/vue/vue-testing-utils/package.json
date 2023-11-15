@@ -1,8 +1,8 @@
 {
   "private": true,
   "name": "@starbeam-workspace/vue-testing-utils",
-  "version": "0.7.4",
   "type": "module",
+  "version": "0.7.4",
   "publishConfig": {
     "exports": {
       "types": "./dist/index.d.ts",
@@ -29,7 +29,7 @@
     "@testing-library/vue": "^7.0.0"
   },
   "devDependencies": {
-    "@starbeam-dev/compile": "workspace:^",
+    "@starbeam-dev/compile": "^1.0.2",
     "@starbeam-dev/eslint-plugin": "^1.0.4",
     "@vue/shared": "^3.3.4",
     "rollup": "^4.0.2"

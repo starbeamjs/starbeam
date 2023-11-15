@@ -1,8 +1,8 @@
 {
   "private": true,
   "name": "@starbeam-workspace/test-utils",
-  "version": "1.0.0",
   "type": "module",
+  "version": "1.0.0",
   "main": "index.ts",
   "exports": {
     "default": "./src/index.ts"
@@ -35,7 +35,7 @@
     "vitest": "^1.0.0-beta.2"
   },
   "devDependencies": {
-    "@starbeam-dev/compile": "workspace:^",
+    "@starbeam-dev/compile": "^1.0.2",
     "@starbeam-dev/eslint-plugin": "^1.0.4",
     "rollup": "^4.0.2"
   }

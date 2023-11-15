@@ -1,8 +1,8 @@
 {
   "private": true,
   "name": "@starbeam-workspace/preact-testing-utils",
-  "version": "0.7.4",
   "type": "module",
+  "version": "0.7.4",
   "publishConfig": {
     "exports": {
       "types": "./dist/index.d.ts",
@@ -28,7 +28,7 @@
     "htm": "^3.1.1"
   },
   "devDependencies": {
-    "@starbeam-dev/compile": "workspace:^",
+    "@starbeam-dev/compile": "^1.0.2",
     "@starbeam-dev/eslint-plugin": "^1.0.4",
     "preact-render-to-string": "^6.2.1",
     "rollup": "^4.0.2"

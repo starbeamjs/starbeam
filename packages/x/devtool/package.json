@@ -1,8 +1,8 @@
 {
   "private": true,
   "name": "@starbeamx/devtool",
-  "version": "0.8.9",
   "type": "module",
+  "version": "0.8.9",
   "main": "index.tsx",
   "types": "index.ts",
   "exports": {
@@ -36,7 +36,7 @@
     "preact": "^10.17.1"
   },
   "devDependencies": {
-    "@starbeam-dev/compile": "workspace:^",
+    "@starbeam-dev/compile": "^1.0.2",
     "@starbeam-dev/eslint-plugin": "^1.0.4",
     "rollup": "^4.0.2"
   }

@@ -15,7 +15,7 @@
     "@glimmer/tracking": "2.0.0-beta.21",
     "@starbeam/react": "workspace:^",
     "@starbeam/universal": "workspace:^",
-    "@starbeam-dev/compile": "workspace:*",
+    "@starbeam-dev/compile": "^1.0.2",
     "@starbeamx/vanilla": "workspace:^",
     "concurrently": "^8.0.1",
     "eslint": "^8.38.0",
