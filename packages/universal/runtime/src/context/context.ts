@@ -14,7 +14,7 @@
  */
 export class AppContext {
   #app: object | undefined;
-  #singletons = new WeakMap<object, SingletonContext>();
+  readonly #singletons = new WeakMap<object, SingletonContext>();
 
   set app(app: object) {
     this.#app = app;
@@ -23,7 +23,7 @@ export class AppContext {
   get app(): object {
     if (this.#app === undefined) {
       throw Error(
-        "You are attempting to use a feature of Starbeam that depends on the application context, but no application context has been set."
+        "You are attempting to use a feature of Starbeam that depends on the application context, but no application context has been set.",
       );
     }
 
@@ -41,7 +41,7 @@ export class AppContext {
       app,
     }: {
       app?: object | undefined;
-    } = {}
+    } = {},
   ): Ret {
     return this.#appSingletons(app).create(key, constructor);
   }
@@ -60,7 +60,7 @@ export class AppContext {
 
 class SingletonContext {
   readonly #app: object;
-  #instances = new WeakMap<object, object>();
+  readonly #instances = new WeakMap<object, object>();
 
   constructor(app: object) {
     this.#app = app;

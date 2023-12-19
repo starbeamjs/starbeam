@@ -1,5 +1,6 @@
 import type { Description, Reactive } from "@starbeam/interfaces";
-import { CachedFormula, DEBUG, type FormulaFn } from "@starbeam/reactive";
+import type { FormulaFn } from "@starbeam/reactive";
+import { CachedFormula, DEBUG } from "@starbeam/reactive";
 import { onFinalize } from "@starbeam/shared";
 
 import { Cursor } from "./cursor.js";
@@ -188,8 +189,8 @@ class FragmentRange {
     return new FragmentRange(start, end);
   }
 
-  #start: ChildNode;
-  #end: ChildNode;
+  readonly #start: ChildNode;
+  readonly #end: ChildNode;
 
   private constructor(start: ChildNode, end: ChildNode) {
     this.#start = start;

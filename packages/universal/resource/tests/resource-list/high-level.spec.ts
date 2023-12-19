@@ -1,11 +1,8 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { reactive } from "@starbeam/collections";
 import { CachedFormula, Cell } from "@starbeam/reactive";
-import {
-  Resource,
-  type ResourceBlueprint,
-  ResourceList,
-} from "@starbeam/resource";
+import type { ResourceBlueprint } from "@starbeam/resource";
+import { Resource, ResourceList } from "@starbeam/resource";
 import { pushingScope } from "@starbeam/runtime";
 import { finalize } from "@starbeam/shared";
 import { describe, expect, test } from "@starbeam-workspace/test-utils";

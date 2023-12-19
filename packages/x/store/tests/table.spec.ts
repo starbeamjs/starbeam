@@ -2,7 +2,8 @@ import { CachedFormula } from "@starbeam/reactive";
 import { Table } from "@starbeamx/store";
 import { describe, expect, test } from "vitest";
 
-import { type Person, PersonModel } from "./support.js";
+import type { Person } from "./support.js";
+import { PersonModel } from "./support.js";
 
 describe("tables", () => {
   test("a table knows it column names", () => {
@@ -48,7 +49,7 @@ describe("tables", () => {
     const people = Table.create<Person>({ columns: ["name", "location"] });
 
     const list = CachedFormula(() =>
-      people.rows.map(({ name }) => name).join(", ")
+      people.rows.map(({ name }) => name).join(", "),
     );
 
     people.append({ name: "John", location: "Berlin" });

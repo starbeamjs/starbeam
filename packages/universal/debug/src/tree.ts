@@ -9,7 +9,7 @@ type ParentNode = [label: string, ...children: Node[]];
 type Node = Leaf | ParentNode;
 
 export class Root {
-  #root: Node[];
+  readonly #root: Node[];
 
   constructor(root: Node[]) {
     this.#root = root;
@@ -26,7 +26,7 @@ export function Tree(...root: Node[]): Root {
 
 function formatNode(
   node: Node,
-  { depth, isLast }: { depth: number; isLast: boolean }
+  { depth, isLast }: { depth: number; isLast: boolean },
 ): string {
   if (typeof node === "string") {
     return formatLeaf(node, { depth, isLast });
@@ -37,7 +37,7 @@ function formatNode(
 
 function formatChildren(
   children: Node[],
-  { depth }: { depth: number }
+  { depth }: { depth: number },
 ): string {
   const lastIndex = getLastIndex(children);
 
@@ -53,7 +53,7 @@ const ONE_DEEPER = 1;
 
 function formatParent(
   [label, ...children]: ParentNode,
-  { depth }: { depth: number; isLast: boolean }
+  { depth }: { depth: number; isLast: boolean },
 ): string {
   const title = `${prefix({ depth, isLast: false })} ${label}`;
 
@@ -64,7 +64,7 @@ function formatParent(
 
 function formatLeaf(
   value: string,
-  { depth, isLast }: { depth: number; isLast: boolean }
+  { depth, isLast }: { depth: number; isLast: boolean },
 ): string {
   return `${prefix({ depth, isLast })} ${value}`;
 }

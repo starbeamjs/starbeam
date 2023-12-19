@@ -1,18 +1,19 @@
-import { DEBUG, type ReadValue } from "@starbeam/reactive";
+import type { ReadValue } from "@starbeam/reactive";
+import { DEBUG } from "@starbeam/reactive";
+import type { Lifecycle, UseReactive } from "@starbeam/renderer";
 import {
-  type Lifecycle,
   managerCreateLifecycle,
   managerSetupReactive,
   managerSetupResource,
   managerSetupService,
-  type UseReactive,
 } from "@starbeam/renderer";
 import type {
   IntoResourceBlueprint,
   ResourceBlueprint,
   Sync,
 } from "@starbeam/resource";
-import { type Reactive } from "@starbeam/universal";
+import type { Reactive } from "@starbeam/universal";
+// eslint-disable-next-line file-extension-in-import-ts/file-extension-in-import-ts -- @todo
 import { useMemo } from "preact/hooks";
 
 import { MANAGER } from "./renderer.js";

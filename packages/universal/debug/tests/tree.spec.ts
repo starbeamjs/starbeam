@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Tree } from "@starbeam/debug";
 import { describe, expect, test } from "vitest";
 
@@ -35,7 +36,8 @@ describe("a tree", () => {
 function strip(strings: TemplateStringsArray, ...values: unknown[]): string {
   const result = template(strings, ...values);
 
-  // get the minimum indentation, ignoring the first and last line if they are empty
+  // get the minimum indentation, ignoring the first and last line if they are
+  // empty
   const lines = split(result);
 
   const indents = minIndent(lines);
@@ -44,7 +46,8 @@ function strip(strings: TemplateStringsArray, ...values: unknown[]): string {
   return lines.map((line) => line.slice(indents)).join("\n");
 }
 
-// remove the leading or trailing line from a string if it contains only whitespace, and return the remaining lines
+// remove the leading or trailing line from a string if it contains only
+// whitespace, and return the remaining lines
 function split(source: string): string[] {
   const lines = source.split("\n");
 

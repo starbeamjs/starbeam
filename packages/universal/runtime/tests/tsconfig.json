@@ -2,13 +2,13 @@
   "extends": "../../../../.config/tsconfig/tsconfig.shared.json",
   "compilerOptions": {
     "composite": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "types": ["vite-env"],
     "declaration": true,
     "declarationDir": "../../../../dist/types",
     "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "jsx": "react-jsx",
-    "jsxImportSource": "react",
-    "types": ["vite-env"]
+    "emitDeclarationOnly": true
   },
   "exclude": ["dist/**/*"]
 }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { reactive } from "@starbeam/collections";
 import { CachedFormula } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
@@ -85,7 +86,8 @@ describe("TrackedObject", () => {
 
     delete object["hot dogs"];
     expect(object).toEqual({});
-    // The delicious formula checks chevre and brie, but neither of those properties changed
+    // The delicious formula checks chevre and brie, but neither of those
+    // properties changed
     expect(delicious.state).toEqual([false, "stable"]);
   });
 

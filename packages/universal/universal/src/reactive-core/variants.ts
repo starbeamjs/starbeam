@@ -1,7 +1,7 @@
 import type { Description, FormulaTag } from "@starbeam/interfaces";
 import { Cell, DEBUG, Marker } from "@starbeam/reactive";
-import { RUNTIME, type Tagged } from "@starbeam/runtime";
-import { TAG } from "@starbeam/runtime";
+import type { Tagged } from "@starbeam/runtime";
+import { RUNTIME, TAG } from "@starbeam/runtime";
 import { UNINITIALIZED } from "@starbeam/shared";
 import { getTag, initializeFormulaTag } from "@starbeam/tags";
 import { DisplayStruct } from "inspect-utils";
@@ -101,8 +101,8 @@ export class VariantGroup {
     this.#marker.read();
   }
 
-  // Transition to or from another variant. If the variant is not present in this group, then this
-  // group is invalidated.
+  // Transition to or from another variant. If the variant is not present in
+  // this group, then this group is invalidated.
   transition(type: string): void {
     if (this.#types.has(type)) {
       return;
@@ -293,8 +293,8 @@ export interface Variants<V extends VariantType, Narrow = V> extends Tagged {
       ? Narrow[K] extends []
         ? { type: K }
         : Narrow[K] extends [infer Single]
-        ? { type: K; value: Single }
-        : { type: K; value: Narrow[K] }
+          ? { type: K; value: Single }
+          : { type: K; value: Narrow[K] }
       : never;
   }[keyof Narrow];
   choose: ((name: UnitVariantName<V>) => void) &

@@ -1,12 +1,12 @@
 import type { ReadValue } from "@starbeam/reactive";
+import type { UseReactive } from "@starbeam/renderer";
 import {
   managerSetupReactive,
   managerSetupResource,
   managerSetupService,
-  type UseReactive,
 } from "@starbeam/renderer";
 import type { IntoResourceBlueprint } from "@starbeam/resource";
-import { type Ref } from "vue";
+import type { Ref } from "vue";
 
 import { MANAGER } from "./renderer.js";
 import { useReactive } from "./setup.js";

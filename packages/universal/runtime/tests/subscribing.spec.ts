@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { isPresentArray } from "@starbeam/core-utils";
 import type { TaggedReactive } from "@starbeam/interfaces";
 import { CachedFormula, Cell, DEBUG, Formula } from "@starbeam/reactive";
@@ -55,7 +56,8 @@ describe("Tagged", () => {
 
     numbers.current = [...numbers.current, Cell(1), Cell(2)];
 
-    // The subscription fires because we updated a dependency of an already-read reactive.
+    // The subscription fires because we updated a dependency of an
+    // already-read reactive.
     expect(stale).toBe(true);
 
     expect(sum.read()).toBe(3);
@@ -304,7 +306,7 @@ function Sum(): {
 
   const sum = CachedFormula(
     () => numbers.current.reduce((acc, cell) => acc + cell.current, 0),
-    description
+    description,
   );
 
   return { sum, numbers };
@@ -312,7 +314,7 @@ function Sum(): {
 
 function satisfying<T, U extends T>(
   value: T,
-  predicate: (value: T) => value is U
+  predicate: (value: T) => value is U,
 ): U {
   if (predicate(value)) {
     return value;

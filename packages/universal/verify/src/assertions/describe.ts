@@ -11,7 +11,8 @@ export function format(value: unknown): string {
       return JSON.stringify(value);
     case "function": {
       const fn = String(value);
-      // if it's an ES6 class; detect by using F.p.toString and looking for class
+      // if it's an ES6 class; detect by using F.p.toString and looking for
+      // class
       if (fn.startsWith("class")) {
         return `{class ${value.name}}`;
       } else if (/^function\s*[*]/.exec(fn)) {

@@ -1,8 +1,5 @@
-import {
-  Cell,
-  type IntoResourceBlueprint,
-  Resource,
-} from "@starbeam/universal";
+import type { IntoResourceBlueprint } from "@starbeam/universal";
+import { Cell, Resource } from "@starbeam/universal";
 import type {
   RenderResult,
   RenderState,

@@ -4,19 +4,19 @@ import {
   expect,
   RecordedEvents,
 } from "@starbeam-workspace/test-utils";
-import { type VueFireEventObject } from "@testing-library/vue";
+import type { VueFireEventObject } from "@testing-library/vue";
 import { render } from "@testing-library/vue";
 import type { LooseRequired } from "@vue/shared";
-import {
-  type Component,
-  defineComponent,
-  type ExtractPropTypes,
-  type PropType,
-  type RenderFunction,
-  type VNodeChild,
+import type {
+  Component,
+  ExtractPropTypes,
+  PropType,
+  RenderFunction,
+  VNodeChild,
 } from "vue";
+import { defineComponent } from "vue";
 
-import { RenderedApp } from "./rendered-app";
+import { RenderedApp } from "./rendered-app.js";
 
 /**
  * Define a top-level application component (with no props).
@@ -145,7 +145,7 @@ export class ExpectedHTML<T> {
     return new ExpectedHTML(template);
   }
 
-  #template: (props: T) => string;
+  readonly #template: (props: T) => string;
 
   constructor(template: (props: T) => string) {
     this.#template = template;

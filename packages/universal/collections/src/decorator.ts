@@ -1,4 +1,5 @@
-import { CachedFormula, DEBUG, type FormulaFn } from "@starbeam/universal";
+import type { FormulaFn } from "@starbeam/universal";
+import { CachedFormula, DEBUG } from "@starbeam/universal";
 import { expected, isPresent, verify } from "@starbeam/verify";
 
 export const cached = <T>(

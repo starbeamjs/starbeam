@@ -2,18 +2,11 @@
   "extends": "../../../.config/tsconfig/tsconfig.shared.json",
   "compilerOptions": {
     "composite": true,
+    "experimentalDecorators": true,
+    "types": ["../../env.d.ts"],
     "declaration": true,
     "declarationDir": "../../../dist/types",
     "declarationMap": true,
-    "experimentalDecorators": true,
-    "types": [
-      "../../env.d.ts",
-      "../../env.d.ts",
-      "../../env.d.ts",
-      "../../env.d.ts",
-      "../../env.d.ts",
-      "../../env.d.ts"
-    ],
     "emitDeclarationOnly": true
   },
   "exclude": ["dist/**/*"]

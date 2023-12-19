@@ -198,8 +198,8 @@ class AssertValue<T, U> {
     );
   };
 
-  #value: T;
-  #extract: (value: T) => U;
+  readonly #value: T;
+  readonly #extract: (value: T) => U;
   #lastValue: U;
 
   constructor(

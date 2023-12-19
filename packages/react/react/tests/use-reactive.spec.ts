@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 // @vitest-environment jsdom
 
 import { setup, setupReactive } from "@starbeam/react";

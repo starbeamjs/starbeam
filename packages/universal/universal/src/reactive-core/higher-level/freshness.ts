@@ -6,7 +6,7 @@ const INCREMENT_COUNT = 1;
 
 export class ReactiveFreshness {
   #lastChecked: number | undefined;
-  #cell: Cell<number>;
+  readonly #cell: Cell<number>;
 
   constructor(description: Description | undefined) {
     this.#cell = Cell(INITIAL_COUNT, { description });
@@ -25,16 +25,17 @@ export class ReactiveFreshness {
 }
 
 /**
- * {@linkcode Freshness} is a {@linkcode Reactive} that you can use to track validity in a single
- * consumer.
+ * {@linkcode Freshness} is a {@linkcode Reactive} that you can use to track
+ * validity in a single consumer.
  *
- * After {@linkcode expire} is called, the {@linkcode isStale} property will return `true` once,
- * and then return `false` until {@linkcode expire} is called again.
+ * After {@linkcode expire} is called, the {@linkcode isStale} property will
+ * return `true` once, and then return `false` until {@linkcode expire} is
+ * called again.
  *
  * A {@linkcode Freshness} starts out stale.
  */
 export function Freshness(
-  description?: string | Description
+  description?: string | Description,
 ): ReactiveFreshness {
   return new ReactiveFreshness(DEBUG?.Desc("cell", description));
 }

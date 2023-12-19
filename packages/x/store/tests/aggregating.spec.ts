@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { CachedFormula, Cell } from "@starbeam/reactive";
 import { isPresent, verified } from "@starbeam/verify";
-import { type Aggregator, Average, Sum, Table } from "@starbeamx/store";
+import type { Aggregator } from "@starbeamx/store";
+import { Average, Sum, Table } from "@starbeamx/store";
 import { describe, expect, test } from "vitest";
 
 import type { Person } from "./data.js";
@@ -51,16 +53,17 @@ describe("aggregating tables", () => {
   people.append(...data);
 
   test("a table's cells can be aggregated", () => {
-    // A list of rows can be aggregated by specifying the aggregation for each column.
+    // A list of rows can be aggregated by specifying the aggregation for each
+    // column.
     //
-    // Any unspecified columns are ignored. You can combine grouping and aggregation to get
-    // aggregate rows for groups.
+    // Any unspecified columns are ignored. You can combine grouping and
+    // aggregation to get aggregate rows for groups.
 
     expect(
       people.aggregateBy({
         age: Sum,
         visits: Sum,
-      }).row
+      }).row,
     ).toEqual({
       id: "aggregate:1,2,3,4,5",
       age: 23 + 21 + 42 + 25 + 64,
@@ -71,7 +74,7 @@ describe("aggregating tables", () => {
       people.aggregateBy({
         age: Average,
         visits: Sum,
-      }).row
+      }).row,
     ).toEqual({
       id: "aggregate:1,2,3,4,5",
       age: (23 + 21 + 42 + 25 + 64) / 5,

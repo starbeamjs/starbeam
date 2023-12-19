@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { reactive } from "@starbeam/collections";
 import { CachedFormula } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
@@ -36,7 +37,7 @@ describe("TrackedArray", () => {
     const array = reactive.array<string>([]);
 
     const delicious = Invalidation.trace(
-      () => array.includes("brie") || array.includes("chevre")
+      () => array.includes("brie") || array.includes("chevre"),
     );
 
     expect(delicious.state).toEqual([false, "initialized"]);
@@ -49,7 +50,8 @@ describe("TrackedArray", () => {
     expect(array).toEqual(["hot dogs", "brie"]);
     expect(delicious.state).toEqual([true, "invalidated"]);
 
-    // array don't have uniqueness, so adding the same item twice is still invalidated
+    // array don't have uniqueness, so adding the same item twice is still
+    // invalidated
     array.push("brie");
     expect(array).toEqual(["hot dogs", "brie", "brie"]);
     expect(delicious.state).toEqual([true, "invalidated"]);
@@ -83,7 +85,7 @@ describe("TrackedArray", () => {
     const array = reactive.array<string>(["hot dogs"]);
 
     const delicious = Invalidation.trace(
-      () => array.includes("brie") || array.includes("chevre")
+      () => array.includes("brie") || array.includes("chevre"),
     );
 
     expect(delicious.state).toEqual([false, "initialized"]);
@@ -113,7 +115,7 @@ describe("TrackedArray", () => {
     const array = reactive.array<string>(["hot dogs", "brie", "chevre"]);
 
     const delicious = Invalidation.trace(
-      () => array.includes("brie") || array.includes("chevre")
+      () => array.includes("brie") || array.includes("chevre"),
     );
 
     expect(delicious.state).toEqual([true, "initialized"]);

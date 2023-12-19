@@ -2,10 +2,10 @@
   "extends": "../../../.config/tsconfig/tsconfig.shared.json",
   "compilerOptions": {
     "composite": true,
+    "types": ["node", "../../env.d.ts", "vite"],
     "declaration": true,
     "declarationDir": "../../../dist/types",
     "declarationMap": true,
-    "types": ["node", "../../env.d.ts", "vite"],
     "emitDeclarationOnly": true
   },
   "exclude": ["dist/**/*"]

@@ -1,9 +1,9 @@
 import type { Reactive } from "@starbeam/interfaces";
 import type { ReactiveBlueprint } from "@starbeam/renderer";
-import {
-  type IntoResourceBlueprint,
-  type ResourceBlueprint,
-  type ResourceConstructor,
+import type {
+  IntoResourceBlueprint,
+  ResourceBlueprint,
+  ResourceConstructor,
 } from "@starbeam/resource";
 import {
   unsafeTrackedElsewhere,
@@ -13,7 +13,8 @@ import {
 import { createReactive, createResource } from "./setup.js";
 
 /**
- * The `useReactive` hook takes a reactive value or {@linkcode ReactiveBlueprint}.
+ * The `useReactive` hook takes a reactive value or {@linkcode
+ * ReactiveBlueprint}.
  *
  * - If you pass a `Reactive<T>`, `useReactive` returns a `T`
  * - If you pass a function that returns a `Reactive<T>`, `useReactive`

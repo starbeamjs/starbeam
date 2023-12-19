@@ -1,19 +1,12 @@
 {
   "extends": "../../.config/tsconfig/tsconfig.shared.json",
   "compilerOptions": {
-    "checkJs": true,
     "composite": true,
+    "checkJs": true,
+    "types": ["../../packages/env.d.ts"],
     "declaration": true,
     "declarationDir": "../../dist/types",
     "declarationMap": true,
-    "types": [
-      "../../packages/env.d.ts",
-      "../../packages/env.d.ts",
-      "../../packages/env.d.ts",
-      "../../packages/env.d.ts",
-      "../../packages/env.d.ts",
-      "../../packages/env.d.ts"
-    ],
     "emitDeclarationOnly": true
   },
   "exclude": ["dist/**/*"]

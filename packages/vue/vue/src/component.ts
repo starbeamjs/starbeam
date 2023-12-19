@@ -4,19 +4,19 @@ import { finishFrame, startFrame } from "@starbeam/reactive";
 import { RUNTIME } from "@starbeam/runtime";
 import { finalize, onFinalize } from "@starbeam/shared";
 import { isPresent, verified } from "@starbeam/verify";
+import type { ComponentInternalInstance, Ref } from "vue";
 import {
-  type ComponentInternalInstance,
   getCurrentInstance,
   onBeforeMount,
   onBeforeUpdate,
   onMounted,
   onUnmounted,
   onUpdated,
-  type Ref,
   shallowRef,
 } from "vue";
 
-import { type StarbeamApp, useApp } from "./app.js";
+import type { StarbeamApp } from "./app.js";
+import { useApp } from "./app.js";
 import { CopyRefs, Lifecycle } from "./bookkeeping.js";
 
 const INSTANCES = new WeakMap<ComponentInternalInstance, VueComponent>();

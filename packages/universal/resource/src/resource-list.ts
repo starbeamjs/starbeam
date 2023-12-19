@@ -1,10 +1,10 @@
 import type { Description } from "@starbeam/interfaces";
-import { CachedFormula, Cell, DEBUG, type FormulaFn } from "@starbeam/reactive";
+import type { FormulaFn } from "@starbeam/reactive";
+import { CachedFormula, Cell, DEBUG } from "@starbeam/reactive";
 import type { FinalizationScope } from "@starbeam/runtime";
 import { finalize, pushFinalizationScope } from "@starbeam/shared";
 
-import type { Resource } from "./resource.js";
-import { type ResourceBlueprint } from "./resource.js";
+import type { Resource, ResourceBlueprint } from "./resource.js";
 import { SyncTo } from "./sync/high-level.js";
 
 export function ResourceList<Item, T>(
@@ -78,6 +78,7 @@ type InternalMap<T> = Map<
 
 class ResourceMap<T> {
   readonly #map: InternalMap<T> = new Map();
+  // eslint-disable-next-line no-unused-private-class-members -- @todo
   readonly #description: Description | undefined;
 
   constructor(description: Description | undefined) {

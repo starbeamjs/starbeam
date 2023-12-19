@@ -1,8 +1,8 @@
 {
   "private": true,
   "name": "@starbeam-tests/x-vanilla",
-  "version": "1.0.0",
   "type": "module",
+  "version": "1.0.0",
   "starbeam": {
     "source": "tsx",
     "type": "tests"

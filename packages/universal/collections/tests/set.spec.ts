@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { reactive } from "@starbeam/collections";
 import { CachedFormula } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
@@ -30,7 +31,7 @@ describe("TrackedSet", () => {
     const set = reactive.Set();
 
     const delicious = Invalidation.trace(
-      () => set.has("brie") || set.has("chevre")
+      () => set.has("brie") || set.has("chevre"),
     );
 
     expect(delicious.state).toEqual([false, "initialized"]);
@@ -100,7 +101,7 @@ describe("TrackedSet", () => {
 
     function assert(
       value: string,
-      state: "initialized" | "stable" | "invalidated"
+      state: "initialized" | "stable" | "invalidated",
     ): void {
       expect(foods.state).toEqual([value, state]);
       expect(foodsByKeys.state).toEqual([value, state]);

@@ -3,12 +3,8 @@ import { TAG } from "@starbeam/shared";
 import { createFormulaTag } from "@starbeam/tags";
 
 import { evaluate, getDebug, getRuntime } from "../runtime.js";
-import {
-  type FormulaFn,
-  type SugaryPrimitiveOptions,
-  toOptions,
-  WrapFn,
-} from "./utils.js";
+import type { FormulaFn, SugaryPrimitiveOptions } from "./utils.js";
+import { toOptions, WrapFn } from "./utils.js";
 
 export interface Formula<T = unknown> extends TaggedReactive<T, FormulaTag> {
   (): T;
@@ -17,7 +13,7 @@ export interface Formula<T = unknown> extends TaggedReactive<T, FormulaTag> {
 
 export function Formula<T>(
   compute: () => T,
-  options?: SugaryPrimitiveOptions
+  options?: SugaryPrimitiveOptions,
 ): FormulaFn<T> {
   const { description } = toOptions(options);
   const desc = getDebug()?.Desc("formula", description);

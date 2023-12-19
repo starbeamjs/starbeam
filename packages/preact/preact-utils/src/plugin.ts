@@ -1,12 +1,12 @@
 import type { Options } from "preact";
 
 import type { AnyFn, RawPreactOptions } from "./interfaces.js";
-import {
-  isProbablyVNode,
-  type MangledPreactOptionName,
-  type PreactHook,
-  type PreactOptionName,
+import type {
+  MangledPreactOptionName,
+  PreactHook,
+  PreactOptionName,
 } from "./internals.js";
+import { isProbablyVNode } from "./internals.js";
 import { InternalComponent } from "./internals/component.js";
 import { InternalElement } from "./internals/elements.js";
 import { HookType } from "./internals/hooks.js";
@@ -50,8 +50,8 @@ export class AugmentPreact {
   }
 
   /**
-   * Whenever a vnode is created, this hook gives you an opportunity to rewrite the vnode before
-   * it's otherwise used by Preact.
+   * Whenever a vnode is created, this hook gives you an opportunity to rewrite
+   * the vnode before it's otherwise used by Preact.
    */
   vnode(hook: (vnode: InternalVNode, handler: Handler) => void): void {
     createHook(this.#original, "vnode", (vnode, handler) => {
@@ -85,8 +85,9 @@ export class AugmentPreact {
   }
 
   /**
-   * This plugin hook is called before a vnode is rendered. If you need to wrap the call to the
-   * vnode's render function, this is where you can start the wrapping.
+   * This plugin hook is called before a vnode is rendered. If you need to wrap
+   * the call to the vnode's render function, this is where you can start the
+   * wrapping.
    *
    * For example, Starbeam uses this hook to start a tracking frame.
    */
@@ -103,8 +104,9 @@ export class AugmentPreact {
   }
 
   /**
-   * This plugin hook is called after a vnode is rendered and diffed, but before anything else
-   * happens. If you started wrapping rendering in `render`, you should end it here.
+   * This plugin hook is called after a vnode is rendered and diffed, but
+   * before anything else happens. If you started wrapping rendering in
+   * `render`, you should end it here.
    */
   didRender(hook: (vnode: InternalVNode, handler: Handler) => void): void {
     createHook(this.#original, "diffed", (vnode, handler) => {
@@ -115,8 +117,8 @@ export class AugmentPreact {
   /**
    * This plugin hook is called whenever a vnode is unmounted from the DOM.
    *
-   * If you set something up in `render` or `diffed` that needs to be cleaned up, this is the place
-   * to do it.
+   * If you set something up in `render` or `diffed` that needs to be cleaned
+   * up, this is the place to do it.
    */
   unmount(hook: (vnode: InternalVNode, handler: Handler) => void): void {
     createHook(this.#original, "unmount", (vnode, handler) => {
@@ -267,7 +269,7 @@ class AugmentHandler<F extends AnyFn> implements Handler {
   }
 
   #handled = false;
-  #original: F;
+  readonly #original: F;
 
   private constructor(_name: string, original: F) {
     this.#original = original;

@@ -1,15 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { getLast, isPresentArray } from "@starbeam/core-utils";
-import {
-  describeInDev,
-  expect,
-  test,
-  type TestAPI,
-} from "@starbeam-workspace/test-utils";
+import type { TestAPI } from "@starbeam-workspace/test-utils";
+import { describeInDev, expect, test } from "@starbeam-workspace/test-utils";
 import * as testing from "@testing-library/react";
 import { getByRole, getByText } from "@testing-library/react";
-import { type ReactElement, StrictMode } from "react";
+import type { ReactElement } from "react";
+import { StrictMode } from "react";
 
 import { act } from "./act.js";
 import { react } from "./dom.js";
@@ -18,7 +15,7 @@ class Mode {
   static strict = new Mode("strict");
   static loose = new Mode("loose");
 
-  #mode: "strict" | "loose";
+  readonly #mode: "strict" | "loose";
 
   constructor(mode: "strict" | "loose") {
     this.#mode = mode;
@@ -52,7 +49,7 @@ export class RenderState<T> {
     return state.#lastChecked;
   }
 
-  #values: T[] = [];
+  readonly #values: T[] = [];
   #lastChecked: T | undefined;
   #renderCount = INITIAL_RENDER_COUNT;
 
@@ -90,11 +87,11 @@ export class RenderResult<Props, T> {
     return RenderState.getLastChecked(result.#state);
   }
 
-  #setup: SetupTestRoot<Props, T>;
-  #state: RenderState<T>;
-  #result: testing.RenderResult;
+  readonly #setup: SetupTestRoot<Props, T>;
+  readonly #state: RenderState<T>;
+  readonly #result: testing.RenderResult;
   #props: Props;
-  #rerender: (props?: Props) => void;
+  readonly #rerender: (props?: Props) => void;
 
   constructor(
     setup: SetupTestRoot<Props, T>,
@@ -223,7 +220,7 @@ export class SetupTestRoot<Props, T> {
 
   #expectHtml: undefined | ((value: T, props: Props) => string);
   #expectStable: undefined | ((value: T) => unknown);
-  #options: testing.RenderOptions;
+  readonly #options: testing.RenderOptions;
 
   constructor(options: testing.RenderOptions) {
     this.#options = options;

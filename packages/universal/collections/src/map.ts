@@ -1,5 +1,6 @@
 import type { Description } from "@starbeam/interfaces";
-import { DEBUG, type Equality, Marker } from "@starbeam/universal";
+import type { Equality } from "@starbeam/universal";
+import { DEBUG, Marker } from "@starbeam/universal";
 
 interface Entry {
   has: Marker;
@@ -26,7 +27,7 @@ export class TrackedWeakMap<K extends object = object, V = unknown>
   implements WeakMap<K, V>
 {
   static reactive<K extends object, V>(
-    description: Description | undefined
+    description: Description | undefined,
   ): WeakMap<K, V> {
     return new TrackedWeakMap(description) as WeakMap<K, V>;
   }
@@ -49,10 +50,10 @@ export class TrackedWeakMap<K extends object = object, V = unknown>
     if (markers === undefined) {
       markers = {
         get: Marker(
-          this.#state.description?.key(describeKey(key)).detail("cell", "get")
+          this.#state.description?.key(describeKey(key)).detail("cell", "get"),
         ),
         has: Marker(
-          this.#state.description?.key(describeKey(key)).detail("cell", "has")
+          this.#state.description?.key(describeKey(key)).detail("cell", "has"),
         ),
       };
       this.#state.storage.set(key, markers);

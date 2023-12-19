@@ -1,13 +1,11 @@
 import { linkToFinalizationScope } from "@starbeam/shared";
 
-import {
-  type Cleanup,
-  PrimitiveSyncTo,
-  type Sync,
-  type SyncHandler,
-} from "./primitive.js";
+import type { Cleanup, Sync, SyncHandler } from "./primitive.js";
+import { PrimitiveSyncTo } from "./primitive.js";
 
 export type SyncConstructor<T> = (define: DefineSync) => T;
+
+const INITIAL = 0;
 
 export class DefineSync {
   static define = <T>(constructor: SyncConstructor<T>): Sync<T> => {
@@ -18,7 +16,7 @@ export class DefineSync {
 
       return {
         value,
-        sync: defineSync.#sync ?? (() => void 0),
+        sync: defineSync.#sync ?? (() => void INITIAL),
         finalize: defineSync.#finalize,
       };
     });

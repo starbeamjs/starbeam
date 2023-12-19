@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 // @vitest-environment jsdom
 
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
@@ -241,8 +242,8 @@ testReact<void, { count: number }>(
 
     await result.find("button").fire.click();
 
-    // Strict mode cleans up the component one extra time. Since we're using the `prev` feature, we
-    // can see this extra cleanup.
+    // Strict mode cleans up the component one extra time. Since we're using
+    // the `prev` feature, we can see this extra cleanup.
     const initialCleanup = mode.match({
       strict: () => 1,
       loose: () => 0,
@@ -316,8 +317,8 @@ testReact<void, { count: number }>(
         );
       });
 
-    // Strict mode cleans up the component one extra time. Since we're using the `prev` feature, we
-    // can see this extra cleanup.
+    // Strict mode cleans up the component one extra time. Since we're using
+    // the `prev` feature, we can see this extra cleanup.
     const initialCleanup = mode.match({
       strict: () => 1,
       loose: () => 0,
@@ -355,7 +356,7 @@ class TestResource {
 
   #state: string;
   #count: number;
-  #id: number;
+  readonly #id: number;
 
   private constructor(state: string, count: number, id: number) {
     this.#state = state;

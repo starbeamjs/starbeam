@@ -1,13 +1,16 @@
-import { CachedFormula, type FormulaFn } from "@starbeam/universal";
+import type { FormulaFn } from "@starbeam/universal";
+import { CachedFormula } from "@starbeam/universal";
+
+const INITIAL = 0;
 
 export class Invalidation<T> {
   static trace<T>(formula: () => T): Invalidation<T> {
     return new Invalidation(formula);
   }
 
-  #bumped = 0;
-  #formula: FormulaFn<T>;
-  #lastChecked = 0;
+  #bumped = INITIAL;
+  readonly #formula: FormulaFn<T>;
+  #lastChecked = INITIAL;
   #initialized = false;
 
   constructor(formula: () => T) {

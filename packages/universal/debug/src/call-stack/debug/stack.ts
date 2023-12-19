@@ -1,3 +1,4 @@
+import type { PresentArray } from "@starbeam/core-utils";
 import {
   dataGetter,
   defineObject,
@@ -6,7 +7,6 @@ import {
   isPresent,
   isPresentArray,
   mapArray,
-  type PresentArray,
 } from "@starbeam/core-utils";
 import type { CallStack, StackFrame } from "@starbeam/interfaces";
 import { hasType, verified, verify } from "@starbeam/verify";
@@ -20,7 +20,7 @@ const CALLER = 1;
 export const ABSTRACTION_FRAME = 1;
 
 export function callerStack(
-  internal = INITIAL_INTERNAL_FRAMES
+  internal = INITIAL_INTERNAL_FRAMES,
 ): CallStack | undefined {
   const ErrorClass = Error;
 
@@ -30,7 +30,7 @@ export function callerStack(
     return callStack(err.stack)?.slice(internal);
   } else {
     const stack = Error(
-      "An error created in the internals of Stack.create"
+      "An error created in the internals of Stack.create",
     ).stack;
 
     verify(stack, hasType("string"));
@@ -48,7 +48,7 @@ function callStack(stack: string, nearby?: string): CallStack | undefined {
   const { header, entries, lines, trace } = parsed;
 
   const frames = mapArray(entries, (entry) =>
-    stackFrame(() => trace.withSource(entry), nearby)
+    stackFrame(() => trace.withSource(entry), nearby),
   );
 
   return {
@@ -63,7 +63,7 @@ function callStack(stack: string, nearby?: string): CallStack | undefined {
 
 function stackFrame(
   reify: () => StackTracey.Entry,
-  nearby: string | undefined
+  nearby: string | undefined,
 ): StackFrame {
   let reified: StackTracey.Entry | null = null;
 
@@ -111,7 +111,7 @@ function parseStack(stack: string): ParsedStack | undefined {
 
   if (offset === MISSING) {
     throw Error(
-      `An assumption was incorrect: A line that came from StackTracey cannot be found in the original trace.\n\n== Stack ==\n\n${stack}\n\n== Line ==\n\n${first}`
+      `An assumption was incorrect: A line that came from StackTracey cannot be found in the original trace.\n\n== Stack ==\n\n${stack}\n\n== Line ==\n\n${first}`,
     );
   }
 
@@ -158,7 +158,7 @@ if (import.meta.vitest) {
     } catch (e) {
       const { header, entries, lines, trace } = verified(
         parseStack(verified(e, isErrorWithStack).stack),
-        isPresent
+        isPresent,
       );
 
       expect(header).toBe(`Error: ${ERROR_MESSAGE}`);
@@ -175,13 +175,13 @@ if (import.meta.vitest) {
       } catch (e) {
         const stack = verified(
           callStack(verified(e, isErrorWithStack).stack, filename),
-          isPresent
+          isPresent,
         );
 
         expect(stack.header).toBe(`Error: ${ERROR_MESSAGE}`);
         const frameSize = stack.frames.length;
         expect(stack.slice(CALLER_FRAME)?.frames).toHaveLength(
-          frameSize - CALLER_FRAME
+          frameSize - CALLER_FRAME,
         );
 
         const firstFrame = getFirst(stack.slice(CALLER_FRAME)?.frames ?? []);

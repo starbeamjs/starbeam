@@ -19,7 +19,8 @@ export class Subscriptions {
 
   // A mappping from subscribed tags to their subscriptions
   readonly #tagSubscriptions = new LazyWeakMap<Tag, Subscription>(Subscription);
-  // A mapping from the current dependencies of subscribed tags to their subscriptions
+  // A mapping from the current dependencies of subscribed tags to their
+  // subscriptions
   readonly #cellSubscriptions = new WeakSetMap<CellTag, Subscription>();
   // A mapping from uninitialized formulas to notifications that should be
   // turned into subscriptions when the formula is initialized

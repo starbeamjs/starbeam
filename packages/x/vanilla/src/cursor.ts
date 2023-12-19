@@ -7,9 +7,9 @@ export class Cursor {
     return new Cursor(parent, node);
   }
 
-  #parentNode: ParentNode;
-  #nextSibling: Node | null;
-  #document: Document;
+  readonly #parentNode: ParentNode;
+  readonly #nextSibling: Node | null;
+  readonly #document: Document;
 
   constructor(parentNode: ParentNode, nextSibling: Node | null) {
     this.#parentNode = parentNode;
@@ -17,7 +17,7 @@ export class Cursor {
 
     if (parentNode.ownerDocument === null) {
       throw new Error(
-        "Cursor must be created with a parent node that is part of a document"
+        "Cursor must be created with a parent node that is part of a document",
       );
     }
     this.#document = parentNode.ownerDocument;
@@ -27,7 +27,6 @@ export class Cursor {
     this.#parentNode.insertBefore(node, this.#nextSibling);
     return node;
   }
-
 
   get document(): Document {
     return this.#document;

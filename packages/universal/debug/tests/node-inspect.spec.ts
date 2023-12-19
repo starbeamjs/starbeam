@@ -1,4 +1,4 @@
-import { inspector } from "inspect-utils";
+import { DisplayStruct, inspector } from "inspect-utils";
 import { describe, expect, test } from "vitest";
 
 class Person {

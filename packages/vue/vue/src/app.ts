@@ -2,8 +2,8 @@ import { RUNTIME } from "@starbeam/runtime";
 import { getServiceFormula } from "@starbeam/service";
 import { finalize } from "@starbeam/shared";
 import { isPresent, verified } from "@starbeam/verify";
+import type { App } from "vue";
 import {
-  type App,
   getCurrentInstance,
   onMounted,
   onUnmounted,

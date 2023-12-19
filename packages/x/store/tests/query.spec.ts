@@ -2,7 +2,8 @@ import { CachedFormula } from "@starbeam/reactive";
 import { Query, Table } from "@starbeamx/store";
 import { describe, expect, test } from "vitest";
 
-import { type Person, PersonModel } from "./support.js";
+import type { Person } from "./support.js";
+import { PersonModel } from "./support.js";
 
 describe("queries", () => {
   test("it should be possible to filter a table", () => {
@@ -16,7 +17,7 @@ describe("queries", () => {
       .and(({ location }) => location === "Berlin");
 
     const berlinQuery = Query.for(people).filter(
-      ({ location }) => location === "Berlin"
+      ({ location }) => location === "Berlin",
     );
 
     const jNames = Query.for(people).filter(({ name }) => name.startsWith("J"));
@@ -107,13 +108,13 @@ describe("queries", () => {
     const johnInBerlin = CachedFormula(() => cards(johnInBerlinQuery.rows));
 
     const berlinQuery = Query.for(people).filter(
-      ({ location }) => location === "Berlin"
+      ({ location }) => location === "Berlin",
     );
 
     const berliners = CachedFormula(() => cards(berlinQuery.rows));
 
     const jNamesQuery = Query.for(people).filter(({ name }) =>
-      name.startsWith("J")
+      name.startsWith("J"),
     );
 
     const jNames = CachedFormula(() => cards(jNamesQuery.rows));
@@ -123,13 +124,13 @@ describe("queries", () => {
       .or(({ location }) => location === "Berlin");
 
     const johnsAndBerliners = CachedFormula(() =>
-      cards(johnOrBerlinQuery.rows)
+      cards(johnOrBerlinQuery.rows),
     );
 
     expect(johnInBerlin.current).toEqual("<p>John (in Berlin)</p>");
     expect(berliners.current).toEqual("<p>John (in Berlin)</p>");
     expect(jNames.current).toEqual(
-      "<p>John (in Berlin)</p><p>Jane (in London)</p>"
+      "<p>John (in Berlin)</p><p>Jane (in London)</p>",
     );
     expect(johnsAndBerliners.current).toEqual("<p>John (in Berlin)</p>");
 
@@ -137,26 +138,26 @@ describe("queries", () => {
 
     expect(johnInBerlin.current).toEqual("<p>John (in Berlin)</p>");
     expect(berliners.current).toEqual(
-      "<p>John (in Berlin)</p><p>Tom (in Berlin)</p>"
+      "<p>John (in Berlin)</p><p>Tom (in Berlin)</p>",
     );
     expect(jNames.current).toEqual(
-      "<p>John (in Berlin)</p><p>Jane (in London)</p>"
+      "<p>John (in Berlin)</p><p>Jane (in London)</p>",
     );
     expect(johnsAndBerliners.current).toEqual(
-      "<p>John (in Berlin)</p><p>Tom (in Berlin)</p>"
+      "<p>John (in Berlin)</p><p>Tom (in Berlin)</p>",
     );
 
     people.append({ name: "Jim", location: "Portland" });
 
     expect(johnInBerlin.current).toEqual("<p>John (in Berlin)</p>");
     expect(berliners.current).toEqual(
-      "<p>John (in Berlin)</p><p>Tom (in Berlin)</p>"
+      "<p>John (in Berlin)</p><p>Tom (in Berlin)</p>",
     );
     expect(jNames.current).toEqual(
-      "<p>John (in Berlin)</p><p>Jane (in London)</p><p>Jim (in Portland)</p>"
+      "<p>John (in Berlin)</p><p>Jane (in London)</p><p>Jim (in Portland)</p>",
     );
     expect(johnsAndBerliners.current).toEqual(
-      "<p>John (in Berlin)</p><p>Tom (in Berlin)</p>"
+      "<p>John (in Berlin)</p><p>Tom (in Berlin)</p>",
     );
   });
 
@@ -185,13 +186,13 @@ describe("queries", () => {
     const johnInBerlin = CachedFormula(() => cards(johnInBerlinQuery.rows));
 
     const berlinQuery = Query.for(people).filter(
-      ({ location }) => location === "Berlin"
+      ({ location }) => location === "Berlin",
     );
 
     const berliners = CachedFormula(() => cards(berlinQuery.rows));
 
     const jNamesQuery = Query.for(people).filter(({ name }) =>
-      name.startsWith("J")
+      name.startsWith("J"),
     );
 
     const jNames = CachedFormula(() => cards(jNamesQuery.rows));
@@ -201,13 +202,13 @@ describe("queries", () => {
       .or(({ location }) => location === "Berlin");
 
     const johnsAndBerliners = CachedFormula(() =>
-      cards(johnOrBerlinQuery.rows)
+      cards(johnOrBerlinQuery.rows),
     );
 
     expect(johnInBerlin.current).toEqual("<p>John (in Berlin)</p>");
     expect(berliners.current).toEqual("<p>John (in Berlin)</p>");
     expect(jNames.current).toEqual(
-      "<p>John (in Berlin)</p><p>Jane (in London)</p>"
+      "<p>John (in Berlin)</p><p>Jane (in London)</p>",
     );
     expect(johnsAndBerliners.current).toEqual("<p>John (in Berlin)</p>");
 
@@ -215,26 +216,26 @@ describe("queries", () => {
 
     expect(johnInBerlin.current).toEqual("<p>John (in Berlin)</p>");
     expect(berliners.current).toEqual(
-      "<p>John (in Berlin)</p><p>Tom (in Berlin)</p>"
+      "<p>John (in Berlin)</p><p>Tom (in Berlin)</p>",
     );
     expect(jNames.current).toEqual(
-      "<p>John (in Berlin)</p><p>Jane (in London)</p>"
+      "<p>John (in Berlin)</p><p>Jane (in London)</p>",
     );
     expect(johnsAndBerliners.current).toEqual(
-      "<p>John (in Berlin)</p><p>Tom (in Berlin)</p>"
+      "<p>John (in Berlin)</p><p>Tom (in Berlin)</p>",
     );
 
     people.append({ name: "Jim", location: "Portland" });
 
     expect(johnInBerlin.current).toEqual("<p>John (in Berlin)</p>");
     expect(berliners.current).toEqual(
-      "<p>John (in Berlin)</p><p>Tom (in Berlin)</p>"
+      "<p>John (in Berlin)</p><p>Tom (in Berlin)</p>",
     );
     expect(jNames.current).toEqual(
-      "<p>John (in Berlin)</p><p>Jane (in London)</p><p>Jim (in Portland)</p>"
+      "<p>John (in Berlin)</p><p>Jane (in London)</p><p>Jim (in Portland)</p>",
     );
     expect(johnsAndBerliners.current).toEqual(
-      "<p>John (in Berlin)</p><p>Tom (in Berlin)</p>"
+      "<p>John (in Berlin)</p><p>Tom (in Berlin)</p>",
     );
   });
 });

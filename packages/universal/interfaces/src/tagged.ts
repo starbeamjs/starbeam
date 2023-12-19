@@ -23,9 +23,9 @@ export interface Tagged<I extends Tag = Tag> {
 }
 
 /**
- * A `TaggedReactive` object is a reactive object that has a `Tag` (which is used
- * to validate it) and a `read` function that can be used to read the current
- * value of the object.
+ * A `TaggedReactive` object is a reactive object that has a `Tag` (which is
+ * used to validate it) and a `read` function that can be used to read the
+ * current value of the object.
  */
 export interface TaggedReactive<out T = unknown, I extends Tag = Tag>
   extends Tagged<I> {

@@ -1,6 +1,8 @@
-import { type Formula } from "@starbeam/reactive";
+/* eslint-disable @typescript-eslint/no-magic-numbers */
+import type { Formula } from "@starbeam/reactive";
 import { CachedFormula } from "@starbeam/reactive";
-import { render, type Tagged } from "@starbeam/runtime";
+import type { Tagged } from "@starbeam/runtime";
+import { render } from "@starbeam/runtime";
 import { Variants } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 
@@ -76,14 +78,16 @@ describe("Variants", () => {
 
     const advance = CachedFormula(
       () => {
-        // this is testing that only a transition from idle or to idle invalidates this formula, and
-        // not transitions between other variants. This formula will invalidate if the variant returns
-        // to `idle`, since the `lifecycle.is("idle")` check will have changed from `false` to `true`.
+        // this is testing that only a transition from idle or to idle
+        // invalidates this formula, and not transitions between other variants.
+        // This formula will invalidate if the variant returns to `idle`, since
+        // the `lifecycle.is("idle")` check will have changed from `false` to
+        // `true`.
         if (lifecycle.is("idle")) {
           lifecycle.choose("loading");
         }
       },
-      { description: "advance" }
+      { description: "advance" },
     );
 
     const render = CachedFormula(
@@ -102,7 +106,7 @@ describe("Variants", () => {
           throw Error("unreachable");
         }
       },
-      { description: "render" }
+      { description: "render" },
     );
 
     const value = CachedFormula(
@@ -111,7 +115,7 @@ describe("Variants", () => {
           loaded: (v) => v,
         });
       },
-      { description: "value" }
+      { description: "value" },
     );
 
     expect(render()).toBe("loading");
@@ -126,8 +130,8 @@ describe("Variants", () => {
     expect(valueStable.changed).toBe(false);
 
     lifecycle.choose("loaded", 1);
-    // since we're transitioning from loading to loaded, the `.is("idle")` check in the formula is
-    // is not invalidated.
+    // since we're transitioning from loading to loaded, the `.is("idle")`
+    // check in the formula is is not invalidated.
     expect(advanceStable.changed).toBe(false);
 
     // since `value` depends on the `loaded` state, it is invalidated.
@@ -224,15 +228,15 @@ function Stability(reactive: Tagged): {
   };
 }
 function Instrument<T>(
-  callback: () => T
+  callback: () => T,
 ): (options: { expect: "initialized" | "changed" | "stable" }) => T;
 function Instrument<T>(
   callback: () => T,
-  options: { returns: "formula" }
+  options: { returns: "formula" },
 ): (options: { expect: "initialized" | "changed" | "stable" }) => Formula<T>;
 function Instrument<T>(
   callback: () => T,
-  options?: { returns: "formula" }
+  options?: { returns: "formula" },
 ): (options: {
   expect: "initialized" | "changed" | "stable";
 }) => T | Formula<T> {

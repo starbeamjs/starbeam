@@ -1,21 +1,20 @@
 // @vitest-environment jsdom
 
-import {
-  createElement,
-  Fragment,
-  type FunctionComponent,
-  isValidElement,
-  type ReactElement,
-  type ReactHTML,
-  type ReactNode,
+import type {
+  FunctionComponent,
+  ReactElement,
+  ReactHTML,
+  ReactNode,
 } from "react";
+import { createElement, Fragment, isValidElement } from "react";
 
 type ReactProxyFunction<E extends keyof ReactHTML> = ReactHTML[E];
 
 type HtmlProxyFunction<E extends keyof ReactHTML> = ReactProxyFunction<E> &
   ((...children: ReactNode[]) => ReactElement);
 
-// ReactElement | ReactFragment | ReactPortal | boolean | null | string | null | undefined;
+// ReactElement | ReactFragment | ReactPortal | boolean | null | string | null
+// | undefined;
 
 function isReactNode(value: unknown): value is ReactNode {
   switch (typeof value) {
@@ -87,6 +86,6 @@ export const html: HtmlProxy = new Proxy(() => {}, {
 export function el(
   tag: string | FunctionComponent,
   children: ReactNode[],
-): JSX.Element {
+): ReactElement {
   return createElement(tag, null, ...children);
 }

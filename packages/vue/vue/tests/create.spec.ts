@@ -7,7 +7,8 @@ import { Cell } from "@starbeam/universal";
 import { setupReactive, useReactive } from "@starbeam/vue";
 import { describe, RecordedEvents, test } from "@starbeam-workspace/test-utils";
 import { App, renderApp } from "@starbeam-workspace/vue-testing-utils";
-import { defineComponent, h, type Ref } from "vue";
+import type { Ref } from "vue";
+import { defineComponent, h } from "vue";
 
 describe("create", () => {
   test("baseline", async () => {

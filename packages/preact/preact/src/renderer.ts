@@ -10,6 +10,7 @@ import {
   useMemo,
   useRef,
   useState,
+  // eslint-disable-next-line file-extension-in-import-ts/file-extension-in-import-ts -- @todo
 } from "preact/hooks";
 
 import { getCurrentComponent } from "./options.js";

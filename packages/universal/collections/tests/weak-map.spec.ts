@@ -39,7 +39,7 @@ describe("TrackedWeakMap", () => {
     const map = reactive.WeakMap();
 
     const delicious = Invalidation.trace(
-      () => map.has(brie) || map.has(chevre)
+      () => map.has(brie) || map.has(chevre),
     );
 
     expect(delicious.state).toEqual([false, "initialized"]);
@@ -102,9 +102,10 @@ describe("TrackedWeakMap", () => {
     map.delete(smashburgers);
     // food.state is stable because it only accesses hamburgers
     expect(food.state).toEqual(["sandwich", "stable"]);
-    // deleting smashburgers didn't invalidate hasBurgers, which checked hamburgers
-    // first, and since it successfully found hamburgers, only hamburgers was a dependency
-    // of hasBurgers. Since hamburgers didn't change, hasBurgers is stable.
+    // deleting smashburgers didn't invalidate hasBurgers, which checked
+    // hamburgers first, and since it successfully found hamburgers, only
+    // hamburgers was a dependency of hasBurgers. Since hamburgers didn't
+    // change, hasBurgers is stable.
     expect(hasBurgers.state).toEqual([true, "stable"]);
 
     map.delete(hamburgers);

@@ -13,7 +13,7 @@ let lastRegistry: MockFinalizationRegistry<string> | undefined;
 
 class MockFinalizationRegistry<T> implements FinalizationRegistry<T> {
   #targets: MockTarget<T>[] = [];
-  #callback: (heldValue: T) => void;
+  readonly #callback: (heldValue: T) => void;
 
   readonly [Symbol.toStringTag] = "FinalizationRegistry";
 

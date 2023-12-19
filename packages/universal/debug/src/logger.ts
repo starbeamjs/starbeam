@@ -1,7 +1,8 @@
 /**
- * This API might gain additional features. For now, its primary purpose is to provide a
- * sanctioned way to log to the console that is overtly different from explicit
- * calls to `console.log` (which make it more difficult to identify errant console.logs).
+ * This API might gain additional features. For now, its primary purpose is to
+ * provide a sanctioned way to log to the console that is overtly different
+ * from explicit calls to `console.log` (which make it more difficult to
+ * identify errant console.logs).
  */
 export class Logger {
   static console(): Logger {
@@ -12,7 +13,7 @@ export class Logger {
     return new Logger(logger);
   }
 
-  #logger: typeof console;
+  readonly #logger: typeof console;
 
   private constructor(logger: typeof console) {
     this.#logger = logger;

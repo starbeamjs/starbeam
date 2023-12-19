@@ -6,7 +6,7 @@ export interface Person {
 }
 
 export class People {
-  #table: Table<Person>;
+  readonly #table: Table<Person>;
 
   constructor(table: Table<Person>) {
     this.#table = table;
@@ -22,15 +22,18 @@ export class PersonModel {
     return new PersonModel(id, row);
   }
 
-  constructor(readonly id: string, readonly row: Person) {}
+  constructor(
+    readonly id: string,
+    readonly row: Person,
+  ) {}
 
   @attr declare name: string;
   @attr declare location: string;
 }
 
-// the attr field decorator returns the value of the property in the `row` property of the target
-// object
- 
+// the attr field decorator returns the value of the property in the `row`
+// property of the target object
+
 function attr(target: object, propertyKey: string | symbol): void {
   if (typeof propertyKey === "symbol") {
     throw Error("an @attr decorator can only be used on a string property");
@@ -38,7 +41,6 @@ function attr(target: object, propertyKey: string | symbol): void {
 
   Object.defineProperty(target, propertyKey, {
     get: function (this: { row: Record<string, unknown> }) {
-       
       return this.row[propertyKey];
     },
   });

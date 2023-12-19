@@ -1,13 +1,9 @@
 import { getFirst } from "@starbeam/core-utils";
-import {
-  type Handler,
-  intoResourceBlueprint,
-  type Lifecycle,
-  type RendererManager,
-} from "@starbeam/renderer";
+import type { Handler, Lifecycle, RendererManager } from "@starbeam/renderer";
+import { intoResourceBlueprint } from "@starbeam/renderer";
 import { service } from "@starbeam/service";
+import type { Builder } from "@starbeam/use-strict-lifecycle";
 import {
-  type Builder,
   useInstance,
   useLastRenderRef,
   useLifecycle,

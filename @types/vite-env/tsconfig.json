@@ -1,17 +1,16 @@
 {
   "compilerOptions": {
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
     "declaration": true,
     "declarationDir": "dist/types",
     "declarationMap": true,
     "emitDeclarationOnly": true,
-
-    "exactOptionalPropertyTypes": true,
-    "forceConsistentCasingInFileNames": true,
-    "noImplicitOverride": true,
-    "noPropertyAccessFromIndexSignature": true,
-    "noUncheckedIndexedAccess": true,
-    "skipLibCheck": true,
-    "strict": true,
     "verbatimModuleSyntax": true
   },
   "exclude": ["dist/**/*"]

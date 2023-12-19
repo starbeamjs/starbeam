@@ -8,7 +8,7 @@ export class RecordedEvents {
     return new RecordedEvents(format);
   }
 
-  #format: (event: string) => string;
+  readonly #format: (event: string) => string;
   #events: string[] = [];
 
   constructor(format?: (event: string) => string) {

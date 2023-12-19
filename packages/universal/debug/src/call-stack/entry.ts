@@ -1,8 +1,8 @@
+import type { PresentArray } from "@starbeam/core-utils";
 import {
   getFirst,
   getLast,
   nullifyEmptyArray,
-  type PresentArray,
   withoutFirst,
 } from "@starbeam/core-utils";
 import type {
@@ -35,7 +35,7 @@ export class EntryPoints {
         }
       | EntryPointDescriptionArg
       | EntryPoint
-      | string
+      | string,
   ): EntryPoint {
     if (options instanceof EntryPointImpl) {
       ENTRY_POINTS.#upsert(options, false);
@@ -76,7 +76,7 @@ export class EntryPoints {
   mark(
     caller: CallStack | undefined,
     description: EntryPointDescriptionArg,
-    force: boolean
+    force: boolean,
   ): EntryPoint {
     return this.#upsert(createEntryPoint(caller, description), force);
   }
@@ -99,11 +99,11 @@ export const getEntryPoint = EntryPoints.current;
 
 function createEntryPoint(
   caller: CallStack | undefined,
-  description: EntryPointDescriptionArg | undefined
+  description: EntryPointDescriptionArg | undefined,
 ): EntryPointImpl {
   return new EntryPointImpl(
     caller,
-    description ? new EntryPointDescriptionImpl(description) : undefined
+    description ? new EntryPointDescriptionImpl(description) : undefined,
   );
 }
 
@@ -204,8 +204,8 @@ function collectionOp(
       | "collection:insert"
       | "collection:delete",
     entity: DescriptionDetails | string | undefined,
-    key: unknown
-  ]
+    key: unknown,
+  ],
 ): string {
   const [fullOp, entity, key] = arg;
   const op = fullOp.slice("collection:".length);
@@ -216,8 +216,8 @@ function reactiveOp(
   arg: [
     operation: "reactive:read" | "reactive:write" | "reactive:call",
     entity: DescriptionDetails | string | undefined,
-    api?: PropertyKey
-  ]
+    api?: PropertyKey,
+  ],
 ): string {
   const [fullOp, entity, api] = arg;
   switch (fullOp) {
@@ -226,13 +226,13 @@ function reactiveOp(
       return `${fullOpDesc(fullOp)} ${describeEntity(entity)}${indexTail(api)}`;
     case "reactive:call":
       return `${fullOpDesc(fullOp)} ${describeEntity(entity)}${indexTail(
-        api
+        api,
       )}()`;
   }
 }
 
 function fullOpDesc(
-  fullOp: "reactive:read" | "reactive:write" | "reactive:call"
+  fullOp: "reactive:read" | "reactive:write" | "reactive:call",
 ): string {
   switch (fullOp) {
     case "reactive:read":
@@ -257,8 +257,8 @@ function index(
   args: [
     operation: FullObjectOp,
     entity: DescriptionDetails | string | undefined,
-    target: PropertyKey
-  ]
+    target: PropertyKey,
+  ],
 ): string {
   const [operation, entity, key] = args;
   const entityDesc = describeEntity(entity);
@@ -273,7 +273,7 @@ function opLabel(op: FullObjectOp) {
 }
 
 function describeEntity(
-  entity: DescriptionDetails | string | undefined
+  entity: DescriptionDetails | string | undefined,
 ): string {
   if (entity === undefined) return "{unknown}";
   return typeof entity === "string" ? entity : describe(entity);
@@ -282,11 +282,11 @@ function describeEntity(
 class EntryPointImpl implements EntryPoint {
   static create(
     caller: CallStack | undefined,
-    description: EntryPointDescriptionArg | undefined
+    description: EntryPointDescriptionArg | undefined,
   ): EntryPoint {
     return new EntryPointImpl(
       caller,
-      description ? new EntryPointDescriptionImpl(description) : undefined
+      description ? new EntryPointDescriptionImpl(description) : undefined,
     );
   }
 
@@ -296,7 +296,7 @@ class EntryPointImpl implements EntryPoint {
 
   constructor(
     caller: CallStack | undefined,
-    description: EntryPointDescriptionImpl | undefined
+    description: EntryPointDescriptionImpl | undefined,
   ) {
     this.#caller = caller;
     this.#description = description;

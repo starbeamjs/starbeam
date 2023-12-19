@@ -3,12 +3,8 @@ import { createFormulaTag } from "@starbeam/tags";
 
 import { DEBUG, getRuntime } from "../runtime.js";
 import { FinalizedFormula } from "./formula-lifecycle.js";
-import {
-  type FormulaFn,
-  type SugaryPrimitiveOptions,
-  toOptions,
-  WrapFn,
-} from "./utils.js";
+import type { FormulaFn, SugaryPrimitiveOptions } from "./utils.js";
+import { toOptions, WrapFn } from "./utils.js";
 
 export function CachedFormula<T>(
   compute: () => T,

@@ -1,5 +1,6 @@
 import type { Description } from "@starbeam/interfaces";
-import { Cell, type Equality, Marker } from "@starbeam/reactive";
+import type { Equality } from "@starbeam/reactive";
+import { Cell, Marker } from "@starbeam/reactive";
 import { UNINITIALIZED } from "@starbeam/shared";
 
 class Entry<V> {

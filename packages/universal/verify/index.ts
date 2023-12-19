@@ -1,8 +1,5 @@
-import {
-  verified as verifiedDev,
-  verify as verifyDev,
-  type VerifyFn,
-} from "./src/verify.js";
+import type { VerifyFn } from "./src/verify.js";
+import { verified as verifiedDev, verify as verifyDev } from "./src/verify.js";
 
 export {
   exhaustive,
