@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Cell } from "@starbeam/universal";
 import { describe, expect, test } from "vitest";
 

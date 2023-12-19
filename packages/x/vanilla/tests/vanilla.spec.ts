@@ -5,7 +5,7 @@ import { Cell } from "@starbeam/universal";
 import { Cursor, El, Fragment, Text } from "@starbeamx/vanilla";
 import { describe, expect, test } from "vitest";
 
-import { env } from "./env";
+import { env } from "./env.js";
 
 describe("Vanilla Renderer", () => {
   test("it can render text", () => {
@@ -84,7 +84,7 @@ describe("Vanilla Renderer", () => {
 });
 
 export class Body {
-  #body: HTMLElement;
+  readonly #body: HTMLElement;
   #snapshot: ChildNode[];
 
   constructor(body: HTMLElement) {

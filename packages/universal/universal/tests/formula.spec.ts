@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { cached, reactive } from "@starbeam/collections";
 import { CachedFormula } from "@starbeam/reactive";
 import { Cell } from "@starbeam/universal";
@@ -26,7 +27,7 @@ describe("A reactive formula", () => {
         name: name.current,
         location: location.current,
       }),
-      { description: "card" }
+      { description: "card" },
     );
 
     let last = card.current;
@@ -101,7 +102,7 @@ describe("A reactive formula", () => {
         name: "Tom Dale",
         location: "New York",
       },
-      { equals: (a, b) => a.name === b.name && a.location === b.location }
+      { equals: (a, b) => a.name === b.name && a.location === b.location },
     );
 
     const card = CachedFormula(() => ({
@@ -154,7 +155,7 @@ describe("A reactive formula", () => {
 
     const card = CachedFormula(() => `${name.current} (${location.current})`);
     const complete = CachedFormula(
-      () => `${card.current} at ${organization.current}`
+      () => `${card.current} at ${organization.current}`,
     );
 
     expect(complete.current).toBe("@tomdale (New York) at LinkedIn");
@@ -171,8 +172,8 @@ describe("A reactive formula", () => {
 
 test("Formula using cells", () => {
   class Person {
-    #name: Cell<string>;
-    #country: Cell<string>;
+    readonly #name: Cell<string>;
+    readonly #country: Cell<string>;
 
     constructor(name: string, country: string) {
       this.#name = Cell(name);

@@ -1,10 +1,7 @@
-import { CachedFormula, type FormulaFn } from "@starbeam/reactive";
-import {
-  createPushScope,
-  type FinalizationScope,
-  link,
-  pushingScope,
-} from "@starbeam/runtime";
+import type { FormulaFn } from "@starbeam/reactive";
+import { CachedFormula } from "@starbeam/reactive";
+import type { FinalizationScope } from "@starbeam/runtime";
+import { createPushScope, link, pushingScope } from "@starbeam/runtime";
 import {
   finalize,
   isFinalized,

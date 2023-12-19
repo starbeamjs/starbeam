@@ -1,12 +1,6 @@
 import type { Reactive } from "@starbeam/interfaces";
-import {
-  CachedFormula,
-  Formula,
-  type FormulaFn,
-  isReactive,
-  read,
-  type ReadValue,
-} from "@starbeam/reactive";
+import type { FormulaFn, ReadValue } from "@starbeam/reactive";
+import { CachedFormula, Formula, isReactive, read } from "@starbeam/reactive";
 import { setupResource } from "@starbeam/resource";
 import { CONTEXT, pushingScope, RUNTIME, withinScope } from "@starbeam/runtime";
 import { service } from "@starbeam/service";
@@ -35,15 +29,15 @@ export type SetupBlueprint<T> = (lifecycle: Lifecycle) => T;
  * instantiate the blueprint during the setup phase and return a stable reactive
  * value.
  *
- * If you pass a `ReactiveBlueprint` to {@linkcode useReactive}, you must also pass
- * dependencies to {@linkcode useReactive}. If the dependencies change, the
- * blueprint will re-evaluate, returning a new value.
+ * If you pass a `ReactiveBlueprint` to {@linkcode useReactive}, you must also
+ * pass dependencies to {@linkcode useReactive}. If the dependencies change,
+ * the blueprint will re-evaluate, returning a new value.
  */
 export type ReactiveBlueprint<T> = (lifecycle: Lifecycle) => T | Reactive<T>;
 
 /**
- * `UseReactive` describes the parameter that you can pass to {@linkcode setupReactive}
- * or {@linkcode useReactive}.
+ * `UseReactive` describes the parameter that you can pass to {@linkcode
+ * setupReactive} or {@linkcode useReactive}.
  */
 export type UseReactive<T> = ReactiveBlueprint<T> | Reactive<T>;
 

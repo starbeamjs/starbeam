@@ -7,12 +7,8 @@ import { entryPoint, expect } from "@starbeam-workspace/test-utils";
 import type { RenderResult } from "@testing-library/vue";
 import { nextTick } from "vue";
 
-import {
-  type AndExpect,
-  EMPTY,
-  type ExpectedHTML,
-  type ExpectOptions,
-} from "./testing.js";
+import type { AndExpect, ExpectedHTML, ExpectOptions } from "./testing.js";
+import { EMPTY } from "./testing.js";
 
 export class RenderedApp<T = void> {
   static create = <T>(

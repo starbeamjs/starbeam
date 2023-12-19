@@ -6,13 +6,14 @@ import type {
   InitializingTrackingFrame,
 } from "@starbeam/reactive";
 import { DEBUG, StartTrackingFrame } from "@starbeam/reactive";
-import { render, RUNTIME, type Unsubscribe } from "@starbeam/runtime";
+import type { Unsubscribe } from "@starbeam/runtime";
+import { render, RUNTIME } from "@starbeam/runtime";
 import { initializeFormulaTag } from "@starbeam/tags";
 import { expected, isPresent, verify } from "@starbeam/verify";
 
 export class ComponentFrame {
-  static #frames = new WeakMap<InternalComponent, ComponentFrame>();
-  static #stack: InternalComponent[] = [];
+  static readonly #frames = new WeakMap<InternalComponent, ComponentFrame>();
+  static readonly #stack: InternalComponent[] = [];
 
   static start(
     component: InternalComponent,
@@ -72,7 +73,7 @@ export class ComponentFrame {
 
   #active: InitializingTrackingFrame | null;
   #frame: FinalizedFormula | null;
-  #tag: FormulaTag;
+  readonly #tag: FormulaTag;
   #subscription: Unsubscribe | null;
 
   private constructor(

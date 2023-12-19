@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { reactive } from "@starbeam/collections";
 import { describe, expect, test } from "vitest";
 
@@ -32,7 +33,7 @@ describe("TrackedMap", () => {
     const map = reactive.Map();
 
     const delicious = Invalidation.trace(
-      () => map.has("brie") || map.has("chevre")
+      () => map.has("brie") || map.has("chevre"),
     );
 
     expect(delicious.state).toEqual([false, "initialized"]);
@@ -84,7 +85,7 @@ describe("TrackedMap", () => {
       formatted: string,
       list: string[],
       types: string[],
-      state: "initialized" | "stable" | "invalidated"
+      state: "initialized" | "stable" | "invalidated",
     ): void {
       expect(foods.state).toEqual([formatted, state]);
       expect(foodsByKeys.state).toEqual([
@@ -110,7 +111,7 @@ describe("TrackedMap", () => {
       "hot dogs, brie",
       ["hot dogs", "brie"],
       ["sandwich", "cheese"],
-      "invalidated"
+      "invalidated",
     );
 
     map.set("chevre", "cheese");
@@ -118,7 +119,7 @@ describe("TrackedMap", () => {
       "hot dogs, brie, chevre",
       ["hot dogs", "brie", "chevre"],
       ["sandwich", "cheese"],
-      "invalidated"
+      "invalidated",
     );
 
     map.set("hamburgers", "burger");
@@ -126,7 +127,7 @@ describe("TrackedMap", () => {
       "hot dogs, brie, chevre, hamburgers",
       ["hot dogs", "brie", "chevre", "hamburgers"],
       ["sandwich", "cheese", "burger"],
-      "invalidated"
+      "invalidated",
     );
 
     map.set("hamburgers", "burger");
@@ -134,7 +135,7 @@ describe("TrackedMap", () => {
       "hot dogs, brie, chevre, hamburgers",
       ["hot dogs", "brie", "chevre", "hamburgers"],
       ["sandwich", "cheese", "burger"],
-      "stable"
+      "stable",
     );
 
     // update the value of hamburgers
@@ -166,7 +167,7 @@ describe("TrackedMap", () => {
       "hot dogs, brie, chevre",
       ["hot dogs", "brie", "chevre"],
       ["sandwich", "cheese"],
-      "invalidated"
+      "invalidated",
     );
 
     map.delete("hot dogs");
@@ -236,9 +237,10 @@ describe("TrackedMap", () => {
     expect(food.state).toEqual(["sandwich", "stable"]);
     // deleting smashburgers invalidates foodTypes, which enumerated values
     expect(foodTypes.state).toEqual([["sandwich"], "invalidated"]);
-    // deleting smashburgers didn't invalidate hasBurgers, which checked hamburgers
-    // first, and since it successfully found hamburgers, only hamburgers was a dependency
-    // of hasBurgers. Since hamburgers didn't change, hasBurgers is stable.
+    // deleting smashburgers didn't invalidate hasBurgers, which checked
+    // hamburgers first, and since it successfully found hamburgers, only
+    // hamburgers was a dependency of hasBurgers. Since hamburgers didn't
+    // change, hasBurgers is stable.
     expect(hasBurgers.state).toEqual([true, "stable"]);
 
     map.delete("hamburgers");

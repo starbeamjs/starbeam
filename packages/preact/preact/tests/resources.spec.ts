@@ -5,7 +5,7 @@
 // @vitest-environment jsdom
 
 import { install, setupResource, useResource } from "@starbeam/preact";
-import { type ResourceBlueprint } from "@starbeam/resource";
+import type { ResourceBlueprint } from "@starbeam/resource";
 import { html, render } from "@starbeam-workspace/preact-testing-utils";
 import {
   beforeAll,

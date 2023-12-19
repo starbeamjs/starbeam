@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { expect } from "@starbeam-workspace/test-utils";
 
 export class Actions {

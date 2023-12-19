@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { CachedFormula } from "@starbeam/reactive";
 import { isPresent, verified } from "@starbeam/verify";
 import { Table } from "@starbeamx/store";

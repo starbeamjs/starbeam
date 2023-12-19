@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Cell, Marker } from "@starbeam/reactive";
 import { Resource } from "@starbeam/resource";
 import { CONTEXT } from "@starbeam/runtime";

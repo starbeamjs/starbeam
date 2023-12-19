@@ -1,4 +1,4 @@
-import { type App, type Plugin } from "vue";
+import type { App, Plugin } from "vue";
 
 import { useApp } from "./app.js";
 import { VueComponent } from "./component.js";

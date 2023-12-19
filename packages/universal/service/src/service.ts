@@ -1,8 +1,8 @@
 import type { Description } from "@starbeam/interfaces";
-import { Marker } from "@starbeam/reactive";
-import { CachedFormula, DEBUG, type FormulaFn } from "@starbeam/reactive";
-import type { SyncFn } from "@starbeam/resource";
-import { Resource, type ResourceBlueprint } from "@starbeam/resource";
+import type { FormulaFn } from "@starbeam/reactive";
+import { CachedFormula, DEBUG, Marker } from "@starbeam/reactive";
+import type { ResourceBlueprint, SyncFn } from "@starbeam/resource";
+import { Resource } from "@starbeam/resource";
 import { CONTEXT } from "@starbeam/runtime";
 import { mountFinalizationScope } from "@starbeam/shared";
 

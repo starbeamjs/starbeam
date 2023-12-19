@@ -2,7 +2,8 @@
 import { Cell, Marker } from "@starbeam/reactive";
 import type { ResourceBlueprint, SyncFn, SyncResult } from "@starbeam/resource";
 import { Resource, SyncTo } from "@starbeam/resource";
-import { type FinalizationScope, pushingScope } from "@starbeam/runtime";
+import type { FinalizationScope } from "@starbeam/runtime";
+import { pushingScope } from "@starbeam/runtime";
 import { finalize, UNINITIALIZED } from "@starbeam/shared";
 import {
   describe,
@@ -417,8 +418,8 @@ interface Action<U> {
    * All events are assumed to be ignored after finalization.
    *
    * (If we find that we want to allow specific events to survive finalization,
-   * we should allow that to be configured when the {@linkcode ResourceWrapper} is
-   * created.)
+   * we should allow that to be configured when the {@linkcode ResourceWrapper}
+   * is created.)
    */
   events: string[];
   change: (prev: U) => U;
@@ -507,13 +508,15 @@ class ResourceWrapper<T, U> {
    *
    * The parameters to the expect method are:
    *
-   * - `events`: The events expected to be recorded when the action runs. (default: `[]`)
-   * - `change`: A function that takes the previous value and returns the
+   * - `events`: The events expected to be recorded when the action runs.
+   * (default: `[]`) - `change`: A function that takes the previous value and
+   * returns the
    *   expected new value. (default: {@linkcode UNCHANGED})
-   * - `sync`: Optionally, the parameter to the {@linkcode sync} method. This parameter
-   *   will be passed to the call to the {@linkcode sync} method that occurs after the
-   *   action is run. If no `sync` parameter is provided, the {@linkcode act} call will
-   *   assert {@linkcode UNCHANGED}.
+   * - `sync`: Optionally, the parameter to the {@linkcode sync} method. This
+   * parameter
+   *   will be passed to the call to the {@linkcode sync} method that occurs
+   *   after the action is run. If no `sync` parameter is provided, the
+   *   {@linkcode act} call will assert {@linkcode UNCHANGED}.
    */
   defineAction = (
     step: () => void,
@@ -735,7 +738,7 @@ class ResourceWrapper<T, U> {
     );
   };
 
-  #expect = (expectations: Expectations<U>, label: string) => {
+  readonly #expect = (expectations: Expectations<U>, label: string) => {
     const { events: events, value } = this.#normalizeExpectations(expectations);
 
     let expectedSubject: U;

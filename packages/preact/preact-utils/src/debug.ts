@@ -2,7 +2,8 @@ import type { ComponentChild, ComponentChildren } from "preact";
 
 import { isProbablyVNode } from "./internals.js";
 import { InternalComponent } from "./internals/component.js";
-import { type InternalPreactVNode, InternalVNode } from "./internals/vnode.js";
+import type { InternalPreactVNode } from "./internals/vnode.js";
+import { InternalVNode } from "./internals/vnode.js";
 
 function debugComponentChild(child: ComponentChild): unknown {
   if (isProbablyVNode(child)) {
@@ -20,7 +21,7 @@ export function implementInspect(): void {
   }
 
   (InternalVNode.prototype as Inspectable)[INSPECT] = function (
-    this: InternalVNode
+    this: InternalVNode,
   ): object {
     const { type, dom, props } = this;
 
@@ -45,7 +46,7 @@ export function implementInspect(): void {
         ...elementFields(dom),
         ...propsField,
       },
-      structOptions
+      structOptions,
     );
   };
 
@@ -76,7 +77,7 @@ function elementFields(element: Element | Text | undefined): object {
 }
 
 function propFields(
-  props: { children?: ComponentChildren } | undefined
+  props: { children?: ComponentChildren } | undefined,
 ): object {
   if (!props) {
     return {};
@@ -85,7 +86,7 @@ function propFields(
   const children = props.children;
 
   const updatedProps = Object.fromEntries(
-    Object.entries(props).filter(([key]) => key !== "children")
+    Object.entries(props).filter(([key]) => key !== "children"),
   );
 
   const childrenField = children
@@ -116,23 +117,23 @@ function mapProps(props: Record<string, unknown>): Record<string, unknown> {
 
 function mapAny<T, U>(
   value: Record<PropertyKey, T>,
-  mapper: (value: T, key: unknown) => U
+  mapper: (value: T, key: unknown) => U,
 ): Record<PropertyKey, U>;
 function mapAny<T, U>(value: T[], mapper: (value: T, key: unknown) => U): U[];
 function mapAny<T, U>(value: T, mapper: (value: T, key: unknown) => U): U;
 function mapAny<T, U>(
   value: T | T[] | Record<PropertyKey, T>,
-  mapper: (value: T, key: unknown) => U
+  mapper: (value: T, key: unknown) => U,
 ): Record<PropertyKey, U> | U[] | U;
 function mapAny<T, U>(
   value: T | T[] | Record<PropertyKey, T>,
-  mapper: (value: T, key: unknown) => U
+  mapper: (value: T, key: unknown) => U,
 ): Record<PropertyKey, U> | U[] | U {
   if (Array.isArray(value)) {
     return value.map((item, index) => mapper(item, index));
   } else if (value && typeof value === "object") {
     return Object.fromEntries(
-      Object.entries(value).map(([k, v]) => [k, mapper(v as T, k)])
+      Object.entries(value).map(([k, v]) => [k, mapper(v as T, k)]),
     ) as Record<keyof T, U>;
   } else {
     return mapper(value, null);
@@ -146,7 +147,7 @@ interface DisplayStructOptions {
 function DisplayStruct(
   name: string,
   fields: Record<PropertyKey, unknown>,
-  options?: DisplayStructOptions
+  options?: DisplayStructOptions,
 ): object {
   let displayName = name;
 
@@ -191,7 +192,7 @@ const EMPTY_LENGTH = 0;
 function isPresent<T>(list: readonly T[]): list is readonly [T, ...T[]];
 function isPresent<T>(list: T[]): list is [T, ...T[]];
 function isPresent<T>(
-  list: T[] | readonly T[]
+  list: T[] | readonly T[],
 ): list is [T, ...T[]] | readonly [T, ...T[]] {
   return list.length > EMPTY_LENGTH;
 }

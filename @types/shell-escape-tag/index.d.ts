@@ -1,4 +1,5 @@
 declare class Escaped {
+  // eslint-disable-next-line no-unused-private-class-members
   #value: unknown;
 }
 

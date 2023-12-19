@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { CachedFormula, Cell, DEBUG, Marker } from "@starbeam/reactive";
 import { getTag, RUNTIME } from "@starbeam/runtime";
 import { initializeFormulaTag } from "@starbeam/tags";
@@ -62,7 +63,7 @@ describe("consumption", () => {
 
     const unsubscribe = RUNTIME.subscribe(
       getTag(sum),
-      () => void stale.invalidate()
+      () => void stale.invalidate(),
     );
 
     stale.expect("fresh");

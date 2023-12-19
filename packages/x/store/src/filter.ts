@@ -1,7 +1,7 @@
 import type { TableTypes, TableTypesFor, UserTypes } from "./table.js";
 
 export type FilterFn<U extends UserTypes> = (
-  row: TableTypesFor<U>["Row"]
+  row: TableTypesFor<U>["Row"],
 ) => boolean;
 export type Filter<U extends UserTypes> = FilterFn<U> | FilterInstance<U>;
 
@@ -12,7 +12,7 @@ export interface FilterInstance<U extends UserTypes> {
 }
 
 export function Filter<U extends UserTypes>(
-  filter: Filter<U>
+  filter: Filter<U>,
 ): FilterInstance<U> {
   if (typeof filter === "function") {
     return new SingleFilter(filter);
@@ -54,7 +54,7 @@ export class UnfilteredFilter<T extends TableTypes>
 }
 
 export class SingleFilter<T extends TableTypes> implements FilterInstance<T> {
-  #filter: (row: T["Row"]) => boolean;
+  readonly #filter: (row: T["Row"]) => boolean;
 
   constructor(row: (row: T["Row"]) => boolean) {
     this.#filter = row;
@@ -74,7 +74,7 @@ export class SingleFilter<T extends TableTypes> implements FilterInstance<T> {
 }
 
 export class EveryFilter<T extends TableTypes> implements FilterInstance<T> {
-  #filters: FilterInstance<T>[];
+  readonly #filters: FilterInstance<T>[];
 
   constructor(...filters: FilterInstance<T>[]) {
     this.#filters = filters;
@@ -94,7 +94,7 @@ export class EveryFilter<T extends TableTypes> implements FilterInstance<T> {
 }
 
 export class SomeFilter<T extends TableTypes> implements FilterInstance<T> {
-  #filters: FilterInstance<T>[];
+  readonly #filters: FilterInstance<T>[];
 
   constructor(...filters: FilterInstance<T>[]) {
     this.#filters = filters;

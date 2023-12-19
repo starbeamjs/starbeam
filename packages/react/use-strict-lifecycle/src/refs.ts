@@ -1,11 +1,13 @@
-import { type MutableRefObject, useRef } from "react";
+import type { MutableRefObject } from "react";
+import { useRef } from "react";
 
 import { useLifecycle } from "./lifecycle.js";
 import { UNINITIALIZED } from "./utils.js";
 
 /**
- * This is basically the React `Ref` type, but the React version forces `current` to be `| null`,
- * which is impossible here, because it's not a DOM ref.
+ * This is basically the React `Ref` type, but the React version forces
+ * `current` to be `| null`, which is impossible here, because it's not a DOM
+ * ref.
  */
 export interface Ref<T> {
   readonly current: T;
@@ -20,7 +22,7 @@ export interface Ref<T> {
  * it will return `[ref, true]` (the same ref).
  */
 export function useInitializedRef<T>(
-  initial: () => T
+  initial: () => T,
 ): [ref: MutableRefObject<T>, isUpdate: boolean] {
   const ref = useRef(UNINITIALIZED as T | UNINITIALIZED);
 
@@ -46,7 +48,7 @@ export function useInitializedRef<T>(
  * stale closures.
  */
 export function useLastRenderRef<S>(
-  state: S
+  state: S,
 ): [ref: Ref<S>, prev: S | UNINITIALIZED] {
   const ref = useRef<S | UNINITIALIZED>(UNINITIALIZED);
   const prev = ref.current;

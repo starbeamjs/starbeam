@@ -12,8 +12,9 @@ import type { Timestamp } from "./timestamp.js";
 import { NOW } from "./timestamp.js";
 
 /**
- * Cell is the fundamental mutable reactive value. All subscriptions in Starbeam are ultimately
- * subscriptions to cells, and all mutations in Starbeam are ultimately mutations to cells.
+ * Cell is the fundamental mutable reactive value. All subscriptions in
+ * Starbeam are ultimately subscriptions to cells, and all mutations in
+ * Starbeam are ultimately mutations to cells.
  */
 export interface InternalCellTag extends CellTag {
   readonly type: "cell";
@@ -26,7 +27,7 @@ export interface InternalCellTag extends CellTag {
 
 export function createCellTag(
   description: Description | undefined,
-  lastUpdated: CoreTimestamp = NOW.bump()
+  lastUpdated: CoreTimestamp = NOW.bump(),
 ): {
   tag: CellTag;
   freeze: () => void;
@@ -66,7 +67,7 @@ export interface InternalFormulaTag extends FormulaTag {
 
 export function initializeFormulaTag(
   description: Description | undefined,
-  children: () => TagSnapshot
+  children: () => TagSnapshot,
 ): FormulaTag {
   const { tag, markInitialized } = createFormulaTag(description, children);
   markInitialized();
@@ -75,7 +76,7 @@ export function initializeFormulaTag(
 
 export function createFormulaTag(
   description: Description | undefined,
-  children: () => TagSnapshot
+  children: () => TagSnapshot,
 ): { tag: FormulaTag; markInitialized: () => void } {
   const dependencies = () =>
     [...children()].flatMap((child) => getDependencies(child));

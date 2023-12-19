@@ -5,7 +5,7 @@ import { DisplayStruct } from "inspect-utils";
 export const INSPECT = Symbol.for("nodejs.util.inspect.custom");
 
 class TimestampImpl implements interfaces.Timestamp {
-  static #initial = peerNow();
+  static readonly #initial = peerNow();
 
   /**
    * Returns the current `Timestamp` according to @starbeam/shared
@@ -15,7 +15,8 @@ class TimestampImpl implements interfaces.Timestamp {
   }
 
   /**
-   * The earliest timestamp from @starbeam/shared that was visible to this @starbeam/timeline.
+   * The earliest timestamp from @starbeam/shared that was visible to this
+   * @starbeam/timeline.
    */
   static zero(): interfaces.Timestamp {
     return new TimestampImpl(TimestampImpl.#initial);

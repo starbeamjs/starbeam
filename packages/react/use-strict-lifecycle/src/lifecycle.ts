@@ -103,7 +103,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { beginReadonly, endReadonly } from "./react.js";
-import { type Ref, useInitializedRef, useLastRenderRef } from "./refs.js";
+import type { Ref } from "./refs.js";
+import { useInitializedRef, useLastRenderRef } from "./refs.js";
 import { checked, isInitialized, mapEntries, UNINITIALIZED } from "./utils.js";
 
 enum State {
@@ -132,7 +133,7 @@ enum State {
 export type UseLifecycleBuilder<T, A> = (
   builder: Builder<A>,
   args: A,
-  prev?: T | undefined
+  prev?: T | undefined,
 ) => T;
 type Validator<V> = (args: V, prev: V) => boolean;
 
@@ -150,7 +151,7 @@ enum LifecycleEvent {
 }
 
 export function useLifecycle<V, A>(
-  options: Options<V, A> = {}
+  options: Options<V, A> = {},
 ): {
   render: <T>(build: UseLifecycleBuilder<T, A>) => T;
 } {
@@ -194,7 +195,7 @@ export function useLifecycle<V, A>(
         const isValid = validateUpdate(
           instance.current.options.validateWith,
           validate.current as V,
-          prev as V
+          prev as V,
         );
 
         // If validation fails, immediately remount.
@@ -212,7 +213,7 @@ export function useLifecycle<V, A>(
           notify();
           // Rebuild the instance.
           instance.current = buildInstance(
-            checked(instance.current, isInitialized)
+            checked(instance.current, isInitialized),
           );
 
           // Finish the job in the top-level render. This maintains timing
@@ -235,7 +236,8 @@ export function useLifecycle<V, A>(
       useEffect(() => {
         run(LifecycleEvent.idle);
 
-        // we don't need to return a cleanup function since we already did that in useLayoutEffect
+        // we don't need to return a cleanup function since we already did that
+        // in useLayoutEffect
       }, []);
 
       return instance.current.value;
@@ -255,7 +257,7 @@ type HandlerSets<A> = {
 
 export type RegisterLifecycleHandlers<A> = {
   readonly [K in LifecycleEvent]: (
-    handler: undefined | ((args: A) => void)
+    handler: undefined | ((args: A) => void),
   ) => void;
 };
 
@@ -303,7 +305,7 @@ function buildInstance<T, V, A>({
 
 const runHandlers = <A>(
   instance: { handlers: HandlerSets<A>; options: { args: Ref<A> } },
-  event: LifecycleEvent
+  event: LifecycleEvent,
 ): void => {
   for (const callback of instance.handlers[event]) {
     callback(instance.options.args.current);
@@ -313,7 +315,7 @@ const runHandlers = <A>(
 const validateUpdate = <V>(
   validateWith: Validator<V> | undefined,
   current: V,
-  prev: V
+  prev: V,
 ): boolean => validateWith === undefined || validateWith(current, prev);
 
 export interface Builder<A> {

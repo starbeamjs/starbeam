@@ -1,6 +1,9 @@
 import { Cell } from "@starbeam/reactive";
-import { managerSetupReactive, type RendererManager } from "@starbeam/renderer";
+import type { RendererManager } from "@starbeam/renderer";
+import { managerSetupReactive } from "@starbeam/renderer";
 import { describe, expect, test } from "@starbeam-workspace/test-utils";
+
+const INITIAL = 0;
 
 describe("RendererManager", () => {
   test("smoke test", () => {
@@ -26,8 +29,8 @@ describe("RendererManager", () => {
       },
     } satisfies RendererManager<object>;
 
-    const cell = Cell(0);
+    const cell = Cell(INITIAL);
     const reactive = managerSetupReactive(manager, () => cell);
-    expect(reactive.current).toBe(0);
+    expect(reactive.current).toBe(INITIAL);
   });
 });

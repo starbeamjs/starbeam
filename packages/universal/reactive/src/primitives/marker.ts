@@ -3,7 +3,8 @@ import { TAG } from "@starbeam/shared";
 import { createCellTag } from "@starbeam/tags";
 
 import { getDebug, getRuntime } from "../runtime.js";
-import { type SugaryPrimitiveOptions, toOptions } from "./utils.js";
+import type { SugaryPrimitiveOptions } from "./utils.js";
+import { toOptions } from "./utils.js";
 
 export interface Marker extends Tagged<CellTag> {
   read: () => void;

@@ -8,7 +8,8 @@ import type {
   Unsubscribe,
 } from "@starbeam/interfaces";
 import { isTagged } from "@starbeam/reactive";
-import { getTag, NOW, type Timestamp } from "@starbeam/tags";
+import type { Timestamp } from "@starbeam/tags";
+import { getTag, NOW } from "@starbeam/tags";
 
 import { RUNTIME } from "../define.js";
 import { Subscriptions } from "./subscriptions.js";

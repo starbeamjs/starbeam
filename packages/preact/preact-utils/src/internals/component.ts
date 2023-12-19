@@ -3,7 +3,8 @@ import type { Component, ComponentType } from "preact";
 
 import { DisplayStruct } from "../inspect.js";
 import type { InternalEffect, InternalPreactElement } from "../interfaces.js";
-import { type InternalPreactVNode, InternalVNode } from "./vnode.js";
+import type { InternalPreactVNode } from "./vnode.js";
+import { InternalVNode } from "./vnode.js";
 
 const COMPONENTS = new WeakMap<InternalPreactComponent, InternalComponent>();
 const INITIAL_ID = 0;

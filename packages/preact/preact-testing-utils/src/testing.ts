@@ -6,20 +6,19 @@ import {
 } from "@starbeam/core-utils";
 import { expected, verified } from "@starbeam/verify";
 import { entryPoint, expect } from "@starbeam-workspace/test-utils";
-import { type ByRoleMatcher, fireEvent } from "@testing-library/dom";
-import { getByRole, getByText } from "@testing-library/dom";
+import type { ByRoleMatcher } from "@testing-library/dom";
+import { fireEvent, getByRole, getByText } from "@testing-library/dom";
 import * as testing from "@testing-library/preact";
 import htm from "htm";
-import {
-  type Attributes,
-  type ComponentChild,
-  type ComponentChildren,
-  type ComponentType,
-  createElement,
-  Fragment,
-  h,
-  type VNode,
+import type {
+  Attributes,
+  ComponentChild,
+  ComponentChildren,
+  ComponentType,
+  VNode,
 } from "preact";
+import { createElement, Fragment, h } from "preact";
+// eslint-disable-next-line file-extension-in-import-ts/file-extension-in-import-ts -- @todo
 import { act } from "preact/test-utils";
 import { renderToString } from "preact-render-to-string";
 
@@ -469,7 +468,7 @@ class RenderResult<Args extends RenderProps, T extends Args> {
   readonly #expect: Expect<T>;
   readonly #next: T | undefined;
   #args: T;
-  #result: testing.RenderResult;
+  readonly #result: testing.RenderResult;
 
   constructor(
     component: Component,

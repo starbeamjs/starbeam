@@ -7,13 +7,14 @@ import { Collection } from "./collection.js";
 export default class TrackedObject {
   static reactive<T extends object>(
     description: Description | undefined,
-    obj: T
+    obj: T,
   ): T {
     return new TrackedObject(description, obj) as T;
   }
 
   private constructor(description: Description | undefined, obj: object) {
-    // copy the properties from the object to the proxy, but preserve getters and setters
+    // copy the properties from the object to the proxy, but preserve getters
+    // and setters
     const target = Object.create(Reflect.getPrototypeOf(obj)) as object;
 
     for (const key of Reflect.ownKeys(obj)) {
@@ -60,7 +61,7 @@ export default class TrackedObject {
         collection.get(
           prop,
           Reflect.has(target, prop) ? "hit" : "miss",
-          member(prop)
+          member(prop),
         );
         return Reflect.get(target, prop) as unknown;
       },
@@ -75,7 +76,7 @@ export default class TrackedObject {
         collection.get(
           prop,
           Reflect.has(target, prop) ? "hit" : "miss",
-          member(prop)
+          member(prop),
         );
         return Reflect.getOwnPropertyDescriptor(target, prop);
       },
@@ -163,8 +164,8 @@ export default class TrackedObject {
 }
 
 class Descriptor {
-  #descriptor: PropertyDescriptor;
-  #before: PropertyDescriptor | undefined;
+  readonly #descriptor: PropertyDescriptor;
+  readonly #before: PropertyDescriptor | undefined;
 
   static from(descriptor: PropertyDescriptor): Descriptor {
     return new Descriptor(descriptor);
@@ -173,11 +174,11 @@ class Descriptor {
   static updates(
     object: object,
     key: PropertyKey,
-    updates: PropertyDescriptor
+    updates: PropertyDescriptor,
   ): Descriptor {
     return new Descriptor(
       updates,
-      Reflect.getOwnPropertyDescriptor(object, key)
+      Reflect.getOwnPropertyDescriptor(object, key),
     );
   }
 
@@ -296,7 +297,7 @@ class Descriptor {
   #assert(): void {
     if (this.#get("configurable") === false) {
       throw TypeError(
-        `reactive object don't support non-configurable properties yet`
+        `reactive object don't support non-configurable properties yet`,
       );
     }
   }
@@ -306,12 +307,12 @@ class Descriptor {
   }
 
   #get<K extends keyof PropertyDescriptor>(
-    key: K
+    key: K,
   ): TypedPropertyDescriptor<unknown>[K] | void {
     if (Reflect.has(this.#descriptor, key)) {
       return Reflect.get(
         this.#descriptor,
-        key
+        key,
       ) as TypedPropertyDescriptor<unknown>[K];
     }
 
@@ -322,7 +323,7 @@ class Descriptor {
     if (Reflect.has(this.#before, key)) {
       return Reflect.get(
         this.#before,
-        key
+        key,
       ) as TypedPropertyDescriptor<unknown>[K];
     }
   }
@@ -344,13 +345,13 @@ interface AccessorProperty extends DescriptorAttributes {
 }
 
 function isDataProperty(
-  descriptor: PropertyDescriptor
+  descriptor: PropertyDescriptor,
 ): descriptor is DataProperty {
   return !isAccessorProperty(descriptor);
 }
 
 function isAccessorProperty(
-  descriptor: PropertyDescriptor
+  descriptor: PropertyDescriptor,
 ): descriptor is AccessorProperty {
   return "get" in descriptor || "set" in descriptor;
 }

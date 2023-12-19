@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { cached, reactive } from "@starbeam/collections";
 import { Formula } from "@starbeam/reactive";
 import { Cell } from "@starbeam/universal";
@@ -72,8 +73,8 @@ describe("A polled reactive formula", () => {
 
     const last = card.current;
 
-    // intentionally use toEqual here because PolledFormulas don't cache anything, and therefore the
-    // values won't be `Object.is` equal.
+    // intentionally use toEqual here because PolledFormulas don't cache
+    // anything, and therefore the values won't be `Object.is` equal.
 
     expect(last).toEqual({
       name: "@tomdale",
@@ -92,8 +93,8 @@ describe("A polled reactive formula", () => {
       location: "New York",
     });
 
-    // intentionally use toEqual here because PolledFormulas don't cache anything, and therefore the
-    // values won't be `Object.is` equal.
+    // intentionally use toEqual here because PolledFormulas don't cache
+    // anything, and therefore the values won't be `Object.is` equal.
 
     expect(next).toEqual(last);
   });
@@ -104,7 +105,7 @@ describe("A polled reactive formula", () => {
         name: "Tom Dale",
         location: "New York",
       },
-      { equals: (a, b) => a.name === b.name && a.location === b.location }
+      { equals: (a, b) => a.name === b.name && a.location === b.location },
     );
 
     const card = Formula(() => ({
@@ -146,8 +147,8 @@ describe("A polled reactive formula", () => {
       location: "New York",
     });
 
-    // intentionally use toEqual here because PolledFormulas don't cache anything, and therefore the
-    // values won't be `Object.is` equal.
+    // intentionally use toEqual here because PolledFormulas don't cache
+    // anything, and therefore the values won't be `Object.is` equal.
     expect(lastCard).toEqual(nextCard);
     expect(lastPerson).toEqual(nextPerson);
   });
@@ -159,7 +160,7 @@ describe("A polled reactive formula", () => {
 
     const card = Formula(() => `${name.current} (${location.current})`);
     const complete = Formula(
-      () => `${card.current} at ${organization.current}`
+      () => `${card.current} at ${organization.current}`,
     );
 
     expect(complete.current).toBe("@tomdale (New York) at LinkedIn");

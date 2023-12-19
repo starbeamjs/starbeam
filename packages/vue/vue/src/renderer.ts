@@ -1,4 +1,4 @@
-import { type RendererManager } from "@starbeam/renderer";
+import type { RendererManager } from "@starbeam/renderer";
 import { shallowRef, triggerRef, watch } from "vue";
 
 import { Handlers } from "./bookkeeping.js";

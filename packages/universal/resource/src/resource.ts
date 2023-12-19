@@ -7,7 +7,7 @@ import {
 
 import type { DefineSync } from "./sync/high-level.js";
 import { SyncTo } from "./sync/high-level.js";
-import { type Sync, type SyncFn, type SyncResult } from "./sync/primitive.js";
+import type { Sync, SyncFn, SyncResult } from "./sync/primitive.js";
 
 export type SetupResource<T> = (define: DefineResource) => T;
 

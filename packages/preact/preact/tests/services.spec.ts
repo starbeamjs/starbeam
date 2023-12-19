@@ -5,11 +5,8 @@
 // @vitest-environment jsdom
 
 import { install, useService } from "@starbeam/preact";
-import {
-  html,
-  type HtmlNode,
-  render,
-} from "@starbeam-workspace/preact-testing-utils";
+import type { HtmlNode } from "@starbeam-workspace/preact-testing-utils";
+import { html, render } from "@starbeam-workspace/preact-testing-utils";
 import {
   describe,
   RecordedEvents,

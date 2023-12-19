@@ -1,20 +1,17 @@
 import { Starbeam } from "@starbeam/react";
 import { react } from "@starbeam-workspace/react-test-utils";
-import {
-  createElement,
-  type FunctionComponent,
-  type ReactElement,
-} from "react";
+import type { FunctionComponent, ReactElement } from "react";
+import { createElement } from "react";
 
 export function usingStarbeam(component: FunctionComponent<void>): ReactElement;
 export function usingStarbeam<P>(
   component: FunctionComponent<P>,
-  props: P
+  props: P,
 ): ReactElement;
 export function usingStarbeam(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   component: FunctionComponent<any>,
-  props?: unknown
+  props?: unknown,
 ): ReactElement {
   return createElement(Starbeam, null, react.render(component, props));
 }

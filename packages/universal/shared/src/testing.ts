@@ -1,4 +1,5 @@
-import { getCoordination, type Testing } from "./env.js";
+import type { Testing } from "./env.js";
+import { getCoordination } from "./env.js";
 
 const coordination = getCoordination();
 

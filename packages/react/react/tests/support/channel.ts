@@ -15,7 +15,7 @@ export class Channels<Message = string> {
 
   readonly sendMessage = (
     channel: Channel<Message>,
-    message: Message
+    message: Message,
   ): void => {
     if (channel.isActive) {
       Channel.sendMessage(channel, message);
@@ -43,7 +43,7 @@ export class Channel<Message = string> {
 
   static sendMessage<Message>(
     channel: Channel<Message>,
-    message: Message
+    message: Message,
   ): void {
     if (channel.isActive) {
       for (const subscriber of channel.#onMessage) {
@@ -52,9 +52,9 @@ export class Channel<Message = string> {
     }
   }
 
-  #id: number;
-  #name: string;
-  #onMessage = new Set<(message: Message) => void>();
+  readonly #id: number;
+  readonly #name: string;
+  readonly #onMessage = new Set<(message: Message) => void>();
 
   constructor(id: number, name: string) {
     this.#id = id;

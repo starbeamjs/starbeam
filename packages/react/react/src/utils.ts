@@ -14,7 +14,7 @@ export interface Deps {
  */
 export function useDeps<T extends unknown[] | undefined>(
   deps: T,
-  description?: string | Description | undefined
+  description?: string | Description | undefined,
 ): Deps | undefined {
   const desc = DEBUG?.Desc("cell", description, "useDeps");
 
@@ -31,7 +31,7 @@ export function useDeps<T extends unknown[] | undefined>(
 
 export function useProp<T>(
   variable: T,
-  description?: string | Description
+  description?: string | Description,
 ): Reactive<T> {
   const ref = useRef(UNINITIALIZED as UNINITIALIZED | Cell<T>);
 
@@ -48,7 +48,7 @@ export function useProp<T>(
 
 export function sameDeps(
   next: unknown[] | undefined,
-  prev: unknown[] | undefined
+  prev: unknown[] | undefined,
 ): boolean {
   if (prev === undefined || next === undefined) {
     return prev === next;
@@ -62,8 +62,8 @@ export function sameDeps(
 }
 
 /**
- * Returns a function that can be called to notify React that the current component should be
- * re-rendered.
+ * Returns a function that can be called to notify React that the current
+ * component should be re-rendered.
  */
 export function useNotify(): () => void {
   const [, setNotify] = useState({});

@@ -1,13 +1,9 @@
-import { type ByRoleMatcher, getByRole, getByText } from "@testing-library/dom";
+import type { ByRoleMatcher } from "@testing-library/dom";
+import { getByRole, getByText } from "@testing-library/dom";
 import * as testing from "@testing-library/preact";
-import {
-  type Attributes,
-  type ComponentChildren,
-  createElement,
-  Fragment,
-  h,
-  type VNode,
-} from "preact";
+import type { Attributes, ComponentChildren, VNode } from "preact";
+import { createElement, Fragment, h } from "preact";
+// eslint-disable-next-line file-extension-in-import-ts/file-extension-in-import-ts -- @todo
 import { act } from "preact/test-utils";
 import { renderToString } from "preact-render-to-string";
 import { expect } from "vitest";
@@ -21,17 +17,17 @@ interface RenderExpectations<T> {
 export function RenderTest(
   component: Component,
   props?: Attributes,
-  options?: { into?: HTMLElement }
+  options?: { into?: HTMLElement },
 ): Render<void, void>;
 export function RenderTest<P>(
   component: Component<P>,
   props: Attributes & P,
-  options?: { into?: HTMLElement }
+  options?: { into?: HTMLElement },
 ): Render<P, void>;
 export function RenderTest<P>(
   component: Component<P>,
   props: Attributes & P,
-  { into = document.createElement("div") }: { into?: HTMLElement } = {}
+  { into = document.createElement("div") }: { into?: HTMLElement } = {},
 ): Render<P, void> {
   return new Render(component, props, into, Expect.from(into));
 }
@@ -46,7 +42,7 @@ class Expect<T> {
 
   constructor(
     container: HTMLElement,
-    expectations: RenderExpectations<T> | undefined
+    expectations: RenderExpectations<T> | undefined,
   ) {
     this.#container = container;
     this.#expectations = expectations;
@@ -56,7 +52,7 @@ class Expect<T> {
     if (this.#expectations && this.#expectations.html) {
       const expected = this.#expectations.html(value);
       const string = renderToString(
-        h(Fragment, {}, expected) as VNode<unknown>
+        h(Fragment, {}, expected) as VNode<unknown>,
       );
 
       expect(this.#container.innerHTML).toBe(string);
@@ -66,7 +62,7 @@ class Expect<T> {
 
 class Render<P, T> {
   readonly #component: Component<P>;
-  #props: Attributes & P;
+  readonly #props: Attributes & P;
   readonly #into: HTMLElement;
   readonly #expect: Expect<T>;
 
@@ -74,7 +70,7 @@ class Render<P, T> {
     component: Component<P>,
     props: Attributes & P,
     into: HTMLElement,
-    expectation: Expect<T>
+    expectation: Expect<T>,
   ) {
     this.#component = component;
     this.#props = props;
@@ -103,11 +99,11 @@ class Render<P, T> {
   html(this: Render<P, void>, check: () => ComponentChildren): Render<P, void>;
   html<U>(
     this: Render<P, void>,
-    check: (value: U) => ComponentChildren
+    check: (value: U) => ComponentChildren,
   ): Render<P, U>;
   html<U extends T>(
     this: Render<P, void>,
-    check: (value: U) => ComponentChildren
+    check: (value: U) => ComponentChildren,
   ): Render<P, U>;
   html<U>(check: (value: U) => ComponentChildren): Render<P, U> {
     return new Render(
@@ -117,7 +113,7 @@ class Render<P, T> {
       new Expect(this.#into, {
         ...this.#expect,
         html: check,
-      })
+      }),
     );
   }
 }
@@ -144,7 +140,7 @@ class RenderResult<P, T> {
       expectation,
       next,
       props,
-      result
+      result,
     );
   }
 
@@ -153,7 +149,7 @@ class RenderResult<P, T> {
   readonly #expect: Expect<T>;
   readonly #next: { value: T } | undefined;
   #props: Attributes & P;
-  #result: testing.RenderResult;
+  readonly #result: testing.RenderResult;
 
   constructor(
     component: Component<P>,
@@ -161,7 +157,7 @@ class RenderResult<P, T> {
     expectation: Expect<T>,
     next: { value: T } | undefined,
     props: Attributes & P,
-    result: testing.RenderResult
+    result: testing.RenderResult,
   ) {
     this.#component = component;
     this.#container = container;
@@ -193,7 +189,7 @@ class RenderResult<P, T> {
 
   find(
     role: ByRoleMatcher,
-    options?: testing.ByRoleOptions
+    options?: testing.ByRoleOptions,
   ): TestElement<HTMLElement, T> {
     return this.element.find(role, options);
   }
@@ -228,7 +224,7 @@ export class TestElement<E extends Element, T> {
   static create<E extends Element, T>(
     element: E,
     expectation: Expect<T>,
-    next: { value: T } | undefined
+    next: { value: T } | undefined,
   ): TestElement<E, T> {
     return new TestElement(element, expectation, next);
   }
@@ -242,7 +238,7 @@ export class TestElement<E extends Element, T> {
   constructor(
     element: E,
     expectation: Expect<T>,
-    next: { value: T } | undefined
+    next: { value: T } | undefined,
   ) {
     this.#element = element;
     this.#expect = expectation;
@@ -284,24 +280,24 @@ export class TestElement<E extends Element, T> {
   find(
     this: TestElement<HTMLElement, T>,
     role: ByRoleMatcher,
-    options?: testing.ByRoleOptions
+    options?: testing.ByRoleOptions,
   ): TestElement<HTMLElement, T> {
     return TestElement.create(
       getByRole(this.#element, role, options),
       this.#expect,
-      this.#next
+      this.#next,
     );
   }
 
   findByText(
     this: TestElement<HTMLElement, T>,
     id: testing.Matcher,
-    options?: testing.SelectorMatcherOptions
+    options?: testing.SelectorMatcherOptions,
   ): TestElement<HTMLElement, T> {
     return TestElement.create(
       getByText(this.#element, id, options),
       this.#expect,
-      this.#next
+      this.#next,
     );
   }
 

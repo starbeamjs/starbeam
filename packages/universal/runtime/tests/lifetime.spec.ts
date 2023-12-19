@@ -187,7 +187,8 @@ describe("lifetimes", () => {
 
     finalize(object2);
 
-    // The finalizers are still called once when the object is finalized, but aren't called again
+    // The finalizers are still called once when the object is finalized, but
+    // aren't called again
     expect(tracer1.calls).toBe(1);
 
     // Linking the child to a new parent doesn't cause it to get called again
@@ -197,7 +198,8 @@ describe("lifetimes", () => {
 
     finalize(object3);
 
-    // The finalizers are still called once when the object is finalized, but aren't called again
+    // The finalizers are still called once when the object is finalized, but
+    // aren't called again
     expect(tracer1.calls).toBe(1);
   });
 });
@@ -214,7 +216,7 @@ class InstrumentedCallback {
     return [instrumented, fn];
   }
 
-  #called: Args[] = [];
+  readonly #called: Args[] = [];
 
   get calls(): number {
     return this.#called.length;

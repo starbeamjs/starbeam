@@ -8,9 +8,10 @@ testReact<void, { count: number; state: string }>(
   async (root) => {
     await root
       .expectHTML(
-        ({ count, state }) => `<p>count = ${count}</p><p>state = ${state}</p>`
+        ({ count, state }) => `<p>count = ${count}</p><p>state = ${state}</p>`,
       )
       .render((test) => {
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         const count = useRef(0);
         const [state, setState] = useState("initial");
 
@@ -38,8 +39,8 @@ testReact<void, { count: number; state: string }>(
 
         return react.fragment(
           html.p("count = ", String(count.current)),
-          html.p("state = ", state)
+          html.p("state = ", state),
         );
       });
-  }
+  },
 );

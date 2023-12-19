@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { CachedFormula, Cell, Marker } from "@starbeam/reactive";
 import type { Sync } from "@starbeam/resource";
 import { PrimitiveSyncTo, SyncTo } from "@starbeam/resource";
@@ -17,8 +18,8 @@ import {
   verified,
   verify,
 } from "@starbeam/verify";
+import type { AnyFunction } from "@starbeam-workspace/test-utils";
 import {
-  type AnyFunction,
   buildCause,
   describe,
   entryPoint,
@@ -462,7 +463,7 @@ class Child<T, U> {
   readonly #sequence: number;
   readonly #value: T;
   #lastValue: U | UNINITIALIZED = UNINITIALIZED;
-  #extract: (value: T) => U;
+  readonly #extract: (value: T) => U;
 
   constructor(sequence: number, value: T, extract: (value: T) => U) {
     this.#sequence = sequence;
@@ -675,7 +676,8 @@ function assertSyncLifecycle({
     expect(counter.current).toBe(0);
     events.expect([]);
 
-    // this is where the framework is going to call sync (e.g. in useEffect in React).
+    // this is where the framework is going to call sync (e.g. in useEffect in
+    // React).
     expect(counter.current).toBe(0);
     sync();
     events.expect("sync");
@@ -768,7 +770,8 @@ function assertNestedSyncLifecycle({
     expect(counter.current).toBe(0);
     events.expect([]);
 
-    // this is where the framework is going to call sync (e.g. in useEffect in React).
+    // this is where the framework is going to call sync (e.g. in useEffect in
+    // React).
     expect(counter.current).toBe(0);
     sync();
     events.expect("parent:sync", "child:sync");

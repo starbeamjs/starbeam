@@ -3,7 +3,8 @@ import type {
   AggregatorFor,
   AggregatorInstance,
 } from "./aggregate.js";
-import { Filter, type FilterInstance } from "./filter.js";
+import type { FilterInstance } from "./filter.js";
+import { Filter } from "./filter.js";
 import type {
   GroupTypeFor,
   TableTypes,
@@ -94,7 +95,7 @@ export class Groups<T extends TableTypes, Description> {
     Group.add(group, row);
   }
 
-  #map: Map<Description, Group<T>>;
+  readonly #map: Map<Description, Group<T>>;
 
   private constructor(map: Map<Description, Group<T>>) {
     this.#map = map;
@@ -117,8 +118,8 @@ export class GroupBy<U extends UserTypes, Bucket, Description> {
     return new GroupBy(rows, groupBy);
   }
 
-  #rows: FlatRows<U>;
-  #groupBy: Grouping<TableTypesFor<U>, Bucket, Description>;
+  readonly #rows: FlatRows<U>;
+  readonly #groupBy: Grouping<TableTypesFor<U>, Bucket, Description>;
 
   constructor(
     rows: FlatRows<U>,
@@ -157,8 +158,8 @@ export class AggregateBy<
     return new AggregateBy(rows, aggregateBy);
   }
 
-  #rows: FlatRows<U>;
-  #aggregateBy: A;
+  readonly #rows: FlatRows<U>;
+  readonly #aggregateBy: A;
 
   constructor(rows: FlatRows<U>, aggregateBy: A) {
     this.#rows = rows;
@@ -201,9 +202,9 @@ export class Query<U extends UserTypes> extends FlatRows<U> {
     return new Query(rows, Filter.unfiltered(), undefined);
   }
 
-  #rows: FlatRows<U>;
-  #filter: FilterInstance<U>;
-  #sort: SortFn<U> | undefined;
+  readonly #rows: FlatRows<U>;
+  readonly #filter: FilterInstance<U>;
+  readonly #sort: SortFn<U> | undefined;
 
   constructor(
     rows: FlatRows<U>,

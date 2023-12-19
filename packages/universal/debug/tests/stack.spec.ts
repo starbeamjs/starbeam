@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { DEBUG } from "@starbeam/debug";
-import { type CallStack } from "@starbeam/interfaces";
+import type { CallStack } from "@starbeam/interfaces";
 import { describe, expect, test } from "vitest";
 
 describe("Error stacks", () => {
@@ -20,7 +21,7 @@ function anOuterFunction(): CallStack | undefined {
 }
 
 function callerStackInArgs(
-  desc = DEBUG.callerStack()?.frames[0].action
+  desc = DEBUG.callerStack()?.frames[0].action,
 ): string | undefined {
   return desc;
 }

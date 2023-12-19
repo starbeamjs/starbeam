@@ -1,6 +1,6 @@
+/* eslint-disable no-console */
 import { readPackageJson, writePackageJson } from "./read-package-json.js";
 import { currentSHA, listPublicWorkspaces } from "./workspaces.js";
-
 
 /**
  * @type {Record<string, string>}
@@ -53,8 +53,8 @@ async function setVersion(sha, filePath) {
     return;
   }
 
-  // we need to at the very least bump the patch version of the unstable packages so
-  // that ^ dependenies won't pick up the stable versions
+  // we need to at the very least bump the patch version of the unstable
+  // packages so that ^ dependenies won't pick up the stable versions
   const [major, minor, patch] = json.version.split(".");
 
   json.version = `${major}.${minor}.${

@@ -3,8 +3,8 @@ import { getTag } from "@starbeam/tags";
 import { Cell, Marker } from "@starbeam/universal";
 
 class ItemState {
-  #present: Cell<boolean>;
-  #value: Marker;
+  readonly #present: Cell<boolean>;
+  readonly #value: Marker;
 
   static create(
     initialized: boolean,
@@ -64,7 +64,7 @@ class ItemState {
 }
 
 class Item {
-  #value: ItemState;
+  readonly #value: ItemState;
 
   static initialized(
     description: Description | undefined,
@@ -111,11 +111,11 @@ class Item {
 }
 
 export class Collection<K> {
-  #description: Description | undefined;
-  #items: Map<K, Item>;
+  readonly #description: Description | undefined;
+  readonly #items: Map<K, Item>;
   #iteration: Marker | undefined;
 
-  static #objects = new WeakMap<object, Collection<unknown>>();
+  static readonly #objects = new WeakMap<object, Collection<unknown>>();
 
   static create<K>(
     description: Description | undefined,
@@ -174,7 +174,8 @@ export class Collection<K> {
   /**
    * The consumer read the value of a key.
    *
-   * If the key is not present, that means that this is the first read from the key.
+   * If the key is not present, that means that this is the first read from the
+   * key.
    */
   get(key: K, disposition: "hit" | "miss", description: string): void {
     let item = this.#items.get(key);
@@ -241,7 +242,8 @@ export class Collection<K> {
 
   splice(): void {
     if (this.#iteration === undefined) {
-      // if nobody has iterated this collection, nobody will care that it was modified
+      // if nobody has iterated this collection, nobody will care that it was
+      // modified
       return;
     }
 

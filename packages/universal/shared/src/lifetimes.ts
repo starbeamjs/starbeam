@@ -1,8 +1,5 @@
-import {
-  type FinalizationScope,
-  getCoordination,
-  type Lifetime,
-} from "./env.js";
+import type { FinalizationScope, Lifetime } from "./env.js";
+import { getCoordination } from "./env.js";
 import type { Unregister } from "./types.js";
 
 const coordination = getCoordination();
@@ -43,7 +40,7 @@ if (!lifetime) {
   class Lifetimes implements Lifetime {
     readonly #lifetimes = new WeakMap<object, LifetimeState>();
     #currentScopeState: LifetimeState | undefined;
-    #createRegistry: () => FinalizationRegistry<LifetimeState>;
+    readonly #createRegistry: () => FinalizationRegistry<LifetimeState>;
     #lazyRegistry: FinalizationRegistry<LifetimeState> | undefined;
 
     constructor() {
@@ -116,7 +113,7 @@ if (!lifetime) {
       return this.#lifetimes.get(object)?.isFinalized() ?? false;
     };
 
-    #addFinalizationScope = (
+    readonly #addFinalizationScope = (
       child: object,
       link?: { to: "parent" } | undefined,
     ): (() => FinalizationScope) => {

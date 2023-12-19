@@ -7,12 +7,8 @@ import { TAG } from "@starbeam/shared";
 import { createCellTag, zero } from "@starbeam/tags";
 
 import { DEBUG, getDebug, getRuntime } from "../runtime.js";
-import {
-  isDescriptionOption,
-  type PrimitiveOptions,
-  type SugaryPrimitiveOptions,
-  toOptions,
-} from "./utils.js";
+import type { PrimitiveOptions, SugaryPrimitiveOptions } from "./utils.js";
+import { isDescriptionOption, toOptions } from "./utils.js";
 
 export interface Cell<T = unknown> extends TaggedReactive<T, CellTag> {
   current: T;
@@ -29,7 +25,7 @@ export type Static<T> = TaggedReactive<T, CellTag & { dependencies: () => [] }>;
 
 export function Static<T>(
   value: T,
-  options?: SugaryPrimitiveOptions
+  options?: SugaryPrimitiveOptions,
 ): TaggedReactive<T, CellTag> {
   const { description } = toOptions(options);
   const desc = getDebug()?.Desc("formula", description);
@@ -48,7 +44,7 @@ export function Static<T>(
 
 export function Cell<T>(
   value: T,
-  options?: CellOptions<T> | string | Description | undefined
+  options?: CellOptions<T> | string | Description | undefined,
 ): Cell<T> {
   const { description, equals = Object.is } = toCellOptions(options);
   const desc = getDebug()?.Desc("cell", description);
@@ -99,7 +95,7 @@ export interface CellOptions<T> extends PrimitiveOptions {
 }
 
 function toCellOptions<T>(
-  options: CellOptions<T> | Description | string | undefined
+  options: CellOptions<T> | Description | string | undefined,
 ): CellOptions<T> {
   return isDescriptionOption(options) ? { description: options } : options;
 }

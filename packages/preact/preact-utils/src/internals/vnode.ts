@@ -1,25 +1,23 @@
-import {
-  type ComponentChild,
-  type ComponentChildren,
-  type ComponentType,
-  Fragment,
-  type VNode,
+import type {
+  ComponentChild,
+  ComponentChildren,
+  ComponentType,
+  VNode,
 } from "preact";
+import { Fragment } from "preact";
 
 import { DisplayStruct } from "../inspect.js";
 import type { InternalPreactElement, InternalSource } from "../interfaces.js";
 import { isProbablyVNode } from "../internals.js";
-import {
-  InternalComponent,
-  type InternalPreactComponent,
-} from "./component.js";
+import type { InternalPreactComponent } from "./component.js";
+import { InternalComponent } from "./component.js";
 
 const BUILTINS = new Set<ComponentType>([Fragment]);
 
 const INITIAL_ID = 0;
 
 export class InternalVNode {
-  #delete = {
+  readonly #delete = {
     parent: (): void => {
       delete this.#vnode[KEYS._parent];
     },
@@ -59,13 +57,13 @@ export class InternalVNode {
   }
 
   static asPreact(
-    vnode: InternalVNode | InternalPreactVNode | VNode
+    vnode: InternalVNode | InternalPreactVNode | VNode,
   ): InternalPreactVNode;
   static asPreact(
-    vnode: IntoInternalVNode
+    vnode: IntoInternalVNode,
   ): InternalPreactVNode | null | undefined;
   static asPreact(
-    vnode: IntoInternalVNode
+    vnode: IntoInternalVNode,
   ): InternalPreactVNode | null | undefined {
     if (InternalVNode.is(vnode)) {
       return vnode.#vnode;
@@ -192,7 +190,7 @@ export class InternalVNode {
         type,
         ...childrenFields,
       },
-      { description: this.id }
+      { description: this.id },
     );
   }
 
@@ -261,12 +259,15 @@ export interface InternalPreactVNode<P = unknown> extends preact.VNode<P> {
   __e?: Element | Text | undefined;
   /** The depth of the vnode */
   __b?: number | null | undefined;
-  /** Props that had Signal values before diffing (used after diffing to subscribe) */
+  /**
+   * Props that had Signal values before diffing (used after diffing to
+   * subscribe)
+   */
   __np?: Record<string, unknown> | null | undefined;
 }
 
 export function isUserspaceComponent(
-  vnode: InternalPreactVNode | VNode
+  vnode: InternalPreactVNode | VNode,
 ): vnode is InternalPreactVNode & { __c: InternalPreactComponent } {
   return (
     typeof vnode.type === "function" &&
@@ -280,14 +281,14 @@ function hasVNodeComponent(vnode: InternalPreactVNode): boolean {
 }
 
 export function getVNodeComponent<N extends InternalPreactVNode>(
-  vnode: N
+  vnode: N,
 ): N["__c"] {
   return vnode.__c;
 }
 
 function mapChildren<T>(
   children: ComponentChildren,
-  mapper: (child: ComponentChild) => T
+  mapper: (child: ComponentChild) => T,
 ): T | T[] {
   if (Array.isArray(children)) {
     return children.map(mapper);

@@ -1,4 +1,5 @@
 {
   "root": true,
-  "extends": ["plugin:@starbeam-dev/library:recommended"]
+  "extends": ["plugin:@starbeam-dev/library:recommended"],
+  "rules": { "@typescript-eslint/prefer-readonly": "off" }
 }

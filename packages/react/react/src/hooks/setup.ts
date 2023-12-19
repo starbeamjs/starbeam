@@ -1,8 +1,8 @@
 import type { Reactive } from "@starbeam/interfaces";
+import type { FormulaFn } from "@starbeam/reactive";
 import {
   CachedFormula,
   Formula,
-  type FormulaFn,
   isReactive,
   read,
   Static,
@@ -18,8 +18,8 @@ import type { IntoResourceBlueprint } from "@starbeam/resource";
 import { setupResource as starbeamSetupResource } from "@starbeam/resource";
 import { pushingScope, RUNTIME } from "@starbeam/runtime";
 import { finalize } from "@starbeam/shared";
+import type { Ref } from "@starbeam/use-strict-lifecycle";
 import {
-  type Ref,
   unsafeTrackedElsewhere,
   useLastRenderRef,
   useLifecycle,
@@ -48,13 +48,13 @@ export function setup<T>(blueprint: SetupBlueprint<T>): T {
 }
 
 /**
- * The `setupReactive` function takes a reactive value or {@linkcode ReactiveBlueprint}
- * and returns a reactive value.
+ * The `setupReactive` function takes a reactive value or {@linkcode
+ * ReactiveBlueprint} and returns a reactive value.
  *
- * If you pass a reactive value, the component will re-render whenever the value changes.
- * If you pass a {@linkcode ReactiveBlueprint}, this hook turns it into a
- * formula that evaluates the blueprint. In this case, the component will re-render
- * whenever the blueprint's dependencies change.
+ * If you pass a reactive value, the component will re-render whenever the
+ * value changes. If you pass a {@linkcode ReactiveBlueprint}, this hook turns
+ * it into a formula that evaluates the blueprint. In this case, the component
+ * will re-render whenever the blueprint's dependencies change.
  */
 export function setupReactive<T>(blueprint: UseReactive<T>): Reactive<T> {
   const [blueprintRef] = useLastRenderRef(blueprint);
@@ -62,7 +62,8 @@ export function setupReactive<T>(blueprint: UseReactive<T>): Reactive<T> {
 }
 
 /**
- * The `useReactive` hook takes a reactive value or {@linkcode ReactiveBlueprint}.
+ * The `useReactive` hook takes a reactive value or {@linkcode
+ * ReactiveBlueprint}.
  *
  * - If you pass a `Reactive<T>`, `useReactive` returns a `T`
  * - If you pass a function that returns a `Reactive<T>`, `useReactive`
@@ -148,16 +149,17 @@ interface ScheduledHandler {
 }
 
 /**
- * Creates a {@linkcode ScheduledHandler} that will keep track of the synchronization
- * functions to run.
+ * Creates a {@linkcode ScheduledHandler} that will keep track of the
+ * synchronization functions to run.
  *
  * This function sets up a `useEffect` to run the handlers. This `useEffect` has
  * a dependency on a `useState` that represents the set of handlers. The
  * `useState` invalidates whenever a handler is added or whenever
  * {@linkcode scheduleDep} is explicitly run.
  *
- * Importantly, handlers registered to the {@linkcode ScheduledHandler} are always
- * invoked in `useEffect` timing, which coordinates them with React's scheduler.
+ * Importantly, handlers registered to the {@linkcode ScheduledHandler} are
+ * always invoked in `useEffect` timing, which coordinates them with React's
+ * scheduler.
  */
 function useScheduledHandler(): ScheduledHandler {
   const [scheduleDep, setScheduleDep] = useState({});

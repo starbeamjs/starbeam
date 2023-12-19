@@ -1,4 +1,5 @@
-import { Resource, type ResourceBlueprint } from "@starbeam/resource";
+import type { ResourceBlueprint } from "@starbeam/resource";
+import { Resource } from "@starbeam/resource";
 import { Cell, Marker } from "@starbeam/universal";
 
 import { RecordedEvents } from "./actions.js";
