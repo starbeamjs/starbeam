@@ -13,8 +13,8 @@ type PresentArrayFor<T extends unknown[] | readonly unknown[] | undefined> =
   T extends (infer Item)[]
     ? [Item, ...Item[]]
     : T extends readonly (infer Item)[]
-    ? readonly [Item, ...Item[]]
-    : never;
+      ? readonly [Item, ...Item[]]
+      : never;
 
 export function isPresentArray<
   T extends unknown[] | readonly unknown[] | undefined,
@@ -279,4 +279,48 @@ export function isArray<T>(value: unknown | T[]): value is T[];
 export function isArray(value: unknown): value is unknown[];
 export function isArray(value: unknown): boolean {
   return Array.isArray(value);
+}
+
+if (import.meta.vitest) {
+  const { describe, test, expect } = import.meta.vitest;
+
+  describe("getLastIndex", () => {
+    test("should return the last index of a non-empty array", () => {
+      const array = [1, 2, 3];
+      expect(getLastIndex(array)).toBe(2);
+    });
+
+    test("should return undefined for an empty array", () => {
+      const array: number[] = [];
+      expect(getLastIndex(array)).toBeUndefined();
+    });
+  });
+
+  describe("removeItemAt", () => {
+    test("should remove item at a given index from the array", () => {
+      const array = [1, 2, 3];
+      removeItemAt(array, 1);
+      expect(array).toEqual([1, 3]);
+    });
+  });
+
+  describe("removeItem", () => {
+    test("should remove a given item from the array", () => {
+      const array = [1, 2, 3];
+      removeItem(array, 2);
+      expect(array).toEqual([1, 3]);
+    });
+  });
+
+  describe("isArray", () => {
+    test("should return true if the input is an array", () => {
+      const array = [1, 2, 3];
+      expect(isArray(array)).toBe(true);
+    });
+
+    test("should return false if the input is not an array", () => {
+      const notArray = "not an array";
+      expect(isArray(notArray)).toBe(false);
+    });
+  });
 }

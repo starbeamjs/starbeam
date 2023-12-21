@@ -47,12 +47,4 @@ export {
   readonly,
 } from "./src/object.js";
 export { type Matcher, Overload, type TypedOverload } from "./src/overload.js";
-export { isEmptyMatch, matchPattern, Pattern } from "./src/regexp.js";
-export {
-  asIntIndex,
-  isPresentString,
-  stringify,
-  TO_STRING,
-} from "./src/string.js";
-export { exhaustive } from "./src/types.js";
 export { isPresent } from "./src/value.js";
