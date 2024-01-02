@@ -12,8 +12,7 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "@starbeam/core-utils": "workspace:^",
-    "@type-utils/json": ""
+    "@starbeam/core-utils": "workspace:^"
   },
   "devDependencies": {
     "@starbeam-dev/eslint-plugin": "^1.0.4"
