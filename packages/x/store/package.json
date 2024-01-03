@@ -21,11 +21,11 @@
     "type": "library:public"
   },
   "scripts": {
+    "build": "rollup -c",
+    "prepack": "pnpm build",
     "test:lint": "eslint . --max-warnings 0",
     "test:specs": "vitest --run --pool forks",
-    "test:types": "tsc -b",
-    "build": "rollup -c",
-    "prepack": "pnpm build"
+    "test:types": "tsc -b"
   },
   "dependencies": {
     "@starbeam/collections": "workspace:^",
