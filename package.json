@@ -126,7 +126,7 @@
     "eslint-plugin-prettier": "^5.1.0",
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "eslint-plugin-unused-imports": "^3.0.0",
-    "esyes": "^1.0.1",
+    "esyes": "^1.0.2",
     "fast-glob": "^3.3.2",
     "happy-dom": "^12.10.3",
     "jsdom": "^23.0.1",
