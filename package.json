@@ -84,7 +84,7 @@
     ]
   },
   "scripts": {
-    "build": "exit 1",
+    "build": "turbo build",
     "check:unused": "esyes ./workspace/scripts/index.ts unused",
     "ci:lint": "esyes ./workspace/scripts/index.ts ci --type lint -v",
     "ci:prod": "vitest --pool forks --run --mode production",
