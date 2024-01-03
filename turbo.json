@@ -17,6 +17,10 @@
     "tsconfig.root.json"
   ],
   "pipeline": {
+    "build": {
+      "outputs": ["dist"],
+      "dependsOn": ["^build"]
+    },
     "lint": {
       "dependsOn": ["test:lint"],
       "outputs": []
