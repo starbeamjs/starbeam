@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: NullVoxPopuli/action-setup-pnpm@v4
+      - uses: wyvox/action-setup-pnpm@v3
 
   build:
     name: "Build"
@@ -30,7 +30,7 @@ jobs:
     needs: ["install_dependencies"]
     steps:
       - uses: actions/checkout@v4
-      - uses: NullVoxPopuli/action-setup-pnpm@v3
+      - uses: wyvox/action-setup-pnpm@v3
       - run: pnpm build 
 
   test:
@@ -39,7 +39,7 @@ jobs:
     needs: ["install_dependencies"]
     steps:
       - uses: actions/checkout@v4
-      - uses: NullVoxPopuli/action-setup-pnpm@v3
+      - uses: wyvox/action-setup-pnpm@v3
       - run: pnpm ci:specs
 
   test_prod:
@@ -48,7 +48,7 @@ jobs:
     needs: ["install_dependencies"]
     steps:
       - uses: actions/checkout@v4
-      - uses: NullVoxPopuli/action-setup-pnpm@v3
+      - uses: wyvox/action-setup-pnpm@v3
       - run: pnpm ci:prod
 
   typecheck:
