@@ -50,7 +50,8 @@
     "@types/node": "18.16.1",
     "@types/react": "^18.2.22",
     "@types/scheduler": "^0.16.3",
-    "rollup": "^4.0.2"
+    "rollup": "^4.0.2",
+    "rollup-plugin-copy": "^3.5.0"
   },
   "peerDependencies": {
     "react": "^18.2.0",

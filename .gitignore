@@ -12,3 +12,4 @@ pack
 .ignore
 .turbo
 html
+**/CHANGELOG.md
