@@ -1,86 +1,13 @@
 {
-  "name": "@starbeam-workspace/root",
-  "version": "1.0.0",
   "private": true,
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:starbeamjs/starbeam.git"
-  },
-  "license": "MIT",
+  "name": "@starbeam-workspace/root",
   "type": "module",
-  "exports": {
-    "./package.json": "./package.json"
-  },
+  "version": "1.0.0",
+  "license": "MIT",
   "main": "src/index.ts",
   "types": "src/index.ts",
-  "scripts": {
-    "build": "turbo build",
-    "check:unused": "esyes ./workspace/scripts/index.ts unused",
-    "ci:lint": "esyes ./workspace/scripts/index.ts ci --type lint -v",
-    "ci:prod": "vitest --pool forks --run --mode production",
-    "ci:specs": "vitest --pool forks --run",
-    "ci:types": "esyes ./workspace/scripts/index.ts ci --type types -v",
-    "demo": "esyes ./workspace/scripts/index.ts demo",
-    "dev": "esyes ./workspace/scripts/index.ts",
-    "lint:fix": "pnpm --filter '*' test:lint --fix",
-    "prepack": "pnpm run build",
-    "release": "esyes ./workspace/scripts/index.ts release",
-    "test:workspace:lint": "turbo run lint --output-logs errors-only --log-prefix none",
-    "test:workspace:prod": "PROD=1 DEV= vitest --pool forks --run",
-    "test:workspace:specs": "vitest --pool forks --run",
-    "test:workspace:types": "tsc -b",
-    "vitest": "vitest --pool forks"
-  },
-  "nodemonConfig": {
-    "watch": [
-      "package.json",
-      "pnpm-workspace.yaml",
-      "scripts"
-    ]
-  },
-  "prettier": {},
-  "dependencies": {
-    "@starbeam/core-utils": "workspace:^"
-  },
-  "devDependencies": {
-    "@edge-runtime/vm": "^3.1.7",
-    "@esbuild-kit/esm-loader": "^2.6.5",
-    "@nrr/pnpm-duplicate-cli": "^0.0.1",
-    "@starbeam-dev/compile": "^1.0.2",
-    "@starbeam-dev/core": "^1.0.2",
-    "@starbeam-dev/eslint-plugin": "^1.0.4",
-    "@types/eslint": "^8.56.0",
-    "@types/node": "^20.10.5",
-    "@typescript-eslint/eslint-plugin": "^6.15.0",
-    "@typescript-eslint/parser": "^6.15.0",
-    "@vitest/ui": "^1.1.0",
-    "eslint": "^8.56.0",
-    "eslint-config-airbnb": "^19.0.4",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-import-resolver-typescript": "^3.6.1",
-    "eslint-plugin-import": "^2.29.1",
-    "eslint-plugin-json": "^3.1.0",
-    "eslint-plugin-jsonc": "^2.11.2",
-    "eslint-plugin-prettier": "^5.1.0",
-    "eslint-plugin-simple-import-sort": "^10.0.0",
-    "eslint-plugin-unused-imports": "^3.0.0",
-    "esyes": "^1.0.2",
-    "fast-glob": "^3.3.2",
-    "happy-dom": "^12.10.3",
-    "jsdom": "^23.0.1",
-    "knip": "^3.8.4",
-    "node-gyp": "^10.0.1",
-    "prettier": "^3.1.1",
-    "release-plan": "^0.6.0",
-    "tstyche": "1.0.0-beta.6",
-    "turbo": "^1.11.2",
-    "typescript": "^5.3.3",
-    "vite": "^5.0.10",
-    "vitest": "^1.1.0"
-  },
-  "volta": {
-    "node": "20.8.0",
-    "pnpm": "8.10.5"
+  "exports": {
+    "./package.json": "./package.json"
   },
   "publishConfig": {
     "exports": {
@@ -92,35 +19,6 @@
     },
     "main": "dist/index.cjs",
     "types": "dist/index.d.ts"
-  },
-  "pnpm": {
-    "notes": {
-      "overrides": {
-        "rollup": "postcss plugin brings in an old version of rollup, so we need to override it here, otherwise type checking fails"
-      }
-    },
-    "overrides": {
-      "@rollup/pluginutils": "latest",
-      "@types/eslint": "$@types/eslint",
-      "@types/node": "$@types/node",
-      "eslint": "$eslint",
-      "preact": "10.17.1",
-      "typescript": "$typescript",
-      "vite": "$vite",
-      "vue": "3.3.4"
-    },
-    "peerDependencyRules": {
-      "allowAny": [
-        "react",
-        "react-dom",
-        "vue"
-      ],
-      "allowedVersions": {
-        "@typescript-eslint/eslint-plugin": "*",
-        "typescript": "*",
-        "vitest": "1.0.0-beta.1"
-      }
-    }
   },
   "starbeam": {
     "type": "root",
@@ -184,5 +82,108 @@
         "reason": "tsconfig.shared.json"
       }
     ]
+  },
+  "scripts": {
+    "build": "turbo build",
+    "check:unused": "esyes ./workspace/scripts/index.ts unused",
+    "ci:lint": "esyes ./workspace/scripts/index.ts ci --type lint -v",
+    "ci:prod": "vitest --pool forks --run --mode production",
+    "ci:specs": "vitest --pool forks --run",
+    "ci:types": "esyes ./workspace/scripts/index.ts ci --type types -v",
+    "demo": "esyes ./workspace/scripts/index.ts demo",
+    "dev": "esyes ./workspace/scripts/index.ts",
+    "lint:fix": "pnpm --filter '*' test:lint --fix",
+    "prepack": "pnpm run build",
+    "release": "esyes ./workspace/scripts/index.ts release",
+    "test:workspace:lint": "turbo run lint --output-logs errors-only --log-prefix none",
+    "test:workspace:prod": "PROD=1 DEV= vitest --pool forks --run",
+    "test:workspace:specs": "vitest --pool forks --run",
+    "test:workspace:types": "tsc -b",
+    "vitest": "vitest --pool forks"
+  },
+  "dependencies": {
+    "@starbeam/core-utils": "workspace:^"
+  },
+  "devDependencies": {
+    "@edge-runtime/vm": "^3.1.7",
+    "@esbuild-kit/esm-loader": "^2.6.5",
+    "@nrr/pnpm-duplicate-cli": "^0.0.1",
+    "@starbeam-dev/compile": "^1.0.2",
+    "@starbeam-dev/core": "^1.0.2",
+    "@starbeam-dev/eslint-plugin": "^1.0.4",
+    "@types/eslint": "^8.56.0",
+    "@types/node": "^20.10.5",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "@vitest/ui": "^1.1.0",
+    "eslint": "^8.56.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-import-resolver-typescript": "^3.6.1",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-json": "^3.1.0",
+    "eslint-plugin-jsonc": "^2.11.2",
+    "eslint-plugin-prettier": "^5.1.0",
+    "eslint-plugin-simple-import-sort": "^10.0.0",
+    "eslint-plugin-unused-imports": "^3.0.0",
+    "esyes": "^1.0.2",
+    "fast-glob": "^3.3.2",
+    "happy-dom": "^12.10.3",
+    "jsdom": "^23.0.1",
+    "knip": "^3.8.4",
+    "node-gyp": "^10.0.1",
+    "prettier": "^3.1.1",
+    "release-plan": "^0.6.0",
+    "tstyche": "1.0.0-beta.6",
+    "turbo": "^1.11.2",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.10",
+    "vitest": "^1.1.0"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "package.json",
+      "pnpm-workspace.yaml",
+      "scripts"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:starbeamjs/starbeam.git"
+  },
+  "pnpm": {
+    "notes": {
+      "overrides": {
+        "rollup": "postcss plugin brings in an old version of rollup, so we need to override it here, otherwise type checking fails"
+      }
+    },
+    "overrides": {
+      "@rollup/pluginutils": "latest",
+      "@starbeam-dev/compile": "github:starbeamjs/dev-compile#add-copy-plugin-dist",
+      "@types/eslint": "$@types/eslint",
+      "@types/node": "$@types/node",
+      "eslint": "$eslint",
+      "preact": "10.17.1",
+      "typescript": "$typescript",
+      "vite": "$vite",
+      "vue": "3.3.4"
+    },
+    "peerDependencyRules": {
+      "allowAny": [
+        "react",
+        "react-dom",
+        "vue"
+      ],
+      "allowedVersions": {
+        "@typescript-eslint/eslint-plugin": "*",
+        "typescript": "*",
+        "vitest": "1.0.0-beta.1"
+      }
+    }
+  },
+  "prettier": {},
+  "volta": {
+    "node": "20.8.0",
+    "pnpm": "8.10.5"
   }
 }

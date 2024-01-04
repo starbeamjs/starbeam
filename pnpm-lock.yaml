@@ -6,6 +6,7 @@ settings:
 
 overrides:
   '@rollup/pluginutils': latest
+  '@starbeam-dev/compile': github:starbeamjs/dev-compile#add-copy-plugin-dist
   '@types/eslint': ^8.56.0
   '@types/node': ^20.10.5
   eslint: ^8.56.0
@@ -32,8 +33,8 @@ importers:
         specifier: ^0.0.1
         version: 0.0.1(@pnpm/logger@5.0.0)
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/core':
         specifier: ^1.0.2
         version: 1.0.2
@@ -242,8 +243,8 @@ importers:
         version: 10.17.1
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -273,8 +274,8 @@ importers:
         version: 10.17.1
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -338,8 +339,8 @@ importers:
         version: 10.17.1
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -488,8 +489,8 @@ importers:
         version: 0.23.0
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -577,8 +578,8 @@ importers:
         version: 0.23.0
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -608,8 +609,8 @@ importers:
         version: 0.23.0
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -679,8 +680,8 @@ importers:
         version: 0.5.3
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@swc/helpers@0.5.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@swc/helpers@0.5.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -711,8 +712,8 @@ importers:
         version: link:../universal
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -723,8 +724,8 @@ importers:
   packages/universal/core-utils:
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -773,8 +774,8 @@ importers:
         version: 2.1.8
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -808,8 +809,8 @@ importers:
         version: link:../shared
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -842,8 +843,8 @@ importers:
         specifier: workspace:^
         version: link:../../../workspace/@domtree/flavors
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -870,8 +871,8 @@ importers:
         version: link:../verify
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -926,8 +927,8 @@ importers:
         version: link:../shared
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -973,8 +974,8 @@ importers:
         version: link:../verify
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1041,8 +1042,8 @@ importers:
         version: 1.0.1
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.0
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.0
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1103,8 +1104,8 @@ importers:
         version: link:../shared
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1149,8 +1150,8 @@ importers:
   packages/universal/shared:
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1199,8 +1200,8 @@ importers:
         version: 1.0.1
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1242,8 +1243,8 @@ importers:
         version: 1.0.1
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1283,8 +1284,8 @@ importers:
         version: link:../core-utils
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1345,8 +1346,8 @@ importers:
         version: 3.3.4
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1379,8 +1380,8 @@ importers:
         version: 3.3.4
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1508,8 +1509,8 @@ importers:
         version: link:../../universal/reactive
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1533,8 +1534,8 @@ importers:
         version: link:../../universal/reactive
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1583,8 +1584,8 @@ importers:
         version: link:../../universal/universal
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1607,8 +1608,8 @@ importers:
         specifier: 2.0.0-beta.21
         version: 2.0.0-beta.21
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam/react':
         specifier: workspace:^
         version: link:../../../react/react
@@ -1675,8 +1676,8 @@ importers:
         version: link:../minimal
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1688,8 +1689,8 @@ importers:
         version: link:../interface
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1707,8 +1708,8 @@ importers:
         version: link:../minimal
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1716,8 +1717,8 @@ importers:
   workspace/@domtree/interface:
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1729,8 +1730,8 @@ importers:
         version: link:../interface
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1766,8 +1767,8 @@ importers:
         version: 1.1.0(@edge-runtime/vm@3.1.7)(@types/node@20.10.5)(@vitest/ui@1.1.0)(happy-dom@12.10.3)(jsdom@23.0.1)
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.23.3)
+        specifier: github:starbeamjs/dev-compile#add-copy-plugin-dist
+        version: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3)
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -3933,48 +3934,6 @@ packages:
       p-map: 4.0.0
     dev: true
 
-  /@starbeam-dev/compile@1.0.2(@babel/core@7.23.3):
-    resolution: {integrity: sha512-99E86sTqaNxokPIEoNfgx8MbdTouHUUOM6zNmTo16FfSQY07tej8jZlRttqOOy6pjn0ike61BfD8LZLdm1/dOw==}
-    dependencies:
-      '@rollup/plugin-commonjs': 25.0.7(rollup@4.4.1)
-      '@rollup/plugin-node-resolve': 15.2.3(rollup@4.4.1)
-      '@starbeam-dev/core': 1.0.2
-      '@swc/core': 1.3.96(@swc/helpers@0.5.3)
-      get-tsconfig: 4.7.2
-      magic-string: 0.30.5
-      rollup: 4.4.1
-      rollup-plugin-ts: 3.4.5(@babel/core@7.23.3)(@swc/core@1.3.96)(rollup@4.4.1)(typescript@5.3.3)
-      typescript: 5.3.3
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@babel/plugin-transform-runtime'
-      - '@babel/preset-env'
-      - '@babel/preset-typescript'
-      - '@babel/runtime'
-      - '@swc/helpers'
-    dev: true
-
-  /@starbeam-dev/compile@1.0.2(@swc/helpers@0.5.3):
-    resolution: {integrity: sha512-99E86sTqaNxokPIEoNfgx8MbdTouHUUOM6zNmTo16FfSQY07tej8jZlRttqOOy6pjn0ike61BfD8LZLdm1/dOw==}
-    dependencies:
-      '@rollup/plugin-commonjs': 25.0.7(rollup@4.4.1)
-      '@rollup/plugin-node-resolve': 15.2.3(rollup@4.4.1)
-      '@starbeam-dev/core': 1.0.2
-      '@swc/core': 1.3.96(@swc/helpers@0.5.3)
-      get-tsconfig: 4.7.2
-      magic-string: 0.30.5
-      rollup: 4.4.1
-      rollup-plugin-ts: 3.4.5(@swc/core@1.3.96)(@swc/helpers@0.5.3)(rollup@4.4.1)(typescript@5.3.3)
-      typescript: 5.3.3
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@babel/plugin-transform-runtime'
-      - '@babel/preset-env'
-      - '@babel/preset-typescript'
-      - '@babel/runtime'
-      - '@swc/helpers'
-    dev: true
-
   /@starbeam-dev/core@1.0.2:
     resolution: {integrity: sha512-gYY9jg8Qzr5t+VBzKsCiJ0qZ8H9v3p8cht4ipN7EW4STOEQezChFmbgfPpq2r4s8ZaKykrbIBLdMn/pNfmoRaQ==}
     dev: true
@@ -4265,9 +4224,22 @@ packages:
       '@types/node': 20.10.5
     dev: true
 
+  /@types/fs-extra@8.1.5:
+    resolution: {integrity: sha512-0dzKcwO+S8s2kuF5Z9oUWatQJj5Uq/iqphEtE3GQJVRRYm/tD1LglU2UnXi2A8jLq5umkGouOXOR9y0n613ZwQ==}
+    dependencies:
+      '@types/node': 20.10.5
+    dev: true
+
   /@types/fs-extra@9.0.13:
     resolution: {integrity: sha512-nEnwB++1u5lVDM2UI4c1+5R+FYaKfaAzS4OococimjVm3nQw3TuzH5UNsocrcTBbhnerblyHj4A49qXbIiZdpA==}
     dependencies:
+      '@types/node': 20.10.5
+    dev: true
+
+  /@types/glob@7.2.0:
+    resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
+    dependencies:
+      '@types/minimatch': 5.1.2
       '@types/node': 20.10.5
     dev: true
 
@@ -4297,6 +4269,10 @@ packages:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
     dependencies:
       '@types/node': 20.10.5
+    dev: true
+
+  /@types/minimatch@5.1.2:
+    resolution: {integrity: sha512-K0VQKziLUWkVKiRVrx4a40iPaxTUefQmjtkQofBkYRcoaaL/8rhwDWww9qWbrgicNOgnpIsMxyNIUM4+n6dUIA==}
     dev: true
 
   /@types/node@20.10.5:
@@ -5376,6 +5352,10 @@ packages:
 
   /color-name@1.1.4:
     resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
+
+  /colorette@1.4.0:
+    resolution: {integrity: sha512-Y2oEozpomLn7Q3HFP7dpww7AtMJplbM9lGZP6RDfHqmbeRjiwRg4n6VM6j4KLmRke85uWEI7JqF17f3pqdRA0g==}
+    dev: true
 
   /combined-stream@1.0.8:
     resolution: {integrity: sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==}
@@ -6735,6 +6715,15 @@ packages:
       universalify: 2.0.0
     dev: false
 
+  /fs-extra@8.1.0:
+    resolution: {integrity: sha512-yhlQgA6mnOJUKOsRUFsgJdQCvkKhcz8tlZG5HBQfReYZy46OwLcY+Zia0mtdHsOo9y/hP+CxMN0TU9QxoOtG4g==}
+    engines: {node: '>=6 <7 || >=8'}
+    dependencies:
+      graceful-fs: 4.2.11
+      jsonfile: 4.0.0
+      universalify: 0.1.2
+    dev: true
+
   /fs-minipass@2.1.0:
     resolution: {integrity: sha512-V/JgOLFCS+R6Vcq0slCuaeWEdNC3ouDlJMNIsacH2VtALiu9mV4LPrHc5cDl8k5aw6J8jwgWWpiTo5RYhmIzvg==}
     engines: {node: '>= 8'}
@@ -6919,6 +6908,20 @@ packages:
 
   /globalyzer@0.1.0:
     resolution: {integrity: sha512-40oNTM9UfG6aBmuKxk/giHn5nQ8RVz/SS4Ir6zgzOv9/qC3kKZ9v4etGTcJbEl/NyVQH7FGU7d+X1egr57Md2Q==}
+    dev: true
+
+  /globby@10.0.1:
+    resolution: {integrity: sha512-sSs4inE1FB2YQiymcmTv6NWENryABjUNPeWhOvmn4SjtKybglsyPZxFB3U1/+L1bYi0rNZDqCLlHyLYDl1Pq5A==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@types/glob': 7.2.0
+      array-union: 2.1.0
+      dir-glob: 3.0.1
+      fast-glob: 3.3.2
+      glob: 7.2.3
+      ignore: 5.2.4
+      merge2: 1.4.1
+      slash: 3.0.0
     dev: true
 
   /globby@11.1.0:
@@ -7421,6 +7424,11 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
+  /is-plain-object@3.0.1:
+    resolution: {integrity: sha512-Xnpx182SBMrr/aBik8y+GuR4U1L9FqMSojwDQwPMmxyC6bvEqly9UBCxhauBF5vNh2gwWJNX6oDV7O+OM4z34g==}
+    engines: {node: '>=0.10.0'}
+    dev: true
+
   /is-plain-object@5.0.0:
     resolution: {integrity: sha512-VRSzKkbMm5jMDoKLbltAkFQ5Qr7VDiTFGXxYFXXowVj387GeGNOCsOH6Msy00SGZ3Fp84b1Naa1psqgcCIEP5Q==}
     engines: {node: '>=0.10.0'}
@@ -7432,7 +7440,7 @@ packages:
   /is-reference@1.2.1:
     resolution: {integrity: sha512-U82MsXXiFIrjCK4otLT+o2NA2Cd2g5MLoOVXUZjIOhLurrRxpEXzI8O0KZHr3IjLvlAH1kTPYSuqer5T9ZVBKQ==}
     dependencies:
-      '@types/estree': 1.0.2
+      '@types/estree': 1.0.5
     dev: true
 
   /is-regex@1.1.4:
@@ -7724,6 +7732,12 @@ packages:
 
   /jsonc-parser@3.2.0:
     resolution: {integrity: sha512-gfFQZrcTc8CnKXp6Y4/CBT3fTc0OVuDofpre4aEeEpSBPV5X5v4+Vmx+8snU7RLPrNHPKSgLxGo9YuQzz20o+w==}
+
+  /jsonfile@4.0.0:
+    resolution: {integrity: sha512-m6F1R3z8jjlf2imQHS2Qez5sjKWQzbuuhuJ/FKYFRZvPE3PuHcSMVZzfsLhGVOkfd20obL5SWEBew5ShlquNxg==}
+    optionalDependencies:
+      graceful-fs: 4.2.11
+    dev: true
 
   /jsonfile@6.1.0:
     resolution: {integrity: sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==}
@@ -9188,6 +9202,17 @@ packages:
       glob: 7.2.3
     dev: true
 
+  /rollup-plugin-copy@3.5.0:
+    resolution: {integrity: sha512-wI8D5dvYovRMx/YYKtUNt3Yxaw4ORC9xo6Gt9t22kveWz1enG9QrhVlagzwrxSC455xD1dHMKhIJkbsQ7d48BA==}
+    engines: {node: '>=8.3'}
+    dependencies:
+      '@types/fs-extra': 8.1.5
+      colorette: 1.4.0
+      fs-extra: 8.1.0
+      globby: 10.0.1
+      is-plain-object: 3.0.1
+    dev: true
+
   /rollup-plugin-ts@3.4.5(@babel/core@7.23.3)(@swc/core@1.3.96)(rollup@4.4.1)(typescript@5.3.3):
     resolution: {integrity: sha512-9iCstRJpEZXSRQuXitlSZAzcGlrqTbJg1pE4CMbEi6xYldxVncdPyzA2I+j6vnh73wBymZckerS+Q/iEE/M3Ow==}
     engines: {node: '>=16.15.1', npm: '>=7.0.0', pnpm: '>=3.2.0', yarn: '>=1.13'}
@@ -10163,6 +10188,11 @@ packages:
     resolution: {integrity: sha512-yCzhz6FN2wU1NiiQRogkTQszlQSlpWaw8SvVegAc+bDxbzHgh1vX8uIe8OYyMH6DwH+sdTJsgMl36+mSMdRJIQ==}
     dev: true
 
+  /universalify@0.1.2:
+    resolution: {integrity: sha512-rBJeI5CXAlmy1pV+617WB9J63U6XcazHHF2f2dbJix4XzpUF0RS3Zbj0FGIOCAva5P/d/GBOYaACQ1w+0azUkg==}
+    engines: {node: '>= 4.0.0'}
+    dev: true
+
   /universalify@0.2.0:
     resolution: {integrity: sha512-CJ1QgKmNg3CwvAv/kOFmtnEN05f0D/cn9QntgNOQlQF9dgvVTHj3t+8JPdjqawCHk7V/KA+fbUqzZ9XWhcqPUg==}
     engines: {node: '>= 4.0.0'}
@@ -10769,4 +10799,58 @@ packages:
 
   /zod@3.22.4:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
+    dev: true
+
+  github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@babel/core@7.23.3):
+    resolution: {tarball: https://codeload.github.com/starbeamjs/dev-compile/tar.gz/b4e641cc822f1922ed640cb63e83e9c343979832}
+    id: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832
+    name: '@starbeam-dev/compile'
+    version: 1.0.1
+    prepare: true
+    requiresBuild: true
+    dependencies:
+      '@rollup/plugin-commonjs': 25.0.7(rollup@4.4.1)
+      '@rollup/plugin-node-resolve': 15.2.3(rollup@4.4.1)
+      '@starbeam-dev/core': 1.0.2
+      '@swc/core': 1.3.96(@swc/helpers@0.5.3)
+      get-tsconfig: 4.7.2
+      magic-string: 0.30.5
+      rollup: 4.4.1
+      rollup-plugin-copy: 3.5.0
+      rollup-plugin-ts: 3.4.5(@babel/core@7.23.3)(@swc/core@1.3.96)(rollup@4.4.1)(typescript@5.3.3)
+      typescript: 5.3.3
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@babel/plugin-transform-runtime'
+      - '@babel/preset-env'
+      - '@babel/preset-typescript'
+      - '@babel/runtime'
+      - '@swc/helpers'
+    dev: true
+
+  github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832(@swc/helpers@0.5.3):
+    resolution: {tarball: https://codeload.github.com/starbeamjs/dev-compile/tar.gz/b4e641cc822f1922ed640cb63e83e9c343979832}
+    id: github.com/starbeamjs/dev-compile/b4e641cc822f1922ed640cb63e83e9c343979832
+    name: '@starbeam-dev/compile'
+    version: 1.0.1
+    prepare: true
+    requiresBuild: true
+    dependencies:
+      '@rollup/plugin-commonjs': 25.0.7(rollup@4.4.1)
+      '@rollup/plugin-node-resolve': 15.2.3(rollup@4.4.1)
+      '@starbeam-dev/core': 1.0.2
+      '@swc/core': 1.3.96(@swc/helpers@0.5.3)
+      get-tsconfig: 4.7.2
+      magic-string: 0.30.5
+      rollup: 4.4.1
+      rollup-plugin-copy: 3.5.0
+      rollup-plugin-ts: 3.4.5(@swc/core@1.3.96)(@swc/helpers@0.5.3)(rollup@4.4.1)(typescript@5.3.3)
+      typescript: 5.3.3
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@babel/plugin-transform-runtime'
+      - '@babel/preset-env'
+      - '@babel/preset-typescript'
+      - '@babel/runtime'
+      - '@swc/helpers'
     dev: true
