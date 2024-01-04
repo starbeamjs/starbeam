@@ -11,12 +11,12 @@ const monorepoRoot = execSync('git rev-parse --show-toplevel', { encoding: 'utf-
 
 const rootChangelog = path.join(monorepoRoot, 'CHANGELOG.md');
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
+ 
 const includeChangelog = copy({ 
   targets: [
     {
       src: rootChangelog,
-      dest: 'CHANGELOG.md',
+      dest: '.',
     }
   ],
 });
