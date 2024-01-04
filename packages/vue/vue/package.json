@@ -47,8 +47,7 @@
   "devDependencies": {
     "@starbeam-dev/compile": "^1.0.2",
     "@starbeam-dev/eslint-plugin": "^1.0.4",
-    "rollup": "^4.0.2",
-    "rollup-plugin-copy": "^3.5.0"
+    "rollup": "^4.0.2"
   },
   "peerDependencies": {
     "vue": "^3.3.4"
