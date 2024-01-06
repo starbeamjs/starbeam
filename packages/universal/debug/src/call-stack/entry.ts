@@ -29,17 +29,17 @@ export class EntryPoints {
     this: void,
     options?:
       | {
-          caller?: CallStack | undefined;
-          description?: EntryPointDescriptionArg | string | undefined;
-          force?: boolean | undefined;
-        }
+        caller?: CallStack | undefined;
+        description?: EntryPointDescriptionArg | string | undefined;
+        force?: boolean | undefined;
+      }
       | EntryPointDescriptionArg
       | EntryPoint
       | string,
-  ): EntryPoint {
+  ): void {
     if (options instanceof EntryPointImpl) {
       ENTRY_POINTS.#upsert(options, false);
-      return options;
+      return;
     }
 
     let caller: CallStack | undefined;
@@ -64,7 +64,8 @@ export class EntryPoints {
       force = false;
     }
 
-    return ENTRY_POINTS.mark(caller, description, force);
+    ENTRY_POINTS.mark(caller, description, force);
+    return;
   }
 
   #entry: EntryPointImpl | undefined;
@@ -199,10 +200,10 @@ function stringify(value: unknown): string {
 function collectionOp(
   arg: [
     operation:
-      | "collection:has"
-      | "collection:get"
-      | "collection:insert"
-      | "collection:delete",
+    | "collection:has"
+    | "collection:get"
+    | "collection:insert"
+    | "collection:delete",
     entity: DescriptionDetails | string | undefined,
     key: unknown,
   ],

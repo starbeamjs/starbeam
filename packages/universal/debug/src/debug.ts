@@ -13,13 +13,29 @@ const untrackedReadBarrier = (() => {
   /* FIXME: do nothing for now */
 }) satisfies DebugRuntime["untrackedReadBarrier"];
 
-export default {
-  Desc,
-  callerStack,
-  getUserFacing,
-  untrackedReadBarrier,
-  describe,
-  describeTagged,
-  markEntryPoint,
-  getEntryPoint,
+let debugEnv = {
+  Desc: () => undefined,
+  callerStack: () => undefined,
+  getUserFacing: (x) => x,
+  untrackedReadBarrier: () => undefined,
+  describe: () => '',
+  describeTagged: () => '',
+  markEntryPoint: () => undefined,
+  getEntryPoint: () => undefined,
 } satisfies DebugRuntime;
+
+if (import.meta.env.DEV) {
+  debugEnv = {
+    Desc,
+    callerStack,
+    getUserFacing,
+    untrackedReadBarrier,
+    describe,
+    describeTagged,
+    markEntryPoint,
+    getEntryPoint,
+  } satisfies DebugRuntime;
+}
+
+export default debugEnv;
+

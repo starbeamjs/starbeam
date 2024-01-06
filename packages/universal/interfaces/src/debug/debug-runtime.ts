@@ -7,8 +7,8 @@ import type { DescFn, DescriptionDetails } from "./description.js";
 
 export type DescribeOptions =
   | {
-      id: boolean | undefined;
-    }
+    id: boolean | undefined;
+  }
   | undefined;
 
 export interface DebugRuntime {
@@ -41,14 +41,14 @@ export interface DebugRuntime {
   markEntryPoint: (
     options?:
       | {
-          caller?: CallStack | undefined;
-          description?: EntryPointDescriptionArg | string | undefined;
-          force?: boolean | undefined;
-        }
+        caller?: CallStack | undefined;
+        description?: EntryPointDescriptionArg | string | undefined;
+        force?: boolean | undefined;
+      }
       | EntryPointDescriptionArg
       | EntryPoint
       | string
-  ) => EntryPoint;
+  ) => void;
   getEntryPoint: () => EntryPoint | undefined;
 
   readonly Desc: DescFn;
@@ -68,36 +68,36 @@ export interface EntryPointDescription {
 export type EntryPointDescriptionArg =
   | ["label", string]
   | [
-      operation: "reactive:read" | "reactive:write" | "reactive:call",
-      entity: DescriptionDetails | string | undefined,
-      api?: PropertyKey
-    ]
+    operation: "reactive:read" | "reactive:write" | "reactive:call",
+    entity: DescriptionDetails | string | undefined,
+    api?: PropertyKey
+  ]
   | [
-      operation:
-        | "object:get"
-        | "object:set"
-        | "object:has"
-        | "object:call"
-        | "object:define"
-        | "object:delete"
-        | "object:meta:get",
-      entity: DescriptionDetails | string | undefined,
-      target: PropertyKey
-    ]
+    operation:
+    | "object:get"
+    | "object:set"
+    | "object:has"
+    | "object:call"
+    | "object:define"
+    | "object:delete"
+    | "object:meta:get",
+    entity: DescriptionDetails | string | undefined,
+    target: PropertyKey
+  ]
   | [
-      operation: "object:meta:keys",
-      entity: DescriptionDetails | string | undefined
-    ]
+    operation: "object:meta:keys",
+    entity: DescriptionDetails | string | undefined
+  ]
   | [
-      operation: "function:call",
-      entity: DescriptionDetails | string | undefined
-    ]
+    operation: "function:call",
+    entity: DescriptionDetails | string | undefined
+  ]
   | [
-      operation:
-        | "collection:has"
-        | "collection:get"
-        | "collection:insert"
-        | "collection:delete",
-      entity: DescriptionDetails | string | undefined,
-      key: unknown
-    ];
+    operation:
+    | "collection:has"
+    | "collection:get"
+    | "collection:insert"
+    | "collection:delete",
+    entity: DescriptionDetails | string | undefined,
+    key: unknown
+  ];
