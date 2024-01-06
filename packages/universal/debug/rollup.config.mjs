@@ -1,3 +1,7 @@
 import { compile } from "@starbeam-dev/compile";
 
-export default compile(import.meta);
+const config = compile(import.meta);
+
+console.log(config);
+
+export default config;
