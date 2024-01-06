@@ -47,7 +47,7 @@
     "stacktracey": "^2.1.8"
   },
   "devDependencies": {
-    "@starbeam-dev/compile": "^1.0.2",
+    "@starbeam-dev/compile": "^1.1.0",
     "@starbeam-dev/eslint-plugin": "^1.0.4",
     "@types/node": "18.16.1",
     "rollup": "^4.0.2"

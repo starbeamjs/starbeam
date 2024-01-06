@@ -108,7 +108,7 @@
     "@edge-runtime/vm": "^3.1.7",
     "@esbuild-kit/esm-loader": "^2.6.5",
     "@nrr/pnpm-duplicate-cli": "^0.0.1",
-    "@starbeam-dev/compile": "^1.0.2",
+    "@starbeam-dev/compile": "^1.1.0",
     "@starbeam-dev/core": "^1.0.2",
     "@starbeam-dev/eslint-plugin": "^1.0.4",
     "@types/eslint": "^8.56.0",
@@ -147,10 +147,6 @@
       "scripts"
     ]
   },
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:starbeamjs/starbeam.git"
-  },
   "pnpm": {
     "notes": {
       "overrides": {
@@ -159,7 +155,6 @@
     },
     "overrides": {
       "@rollup/pluginutils": "latest",
-      "@starbeam-dev/compile": "github:starbeamjs/dev-compile#add-copy-plugin-dist",
       "@types/eslint": "$@types/eslint",
       "@types/node": "$@types/node",
       "eslint": "$eslint",
@@ -182,6 +177,10 @@
     }
   },
   "prettier": {},
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:starbeamjs/starbeam.git"
+  },
   "volta": {
     "node": "20.8.0",
     "pnpm": "8.10.5"
