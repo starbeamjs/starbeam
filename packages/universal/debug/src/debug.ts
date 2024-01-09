@@ -14,7 +14,7 @@ const untrackedReadBarrier = (() => {
 }) satisfies DebugRuntime["untrackedReadBarrier"];
 
 let debugEnv = {
-  Desc: () => undefined,
+  Desc: (() => undefined),
   callerStack: () => undefined,
   getUserFacing: (x) => x,
   untrackedReadBarrier: () => undefined,
@@ -22,7 +22,7 @@ let debugEnv = {
   describeTagged: () => '',
   markEntryPoint: () => undefined,
   getEntryPoint: () => undefined,
-} satisfies DebugRuntime;
+} as DebugRuntime;
 
 if (import.meta.env.DEV) {
   debugEnv = {

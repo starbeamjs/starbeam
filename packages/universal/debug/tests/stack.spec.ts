@@ -17,7 +17,7 @@ describe("Error stacks", () => {
 });
 
 function anOuterFunction(): CallStack | undefined {
-  return DEBUG.callerStack();
+  return void DEBUG.callerStack();
 }
 
 function callerStackInArgs(
