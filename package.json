@@ -155,7 +155,7 @@
     },
     "overrides": {
       "@rollup/pluginutils": "latest",
-      "@starbeam-dev/compile": "github:starbeamjs/dev-compile#9873982",
+      "@starbeam-dev/compile": "1.2.0",
       "@types/eslint": "$@types/eslint",
       "@types/node": "$@types/node",
       "eslint": "$eslint",
