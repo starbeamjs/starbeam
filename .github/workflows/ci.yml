@@ -32,6 +32,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: wyvox/action-setup-pnpm@v3
       - run: pnpm build 
+        # TODO: verify dev deps don't exist in production build (debug, verify, stacktracey)
 
   test:
     name: "Tests"
