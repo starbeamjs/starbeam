@@ -745,24 +745,9 @@ importers:
 
   packages/universal/debug:
     dependencies:
-      '@starbeam/core-utils':
-        specifier: workspace:^
-        version: link:../core-utils
-      '@starbeam/interfaces':
-        specifier: workspace:^
-        version: link:../interfaces
-      '@starbeam/reactive':
-        specifier: workspace:^
-        version: link:../reactive
       '@starbeam/shared':
         specifier: workspace:^
         version: link:../shared
-      '@starbeam/tags':
-        specifier: workspace:^
-        version: link:../tags
-      '@starbeam/verify':
-        specifier: workspace:^
-        version: link:../verify
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
