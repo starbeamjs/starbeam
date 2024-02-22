@@ -16,6 +16,7 @@ const packages = glob
     resolve(root, "workspace/*/package.json"),
     resolve(root, "demos/react-jsnation/package.json"),
   ])
+  .filter(manifest => !manifest.includes('dev-compile'))
   .map((manifest) => {
     const path = dirname(manifest);
 
