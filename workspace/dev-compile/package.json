@@ -1,0 +1,44 @@
+{
+  "name": "@starbeam-dev/compile",
+  "type": "module",
+  "version": "1.2.0",
+  "description": "A rollup plugin for building packages that use starbeam-dev",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    "types": "./dist/index.d.ts",
+    "default": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "prepare": "rollup -c",
+    "test:lint": "eslint . --max-warnings 0",
+    "test:types": "tsc -b"
+  },
+  "dependencies": {
+    "@rollup/plugin-commonjs": "25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@starbeam-dev/core": "^1.0.2",
+    "@swc/core": "^1.3.93",
+    "get-tsconfig": "^4.7.2",
+    "magic-string": "^0.30.5",
+    "rollup": "^4.1.4",
+    "rollup-plugin-copy": "^3.5.0",
+    "rollup-plugin-ts": "^3.4.5",
+    "typescript": "^5.2.2"
+  },
+  "devDependencies": {
+    "@starbeam-dev/eslint-plugin": "^1.0.3",
+    "@swc/helpers": "^0.5.3",
+    "@swc/types": "^0.1.5",
+    "@types/node": "^18",
+    "@types/rollup__plugin-commonjs": "workspace:^",
+    "@types/rollup__plugin-node-resolve": "workspace:^",
+    "eslint": "^8.51.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:starbeamjs/dev-compile.git"
+  }
+}

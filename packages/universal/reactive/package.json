@@ -34,7 +34,7 @@
     "@starbeam/verify": "workspace:^"
   },
   "devDependencies": {
-    "@starbeam-dev/compile": "^1.1.0",
+    "@starbeam-dev/compile": "workspace:*",
     "@starbeam-dev/eslint-plugin": "^1.0.4",
     "rollup": "^4.0.2"
   },

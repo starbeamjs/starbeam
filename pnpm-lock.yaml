@@ -6,7 +6,7 @@ settings:
 
 overrides:
   '@rollup/pluginutils': latest
-  '@starbeam-dev/compile': 1.2.0
+  '@starbeam-dev/compile': workspace:*
   '@types/eslint': ^8.56.0
   '@types/node': ^20.10.5
   eslint: ^8.56.0
@@ -33,8 +33,8 @@ importers:
         specifier: ^0.0.1
         version: 0.0.1(@pnpm/logger@5.0.0)
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:workspace/dev-compile
       '@starbeam-dev/core':
         specifier: ^1.0.2
         version: 1.0.2
@@ -153,6 +153,26 @@ importers:
         specifier: ^20.10.5
         version: 20.10.5
 
+  '@types/plugin-commonjs':
+    dependencies:
+      '@rollup/plugin-commonjs':
+        specifier: 25.0.5
+        version: 25.0.5
+    devDependencies:
+      '@starbeam-dev/eslint-plugin':
+        specifier: ^1.0.3
+        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+
+  '@types/plugin-node-resolve':
+    dependencies:
+      '@rollup/plugin-node-resolve':
+        specifier: ^15.2.3
+        version: 15.2.3(rollup@4.4.1)
+    devDependencies:
+      '@starbeam-dev/eslint-plugin':
+        specifier: ^1.0.3
+        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+
   '@types/rollup-plugin-polyfill-node':
     dependencies:
       rollup:
@@ -243,8 +263,8 @@ importers:
         version: 10.17.1
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -274,8 +294,8 @@ importers:
         version: 10.17.1
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -339,8 +359,8 @@ importers:
         version: 10.17.1
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -489,8 +509,8 @@ importers:
         version: 0.23.0
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -578,8 +598,8 @@ importers:
         version: 0.23.0
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -609,8 +629,8 @@ importers:
         version: 0.23.0
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -680,8 +700,8 @@ importers:
         version: 0.5.3
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@swc/helpers@0.5.3)
+        specifier: workspace:*
+        version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -712,8 +732,8 @@ importers:
         version: link:../universal
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -724,8 +744,8 @@ importers:
   packages/universal/core-utils:
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -774,8 +794,8 @@ importers:
         version: 2.1.8
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -809,8 +829,8 @@ importers:
         version: link:../shared
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -843,8 +863,8 @@ importers:
         specifier: workspace:^
         version: link:../../../workspace/@domtree/flavors
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -871,8 +891,8 @@ importers:
         version: link:../verify
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -927,8 +947,8 @@ importers:
         version: link:../shared
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -974,8 +994,8 @@ importers:
         version: link:../verify
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1042,8 +1062,8 @@ importers:
         version: 1.0.1
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.0
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1104,8 +1124,8 @@ importers:
         version: link:../shared
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1150,8 +1170,8 @@ importers:
   packages/universal/shared:
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1200,8 +1220,8 @@ importers:
         version: 1.0.1
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1243,8 +1263,8 @@ importers:
         version: 1.0.1
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1284,8 +1304,8 @@ importers:
         version: link:../core-utils
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1346,8 +1366,8 @@ importers:
         version: 3.3.4
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1380,8 +1400,8 @@ importers:
         version: 3.3.4
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1509,8 +1529,8 @@ importers:
         version: link:../../universal/reactive
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1534,8 +1554,8 @@ importers:
         version: link:../../universal/reactive
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1584,8 +1604,8 @@ importers:
         version: link:../../universal/universal
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1608,8 +1628,8 @@ importers:
         specifier: 2.0.0-beta.21
         version: 2.0.0-beta.21
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../../../workspace/dev-compile
       '@starbeam/react':
         specifier: workspace:^
         version: link:../../../react/react
@@ -1676,8 +1696,8 @@ importers:
         version: link:../minimal
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1689,8 +1709,8 @@ importers:
         version: link:../interface
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1708,8 +1728,8 @@ importers:
         version: link:../minimal
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1717,8 +1737,8 @@ importers:
   workspace/@domtree/interface:
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -1730,11 +1750,69 @@ importers:
         version: link:../interface
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../../dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+
+  workspace/dev-compile:
+    dependencies:
+      '@rollup/plugin-commonjs':
+        specifier: 25.0.7
+        version: 25.0.7(rollup@4.4.1)
+      '@rollup/plugin-node-resolve':
+        specifier: ^15.2.3
+        version: 15.2.3(rollup@4.4.1)
+      '@rollup/plugin-terser':
+        specifier: ^0.4.4
+        version: 0.4.4(rollup@4.4.1)
+      '@starbeam-dev/core':
+        specifier: ^1.0.2
+        version: 1.0.2
+      '@swc/core':
+        specifier: ^1.3.93
+        version: 1.3.96(@swc/helpers@0.5.3)
+      get-tsconfig:
+        specifier: ^4.7.2
+        version: 4.7.2
+      magic-string:
+        specifier: ^0.30.5
+        version: 0.30.5
+      rollup:
+        specifier: ^4.1.4
+        version: 4.4.1
+      rollup-plugin-copy:
+        specifier: ^3.5.0
+        version: 3.5.0
+      rollup-plugin-ts:
+        specifier: ^3.4.5
+        version: 3.4.5(@swc/core@1.3.96)(@swc/helpers@0.5.3)(rollup@4.4.1)(typescript@5.3.3)
+      typescript:
+        specifier: ^5.3.3
+        version: 5.3.3
+    devDependencies:
+      '@starbeam-dev/eslint-plugin':
+        specifier: ^1.0.3
+        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+      '@swc/helpers':
+        specifier: ^0.5.3
+        version: 0.5.3
+      '@swc/types':
+        specifier: ^0.1.5
+        version: 0.1.5
+      '@types/node':
+        specifier: ^20.10.5
+        version: 20.10.5
+      '@types/rollup__plugin-commonjs':
+        specifier: workspace:^
+        version: link:../../@types/plugin-commonjs
+      '@types/rollup__plugin-node-resolve':
+        specifier: workspace:^
+        version: link:../../@types/plugin-node-resolve
+      eslint:
+        specifier: ^8.56.0
+        version: 8.56.0
 
   workspace/test-utils:
     dependencies:
@@ -1767,8 +1845,8 @@ importers:
         version: 1.1.0(@edge-runtime/vm@3.1.7)(@types/node@20.10.5)(@vitest/ui@1.1.0)(happy-dom@12.10.3)(jsdom@23.0.1)
     devDependencies:
       '@starbeam-dev/compile':
-        specifier: 1.2.0
-        version: 1.2.0(@babel/core@7.23.3)
+        specifier: workspace:*
+        version: link:../dev-compile
       '@starbeam-dev/eslint-plugin':
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
@@ -3132,24 +3210,21 @@ packages:
       '@jridgewell/set-array': 1.1.2
       '@jridgewell/sourcemap-codec': 1.4.15
       '@jridgewell/trace-mapping': 0.3.20
-    dev: true
 
   /@jridgewell/resolve-uri@3.1.1:
     resolution: {integrity: sha512-dSYZh7HhCDtCKm4QakX0xFpsRDqjjtZf/kjI/v3T3Nwt5r8/qz/M19F9ySyOqU94SXBmeG9ttTul+YnR4LOxFA==}
     engines: {node: '>=6.0.0'}
-    dev: true
 
   /@jridgewell/set-array@1.1.2:
     resolution: {integrity: sha512-xnkseuNADM0gt2bs+BvhO0p78Mk762YnZdsuzFV018NoG1Sj1SCQvpSqa7XUaTam5vAGasABV9qXASMKnFMwMw==}
     engines: {node: '>=6.0.0'}
-    dev: true
 
   /@jridgewell/source-map@0.3.5:
     resolution: {integrity: sha512-UTYAUj/wviwdsMfzoSJspJxbkH5o1snzwX0//0ENX1u/55kkZZkcTZP6u9bwKGkv+dkk9at4m1Cpt0uY80kcpQ==}
     dependencies:
       '@jridgewell/gen-mapping': 0.3.3
       '@jridgewell/trace-mapping': 0.3.20
-    dev: true
+    dev: false
 
   /@jridgewell/sourcemap-codec@1.4.15:
     resolution: {integrity: sha512-eF2rxCRulEKXHTRiDrDy6erMYWqNw4LPdQ8UQA4huuxaQsVeRPFl2oM8oDGxMFhJUWZf9McpLtJasDDZb/Bpeg==}
@@ -3159,11 +3234,10 @@ packages:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.1
       '@jridgewell/sourcemap-codec': 1.4.15
-    dev: true
 
   /@mdn/browser-compat-data@5.3.16:
     resolution: {integrity: sha512-b0kKg2weqKDLI+Ai5+tocgUEIidccdSfzUndbS2YnwIp5aVvd3M0D+DCcbrsSOSgMyrV9QKMqogtqMIjKwvDxw==}
-    dev: true
+    dev: false
 
   /@nodelib/fs.scandir@2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -3774,6 +3848,23 @@ packages:
       preact: 10.17.1
     dev: false
 
+  /@rollup/plugin-commonjs@25.0.5:
+    resolution: {integrity: sha512-xY8r/A9oisSeSuLCTfhssyDjo9Vp/eDiRLXkg1MXCcEEgEjPmLU+ZyDB20OOD0NlyDa/8SGbK5uIggF5XTx77w==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^2.68.0||^3.0.0||^4.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+    dependencies:
+      '@rollup/pluginutils': 5.1.0(rollup@4.4.1)
+      commondir: 1.0.1
+      estree-walker: 2.0.2
+      glob: 8.1.0
+      is-reference: 1.2.1
+      magic-string: 0.27.0
+    dev: false
+
   /@rollup/plugin-commonjs@25.0.7(rollup@4.4.1):
     resolution: {integrity: sha512-nEvcR+LRjEjsaSsc4x3XZfCCvZIaSMenZu/OiwOKGN2UhQpAYI7ru7czFvyWbErlpoGjnSX3D5Ch5FcMA3kRWQ==}
     engines: {node: '>=14.0.0'}
@@ -3790,7 +3881,7 @@ packages:
       is-reference: 1.2.1
       magic-string: 0.30.5
       rollup: 4.4.1
-    dev: true
+    dev: false
 
   /@rollup/plugin-node-resolve@15.2.3(rollup@4.4.1):
     resolution: {integrity: sha512-j/lym8nf5E21LwBT4Df1VD6hRO2L2iwUeUmP7litikRsVp1H6NWx20NEp0Y7su+7XGc476GnXXc4kFeZNGmaSQ==}
@@ -3808,7 +3899,7 @@ packages:
       is-module: 1.0.0
       resolve: 1.22.8
       rollup: 4.4.1
-    dev: true
+    dev: false
 
   /@rollup/plugin-terser@0.4.4(rollup@4.4.1):
     resolution: {integrity: sha512-XHeJC5Bgvs8LfukDwWZp7yeqin6ns8RTl2B9avbejt6tZqsqvVoWI7ZTQrcNsfKEDWBTnTxM8nMDkO2IFFbd0A==}
@@ -3823,7 +3914,7 @@ packages:
       serialize-javascript: 6.0.2
       smob: 1.4.1
       terser: 5.26.0
-    dev: true
+    dev: false
 
   /@rollup/pluginutils@5.1.0(rollup@4.4.1):
     resolution: {integrity: sha512-XTIWOPPcpvyKI6L1NHo0lFlCyznUEyPmPY1mc3KpPVDYulHSTvyeLNVW00QTLIAFNhR3kYnJTQHeGqU4M3n09g==}
@@ -3838,7 +3929,7 @@ packages:
       estree-walker: 2.0.2
       picomatch: 2.3.1
       rollup: 4.4.1
-    dev: true
+    dev: false
 
   /@rollup/rollup-android-arm-eabi@4.4.1:
     resolution: {integrity: sha512-Ss4suS/sd+6xLRu+MLCkED2mUrAyqHmmvZB+zpzZ9Znn9S8wCkTQCJaQ8P8aHofnvG5L16u9MVnJjCqioPErwQ==}
@@ -3956,55 +4047,8 @@ packages:
       p-map: 4.0.0
     dev: true
 
-  /@starbeam-dev/compile@1.2.0(@babel/core@7.23.3):
-    resolution: {integrity: sha512-vfvPsMblAs0M6aLHQO5N5VpjHrLc29605bLudlHRTfoudkLCmOFNJEZcuNKb7myhckP6inRn6nuotK8jZ4gMfw==}
-    dependencies:
-      '@rollup/plugin-commonjs': 25.0.7(rollup@4.4.1)
-      '@rollup/plugin-node-resolve': 15.2.3(rollup@4.4.1)
-      '@rollup/plugin-terser': 0.4.4(rollup@4.4.1)
-      '@starbeam-dev/core': 1.0.2
-      '@swc/core': 1.3.96(@swc/helpers@0.5.3)
-      get-tsconfig: 4.7.2
-      magic-string: 0.30.5
-      rollup: 4.4.1
-      rollup-plugin-copy: 3.5.0
-      rollup-plugin-ts: 3.4.5(@babel/core@7.23.3)(@swc/core@1.3.96)(rollup@4.4.1)(typescript@5.3.3)
-      typescript: 5.3.3
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@babel/plugin-transform-runtime'
-      - '@babel/preset-env'
-      - '@babel/preset-typescript'
-      - '@babel/runtime'
-      - '@swc/helpers'
-    dev: true
-
-  /@starbeam-dev/compile@1.2.0(@swc/helpers@0.5.3):
-    resolution: {integrity: sha512-vfvPsMblAs0M6aLHQO5N5VpjHrLc29605bLudlHRTfoudkLCmOFNJEZcuNKb7myhckP6inRn6nuotK8jZ4gMfw==}
-    dependencies:
-      '@rollup/plugin-commonjs': 25.0.7(rollup@4.4.1)
-      '@rollup/plugin-node-resolve': 15.2.3(rollup@4.4.1)
-      '@rollup/plugin-terser': 0.4.4(rollup@4.4.1)
-      '@starbeam-dev/core': 1.0.2
-      '@swc/core': 1.3.96(@swc/helpers@0.5.3)
-      get-tsconfig: 4.7.2
-      magic-string: 0.30.5
-      rollup: 4.4.1
-      rollup-plugin-copy: 3.5.0
-      rollup-plugin-ts: 3.4.5(@swc/core@1.3.96)(@swc/helpers@0.5.3)(rollup@4.4.1)(typescript@5.3.3)
-      typescript: 5.3.3
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@babel/plugin-transform-runtime'
-      - '@babel/preset-env'
-      - '@babel/preset-typescript'
-      - '@babel/runtime'
-      - '@swc/helpers'
-    dev: true
-
   /@starbeam-dev/core@1.0.2:
     resolution: {integrity: sha512-gYY9jg8Qzr5t+VBzKsCiJ0qZ8H9v3p8cht4ipN7EW4STOEQezChFmbgfPpq2r4s8ZaKykrbIBLdMn/pNfmoRaQ==}
-    dev: true
 
   /@starbeam-dev/eslint-plugin@1.0.4(eslint@8.56.0)(typescript@5.3.3):
     resolution: {integrity: sha512-ykiWbPr3js1LrIK+QgcV371mmax8wQamgwByFVfbtZsW1Suuyv4wd+SlBC17AVoBSZXrqW9kgVQ5z3dNFPWAaQ==}
@@ -4044,7 +4088,7 @@ packages:
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
-    dev: true
+    dev: false
     optional: true
 
   /@swc/core-darwin-x64@1.3.96:
@@ -4053,7 +4097,7 @@ packages:
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
-    dev: true
+    dev: false
     optional: true
 
   /@swc/core-linux-arm-gnueabihf@1.3.96:
@@ -4062,7 +4106,7 @@ packages:
     cpu: [arm]
     os: [linux]
     requiresBuild: true
-    dev: true
+    dev: false
     optional: true
 
   /@swc/core-linux-arm64-gnu@1.3.96:
@@ -4071,7 +4115,7 @@ packages:
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
-    dev: true
+    dev: false
     optional: true
 
   /@swc/core-linux-arm64-musl@1.3.96:
@@ -4080,7 +4124,7 @@ packages:
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
-    dev: true
+    dev: false
     optional: true
 
   /@swc/core-linux-x64-gnu@1.3.96:
@@ -4089,7 +4133,7 @@ packages:
     cpu: [x64]
     os: [linux]
     requiresBuild: true
-    dev: true
+    dev: false
     optional: true
 
   /@swc/core-linux-x64-musl@1.3.96:
@@ -4098,7 +4142,7 @@ packages:
     cpu: [x64]
     os: [linux]
     requiresBuild: true
-    dev: true
+    dev: false
     optional: true
 
   /@swc/core-win32-arm64-msvc@1.3.96:
@@ -4107,7 +4151,7 @@ packages:
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
-    dev: true
+    dev: false
     optional: true
 
   /@swc/core-win32-ia32-msvc@1.3.96:
@@ -4116,7 +4160,7 @@ packages:
     cpu: [ia32]
     os: [win32]
     requiresBuild: true
-    dev: true
+    dev: false
     optional: true
 
   /@swc/core-win32-x64-msvc@1.3.96:
@@ -4125,7 +4169,7 @@ packages:
     cpu: [x64]
     os: [win32]
     requiresBuild: true
-    dev: true
+    dev: false
     optional: true
 
   /@swc/core@1.3.96(@swc/helpers@0.5.3):
@@ -4152,11 +4196,11 @@ packages:
       '@swc/core-win32-arm64-msvc': 1.3.96
       '@swc/core-win32-ia32-msvc': 1.3.96
       '@swc/core-win32-x64-msvc': 1.3.96
-    dev: true
+    dev: false
 
   /@swc/counter@0.1.2:
     resolution: {integrity: sha512-9F4ys4C74eSTEUNndnER3VJ15oru2NumfQxS8geE+f3eB5xvfxpWyqE5XlVnxb/R14uoXi6SLbBwwiDSkv+XEw==}
-    dev: true
+    dev: false
 
   /@swc/helpers@0.5.3:
     resolution: {integrity: sha512-FaruWX6KdudYloq1AHD/4nU+UsMTdNE8CKyrseXWEcgjDAbvkwJg2QGPAnfIJLIWsjZOSPLOAykK6fuYp4vp4A==}
@@ -4165,7 +4209,6 @@ packages:
 
   /@swc/types@0.1.5:
     resolution: {integrity: sha512-myfUej5naTBWnqOCc/MdVOLVjXUXtIA+NpDrDBKJtLLg2shUjBu3cZmB/85RyitKc55+lUUyl7oRfLOvkr2hsw==}
-    dev: true
 
   /@szmarczak/http-timer@1.1.2:
     resolution: {integrity: sha512-XIB2XbzHTN6ieIjfIMV9hlVcfPU26s2vafYWQcZHWXHOxiaRZYEDKEwdl129Zyg50+foYV2jCgtrqSA6qNuNSA==}
@@ -4283,7 +4326,7 @@ packages:
 
   /@types/estree@1.0.5:
     resolution: {integrity: sha512-/kYRxGDLWzHOB7q+wtSUQlFrtcdUccpfy+X+9iMBpHK8QLLhx2wIPYuS5DYtR9Wa/YlZAbIovy7qVdB1Aq6Lyw==}
-    dev: true
+    dev: false
 
   /@types/fs-extra@11.0.2:
     resolution: {integrity: sha512-c0hrgAOVYr21EX8J0jBMXGLMgJqVf/v6yxi0dLaJboW9aQPh16Id+z6w2Tx1hm+piJOLv8xPfVKZCLfjPw/IMQ==}
@@ -4296,7 +4339,7 @@ packages:
     resolution: {integrity: sha512-0dzKcwO+S8s2kuF5Z9oUWatQJj5Uq/iqphEtE3GQJVRRYm/tD1LglU2UnXi2A8jLq5umkGouOXOR9y0n613ZwQ==}
     dependencies:
       '@types/node': 20.10.5
-    dev: true
+    dev: false
 
   /@types/fs-extra@9.0.13:
     resolution: {integrity: sha512-nEnwB++1u5lVDM2UI4c1+5R+FYaKfaAzS4OococimjVm3nQw3TuzH5UNsocrcTBbhnerblyHj4A49qXbIiZdpA==}
@@ -4309,7 +4352,7 @@ packages:
     dependencies:
       '@types/minimatch': 5.1.2
       '@types/node': 20.10.5
-    dev: true
+    dev: false
 
   /@types/http-cache-semantics@4.0.2:
     resolution: {integrity: sha512-FD+nQWA2zJjh4L9+pFXqWOi0Hs1ryBCfI+985NjluQ1p8EYtoLvjLOKidXBtZ4/IcxDX4o8/E8qDS3540tNliw==}
@@ -4341,7 +4384,7 @@ packages:
 
   /@types/minimatch@5.1.2:
     resolution: {integrity: sha512-K0VQKziLUWkVKiRVrx4a40iPaxTUefQmjtkQofBkYRcoaaL/8rhwDWww9qWbrgicNOgnpIsMxyNIUM4+n6dUIA==}
-    dev: true
+    dev: false
 
   /@types/node@20.10.5:
     resolution: {integrity: sha512-nNPsNE65wjMxEKI93yOP+NPGGBJz/PoN3kZsVLee0XMiJolxSekEVD8wRwBUBqkwc7UWop0edW50yrCQW4CyRw==}
@@ -4354,7 +4397,7 @@ packages:
 
   /@types/object-path@0.11.1:
     resolution: {integrity: sha512-219LSCO9HPcoXcRTC6DbCs0FRhZgBnEMzf16RRqkT40WbkKx3mOeQuz3e2XqbfhOz/AHfbru0kzB1n1RCAsIIg==}
-    dev: true
+    dev: false
 
   /@types/prop-types@15.7.5:
     resolution: {integrity: sha512-JCB8C6SnDoQf0cNycqd/35A7MjcnK+ZTqE7judS6o7utxUCg6imJg3QK2qzHKszlTjcj2cn+NwMB2i96ubpj7w==}
@@ -4376,7 +4419,7 @@ packages:
 
   /@types/resolve@1.20.2:
     resolution: {integrity: sha512-60BCwRFOZCQhDncwQdxxeOEEkbc5dIMccYLwbxsS4TUNeVECQ/pBJ0j09mrHOl/JJvpRPGwO9SvE4nR2Nb/a4Q==}
-    dev: true
+    dev: false
 
   /@types/responselike@1.0.3:
     resolution: {integrity: sha512-H/+L+UkTV33uf49PH5pCAUBVPNj2nDBXTN+qS1dOwyyg24l3CcicicCA7ca+HMvJBZcFgl5r8e+RR6elsb4Lyw==}
@@ -4390,7 +4433,6 @@ packages:
 
   /@types/semver@7.5.3:
     resolution: {integrity: sha512-OxepLK9EuNEIPxWNME+C6WwbRAOOI2o2BaQEGzz5Lu2e4Z5eDnEo+/aVEDMIXywoJitJ7xWd641wrGLZdtwRyw==}
-    dev: true
 
   /@types/stack-utils@2.0.1:
     resolution: {integrity: sha512-Hl219/BT5fLAaz6NDkSuhzasy49dwQS/DSdu4MdggFB8zcXv7vflBI3xp7FEmkmdDkBUI2bPUNeMttp2knYdxw==}
@@ -4398,7 +4440,7 @@ packages:
 
   /@types/ua-parser-js@0.7.36:
     resolution: {integrity: sha512-N1rW+njavs70y2cApeIw1vLMYXRwfBy+7trgavGuuTfOd7j1Yh7QTRc/yqsPl6ncokt72ZXuxEU0PiCp9bSwNQ==}
-    dev: true
+    dev: false
 
   /@types/yargs-parser@21.0.1:
     resolution: {integrity: sha512-axdPBuLuEJt0c4yI5OZssC19K2Mq1uKdrfZBzuxLvaztgqUtFYZUNw7lETExPYJR9jdEoIg4mb7RQKRQzOkeGQ==}
@@ -4804,7 +4846,7 @@ packages:
   /@wessberg/stringutil@1.0.19:
     resolution: {integrity: sha512-9AZHVXWlpN8Cn9k5BC/O0Dzb9E9xfEMXzYrNunwvkUTvuK7xgQPVRZpLo+jWCOZ5r8oBa8NIrHuPEu1hzbb6bg==}
     engines: {node: '>=8.0.0'}
-    dev: true
+    dev: false
 
   /@zkochan/js-yaml@0.0.6:
     resolution: {integrity: sha512-nzvgl3VfhcELQ8LyVrYOru+UtAy1nrygk2+AGbTm8a5YcO6o8lSjAT+pfg3vJWxIoZKOUhrK6UU7xW/+00kQrg==}
@@ -4906,7 +4948,7 @@ packages:
   /ansi-colors@4.1.3:
     resolution: {integrity: sha512-/6w/C21Pm1A7aZitlI5Ni/2J6FFQN8i1Cvz3kHABAAbw93v/NlvKdVOqz7CCWz/3iv/JplRSEEZ83XION15ovw==}
     engines: {node: '>=6'}
-    dev: true
+    dev: false
 
   /ansi-regex@5.0.1:
     resolution: {integrity: sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==}
@@ -4986,7 +5028,6 @@ packages:
   /array-union@2.1.0:
     resolution: {integrity: sha512-HGyxoOTYUyCM6stUe6EJgnd4EoewAI7zMdfqO+kGjnlZmBDz/cR5pf8r/cR4Wq60sL/p0IkcjUEEPwS3GFrIyw==}
     engines: {node: '>=8'}
-    dev: true
 
   /array.prototype.findlastindex@1.2.3:
     resolution: {integrity: sha512-LzLoiOMAxvy+Gd3BAq3B7VeIgPdo+Q8hthvKtXybMvRV0jrXfJM/t8mw7nNlpEcVlVUnCnM2KSX4XU5HmpodOA==}
@@ -5139,7 +5180,6 @@ packages:
     dependencies:
       balanced-match: 1.0.2
       concat-map: 0.0.1
-    dev: true
 
   /brace-expansion@2.0.1:
     resolution: {integrity: sha512-XnAIvQ8eM+kC6aULx6wuQiwVsnzsi9d3WxzV3FpWTGA19F621kwdbsAcFKXgKUHZWsy+mY6iL1sHTxWEFCytDA==}
@@ -5166,7 +5206,7 @@ packages:
       object-path: 0.11.8
       semver: 7.5.4
       ua-parser-js: 1.0.35
-    dev: true
+    dev: false
 
   /browserslist@4.22.1:
     resolution: {integrity: sha512-FEVc202+2iuClEhZhrWy6ZiAcRLvNMyYcxZ8raemul1DYVOVdFsbqckWLdsixQZCpJlwe77Z3UTalE7jsjnKfQ==}
@@ -5177,11 +5217,9 @@ packages:
       electron-to-chromium: 1.4.540
       node-releases: 2.0.13
       update-browserslist-db: 1.0.13(browserslist@4.22.1)
-    dev: true
 
   /buffer-from@1.1.2:
     resolution: {integrity: sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==}
-    dev: true
 
   /buffer@6.0.3:
     resolution: {integrity: sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA==}
@@ -5193,7 +5231,6 @@ packages:
   /builtin-modules@3.3.0:
     resolution: {integrity: sha512-zhaCDicdLuWN5UbN5IMnFqNMhNfo919sH85y2/ea+5Yg9TsTkeZxpL+JLbp6cgYFS4sRLp3YV4S6yDuqVWHYOw==}
     engines: {node: '>=6'}
-    dev: true
 
   /builtins@5.0.1:
     resolution: {integrity: sha512-qwVpFEHNfhYJIzNRBvd2C1kyo6jz3ZSMPyyuR47OPdiKWlbYnZNyDWuyR175qDnAJLiCo5fBBqPb3RiXgWlkOQ==}
@@ -5300,7 +5337,6 @@ packages:
 
   /caniuse-lite@1.0.30001543:
     resolution: {integrity: sha512-qxdO8KPWPQ+Zk6bvNpPeQIOH47qZSYdFZd6dXQzb2KzhnSXju4Kd7H1PkSJx6NICSMgo/IhRZRhhfPTHYpJUCA==}
-    dev: true
 
   /chai@4.3.10:
     resolution: {integrity: sha512-0UXG04VuVbruMUYbJ6JctvH0YnC/4q3/AkT18q4NaITo91CUm0liMS9VqzT9vZhVQ/1eqPanMWjBM+Juhfb/9g==}
@@ -5423,7 +5459,7 @@ packages:
 
   /colorette@1.4.0:
     resolution: {integrity: sha512-Y2oEozpomLn7Q3HFP7dpww7AtMJplbM9lGZP6RDfHqmbeRjiwRg4n6VM6j4KLmRke85uWEI7JqF17f3pqdRA0g==}
-    dev: true
+    dev: false
 
   /combined-stream@1.0.8:
     resolution: {integrity: sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==}
@@ -5438,7 +5474,7 @@ packages:
 
   /commander@2.20.3:
     resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
-    dev: true
+    dev: false
 
   /commander@4.1.1:
     resolution: {integrity: sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==}
@@ -5447,7 +5483,7 @@ packages:
 
   /commondir@1.0.1:
     resolution: {integrity: sha512-W9pAhw0ja1Edb5GVdIF1mjZw/ASI0AlShXM83UUGe2DVr5TdAPEA1OA8m/g8zWp9x6On7gqufY+FatDbC3MDQg==}
-    dev: true
+    dev: false
 
   /compatfactory@3.0.0(typescript@5.3.3):
     resolution: {integrity: sha512-WD5kF7koPwVoyKL8p0LlrmIZtilrD46sQStyzzxzTFinMKN2Dxk1hN+sddLSQU1mGIZvQfU8c+ONSghvvM40jg==}
@@ -5457,7 +5493,7 @@ packages:
     dependencies:
       helpertypes: 0.0.19
       typescript: 5.3.3
-    dev: true
+    dev: false
 
   /compose-function@3.0.3:
     resolution: {integrity: sha512-xzhzTJ5eC+gmIzvZq+C3kCJHsp9os6tJkrigDRZclyGtOKINbZtE8n1Tzmeh32jW+BUDPbvZpibwvJHBLGMVwg==}
@@ -5472,7 +5508,6 @@ packages:
 
   /concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
-    dev: true
 
   /concurrently@8.2.2:
     resolution: {integrity: sha512-1dP4gpXFhei8IOtlXRE/T/4H88ElHgTiUzh71YUmtjTEHMSRS2Z/fgOxHSxxusGHogsRfxNq1vyAwxSC+EVyDg==}
@@ -5518,7 +5553,7 @@ packages:
     engines: {node: '>=14.9.0'}
     dependencies:
       '@types/node': 20.10.5
-    dev: true
+    dev: false
 
   /crypto-random-string@2.0.0:
     resolution: {integrity: sha512-v1plID3y9r/lPhviJ1wrXpLeyUIGAZ2SHNYTEapm7/8A9nLPoyvVp3RK/EPFqn5kEznyWgYZNsRtYYIWbuG8KA==}
@@ -5654,7 +5689,7 @@ packages:
   /deepmerge@4.3.1:
     resolution: {integrity: sha512-3sUqbMEc77XqpdNO7FRyRog+eW3ph+GYCbj+rK+uYyRMuwsVy0rMiVtPn+QJlKFvWP/1PYpapqYn0Me2knFn+A==}
     engines: {node: '>=0.10.0'}
-    dev: true
+    dev: false
 
   /defaults@1.0.4:
     resolution: {integrity: sha512-eFuaLoy/Rxalv2kr+lqMlUnrDWV+3j4pljOIJgLIhI058IQfWJ7vXhyEIHu+HtC738klGALYxOKDO0bQP3tg8A==}
@@ -5777,7 +5812,6 @@ packages:
 
   /electron-to-chromium@1.4.540:
     resolution: {integrity: sha512-aoCqgU6r9+o9/S7wkcSbmPRFi7OWZWiXS9rtjEd+Ouyu/Xyw5RSq2XN8s5Qp8IaFOLiRrhQCphCIjAxgG3eCAg==}
-    dev: true
 
   /ember-rfc176-data@0.3.18:
     resolution: {integrity: sha512-JtuLoYGSjay1W3MQAxt3eINWXNYYQliK90tLwtb8aeCuQK8zKGCRbBodVIrkcTqshULMnRuTOS6t1P7oQk3g6Q==}
@@ -6093,7 +6127,6 @@ packages:
   /escalade@3.1.1:
     resolution: {integrity: sha512-k0er2gUkLf8O0zKJiAhmkTnJlTvINGv7ygDNPbeIsX/TJjGJZHuh9B2UxbsaEkmlEo9MfhrSzmhIlhRlI2GXnw==}
     engines: {node: '>=6'}
-    dev: true
 
   /escape-string-regexp@1.0.5:
     resolution: {integrity: sha512-vbRorB5FUQWvla16U8R/qgaFIya2qGzwDrNmCZuYKrbdSUMG6I1ZCGQRefkRVhuOkIGVne7BQ35DSfo1qvJqFg==}
@@ -6582,6 +6615,7 @@ packages:
 
   /estree-walker@2.0.2:
     resolution: {integrity: sha512-Rfkk/Mp/DL7JVje3u18FxFujQlTNR2q6QfMSMB7AvCBx91NGj/ba3kCfza0f6dVDbw7YlRf/nDrn7pQrCCyQ/w==}
+    dev: false
 
   /esutils@2.0.3:
     resolution: {integrity: sha512-kVscqXk4OCp68SZ0dkgEKVi6/8ij300KBWTJq32P/dYeWTSwK41WyTxalN1eRmA5Z9UU/LX9D7FWSmV9SAYx6g==}
@@ -6794,7 +6828,7 @@ packages:
       graceful-fs: 4.2.11
       jsonfile: 4.0.0
       universalify: 0.1.2
-    dev: true
+    dev: false
 
   /fs-minipass@2.1.0:
     resolution: {integrity: sha512-V/JgOLFCS+R6Vcq0slCuaeWEdNC3ouDlJMNIsacH2VtALiu9mV4LPrHc5cDl8k5aw6J8jwgWWpiTo5RYhmIzvg==}
@@ -6911,7 +6945,6 @@ packages:
     resolution: {integrity: sha512-wuMsz4leaj5hbGgg4IvDU0bqJagpftG5l5cXIAvo8uZrqn0NJqwtfupTN00VnkQJPcIRrxYrm1Ue24btpCha2A==}
     dependencies:
       resolve-pkg-maps: 1.0.0
-    dev: true
 
   /glob-parent@5.1.2:
     resolution: {integrity: sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==}
@@ -6947,7 +6980,6 @@ packages:
       minimatch: 3.1.2
       once: 1.4.0
       path-is-absolute: 1.0.1
-    dev: true
 
   /glob@8.1.0:
     resolution: {integrity: sha512-r8hpEjiQEYlF2QU0df3dS+nxxSIreXQS1qRhMJM0Q5NDdR386C7jb7Hwwod8Fgiuex+k0GFjgft18yvxm5XoCQ==}
@@ -6958,6 +6990,7 @@ packages:
       inherits: 2.0.4
       minimatch: 5.1.6
       once: 1.4.0
+    dev: false
 
   /globals@11.12.0:
     resolution: {integrity: sha512-WOBp/EEGUiIsJSp7wcv/y6MO+lV9UoncWqxuFfm8eBwzWNgyfBd6Gz+IeKQ9jCmyhoH99g15M3T+QaVHFjizVA==}
@@ -6994,7 +7027,7 @@ packages:
       ignore: 5.2.4
       merge2: 1.4.1
       slash: 3.0.0
-    dev: true
+    dev: false
 
   /globby@11.1.0:
     resolution: {integrity: sha512-jhIXaOzy1sb8IyocaruWSn1TjmnBVs8Ayhcy83rmxNJ8q2uWKCAj3CnJY+KpGSXCueAPc0i05kVvVKtP1t9S3g==}
@@ -7149,7 +7182,7 @@ packages:
   /helpertypes@0.0.19:
     resolution: {integrity: sha512-J00e55zffgi3yVnUp0UdbMztNkr2PnizEkOe9URNohnrNhW5X0QpegkuLpOmFQInpi93Nb8MCjQRHAiCDF42NQ==}
     engines: {node: '>=10.0.0'}
-    dev: true
+    dev: false
 
   /highlight.js@10.7.3:
     resolution: {integrity: sha512-tzcUFauisWKNHaRkN4Wjl/ZA07gENAjFl3J/c480dprkGTg5EQstgaNFqBfUqCq54kZRIEcreTsAgF/m2quD7A==}
@@ -7398,7 +7431,6 @@ packages:
     engines: {node: '>=6'}
     dependencies:
       builtin-modules: 3.3.0
-    dev: true
 
   /is-callable@1.2.7:
     resolution: {integrity: sha512-1BC0BVFhS/p0qtw6enp8e+8OD0UrK0oFLztSjNzhcKA3WDuJxxAPXzPuPtKkjEY9UUoEWlX/8fgKeu2S8i9JTA==}
@@ -7408,7 +7440,6 @@ packages:
     resolution: {integrity: sha512-hHrIjvZsftOsvKSn2TRYl63zvxsgE0K+0mYMoH6gD4omR5IWB2KynivBQczo3+wF1cCkjzvptnI9Q0sPU66ilw==}
     dependencies:
       hasown: 2.0.0
-    dev: true
 
   /is-date-object@1.0.5:
     resolution: {integrity: sha512-9YQaSxsAiSwcvS33MBk3wTCVnWK+HhF8VZR2jRxehM16QcVOdHqPn4VPHmRK4lSr38n9JriurInLcP90xsYNfQ==}
@@ -7464,7 +7495,7 @@ packages:
 
   /is-module@1.0.0:
     resolution: {integrity: sha512-51ypPSPCoTEIN9dy5Oy+h4pShgJmPCygKfyRCISBI+JoWT/2oJvK8QPxmwv7b/p239jXrm9M1mlQbyKJ5A152g==}
-    dev: true
+    dev: false
 
   /is-negative-zero@2.0.2:
     resolution: {integrity: sha512-dqJvarLawXsFbNDeJW7zAz8ItJ9cd28YufuuFzh0G8pNHjJMnY08Dv7sYX2uF5UpQOwieAeOExEYAWWfu7ZZUA==}
@@ -7499,7 +7530,7 @@ packages:
   /is-plain-object@3.0.1:
     resolution: {integrity: sha512-Xnpx182SBMrr/aBik8y+GuR4U1L9FqMSojwDQwPMmxyC6bvEqly9UBCxhauBF5vNh2gwWJNX6oDV7O+OM4z34g==}
     engines: {node: '>=0.10.0'}
-    dev: true
+    dev: false
 
   /is-plain-object@5.0.0:
     resolution: {integrity: sha512-VRSzKkbMm5jMDoKLbltAkFQ5Qr7VDiTFGXxYFXXowVj387GeGNOCsOH6Msy00SGZ3Fp84b1Naa1psqgcCIEP5Q==}
@@ -7513,7 +7544,7 @@ packages:
     resolution: {integrity: sha512-U82MsXXiFIrjCK4otLT+o2NA2Cd2g5MLoOVXUZjIOhLurrRxpEXzI8O0KZHr3IjLvlAH1kTPYSuqer5T9ZVBKQ==}
     dependencies:
       '@types/estree': 1.0.5
-    dev: true
+    dev: false
 
   /is-regex@1.1.4:
     resolution: {integrity: sha512-kvRdxDsxZjhzUX07ZnLydzS1TU/TJlTUHHY4YLL87e37oUA49DfkLqgy+VjFocowy29cKvcSiu+kIv728jTTVg==}
@@ -7594,7 +7625,7 @@ packages:
   /isbot@3.6.13:
     resolution: {integrity: sha512-uoP4uK5Dc2CrabmK+Gue1jTL+scHiCc1c9rblRpJwG8CPxjLIv8jmGyyGRGkbPOweayhkskdZsEQXG6p+QCQrg==}
     engines: {node: '>=12'}
-    dev: true
+    dev: false
 
   /isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
@@ -7809,7 +7840,7 @@ packages:
     resolution: {integrity: sha512-m6F1R3z8jjlf2imQHS2Qez5sjKWQzbuuhuJ/FKYFRZvPE3PuHcSMVZzfsLhGVOkfd20obL5SWEBew5ShlquNxg==}
     optionalDependencies:
       graceful-fs: 4.2.11
-    dev: true
+    dev: false
 
   /jsonfile@6.1.0:
     resolution: {integrity: sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==}
@@ -8031,6 +8062,13 @@ packages:
       sourcemap-codec: 1.4.8
     dev: true
 
+  /magic-string@0.27.0:
+    resolution: {integrity: sha512-8UnnX2PeRAPZuN12svgR9j7M1uWMovg/CEnIwIG0LFkXSJJe4PdfUGiTGl8V9bsBHFUtfVINcSyYxd7q+kx9fA==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@jridgewell/sourcemap-codec': 1.4.15
+    dev: false
+
   /magic-string@0.30.5:
     resolution: {integrity: sha512-7xlpfBaQaP/T6Vh8MO/EqXSW5En6INHEvEXQiuff7Gku0PWjU3uf6w/j9o7O+SpB5fOAkrI5HeoNgwjEO0pFsA==}
     engines: {node: '>=12'}
@@ -8171,13 +8209,13 @@ packages:
     resolution: {integrity: sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==}
     dependencies:
       brace-expansion: 1.1.11
-    dev: true
 
   /minimatch@5.1.6:
     resolution: {integrity: sha512-lKwV/1brpG6mBUFHtb7NUmtABCb2WZZmm2wNiOA5hAb8VdCS4B3dtMWyvcoViccwAW/COERjXLt0zP1zXUN26g==}
     engines: {node: '>=10'}
     dependencies:
       brace-expansion: 2.0.1
+    dev: false
 
   /minimatch@9.0.1:
     resolution: {integrity: sha512-0jWhJpD/MdhPXwPuiRkCbfYfSKp2qnn2eOc279qI7f+osl/l+prKSrvhg157zSYvx/1nmgn2NqdT6k2Z7zSH9w==}
@@ -8373,7 +8411,6 @@ packages:
 
   /node-releases@2.0.13:
     resolution: {integrity: sha512-uYr7J37ae/ORWdZeQ1xxMJe3NtdmqMC/JZK+geofDrkLUApKRHPd18/TxtBOJ4A0/+uUIliorNrfYV6s1b02eQ==}
-    dev: true
 
   /nopt@6.0.0:
     resolution: {integrity: sha512-ZwLpbTgdhuZUnZzjd7nb1ZV+4DoiC6/sfiVKok72ym/4Tlf+DFdlHYmT2JPmcNNWV6Pi3SDf1kT+A4r9RTuT9g==}
@@ -8517,7 +8554,7 @@ packages:
   /object-path@0.11.8:
     resolution: {integrity: sha512-YJjNZrlXJFM42wTBn6zgOJVar9KFJvzx6sTWDte8sWZF//cnjl0BxHNpfZx+ZffXX63A9q0b1zsFiBX4g4X5KA==}
     engines: {node: '>= 10.12.0'}
-    dev: true
+    dev: false
 
   /object-values@1.0.0:
     resolution: {integrity: sha512-+8hwcz/JnQ9EpLIXzN0Rs7DLsBpJNT/xYehtB/jU93tHYr5BFEO8E+JGQNOSqE7opVzz5cGksKFHt7uUJVLSjQ==}
@@ -8792,7 +8829,6 @@ packages:
   /path-is-absolute@1.0.1:
     resolution: {integrity: sha512-AVbw3UJ2e9bq64vSaS9Am0fje1Pa8pbGqTTsmXfaIiMpnr5DlDhfJOuLj9Sf95ZPVDAUerDfEk88MPmPe7UCQg==}
     engines: {node: '>=0.10.0'}
-    dev: true
 
   /path-key@3.1.1:
     resolution: {integrity: sha512-ojmeN0qd+y0jszEtoY48r0Peq5dwMEkIlCOu6Q5f41lfkswXuKtYrhgoTpLnyIcHm24Uhqx+5Tqm2InSwLhE6Q==}
@@ -8808,7 +8844,6 @@ packages:
 
   /path-parse@1.0.7:
     resolution: {integrity: sha512-LDJzPVEEEPR+y48z93A0Ed0yXb8pAByGWo/k5YYdYgpY2/2EsOsksJrq7lOHxryrVOn1ejG6oAp8ahvOIQD8sw==}
-    dev: true
 
   /path-scurry@1.10.1:
     resolution: {integrity: sha512-MkhCqzzBEpPvxxQ71Md0b1Kk51W01lrYvlMzSUaIzNsODdd7mqhiimSZlr+VegAz5Z6Vzt9Xg2ttE//XBhH3EQ==}
@@ -9007,7 +9042,7 @@ packages:
     resolution: {integrity: sha512-vYl3iOX+4CKUWuxGi9Ukhie6fsqXqS9FE2Zaic4tNFD2N2QQaXOMFbuKK4QmDHC0JO6B1Zp41J0LpT0oR68amQ==}
     dependencies:
       safe-buffer: 5.2.1
-    dev: true
+    dev: false
 
   /rc@1.2.8:
     resolution: {integrity: sha512-y3bGgqKj3QBdxLbLkomlohkvsA8gdAiUQlSBJnBhfn+BPxg4bc62d8TcBW15wavDfgexCgccckhcZvywyQYPOw==}
@@ -9223,7 +9258,6 @@ packages:
 
   /resolve-pkg-maps@1.0.0:
     resolution: {integrity: sha512-seS2Tj26TBVOC2NIc2rOe2y2ZO7efxITtLZcGSOnHHNOQ7CkiUBfw0Iw2ck6xkIhPwLhKNLS8BO+hEpngQlqzw==}
-    dev: true
 
   /resolve@1.22.8:
     resolution: {integrity: sha512-oKWePCxqpd6FlLvGV1VU0x7bkPmmCNolxzjMf4NczoDnQcIWrAF+cPtZn5i6n+RfD2d9i0tzpKnG6Yk168yIyw==}
@@ -9232,7 +9266,6 @@ packages:
       is-core-module: 2.13.1
       path-parse: 1.0.7
       supports-preserve-symlinks-flag: 1.0.0
-    dev: true
 
   /resolve@2.0.0-next.5:
     resolution: {integrity: sha512-U7WjGVG9sH8tvjW5SmGbQuui75FiyjAX72HX15DwBBwF9dNiQZRQAg9nnPhYy+TUnE0+VcrttuvNI8oSxZcocA==}
@@ -9289,52 +9322,7 @@ packages:
       fs-extra: 8.1.0
       globby: 10.0.1
       is-plain-object: 3.0.1
-    dev: true
-
-  /rollup-plugin-ts@3.4.5(@babel/core@7.23.3)(@swc/core@1.3.96)(rollup@4.4.1)(typescript@5.3.3):
-    resolution: {integrity: sha512-9iCstRJpEZXSRQuXitlSZAzcGlrqTbJg1pE4CMbEi6xYldxVncdPyzA2I+j6vnh73wBymZckerS+Q/iEE/M3Ow==}
-    engines: {node: '>=16.15.1', npm: '>=7.0.0', pnpm: '>=3.2.0', yarn: '>=1.13'}
-    peerDependencies:
-      '@babel/core': '>=7.x'
-      '@babel/plugin-transform-runtime': '>=7.x'
-      '@babel/preset-env': '>=7.x'
-      '@babel/preset-typescript': '>=7.x'
-      '@babel/runtime': '>=7.x'
-      '@swc/core': '>=1.x'
-      '@swc/helpers': '>=0.2'
-      rollup: '>=1.x || >=2.x || >=3.x'
-      typescript: '*'
-    peerDependenciesMeta:
-      '@babel/core':
-        optional: true
-      '@babel/plugin-transform-runtime':
-        optional: true
-      '@babel/preset-env':
-        optional: true
-      '@babel/preset-typescript':
-        optional: true
-      '@babel/runtime':
-        optional: true
-      '@swc/core':
-        optional: true
-      '@swc/helpers':
-        optional: true
-    dependencies:
-      '@babel/core': 7.23.3
-      '@rollup/pluginutils': 5.1.0(rollup@4.4.1)
-      '@swc/core': 1.3.96(@swc/helpers@0.5.3)
-      '@wessberg/stringutil': 1.0.19
-      ansi-colors: 4.1.3
-      browserslist: 4.22.1
-      browserslist-generator: 2.1.0
-      compatfactory: 3.0.0(typescript@5.3.3)
-      crosspath: 2.0.0
-      magic-string: 0.30.5
-      rollup: 4.4.1
-      ts-clone-node: 3.0.0(typescript@5.3.3)
-      tslib: 2.6.2
-      typescript: 5.3.3
-    dev: true
+    dev: false
 
   /rollup-plugin-ts@3.4.5(@swc/core@1.3.96)(@swc/helpers@0.5.3)(rollup@4.4.1)(typescript@5.3.3):
     resolution: {integrity: sha512-9iCstRJpEZXSRQuXitlSZAzcGlrqTbJg1pE4CMbEi6xYldxVncdPyzA2I+j6vnh73wBymZckerS+Q/iEE/M3Ow==}
@@ -9379,7 +9367,7 @@ packages:
       ts-clone-node: 3.0.0(typescript@5.3.3)
       tslib: 2.6.2
       typescript: 5.3.3
-    dev: true
+    dev: false
 
   /rollup@4.4.1:
     resolution: {integrity: sha512-idZzrUpWSblPJX66i+GzrpjKE3vbYrlWirUHteoAbjKReZwa0cohAErOYA5efoMmNCdvG9yrJS+w9Kl6csaH4w==}
@@ -9426,7 +9414,6 @@ packages:
 
   /safe-buffer@5.2.1:
     resolution: {integrity: sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ==}
-    dev: true
 
   /safe-execa@0.1.2:
     resolution: {integrity: sha512-vdTshSQ2JsRCgT8eKZWNJIL26C6bVqy1SOmuCMlKHegVeo8KYRobRrefOdUq9OozSPUUiSxrylteeRmLOMFfWg==}
@@ -9480,7 +9467,7 @@ packages:
     resolution: {integrity: sha512-Saa1xPByTTq2gdeFZYLLo+RFE35NHZkAbqZeWNd3BpzppeVisAqpDjcp8dyf6uIvEqJRd46jemmyA4iFIeVk8g==}
     dependencies:
       randombytes: 2.1.0
-    dev: true
+    dev: false
 
   /set-function-length@1.1.1:
     resolution: {integrity: sha512-VoaqjbBJKiWtg4yRcKBQ7g7wnGnLV3M8oLvVWwOk2PdYY6PEFegR1vezXR0tw6fZGF9csVakIRjrJiy2veSBFQ==}
@@ -9550,7 +9537,6 @@ packages:
   /slash@3.0.0:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
     engines: {node: '>=8'}
-    dev: true
 
   /slash@4.0.0:
     resolution: {integrity: sha512-3dOsAHXXUkQTpOYcoAxLIorMTp4gIQr5IW3iVb7A7lFIp0VHhnynm9izx6TssdrIcVIESAlVjtnO2K8bg+Coew==}
@@ -9569,7 +9555,7 @@ packages:
 
   /smob@1.4.1:
     resolution: {integrity: sha512-9LK+E7Hv5R9u4g4C3p+jjLstaLe11MDsL21UpYaCNmapvMkYhqCV4A/f/3gyH8QjMyh6l68q9xC85vihY9ahMQ==}
-    dev: true
+    dev: false
 
   /socks-proxy-agent@6.2.1:
     resolution: {integrity: sha512-a6KW9G+6B3nWZ1yB8G7pJwL3ggLy1uTzKAgCb7ttblwqdz9fMGJUuTy3uFzEP48FAs9FLILlmzDlE2JJhVQaXQ==}
@@ -9617,7 +9603,6 @@ packages:
     dependencies:
       buffer-from: 1.1.2
       source-map: 0.6.1
-    dev: true
 
   /source-map@0.6.1:
     resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==}
@@ -9856,7 +9841,6 @@ packages:
   /supports-preserve-symlinks-flag@1.0.0:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
-    dev: true
 
   /symbol-tree@3.2.4:
     resolution: {integrity: sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==}
@@ -9895,7 +9879,7 @@ packages:
       acorn: 8.10.0
       commander: 2.20.3
       source-map-support: 0.5.21
-    dev: true
+    dev: false
 
   /text-table@0.2.0:
     resolution: {integrity: sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==}
@@ -10025,7 +10009,7 @@ packages:
     dependencies:
       compatfactory: 3.0.0(typescript@5.3.3)
       typescript: 5.3.3
-    dev: true
+    dev: false
 
   /tsconfig-paths@3.15.0:
     resolution: {integrity: sha512-2Ac2RgzDe/cn48GvOe3M+o82pEFewD3UPbyoUHHdKasHwJKjds4fLXWf/Ux5kATBKN20oaFGu+jbElp1pos0mg==}
@@ -10218,11 +10202,10 @@ packages:
     resolution: {integrity: sha512-pXWcraxM0uxAS+tN0AG/BF2TyqmHO014Z070UsJ+pFvYuRSq8KH8DmWpnbXe0pEPDHXZV3FcAbJkijJ5oNEnWw==}
     engines: {node: '>=14.17'}
     hasBin: true
-    dev: true
 
   /ua-parser-js@1.0.35:
     resolution: {integrity: sha512-fKnGuqmTBnIE+/KXSzCn4db8RTigUzw1AN0DmdU6hJovUTbYJKyqj+8Mt1c4VfRDnOVJnENmfYkIPZ946UrSAA==}
-    dev: true
+    dev: false
 
   /ufo@1.3.0:
     resolution: {integrity: sha512-bRn3CsoojyNStCZe0BG0Mt4Nr/4KF+rhFlnNXybgqt5pXHNFRlqinSoQaTrGyzE4X8aHplSb+TorH+COin9Yxw==}
@@ -10290,7 +10273,7 @@ packages:
   /universalify@0.1.2:
     resolution: {integrity: sha512-rBJeI5CXAlmy1pV+617WB9J63U6XcazHHF2f2dbJix4XzpUF0RS3Zbj0FGIOCAva5P/d/GBOYaACQ1w+0azUkg==}
     engines: {node: '>= 4.0.0'}
-    dev: true
+    dev: false
 
   /universalify@0.2.0:
     resolution: {integrity: sha512-CJ1QgKmNg3CwvAv/kOFmtnEN05f0D/cn9QntgNOQlQF9dgvVTHj3t+8JPdjqawCHk7V/KA+fbUqzZ9XWhcqPUg==}
@@ -10309,7 +10292,6 @@ packages:
       browserslist: 4.22.1
       escalade: 3.1.1
       picocolors: 1.0.0
-    dev: true
 
   /uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}

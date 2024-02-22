@@ -108,7 +108,7 @@
     "@edge-runtime/vm": "^3.1.7",
     "@esbuild-kit/esm-loader": "^2.6.5",
     "@nrr/pnpm-duplicate-cli": "^0.0.1",
-    "@starbeam-dev/compile": "^1.1.0",
+    "@starbeam-dev/compile": "workspace:*",
     "@starbeam-dev/core": "^1.0.2",
     "@starbeam-dev/eslint-plugin": "^1.0.4",
     "@types/eslint": "^8.56.0",
@@ -155,7 +155,7 @@
     },
     "overrides": {
       "@rollup/pluginutils": "latest",
-      "@starbeam-dev/compile": "1.2.0",
+      "@starbeam-dev/compile": "workspace:*",
       "@types/eslint": "$@types/eslint",
       "@types/node": "$@types/node",
       "eslint": "$eslint",
