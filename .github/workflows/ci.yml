@@ -32,6 +32,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: wyvox/action-setup-pnpm@v3
       - run: pnpm build 
+      - name: "Ensure Certain dependencies don't end up in the production bundles"
+        run: node ./workspace/scripts/build-verify.js 
 
   test:
     name: "Tests"
