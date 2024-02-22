@@ -143,7 +143,7 @@ export default function typescript(
     let jscConfig: Partial<JscConfig> = { transform };
 
     if (mode === "production") {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
       (jscConfig as any).minify = minify;
     }
 
