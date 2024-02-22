@@ -2,7 +2,8 @@ import { execSync } from 'node:child_process';
 import { join, resolve } from "node:path";
 
 import terser from '@rollup/plugin-terser';
-import { Package, type PackageInfo, rootAt } from "@starbeam-dev/core";
+import type {PackageInfo} from "@starbeam-dev/core";
+import { Package,  rootAt } from "@starbeam-dev/core";
 import type { RollupOptions } from "rollup";
 import copy from 'rollup-plugin-copy'
 
@@ -91,7 +92,8 @@ function compilePackage(pkg: PackageInfo, options: CompileOptions): RollupOption
     }));
 
     /**
-      * We only need to do this once, so we'll push it on the first entrypoint's rollup config
+      * We only need to do this once, so we'll push it on the first
+      * entrypoint's rollup config
       */
     if (options.copyRootChangelog ?? true) {
       const copyPlugin = copyRootChangelog(pkg);

@@ -143,12 +143,16 @@ export default function typescript(
     let jscConfig: Partial<JscConfig> = { transform };
 
     if (mode === "production") {
-      jscConfig.minify = minify;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (jscConfig as any).minify = minify;
     }
 
     const fragmentFactory = compilerOptions.jsxFragmentFactory;
     const jsxFactory = compilerOptions.jsxFactory;
 
+    /**
+    * TODO: move react specific build code to react packages' rollup
+    */
     if (fragmentFactory && jsxFactory)
       jscConfig = withReact(jscConfig, {
         pragma: jsxFactory,
