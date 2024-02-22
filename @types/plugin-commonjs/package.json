@@ -1,0 +1,29 @@
+{
+  "private": true,
+  "name": "@types/rollup__plugin-commonjs",
+  "version": "1.0.0",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts"
+    }
+  },
+  "publishConfig": {
+    "exports": "./dist/index.d.ts",
+    "types": "dist/index.d.ts"
+  },
+  "starbeam": {
+    "source": "d.ts",
+    "type": "library:upstream-types"
+  },
+  "scripts": {
+    "test:lint": "eslint . --max-warnings 0",
+    "test:types": "tsc -b"
+  },
+  "dependencies": {
+    "@rollup/plugin-commonjs": "25.0.5"
+  },
+  "devDependencies": {
+    "@starbeam-dev/eslint-plugin": "^1.0.3"
+  }
+}

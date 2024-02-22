@@ -1,0 +1,17 @@
+{
+  "solution": {
+    "@starbeam-dev/compile": {
+      "impact": "minor",
+      "oldVersion": "1.1.0",
+      "newVersion": "1.2.0",
+      "constraints": [
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
+        }
+      ],
+      "pkgJSONPath": "./package.json"
+    }
+  },
+  "description": "## Release (2024-01-12)\n\n@starbeam-dev/compile 1.2.0 (minor)\n\n#### :rocket: Enhancement\n* `@starbeam-dev/compile`\n  * [#5](https://github.com/starbeamjs/dev-compile/pull/5) Make starbeam smaller / faster ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
+}

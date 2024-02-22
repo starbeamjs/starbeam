@@ -1,0 +1,5 @@
+node_modules
+*.tsbuildinfo
+dist
+.yalc
+yalc.lock
