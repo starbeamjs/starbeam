@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "name": "@starbeam-workspace/scripts",
+  "type": "module",
+  "devDependencies": {
+    "globby": "^13.2.2"
+  }
+}
