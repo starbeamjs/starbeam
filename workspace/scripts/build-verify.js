@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 
 const FORBIDDEN = ["stacktracey", "@starbeam/debug", "@starbeam/verify"];
 
-let files = await globby("**/index.production.js", {
+let files = await globby("**/index.production.{js,js.map}", {
   ignore: ["node_modules", "**/node_modules"],
 });
 
