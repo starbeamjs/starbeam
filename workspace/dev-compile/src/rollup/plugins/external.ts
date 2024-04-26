@@ -241,7 +241,6 @@ function external(pkg: PackageInfo, mode: 'development' | 'production') {
 
     // Resolve custom rules. These rules include the default behavior of
     // well-known helper libraries.
-    console.log(pkg.starbeam);
     for (const rule of pkg.starbeam.inline) {
       const isExternal = resolveIsExternal(rule, id);
       if (isExternal !== undefined) return isExternal;

@@ -114,7 +114,9 @@ function entryPoints(
   function entryPoint([exportName, ts]: [string, string]): RollupOptions {
     return {
       input: resolve(root, ts),
-      treeshake: true,
+      treeshake: {
+        moduleSideEffects: false,
+      },
       output: {
         file: filename({ root, name: exportName, mode, ext: "js" }),
         format: "esm",
