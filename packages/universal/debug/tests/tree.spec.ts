@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-import { Tree } from "@starbeam/debug";
+import { Tree }/*#__PURE__*/ from "@starbeam/debug";
 import { describe, expect, test } from "vitest";
 
 describe("a tree", () => {
