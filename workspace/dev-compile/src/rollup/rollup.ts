@@ -67,7 +67,7 @@ function compilePackage(pkg: PackageInfo, options: CompileOptions): RollupOption
       ...options,
       plugins: [
         ...PLUGINS,
-        externals(pkg),
+        externals(pkg, mode),
         typescript(mode)(pkg, {
           target: "esnext",
           module: "esnext",

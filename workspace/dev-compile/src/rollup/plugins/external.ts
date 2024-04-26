@@ -204,8 +204,8 @@ import type { RollupPlugin } from "../utils.js";
  * @param {PackageInfo} pkg
  * @returns {import("rollup").Plugin}
  */
-export default function externals(pkg: PackageInfo): RollupPlugin {
-  const isExternal = external(pkg);
+export default function externals(pkg: PackageInfo, mode: 'development' | 'production'): RollupPlugin {
+  const isExternal = external(pkg, mode);
 
   return {
     name: "starbeam:externals",
@@ -222,7 +222,7 @@ export default function externals(pkg: PackageInfo): RollupPlugin {
  * @param {PackageInfo} pkg
  * @returns
  */
-function external(pkg: PackageInfo) {
+function external(pkg: PackageInfo, mode: 'development' | 'production') {
   /**
    * @param {string} id
    * @returns {boolean}
@@ -233,8 +233,15 @@ function external(pkg: PackageInfo) {
       return INLINE;
     }
 
+    if (mode === 'production') {
+      if (id.startsWith('@starbeam/debug') || id.startsWith('@starbeam/verify')) {
+        return INLINE;
+      }
+    }
+
     // Resolve custom rules. These rules include the default behavior of
     // well-known helper libraries.
+    console.log(pkg.starbeam);
     for (const rule of pkg.starbeam.inline) {
       const isExternal = resolveIsExternal(rule, id);
       if (isExternal !== undefined) return isExternal;
