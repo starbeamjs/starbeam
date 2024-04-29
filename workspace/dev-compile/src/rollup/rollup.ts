@@ -82,7 +82,8 @@ function compilePackage(pkg: PackageInfo, options: CompileOptions): RollupOption
               comments: false
             },
             // prevent any compression
-            compress: false
+            compress: false,
+            mangle: false,
           }),
         ] : [])
       ],
