@@ -53,13 +53,13 @@ export function verified<T, U extends T>(
   error?: Expectation<T>,
 ): U;
 
-export function verified(): unknown {
-  // eslint-disable-next-line prefer-rest-params
-  const [value, check, error] = [...arguments] as Parameters<typeof verified>;
+export function verified(v: unknown): unknown {
   if (import.meta.env.DEV) {
+    // eslint-disable-next-line prefer-rest-params
+    const [value, check, error] = [...arguments] as Parameters<typeof verified>;
     verify(value, check, error);
   }
-  return value;
+  return v;
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class Expectation<In = any> {
