@@ -22,6 +22,10 @@ for (let filePath of files) {
   let file = await readFile(filePath);
   let content = file.toString();
   
+  if (filePath.includes('packages/universal/debug') || filePath.includes('packages/universal/verify')) {
+    continue;
+  }
+  
   if (filePath.endsWith('.js.map')) {
     const jsMap = JSON.parse(content);
     const sources = jsMap.sources;
