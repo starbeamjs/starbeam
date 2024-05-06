@@ -162,7 +162,8 @@
       "preact": "10.17.1",
       "typescript": "$typescript",
       "vite": "$vite",
-      "vue": "3.3.4"
+      "vue": "3.3.4",
+      "terser": "^5.31.0"
     },
     "peerDependencyRules": {
       "allowAny": [

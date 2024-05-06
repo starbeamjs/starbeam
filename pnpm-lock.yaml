@@ -14,6 +14,7 @@ overrides:
   typescript: ^5.3.3
   vite: ^5.0.10
   vue: 3.3.4
+  terser: ^5.31.0
 
 importers:
 
@@ -3919,7 +3920,7 @@ packages:
       rollup: 4.4.1
       serialize-javascript: 6.0.2
       smob: 1.4.1
-      terser: 5.26.0
+      terser: 5.31.0
     dev: false
 
   /@rollup/pluginutils@5.1.0(rollup@4.4.1):
@@ -9874,8 +9875,8 @@ packages:
       yallist: 4.0.0
     dev: true
 
-  /terser@5.26.0:
-    resolution: {integrity: sha512-dytTGoE2oHgbNV9nTzgBEPaqAWvcJNl66VZ0BkJqlvp71IjO8CxdBx/ykCNb47cLnCmCvRZ6ZR0tLkqvZCdVBQ==}
+  /terser@5.31.0:
+    resolution: {integrity: sha512-Q1JFAoUKE5IMfI4Z/lkE/E6+SwgzO+x4tq4v1AyBLRj8VSYvRO6A/rQrPg1yud4g0En9EKI1TvFRF2tQFcoUkg==}
     engines: {node: '>=10'}
     hasBin: true
     dependencies:
@@ -10411,7 +10412,7 @@ packages:
       sass: '*'
       stylus: '*'
       sugarss: '*'
-      terser: ^5.4.0
+      terser: ^5.31.0
     peerDependenciesMeta:
       '@types/node':
         optional: true
