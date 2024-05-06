@@ -55,7 +55,7 @@ export class ComponentFrame {
     verify(
       frame,
       isPresent,
-      expected.when("in Preact's _diff hook").as("a tracking frame"),
+      expected?.when("in Preact's _diff hook").as("a tracking frame"),
     );
 
     const end = frame.#end(subscription);
@@ -104,7 +104,7 @@ export class ComponentFrame {
     verify(
       this.#active,
       isPresent,
-      expected.when("in preact's _diff hook").as("an active tracking frame"),
+      expected?.when("in preact's _diff hook").as("an active tracking frame"),
     );
 
     const frame = (this.#frame = this.#active.done());

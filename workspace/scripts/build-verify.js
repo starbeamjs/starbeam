@@ -15,7 +15,6 @@ let files = await globby(resolve(currentDir, "../../../packages/**/index.product
   ignore: ["node_modules", "**/node_modules"],
 });
 
-console.log('files', files)
 
 let errors = [];
 
