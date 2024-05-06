@@ -13,7 +13,7 @@ export const cached = <T>(
   verify(
     get,
     isPresent,
-    expected(`the target of @cached`)
+    expected?.(`the target of @cached`)
       .toBe(`a getter`)
       .butGot(() =>
         typeof descriptor.value === "function" ? `a method` : `a field`,
