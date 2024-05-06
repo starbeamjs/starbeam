@@ -30,6 +30,6 @@ export const expected: typeof expectedDev = import.meta.env.DEV ? expectedDev : 
 export const hasType: typeof hasTypeDev = import.meta.env.DEV ? hasTypeDev : (noop as typeof hasTypeDev)
 export const isOneOf: typeof isOneOfDev = import.meta.env.DEV ? isOneOfDev : (noop as typeof isOneOfDev)
 
-export const verify: VerifyFn | null = import.meta.env.DEV
+export const verify: VerifyFn = import.meta.env.DEV
   ? verifyDev
-  : null;
+  : null as unknown as VerifyFn;

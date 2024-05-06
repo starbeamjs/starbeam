@@ -33,7 +33,7 @@ export function callerStack(
       "An error created in the internals of Stack.create",
     ).stack;
 
-    verify(stack, hasType("string"));
+    verify?.(stack, hasType("string"));
     return callStack(stack)?.slice(internal + CALLER);
   }
 }
