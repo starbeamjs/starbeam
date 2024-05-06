@@ -19,7 +19,8 @@ export function verify<Value, Narrow extends Value>(
   check: (input: Value) => input is Narrow,
   error?: Expectation<Value>,
 ): asserts value is Narrow;
-export function verify() {
+export function verify(): void {
+  // eslint-disable-next-line prefer-rest-params
   const params = [...arguments] as Parameters<typeof verifyFunc>;
   if (import.meta.env.DEV) {
     verifyFunc(...params) 
@@ -46,29 +47,20 @@ function verifyFunc(
   }
 }
 
-function noop(): void {
-  return;
-}
-
 export function verified<T, U extends T>(
   value: T,
   check: (input: T) => input is U,
   error?: Expectation<T>,
-): U {
+): U;
+
+export function verified(): unknown {
+  // eslint-disable-next-line prefer-rest-params
+  const [value, check, error] = [...arguments] as Parameters<typeof verified>;
   if (import.meta.env.DEV) {
     verify(value, check, error);
   }
-  return value as unknown as U;
+  return value;
 }
-
-verified.noop = <const T, const U extends T>(
-  value: T,
-  _check: (input: T) => input is U,
-  _error?: Expectation<T>,
-): U => {
-  return value as U;
-};
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class Expectation<In = any> {
   static create<In>(description?: string): Expectation<In> {

@@ -42,10 +42,10 @@ export function ElementPlaceholder<E extends anydom.Element>(
 
     initialize(value: anydom.Element): void {
       const element = verified(REFS.get(ref), isPresent);
-      verify(
+      verify?.(
         value,
         (anyElement): anyElement is E => anyElement instanceof type,
-        expected(`A ref (${describe(description)})`)
+        expected?.(`A ref (${describe(description)})`)
           .toBe(`initialized with an instance of ${type.name}`)
           .butGot(() => `an instance of ${value.constructor.name}`),
       );
