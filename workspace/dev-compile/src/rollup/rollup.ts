@@ -11,6 +11,7 @@ import externals from "./plugins/external.js";
 import importMeta from "./plugins/import-meta.js";
 import typescript from "./plugins/typescript.js";
 import type { RollupPlugin } from "./utils.js";
+import prettier from 'rollup-plugin-prettier';
 
 const MODES = ["development", "production", undefined] as const;
 
@@ -81,15 +82,16 @@ function compilePackage(pkg: PackageInfo, options: CompileOptions): RollupOption
             format: {
               comments: false
             },
-            // prevent any compression
             compress: {
               dead_code: true,
               module: true,
-              keep_fargs: false,
-              passes: 5
+              keep_fargs: false
             },
             mangle: false,
           }),
+          prettier({
+            parser: 'babel'
+          })
         ] : [])
       ],
     }));

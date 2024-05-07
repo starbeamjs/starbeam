@@ -26,7 +26,7 @@ export {
 export { type TypeOf } from "./src/assertions/types.js";
 export { type Expectation, VerificationError } from "./src/verify.js";
 
-export const expected: typeof expectedDev = import.meta.env.DEV ? expectedDev : (noop as typeof expectedDev)
+export const expected: typeof expectedDev = import.meta.env.DEV ? expectedDev : null as any
 export const hasType: typeof hasTypeDev = import.meta.env.DEV ? hasTypeDev : (noop as typeof hasTypeDev)
 export const isOneOf: typeof isOneOfDev = import.meta.env.DEV ? isOneOfDev : (noop as typeof isOneOfDev)
 

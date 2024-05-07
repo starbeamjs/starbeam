@@ -10,7 +10,7 @@ export const cached = <T>(
 ): void => {
   const get = descriptor.get;
 
-  verify(
+  verify?.(
     get,
     isPresent,
     expected?.(`the target of @cached`)
