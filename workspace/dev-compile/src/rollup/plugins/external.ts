@@ -204,7 +204,7 @@ import type { RollupPlugin } from "../utils.js";
  * @param {PackageInfo} pkg
  * @returns {import("rollup").Plugin}
  */
-export default function externals(pkg: PackageInfo, mode: 'development' | 'production'): RollupPlugin {
+export default function externals(pkg: PackageInfo, mode: 'development' | 'production' | undefined): RollupPlugin {
   const isExternal = external(pkg, mode);
 
   return {
@@ -222,7 +222,7 @@ export default function externals(pkg: PackageInfo, mode: 'development' | 'produ
  * @param {PackageInfo} pkg
  * @returns
  */
-function external(pkg: PackageInfo, mode: 'development' | 'production') {
+function external(pkg: PackageInfo, mode: 'development' | 'production' | undefined) {
   /**
    * @param {string} id
    * @returns {boolean}
