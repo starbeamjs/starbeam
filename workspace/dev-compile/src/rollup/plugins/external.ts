@@ -24,7 +24,8 @@ import type { RollupPlugin } from "../utils.js";
  * import is "inline", it is combined with the built package's main file and
  * further optimized.
  *
- * In general, it's better to inline an import if any of the following are true:
+ * In general, it's better to inline an import if any of the following are
+ * true:
  *
  * 1. It is only used by this package.
  * 2. Its exports are easy to optimize by a minifier in production builds (e.g.
@@ -40,12 +41,13 @@ import type { RollupPlugin } from "../utils.js";
  * 1. Relative imports: If the import starts with a `.`, then it is an inline
  *    import.
  * 2. Custom rules: If the `starbeam:inline` key in `package.json` specifies a
- *    rule for a dependency, use it. You can use custom rules to override any of
- *    the default rules below.
+ *    rule for a dependency, use it. You can use custom rules to override any
+ *    of the default rules below.
  * 3. [TODO] Custom workspace rules: If the `starbeam:inline` key in the
  *    `package.json` for the workspace root specifies a rule for a dependency,
  *    use it.
- * 4. Helper libraries: If the import is one of the well-known helper libraries,
+ * 4. Helper libraries: If the import is one of the well-known helper
+ * libraries,
  *    then it is an inline import.
  * 5. Absolute imports: If the import starts with `/`, then it is an inline
  *    import. This is because absolute imports are usually relative imports
@@ -108,8 +110,8 @@ import type { RollupPlugin } from "../utils.js";
  *
  * ### Rules Object
  *
- * Each key in the object is a rule pattern, and the value is either "inline" or
- * "external".
+ * Each key in the object is a rule pattern, and the value is either "inline"
+ * or "external".
  *
  * Example:
  *
@@ -129,8 +131,8 @@ import type { RollupPlugin } from "../utils.js";
  * In this example, the `react` dependency is externalized, and the `lodash`
  * dependency is inlined.
  *
- * The default behavior is to externalize all dependencies, so you don't need to
- * specify "external" in a rules object unless you want to supersede a later
+ * The default behavior is to externalize all dependencies, so you don't need
+ * to specify "external" in a rules object unless you want to supersede a later
  * rule.
  *
  * Example:
@@ -157,8 +159,8 @@ import type { RollupPlugin } from "../utils.js";
  * ### Rule Objects in a Rules Array
  *
  * When you have a lot of inline rules and only a handful of externals
- * overrides, it's nice to be able to avoid repeating `: "inline"` over and over
- * again.
+ * overrides, it's nice to be able to avoid repeating `: "inline"` over and
+ * over again.
  *
  * In this situation, you can include rule objects in a rules array.
  *

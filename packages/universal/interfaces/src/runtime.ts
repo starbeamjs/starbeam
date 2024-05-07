@@ -5,8 +5,8 @@ import type { Timestamp } from "./timestamp.js";
 import type { Unsubscribe } from "./utils.js";
 
 /**
- * The runtime is the interface that defines the core operations of the reactive
- * system.
+ * The runtime is the interface that defines the core operations of the
+ * reactive system.
  *
  * ## Cells and Formulas
  *
@@ -24,8 +24,8 @@ import type { Unsubscribe } from "./utils.js";
  *
  * ## Lifetime Management
  *
- * - `onFinalize(object, handler)`: Registers a finalizer handler for an object.
- * - `finalize(object)`: Finalizes an object.
+ * - `onFinalize(object, handler)`: Registers a finalizer handler for an
+ * object. - `finalize(object)`: Finalizes an object.
  * - `link(parent, child)`: Link two objects together: when the parent is
  *   finalized, the child will be finalized as well.
  */
@@ -50,8 +50,8 @@ export interface Runtime {
   readonly update: (formula: FormulaTag) => void;
 
   /**
-   * Subscribe to notifications that the given tag has updates ready ("readiness
-   * notifications").
+   * Subscribe to notifications that the given tag has updates ready
+   * ("readiness notifications").
    *
    * The second parameter to `subscribe` is a callback that will be called
    * *immediately* when the tag is updated.

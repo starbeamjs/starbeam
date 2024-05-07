@@ -65,9 +65,9 @@ export interface FormulaTag extends TagMethods {
    * necessarily mean that the formula is static, because a formula has no
    * children before it was first initialized.
    *
-   * Data structures built on `FormulaTag` should always read the formula before
-   * attempting to read the children if they plan to rely on the absence of
-   * children as a strong indicator of staticness.
+   * Data structures built on `FormulaTag` should always read the formula
+   * before attempting to read the children if they plan to rely on the absence
+   * of children as a strong indicator of staticness.
    */
   children: () => ReadonlySet<Tag>;
 }
@@ -137,8 +137,8 @@ export type SubscriptionTarget = CellTag | FormulaTag;
  *
  * NOTE: In previous versions of Starbeam, it was legal to change the tag after
  * the tagged object was initially created. However, this made it impossible to
- * use an tagged object's tag as a key in a WeakMap, which meant that the tagged
- * object itself had to be passed around even when it was semantically
+ * use an tagged object's tag as a key in a WeakMap, which meant that the
+ * tagged object itself had to be passed around even when it was semantically
  * unimportant.
  *
  * These days, the `[TAG]` property must not change once it has been read. For

@@ -6,12 +6,12 @@ import type { PackageInfo } from "@starbeam-dev/core";
 import { Package, rootAt } from "@starbeam-dev/core";
 import type { RollupOptions } from "rollup";
 import copy from 'rollup-plugin-copy'
+import prettier from 'rollup-plugin-prettier';
 
 import externals from "./plugins/external.js";
 import importMeta from "./plugins/import-meta.js";
 import typescript from "./plugins/typescript.js";
 import type { RollupPlugin } from "./utils.js";
-import prettier from 'rollup-plugin-prettier';
 
 const MODES = ["development", "production", undefined] as const;
 

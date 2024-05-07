@@ -26,8 +26,8 @@ export interface DebugRuntime {
   readonly callerStack: CallerStackFn;
 
   /**
-   * Mark the current function as a debug entry point. The immediate caller of a
-   * debug entry point becomes the call stack associated with any debug
+   * Mark the current function as a debug entry point. The immediate caller of
+   * a debug entry point becomes the call stack associated with any debug
    * information generated for that entry point.
    *
    * @param options.caller Optionally specify an explicit caller. By default,

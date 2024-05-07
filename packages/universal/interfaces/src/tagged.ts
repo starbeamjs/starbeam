@@ -14,8 +14,8 @@ export type HasTag<T extends Tag = Tag> = T | Tagged<T>;
  *
  * NOTE: In previous versions of Starbeam, it was legal to change the tag after
  * the tagged object was initially created. However, this made it impossible to
- * use an tagged object's tag as a key in a WeakMap, which meant that the tagged
- * object itself had to be passed around even when it was semantically
+ * use an tagged object's tag as a key in a WeakMap, which meant that the
+ * tagged object itself had to be passed around even when it was semantically
  * unimportant.
  */
 export interface Tagged<I extends Tag = Tag> {

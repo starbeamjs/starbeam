@@ -31,7 +31,8 @@ const rollupTS =
  *   into normal enums.
  * - All import paths that refer to non-existent JavaScript modules (type-only
  *   modules) are imported using `import type`.
- * - All imports that do not refer to a JavaScript value are imported as part of
+ * - All imports that do not refer to a JavaScript value are imported as part
+ * of
  *   an `import type` statement or are annotated with `type` (i.e. `import {
  *   map, type MapFn } from "map"`).
  *
@@ -48,11 +49,11 @@ const rollupTS =
  *   </dd>
  * </dl>
  *
- * We also recommend the use of `@typescript-eslint/consistent-type-imports` and
- * `@typescript-eslint/no-import-type-side-effects`. These auto-fixable lints
- * will error if you don't use `import type` on an import statement that is
- * never used as a value. These lints will also ensure that any named imports
- * that are only used as types are annotated with `type`.
+ * We also recommend the use of `@typescript-eslint/consistent-type-imports`
+ * and `@typescript-eslint/no-import-type-side-effects`. These auto-fixable
+ * lints will error if you don't use `import type` on an import statement that
+ * is never used as a value. These lints will also ensure that any named
+ * imports that are only used as types are annotated with `type`.
  *
  * If you're using vscode, you can enable "source.fixAll" in
  * `editor.codeActionOnSave` and imports will automatically be updated if you
@@ -61,8 +62,8 @@ const rollupTS =
  * ## Type Checking
  *
  * > **TL;DR** This plugin does **not** typecheck your code. It is intended to
- * > be run after verifying your code using tools such as `tsc` and `eslint` and
- * > after successfully running your tests.
+ * > be run after verifying your code using tools such as `tsc` and `eslint`
+ * and > after successfully running your tests.
  *
  * Now for the longer version...
  *
@@ -84,8 +85,8 @@ const rollupTS =
  *
  * > Adding to the confusion, the tool that you use to *verify* your TypeScript
  * > code is called `tsc`. Even more confusingly, `tsc` is intended to be a
- * > good-enough reference compiler for TypeScript code. In practice, though, it
- * > makes more sense to use `tsc` as part of a comprehensive *verification*
+ * > good-enough reference compiler for TypeScript code. In practice, though,
+ * it > makes more sense to use `tsc` as part of a comprehensive *verification*
  * > strategy and to use other tools (such as `esbuild` or `swc`) to compile
  * > your TypeScript code.
  *

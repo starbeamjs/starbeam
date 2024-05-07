@@ -37,8 +37,8 @@ function stripLeadingSlash(path: string) {
 
 /**
  * The whole `Stack` system is only intended to be used for logging, so the
- * edge-cases where this normalization wouldn't work (verbatim paths on Windows)
- * shouldn't matter.
+ * edge-cases where this normalization wouldn't work (verbatim paths on
+ * Windows) shouldn't matter.
  */
 function normalizePath(...pathParts: (string | null | undefined)[]): string {
   return pathParts
@@ -48,8 +48,8 @@ function normalizePath(...pathParts: (string | null | undefined)[]): string {
 }
 
 /**
- * This function takes two paths and returns the suffix of the target that comes
- * after any shared prefix with the source.
+ * This function takes two paths and returns the suffix of the target that
+ * comes after any shared prefix with the source.
  *
  * For example, if the source is `/src/app/foo/bar` and the target is
  * `/src/app/baz/qux`, this function will return `baz/qux`.
