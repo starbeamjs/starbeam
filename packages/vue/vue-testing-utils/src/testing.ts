@@ -80,17 +80,17 @@ function defComponent<Props extends PropTypes>(
 /**
  * Define a Vue component for testing with specified props.
  *
- * This component should not be rendered directly in testing. Instead, it should
- * be invoked from the app (specified via {@linkcode App}) or a descendant of
- * the app.
+ * This component should not be rendered directly in testing. Instead, it
+ * should be invoked from the app (specified via {@linkcode App}) or a
+ * descendant of the app.
  *
  * @param props The props of the component, as passed to
  * {@linkcode defineComponent} in Vue.
  * @param definition The setup function of the component.
  *
- * The `definition` parameter may be may either be specified as a plain function
- * that takes props as specified by the `props` parameter, or it may be
- * specified as:
+ * The `definition` parameter may be may either be specified as a plain
+ * function that takes props as specified by the `props` parameter, or it may
+ * be specified as:
  *
  * `{ setup: (props) => () => VNodeChild }`
  */

@@ -29,6 +29,6 @@
   },
   "devDependencies": {
     "@starbeam-dev/compile": "workspace:*",
-    "@starbeam-dev/eslint-plugin": "^1.0.4"
+    "@starbeam-dev/eslint-plugin": "^1.0.6"
   }
 }

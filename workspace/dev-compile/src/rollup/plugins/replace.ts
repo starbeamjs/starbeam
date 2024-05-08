@@ -26,8 +26,8 @@ const { default: MagicString } = await import("magic-string");
  * };
  * ```
  *
- * This will replace any instances of `import.meta.hello` in source modules with
- * the content `"world"`.
+ * This will replace any instances of `import.meta.hello` in source modules
+ * with the content `"world"`.
  *
  * The main purpose of this plugin is to replace dynamic variables with
  * build-time constant values, which can then be further processed by a
@@ -36,8 +36,8 @@ const { default: MagicString } = await import("magic-string");
  * For example, the `importMeta` plugin replaces `import.meta.env.DEV` with
  * `true` in development mode and `false` in production mode. In production,
  * source code guarded with `if (import.meta.env.DEV)` will be emitted as `if
- * (false)`. The subsequent minification pass will remove the entire `if` block,
- * including its contents.
+ * (false)`. The subsequent minification pass will remove the entire `if`
+ * block, including its contents.
  *
  * @param {(id: string) => boolean} test
  * @param {Record<string, string>} replacements @param {boolean} sourcemap

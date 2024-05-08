@@ -33,8 +33,8 @@ export interface Lifetime {
   /**
    * Like {@linkcode pushFinalizationScope}, but does not add the scope to the
    * parent scope when complete. This is useful for scopes that represent
-   * long-lived stacks, such as async functions or reactive resources (which can
-   * have nested scopes that evolve over time).
+   * long-lived stacks, such as async functions or reactive resources (which
+   * can have nested scopes that evolve over time).
    */
   mountFinalizationScope: (child?: object) => () => FinalizationScope;
 

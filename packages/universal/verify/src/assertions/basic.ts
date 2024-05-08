@@ -127,3 +127,22 @@ export function isNullable<In, Out extends In>(
 
   return verify;
 }
+
+
+if (import.meta.env.DEV) {
+  expected.associate(isPresent, expected.toBe("present"));
+  expected.associate(hasItems, expected.toHave(`at least one item`));
+  expected.associate(
+    isWeakKey,
+    expected
+      .toBe("an object or function")
+      .butGot((value) => (value === null ? "null" : typeof value)),
+  );
+  expected.associate(
+    isObject,
+    expected
+      .toBe("an object")
+      .butGot((value) => (value === null ? "null" : typeof value)),
+  );
+
+}

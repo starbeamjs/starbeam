@@ -13,11 +13,12 @@ import { createReplacePlugin } from "./replace.js";
  *
  * Replacements:
  *
- * | source                 | replacement rule                                 |
- * | ---------------------- | ------------------------------------------------ |
- * | `import.meta.env.MODE` | the specified mode (string)                      |
- * | `import.meta.env.DEV`  | true if the mode is "development" (boolean)      |
- * | `import.meta.env.PROD` | true if the mode is "production" (boolean)       |
+ * | source                 | replacement rule
+ * | | ---------------------- |
+ * ------------------------------------------------ | | `import.meta.env.MODE`
+ * | the specified mode (string)                      | | `import.meta.env.DEV`
+ *  | true if the mode is "development" (boolean)      | |
+ * `import.meta.env.PROD` | true if the mode is "production" (boolean)       |
  *
  * It is possible for both `DEV` and `PROD` to be false (if the specified mode
  * is something other than `"development"` or `"production"`). In general, this

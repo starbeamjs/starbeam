@@ -6,7 +6,8 @@ import { readPackageJson } from "./read-package-json.js";
 /**
  * All publishable packages are in packages/*
  *
- * We could read package.json#workspaces, but then we'd have more to filter out.
+ * We could read package.json#workspaces, but then we'd have more to filter
+ * out.
  */
 export async function listPublicWorkspaces() {
   let filePaths = await globby(["packages/**/package.json"], {

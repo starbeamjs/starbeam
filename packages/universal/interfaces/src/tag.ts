@@ -8,13 +8,13 @@ import type { Timestamp } from "./timestamp.js";
 export type TagSnapshot = ReadonlySet<Tag>;
 
 /**
- * Cell is the fundamental mutable reactive value. All subscriptions in Starbeam
- * are ultimately subscriptions to cells, and all mutations in Starbeam are
- * ultimately mutations to cells.
+ * Cell is the fundamental mutable reactive value. All subscriptions in
+ * Starbeam are ultimately subscriptions to cells, and all mutations in
+ * Starbeam are ultimately mutations to cells.
  *
  * If a cell has `undefined` dependencies, that means that the cell cannot
- * change anymore. This allows it to be removed from any formulas that depend on
- * it.
+ * change anymore. This allows it to be removed from any formulas that depend
+ * on it.
  */
 export interface CellTag {
   readonly type: "cell";
