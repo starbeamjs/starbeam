@@ -30,7 +30,7 @@
     "typescript": "^5.2.2"
   },
   "devDependencies": {
-    "@starbeam-dev/eslint-plugin": "^1.0.3",
+    "@starbeam-dev/eslint-plugin": "^1.0.6",
     "@swc/helpers": "^0.5.3",
     "@swc/types": "^0.1.5",
     "@types/node": "^18",

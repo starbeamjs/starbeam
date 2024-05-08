@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@starbeam-dev/compile": "workspace:*",
-    "@starbeam-dev/eslint-plugin": "^1.0.4",
+    "@starbeam-dev/eslint-plugin": "^1.0.6",
     "@testing-library/react": "^14.0.0",
     "@types/react": "^18.2.22",
     "@types/scheduler": "^0.16.3",

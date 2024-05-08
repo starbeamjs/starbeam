@@ -110,7 +110,7 @@
     "@nrr/pnpm-duplicate-cli": "^0.0.1",
     "@starbeam-dev/compile": "workspace:*",
     "@starbeam-dev/core": "^1.0.2",
-    "@starbeam-dev/eslint-plugin": "^1.0.4",
+    "@starbeam-dev/eslint-plugin": "^1.0.6",
     "@types/eslint": "^8.56.0",
     "@types/node": "^20.10.5",
     "@typescript-eslint/eslint-plugin": "^6.15.0",
@@ -163,8 +163,7 @@
       "typescript": "$typescript",
       "vite": "$vite",
       "vue": "3.3.4",
-      "terser": "^5.31.0",
-      "@starbeam-dev/eslint-plugin": "https://github.com/starbeamjs/eslint-plugin.git"
+      "terser": "^5.31.0"
     },
     "peerDependencyRules": {
       "allowAny": [

@@ -15,7 +15,6 @@ overrides:
   vite: ^5.0.10
   vue: 3.3.4
   terser: ^5.31.0
-  '@starbeam-dev/eslint-plugin': https://github.com/starbeamjs/eslint-plugin.git
 
 importers:
 
@@ -41,8 +40,8 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@types/eslint':
         specifier: ^8.56.0
         version: 8.56.0
@@ -131,8 +130,8 @@ importers:
   '@types/ansicolor':
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@types/node':
         specifier: ^20.10.5
         version: 20.10.5
@@ -140,8 +139,8 @@ importers:
   '@types/fsify':
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@types/node':
         specifier: ^20.10.5
         version: 20.10.5
@@ -149,8 +148,8 @@ importers:
   '@types/lines-and-columns':
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@types/node':
         specifier: ^20.10.5
         version: 20.10.5
@@ -162,8 +161,8 @@ importers:
         version: 25.0.5
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   '@types/plugin-node-resolve':
     dependencies:
@@ -172,8 +171,8 @@ importers:
         version: 15.2.3(rollup@4.4.1)
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   '@types/rollup-plugin-polyfill-node':
     dependencies:
@@ -182,14 +181,14 @@ importers:
         version: 4.4.1
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   '@types/shell-escape-tag':
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@types/node':
         specifier: ^20.10.5
         version: 20.10.5
@@ -197,8 +196,8 @@ importers:
   '@types/shell-split':
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@types/node':
         specifier: ^20.10.5
         version: 20.10.5
@@ -213,8 +212,8 @@ importers:
         version: 1.1.0(@edge-runtime/vm@3.1.7)(@types/node@20.10.5)(@vitest/ui@1.1.0)(happy-dom@12.10.3)(jsdom@23.0.1)
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/preact/preact:
     dependencies:
@@ -268,8 +267,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -299,8 +298,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       preact-render-to-string:
         specifier: ^6.2.1
         version: 6.2.1(preact@10.17.1)
@@ -345,8 +344,8 @@ importers:
         version: 10.17.1
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       preact-render-to-string:
         specifier: ^6.2.1
         version: 6.2.1(preact@10.17.1)
@@ -364,8 +363,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -404,8 +403,8 @@ importers:
         version: 10.17.1
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       preact-render-to-string:
         specifier: ^6.2.1
         version: 6.2.1(preact@10.17.1)
@@ -450,8 +449,8 @@ importers:
         version: 10.17.1
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       preact-render-to-string:
         specifier: ^6.2.1
         version: 6.2.1(preact@10.17.1)
@@ -514,8 +513,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@types/node':
         specifier: ^20.10.5
         version: 20.10.5
@@ -563,8 +562,8 @@ importers:
         version: 0.34.6(@edge-runtime/vm@3.1.7)(@vitest/ui@1.1.0)(happy-dom@12.10.3)(jsdom@22.1.0)
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/react/test-utils:
     dependencies:
@@ -603,8 +602,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@testing-library/react':
         specifier: ^14.0.0
         version: 14.0.0(react-dom@18.2.0)(react@18.2.0)
@@ -634,8 +633,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@types/react':
         specifier: ^18.2.22
         version: 18.2.22
@@ -662,8 +661,8 @@ importers:
         version: 18.2.0
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@types/react':
         specifier: ^18.2.22
         version: 18.2.22
@@ -705,8 +704,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -724,8 +723,8 @@ importers:
         version: link:../../universal
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/universal/core:
     dependencies:
@@ -737,8 +736,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -749,8 +748,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -762,8 +761,8 @@ importers:
         version: link:..
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/universal/debug:
     dependencies:
@@ -799,8 +798,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@types/node':
         specifier: ^20.10.5
         version: 20.10.5
@@ -818,8 +817,8 @@ importers:
         version: link:..
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/universal/interfaces:
     dependencies:
@@ -834,8 +833,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/universal/modifier:
     dependencies:
@@ -868,8 +867,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -896,8 +895,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -924,8 +923,8 @@ importers:
         version: link:../../shared
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/universal/renderer:
     dependencies:
@@ -952,8 +951,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -968,8 +967,8 @@ importers:
         version: link:..
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/universal/resource:
     dependencies:
@@ -999,8 +998,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -1036,8 +1035,8 @@ importers:
         version: 1.0.1
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/universal/runtime:
     dependencies:
@@ -1067,8 +1066,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -1098,8 +1097,8 @@ importers:
         version: link:../../shared
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/universal/service:
     dependencies:
@@ -1129,8 +1128,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -1166,8 +1165,8 @@ importers:
         version: link:../../shared
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/universal/shared:
     devDependencies:
@@ -1175,8 +1174,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -1203,8 +1202,8 @@ importers:
         version: 7.1.0
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/universal/tags:
     dependencies:
@@ -1225,8 +1224,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -1268,8 +1267,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -1293,8 +1292,8 @@ importers:
         version: link:..
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@starbeam-workspace/test-utils':
         specifier: workspace:^
         version: link:../../../../workspace/test-utils
@@ -1309,8 +1308,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -1322,8 +1321,8 @@ importers:
         version: link:..
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/vue/vue:
     dependencies:
@@ -1371,8 +1370,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -1405,8 +1404,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@vue/shared':
         specifier: ^3.3.4
         version: 3.3.4
@@ -1460,8 +1459,8 @@ importers:
         version: 3.3.4
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@vue/shared':
         specifier: ^3.3.4
         version: 3.3.4
@@ -1512,8 +1511,8 @@ importers:
         version: 3.3.4
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/x/headless-form:
     dependencies:
@@ -1534,8 +1533,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -1559,8 +1558,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -1581,8 +1580,8 @@ importers:
         version: link:..
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/x/vanilla:
     dependencies:
@@ -1609,8 +1608,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -1682,8 +1681,8 @@ importers:
         version: link:..
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   workspace/@domtree/any:
     dependencies:
@@ -1701,8 +1700,8 @@ importers:
         specifier: workspace:*
         version: link:../../dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   workspace/@domtree/browser:
     dependencies:
@@ -1714,8 +1713,8 @@ importers:
         specifier: workspace:*
         version: link:../../dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   workspace/@domtree/flavors:
     dependencies:
@@ -1733,8 +1732,8 @@ importers:
         specifier: workspace:*
         version: link:../../dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   workspace/@domtree/interface:
     devDependencies:
@@ -1742,8 +1741,8 @@ importers:
         specifier: workspace:*
         version: link:../../dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   workspace/@domtree/minimal:
     dependencies:
@@ -1755,8 +1754,8 @@ importers:
         specifier: workspace:*
         version: link:../../dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   workspace/dev-compile:
     dependencies:
@@ -1798,8 +1797,8 @@ importers:
         version: 5.3.3
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@swc/helpers':
         specifier: ^0.5.3
         version: 0.5.3
@@ -1859,8 +1858,8 @@ importers:
         specifier: workspace:*
         version: link:../dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -1881,8 +1880,8 @@ importers:
         version: 7.0.0
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: https://github.com/starbeamjs/eslint-plugin.git
-        version: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@types/fs-extra':
         specifier: ^11.0.2
         version: 11.0.2
@@ -4060,6 +4059,38 @@ packages:
 
   /@starbeam-dev/core@1.0.2:
     resolution: {integrity: sha512-gYY9jg8Qzr5t+VBzKsCiJ0qZ8H9v3p8cht4ipN7EW4STOEQezChFmbgfPpq2r4s8ZaKykrbIBLdMn/pNfmoRaQ==}
+
+  /@starbeam-dev/eslint-plugin@1.0.6(eslint@8.57.0)(typescript@5.3.3):
+    resolution: {integrity: sha512-MBVRjkeBLv9ANKhw7Fe0jU+EIGyYwVSm0TpBp58QxsB12umIvZUuXfSVLNvB5T838IlR4FNOxfvC0tAZyk5ksw==}
+    peerDependencies:
+      eslint: ^8.57.0
+      typescript: '*'
+    dependencies:
+      '@types/eslint': 8.56.0
+      '@typescript-eslint/eslint-plugin': 6.15.0(@typescript-eslint/parser@6.15.0)(eslint@8.57.0)(typescript@5.3.3)
+      '@typescript-eslint/parser': 6.15.0(eslint@8.57.0)(typescript@5.3.3)
+      eslint: 8.57.0
+      eslint-config-prettier: 9.1.0(eslint@8.57.0)
+      eslint-import-resolver-typescript: 3.6.1(@typescript-eslint/parser@6.15.0)(eslint-plugin-import@2.29.1)(eslint@8.57.0)
+      eslint-plugin-comment-length: 1.7.2(eslint@8.57.0)(typescript@5.3.3)
+      eslint-plugin-eslint-comments: 3.2.0(eslint@8.57.0)
+      eslint-plugin-etc: 2.0.3(eslint@8.57.0)(typescript@5.3.3)
+      eslint-plugin-file-extension-in-import-ts: 1.0.2
+      eslint-plugin-import: 2.29.1(@typescript-eslint/parser@6.15.0)(eslint-import-resolver-typescript@3.6.1)(eslint@8.57.0)
+      eslint-plugin-json: 3.1.0
+      eslint-plugin-jsonc: 2.11.2(eslint@8.57.0)
+      eslint-plugin-prettier: 5.1.0(@types/eslint@8.56.0)(eslint-config-prettier@9.1.0)(eslint@8.57.0)(prettier@3.1.1)
+      eslint-plugin-simple-import-sort: 10.0.0(eslint@8.57.0)
+      eslint-plugin-unicorn: 48.0.1(eslint@8.57.0)
+      eslint-plugin-unused-imports: 3.0.0(@typescript-eslint/eslint-plugin@6.15.0)(eslint@8.57.0)
+      jsonc-eslint-parser: 2.3.0
+      prettier: 3.1.1
+      typescript: 5.3.3
+    transitivePeerDependencies:
+      - eslint-import-resolver-node
+      - eslint-import-resolver-webpack
+      - supports-color
+    dev: true
 
   /@swc/core-darwin-arm64@1.3.96:
     resolution: {integrity: sha512-8hzgXYVd85hfPh6mJ9yrG26rhgzCmcLO0h1TIl8U31hwmTbfZLzRitFQ/kqMJNbIBCwmNH1RU2QcJnL3d7f69A==}
@@ -10908,40 +10939,4 @@ packages:
 
   /zod@3.22.4:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
-    dev: true
-
-  github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a(eslint@8.57.0)(typescript@5.3.3):
-    resolution: {tarball: https://codeload.github.com/starbeamjs/eslint-plugin/tar.gz/84091045cda3bd53d5c19293e92e8f13d6801b2a}
-    id: github.com/starbeamjs/eslint-plugin/84091045cda3bd53d5c19293e92e8f13d6801b2a
-    name: '@starbeam-dev/eslint-plugin'
-    version: 1.0.3
-    requiresBuild: true
-    peerDependencies:
-      eslint: ^8.57.0
-      typescript: '*'
-    dependencies:
-      '@types/eslint': 8.56.0
-      '@typescript-eslint/eslint-plugin': 6.15.0(@typescript-eslint/parser@6.15.0)(eslint@8.57.0)(typescript@5.3.3)
-      '@typescript-eslint/parser': 6.15.0(eslint@8.57.0)(typescript@5.3.3)
-      eslint: 8.57.0
-      eslint-config-prettier: 9.1.0(eslint@8.57.0)
-      eslint-import-resolver-typescript: 3.6.1(@typescript-eslint/parser@6.15.0)(eslint-plugin-import@2.29.1)(eslint@8.57.0)
-      eslint-plugin-comment-length: 1.7.2(eslint@8.57.0)(typescript@5.3.3)
-      eslint-plugin-eslint-comments: 3.2.0(eslint@8.57.0)
-      eslint-plugin-etc: 2.0.3(eslint@8.57.0)(typescript@5.3.3)
-      eslint-plugin-file-extension-in-import-ts: 1.0.2
-      eslint-plugin-import: 2.29.1(@typescript-eslint/parser@6.15.0)(eslint-import-resolver-typescript@3.6.1)(eslint@8.57.0)
-      eslint-plugin-json: 3.1.0
-      eslint-plugin-jsonc: 2.11.2(eslint@8.57.0)
-      eslint-plugin-prettier: 5.1.0(@types/eslint@8.56.0)(eslint-config-prettier@9.1.0)(eslint@8.57.0)(prettier@3.1.1)
-      eslint-plugin-simple-import-sort: 10.0.0(eslint@8.57.0)
-      eslint-plugin-unicorn: 48.0.1(eslint@8.57.0)
-      eslint-plugin-unused-imports: 3.0.0(@typescript-eslint/eslint-plugin@6.15.0)(eslint@8.57.0)
-      jsonc-eslint-parser: 2.3.0
-      prettier: 3.1.1
-      typescript: 5.3.3
-    transitivePeerDependencies:
-      - eslint-import-resolver-node
-      - eslint-import-resolver-webpack
-      - supports-color
     dev: true
