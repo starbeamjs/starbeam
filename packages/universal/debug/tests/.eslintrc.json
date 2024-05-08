@@ -2,6 +2,7 @@
   "root": true,
   "extends": ["plugin:@starbeam-dev/library:recommended"],
   "rules": {
-    "@typescript-eslint/prefer-readonly": "off"
+    "@typescript-eslint/prefer-readonly": "off",
+    "etc/no-commented-out-code": "off"
   }
 }

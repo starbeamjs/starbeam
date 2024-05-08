@@ -14,8 +14,8 @@ import type { IntoResourceBlueprint } from "./resource.js";
  * and returns a value.
  *
  * In the simplest case, you can simply call setup with a function with no
- * parameters. The function will run during the setup phase, and return a stable
- * result for the lifetime of the component.
+ * parameters. The function will run during the setup phase, and return a
+ * stable result for the lifetime of the component.
  *
  * You can also make use of the {@linkcode Lifecycle} to use resources, get
  * services or register code to run during the _idle_ or _layout_ phase.
@@ -26,8 +26,8 @@ export type SetupBlueprint<T> = (lifecycle: Lifecycle) => T;
  * `ReactiveBlueprint` is a function that takes a {@linkcode Lifecycle} and
  * returns an optionally reactive value. You can pass it to
  * {@linkcode useReactive} or {@linkcode setupReactive}. These functions will
- * instantiate the blueprint during the setup phase and return a stable reactive
- * value.
+ * instantiate the blueprint during the setup phase and return a stable
+ * reactive value.
  *
  * If you pass a `ReactiveBlueprint` to {@linkcode useReactive}, you must also
  * pass dependencies to {@linkcode useReactive}. If the dependencies change,

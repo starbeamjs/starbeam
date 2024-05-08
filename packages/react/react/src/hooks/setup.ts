@@ -152,8 +152,8 @@ interface ScheduledHandler {
  * Creates a {@linkcode ScheduledHandler} that will keep track of the
  * synchronization functions to run.
  *
- * This function sets up a `useEffect` to run the handlers. This `useEffect` has
- * a dependency on a `useState` that represents the set of handlers. The
+ * This function sets up a `useEffect` to run the handlers. This `useEffect`
+ * has a dependency on a `useState` that represents the set of handlers. The
  * `useState` invalidates whenever a handler is added or whenever
  * {@linkcode scheduleDep} is explicitly run.
  *

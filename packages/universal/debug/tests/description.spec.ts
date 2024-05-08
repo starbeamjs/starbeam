@@ -1,4 +1,4 @@
-import { DEBUG } from "@starbeam/debug";
+import { DEBUG }/*#__PURE__*/ from "@starbeam/debug";
 import { expect, test } from "@starbeam-workspace/test-utils";
 
 test("inferred api", () => {

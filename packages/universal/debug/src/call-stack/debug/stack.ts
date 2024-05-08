@@ -9,8 +9,8 @@ import {
   mapArray,
 } from "@starbeam/core-utils";
 import type { CallStack, StackFrame } from "@starbeam/interfaces";
-import { hasType, verified, verify } from "@starbeam/verify";
-import StackTracey from "stacktracey";
+import { hasType, verified, verify } /*#__PURE__*/ from "@starbeam/verify";
+import StackTracey /*#__PURE__*/ from "stacktracey";
 
 import { parseModule } from "./module.js";
 
@@ -33,7 +33,7 @@ export function callerStack(
       "An error created in the internals of Stack.create",
     ).stack;
 
-    verify(stack, hasType("string"));
+    verify?.(stack, hasType("string"));
     return callStack(stack)?.slice(internal + CALLER);
   }
 }

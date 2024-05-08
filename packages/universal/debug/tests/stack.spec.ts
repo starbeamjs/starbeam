@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-import { DEBUG } from "@starbeam/debug";
+import { DEBUG }/*#__PURE__*/ from "@starbeam/debug";
 import type { CallStack } from "@starbeam/interfaces";
 import { describe, expect, test } from "vitest";
 

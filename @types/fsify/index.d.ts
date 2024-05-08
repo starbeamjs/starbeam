@@ -16,8 +16,8 @@ export interface Options {
    */
   cwd?: string;
   /**
-   * A persistent fsify tree remains on the file system after the process exits.
-   * Defaults to true.
+   * A persistent fsify tree remains on the file system after the process
+   * exits. Defaults to true.
    */
   persistent?: boolean;
   /**

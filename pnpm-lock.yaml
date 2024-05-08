@@ -9,11 +9,12 @@ overrides:
   '@starbeam-dev/compile': workspace:*
   '@types/eslint': ^8.56.0
   '@types/node': ^20.10.5
-  eslint: ^8.56.0
+  eslint: ^8.57.0
   preact: 10.17.1
   typescript: ^5.3.3
   vite: ^5.0.10
   vue: 3.3.4
+  terser: ^5.31.0
 
 importers:
 
@@ -39,8 +40,8 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@types/eslint':
         specifier: ^8.56.0
         version: 8.56.0
@@ -49,43 +50,43 @@ importers:
         version: 20.10.5
       '@typescript-eslint/eslint-plugin':
         specifier: ^6.15.0
-        version: 6.15.0(@typescript-eslint/parser@6.15.0)(eslint@8.56.0)(typescript@5.3.3)
+        version: 6.15.0(@typescript-eslint/parser@6.15.0)(eslint@8.57.0)(typescript@5.3.3)
       '@typescript-eslint/parser':
         specifier: ^6.15.0
-        version: 6.15.0(eslint@8.56.0)(typescript@5.3.3)
+        version: 6.15.0(eslint@8.57.0)(typescript@5.3.3)
       '@vitest/ui':
         specifier: ^1.1.0
         version: 1.1.0(vitest@1.1.0)
       eslint:
-        specifier: ^8.56.0
-        version: 8.56.0
+        specifier: ^8.57.0
+        version: 8.57.0
       eslint-config-airbnb:
         specifier: ^19.0.4
-        version: 19.0.4(eslint-plugin-import@2.29.1)(eslint-plugin-jsx-a11y@6.8.0)(eslint-plugin-react-hooks@4.6.0)(eslint-plugin-react@7.33.2)(eslint@8.56.0)
+        version: 19.0.4(eslint-plugin-import@2.29.1)(eslint-plugin-jsx-a11y@6.8.0)(eslint-plugin-react-hooks@4.6.0)(eslint-plugin-react@7.33.2)(eslint@8.57.0)
       eslint-config-prettier:
         specifier: ^9.1.0
-        version: 9.1.0(eslint@8.56.0)
+        version: 9.1.0(eslint@8.57.0)
       eslint-import-resolver-typescript:
         specifier: ^3.6.1
-        version: 3.6.1(@typescript-eslint/parser@6.15.0)(eslint-plugin-import@2.29.1)(eslint@8.56.0)
+        version: 3.6.1(@typescript-eslint/parser@6.15.0)(eslint-plugin-import@2.29.1)(eslint@8.57.0)
       eslint-plugin-import:
         specifier: ^2.29.1
-        version: 2.29.1(@typescript-eslint/parser@6.15.0)(eslint-import-resolver-typescript@3.6.1)(eslint@8.56.0)
+        version: 2.29.1(@typescript-eslint/parser@6.15.0)(eslint-import-resolver-typescript@3.6.1)(eslint@8.57.0)
       eslint-plugin-json:
         specifier: ^3.1.0
         version: 3.1.0
       eslint-plugin-jsonc:
         specifier: ^2.11.2
-        version: 2.11.2(eslint@8.56.0)
+        version: 2.11.2(eslint@8.57.0)
       eslint-plugin-prettier:
         specifier: ^5.1.0
-        version: 5.1.0(@types/eslint@8.56.0)(eslint-config-prettier@9.1.0)(eslint@8.56.0)(prettier@3.1.1)
+        version: 5.1.0(@types/eslint@8.56.0)(eslint-config-prettier@9.1.0)(eslint@8.57.0)(prettier@3.1.1)
       eslint-plugin-simple-import-sort:
         specifier: ^10.0.0
-        version: 10.0.0(eslint@8.56.0)
+        version: 10.0.0(eslint@8.57.0)
       eslint-plugin-unused-imports:
         specifier: ^3.0.0
-        version: 3.0.0(@typescript-eslint/eslint-plugin@6.15.0)(eslint@8.56.0)
+        version: 3.0.0(@typescript-eslint/eslint-plugin@6.15.0)(eslint@8.57.0)
       esyes:
         specifier: ^1.0.2
         version: 1.0.2
@@ -129,8 +130,8 @@ importers:
   '@types/ansicolor':
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@types/node':
         specifier: ^20.10.5
         version: 20.10.5
@@ -138,8 +139,8 @@ importers:
   '@types/fsify':
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@types/node':
         specifier: ^20.10.5
         version: 20.10.5
@@ -147,8 +148,8 @@ importers:
   '@types/lines-and-columns':
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@types/node':
         specifier: ^20.10.5
         version: 20.10.5
@@ -160,8 +161,8 @@ importers:
         version: 25.0.5
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.3
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   '@types/plugin-node-resolve':
     dependencies:
@@ -170,8 +171,8 @@ importers:
         version: 15.2.3(rollup@4.4.1)
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.3
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   '@types/rollup-plugin-polyfill-node':
     dependencies:
@@ -180,14 +181,14 @@ importers:
         version: 4.4.1
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   '@types/shell-escape-tag':
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@types/node':
         specifier: ^20.10.5
         version: 20.10.5
@@ -195,8 +196,8 @@ importers:
   '@types/shell-split':
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@types/node':
         specifier: ^20.10.5
         version: 20.10.5
@@ -211,8 +212,8 @@ importers:
         version: 1.1.0(@edge-runtime/vm@3.1.7)(@types/node@20.10.5)(@vitest/ui@1.1.0)(happy-dom@12.10.3)(jsdom@23.0.1)
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/preact/preact:
     dependencies:
@@ -266,8 +267,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -297,8 +298,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       preact-render-to-string:
         specifier: ^6.2.1
         version: 6.2.1(preact@10.17.1)
@@ -343,8 +344,8 @@ importers:
         version: 10.17.1
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       preact-render-to-string:
         specifier: ^6.2.1
         version: 6.2.1(preact@10.17.1)
@@ -362,8 +363,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -402,8 +403,8 @@ importers:
         version: 10.17.1
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       preact-render-to-string:
         specifier: ^6.2.1
         version: 6.2.1(preact@10.17.1)
@@ -448,8 +449,8 @@ importers:
         version: 10.17.1
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       preact-render-to-string:
         specifier: ^6.2.1
         version: 6.2.1(preact@10.17.1)
@@ -512,8 +513,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@types/node':
         specifier: ^20.10.5
         version: 20.10.5
@@ -561,8 +562,8 @@ importers:
         version: 0.34.6(@edge-runtime/vm@3.1.7)(@vitest/ui@1.1.0)(happy-dom@12.10.3)(jsdom@22.1.0)
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/react/test-utils:
     dependencies:
@@ -601,8 +602,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@testing-library/react':
         specifier: ^14.0.0
         version: 14.0.0(react-dom@18.2.0)(react@18.2.0)
@@ -632,8 +633,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@types/react':
         specifier: ^18.2.22
         version: 18.2.22
@@ -660,8 +661,8 @@ importers:
         version: 18.2.0
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@types/react':
         specifier: ^18.2.22
         version: 18.2.22
@@ -703,8 +704,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -722,8 +723,8 @@ importers:
         version: link:../../universal
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/universal/core:
     dependencies:
@@ -735,8 +736,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -747,8 +748,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -760,8 +761,8 @@ importers:
         version: link:..
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/universal/debug:
     dependencies:
@@ -797,8 +798,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@types/node':
         specifier: ^20.10.5
         version: 20.10.5
@@ -816,8 +817,8 @@ importers:
         version: link:..
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/universal/interfaces:
     dependencies:
@@ -832,8 +833,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/universal/modifier:
     dependencies:
@@ -866,8 +867,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -894,8 +895,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -922,8 +923,8 @@ importers:
         version: link:../../shared
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/universal/renderer:
     dependencies:
@@ -950,8 +951,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -966,8 +967,8 @@ importers:
         version: link:..
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/universal/resource:
     dependencies:
@@ -997,8 +998,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -1034,8 +1035,8 @@ importers:
         version: 1.0.1
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/universal/runtime:
     dependencies:
@@ -1065,8 +1066,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.0
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -1096,8 +1097,8 @@ importers:
         version: link:../../shared
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/universal/service:
     dependencies:
@@ -1127,8 +1128,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -1164,8 +1165,8 @@ importers:
         version: link:../../shared
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/universal/shared:
     devDependencies:
@@ -1173,8 +1174,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -1201,8 +1202,8 @@ importers:
         version: 7.1.0
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/universal/tags:
     dependencies:
@@ -1223,8 +1224,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -1266,8 +1267,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -1291,8 +1292,8 @@ importers:
         version: link:..
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@starbeam-workspace/test-utils':
         specifier: workspace:^
         version: link:../../../../workspace/test-utils
@@ -1307,8 +1308,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -1320,8 +1321,8 @@ importers:
         version: link:..
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/vue/vue:
     dependencies:
@@ -1369,8 +1370,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -1403,8 +1404,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@vue/shared':
         specifier: ^3.3.4
         version: 3.3.4
@@ -1458,8 +1459,8 @@ importers:
         version: 3.3.4
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@vue/shared':
         specifier: ^3.3.4
         version: 3.3.4
@@ -1510,8 +1511,8 @@ importers:
         version: 3.3.4
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/x/headless-form:
     dependencies:
@@ -1532,8 +1533,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -1557,8 +1558,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -1579,8 +1580,8 @@ importers:
         version: link:..
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   packages/x/vanilla:
     dependencies:
@@ -1607,8 +1608,8 @@ importers:
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -1643,8 +1644,8 @@ importers:
         specifier: ^8.0.1
         version: 8.2.2
       eslint:
-        specifier: ^8.56.0
-        version: 8.56.0
+        specifier: ^8.57.0
+        version: 8.57.0
       prettier:
         specifier: ^2.8.7
         version: 2.8.8
@@ -1680,8 +1681,8 @@ importers:
         version: link:..
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   workspace/@domtree/any:
     dependencies:
@@ -1699,8 +1700,8 @@ importers:
         specifier: workspace:*
         version: link:../../dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   workspace/@domtree/browser:
     dependencies:
@@ -1712,8 +1713,8 @@ importers:
         specifier: workspace:*
         version: link:../../dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   workspace/@domtree/flavors:
     dependencies:
@@ -1731,8 +1732,8 @@ importers:
         specifier: workspace:*
         version: link:../../dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   workspace/@domtree/interface:
     devDependencies:
@@ -1740,8 +1741,8 @@ importers:
         specifier: workspace:*
         version: link:../../dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   workspace/@domtree/minimal:
     dependencies:
@@ -1753,8 +1754,8 @@ importers:
         specifier: workspace:*
         version: link:../../dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
 
   workspace/dev-compile:
     dependencies:
@@ -1785,6 +1786,9 @@ importers:
       rollup-plugin-copy:
         specifier: ^3.5.0
         version: 3.5.0
+      rollup-plugin-prettier:
+        specifier: ^4.1.1
+        version: 4.1.1(prettier@3.1.1)(rollup@4.4.1)
       rollup-plugin-ts:
         specifier: ^3.4.5
         version: 3.4.5(@swc/core@1.3.96)(@swc/helpers@0.5.3)(rollup@4.4.1)(typescript@5.3.3)
@@ -1793,8 +1797,8 @@ importers:
         version: 5.3.3
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.3
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@swc/helpers':
         specifier: ^0.5.3
         version: 0.5.3
@@ -1811,8 +1815,14 @@ importers:
         specifier: workspace:^
         version: link:../../@types/plugin-node-resolve
       eslint:
-        specifier: ^8.56.0
-        version: 8.56.0
+        specifier: ^8.57.0
+        version: 8.57.0
+
+  workspace/scripts:
+    devDependencies:
+      globby:
+        specifier: ^13.2.2
+        version: 13.2.2
 
   workspace/test-utils:
     dependencies:
@@ -1848,8 +1858,8 @@ importers:
         specifier: workspace:*
         version: link:../dev-compile
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       rollup:
         specifier: ^4.0.2
         version: 4.4.1
@@ -1870,8 +1880,8 @@ importers:
         version: 7.0.0
     devDependencies:
       '@starbeam-dev/eslint-plugin':
-        specifier: ^1.0.4
-        version: 1.0.4(eslint@8.56.0)(typescript@5.3.3)
+        specifier: ^1.0.6
+        version: 1.0.6(eslint@8.57.0)(typescript@5.3.3)
       '@types/fs-extra':
         specifier: ^11.0.2
         version: 11.0.2
@@ -2918,13 +2928,13 @@ packages:
     requiresBuild: true
     optional: true
 
-  /@eslint-community/eslint-utils@4.4.0(eslint@8.56.0):
+  /@eslint-community/eslint-utils@4.4.0(eslint@8.57.0):
     resolution: {integrity: sha512-1/sA4dwrzBAyeUoQ6oxahHKmrZvsnLCg4RfxW3ZFGGmQkSNQPFNLV9CUEFQP1x9EYXHTo5p6xdhZM1Ne9p/AfA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
-      eslint: ^8.56.0
+      eslint: ^8.57.0
     dependencies:
-      eslint: 8.56.0
+      eslint: 8.57.0
       eslint-visitor-keys: 3.4.3
     dev: true
 
@@ -2940,7 +2950,7 @@ packages:
       ajv: 6.12.6
       debug: 4.3.4
       espree: 9.6.1
-      globals: 13.22.0
+      globals: 13.24.0
       ignore: 5.2.4
       import-fresh: 3.3.0
       js-yaml: 4.1.0
@@ -2950,8 +2960,8 @@ packages:
       - supports-color
     dev: true
 
-  /@eslint/js@8.56.0:
-    resolution: {integrity: sha512-gMsVel9D7f2HLkBma9VbtzZRehRogVRfbr++f06nL2vnCGCNlzOD+/MUov/F4p8myyAHspEhVobgjpX64q5m6A==}
+  /@eslint/js@8.57.0:
+    resolution: {integrity: sha512-Ys+3g2TaW7gADOJzPt83SJtCDhMjndcDMFVQ/Tj9iA1BfJzFKD9mAUXT3OenpuPHbI6P/myECxRJrofUsDx/5g==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
 
@@ -3165,11 +3175,11 @@ packages:
     resolution: {integrity: sha512-EP9uEDZv/L5Qh9IWuMUGJRfwhXJ4h1dqKTT4/3+tY0eu7sPis7xh23j61SYUnNF4vqCQvvUXpDo9Bh/+q1zASA==}
     dev: true
 
-  /@humanwhocodes/config-array@0.11.13:
-    resolution: {integrity: sha512-JSBDMiDKSzQVngfRjOdFXgFfklaXI4K9nLF49Auh21lmBWRLIK3+xTErTWD4KU54pb6coM6ESE7Awz/FNU3zgQ==}
+  /@humanwhocodes/config-array@0.11.14:
+    resolution: {integrity: sha512-3T8LkOmg45BV5FICb15QQMsyUSWrQ8AygVfC7ZG32zOalnqrilm018ZVCw0eapXux8FtA33q8PSRSstjee3jSg==}
     engines: {node: '>=10.10.0'}
     dependencies:
-      '@humanwhocodes/object-schema': 2.0.1
+      '@humanwhocodes/object-schema': 2.0.3
       debug: 4.3.4
       minimatch: 3.1.2
     transitivePeerDependencies:
@@ -3181,8 +3191,8 @@ packages:
     engines: {node: '>=12.22'}
     dev: true
 
-  /@humanwhocodes/object-schema@2.0.1:
-    resolution: {integrity: sha512-dvuCeX5fC9dXgJn9t+X5atfmgQAzUOWqS1254Gh0m6i8wKd10ebXkfNKiRK+1GWi/yTvvLDHpoxLr0xxxeslWw==}
+  /@humanwhocodes/object-schema@2.0.3:
+    resolution: {integrity: sha512-93zYdMES/c1D69yZiKDBj0V24vqNzB/koF26KPaagAfd3P/4gUlh3Dys5ogAK+Exi9QyzlD8x/08Zt7wIKcDcA==}
     dev: true
 
   /@isaacs/cliui@8.0.2:
@@ -3913,7 +3923,7 @@ packages:
       rollup: 4.4.1
       serialize-javascript: 6.0.2
       smob: 1.4.1
-      terser: 5.26.0
+      terser: 5.31.0
     dev: false
 
   /@rollup/pluginutils@5.1.0(rollup@4.4.1):
@@ -4050,29 +4060,29 @@ packages:
   /@starbeam-dev/core@1.0.2:
     resolution: {integrity: sha512-gYY9jg8Qzr5t+VBzKsCiJ0qZ8H9v3p8cht4ipN7EW4STOEQezChFmbgfPpq2r4s8ZaKykrbIBLdMn/pNfmoRaQ==}
 
-  /@starbeam-dev/eslint-plugin@1.0.4(eslint@8.56.0)(typescript@5.3.3):
-    resolution: {integrity: sha512-ykiWbPr3js1LrIK+QgcV371mmax8wQamgwByFVfbtZsW1Suuyv4wd+SlBC17AVoBSZXrqW9kgVQ5z3dNFPWAaQ==}
+  /@starbeam-dev/eslint-plugin@1.0.6(eslint@8.57.0)(typescript@5.3.3):
+    resolution: {integrity: sha512-MBVRjkeBLv9ANKhw7Fe0jU+EIGyYwVSm0TpBp58QxsB12umIvZUuXfSVLNvB5T838IlR4FNOxfvC0tAZyk5ksw==}
     peerDependencies:
-      eslint: ^8.56.0
+      eslint: ^8.57.0
       typescript: '*'
     dependencies:
       '@types/eslint': 8.56.0
-      '@typescript-eslint/eslint-plugin': 6.15.0(@typescript-eslint/parser@6.15.0)(eslint@8.56.0)(typescript@5.3.3)
-      '@typescript-eslint/parser': 6.15.0(eslint@8.56.0)(typescript@5.3.3)
-      eslint: 8.56.0
-      eslint-config-prettier: 9.1.0(eslint@8.56.0)
-      eslint-import-resolver-typescript: 3.6.1(@typescript-eslint/parser@6.15.0)(eslint-plugin-import@2.29.1)(eslint@8.56.0)
-      eslint-plugin-comment-length: 1.7.2(eslint@8.56.0)(typescript@5.3.3)
-      eslint-plugin-eslint-comments: 3.2.0(eslint@8.56.0)
-      eslint-plugin-etc: 2.0.3(eslint@8.56.0)(typescript@5.3.3)
+      '@typescript-eslint/eslint-plugin': 6.15.0(@typescript-eslint/parser@6.15.0)(eslint@8.57.0)(typescript@5.3.3)
+      '@typescript-eslint/parser': 6.15.0(eslint@8.57.0)(typescript@5.3.3)
+      eslint: 8.57.0
+      eslint-config-prettier: 9.1.0(eslint@8.57.0)
+      eslint-import-resolver-typescript: 3.6.1(@typescript-eslint/parser@6.15.0)(eslint-plugin-import@2.29.1)(eslint@8.57.0)
+      eslint-plugin-comment-length: 1.7.2(eslint@8.57.0)(typescript@5.3.3)
+      eslint-plugin-eslint-comments: 3.2.0(eslint@8.57.0)
+      eslint-plugin-etc: 2.0.3(eslint@8.57.0)(typescript@5.3.3)
       eslint-plugin-file-extension-in-import-ts: 1.0.2
-      eslint-plugin-import: 2.29.1(@typescript-eslint/parser@6.15.0)(eslint-import-resolver-typescript@3.6.1)(eslint@8.56.0)
+      eslint-plugin-import: 2.29.1(@typescript-eslint/parser@6.15.0)(eslint-import-resolver-typescript@3.6.1)(eslint@8.57.0)
       eslint-plugin-json: 3.1.0
-      eslint-plugin-jsonc: 2.11.2(eslint@8.56.0)
-      eslint-plugin-prettier: 5.1.0(@types/eslint@8.56.0)(eslint-config-prettier@9.1.0)(eslint@8.56.0)(prettier@3.1.1)
-      eslint-plugin-simple-import-sort: 10.0.0(eslint@8.56.0)
-      eslint-plugin-unicorn: 48.0.1(eslint@8.56.0)
-      eslint-plugin-unused-imports: 3.0.0(@typescript-eslint/eslint-plugin@6.15.0)(eslint@8.56.0)
+      eslint-plugin-jsonc: 2.11.2(eslint@8.57.0)
+      eslint-plugin-prettier: 5.1.0(@types/eslint@8.56.0)(eslint-config-prettier@9.1.0)(eslint@8.57.0)(prettier@3.1.1)
+      eslint-plugin-simple-import-sort: 10.0.0(eslint@8.57.0)
+      eslint-plugin-unicorn: 48.0.1(eslint@8.57.0)
+      eslint-plugin-unused-imports: 3.0.0(@typescript-eslint/eslint-plugin@6.15.0)(eslint@8.57.0)
       jsonc-eslint-parser: 2.3.0
       prettier: 3.1.1
       typescript: 5.3.3
@@ -4399,6 +4409,13 @@ packages:
     resolution: {integrity: sha512-219LSCO9HPcoXcRTC6DbCs0FRhZgBnEMzf16RRqkT40WbkKx3mOeQuz3e2XqbfhOz/AHfbru0kzB1n1RCAsIIg==}
     dev: false
 
+  /@types/prettier@3.0.0:
+    resolution: {integrity: sha512-mFMBfMOz8QxhYVbuINtswBp9VL2b4Y0QqYHwqLz3YbgtfAcat2Dl6Y1o4e22S/OVE6Ebl9m7wWiMT2lSbAs1wA==}
+    deprecated: This is a stub types definition. prettier provides its own type definitions, so you do not need this installed.
+    dependencies:
+      prettier: 3.1.1
+    dev: false
+
   /@types/prop-types@15.7.5:
     resolution: {integrity: sha512-JCB8C6SnDoQf0cNycqd/35A7MjcnK+ZTqE7judS6o7utxUCg6imJg3QK2qzHKszlTjcj2cn+NwMB2i96ubpj7w==}
     dev: true
@@ -4452,25 +4469,25 @@ packages:
       '@types/yargs-parser': 21.0.1
     dev: true
 
-  /@typescript-eslint/eslint-plugin@6.15.0(@typescript-eslint/parser@6.15.0)(eslint@8.56.0)(typescript@5.3.3):
+  /@typescript-eslint/eslint-plugin@6.15.0(@typescript-eslint/parser@6.15.0)(eslint@8.57.0)(typescript@5.3.3):
     resolution: {integrity: sha512-j5qoikQqPccq9QoBAupOP+CBu8BaJ8BLjaXSioDISeTZkVO3ig7oSIKh3H+rEpee7xCXtWwSB4KIL5l6hWZzpg==}
     engines: {node: ^16.0.0 || >=18.0.0}
     peerDependencies:
       '@typescript-eslint/parser': ^6.0.0 || ^6.0.0-alpha
-      eslint: ^8.56.0
+      eslint: ^8.57.0
       typescript: '*'
     peerDependenciesMeta:
       typescript:
         optional: true
     dependencies:
       '@eslint-community/regexpp': 4.9.1
-      '@typescript-eslint/parser': 6.15.0(eslint@8.56.0)(typescript@5.3.3)
+      '@typescript-eslint/parser': 6.15.0(eslint@8.57.0)(typescript@5.3.3)
       '@typescript-eslint/scope-manager': 6.15.0
-      '@typescript-eslint/type-utils': 6.15.0(eslint@8.56.0)(typescript@5.3.3)
-      '@typescript-eslint/utils': 6.15.0(eslint@8.56.0)(typescript@5.3.3)
+      '@typescript-eslint/type-utils': 6.15.0(eslint@8.57.0)(typescript@5.3.3)
+      '@typescript-eslint/utils': 6.15.0(eslint@8.57.0)(typescript@5.3.3)
       '@typescript-eslint/visitor-keys': 6.15.0
       debug: 4.3.4
-      eslint: 8.56.0
+      eslint: 8.57.0
       graphemer: 1.4.0
       ignore: 5.2.4
       natural-compare: 1.4.0
@@ -4481,24 +4498,24 @@ packages:
       - supports-color
     dev: true
 
-  /@typescript-eslint/experimental-utils@5.62.0(eslint@8.56.0)(typescript@5.3.3):
+  /@typescript-eslint/experimental-utils@5.62.0(eslint@8.57.0)(typescript@5.3.3):
     resolution: {integrity: sha512-RTXpeB3eMkpoclG3ZHft6vG/Z30azNHuqY6wKPBHlVMZFuEvrtlEDe8gMqDb+SO+9hjC/pLekeSCryf9vMZlCw==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
-      eslint: ^8.56.0
+      eslint: ^8.57.0
     dependencies:
-      '@typescript-eslint/utils': 5.62.0(eslint@8.56.0)(typescript@5.3.3)
-      eslint: 8.56.0
+      '@typescript-eslint/utils': 5.62.0(eslint@8.57.0)(typescript@5.3.3)
+      eslint: 8.57.0
     transitivePeerDependencies:
       - supports-color
       - typescript
     dev: true
 
-  /@typescript-eslint/parser@6.15.0(eslint@8.56.0)(typescript@5.3.3):
+  /@typescript-eslint/parser@6.15.0(eslint@8.57.0)(typescript@5.3.3):
     resolution: {integrity: sha512-MkgKNnsjC6QwcMdlNAel24jjkEO/0hQaMDLqP4S9zq5HBAUJNQB6y+3DwLjX7b3l2b37eNAxMPLwb3/kh8VKdA==}
     engines: {node: ^16.0.0 || >=18.0.0}
     peerDependencies:
-      eslint: ^8.56.0
+      eslint: ^8.57.0
       typescript: '*'
     peerDependenciesMeta:
       typescript:
@@ -4509,7 +4526,7 @@ packages:
       '@typescript-eslint/typescript-estree': 6.15.0(typescript@5.3.3)
       '@typescript-eslint/visitor-keys': 6.15.0
       debug: 4.3.4
-      eslint: 8.56.0
+      eslint: 8.57.0
       typescript: 5.3.3
     transitivePeerDependencies:
       - supports-color
@@ -4531,20 +4548,20 @@ packages:
       '@typescript-eslint/visitor-keys': 6.15.0
     dev: true
 
-  /@typescript-eslint/type-utils@6.15.0(eslint@8.56.0)(typescript@5.3.3):
+  /@typescript-eslint/type-utils@6.15.0(eslint@8.57.0)(typescript@5.3.3):
     resolution: {integrity: sha512-CnmHKTfX6450Bo49hPg2OkIm/D/TVYV7jO1MCfPYGwf6x3GO0VU8YMO5AYMn+u3X05lRRxA4fWCz87GFQV6yVQ==}
     engines: {node: ^16.0.0 || >=18.0.0}
     peerDependencies:
-      eslint: ^8.56.0
+      eslint: ^8.57.0
       typescript: '*'
     peerDependenciesMeta:
       typescript:
         optional: true
     dependencies:
       '@typescript-eslint/typescript-estree': 6.15.0(typescript@5.3.3)
-      '@typescript-eslint/utils': 6.15.0(eslint@8.56.0)(typescript@5.3.3)
+      '@typescript-eslint/utils': 6.15.0(eslint@8.57.0)(typescript@5.3.3)
       debug: 4.3.4
-      eslint: 8.56.0
+      eslint: 8.57.0
       ts-api-utils: 1.0.3(typescript@5.3.3)
       typescript: 5.3.3
     transitivePeerDependencies:
@@ -4603,19 +4620,19 @@ packages:
       - supports-color
     dev: true
 
-  /@typescript-eslint/utils@5.62.0(eslint@8.56.0)(typescript@5.3.3):
+  /@typescript-eslint/utils@5.62.0(eslint@8.57.0)(typescript@5.3.3):
     resolution: {integrity: sha512-n8oxjeb5aIbPFEtmQxQYOLI0i9n5ySBEY/ZEHHZqKQSFnxio1rv6dthascc9dLuwrL0RC5mPCxB7vnAVGAYWAQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
-      eslint: ^8.56.0
+      eslint: ^8.57.0
     dependencies:
-      '@eslint-community/eslint-utils': 4.4.0(eslint@8.56.0)
+      '@eslint-community/eslint-utils': 4.4.0(eslint@8.57.0)
       '@types/json-schema': 7.0.13
       '@types/semver': 7.5.3
       '@typescript-eslint/scope-manager': 5.62.0
       '@typescript-eslint/types': 5.62.0
       '@typescript-eslint/typescript-estree': 5.62.0(typescript@5.3.3)
-      eslint: 8.56.0
+      eslint: 8.57.0
       eslint-scope: 5.1.1
       semver: 7.5.4
     transitivePeerDependencies:
@@ -4623,19 +4640,19 @@ packages:
       - typescript
     dev: true
 
-  /@typescript-eslint/utils@6.15.0(eslint@8.56.0)(typescript@5.3.3):
+  /@typescript-eslint/utils@6.15.0(eslint@8.57.0)(typescript@5.3.3):
     resolution: {integrity: sha512-eF82p0Wrrlt8fQSRL0bGXzK5nWPRV2dYQZdajcfzOD9+cQz9O7ugifrJxclB+xVOvWvagXfqS4Es7vpLP4augw==}
     engines: {node: ^16.0.0 || >=18.0.0}
     peerDependencies:
-      eslint: ^8.56.0
+      eslint: ^8.57.0
     dependencies:
-      '@eslint-community/eslint-utils': 4.4.0(eslint@8.56.0)
+      '@eslint-community/eslint-utils': 4.4.0(eslint@8.57.0)
       '@types/json-schema': 7.0.13
       '@types/semver': 7.5.3
       '@typescript-eslint/scope-manager': 6.15.0
       '@typescript-eslint/types': 6.15.0
       '@typescript-eslint/typescript-estree': 6.15.0(typescript@5.3.3)
-      eslint: 8.56.0
+      eslint: 8.57.0
       semver: 7.5.4
     transitivePeerDependencies:
       - supports-color
@@ -5753,6 +5770,11 @@ packages:
     resolution: {integrity: sha512-EjePK1srD3P08o2j4f0ExnylqRs5B9tJjcp9t1krH2qRi8CCdsYfwe9JgSLurFBWwq4uOlipzfk5fHNvwFKr8Q==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
 
+  /diff@5.1.0:
+    resolution: {integrity: sha512-D+mk+qE8VC/PAUrlAU34N+VfXev0ghe5ywmpqrawphmVZc1bEfn56uo9qpyGp1p4xpzOHkSW4ztBd6L7Xx4ACw==}
+    engines: {node: '>=0.3.1'}
+    dev: false
+
   /dir-glob@3.0.1:
     resolution: {integrity: sha512-WkrWp9GR4KXfKGYzOLmTuGVi1UWFfws377n9cc55/tb6DuqyF6pcQ5AbiHEshaDpY9v6oaSr2XCDidGmMwdzIA==}
     engines: {node: '>=8'}
@@ -6142,67 +6164,67 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /eslint-compat-utils@0.1.2(eslint@8.56.0):
+  /eslint-compat-utils@0.1.2(eslint@8.57.0):
     resolution: {integrity: sha512-Jia4JDldWnFNIru1Ehx1H5s9/yxiRHY/TimCuUc0jNexew3cF1gI6CYZil1ociakfWO3rRqFjl1mskBblB3RYg==}
     engines: {node: '>=12'}
     peerDependencies:
-      eslint: ^8.56.0
+      eslint: ^8.57.0
     dependencies:
-      eslint: 8.56.0
+      eslint: 8.57.0
     dev: true
 
-  /eslint-config-airbnb-base@15.0.0(eslint-plugin-import@2.29.1)(eslint@8.56.0):
+  /eslint-config-airbnb-base@15.0.0(eslint-plugin-import@2.29.1)(eslint@8.57.0):
     resolution: {integrity: sha512-xaX3z4ZZIcFLvh2oUNvcX5oEofXda7giYmuplVxoOg5A7EXJMrUyqRgR+mhDhPK8LZ4PttFOBvCYDbX3sUoUig==}
     engines: {node: ^10.12.0 || >=12.0.0}
     peerDependencies:
-      eslint: ^8.56.0
+      eslint: ^8.57.0
       eslint-plugin-import: ^2.25.2
     dependencies:
       confusing-browser-globals: 1.0.11
-      eslint: 8.56.0
-      eslint-plugin-import: 2.29.1(@typescript-eslint/parser@6.15.0)(eslint-import-resolver-typescript@3.6.1)(eslint@8.56.0)
+      eslint: 8.57.0
+      eslint-plugin-import: 2.29.1(@typescript-eslint/parser@6.15.0)(eslint-import-resolver-typescript@3.6.1)(eslint@8.57.0)
       object.assign: 4.1.4
       object.entries: 1.1.7
       semver: 6.3.1
     dev: true
 
-  /eslint-config-airbnb@19.0.4(eslint-plugin-import@2.29.1)(eslint-plugin-jsx-a11y@6.8.0)(eslint-plugin-react-hooks@4.6.0)(eslint-plugin-react@7.33.2)(eslint@8.56.0):
+  /eslint-config-airbnb@19.0.4(eslint-plugin-import@2.29.1)(eslint-plugin-jsx-a11y@6.8.0)(eslint-plugin-react-hooks@4.6.0)(eslint-plugin-react@7.33.2)(eslint@8.57.0):
     resolution: {integrity: sha512-T75QYQVQX57jiNgpF9r1KegMICE94VYwoFQyMGhrvc+lB8YF2E/M/PYDaQe1AJcWaEgqLE+ErXV1Og/+6Vyzew==}
     engines: {node: ^10.12.0 || ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
-      eslint: ^8.56.0
+      eslint: ^8.57.0
       eslint-plugin-import: ^2.25.3
       eslint-plugin-jsx-a11y: ^6.5.1
       eslint-plugin-react: ^7.28.0
       eslint-plugin-react-hooks: ^4.3.0
     dependencies:
-      eslint: 8.56.0
-      eslint-config-airbnb-base: 15.0.0(eslint-plugin-import@2.29.1)(eslint@8.56.0)
-      eslint-plugin-import: 2.29.1(@typescript-eslint/parser@6.15.0)(eslint-import-resolver-typescript@3.6.1)(eslint@8.56.0)
-      eslint-plugin-jsx-a11y: 6.8.0(eslint@8.56.0)
-      eslint-plugin-react: 7.33.2(eslint@8.56.0)
-      eslint-plugin-react-hooks: 4.6.0(eslint@8.56.0)
+      eslint: 8.57.0
+      eslint-config-airbnb-base: 15.0.0(eslint-plugin-import@2.29.1)(eslint@8.57.0)
+      eslint-plugin-import: 2.29.1(@typescript-eslint/parser@6.15.0)(eslint-import-resolver-typescript@3.6.1)(eslint@8.57.0)
+      eslint-plugin-jsx-a11y: 6.8.0(eslint@8.57.0)
+      eslint-plugin-react: 7.33.2(eslint@8.57.0)
+      eslint-plugin-react-hooks: 4.6.0(eslint@8.57.0)
       object.assign: 4.1.4
       object.entries: 1.1.7
     dev: true
 
-  /eslint-config-prettier@9.1.0(eslint@8.56.0):
+  /eslint-config-prettier@9.1.0(eslint@8.57.0):
     resolution: {integrity: sha512-NSWl5BFQWEPi1j4TjVNItzYV7dZXZ+wP6I6ZhrBGpChQhZRUaElihE9uRRkcbRnNb76UMKDF3r+WTmNcGPKsqw==}
     hasBin: true
     peerDependencies:
-      eslint: ^8.56.0
+      eslint: ^8.57.0
     dependencies:
-      eslint: 8.56.0
+      eslint: 8.57.0
     dev: true
 
-  /eslint-etc@5.2.1(eslint@8.56.0)(typescript@5.3.3):
+  /eslint-etc@5.2.1(eslint@8.57.0)(typescript@5.3.3):
     resolution: {integrity: sha512-lFJBSiIURdqQKq9xJhvSJFyPA+VeTh5xvk24e8pxVL7bwLBtGF60C/KRkLTMrvCZ6DA3kbPuYhLWY0TZMlqTsg==}
     peerDependencies:
-      eslint: ^8.56.0
+      eslint: ^8.57.0
       typescript: '*'
     dependencies:
-      '@typescript-eslint/experimental-utils': 5.62.0(eslint@8.56.0)(typescript@5.3.3)
-      eslint: 8.56.0
+      '@typescript-eslint/experimental-utils': 5.62.0(eslint@8.57.0)(typescript@5.3.3)
+      eslint: 8.57.0
       tsutils: 3.21.0(typescript@5.3.3)
       tsutils-etc: 1.4.2(tsutils@3.21.0)(typescript@5.3.3)
       typescript: 5.3.3
@@ -6220,18 +6242,18 @@ packages:
       - supports-color
     dev: true
 
-  /eslint-import-resolver-typescript@3.6.1(@typescript-eslint/parser@6.15.0)(eslint-plugin-import@2.29.1)(eslint@8.56.0):
+  /eslint-import-resolver-typescript@3.6.1(@typescript-eslint/parser@6.15.0)(eslint-plugin-import@2.29.1)(eslint@8.57.0):
     resolution: {integrity: sha512-xgdptdoi5W3niYeuQxKmzVDTATvLYqhpwmykwsh7f6HIOStGWEIL9iqZgQDF9u9OEzrRwR8no5q2VT+bjAujTg==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
-      eslint: ^8.56.0
+      eslint: ^8.57.0
       eslint-plugin-import: '*'
     dependencies:
       debug: 4.3.4
       enhanced-resolve: 5.15.0
-      eslint: 8.56.0
-      eslint-module-utils: 2.8.0(@typescript-eslint/parser@6.15.0)(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.1)(eslint@8.56.0)
-      eslint-plugin-import: 2.29.1(@typescript-eslint/parser@6.15.0)(eslint-import-resolver-typescript@3.6.1)(eslint@8.56.0)
+      eslint: 8.57.0
+      eslint-module-utils: 2.8.0(@typescript-eslint/parser@6.15.0)(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.1)(eslint@8.57.0)
+      eslint-plugin-import: 2.29.1(@typescript-eslint/parser@6.15.0)(eslint-import-resolver-typescript@3.6.1)(eslint@8.57.0)
       fast-glob: 3.3.2
       get-tsconfig: 4.7.2
       is-core-module: 2.13.1
@@ -6243,7 +6265,7 @@ packages:
       - supports-color
     dev: true
 
-  /eslint-module-utils@2.8.0(@typescript-eslint/parser@6.15.0)(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.1)(eslint@8.56.0):
+  /eslint-module-utils@2.8.0(@typescript-eslint/parser@6.15.0)(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.1)(eslint@8.57.0):
     resolution: {integrity: sha512-aWajIYfsqCKRDgUfjEXNN/JlrzauMuSEy5sbd7WXbtW3EH6A6MpwEh42c7qD+MqQo9QMJ6fWLAeIJynx0g6OAw==}
     engines: {node: '>=4'}
     peerDependencies:
@@ -6264,48 +6286,48 @@ packages:
       eslint-import-resolver-webpack:
         optional: true
     dependencies:
-      '@typescript-eslint/parser': 6.15.0(eslint@8.56.0)(typescript@5.3.3)
+      '@typescript-eslint/parser': 6.15.0(eslint@8.57.0)(typescript@5.3.3)
       debug: 3.2.7
-      eslint: 8.56.0
+      eslint: 8.57.0
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.6.1(@typescript-eslint/parser@6.15.0)(eslint-plugin-import@2.29.1)(eslint@8.56.0)
+      eslint-import-resolver-typescript: 3.6.1(@typescript-eslint/parser@6.15.0)(eslint-plugin-import@2.29.1)(eslint@8.57.0)
     transitivePeerDependencies:
       - supports-color
     dev: true
 
-  /eslint-plugin-comment-length@1.7.2(eslint@8.56.0)(typescript@5.3.3):
+  /eslint-plugin-comment-length@1.7.2(eslint@8.57.0)(typescript@5.3.3):
     resolution: {integrity: sha512-HrS2UcGp0MEZwPWJ8pDIpG0Op5gjNw1sipDkOMVzRqc3wzANLf2s6YTLMUp85nHYvcc2L/3YFIQj+7gQ9Hg1yg==}
     peerDependencies:
-      eslint: ^8.56.0
+      eslint: ^8.57.0
     dependencies:
-      '@typescript-eslint/utils': 6.15.0(eslint@8.56.0)(typescript@5.3.3)
-      eslint: 8.56.0
+      '@typescript-eslint/utils': 6.15.0(eslint@8.57.0)(typescript@5.3.3)
+      eslint: 8.57.0
     transitivePeerDependencies:
       - supports-color
       - typescript
     dev: true
 
-  /eslint-plugin-eslint-comments@3.2.0(eslint@8.56.0):
+  /eslint-plugin-eslint-comments@3.2.0(eslint@8.57.0):
     resolution: {integrity: sha512-0jkOl0hfojIHHmEHgmNdqv4fmh7300NdpA9FFpF7zaoLvB/QeXOGNLIo86oAveJFrfB1p05kC8hpEMHM8DwWVQ==}
     engines: {node: '>=6.5.0'}
     peerDependencies:
-      eslint: ^8.56.0
+      eslint: ^8.57.0
     dependencies:
       escape-string-regexp: 1.0.5
-      eslint: 8.56.0
+      eslint: 8.57.0
       ignore: 5.2.4
     dev: true
 
-  /eslint-plugin-etc@2.0.3(eslint@8.56.0)(typescript@5.3.3):
+  /eslint-plugin-etc@2.0.3(eslint@8.57.0)(typescript@5.3.3):
     resolution: {integrity: sha512-o5RS/0YwtjlGKWjhKojgmm82gV1b4NQUuwk9zqjy9/EjxNFKKYCaF+0M7DkYBn44mJ6JYFZw3Ft249dkKuR1ew==}
     peerDependencies:
-      eslint: ^8.56.0
+      eslint: ^8.57.0
       typescript: '*'
     dependencies:
       '@phenomnomnominal/tsquery': 5.0.1(typescript@5.3.3)
-      '@typescript-eslint/experimental-utils': 5.62.0(eslint@8.56.0)(typescript@5.3.3)
-      eslint: 8.56.0
-      eslint-etc: 5.2.1(eslint@8.56.0)(typescript@5.3.3)
+      '@typescript-eslint/experimental-utils': 5.62.0(eslint@8.57.0)(typescript@5.3.3)
+      eslint: 8.57.0
+      eslint-etc: 5.2.1(eslint@8.57.0)(typescript@5.3.3)
       requireindex: 1.2.0
       tslib: 2.6.2
       tsutils: 3.21.0(typescript@5.3.3)
@@ -6321,26 +6343,26 @@ packages:
       resolve: 1.22.8
     dev: true
 
-  /eslint-plugin-import@2.29.1(@typescript-eslint/parser@6.15.0)(eslint-import-resolver-typescript@3.6.1)(eslint@8.56.0):
+  /eslint-plugin-import@2.29.1(@typescript-eslint/parser@6.15.0)(eslint-import-resolver-typescript@3.6.1)(eslint@8.57.0):
     resolution: {integrity: sha512-BbPC0cuExzhiMo4Ff1BTVwHpjjv28C5R+btTOGaCRC7UEz801up0JadwkeSk5Ued6TG34uaczuVuH6qyy5YUxw==}
     engines: {node: '>=4'}
     peerDependencies:
       '@typescript-eslint/parser': '*'
-      eslint: ^8.56.0
+      eslint: ^8.57.0
     peerDependenciesMeta:
       '@typescript-eslint/parser':
         optional: true
     dependencies:
-      '@typescript-eslint/parser': 6.15.0(eslint@8.56.0)(typescript@5.3.3)
+      '@typescript-eslint/parser': 6.15.0(eslint@8.57.0)(typescript@5.3.3)
       array-includes: 3.1.7
       array.prototype.findlastindex: 1.2.3
       array.prototype.flat: 1.3.2
       array.prototype.flatmap: 1.3.2
       debug: 3.2.7
       doctrine: 2.1.0
-      eslint: 8.56.0
+      eslint: 8.57.0
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.8.0(@typescript-eslint/parser@6.15.0)(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.1)(eslint@8.56.0)
+      eslint-module-utils: 2.8.0(@typescript-eslint/parser@6.15.0)(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.1)(eslint@8.57.0)
       hasown: 2.0.0
       is-core-module: 2.13.1
       is-glob: 4.0.3
@@ -6364,26 +6386,26 @@ packages:
       vscode-json-languageservice: 4.2.1
     dev: true
 
-  /eslint-plugin-jsonc@2.11.2(eslint@8.56.0):
+  /eslint-plugin-jsonc@2.11.2(eslint@8.57.0):
     resolution: {integrity: sha512-F6A0MZhIGRBPOswzzn4tJFXXkPLiLwJaMlQwz/Qj1qx+bV5MCn79vBeJh2ynMmtqqHloi54KDCnsT/KWrcCcnQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
-      eslint: ^8.56.0
+      eslint: ^8.57.0
     dependencies:
-      '@eslint-community/eslint-utils': 4.4.0(eslint@8.56.0)
-      eslint: 8.56.0
-      eslint-compat-utils: 0.1.2(eslint@8.56.0)
+      '@eslint-community/eslint-utils': 4.4.0(eslint@8.57.0)
+      eslint: 8.57.0
+      eslint-compat-utils: 0.1.2(eslint@8.57.0)
       espree: 9.6.1
       graphemer: 1.4.0
       jsonc-eslint-parser: 2.3.0
       natural-compare: 1.4.0
     dev: true
 
-  /eslint-plugin-jsx-a11y@6.8.0(eslint@8.56.0):
+  /eslint-plugin-jsx-a11y@6.8.0(eslint@8.57.0):
     resolution: {integrity: sha512-Hdh937BS3KdwwbBaKd5+PLCOmYY6U4f2h9Z2ktwtNKvIdIEu137rjYbcb9ApSbVJfWxANNuiKTD/9tOKjK9qOA==}
     engines: {node: '>=4.0'}
     peerDependencies:
-      eslint: ^8.56.0
+      eslint: ^8.57.0
     dependencies:
       '@babel/runtime': 7.23.7
       aria-query: 5.3.0
@@ -6395,7 +6417,7 @@ packages:
       damerau-levenshtein: 1.0.8
       emoji-regex: 9.2.2
       es-iterator-helpers: 1.0.15
-      eslint: 8.56.0
+      eslint: 8.57.0
       hasown: 2.0.0
       jsx-ast-utils: 3.3.5
       language-tags: 1.0.9
@@ -6404,12 +6426,12 @@ packages:
       object.fromentries: 2.0.7
     dev: true
 
-  /eslint-plugin-prettier@5.1.0(@types/eslint@8.56.0)(eslint-config-prettier@9.1.0)(eslint@8.56.0)(prettier@3.1.1):
+  /eslint-plugin-prettier@5.1.0(@types/eslint@8.56.0)(eslint-config-prettier@9.1.0)(eslint@8.57.0)(prettier@3.1.1):
     resolution: {integrity: sha512-hQc+2zbnMeXcIkg+pKZtVa+3Yqx4WY7SMkn1PLZ4VbBEU7jJIpVn9347P8BBhTbz6ne85aXvQf30kvexcqBeWw==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
       '@types/eslint': ^8.56.0
-      eslint: ^8.56.0
+      eslint: ^8.57.0
       eslint-config-prettier: '*'
       prettier: '>=3.0.0'
     peerDependenciesMeta:
@@ -6419,34 +6441,34 @@ packages:
         optional: true
     dependencies:
       '@types/eslint': 8.56.0
-      eslint: 8.56.0
-      eslint-config-prettier: 9.1.0(eslint@8.56.0)
+      eslint: 8.57.0
+      eslint-config-prettier: 9.1.0(eslint@8.57.0)
       prettier: 3.1.1
       prettier-linter-helpers: 1.0.0
       synckit: 0.8.5
     dev: true
 
-  /eslint-plugin-react-hooks@4.6.0(eslint@8.56.0):
+  /eslint-plugin-react-hooks@4.6.0(eslint@8.57.0):
     resolution: {integrity: sha512-oFc7Itz9Qxh2x4gNHStv3BqJq54ExXmfC+a1NjAta66IAN87Wu0R/QArgIS9qKzX3dXKPI9H5crl9QchNMY9+g==}
     engines: {node: '>=10'}
     peerDependencies:
-      eslint: ^8.56.0
+      eslint: ^8.57.0
     dependencies:
-      eslint: 8.56.0
+      eslint: 8.57.0
     dev: true
 
-  /eslint-plugin-react@7.33.2(eslint@8.56.0):
+  /eslint-plugin-react@7.33.2(eslint@8.57.0):
     resolution: {integrity: sha512-73QQMKALArI8/7xGLNI/3LylrEYrlKZSb5C9+q3OtOewTnMQi5cT+aE9E41sLCmli3I9PGGmD1yiZydyo4FEPw==}
     engines: {node: '>=4'}
     peerDependencies:
-      eslint: ^8.56.0
+      eslint: ^8.57.0
     dependencies:
       array-includes: 3.1.7
       array.prototype.flatmap: 1.3.2
       array.prototype.tosorted: 1.1.2
       doctrine: 2.1.0
       es-iterator-helpers: 1.0.15
-      eslint: 8.56.0
+      eslint: 8.57.0
       estraverse: 5.3.0
       jsx-ast-utils: 3.3.5
       minimatch: 3.1.2
@@ -6460,25 +6482,25 @@ packages:
       string.prototype.matchall: 4.0.10
     dev: true
 
-  /eslint-plugin-simple-import-sort@10.0.0(eslint@8.56.0):
+  /eslint-plugin-simple-import-sort@10.0.0(eslint@8.57.0):
     resolution: {integrity: sha512-AeTvO9UCMSNzIHRkg8S6c3RPy5YEwKWSQPx3DYghLedo2ZQxowPFLGDN1AZ2evfg6r6mjBSZSLxLFsWSu3acsw==}
     peerDependencies:
-      eslint: ^8.56.0
+      eslint: ^8.57.0
     dependencies:
-      eslint: 8.56.0
+      eslint: 8.57.0
     dev: true
 
-  /eslint-plugin-unicorn@48.0.1(eslint@8.56.0):
+  /eslint-plugin-unicorn@48.0.1(eslint@8.57.0):
     resolution: {integrity: sha512-FW+4r20myG/DqFcCSzoumaddKBicIPeFnTrifon2mWIzlfyvzwyqZjqVP7m4Cqr/ZYisS2aiLghkUWaPg6vtCw==}
     engines: {node: '>=16'}
     peerDependencies:
-      eslint: ^8.56.0
+      eslint: ^8.57.0
     dependencies:
       '@babel/helper-validator-identifier': 7.22.20
-      '@eslint-community/eslint-utils': 4.4.0(eslint@8.56.0)
+      '@eslint-community/eslint-utils': 4.4.0(eslint@8.57.0)
       ci-info: 3.9.0
       clean-regexp: 1.0.0
-      eslint: 8.56.0
+      eslint: 8.57.0
       esquery: 1.5.0
       indent-string: 4.0.0
       is-builtin-module: 3.2.1
@@ -6492,18 +6514,18 @@ packages:
       strip-indent: 3.0.0
     dev: true
 
-  /eslint-plugin-unused-imports@3.0.0(@typescript-eslint/eslint-plugin@6.15.0)(eslint@8.56.0):
+  /eslint-plugin-unused-imports@3.0.0(@typescript-eslint/eslint-plugin@6.15.0)(eslint@8.57.0):
     resolution: {integrity: sha512-sduiswLJfZHeeBJ+MQaG+xYzSWdRXoSw61DpU13mzWumCkR0ufD0HmO4kdNokjrkluMHpj/7PJeN35pgbhW3kw==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
       '@typescript-eslint/eslint-plugin': '*'
-      eslint: ^8.56.0
+      eslint: ^8.57.0
     peerDependenciesMeta:
       '@typescript-eslint/eslint-plugin':
         optional: true
     dependencies:
-      '@typescript-eslint/eslint-plugin': 6.15.0(@typescript-eslint/parser@6.15.0)(eslint@8.56.0)(typescript@5.3.3)
-      eslint: 8.56.0
+      '@typescript-eslint/eslint-plugin': 6.15.0(@typescript-eslint/parser@6.15.0)(eslint@8.57.0)(typescript@5.3.3)
+      eslint: 8.57.0
       eslint-rule-composer: 0.3.0
     dev: true
 
@@ -6533,16 +6555,16 @@ packages:
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
 
-  /eslint@8.56.0:
-    resolution: {integrity: sha512-Go19xM6T9puCOWntie1/P997aXxFsOi37JIHRWI514Hc6ZnaHGKY9xFhrU65RT6CcBEzZoGG1e6Nq+DT04ZtZQ==}
+  /eslint@8.57.0:
+    resolution: {integrity: sha512-dZ6+mexnaTIbSBZWgou51U6OmzIhYM2VcNdtiTtI7qPNZm35Akpr0f6vtw3w1Kmn5PYo+tZVfh13WrhpS6oLqQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     hasBin: true
     dependencies:
-      '@eslint-community/eslint-utils': 4.4.0(eslint@8.56.0)
+      '@eslint-community/eslint-utils': 4.4.0(eslint@8.57.0)
       '@eslint-community/regexpp': 4.9.1
       '@eslint/eslintrc': 2.1.4
-      '@eslint/js': 8.56.0
-      '@humanwhocodes/config-array': 0.11.13
+      '@eslint/js': 8.57.0
+      '@humanwhocodes/config-array': 0.11.14
       '@humanwhocodes/module-importer': 1.0.1
       '@nodelib/fs.walk': 1.2.8
       '@ungap/structured-clone': 1.2.0
@@ -6561,7 +6583,7 @@ packages:
       file-entry-cache: 6.0.1
       find-up: 5.0.0
       glob-parent: 6.0.2
-      globals: 13.22.0
+      globals: 13.24.0
       graphemer: 1.4.0
       ignore: 5.2.4
       imurmurhash: 0.1.4
@@ -6732,7 +6754,7 @@ packages:
     resolution: {integrity: sha512-7Gps/XWymbLk2QLYK4NzpMOrYjMhdIxXuIvy2QBsLE6ljuodKvdkWs/cpyJJ3CVIVpH0Oi1Hvg1ovbMzLdFBBg==}
     engines: {node: ^10.12.0 || >=12.0.0}
     dependencies:
-      flat-cache: 3.0.4
+      flat-cache: 3.2.0
     dev: true
 
   /fill-range@7.0.1:
@@ -6766,11 +6788,12 @@ packages:
       path-exists: 4.0.0
     dev: true
 
-  /flat-cache@3.0.4:
-    resolution: {integrity: sha512-dm9s5Pw7Jc0GvMYbshN6zchCA9RgQlzzEZX3vylR9IqFfS8XciblUXOKfW6SiuJ0e13eDYZoZV5wdrev7P3Nwg==}
+  /flat-cache@3.2.0:
+    resolution: {integrity: sha512-CYcENa+FtcUKLmhhqyctpclsq7QF38pKjZHsGNiSQF5r4FtoKDWabFDl3hzaEQMvT1LHEysw5twgLvpYYb4vbw==}
     engines: {node: ^10.12.0 || >=12.0.0}
     dependencies:
       flatted: 3.2.9
+      keyv: 4.5.4
       rimraf: 3.0.2
     dev: true
 
@@ -6997,8 +7020,8 @@ packages:
     engines: {node: '>=4'}
     dev: true
 
-  /globals@13.22.0:
-    resolution: {integrity: sha512-H1Ddc/PbZHTDVJSnj8kWptIRSD6AM3pK+mKytuIVF4uoBV7rshFlhhvA58ceJ5wp3Er58w6zj7bykMpYXt3ETw==}
+  /globals@13.24.0:
+    resolution: {integrity: sha512-AhO5QUcj8llrbG09iWhPU2B204J1xnPeL8kQmVorSsy+Sjj1sk8gIyh6cUocGmH4L0UuhAJy+hJMRA4mgA4mFQ==}
     engines: {node: '>=8'}
     dependencies:
       type-fest: 0.20.2
@@ -7050,7 +7073,6 @@ packages:
       ignore: 5.2.4
       merge2: 1.4.1
       slash: 4.0.0
-    dev: false
 
   /globby@14.0.0:
     resolution: {integrity: sha512-/1WM/LNHRAOH9lZta77uGbq0dAEQM+XjNesWwhlERDVenqothRbnzTrL3/LrIoEPPjeUHC3vrS6TwoyxeHs7MQ==}
@@ -7787,7 +7809,6 @@ packages:
 
   /json-buffer@3.0.1:
     resolution: {integrity: sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==}
-    dev: false
 
   /json-parse-even-better-errors@2.3.1:
     resolution: {integrity: sha512-xyFwyhro/JEof6Ghe2iz2NcXoj2sloNsWr/XsERDK/oiPCfaNhl5ONfp+jQdAZRQQ0IJWNzH9zIZF7li91kh2w==}
@@ -7870,6 +7891,12 @@ packages:
     dependencies:
       json-buffer: 3.0.1
     dev: false
+
+  /keyv@4.5.4:
+    resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
+    dependencies:
+      json-buffer: 3.0.1
+    dev: true
 
   /knip@3.8.4(@types/node@20.10.5)(typescript@5.3.3):
     resolution: {integrity: sha512-pmgUD7LSe3tRf84qogBnIe8uXcfTR+bjbVwW+TrKeHLayOhpw5Xa2vSqXOQ68fMQ8lBrpp8cW+c+hsYMc2YE+w==}
@@ -7990,9 +8017,25 @@ packages:
     resolution: {integrity: sha512-/u14pXGviLaweY5JI0IUzgzF2J6Ne8INyzAZjImcryjgkZ+ebruBxy2/JaOOkTqScddcYtakjhSaeemV8lR0tA==}
     dev: true
 
+  /lodash.hasin@4.5.2:
+    resolution: {integrity: sha512-AFAitwTSq1Ka/1J9uBaVxpLBP5OI3INQvkl4wKcgIYxoA0S3aqO1QWXHR9aCcOrWtPFqP7GzlFncZfe0Jz0kNw==}
+    dev: false
+
+  /lodash.isempty@4.4.0:
+    resolution: {integrity: sha512-oKMuF3xEeqDltrGMfDxAPGIVMSSRv8tbRSODbrs4KGsRRLEhrW8N8Rd4DRgB2+621hY8A8XwwrTVhXWpxFvMzg==}
+    dev: false
+
+  /lodash.isnil@4.0.0:
+    resolution: {integrity: sha512-up2Mzq3545mwVnMhTDMdfoG1OurpA/s5t88JmQX809eH3C8491iu2sfKhTfhQtKY78oPNhiaHJUpT/dUDAAtng==}
+    dev: false
+
   /lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
     dev: true
+
+  /lodash.omitby@4.6.0:
+    resolution: {integrity: sha512-5OrRcIVR75M288p4nbI2WLAf3ndw2GD9fyNv3Bc15+WCxJDdZ4lYndSxGd7hnG6PVjiJTeJE2dHEGhIuKGicIQ==}
+    dev: false
 
   /lodash@4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
@@ -8941,7 +8984,6 @@ packages:
     resolution: {integrity: sha512-22UbSzg8luF4UuZtzgiUOfcGM8s4tjBv6dJRT7j275NXsy2jb4aJa4NNveul5x4eqlF1wuhuR2RElK71RvmVaw==}
     engines: {node: '>=14'}
     hasBin: true
-    dev: true
 
   /pretty-format@27.5.1:
     resolution: {integrity: sha512-Qb1gy5OrP5+zDf2Bvnzdl3jsTf1qXVMazbvCoKhtKqVs4/YK4ozX4gKQJJVyNe+cajNPn0KoC0MC3FUmaHWEmQ==}
@@ -9324,6 +9366,24 @@ packages:
       is-plain-object: 3.0.1
     dev: false
 
+  /rollup-plugin-prettier@4.1.1(prettier@3.1.1)(rollup@4.4.1):
+    resolution: {integrity: sha512-ugpi/EqW12yJa4NO3o4f/wt/YHwiQovVGC2jxZgxuKO9osjt4lVxVA427+itl87XmQc6089ZkpDc6OpaOZKWgQ==}
+    engines: {node: '>=6.0.0'}
+    peerDependencies:
+      prettier: ^1.0.0 || ^2.0.0 || ^3.0.0
+      rollup: ^1.0.0 || ^2.0.0 || ^3.0.0 || ^4.0.0
+    dependencies:
+      '@types/prettier': 3.0.0
+      diff: 5.1.0
+      lodash.hasin: 4.5.2
+      lodash.isempty: 4.4.0
+      lodash.isnil: 4.0.0
+      lodash.omitby: 4.6.0
+      magic-string: 0.30.5
+      prettier: 3.1.1
+      rollup: 4.4.1
+    dev: false
+
   /rollup-plugin-ts@3.4.5(@swc/core@1.3.96)(@swc/helpers@0.5.3)(rollup@4.4.1)(typescript@5.3.3):
     resolution: {integrity: sha512-9iCstRJpEZXSRQuXitlSZAzcGlrqTbJg1pE4CMbEi6xYldxVncdPyzA2I+j6vnh73wBymZckerS+Q/iEE/M3Ow==}
     engines: {node: '>=16.15.1', npm: '>=7.0.0', pnpm: '>=3.2.0', yarn: '>=1.13'}
@@ -9541,7 +9601,6 @@ packages:
   /slash@4.0.0:
     resolution: {integrity: sha512-3dOsAHXXUkQTpOYcoAxLIorMTp4gIQr5IW3iVb7A7lFIp0VHhnynm9izx6TssdrIcVIESAlVjtnO2K8bg+Coew==}
     engines: {node: '>=12'}
-    dev: false
 
   /slash@5.1.0:
     resolution: {integrity: sha512-ZA6oR3T/pEyuqwMgAKT0/hAv8oAXckzbkmR0UkUosQ+Mc4RxGoJkRmwHgHufaenlyAgE1Mxgpdcrf75y6XcnDg==}
@@ -9870,8 +9929,8 @@ packages:
       yallist: 4.0.0
     dev: true
 
-  /terser@5.26.0:
-    resolution: {integrity: sha512-dytTGoE2oHgbNV9nTzgBEPaqAWvcJNl66VZ0BkJqlvp71IjO8CxdBx/ykCNb47cLnCmCvRZ6ZR0tLkqvZCdVBQ==}
+  /terser@5.31.0:
+    resolution: {integrity: sha512-Q1JFAoUKE5IMfI4Z/lkE/E6+SwgzO+x4tq4v1AyBLRj8VSYvRO6A/rQrPg1yud4g0En9EKI1TvFRF2tQFcoUkg==}
     engines: {node: '>=10'}
     hasBin: true
     dependencies:
@@ -10407,7 +10466,7 @@ packages:
       sass: '*'
       stylus: '*'
       sugarss: '*'
-      terser: ^5.4.0
+      terser: ^5.31.0
     peerDependenciesMeta:
       '@types/node':
         optional: true

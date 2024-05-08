@@ -8,8 +8,6 @@ export function isPresent<T>(value: T): value is Exclude<T, null | undefined> {
   return value !== null && value !== undefined;
 }
 
-expected.associate(isPresent, expected.toBe("present"));
-
 export function exhaustive(_value: never, type?: string): never {
   if (type) {
     throw Error(`unexpected types left in ${type}`);
@@ -66,25 +64,11 @@ export function isObject(value: unknown): value is object {
   return typeof value === "object" && value !== null;
 }
 
-expected.associate(
-  isObject,
-  expected
-    .toBe("an object")
-    .butGot((value) => (value === null ? "null" : typeof value)),
-);
-
 export function isWeakKey(value: unknown): value is Record<string, unknown> {
   return (
     (typeof value === "object" || typeof value === "function") && value !== null
   );
 }
-
-expected.associate(
-  isWeakKey,
-  expected
-    .toBe("an object or function")
-    .butGot((value) => (value === null ? "null" : typeof value)),
-);
 
 interface HasLength<L extends number> {
   <T>(value: T[]): value is FixedArray<T, L>;
@@ -106,8 +90,6 @@ export const hasItems = isPresentArray;
 // ): value is [T, ...(readonly T[])] {
 //   return value.length > 0;
 // }
-
-expected.associate(hasItems, expected.toHave(`at least one item`));
 
 export function isNullable<In, Out extends In>(
   verifier: (value: In) => value is Out,
@@ -144,4 +126,23 @@ export function isNullable<In, Out extends In>(
   expected.associate(verify, expectation);
 
   return verify;
+}
+
+
+if (import.meta.env.DEV) {
+  expected.associate(isPresent, expected.toBe("present"));
+  expected.associate(hasItems, expected.toHave(`at least one item`));
+  expected.associate(
+    isWeakKey,
+    expected
+      .toBe("an object or function")
+      .butGot((value) => (value === null ? "null" : typeof value)),
+  );
+  expected.associate(
+    isObject,
+    expected
+      .toBe("an object")
+      .butGot((value) => (value === null ? "null" : typeof value)),
+  );
+
 }

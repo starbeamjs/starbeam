@@ -3,8 +3,11 @@ import { hasType as hasTypeDev } from "./src/assertions/types.js";
 import type { VerifyFn } from "./src/verify.js";
 import {
   expected as expectedDev,
-  verified as verifiedDev,
   verify as verifyDev
+} from "./src/verify.js";
+
+export {
+  verified
 } from "./src/verify.js";
 
 const noop: unknown = () => { };
@@ -23,13 +26,10 @@ export {
 export { type TypeOf } from "./src/assertions/types.js";
 export { type Expectation, VerificationError } from "./src/verify.js";
 
-export const expected: typeof expectedDev = import.meta.env.DEV ? expectedDev : (noop as typeof expectedDev)
+export const expected: typeof expectedDev = import.meta.env.DEV ? expectedDev : null as unknown as typeof expectedDev
 export const hasType: typeof hasTypeDev = import.meta.env.DEV ? hasTypeDev : (noop as typeof hasTypeDev)
 export const isOneOf: typeof isOneOfDev = import.meta.env.DEV ? isOneOfDev : (noop as typeof isOneOfDev)
 
 export const verify: VerifyFn = import.meta.env.DEV
   ? verifyDev
-  : (noop as VerifyFn);
-export const verified: (typeof verifiedDev)["noop"] = import.meta.env.DEV
-  ? verifiedDev
-  : (noop as typeof verifiedDev);
+  : null as unknown as VerifyFn;

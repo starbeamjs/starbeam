@@ -19,7 +19,14 @@ export function verify<Value, Narrow extends Value>(
   check: (input: Value) => input is Narrow,
   error?: Expectation<Value>,
 ): asserts value is Narrow;
-export function verify(
+export function verify(): void {
+  // eslint-disable-next-line prefer-rest-params
+  const params = [...arguments] as Parameters<typeof verifyFunc>;
+  if (import.meta.env.DEV) {
+    verifyFunc(...params) 
+  }
+}
+function verifyFunc(
   value: unknown,
   check: (input: unknown) => boolean,
   error?: Expectation<unknown>,
@@ -40,33 +47,20 @@ export function verify(
   }
 }
 
-verify.noop = (() => {
-  /** noop */
-}) as unknown as Exclude<typeof verify, "noop">;
-
-function noop(): void {
-  return;
-}
-
-verify.noop = noop as unknown as VerifyFn;
-
 export function verified<T, U extends T>(
   value: T,
   check: (input: T) => input is U,
   error?: Expectation<T>,
-): U {
-  verify(value, check, error);
-  return value;
+): U;
+
+export function verified(v: unknown): unknown {
+  if (import.meta.env.DEV) {
+    // eslint-disable-next-line prefer-rest-params
+    const [value, check, error] = [...arguments] as Parameters<typeof verified>;
+    verify(value, check, error);
+  }
+  return v;
 }
-
-verified.noop = <const T, const U extends T>(
-  value: T,
-  _check: (input: T) => input is U,
-  _error?: Expectation<T>,
-): U => {
-  return value as U;
-};
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class Expectation<In = any> {
   static create<In>(description?: string): Expectation<In> {
@@ -221,28 +215,40 @@ export function expected(description?: string): Expectation {
   return Expectation.create(description);
 }
 
-expected.as = expected;
-expected.toBe = (kind: string): Expectation => expected().toBe(kind);
-expected.toHave = (items: string): Expectation => expected().toHave(items);
-expected.when = (situation: string): Expectation => expected().when(situation);
-expected.butGot = <In>(
-  kind: string | ((input: In) => string),
-): Expectation<In> => expected().butGot(kind);
+if (import.meta.env.DEV) {
+  expected.as = expected;
+  expected.toBe = (kind: string): Expectation => expected().toBe(kind);
+  expected.toHave = (items: string): Expectation => expected().toHave(items);
+  expected.when = (situation: string): Expectation => expected().when(situation);
+  expected.butGot = <In>(
+    kind: string | ((input: In) => string),
+  ): Expectation<In> => expected().butGot(kind);
+
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+  expected.associate = <Check extends (input: In) => any, In>(
+    check: Check,
+    expectation: Expectation<In>,
+  ): Check extends infer C ? C : never => {
+    ASSOCIATED.set(check, expectation);
+    return check as Check extends infer C ? C : never;
+  };
+  expected.updated = <In, NewIn = In>(
+    check: (input: In) => boolean,
+    updater: Updater<In, NewIn>,
+  ): Expectation<NewIn> => {
+    const expectation = ASSOCIATED.get(check) ?? expected();
+
+    return expectation.update(updater);
+  };  
+}
+
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyFn = (...args: any[]) => any;
 
 // eslint-disable-next-line @typescript-eslint/consistent-generic-constructors
 const ASSOCIATED: WeakMap<AnyFn, Expectation> = new WeakMap();
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-expected.associate = <Check extends (input: In) => any, In>(
-  check: Check,
-  expectation: Expectation<In>,
-): Check extends infer C ? C : never => {
-  ASSOCIATED.set(check, expectation);
-  return check as Check extends infer C ? C : never;
-};
 
 interface Updater<In, NewIn = In> {
   description?: (description: string | undefined) => string | undefined;
@@ -253,11 +259,3 @@ interface Updater<In, NewIn = In> {
   when?: (when: string | undefined) => string | undefined;
 }
 
-expected.updated = <In, NewIn = In>(
-  check: (input: In) => boolean,
-  updater: Updater<In, NewIn>,
-): Expectation<NewIn> => {
-  const expectation = ASSOCIATED.get(check) ?? expected();
-
-  return expectation.update(updater);
-};

@@ -23,7 +23,7 @@
     "latest-version": "^7.0.0"
   },
   "devDependencies": {
-    "@starbeam-dev/eslint-plugin": "^1.0.4",
+    "@starbeam-dev/eslint-plugin": "^1.0.6",
     "@types/fs-extra": "^11.0.2"
   },
   "volta": {

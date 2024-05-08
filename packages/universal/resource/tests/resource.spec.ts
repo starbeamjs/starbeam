@@ -565,8 +565,8 @@ class ResourceWrapper<T, U> {
   };
 
   /**
-   * The `act` method takes an action definition and thoroughly tests the action
-   * by performing this sequence of steps **twice**:
+   * The `act` method takes an action definition and thoroughly tests the
+   * action by performing this sequence of steps **twice**:
    *
    * 1. Verify that the event list is empty.
    * 2. Run the action.

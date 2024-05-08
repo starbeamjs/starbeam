@@ -64,10 +64,10 @@
  *
  * ## The Solution
  *
- * The `useLifecycle` hook gives you a way to create a new instance of something
- * when the component is first instantiated, clean it up when the component is
- * unmounted, and create a brand **new** instance when the component is
- * reactivated.
+ * The `useLifecycle` hook gives you a way to create a new instance of
+ * something when the component is first instantiated, clean it up when the
+ * component is unmounted, and create a brand **new** instance when the
+ * component is reactivated.
  *
  * TL;DR It works almost the same way that per-component state in React works,
  * but gives you a fresh copy whenever React re-attaches the component.

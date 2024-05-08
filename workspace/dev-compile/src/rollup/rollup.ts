@@ -2,10 +2,11 @@ import { execSync } from 'node:child_process';
 import { join, resolve } from "node:path";
 
 import terser from '@rollup/plugin-terser';
-import type {PackageInfo} from "@starbeam-dev/core";
-import { Package,  rootAt } from "@starbeam-dev/core";
+import type { PackageInfo } from "@starbeam-dev/core";
+import { Package, rootAt } from "@starbeam-dev/core";
 import type { RollupOptions } from "rollup";
 import copy from 'rollup-plugin-copy'
+import prettier from 'rollup-plugin-prettier';
 
 import externals from "./plugins/external.js";
 import importMeta from "./plugins/import-meta.js";
@@ -63,14 +64,11 @@ function compilePackage(pkg: PackageInfo, options: CompileOptions): RollupOption
       PLUGINS.push(importMeta(mode));
     }
 
-    const deps = Object.keys(pkg.dependencies);
-
     const entries = entryPoints(pkg, mode).map((options) => ({
       ...options,
-      external: deps,
       plugins: [
         ...PLUGINS,
-        externals(pkg),
+        externals(pkg, mode),
         typescript(mode)(pkg, {
           target: "esnext",
           module: "esnext",
@@ -84,9 +82,16 @@ function compilePackage(pkg: PackageInfo, options: CompileOptions): RollupOption
             format: {
               comments: false
             },
-            // prevent any compression
-            compress: false
+            compress: {
+              dead_code: true,
+              module: true,
+              keep_fargs: false
+            },
+            mangle: false,
           }),
+          prettier({
+            parser: 'babel'
+          })
         ] : [])
       ],
     }));
@@ -117,7 +122,9 @@ function entryPoints(
   function entryPoint([exportName, ts]: [string, string]): RollupOptions {
     return {
       input: resolve(root, ts),
-      treeshake: true,
+      treeshake: {
+        moduleSideEffects: false,
+      },
       output: {
         file: filename({ root, name: exportName, mode, ext: "js" }),
         format: "esm",
@@ -125,15 +132,15 @@ function entryPoints(
         hoistTransitiveImports: false,
         exports: "auto",
       },
-      onwarn: (warning, warn) => {
-        switch (warning.code) {
-          case "CIRCULAR_DEPENDENCY":
-          case "EMPTY_BUNDLE":
-            return;
-          default:
-            warn(warning);
-        }
-      },
+      // onwarn: (warning, warn) => {
+      //   switch (warning.code) {
+      //     case "CIRCULAR_DEPENDENCY":
+      //     case "EMPTY_BUNDLE":
+      //       return;
+      //     default:
+      //       warn(warning);
+      //   }
+      // },
     };
   }
 
