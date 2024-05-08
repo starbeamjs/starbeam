@@ -73,8 +73,8 @@ type DefineSetupReactiveComponent = (
 ) => Promise<void>;
 
 /**
- * Sets up a test suite for a reactive component using `setupReactive` to create
- * subscribe to a reactive value.
+ * Sets up a test suite for a reactive component using `setupReactive` to
+ * create subscribe to a reactive value.
  *
  * Each test case has three variations, representing the three overloads of
  * `IntoReactiveBlueprint`.
@@ -105,8 +105,8 @@ export function testSetupReactive(
 }
 
 /**
- * Sets up a test suite for a reactive component using `setupReactive` to create
- * subscribe to a reactive value.
+ * Sets up a test suite for a reactive component using `setupReactive` to
+ * create subscribe to a reactive value.
  *
  * Each test case has three variations, representing the three overloads of
  * `IntoReactiveBlueprint`.
