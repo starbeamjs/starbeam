@@ -1,5 +1,6 @@
 {
   "name": "@starbeam-dev/compile",
+  "private": true,
   "type": "module",
   "version": "1.2.0",
   "description": "A rollup plugin for building packages that use starbeam-dev",
