@@ -10,10 +10,15 @@ import { readPackageJson } from "./read-package-json.js";
  * out.
  */
 export async function listPublicWorkspaces() {
-  let filePaths = await globby(["packages/**/package.json"], {
-    gitignore: true,
-    ignore: ["**/tests/**", "**/node_modules/**"],
-  });
+  let filePaths = await globby(
+    [
+      "packages/**/package.json",
+      "workspace/**/package.json",
+    ], {
+      gitignore: true,
+      ignore: ["**/tests/**", "**/node_modules/**"],
+    }
+  );
 
   // eslint-disable-next-line no-console
   console.log("filePaths", filePaths.length);
