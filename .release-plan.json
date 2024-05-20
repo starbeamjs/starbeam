@@ -1,0 +1,89 @@
+{
+  "solution": {
+    "vite-env": {
+      "oldVersion": "1.0.0"
+    },
+    "@starbeam/preact": {
+      "oldVersion": "0.8.9"
+    },
+    "@starbeam/preact-utils": {
+      "oldVersion": "0.8.9"
+    },
+    "@starbeam/react": {
+      "oldVersion": "0.8.9"
+    },
+    "@starbeam/use-strict-lifecycle": {
+      "oldVersion": "0.8.9"
+    },
+    "@starbeam/collections": {
+      "oldVersion": "0.8.9"
+    },
+    "@starbeam/core": {
+      "oldVersion": "0.8.9"
+    },
+    "@starbeam/core-utils": {
+      "oldVersion": "0.8.9"
+    },
+    "@starbeam/debug": {
+      "oldVersion": "0.8.9"
+    },
+    "@starbeam/interfaces": {
+      "oldVersion": "0.8.9"
+    },
+    "@starbeam/modifier": {
+      "oldVersion": "0.8.9"
+    },
+    "@starbeam/reactive": {
+      "oldVersion": "0.8.9"
+    },
+    "@starbeam/renderer": {
+      "oldVersion": "0.8.9"
+    },
+    "@starbeam/resource": {
+      "oldVersion": "0.0.0"
+    },
+    "@starbeam/runtime": {
+      "oldVersion": "0.8.9"
+    },
+    "@starbeam/service": {
+      "oldVersion": "0.0.0"
+    },
+    "@starbeam/shared": {
+      "oldVersion": "1.3.7"
+    },
+    "@starbeam/tags": {
+      "oldVersion": "0.0.0"
+    },
+    "@starbeam/universal": {
+      "oldVersion": "0.8.9"
+    },
+    "@starbeam/verify": {
+      "oldVersion": "0.8.9"
+    },
+    "@starbeam/vue": {
+      "oldVersion": "0.8.9"
+    },
+    "@starbeamx/store": {
+      "oldVersion": "0.8.9"
+    },
+    "@starbeamx/vanilla": {
+      "oldVersion": "0.8.9"
+    },
+    "@domtree/any": {
+      "oldVersion": "0.9.3"
+    },
+    "@domtree/browser": {
+      "oldVersion": "0.9.3"
+    },
+    "@domtree/flavors": {
+      "oldVersion": "0.9.3"
+    },
+    "@domtree/interface": {
+      "oldVersion": "0.9.3"
+    },
+    "@domtree/minimal": {
+      "oldVersion": "0.9.3"
+    }
+  },
+  "description": "## Release (2024-05-20)\n\n\n\n#### :rocket: Enhancement\n* `@starbeam-workspace/root`\n  * [#112](https://github.com/starbeamjs/starbeam/pull/112) Resource Reform ([@wycats](https://github.com/wycats))\n\n#### :bug: Bug Fix\n* `@starbeam-workspace/root`\n  * [#157](https://github.com/starbeamjs/starbeam/pull/157) Add CI check for forbidden texts ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#125](https://github.com/starbeamjs/starbeam/pull/125) domtree packages need to be published ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### :house: Internal\n* `@starbeam-workspace/root`\n  * [#160](https://github.com/starbeamjs/starbeam/pull/160) make dev-compile private ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#159](https://github.com/starbeamjs/starbeam/pull/159) include workspace packages ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#157](https://github.com/starbeamjs/starbeam/pull/157) Add CI check for forbidden texts ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#156](https://github.com/starbeamjs/starbeam/pull/156) Add dev-compile and update references to starbeam-dev/compile ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#147](https://github.com/starbeamjs/starbeam/pull/147) Use the changelog from the monorepo root in each package ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#145](https://github.com/starbeamjs/starbeam/pull/145) Update the main changelog ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#139](https://github.com/starbeamjs/starbeam/pull/139) pnpm by default doesn't publish when there are git changes, we need t… ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#138](https://github.com/starbeamjs/starbeam/pull/138) Build and publish the 'unstable' tag correctly ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#126](https://github.com/starbeamjs/starbeam/pull/126) Add positivity to the infra ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#131](https://github.com/starbeamjs/starbeam/pull/131) Change the ci.yml lint script to use turbo ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#130](https://github.com/starbeamjs/starbeam/pull/130) List failed packages as summary at end of unstable release ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#129](https://github.com/starbeamjs/starbeam/pull/129) Fix/unstable release unpublished package ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#128](https://github.com/starbeamjs/starbeam/pull/128) Fix/idempotent unstable release ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#127](https://github.com/starbeamjs/starbeam/pull/127) Do not try to publish if the package is already published ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 3\n- Jordan Hawker ([@elwayman02](https://github.com/elwayman02))\n- Yehuda Katz ([@wycats](https://github.com/wycats))\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
+}
