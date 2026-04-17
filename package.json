@@ -181,7 +181,7 @@
       "allowedVersions": {
         "@typescript-eslint/eslint-plugin": "*",
         "typescript": "*",
-        "vitest": "1.0.0-beta.1"
+        "vitest": "^1.1.0"
       }
     }
   },

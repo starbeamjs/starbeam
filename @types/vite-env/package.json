@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "vite": "^4.4.11",
-    "vitest": "^1.0.0-beta.2"
+    "vitest": "^1.1.0"
   },
   "devDependencies": {
     "@starbeam-dev/eslint-plugin": "^1.0.6"

@@ -29,10 +29,10 @@
     "@starbeam/shared": "workspace:^",
     "@starbeam/universal": "workspace:^",
     "@starbeam/verify": "workspace:^",
-    "@vitest/expect": "^1.0.0-beta.2",
-    "@vitest/runner": "^1.0.0-beta.2",
+    "@vitest/expect": "^1.1.0",
+    "@vitest/runner": "^1.1.0",
     "vite-env": "^1.0.0",
-    "vitest": "^1.0.0-beta.2"
+    "vitest": "^1.1.0"
   },
   "devDependencies": {
     "@starbeam-dev/compile": "workspace:*",
