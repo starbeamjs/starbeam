@@ -18,7 +18,18 @@ export default (): RollupPlugin => {
       const path = removeTrailing(source, "?inline");
 
       if (path) {
-        const resolved = await this.resolve(path, importer, options);
+        // Rollup's resolve() parameter type treats optional properties
+        // strictly (no `| undefined`), so filter out any keys whose value
+        // is undefined before passing through.
+        const forwardOptions: Record<string, unknown> = {};
+        for (const [key, value] of Object.entries(options)) {
+          if (value !== undefined) forwardOptions[key] = value;
+        }
+        const resolved = await this.resolve(
+          path,
+          importer,
+          forwardOptions as Parameters<typeof this.resolve>[2],
+        );
 
         if (resolved && !resolved.external) {
           await this.load(resolved);

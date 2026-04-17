@@ -13,7 +13,6 @@ import type {
   Sync,
 } from "@starbeam/resource";
 import type { Reactive } from "@starbeam/universal";
-// eslint-disable-next-line file-extension-in-import-ts/file-extension-in-import-ts -- @todo
 import { useMemo } from "preact/hooks";
 
 import { MANAGER } from "./renderer.js";

@@ -18,7 +18,6 @@ import type {
   VNode,
 } from "preact";
 import { createElement, Fragment, h } from "preact";
-// eslint-disable-next-line file-extension-in-import-ts/file-extension-in-import-ts -- @todo
 import { act } from "preact/test-utils";
 import { renderToString } from "preact-render-to-string";
 

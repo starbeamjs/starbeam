@@ -3,7 +3,6 @@ import { getByRole, getByText } from "@testing-library/dom";
 import * as testing from "@testing-library/preact";
 import type { Attributes, ComponentChildren, VNode } from "preact";
 import { createElement, Fragment, h } from "preact";
-// eslint-disable-next-line file-extension-in-import-ts/file-extension-in-import-ts -- @todo
 import { act } from "preact/test-utils";
 import { renderToString } from "preact-render-to-string";
 import { expect } from "vitest";

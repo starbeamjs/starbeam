@@ -70,8 +70,8 @@ importers:
         specifier: ^2.29.1
         version: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
       eslint-plugin-json:
-        specifier: ^3.1.0
-        version: 3.1.0
+        specifier: ^4.0.1
+        version: 4.0.1
       eslint-plugin-jsonc:
         specifier: ^2.11.2
         version: 2.21.1(eslint@8.57.1)
@@ -4471,10 +4471,6 @@ packages:
     peerDependenciesMeta:
       '@typescript-eslint/parser':
         optional: true
-
-  eslint-plugin-json@3.1.0:
-    resolution: {integrity: sha512-MrlG2ynFEHe7wDGwbUuFPsaT2b1uhuEFhJ+W1f1u+1C2EkXmTYJp4B1aAdQQ8M+CC3t//N/oRKiIVw14L2HR1g==}
-    engines: {node: '>=12.0'}
 
   eslint-plugin-json@4.0.1:
     resolution: {integrity: sha512-3An5ISV5dq/kHfXdNyY5TUe2ONC3yXFSkLX2gu+W8xAhKhfvrRvkSAeKXCxZqZ0KJLX15ojBuLPyj+UikQMkOA==}
@@ -10032,11 +10028,6 @@ snapshots:
       - eslint-import-resolver-typescript
       - eslint-import-resolver-webpack
       - supports-color
-
-  eslint-plugin-json@3.1.0:
-    dependencies:
-      lodash: 4.18.1
-      vscode-json-languageservice: 4.2.1
 
   eslint-plugin-json@4.0.1:
     dependencies:
