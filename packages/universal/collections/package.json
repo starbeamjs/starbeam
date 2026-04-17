@@ -39,12 +39,12 @@
     "@starbeam/tags": "workspace:^",
     "@starbeam/universal": "workspace:^",
     "@starbeam/verify": "workspace:^",
-    "@swc/helpers": "^0.5.3"
+    "@swc/helpers": "^0.5.21"
   },
   "devDependencies": {
     "@starbeam-dev/compile": "workspace:*",
-    "@starbeam-dev/eslint-plugin": "^1.0.6",
-    "rollup": "^4.0.2"
+    "@starbeam-dev/eslint-plugin": "^1.1.1",
+    "rollup": "^4.60.1"
   },
   "files": [
     "dist",

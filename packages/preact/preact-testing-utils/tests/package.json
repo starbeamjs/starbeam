@@ -18,14 +18,14 @@
     "@starbeam/universal": "workspace:^",
     "@starbeam-workspace/preact-testing-utils": "workspace:^",
     "@starbeam-workspace/test-utils": "workspace:^",
-    "@testing-library/dom": "^9.2.0",
-    "@testing-library/preact": "^3.2.3",
+    "@testing-library/dom": "^9.3.4",
+    "@testing-library/preact": "^3.2.4",
     "htm": "^3.1.1",
     "jsdom": "^22.1.0",
-    "preact": "*"
+    "preact": "10.17.1"
   },
   "devDependencies": {
-    "@starbeam-dev/eslint-plugin": "^1.0.6",
-    "preact-render-to-string": "^6.2.1"
+    "@starbeam-dev/eslint-plugin": "^1.1.1",
+    "preact-render-to-string": "^6.6.7"
   }
 }

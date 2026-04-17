@@ -44,13 +44,13 @@
     "@starbeam/verify": "workspace:^",
     "buffer": "^6.0.3",
     "inspect-utils": "^1.0.1",
-    "stacktracey": "^2.1.8"
+    "stacktracey": "^2.2.0"
   },
   "devDependencies": {
     "@starbeam-dev/compile": "workspace:*",
-    "@starbeam-dev/eslint-plugin": "^1.0.6",
+    "@starbeam-dev/eslint-plugin": "^1.1.1",
     "@types/node": "^22.19.17",
-    "rollup": "^4.0.2"
+    "rollup": "^4.60.1"
   },
   "files": [
     "dist",

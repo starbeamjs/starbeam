@@ -20,14 +20,14 @@
     "@starbeam/vue": "workspace:^",
     "@starbeam-workspace/test-utils": "workspace:^",
     "@starbeam-workspace/vue-testing-utils": "workspace:^",
-    "@testing-library/dom": "^9.2.0",
+    "@testing-library/dom": "^9.3.4",
     "@testing-library/vue": "^7.0.0",
-    "@vue/test-utils": "^2.4.1",
+    "@vue/test-utils": "^2.4.6",
     "jsdom": "^22.1.0",
-    "vue": ">=3.0.0"
+    "vue": "3.3.4"
   },
   "devDependencies": {
-    "@starbeam-dev/eslint-plugin": "^1.0.6",
+    "@starbeam-dev/eslint-plugin": "^1.1.1",
     "vue": "^3.3.4"
   }
 }
