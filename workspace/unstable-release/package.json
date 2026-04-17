@@ -17,10 +17,10 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "execa": "^8.0.1",
+    "execa": "^9.6.1",
     "fs-extra": "^11.3.4",
-    "globby": "^13.2.2",
-    "latest-version": "^7.0.0"
+    "globby": "^16.2.0",
+    "latest-version": "^9.0.0"
   },
   "devDependencies": {
     "@starbeam-dev/eslint-plugin": "^1.1.1",

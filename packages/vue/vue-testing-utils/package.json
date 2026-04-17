@@ -25,8 +25,8 @@
     "@starbeam/shared": "workspace:^",
     "@starbeam/verify": "workspace:^",
     "@starbeam-workspace/test-utils": "workspace:^",
-    "@testing-library/dom": "^9.3.4",
-    "@testing-library/vue": "^7.0.0"
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/vue": "^8.1.0"
   },
   "devDependencies": {
     "@starbeam-dev/compile": "workspace:*",

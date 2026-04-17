@@ -3,6 +3,6 @@
   "name": "@starbeam-workspace/scripts",
   "type": "module",
   "devDependencies": {
-    "globby": "^13.2.2"
+    "globby": "^16.2.0"
   }
 }
