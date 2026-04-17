@@ -107,7 +107,6 @@
   "devDependencies": {
     "@edge-runtime/vm": "^3.1.7",
     "@esbuild-kit/esm-loader": "^2.6.5",
-    "@nrr/pnpm-duplicate-cli": "^0.0.1",
     "@starbeam-dev/compile": "workspace:*",
     "@starbeam-dev/core": "^1.0.2",
     "@starbeam-dev/eslint-plugin": "^1.0.6",
@@ -151,8 +150,16 @@
     "notes": {
       "overrides": {
         "rollup": "postcss plugin brings in an old version of rollup, so we need to override it here, otherwise type checking fails"
+      },
+      "onlyBuiltDependencies": {
+        "reason": "pnpm 10 blocks postinstall/prepare lifecycle scripts by default. Only packages listed here are allowed to run them."
       }
     },
+    "onlyBuiltDependencies": [
+      "@swc/core",
+      "esbuild",
+      "unrs-resolver"
+    ],
     "overrides": {
       "@rollup/pluginutils": "latest",
       "@starbeam-dev/compile": "workspace:*",
@@ -178,6 +185,7 @@
       }
     }
   },
+  "packageManager": "pnpm@10.33.0",
   "prettier": {},
   "repository": {
     "type": "git",
@@ -185,6 +193,6 @@
   },
   "volta": {
     "node": "20.8.0",
-    "pnpm": "8.10.5"
+    "pnpm": "10.33.0"
   }
 }
