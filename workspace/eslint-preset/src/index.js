@@ -12,7 +12,7 @@ import eslintCommentsPlugin from "@eslint-community/eslint-plugin-eslint-comment
 import js from "@eslint/js";
 import prettierConfig from "eslint-config-prettier";
 import commentLengthPlugin from "eslint-plugin-comment-length";
-import importPlugin from "eslint-plugin-import";
+import { importX as importPlugin } from "eslint-plugin-import-x";
 import jsoncPlugin from "eslint-plugin-jsonc";
 import prettierPlugin from "eslint-plugin-prettier";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
@@ -36,7 +36,7 @@ const ALL_CODE_FILES = [...DEFAULT_TS_FILES, ...DEFAULT_JS_FILES];
  */
 const CODE_PLUGINS = {
   "@typescript-eslint": tseslint.plugin,
-  import: importPlugin,
+  "import-x": importPlugin,
   "simple-import-sort": simpleImportSort,
   "unused-imports": unusedImportsPlugin,
   unicorn: unicornPlugin,
@@ -46,10 +46,10 @@ const CODE_PLUGINS = {
 };
 
 const IMPORT_SETTINGS = {
-  "import/resolver": {
+  "import-x/resolver": {
     typescript: { alwaysTryTypes: true },
   },
-  "import/ignore": ["\\.js\\?script"],
+  "import-x/ignore": ["\\.js\\?script"],
 };
 
 /**
@@ -200,7 +200,7 @@ export function esm(opts = {}) {
             argsIgnorePattern: "^_",
           },
         ],
-        "import/no-relative-packages": "error",
+        "import-x/no-relative-packages": "error",
       },
     },
   ];

@@ -60,7 +60,7 @@ export function buildTypedRules() {
       "no-dupe-class-members",
       "no-constant-condition",
       "no-inner-declarations",
-      "import/namespace",
+      "import-x/namespace",
     ],
     typed: [
       "no-invalid-void-type",
@@ -159,12 +159,12 @@ export const BASE_NON_TYPED_RULES = {
       argsIgnorePattern: "^_",
     },
   ],
-  "import/no-unresolved": "off",
-  "import/no-relative-packages": "error",
-  "import/first": "error",
-  "import/newline-after-import": "error",
-  "import/consistent-type-specifier-style": ["error", "prefer-top-level"],
-  "import/no-duplicates": "error",
+  "import-x/no-unresolved": "off",
+  "import-x/no-relative-packages": "error",
+  "import-x/first": "error",
+  "import-x/newline-after-import": "error",
+  "import-x/consistent-type-specifier-style": ["error", "prefer-top-level"],
+  "import-x/no-duplicates": "error",
   "unicorn/prefer-node-protocol": "error",
 };
 

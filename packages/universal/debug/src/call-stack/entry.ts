@@ -44,24 +44,17 @@ export class EntryPoints {
 
     let caller: CallStack | undefined;
     let description: EntryPointDescriptionArg | undefined;
-    let force = false;
+    const force = false;
 
     if (typeof options === "string") {
       caller = callerStack(ABSTRACTION_FRAME);
       description = ["label", options];
-      force = false;
     } else if (Array.isArray(options)) {
       caller = callerStack(ABSTRACTION_FRAME);
       description = options;
-      force = false;
-    } else if (options === undefined) {
-      caller = callerStack(ABSTRACTION_FRAME);
-      description = ["label", getFirst(caller?.frames)?.action ?? "unknown"];
-      force = false;
     } else {
       caller = callerStack(ABSTRACTION_FRAME);
       description = ["label", getFirst(caller?.frames)?.action ?? "unknown"];
-      force = false;
     }
 
     ENTRY_POINTS.mark(caller, description, force);

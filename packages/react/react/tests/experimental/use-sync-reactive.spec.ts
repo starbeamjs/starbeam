@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers -- test literals */
-/* eslint-disable import/no-relative-packages -- experimental adapter intentionally not exported */
+/* eslint-disable import-x/no-relative-packages -- experimental adapter intentionally not exported */
 // @vitest-environment jsdom
 
 import { Cell, Formula } from "@starbeam/universal";

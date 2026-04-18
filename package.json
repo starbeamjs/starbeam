@@ -113,7 +113,7 @@
     "@starbeam-workspace/eslint-preset": "workspace:*",
     "@types/node": "^22.19.17",
     "@vitest/ui": "^3.2.4",
-    "eslint": "^9.39.4",
+    "eslint": "^10.2.1",
     "esyes": "^1.0.3",
     "fast-glob": "^3.3.3",
     "happy-dom": "^20.9.0",
@@ -168,7 +168,7 @@
         "vue"
       ],
       "allowedVersions": {
-        "eslint": "^9.39.4",
+        "eslint": "^10.2.1",
         "typescript": "*",
         "vitest": "^3.2.4"
       }

@@ -73,6 +73,11 @@ export default [
   // preset but `--max-warnings 0` in per-package test:lint scripts makes
   // them fail. projectService now surfaces these warnings where the old
   // setup didn't.
+  //
+  // `no-useless-assignment` (ESLint 10 recommended) also gets disabled in
+  // tests: the `x = initial; ...; expect(x).toBe(y); x = initial;` pattern
+  // is common for reset-between-assertions and is only "useless" from a
+  // dataflow perspective.
   {
     name: "@starbeam/overrides:tests-unsafe",
     files: ["**/tests/**/*.ts", "**/tests/**/*.tsx"],
@@ -83,6 +88,7 @@ export default [
       "@typescript-eslint/no-unsafe-member-access": "off",
       "@typescript-eslint/no-unsafe-return": "off",
       "@typescript-eslint/no-unsafe-declaration-merging": "off",
+      "no-useless-assignment": "off",
     },
   },
 ];
