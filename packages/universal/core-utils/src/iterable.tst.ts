@@ -7,19 +7,19 @@ describe("type checks", () => {
   describe("reverse", () => {
     test("PresentArray", () => {
       const array = ["a", "b", "c"] as const;
-      expect(reverse(array)).type.toEqual<PresentArray<"b" | "a" | "c">>();
+      expect(reverse(array)).type.toBe<PresentArray<"b" | "a" | "c">>();
     });
 
     test("Set", () => {
       const set = new Set(["a", "b", "c"]);
-      expect(reverse(set)).type.toEqual<string[]>();
+      expect(reverse(set)).type.toBe<string[]>();
     });
   });
 
   describe("iterableHasItems", () => {
     test("PresentArray", () => {
       const array = ["a", "b", "c"] as const;
-      expect(iterableHasItems(array)).type.toEqual<true>();
+      expect(iterableHasItems(array)).type.toBe<true>();
     });
   });
 });
