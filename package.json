@@ -180,7 +180,7 @@
     "url": "git@github.com:starbeamjs/starbeam.git"
   },
   "volta": {
-    "node": "22.11.0",
+    "node": "22.22.2",
     "pnpm": "10.33.0"
   }
 }
