@@ -214,6 +214,25 @@ export class ReactiveMap<K, V> implements Map<K, V> {
     return entry.get();
   }
 
+  getOrInsert(key: K, defaultValue: V): V {
+    const entry = this.#entry(key);
+    if (entry.isPresent()) {
+      return entry.get() as V;
+    }
+    this.set(key, defaultValue);
+    return defaultValue;
+  }
+
+  getOrInsertComputed(key: K, callback: (key: K) => V): V {
+    const entry = this.#entry(key);
+    if (entry.isPresent()) {
+      return entry.get() as V;
+    }
+    const value = callback(key);
+    this.set(key, value);
+    return value;
+  }
+
   has(key: K): boolean {
     return this.#entry(key).isPresent();
   }
