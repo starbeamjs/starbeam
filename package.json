@@ -99,7 +99,8 @@
     "test:workspace:prod": "PROD=1 DEV= vitest --pool forks --run",
     "test:workspace:specs": "vitest --pool forks --run",
     "test:workspace:types": "tsc -b",
-    "vitest": "vitest --pool forks"
+    "vitest": "vitest --pool forks",
+    "sort-deps": "node workspace/scripts/sort-package-json-deps.mjs"
   },
   "dependencies": {
     "@starbeam/core-utils": "workspace:^"
