@@ -132,7 +132,7 @@
     "knip": "^6.4.1",
     "node-gyp": "^12.2.0",
     "prettier": "^3.8.3",
-    "release-plan": "^0.6.1",
+    "release-plan": "^0.18.0",
     "tstyche": "1.0.0-beta.6",
     "turbo": "^2.9.6",
     "typescript": "^5.9.3",
