@@ -147,8 +147,8 @@ importers:
   packages/preact/preact:
     dependencies:
       '@preact/signals':
-        specifier: ^1.3.4
-        version: 1.3.4(preact@10.29.1)
+        specifier: ^2.9.0
+        version: 2.9.0(preact@10.29.1)
       '@starbeam/core-utils':
         specifier: workspace:^
         version: link:../../universal/core-utils
@@ -2987,8 +2987,8 @@ packages:
   '@preact/signals-core@1.14.1':
     resolution: {integrity: sha512-vxPpfXqrwUe9lpjqfYNjAF/0RF/eFGeLgdJzdmIIZjpOnTmGmAB4BjWone562mJGMRP4frU6iZ6ei3PDsu52Ng==}
 
-  '@preact/signals@1.3.4':
-    resolution: {integrity: sha512-TPMkStdT0QpSc8FpB63aOwXoSiZyIrPsP9Uj347KopdS6olZdAYeeird/5FZv/M1Yc1ge5qstub2o8VDbvkT4g==}
+  '@preact/signals@2.9.0':
+    resolution: {integrity: sha512-hYrY0KyUqkDgOl1qba/JGn6y81pXnurn21PMaxfcMwdncdZ3M/oVdmpTvEnsGjh48dIwDVc7bjWHqIsngSjYug==}
     peerDependencies:
       preact: 10.29.1
 
@@ -7706,7 +7706,7 @@ snapshots:
 
   '@preact/signals-core@1.14.1': {}
 
-  '@preact/signals@1.3.4(preact@10.29.1)':
+  '@preact/signals@2.9.0(preact@10.29.1)':
     dependencies:
       '@preact/signals-core': 1.14.1
       preact: 10.29.1
