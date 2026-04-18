@@ -112,7 +112,7 @@
     "@starbeam-dev/core": "^1.0.2",
     "@starbeam-workspace/eslint-preset": "workspace:*",
     "@types/node": "^22.19.17",
-    "@vitest/ui": "^3.2.4",
+    "@vitest/ui": "^4.1.4",
     "eslint": "^10.2.1",
     "esyes": "^1.0.3",
     "fast-glob": "^3.3.3",
@@ -125,8 +125,8 @@
     "tstyche": "1.0.0-beta.6",
     "turbo": "^2.9.6",
     "typescript": "^6.0.3",
-    "vite": "^5.4.21",
-    "vitest": "^3.2.4"
+    "vite": "^8.0.8",
+    "vitest": "^4.1.4"
   },
   "nodemonConfig": {
     "watch": [
@@ -170,7 +170,7 @@
       "allowedVersions": {
         "eslint": "^10.2.1",
         "typescript": "*",
-        "vitest": "^3.2.4"
+        "vitest": "^4.1.4"
       }
     }
   },
