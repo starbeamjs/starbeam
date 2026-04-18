@@ -1,4 +1,4 @@
-import type { MutableRefObject } from "react";
+import type { RefObject } from "react";
 import { useRef } from "react";
 
 import { useLifecycle } from "./lifecycle.js";
@@ -23,14 +23,14 @@ export interface Ref<T> {
  */
 export function useInitializedRef<T>(
   initial: () => T,
-): [ref: MutableRefObject<T>, isUpdate: boolean] {
+): [ref: RefObject<T>, isUpdate: boolean] {
   const ref = useRef(UNINITIALIZED as T | UNINITIALIZED);
 
   if (ref.current === UNINITIALIZED) {
     ref.current = initial();
-    return [ref as MutableRefObject<T>, false];
+    return [ref as RefObject<T>, false];
   } else {
-    return [ref as MutableRefObject<T>, true];
+    return [ref as RefObject<T>, true];
   }
 }
 
