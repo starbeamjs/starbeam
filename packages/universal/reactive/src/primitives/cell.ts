@@ -44,7 +44,7 @@ export function Static<T>(
 
 export function Cell<T>(
   value: T,
-  options?: CellOptions<T> | string | Description | undefined,
+  options?: CellOptions<T> | string | Description,
 ): Cell<T> {
   const { description, equals = Object.is } = toCellOptions(options);
   const desc = getDebug()?.Desc("cell", description);
