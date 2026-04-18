@@ -15,11 +15,11 @@
     "@starbeam/debug": "workspace:^",
     "@starbeam/use-strict-lifecycle": "workspace:^",
     "@starbeam-workspace/react-test-utils": "workspace:^",
-    "react": "18.2.0"
+    "react": "^19.2.5"
   },
   "devDependencies": {
     "@starbeam-dev/eslint-plugin": "^1.1.1",
-    "@types/react": "^18.3.28",
+    "@types/react": "^19.2.14",
     "jsdom": "^26.1.0"
   }
 }
