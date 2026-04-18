@@ -1,0 +1,38 @@
+{
+  "private": true,
+  "name": "@starbeam-workspace/eslint-preset",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Flat-config ESLint preset for the Starbeam monorepo. Vendored from @starbeam-dev/eslint-plugin@1.1.1.",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "starbeam": {
+    "type": "library:build"
+  },
+  "scripts": {},
+  "dependencies": {
+    "@eslint/js": "^9.39.4",
+    "@eslint-community/eslint-plugin-eslint-comments": "^4.7.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-comment-length": "^2.3.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jsonc": "^3.0.0",
+    "eslint-plugin-prettier": "^5.5.5",
+    "eslint-plugin-simple-import-sort": "^13.0.0",
+    "eslint-plugin-unicorn": "^64.0.0",
+    "eslint-plugin-unused-imports": "^4.4.1",
+    "globals": "^16.0.0",
+    "jsonc-eslint-parser": "^2.4.0",
+    "typescript-eslint": "^8.47.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.4",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "eslint": "^9.0.0"
+  }
+}
