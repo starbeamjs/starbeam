@@ -1,16 +1,17 @@
 // @vitest-environment jsdom
 
-import type {
-  FunctionComponent,
-  ReactElement,
-  ReactHTML,
-  ReactNode,
-} from "react";
+import type { JSX, FunctionComponent, ReactElement, ReactNode } from "react";
 import { createElement, Fragment, isValidElement } from "react";
 
-type ReactProxyFunction<E extends keyof ReactHTML> = ReactHTML[E];
+// React 19 removed `ReactHTML`; use `JSX.IntrinsicElements` (now scoped to the
+// `react` module) to enumerate HTML tag names and their prop shapes.
+type IntrinsicProps<E extends keyof JSX.IntrinsicElements> =
+  JSX.IntrinsicElements[E];
 
-type HtmlProxyFunction<E extends keyof ReactHTML> = ReactProxyFunction<E> &
+type HtmlProxyFunction<E extends keyof JSX.IntrinsicElements> = ((
+  props: IntrinsicProps<E>,
+  ...children: ReactNode[]
+) => ReactElement) &
   ((...children: ReactNode[]) => ReactElement);
 
 // ReactElement | ReactFragment | ReactPortal | boolean | null | string | null
@@ -36,7 +37,7 @@ function isReactNode(value: unknown): value is ReactNode {
 }
 
 type HtmlProxy = {
-  [P in keyof ReactHTML]: HtmlProxyFunction<P>;
+  [P in keyof JSX.IntrinsicElements]: HtmlProxyFunction<P>;
 };
 
 function render<P>(
