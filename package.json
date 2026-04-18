@@ -155,7 +155,7 @@
       "@starbeam-dev/compile": "workspace:*",
       "@types/node": "$@types/node",
       "eslint": "$eslint",
-      "preact": "10.17.1",
+      "preact": "10.29.1",
       "terser": "^5.31.0",
       "typescript": "$typescript",
       "vite": "$vite",
