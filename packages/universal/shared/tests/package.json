@@ -1,1 +1,25 @@
-{"private":true,"name":"@starbeam-tests/shared","type":"module","version":"1.0.0","starbeam":{"source":"tsx","type":"tests"},"scripts":{"test:lint":"eslint . --max-warnings 0","test:types":"tsc -b"},"dependencies":{"@starbeam/shared":"workspace:^","@starbeam-workspace/test-utils":"workspace:^","@types/stack-utils":"^2.0.3","@vitest/utils":"^1.6.1","stack-utils":"^2.0.6","strip-ansi":"^7.2.0"},"devDependencies":{"@starbeam-dev/eslint-plugin":"^1.1.1"}}
+{
+  "private": true,
+  "name": "@starbeam-tests/shared",
+  "type": "module",
+  "version": "1.0.0",
+  "starbeam": {
+    "source": "tsx",
+    "type": "tests"
+  },
+  "scripts": {
+    "test:lint": "eslint . --max-warnings 0",
+    "test:types": "tsc -b"
+  },
+  "dependencies": {
+    "@starbeam/shared": "workspace:^",
+    "@starbeam-workspace/test-utils": "workspace:^",
+    "@types/stack-utils": "^2.0.3",
+    "@vitest/utils": "^1.6.1",
+    "stack-utils": "^2.0.6",
+    "strip-ansi": "^7.2.0"
+  },
+  "devDependencies": {
+    "@starbeam-dev/eslint-plugin": "^1.1.1"
+  }
+}

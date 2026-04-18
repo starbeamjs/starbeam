@@ -22,7 +22,7 @@
     "@starbeam-workspace/test-utils": "workspace:^",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/preact": "^3.2.4",
-    "jsdom": "^22.1.0",
+    "jsdom": "^26.1.0",
     "preact": "10.17.1"
   },
   "devDependencies": {
