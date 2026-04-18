@@ -1,8 +1,5 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  // Additive to package.json and turbo.json
-  //
-  // https://turbo.build/repo/docs/core-concepts/caching/file-inputs#specifying-additional-inputs
   "globalDependencies": [
     ".github/workflows/ci.yml",
     ".npmrc",
@@ -11,18 +8,29 @@
     "pnpm-lock.yaml",
     "pnpm-workspace.yaml",
     "patches",
-    "vitest.config.ts",
-    "vitest.workspace.ts",
-    "tsconfig.json",
-    "tsconfig.root.json"
+    "vitest.config.mts",
+    "vitest.workspace.mts",
+    "tsconfig.json"
   ],
-  "pipeline": {
+  "globalEnv": [
+    "STARBEAM_TRACE",
+    "PROD",
+    "DEV",
+    "NODE_ENV"
+  ],
+  "tasks": {
     "build": {
-      "outputs": ["dist"],
-      "dependsOn": ["^build"]
+      "outputs": [
+        "dist/**"
+      ],
+      "dependsOn": [
+        "^build"
+      ]
     },
     "lint": {
-      "dependsOn": ["test:lint"],
+      "dependsOn": [
+        "test:lint"
+      ],
       "outputs": []
     },
     "test:lint": {
@@ -32,7 +40,9 @@
       "outputs": []
     },
     "typecheck": {
-      "dependsOn": ["test:types"],
+      "dependsOn": [
+        "test:types"
+      ],
       "outputs": []
     }
   }
