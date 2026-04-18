@@ -15,7 +15,7 @@
     "@starbeam/shared": "workspace:^",
     "@starbeam-workspace/test-utils": "workspace:^",
     "@types/stack-utils": "^2.0.3",
-    "@vitest/utils": "^1.6.1",
+    "@vitest/utils": "^3.2.4",
     "stack-utils": "^2.0.6",
     "strip-ansi": "^7.2.0"
   },
