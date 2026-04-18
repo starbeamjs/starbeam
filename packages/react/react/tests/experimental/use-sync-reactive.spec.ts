@@ -1,9 +1,11 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
+/* eslint-disable @typescript-eslint/no-magic-numbers -- test literals */
+/* eslint-disable import/no-relative-packages -- experimental adapter intentionally not exported */
 // @vitest-environment jsdom
 
-import { useSyncReactive } from "../../src/experimental/use-sync-reactive.js";
 import { Cell, Formula } from "@starbeam/universal";
 import { html, react, testReact } from "@starbeam-workspace/react-test-utils";
+
+import { useSyncReactive } from "../../src/experimental/use-sync-reactive.js";
 
 const INITIAL = 0;
 const STEP = 1;

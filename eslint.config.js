@@ -31,8 +31,6 @@ export default [
       "**/.turbo/**",
       ".logs/**",
       "docs/**",
-      "packages/react/react/src/experimental/**",
-      "packages/react/react/tests/experimental/**",
 
       // Benchmarks use JSX and decorators that require Babel-specific
       // parser config not part of the shared preset. Not published; not
