@@ -49,3 +49,44 @@ import {
 
 All exports are functions returning a `FlatConfig[]` array, suitable for
 spreading into an `eslint.config.js`.
+
+## Type-aware linting
+
+All configs use `projectService: true` by default, which auto-discovers each
+source file's nearest `tsconfig.json`. You don't need to pass `project` or
+`tsconfigRootDir` unless you want to override that behavior.
+
+## Usage
+
+A typical root `eslint.config.js` for a workspace:
+
+```js
+// eslint.config.js
+import {
+  libraryRecommended,
+  testsRecommended,
+  jsonRecommended,
+  prettier,
+  esm,
+  files,
+} from "@starbeam-workspace/eslint-preset";
+
+export default [
+  { ignores: ["**/dist/**", "**/node_modules/**", "**/*.d.ts"] },
+
+  // Source files in packages/
+  { ...libraryRecommended()[0], files: ["packages/*/*/src/**/*.ts"] },
+
+  // Test files
+  { ...testsRecommended()[0], files: ["**/tests/**/*.ts"] },
+
+  // Rollup / config files
+  ...esm({ files: ["**/rollup.config.{mjs,js}"] }),
+
+  // JSON/JSONC files
+  ...jsonRecommended(),
+
+  // Prettier compatibility (must be last)
+  ...prettier(),
+];
+```

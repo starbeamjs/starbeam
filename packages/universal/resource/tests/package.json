@@ -22,7 +22,5 @@
     "@starbeam-workspace/test-utils": "workspace:^",
     "inspect-utils": "^1.0.1"
   },
-  "devDependencies": {
-    "@starbeam-dev/eslint-plugin": "^1.1.1"
-  }
+  "devDependencies": {}
 }

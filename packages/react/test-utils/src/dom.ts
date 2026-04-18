@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import type { JSX, FunctionComponent, ReactElement, ReactNode } from "react";
+import type { FunctionComponent, JSX, ReactElement, ReactNode } from "react";
 import { createElement, Fragment, isValidElement } from "react";
 
 // React 19 removed `ReactHTML`; use `JSX.IntrinsicElements` (now scoped to the

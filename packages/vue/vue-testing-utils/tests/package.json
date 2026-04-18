@@ -28,7 +28,6 @@
     "vue": "3.3.4"
   },
   "devDependencies": {
-    "@starbeam-dev/eslint-plugin": "^1.1.1",
     "@vue/shared": "^3.5.32",
     "preact-render-to-string": "^6.6.7",
     "vue": "^3.3.4"

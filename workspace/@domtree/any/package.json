@@ -30,7 +30,6 @@
     "@domtree/minimal": "workspace:^"
   },
   "devDependencies": {
-    "@starbeam-dev/compile": "workspace:*",
-    "@starbeam-dev/eslint-plugin": "^1.1.1"
+    "@starbeam-dev/compile": "workspace:*"
   }
 }

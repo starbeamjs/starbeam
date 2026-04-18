@@ -180,4 +180,21 @@ export const TIGHT_RULES = {
       ignoreEnums: true,
     },
   ],
+  // typescript-eslint 8's strict preset enables these; upstream @starbeam-dev
+  // plugin historically disabled them, so keep them off to avoid a large
+  // noise diff in this migration.
+  "@typescript-eslint/no-invalid-void-type": "off",
+  "@typescript-eslint/no-dynamic-delete": "off",
+  "@typescript-eslint/no-meaningless-void-operator": "off",
+  // no-empty-object-type is kept ON (new in tseslint 8): flags `{}` in
+  // non-placeholder positions. Opt-out on a per-site basis with
+  // `// eslint-disable-next-line @typescript-eslint/no-empty-object-type`.
+  "@typescript-eslint/no-unused-expressions": "off",
+  // We use unused-imports/no-unused-vars (underscore-prefix aware).
+  // Defer to that rule; turn the built-in off here.
+  "@typescript-eslint/no-unused-vars": "off",
+  "@typescript-eslint/no-require-imports": "off",
+  // `ban-types` was split into `no-restricted-types` + `no-empty-object-type`
+  // etc. in tseslint 8. Legacy ban-types rule is gone; delete comments that
+  // still reference it will fire no-unused-disable.
 };

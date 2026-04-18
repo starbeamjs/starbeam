@@ -19,7 +19,5 @@
     "stack-utils": "^2.0.6",
     "strip-ansi": "^7.2.0"
   },
-  "devDependencies": {
-    "@starbeam-dev/eslint-plugin": "^1.1.1"
-  }
+  "devDependencies": {}
 }

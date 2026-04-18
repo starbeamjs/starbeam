@@ -53,7 +53,7 @@ const IMPORT_SETTINGS = {
 };
 
 /**
- * @param {{ files?: string[]; tsconfigRootDir?: string; project?: string | string[] }} [opts]
+ * @param {{ files?: string[]; tsconfigRootDir?: string; projectService?: boolean; project?: string | string[] }} [opts]
  * @returns {FlatConfig[]}
  */
 export function base(opts = {}) {
@@ -70,7 +70,11 @@ export function base(opts = {}) {
         sourceType: "module",
         parserOptions: {
           ecmaVersion: "latest",
-          ...(opts.project ? { project: opts.project } : {}),
+          // Prefer projectService (auto-discovers per-file tsconfig) unless
+          // an explicit project was passed.
+          ...(opts.project
+            ? { project: opts.project }
+            : { projectService: opts.projectService ?? true }),
           ...(opts.tsconfigRootDir
             ? { tsconfigRootDir: opts.tsconfigRootDir }
             : {}),
@@ -99,7 +103,8 @@ export function tight(opts = {}) {
   const strict = /** @type {FlatConfig[]} */ (tseslint.configs.strict);
   return [
     ...base(opts),
-    // Apply the type-aware strict rules on top of base, scoped to the same files.
+    // Apply the type-aware strict rules on top of base, scoped to the same
+    // files.
     ...strict.map((cfg, idx) => ({
       ...cfg,
       name: `@starbeam/tight:ts-strict[${idx}]`,
@@ -168,7 +173,9 @@ export function esm(opts = {}) {
         sourceType: "module",
         parserOptions: {
           ecmaVersion: "latest",
-          ...(opts.project ? { project: opts.project } : {}),
+          ...(opts.project
+            ? { project: opts.project }
+            : { projectService: opts.projectService ?? true }),
           ...(opts.tsconfigRootDir
             ? { tsconfigRootDir: opts.tsconfigRootDir }
             : {}),
@@ -266,8 +273,34 @@ function jsonLanguage() {
 export function jsonDefault() {
   return [
     jsonLanguage(),
+    // Regular JSON: comments forbidden (jsonc/no-comments enabled)
     ...jsoncPlugin.configs["flat/recommended-with-json"],
-    ...jsoncPlugin.configs["flat/recommended-with-jsonc"],
+    // JSONC/JSON5: comments allowed; scope the recommended config narrowly.
+    ...jsoncPlugin.configs["flat/recommended-with-jsonc"].map((cfg) => ({
+      ...cfg,
+      files: [
+        "**/*.jsonc",
+        "**/tsconfig.json",
+        "**/tsconfig.*.json",
+        "**/.vscode/*.json",
+        "**/turbo.json",
+      ],
+    })),
+    // For the subset of .json that are actually JSONC (VS Code, tsconfig,
+    // turbo), explicitly allow comments.
+    {
+      name: "@starbeam/json:allow-comments",
+      files: [
+        "**/*.jsonc",
+        "**/tsconfig.json",
+        "**/tsconfig.*.json",
+        "**/.vscode/*.json",
+        "**/turbo.json",
+      ],
+      rules: {
+        "jsonc/no-comments": "off",
+      },
+    },
     {
       name: "@starbeam/json:default",
       files: ["**/*.json", "**/*.jsonc"],
@@ -537,26 +570,20 @@ export function jsonRecommended() {
  *
  * Applies:
  *   - `comments` to all code files
- *   - `typedJs` to JS files (with the package's tsconfig)
- *   - `tight` to TS files (with the package's tsconfig)
+ *   - `typedJs` to JS files
+ *   - `tight` to TS files
  *
- * @param {{ tsconfigRootDir: string; project?: string | string[] }} opts
+ * With no arguments, uses projectService for per-file tsconfig auto-discovery.
+ * Pass `project` / `tsconfigRootDir` to override.
+ *
+ * @param {{ tsconfigRootDir?: string; project?: string | string[] }} [opts]
  * @returns {FlatConfig[]}
  */
-export function libraryRecommended(opts) {
-  const project = opts.project ?? ["tsconfig.json"];
+export function libraryRecommended(opts = {}) {
   return [
     ...comments(),
-    ...typedJs({
-      files: DEFAULT_JS_FILES,
-      project,
-      tsconfigRootDir: opts.tsconfigRootDir,
-    }),
-    ...tight({
-      files: DEFAULT_TS_FILES,
-      project,
-      tsconfigRootDir: opts.tsconfigRootDir,
-    }),
+    ...typedJs({ files: DEFAULT_JS_FILES, ...opts }),
+    ...tight({ files: DEFAULT_TS_FILES, ...opts }),
   ];
 }
 
@@ -564,23 +591,14 @@ export function libraryRecommended(opts) {
  * `testsRecommended`: equivalent of the original plugin's `tests:recommended`.
  * Like `libraryRecommended` but uses `loose` on TS (no strict/magic-numbers).
  *
- * @param {{ tsconfigRootDir: string; project?: string | string[] }} opts
+ * @param {{ tsconfigRootDir?: string; project?: string | string[] }} [opts]
  * @returns {FlatConfig[]}
  */
-export function testsRecommended(opts) {
-  const project = opts.project ?? ["tsconfig.json"];
+export function testsRecommended(opts = {}) {
   return [
     ...comments(),
-    ...typedJs({
-      files: DEFAULT_JS_FILES,
-      project,
-      tsconfigRootDir: opts.tsconfigRootDir,
-    }),
-    ...loose({
-      files: DEFAULT_TS_FILES,
-      project,
-      tsconfigRootDir: opts.tsconfigRootDir,
-    }),
+    ...typedJs({ files: DEFAULT_JS_FILES, ...opts }),
+    ...loose({ files: DEFAULT_TS_FILES, ...opts }),
   ];
 }
 

@@ -1,5 +1,8 @@
-// eslint-disable-next-line no-sparse-arrays -- Intentionally use a sparse array here so that the 0th entry isn't enumerated via `map`.
+ 
+// Hook types are indexed starting at 1 in preact internals, so slot 0 is
+// intentionally empty.
 const HOOK_NAMES = [
+  // eslint-disable-next-line no-sparse-arrays -- intentional: slot 0 unused
   ,
   "useState",
   "useReducer",

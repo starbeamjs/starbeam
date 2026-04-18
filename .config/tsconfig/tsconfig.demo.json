@@ -1,21 +1,21 @@
 {
   "compilerOptions": {
-    "allowJs": true,
 
+
+    "skipLibCheck": true,
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "bundler",
 
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
-    "noPropertyAccessFromIndexSignature": true,
+    "allowJs": true,
     "forceConsistentCasingInFileNames": true,
+
+    "types": ["vite/client"],
+    "strict": true,
+    "exactOptionalPropertyTypes": true,
     "noImplicitOverride": true,
-
-    "skipLibCheck": true,
-    "verbatimModuleSyntax": true,
-
-    "types": ["vite/client"]
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
+    "verbatimModuleSyntax": true
   }
 }

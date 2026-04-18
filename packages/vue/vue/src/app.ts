@@ -43,7 +43,7 @@ export class StarbeamApp {
   }
 
   static #setup(app: StarbeamApp): void {
-    // eslint-disable-next-line @typescript-eslint/unbound-method
+     
     const prevUnmount = app.#vue.unmount;
 
     app.#vue.unmount = () => {

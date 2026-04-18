@@ -1,37 +1,37 @@
 {
   "compilerOptions": {
-    "rootDir": "../..",
-    "allowJs": true,
 
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "bundler",
 
-    "declaration": true,
-    "declarationMap": true,
-
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
-    "noPropertyAccessFromIndexSignature": true,
-    "forceConsistentCasingInFileNames": true,
-    "noImplicitOverride": true,
-
-    "isolatedModules": true,
-    "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
 
     "useDefineForClassFields": true,
+    "allowJs": true,
+
+
+    "emitDecoratorMetadata": false,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true,
+    "rootDir": "../..",
+
+
+    "types": ["vite/client", "vitest/importMeta"],
+    "strict": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
     "verbatimModuleSyntax": true,
 
     "resolveJsonModule": true,
 
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": false,
-
-    "types": ["vite/client", "vitest/importMeta"]
+    "declaration": true,
+    "declarationMap": true
   }
 }

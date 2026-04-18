@@ -95,12 +95,12 @@
     "lint:fix": "pnpm --filter '*' test:lint --fix",
     "prepack": "pnpm run build",
     "release": "esyes ./workspace/scripts/index.ts release",
+    "sort-deps": "node workspace/scripts/sort-package-json-deps.mjs",
     "test:workspace:lint": "turbo run lint --output-logs errors-only --log-prefix none",
     "test:workspace:prod": "PROD=1 DEV= vitest --pool forks --run",
     "test:workspace:specs": "vitest --pool forks --run",
     "test:workspace:types": "tsc -b",
-    "vitest": "vitest --pool forks",
-    "sort-deps": "node workspace/scripts/sort-package-json-deps.mjs"
+    "vitest": "vitest --pool forks"
   },
   "dependencies": {
     "@starbeam/core-utils": "workspace:^"
@@ -110,22 +110,10 @@
     "@esbuild-kit/esm-loader": "^2.6.5",
     "@starbeam-dev/compile": "workspace:*",
     "@starbeam-dev/core": "^1.0.2",
-    "@starbeam-dev/eslint-plugin": "^1.1.1",
-    "@types/eslint": "^8.56.12",
+    "@starbeam-workspace/eslint-preset": "workspace:*",
     "@types/node": "^22.19.17",
-    "@typescript-eslint/eslint-plugin": "^7.18.0",
-    "@typescript-eslint/parser": "^7.18.0",
     "@vitest/ui": "^3.2.4",
-    "eslint": "^8.57.1",
-    "eslint-config-airbnb": "^19.0.4",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-import-resolver-typescript": "^4.4.4",
-    "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-json": "^4.0.1",
-    "eslint-plugin-jsonc": "^2.21.1",
-    "eslint-plugin-prettier": "^5.5.5",
-    "eslint-plugin-simple-import-sort": "^13.0.0",
-    "eslint-plugin-unused-imports": "^4.4.1",
+    "eslint": "^9.39.4",
     "esyes": "^1.0.3",
     "fast-glob": "^3.3.3",
     "happy-dom": "^20.9.0",
@@ -147,13 +135,14 @@
       "scripts"
     ]
   },
+  "packageManager": "pnpm@10.33.0",
   "pnpm": {
     "notes": {
-      "overrides": {
-        "rollup": "postcss plugin brings in an old version of rollup, so we need to override it here, otherwise type checking fails"
-      },
       "onlyBuiltDependencies": {
         "reason": "pnpm 10 blocks postinstall/prepare lifecycle scripts by default. Only packages listed here are allowed to run them."
+      },
+      "overrides": {
+        "rollup": "postcss plugin brings in an old version of rollup, so we need to override it here, otherwise type checking fails"
       }
     },
     "onlyBuiltDependencies": [
@@ -164,14 +153,13 @@
     "overrides": {
       "@rollup/pluginutils": "latest",
       "@starbeam-dev/compile": "workspace:*",
-      "@types/eslint": "$@types/eslint",
       "@types/node": "$@types/node",
       "eslint": "$eslint",
       "preact": "10.17.1",
+      "terser": "^5.31.0",
       "typescript": "$typescript",
       "vite": "$vite",
-      "vue": "3.3.4",
-      "terser": "^5.31.0"
+      "vue": "3.3.4"
     },
     "peerDependencyRules": {
       "allowAny": [
@@ -180,13 +168,12 @@
         "vue"
       ],
       "allowedVersions": {
-        "@typescript-eslint/eslint-plugin": "*",
+        "eslint": "^9.39.4",
         "typescript": "*",
         "vitest": "^3.2.4"
       }
     }
   },
-  "packageManager": "pnpm@10.33.0",
   "prettier": {},
   "repository": {
     "type": "git",

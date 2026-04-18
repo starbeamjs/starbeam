@@ -20,11 +20,11 @@
   ],
   "tasks": {
     "build": {
-      "outputs": [
-        "dist/**"
-      ],
       "dependsOn": [
         "^build"
+      ],
+      "outputs": [
+        "dist/**"
       ]
     },
     "lint": {

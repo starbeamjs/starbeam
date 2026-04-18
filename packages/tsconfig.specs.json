@@ -2,9 +2,9 @@
   "extends": "../.config/tsconfig/tsconfig.shared.json",
   "compilerOptions": {
     "composite": true,
-    "outDir": "../dist/packages",
-    "types": ["./env"]
+    "types": ["./env"],
+    "outDir": "../dist/packages"
   },
-  "exclude": ["**/node_modules/**/*", "**/dist/**/*"],
-  "include": ["*/*/tests/**/*"]
+  "include": ["*/*/tests/**/*"],
+  "exclude": ["**/node_modules/**/*", "**/dist/**/*"]
 }
