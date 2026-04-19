@@ -52,20 +52,6 @@ export default defineConfig({
     name: "Starbeam",
     env,
 
-    // Several preact/vue tests are timing-sensitive around framework
-    // schedulers and can time out when multiple fork workers run
-    // concurrently. Vitest 1 serialized them; vitest 3/4's fork pool is
-    // more aggressive. Serialize until the underlying timing issue is
-    // investigated.
-    //
-    // In vitest 4, poolOptions.forks.singleFork was replaced by top-level
-    // isolate:false + maxWorkers:1.
-    //
-    // TODO: find and fix the actual race in the preact/vue adapters,
-    // then remove this.
-    isolate: false,
-    maxWorkers: 1,
-
     projects,
   },
 });
