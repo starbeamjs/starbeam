@@ -10,26 +10,23 @@ import { useSyncReactive } from "../../src/experimental/use-sync-reactive.js";
 const INITIAL = 0;
 const STEP = 1;
 
-testReact<void, number>(
-  "useSyncReactive: external cell",
-  async (root) => {
-    const cell = Cell(INITIAL);
+testReact<void, number>("useSyncReactive: external cell", async (root) => {
+  const cell = Cell(INITIAL);
 
-    const result = await root
-      .expectHTML((value) => `<p>${value}</p><button>++</button>`)
-      .render((state) => {
-        const value = useSyncReactive(cell);
-        state.value(value);
+  const result = await root
+    .expectHTML((value) => `<p>${value}</p><button>++</button>`)
+    .render((state) => {
+      const value = useSyncReactive(cell);
+      state.value(value);
 
-        return react.fragment(
-          html.p(String(value)),
-          html.button({ onClick: () => cell.current++ }, "++"),
-        );
-      });
+      return react.fragment(
+        html.p(String(value)),
+        html.button({ onClick: () => cell.current++ }, "++"),
+      );
+    });
 
-    await result.find("button").fire.click();
-  },
-);
+  await result.find("button").fire.click();
+});
 
 testReact<void, number>(
   "useSyncReactive: formula over external cell",

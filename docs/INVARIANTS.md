@@ -8,28 +8,31 @@ semantics, the adapter surface, or the primitives.
 
 ---
 
-## 1. Reactivity is a root, not a paradigm
+## 1. Mark root state. The rest is Just JavaScript.
 
-Mark what state is reactive. The rest is plain JavaScript.
-
-Reactive state lives in cells, markers, and reactive collections. Everything
-else — functions, classes, getters, methods, closures, data passed through normal
-collection APIs — is ordinary code that happens to read and write that state.
+The reactive boundary is at the _storage_. Cells, markers, and reactive
+collections are reactive. Functions, classes, getters, methods, closures, and
+data passed through normal collection APIs are not — they're ordinary code
+that happens to read and write reactive state.
 
 There is no "derived state" type, no "computed property" decorator, no graph of
 observables to register. To derive a value from reactive state, you write a
 function.
 
-This isn't an aesthetic choice. It's a structural property. Because the reactive
-boundary lives at the _storage_, abstractions built on top work without knowing
-they're reactive: a reactive `Map` really is a `Map`; a class with private fields
-really is a class; a formula is just a function. There is nothing for a library
-author to do to "make their abstraction reactive." As long as the root state is
-reactive, reading through any abstraction produces reactive reads.
+Because the boundary lives at the storage, abstractions on top work without
+knowing they're reactive. A reactive `Map` really is a `Map`. A class with
+private fields really is a class. A formula is just a function. A library
+author doesn't "make their abstraction reactive" — if the root state is
+reactive, reading through any abstraction is reactive.
 
-The single rule user code must follow: **during rendering, don't mutate reactive
-state.** During actions — event handlers, effects, async continuations — read
-and write freely. Nothing else is required.
+**User code runs in two modes.** Outside rendering — event handlers, effects,
+async continuations, plain function calls — read and write freely. Reactive
+state behaves like ordinary state. Inside rendering — the frame during which a
+component produces its UI — read freely; writing is disallowed. That's the
+only rule.
+
+Section 14 defines what counts as "rendering" in the React adapter. Other
+adapters define the equivalent for their host.
 
 ---
 
@@ -43,16 +46,17 @@ happens through the cell's tag, not through any ambient container or store.
 No `<Provider>` is required. No store must be constructed and passed down
 through context.
 
-This is a corollary of sections 1 and 4 (there is no graph to register into,
-because there is no graph), but it's worth naming because it's the first
-visible difference to anyone arriving from a store-based library such as jotai
-or Redux.
+This is a corollary of sections 1 and 4 — there is no graph to register into,
+because there is no graph. It's named separately because it's the first
+visible difference for anyone arriving from jotai or Redux.
 
-The React adapter does provide a `<Starbeam>` component. Its role is strictly
-to supply an app-level finalization scope for services, not to enable
-reactivity. Reactive reads and writes work equivalently whether the component
-tree is wrapped in `<Starbeam>` or not. Services that require an app-level
-lifetime require `<Starbeam>`; plain reactive state does not.
+**Services are the exception that tests the rule.** A service is a reactive
+value whose lifetime exceeds any single component's. Something has to own
+that lifetime, and in React that something is the `<Starbeam>` component — not
+because reactivity needs it, but because a service needs an app-scoped
+finalization boundary. Reads and writes of plain reactive state work identically
+with or without `<Starbeam>` in the tree. Only code that depends on services
+requires it.
 
 ---
 
@@ -69,29 +73,33 @@ The cost of validation is:
 
     O(|T|) revision comparisons, where T is the trace of the computation.
 
-The cost of the computation itself is whatever the user wrote. Validation cost
-is bounded independently of, and cheaper than, computation cost. This is the
-property that makes caching composable at any granularity: there is no
-performance cliff when adding a cache, because checking the cache is always
-cheap.
+A formula that read five cells last time costs five integer comparisons to
+validate, no matter how expensive the computation itself was or how many
+layers of abstraction the reads passed through. Validation is bounded
+independently of computation cost, and cheaper. That's what makes caching
+composable at any granularity — adding a cache doesn't introduce a
+performance cliff, because the cache check is always cheap.
 
-One direct consequence deserves to be named explicitly: **Starbeam does not
-permit output-equality cutoff for derived computations.** If a cached
-computation would re-run to check whether its output equals the previous output,
-that re-run is a data operation, and it is forbidden.
+**The Iron Rule forbids one specific optimization: output-equality cutoff on
+cached computations.** If a cached computation would re-run in order to check
+whether its new output equals the previous output, that re-run is a data
+operation. It ran user code to decide whether to invalidate. Forbidden.
 
-To skip propagation when a value is semantically unchanged, store the output in
-a cell with a custom `equals` function. The cell-level `equals` check runs at
-write time and prevents the revision bump if the new value is equivalent. That
-is metadata. Output-equality cutoff on a computed is not.
+Equality checks aren't banned — they're only banned where they require running
+user code at validation time. At the cell, a custom `equals` runs at _write_
+time: if the caller hands in a value equivalent to the current one, the cell
+declines to bump its revision. Downstream never sees a change, and no
+validation cost was paid. That's metadata. Equality at the computed, by
+contrast, would require evaluating the computation to learn its output — that's
+data, and it breaks the cost guarantee above.
 
 ---
 
 ## 4. No dependency graph
 
-Starbeam rejects Dynamic Dependency Graphs as an architectural choice. There is
-no persistent graph of "reactive nodes" to manage, no edges to maintain, no
-registration of derived values into a shared structure.
+Starbeam is not a DDG-based reactive system. There is no persistent graph of
+"reactive nodes" to manage, no edges to maintain, no registration of derived
+values into a shared structure.
 
 What exists:
 
@@ -125,10 +133,9 @@ Those traces may differ. The formula did not "change its dependencies" — it
 doesn't have dependencies, because it doesn't persist. Each call produces its
 own trace.
 
-Call this property _trace flattening_. A function that calls another function
-that reads a cell contributes the cell to the outer trace, transparently. The
-intermediate function is erased from the reactive structure, as if the outer
-function had read the cell directly.
+A function that calls another function that reads a cell contributes the cell
+to the outer trace, transparently. The intermediate function is erased from
+the reactive structure, as if the outer function had read the cell directly.
 
 Two consequences follow:
 
@@ -151,18 +158,14 @@ Symmetrically, a cell does not prevent the garbage collection of anything that
 would otherwise be collectable. Reactive `WeakMap` and `WeakSet` are only
 possible under this property: the per-key markers they create must not retain
 the key, or the weak-collection semantics are destroyed. The same reasoning
-applies, less visibly, to reactive `Map` and `Set` — a subscriber that retained
-entries would turn an innocuous "I rendered this list once" into a lifetime
-commitment.
+applies to reactive `Map` and `Set`: a subscriber that retained entries would
+turn "I rendered this list once" into a lifetime commitment.
 
 This property is a corollary of sections 4 and 5 (no graph, no formula
 identity), but it is load-bearing for the promise that reactive collections
 share an interface with their standard counterparts. The gut-check: **if
 reactive `WeakMap` can be implemented correctly, the invariant holds; if it
-can't, something has gone wrong.** A simplification that introduces a data
-structure which strongly retains observers or observees has eroded this
-invariant — and has made `reactive.WeakMap` and `reactive.WeakSet` impossible
-to implement.
+can't, something has gone wrong.**
 
 ---
 
@@ -187,10 +190,6 @@ A framework adapter may batch _renders_. It does not batch _writes_. A write
 bumps the revision immediately; downstream `CachedFormula`s see the new revision
 the next time they're read.
 
-"Atomic" here means one cell's value changes as a single operation. For
-structured state that needs finer granularity, use reactive collections (which
-have their own per-key markers) or compose multiple cells.
-
 ---
 
 ## 9. `Formula` and `CachedFormula` are distinct primitives
@@ -205,10 +204,10 @@ Both are reactive values. They differ in when they re-evaluate:
   evaluation has changed. Use for expensive computations with stable-enough
   dependency sets.
 
-`Formula` is the right default in mixed-reactive environments. `CachedFormula`
-is an optimization, not a semantic change, for pure-Starbeam computations.
-
-Both obey the Iron Rule. Neither uses output-equality cutoff.
+Use `Formula` when your computation might read reactive state outside
+Starbeam. `CachedFormula` caches across reads; `Formula` doesn't. If every
+dependency is a Starbeam cell, `CachedFormula` is faster. If any is a React
+ref or a Vue signal, `Formula` is correct.
 
 ---
 
@@ -246,8 +245,8 @@ as though it were the formula.
 
 **Lifetime.** A resource is instantiated with an owner. When the owner is
 finalized, the resource's cleanup runs. Owners are finalization scopes; scopes
-nest. This is the mechanism that connects reactive cleanup to framework
-lifetimes without the framework needing to know about Starbeam's internals.
+nest. Framework adapters hand a component's lifetime to Starbeam as an owner
+— no framework-specific machinery needed in the core.
 
 ---
 
@@ -302,7 +301,7 @@ A component in the React adapter proceeds through four named lifecycle points:
 
 React does not publish these terms. It publishes `useEffect`/`useLayoutEffect`
 timing, strict mode, and (now) `Activity`. Starbeam's lifecycle names are the
-coherent external story implied by those primitives.
+external contract that set of primitives implies.
 
 Where React has published terms that align, the adapter uses them. `Activity`'s
 "hidden" state _is_ a deactivation from Starbeam's perspective; "visible" again
@@ -328,14 +327,11 @@ nothing.
 
 ## 16. Alignment with TC39 Signals, with one named divergence
 
-The core primitives of Starbeam — cells (`Signal.State`), cached formulas
-(`Signal.Computed`), watchers (`Signal.subtle.Watcher`) — map onto the TC39
-Signals proposal. `starbeam-lite` demonstrates the minimal surface by porting
-the proposal's tests directly.
-
-This alignment is strategic. If Signals ship, Starbeam's core becomes a thin
-layer over a platform primitive, and the adapters remain Starbeam's
-contribution.
+Starbeam's core primitives map onto the TC39 Signals proposal: cells onto
+`Signal.State`, cached formulas onto `Signal.Computed`, watchers onto
+`Signal.subtle.Watcher`. Shared primitives mean shared portability — code
+written against Starbeam's cell and formula APIs can move to Signals
+with minimal reshaping when Signals ship.
 
 **One divergence is named explicitly.** The TC39 proposal permits a computed
 signal to use output-equality as a cutoff: when a dependency changes, the
@@ -357,6 +353,33 @@ A change that violates an invariant without an explicit decision to revise the
 invariant is a regression, regardless of how much code it removes.
 
 When in doubt: the invariants are load-bearing. The code is not.
+
+---
+
+## Known deviations
+
+Places where the current implementation is known to fall short of an
+invariant above. These are open debts against the rubric, not
+relaxations of it. A deviation here is a commitment to close the gap —
+or to update the invariant with an explicit decision if the gap turns
+out to be structural.
+
+### `isRendering()` reaches into React internals (against §13)
+
+`@starbeam/use-strict-lifecycle`'s `isRendering()` checks whether the
+current call is inside React's render phase. The current implementation
+reads `__CLIENT_INTERNALS.H` (React 19's internal dispatcher slot),
+wrapped in `try/catch` so a future rename falls through to a safe
+default.
+
+§13 says adapters use only public host APIs. This one doesn't. The
+public primitives React exposes — `useEffect`/`useLayoutEffect` timing,
+strict mode, `<Activity>` — don't carry a synchronous "am I rendering
+right now?" signal, so the adapter reads from the dispatcher directly.
+
+The plan: either React exposes a public "am I rendering?" primitive and
+the adapter migrates to it, or the adapter finds a way to infer the
+phase from public primitives alone. Until then, this is a deviation.
 
 ---
 
