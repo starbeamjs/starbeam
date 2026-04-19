@@ -43,7 +43,7 @@ export class StarbeamApp {
   }
 
   static #setup(app: StarbeamApp): void {
-     
+
     const prevUnmount = app.#vue.unmount;
 
     app.#vue.unmount = () => {

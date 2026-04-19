@@ -9,7 +9,7 @@ if (import.meta.env.DEV) {
   ) {
     try {
       // this is for CJS only, so require is the only option here
-       
+
       const buffer = require("node:buffer") as { Buffer: BufferConstructor };
       globalThis.Buffer = buffer.Buffer;
     } catch {

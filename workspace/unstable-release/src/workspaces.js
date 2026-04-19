@@ -20,7 +20,7 @@ export async function listPublicWorkspaces() {
     }
   );
 
-   
+
   console.log("filePaths", filePaths.length);
 
   let result = [];
