@@ -93,7 +93,7 @@
     "test:workspace:lint": "turbo run lint --output-logs errors-only --log-prefix none",
     "test:workspace:prod": "PROD=1 DEV= vitest --pool forks --run",
     "test:workspace:specs": "vitest --pool forks --run",
-    "test:workspace:types": "tsc -b",
+    "test:workspace:types": "turbo run typecheck --output-logs errors-only --log-prefix none",
     "vitest": "vitest --pool forks"
   },
   "dependencies": {

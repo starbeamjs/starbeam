@@ -8,7 +8,6 @@ pre-commit:
   parallel: true
   commands:
     lint:
-      # Project-wide; turbo cache keeps this fast on incremental runs.
       run: pnpm test:workspace:lint
     types:
       run: pnpm test:workspace:types

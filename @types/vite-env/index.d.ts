@@ -1,4 +1,4 @@
-import "vitest/importMeta.js";
+import "vitest/importMeta";
 import "vite/client";
 
 interface ImportMeta {

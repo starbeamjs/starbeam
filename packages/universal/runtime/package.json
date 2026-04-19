@@ -38,7 +38,7 @@
   "devDependencies": {
     "@starbeam-dev/compile": "workspace:*",
     "rollup": "^4.60.1",
-    "vite-env": "^1.0.0"
+    "vite-env": "workspace:^"
   },
   "files": [
     "dist",

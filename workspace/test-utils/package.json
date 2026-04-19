@@ -31,7 +31,7 @@
     "@starbeam/verify": "workspace:^",
     "@vitest/expect": "^4.1.4",
     "@vitest/runner": "^4.1.4",
-    "vite-env": "^1.0.0",
+    "vite-env": "workspace:^",
     "vitest": "^4.1.4"
   },
   "devDependencies": {
