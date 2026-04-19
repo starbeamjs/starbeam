@@ -112,6 +112,7 @@
     "happy-dom": "^20.9.0",
     "jsdom": "^26.1.0",
     "knip": "^6.4.1",
+    "lefthook": "^2.1.6",
     "node-gyp": "^12.2.0",
     "prettier": "^3.8.3",
     "release-plan": "^0.18.0",
@@ -141,6 +142,7 @@
     "onlyBuiltDependencies": [
       "@swc/core",
       "esbuild",
+      "lefthook",
       "unrs-resolver"
     ],
     "overrides": {
