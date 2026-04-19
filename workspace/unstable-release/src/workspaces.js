@@ -20,7 +20,7 @@ export async function listPublicWorkspaces() {
     }
   );
 
-  // eslint-disable-next-line no-console
+
   console.log("filePaths", filePaths.length);
 
   let result = [];

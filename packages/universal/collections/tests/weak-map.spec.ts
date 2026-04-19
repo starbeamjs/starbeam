@@ -116,4 +116,66 @@ describe("TrackedWeakMap", () => {
     expect(food.state).toEqual([undefined, "stable"]);
     expect(hasBurgers.state).toEqual([false, "stable"]);
   });
+
+  describe("getOrInsert (TC39 upsert)", () => {
+    test("returns the existing value when present and does not overwrite", () => {
+      const map = reactive.WeakMap<object, string>();
+      map.set(hamburgers, "burger");
+
+      const existing = map.getOrInsert(hamburgers, "sandwich");
+
+      expect(existing).toBe("burger");
+      expect(map.get(hamburgers)).toBe("burger");
+    });
+
+    test("inserts the default when absent and returns it", () => {
+      const map = reactive.WeakMap<object, string>();
+
+      const inserted = map.getOrInsert(hamburgers, "burger");
+
+      expect(inserted).toBe("burger");
+      expect(map.get(hamburgers)).toBe("burger");
+    });
+
+    test("invalidates a prior has() when it inserts", () => {
+      const map = reactive.WeakMap<object, string>();
+      const hasHamburgers = Invalidation.trace(() => map.has(hamburgers));
+      expect(hasHamburgers.state).toEqual([false, "initialized"]);
+
+      map.getOrInsert(hamburgers, "burger");
+
+      expect(hasHamburgers.state).toEqual([true, "invalidated"]);
+    });
+  });
+
+  describe("getOrInsertComputed (TC39 upsert)", () => {
+    test("returns the existing value without invoking the callback", () => {
+      const map = reactive.WeakMap<object, string>();
+      map.set(hamburgers, "burger");
+      let called = 0;
+
+      const existing = map.getOrInsertComputed(hamburgers, () => {
+        called++;
+        return "sandwich";
+      });
+
+      expect(existing).toBe("burger");
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- call count
+      expect(called).toBe(0);
+    });
+
+    test("invokes the callback with the key and inserts when absent", () => {
+      const map = reactive.WeakMap<object, string>();
+      const seenKeys: object[] = [];
+
+      const inserted = map.getOrInsertComputed(hamburgers, (key) => {
+        seenKeys.push(key);
+        return "burger";
+      });
+
+      expect(inserted).toBe("burger");
+      expect(seenKeys).toEqual([hamburgers]);
+      expect(map.get(hamburgers)).toBe("burger");
+    });
+  });
 });

@@ -2,14 +2,14 @@
   "extends": "../.config/tsconfig/tsconfig.shared.json",
   "compilerOptions": {
     "composite": true,
-    "outDir": "../dist/packages",
-    "types": ["./env"]
+    "types": ["./env"],
+    "outDir": "../dist/packages"
   },
+  "include": ["*/*/index.ts", "*/*/src/**/*"],
   "exclude": [
     "x/devtool/**/*",
     "x/devtools-extension/**/*",
     "**/dist/**/*",
     "**/node_modules/**"
-  ],
-  "include": ["*/*/index.ts", "*/*/src/**/*"]
+  ]
 }

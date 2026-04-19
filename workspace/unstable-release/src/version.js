@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+ 
 import { readPackageJson, writePackageJson } from "./read-package-json.js";
 import { currentSHA, listPublicWorkspaces } from "./workspaces.js";
 

@@ -141,7 +141,7 @@ export class ReactiveMap<K, V> implements Map<K, V> {
   }
 
   /** @public */
-  [Symbol.iterator](): IterableIterator<[K, V]> {
+  [Symbol.iterator](): MapIterator<[K, V]> {
     return this.entries();
   }
 
@@ -170,7 +170,7 @@ export class ReactiveMap<K, V> implements Map<K, V> {
     return false;
   }
 
-  *entries(): IterableIterator<[K, V]> {
+  *entries(): MapIterator<[K, V]> {
     this.#keys.read();
     this.#values.read();
 
@@ -214,6 +214,25 @@ export class ReactiveMap<K, V> implements Map<K, V> {
     return entry.get();
   }
 
+  getOrInsert(key: K, defaultValue: V): V {
+    const entry = this.#entry(key);
+    if (entry.isPresent()) {
+      return entry.get() as V;
+    }
+    this.set(key, defaultValue);
+    return defaultValue;
+  }
+
+  getOrInsertComputed(key: K, callback: (key: K) => V): V {
+    const entry = this.#entry(key);
+    if (entry.isPresent()) {
+      return entry.get() as V;
+    }
+    const value = callback(key);
+    this.set(key, value);
+    return value;
+  }
+
   has(key: K): boolean {
     return this.#entry(key).isPresent();
   }
@@ -226,7 +245,7 @@ export class ReactiveMap<K, V> implements Map<K, V> {
     }
   }
 
-  *keys(): IterableIterator<K> {
+  *keys(): MapIterator<K> {
     this.#keys.read();
 
     for (const [key] of this.#iterate()) {
@@ -249,7 +268,7 @@ export class ReactiveMap<K, V> implements Map<K, V> {
     return this;
   }
 
-  *values(): IterableIterator<V> {
+  *values(): MapIterator<V> {
     // add an extra frame for the internal JS call to .next()
 
     this.#values.read();
@@ -297,7 +316,7 @@ export class ReactiveSet<T> implements Set<T> {
   }
 
   /** @public */
-  [Symbol.iterator](): IterableIterator<T> {
+  [Symbol.iterator](): SetIterator<T> {
     return this.keys();
   }
 
@@ -336,7 +355,7 @@ export class ReactiveSet<T> implements Set<T> {
     return false;
   }
 
-  *entries(): IterableIterator<[T, T]> {
+  *entries(): SetIterator<[T, T]> {
     this.#values.read();
 
     for (const [value, entry] of this.#iterate()) {
@@ -367,7 +386,7 @@ export class ReactiveSet<T> implements Set<T> {
     }
   }
 
-  *keys(): IterableIterator<T> {
+  *keys(): SetIterator<T> {
     this.#values.read();
 
     for (const [value] of this.#iterate()) {
@@ -375,8 +394,39 @@ export class ReactiveSet<T> implements Set<T> {
     }
   }
 
-  values(): IterableIterator<T> {
+  values(): SetIterator<T> {
     return this.keys();
+  }
+
+  // ES2025 Set composition methods. These delegate to a plain `Set` built
+  // from the current values; iterating `this` touches `#values`, so the
+  // reactive dependency is recorded correctly.
+  union<U>(other: ReadonlySetLike<U>): Set<T | U> {
+    return new Set<T>(this).union(other);
+  }
+
+  intersection<U>(other: ReadonlySetLike<U>): Set<T & U> {
+    return new Set<T>(this).intersection(other);
+  }
+
+  difference<U>(other: ReadonlySetLike<U>): Set<T> {
+    return new Set<T>(this).difference(other);
+  }
+
+  symmetricDifference<U>(other: ReadonlySetLike<U>): Set<T | U> {
+    return new Set<T>(this).symmetricDifference(other);
+  }
+
+  isSubsetOf(other: ReadonlySetLike<unknown>): boolean {
+    return new Set<T>(this).isSubsetOf(other);
+  }
+
+  isSupersetOf(other: ReadonlySetLike<unknown>): boolean {
+    return new Set<T>(this).isSupersetOf(other);
+  }
+
+  isDisjointFrom(other: ReadonlySetLike<unknown>): boolean {
+    return new Set<T>(this).isDisjointFrom(other);
   }
 
   #entry(value: T): Entry<T> {

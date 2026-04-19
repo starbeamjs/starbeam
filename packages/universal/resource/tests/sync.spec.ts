@@ -592,7 +592,7 @@ class Children<T, U> implements Iterable<Child<T, U>> {
 
         this.#events.expectEvents(expectedEvents);
       },
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+       
       { entryFn: this.expect },
     );
   }

@@ -7,7 +7,7 @@ describe("type checks", () => {
     test("empty array", () => {
       const array = ["hello"] as const;
       if (isPresentArray(array)) {
-        expect(array).type.toEqual<readonly ["hello"]>();
+        expect(array).type.toBe<readonly ["hello"]>();
       }
     });
   });

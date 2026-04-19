@@ -1,15 +1,15 @@
 {
   "extends": "../.config/tsconfig/tsconfig.shared.json",
   "compilerOptions": {
-    "allowJs": true,
-    "checkJs": true,
     "composite": true,
-    "declaration": true,
+    "target": "ESNext",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "outDir": "../dist",
-    "target": "ESNext",
-    "types": ["node"]
+    "allowJs": true,
+    "checkJs": true,
+    "types": ["node"],
+    "declaration": true,
+    "outDir": "../dist"
   },
   "include": ["*/*/rollup.config.mjs"]
 }

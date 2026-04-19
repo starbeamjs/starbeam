@@ -1,0 +1,29 @@
+# Lefthook git hooks. Mirrors the CI suite from .github/workflows/ci.yml.
+#
+# Skip a single run with: LEFTHOOK=0 git commit ...
+# Skip a specific hook: LEFTHOOK_EXCLUDE=lint git push ...
+# Uninstall entirely:    pnpm exec lefthook uninstall
+
+pre-commit:
+  parallel: true
+  commands:
+    lint:
+      run: pnpm test:workspace:lint
+    types:
+      run: pnpm test:workspace:types
+
+pre-push:
+  parallel: false # sequential; build must land before test:prod validates dist
+  commands:
+    build:
+      run: pnpm build
+    build-verify:
+      run: node ./workspace/scripts/build-verify.js
+    specs:
+      run: pnpm ci:specs
+    specs-prod:
+      run: pnpm ci:prod
+    types:
+      run: pnpm test:workspace:types
+    lint:
+      run: pnpm test:workspace:lint

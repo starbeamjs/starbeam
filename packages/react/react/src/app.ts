@@ -5,7 +5,7 @@ import { createContext, createElement, useContext } from "react";
 
 const StarbeamContext = createContext(null as null | ReactApp);
 
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- {} as props placeholder
 type EmptyProps = PropsWithChildren<{}>;
 
 export const Starbeam: FunctionComponent<EmptyProps> = ({ children }) => {

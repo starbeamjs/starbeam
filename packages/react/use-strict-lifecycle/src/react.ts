@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-
 import React from "react";
 
 /**
@@ -74,15 +72,36 @@ export function setupFunction<T>(callback: () => T): T {
  * Returns true if reading from a reactive value is currently disallowed
  * (because React is currently rendering a component, and we're not in an
  * unrestricted context, such as setup).
+ *
+ * React 19 renamed the private internals object from
+ * `__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED` to
+ * `__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE`, and
+ * replaced the `ReactCurrentOwner.current` field with the top-level `H`
+ * dispatcher (non-null during render, null otherwise).
+ *
+ * The React team may tighten access further, so we wrap the lookup defensively
+ * and fall back to `IS_RESTRICTED` if the shape ever drifts.
  */
 export function isRestrictedRead(): boolean {
   if (IS_UNRESTRICTED) {
     return false;
   }
 
-  return (
-    // @ts-expect-error intentionally using React internals
-    !!React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner
-      .current || IS_RESTRICTED
-  );
+  return isReactRendering() || IS_RESTRICTED;
+}
+
+function isReactRendering(): boolean {
+  try {
+    const internals = (
+      React as unknown as {
+        __CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE?: {
+          H?: unknown;
+        };
+      }
+    ).__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
+
+    return internals?.H != null;
+  } catch {
+    return false;
+  }
 }

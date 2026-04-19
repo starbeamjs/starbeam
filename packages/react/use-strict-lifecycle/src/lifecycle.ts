@@ -251,15 +251,11 @@ interface Instance<T, V, A> {
   readonly handlers: HandlerSets<A>;
 }
 
-type HandlerSets<A> = {
-  readonly [K in LifecycleEvent]: Set<(args: A) => void>;
-};
+type HandlerSets<A> = Readonly<Record<LifecycleEvent, Set<(args: A) => void>>>;
 
-export type RegisterLifecycleHandlers<A> = {
-  readonly [K in LifecycleEvent]: (
+export type RegisterLifecycleHandlers<A> = Readonly<Record<LifecycleEvent, (
     handler: undefined | ((args: A) => void),
-  ) => void;
-};
+  ) => void>>;
 
 interface LifecycleOptions<T, V, A> {
   readonly build: UseLifecycleBuilder<T, A>;

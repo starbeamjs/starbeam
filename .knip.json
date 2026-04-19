@@ -1,8 +1,8 @@
 {
   "$schema": "https://unpkg.com/knip@2/schema.json",
   "ignoreExportsUsedInFile": {
-    "type": true,
-    "interface": true
+    "interface": true,
+    "type": true
   },
   "vite": false,
   "workspaces": {

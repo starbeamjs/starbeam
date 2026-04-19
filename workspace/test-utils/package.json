@@ -29,14 +29,13 @@
     "@starbeam/shared": "workspace:^",
     "@starbeam/universal": "workspace:^",
     "@starbeam/verify": "workspace:^",
-    "@vitest/expect": "^1.0.0-beta.2",
-    "@vitest/runner": "^1.0.0-beta.2",
-    "vite-env": "^1.0.0",
-    "vitest": "^1.0.0-beta.2"
+    "@vitest/expect": "^4.1.4",
+    "@vitest/runner": "^4.1.4",
+    "vite-env": "workspace:^",
+    "vitest": "^4.1.4"
   },
   "devDependencies": {
     "@starbeam-dev/compile": "workspace:*",
-    "@starbeam-dev/eslint-plugin": "^1.0.6",
-    "rollup": "^4.0.2"
+    "rollup": "^4.60.1"
   }
 }

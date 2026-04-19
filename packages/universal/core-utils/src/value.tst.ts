@@ -8,7 +8,7 @@ describe("type checks", () => {
       const x: number | null = 1;
 
       if (isPresent(x)) {
-        expect(x).type.toEqual<number>();
+        expect(x).type.toBe<number>();
       }
     }
 
@@ -16,7 +16,7 @@ describe("type checks", () => {
       const x: number | undefined = 1;
 
       if (isPresent(x)) {
-        expect(x).type.toEqual<number>();
+        expect(x).type.toBe<number>();
       }
     }
 
@@ -24,7 +24,7 @@ describe("type checks", () => {
       const x: number | void = 1;
 
       if (isPresent(x)) {
-        expect(x).type.toEqual<number>();
+        expect(x).type.toBe<number>();
       }
     }
 
@@ -32,7 +32,7 @@ describe("type checks", () => {
       const x: number = 1;
 
       if (isPresent(x)) {
-        expect(x).type.toEqual<number>();
+        expect(x).type.toBe<number>();
       }
     }
 
@@ -40,7 +40,7 @@ describe("type checks", () => {
       const x: number | null | undefined = 1;
 
       if (isPresent(x)) {
-        expect(x).type.toEqual<number>();
+        expect(x).type.toBe<number>();
       }
     }
   });
@@ -51,7 +51,7 @@ describe("type checks", () => {
       const x: number | null = 0;
 
       if (isPresent(x)) {
-        expect(x).type.toEqual<number>();
+        expect(x).type.toBe<number>();
       }
     }
 
@@ -60,7 +60,7 @@ describe("type checks", () => {
       const x: string | null = "";
 
       if (isPresent(x)) {
-        expect(x).type.toEqual<string>();
+        expect(x).type.toBe<string>();
       }
     }
   });

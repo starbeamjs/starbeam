@@ -138,6 +138,27 @@ export class TrackedWeakMap<K extends object = object, V = unknown>
     return this.#state.vals.delete(key);
   }
 
+  getOrInsert(key: K, defaultValue: V): V {
+    DEBUG?.markEntryPoint(["collection:get", "TrackedWeakMap", key]);
+    const entry = this.#entry(key);
+    if (this.#has(key, entry)) {
+      return this.#get(key, entry) as V;
+    }
+    this.set(key, defaultValue);
+    return defaultValue;
+  }
+
+  getOrInsertComputed(key: K, callback: (key: K) => V): V {
+    DEBUG?.markEntryPoint(["collection:get", "TrackedWeakMap", key]);
+    const entry = this.#entry(key);
+    if (this.#has(key, entry)) {
+      return this.#get(key, entry) as V;
+    }
+    const value = callback(key);
+    this.set(key, value);
+    return value;
+  }
+
   get [Symbol.toStringTag](): string {
     return this.#state.vals[Symbol.toStringTag];
   }

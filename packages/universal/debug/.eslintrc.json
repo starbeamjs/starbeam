@@ -1,7 +1,0 @@
-{
-  "root": true,
-  "extends": ["plugin:@starbeam-dev/library:recommended"],
-  "rules": {
-    "etc/no-commented-out-code": "off"
-  }
-}

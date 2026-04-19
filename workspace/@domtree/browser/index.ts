@@ -2,7 +2,7 @@ import type * as dom from "@domtree/interface";
 
 declare global {
   interface NodeList {
-    [Symbol.iterator]: () => IterableIterator<globalThis.Node>;
+    [Symbol.iterator]: () => ArrayIterator<globalThis.Node>;
   }
 
   interface Window {

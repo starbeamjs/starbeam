@@ -226,10 +226,10 @@ export class Collection<K> {
       this.splice();
     }
 
-    let item = this.#items.get(key);
+    const item = this.#items.get(key);
 
     if (item === undefined) {
-      item = this.#initialize(key, "hit", description);
+      this.#initialize(key, "hit", description);
       return;
     }
 

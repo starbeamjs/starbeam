@@ -46,7 +46,7 @@ export function read<T>(this: void, value: T | Reactive<T>): T {
 export function intoReactive<T>(
   this: void,
   value: T | Reactive<T>,
-  description?: string | Description | undefined,
+  description?: string | Description,
 ): Reactive<T> {
   if (isReactive(value)) {
     return value;

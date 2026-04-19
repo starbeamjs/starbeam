@@ -19,11 +19,9 @@
     "@starbeam/universal": "workspace:^",
     "@starbeam-workspace/react-test-utils": "workspace:^",
     "@starbeam-workspace/test-utils": "workspace:^",
-    "jsdom": "^22.1.0",
-    "react": "^18.2.0",
-    "vitest": "^0.34.4"
+    "jsdom": "^26.1.0",
+    "react": "^19.2.5",
+    "vitest": "^3.2.4"
   },
-  "devDependencies": {
-    "@starbeam-dev/eslint-plugin": "^1.0.6"
-  }
+  "devDependencies": {}
 }

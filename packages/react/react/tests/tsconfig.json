@@ -10,5 +10,6 @@
     "declarationMap": true,
     "emitDeclarationOnly": true
   },
-  "exclude": ["dist/**/*"]
+  "exclude": ["dist/**/*"],
+  "references": [{ "path": "../tsconfig.json" }]
 }

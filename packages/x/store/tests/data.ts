@@ -14,9 +14,9 @@ function CreatePerson(): () => Person {
   return (): Person => {
     return {
       id: String(id++),
-      name: faker.name.fullName(),
-      age: faker.datatype.number({ min: 18, max: 65 }),
-      visits: faker.datatype.number({ min: 0, max: 1000 }),
+      name: faker.person.fullName(),
+      age: faker.number.int({ min: 18, max: 65 }),
+      visits: faker.number.int({ min: 0, max: 1000 }),
       status: faker.helpers.arrayElement(["active", "inactive"]),
     };
   };

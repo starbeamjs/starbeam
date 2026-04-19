@@ -28,9 +28,7 @@ type AnyTypedDescriptorMap = Record<string, TypedPropertyDescriptor<any>>;
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 type DefineReadonly<T, K extends AnyKey, V> = Expand<
-  Exclude<T, K> & {
-    readonly [P in K]: V;
-  }
+  Exclude<T, K> & Readonly<Record<K, V>>
 >;
 
 type Define<T, R> = Expand<
@@ -42,7 +40,7 @@ type Define<T, R> = Expand<
 export function method<T, K extends keyof T>(fn: T[K] & AnyFunction): T;
 export function method<T, K extends AnyKey, V extends AnyFunction>(
   fn: V,
-): Define<T, { [P in K]: V }>;
+): Define<T, Record<K, V>>;
 export function method(fn: AnyFunction): TypedPropertyDescriptor<AnyFunction> {
   return {
     enumerable: false,
@@ -60,7 +58,7 @@ export function defMethod<T, K extends AnyKey, V extends AnyFunction>(
   object: T,
   key: K,
   fn: V,
-): Define<T, { [P in K]: V }>;
+): Define<T, Record<K, V>>;
 export function defMethod(
   object: object,
   key: AnyKey,
@@ -85,7 +83,7 @@ export function getter<T, K extends AnyKey, V>(
   object: T,
   key: K,
   fn: (object: T) => V,
-): Define<T, { readonly [P in K]: V }>;
+): Define<T, Readonly<Record<K, V>>>;
 export function getter(
   object: object,
   key: AnyKey,

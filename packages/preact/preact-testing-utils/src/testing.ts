@@ -18,15 +18,10 @@ import type {
   VNode,
 } from "preact";
 import { createElement, Fragment, h } from "preact";
-// eslint-disable-next-line file-extension-in-import-ts/file-extension-in-import-ts -- @todo
 import { act } from "preact/test-utils";
 import { renderToString } from "preact-render-to-string";
 
-/*
-  eslint-disable-next-line
-  @typescript-eslint/ban-types 
-  -- This is the type Preact uses
-*/
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- Preact uses this type shape
 type Component<Props = {}> = import("preact").ComponentType<Props>;
 
 export function html(
@@ -109,11 +104,7 @@ export function Root<R extends Root<T, T>, T extends RenderProps, U extends T>(
   return test;
 }
 
-/*
-  eslint-disable-next-line
-  @typescript-eslint/ban-types 
-  -- This is the type Preact uses
-*/
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- Preact uses this type shape
 export function render(app: ComponentType<void>): RenderingResult<{}>;
 export function render<T>(app: ComponentType<T>, args: T): RenderingResult<T>;
 export function render<T>(app: ComponentType<T>, args?: T): RenderingResult<T> {
@@ -223,11 +214,7 @@ class RenderingResult<T, U extends T = T> {
         return this as unknown as RenderingResult<T, T>;
       },
       {
-        /*
-          eslint-disable-next-line
-          @typescript-eslint/unbound-method
-          -- we just need the function's identity here
-        */
+         
         entryFn: this.expect,
         cause: "expect was called here",
       },
@@ -590,6 +577,7 @@ export class TestElement<E extends Element, T extends RenderProps> {
           return async (init?: object) => {
             let result: unknown = false;
             await act(() => {
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- dynamic dispatch on user-provided fn
               result = value(this.#element, init);
             });
 

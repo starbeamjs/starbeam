@@ -25,7 +25,5 @@
   "dependencies": {
     "@starbeam/verify": "workspace:^"
   },
-  "devDependencies": {
-    "@starbeam-dev/eslint-plugin": "^1.0.6"
-  }
+  "devDependencies": {}
 }

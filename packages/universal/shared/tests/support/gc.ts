@@ -35,10 +35,12 @@ class MockFinalizationRegistry<T> implements FinalizationRegistry<T> {
     });
   }
 
-  unregister(unregisterToken: object): void {
+  unregister(unregisterToken: WeakKey): boolean {
+    const before = this.#targets.length;
     this.#targets = this.#targets.filter(
       (target) => target.unregisterToken !== unregisterToken,
     );
+    return this.#targets.length !== before;
   }
 
   gc(): void {

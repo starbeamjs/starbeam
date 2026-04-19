@@ -273,4 +273,78 @@ describe("TrackedMap", () => {
     expect(food.state).toEqual([undefined, "invalidated"]);
     expect(hasHamburgers.state).toEqual([false, "invalidated"]);
   });
+
+  describe("getOrInsert (TC39 upsert)", () => {
+    test("returns the existing value when present and does not overwrite", () => {
+      const map = reactive.Map<string, string>();
+      map.set("hamburgers", "burger");
+
+      const existing = map.getOrInsert("hamburgers", "sandwich");
+
+      expect(existing).toBe("burger");
+      expect(map.get("hamburgers")).toBe("burger");
+      expect(map.size).toBe(1);
+    });
+
+    test("inserts the default when absent and returns it", () => {
+      const map = reactive.Map<string, string>();
+
+      const inserted = map.getOrInsert("hamburgers", "burger");
+
+      expect(inserted).toBe("burger");
+      expect(map.get("hamburgers")).toBe("burger");
+      expect(map.size).toBe(1);
+    });
+
+    test("invalidates a prior has() when it inserts", () => {
+      const map = reactive.Map<string, string>();
+      const hasHamburgers = Invalidation.trace(() => map.has("hamburgers"));
+      expect(hasHamburgers.state).toEqual([false, "initialized"]);
+
+      map.getOrInsert("hamburgers", "burger");
+
+      expect(hasHamburgers.state).toEqual([true, "invalidated"]);
+    });
+
+    test("does not invalidate a prior has() when the key already exists", () => {
+      const map = reactive.Map<string, string>();
+      map.set("hamburgers", "burger");
+      const hasHamburgers = Invalidation.trace(() => map.has("hamburgers"));
+      expect(hasHamburgers.state).toEqual([true, "initialized"]);
+
+      map.getOrInsert("hamburgers", "sandwich");
+
+      expect(hasHamburgers.state).toEqual([true, "stable"]);
+    });
+  });
+
+  describe("getOrInsertComputed (TC39 upsert)", () => {
+    test("returns the existing value without invoking the callback", () => {
+      const map = reactive.Map<string, string>();
+      map.set("hamburgers", "burger");
+      let called = 0;
+
+      const existing = map.getOrInsertComputed("hamburgers", () => {
+        called++;
+        return "sandwich";
+      });
+
+      expect(existing).toBe("burger");
+      expect(called).toBe(0);
+    });
+
+    test("invokes the callback with the key and inserts when absent", () => {
+      const map = reactive.Map<string, string>();
+      const seenKeys: string[] = [];
+
+      const inserted = map.getOrInsertComputed("hamburgers", (key) => {
+        seenKeys.push(key);
+        return "burger";
+      });
+
+      expect(inserted).toBe("burger");
+      expect(seenKeys).toEqual(["hamburgers"]);
+      expect(map.get("hamburgers")).toBe("burger");
+    });
+  });
 });

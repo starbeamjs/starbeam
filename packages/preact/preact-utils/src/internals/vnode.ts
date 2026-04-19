@@ -151,7 +151,7 @@ export class InternalVNode {
   }
 
   [Symbol.for("nodejs.util.inspect.custom")](): object {
-    let type: unknown = undefined;
+    let type: unknown;
     const internalType = this.#vnode.type;
 
     const childrenFields: Partial<{ vnodes: unknown; children: unknown }> = {};

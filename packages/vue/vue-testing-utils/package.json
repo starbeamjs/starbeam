@@ -25,14 +25,13 @@
     "@starbeam/shared": "workspace:^",
     "@starbeam/verify": "workspace:^",
     "@starbeam-workspace/test-utils": "workspace:^",
-    "@testing-library/dom": "^9.3.1",
-    "@testing-library/vue": "^7.0.0"
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/vue": "^8.1.0"
   },
   "devDependencies": {
     "@starbeam-dev/compile": "workspace:*",
-    "@starbeam-dev/eslint-plugin": "^1.0.6",
-    "@vue/shared": "^3.3.4",
-    "rollup": "^4.0.2"
+    "@vue/shared": "^3.5.32",
+    "rollup": "^4.60.1"
   },
   "peerDependencies": {
     "vue": ">=3.0.0"

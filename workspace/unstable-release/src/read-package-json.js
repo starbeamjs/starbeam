@@ -10,7 +10,6 @@ import fse from "fs-extra";
  * @returns {Promise<PackageJson>}
  */
 export async function readPackageJson(path) {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return fse.readJSON(path);
 }
 

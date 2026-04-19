@@ -1,4 +1,4 @@
-import { Body } from "./vanilla.spec";
+import { Body } from "./vanilla.spec.js";
 
 interface Env {
   global: typeof globalThis;

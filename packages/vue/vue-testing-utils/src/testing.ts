@@ -58,13 +58,18 @@ function defComponent<Props extends PropTypes>(
     | ((props: PropsFor<Props>) => () => VNodeChild)
     | { setup: (props: PropsFor<Props>) => () => VNodeChild },
 ) {
-  function setup(props: PropsFor<Props>): () => VNodeChild {
+  // Vue 3.5's setup signature threads props through ToResolvedProps which
+  // adds an implicit `on${Capitalize<string>}` indexed signature for event
+  // handlers. Accept the wider shape and narrow to PropsFor when invoking
+  // the user's callback.
+  function setup(rawProps: Record<string, unknown>): () => VNodeChild {
+    const typedProps = rawProps as PropsFor<Props>;
     return entryPoint(
       () => {
         if (typeof options === "function") {
-          return options(props);
+          return options(typedProps);
         } else {
-          return options.setup(props);
+          return options.setup(typedProps);
         }
       },
       { entryFn: setup },
