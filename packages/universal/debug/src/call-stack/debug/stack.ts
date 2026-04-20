@@ -48,7 +48,7 @@ function callStack(stack: string, nearby?: string): CallStack | undefined {
   const { header, entries, lines, trace } = parsed;
 
   const frames = mapArray(entries, (entry) =>
-    stackFrame(() => trace.withSource(entry), nearby),
+    stackFrame(entry, () => trace.withSource(entry), nearby),
   );
 
   return {
@@ -62,21 +62,19 @@ function callStack(stack: string, nearby?: string): CallStack | undefined {
 }
 
 function stackFrame(
-  reify: () => StackTracey.Entry,
+  raw: StackTracey.Entry,
+  resolve: () => StackTracey.Entry,
   nearby: string | undefined,
 ): StackFrame {
-  let reified: StackTracey.Entry | null = null;
-
-  function getEntry(): StackTracey.Entry {
-    if (!reified) reified = reify();
-    return reified;
-  }
+  let resolved: StackTracey.Entry | null = null;
+  const getResolved = (): StackTracey.Entry =>
+    resolved ?? (resolved = resolve());
 
   return defineObject({
-    action: dataGetter(() => getEntry().callee),
-    module: dataGetter(() => parseModule(getEntry().file, nearby)),
+    action: dataGetter(() => raw.callee),
+    module: dataGetter(() => parseModule(getResolved().file, nearby)),
     loc: dataGetter(() => {
-      const entry = getEntry();
+      const entry = getResolved();
 
       if (entry.line === undefined) return undefined;
 
@@ -141,7 +139,7 @@ if (import.meta.vitest) {
   }
 
   const ERROR_LOC = {
-    line: 140,
+    line: 138,
     column: 11,
   };
 
@@ -216,7 +214,7 @@ if (import.meta.vitest) {
         const trace = new StackTracey(e.stack);
         const first = verified(getFirst(trace.items), isPresent);
 
-        const frame = stackFrame(() => trace.withSource(first), filename);
+        const frame = stackFrame(first, () => trace.withSource(first), filename);
 
         expect(frame.action).toBe("anAction");
         expect(frame.module).toEqual({

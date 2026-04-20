@@ -77,10 +77,18 @@ export function setupFunction<T>(callback: () => T): T {
  * `__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED` to
  * `__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE`, and
  * replaced the `ReactCurrentOwner.current` field with the top-level `H`
- * dispatcher (non-null during render, null otherwise).
+ * dispatcher.
  *
- * The React team may tighten access further, so we wrap the lookup defensively
- * and fall back to `IS_RESTRICTED` if the shape ever drifts.
+ * Detecting "am I rendering?" from `H`: `H` is set to various dispatchers
+ * during render, and set to `ContextOnlyDispatcher` outside of render
+ * (whose hook methods all throw). `H === null` means no React context at
+ * all. A real render dispatcher has distinct functions per hook; the
+ * throwing dispatcher shares a single `throwInvalidHookError` function
+ * across every hook method. Comparing `useState === useMemo` distinguishes
+ * the two cheaply.
+ *
+ * The React team may tighten access further, so we wrap the lookup
+ * defensively and fall back to `IS_RESTRICTED` if the shape ever drifts.
  */
 export function isRestrictedRead(): boolean {
   if (IS_UNRESTRICTED) {
@@ -95,12 +103,20 @@ function isReactRendering(): boolean {
     const internals = (
       React as unknown as {
         __CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE?: {
-          H?: unknown;
+          H?: {
+            useState?: unknown;
+            useMemo?: unknown;
+          } | null;
         };
       }
     ).__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
 
-    return internals?.H != null;
+    const dispatcher = internals?.H;
+    if (dispatcher == null) return false;
+
+    // ContextOnlyDispatcher shares throwInvalidHookError across all hook
+    // methods; a real render dispatcher has distinct functions per hook.
+    return dispatcher.useState !== dispatcher.useMemo;
   } catch {
     return false;
   }

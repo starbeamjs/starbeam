@@ -532,10 +532,7 @@ export function vscodeSettingsJson() {
           "error",
           {
             pathPattern: "^\\[.*\\]$",
-            order: [
-              "editor.formatOnSave",
-              { order: { natural: true } },
-            ],
+            order: ["editor.formatOnSave", { order: { natural: true } }],
           },
           {
             pathPattern: ".*",

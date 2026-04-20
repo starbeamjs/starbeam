@@ -30,6 +30,9 @@ export {
 } from "./vitest.js";
 export type { TestAPI } from "@vitest/runner";
 
+// Note: vitest 4 changed `describe.skipIf` to take a boolean value directly
+// instead of a predicate function. Passing a function always truthy-evaluates
+// to "skip" regardless of PROD.
 export const describeInDev: ReturnType<SuiteAPI["skipIf"]> = describe.skipIf(
-  () => !!import.meta.env.PROD,
+  !!import.meta.env.PROD,
 );

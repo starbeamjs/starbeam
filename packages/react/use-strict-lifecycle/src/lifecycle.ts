@@ -110,12 +110,16 @@ import { checked, isInitialized, mapEntries, UNINITIALIZED } from "./utils.js";
 enum State {
   /**
    * A component starts out in the "mounting" state and transitions to the
-   * "mounted" state in the component's first `useLayoutEffect` callback.
+   * "mounted" state in the component's first `useLayoutEffect` callback. It
+   * also stays in this state across strict mode's throwaway second render,
+   * transitioning to "mounted" once `useLayoutEffect` finally fires.
    */
   mounting = "mounting",
   /**
    * Once a component has reached its first `useLayoutEffect` callback, it's
-   * in the "mounted" state until it's unmounted.
+   * in the "mounted" state until it's unmounted. A component also transitions
+   * back to "mounted" from "remounting" on the re-render that follows a
+   * post-unmount `useLayoutEffect`.
    */
   mounted = "mounted",
   /**
@@ -179,9 +183,26 @@ export function useLifecycle<V, A>(
         if (state.current === State.mounted) {
           // If already mounted, we're _updating_: call the update callback.
           run(LifecycleEvent.update);
-        } else {
-          // If _remounting_, update already happened in `useLayoutEffect`.
+        } else if (state.current === State.remounting) {
+          // Post-remount re-render (triggered by `notify()` inside
+          // `useLayoutEffect`): the instance was already rebuilt there, so
+          // just finish the transition back to mounted.
           state.current = State.mounted;
+        } else {
+          // `state.current === State.mounting`: this is strict mode's second
+          // render, before any `useLayoutEffect` has fired. React is about to
+          // throw the first render's work away, so per INVARIANTS §14/§15 we
+          // treat it as a fresh activation and rebuild the instance.
+          //
+          // `on.layout` handlers never ran on the discarded instance, so any
+          // cleanup they would have registered doesn't exist yet; the builder
+          // receives the previous value via `prev` and is responsible for
+          // handing any longer-lived identity back to the new instance (see
+          // `ReactApp.reactivate` in `packages/react/react/src/app.ts`).
+          instance.current = buildInstance<T, V, A>({
+            options: instance.current.options,
+            value: instance.current.value,
+          });
         }
       }
 
