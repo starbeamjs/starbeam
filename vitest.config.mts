@@ -52,6 +52,24 @@ export default defineConfig({
     name: "Starbeam",
     env,
 
+    // Serialize the suite. Several preact/vue tests are timing-sensitive
+    // around framework schedulers and time out when multiple workers run
+    // concurrently. The singleFork/maxWorkers:1 workaround was removed in
+    // the #162 infra arc on the theory that vitest 4's pool rewrite had
+    // fixed the race — but that only appeared to be true because the
+    // `describeInDev` bug was silently skipping ~80 react tests, halving
+    // the concurrent load. With describeInDev fixed, the race returns
+    // under default parallelism and causes ~8 timeouts in preact/vue
+    // tests that pass in isolation.
+    //
+    // TODO: find and fix the actual race in the preact/vue adapters
+    // (likely around scheduler/microtask timing), then remove this.
+    //
+    // In vitest 4, poolOptions.forks.singleFork was replaced by top-level
+    // isolate:false + maxWorkers:1.
+    isolate: false,
+    maxWorkers: 1,
+
     projects,
   },
 });
