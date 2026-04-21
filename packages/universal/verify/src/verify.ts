@@ -7,6 +7,10 @@ export class VerificationError<T = unknown> extends Error {
   }
 }
 
+export function alwaysTrue(): true {
+  return true;
+}
+
 export type VerifyFn = typeof verify;
 
 export function verify<Value, Input extends Value, Output extends Input>(

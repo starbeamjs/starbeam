@@ -1,6 +1,6 @@
 import { isPresentArray } from "@starbeam/core-utils";
 
-import { expected, toKind } from "../verify.js";
+import { alwaysTrue, expected, toKind } from "../verify.js";
 import { format } from "./describe.js";
 import type { FixedArray, ReadonlyFixedArray } from "./type-utils.js";
 
@@ -26,14 +26,17 @@ export type Primitive =
   | undefined;
 
 export function isEqual<T>(value: T): (other: unknown) => other is T {
-  function verify(input: unknown): input is T {
-    return Object.is(input, value);
-  }
+  if (import.meta.env.DEV) {
+    function verify(input: unknown): input is T {
+      return Object.is(input, value);
+    }
 
-  return expected.associate(
-    verify,
-    expected.toBe(inspect(value)).butGot(format),
-  );
+    return expected.associate(
+      verify,
+      expected.toBe(inspect(value)).butGot(format),
+    );
+  }
+  return alwaysTrue as unknown as (other: unknown) => other is T;
 }
 
 function inspect(value: unknown): string {
@@ -50,14 +53,17 @@ function inspect(value: unknown): string {
 export function isNotEqual<T>(
   value: T,
 ): <U>(other: U) => other is Exclude<U, T> {
-  function verify<U>(input: U): input is Exclude<U, T> {
-    return !Object.is(input, value);
-  }
+  if (import.meta.env.DEV) {
+    function verify<U>(input: U): input is Exclude<U, T> {
+      return !Object.is(input, value);
+    }
 
-  return expected.associate(
-    verify,
-    expected.toBe(`not ${String(value)}`).butGot(format),
-  );
+    return expected.associate(
+      verify,
+      expected.toBe(`not ${String(value)}`).butGot(format),
+    );
+  }
+  return alwaysTrue as unknown as <U>(other: U) => other is Exclude<U, T>;
 }
 
 export function isObject(value: unknown): value is object {
@@ -76,11 +82,14 @@ interface HasLength<L extends number> {
 }
 
 export function hasLength<L extends number>(length: L): HasLength<L> {
-  function has<T>(value: T[] | readonly T[]): value is FixedArray<T, L> {
-    return value.length === length;
-  }
+  if (import.meta.env.DEV) {
+    function has<T>(value: T[] | readonly T[]): value is FixedArray<T, L> {
+      return value.length === length;
+    }
 
-  return expected.associate(has, expected.toHave(`${length} items`));
+    return expected.associate(has, expected.toHave(`${length} items`));
+  }
+  return alwaysTrue as unknown as HasLength<L>;
 }
 
 export const hasItems = isPresentArray;
@@ -94,38 +103,41 @@ export const hasItems = isPresentArray;
 export function isNullable<In, Out extends In>(
   verifier: (value: In) => value is Out,
 ): (value: In | null) => value is Out | null {
-  function verify(input: In | null): input is Out | null {
-    if (input === null) {
-      return true;
-    } else {
-      return verifier(input);
-    }
-  }
-
-  const expectation = expected.updated(verifier, {
-    to: (to) => {
-      if (to === undefined) {
-        return ["to be", "nullable"];
+  if (import.meta.env.DEV) {
+    function verify(input: In | null): input is Out | null {
+      if (input === null) {
+        return true;
       } else {
-        return `${toKind(to)} or null`;
+        return verifier(input);
       }
-    },
-    actual: (actual) => {
-      return (input: In | null) => {
-        if (input === null) {
-          return "null";
-        } else if (actual) {
-          return actual(input);
+    }
+
+    const expectation = expected.updated(verifier, {
+      to: (to) => {
+        if (to === undefined) {
+          return ["to be", "nullable"];
         } else {
-          return undefined;
+          return `${toKind(to)} or null`;
         }
-      };
-    },
-  });
+      },
+      actual: (actual) => {
+        return (input: In | null) => {
+          if (input === null) {
+            return "null";
+          } else if (actual) {
+            return actual(input);
+          } else {
+            return undefined;
+          }
+        };
+      },
+    });
 
-  expected.associate(verify, expectation);
+    expected.associate(verify, expectation);
 
-  return verify;
+    return verify;
+  }
+  return alwaysTrue as unknown as (value: In | null) => value is Out | null;
 }
 
 

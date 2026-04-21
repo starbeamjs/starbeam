@@ -9,7 +9,7 @@ import {
   mapArray,
 } from "@starbeam/core-utils";
 import type { CallStack, StackFrame } from "@starbeam/interfaces";
-import { hasType, verified, verify } /*#__PURE__*/ from "@starbeam/verify";
+import { hasType, isObject, verified, verify } /*#__PURE__*/ from "@starbeam/verify";
 import StackTracey /*#__PURE__*/ from "stacktracey";
 
 import { parseModule } from "./module.js";
@@ -127,7 +127,7 @@ function parseStack(stack: string): ParsedStack | undefined {
 }
 
 function isErrorWithStack(value: unknown): value is Error & { stack: string } {
-  return hasType("object")(value) && hasType("string")((value as Error).stack);
+  return isObject(value) && typeof (value as Error).stack === "string";
 }
 
 if (import.meta.vitest) {
