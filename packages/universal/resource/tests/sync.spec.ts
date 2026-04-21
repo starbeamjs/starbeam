@@ -487,7 +487,7 @@ class Child<T, U> {
   }
 
   assertInitialized(expected: U): void {
-    verify(this.#lastValue, isEqual(UNINITIALIZED));
+    verify?.(this.#lastValue, isEqual(UNINITIALIZED));
 
     const next = this.#extract(this.#value);
     expect(next).toBe(expected);

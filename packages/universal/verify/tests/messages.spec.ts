@@ -1,7 +1,9 @@
 import { expected } from "@starbeam/verify";
 import { describe, expect, test } from "vitest";
 
-describe("isPresent", () => {
+const isProd = import.meta.env.PROD;
+
+describe.skipIf(isProd)("isPresent", () => {
   test("a basic message", () => {
     expect(expected.toBe("present").message(null)).toEqual(
       "Expected value to be present"

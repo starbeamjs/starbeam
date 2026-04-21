@@ -134,12 +134,16 @@ if (import.meta.vitest) {
   const { test, expect, describe } = import.meta.vitest;
   const filename = new URL(import.meta.url).pathname;
 
+  // These in-source tests exercise DEV-only verify() behavior. In PROD
+  // mode, verify is null and the tests would crash on every call.
+  describe.skipIf(import.meta.env.PROD)("call-stack (DEV only)", () => {
+
   function anAction() {
     throw Error(ERROR_MESSAGE);
   }
 
   const ERROR_LOC = {
-    line: 138,
+    line: 142,
     column: 11,
   };
 
@@ -224,5 +228,6 @@ if (import.meta.vitest) {
         expect(frame.loc).toEqual(ERROR_LOC);
       }
     });
+  });
   });
 }
