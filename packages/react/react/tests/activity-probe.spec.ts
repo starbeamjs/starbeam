@@ -75,39 +75,24 @@ testReact<{ mode: "visible" | "hidden" }, number>(
       loose: () => void events.expect("setup", "sync"),
     });
 
-    // Hide the subtree. Observed (2026-04-21): React fires cleanup and
-    // finalize (effects destroyed), but ALSO re-renders the subtree
-    // one more time under hide, which invokes Starbeam's `setup`
-    // blueprint again. No `sync` follows because layout effects don't
-    // fire for a hidden subtree.
-    //
-    // This is a surprising observation: Starbeam's resource allocates
-    // new state during the hide transition even though it can never
-    // run (no layout commit). The allocation will be torn down when
-    // the subtree shows again — but the blueprint callback still runs
-    // inside the transition to hidden. Worth investigating.
+    // Hide the subtree. §15: layout cleanup fires, resource sees
+    // cleanup + finalize. `useLifecycle`'s `isUpdate && state ===
+    // unmounted` branch falls through as a no-op, so no spurious
+    // setup runs during the hide-transition re-render.
     await result.rerender({ mode: "hidden" });
-    mode.match({
-      strict: () => void events.expect("cleanup", "finalize", "setup", "setup"),
-      loose: () => void events.expect("cleanup", "finalize", "setup"),
-    });
+    events.expect("cleanup", "finalize");
 
     // After the hide transition, React's style attribute is left as
     // an empty string (style="") rather than being removed. The DOM
     // content is still there — only the style representation changed.
     expectedHTML = () => `<p style="">count=0</p>`;
 
-    // Show again. Observed (2026-04-21): React runs a full re-activation
-    // cycle on show, including a strict-mode-style double-activation in
-    // strict mode. The key property — §15 is honored, new sync happens
-    // after the show — holds. The specific event count reflects how
-    // aggressively React re-activates under Activity.
+    // Show again. Layout effects fire; remount path rebuilds the
+    // resource, fires setup and sync.
     await result.rerender({ mode: "visible" });
     mode.match({
       strict: () =>
         void events.expect(
-          "setup",
-          "setup",
           "setup",
           "sync",
           "cleanup",
@@ -115,7 +100,7 @@ testReact<{ mode: "visible" | "hidden" }, number>(
           "setup",
           "sync",
         ),
-      loose: () => void events.expect("setup", "setup", "sync"),
+      loose: () => void events.expect("setup", "sync"),
     });
   },
 );
