@@ -33,5 +33,5 @@ export function isOneOf<In, Out extends In>(
 
     return expected.associate(verify, expectation);
   }
-  return alwaysTrue as unknown as (value: In) => value is Out;
+  return alwaysTrue;
 }

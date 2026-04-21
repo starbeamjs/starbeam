@@ -37,7 +37,7 @@ export function hasType<K extends keyof TypeOfTypes>(
   if (import.meta.env.DEV) {
     return IS_TYPEOF[type] as (value: unknown) => value is TypeOfTypes[K];
   }
-  return alwaysTrue as unknown as (value: unknown) => value is TypeOfTypes[K];
+  return alwaysTrue;
 }
 
 interface TypeOfTypes {
@@ -83,7 +83,7 @@ function isTypeof<K extends keyof TypeOfTypes>(
     );
   }
 
-  return alwaysTrue as unknown as (value: unknown) => value is TypeOfTypes[K];
+  return alwaysTrue;
 }
 
 function typeName(value: unknown): TypeOf {

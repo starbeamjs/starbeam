@@ -9,7 +9,12 @@ import {
   mapArray,
 } from "@starbeam/core-utils";
 import type { CallStack, StackFrame } from "@starbeam/interfaces";
-import { hasType, isObject, verified, verify } /*#__PURE__*/ from "@starbeam/verify";
+import {
+  hasType,
+  isObject,
+  verified,
+  verify /*#__PURE__*/,
+} from "@starbeam/verify";
 import StackTracey /*#__PURE__*/ from "stacktracey";
 
 import { parseModule } from "./module.js";
@@ -137,97 +142,100 @@ if (import.meta.vitest) {
   // These in-source tests exercise DEV-only verify() behavior. In PROD
   // mode, verify is null and the tests would crash on every call.
   describe.skipIf(import.meta.env.PROD)("call-stack (DEV only)", () => {
-
-  function anAction() {
-    throw Error(ERROR_MESSAGE);
-  }
-
-  const ERROR_LOC = {
-    line: 142,
-    column: 11,
-  };
-
-  function aCallerAction() {
-    return callerStack();
-  }
-
-  const ERROR_MESSAGE = "an error happened in an action";
-  const CALLER_FRAME = 1;
-
-  test("parseStack", () => {
-    try {
-      anAction();
-    } catch (e) {
-      const { header, entries, lines, trace } = verified(
-        parseStack(verified(e, isErrorWithStack).stack),
-        isPresent,
-      );
-
-      expect(header).toBe(`Error: ${ERROR_MESSAGE}`);
-      expect(lines).toHaveLength(entries.length);
-      expect(trace.items).toEqual(entries);
-      expect(getFirst(lines)).toMatch(/\banAction\b/);
+    function anAction() {
+      throw Error(ERROR_MESSAGE);
     }
-  });
 
-  {
-    function testCallStack() {
+    const ERROR_LOC = {
+      line: 146,
+      column: 13,
+    };
+
+    function aCallerAction() {
+      return callerStack();
+    }
+
+    const ERROR_MESSAGE = "an error happened in an action";
+    const CALLER_FRAME = 1;
+
+    test("parseStack", () => {
       try {
         anAction();
       } catch (e) {
-        const stack = verified(
-          callStack(verified(e, isErrorWithStack).stack, filename),
+        const { header, entries, lines, trace } = verified(
+          parseStack(verified(e, isErrorWithStack).stack),
           isPresent,
         );
 
-        expect(stack.header).toBe(`Error: ${ERROR_MESSAGE}`);
-        const frameSize = stack.frames.length;
-        expect(stack.slice(CALLER_FRAME)?.frames).toHaveLength(
-          frameSize - CALLER_FRAME,
-        );
-
-        const firstFrame = getFirst(stack.slice(CALLER_FRAME)?.frames ?? []);
-        expect(firstFrame?.action).toBe(TEST_NAME);
-      }
-    }
-
-    const TEST_NAME = testCallStack.name;
-
-    test("callStack", testCallStack);
-  }
-
-  {
-    function testCallerStack() {
-      const caller = verified(aCallerAction(), isPresent);
-
-      expect(getFirst(caller.frames).action).toBe(TEST_NAME);
-    }
-
-    const TEST_NAME = testCallerStack.name;
-
-    test("callerStack", testCallerStack);
-  }
-
-  describe("StackFrame", () => {
-    test("action", () => {
-      try {
-        anAction();
-      } catch (e) {
-        verify(e, isErrorWithStack);
-
-        const trace = new StackTracey(e.stack);
-        const first = verified(getFirst(trace.items), isPresent);
-
-        const frame = stackFrame(first, () => trace.withSource(first), filename);
-
-        expect(frame.action).toBe("anAction");
-        expect(frame.module).toEqual({
-          path: "stack.ts",
-          root: new URL(".", import.meta.url).pathname,
-        });
-        expect(frame.loc).toEqual(ERROR_LOC);
+        expect(header).toBe(`Error: ${ERROR_MESSAGE}`);
+        expect(lines).toHaveLength(entries.length);
+        expect(trace.items).toEqual(entries);
+        expect(getFirst(lines)).toMatch(/\banAction\b/);
       }
     });
-  });
+
+    {
+      function testCallStack() {
+        try {
+          anAction();
+        } catch (e) {
+          const stack = verified(
+            callStack(verified(e, isErrorWithStack).stack, filename),
+            isPresent,
+          );
+
+          expect(stack.header).toBe(`Error: ${ERROR_MESSAGE}`);
+          const frameSize = stack.frames.length;
+          expect(stack.slice(CALLER_FRAME)?.frames).toHaveLength(
+            frameSize - CALLER_FRAME,
+          );
+
+          const firstFrame = getFirst(stack.slice(CALLER_FRAME)?.frames ?? []);
+          expect(firstFrame?.action).toBe(TEST_NAME);
+        }
+      }
+
+      const TEST_NAME = testCallStack.name;
+
+      test("callStack", testCallStack);
+    }
+
+    {
+      function testCallerStack() {
+        const caller = verified(aCallerAction(), isPresent);
+
+        expect(getFirst(caller.frames).action).toBe(TEST_NAME);
+      }
+
+      const TEST_NAME = testCallerStack.name;
+
+      test("callerStack", testCallerStack);
+    }
+
+    describe("StackFrame", () => {
+      test("action", () => {
+        try {
+          anAction();
+        } catch (e) {
+          verify(e, isErrorWithStack);
+
+          const trace = new StackTracey(e.stack);
+          const first = verified(getFirst(trace.items), isPresent);
+
+          const frame = stackFrame(
+            first,
+            () => trace.withSource(first),
+            filename,
+          );
+
+          expect(frame.action).toBe("anAction");
+          expect(frame.module).toEqual({
+            path: "stack.ts",
+            root: new URL(".", import.meta.url).pathname,
+          });
+          expect(frame.loc).toEqual(ERROR_LOC);
+        }
+      });
+    });
   });
 }

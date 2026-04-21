@@ -36,7 +36,7 @@ export function isEqual<T>(value: T): (other: unknown) => other is T {
       expected.toBe(inspect(value)).butGot(format),
     );
   }
-  return alwaysTrue as unknown as (other: unknown) => other is T;
+  return alwaysTrue;
 }
 
 function inspect(value: unknown): string {
@@ -63,7 +63,7 @@ export function isNotEqual<T>(
       expected.toBe(`not ${String(value)}`).butGot(format),
     );
   }
-  return alwaysTrue as unknown as <U>(other: U) => other is Exclude<U, T>;
+  return alwaysTrue;
 }
 
 export function isObject(value: unknown): value is object {
@@ -89,7 +89,7 @@ export function hasLength<L extends number>(length: L): HasLength<L> {
 
     return expected.associate(has, expected.toHave(`${length} items`));
   }
-  return alwaysTrue as unknown as HasLength<L>;
+  return alwaysTrue as HasLength<L>;
 }
 
 export const hasItems = isPresentArray;
@@ -137,7 +137,7 @@ export function isNullable<In, Out extends In>(
 
     return verify;
   }
-  return alwaysTrue as unknown as (value: In | null) => value is Out | null;
+  return alwaysTrue;
 }
 
 

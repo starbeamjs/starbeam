@@ -7,7 +7,12 @@ export class VerificationError<T = unknown> extends Error {
   }
 }
 
-export function alwaysTrue(): true {
+/**
+ * A DEV-gated factory's PROD stub. In PROD, assertion factories return
+ * this function directly; its type-guard signature lets it stand in for
+ * any `(x: unknown) => x is T` verifier without casts.
+ */
+export function alwaysTrue<T>(_value: unknown): _value is T {
   return true;
 }
 
