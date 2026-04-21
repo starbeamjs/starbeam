@@ -188,22 +188,29 @@ export function useLifecycle<V, A>(
           // `useLayoutEffect`): the instance was already rebuilt there, so
           // just finish the transition back to mounted.
           state.current = State.mounted;
-        } else {
-          // `state.current === State.mounting`: this is strict mode's second
-          // render, before any `useLayoutEffect` has fired. React is about to
-          // throw the first render's work away, so per INVARIANTS §14/§15 we
-          // treat it as a fresh activation and rebuild the instance.
+        } else if (state.current === State.mounting) {
+          // Strict mode's second render, before any `useLayoutEffect` has
+          // fired. React is about to throw the first render's work away,
+          // so per INVARIANTS §14/§15 we treat it as a fresh activation
+          // and rebuild the instance.
           //
-          // `on.layout` handlers never ran on the discarded instance, so any
-          // cleanup they would have registered doesn't exist yet; the builder
-          // receives the previous value via `prev` and is responsible for
-          // handing any longer-lived identity back to the new instance (see
-          // `ReactApp.reactivate` in `packages/react/react/src/app.ts`).
+          // `on.layout` handlers never ran on the discarded instance, so
+          // any cleanup they would have registered doesn't exist yet; the
+          // builder receives the previous value via `prev` and is
+          // responsible for handing any longer-lived identity back to the
+          // new instance (see `ReactApp.reactivate` in
+          // `packages/react/react/src/app.ts`).
           instance.current = buildInstance<T, V, A>({
             options: instance.current.options,
             value: instance.current.value,
           });
         }
+        // state.current === State.unmounted: React is re-rendering the
+        // subtree after `useLayoutEffect`'s cleanup fired (e.g.,
+        // `<Activity mode="hidden">`'s visible→hidden transition). No
+        // layout effect will fire in this state because the subtree is
+        // hidden. Don't rebuild the instance here — the remount path in
+        // `useLayoutEffect` handles rebuild if and when we come back.
       }
 
       function run(event: LifecycleEvent): void {
@@ -274,9 +281,9 @@ interface Instance<T, V, A> {
 
 type HandlerSets<A> = Readonly<Record<LifecycleEvent, Set<(args: A) => void>>>;
 
-export type RegisterLifecycleHandlers<A> = Readonly<Record<LifecycleEvent, (
-    handler: undefined | ((args: A) => void),
-  ) => void>>;
+export type RegisterLifecycleHandlers<A> = Readonly<
+  Record<LifecycleEvent, (handler: undefined | ((args: A) => void)) => void>
+>;
 
 interface LifecycleOptions<T, V, A> {
   readonly build: UseLifecycleBuilder<T, A>;

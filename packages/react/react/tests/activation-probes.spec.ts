@@ -118,10 +118,17 @@ testReact<void, number>(
     // setupReactive returns Reactive<T>; two reads per activation
     // (consumer calls r.current twice in render). Strict doubles that.
     mode.match({
-      strict: () => void events.expect(
-        "read", "read", "read", "read",
-        "read", "read", "read", "read",
-      ),
+      strict: () =>
+        void events.expect(
+          "read",
+          "read",
+          "read",
+          "read",
+          "read",
+          "read",
+          "read",
+          "read",
+        ),
       loose: () => void events.expect("read", "read"),
     });
   },
@@ -149,15 +156,16 @@ testReact<void, number>(
       // Matches `resource-stages.spec.ts > the basics > strict mode`:
       // first activation sets up, is torn down, second activation
       // sets up again and syncs.
-      strict: () => void events.expect(
-        "setup",
-        "setup",
-        "sync",
-        "cleanup",
-        "finalize",
-        "setup",
-        "sync",
-      ),
+      strict: () =>
+        void events.expect(
+          "setup",
+          "setup",
+          "sync",
+          "cleanup",
+          "finalize",
+          "setup",
+          "sync",
+        ),
       loose: () => void events.expect("setup", "sync"),
     });
   },
@@ -184,14 +192,13 @@ testReact<void, number>(
       });
 
     mode.match({
-      // setup runs once per activation. Strict mode observed count is
-      // 3 setups: R1 (discarded), R2 (committed), and a third call
-      // during the post-layout-effect re-render that `notify()` triggers.
-      // That third call is surprising — per the `useLifecycle` fix in
-      // PR #163, the post-layout re-render shouldn't rebuild the
-      // instance. TODO: investigate whether `setup` takes a different
-      // path that does rebuild. Recording observed behavior as the
-      // baseline here.
+      // Strict mode's first mount goes through two activations per
+      // §14/§15: the discarded R1+R2 pair (strict's "throwaway test")
+      // and then the remount activation after React's strict-mode
+      // cleanup cycle. The first activation's blueprint runs twice
+      // (R1 initial + R2 rebuild per PR #163), and the remount runs
+      // it once more, so 3 setup events total. Matches
+      // resource-stages.spec.ts baseline.
       strict: () => void events.expect("setup", "setup", "setup"),
       loose: () => void events.expect("setup"),
     });
