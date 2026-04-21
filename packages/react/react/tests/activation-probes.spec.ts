@@ -192,13 +192,33 @@ testReact<void, number>(
       });
 
     mode.match({
-      // Strict mode's first mount goes through two activations per
-      // §14/§15: the discarded R1+R2 pair (strict's "throwaway test")
-      // and then the remount activation after React's strict-mode
-      // cleanup cycle. The first activation's blueprint runs twice
-      // (R1 initial + R2 rebuild per PR #163), and the remount runs
-      // it once more, so 3 setup events total. Matches
-      // resource-stages.spec.ts baseline.
+      // Strict mode's first mount runs `setup` three times:
+      //
+      //   1. R1's render: blueprint runs via `useInitializedRef`'s
+      //      initial path. React will discard this render; no layout
+      //      effect commits for it.
+      //   2. R2's render: blueprint runs again via the `isUpdate &&
+      //      state === mounting` rebuild added in PR #163. React will
+      //      commit this render.
+      //   3. Strict mode's mandatory remount cycle: layout cleanup
+      //      fires on the committed instance, then layout fires again
+      //      with `state === unmounted` and rebuilds the instance via
+      //      the remount path, running `setup` once more.
+      //
+      // Matches `resource-stages.spec.ts` baseline, which asserts the
+      // same `setup, setup, …, setup` sequence around the `sync` /
+      // `cleanup` / `finalize` events that a Resource blueprint adds
+      // on top.
+      //
+      // How this maps to INVARIANTS §14/§15's "setup runs once per
+      // logical activation" is an open interpretation — §15 ties
+      // "activation" to effect commit/destruction, under which R1's
+      // setup is a wasted call (no committed effects to pair with) and
+      // R2 + remount are the two pairable activations. PR #163
+      // introduces the R1→R2 rebuild deliberately, treating the
+      // discarded render as its own "fresh reactive identity" —
+      // observable behavior is consistent either way because R1's
+      // instance is unreachable after React discards the render.
       strict: () => void events.expect("setup", "setup", "setup"),
       loose: () => void events.expect("setup"),
     });
