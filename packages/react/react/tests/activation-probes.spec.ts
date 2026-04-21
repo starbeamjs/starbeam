@@ -1,4 +1,3 @@
-/* eslint-disable import-x/no-relative-packages -- probe against experimental surface */
 // @vitest-environment jsdom
 
 import type { Reactive } from "@starbeam/interfaces";
@@ -11,8 +10,6 @@ import {
 import { Cell, Formula } from "@starbeam/universal";
 import { html, testReact } from "@starbeam-workspace/react-test-utils";
 import { RecordedEvents, TestResource } from "@starbeam-workspace/test-utils";
-
-import { useSyncReactive } from "../src/experimental/use-sync-reactive.js";
 
 /**
  * Activation probes per INVARIANTS.md §14/§15.
@@ -126,36 +123,6 @@ testReact<void, number>(
         "read", "read", "read", "read",
       ),
       loose: () => void events.expect("read", "read"),
-    });
-  },
-);
-
-// ---------------------------------------------------------------------------
-// useSyncReactive (the prototype)
-// ---------------------------------------------------------------------------
-
-testReact<void, number>(
-  "§14: useSyncReactive(reactive) — CURRENTLY VIOLATES (CachedFormula reused across strict-mode R1→R2)",
-  async (root, mode) => {
-    const cell = Cell(INITIAL);
-    const events = new RecordedEvents();
-    const tracked = trackedFormula(events, cell);
-
-    await root
-      .expectHTML((value) => `<p>${value}</p>`)
-      .render((state) => {
-        const value = useSyncReactive(tracked);
-        state.value(value);
-        return html.p(String(value));
-      });
-
-    mode.match({
-      // Currently: 1 read in strict mode — CachedFormula is memoized
-      // via useRef, survives the discarded R1 render. This is the bug:
-      // §14 says R2 should be a fresh activation producing a new
-      // CachedFormula. Expected correct behavior: ≥ loose count + 1.
-      strict: () => void events.expect("read"),
-      loose: () => void events.expect("read"),
     });
   },
 );
