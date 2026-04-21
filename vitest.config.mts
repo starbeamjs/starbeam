@@ -9,7 +9,18 @@ import { defineConfig } from "vitest/config";
 // repo root regardless of where vitest is loading the config from.
 const root = process.cwd();
 
-const env = process.env["STARBEAM_TRACE"] ? { STARBEAM_TRACE: "true" } : {};
+// `ci:prod` sets STARBEAM_TEST_PROD=1; that flips the env vars vitest's
+// import.meta.env proxy reads, which is the only way to actually make
+// `import.meta.env.DEV === false` at runtime (vitest's own --mode
+// production doesn't; see vitest#5525). Without this, `ci:prod` was
+// running exactly the same code paths as `ci:specs`.
+const isProd = process.env["STARBEAM_TEST_PROD"] === "1";
+const env: Record<string, string> = {
+  ...(process.env["STARBEAM_TRACE"] ? { STARBEAM_TRACE: "true" } : {}),
+  ...(isProd
+    ? { PROD: "1", DEV: "", MODE: "production", NODE_ENV: "production" }
+    : {}),
+};
 
 const projects: TestProjectConfiguration[] = glob
   .sync([

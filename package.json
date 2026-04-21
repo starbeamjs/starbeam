@@ -85,13 +85,13 @@
   },
   "scripts": {
     "build": "turbo build",
-    "ci:prod": "vitest --pool forks --run --mode production",
+    "ci:prod": "STARBEAM_TEST_PROD=1 vitest --pool forks --run",
     "ci:specs": "vitest --pool forks --run",
     "lint:fix": "pnpm --filter '*' test:lint --fix",
     "prepack": "pnpm run build",
     "sort-deps": "node workspace/scripts/sort-package-json-deps.mjs",
     "test:workspace:lint": "turbo run lint --output-logs errors-only --log-prefix none",
-    "test:workspace:prod": "PROD=1 DEV= vitest --pool forks --run",
+    "test:workspace:prod": "STARBEAM_TEST_PROD=1 vitest --pool forks --run",
     "test:workspace:specs": "vitest --pool forks --run",
     "test:workspace:types": "turbo run typecheck --output-logs errors-only --log-prefix none",
     "vitest": "vitest --pool forks"

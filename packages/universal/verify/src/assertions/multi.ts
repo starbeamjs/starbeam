@@ -1,34 +1,37 @@
-import { expected, toKind } from "../verify.js";
+import { alwaysTrue, expected, toKind } from "../verify.js";
 
 export function isOneOf<In, Out extends In>(
   ...verifiers: ((value: In) => value is Out)[]
 ): (value: In) => value is Out {
-  function verify(input: In): input is Out {
-    for (const verifier of verifiers) {
-      if (verifier(input)) {
-        return true;
+  if (import.meta.env.DEV) {
+    function verify(input: In): input is Out {
+      for (const verifier of verifiers) {
+        if (verifier(input)) {
+          return true;
+        }
       }
+
+      return false;
     }
 
-    return false;
-  }
-
-  const expectation = expected.updated(verify, {
-    to: (to) => {
-      if (to === undefined) {
-        return ["to be one of", "any"];
-      } else {
-        return `${toKind(to)} or any`;
-      }
-    },
-    actual: (actual) => {
-      return (input: In) => {
-        if (actual) {
-          return actual(input);
+    const expectation = expected.updated(verify, {
+      to: (to) => {
+        if (to === undefined) {
+          return ["to be one of", "any"];
+        } else {
+          return `${toKind(to)} or any`;
         }
-      };
-    },
-  });
+      },
+      actual: (actual) => {
+        return (input: In) => {
+          if (actual) {
+            return actual(input);
+          }
+        };
+      },
+    });
 
-  return expected.associate(verify, expectation);
+    return expected.associate(verify, expectation);
+  }
+  return alwaysTrue;
 }
