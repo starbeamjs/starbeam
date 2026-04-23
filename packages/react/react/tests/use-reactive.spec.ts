@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 // @vitest-environment jsdom
 
-import { setup, setupReactive } from "@starbeam/react";
+import { useSetup } from "@starbeam/react";
 import { Cell, Formula } from "@starbeam/universal";
 import { describeInDev } from "@starbeam-workspace/test-utils";
 
@@ -21,9 +21,9 @@ describeInDev("useReactive", () => {
     });
   });
 
-  testUseReactive("with a cell created via setup()", async (test) => {
+  testUseReactive("with a cell created via useSetup()", async (test) => {
     return test((use) => {
-      const cell = setup(() => Cell(0));
+      const cell = useSetup(() => Cell(0));
       const count = use(cell);
 
       return {
@@ -33,11 +33,11 @@ describeInDev("useReactive", () => {
     });
   });
 
-  testUseReactive("with a formula created via setup()", async (test) => {
+  testUseReactive("with a formula created via useSetup()", async (test) => {
     const externalCell = Cell(0);
 
     return test((use) => {
-      const formula = setup(() => Formula(() => externalCell.current));
+      const formula = useSetup(() => Formula(() => externalCell.current));
       const count = use(formula);
 
       return {
@@ -46,23 +46,4 @@ describeInDev("useReactive", () => {
       };
     });
   });
-
-  testUseReactive(
-    "with a formula created via setupReactive()",
-    async (component) => {
-      const externalCell = Cell(0);
-
-      return component((use) => {
-        const formula = setupReactive(() =>
-          Formula(() => externalCell.current),
-        );
-        const count = use(formula);
-
-        return {
-          current: count,
-          increment: () => externalCell.current++,
-        };
-      });
-    },
-  );
 });

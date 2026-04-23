@@ -10,7 +10,6 @@ import {
 import type {
   Handler,
   Lifecycle,
-  ReactiveBlueprint,
   SetupBlueprint,
   UseReactive,
 } from "@starbeam/renderer";
@@ -19,11 +18,7 @@ import { setupResource as starbeamSetupResource } from "@starbeam/resource";
 import { pushingScope, RUNTIME } from "@starbeam/runtime";
 import { finalize } from "@starbeam/shared";
 import type { Ref } from "@starbeam/use-strict-lifecycle";
-import {
-  unsafeTrackedElsewhere,
-  useLastRenderRef,
-  useLifecycle,
-} from "@starbeam/use-strict-lifecycle";
+import { useLastRenderRef, useLifecycle } from "@starbeam/use-strict-lifecycle";
 import { useEffect, useRef, useState } from "react";
 
 import { useStarbeamApp } from "../app.js";
@@ -31,14 +26,14 @@ import { sameDeps } from "../utils.js";
 import { buildLifecycle } from "./lifecycle.js";
 
 /**
- * The `setup` function takes a setup function and runs it during the setup
+ * The `useSetup` function takes a setup function and runs it during the setup
  * phase.
  *
  * **Note**: The setup function may run multiple times if React re-runs the
  * render function with fresh component state. This happens most commonly in
  * strict mode, but it can also happen in the real world.
  */
-export function setup<T>(blueprint: SetupBlueprint<T>): T {
+export function useSetup<T>(blueprint: SetupBlueprint<T>): T {
   const app = useStarbeamApp({ allowMissing: true });
 
   return useLifecycle().render((builder) => {
@@ -47,53 +42,9 @@ export function setup<T>(blueprint: SetupBlueprint<T>): T {
   });
 }
 
-/**
- * The `setupReactive` function takes a reactive value or {@linkcode
- * ReactiveBlueprint} and returns a reactive value.
- *
- * If you pass a reactive value, the component will re-render whenever the
- * value changes. If you pass a {@linkcode ReactiveBlueprint}, this hook turns
- * it into a formula that evaluates the blueprint. In this case, the component
- * will re-render whenever the blueprint's dependencies change.
- */
-export function setupReactive<T>(blueprint: UseReactive<T>): Reactive<T> {
-  const [blueprintRef] = useLastRenderRef(blueprint);
-  return createReactive(blueprintRef, undefined);
-}
-
-/**
- * The `useReactive` hook takes a reactive value or {@linkcode
- * ReactiveBlueprint}.
- *
- * - If you pass a `Reactive<T>`, `useReactive` returns a `T`
- * - If you pass a function that returns a `Reactive<T>`, `useReactive`
- *   returns a `T`
- *
- * This hook behaves like {@linkcode setupReactive}, except that it returns a
- * regular value rather than a reactive value.
- */
-
-export function useReactive<T>(
-  blueprint: ReactiveBlueprint<T>,
-  deps: unknown[],
-): T;
-export function useReactive<T>(blueprint: Reactive<T>): T;
-export function useReactive<T>(
-  ...args:
-    | [blueprint: Reactive<T>]
-    | [blueprint: ReactiveBlueprint<T>, deps: unknown[]]
-): T {
-  const [blueprint, deps] = args;
-
-  const [currentBlueprint] = useLastRenderRef(blueprint);
-  const reactive = createReactive(currentBlueprint, deps);
-
-  return unsafeTrackedElsewhere(() => reactive.read());
-}
-
 export function createReactive<T>(
   blueprint: Ref<UseReactive<T>>,
-  deps?: unknown[],
+  deps?: readonly unknown[],
 ): Reactive<T> {
   const app = useStarbeamApp({ allowMissing: true });
 
@@ -124,16 +75,6 @@ export function setupFormula<T>(
       : blueprint.current(lifecycle),
   );
   return Formula(() => read(constructed()));
-}
-
-export function setupService<T>(
-  blueprint: IntoResourceBlueprint<T>,
-): Reactive<T> {
-  return setupReactive(({ service }) => service(blueprint));
-}
-
-export function setupResource<T>(blueprint: IntoResourceBlueprint<T>): T {
-  return createResource(blueprint);
 }
 
 /**
@@ -177,7 +118,7 @@ function useScheduledHandler(): ScheduledHandler {
 
 export function createResource<T>(
   blueprint: IntoResourceBlueprint<T>,
-  deps?: unknown[],
+  deps?: readonly unknown[],
 ): T {
   const [lastBlueprint] = useLastRenderRef(blueprint);
 

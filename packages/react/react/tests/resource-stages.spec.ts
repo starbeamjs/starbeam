@@ -26,7 +26,7 @@ describeInDev("resources running in stages", () => {
           html.div(counter.count),
           html.button({ onClick: () => void counter.increment() }, "increment"),
         );
-      }, []);
+      });
     }
 
     const result = await root

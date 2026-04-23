@@ -85,7 +85,10 @@ function compilePackage(pkg: PackageInfo, options: CompileOptions): RollupOption
             compress: {
               dead_code: true,
               module: true,
-              keep_fargs: false
+              keep_fargs: false,
+              // Preserve module-level directives like "use no memo"
+              // (React Compiler opt-out — see rollup output.banner).
+              directives: false,
             },
             mangle: false,
           }),
@@ -131,6 +134,13 @@ function entryPoints(
         sourcemap: true,
         hoistTransitiveImports: false,
         exports: "auto",
+        // Opt every emitted module out of React Compiler transformation.
+        // Starbeam's substrate (useRef + mutate-during-render for the
+        // activation arc) is compiler-incompatible by design; see
+        // docs/INVARIANTS.md §17. Matches the pattern React's own
+        // infrastructure packages use (react-compiler-runtime,
+        // react-compiler-healthcheck, eslint-plugin-react-compiler).
+        banner: `"use no memo";`,
       },
       // onwarn: (warning, warn) => {
       //   switch (warning.code) {

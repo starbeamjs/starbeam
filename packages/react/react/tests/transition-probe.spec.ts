@@ -43,7 +43,7 @@ testReact<void, { count: number; isPending: boolean }>(
         return `<p>${count}${pending}</p>`;
       })
       .render((state) => {
-        const count = useReactive(cell);
+        const count = useReactive(() => cell.current);
         const [isPending] = useTransition();
 
         events.record(`render:count=${count},isPending=${isPending}`);

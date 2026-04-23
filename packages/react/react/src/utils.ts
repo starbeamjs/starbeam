@@ -47,8 +47,8 @@ export function useProp<T>(
 }
 
 export function sameDeps(
-  next: unknown[] | undefined,
-  prev: unknown[] | undefined,
+  next: readonly unknown[] | undefined,
+  prev: readonly unknown[] | undefined,
 ): boolean {
   if (prev === undefined || next === undefined) {
     return prev === next;
