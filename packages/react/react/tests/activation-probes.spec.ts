@@ -1,12 +1,7 @@
 // @vitest-environment jsdom
 
 import type { Reactive } from "@starbeam/interfaces";
-import {
-  setup,
-  setupReactive,
-  useReactive,
-  useResource,
-} from "@starbeam/react";
+import { useReactive, useResource, useSetup } from "@starbeam/react";
 import { Cell, Formula } from "@starbeam/universal";
 import { html, testReact } from "@starbeam-workspace/react-test-utils";
 import { RecordedEvents, TestResource } from "@starbeam-workspace/test-utils";
@@ -39,6 +34,11 @@ import { RecordedEvents, TestResource } from "@starbeam-workspace/test-utils";
 const INITIAL = 0;
 
 function trackedFormula(events: RecordedEvents, cell: Reactive<number>) {
+  // This is a test helper, not a React component or hook. The react-compiler
+  // project runs with `compilationMode: "all"`, which would otherwise wrap
+  // this factory in `_c(N)` memoization — and `_c` throws outside a React
+  // render. Opt out explicitly. See docs/INVARIANTS.md §17.
+  "use no memo";
   return Formula(() => {
     events.record("read");
     return cell.read();
@@ -50,7 +50,7 @@ function trackedFormula(events: RecordedEvents, cell: Reactive<number>) {
 // ---------------------------------------------------------------------------
 
 testReact<void, number>(
-  "§14: useReactive(reactive) — fresh activation per strict-mode render",
+  "§14: useReactive(() => reactive.current) — fresh activation per strict-mode render",
   async (root, mode) => {
     const cell = Cell(INITIAL);
     const events = new RecordedEvents();
@@ -59,77 +59,18 @@ testReact<void, number>(
     await root
       .expectHTML((value) => `<p>${value}</p>`)
       .render((state) => {
-        const value = useReactive(tracked);
+        const value = useReactive(() => tracked.current);
         state.value(value);
         return html.p(String(value));
       });
 
     mode.match({
-      // Strict mode: 2 renders × reads for initial + post-layout notify
-      // cycle = 4 reads.
-      strict: () => void events.expect("read", "read", "read", "read"),
-      // Loose mode: 1 render, 1 read.
+      // Strict mode: 3 reads — one per activation (R1 discarded, R2
+      // committed, post-layout remount). The formula evaluates once
+      // per activation; the consumer reads its value once per render.
+      strict: () => void events.expect("read", "read", "read"),
+      // Loose mode: 1 activation, 1 read.
       loose: () => void events.expect("read"),
-    });
-  },
-);
-
-testReact<void, number>(
-  "§14: useReactive(() => reactive, []) — fresh activation per strict-mode render",
-  async (root, mode) => {
-    const cell = Cell(INITIAL);
-    const events = new RecordedEvents();
-    const tracked = trackedFormula(events, cell);
-
-    await root
-      .expectHTML((value) => `<p>${value}</p>`)
-      .render((state) => {
-        const value = useReactive(() => tracked, []);
-        state.value(value);
-        return html.p(String(value));
-      });
-
-    mode.match({
-      strict: () => void events.expect("read", "read", "read", "read"),
-      loose: () => void events.expect("read"),
-    });
-  },
-);
-
-// ---------------------------------------------------------------------------
-// setupReactive
-// ---------------------------------------------------------------------------
-
-testReact<void, number>(
-  "§14: setupReactive(reactive) — fresh activation per strict-mode render",
-  async (root, mode) => {
-    const cell = Cell(INITIAL);
-    const events = new RecordedEvents();
-    const tracked = trackedFormula(events, cell);
-
-    await root
-      .expectHTML((value) => `<p>${value}</p>`)
-      .render((state) => {
-        const r = setupReactive(tracked);
-        state.value(r.current);
-        return html.p(String(r.current));
-      });
-
-    // setupReactive returns Reactive<T>; two reads per activation
-    // (consumer calls r.current twice in render). Strict doubles that.
-    mode.match({
-      strict: () =>
-        void events.expect(
-          "read",
-          "read",
-          "read",
-          "read",
-          "read",
-          "read",
-          "read",
-          "read",
-        ),
-      loose: () => void events.expect("read", "read"),
     });
   },
 );
@@ -172,18 +113,18 @@ testReact<void, number>(
 );
 
 // ---------------------------------------------------------------------------
-// setup
+// useSetup
 // ---------------------------------------------------------------------------
 
 testReact<void, number>(
-  "§14: setup(blueprint) — blueprint runs per activation",
+  "§14: useSetup(blueprint) — blueprint runs per activation",
   async (root, mode) => {
     const events = new RecordedEvents();
 
     await root
       .expectHTML(() => `<p>ok</p>`)
       .render((state) => {
-        const value = setup(() => {
+        const value = useSetup(() => {
           events.record("setup");
           return INITIAL;
         });
@@ -192,7 +133,7 @@ testReact<void, number>(
       });
 
     mode.match({
-      // Strict mode's first mount runs `setup` three times:
+      // Strict mode's first mount runs the blueprint three times:
       //
       //   1. R1's render: blueprint runs via `useInitializedRef`'s
       //      initial path. React will discard this render; no layout
@@ -203,7 +144,7 @@ testReact<void, number>(
       //   3. Strict mode's mandatory remount cycle: layout cleanup
       //      fires on the committed instance, then layout fires again
       //      with `state === unmounted` and rebuilds the instance via
-      //      the remount path, running `setup` once more.
+      //      the remount path, running the blueprint once more.
       //
       // Matches `resource-stages.spec.ts` baseline, which asserts the
       // same `setup, setup, …, setup` sequence around the `sync` /

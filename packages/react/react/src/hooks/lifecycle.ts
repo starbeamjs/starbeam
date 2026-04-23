@@ -11,7 +11,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 
 import { missingApp, ReactApp } from "../app.js";
-import { setupResource } from "./setup.js";
+import { createResource } from "./setup.js";
 
 /**
  * @internal
@@ -37,7 +37,7 @@ export function buildLifecycle(
       });
     },
     use: (blueprint) => {
-      return setupResource(() => intoResourceBlueprint(blueprint));
+      return createResource(() => intoResourceBlueprint(blueprint));
     },
     on: {
       idle: builder.on.idle,

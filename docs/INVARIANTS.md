@@ -347,7 +347,132 @@ computations using it have given up metadata-only validation for that node.
 
 ---
 
-## 17. Simplification is measured against these invariants
+## 17. Rules of React vs Starbeam's substrate
+
+React Compiler 1.0 enforces a specific interpretation of the Rules of
+React. Three of those interpretations conflict with Starbeam's
+adapter substrate. Each gap is addressed below with the bridging
+mechanism.
+
+### Gap 1 — The `use*` prefix heuristic
+
+The compiler decides "is this a hook?" lexically, by name. Functions
+whose names start with `use` are treated as hooks and preserved
+across re-renders; functions that don't are treated as pure and
+memoized. A function that calls hooks but doesn't start with `use`
+gets memoized — and its hook calls get lifted into the memoization
+wrapper, which produces runtime "Rendered fewer hooks than expected"
+errors.
+
+Starbeam's adapter exposes exactly four hooks: `useSetup`,
+`useReactive`, `useResource`, `useService`. All four are
+`use*`-prefixed by design. Historical names without the prefix
+(`setup`, `setupReactive`, `setupResource`, `setupService`) were
+renamed or removed specifically to satisfy this heuristic. Starbeam
+core's `setup`/`update`/`finalize` lifecycle phases (§14/§15, from
+`@starbeam/resource`) live at a different layer and are unchanged —
+the shared name is an unfortunate historical collision, not a
+semantic connection.
+
+### Gap 2 — Dependency honesty for bridge callbacks
+
+The compiler treats deps arrays literally. When a consumer writes
+`useSomething(closure, [])`, the compiler takes the `[]` as a
+truthful declaration that the closure is stable. If the closure
+captures state that the compiler can prove changes (a `ref.current`
+read, a parameter whose identity varies across invocations), it
+memoizes the closure on that proof — and the consumer can end up
+with a cached closure whose captures have gone stale.
+
+Starbeam's reactive reads are invisible to the compiler's static
+analysis: the compiler cannot see that reading a `Cell`'s `.current`
+creates a subscription that will notify React of changes. So a
+closure that reads `cell.current` is, from the compiler's
+perspective, a pure function of `cell.current`'s current value.
+Declaring `[]` deps while capturing an activation-rebuildable cell
+is a Rules-of-React lie: the closure is NOT stable — its capture
+changes when Starbeam rebuilds the component's activation arc.
+
+Starbeam's API intentionally removes the shape that invites the
+lie: `useReactive(compute)` takes exactly one argument in the
+no-bridge case. A consumer with a pre-built reactive writes
+`useReactive(() => reactive.current)`. A consumer bridging
+React-owned state uses the second argument, typed as a **non-empty
+tuple** (`readonly [unknown, ...unknown[]]`):
+
+```ts
+const filtered = useReactive(
+  () => state.results.filter((r) => r.name.includes(query)),
+  [query], // non-empty tuple required by the type
+);
+```
+
+The empty-array form `useReactive(compute, [])` is prohibited at
+the type level. If you have nothing to bridge, use the one-argument
+form; the compiler trusts that Starbeam-owned captures are stable
+because Starbeam's primitives give them stable identity from
+`useSetup`.
+
+`useResource` has the same split: `useResource(blueprint)` or
+`useResource(constructor, [bridge, ...])` with a non-empty bridge.
+
+### Test-infrastructure escape hatch
+
+Even with the API surface sanitized, a test file that mixes
+component code with pure non-component helpers (test-local
+factories) can trip the `compilationMode: "all"` setting the
+`react-compiler` vitest project uses. A compiled helper invoked
+outside a React render fails when its emitted `_c(N)` call tries to
+allocate from a non-existent fiber.
+
+The fix is the documented escape hatch: annotate the helper with
+`"use no memo"`. See `trackedFormula` in
+`packages/react/react/tests/activation-probes.spec.ts` for a
+worked example. This annotation is a test-infrastructure concern,
+not a user-facing Starbeam pattern.
+
+### Gap 3 — `useRef` + mutate-during-render is diagnosed
+
+Starbeam's activation-arc pattern writes to `ref.current` during render
+deliberately: `useInitializedRef` initializes on first render, and
+`useLifecycle` rebuilds the instance during strict-mode's discarded
+render (see §14 and §15). The compiler's
+`validateNoRefAccessInRender` pass diagnoses this as a
+Rules-of-React violation.
+
+The probe confirmed no source-level rewrite preserves both (a) the
+compiler's ref-access rules and (b) Starbeam's activation contract.
+`useState`'s lazy initializer is compiler-clean but can't satisfy the
+contract (no writable `.current` slot for the strict-mode rebuild
+path). Null-guard rewrites (`if (ref.current == null)`) reduce
+diagnostics but don't eliminate them — the compiler's rule allows the
+initialization guard, not the subsequent reads.
+
+The bridging mechanism is a module-level `"use no memo"` directive
+injected by `@starbeam-dev/compile`'s rollup output banner into every
+published `.js` file. This matches the pattern React's own
+infrastructure packages use (`react-compiler-runtime`,
+`react-compiler-healthcheck`, `eslint-plugin-react-compiler`,
+`make-read-only-util`). Probe 1 confirmed the directive routes opt-out
+errors through the compiler's logger path (non-fatal) rather than the
+`panicThreshold`-respecting handler, so consumers are safe at any
+panic setting, including `"critical_errors"` and `"all_errors"`.
+
+### Why not pre-compile at publish
+
+React's documented library-author path is to compile libraries at
+publish time via `babel-plugin-react-compiler`. That works for
+libraries whose hooks are compiler-friendly. Starbeam's substrate is
+deliberately compiler-incompatible — pre-compiling would emit the same
+un-transformed output (directives opt out unconditionally) while
+adding a `react-compiler-runtime` dependency and locking bundler
+configurations to React 19+. Net zero benefit, net cost. Trust the
+React team's own practice (banner directives in their infrastructure
+packages), not the aspirational advice.
+
+---
+
+## 18. Simplification is measured against these invariants
 
 A change that violates an invariant without an explicit decision to revise the
 invariant is a regression, regardless of how much code it removes.
