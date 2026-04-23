@@ -4,31 +4,6 @@ import { UNINITIALIZED } from "@starbeam/shared";
 import { Cell } from "@starbeam/universal";
 import { useRef, useState } from "react";
 
-export interface Deps {
-  consume: () => void;
-  debug: () => Reactive<unknown>[];
-}
-
-/**
- * Convert a React hooks dependency list into a reactive
- */
-export function useDeps<T extends unknown[] | undefined>(
-  deps: T,
-  description?: string | Description | undefined,
-): Deps | undefined {
-  const desc = DEBUG?.Desc("cell", description, "useDeps");
-
-  if (deps?.length) {
-    const dependencies = deps.map((dep, i) => useProp(dep, desc?.index(i)));
-    return {
-      consume: () => {
-        dependencies.forEach((dep) => dep.read());
-      },
-      debug: () => dependencies,
-    };
-  }
-}
-
 export function useProp<T>(
   variable: T,
   description?: string | Description,
