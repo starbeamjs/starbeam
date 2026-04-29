@@ -5,7 +5,7 @@ on:
       - main
       - master
   pull_request:
-    types: 
+    types:
       - labeled
 
 concurrency:
@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: 'main'
+          ref: "main"
       # This will only cause the `check-plan` job to have a "command" of `release`
       # when the .release-plan.json file was changed on the last commit.
       - id: check-release
@@ -36,7 +36,7 @@ jobs:
     needs: check-plan
     permissions:
       contents: write
-      pull-requests: write   
+      pull-requests: write
     outputs:
       explanation: ${{ steps.explanation.outputs.text }}
     # only run on push event if plan wasn't updated (don't create a release plan when we're releasing)
@@ -50,24 +50,38 @@ jobs:
         with:
           fetch-depth: 0
       - uses: wyvox/action-setup-pnpm@v3
-      
+
       - name: "Generate Explanation and Prep Changelogs"
         id: explanation
         run: |
           set -x
-          
+
           pnpm release-plan prepare
-          
+
           echo 'text<<EOF' >> $GITHUB_OUTPUT
           jq .description .release-plan.json -r >> $GITHUB_OUTPUT
           echo 'EOF' >> $GITHUB_OUTPUT
         env:
           GITHUB_AUTH: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: peter-evans/create-pull-request@v5
+      - uses: actions/create-github-app-token@v2
+        id: release-plan-token
         with:
+          app-id: ${{ secrets.RELEASE_PLAN_APP_ID }}
+          private-key: ${{ secrets.RELEASE_PLAN_APP_PRIVATE_KEY }}
+
+      - uses: peter-evans/create-pull-request@v8
+        with:
+          # Pull requests created with the default GITHUB_TOKEN don't
+          # trigger push/pull_request workflows, which means the
+          # release-preview PR can't satisfy main's required checks. A
+          # GitHub App token triggers CI and can produce verified bot-
+          # signed commits when `sign-commits` is enabled.
+          token: ${{ steps.release-plan-token.outputs.token }}
           commit-message: "Prepare Release using 'release-plan'"
-          author: "github-actions[bot] <github-actions-bot@users.noreply.github.com>"
+          # main requires signed commits. create-pull-request signs as
+          # the GitHub App's bot when using a GitHub App token.
+          sign-commits: true
           labels: "internal"
           branch: release-preview
           title: Prepare Release
