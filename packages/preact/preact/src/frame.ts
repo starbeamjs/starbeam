@@ -1,6 +1,5 @@
 import { getLast } from "@starbeam/core-utils";
 import type { Description, FormulaTag } from "@starbeam/interfaces";
-import type { InternalComponent } from "@starbeam/preact-utils";
 import type {
   FinalizedFormula,
   InitializingTrackingFrame,
@@ -10,6 +9,8 @@ import type { Unsubscribe } from "@starbeam/runtime";
 import { render, RUNTIME } from "@starbeam/runtime";
 import { initializeFormulaTag } from "@starbeam/tags";
 import { expected, isPresent, verify } from "@starbeam/verify";
+
+import type { InternalComponent } from "./preact-internals/internals/component.js";
 
 export class ComponentFrame {
   static readonly #frames = new WeakMap<InternalComponent, ComponentFrame>();
