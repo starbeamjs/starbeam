@@ -1,8 +1,11 @@
 import type { ComponentChild, Options } from "preact";
 
 import type { InternalPreactComponent } from "./internals/component.js";
+import type { InternalPreactElement } from "./internals/elements.js";
 import type { InternalPreactVNode } from "./internals/vnode.js";
 import type { HOOK_NAMES } from "./plugin.js";
+
+export type { InternalPreactElement } from "./internals/elements.js";
 
 export interface RawPreactOptions extends Options {
   _hook?: Hook<
@@ -56,20 +59,6 @@ export const DIFF = "_diff";
 export const RENDER = "_render";
 export const CATCH_ERROR = "_catchError";
 export const ROOT = "_root";
-
-export interface InternalPreactElement extends HTMLElement {
-  /** children */
-  __k?: InternalPreactVNode | null;
-  /** Event listeners to support event delegation */
-  l?: Record<string, (e: Event) => void>;
-
-  // Preact uses this attribute to detect SVG nodes
-  ownerSVGElement?: SVGElement | null;
-
-  // style: HTMLElement["style"]; // From HTMLElement
-
-  data?: string | number; // From Text node
-}
 
 export interface InternalEffect {
   _sources: object | undefined;

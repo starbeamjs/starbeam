@@ -17,7 +17,7 @@ export function DisplayStruct(
 ): object {
   let displayName = name;
 
-  if (options?.description) {
+  if (options && options.description !== undefined) {
     displayName = `${displayName} [${
       typeof options.description === "string"
         ? options.description
