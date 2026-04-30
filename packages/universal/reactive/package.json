@@ -42,5 +42,10 @@
     "README.md",
     "CHANGELOG.md",
     "LICENSE.md"
-  ]
+  ],
+  "release-plan": {
+    "semverIncrementAs": {
+      "major": "minor"
+    }
+  }
 }
