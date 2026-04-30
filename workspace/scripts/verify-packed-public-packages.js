@@ -151,7 +151,7 @@ function collectExportFiles(files, pkg, value) {
 }
 
 function addPublishedFile(files, pkg, file) {
-  if (typeof file === "string" && file.startsWith("./")) {
+  if (isPackageRelativePath(file)) {
     files.add(resolve(pkg.dir, file));
   }
 }
@@ -186,6 +186,15 @@ function referencesPackage(content, name) {
 
 function referencesCjs(value) {
   return JSON.stringify(value).includes(".cjs");
+}
+
+function isPackageRelativePath(value) {
+  return (
+    typeof value === "string" &&
+    !value.startsWith("/") &&
+    !value.startsWith("node:") &&
+    !URL.canParse(value)
+  );
 }
 
 function fail(pkg, message, file) {
