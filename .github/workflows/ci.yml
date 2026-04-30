@@ -34,6 +34,8 @@ jobs:
       - run: pnpm build 
       - name: "Ensure Certain dependencies don't end up in the production bundles"
         run: node ./workspace/scripts/build-verify.js 
+      - name: "Verify public package artifacts"
+        run: pnpm test:workspace:pack
 
   test:
     name: "Tests"
