@@ -22,7 +22,18 @@ const packageJsonPaths = await globby("**/package.json", {
 
 const packages = await Promise.all(
   packageJsonPaths.map(async (path) => {
-    let manifest = JSON.parse(await readFile(path, "utf8"));
+    let manifest;
+
+    try {
+      manifest = JSON.parse(await readFile(path, "utf8"));
+    } catch (error) {
+      throw new Error(
+        `Failed to read or parse package.json at ${relative(root, path)}: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+        { cause: error },
+      );
+    }
 
     return {
       dir: dirname(path),
