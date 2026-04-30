@@ -88,6 +88,14 @@ function validateManifest(pkg) {
     fail(pkg, "publishConfig.exports is missing", pkg.path);
   }
 
+  if (hasRuntimeEntrypoint(pkg) && manifest.type !== "module") {
+    fail(pkg, "runtime package is missing type: module", pkg.path);
+  }
+
+  if (referencesCjs(manifest.publishConfig)) {
+    fail(pkg, "publishConfig references a CJS artifact", pkg.path);
+  }
+
   if (hasRuntimeEntrypoint(pkg) && !manifest.publishConfig?.main) {
     fail(pkg, "publishConfig.main is missing", pkg.path);
   }
@@ -174,6 +182,10 @@ function hasRuntimeExport(value) {
 
 function referencesPackage(content, name) {
   return content.includes(`"${name}"`) || content.includes(`'${name}'`);
+}
+
+function referencesCjs(value) {
+  return JSON.stringify(value).includes(".cjs");
 }
 
 function fail(pkg, message, file) {
