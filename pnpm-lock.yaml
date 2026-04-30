@@ -167,9 +167,6 @@ importers:
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../../universal/interfaces
-      '@starbeam/preact-utils':
-        specifier: workspace:^
-        version: link:../preact-utils
       '@starbeam/reactive':
         specifier: workspace:^
         version: link:../../universal/reactive

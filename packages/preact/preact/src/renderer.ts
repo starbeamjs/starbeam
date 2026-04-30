@@ -1,4 +1,3 @@
-import type { InternalComponent } from "@starbeam/preact-utils";
 import type {
   ComponentScheduler,
   Handler,
@@ -13,6 +12,7 @@ import {
 } from "preact/hooks";
 
 import { getCurrentComponent } from "./options.js";
+import type { InternalComponent } from "./preact-internals/internals/component.js";
 
 export const MANAGER = {
   getComponent: () => getCurrentComponent(),

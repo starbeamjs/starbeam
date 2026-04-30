@@ -1,14 +1,12 @@
-import type {
-  InternalComponent,
-  InternalElement,
-} from "@starbeam/preact-utils";
-import { Plugin } from "@starbeam/preact-utils";
 import { DEBUG, isReactive } from "@starbeam/reactive";
 import { CONTEXT } from "@starbeam/runtime";
 import { finalize } from "@starbeam/shared";
 import type { ComponentType } from "preact";
 
 import { ComponentFrame } from "./frame.js";
+import type { InternalComponent } from "./preact-internals/internals/component.js";
+import type { InternalElement } from "./preact-internals/internals/elements.js";
+import { Plugin } from "./preact-internals/plugin.js";
 
 export const STARBEAM = Symbol("STARBEAM");
 
