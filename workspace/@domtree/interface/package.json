@@ -26,5 +26,10 @@
   },
   "devDependencies": {
     "@starbeam-dev/compile": "workspace:*"
+  },
+  "release-plan": {
+    "semverIncrementAs": {
+      "major": "minor"
+    }
   }
 }
