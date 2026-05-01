@@ -22,8 +22,8 @@
     "test:lint": "eslint . --max-warnings 0",
     "test:types": "tsc -b"
   },
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
     "@starbeam/verify": "workspace:^"
-  },
-  "devDependencies": {}
+  }
 }

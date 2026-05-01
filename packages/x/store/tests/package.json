@@ -14,8 +14,9 @@
   "dependencies": {
     "@faker-js/faker": "^10.4.0",
     "@starbeam/universal": "workspace:^",
-    "@starbeam/verify": "workspace:^",
     "@starbeamx/store": "workspace:^"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@starbeam/verify": "workspace:^"
+  }
 }
