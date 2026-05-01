@@ -19,6 +19,8 @@ pre-push:
       run: pnpm build
     build-verify:
       run: node ./workspace/scripts/build-verify.js
+    debug-bootstrap:
+      run: pnpm test:workspace:debug-bootstrap
     specs:
       run: pnpm ci:specs
     specs-prod:

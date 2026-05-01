@@ -90,6 +90,7 @@
     "lint:fix": "pnpm --filter '*' test:lint --fix",
     "prepack": "pnpm run build",
     "sort-deps": "node workspace/scripts/sort-package-json-deps.mjs",
+    "test:workspace:debug-bootstrap": "node workspace/scripts/verify-debug-bootstrap.js",
     "test:workspace:lint": "turbo run lint --output-logs errors-only --log-prefix none",
     "test:workspace:pack": "node workspace/scripts/verify-packed-public-packages.js",
     "test:workspace:prod": "STARBEAM_TEST_PROD=1 vitest --pool forks --run",

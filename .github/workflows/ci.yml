@@ -34,6 +34,8 @@ jobs:
       - run: pnpm build
       - name: "Ensure Certain dependencies don't end up in the production bundles"
         run: node ./workspace/scripts/build-verify.js
+      - name: "Verify debug bootstrap artifacts"
+        run: pnpm test:workspace:debug-bootstrap
       - name: "Archive package artifacts"
         run: find packages -path '*/dist' -type d -prune -print | tar -czf package-dist.tgz -T -
       - uses: actions/upload-artifact@v4
@@ -72,7 +74,7 @@ jobs:
       # even if dependencies of packages have failed
       # (which means we'll have a lot of extra errors
       #  if something core doesn't pass type checking)
-      - run: ./node_modules/.bin/turbo run test:types --continue
+      - run: ./node_modules/.bin/turbo run test:types --continue --force
       - uses: actions/download-artifact@v4
         with:
           name: package-dist
