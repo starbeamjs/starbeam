@@ -76,6 +76,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: package-dist
+          path: .
       - name: "Restore package artifacts"
         run: tar -xzf package-dist.tgz
       - name: "Verify public package artifacts"
