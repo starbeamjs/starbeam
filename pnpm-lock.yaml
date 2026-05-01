@@ -161,9 +161,6 @@ importers:
       '@starbeam/core-utils':
         specifier: workspace:^
         version: link:../../universal/core-utils
-      '@starbeam/debug':
-        specifier: workspace:^
-        version: link:../../universal/debug
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../../universal/interfaces
@@ -380,9 +377,6 @@ importers:
       '@starbeam/core-utils':
         specifier: workspace:^
         version: link:../../universal/core-utils
-      '@starbeam/debug':
-        specifier: workspace:^
-        version: link:../../universal/debug
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../../universal/interfaces
@@ -483,9 +477,6 @@ importers:
       '@starbeam/core-utils':
         specifier: workspace:^
         version: link:../../universal/core-utils
-      '@starbeam/debug':
-        specifier: workspace:^
-        version: link:../../universal/debug
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../../universal/interfaces
@@ -576,9 +567,6 @@ importers:
 
   packages/universal/collections:
     dependencies:
-      '@starbeam/debug':
-        specifier: workspace:^
-        version: link:../debug
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../interfaces
@@ -715,9 +703,6 @@ importers:
 
   packages/universal/modifier:
     dependencies:
-      '@starbeam/debug':
-        specifier: workspace:^
-        version: link:../debug
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../interfaces
@@ -835,9 +820,6 @@ importers:
       '@starbeam/core-utils':
         specifier: workspace:^
         version: link:../core-utils
-      '@starbeam/debug':
-        specifier: workspace:^
-        version: link:../debug
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../interfaces
@@ -951,9 +933,6 @@ importers:
       '@starbeam/core-utils':
         specifier: workspace:^
         version: link:../core-utils
-      '@starbeam/debug':
-        specifier: workspace:^
-        version: link:../debug
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../interfaces
@@ -1064,9 +1043,6 @@ importers:
       '@starbeam/core-utils':
         specifier: workspace:^
         version: link:../core-utils
-      '@starbeam/debug':
-        specifier: workspace:^
-        version: link:../debug
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../interfaces
@@ -1088,10 +1064,16 @@ importers:
       inspect-utils:
         specifier: ^1.0.1
         version: 1.0.1
+      stacktracey:
+        specifier: ^2.2.0
+        version: 2.2.0
     devDependencies:
       '@starbeam-dev/compile':
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
+      '@starbeam/debug':
+        specifier: workspace:^
+        version: link:../debug
       '@starbeam/verify':
         specifier: workspace:^
         version: link:../verify
@@ -1145,9 +1127,6 @@ importers:
       '@starbeam/core-utils':
         specifier: workspace:^
         version: link:../../universal/core-utils
-      '@starbeam/debug':
-        specifier: workspace:^
-        version: link:../../universal/debug
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../../universal/interfaces
@@ -1322,9 +1301,6 @@ importers:
       '@starbeam/collections':
         specifier: workspace:^
         version: link:../../universal/collections
-      '@starbeam/debug':
-        specifier: workspace:^
-        version: link:../../universal/debug
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../../universal/interfaces
@@ -1344,9 +1320,6 @@ importers:
       '@starbeam/collections':
         specifier: workspace:^
         version: link:../../universal/collections
-      '@starbeam/debug':
-        specifier: workspace:^
-        version: link:../../universal/debug
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../../universal/interfaces
@@ -1379,9 +1352,6 @@ importers:
 
   packages/x/vanilla:
     dependencies:
-      '@starbeam/debug':
-        specifier: workspace:^
-        version: link:../../universal/debug
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../../universal/interfaces

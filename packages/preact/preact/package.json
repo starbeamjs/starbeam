@@ -33,7 +33,6 @@
   "dependencies": {
     "@preact/signals": "^2.9.0",
     "@starbeam/core-utils": "workspace:^",
-    "@starbeam/debug": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
     "@starbeam/reactive": "workspace:^",
     "@starbeam/renderer": "workspace:^",

@@ -25,7 +25,6 @@
   },
   "dependencies": {
     "@starbeam/core-utils": "workspace:^",
-    "@starbeam/debug": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
     "@starbeam/reactive": "workspace:^",
     "@starbeam-workspace/test-utils": "workspace:^"

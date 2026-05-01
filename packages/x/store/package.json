@@ -29,7 +29,6 @@
   },
   "dependencies": {
     "@starbeam/collections": "workspace:^",
-    "@starbeam/debug": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
     "@starbeam/reactive": "workspace:^"
   },
