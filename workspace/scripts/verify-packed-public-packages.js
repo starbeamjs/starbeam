@@ -108,6 +108,10 @@ function validateManifest(pkg) {
     fail(pkg, "publishConfig references a CJS artifact", pkg.path);
   }
 
+  if (isTypeOnlyPackage(pkg) && hasRuntimeEntrypoint(pkg)) {
+    fail(pkg, "type-only package declares a runtime artifact", pkg.path);
+  }
+
   if (hasRuntimeEntrypoint(pkg) && !manifest.publishConfig?.main) {
     fail(pkg, "publishConfig.main is missing", pkg.path);
   }
@@ -163,7 +167,7 @@ function resolvePublishedArtifact(pkg, artifact) {
       `declared types artifact is missing: ${artifact.specifier}`,
       artifact.file,
     );
-  } else if (artifact.kind === "js" && buildsJavaScript(pkg)) {
+  } else if (artifact.kind === "js") {
     fail(
       pkg,
       `declared JS artifact is missing: ${artifact.specifier}`,
@@ -337,8 +341,8 @@ function hasRuntimeEntrypoint(pkg) {
   return hasRuntimeExport(publishConfig?.exports);
 }
 
-function buildsJavaScript(pkg) {
-  return pkg.manifest.scripts?.build === "rollup -c";
+function isTypeOnlyPackage(pkg) {
+  return pkg.manifest.starbeam?.type === "library:interfaces";
 }
 
 function hasRuntimeExport(value) {

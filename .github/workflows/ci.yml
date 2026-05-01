@@ -34,6 +34,8 @@ jobs:
       - run: pnpm build 
       - name: "Ensure Certain dependencies don't end up in the production bundles"
         run: node ./workspace/scripts/build-verify.js 
+      - name: "Verify public package artifacts"
+        run: pnpm test:workspace:pack
 
   test:
     name: "Tests"
@@ -66,10 +68,6 @@ jobs:
       # (which means we'll have a lot of extra errors
       #  if something core doesn't pass type checking)
       - run: ./node_modules/.bin/turbo run test:types --continue 
-      - name: "Build package artifacts"
-        run: pnpm build
-      - name: "Verify public package artifacts"
-        run: pnpm test:workspace:pack
 
   lint:
     name: "Lint"
