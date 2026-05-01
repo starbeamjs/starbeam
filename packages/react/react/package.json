@@ -41,10 +41,10 @@
     "@starbeam/shared": "workspace:^",
     "@starbeam/universal": "workspace:^",
     "@starbeam/use-strict-lifecycle": "workspace:^",
-    "@starbeam/verify": "workspace:^",
     "scheduler": "^0.27.0"
   },
   "devDependencies": {
+    "@starbeam/verify": "workspace:^",
     "@starbeam-dev/compile": "workspace:*",
     "@types/node": "^22.19.17",
     "@types/react": "^19.2.14",

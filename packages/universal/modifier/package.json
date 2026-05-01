@@ -31,11 +31,11 @@
     "@starbeam/reactive": "workspace:^",
     "@starbeam/shared": "workspace:^",
     "@starbeam/tags": "workspace:^",
-    "@starbeam/universal": "workspace:^",
-    "@starbeam/verify": "workspace:^"
+    "@starbeam/universal": "workspace:^"
   },
   "devDependencies": {
     "@domtree/flavors": "workspace:^",
+    "@starbeam/verify": "workspace:^",
     "@starbeam-dev/compile": "workspace:*",
     "rollup": "^4.60.1"
   },

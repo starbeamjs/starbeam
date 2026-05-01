@@ -191,9 +191,6 @@ importers:
       '@starbeam/universal':
         specifier: workspace:^
         version: link:../../universal/universal
-      '@starbeam/verify':
-        specifier: workspace:^
-        version: link:../../universal/verify
       preact:
         specifier: 10.29.1
         version: 10.29.1
@@ -201,6 +198,9 @@ importers:
       '@starbeam-dev/compile':
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
+      '@starbeam/verify':
+        specifier: workspace:^
+        version: link:../../universal/verify
       rollup:
         specifier: ^4.60.1
         version: 4.60.1
@@ -210,9 +210,6 @@ importers:
       '@starbeam-workspace/test-utils':
         specifier: workspace:^
         version: link:../../../workspace/test-utils
-      '@starbeam/verify':
-        specifier: workspace:^
-        version: link:../../universal/verify
       '@testing-library/dom':
         specifier: ^10.4.1
         version: 10.4.1
@@ -229,6 +226,9 @@ importers:
       '@starbeam-dev/compile':
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
+      '@starbeam/verify':
+        specifier: workspace:^
+        version: link:../../universal/verify
       preact-render-to-string:
         specifier: ^6.6.7
         version: 6.6.7(preact@10.29.1)
@@ -413,9 +413,6 @@ importers:
       '@starbeam/use-strict-lifecycle':
         specifier: workspace:^
         version: link:../use-strict-lifecycle
-      '@starbeam/verify':
-        specifier: workspace:^
-        version: link:../../universal/verify
       react:
         specifier: ^19.0.0
         version: 19.2.5
@@ -429,6 +426,9 @@ importers:
       '@starbeam-dev/compile':
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
+      '@starbeam/verify':
+        specifier: workspace:^
+        version: link:../../universal/verify
       '@types/node':
         specifier: ^25.6.0
         version: 25.6.0
@@ -495,9 +495,6 @@ importers:
       '@starbeam/shared':
         specifier: workspace:^
         version: link:../../universal/shared
-      '@starbeam/verify':
-        specifier: workspace:^
-        version: link:../../universal/verify
       react:
         specifier: ^19.0.0
         version: 19.2.5
@@ -511,6 +508,9 @@ importers:
       '@starbeam-dev/compile':
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
+      '@starbeam/verify':
+        specifier: workspace:^
+        version: link:../../universal/verify
       '@testing-library/react':
         specifier: ^16.3.2
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -597,9 +597,6 @@ importers:
       '@starbeam/universal':
         specifier: workspace:^
         version: link:../universal
-      '@starbeam/verify':
-        specifier: workspace:^
-        version: link:../verify
       '@swc/helpers':
         specifier: ^0.5.21
         version: 0.5.21
@@ -607,6 +604,9 @@ importers:
       '@starbeam-dev/compile':
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
+      '@starbeam/verify':
+        specifier: workspace:^
+        version: link:../verify
       rollup:
         specifier: ^4.60.1
         version: 4.60.1
@@ -668,9 +668,6 @@ importers:
       '@starbeam/tags':
         specifier: workspace:^
         version: link:../tags
-      '@starbeam/verify':
-        specifier: workspace:^
-        version: link:../verify
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
@@ -684,6 +681,9 @@ importers:
       '@starbeam-dev/compile':
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
+      '@starbeam/verify':
+        specifier: workspace:^
+        version: link:../verify
       '@types/node':
         specifier: ^25.6.0
         version: 25.6.0
@@ -733,9 +733,6 @@ importers:
       '@starbeam/universal':
         specifier: workspace:^
         version: link:../universal
-      '@starbeam/verify':
-        specifier: workspace:^
-        version: link:../verify
     devDependencies:
       '@domtree/flavors':
         specifier: workspace:^
@@ -743,6 +740,9 @@ importers:
       '@starbeam-dev/compile':
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
+      '@starbeam/verify':
+        specifier: workspace:^
+        version: link:../verify
       rollup:
         specifier: ^4.60.1
         version: 4.60.1
@@ -761,13 +761,13 @@ importers:
       '@starbeam/tags':
         specifier: workspace:^
         version: link:../tags
-      '@starbeam/verify':
-        specifier: workspace:^
-        version: link:../verify
     devDependencies:
       '@starbeam-dev/compile':
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
+      '@starbeam/verify':
+        specifier: workspace:^
+        version: link:../verify
       rollup:
         specifier: ^4.60.1
         version: 4.60.1
@@ -850,13 +850,13 @@ importers:
       '@starbeam/shared':
         specifier: workspace:^
         version: link:../shared
-      '@starbeam/verify':
-        specifier: workspace:^
-        version: link:../verify
     devDependencies:
       '@starbeam-dev/compile':
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
+      '@starbeam/verify':
+        specifier: workspace:^
+        version: link:../verify
       rollup:
         specifier: ^4.60.1
         version: 4.60.1
@@ -908,9 +908,6 @@ importers:
       '@starbeam/tags':
         specifier: workspace:^
         version: link:../tags
-      '@starbeam/verify':
-        specifier: workspace:^
-        version: link:../verify
       inspect-utils:
         specifier: ^1.0.1
         version: 1.0.1
@@ -918,6 +915,9 @@ importers:
       '@starbeam-dev/compile':
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
+      '@starbeam/verify':
+        specifier: workspace:^
+        version: link:../verify
       rollup:
         specifier: ^4.60.1
         version: 4.60.1
@@ -1085,9 +1085,6 @@ importers:
       '@starbeam/tags':
         specifier: workspace:^
         version: link:../tags
-      '@starbeam/verify':
-        specifier: workspace:^
-        version: link:../verify
       inspect-utils:
         specifier: ^1.0.1
         version: 1.0.1
@@ -1095,6 +1092,9 @@ importers:
       '@starbeam-dev/compile':
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
+      '@starbeam/verify':
+        specifier: workspace:^
+        version: link:../verify
       rollup:
         specifier: ^4.60.1
         version: 4.60.1
@@ -1135,7 +1135,7 @@ importers:
         version: 4.60.1
 
   packages/universal/verify/tests:
-    dependencies:
+    devDependencies:
       '@starbeam/verify':
         specifier: workspace:^
         version: link:..
@@ -1175,9 +1175,6 @@ importers:
       '@starbeam/universal':
         specifier: workspace:^
         version: link:../../universal/universal
-      '@starbeam/verify':
-        specifier: workspace:^
-        version: link:../../universal/verify
       vue:
         specifier: 3.5.32
         version: 3.5.32(typescript@6.0.3)
@@ -1185,6 +1182,9 @@ importers:
       '@starbeam-dev/compile':
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
+      '@starbeam/verify':
+        specifier: workspace:^
+        version: link:../../universal/verify
       rollup:
         specifier: ^4.60.1
         version: 4.60.1
@@ -1200,9 +1200,6 @@ importers:
       '@starbeam/shared':
         specifier: workspace:^
         version: link:../../universal/shared
-      '@starbeam/verify':
-        specifier: workspace:^
-        version: link:../../universal/verify
       '@testing-library/dom':
         specifier: ^10.4.1
         version: 10.4.1
@@ -1216,6 +1213,9 @@ importers:
       '@starbeam-dev/compile':
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
+      '@starbeam/verify':
+        specifier: workspace:^
+        version: link:../../universal/verify
       '@vue/shared':
         specifier: ^3.5.32
         version: 3.5.32
@@ -1369,12 +1369,13 @@ importers:
       '@starbeam/universal':
         specifier: workspace:^
         version: link:../../../universal/universal
-      '@starbeam/verify':
-        specifier: workspace:^
-        version: link:../../../universal/verify
       '@starbeamx/store':
         specifier: workspace:^
         version: link:..
+    devDependencies:
+      '@starbeam/verify':
+        specifier: workspace:^
+        version: link:../../../universal/verify
 
   packages/x/vanilla:
     dependencies:

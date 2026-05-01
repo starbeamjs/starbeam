@@ -28,10 +28,10 @@
     "@starbeam/debug": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
     "@starbeam/reactive": "workspace:^",
-    "@starbeam/verify": "workspace:^",
     "@starbeam-workspace/test-utils": "workspace:^"
   },
   "devDependencies": {
+    "@starbeam/verify": "workspace:^",
     "@starbeam-dev/compile": "workspace:*",
     "@testing-library/react": "^16.3.2",
     "@types/react": "^19.2.14",

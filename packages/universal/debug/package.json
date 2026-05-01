@@ -41,12 +41,12 @@
     "@starbeam/reactive": "workspace:^",
     "@starbeam/shared": "workspace:^",
     "@starbeam/tags": "workspace:^",
-    "@starbeam/verify": "workspace:^",
     "buffer": "^6.0.3",
     "inspect-utils": "^1.0.1",
     "stacktracey": "^2.2.0"
   },
   "devDependencies": {
+    "@starbeam/verify": "workspace:^",
     "@starbeam-dev/compile": "workspace:*",
     "@types/node": "^22.19.17",
     "rollup": "^4.60.1"

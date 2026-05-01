@@ -41,10 +41,10 @@
     "@starbeam/service": "workspace:^",
     "@starbeam/shared": "workspace:^",
     "@starbeam/tags": "workspace:^",
-    "@starbeam/universal": "workspace:^",
-    "@starbeam/verify": "workspace:^"
+    "@starbeam/universal": "workspace:^"
   },
   "devDependencies": {
+    "@starbeam/verify": "workspace:^",
     "@starbeam-dev/compile": "workspace:*",
     "rollup": "^4.60.1"
   },

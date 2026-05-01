@@ -195,9 +195,10 @@ import type { RollupPlugin } from "../utils.js";
  *
  * ## Development and Peer Dependencies
  *
- * Since development dependencies are not intended to be used at runtime, they
- * should never be imported from runtime code, and therefore should never be
- * included in the build.
+ * Development dependencies are normally build/test-only and should not be
+ * imported from runtime code. The exception is an internal implementation
+ * package that is always bundled into the published artifact instead of being
+ * left as a runtime dependency.
  *
  * Since peer dependencies are intended to be supplied by a dependent package
  * (i.e. the package including the package you are building), they are always
@@ -235,8 +236,12 @@ function external(pkg: PackageInfo, mode: 'development' | 'production' | undefin
       return INLINE;
     }
 
+    if (id === "@starbeam/verify" || id.startsWith("@starbeam/verify/")) {
+      return INLINE;
+    }
+
     if (mode === 'production') {
-      if (id.startsWith('@starbeam/debug') || id.startsWith('@starbeam/verify')) {
+      if (id.startsWith('@starbeam/debug')) {
         return INLINE;
       }
     }
