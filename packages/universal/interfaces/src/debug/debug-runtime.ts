@@ -1,27 +1,27 @@
-import type { PresentArray } from "@starbeam/core-utils";
-
 import type { CellTag } from "../tag.js";
 import type { Tagged } from "../tagged.js";
 import type { CallerStackFn, CallStack } from "./call-stack.js";
 import type { DescFn, DescriptionDetails } from "./description.js";
 
+type PresentArray<T> = readonly [T, ...T[]] | [T, ...T[]];
+
 export type DescribeOptions =
   | {
-    id: boolean | undefined;
-  }
+      id: boolean | undefined;
+    }
   | undefined;
 
 export interface DebugRuntime {
   getUserFacing: <D extends DescriptionDetails | undefined>(
-    description: D
+    description: D,
   ) => D;
   describe: (
     description: DescriptionDetails,
-    options?: DescribeOptions
+    options?: DescribeOptions,
   ) => string;
   describeTagged: (tagged: Tagged, options?: DescribeOptions) => string;
   readonly untrackedReadBarrier: (
-    barrier: (tag: CellTag, stack: CallStack | undefined) => void | never
+    barrier: (tag: CellTag, stack: CallStack | undefined) => void | never,
   ) => void;
   readonly callerStack: CallerStackFn;
 
@@ -41,13 +41,13 @@ export interface DebugRuntime {
   markEntryPoint: (
     options?:
       | {
-        caller?: CallStack | undefined;
-        description?: EntryPointDescriptionArg | string | undefined;
-        force?: boolean | undefined;
-      }
+          caller?: CallStack | undefined;
+          description?: EntryPointDescriptionArg | string | undefined;
+          force?: boolean | undefined;
+        }
       | EntryPointDescriptionArg
       | EntryPoint
-      | string
+      | string,
   ) => void;
   getEntryPoint: () => EntryPoint | undefined;
 
@@ -68,36 +68,36 @@ export interface EntryPointDescription {
 export type EntryPointDescriptionArg =
   | ["label", string]
   | [
-    operation: "reactive:read" | "reactive:write" | "reactive:call",
-    entity: DescriptionDetails | string | undefined,
-    api?: PropertyKey
-  ]
+      operation: "reactive:read" | "reactive:write" | "reactive:call",
+      entity: DescriptionDetails | string | undefined,
+      api?: PropertyKey,
+    ]
   | [
-    operation:
-    | "object:get"
-    | "object:set"
-    | "object:has"
-    | "object:call"
-    | "object:define"
-    | "object:delete"
-    | "object:meta:get",
-    entity: DescriptionDetails | string | undefined,
-    target: PropertyKey
-  ]
+      operation:
+        | "object:get"
+        | "object:set"
+        | "object:has"
+        | "object:call"
+        | "object:define"
+        | "object:delete"
+        | "object:meta:get",
+      entity: DescriptionDetails | string | undefined,
+      target: PropertyKey,
+    ]
   | [
-    operation: "object:meta:keys",
-    entity: DescriptionDetails | string | undefined
-  ]
+      operation: "object:meta:keys",
+      entity: DescriptionDetails | string | undefined,
+    ]
   | [
-    operation: "function:call",
-    entity: DescriptionDetails | string | undefined
-  ]
+      operation: "function:call",
+      entity: DescriptionDetails | string | undefined,
+    ]
   | [
-    operation:
-    | "collection:has"
-    | "collection:get"
-    | "collection:insert"
-    | "collection:delete",
-    entity: DescriptionDetails | string | undefined,
-    key: unknown
-  ];
+      operation:
+        | "collection:has"
+        | "collection:get"
+        | "collection:insert"
+        | "collection:delete",
+      entity: DescriptionDetails | string | undefined,
+      key: unknown,
+    ];

@@ -158,9 +158,6 @@ importers:
       '@preact/signals':
         specifier: ^2.9.0
         version: 2.9.0(preact@10.29.1)
-      '@starbeam/core-utils':
-        specifier: workspace:^
-        version: link:../../universal/core-utils
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../../universal/interfaces
@@ -195,6 +192,9 @@ importers:
       '@starbeam-dev/compile':
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
+      '@starbeam/core-utils':
+        specifier: workspace:^
+        version: link:../../universal/core-utils
       '@starbeam/verify':
         specifier: workspace:^
         version: link:../../universal/verify
@@ -374,9 +374,6 @@ importers:
       '@starbeam/collections':
         specifier: workspace:^
         version: link:../../universal/collections
-      '@starbeam/core-utils':
-        specifier: workspace:^
-        version: link:../../universal/core-utils
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../../universal/interfaces
@@ -420,6 +417,9 @@ importers:
       '@starbeam-dev/compile':
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
+      '@starbeam/core-utils':
+        specifier: workspace:^
+        version: link:../../universal/core-utils
       '@starbeam/verify':
         specifier: workspace:^
         version: link:../../universal/verify
@@ -734,9 +734,6 @@ importers:
 
   packages/universal/reactive:
     dependencies:
-      '@starbeam/core-utils':
-        specifier: workspace:^
-        version: link:../core-utils
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../interfaces
@@ -750,6 +747,9 @@ importers:
       '@starbeam-dev/compile':
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
+      '@starbeam/core-utils':
+        specifier: workspace:^
+        version: link:../core-utils
       '@starbeam/verify':
         specifier: workspace:^
         version: link:../verify
@@ -817,9 +817,6 @@ importers:
 
   packages/universal/resource:
     dependencies:
-      '@starbeam/core-utils':
-        specifier: workspace:^
-        version: link:../core-utils
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../interfaces
@@ -836,6 +833,9 @@ importers:
       '@starbeam-dev/compile':
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
+      '@starbeam/core-utils':
+        specifier: workspace:^
+        version: link:../core-utils
       '@starbeam/verify':
         specifier: workspace:^
         version: link:../verify
@@ -875,9 +875,6 @@ importers:
 
   packages/universal/runtime:
     dependencies:
-      '@starbeam/core-utils':
-        specifier: workspace:^
-        version: link:../core-utils
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../interfaces
@@ -897,6 +894,9 @@ importers:
       '@starbeam-dev/compile':
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
+      '@starbeam/core-utils':
+        specifier: workspace:^
+        version: link:../core-utils
       '@starbeam/verify':
         specifier: workspace:^
         version: link:../verify
@@ -930,9 +930,6 @@ importers:
 
   packages/universal/service:
     dependencies:
-      '@starbeam/core-utils':
-        specifier: workspace:^
-        version: link:../core-utils
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../interfaces
@@ -952,6 +949,9 @@ importers:
       '@starbeam-dev/compile':
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
+      '@starbeam/core-utils':
+        specifier: workspace:^
+        version: link:../core-utils
       rollup:
         specifier: ^4.60.1
         version: 4.60.1
@@ -1018,9 +1018,6 @@ importers:
 
   packages/universal/tags:
     dependencies:
-      '@starbeam/core-utils':
-        specifier: workspace:^
-        version: link:../core-utils
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../interfaces
@@ -1034,15 +1031,15 @@ importers:
       '@starbeam-dev/compile':
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
+      '@starbeam/core-utils':
+        specifier: workspace:^
+        version: link:../core-utils
       rollup:
         specifier: ^4.60.1
         version: 4.60.1
 
   packages/universal/universal:
     dependencies:
-      '@starbeam/core-utils':
-        specifier: workspace:^
-        version: link:../core-utils
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../interfaces
@@ -1071,6 +1068,9 @@ importers:
       '@starbeam-dev/compile':
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
+      '@starbeam/core-utils':
+        specifier: workspace:^
+        version: link:../core-utils
       '@starbeam/debug':
         specifier: workspace:^
         version: link:../debug
@@ -1104,10 +1104,6 @@ importers:
         version: link:../../../../workspace/test-utils
 
   packages/universal/verify:
-    dependencies:
-      '@starbeam/core-utils':
-        specifier: workspace:^
-        version: link:../core-utils
     devDependencies:
       '@starbeam-dev/compile':
         specifier: workspace:*
@@ -1124,9 +1120,6 @@ importers:
 
   packages/vue/vue:
     dependencies:
-      '@starbeam/core-utils':
-        specifier: workspace:^
-        version: link:../../universal/core-utils
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../../universal/interfaces
@@ -1161,6 +1154,9 @@ importers:
       '@starbeam-dev/compile':
         specifier: workspace:*
         version: link:../../../workspace/dev-compile
+      '@starbeam/core-utils':
+        specifier: workspace:^
+        version: link:../../universal/core-utils
       '@starbeam/verify':
         specifier: workspace:^
         version: link:../../universal/verify

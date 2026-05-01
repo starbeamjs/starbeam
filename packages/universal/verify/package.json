@@ -17,9 +17,6 @@
     "test:specs": "vitest --run --pool forks",
     "test:types": "tsc -b"
   },
-  "dependencies": {
-    "@starbeam/core-utils": "workspace:^"
-  },
   "devDependencies": {
     "@starbeam-dev/compile": "workspace:*",
     "rollup": "^4.60.1"

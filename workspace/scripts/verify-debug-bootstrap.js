@@ -7,7 +7,6 @@ const root = resolve(currentDir, "../..");
 
 const ARTIFACTS = new Map(
   [
-    ["@starbeam/core-utils", "packages/universal/core-utils/dist/index"],
     ["@starbeam/shared", "packages/universal/shared/dist/index"],
     ["@starbeam/tags", "packages/universal/tags/dist/index"],
     ["@starbeam/reactive", "packages/universal/reactive/dist/index"],
