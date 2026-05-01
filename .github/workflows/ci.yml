@@ -31,11 +31,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: wyvox/action-setup-pnpm@v3
-      - run: pnpm build 
+      - run: pnpm build
       - name: "Ensure Certain dependencies don't end up in the production bundles"
-        run: node ./workspace/scripts/build-verify.js 
-      - name: "Verify public package artifacts"
-        run: pnpm test:workspace:pack
+        run: node ./workspace/scripts/build-verify.js
+      - name: "Archive package artifacts"
+        run: find packages -path '*/dist' -type d -prune -print | tar -czf package-dist.tgz -T -
+      - uses: actions/upload-artifact@v4
+        with:
+          name: package-dist
+          path: package-dist.tgz
+          retention-days: 1
 
   test:
     name: "Tests"
@@ -58,16 +63,24 @@ jobs:
   typecheck:
     name: "Typecheck"
     runs-on: "ubuntu-latest"
-    needs: ["install_dependencies"]
+    needs: ["install_dependencies", "build"]
     steps:
       - uses: wyvox/action@v1
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      # --continue will keep running test:types 
+      # --continue will keep running test:types
       # even if dependencies of packages have failed
       # (which means we'll have a lot of extra errors
       #  if something core doesn't pass type checking)
-      - run: ./node_modules/.bin/turbo run test:types --continue 
+      - run: ./node_modules/.bin/turbo run test:types --continue
+      - uses: actions/download-artifact@v4
+        with:
+          name: package-dist
+          path: .
+      - name: "Restore package artifacts"
+        run: tar -xzf package-dist.tgz
+      - name: "Verify public package artifacts"
+        run: pnpm test:workspace:pack
 
   lint:
     name: "Lint"
@@ -77,5 +90,4 @@ jobs:
       - uses: wyvox/action@v1
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - run: ./node_modules/.bin/turbo run test:lint --continue 
-
+      - run: ./node_modules/.bin/turbo run test:lint --continue

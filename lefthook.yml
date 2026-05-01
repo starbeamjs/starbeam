@@ -25,5 +25,7 @@ pre-push:
       run: pnpm ci:prod
     types:
       run: pnpm test:workspace:types
+    pack:
+      run: pnpm test:workspace:pack
     lint:
       run: pnpm test:workspace:lint
