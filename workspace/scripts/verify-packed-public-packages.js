@@ -1,12 +1,13 @@
 import { existsSync, readFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
-import { dirname, relative, resolve } from "node:path";
+import { basename, dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { globby } from "globby";
+import { globby, globbySync } from "globby";
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
 const root = resolve(currentDir, "../..");
+const rootTypesDir = resolve(root, "dist/types");
 
 const packageJsonPaths = await globby("**/package.json", {
   cwd: root,
@@ -117,53 +118,216 @@ function validateManifest(pkg) {
 }
 
 function validateArtifacts(pkg) {
-  let files = new Set();
+  let artifacts = new Map();
   let { publishConfig } = pkg.manifest;
+  let scannedFiles = new Set();
 
-  addPublishedFile(files, pkg, publishConfig?.main);
-  addPublishedFile(files, pkg, publishConfig?.types);
-  collectExportFiles(files, pkg, publishConfig?.exports);
+  addPublishedArtifact(artifacts, pkg, publishConfig?.main, "js");
+  addPublishedArtifact(artifacts, pkg, publishConfig?.types, "types");
+  collectExportArtifacts(artifacts, pkg, publishConfig?.exports);
 
-  for (let file of files) {
-    if (!existsSync(file)) {
-      // Several packages currently publish types from the root tsc output and
-      // type-only packages have no built JS. This verifier still checks every
-      // artifact that exists today, and later surface-reduction PRs can tighten
-      // missing-artifact checks package by package.
+  for (let artifact of artifacts.values()) {
+    let file = resolvePublishedArtifact(pkg, artifact);
+
+    if (!file) {
       continue;
     }
 
-    let content = readFileSync(file, "utf8");
+    scanFileForPrivateReferences(pkg, file, scannedFiles);
+  }
 
-    for (let name of privatePackageNames) {
-      if (referencesPackage(content, name)) {
-        fail(
-          pkg,
-          `published artifact references private package ${name}`,
-          file,
-        );
-      }
+  for (let file of findPackageDistJavaScript(pkg)) {
+    scanFileForPrivateReferences(pkg, file, scannedFiles);
+  }
+
+  for (let file of findRootDeclarations(pkg)) {
+    scanFileForPrivateReferences(pkg, file, scannedFiles);
+    validateDeclarationMap(pkg, file);
+  }
+}
+
+function resolvePublishedArtifact(pkg, artifact) {
+  if (existsSync(artifact.file)) {
+    return artifact.file;
+  }
+
+  if (artifact.kind === "types") {
+    let rootDeclaration = rootDeclarationForPackageArtifact(pkg, artifact.file);
+
+    if (rootDeclaration && existsSync(rootDeclaration)) {
+      return rootDeclaration;
+    }
+
+    fail(
+      pkg,
+      `declared types artifact is missing: ${artifact.specifier}`,
+      artifact.file,
+    );
+  } else if (artifact.kind === "js" && buildsJavaScript(pkg)) {
+    fail(
+      pkg,
+      `declared JS artifact is missing: ${artifact.specifier}`,
+      artifact.file,
+    );
+  }
+
+  return undefined;
+}
+
+function scanFileForPrivateReferences(pkg, file, scannedFiles) {
+  if (scannedFiles.has(file) || !existsSync(file)) {
+    return;
+  }
+
+  scannedFiles.add(file);
+
+  let content = readFileSync(file, "utf8");
+
+  for (let name of privatePackageNames) {
+    if (referencesPackage(content, name)) {
+      fail(pkg, `published artifact references private package ${name}`, file);
     }
   }
 }
 
-function collectExportFiles(files, pkg, value) {
+function collectExportArtifacts(artifacts, pkg, value, kindHint) {
   if (typeof value === "string") {
-    addPublishedFile(files, pkg, value);
+    addPublishedArtifact(artifacts, pkg, value, kindHint);
   } else if (Array.isArray(value)) {
     for (let item of value) {
-      collectExportFiles(files, pkg, item);
+      collectExportArtifacts(artifacts, pkg, item, kindHint);
     }
   } else if (value && typeof value === "object") {
-    for (let item of Object.values(value)) {
-      collectExportFiles(files, pkg, item);
+    for (let [key, item] of Object.entries(value)) {
+      collectExportArtifacts(
+        artifacts,
+        pkg,
+        item,
+        key === "types" ? "types" : kindHint,
+      );
     }
   }
 }
 
-function addPublishedFile(files, pkg, file) {
-  if (isPackageRelativePath(file)) {
-    files.add(resolve(pkg.dir, file));
+function addPublishedArtifact(artifacts, pkg, specifier, kindHint) {
+  if (isPackageRelativePath(specifier)) {
+    let file = resolve(pkg.dir, specifier);
+    let kind = kindHint ?? artifactKind(specifier);
+
+    artifacts.set(`${kind}:${file}`, { file, kind, specifier });
+  }
+}
+
+function artifactKind(file) {
+  if (isDeclarationFile(file)) {
+    return "types";
+  } else if (/\.(?:c|m)?js$/.test(file)) {
+    return "js";
+  } else {
+    return "other";
+  }
+}
+
+function rootDeclarationForPackageArtifact(pkg, file) {
+  let packageRelativePath = relative(pkg.dir, file);
+
+  if (!packageRelativePath.startsWith("dist/")) {
+    return undefined;
+  }
+
+  return resolve(
+    rootTypesDir,
+    relative(root, pkg.dir),
+    packageRelativePath.slice("dist/".length),
+  );
+}
+
+function findPackageDistJavaScript(pkg) {
+  return globbySync("dist/**/*.js", {
+    cwd: pkg.dir,
+    absolute: true,
+    onlyFiles: true,
+  });
+}
+
+function findRootDeclarations(pkg) {
+  let declarationsRoot = resolve(rootTypesDir, relative(root, pkg.dir));
+
+  if (!existsSync(declarationsRoot)) {
+    return [];
+  }
+
+  return globbySync(["**/*.d.ts", "**/*.d.mts", "**/*.d.cts"], {
+    cwd: declarationsRoot,
+    absolute: true,
+    onlyFiles: true,
+  }).filter((file) => shouldScanRootDeclaration(declarationsRoot, file));
+}
+
+function shouldScanRootDeclaration(declarationsRoot, file) {
+  let relativePath = relative(declarationsRoot, file);
+  let segments = relativePath.split(/[\\/]/u);
+  let fileName = basename(file);
+  let ignoredSegments = new Set([
+    "__tests__",
+    "bench",
+    "benches",
+    "spec",
+    "specs",
+    "test",
+    "tests",
+  ]);
+
+  if (segments.slice(0, -1).some((segment) => ignoredSegments.has(segment))) {
+    return false;
+  }
+
+  return !(
+    fileName.startsWith("_test") ||
+    fileName.startsWith("rollup.config.d.") ||
+    /\.(?:spec|test)\.d\.[cm]?ts$/u.test(fileName)
+  );
+}
+
+function validateDeclarationMap(pkg, declarationFile) {
+  let mapFile = `${declarationFile}.map`;
+
+  if (!existsSync(mapFile)) {
+    return;
+  }
+
+  let map;
+
+  try {
+    map = JSON.parse(readFileSync(mapFile, "utf8"));
+  } catch (error) {
+    fail(
+      pkg,
+      `declaration map could not be parsed: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+      mapFile,
+    );
+
+    return;
+  }
+
+  let sourceRoot = typeof map.sourceRoot === "string" ? map.sourceRoot : "";
+
+  for (let source of map.sources ?? []) {
+    if (typeof source !== "string" || URL.canParse(source)) {
+      continue;
+    }
+
+    let sourcePath = resolve(dirname(mapFile), sourceRoot, source);
+
+    if (!existsSync(sourcePath)) {
+      fail(
+        pkg,
+        `declaration map references missing source ${source}`,
+        mapFile,
+      );
+    }
   }
 }
 
@@ -175,6 +339,10 @@ function hasRuntimeEntrypoint(pkg) {
   }
 
   return hasRuntimeExport(publishConfig?.exports);
+}
+
+function buildsJavaScript(pkg) {
+  return pkg.manifest.scripts?.build === "rollup -c";
 }
 
 function hasRuntimeExport(value) {
@@ -192,7 +360,9 @@ function hasRuntimeExport(value) {
 }
 
 function referencesPackage(content, name) {
-  return content.includes(`"${name}"`) || content.includes(`'${name}'`);
+  return new RegExp(`["']${escapeRegExp(name)}(?:/[^"']*)?["']`, "u").test(
+    content,
+  );
 }
 
 function referencesCjs(value) {
@@ -206,6 +376,14 @@ function isPackageRelativePath(value) {
     !value.startsWith("node:") &&
     !URL.canParse(value)
   );
+}
+
+function isDeclarationFile(file) {
+  return /\.d\.[cm]?ts$/u.test(file);
+}
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
 }
 
 function fail(pkg, message, file) {
