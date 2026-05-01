@@ -229,7 +229,7 @@ function artifactKind(file) {
 }
 
 function rootDeclarationForPackageArtifact(pkg, file) {
-  let packageRelativePath = relative(pkg.dir, file);
+  let packageRelativePath = posixPath(relative(pkg.dir, file));
 
   if (!packageRelativePath.startsWith("dist/")) {
     return undefined;
@@ -322,11 +322,7 @@ function validateDeclarationMap(pkg, declarationFile) {
     let sourcePath = resolve(dirname(mapFile), sourceRoot, source);
 
     if (!existsSync(sourcePath)) {
-      fail(
-        pkg,
-        `declaration map references missing source ${source}`,
-        mapFile,
-      );
+      fail(pkg, `declaration map references missing source ${source}`, mapFile);
     }
   }
 }
@@ -384,6 +380,10 @@ function isDeclarationFile(file) {
 
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+}
+
+function posixPath(path) {
+  return path.replace(/\\/gu, "/");
 }
 
 function fail(pkg, message, file) {
