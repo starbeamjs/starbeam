@@ -377,9 +377,6 @@ importers:
       '@starbeam/interfaces':
         specifier: workspace:^
         version: link:../../universal/interfaces
-      '@starbeam/modifier':
-        specifier: workspace:^
-        version: link:../../universal/modifier
       '@starbeam/reactive':
         specifier: workspace:^
         version: link:../../universal/reactive
@@ -732,6 +729,15 @@ importers:
         specifier: ^4.60.1
         version: 4.60.1
 
+  packages/universal/modifier/tests:
+    dependencies:
+      '@starbeam-workspace/test-utils':
+        specifier: workspace:^
+        version: link:../../../../workspace/test-utils
+      '@starbeam/modifier':
+        specifier: workspace:^
+        version: link:..
+
   packages/universal/reactive:
     dependencies:
       '@starbeam/interfaces':
@@ -811,9 +817,18 @@ importers:
       '@starbeam-workspace/test-utils':
         specifier: workspace:^
         version: link:../../../../workspace/test-utils
+      '@starbeam/reactive':
+        specifier: workspace:^
+        version: link:../../reactive
       '@starbeam/renderer':
         specifier: workspace:^
         version: link:..
+      '@starbeam/resource':
+        specifier: workspace:^
+        version: link:../../resource
+      '@starbeam/shared':
+        specifier: workspace:^
+        version: link:../../shared
 
   packages/universal/resource:
     dependencies:
