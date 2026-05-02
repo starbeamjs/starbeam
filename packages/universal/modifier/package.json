@@ -23,6 +23,7 @@
     "build": "rollup -c",
     "prepack": "pnpm build",
     "test:lint": "eslint . --max-warnings 0",
+    "test:specs": "cd ../../../ && vitest --run --pool forks --project modifier",
     "test:types": "tsc -b"
   },
   "dependencies": {

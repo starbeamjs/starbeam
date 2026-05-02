@@ -33,7 +33,6 @@
   "dependencies": {
     "@starbeam/collections": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
-    "@starbeam/modifier": "workspace:^",
     "@starbeam/reactive": "workspace:^",
     "@starbeam/renderer": "workspace:^",
     "@starbeam/resource": "workspace:^",
