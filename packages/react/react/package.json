@@ -17,6 +17,9 @@
     "types": "dist/index.d.ts"
   },
   "starbeam": {
+    "inline": [
+      "@starbeam/core-utils"
+    ],
     "source": "tsx",
     "type": "library:public"
   },
@@ -29,7 +32,6 @@
   },
   "dependencies": {
     "@starbeam/collections": "workspace:^",
-    "@starbeam/core-utils": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
     "@starbeam/modifier": "workspace:^",
     "@starbeam/reactive": "workspace:^",
@@ -43,6 +45,7 @@
     "scheduler": "^0.27.0"
   },
   "devDependencies": {
+    "@starbeam/core-utils": "workspace:^",
     "@starbeam/verify": "workspace:^",
     "@starbeam-dev/compile": "workspace:*",
     "@types/node": "^22.19.17",

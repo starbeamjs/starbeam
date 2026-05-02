@@ -21,6 +21,9 @@
       "index": "./index.ts",
       "setup": "./src/setup.ts"
     },
+    "inline": [
+      "@starbeam/core-utils"
+    ],
     "type": "library:public"
   },
   "scripts": {
@@ -31,7 +34,6 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "@starbeam/core-utils": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
     "@starbeam/reactive": "workspace:^",
     "@starbeam/renderer": "workspace:^",
@@ -43,6 +45,7 @@
     "@starbeam/universal": "workspace:^"
   },
   "devDependencies": {
+    "@starbeam/core-utils": "workspace:^",
     "@starbeam/verify": "workspace:^",
     "@starbeam-dev/compile": "workspace:*",
     "rollup": "^4.60.1"

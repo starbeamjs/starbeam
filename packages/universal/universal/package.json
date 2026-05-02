@@ -18,6 +18,7 @@
   },
   "starbeam": {
     "inline": [
+      "@starbeam/core-utils",
       "@starbeam/debug"
     ],
     "type": "library:public"
@@ -30,7 +31,6 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "@starbeam/core-utils": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
     "@starbeam/reactive": "workspace:^",
     "@starbeam/resource": "workspace:^",
@@ -41,6 +41,7 @@
     "stacktracey": "^2.2.0"
   },
   "devDependencies": {
+    "@starbeam/core-utils": "workspace:^",
     "@starbeam/debug": "workspace:^",
     "@starbeam/verify": "workspace:^",
     "@starbeam-dev/compile": "workspace:*",

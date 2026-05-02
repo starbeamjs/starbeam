@@ -1,8 +1,15 @@
-import { isPresentArray } from "@starbeam/core-utils";
-
 import { alwaysTrue, expected, toKind } from "../verify.js";
 import { format } from "./describe.js";
 import type { FixedArray, ReadonlyFixedArray } from "./type-utils.js";
+
+type PresentArrayFor<T extends unknown[] | readonly unknown[] | undefined> =
+  T extends (infer Item)[]
+    ? [Item, ...Item[]]
+    : T extends readonly (infer Item)[]
+      ? readonly [Item, ...Item[]]
+      : never;
+
+const EMPTY_LENGTH = 0;
 
 export function isPresent<T>(value: T): value is Exclude<T, null | undefined> {
   return value !== null && value !== undefined;
@@ -92,13 +99,11 @@ export function hasLength<L extends number>(length: L): HasLength<L> {
   return alwaysTrue as HasLength<L>;
 }
 
-export const hasItems = isPresentArray;
-
-// export function hasItems<T>(
-//   value: readonly T[]
-// ): value is [T, ...(readonly T[])] {
-//   return value.length > 0;
-// }
+export function hasItems<T extends unknown[] | readonly unknown[] | undefined>(
+  value: T,
+): value is T & PresentArrayFor<T> {
+  return Boolean(value && value.length > EMPTY_LENGTH);
+}
 
 export function isNullable<In, Out extends In>(
   verifier: (value: In) => value is Out,
@@ -140,7 +145,6 @@ export function isNullable<In, Out extends In>(
   return alwaysTrue;
 }
 
-
 if (import.meta.env.DEV) {
   expected.associate(isPresent, expected.toBe("present"));
   expected.associate(hasItems, expected.toHave(`at least one item`));
@@ -156,5 +160,4 @@ if (import.meta.env.DEV) {
       .toBe("an object")
       .butGot((value) => (value === null ? "null" : typeof value)),
   );
-
 }

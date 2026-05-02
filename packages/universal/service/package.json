@@ -17,6 +17,9 @@
     "types": "dist/index.d.ts"
   },
   "starbeam": {
+    "inline": [
+      "@starbeam/core-utils"
+    ],
     "type": "library:public"
   },
   "scripts": {
@@ -27,7 +30,6 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "@starbeam/core-utils": "workspace:^",
     "@starbeam/interfaces": "workspace:^",
     "@starbeam/reactive": "workspace:^",
     "@starbeam/resource": "workspace:^",
@@ -35,6 +37,7 @@
     "@starbeam/shared": "workspace:^"
   },
   "devDependencies": {
+    "@starbeam/core-utils": "workspace:^",
     "@starbeam-dev/compile": "workspace:*",
     "rollup": "^4.60.1"
   },
