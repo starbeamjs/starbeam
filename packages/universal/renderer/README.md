@@ -1,4 +1,27 @@
-# Starbeam Renderers
+# Starbeam Renderer
+
+`@starbeam/renderer` is the adapter-author kit for implementing Starbeam in a
+framework renderer. App code should normally install a framework package such as
+`@starbeam/react`, `@starbeam/preact`, `@starbeam/vue`, or the framework-neutral
+`@starbeam/universal` package.
+
+The renderer package is useful when you are writing or maintaining a framework
+adapter. Its public contract is the bridge between Starbeam's resource and
+reactive model and a framework's component lifecycle:
+
+- `RendererManager` supplies component identity, stable setup storage, refs,
+  scheduling, and lifecycle hooks.
+- `managerSetupReactive`, `managerSetupResource`, and `managerSetupService`
+  implement Starbeam's shared setup behavior on top of that manager.
+- `managerCreateLifecycle` exposes the lifecycle object passed to setup and
+  reactive blueprints.
+
+Official adapters use this package where their framework lifecycle matches the
+shared manager model. React has stricter lifecycle constraints than Preact and
+Vue, so its adapter uses the same renderer vocabulary but owns more of the
+resource timing itself.
+
+## Official Renderer Compatibility
 
 | Framework | Renderer Status | Spec Compatibility |
 | --------- | --------------- | ------------------ |

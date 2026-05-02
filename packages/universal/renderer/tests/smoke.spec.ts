@@ -2,6 +2,7 @@
 import { Cell, Marker } from "@starbeam/reactive";
 import type { Handler, RendererManager } from "@starbeam/renderer";
 import {
+  managerCreateLifecycle,
   managerSetupReactive,
   managerSetupResource,
   managerSetupService,
@@ -53,6 +54,29 @@ describe("RendererManager", () => {
 
     second.current = 3;
     expect(reactive.current).toBe(3);
+  });
+
+  test("createLifecycle exposes component lifetime and lifecycle hooks", () => {
+    const manager = TestManager.create();
+    const events = new RecordedEvents();
+    const lifecycle = managerCreateLifecycle(manager);
+
+    expect(lifecycle.lifetime).toBe(manager.component);
+
+    lifecycle.on.idle(() => {
+      events.record("idle");
+    });
+    lifecycle.on.layout(() => {
+      events.record("layout");
+    });
+
+    events.expect([]);
+
+    manager.flushIdle();
+    events.expect("idle");
+
+    manager.flushLayout();
+    events.expect("layout");
   });
 
   test("setupResource defers sync and subscriptions until mounted", () => {
@@ -239,6 +263,14 @@ class TestManager implements RendererManager<object> {
   flushScheduled(): void {
     this.#scheduledCount = 0;
     run(this.#schedulerHandlers);
+  }
+
+  flushIdle(): void {
+    run(this.#idleHandlers);
+  }
+
+  flushLayout(): void {
+    run(this.#layoutHandlers);
   }
 }
 
