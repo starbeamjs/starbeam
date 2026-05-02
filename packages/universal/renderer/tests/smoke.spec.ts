@@ -58,10 +58,11 @@ describe("RendererManager", () => {
 
   test("createLifecycle exposes component lifetime and lifecycle hooks", () => {
     const manager = TestManager.create();
+    const component = manager.getComponent();
     const events = new RecordedEvents();
     const lifecycle = managerCreateLifecycle(manager);
 
-    expect(lifecycle.lifetime).toBe(manager.component);
+    expect(lifecycle.lifetime).toBe(component);
 
     lifecycle.on.idle(() => {
       events.record("idle");
