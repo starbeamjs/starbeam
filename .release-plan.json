@@ -1,0 +1,694 @@
+{
+  "solution": {
+    "@starbeam/preact": {
+      "impact": "major",
+      "oldVersion": "0.8.9",
+      "newVersion": "0.9.0",
+      "tagName": "latest",
+      "constraints": [
+        {
+          "impact": "major",
+          "reason": "Appears in changelog section :boom: Breaking Change"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/interfaces"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/resource"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/service"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/tags"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/shared"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/universal"
+        },
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/reactive"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/renderer"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/runtime"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
+        }
+      ],
+      "pkgJSONPath": "./packages/preact/preact/package.json"
+    },
+    "@starbeam/react": {
+      "impact": "major",
+      "oldVersion": "0.8.9",
+      "newVersion": "0.9.0",
+      "tagName": "latest",
+      "constraints": [
+        {
+          "impact": "major",
+          "reason": "Appears in changelog section :boom: Breaking Change"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/use-strict-lifecycle"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/interfaces"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/resource"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/service"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/shared"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/universal"
+        },
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/collections"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/reactive"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/renderer"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/runtime"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
+        }
+      ],
+      "pkgJSONPath": "./packages/react/react/package.json"
+    },
+    "@starbeam/use-strict-lifecycle": {
+      "impact": "major",
+      "oldVersion": "0.8.9",
+      "newVersion": "0.9.0",
+      "tagName": "latest",
+      "constraints": [
+        {
+          "impact": "major",
+          "reason": "Appears in changelog section :boom: Breaking Change"
+        },
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
+        }
+      ],
+      "pkgJSONPath": "./packages/react/use-strict-lifecycle/package.json"
+    },
+    "@starbeam/collections": {
+      "impact": "minor",
+      "oldVersion": "0.8.9",
+      "newVersion": "0.9.0",
+      "tagName": "latest",
+      "constraints": [
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/interfaces"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/tags"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/shared"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/universal"
+        },
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/reactive"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/runtime"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
+        }
+      ],
+      "pkgJSONPath": "./packages/universal/collections/package.json"
+    },
+    "@starbeam/core": {
+      "impact": "major",
+      "oldVersion": "0.8.9",
+      "newVersion": "0.9.0",
+      "tagName": "latest",
+      "constraints": [
+        {
+          "impact": "major",
+          "reason": "Appears in changelog section :boom: Breaking Change"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/universal"
+        },
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
+        }
+      ],
+      "pkgJSONPath": "./packages/universal/core/package.json"
+    },
+    "@starbeam/interfaces": {
+      "impact": "major",
+      "oldVersion": "0.8.9",
+      "newVersion": "0.9.0",
+      "tagName": "latest",
+      "constraints": [
+        {
+          "impact": "major",
+          "reason": "Appears in changelog section :boom: Breaking Change"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/shared"
+        },
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
+        }
+      ],
+      "pkgJSONPath": "./packages/universal/interfaces/package.json"
+    },
+    "@starbeam/reactive": {
+      "impact": "minor",
+      "oldVersion": "0.8.9",
+      "newVersion": "0.9.0",
+      "tagName": "latest",
+      "constraints": [
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/interfaces"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/tags"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/shared"
+        },
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
+        }
+      ],
+      "pkgJSONPath": "./packages/universal/reactive/package.json"
+    },
+    "@starbeam/renderer": {
+      "impact": "minor",
+      "oldVersion": "0.8.9",
+      "newVersion": "0.9.0",
+      "tagName": "latest",
+      "constraints": [
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/interfaces"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/resource"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/service"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/shared"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/reactive"
+        },
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/runtime"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
+        }
+      ],
+      "pkgJSONPath": "./packages/universal/renderer/package.json"
+    },
+    "@starbeam/resource": {
+      "impact": "minor",
+      "oldVersion": "0.0.0",
+      "newVersion": "0.1.0",
+      "tagName": "latest",
+      "constraints": [
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/interfaces"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/shared"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/reactive"
+        },
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/runtime"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
+        }
+      ],
+      "pkgJSONPath": "./packages/universal/resource/package.json"
+    },
+    "@starbeam/runtime": {
+      "impact": "minor",
+      "oldVersion": "0.8.9",
+      "newVersion": "0.9.0",
+      "tagName": "latest",
+      "constraints": [
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/interfaces"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/tags"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/shared"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/reactive"
+        },
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
+        }
+      ],
+      "pkgJSONPath": "./packages/universal/runtime/package.json"
+    },
+    "@starbeam/service": {
+      "impact": "minor",
+      "oldVersion": "0.0.0",
+      "newVersion": "0.1.0",
+      "tagName": "latest",
+      "constraints": [
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/resource"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/interfaces"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/shared"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/reactive"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/runtime"
+        },
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
+        }
+      ],
+      "pkgJSONPath": "./packages/universal/service/package.json"
+    },
+    "@starbeam/shared": {
+      "impact": "major",
+      "oldVersion": "1.3.7",
+      "newVersion": "1.4.0",
+      "tagName": "latest",
+      "constraints": [
+        {
+          "impact": "major",
+          "reason": "Appears in changelog section :boom: Breaking Change"
+        },
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
+        }
+      ],
+      "pkgJSONPath": "./packages/universal/shared/package.json"
+    },
+    "@starbeam/tags": {
+      "impact": "minor",
+      "oldVersion": "0.0.0",
+      "newVersion": "0.1.0",
+      "tagName": "latest",
+      "constraints": [
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/interfaces"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/shared"
+        },
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
+        }
+      ],
+      "pkgJSONPath": "./packages/universal/tags/package.json"
+    },
+    "@starbeam/universal": {
+      "impact": "major",
+      "oldVersion": "0.8.9",
+      "newVersion": "0.9.0",
+      "tagName": "latest",
+      "constraints": [
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/resource"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/tags"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/interfaces"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/shared"
+        },
+        {
+          "impact": "major",
+          "reason": "Appears in changelog section :boom: Breaking Change"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/reactive"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/runtime"
+        },
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
+        }
+      ],
+      "pkgJSONPath": "./packages/universal/universal/package.json"
+    },
+    "@starbeam/vue": {
+      "impact": "minor",
+      "oldVersion": "0.8.9",
+      "newVersion": "0.9.0",
+      "tagName": "latest",
+      "constraints": [
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/service"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/resource"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/tags"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/interfaces"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/shared"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/universal"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/reactive"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/renderer"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/runtime"
+        },
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
+        }
+      ],
+      "pkgJSONPath": "./packages/vue/vue/package.json"
+    },
+    "@starbeamx/store": {
+      "impact": "major",
+      "oldVersion": "0.8.9",
+      "newVersion": "0.9.0",
+      "tagName": "latest",
+      "constraints": [
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/interfaces"
+        },
+        {
+          "impact": "major",
+          "reason": "Appears in changelog section :boom: Breaking Change"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/collections"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/reactive"
+        },
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
+        }
+      ],
+      "pkgJSONPath": "./packages/x/store/package.json"
+    },
+    "@starbeamx/vanilla": {
+      "impact": "major",
+      "oldVersion": "0.8.9",
+      "newVersion": "0.9.0",
+      "tagName": "latest",
+      "constraints": [
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/interfaces"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/shared"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/universal"
+        },
+        {
+          "impact": "major",
+          "reason": "Appears in changelog section :boom: Breaking Change"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/reactive"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:^` on @starbeam/runtime"
+        },
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
+        }
+      ],
+      "pkgJSONPath": "./packages/x/vanilla/package.json"
+    }
+  },
+  "description": "## Release (2026-05-02)\n\n* @starbeam/preact 0.9.0 (major)\n* @starbeam/react 0.9.0 (major)\n* @starbeam/use-strict-lifecycle 0.9.0 (major)\n* @starbeam/collections 0.9.0 (minor)\n* @starbeam/core 0.9.0 (major)\n* @starbeam/interfaces 0.9.0 (major)\n* @starbeam/reactive 0.9.0 (minor)\n* @starbeam/renderer 0.9.0 (minor)\n* @starbeam/resource 0.1.0 (minor)\n* @starbeam/runtime 0.9.0 (minor)\n* @starbeam/service 0.1.0 (minor)\n* @starbeam/shared 1.4.0 (major)\n* @starbeam/tags 0.1.0 (minor)\n* @starbeam/universal 0.9.0 (major)\n* @starbeam/vue 0.9.0 (minor)\n* @starbeamx/store 0.9.0 (major)\n* @starbeamx/vanilla 0.9.0 (major)\n\n#### :boom: Breaking Change\n* `@starbeam/react`\n  * [#172](https://github.com/starbeamjs/starbeam/pull/172) chore(react): delete two dead-code paths (duplicate useReactive + broken useDeps) ([@wycats](https://github.com/wycats))\n  * [#173](https://github.com/starbeamjs/starbeam/pull/173) feat(react): React Compiler 1.0 compatibility + adapter surface collapse ([@wycats](https://github.com/wycats))\n* `@starbeam/preact`, `@starbeam/react`, `@starbeam/use-strict-lifecycle`, `@starbeam/core`, `@starbeam/interfaces`, `@starbeam/shared`, `@starbeam/universal`, `@starbeamx/store`, `@starbeamx/vanilla`\n  * [#60](https://github.com/starbeamjs/starbeam/pull/60) Resource 2.0 ([@wycats](https://github.com/wycats))\n\n#### :rocket: Enhancement\n* `@starbeam/interfaces`\n  * [#149](https://github.com/starbeamjs/starbeam/pull/149) Better production stripping - 61KB smaller, 63% of `main`'s size, 2.7x smaller ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* `@starbeam/preact`, `@starbeam/react`, `@starbeam/use-strict-lifecycle`, `@starbeam/collections`, `@starbeam/core`, `@starbeam/interfaces`, `@starbeam/reactive`, `@starbeam/renderer`, `@starbeam/resource`, `@starbeam/runtime`, `@starbeam/service`, `@starbeam/shared`, `@starbeam/tags`, `@starbeam/universal`, `@starbeam/vue`, `@starbeamx/store`, `@starbeamx/vanilla`\n  * [#112](https://github.com/starbeamjs/starbeam/pull/112) Resource Reform ([@wycats](https://github.com/wycats))\n\n#### :bug: Bug Fix\n* `@starbeam/react`, `@starbeam/use-strict-lifecycle`\n  * [#170](https://github.com/starbeamjs/starbeam/pull/170) fix(react): don't rebuild instance during Activity hide-transition renders ([@wycats](https://github.com/wycats))\n* `@starbeam/preact`, `@starbeam/react`, `@starbeam/use-strict-lifecycle`, `@starbeam/collections`, `@starbeam/core`, `@starbeam/interfaces`, `@starbeam/reactive`, `@starbeam/renderer`, `@starbeam/resource`, `@starbeam/runtime`, `@starbeam/service`, `@starbeam/shared`, `@starbeam/tags`, `@starbeam/universal`, `@starbeam/vue`, `@starbeamx/store`, `@starbeamx/vanilla`\n  * [#157](https://github.com/starbeamjs/starbeam/pull/157) Add CI check for forbidden texts ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* Other\n  * [#125](https://github.com/starbeamjs/starbeam/pull/125) domtree packages need to be published ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### :memo: Documentation\n* [#185](https://github.com/starbeamjs/starbeam/pull/185) Document package surface heuristics ([@wycats](https://github.com/wycats))\n\n#### :house: Internal\n* `@starbeam/interfaces`\n  * [#189](https://github.com/starbeamjs/starbeam/pull/189) Make domtree packages private ([@wycats](https://github.com/wycats))\n  * [#181](https://github.com/starbeamjs/starbeam/pull/181) Tighten release surface verification ([@wycats](https://github.com/wycats))\n* Other\n  * [#188](https://github.com/starbeamjs/starbeam/pull/188) Make modifier package private ([@wycats](https://github.com/wycats))\n  * [#177](https://github.com/starbeamjs/starbeam/pull/177) Mark vite-env private ([@wycats](https://github.com/wycats))\n  * [#174](https://github.com/starbeamjs/starbeam/pull/174) Update release-plan ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#175](https://github.com/starbeamjs/starbeam/pull/175) ci(release): use GitHub App token for release-preview PRs ([@wycats](https://github.com/wycats))\n  * [#160](https://github.com/starbeamjs/starbeam/pull/160) make dev-compile private ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#159](https://github.com/starbeamjs/starbeam/pull/159) include workspace packages ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#145](https://github.com/starbeamjs/starbeam/pull/145) Update the main changelog ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#139](https://github.com/starbeamjs/starbeam/pull/139) pnpm by default doesn't publish when there are git changes, we need t… ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#126](https://github.com/starbeamjs/starbeam/pull/126) Add positivity to the infra ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#131](https://github.com/starbeamjs/starbeam/pull/131) Change the ci.yml lint script to use turbo ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#130](https://github.com/starbeamjs/starbeam/pull/130) List failed packages as summary at end of unstable release ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#129](https://github.com/starbeamjs/starbeam/pull/129) Fix/unstable release unpublished package ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#128](https://github.com/starbeamjs/starbeam/pull/128) Fix/idempotent unstable release ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#127](https://github.com/starbeamjs/starbeam/pull/127) Do not try to publish if the package is already published ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#123](https://github.com/starbeamjs/starbeam/pull/123) fix runtime issue ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#122](https://github.com/starbeamjs/starbeam/pull/122) fix-typo for unstable-release helpers ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#120](https://github.com/starbeamjs/starbeam/pull/120) Adjust publish-unstable.yml for new location ([@wycats](https://github.com/wycats))\n  * [#115](https://github.com/starbeamjs/starbeam/pull/115) Publish with --access=public, per the updates from embroider ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#108](https://github.com/starbeamjs/starbeam/pull/108) Allow manual running of the ci workflow ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#71](https://github.com/starbeamjs/starbeam/pull/71) Remove errant import ([@wycats](https://github.com/wycats))\n  * [#68](https://github.com/starbeamjs/starbeam/pull/68) Remove chalk from runtime build ([@wycats](https://github.com/wycats))\n  * [#65](https://github.com/starbeamjs/starbeam/pull/65) Fix streaming output ([@wycats](https://github.com/wycats))\n  * [#63](https://github.com/starbeamjs/starbeam/pull/63) Fix json lints ([@wycats](https://github.com/wycats))\n  * [#62](https://github.com/starbeamjs/starbeam/pull/62) Break up the giant scripts package ([@wycats](https://github.com/wycats))\n  * [#53](https://github.com/starbeamjs/starbeam/pull/53) Fix scripts in CONTRIBUTING.md ([@elwayman02](https://github.com/elwayman02))\n  * [#50](https://github.com/starbeamjs/starbeam/pull/50) Migrate to babel for rollup builds ([@wycats](https://github.com/wycats))\n  * [#49](https://github.com/starbeamjs/starbeam/pull/49) Fix the build when deps have imports in package.json ([@wycats](https://github.com/wycats))\n  * [#47](https://github.com/starbeamjs/starbeam/pull/47) Prepare 0.7.2 ([@wycats](https://github.com/wycats))\n  * [#46](https://github.com/starbeamjs/starbeam/pull/46) Trigger build ([@wycats](https://github.com/wycats))\n  * [#45](https://github.com/starbeamjs/starbeam/pull/45) Add changeset ([@wycats](https://github.com/wycats))\n  * [#44](https://github.com/starbeamjs/starbeam/pull/44) More lint cleanup ([@wycats](https://github.com/wycats))\n  * [#43](https://github.com/starbeamjs/starbeam/pull/43) Prepare for 0.7 ([@wycats](https://github.com/wycats))\n  * [#41](https://github.com/starbeamjs/starbeam/pull/41) Prepare 061 ([@wycats](https://github.com/wycats))\n  * [#39](https://github.com/starbeamjs/starbeam/pull/39) Prepare-060 ([@wycats](https://github.com/wycats))\n  * [#38](https://github.com/starbeamjs/starbeam/pull/38) Better types for usereactivesetup ([@wycats](https://github.com/wycats))\n  * [#36](https://github.com/starbeamjs/starbeam/pull/36) Bump deps ([@wycats](https://github.com/wycats))\n  * [#35](https://github.com/starbeamjs/starbeam/pull/35) Remove the need to install @starbeam/peer as a peer ([@wycats](https://github.com/wycats))\n  * [#34](https://github.com/starbeamjs/starbeam/pull/34) Refactor core ([@wycats](https://github.com/wycats))\n  * [#33](https://github.com/starbeamjs/starbeam/pull/33) Prepare 0.5.7 ([@wycats](https://github.com/wycats))\n  * [#32](https://github.com/starbeamjs/starbeam/pull/32) Fix the bug in the react-lite-query demo ([@wycats](https://github.com/wycats))\n  * [#31](https://github.com/starbeamjs/starbeam/pull/31) Improvements for pure ESM builds ([@wycats](https://github.com/wycats))\n* `@starbeam/react`, `@starbeam/renderer`\n  * [#187](https://github.com/starbeamjs/starbeam/pull/187) Add renderer and modifier contract baselines ([@wycats](https://github.com/wycats))\n* `@starbeam/preact`, `@starbeam/react`, `@starbeam/interfaces`, `@starbeam/reactive`, `@starbeam/resource`, `@starbeam/runtime`, `@starbeam/service`, `@starbeam/tags`, `@starbeam/universal`, `@starbeam/vue`\n  * [#186](https://github.com/starbeamjs/starbeam/pull/186) Make core-utils internal ([@wycats](https://github.com/wycats))\n* `@starbeam/preact`, `@starbeam/react`, `@starbeam/collections`, `@starbeam/resource`, `@starbeam/service`, `@starbeam/universal`, `@starbeam/vue`, `@starbeamx/store`, `@starbeamx/vanilla`\n  * [#184](https://github.com/starbeamjs/starbeam/pull/184) Make debug an internal package ([@wycats](https://github.com/wycats))\n* `@starbeam/universal`\n  * [#183](https://github.com/starbeamjs/starbeam/pull/183) Verify debug bootstrap artifacts ([@wycats](https://github.com/wycats))\n* `@starbeam/preact`, `@starbeam/react`, `@starbeam/collections`, `@starbeam/reactive`, `@starbeam/resource`, `@starbeam/runtime`, `@starbeam/universal`, `@starbeam/vue`, `@starbeamx/store`\n  * [#182](https://github.com/starbeamjs/starbeam/pull/182) Make verify an internal package ([@wycats](https://github.com/wycats))\n* `@starbeam/preact`\n  * [#180](https://github.com/starbeamjs/starbeam/pull/180) Inline preact-utils internals into preact ([@wycats](https://github.com/wycats))\n  * [#73](https://github.com/starbeamjs/starbeam/pull/73) Add /setup export from preact ([@wycats](https://github.com/wycats))\n* `@starbeam/shared`\n  * [#179](https://github.com/starbeamjs/starbeam/pull/179) Configure shared breaking releases as minors ([@wycats](https://github.com/wycats))\n* `@starbeam/preact`, `@starbeam/react`, `@starbeam/use-strict-lifecycle`, `@starbeam/collections`, `@starbeam/core`, `@starbeam/interfaces`, `@starbeam/reactive`, `@starbeam/renderer`, `@starbeam/resource`, `@starbeam/runtime`, `@starbeam/service`, `@starbeam/tags`, `@starbeam/universal`, `@starbeam/vue`, `@starbeamx/store`, `@starbeamx/vanilla`\n  * [#178](https://github.com/starbeamjs/starbeam/pull/178) Configure pre-1.0 breaking releases as minors ([@wycats](https://github.com/wycats))\n* `@starbeam/react`\n  * [#171](https://github.com/starbeamjs/starbeam/pull/171) docs(tests): rewrite setup() activation-probe comment to match observed reality ([@wycats](https://github.com/wycats))\n  * [#169](https://github.com/starbeamjs/starbeam/pull/169) test: Activity probe \\u2014 documents hide/show activation behavior ([@wycats](https://github.com/wycats))\n  * [#168](https://github.com/starbeamjs/starbeam/pull/168) test: transition probe — scheduler does not participate in React transitions ([@wycats](https://github.com/wycats))\n  * [#167](https://github.com/starbeamjs/starbeam/pull/167) chore: delete useSyncReactive prototype ([@wycats](https://github.com/wycats))\n  * [#166](https://github.com/starbeamjs/starbeam/pull/166) test: activation probes for §14/§15 semantics ([@wycats](https://github.com/wycats))\n* `@starbeam/use-strict-lifecycle`\n  * [#165](https://github.com/starbeamjs/starbeam/pull/165) chore: rename updating-ref.spec.ts to test-react.spec.ts ([@wycats](https://github.com/wycats))\n* `@starbeam/preact`, `@starbeam/react`, `@starbeam/use-strict-lifecycle`, `@starbeam/collections`, `@starbeam/core`, `@starbeam/interfaces`, `@starbeam/reactive`, `@starbeam/renderer`, `@starbeam/resource`, `@starbeam/runtime`, `@starbeam/service`, `@starbeam/shared`, `@starbeam/tags`, `@starbeam/universal`, `@starbeam/vue`, `@starbeamx/store`, `@starbeamx/vanilla`\n  * [#162](https://github.com/starbeamjs/starbeam/pull/162) chore: infra modernization arc ([@wycats](https://github.com/wycats))\n  * [#157](https://github.com/starbeamjs/starbeam/pull/157) Add CI check for forbidden texts ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#156](https://github.com/starbeamjs/starbeam/pull/156) Add dev-compile and update references to starbeam-dev/compile ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#147](https://github.com/starbeamjs/starbeam/pull/147) Use the changelog from the monorepo root in each package ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* `@starbeamx/vanilla`\n  * [#121](https://github.com/starbeamjs/starbeam/pull/121) Chore/local perf spotchecking ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* `@starbeam/preact`, `@starbeam/react`, `@starbeam/use-strict-lifecycle`, `@starbeam/collections`, `@starbeam/core`, `@starbeam/reactive`, `@starbeam/renderer`, `@starbeam/resource`, `@starbeam/runtime`, `@starbeam/service`, `@starbeam/shared`, `@starbeam/tags`, `@starbeam/universal`, `@starbeam/vue`\n  * [#138](https://github.com/starbeamjs/starbeam/pull/138) Build and publish the 'unstable' tag correctly ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* `@starbeam/resource`, `@starbeam/service`, `@starbeam/tags`\n  * [#107](https://github.com/starbeamjs/starbeam/pull/107) Add new package and workflow for publishing unstable releases ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* `@starbeam/react`, `@starbeam/use-strict-lifecycle`, `@starbeam/universal`\n  * [#78](https://github.com/starbeamjs/starbeam/pull/78) [WIP] Improvements to `@starbeam/react` ([@wycats](https://github.com/wycats))\n* `@starbeam/preact`, `@starbeam/react`, `@starbeam/use-strict-lifecycle`, `@starbeam/core`, `@starbeam/interfaces`, `@starbeam/shared`, `@starbeam/universal`, `@starbeamx/store`, `@starbeamx/vanilla`\n  * [#77](https://github.com/starbeamjs/starbeam/pull/77) Prepare 0.8.7 ([@wycats](https://github.com/wycats))\n  * [#74](https://github.com/starbeamjs/starbeam/pull/74) Add /setup export from preact ([@wycats](https://github.com/wycats))\n  * [#72](https://github.com/starbeamjs/starbeam/pull/72) Prepare 0.8.6 ([@wycats](https://github.com/wycats))\n  * [#70](https://github.com/starbeamjs/starbeam/pull/70) Fix type inference and prepare 0.8.5 ([@wycats](https://github.com/wycats))\n  * [#69](https://github.com/starbeamjs/starbeam/pull/69) Fix interfaces and prepare 0.8.4 ([@wycats](https://github.com/wycats))\n  * [#64](https://github.com/starbeamjs/starbeam/pull/64) Prepare 0.8 ([@wycats](https://github.com/wycats))\n* `@starbeam/preact`, `@starbeam/react`, `@starbeam/core`, `@starbeam/universal`, `@starbeamx/store`, `@starbeamx/vanilla`\n  * [#67](https://github.com/starbeamjs/starbeam/pull/67) make debug work in browser ([@wycats](https://github.com/wycats))\n* `@starbeam/react`, `@starbeam/use-strict-lifecycle`, `@starbeam/shared`, `@starbeam/universal`, `@starbeamx/store`, `@starbeamx/vanilla`\n  * [#66](https://github.com/starbeamjs/starbeam/pull/66) JSNation Demo Smoke Tests ([@wycats](https://github.com/wycats))\n* `@starbeam/preact`, `@starbeam/react`, `@starbeam/use-strict-lifecycle`, `@starbeam/interfaces`, `@starbeam/shared`, `@starbeam/universal`, `@starbeamx/store`, `@starbeamx/vanilla`\n  * [#61](https://github.com/starbeamjs/starbeam/pull/61) Moved /scripts and /.build into /workspace ([@wycats](https://github.com/wycats))\n* `@starbeam/react`, `@starbeam/use-strict-lifecycle`, `@starbeam/core`, `@starbeam/interfaces`, `@starbeam/shared`, `@starbeamx/store`, `@starbeamx/vanilla`\n  * [#55](https://github.com/starbeamjs/starbeam/pull/55) Follow-up work ([@wycats](https://github.com/wycats))\n  * [#54](https://github.com/starbeamjs/starbeam/pull/54) Build improvements 2.0 ([@wycats](https://github.com/wycats))\n\n#### Committers: 3\n- Jordan Hawker ([@elwayman02](https://github.com/elwayman02))\n- Yehuda Katz ([@wycats](https://github.com/wycats))\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
+}
