@@ -1,4 +1,5 @@
 {
+  "private": true,
   "name": "@domtree/flavors",
   "type": "module",
   "version": "0.9.3",
@@ -7,15 +8,8 @@
   "exports": {
     "default": "./index.ts"
   },
-  "publishConfig": {
-    "exports": {
-      "types": "./dist/index.d.ts"
-    },
-    "types": "dist/index.d.ts"
-  },
   "starbeam": {
-    "source": "ts",
-    "type": "library:interfaces"
+    "type": "library:internal"
   },
   "scripts": {
     "test:lint": "eslint . --max-warnings 0",
@@ -28,10 +22,5 @@
   },
   "devDependencies": {
     "@starbeam-dev/compile": "workspace:*"
-  },
-  "release-plan": {
-    "semverIncrementAs": {
-      "major": "minor"
-    }
   }
 }
