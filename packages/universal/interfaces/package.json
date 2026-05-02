@@ -23,7 +23,6 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
-    "@domtree/any": "workspace:^",
     "@starbeam/shared": "workspace:^"
   },
   "devDependencies": {

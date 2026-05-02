@@ -687,9 +687,6 @@ importers:
 
   packages/universal/interfaces:
     dependencies:
-      '@domtree/any':
-        specifier: workspace:^
-        version: link:../../../workspace/@domtree/any
       '@starbeam/shared':
         specifier: workspace:^
         version: link:../shared
