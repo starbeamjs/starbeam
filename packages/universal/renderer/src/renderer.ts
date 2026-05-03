@@ -182,6 +182,6 @@ export function managerSetupService<T>(
 
 export type Handler = () => void;
 
-export function runHandlers(handlers: Set<() => void>): void {
+export function runHandlers(handlers: ReadonlySet<Handler>): void {
   handlers.forEach((handler) => void handler());
 }
