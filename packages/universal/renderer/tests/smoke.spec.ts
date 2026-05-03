@@ -103,6 +103,24 @@ describe("RendererManager", () => {
     events.expect("first", "second");
   });
 
+  test("shared manager helpers do not consume notifier", () => {
+    const app = {};
+    const manager = TestManager.create({
+      app,
+      createNotifier: () => {
+        throw Error("createNotifier should not be called by shared helpers");
+      },
+    });
+
+    const cell = Cell(1);
+    const Counter = Resource(() => ({ count: cell.current }));
+
+    expect(managerCreateLifecycle(manager).lifetime).toBe(manager.component);
+    expect(managerSetupReactive(manager, cell).current).toBe(1);
+    expect(managerSetupResource(manager, Counter).count).toBe(1);
+    expect(managerSetupService(manager, Counter).count).toBe(1);
+  });
+
   test("setupResource defers sync and subscriptions until mounted", () => {
     const manager = TestManager.create();
     const events = new RecordedEvents();
@@ -131,9 +149,11 @@ describe("RendererManager", () => {
     invalidate.mark();
     events.expect([]);
     expect(manager.scheduledCount).toBe(0);
+    expect(manager.schedulerHandlerCount).toBe(0);
 
     manager.mount();
     events.expect("resource:sync");
+    expect(manager.schedulerHandlerCount).toBe(1);
 
     invalidate.mark();
     events.expect([]);
@@ -210,12 +230,13 @@ describe("RendererManager", () => {
 });
 
 class TestManager implements RendererManager<object> {
-  static create(options: { app?: object } = {}): TestManager {
-    return new TestManager(options.app);
+  static create(options: TestManagerOptions = {}): TestManager {
+    return new TestManager(options);
   }
 
   #component = {};
   readonly #app: object | undefined;
+  readonly #createNotifier: () => () => void;
   readonly #values = new WeakMap<() => unknown, unknown>();
   readonly #refs = new Map<object, { current: unknown }>();
   readonly #mountedHandlers = new Set<Handler>();
@@ -224,12 +245,17 @@ class TestManager implements RendererManager<object> {
   readonly #schedulerHandlers = new Set<Handler>();
   #scheduledCount = 0;
 
-  private constructor(app: object | undefined) {
-    this.#app = app;
+  private constructor(options: TestManagerOptions) {
+    this.#app = options.app;
+    this.#createNotifier = options.createNotifier ?? (() => () => {});
   }
 
   get scheduledCount(): number {
     return this.#scheduledCount;
+  }
+
+  get schedulerHandlerCount(): number {
+    return this.#schedulerHandlers.size;
   }
 
   get component(): object {
@@ -267,7 +293,7 @@ class TestManager implements RendererManager<object> {
     return ref as { readonly current: T };
   };
 
-  createNotifier = (): (() => void) => () => {};
+  createNotifier = (): (() => void) => this.#createNotifier();
 
   createScheduler = (): {
     readonly onSchedule: (handler: Handler) => void;
@@ -305,4 +331,9 @@ class TestManager implements RendererManager<object> {
   flushLayout(): void {
     runHandlers(this.#layoutHandlers);
   }
+}
+
+interface TestManagerOptions {
+  readonly app?: object;
+  readonly createNotifier?: () => () => void;
 }
