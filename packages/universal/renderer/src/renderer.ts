@@ -50,7 +50,10 @@ export interface RendererManager<C extends object> {
   /** Create a framework-native notifier for adapters that need one. */
   readonly createNotifier: (instance: C) => () => void;
 
-  /** Create the scheduler used by shared resource setup after mount. */
+  /**
+   * Create a scheduler during setup. Shared resource setup registers scheduler
+   * handlers and runtime subscriptions when the component mounts.
+   */
   readonly createScheduler: (instance: C) => Scheduler;
   readonly on: {
     readonly mounted: (instance: C, handler: Handler) => void;

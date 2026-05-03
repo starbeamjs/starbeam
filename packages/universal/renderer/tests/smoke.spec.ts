@@ -236,7 +236,7 @@ class TestManager implements RendererManager<object> {
 
   #component = {};
   readonly #app: object | undefined;
-  readonly #createNotifier: () => () => void;
+  readonly #createNotifier: (instance: object) => () => void;
   readonly #values = new WeakMap<() => unknown, unknown>();
   readonly #refs = new Map<object, { current: unknown }>();
   readonly #mountedHandlers = new Set<Handler>();
@@ -293,9 +293,10 @@ class TestManager implements RendererManager<object> {
     return ref as { readonly current: T };
   };
 
-  createNotifier = (): (() => void) => this.#createNotifier();
+  createNotifier = (instance: object): (() => void) =>
+    this.#createNotifier(instance);
 
-  createScheduler = (): {
+  createScheduler = (_instance: object): {
     readonly onSchedule: (handler: Handler) => void;
     readonly schedule: () => void;
   } => ({
@@ -335,5 +336,5 @@ class TestManager implements RendererManager<object> {
 
 interface TestManagerOptions {
   readonly app?: object;
-  readonly createNotifier?: () => () => void;
+  readonly createNotifier?: (instance: object) => () => void;
 }
