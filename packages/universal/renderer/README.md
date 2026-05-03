@@ -21,6 +21,24 @@ shared manager model. React has stricter lifecycle constraints than Preact and
 Vue, so its adapter uses the same renderer vocabulary but owns more of the
 resource timing itself.
 
+## Surface Layers
+
+The renderer surface is organized for framework adapter authors, not app code.
+Its exports fall into a few layers:
+
+| Layer | Exports | Purpose |
+| ----- | ------- | ------- |
+| Contract vocabulary | `RendererManager`, `Lifecycle`, `ComponentScheduler`, `Handler`, `SetupBlueprint`, `ReactiveBlueprint`, `UseReactive` | Describes the boundary an adapter implements and the lifecycle object Starbeam code receives. |
+| Resource conversion | `IntoResourceBlueprint`, `intoResourceBlueprint` | Normalizes resource-like input before an adapter creates or looks up resources. |
+| Shared manager helpers | `managerCreateLifecycle`, `managerSetupReactive`, `managerSetupResource`, `managerSetupService` | Implements the common setup path for adapters whose lifecycle can use the shared manager model. |
+| Handler utility | `runHandlers` | Invokes a set of lifecycle or scheduler handlers. |
+
+`RendererManager` also includes hooks such as `createNotifier` and
+`createScheduler` that official adapters implement at their framework boundary.
+Not every shared helper consumes every manager hook, but the manager contract is
+the single place where adapter-specific scheduling and notification behavior is
+described.
+
 ## Official Renderer Compatibility
 
 | Framework | Renderer Status | Spec Compatibility |
@@ -34,9 +52,11 @@ resource timing itself.
 
 "Spec compatibility" means compatibility with the API design in this document.
 
-## Core API
+## Official Adapter API Shape
 
-These APIs exist in all renderers.
+The sections below describe the APIs that official framework packages expose on
+top of the renderer contract. They are the expected shape of framework adapters,
+not direct exports from `@starbeam/renderer`.
 
 | API             | Parameter               | Returns                 |
 | --------------- | ----------------------- | ----------------------- |

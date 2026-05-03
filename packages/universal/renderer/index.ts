@@ -1,3 +1,4 @@
+// Contract vocabulary for framework adapter authors.
 export type {
   Scheduler as ComponentScheduler,
   Handler,
@@ -7,6 +8,8 @@ export type {
   SetupBlueprint,
   UseReactive,
 } from "./src/renderer.js";
+
+// Shared manager helpers and handler utility.
 export {
   managerCreateLifecycle,
   managerSetupReactive,
@@ -14,5 +17,7 @@ export {
   managerSetupService,
   runHandlers,
 } from "./src/renderer.js";
+
+// Resource conversion.
 export type { IntoResourceBlueprint } from "./src/resource.js";
 export { intoResourceBlueprint } from "./src/resource.js";

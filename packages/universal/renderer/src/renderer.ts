@@ -91,7 +91,7 @@ class LifecycleImpl implements Lifecycle {
   };
 
   get lifetime(): object {
-    return this.#manager.getComponent() as object;
+    return this.#component;
   }
 
   use = <T>(blueprint: IntoResourceBlueprint<T>): T =>

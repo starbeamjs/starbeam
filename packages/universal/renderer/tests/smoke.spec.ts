@@ -6,6 +6,7 @@ import {
   managerSetupReactive,
   managerSetupResource,
   managerSetupService,
+  runHandlers,
 } from "@starbeam/renderer";
 import { Resource } from "@starbeam/resource";
 import { finalize } from "@starbeam/shared";
@@ -78,6 +79,28 @@ describe("RendererManager", () => {
 
     manager.flushLayout();
     events.expect("layout");
+  });
+
+  test("createLifecycle captures the component lifetime", () => {
+    const manager = TestManager.create();
+    const component = manager.getComponent();
+    const lifecycle = managerCreateLifecycle(manager);
+    const nextComponent = manager.replaceComponent();
+
+    expect(nextComponent).not.toBe(component);
+    expect(lifecycle.lifetime).toBe(component);
+  });
+
+  test("runHandlers invokes registered handlers", () => {
+    const events = new RecordedEvents();
+    const handlers = new Set<Handler>();
+
+    handlers.add(() => void events.record("first"));
+    handlers.add(() => void events.record("second"));
+
+    runHandlers(handlers);
+
+    events.expect("first", "second");
   });
 
   test("setupResource defers sync and subscriptions until mounted", () => {
@@ -191,7 +214,7 @@ class TestManager implements RendererManager<object> {
     return new TestManager(options.app);
   }
 
-  readonly component = {};
+  #component = {};
   readonly #app: object | undefined;
   readonly #values = new WeakMap<() => unknown, unknown>();
   readonly #refs = new Map<object, { current: unknown }>();
@@ -209,8 +232,17 @@ class TestManager implements RendererManager<object> {
     return this.#scheduledCount;
   }
 
-  getComponent = (): object => this.component;
+  get component(): object {
+    return this.#component;
+  }
+
+  getComponent = (): object => this.#component;
   getApp = (): object | undefined => this.#app;
+
+  replaceComponent(): object {
+    this.#component = {};
+    return this.#component;
+  }
 
   setupValue = <T>(_instance: object, create: () => T): T => {
     if (this.#values.has(create)) {
@@ -258,23 +290,19 @@ class TestManager implements RendererManager<object> {
   };
 
   mount(): void {
-    run(this.#mountedHandlers);
+    runHandlers(this.#mountedHandlers);
   }
 
   flushScheduled(): void {
     this.#scheduledCount = 0;
-    run(this.#schedulerHandlers);
+    runHandlers(this.#schedulerHandlers);
   }
 
   flushIdle(): void {
-    run(this.#idleHandlers);
+    runHandlers(this.#idleHandlers);
   }
 
   flushLayout(): void {
-    run(this.#layoutHandlers);
+    runHandlers(this.#layoutHandlers);
   }
-}
-
-function run(handlers: Set<Handler>): void {
-  for (const handler of handlers) handler();
 }
