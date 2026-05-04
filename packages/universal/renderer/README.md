@@ -67,7 +67,7 @@ not direct exports from `@starbeam/renderer`.
 | API             | Parameter               | Returns                 |
 | --------------- | ----------------------- | ----------------------- |
 | `setupReactive` | `() => Reactive<T>`     | [`Native<T>`]           |
-| `setupResource` | `IntoResourceBlueprint` | [`Native<T>`][^1]       |
+| `setupResource` | `IntoResourceBlueprint` | [`Native<T>`] [^1]      |
 | `getService`    | `IntoResourceBlueprint` | [`Native<T>`]           |
 
 [^1]: React's resource path is the public `useResource` hook, not a direct
@@ -390,7 +390,7 @@ _unmounting_.
 
 Most users will encounter this when using React strict mode. Because Starbeam is
 going with the React grain and cleaning up resources when a component is
-unmounted, `setupResource` and `useResource` work transparently in React strict mode.
+unmounted, `useResource` works transparently in React strict mode.
 
 ### Resources in React
 
@@ -403,10 +403,11 @@ run, or a cleanup phase may not run at all.
 As a result, Starbeam resources cannot be instantiated until React's special
 [Resource Setup Phase](#special-phases).
 
-In practice, this means that resources are `undefined` during the initial render
-of a React component. If `undefined` is not desirable, React's `setupResource`
-has an `initial` option that you can use to specify what the initial value of
-the resource should be during initial render.
+In practice, React resources are declared through the public `useResource` hook.
+That hook creates the resource value at top-level hook position and defers sync,
+subscriptions, and cleanup registration until React's resource setup phase.
+`Lifecycle.use` inside `useSetup` is not a supported React resource path because
+it would call React hooks from inside a setup blueprint.
 
 > Note that this is a fundamental consequence of React's decision to disallow
 > render functions from registering cleanup handlers at the top level.
