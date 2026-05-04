@@ -273,7 +273,8 @@ describe("RendererManager", () => {
     let setups = 0;
 
     const Counter = Resource(() => ({ id: ++setups }));
-    const restoreApp = CONTEXT.hasApp() ? CONTEXT.app : {};
+    const hadApp = CONTEXT.hasApp();
+    const restoreApp = hadApp ? CONTEXT.app : null;
 
     try {
       CONTEXT.app = app;
@@ -285,10 +286,18 @@ describe("RendererManager", () => {
       expect(first.id).toBe(1);
       expect(setups).toBe(1);
     } finally {
-      CONTEXT.app = restoreApp;
+      if (hadApp) {
+        CONTEXT.app = restoreApp as object;
+      } else {
+        clearAppForTest();
+      }
     }
   });
 });
+
+function clearAppForTest(): void {
+  CONTEXT.app = undefined as unknown as object;
+}
 
 class TestManager implements RendererManager<object> {
   static create(options: TestManagerOptions = {}): TestManager {
