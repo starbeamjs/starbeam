@@ -44,14 +44,15 @@ current package names are the right public surface.
 
 ## Private candidates
 
-These packages currently lack a strong direct public story, though some need
-engineering work before they can become private.
+These packages are private. Some still have source-level cleanup work, but they
+do not appear in public runtime dependency fields, public generated JavaScript,
+or public generated declarations.
 
 | Package                | Hypothesis        | Why                                                                                               | Main blockers                                                                             | Suggested PER                                                                                    |
 | ---------------------- | ----------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
 | `@starbeam/verify`     | Private           | Internal assertion/type-narrowing support. A tidy API is not a public-package argument by itself. | Done: private/internal, inlined in public artifacts, no public runtime manifest leaks.    | Monitor verifier; no public surface unless a real audience appears.                              |
 | `@starbeam/debug`      | Private           | Dev/runtime support and bootstrap implementation, not a direct install target.                    | Done: private/internal; `@starbeam/universal` owns and verifies the public DEV bootstrap. | Keep `test:workspace:debug-bootstrap` green; revisit only if a public diagnostics story appears. |
-| `@starbeam/core-utils` | Private candidate | Generic JS utilities are not a Starbeam public goal by default.                                   | Very broad source, JS, and declaration usage.                                             | After debug/verify, inline or internalize utilities.                                             |
+| `@starbeam/core-utils` | Private           | Generic JS utilities are not a Starbeam public goal by default.                                   | Done: private/internal; public JS/declarations are clean, while dev metadata and source maps still mention it. | Keep private. Treat remaining references as source-map/provenance policy and low-level consolidation cleanup. |
 
 ## Possible new public surfaces
 
@@ -73,7 +74,10 @@ bounded change, then review the result against the prediction.
    JS cannot hide private-package leaks.~~ Done.
 2. ~~`@starbeam/verify` and `@starbeam/debug` strategy.~~ Done: both are
    private/internal, with debug bootstrap covered through `@starbeam/universal`.
-3. `@starbeam/core-utils` cleanup.
+3. ~~`@starbeam/core-utils` surface decision.~~ Done: private/internal with
+   public runtime dependency fields, JS, and declarations clean. Remaining
+   dev metadata, source-map, and source-level references are cleanup debt for
+   low-level surface consolidation.
 4. Modifier/domtree hardening PER sequence alongside renderer. Goal: determine
    whether ref/directive/modifier integration can become a solid 0.9 story
    across framework adapters.
