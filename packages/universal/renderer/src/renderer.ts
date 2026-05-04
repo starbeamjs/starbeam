@@ -43,6 +43,13 @@ export type UseReactive<T> = ReactiveBlueprint<T> | Reactive<T>;
 
 export interface RendererManager<C extends object> {
   readonly getComponent: () => C;
+
+  /**
+   * Return the Starbeam app lifetime identity for this component.
+   *
+   * Framework context, providers, or plugins are the transport for this value;
+   * the value itself is the semantic app lifetime used to scope services.
+   */
   readonly getApp?: (instance: C) => object | undefined;
   readonly setupValue: <T>(instance: C, create: () => T) => T;
   readonly setupRef: <T>(instance: C, value: T) => { readonly current: T };

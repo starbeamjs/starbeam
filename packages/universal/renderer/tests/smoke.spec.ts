@@ -9,6 +9,7 @@ import {
   runHandlers,
 } from "@starbeam/renderer";
 import { Resource } from "@starbeam/resource";
+import { CONTEXT } from "@starbeam/runtime";
 import { finalize } from "@starbeam/shared";
 import {
   describe,
@@ -227,11 +228,78 @@ describe("RendererManager", () => {
     expect(firstCounter.count).toBe(2);
     expect(setups).toBe(1);
   });
+
+  test("setupService isolates service instances by app", () => {
+    const first = TestManager.create({ app: {} });
+    const second = TestManager.create({ app: {} });
+    let setups = 0;
+
+    const Counter = Resource(() => ({ id: ++setups }));
+
+    const firstCounter = managerSetupService(first, Counter);
+    const secondCounter = managerSetupService(second, Counter);
+
+    expect(firstCounter).not.toBe(secondCounter);
+    expect(firstCounter.id).toBe(1);
+    expect(secondCounter.id).toBe(2);
+    expect(setups).toBe(2);
+  });
+
+  test("setupService has app lifetime, not component lifetime", () => {
+    const app = {};
+    const manager = TestManager.create({ app });
+    const events = new RecordedEvents();
+
+    const Service = Resource(({ on }) => {
+      events.record("setup");
+      on.finalize(() => void events.record("finalize"));
+
+      return {};
+    });
+
+    managerSetupService(manager, Service);
+    events.expect("setup");
+
+    finalize(manager.component);
+    events.expect([]);
+
+    finalize(app);
+    events.expect("finalize");
+  });
+
+  test("setupService falls back to the current app context", () => {
+    const app = {};
+    const manager = TestManager.createWithoutAppHook();
+    let setups = 0;
+
+    const Counter = Resource(() => ({ id: ++setups }));
+    const restoreApp = CONTEXT.hasApp() ? CONTEXT.app : {};
+
+    try {
+      CONTEXT.app = app;
+
+      const first = managerSetupService(manager, Counter);
+      const second = managerSetupService(manager, Counter);
+
+      expect(first).toBe(second);
+      expect(first.id).toBe(1);
+      expect(setups).toBe(1);
+    } finally {
+      CONTEXT.app = restoreApp;
+    }
+  });
 });
 
 class TestManager implements RendererManager<object> {
   static create(options: TestManagerOptions = {}): TestManager {
     return new TestManager(options);
+  }
+
+  static createWithoutAppHook(): Omit<RendererManager<object>, "getApp"> {
+    const manager = new TestManager({});
+    const { getApp: _getApp, ...managerWithoutApp } = manager;
+
+    return managerWithoutApp;
   }
 
   #component = {};

@@ -823,6 +823,9 @@ importers:
       '@starbeam/resource':
         specifier: workspace:^
         version: link:../../resource
+      '@starbeam/runtime':
+        specifier: workspace:^
+        version: link:../../runtime
       '@starbeam/shared':
         specifier: workspace:^
         version: link:../../shared
