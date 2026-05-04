@@ -135,7 +135,7 @@ export const managerCreateLifecycle = <M extends SomeRendererManager>(
   manager: M,
 ): Lifecycle => new LifecycleImpl(manager, manager.getComponent() as object);
 
-export function setupFormula<T>(
+function setupFormula<T>(
   blueprint: UniversalRef<UseReactive<T>>,
   lifecycle: Lifecycle,
 ): FormulaFn<ReadValue<T>> {
