@@ -69,6 +69,65 @@ modifier docs say the feature is under construction; the runtime README still
 contains historical `useReactiveElement` / `useModifier` examples that describe
 the concept but not current public APIs.
 
+#### DOM attachment contract sketch
+
+**Vocabulary**
+
+- **DOM attachment** is the public concept: Starbeam coordinates
+   framework-created DOM elements with reactive/resource work.
+- **Element attachment** is one concrete lifetime of one element supplied by a
+   framework.
+- **Refs, directives, and modifiers** are framework dialects for delivering an
+   element. They are not the stable Starbeam contract name.
+- `@starbeam/modifier` and `@domtree/*` remain internal candidates unless a
+   later PER finds that adapter authors need those package boundaries directly.
+
+**Minimal state model**
+
+- `pending`: the adapter has not supplied an element yet. Element-backed work
+   has not started.
+- `attached`: the adapter supplied an element, and Starbeam may run
+   element-backed resource work with cleanup registered to the framework
+   lifetime.
+- `cleaned up`: the attachment lifetime ended. Observers, subscriptions, and
+   resource scopes tied to that element have been released. A later element is a
+   new attachment lifetime.
+
+Avoid using `detached` as the core state until we decide how it relates to
+React hidden trees, Vue deactivation, and element replacement. Use
+`deactivated` only for framework/component lifecycle.
+
+**Framework timing**
+
+- React is the hard case. The API must let React declare the element-backed
+   resource at top-level hook position while the actual element arrives after
+   render through ref/commit timing. Resource work must wait for React's paired
+   setup/cleanup phase.
+- Preact can use the shared renderer manager shape, but an element API still
+   needs to define how the element arrives and how replacement is represented.
+- Vue setup/resource timing can use the shared manager shape, while a future
+   directive/ref API would supply the element around mount/update/unmount. Vue
+   deactivation remains a separate question.
+
+**Boundary candidates**
+
+- Official framework adapters expose idiomatic APIs first.
+- `@starbeam/renderer` may grow adapter-author vocabulary if third-party
+   adapters need it.
+- `@starbeam/universal` may document the framework-neutral concept if
+   app/library authors need to talk about element resources directly.
+- A new package is only justified if the concept becomes independently
+   installable.
+- No public API yet remains a valid outcome for 0.9.
+
+**Next discriminating sketch**
+
+A following PER should sketch one React Strict Mode test around an
+`ElementSize`-style resource: before the ref attaches the value is `pending`;
+after commit the resource is `attached`; cleanup/finalize happen on strict-mode
+remount and final unmount; no public code imports `@starbeam/modifier` or
+`@domtree/*`.
+
 ## Private packages with cleanup debt
 
 These packages are private. Some still have source-level cleanup work, but they
