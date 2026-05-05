@@ -61,7 +61,7 @@ function useElementAttachmentProbeForTest(
 
         return { status: "attached" as const };
       }),
-    [],
+    [element],
   );
 
   return { ref, status: attachment.status };
@@ -70,7 +70,7 @@ function useElementAttachmentProbeForTest(
 describe("DOM attachment probe", () => {
   beforeAll(() => void install(options));
 
-  test("React-shaped resource helper stays pending after Preact ref attachment", async () => {
+  test("React-shaped resource helper attaches when Preact ref is a resource dep", async () => {
     const events = new RecordedEvents();
     const marker = Marker();
 
@@ -91,8 +91,15 @@ describe("DOM attachment probe", () => {
 
     result.rerender({});
 
-    expect(result.innerHTML).toBe(`<p>pending</p><div>box</div>`);
-    events.expect("resource:pending", "ref:attach");
+    expect(result.innerHTML).toBe(
+      `<p>attached</p><div data-starbeam-attachment="attached">box</div>`,
+    );
+    events.expect(
+      "resource:pending",
+      "ref:attach",
+      "resource:attached",
+      "resource:sync",
+    );
 
     await act(() => {});
     events.expect([]);
@@ -104,9 +111,9 @@ describe("DOM attachment probe", () => {
       marker.mark();
     });
 
-    events.expect([]);
+    events.expect("resource:sync");
 
     result.unmount();
-    events.expect("ref:cleanup");
+    events.expect("resource:finalize", "ref:cleanup");
   });
 });
