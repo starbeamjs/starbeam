@@ -2,20 +2,19 @@ import type { ReadValue } from "@starbeam/reactive";
 import { DEBUG } from "@starbeam/reactive";
 import type { Lifecycle, UseReactive } from "@starbeam/renderer";
 import {
+  intoResourceBlueprint,
   managerCreateLifecycle,
   managerSetupReactive,
   managerSetupResource,
   managerSetupService,
 } from "@starbeam/renderer";
-import type {
-  IntoResourceBlueprint,
-  Sync,
-  SyncFn,
-} from "@starbeam/resource";
+import type { IntoResourceBlueprint, Sync, SyncFn } from "@starbeam/resource";
+import { Resource } from "@starbeam/resource";
 import { pushingScope, RUNTIME } from "@starbeam/runtime";
 import { finalize } from "@starbeam/shared";
 import type { Reactive } from "@starbeam/universal";
 import {
+  useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -24,6 +23,23 @@ import {
 } from "preact/hooks";
 
 import { MANAGER } from "./renderer.js";
+
+type Bridge = readonly [unknown, ...unknown[]];
+
+export type ElementResource<T, E extends Element> =
+  | {
+      readonly status: "pending";
+      readonly ref: (element: E | null) => void;
+    }
+  | {
+      readonly status: "attached";
+      readonly ref: (element: E | null) => void;
+      readonly current: T;
+    };
+
+export type ElementResourceBlueprint<E extends Element, T> = (
+  element: E,
+) => IntoResourceBlueprint<T>;
 
 export function setupReactive<T>(
   blueprint: UseReactive<T>,
@@ -61,6 +77,38 @@ export function useResource<T>(
 ): T {
   DEBUG?.markEntryPoint(["function:call", "useResource"]);
   return useResourceInstance(blueprint, deps ?? []);
+}
+
+export function useElementResource<E extends Element, T>(
+  blueprint: ElementResourceBlueprint<E, T>,
+  bridge?: Bridge,
+): ElementResource<T, E> {
+  const [element, setElement] = useState<E | null>(null);
+  const [currentBlueprint] = useLatestRef(blueprint);
+
+  const ref = useCallback((element: E | null) => {
+    setElement(element);
+  }, []);
+
+  const attachment = useResource(
+    () =>
+      Resource(({ use }) => {
+        if (element === null) {
+          return { status: "pending" as const, ref };
+        }
+
+        return {
+          status: "attached" as const,
+          ref,
+          current: use(
+            intoResourceBlueprint(currentBlueprint.current(element)),
+          ),
+        };
+      }),
+    bridge ? [element, ...bridge] : [element],
+  );
+
+  return attachment;
 }
 
 interface ScheduledHandler {
