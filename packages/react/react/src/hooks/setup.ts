@@ -81,8 +81,9 @@ export function setupFormula<T>(
  * A {@linkcode ScheduledHandler} is a function that is called in React's
  * `useEffect` timing.
  *
- * The `register` method registers the handler function, and the `schedule`
- * method schedules the handler to run in the next `useEffect`.
+ * The `register` method registers the handler function and marks it to run in
+ * the next passive effect. The `schedule` method marks the handler to run and
+ * forces another passive effect turn.
  */
 interface ScheduledHandler {
   readonly register: (handler: Handler) => void;
@@ -93,26 +94,37 @@ interface ScheduledHandler {
  * Creates a {@linkcode ScheduledHandler} that will keep track of the
  * synchronization functions to run.
  *
- * This function sets up a `useEffect` to run the handlers. This `useEffect`
- * has a dependency on a `useState` that represents the set of handlers. The
- * `useState` invalidates whenever a handler is added or whenever
- * {@linkcode scheduleDep} is explicitly run.
+ * This function sets up a `useEffect` to run the handlers. The effect checks
+ * whether the current handler needs to run after each commit. Runtime
+ * invalidations use a state tick to force another passive effect turn.
  *
  * Importantly, handlers registered to the {@linkcode ScheduledHandler} are
  * always invoked in `useEffect` timing, which coordinates them with React's
  * scheduler.
  */
 function useScheduledHandler(): ScheduledHandler {
-  const [scheduleDep, setScheduleDep] = useState({});
+  const [, setScheduleDep] = useState({});
   const handlerRef = useRef(null as null | Handler);
+  const needsSyncRef = useRef(false);
 
   useEffect(() => {
-    if (handlerRef.current) handlerRef.current();
-  }, [scheduleDep]);
+    const handler = handlerRef.current;
+
+    if (handler && needsSyncRef.current) {
+      needsSyncRef.current = false;
+      handler();
+    }
+  });
 
   return {
-    register: (handler) => (handlerRef.current = handler),
-    schedule: () => void setScheduleDep({}),
+    register: (handler) => {
+      handlerRef.current = handler;
+      needsSyncRef.current = true;
+    },
+    schedule: () => {
+      needsSyncRef.current = true;
+      setScheduleDep({});
+    },
   };
 }
 
@@ -141,12 +153,11 @@ export function createResource<T>(
     );
 
     builder.on.layout(() => {
-      // Register the sync handler. This will schedule the sync immediately in
-      // the `useEffect` created in `useScheduledHandler`.
+      // Register the sync handler and mark it to run in passive effect timing.
       handler.register(sync);
 
-      // Whenever the sync handler changes, schedule it. This will run sync
-      // again in the `useEffect` created in `useScheduledHandler`.
+      // Whenever the sync handler changes, schedule it. This will force another
+      // passive effect turn for the handler registered above.
       const unsubscribe = RUNTIME.subscribe(sync, handler.schedule);
 
       // When the component unmounts, clean up.
@@ -157,9 +168,9 @@ export function createResource<T>(
         // Finalize the scope that the resource was created inside.
         finalize(scope);
 
-        // We don't need to do anything special with the handler ref because
-        // `useEffect` won't run again unless the component is remounted and the
-        // handler is set up again.
+        // We don't need to clear the handler ref. Once the component is
+        // unmounted, React won't run another passive effect for this instance
+        // unless it remounts and registers a fresh handler.
       });
     });
 

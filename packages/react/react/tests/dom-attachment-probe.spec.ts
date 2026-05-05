@@ -79,16 +79,12 @@ testReact<void, AttachmentProbe["status"]>(
     await result.rerender();
 
     expect(result.value).toBe("attached");
-    expect(result.innerHTML).toBe("<p>attached</p><div>box</div>");
+    expect(result.innerHTML).toBe(
+      '<p>attached</p><div data-starbeam-attachment="attached">box</div>',
+    );
 
-    // `resource:sync` is recorded above on purpose, but omitted here.
-    // The attached resource's sync handler runs from `useScheduledHandler`'s
-    // passive effect. This ref-driven render can reach `attached` after the
-    // initial passive effect pass, and `handler.register(sync)` does not
-    // schedule another pass by itself.
-    //
-    // If `resource:sync` starts appearing here, React/Starbeam timing changed
-    // and this probe should be updated deliberately.
+    // The attached resource's sync handler runs in passive effect timing after
+    // the ref-driven render reaches `attached`.
     mode.match({
       strict: () => {
         events.expect(
@@ -99,10 +95,16 @@ testReact<void, AttachmentProbe["status"]>(
           "ref:attach",
           "resource:pending",
           "resource:attached",
+          "resource:sync",
         );
       },
       loose: () => {
-        events.expect("resource:pending", "ref:attach", "resource:attached");
+        events.expect(
+          "resource:pending",
+          "ref:attach",
+          "resource:attached",
+          "resource:sync",
+        );
       },
     });
 
@@ -113,7 +115,7 @@ testReact<void, AttachmentProbe["status"]>(
 );
 
 testReact<void, AttachmentProbe["status"]>(
-  "DOM attachment probe — first sync is not bootstrapped after attachment",
+  "DOM attachment probe — first sync is bootstrapped after attachment",
   async (root, mode) => {
     const events = new RecordedEvents();
     const marker = Marker();
@@ -131,10 +133,12 @@ testReact<void, AttachmentProbe["status"]>(
     await result.rerender();
 
     expect(result.value).toBe("attached");
-    expect(result.innerHTML).toBe("<p>attached</p><div>box</div>");
+    expect(result.innerHTML).toBe(
+      '<p>attached</p><div data-starbeam-attachment="attached">box</div>',
+    );
     result.raw((element) => {
       expect(element.querySelector("div")?.dataset["starbeamAttachment"]).toBe(
-        undefined,
+        "attached",
       );
     });
 
@@ -148,32 +152,40 @@ testReact<void, AttachmentProbe["status"]>(
           "ref:attach",
           "resource:pending",
           "resource:attached",
+          "resource:sync",
         );
       },
       loose: () => {
-        events.expect("resource:pending", "ref:attach", "resource:attached");
+        events.expect(
+          "resource:pending",
+          "ref:attach",
+          "resource:attached",
+          "resource:sync",
+        );
       },
     });
 
-    // If sync was just waiting in a passive queue, either of these turns would
-    // flush it.
+    // After first sync, extra turns don't resync unless a tracked dependency
+    // changes.
     await act(() => {});
 
     events.expect([]);
     result.raw((element) => {
       expect(element.querySelector("div")?.dataset["starbeamAttachment"]).toBe(
-        undefined,
+        "attached",
       );
     });
 
     await result.rerender();
 
     expect(result.value).toBe("attached");
-    expect(result.innerHTML).toBe("<p>attached</p><div>box</div>");
+    expect(result.innerHTML).toBe(
+      '<p>attached</p><div data-starbeam-attachment="attached">box</div>',
+    );
     events.expect([]);
     result.raw((element) => {
       expect(element.querySelector("div")?.dataset["starbeamAttachment"]).toBe(
-        undefined,
+        "attached",
       );
     });
 
@@ -181,10 +193,10 @@ testReact<void, AttachmentProbe["status"]>(
       marker.mark();
     });
 
-    events.expect([]);
+    events.expect("resource:sync");
     result.raw((element) => {
       expect(element.querySelector("div")?.dataset["starbeamAttachment"]).toBe(
-        undefined,
+        "attached",
       );
     });
 
