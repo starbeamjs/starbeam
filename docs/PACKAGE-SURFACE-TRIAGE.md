@@ -42,6 +42,33 @@ current package names are the right public surface.
 | `@starbeam/universal`  | Main public umbrella candidate                                                 | Best current framework-agnostic entrypoint over cells, formulas, resources, and common integration concepts.                                                                                                                   | Leaks low-level package names in JS and declarations; service docs conflict with exports.                                                                     | Make it the public umbrella over private substrates. Re-export service if public; stop exposing raw runtime/protocol pieces as the story.                                             |
 | `@starbeam/core`       | Compatibility decision                                                         | Deprecated alias over `@starbeam/universal`.                                                                                                                                                                                   | Root badge still points at it, but code is only a warning + re-export.                                                                                        | Decide old-import compatibility policy for 0.9.                                                                                                                                       |
 
+### Modifier / DOM attachment decision frame
+
+Direct imports of `@starbeam/modifier` are not the decision heuristic. The
+question is whether Starbeam has a public DOM attachment concept that should be
+stable, documented, and shared across adapters.
+
+Current leading hypothesis: **public concept, internal kernel**. The public
+concept is element attachment for framework reactivity: a framework obtains an
+element, Starbeam runs resource-backed work for that element, and cleanup follows
+the framework's element/component lifetime. `@starbeam/modifier` and
+`@domtree/*` remain internal unless a later PER finds a stable adapter-author
+contract that needs those package boundaries directly.
+
+Other live possibilities:
+
+- **Public adapter-author kit:** a stable DOM-integration package or renderer
+   extension for third-party adapters.
+- **Internal implementation only:** official adapters eventually implement the
+   concept privately without exposing a shared public API.
+- **Stale boundary:** the current modifier package shrinks or disappears if the
+   old concept no longer matches the active adapter story.
+
+Current evidence: `@starbeam/modifier` only exposes `ElementPlaceholder`; React
+modifier docs say the feature is under construction; the runtime README still
+contains historical `useReactiveElement` / `useModifier` examples that describe
+the concept but not current public APIs.
+
 ## Private packages with cleanup debt
 
 These packages are private. Some still have source-level cleanup work, but they

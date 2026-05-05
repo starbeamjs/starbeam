@@ -281,6 +281,12 @@ Once linked, `ElementSize` is a regular formula that can be used as part of othe
 
 ### 📒 _Framework-Specific Details_
 
+> ⚠️ The examples in this section are historical. They describe the DOM
+> attachment concept Starbeam still needs to decide, but APIs such as
+> `useReactiveElement`, `ref`, and `useModifier` are not current public
+> Starbeam React APIs. See the modifier / DOM attachment decision frame in
+> `docs/PACKAGE-SURFACE-TRIAGE.md`.
+
 Starbeam's framework adapters provide a way to attach a function that takes an Element (called an "element modifier") to an element when the framework has created it using framework-specific APIs.
 
 For example, you would use the `ref` API to attach a modifier in React, while you would use the `use:` directive syntax to attach a modifier in Svelte. Check out the framework-specific documentation for more details.
