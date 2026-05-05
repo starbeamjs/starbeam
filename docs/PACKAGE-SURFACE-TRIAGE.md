@@ -64,10 +64,11 @@ Other live possibilities:
 - **Stale boundary:** the current modifier package shrinks or disappears if the
    old concept no longer matches the active adapter story.
 
-Current evidence: `@starbeam/modifier` only exposes `ElementPlaceholder`; React
-modifier docs say the feature is under construction; the runtime README still
-contains historical `useReactiveElement` / `useModifier` examples that describe
-the concept but not current public APIs.
+Current evidence: React now has test-local DOM attachment probes for the timing
+shape, but not a public DOM attachment API. `@starbeam/modifier` only exposes
+`ElementPlaceholder`; React modifier docs say the feature is under construction;
+the runtime README still contains historical `useReactiveElement` /
+`useModifier` examples that describe the concept but not current public APIs.
 
 #### DOM attachment contract sketch
 
@@ -86,9 +87,9 @@ the concept but not current public APIs.
 
 - `pending`: the adapter has not supplied an element yet. Element-backed work
    has not started.
-- `attached`: the adapter supplied an element, and Starbeam may run
-   element-backed resource work with cleanup registered to the framework
-   lifetime.
+- `attached`: the adapter supplied an element, and Starbeam has produced
+   element-backed resource state with cleanup registered to the framework
+   lifetime. This does not imply that `on.sync` work has run.
 - `cleaned-up`: the attachment lifetime ended. Observers, subscriptions, and
    resource scopes tied to that element have been released. A later element is a
    new attachment lifetime.
@@ -120,13 +121,27 @@ React hidden trees, Vue deactivation, and element replacement. Use
    installable.
 - No public API yet remains a valid outcome for 0.9.
 
-**Next discriminating sketch**
+**React findings from #200 and #201**
 
-A following PER should sketch one React Strict Mode test around an
-`ElementSize`-style resource: before the ref attaches the value is `pending`;
-after commit the resource is `attached`; cleanup/finalize happen on Strict Mode
-remount and final unmount; no public code imports `@starbeam/modifier` or
+The React probes support the current "public concept, internal kernel"
+hypothesis without adding a public API or importing `@starbeam/modifier` /
 `@domtree/*`.
+
+- Before React supplies a ref, the element-backed resource can be declared but
+   returns `pending`.
+- After a ref-driven rerender, the resource can return `attached`.
+- Strict Mode performs a ref attach/cleanup/reattach sequence before the stable
+   attached state.
+- On final unmount, the resource finalizer runs before React calls the ref
+   cleanup.
+- `attached` render state is not a sync/ready boundary. The attached resource's
+   `on.sync` handler has not necessarily run.
+- Marking a value that would only be read by the not-yet-run `on.sync` handler
+   does not bootstrap first sync.
+
+Next implementation work should treat element attachment and sync scheduling as
+separate problems. A later API may choose to expose a ready/synced boundary, but
+the current evidence does not justify adding a public state name yet.
 
 ## Private packages with cleanup debt
 
