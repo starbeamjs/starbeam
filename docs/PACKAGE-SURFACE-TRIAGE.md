@@ -89,7 +89,7 @@ the concept but not current public APIs.
 - `attached`: the adapter supplied an element, and Starbeam may run
    element-backed resource work with cleanup registered to the framework
    lifetime.
-- `cleaned up`: the attachment lifetime ended. Observers, subscriptions, and
+- `cleaned-up`: the attachment lifetime ended. Observers, subscriptions, and
    resource scopes tied to that element have been released. A later element is a
    new attachment lifetime.
 
@@ -124,7 +124,7 @@ React hidden trees, Vue deactivation, and element replacement. Use
 
 A following PER should sketch one React Strict Mode test around an
 `ElementSize`-style resource: before the ref attaches the value is `pending`;
-after commit the resource is `attached`; cleanup/finalize happen on strict-mode
+after commit the resource is `attached`; cleanup/finalize happen on Strict Mode
 remount and final unmount; no public code imports `@starbeam/modifier` or
 `@domtree/*`.
 
