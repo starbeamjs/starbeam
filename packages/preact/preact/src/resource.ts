@@ -9,7 +9,6 @@ import {
 } from "@starbeam/renderer";
 import type {
   IntoResourceBlueprint,
-  ResourceBlueprint,
   Sync,
   SyncFn,
 } from "@starbeam/resource";
@@ -56,11 +55,6 @@ export function setupSync(blueprint: Sync<void>): void {
   managerSetupResource(MANAGER, blueprint);
 }
 
-export function useResource<T>(blueprint: ResourceBlueprint<T>): T;
-export function useResource<T>(
-  setup: () => ResourceBlueprint<T>,
-  deps: readonly unknown[],
-): T;
 export function useResource<T>(
   blueprint: IntoResourceBlueprint<T>,
   deps?: readonly unknown[],
@@ -92,7 +86,6 @@ function useResourceInstance<T>(
   const handler = useScheduledHandler();
 
   if (instance.current === null || !sameDeps(deps, instance.current.deps)) {
-    cleanupResourceInstance(instance.current);
     instance.current = createResourceInstance(currentBlueprint.current, deps);
   }
 

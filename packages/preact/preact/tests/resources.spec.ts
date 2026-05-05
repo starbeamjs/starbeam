@@ -49,9 +49,9 @@ describe("useResource", () => {
     result.rerender({ resource: second });
     expect(result.innerHTML).toBe(`<p>second</p>`);
     events.expect(
+      "second:setup",
       "first:cleanup",
       "first:finalize",
-      "second:setup",
       "second:sync",
     );
 
