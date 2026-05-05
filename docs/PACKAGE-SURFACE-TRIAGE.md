@@ -64,11 +64,11 @@ Other live possibilities:
 - **Stale boundary:** the current modifier package shrinks or disappears if the
   old concept no longer matches the active adapter story.
 
-Current evidence: React has `useElementResource`, a small public hook that wraps
-the tested callback-ref/resource pattern. `@starbeam/modifier` only exposes
-`ElementPlaceholder`; React modifier docs say the feature is under construction;
-the runtime README still contains historical `useReactiveElement` /
-`useModifier` examples that describe the concept but not current public APIs.
+Current evidence: `@starbeam/react` has `useElementResource`, a small public
+hook that wraps the tested callback-ref/resource pattern. `@starbeam/modifier`
+only exposes `ElementPlaceholder`; React modifier docs say the feature is under
+construction; the runtime README still contains historical `useReactiveElement`
+/ `useModifier` examples that describe the concept but not current public APIs.
 
 #### DOM attachment contract sketch
 

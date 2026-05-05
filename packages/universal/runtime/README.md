@@ -281,8 +281,8 @@ Once linked, `ElementSize` is a regular formula that can be used as part of othe
 
 ### 📒 _Framework-Specific Details_
 
-> ⚠️ The examples in this section are historical. React now exposes the
-> callback-ref/resource pattern as `useElementResource`; the older
+> ⚠️ The examples in this section are historical. `@starbeam/react` now exposes
+> the callback-ref/resource pattern as `useElementResource`; the older
 > `useReactiveElement`, `ref`, and `useModifier` names shown below are not
 > current public Starbeam React APIs. See the modifier / DOM attachment decision
 > frame in `docs/PACKAGE-SURFACE-TRIAGE.md`.

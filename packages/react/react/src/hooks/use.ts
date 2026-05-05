@@ -1,8 +1,6 @@
 import type { ReactiveBlueprint } from "@starbeam/renderer";
-import type {
-  IntoResourceBlueprint,
-  ResourceBlueprint,
-} from "@starbeam/resource";
+import { intoResourceBlueprint } from "@starbeam/renderer";
+import type { IntoResourceBlueprint } from "@starbeam/resource";
 import { Resource } from "@starbeam/resource";
 import {
   unsafeTrackedElsewhere,
@@ -38,12 +36,6 @@ export type ElementResource<T, E extends Element> =
 export type ElementResourceBlueprint<E extends Element, T> = (
   element: E,
 ) => IntoResourceBlueprint<T>;
-
-function intoResourceBlueprint<T>(
-  blueprint: IntoResourceBlueprint<T>,
-): ResourceBlueprint<T> {
-  return typeof blueprint === "function" ? blueprint() : blueprint;
-}
 
 /**
  * `useReactive(compute)` runs `compute` and returns its value, re-running
@@ -97,11 +89,12 @@ export function useElementResource<E extends Element, T>(
     () =>
       Resource(({ use }) => {
         if (element === null) {
-          return { status: "pending" as const };
+          return { status: "pending" as const, ref };
         }
 
         return {
           status: "attached" as const,
+          ref,
           current: use(
             intoResourceBlueprint(currentBlueprint.current(element)),
           ),
@@ -110,5 +103,5 @@ export function useElementResource<E extends Element, T>(
     bridge ? [element, ...bridge] : [element],
   );
 
-  return { ...attachment, ref };
+  return attachment;
 }
