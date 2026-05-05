@@ -42,7 +42,7 @@ current package names are the right public surface.
 | `@starbeam/universal`  | Main public umbrella candidate                                                 | Best current framework-agnostic entrypoint over cells, formulas, resources, and common integration concepts.                                                                                                                   | Leaks low-level package names in JS and declarations; service docs conflict with exports.                                                                     | Make it the public umbrella over private substrates. Re-export service if public; stop exposing raw runtime/protocol pieces as the story.                                             |
 | `@starbeam/core`       | Compatibility decision                                                         | Deprecated alias over `@starbeam/universal`.                                                                                                                                                                                   | Root badge still points at it, but code is only a warning + re-export.                                                                                        | Decide old-import compatibility policy for 0.9.                                                                                                                                       |
 
-## Private candidates
+## Private packages with cleanup debt
 
 These packages are private. Some still have source-level cleanup work, but they
 do not appear in public runtime dependency fields, public generated JavaScript,
