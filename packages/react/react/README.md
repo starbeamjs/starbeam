@@ -5,15 +5,19 @@ React bindings for Starbeam.
 ## Public hooks
 
 - `useReactive(compute, bridge?)`: read Starbeam reactive values during React render.
-- `useResource(resource, bridge?)`: create a Starbeam resource with React lifecycle.
+- `useResource(blueprint, bridge?)`: create a Starbeam resource with React lifecycle.
 - `useElementResource(build, bridge?)`: attach an element-backed resource to a React ref.
-- `useService(resource)`: resolve an app-scoped Starbeam service.
+- `useService(blueprint)`: resolve an app-scoped Starbeam service.
 - `useSetup(setup)`: low-level setup hook for adapter/resource integration.
 - `useProp(variable, description?)`: store a React prop in a Starbeam cell.
 
-Use the optional `bridge` argument when the callback captures React-owned values
-such as props, state, or route params. Starbeam reactive values do not need to be
-listed in `bridge`; Starbeam tracks them directly.
+Use the optional `bridge` argument when the callback captures non-reactive
+values that can change across renders, such as props, state, route params, or a
+`useElementResource()` result. Starbeam reactive values do not need to be listed
+in `bridge`; Starbeam tracks them directly.
+
+`bridge` is a non-empty tuple. If there is nothing to bridge, omit the argument
+instead of passing `[]`.
 
 ## Element resources
 
