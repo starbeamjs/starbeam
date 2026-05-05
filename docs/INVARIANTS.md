@@ -364,9 +364,9 @@ gets memoized — and its hook calls get lifted into the memoization
 wrapper, which produces runtime "Rendered fewer hooks than expected"
 errors.
 
-Starbeam's adapter exposes exactly four hooks: `useSetup`,
-`useReactive`, `useResource`, `useService`. All four are
-`use*`-prefixed by design. Historical names without the prefix
+Starbeam's adapter exposes a small hook surface: `useSetup`,
+`useReactive`, `useResource`, `useService`, and `useElementResource`.
+These names are `use*`-prefixed by design. Historical names without the prefix
 (`setup`, `setupReactive`, `setupResource`, `setupService`) were
 renamed or removed specifically to satisfy this heuristic. Starbeam
 core's `setup`/`update`/`finalize` lifecycle phases (§14/§15, from

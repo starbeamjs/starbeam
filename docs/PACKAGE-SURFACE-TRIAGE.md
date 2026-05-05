@@ -11,18 +11,18 @@ complete conceptual model, or intentional experiment.
 
 These packages currently have a positive public-package story.
 
-| Package                          | Hypothesis                     | Reason                                                                                     | Action                                                                                               |
-| -------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
-| `@starbeam/react`                | Public                         | React adapter; distinct user audience.                                                     | Keep public. Reduce internal manifest deps.                                                          |
-| `@starbeam/preact`               | Public                         | Preact adapter; distinct user audience.                                                    | Keep public.                                                                                         |
-| `@starbeam/vue`                  | Public, if Vue is in 0.9 scope | Vue adapter; distinct user audience.                                                       | Confirm release scope.                                                                               |
-| `@starbeam/shared`               | Public                         | Architectural substrate for cross-copy and cross-version interoperability.                 | Keep public. Majors should require explicit intent.                                                  |
-| `@starbeam/collections`          | Public                         | Documented reactive collection package with direct value proposition.                      | Keep public. Remove support deps.                                                                    |
-| `@starbeam/resource`             | Public                         | Direct resource composition package with package-level docs.                               | Keep public if resources are standalone API.                                                         |
+| Package                          | Hypothesis                     | Reason                                                                                                                                  | Action                                                                                               |
+| -------------------------------- | ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `@starbeam/react`                | Public                         | React adapter; distinct user audience.                                                                                                  | Keep public. Reduce internal manifest deps.                                                          |
+| `@starbeam/preact`               | Public                         | Preact adapter; distinct user audience.                                                                                                 | Keep public.                                                                                         |
+| `@starbeam/vue`                  | Public, if Vue is in 0.9 scope | Vue adapter; distinct user audience.                                                                                                    | Confirm release scope.                                                                               |
+| `@starbeam/shared`               | Public                         | Architectural substrate for cross-copy and cross-version interoperability.                                                              | Keep public. Majors should require explicit intent.                                                  |
+| `@starbeam/collections`          | Public                         | Documented reactive collection package with direct value proposition.                                                                   | Keep public. Remove support deps.                                                                    |
+| `@starbeam/resource`             | Public                         | Direct resource composition package with package-level docs.                                                                            | Keep public if resources are standalone API.                                                         |
 | `@starbeam/renderer`             | Public adapter-author kit      | Shared adapter contract for framework implementors: manager identity, setup storage, scheduling, resources, services, and app lifetime. | Keep public. Renderer hardening arc completed in #190-#195.                                          |
-| `@starbeam/use-strict-lifecycle` | Public reusable infrastructure | Solves a standalone React lifecycle problem under Strict Mode, remounts, and hidden trees. | Write README from THEORY; separate public lifecycle API from Starbeam-specific read-barrier helpers. |
-| `@starbeamx/store`               | Public experiment              | Usable reactive table/query/group/aggregate experiment.                                    | Keep as `@starbeamx`; align README with actual API.                                                  |
-| `@starbeamx/vanilla`             | Public experiment              | Minimal DOM renderer and reference implementation for Starbeam renderer authors.           | Keep as `@starbeamx`; add usage docs and round out tests.                                            |
+| `@starbeam/use-strict-lifecycle` | Public reusable infrastructure | Solves a standalone React lifecycle problem under Strict Mode, remounts, and hidden trees.                                              | Write README from THEORY; separate public lifecycle API from Starbeam-specific read-barrier helpers. |
+| `@starbeamx/store`               | Public experiment              | Usable reactive table/query/group/aggregate experiment.                                                                                 | Keep as `@starbeamx`; align README with actual API.                                                  |
+| `@starbeamx/vanilla`             | Public experiment              | Minimal DOM renderer and reference implementation for Starbeam renderer authors.                                                        | Keep as `@starbeamx`; add usage docs and round out tests.                                            |
 
 ## Conceptual boundaries that need decisions
 
@@ -58,14 +58,14 @@ contract that needs those package boundaries directly.
 Other live possibilities:
 
 - **Public adapter-author kit:** a stable DOM-integration package or renderer
-   extension for third-party adapters.
+  extension for third-party adapters.
 - **Internal implementation only:** official adapters eventually implement the
-   concept privately without exposing a shared public API.
+  concept privately without exposing a shared public API.
 - **Stale boundary:** the current modifier package shrinks or disappears if the
-   old concept no longer matches the active adapter story.
+  old concept no longer matches the active adapter story.
 
-Current evidence: React now has test-local DOM attachment probes for the timing
-shape, but not a public DOM attachment API. `@starbeam/modifier` only exposes
+Current evidence: React has `useElementResource`, a small public hook that wraps
+the tested callback-ref/resource pattern. `@starbeam/modifier` only exposes
 `ElementPlaceholder`; React modifier docs say the feature is under construction;
 the runtime README still contains historical `useReactiveElement` /
 `useModifier` examples that describe the concept but not current public APIs.
@@ -75,24 +75,24 @@ the runtime README still contains historical `useReactiveElement` /
 **Vocabulary**
 
 - **DOM attachment** is the public concept: Starbeam coordinates
-   framework-created DOM elements with reactive/resource work.
+  framework-created DOM elements with reactive/resource work.
 - **Element attachment** is one concrete lifetime of one element supplied by a
-   framework.
+  framework.
 - **Refs, directives, and modifiers** are framework dialects for delivering an
-   element. They are not the stable Starbeam contract name.
+  element. They are not the stable Starbeam contract name.
 - `@starbeam/modifier` and `@domtree/*` remain internal candidates unless a
-   later PER finds that adapter authors need those package boundaries directly.
+  later PER finds that adapter authors need those package boundaries directly.
 
 **Minimal state model**
 
 - `pending`: the adapter has not supplied an element yet. Element-backed work
-   has not started.
+  has not started.
 - `attached`: the adapter supplied an element, and Starbeam has produced
-   element-backed resource state with cleanup registered to the framework
-   lifetime. This does not imply that `on.sync` work has run.
+  element-backed resource state with cleanup registered to the framework
+  lifetime. This does not imply that `on.sync` work has run.
 - `cleaned-up`: the attachment lifetime ended. Observers, subscriptions, and
-   resource scopes tied to that element have been released. A later element is a
-   new attachment lifetime.
+  resource scopes tied to that element have been released. A later element is a
+  new attachment lifetime.
 
 Avoid using `detached` as the core state until we decide how it relates to
 React hidden trees, Vue deactivation, and element replacement. Use
@@ -101,24 +101,24 @@ React hidden trees, Vue deactivation, and element replacement. Use
 **Framework timing**
 
 - React is the hard case. The API must let React declare the element-backed
-   resource at top-level hook position while the actual element arrives after
-   render through ref/commit timing. Resource work must wait for React's paired
-   setup/cleanup phase.
+  resource at top-level hook position while the actual element arrives after
+  render through ref/commit timing. Resource work must wait for React's paired
+  setup/cleanup phase.
 - Preact can use the shared renderer manager shape, but an element API still
-   needs to define how the element arrives and how replacement is represented.
+  needs to define how the element arrives and how replacement is represented.
 - Vue setup/resource timing can use the shared manager shape, while a future
-   directive/ref API would supply the element around mount/update/unmount. Vue
-   deactivation remains a separate question.
+  directive/ref API would supply the element around mount/update/unmount. Vue
+  deactivation remains a separate question.
 
 **Boundary candidates**
 
 - Official framework adapters expose idiomatic APIs first.
 - `@starbeam/renderer` may grow adapter-author vocabulary if third-party
-   adapters need it.
+  adapters need it.
 - `@starbeam/universal` may document the framework-neutral concept if
-   app/library authors need to talk about element resources directly.
+  app/library authors need to talk about element resources directly.
 - A new package is only justified if the concept becomes independently
-   installable.
+  installable.
 - No public API yet remains a valid outcome for 0.9.
 
 **React findings from #200 and #201**
@@ -128,16 +128,16 @@ hypothesis without adding a public API or importing `@starbeam/modifier` /
 `@domtree/*`.
 
 - Before React supplies a ref, the element-backed resource can be declared but
-   returns `pending`.
+  returns `pending`.
 - After a ref-driven rerender, the resource can return `attached`.
 - Strict Mode performs a ref attach/cleanup/reattach sequence before the stable
-   attached state.
+  attached state.
 - On final unmount, the resource finalizer runs before React calls the ref
-   cleanup.
+  cleanup.
 - `attached` render state is not a sync/ready boundary. The attached resource's
-   `on.sync` handler has not necessarily run.
+  `on.sync` handler has not necessarily run.
 - Marking a value that would only be read by the not-yet-run `on.sync` handler
-   does not bootstrap first sync.
+  does not bootstrap first sync.
 
 Next implementation work should treat element attachment and sync scheduling as
 separate problems. A later API may choose to expose a ready/synced boundary, but
@@ -149,11 +149,11 @@ These packages are private. Some still have source-level cleanup work, but they
 do not appear in public runtime dependency fields, public generated JavaScript,
 or public generated declarations.
 
-| Package                | Hypothesis        | Why                                                                                               | Main blockers                                                                             | Suggested PER                                                                                    |
-| ---------------------- | ----------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `@starbeam/verify`     | Private           | Internal assertion/type-narrowing support. A tidy API is not a public-package argument by itself. | Done: private/internal, inlined in public artifacts, no public runtime manifest leaks.    | Monitor verifier; no public surface unless a real audience appears.                              |
-| `@starbeam/debug`      | Private           | Dev/runtime support and bootstrap implementation, not a direct install target.                    | Done: private/internal; `@starbeam/universal` owns and verifies the public DEV bootstrap. | Keep `test:workspace:debug-bootstrap` green; revisit only if a public diagnostics story appears. |
-| `@starbeam/core-utils` | Private           | Generic JS utilities are not a Starbeam public goal by default.                                   | Done: private/internal; public JS/declarations are clean, while dev metadata and source maps still mention it. | Keep private. Treat remaining references as source-map/provenance policy and low-level consolidation cleanup. |
+| Package                | Hypothesis | Why                                                                                               | Main blockers                                                                                                  | Suggested PER                                                                                                 |
+| ---------------------- | ---------- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `@starbeam/verify`     | Private    | Internal assertion/type-narrowing support. A tidy API is not a public-package argument by itself. | Done: private/internal, inlined in public artifacts, no public runtime manifest leaks.                         | Monitor verifier; no public surface unless a real audience appears.                                           |
+| `@starbeam/debug`      | Private    | Dev/runtime support and bootstrap implementation, not a direct install target.                    | Done: private/internal; `@starbeam/universal` owns and verifies the public DEV bootstrap.                      | Keep `test:workspace:debug-bootstrap` green; revisit only if a public diagnostics story appears.              |
+| `@starbeam/core-utils` | Private    | Generic JS utilities are not a Starbeam public goal by default.                                   | Done: private/internal; public JS/declarations are clean, while dev metadata and source maps still mention it. | Keep private. Treat remaining references as source-map/provenance policy and low-level consolidation cleanup. |
 
 ## Possible new public surfaces
 

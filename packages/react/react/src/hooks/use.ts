@@ -1,9 +1,14 @@
 import type { ReactiveBlueprint } from "@starbeam/renderer";
-import type { IntoResourceBlueprint } from "@starbeam/resource";
+import type {
+  IntoResourceBlueprint,
+  ResourceBlueprint,
+} from "@starbeam/resource";
+import { Resource } from "@starbeam/resource";
 import {
   unsafeTrackedElsewhere,
   useLastRenderRef,
 } from "@starbeam/use-strict-lifecycle";
+import { useCallback, useState } from "react";
 
 import { createReactive, createResource, useSetup } from "./setup.js";
 
@@ -18,6 +23,27 @@ import { createReactive, createResource, useSetup } from "./setup.js";
  * don't have a bridge at all." See docs/INVARIANTS.md §17.
  */
 type Bridge = readonly [unknown, ...unknown[]];
+
+export type ElementResource<T, E extends Element> =
+  | {
+      readonly status: "pending";
+      readonly ref: (element: E | null) => void;
+    }
+  | {
+      readonly status: "attached";
+      readonly ref: (element: E | null) => void;
+      readonly current: T;
+    };
+
+export type ElementResourceBlueprint<E extends Element, T> = (
+  element: E,
+) => IntoResourceBlueprint<T>;
+
+function intoResourceBlueprint<T>(
+  blueprint: IntoResourceBlueprint<T>,
+): ResourceBlueprint<T> {
+  return typeof blueprint === "function" ? blueprint() : blueprint;
+}
 
 /**
  * `useReactive(compute)` runs `compute` and returns its value, re-running
@@ -54,4 +80,35 @@ export function useResource<T>(
   bridge?: Bridge,
 ): T {
   return createResource(blueprint, bridge);
+}
+
+export function useElementResource<E extends Element, T>(
+  blueprint: ElementResourceBlueprint<E, T>,
+  bridge?: Bridge,
+): ElementResource<T, E> {
+  const [element, setElement] = useState<E | null>(null);
+  const [currentBlueprint] = useLastRenderRef(blueprint);
+
+  const ref = useCallback((element: E | null) => {
+    setElement(element);
+  }, []);
+
+  const attachment = useResource(
+    () =>
+      Resource(({ use }) => {
+        if (element === null) {
+          return { status: "pending" as const };
+        }
+
+        return {
+          status: "attached" as const,
+          current: use(
+            intoResourceBlueprint(currentBlueprint.current(element)),
+          ),
+        };
+      }),
+    bridge ? [element, ...bridge] : [element],
+  );
+
+  return { ...attachment, ref };
 }
