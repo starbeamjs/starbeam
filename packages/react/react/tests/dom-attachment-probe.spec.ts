@@ -70,8 +70,14 @@ testReact<void, AttachmentProbe["status"]>(
     expect(result.value).toBe("attached");
     expect(result.innerHTML).toBe("<p>attached</p><div>box</div>");
 
-    // This pins the current discriminator: React can render the attached value
-    // before the attached resource's sync handler runs.
+    // `resource:sync` is recorded above on purpose, but omitted here.
+    // The attached resource's sync handler runs from `useScheduledHandler`'s
+    // passive effect. This ref-driven render can reach `attached` after the
+    // initial passive effect pass, and `handler.register(sync)` does not
+    // schedule another pass by itself.
+    //
+    // If `resource:sync` starts appearing here, React/Starbeam timing changed
+    // and this probe should be updated deliberately.
     mode.match({
       strict: () => {
         events.expect(
