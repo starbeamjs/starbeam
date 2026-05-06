@@ -30,17 +30,17 @@ These packages are not obviously wrong. They encode real architectural stories,
 but we need to decide which audiences are supported in 0.9 and whether the
 current package names are the right public surface.
 
-| Package                | Better hypothesis                                                              | Why we cared                                                                                                                                                                                                                   | Current conflict                                                                                                                                                              | Suggested action                                                                                                                                                             |
-| ---------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@starbeam/modifier`   | Internal element-attachment kernel; mandatory post-surface hardening candidate | Represents the ref/directive/modifier part of complete framework reactivity. The basic idea composes resources, element availability, and framework lifetimes. Historically backed React refs and universal element resources. | React and Preact now prove matching `useElementResource` leaves, but `@starbeam/modifier` still only exposes `ElementPlaceholder`. Vue's directive dialect is not proven yet. | Keep internal. Reconcile the docs around public concept/internal kernel; run a Vue directive probe before moving shared element-resource vocabulary into any public package. |
-| `@domtree/*`           | Internal DOM-type substrate; tied to modifier hardening                        | Type-level DOM flavor normalization: write DOM algorithms against minimal structural DOM while preserving browser/JSDOM/range types.                                                                                           | Original DOM renderer is gone; current active leak is mostly through `@starbeam/modifier` and stale manifests.                                                                | Keep internal unless modifier/renderer hardening proves public authors need these types directly.                                                                            |
-| `@starbeam/interfaces` | Decision needed / protocol surface                                             | Internal protocol type boundary for runtime/tags/reactive/debug without cycles.                                                                                                                                                | No README, special `library:interfaces`, stale-looking `src/protocol.ts`, stale `@domtree/any` manifest dependency, broad declaration leakage.                                | Decide whether protocol types are public. Consider a better public `@starbeam/protocol` surface or re-export strategy.                                                       |
-| `@starbeam/tags`       | Decision needed                                                                | Validation/tag substrate extracted from runtime; core of demand-driven validation.                                                                                                                                             | Low-level implementor API, not normal app-user API.                                                                                                                           | Bless as implementor API or hide behind `reactive`/`runtime`.                                                                                                                |
-| `@starbeam/runtime`    | Decision needed                                                                | Runtime coordination, subscriptions, finalization scopes; intentionally split from reactive primitives.                                                                                                                        | README says stable for libraries but not app code; public exports are low-level.                                                                                              | Decide whether runtime/library authors are supported. Refresh docs if public.                                                                                                |
-| `@starbeam/service`    | Decision needed                                                                | App-scoped singleton resource machinery used by adapters/renderer.                                                                                                                                                             | README appears copied from resource docs; old universal docs say `service` belongs in `@starbeam/universal`, but current universal index does not export it.                  | Decide if service is direct API, universal re-export, renderer-author API, or private adapter support.                                                                       |
-| `@starbeam/reactive`   | Public primitive surface, needs split                                          | Primitive reactive values are documented and useful to library authors.                                                                                                                                                        | Exports include runtime wiring/debug/tracking-frame substrate, not just public primitives.                                                                                    | Keep public for primitives. Move/hide runtime wiring and tracking internals behind internal or future author-facing surfaces.                                                |
-| `@starbeam/universal`  | Main public umbrella candidate                                                 | Best current framework-agnostic entrypoint over cells, formulas, resources, and common integration concepts.                                                                                                                   | Leaks low-level package names in JS and declarations; service docs conflict with exports.                                                                                     | Make it the public umbrella over private substrates. Re-export service if public; stop exposing raw runtime/protocol pieces as the story.                                    |
-| `@starbeam/core`       | Compatibility decision                                                         | Deprecated alias over `@starbeam/universal`.                                                                                                                                                                                   | Root badge still points at it, but code is only a warning + re-export.                                                                                                        | Decide old-import compatibility policy for 0.9.                                                                                                                              |
+| Package                | Better hypothesis                                                              | Why we cared                                                                                                                                                                                                                   | Current conflict                                                                                                                                                                                     | Suggested action                                                                                                                          |
+| ---------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `@starbeam/modifier`   | Internal element-attachment kernel; mandatory post-surface hardening candidate | Represents the ref/directive/modifier part of complete framework reactivity. The basic idea composes resources, element availability, and framework lifetimes. Historically backed React refs and universal element resources. | React and Preact now prove matching `useElementResource` leaves. Vue now proves that a directive can own an element resource lifetime. `@starbeam/modifier` still only exposes `ElementPlaceholder`. | Keep internal. Decide the shared element-resource vocabulary boundary before moving it into any public package.                           |
+| `@domtree/*`           | Internal DOM-type substrate; tied to modifier hardening                        | Type-level DOM flavor normalization: write DOM algorithms against minimal structural DOM while preserving browser/JSDOM/range types.                                                                                           | Original DOM renderer is gone; current active leak is mostly through `@starbeam/modifier` and stale manifests.                                                                                       | Keep internal unless modifier/renderer hardening proves public authors need these types directly.                                         |
+| `@starbeam/interfaces` | Decision needed / protocol surface                                             | Internal protocol type boundary for runtime/tags/reactive/debug without cycles.                                                                                                                                                | No README, special `library:interfaces`, stale-looking `src/protocol.ts`, stale `@domtree/any` manifest dependency, broad declaration leakage.                                                       | Decide whether protocol types are public. Consider a better public `@starbeam/protocol` surface or re-export strategy.                    |
+| `@starbeam/tags`       | Decision needed                                                                | Validation/tag substrate extracted from runtime; core of demand-driven validation.                                                                                                                                             | Low-level implementor API, not normal app-user API.                                                                                                                                                  | Bless as implementor API or hide behind `reactive`/`runtime`.                                                                             |
+| `@starbeam/runtime`    | Decision needed                                                                | Runtime coordination, subscriptions, finalization scopes; intentionally split from reactive primitives.                                                                                                                        | README says stable for libraries but not app code; public exports are low-level.                                                                                                                     | Decide whether runtime/library authors are supported. Refresh docs if public.                                                             |
+| `@starbeam/service`    | Decision needed                                                                | App-scoped singleton resource machinery used by adapters/renderer.                                                                                                                                                             | README appears copied from resource docs; old universal docs say `service` belongs in `@starbeam/universal`, but current universal index does not export it.                                         | Decide if service is direct API, universal re-export, renderer-author API, or private adapter support.                                    |
+| `@starbeam/reactive`   | Public primitive surface, needs split                                          | Primitive reactive values are documented and useful to library authors.                                                                                                                                                        | Exports include runtime wiring/debug/tracking-frame substrate, not just public primitives.                                                                                                           | Keep public for primitives. Move/hide runtime wiring and tracking internals behind internal or future author-facing surfaces.             |
+| `@starbeam/universal`  | Main public umbrella candidate                                                 | Best current framework-agnostic entrypoint over cells, formulas, resources, and common integration concepts.                                                                                                                   | Leaks low-level package names in JS and declarations; service docs conflict with exports.                                                                                                            | Make it the public umbrella over private substrates. Re-export service if public; stop exposing raw runtime/protocol pieces as the story. |
+| `@starbeam/core`       | Compatibility decision                                                         | Deprecated alias over `@starbeam/universal`.                                                                                                                                                                                   | Root badge still points at it, but code is only a warning + re-export.                                                                                                                               | Decide old-import compatibility policy for 0.9.                                                                                           |
 
 ### Modifier / DOM attachment decision frame
 
@@ -68,12 +68,13 @@ Current evidence: `@starbeam/react` and `@starbeam/preact` both expose
 `useElementResource`, with matching local `ElementResource` /
 `ElementResourceBlueprint` shapes: a function from `element` to
 `IntoResourceBlueprint<T>`, plus a `pending | attached` result that always
-carries the framework callback ref. This is stronger evidence for a shared
-Starbeam DOM attachment concept than the earlier React-only probe.
-`@starbeam/modifier` still only exposes `ElementPlaceholder`, which models
-element availability but not the resource-shaped public contract. Vue currently
-has `setupResource` and component lifecycle integration, but the idiomatic
-directive dialect for reusable low-level DOM access is still unproven.
+carries the framework callback ref. Vue adds the non-hooks version of that
+evidence: a custom directive can own the resource scope for an element,
+subscribe to runtime invalidations, schedule sync through Vue, and finalize when
+the element unmounts. This is stronger evidence for a shared Starbeam DOM
+attachment concept than the earlier React-only probe. `@starbeam/modifier`
+still only exposes `ElementPlaceholder`, which models element availability but
+not the resource-shaped public contract.
 
 #### DOM attachment contract sketch
 
@@ -111,9 +112,10 @@ React hidden trees, Vue deactivation, and element replacement. Use
   setup/cleanup phase.
 - Preact can use the shared renderer manager shape, but an element API still
   needs to define how the element arrives and how replacement is represented.
-- Vue setup/resource timing can use the shared manager shape, while a future
-  directive/ref API would supply the element around mount/update/unmount. Vue
-  deactivation remains a separate question.
+- Vue component setup/resource timing can use the shared manager shape. Vue
+  directives supply the element around mount/unmount, and #211 proves that a
+  directive can own an element-backed resource lifetime. Vue deactivation
+  remains a separate question.
 
 **Boundary candidates**
 
@@ -160,7 +162,27 @@ React and Preact now independently expose the same leaf API shape:
 This supports the hypothesis that Starbeam has a universal resource-shaped DOM
 attachment concept. It does not yet prove that `@starbeam/modifier` should be
 public. The duplicated adapter-local types may be the right short-term state
-until Vue proves the directive dialect and the owning package boundary is clear.
+until the owning package boundary is clear.
+
+**Vue directive findings from #211**
+
+Vue proves that a non-hooks dialect is feasible. A custom directive can own an
+element-backed resource lifetime directly:
+
+- `mounted` receives the element and creates the resource scope.
+- The probe uses `Resource` and `setupResource` from `@starbeam/resource`, with
+  `pushingScope` from `@starbeam/runtime` to own cleanup.
+- Runtime invalidations subscribe through `RUNTIME.subscribe` and schedule
+  `sync()` through Vue `nextTick`.
+- Cleanup is per element with a `WeakMap`, and `unmounted` unsubscribes and
+  finalizes the scope.
+- Marking after unmount does not resync the finalized resource.
+
+The directive probe also shows that the component-centered `@starbeam/vue`
+`setupResource` path is not the right mechanism inside directive hooks.
+Directive hooks do not have setup-time `getCurrentInstance()` context, so a Vue
+element-attachment API needs a directive-owned lifetime path rather than the
+component setup path.
 
 **`ElementPlaceholder` reconciliation**
 
@@ -213,11 +235,11 @@ bounded change, then review the result against the prediction.
    public runtime dependency fields, JS, and declarations clean. Remaining
    dev metadata, source-map, and source-level references are cleanup debt for
    low-level surface consolidation.
-4. Modifier / DOM attachment reconciliation. First update the triage docs with
-   React + Preact convergence and the `ElementPlaceholder` comparison. Then run
-   a Vue directive probe. Only after the directive probe should we consider
-   moving shared `ElementResource` vocabulary into `@starbeam/renderer`,
-   `@starbeam/universal`, `@starbeam/modifier`, or another public boundary.
+4. Modifier / DOM attachment reconciliation. Done so far: React + Preact
+   convergence, the `ElementPlaceholder` comparison, and the Vue directive
+   probe. Next decide whether shared element-resource vocabulary belongs in
+   `@starbeam/renderer`, `@starbeam/universal`, `@starbeam/modifier`, another
+   public boundary, or no public boundary for 0.9.
 5. Low-level surface consolidation: make `@starbeam/universal` the umbrella,
    split public `@starbeam/reactive` primitives from runtime wiring, place
    service intentionally, and target interfaces/tags/runtime as internal unless
