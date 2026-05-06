@@ -69,9 +69,10 @@ Current evidence: `@starbeam/react` and `@starbeam/preact` both expose
 `ElementResourceBlueprint` shapes: a function from `element` to
 `IntoResourceBlueprint<T>`, plus a `pending | attached` result that always
 carries the framework callback ref. Vue adds the non-hooks version of that
-evidence: a custom directive can own the resource scope for an element,
-subscribe to runtime invalidations, schedule sync through Vue, and finalize when
-the element unmounts. This is stronger evidence for a shared Starbeam DOM
+evidence: `@starbeam/vue` exposes `elementResourceDirective`, whose custom
+directive owns the resource scope for an element, subscribes to runtime
+invalidations, schedules sync through Vue, and finalizes when the element
+unmounts. This is stronger evidence for a shared Starbeam DOM
 attachment concept than the earlier React-only probe. `@starbeam/modifier`
 still only exposes `ElementPlaceholder`, which models element availability but
 not the resource-shaped public contract.
@@ -113,9 +114,9 @@ React hidden trees, Vue deactivation, and element replacement. Use
 - Preact can use the shared renderer manager shape, but an element API still
   needs to define how the element arrives and how replacement is represented.
 - Vue component setup/resource timing can use the shared manager shape. Vue
-  directives supply the element around mount/unmount, and #211 proves that a
-  directive can own an element-backed resource lifetime. Vue deactivation
-  remains a separate question.
+  directives supply the element around mount/unmount, and
+  `elementResourceDirective` owns an element-backed resource lifetime. Vue
+  deactivation remains a separate question.
 
 **Boundary candidates**
 
@@ -164,9 +165,10 @@ attachment concept. It does not yet prove that `@starbeam/modifier` should be
 public. The duplicated adapter-local types may be the right short-term state
 until the owning package boundary is clear.
 
-**Vue directive findings from #211**
+**Vue directive findings from #211 and #215**
 
-Vue proves that a non-hooks dialect is feasible. A custom directive can own an
+Vue proves that a non-hooks dialect is feasible. `@starbeam/vue` now exposes
+`elementResourceDirective`, a custom directive factory that can own an
 element-backed resource lifetime directly:
 
 - `mounted` receives the element and creates the resource scope.

@@ -9,7 +9,7 @@ For 0.9, DOM attachment is a public concept with official adapter APIs, not a
 new shared public package boundary.
 
 - React and Preact keep their idiomatic `useElementResource` leaves.
-- Vue has a proven directive-owned lifetime, but no public directive API yet.
+- Vue exposes `elementResourceDirective` for directive-owned element resources.
 - `@starbeam/modifier` stays internal. Its current `ElementPlaceholder` is
   historical kernel evidence, not the public contract.
 - `@starbeam/renderer` remains the best future home for adapter-author
@@ -19,8 +19,8 @@ new shared public package boundary.
   resources for app and library authors, but should not expose ref, directive,
   or modifier-shaped APIs in 0.9.
 
-The next code move should be driven by adapter duplication or a concrete Vue
-API, not by the existence of the old modifier package name.
+Future code moves should be driven by adapter duplication or another concrete
+framework dialect, not by the existence of the old modifier package name.
 
 ## What is stable
 
@@ -82,11 +82,11 @@ primitive or an adapter result slot such as React's attached resource value.
 Refs, directives, and modifiers are framework dialects for delivering the
 element. They are not the stable Starbeam contract name.
 
-| Framework | Dialect          | Proven API or evidence                                                   | Current status                         |
-| --------- | ---------------- | ------------------------------------------------------------------------ | -------------------------------------- |
-| React     | callback ref     | `useElementResource`                                                     | Public adapter leaf                    |
-| Preact    | callback ref     | `useElementResource`                                                     | Public adapter leaf                    |
-| Vue       | custom directive | directive probe in `packages/vue/vue/tests/dom-attachment-probe.spec.ts` | Mechanism proven, public API undecided |
+| Framework | Dialect          | Proven API or evidence     | Current status      |
+| --------- | ---------------- | -------------------------- | ------------------- |
+| React     | callback ref     | `useElementResource`       | Public adapter leaf |
+| Preact    | callback ref     | `useElementResource`       | Public adapter leaf |
+| Vue       | custom directive | `elementResourceDirective` | Public adapter leaf |
 
 ### React and Preact
 
@@ -111,7 +111,8 @@ state without new evidence.
 
 ### Vue
 
-Vue proves the non-hooks dialect. A custom directive can:
+Vue proves the non-hooks dialect. `elementResourceDirective` creates a custom
+directive that can:
 
 - create a resource scope when `mounted` receives the element;
 - subscribe runtime invalidations with `RUNTIME.subscribe`;
@@ -119,10 +120,10 @@ Vue proves the non-hooks dialect. A custom directive can:
 - keep cleanup per element with a `WeakMap`;
 - unsubscribe and finalize the scope on `unmounted`.
 
-The probe also shows that the component-centered `@starbeam/vue` `setupResource`
-path is not the right directive-hook mechanism. Directive hooks do not have
-setup-time `getCurrentInstance()` context, so a future Vue element-attachment API
-needs a directive-owned lifetime path.
+The public API uses the same directive-owned lifetime path proven by the probe.
+The component-centered `@starbeam/vue` `setupResource` path is not the right
+directive-hook mechanism. Directive hooks do not have setup-time
+`getCurrentInstance()` context.
 
 ## Boundary matrix
 
