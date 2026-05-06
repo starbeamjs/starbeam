@@ -7,7 +7,7 @@ import { finalize } from "@starbeam/shared";
 import { describe, RecordedEvents, test } from "@starbeam-workspace/test-utils";
 import { App, renderApp } from "@starbeam-workspace/vue-testing-utils";
 import type { Directive } from "vue";
-import { Fragment, h, withDirectives } from "vue";
+import { Fragment, h, nextTick, withDirectives } from "vue";
 
 interface AttachmentOptions {
   readonly invalidate?: (() => void) | undefined;
@@ -39,7 +39,7 @@ function elementResourceDirective(
   events: RecordedEvents,
   options: AttachmentOptions = {},
 ): Directive<HTMLElement> {
-  let cleanup: (() => void) | undefined;
+  const cleanups = new WeakMap<HTMLElement, () => void>();
 
   return {
     mounted(element) {
@@ -49,17 +49,28 @@ function elementResourceDirective(
 
       sync();
 
-      const unsubscribe = RUNTIME.subscribe(sync, () => void sync());
+      let scheduled = false;
+      const scheduleSync = () => {
+        if (scheduled) return;
+        scheduled = true;
 
-      cleanup = () => {
+        void nextTick(() => {
+          scheduled = false;
+          sync();
+        });
+      };
+
+      const unsubscribe = RUNTIME.subscribe(sync, scheduleSync);
+
+      cleanups.set(element, () => {
         if (unsubscribe) unsubscribe();
         finalize(scope);
-      };
+      });
     },
 
-    unmounted() {
-      cleanup?.();
-      cleanup = undefined;
+    unmounted(element) {
+      cleanups.get(element)?.();
+      cleanups.delete(element);
     },
   };
 }
@@ -95,9 +106,12 @@ describe("DOM attachment probe", () => {
     await result.rerender().andExpect({ output: expectedHTML });
 
     marker.mark();
-    result.expect({ output: expectedHTML, events: ["resource:sync"] });
+    result.expect({ output: expectedHTML });
 
-    await result.flush().andExpect({ output: expectedHTML });
+    await result.flush().andExpect({
+      output: expectedHTML,
+      events: ["resource:sync"],
+    });
     await result
       .unmount()
       .andExpect({ output: "", events: ["resource:finalize"] });
