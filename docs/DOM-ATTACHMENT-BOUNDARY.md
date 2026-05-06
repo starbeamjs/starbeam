@@ -144,11 +144,25 @@ That makes attachments the likely Svelte dialect for DOM attachment:
 
 ```svelte
 <script lang="ts">
+  import type { IntoResourceBlueprint } from "@starbeam/resource";
   import type { Attachment } from "svelte/attachments";
 
-  function elementResourceAttachment(elementSize): Attachment<HTMLElement> {
+  interface Size {
+    readonly width: number;
+    readonly height: number;
+  }
+
+  type ElementResourceBlueprint<E extends Element, T> = (
+    element: E,
+  ) => IntoResourceBlueprint<T>;
+
+  declare const ElementSize: ElementResourceBlueprint<HTMLElement, Size>;
+
+  function elementResourceAttachment<T>(
+    blueprint: ElementResourceBlueprint<HTMLElement, T>,
+  ): Attachment<HTMLElement> {
     return (element) => {
-      // create element-backed Starbeam resource here
+      // Create an element-backed Starbeam resource from `blueprint(element)`.
       return () => {
         // finalize element-backed Starbeam resource here
       };
@@ -172,6 +186,11 @@ lifetime. It can. The open question is how Starbeam should publish the produced
 domain value back to Svelte without exposing reactive storage or prematurely
 moving shared vocabulary. Candidate shapes include a callback, a store, a
 rune-compatible state sink, or an `into`-style sink analogous to Vue.
+
+The code probe should create the smallest `@starbeam/svelte` adapter package and
+test harness needed to validate attachment lifetime and value publication. It
+should stay focused on proving the Svelte dialect before moving any shared
+vocabulary.
 
 ## Boundary matrix
 
