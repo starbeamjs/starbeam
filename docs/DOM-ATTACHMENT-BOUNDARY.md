@@ -1,7 +1,7 @@
 # DOM Attachment Boundary
 
 This is the current decision record for Starbeam's DOM attachment concept after
-the React, Preact, and Vue probes.
+the React, Preact, Vue, and Svelte recon work.
 
 ## Decision
 
@@ -10,6 +10,7 @@ new shared public package boundary.
 
 - React and Preact keep their idiomatic `useElementResource` leaves.
 - Vue exposes `elementResourceDirective` for directive-owned element resources.
+- Svelte's attachment API is the next dialect to probe.
 - `@starbeam/modifier` stays internal. Its current `ElementPlaceholder` is
   historical kernel evidence, not the public contract.
 - `@starbeam/renderer` remains the best future home for adapter-author
@@ -21,6 +22,11 @@ new shared public package boundary.
 
 Future code moves should be driven by adapter duplication or another concrete
 framework dialect, not by the existence of the old modifier package name.
+
+The next concrete dialect is Svelte. Svelte 5.29 added attachments, which are
+element-first functions with cleanup and reactive rerun semantics. They look like
+a strong fit for Starbeam's element-resource creator shape, but the value
+publication story still needs a code probe.
 
 ## What is stable
 
@@ -87,6 +93,7 @@ element. They are not the stable Starbeam contract name.
 | React     | callback ref     | `useElementResource`       | Public adapter leaf |
 | Preact    | callback ref     | `useElementResource`       | Public adapter leaf |
 | Vue       | custom directive | `elementResourceDirective` | Public adapter leaf |
+| Svelte    | `{@attach ...}`  | Svelte docs recon          | Next probe target   |
 
 ### React and Preact
 
@@ -125,6 +132,47 @@ The component-centered `@starbeam/vue` `setupResource` path is not the right
 directive-hook mechanism. Directive hooks do not have setup-time
 `getCurrentInstance()` context.
 
+### Svelte
+
+Svelte 5.29 and newer expose attachments with `{@attach ...}`. An attachment is
+an element-first function that runs when the element is mounted and may return a
+cleanup function. Svelte reruns an attachment when state read by the attachment
+expression changes, and it calls cleanup before rerun or after the element is
+removed.
+
+That makes attachments the likely Svelte dialect for DOM attachment:
+
+```svelte
+<script lang="ts">
+  import type { Attachment } from "svelte/attachments";
+
+  function elementResourceAttachment(elementSize): Attachment<HTMLElement> {
+    return (element) => {
+      // create element-backed Starbeam resource here
+      return () => {
+        // finalize element-backed Starbeam resource here
+      };
+    };
+  }
+</script>
+
+<section {@attach elementResourceAttachment(ElementSize)} />
+```
+
+Svelte actions (`use:`) remain available, but Svelte's docs say attachments
+supersede actions in Svelte 5.29 and newer. Actions are therefore a fallback for
+older Svelte versions, not the primary dialect for new Starbeam design.
+
+Svelte also provides `createAttachmentKey` for programmatic object-spread
+attachments. That may matter for library-author ergonomics, but it should follow
+the basic attachment probe.
+
+The open Svelte question is not whether Svelte can deliver an element and cleanup
+lifetime. It can. The open question is how Starbeam should publish the produced
+domain value back to Svelte without exposing reactive storage or prematurely
+moving shared vocabulary. Candidate shapes include a callback, a store, a
+rune-compatible state sink, or an `into`-style sink analogous to Vue.
+
 ## Boundary matrix
 
 | Boundary              | Audience                                 | Fits                                                                    | Problems                                                                 | 0.9 decision                       |
@@ -160,6 +208,7 @@ PER proves the right kernel shape.
 Move shared vocabulary into `@starbeam/renderer` if any of these become true:
 
 - React, Preact, and Vue all need the same adapter-author helper types.
+- A Svelte probe converges on the same helper types.
 - A third-party adapter needs to implement DOM attachment.
 - Official adapters start duplicating non-trivial setup/sync/finalize logic.
 - The Vue public API needs a shared helper that is not Vue-specific.
