@@ -55,7 +55,15 @@ function ElementSize(element: Element) {
       return () => observer.disconnect();
     });
 
-    return { width, height };
+    return {
+      get width() {
+        return width.current;
+      },
+
+      get height() {
+        return height.current;
+      },
+    };
   });
 }
 
@@ -69,7 +77,7 @@ export function MeasuredPanel() {
       return "Measuring…";
     }
 
-    return `${size.current.width.current} × ${size.current.height.current}`;
+    return `${size.current.width} × ${size.current.height}`;
   }, [size]);
 
   return <section ref={size.ref}>{label}</section>;

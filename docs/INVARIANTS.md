@@ -25,6 +25,20 @@ private fields really is a class. A formula is just a function. A library
 author doesn't "make their abstraction reactive" — if the root state is
 reactive, reading through any abstraction is reactive.
 
+### Public APIs expose domain concepts, not reactive storage
+
+Reactive storage is an implementation detail of higher-level abstractions.
+Use `Cell.current` when working directly with a cell. When publishing an
+abstraction backed by reactive storage, expose domain-shaped properties and
+methods instead: `size.width`, `session.user`, `form.isValid`, not
+`size.width.current`, `session.user.current`, or `form.isValid.current`.
+
+This preserves the rule that the boundary is at storage. A getter, method, or
+object remains ordinary JavaScript; it becomes reactive because it reads
+reactive storage internally. Consumers should not need to know whether an
+abstraction uses a `Cell`, a `Formula`, a resource, or another storage strategy
+unless the abstraction is intentionally exposing primitive reactive storage.
+
 **User code runs in two modes.** Outside rendering — event handlers, effects,
 async continuations, plain function calls — read and write freely. Reactive
 state behaves like ordinary state. Inside rendering — the frame during which a
