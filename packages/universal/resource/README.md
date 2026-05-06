@@ -193,7 +193,8 @@ object that stores a cell and exposes reactive getters:
 
 This is the usual shape for public APIs backed by reactive storage: keep the
 cell private, and expose domain properties or methods that read the cell. See
-the public API guidance in [Starbeam Invariants](../../../docs/INVARIANTS.md#public-apis-expose-domain-concepts-not-reactive-storage).
+the public API guidance in
+[Starbeam Invariants](https://github.com/starbeamjs/starbeam/blob/main/docs/INVARIANTS.md#public-apis-expose-domain-concepts-not-reactive-storage).
 
 ```ts
 const Stopwatch = Resource(({ on }) => {
