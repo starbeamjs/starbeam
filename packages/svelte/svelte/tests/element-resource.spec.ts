@@ -14,6 +14,7 @@ import { tick } from "svelte";
 
 import SinkExperiment from "./fixtures/SinkExperiment.svelte";
 import StoreExperiment from "./fixtures/StoreExperiment.svelte";
+import StoreToggleExperiment from "./fixtures/StoreToggleExperiment.svelte";
 import ToggleExperiment from "./fixtures/ToggleExperiment.svelte";
 
 const INITIAL_WIDTH = 0;
@@ -130,5 +131,51 @@ describe("Svelte element resource experiments", () => {
     marker.mark();
     await tick();
     events.expect();
+  });
+
+  test("store sink clears on attachment unmount and reuses the same handle", async () => {
+    const events = new RecordedEvents();
+    const marker = Marker();
+    const result = render(StoreToggleExperiment, {
+      props: { blueprint: ElementSizeForTest(events, marker) },
+    });
+
+    expect(html(result.container)).toBe(
+      '<p>width=100</p><button>hide</button><button>grow</button><div data-width="100">box</div><!---->',
+    );
+    events.expect("size:attached", "size:sync");
+
+    await fireEvent.click(result.getByRole("button", { name: "hide" }));
+    expect(html(result.container)).toBe(
+      "<p>pending</p><button>show</button><button>grow</button><!---->",
+    );
+    events.expect("size:finalize");
+
+    marker.mark();
+    await tick();
+    events.expect();
+
+    await fireEvent.click(result.getByRole("button", { name: "grow" }));
+    await fireEvent.click(result.getByRole("button", { name: "show" }));
+    expect(html(result.container)).toBe(
+      '<p>width=101</p><button>hide</button><button>grow</button><div data-width="101">box</div><!---->',
+    );
+    events.expect("size:attached", "size:sync");
+
+    await fireEvent.click(result.getByRole("button", { name: "grow" }));
+    expect(html(result.container)).toBe(
+      '<p>width=101</p><button>hide</button><button>grow</button><div data-width="102">box</div><!---->',
+    );
+    events.expect();
+
+    marker.mark();
+    await tick();
+    expect(html(result.container)).toBe(
+      '<p>width=102</p><button>hide</button><button>grow</button><div data-width="102">box</div><!---->',
+    );
+    events.expect("size:sync");
+
+    result.unmount();
+    events.expect("size:finalize");
   });
 });

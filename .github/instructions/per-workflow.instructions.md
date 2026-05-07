@@ -6,7 +6,14 @@ description: "Use when: planning or reviewing Starbeam work described as PER, Pr
 
 PER means **Prepare / Execute / Review**.
 
-Use PER for non-trivial Starbeam changes where the risk is not just typing code, but choosing the right boundary, preserving behavior, and validating release-surface consequences.
+Use PER for non-trivial Starbeam changes where the risk is not just typing code,
+but choosing the right boundary, preserving behavior, and validating
+release-surface consequences.
+
+Use PER especially when work touches public package surfaces, adapter APIs,
+reactive semantics, or cross-framework vocabulary. PER is also appropriate when
+an implementation should test a hypothesis from a decision record before the
+project commits to a broader API direction.
 
 ## Phases
 
@@ -27,6 +34,20 @@ Use PER for non-trivial Starbeam changes where the risk is not just typing code,
    - Compare the outcome to Prepare's predictions.
    - Call out mismatches and whether they matter.
    - Decide whether the result is safe to push, needs a targeted execute loop, or needs a new Prepare phase.
+
+## Coordination guidance
+
+When a user says "do the next PER" or asks to proceed with a PER-sized change:
+
+1. Start by loading this instruction file.
+2. If the task is ambiguous or consequential, run Prepare before editing.
+3. Keep Execute bounded to the smallest change that tests the hypothesis.
+4. Review the result against the Prepare predictions before opening or merging a
+   PR.
+
+Avoid treating PER as ceremony. For small local fixes, execute directly. For API
+or package-surface work, preserve the separation between prediction, change, and
+review.
 
 ## Starbeam package-surface use
 
