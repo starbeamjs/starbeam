@@ -129,13 +129,14 @@ form publishes the resource value into author-owned state:
 This matches Svelte runes well enough to prove the lifecycle, but it has the
 same split as Vue's `into` form: one value attaches, another value is read.
 
-### Svelte store sink
+### Svelte element resource
 
-`elementResourceStore()` is the strongest modifier-shaped evidence so far:
+The Svelte primary-name experiment uses `elementResource()` for the strongest
+modifier-shaped evidence so far:
 
 ```svelte
 <script lang="ts">
-  const size = elementResourceStore(ElementSize);
+  const size = elementResource(ElementSize);
 </script>
 
 <section {@attach size.attach}>
@@ -144,19 +145,21 @@ same split as Vue's `into` form: one value attaches, another value is read.
 ```
 
 The same object is attachable through `size.attach` and readable through
-Svelte's store syntax. That does not settle the final Svelte API, but it makes
-the cross-framework ergonomic target concrete: an element-backed value should be
-attachable and readable without exposing Starbeam storage.
+Svelte's store syntax. `elementResourceStore()` remains available as the
+explicit store-shaped spelling while this naming experiment is evaluated. This
+does not settle the final Svelte API, but it makes the cross-framework ergonomic
+target concrete: an element-backed value should be attachable and readable
+without exposing Starbeam storage.
 
 ## Ergonomic comparison
 
-| Adapter shape                         | Element delivery        | Readable value                 | Pending state          | Cleanup             | Friction                                         |
-| ------------------------------------- | ----------------------- | ------------------------------ | ---------------------- | ------------------- | ------------------------------------------------ |
-| React / Preact `useElementResource()` | callback ref            | `size.current` when `attached` | `status === "pending"` | ref lifetime        | Hook-only shape; `.current` is an adapter slot   |
-| Vue `elementResourceDirective()`      | custom directive        | separate Vue ref               | `null`                 | directive lifetime  | explicit `into` wiring                           |
-| Vue `elementResource()`               | custom directive alias  | `size.value.value`             | `null`                 | directive lifetime  | doubled Vue-ref spelling                         |
-| Svelte callback sink                  | `{@attach ...}`         | author-owned `$state`          | `null`                 | attachment lifetime | split attach/read values                         |
-| Svelte store sink                     | `{@attach size.attach}` | `$size`                        | `null`                 | attachment lifetime | store shape may not be the final rune-native API |
+| Adapter shape                         | Element delivery        | Readable value                 | Pending state          | Cleanup             | Friction                                          |
+| ------------------------------------- | ----------------------- | ------------------------------ | ---------------------- | ------------------- | ------------------------------------------------- |
+| React / Preact `useElementResource()` | callback ref            | `size.current` when `attached` | `status === "pending"` | ref lifetime        | Hook-only shape; `.current` is an adapter slot    |
+| Vue `elementResourceDirective()`      | custom directive        | separate Vue ref               | `null`                 | directive lifetime  | explicit `into` wiring                            |
+| Vue `elementResource()`               | custom directive alias  | `size.value.value`             | `null`                 | directive lifetime  | doubled Vue-ref spelling                          |
+| Svelte callback sink                  | `{@attach ...}`         | author-owned `$state`          | `null`                 | attachment lifetime | split attach/read values                          |
+| Svelte `elementResource()`            | `{@attach size.attach}` | `$size`                        | `null`                 | attachment lifetime | store syntax may not be the final rune-native API |
 
 ## API direction
 

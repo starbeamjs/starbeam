@@ -17,6 +17,13 @@ export type ElementResourceSink<T> = (value: T | null) => void;
 export type ElementResourceAttachment<E extends Element = Element> =
   Attachment<E>;
 
+export type ElementResourceHandle<
+  E extends Element,
+  T,
+> = SvelteReadable<T | null> & {
+  readonly attach: ElementResourceAttachment<E>;
+};
+
 interface ResourceState<T> {
   readonly scope: object;
   readonly sync: SyncFn<void>;
@@ -61,9 +68,7 @@ export function elementResourceAttachment<E extends Element, T>(
 
 export function elementResourceStore<E extends Element, T>(
   blueprint: ElementResourceBlueprint<E, T>,
-): SvelteReadable<T | null> & {
-  readonly attach: ElementResourceAttachment<E>;
-} {
+): ElementResourceHandle<E, T> {
   let value: T | null = null;
   const subscribers = new Set<SvelteSubscriber<T | null>>();
 
@@ -91,6 +96,12 @@ export function elementResourceStore<E extends Element, T>(
       into: (value) => void publish(value),
     }),
   });
+}
+
+export function elementResource<E extends Element, T>(
+  blueprint: ElementResourceBlueprint<E, T>,
+): ElementResourceHandle<E, T> {
+  return elementResourceStore(blueprint);
 }
 
 function createElementResource<E extends Element, T>(

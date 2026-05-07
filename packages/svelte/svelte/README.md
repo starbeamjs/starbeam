@@ -32,14 +32,14 @@ type ElementResourceBlueprint<E extends Element, T> = (
 </section>
 ```
 
-## Store sink
+## Element resource
 
 ```svelte
 <script lang="ts">
-  import { elementResourceStore } from "@starbeam/svelte";
+  import { elementResource } from "@starbeam/svelte";
   import { ElementSize } from "./element-size";
 
-  const size = elementResourceStore(ElementSize);
+  const size = elementResource(ElementSize);
 </script>
 
 <section {@attach size.attach}>
@@ -47,5 +47,18 @@ type ElementResourceBlueprint<E extends Element, T> = (
 </section>
 ```
 
-Both forms keep cells private. Consumers read domain-shaped values such as
-`size.width`, not `size.width.current`.
+`elementResource()` returns one Svelte-readable object that is also attachable.
+Attach it with `size.attach`; read the published value with Svelte's store
+syntax.
+
+## Store sink
+
+`elementResourceStore()` is the explicit store-shaped spelling. It returns the
+same attachable/readable shape as `elementResource()`.
+
+```ts
+const size = elementResourceStore(ElementSize);
+```
+
+Both forms keep cells private. Consumers read domain-shaped values through
+Svelte's store syntax, such as `$size.width`, not `$size.width.current`.
