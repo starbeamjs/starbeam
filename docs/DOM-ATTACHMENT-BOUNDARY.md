@@ -13,9 +13,9 @@ new shared public package boundary.
 - Svelte exposes an experimental attachment API for element resources.
 - `@starbeam/modifier` stays internal. Its current `ElementPlaceholder` is
   historical kernel evidence, not the public contract.
-- `@starbeam/renderer` remains the best future home for adapter-author
-  vocabulary if official or third-party adapters need shared DOM attachment
-  types.
+- `@starbeam/renderer` owns the shared adapter-author setup/finalization
+  primitive for element-backed resources. Adapters still own element delivery,
+  scheduling, runtime subscription, and publication.
 - `@starbeam/universal` may eventually document framework-neutral element
   resources for app and library authors, but should not expose ref, directive,
   or modifier-shaped APIs in 0.9.
@@ -24,6 +24,13 @@ Future code moves should be driven by adapter duplication or concrete framework
 evidence, not by the existence of the old modifier package name. The current
 ergonomics evidence is reviewed in
 [DOM Attachment Ergonomics Review](./DOM-ATTACHMENT-ERGONOMICS.md).
+
+After the Vue and Svelte experiments, `@starbeam/renderer` exposes
+`setupElementResource()` for the framework-neutral part of element resources:
+constructing a Starbeam resource from an element and returning its `value`,
+`sync`, and `finalize` handles. Vue and Svelte use that primitive. Their
+framework adapters still decide when to subscribe, when to schedule `sync()`, how
+to publish `T | null`, and how the framework supplies the element.
 
 ## What is stable
 
@@ -186,14 +193,14 @@ attachable/readable object for Svelte authors.
 
 ## Boundary matrix
 
-| Boundary              | Audience                                 | Fits                                                                    | Problems                                                                 | 0.9 decision                       |
-| --------------------- | ---------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------ | ---------------------------------- |
-| Official adapters     | App authors using React, Preact, Vue     | Idiomatic framework leaves; already proven for React/Preact             | Duplicated local vocabulary                                              | Keep                               |
-| `@starbeam/renderer`  | Adapter authors                          | Existing adapter-author kit; already owns lifecycle/resource vocabulary | Premature if only official adapters need it                              | Best future shared type home       |
-| `@starbeam/universal` | App and library authors                  | Framework-neutral package; good home for prose concepts                 | Ref/directive/modifier APIs are not framework-neutral                    | Document concept later, no 0.9 API |
-| `@starbeam/modifier`  | Internal DOM attachment kernel candidate | Historical name and `ElementPlaceholder` evidence                       | Current API is not resource-shaped; package name pulls toward old design | Keep internal                      |
-| New package           | Independent DOM attachment authors       | Clean boundary if concept becomes installable                           | No independent audience yet                                              | Do not create                      |
-| No public boundary    | Official adapters only                   | Lowest surface area; matches current evidence                           | Duplicates types until pressure appears                                  | Current 0.9 default                |
+| Boundary              | Audience                                     | Fits                                                                   | Problems                                                                 | 0.9 decision                       |
+| --------------------- | -------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------ | ---------------------------------- |
+| Official adapters     | App authors using React, Preact, Vue, Svelte | Idiomatic framework leaves; already proven for React/Preact            | Duplicated local result shapes                                           | Keep                               |
+| `@starbeam/renderer`  | Adapter authors                              | Existing adapter-author kit; owns shared setup/finalization vocabulary | Scheduling and publication are still adapter-specific                    | Owns the shared setup primitive    |
+| `@starbeam/universal` | App and library authors                      | Framework-neutral package; good home for prose concepts                | Ref/directive/modifier APIs are not framework-neutral                    | Document concept later, no 0.9 API |
+| `@starbeam/modifier`  | Internal DOM attachment kernel candidate     | Historical name and `ElementPlaceholder` evidence                      | Current API is not resource-shaped; package name pulls toward old design | Keep internal                      |
+| New package           | Independent DOM attachment authors           | Clean boundary if concept becomes installable                          | No independent audience yet                                              | Do not create                      |
+| No public boundary    | Official adapters only                       | Lowest surface area; matches current evidence                          | Duplicates types until pressure appears                                  | Current 0.9 default                |
 
 ## Why not promote `@starbeam/modifier` now
 
@@ -216,13 +223,15 @@ PER proves the right kernel shape.
 
 ## Future triggers
 
-Move shared vocabulary into `@starbeam/renderer` if any of these become true:
+`@starbeam/renderer` now owns the minimal shared setup/finalization primitive.
+Only move more vocabulary into `@starbeam/renderer` if any of these become true:
 
-- React, Preact, and Vue all need the same adapter-author helper types.
-- A Svelte probe converges on the same helper types.
+- React, Preact, Vue, and Svelte need the same adapter-author result shapes.
 - A third-party adapter needs to implement DOM attachment.
-- Official adapters start duplicating non-trivial setup/sync/finalize logic.
-- The Vue public API needs a shared helper that is not Vue-specific.
+- Official adapters start duplicating scheduling or publication logic that is
+  not actually framework-specific.
+- Vue and Svelte converge beyond setup/finalization on shared publication or
+  handle vocabulary.
 
 Expose framework-neutral vocabulary through `@starbeam/universal` only if app or
 library authors need to name element resources outside a specific framework

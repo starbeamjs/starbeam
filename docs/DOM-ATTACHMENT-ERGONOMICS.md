@@ -166,8 +166,11 @@ without exposing Starbeam storage.
 
 ## API direction
 
-The next implementation work should test modifier-shaped ergonomics, not promote
-the old modifier package.
+The first Vue/Svelte modifier-shaped experiments have landed. Svelte now exposes
+a readable store augmented with `attach`, and Vue exposes a Vue ref augmented
+with `directive`. Vue and Svelte also share `@starbeam/renderer`'s
+`setupElementResource()` primitive for the framework-neutral setup and
+finalization path.
 
 For now:
 
@@ -178,6 +181,8 @@ For now:
   the element.
 - Treat “modifier-shaped” as an ergonomic target: a reusable element-backed
   value that is attachable and readable.
+- Keep scheduling, `RUNTIME.subscribe`, and publication adapter-local unless
+  future evidence proves a broader shared contract.
 - Do not expose `ElementPlaceholder` as the public contract.
 - Do not create a public `@starbeam/modifier` package until a code Prepare /
   Execute / Review (PER) cycle proves the kernel shape.
@@ -185,16 +190,17 @@ For now:
 The old `@starbeam/modifier` name is historical evidence. The adapter probes are
 the source of truth.
 
-## What would justify shared vocabulary
+## What would justify more shared vocabulary
 
-Move shared vocabulary out of adapter-local code only when there is concrete
+The minimal shared setup/finalization primitive now lives in `@starbeam/renderer`.
+Move more vocabulary out of adapter-local code only when there is concrete
 pressure, such as:
 
-- repeated non-trivial helper duplication across adapters;
 - a third-party adapter needing the same DOM attachment contract;
-- Svelte and Vue converging on the same attachable/readable handle shape;
-- a code PER cycle proving a kernel that owns setup, sync, cleanup, element
-  replacement, and value publication;
+- React, Preact, Vue, and Svelte converging on the same adapter-author result
+  shape;
+- a code PER cycle proving scheduling or publication is generic rather than
+  framework-local;
 - adapter-author docs needing a stable name that cannot live in a single
   framework package.
 
@@ -209,5 +215,6 @@ This review does not:
 - rename React, Preact, Vue, or Svelte adapter APIs;
 - choose the final Svelte API;
 - bless the Vue handle spelling as final;
-- move shared types into `@starbeam/renderer` or `@starbeam/universal`;
+- move scheduling or publication into `@starbeam/renderer` or
+  `@starbeam/universal`;
 - change package manifests, generated artifacts, or tests.

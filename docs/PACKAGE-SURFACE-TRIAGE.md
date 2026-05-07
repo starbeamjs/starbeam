@@ -48,12 +48,14 @@ Direct imports of `@starbeam/modifier` are not the decision heuristic. The
 question is whether Starbeam has a public DOM attachment concept that should be
 stable, documented, and shared across adapters.
 
-Current leading hypothesis: **public concept, internal kernel**. The public
-concept is element attachment for framework reactivity: a framework obtains an
-element, Starbeam runs resource-backed work for that element, and cleanup follows
-the framework's element/component lifetime. `@starbeam/modifier` and
-`@domtree/*` remain internal unless a later PER finds a stable adapter-author
-contract that needs those package boundaries directly.
+Current decision: **public concept, renderer setup primitive, adapter-local
+dialects**. The public concept is element attachment for framework reactivity: a
+framework obtains an element, Starbeam runs resource-backed work for that element,
+and cleanup follows the framework's element/component lifetime. `@starbeam/renderer`
+now owns the shared adapter-author setup/finalization primitive for Vue/Svelte
+style element-first lifetimes. `@starbeam/modifier` and `@domtree/*` remain
+internal unless a later PER finds a stable adapter-author contract that needs
+those package boundaries directly.
 
 Other live possibilities:
 
@@ -70,12 +72,13 @@ Current evidence: `@starbeam/react` and `@starbeam/preact` both expose
 `IntoResourceBlueprint<T>`, plus a `pending | attached` result that always
 carries the framework callback ref. Vue adds the non-hooks version of that
 evidence: `@starbeam/vue` exposes `elementResourceDirective`, whose custom
-directive owns the resource scope for an element, subscribes to runtime
+directive owns the resource lifetime for an element, subscribes to runtime
 invalidations, schedules sync through Vue, and finalizes when the element
-unmounts. This is stronger evidence for a shared Starbeam DOM
-attachment concept than the earlier React-only probe. `@starbeam/modifier`
-still only exposes `ElementPlaceholder`, which models element availability but
-not the resource-shaped public contract.
+unmounts. Svelte adds the attachment dialect and now shares the renderer setup
+primitive with Vue. This is stronger evidence for a shared Starbeam DOM
+attachment concept than the earlier React-only probe. `@starbeam/modifier` still
+only exposes `ElementPlaceholder`, which models element availability but not the
+resource-shaped public contract.
 
 #### DOM attachment contract sketch
 
@@ -162,8 +165,8 @@ React and Preact now independently expose the same leaf API shape:
 
 This supports the hypothesis that Starbeam has a universal resource-shaped DOM
 attachment concept. It does not yet prove that `@starbeam/modifier` should be
-public. The duplicated adapter-local types may be the right short-term state
-until the owning package boundary is clear.
+public. React and Preact keep their adapter-local result shapes because their
+timing is hook/resource-lifecycle specific.
 
 **Vue directive findings from #211 and #215**
 
@@ -185,6 +188,22 @@ The directive probe also shows that the component-centered `@starbeam/vue`
 Directive hooks do not have setup-time `getCurrentInstance()` context, so a Vue
 element-attachment API needs a directive-owned lifetime path rather than the
 component setup path.
+
+**Renderer setup primitive after #223**
+
+Vue and Svelte now share `@starbeam/renderer`'s `setupElementResource()` helper.
+The helper owns only the Starbeam setup/finalization kernel: it turns an element
+and `ElementResourceBlueprint` into `{ value, sync, finalize }`. Vue and Svelte
+still own their framework-local concerns:
+
+- element delivery (`directive` vs. `{@attach}`);
+- runtime invalidation subscription;
+- sync scheduling (`nextTick` vs. `queueMicrotask`);
+- publication (`ShallowRef`/`triggerRef`, callback sinks, or Svelte stores);
+- cleanup timing and element replacement semantics.
+
+This closes the basic package-boundary question for Vue/Svelte setup without
+promoting `@starbeam/modifier` or forcing React/Preact onto the same helper.
 
 **`ElementPlaceholder` reconciliation**
 
@@ -240,11 +259,11 @@ bounded change, then review the result against the prediction.
 4. Modifier / DOM attachment reconciliation. Done so far: React + Preact
    convergence, the `ElementPlaceholder` comparison, the Vue directive probe,
    the [DOM attachment boundary decision](./DOM-ATTACHMENT-BOUNDARY.md), the
-   Svelte attachment experiment, and the Vue handle experiment. Keep official
-   adapter APIs as the 0.9 public surface. Use the
-   [DOM attachment ergonomics review](./DOM-ATTACHMENT-ERGONOMICS.md) to drive
-   the next modifier-shaped API experiment. Move shared vocabulary only if
-   adapter-author pressure justifies it.
+   Svelte attachment experiment, the Vue handle experiment, and the renderer
+   setup primitive. Keep official adapter APIs as the 0.9 public surface. The
+   [DOM attachment ergonomics review](./DOM-ATTACHMENT-ERGONOMICS.md) now frames
+   remaining work as API polish and future expansion beyond setup/finalization,
+   not basic boundary discovery.
 5. Low-level surface consolidation: make `@starbeam/universal` the umbrella,
    split public `@starbeam/reactive` primitives from runtime wiring, place
    service intentionally, and target interfaces/tags/runtime as internal unless
