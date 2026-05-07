@@ -1,7 +1,9 @@
 export {
+  elementResource,
   type ElementResourceBlueprint,
   elementResourceDirective,
   type ElementResourceDirectiveOptions,
+  type ElementResourceHandle,
   setupReactive,
   setupResource,
   setupService,

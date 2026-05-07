@@ -8,6 +8,8 @@ resources.
 - `setupReactive(blueprint)`: expose a Starbeam reactive value as a Vue ref.
 - `setupResource(blueprint)`: create a Starbeam resource in component setup.
 - `setupService(blueprint)`: access an app-scoped Starbeam service.
+- `elementResource(blueprint)`: create an experimental handle with both a
+  directive and a Vue ref for an element-backed resource.
 - `elementResourceDirective(blueprint, options?)`: attach an element-backed
   resource to a Vue custom directive.
 - `Starbeam`: Vue plugin that owns app-scoped Starbeam services.
@@ -75,6 +77,28 @@ const vSize = elementResourceDirective(ElementSize, { into: size });
 The returned resource value should be domain-shaped. Keep cells private and
 expose getters or methods, so consumers read `size.width`, not
 `size.width.current`.
+
+### Handle experiment
+
+`elementResource()` bundles the directive and the published Vue ref in one
+object. This mirrors the Svelte experiment where a modifier-like object is both
+attachable and readable.
+
+```ts
+const size = elementResource(ElementSize);
+const vSize = size.directive;
+```
+
+```vue
+<template>
+  <section v-size>
+    {{ size.value.value ? size.value.value.width : "Measuring…" }}
+  </section>
+</template>
+```
+
+This keeps the directive naming (`vSize`) separate from the readable value
+(`size`), while avoiding an explicit `into` ref.
 
 ## Timing model
 

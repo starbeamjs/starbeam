@@ -9,8 +9,8 @@ import type { IntoResourceBlueprint } from "@starbeam/resource";
 import { setupResource as setupStarbeamResource } from "@starbeam/resource";
 import { pushingScope, RUNTIME } from "@starbeam/runtime";
 import { finalize } from "@starbeam/shared";
-import type { Directive, Ref } from "vue";
-import { nextTick, triggerRef } from "vue";
+import type { Directive, Ref, ShallowRef } from "vue";
+import { nextTick, shallowRef, triggerRef } from "vue";
 
 import { MANAGER } from "./renderer.js";
 import { useReactive } from "./setup.js";
@@ -21,6 +21,11 @@ export type ElementResourceBlueprint<E extends Element, T> = (
 
 export interface ElementResourceDirectiveOptions<T> {
   readonly into?: Ref<T | null> | undefined;
+}
+
+export interface ElementResourceHandle<T, E extends Element> {
+  readonly value: ShallowRef<T | null>;
+  readonly directive: Directive<E>;
 }
 
 export function setupReactive<T>(blueprint: UseReactive<T>): Ref<ReadValue<T>> {
@@ -94,5 +99,16 @@ export function elementResourceDirective<E extends Element, T>(
       cleanups.get(element)?.();
       cleanups.delete(element);
     },
+  };
+}
+
+export function elementResource<E extends Element, T>(
+  blueprint: ElementResourceBlueprint<E, T>,
+): ElementResourceHandle<T, E> {
+  const value = shallowRef<T | null>(null);
+
+  return {
+    value,
+    directive: elementResourceDirective(blueprint, { into: value }),
   };
 }

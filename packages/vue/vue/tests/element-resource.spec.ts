@@ -3,7 +3,7 @@
 import { Marker } from "@starbeam/reactive";
 import { Resource } from "@starbeam/resource";
 import { Cell } from "@starbeam/universal";
-import { elementResourceDirective } from "@starbeam/vue";
+import { elementResource, elementResourceDirective } from "@starbeam/vue";
 import { describe, RecordedEvents, test } from "@starbeam-workspace/test-utils";
 import { App, renderApp } from "@starbeam-workspace/vue-testing-utils";
 import { Fragment, h, shallowRef, withDirectives } from "vue";
@@ -211,5 +211,63 @@ describe("elementResourceDirective", () => {
 
     marker.mark();
     events.expect([]);
+  });
+});
+
+describe("elementResource", () => {
+  test("handle exposes a directive and a Vue ref", async () => {
+    const events = new RecordedEvents();
+    const marker = Marker();
+
+    const app = App({
+      setup: () => {
+        const elementWidth = shallowRef("100");
+        const size = elementResource((element: HTMLElement) =>
+          ElementSizeForTest(element, events, marker),
+        );
+        const vSize = size.directive;
+
+        return () =>
+          h(Fragment, [
+            h(
+              "p",
+              size.value.value ? `width=${size.value.value.width}` : "pending",
+            ),
+            h(
+              "button",
+              {
+                onClick: () => {
+                  elementWidth.value = "101";
+                  marker.mark();
+                },
+              },
+              "+",
+            ),
+            withDirectives(
+              h("div", { "data-width": elementWidth.value }, "box"),
+              [[vSize]],
+            ),
+          ]);
+      },
+    });
+
+    const result = await renderApp(app, { events }).andExpect({
+      output:
+        '<p>width=100</p><button>+</button><div data-width="100">box</div>',
+      events: ["size:attached", "size:sync"],
+    });
+
+    await result.click().andExpect({
+      output:
+        '<p>width=100</p><button>+</button><div data-width="101">box</div>',
+    });
+
+    await result.flush().andExpect({
+      output:
+        '<p>width=101</p><button>+</button><div data-width="101">box</div>',
+      events: ["size:sync"],
+    });
+
+    await result.unmount().andExpect({ output: "", events: ["size:finalize"] });
   });
 });
