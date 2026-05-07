@@ -107,7 +107,7 @@ export function elementResourceDirective<E extends Element, T>(
 export function elementResource<E extends Element, T>(
   blueprint: ElementResourceBlueprint<E, T>,
 ): ElementResourceHandle<E, T> {
-  const value = shallowRef(null) as ShallowRef<T | null>;
+  const value: ShallowRef<T | null> = shallowRef<T | null>(null);
 
   return Object.assign(value, {
     directive: elementResourceDirective(blueprint, { into: value }),
