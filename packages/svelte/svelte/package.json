@@ -1,0 +1,61 @@
+{
+  "name": "@starbeam/svelte",
+  "type": "module",
+  "version": "0.8.9",
+  "main": "index.ts",
+  "types": "index.ts",
+  "exports": {
+    "default": "./index.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts"
+  },
+  "starbeam": {
+    "entry": {
+      "index": "./index.ts"
+    },
+    "inline": [
+      "@starbeam/core-utils"
+    ],
+    "type": "library:public"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "prepack": "pnpm build",
+    "test:lint": "eslint . --max-warnings 0",
+    "test:specs": "vitest --run --pool forks",
+    "test:types": "tsc -b"
+  },
+  "dependencies": {
+    "@starbeam/interfaces": "workspace:^",
+    "@starbeam/reactive": "workspace:^",
+    "@starbeam/resource": "workspace:^",
+    "@starbeam/runtime": "workspace:^",
+    "@starbeam/shared": "workspace:^",
+    "@starbeam/universal": "workspace:^"
+  },
+  "devDependencies": {
+    "@starbeam-dev/compile": "workspace:*",
+    "rollup": "^4.60.1"
+  },
+  "peerDependencies": {
+    "svelte": "^5.29.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE.md"
+  ],
+  "release-plan": {
+    "semverIncrementAs": {
+      "major": "minor"
+    }
+  }
+}
