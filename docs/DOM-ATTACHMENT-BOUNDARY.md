@@ -10,7 +10,7 @@ new shared public package boundary.
 
 - React and Preact keep their idiomatic `useElementResource` leaves.
 - Vue exposes `elementResourceDirective` for directive-owned element resources.
-- Svelte's attachment API is the next dialect to probe.
+- Svelte exposes an experimental attachment API for element resources.
 - `@starbeam/modifier` stays internal. Its current `ElementPlaceholder` is
   historical kernel evidence, not the public contract.
 - `@starbeam/renderer` remains the best future home for adapter-author
@@ -20,13 +20,10 @@ new shared public package boundary.
   resources for app and library authors, but should not expose ref, directive,
   or modifier-shaped APIs in 0.9.
 
-Future code moves should be driven by adapter duplication or another concrete
-framework dialect, not by the existence of the old modifier package name.
-
-The next concrete dialect is Svelte. Svelte 5.29 added attachments, which are
-element-first functions with cleanup and reactive rerun semantics. They look like
-a strong fit for Starbeam's element-resource creator shape, but the value
-publication story still needs a code probe.
+Future code moves should be driven by adapter duplication or concrete framework
+evidence, not by the existence of the old modifier package name. The current
+ergonomics evidence is reviewed in
+[DOM Attachment Ergonomics Review](./DOM-ATTACHMENT-ERGONOMICS.md).
 
 ## What is stable
 
@@ -88,12 +85,12 @@ primitive or an adapter result slot such as React's attached resource value.
 Refs, directives, and modifiers are framework dialects for delivering the
 element. They are not the stable Starbeam contract name.
 
-| Framework | Dialect          | Proven API or evidence     | Current status      |
-| --------- | ---------------- | -------------------------- | ------------------- |
-| React     | callback ref     | `useElementResource`       | Public adapter leaf |
-| Preact    | callback ref     | `useElementResource`       | Public adapter leaf |
-| Vue       | custom directive | `elementResourceDirective` | Public adapter leaf |
-| Svelte    | `{@attach ...}`  | Svelte docs recon          | Next probe target   |
+| Framework | Dialect          | Proven API or evidence      | Current status            |
+| --------- | ---------------- | --------------------------- | ------------------------- |
+| React     | callback ref     | `useElementResource`        | Public adapter leaf       |
+| Preact    | callback ref     | `useElementResource`        | Public adapter leaf       |
+| Vue       | custom directive | `elementResourceDirective`  | Public adapter leaf       |
+| Svelte    | `{@attach ...}`  | `elementResourceAttachment` | Experimental adapter leaf |
 
 ### React and Preact
 
@@ -140,12 +137,14 @@ cleanup function. Svelte reruns an attachment when state read by the attachment
 expression changes, and it calls cleanup before rerun or after the element is
 removed.
 
-That makes attachments the likely Svelte dialect for DOM attachment:
+The Svelte probe now exists as an experimental adapter leaf. It validates
+attachment-owned lifetime and compares callback-sink and store-sink publication
+styles:
 
 ```svelte
 <script lang="ts">
+  import { elementResourceAttachment } from "@starbeam/svelte";
   import type { IntoResourceBlueprint } from "@starbeam/resource";
-  import type { Attachment } from "svelte/attachments";
 
   interface Size {
     readonly width: number;
@@ -158,19 +157,18 @@ That makes attachments the likely Svelte dialect for DOM attachment:
 
   declare const ElementSize: ElementResourceBlueprint<HTMLElement, Size>;
 
-  function elementResourceAttachment<T>(
-    blueprint: ElementResourceBlueprint<HTMLElement, T>,
-  ): Attachment<HTMLElement> {
-    return (element) => {
-      // Create an element-backed Starbeam resource from `blueprint(element)`.
-      return () => {
-        // finalize element-backed Starbeam resource here
-      };
-    };
-  }
+  let size = $state<Size | null>(null);
+
+  const attachSize = elementResourceAttachment(ElementSize, {
+    into(value) {
+      size = value;
+    },
+  });
 </script>
 
-<section {@attach elementResourceAttachment(ElementSize)} />
+<section {@attach attachSize}>
+  {size ? `${size.width} × ${size.height}` : "Measuring…"}
+</section>
 ```
 
 Svelte actions (`use:`) remain available, but Svelte's docs say attachments
@@ -181,16 +179,10 @@ Svelte also provides `createAttachmentKey` for programmatic object-spread
 attachments. That may matter for library-author ergonomics, but it should follow
 the basic attachment probe.
 
-The open Svelte question is not whether Svelte can deliver an element and cleanup
-lifetime. It can. The open question is how Starbeam should publish the produced
-domain value back to Svelte without exposing reactive storage or prematurely
-moving shared vocabulary. Candidate shapes include a callback, a store, a
-rune-compatible state sink, or an `into`-style sink analogous to Vue.
-
-The code probe should create the smallest `@starbeam/svelte` adapter package and
-test harness needed to validate attachment lifetime and value publication. It
-should stay focused on proving the Svelte dialect before moving any shared
-vocabulary.
+The open Svelte question is no longer whether Svelte can deliver an element and
+cleanup lifetime. It can. The open question is which publication style should be
+primary and whether the store-shaped experiment is the right reusable
+attachable/readable object for Svelte authors.
 
 ## Boundary matrix
 

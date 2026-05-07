@@ -239,9 +239,11 @@ bounded change, then review the result against the prediction.
    low-level surface consolidation.
 4. Modifier / DOM attachment reconciliation. Done so far: React + Preact
    convergence, the `ElementPlaceholder` comparison, the Vue directive probe,
-   and the [DOM attachment boundary decision](./DOM-ATTACHMENT-BOUNDARY.md).
-   Keep official adapter APIs as the 0.9 public surface. Svelte attachments are
-   the next concrete dialect to probe. Move shared vocabulary only if
+   the [DOM attachment boundary decision](./DOM-ATTACHMENT-BOUNDARY.md), the
+   Svelte attachment experiment, and the Vue handle experiment. Keep official
+   adapter APIs as the 0.9 public surface. Use the
+   [DOM attachment ergonomics review](./DOM-ATTACHMENT-ERGONOMICS.md) to drive
+   the next modifier-shaped API experiment. Move shared vocabulary only if
    adapter-author pressure justifies it.
 5. Low-level surface consolidation: make `@starbeam/universal` the umbrella,
    split public `@starbeam/reactive` primitives from runtime wiring, place
