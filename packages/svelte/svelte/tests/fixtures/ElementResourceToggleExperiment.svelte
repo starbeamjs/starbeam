@@ -11,7 +11,7 @@
 
   let visible = $state(true);
   let width = $state("100");
-  const size = $derived(elementResource(blueprint));
+  const size = elementResource((element: HTMLElement) => blueprint(element));
 
   function toggle() {
     visible = !visible;

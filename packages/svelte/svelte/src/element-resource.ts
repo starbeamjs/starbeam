@@ -18,8 +18,8 @@ export type ElementResourceAttachment<E extends Element = Element> =
   Attachment<E>;
 
 export type ElementResourceHandle<
-  E extends Element,
-  T,
+  E extends Element = Element,
+  T = unknown,
 > = SvelteReadable<T | null> & {
   readonly attach: ElementResourceAttachment<E>;
 };

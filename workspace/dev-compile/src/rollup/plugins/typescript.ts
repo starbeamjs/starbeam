@@ -115,7 +115,7 @@ export default function typescript(
 
     const minify = {
       format: {
-        comments: mode === "production",
+        comments: mode === 'production',
       },
       mangle: {
         toplevel: true,
@@ -153,8 +153,8 @@ export default function typescript(
     const jsxFactory = compilerOptions.jsxFactory;
 
     /**
-     * TODO: move react specific build code to react packages' rollup
-     */
+    * TODO: move react specific build code to react packages' rollup
+    */
     if (fragmentFactory && jsxFactory)
       jscConfig = withReact(jscConfig, {
         pragma: jsxFactory,
