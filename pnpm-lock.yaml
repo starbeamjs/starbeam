@@ -579,6 +579,9 @@ importers:
       '@starbeam/reactive':
         specifier: workspace:^
         version: link:../../universal/reactive
+      '@starbeam/renderer':
+        specifier: workspace:^
+        version: link:../../universal/renderer
       '@starbeam/resource':
         specifier: workspace:^
         version: link:../../universal/resource

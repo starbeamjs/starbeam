@@ -1,23 +1,20 @@
 import type { ReadValue } from "@starbeam/reactive";
-import type { UseReactive } from "@starbeam/renderer";
+import type { ElementResourceBlueprint, UseReactive } from "@starbeam/renderer";
 import {
   managerSetupReactive,
   managerSetupResource,
   managerSetupService,
+  setupElementResource,
 } from "@starbeam/renderer";
 import type { IntoResourceBlueprint } from "@starbeam/resource";
-import { setupResource as setupStarbeamResource } from "@starbeam/resource";
-import { pushingScope, RUNTIME } from "@starbeam/runtime";
-import { finalize } from "@starbeam/shared";
+import { RUNTIME } from "@starbeam/runtime";
 import type { Directive, Ref, ShallowRef } from "vue";
 import { nextTick, shallowRef, triggerRef } from "vue";
 
 import { MANAGER } from "./renderer.js";
 import { useReactive } from "./setup.js";
 
-export type ElementResourceBlueprint<E extends Element, T> = (
-  element: E,
-) => IntoResourceBlueprint<T>;
+export type { ElementResourceBlueprint } from "@starbeam/renderer";
 
 export interface ElementResourceDirectiveOptions<T> {
   readonly into?: Ref<T | null> | undefined;
@@ -66,9 +63,7 @@ export function elementResourceDirective<E extends Element, T>(
     mounted(element) {
       cleanups.get(element)?.();
 
-      const [scope, resource] = pushingScope(() =>
-        setupStarbeamResource(blueprint(element)),
-      );
+      const resource = setupElementResource(blueprint, element);
 
       resource.sync();
       publish(resource.value);
@@ -92,7 +87,7 @@ export function elementResourceDirective<E extends Element, T>(
       cleanups.set(element, () => {
         active = false;
         if (unsubscribe) unsubscribe();
-        finalize(scope);
+        resource.finalize();
         publish(null);
       });
     },

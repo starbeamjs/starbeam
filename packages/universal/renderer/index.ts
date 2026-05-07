@@ -18,6 +18,10 @@ export {
   runHandlers,
 } from "./src/renderer.js";
 
-// Resource conversion.
-export type { IntoResourceBlueprint } from "./src/resource.js";
-export { intoResourceBlueprint } from "./src/resource.js";
+// Resource conversion and element-backed resource setup.
+export type {
+  ElementResourceBlueprint,
+  ElementResourceInstance,
+  IntoResourceBlueprint,
+} from "./src/resource.js";
+export { intoResourceBlueprint, setupElementResource } from "./src/resource.js";

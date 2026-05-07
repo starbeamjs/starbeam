@@ -124,6 +124,7 @@ export default function typescript(
           reserved: [
             "attach",
             "directive",
+            "finalize",
             "install",
             "into",
             "mounted",

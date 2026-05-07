@@ -1,16 +1,16 @@
-import type { IntoResourceBlueprint, SyncFn } from "@starbeam/resource";
-import { setupResource } from "@starbeam/resource";
-import { pushingScope, RUNTIME } from "@starbeam/runtime";
-import { finalize } from "@starbeam/shared";
+import type { ElementResourceBlueprint as RendererElementResourceBlueprint } from "@starbeam/renderer";
+import { setupElementResource } from "@starbeam/renderer";
+import { RUNTIME } from "@starbeam/runtime";
 import type { Attachment } from "svelte/attachments";
 
 type SvelteReadable<T> = import("svelte/store").Readable<T>;
 type SvelteSubscriber<T> = import("svelte/store").Subscriber<T>;
 type SvelteUnsubscriber = import("svelte/store").Unsubscriber;
 
-export type ElementResourceBlueprint<E extends Element, T> = (
-  element: E,
-) => IntoResourceBlueprint<T>;
+export type ElementResourceBlueprint<
+  E extends Element,
+  T,
+> = RendererElementResourceBlueprint<E, T>;
 
 export type ElementResourceSink<T> = (value: T | null) => void;
 
@@ -24,12 +24,6 @@ export type ElementResourceHandle<
   readonly attach: ElementResourceAttachment<E>;
 };
 
-interface ResourceState<T> {
-  readonly scope: object;
-  readonly sync: SyncFn<void>;
-  readonly value: T;
-}
-
 export function elementResourceAttachment<E extends Element, T>(
   blueprint: ElementResourceBlueprint<E, T>,
   options: { readonly into?: ElementResourceSink<T> | undefined } = {},
@@ -38,7 +32,7 @@ export function elementResourceAttachment<E extends Element, T>(
     let active = true;
     let scheduled = false;
 
-    const resource = createElementResource(blueprint, element);
+    const resource = setupElementResource(blueprint, element);
 
     resource.sync();
     options.into?.(resource.value);
@@ -60,7 +54,7 @@ export function elementResourceAttachment<E extends Element, T>(
     return () => {
       active = false;
       unsubscribe?.();
-      finalize(resource.scope);
+      resource.finalize();
       options.into?.(null);
     };
   };
@@ -102,19 +96,4 @@ export function elementResource<E extends Element, T>(
   blueprint: ElementResourceBlueprint<E, T>,
 ): ElementResourceHandle<E, T> {
   return elementResourceStore(blueprint);
-}
-
-function createElementResource<E extends Element, T>(
-  blueprint: ElementResourceBlueprint<E, T>,
-  element: E,
-): ResourceState<T> {
-  const [scope, resource] = pushingScope(() =>
-    setupResource(blueprint(element)),
-  );
-
-  return {
-    scope,
-    sync: resource.sync,
-    value: resource.value,
-  };
 }
