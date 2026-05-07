@@ -23,10 +23,12 @@ export interface ElementResourceDirectiveOptions<T> {
   readonly into?: Ref<T | null> | undefined;
 }
 
-export interface ElementResourceHandle<E extends Element, T> {
-  readonly value: ShallowRef<T | null>;
+export type ElementResourceHandle<
+  E extends Element = Element,
+  T = unknown,
+> = ShallowRef<T | null> & {
   readonly directive: Directive<E>;
-}
+};
 
 export function setupReactive<T>(blueprint: UseReactive<T>): Ref<ReadValue<T>> {
   const vueInstance = useReactive();
@@ -105,10 +107,9 @@ export function elementResourceDirective<E extends Element, T>(
 export function elementResource<E extends Element, T>(
   blueprint: ElementResourceBlueprint<E, T>,
 ): ElementResourceHandle<E, T> {
-  const value = shallowRef<T | null>(null);
+  const value = shallowRef(null) as ShallowRef<T | null>;
 
-  return {
-    value,
+  return Object.assign(value, {
     directive: elementResourceDirective(blueprint, { into: value }),
-  };
+  });
 }

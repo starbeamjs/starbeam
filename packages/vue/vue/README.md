@@ -80,9 +80,9 @@ expose getters or methods, so consumers read `size.width`, not
 
 ### Handle experiment
 
-`elementResource()` bundles the directive and the published Vue ref in one
-object. This mirrors the Svelte experiment where a modifier-like object is both
-attachable and readable.
+`elementResource()` returns a Vue ref augmented with the directive. This mirrors
+the Svelte experiment where a modifier-like object is both attachable and
+readable.
 
 ```ts
 const size = elementResource(ElementSize);
@@ -92,13 +92,15 @@ const vSize = size.directive;
 ```vue
 <template>
   <section v-size>
-    {{ size.value.value ? size.value.value.width : "Measuring…" }}
+    {{ size ? size.width : "Measuring…" }}
   </section>
 </template>
 ```
 
 This keeps the directive naming (`vSize`) separate from the readable value
-(`size`), while avoiding an explicit `into` ref.
+(`size`), while avoiding an explicit `into` ref. In templates, Vue unwraps the
+ref, so the resource reads as `size.width`. In scripts or render functions, read
+through Vue's ref slot: `size.value?.width`.
 
 ## Timing model
 

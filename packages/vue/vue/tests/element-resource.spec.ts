@@ -229,10 +229,7 @@ describe("elementResource", () => {
 
         return () =>
           h(Fragment, [
-            h(
-              "p",
-              size.value.value ? `width=${size.value.value.width}` : "pending",
-            ),
+            h("p", size.value ? `width=${size.value.width}` : "pending"),
             h(
               "button",
               {
@@ -285,10 +282,7 @@ describe("elementResource", () => {
 
         return () =>
           h(Fragment, [
-            h(
-              "p",
-              size.value.value ? `width=${size.value.value.width}` : "pending",
-            ),
+            h("p", size.value ? `width=${size.value.width}` : "pending"),
             h("button", { onClick: () => (visible.value = false) }, "hide"),
             visible.value
               ? withDirectives(h("div", { "data-width": "100" }, "box"), [
