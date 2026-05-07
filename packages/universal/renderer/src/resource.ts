@@ -17,7 +17,7 @@ export function intoResourceBlueprint<T>(
   return typeof intoBlueprint === "function" ? intoBlueprint() : intoBlueprint;
 }
 
-export type ElementResourceBlueprint<E extends Element, T> = (
+export type ElementResourceBlueprint<E extends object, T> = (
   element: E,
 ) => IntoResourceBlueprint<T>;
 
@@ -27,7 +27,7 @@ export interface ElementResourceInstance<T> {
   readonly finalize: () => void;
 }
 
-export function setupElementResource<E extends Element, T>(
+export function setupElementResource<E extends object, T>(
   blueprint: ElementResourceBlueprint<E, T>,
   element: E,
 ): ElementResourceInstance<T> {
