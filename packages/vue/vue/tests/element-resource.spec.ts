@@ -270,4 +270,47 @@ describe("elementResource", () => {
 
     await result.unmount().andExpect({ output: "", events: ["size:finalize"] });
   });
+
+  test("handle clears its Vue ref when the directive unmounts", async () => {
+    const events = new RecordedEvents();
+    const marker = Marker();
+
+    const app = App({
+      setup: () => {
+        const visible = shallowRef(true);
+        const size = elementResource((element: HTMLElement) =>
+          ElementSizeForTest(element, events, marker),
+        );
+        const vSize = size.directive;
+
+        return () =>
+          h(Fragment, [
+            h(
+              "p",
+              size.value.value ? `width=${size.value.value.width}` : "pending",
+            ),
+            h("button", { onClick: () => (visible.value = false) }, "hide"),
+            visible.value
+              ? withDirectives(h("div", { "data-width": "100" }, "box"), [
+                  [vSize],
+                ])
+              : null,
+          ]);
+      },
+    });
+
+    const result = await renderApp(app, { events }).andExpect({
+      output:
+        '<p>width=100</p><button>hide</button><div data-width="100">box</div>',
+      events: ["size:attached", "size:sync"],
+    });
+
+    await result.click("hide").andExpect({
+      output: "<p>pending</p><button>hide</button><!---->",
+      events: ["size:finalize"],
+    });
+
+    marker.mark();
+    events.expect([]);
+  });
 });

@@ -23,7 +23,7 @@ export interface ElementResourceDirectiveOptions<T> {
   readonly into?: Ref<T | null> | undefined;
 }
 
-export interface ElementResourceHandle<T, E extends Element> {
+export interface ElementResourceHandle<E extends Element, T> {
   readonly value: ShallowRef<T | null>;
   readonly directive: Directive<E>;
 }
@@ -104,7 +104,7 @@ export function elementResourceDirective<E extends Element, T>(
 
 export function elementResource<E extends Element, T>(
   blueprint: ElementResourceBlueprint<E, T>,
-): ElementResourceHandle<T, E> {
+): ElementResourceHandle<E, T> {
   const value = shallowRef<T | null>(null);
 
   return {
