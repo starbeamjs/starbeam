@@ -619,6 +619,9 @@ importers:
       '@starbeam/universal':
         specifier: workspace:^
         version: link:../../../universal/universal
+      '@sveltejs/vite-plugin-svelte':
+        specifier: ^7.1.1
+        version: 7.1.1(svelte@5.55.5(@typescript-eslint/types@8.58.2))(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
       '@testing-library/dom':
         specifier: ^10.4.1
         version: 10.4.1
@@ -628,13 +631,6 @@ importers:
       jsdom:
         specifier: ^26.1.0
         version: 26.1.0
-      svelte:
-        specifier: ^5.55.5
-        version: 5.55.5(@typescript-eslint/types@8.58.2)
-    devDependencies:
-      '@sveltejs/vite-plugin-svelte':
-        specifier: ^7.1.1
-        version: 7.1.1(svelte@5.55.5(@typescript-eslint/types@8.58.2))(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/universal/collections:
     dependencies:

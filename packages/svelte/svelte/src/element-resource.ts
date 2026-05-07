@@ -4,6 +4,10 @@ import { pushingScope, RUNTIME } from "@starbeam/runtime";
 import { finalize } from "@starbeam/shared";
 import type { Attachment } from "svelte/attachments";
 
+type SvelteReadable<T> = import("svelte/store").Readable<T>;
+type SvelteSubscriber<T> = import("svelte/store").Subscriber<T>;
+type SvelteUnsubscriber = import("svelte/store").Unsubscriber;
+
 export type ElementResourceBlueprint<E extends Element, T> = (
   element: E,
 ) => IntoResourceBlueprint<T>;
@@ -17,10 +21,6 @@ interface ResourceState<T> {
   readonly scope: object;
   readonly sync: SyncFn<void>;
   readonly value: T;
-}
-
-interface Readable<T> {
-  readonly subscribe: (run: (value: T) => void) => () => void;
 }
 
 export function elementResourceAttachment<E extends Element, T>(
@@ -61,9 +61,11 @@ export function elementResourceAttachment<E extends Element, T>(
 
 export function elementResourceStore<E extends Element, T>(
   blueprint: ElementResourceBlueprint<E, T>,
-): Readable<T | null> & { readonly attach: ElementResourceAttachment<E> } {
+): SvelteReadable<T | null> & {
+  readonly attach: ElementResourceAttachment<E>;
+} {
   let value: T | null = null;
-  const subscribers = new Set<(value: T | null) => void>();
+  const subscribers = new Set<SvelteSubscriber<T | null>>();
 
   const publish: ElementResourceSink<T> = (next) => {
     value = next;
@@ -73,8 +75,8 @@ export function elementResourceStore<E extends Element, T>(
     }
   };
 
-  const store: Readable<T | null> = {
-    subscribe: (run) => {
+  const store: SvelteReadable<T | null> = {
+    subscribe: (run, _invalidate): SvelteUnsubscriber => {
       run(value);
       subscribers.add(run);
 
