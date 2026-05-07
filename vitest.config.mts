@@ -1,5 +1,7 @@
 import { basename, dirname, resolve } from "node:path";
 
+import { svelte } from "@sveltejs/vite-plugin-svelte";
+import { svelteTesting } from "@testing-library/svelte/vite";
 import react from "@vitejs/plugin-react";
 import glob from "fast-glob";
 import type { TestProjectConfiguration } from "vitest/config";
@@ -27,6 +29,7 @@ const projects: TestProjectConfiguration[] = glob
   .sync([
     resolve(root, "packages/universal/*/package.json"),
     resolve(root, "packages/preact/*/package.json"),
+    resolve(root, "packages/svelte/*/package.json"),
     resolve(root, "packages/vue/*/package.json"),
     resolve(root, "packages/react/*/package.json"),
     resolve(root, "workspace/*/package.json"),
@@ -40,10 +43,17 @@ const projects: TestProjectConfiguration[] = glob
       // Inherit root options (env, isolate, maxWorkers) rather than
       // referencing this file back, which would infinite-loop.
       extends: true,
+      plugins: path.includes("packages/svelte/")
+        ? [svelte(), svelteTesting()]
+        : [],
       test: {
         name: projectName(path),
         include: [resolve(path, "tests/**/*.spec.ts")],
         includeSource: [resolve(path, "src/**/*.ts")],
+
+        server: path.includes("packages/svelte/")
+          ? { deps: { inline: ["svelte", "@testing-library/svelte"] } }
+          : undefined,
 
         typecheck: {
           enabled: true,
