@@ -173,8 +173,8 @@ For now:
 - Treat “modifier-shaped” as an ergonomic target: a reusable element-backed
   value that is attachable and readable.
 - Do not expose `ElementPlaceholder` as the public contract.
-- Do not create a public `@starbeam/modifier` package until a code PER proves
-  the kernel shape.
+- Do not create a public `@starbeam/modifier` package until a code Prepare /
+  Execute / Review (PER) cycle proves the kernel shape.
 
 The old `@starbeam/modifier` name is historical evidence. The adapter probes are
 the source of truth.
@@ -187,7 +187,7 @@ pressure, such as:
 - repeated non-trivial helper duplication across adapters;
 - a third-party adapter needing the same DOM attachment contract;
 - Svelte and Vue converging on the same attachable/readable handle shape;
-- a code PER proving a kernel that owns setup, sync, cleanup, element
+- a code PER cycle proving a kernel that owns setup, sync, cleanup, element
   replacement, and value publication;
 - adapter-author docs needing a stable name that cannot live in a single
   framework package.
