@@ -12,6 +12,18 @@ const require = createRequire(import.meta.url);
 const rollupTS =
   require("rollup-plugin-ts") as typeof import("rollup-plugin-ts").default;
 
+export const PUBLIC_OBJECT_PROPERTY_KEYS = [
+  "attach",
+  "directive",
+  "finalize",
+  "install",
+  "into",
+  "mounted",
+  "sync",
+  "unmounted",
+  "value",
+] as const;
+
 /**
  * Build a library with TypeScript in the specified mode.
  *
@@ -121,16 +133,7 @@ export default function typescript(
         toplevel: true,
         properties: {
           builtins: false,
-          reserved: [
-            "attach",
-            "directive",
-            "finalize",
-            "install",
-            "into",
-            "mounted",
-            "unmounted",
-            "value",
-          ],
+          reserved: [...PUBLIC_OBJECT_PROPERTY_KEYS],
         },
       },
       module: true,

@@ -96,6 +96,20 @@ Production stripping is not enough. The release surface is about published
 manifests, default/development JavaScript, and declarations as well as
 production bundles.
 
+## Public object property names
+
+Public runtime object-contract property names are part of the release surface.
+If a framework, adapter, app, or separately built package accesses a property by
+name, production property mangling must preserve that name.
+
+Examples include framework interop keys such as Vue plugin and directive hooks,
+adapter handle keys such as `attach` and `directive`, and shared renderer
+instance keys such as `sync`, `value`, and `finalize`.
+
+The build configuration reserves these names from production property mangling,
+and `pnpm test:workspace:pack` verifies the relevant production artifacts keep
+the expected public keys.
+
 When a private package provides development-only behavior, preserve the public
 behavior through a public package boundary before making the implementation
 private. For example, `@starbeam/debug` is internal, but `@starbeam/universal`
