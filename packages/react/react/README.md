@@ -22,8 +22,14 @@ instead of passing `[]`.
 ## Element resources
 
 `useElementResource()` is the React API for element-backed Starbeam resources.
-It handles React's callback-ref timing and gives the resource a real DOM element
+It handles React's callback ref timing and gives the resource a real DOM element
 only after React has created it.
+
+This API is intentionally hook-facing rather than a direct
+`setupElementResource()` export. React delivers the element after render through
+a callback ref. Public React integration points that call hooks need `use*`
+names so React Compiler preserves them as hooks. The shared contract is still
+the element resource blueprint you pass to the hook.
 
 The hook returns a discriminated result:
 

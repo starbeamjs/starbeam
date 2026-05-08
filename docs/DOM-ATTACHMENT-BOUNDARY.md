@@ -118,6 +118,12 @@ type ElementResource<T, E extends Element> =
 The `ref` is the framework delivery mechanism. The `pending | attached` state is
 an adapter result shape, not the shared creator contract.
 
+React and Preact keep this hook-facing leaf because the element arrives through
+callback ref timing. Vue and Svelte can use `setupElementResource()` inside their
+directive or attachment implementations because those callbacks already receive
+the element. This does not mean Preact lacks `setup*` APIs generally; the DOM
+element resource leaf uses hooks and callback refs.
+
 `attached` means Starbeam has created the element-backed resource value. It does
 not mean `on.sync` has run, and it should not grow a public `ready` or `synced`
 state without new evidence.
