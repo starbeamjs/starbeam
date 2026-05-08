@@ -63,10 +63,13 @@ It returns an `ElementResourceInstance`:
 ```ts
 interface ElementResourceInstance<T> {
   readonly value: T;
-  readonly sync: () => void;
+  readonly sync: SyncFn<void>;
   readonly finalize: () => void;
 }
 ```
+
+`SyncFn<void>` is callable, so adapters call `resource.sync()` when their
+framework scheduler says the resource should synchronize.
 
 The helper owns only Starbeam setup and finalization. It creates the resource in
 a Starbeam finalization scope and gives the adapter handles for the produced
