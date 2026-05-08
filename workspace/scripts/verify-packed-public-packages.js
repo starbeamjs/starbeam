@@ -8,6 +8,7 @@ import { globby, globbySync } from "globby";
 const currentDir = dirname(fileURLToPath(import.meta.url));
 const root = resolve(currentDir, "../..");
 const rootTypesDir = resolve(root, "dist/types");
+const publicObjectPropertyKeys = readPublicObjectPropertyKeys();
 
 const packageJsonPaths = await globby("**/package.json", {
   cwd: root,
@@ -112,6 +113,26 @@ if (errors.length > 0) {
 
 console.info(`Verified ${publicPackages.length} publishable packages.`);
 
+function readPublicObjectPropertyKeys() {
+  let file = resolve(
+    root,
+    "workspace/dev-compile/src/rollup/plugins/typescript.ts",
+  );
+  let content = readFileSync(file, "utf8");
+  let match =
+    /PUBLIC_OBJECT_PROPERTY_KEYS\s*=\s*\[([\s\S]*?)\]\s*as const/u.exec(
+      content,
+    );
+
+  if (!match) {
+    throw new Error(
+      "Could not find PUBLIC_OBJECT_PROPERTY_KEYS in build config",
+    );
+  }
+
+  return new Set([...match[1].matchAll(/"([^"]+)"/gu)].map(([, key]) => key));
+}
+
 function validateManifest(pkg) {
   let { manifest } = pkg;
 
@@ -207,6 +228,14 @@ function validatePublicObjectProperties(pkg) {
     let content = readFileSync(file, "utf8");
 
     for (let { key, pattern } of contract.properties) {
+      if (!publicObjectPropertyKeys.has(key)) {
+        fail(
+          pkg,
+          `public object property ${key} is verified but not reserved from production property mangling`,
+          file,
+        );
+      }
+
       if (!pattern.test(content)) {
         fail(
           pkg,
