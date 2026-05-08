@@ -57,8 +57,8 @@ not settle final public/private status.
 
 Current conflicts to preserve for later PERs:
 
-- `@starbeam/resource` is public and active, but its README still documents old
-  `use` and resource-run vocabulary.
+- `@starbeam/resource` README conflict resolved in PER6b: docs now describe the
+  current `Resource()` / `setupResource()` API and sync/finalization semantics.
 - `@starbeam/service` is public and active, but its README is stale and
   `@starbeam/universal` docs mention a `service` export that universal does not
   currently provide.
