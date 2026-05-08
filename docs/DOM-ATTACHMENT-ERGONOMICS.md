@@ -93,17 +93,19 @@ const vSize = size.directive;
 
 That mirrors the modifier-shaped idea: one object is both attachable and
 readable, even though Vue template syntax still needs a directive alias.
+The handle spelling is still experimental.
 
-In Vue templates, the top-level ref unwraps:
-
-```vue
-{{ size ? size.width : "Measuring…" }}
-```
-
-In scripts and render functions, the same handle reads through Vue's ref slot:
+Current tests cover directive lifetime and script/render-function reads through
+Vue's ref slot:
 
 ```ts
 size.value ? `width=${size.value.width}` : "pending";
+```
+
+Template `size.width` relies on Vue's standard top-level ref unwrapping:
+
+```vue
+{{ size ? size.width : "Measuring…" }}
 ```
 
 ### Svelte callback sink

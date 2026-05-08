@@ -89,6 +89,9 @@ const size = elementResource(ElementSize);
 const vSize = size.directive;
 ```
 
+The template below uses Vue Single-File Component syntax. In templates, Vue
+unwraps top-level refs, so the resource reads as `size.width`.
+
 ```vue
 <template>
   <section v-size>
@@ -98,9 +101,8 @@ const vSize = size.directive;
 ```
 
 This keeps the directive naming (`vSize`) separate from the readable value
-(`size`), while avoiding an explicit `into` ref. In templates, Vue unwraps the
-ref, so the resource reads as `size.width`. In scripts or render functions, read
-through Vue's ref slot: `size.value?.width`.
+(`size`), while avoiding an explicit `into` ref. In scripts or render functions,
+read through Vue's ref slot: `size.value?.width`.
 
 ## Timing model
 
