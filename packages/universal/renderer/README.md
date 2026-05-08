@@ -26,12 +26,13 @@ resource timing itself.
 The renderer surface is organized for framework adapter authors, not app code.
 Its exports fall into a few layers:
 
-| Layer | Exports | Purpose |
-| ----- | ------- | ------- |
-| Contract vocabulary | `RendererManager`, `Lifecycle`, `ComponentScheduler`, `Handler`, `SetupBlueprint`, `ReactiveBlueprint`, `UseReactive` | Describes the boundary an adapter implements and the lifecycle object Starbeam code receives. |
-| Resource conversion | `IntoResourceBlueprint`, `intoResourceBlueprint` | Normalizes resource-like input before an adapter creates or looks up resources. |
-| Shared manager helpers | `managerCreateLifecycle`, `managerSetupReactive`, `managerSetupResource`, `managerSetupService` | Implements the common setup path for adapters whose lifecycle can use the shared manager model. |
-| Handler utility | `runHandlers` | Invokes a set of lifecycle or scheduler handlers. |
+| Layer                  | Exports                                                                                                               | Purpose                                                                                         |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Contract vocabulary    | `RendererManager`, `Lifecycle`, `ComponentScheduler`, `Handler`, `SetupBlueprint`, `ReactiveBlueprint`, `UseReactive` | Describes the boundary an adapter implements and the lifecycle object Starbeam code receives.   |
+| Resource conversion    | `IntoResourceBlueprint`, `intoResourceBlueprint`                                                                      | Normalizes resource-like input before an adapter creates or looks up resources.                 |
+| Element-resource setup | `ElementResourceBlueprint`, `ElementResourceInstance`, `setupElementResource`                                         | Creates an element-backed resource instance after a framework supplies an element.              |
+| Shared manager helpers | `managerCreateLifecycle`, `managerSetupReactive`, `managerSetupResource`, `managerSetupService`                       | Implements the common setup path for adapters whose lifecycle can use the shared manager model. |
+| Handler utility        | `runHandlers`                                                                                                         | Invokes a set of lifecycle or scheduler handlers.                                               |
 
 `RendererManager` also includes hooks such as `createNotifier` and
 `createScheduler` that official adapters implement at their framework boundary.
@@ -44,6 +45,44 @@ important exception. React resource setup requires React hook state, so
 resources must be declared through the public `useResource` hook at top-level
 hook position. `Lifecycle.use` inside `useSetup` is not a supported React
 resource path. React does not expose a direct `setupResource` package API.
+
+## Element-Backed Resource Setup
+
+`setupElementResource()` is the shared adapter-author primitive for the
+framework-neutral part of DOM attachment. It starts from an element that the
+framework has already supplied and an `ElementResourceBlueprint`:
+
+```ts
+type ElementResourceBlueprint<E extends object, T> = (
+  element: E,
+) => IntoResourceBlueprint<T>;
+```
+
+It returns an `ElementResourceInstance`:
+
+```ts
+interface ElementResourceInstance<T> {
+  readonly value: T;
+  readonly sync: () => void;
+  readonly finalize: () => void;
+}
+```
+
+The helper owns only Starbeam setup and finalization. It creates the resource in
+a Starbeam finalization scope and gives the adapter handles for the produced
+value, sync function, and finalizer.
+
+The framework adapter still owns the framework-local parts:
+
+- element delivery, such as callback refs, directives, or attachments;
+- runtime invalidation subscription;
+- scheduling `sync()` in the framework's timing model;
+- publishing `value` or `null` into framework-native state;
+- deciding when element replacement or unmount should call `finalize()`.
+
+Vue and Svelte use this helper because their element APIs receive an element
+directly. React and Preact keep their element-resource setup inside hook/resource
+machinery, where render safety and effect timing are framework-specific.
 
 ## Official Renderer Compatibility
 
@@ -64,14 +103,15 @@ The sections below describe the APIs that official framework packages expose on
 top of the renderer contract. They are the expected shape of framework adapters,
 not direct exports from `@starbeam/renderer`.
 
-| API             | Parameter               | Returns                 |
-| --------------- | ----------------------- | ----------------------- |
-| `setupReactive` | `() => Reactive<T>`     | [`Native<T>`]           |
-| `setupResource` | `IntoResourceBlueprint` | [`Native<T>`] [^1]      |
-| `getService`    | `IntoResourceBlueprint` | [`Native<T>`]           |
+| API             | Parameter               | Returns            |
+| --------------- | ----------------------- | ------------------ |
+| `setupReactive` | `() => Reactive<T>`     | [`Native<T>`]      |
+| `setupResource` | `IntoResourceBlueprint` | [`Native<T>`] [^1] |
+| `getService`    | `IntoResourceBlueprint` | [`Native<T>`]      |
 
-[^1]: React's resource path is the public `useResource` hook, not a direct
-  `setupResource` export.
+[^1]:
+    React's resource path is the public `useResource` hook, not a direct
+    `setupResource` export.
 
 ### Framework-Native Reactive Values (`Native<T>`)
 
@@ -122,11 +162,11 @@ not through a setup-lifecycle resource API.
 
 In addition, they include idiomatic hooks that return bare values.
 
-| Purpose  | Core API                                                   | Hook API                                 |
-| -------- | ---------------------------------------------------------- | ---------------------------------------- |
-| Reactive | `setupReactive(ReactiveBlueprint<T>) => Native<T>`         | `useReactive(ReactiveBlueprint<T>) => T` |
+| Purpose  | Core API                                                        | Hook API                                 |
+| -------- | --------------------------------------------------------------- | ---------------------------------------- |
+| Reactive | `setupReactive(ReactiveBlueprint<T>) => Native<T>`              | `useReactive(ReactiveBlueprint<T>) => T` |
 | Resource | `setupResource(ResourceBlueprint<T>) => Native<T>` except React | `useResource(ResourceBlueprint<T>) => T` |
-| Service  | `setupService(ResourceBlueprint<T>) => Native<T>`          | `useService(ResourceBlueprint<T>) => T`  |
+| Service  | `setupService(ResourceBlueprint<T>) => Native<T>`               | `useService(ResourceBlueprint<T>) => T`  |
 
 In addition, hook-style renderers include a hook that runs during Starbeam's
 setup phase: `useInstance`.
@@ -345,14 +385,14 @@ other, they are fundamental very similar:
 
 #### Services
 
-| Renderer | Setup API                          | Hook API            |
-| -------- | ---------------------------------- | ------------------- |
+| Renderer | Setup API                            | Hook API            |
+| -------- | ------------------------------------ | ------------------- |
 | React    | `Lifecycle.service() via useSetup()` | `useService() => T` |
-| Preact   | `getService() => Signal<T>`        | `useService() => T` |
-| Solid    | `getService() => Signal<T>`        | N/A                 |
-| Vue      | `getService() => Ref<T>`           | N/A                 |
-| Svelte   | `getService() => ReadonlyStore<T>` | N/A                 |
-| Ember    | `getService() => Reactive<T>`      | N/A                 |
+| Preact   | `getService() => Signal<T>`          | `useService() => T` |
+| Solid    | `getService() => Signal<T>`          | N/A                 |
+| Vue      | `getService() => Ref<T>`             | N/A                 |
+| Svelte   | `getService() => ReadonlyStore<T>`   | N/A                 |
+| Ember    | `getService() => Reactive<T>`        | N/A                 |
 
 [framework-native reactive value]: #framework-native-reactive-values
 
