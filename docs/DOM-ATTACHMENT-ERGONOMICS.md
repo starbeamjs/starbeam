@@ -129,13 +129,14 @@ form publishes the resource value into author-owned state:
 </section>
 ```
 
-This matches Svelte runes well enough to prove the lifecycle, but it has the
-same split as Vue's `into` form: one value attaches, another value is read.
+This is the lower-level Svelte attachment form. It matches Svelte runes well
+enough to prove the lifecycle, but it has the same split as Vue's `into` form:
+one value attaches, another value is read.
 
 ### Svelte element resource
 
-The Svelte primary-name experiment uses `elementResource()` for the strongest
-modifier-shaped evidence so far:
+`elementResource()` is the primary Svelte authoring API for the current Svelte 5
+attachment path:
 
 ```svelte
 <script lang="ts">
@@ -149,10 +150,10 @@ modifier-shaped evidence so far:
 
 The same object is attachable through `size.attach` and readable through
 Svelte's store syntax. `elementResourceStore()` remains available as the
-explicit store-shaped spelling while this naming experiment is evaluated. This
-does not settle the final Svelte API, but it makes the cross-framework ergonomic
-target concrete: an element-backed value should be attachable and readable
-without exposing Starbeam storage.
+explicit store-shaped spelling, and `elementResourceAttachment()` remains the
+lower-level attachment/callback-sink primitive. Future Svelte-specific
+ergonomics may still be revisited, but the current supported authoring shape is
+`elementResource()`.
 
 ## Ergonomic comparison
 

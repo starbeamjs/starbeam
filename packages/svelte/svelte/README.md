@@ -1,9 +1,13 @@
 # @starbeam/svelte
 
-Experimental Svelte adapter for Starbeam element-backed resources.
+Svelte adapter for Starbeam element-backed resources.
 
-This package currently exists to compare Svelte DOM attachment ergonomics. The
-stable creator shape is the same one used by the React, Preact, and Vue leaves:
+`elementResource()` is the primary authoring API for Svelte 5 attachments. It
+returns one Svelte-readable object that is also attachable. Attach it with
+`size.attach`; read the published value with Svelte's store syntax.
+
+The stable creator shape is the same one used by the React, Preact, and Vue
+leaves:
 
 ```ts
 type ElementResourceBlueprint<E extends Element, T> = (
@@ -11,7 +15,34 @@ type ElementResourceBlueprint<E extends Element, T> = (
 ) => IntoResourceBlueprint<T>;
 ```
 
-## Callback sink
+## Element resource
+
+```svelte
+<script lang="ts">
+  import { elementResource } from "@starbeam/svelte";
+  import { ElementSize } from "./element-size";
+
+  const size = elementResource(ElementSize);
+</script>
+
+<section {@attach size.attach}>
+  {$size ? `${$size.width} × ${$size.height}` : "Measuring…"}
+</section>
+```
+
+## Store sink
+
+`elementResourceStore()` is the explicit store-shaped spelling. It returns the
+same attachable/readable shape as `elementResource()`.
+
+```ts
+const size = elementResourceStore(ElementSize);
+```
+
+## Attachment sink
+
+`elementResourceAttachment()` is the lower-level attachment spelling. Use it when
+you want to publish the resource value into state that you own.
 
 ```svelte
 <script lang="ts">
@@ -32,33 +63,7 @@ type ElementResourceBlueprint<E extends Element, T> = (
 </section>
 ```
 
-## Element resource
-
-```svelte
-<script lang="ts">
-  import { elementResource } from "@starbeam/svelte";
-  import { ElementSize } from "./element-size";
-
-  const size = elementResource(ElementSize);
-</script>
-
-<section {@attach size.attach}>
-  {$size ? `${$size.width} × ${$size.height}` : "Measuring…"}
-</section>
-```
-
-`elementResource()` returns one Svelte-readable object that is also attachable.
-Attach it with `size.attach`; read the published value with Svelte's store
-syntax.
-
-## Store sink
-
-`elementResourceStore()` is the explicit store-shaped spelling. It returns the
-same attachable/readable shape as `elementResource()`.
-
-```ts
-const size = elementResourceStore(ElementSize);
-```
-
-Both forms keep cells private. Consumers read domain-shaped values through
-Svelte's store syntax, such as `$size.width`, not `$size.width.current`.
+All forms keep cells private. `elementResource()` and `elementResourceStore()`
+read domain-shaped values through Svelte's store syntax, such as `$size.width`,
+not `$size.width.current`. `elementResourceAttachment()` publishes the same
+domain-shaped value into state the author owns.

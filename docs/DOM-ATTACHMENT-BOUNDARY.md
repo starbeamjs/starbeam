@@ -10,7 +10,9 @@ new shared public package boundary.
 
 - React and Preact keep their idiomatic `useElementResource` leaves.
 - Vue exposes `elementResourceDirective` for directive-owned element resources.
-- Svelte exposes an experimental attachment API for element resources.
+- Svelte exposes `elementResource()` for Svelte 5 attachment-backed element
+  resources, with `elementResourceAttachment()` as the lower-level attachment
+  primitive.
 - `@starbeam/modifier` stays internal. Its current `ElementPlaceholder` is
   historical kernel evidence, not the public contract.
 - `@starbeam/renderer` owns the shared adapter-author setup/finalization
@@ -92,12 +94,12 @@ primitive or an adapter result slot such as React's attached resource value.
 Refs, directives, and modifiers are framework dialects for delivering the
 element. They are not the stable Starbeam contract name.
 
-| Framework | Dialect          | Proven API or evidence      | Current status            |
-| --------- | ---------------- | --------------------------- | ------------------------- |
-| React     | callback ref     | `useElementResource`        | Public adapter leaf       |
-| Preact    | callback ref     | `useElementResource`        | Public adapter leaf       |
-| Vue       | custom directive | `elementResourceDirective`  | Public adapter leaf       |
-| Svelte    | `{@attach ...}`  | `elementResourceAttachment` | Experimental adapter leaf |
+| Framework | Dialect          | Proven API or evidence     | Current status      |
+| --------- | ---------------- | -------------------------- | ------------------- |
+| React     | callback ref     | `useElementResource`       | Public adapter leaf |
+| Preact    | callback ref     | `useElementResource`       | Public adapter leaf |
+| Vue       | custom directive | `elementResourceDirective` | Public adapter leaf |
+| Svelte    | `{@attach ...}`  | `elementResource`          | Public adapter leaf |
 
 ### React and Preact
 
@@ -144,13 +146,12 @@ cleanup function. Svelte reruns an attachment when state read by the attachment
 expression changes, and it calls cleanup before rerun or after the element is
 removed.
 
-The Svelte probe now exists as an experimental adapter leaf. It validates
-attachment-owned lifetime and compares callback-sink and store-sink publication
-styles:
+The Svelte adapter uses `elementResource()` as the primary authoring API for
+Svelte 5 attachments. It returns a Svelte-readable value that is also attachable:
 
 ```svelte
 <script lang="ts">
-  import { elementResourceAttachment } from "@starbeam/svelte";
+  import { elementResource } from "@starbeam/svelte";
   import type { IntoResourceBlueprint } from "@starbeam/resource";
 
   interface Size {
@@ -164,19 +165,16 @@ styles:
 
   declare const ElementSize: ElementResourceBlueprint<HTMLElement, Size>;
 
-  let size = $state<Size | null>(null);
-
-  const attachSize = elementResourceAttachment(ElementSize, {
-    into(value) {
-      size = value;
-    },
-  });
+  const size = elementResource(ElementSize);
 </script>
 
-<section {@attach attachSize}>
-  {size ? `${size.width} × ${size.height}` : "Measuring…"}
+<section {@attach size.attach}>
+  {$size ? `${$size.width} × ${$size.height}` : "Measuring…"}
 </section>
 ```
+
+`elementResourceAttachment()` remains available as the lower-level attachment
+primitive when authors want to publish the resource value into state they own.
 
 Svelte actions (`use:`) remain available, but Svelte's docs say attachments
 supersede actions in Svelte 5.29 and newer. Actions are therefore a fallback for
@@ -187,9 +185,9 @@ attachments. That may matter for library-author ergonomics, but it should follow
 the basic attachment probe.
 
 The open Svelte question is no longer whether Svelte can deliver an element and
-cleanup lifetime. It can. The open question is which publication style should be
-primary and whether the store-shaped experiment is the right reusable
-attachable/readable object for Svelte authors.
+cleanup lifetime, or which current spelling is primary. The remaining question
+is whether future Svelte-specific ergonomics should go beyond the store-readable
+shape.
 
 ## Boundary matrix
 
