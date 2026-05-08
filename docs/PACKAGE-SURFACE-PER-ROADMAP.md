@@ -140,29 +140,47 @@ framework-specific.
 
 **Validation:** docs diff only unless examples change.
 
-## 6. `@starbeam/modifier` fate
+## 6. Lifecycle package disposition and audience matrix
 
-**Question:** Should `@starbeam/modifier` be retired, reshaped, or left as an
-internal historical artifact?
+**Question:** Which lifecycle-oriented packages are meant for app authors,
+library authors, framework adapter authors, runtime/protocol implementors, or
+internal maintainers?
 
-**Current evidence:** `ElementPlaceholder` models element availability, not the
-resource-shaped lifecycle contract. The current shared primitive lives in
-`@starbeam/renderer`, not `@starbeam/modifier`.
+This arc covers `@starbeam/resource`, `@starbeam/service`,
+`@starbeam/modifier`, `@starbeam/universal`, and `@starbeam/renderer` as a
+single decision interface. PER6a should not settle every package fate. It should
+make the audience questions explicit enough that later PERs can make smaller
+decisions without duplicating ownership.
 
-**Prepare should inspect:**
+**Current evidence:** Resources are a direct composition API. Services are
+app-scoped lifecycle machinery used by adapters and renderer. Modifier is
+historical element-attachment kernel evidence. Universal is the umbrella
+candidate. Renderer is the adapter-author kit that now owns
+`setupElementResource()`.
 
-- remaining imports of `@starbeam/modifier`;
-- package manifests and generated artifacts;
-- whether any code still depends on `ElementPlaceholder` semantics;
-- whether the package should be renamed, deprecated, or kept internal.
+**Sub-arcs:**
+
+- **6a. Audience matrix:** classify the five lifecycle packages by supported
+  audience and record the remaining decisions.
+- **6b. Resource docs/API vocabulary:** decide whether resource docs speak to
+  app authors, library authors, or both.
+- **6c. Service placement:** decide whether service is direct API, universal
+  re-export, renderer-author API, or private adapter support.
+- **6d. Universal umbrella shape:** decide which lifecycle concepts universal
+  should re-export and document.
+- **6e. Modifier cleanup:** decide whether modifier stays internal evidence,
+  shrinks, or needs separate npm deprecation policy.
+- **6f. Renderer confirmation:** confirm renderer's adapter-author boundary now
+  that element-resource setup moved there.
 
 **Possible outcomes:**
 
-- docs-only deprecation note;
-- internal cleanup PR;
-- no-op until a broader package cleanup arc.
+- docs-only audience matrix;
+- one follow-up PER per package or audience;
+- later export or manifest changes only after the audience story is settled.
 
-**Validation:** package-surface checks if manifests or exports change.
+**Validation:** docs diff for PER6a. Package-surface checks only if a later sub-arc
+changes manifests, exports, or generated artifacts.
 
 ## 7. Public primitive split: `@starbeam/reactive`
 
@@ -187,35 +205,29 @@ also exports low-level substrate.
 
 **Validation:** declaration and artifact inspection before any export move.
 
-## 8. `@starbeam/universal`, service, protocol, and compatibility policy
+## 8. Protocol surfaces and compatibility policy
 
-**Question:** What is the next broad public package shape after DOM attachment?
+**Question:** Which low-level protocol surfaces are supported public API, and
+what compatibility policy applies to old imports?
 
-This covers several related package-surface questions:
+`@starbeam/universal` and `@starbeam/service` ownership moved to PER6. This arc
+should focus on the remaining compatibility and implementor-surface questions:
 
-- should `@starbeam/universal` become the app/library umbrella;
-- where `@starbeam/service` belongs;
 - whether `interfaces`, `tags`, and `runtime` are implementor/protocol surfaces
   or internal substrates;
 - whether a future `@starbeam/protocol` package is clearer;
 - what compatibility policy applies to the deprecated `@starbeam/core` alias.
 
-**Prepare should not do all of this at once.** It should first produce an
-audience matrix:
-
-- app users;
-- library authors;
-- framework adapter authors;
-- runtime/protocol implementors;
-- internal package maintainers.
+**Prepare should not reopen lifecycle package placement.** It should consume the
+PER6 matrix and ask only what protocol/core compatibility decisions remain.
 
 **Possible outcomes:**
 
-- audience decision matrix;
-- one package-surface PER per audience;
-- explicit 0.9 compatibility policy.
+- protocol-surface taxonomy;
+- future `@starbeam/protocol` proposal;
+- explicit 0.9 compatibility policy for `@starbeam/core`.
 
-**Validation:** mostly docs and package artifact inspection until export moves are
+**Validation:** docs and package artifact inspection until export moves are
 proposed.
 
 ## Suggested order
@@ -225,9 +237,9 @@ proposed.
 3. Svelte API confidence.
 4. Vue template ergonomics proof.
 5. React/Preact relationship docs.
-6. `@starbeam/modifier` fate.
+6. Lifecycle package disposition and audience matrix.
 7. `@starbeam/reactive` primitive split.
-8. Universal/service/protocol/core compatibility arc.
+8. Protocol surfaces and core compatibility policy.
 
 The first five are cleanup and confidence work following the DOM attachment arc.
 The last three reopen the broader package-surface roadmap.

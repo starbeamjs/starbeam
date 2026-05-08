@@ -42,6 +42,38 @@ current package names are the right public surface.
 | `@starbeam/universal`  | Main public umbrella candidate                                                 | Best current framework-agnostic entrypoint over cells, formulas, resources, and common integration concepts.                                                                                                                   | Leaks low-level package names in JS and declarations; service docs conflict with exports.                                                                                                            | Make it the public umbrella over private substrates. Re-export service if public; stop exposing raw runtime/protocol pieces as the story. |
 | `@starbeam/core`       | Compatibility decision                                                         | Deprecated alias over `@starbeam/universal`.                                                                                                                                                                                   | Root badge still points at it, but code is only a warning + re-export.                                                                                                                               | Decide old-import compatibility policy for 0.9.                                                                                           |
 
+### Lifecycle package audience matrix
+
+PER6a creates the decision interface for lifecycle-oriented packages. It does
+not settle final public/private status.
+
+| Package               | App authors                        | Library authors                      | Framework adapter authors            | Runtime/protocol implementors  | Internal maintainers                  | PER6a disposition                                      |
+| --------------------- | ---------------------------------- | ------------------------------------ | ------------------------------------ | ------------------------------ | ------------------------------------- | ------------------------------------------------------ |
+| `@starbeam/resource`  | Likely direct API                  | Likely direct composition API        | Building block for adapter APIs      | Not primary                    | Maintain docs/API vocabulary          | Keep as public candidate; clarify audience in 6b.      |
+| `@starbeam/service`   | Possible via umbrella, not settled | Possible app-scoped API, not settled | Used by renderer/adapter lifetimes   | Not primary                    | Adapter support and lifecycle wiring  | Move placement decision to 6c.                         |
+| `@starbeam/modifier`  | No direct API currently            | No direct API currently              | Historical element-attachment kernel | Not primary                    | Cleanup/deprecation candidate         | Keep internal candidate; cleanup decision moves to 6e. |
+| `@starbeam/universal` | Umbrella candidate                 | Umbrella candidate                   | May re-export shared concepts        | Should not expose raw protocol | Own public framework-agnostic story   | Move umbrella shape decision to 6d.                    |
+| `@starbeam/renderer`  | Not direct API                     | Not direct API                       | Primary adapter-author kit           | Possible implementor boundary  | Own shared setup/finalization kernels | Confirm adapter-author boundary in 6f.                 |
+
+Current conflicts to preserve for later PERs:
+
+- `@starbeam/resource` is public and active, but its README still documents old
+  `use` and resource-run vocabulary.
+- `@starbeam/service` is public and active, but its README is stale and
+  `@starbeam/universal` docs mention a `service` export that universal does not
+  currently provide.
+- `@starbeam/modifier` is repo-private and has no production consumers, but the
+  npm package exists historically; registry deprecation is separate from repo
+  cleanup.
+- `@starbeam/universal` is the umbrella candidate, but its current lifecycle
+  exports are partial.
+- `@starbeam/renderer` is the adapter-author kit. It should not become the
+  app/library umbrella to resolve lifecycle package placement.
+
+**What PER6a does not decide:** final package deprecations, export moves,
+manifest changes, generated artifact changes, or package README rewrites. Those
+belong in later PER6 sub-arcs after the audience matrix is explicit.
+
 ### Modifier / DOM attachment decision frame
 
 Direct imports of `@starbeam/modifier` are not the decision heuristic. The
