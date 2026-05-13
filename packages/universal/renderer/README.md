@@ -110,7 +110,7 @@ not direct exports from `@starbeam/renderer`.
 | --------------- | ----------------------- | ------------------ |
 | `setupReactive` | `() => Reactive<T>`     | [`Native<T>`]      |
 | `setupResource` | `IntoResourceBlueprint` | [`Native<T>`] [^1] |
-| `getService`    | `IntoResourceBlueprint` | [`Native<T>`]      |
+| `setupService`  | `IntoResourceBlueprint` | [`Native<T>`]      |
 
 [^1]:
     React's resource path is the public `useResource` hook, not a direct
@@ -136,10 +136,11 @@ The `setupResource` function takes a resource blueprint and returns a
 - The resource is created during the component's [Resource Setup Phase](#special-phases).
 - The resource is disposed during the component's [Cleanup Phase](#the-primary-phases).
 
-### `getService`
+### `setupService`
 
-The `getService` function takes a resource blueprint and gets a service instance
-for the current app as a [framework-native reactive value].
+The `setupService` function takes a resource blueprint and gets a service
+instance for the current app as a [framework-native reactive value]. Hook-style
+adapters may also expose `useService` for component render code.
 
 If the blueprint has already been instantiated for this app, the same instance
 is returned.
@@ -391,11 +392,11 @@ other, they are fundamental very similar:
 | Renderer | Setup API                            | Hook API            |
 | -------- | ------------------------------------ | ------------------- |
 | React    | `Lifecycle.service() via useSetup()` | `useService() => T` |
-| Preact   | `getService() => Signal<T>`          | `useService() => T` |
-| Solid    | `getService() => Signal<T>`          | N/A                 |
-| Vue      | `getService() => Ref<T>`             | N/A                 |
-| Svelte   | `getService() => ReadonlyStore<T>`   | N/A                 |
-| Ember    | `getService() => Reactive<T>`        | N/A                 |
+| Preact   | `setupService() => Signal<T>`        | `useService() => T` |
+| Solid    | `setupService() => Signal<T>`        | N/A                 |
+| Vue      | `setupService() => Ref<T>`           | N/A                 |
+| Svelte   | `setupService() => ReadonlyStore<T>` | N/A                 |
+| Ember    | `setupService() => Reactive<T>`      | N/A                 |
 
 [framework-native reactive value]: #framework-native-reactive-values
 

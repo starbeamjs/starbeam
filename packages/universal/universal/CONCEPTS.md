@@ -1,3 +1,12 @@
+> [!WARNING]
+> This document is historical and partially outdated. The service examples that
+> import `service` from `@starbeam/universal` predate the current package
+> surface: `@starbeam/universal` does not export `service` today. Current service
+> APIs are the framework adapter APIs (`useService` in React/Preact,
+> `setupService` in Preact/Vue) or the low-level `@starbeam/service` package.
+> Deciding whether `@starbeam/universal` should re-export service belongs to the
+> PER6d universal umbrella decision. The examples below are not rewritten here.
+
 ## Factories
 
 A factory is a function that returns a new reactive object.

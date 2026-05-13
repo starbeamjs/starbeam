@@ -152,10 +152,12 @@ single decision interface. PER6a should not settle every package fate. It should
 make the audience questions explicit enough that later PERs can make smaller
 decisions without duplicating ownership.
 
-**Current evidence:** Resources are a direct composition API. Services are
-app-scoped lifecycle machinery used by adapters and renderer. Modifier is
-historical element-attachment kernel evidence. Universal is the umbrella
-candidate. Renderer is the adapter-author kit that now owns
+**Current evidence:** Resources are a direct composition API. PER6c concluded
+that services remain a direct public package as low-level app-scoped machinery
+over resources, while primary app-facing service APIs live in framework
+adapters. Modifier is historical element-attachment kernel evidence. Universal
+is the umbrella candidate, and PER6d still owns whether it should re-export
+service. Renderer is the adapter-author kit that now owns
 `setupElementResource()`.
 
 **Sub-arcs:**
@@ -164,10 +166,13 @@ candidate. Renderer is the adapter-author kit that now owns
   audience and record the remaining decisions.
 - **6b. Resource docs/API vocabulary:** decide whether resource docs speak to
   app authors, library authors, or both.
-- **6c. Service placement:** decide whether service is direct API, universal
-  re-export, renderer-author API, or private adapter support.
+- **6c. Service placement:** completed docs-only. `@starbeam/service` remains a
+  public low-level app-scoped service kernel. Framework adapters remain the
+  primary app-facing service APIs. No universal re-export, manifest, export, or
+  artifact change was made.
 - **6d. Universal umbrella shape:** decide which lifecycle concepts universal
-  should re-export and document.
+  should re-export and document, including whether service belongs in the
+  universal umbrella.
 - **6e. Modifier cleanup:** decide whether modifier stays internal evidence,
   shrinks, or needs separate npm deprecation policy.
 - **6f. Renderer confirmation:** confirm renderer's adapter-author boundary now
@@ -179,8 +184,15 @@ candidate. Renderer is the adapter-author kit that now owns
 - one follow-up PER per package or audience;
 - later export or manifest changes only after the audience story is settled.
 
-**Validation:** docs diff for PER6a. Package-surface checks only if a later sub-arc
-changes manifests, exports, or generated artifacts.
+**PER6c conclusion:** The service placement conflict is resolved without package
+surface changes. `@starbeam/service` stays public as the low-level kernel for
+adapter/runtime and manual app integration. React `useService`, Preact
+`useService`/`setupService`, and Vue `setupService` are the app-author APIs.
+`@starbeam/universal` still does not re-export service; PER6d owns that umbrella
+decision.
+
+**Validation:** docs diff for PER6a/PER6c. Package-surface checks only if a
+later sub-arc changes manifests, exports, or generated artifacts.
 
 ## 7. Public primitive split: `@starbeam/reactive`
 
