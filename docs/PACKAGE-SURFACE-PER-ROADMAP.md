@@ -174,8 +174,9 @@ every public lifecycle API. Renderer is the adapter-author kit that now owns
   is the app/library umbrella for framework-neutral authoring concepts, not
   every public lifecycle API. No service re-export, manifest, export, or
   artifact change was made.
-- **6e. Modifier cleanup:** decide whether modifier stays internal evidence,
-  shrinks, or needs separate npm deprecation policy.
+- **6e. Modifier cleanup:** completed docs-only. `@starbeam/modifier` stays
+  internal historical evidence. Repo removal and npm deprecation are separate
+  follow-ups and were not performed in this PER.
 - **6f. Renderer confirmation:** confirm renderer's adapter-author boundary now
   that element-resource setup moved there.
 
@@ -197,8 +198,14 @@ from `@starbeam/universal`. `service`, `setupResource`, `ResourceList`,
 `SyncTo`, and `PrimitiveSyncTo` stay as direct imports from `@starbeam/service`
 or `@starbeam/resource` pending a later export-completion PER.
 
-**Validation:** docs diff for PER6a/PER6c/PER6d. Package-surface checks only if
-a later sub-arc changes manifests, exports, or generated artifacts.
+**PER6e conclusion:** The modifier cleanup policy is resolved without package or
+registry changes. `@starbeam/modifier` is internal historical evidence, and
+`ElementPlaceholder` is not the public DOM attachment API. Removing the repo
+package is a later code cleanup. Deprecating the historical npm package is a
+separate release-owner action.
+
+**Validation:** docs diff for PER6a/PER6c/PER6d/PER6e. Package-surface checks
+only if a later sub-arc changes manifests, exports, or generated artifacts.
 
 ## 7. Public primitive split: `@starbeam/reactive`
 

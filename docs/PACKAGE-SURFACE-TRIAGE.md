@@ -51,7 +51,7 @@ not settle final public/private status.
 | --------------------- | -------------------------------------------- | ------------------------------ | ------------------------------------ | ------------------------------ | ------------------------------------- | ----------------------------------------------------------------------------------- |
 | `@starbeam/resource`  | Likely direct API                            | Likely direct composition API  | Building block for adapter APIs      | Not primary                    | Maintain docs/API vocabulary          | Keep as public candidate; clarify audience in 6b.                                   |
 | `@starbeam/service`   | Low-level direct API; adapter APIs preferred | Low-level app-scoped API       | Used by renderer/adapter lifetimes   | Not primary                    | Adapter support and lifecycle wiring  | PER6c/PER6d: keep public low-level kernel; no universal re-export now.              |
-| `@starbeam/modifier`  | No direct API currently                      | No direct API currently        | Historical element-attachment kernel | Not primary                    | Cleanup/deprecation candidate         | Keep internal candidate; cleanup decision moves to 6e.                              |
+| `@starbeam/modifier`  | No direct API currently                      | No direct API currently        | Historical element-attachment kernel | Not primary                    | Cleanup/deprecation candidate         | PER6e: internal historical evidence; repo cleanup and npm deprecation are separate. |
 | `@starbeam/universal` | App/library authoring umbrella               | App/library authoring umbrella | May re-export shared concepts        | Should not expose raw protocol | Own public framework-agnostic story   | PER6d: umbrella over framework-neutral authoring concepts; export completion later. |
 | `@starbeam/renderer`  | Not direct API                               | Not direct API                 | Primary adapter-author kit           | Possible implementor boundary  | Own shared setup/finalization kernels | Confirm adapter-author boundary in 6f.                                              |
 
@@ -63,9 +63,10 @@ Current conflicts to preserve for later PERs:
   a public low-level app-scoped kernel over resources. Primary app-facing APIs
   are the framework adapter APIs. `@starbeam/universal` does not re-export
   service now.
-- `@starbeam/modifier` is repo-private and has no production consumers, but the
-  npm package exists historically; registry deprecation is separate from repo
-  cleanup.
+- `@starbeam/modifier` policy resolved in PER6e: it is repo-private internal
+  historical evidence, and `ElementPlaceholder` is not the public DOM attachment
+  API. Removing the repo package is a later code cleanup. Deprecating the
+  historical npm package is a separate release-owner action.
 - `@starbeam/universal` is the app/library umbrella for framework-neutral
   authoring concepts, but its current lifecycle exports are partial. `Resource`
   remains the current lifecycle authoring re-export. `setupResource`,
@@ -74,9 +75,10 @@ Current conflicts to preserve for later PERs:
 - `@starbeam/renderer` is the adapter-author kit. It should not become the
   app/library umbrella to resolve lifecycle package placement.
 
-**What PER6a/PER6d do not decide:** final package deprecations, export moves,
-manifest changes, generated artifact changes, or package README rewrites. Those
-belong in later PER6 sub-arcs after the audience and umbrella shape are explicit.
+**What PER6a/PER6c/PER6d/PER6e do not decide:** final package deprecations,
+export moves, manifest changes, generated artifact changes, or package README
+rewrites. Those belong in later PER6 sub-arcs after the audience, service
+placement, umbrella shape, and modifier cleanup policy are explicit.
 
 ### Modifier / DOM attachment decision frame
 
@@ -255,6 +257,12 @@ runs an `IntoResourceBlueprint<T>` for that element and ties cleanup to the
 framework lifetime. `ElementPlaceholder` does not encode `pending | attached`,
 resource setup, `on.sync` timing, cleanup, or element replacement. Treat it as
 internal historical kernel evidence, not as the public API shape.
+
+PER6e keeps `@starbeam/modifier` as internal historical evidence for now. The
+repo package has no production consumers, so a later code cleanup may remove it
+from the workspace. That cleanup is separate from npm registry deprecation: the
+published historical package needs an explicit release-owner decision and
+message, not an incidental repo deletion.
 
 ## Private packages with cleanup debt
 
