@@ -177,8 +177,12 @@ every public lifecycle API. Renderer is the adapter-author kit that now owns
 - **6e. Modifier cleanup:** completed docs-only. `@starbeam/modifier` stays
   internal historical evidence. Repo removal and npm deprecation are separate
   follow-ups and were not performed in this PER.
-- **6f. Renderer confirmation:** confirm renderer's adapter-author boundary now
-  that element-resource setup moved there.
+- **6f. Renderer confirmation:** completed docs-only. `@starbeam/renderer`
+  remains the public adapter-author kit. `setupElementResource()` is the shared
+  setup/finalization primitive for element-backed resources, while framework
+  adapters still own element delivery, scheduling, runtime subscription, value
+  publication, and replacement/unmount timing. No export, manifest, API, or
+  artifact change was made.
 
 **Possible outcomes:**
 
@@ -204,8 +208,16 @@ registry changes. `@starbeam/modifier` is internal historical evidence, and
 package is a later code cleanup. Deprecating the historical npm package is a
 separate release-owner action.
 
-**Validation:** docs diff for PER6a/PER6c/PER6d/PER6e. Package-surface checks
-only if a later sub-arc changes manifests, exports, or generated artifacts.
+**PER6f conclusion:** The renderer boundary is confirmed without package surface
+changes. `@starbeam/renderer` stays public for framework adapter authors, not app
+code. The current exports already match that story: manager/lifecycle vocabulary,
+shared manager helpers, resource conversion, and `setupElementResource()`. Vue
+and Svelte use `setupElementResource()` for direct element-delivery APIs; React
+and Preact keep element-resource setup inside hook/resource machinery.
+
+**Validation:** docs diff for PER6a/PER6c/PER6d/PER6e/PER6f. Package-surface
+checks only if a later sub-arc changes manifests, exports, or generated
+artifacts.
 
 ## 7. Public primitive split: `@starbeam/reactive`
 

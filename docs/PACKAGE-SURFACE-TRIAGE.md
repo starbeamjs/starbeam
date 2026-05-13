@@ -53,7 +53,7 @@ not settle final public/private status.
 | `@starbeam/service`   | Low-level direct API; adapter APIs preferred | Low-level app-scoped API       | Used by renderer/adapter lifetimes   | Not primary                    | Adapter support and lifecycle wiring  | PER6c/PER6d: keep public low-level kernel; no universal re-export now.              |
 | `@starbeam/modifier`  | No direct API currently                      | No direct API currently        | Historical element-attachment kernel | Not primary                    | Cleanup/deprecation candidate         | PER6e: internal historical evidence; repo cleanup and npm deprecation are separate. |
 | `@starbeam/universal` | App/library authoring umbrella               | App/library authoring umbrella | May re-export shared concepts        | Should not expose raw protocol | Own public framework-agnostic story   | PER6d: umbrella over framework-neutral authoring concepts; export completion later. |
-| `@starbeam/renderer`  | Not direct API                               | Not direct API                 | Primary adapter-author kit           | Possible implementor boundary  | Own shared setup/finalization kernels | Confirm adapter-author boundary in 6f.                                              |
+| `@starbeam/renderer`  | Not direct API                               | Not direct API                 | Primary adapter-author kit           | Possible implementor boundary  | Own shared setup/finalization kernels | PER6f: adapter-author boundary confirmed; no package surface change.                |
 
 Current conflicts to preserve for later PERs:
 
@@ -73,12 +73,15 @@ Current conflicts to preserve for later PERs:
   `ResourceList`, `SyncTo`, and `PrimitiveSyncTo` stay direct
   `@starbeam/resource` imports pending a later export-completion PER.
 - `@starbeam/renderer` is the adapter-author kit. It should not become the
-  app/library umbrella to resolve lifecycle package placement.
+  app/library umbrella to resolve lifecycle package placement. PER6f confirms
+  the current exports already match that story: manager/lifecycle vocabulary,
+  shared manager helpers, resource conversion, and `setupElementResource()`.
 
-**What PER6a/PER6c/PER6d/PER6e do not decide:** final package deprecations,
-export moves, manifest changes, generated artifact changes, or package README
-rewrites. Those belong in later PER6 sub-arcs after the audience, service
-placement, umbrella shape, and modifier cleanup policy are explicit.
+**What PER6a/PER6c/PER6d/PER6e/PER6f do not decide:** final package
+deprecations, export moves, manifest changes, generated artifact changes, or
+package README rewrites. Those belong in later PER6 sub-arcs after the audience,
+service placement, umbrella shape, modifier cleanup policy, and renderer boundary
+are explicit.
 
 ### Modifier / DOM attachment decision frame
 
