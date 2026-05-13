@@ -156,8 +156,8 @@ decisions without duplicating ownership.
 that services remain a direct public package as low-level app-scoped machinery
 over resources, while primary app-facing service APIs live in framework
 adapters. Modifier is historical element-attachment kernel evidence. Universal
-is the umbrella candidate, and PER6d still owns whether it should re-export
-service. Renderer is the adapter-author kit that now owns
+is the app/library umbrella for framework-neutral authoring primitives, not
+every public lifecycle API. Renderer is the adapter-author kit that now owns
 `setupElementResource()`.
 
 **Sub-arcs:**
@@ -170,9 +170,10 @@ service. Renderer is the adapter-author kit that now owns
   public low-level app-scoped service kernel. Framework adapters remain the
   primary app-facing service APIs. No universal re-export, manifest, export, or
   artifact change was made.
-- **6d. Universal umbrella shape:** decide which lifecycle concepts universal
-  should re-export and document, including whether service belongs in the
-  universal umbrella.
+- **6d. Universal umbrella shape:** completed docs-only. `@starbeam/universal`
+  is the app/library umbrella for framework-neutral authoring concepts, not
+  every public lifecycle API. No service re-export, manifest, export, or
+  artifact change was made.
 - **6e. Modifier cleanup:** decide whether modifier stays internal evidence,
   shrinks, or needs separate npm deprecation policy.
 - **6f. Renderer confirmation:** confirm renderer's adapter-author boundary now
@@ -188,11 +189,16 @@ service. Renderer is the adapter-author kit that now owns
 surface changes. `@starbeam/service` stays public as the low-level kernel for
 adapter/runtime and manual app integration. React `useService`, Preact
 `useService`/`setupService`, and Vue `setupService` are the app-author APIs.
-`@starbeam/universal` still does not re-export service; PER6d owns that umbrella
-decision.
+`@starbeam/universal` still does not re-export service.
 
-**Validation:** docs diff for PER6a/PER6c. Package-surface checks only if a
-later sub-arc changes manifests, exports, or generated artifacts.
+**PER6d conclusion:** The universal umbrella shape is resolved without package
+surface changes. `Resource` remains the current lifecycle authoring re-export
+from `@starbeam/universal`. `service`, `setupResource`, `ResourceList`,
+`SyncTo`, and `PrimitiveSyncTo` stay as direct imports from `@starbeam/service`
+or `@starbeam/resource` pending a later export-completion PER.
+
+**Validation:** docs diff for PER6a/PER6c/PER6d. Package-surface checks only if
+a later sub-arc changes manifests, exports, or generated artifacts.
 
 ## 7. Public primitive split: `@starbeam/reactive`
 

@@ -4,8 +4,8 @@
 > surface: `@starbeam/universal` does not export `service` today. Current service
 > APIs are the framework adapter APIs (`useService` in React/Preact,
 > `setupService` in Preact/Vue) or the low-level `@starbeam/service` package.
-> Deciding whether `@starbeam/universal` should re-export service belongs to the
-> PER6d universal umbrella decision. The examples below are not rewritten here.
+> PER6d decided not to re-export service from `@starbeam/universal` now. The
+> examples below are not rewritten here.
 
 ## Factories
 
