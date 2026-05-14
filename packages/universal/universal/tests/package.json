@@ -16,6 +16,7 @@
     "@starbeam/debug": "workspace:^",
     "@starbeam/resource": "workspace:^",
     "@starbeam/runtime": "workspace:^",
+    "@starbeam/shared": "workspace:^",
     "@starbeam/universal": "workspace:^"
   },
   "devDependencies": {

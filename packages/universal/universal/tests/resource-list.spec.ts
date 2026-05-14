@@ -15,15 +15,17 @@ interface Item {
   location: string;
 }
 
-const TOM_ID = 1;
-const CHIRAG_ID = 2;
-const JOHN_ID = 3;
+enum Id {
+  Tom = 1,
+  Chirag = 2,
+  John = 3,
+}
 
 describe("ResourceList", () => {
   test("is exported from the universal authoring surface", () => {
     const items: Item[] = reactive.array([
-      { id: TOM_ID, name: "Tom", location: "NYC" },
-      { id: CHIRAG_ID, name: "Chirag", location: "NYC" },
+      { id: Id.Tom, name: "Tom", location: "NYC" },
+      { id: Id.Chirag, name: "Chirag", location: "NYC" },
     ]);
 
     const List = ResourceList(items, {
@@ -56,7 +58,7 @@ describe("ResourceList", () => {
       { active: true, label: "Chirag (NYC)" },
     ]);
 
-    items.push({ id: JOHN_ID, name: "John", location: "LA" });
+    items.push({ id: Id.John, name: "John", location: "LA" });
     sync();
 
     expect(list.current.map((item) => item.current)).toEqual([

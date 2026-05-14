@@ -1183,6 +1183,9 @@ importers:
       '@starbeam/runtime':
         specifier: workspace:^
         version: link:../../runtime
+      '@starbeam/shared':
+        specifier: workspace:^
+        version: link:../../shared
       '@starbeam/universal':
         specifier: workspace:^
         version: link:..
