@@ -57,6 +57,38 @@ const privatePackageNames = new Set(
 
 const publicObjectPropertyContracts = [
   {
+    packageName: "@starbeam/tags",
+    file: "dist/index.production.js",
+    properties: [
+      { key: "at", pattern: /\.at\b/u },
+      { key: "bump", pattern: /\.bump\b/u },
+      { key: "dependencies", pattern: /\bdependencies\s*:/u },
+      { key: "description", pattern: /\bdescription\s*:/u },
+      { key: "lastUpdated", pattern: /\blastUpdated\b/u },
+      { key: "type", pattern: /\btype\s*:/u },
+    ],
+  },
+  {
+    packageName: "@starbeam/runtime",
+    file: "dist/index.production.js",
+    properties: [
+      { key: "consume", pattern: /\bconsume\s*:/u },
+      { key: "start", pattern: /\bstart\s*:/u },
+      { key: "subscribe", pattern: /\bsubscribe\s*:/u },
+    ],
+  },
+  {
+    packageName: "@starbeam/reactive",
+    file: "dist/index.production.js",
+    properties: [
+      { key: "current", pattern: /\bcurrent\s*\(/u },
+      { key: "freeze", pattern: /(?:\bfreeze\s*:|\.freeze\b|"freeze")/u },
+      { key: "read", pattern: /\bread\s*\(/u },
+      { key: "set", pattern: /(?:\bset\s*:|\.set\b|"set")/u },
+      { key: "update", pattern: /\bupdate\s*\(/u },
+    ],
+  },
+  {
     packageName: "@starbeam/renderer",
     file: "dist/index.production.js",
     properties: [
@@ -97,6 +129,7 @@ for (let pkg of publicPackages) {
   validateManifest(pkg);
   validateArtifacts(pkg);
   validatePublicObjectProperties(pkg);
+  validateStaleDeclarations(pkg);
 }
 
 if (errors.length > 0) {
@@ -243,6 +276,18 @@ function validatePublicObjectProperties(pkg) {
           file,
         );
       }
+    }
+  }
+}
+
+function validateStaleDeclarations(pkg) {
+  if (pkg.manifest.name !== "@starbeam/interfaces") {
+    return;
+  }
+
+  for (let file of findRootDeclarations(pkg)) {
+    if (/[/\\]src[/\\]protocol\.d\.[cm]?ts$/u.test(file)) {
+      fail(pkg, "stale protocol declaration is still emitted", file);
     }
   }
 }

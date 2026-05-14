@@ -104,7 +104,11 @@ name, production property mangling must preserve that name.
 
 Examples include framework interop keys such as Vue plugin and directive hooks,
 adapter handle keys such as `attach` and `directive`, and shared renderer
-instance keys such as `sync`, `value`, and `finalize`.
+instance keys such as `sync`, `value`, and `finalize`. They also include
+protocol and primitive keys used across separately built Starbeam packages, such
+as tag keys (`type`, `dependencies`, `lastUpdated`), runtime keys (`start`,
+`consume`, `subscribe`), and reactive value keys (`current`, `read`, `set`,
+`update`, `freeze`).
 
 The build configuration reserves these names from production property mangling,
 and `pnpm test:workspace:pack` verifies the relevant production artifacts keep

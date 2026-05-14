@@ -151,6 +151,15 @@ may hide implementation-shaped runtime exports, reserve protocol object keys,
 exclude stale declaration-only modules, or introduce a clearer protocol package.
 Each of those requires a separate Prepare with package artifact inspection.
 
+PER11 performs the first protocol artifact cleanup without changing package
+ownership. The stale `@starbeam/interfaces/src/protocol.ts` source file is
+removed so it no longer emits declaration-only protocol shapes that contradict
+the current root-exported tag protocol. Production property mangling now reserves
+protocol/runtime/reactive object keys used across separately built packages, and
+package-surface verification checks those keys in production artifacts. Existing
+`@internal` annotations remain documentation signals only; `stripInternal` is
+not enabled because compatibility exports still exist at runtime.
+
 ### Universal canonical import surface
 
 PER9 completes the first pass over `@starbeam/universal` as the canonical
