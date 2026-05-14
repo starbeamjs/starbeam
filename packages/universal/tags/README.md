@@ -1,5 +1,15 @@
 This package contains the implementation of "tags".
 
+## Package surface status
+
+`@starbeam/tags` is a low-level package for Starbeam implementors. It supports
+reactive primitives, renderers, and other protocol-level integrations that need
+to inspect or compose validation tags.
+
+It is not the normal app-author API. Most Starbeam code works with reactive
+values such as `Cell`, `Formula`, and `CachedFormula`, and lets those values own
+their tags internally.
+
 All reactive value are tagged values: they represent a JavaScript value and have
 a tag that can be used to composably validate the value.
 

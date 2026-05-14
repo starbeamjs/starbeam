@@ -4,6 +4,17 @@
 
 `@starbeam/runtime` is part of Starbeam, a library for building and using reactive objects in any framework.
 
+## Package surface status
+
+`@starbeam/runtime` is a public low-level package for Starbeam adapters and
+library implementors. It is not the normal app-author API. App authors should
+usually use a framework adapter, `@starbeam/universal`, or a package-level API
+such as `@starbeam/resource`.
+
+The current public surface is compatibility surface for adapter/runtime code.
+Some exports are implementation-shaped and may move behind clearer protocol
+boundaries in a later Prepare / Execute / Review (PER) cycle.
+
 ## Primitive
 
 `@starbeam/runtime` is stable, with the same [semver policy as Starbeam][starbeam semver policy].
@@ -79,44 +90,16 @@ These steps allow you to implement _framework-agnostic_ [resources] that can cor
 
 **In practice, these considerations are bundled together into the high-level "Stateful Formula" construct provided by [@starbeam/reactive].**
 
-## Timeline
+## Historical timeline model
 
-The `Timeline` in `@starbeam/runtime` coordinates these phases.
+Older Starbeam design notes described a public `Timeline` or `TIMELINE` export.
+That is no longer the current package surface. The current runtime entrypoint is
+the `RUNTIME` object plus focused helpers for rendering, subscriptions,
+finalization scopes, and app context.
 
-It starts out in the _Actions_ phase, which allows free access to the _data universe_. As soon as a _data cell_ in the _data universe_ is mutated, the `Timeline` schedules a _Render_ phase using the configured scheduler. By default, this will schedule a _Render_ phase during a microtask checkpoint, which occurs asynchronously, but before the next paint.
-
-### Scheduling
-
-The `Timeline` can be configured with a `Coordinator` (see [@starbeam/schedule]), which controls the exact details of the timeline's timing.
-
-The default behavior automatically schedules the next _Render_ phase using a microtask checkpoint, which means that it will happen asynchronously, but before the next time the browser paints the page. The purpose of the `Coordinator` is to allow you to make multiple mutations to the _data universe_ before a _Render_ phase occurs.
-
-You can specify a custom `Coordinator` to use an alternative strategy. For example, if you are writing a single-file demo, the entire file will finish running before a microtask checkpoint. You could create an API to use a single-file demo that automatically schedules _Render_ phases at appropriate times.
-
-Finally, you can also explicitly schedule a _Render_ phase, which will supersede the `Coordinator`'s policy and simply wait until you're ready to render.
-
-```ts
-import { TIMELINE } from "@starbeam/runtime";
-import { Cell } from "@starbeam/reactive";
-
-const person = reactive({
-  id: null,
-  name: "@tomdale",
-});
-const name = Cell("Tom");
-const userId = Cell(null);
-
-function multiStepProcess(name, url) {
-  const render = TIMELINE.manualRenderPhase();
-
-  person.name = name;
-
-  fetch(url).then((data) => {
-    person.id = data.id;
-    render();
-  });
-}
-```
+The rest of this document still uses the timeline vocabulary as a conceptual
+model for Starbeam's action/render cycle. Treat it as architecture background,
+not current API reference.
 
 ## Moving Along the Timeline
 
@@ -170,10 +153,10 @@ Starbeam uses the _structured finalizer_ approach to make finalization composabl
 
 ### Example: The Resource Pattern
 
-Let's see how this all fits together. We'll use the resource pattern from `@starbeam/reactive` to create an `ElementSize` resource.
+Let's see how this all fits together. We'll use the resource pattern from `@starbeam/resource` to create an `ElementSize` resource.
 
 ```ts
-import { Resource } from "@starbeam/reactive";
+import { Resource } from "@starbeam/resource";
 
 export function ElementSize(element: Element) {
   return Resource((resource) => {

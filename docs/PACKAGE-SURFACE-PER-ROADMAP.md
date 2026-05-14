@@ -279,8 +279,22 @@ PER6 matrix and ask only what protocol/core compatibility decisions remain.
 - future `@starbeam/protocol` proposal;
 - explicit 0.9 compatibility policy for `@starbeam/core`.
 
-**Validation:** docs and package artifact inspection until export moves are
-proposed.
+**PER8 conclusion:** The protocol surface is recorded as an audience taxonomy,
+with no manifest, export, generated artifact, or runtime behavior change.
+`@starbeam/runtime` is the clearest adapter/implementor protocol package.
+`@starbeam/tags` is low-level validation substrate for primitive and rendering
+implementors, not normal app code. `@starbeam/interfaces` is published type
+substrate for Starbeam packages and implementors, not a direct app/library API.
+`@starbeam/core` is a deprecated compatibility alias for `@starbeam/universal`,
+retained for old imports while new code uses `@starbeam/universal`.
+
+A future `@starbeam/protocol` package may be clearer, but current evidence does
+not justify creating it in this PER. Export, manifest, artifact, and protocol-key
+policy changes need their own Prepare because published JavaScript and generated
+declarations are part of the release surface.
+
+**Validation:** docs diff for the taxonomy and compatibility policy. Package
+artifact inspection before any later export, manifest, or protocol-key move.
 
 ## Suggested order
 

@@ -35,12 +35,12 @@ current package names are the right public surface.
 | ---------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | `@starbeam/modifier`   | Internal element-attachment kernel; mandatory post-surface hardening candidate | Represents the ref/directive/modifier part of complete framework reactivity. The basic idea composes resources, element availability, and framework lifetimes. Historically backed React refs and universal element resources. | React and Preact now prove matching `useElementResource` leaves. Vue now proves that a directive can own an element resource lifetime. `@starbeam/modifier` still only exposes `ElementPlaceholder`. | Keep internal. Decide the shared element-resource vocabulary boundary before moving it into any public package.               |
 | `@domtree/*`           | Internal DOM-type substrate; tied to modifier hardening                        | Type-level DOM flavor normalization: write DOM algorithms against minimal structural DOM while preserving browser/JSDOM/range types.                                                                                           | Original DOM renderer is gone; current active leak is mostly through `@starbeam/modifier` and stale manifests.                                                                                       | Keep internal unless modifier/renderer hardening proves public authors need these types directly.                             |
-| `@starbeam/interfaces` | Decision needed / protocol surface                                             | Internal protocol type boundary for runtime/tags/reactive/debug without cycles.                                                                                                                                                | No README, special `library:interfaces`, stale-looking `src/protocol.ts`, stale `@domtree/any` manifest dependency, broad declaration leakage.                                                       | Decide whether protocol types are public. Consider a better public `@starbeam/protocol` surface or re-export strategy.        |
-| `@starbeam/tags`       | Decision needed                                                                | Validation/tag substrate extracted from runtime; core of demand-driven validation.                                                                                                                                             | Low-level implementor API, not normal app-user API.                                                                                                                                                  | Bless as implementor API or hide behind `reactive`/`runtime`.                                                                 |
-| `@starbeam/runtime`    | Decision needed                                                                | Runtime coordination, subscriptions, finalization scopes; intentionally split from reactive primitives.                                                                                                                        | README says stable for libraries but not app code; public exports are low-level.                                                                                                                     | Decide whether runtime/library authors are supported. Refresh docs if public.                                                 |
+| `@starbeam/interfaces` | Published protocol type substrate                                              | Internal protocol type boundary for runtime/tags/reactive/debug without cycles.                                                                                                                                                | Type-only package with special `library:interfaces`; not app-facing; current name is less clear than a future protocol package might be.                                                             | Keep as published type substrate for now. Document audience. Consider a future `@starbeam/protocol` only in a later PER.      |
+| `@starbeam/tags`       | Implementor validation substrate                                               | Validation/tag substrate extracted from runtime; core of demand-driven validation.                                                                                                                                             | Low-level implementor API, not normal app-user API.                                                                                                                                                  | Keep public as implementor-focused substrate for now. Do not treat as app/library API.                                        |
+| `@starbeam/runtime`    | Adapter/implementor protocol surface                                           | Runtime coordination, subscriptions, finalization scopes; intentionally split from reactive primitives.                                                                                                                        | Public exports are low-level and include some implementation-shaped pieces.                                                                                                                          | Keep public for adapters and library implementors. Keep app authors on adapter and universal APIs.                            |
 | `@starbeam/reactive`   | Public primitive surface, needs split                                          | Primitive reactive values are documented and useful to library authors.                                                                                                                                                        | Exports include runtime wiring/debug/tracking-frame substrate, not just public primitives.                                                                                                           | Keep public for primitives. Move/hide runtime wiring and tracking internals behind internal or future author-facing surfaces. |
 | `@starbeam/universal`  | Public app/library umbrella                                                    | Best current framework-agnostic entrypoint over cells, formulas, resources, and common authoring concepts.                                                                                                                     | Current lifecycle exports are intentionally partial. `Resource` is re-exported; service and resource helper exports stay direct pending later export cleanup.                                        | Document as the framework-neutral app/library umbrella. Defer export cleanup/completion to a later PER.                       |
-| `@starbeam/core`       | Compatibility decision                                                         | Deprecated alias over `@starbeam/universal`.                                                                                                                                                                                   | Root badge still points at it, but code is only a warning + re-export.                                                                                                                               | Decide old-import compatibility policy for 0.9.                                                                               |
+| `@starbeam/core`       | Deprecated compatibility alias                                                 | Deprecated alias over `@starbeam/universal`.                                                                                                                                                                                   | Code is only a warning + re-export, and lint rules forbid new imports.                                                                                                                               | Retain for old imports through 0.9 while directing new code to `@starbeam/universal`.                                         |
 
 ### Lifecycle package audience matrix
 
@@ -120,6 +120,37 @@ tracking-frame APIs toward an adapter-author or runtime-owned surface, move
 debug setup behind debug/runtime initialization, or tighten `@starbeam/universal`
 re-exports. Those changes need declaration and artifact inspection because
 published JavaScript and generated declarations are part of the package surface.
+
+### Protocol surfaces and compatibility policy
+
+PER8 classifies protocol-oriented packages without moving exports, changing
+manifests, or regenerating artifacts.
+
+**Adapter/implementor protocol:** `@starbeam/runtime` is the clearest supported
+low-level protocol package. It coordinates rendering, subscriptions, app context,
+and finalization scopes for Starbeam adapters and library implementors. It is not
+the normal app-author API; app authors should use framework adapters,
+`@starbeam/universal`, and package-level APIs such as `@starbeam/resource`.
+
+**Validation substrate:** `@starbeam/tags` is low-level demand-driven validation
+machinery. It is public for people implementing reactive primitives, renderers,
+or other protocol-level integrations, not for ordinary application code.
+
+**Type substrate:** `@starbeam/interfaces` is a published, type-only substrate
+for Starbeam packages and implementors. Its current name and generated
+declaration shape may justify a future `@starbeam/protocol` proposal, but PER8
+does not create that package or move types.
+
+**Compatibility alias:** `@starbeam/core` is a deprecated alias for
+`@starbeam/universal`. It stays available for old imports during the 0.9 line,
+while new code should import from `@starbeam/universal` or a more specific
+package. Lint rules should continue to reject new workspace imports from
+`@starbeam/core`.
+
+This is a compatibility and audience policy, not an artifact cleanup. Later work
+may hide implementation-shaped runtime exports, reserve protocol object keys,
+exclude stale declaration-only modules, or introduce a clearer protocol package.
+Each of those requires a separate Prepare with package artifact inspection.
 
 ### Modifier / DOM attachment decision frame
 
