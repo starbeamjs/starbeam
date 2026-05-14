@@ -5,7 +5,8 @@
 > APIs are the framework adapter APIs (`useService` in React/Preact,
 > `setupService` in Preact/Vue) or the low-level `@starbeam/service` package.
 > PER6d decided not to re-export service from `@starbeam/universal` now. The
-> examples below are not rewritten here.
+> examples below are not rewritten here. See [README.md](./README.md) for the
+> current canonical `@starbeam/universal` import surface.
 
 ## Factories
 

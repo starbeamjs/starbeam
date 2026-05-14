@@ -39,7 +39,7 @@ current package names are the right public surface.
 | `@starbeam/tags`       | Implementor validation substrate                                               | Validation/tag substrate extracted from runtime; core of demand-driven validation.                                                                                                                                             | Low-level implementor API, not normal app-user API.                                                                                                                                                  | Keep public as implementor-focused substrate for now. Do not treat as app/library API.                                        |
 | `@starbeam/runtime`    | Adapter/implementor protocol surface                                           | Runtime coordination, subscriptions, finalization scopes; intentionally split from reactive primitives.                                                                                                                        | Public exports are low-level and include some implementation-shaped pieces.                                                                                                                          | Keep public for adapters and library implementors. Keep app authors on adapter and universal APIs.                            |
 | `@starbeam/reactive`   | Public primitive surface, needs split                                          | Primitive reactive values are documented and useful to library authors.                                                                                                                                                        | Exports include runtime wiring/debug/tracking-frame substrate, not just public primitives.                                                                                                           | Keep public for primitives. Move/hide runtime wiring and tracking internals behind internal or future author-facing surfaces. |
-| `@starbeam/universal`  | Public app/library umbrella                                                    | Best current framework-agnostic entrypoint over cells, formulas, resources, and common authoring concepts.                                                                                                                     | Current lifecycle exports are intentionally partial. `Resource` is re-exported; service and resource helper exports stay direct pending later export cleanup.                                        | Document as the framework-neutral app/library umbrella. Defer export cleanup/completion to a later PER.                       |
+| `@starbeam/universal`  | Public app/library umbrella                                                    | Best current framework-agnostic entrypoint over cells, formulas, resources, and common authoring concepts.                                                                                                                     | PER9 adds `ResourceList` and documents compatibility-only lower-level exports. Service and low-level setup/sync helpers stay direct package imports.                                                 | Use as the canonical framework-neutral app/library import surface.                                                            |
 | `@starbeam/core`       | Deprecated compatibility alias                                                 | Deprecated alias over `@starbeam/universal`.                                                                                                                                                                                   | Code is only a warning + re-export, and lint rules forbid new imports.                                                                                                                               | Retain for old imports through 0.9 while directing new code to `@starbeam/universal`.                                         |
 
 ### Lifecycle package audience matrix
@@ -68,10 +68,9 @@ Current conflicts to preserve for later PERs:
   API. Removing the repo package is a later code cleanup. Deprecating the
   historical npm package is a separate release-owner action.
 - `@starbeam/universal` is the app/library umbrella for framework-neutral
-  authoring concepts, but its current lifecycle exports are partial. `Resource`
-  remains the current lifecycle authoring re-export. `setupResource`,
-  `ResourceList`, `SyncTo`, and `PrimitiveSyncTo` stay direct
-  `@starbeam/resource` imports pending a later export-completion PER.
+  authoring concepts. PER9 adds `ResourceList` alongside `Resource` as a
+  resource authoring re-export. `setupResource`, `SyncTo`, and
+  `PrimitiveSyncTo` stay direct `@starbeam/resource` imports.
 - `@starbeam/renderer` is the adapter-author kit. It should not become the
   app/library umbrella to resolve lifecycle package placement. PER6f confirms
   the current exports already match that story: manager/lifecycle vocabulary,
@@ -151,6 +150,30 @@ This is a compatibility and audience policy, not an artifact cleanup. Later work
 may hide implementation-shaped runtime exports, reserve protocol object keys,
 exclude stale declaration-only modules, or introduce a clearer protocol package.
 Each of those requires a separate Prepare with package artifact inspection.
+
+### Universal canonical import surface
+
+PER9 completes the first pass over `@starbeam/universal` as the canonical
+framework-neutral app/library import surface.
+
+**Canonical app/library exports:** `Cell`, `Marker`, `Formula`,
+`CachedFormula`, `Static`, `read`, `Reactive`, `Equality`, `FormulaFn`,
+`Resource`, `ResourceList`, `ResourceBlueprint`, and `IntoResourceBlueprint` are
+the imports to teach in framework-neutral examples.
+
+**Higher-level helper exports:** `FormulaList`, `Freshness`, and `Variants`
+remain exported from `@starbeam/universal`. They need fuller public docs before
+the documentation website treats them as primary concepts.
+
+**Direct package imports:** `setupResource`, `SyncTo`, and `PrimitiveSyncTo`
+remain direct `@starbeam/resource` imports. `service`, `Service`, and
+`getServiceFormula` remain direct `@starbeam/service` imports or framework
+adapter APIs.
+
+**Compatibility exports:** `DEBUG`, `DEBUG_RENDERER`, `CONTEXT`, `RUNTIME`, and
+`TAG` remain exported for existing integrations, but they are not the canonical
+app/library authoring surface. Compatibility exports may be marked `@internal`
+or moved in a later protocol/debug cleanup, but PER9 does not remove them.
 
 ### Modifier / DOM attachment decision frame
 

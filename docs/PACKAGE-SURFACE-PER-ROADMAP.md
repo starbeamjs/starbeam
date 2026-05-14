@@ -296,6 +296,44 @@ declarations are part of the release surface.
 **Validation:** docs diff for the taxonomy and compatibility policy. Package
 artifact inspection before any later export, manifest, or protocol-key move.
 
+## 9. Universal canonical import surface
+
+**Question:** What should `@starbeam/universal` export as the canonical
+framework-neutral app/library authoring surface?
+
+PER6d classified `@starbeam/universal` as the app/library umbrella, but deferred
+export completion. PER7 and PER8 classified reactive and protocol exports so the
+umbrella can distinguish canonical app/library imports from compatibility
+exports.
+
+**Prepare should classify:**
+
+- canonical reactive/resource exports to teach in app and library examples;
+- resource helpers that belong in the umbrella;
+- service, setup, sync, debug, runtime, and protocol exports that should stay
+  direct-package imports or compatibility-only exports;
+- generated declaration and JavaScript artifact effects of any export change.
+
+**Possible outcomes:**
+
+- docs-only canonical import policy;
+- add missing app/library resource exports;
+- mark lower-level compatibility exports as `@internal` without removing them;
+- defer removal of debug/runtime/protocol exports to later protocol cleanup.
+
+**PER9 conclusion:** `@starbeam/universal` is the canonical framework-neutral
+app/library authoring surface. It re-exports `ResourceList` alongside
+`Resource`, `Cell`, `Marker`, `Formula`, `CachedFormula`, `Static`, `read`, and
+their authoring types. Low-level setup/sync APIs (`setupResource`, `SyncTo`, and
+`PrimitiveSyncTo`) remain direct `@starbeam/resource` imports. Service APIs stay
+direct `@starbeam/service` imports or framework adapter APIs. Existing
+debug/runtime/protocol exports remain for compatibility and are not taught as
+the app/library surface.
+
+**Validation:** universal/resource/core typechecks, universal build, debug
+bootstrap, package-surface pack verification, and artifact inspection when the
+`ResourceList` export is added.
+
 ## Suggested order
 
 1. Renderer reflow and README closeout.
@@ -306,6 +344,7 @@ artifact inspection before any later export, manifest, or protocol-key move.
 6. Lifecycle package disposition and audience matrix.
 7. `@starbeam/reactive` primitive split.
 8. Protocol surfaces and core compatibility policy.
+9. Universal canonical import surface.
 
 The first five are cleanup and confidence work following the DOM attachment arc.
 The last three reopen the broader package-surface roadmap.
