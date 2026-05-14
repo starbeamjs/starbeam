@@ -8,7 +8,7 @@
 
 ## Reviewer notes (optional)
 
-<!-- Optional. Delete this section if there is nothing specific reviewers should know. -->
+<!-- Optional. Delete this section if there is nothing specific reviewers should know. Do not enumerate local validation steps; mention only unexpected failures, caveats, or reviewer-relevant commands. -->
 
 ## User-facing changes (optional)
 
