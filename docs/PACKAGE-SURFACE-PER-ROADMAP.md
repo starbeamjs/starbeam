@@ -227,6 +227,11 @@ wiring, debug, and tracking-frame internals?
 **Current evidence:** `@starbeam/reactive` is useful public surface area, but it
 also exports low-level substrate.
 
+PER7 classifies the current surface before moving exports. The package stays
+public for primitive reactive values. Tracking-frame exports, runtime
+registration, protocol helpers, and debug wiring remain exported for now because
+current adapters, runtime packages, and debug setup import them directly.
+
 **Prepare should classify:**
 
 - app/library-facing primitives;
@@ -240,7 +245,17 @@ also exports low-level substrate.
 - export cleanup plan;
 - package split proposal such as `@starbeam/reactivity`.
 
-**Validation:** declaration and artifact inspection before any export move.
+**PER7 conclusion:** The primitive split is recorded as a taxonomy, with no
+manifest, export, generated artifact, or runtime behavior change. The
+app/library-facing primitive surface is `Cell`, `Marker`, `Formula`,
+`CachedFormula`, `Static`, `read`, and primitive helper types. Runtime
+registration, tracking frames, tag/protocol guards, and debug setup are not
+app/library primitives, but they cannot be hidden until their adapter/runtime
+callers have a replacement import path. A package split such as
+`@starbeam/reactivity` is not justified by the current evidence.
+
+**Validation:** docs diff for the taxonomy. Declaration and artifact inspection
+before any later export move.
 
 ## 8. Protocol surfaces and compatibility policy
 

@@ -1,5 +1,16 @@
 This package contains the implementations of the reactive primitives.
 
+## Package surface status
+
+`@starbeam/reactive` is public for primitive reactive values such as `Cell`,
+`Marker`, `Formula`, and `CachedFormula`.
+
+The package currently also exports lower-level tracking-frame, runtime setup,
+protocol, and debug helpers used by Starbeam adapters and runtime packages.
+Those exports are not the app/library primitive surface described in this
+README. They remain exported for compatibility while their long-term package
+home is decided.
+
 Reactive primitives must be used with an implementation of `Runtime`, which
 basically means that they must be used together with `@starbeam/runtime`.
 

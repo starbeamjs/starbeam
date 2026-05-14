@@ -83,6 +83,44 @@ package README rewrites. Those belong in later PER6 sub-arcs after the audience,
 service placement, umbrella shape, modifier cleanup policy, and renderer boundary
 are explicit.
 
+### Reactive primitive split
+
+PER7 classifies `@starbeam/reactive` without moving exports. The package
+remains public because primitive reactive values are direct library-author
+building blocks. Its current root export is broader than that app/library
+primitive story: framework adapters, runtime setup, debug setup, and protocol
+code also import from it today.
+
+**App/library primitive surface:** keep `Cell`, `Marker`, `Formula`, and
+`CachedFormula` public. These are the documented reactive values.
+
+**Primitive helpers and authoring types:** keep `Static`, `read`,
+`CellOptions`, `Equality`, `FormulaFn`, and `ReadValue` public for now. `Static`
+and `read` are already part of the umbrella surface, and the helper types support
+public APIs.
+
+**Ambiguous helper surface:** keep `isReactive`, `intoReactive`, and
+`isFormulaFn` exported for now. Decide later whether each is author-facing
+convenience or adapter/runtime helper.
+
+**Adapter/runtime tracking-frame substrate:** `startFrame`, `finishFrame`,
+`TrackingFrame`, `StartTrackingFrame`, and the related frame types are not
+app/library primitives. Do not hide them until Vue and Preact have replacement
+import paths.
+
+**Runtime/protocol wiring:** `defineRuntime` and `isTagged` are not app/library
+primitives. Keep them until runtime/protocol ownership is settled.
+
+**Debug wiring:** `DEBUG`, `defineDebug`, and `UNKNOWN_REACTIVE_VALUE` are not
+primitive authoring API. Keep `DEBUG` under review because it is re-exported
+through `@starbeam/universal`.
+
+This is a taxonomy result, not an export cleanup. Later work may move
+tracking-frame APIs toward an adapter-author or runtime-owned surface, move
+debug setup behind debug/runtime initialization, or tighten `@starbeam/universal`
+re-exports. Those changes need declaration and artifact inspection because
+published JavaScript and generated declarations are part of the package surface.
+
 ### Modifier / DOM attachment decision frame
 
 Direct imports of `@starbeam/modifier` are not the decision heuristic. The
