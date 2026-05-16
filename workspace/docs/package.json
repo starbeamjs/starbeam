@@ -1,0 +1,22 @@
+{
+  "private": true,
+  "name": "@starbeam-workspace/docs",
+  "type": "module",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "astro build",
+    "dev": "astro dev",
+    "preview": "astro preview",
+    "test:lint": "eslint src --max-warnings 0",
+    "test:types": "astro check"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@astrojs/starlight": "^0.35.3",
+    "astro": "^5.18.1",
+    "typescript": "$typescript"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

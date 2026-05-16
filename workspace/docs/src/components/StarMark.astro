@@ -1,0 +1,32 @@
+---
+import starbeamMark from "../assets/starbeam-mark.png";
+
+interface Props {
+  class?: string;
+  size?: number;
+}
+
+const { class: className, size = 64 } = Astro.props;
+---
+
+<img
+  alt=""
+  aria-hidden="true"
+  class:list={["star-mark", className]}
+  decoding="async"
+  height={starbeamMark.height}
+  loading="eager"
+  src={starbeamMark.src}
+  style={`--star-mark-size: ${size}px`}
+  width={starbeamMark.width}
+/>
+
+<style>
+  .star-mark {
+    block-size: auto;
+    display: block;
+    filter: drop-shadow(0 22px 34px rgb(30 36 54 / 18%));
+    inline-size: var(--star-mark-size);
+    object-fit: contain;
+  }
+</style>

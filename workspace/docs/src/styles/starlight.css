@@ -1,0 +1,64 @@
+@import "./tokens.css";
+
+:root {
+  --sl-color-accent-low: #d8f8f6;
+  --sl-color-accent: var(--starbeam-link);
+  --sl-color-accent-high: var(--starbeam-ink);
+  --sl-color-white: #ffffff;
+  --sl-color-gray-1: #f7fafb;
+  --sl-color-gray-2: #edf4f6;
+  --sl-color-gray-3: #d7e3e7;
+  --sl-color-gray-4: #9eabb8;
+  --sl-color-gray-5: #68758a;
+  --sl-color-gray-6: #36405a;
+  --sl-color-black: var(--starbeam-ink);
+  --sl-font: var(--starbeam-font-ui);
+  --sl-font-mono: var(--starbeam-font-mono);
+}
+
+body {
+  background:
+    radial-gradient(circle at 90% 8%, rgb(0 194 179 / 12%), transparent 28rem),
+    linear-gradient(180deg, #ffffff 0%, var(--starbeam-page) 100%);
+  color: var(--starbeam-text);
+}
+
+:focus-visible {
+  outline: 3px solid var(--starbeam-focus);
+  outline-offset: 3px;
+}
+
+.site-title,
+h1,
+h2 {
+  color: var(--starbeam-ink);
+}
+
+h1 {
+  font-family: var(--starbeam-font-display);
+  letter-spacing: -0.04em;
+}
+
+a {
+  color: var(--starbeam-link);
+}
+
+code {
+  background: var(--starbeam-code-background);
+  border-radius: var(--starbeam-radius-sm);
+}
+
+.sl-markdown-content .starlight-aside {
+  border-radius: var(--starbeam-radius-md);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
