@@ -203,6 +203,18 @@ starlight-theme-select {
   border-radius: var(--starbeam-radius-lg);
   color: var(--starbeam-muted);
   box-shadow: var(--starbeam-shadow-soft);
+  min-width: 0;
+  text-align: start;
+}
+
+.pagination-links a[rel="next"] {
+  flex-direction: row;
+  justify-content: flex-start;
+  text-align: start;
+}
+
+.pagination-links a > span {
+  min-width: 0;
 }
 
 .pagination-links a:hover {
@@ -213,8 +225,10 @@ starlight-theme-select {
 .pagination-links .link-title {
   color: var(--starbeam-ink);
   font-family: var(--starbeam-font-display);
+  font-size: clamp(1.35rem, 5vw, 2rem);
   font-weight: 500;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.025em;
+  overflow-wrap: anywhere;
 }
 
 .sl-markdown-content .starlight-aside {
@@ -226,6 +240,12 @@ starlight-theme-select {
 
 .sl-markdown-content .starlight-aside__title {
   color: var(--starbeam-ink);
+}
+
+.sl-markdown-content blockquote:not(:where(.not-content *)) {
+  border-inline-start: 0.2rem solid var(--starbeam-beam);
+  color: var(--starbeam-ink);
+  font-weight: 750;
 }
 
 @media (max-width: 49.999rem) {

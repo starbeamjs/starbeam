@@ -22,6 +22,8 @@
   --starbeam-docs-panel: rgb(255 255 255 / 74%);
   --starbeam-docs-panel-border: rgb(30 36 54 / 10%);
   --starbeam-docs-accent-soft: rgb(0 194 179 / 12%);
+  --starbeam-glass-rail: rgb(255 255 255 / 72%);
+  --starbeam-glass-border: rgb(255 255 255 / 82%);
 
   --starbeam-radius-sm: 0.5rem;
   --starbeam-radius-md: 0.875rem;

@@ -1,5 +1,6 @@
 ---
 import BrandHero from "../components/BrandHero.astro";
+import StarMark from "../components/StarMark.astro";
 import "../styles/tokens.css";
 ---
 
@@ -16,7 +17,7 @@ import "../styles/tokens.css";
   <body>
     <header class="topbar">
       <a class="brand" href="/" aria-label="Starbeam home">
-        <span class="brand__spark" aria-hidden="true">✦</span>
+        <StarMark class="brand__mark" />
         <span>Starbeam</span>
       </a>
       <nav aria-label="Primary navigation">
@@ -97,10 +98,9 @@ import "../styles/tokens.css";
     text-transform: uppercase;
   }
 
-  .brand__spark {
-    color: var(--starbeam-beam);
-    font-size: 1.5rem;
-    letter-spacing: 0;
+  .brand__mark {
+    filter: drop-shadow(0 8px 14px rgb(30 36 54 / 10%));
+    --star-mark-size: 2.35rem;
   }
 
   nav {
@@ -151,19 +151,16 @@ import "../styles/tokens.css";
 
   .principle-grid {
     display: grid;
-    gap: 0;
+    gap: clamp(0.85rem, 2vw, 1.25rem);
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   article {
-    background: linear-gradient(180deg, rgb(255 255 255 / 60%), rgb(255 255 255 / 28%));
-    border-block-start: 1px solid rgb(30 36 54 / 10%);
-    padding: clamp(1.2rem, 3vw, 2rem) clamp(1rem, 3vw, 2rem) clamp(1.2rem, 3vw, 2rem) 0;
-  }
-
-  article + article {
-    border-inline-start: 1px solid rgb(30 36 54 / 9%);
-    padding-inline-start: clamp(1rem, 3vw, 2rem);
+    background: var(--starbeam-glass-rail);
+    border: 1px solid var(--starbeam-glass-border);
+    border-radius: var(--starbeam-radius-lg);
+    box-shadow: var(--starbeam-shadow-soft);
+    padding: clamp(1.2rem, 3vw, 2rem);
   }
 
   article span {
@@ -199,11 +196,6 @@ import "../styles/tokens.css";
 
     .principle-grid {
       grid-template-columns: 1fr;
-    }
-
-    article + article {
-      border-inline-start: 0;
-      padding-inline-start: 0;
     }
   }
 </style>
