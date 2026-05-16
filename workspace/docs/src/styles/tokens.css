@@ -17,6 +17,11 @@
   --starbeam-border: color-mix(in srgb, var(--starbeam-ink) 12%, transparent);
   --starbeam-code-background: #f0fbfb;
   --starbeam-callout-background: #f5fcfc;
+  --starbeam-docs-nav: rgb(255 255 255 / 84%);
+  --starbeam-docs-sidebar: #fbfdfd;
+  --starbeam-docs-panel: rgb(255 255 255 / 74%);
+  --starbeam-docs-panel-border: rgb(30 36 54 / 10%);
+  --starbeam-docs-accent-soft: rgb(0 194 179 / 12%);
 
   --starbeam-radius-sm: 0.5rem;
   --starbeam-radius-md: 0.875rem;

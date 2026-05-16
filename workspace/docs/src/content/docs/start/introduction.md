@@ -3,8 +3,6 @@ title: Introduction
 description: Start here for the first public Starbeam docs path.
 ---
 
-# Introduction
-
 Starbeam's first-run docs will start here.
 
 The scaffold keeps this page intentionally small. Real content should follow the positioning memo:

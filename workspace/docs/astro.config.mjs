@@ -8,6 +8,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: "Starbeam",
+      description: "Starbeam is a joyful reactivity engine for JavaScript applications.",
       customCss: ["./src/styles/starlight.css"],
       social: [
         {

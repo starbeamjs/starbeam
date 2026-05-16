@@ -4,23 +4,45 @@
   --sl-color-accent-low: #d8f8f6;
   --sl-color-accent: var(--starbeam-link);
   --sl-color-accent-high: var(--starbeam-ink);
-  --sl-color-white: #ffffff;
-  --sl-color-gray-1: #f7fafb;
-  --sl-color-gray-2: #edf4f6;
-  --sl-color-gray-3: #d7e3e7;
+  --sl-color-bg: var(--starbeam-page);
+  --sl-color-bg-nav: var(--starbeam-docs-nav);
+  --sl-color-bg-sidebar: var(--starbeam-docs-sidebar);
+  --sl-color-bg-inline-code: var(--starbeam-code-background);
+  --sl-color-bg-accent: var(--starbeam-link);
+  --sl-color-text: var(--starbeam-text);
+  --sl-color-text-accent: var(--starbeam-link);
+  --sl-color-text-invert: #ffffff;
+  --sl-color-hairline: var(--starbeam-docs-panel-border);
+  --sl-color-hairline-light: rgb(30 36 54 / 7%);
+  --sl-color-hairline-shade: rgb(30 36 54 / 12%);
+  --sl-color-white: var(--starbeam-ink);
+  --sl-color-gray-1: #2d3550;
+  --sl-color-gray-2: #4b556d;
+  --sl-color-gray-3: #68758a;
   --sl-color-gray-4: #9eabb8;
-  --sl-color-gray-5: #68758a;
-  --sl-color-gray-6: #36405a;
-  --sl-color-black: var(--starbeam-ink);
+  --sl-color-gray-5: #d7e3e7;
+  --sl-color-gray-6: #edf4f6;
+  --sl-color-black: #ffffff;
   --sl-font: var(--starbeam-font-ui);
   --sl-font-mono: var(--starbeam-font-mono);
+  --sl-shadow-sm: 0 4px 16px rgb(30 36 54 / 6%);
+  --sl-shadow-md: var(--starbeam-shadow-soft);
 }
 
 body {
   background:
-    radial-gradient(circle at 90% 8%, rgb(0 194 179 / 12%), transparent 28rem),
-    linear-gradient(180deg, #ffffff 0%, var(--starbeam-page) 100%);
+    radial-gradient(circle at 92% 8%, rgb(0 194 179 / 11%), transparent 30rem),
+    radial-gradient(circle at 8% 24%, rgb(255 219 77 / 9%), transparent 24rem),
+    linear-gradient(180deg, #ffffff 0%, var(--starbeam-page) 74%, #eefafa 100%);
   color: var(--starbeam-text);
+}
+
+@media (max-width: 49.999rem) {
+  body {
+    background:
+      radial-gradient(circle at 92% 8%, rgb(0 194 179 / 8%), transparent 18rem),
+      linear-gradient(180deg, #ffffff 0%, var(--starbeam-page) 100%);
+  }
 }
 
 :focus-visible {
@@ -28,28 +50,212 @@ body {
   outline-offset: 3px;
 }
 
+.header {
+  backdrop-filter: blur(18px);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 70%);
+}
+
+.site-title {
+  color: var(--starbeam-ink);
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.site-title::before {
+  color: var(--starbeam-beam);
+  content: "✦";
+  font-size: 1.2em;
+  line-height: 1;
+  margin-inline-end: 0.35rem;
+  text-shadow: 0 0 18px rgb(0 194 179 / 36%);
+}
+
+.sidebar-pane {
+  background:
+    radial-gradient(circle at 0% 0%, rgb(0 194 179 / 9%), transparent 15rem),
+    var(--starbeam-docs-sidebar);
+}
+
+.sidebar-content {
+  gap: 1.25rem;
+}
+
+.sidebar-content .large {
+  color: var(--starbeam-ink);
+  font-weight: 850;
+  letter-spacing: -0.01em;
+}
+
+.sidebar-content a {
+  border-radius: 999px;
+  color: var(--starbeam-muted);
+}
+
+.sidebar-content a:hover,
+.sidebar-content a:focus {
+  background: var(--starbeam-docs-accent-soft);
+  color: var(--starbeam-link);
+}
+
+.sidebar-content [aria-current="page"],
+.sidebar-content [aria-current="page"]:hover,
+.sidebar-content [aria-current="page"]:focus {
+  background: var(--starbeam-link);
+  box-shadow: 0 10px 24px rgb(0 124 120 / 18%);
+  color: #ffffff;
+}
+
+.main-pane {
+  background: transparent;
+}
+
+.content-panel {
+  border-color: var(--starbeam-docs-panel-border);
+}
+
+.content-panel:first-of-type {
+  background:
+    radial-gradient(circle at 92% 18%, rgb(0 194 179 / 8%), transparent 18rem),
+    linear-gradient(180deg, rgb(255 255 255 / 78%), rgb(255 255 255 / 38%));
+}
+
+.sl-container {
+  color: var(--starbeam-text);
+}
+
 .site-title,
 h1,
-h2 {
+h2,
+h3 {
   color: var(--starbeam-ink);
 }
 
 h1 {
   font-family: var(--starbeam-font-display);
-  letter-spacing: -0.04em;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 0.96;
 }
 
-a {
+h2 {
+  letter-spacing: -0.025em;
+}
+
+.sl-markdown-content a:not(:where(.not-content *)) {
+  color: var(--starbeam-link);
+  font-weight: 650;
+  text-decoration-color: rgb(0 194 179 / 42%);
+  text-underline-offset: 0.18em;
+}
+
+.sl-markdown-content a:not(:where(.not-content *)):hover {
+  color: var(--starbeam-ink);
+  text-decoration-color: var(--starbeam-glow);
+}
+
+code:not(:where(.not-content *)) {
+  background: var(--starbeam-code-background);
+  border: 1px solid rgb(0 194 179 / 14%);
+  border-radius: var(--starbeam-radius-sm);
+  color: var(--starbeam-indigo);
+}
+
+pre:not(:where(.not-content *)) {
+  border: 1px solid var(--starbeam-docs-panel-border);
+  border-radius: var(--starbeam-radius-lg);
+  box-shadow: var(--starbeam-shadow-soft);
+}
+
+.right-sidebar-panel {
+  color: var(--starbeam-muted);
+}
+
+.right-sidebar-panel h2 {
+  color: var(--starbeam-ink);
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.right-sidebar-panel a {
+  color: var(--starbeam-muted);
+}
+
+.right-sidebar-panel a:hover,
+.right-sidebar-panel a[aria-current="true"] {
   color: var(--starbeam-link);
 }
 
-code {
-  background: var(--starbeam-code-background);
-  border-radius: var(--starbeam-radius-sm);
+mobile-starlight-toc nav {
+  background: var(--starbeam-docs-nav);
+  border-color: var(--starbeam-docs-panel-border);
+  backdrop-filter: blur(18px);
+}
+
+starlight-theme-select {
+  display: none;
+}
+
+.pagination-links a {
+  background: var(--starbeam-docs-panel);
+  border-color: var(--starbeam-docs-panel-border);
+  border-radius: var(--starbeam-radius-lg);
+  color: var(--starbeam-muted);
+  box-shadow: var(--starbeam-shadow-soft);
+}
+
+.pagination-links a:hover {
+  border-color: rgb(0 194 179 / 38%);
+  color: var(--starbeam-link);
+}
+
+.pagination-links .link-title {
+  color: var(--starbeam-ink);
+  font-family: var(--starbeam-font-display);
+  font-weight: 500;
+  letter-spacing: -0.035em;
 }
 
 .sl-markdown-content .starlight-aside {
+  background: var(--starbeam-callout-background);
+  border-color: rgb(0 194 179 / 24%);
   border-radius: var(--starbeam-radius-md);
+  box-shadow: var(--starbeam-shadow-soft);
+}
+
+.sl-markdown-content .starlight-aside__title {
+  color: var(--starbeam-ink);
+}
+
+@media (max-width: 49.999rem) {
+  .content-panel:first-of-type h1 {
+    font-size: clamp(2.2rem, 13vw, 3.25rem);
+    line-height: 1;
+  }
+
+  .sl-markdown-content h1 {
+    font-size: clamp(2.25rem, 12vw, 3.4rem);
+    line-height: 1;
+  }
+
+  .sl-markdown-content h2 {
+    font-size: clamp(1.85rem, 9vw, 2.75rem);
+    letter-spacing: -0.03em;
+    line-height: 1.02;
+  }
+
+  .sl-markdown-content p,
+  .sl-markdown-content li,
+  .sl-markdown-content blockquote {
+    font-size: 1rem;
+    line-height: 1.72;
+  }
+
+  .sl-markdown-content blockquote {
+    margin-inline-start: 0;
+    padding-inline-start: 1rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
