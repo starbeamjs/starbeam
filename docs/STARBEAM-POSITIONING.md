@@ -15,12 +15,24 @@ reactivity and lifecycle integration.
 
 ## Core thesis
 
-> Mark root state. The rest is just JavaScript.
+> Starbeam makes reactivity compositional without making application code exotic.
+
+The homepage should lead with a project-level promise, not the first mechanism a
+reader needs to learn. A good working headline is:
+
+> Reactivity that stays JavaScript.
+
+The first concept document can still use the stronger teaching sentence:
+
+> Mark root state. Keep the rest JavaScript.
 
 Starbeam's core idea is that the reactive boundary lives at storage. Cells,
 markers, and reactive collections are reactive. Functions, classes, getters,
 methods, closures, and domain objects above that storage remain ordinary
 JavaScript.
+
+Starbeam's value is that it keeps reactivity at the storage/read boundary
+instead of forcing the whole abstraction stack to become reactive-shaped.
 
 This means users can build abstractions that look like their domain:
 
@@ -30,6 +42,30 @@ This means users can build abstractions that look like their domain:
 
 The abstraction becomes reactive because it reads reactive storage internally,
 not because every layer of the abstraction has to become a reactive type.
+
+## AI-assisted development
+
+Starbeam's ordinary-JavaScript model is useful for AI-assisted development, but
+the docs should make this claim carefully.
+
+Do not pitch Starbeam as "AI writes your app." Pitch it as:
+
+> Starbeam keeps your reactive code in a shape that humans and agents can both
+> understand.
+
+This is not a claim that agents produce better code merely because they have
+seen a lot of JavaScript. Some common programming models still require a lot of
+context, conventions, and framework-specific judgment to produce quality results.
+
+The better claim is structural: AI-assisted edits are easier to review and steer
+when the important abstractions are stable, local, and inspectable. Starbeam lets
+developers and agents work with functions, classes, getters, methods, modules,
+collections, and explicit lifecycle setup, sync, and cleanup instead of
+translating every domain idea into a framework-specific reactive DSL.
+
+The developer still owns the design. Starbeam's role is to keep the reactive
+boundary small enough that both the human and the agent can reason about the
+rest of the system as JavaScript.
 
 ## Supporting technical claims
 
@@ -140,11 +176,14 @@ Avoid making the docs a response to signals. Teach Starbeam on its own terms.
 
 The homepage should make this progression feel obvious:
 
-1. You can mark root state reactive.
-2. Everything above that state stays normal JavaScript.
-3. Derived reads and cached formulas work through ordinary functions.
-4. Resources add setup, sync, and cleanup when lifecycle matters.
-5. Framework adapters connect this model to React, Preact, Vue, and Svelte.
+1. Starbeam is reactivity that stays JavaScript.
+2. You can mark root state reactive.
+3. Everything above that state stays normal JavaScript.
+4. Derived reads and cached formulas work through ordinary functions.
+5. Resources add setup, sync, and cleanup when lifecycle matters.
+6. Framework adapters connect this model to React, Preact, Vue, and Svelte.
+7. This ordinary-JavaScript shape makes the code legible to both humans and
+   AI-assisted development tools.
 
 The homepage should not start with:
 
@@ -154,6 +193,11 @@ The homepage should not start with:
 - historical Ember details;
 - signal comparisons;
 - adapter-author concepts.
+
+The homepage should also avoid implying that Starbeam's AI value proposition is
+that agents can write applications autonomously. The point is collaborative
+legibility: reactive code can keep the same local structure humans and agents
+already use to inspect, extend, and refactor JavaScript programs.
 
 ## Terms to prefer
 
@@ -218,7 +262,7 @@ building out website copy:
 The next docs PER should turn the invariants into public concept prose, starting
 with:
 
-> Mark root state. The rest is just JavaScript.
+> Mark root state. Keep the rest JavaScript.
 
 That draft should keep lifecycle close enough to show why Starbeam is more than a
 state primitive, but not so close that the first-run model becomes heavy.
