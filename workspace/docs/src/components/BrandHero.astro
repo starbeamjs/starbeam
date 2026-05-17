@@ -9,17 +9,20 @@ import StarMark from "./StarMark.astro";
       <StarMark class="hero__lockup-mark" size={56} />
       <span>Starbeam</span>
     </div>
-    <h1>Mark root state. Keep the rest JavaScript.</h1>
+    <h1>Reactivity that stays JavaScript.</h1>
     <p class="lede">
-      Starbeam is a joyful reactivity engine for building domain-shaped state,
-      lifecycle-aware resources, and framework-native experiences.
+      Mark the root state that changes, then build domain-shaped functions,
+      classes, getters, collections, and resources around it as ordinary
+      JavaScript.
     </p>
     <div class="hero__rule" aria-hidden="true">
       <span></span>
       <strong>✦</strong>
       <span></span>
     </div>
-    <p class="hero__signal"><strong>Reactive by nature.</strong> Built for developers.</p>
+    <p class="hero__signal">
+      <strong>Compositional reactivity.</strong> No exotic application code.
+    </p>
     <div class="hero__actions" aria-label="Primary actions">
       <a class="button button--primary" href="/start/introduction/">Start reading</a>
       <a class="button button--secondary" href="https://github.com/starbeamjs/starbeam">View on GitHub</a>
@@ -29,9 +32,9 @@ import StarMark from "./StarMark.astro";
     <StarMark class="hero__star" size={520} />
   </div>
   <div class="hero__rail" aria-label="Starbeam strengths">
-    <p><span aria-hidden="true">◎</span> Universal reactivity</p>
-    <p><span aria-hidden="true">✣</span> Works with your framework</p>
-    <p><span aria-hidden="true">JS</span> Made for JavaScript</p>
+    <p><span aria-hidden="true">◎</span> Root state marks the boundary</p>
+    <p><span aria-hidden="true">JS</span> Ordinary JavaScript above it</p>
+    <p><span aria-hidden="true">✣</span> Resources add lifecycle</p>
   </div>
 </section>
 

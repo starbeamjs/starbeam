@@ -1,15 +1,35 @@
 ---
 title: Framework guides
-description: Placeholder for framework-native Starbeam docs.
+description: "Starbeam's framework adapters connect the same reactive model to React, Preact, Vue, and Svelte as each adapter matures."
 ---
 
-# Framework guides
+Starbeam's state model is framework-neutral. Framework adapters make it feel
+native by connecting Starbeam's reactive model to each framework's rendering and
+lifecycle rules.
 
-React, Preact, Vue, and Svelte are first-class framework targets in Starbeam's public posture.
+The goal is not one framework with incidental ports. React, Preact, Vue, and
+Svelte are first-class targets for the public docs.
+
+## Same model, native edges
+
+The core model stays the same in every framework:
+
+1. Mark root state reactive.
+2. Build ordinary JavaScript abstractions above it.
+3. Use resources when state needs setup, sync, or cleanup.
+4. Let the adapter connect reads and resources to the framework.
+
+The framework-specific layer should feel small. It is the bridge between
+Starbeam's model and the framework's rendering and lifecycle rules.
 
 ## Planned guides
 
-- React
-- Preact
-- Vue
-- Svelte
+- **React**: hooks for reactive reads, resources, services, and element resources.
+- **Preact**: Preact-native bindings for the same Starbeam model.
+- **Vue**: setup helpers and directives for reactive state and element resources.
+- **Svelte**: element-resource attachments first, with the broader adapter story
+  still maturing.
+
+Some guide details may mature at different speeds. The top-level posture stays
+the same: Starbeam is designed to make the same domain-shaped reactive model work
+across modern JavaScript frameworks.

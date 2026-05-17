@@ -11,7 +11,7 @@ import "../styles/tokens.css";
     <title>Starbeam</title>
     <meta
       name="description"
-      content="Starbeam is a joyful reactivity engine for JavaScript applications."
+      content="Starbeam is reactivity that stays JavaScript."
     />
   </head>
   <body>
@@ -33,23 +33,23 @@ import "../styles/tokens.css";
       <section class="principles" aria-labelledby="principles-heading">
         <div>
           <p class="section-label">Why Starbeam?</p>
-          <h2 id="principles-heading">Reactive by nature. Built for developers.</h2>
+          <h2 id="principles-heading">Keep the reactive boundary small.</h2>
         </div>
         <div class="principle-grid">
           <article>
             <span aria-hidden="true">◈</span>
-            <h3>Universal reactivity</h3>
-            <p>Mark root state once, then build with ordinary JavaScript.</p>
+            <h3>Mark root state</h3>
+            <p>Cells and reactive collections hold the state Starbeam tracks.</p>
           </article>
           <article>
             <span aria-hidden="true">✦</span>
-            <h3>Lifecycle-aware</h3>
-            <p>Resources add setup, sync, and cleanup when state needs a lifetime.</p>
+            <h3>Build domain-shaped APIs</h3>
+            <p>Expose values like <code>session.user</code> and <code>form.isValid</code>.</p>
           </article>
           <article>
             <span aria-hidden="true">&lt;/&gt;</span>
-            <h3>Framework-native</h3>
-            <p>Adapters connect the model to React, Preact, Vue, and Svelte.</p>
+            <h3>Stay legible together</h3>
+            <p>Humans and agents can both work with stable JavaScript structure.</p>
           </article>
         </div>
       </section>
@@ -177,6 +177,15 @@ import "../styles/tokens.css";
     color: var(--starbeam-muted);
     line-height: 1.6;
     margin: 0;
+  }
+
+  article code {
+    background: var(--starbeam-code-background);
+    border-radius: var(--starbeam-radius-sm);
+    color: var(--starbeam-indigo);
+    font-family: var(--starbeam-font-mono);
+    font-size: 0.9em;
+    padding: 0.1rem 0.24rem;
   }
 
   @media (max-width: 760px) {

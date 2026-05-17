@@ -9,7 +9,7 @@ export default defineConfig({
     starlight({
       title: "Starbeam",
       description:
-        "Starbeam is a joyful reactivity engine for JavaScript applications.",
+        "Starbeam is reactivity that stays JavaScript.",
       customCss: ["./src/styles/starlight.css"],
       social: [
         {
