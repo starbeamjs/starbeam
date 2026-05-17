@@ -3,8 +3,6 @@ title: Reference
 description: Placeholder for Starbeam public API reference docs.
 ---
 
-# Reference
-
 This section will document the public Starbeam package surface.
 
 ## Planned reference

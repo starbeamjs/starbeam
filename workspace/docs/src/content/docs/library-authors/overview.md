@@ -3,8 +3,6 @@ title: Library-author guide
 description: Placeholder for reusable Starbeam abstractions.
 ---
 
-# Library-author guide
-
 This section will explain how to use `@starbeam/universal` to write reusable, framework-neutral abstractions.
 
 ## Planned topics
