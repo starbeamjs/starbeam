@@ -1,0 +1,6 @@
+{
+  "buildCommand": "pnpm --filter @starbeam-workspace/docs build",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "outputDirectory": "workspace/docs/dist",
+  "framework": "astro"
+}
