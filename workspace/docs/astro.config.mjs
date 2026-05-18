@@ -9,8 +9,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: "Starbeam",
-      description:
-        "Starbeam is reactivity that stays JavaScript.",
+      description: "Starbeam is reactivity that stays JavaScript.",
       customCss: ["./src/styles/starlight.css"],
       social: [
         {
@@ -30,7 +29,10 @@ export default defineConfig({
         },
         {
           label: "Framework guides",
-          items: [{ label: "Overview", link: "/frameworks/overview/" }],
+          items: [
+            { label: "Overview", link: "/frameworks/overview/" },
+            { label: "React", link: "/frameworks/react/" },
+          ],
         },
         {
           label: "Library authors",

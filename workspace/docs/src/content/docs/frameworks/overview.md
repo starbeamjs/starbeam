@@ -25,13 +25,15 @@ Starbeam's model and the framework's rendering and lifecycle rules. Your domain
 model can still expose normal getters, methods, and objects; the adapter is the
 place that connects those reads and resources to React, Preact, Vue, or Svelte.
 
-## Planned guides
+## Guides
 
-- **React**: hooks for reactive reads, resources, services, and element resources.
-- **Preact**: Preact-native bindings for the same Starbeam model.
-- **Vue**: setup helpers and directives for reactive state and element resources.
-- **Svelte**: element-resource attachments first, with the broader adapter story
-  still maturing.
+- [**React**](/frameworks/react/): hooks for reactive reads, resources,
+  services, and element resources.
+- **Preact** (planned): Preact-native bindings for the same Starbeam model.
+- **Vue** (planned): setup helpers and directives for reactive state and element
+  resources.
+- **Svelte** (planned): element-resource attachments first, with the broader
+  adapter story still maturing.
 
 Some guide details may mature at different speeds. The top-level posture stays
 the same: Starbeam is designed to make the same domain-shaped reactive model work
