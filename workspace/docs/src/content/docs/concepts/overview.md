@@ -9,9 +9,33 @@ JavaScript.
 
 ## Root state
 
-Root state is the storage Starbeam tracks directly: cells, markers, and reactive
-collections. This is where you mark the boundary between changing data and the
-ordinary JavaScript that reads it.
+Root state is the storage Starbeam tracks directly. Most app models should start
+with the shape of the data: use `@starbeam/collections` when the state is
+collection-shaped, and use `Cell` from `@starbeam/universal` for scalar state.
+
+```ts
+import { reactive } from "@starbeam/collections";
+
+interface LineItem {
+  readonly quantity: number;
+}
+
+class Cart {
+  #items = reactive.Map<string, LineItem>();
+
+  get items(): readonly LineItem[] {
+    return [...this.#items.values()];
+  }
+
+  get itemCount(): number {
+    return this.items.reduce((total, item) => total + item.quantity, 0);
+  }
+}
+```
+
+The private `Map` is the root state. The public reads are ordinary JavaScript.
+This is where you mark the boundary between changing data and the domain code
+that reads it.
 
 ## Reactive values
 
@@ -28,9 +52,10 @@ The public shape can still look like your app:
 
 ## Derived reads
 
-Derived reads are ordinary functions, getters, and formulas that read reactive
-state. Starbeam records what they read when they run, then uses that read trace
-to validate cached work or update framework renderers.
+Derived reads are ordinary functions, getters, methods, and formulas that read
+reactive state. In the cart example, `items` and `itemCount` are just getters
+above the private collection. Starbeam records what they read when they run,
+then uses that read trace to validate cached work or update framework renderers.
 
 You do not have to maintain a userland dependency graph.
 

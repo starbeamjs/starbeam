@@ -14,13 +14,16 @@ Svelte are first-class targets for the public docs.
 
 The core model stays the same in every framework:
 
-1. Mark root state reactive.
+1. Mark root state reactive. Use `@starbeam/collections` for collection-shaped
+   state and `@starbeam/universal` for scalar state and lifecycle APIs.
 2. Build ordinary JavaScript abstractions above it.
 3. Use resources when state needs setup, sync, or cleanup.
 4. Let the adapter connect reads and resources to the framework.
 
 The framework-specific layer should feel small. It is the bridge between
-Starbeam's model and the framework's rendering and lifecycle rules.
+Starbeam's model and the framework's rendering and lifecycle rules. Your domain
+model can still expose normal getters, methods, and objects; the adapter is the
+place that connects those reads and resources to React, Preact, Vue, or Svelte.
 
 ## Planned guides
 
