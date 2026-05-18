@@ -31,8 +31,8 @@ place that connects those reads and resources to React, Preact, Vue, or Svelte.
   services, and element resources.
 - [**Preact**](/frameworks/preact/): adapter installation, reactive reads,
   resources, services, and element resources.
-- **Vue** (planned): setup helpers and directives for reactive state and element
-  resources.
+- [**Vue**](/frameworks/vue/): setup helpers and directives for reactive state,
+  resources, services, and element resources.
 - **Svelte** (planned): element-resource attachments first, with the broader
   adapter story still maturing.
 

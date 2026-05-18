@@ -33,6 +33,7 @@ export default defineConfig({
             { label: "Overview", link: "/frameworks/overview/" },
             { label: "React", link: "/frameworks/react/" },
             { label: "Preact", link: "/frameworks/preact/" },
+            { label: "Vue", link: "/frameworks/vue/" },
           ],
         },
         {
