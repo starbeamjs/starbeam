@@ -29,7 +29,8 @@ place that connects those reads and resources to React, Preact, Vue, or Svelte.
 
 - [**React**](/frameworks/react/): hooks for reactive reads, resources,
   services, and element resources.
-- **Preact** (planned): Preact-native bindings for the same Starbeam model.
+- [**Preact**](/frameworks/preact/): adapter installation, reactive reads,
+  resources, services, and element resources.
 - **Vue** (planned): setup helpers and directives for reactive state and element
   resources.
 - **Svelte** (planned): element-resource attachments first, with the broader

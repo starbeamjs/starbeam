@@ -32,6 +32,7 @@ export default defineConfig({
           items: [
             { label: "Overview", link: "/frameworks/overview/" },
             { label: "React", link: "/frameworks/react/" },
+            { label: "Preact", link: "/frameworks/preact/" },
           ],
         },
         {
