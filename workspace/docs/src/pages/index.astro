@@ -30,29 +30,191 @@ import "../styles/tokens.css";
     <main>
       <BrandHero />
 
-      <section class="principles" aria-labelledby="principles-heading">
-        <div>
-          <p class="section-label">Why Starbeam?</p>
-          <h2 id="principles-heading">Keep the reactive boundary small.</h2>
-        </div>
-        <div class="principle-grid">
-          <article>
-            <span aria-hidden="true">◈</span>
-            <h3>Mark root state</h3>
-            <p>Cells and reactive collections hold the state Starbeam tracks.</p>
-          </article>
-          <article>
-            <span aria-hidden="true">✦</span>
-            <h3>Build domain-shaped APIs</h3>
-            <p>Expose values like <code>session.user</code> and <code>form.isValid</code>.</p>
-          </article>
-          <article>
-            <span aria-hidden="true">&lt;/&gt;</span>
-            <h3>Stay legible together</h3>
-            <p>Humans and agents can both work with stable JavaScript structure.</p>
-          </article>
-        </div>
-      </section>
+      <div class="home-stack">
+        <section class="home-section" aria-labelledby="javascript-heading">
+          <div class="section-copy section-copy--wide">
+            <p class="section-label">How Starbeam works</p>
+            <h2 id="javascript-heading">
+              Mark the state that changes. Keep the rest JavaScript.
+            </h2>
+            <p class="section-intro">
+              Starbeam asks you to make the changing roots visible. Above that
+              line, your app can use the JavaScript shapes it already wants:
+              classes, functions, getters, collections, and methods.
+            </p>
+          </div>
+          <div class="story-grid">
+            <article class="story-card">
+              <span class="card-number" aria-hidden="true">01</span>
+              <h3>Mark root state</h3>
+              <p>
+                Use cells and reactive collections for the values that change.
+                They are the small surface Starbeam tracks directly.
+              </p>
+            </article>
+            <article class="story-card">
+              <span class="card-number" aria-hidden="true">02</span>
+              <h3>Write ordinary code above it</h3>
+              <p>
+                Domain objects can expose values like <code>session.user</code>,
+                <code>cart.total</code>, and <code>form.isValid</code> without
+                adopting a special component shape.
+              </p>
+            </article>
+            <article class="story-card">
+              <span class="card-number" aria-hidden="true">03</span>
+              <h3>Read derived values</h3>
+              <p>
+                Getters and functions can derive from root state. Starbeam
+                follows those reads when a framework renders the result.
+              </p>
+            </article>
+            <article class="story-card story-card--accent">
+              <span class="card-number" aria-hidden="true">04</span>
+              <h3>Add lifecycle when work needs one</h3>
+              <p>
+                Resources wrap setup, sync, and cleanup while returning the
+                domain-shaped value your app wants to read.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section class="home-section" aria-labelledby="lifecycle-heading">
+          <div class="split-section">
+            <div class="section-copy">
+              <p class="section-label">Lifecycle bridge</p>
+              <h2 id="lifecycle-heading">
+                Attach work to the lifetime it needs.
+              </h2>
+              <p class="section-intro">
+                Root state does not need an owner. Timers, subscriptions,
+                sockets, shared app state, and DOM observers do. Starbeam keeps
+                that lifecycle work close to the framework edge.
+              </p>
+              <a class="text-link" href="/concepts/lifecycle/">
+                Read lifecycle concepts
+              </a>
+            </div>
+            <div class="lifecycle-list">
+              <article>
+                <h3>Resources</h3>
+                <p>
+                  Use a resource when state needs setup, sync, cleanup, or
+                  finalize work tied to one component lifetime.
+                </p>
+              </article>
+              <article>
+                <h3>Services</h3>
+                <p>
+                  Use a service for resource-backed state that should live with
+                  the app root where the adapter exposes an app lifetime.
+                </p>
+              </article>
+              <article>
+                <h3>Element resources</h3>
+                <p>
+                  Use an element resource when the framework should provide a DOM
+                  element and Starbeam should own the setup and cleanup work.
+                </p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="home-section" aria-labelledby="frameworks-heading">
+          <div class="section-copy section-copy--wide">
+            <p class="section-label">Framework adapters</p>
+            <h2 id="frameworks-heading">One model, native framework edges.</h2>
+            <p class="section-intro">
+              The Starbeam model stays the same. Each adapter connects reads and
+              lifecycle to the framework you are already using.
+            </p>
+          </div>
+          <div class="adapter-grid">
+            <a class="adapter-card" href="/frameworks/react/">
+              <span aria-hidden="true">React</span>
+              <h3>React</h3>
+              <p>
+                Hooks connect reactive reads, resources, services, and element
+                resources to React rendering and effects.
+              </p>
+            </a>
+            <a class="adapter-card" href="/frameworks/preact/">
+              <span aria-hidden="true">Preact</span>
+              <h3>Preact</h3>
+              <p>
+                Install the adapter once, then render reads can stay direct while
+                hooks cover resources, services, and element resources.
+              </p>
+            </a>
+            <a class="adapter-card" href="/frameworks/vue/">
+              <span aria-hidden="true">Vue</span>
+              <h3>Vue</h3>
+              <p>
+                Setup helpers and directives connect Starbeam reads, resources,
+                services, and element resources to Vue components.
+              </p>
+            </a>
+            <a class="adapter-card" href="/frameworks/svelte/">
+              <span aria-hidden="true">Svelte</span>
+              <h3>Svelte</h3>
+              <p>
+                <code>fromStarbeam()</code> exposes Starbeam reads to Svelte 5,
+                and element resources work through Svelte attachments today.
+              </p>
+            </a>
+          </div>
+        </section>
+
+        <section
+          class="collaboration-callout"
+          aria-labelledby="collaboration-heading"
+        >
+          <div>
+            <p class="section-label">Collaborative legibility</p>
+            <h2 id="collaboration-heading">
+              Stable JavaScript shapes are easier to review together.
+            </h2>
+          </div>
+          <p>
+            When state lives behind familiar objects, getters, and methods,
+            teammates can talk about the domain instead of translating framework
+            wiring. That same stable structure also gives coding agents clearer
+            seams to inspect, edit, and explain.
+          </p>
+        </section>
+
+        <section class="home-section" aria-labelledby="next-heading">
+          <div class="section-copy section-copy--wide">
+            <p class="section-label">Where to go next</p>
+            <h2 id="next-heading">
+              Choose the entry point that matches your question.
+            </h2>
+          </div>
+          <div class="route-grid">
+            <a class="route-card" href="/start/introduction/">
+              <h3>Start</h3>
+              <p>Begin with the app-author path and the smallest useful model.</p>
+            </a>
+            <a class="route-card" href="/concepts/overview/">
+              <h3>Concepts</h3>
+              <p>Learn the model for root state, derived reads, and lifecycle.</p>
+            </a>
+            <a class="route-card" href="/frameworks/overview/">
+              <h3>Frameworks</h3>
+              <p>
+                Connect the same Starbeam model to React, Preact, Vue, or
+                Svelte.
+              </p>
+            </a>
+            <a class="route-card" href="/reference/overview/">
+              <h3>Reference</h3>
+              <p>Check the public APIs once you know the shape you need.</p>
+            </a>
+          </div>
+        </section>
+      </div>
     </main>
   </body>
 </html>
@@ -120,12 +282,24 @@ import "../styles/tokens.css";
     color: var(--starbeam-link);
   }
 
-  .principles {
+  .home-stack {
     display: grid;
-    gap: clamp(2rem, 4vw, 3.5rem);
+    gap: clamp(3rem, 7vw, 6rem);
     margin: 0 auto clamp(4rem, 8vw, 7rem);
-    padding: 0 clamp(0.5rem, 2vw, 1rem);
     width: min(88rem, calc(100vw - clamp(2rem, 5vw, 4rem)));
+  }
+
+  .home-section {
+    display: grid;
+    gap: clamp(1.4rem, 3vw, 2.5rem);
+  }
+
+  .section-copy {
+    max-width: 44rem;
+  }
+
+  .section-copy--wide {
+    max-width: 64rem;
   }
 
   .section-label {
@@ -149,13 +323,39 @@ import "../styles/tokens.css";
     word-spacing: 0.08em;
   }
 
-  .principle-grid {
+  .section-copy--wide h2 {
+    max-width: 14ch;
+  }
+
+  .section-intro {
+    color: var(--starbeam-muted);
+    font-size: clamp(1.05rem, 1.5vw, 1.22rem);
+    line-height: 1.7;
+    margin: clamp(1rem, 2vw, 1.4rem) 0 0;
+    max-width: 46rem;
+  }
+
+  .story-grid,
+  .adapter-grid,
+  .route-grid {
     display: grid;
     gap: clamp(0.85rem, 2vw, 1.25rem);
+  }
+
+  .story-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .adapter-grid,
+  .route-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  article {
+  .story-card,
+  .lifecycle-list article,
+  .adapter-card,
+  .route-card,
+  .collaboration-callout {
     background: var(--starbeam-glass-rail);
     border: 1px solid var(--starbeam-glass-border);
     border-radius: var(--starbeam-radius-lg);
@@ -163,9 +363,21 @@ import "../styles/tokens.css";
     padding: clamp(1.2rem, 3vw, 2rem);
   }
 
-  article span {
+  .story-card--accent {
+    background:
+      linear-gradient(135deg, rgb(0 194 179 / 13%), transparent 64%),
+      var(--starbeam-glass-rail);
+  }
+
+  .card-number,
+  .adapter-card > span {
     color: var(--starbeam-beam);
     font-weight: 900;
+  }
+
+  .card-number {
+    font-size: 0.82rem;
+    letter-spacing: 0.16em;
   }
 
   h3 {
@@ -173,19 +385,123 @@ import "../styles/tokens.css";
     margin: 0.75rem 0 0.5rem;
   }
 
-  article p {
+  .story-card p,
+  .lifecycle-list p,
+  .adapter-card p,
+  .route-card p,
+  .collaboration-callout > p {
     color: var(--starbeam-muted);
     line-height: 1.6;
     margin: 0;
   }
 
-  article code {
+  .story-card code,
+  .adapter-card code {
     background: var(--starbeam-code-background);
     border-radius: var(--starbeam-radius-sm);
     color: var(--starbeam-indigo);
     font-family: var(--starbeam-font-mono);
     font-size: 0.9em;
     padding: 0.1rem 0.24rem;
+  }
+
+  .split-section {
+    align-items: start;
+    display: grid;
+    gap: clamp(1.25rem, 3vw, 2.5rem);
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.35fr);
+  }
+
+  .text-link {
+    align-items: center;
+    color: var(--starbeam-link);
+    display: inline-flex;
+    font-weight: 850;
+    margin-block-start: 1.25rem;
+    text-decoration: none;
+  }
+
+  .text-link:hover,
+  .text-link:focus-visible,
+  .adapter-card:hover,
+  .adapter-card:focus-visible,
+  .route-card:hover,
+  .route-card:focus-visible {
+    color: var(--starbeam-focus);
+  }
+
+  .adapter-card:hover,
+  .adapter-card:focus-visible,
+  .route-card:hover,
+  .route-card:focus-visible {
+    border-color: rgb(0 194 179 / 40%);
+    box-shadow: var(--starbeam-shadow-card);
+    outline: none;
+    transform: translateY(-0.1rem);
+  }
+
+  .adapter-card:hover h3,
+  .adapter-card:focus-visible h3,
+  .route-card:hover h3,
+  .route-card:focus-visible h3 {
+    color: var(--starbeam-focus);
+  }
+
+  .lifecycle-list {
+    display: grid;
+    gap: clamp(0.85rem, 2vw, 1.1rem);
+  }
+
+  .lifecycle-list article {
+    box-shadow: none;
+  }
+
+  .lifecycle-list h3,
+  .adapter-card h3,
+  .route-card h3 {
+    margin-block-start: 0;
+  }
+
+  .adapter-card,
+  .route-card {
+    color: inherit;
+    display: block;
+    text-decoration: none;
+  }
+
+  .adapter-card {
+    min-height: 16rem;
+  }
+
+  .adapter-card > span {
+    display: block;
+    font-size: 0.76rem;
+    letter-spacing: 0.2em;
+    margin-block-end: 1.35rem;
+    text-transform: uppercase;
+  }
+
+  .collaboration-callout {
+    align-items: start;
+    background:
+      radial-gradient(circle at 100% 0%, rgb(255 219 77 / 20%), transparent 16rem),
+      var(--starbeam-glass-rail);
+    display: grid;
+    gap: clamp(1.25rem, 3vw, 2.5rem);
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr);
+  }
+
+  .collaboration-callout h2 {
+    font-size: clamp(2.2rem, 4.4vw, 4.3rem);
+    max-width: 13ch;
+  }
+
+  .collaboration-callout > p {
+    font-size: clamp(1.06rem, 1.45vw, 1.24rem);
+  }
+
+  .route-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   @media (max-width: 760px) {
@@ -203,8 +519,26 @@ import "../styles/tokens.css";
       gap: 0.55rem;
     }
 
-    .principle-grid {
+    .home-stack {
+      width: min(88rem, calc(100vw - clamp(1rem, 5vw, 2rem)));
+    }
+
+    h2,
+    .section-copy--wide h2,
+    .collaboration-callout h2 {
+      max-width: 100%;
+    }
+
+    .story-grid,
+    .adapter-grid,
+    .route-grid,
+    .split-section,
+    .collaboration-callout {
       grid-template-columns: 1fr;
+    }
+
+    .adapter-card {
+      min-height: auto;
     }
   }
 </style>
