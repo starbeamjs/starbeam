@@ -19,11 +19,6 @@ import StarMark from "./StarMark.astro";
   <div class="hero__mark" aria-hidden="true">
     <StarMark class="hero__star" size={520} />
   </div>
-  <div class="hero__rail" aria-label="Starbeam strengths">
-    <p><span aria-hidden="true">01</span> Mark root state</p>
-    <p><span aria-hidden="true">02</span> Keep the rest JavaScript</p>
-    <p><span aria-hidden="true">03</span> Add lifecycle when needed</p>
-  </div>
 </section>
 
 <style>
@@ -168,55 +163,6 @@ import StarMark from "./StarMark.astro";
     color: var(--starbeam-ink);
   }
 
-  .hero__rail {
-    align-items: center;
-    background: var(--starbeam-glass-rail);
-    border: 1px solid var(--starbeam-glass-border);
-    border-radius: 1.35rem;
-    box-shadow: 0 18px 55px rgb(30 36 54 / 8%);
-    display: grid;
-    gap: 0;
-    grid-column: 1 / -1;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    margin-block-start: clamp(0.5rem, 3vw, 1.5rem);
-    padding: 0;
-    position: relative;
-    z-index: 1;
-  }
-
-  .hero__rail p {
-    align-items: center;
-    color: var(--starbeam-indigo);
-    display: flex;
-    font-size: clamp(0.88rem, 1vw, 0.98rem);
-    font-weight: 760;
-    gap: 0.9rem;
-    justify-content: start;
-    margin: 0;
-    min-block-size: 4.6rem;
-    padding: clamp(0.95rem, 1.8vw, 1.2rem) clamp(1rem, 2vw, 1.4rem);
-  }
-
-  .hero__rail p + p {
-    border-inline-start: 1px solid rgb(30 36 54 / 9%);
-  }
-
-  .hero__rail span {
-    align-items: center;
-    background: rgb(0 194 179 / 11%);
-    border: 1px solid rgb(0 194 179 / 22%);
-    border-radius: 999px;
-    color: var(--starbeam-link);
-    display: inline-flex;
-    flex: 0 0 auto;
-    font-size: 0.72rem;
-    font-weight: 850;
-    justify-content: center;
-    letter-spacing: 0.08em;
-    min-block-size: 1.85rem;
-    min-inline-size: 1.85rem;
-  }
-
   @media (max-width: 760px) {
     .hero {
       align-items: start;
@@ -237,18 +183,6 @@ import StarMark from "./StarMark.astro";
       inline-size: clamp(15rem, 56vw, 22rem);
     }
 
-    .hero__rail {
-      grid-template-columns: 1fr;
-    }
-
-    .hero__rail p + p {
-      border-block-start: 1px solid rgb(30 36 54 / 9%);
-      border-inline-start: 0;
-    }
-
-    .hero__rail p {
-      justify-content: start;
-    }
   }
 
   @media (max-width: 540px) {
@@ -283,9 +217,6 @@ import StarMark from "./StarMark.astro";
       justify-content: center;
     }
 
-    .hero__rail {
-      margin-block-start: 2rem;
-    }
   }
 
   @media (prefers-reduced-motion: reduce) {
