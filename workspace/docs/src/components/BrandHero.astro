@@ -5,23 +5,11 @@ import StarMark from "./StarMark.astro";
 <section class="hero">
   <div class="hero__beam" aria-hidden="true"></div>
   <div class="hero__content">
-    <div class="hero__lockup" aria-hidden="true">
-      <StarMark class="hero__lockup-mark" size={56} />
-      <span>Starbeam</span>
-    </div>
     <h1>Reactivity that stays JavaScript.</h1>
     <p class="lede">
       Mark the root state that changes, then build domain-shaped functions,
       classes, getters, collections, and resources around it as ordinary
       JavaScript.
-    </p>
-    <div class="hero__rule" aria-hidden="true">
-      <span></span>
-      <strong>✦</strong>
-      <span></span>
-    </div>
-    <p class="hero__signal">
-      <strong>Compositional reactivity.</strong> No exotic application code.
     </p>
     <div class="hero__actions" aria-label="Primary actions">
       <a class="button button--primary" href="/start/introduction/">Start reading</a>
@@ -32,9 +20,9 @@ import StarMark from "./StarMark.astro";
     <StarMark class="hero__star" size={520} />
   </div>
   <div class="hero__rail" aria-label="Starbeam strengths">
-    <p><span aria-hidden="true">◎</span> Root state marks the boundary</p>
-    <p><span aria-hidden="true">JS</span> Ordinary JavaScript above it</p>
-    <p><span aria-hidden="true">✣</span> Resources add lifecycle</p>
+    <p><span aria-hidden="true">01</span> Mark root state</p>
+    <p><span aria-hidden="true">02</span> Keep the rest JavaScript</p>
+    <p><span aria-hidden="true">03</span> Add lifecycle when needed</p>
   </div>
 </section>
 
@@ -53,9 +41,9 @@ import StarMark from "./StarMark.astro";
     gap: clamp(1.5rem, 4vw, 4rem);
     grid-template-columns: minmax(0, 0.92fr) minmax(18rem, 0.86fr);
     margin: clamp(2rem, 5vw, 4.5rem) auto clamp(3rem, 6vw, 5rem);
-    min-height: clamp(36rem, 74vh, 54rem);
+    min-height: clamp(32rem, 66vh, 48rem);
     overflow: hidden;
-    padding: clamp(2rem, 6vw, 6rem);
+    padding: clamp(2rem, 5vw, 5rem);
     position: relative;
     width: min(88rem, calc(100vw - clamp(2rem, 5vw, 4rem)));
   }
@@ -118,30 +106,13 @@ import StarMark from "./StarMark.astro";
     inline-size: clamp(18rem, 35vw, 36rem);
   }
 
-  .hero__lockup {
-    align-items: center;
-    color: var(--starbeam-link);
-    display: inline-flex;
-    font-size: clamp(0.95rem, 1.35vw, 1.25rem);
-    font-weight: 900;
-    gap: 1rem;
-    letter-spacing: 0.44em;
-    margin: 0 0 clamp(1.3rem, 3vw, 2rem);
-    text-transform: uppercase;
-  }
-
-  .hero__lockup-mark {
-    filter: drop-shadow(0 10px 18px rgb(30 36 54 / 10%));
-    inline-size: clamp(3rem, 4.4vw, 4.5rem);
-  }
-
   h1 {
     color: var(--starbeam-ink);
-    font-family: var(--starbeam-font-display);
-    font-size: clamp(4.25rem, 7.9vw, 9rem);
-    font-weight: 500;
-    letter-spacing: -0.045em;
-    line-height: 0.88;
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-size: clamp(3.85rem, 7vw, 7.75rem);
+    font-weight: 400;
+    letter-spacing: -0.03em;
+    line-height: 0.98;
     margin: 0;
     max-width: 8.5ch;
     word-spacing: 0.08em;
@@ -153,40 +124,6 @@ import StarMark from "./StarMark.astro";
     line-height: 1.65;
     margin: clamp(1.4rem, 3vw, 2rem) 0 0;
     max-width: 36rem;
-  }
-
-  .hero__rule {
-    align-items: center;
-    color: var(--starbeam-beam);
-    display: grid;
-    gap: 0.9rem;
-    grid-template-columns: minmax(2rem, 1fr) auto minmax(2rem, 1fr);
-    margin-block: clamp(1.55rem, 3vw, 2.3rem) clamp(1.15rem, 2vw, 1.45rem);
-    max-width: 34rem;
-  }
-
-  .hero__rule span {
-    background: rgb(30 36 54 / 12%);
-    block-size: 1px;
-  }
-
-  .hero__rule strong {
-    font-size: 1.2rem;
-    line-height: 1;
-  }
-
-  .hero__signal {
-    border-inline-start: 0.18rem solid var(--starbeam-beam);
-    color: var(--starbeam-ink);
-    font-size: clamp(1rem, 1.4vw, 1.18rem);
-    font-weight: 800;
-    line-height: 1.4;
-    margin: 0;
-    padding-inline-start: 0.95rem;
-  }
-
-  .hero__signal strong {
-    color: var(--starbeam-link);
   }
 
   .hero__actions {
@@ -204,6 +141,20 @@ import StarMark from "./StarMark.astro";
     letter-spacing: -0.01em;
     padding: 0.95rem 1.25rem;
     text-decoration: none;
+    transition:
+      border-color 160ms ease,
+      box-shadow 160ms ease,
+      transform 160ms ease;
+  }
+
+  .button:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--starbeam-focus) 45%, transparent);
+    outline-offset: 0.2rem;
+  }
+
+  .button:hover,
+  .button:focus-visible {
+    transform: translateY(-0.08rem);
   }
 
   .button--primary {
@@ -224,11 +175,11 @@ import StarMark from "./StarMark.astro";
     border-radius: 1.35rem;
     box-shadow: 0 18px 55px rgb(30 36 54 / 8%);
     display: grid;
-    gap: 0.5rem;
+    gap: 0;
     grid-column: 1 / -1;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     margin-block-start: clamp(0.5rem, 3vw, 1.5rem);
-    padding: clamp(0.8rem, 1.8vw, 1.05rem) clamp(1rem, 2vw, 1.4rem);
+    padding: 0;
     position: relative;
     z-index: 1;
   }
@@ -237,30 +188,33 @@ import StarMark from "./StarMark.astro";
     align-items: center;
     color: var(--starbeam-indigo);
     display: flex;
-    font-size: clamp(0.86rem, 1vw, 0.96rem);
-    font-weight: 650;
-    gap: 0.75rem;
-    justify-content: center;
+    font-size: clamp(0.88rem, 1vw, 0.98rem);
+    font-weight: 760;
+    gap: 0.9rem;
+    justify-content: start;
     margin: 0;
+    min-block-size: 4.6rem;
+    padding: clamp(0.95rem, 1.8vw, 1.2rem) clamp(1rem, 2vw, 1.4rem);
+  }
+
+  .hero__rail p + p {
+    border-inline-start: 1px solid rgb(30 36 54 / 9%);
   }
 
   .hero__rail span {
     align-items: center;
-    color: var(--starbeam-beam);
+    background: rgb(0 194 179 / 11%);
+    border: 1px solid rgb(0 194 179 / 22%);
+    border-radius: 999px;
+    color: var(--starbeam-link);
     display: inline-flex;
-    font-size: 1.15rem;
-    font-weight: 900;
+    flex: 0 0 auto;
+    font-size: 0.72rem;
+    font-weight: 850;
     justify-content: center;
-    min-inline-size: 1.5rem;
-  }
-
-  .hero__rail p:last-child span {
-    background: var(--starbeam-glow);
-    border-radius: 0.25rem;
-    color: var(--starbeam-ink);
-    font-size: 0.8rem;
-    line-height: 1;
-    padding: 0.25rem;
+    letter-spacing: 0.08em;
+    min-block-size: 1.85rem;
+    min-inline-size: 1.85rem;
   }
 
   @media (max-width: 760px) {
@@ -287,6 +241,11 @@ import StarMark from "./StarMark.astro";
       grid-template-columns: 1fr;
     }
 
+    .hero__rail p + p {
+      border-block-start: 1px solid rgb(30 36 54 / 9%);
+      border-inline-start: 0;
+    }
+
     .hero__rail p {
       justify-content: start;
     }
@@ -299,21 +258,10 @@ import StarMark from "./StarMark.astro";
       width: min(88rem, calc(100vw - clamp(1rem, 5vw, 2rem)));
     }
 
-    .hero__lockup {
-      font-size: 0.78rem;
-      gap: 0.75rem;
-      letter-spacing: 0.38em;
-      margin-block-end: 1.4rem;
-    }
-
-    .hero__lockup-mark {
-      inline-size: 2.5rem;
-    }
-
     h1 {
       font-size: clamp(3.15rem, 14.5vw, 4.45rem);
-      letter-spacing: -0.035em;
-      line-height: 0.92;
+      letter-spacing: -0.025em;
+      line-height: 1;
       max-width: 8.8ch;
       word-spacing: 0.1em;
     }
@@ -323,14 +271,6 @@ import StarMark from "./StarMark.astro";
       line-height: 1.62;
       margin-block-start: 1.35rem;
       max-width: 29ch;
-    }
-
-    .hero__rule {
-      margin-block: 1.35rem 1rem;
-    }
-
-    .hero__signal {
-      font-size: 0.96rem;
     }
 
     .hero__actions {
@@ -345,6 +285,17 @@ import StarMark from "./StarMark.astro";
 
     .hero__rail {
       margin-block-start: 2rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .button {
+      transition: none;
+    }
+
+    .button:hover,
+    .button:focus-visible {
+      transform: none;
     }
   }
 </style>

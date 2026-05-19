@@ -260,6 +260,13 @@ import "../styles/tokens.css";
     text-transform: uppercase;
   }
 
+  .brand:focus-visible,
+  nav a:focus-visible {
+    border-radius: 0.4rem;
+    outline: 3px solid color-mix(in srgb, var(--starbeam-focus) 45%, transparent);
+    outline-offset: 0.25rem;
+  }
+
   .brand__mark {
     filter: drop-shadow(0 8px 14px rgb(30 36 54 / 10%));
     --star-mark-size: 2.35rem;
@@ -313,11 +320,11 @@ import "../styles/tokens.css";
 
   h2 {
     color: var(--starbeam-ink);
-    font-family: var(--starbeam-font-display);
-    font-size: clamp(2.5rem, 5.4vw, 5.2rem);
-    font-weight: 600;
-    letter-spacing: -0.045em;
-    line-height: 0.92;
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-size: clamp(2.2rem, 4.6vw, 4.25rem);
+    font-weight: 400;
+    letter-spacing: -0.024em;
+    line-height: 1.04;
     margin: 0;
     max-width: 12ch;
     word-spacing: 0.08em;
@@ -346,9 +353,12 @@ import "../styles/tokens.css";
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
-  .adapter-grid,
+  .adapter-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
   .route-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .story-card,
@@ -467,10 +477,14 @@ import "../styles/tokens.css";
     color: inherit;
     display: block;
     text-decoration: none;
+    transition:
+      border-color 160ms ease,
+      box-shadow 160ms ease,
+      transform 160ms ease;
   }
 
   .adapter-card {
-    min-height: 16rem;
+    min-height: 17rem;
   }
 
   .adapter-card > span {
@@ -492,7 +506,7 @@ import "../styles/tokens.css";
   }
 
   .collaboration-callout h2 {
-    font-size: clamp(2.2rem, 4.4vw, 4.3rem);
+    font-size: clamp(1.95rem, 3.6vw, 3.45rem);
     max-width: 13ch;
   }
 
@@ -500,8 +514,22 @@ import "../styles/tokens.css";
     font-size: clamp(1.06rem, 1.45vw, 1.24rem);
   }
 
-  .route-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+  @media (max-width: 1080px) {
+    .story-grid,
+    .adapter-grid,
+    .route-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .adapter-card {
+      min-height: auto;
+    }
+
+    h2,
+    .section-copy--wide h2,
+    .collaboration-callout h2 {
+      max-width: 100%;
+    }
   }
 
   @media (max-width: 760px) {
@@ -523,12 +551,6 @@ import "../styles/tokens.css";
       width: min(88rem, calc(100vw - clamp(1rem, 5vw, 2rem)));
     }
 
-    h2,
-    .section-copy--wide h2,
-    .collaboration-callout h2 {
-      max-width: 100%;
-    }
-
     .story-grid,
     .adapter-grid,
     .route-grid,
@@ -539,6 +561,20 @@ import "../styles/tokens.css";
 
     .adapter-card {
       min-height: auto;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .adapter-card,
+    .route-card {
+      transition: none;
+    }
+
+    .adapter-card:hover,
+    .adapter-card:focus-visible,
+    .route-card:hover,
+    .route-card:focus-visible {
+      transform: none;
     }
   }
 </style>
