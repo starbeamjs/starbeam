@@ -4,5 +4,13 @@
     "types": ["node", "./packages/env.d.ts", "vite"],
     "noEmit": true
   },
-  "exclude": ["dist/**/*", "**/dist/**/*", "**/node_modules/**"]
+  "exclude": [
+    "dist/**/*",
+    "**/dist/**/*",
+    "**/node_modules/**",
+    "**/.astro/**/*",
+    "**/.vite/**/*",
+    "coverage/**/*",
+    ".scratch/**/*"
+  ]
 }

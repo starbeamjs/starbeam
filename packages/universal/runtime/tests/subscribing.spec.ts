@@ -99,6 +99,33 @@ describe("Tagged", () => {
     expect(cell.current).toBe(1);
   });
 
+  test("rendering a formula that gains its first dependency", () => {
+    const cell = Cell(0);
+    let enabled = false;
+
+    const formula = Formula(() => (enabled ? cell.current : "off"));
+
+    let stale = false;
+
+    render(formula, () => {
+      stale = true;
+    });
+
+    expect(formula.current).toBe("off");
+    expect(stale).toBe(false);
+
+    enabled = true;
+    expect(formula.current).toBe(0);
+    expect(stale).toBe(false);
+
+    cell.current++;
+
+    expect(stale).toBe(true);
+    stale = false;
+
+    expect(formula.current).toBe(1);
+  });
+
   test("rendering a formula before initialization lazily subscribes once read", () => {
     const cell = Cell(0);
     const formula = CachedFormula(() => cell.current);

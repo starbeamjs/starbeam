@@ -12,6 +12,7 @@
     "test:types": "tsc -b"
   },
   "dependencies": {
+    "@starbeam/collections": "workspace:^",
     "@starbeam/reactive": "workspace:^",
     "@starbeam/resource": "workspace:^",
     "@starbeam/svelte": "workspace:^",

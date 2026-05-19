@@ -610,6 +610,9 @@ importers:
       '@starbeam-workspace/test-utils':
         specifier: workspace:^
         version: link:../../../../workspace/test-utils
+      '@starbeam/collections':
+        specifier: workspace:^
+        version: link:../../../universal/collections
       '@starbeam/reactive':
         specifier: workspace:^
         version: link:../../../universal/reactive

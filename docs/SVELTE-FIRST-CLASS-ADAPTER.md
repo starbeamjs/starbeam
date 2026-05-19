@@ -5,17 +5,22 @@ adapter beyond element-backed resources.
 
 ## Status
 
-Proposed. This records the result of the Svelte implementation Prepare pass. It
-should guide the next implementation PER, but it does not itself change the
-public package surface.
+Accepted for the first implementation slice. PR
+[#260](https://github.com/starbeamjs/starbeam/pull/260) adds `fromStarbeam()` as
+an experimental Svelte 5 read bridge. Deeper integration work is tracked in
+[#261](https://github.com/starbeamjs/starbeam/issues/261).
 
 ## Decision summary
 
 Svelte should get a Svelte 5-native Starbeam read boundary before we document a
 full framework guide.
 
-The first implementation slice should prove a single primitive. The name is
-still open, but the shape is:
+`fromStarbeam()` is that first boundary. It is intentionally explicit while we
+investigate whether signals interop, userspace Svelte-reactive wrappers, or a
+future public Svelte hook can make Starbeam reads visible with fewer explicit
+output boundaries.
+
+The first implementation slice proves a single primitive:
 
 ```ts
 const total = fromStarbeam(() => cart.totalCents);
@@ -39,14 +44,13 @@ The implementation should use Svelte's `createSubscriber` plus Starbeam's
 This keeps the Svelte API modern: no Svelte 4 action story, no React-style
 dependency arrays, and no store-first primary API.
 
-The naming question should be settled with Svelte-facing feedback before the
-implementation PR. This record uses `fromStarbeam()` as the leading candidate
-because it describes an external-reactivity conversion and avoids colliding with
+`fromStarbeam()` is the experimental public name for the first slice. It
+describes an external-reactivity conversion and avoids colliding with
 `@starbeam/collections`.
 
 ## Current state
 
-`@starbeam/svelte` is currently an element-resource adapter.
+Before PR #260, `@starbeam/svelte` was an element-resource adapter.
 
 It exposes:
 
@@ -176,11 +180,11 @@ should therefore compute synchronously on the server and establish no runtime
 subscription. On the client, reading `.current` inside a tracked Svelte context
 should establish the Starbeam subscription.
 
-The first implementation PER should include an SSR smoke test for this behavior.
+The first implementation includes an SSR smoke test for this behavior.
 
 ## Naming
 
-The public name is not settled. Current leading candidate: `fromStarbeam()`.
+The first public name is `fromStarbeam()`.
 
 Why:
 

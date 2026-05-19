@@ -71,12 +71,14 @@ export class Subscriptions {
   #subscribe(target: Tag, ready: NotifyReady): void {
     if (isUninitialized(target)) {
       this.#queuedSubscriptions.add(target, ready);
-    } else if (hasDependencies(target)) {
+    } else {
       const subscription = this.#tagSubscriptions.get(target);
 
-      // initialize the subscription with the current target's dependencies
-      for (const cell of target.dependencies()) {
-        this.#cellSubscriptions.add(cell, subscription);
+      if (hasDependencies(target)) {
+        // initialize the subscription with the current target's dependencies
+        for (const cell of target.dependencies()) {
+          this.#cellSubscriptions.add(cell, subscription);
+        }
       }
 
       subscription.subscribe(ready);

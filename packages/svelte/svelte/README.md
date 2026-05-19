@@ -1,6 +1,30 @@
 # @starbeam/svelte
 
-Svelte adapter for Starbeam element-backed resources.
+Svelte adapter for Starbeam reactive reads and element-backed resources.
+
+## Reactive reads
+
+> Experimental: `fromStarbeam()` is the current tested Svelte 5 read bridge.
+> We are investigating deeper integration so Svelte can see Starbeam reads with
+> fewer explicit output boundaries. Track that work in
+> [starbeamjs/starbeam#261](https://github.com/starbeamjs/starbeam/issues/261).
+
+Use `fromStarbeam()` to expose a Starbeam read to Svelte 5 templates,
+`$derived`, and effects:
+
+```svelte
+<script lang="ts">
+  import { fromStarbeam } from "@starbeam/svelte";
+
+  const total = fromStarbeam(() => cart.totalCents);
+</script>
+
+<p>{total.current}</p>
+```
+
+`fromStarbeam()` returns a readonly `current` getter. Keep Starbeam cells and
+collections private inside your domain objects; expose domain-shaped getters and
+wrap those reads at the Svelte boundary.
 
 `elementResource()` is the primary authoring API for Svelte 5 attachments. It
 returns one Svelte-readable object that is also attachable. Attach it with
