@@ -131,29 +131,28 @@ adds lifecycle hooks. This example is a preview; framework adapters normally
 schedule resources for you.
 
 ```ts
-import { Cell, Resource } from "@starbeam/universal";
+import { reactive } from "@starbeam/collections";
+import { Resource } from "@starbeam/universal";
 
 const Clock = Resource(({ on }) => {
-  const now = Cell(Date.now());
+  const clock = reactive.object({ now: Date.now() });
 
   on.sync(() => {
+    clock.now = Date.now();
+
     const timer = setInterval(() => {
-      now.set(Date.now());
+      clock.now = Date.now();
     }, 1000);
 
     return () => clearInterval(timer);
   });
 
-  return {
-    get now(): number {
-      return now.current;
-    },
-  };
+  return clock;
 });
 ```
 
-The resource returns an ordinary object with a `now` getter. The lifecycle work is
-attached to the resource, not pushed through every caller.
+The resource returns an ordinary object with a `now` property. The lifecycle work
+is attached to the resource, not pushed through every caller.
 
 ## Legible to humans and agents
 
@@ -169,5 +168,7 @@ as JavaScript.
 ## Next steps
 
 - Read [Core concepts](/concepts/overview/) for the map of Starbeam's model.
+- Read [Resources and lifecycle](/concepts/lifecycle/) when work needs setup,
+  sync, or cleanup.
 - Read [Framework guides](/frameworks/overview/) to see how adapters connect this
   model to React, Preact, Vue, and Svelte.

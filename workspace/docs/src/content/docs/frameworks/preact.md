@@ -137,25 +137,24 @@ value directly.
 
 ```tsx
 import { useResource } from "@starbeam/preact";
-import { Cell, Resource } from "@starbeam/universal";
+import { reactive } from "@starbeam/collections";
+import { Resource } from "@starbeam/universal";
 import type { VNode } from "preact";
 
 const Clock = Resource(({ on }) => {
-  const now = Cell(new Date());
+  const clock = reactive.object({ now: new Date() });
 
   on.sync(() => {
+    clock.now = new Date();
+
     const timer = setInterval(() => {
-      now.set(new Date());
+      clock.now = new Date();
     }, 1000);
 
     return () => clearInterval(timer);
   });
 
-  return {
-    get now(): Date {
-      return now.current;
-    },
-  };
+  return clock;
 });
 
 export function ClockLabel(): VNode {
@@ -166,7 +165,9 @@ export function ClockLabel(): VNode {
 ```
 
 `useResource()` also accepts optional dependencies when the resource blueprint
-depends on changing Preact values.
+depends on changing Preact values. Preact owns the timing: sync is scheduled
+through Preact effects, and cleanup/finalize run when Preact cleans up the
+component.
 
 ## DOM element resources
 
@@ -175,20 +176,20 @@ returns a callback ref plus a pending or attached result.
 
 ```tsx
 import { useElementResource } from "@starbeam/preact";
-import { Cell, Resource } from "@starbeam/universal";
+import { reactive } from "@starbeam/collections";
+import { Resource } from "@starbeam/universal";
 import type { VNode } from "preact";
 
 function ElementSize(element: HTMLElement) {
   return Resource(({ on }) => {
-    const width = Cell(0);
-    const height = Cell(0);
+    const size = reactive.object({ width: 0, height: 0 });
 
     on.sync(() => {
       const observer = new ResizeObserver(([entry]) => {
         if (!entry) return;
 
-        width.set(entry.contentRect.width);
-        height.set(entry.contentRect.height);
+        size.width = entry.contentRect.width;
+        size.height = entry.contentRect.height;
       });
 
       observer.observe(element);
@@ -196,15 +197,7 @@ function ElementSize(element: HTMLElement) {
       return () => observer.disconnect();
     });
 
-    return {
-      get width(): number {
-        return width.current;
-      },
-
-      get height(): number {
-        return height.current;
-      },
-    };
+    return size;
   });
 }
 
@@ -222,7 +215,8 @@ export function MeasuredPanel(): VNode {
 }
 ```
 
-The element comes from Preact. The resource work still lives in Starbeam.
+The element comes from Preact. The resource work still lives in Starbeam and is
+finalized when Preact detaches the element resource.
 
 ## App-scoped services
 
@@ -232,17 +226,12 @@ Preact app.
 
 ```tsx
 import { useService } from "@starbeam/preact";
-import { Cell, Resource } from "@starbeam/universal";
+import { reactive } from "@starbeam/collections";
+import { Resource } from "@starbeam/universal";
 import type { VNode } from "preact";
 
 const SessionService = Resource(() => {
-  const userName = Cell("Guest");
-
-  return {
-    get userName(): string {
-      return userName.current;
-    },
-  };
+  return reactive.object({ userName: "Guest" });
 });
 
 export function CurrentUser(): VNode {

@@ -25,7 +25,10 @@ export default defineConfig({
         },
         {
           label: "Core concepts",
-          items: [{ label: "Overview", link: "/concepts/overview/" }],
+          items: [
+            { label: "Overview", link: "/concepts/overview/" },
+            { label: "Resources and lifecycle", link: "/concepts/lifecycle/" },
+          ],
         },
         {
           label: "Framework guides",

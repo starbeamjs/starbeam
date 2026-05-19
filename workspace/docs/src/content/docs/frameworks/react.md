@@ -127,24 +127,23 @@ value for rendering.
 
 ```tsx
 import { useReactive, useResource } from "@starbeam/react";
-import { Cell, Resource } from "@starbeam/universal";
+import { reactive } from "@starbeam/collections";
+import { Resource } from "@starbeam/universal";
 
 const Clock = Resource(({ on }) => {
-  const now = Cell(new Date());
+  const clock = reactive.object({ now: new Date() });
 
   on.sync(() => {
+    clock.now = new Date();
+
     const timer = setInterval(() => {
-      now.set(new Date());
+      clock.now = new Date();
     }, 1000);
 
     return () => clearInterval(timer);
   });
 
-  return {
-    get now(): Date {
-      return now.current;
-    },
-  };
+  return clock;
 });
 
 export function ClockLabel(): React.ReactElement {
@@ -156,7 +155,8 @@ export function ClockLabel(): React.ReactElement {
 ```
 
 The resource returns a domain-shaped value. The component reads that value at the
-same output boundary as the cart example.
+same output boundary as the cart example. React owns the timing: sync runs after
+React commits, and cleanup/finalize run when React cleans up the component.
 
 ## DOM element resources
 
@@ -165,19 +165,19 @@ returns a callback ref plus a pending or attached result.
 
 ```tsx
 import { useElementResource, useReactive } from "@starbeam/react";
-import { Cell, Resource } from "@starbeam/universal";
+import { reactive } from "@starbeam/collections";
+import { Resource } from "@starbeam/universal";
 
 function ElementSize(element: HTMLElement) {
   return Resource(({ on }) => {
-    const width = Cell(0);
-    const height = Cell(0);
+    const size = reactive.object({ width: 0, height: 0 });
 
     on.sync(() => {
       const observer = new ResizeObserver(([entry]) => {
         if (!entry) return;
 
-        width.set(entry.contentRect.width);
-        height.set(entry.contentRect.height);
+        size.width = entry.contentRect.width;
+        size.height = entry.contentRect.height;
       });
 
       observer.observe(element);
@@ -185,15 +185,7 @@ function ElementSize(element: HTMLElement) {
       return () => observer.disconnect();
     });
 
-    return {
-      get width(): number {
-        return width.current;
-      },
-
-      get height(): number {
-        return height.current;
-      },
-    };
+    return size;
   });
 }
 
@@ -214,7 +206,8 @@ export function MeasuredPanel(): React.ReactElement {
 }
 ```
 
-The element comes from React. The resource work still lives in Starbeam.
+The element comes from React. The resource work still lives in Starbeam and is
+finalized when React detaches the element resource.
 
 ## App-scoped services
 
@@ -224,17 +217,12 @@ app-scoped lifetime.
 
 ```tsx
 import { Starbeam, useReactive, useService } from "@starbeam/react";
-import { Cell, Resource } from "@starbeam/universal";
+import { reactive } from "@starbeam/collections";
+import { Resource } from "@starbeam/universal";
 import { createRoot } from "react-dom/client";
 
 const SessionService = Resource(() => {
-  const userName = Cell("Guest");
-
-  return {
-    get userName(): string {
-      return userName.current;
-    },
-  };
+  return reactive.object({ userName: "Guest" });
 });
 
 createRoot(document.getElementById("root")!).render(

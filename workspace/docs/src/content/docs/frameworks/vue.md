@@ -133,24 +133,23 @@ domain-shaped value.
 ```vue
 <script setup lang="ts">
 import { setupResource } from "@starbeam/vue";
-import { Cell, Resource } from "@starbeam/universal";
+import { reactive } from "@starbeam/collections";
+import { Resource } from "@starbeam/universal";
 
 const Clock = Resource(({ on }) => {
-  const now = Cell(new Date());
+  const clock = reactive.object({ now: new Date() });
 
   on.sync(() => {
+    clock.now = new Date();
+
     const timer = setInterval(() => {
-      now.set(new Date());
+      clock.now = new Date();
     }, 1000);
 
     return () => clearInterval(timer);
   });
 
-  return {
-    get now(): Date {
-      return now.current;
-    },
-  };
+  return clock;
 });
 
 const clock = setupResource(Clock);
@@ -162,7 +161,9 @@ const clock = setupResource(Clock);
 ```
 
 The resource returns ordinary domain data. Vue render reads that data through
-the Starbeam/Vue bridge that `setupResource()` created for the component.
+the Starbeam/Vue bridge that `setupResource()` created for the component. Vue
+owns the timing: sync runs from Vue's component lifecycle, and cleanup/finalize
+run when Vue unmounts the component.
 
 ## DOM element resources
 
@@ -173,7 +174,8 @@ It returns a Vue directive. Directives do not return template values, so pass an
 ```vue
 <script setup lang="ts">
 import { elementResourceDirective } from "@starbeam/vue";
-import { Cell, Resource } from "@starbeam/universal";
+import { reactive } from "@starbeam/collections";
+import { Resource } from "@starbeam/universal";
 import { shallowRef } from "vue";
 
 interface Size {
@@ -183,15 +185,14 @@ interface Size {
 
 function ElementSize(element: Element) {
   return Resource(({ on }) => {
-    const width = Cell(0);
-    const height = Cell(0);
+    const size = reactive.object({ width: 0, height: 0 }) satisfies Size;
 
     on.sync(() => {
       const observer = new ResizeObserver(([entry]) => {
         if (!entry) return;
 
-        width.set(entry.contentRect.width);
-        height.set(entry.contentRect.height);
+        size.width = entry.contentRect.width;
+        size.height = entry.contentRect.height;
       });
 
       observer.observe(element);
@@ -199,15 +200,7 @@ function ElementSize(element: Element) {
       return () => observer.disconnect();
     });
 
-    return {
-      get width(): number {
-        return width.current;
-      },
-
-      get height(): number {
-        return height.current;
-      },
-    } satisfies Size;
+    return size;
   });
 }
 
@@ -250,16 +243,11 @@ Then read the service from component setup.
 ```vue
 <script setup lang="ts">
 import { setupService } from "@starbeam/vue";
-import { Cell, Resource } from "@starbeam/universal";
+import { reactive } from "@starbeam/collections";
+import { Resource } from "@starbeam/universal";
 
 const SessionService = Resource(() => {
-  const userName = Cell("Guest");
-
-  return {
-    get userName(): string {
-      return userName.current;
-    },
-  };
+  return reactive.object({ userName: "Guest" });
 });
 
 const session = setupService(SessionService);

@@ -19,7 +19,8 @@ complete API reference.
 
 - `@starbeam/resource`: resource APIs for reusable setup, sync, and cleanup
   abstractions. App code often reaches resources through `@starbeam/universal`
-  or a framework adapter first.
+  or a framework adapter first. Start with
+  [Resources and lifecycle](/concepts/lifecycle/) for the app-author model.
 - `@starbeam/service`: app-lifetime resource composition. Use it for shared
   state that should live with the app or framework root.
 

@@ -158,7 +158,8 @@ returns one Svelte-readable store that is also attachable. Attach it with
 `size.attach`; read the resource value with Svelte store syntax.
 
 ```ts
-import { Cell, Resource } from "@starbeam/universal";
+import { reactive } from "@starbeam/collections";
+import { Resource } from "@starbeam/universal";
 
 export interface Size {
   readonly width: number;
@@ -167,15 +168,14 @@ export interface Size {
 
 export function ElementSize(element: HTMLElement) {
   return Resource(({ on }) => {
-    const width = Cell(0);
-    const height = Cell(0);
+    const size = reactive.object({ width: 0, height: 0 }) satisfies Size;
 
     on.sync(() => {
       const observer = new ResizeObserver(([entry]) => {
         if (!entry) return;
 
-        width.set(entry.contentRect.width);
-        height.set(entry.contentRect.height);
+        size.width = entry.contentRect.width;
+        size.height = entry.contentRect.height;
       });
 
       observer.observe(element);
@@ -183,15 +183,7 @@ export function ElementSize(element: HTMLElement) {
       return () => observer.disconnect();
     });
 
-    return {
-      get width(): number {
-        return width.current;
-      },
-
-      get height(): number {
-        return height.current;
-      },
-    } satisfies Size;
+    return size;
   });
 }
 ```
@@ -215,6 +207,8 @@ export function ElementSize(element: HTMLElement) {
 The element comes from Svelte. The resource work still lives in Starbeam.
 `elementResource()` and `elementResourceStore()` publish the domain-shaped
 resource value, so the store value is `$size.width`, not `$size.width.current`.
+The attachment owns the resource lifetime and finalizes it when Svelte detaches
+the element.
 
 ## Lower-level element APIs
 

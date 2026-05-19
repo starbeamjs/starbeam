@@ -57,13 +57,15 @@ reactive state. In the cart example, `items` and `itemCount` are just getters
 above the private collection. Starbeam records what they read when they run,
 then uses that read trace to validate cached work or update framework renderers.
 
-You do not have to maintain a userland dependency graph.
+You do not list dependencies by hand.
 
 ## Resources
 
 Resources model state with a lifetime. Use them when reactive state needs setup,
 sync, or cleanup: subscriptions, external handles, element work, and other values
-that should start and stop with an owner.
+that should start and stop with an owner. See
+[Resources and lifecycle](/concepts/lifecycle/) for the app-author path from
+resources to services and element resources.
 
 ## Services and app lifetime
 
