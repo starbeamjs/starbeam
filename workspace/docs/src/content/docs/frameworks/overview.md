@@ -33,8 +33,8 @@ place that connects those reads and resources to React, Preact, Vue, or Svelte.
   resources, services, and element resources.
 - [**Vue**](/frameworks/vue/): setup helpers and directives for reactive state,
   resources, services, and element resources.
-- **Svelte** (planned): element-resource attachments first, with the broader
-  adapter story still maturing.
+- [**Svelte**](/frameworks/svelte/): explicit reactive read values with
+  `fromStarbeam()`, plus Svelte 5 element-resource attachments.
 
 Some guide details may mature at different speeds. The top-level posture stays
 the same: Starbeam is designed to make the same domain-shaped reactive model work

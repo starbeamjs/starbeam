@@ -34,6 +34,7 @@ export default defineConfig({
             { label: "React", link: "/frameworks/react/" },
             { label: "Preact", link: "/frameworks/preact/" },
             { label: "Vue", link: "/frameworks/vue/" },
+            { label: "Svelte", link: "/frameworks/svelte/" },
           ],
         },
         {
