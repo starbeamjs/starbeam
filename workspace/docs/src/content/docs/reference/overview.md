@@ -6,6 +6,9 @@ description: Starbeam's public package surface at a glance.
 This section maps the public Starbeam package surface. It is an overview, not a
 complete API reference.
 
+If you are choosing what to install first, start with
+[Install Starbeam](/start/install/).
+
 ## Starter and app-facing packages
 
 - `@starbeam/collections`: reactive `Map`, `Set`, array, and object helpers for
@@ -22,7 +25,8 @@ complete API reference.
   or a framework adapter first. Start with
   [Resources and lifecycle](/concepts/lifecycle/) for the app-author model.
 - `@starbeam/service`: app-lifetime resource composition. Use it for shared
-  state that should live with the app or framework root.
+  state that should live with the app or framework root. App authors usually
+  reach services through framework adapter helpers.
 
 ## Lower-level and compatibility packages
 

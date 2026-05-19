@@ -21,7 +21,10 @@ export default defineConfig({
       sidebar: [
         {
           label: "Start",
-          items: [{ label: "Introduction", link: "/start/introduction/" }],
+          items: [
+            { label: "Introduction", link: "/start/introduction/" },
+            { label: "Install Starbeam", link: "/start/install/" },
+          ],
         },
         {
           label: "Core concepts",

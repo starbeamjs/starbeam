@@ -24,6 +24,9 @@ framework, such as `@starbeam/react`, `@starbeam/preact`, `@starbeam/vue`, or
 `@starbeam/svelte`. This page stays framework-neutral; framework guides cover
 the adapter APIs.
 
+Choosing packages for a framework app or reusable library? See
+[Install Starbeam](/start/install/).
+
 ## Import the first root state helper
 
 The first example uses a reactive `Map` for root state:
@@ -167,6 +170,8 @@ as JavaScript.
 
 ## Next steps
 
+- Read [Install Starbeam](/start/install/) to choose packages for your app or
+  library.
 - Read [Core concepts](/concepts/overview/) for the map of Starbeam's model.
 - Read [Resources and lifecycle](/concepts/lifecycle/) when work needs setup,
   sync, or cleanup.

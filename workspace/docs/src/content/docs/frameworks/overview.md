@@ -25,6 +25,8 @@ Starbeam's model and the framework's rendering and lifecycle rules. Your domain
 model can still expose normal getters, methods, and objects; the adapter is the
 place that connects those reads and resources to React, Preact, Vue, or Svelte.
 
+Need the package list first? Start with [Install Starbeam](/start/install/).
+
 ## Guides
 
 - [**React**](/frameworks/react/): hooks for reactive reads, resources,
