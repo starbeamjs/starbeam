@@ -1,155 +1,213 @@
-This package contains the implementations of the reactive primitives.
+# @starbeam/reactive
 
-## Package surface status
+Primitive reactive values for authors building Starbeam primitives, adapters, and
+integration layers.
 
-`@starbeam/reactive` is public for primitive reactive values such as `Cell`,
-`Marker`, `Formula`, and `CachedFormula`.
+Most app and library models should not start here. They usually want:
 
-The package currently also exports lower-level tracking-frame, runtime setup,
-protocol, and debug helpers used by Starbeam adapters and runtime packages.
-Those exports are not the app/library primitive surface described in this
-README. They remain exported for compatibility while their long-term package
-home is decided.
+- `@starbeam/collections` for reactive objects, arrays, maps, and sets;
+- `@starbeam/universal` for framework-neutral resources and common authoring
+  APIs;
+- a framework adapter such as `@starbeam/react`, `@starbeam/preact`,
+  `@starbeam/vue`, or `@starbeam/svelte` when a framework owns rendering.
 
-Reactive primitives must be used with an implementation of `Runtime`, which
-basically means that they must be used together with `@starbeam/runtime`.
+Use `@starbeam/reactive` directly when you are building a lower-level abstraction
+that needs to define reactive storage, expose a primitive reactive value, or
+bridge Starbeam into another runtime.
 
-Higher-level packages, such as `@starbeam/universal`, `@starbeam/resource` and
-the renderers include `@starbeam/runtime` as a dependency.
+## Package status
 
-> The primitives themselves, and higher-level concepts built on the primitives are
-> agnostic to the runtime, primarily to clearly mark the runtime interface and
-> allow us to revise its implementation over time cleanly.
->
-> It is not possible to use multiple runtimes at the same time, and the runtime
-> interface is not exposed to the user.
+This package is public, but its public audience is narrow. The app-facing model
+is objects, collections, resources, and domain-shaped values. This package is for
+the lower-level pieces those APIs are built from.
 
-This package provides primitive reactive _values_, building on `@starbeam/tags`,
-which provides primitive _tags_ (composable validation).
+The primitive-building surface is:
 
-## The Reactive Protocol
+| Export                                              | Role                                                         |
+| --------------------------------------------------- | ------------------------------------------------------------ |
+| `Cell`                                              | stores one reactive value inside a primitive                 |
+| `Marker`                                            | marks external storage as reactive without storing the value |
+| `Formula`                                           | computes a reactive value every time it is read              |
+| `CachedFormula`                                     | caches a reactive computation until one of its reads changes |
+| `Static`                                            | wraps a non-changing value as reactive                       |
+| `read`                                              | reads either a reactive value or a plain value               |
+| `CellOptions`, `Equality`, `FormulaFn`, `ReadValue` | helper types for primitive authors                           |
 
-All primitive reactive values implement the reactive protocol:
+The package also exports tracking-frame, runtime registration, protocol, and
+debug helpers. Those exports remain available for adapters and Starbeam internals
+that currently depend on them. They are not the primitive-building path this
+README teaches.
 
-- `read()`: read the current value of the reactive
-- `[TAG]`: get the tag for the reactive value. Tags are stable for the lifetime
-  of the reactive value, and therefore may be used to identify the value and cached.
+## Runtime requirement
 
-## The Primitives
+The primitives in this package need a Starbeam runtime. Most users get that
+through `@starbeam/universal`, `@starbeam/collections`, `@starbeam/resource`, or
+a framework adapter.
 
-### Cell
+If you import `@starbeam/reactive` directly inside infrastructure code, make sure
+that code runs in an environment where Starbeam's runtime has been registered.
+Do not teach application code to call runtime registration APIs directly.
 
-A cell represents storage for a single atomic value.
+## Cell: private storage inside a primitive
 
-A cell has an "equivalence" property: when the cell is updated with a value that is
-equivalent to the previous value, the new value is ignored. The default
-equivalent property is `Object.is`, but it can be overridden with the `equals`
-option to the `Cell()` constructor .
-
-In addition to `read()`, a cell also has these fundamental operations:
-
-- `update(T => T)`: update the value of the cell. This method takes a callback
-  that receives the previous value and returns a new value. This method does not
-  consume the cell.
-- `freeze()`: freeze the value of the cell. The cell can no longer be updated,
-  so any subscribers to the cell are automatically unsubscribed.
-
-`Cell` also has a few conveniences:
-
-- The `current` property, which is mutable. This makes it possible to write
-  things like `cell.current++`.
-- the `set` method, which just takes a new value and updates the cell.
-
-### Marker
-
-A marker is a simple primitive that has no value, but instead represents values
-stored elsewhere. For example, reactive collections store their values in the
-JavaScript collections they represent, and use markers to represent each
-discrete piece of storage in the collection.
-
-> You can think of a marker as a kind of cell without a value.
-
-A marker has these fundamental operations:
-
-- `mark()`: mark the external storage as being dirty.
-- `read()`: add the external storage to the current tracking frame.
-- `freeze()`: indicate the the external storage will never change in the future.
-
-> Reactive collections use markers more interestingly than just to represent
-> external values. For example, reactive `Map` has a marker for both `has` and
-> `get` for each entry in the map. This means that if a formula used a `has`
-> check to check for a key's presence and it returns `true`, updating the value
-> of that key will not invalidate the formula.
-
-### Formula
-
-A formula is a function that computes a reactive value. A formula's dependencies
-is the set of cells that were accessed during its last computation.
-
-A formula is a [reactive value](#the-reactive-protocol). Whenever the formula
-is `read()`, it recomputes its value. It is also a function. Calling the formula
-has the same behavior as calling the formula's `read()` method.
-
-#### Cached Formula
-
-A cached formula behaves like a formula, but it only recomputes its value when
-one of its dependencies changes.
-
-## Formula vs. CachedFormula
-
-Both formulas and cached formulas are reactive values. You can render either one
-(see `@starbeam/runtime` for more information). In either case, when the formula
-is recomputed, its dependencies are updated, and the formula's renderers will
-receive readiness notifications when any of the new dependencies change.
-
-The difference is that a cached formula will only recompute when one of its
-dependencies changes.
-
-Normal formulas are suitable for **mixed-reactive environments**, where a
-Starbeam formula uses both Starbeam reactive values **and** a framework's native
-reactive values.
-
-For example, consider this situation when using the React renderer:
+A `Cell` stores one value and invalidates its readers when the value changes. Use
+it inside a primitive or low-level abstraction, not as the default shape for app
+state.
 
 ```ts
-function Counter() {
-  const [reactCount, setReactCount] = useState(0);
+import { Cell } from "@starbeam/reactive";
 
-  const starbeamCount = useSetup(() => {
-    const count = Cell(0);
+export interface Box<T> {
+  readonly current: T;
+  set(value: T): void;
+}
 
-    return {
-      increment: () => {
-        count.current++;
-      },
-      get count() {
-        return count.read();
-      },
-    };
-  });
+export function Box<T>(initial: T): Box<T> {
+  const value = Cell(initial);
 
-  return useReactive(() => {
-    <p>
-      React count: {reactCount}
-      <button onClick={() => setReactCount(reactCount + 1)}>Increment</button>
-    </p>;
-    <p>
-      Starbeam count: {starbeamCount.count}
-      <button onClick={starbeamCount.increment}>Increment</button>
-    </p>;
-  });
+  return {
+    get current(): T {
+      return value.current;
+    },
+
+    set(next: T): void {
+      value.current = next;
+    },
+  };
 }
 ```
 
-Under the hood, `useReactive` uses a normal formula, which will result in an
-updated output whenever either `reactCount` or `starbeamCount.count` changes.
+The public value is `box.current`. The `Cell` is an implementation detail.
 
-- If `reactCount` changes, React will re-render the component, and the formula
-  will be recomputed.
-- If `starbeamCount.count` changes, the formula will be recomputed, and React
-  will re-render the component.
+For ordinary app state, prefer an object-shaped value such as
+`reactive.object({ current: ... })` from `@starbeam/collections`.
 
-In practice, this makes `Formula` a good default choice for mixed-reactive
-environments. You can always use `CachedFormula` if you are confident that your
-formula doesn't use any reactive values external to Starbeam to optimize your
-code further.
+### Equality
+
+`Cell` uses `Object.is` by default. Pass an `equals` option when the primitive
+needs different equality semantics.
+
+```ts
+import { Cell } from "@starbeam/reactive";
+
+const point = Cell(
+  { x: 0, y: 0 },
+  {
+    equals: (left, right) => left.x === right.x && left.y === right.y,
+  },
+);
+```
+
+## Marker: reactive external storage
+
+Use a `Marker` when the value lives somewhere else and your primitive only needs
+to mark reads and writes.
+
+```ts
+import { Marker } from "@starbeam/reactive";
+
+export class SelectionSet<T> {
+  #values = new Set<T>();
+  #membership = Marker("SelectionSet membership");
+
+  has(value: T): boolean {
+    this.#membership.read();
+    return this.#values.has(value);
+  }
+
+  add(value: T): void {
+    const size = this.#values.size;
+    this.#values.add(value);
+
+    if (this.#values.size !== size) {
+      this.#membership.mark();
+    }
+  }
+
+  delete(value: T): void {
+    if (this.#values.delete(value)) {
+      this.#membership.mark();
+    }
+  }
+}
+```
+
+The `Set` owns the data. The `Marker` makes membership reads reactive. Reactive
+collections use this idea internally with more granular markers.
+
+## Formula and CachedFormula
+
+Use `Formula` when a bridge should recompute every time it is read. This is a
+good fit for mixed-reactive boundaries where the callback may read Starbeam state
+and host-framework state.
+
+Use `CachedFormula` when the computation only depends on Starbeam reactive reads
+and should reuse its previous value until one of those reads changes.
+
+```ts
+import { CachedFormula, Cell, Formula } from "@starbeam/reactive";
+
+export function Multiplier(initial: number) {
+  const value = Cell(initial);
+
+  const doubled = CachedFormula(() => value.current * 2);
+
+  return {
+    get current(): number {
+      return value.current;
+    },
+
+    set current(next: number) {
+      value.current = next;
+    },
+
+    get doubled(): number {
+      return doubled.current;
+    },
+
+    bridge(readHostMultiplier: () => number) {
+      return Formula(() => value.current * readHostMultiplier());
+    },
+  };
+}
+```
+
+The cached read is pure Starbeam. The bridge read is intentionally not cached by
+Starbeam because the host callback may read state outside Starbeam.
+
+## Static and read
+
+Use `Static` to present a fixed value as reactive. Use `read` when a helper
+accepts either a plain value or a reactive value.
+
+```ts
+import { read, Static } from "@starbeam/reactive";
+
+const fallback = Static("Untitled");
+
+read(fallback).trim();
+read("Custom title").trim();
+```
+
+## Compatibility and implementor exports
+
+These exports are still part of the package because Starbeam adapters, runtime
+packages, and debug setup use them today:
+
+- tracking frames: `StartTrackingFrame`, `startFrame`, `finishFrame`, and related
+  frame types;
+- runtime and debug registration: `defineRuntime`, `defineDebug`, `DEBUG`, and
+  `UNKNOWN_REACTIVE_VALUE`;
+- protocol helpers: `isReactive`, `isTagged`, `intoReactive`, `isFormulaFn`, and
+  related types.
+
+They are compatibility and implementor APIs. They may move behind clearer
+runtime, protocol, or debug package boundaries in a later PER.
+
+## Learn more
+
+- [Collections and objects](https://starbeamjs.com/concepts/collections/): the
+  app-facing root-state model.
+- [Resources and lifecycle](https://starbeamjs.com/concepts/lifecycle/): setup,
+  sync, and cleanup for work with a lifetime.
+- [Reference](https://starbeamjs.com/reference/overview/): package-surface map.
