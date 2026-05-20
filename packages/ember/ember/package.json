@@ -1,0 +1,90 @@
+{
+  "name": "@starbeam/ember",
+  "type": "module",
+  "version": "0.8.9",
+  "main": "index.ts",
+  "types": "index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./addon-main.js": "./addon-main.cjs",
+    "./modifier": "./modifier.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.js"
+      },
+      "./addon-main.js": "./addon-main.cjs",
+      "./modifier": {
+        "types": "./dist/modifier.d.ts",
+        "import": "./dist/modifier.js",
+        "default": "./dist/modifier.js"
+      }
+    },
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts"
+  },
+  "starbeam": {
+    "entry": {
+      "index": "./index.ts",
+      "modifier": "./modifier.ts"
+    },
+    "inline": [
+      "@starbeam/core-utils"
+    ],
+    "type": "library:public"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "prepack": "pnpm build",
+    "test:lint": "eslint . --max-warnings 0",
+    "test:types": "tsc -b"
+  },
+  "dependencies": {
+    "@starbeam/interfaces": "workspace:^",
+    "@starbeam/reactive": "workspace:^",
+    "@starbeam/renderer": "workspace:^",
+    "@starbeam/resource": "workspace:^",
+    "@starbeam/runtime": "workspace:^",
+    "@starbeam/service": "workspace:^",
+    "@starbeam/shared": "workspace:^",
+    "@starbeam/universal": "workspace:^"
+  },
+  "devDependencies": {
+    "@embroider/addon-shim": "^1.10.0",
+    "@starbeam-dev/compile": "workspace:*",
+    "ember-modifier": "^4.2.0",
+    "ember-source": "^6.0.0",
+    "rollup": "^4.60.1"
+  },
+  "peerDependencies": {
+    "ember-modifier": "^4.0.0",
+    "ember-source": ">=4.12.0"
+  },
+  "ember-addon": {
+    "main": "addon-main.cjs",
+    "type": "addon",
+    "version": 2
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE.md"
+  ],
+  "keywords": [
+    "ember-addon"
+  ],
+  "peerDependenciesMeta": {
+    "ember-modifier": {
+      "optional": true
+    }
+  },
+  "release-plan": {
+    "semverIncrementAs": {
+      "major": "minor"
+    }
+  }
+}
