@@ -8,13 +8,13 @@ import {
   visit,
 } from "@ember/test-helpers";
 import { getPendingWaiterState } from "@ember/test-waiters";
-import * as QUnit from "qunit";
-import { setup } from "qunit-dom";
-import { setupEmberOnerrorValidation, start as qunitStart } from "ember-qunit";
 import { setTesting } from "@embroider/macros";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 import { getGlobalConfig } from "@embroider/macros/src/addon/runtime";
+import { setupEmberOnerrorValidation, start as qunitStart } from "ember-qunit";
+import * as QUnit from "qunit";
+import { setup } from "qunit-dom";
 
 import Application from "#app/app";
 import config from "#config";
@@ -60,10 +60,10 @@ export function start() {
   setup(QUnit.assert);
   setupEmberOnerrorValidation();
 
-  QUnit.moduleStart(({ name }) => console.group(name));
-  QUnit.testStart(({ name }) => console.group(name));
-  QUnit.testDone(() => console.groupEnd());
-  QUnit.moduleDone(() => console.groupEnd());
+  QUnit.moduleStart(({ name }) => void console.group(name));
+  QUnit.testStart(({ name }) => void console.group(name));
+  QUnit.testDone(() => void console.groupEnd());
+  QUnit.moduleDone(() => void console.groupEnd());
   QUnit.testDone(resetOnerror);
 
   qunitStart();

@@ -36,6 +36,14 @@ export default [
       // parser config not part of the shared preset. Not published; not
       // worth the eslint plumbing.
       "packages/x/vanilla/bench/**",
+
+      // The ember-test-app uses Glimmer template-tag syntax (`.gts`/`.gjs`)
+      // and Ember Stage-1 decorators on class fields, which need
+      // ember-template-lint + a parser that understands the embedded
+      // templates. The workspace preset is set up for plain ESM TypeScript
+      // libraries, so we skip the test app at this level. Its tests still
+      // run end-to-end via `pnpm test` inside the app.
+      "packages/ember/ember-test-app/**",
     ],
   },
 

@@ -216,6 +216,9 @@ importers:
       '@glimmer/component':
         specifier: 2.1.1
         version: 2.1.1
+      '@starbeam/collections':
+        specifier: workspace:^
+        version: link:../../universal/collections
       '@starbeam/ember':
         specifier: workspace:^
         version: link:../ember
