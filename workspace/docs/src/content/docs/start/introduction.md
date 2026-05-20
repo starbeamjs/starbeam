@@ -78,8 +78,9 @@ class Cart {
 }
 ```
 
-`#items` is the root state. It is reactive, but it is still a `Map<string,
-LineItem>`: use `set()`, `values()`, `get()`, `has()`, and `delete()`.
+`#items` is the root state. It is reactive, but it is still a map from string
+IDs to `LineItem` values: use `set()`, `values()`, `get()`, `has()`, and
+`delete()`.
 
 The rest of the class is ordinary JavaScript. `items`, `add()`, `itemCount`, and
 `totalCents` are domain-shaped methods and getters built above the root state.
