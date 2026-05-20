@@ -1,41 +1,73 @@
-[![npm version](https://badge.fury.io/js/@starbeam%2Funiversal.svg)](https://badge.fury.io/js/@starbeam%2Funiversal)
+# Starbeam
 
-Starbeam is a new kind of reactive library. It makes reactive programming simple and fun, and **it works with your existing JavaScript framework.**
+**Reactivity that stays JavaScript.**
 
-<center>
+Starbeam lets you mark the root state that changes, then build domain-shaped
+functions, classes, getters, methods, and collections around it as ordinary
+JavaScript.
 
-| 📖 [docs] | 💬 [discord] |
+Your public model can look like your app:
 
-</center>
+- `cart.totalCents`
+- `session.userName`
+- `size.width`
+- `form.isValid`
 
----
+The reactive boundary stays small. Root state is marked; the rest of the model
+stays inspectable JavaScript.
+
+## How the model scales
+
+1. **Mark root state.** Use reactive collections for collection-shaped state and
+   framework-neutral primitives when scalar state is the right shape.
+2. **Keep derived state ordinary.** Use functions, getters, methods, and classes
+   above root state.
+3. **Add lifecycle when work needs it.** Use resources for setup, sync, and
+   cleanup; adapters connect resources to framework lifetimes.
+
+## Install
+
+Framework-neutral models usually start with:
+
+```sh
+pnpm add @starbeam/universal @starbeam/collections
+```
+
+Framework apps add the adapter for the framework that owns rendering:
+
+- `@starbeam/react`
+- `@starbeam/preact`
+- `@starbeam/vue`
+- `@starbeam/svelte`
+
+See [Install Starbeam] for the package chooser.
+
+## Documentation
+
+- [Start]: build a first Starbeam model.
+- [Install Starbeam]: choose packages for your app or library.
+- [Core concepts]: learn root state, derived reads, resources, and services.
+- [Framework guides]: connect Starbeam to React, Preact, Vue, or Svelte.
+- [Library-author guide]: write reusable framework-neutral abstractions.
+- [Reference]: see the package reference.
+- [Advanced docs]: orient to adapter and runtime internals.
+- [Experiments]: read about active prototypes.
+- [Archive]: identify historical notes.
+
+## Community
+
+- [Documentation][docs]
+- [Discord]
+- [GitHub](https://github.com/starbeamjs/starbeam)
 
 [docs]: https://starbeamjs.com
-[discord]: https://discord.gg/HXq3PMmj8A
-
-The core concepts of Starbeam are documented in the [docs] for users of Starbeam.
-
-The package READMEs have additional implementor-focused documentation:
-
-- [@starbeam/shared]: Primitive Starbeam fundamentals. This package enables multiple
-  copies of Starbeam to interoperate, including across major versions of Starbeam.
-- [@starbeam/runtime]: Runtime coordination for Starbeam adapters and library
-  implementors.
-- [@starbeam/tags]: The core of Starbeam's demand-driven validation system for
-  primitive and renderer implementors.
-- [@starbeam/interfaces]: Type-only protocol substrate for Starbeam packages and
-  implementors.
-- [@starbeam/reactive]: The implementation of Starbeam's fundamental reactive
-  values (cells and formulas).
-- [@starbeam/collections]: Starbeam's reactive collections: reactive
-  implementations of JavaScript's built-in collections (object, array,
-  `Map`, `Set`, `WeakMap`, and `WeakSet`).
-
-More READMEs are coming.
-
-[@starbeam/shared]: ./packages/universal/shared/README.md
-[@starbeam/runtime]: ./packages/universal/runtime/README.md
-[@starbeam/tags]: ./packages/universal/tags/README.md
-[@starbeam/interfaces]: ./packages/universal/interfaces/README.md
-[@starbeam/reactive]: ./packages/universal/reactive/README.md
-[@starbeam/collections]: ./packages/universal/collections/README.md
+[Start]: https://starbeamjs.com/start/introduction/
+[Install Starbeam]: https://starbeamjs.com/start/install/
+[Core concepts]: https://starbeamjs.com/concepts/overview/
+[Framework guides]: https://starbeamjs.com/frameworks/overview/
+[Library-author guide]: https://starbeamjs.com/library-authors/overview/
+[Reference]: https://starbeamjs.com/reference/overview/
+[Advanced docs]: https://starbeamjs.com/advanced/overview/
+[Experiments]: https://starbeamjs.com/experiments/overview/
+[Archive]: https://starbeamjs.com/archive/overview/
+[Discord]: https://discord.gg/HXq3PMmj8A
