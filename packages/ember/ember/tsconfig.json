@@ -1,0 +1,13 @@
+{
+  "extends": "../../../.config/tsconfig/tsconfig.shared.json",
+  "compilerOptions": {
+    "composite": true,
+    "types": ["../../env.d.ts", "ember-source/types"],
+    "declaration": true,
+    "declarationDir": "../../../dist/types",
+    "declarationMap": true,
+    "emitDeclarationOnly": true
+  },
+  "include": ["env.d.ts", "index.ts", "modifier.ts", "src/**/*"],
+  "exclude": ["dist/**/*"]
+}
