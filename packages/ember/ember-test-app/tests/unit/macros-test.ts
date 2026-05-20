@@ -1,6 +1,6 @@
-import { module, test } from "qunit";
-import { isTesting } from "@embroider/macros";
 import { assert as emberAssert } from "@ember/debug";
+import { isTesting } from "@embroider/macros";
+import { module, test } from "qunit";
 
 module("@embroider/macros | runtime mode in tests", function () {
   /**
@@ -21,6 +21,6 @@ module("@embroider/macros | runtime mode in tests", function () {
    * the test build keeps DEBUG enabled.
    */
   test("@ember/debug assert throws when the condition is false", function (assert) {
-    assert.throws(() => emberAssert("string", false));
+    assert.throws(() => void emberAssert("string", false));
   });
 });

@@ -1,4 +1,5 @@
 import EmbroiderRouter from "@embroider/router";
+
 import config from "#config";
 
 export default class Router extends EmbroiderRouter {
@@ -14,17 +15,14 @@ Router.map(function () {});
  *   We don't yet have a way to do this in a nice way
  *
  */
-// function bundle(name: string, loader: () => Promise<{ default: unknown }>[]) {
-//   return {
-//     names: [name],
-//     load: async () => {
-//       const [template, route, controller] = await Promise.all(loader());
-//       let slashName = name.replaceAll(".", "/");
-//       let results: Record<string, unknown> = {};
+// function bundle(name: string, loader: () => Promise<{ default: unknown }>[])
+// { return { names: [name], load: async () => { const [template, route,
+// controller] = await Promise.all(loader()); let slashName =
+// name.replaceAll(".", "/"); let results: Record<string, unknown> = {};
 
 //       if (template) results[`./templates/${slashName}`] = template.default;
 //       if (route) results[`./routes/${slashName}`] = route.default;
-//       if (controller) results[`./controllers/${slashName}`] = controller.default;
+// if (controller) results[`./controllers/${slashName}`] = controller.default;
 
 //       return {
 //         default: results,
