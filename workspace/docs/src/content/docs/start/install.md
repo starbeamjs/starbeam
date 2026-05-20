@@ -8,14 +8,14 @@ Install the packages you import directly. Most apps need one framework adapter,
 
 ## What are you building?
 
-| If you are building…      | Install…                                                     | Start with…                                                                       |
-| ------------------------- | ------------------------------------------------------------ | --------------------------------------------------------------------------------- |
-| A framework-neutral model | `@starbeam/universal @starbeam/collections`                  | `reactive` collections, domain objects, and `Resource`                            |
-| A React app               | `@starbeam/react @starbeam/universal @starbeam/collections`  | `useReactive()`, `useResource()`, `useService()`, `useElementResource()`          |
-| A Preact app              | `@starbeam/preact @starbeam/universal @starbeam/collections` | `install(options)`, direct render reads, resource/service hooks                   |
+| If you are building…      | Install…                                                     | Start with…                                                                         |
+| ------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| A framework-neutral model | `@starbeam/universal @starbeam/collections`                  | `reactive` collections, domain objects, and `Resource`                              |
+| A React app               | `@starbeam/react @starbeam/universal @starbeam/collections`  | `useReactive()`, `useResource()`, `useService()`, `useElementResource()`            |
+| A Preact app              | `@starbeam/preact @starbeam/universal @starbeam/collections` | `install(options)`, direct render reads, resource/service hooks                     |
 | A Vue app                 | `@starbeam/vue @starbeam/universal @starbeam/collections`    | `setupReactive()`, `setupResource()`, `setupService()`, element-resource directives |
-| A Svelte app              | `@starbeam/svelte @starbeam/universal @starbeam/collections` | `fromStarbeam()` and Svelte 5 element-resource attachments                        |
-| A reusable library        | `@starbeam/universal @starbeam/collections`                  | framework-neutral state and domain-shaped APIs                                   |
+| A Svelte app              | `@starbeam/svelte @starbeam/universal @starbeam/collections` | `fromStarbeam()` and Svelte 5 element-resource attachments                          |
+| A reusable library        | `@starbeam/universal @starbeam/collections`                  | framework-neutral state and domain-shaped APIs                                      |
 
 ## Framework-neutral state
 
@@ -152,9 +152,9 @@ usually use framework adapter helpers instead:
 
 ### `@starbeam/reactive`
 
-Use `@starbeam/reactive` directly when you are writing library code that needs
-primitive reactive values such as `Cell`, `Formula`, or `CachedFormula`. App code
-should usually import those through `@starbeam/universal`.
+Use `@starbeam/reactive` directly when you are building lower-level reactive
+primitives. App and library models usually start with `@starbeam/collections`,
+`@starbeam/universal`, or a framework adapter.
 
 ### `@starbeam/core`
 

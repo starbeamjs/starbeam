@@ -12,9 +12,10 @@ If you are choosing what to install first, start with
 ## Starter and app-facing packages
 
 - `@starbeam/collections`: reactive `Map`, `Set`, array, and object helpers for
-  collection-shaped root state.
-- `@starbeam/universal`: framework-neutral scalar state and lifecycle APIs such
-  as `Cell` and `Resource`.
+  collection-shaped and object-shaped root state. Start with
+  [Collections and objects](/concepts/collections/).
+- `@starbeam/universal`: framework-neutral lifecycle APIs such as `Resource`,
+  plus compatibility exports for lower-level primitives.
 - Framework adapters: `@starbeam/react`, `@starbeam/preact`, `@starbeam/vue`, and
   `@starbeam/svelte` connect reactive reads and resources to each framework.
 
@@ -30,9 +31,9 @@ If you are choosing what to install first, start with
 
 ## Lower-level and compatibility packages
 
-- `@starbeam/reactive`: primitive reactive values such as `Cell`, `Marker`,
-  `Formula`, and `CachedFormula`. It is public for library authors, but most app
-  code should start with `@starbeam/collections` and `@starbeam/universal`.
+- `@starbeam/reactive`: lower-level primitives for authors building reactive
+  storage or integration primitives. Most app and library models should start
+  with `@starbeam/collections` and `@starbeam/universal`.
 - `@starbeam/core`: deprecated compatibility alias for `@starbeam/universal`.
   Existing code can keep using it during the compatibility window; new code
   should not start there.

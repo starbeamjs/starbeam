@@ -18,8 +18,8 @@ stays inspectable JavaScript.
 
 ## How the model scales
 
-1. **Mark root state.** Use reactive collections for collection-shaped state and
-   framework-neutral primitives when scalar state is the right shape.
+1. **Mark root state.** Use reactive collections and objects for the values that
+   change.
 2. **Keep derived state ordinary.** Use functions, getters, methods, and classes
    above root state.
 3. **Add lifecycle when work needs it.** Use resources for setup, sync, and

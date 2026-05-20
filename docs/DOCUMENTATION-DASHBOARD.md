@@ -43,18 +43,18 @@ The remaining documentation work should reinforce the public model:
 
 ## Dashboard
 
-| Priority | Arc                                      | Status  | Primary files                                                                                    | Why it matters                                                                                                                                           |
-| -------- | ---------------------------------------- | ------- | ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| P0       | Collections concept + package README     | Next    | `workspace/docs/src/content/docs/concepts/`, `packages/universal/collections/README.md`          | Collections are now the preferred root-state story for collection-shaped data, but the package README is stale and the concept has no first-class route. |
-| P0       | Reactive primitive README rewrite        | Ready   | `packages/universal/reactive/README.md`                                                          | `@starbeam/reactive` is public for authors building primitives, but the README still blends that surface with runtime/protocol caveats.                  |
-| P1       | Preact package README                    | Ready   | `packages/preact/preact/README.md`                                                               | Preact has a website guide and public package, but no package-level front door.                                                                          |
-| P1       | Core deprecation README + migration page | Ready   | `packages/universal/core/README.md`, `workspace/docs/src/content/docs/`                          | Existing users may land on `@starbeam/core`; they need a direct path to `@starbeam/universal`.                                                           |
-| P1       | Concept route expansion                  | Ready   | `workspace/docs/src/content/docs/concepts/`, `workspace/docs/astro.config.mjs`                   | Services and element resources are central concepts but currently live inside overview/lifecycle pages.                                                  |
-| P1       | Reference expansion                      | Ready   | `workspace/docs/src/content/docs/reference/`, `workspace/docs/astro.config.mjs`                  | The Reference route currently cannot answer concrete API questions.                                                                                      |
-| P2       | Status consistency pass                  | Ready   | `README.md`, framework docs, package READMEs, install/reference pages                            | Svelte, Vue, and experiments need consistent status language across entry points.                                                                        |
-| P2       | `@starbeam/use-strict-lifecycle` README  | Ready   | `packages/react/use-strict-lifecycle/README.md`, `packages/react/use-strict-lifecycle/THEORY.md` | A public package currently ships an empty README.                                                                                                        |
-| P2       | Experiment package README cleanup        | Ready   | `packages/x/store/README.md`, `packages/x/vanilla/README.md`, experiment package metadata        | The website quarantines experiments, but package surfaces still leak stale or placeholder signals.                                                       |
-| P3       | Ember website integration                | Blocked | Ember package/docs after PR #273 is reviewed                                                     | The adapter surface needs review before it becomes part of the public framework guide set.                                                               |
+| Priority | Arc                                      | Status  | Primary files                                                                                    | Why it matters                                                                                                                          |
+| -------- | ---------------------------------------- | ------- | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+| P0       | Collections concept + package README     | Done    | `workspace/docs/src/content/docs/concepts/`, `packages/universal/collections/README.md`          | Collections are now the preferred root-state story for collection-shaped data, with a concept route and aligned package README.         |
+| P0       | Reactive primitive README rewrite        | Next    | `packages/universal/reactive/README.md`                                                          | `@starbeam/reactive` is public for authors building primitives, but the README still blends that surface with runtime/protocol caveats. |
+| P1       | Preact package README                    | Ready   | `packages/preact/preact/README.md`                                                               | Preact has a website guide and public package, but no package-level front door.                                                         |
+| P1       | Core deprecation README + migration page | Ready   | `packages/universal/core/README.md`, `workspace/docs/src/content/docs/`                          | Existing users may land on `@starbeam/core`; they need a direct path to `@starbeam/universal`.                                          |
+| P1       | Concept route expansion                  | Ready   | `workspace/docs/src/content/docs/concepts/`, `workspace/docs/astro.config.mjs`                   | Services and element resources are central concepts but currently live inside overview/lifecycle pages.                                 |
+| P1       | Reference expansion                      | Ready   | `workspace/docs/src/content/docs/reference/`, `workspace/docs/astro.config.mjs`                  | The Reference route currently cannot answer concrete API questions.                                                                     |
+| P2       | Status consistency pass                  | Ready   | `README.md`, framework docs, package READMEs, install/reference pages                            | Svelte, Vue, and experiments need consistent status language across entry points.                                                       |
+| P2       | `@starbeam/use-strict-lifecycle` README  | Ready   | `packages/react/use-strict-lifecycle/README.md`, `packages/react/use-strict-lifecycle/THEORY.md` | A public package currently ships an empty README.                                                                                       |
+| P2       | Experiment package README cleanup        | Ready   | `packages/x/store/README.md`, `packages/x/vanilla/README.md`, experiment package metadata        | The website quarantines experiments, but package surfaces still leak stale or placeholder signals.                                      |
+| P3       | Ember website integration                | Blocked | Ember package/docs after PR #273 is reviewed                                                     | The adapter surface needs review before it becomes part of the public framework guide set.                                              |
 
 ## PER arcs
 
@@ -298,18 +298,21 @@ into the same public docs matrix as the other framework adapters.
 
 ## Recommended next arc
 
-Start with **PER 1: Collections concept and package README**.
+After PER 1 lands, continue with **PER 2: Reactive primitive README rewrite**.
 
-It is the highest-leverage follow-up because it reinforces the correction that
-started the current docs arc: when state is collection-shaped, teach reactive
-collections as the root-state boundary instead of teaching users to model a
-collection as a `Cell` around immutable updates.
+PER 1 reinforces the correction that started the current docs arc: when state is
+collection-shaped, teach reactive collections as the root-state boundary instead
+of teaching users to model a collection as a `Cell` around immutable updates.
 
 The same principle applies to single-slot state in first-run docs: do not teach
 `Cell` as the “one thing” primitive. If the public state wants a `current` slot,
 `reactive.object({ current: ... })` has the same app-facing behavior while
 keeping the teaching model object-shaped. Reserve `Cell` and `Marker` for pages
 about building primitives or low-level reactive storage.
+
+PER 2 should make that reservation explicit by rewriting the primitive package
+README around authors building primitives, not app authors modeling ordinary
+state.
 
 ## Validation checklist
 

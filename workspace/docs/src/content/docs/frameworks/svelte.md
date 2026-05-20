@@ -118,9 +118,9 @@ state: templates, `$derived`, and `$effect`.
 ```svelte
 <script lang="ts">
   import { fromStarbeam } from "@starbeam/svelte";
-  import { Cell } from "@starbeam/universal";
+  import { reactive } from "@starbeam/collections";
 
-  const count = Cell(1);
+  const count = reactive.object({ current: 1 });
   let multiplier = $state(2);
 
   const total = fromStarbeam(() => count.current * multiplier);

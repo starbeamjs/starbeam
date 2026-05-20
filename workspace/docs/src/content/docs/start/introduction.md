@@ -80,8 +80,8 @@ class Cart {
 The rest of the class is ordinary JavaScript. `items`, `add()`, `itemCount`, and
 `totalCents` are domain-shaped methods and getters built above the root state.
 
-Cells are still useful for scalar root state. Collections are a better starting
-point here because a cart is naturally collection-shaped.
+Collections are the right starting point here because a cart is naturally
+collection-shaped. If state is object-shaped, use `reactive.object(...)` instead.
 
 ## Derive values with ordinary JavaScript
 
@@ -173,6 +173,8 @@ as JavaScript.
 - Read [Install Starbeam](/start/install/) to choose packages for your app or
   library.
 - Read [Core concepts](/concepts/overview/) for the map of Starbeam's model.
+- Read [Collections and objects](/concepts/collections/) for the root-state
+  shapes that match ordinary JavaScript data.
 - Read [Resources and lifecycle](/concepts/lifecycle/) when work needs setup,
   sync, or cleanup.
 - Read [Framework guides](/frameworks/overview/) to see how adapters connect this

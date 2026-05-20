@@ -11,7 +11,7 @@ JavaScript.
 
 Root state is the storage Starbeam tracks directly. Most app models should start
 with the shape of the data: use `@starbeam/collections` when the state is
-collection-shaped, and use `Cell` from `@starbeam/universal` for scalar state.
+collection-shaped or object-shaped.
 
 ```ts
 import { reactive } from "@starbeam/collections";
@@ -35,13 +35,14 @@ class Cart {
 
 The private `Map` is the root state. The public reads are ordinary JavaScript.
 This is where you mark the boundary between changing data and the domain code
-that reads it.
+that reads it. See [Collections and objects](/concepts/collections/) for the
+app-facing root-state model.
 
 ## Reactive values
 
 A reactive value is any value whose result depends on reactive storage. It might
-be a `Cell`, a `Formula`, a resource, or a domain object with getters and methods
-that read root state internally.
+be a reactive collection, a reactive object, a resource, or a domain object with
+getters and methods that read root state internally.
 
 The public shape can still look like your app:
 
