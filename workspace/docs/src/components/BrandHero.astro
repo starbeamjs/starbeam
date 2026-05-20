@@ -168,7 +168,6 @@ import StarMark from "./StarMark.astro";
       align-items: start;
       grid-template-columns: 1fr;
       min-height: auto;
-      padding-block-end: 0;
     }
 
     .hero__mark {
@@ -188,7 +187,7 @@ import StarMark from "./StarMark.astro";
   @media (max-width: 540px) {
     .hero {
       border-radius: 2rem;
-      padding: 2rem 1.35rem 0;
+      padding: 2rem 1.35rem;
       width: min(88rem, calc(100vw - clamp(1rem, 5vw, 2rem)));
     }
 
