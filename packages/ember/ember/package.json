@@ -69,6 +69,7 @@
     "version": 2
   },
   "files": [
+    "addon-main.cjs",
     "dist",
     "README.md",
     "CHANGELOG.md",

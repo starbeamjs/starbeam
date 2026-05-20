@@ -508,7 +508,12 @@ function referencesPackage(content, name) {
 }
 
 function referencesCjs(value) {
-  return JSON.stringify(value).includes(".cjs");
+  // V2 Ember addons must ship an `addon-main.cjs` file; that's the contract
+  // embroider's resolver looks up via `ember-addon.main`. Strip that one
+  // expected occurrence before checking — anything *else* `.cjs` is a real
+  // regression in our ESM-only publish layout.
+  let json = JSON.stringify(value).replace(/"\.\/addon-main\.cjs"/gu, '""');
+  return json.includes(".cjs");
 }
 
 function isPackageRelativePath(value) {
