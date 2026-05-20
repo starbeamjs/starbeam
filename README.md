@@ -6,6 +6,10 @@ Starbeam lets you mark the root state that changes, then build domain-shaped
 functions, classes, getters, methods, and collections around it as ordinary
 JavaScript.
 
+Reactive objects and collections keep their JavaScript and TypeScript surface: a
+reactive `Map<K, V>` is still a `Map<K, V>`, and a reactive object is still typed
+as the object you passed in.
+
 Your public model can look like your app:
 
 - `cart.totalCents`

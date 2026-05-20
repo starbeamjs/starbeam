@@ -1,12 +1,18 @@
 ---
 title: Collections and objects
-description: "Use reactive Maps, Sets, arrays, and objects as root state while keeping your public model ordinary JavaScript."
+description: "Define reactive versions of ordinary JavaScript objects and built-in collections while keeping their JavaScript and TypeScript surface."
 ---
 
-Use reactive collections and objects when your state already has a JavaScript
-shape. A cart is a map of line items. A registry is a map of entries. A clock is
-an object with a `now` property. Starbeam tracks those root-state reads without
-asking the rest of your model to change shape.
+Starbeam lets you define reactive versions of ordinary JavaScript objects and
+built-in collections. They keep their JavaScript and TypeScript surface:
+`reactive.Map<K, V>()` gives you a `Map<K, V>`, `reactive.Set<T>()` gives you a
+`Set<T>`, and `reactive.object(value)` gives you the same object type back. You
+use normal property syntax and built-in collection APIs; Starbeam tracks the
+reads and writes underneath.
+
+Use those reactive objects and collections when your state already has a
+JavaScript shape. A cart is a map of line items. A registry is a map of entries.
+A clock is an object with a `now` property.
 
 The rule is the same as the Start guide:
 
@@ -22,8 +28,8 @@ pnpm add @starbeam/collections
 import { reactive } from "@starbeam/collections";
 ```
 
-Use the named `reactive` import. It exposes helpers for the JavaScript shapes you
-already use:
+Use the named `reactive` import. It exposes helpers for ordinary objects and
+built-in collection types:
 
 | Helper                     | Use for                                       |
 | -------------------------- | --------------------------------------------- |

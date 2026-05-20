@@ -37,8 +37,12 @@ import { reactive } from "@starbeam/collections";
 
 ## Mark root state with a collection
 
-A reactive collection has the same shape as the corresponding JavaScript
-collection. Keep it private and expose the shape your app wants.
+Starbeam lets you define reactive versions of ordinary JavaScript objects and
+built-in collections. They keep their JavaScript and TypeScript surface:
+`reactive.Map<K, V>()` gives you a `Map<K, V>`, and you use it with the built-in
+`Map` API.
+
+Keep root state private and expose the shape your app wants.
 
 ```ts
 import { reactive } from "@starbeam/collections";
@@ -74,8 +78,8 @@ class Cart {
 }
 ```
 
-`#items` is the root state. It is reactive, but its API is still the ordinary
-`Map` API: `set()`, `values()`, `get()`, `has()`, and `delete()`.
+`#items` is the root state. It is reactive, but it is still a `Map<string,
+LineItem>`: use `set()`, `values()`, `get()`, `has()`, and `delete()`.
 
 The rest of the class is ordinary JavaScript. `items`, `add()`, `itemCount`, and
 `totalCents` are domain-shaped methods and getters built above the root state.

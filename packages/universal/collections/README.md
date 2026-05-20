@@ -1,10 +1,15 @@
 # @starbeam/collections
 
-Reactive JavaScript collections and objects for Starbeam root state.
+Reactive versions of ordinary JavaScript objects and built-in collections.
 
-Use this package when the state you want to track is already shaped like a
-JavaScript `Map`, `Set`, array, or object. Mark that storage reactive, then keep
-the rest of your model as ordinary JavaScript.
+Use this package when the state you want to track is already a JavaScript `Map`,
+`Set`, array, or object. The reactive versions keep their JavaScript and
+TypeScript surface: `reactive.Map<K, V>()` gives you a `Map<K, V>`,
+`reactive.Set<T>()` gives you a `Set<T>`, and `reactive.object(value)` gives you
+the same object type back.
+
+Use normal property syntax and built-in collection APIs. Starbeam tracks the
+reads and writes underneath.
 
 ```sh
 pnpm add @starbeam/collections
