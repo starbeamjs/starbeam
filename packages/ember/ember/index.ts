@@ -3,4 +3,12 @@ export {
   type FromStarbeamOptions,
   type StarbeamValue,
 } from "./src/reactive.js";
-export { setupResource, setupService } from "./src/resource.js";
+export {
+  getResource,
+  resource,
+  setupReactiveResource,
+  setupResource,
+  setupService,
+  useResource,
+  useService,
+} from "./src/resource.js";

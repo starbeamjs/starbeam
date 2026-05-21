@@ -18,6 +18,11 @@ interface Size {
   readonly width: number;
 }
 
+interface ElementInfo {
+  readonly elementId: string;
+  readonly width: number;
+}
+
 const INITIAL_WIDTH = 0;
 
 function ElementSizeBlueprint(
@@ -49,6 +54,35 @@ function ElementSizeBlueprint(
 
 function display(size: Size | null): string {
   return size ? `width=${size.width}` : "pending";
+}
+
+function ElementInfoBlueprint(events: RecordedEvents) {
+  return (element: HTMLElement) =>
+    Resource(({ on: lifecycle }) => {
+      const width = Cell(INITIAL_WIDTH);
+      const elementId = element.dataset["id"] ?? "unknown";
+      events.record(`info:attached:${elementId}`);
+
+      lifecycle.sync(() => {
+        events.record(`info:sync:${elementId}`);
+        width.set(Number(element.dataset["width"] ?? INITIAL_WIDTH));
+      });
+
+      lifecycle.finalize(() => {
+        events.record(`info:finalize:${elementId}`);
+      });
+
+      return {
+        elementId,
+        get width() {
+          return width.current;
+        },
+      } satisfies ElementInfo;
+    });
+}
+
+function infoDisplay(info: ElementInfo | null): string {
+  return info ? `${info.elementId}:${info.width}` : "pending";
 }
 
 module("elementResource | rendering", function (hooks) {
@@ -102,6 +136,151 @@ module("elementResource | rendering", function (hooks) {
     await settled();
     assert.dom("[data-test-size]").hasText("width=101");
     events.expect(assert, ["size:sync"], "resync after marker invalidation");
+  });
+
+  test("modifier positional args trigger a fresh element resource", async function (assert) {
+    const events = new RecordedEvents();
+
+    class Probe extends Component {
+      @tracked size: ElementInfo | null = null;
+      @tracked width = "100";
+
+      attach = elementResourceModifier(ElementInfoBlueprint(events), {
+        into: (value) => (this.size = value),
+      });
+
+      get args() {
+        return [this.width];
+      }
+
+      get label(): string {
+        return infoDisplay(this.size);
+      }
+
+      grow = () => {
+        this.width = "101";
+      };
+
+      <template>
+        <p data-test-size>{{this.label}}</p>
+        <button type="button" data-test-grow {{on "click" this.grow}}>grow</button>
+        <div
+          data-test-box
+          data-id="positional"
+          data-width={{this.width}}
+          {{this.attach this.width}}
+        >box</div>
+      </template>
+    }
+
+    await render(<template><Probe /></template>);
+    await settled();
+    assert.dom("[data-test-size]").hasText("positional:100");
+    events.expect(assert, ["info:attached:positional", "info:sync:positional"]);
+
+    await click("[data-test-grow]");
+    await settled();
+    assert.dom("[data-test-size]").hasText("positional:101");
+    events.expect(assert, [
+      "info:finalize:positional",
+      "info:attached:positional",
+      "info:sync:positional",
+    ]);
+  });
+
+  test("modifier named args trigger a fresh element resource", async function (assert) {
+    const events = new RecordedEvents();
+
+    class Probe extends Component {
+      @tracked size: ElementInfo | null = null;
+      @tracked width = "100";
+
+      attach = elementResourceModifier(ElementInfoBlueprint(events), {
+        into: (value) => (this.size = value),
+      });
+
+      get args() {
+        return { width: this.width };
+      }
+
+      get label(): string {
+        return infoDisplay(this.size);
+      }
+
+      grow = () => {
+        this.width = "101";
+      };
+
+      <template>
+        <p data-test-size>{{this.label}}</p>
+        <button type="button" data-test-grow {{on "click" this.grow}}>grow</button>
+        <div
+          data-test-box
+          data-id="named"
+          data-width={{this.width}}
+          {{this.attach width=this.width}}
+        >box</div>
+      </template>
+    }
+
+    await render(<template><Probe /></template>);
+    await settled();
+    assert.dom("[data-test-size]").hasText("named:100");
+    events.expect(assert, ["info:attached:named", "info:sync:named"]);
+
+    await click("[data-test-grow]");
+    await settled();
+    assert.dom("[data-test-size]").hasText("named:101");
+    events.expect(assert, [
+      "info:finalize:named",
+      "info:attached:named",
+      "info:sync:named",
+    ]);
+  });
+
+  test("modifier element replacement creates a fresh element resource", async function (assert) {
+    const events = new RecordedEvents();
+
+    class Probe extends Component {
+      @tracked first = true;
+      @tracked size: ElementInfo | null = null;
+
+      attach = elementResourceModifier(ElementInfoBlueprint(events), {
+        into: (value) => (this.size = value),
+      });
+
+      get label(): string {
+        return infoDisplay(this.size);
+      }
+
+      replace = () => {
+        this.first = false;
+      };
+
+      <template>
+        <p data-test-size>{{this.label}}</p>
+        <button type="button" data-test-replace {{on "click" this.replace}}>replace</button>
+        {{#if this.first}}
+          <div data-test-box data-id="first" data-width="100" {{this.attach}}>first</div>
+        {{else}}
+          <section data-test-box data-id="second" data-width="200" {{this.attach}}>second</section>
+        {{/if}}
+      </template>
+    }
+
+    await render(<template><Probe /></template>);
+    await settled();
+    assert.dom("[data-test-size]").hasText("first:100");
+    events.expect(assert, ["info:attached:first", "info:sync:first"]);
+
+    await click("[data-test-replace]");
+    await settled();
+    assert.dom("[data-test-size]").hasText("second:200");
+    events.expect(assert, [
+      "info:attached:second",
+      "info:sync:second",
+      "info:finalize:first",
+    ]);
   });
 
   test("modifier finalizes when its element is removed", async function (assert) {
