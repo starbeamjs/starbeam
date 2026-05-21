@@ -1,4 +1,14 @@
-## Aggregating and Grouping
+# @starbeamx/store
+
+`@starbeamx/store` is a public experiment for reactive table, query, grouping,
+and aggregation APIs. It is useful for exploring table-shaped data, but it is not
+the default app-state path.
+
+The examples below are provisional and may lag current source and tests. For
+stable app docs, start with `@starbeam/collections`, framework adapters, and the
+website guides.
+
+## Aggregating and grouping
 
 **Grouping** turns a list of rows into a map of lists of rows based on some grouping criteria.
 

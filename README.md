@@ -44,6 +44,10 @@ Framework apps add the adapter for the framework that owns rendering:
 - `@starbeam/vue`
 - `@starbeam/svelte`
 
+The current Svelte adapter is a focused Svelte 5 slice: experimental
+`fromStarbeam()` reads and attachment-backed element resources. Component
+resources and app-scoped service helpers are not exposed yet.
+
 See [Install Starbeam] for the package chooser.
 
 ## Documentation

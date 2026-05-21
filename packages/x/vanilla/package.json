@@ -2,7 +2,7 @@
   "name": "@starbeamx/vanilla",
   "type": "module",
   "version": "0.8.9",
-  "description": "A renderer for Starbeam using Vanilla JavaScript",
+  "description": "Experimental minimal DOM renderer and reference implementation for Starbeam",
   "main": "index.ts",
   "types": "index.ts",
   "exports": {

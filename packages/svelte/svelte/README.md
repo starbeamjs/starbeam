@@ -2,6 +2,13 @@
 
 Svelte adapter for Starbeam reactive reads and element-backed resources.
 
+## Current scope
+
+`fromStarbeam()` is the current tested Svelte 5 read bridge and is experimental.
+`elementResource()` is the current Svelte 5 attachment path for element-backed
+resources. Component-lifetime resource helpers and app-scoped service helpers are
+not exposed yet.
+
 ## Reactive reads
 
 > Experimental: `fromStarbeam()` is the current tested Svelte 5 read bridge.

@@ -15,11 +15,11 @@ arc should still get a fresh Prepare before editing.
 | Homepage               | Done         | Public narrative is aligned around “Reactivity that stays JavaScript.”                      |
 | Start                  | Done         | Introduction and install chooser teach framework-neutral and adapter paths.                 |
 | Core concepts          | Done for now | Overview, collections, lifecycle, services, and element resources have first concept pages. |
-| Framework guides       | Partial      | React, Preact, Vue, and Svelte pages exist; status and package README alignment remains.    |
+| Framework guides       | Done for now | React, Preact, Vue, and Svelte pages exist with current adapter status language.            |
 | Library authors        | Done         | Reusable framework-neutral abstractions have a first guide.                                 |
 | Reference              | Done for now | First hand-written reference cards exist for public packages and framework adapters.        |
 | Advanced / implementor | Done for now | It routes readers to source notes and records the status of implementor material.           |
-| Experiments            | Done for now | Experiments are quarantined, but package READMEs still need cleanup.                        |
+| Experiments            | Done for now | Experiments are quarantined, with package README and metadata status language aligned.      |
 | Archive                | Done         | Historical material is explicitly quarantined.                                              |
 | Root README            | Done         | It now routes readers into the website instead of old package README lists.                 |
 | Ember adapter docs     | Deferred     | Do not integrate Ember into the website until the adapter surface has been reviewed.        |
@@ -51,9 +51,9 @@ The remaining documentation work should reinforce the public model:
 | P1       | Core deprecation README + migration page | Done    | `packages/universal/core/README.md`, `workspace/docs/src/content/docs/`                          | Existing users now have package and website migration guidance from `@starbeam/core` to `@starbeam/universal`.                          |
 | P1       | Concept route expansion                  | Done    | `workspace/docs/src/content/docs/concepts/`, `workspace/docs/astro.config.mjs`                   | Services and element resources now have first-class concept pages linked from lifecycle and framework guides.                           |
 | P1       | Reference expansion                      | Done    | `workspace/docs/src/content/docs/reference/`, `workspace/docs/astro.config.mjs`                  | Reference now has a first batch of hand-written package and adapter cards.                                                              |
-| P2       | Status consistency pass                  | Ready   | `README.md`, framework docs, package READMEs, install/reference pages                            | Svelte, Vue, and experiments need consistent status language across entry points.                                                       |
+| P2       | Status consistency pass                  | Done    | `README.md`, framework docs, package READMEs, install/reference pages                            | Svelte, Vue, and experiment status language is aligned across website entry points and package surfaces.                                |
 | P2       | `@starbeam/use-strict-lifecycle` README  | Ready   | `packages/react/use-strict-lifecycle/README.md`, `packages/react/use-strict-lifecycle/THEORY.md` | A public package currently ships an empty README.                                                                                       |
-| P2       | Experiment package README cleanup        | Ready   | `packages/x/store/README.md`, `packages/x/vanilla/README.md`, experiment package metadata        | The website quarantines experiments, but package surfaces still leak stale or placeholder signals.                                      |
+| P2       | Experiment package README cleanup        | Done    | `packages/x/store/README.md`, `packages/x/vanilla/README.md`, experiment package metadata        | Experiment package surfaces now describe their provisional status and headless-form is clearly private placeholder metadata.            |
 | P3       | Ember website integration                | Blocked | Ember package/docs after PR #273 is reviewed                                                     | The adapter surface needs review before it becomes part of the public framework guide set.                                              |
 
 ## PER arcs
@@ -236,6 +236,11 @@ follow-up.
 **Hypothesis:** The website and package READMEs should use the same status words
 for Svelte, Vue, experiments, and direct packages.
 
+**Conclusion:** Svelte is documented as the current Svelte 5 slice with
+experimental reads and element-resource attachments. Vue package docs now match
+the website's `useReactive()` / `setupReactive()` distinction. Experiment package
+READMEs and metadata now use public-experiment or private-placeholder language.
+
 **Prepare**
 
 - Inventory status language in the root README, install page, framework overview,
@@ -313,14 +318,13 @@ into the same public docs matrix as the other framework adapters.
 
 ## Recommended next arc
 
-After PER 6 lands, continue with **PER 7: Status consistency pass**.
+After PER 7 lands, continue with **PER 8: Public infrastructure README closeout**.
 
-Reference now has concise package and adapter cards. The next gap is consistency
-between website entry points and package READMEs for experimental, low-level,
-deprecated, and historical surfaces.
+The remaining public package gap is `@starbeam/use-strict-lifecycle`, which still
+needs an honest README that does not promote it as first-run app-author API.
 
-Start with Svelte status, Vue package README alignment, and experiment package
-metadata/readme cleanup.
+Use its theory notes and React adapter context to decide whether to frame it as a
+standalone React lifecycle utility, Starbeam adapter infrastructure, or both.
 
 ## Validation checklist
 

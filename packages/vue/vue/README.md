@@ -5,14 +5,24 @@ resources.
 
 ## Public APIs
 
-- `setupReactive(blueprint)`: expose a Starbeam reactive value as a Vue ref.
+- `useReactive()`: make direct Starbeam reads visible to the current Vue
+  component. Use this when a template reads Starbeam-backed JavaScript directly.
+- `setupReactive(blueprint)`: expose one specific Starbeam read as a Vue ref.
 - `setupResource(blueprint)`: create a Starbeam resource in component setup.
 - `setupService(blueprint)`: access an app-scoped Starbeam service.
-- `elementResource(blueprint)`: create an experimental handle with both a
-  directive and a Vue ref for an element-backed resource.
 - `elementResourceDirective(blueprint, options?)`: attach an element-backed
   resource to a Vue custom directive.
+- `elementResource(blueprint)`: create an experimental lower-level handle with
+  both a directive and a Vue ref for an element-backed resource.
 - `Starbeam`: Vue plugin that owns app-scoped Starbeam services.
+
+## Reactive reads
+
+Use `useReactive()` in setup or `<script setup>` when the template reads
+Starbeam-backed JavaScript directly. It makes the current Vue component aware of
+Starbeam reads, but it does not create a Vue ref by itself.
+
+Use `setupReactive()` when you want a specific Starbeam read as a Vue ref.
 
 ## Element resources
 
@@ -80,9 +90,9 @@ expose getters or methods, so consumers read `size.width`, not
 
 ### Handle experiment
 
-`elementResource()` returns a Vue ref augmented with the directive. This mirrors
-the Svelte experiment where a modifier-like object is both attachable and
-readable.
+`elementResource()` is public but experimental and lower-level. It returns a Vue
+ref augmented with the directive. This mirrors the Svelte experiment where a
+modifier-like object is both attachable and readable.
 
 ```ts
 const size = elementResource(ElementSize);

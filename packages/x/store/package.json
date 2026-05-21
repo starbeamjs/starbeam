@@ -2,7 +2,7 @@
   "name": "@starbeamx/store",
   "type": "module",
   "version": "0.8.9",
-  "description": "A Starbeam Store that's fun and easy to use",
+  "description": "Experimental reactive table, query, grouping, and aggregation APIs for Starbeam",
   "main": "index.ts",
   "types": "index.ts",
   "exports": {

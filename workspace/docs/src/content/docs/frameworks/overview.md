@@ -8,7 +8,8 @@ native by connecting Starbeam's reactive model to each framework's rendering and
 lifecycle rules.
 
 The goal is not one framework with incidental ports. React, Preact, Vue, and
-Svelte are first-class targets for the public docs.
+Svelte are public docs targets, with adapter coverage maturing at different
+speeds.
 
 ## Same model, native edges
 
@@ -35,8 +36,9 @@ Need the package list first? Start with [Install Starbeam](/start/install/).
   resources, services, and element resources.
 - [**Vue**](/frameworks/vue/): setup helpers and directives for reactive state,
   resources, services, and element resources.
-- [**Svelte**](/frameworks/svelte/): explicit reactive read values with
-  `fromStarbeam()`, plus Svelte 5 element-resource attachments.
+- [**Svelte**](/frameworks/svelte/): current Svelte 5 slice with experimental
+  `fromStarbeam()` reads and element-resource attachments. Component-resource and
+  service helpers are not exposed yet.
 
 Some guide details may mature at different speeds. The top-level posture stays
 the same: Starbeam is designed to make the same domain-shaped reactive model work

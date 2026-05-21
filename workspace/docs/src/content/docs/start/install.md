@@ -8,14 +8,14 @@ Install the packages you import directly. Most apps need one framework adapter,
 
 ## What are you building?
 
-| If you are building…      | Install…                                                     | Start with…                                                                         |
-| ------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
-| A framework-neutral model | `@starbeam/universal @starbeam/collections`                  | `reactive` collections, domain objects, and `Resource`                              |
-| A React app               | `@starbeam/react @starbeam/universal @starbeam/collections`  | `useReactive()`, `useResource()`, `useService()`, `useElementResource()`            |
-| A Preact app              | `@starbeam/preact @starbeam/universal @starbeam/collections` | `install(options)`, direct render reads, resource/service hooks                     |
-| A Vue app                 | `@starbeam/vue @starbeam/universal @starbeam/collections`    | `setupReactive()`, `setupResource()`, `setupService()`, element-resource directives |
-| A Svelte app              | `@starbeam/svelte @starbeam/universal @starbeam/collections` | `fromStarbeam()` and Svelte 5 element-resource attachments                          |
-| A reusable library        | `@starbeam/universal @starbeam/collections`                  | framework-neutral state and domain-shaped APIs                                      |
+| If you are building…      | Install…                                                     | Start with…                                                                            |
+| ------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
+| A framework-neutral model | `@starbeam/universal @starbeam/collections`                  | `reactive` collections, domain objects, and `Resource`                                 |
+| A React app               | `@starbeam/react @starbeam/universal @starbeam/collections`  | `useReactive()`, `useResource()`, `useService()`, `useElementResource()`               |
+| A Preact app              | `@starbeam/preact @starbeam/universal @starbeam/collections` | `install(options)`, direct render reads, resource/service hooks                        |
+| A Vue app                 | `@starbeam/vue @starbeam/universal @starbeam/collections`    | `useReactive()`, `setupResource()`, `setupService()`, element-resource directives      |
+| A Svelte app              | `@starbeam/svelte @starbeam/universal @starbeam/collections` | current Svelte 5 slice: experimental `fromStarbeam()` and element-resource attachments |
+| A reusable library        | `@starbeam/universal @starbeam/collections`                  | framework-neutral state and domain-shaped APIs                                         |
 
 ## Framework-neutral state
 
@@ -92,13 +92,16 @@ pnpm add @starbeam/vue @starbeam/universal @starbeam/collections
 import {
   Starbeam,
   elementResourceDirective,
+  useReactive,
   setupReactive,
   setupResource,
   setupService,
 } from "@starbeam/vue";
 ```
 
-Vue uses Composition API setup helpers and directives: [Vue](/frameworks/vue/).
+Vue uses `useReactive()` for direct template reads, `setupReactive()` when you
+want a specific Starbeam read as a Vue ref, and directives for element resources:
+[Vue](/frameworks/vue/).
 
 ### Svelte
 
@@ -115,9 +118,9 @@ import {
 } from "@starbeam/svelte";
 ```
 
-Svelte currently exposes Starbeam reads through `fromStarbeam()` and DOM element
-resources through Svelte 5 attachments. Component-resource and app-service
-helpers are not exposed yet. See [Svelte](/frameworks/svelte/).
+Svelte currently exposes experimental Starbeam reads through `fromStarbeam()` and
+DOM element resources through Svelte 5 attachments. Component-resource and
+app-service helpers are not exposed yet. See [Svelte](/frameworks/svelte/).
 
 ## Direct packages
 

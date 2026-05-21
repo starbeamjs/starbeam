@@ -3,23 +3,14 @@
   "name": "@starbeamx/headless-form",
   "type": "module",
   "version": "0.8.9",
-  "description": "A placeholder for a headless form library",
+  "description": "Private placeholder for a future Starbeam headless form experiment",
   "main": "index.ts",
   "types": "index.ts",
   "exports": {
     "default": "./index.ts"
   },
-  "publishConfig": {
-    "exports": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.cjs"
-    },
-    "main": "dist/index.cjs",
-    "types": "dist/index.d.ts"
-  },
   "starbeam": {
-    "type": "library:public"
+    "type": "library:private"
   },
   "scripts": {
     "test:lint": "eslint . --max-warnings 0",
