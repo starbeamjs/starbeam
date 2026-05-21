@@ -43,6 +43,8 @@ If you are choosing what to install first, start with
   storage or integration primitives. Most app and library models should start
   with `@starbeam/collections` and `@starbeam/universal`. See
   [Reactive primitives](/reference/reactive-primitives/).
+- `@starbeam/use-strict-lifecycle`: public React lifecycle infrastructure for
+  library and adapter authors. App code should start with `@starbeam/react`.
 - `@starbeam/core`: deprecated compatibility alias for `@starbeam/universal`.
   Existing code can keep using it during the compatibility window; new code
   should not start there. See

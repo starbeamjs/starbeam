@@ -110,11 +110,12 @@ lifecycle behavior or reviewing compiler-facing code.
 
 Source material:
 
+- [packages/react/use-strict-lifecycle/README.md](https://github.com/starbeamjs/starbeam/blob/main/packages/react/use-strict-lifecycle/README.md)
 - [packages/react/use-strict-lifecycle/THEORY.md](https://github.com/starbeamjs/starbeam/blob/main/packages/react/use-strict-lifecycle/THEORY.md)
 - [docs/INVARIANTS.md](https://github.com/starbeamjs/starbeam/blob/main/docs/INVARIANTS.md)
 
-The `@starbeam/use-strict-lifecycle` README is not yet a finished public guide.
-Treat the theory note as implementation background.
+Use the `@starbeam/use-strict-lifecycle` README for the public infrastructure
+surface. Treat the theory note as implementation background.
 
 ### Package-surface policy
 

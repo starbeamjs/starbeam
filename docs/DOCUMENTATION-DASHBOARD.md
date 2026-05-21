@@ -52,7 +52,7 @@ The remaining documentation work should reinforce the public model:
 | P1       | Concept route expansion                  | Done    | `workspace/docs/src/content/docs/concepts/`, `workspace/docs/astro.config.mjs`                   | Services and element resources now have first-class concept pages linked from lifecycle and framework guides.                           |
 | P1       | Reference expansion                      | Done    | `workspace/docs/src/content/docs/reference/`, `workspace/docs/astro.config.mjs`                  | Reference now has a first batch of hand-written package and adapter cards.                                                              |
 | P2       | Status consistency pass                  | Done    | `README.md`, framework docs, package READMEs, install/reference pages                            | Svelte, Vue, and experiment status language is aligned across website entry points and package surfaces.                                |
-| P2       | `@starbeam/use-strict-lifecycle` README  | Ready   | `packages/react/use-strict-lifecycle/README.md`, `packages/react/use-strict-lifecycle/THEORY.md` | A public package currently ships an empty README.                                                                                       |
+| P2       | `@starbeam/use-strict-lifecycle` README  | Done    | `packages/react/use-strict-lifecycle/README.md`, `packages/react/use-strict-lifecycle/THEORY.md` | The public React lifecycle infrastructure package now has a README and website reference pointers.                                      |
 | P2       | Experiment package README cleanup        | Done    | `packages/x/store/README.md`, `packages/x/vanilla/README.md`, experiment package metadata        | Experiment package surfaces now describe their provisional status and headless-form is clearly private placeholder metadata.            |
 | P3       | Ember website integration                | Blocked | Ember package/docs after PR #273 is reviewed                                                     | The adapter surface needs review before it becomes part of the public framework guide set.                                              |
 
@@ -268,6 +268,10 @@ READMEs and metadata now use public-experiment or private-placeholder language.
 **Hypothesis:** Public but non-first-run packages need honest README pages even
 when they are not part of the app-author path.
 
+**Conclusion:** `@starbeam/use-strict-lifecycle` is public React lifecycle
+infrastructure for library and adapter authors. It is also used by
+`@starbeam/react`, but app code should start with the adapter APIs.
+
 **Prepare**
 
 - Read the `@starbeam/use-strict-lifecycle` theory notes and current package
@@ -279,8 +283,7 @@ when they are not part of the app-author path.
 **Execute**
 
 - Write `packages/react/use-strict-lifecycle/README.md`.
-- Clean up experiment package READMEs or explicitly mark them provisional.
-- Link to Advanced or Experiments rather than Start.
+- Link to Advanced or Reference rather than Start.
 
 **Review**
 
@@ -318,13 +321,14 @@ into the same public docs matrix as the other framework adapters.
 
 ## Recommended next arc
 
-After PER 7 lands, continue with **PER 8: Public infrastructure README closeout**.
+After PER 8 lands, the remaining blocked dashboard item is **PER 9: Ember
+documentation integration**.
 
-The remaining public package gap is `@starbeam/use-strict-lifecycle`, which still
-needs an honest README that does not promote it as first-run app-author API.
+Do not start Ember docs until the adapter surface in PR #273 has been reviewed
+and accepted.
 
-Use its theory notes and React adapter context to decide whether to frame it as a
-standalone React lifecycle utility, Starbeam adapter infrastructure, or both.
+If Ember stays deferred, use the dashboard as a checkpoint and decide whether to
+return to release prep or close the docs arc.
 
 ## Validation checklist
 

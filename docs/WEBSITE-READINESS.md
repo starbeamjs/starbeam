@@ -56,7 +56,7 @@ can become site content.
 | [packages/universal/runtime/README.md](../packages/universal/runtime/README.md)                             | Historical / archive          | Archive only; rewrite source for advanced docs | Explicitly outdated; contains historical timeline/API language and stale examples.               |
 | [packages/universal/debug/src/description/README.md](../packages/universal/debug/src/description/README.md) | Historical / internal         | Archive only                                   | Explicitly outdated and internal to debug architecture.                                          |
 | [packages/react/react/src/modifiers/README.md](../packages/react/react/src/modifiers/README.md)             | Rewrite needed                | None until rewritten                           | Under construction.                                                                              |
-| [packages/react/use-strict-lifecycle/README.md](../packages/react/use-strict-lifecycle/README.md)           | Rewrite needed                | Public package guide                           | Empty despite the package being public.                                                          |
+| [packages/react/use-strict-lifecycle/README.md](../packages/react/use-strict-lifecycle/README.md)           | Canonical with caveats        | Public infrastructure package guide            | React lifecycle infrastructure; not a first-run app-author path.                                 |
 | [packages/x/store/README.md](../packages/x/store/README.md)                                                 | Experiment / rewrite needed   | Experiments section                            | Example-heavy fragment, not a package overview.                                                  |
 | [packages/x/vanilla/README.md](../packages/x/vanilla/README.md)                                             | Experiment / rewrite needed   | Experiments section                            | Explicitly experimental and minimal.                                                             |
 
@@ -80,8 +80,9 @@ technology or creating a docs app.
    taxonomy should explicitly say whether it is first-class for this website.
 7. **Historical quarantine.** Runtime and universal historical docs must not
    appear as current docs in the site nav.
-8. **`@starbeam/use-strict-lifecycle` README.** The package is public, but the
-   README is empty.
+8. **`@starbeam/use-strict-lifecycle` README.** Completed after website
+   scaffolding. The package is public React lifecycle infrastructure, not a
+   first-run app-author path.
 9. **App-author service examples.** Website service docs should show framework
    adapter APIs, not only the low-level `app` object path.
 
