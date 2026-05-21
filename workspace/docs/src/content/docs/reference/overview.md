@@ -36,4 +36,5 @@ If you are choosing what to install first, start with
   with `@starbeam/collections` and `@starbeam/universal`.
 - `@starbeam/core`: deprecated compatibility alias for `@starbeam/universal`.
   Existing code can keep using it during the compatibility window; new code
-  should not start there.
+  should not start there. See
+  [Core compatibility](/reference/core-compatibility/) for migration notes.

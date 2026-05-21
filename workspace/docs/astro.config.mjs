@@ -53,7 +53,13 @@ export default defineConfig({
         },
         {
           label: "Reference",
-          items: [{ label: "Overview", link: "/reference/overview/" }],
+          items: [
+            { label: "Overview", link: "/reference/overview/" },
+            {
+              label: "Core compatibility",
+              link: "/reference/core-compatibility/",
+            },
+          ],
         },
         {
           label: "Advanced / implementor",

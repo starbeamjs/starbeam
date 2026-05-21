@@ -195,7 +195,8 @@ the lower-level service package only for adapter-level or integration code.
 ### `@starbeam/core`
 
 Do not use `@starbeam/core` for new library code. It is a deprecated
-compatibility alias for `@starbeam/universal`.
+compatibility alias for `@starbeam/universal`. Existing libraries can follow the
+[core compatibility migration](/reference/core-compatibility/).
 
 ## Out of scope
 

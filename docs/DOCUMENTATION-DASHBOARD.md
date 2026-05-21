@@ -48,7 +48,7 @@ The remaining documentation work should reinforce the public model:
 | P0       | Collections concept + package README     | Done    | `workspace/docs/src/content/docs/concepts/`, `packages/universal/collections/README.md`          | Collections are now the preferred root-state story for collection-shaped data, with a concept route and aligned package README.         |
 | P0       | Reactive primitive README rewrite        | Next    | `packages/universal/reactive/README.md`                                                          | `@starbeam/reactive` is public for authors building primitives, but the README still blends that surface with runtime/protocol caveats. |
 | P1       | Preact package README                    | Ready   | `packages/preact/preact/README.md`                                                               | Preact has a website guide and public package, but no package-level front door.                                                         |
-| P1       | Core deprecation README + migration page | Ready   | `packages/universal/core/README.md`, `workspace/docs/src/content/docs/`                          | Existing users may land on `@starbeam/core`; they need a direct path to `@starbeam/universal`.                                          |
+| P1       | Core deprecation README + migration page | Done    | `packages/universal/core/README.md`, `workspace/docs/src/content/docs/`                          | Existing users now have package and website migration guidance from `@starbeam/core` to `@starbeam/universal`.                          |
 | P1       | Concept route expansion                  | Ready   | `workspace/docs/src/content/docs/concepts/`, `workspace/docs/astro.config.mjs`                   | Services and element resources are central concepts but currently live inside overview/lifecycle pages.                                 |
 | P1       | Reference expansion                      | Ready   | `workspace/docs/src/content/docs/reference/`, `workspace/docs/astro.config.mjs`                  | The Reference route currently cannot answer concrete API questions.                                                                     |
 | P2       | Status consistency pass                  | Ready   | `README.md`, framework docs, package READMEs, install/reference pages                            | Svelte, Vue, and experiments need consistent status language across entry points.                                                       |
@@ -148,6 +148,11 @@ guide and makes `install(options)` the framework bridge.
 
 **Hypothesis:** `@starbeam/core` should have an explicit compatibility README and
 the website should include a small migration route.
+
+**Conclusion:** `@starbeam/core` remains as a deprecated compatibility alias
+during the compatibility window. The current action is documentation and
+migration guidance, not deletion. Removing the package is a later breaking
+cleanup.
 
 **Prepare**
 

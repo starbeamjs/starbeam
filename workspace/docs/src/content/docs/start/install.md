@@ -159,7 +159,8 @@ primitives. App and library models usually start with `@starbeam/collections`,
 ### `@starbeam/core`
 
 Do not start new code with `@starbeam/core`. It is a deprecated compatibility
-alias for `@starbeam/universal`.
+alias for `@starbeam/universal`. Existing users can follow the
+[core compatibility migration](/reference/core-compatibility/).
 
 ## Next steps
 
