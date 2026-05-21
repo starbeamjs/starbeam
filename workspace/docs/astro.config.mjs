@@ -60,6 +60,18 @@ export default defineConfig({
           label: "Reference",
           items: [
             { label: "Overview", link: "/reference/overview/" },
+            { label: "Collections", link: "/reference/collections/" },
+            { label: "Universal APIs", link: "/reference/universal/" },
+            { label: "Resources", link: "/reference/resources/" },
+            { label: "Services", link: "/reference/services/" },
+            {
+              label: "Reactive primitives",
+              link: "/reference/reactive-primitives/",
+            },
+            {
+              label: "Framework adapters",
+              link: "/reference/framework-adapters/",
+            },
             {
               label: "Core compatibility",
               link: "/reference/core-compatibility/",

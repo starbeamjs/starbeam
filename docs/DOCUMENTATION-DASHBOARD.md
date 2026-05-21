@@ -17,7 +17,7 @@ arc should still get a fresh Prepare before editing.
 | Core concepts          | Done for now | Overview, collections, lifecycle, services, and element resources have first concept pages. |
 | Framework guides       | Partial      | React, Preact, Vue, and Svelte pages exist; status and package README alignment remains.    |
 | Library authors        | Done         | Reusable framework-neutral abstractions have a first guide.                                 |
-| Reference              | Partial      | Current page is a package map, not a usable API reference.                                  |
+| Reference              | Done for now | First hand-written reference cards exist for public packages and framework adapters.        |
 | Advanced / implementor | Done for now | It routes readers to source notes and records the status of implementor material.           |
 | Experiments            | Done for now | Experiments are quarantined, but package READMEs still need cleanup.                        |
 | Archive                | Done         | Historical material is explicitly quarantined.                                              |
@@ -50,7 +50,7 @@ The remaining documentation work should reinforce the public model:
 | P1       | Preact package README                    | Ready   | `packages/preact/preact/README.md`                                                               | Preact has a website guide and public package, but no package-level front door.                                                         |
 | P1       | Core deprecation README + migration page | Done    | `packages/universal/core/README.md`, `workspace/docs/src/content/docs/`                          | Existing users now have package and website migration guidance from `@starbeam/core` to `@starbeam/universal`.                          |
 | P1       | Concept route expansion                  | Done    | `workspace/docs/src/content/docs/concepts/`, `workspace/docs/astro.config.mjs`                   | Services and element resources now have first-class concept pages linked from lifecycle and framework guides.                           |
-| P1       | Reference expansion                      | Next    | `workspace/docs/src/content/docs/reference/`, `workspace/docs/astro.config.mjs`                  | The Reference route currently cannot answer concrete API questions.                                                                     |
+| P1       | Reference expansion                      | Done    | `workspace/docs/src/content/docs/reference/`, `workspace/docs/astro.config.mjs`                  | Reference now has a first batch of hand-written package and adapter cards.                                                              |
 | P2       | Status consistency pass                  | Ready   | `README.md`, framework docs, package READMEs, install/reference pages                            | Svelte, Vue, and experiments need consistent status language across entry points.                                                       |
 | P2       | `@starbeam/use-strict-lifecycle` README  | Ready   | `packages/react/use-strict-lifecycle/README.md`, `packages/react/use-strict-lifecycle/THEORY.md` | A public package currently ships an empty README.                                                                                       |
 | P2       | Experiment package README cleanup        | Ready   | `packages/x/store/README.md`, `packages/x/vanilla/README.md`, experiment package metadata        | The website quarantines experiments, but package surfaces still leak stale or placeholder signals.                                      |
@@ -208,6 +208,11 @@ to framework-supplied DOM elements.
 **Hypothesis:** The Reference section needs hand-written subpages before a
 generated API reference exists.
 
+**Conclusion:** The first batch should stay package-level and adapter-level:
+collections, universal APIs, resources, services, reactive primitives, framework
+adapters, and core compatibility. Generated or per-symbol API docs remain a later
+follow-up.
+
 **Prepare**
 
 - Decide the first batch of reference pages and their audience.
@@ -308,15 +313,14 @@ into the same public docs matrix as the other framework adapters.
 
 ## Recommended next arc
 
-After PER 5 lands, continue with **PER 6: Hand-written reference expansion**.
+After PER 6 lands, continue with **PER 7: Status consistency pass**.
 
-The concept pages now give Reference somewhere stable to point. Reference can be
-concise and API-shaped because the conceptual story lives in Start, Concepts, and
-Framework guides.
+Reference now has concise package and adapter cards. The next gap is consistency
+between website entry points and package READMEs for experimental, low-level,
+deprecated, and historical surfaces.
 
-Start with the public surfaces that already have settled concepts:
-collections, universal resources, reactive primitives, services, framework
-adapters, and core compatibility.
+Start with Svelte status, Vue package README alignment, and experiment package
+metadata/readme cleanup.
 
 ## Validation checklist
 
