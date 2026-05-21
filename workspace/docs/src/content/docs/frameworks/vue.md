@@ -170,6 +170,8 @@ run when Vue unmounts the component.
 Use `elementResourceDirective()` when a resource needs a DOM element from Vue.
 It returns a Vue directive. Directives do not return template values, so pass an
 `into` ref when the component needs to display the resource value.
+See [Element resources and DOM attachment](/concepts/element-resources/) for the
+framework-neutral concept.
 
 ```vue
 <script setup lang="ts">
@@ -228,6 +230,8 @@ component's render data.
 Use `setupService()` for resource-backed state that should live for the Vue app,
 not for one component. Install `Starbeam` on the Vue app so services have the
 app as their owner.
+See [Services and app lifetime](/concepts/services/) for the framework-neutral
+concept.
 
 ```ts
 import { Starbeam } from "@starbeam/vue";
@@ -287,6 +291,10 @@ The Vue package also exports public element-resource types, including
 ## Next steps
 
 - [Core concepts](/concepts/overview/): the framework-neutral Starbeam model.
+- [Services and app lifetime](/concepts/services/): app-scoped resource-backed
+  state.
+- [Element resources and DOM attachment](/concepts/element-resources/): resources
+  attached to framework-supplied elements.
 - [Framework overview](/frameworks/overview/): how the adapter boundary changes
   by framework.
 - [Reference](/reference/overview/): the public package surface at a glance.

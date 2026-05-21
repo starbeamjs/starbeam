@@ -150,6 +150,8 @@ usually use framework adapter helpers instead:
   app ownership explicitly;
 - Svelte: service helpers are not exposed yet.
 
+See [Services and app lifetime](/concepts/services/) for the app-facing model.
+
 ### `@starbeam/reactive`
 
 Use `@starbeam/reactive` directly when you are building lower-level reactive

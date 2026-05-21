@@ -65,20 +65,22 @@ You do not list dependencies by hand.
 Resources model state with a lifetime. Use them when reactive state needs setup,
 sync, or cleanup: subscriptions, external handles, element work, and other values
 that should start and stop with an owner. See
-[Resources and lifecycle](/concepts/lifecycle/) for the app-author path from
-resources to services and element resources.
+[Resources and lifecycle](/concepts/lifecycle/) for the app-author path.
 
 ## Services and app lifetime
 
 Services are resource-backed state with an app-scoped lifetime. They are useful
 for shared application concerns that should live as long as the app or framework
-root lives.
+root lives. See [Services and app lifetime](/concepts/services/) for the
+app-facing model.
 
 ## Element resources
 
 Element resources attach resource work to DOM elements supplied by a framework.
 They let Starbeam model setup, sync, and cleanup for element-backed behavior
-without turning Starbeam into a framework replacement.
+without turning Starbeam into a framework replacement. See
+[Element resources and DOM attachment](/concepts/element-resources/) for the
+framework dialects.
 
 ## Advanced details
 

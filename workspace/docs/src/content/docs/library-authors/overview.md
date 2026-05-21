@@ -148,6 +148,8 @@ export function ElementSize(element: Element) {
 
 The resource returns the value consumers want to read: `size.width` and
 `size.height`. The observer and cleanup stay inside the resource.
+See [Element resources and DOM attachment](/concepts/element-resources/) for the
+concept behind framework element-resource APIs.
 
 ## Let adapters consume your library
 
@@ -191,6 +193,7 @@ inside your abstraction unless they are the API you intentionally expose.
 Avoid making app authors consume `@starbeam/service` directly. Framework adapters
 provide the app-facing service helpers where service support is available. Use
 the lower-level service package only for adapter-level or integration code.
+See [Services and app lifetime](/concepts/services/) for the app-facing concept.
 
 ### `@starbeam/core`
 

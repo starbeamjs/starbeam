@@ -10,19 +10,19 @@ arc should still get a fresh Prepare before editing.
 
 ## Current state
 
-| Area                   | Status       | Notes                                                                                                  |
-| ---------------------- | ------------ | ------------------------------------------------------------------------------------------------------ |
-| Homepage               | Done         | Public narrative is aligned around “Reactivity that stays JavaScript.”                                 |
-| Start                  | Done         | Introduction and install chooser teach framework-neutral and adapter paths.                            |
-| Core concepts          | Partial      | Overview and lifecycle exist; collections, services, and element resources still need their own pages. |
-| Framework guides       | Partial      | React, Preact, Vue, and Svelte pages exist; status and package README alignment remains.               |
-| Library authors        | Done         | Reusable framework-neutral abstractions have a first guide.                                            |
-| Reference              | Partial      | Current page is a package map, not a usable API reference.                                             |
-| Advanced / implementor | Done for now | It routes readers to source notes and records the status of implementor material.                      |
-| Experiments            | Done for now | Experiments are quarantined, but package READMEs still need cleanup.                                   |
-| Archive                | Done         | Historical material is explicitly quarantined.                                                         |
-| Root README            | Done         | It now routes readers into the website instead of old package README lists.                            |
-| Ember adapter docs     | Deferred     | Do not integrate Ember into the website until the adapter surface has been reviewed.                   |
+| Area                   | Status       | Notes                                                                                       |
+| ---------------------- | ------------ | ------------------------------------------------------------------------------------------- |
+| Homepage               | Done         | Public narrative is aligned around “Reactivity that stays JavaScript.”                      |
+| Start                  | Done         | Introduction and install chooser teach framework-neutral and adapter paths.                 |
+| Core concepts          | Done for now | Overview, collections, lifecycle, services, and element resources have first concept pages. |
+| Framework guides       | Partial      | React, Preact, Vue, and Svelte pages exist; status and package README alignment remains.    |
+| Library authors        | Done         | Reusable framework-neutral abstractions have a first guide.                                 |
+| Reference              | Partial      | Current page is a package map, not a usable API reference.                                  |
+| Advanced / implementor | Done for now | It routes readers to source notes and records the status of implementor material.           |
+| Experiments            | Done for now | Experiments are quarantined, but package READMEs still need cleanup.                        |
+| Archive                | Done         | Historical material is explicitly quarantined.                                              |
+| Root README            | Done         | It now routes readers into the website instead of old package README lists.                 |
+| Ember adapter docs     | Deferred     | Do not integrate Ember into the website until the adapter surface has been reviewed.        |
 
 ## North star
 
@@ -49,8 +49,8 @@ The remaining documentation work should reinforce the public model:
 | P0       | Reactive primitive README rewrite        | Next    | `packages/universal/reactive/README.md`                                                          | `@starbeam/reactive` is public for authors building primitives, but the README still blends that surface with runtime/protocol caveats. |
 | P1       | Preact package README                    | Ready   | `packages/preact/preact/README.md`                                                               | Preact has a website guide and public package, but no package-level front door.                                                         |
 | P1       | Core deprecation README + migration page | Done    | `packages/universal/core/README.md`, `workspace/docs/src/content/docs/`                          | Existing users now have package and website migration guidance from `@starbeam/core` to `@starbeam/universal`.                          |
-| P1       | Concept route expansion                  | Ready   | `workspace/docs/src/content/docs/concepts/`, `workspace/docs/astro.config.mjs`                   | Services and element resources are central concepts but currently live inside overview/lifecycle pages.                                 |
-| P1       | Reference expansion                      | Ready   | `workspace/docs/src/content/docs/reference/`, `workspace/docs/astro.config.mjs`                  | The Reference route currently cannot answer concrete API questions.                                                                     |
+| P1       | Concept route expansion                  | Done    | `workspace/docs/src/content/docs/concepts/`, `workspace/docs/astro.config.mjs`                   | Services and element resources now have first-class concept pages linked from lifecycle and framework guides.                           |
+| P1       | Reference expansion                      | Next    | `workspace/docs/src/content/docs/reference/`, `workspace/docs/astro.config.mjs`                  | The Reference route currently cannot answer concrete API questions.                                                                     |
 | P2       | Status consistency pass                  | Ready   | `README.md`, framework docs, package READMEs, install/reference pages                            | Svelte, Vue, and experiments need consistent status language across entry points.                                                       |
 | P2       | `@starbeam/use-strict-lifecycle` README  | Ready   | `packages/react/use-strict-lifecycle/README.md`, `packages/react/use-strict-lifecycle/THEORY.md` | A public package currently ships an empty README.                                                                                       |
 | P2       | Experiment package README cleanup        | Ready   | `packages/x/store/README.md`, `packages/x/vanilla/README.md`, experiment package metadata        | The website quarantines experiments, but package surfaces still leak stale or placeholder signals.                                      |
@@ -178,6 +178,11 @@ cleanup.
 **Hypothesis:** Services and element resources should have first-class concept
 routes, while lifecycle remains the progression page that connects them.
 
+**Conclusion:** Services and element resources are app-facing concepts with
+their own routes. Lifecycle remains the progression page: resources add setup,
+sync, and cleanup; services choose app ownership; element resources attach work
+to framework-supplied DOM elements.
+
 **Prepare**
 
 - Identify the sections currently compressed into `concepts/lifecycle.md`.
@@ -303,21 +308,15 @@ into the same public docs matrix as the other framework adapters.
 
 ## Recommended next arc
 
-After PER 1 lands, continue with **PER 2: Reactive primitive README rewrite**.
+After PER 5 lands, continue with **PER 6: Hand-written reference expansion**.
 
-PER 1 reinforces the correction that started the current docs arc: when state is
-collection-shaped, teach reactive collections as the root-state boundary instead
-of teaching users to model a collection as a `Cell` around immutable updates.
+The concept pages now give Reference somewhere stable to point. Reference can be
+concise and API-shaped because the conceptual story lives in Start, Concepts, and
+Framework guides.
 
-The same principle applies to single-slot state in first-run docs: do not teach
-`Cell` as the “one thing” primitive. If the public state wants a `current` slot,
-`reactive.object({ current: ... })` has the same app-facing behavior while
-keeping the teaching model object-shaped. Reserve `Cell` and `Marker` for pages
-about building primitives or low-level reactive storage.
-
-PER 2 should make that reservation explicit by rewriting the primitive package
-README around authors building primitives, not app authors modeling ordinary
-state.
+Start with the public surfaces that already have settled concepts:
+collections, universal resources, reactive primitives, services, framework
+adapters, and core compatibility.
 
 ## Validation checklist
 

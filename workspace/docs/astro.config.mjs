@@ -35,6 +35,11 @@ export default defineConfig({
               link: "/concepts/collections/",
             },
             { label: "Resources and lifecycle", link: "/concepts/lifecycle/" },
+            { label: "Services", link: "/concepts/services/" },
+            {
+              label: "Element resources",
+              link: "/concepts/element-resources/",
+            },
           ],
         },
         {

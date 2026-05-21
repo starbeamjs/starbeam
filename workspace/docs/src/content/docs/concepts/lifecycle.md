@@ -135,68 +135,20 @@ A service is resource-backed state with an app lifetime. Use services for shared
 application concerns that should live with the app or framework root, not with a
 single component.
 
-```ts
-import { reactive } from "@starbeam/collections";
-import { Resource } from "@starbeam/universal";
-
-export const Session = Resource(() => {
-  return reactive.object({ userName: "Guest" });
-});
-```
-
-Framework adapters expose service helpers where that app lifetime is available:
-
-- [React](/frameworks/react/) and [Preact](/frameworks/preact/) use
-  `useService()`.
-- [Vue](/frameworks/vue/) uses `setupService()` after installing Starbeam on the
-  Vue app.
-- [Svelte](/frameworks/svelte/) service support is not exposed yet.
+The resource still returns a domain-shaped value. The difference is ownership:
+the app owns the service lifetime. See
+[Services and app lifetime](/concepts/services/) for the app-facing service
+model.
 
 ## Element resources attach work to DOM elements
 
 Some resources need a DOM element. Element resources let the framework provide
 the element while Starbeam owns the setup, sync, and cleanup work.
 
-```ts
-import { reactive } from "@starbeam/collections";
-import { Resource } from "@starbeam/universal";
-
-interface Size {
-  readonly width: number;
-  readonly height: number;
-}
-
-export function ElementSize(element: Element) {
-  return Resource(({ on }) => {
-    const size = reactive.object({ width: 0, height: 0 }) satisfies Size;
-
-    on.sync(() => {
-      const observer = new ResizeObserver(([entry]) => {
-        if (!entry) return;
-
-        size.width = entry.contentRect.width;
-        size.height = entry.contentRect.height;
-      });
-
-      observer.observe(element);
-
-      return () => observer.disconnect();
-    });
-
-    return size;
-  });
-}
-```
-
-The framework guide for each adapter shows the native attachment shape:
-
-- [React](/frameworks/react/) and [Preact](/frameworks/preact/) use
-  element-resource hooks.
-- [Vue](/frameworks/vue/) uses an element-resource directive.
-- [Svelte](/frameworks/svelte/) uses Svelte 5 attachments.
-
 The concept stays the same: the element comes from the framework, and the value
-you read stays domain-shaped.
+you read stays domain-shaped. See
+[Element resources and DOM attachment](/concepts/element-resources/) for the
+framework dialects and the stable element-resource shape.
 
 ## The resource progression
 
@@ -205,9 +157,10 @@ The app-author path is:
 1. Mark root state.
 2. Keep derived state as ordinary JavaScript.
 3. Use a resource when work needs setup, sync, or cleanup.
-4. Use a service when resource-backed state should live with the app.
-5. Use an element resource when the resource needs a DOM element from a
-   framework.
+4. Use a [service](/concepts/services/) when resource-backed state should live
+   with the app.
+5. Use an [element resource](/concepts/element-resources/) when the resource
+   needs a DOM element from a framework.
 
 You do not need a resource for every reactive value. Use one when the work has a
 lifetime.
@@ -216,4 +169,8 @@ lifetime.
 
 - [Framework guides](/frameworks/overview/): connect resource lifetimes to each
   supported framework.
+- [Services and app lifetime](/concepts/services/): app-scoped resource-backed
+  state.
+- [Element resources and DOM attachment](/concepts/element-resources/): resources
+  attached to framework-supplied elements.
 - [Reference](/reference/overview/): see the public package surface at a glance.

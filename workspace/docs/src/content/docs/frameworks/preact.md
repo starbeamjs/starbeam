@@ -173,6 +173,8 @@ component.
 
 Use `useElementResource()` when a resource needs a DOM element from Preact. It
 returns a callback ref plus a pending or attached result.
+See [Element resources and DOM attachment](/concepts/element-resources/) for the
+framework-neutral concept.
 
 ```tsx
 import { useElementResource } from "@starbeam/preact";
@@ -223,6 +225,8 @@ finalized when Preact detaches the element resource.
 Use `useService()` for shared resource-backed state under the installed Preact
 root. Keep services for app-level concerns whose lifetime should follow the
 Preact app.
+See [Services and app lifetime](/concepts/services/) for the framework-neutral
+concept.
 
 ```tsx
 import { useService } from "@starbeam/preact";
@@ -253,4 +257,8 @@ shared services.
 ## Next steps
 
 - [Core concepts](/concepts/overview/): the framework-neutral Starbeam model.
+- [Services and app lifetime](/concepts/services/): app-scoped resource-backed
+  state.
+- [Element resources and DOM attachment](/concepts/element-resources/): resources
+  attached to framework-supplied elements.
 - [Reference](/reference/overview/): the public package surface at a glance.

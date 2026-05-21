@@ -162,6 +162,8 @@ React commits, and cleanup/finalize run when React cleans up the component.
 
 Use `useElementResource()` when a resource needs a DOM element from React. It
 returns a callback ref plus a pending or attached result.
+See [Element resources and DOM attachment](/concepts/element-resources/) for the
+framework-neutral concept.
 
 ```tsx
 import { useElementResource, useReactive } from "@starbeam/react";
@@ -214,6 +216,8 @@ finalized when React detaches the element resource.
 Use `useService()` for resource-backed state that should live for the app root,
 not for one component. Wrap the React tree in `Starbeam` so services have an
 app-scoped lifetime.
+See [Services and app lifetime](/concepts/services/) for the framework-neutral
+concept.
 
 ```tsx
 import { Starbeam, useReactive, useService } from "@starbeam/react";
@@ -249,4 +253,8 @@ resources, and `useService()` for app-scoped services.
 ## Next steps
 
 - Read [Core concepts](/concepts/overview/) for the model behind the adapter.
+- Read [Services and app lifetime](/concepts/services/) for app-scoped
+  resource-backed state.
+- Read [Element resources and DOM attachment](/concepts/element-resources/) for
+  resources attached to framework-supplied elements.
 - Read [Reference](/reference/overview/) for the public package surface.

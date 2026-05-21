@@ -156,6 +156,8 @@ work still belongs in Svelte effects or element resources.
 Use `elementResource()` when a resource needs a DOM element from Svelte. It
 returns one Svelte-readable store that is also attachable. Attach it with
 `size.attach`; read the resource value with Svelte store syntax.
+See [Element resources and DOM attachment](/concepts/element-resources/) for the
+framework-neutral concept.
 
 ```ts
 import { reactive } from "@starbeam/collections";
@@ -254,10 +256,14 @@ The Svelte adapter does not yet expose component-lifetime `Resource` helpers or
 app-scoped `Service` helpers. Use `fromStarbeam()` for component reads and
 `elementResource()` for DOM element resources today. Track deeper Svelte adapter
 work in [starbeamjs/starbeam#261](https://github.com/starbeamjs/starbeam/issues/261).
+See [Services and app lifetime](/concepts/services/) for the app-facing service
+concept in adapters that expose service helpers.
 
 ## Next steps
 
 - [Core concepts](/concepts/overview/): the framework-neutral Starbeam model.
+- [Element resources and DOM attachment](/concepts/element-resources/): resources
+  attached to framework-supplied elements.
 - [Framework overview](/frameworks/overview/): how the adapter boundary changes
   by framework.
 - [Reference](/reference/overview/): the public package surface at a glance.

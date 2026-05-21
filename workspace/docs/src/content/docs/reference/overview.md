@@ -27,7 +27,8 @@ If you are choosing what to install first, start with
   [Resources and lifecycle](/concepts/lifecycle/) for the app-author model.
 - `@starbeam/service`: app-lifetime resource composition. Use it for shared
   state that should live with the app or framework root. App authors usually
-  reach services through framework adapter helpers.
+  reach services through framework adapter helpers. Start with
+  [Services and app lifetime](/concepts/services/).
 
 ## Lower-level and compatibility packages
 
