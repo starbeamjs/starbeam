@@ -37,13 +37,13 @@ when there is nothing to bridge.
 
 Package: `@starbeam/preact`
 
-| API                                           | Use for                                                    |
-| --------------------------------------------- | ---------------------------------------------------------- |
-| `install(options)`                            | Install Starbeam into Preact render/lifecycle hooks.       |
-| `useResource(blueprint, deps?)`               | Attach a resource to a Preact component lifetime.          |
-| `useElementResource(build, deps?)`            | Attach element-backed resource work to a callback ref.     |
-| `useService(blueprint)`                       | Resolve app-scoped service state under the installed root. |
-| `useReactive()` / `setup*()` / `createCell()` | Lower-level APIs, not the main Preact path.                |
+| API                                     | Use for                                                    |
+| --------------------------------------- | ---------------------------------------------------------- |
+| `install(options)`                      | Install Starbeam into Preact render/lifecycle hooks.       |
+| `useResource(blueprint, deps?)`         | Attach a resource to a Preact component lifetime.          |
+| `useElementResource(build, bridge?)`    | Attach element-backed resource work to a callback ref.     |
+| `useService(blueprint)`                 | Resolve app-scoped service state under the installed root. |
+| `useReactive` / `setup*` / `createCell` | Lower-level APIs, not the main Preact path.                |
 
 After `install(options)`, direct render reads are the main Preact output boundary.
 
