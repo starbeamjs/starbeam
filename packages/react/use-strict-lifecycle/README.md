@@ -37,30 +37,38 @@ pnpm add @starbeam/use-strict-lifecycle
 `useLifecycle(options).render(build)` creates or returns a lifecycle-managed
 instance.
 
+The `build` callback does not run on every render. It runs when the instance is
+first created and when React or `validate` forces a rebuild. Per-render work
+belongs in lifecycle handlers such as `on.update()`, `on.layout()`, and
+`on.idle()`.
+
 ```tsx
 import { useLifecycle } from "@starbeam/use-strict-lifecycle";
 
 interface TimerHandle {
   readonly startedAt: number;
+  label: string;
   current: number;
 }
 
 export function useTimer(label: string): TimerHandle {
-  return useLifecycle({ props: label }).render(({ on }, currentLabel, prev) => {
+  return useLifecycle({ props: label }).render(({ on }, initialLabel, prev) => {
     const timer: TimerHandle = prev ?? {
       startedAt: Date.now(),
+      label: initialLabel,
       current: Date.now(),
     };
 
-    on.update(() => {
+    on.update((currentLabel) => {
+      timer.label = currentLabel;
       timer.current = Date.now();
     });
 
-    on.layout(() => {
+    on.layout((currentLabel) => {
       console.log("attached", currentLabel);
     });
 
-    on.cleanup(() => {
+    on.cleanup((currentLabel) => {
       console.log("detached", currentLabel);
     });
 
@@ -69,9 +77,12 @@ export function useTimer(label: string): TimerHandle {
 }
 ```
 
-The `build` callback runs during render, so keep it to synchronous identity setup
-and lifecycle handler registration. Put effectful work in `layout`, `idle`, or
-`cleanup` handlers.
+The `build` callback runs during render, but only for initial creation or
+rebuild. Keep it to synchronous identity setup and lifecycle handler
+registration. Put per-render updates in `update` handlers, and put layout,
+passive, or cleanup work in `layout`, `idle`, or `cleanup` handlers. Read current
+`props` from the handler argument so handlers do not close over stale render
+values.
 
 ## Options
 
