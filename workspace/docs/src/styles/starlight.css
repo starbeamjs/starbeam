@@ -235,6 +235,23 @@ pre:not(:where(.not-content *)) {
   box-shadow: var(--starbeam-shadow-soft);
 }
 
+/* The site is light-only, so don't let OS dark mode pick the dark token palette. */
+.expressive-code {
+  --ec-codeBg: #f6f7f9;
+  --ec-codeFg: #403f53;
+  --ec-frm-edBg: #f6f7f9;
+  --ec-frm-trmBg: #f6f7f9;
+  --ec-frm-trmTtbBg: var(--starbeam-docs-sidebar);
+}
+
+.expressive-code .ec-line :where(span[style^="--"]:not([class])) {
+  background-color: var(--1bg, transparent);
+  color: var(--1, inherit);
+  font-style: var(--1fs, inherit);
+  font-weight: var(--1fw, inherit);
+  text-decoration: var(--1td, inherit);
+}
+
 .right-sidebar-panel {
   color: var(--starbeam-muted);
 }
