@@ -52,6 +52,10 @@ export function ElementSize(element: Element) {
 The element belongs to the framework. The observer and cleanup belong to the
 resource.
 
+This `ElementSize` definition is framework-neutral. The same element resource can
+be used from every supported framework; only the adapter API that delivers the
+DOM element changes.
+
 ## Framework dialects
 
 Each framework has its own way to deliver DOM elements. Starbeam adapters expose

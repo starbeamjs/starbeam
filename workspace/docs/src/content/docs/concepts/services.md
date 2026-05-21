@@ -31,6 +31,10 @@ export const SessionService = Resource(() => {
 The returned value stays domain-shaped. Consumers read `session.userName`, not a
 reactive-storage wrapper.
 
+This definition is framework-neutral. The same `SessionService` resource can be
+used from every supported adapter that exposes service helpers; only the adapter
+API that attaches it to the app changes.
+
 ## The first reader does not own the service
 
 A service is shared by every consumer in the same app. The first component that
