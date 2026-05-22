@@ -135,7 +135,11 @@ module("elementResource | rendering", function (hooks) {
     marker.mark();
     await settled();
     assert.dom("[data-test-size]").hasText("width=101");
-    events.expect(assert, ["size:sync"], "resync after marker invalidation");
+    events.expect(
+      assert,
+      ["size:sync", "size:finalize", "size:attached", "size:sync"],
+      "marker invalidation rerenders the modifier, then the new resource syncs",
+    );
   });
 
   test("modifier positional args trigger a fresh element resource", async function (assert) {
@@ -367,7 +371,12 @@ module("elementResource | rendering", function (hooks) {
     marker.mark();
     await settled();
     assert.dom("[data-test-size]").hasText("width=101");
-    events.expect(assert, ["size:sync"]);
+    events.expect(assert, [
+      "size:sync",
+      "size:finalize",
+      "size:attached",
+      "size:sync",
+    ]);
   });
 
   test("elementResource() clears .current when the element is removed", async function (assert) {
