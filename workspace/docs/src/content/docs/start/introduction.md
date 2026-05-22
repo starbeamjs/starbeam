@@ -20,9 +20,9 @@ pnpm add @starbeam/universal @starbeam/collections
 ```
 
 Framework apps usually install these packages plus the adapter for their
-framework, such as `@starbeam/react`, `@starbeam/preact`, `@starbeam/vue`, or
-`@starbeam/svelte`. This page stays framework-neutral; framework guides cover
-the adapter APIs.
+framework, such as `@starbeam/react`, `@starbeam/preact`, `@starbeam/ember`,
+`@starbeam/vue`, or `@starbeam/svelte`. This page stays framework-neutral;
+framework guides cover the adapter APIs.
 
 Choosing packages for a framework app or reusable library? See
 [Install Starbeam](/start/install/).
@@ -183,4 +183,4 @@ as JavaScript.
 - Read [Resources and lifecycle](/concepts/lifecycle/) when work needs setup,
   sync, or cleanup.
 - Read [Framework guides](/frameworks/overview/) to see how adapters connect this
-  model to React, Preact, Vue, and Svelte.
+  model to React, Preact, Ember, Vue, and Svelte.

@@ -41,6 +41,7 @@ Framework apps add the adapter for the framework that owns rendering:
 
 - `@starbeam/react`
 - `@starbeam/preact`
+- `@starbeam/ember`
 - `@starbeam/vue`
 - `@starbeam/svelte`
 
@@ -55,7 +56,7 @@ See [Install Starbeam] for the package chooser.
 - [Start]: build a first Starbeam model.
 - [Install Starbeam]: choose packages for your app or library.
 - [Core concepts]: learn root state, derived reads, resources, and services.
-- [Framework guides]: connect Starbeam to React, Preact, Vue, or Svelte.
+- [Framework guides]: connect Starbeam to React, Preact, Ember, Vue, or Svelte.
 - [Library-author guide]: write reusable framework-neutral abstractions.
 - [Reference]: see the package reference.
 - [Advanced docs]: orient to adapter and runtime internals.

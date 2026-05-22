@@ -65,6 +65,7 @@ that framework's native dialect.
 | --------- | ---------------------------- | ------------------- |
 | React     | `useElementResource()`       | callback ref        |
 | Preact    | `useElementResource()`       | callback ref        |
+| Ember     | `elementResourceModifier()`  | modifier            |
 | Vue       | `elementResourceDirective()` | custom directive    |
 | Svelte    | `elementResource()`          | Svelte 5 attachment |
 

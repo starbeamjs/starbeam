@@ -4,8 +4,8 @@ description: "Write reusable Starbeam abstractions that stay framework-neutral a
 ---
 
 This guide is for authors of reusable Starbeam-backed libraries: models,
-resources, and utilities that app authors can use from React, Preact, Vue,
-Svelte, or framework-neutral code.
+resources, and utilities that app authors can use from React, Preact, Ember,
+Vue, Svelte, or framework-neutral code.
 
 The goal is the same as app code: mark root state, then expose ordinary
 JavaScript above it. Your library should give consumers domain-shaped values,

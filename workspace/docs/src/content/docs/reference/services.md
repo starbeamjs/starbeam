@@ -11,12 +11,13 @@ App authors usually use service helpers from their framework adapter. The direct
 
 ## App-facing adapter APIs
 
-| Framework | API                                              | Notes                                                     |
-| --------- | ------------------------------------------------ | --------------------------------------------------------- |
-| React     | `Starbeam` provider plus `useService(blueprint)` | The provider establishes the app lifetime.                |
-| Preact    | `install(options)` plus `useService(blueprint)`  | The installed adapter owns the app lifetime.              |
-| Vue       | `Starbeam` plugin plus `setupService(blueprint)` | Install the plugin on the Vue app.                        |
-| Svelte    | Not exposed yet                                  | The Svelte adapter does not expose service helpers today. |
+| Framework | API                                                                  | Notes                                                     |
+| --------- | -------------------------------------------------------------------- | --------------------------------------------------------- |
+| React     | `Starbeam` provider plus `useService(blueprint)`                     | The provider establishes the app lifetime.                |
+| Preact    | `install(options)` plus `useService(blueprint)`                      | The installed adapter owns the app lifetime.              |
+| Ember     | `setupService(blueprint, owner?)` or `useService(parent, blueprint)` | Services are scoped to the Ember owner.                   |
+| Vue       | `Starbeam` plugin plus `setupService(blueprint)`                     | Install the plugin on the Vue app.                        |
+| Svelte    | Not exposed yet                                                      | The Svelte adapter does not expose service helpers today. |
 
 ## Direct package
 

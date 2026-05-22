@@ -13,6 +13,7 @@ Install the packages you import directly. Most apps need one framework adapter,
 | A framework-neutral model | `@starbeam/universal @starbeam/collections`                  | `reactive` collections, domain objects, and `Resource`                                 |
 | A React app               | `@starbeam/react @starbeam/universal @starbeam/collections`  | `useReactive()`, `useResource()`, `useService()`, `useElementResource()`               |
 | A Preact app              | `@starbeam/preact @starbeam/universal @starbeam/collections` | `install(options)`, direct render reads, resource/service hooks                        |
+| An Ember app              | `@starbeam/ember @starbeam/universal @starbeam/collections`  | direct Glimmer-tracked reads, `setupResource()`, `setupService()`, element modifiers   |
 | A Vue app                 | `@starbeam/vue @starbeam/universal @starbeam/collections`    | `useReactive()`, `setupResource()`, `setupService()`, element-resource directives      |
 | A Svelte app              | `@starbeam/svelte @starbeam/universal @starbeam/collections` | current Svelte 5 slice: experimental `fromStarbeam()` and element-resource attachments |
 | A reusable library        | `@starbeam/universal @starbeam/collections`                  | framework-neutral state and domain-shaped APIs                                         |
@@ -102,6 +103,25 @@ import {
 Vue uses `useReactive()` for direct template reads, `setupReactive()` when you
 want a specific Starbeam read as a Vue ref, and directives for element resources:
 [Vue](/frameworks/vue/).
+
+### Ember
+
+```sh
+pnpm add @starbeam/ember @starbeam/universal @starbeam/collections
+```
+
+```ts
+import { setupResource, setupService } from "@starbeam/ember";
+import {
+  elementResource,
+  elementResourceModifier,
+} from "@starbeam/ember/modifier";
+```
+
+Ember's adapter mirrors Starbeam reads into Glimmer autotracking, so templates
+and getters can read Starbeam-backed domain objects directly. Use
+`setupResource()` for component-owned resources, `setupService()` for
+owner-scoped services, and modifiers for element resources: [Ember](/frameworks/ember/).
 
 ### Svelte
 

@@ -1,6 +1,6 @@
 ---
 title: Framework adapters
-description: "Reference for Starbeam's React, Preact, Vue, and Svelte adapter surfaces."
+description: "Reference for Starbeam's React, Preact, Ember, Vue, and Svelte adapter surfaces."
 ---
 
 Framework adapters connect Starbeam reads, resources, services, and element
@@ -10,12 +10,13 @@ Use the guide for your framework for full examples. This page is a quick API map
 
 ## Adapter matrix
 
-| Framework | Read boundary                                 | Resources                         | Services                                         | Element resources                               |
-| --------- | --------------------------------------------- | --------------------------------- | ------------------------------------------------ | ----------------------------------------------- |
-| React     | `useReactive(compute, bridge?)`               | `useResource(blueprint, bridge?)` | `Starbeam` plus `useService(blueprint)`          | `useElementResource(build, bridge?)`            |
-| Preact    | `install(options)` tracks render reads        | `useResource(blueprint, deps?)`   | `useService(blueprint)`                          | `useElementResource(build, bridge?)`            |
-| Vue       | `useReactive()` or `setupReactive(blueprint)` | `setupResource(blueprint)`        | `Starbeam` plugin plus `setupService(blueprint)` | `elementResourceDirective(blueprint, options?)` |
-| Svelte    | `fromStarbeam(compute)`                       | Not exposed yet                   | Not exposed yet                                  | `elementResource(blueprint)`                    |
+| Framework | Read boundary                                 | Resources                          | Services                                         | Element resources                               |
+| --------- | --------------------------------------------- | ---------------------------------- | ------------------------------------------------ | ----------------------------------------------- |
+| React     | `useReactive(compute, bridge?)`               | `useResource(blueprint, bridge?)`  | `Starbeam` plus `useService(blueprint)`          | `useElementResource(build, bridge?)`            |
+| Preact    | `install(options)` tracks render reads        | `useResource(blueprint, deps?)`    | `useService(blueprint)`                          | `useElementResource(build, bridge?)`            |
+| Ember     | Glimmer autotracking sees Starbeam reads      | `setupResource(blueprint, parent)` | `setupService(blueprint, owner?)`                | `elementResourceModifier(blueprint, options?)`  |
+| Vue       | `useReactive()` or `setupReactive(blueprint)` | `setupResource(blueprint)`         | `Starbeam` plugin plus `setupService(blueprint)` | `elementResourceDirective(blueprint, options?)` |
+| Svelte    | `fromStarbeam(compute)`                       | Not exposed yet                    | Not exposed yet                                  | `elementResource(blueprint)`                    |
 
 ## React
 
@@ -61,6 +62,24 @@ Package: `@starbeam/vue`
 | `elementResourceDirective(blueprint, options?)` | Attach element-backed work to a Vue directive.                   |
 | `elementResource(blueprint)`                    | Experimental lower-level handle with a directive and ref.        |
 
+## Ember
+
+Package: `@starbeam/ember`
+
+| API                                            | Use for                                                        |
+| ---------------------------------------------- | -------------------------------------------------------------- |
+| Native Glimmer tag mirror                      | Make Starbeam reads visible to Ember templates and getters.    |
+| `fromStarbeam(compute, options?)`              | Explicit read bridge object with `current` and `disconnect()`. |
+| `setupResource(blueprint, parent)`             | Attach a resource to an Ember destroyable lifetime.            |
+| `setupReactiveResource(blueprint, parent)`     | Explicit `current` wrapper for a resource value.               |
+| `setupService(blueprint, owner?)`              | Resolve owner-scoped service state.                            |
+| `useResource(parent, blueprint)` / `resource`  | Helper-backed resource setup.                                  |
+| `elementResourceModifier(blueprint, options?)` | Attach element-backed work to an Ember modifier.               |
+| `elementResource(blueprint)`                   | Handle pairing a modifier with a tracked `current` value.      |
+
+Plain templates and getters can read Starbeam-backed domain objects directly.
+Use `fromStarbeam()` when a stable explicit bridge object is useful.
+
 ## Svelte
 
 Package: `@starbeam/svelte`
@@ -80,6 +99,7 @@ Deeper integration is tracked in
 
 - [React guide](/frameworks/react/)
 - [Preact guide](/frameworks/preact/)
+- [Ember guide](/frameworks/ember/)
 - [Vue guide](/frameworks/vue/)
 - [Svelte guide](/frameworks/svelte/)
 - [Resources](/reference/resources/)

@@ -18,10 +18,11 @@ If you are choosing what to install first, start with
 - `@starbeam/universal`: framework-neutral lifecycle APIs such as `Resource`,
   plus compatibility exports for lower-level primitives. See
   [Universal APIs](/reference/universal/).
-- Framework adapters: `@starbeam/react`, `@starbeam/preact`, `@starbeam/vue`, and
-  `@starbeam/svelte` connect Starbeam to framework rendering and lifecycle. The
-  Svelte adapter is a current experimental slice with reads and element resources
-  but no component-resource or service helpers yet. See
+- Framework adapters: `@starbeam/react`, `@starbeam/preact`, `@starbeam/ember`,
+  `@starbeam/vue`, and `@starbeam/svelte` connect Starbeam to framework
+  rendering and lifecycle. The Svelte adapter is a current experimental slice
+  with reads and element resources but no component-resource or service helpers
+  yet. See
   [Framework adapters](/reference/framework-adapters/).
 
 ## Lifecycle and composition packages
