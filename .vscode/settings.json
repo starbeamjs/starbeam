@@ -33,7 +33,7 @@
   "eslint.codeActionsOnSave.mode": "problems",
   "eslint.enable": true,
   "eslint.lintTask.enable": true,
-  "eslint.lintTask.options": "--cache -c ./.eslintrc.json --max-warnings=0 \"**/*.ts\" \"**/*.tsx\" \"**/*.json\"",
+  "eslint.lintTask.options": "--cache --max-warnings=0 \"**/*.ts\" \"**/*.tsx\" \"**/*.json\"",
   "eslint.validate": [
     "javascript",
     "javascriptreact",
