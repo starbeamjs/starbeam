@@ -1,6 +1,6 @@
 ---
 title: Framework adapters
-description: "Reference for Starbeam's React, Preact, Vue, and Svelte adapter surfaces."
+description: "Reference for Starbeam's React, Preact, Ember, Vue, and Svelte adapter surfaces."
 ---
 
 Framework adapters connect Starbeam reads, resources, services, and element
@@ -10,12 +10,13 @@ Use the guide for your framework for full examples. This page is a quick API map
 
 ## Adapter matrix
 
-| Framework | Read boundary                                 | Resources                         | Services                                         | Element resources                               |
-| --------- | --------------------------------------------- | --------------------------------- | ------------------------------------------------ | ----------------------------------------------- |
-| React     | `useReactive(compute, bridge?)`               | `useResource(blueprint, bridge?)` | `Starbeam` plus `useService(blueprint)`          | `useElementResource(build, bridge?)`            |
-| Preact    | `install(options)` tracks render reads        | `useResource(blueprint, deps?)`   | `useService(blueprint)`                          | `useElementResource(build, bridge?)`            |
-| Vue       | `useReactive()` or `setupReactive(blueprint)` | `setupResource(blueprint)`        | `Starbeam` plugin plus `setupService(blueprint)` | `elementResourceDirective(blueprint, options?)` |
-| Svelte    | `fromStarbeam(compute)`                       | Not exposed yet                   | Not exposed yet                                  | `elementResource(blueprint)`                    |
+| Framework | Read boundary                                 | Resources                          | Services                                         | Element resources                               |
+| --------- | --------------------------------------------- | ---------------------------------- | ------------------------------------------------ | ----------------------------------------------- |
+| React     | `useReactive(compute, bridge?)`               | `useResource(blueprint, bridge?)`  | `Starbeam` plus `useService(blueprint)`          | `useElementResource(build, bridge?)`            |
+| Preact    | `install(options)` tracks render reads        | `useResource(blueprint, deps?)`    | `useService(blueprint)`                          | `useElementResource(build, bridge?)`            |
+| Ember     | `fromStarbeam(compute, options?)`             | `setupResource(blueprint, parent)` | `setupService(blueprint, owner?)`                | `elementResourceModifier(blueprint, options?)`  |
+| Vue       | `useReactive()` or `setupReactive(blueprint)` | `setupResource(blueprint)`         | `Starbeam` plugin plus `setupService(blueprint)` | `elementResourceDirective(blueprint, options?)` |
+| Svelte    | `fromStarbeam(compute)`                       | Not exposed yet                    | Not exposed yet                                  | `elementResource(blueprint)`                    |
 
 ## React
 
@@ -46,6 +47,28 @@ Package: `@starbeam/preact`
 | `useReactive` / `setup*` / `createCell` | Lower-level APIs, not the main Preact path.                |
 
 After `install(options)`, direct render reads are the main Preact output boundary.
+
+## Ember
+
+Package: `@starbeam/ember`
+
+The Ember adapter is experimental and ships as a v2 Ember addon. Its read bridge
+uses Glimmer tags: Ember templates, `@cached` getters, helpers, and modifiers see
+Starbeam invalidations when the read goes through `fromStarbeam()`.
+
+| API                                                       | Use for                                                          |
+| --------------------------------------------------------- | ---------------------------------------------------------------- |
+| `fromStarbeam(compute, options?)`                         | Bridge a Starbeam read into Glimmer autotracking.                |
+| `setupResource(blueprint, parent)`                        | Attach a resource to an Ember destroyable.                       |
+| `setupReactiveResource(blueprint, parent)`                | Lower-level resource setup with an autotracked `current` getter. |
+| `setupService(blueprint, owner?)` / `useService()`        | Resolve owner-scoped service state.                              |
+| `resource(blueprint)` / `useResource()` / `getResource()` | Lower-level helper-manager resource integration.                 |
+| `elementResourceModifier(blueprint, options?)`            | Attach element-backed work to an Ember modifier.                 |
+| `elementResource(blueprint)`                              | Experimental modifier plus autotracked `current` handle.         |
+
+Use `fromStarbeam()` for template-facing reads. A raw template read of a
+Starbeam-backed getter can compute during a render Ember already scheduled, but
+it does not subscribe to Starbeam invalidations by itself.
 
 ## Vue
 
@@ -80,6 +103,7 @@ Deeper integration is tracked in
 
 - [React guide](/frameworks/react/)
 - [Preact guide](/frameworks/preact/)
+- [Ember guide](/frameworks/ember/)
 - [Vue guide](/frameworks/vue/)
 - [Svelte guide](/frameworks/svelte/)
 - [Resources](/reference/resources/)

@@ -183,4 +183,4 @@ as JavaScript.
 - Read [Resources and lifecycle](/concepts/lifecycle/) when work needs setup,
   sync, or cleanup.
 - Read [Framework guides](/frameworks/overview/) to see how adapters connect this
-  model to React, Preact, Vue, and Svelte.
+  model to React, Preact, Ember, Vue, and Svelte.

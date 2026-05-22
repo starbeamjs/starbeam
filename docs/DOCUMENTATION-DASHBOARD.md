@@ -15,14 +15,14 @@ arc should still get a fresh Prepare before editing.
 | Homepage               | Done         | Public narrative is aligned around “Reactivity that stays JavaScript.”                      |
 | Start                  | Done         | Introduction and install chooser teach framework-neutral and adapter paths.                 |
 | Core concepts          | Done for now | Overview, collections, lifecycle, services, and element resources have first concept pages. |
-| Framework guides       | Done for now | React, Preact, Vue, and Svelte pages exist with current adapter status language.            |
+| Framework guides       | Done for now | React, Preact, Ember, Vue, and Svelte pages exist with current adapter status language.     |
 | Library authors        | Done         | Reusable framework-neutral abstractions have a first guide.                                 |
 | Reference              | Done for now | First hand-written reference cards exist for public packages and framework adapters.        |
 | Advanced / implementor | Done for now | It routes readers to source notes and records the status of implementor material.           |
 | Experiments            | Done for now | Experiments are quarantined, with package README and metadata status language aligned.      |
 | Archive                | Done         | Historical material is explicitly quarantined.                                              |
 | Root README            | Done         | It now routes readers into the website instead of old package README lists.                 |
-| Ember adapter docs     | Deferred     | Do not integrate Ember into the website until the adapter surface has been reviewed.        |
+| Ember adapter docs     | Done         | Ember is integrated as an experimental v2 addon after adapter review.                       |
 
 ## North star
 
@@ -43,18 +43,18 @@ The remaining documentation work should reinforce the public model:
 
 ## Dashboard
 
-| Priority | Arc                                      | Status  | Primary files                                                                                    | Why it matters                                                                                                                          |
-| -------- | ---------------------------------------- | ------- | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
-| P0       | Collections concept + package README     | Done    | `workspace/docs/src/content/docs/concepts/`, `packages/universal/collections/README.md`          | Collections are now the preferred root-state story for collection-shaped data, with a concept route and aligned package README.         |
-| P0       | Reactive primitive README rewrite        | Next    | `packages/universal/reactive/README.md`                                                          | `@starbeam/reactive` is public for authors building primitives, but the README still blends that surface with runtime/protocol caveats. |
-| P1       | Preact package README                    | Ready   | `packages/preact/preact/README.md`                                                               | Preact has a website guide and public package, but no package-level front door.                                                         |
-| P1       | Core deprecation README + migration page | Done    | `packages/universal/core/README.md`, `workspace/docs/src/content/docs/`                          | Existing users now have package and website migration guidance from `@starbeam/core` to `@starbeam/universal`.                          |
-| P1       | Concept route expansion                  | Done    | `workspace/docs/src/content/docs/concepts/`, `workspace/docs/astro.config.mjs`                   | Services and element resources now have first-class concept pages linked from lifecycle and framework guides.                           |
-| P1       | Reference expansion                      | Done    | `workspace/docs/src/content/docs/reference/`, `workspace/docs/astro.config.mjs`                  | Reference now has a first batch of hand-written package and adapter cards.                                                              |
-| P2       | Status consistency pass                  | Done    | `README.md`, framework docs, package READMEs, install/reference pages                            | Svelte, Vue, and experiment status language is aligned across website entry points and package surfaces.                                |
-| P2       | `@starbeam/use-strict-lifecycle` README  | Done    | `packages/react/use-strict-lifecycle/README.md`, `packages/react/use-strict-lifecycle/THEORY.md` | The public React lifecycle infrastructure package now has a README and website reference pointers.                                      |
-| P2       | Experiment package README cleanup        | Done    | `packages/x/store/README.md`, `packages/x/vanilla/README.md`, experiment package metadata        | Experiment package surfaces now describe their provisional status and headless-form is clearly private placeholder metadata.            |
-| P3       | Ember website integration                | Blocked | Ember package/docs after PR #273 is reviewed                                                     | The adapter surface needs review before it becomes part of the public framework guide set.                                              |
+| Priority | Arc                                      | Status | Primary files                                                                                    | Why it matters                                                                                                                          |
+| -------- | ---------------------------------------- | ------ | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+| P0       | Collections concept + package README     | Done   | `workspace/docs/src/content/docs/concepts/`, `packages/universal/collections/README.md`          | Collections are now the preferred root-state story for collection-shaped data, with a concept route and aligned package README.         |
+| P0       | Reactive primitive README rewrite        | Next   | `packages/universal/reactive/README.md`                                                          | `@starbeam/reactive` is public for authors building primitives, but the README still blends that surface with runtime/protocol caveats. |
+| P1       | Preact package README                    | Ready  | `packages/preact/preact/README.md`                                                               | Preact has a website guide and public package, but no package-level front door.                                                         |
+| P1       | Core deprecation README + migration page | Done   | `packages/universal/core/README.md`, `workspace/docs/src/content/docs/`                          | Existing users now have package and website migration guidance from `@starbeam/core` to `@starbeam/universal`.                          |
+| P1       | Concept route expansion                  | Done   | `workspace/docs/src/content/docs/concepts/`, `workspace/docs/astro.config.mjs`                   | Services and element resources now have first-class concept pages linked from lifecycle and framework guides.                           |
+| P1       | Reference expansion                      | Done   | `workspace/docs/src/content/docs/reference/`, `workspace/docs/astro.config.mjs`                  | Reference now has a first batch of hand-written package and adapter cards.                                                              |
+| P2       | Status consistency pass                  | Done   | `README.md`, framework docs, package READMEs, install/reference pages                            | Svelte, Vue, and experiment status language is aligned across website entry points and package surfaces.                                |
+| P2       | `@starbeam/use-strict-lifecycle` README  | Done   | `packages/react/use-strict-lifecycle/README.md`, `packages/react/use-strict-lifecycle/THEORY.md` | The public React lifecycle infrastructure package now has a README and website reference pointers.                                      |
+| P2       | Experiment package README cleanup        | Done   | `packages/x/store/README.md`, `packages/x/vanilla/README.md`, experiment package metadata        | Experiment package surfaces now describe their provisional status and headless-form is clearly private placeholder metadata.            |
+| P3       | Ember website integration                | Done   | Ember website guide, framework matrix, install chooser, reference, and root README               | Ember is now part of the public framework guide set with experimental v2 addon status language.                                         |
 
 ## PER arcs
 
@@ -292,7 +292,7 @@ infrastructure for library and adapter authors. It is also used by
 
 ### PER 9: Ember documentation integration
 
-**Blocked until the adapter review happens.**
+**Status:** Done after the adapter surface was accepted.
 
 **Hypothesis:** If the Ember adapter surface is accepted, Ember should be wired
 into the same public docs matrix as the other framework adapters.
@@ -300,7 +300,7 @@ into the same public docs matrix as the other framework adapters.
 **Prepare**
 
 - Review the accepted Ember public surface after PR #273 is revised or approved.
-- Decide whether Ember belongs beside React/Preact/Vue/Svelte or behind an
+- Decide whether Ember belongs beside the other framework guides or behind an
   experimental caveat.
 - Confirm the read bridge, resource API, service API, and element-resource API
   are documented in Ember-native terms.
@@ -312,6 +312,10 @@ into the same public docs matrix as the other framework adapters.
   root README if appropriate.
 - Align the package README with the website guide.
 
+**Outcome:** Ember is now wired into the website and root README as an
+experimental v2 addon. The guide documents the Glimmer tag bridge explicitly and
+does not imply raw template reads are reactive.
+
 **Review**
 
 - Confirm the guide does not assume raw template reads are reactive without the
@@ -321,14 +325,9 @@ into the same public docs matrix as the other framework adapters.
 
 ## Recommended next arc
 
-After PER 8 lands, the remaining blocked dashboard item is **PER 9: Ember
-documentation integration**.
-
-Do not start Ember docs until the adapter surface in PR #273 has been reviewed
-and accepted.
-
-If Ember stays deferred, use the dashboard as a checkpoint and decide whether to
-return to release prep or close the docs arc.
+The public website spine is complete for the current adapter set. Use this
+dashboard as a checkpoint and decide whether to return to release prep or start a
+new documentation arc.
 
 ## Validation checklist
 

@@ -65,6 +65,7 @@ that framework's native dialect.
 | --------- | ---------------------------- | ------------------- |
 | React     | `useElementResource()`       | callback ref        |
 | Preact    | `useElementResource()`       | callback ref        |
+| Ember     | `elementResourceModifier()`  | modifier            |
 | Vue       | `elementResourceDirective()` | custom directive    |
 | Svelte    | `elementResource()`          | Svelte 5 attachment |
 
@@ -84,6 +85,36 @@ return <section ref={size.ref}>{size.status}</section>;
 
 The hook owns the element lifetime. When the element is detached, the adapter
 finalizes the element resource.
+
+## Ember
+
+Ember uses modifiers for element-owned work. `elementResourceModifier()` creates
+a modifier and can publish the resource value into tracked state owned by the
+component.
+
+```gjs
+class Panel extends Component {
+  @tracked size = null;
+  measure = elementResourceModifier(ElementSize, {
+    into: (value) => {
+      this.size = value;
+    },
+  });
+
+  <template>
+    <section {{this.measure}}>
+      {{#if this.size}}
+        {{this.size.width}} × {{this.size.height}}
+      {{else}}
+        Measuring…
+      {{/if}}
+    </section>
+  </template>
+}
+```
+
+The modifier owns the element lifetime. The `into` callback is the handoff from
+the modifier back to Ember render data.
 
 ## Vue
 

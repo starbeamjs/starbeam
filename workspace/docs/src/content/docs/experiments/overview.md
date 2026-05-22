@@ -51,7 +51,7 @@ for Starbeam-backed rendering without a framework adapter.
 Useful for exploring:
 
 - how Starbeam can drive text, attributes, elements, and fragments;
-- renderer ideas without React, Preact, Vue, or Svelte;
+- renderer ideas without React, Preact, Ember, Vue, or Svelte;
 - small implementation examples for people studying render integration.
 
 It is not intended to be a full app framework. App authors should normally use a

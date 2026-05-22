@@ -59,6 +59,7 @@ Use the service API from the framework adapter that owns your app.
 | --------- | --------------------------------------- | -------------------------------------------------------------------- |
 | React     | `Starbeam` provider plus `useService()` | The provider establishes the app lifetime.                           |
 | Preact    | `install(options)` plus `useService()`  | The installed adapter owns the app lifetime.                         |
+| Ember     | `setupService()` or `useService()`      | Pass the Ember owner so the service lifetime follows the app owner.  |
 | Vue       | `Starbeam` plugin plus `setupService()` | Install the plugin on the Vue app.                                   |
 | Svelte    | Not exposed yet                         | The Svelte adapter does not expose app-scoped service helpers today. |
 
@@ -107,7 +108,8 @@ Services do not replace resources. They choose a different owner for a resource.
 
 ## Next steps
 
-- [React](/frameworks/react/), [Preact](/frameworks/preact/), and
-  [Vue](/frameworks/vue/) show current service APIs.
+- [React](/frameworks/react/), [Preact](/frameworks/preact/),
+  [Ember](/frameworks/ember/), and [Vue](/frameworks/vue/) show current service
+  APIs.
 - [Svelte](/frameworks/svelte/) documents the current Svelte adapter scope.
 - [Reference](/reference/overview/) maps the package surface.

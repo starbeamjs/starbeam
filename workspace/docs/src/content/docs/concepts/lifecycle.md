@@ -119,6 +119,9 @@ sync, cleanup, and finalize fit into the framework that owns the component.
 - [Preact](/frameworks/preact/) uses `useResource()`. The resource belongs to
   the Preact component; sync is scheduled through Preact effects, and finalize
   runs when the component unmounts.
+- [Ember](/frameworks/ember/) uses `setupResource()`. The resource belongs to an
+  Ember destroyable; template-facing reads go through `fromStarbeam()` so
+  Glimmer autotracking sees Starbeam invalidations.
 - [Vue](/frameworks/vue/) uses `setupResource()`. The resource is created from
   Vue setup, sync is scheduled through Vue's component lifecycle, and finalize
   runs when Vue unmounts the component.

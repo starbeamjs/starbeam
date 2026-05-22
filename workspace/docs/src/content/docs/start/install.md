@@ -13,6 +13,7 @@ Install the packages you import directly. Most apps need one framework adapter,
 | A framework-neutral model | `@starbeam/universal @starbeam/collections`                  | `reactive` collections, domain objects, and `Resource`                                 |
 | A React app               | `@starbeam/react @starbeam/universal @starbeam/collections`  | `useReactive()`, `useResource()`, `useService()`, `useElementResource()`               |
 | A Preact app              | `@starbeam/preact @starbeam/universal @starbeam/collections` | `install(options)`, direct render reads, resource/service hooks                        |
+| An Ember app              | `@starbeam/ember @starbeam/universal @starbeam/collections`  | experimental v2 addon: `fromStarbeam()`, resources, services, element modifiers        |
 | A Vue app                 | `@starbeam/vue @starbeam/universal @starbeam/collections`    | `useReactive()`, `setupResource()`, `setupService()`, element-resource directives      |
 | A Svelte app              | `@starbeam/svelte @starbeam/universal @starbeam/collections` | current Svelte 5 slice: experimental `fromStarbeam()` and element-resource attachments |
 | A reusable library        | `@starbeam/universal @starbeam/collections`                  | framework-neutral state and domain-shaped APIs                                         |
@@ -82,6 +83,25 @@ import {
 Install Starbeam into Preact `options`, then ordinary render reads are tracked by
 the adapter: [Preact](/frameworks/preact/).
 
+### Ember
+
+```sh
+pnpm add @starbeam/ember @starbeam/universal @starbeam/collections
+```
+
+```ts
+import { fromStarbeam, setupResource, setupService } from "@starbeam/ember";
+import {
+  elementResource,
+  elementResourceModifier,
+} from "@starbeam/ember/modifier";
+```
+
+Ember support is an experimental v2 addon. Use `fromStarbeam()` to bridge
+Starbeam reads into Glimmer autotracking; raw Starbeam reads in templates do not
+subscribe on their own. Component resources, owner-scoped services, and
+element-resource modifiers are available today. See [Ember](/frameworks/ember/).
+
 ### Vue
 
 ```sh
@@ -149,6 +169,7 @@ adapter.
 usually use framework adapter helpers instead:
 
 - React and Preact: `useService()`;
+- Ember: `setupService()` or `useService()` with the Ember owner;
 - Vue: `setupService()`; install the Starbeam plugin when you want to establish
   app ownership explicitly;
 - Svelte: service helpers are not exposed yet.
