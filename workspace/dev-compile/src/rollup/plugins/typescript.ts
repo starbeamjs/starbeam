@@ -22,6 +22,7 @@ export const PUBLIC_OBJECT_PROPERTY_KEYS = [
   "dependencies",
   "description",
   "directive",
+  "dirty",
   "done",
   "eq",
   "finalize",

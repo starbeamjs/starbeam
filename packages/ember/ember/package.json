@@ -7,6 +7,7 @@
   "exports": {
     ".": "./index.ts",
     "./addon-main.js": "./addon-main.cjs",
+    "./decorators": "./decorators.ts",
     "./modifier": "./modifier.ts"
   },
   "publishConfig": {
@@ -17,6 +18,11 @@
         "default": "./dist/index.js"
       },
       "./addon-main.js": "./addon-main.cjs",
+      "./decorators": {
+        "types": "./dist/decorators.d.ts",
+        "import": "./dist/decorators.js",
+        "default": "./dist/decorators.js"
+      },
       "./modifier": {
         "types": "./dist/modifier.d.ts",
         "import": "./dist/modifier.js",
@@ -28,6 +34,7 @@
   },
   "starbeam": {
     "entry": {
+      "decorators": "./decorators.ts",
       "index": "./index.ts",
       "modifier": "./modifier.ts"
     },

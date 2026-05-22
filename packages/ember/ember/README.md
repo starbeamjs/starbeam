@@ -19,6 +19,8 @@ your Ember app.
 
 ## Public APIs
 
+- `@reactive`: getter decorator for template-facing Starbeam reads (subpath:
+  `@starbeam/ember/decorators`).
 - `fromStarbeam(compute, options?)`: bridge a Starbeam compute into Glimmer's
   autotracking system.
 - `setupResource(blueprint, parent)`: create a Starbeam resource scoped to a
@@ -33,21 +35,27 @@ your Ember app.
 
 ```gjs
 import Component from "@glimmer/component";
-import { fromStarbeam } from "@starbeam/ember";
+import { reactive } from "@starbeam/ember/decorators";
 import { cart } from "./cart";
 
 export default class CartTotal extends Component {
-  total = fromStarbeam(() => cart.totalCents, { parent: this });
+  @reactive
+  get total() {
+    return cart.totalCents;
+  }
 
   <template>
-    <p>{{this.total.current}}</p>
+    <p>{{this.total}}</p>
   </template>
 }
 ```
 
-`fromStarbeam()` returns a read-only `current` getter. Keep Starbeam cells and
-collections private inside your domain objects; expose domain-shaped getters and
-wrap those reads at the Ember boundary.
+Keep Starbeam cells and collections private inside your domain objects; expose
+domain-shaped getters and wrap those reads at the Ember boundary. `@reactive`
+uses `fromStarbeam()` internally and ties the bridge lifetime to the component.
+
+`fromStarbeam()` is also available directly when you need an explicit bridge. It
+returns a read-only `current` getter.
 
 Pass `options.parent` to tie the subscription to a destroyable (component,
 modifier, helper, owner). Without `parent`, the caller must invoke

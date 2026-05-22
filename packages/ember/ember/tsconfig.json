@@ -8,6 +8,12 @@
     "declarationMap": true,
     "emitDeclarationOnly": true
   },
-  "include": ["env.d.ts", "index.ts", "modifier.ts", "src/**/*"],
+  "include": [
+    "env.d.ts",
+    "index.ts",
+    "decorators.ts",
+    "modifier.ts",
+    "src/**/*"
+  ],
   "exclude": ["dist/**/*"]
 }
