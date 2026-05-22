@@ -57,8 +57,6 @@ interface ElementResourceModifierState<E extends Element, T> {
   resourceElement?: Element | undefined;
   resource?: ReturnType<typeof setupElementResource<E, T>> | undefined;
   unsubscribe?: (() => void) | undefined;
-  active: boolean;
-  scheduled: boolean;
   current: object | undefined;
 }
 
@@ -76,8 +74,6 @@ class StarbeamElementResourceModifierManager {
   ): ElementResourceModifierState<Element, unknown> {
     return {
       definition,
-      active: false,
-      scheduled: false,
       current: undefined,
     };
   }
@@ -111,14 +107,17 @@ class StarbeamElementResourceModifierManager {
     const token = {};
     state.current = token;
     state.definition.current = token;
-    state.active = true;
     state.resourceElement = element;
+    let active = true;
+    let scheduled = false;
 
     const publish = (value: unknown): void => {
       if (state.definition.current === token) {
         state.definition.options.into?.(value);
       }
     };
+
+    const isCurrent = (): boolean => active && state.current === token;
 
     const resource = setupElementResource(state.definition.blueprint, element);
     state.resource = resource;
@@ -127,28 +126,31 @@ class StarbeamElementResourceModifierManager {
     publish(resource.value);
 
     const flush = (): void => {
-      if (!state.active) return;
+      if (!isCurrent()) return;
       resource.sync();
       publish(resource.value);
     };
 
     const schedule = (): void => {
-      if (state.scheduled || !state.active) return;
-      state.scheduled = true;
+      if (scheduled || !isCurrent()) return;
+      scheduled = true;
       queueMicrotask(() => {
-        state.scheduled = false;
+        scheduled = false;
         flush();
       });
     };
 
-    state.unsubscribe = RUNTIME.subscribe(resource.sync, schedule);
+    const unsubscribe = RUNTIME.subscribe(resource.sync, schedule);
+    state.unsubscribe = (): void => {
+      active = false;
+      unsubscribe?.();
+    };
   }
 
   #teardown(
     state: ElementResourceModifierState<Element, unknown>,
     options: { clear?: boolean } = {},
   ): void {
-    state.active = false;
     state.unsubscribe?.();
     state.unsubscribe = undefined;
     state.resource?.finalize();
