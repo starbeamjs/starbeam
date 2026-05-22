@@ -299,7 +299,7 @@ into the same public docs matrix as the other framework adapters.
 
 **Prepare**
 
-- Review the accepted Ember public surface after PR #273 is revised or approved.
+- Review the accepted Ember public surface after PR #286 lands.
 - Decide whether Ember belongs beside the other framework guides or behind an
   experimental caveat.
 - Confirm the read bridge, resource API, service API, and element-resource API

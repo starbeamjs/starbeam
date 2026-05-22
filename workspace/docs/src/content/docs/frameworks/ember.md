@@ -213,7 +213,7 @@ It returns an Ember modifier. Pass `into` to publish the resource value into
 tracked component state. See [Element resources and DOM attachment](/concepts/element-resources/)
 for the framework-neutral concept.
 
-```gjs
+```gts
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { reactive } from "@starbeam/collections";

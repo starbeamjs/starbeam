@@ -169,7 +169,8 @@ adapter.
 usually use framework adapter helpers instead:
 
 - React and Preact: `useService()`;
-- Ember: `setupService()` or `useService()` with the Ember owner;
+- Ember: `setupService(blueprint, owner?)` with an Ember owner, or
+  `useService(this, Blueprint)` from an Ember context;
 - Vue: `setupService()`; install the Starbeam plugin when you want to establish
   app ownership explicitly;
 - Svelte: service helpers are not exposed yet.
