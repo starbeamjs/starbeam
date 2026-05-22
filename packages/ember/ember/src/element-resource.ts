@@ -1,4 +1,5 @@
 import { capabilities, setModifierManager } from "@ember/modifier";
+import { untrack } from "@glimmer/validator";
 import type { ElementResourceBlueprint as RendererElementResourceBlueprint } from "@starbeam/renderer";
 import { setupElementResource } from "@starbeam/renderer";
 import { RUNTIME } from "@starbeam/runtime";
@@ -84,7 +85,7 @@ class StarbeamElementResourceModifierManager {
     args: ModifierArguments,
   ): void {
     this.#consume(args);
-    this.#setup(state, element);
+    untrack(() => void this.#setup(state, element));
   }
 
   updateModifier(
@@ -93,7 +94,11 @@ class StarbeamElementResourceModifierManager {
   ): void {
     this.#consume(args);
     this.#teardown(state);
-    if (state.resourceElement) this.#setup(state, state.resourceElement);
+    const element = state.resourceElement;
+
+    if (element) {
+      untrack(() => void this.#setup(state, element));
+    }
   }
 
   destroyModifier(state: ElementResourceModifierState<Element, unknown>): void {

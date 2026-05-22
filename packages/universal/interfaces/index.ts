@@ -5,6 +5,7 @@ export type {
   NotifyReady,
   Runtime,
   RuntimeFrame,
+  RuntimeHooks,
   UpdateOptions,
 } from "./src/runtime.js";
 export type { CellTag, FormulaTag, Tag, TagSnapshot } from "./src/tag.js";

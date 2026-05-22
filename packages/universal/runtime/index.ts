@@ -1,5 +1,6 @@
 export { type AppContext, CONTEXT } from "./src/context/context.js";
 export {
+  addRuntimeHooks,
   createMountScope,
   createPushScope,
   type FinalizationScope,

@@ -11,6 +11,7 @@ declare module "@glimmer/validator" {
   export function createTag(): DirtyableTag;
   export function consumeTag(tag: Tag): void;
   export function dirtyTag(tag: DirtyableTag): void;
+  export function untrack<T>(callback: () => T): T;
 }
 
 declare module "@glimmer/destroyable" {

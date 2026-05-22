@@ -2,7 +2,6 @@ import { on } from "@ember/modifier";
 import { click, clearRender, render, settled } from "@ember/test-helpers";
 import Component from "@glimmer/component";
 import {
-  fromStarbeam,
   getResource,
   resource,
   setupReactiveResource,
@@ -153,17 +152,17 @@ module("setupResource | rendering", function (hooks) {
 
     class Display extends Component {
       counter = setupResource(Counter, this);
-      // Bridge the read into Ember's autotracking. Without this, reads of
-      // a Starbeam cell from inside a Glimmer template don't register as
-      // dependencies, so updates won't trigger re-renders.
-      value = fromStarbeam(() => this.counter.value, { parent: this });
+
+      get value(): number {
+        return this.counter.value;
+      }
 
       bump = () => {
         ticks.current += 1;
       };
 
       <template>
-        <p data-test-value>{{this.value.current}}</p>
+        <p data-test-value>{{this.value}}</p>
         <button type="button" data-test-bump {{on "click" this.bump}}>bump</button>
       </template>
     }
@@ -199,10 +198,13 @@ module("setupResource | rendering", function (hooks) {
 
     class Holder extends Component {
       resource = setupResource(WithCleanup, this);
-      value = fromStarbeam(() => this.resource.value, { parent: this });
+
+      get value(): number {
+        return this.resource.value;
+      }
 
       <template>
-        <p data-test-value>{{this.value.current}}</p>
+        <p data-test-value>{{this.value}}</p>
       </template>
     }
 

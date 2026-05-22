@@ -33,21 +33,25 @@ your Ember app.
 
 ```gjs
 import Component from "@glimmer/component";
-import { fromStarbeam } from "@starbeam/ember";
 import { cart } from "./cart";
 
 export default class CartTotal extends Component {
-  total = fromStarbeam(() => cart.totalCents, { parent: this });
+  get total() {
+    return cart.totalCents;
+  }
 
   <template>
-    <p>{{this.total.current}}</p>
+    <p>{{this.total}}</p>
   </template>
 }
 ```
 
-`fromStarbeam()` returns a read-only `current` getter. Keep Starbeam cells and
-collections private inside your domain objects; expose domain-shaped getters and
-wrap those reads at the Ember boundary.
+Starbeam cells and collections participate in Glimmer autotracking. Keep
+Starbeam cells and collections private inside your domain objects; expose
+domain-shaped getters and read them normally from components and templates.
+
+`fromStarbeam()` is still available when a caller needs an explicit read-only
+`current` handle and `disconnect()` lifecycle.
 
 Pass `options.parent` to tie the subscription to a destroyable (component,
 modifier, helper, owner). Without `parent`, the caller must invoke
@@ -56,21 +60,23 @@ modifier, helper, owner). Without `parent`, the caller must invoke
 ## Resources
 
 `setupResource()` creates a Starbeam resource and ties its lifetime to a
-destroyable parent — typically the component using it. To make the resource's
-value reactive from inside templates, wrap reads with `fromStarbeam` so Ember's
-autotracker can observe them:
+destroyable parent — typically the component using it. The resource's value can
+be read from a normal getter or template expression:
 
 ```gjs
 import Component from "@glimmer/component";
-import { fromStarbeam, setupResource } from "@starbeam/ember";
+import { setupResource } from "@starbeam/ember";
 import { Stopwatch } from "./stopwatch";
 
 export default class Clock extends Component {
   stopwatch = setupResource(Stopwatch, this);
-  time = fromStarbeam(() => this.stopwatch.time, { parent: this });
+
+  get time() {
+    return this.stopwatch.time;
+  }
 
   <template>
-    <p>{{this.time.current}}</p>
+    <p>{{this.time}}</p>
   </template>
 }
 ```
@@ -86,15 +92,18 @@ service's lifetime tracks the application:
 ```gjs
 import Component from "@glimmer/component";
 import { getOwner } from "@ember/owner";
-import { fromStarbeam, setupService } from "@starbeam/ember";
+import { setupService } from "@starbeam/ember";
 import { Session } from "./session";
 
 export default class Header extends Component {
   session = setupService(Session, getOwner(this));
-  name = fromStarbeam(() => this.session.user.name, { parent: this });
+
+  get name() {
+    return this.session.user.name;
+  }
 
   <template>
-    <span>{{this.name.current}}</span>
+    <span>{{this.name}}</span>
   </template>
 }
 ```
@@ -181,9 +190,13 @@ export default class SizedBox extends Component {
 
 ## Timing model
 
+- Starbeam reads mirror their cell tags into Glimmer tags. A template, getter,
+  `@cached` getter, modifier argument, or helper that reads Starbeam state is
+  invalidated by the same Starbeam writes that would invalidate a Starbeam
+  subscriber.
 - `fromStarbeam()` re-evaluates lazily on the next read after a Starbeam
-  invalidation. The invalidation dirties an internal Glimmer tag so Ember
-  rerenders any consumer that read `current`.
+  invalidation and remains available when a stable explicit bridge object is
+  useful.
 - `setupResource()` and `elementResourceModifier()` sync once during setup and
   again on each Starbeam-level invalidation, debounced to a microtask.
 - `setupService()` instantiates once per Ember owner; the instance is
@@ -191,10 +204,10 @@ export default class SizedBox extends Component {
 
 ## Notes
 
-- `fromStarbeam()` is the read-bridge: templates and `@cached` getters only
-  see Starbeam reactivity through it. If you have a Starbeam cell that you
-  want a template to follow, wrap it with `fromStarbeam` (or expose the
-  read through `setupResource` and wrap that).
+- Starbeam reads can participate in Glimmer autotracking, but Glimmer-owned
+  state is not added to Starbeam's subscription graph. If a resource `sync`
+  handler depends on Glimmer-owned state, pass that state through an explicit
+  Ember boundary so the resource syncs when it changes.
 - The package is shipped as a v2 Ember addon, so Embroider's resolver
   redirects internal `@glimmer/*` imports to the single bundled instance in
   `ember-source`. Don't add `@glimmer/*` packages to your app's

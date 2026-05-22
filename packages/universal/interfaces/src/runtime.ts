@@ -73,6 +73,11 @@ export interface Runtime {
   readonly start: () => () => TagSnapshot;
 }
 
+export interface RuntimeHooks {
+  readonly consume?: (tag: Tag) => void;
+  readonly mark?: (cell: CellTag) => void;
+}
+
 export type NotifyReady = (internals: CellTag) => void;
 
 export type RuntimeFrame = object;

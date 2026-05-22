@@ -1,3 +1,5 @@
+import { installStarbeamTags } from "./src/tracked.js";
+
 export {
   fromStarbeam,
   type FromStarbeamOptions,
@@ -12,3 +14,5 @@ export {
   useResource,
   useService,
 } from "./src/resource.js";
+
+installStarbeamTags();

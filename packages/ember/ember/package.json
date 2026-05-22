@@ -50,6 +50,7 @@
     "@starbeam/runtime": "workspace:^",
     "@starbeam/service": "workspace:^",
     "@starbeam/shared": "workspace:^",
+    "@starbeam/tags": "workspace:^",
     "@starbeam/universal": "workspace:^"
   },
   "devDependencies": {

@@ -1,4 +1,10 @@
-import type { Runtime as IRuntime, TagSnapshot } from "@starbeam/interfaces";
+import type {
+  CellTag,
+  Runtime as IRuntime,
+  RuntimeHooks,
+  Tag,
+  TagSnapshot,
+} from "@starbeam/interfaces";
 import { defineRuntime } from "@starbeam/reactive";
 import {
   consume,
@@ -10,6 +16,31 @@ import {
 
 import { SUBSCRIPTION_RUNTIME } from "./timeline/render.js";
 
+const HOOKS = new Set<RuntimeHooks>();
+const NO_HOOKS = 0;
+
+export function addRuntimeHooks(hooks: RuntimeHooks): () => void {
+  HOOKS.add(hooks);
+
+  return () => void HOOKS.delete(hooks);
+}
+
+function notifyConsume(tag: Tag): void {
+  if (HOOKS.size === NO_HOOKS) return;
+
+  for (const hooks of HOOKS) {
+    hooks.consume?.(tag);
+  }
+}
+
+function notifyMark(cell: CellTag): void {
+  if (HOOKS.size === NO_HOOKS) return;
+
+  for (const hooks of HOOKS) {
+    hooks.mark?.(cell);
+  }
+}
+
 export const RUNTIME: IRuntime = {
   start: (): (() => TagSnapshot) => {
     const done = start();
@@ -17,9 +48,17 @@ export const RUNTIME: IRuntime = {
     return () => new Set(done()) as TagSnapshot;
   },
 
-  consume: (tag): void => void consume(tag),
+  consume: (tag): void => {
+    consume(tag);
+    notifyConsume(tag);
+  },
 
-  ...SUBSCRIPTION_RUNTIME,
+  subscribe: SUBSCRIPTION_RUNTIME.subscribe,
+  mark: (cell, mark): void => {
+    SUBSCRIPTION_RUNTIME.mark(cell, mark);
+    notifyMark(cell);
+  },
+  update: SUBSCRIPTION_RUNTIME.update,
 };
 
 defineRuntime(RUNTIME);

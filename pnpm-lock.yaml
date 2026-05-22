@@ -185,6 +185,9 @@ importers:
       '@starbeam/shared':
         specifier: workspace:^
         version: link:../../universal/shared
+      '@starbeam/tags':
+        specifier: workspace:^
+        version: link:../../universal/tags
       '@starbeam/universal':
         specifier: workspace:^
         version: link:../../universal/universal
