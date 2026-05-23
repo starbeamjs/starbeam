@@ -1,7 +1,7 @@
 {
   "name": "@starbeam/use-strict-lifecycle",
   "type": "module",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "React lifecycle infrastructure for setup, update, layout, idle, and cleanup across Strict Mode, Fast Refresh, and hidden/revealed trees.",
   "main": "index.ts",
   "types": "index.ts",
