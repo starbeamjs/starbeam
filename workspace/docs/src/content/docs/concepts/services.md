@@ -108,7 +108,8 @@ Services do not replace resources. They choose a different owner for a resource.
 
 ## Next steps
 
-- [React](/frameworks/react/), [Preact](/frameworks/preact/), and
-  [Vue](/frameworks/vue/) show current service APIs.
+- [React](/frameworks/react/), [Preact](/frameworks/preact/),
+  [Ember](/frameworks/ember/), and [Vue](/frameworks/vue/) show current service
+  APIs.
 - [Svelte](/frameworks/svelte/) documents the current Svelte adapter scope.
 - [Reference](/reference/overview/) maps the package surface.
