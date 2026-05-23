@@ -35,7 +35,6 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Publish to NPM
-        run: NPM_CONFIG_PROVENANCE=false pnpm release-plan publish --access public
+        run: NPM_CONFIG_PROVENANCE=true pnpm release-plan publish --access public
         env:
           GITHUB_AUTH: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
