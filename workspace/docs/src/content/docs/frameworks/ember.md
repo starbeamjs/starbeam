@@ -82,7 +82,6 @@ ordinary JavaScript above it.
 ## Read the model from Ember
 
 Read Starbeam-backed domain objects from normal Ember getters and templates.
-There is no `.current` wrapper at the template boundary.
 
 ```gjs
 import { on } from "@ember/modifier";
@@ -123,46 +122,46 @@ Starbeam-backed read.
 
 ## Mixing Starbeam and Ember state
 
-Because `Formula()` re-evaluates every time it is read, it can be used from an
-Ember getter that also reads Glimmer-tracked state. Glimmer owns the render
-tracking frame and sees both dependency systems while the getter runs.
+Ember owns the render tracking frame. A getter can combine Starbeam-backed model
+state with Ember `@tracked` state, and Glimmer will rerender when either side
+changes.
 
 ```gjs
 import { on } from "@ember/modifier";
 import { tracked } from "@glimmer/tracking";
 import Component from "@glimmer/component";
-import { Cell, Formula } from "@starbeam/universal";
 
-const count = Cell(2);
+import { cart } from "./cart";
 
-export default class MultipliedCount extends Component {
-  @tracked multiplier = 2;
+export default class DiscountedTotal extends Component {
+  @tracked discountPercent = 0;
 
-  scaled = Formula(() => count.current * this.multiplier);
+  get total() {
+    const discount = this.discountPercent / 100;
+    const discounted = cart.totalCents * (1 - discount);
 
-  get value() {
-    return this.scaled.current;
+    return `$${(discounted / 100).toFixed(2)}`;
   }
 
-  triple = () => {
-    this.multiplier = 3;
+  applyDiscount = () => {
+    this.discountPercent = 10;
   };
 
-  increment = () => {
-    count.current += 1;
+  addTea = () => {
+    cart.add({ name: "Tea", priceCents: 500 });
   };
 
   <template>
-    <p>{{this.value}}</p>
-    <button type="button" {{on "click" this.triple}}>Triple</button>
-    <button type="button" {{on "click" this.increment}}>Increment</button>
+    <p>{{this.total}}</p>
+    <button type="button" {{on "click" this.applyDiscount}}>10% off</button>
+    <button type="button" {{on "click" this.addTea}}>Add tea</button>
   </template>
 }
 ```
 
-Use `Formula()` when a computation might read framework-owned state. Use
-`CachedFormula()` only when the dependencies are Starbeam-owned or explicitly
-bridged into Starbeam storage.
+Use lower-level reactive primitives only when you are building adapter-level
+utilities or reusable reactive abstractions. App-facing Ember code should prefer
+domain-shaped objects and getters.
 
 ## Add lifecycle with `setupResource()`
 
@@ -308,8 +307,8 @@ tracked `current` value.
 
 ## Explicit bridge objects
 
-`fromStarbeam()` remains available when you want a stable object with a `current`
-getter and an explicit `disconnect()` lifecycle. Most app-facing Ember reads do
+`fromStarbeam()` remains available for lower-level integrations that need a
+stable object with explicit disconnect lifecycle. Most app-facing Ember reads do
 not need it.
 
 ## Notes
@@ -318,8 +317,7 @@ not need it.
   packages. Do not add separate `@glimmer/*` packages to an app to "fix"
   resolution; duplicate validator instances break tag bridging.
 - The adapter is still experimental. Prefer domain-shaped examples and avoid
-  building APIs around `fromStarbeam()` unless you specifically need an explicit
-  bridge object.
+  building app APIs around lower-level bridge objects.
 
 ## Next steps
 
