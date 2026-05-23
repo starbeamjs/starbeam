@@ -20,7 +20,7 @@ on:
       - master
 
 concurrency:
-  group: publish-${{ github.head_ref || github.ref }}-${{ inputs.channel || 'push' }}
+  group: publish-${{ github.head_ref || github.ref }}-${{ github.event.inputs.channel || 'push' }}
   cancel-in-progress: true
 
 jobs:
@@ -30,30 +30,28 @@ jobs:
     outputs:
       mode: ${{ steps.mode.outputs.mode }}
     steps:
+      - uses: actions/checkout@v4
+        if: github.event_name == 'push'
+        with:
+          fetch-depth: 0
       - id: mode
         shell: bash
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "mode=${{ inputs.channel }}" >> "$GITHUB_OUTPUT"
+            echo "mode=${{ github.event.inputs.channel }}" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          if node <<'NODE'
-          const { readFileSync } = require("node:fs");
+          before="${{ github.event.before }}"
+          after="${{ github.sha }}"
 
-          const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"));
-          const releasePlanChanged = (event.commits ?? []).some((commit) => {
-            const files = [
-              ...(commit.added ?? []),
-              ...(commit.modified ?? []),
-              ...(commit.removed ?? []),
-            ];
+          if [[ "$before" == "0000000000000000000000000000000000000000" ]]; then
+            changed_files="$(git show --name-only --format= "$after")"
+          else
+            changed_files="$(git diff --name-only "$before" "$after")"
+          fi
 
-            return files.includes(".release-plan.json");
-          });
-
-          process.exit(releasePlanChanged ? 0 : 1);
-          NODE
+          if grep -qx ".release-plan.json" <<< "$changed_files"
           then
             echo "mode=stable" >> "$GITHUB_OUTPUT"
           else
@@ -71,9 +69,9 @@ jobs:
       attestations: write
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v5
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           registry-url: "https://registry.npmjs.org"
@@ -95,9 +93,9 @@ jobs:
       attestations: write
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v5
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           registry-url: "https://registry.npmjs.org"
