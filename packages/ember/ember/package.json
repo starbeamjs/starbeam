@@ -88,5 +88,10 @@
     "semverIncrementAs": {
       "major": "minor"
     }
+  },
+  "repository": {
+    "directory": "packages/ember/ember",
+    "type": "git",
+    "url": "https://github.com/starbeamjs/starbeam"
   }
 }

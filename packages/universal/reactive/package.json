@@ -50,5 +50,10 @@
     "semverIncrementAs": {
       "major": "minor"
     }
+  },
+  "repository": {
+    "directory": "packages/universal/reactive",
+    "type": "git",
+    "url": "https://github.com/starbeamjs/starbeam"
   }
 }

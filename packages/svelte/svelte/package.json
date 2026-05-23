@@ -58,5 +58,10 @@
     "semverIncrementAs": {
       "major": "minor"
     }
+  },
+  "repository": {
+    "directory": "packages/svelte/svelte",
+    "type": "git",
+    "url": "https://github.com/starbeamjs/starbeam"
   }
 }
