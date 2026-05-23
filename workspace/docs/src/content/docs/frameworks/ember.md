@@ -79,29 +79,36 @@ export class Cart {
 `#items` is the reactive root state. `itemCount`, `totalCents`, and `add()` are
 ordinary JavaScript above it.
 
-## Read the model from Ember
+## Read app models through services
 
-Read Starbeam-backed domain objects from normal Ember getters and templates.
+Ember apps usually put long-lived app state behind services. Model the service
+as a Starbeam resource, then read the service value from normal Ember getters
+and templates.
 
 ```gjs
 import { on } from "@ember/modifier";
+import { getOwner } from "@ember/owner";
 import Component from "@glimmer/component";
+import { setupService } from "@starbeam/ember";
+import { Resource } from "@starbeam/universal";
 
 import { Cart } from "./cart";
 
-const cart = new Cart();
+const CartService = Resource(() => new Cart());
 
 export default class CartSummary extends Component {
+  cart = setupService(CartService, getOwner(this));
+
   get itemCount() {
-    return cart.itemCount;
+    return this.cart.itemCount;
   }
 
   get total() {
-    return `$${(cart.totalCents / 100).toFixed(2)}`;
+    return `$${(this.cart.totalCents / 100).toFixed(2)}`;
   }
 
   addTea = () => {
-    cart.add({ name: "Tea", priceCents: 500 });
+    this.cart.add({ name: "Tea", priceCents: 500 });
   };
 
   <template>
@@ -116,9 +123,9 @@ export default class CartSummary extends Component {
 ```
 
 The getters are ordinary Ember getters. During render, Glimmer sees Starbeam
-storage reads through mirrored Glimmer tags. When `cart.add()` mutates the
-reactive map, Ember rerenders any template or cached getter that consumed the
-Starbeam-backed read.
+storage reads through mirrored Glimmer tags. When `addTea()` mutates the cart,
+Ember rerenders any template or cached getter that consumed the Starbeam-backed
+read.
 
 ## Mixing Starbeam and Ember state
 
