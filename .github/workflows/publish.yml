@@ -30,7 +30,7 @@ jobs:
     outputs:
       mode: ${{ steps.mode.outputs.mode }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         if: github.event_name == 'push'
         with:
           fetch-depth: 0
@@ -69,9 +69,9 @@ jobs:
       attestations: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v5
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
           registry-url: "https://registry.npmjs.org"
@@ -93,9 +93,9 @@ jobs:
       attestations: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v5
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
           registry-url: "https://registry.npmjs.org"
