@@ -314,9 +314,8 @@ tracked `current` value.
 
 ## Explicit bridge objects
 
-`fromStarbeam()` remains available for lower-level integrations that need a
-stable object with explicit disconnect lifecycle. Most app-facing Ember reads do
-not need it.
+Use `fromStarbeam()` for lower-level integrations that need a stable object with
+explicit disconnect lifecycle. Most app-facing Ember reads do not need it.
 
 ## Notes
 
