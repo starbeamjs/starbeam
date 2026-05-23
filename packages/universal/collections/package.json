@@ -1,7 +1,7 @@
 {
   "name": "@starbeam/collections",
   "type": "module",
-  "version": "0.8.9",
+  "version": "0.9.0",
   "description": "An implementation of JavaScript builtins built on top of Starbeam reactivity",
   "main": "index.ts",
   "types": "index.ts",
