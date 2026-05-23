@@ -1,0 +1,99 @@
+# Unlabeled Changes
+
+* Other
+  * [#291](https://github.com/starbeamjs/starbeam/pull/291) docs: add Ember adapter guide ([@wycats](https://github.com/wycats))
+  * [#289](https://github.com/starbeamjs/starbeam/pull/289) chore(workspace): run direct lint and type tasks ([@wycats](https://github.com/wycats))
+  * [#283](https://github.com/starbeamjs/starbeam/pull/283) docs: expand reference section ([@wycats](https://github.com/wycats))
+  * [#282](https://github.com/starbeamjs/starbeam/pull/282) docs: add services and element resource concepts ([@wycats](https://github.com/wycats))
+  * [#276](https://github.com/starbeamjs/starbeam/pull/276) docs: add documentation dashboard ([@wycats](https://github.com/wycats))
+  * [#275](https://github.com/starbeamjs/starbeam/pull/275) docs: align root README ([@wycats](https://github.com/wycats))
+  * [#274](https://github.com/starbeamjs/starbeam/pull/274) docs: add experiments overview ([@wycats](https://github.com/wycats))
+  * [#272](https://github.com/starbeamjs/starbeam/pull/272) docs: add archive overview ([@wycats](https://github.com/wycats))
+  * [#271](https://github.com/starbeamjs/starbeam/pull/271) docs: add advanced overview ([@wycats](https://github.com/wycats))
+  * [#270](https://github.com/starbeamjs/starbeam/pull/270) docs: fix homepage hero padding ([@wycats](https://github.com/wycats))
+  * [#269](https://github.com/starbeamjs/starbeam/pull/269) docs: add library-author guide ([@wycats](https://github.com/wycats))
+  * [#268](https://github.com/starbeamjs/starbeam/pull/268) docs: add package chooser ([@wycats](https://github.com/wycats))
+  * [#267](https://github.com/starbeamjs/starbeam/pull/267) docs: remove homepage hero rail ([@wycats](https://github.com/wycats))
+  * [#266](https://github.com/starbeamjs/starbeam/pull/266) docs: polish homepage layout ([@wycats](https://github.com/wycats))
+  * [#264](https://github.com/starbeamjs/starbeam/pull/264) docs: expand homepage narrative ([@wycats](https://github.com/wycats))
+  * [#263](https://github.com/starbeamjs/starbeam/pull/263) docs: add lifecycle concepts ([@wycats](https://github.com/wycats))
+  * [#262](https://github.com/starbeamjs/starbeam/pull/262) docs: add Svelte framework guide ([@wycats](https://github.com/wycats))
+  * [#259](https://github.com/starbeamjs/starbeam/pull/259) docs: propose first-class Svelte adapter ([@wycats](https://github.com/wycats))
+  * [#258](https://github.com/starbeamjs/starbeam/pull/258) docs: add Vue framework guide ([@wycats](https://github.com/wycats))
+  * [#257](https://github.com/starbeamjs/starbeam/pull/257) docs: add Preact framework guide ([@wycats](https://github.com/wycats))
+  * [#256](https://github.com/starbeamjs/starbeam/pull/256) chore: clarify optional PR template sections ([@wycats](https://github.com/wycats))
+  * [#255](https://github.com/starbeamjs/starbeam/pull/255) docs: add React framework guide ([@wycats](https://github.com/wycats))
+  * [#254](https://github.com/starbeamjs/starbeam/pull/254) docs: align overview pages with collections-first start ([@wycats](https://github.com/wycats))
+  * [#253](https://github.com/starbeamjs/starbeam/pull/253) docs: expand Start walkthrough ([@wycats](https://github.com/wycats))
+  * [#252](https://github.com/starbeamjs/starbeam/pull/252) docs: polish Starlight sidebar ([@wycats](https://github.com/wycats))
+  * [#251](https://github.com/starbeamjs/starbeam/pull/251) docs: configure Vercel deployment ([@wycats](https://github.com/wycats))
+  * [#250](https://github.com/starbeamjs/starbeam/pull/250) docs: update website positioning copy ([@wycats](https://github.com/wycats))
+  * [#249](https://github.com/starbeamjs/starbeam/pull/249) docs: refine Starbeam positioning ([@wycats](https://github.com/wycats))
+  * [#248](https://github.com/starbeamjs/starbeam/pull/248) docs: polish website UI ([@wycats](https://github.com/wycats))
+  * [#247](https://github.com/starbeamjs/starbeam/pull/247) docs: brand Starlight interior ([@wycats](https://github.com/wycats))
+  * [#246](https://github.com/starbeamjs/starbeam/pull/246) docs: scaffold website shell ([@wycats](https://github.com/wycats))
+  * [#245](https://github.com/starbeamjs/starbeam/pull/245) docs: capture website design brief ([@wycats](https://github.com/wycats))
+  * [#244](https://github.com/starbeamjs/starbeam/pull/244) docs: choose website technology ([@wycats](https://github.com/wycats))
+  * [#243](https://github.com/starbeamjs/starbeam/pull/243) docs: capture Starbeam positioning ([@wycats](https://github.com/wycats))
+  * [#242](https://github.com/starbeamjs/starbeam/pull/242) docs: map website readiness ([@wycats](https://github.com/wycats))
+  * [#240](https://github.com/starbeamjs/starbeam/pull/240) chore(vscode): update rewrap recommendation ([@wycats](https://github.com/wycats))
+  * [#236](https://github.com/starbeamjs/starbeam/pull/236) docs(renderer): confirm adapter-author boundary ([@wycats](https://github.com/wycats))
+  * [#235](https://github.com/starbeamjs/starbeam/pull/235) docs(surface): settle modifier internal cleanup policy ([@wycats](https://github.com/wycats))
+  * [#234](https://github.com/starbeamjs/starbeam/pull/234) docs: add pull request template ([@wycats](https://github.com/wycats))
+  * [#230](https://github.com/starbeamjs/starbeam/pull/230) docs(package-surface): add lifecycle package audience matrix ([@wycats](https://github.com/wycats))
+  * [#226](https://github.com/starbeamjs/starbeam/pull/226) Reserve public object property keys ([@wycats](https://github.com/wycats))
+  * [#224](https://github.com/starbeamjs/starbeam/pull/224) Document renderer element resource setup boundary ([@wycats](https://github.com/wycats))
+  * [#216](https://github.com/starbeamjs/starbeam/pull/216) Record Svelte attachment recon ([@wycats](https://github.com/wycats))
+  * [#214](https://github.com/starbeamjs/starbeam/pull/214) Document DOM attachment boundary decision ([@wycats](https://github.com/wycats))
+  * [#212](https://github.com/starbeamjs/starbeam/pull/212) Record Vue directive DOM attachment evidence ([@wycats](https://github.com/wycats))
+  * [#197](https://github.com/starbeamjs/starbeam/pull/197) Finalize core-utils private surface decision ([@wycats](https://github.com/wycats))
+* `@starbeam/ember`, `@starbeam/interfaces`, `@starbeam/reactive`, `@starbeam/runtime`
+  * [#290](https://github.com/starbeamjs/starbeam/pull/290) feat(ember): mirror Starbeam tags into Glimmer ([@wycats](https://github.com/wycats))
+* `@starbeam/ember`
+  * [#286](https://github.com/starbeamjs/starbeam/pull/286) Implement Ember adapter seams ([@wycats](https://github.com/wycats))
+* `@starbeam/use-strict-lifecycle`
+  * [#285](https://github.com/starbeamjs/starbeam/pull/285) docs: add use strict lifecycle README ([@wycats](https://github.com/wycats))
+* `@starbeam/svelte`, `@starbeam/vue`, `@starbeamx/store`, `@starbeamx/vanilla`
+  * [#284](https://github.com/starbeamjs/starbeam/pull/284) docs: align package status language ([@wycats](https://github.com/wycats))
+* `@starbeam/core`
+  * [#281](https://github.com/starbeamjs/starbeam/pull/281) docs: add core compatibility migration ([@wycats](https://github.com/wycats))
+* `@starbeam/preact`
+  * [#280](https://github.com/starbeamjs/starbeam/pull/280) docs: add preact package README ([@wycats](https://github.com/wycats))
+* `@starbeam/reactive`
+  * [#278](https://github.com/starbeamjs/starbeam/pull/278) docs: clarify reactive primitive README ([@wycats](https://github.com/wycats))
+  * [#237](https://github.com/starbeamjs/starbeam/pull/237) docs(reactive): classify public primitive surface ([@wycats](https://github.com/wycats))
+* `@starbeam/collections`
+  * [#279](https://github.com/starbeamjs/starbeam/pull/279) docs: clarify collections surface wording ([@wycats](https://github.com/wycats))
+  * [#277](https://github.com/starbeamjs/starbeam/pull/277) docs: add collections concept ([@wycats](https://github.com/wycats))
+* `@starbeam/svelte`, `@starbeam/runtime`
+  * [#260](https://github.com/starbeamjs/starbeam/pull/260) feat(svelte): add fromStarbeam read bridge ([@wycats](https://github.com/wycats))
+* `@starbeam/interfaces`
+  * [#241](https://github.com/starbeamjs/starbeam/pull/241) chore(surface): preserve protocol artifact keys ([@wycats](https://github.com/wycats))
+* `@starbeam/universal`
+  * [#239](https://github.com/starbeamjs/starbeam/pull/239) feat(universal): add ResourceList to canonical surface ([@wycats](https://github.com/wycats))
+  * [#233](https://github.com/starbeamjs/starbeam/pull/233) docs(universal): settle lifecycle umbrella shape ([@wycats](https://github.com/wycats))
+* `@starbeam/interfaces`, `@starbeam/runtime`, `@starbeam/tags`
+  * [#238](https://github.com/starbeamjs/starbeam/pull/238) docs(surface): document protocol surface policy ([@wycats](https://github.com/wycats))
+* `@starbeam/renderer`, `@starbeam/service`, `@starbeam/universal`
+  * [#232](https://github.com/starbeamjs/starbeam/pull/232) docs(service): document app-scoped service placement ([@wycats](https://github.com/wycats))
+* `@starbeam/resource`
+  * [#231](https://github.com/starbeamjs/starbeam/pull/231) docs(resource): align README with current lifecycle API ([@wycats](https://github.com/wycats))
+* `@starbeam/react`
+  * [#229](https://github.com/starbeamjs/starbeam/pull/229) docs(react): clarify element resource hook boundary ([@wycats](https://github.com/wycats))
+* `@starbeam/vue`
+  * [#228](https://github.com/starbeamjs/starbeam/pull/228) docs(vue): clarify template element resource ergonomics ([@wycats](https://github.com/wycats))
+  * [#222](https://github.com/starbeamjs/starbeam/pull/222) Return augmented refs from Vue elementResource ([@wycats](https://github.com/wycats))
+  * [#215](https://github.com/starbeamjs/starbeam/pull/215) Add Vue element resource directive ([@wycats](https://github.com/wycats))
+* `@starbeam/svelte`
+  * [#227](https://github.com/starbeamjs/starbeam/pull/227) docs(svelte): promote elementResource as primary attachment API ([@wycats](https://github.com/wycats))
+  * [#221](https://github.com/starbeamjs/starbeam/pull/221) Add Svelte elementResource alias ([@wycats](https://github.com/wycats))
+  * [#220](https://github.com/starbeamjs/starbeam/pull/220) Test Svelte element resource store reuse ([@wycats](https://github.com/wycats))
+* `@starbeam/renderer`
+  * [#225](https://github.com/starbeamjs/starbeam/pull/225) Add package surface PER roadmap ([@wycats](https://github.com/wycats))
+* `@starbeam/svelte`, `@starbeam/renderer`, `@starbeam/vue`
+  * [#223](https://github.com/starbeamjs/starbeam/pull/223) Extract shared element resource setup ([@wycats](https://github.com/wycats))
+* `@starbeam/react`, `@starbeam/resource`, `@starbeam/service`
+  * [#213](https://github.com/starbeamjs/starbeam/pull/213) Document domain-shaped reactive APIs ([@wycats](https://github.com/wycats))
+
+
+*Cannot plan release until the above changes are labeled*.
