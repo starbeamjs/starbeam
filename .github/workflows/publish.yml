@@ -1,4 +1,4 @@
-# Publishes stable releases from release-plan and unstable packages from main.
+# Publishes stable releases from release-plan and unstable packages from main/master.
 # Both paths use npm trusted publishing through this workflow file.
 
 name: Publish
