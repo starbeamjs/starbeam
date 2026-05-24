@@ -14,9 +14,11 @@ import { RecordedEvents, TestResource } from "@starbeam-workspace/test-utils";
  * TestResource blueprint that records setup/sync/cleanup/finalize).
  *
  * Under strict mode, React renders the component twice and throws away
- * the first render. Per §14/§15, that discarded render is an activation
- * boundary: setup code should run twice, resources should be torn down
- * and rebuilt, fresh reactive identity should be allocated.
+ * the first render. Per §14/§15, that discarded render constructs a
+ * speculative render candidate, not a committed activation. It gets no
+ * teardown because no layout or effect-backed lifecycle handlers ran.
+ * React then commits the second render candidate and performs the strict-mode
+ * remount cycle, which creates another committed candidate.
  *
  * Observation: the existing unit tests for these hooks only assert the
  * DOM output, which is identical whether the hook honors §14 or not.
@@ -50,7 +52,7 @@ function trackedFormula(events: RecordedEvents, cell: Reactive<number>) {
 // ---------------------------------------------------------------------------
 
 testReact<void, number>(
-  "§14: useReactive(() => reactive.current) — fresh activation per strict-mode render",
+  "§14: useReactive(() => reactive.current) — render candidates vs committed activation",
   async (root, mode) => {
     const cell = Cell(INITIAL);
     const events = new RecordedEvents();
@@ -65,11 +67,11 @@ testReact<void, number>(
       });
 
     mode.match({
-      // Strict mode: 3 reads — one per activation (R1 discarded, R2
-      // committed, post-layout remount). The formula evaluates once
-      // per activation; the consumer reads its value once per render.
+      // Strict mode: 3 reads — one per render candidate (R1 speculative,
+      // R2 committed, R3 strict-mode remount). The formula evaluates once
+      // per candidate; the consumer reads its value once per render.
       strict: () => void events.expect("read", "read", "read"),
-      // Loose mode: 1 activation, 1 read.
+      // Loose mode: 1 render candidate, 1 committed activation, 1 read.
       loose: () => void events.expect("read"),
     });
   },
@@ -81,7 +83,7 @@ testReact<void, number>(
 // ---------------------------------------------------------------------------
 
 testReact<void, number>(
-  "§14: useResource — fresh activation per strict-mode render (baseline: matches resource-stages)",
+  "§14: useResource — render candidates and strict-mode remount (baseline: matches resource-stages)",
   async (root, mode) => {
     const { resource, events } = TestResource();
 
@@ -95,8 +97,9 @@ testReact<void, number>(
 
     mode.match({
       // Matches `resource-stages.spec.ts > the basics > strict mode`:
-      // first activation sets up, is torn down, second activation
-      // sets up again and syncs.
+      // R1 constructs a speculative render candidate; R2 constructs and
+      // commits a candidate that syncs, cleans up, and finalizes during
+      // strict-mode remount; R3 constructs the remount candidate and syncs.
       strict: () =>
         void events.expect(
           "setup",
@@ -117,7 +120,7 @@ testReact<void, number>(
 // ---------------------------------------------------------------------------
 
 testReact<void, number>(
-  "§14: useSetup(blueprint) — blueprint runs per activation",
+  "§14: useSetup(blueprint) — blueprint runs per render candidate",
   async (root, mode) => {
     const events = new RecordedEvents();
 
@@ -135,31 +138,27 @@ testReact<void, number>(
     mode.match({
       // Strict mode's first mount runs the blueprint three times:
       //
-      //   1. R1's render: blueprint runs via `useInitializedRef`'s
-      //      initial path. React will discard this render; no layout
-      //      effect commits for it.
-      //   2. R2's render: blueprint runs again via the `isUpdate &&
-      //      state === mounting` rebuild added in PR #163. React will
-      //      commit this render.
+      //   1. R1's render: blueprint runs for a speculative render candidate
+      //      via `useInitializedRef`'s initial path. React will discard this
+      //      render; no layout or effect-backed lifecycle handlers run for it.
+      //   2. R2's render: blueprint runs for the committed render candidate
+      //      via the `isUpdate && state === mounting` rebuild added in
+      //      PR #163. React will commit this render.
       //   3. Strict mode's mandatory remount cycle: layout cleanup
-      //      fires on the committed instance, then layout fires again
-      //      with `state === unmounted` and rebuilds the instance via
-      //      the remount path, running the blueprint once more.
+      //      fires on the committed identity, then layout fires again
+      //      with `state === unmounted` and rebuilds the remount candidate,
+      //      running the blueprint once more.
       //
       // Matches `resource-stages.spec.ts` baseline, which asserts the
       // same `setup, setup, …, setup` sequence around the `sync` /
       // `cleanup` / `finalize` events that a Resource blueprint adds
       // on top.
       //
-      // How this maps to INVARIANTS §14/§15's "setup runs once per
-      // logical activation" is an open interpretation — §15 ties
-      // "activation" to effect commit/destruction, under which R1's
-      // setup is a wasted call (no committed effects to pair with) and
-      // R2 + remount are the two pairable activations. PR #163
-      // introduces the R1→R2 rebuild deliberately, treating the
-      // discarded render as its own "fresh reactive identity" —
-      // observable behavior is consistent either way because R1's
-      // instance is unreachable after React discards the render.
+      // INVARIANTS §14/§15 separate render candidate construction from
+      // committed activation. `useSetup` runs during render, so it runs for
+      // R1, R2, and R3. Cleanup-bearing work must be registered with the
+      // committed lifecycle; R1's candidate is unreachable after React
+      // discards the render and receives no teardown.
       strict: () => void events.expect("setup", "setup", "setup"),
       loose: () => void events.expect("setup"),
     });

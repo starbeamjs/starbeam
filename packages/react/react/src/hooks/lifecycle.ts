@@ -18,7 +18,9 @@ import { createResource } from "./setup.js";
  *
  * The `buildLifecycle` function takes an internal builder from
  * `@starbeam/use-strict-lifecycle` and converts into the public API for
- * renderer lifecycles.
+ * renderer lifecycles. APIs exposed through this object are registered during
+ * render candidate construction, but the work they schedule is tied to
+ * committed React lifecycle timing.
  */
 export function buildLifecycle(
   builder: Builder<unknown>,

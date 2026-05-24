@@ -191,8 +191,8 @@ export function useLifecycle<V, A>(
         } else if (state.current === State.mounting) {
           // Strict mode's second render, before any `useLayoutEffect` has
           // fired. React is about to throw the first render's work away,
-          // so per INVARIANTS §14/§15 we treat it as a fresh activation
-          // and rebuild the instance.
+          // so per INVARIANTS §14/§15 we rebuild the instance as the fresh
+          // render candidate for the committed render.
           //
           // `on.layout` handlers never ran on the discarded instance, so
           // any cleanup they would have registered doesn't exist yet; the

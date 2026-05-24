@@ -26,12 +26,18 @@ import { sameDeps } from "../utils.js";
 import { buildLifecycle } from "./lifecycle.js";
 
 /**
- * The `useSetup` function takes a setup function and runs it during the setup
- * phase.
+ * The `useSetup` function takes a setup function and runs it while React is
+ * rendering. The returned value is available to JSX in that same render.
  *
- * **Note**: The setup function may run multiple times if React re-runs the
- * render function with fresh component state. This happens most commonly in
- * strict mode, but it can also happen in the real world.
+ * **Note**: Because the setup function runs during render, it may be
+ * speculative. React may run it multiple times with fresh component state and
+ * discard some of those render candidates without committing effects or
+ * cleanup. This happens most commonly in strict mode, but it can also happen
+ * in the real world.
+ *
+ * Do not perform external work that requires cleanup directly in the setup
+ * function. Use the resource lifecycle, especially `on.sync`, for external
+ * synchronization; those handlers run only after React commits.
  */
 export function useSetup<T>(blueprint: SetupBlueprint<T>): T {
   const app = useStarbeamApp({ allowMissing: true });
@@ -140,14 +146,20 @@ export function createResource<T>(
     validate: deps,
     with: sameDeps,
   }).render((builder) => {
-    // Set up the resource within a new finalization scope, which corresponds to
-    // this render lifecycle. This runs the constructor and returns a sync
-    // function that hasn't run yet.
+    // Set up the resource within a new finalization scope for this render
+    // candidate. This runs the constructor during render so the resource value
+    // is available to JSX, and returns a sync function that hasn't run yet.
     //
-    // We'll run the sync function on layout. If we ran the sync function now,
-    // we would not be guaranteed that its associated cleanup will run, since
-    // React is allowed to run the render function multiple times without ever
-    // running effects or cleanup.
+    // After React commits, the layout callback below registers the sync
+    // function and schedules it for passive effect timing. If we ran the sync
+    // function now, we would not be guaranteed that its associated cleanup will
+    // run, since React is allowed to run the render function multiple times
+    // without ever running effects or cleanup.
+    //
+    // The same rule applies to finalizers registered while constructing this
+    // scope: they run from the committed cleanup below only if this render
+    // candidate commits. An abandoned candidate gets no React cleanup, so its
+    // constructor must not rely on finalizers for external teardown.
     const [scope, { sync, value }] = pushingScope(() =>
       starbeamSetupResource(lastBlueprint.current),
     );

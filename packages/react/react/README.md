@@ -92,6 +92,14 @@ export function MeasuredPanel() {
 
 ### Timing model
 
+Starbeam resource values are constructed during React render so they can be
+used immediately in JSX. That render work may be speculative: React can discard
+a render candidate without committing effects or running cleanup.
+
+Use `on.sync` for external synchronization. The first `on.sync` handler begins
+after React commits, in passive effect timing, and its cleanup runs when the
+committed lifetime ends.
+
 React supplies refs after render. That means an element-backed resource starts as
 `pending`, then becomes `attached` after React calls the callback ref and the
 component rerenders.

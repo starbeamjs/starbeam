@@ -302,11 +302,31 @@ to survive all of that correctly, using only primitives the host has sanctioned.
 
 ## 14. The React adapter's lifecycle
 
-A component in the React adapter proceeds through four named lifecycle points:
+The React adapter distinguishes render candidate construction from committed
+activation.
 
-- **activate** — the component has a fresh reactive identity. Setup functions
-  run. Fires on initial mount and again on every remount (strict-mode remount,
-  `Activity` reveal, fast refresh).
+During render, the adapter may construct a fresh reactive identity so JSX can
+read Starbeam values on the first render. That identity is a **render
+candidate**. React may abandon a render candidate before commit, including the
+first development Strict Mode render and other speculative render work.
+Abandoned render candidates are simply discarded: they are not deactivated, and
+they receive no teardown. No layout or effect-backed lifecycle handlers ran for
+them, so they must be safe for the garbage collector to reclaim without cleanup.
+That includes finalizers registered while constructing the candidate: they run
+only for candidates that React commits and later cleans up.
+
+Code that runs while constructing a render candidate must not directly perform
+external work that requires cleanup. External synchronization, subscriptions,
+and other cleanup-bearing work belong in the committed lifecycle timing exposed
+by the resource lifecycle, especially `on.sync`.
+
+Once React commits a render candidate, a component in the React adapter proceeds
+through four named committed lifecycle points:
+
+- **activate** — React committed a render candidate, and it now owns the
+  component's reactive identity. Cleanup-bearing lifecycle work can be paired
+  with a later deactivation. Fires on initial mount and again on every remount
+  (strict-mode remount, `Activity` reveal, fast refresh).
 - **attach** — the component is in the DOM and effects are eligible to run.
   Layout-timing work is registered here.
 - **ready** — effects have run; the component is idle.
@@ -327,15 +347,25 @@ deactivated, and the next time it appears it will be freshly activated.
 
 ## 15. Lifetime is correct across every kind of remount
 
-Setup runs once per logical activation. If React destroys and recreates a
-component's effects — for strict mode, `Activity`, fast refresh, or any future
-reason — the adapter treats the recreation as a new activation: cleanup runs,
-setup runs again, a fresh reactive identity is produced.
+Each committed activation gets its own reactive identity. If React destroys and
+recreates a component's effects — for strict mode, `Activity`, fast refresh, or
+any future reason — the adapter treats the recreation as a new committed
+activation: cleanup runs for the previous committed identity, a fresh render
+candidate is constructed, and the candidate becomes active only after React
+commits it.
 
-This is non-negotiable. A user's setup function must be allowed to allocate,
-subscribe, and own resources on the assumption that cleanup will fire exactly
-when the identity is torn down, and that a subsequent activation will start from
-nothing.
+Render-time setup may run for candidates that React later abandons. Those
+discarded candidates have no committed lifetime and therefore no cleanup. This
+includes finalizers registered while constructing the candidate. This is why
+user code that allocates, subscribes, or otherwise needs cleanup must do that
+work in committed lifecycle timing. `on.sync` is the boundary for external
+synchronization: it begins after commit in passive effect timing, and its
+cleanup runs when the committed lifetime ends.
+
+This is non-negotiable. A user's committed lifecycle work must be allowed to
+allocate, subscribe, and own resources on the assumption that cleanup will fire
+exactly when the committed identity is torn down, and that a subsequent
+activation will start from nothing.
 
 ---
 
