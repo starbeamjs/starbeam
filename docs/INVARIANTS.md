@@ -312,8 +312,9 @@ first development Strict Mode render and other speculative render work.
 Abandoned render candidates are simply discarded: they are not deactivated, and
 they receive no teardown. No layout or effect-backed lifecycle handlers ran for
 them, so they must be safe for the garbage collector to reclaim without cleanup.
-That includes finalizers registered while constructing the candidate: they run
-only for candidates that React commits and later cleans up.
+FinalizationRegistry-backed cleanup may run later if the candidate is collected,
+but that timing is nondeterministic and not part of React's lifecycle. User code
+must not rely on it for timely external teardown.
 
 Code that runs while constructing a render candidate must not directly perform
 external work that requires cleanup. External synchronization, subscriptions,
@@ -356,11 +357,12 @@ commits it.
 
 Render-time setup may run for candidates that React later abandons. Those
 discarded candidates have no committed lifetime and therefore no cleanup. This
-includes finalizers registered while constructing the candidate. This is why
-user code that allocates, subscribes, or otherwise needs cleanup must do that
-work in committed lifecycle timing. `on.sync` is the boundary for external
-synchronization: it begins after commit in passive effect timing, and its
-cleanup runs when the committed lifetime ends.
+includes React lifecycle cleanup for finalizers registered while constructing
+the candidate. Any GC-backed finalization is best-effort and nondeterministic.
+This is why user code that allocates, subscribes, or otherwise needs cleanup
+must do that work in committed lifecycle timing. `on.sync` is the boundary for
+external synchronization: it begins after commit in passive effect timing, and
+its cleanup runs when the committed lifetime ends.
 
 This is non-negotiable. A user's committed lifecycle work must be allowed to
 allocate, subscribe, and own resources on the assumption that cleanup will fire

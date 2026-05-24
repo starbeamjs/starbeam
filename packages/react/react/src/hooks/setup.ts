@@ -157,9 +157,10 @@ export function createResource<T>(
     // without ever running effects or cleanup.
     //
     // The same rule applies to finalizers registered while constructing this
-    // scope: they run from the committed cleanup below only if this render
-    // candidate commits. An abandoned candidate gets no React cleanup, so its
-    // constructor must not rely on finalizers for external teardown.
+    // scope: committed cleanup below runs only if this render candidate
+    // commits. An abandoned candidate gets no React cleanup. GC-backed
+    // finalization may happen later, but it is nondeterministic, so the
+    // constructor must not rely on finalizers for timely external teardown.
     const [scope, { sync, value }] = pushingScope(() =>
       starbeamSetupResource(lastBlueprint.current),
     );
