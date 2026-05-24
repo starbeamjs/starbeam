@@ -1,5 +1,40 @@
 # Changelog
 
+## Release (2026-05-24)
+
+* @starbeam/ember 0.9.1 (patch)
+* @starbeam/preact 0.9.1 (patch)
+* @starbeam/react 0.9.1 (patch)
+* @starbeam/use-strict-lifecycle 0.9.1 (patch)
+* @starbeam/svelte 0.9.1 (patch)
+* @starbeam/collections 0.9.1 (patch)
+* @starbeam/core 0.9.1 (patch)
+* @starbeam/interfaces 0.9.1 (patch)
+* @starbeam/reactive 0.9.1 (patch)
+* @starbeam/renderer 0.9.1 (patch)
+* @starbeam/resource 0.1.1 (patch)
+* @starbeam/runtime 0.9.1 (patch)
+* @starbeam/service 0.1.1 (patch)
+* @starbeam/shared 1.4.1 (patch)
+* @starbeam/tags 0.1.1 (patch)
+* @starbeam/universal 0.9.1 (patch)
+* @starbeam/vue 0.9.1 (patch)
+* @starbeamx/store 0.9.1 (patch)
+* @starbeamx/vanilla 0.9.1 (patch)
+
+#### :house: Internal
+* Other
+  * [#300](https://github.com/starbeamjs/starbeam/pull/300) Move unstable publish into trusted workflow ([@wycats](https://github.com/wycats))
+  * [#298](https://github.com/starbeamjs/starbeam/pull/298) Restore provenance stable publish ([@wycats](https://github.com/wycats))
+  * [#297](https://github.com/starbeamjs/starbeam/pull/297) Disable provenance for token stable publish ([@wycats](https://github.com/wycats))
+  * [#296](https://github.com/starbeamjs/starbeam/pull/296) Use npm token for stable publish ([@wycats](https://github.com/wycats))
+  * [#295](https://github.com/starbeamjs/starbeam/pull/295) Use public access for stable npm publish ([@wycats](https://github.com/wycats))
+* `@starbeam/ember`, `@starbeam/preact`, `@starbeam/react`, `@starbeam/use-strict-lifecycle`, `@starbeam/svelte`, `@starbeam/collections`, `@starbeam/core`, `@starbeam/interfaces`, `@starbeam/reactive`, `@starbeam/renderer`, `@starbeam/resource`, `@starbeam/runtime`, `@starbeam/service`, `@starbeam/shared`, `@starbeam/tags`, `@starbeam/universal`, `@starbeam/vue`, `@starbeamx/store`, `@starbeamx/vanilla`
+  * [#293](https://github.com/starbeamjs/starbeam/pull/293) Fix npm provenance repository metadata ([@wycats](https://github.com/wycats))
+
+#### Committers: 1
+- Yehuda Katz ([@wycats](https://github.com/wycats))
+
 ## Release (2026-05-23)
 
 * @starbeam/ember 0.9.0 (minor)
