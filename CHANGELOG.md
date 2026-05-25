@@ -1,5 +1,24 @@
 # Changelog
 
+## Release (2026-05-25)
+
+* @starbeam/react 0.9.2 (patch)
+* @starbeam/use-strict-lifecycle 0.9.2 (patch)
+* @starbeam/resource 0.1.2 (patch)
+* @starbeam/runtime 0.9.2 (patch)
+* @starbeam/service 0.1.2 (patch)
+
+#### :memo: Documentation
+* `@starbeam/resource`, `@starbeam/runtime`, `@starbeam/service`
+  * [#304](https://github.com/starbeamjs/starbeam/pull/304) Clarify resource sync cleanup vs finalization ([@wycats](https://github.com/wycats))
+
+#### :house: Internal
+* `@starbeam/react`, `@starbeam/use-strict-lifecycle`
+  * [#302](https://github.com/starbeamjs/starbeam/pull/302) Clarify React render candidates and activation ([@wycats](https://github.com/wycats))
+
+#### Committers: 1
+- Yehuda Katz ([@wycats](https://github.com/wycats))
+
 ## Release (2026-05-24)
 
 * @starbeam/ember 0.9.1 (patch)

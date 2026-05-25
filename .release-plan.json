@@ -1,35 +1,15 @@
 {
   "solution": {
     "@starbeam/ember": {
-      "impact": "patch",
-      "oldVersion": "0.9.0",
-      "newVersion": "0.9.1",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
-        }
-      ],
-      "pkgJSONPath": "./packages/ember/ember/package.json"
+      "oldVersion": "0.9.1"
     },
     "@starbeam/preact": {
-      "impact": "patch",
-      "oldVersion": "0.9.0",
-      "newVersion": "0.9.1",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
-        }
-      ],
-      "pkgJSONPath": "./packages/preact/preact/package.json"
+      "oldVersion": "0.9.1"
     },
     "@starbeam/react": {
       "impact": "patch",
-      "oldVersion": "0.9.0",
-      "newVersion": "0.9.1",
+      "oldVersion": "0.9.1",
+      "newVersion": "0.9.2",
       "tagName": "latest",
       "constraints": [
         {
@@ -41,8 +21,8 @@
     },
     "@starbeam/use-strict-lifecycle": {
       "impact": "patch",
-      "oldVersion": "0.9.0",
-      "newVersion": "0.9.1",
+      "oldVersion": "0.9.1",
+      "newVersion": "0.9.2",
       "tagName": "latest",
       "constraints": [
         {
@@ -53,200 +33,80 @@
       "pkgJSONPath": "./packages/react/use-strict-lifecycle/package.json"
     },
     "@starbeam/svelte": {
-      "impact": "patch",
-      "oldVersion": "0.9.0",
-      "newVersion": "0.9.1",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
-        }
-      ],
-      "pkgJSONPath": "./packages/svelte/svelte/package.json"
+      "oldVersion": "0.9.1"
     },
     "@starbeam/collections": {
-      "impact": "patch",
-      "oldVersion": "0.9.0",
-      "newVersion": "0.9.1",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
-        }
-      ],
-      "pkgJSONPath": "./packages/universal/collections/package.json"
+      "oldVersion": "0.9.1"
     },
     "@starbeam/core": {
-      "impact": "patch",
-      "oldVersion": "0.9.0",
-      "newVersion": "0.9.1",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
-        }
-      ],
-      "pkgJSONPath": "./packages/universal/core/package.json"
+      "oldVersion": "0.9.1"
     },
     "@starbeam/interfaces": {
-      "impact": "patch",
-      "oldVersion": "0.9.0",
-      "newVersion": "0.9.1",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
-        }
-      ],
-      "pkgJSONPath": "./packages/universal/interfaces/package.json"
+      "oldVersion": "0.9.1"
     },
     "@starbeam/reactive": {
-      "impact": "patch",
-      "oldVersion": "0.9.0",
-      "newVersion": "0.9.1",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
-        }
-      ],
-      "pkgJSONPath": "./packages/universal/reactive/package.json"
+      "oldVersion": "0.9.1"
     },
     "@starbeam/renderer": {
-      "impact": "patch",
-      "oldVersion": "0.9.0",
-      "newVersion": "0.9.1",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
-        }
-      ],
-      "pkgJSONPath": "./packages/universal/renderer/package.json"
+      "oldVersion": "0.9.1"
     },
     "@starbeam/resource": {
       "impact": "patch",
-      "oldVersion": "0.1.0",
-      "newVersion": "0.1.1",
+      "oldVersion": "0.1.1",
+      "newVersion": "0.1.2",
       "tagName": "latest",
       "constraints": [
         {
           "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
+          "reason": "Appears in changelog section :memo: Documentation"
         }
       ],
       "pkgJSONPath": "./packages/universal/resource/package.json"
     },
     "@starbeam/runtime": {
       "impact": "patch",
-      "oldVersion": "0.9.0",
-      "newVersion": "0.9.1",
+      "oldVersion": "0.9.1",
+      "newVersion": "0.9.2",
       "tagName": "latest",
       "constraints": [
         {
           "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
+          "reason": "Appears in changelog section :memo: Documentation"
         }
       ],
       "pkgJSONPath": "./packages/universal/runtime/package.json"
     },
     "@starbeam/service": {
       "impact": "patch",
-      "oldVersion": "0.1.0",
-      "newVersion": "0.1.1",
+      "oldVersion": "0.1.1",
+      "newVersion": "0.1.2",
       "tagName": "latest",
       "constraints": [
         {
           "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
+          "reason": "Appears in changelog section :memo: Documentation"
         }
       ],
       "pkgJSONPath": "./packages/universal/service/package.json"
     },
     "@starbeam/shared": {
-      "impact": "patch",
-      "oldVersion": "1.4.0",
-      "newVersion": "1.4.1",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
-        }
-      ],
-      "pkgJSONPath": "./packages/universal/shared/package.json"
+      "oldVersion": "1.4.1"
     },
     "@starbeam/tags": {
-      "impact": "patch",
-      "oldVersion": "0.1.0",
-      "newVersion": "0.1.1",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
-        }
-      ],
-      "pkgJSONPath": "./packages/universal/tags/package.json"
+      "oldVersion": "0.1.1"
     },
     "@starbeam/universal": {
-      "impact": "patch",
-      "oldVersion": "0.9.0",
-      "newVersion": "0.9.1",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
-        }
-      ],
-      "pkgJSONPath": "./packages/universal/universal/package.json"
+      "oldVersion": "0.9.1"
     },
     "@starbeam/vue": {
-      "impact": "patch",
-      "oldVersion": "0.9.0",
-      "newVersion": "0.9.1",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
-        }
-      ],
-      "pkgJSONPath": "./packages/vue/vue/package.json"
+      "oldVersion": "0.9.1"
     },
     "@starbeamx/store": {
-      "impact": "patch",
-      "oldVersion": "0.9.0",
-      "newVersion": "0.9.1",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
-        }
-      ],
-      "pkgJSONPath": "./packages/x/store/package.json"
+      "oldVersion": "0.9.1"
     },
     "@starbeamx/vanilla": {
-      "impact": "patch",
-      "oldVersion": "0.9.0",
-      "newVersion": "0.9.1",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
-        }
-      ],
-      "pkgJSONPath": "./packages/x/vanilla/package.json"
+      "oldVersion": "0.9.1"
     }
   },
-  "description": "## Release (2026-05-24)\n\n* @starbeam/ember 0.9.1 (patch)\n* @starbeam/preact 0.9.1 (patch)\n* @starbeam/react 0.9.1 (patch)\n* @starbeam/use-strict-lifecycle 0.9.1 (patch)\n* @starbeam/svelte 0.9.1 (patch)\n* @starbeam/collections 0.9.1 (patch)\n* @starbeam/core 0.9.1 (patch)\n* @starbeam/interfaces 0.9.1 (patch)\n* @starbeam/reactive 0.9.1 (patch)\n* @starbeam/renderer 0.9.1 (patch)\n* @starbeam/resource 0.1.1 (patch)\n* @starbeam/runtime 0.9.1 (patch)\n* @starbeam/service 0.1.1 (patch)\n* @starbeam/shared 1.4.1 (patch)\n* @starbeam/tags 0.1.1 (patch)\n* @starbeam/universal 0.9.1 (patch)\n* @starbeam/vue 0.9.1 (patch)\n* @starbeamx/store 0.9.1 (patch)\n* @starbeamx/vanilla 0.9.1 (patch)\n\n#### :house: Internal\n* Other\n  * [#300](https://github.com/starbeamjs/starbeam/pull/300) Move unstable publish into trusted workflow ([@wycats](https://github.com/wycats))\n  * [#298](https://github.com/starbeamjs/starbeam/pull/298) Restore provenance stable publish ([@wycats](https://github.com/wycats))\n  * [#297](https://github.com/starbeamjs/starbeam/pull/297) Disable provenance for token stable publish ([@wycats](https://github.com/wycats))\n  * [#296](https://github.com/starbeamjs/starbeam/pull/296) Use npm token for stable publish ([@wycats](https://github.com/wycats))\n  * [#295](https://github.com/starbeamjs/starbeam/pull/295) Use public access for stable npm publish ([@wycats](https://github.com/wycats))\n* `@starbeam/ember`, `@starbeam/preact`, `@starbeam/react`, `@starbeam/use-strict-lifecycle`, `@starbeam/svelte`, `@starbeam/collections`, `@starbeam/core`, `@starbeam/interfaces`, `@starbeam/reactive`, `@starbeam/renderer`, `@starbeam/resource`, `@starbeam/runtime`, `@starbeam/service`, `@starbeam/shared`, `@starbeam/tags`, `@starbeam/universal`, `@starbeam/vue`, `@starbeamx/store`, `@starbeamx/vanilla`\n  * [#293](https://github.com/starbeamjs/starbeam/pull/293) Fix npm provenance repository metadata ([@wycats](https://github.com/wycats))\n\n#### Committers: 1\n- Yehuda Katz ([@wycats](https://github.com/wycats))\n"
+  "description": "## Release (2026-05-25)\n\n* @starbeam/react 0.9.2 (patch)\n* @starbeam/use-strict-lifecycle 0.9.2 (patch)\n* @starbeam/resource 0.1.2 (patch)\n* @starbeam/runtime 0.9.2 (patch)\n* @starbeam/service 0.1.2 (patch)\n\n#### :memo: Documentation\n* `@starbeam/resource`, `@starbeam/runtime`, `@starbeam/service`\n  * [#304](https://github.com/starbeamjs/starbeam/pull/304) Clarify resource sync cleanup vs finalization ([@wycats](https://github.com/wycats))\n\n#### :house: Internal\n* `@starbeam/react`, `@starbeam/use-strict-lifecycle`\n  * [#302](https://github.com/starbeamjs/starbeam/pull/302) Clarify React render candidates and activation ([@wycats](https://github.com/wycats))\n\n#### Committers: 1\n- Yehuda Katz ([@wycats](https://github.com/wycats))\n"
 }
