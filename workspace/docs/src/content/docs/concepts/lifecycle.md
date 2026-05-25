@@ -70,9 +70,9 @@ Resources separate the value you return from the work needed to keep that value
 connected to the outside world.
 
 - **Setup** creates the stable value the resource returns.
-- **Sync** starts or refreshes work after the owner is ready.
+- **Sync** starts or refreshes external work after the owner is ready.
 - **Sync cleanup** stops work from the previous sync before the next sync runs.
-- **Finalize** stops work when the owning lifetime ends.
+- **Finalize** runs lower-level owning-scope finalizers.
 
 `on.sync()` registers the sync work. Starbeam runs it when the framework adapter
 schedules the resource. If the sync callback returns a function, Starbeam runs
@@ -81,29 +81,42 @@ that cleanup before the next sync and again when the owner finalizes.
 That is why the timer cleanup belongs inside `on.sync()`: each sync owns the
 timer it created.
 
-`on.finalize()` is for cleanup that should run once when the owning lifetime
-ends.
+Use the same pattern for subscriptions, sockets, observers, and other external
+work. Start the external work in `on.sync()` and return the cleanup from that
+sync.
 
 ```ts
 import { reactive } from "@starbeam/collections";
 import { Resource } from "@starbeam/universal";
 
 const Connection = Resource(({ on }) => {
-  const connection = reactive.object({ status: "connecting" });
-  const socket = new WebSocket("wss://example.com");
+  const connection = reactive.object({ status: "idle" });
 
-  socket.addEventListener("open", () => {
-    connection.status = "open";
-  });
+  on.sync(() => {
+    connection.status = "connecting";
 
-  on.finalize(() => {
-    socket.close();
-    connection.status = "closed";
+    const socket = new WebSocket("wss://example.com");
+    const onOpen = () => {
+      connection.status = "open";
+    };
+
+    socket.addEventListener("open", onOpen);
+
+    return () => {
+      socket.removeEventListener("open", onOpen);
+      socket.close();
+      connection.status = "closed";
+    };
   });
 
   return connection;
 });
 ```
+
+`on.finalize()` is lower-level. It registers work for the owning Starbeam
+scope's finalization, not for each sync. Use it when you are working with
+Starbeam-owned scopes or integration machinery. It is not a replacement for the
+cleanup returned from `on.sync()`.
 
 Most app code does not call sync or finalize directly. Framework adapters attach
 resources to framework lifetimes and schedule the work for you.

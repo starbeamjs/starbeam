@@ -28,12 +28,12 @@ import { Resource } from "@starbeam/resource";
 const UserSession = Resource(({ on }) => {
   const user = Cell<{ id: string; name: string } | null>(null);
 
-  const unsubscribe = subscribeToSession((nextUser) => {
-    user.current = nextUser;
-  });
+  on.sync(() => {
+    const unsubscribe = subscribeToSession((nextUser) => {
+      user.current = nextUser;
+    });
 
-  on.finalize(() => {
-    unsubscribe();
+    return () => unsubscribe();
   });
 
   return {

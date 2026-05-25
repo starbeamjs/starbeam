@@ -1,7 +1,7 @@
 # @starbeam/resource
 
 `@starbeam/resource` defines framework-agnostic resources: stable values with a
-caller-scheduled sync phase and finalization cleanup.
+caller-scheduled sync phase, sync cleanup, and owning-scope finalization.
 
 The primary audience is resource authors and framework-agnostic library authors.
 App authors use this package when they are authoring reusable resources. Adapter
@@ -93,12 +93,14 @@ Registers the sync handler for the resource. The caller or framework schedules
 `sync`; creating a resource does not run sync work by itself.
 
 If the handler returns a cleanup function, Starbeam runs it before the next sync
-and when the owning scope finalizes.
+and when the owning scope finalizes. This is the normal place to stop external
+work started by the sync, such as timers, subscriptions, sockets, and observers.
 
 ### `resource.on.finalize(handler)`
 
-Registers cleanup for the resource's owning scope. Finalizers run when that
-scope finalizes.
+Registers lower-level finalization for the resource's owning scope. Finalizers
+run when that scope finalizes. They are not a replacement for cleanup returned
+from `resource.on.sync()`.
 
 ### `setupResource(intoBlueprint)`
 
@@ -144,8 +146,10 @@ define setup, sync, optional finalization, and a stable value directly.
 - Setup creates the stable resource value.
 - Sync work is scheduled by the caller or framework adapter.
 - A sync cleanup runs before the next sync and when the owning scope finalizes.
+  Use it to stop external work started by the sync.
 - Child resources created with `resource.use()` sync after the parent resource.
-- Finalizers run when the owning scope finalizes.
+- Finalizers run when the owning scope finalizes. They are for lower-level scope
+  finalization, not ordinary external-work teardown.
 
 ## What this package does not do
 

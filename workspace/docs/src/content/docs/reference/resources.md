@@ -3,8 +3,9 @@ title: Resources
 description: "Reference for Starbeam resource authoring APIs."
 ---
 
-Resources model stable values with setup, sync, cleanup, and finalization. Start
-with [Resources and lifecycle](/concepts/lifecycle/) for the concept guide.
+Resources model stable values with setup, sync cleanup, and owning-scope
+finalization. Start with [Resources and lifecycle](/concepts/lifecycle/) for the
+concept guide.
 
 App code usually imports `Resource` from `@starbeam/universal`. Reusable resource
 helpers and manual integrations may import direct APIs from `@starbeam/resource`.
@@ -27,13 +28,13 @@ import { Resource, ResourceList, setupResource } from "@starbeam/resource";
 
 ## Authoring APIs
 
-| API                             | Use for                                                                                              |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `Resource(constructor)`         | Define a resource blueprint.                                                                         |
-| `resource.use(childBlueprint)`  | Set up a child resource under the current resource.                                                  |
-| `resource.on.sync(handler)`     | Register sync work. Cleanup returned from the handler runs before the next sync and on finalization. |
-| `resource.on.finalize(handler)` | Register cleanup that runs when the resource scope finalizes.                                        |
-| `ResourceList(list, options)`   | Keep a keyed list of child resources stable by key.                                                  |
+| API                             | Use for                                                                                             |
+| ------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `Resource(constructor)`         | Define a resource blueprint.                                                                        |
+| `resource.use(childBlueprint)`  | Set up a child resource under the current resource.                                                 |
+| `resource.on.sync(handler)`     | Register sync work. Returned cleanup runs before the next sync and owner finalization.            |
+| `resource.on.finalize(handler)` | Register lower-level owning-scope finalization, not ordinary external-work teardown.                |
+| `ResourceList(list, options)`   | Keep a keyed list of child resources stable by key.                                                 |
 
 ## Low-level APIs
 
@@ -50,8 +51,11 @@ Most app code should use framework adapter APIs such as React/Preact
 
 - Setup creates the stable value.
 - Sync work is scheduled by the caller or framework adapter.
-- Sync cleanup runs before the next sync and when the owner finalizes.
-- Finalizers run when the owning scope finalizes.
+- Sync cleanup is the normal place to stop external work. It runs before the
+  next sync and when the owner finalizes.
+- Finalizers run when the owning scope finalizes. They are for lower-level scope
+  finalization, not for timely teardown of sockets, timers, observers, or
+  subscriptions created during setup.
 - Child resources sync after their parent.
 
 ## Related docs

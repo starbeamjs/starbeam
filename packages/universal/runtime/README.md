@@ -132,23 +132,23 @@ On the other hand, _Render_ phases are frozen in time. They **may not** move the
 
 > TODO: Describe how to subscribe to changes in a formula
 
-## Structured Finalizer
+## Resource Sync Cleanup
 
 As we discussed, the _timeline_ describes changes in the _data universe_ and helps a consumer coordinate the two-phase process of reflecting the _data universe_ onto the output. Both _data cells_ and _formulas_ are pure data: they can be automatically cleaned up by the garbage collector when nobody retains a reference to them.
 
-On the other hand, you may encounter objects in the real world that require you to tear them down when you're done using them, and you may want to convert those objects into data in the _data universe_. That's where the **structured finalizer** comes in.
+On the other hand, you may encounter objects in the real world that require you to tear them down when you're done using them, and you may want to convert those objects into data in the _data universe_. That's where resource sync cleanup comes in.
 
-The _structured finalizer_ allows you to set up a stateful connection to some external data, such as a WebSocket, ResizeObserver or even a `fetch` request, associate it with an **owner**, and automatically finalize the connection when the _owner_ is finalized.
+Resource sync allows you to set up a stateful connection to some external data, such as a WebSocket, ResizeObserver or even a `fetch` request, associate it with an **owner**, and clean up the connection when the sync is replaced or the _owner_ is finalized.
 
-For example, a component may set up a [ResizeObserver] to keep track of the size of one of the elements it creates. When the component is deactivated, the component wants to finalize the `ResizeObserver` so that it doesn't leak.
+For example, a component may set up a [ResizeObserver] to keep track of the size of one of the elements it creates. When the component is deactivated, the component wants to disconnect the `ResizeObserver` so that it doesn't leak.
 
 ### Composition is King
 
-Starbeam uses the _structured finalizer_ approach to make finalization composable. Instead of making the component responsible for setting up the `ResizeObserver` and specifying how to finalize the `ResizeObserver` when the component it finalized, it can delegate responsibility to an `ElementSize` resource:
+Starbeam uses resource sync cleanup to make cleanup composable. Instead of making the component responsible for setting up the `ResizeObserver` and specifying how to disconnect the `ResizeObserver` when the component is finalized, it can delegate responsibility to an `ElementSize` resource:
 
 1. Create an object that represents the `ResizeObserver`.
 2. Convert events on the `ResizeObserver` into data in the _data universe_.
-3. Specify what should happen when that object is finalized.
+3. Return cleanup for the object from the resource sync.
 4. _Link_ that object to the component.
 
 ### Example: The Resource Pattern
@@ -162,16 +162,18 @@ export function ElementSize(element: Element) {
   return Resource((resource) => {
     const size = reactive(getSize(element));
 
-    const observer = new ResizeObserver();
+    resource.on.sync(() => {
+      const observer = new ResizeObserver(() => {
+        const { width, height } = getSize(element);
 
-    observer.observe(element, () => {
-      const { width, height } = getSize(element);
+        size.width = width;
+        size.height = height;
+      });
 
-      size.width = width;
-      size.height = height;
+      observer.observe(element);
+
+      return () => observer.disconnect();
     });
-
-    resource.on.finalize(() => observer.disconnect());
 
     return size;
   });
@@ -220,25 +222,29 @@ First, we create a reactive object with the element's width and height.
 const size = reactive(getSize(element));
 ```
 
-Next, we create a `ResizeObserver` and observe the element.
+Next, the sync creates a `ResizeObserver` and observes the element.
 
 ```ts
-const observer = new ResizeObserver();
+resource.on.sync(() => {
+  const observer = new ResizeObserver(() => {
+    const { width, height } = getSize(element);
 
-observer.observe(element, () => {
-  const { width, height } = getSize(element);
+    size.width = width;
+    size.height = height;
+  });
 
-  size.width = width;
-  size.height = height;
+  observer.observe(element);
+
+  return () => observer.disconnect();
 });
 ```
 
 When the `ResizeObserver` fires, we update the `width` and `height` properties of the reactive object. **Importantly**, the `ResizeObserver`'s callback runs in the _Action_ phase, like all asynchronous callbacks invoked by the browser. This means that we can freely mutate anything in the _data universe_. Any part of the rendered output that cares about the reactive object will run in the next _Render_ phase, which Starbeam will automatically schedule.
 
-Ok, that's great, `ResizeObserver` requires us to disconnect from it when we no longer need it. If we don't disconnect, the observer will leak. No problem! That's the whole point of the `Resource` API. Let's tell Starbeam what to do when the resource is finalized.
+Ok, that's great, `ResizeObserver` requires us to disconnect from it when we no longer need it. If we don't disconnect, the observer will leak. No problem! That's the whole point of the `Resource` API. Let's return cleanup from the sync that created the observer.
 
 ```ts
-resource.on.finalize(() => observer.disconnect());
+return () => observer.disconnect();
 ```
 
 > This code is not responsible for attaching the `ElementSize` resource to any particular owner. That will happen inside the framework adapters, which know how to turn your framework's concept of component into a Starbeam owner.
