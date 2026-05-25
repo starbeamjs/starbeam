@@ -35,13 +35,13 @@ export class DefineSync {
     },
 
     lowLevel: {
-      finalize: (handler: SyncHandler): void => {
+      finalize: (handler: Cleanup): void => {
         this.#finalize = handler;
       },
     },
 
     /** @deprecated Use `on.lowLevel.finalize()` instead. */
-    finalize: (handler: SyncHandler): void => {
+    finalize: (handler: Cleanup): void => {
       this.#finalize = handler;
     },
   };
