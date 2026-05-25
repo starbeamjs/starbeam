@@ -138,7 +138,7 @@ As we discussed, the _timeline_ describes changes in the _data universe_ and hel
 
 On the other hand, you may encounter objects in the real world that require you to tear them down when you're done using them, and you may want to convert those objects into data in the _data universe_. That's where resource sync cleanup comes in.
 
-Resource sync allows you to set up a stateful connection to some external data, such as a WebSocket, ResizeObserver or even a `fetch` request, associate it with an **owner**, and clean up the connection when the sync is replaced or the _owner_ is finalized.
+Resource sync cleanup lets a resource clean up a stateful connection to external data, such as a WebSocket, ResizeObserver or even a `fetch` request, when the sync is replaced or the _owner_ is finalized. The sync callback sets up the connection; its returned cleanup disconnects it.
 
 For example, a component may set up a [ResizeObserver] to keep track of the size of one of the elements it creates. When the component is deactivated, the component wants to disconnect the `ResizeObserver` so that it doesn't leak.
 
@@ -156,6 +156,7 @@ Starbeam uses resource sync cleanup to make cleanup composable. Instead of makin
 Let's see how this all fits together. We'll use the resource pattern from `@starbeam/resource` to create an `ElementSize` resource.
 
 ```ts
+import { reactive } from "@starbeam/collections";
 import { Resource } from "@starbeam/resource";
 
 export function ElementSize(element: Element) {

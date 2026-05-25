@@ -32,7 +32,7 @@ import { Resource, ResourceList, setupResource } from "@starbeam/resource";
 | ------------------------------- | --------------------------------------------------------------------------------------------------- |
 | `Resource(constructor)`         | Define a resource blueprint.                                                                        |
 | `resource.use(childBlueprint)`  | Set up a child resource under the current resource.                                                 |
-| `resource.on.sync(handler)`     | Register sync work. Returned cleanup runs before the next sync and owner finalization.            |
+| `resource.on.sync(handler)`     | Register sync work. Returned cleanup runs before the next sync and when the owner finalizes.        |
 | `resource.on.finalize(handler)` | Register lower-level owning-scope finalization, not ordinary external-work teardown.                |
 | `ResourceList(list, options)`   | Keep a keyed list of child resources stable by key.                                                 |
 
