@@ -28,13 +28,14 @@ import { Resource, ResourceList, setupResource } from "@starbeam/resource";
 
 ## Authoring APIs
 
-| API                             | Use for                                                                                             |
-| ------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `Resource(constructor)`         | Define a resource blueprint.                                                                        |
-| `resource.use(childBlueprint)`  | Set up a child resource under the current resource.                                                 |
-| `resource.on.sync(handler)`     | Register sync work. Returned cleanup runs before the next sync and when the owner finalizes.        |
-| `resource.on.finalize(handler)` | Register lower-level owning-scope finalization, not ordinary external-work teardown.                |
-| `ResourceList(list, options)`   | Keep a keyed list of child resources stable by key.                                                 |
+| API                                      | Use for                                                                                      |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `Resource(constructor)`                  | Define a resource blueprint.                                                                 |
+| `resource.use(childBlueprint)`           | Set up a child resource under the current resource.                                          |
+| `resource.on.sync(handler)`              | Register sync work. Returned cleanup runs before the next sync and when the owner finalizes. |
+| `resource.on.lowLevel.finalize(handler)` | Register lower-level owning-scope finalization, not ordinary external-work teardown.         |
+| `resource.on.finalize(handler)`          | Deprecated alias for `resource.on.lowLevel.finalize(handler)`.                               |
+| `ResourceList(list, options)`            | Keep a keyed list of child resources stable by key.                                          |
 
 ## Low-level APIs
 

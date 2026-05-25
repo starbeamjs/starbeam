@@ -38,7 +38,7 @@ describe("ResourceList", () => {
             active.set(true);
           });
 
-          on.finalize(() => {
+          on.lowLevel.finalize(() => {
             active.set(false);
           });
 

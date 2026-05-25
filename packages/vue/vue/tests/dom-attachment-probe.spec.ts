@@ -27,7 +27,7 @@ function ElementAttachmentForTest(
       element.dataset["starbeamAttachment"] = "attached";
     });
 
-    on.finalize(() => {
+    on.lowLevel.finalize(() => {
       events.record("resource:finalize");
     });
 

@@ -113,10 +113,10 @@ const Connection = Resource(({ on }) => {
 });
 ```
 
-`on.finalize()` is lower-level. It registers work for the owning Starbeam
-scope's finalization, not for each sync. Use it when you are working with
-Starbeam-owned scopes or integration machinery. It is not a replacement for the
-cleanup returned from `on.sync()`.
+`on.lowLevel.finalize()` is lower-level. It registers work for the owning
+Starbeam scope's finalization, not for each sync. Use it when you are working
+with Starbeam-owned scopes or integration machinery. It is not a replacement for
+the cleanup returned from `on.sync()`.
 
 Most app code does not call sync or finalize directly. Framework adapters attach
 resources to framework lifetimes and schedule the work for you.

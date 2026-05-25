@@ -34,7 +34,7 @@ describe("resources", () => {
           };
         });
 
-        on.finalize(() => {
+        on.lowLevel.finalize(() => {
           events.record("sync:finalize");
         });
       }).setup();
@@ -135,7 +135,7 @@ describe("resources", () => {
         };
       });
 
-      on.finalize(() => {
+      on.lowLevel.finalize(() => {
         events.record("sync:finalize");
       });
 
@@ -206,7 +206,7 @@ describe("resources", () => {
         };
       });
 
-      on.finalize(() => {
+      on.lowLevel.finalize(() => {
         events.record("finalize");
       });
 
@@ -293,7 +293,7 @@ describe("resources", () => {
         };
       });
 
-      on.finalize(() => {
+      on.lowLevel.finalize(() => {
         events.record("child:finalize");
       });
 
@@ -320,7 +320,7 @@ describe("resources", () => {
         };
       });
 
-      on.finalize(() => {
+      on.lowLevel.finalize(() => {
         events.record("parent:finalize");
       });
 
@@ -613,7 +613,7 @@ class ResourceWrapper<T, U> {
 
           this.#expect(
             {
-              events: this.#isFinalized ? [] : currentAction.events ?? [],
+              events: this.#isFinalized ? [] : (currentAction.events ?? []),
               value: expectedValue,
             },
             `${action.label} (${i + 1}/${runs}): after`,
@@ -772,7 +772,7 @@ class ResourceWrapper<T, U> {
       };
     } else {
       return {
-        events: this.#isFinalized ? [] : options.events ?? [],
+        events: this.#isFinalized ? [] : (options.events ?? []),
         value: options.value ?? UNCHANGED,
       };
     }

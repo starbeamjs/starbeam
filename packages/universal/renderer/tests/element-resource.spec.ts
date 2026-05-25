@@ -23,7 +23,7 @@ function ElementSizeForTest(
       width.set(Number(element.dataset["width"] ?? INITIAL_WIDTH));
     });
 
-    on.finalize(() => {
+    on.lowLevel.finalize(() => {
       events.record("size:finalize");
     });
 

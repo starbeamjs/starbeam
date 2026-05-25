@@ -51,7 +51,7 @@ export function TestResource(
         return () => void localEvents.record("cleanup");
       });
 
-      on.finalize(() => {
+      on.lowLevel.finalize(() => {
         localEvents.record("finalize");
       });
 

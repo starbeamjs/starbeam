@@ -55,7 +55,7 @@ describe("ResourceList", () => {
     ): ResourceBlueprint<{ active: boolean; desc: string }> => {
       const active = Cell(false);
       return Resource(({ on }) => {
-        on.finalize(() => {
+        on.lowLevel.finalize(() => {
           active.set(false);
         });
 
@@ -120,7 +120,7 @@ describe("ResourceList", () => {
     ): ResourceBlueprint<{ active: boolean; desc: string }> => {
       const active = Cell(false);
       return Resource(({ on }) => {
-        on.finalize(() => {
+        on.lowLevel.finalize(() => {
           active.set(false);
         });
 
@@ -182,7 +182,7 @@ describe("ResourceList", () => {
         const subscription = new Subscription(item.name);
         subscription.connect();
 
-        on.finalize(() => {
+        on.lowLevel.finalize(() => {
           subscription.disconnect();
         });
 

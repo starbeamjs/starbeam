@@ -35,7 +35,7 @@ describe("a ResourceList's children sync", () => {
           return () => void childEvents.record("cleanup");
         });
 
-        on.finalize(() => {
+        on.lowLevel.finalize(() => {
           childEvents.record("finalize");
         });
 

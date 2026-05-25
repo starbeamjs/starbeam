@@ -20,7 +20,7 @@ describe("service", () => {
         invalidate.read();
       });
 
-      on.finalize(() => void events.record("finalize"));
+      on.lowLevel.finalize(() => void events.record("finalize"));
       return {
         get count() {
           return count.current;
@@ -68,7 +68,7 @@ describe("service", () => {
           invalidate.read();
         });
 
-        on.finalize(() => void events.record("finalize"));
+        on.lowLevel.finalize(() => void events.record("finalize"));
 
         return {
           mark() {

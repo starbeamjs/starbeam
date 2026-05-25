@@ -120,7 +120,7 @@ function ResourceForDeps(id: string, events: RecordedEvents) {
       return () => void events.record(`${id}:cleanup`);
     });
 
-    on.finalize(() => {
+    on.lowLevel.finalize(() => {
       events.record(`${id}:finalize`);
     });
 

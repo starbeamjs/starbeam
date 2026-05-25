@@ -1,7 +1,3 @@
- 
- 
- 
- 
 // @vitest-environment jsdom
 
 import { install, setupSync } from "@starbeam/preact";
@@ -36,7 +32,7 @@ describe("setupSync", () => {
         return () => void actions.record("cleanup");
       });
 
-      on.finalize(() => {
+      on.lowLevel.finalize(() => {
         actions.record("finalize");
       });
     });

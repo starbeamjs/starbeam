@@ -96,11 +96,15 @@ If the handler returns a cleanup function, Starbeam runs it before the next sync
 and when the owning scope finalizes. This is the normal place to stop external
 work started by the sync, such as timers, subscriptions, sockets, and observers.
 
-### `resource.on.finalize(handler)`
+### `resource.on.lowLevel.finalize(handler)`
 
 Registers lower-level finalization for the resource's owning scope. Finalizers
 run when that scope finalizes. They are not a replacement for cleanup returned
 from `resource.on.sync()`.
+
+### `resource.on.finalize(handler)`
+
+Deprecated alias for `resource.on.lowLevel.finalize(handler)`.
 
 ### `setupResource(intoBlueprint)`
 
@@ -133,8 +137,9 @@ then syncs the child resources.
 
 ### `SyncTo(constructor)`
 
-Creates a lower-level sync blueprint with `on.sync()` and `on.finalize()` but no
-child-resource helper. Prefer `Resource()` for resource authoring.
+Creates a lower-level sync blueprint with `on.sync()` and
+`on.lowLevel.finalize()` but no child-resource helper. Prefer `Resource()` for
+resource authoring.
 
 ### `PrimitiveSyncTo(define)`
 

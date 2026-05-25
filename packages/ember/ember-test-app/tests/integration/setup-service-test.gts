@@ -80,7 +80,7 @@ module("setupService | rendering", function (hooks) {
     let finalizes = 0;
 
     const Session = Resource(({ on }) => {
-      on.finalize(() => {
+      on.lowLevel.finalize(() => {
         finalizes += 1;
       });
 

@@ -177,7 +177,7 @@ describe("Sync", () => {
           };
         });
 
-        on.finalize(() => {
+        on.lowLevel.finalize(() => {
           events.record("finalize");
         });
       });
@@ -592,7 +592,7 @@ class Children<T, U> implements Iterable<Child<T, U>> {
 
         this.#events.expectEvents(expectedEvents);
       },
-       
+
       { entryFn: this.expect },
     );
   }
@@ -913,7 +913,7 @@ function buildTestSync<Setup extends undefined | (() => unknown)>(
       };
     });
 
-    on.finalize(() => {
+    on.lowLevel.finalize(() => {
       localEvents.record("finalize");
       test?.finalize?.();
     });

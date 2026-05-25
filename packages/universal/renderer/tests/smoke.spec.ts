@@ -252,7 +252,7 @@ describe("RendererManager", () => {
 
     const Service = Resource(({ on }) => {
       events.record("setup");
-      on.finalize(() => void events.record("finalize"));
+      on.lowLevel.finalize(() => void events.record("finalize"));
 
       return {};
     });
@@ -373,7 +373,9 @@ class TestManager implements RendererManager<object> {
   createNotifier = (instance: object): (() => void) =>
     this.#createNotifier(instance);
 
-  createScheduler = (_instance: object): {
+  createScheduler = (
+    _instance: object,
+  ): {
     readonly onSchedule: (handler: Handler) => void;
     readonly schedule: () => void;
   } => ({
