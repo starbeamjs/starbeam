@@ -34,7 +34,6 @@ import { Resource, ResourceList, setupResource } from "@starbeam/resource";
 | `resource.use(childBlueprint)`           | Set up a child resource under the current resource.                                          |
 | `resource.on.sync(handler)`              | Register sync work. Returned cleanup runs before the next sync and when the owner finalizes. |
 | `resource.on.lowLevel.finalize(handler)` | Register lower-level owning-scope finalization, not ordinary external-work teardown.         |
-| `resource.on.finalize(handler)`          | Deprecated alias for `resource.on.lowLevel.finalize(handler)`.                               |
 | `ResourceList(list, options)`            | Keep a keyed list of child resources stable by key.                                          |
 
 ## Low-level APIs
@@ -58,6 +57,12 @@ Most app code should use framework adapter APIs such as React/Preact
   finalization, not for timely teardown of sockets, timers, observers, or
   subscriptions created during setup.
 - Child resources sync after their parent.
+
+## Deprecated compatibility
+
+`resource.on.finalize(handler)` is a deprecated alias for
+`resource.on.lowLevel.finalize(handler)`. Prefer `resource.on.sync(handler)` and
+returned cleanup for ordinary external-work teardown.
 
 ## Related docs
 

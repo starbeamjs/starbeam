@@ -102,10 +102,6 @@ Registers lower-level finalization for the resource's owning scope. Finalizers
 run when that scope finalizes. They are not a replacement for cleanup returned
 from `resource.on.sync()`.
 
-### `resource.on.finalize(handler)`
-
-Deprecated alias for `resource.on.lowLevel.finalize(handler)`.
-
 ### `setupResource(intoBlueprint)`
 
 Low-level setup for adapter and manual integration code. It accepts a resource
@@ -155,6 +151,12 @@ define setup, sync, optional finalization, and a stable value directly.
 - Child resources created with `resource.use()` sync after the parent resource.
 - Finalizers run when the owning scope finalizes. They are for lower-level scope
   finalization, not ordinary external-work teardown.
+
+## Deprecated compatibility
+
+`resource.on.finalize(handler)` is a deprecated alias for
+`resource.on.lowLevel.finalize(handler)`. Prefer `resource.on.sync(handler)` and
+returned cleanup for ordinary external-work teardown.
 
 ## What this package does not do
 
