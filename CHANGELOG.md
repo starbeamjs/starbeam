@@ -1,5 +1,27 @@
 # Changelog
 
+## Release (2026-05-26)
+
+* @starbeam/ember 0.9.2 (patch)
+* @starbeam/preact 0.10.0 (minor)
+* @starbeam/react 0.10.0 (minor)
+* @starbeam/svelte 0.10.0 (minor)
+* @starbeam/collections 0.9.2 (patch)
+* @starbeam/core 0.9.2 (patch)
+* @starbeam/renderer 0.10.0 (minor)
+* @starbeam/resource 0.2.0 (minor)
+* @starbeam/service 0.2.0 (minor)
+* @starbeam/universal 0.10.0 (minor)
+* @starbeam/vue 0.10.0 (minor)
+* @starbeamx/vanilla 0.9.2 (patch)
+
+#### :rocket: Enhancement
+* `@starbeam/preact`, `@starbeam/react`, `@starbeam/svelte`, `@starbeam/renderer`, `@starbeam/resource`, `@starbeam/service`, `@starbeam/universal`, `@starbeam/vue`
+  * [#305](https://github.com/starbeamjs/starbeam/pull/305) Add low-level resource finalization hook ([@wycats](https://github.com/wycats))
+
+#### Committers: 1
+- Yehuda Katz ([@wycats](https://github.com/wycats))
+
 ## Release (2026-05-25)
 
 * @starbeam/react 0.9.2 (patch)

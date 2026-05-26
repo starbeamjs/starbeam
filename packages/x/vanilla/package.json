@@ -1,7 +1,7 @@
 {
   "name": "@starbeamx/vanilla",
   "type": "module",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "description": "Experimental minimal DOM renderer and reference implementation for Starbeam",
   "main": "index.ts",
   "types": "index.ts",
