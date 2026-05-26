@@ -5,11 +5,16 @@ import {
   mountFinalizationScope,
 } from "@starbeam/shared";
 
-import type { DefineSync } from "./sync/high-level.js";
+import type { DefineSyncContext, SyncHooks } from "./sync/high-level.js";
 import { SyncTo } from "./sync/high-level.js";
 import type { Sync, SyncFn, SyncResult } from "./sync/primitive.js";
 
-export type SetupResource<T> = (define: DefineResource) => T;
+export interface DefineResourceContext {
+  readonly on: SyncHooks;
+  readonly use: <T>(blueprint: ResourceBlueprint<T>) => T;
+}
+
+export type SetupResource<T> = (define: DefineResourceContext) => T;
 
 export type ResourceConstructor<T> = () => ResourceBlueprint<T>;
 
@@ -59,7 +64,7 @@ export class DefineResource {
   readonly #children = new Set<SyncFn<unknown>>();
   readonly on;
 
-  constructor(define: DefineSync) {
+  constructor(define: DefineSyncContext) {
     this.on = define.on;
   }
 

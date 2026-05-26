@@ -3,7 +3,18 @@ import { linkToFinalizationScope } from "@starbeam/shared";
 import type { Cleanup, Sync, SyncHandler } from "./primitive.js";
 import { PrimitiveSyncTo } from "./primitive.js";
 
-export type SyncConstructor<T> = (define: DefineSync) => T;
+export interface SyncHooks {
+  readonly sync: (handler: SyncHandler) => void;
+  readonly lowLevel: {
+    readonly finalize: (handler: Cleanup) => void;
+  };
+}
+
+export interface DefineSyncContext {
+  readonly on: SyncHooks;
+}
+
+export type SyncConstructor<T> = (define: DefineSyncContext) => T;
 
 const INITIAL = 0;
 
