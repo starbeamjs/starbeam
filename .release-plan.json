@@ -1,141 +1,25 @@
 {
   "solution": {
     "@starbeam/ember": {
-      "impact": "patch",
-      "oldVersion": "0.9.1",
-      "newVersion": "0.9.2",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:^` on @starbeam/renderer"
-        },
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:^` on @starbeam/resource"
-        },
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:^` on @starbeam/service"
-        },
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:^` on @starbeam/universal"
-        }
-      ],
-      "pkgJSONPath": "./packages/ember/ember/package.json"
+      "oldVersion": "0.9.2"
     },
     "@starbeam/preact": {
-      "impact": "minor",
-      "oldVersion": "0.9.1",
-      "newVersion": "0.10.0",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "minor",
-          "reason": "Appears in changelog section :rocket: Enhancement"
-        },
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:^` on @starbeam/renderer"
-        },
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:^` on @starbeam/resource"
-        },
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:^` on @starbeam/service"
-        },
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:^` on @starbeam/universal"
-        }
-      ],
-      "pkgJSONPath": "./packages/preact/preact/package.json"
+      "oldVersion": "0.10.0"
     },
     "@starbeam/react": {
-      "impact": "minor",
-      "oldVersion": "0.9.2",
-      "newVersion": "0.10.0",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "minor",
-          "reason": "Appears in changelog section :rocket: Enhancement"
-        },
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:^` on @starbeam/renderer"
-        },
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:^` on @starbeam/resource"
-        },
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:^` on @starbeam/service"
-        },
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:^` on @starbeam/universal"
-        }
-      ],
-      "pkgJSONPath": "./packages/react/react/package.json"
+      "oldVersion": "0.10.0"
     },
     "@starbeam/use-strict-lifecycle": {
       "oldVersion": "0.9.2"
     },
     "@starbeam/svelte": {
-      "impact": "minor",
-      "oldVersion": "0.9.1",
-      "newVersion": "0.10.0",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "minor",
-          "reason": "Appears in changelog section :rocket: Enhancement"
-        },
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:^` on @starbeam/renderer"
-        },
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:^` on @starbeam/resource"
-        },
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:^` on @starbeam/universal"
-        }
-      ],
-      "pkgJSONPath": "./packages/svelte/svelte/package.json"
+      "oldVersion": "0.10.0"
     },
     "@starbeam/collections": {
-      "impact": "patch",
-      "oldVersion": "0.9.1",
-      "newVersion": "0.9.2",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:^` on @starbeam/universal"
-        }
-      ],
-      "pkgJSONPath": "./packages/universal/collections/package.json"
+      "oldVersion": "0.9.2"
     },
     "@starbeam/core": {
-      "impact": "patch",
-      "oldVersion": "0.9.1",
-      "newVersion": "0.9.2",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:^` on @starbeam/universal"
-        }
-      ],
-      "pkgJSONPath": "./packages/universal/core/package.json"
+      "oldVersion": "0.9.2"
     },
     "@starbeam/interfaces": {
       "oldVersion": "0.9.1"
@@ -144,35 +28,17 @@
       "oldVersion": "0.9.1"
     },
     "@starbeam/renderer": {
-      "impact": "minor",
-      "oldVersion": "0.9.1",
-      "newVersion": "0.10.0",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "minor",
-          "reason": "Appears in changelog section :rocket: Enhancement"
-        },
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:^` on @starbeam/resource"
-        },
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:^` on @starbeam/service"
-        }
-      ],
-      "pkgJSONPath": "./packages/universal/renderer/package.json"
+      "oldVersion": "0.10.0"
     },
     "@starbeam/resource": {
-      "impact": "minor",
-      "oldVersion": "0.1.2",
-      "newVersion": "0.2.0",
+      "impact": "patch",
+      "oldVersion": "0.2.0",
+      "newVersion": "0.2.1",
       "tagName": "latest",
       "constraints": [
         {
-          "impact": "minor",
-          "reason": "Appears in changelog section :rocket: Enhancement"
+          "impact": "patch",
+          "reason": "Appears in changelog section :memo: Documentation"
         }
       ],
       "pkgJSONPath": "./packages/universal/resource/package.json"
@@ -181,21 +47,7 @@
       "oldVersion": "0.9.2"
     },
     "@starbeam/service": {
-      "impact": "minor",
-      "oldVersion": "0.1.2",
-      "newVersion": "0.2.0",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:^` on @starbeam/resource"
-        },
-        {
-          "impact": "minor",
-          "reason": "Appears in changelog section :rocket: Enhancement"
-        }
-      ],
-      "pkgJSONPath": "./packages/universal/service/package.json"
+      "oldVersion": "0.2.0"
     },
     "@starbeam/shared": {
       "oldVersion": "1.4.1"
@@ -204,67 +56,17 @@
       "oldVersion": "0.1.1"
     },
     "@starbeam/universal": {
-      "impact": "minor",
-      "oldVersion": "0.9.1",
-      "newVersion": "0.10.0",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:^` on @starbeam/resource"
-        },
-        {
-          "impact": "minor",
-          "reason": "Appears in changelog section :rocket: Enhancement"
-        }
-      ],
-      "pkgJSONPath": "./packages/universal/universal/package.json"
+      "oldVersion": "0.10.0"
     },
     "@starbeam/vue": {
-      "impact": "minor",
-      "oldVersion": "0.9.1",
-      "newVersion": "0.10.0",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:^` on @starbeam/renderer"
-        },
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:^` on @starbeam/resource"
-        },
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:^` on @starbeam/service"
-        },
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:^` on @starbeam/universal"
-        },
-        {
-          "impact": "minor",
-          "reason": "Appears in changelog section :rocket: Enhancement"
-        }
-      ],
-      "pkgJSONPath": "./packages/vue/vue/package.json"
+      "oldVersion": "0.10.0"
     },
     "@starbeamx/store": {
       "oldVersion": "0.9.1"
     },
     "@starbeamx/vanilla": {
-      "impact": "patch",
-      "oldVersion": "0.9.1",
-      "newVersion": "0.9.2",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:^` on @starbeam/universal"
-        }
-      ],
-      "pkgJSONPath": "./packages/x/vanilla/package.json"
+      "oldVersion": "0.9.2"
     }
   },
-  "description": "## Release (2026-05-26)\n\n* @starbeam/ember 0.9.2 (patch)\n* @starbeam/preact 0.10.0 (minor)\n* @starbeam/react 0.10.0 (minor)\n* @starbeam/svelte 0.10.0 (minor)\n* @starbeam/collections 0.9.2 (patch)\n* @starbeam/core 0.9.2 (patch)\n* @starbeam/renderer 0.10.0 (minor)\n* @starbeam/resource 0.2.0 (minor)\n* @starbeam/service 0.2.0 (minor)\n* @starbeam/universal 0.10.0 (minor)\n* @starbeam/vue 0.10.0 (minor)\n* @starbeamx/vanilla 0.9.2 (patch)\n\n#### :rocket: Enhancement\n* `@starbeam/preact`, `@starbeam/react`, `@starbeam/svelte`, `@starbeam/renderer`, `@starbeam/resource`, `@starbeam/service`, `@starbeam/universal`, `@starbeam/vue`\n  * [#305](https://github.com/starbeamjs/starbeam/pull/305) Add low-level resource finalization hook ([@wycats](https://github.com/wycats))\n\n#### Committers: 1\n- Yehuda Katz ([@wycats](https://github.com/wycats))\n"
+  "description": "## Release (2026-05-26)\n\n* @starbeam/resource 0.2.1 (patch)\n\n#### :memo: Documentation\n* `@starbeam/resource`\n  * [#307](https://github.com/starbeamjs/starbeam/pull/307) Move finalize alias to compatibility note ([@wycats](https://github.com/wycats))\n\n#### Committers: 1\n- Yehuda Katz ([@wycats](https://github.com/wycats))\n"
 }

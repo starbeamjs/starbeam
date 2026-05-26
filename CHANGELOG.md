@@ -2,6 +2,17 @@
 
 ## Release (2026-05-26)
 
+* @starbeam/resource 0.2.1 (patch)
+
+#### :memo: Documentation
+* `@starbeam/resource`
+  * [#307](https://github.com/starbeamjs/starbeam/pull/307) Move finalize alias to compatibility note ([@wycats](https://github.com/wycats))
+
+#### Committers: 1
+- Yehuda Katz ([@wycats](https://github.com/wycats))
+
+## Release (2026-05-26)
+
 * @starbeam/ember 0.9.2 (patch)
 * @starbeam/preact 0.10.0 (minor)
 * @starbeam/react 0.10.0 (minor)
