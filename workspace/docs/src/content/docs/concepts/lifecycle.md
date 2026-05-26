@@ -118,8 +118,9 @@ Starbeam scope's finalization, not for each sync. Use it when you are working
 with Starbeam-owned scopes or integration machinery. It is not a replacement for
 the cleanup returned from `on.sync()`.
 
-Most app code does not call sync or finalize directly. Framework adapters attach
-resources to framework lifetimes and schedule the work for you.
+Most app code does not call sync or low-level finalization APIs directly.
+Framework adapters attach resources to framework lifetimes and schedule the work
+for you.
 
 ## Framework adapters connect resources to framework lifetimes
 
