@@ -1,0 +1,20 @@
+{
+  "private": true,
+  "name": "@starbeam-demos/table-preact",
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite --host 0.0.0.0",
+    "preview": "vite preview --host 0.0.0.0",
+    "test:lint": "eslint . --max-warnings 0",
+    "test:types": "tsc -b"
+  },
+  "dependencies": {
+    "@fontsource/geist-sans": "^5.2.5",
+    "@starbeam/preact": "workspace:^",
+    "@starbeam-demos/table-core": "workspace:*",
+    "preact": "^10.29.1",
+    "vite": "^8.0.8"
+  }
+}
