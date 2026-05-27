@@ -51,13 +51,15 @@ export default [
     files: [
       "packages/**/*.ts",
       "packages/**/*.tsx",
+      "demos/**/*.ts",
+      "demos/**/*.tsx",
       "workspace/**/*.ts",
       "workspace/**/*.mts",
       "@types/**/*.ts",
     ],
   }),
 
-  ...esmConfig({ files: ["**/rollup.config.{mjs,js}"] }),
+  ...esmConfig({ files: ["**/rollup.config.{mjs,js}", "**/vite.config.mjs"] }),
 
   ...tight({ files: ["vitest.*.{mts,ts}"] }),
 

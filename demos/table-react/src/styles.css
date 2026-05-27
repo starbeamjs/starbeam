@@ -1,0 +1,451 @@
+:root {
+  --bg: #f7f2e9;
+  --card: rgba(255, 253, 248, 0.86);
+  --card-strong: #fffaf1;
+  --ink: #18251f;
+  --muted: #667167;
+  --faint: #948d7d;
+  --line: rgba(74, 61, 42, 0.14);
+  --green: #1e684f;
+  --green-dark: #134635;
+  --mint: #d9f8e7;
+  --gold: #d79a3b;
+  --rose: #a44945;
+  --radius: 4px;
+  --radius-tight: 2px;
+  --space-1: 0.35rem;
+  --space-2: 0.55rem;
+  --space-3: 0.8rem;
+  --space-4: 1rem;
+  --space-5: 1.35rem;
+  --space-6: 1.75rem;
+  --shadow:
+    0 1px 2px rgba(60, 45, 25, 0.08), 0 12px 30px rgba(60, 45, 25, 0.05);
+
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(221, 184, 108, 0.24),
+      transparent 34rem
+    ),
+    radial-gradient(
+      circle at 85% 12%,
+      rgba(65, 125, 92, 0.18),
+      transparent 28rem
+    ),
+    var(--bg);
+  color: var(--ink);
+  font-family:
+    Geist,
+    "Geist Sans",
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-tight);
+  background: rgba(255, 250, 241, 0.82);
+  color: var(--ink);
+  cursor: pointer;
+  display: inline-flex;
+  font-weight: 650;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: 0.58rem 0.85rem;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+button:hover {
+  background: var(--card-strong);
+  border-color: rgba(74, 61, 42, 0.24);
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+.button-primary {
+  background: var(--green);
+  border-color: var(--green);
+  box-shadow: 0 8px 18px rgba(30, 104, 79, 0.22);
+  color: white;
+  font-weight: 750;
+}
+
+.button-primary:hover {
+  background: var(--green-dark);
+  border-color: var(--green-dark);
+  box-shadow: 0 10px 22px rgba(30, 104, 79, 0.28);
+}
+
+.button-secondary {
+  background: rgba(255, 253, 248, 0.64);
+  border-color: rgba(74, 61, 42, 0.24);
+  color: var(--ink);
+  font-weight: 650;
+}
+
+.button-secondary:hover {
+  background: rgba(255, 253, 248, 0.92);
+  border-color: rgba(30, 104, 79, 0.32);
+  color: var(--green-dark);
+}
+
+.button-danger {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  color: var(--rose);
+  padding: 0.55rem 0.65rem;
+}
+
+.button-danger:hover {
+  background: rgba(164, 73, 69, 0.08);
+  border-color: rgba(164, 73, 69, 0.12);
+  box-shadow: none;
+  color: #7d332f;
+}
+
+input,
+select {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-tight);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--ink);
+  min-height: 2.5rem;
+  padding: 0.56rem 0.68rem;
+  transition:
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    background 140ms ease;
+  width: 100%;
+}
+
+input::placeholder {
+  color: rgba(102, 113, 103, 0.74);
+  font-weight: 600;
+}
+
+input:focus,
+select:focus {
+  background: white;
+  border-color: rgba(30, 104, 79, 0.46);
+  box-shadow: 0 0 0 4px rgba(30, 104, 79, 0.12);
+  outline: none;
+}
+
+label {
+  color: var(--muted);
+  display: grid;
+  font-size: 0.84rem;
+  font-weight: 700;
+  gap: var(--space-1);
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th,
+td {
+  border-bottom: 1px solid rgba(74, 61, 42, 0.1);
+  padding: 0.7rem 0.65rem;
+  text-align: left;
+}
+
+th {
+  color: var(--faint);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+tbody tr {
+  transition: background 140ms ease;
+}
+
+tbody tr:hover {
+  background: rgba(30, 104, 79, 0.045);
+}
+
+tbody tr.is-low-stock {
+  background: rgba(215, 154, 59, 0.08);
+}
+
+tbody td:first-child {
+  font-weight: 700;
+}
+
+.shell {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0 auto;
+  max-width: 1180px;
+  padding: clamp(0.9rem, 2.4vw, 2rem);
+}
+
+.hero {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 36%),
+    radial-gradient(
+      circle at 80% 20%,
+      rgba(217, 248, 231, 0.28),
+      transparent 20rem
+    ),
+    linear-gradient(135deg, #18372f, #27694e 60%, #1e4f40);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  color: white;
+  overflow: hidden;
+  padding: clamp(1.15rem, 2.4vw, 1.9rem);
+  position: relative;
+}
+
+.hero::after {
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+  background-size: 44px 44px;
+  content: "";
+  inset: 0;
+  mask-image: linear-gradient(90deg, transparent, black 46%, transparent);
+  opacity: 0.28;
+  pointer-events: none;
+  position: absolute;
+}
+
+.hero h1 {
+  font-size: clamp(2rem, 4vw, 3.45rem);
+  letter-spacing: -0.06em;
+  line-height: 0.95;
+  margin: 0;
+}
+
+.hero p {
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 1rem;
+  line-height: 1.55;
+  margin: var(--space-3) 0 0;
+  max-width: 39rem;
+  position: relative;
+  z-index: 1;
+}
+
+.eyebrow {
+  color: var(--mint);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  margin: 0 0 var(--space-2);
+  position: relative;
+  text-transform: uppercase;
+  z-index: 1;
+}
+
+.stats,
+.controls,
+.add-item,
+.supporting-panels {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.stats {
+  gap: var(--space-3);
+}
+
+.controls,
+.add-item {
+  align-items: end;
+}
+
+.controls > button,
+.add-item > button {
+  min-height: 2.5rem;
+}
+
+.controls > .button-secondary {
+  justify-self: start;
+}
+
+.controls {
+  column-gap: var(--space-5);
+  grid-template-columns:
+    minmax(13rem, 1.35fr) minmax(9rem, 0.9fr) minmax(9rem, 0.9fr)
+    minmax(8rem, auto) auto;
+  row-gap: var(--space-4);
+}
+
+.panel,
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: var(--space-4);
+}
+
+.stat-card {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.72), transparent),
+    var(--card-strong);
+  display: grid;
+  gap: var(--space-3);
+  min-height: 5.4rem;
+}
+
+.stat-card span,
+.table-header span {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.stat-card strong {
+  font-size: clamp(1.65rem, 2.6vw, 2.1rem);
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+
+.checkbox {
+  align-items: center;
+  align-self: end;
+  display: flex;
+  gap: var(--space-2);
+  min-height: 2.5rem;
+  padding: 0;
+}
+
+.checkbox input {
+  accent-color: var(--green);
+  min-height: auto;
+  padding: 0;
+  width: 1rem;
+}
+
+.add-item {
+  align-content: start;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.supporting-panels {
+  align-items: start;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.category-counts {
+  align-content: start;
+  align-items: center;
+  column-gap: var(--space-4);
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  row-gap: var(--space-3);
+}
+
+.category-counts h2 {
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.category-counts dl {
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+}
+
+.category-counts div {
+  background: rgba(255, 250, 241, 0.54);
+  border: 1px solid rgba(74, 61, 42, 0.09);
+  border-radius: var(--radius-tight);
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-2);
+}
+
+.category-counts dt {
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 650;
+}
+
+.category-counts dd {
+  color: var(--ink);
+  font-size: 1.14rem;
+  font-weight: 750;
+  line-height: 1;
+  margin: 0;
+}
+
+.table-panel {
+  overflow-x: auto;
+  padding: var(--space-5);
+}
+
+.table-header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--space-5);
+}
+
+.table-header h2 {
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .controls,
+  .supporting-panels {
+    grid-template-columns: 1fr;
+  }
+
+  .controls > .button-secondary {
+    justify-self: stretch;
+  }
+}
+
+.row-value {
+  color: var(--green-dark);
+  font-weight: 750;
+}
+
+.sr-only {
+  clip: rect(0, 0, 0, 0);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}

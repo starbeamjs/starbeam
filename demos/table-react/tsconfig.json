@@ -1,0 +1,12 @@
+{
+  "extends": "../../.config/tsconfig/tsconfig.shared.json",
+  "compilerOptions": {
+    "composite": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "types": ["../../packages/env.d.ts"],
+    "noEmit": true
+  },
+  "include": ["src/**/*", "vite.config.mjs"],
+  "references": [{ "path": "../table-core/tsconfig.json" }]
+}

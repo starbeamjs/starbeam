@@ -1,0 +1,26 @@
+{
+  "private": true,
+  "name": "@starbeam-demos/table-core",
+  "type": "module",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "types": "index.ts",
+  "exports": {
+    "default": "./index.ts"
+  },
+  "starbeam": {
+    "type": "demo"
+  },
+  "scripts": {
+    "test:lint": "eslint . --max-warnings 0",
+    "test:specs": "vitest --run --pool forks --config ./vitest.config.mts",
+    "test:types": "tsc -b"
+  },
+  "dependencies": {
+    "@starbeam/collections": "workspace:^"
+  },
+  "devDependencies": {
+    "@starbeam/reactive": "workspace:^",
+    "vitest": "^4.1.4"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "private": true,
+  "name": "@starbeam-demos/table-react",
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite --host 0.0.0.0",
+    "preview": "vite preview --host 0.0.0.0",
+    "test:lint": "eslint . --max-warnings 0",
+    "test:types": "tsc -b"
+  },
+  "dependencies": {
+    "@fontsource/geist-sans": "^5.2.5",
+    "@starbeam/react": "workspace:^",
+    "@starbeam-demos/table-core": "workspace:*",
+    "@vitejs/plugin-react": "^4.7.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "vite": "^8.0.8"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3"
+  }
+}
