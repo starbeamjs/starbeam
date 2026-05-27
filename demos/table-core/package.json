@@ -6,7 +6,11 @@
   "main": "index.ts",
   "types": "index.ts",
   "exports": {
-    "default": "./index.ts"
+    ".": {
+      "types": "./index.ts",
+      "default": "./index.ts"
+    },
+    "./src/table.ts": "./src/table.ts"
   },
   "starbeam": {
     "type": "demo"

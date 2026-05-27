@@ -7,7 +7,26 @@ import PreactInventoryDemo from "../../components/PreactInventoryDemo";
 import ReactInventoryDemo from "../../components/ReactInventoryDemo";
 import StarMark from "../../components/StarMark.astro";
 import "../../styles/tokens.css";
-import inventoryModelSource from "../../../../../demos/table-core/src/table.ts?raw";
+import inventoryModelSource from "@starbeam-demos/table-core/src/table.ts?raw";
+
+const twoslashInventoryModelSource = [
+  "// @filename: @starbeam/collections.d.ts",
+  'declare module "@starbeam/collections" {',
+  "  export const reactive: {",
+  "    Map<K, V>(description?: string): Map<K, V>;",
+  "  };",
+  "}",
+  "// @filename: demos/table-core/src/table.ts",
+  "// ---cut---",
+  inventoryModelSource,
+  "",
+  "// The framework shells use the same API regardless of renderer.",
+  "const inventory = createInventory();",
+  'const lowStock = inventory.view({ lowStockOnly: true, sort: "stock" });',
+  "//    ^?",
+  "const value = inventory.stats.inventoryValue;",
+  "//    ^?",
+].join("\n");
 ---
 
 <html lang="en">
@@ -61,12 +80,25 @@ import inventoryModelSource from "../../../../../demos/table-core/src/table.ts?r
           owns the reactive map; each framework shell only chooses how reads get
           connected to rendering.
         </p>
-        <Code
-          code={inventoryModelSource}
-          lang="ts"
-          title="demos/table-core/src/table.ts"
-          mark={["19-87", "114-183", "205-238"]}
-        />
+        <div class="model-code-card" data-code-card>
+          <div class="model-code-card__header">
+            <div>
+              <span class="model-code-card__eyebrow">Twoslash TypeScript</span>
+              <strong>@starbeam-demos/table-core/src/table.ts</strong>
+            </div>
+            <button class="model-code-card__copy" type="button" data-copy-code>
+              Copy code
+            </button>
+          </div>
+          <textarea data-copy-source hidden readonly>{inventoryModelSource}</textarea>
+          <Code
+            code={twoslashInventoryModelSource}
+            frame="none"
+            lang="ts"
+            meta="twoslash"
+            mark={["19-87", "114-183", "205-238"]}
+          />
+        </div>
       </div>
     </details>
 
@@ -200,6 +232,34 @@ import inventoryModelSource from "../../../../../demos/table-core/src/table.ts?r
             }
           });
         }
+      }
+
+      for (const button of document.querySelectorAll<HTMLButtonElement>(
+        "[data-copy-code]",
+      )) {
+        button.addEventListener("click", async () => {
+          const card = button.closest("[data-code-card]");
+          const code = card?.querySelector<HTMLTextAreaElement>(
+            "[data-copy-source]",
+          )?.value;
+
+          if (!code) {
+            return;
+          }
+
+          const readyText = button.textContent ?? "Copy code";
+
+          try {
+            await navigator.clipboard.writeText(code);
+            button.textContent = "Copied";
+          } catch {
+            button.textContent = "Copy failed";
+          }
+
+          setTimeout(() => {
+            button.textContent = readyText;
+          }, 1600);
+        });
       }
     </script>
   </body>
@@ -352,8 +412,67 @@ import inventoryModelSource from "../../../../../demos/table-core/src/table.ts?r
     max-width: 54rem;
   }
 
-  .universal-model :global(.expressive-code) {
+  .model-code-card {
+    background: #f6f7f9;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .model-code-card__header {
+    align-items: center;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(246, 247, 249, 0.96)),
+      #f6f7f9;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    gap: var(--space-4);
+    justify-content: space-between;
+    padding: 0.85rem 1rem;
+  }
+
+  .model-code-card__eyebrow {
+    color: var(--green);
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 850;
+    letter-spacing: 0.16em;
+    margin-block-end: 0.2rem;
+    text-transform: uppercase;
+  }
+
+  .model-code-card__header strong {
+    color: var(--ink);
+    display: block;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas,
+      "Liberation Mono", monospace;
+    font-size: 0.9rem;
+    font-weight: 760;
+  }
+
+  .model-code-card__copy {
+    background: var(--green);
+    border-color: var(--green);
+    box-shadow: none;
+    color: white;
+    flex: 0 0 auto;
+    font-size: 0.82rem;
+    font-weight: 800;
+    min-height: 2.2rem;
+    padding-inline: 0.85rem;
+  }
+
+  .model-code-card__copy:hover {
+    background: var(--green-dark);
+    border-color: var(--green-dark);
+  }
+
+  .model-code-card :global(.expressive-code) {
     margin: 0;
+  }
+
+  .model-code-card :global(.expressive-code pre) {
     max-height: 34rem;
     overflow: auto;
   }
@@ -459,6 +578,7 @@ import inventoryModelSource from "../../../../../demos/table-core/src/table.ts?r
     .docs-demo-topbar,
     .docs-demo-heading-row,
     .demo-panel-header,
+    .model-code-card__header,
     .universal-model summary {
       align-items: flex-start;
       flex-direction: column;
