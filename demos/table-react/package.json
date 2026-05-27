@@ -3,6 +3,13 @@
   "name": "@starbeam-demos/table-react",
   "type": "module",
   "version": "1.0.0",
+  "exports": {
+    "./src/App.js": {
+      "types": "./src/App.tsx",
+      "default": "./src/App.tsx"
+    },
+    "./src/styles.css": "./src/styles.css"
+  },
   "scripts": {
     "build": "vite build",
     "dev": "vite --host 0.0.0.0",

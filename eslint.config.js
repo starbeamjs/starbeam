@@ -54,6 +54,7 @@ export default [
       "demos/**/*.ts",
       "demos/**/*.tsx",
       "workspace/**/*.ts",
+      "workspace/**/*.tsx",
       "workspace/**/*.mts",
       "@types/**/*.ts",
     ],

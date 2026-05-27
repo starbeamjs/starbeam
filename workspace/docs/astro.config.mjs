@@ -1,3 +1,5 @@
+import preact from "@astrojs/preact";
+import react from "@astrojs/react";
 import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
 
@@ -7,6 +9,18 @@ export default defineConfig({
     enabled: false,
   },
   integrations: [
+    react({
+      include: [
+        "src/components/ReactInventoryDemo.tsx",
+        "../../demos/table-react/src/**/*.tsx",
+      ],
+    }),
+    preact({
+      include: [
+        "src/components/PreactInventoryDemo.tsx",
+        "../../demos/table-preact/src/**/*.tsx",
+      ],
+    }),
     starlight({
       title: "Starbeam",
       description: "Starbeam is reactivity that stays JavaScript.",
@@ -51,6 +65,12 @@ export default defineConfig({
             { label: "Ember", link: "/frameworks/ember/" },
             { label: "Vue", link: "/frameworks/vue/" },
             { label: "Svelte", link: "/frameworks/svelte/" },
+          ],
+        },
+        {
+          label: "Demos",
+          items: [
+            { label: "Inventory table", link: "/demos/inventory-table/" },
           ],
         },
         {

@@ -29,6 +29,10 @@ Svelte.
 
 Need the package list first? Start with [Install Starbeam](/start/install/).
 
+Want to see the same model running inside the docs site? The
+[inventory table demo](/demos/inventory-table/) embeds React and Preact versions
+that both use the same `@starbeam-demos/table-core` package.
+
 ## Guides
 
 - [**React**](/frameworks/react/): hooks for reactive reads, resources,

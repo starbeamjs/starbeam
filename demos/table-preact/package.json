@@ -3,6 +3,12 @@
   "name": "@starbeam-demos/table-preact",
   "type": "module",
   "version": "1.0.0",
+  "exports": {
+    "./src/App.js": {
+      "types": "./src/App.tsx",
+      "default": "./src/App.tsx"
+    }
+  },
   "scripts": {
     "build": "vite build",
     "dev": "vite --host 0.0.0.0",
