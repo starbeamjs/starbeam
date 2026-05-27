@@ -19,12 +19,16 @@ export interface TableView<Row extends TableRow> {
 export class Table<Row extends TableRow> {
   readonly #rows = reactive.Map<RowId, Row>("table rows");
 
+  #rowArray(): Row[] {
+    return [...this.#rows.values()];
+  }
+
   get size(): number {
     return this.#rows.size;
   }
 
   get rows(): readonly Row[] {
-    return [...this.#rows.values()];
+    return this.#rowArray();
   }
 
   clear(): void {
@@ -69,14 +73,14 @@ export class Table<Row extends TableRow> {
   }
 
   view(options: ViewOptions<Row> = {}): TableView<Row> {
-    let rows = this.rows;
+    let rows = this.#rowArray();
 
     if (options.filter) {
       rows = rows.filter(options.filter);
     }
 
     if (options.sort) {
-      rows = [...rows].sort(options.sort);
+      rows = rows.sort(options.sort);
     }
 
     return { rows, count: rows.length };
@@ -105,6 +109,7 @@ export interface InventoryStats {
 
 const EMPTY_COUNT = 0;
 const ONE_ITEM = 1;
+export const LOW_STOCK_THRESHOLD = 5;
 
 export class Inventory {
   readonly #table = createTable<InventoryItem>();
@@ -115,10 +120,11 @@ export class Inventory {
 
   get stats(): InventoryStats {
     const categories = new Map<InventoryCategory, number>();
+    const rows = this.rows;
     let inventoryValue = 0;
     let lowStockCount = 0;
 
-    for (const item of this.rows) {
+    for (const item of rows) {
       categories.set(
         item.category,
         (categories.get(item.category) ?? EMPTY_COUNT) + ONE_ITEM,
@@ -134,7 +140,7 @@ export class Inventory {
       categories,
       inventoryValue,
       lowStockCount,
-      totalItems: this.rows.length,
+      totalItems: rows.length,
     };
   }
 
@@ -195,8 +201,6 @@ export function createInventory(
 
   return inventory;
 }
-
-const LOW_STOCK_THRESHOLD = 5;
 
 function matchesInventoryFilters(
   item: InventoryItem,
