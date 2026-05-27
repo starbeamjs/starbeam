@@ -14,7 +14,7 @@
     "@fontsource/geist-sans": "^5.2.5",
     "@starbeam/preact": "workspace:^",
     "@starbeam-demos/table-core": "workspace:*",
-    "preact": "^10.29.1",
+    "preact": "10.29.1",
     "vite": "^8.0.8"
   }
 }

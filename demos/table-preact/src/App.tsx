@@ -3,6 +3,7 @@ import type {
   InventoryItem,
   InventoryViewOptions,
 } from "@starbeam-demos/table-core";
+import { LOW_STOCK_THRESHOLD } from "@starbeam-demos/table-core";
 import type { VNode } from "preact";
 import { useState } from "preact/hooks";
 
@@ -27,7 +28,7 @@ type SortMode = NonNullable<InventoryViewOptions["sort"]>;
 
 const NO_ITEMS = 0;
 const ONE_ITEM = 1;
-const LOW_STOCK_THRESHOLD = 5;
+let nextCustomItemId = 1;
 
 export function App(): VNode {
   const [category, setCategory] = useState<CategoryFilter>("all");
@@ -51,8 +52,7 @@ export function App(): VNode {
       return;
     }
 
-    const slug = name.toLowerCase().replaceAll(/[^a-z0-9]+/gu, "-");
-    const id = `${slug}-${Date.now()}`;
+    const id = createInventoryId(name);
 
     inventory.add({
       id,
@@ -210,6 +210,12 @@ export function App(): VNode {
       </section>
     </main>
   );
+}
+
+function createInventoryId(name: string): string {
+  const slug = name.toLowerCase().replaceAll(/[^a-z0-9]+/gu, "-");
+
+  return `${slug}-${nextCustomItemId++}`;
 }
 
 function InventoryRow({ item }: { readonly item: InventoryItem }): VNode {
