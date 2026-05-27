@@ -2,10 +2,12 @@
 import "@fontsource/geist-sans";
 import "@starbeam-demos/table-react/src/styles.css";
 
+import { Code } from "astro-expressive-code/components";
 import PreactInventoryDemo from "../../components/PreactInventoryDemo";
 import ReactInventoryDemo from "../../components/ReactInventoryDemo";
 import StarMark from "../../components/StarMark.astro";
 import "../../styles/tokens.css";
+import inventoryModelSource from "../../../../../demos/table-core/src/table.ts?raw";
 ---
 
 <html lang="en">
@@ -37,44 +39,169 @@ import "../../styles/tokens.css";
       <p class="docs-demo-label">Embedded demos</p>
       <h1 id="demo-heading">One table model, multiple framework edges.</h1>
       <p>
-        Both demos below use the same framework-neutral
-        <code>@starbeam-demos/table-core</code> inventory model. The React shell
-        uses <code>useReactive()</code>; the Preact shell installs the adapter
-        once and reads the same model directly during render.
+        Use the tabs below to switch between framework shells. Each tab renders
+        a different adapter boundary against the same framework-neutral
+        <code>@starbeam-demos/table-core</code> inventory model.
       </p>
     </section>
 
-    <section class="docs-demo-section" aria-labelledby="react-demo-heading">
+    <details class="universal-model">
+      <summary>
+        <span>
+          <span class="docs-demo-label">Universal model</span>
+          <strong>Show the shared table code</strong>
+        </span>
+        <span class="summary-hint">
+          React, Preact, and future shells import this package.
+        </span>
+      </summary>
+      <div class="universal-model__body">
+        <p>
+          This is ordinary TypeScript backed by Starbeam collections. The table
+          owns the reactive map; each framework shell only chooses how reads get
+          connected to rendering.
+        </p>
+        <Code
+          code={inventoryModelSource}
+          lang="ts"
+          title="demos/table-core/src/table.ts"
+          mark={["19-87", "114-183", "205-238"]}
+        />
+      </div>
+    </details>
+
+    <section class="docs-demo-tabs-section" aria-labelledby="framework-demo-heading">
       <div class="docs-demo-heading-row">
         <div>
-          <p class="docs-demo-label">React</p>
-          <h2 id="react-demo-heading">React shell</h2>
+          <p class="docs-demo-label">Framework shells</p>
+          <h2 id="framework-demo-heading">Same model, different adapter.</h2>
         </div>
-        <a
-          class="docs-demo-link"
-          href="https://github.com/starbeamjs/starbeam/tree/main/demos/table-react"
-        >
-          View source
-        </a>
       </div>
-      <ReactInventoryDemo client:only="react" />
+
+      <div class="demo-tabs" data-demo-tabs>
+        <div class="demo-tab-list" role="tablist" aria-label="Framework demos">
+          <button
+            id="react-demo-tab"
+            class="demo-tab is-active"
+            type="button"
+            role="tab"
+            aria-selected="true"
+            aria-controls="react-demo-panel"
+            data-demo-tab="react"
+          >
+            <span>React</span>
+            <strong><code>useReactive()</code> render reads</strong>
+          </button>
+          <button
+            id="preact-demo-tab"
+            class="demo-tab"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="preact-demo-panel"
+            tabindex="-1"
+            data-demo-tab="preact"
+          >
+            <span>Preact</span>
+            <strong>Direct render reads after <code>install()</code></strong>
+          </button>
+        </div>
+
+        <section
+          id="react-demo-panel"
+          class="docs-demo-panel is-active"
+          role="tabpanel"
+          aria-labelledby="react-demo-tab"
+          data-demo-panel="react"
+        >
+          <div class="demo-panel-header">
+            <p>
+              The React shell wraps the table read in <code>useReactive()</code>
+              and keeps mutations in event handlers.
+            </p>
+            <a
+              class="docs-demo-link"
+              href="https://github.com/starbeamjs/starbeam/tree/main/demos/table-react"
+            >
+              View source
+            </a>
+          </div>
+          <ReactInventoryDemo client:only="react" />
+        </section>
+
+        <section
+          id="preact-demo-panel"
+          class="docs-demo-panel"
+          role="tabpanel"
+          aria-labelledby="preact-demo-tab"
+          data-demo-panel="preact"
+          hidden
+        >
+          <div class="demo-panel-header">
+            <p>
+              The Preact shell installs <code>@starbeam/preact</code> once, then
+              reads the table directly while rendering.
+            </p>
+            <a
+              class="docs-demo-link"
+              href="https://github.com/starbeamjs/starbeam/tree/main/demos/table-preact"
+            >
+              View source
+            </a>
+          </div>
+          <PreactInventoryDemo client:only="preact" />
+        </section>
+      </div>
     </section>
 
-    <section class="docs-demo-section" aria-labelledby="preact-demo-heading">
-      <div class="docs-demo-heading-row">
-        <div>
-          <p class="docs-demo-label">Preact</p>
-          <h2 id="preact-demo-heading">Preact shell</h2>
-        </div>
-        <a
-          class="docs-demo-link"
-          href="https://github.com/starbeamjs/starbeam/tree/main/demos/table-preact"
-        >
-          View source
-        </a>
-      </div>
-      <PreactInventoryDemo client:only="preact" />
-    </section>
+    <script>
+      for (const tabSet of document.querySelectorAll("[data-demo-tabs]")) {
+        const tabs = [
+          ...tabSet.querySelectorAll<HTMLButtonElement>("[data-demo-tab]"),
+        ];
+        const panels = [
+          ...tabSet.querySelectorAll<HTMLElement>("[data-demo-panel]"),
+        ];
+
+        function selectTab(tab: HTMLButtonElement): void {
+          const target = tab.getAttribute("data-demo-tab");
+
+          for (const currentTab of tabs) {
+            const isSelected = currentTab === tab;
+            currentTab.classList.toggle("is-active", isSelected);
+            currentTab.setAttribute("aria-selected", String(isSelected));
+            currentTab.tabIndex = isSelected ? 0 : -1;
+          }
+
+          for (const panel of panels) {
+            const isSelected = panel.getAttribute("data-demo-panel") === target;
+            panel.classList.toggle("is-active", isSelected);
+            panel.hidden = !isSelected;
+          }
+        }
+
+        for (const tab of tabs) {
+          tab.addEventListener("click", () => selectTab(tab));
+
+          tab.addEventListener("keydown", (event) => {
+            if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
+              return;
+            }
+
+            event.preventDefault();
+
+            const offset = event.key === "ArrowRight" ? 1 : -1;
+            const nextIndex = (tabs.indexOf(tab) + offset + tabs.length) % tabs.length;
+            const nextTab = tabs[nextIndex];
+
+            if (nextTab) {
+              nextTab.focus();
+              selectTab(nextTab);
+            }
+          });
+        }
+      }
+    </script>
   </body>
 </html>
 
@@ -85,7 +212,8 @@ import "../../styles/tokens.css";
 
   .docs-demo-topbar,
   .docs-demo-intro,
-  .docs-demo-section {
+  .docs-demo-tabs-section,
+  .universal-model {
     margin-inline: auto;
     width: min(88rem, calc(100vw - clamp(2rem, 5vw, 4rem)));
   }
@@ -173,7 +301,64 @@ import "../../styles/tokens.css";
     padding: 0.1rem 0.24rem;
   }
 
-  .docs-demo-section {
+  .universal-model {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-block-end: clamp(2rem, 5vw, 4rem);
+    overflow: hidden;
+  }
+
+  .universal-model summary {
+    align-items: center;
+    cursor: pointer;
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    padding: var(--space-4);
+  }
+
+  .universal-model summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .universal-model summary strong {
+    color: var(--ink);
+    display: block;
+    font-size: clamp(1.1rem, 2vw, 1.35rem);
+    letter-spacing: -0.02em;
+  }
+
+  .summary-hint,
+  .universal-model__body p,
+  .demo-panel-header p {
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .summary-hint {
+    font-weight: 700;
+    text-align: right;
+  }
+
+  .universal-model__body {
+    border-top: 1px solid var(--line);
+    padding: var(--space-4);
+  }
+
+  .universal-model__body p {
+    margin-block: 0 var(--space-4);
+    max-width: 54rem;
+  }
+
+  .universal-model :global(.expressive-code) {
+    margin: 0;
+    max-height: 34rem;
+    overflow: auto;
+  }
+
+  .docs-demo-tabs-section {
     padding-block-end: clamp(3rem, 6vw, 5rem);
   }
 
@@ -192,7 +377,79 @@ import "../../styles/tokens.css";
     margin: 0;
   }
 
-  .docs-demo-section :global(.shell) {
+  .demo-tab-list {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    display: grid;
+    gap: var(--space-2);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-block: var(--space-4);
+    padding: var(--space-2);
+  }
+
+  .demo-tab {
+    align-items: start;
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    display: grid;
+    gap: var(--space-1);
+    justify-content: stretch;
+    min-height: 4.6rem;
+    text-align: left;
+  }
+
+  .demo-tab span {
+    color: var(--green);
+    font-size: 0.76rem;
+    font-weight: 850;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .demo-tab strong {
+    color: var(--ink);
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+
+  .demo-tab.is-active {
+    background: var(--green);
+    border-color: var(--green);
+    color: white;
+  }
+
+  .demo-tab.is-active span,
+  .demo-tab.is-active strong,
+  .demo-tab.is-active code {
+    color: white;
+  }
+
+  .demo-tab.is-active code {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+
+  .docs-demo-panel[hidden] {
+    display: none;
+  }
+
+  .demo-panel-header {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    margin-block-end: var(--space-4);
+  }
+
+  .demo-panel-header p {
+    margin: 0;
+    max-width: 46rem;
+  }
+
+  .docs-demo-panel :global(.shell) {
     margin-inline: 0;
     max-width: none;
     padding: 0;
@@ -200,9 +457,19 @@ import "../../styles/tokens.css";
 
   @media (max-width: 760px) {
     .docs-demo-topbar,
-    .docs-demo-heading-row {
+    .docs-demo-heading-row,
+    .demo-panel-header,
+    .universal-model summary {
       align-items: flex-start;
       flex-direction: column;
+    }
+
+    .demo-tab-list {
+      grid-template-columns: 1fr;
+    }
+
+    .summary-hint {
+      text-align: left;
     }
   }
 </style>
