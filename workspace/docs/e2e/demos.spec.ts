@@ -1,6 +1,6 @@
 import { expect, test, type Locator } from "@playwright/test";
 
-test("inventory docs demo routes exercise real React and Preact embeds", async ({
+test("inventory docs demo routes exercise real React, Preact, and Vue embeds", async ({
   page,
 }) => {
   await page.goto("/demos/");
@@ -34,7 +34,7 @@ test("inventory docs demo routes exercise real React and Preact embeds", async (
   ).toBeVisible();
   const precomputedCode = page.locator("[data-precomputed-code]");
 
-  await expect(precomputedCode).toHaveCount(3);
+  await expect(precomputedCode).toHaveCount(4);
   await expect(
     precomputedCode.first().locator(".expressive-code").first(),
   ).toBeAttached();
@@ -81,6 +81,28 @@ test("inventory docs demo routes exercise real React and Preact embeds", async (
   await expect(
     preactPanel.getByRole("link", {
       name: "Open @starbeam-demos/table-preact/src/App.tsx on GitHub",
+    }),
+  ).toBeVisible();
+
+  await page.getByRole("tab", { exact: true, name: "Vue" }).click();
+
+  const vueTab = page.getByRole("tab", { exact: true, name: "Vue" });
+  const vuePanel = page.getByRole("tabpanel", {
+    exact: true,
+    name: "Vue",
+  });
+
+  await expect(vueTab).toHaveAttribute("aria-selected", "true");
+  await expect(vuePanel).toBeVisible();
+  await expect(
+    vuePanel.getByRole("heading", { name: "Reactive inventory table" }),
+  ).toBeVisible();
+
+  await addInventoryItem(vuePanel, "Smoke Vue Lentils");
+  await openSourceDisclosure(vuePanel, "Vue shell");
+  await expect(
+    vuePanel.getByRole("link", {
+      name: "Open @starbeam-demos/table-vue/src/App.vue on GitHub",
     }),
   ).toBeVisible();
 });

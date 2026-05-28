@@ -1,6 +1,7 @@
 import preact from "@astrojs/preact";
 import react from "@astrojs/react";
 import starlight from "@astrojs/starlight";
+import vue from "@astrojs/vue";
 import { defineConfig } from "astro/config";
 
 export default defineConfig({
@@ -21,6 +22,7 @@ export default defineConfig({
         "../../demos/table-preact/src/**/*.tsx",
       ],
     }),
+    vue(),
     starlight({
       title: "Starbeam",
       description: "Starbeam is reactivity that stays JavaScript.",

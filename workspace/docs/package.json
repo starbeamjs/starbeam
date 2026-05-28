@@ -17,12 +17,15 @@
     "@astrojs/preact": "^5.1.3",
     "@astrojs/react": "^5.0.5",
     "@astrojs/starlight": "^0.35.3",
+    "@astrojs/vue": "^5.1.4",
     "@fontsource/geist-sans": "^5.2.5",
     "@lucide/astro": "^1.17.0",
     "@starbeam-demos/table-core": "workspace:*",
     "@starbeam-demos/table-preact": "workspace:*",
     "@starbeam-demos/table-react": "workspace:*",
+    "@starbeam-demos/table-vue": "workspace:*",
     "@starbeam/preact": "workspace:^",
+    "@starbeam/vue": "workspace:^",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "astro": "^5.18.1",
@@ -31,7 +34,8 @@
     "preact": "10.29.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
-    "typescript": "$typescript"
+    "typescript": "$typescript",
+    "vue": "^3.5.32"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0"

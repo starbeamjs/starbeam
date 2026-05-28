@@ -7,11 +7,13 @@ import PreactInventoryDemo from "../../components/PreactInventoryDemo";
 import ReactInventoryDemo from "../../components/ReactInventoryDemo";
 import SourceDisclosure from "../../components/SourceDisclosure.astro";
 import StarMark from "../../components/StarMark.astro";
+import VueInventoryDemo from "../../components/VueInventoryDemo";
 import "../../styles/tokens.css";
 import inventorySourceCards from "../../generated/inventory-source-cards.json";
 import inventoryModelSource from "@starbeam-demos/table-core/src/table.ts?raw";
 import reactShellSource from "@starbeam-demos/table-react/src/App.tsx?raw";
 import preactShellSource from "@starbeam-demos/table-preact/src/App.tsx?raw";
+import vueShellSource from "@starbeam-demos/table-vue/src/App.vue?raw";
 
 const SOURCE_URLS = {
   model:
@@ -20,6 +22,8 @@ const SOURCE_URLS = {
     "https://github.com/starbeamjs/starbeam/blob/main/demos/table-react/src/App.tsx",
   preact:
     "https://github.com/starbeamjs/starbeam/blob/main/demos/table-preact/src/App.tsx",
+  vue:
+    "https://github.com/starbeamjs/starbeam/blob/main/demos/table-vue/src/App.vue",
 } as const;
 ---
 
@@ -30,7 +34,7 @@ const SOURCE_URLS = {
     <title>Inventory table demo · Starbeam</title>
     <meta
       name="description"
-      content="A Starbeam inventory table demo embedded in the docs with React and Preact shells."
+      content="A Starbeam inventory table demo embedded in the docs with React, Preact, and Vue shells."
     />
   </head>
   <body>
@@ -63,7 +67,7 @@ const SOURCE_URLS = {
         label="Shared source"
         title="Table model"
         path="@starbeam-demos/table-core/src/table.ts"
-        hint="React, Preact, and future shells import this package."
+        hint="React, Preact, Vue, and future shells import this package."
       >
         <p>
           Ordinary TypeScript owns the table state. The framework shells only
@@ -115,6 +119,18 @@ const SOURCE_URLS = {
             data-demo-tab="preact"
           >
             <span>Preact</span>
+          </button>
+          <button
+            id="vue-demo-tab"
+            class="demo-tab"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="vue-demo-panel"
+            tabindex="-1"
+            data-demo-tab="vue"
+          >
+            <span>Vue</span>
           </button>
         </div>
 
@@ -181,6 +197,39 @@ const SOURCE_URLS = {
               meta="twoslash"
               renderedHtml={inventorySourceCards.cards.preact.html}
               renderedSourceHash={inventorySourceCards.cards.preact.sourceHash}
+            />
+          </SourceDisclosure>
+        </section>
+
+        <section
+          id="vue-demo-panel"
+          class="docs-demo-panel"
+          role="tabpanel"
+          aria-labelledby="vue-demo-tab"
+          data-demo-panel="vue"
+          hidden
+        >
+          <div class="demo-panel-header">
+            <p>
+              The Vue shell calls <code>useReactive()</code> during setup, then
+              reads the table directly from the template.
+            </p>
+          </div>
+          <VueInventoryDemo client:only="vue" />
+          <SourceDisclosure
+            label="Framework source"
+            title="Vue shell"
+            filename="App.vue"
+          >
+            <DemoSourceCard
+              eyebrow="Vue shell"
+              title="@starbeam-demos/table-vue/src/App.vue"
+              githubUrl={SOURCE_URLS.vue}
+              rawSource={vueShellSource}
+              code={vueShellSource}
+              lang="vue"
+              renderedHtml={inventorySourceCards.cards.vue.html}
+              renderedSourceHash={inventorySourceCards.cards.vue.sourceHash}
             />
           </SourceDisclosure>
         </section>

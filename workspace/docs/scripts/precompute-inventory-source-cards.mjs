@@ -27,6 +27,10 @@ const SOURCES = {
     sourcePath: "demos/table-react/src/App.tsx",
     language: "tsx",
   },
+  vue: {
+    sourcePath: "demos/table-vue/src/App.vue",
+    language: "vue",
+  },
 };
 
 const sourceEntries = await Promise.all(
@@ -114,7 +118,11 @@ for (const [name, source] of sourceEntries) {
   });
   const html = toHtml(renderedGroupAst);
 
-  if (!html.includes("expressive-code") || !html.includes("twoslash-hover")) {
+  if (!html.includes("expressive-code")) {
+    throw new Error(`Expected Expressive Code markup for ${name}`);
+  }
+
+  if (source.language !== "vue" && !html.includes("twoslash-hover")) {
     throw new Error(`Expected Expressive Code and Twoslash markup for ${name}`);
   }
 
