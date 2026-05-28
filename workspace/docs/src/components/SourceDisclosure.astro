@@ -1,0 +1,158 @@
+---
+import { CodeXml, EyeOff } from "@lucide/astro";
+
+interface Props {
+  label: string;
+  title: string;
+  filename?: string;
+  path?: string;
+  hint?: string;
+  open?: boolean;
+}
+
+const { label, title, filename, path, hint, open = false } = Astro.props;
+const sourcePath = filename ?? path;
+---
+
+<details class="source-disclosure" open={open ? true : undefined}>
+  <summary>
+    <span class="source-disclosure__title">
+      <span class="source-disclosure__label">{label}</span>
+      <strong>{title}</strong>
+      {sourcePath && <span class="source-disclosure__path">{sourcePath}</span>}
+    </span>
+    <span class="source-disclosure__meta">
+      {hint && <span class="source-disclosure__hint">{hint}</span>}
+      <span class="source-disclosure__action">
+        <span class="source-disclosure__show">
+          <CodeXml aria-hidden="true" />
+          Show code
+        </span>
+        <span class="source-disclosure__hide">
+          <EyeOff aria-hidden="true" />
+          Hide code
+        </span>
+      </span>
+    </span>
+  </summary>
+  <div class="source-disclosure__body">
+    <slot />
+  </div>
+</details>
+
+<style>
+  .source-disclosure {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .source-disclosure summary {
+    align-items: center;
+    cursor: pointer;
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .source-disclosure summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .source-disclosure__title {
+    display: grid;
+    gap: 0.24rem;
+  }
+
+  .source-disclosure__label {
+    color: var(--green);
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .source-disclosure__title strong {
+    color: var(--ink);
+    display: block;
+    font-size: clamp(1.1rem, 2vw, 1.35rem);
+    letter-spacing: -0.02em;
+  }
+
+  .source-disclosure__path {
+    color: var(--muted);
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas,
+      "Liberation Mono", monospace;
+    font-size: 0.8rem;
+    font-weight: 760;
+  }
+
+  .source-disclosure__meta {
+    align-items: center;
+    display: flex;
+    gap: 0.85rem;
+    justify-content: flex-end;
+  }
+
+  .source-disclosure__hint {
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.6;
+    text-align: right;
+  }
+
+  .source-disclosure__action {
+    align-items: center;
+    background: rgba(54, 113, 68, 0.08);
+    border: 1px solid rgba(54, 113, 68, 0.22);
+    border-radius: 999px;
+    color: var(--green-dark);
+    display: inline-flex;
+    flex: 0 0 auto;
+    font-size: 0.82rem;
+    font-weight: 820;
+    gap: 0.35rem;
+    padding: 0.36rem 0.68rem;
+  }
+
+  .source-disclosure__show,
+  .source-disclosure__hide {
+    align-items: center;
+    display: inline-flex;
+    gap: 0.35rem;
+  }
+
+  .source-disclosure__hide,
+  .source-disclosure[open] .source-disclosure__show {
+    display: none;
+  }
+
+  .source-disclosure[open] .source-disclosure__hide {
+    display: inline-flex;
+  }
+
+  .source-disclosure__action svg {
+    height: 0.95rem;
+    width: 0.95rem;
+  }
+
+  .source-disclosure__body {
+    border-top: 1px solid var(--line);
+    padding: var(--space-3);
+  }
+
+  @media (max-width: 760px) {
+    .source-disclosure summary,
+    .source-disclosure__meta {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .source-disclosure__hint {
+      text-align: left;
+    }
+  }
+</style>

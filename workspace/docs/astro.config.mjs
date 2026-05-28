@@ -70,6 +70,7 @@ export default defineConfig({
         {
           label: "Demos",
           items: [
+            { label: "Overview", link: "/demos/" },
             { label: "Inventory table", link: "/demos/inventory-table/" },
           ],
         },

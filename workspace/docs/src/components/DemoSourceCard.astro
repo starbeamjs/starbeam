@@ -1,0 +1,182 @@
+---
+import { Code } from "astro-expressive-code/components";
+import { createHash } from "node:crypto";
+
+interface Props {
+  eyebrow: string;
+  title?: string;
+  path?: string;
+  githubUrl: string;
+  rawSource: string;
+  code: string;
+  lang: string;
+  meta?: string;
+  renderedHtml?: string;
+  renderedSourceHash?: string;
+}
+
+const GITHUB_ICON_PATH =
+  "M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82A7.67 7.67 0 0 1 8 4.77c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.19 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z";
+
+const {
+  eyebrow,
+  title,
+  path,
+  githubUrl,
+  rawSource,
+  code,
+  lang,
+  meta,
+  renderedHtml,
+  renderedSourceHash,
+} = Astro.props;
+const sourceTitle = title ?? path;
+const canUseRenderedHtml =
+  renderedHtml !== undefined &&
+  renderedSourceHash === createHash("sha256").update(rawSource).digest("hex");
+---
+
+<div class="source-card" data-code-card>
+  <div class="source-card__header">
+    <div>
+      <span class="source-card__eyebrow">{eyebrow}</span>
+      <strong>{sourceTitle}</strong>
+    </div>
+    <div class="source-card__actions">
+      <a
+        class="source-card__github"
+        href={githubUrl}
+        aria-label={`Open ${sourceTitle} on GitHub`}
+      >
+        <svg aria-hidden="true" viewBox="0 0 16 16">
+          <path d={GITHUB_ICON_PATH}></path>
+        </svg>
+      </a>
+      <button class="source-card__copy" type="button" data-copy-code>
+        Copy
+      </button>
+    </div>
+  </div>
+  <textarea data-copy-source hidden readonly>{rawSource}</textarea>
+  {
+    canUseRenderedHtml ? (
+      <div class="source-card__rendered-code" data-precomputed-code set:html={renderedHtml} />
+    ) : (
+      <Code code={code} frame="none" lang={lang} meta={meta} />
+    )
+  }
+</div>
+
+<style>
+  .source-card {
+    background: #f6f7f9;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .source-card__header {
+    align-items: center;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(246, 247, 249, 0.96)),
+      #f6f7f9;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    gap: var(--space-4);
+    justify-content: space-between;
+    padding: 0.68rem 0.85rem;
+  }
+
+  .source-card__eyebrow {
+    color: var(--green);
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 850;
+    letter-spacing: 0.16em;
+    margin-block-end: 0.2rem;
+    text-transform: uppercase;
+  }
+
+  .source-card__header strong {
+    color: var(--ink);
+    display: block;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas,
+      "Liberation Mono", monospace;
+    font-size: 0.82rem;
+    font-weight: 760;
+  }
+
+  .source-card__actions {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    gap: 0.45rem;
+  }
+
+  .source-card__github {
+    align-items: center;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-tight);
+    color: var(--ink);
+    display: inline-flex;
+    height: 1.9rem;
+    justify-content: center;
+    text-decoration: none;
+    width: 1.9rem;
+  }
+
+  .source-card__github:hover {
+    background: rgba(54, 113, 68, 0.08);
+    border-color: rgba(54, 113, 68, 0.28);
+    color: var(--green-dark);
+  }
+
+  .source-card__github svg {
+    display: block;
+    fill: currentColor;
+    height: 0.92rem;
+    width: 0.92rem;
+  }
+
+  .source-card__copy {
+    background: white;
+    border-color: var(--line);
+    box-shadow: none;
+    color: var(--green-dark);
+    flex: 0 0 auto;
+    font-size: 0.78rem;
+    font-weight: 800;
+    min-height: 1.9rem;
+    padding-inline: 0.75rem;
+  }
+
+  .source-card__copy:hover {
+    background: rgba(54, 113, 68, 0.08);
+    border-color: rgba(54, 113, 68, 0.28);
+  }
+
+  .source-card :global(.expressive-code) {
+    margin: 0;
+  }
+
+  .source-card__rendered-code {
+    display: contents;
+  }
+
+  .source-card :global(.expressive-code pre) {
+    max-height: 34rem;
+    overflow: auto;
+  }
+
+  .source-card :global(.expressive-code .copy) {
+    display: none;
+  }
+
+  @media (max-width: 760px) {
+    .source-card__header {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+</style>

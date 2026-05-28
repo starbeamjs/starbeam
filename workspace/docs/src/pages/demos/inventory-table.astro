@@ -2,31 +2,25 @@
 import "@fontsource/geist-sans";
 import "@starbeam-demos/table-react/src/styles.css";
 
-import { Code } from "astro-expressive-code/components";
+import DemoSourceCard from "../../components/DemoSourceCard.astro";
 import PreactInventoryDemo from "../../components/PreactInventoryDemo";
 import ReactInventoryDemo from "../../components/ReactInventoryDemo";
+import SourceDisclosure from "../../components/SourceDisclosure.astro";
 import StarMark from "../../components/StarMark.astro";
 import "../../styles/tokens.css";
+import inventorySourceCards from "../../generated/inventory-source-cards.json";
 import inventoryModelSource from "@starbeam-demos/table-core/src/table.ts?raw";
+import reactShellSource from "@starbeam-demos/table-react/src/App.tsx?raw";
+import preactShellSource from "@starbeam-demos/table-preact/src/App.tsx?raw";
 
-const twoslashInventoryModelSource = [
-  "// @filename: @starbeam/collections.d.ts",
-  'declare module "@starbeam/collections" {',
-  "  export const reactive: {",
-  "    Map<K, V>(description?: string): Map<K, V>;",
-  "  };",
-  "}",
-  "// @filename: demos/table-core/src/table.ts",
-  "// ---cut---",
-  inventoryModelSource,
-  "",
-  "// The framework shells use the same API regardless of renderer.",
-  "const inventory = createInventory();",
-  'const lowStock = inventory.view({ lowStockOnly: true, sort: "stock" });',
-  "//    ^?",
-  "const value = inventory.stats.inventoryValue;",
-  "//    ^?",
-].join("\n");
+const SOURCE_URLS = {
+  model:
+    "https://github.com/starbeamjs/starbeam/blob/main/demos/table-core/src/table.ts",
+  react:
+    "https://github.com/starbeamjs/starbeam/blob/main/demos/table-react/src/App.tsx",
+  preact:
+    "https://github.com/starbeamjs/starbeam/blob/main/demos/table-preact/src/App.tsx",
+} as const;
 ---
 
 <html lang="en">
@@ -64,43 +58,30 @@ const twoslashInventoryModelSource = [
       </p>
     </section>
 
-    <details class="universal-model">
-      <summary>
-        <span>
-          <span class="docs-demo-label">Universal model</span>
-          <strong>Show the shared table code</strong>
-        </span>
-        <span class="summary-hint">
-          React, Preact, and future shells import this package.
-        </span>
-      </summary>
-      <div class="universal-model__body">
+    <section class="shared-source" aria-label="Shared table model source">
+      <SourceDisclosure
+        label="Shared source"
+        title="Table model"
+        path="@starbeam-demos/table-core/src/table.ts"
+        hint="React, Preact, and future shells import this package."
+      >
         <p>
-          This is ordinary TypeScript backed by Starbeam collections. The table
-          owns the reactive map; each framework shell only chooses how reads get
-          connected to rendering.
+          Ordinary TypeScript owns the table state. The framework shells only
+          decide how reads connect to rendering.
         </p>
-        <div class="model-code-card" data-code-card>
-          <div class="model-code-card__header">
-            <div>
-              <span class="model-code-card__eyebrow">Twoslash TypeScript</span>
-              <strong>@starbeam-demos/table-core/src/table.ts</strong>
-            </div>
-            <button class="model-code-card__copy" type="button" data-copy-code>
-              Copy code
-            </button>
-          </div>
-          <textarea data-copy-source hidden readonly>{inventoryModelSource}</textarea>
-          <Code
-            code={twoslashInventoryModelSource}
-            frame="none"
-            lang="ts"
-            meta="twoslash"
-            mark={["19-87", "114-183", "205-238"]}
-          />
-        </div>
-      </div>
-    </details>
+        <DemoSourceCard
+          eyebrow="Universal source"
+          title="@starbeam-demos/table-core/src/table.ts"
+          githubUrl={SOURCE_URLS.model}
+          rawSource={inventoryModelSource}
+          code={inventoryModelSource}
+          lang="ts"
+          meta="twoslash"
+          renderedHtml={inventorySourceCards.cards.model.html}
+          renderedSourceHash={inventorySourceCards.cards.model.sourceHash}
+        />
+      </SourceDisclosure>
+    </section>
 
     <section class="docs-demo-tabs-section" aria-labelledby="framework-demo-heading">
       <div class="docs-demo-heading-row">
@@ -122,7 +103,6 @@ const twoslashInventoryModelSource = [
             data-demo-tab="react"
           >
             <span>React</span>
-            <strong><code>useReactive()</code> render reads</strong>
           </button>
           <button
             id="preact-demo-tab"
@@ -135,7 +115,6 @@ const twoslashInventoryModelSource = [
             data-demo-tab="preact"
           >
             <span>Preact</span>
-            <strong>Direct render reads after <code>install()</code></strong>
           </button>
         </div>
 
@@ -151,14 +130,25 @@ const twoslashInventoryModelSource = [
               The React shell wraps the table read in <code>useReactive()</code>
               and keeps mutations in event handlers.
             </p>
-            <a
-              class="docs-demo-link"
-              href="https://github.com/starbeamjs/starbeam/tree/main/demos/table-react"
-            >
-              View source
-            </a>
           </div>
           <ReactInventoryDemo client:only="react" />
+          <SourceDisclosure
+            label="Framework source"
+            title="React shell"
+            filename="App.tsx"
+          >
+            <DemoSourceCard
+              eyebrow="React shell"
+              title="@starbeam-demos/table-react/src/App.tsx"
+              githubUrl={SOURCE_URLS.react}
+              rawSource={reactShellSource}
+              code={reactShellSource}
+              lang="tsx"
+              meta="twoslash"
+              renderedHtml={inventorySourceCards.cards.react.html}
+              renderedSourceHash={inventorySourceCards.cards.react.sourceHash}
+            />
+          </SourceDisclosure>
         </section>
 
         <section
@@ -174,14 +164,25 @@ const twoslashInventoryModelSource = [
               The Preact shell installs <code>@starbeam/preact</code> once, then
               reads the table directly while rendering.
             </p>
-            <a
-              class="docs-demo-link"
-              href="https://github.com/starbeamjs/starbeam/tree/main/demos/table-preact"
-            >
-              View source
-            </a>
           </div>
           <PreactInventoryDemo client:only="preact" />
+          <SourceDisclosure
+            label="Framework source"
+            title="Preact shell"
+            filename="App.tsx"
+          >
+            <DemoSourceCard
+              eyebrow="Preact shell"
+              title="@starbeam-demos/table-preact/src/App.tsx"
+              githubUrl={SOURCE_URLS.preact}
+              rawSource={preactShellSource}
+              code={preactShellSource}
+              lang="tsx"
+              meta="twoslash"
+              renderedHtml={inventorySourceCards.cards.preact.html}
+              renderedSourceHash={inventorySourceCards.cards.preact.sourceHash}
+            />
+          </SourceDisclosure>
         </section>
       </div>
     </section>
@@ -247,7 +248,7 @@ const twoslashInventoryModelSource = [
             return;
           }
 
-          const readyText = button.textContent ?? "Copy code";
+          const readyText = button.textContent ?? "Copy";
 
           try {
             await navigator.clipboard.writeText(code);
@@ -273,7 +274,7 @@ const twoslashInventoryModelSource = [
   .docs-demo-topbar,
   .docs-demo-intro,
   .docs-demo-tabs-section,
-  .universal-model {
+  .shared-source {
     margin-inline: auto;
     width: min(88rem, calc(100vw - clamp(2rem, 5vw, 4rem)));
   }
@@ -361,120 +362,19 @@ const twoslashInventoryModelSource = [
     padding: 0.1rem 0.24rem;
   }
 
-  .universal-model {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
+  .shared-source {
     margin-block-end: clamp(2rem, 5vw, 4rem);
-    overflow: hidden;
   }
 
-  .universal-model summary {
-    align-items: center;
-    cursor: pointer;
-    display: flex;
-    gap: 1rem;
-    justify-content: space-between;
-    padding: var(--space-4);
-  }
-
-  .universal-model summary::-webkit-details-marker {
-    display: none;
-  }
-
-  .universal-model summary strong {
-    color: var(--ink);
-    display: block;
-    font-size: clamp(1.1rem, 2vw, 1.35rem);
-    letter-spacing: -0.02em;
-  }
-
-  .summary-hint,
-  .universal-model__body p,
+  .shared-source p,
   .demo-panel-header p {
     color: var(--muted);
     line-height: 1.6;
   }
 
-  .summary-hint {
-    font-weight: 700;
-    text-align: right;
-  }
-
-  .universal-model__body {
-    border-top: 1px solid var(--line);
-    padding: var(--space-4);
-  }
-
-  .universal-model__body p {
-    margin-block: 0 var(--space-4);
+  .shared-source p {
+    margin-block: 0 var(--space-3);
     max-width: 54rem;
-  }
-
-  .model-code-card {
-    background: #f6f7f9;
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    overflow: hidden;
-  }
-
-  .model-code-card__header {
-    align-items: center;
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(246, 247, 249, 0.96)),
-      #f6f7f9;
-    border-bottom: 1px solid var(--line);
-    display: flex;
-    gap: var(--space-4);
-    justify-content: space-between;
-    padding: 0.85rem 1rem;
-  }
-
-  .model-code-card__eyebrow {
-    color: var(--green);
-    display: block;
-    font-size: 0.72rem;
-    font-weight: 850;
-    letter-spacing: 0.16em;
-    margin-block-end: 0.2rem;
-    text-transform: uppercase;
-  }
-
-  .model-code-card__header strong {
-    color: var(--ink);
-    display: block;
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas,
-      "Liberation Mono", monospace;
-    font-size: 0.9rem;
-    font-weight: 760;
-  }
-
-  .model-code-card__copy {
-    background: var(--green);
-    border-color: var(--green);
-    box-shadow: none;
-    color: white;
-    flex: 0 0 auto;
-    font-size: 0.82rem;
-    font-weight: 800;
-    min-height: 2.2rem;
-    padding-inline: 0.85rem;
-  }
-
-  .model-code-card__copy:hover {
-    background: var(--green-dark);
-    border-color: var(--green-dark);
-  }
-
-  .model-code-card :global(.expressive-code) {
-    margin: 0;
-  }
-
-  .model-code-card :global(.expressive-code pre) {
-    max-height: 34rem;
-    overflow: auto;
   }
 
   .docs-demo-tabs-section {
@@ -497,58 +397,41 @@ const twoslashInventoryModelSource = [
   }
 
   .demo-tab-list {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    display: grid;
-    gap: var(--space-2);
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    margin-block: var(--space-4);
-    padding: var(--space-2);
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    gap: 1.25rem;
+    margin-block: var(--space-3) var(--space-4);
+    padding: 0;
   }
 
   .demo-tab {
-    align-items: start;
+    align-items: center;
     background: transparent;
-    border-color: transparent;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
     box-shadow: none;
-    display: grid;
-    gap: var(--space-1);
-    justify-content: stretch;
-    min-height: 4.6rem;
-    text-align: left;
+    color: var(--muted);
+    display: inline-flex;
+    min-height: 0;
+    padding: 0.62rem 0.1rem 0.72rem;
+  }
+
+  .demo-tab:hover {
+    color: var(--ink);
   }
 
   .demo-tab span {
-    color: var(--green);
-    font-size: 0.76rem;
-    font-weight: 850;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-  }
-
-  .demo-tab strong {
-    color: var(--ink);
-    font-size: 1rem;
-    line-height: 1.35;
+    color: inherit;
+    font-size: 0.96rem;
+    font-weight: 820;
   }
 
   .demo-tab.is-active {
-    background: var(--green);
-    border-color: var(--green);
-    color: white;
-  }
-
-  .demo-tab.is-active span,
-  .demo-tab.is-active strong,
-  .demo-tab.is-active code {
-    color: white;
-  }
-
-  .demo-tab.is-active code {
-    background: rgba(255, 255, 255, 0.14);
-    border-color: rgba(255, 255, 255, 0.18);
+    background: transparent;
+    border-bottom-color: var(--green);
+    color: var(--green-dark);
   }
 
   .docs-demo-panel[hidden] {
@@ -574,22 +457,23 @@ const twoslashInventoryModelSource = [
     padding: 0;
   }
 
+  .docs-demo-panel :global(.source-disclosure) {
+    margin-block-start: var(--space-3);
+  }
+
   @media (max-width: 760px) {
     .docs-demo-topbar,
     .docs-demo-heading-row,
-    .demo-panel-header,
-    .model-code-card__header,
-    .universal-model summary {
+    .demo-panel-header {
       align-items: flex-start;
       flex-direction: column;
     }
 
     .demo-tab-list {
-      grid-template-columns: 1fr;
+      align-items: stretch;
+      flex-direction: column;
+      gap: 0;
     }
 
-    .summary-hint {
-      text-align: left;
-    }
   }
 </style>

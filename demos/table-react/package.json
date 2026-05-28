@@ -8,6 +8,7 @@
       "types": "./src/App.tsx",
       "default": "./src/App.tsx"
     },
+    "./src/App.tsx": "./src/App.tsx",
     "./src/styles.css": "./src/styles.css"
   },
   "scripts": {

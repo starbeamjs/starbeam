@@ -1,0 +1,235 @@
+---
+import "@fontsource/geist-sans";
+
+import StarMark from "../../components/StarMark.astro";
+import "../../styles/tokens.css";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Demos · Starbeam</title>
+    <meta
+      name="description"
+      content="Playable Starbeam demos that show one reactive model working across framework adapters."
+    />
+  </head>
+  <body>
+    <header class="demo-index-topbar">
+      <a class="demo-index-brand" href="/" aria-label="Starbeam home">
+        <StarMark class="demo-index-brand__mark" />
+        <span>Starbeam</span>
+      </a>
+      <nav aria-label="Demo index navigation">
+        <a href="/start/introduction/">Docs</a>
+        <a href="/frameworks/overview/">Frameworks</a>
+        <a href="https://github.com/starbeamjs/starbeam/tree/main/demos">
+          Source
+        </a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="demo-index-hero" aria-labelledby="demo-index-heading">
+        <p class="demo-index-label">Demos</p>
+        <h1 id="demo-index-heading">Playable examples, real framework edges.</h1>
+        <p>
+          Each demo starts with a framework-neutral Starbeam model, then shows how
+          different adapters connect that same model to rendering and lifecycle.
+        </p>
+      </section>
+
+      <section class="demo-index-list" aria-labelledby="available-demos-heading">
+        <div class="demo-index-list__header">
+          <p class="demo-index-label">Available now</p>
+          <h2 id="available-demos-heading">Start with the inventory table.</h2>
+        </div>
+
+        <a class="demo-card" href="/demos/inventory-table/">
+          <span class="demo-card__status">React + Preact</span>
+          <h3>Inventory table</h3>
+          <p>
+            Edit rows, filter stock, add items, and watch derived table state stay
+            current through the same shared Starbeam model.
+          </p>
+          <span class="demo-card__cta">Open demo</span>
+        </a>
+      </section>
+    </main>
+  </body>
+</html>
+
+<style>
+  body {
+    background:
+      radial-gradient(circle at 90% 4%, rgb(0 194 179 / 12%), transparent 30rem),
+      radial-gradient(circle at 0% 18%, rgb(255 219 77 / 12%), transparent 24rem),
+      linear-gradient(180deg, #ffffff 0%, var(--starbeam-page) 78%, #eefafa 100%);
+    color: var(--starbeam-text);
+    font-family: var(--starbeam-font-ui);
+    margin: 0;
+    min-height: 100vh;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  .demo-index-topbar,
+  main {
+    margin-inline: auto;
+    width: min(88rem, calc(100vw - clamp(2rem, 5vw, 4rem)));
+  }
+
+  .demo-index-topbar {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    padding-block: clamp(1rem, 3vw, 1.6rem) 0;
+  }
+
+  .demo-index-brand {
+    align-items: center;
+    color: var(--starbeam-text);
+    display: inline-flex;
+    font-size: 0.95rem;
+    font-weight: 900;
+    gap: 0.75rem;
+    letter-spacing: 0.34em;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  .demo-index-brand__mark {
+    --star-mark-size: 2.35rem;
+  }
+
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(1rem, 2vw, 1.5rem);
+  }
+
+  nav a {
+    color: var(--starbeam-link);
+    font-weight: 760;
+    text-decoration: none;
+  }
+
+  nav a:hover {
+    color: var(--starbeam-focus);
+  }
+
+  .demo-index-hero {
+    padding-block: clamp(4rem, 9vw, 7rem) clamp(2rem, 5vw, 4rem);
+  }
+
+  .demo-index-label {
+    color: var(--starbeam-link);
+    font-size: 0.8rem;
+    font-weight: 850;
+    letter-spacing: 0.2em;
+    margin: 0 0 0.75rem;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    color: var(--starbeam-text);
+    font-family: var(--starbeam-font-display);
+    font-size: clamp(3.2rem, 7vw, 6.75rem);
+    font-weight: 400;
+    letter-spacing: -0.04em;
+    line-height: 0.98;
+    margin: 0;
+    max-width: 13ch;
+  }
+
+  .demo-index-hero > p:last-child {
+    color: var(--starbeam-muted);
+    font-size: clamp(1.05rem, 1.5vw, 1.22rem);
+    line-height: 1.7;
+    margin-block: 1.4rem 0;
+    max-width: 50rem;
+  }
+
+  .demo-index-list {
+    padding-block-end: clamp(4rem, 8vw, 6rem);
+  }
+
+  .demo-index-list__header {
+    margin-block-end: var(--space-4, 2rem);
+  }
+
+  h2 {
+    color: var(--starbeam-text);
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    letter-spacing: -0.03em;
+    margin: 0;
+  }
+
+  .demo-card {
+    background: var(--starbeam-card);
+    border: 1px solid var(--starbeam-docs-panel-border);
+    border-radius: var(--starbeam-radius-lg);
+    box-shadow: var(--starbeam-shadow-card);
+    color: inherit;
+    display: block;
+    max-width: 42rem;
+    padding: clamp(1.5rem, 4vw, 2.25rem);
+    text-decoration: none;
+    transition:
+      border-color 160ms ease,
+      box-shadow 160ms ease,
+      transform 160ms ease;
+  }
+
+  .demo-card:hover {
+    border-color: rgb(0 194 179 / 36%);
+    box-shadow: var(--starbeam-shadow-poster);
+    transform: translateY(-0.12rem);
+  }
+
+  .demo-card__status {
+    background: var(--starbeam-docs-accent-soft);
+    border: 1px solid rgb(0 194 179 / 20%);
+    border-radius: 999px;
+    color: var(--starbeam-link);
+    display: inline-flex;
+    font-size: 0.78rem;
+    font-weight: 850;
+    letter-spacing: 0.12em;
+    padding: 0.35rem 0.7rem;
+    text-transform: uppercase;
+  }
+
+  .demo-card h3 {
+    color: var(--starbeam-text);
+    font-size: clamp(1.65rem, 3vw, 2.4rem);
+    letter-spacing: -0.035em;
+    margin-block: 1.25rem 0;
+  }
+
+  .demo-card p {
+    color: var(--starbeam-muted);
+    font-size: 1rem;
+    line-height: 1.65;
+    margin-block: 0.85rem 1.35rem;
+    max-width: 34rem;
+  }
+
+  .demo-card__cta {
+    color: var(--starbeam-link);
+    font-weight: 850;
+  }
+
+  @media (max-width: 700px) {
+    .demo-index-topbar {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+</style>

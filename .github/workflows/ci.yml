@@ -93,3 +93,13 @@ jobs:
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - run: ./node_modules/.bin/turbo run test:lint --continue
+
+  docs_e2e:
+    name: "Docs E2E"
+    runs-on: "ubuntu-latest"
+    needs: ["install_dependencies"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: wyvox/action-setup-pnpm@v3
+      - run: pnpm --filter @starbeam-workspace/docs exec playwright install --with-deps chromium
+      - run: pnpm --filter @starbeam-workspace/docs test:e2e
