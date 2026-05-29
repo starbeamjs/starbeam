@@ -1,0 +1,10 @@
+{
+  "extends": "../../.config/tsconfig/tsconfig.shared.json",
+  "compilerOptions": {
+    "composite": true,
+    "types": ["../../packages/env.d.ts"],
+    "noEmit": true
+  },
+  "include": ["src/**/*", "src/**/*.svelte"],
+  "references": [{ "path": "../table-core/tsconfig.json" }]
+}

@@ -1,0 +1,30 @@
+{
+  "private": true,
+  "name": "@starbeam-demos/table-svelte",
+  "type": "module",
+  "version": "1.0.0",
+  "exports": {
+    "./src/App.js": {
+      "types": "./src/App.ts",
+      "default": "./src/App.ts"
+    },
+    "./src/App.svelte": "./src/App.svelte",
+    "./src/App.ts": "./src/App.ts",
+    "./src/styles.css": "./src/styles.css"
+  },
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite --host 0.0.0.0",
+    "preview": "vite preview --host 0.0.0.0",
+    "test:lint": "eslint . --max-warnings 0",
+    "test:types": "tsc -b"
+  },
+  "dependencies": {
+    "@fontsource/geist-sans": "^5.2.5",
+    "@starbeam/svelte": "workspace:^",
+    "@starbeam-demos/table-core": "workspace:*",
+    "@sveltejs/vite-plugin-svelte": "^7.1.1",
+    "svelte": "^5.55.5",
+    "vite": "^8.0.8"
+  }
+}

@@ -1,6 +1,6 @@
 import { expect, test, type Locator } from "@playwright/test";
 
-test("inventory docs demo routes exercise real React, Preact, and Vue embeds", async ({
+test("inventory docs demo routes exercise real React, Preact, Vue, and Svelte embeds", async ({
   page,
 }) => {
   await page.goto("/demos/");
@@ -34,7 +34,7 @@ test("inventory docs demo routes exercise real React, Preact, and Vue embeds", a
   ).toBeVisible();
   const precomputedCode = page.locator("[data-precomputed-code]");
 
-  await expect(precomputedCode).toHaveCount(4);
+  await expect(precomputedCode).toHaveCount(5);
   await expect(
     precomputedCode.first().locator(".expressive-code").first(),
   ).toBeAttached();
@@ -103,6 +103,28 @@ test("inventory docs demo routes exercise real React, Preact, and Vue embeds", a
   await expect(
     vuePanel.getByRole("link", {
       name: "Open @starbeam-demos/table-vue/src/App.vue on GitHub",
+    }),
+  ).toBeVisible();
+
+  await page.getByRole("tab", { exact: true, name: "Svelte" }).click();
+
+  const svelteTab = page.getByRole("tab", { exact: true, name: "Svelte" });
+  const sveltePanel = page.getByRole("tabpanel", {
+    exact: true,
+    name: "Svelte",
+  });
+
+  await expect(svelteTab).toHaveAttribute("aria-selected", "true");
+  await expect(sveltePanel).toBeVisible();
+  await expect(
+    sveltePanel.getByRole("heading", { name: "Reactive inventory table" }),
+  ).toBeVisible();
+
+  await addInventoryItem(sveltePanel, "Smoke Svelte Lentils");
+  await openSourceDisclosure(sveltePanel, "Svelte shell");
+  await expect(
+    sveltePanel.getByRole("link", {
+      name: "Open @starbeam-demos/table-svelte/src/App.svelte on GitHub",
     }),
   ).toBeVisible();
 });

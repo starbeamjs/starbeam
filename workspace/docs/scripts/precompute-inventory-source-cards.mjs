@@ -6,7 +6,8 @@ import { toHtml } from "astro-expressive-code/hast";
 
 import ecConfig from "../ec.config.mjs";
 
-const GENERATOR_VERSION = 3;
+const GENERATOR_VERSION = 4;
+const TWOSLASH_LANGUAGES = new Set(["ts", "tsx"]);
 const DOCS_ROOT = new URL("../", import.meta.url);
 const REPO_ROOT = new URL("../../", DOCS_ROOT);
 const OUTPUT_URL = new URL(
@@ -26,6 +27,10 @@ const SOURCES = {
   react: {
     sourcePath: "demos/table-react/src/App.tsx",
     language: "tsx",
+  },
+  svelte: {
+    sourcePath: "demos/table-svelte/src/App.svelte",
+    language: "svelte",
   },
   vue: {
     sourcePath: "demos/table-vue/src/App.vue",
@@ -122,7 +127,10 @@ for (const [name, source] of sourceEntries) {
     throw new Error(`Expected Expressive Code markup for ${name}`);
   }
 
-  if (source.language !== "vue" && !html.includes("twoslash-hover")) {
+  if (
+    TWOSLASH_LANGUAGES.has(source.language) &&
+    !html.includes("twoslash-hover")
+  ) {
     throw new Error(`Expected Expressive Code and Twoslash markup for ${name}`);
   }
 

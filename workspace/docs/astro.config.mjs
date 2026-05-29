@@ -1,6 +1,7 @@
 import preact from "@astrojs/preact";
 import react from "@astrojs/react";
 import starlight from "@astrojs/starlight";
+import svelte from "@astrojs/svelte";
 import vue from "@astrojs/vue";
 import { defineConfig } from "astro/config";
 
@@ -22,6 +23,7 @@ export default defineConfig({
         "../../demos/table-preact/src/**/*.tsx",
       ],
     }),
+    svelte(),
     vue(),
     starlight({
       title: "Starbeam",
