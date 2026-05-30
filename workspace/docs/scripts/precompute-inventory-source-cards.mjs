@@ -6,7 +6,7 @@ import { toHtml } from "astro-expressive-code/hast";
 
 import ecConfig from "../ec.config.mjs";
 
-const GENERATOR_VERSION = 4;
+const GENERATOR_VERSION = 5;
 const TWOSLASH_LANGUAGES = new Set(["ts", "tsx"]);
 const DOCS_ROOT = new URL("../", import.meta.url);
 const REPO_ROOT = new URL("../../", DOCS_ROOT);
@@ -16,6 +16,10 @@ const OUTPUT_URL = new URL(
 );
 
 const SOURCES = {
+  ember: {
+    sourcePath: "demos/table-ember/src/App.gts",
+    language: "gts",
+  },
   model: {
     sourcePath: "demos/table-core/src/table.ts",
     language: "ts",

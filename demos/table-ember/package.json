@@ -1,0 +1,42 @@
+{
+  "private": true,
+  "name": "@starbeam-demos/table-ember",
+  "type": "module",
+  "version": "1.0.0",
+  "exports": {
+    "./src/App.gts": "./src/App.gts",
+    "./src/App.js": {
+      "types": "./src/App.gts",
+      "default": "./src/App.gts"
+    },
+    "./src/styles.css": "./src/styles.css"
+  },
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite --host 0.0.0.0",
+    "preview": "vite preview --host 0.0.0.0",
+    "test:lint": "eslint . --max-warnings 0",
+    "test:types": "tsc -b"
+  },
+  "dependencies": {
+    "@fontsource/geist-sans": "^5.2.5",
+    "@glimmer/component": "2.1.1",
+    "@starbeam/ember": "workspace:^",
+    "@starbeam-demos/table-core": "workspace:*",
+    "decorator-transforms": "2.3.2",
+    "ember-source": "6.10.1",
+    "vite": "^8.0.8"
+  },
+  "devDependencies": {
+    "@babel/core": "7.29.0",
+    "@babel/plugin-transform-runtime": "7.29.0",
+    "@babel/plugin-transform-typescript": "7.28.6",
+    "@babel/runtime": "7.29.2",
+    "@embroider/macros": "1.20.2",
+    "@embroider/vite": "1.7.3",
+    "@rollup/plugin-babel": "6.1.0",
+    "babel-plugin-debug-macros": "1.0.2",
+    "babel-plugin-ember-template-compilation": "4.0.0",
+    "content-tag": "4.0.0"
+  }
+}

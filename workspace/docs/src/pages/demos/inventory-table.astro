@@ -3,6 +3,7 @@ import "@fontsource/geist-sans";
 import "@starbeam-demos/table-react/src/styles.css";
 
 import DemoSourceCard from "../../components/DemoSourceCard.astro";
+import EmberInventoryDemo from "../../components/EmberInventoryDemo.gts";
 import PreactInventoryDemo from "../../components/PreactInventoryDemo";
 import ReactInventoryDemo from "../../components/ReactInventoryDemo";
 import SourceDisclosure from "../../components/SourceDisclosure.astro";
@@ -16,6 +17,7 @@ import reactShellSource from "@starbeam-demos/table-react/src/App.tsx?raw";
 import preactShellSource from "@starbeam-demos/table-preact/src/App.tsx?raw";
 import svelteShellSource from "@starbeam-demos/table-svelte/src/App.svelte?raw";
 import vueShellSource from "@starbeam-demos/table-vue/src/App.vue?raw";
+import emberShellSource from "@starbeam-demos/table-ember/src/App.gts?raw";
 
 const SOURCE_URLS = {
   model:
@@ -28,6 +30,8 @@ const SOURCE_URLS = {
     "https://github.com/starbeamjs/starbeam/blob/main/demos/table-svelte/src/App.svelte",
   vue:
     "https://github.com/starbeamjs/starbeam/blob/main/demos/table-vue/src/App.vue",
+  ember:
+    "https://github.com/starbeamjs/starbeam/blob/main/demos/table-ember/src/App.gts",
 } as const;
 ---
 
@@ -147,6 +151,18 @@ const SOURCE_URLS = {
             data-demo-tab="svelte"
           >
             <span>Svelte</span>
+          </button>
+          <button
+            id="ember-demo-tab"
+            class="demo-tab"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="ember-demo-panel"
+            tabindex="-1"
+            data-demo-tab="ember"
+          >
+            <span>Ember</span>
           </button>
         </div>
 
@@ -280,6 +296,42 @@ const SOURCE_URLS = {
               lang="svelte"
               renderedHtml={inventorySourceCards.cards.svelte.html}
               renderedSourceHash={inventorySourceCards.cards.svelte.sourceHash}
+            />
+          </SourceDisclosure>
+        </section>
+
+        <section
+          id="ember-demo-panel"
+          class="docs-demo-panel"
+          role="tabpanel"
+          aria-labelledby="ember-demo-tab"
+          data-demo-panel="ember"
+          hidden
+        >
+          <div class="demo-panel-header">
+            <p>
+              The Ember shell authors an idiomatic
+              <code>@glimmer/component</code> and reads the table from plain
+              getters. No <code>fromStarbeam()</code> — Starbeam writes
+              invalidate the getters directly.
+            </p>
+          </div>
+          <EmberInventoryDemo client:only="gts" />
+          <SourceDisclosure
+            label="Framework source"
+            title="Ember shell"
+            filename="App.gts"
+          >
+            <DemoSourceCard
+              eyebrow="Ember shell"
+              title="@starbeam-demos/table-ember/src/App.gts"
+              githubUrl={SOURCE_URLS.ember}
+              rawSource={emberShellSource}
+              code={emberShellSource}
+              lang="gts"
+              meta="twoslash"
+              renderedHtml={inventorySourceCards.cards.ember.html}
+              renderedSourceHash={inventorySourceCards.cards.ember.sourceHash}
             />
           </SourceDisclosure>
         </section>

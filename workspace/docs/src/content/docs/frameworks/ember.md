@@ -24,6 +24,13 @@ pnpm add @starbeam/ember @starbeam/universal @starbeam/collections
 `ember-source` is a peer dependency. `ember-modifier` is optional unless you use
 element-resource modifiers.
 
+Import `@starbeam/ember` somewhere your app loads. The import installs the bridge
+that mirrors Starbeam reads into Glimmer autotracking. Without it, plain getters
+that read Starbeam state will not rerender, even if you never call any other
+adapter API. Importing `setupService`, `setupResource`, or `fromStarbeam` from
+the package counts; if you only use plain getters, add a bare
+`import "@starbeam/ember";` once at app startup.
+
 ## Keep the model ordinary JavaScript
 
 Start by marking the storage that changes. The rest of the model can be normal

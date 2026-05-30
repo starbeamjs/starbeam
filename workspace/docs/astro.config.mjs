@@ -5,6 +5,8 @@ import svelte from "@astrojs/svelte";
 import vue from "@astrojs/vue";
 import { defineConfig } from "astro/config";
 
+import starbeamGlimmer from "./src/glimmer-renderer/integration.mjs";
+
 export default defineConfig({
   site: "https://starbeamjs.com",
   devToolbar: {
@@ -25,6 +27,7 @@ export default defineConfig({
     }),
     svelte(),
     vue(),
+    starbeamGlimmer(),
     starlight({
       title: "Starbeam",
       description: "Starbeam is reactivity that stays JavaScript.",
