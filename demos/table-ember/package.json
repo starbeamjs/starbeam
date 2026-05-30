@@ -16,7 +16,7 @@
     "dev": "vite --host 0.0.0.0",
     "preview": "vite preview --host 0.0.0.0",
     "test:lint": "eslint . --max-warnings 0",
-    "test:types": "tsc -b"
+    "test:types": "ember-tsc -b"
   },
   "dependencies": {
     "@fontsource/geist-sans": "^5.2.5",
@@ -33,7 +33,8 @@
     "@babel/plugin-transform-typescript": "7.28.6",
     "@babel/runtime": "7.29.2",
     "@embroider/macros": "1.20.2",
-    "@embroider/vite": "1.7.3",
+    "@glint/ember-tsc": "1.7.5",
+    "@glint/template": "1.7.7",
     "@rollup/plugin-babel": "6.1.0",
     "babel-plugin-debug-macros": "1.0.2",
     "babel-plugin-ember-template-compilation": "4.0.0",

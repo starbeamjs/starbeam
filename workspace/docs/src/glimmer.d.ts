@@ -7,7 +7,7 @@ declare module "*.gts" {
   // The default export is a Glimmer component compiled at build time. Astro's
   // JSX checker treats unknown component shapes as `never` for the `client:*`
   // directives, so the export is typed loosely to let the custom
-  // `client:only="@starbeam/astro-glimmer"` renderer accept it.
+  // `client:only="gts"` renderer accept it.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const component: any;
   export default component;

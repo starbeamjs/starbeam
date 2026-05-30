@@ -3,10 +3,10 @@
 //
 // Two responsibilities:
 //
-//   1. `addRenderer` registers a renderer named `@starbeam/astro-glimmer`
-//      (used via the matching `client:only` value). The `serverEntrypoint`'s
-//      `check` returns false so SSR never claims the island; Astro 5 still
-//      requires the entrypoint to be present.
+//   1. `addRenderer` registers a renderer named `gts` so that a `.gts` island
+//      with `client:only="gts"` resolves to it by extension. The
+//      `serverEntrypoint`'s `check` returns false so SSR never claims the
+//      island; Astro 5 still requires the entrypoint to be present.
 //
 //   2. `updateConfig({ vite })` injects the same standalone GTS pipeline the
 //      `@starbeam-demos/table-ember` package uses (content-tag + babel +

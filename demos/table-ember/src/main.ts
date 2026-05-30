@@ -6,7 +6,7 @@ import "@starbeam/ember";
 
 import { renderComponent } from "@ember/renderer";
 
-import App from "./App.js";
+import App from "./App.gts";
 
 const element = document.getElementById("root");
 
@@ -14,4 +14,7 @@ if (!element) {
   throw new Error("Missing #root element");
 }
 
+// ESLint's TypeScript parser doesn't understand `.gts`, so `App` comes in
+// untyped here. Glint (`ember-tsc`) is what actually type-checks this import.
+// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 renderComponent(App, { into: element, owner: {} });

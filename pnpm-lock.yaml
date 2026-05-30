@@ -214,9 +214,12 @@ importers:
       '@embroider/macros':
         specifier: 1.20.2
         version: 1.20.2(@babel/core@7.29.0)(@glint/template@1.7.7)
-      '@embroider/vite':
-        specifier: 1.7.3
-        version: 1.7.3(@embroider/core@4.4.7(@glint/template@1.7.7))(@glint/template@1.7.7)(vite@8.0.13(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
+      '@glint/ember-tsc':
+        specifier: 1.7.5
+        version: 1.7.5(ember-source@6.10.1(@glimmer/component@2.1.1)(rsvp@4.8.5))(typescript@6.0.3)
+      '@glint/template':
+        specifier: 1.7.7
+        version: 1.7.7
       '@rollup/plugin-babel':
         specifier: 6.1.0
         version: 6.1.0(@babel/core@7.29.0)(@types/babel__core@7.20.5)(rollup@4.60.1)

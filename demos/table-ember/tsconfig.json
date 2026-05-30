@@ -2,12 +2,24 @@
   "extends": "../../.config/tsconfig/tsconfig.shared.json",
   "compilerOptions": {
     "composite": true,
-    "types": ["../../packages/env.d.ts", "ember-source/types"],
+    "types": [
+      "../../packages/env.d.ts",
+      "ember-source/types",
+      "@glint/ember-tsc/types"
+    ],
     "noEmit": true
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "vite.config.mjs"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.gts",
+    "vite.config.mjs"
+  ],
   "references": [
-    { "path": "../table-core/tsconfig.json" },
-    { "path": "../../packages/ember/ember/tsconfig.json" }
+    {
+      "path": "../table-core/tsconfig.json"
+    },
+    {
+      "path": "../../packages/ember/ember/tsconfig.json"
+    }
   ]
 }
