@@ -1,0 +1,5 @@
+# Precomputed Twoslash/expressive-code HTML for the inventory demo source cards.
+# Each entry is a multi-hundred-KB minified string on a single line, which makes
+# line-oriented diffing and automated code review choke. Mark it as generated so
+# GitHub (and Copilot's reviewer) treat it as an artifact instead of source.
+workspace/docs/src/generated/inventory-source-cards.json linguist-generated=true -diff
