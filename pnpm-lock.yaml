@@ -211,9 +211,15 @@ importers:
       '@babel/runtime':
         specifier: 7.29.2
         version: 7.29.2
+      '@embroider/core':
+        specifier: 4.4.7
+        version: 4.4.7(@glint/template@1.7.7)
       '@embroider/macros':
         specifier: 1.20.2
         version: 1.20.2(@babel/core@7.29.0)(@glint/template@1.7.7)
+      '@embroider/vite':
+        specifier: 1.7.3
+        version: 1.7.3(@embroider/core@4.4.7(@glint/template@1.7.7))(@glint/template@1.7.7)(vite@8.0.13(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
       '@glint/ember-tsc':
         specifier: 1.7.5
         version: 1.7.5(ember-source@6.10.1(@glimmer/component@2.1.1)(rsvp@4.8.5))(typescript@6.0.3)
@@ -227,9 +233,6 @@ importers:
         specifier: 1.0.2
         version: 1.0.2(@babel/core@7.29.0)
       babel-plugin-ember-template-compilation:
-        specifier: 4.0.0
-        version: 4.0.0
-      content-tag:
         specifier: 4.0.0
         version: 4.0.0
 
@@ -1997,9 +2000,15 @@ importers:
       '@babel/runtime':
         specifier: 7.29.2
         version: 7.29.2
+      '@embroider/core':
+        specifier: 4.4.7
+        version: 4.4.7(@glint/template@1.7.7)
       '@embroider/macros':
         specifier: 1.20.2
         version: 1.20.2(@babel/core@7.29.0)(@glint/template@1.7.7)
+      '@embroider/vite':
+        specifier: 1.7.3
+        version: 1.7.3(@embroider/core@4.4.7(@glint/template@1.7.7))(@glint/template@1.7.7)(vite@8.0.13(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
       '@fontsource/geist-sans':
         specifier: ^5.2.5
         version: 5.2.5
@@ -2058,9 +2067,6 @@ importers:
         specifier: 1.0.2
         version: 1.0.2(@babel/core@7.29.0)
       babel-plugin-ember-template-compilation:
-        specifier: 4.0.0
-        version: 4.0.0
-      content-tag:
         specifier: 4.0.0
         version: 4.0.0
       decorator-transforms:
@@ -6264,9 +6270,6 @@ packages:
   content-disposition@0.5.4:
     resolution: {integrity: sha512-FveZTNuGw04cxlAiWbzi6zTAL/lhehaWbTtgluJh4/E95DqMwTmha3KZN1aAWA8cFIhHzMZUvLevkw5Rqk+tSQ==}
     engines: {node: '>= 0.6'}
-
-  content-tag@4.0.0:
-    resolution: {integrity: sha512-qqJiY9nueYAI396MOmfOk+w/0KL6ERKxANQcSKcR0CrNTc38yT//b73l+WHr9brZx57bFHNaW7a/6Yll0bn95w==}
 
   content-tag@4.2.0:
     resolution: {integrity: sha512-f/o+F3qSa4gg23I7RWy6cMDxP2nPo99YWusxw2bjne7ZC6Acqqf4uB/+87AekOq1ehTocHH7b7nMd2X4S3NHVw==}
@@ -15506,8 +15509,6 @@ snapshots:
   content-disposition@0.5.4:
     dependencies:
       safe-buffer: 5.2.1
-
-  content-tag@4.0.0: {}
 
   content-tag@4.2.0: {}
 

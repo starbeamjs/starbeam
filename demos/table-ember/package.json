@@ -32,12 +32,13 @@
     "@babel/plugin-transform-runtime": "7.29.0",
     "@babel/plugin-transform-typescript": "7.28.6",
     "@babel/runtime": "7.29.2",
+    "@embroider/core": "4.4.7",
     "@embroider/macros": "1.20.2",
+    "@embroider/vite": "1.7.3",
     "@glint/ember-tsc": "1.7.5",
     "@glint/template": "1.7.7",
     "@rollup/plugin-babel": "6.1.0",
     "babel-plugin-debug-macros": "1.0.2",
-    "babel-plugin-ember-template-compilation": "4.0.0",
-    "content-tag": "4.0.0"
+    "babel-plugin-ember-template-compilation": "4.0.0"
   }
 }

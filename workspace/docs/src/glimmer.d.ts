@@ -1,5 +1,5 @@
 // Glimmer template (`.gts`) modules are compiled at build time by the local
-// `@starbeam/astro-glimmer` integration (content-tag + babel). Astro's type
+// `@starbeam/astro-glimmer` integration (Embroider + Babel). Astro's type
 // checker does not know the `.gts` extension, so declare the two shapes the
 // docs import: the default-exported Glimmer component, and the `?raw` source
 // string used to render the source card.

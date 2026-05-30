@@ -15,7 +15,6 @@ export default {
     [
       "babel-plugin-ember-template-compilation",
       {
-        compilerPath: "ember-source/dist/ember-template-compiler.js",
         transforms: [...macros.templateMacros],
         targetFormat: "wire",
       },
@@ -23,8 +22,12 @@ export default {
     [
       "module:decorator-transforms",
       {
+        // Resolve the decorator runtime helpers to the ESM build explicitly.
+        // The plugin's default runtime import doesn't resolve in this Vite
+        // pipeline, so the emitted decorator helper throws at runtime without
+        // this. (Redundant in some Embroider builds, load-bearing here.)
         runtime: {
-          import: "decorator-transforms/runtime-esm",
+          import: import.meta.resolve("decorator-transforms/runtime-esm"),
         },
       },
     ],
@@ -50,6 +53,7 @@ export default {
     [
       "@babel/plugin-transform-runtime",
       {
+        absoluteRuntime: import.meta.dirname,
         useESModules: true,
         regenerator: false,
       },

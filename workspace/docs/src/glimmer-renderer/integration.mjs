@@ -1,5 +1,5 @@
 // Local Astro integration that teaches Astro how to render Glimmer (`.gts`)
-// islands and how to compile `.gts` sources through Vite.
+// islands and how to compile Ember/GTS sources through Vite.
 //
 // Two responsibilities:
 //
@@ -8,18 +8,16 @@
 //      `serverEntrypoint`'s `check` returns false so SSR never claims the
 //      island; Astro 5 still requires the entrypoint to be present.
 //
-//   2. `updateConfig({ vite })` injects the same standalone GTS pipeline the
-//      `@starbeam-demos/table-ember` package uses (content-tag + babel +
-//      ember-source virtual-module resolution), scoped via `include` to the
-//      Ember shell and its docs wrapper so it never touches other framework
-//      islands.
-import { existsSync } from "node:fs";
+//   2. `updateConfig({ vite })` injects Embroider's Vite plugin plus the
+//      same Babel pass the standalone Ember demo uses, scoped via `include`
+//      to the Ember shell, its docs wrapper, and ember-source dist files that
+//      still contain `@embroider/macros` calls.
 import { createRequire } from "node:module";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { ember, extensions } from "@embroider/vite";
 import { babel } from "@rollup/plugin-babel";
-import { Preprocessor } from "content-tag";
 
 const require = createRequire(import.meta.url);
 const emberSourcePackages = dirname(
@@ -29,59 +27,6 @@ const emberSourceDist = resolve(emberSourcePackages, "dist/packages");
 const babelConfigPath = fileURLToPath(
   new URL("babel.config.mjs", import.meta.url),
 );
-
-const preprocessor = new Preprocessor();
-const GTS_EXTENSIONS = [".gjs", ".gts"];
-const EMBER_VIRTUAL = /^(@ember|@glimmer)\/(.+)$/u;
-const GLIMMER_COMPONENT = /^@glimmer\/component(\/|$)/u;
-
-/** @returns {import('vite').Plugin} */
-function gtsPlugin() {
-  return {
-    name: "starbeam-glimmer-content-tag",
-    enforce: "pre",
-    transform(code, id) {
-      if (!/\.g[jt]s$/u.test(id)) {
-        return null;
-      }
-
-      const result = preprocessor.process(code, { filename: id });
-
-      return { code: result.code, map: result.map };
-    },
-  };
-}
-
-/** @returns {import('vite').Plugin} */
-function emberSourceModules() {
-  return {
-    name: "starbeam-glimmer-source-modules",
-    enforce: "pre",
-    resolveId(source) {
-      if (GLIMMER_COMPONENT.test(source)) {
-        return null;
-      }
-
-      const match = EMBER_VIRTUAL.exec(source);
-
-      if (!match) {
-        return null;
-      }
-
-      const scope = match[1];
-      const rest = match[2];
-
-      if (scope === undefined || rest === undefined) {
-        return null;
-      }
-
-      const base = resolve(emberSourceDist, scope, rest);
-      const candidates = [resolve(base, "index.js"), `${base}.js`];
-
-      return candidates.find((candidate) => existsSync(candidate)) ?? null;
-    },
-  };
-}
 
 /** @returns {import('astro').AstroIntegration} */
 export default function starbeamGlimmer() {
@@ -116,11 +61,10 @@ export default function starbeamGlimmer() {
               exclude: ["content-tag"],
             },
             plugins: [
-              gtsPlugin(),
-              emberSourceModules(),
+              ember(),
               babel({
                 babelHelpers: "runtime",
-                extensions: [...GTS_EXTENSIONS, ".js"],
+                extensions,
                 configFile: babelConfigPath,
                 include: [
                   "**/demos/table-ember/src/**/*.{gjs,gts}",
