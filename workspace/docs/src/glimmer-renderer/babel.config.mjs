@@ -31,24 +31,6 @@ export default {
         },
       },
     ],
-    [
-      "babel-plugin-debug-macros",
-      {
-        flags: [
-          {
-            source: "@glimmer/env",
-            flags: { DEBUG: true, CI: false },
-          },
-        ],
-        debugTools: {
-          isDebug: true,
-          source: "@ember/debug",
-          assertPredicateIndex: 1,
-        },
-        externalizeHelpers: { module: "@ember/debug" },
-      },
-      "@ember/debug stripping",
-    ],
     ...macros.babelMacros,
     [
       "@babel/plugin-transform-runtime",

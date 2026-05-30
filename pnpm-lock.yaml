@@ -229,9 +229,6 @@ importers:
       '@rollup/plugin-babel':
         specifier: 6.1.0
         version: 6.1.0(@babel/core@7.29.0)(@types/babel__core@7.20.5)(rollup@4.60.1)
-      babel-plugin-debug-macros:
-        specifier: 1.0.2
-        version: 1.0.2(@babel/core@7.29.0)
       babel-plugin-ember-template-compilation:
         specifier: 4.0.0
         version: 4.0.0
@@ -2063,9 +2060,6 @@ importers:
       astro-expressive-code:
         specifier: 0.41.7
         version: 0.41.7(astro@5.18.1(@types/node@25.6.0)(jiti@2.6.1)(rollup@4.60.1)(terser@5.46.1)(tsx@4.21.0)(typescript@6.0.3)(yaml@2.8.3))
-      babel-plugin-debug-macros:
-        specifier: 1.0.2
-        version: 1.0.2(@babel/core@7.29.0)
       babel-plugin-ember-template-compilation:
         specifier: 4.0.0
         version: 4.0.0
@@ -5645,10 +5639,6 @@ packages:
     resolution: {integrity: sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==}
     engines: {node: '>= 0.4'}
 
-  babel-import-util@2.1.1:
-    resolution: {integrity: sha512-3qBQWRjzP9NreSH/YrOEU1Lj5F60+pWSLP0kIdCWxjFHH7pX2YPHIxQ67el4gnMNfYoDxSDGcT0zpVlZ+gVtQA==}
-    engines: {node: '>= 12.*'}
-
   babel-import-util@3.0.1:
     resolution: {integrity: sha512-2copPaWQFUrzooJVIVZA/Oppx/S/KOoZ4Uhr+XWEQDMZ8Rvq/0SNQpbdIyMBJ8IELWt10dewuJw+tX4XjOo7Rg==}
     engines: {node: '>= 12.*'}
@@ -5656,12 +5646,6 @@ packages:
   babel-plugin-debug-macros@0.3.4:
     resolution: {integrity: sha512-wfel/vb3pXfwIDZUrkoDrn5FHmlWI96PCJ3UCDv2a86poJ3EQrnArNW5KfHSVJ9IOgxHbo748cQt7sDU+0KCEw==}
     engines: {node: '>=6'}
-    peerDependencies:
-      '@babel/core': ^7.0.0
-
-  babel-plugin-debug-macros@1.0.2:
-    resolution: {integrity: sha512-ADkMh1LL45678c+4iGn3Fp8hdI9qvxGBkH5x9HNiIlgYJGdQWmYNcA2cS3XAr76N85kDCg4VpqsTN1hFX2jbEA==}
-    engines: {node: '>=16'}
     peerDependencies:
       '@babel/core': ^7.0.0
 
@@ -14938,20 +14922,12 @@ snapshots:
 
   axobject-query@4.1.0: {}
 
-  babel-import-util@2.1.1: {}
-
   babel-import-util@3.0.1: {}
 
   babel-plugin-debug-macros@0.3.4(@babel/core@7.29.0):
     dependencies:
       '@babel/core': 7.29.0
       semver: 5.7.2
-
-  babel-plugin-debug-macros@1.0.2(@babel/core@7.29.0):
-    dependencies:
-      '@babel/core': 7.29.0
-      babel-import-util: 2.1.1
-      semver: 7.7.4
 
   babel-plugin-ember-data-packages-polyfill@0.1.2:
     dependencies:
