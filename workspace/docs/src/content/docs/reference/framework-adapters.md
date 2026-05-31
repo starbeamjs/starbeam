@@ -1,6 +1,6 @@
 ---
 title: Framework adapters
-description: "Reference for Starbeam's React, Preact, Ember, Vue, and Svelte adapter surfaces."
+description: "Reference for Starbeam's React, Preact, Vue, Svelte, and Ember adapter surfaces."
 ---
 
 Framework adapters connect Starbeam reads, resources, services, and element

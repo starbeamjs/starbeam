@@ -1,14 +1,14 @@
 ---
 title: Framework guides
-description: "Starbeam's framework adapters connect the same reactive model to React, Preact, Ember, Vue, and Svelte as each adapter matures."
+description: "Starbeam's framework adapters connect the same reactive model to React, Preact, Vue, Svelte, and Ember as each adapter matures."
 ---
 
 Starbeam's state model is framework-neutral. Framework adapters make it feel
 native by connecting Starbeam's reactive model to each framework's rendering and
 lifecycle rules.
 
-The goal is not one framework with incidental ports. React, Preact, Ember, Vue,
-and Svelte are public docs targets, with adapter coverage maturing at different
+The goal is not one framework with incidental ports. React, Preact, Vue, Svelte,
+and Ember are public docs targets, with adapter coverage maturing at different
 speeds.
 
 ## Same model, native edges
@@ -30,8 +30,9 @@ Svelte.
 Need the package list first? Start with [Install Starbeam](/start/install/).
 
 Want to see the same model running inside the docs site? The
-[inventory table demo](/demos/inventory-table/) embeds React and Preact versions
-that both use the same `@starbeam-demos/table-core` package.
+[inventory table demo](/demos/inventory-table/) embeds React, Preact, Vue,
+Svelte, and Ember shells that all use the same `@starbeam-demos/table-core`
+package. The model stays unchanged; each tab shows the framework edge.
 
 ## Guides
 
@@ -39,13 +40,13 @@ that both use the same `@starbeam-demos/table-core` package.
   services, and element resources.
 - [**Preact**](/frameworks/preact/): adapter installation, reactive reads,
   resources, services, and element resources.
-- [**Ember**](/frameworks/ember/): native Glimmer autotracking for Starbeam
-  reads, plus resources, services, and element resources.
 - [**Vue**](/frameworks/vue/): setup helpers and directives for reactive state,
   resources, services, and element resources.
-- [**Svelte**](/frameworks/svelte/): current Svelte 5 slice with experimental
+- [**Svelte**](/frameworks/svelte/): Svelte 5 adapter with experimental
   `fromStarbeam()` reads and element-resource attachments. Component-resource and
   service helpers are not exposed yet.
+- [**Ember**](/frameworks/ember/): native Glimmer autotracking for Starbeam
+  reads, plus resources, services, and element resources.
 
 Some guide details may mature at different speeds. The top-level posture stays
 the same: Starbeam is designed to make the same domain-shaped reactive model work
