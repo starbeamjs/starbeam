@@ -1,0 +1,9 @@
+# Unlabeled Changes
+
+* Other
+  * [#319](https://github.com/starbeamjs/starbeam/pull/319) chore(docs): stop committing generated inventory-source-cards.json ([@wycats](https://github.com/wycats))
+* `@starbeam/resource`
+  * [#309](https://github.com/starbeamjs/starbeam/pull/309) Hide finalize alias from authoring types ([@wycats](https://github.com/wycats))
+
+
+*Cannot plan release until the above changes are labeled*.
