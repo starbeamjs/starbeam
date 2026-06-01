@@ -13,9 +13,9 @@ Install the packages you import directly. Most apps need one framework adapter,
 | A framework-neutral model | `@starbeam/universal @starbeam/collections`                  | `reactive` collections, domain objects, and `Resource`                               |
 | A React app               | `@starbeam/react @starbeam/universal @starbeam/collections`  | `useReactive()`, `useResource()`, `useService()`, `useElementResource()`             |
 | A Preact app              | `@starbeam/preact @starbeam/universal @starbeam/collections` | `install(options)`, direct render reads, resource/service hooks                      |
-| An Ember app              | `@starbeam/ember @starbeam/universal @starbeam/collections`  | direct Glimmer-tracked reads, `setupResource()`, `setupService()`, element modifiers |
 | A Vue app                 | `@starbeam/vue @starbeam/universal @starbeam/collections`    | `useReactive()`, `setupResource()`, `setupService()`, element-resource directives    |
 | A Svelte app              | `@starbeam/svelte @starbeam/universal @starbeam/collections` | Svelte 5 read bridge: experimental `fromStarbeam()` and element-resource attachments |
+| An Ember app              | `@starbeam/ember @starbeam/universal @starbeam/collections`  | direct Glimmer-tracked reads, `setupResource()`, `setupService()`, element modifiers |
 | A reusable library        | `@starbeam/universal @starbeam/collections`                  | framework-neutral state and domain-shaped APIs                                       |
 
 ## Framework-neutral state
