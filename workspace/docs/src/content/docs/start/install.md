@@ -104,6 +104,25 @@ Vue uses `useReactive()` for direct template reads, `setupReactive()` when you
 want a specific Starbeam read as a Vue ref, and directives for element resources:
 [Vue](/frameworks/vue/).
 
+### Svelte
+
+```sh
+pnpm add @starbeam/svelte @starbeam/universal @starbeam/collections
+```
+
+```ts
+import {
+  elementResource,
+  elementResourceAttachment,
+  elementResourceStore,
+  fromStarbeam,
+} from "@starbeam/svelte";
+```
+
+Svelte currently exposes experimental Starbeam reads through `fromStarbeam()` and
+DOM element resources through Svelte 5 element-resource attachments. Component-resource and
+app-service helpers are not exposed yet. See [Svelte](/frameworks/svelte/).
+
 ### Ember
 
 ```sh
@@ -122,25 +141,6 @@ Ember's adapter mirrors Starbeam reads into Glimmer autotracking, so templates
 and getters can read Starbeam-backed domain objects directly. Use
 `setupResource()` for component-owned resources, `setupService()` for
 owner-scoped services, and modifiers for element resources: [Ember](/frameworks/ember/).
-
-### Svelte
-
-```sh
-pnpm add @starbeam/svelte @starbeam/universal @starbeam/collections
-```
-
-```ts
-import {
-  elementResource,
-  elementResourceAttachment,
-  elementResourceStore,
-  fromStarbeam,
-} from "@starbeam/svelte";
-```
-
-Svelte currently exposes experimental Starbeam reads through `fromStarbeam()` and
-DOM element resources through Svelte 5 attachments. Component-resource and
-app-service helpers are not exposed yet. See [Svelte](/frameworks/svelte/).
 
 ## Direct packages
 
